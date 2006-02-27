@@ -2,21 +2,20 @@
 """IMAP4rev1 client library written with aim to be as much RFC3501 compliant as possible and wise :)
 
 References: IMAP4rev1 - RFC3501
+
+Author: Jan Kundrát <jkt@flaska.net>
+Inspired by the Python's imaplib library.
 """
 
-# Author: Jan Kundrát <jkt@flaska.net>
-# Inspired by the Python's imaplib library.
-
-__version__ = "$Revision: 2 $"
-# $Id: ymaplib.py 2 2006-02-27 22:27:29Z jkt $
-# $HeadURL: file:///home/jkt/svn/trojita/ymaplib/ymaplib.py $
-
-__all__ = ["IMAPStream", "IMAPResponse", "StreamProcess", "StreamTCP"]
+__version__ = "$Revision$"
+# $Id$
+# $HeadURL$
 
 import re
-
 if __debug__:
     import sys, time
+
+__all__ = ["IMAPStream", "IMAPResponse", "StreamProcess", "StreamTCP"]
 
 CRLF = "\r\n"
 
@@ -165,7 +164,7 @@ class IMAPStream:
         if not line.endswith(CRLF):
             raise self.InvalidResponseError("line doesn't end with CRLF")
 
-        # trim the trailing CRLF
+        # Trim the trailing CRLF
         line = line[:-len(CRLF)]
 
         if __debug__:
