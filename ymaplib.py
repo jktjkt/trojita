@@ -7,9 +7,8 @@ Author: Jan Kundrát <jkt@flaska.net>
 Inspired by the Python's imaplib library.
 """
 
-__version__ = "$Revision$"
+__version__ = "0.1"
 # $Id$
-# $HeadURL$
 
 import re
 if __debug__:
