@@ -198,7 +198,6 @@ class IMAPParser:
         self.in_progress -= 1
         return responses
 
-
     def _parse_line(self, line, current_tag):
         """Parse one line of the response to the IMAP_response object."""
         response = IMAPResponse()
@@ -273,8 +272,8 @@ class IMAPParser:
         # now it's time to convert textual data in response.data to something better
         return self._parse_response_data(response)
 
-
-    def _helper_foreach(self, item, iterable):
+    @classmethod
+    def _helper_foreach(cls, item, iterable):
         """Helper function - if line matches iterable[x][1], returns (iterable[x][0], r.match(item))"""
         for name, r in iterable:
             foo = r.match(item)
@@ -369,7 +368,6 @@ class IMAPParser:
                     response.data = ()
                 else:
                     try:
-                        #items = map(lambda x: int(x), items)
                         items = map(int, items)
                     except ValueError:
                         raise self.ParseError(response)
@@ -480,7 +478,8 @@ class IMAPParser:
         else:
             return self._extract_astring(string)
 
-    def _extract_astring(self, string):
+    @classmethod
+    def _extract_astring(cls, string):
         """Extract an astring from string. Astring can't be literal."""
         string = string.lstrip(' ')
         if string.startswith('"'):
@@ -490,7 +489,7 @@ class IMAPParser:
                 buf = string[1:pos]
                 string = string[pos + 1:]
             except ValueError:
-                raise self.ParseError(string)
+                raise cls.ParseError(string)
         elif string.startswith('(') or string.startswith(')'):
             # "(" or ")"
             buf = string[0]
