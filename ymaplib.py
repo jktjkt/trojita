@@ -171,7 +171,7 @@ class IMAPStream:
                 self._log('< %s' % line)
         return line
 
-    def _responses(self):
+    def responses(self):
         """Parse the server's responses. Expects zero or more untagged replies
         and one tagged reply. Returns a list of IMAP_response objects."""
         responses = []
@@ -463,7 +463,7 @@ class IMAPStream:
         return (buf, string)
 
 
-    def _send_command(self, command):
+    def send_command(self, command):
         """Sends a raw command, wrapping it with apropriate tag"""
         self.in_progress += 1
         self.tag_current += 1
@@ -494,4 +494,4 @@ if __name__ == "__main__":
         sys.exit()
     stream = ProcessStream([sys.argv[1]])
     c = IMAPStream(stream, 5)
-    """debug = 10; import ymaplib; y=ymaplib.IMAPStream(ymaplib.StreamProcess('dovecot --exec-mail imap'), debug); y._parse_line(y._get_line(), None); y._send_command('capability'); y._responses(); y._send_command('examine gentoo.gentoo-user-cs'); y._responses(); y._send_command('select gentoo.gentoo-user-cs'); y._responses(); y._send_command('fetch 1 full'); y._responses(); y._send_command('status inbox ()'); y._responses()"""
+    """debug = 10; import ymaplib; y=ymaplib.IMAPStream(ymaplib.StreamProcess('dovecot --exec-mail imap'), debug); y._parse_line(y._get_line(), None); y.send_command('capability'); y.responses(); y.send_command('select gentoo.gentoo-user-cs'); y.responses(); y.send_command('fetch 1 full'); y.responses(); y.send_command('status inbox ()'); y.responses()"""
