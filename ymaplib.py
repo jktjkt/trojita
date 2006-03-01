@@ -53,13 +53,12 @@ class IMAPResponse:
         self.data = ()                    # string with human readable text or tuple with parsed items
 
     def __repr__(self):
-        s = "<ymaplib.IMAP_response - "
+        s = "<ymaplib.IMAPResponse - "
         if self.tagged:
             s += "Tagged"
         else:
             s += "Untagged"
-        return s + ", kind: " + self.kind.__repr__() + ', response_code: ' \
-               + self.response_code.__repr__() + ", data: " + self.data.__repr__() + ">"
+        return s + ", kind: " + str(self.kind) + ', response_code: ' + str(self.response_code) + ", data: " + str(self.data) + ">"
 
 
 class IMAPParser:
