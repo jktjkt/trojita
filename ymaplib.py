@@ -14,11 +14,11 @@ import re
 if __debug__:
     import sys, time
 
-__all__ = ["IMAPStream", "IMAPResponse", "StreamProcess", "StreamTCP"]
+__all__ = ["IMAPParser", "IMAPResponse", "ProcessStream", "TCPStream"]
 
 CRLF = "\r\n"
 
-class StreamProcess:
+class ProcessStream:
     """Streamable interface to local process. Supports read(), readline(), write() and flush() methods."""
 
     def __init__(self, command):
@@ -29,7 +29,7 @@ class StreamProcess:
         self.write = self._w.write
         self.flush = self._w.flush
 
-class StreamTCP:
+class TCPStream:
     """Streamed TCP/IP connection"""
 
     def __init__(self, host, port):
@@ -62,7 +62,7 @@ class IMAPResponse:
                + self.response_code.__repr__() + ", data: " + self.data.__repr__() + ">"
 
 
-class IMAPStream:
+class IMAPParser:
     """Streamed connection to the IMAP4rev1 compliant IMAP server"""
 
     class NotImplementedError(Exception):
@@ -492,5 +492,5 @@ if __name__ == "__main__":
         print "Usage: %s path/to/imapd" % sys.argv[0]
         sys.exit()
     stream = ProcessStream([sys.argv[1]])
-    c = IMAPStream(stream, 5)
-    """debug = 10; import ymaplib; y=ymaplib.IMAPStream(ymaplib.StreamProcess('dovecot --exec-mail imap'), debug); y._parse_line(y._get_line(), None); y.send_command('capability'); y.responses(); y.send_command('select gentoo.gentoo-user-cs'); y.responses(); y.send_command('fetch 1 full'); y.responses(); y.send_command('status inbox ()'); y.responses()"""
+    c = IMAPParser(stream, 5)
+    """debug = 10; import ymaplib; y=ymaplib.IMAPParser(ymaplib.ProcessStream('dovecot --exec-mail imap'), debug); y._parse_line(y._get_line(), None); y.send_command('capability'); y.responses(); y.send_command('select gentoo.gentoo-user-cs'); y.responses(); y.send_command('fetch 1 full'); y.responses(); y.send_command('status inbox ()'); y.responses()"""
