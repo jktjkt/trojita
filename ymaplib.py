@@ -61,6 +61,16 @@ class IMAPResponse:
         return s + ", kind: " + str(self.kind) + ', response_code: ' + str(self.response_code) + ", data: " + str(self.data) + ">"
 
 
+class IMAPThreadItem:
+    """One message in the threaded mailbox"""
+    def __init__(self):
+        self.id = None
+        self.children = None
+
+    def __repr__(self):
+        return "<ymaplib.IMAPThreadItem %s: %s>" % (self.id, self.children)
+
+
 class IMAPParser:
     """Streamed connection to the IMAP4rev1 compliant IMAP server"""
 
@@ -97,6 +107,8 @@ class IMAPParser:
     _resp_message_status = ('EXPUNGE', 'FETCH')
     # 7.5 - Server Responses - Command Continuation Request
     # handled in _parse_response_line()
+    # draft-ietf-imapext-sort-17:
+    _resp_imapext_sort = ('SORT', 'THREAD')
 
     _response_code_single = ('ALERT', 'PARSE', 'READ-ONLY', 'READ-WRITE', 'TRYCREATE')
     _response_code_number = ('UIDNEXT', 'UIDVALIDITY', 'UNSEEN')
@@ -117,6 +129,7 @@ class IMAPParser:
                                       _resp_server_mailbox_status)
     _re_resp_mailbox_size = _make_res(r'^(\d+) %s', _resp_mailbox_size)
     _re_resp_message_status = _make_res(r'^(\d+) %s ?(.*)', _resp_message_status) # the ' ?(.*)' is here to allow matching of FETCH responses
+    _re_resp_imapext_sort = _make_res('^%s ?(.*)', _resp_imapext_sort)
 
     _re_response_code_single = _make_res('%s', _response_code_single)
     _re_response_code_number = _make_res('%s', _response_code_number)
@@ -238,7 +251,7 @@ class IMAPParser:
             # the rest of the line should be only a string
             response.data = line
         elif not response.tagged:
-            for test in (self._re_resp_server_mailbox_status, self._re_resp_mailbox_size, self._re_resp_message_status):
+            for test in (self._re_resp_server_mailbox_status, self._re_resp_mailbox_size, self._re_resp_message_status, self._re_resp_imapext_sort):
                 (response.kind, r) = self._helper_foreach(line, test)
                 if response.kind == 'FETCH':
                     # FETCH response will have two items as the result
@@ -246,6 +259,7 @@ class IMAPParser:
                         response.data = (r.groups()[0], r.groups()[1])
                     except IndexError:
                         raise self.ParseError(line)
+                    break
                 elif response.kind is not None:
                     # we've matched against some command
                     response.data = r.groups()[0]
@@ -310,7 +324,7 @@ class IMAPParser:
             elif response.kind in self._resp_mailbox_size or response.kind == 'EXPUNGE':
                 # "* number FOO"
                 response.data = int(response.data)
-            elif response.kind == 'CAPABILITY':
+            elif response.kind == 'CAPABILITY' or response.kind == 'SORT':
                 response.data = tuple(response.data.split(' '))
             elif response.kind == 'LIST' or response.kind == 'LSUB':
                 # [name_attributes, hierarchy_delimiter, name]
@@ -380,6 +394,9 @@ class IMAPParser:
                     line = line[1:]
                 response.data = (msgno, self._parse_parenthesized_line(line)[0])
                 # FIXME: add handling of response fields
+            elif response.kind == 'THREAD':
+                # "* THREAD data"
+                response.data = self._parse_thread_response(response.data[0])
             else:
                 raise self.NotImplementedError(response)
         return response
@@ -406,6 +423,27 @@ class IMAPParser:
             else:
                 buf.append(s)
         return (tuple(buf), line)
+
+    def _parse_thread_response(self, line):
+        """Parse draft-ietf-imapext-sort-17 THREAD respone into Python data structure"""
+        # FIXME needs actual implementation :)
+        buf = []
+        while 1:
+            (s, line) = self._extract_astring(line)
+            # number space      -> go one level down
+            # number space? '(' -> start subthread
+            # number space? ')' -> end subthread
+            # ')' space? '('    -> new subthread, sibling to the current one
+            print s
+            #if s == ' ':
+            #    (s, line) = self._parse_thread_response(line)
+            #    buf.append(s)
+            #elif s == ')':
+            #    return buf
+            #elif s == '('
+            if line == '':
+                break
+        return (buf, line)
 
     def _extract_string(self, string):
         """Extract string, including checks for literals"""
