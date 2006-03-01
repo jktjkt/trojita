@@ -369,11 +369,19 @@ class IMAPStream:
             elif response.kind == 'FETCH':
                 # "* number FETCH (data...)"
                 try:
-                    pos1 = response.data[1].index('(')
-                    line = response.data[1][pos1 + 1:]
-                except:
+                    msgno = int(response.data[0])
+                except ValueError:
                     raise self.ParseError(response)
-                response.data = self._parse_parenthesized_line(line)[0]
+                line = response.data[1]
+                if not line.startswith('('):
+                    # response isn't enclosed in parentheses
+                    line = response.data[1] + ')'
+                    if self.debug > 2:
+                        self._log('adding parenthesis to %s' % response)
+                else:
+                    line = line[1:]
+                response.data = (msgno, self._parse_parenthesized_line(line)[0])
+                # FIXME: add handling of response fields
             else:
                 raise self.NotImplementedError(response)
         return response
@@ -405,7 +413,6 @@ class IMAPStream:
         """Extract string, including checks for literals"""
         r = self._re_literal.match(string)
         if r:
-            # FIXME literal processing - NEEDS TESTING
             string = ''
             size = int(r.groups()[0])
             if self.debug >= 6:
@@ -474,7 +481,7 @@ class IMAPStream:
             """Internal logging function, "inspired" by imaplib"""
             secs = time.time()
             tm = time.strftime('%M:%S', time.localtime(secs))
-            sys.stderr.write('  %s.%02d %s\n' % (tm, (secs*100)%100, s))
+            sys.stderr.write('  %s.%02d %s\n' % (tm, (secs * 100) % 100, s))
             sys.stderr.flush()
 
 
