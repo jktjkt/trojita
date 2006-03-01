@@ -261,7 +261,7 @@ class IMAPStream:
         return self._parse_response_data(response)
 
 
-    def _helper_foreach(self, item, iterable, obj = None):
+    def _helper_foreach(self, item, iterable):
         """Helper function - if line matches iterable[x][1], returns (iterable[x][0], r.match(item))"""
         for name, r in iterable:
             foo = r.match(item)
