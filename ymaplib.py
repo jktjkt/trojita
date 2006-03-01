@@ -44,22 +44,22 @@ class StreamTCP:
 
 
 class IMAPResponse:
-        """Simple container to hold a response from IMAP server. Storage only, don't expect to get usable methods here :)"""
-        def __init__(self):
-            self.tagged = False               # was it a tagged response?
-            self.kind = None                  # which "kind" of response is it? (PREAUTH, CAPABILITY, BYE, EXISTS,...)
-            self.response_code = (None, None) # optional "response code" - first item is kind of message,
-                                              # second either tuple of parsed items, string, number or None
-            self.data = ()                    # string with human readable text or tuple with parsed items
+    """Simple container to hold a response from IMAP server. Storage only, don't expect to get usable methods here :)"""
+    def __init__(self):
+        self.tagged = False               # was it a tagged response?
+        self.kind = None                  # which "kind" of response is it? (PREAUTH, CAPABILITY, BYE, EXISTS,...)
+        self.response_code = (None, None) # optional "response code" - first item is kind of message,
+                                          # second either tuple of parsed items, string, number or None
+        self.data = ()                    # string with human readable text or tuple with parsed items
 
-        def __repr__(self):
-            s = "<IMAP_response - "
-            if self.tagged:
-                s += "Tagged"
-            else:
-                s += "Untagged"
-            return s + ", kind: " + self.kind.__repr__() + ', response_code: ' \
-                   + self.response_code.__repr__() + ", data: " + self.data.__repr__() + ">"
+    def __repr__(self):
+        s = "<ymaplib.IMAP_response - "
+        if self.tagged:
+            s += "Tagged"
+        else:
+            s += "Untagged"
+        return s + ", kind: " + self.kind.__repr__() + ', response_code: ' \
+               + self.response_code.__repr__() + ", data: " + self.data.__repr__() + ">"
 
 
 class IMAPStream:
@@ -69,8 +69,7 @@ class IMAPStream:
         """Something is not yet implemented"""
 
     class InvalidResponseError(Exception):
-        """Invalid, unexpected, malformed or unparsable response.
-        Possible reasons might be YMAPlib bug, IMAP server error or connection borkage."""
+        """Invalid, unexpected, malformed or unparsable response. Possible reasons might be YMAPlib bug, IMAP server error or connection borkage."""
         pass
 
     class ParseError(InvalidResponseError):
