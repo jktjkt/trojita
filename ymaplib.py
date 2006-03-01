@@ -10,6 +10,7 @@ Inspired by the Python's imaplib library.
 __version__ = "0.1"
 # $Id$
 
+from __future__ import generators
 import re
 if __debug__:
     import sys, time
@@ -396,7 +397,7 @@ class IMAPParser:
                 # FIXME: add handling of response fields
             elif response.kind == 'THREAD':
                 # "* THREAD data"
-                response.data = self._parse_thread_response(response.data[0])
+                response.data = self._parse_thread_response(response.data)
             else:
                 raise self.NotImplementedError(response)
         return response
@@ -426,24 +427,44 @@ class IMAPParser:
 
     def _parse_thread_response(self, line):
         """Parse draft-ietf-imapext-sort-17 THREAD respone into Python data structure"""
-        # FIXME needs actual implementation :)
-        buf = []
-        while 1:
-            (s, line) = self._extract_astring(line)
-            # number space      -> go one level down
-            # number space? '(' -> start subthread
-            # number space? ')' -> end subthread
-            # ')' space? '('    -> new subthread, sibling to the current one
-            print s
-            #if s == ' ':
-            #    (s, line) = self._parse_thread_response(line)
-            #    buf.append(s)
-            #elif s == ')':
-            #    return buf
-            #elif s == '('
-            if line == '':
-                break
-        return (buf, line)
+        parent = IMAPThreadItem()
+        parent.children = []
+        last_token = ' '
+        stack = []
+        item = IMAPThreadItem()
+        root = parent
+        for s in self._extract_thread_response(line):
+            try:
+                if (last_token == ' ' or last_token == '(' or last_token == ')') and s == ' ':
+                    # ignore more spaces...
+                    continue
+                if s.isdigit():
+                    # one level deeper
+                    item = IMAPThreadItem()
+                    item.id = s
+                    item.children = []
+                    parent.children.append(item)
+                    parent = item
+                elif s == ' ':
+                    # ignore separator
+                    pass
+                elif s == '(':
+                    # last item have multiple children, we will have to save a position
+                    stack.append(parent)
+                elif s == ')':
+                    # end of subthread
+                    if parent.children == []:
+                        parent.children = None
+                    else:
+                        parent.children = parent.children
+                    parent = stack.pop()
+                else:
+                    raise self.ParseError(line)
+            except IndexError:
+                    # wrong combination of parentheses
+                    raise self.ParseError(line)
+            last_token = s
+        return root
 
     def _extract_string(self, string):
         """Extract string, including checks for literals"""
@@ -498,6 +519,19 @@ class IMAPParser:
         string = string.lstrip(' ')
         return (buf, string)
 
+    @classmethod
+    def _extract_thread_response(cls, s):
+        """Tokenize the THREAD response into parentheses and spaces"""
+        while s != '':
+            if s.startswith(' ') or s.startswith('(') or s.startswith(')'):
+                yield s[0]
+                s = s[1:]
+            else:
+                buf = ''
+                while s != '' and not (s.startswith(' ') or s.startswith('(') or s.startswith(')')):
+                    buf += s[0]
+                    s = s[1:]
+                yield buf
 
     def send_command(self, command):
         """Sends a raw command, wrapping it with apropriate tag"""
@@ -531,3 +565,4 @@ if __name__ == "__main__":
     stream = ProcessStream([sys.argv[1]])
     c = IMAPParser(stream, 5)
     """debug = 10; import ymaplib; y=ymaplib.IMAPParser(ymaplib.ProcessStream('dovecot --exec-mail imap'), debug); y._parse_line(y._get_line(), None); y.send_command('capability'); y.responses(); y.send_command('select gentoo.gentoo-user-cs'); y.responses(); y.send_command('fetch 1 full'); y.responses(); y.send_command('status inbox ()'); y.responses()"""
+    """debug=0; import ymaplib; y=ymaplib.IMAPParser(ymaplib.ProcessStream('dovecot --exec-mail imap'), debug); e=y._parse_line(y._get_line(), None); y.send_command('select gentoo.gentoo-user-cs'); e=y.responses(); y.send_command('thread references ascii from jakub'); y.responses()"""
