@@ -571,7 +571,13 @@ if __name__ == "__main__":
     if len(sys.argv) != 2:
         print "Usage: %s path/to/imapd" % sys.argv[0]
         sys.exit()
-    stream = ProcessStream([sys.argv[1]])
-    c = IMAPParser(stream, 5)
+    stream = ProcessStream(sys.argv[1])
+    c = IMAPParser(stream, 0)
+    print c._parse_line(c._get_line(), None)
+    c.send_command('select gentoo.gentoo-user-cs')
+    print c.responses()
+    c.send_command('thread references utf-8 all')
+    print c.responses()
+
     """debug = 10; import ymaplib; y=ymaplib.IMAPParser(ymaplib.ProcessStream('dovecot --exec-mail imap'), debug); y._parse_line(y._get_line(), None); y.send_command('capability'); y.responses(); y.send_command('select gentoo.gentoo-user-cs'); y.responses(); y.send_command('fetch 1 full'); y.responses(); y.send_command('status inbox ()'); y.responses()"""
     """debug=0; import ymaplib; y=ymaplib.IMAPParser(ymaplib.ProcessStream('dovecot --exec-mail imap'), debug); e=y._parse_line(y._get_line(), None); y.send_command('select gentoo.gentoo-user-cs'); e=y.responses(); y.send_command('thread references ascii from jakub'); y.responses()"""
