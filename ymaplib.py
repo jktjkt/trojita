@@ -61,6 +61,10 @@ class IMAPResponse:
             s += "Untagged"
         return s + ", kind: " + str(self.kind) + ', response_code: ' + str(self.response_code) + ", data: " + str(self.data) + ">"
 
+class IMAPNIL:
+    """Simple class to hold the NIL token"""
+    def __repr__(self):
+        return '<ymaplib.IMAPNIL>'
 
 class IMAPThreadItem:
     """One message in the threaded mailbox"""
@@ -77,6 +81,7 @@ class IMAPParser:
 
     class NotImplementedError(Exception):
         """Something is not yet implemented"""
+        pass
 
     class InvalidResponseError(Exception):
         """Invalid, unexpected, malformed or unparsable response. Possible reasons might be YMAPlib bug, IMAP server error or connection borkage."""
@@ -94,8 +99,9 @@ class IMAPParser:
         """Unknown response from server"""
         pass
 
-    tag_prefix = "ym"
-    tagged_response = re.compile(tag_prefix + r'\d+ ')
+    _tag_prefix = "ym"
+    _re_tagged_response = re.compile(_tag_prefix + r'\d+ ')
+    _re_nil = re.compile("^NIL", re.IGNORECASE)
 
     # RFC3501, section 7.1 - Server Responses - Status Responses
     _resp_status = ('OK', 'NO', 'BAD', 'PREAUTH', 'BYE')
@@ -210,7 +216,7 @@ class IMAPParser:
             # Command Continuation Request
             # FIXME :)
             raise self.NotImplementedError(line)
-        elif self.tagged_response.match(line):
+        elif self._re_tagged_response.match(line):
             # Tagged response
             if not line.startswith(current_tag + " "):
                 # wrong tag
@@ -494,6 +500,10 @@ class IMAPParser:
             # "(" or ")"
             buf = string[0]
             string = string[1:]
+        elif cls._re_nil.match(string):
+            # the 'NIL' token
+            buf = IMAPNIL()
+            string = string[len('NIL'):]
         else:
             # atom
             pos_par = string.find(')')
@@ -542,7 +552,7 @@ class IMAPParser:
 
     def _make_tag(self):
         """Create a string tag"""
-        return self.tag_prefix + str(self.tag_current)
+        return self._tag_prefix + str(self.tag_current)
 
 
     if __debug__:
