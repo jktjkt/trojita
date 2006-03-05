@@ -15,7 +15,7 @@ import re
 if __debug__:
     import sys, time
 
-__all__ = ["IMAPParser", "IMAPResponse", "ProcessStream", "TCPStream"]
+__all__ = ["IMAPParser", "IMAPResponse", "IMAPNIL", "IMAPThreadItem", "ProcessStream", "TCPStream"]
 
 CRLF = "\r\n"
 
@@ -59,7 +59,8 @@ class IMAPResponse:
             s += "Tagged"
         else:
             s += "Untagged"
-        return s + ", kind: " + str(self.kind) + ', response_code: ' + str(self.response_code) + ", data: " + str(self.data) + ">"
+        return s + ", kind: " + str(self.kind) + ', response_code: ' + \
+               str(self.response_code) + ", data: " + str(self.data) + ">"
 
 class IMAPNIL:
     """Simple class to hold the NIL token"""
@@ -107,7 +108,8 @@ class IMAPParser:
     _resp_status = ('OK', 'NO', 'BAD', 'PREAUTH', 'BYE')
     _resp_status_tagged = ('OK', 'NO', 'BAD')
     # 7.2 - Server Responses - Server and Mailbox Status
-    _resp_server_mailbox_status = ('CAPABILITY', 'LIST', 'LSUB', 'STATUS', 'SEARCH', 'FLAGS')
+    _resp_server_mailbox_status = ('CAPABILITY', 'LIST', 'LSUB', 'STATUS', 
+                                   'SEARCH', 'FLAGS')
     # 7.3 - Server Responses - Mailbox Size
     _resp_mailbox_size = ('EXISTS', 'RECENT')
     # 7.4 - Server  Responses - Message Status
@@ -117,7 +119,8 @@ class IMAPParser:
     # draft-ietf-imapext-sort-17:
     _resp_imapext_sort = ('SORT', 'THREAD')
 
-    _response_code_single = ('ALERT', 'PARSE', 'READ-ONLY', 'READ-WRITE', 'TRYCREATE')
+    _response_code_single = ('ALERT', 'PARSE', 'READ-ONLY', 'READ-WRITE', 
+                             'TRYCREATE')
     _response_code_number = ('UIDNEXT', 'UIDVALIDITY', 'UNSEEN')
     _response_code_spaces = ('CAPABILITY')
     _response_code_parenthesized = ('BADCHARSET', 'PERMANENTFLAGS')
@@ -244,7 +247,8 @@ class IMAPParser:
                         # do we have to deal with response code with arguments?
                         space = line[1:last].index(' ')
                         code = line[1:space+1]
-                        arguments = self._parse_response_code(code, line[space+2:last])
+                        arguments = self._parse_response_code(code,
+                                     line[space+2:last])
                     except ValueError:
                         # just an "[atom]"
                         code = line[1:last]
@@ -257,7 +261,9 @@ class IMAPParser:
             # the rest of the line should be only a string
             response.data = line
         elif not response.tagged:
-            for test in (self._re_resp_server_mailbox_status, self._re_resp_mailbox_size, self._re_resp_message_status, self._re_resp_imapext_sort):
+            for test in (self._re_resp_server_mailbox_status,
+              self._re_resp_mailbox_size, self._re_resp_message_status,
+              self._re_resp_imapext_sort):
                 (response.kind, r) = self._helper_foreach(line, test)
                 if response.kind == 'FETCH':
                     # FETCH response will have two items as the result
@@ -327,7 +333,8 @@ class IMAPParser:
             if response.kind in self._resp_status:
                 # RFC specifies the rest of the line to be "human readable text" so we don't have much to do here :)
                 pass
-            elif response.kind in self._resp_mailbox_size or response.kind == 'EXPUNGE':
+            elif response.kind in self._resp_mailbox_size or \
+               response.kind == 'EXPUNGE':
                 # "* number FOO"
                 response.data = int(response.data)
             elif response.kind == 'CAPABILITY' or response.kind == 'SORT':
@@ -379,7 +386,8 @@ class IMAPParser:
                         raise self.ParseError(response)
                     response.data = tuple(items)
             elif response.kind == 'FLAGS':
-                if not response.data.startswith('(') or not response.data.endswith(')'):
+                if not response.data.startswith('(') \
+                  or not response.data.endswith(')'):
                     raise self.ParseError(line)
                 items = response.data[1:-1].split(' ')
                 response.data = tuple(items)
@@ -439,7 +447,8 @@ class IMAPParser:
         root = parent
         for s in self._extract_thread_response(line):
             try:
-                if (last_token == ' ' or last_token == '(' or last_token == ')') and s == ' ':
+                if (last_token == ' ' or last_token == '(' or last_token == ')') \
+                   and s == ' ':
                     # ignore more spaces...
                     continue
                 if s.isdigit():
@@ -537,7 +546,8 @@ class IMAPParser:
                 s = s[1:]
             else:
                 buf = ''
-                while s != '' and not (s.startswith(' ') or s.startswith('(') or s.startswith(')')):
+                while s != '' and not \
+                  (s.startswith(' ') or s.startswith('(') or s.startswith(')')):
                     buf += s[0]
                     s = s[1:]
                 yield buf
