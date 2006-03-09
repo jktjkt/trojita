@@ -650,6 +650,19 @@ returns (iterable[x][0], r.match(item))"""
             sys.stderr.flush()
 
 
+class IMAPEnvelope:
+    """Container for RFC822 envelope"""
+    pass
+
+
+class IMAPMessage:
+    """RFC822 message stored on an IMAP server"""
+    pass
+
+class IMAPMailbox:
+    """Interface to an IMAP mailbox"""
+    pass
+
 
 if __name__ == "__main__":
     import sys
