@@ -152,7 +152,7 @@ reasons might be YMAPlib bug, IMAP server error or connection borkage."""
 
     _re_literal = re.compile(r'{(\d+)}')
 
-    def __init__(self, stream, debug = 0):
+    def __init__(self, stream, debug=0):
         self._stream = stream
         if __debug__:
             self.debug = debug
