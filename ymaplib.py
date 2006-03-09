@@ -20,33 +20,54 @@ __all__ = ["IMAPParser", "IMAPResponse", "IMAPNIL", "IMAPThreadItem", "ProcessSt
 CRLF = "\r\n"
 
 class ProcessStream:
-    """Streamable interface to local process. Supports read(), readline(), write()
-and flush() methods."""
+    """Streamable interface to local process. Supports read(), readline(),
+write(), flush() and has_data() methods. Doesn't work on Win32 systems due to
+their lack of poll() functionality on pipes."""
 
-    def __init__(self, command):
-        import os
-        (self._w, self._r) = os.popen2(command)
+    def __init__(self, command, timeout=-1):
+        import os, select
+        # disable buffering, otherwise readline() might read more than just
+        # one line and following poll() would say that there's nothing to read
+        (self._w, self._r) = os.popen2(command, bufsize=0)
         self.read = self._r.read
         self.readline = self._r.readline
         self.write = self._w.write
         self.flush = self._w.flush
+        self._r_poll = select.poll()
+        self._r_poll.register(self._r.fileno(), select.POLLIN)
+        self.timeout = int(timeout)
+
+    def has_data(self, timeout=None):
+        """Check if we can read from socket without blocking"""
+        if timeout is None:
+            timeout = self.timeout
+        return bool(len(self._r_poll.poll(timeout)))
 
 class TCPStream:
     """Streamed TCP/IP connection"""
 
-    def __init__(self, host, port):
-        import socket
+    def __init__(self, host, port, timeout=-1):
+        import socket, select
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._sock.connect((host, port))
-        self._file = self._sock.makefile('rb')
+        self._file = self._sock.makefile('rb', bufsize=0)
+        self._r_poll = select.poll()
+        self._r_poll.register(self._sock.fileno(), select.POLLIN)
         self.read = self._file.read
         self.readline = self._file.readline
         self.write = self._file.write
         self.flush = self._file.flush
+        self.timeout = int(timeout)
+
+    def has_data(self, timeout=None):
+        """Check if we can read from the socket without blocking. Needs further testing."""
+        if timeout is None:
+            timeout = self.timeout
+        return bool(len(self._r_poll.poll(timeout)))
 
 
 class IMAPResponse:
-    """Simple container to hold a response from IMAP server. Storage only,
+    """Simple container to hold a response from IMAP server. Storage only, 
 don't expect to get usable methods here :)"""
     def __init__(self):
         self.tagged = False               # was it a tagged response?
@@ -101,6 +122,10 @@ reasons might be YMAPlib bug, IMAP server error or connection borkage."""
 
     class UnknownResponseError(InvalidResponseError):
         """Unknown response from server"""
+        pass
+
+    class TimeoutError:
+        """Socket timed out"""
         pass
 
     _tag_prefix = "ym"
@@ -163,6 +188,9 @@ reasons might be YMAPlib bug, IMAP server error or connection borkage."""
 
     def _read(self, size):
         """Read size octets from server's output"""
+
+        if not self._stream.has_data():
+            raise self.TimeoutError
         buf = self._stream.read(size)
         if __debug__:
             if self.debug >= 5:
@@ -177,9 +205,11 @@ reasons might be YMAPlib bug, IMAP server error or connection borkage."""
         return self._stream.write(data)
 
     def _get_line(self):
-        """Get one line of server's output. Based on the method of imaplib's
+        """Get one line of server's output. Based on the method of imaplib's 
 IMAP4 class."""
 
+        if not self._stream.has_data():
+            raise self.TimeoutError
         line = self._stream.readline()
         if not line:
             raise self.InvalidResponseError("socket error: EOF")
@@ -290,8 +320,9 @@ and one tagged reply. Returns a list of IMAP_response objects."""
 
     @classmethod
     def _helper_foreach(cls, item, iterable):
-        """Helper function - if line matches iterable[x][1],
+        """Helper function - if line matches iterable[x][1], 
 returns (iterable[x][0], r.match(item))"""
+
         for name, r in iterable:
             foo = r.match(item)
             if foo:
