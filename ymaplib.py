@@ -20,7 +20,8 @@ __all__ = ["IMAPParser", "IMAPResponse", "IMAPNIL", "IMAPThreadItem", "ProcessSt
 CRLF = "\r\n"
 
 class ProcessStream:
-    """Streamable interface to local process. Supports read(), readline(), write() and flush() methods."""
+    """Streamable interface to local process. Supports read(), readline(), write()
+and flush() methods."""
 
     def __init__(self, command):
         import os
@@ -45,7 +46,8 @@ class TCPStream:
 
 
 class IMAPResponse:
-    """Simple container to hold a response from IMAP server. Storage only, don't expect to get usable methods here :)"""
+    """Simple container to hold a response from IMAP server. Storage only,
+don't expect to get usable methods here :)"""
     def __init__(self):
         self.tagged = False               # was it a tagged response?
         self.kind = None                  # which "kind" of response is it? (PREAUTH, CAPABILITY, BYE, EXISTS,...)
@@ -85,7 +87,8 @@ class IMAPParser:
         pass
 
     class InvalidResponseError(Exception):
-        """Invalid, unexpected, malformed or unparsable response. Possible reasons might be YMAPlib bug, IMAP server error or connection borkage."""
+        """Invalid, unexpected, malformed or unparsable response. Possible 
+reasons might be YMAPlib bug, IMAP server error or connection borkage."""
         pass
 
     class ParseError(InvalidResponseError):
@@ -174,7 +177,8 @@ class IMAPParser:
         return self._stream.write(data)
 
     def _get_line(self):
-        """Get one line of server's output. Based on the method of imaplib's IMAP4 class."""
+        """Get one line of server's output. Based on the method of imaplib's
+IMAP4 class."""
 
         line = self._stream.readline()
         if not line:
@@ -194,7 +198,7 @@ class IMAPParser:
 
     def responses(self):
         """Parse the server's responses. Expects zero or more untagged replies
-        and one tagged reply. Returns a list of IMAP_response objects."""
+and one tagged reply. Returns a list of IMAP_response objects."""
         responses = []
 
         while 1:
@@ -286,7 +290,8 @@ class IMAPParser:
 
     @classmethod
     def _helper_foreach(cls, item, iterable):
-        """Helper function - if line matches iterable[x][1], returns (iterable[x][0], r.match(item))"""
+        """Helper function - if line matches iterable[x][1],
+returns (iterable[x][0], r.match(item))"""
         for name, r in iterable:
             foo = r.match(item)
             if foo:
@@ -325,13 +330,14 @@ class IMAPParser:
         """Parse response.data string into proper form"""
         if response.tagged:
             if response.kind in self._resp_status_tagged:
-                # RFC specifies the rest of the line to be "human readable text" so we don't have much to do here :)
+                # RFC specifies the rest of the line to be "human readable text"
+                # so we don't have much to do here :)
                 pass
             else:
                 raise self.UnknownResponseError(response)
         else:
             if response.kind in self._resp_status:
-                # RFC specifies the rest of the line to be "human readable text" so we don't have much to do here :)
+                # human-readable text follows
                 pass
             elif response.kind in self._resp_mailbox_size or \
                response.kind == 'EXPUNGE':
