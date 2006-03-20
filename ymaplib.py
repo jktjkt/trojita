@@ -1,5 +1,7 @@
 # -*- coding: utf-8
-"""IMAP4rev1 client library written with aim to be as much RFC3501 compliant as possible and wise :)
+"""IMAP4rev1 client library
+
+Written with aim to be as much RFC3501 compliant as possible and wise :)
 
 References: IMAP4rev1 - RFC3501
 
@@ -7,22 +9,24 @@ Author: Jan Kundrát <jkt@flaska.net>
 Inspired by the Python's imaplib library.
 """
 
-__version__ = "0.1"
-# $Id$
-
 from __future__ import generators
 import re
+import threading
+import Queue
 if __debug__:
     import sys, time
 
-__all__ = ["IMAPParser", "IMAPResponse", "IMAPNIL", "IMAPThreadItem", "ProcessStream", "TCPStream"]
+__version__ = "0.1"
+__revision__ = '$Id$'
+__all__ = ["IMAPParser", "IMAPResponse", "IMAPNIL", "IMAPThreadItem",
+           "ProcessStream", "TCPStream"]
 
 CRLF = "\r\n"
 
 class ProcessStream:
     """Streamable interface to local process.
 
-Supports read(), readline(), write(), flush() and has_data() methods. Doesn't
+Supports read(), readline(), write(), flush(), and has_data() methods. Doesn't
 work on Win32 systems due to their lack of poll() functionality on pipes.
 """
 
@@ -45,6 +49,7 @@ work on Win32 systems due to their lack of poll() functionality on pipes.
             timeout = self.timeout
         return bool(len(self._r_poll.poll(timeout)))
 
+
 class TCPStream:
     """Streamed TCP/IP connection"""
 
@@ -62,7 +67,10 @@ class TCPStream:
         self.timeout = int(timeout)
 
     def has_data(self, timeout=None):
-        """Check if we can read from the socket without blocking. Needs further testing."""
+        """Check if we can read from the socket without blocking.
+
+        Needs further testing.
+        """
         if timeout is None:
             timeout = self.timeout
         return bool(len(self._r_poll.poll(timeout)))
@@ -74,18 +82,22 @@ class IMAPResponse:
 Storage only, don't expect to get usable methods here :)
 """
     def __init__(self):
-        self.tagged = False               # was it a tagged response?
-        self.kind = None                  # which "kind" of response is it? (PREAUTH, CAPABILITY, BYE, EXISTS,...)
-        self.response_code = (None, None) # optional "response code" - first item is kind of message,
-                                          # second either tuple of parsed items, string, number or None
-        self.data = ()                    # string with human readable text or tuple with parsed items
+        self.tag = False
+        # response tag or None if untagged
+        self.kind = None
+        # which "kind" of response is it? (PREAUTH, CAPABILITY, BYE, EXISTS,...)
+        self.response_code = (None, None)
+        # optional "response code" - first item is kind of message,
+        # second either tuple of parsed items, string, number or None
+        self.data = ()
+        # string with human readable text or tuple with parsed items
 
     def __repr__(self):
         s = "<ymaplib.IMAPResponse - "
-        if self.tagged:
-            s += "Tagged"
+        if self.tag is None:
+            s += "untagged"
         else:
-            s += "Untagged"
+            s += "tag %s" % self.tag
         return s + ", kind: " + str(self.kind) + ', response_code: ' + \
                str(self.response_code) + ", data: " + str(self.data) + ">"
 
@@ -129,6 +141,44 @@ Possible reasons might be YMAPlib bug, IMAP server error or connection borkage.
     class TimeoutError:
         """Socket timed out"""
         pass
+    
+    class ResponsesStreamThread(threading.Thread):
+        """Thread for handling responses from server"""
+        
+        def __init__(self, parser):
+            threading.Thread.__init__(self)
+            self.setDaemon(True)
+            self.parser = parser
+            
+        def run(self):
+            safety_limit = 1024
+            # FIXME: hard-coded limit
+            # self.parser.stream_lock will be unlocked at least every $ iterations
+            while self.parser._stream:
+                counter = 0
+                self.parser.stream_lock.acquire()
+                while self.parser._stream.has_data(0):
+                    # we don't want to wait too long
+                    response = self.parser._parse_line(self.parser._get_line())
+                
+                    if response.tag is not None:
+                        self.parser.tagged_responses_lock.acquire()
+                        self.parser.tagged_responses[response.tag] = response
+                        self.parser.tagged_responses_lock.release()
+                    else:
+                        self.parser.untagged_responses.put(response)
+                        #self.parser.untagged_responses_lock.acquire()
+                        #self.parser.untagged_responses.append(response)
+                        #self.parser.untagged_responses_lock.release()
+                    # FIXME: do something with the response - enable some event?
+                    counter += 1
+                    if counter >= safety_limit:
+                        # we've processed a lot of responses, so let's give
+                        # other threads a chance to work
+                        break
+                self.parser.stream_lock.release()
+                time.sleep(1)
+                
 
     _tag_prefix = "ym"
     _re_tagged_response = re.compile(_tag_prefix + r'\d+ ')
@@ -168,7 +218,8 @@ Possible reasons might be YMAPlib bug, IMAP server error or connection borkage.
     _re_resp_server_mailbox_status = _make_res('^%s ?(.*)',
                                       _resp_server_mailbox_status)
     _re_resp_mailbox_size = _make_res(r'^(\d+) %s', _resp_mailbox_size)
-    _re_resp_message_status = _make_res(r'^(\d+) %s ?(.*)', _resp_message_status) # the ' ?(.*)' is here to allow matching of FETCH responses
+    _re_resp_message_status = _make_res(r'^(\d+) %s ?(.*)', _resp_message_status)
+    # the ' ?(.*)' is here to allow matching of FETCH responses
     _re_resp_imapext_sort = _make_res('^%s ?(.*)', _resp_imapext_sort)
 
     _re_response_code_single = _make_res('%s', _response_code_single)
@@ -186,10 +237,14 @@ Possible reasons might be YMAPlib bug, IMAP server error or connection borkage.
         else:
             self.debug = 0
         self.last_tag_num = 0
+        self.untagged_responses = Queue.Queue()
         self.tagged_responses = {}
-        self.untagged_responses = []
-        # wait for server banner
-        self._parse_line(self._get_line())
+        
+        self.stream_lock = threading.Lock()
+        self.tagged_responses_lock = threading.Lock()
+        
+        self.responses_stream_thread = self.ResponsesStreamThread(self)
+        self.responses_stream_thread.start()
 
     def _read(self, size):
         """Read size octets from server's output"""
@@ -233,53 +288,33 @@ Based on the method of imaplib's IMAP4 class.
                 self._log('< %s' % line)
         return line
 
-    def get_responses(self):
-        """Parse the server's responses.
-
-Expects zero or more untagged replies and one tagged reply. Returns a list of 
-IMAPResponse objects.
-
-This code is quite ugly and is intended only for testing of ymaplib. It may 
-vanish in further versions of this library.
-"""
-        responses = []
-        while 1:
-            line = self._get_line()
-            response = self._parse_line(line)
-            responses.append(response)
-            if response.tagged:
-                # should be the last item, so stop iterating
-                break
-        return responses
-
     def _parse_line(self, line):
         """Parse one line of the response to the IMAP_response object."""
         response = IMAPResponse()
 
         if line.startswith('* '):
             # Untagged response
-            response.tagged = False
+            response.tag = None
             line = line[2:]
         elif line.startswith('+ '):
             # Command Continuation Request
-            # FIXME :)
+            # FIXME: :)
             raise self.NotImplementedError(line)
         elif self._re_tagged_response.match(line):
             # Tagged response
             try:
                 pos = line.index(' ')
-                tag = line[:pos]
+                response.tag = line[:pos]
                 line = line[pos + 1:]
             except ValueError:
                 raise self.ParseError(line)
-            response.tagged = True
-            if not tag in self.tagged_responses:
+            if not response.tag in self.tagged_responses:
                 raise self.InvalidResponseError(line)
         else:
             # Unparsable response
             raise self.ParseError(line)
 
-        if response.tagged:
+        if response.tag is not None:
             test = self._re_resp_status_tagged
         else:
             test = self._re_resp_status
@@ -309,7 +344,7 @@ vanish in further versions of this library.
                     raise self.ParseError(line)
             # the rest of the line should be only a string
             response.data = line
-        elif not response.tagged:
+        elif response.tag is None:
             for test in (self._re_resp_server_mailbox_status,
               self._re_resp_mailbox_size, self._re_resp_message_status,
               self._re_resp_imapext_sort):
@@ -329,12 +364,7 @@ vanish in further versions of this library.
         if response.kind is None:
             # response kind wasn't detected so far
             raise self.UnknownResponseError(line)
-        response = self._parse_response_data(response)
-        if response.tagged:
-            self.tagged_responses[tag] = response
-        else:
-            self.untagged_responses.append(response)
-        return response
+        return self._parse_response_data(response)
 
     @classmethod
     def _helper_foreach(cls, item, iterable):
@@ -345,7 +375,6 @@ vanish in further versions of this library.
             if foo:
                 return (name, foo)
         return (None, None)
-
 
     def _parse_response_code(self, code, line):
         """Parse optional (sect 7.1) response codes"""
@@ -377,13 +406,11 @@ vanish in further versions of this library.
     def _parse_response_data(self, response):
         """Parse response.data string into proper form"""
         # this one *can't* be classmethod as we might need to read a literal
-        if response.tagged:
-            if response.kind in self._resp_status_tagged:
-                # RFC specifies the rest of the line to be "human readable text"
-                # so we don't have much to do here :)
-                pass
-            else:
+        if response.tag is not None:
+            if response.kind not in self._resp_status_tagged:
                 raise self.UnknownResponseError(response)
+            # RFC specifies the rest of the line to be "human readable text"
+            # so we don't have much to do here :)
         else:
             if response.kind in self._resp_status:
                 # human-readable text follows
@@ -436,7 +463,7 @@ vanish in further versions of this library.
                     response.data = ()
                 else:
                     try:
-                        items = map(int, items)
+                        items = [int(item) for item in items]
                     except ValueError:
                         raise self.ParseError(response)
                     response.data = tuple(items)
@@ -474,6 +501,7 @@ vanish in further versions of this library.
         limit = 0
         while limit < 1024:
             # safety limit for 1024 items on the same level at most
+            # FIXME: hard-coded constant (should be raised, btw, imho)
             limit += 1
             (s, line) = self._extract_string(line)
             if s == '(':
@@ -516,7 +544,8 @@ vanish in further versions of this library.
                     # ignore separator
                     pass
                 elif s == '(':
-                    # last item have multiple children, we will have to save a position
+                    # last item have multiple children,
+                    # we will have to save a position
                     stack.append(parent)
                 elif s == ')':
                     # end of subthread
@@ -528,8 +557,8 @@ vanish in further versions of this library.
                 else:
                     raise self.ParseError(line)
             except IndexError:
-                    # wrong combination of parentheses
-                    raise self.ParseError(line)
+                # wrong combination of parentheses
+                raise self.ParseError(line)
             last_token = s
         return root
 
@@ -593,7 +622,7 @@ vanish in further versions of this library.
 
     @classmethod
     def _extract_thread_response(cls, s):
-        """Tokenize the THREAD response into parentheses and spaces"""
+        """Tokenize the THREAD response into parentheses and spaces (helper function)"""
         while s != '':
             if s.startswith(' ') or s.startswith('(') or s.startswith(')'):
                 yield s[0]
@@ -608,47 +637,52 @@ vanish in further versions of this library.
 
     def send_command(self, command):
         """Sends a raw command, wrapping it with apropriate tag"""
+        self.tagged_responses_lock.acquire()
         self.last_tag_num += 1
         tag_name = self._make_tag()
         self.tagged_responses[tag_name] = None
+        self.tagged_responses_lock.release()
+        self.stream_lock.acquire()
         self._write(tag_name + ' ' + command + CRLF)
         self._stream.flush()
+        self.stream_lock.release()
         return tag_name
-
 
     def get_tagged(self, tag):
         """Returns tagged response associated with given tag *and* extracts it from buffer"""
+        response = None
+        self.tagged_responses_lock.acquire()
         try:
-            response = self.tagged_responses[tag]
-            del self.tagged_responses[tag]
+            try:
+                response = self.tagged_responses[tag]
+                del self.tagged_responses[tag]
+            except KeyError:
+                pass
+        finally:
+            self.tagged_responses_lock.release()
             return response
-        except KeyError:
-            return None
 
-
-    def get_untagged(self):
-        """Returns all buffered untagged responses"""
-        buf = self.untagged_responses
-        self.untagged_responses = []
+    def get_untagged_responses(self):
+        """[DEPRECATED???] Returns all buffered untagged responses"""
+        buf = []
+        while not self.untagged_responses.empty():
+            buf.append(self.untagged_responses.get())
+        #self.untagged_responses_lock.acquire()
+        #buf = self.untagged_responses
+        #self.untagged_responses = []
+        #self.untagged_responses_lock.release()
         return buf
-
-
-    def exec_loop(self):
-        """Enter a loop waiting for data, parsing and storing the responses"""
-        while None in self.tagged_responses.values() and self._stream.has_data():
-            # loop as long as we have something to do and there are some data
-            self._parse_line(self._get_line())
-
 
     def get_available_tags(self):
         """Return a list of tags which are either completed or in progress"""
-        return self.tagged_responses.keys()
-
+        self.tagged_responses_lock.acquire()
+        buf = self.tagged_responses.keys()
+        self.tagged_responses_lock.release()
+        return buf
 
     def _make_tag(self):
         """Create a string tag"""
         return self._tag_prefix + str(self.last_tag_num)
-
 
     if __debug__:
         def _log(self, s):
@@ -674,19 +708,4 @@ class IMAPMailbox:
 
 
 if __name__ == "__main__":
-    import sys
-    print "ymaplib version " + __version__
-    if len(sys.argv) != 2:
-        print "Usage: %s path/to/imapd" % sys.argv[0]
-        sys.exit()
-    stream = ProcessStream(sys.argv[1])
-    c = IMAPParser(stream, 0)
-    print c._parse_line(c._get_line(), None)
-    c.send_command('select gentoo.gentoo-user-cs')
-    print c.responses()
-    c.send_command('thread references utf-8 all')
-    print c.responses()
-
-    """debug = 10; import ymaplib; y=ymaplib.IMAPParser(ymaplib.ProcessStream('dovecot --exec-mail imap'), debug); y._parse_line(y._get_line(), None); y.send_command('capability'); y.get_responses(); y.send_command('select gentoo.gentoo-user-cs'); y.get_responses(); y.send_command('fetch 1 full'); y.get_responses(); y.send_command('status inbox ()'); y.get_responses()"""
-    """debug=0; import ymaplib; y=ymaplib.IMAPParser(ymaplib.ProcessStream('dovecot --exec-mail imap'), debug); e=y._parse_line(y._get_line(), None); y.send_command('select gentoo.gentoo-user-cs'); e=y.get_responses(); y.send_command('thread references ascii from jakub'); y.get_responses()"""
-    """debug=0; import ymaplib; y=ymaplib.IMAPParser(ymaplib.ProcessStream('dovecot --exec-mail imap', 800), debug); y.send_command('select gentoo.gentoo-user-cs'); y._write('* ugh\r\n'); y.send_command('thread references ascii from jakub'); y.exec_loop(); y.get_untagged()"""
+    print "ymaplib version %s (SVN %s)" % (__version__, __revision__)
