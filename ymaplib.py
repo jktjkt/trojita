@@ -145,15 +145,15 @@ class IMAPParser:
     class ResponsesStreamThread(threading.Thread):
         """Thread for handling responses from server"""
         
+        # don't lock the stream for more than $number responses
+        unlock_every = 32
+        
         def __init__(self, parser):
             threading.Thread.__init__(self)
             self.setDaemon(True)
             self.parser = parser
             
         def run(self):
-            safety_limit = 1024
-            # FIXME: hard-coded limit
-            # self.parser.stream_lock will be unlocked at least every $ iterations
             while self.parser._stream:
                 counter = 0
                 self.parser.stream_lock.acquire()
@@ -172,12 +172,13 @@ class IMAPParser:
                         #self.parser.untagged_responses_lock.release()
                     # FIXME: do something with the response - enable some event?
                     counter += 1
-                    if counter >= safety_limit:
+                    if counter >= self.unlock_every:
                         # we've processed a lot of responses, so let's give
                         # other threads a chance to work
                         break
                 self.parser.stream_lock.release()
-                time.sleep(1)
+                # FIXME: we don't have to sleep(), do we?
+                #time.sleep(1)
                 
     _tag_prefix = "ym"
     _re_tagged_response = re.compile(_tag_prefix + r'\d+ ')
@@ -203,7 +204,7 @@ class IMAPParser:
     _response_code_number = ('UIDNEXT', 'UIDVALIDITY', 'UNSEEN')
     _response_code_spaces = ('CAPABILITY')
     _response_code_parenthesized = ('BADCHARSET', 'PERMANENTFLAGS')
-
+    
     def _make_res(expr, iterable):
         """Make tuple of (name, re(expr)) tuples"""
         buf = []
@@ -486,7 +487,17 @@ Based on the method of imaplib's IMAP4 class.
                         self._log('adding parenthesis to %s' % response)
                 else:
                     line = line[1:]
-                response.data = (msgno, self._parse_parenthesized_line(line)[0])
+                buf = {}
+                for i, item in enumerate(self._parse_parenthesized_line(line)[0]):
+                    if i % 2:
+                        buf[last] = item
+                        last = None
+                    else:
+                        last = item
+                if last is not None:
+                    # odd number of items
+                    raise InvalidResponseError(line)
+                response.data = (msgno, buf)
             elif response.kind == 'THREAD':
                 # "* THREAD data"
                 response.data = self._parse_thread_response(response.data)
@@ -498,21 +509,15 @@ Based on the method of imaplib's IMAP4 class.
         """Parse parenthesized line into Python data structure"""
         buf = []
         limit = 0
-        while limit < 1024:
-            # safety limit for 1024 items on the same level at most
-            # FIXME: hard-coded constant (should be raised, btw, imho)
+        while len(line):
             limit += 1
             (s, line) = self._extract_string(line)
             if s == '(':
                 # nested block
                 (item, line) = self._parse_parenthesized_line(line)
-                #print 'nested returned %s' % item
                 buf.append(item)
             elif s == ')':
                 # end of nested block
-                break
-            elif line == '':
-                # end of string
                 break
             else:
                 buf.append(s)
