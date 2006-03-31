@@ -581,13 +581,39 @@ Based on the method of imaplib's IMAP4 class.
         """Extract an astring from string. Astring can't be literal."""
         string = string.lstrip(' ')
         if string.startswith('"'):
-            # quoted string
-            try:
-                pos = string.index('"', 1)
-                buf = string[1:pos]
-                string = string[pos + 1:]
-            except ValueError:
+            # quoted string, we must handle escaping
+            # FIXME: we should use something more efficient
+            escaping = False
+            pos = 1 # first character is '"' so we can safely skip it
+            go_on = True
+            buf = ''
+            size = len(string)
+            while go_on and pos < size:
+                if escaping:
+                    if string[pos] == '\\' or string[pos] == '"':
+                        buf += string[pos]
+                    else:
+                        # escaping an unknown character
+                        # RFC 3501 doesn't specify what to do here, but such data
+                        # aren't formatted as specified by the ABNF syntax at the
+                        # end of the RFC 
+                        buf += '\\' + string[pos]
+                        escaping = False
+                        # FIXME: need a mechanism to report non-fatal errors
+                        #raise cls.ParseError(string)
+                    escaping = False
+                elif string[pos] == '"':
+                    go_on = False
+                elif string[pos] == '\\':
+                    escaping = True
+                else:
+                    buf += string[pos]
+                pos += 1
+            if go_on:
+                # unterminated quoted string
                 raise cls.ParseError(string)
+            else:
+                string = string[pos:]
         elif string.startswith('(') or string.startswith(')'):
             # "(" or ")"
             buf = string[0]
