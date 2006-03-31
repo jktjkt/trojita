@@ -115,33 +115,33 @@ class IMAPThreadItem:
     def __repr__(self):
         return "<ymaplib.IMAPThreadItem %s: %s>" % (self.id, self.children)
 
+class NotImplementedError(Exception):
+    """Something is not yet implemented"""
+    pass
+
+class InvalidResponseError(Exception):
+    """Invalid, unexpected, malformed or unparsable response.
+
+    Possible reasons might be YMAPlib bug, IMAP server error or connection 
+    borkage.
+    """
+    pass
+
+class ParseError(InvalidResponseError):
+    """Unable to parse server's response"""
+    pass
+
+class UnknownResponseError(InvalidResponseError):
+    """Unknown response from server"""
+    pass
+
+class TimeoutError:
+    """Socket timed out"""
+    pass
 
 class IMAPParser:
     """Streamed connection to the IMAP4rev1 compliant IMAP server"""
-
-    class NotImplementedError(Exception):
-        """Something is not yet implemented"""
-        pass
-
-    class InvalidResponseError(Exception):
-        """Invalid, unexpected, malformed or unparsable response.
-
-Possible reasons might be YMAPlib bug, IMAP server error or connection borkage.
-"""
-        pass
-
-    class ParseError(InvalidResponseError):
-        """Unable to parse server's response"""
-        pass
-
-    class UnknownResponseError(InvalidResponseError):
-        """Unknown response from server"""
-        pass
-
-    class TimeoutError:
-        """Socket timed out"""
-        pass
-    
+   
     class ResponsesStreamThread(threading.Thread):
         """Thread for handling responses from server"""
         
@@ -179,7 +179,6 @@ Possible reasons might be YMAPlib bug, IMAP server error or connection borkage.
                 self.parser.stream_lock.release()
                 time.sleep(1)
                 
-
     _tag_prefix = "ym"
     _re_tagged_response = re.compile(_tag_prefix + r'\d+ ')
     _re_nil = re.compile("^NIL", re.IGNORECASE)
@@ -250,7 +249,7 @@ Possible reasons might be YMAPlib bug, IMAP server error or connection borkage.
         """Read size octets from server's output"""
 
         if not self._stream.has_data():
-            raise self.TimeoutError
+            raise TimeoutError
         buf = self._stream.read(size)
         if __debug__:
             if self.debug >= 5:
@@ -271,14 +270,14 @@ Based on the method of imaplib's IMAP4 class.
 """
 
         if not self._stream.has_data():
-            raise self.TimeoutError
+            raise TimeoutError
         line = self._stream.readline()
         if not line:
-            raise self.InvalidResponseError("socket error: EOF")
+            raise InvalidResponseError("socket error: EOF")
 
         # Protocol mandates all lines terminated by CRLF
         if not line.endswith(CRLF):
-            raise self.InvalidResponseError("line doesn't end with CRLF")
+            raise InvalidResponseError("line doesn't end with CRLF")
 
         # Trim the trailing CRLF
         line = line[:-len(CRLF)]
@@ -299,7 +298,7 @@ Based on the method of imaplib's IMAP4 class.
         elif line.startswith('+ '):
             # Command Continuation Request
             # FIXME: :)
-            raise self.NotImplementedError(line)
+            raise NotImplementedError(line)
         elif self._re_tagged_response.match(line):
             # Tagged response
             try:
@@ -307,12 +306,12 @@ Based on the method of imaplib's IMAP4 class.
                 response.tag = line[:pos]
                 line = line[pos + 1:]
             except ValueError:
-                raise self.ParseError(line)
+                raise ParseError(line)
             if not response.tag in self.tagged_responses:
-                raise self.InvalidResponseError(line)
+                raise InvalidResponseError(line)
         else:
             # Unparsable response
-            raise self.ParseError(line)
+            raise ParseError(line)
 
         if response.tag is not None:
             test = self._re_resp_status_tagged
@@ -341,7 +340,7 @@ Based on the method of imaplib's IMAP4 class.
                     line = line[last + 2:]
                 except ValueError:
                     # line contains "[" but no "]"
-                    raise self.ParseError(line)
+                    raise ParseError(line)
             # the rest of the line should be only a string
             response.data = line
         elif response.tag is None:
@@ -354,7 +353,7 @@ Based on the method of imaplib's IMAP4 class.
                     try:
                         response.data = (r.groups()[0], r.groups()[1])
                     except IndexError:
-                        raise self.ParseError(line)
+                        raise ParseError(line)
                     break
                 elif response.kind is not None:
                     # we've matched against some command
@@ -363,7 +362,7 @@ Based on the method of imaplib's IMAP4 class.
 
         if response.kind is None:
             # response kind wasn't detected so far
-            raise self.UnknownResponseError(line)
+            raise UnknownResponseError(line)
         return self._parse_response_data(response)
 
     @classmethod
@@ -388,7 +387,7 @@ Based on the method of imaplib's IMAP4 class.
         elif self._helper_foreach(code, self._re_response_code_parenthesized)[0] is not None:
             # "[atom (foo bar)]"
             if not line.startswith('(') or not line.endswith(')'):
-                raise self.ParseError(line)
+                raise ParseError(line)
             buf = line[1:-1].split(' ')
             if buf == ['']:
                 return ()
@@ -408,7 +407,7 @@ Based on the method of imaplib's IMAP4 class.
         # this one *can't* be classmethod as we might need to read a literal
         if response.tag is not None:
             if response.kind not in self._resp_status_tagged:
-                raise self.UnknownResponseError(response)
+                raise UnknownResponseError(response)
             # RFC specifies the rest of the line to be "human readable text"
             # so we don't have much to do here :)
         else:
@@ -428,7 +427,7 @@ Based on the method of imaplib's IMAP4 class.
                     pos2 = response.data.index(')')
                     buf = [tuple(response.data[pos1 + 1:pos2].split(' '))]
                 except ValueError:
-                    raise self.ParseError(response)
+                    raise ParseError(response)
                 line = response.data[pos2 + 2:]
                 (s, line) = self._extract_astring(line)
                 buf.append(s)
@@ -439,7 +438,7 @@ Based on the method of imaplib's IMAP4 class.
                 (s, line) = self._extract_astring(response.data)
                 response.data = [s]
                 if not line.startswith('(') or not line.endswith(')'):
-                    raise self.ParseError(line)
+                    raise ParseError(line)
                 items = line[1:-1].split(' ')
                 buf = {}
                 last = None
@@ -453,7 +452,7 @@ Based on the method of imaplib's IMAP4 class.
                         try:
                             buf[last] = int(item)
                         except ValueError:
-                            raise self.ParseError(response)
+                            raise ParseError(response)
                         last = None
                 response.data.append(buf)
                 response.data = tuple(response.data)
@@ -465,12 +464,12 @@ Based on the method of imaplib's IMAP4 class.
                     try:
                         items = [int(item) for item in items]
                     except ValueError:
-                        raise self.ParseError(response)
+                        raise ParseError(response)
                     response.data = tuple(items)
             elif response.kind == 'FLAGS':
                 if not response.data.startswith('(') \
                   or not response.data.endswith(')'):
-                    raise self.ParseError(line)
+                    raise ParseError(line)
                 items = response.data[1:-1].split(' ')
                 response.data = tuple(items)
             elif response.kind == 'FETCH':
@@ -478,7 +477,7 @@ Based on the method of imaplib's IMAP4 class.
                 try:
                     msgno = int(response.data[0])
                 except ValueError:
-                    raise self.ParseError(response)
+                    raise ParseError(response)
                 line = response.data[1]
                 if not line.startswith('('):
                     # response isn't enclosed in parentheses
@@ -492,7 +491,7 @@ Based on the method of imaplib's IMAP4 class.
                 # "* THREAD data"
                 response.data = self._parse_thread_response(response.data)
             else:
-                raise self.NotImplementedError(response)
+                raise NotImplementedError(response)
         return response
 
     def _parse_parenthesized_line(self, line):
@@ -555,10 +554,10 @@ Based on the method of imaplib's IMAP4 class.
                         parent.children = parent.children
                     parent = stack.pop()
                 else:
-                    raise self.ParseError(line)
+                    raise ParseError(line)
             except IndexError:
                 # wrong combination of parentheses
-                raise self.ParseError(line)
+                raise ParseError(line)
             last_token = s
         return root
 
@@ -600,7 +599,7 @@ Based on the method of imaplib's IMAP4 class.
                         buf += '\\' + string[pos]
                         escaping = False
                         # FIXME: need a mechanism to report non-fatal errors
-                        #raise cls.ParseError(string)
+                        #raise ParseError(string)
                     escaping = False
                 elif string[pos] == '"':
                     go_on = False
@@ -611,7 +610,7 @@ Based on the method of imaplib's IMAP4 class.
                 pos += 1
             if go_on:
                 # unterminated quoted string
-                raise cls.ParseError(string)
+                raise ParseError(string)
             else:
                 string = string[pos:]
         elif string.startswith('(') or string.startswith(')'):
