@@ -13,6 +13,8 @@ from __future__ import generators
 import re
 import threading
 import Queue
+import os
+import select
 if __debug__:
     import sys, time
 
@@ -31,7 +33,6 @@ work on Win32 systems due to their lack of poll() functionality on pipes.
 """
 
     def __init__(self, command, timeout=-1):
-        import os, select
         # disable buffering, otherwise readline() might read more than just
         # one line and following poll() would say that there's nothing to read
         (self._w, self._r) = os.popen2(command, bufsize=0)
@@ -47,7 +48,12 @@ work on Win32 systems due to their lack of poll() functionality on pipes.
         """Check if we can read from socket without blocking"""
         if timeout is None:
             timeout = self.timeout
-        return bool(len(self._r_poll.poll(timeout)))
+        polled = self._r_poll.poll(timeout)
+        if len(polled):
+            # some event is available, check if it's about POLLIN
+            return bool(polled[0][1] & select.POLLIN)
+        else:
+            return False
 
 
 class TCPStream:
@@ -179,6 +185,7 @@ class IMAPParser:
                 self.parser.stream_lock.release()
                 # FIXME: we don't have to sleep(), do we?
                 #time.sleep(1)
+
                 
     _tag_prefix = "ym"
     _re_tagged_response = re.compile(_tag_prefix + r'\d+ ')
@@ -274,7 +281,9 @@ Based on the method of imaplib's IMAP4 class.
             raise TimeoutError
         line = self._stream.readline()
         if not line:
+            #FIXME: return or what should we do???
             raise InvalidResponseError("socket error: EOF")
+            #return ''
 
         # Protocol mandates all lines terminated by CRLF
         if not line.endswith(CRLF):
@@ -479,25 +488,8 @@ Based on the method of imaplib's IMAP4 class.
                     msgno = int(response.data[0])
                 except ValueError:
                     raise ParseError(response)
-                line = response.data[1]
-                if not line.startswith('('):
-                    # response isn't enclosed in parentheses
-                    line = response.data[1] + ')'
-                    if self.debug > 2:
-                        self._log('adding parenthesis to %s' % response)
-                else:
-                    line = line[1:]
-                buf = {}
-                for i, item in enumerate(self._parse_parenthesized_line(line)[0]):
-                    if i % 2:
-                        buf[last] = item
-                        last = None
-                    else:
-                        last = item
-                if last is not None:
-                    # odd number of items
-                    raise InvalidResponseError(line)
-                response.data = (msgno, buf)
+                response.data = (msgno, 
+                                 self._parse_fetch_response(response.data[1]))
             elif response.kind == 'THREAD':
                 # "* THREAD data"
                 response.data = self._parse_thread_response(response.data)
@@ -565,6 +557,31 @@ Based on the method of imaplib's IMAP4 class.
                 raise ParseError(line)
             last_token = s
         return root
+    
+    def _parse_fetch_response(self, line):
+        """Parse a string with FETCH response to a Python data structure"""
+        if not line.startswith('('):
+            # response isn't enclosed in parentheses
+            line = response.data[1] + ')'
+            if self.debug > 2:
+                self._log('adding parenthesis to %s' % response)
+        else:
+            line = line[1:]
+        buf = {}
+        last = None
+        for i, item in enumerate(self._parse_parenthesized_line(line)[0]):
+            if i % 2:
+                if last == 'ENVELOPE':
+                    buf[last] = IMAPEnvelope(*item)
+                else:
+                    buf[last] = item
+                last = None
+            else:
+                last = item.upper()
+        if last is not None:
+            # odd number of items
+            raise InvalidResponseError(line)
+        return buf
 
     def _extract_string(self, string):
         """Extract string, including checks for literals"""
@@ -725,7 +742,27 @@ Based on the method of imaplib's IMAP4 class.
 
 class IMAPEnvelope:
     """Container for RFC822 envelope"""
-    pass
+    
+    def __repr__(self):
+        return ('<ymaplib.IMAPEnvelope: Date: %s, Subj: "%s", From: %s, ' + \
+               'Sender: %s, Reply-To: %s, To: %s, Cc: %s, Bcc: %s, ' + \
+               'In-Reply-To: %s, Message-Id: %s>') % (self.date, self.subject,
+               self.from_, self.sender, self.reply_to, self.to, self.cc, 
+               self.bcc, self.in_reply_to, self.message_id)
+    
+    def __init__(self, date=None, subject=None, from_=None, sender=None, 
+                 reply_to=None, to=None, cc=None, bcc=None, in_reply_to=None,
+                 message_id=None):
+        self.date = date
+        self.subject = subject
+        self.from_ = from_
+        self.sender= sender
+        self.reply_to = reply_to
+        self.to = to
+        self.cc = cc
+        self.bcc = bcc
+        self.in_reply_to = in_reply_to
+        self.message_id = message_id
 
 
 class IMAPMessage:
