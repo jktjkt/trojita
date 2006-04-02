@@ -51,14 +51,13 @@ work on Win32 systems due to their lack of poll() functionality on pipes.
         if timeout is None:
             timeout = self.timeout
         polled = self._r_poll.poll(timeout)
-        print polled
         if len(polled):
             result = polled[0][1]
             if result & select.POLLIN:
                 return True
             elif result & select.POLLHUP:
                 # connection is closed
-                #time.sleep(timeout*1000)
+                time.sleep(timeout*1000)
                 return False
             else:
                 return False
@@ -156,49 +155,17 @@ class TimeoutError:
 
 class IMAPParser:
     """Streamed connection to the IMAP4rev1 compliant IMAP server"""
-   
-    class ResponsesStreamThread(threading.Thread):
-        """Thread for handling responses from server"""
-        
-        # don't lock the stream for more than $number responses
-        unlock_every = 32
-        
+
+    class WorkerThread(threading.Thread):
+        """Just a wrapper around IMAPParser.loop()"""
         def __init__(self, parser):
             threading.Thread.__init__(self)
             self.setDaemon(True)
             self.parser = parser
-            
-        def run(self):
-            while self.parser._stream:
-                counter = 0
-                print 'zadny locky, imho'
-                self.parser.stream_lock.acquire()
-                while self.parser._stream.has_data(200):
-                    # we don't want to wait too long, but we *have* to wait
-                    # otherwise we'd eat all the CPU resources...
-                    # in this case, we hold the stream_lock for up to 200ms
-                    response = self.parser._parse_line(self.parser._get_line())
-                
-                    if response.tag is not None:
-                        self.parser.tagged_responses_lock.acquire()
-                        self.parser.tagged_responses[response.tag] = response
-                        self.parser.tagged_responses_lock.release()
-                    else:
-                        self.parser.untagged_responses.put(response)
-                        #self.parser.untagged_responses_lock.acquire()
-                        #self.parser.untagged_responses.append(response)
-                        #self.parser.untagged_responses_lock.release()
-                    # FIXME: do something with the response - enable some event?
-                    counter += 1
-                    if counter >= self.unlock_every:
-                        # we've processed a lot of responses, so let's give
-                        # other threads a chance to work
-                        break
-                self.parser.stream_lock.release()
-                # FIXME: no need to wait, right?
-                time.sleep(0)
 
-                
+        def run(self):
+            self.parser.loop()
+
     _tag_prefix = "ym"
     _re_tagged_response = re.compile(_tag_prefix + r'\d+ ')
     _re_nil = re.compile("^NIL", re.IGNORECASE)
@@ -256,14 +223,34 @@ class IMAPParser:
         else:
             self.debug = 0
         self.last_tag_num = 0
-        self.untagged_responses = Queue.Queue()
-        self.tagged_responses = {}
         
-        self.stream_lock = threading.Lock()
-        self.tagged_responses_lock = threading.Lock()
+        self._incoming = Queue.Queue()
+        self._outgoing = Queue.Queue()
         
-        self.responses_stream_thread = self.ResponsesStreamThread(self)
-        self.responses_stream_thread.start()
+        self._worker = self.WorkerThread(self)
+        self._worker.start()
+
+    def cmd(self, command):
+        """Add a command to the queue"""
+        self._incoming.put(command)
+        pass
+    
+    def loop(self):
+        """Main loop - parse responses from server, send commands,..."""
+        while 1:
+            if not self._incoming.empty():
+                # there's a command in the queue, let's process it
+                command = self._incoming.get()
+                self._send_command(command)
+            if self._stream.has_data(200):
+                # some response to read
+                response = self._parse_line(self._get_line())
+                self._outgoing.put(response)
+
+    def get(self):
+        """Return a server reply"""
+        # FIXME: needs timeouts etc...
+        return self._outgoing.get()
 
     def _read(self, size):
         """Read size octets from server's output"""
@@ -329,8 +316,9 @@ Based on the method of imaplib's IMAP4 class.
                 line = line[pos + 1:]
             except ValueError:
                 raise ParseError(line)
-            if not response.tag in self.tagged_responses:
-                raise InvalidResponseError(line)
+            # FIXME: removed, we don't check the tags
+            #if not response.tag in self.tagged_responses:
+            #    raise InvalidResponseError(line)
         else:
             # Unparsable response
             raise ParseError(line)
@@ -694,54 +682,13 @@ Based on the method of imaplib's IMAP4 class.
                     s = s[1:]
                 yield buf
 
-    def send_command(self, command):
+    def _send_command(self, command):
         """Sends a raw command, wrapping it with apropriate tag"""
-        self.tagged_responses_lock.acquire()
         self.last_tag_num += 1
         tag_name = self._make_tag()
-        self.tagged_responses[tag_name] = None
-        self.tagged_responses_lock.release()
-        print 'send_command(): self.stream_lock.acquire()'
-        self.stream_lock.acquire()
-        print 'send_command(): got it.'
         self._write(tag_name + ' ' + command + CRLF)
         self._stream.flush()
-        print 'send_command(): releasing'
-        self.stream_lock.release()
-        print 'send_command(): released'
         return tag_name
-
-    def get_tagged(self, tag):
-        """Returns tagged response associated with given tag *and* extracts it from buffer"""
-        response = None
-        self.tagged_responses_lock.acquire()
-        try:
-            try:
-                response = self.tagged_responses[tag]
-                del self.tagged_responses[tag]
-            except KeyError:
-                pass
-        finally:
-            self.tagged_responses_lock.release()
-            return response
-
-    def get_untagged_responses(self):
-        """[DEPRECATED???] Returns all buffered untagged responses"""
-        buf = []
-        while not self.untagged_responses.empty():
-            buf.append(self.untagged_responses.get())
-        #self.untagged_responses_lock.acquire()
-        #buf = self.untagged_responses
-        #self.untagged_responses = []
-        #self.untagged_responses_lock.release()
-        return buf
-
-    def get_available_tags(self):
-        """Return a list of tags which are either completed or in progress"""
-        self.tagged_responses_lock.acquire()
-        buf = self.tagged_responses.keys()
-        self.tagged_responses_lock.release()
-        return buf
 
     def _make_tag(self):
         """Create a string tag"""
