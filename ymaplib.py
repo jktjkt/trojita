@@ -14,7 +14,6 @@ import sys
 import os
 import re
 import threading
-import thread
 import Queue
 import select
 import socket
@@ -136,9 +135,10 @@ class IMAPThreadItem:
     def __repr__(self):
         return "<ymaplib.IMAPThreadItem %s: %s>" % (self.id, self.children)
 
-class NotImplementedError(Exception):
-    """Something is not yet implemented"""
-    pass
+# Already defined...
+#class NotImplementedError(Exception):
+#    """Something is not yet implemented"""
+#    pass
 
 class InvalidResponseError(Exception):
     """Invalid, unexpected, malformed or unparsable response.
@@ -215,7 +215,8 @@ class IMAPParser:
     _re_resp_server_mailbox_status = _make_res('^%s ?(.*)',
                                       _resp_server_mailbox_status)
     _re_resp_mailbox_size = _make_res(r'^(\d+) %s', _resp_mailbox_size)
-    _re_resp_message_status = _make_res(r'^(\d+) %s ?(.*)', _resp_message_status)
+    _re_resp_message_status = _make_res(r'^(\d+) %s ?(.*)', 
+                                         _resp_message_status)
     # the ' ?(.*)' is here to allow matching of FETCH responses
     _re_resp_imapext_sort = _make_res('^%s ?(.*)', _resp_imapext_sort)
 
@@ -255,10 +256,10 @@ class IMAPParser:
             traceback.print_exception(*exc)
             raise exc[1]
 
-    def _queue_cmd(self, str):
+    def _queue_cmd(self, command):
         """Add a command to the queue"""
         self._check_worker_exceptions()
-        self._incoming.put(str)
+        self._incoming.put(command)
     
     def loop(self):
         """Main loop - parse responses from server, send commands,..."""
@@ -575,7 +576,10 @@ Based on the method of imaplib's IMAP4 class.
 
     @classmethod
     def _helper_foreach(cls, item, iterable):
-        """Helper function - if line matches iterable[x][1], returns (iterable[x][0], r.match(item))"""
+        """Helper function :)
+        
+        If line matches iterable[x][1], returns (iterable[x][0], r.match(item))
+        """
 
         for name, r in iterable:
             foo = r.match(item)
@@ -586,13 +590,16 @@ Based on the method of imaplib's IMAP4 class.
     def _parse_response_code(self, code, line):
         """Parse optional (sect 7.1) response codes"""
 
-        if self._helper_foreach(code, self._re_response_code_single)[0] is not None:
+        if self._helper_foreach(code,
+                        self._re_response_code_single)[0] is not None:
             # "[atom]"
             return None
-        elif self._helper_foreach(code, self._re_response_code_number)[0] is not None:
+        elif self._helper_foreach(code,
+                          self._re_response_code_number)[0] is not None:
             # "[atom number]"
             return int(line)
-        elif self._helper_foreach(code, self._re_response_code_parenthesized)[0] is not None:
+        elif self._helper_foreach(code,
+                          self._re_response_code_parenthesized)[0] is not None:
             # "[atom (foo bar)]"
             if not line.startswith('(') or not line.endswith(')'):
                 raise ParseError(line)
@@ -601,7 +608,8 @@ Based on the method of imaplib's IMAP4 class.
                 return ()
             else:
                 return tuple(line[1:-1].split(' '))
-        elif self._helper_foreach(code, self._re_response_code_spaces)[0] is not None:
+        elif self._helper_foreach(code,
+                          self._re_response_code_spaces)[0] is not None:
             # "[atom foo bar]"
             return tuple(line.split(' '))
         else:
@@ -714,7 +722,10 @@ Based on the method of imaplib's IMAP4 class.
         return (tuple(buf), line)
 
     def _parse_thread_response(self, line):
-        """Parse draft-ietf-imapext-sort-17 THREAD respone into Python data structure"""
+        """Parse THREAD respone into Python data structure
+        
+        See draft-ietf-imapext-sort-17
+        """
         parent = IMAPThreadItem()
         parent.children = []
         last_token = ' '
@@ -723,8 +734,8 @@ Based on the method of imaplib's IMAP4 class.
         root = parent
         for s in self._extract_thread_response(line):
             try:
-                if (last_token == ' ' or last_token == '(' or last_token == ')') \
-                   and s == ' ':
+                if (last_token == ' ' or last_token == '(' or 
+                     last_token == ')') and s == ' ':
                     # ignore more spaces...
                     continue
                 if s.isdigit():
@@ -760,9 +771,9 @@ Based on the method of imaplib's IMAP4 class.
         """Parse a string with FETCH response to a Python data structure"""
         if not line.startswith('('):
             # response isn't enclosed in parentheses
-            line = response.data[1] + ')'
+            line = line + ')'
             if self.debug > 2:
-                self._log('adding parenthesis to %s' % response)
+                self._log('adding parenthesis to %s' % line)
         else:
             line = line[1:]
         buf = {}
@@ -867,7 +878,7 @@ Based on the method of imaplib's IMAP4 class.
 
     @classmethod
     def _extract_thread_response(cls, s):
-        """Tokenize the THREAD response into parentheses and spaces (helper function)"""
+        """Tokenize the THREAD response into parentheses and spaces"""
         while s != '':
             if s.startswith(' ') or s.startswith('(') or s.startswith(')'):
                 yield s[0]
@@ -909,7 +920,7 @@ class IMAPEnvelope:
         self.date = date
         self.subject = subject
         self.from_ = from_
-        self.sender= sender
+        self.sender = sender
         self.reply_to = reply_to
         self.to = to
         self.cc = cc
