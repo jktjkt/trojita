@@ -10,13 +10,15 @@ Inspired by the Python's imaplib library.
 """
 
 from __future__ import generators
+import sys
+import os
 import re
 import threading
+import thread
 import Queue
-import os
 import select
-if __debug__:
-    import sys, time
+import socket
+import time
 
 __version__ = "0.1"
 __revision__ = '$Id$'
@@ -49,9 +51,17 @@ work on Win32 systems due to their lack of poll() functionality on pipes.
         if timeout is None:
             timeout = self.timeout
         polled = self._r_poll.poll(timeout)
+        print polled
         if len(polled):
-            # some event is available, check if it's about POLLIN
-            return bool(polled[0][1] & select.POLLIN)
+            result = polled[0][1]
+            if result & select.POLLIN:
+                return True
+            elif result & select.POLLHUP:
+                # connection is closed
+                #time.sleep(timeout*1000)
+                return False
+            else:
+                return False
         else:
             return False
 
@@ -60,7 +70,6 @@ class TCPStream:
     """Streamed TCP/IP connection"""
 
     def __init__(self, host, port, timeout=-1):
-        import socket, select
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._sock.connect((host, port))
         self._file = self._sock.makefile('rb', bufsize=0)
@@ -162,9 +171,12 @@ class IMAPParser:
         def run(self):
             while self.parser._stream:
                 counter = 0
+                print 'zadny locky, imho'
                 self.parser.stream_lock.acquire()
-                while self.parser._stream.has_data(0):
-                    # we don't want to wait too long
+                while self.parser._stream.has_data(200):
+                    # we don't want to wait too long, but we *have* to wait
+                    # otherwise we'd eat all the CPU resources...
+                    # in this case, we hold the stream_lock for up to 200ms
                     response = self.parser._parse_line(self.parser._get_line())
                 
                     if response.tag is not None:
@@ -183,8 +195,8 @@ class IMAPParser:
                         # other threads a chance to work
                         break
                 self.parser.stream_lock.release()
-                # FIXME: we don't have to sleep(), do we?
-                #time.sleep(1)
+                # FIXME: no need to wait, right?
+                time.sleep(0)
 
                 
     _tag_prefix = "ym"
@@ -689,10 +701,14 @@ Based on the method of imaplib's IMAP4 class.
         tag_name = self._make_tag()
         self.tagged_responses[tag_name] = None
         self.tagged_responses_lock.release()
+        print 'send_command(): self.stream_lock.acquire()'
         self.stream_lock.acquire()
+        print 'send_command(): got it.'
         self._write(tag_name + ' ' + command + CRLF)
         self._stream.flush()
+        print 'send_command(): releasing'
         self.stream_lock.release()
+        print 'send_command(): released'
         return tag_name
 
     def get_tagged(self, tag):
