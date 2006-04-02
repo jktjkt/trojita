@@ -19,6 +19,7 @@ import Queue
 import select
 import socket
 import time
+import traceback
 
 __version__ = "0.1"
 __revision__ = '$Id$'
@@ -57,7 +58,7 @@ work on Win32 systems due to their lack of poll() functionality on pipes.
                 return True
             elif result & select.POLLHUP:
                 # connection is closed
-                time.sleep(timeout*1000)
+                time.sleep(timeout/1000.0)
                 return False
             else:
                 return False
@@ -157,14 +158,18 @@ class IMAPParser:
     """Streamed connection to the IMAP4rev1 compliant IMAP server"""
 
     class WorkerThread(threading.Thread):
-        """Just a wrapper around IMAPParser.loop()"""
+        """Just a wrapper around IMAPParser.loop() and exception handling"""
         def __init__(self, parser):
             threading.Thread.__init__(self)
             self.setDaemon(True)
             self.parser = parser
 
         def run(self):
-            self.parser.loop()
+            try:
+                while 1:
+                    self.parser.loop()
+            except:
+                self.parser.worker_exceptions.put(sys.exc_info())
 
     _tag_prefix = "ym"
     _re_tagged_response = re.compile(_tag_prefix + r'\d+ ')
@@ -223,32 +228,44 @@ class IMAPParser:
         else:
             self.debug = 0
         self.last_tag_num = 0
-        
+
         self._incoming = Queue.Queue()
         self._outgoing = Queue.Queue()
-        
+        self.worker_exceptions = Queue.Queue()
+
+        # FIXME: do we really want to start the thread here?
         self._worker = self.WorkerThread(self)
         self._worker.start()
+        
+        # does the server support LITERAL+ extension?
+        self.literal_plus = False
 
-    def cmd(self, command):
+    def _check_worker_exceptions(self):
+        """Check if there was an exception in the worker thread"""
+        # FIXME: what action to make? Raise an exception or what?
+        if not self.worker_exceptions.empty():
+            exc = self.worker_exceptions.get()
+            print 'Exception in self._worker:'
+            traceback.print_exception(*exc)
+            raise exc[1]
+
+    def _queue_cmd(self, str):
         """Add a command to the queue"""
-        self._incoming.put(command)
-        pass
+        self._check_worker_exceptions()
+        self._incoming.put(str)
     
     def loop(self):
         """Main loop - parse responses from server, send commands,..."""
-        while 1:
-            if not self._incoming.empty():
-                # there's a command in the queue, let's process it
-                command = self._incoming.get()
-                self._send_command(command)
-            if self._stream.has_data(200):
-                # some response to read
-                response = self._parse_line(self._get_line())
-                self._outgoing.put(response)
+        if not self._incoming.empty():
+            # there's a command in the queue, let's process it
+            self._send_command(self._incoming.get())
+        if self._stream.has_data(50):
+            # some response to read
+            self._outgoing.put(self._parse_line(self._get_line()))
 
     def get(self):
         """Return a server reply"""
+        self._check_worker_exceptions()
         # FIXME: needs timeouts etc...
         return self._outgoing.get()
 
@@ -270,6 +287,123 @@ class IMAPParser:
                 self._log('> %s' % data)
         return self._stream.write(data)
 
+    def cmd_capability(self):
+        """Send a CAPABILITY command"""
+        return self._queue_cmd('CAPABILITY')
+
+    def cmd_noop(self):
+        """Send a NOOP command"""
+        return self._queue_cmd('NOOP')
+
+    def cmd_logout(self):
+        """Send a LOGOUT command"""
+        # FIXME: adjust the state correctly...
+        return self._queue_cmd('LOGOUT')
+
+    def cmd_starttls(self):
+        """Perform a TLS negotiation"""
+        raise NotImplementedError
+
+    def cmd_authenticate(self):
+        """Authenticate to the server"""
+        raise NotImplementedError
+
+    def cmd_login(self, username, password):
+        """Login with supplied username and password"""
+        raise NotImplementedError
+
+    def cmd_select(self, mailbox):
+        """Select a mailbox"""
+        raise NotImplementedError
+
+    def cmd_examine(self, mailbox):
+        """Examine a mailbox"""
+        raise NotImplementedError
+
+    def cmd_create(self, mailbox):
+        """Create a mailbox"""
+        raise NotImplementedError
+
+    def cmd_delete(self, mailbox):
+        """Delete a mailbox"""
+        raise NotImplementedError
+
+    def cmd_rename(self, old_name, new_name):
+        """Rename a mailbox"""
+        raise NotImplementedError
+
+    def cmd_subscribe(self, mailbox):
+        """Subscribe a mailbox"""
+        raise NotImplementedError
+
+    def cmd_unsubscribe(self, mailbox):
+        """Unsubscribe a mailbox"""
+        raise NotImplementedError
+
+    def cmd_list(self, reference, name):
+        """Send a LIST command"""
+        raise NotImplementedError
+
+    def cmd_lsub(self, reference, name):
+        """Send a LSUB command"""
+        raise NotImplementedError
+
+    def cmd_status(self, mailbox, items):
+        """Send a STATUS command"""
+        raise NotImplementedError
+
+    def cmd_append(self, mailbox, message, flags=(), timestamp=None):
+        """Send an APPEND command"""
+        raise NotImplementedError
+
+    def cmd_check(self):
+        """Send a CHECK command"""
+        return self._queue_cmd('CHECK')
+
+    def cmd_close(self):
+        """Send a CLOSE command"""
+        return self._queue_cmd('CLOSE')
+
+    def cmd_expunge(self):
+        """Send an EXPUNGE command"""
+        return self._queue_cmd('EXPUNGE')
+
+    def cmd_search(self, criteria, charset=None):
+        """Perform a SEARCH for messages"""
+        #str = "SEARCH "
+        #if charset is not None:
+        #    str += "CHARSET %s" % charset
+        # again, literals :(
+        raise NotImplementedError
+
+    def cmd_fetch(self, sequence, items):
+        """Perform a FETCH command"""
+        raise NotImplementedError
+
+    def cmd_store(self, sequence, item, value):
+        """STORE message flags"""
+        raise NotImplementedError
+
+    def cmd_copy(self, sequence, mailbox):
+        """COPY command"""
+        raise NotImplementedError
+
+    def cmd_uid_fetch(self, sequence, items):
+        """UID FETCH command"""
+        raise NotImplementedError
+
+    def cmd_uid_search(self, criteria, charset=None):
+        """UID SEARCH"""
+        raise NotImplementedError
+
+    def cmd_xatom(self):
+        """X<atom> command"""
+        raise NotImplementedError
+
+    def cmd_unselect(self):
+        """UNSELECT a mailbox"""
+        return self._queue_cmd('UNSELECT')
+
     def _get_line(self):
         """Get one line of server's output.
 
@@ -280,9 +414,7 @@ Based on the method of imaplib's IMAP4 class.
             raise TimeoutError
         line = self._stream.readline()
         if not line:
-            #FIXME: return or what should we do???
             raise InvalidResponseError("socket error: EOF")
-            #return ''
 
         # Protocol mandates all lines terminated by CRLF
         if not line.endswith(CRLF):
@@ -316,9 +448,6 @@ Based on the method of imaplib's IMAP4 class.
                 line = line[pos + 1:]
             except ValueError:
                 raise ParseError(line)
-            # FIXME: removed, we don't check the tags
-            #if not response.tag in self.tagged_responses:
-            #    raise InvalidResponseError(line)
         else:
             # Unparsable response
             raise ParseError(line)
