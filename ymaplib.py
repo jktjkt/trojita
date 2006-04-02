@@ -26,6 +26,12 @@ __revision__ = '$Id$'
 __all__ = ["IMAPParser", "IMAPResponse", "IMAPNIL", "IMAPThreadItem",
            "ProcessStream", "TCPStream"]
 
+# FIXME: add support for IDLE
+# FIXME: implement all the standard commands
+# FIXME: fix utf-7 in mailbox names (look at twisted imap)
+# FIXME: make LITERAL+ *optional*
+# FIXME: MULTIAPPEND, ID, UIDPLUS, NAMESPACE, QUOTA
+
 CRLF = "\r\n"
 
 class ProcessStream:
@@ -258,7 +264,35 @@ class IMAPParser:
         """Main loop - parse responses from server, send commands,..."""
         if not self._incoming.empty():
             # there's a command in the queue, let's process it
-            self._send_command(self._incoming.get())
+            command = self._incoming.get()
+            self.last_tag_num += 1
+            tag_name = self._make_tag()
+            self._write(tag_name)
+            for item in command:
+                if isinstance(item, str):
+                    self._write(' ' + item)
+                elif isinstance(item, tuple):
+                    # guess the best way to encode it
+                    if not len(item[0]):
+                        # empty string
+                        self._write(' ""')
+                    elif item[0].isalnum():
+                        # atomable
+                        self._write(' ' + item[0])
+                    elif item[0].find("\n") == -1 and item[0].find("\r") == -1:
+                        # quotable
+                        self._write(' "' +
+                            item[0].replace('\\', '\\\\').replace('"', '\\"') +
+                            '"')
+                    else:
+                        # literal
+                        if self.literal_plus:
+                            self._write((' {%d+}' % len(item[0])) + CRLF +
+                                        item[0])
+                        else:
+                            raise NotImplementedError
+            self._write(CRLF)
+            self._stream.flush()
         if self._stream.has_data(50):
             # some response to read
             self._outgoing.put(self._parse_line(self._get_line()))
@@ -284,125 +318,159 @@ class IMAPParser:
         """Write data to server"""
         if __debug__:
             if self.debug >= 5:
-                self._log('> %s' % data)
+                self._log("> '%s'" % data)
         return self._stream.write(data)
 
     def cmd_capability(self):
         """Send a CAPABILITY command"""
-        return self._queue_cmd('CAPABILITY')
+        return self._queue_cmd(('CAPABILITY',))
 
     def cmd_noop(self):
         """Send a NOOP command"""
-        return self._queue_cmd('NOOP')
+        return self._queue_cmd(('NOOP',))
 
     def cmd_logout(self):
         """Send a LOGOUT command"""
         # FIXME: adjust the state correctly...
-        return self._queue_cmd('LOGOUT')
+        return self._queue_cmd(('LOGOUT',))
 
     def cmd_starttls(self):
         """Perform a TLS negotiation"""
+        # FIXME: STARTTLS
         raise NotImplementedError
 
     def cmd_authenticate(self):
         """Authenticate to the server"""
+        # FIXME: implement it & update parameters
         raise NotImplementedError
 
     def cmd_login(self, username, password):
         """Login with supplied username and password"""
+        # FIXME:
         raise NotImplementedError
 
     def cmd_select(self, mailbox):
         """Select a mailbox"""
-        raise NotImplementedError
+        self._queue_cmd(('SELECT', (mailbox,)))
 
     def cmd_examine(self, mailbox):
         """Examine a mailbox"""
-        raise NotImplementedError
+        self._queue_cmd(('EXAMINE', (mailbox,)))
 
     def cmd_create(self, mailbox):
         """Create a mailbox"""
-        raise NotImplementedError
+        self._queue_cmd(('CREATE', (mailbox,)))
 
     def cmd_delete(self, mailbox):
         """Delete a mailbox"""
-        raise NotImplementedError
+        self._queue_cmd(('DELETE', (mailbox,)))
 
     def cmd_rename(self, old_name, new_name):
         """Rename a mailbox"""
-        raise NotImplementedError
+        self._queue_cmd(('RENAME', (old_name,), (new_name,)))
 
     def cmd_subscribe(self, mailbox):
         """Subscribe a mailbox"""
-        raise NotImplementedError
+        self._queue_cmd(('SUBSCRIBE', (mailbox,)))
 
     def cmd_unsubscribe(self, mailbox):
         """Unsubscribe a mailbox"""
-        raise NotImplementedError
+        self._queue_cmd(('UNSUBSCRIBE', (mailbox,)))
 
     def cmd_list(self, reference, name):
         """Send a LIST command"""
-        raise NotImplementedError
+        self._queue_cmd(('LIST', (reference,), (name,)))
 
     def cmd_lsub(self, reference, name):
         """Send a LSUB command"""
-        raise NotImplementedError
+        self._queue_cmd(('LSUB', (reference,), (name,)))
 
     def cmd_status(self, mailbox, items):
         """Send a STATUS command"""
-        raise NotImplementedError
+        self._queue_cmd(('STATUS', (mailbox,), "(" + items + ")"))
 
     def cmd_append(self, mailbox, message, flags=(), timestamp=None):
         """Send an APPEND command"""
+        # FIXME: APPEND
         raise NotImplementedError
 
     def cmd_check(self):
         """Send a CHECK command"""
-        return self._queue_cmd('CHECK')
+        return self._queue_cmd(('CHECK',))
 
     def cmd_close(self):
         """Send a CLOSE command"""
-        return self._queue_cmd('CLOSE')
+        return self._queue_cmd(('CLOSE',))
 
     def cmd_expunge(self):
         """Send an EXPUNGE command"""
-        return self._queue_cmd('EXPUNGE')
+        return self._queue_cmd(('EXPUNGE',))
+
+    def _cmd_search(self, cmdname, criteria, charset=None):
+        """SEARCH or UID SEARCH"""
+        buf = [cmdname]
+        if charset is not None:
+            buf.append('CHARSET ' + charset)
+        for item in criteria:
+            buf.append((item,))
+        return self._queue_cmd(tuple(buf))
 
     def cmd_search(self, criteria, charset=None):
         """Perform a SEARCH for messages"""
-        #str = "SEARCH "
-        #if charset is not None:
-        #    str += "CHARSET %s" % charset
-        # again, literals :(
+        return self._cmd_search('SEARCH', criteria, charset)
+
+    def _cmd_fetch(self, cmdname, sequence, items):
+        """UID FETCH or FETCH"""
+        # FIXME:
         raise NotImplementedError
 
     def cmd_fetch(self, sequence, items):
         """Perform a FETCH command"""
-        raise NotImplementedError
+        return self._cmd_fetch('FETCH', sequence, items)
 
     def cmd_store(self, sequence, item, value):
         """STORE message flags"""
+        # FIXME: STORE
         raise NotImplementedError
 
     def cmd_copy(self, sequence, mailbox):
         """COPY command"""
+        # FIXME: COPY
         raise NotImplementedError
 
     def cmd_uid_fetch(self, sequence, items):
         """UID FETCH command"""
-        raise NotImplementedError
+        return self._cmd_fetch('UID FETCH', sequence, items)
 
     def cmd_uid_search(self, criteria, charset=None):
         """UID SEARCH"""
-        raise NotImplementedError
+        return self._cmd_search('UID SEARCH', criteria, charset)
 
     def cmd_xatom(self):
         """X<atom> command"""
+        # FIXME :)
         raise NotImplementedError
 
     def cmd_unselect(self):
         """UNSELECT a mailbox"""
-        return self._queue_cmd('UNSELECT')
+        return self._queue_cmd(('UNSELECT',))
+
+    def cmd_sort(self, algo, charset, criteria):
+        """SORT query"""
+        # we'll abuse _cmd_search a bit here :)
+        return self._cmd_search('SORT (%s) %s' % (' '.join(algo), charset),
+                                criteria, None)
+
+    def cmd_uid_sort(self, algo, charset, criteria):
+        """UID SORT query"""
+        # we'll abuse _cmd_search a bit here :)
+        return self._cmd_search('UID SORT (%s) %s' % (' '.join(algo), charset),
+                                criteria, None)
+
+    def cmd_thread(self, algo, charset, criteria):
+        """THREAD command"""
+        return self._cmd_search('THREAD %s %s' % (algo, charset), criteria,
+                                None)
 
     def _get_line(self):
         """Get one line of server's output.
@@ -418,7 +486,7 @@ Based on the method of imaplib's IMAP4 class.
 
         # Protocol mandates all lines terminated by CRLF
         if not line.endswith(CRLF):
-            raise InvalidResponseError("line doesn't end with CRLF")
+            raise InvalidResponseError("line doesn't end with CRLF", line)
 
         # Trim the trailing CRLF
         line = line[:-len(CRLF)]
@@ -438,8 +506,9 @@ Based on the method of imaplib's IMAP4 class.
             line = line[2:]
         elif line.startswith('+ '):
             # Command Continuation Request
-            # FIXME: :)
-            raise NotImplementedError(line)
+            # we shouldn't get it here
+            # either IMAP server sucks or we've fscked up something
+            raise ParseError(line)
         elif self._re_tagged_response.match(line):
             # Tagged response
             try:
@@ -744,9 +813,9 @@ Based on the method of imaplib's IMAP4 class.
                         buf += string[pos]
                     else:
                         # escaping an unknown character
-                        # RFC 3501 doesn't specify what to do here, but such data
-                        # aren't formatted as specified by the ABNF syntax at the
-                        # end of the RFC 
+                        # RFC 3501 doesn't specify what to do here, but such 
+                        # data aren't formatted as specified by the ABNF syntax 
+                        # at the end of the RFC 
                         buf += '\\' + string[pos]
                         escaping = False
                         # FIXME: need a mechanism to report non-fatal errors
@@ -810,14 +879,6 @@ Based on the method of imaplib's IMAP4 class.
                     buf += s[0]
                     s = s[1:]
                 yield buf
-
-    def _send_command(self, command):
-        """Sends a raw command, wrapping it with apropriate tag"""
-        self.last_tag_num += 1
-        tag_name = self._make_tag()
-        self._write(tag_name + ' ' + command + CRLF)
-        self._stream.flush()
-        return tag_name
 
     def _make_tag(self):
         """Create a string tag"""
