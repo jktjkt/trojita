@@ -228,7 +228,7 @@ class IMAPParser:
 
     _re_literal = re.compile(r'{(\d+)}')
 
-    def __init__(self, stream, debug=0):
+    def __init__(self, stream=None, debug=0):
         self._stream = stream
         if __debug__:
             self.debug = debug
@@ -239,13 +239,14 @@ class IMAPParser:
         self._incoming = Queue.Queue()
         self._outgoing = Queue.Queue()
         self.worker_exceptions = Queue.Queue()
-
-        # FIXME: do we really want to start the thread here?
-        self._worker = self.WorkerThread(self)
-        self._worker.start()
-        
+       
         # does the server support LITERAL+ extension?
         self.literal_plus = False
+
+    def start_worker(self):
+        """Create and start a thread doing all the work"""
+        self._worker = self.WorkerThread(self)
+        self._worker.start()
 
     def _check_worker_exceptions(self):
         """Check if there was an exception in the worker thread"""

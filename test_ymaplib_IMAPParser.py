@@ -4,8 +4,8 @@ import time
 
 imap_stream = ymaplib.ProcessStream('dovecot --exec-mail imap')
 parser = ymaplib.IMAPParser(imap_stream, 10)
-
 parser.literal_plus = True
+parser.start_worker()
 
 #parser.cmd_capability()
 #parser.cmd_list('', '*')
