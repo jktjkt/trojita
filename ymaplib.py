@@ -539,7 +539,7 @@ Based on the method of imaplib's IMAP4 class.
                     try:
                         # do we have to deal with response code with arguments?
                         space = line[1:last].index(' ')
-                        code = line[1:space+1]
+                        code = line[1:space+1].upper()
                         arguments = self._parse_response_code(code,
                                      line[space+2:last])
                     except ValueError:
@@ -612,6 +612,8 @@ Based on the method of imaplib's IMAP4 class.
         elif self._helper_foreach(code,
                           self._re_response_code_spaces)[0] is not None:
             # "[atom foo bar]"
+            # FIXME: convert them to uppercase? Even the "IMAP4rev1"?
+            #return tuple([x.upper() for x in line.split(' ')])
             return tuple(line.split(' '))
         else:
             # unknown; RFC recommends ignoring
