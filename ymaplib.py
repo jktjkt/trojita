@@ -121,10 +121,17 @@ Storage only, don't expect to get usable methods here :)
         return s + ", kind: " + str(self.kind) + ', response_code: ' + \
                str(self.response_code) + ", data: " + str(self.data) + ">"
 
+    def __eq__(self, other):
+        return self.tag is other.tag and self.kind == other.kind and \
+          self.response_code == other.response_code and self.data == other.data
+
 class IMAPNIL:
     """Simple class to hold the NIL token"""
     def __repr__(self):
         return '<ymaplib.IMAPNIL>'
+
+    def __eq__(self, other):
+        return isinstance(other, IMAPNIL)
 
 class IMAPThreadItem:
     """One message in the threaded mailbox"""

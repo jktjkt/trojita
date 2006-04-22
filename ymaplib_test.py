@@ -38,8 +38,7 @@ class IMAPParserParseLineTest(unittest.TestCase):
         for kind in ('ok', 'no', 'bye', 'preauth'):
             ok.kind = kind.upper()
             response = self.parser._parse_line('* %s fOo baR Baz' % kind)
-            self.assertEqual((ok.tag, ok.kind, ok.data),
-                             (response.tag, response.kind, response.data))
+            self.assertEqual(ok, response)
 
     def test_mallformed_response_code(self):
         """Test if unterminated Response Code screams"""
@@ -70,9 +69,7 @@ class IMAPParserParseLineTest(unittest.TestCase):
               "MULTIAPPEND UNSELECT LITERAL+ IDLE CHILDREN NAMESPACE " \
               "LOGIN-REFERRALS] IMAP server ready; logged in as someuser"
         response = self.parser._parse_line(str)
-        self.assertEqual((ok.tag, ok.kind, ok.data, ok.response_code),
-                         (response.tag, response.kind, response.data,
-                           response.response_code))
+        self.assertEqual(ok, response)
 
 if __name__ == '__main__':
     unittest.main()
