@@ -551,7 +551,7 @@ Based on the method of imaplib's IMAP4 class.
                                      line[space+2:last])
                     except ValueError:
                         # just an "[atom]"
-                        code = line[1:last]
+                        code = line[1:last].upper()
                         arguments = None
                     response.response_code = (code, arguments)
                     line = line[last + 2:]
@@ -619,9 +619,8 @@ Based on the method of imaplib's IMAP4 class.
         elif self._helper_foreach(code,
                           self._re_response_code_spaces)[0] is not None:
             # "[atom foo bar]"
-            # FIXME: convert them to uppercase? Even the "IMAP4rev1"?
-            #return tuple([x.upper() for x in line.split(' ')])
-            return tuple(line.split(' '))
+            # Convert them to the uppercase form. Yup, even the "IMAP4rev1"...
+            return tuple([x.upper() for x in line.split(' ')])
         else:
             # unknown; RFC recommends ignoring
             if self.debug > 1:
