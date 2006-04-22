@@ -538,6 +538,9 @@ Based on the method of imaplib's IMAP4 class.
 
         if response.kind is not None:
             # we should check for optional Response Code
+            # We do require the response code to be present immediately after
+            # the tag/star. This won't catch the BADCHARSET Response Code
+            # from uw-imapd (unknown version, unfortunately).
             line = line[len(response.kind) + 1:]
             if line.startswith('['):
                 # parse the Response Code
@@ -605,7 +608,11 @@ Based on the method of imaplib's IMAP4 class.
         elif self._helper_foreach(code,
                           self._re_response_code_number)[0] is not None:
             # "[atom number]"
-            return int(line)
+            try:
+                return int(line)
+            except ValueError:
+                # not a number, let's return it as-is
+                return line
         elif self._helper_foreach(code,
                           self._re_response_code_parenthesized)[0] is not None:
             # "[atom (foo bar)]"
