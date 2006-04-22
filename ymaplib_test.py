@@ -55,7 +55,7 @@ class IMAPParserParseLineTest(unittest.TestCase):
         ok = ymaplib.IMAPResponse()
         ok.tag = None
         ok.data = "IMAP server ready; logged in as someuser"
-        ok.response_code = ('CAPABILITY', ('IMAP4rev1', 'SORT',
+        ok.response_code = ('CAPABILITY', ('IMAP4REV1', 'SORT',
                                            'THREAD=REFERENCES', 'MULTIAPPEND',
                                            'UNSELECT', 'LITERAL+', 'IDLE',
                                            'CHILDREN', 'NAMESPACE',
@@ -70,6 +70,76 @@ class IMAPParserParseLineTest(unittest.TestCase):
               "LOGIN-REFERRALS] IMAP server ready; logged in as someuser"
         response = self.parser._parse_line(str)
         self.assertEqual(ok, response)
+
+    def test_preauth(self):
+        """Test PREAUTH response without capability list"""
+        ok = ymaplib.IMAPResponse()
+        ok.tag = None
+        ok.data = "user fooBar ready"
+        ok.kind = 'PREAUTH'
+        str = '* PREAuTH ' + ok.data
+        response = self.parser._parse_line(str)
+        self.assertEqual(ok, response)
+
+    def test_capability(self):
+        """Test the CAPABILITY response"""
+        ok = ymaplib.IMAPResponse()
+        ok.tag = None
+        ok.kind = 'CAPABILITY'
+        ok.data = ('IMAP4rev1', 'foo', 'bar', 'baz')
+        str = '* CAPABILITY IMAP4rev1 foo bar baz'
+        response = self.parser._parse_line(str)
+        self.assertEqual(ok, response)
+
+    def test_untagged_responses(self):
+        """Test the untagged responses with optional Response Code"""
+        ok = ymaplib.IMAPResponse()
+        ok.tag = None
+        stuff = 'blabla trMs'
+        for stuff in ('blabla trMs', 'x', '',
+                      'Ave caesar imperator, morituri te salutant'):
+            for kind in ('ok', 'no', 'bye', 'preauth'):
+                ok.kind = kind.upper()
+                ok.data = stuff
+                ok.response_code = (None, None)
+                str = '* %s %s' % (kind, stuff)
+                response = self.parser._parse_line(str)
+                self.assertEqual(ok, response)
+                for item in ('alert', 'parse', 'read-only', 'read-write',
+                             'trycreate'):
+                    str = '* %s [%s] %s' % (kind, item, stuff)
+                    response = self.parser._parse_line(str)
+                    ok.response_code = (item.upper(), None)
+                    self.assertEqual(ok, response)
+                for item in ('uidnext', 'uidvalidity', 'unseen'):
+                    str = '* %s [%s] %s' % (kind, item, stuff)
+                    # The actual value is missing -> let's treat it as
+                    # an uknown Response code
+                    response = self.parser._parse_line(str)
+                    ok.response_code = (item.upper(), None)
+                    self.assertEqual(ok, response)
+                    # now check for various values
+                    for num in (0, 1, 6, 37, 99, 12345, '', 'a', 'bc', 'x y'):
+                        str = '* %s [%s %s] %s' % (kind, item, num, stuff)
+                        response = self.parser._parse_line(str)
+                        ok.response_code = (item.upper(), num)
+                        self.assertEqual(ok, response)
+                # CAPABILITY is already tested in test_preauth_with_capability
+
+    def test_untagged_unknown(self):
+        """Test unknown untagged response"""
+        self.assertRaises(ymaplib.UnknownResponseError, self.parser._parse_line,
+                           '* foo bar')
+
+    def test_tagged_ok_no_bad(self):
+        """Test tagged OK/NO/BAD responses"""
+        ok = ymaplib.IMAPResponse()
+        ok.tag =  self.parser._tag_prefix + '12345'
+        ok.data = 'trms'
+        for kind in ('ok', 'no', 'bad'):
+            ok.kind = kind.upper()
+            response = self.parser._parse_line('%s %s %s' % (
+                                                ok.tag, kind.upper(), ok.data))
 
 if __name__ == '__main__':
     unittest.main()
