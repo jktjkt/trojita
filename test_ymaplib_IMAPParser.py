@@ -4,11 +4,11 @@ import ymaplib
 import time
 
 imap_stream = ymaplib.ProcessStream('dovecot --exec-mail imap')
-parser = ymaplib.IMAPParser(imap_stream, 10)
-#parser.literal_plus = True
+parser = ymaplib.IMAPParser(imap_stream, 0)
+parser.literal_plus = not True
 parser.start_worker()
 
-#parser.cmd_capability()
+parser.cmd_capability()
 parser.cmd_list('', '*')
 parser.cmd_select('gentoo.gentoo-user-cs')
 parser.cmd_search(('text', 'odkazy.\n', 'to', 'user-cs'), 'utf-8')
