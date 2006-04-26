@@ -1,20 +1,21 @@
+# -*- coding: utf-8
 """Simple ymaplib tester"""
 import ymaplib
 import time
 
 imap_stream = ymaplib.ProcessStream('dovecot --exec-mail imap')
 parser = ymaplib.IMAPParser(imap_stream, 10)
-parser.literal_plus = True
+#parser.literal_plus = True
 parser.start_worker()
 
 #parser.cmd_capability()
-#parser.cmd_list('', '*')
+parser.cmd_list('', '*')
 parser.cmd_select('gentoo.gentoo-user-cs')
-#parser.cmd_search(('text', 'odkazy.\n', 'to', 'user-cs'), 'utf-8')
+parser.cmd_search(('text', 'odkazy.\n', 'to', 'user-cs'), 'utf-8')
 #parser.cmd_uid_search(('text', 'odkazy.\n', 'to', 'user-cs'), 'utf-8')
 #parser.cmd_sort(('subject',), 'utf-8', ('from', 'jkt'))
 #parser.cmd_uid_sort(('subject',), 'utf-8', ('from', 'jkt'))
-parser.cmd_thread('references', 'utf-8', ('all',))
+#parser.cmd_thread('references', 'utf-8', ('all',))
 #parser.cmd_examine('gentoo.gentoo-user-cs')
 #parser.cmd_close()
 #parser.cmd_expunge()
@@ -32,6 +33,7 @@ parser.cmd_thread('references', 'utf-8', ('all',))
 #parser.cmd_delete('bar-foo')
 #parser.cmd_noop()
 parser.cmd_logout()
+#parser.cmd_noop()
 #parser._queue_cmd(('capability',))
 #parser._queue_cmd(('select gentoo.gentoo-user-cs',))
 #parser._queue_cmd(('fetch 1 full',))
@@ -51,5 +53,7 @@ time.sleep(0.5)
 while not parser._outgoing.empty():
     print parser.get()
 
+parser._check_worker_exceptions()
 while not parser.worker_exceptions.empty():
+    print 'hmmm'
     print parser.worker_exceptions.get()
