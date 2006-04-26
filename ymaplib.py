@@ -51,8 +51,9 @@ work on Win32 systems due to their lack of poll() functionality on pipes.
         self.write = self._w.write
         self.flush = self._w.flush
         self._r_poll = select.poll()
-        self._r_poll.register(self._r.fileno(), select.POLLIN)
+        self._r_poll.register(self._r.fileno(), select.POLLIN | select.POLLHUP)
         self.timeout = int(timeout)
+        self.okay = True
 
     def has_data(self, timeout=None):
         """Check if we can read from socket without blocking"""
@@ -62,10 +63,14 @@ work on Win32 systems due to their lack of poll() functionality on pipes.
         if len(polled):
             result = polled[0][1]
             if result & select.POLLIN:
+                if result & select.POLLHUP:
+                    # closed connection, data still available
+                    self.okay = False
                 return True
             elif result & select.POLLHUP:
                 # connection is closed
                 time.sleep(timeout/1000.0)
+                self.okay = False
                 return False
             else:
                 return False
@@ -120,8 +125,8 @@ Storage only, don't expect to get usable methods here :)
             s += "untagged"
         else:
             s += "tag %s" % self.tag
-        return s + ", kind: " + str(self.kind) + ', response_code: ' + \
-               str(self.response_code) + ", data: " + str(self.data) + ">"
+        return s + ", kind: " + unicode(self.kind) + ', response_code: ' + \
+               unicode(self.response_code) + ", data: " + unicode(self.data) + ">"
 
     def __eq__(self, other):
         return self.tag is other.tag and self.kind == other.kind and \
@@ -167,6 +172,10 @@ class UnknownResponseError(InvalidResponseError):
 
 class TimeoutError:
     """Socket timed out"""
+    pass
+
+class DisconnectedError:
+    """Disconnected from server"""
     pass
 
 class IMAPParser:
@@ -251,6 +260,7 @@ class IMAPParser:
        
         # does the server support LITERAL+ extension?
         self.literal_plus = False
+        self.okay = None
 
     def start_worker(self):
         """Create and start a thread doing all the work"""
@@ -261,19 +271,28 @@ class IMAPParser:
         """Check if there was an exception in the worker thread"""
         # FIXME: what action to make? Raise an exception or what?
         if not self.worker_exceptions.empty():
+            self.okay = False
             exc = self.worker_exceptions.get()
-            print 'Exception in self._worker:'
+            print 'Exception in %s:' % str(self._worker)
             traceback.print_exception(*exc)
             raise exc[1]
 
     def _queue_cmd(self, command):
         """Add a command to the queue"""
+        if self.okay == False:
+            raise DisconnectedError
         self._check_worker_exceptions()
         self._incoming.put(command)
     
     def loop(self):
         """Main loop - parse responses from server, send commands,..."""
         if not self._incoming.empty():
+            # let's check if the connectin is still ok
+            self._stream.has_data(0)
+            if not self._stream.okay:
+                self.okay = False
+            if self.okay == False:
+                raise DisconnectedError
             # there's a command in the queue, let's process it
             command = self._incoming.get()
             self.last_tag_num += 1
@@ -306,7 +325,16 @@ class IMAPParser:
             self._stream.flush()
         if self._stream.has_data(50):
             # some response to read
-            self._outgoing.put(self._parse_line(self._get_line()))
+            response = self._parse_line(self._get_line())
+            if response.kind == 'BYE' or not self._stream.okay:
+                self.okay = False
+            elif self.okay is None:
+                self.okay = True
+            if response.kind == 'CAPABILITY':
+                self.literal_plus = 'LITERAL+' in response.data
+            elif response.response_code[0] == 'CAPABILITY':
+                self.literal_plus = 'LITERAL+' in response.response_code[1]
+            self._outgoing.put(response)
 
     def get(self):
         """Return a server reply"""
@@ -651,6 +679,7 @@ Based on the method of imaplib's IMAP4 class.
         else:
             if response.kind in self._resp_status:
                 # human-readable text follows
+                response.data = response.data.decode('imap4-utf-7')
                 pass
             elif response.kind in self._resp_mailbox_size or \
                response.kind == 'EXPUNGE':
@@ -668,13 +697,13 @@ Based on the method of imaplib's IMAP4 class.
                     raise ParseError(response)
                 line = response.data[pos2 + 2:]
                 (s, line) = self._extract_astring(line)
-                buf.append(s)
+                buf.append(s.decode('imap4-utf-7'))
                 (s, line) = self._extract_string(line)
-                buf.append(s)
+                buf.append(s.decode('imap4-utf-7'))
                 response.data = tuple(buf)
             elif response.kind == 'STATUS':
                 (s, line) = self._extract_astring(response.data)
-                response.data = [s]
+                response.data = [s.decode('imap4-utf-7')]
                 if not line.startswith('(') or not line.endswith(')'):
                     raise ParseError(line)
                 items = line[1:-1].split(' ')
