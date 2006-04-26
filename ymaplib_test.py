@@ -3,6 +3,8 @@
 import unittest
 import ymaplib
 
+__revision__ = '$Id$'
+
 class IMAPParserParseLineTest(unittest.TestCase):
     """Test for ymaplib.IMAPParser._parse_line()"""
 
@@ -65,10 +67,10 @@ class IMAPParserParseLineTest(unittest.TestCase):
         # FIXME: we might want to change the case of some letters, but I'm
         # not sure if that's the Right Thing(tm)
         # see the ymaplib.IMAPParser._parse_line for reasons...
-        str = "* PREaUTH [CAPaBILiTY IMAP4rev1 SORT THREAD=REFERENCES " \
-              "MULTIAPPEND UNSELECT LITERAL+ IDLE CHILDREN NAMESPACE " \
-              "LOGIN-REFERRALS] IMAP server ready; logged in as someuser"
-        response = self.parser._parse_line(str)
+        s = "* PREaUTH [CAPaBILiTY IMAP4rev1 SORT THREAD=REFERENCES " \
+            "MULTIAPPEND UNSELECT LITERAL+ IDLE CHILDREN NAMESPACE " \
+            "LOGIN-REFERRALS] IMAP server ready; logged in as someuser"
+        response = self.parser._parse_line(s)
         self.assertEqual(ok, response)
 
     def test_preauth(self):
@@ -77,8 +79,8 @@ class IMAPParserParseLineTest(unittest.TestCase):
         ok.tag = None
         ok.data = "user fooBar ready"
         ok.kind = 'PREAUTH'
-        str = '* PREAuTH ' + ok.data
-        response = self.parser._parse_line(str)
+        s = '* PREAuTH ' + ok.data
+        response = self.parser._parse_line(s)
         self.assertEqual(ok, response)
 
     def test_capability(self):
@@ -87,8 +89,8 @@ class IMAPParserParseLineTest(unittest.TestCase):
         ok.tag = None
         ok.kind = 'CAPABILITY'
         ok.data = ('IMAP4rev1', 'foo', 'bar', 'baz')
-        str = '* CAPABILITY IMAP4rev1 foo bar baz'
-        response = self.parser._parse_line(str)
+        s = '* CAPABILITY IMAP4rev1 foo bar baz'
+        response = self.parser._parse_line(s)
         self.assertEqual(ok, response)
 
     def test_untagged_responses(self):
@@ -102,34 +104,29 @@ class IMAPParserParseLineTest(unittest.TestCase):
                 ok.kind = kind.upper()
                 ok.data = stuff
                 ok.response_code = (None, None)
-                str = '* %s %s' % (kind, stuff)
-                response = self.parser._parse_line(str)
+                s = '* %s %s' % (kind, stuff)
+                response = self.parser._parse_line(s)
                 self.assertEqual(ok, response)
                 for item in ('alert', 'parse', 'read-only', 'read-write',
                              'trycreate'):
-                    str = '* %s [%s] %s' % (kind, item, stuff)
-                    response = self.parser._parse_line(str)
+                    s = '* %s [%s] %s' % (kind, item, stuff)
+                    response = self.parser._parse_line(s)
                     ok.response_code = (item.upper(), None)
                     self.assertEqual(ok, response)
                 for item in ('uidnext', 'uidvalidity', 'unseen'):
-                    str = '* %s [%s] %s' % (kind, item, stuff)
+                    s = '* %s [%s] %s' % (kind, item, stuff)
                     # The actual value is missing -> let's treat it as
                     # an uknown Response code
-                    response = self.parser._parse_line(str)
+                    response = self.parser._parse_line(s)
                     ok.response_code = (item.upper(), None)
                     self.assertEqual(ok, response)
                     # now check for various values
                     for num in (0, 1, 6, 37, 99, 12345, '', 'a', 'bc', 'x y'):
-                        str = '* %s [%s %s] %s' % (kind, item, num, stuff)
-                        response = self.parser._parse_line(str)
+                        s = '* %s [%s %s] %s' % (kind, item, num, stuff)
+                        response = self.parser._parse_line(s)
                         ok.response_code = (item.upper(), num)
                         self.assertEqual(ok, response)
                 # CAPABILITY is already tested in test_preauth_with_capability
-
-    def test_untagged_unknown(self):
-        """Test unknown untagged response"""
-        self.assertRaises(ymaplib.UnknownResponseError, self.parser._parse_line,
-                           '* foo bar')
 
     def test_tagged_ok_no_bad(self):
         """Test tagged OK/NO/BAD responses"""
@@ -140,6 +137,7 @@ class IMAPParserParseLineTest(unittest.TestCase):
             ok.kind = kind.upper()
             response = self.parser._parse_line('%s %s %s' % (
                                                 ok.tag, kind.upper(), ok.data))
+            # FIXME: complete the code :)
 
 if __name__ == '__main__':
     unittest.main()

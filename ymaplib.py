@@ -29,7 +29,6 @@ __all__ = ["ProcessStream", "TCPStream", "IMAPResponse", "IMAPNIL",
 
 # FIXME: add support for IDLE
 # FIXME: implement all the standard commands
-# FIXME: verify utf-7 support in mailbox names
 # FIXME: make LITERAL+ *optional*
 # FIXME: MULTIAPPEND, ID, UIDPLUS, NAMESPACE, QUOTA
 
@@ -126,7 +125,8 @@ Storage only, don't expect to get usable methods here :)
         else:
             s += "tag %s" % self.tag
         return s + ", kind: " + unicode(self.kind) + ', response_code: ' + \
-               unicode(self.response_code) + ", data: " + unicode(self.data) + ">"
+               unicode(self.response_code) + ", data: " + unicode(self.data) + \
+               ">"
 
     def __eq__(self, other):
         return self.tag is other.tag and self.kind == other.kind and \
@@ -170,11 +170,11 @@ class UnknownResponseError(InvalidResponseError):
     """Unknown response from server"""
     pass
 
-class TimeoutError:
+class TimeoutError(Exception):
     """Socket timed out"""
     pass
 
-class DisconnectedError:
+class DisconnectedError(Exception):
     """Disconnected from server"""
     pass
 
@@ -189,6 +189,7 @@ class IMAPParser:
             self.parser = parser
 
         def run(self):
+            """Periodically run the IMAPParser.loop(), check for exceptions"""
             try:
                 while 1:
                     self.parser.loop()
