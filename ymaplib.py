@@ -287,6 +287,18 @@ class IMAPParser:
     
     def loop(self):
         """Main loop - parse responses from server, send commands,..."""
+        if self._stream.has_data(50):
+            # some response to read
+            response = self._parse_line(self._get_line())
+            if response.kind == 'BYE' or not self._stream.okay:
+                self.okay = False
+            elif self.okay is None:
+                self.okay = True
+            if response.kind == 'CAPABILITY':
+                self.literal_plus = 'LITERAL+' in response.data
+            elif response.response_code[0] == 'CAPABILITY':
+                self.literal_plus = 'LITERAL+' in response.response_code[1]
+            self._outgoing.put(response)
         if not self._incoming.empty():
             # let's check if the connectin is still ok
             self._stream.has_data(0)
@@ -324,18 +336,6 @@ class IMAPParser:
                             raise NotImplementedError
             self._write(CRLF)
             self._stream.flush()
-        if self._stream.has_data(50):
-            # some response to read
-            response = self._parse_line(self._get_line())
-            if response.kind == 'BYE' or not self._stream.okay:
-                self.okay = False
-            elif self.okay is None:
-                self.okay = True
-            if response.kind == 'CAPABILITY':
-                self.literal_plus = 'LITERAL+' in response.data
-            elif response.response_code[0] == 'CAPABILITY':
-                self.literal_plus = 'LITERAL+' in response.response_code[1]
-            self._outgoing.put(response)
 
     def get(self):
         """Return a server reply"""
