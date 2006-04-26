@@ -19,6 +19,7 @@ import select
 import socket
 import time
 import traceback
+import IMAP4UTF7
 
 __version__ = "0.1"
 __revision__ = '$Id$'
@@ -28,7 +29,7 @@ __all__ = ["ProcessStream", "TCPStream", "IMAPResponse", "IMAPNIL",
 
 # FIXME: add support for IDLE
 # FIXME: implement all the standard commands
-# FIXME: fix utf-7 in mailbox names (look at twisted imap)
+# FIXME: verify utf-7 support in mailbox names
 # FIXME: make LITERAL+ *optional*
 # FIXME: MULTIAPPEND, ID, UIDPLUS, NAMESPACE, QUOTA
 
@@ -361,43 +362,47 @@ class IMAPParser:
 
     def cmd_select(self, mailbox):
         """Select a mailbox"""
-        self._queue_cmd(('SELECT', (mailbox,)))
+        self._queue_cmd(('SELECT', (mailbox.encode('imap4-utf-7'),)))
 
     def cmd_examine(self, mailbox):
         """Examine a mailbox"""
-        self._queue_cmd(('EXAMINE', (mailbox,)))
+        self._queue_cmd(('EXAMINE', (mailbox.encode('imap4-utf-7'),)))
 
     def cmd_create(self, mailbox):
         """Create a mailbox"""
-        self._queue_cmd(('CREATE', (mailbox,)))
+        self._queue_cmd(('CREATE', (mailbox.encode('imap4-utf-7'),)))
 
     def cmd_delete(self, mailbox):
         """Delete a mailbox"""
-        self._queue_cmd(('DELETE', (mailbox,)))
+        self._queue_cmd(('DELETE', (mailbox.encode('imap4-utf-7'),)))
 
     def cmd_rename(self, old_name, new_name):
         """Rename a mailbox"""
-        self._queue_cmd(('RENAME', (old_name,), (new_name,)))
+        self._queue_cmd(('RENAME', (old_name.encode('imap4-utf-7'),),
+                         (new_name.encode('imap4-utf-7'),)))
 
     def cmd_subscribe(self, mailbox):
         """Subscribe a mailbox"""
-        self._queue_cmd(('SUBSCRIBE', (mailbox,)))
+        self._queue_cmd(('SUBSCRIBE', (mailbox.encode('imap4-utf-7'),)))
 
     def cmd_unsubscribe(self, mailbox):
         """Unsubscribe a mailbox"""
-        self._queue_cmd(('UNSUBSCRIBE', (mailbox,)))
+        self._queue_cmd(('UNSUBSCRIBE', (mailbox.encode('imap4-utf-7'),)))
 
     def cmd_list(self, reference, name):
         """Send a LIST command"""
-        self._queue_cmd(('LIST', (reference,), (name,)))
+        self._queue_cmd(('LIST', (reference.encode('imap4-utf-7'),),
+                         (name.encode('imap4-utf-7'),)))
 
     def cmd_lsub(self, reference, name):
         """Send a LSUB command"""
-        self._queue_cmd(('LSUB', (reference,), (name,)))
+        self._queue_cmd(('LSUB', (reference.encode('imap4-utf-7'),),
+                         (name.encode('imap4-utf-7'),)))
 
     def cmd_status(self, mailbox, items):
         """Send a STATUS command"""
-        self._queue_cmd(('STATUS', (mailbox,), "(" + items + ")"))
+        self._queue_cmd(('STATUS', (mailbox.encode('imap4-utf-7'),),
+                         "(" + items + ")"))
 
     def cmd_append(self, mailbox, message, flags=(), timestamp=None):
         """Send an APPEND command"""
