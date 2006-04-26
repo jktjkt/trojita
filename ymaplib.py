@@ -22,8 +22,9 @@ import traceback
 
 __version__ = "0.1"
 __revision__ = '$Id$'
-__all__ = ["IMAPParser", "IMAPResponse", "IMAPNIL", "IMAPThreadItem",
-           "ProcessStream", "TCPStream"]
+__all__ = ["ProcessStream", "TCPStream", "IMAPResponse", "IMAPNIL",
+           "IMAPThreadItem", "IMAPParser", "IMAPEnvelope", "IMAPMessage",
+           "IMAPMailbox"]
 
 # FIXME: add support for IDLE
 # FIXME: implement all the standard commands
