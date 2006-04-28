@@ -93,6 +93,29 @@ class IMAPParserParseLineTest(unittest.TestCase):
         response = self.parser._parse_line(s)
         self.assertEqual(ok, response)
 
+    def _helper_test_response_codes(self, ok, tag, kind, message):
+        """Helper for test_untagged_responses and test_tagged_status"""
+        for item in ('alert', 'parse', 'read-only', 'read-write',
+                     'trycreate'):
+            s = '%s %s [%s] %s' % (tag, kind, item, message)
+            response = self.parser._parse_line(s)
+            ok.response_code = (item.upper(), None)
+            self.assertEqual(ok, response)
+        for item in ('uidnext', 'uidvalidity', 'unseen'):
+            s = '%s %s [%s] %s' % (tag, kind, item, message)
+            # The actual value is missing -> let's treat it as
+            # an uknown Response code
+            response = self.parser._parse_line(s)
+            ok.response_code = (item.upper(), None)
+            self.assertEqual(ok, response)
+            # now check for various values
+            for num in (0, 1, 6, 37, 99, 12345, '', 'a', 'bc', 'x y'):
+                s = '%s %s [%s %s] %s' % (tag, kind, item, num, message)
+                response = self.parser._parse_line(s)
+                ok.response_code = (item.upper(), num)
+                self.assertEqual(ok, response)
+        # CAPABILITY is already tested in test_preauth_with_capability
+
     def test_untagged_responses(self):
         """Test the untagged responses with optional Response Code"""
         ok = ymaplib.IMAPResponse()
@@ -107,37 +130,21 @@ class IMAPParserParseLineTest(unittest.TestCase):
                 s = '* %s %s' % (kind, stuff)
                 response = self.parser._parse_line(s)
                 self.assertEqual(ok, response)
-                for item in ('alert', 'parse', 'read-only', 'read-write',
-                             'trycreate'):
-                    s = '* %s [%s] %s' % (kind, item, stuff)
-                    response = self.parser._parse_line(s)
-                    ok.response_code = (item.upper(), None)
-                    self.assertEqual(ok, response)
-                for item in ('uidnext', 'uidvalidity', 'unseen'):
-                    s = '* %s [%s] %s' % (kind, item, stuff)
-                    # The actual value is missing -> let's treat it as
-                    # an uknown Response code
-                    response = self.parser._parse_line(s)
-                    ok.response_code = (item.upper(), None)
-                    self.assertEqual(ok, response)
-                    # now check for various values
-                    for num in (0, 1, 6, 37, 99, 12345, '', 'a', 'bc', 'x y'):
-                        s = '* %s [%s %s] %s' % (kind, item, num, stuff)
-                        response = self.parser._parse_line(s)
-                        ok.response_code = (item.upper(), num)
-                        self.assertEqual(ok, response)
-                # CAPABILITY is already tested in test_preauth_with_capability
+                self._helper_test_response_codes(ok, '*', kind, stuff)
 
-    def test_tagged_ok_no_bad(self):
+    def test_tagged_status(self):
         """Test tagged OK/NO/BAD responses"""
         ok = ymaplib.IMAPResponse()
         ok.tag =  self.parser._tag_prefix + '12345'
-        ok.data = 'trms'
-        for kind in ('ok', 'no', 'bad'):
-            ok.kind = kind.upper()
-            response = self.parser._parse_line('%s %s %s' % (
-                                                ok.tag, kind.upper(), ok.data))
-            # FIXME: complete the code :)
+        for stuff in ('trms', 'BS', '', 'a', 'bezi liska k Taboru'):
+            for kind in ('ok', 'no', 'bad'):
+                ok.kind = kind.upper()
+                ok.response_code = (None, None)
+                ok.data = stuff
+                response = self.parser._parse_line('%s %s %s' % (
+                                                   ok.tag, kind.upper(), stuff))
+                self.assertEqual(ok, response)
+                self._helper_test_response_codes(ok, ok.tag, kind, stuff)
 
 if __name__ == '__main__':
     unittest.main()
