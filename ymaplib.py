@@ -129,7 +129,7 @@ Storage only, don't expect to get usable methods here :)
                ">"
 
     def __eq__(self, other):
-        return self.tag is other.tag and self.kind == other.kind and \
+        return self.tag == other.tag and self.kind == other.kind and \
           self.response_code == other.response_code and self.data == other.data
 
 class IMAPNIL:
