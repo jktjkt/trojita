@@ -218,7 +218,7 @@ class IMAPParser:
     _response_code_single = ('ALERT', 'PARSE', 'READ-ONLY', 'READ-WRITE', 
                              'TRYCREATE')
     _response_code_number = ('UIDNEXT', 'UIDVALIDITY', 'UNSEEN')
-    _response_code_spaces = ('CAPABILITY')
+    _response_code_spaces = ('CAPABILITY',)
     _response_code_parenthesized = ('BADCHARSET', 'PERMANENTFLAGS')
     
     def _make_res(expr, iterable):
@@ -657,7 +657,7 @@ Based on the method of imaplib's IMAP4 class.
             if buf == ['']:
                 return ()
             else:
-                return tuple(line[1:-1].split(' '))
+                return tuple(line[1:-1].upper().split(' '))
         elif self._helper_foreach(code,
                           self._re_response_code_spaces)[0] is not None:
             # "[atom foo bar]"
