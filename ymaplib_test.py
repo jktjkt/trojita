@@ -95,14 +95,15 @@ class IMAPParserParseLineTest(unittest.TestCase):
 
     def _helper_test_response_codes(self, ok, tag, kind, message):
         """Helper for test_untagged_responses and test_tagged_status"""
-        for item in ('alert', 'parse', 'read-only', 'read-write',
-                     'trycreate'):
-            s = '%s %s [%s] %s' % (tag, kind, item, message)
+        pattern = '%s %s [%s] %s'
+        pattern_param = '%s %s [%s %s] %s'
+        for item in (item.lower() for item in self.parser._response_code_single):
+            s = pattern % (tag, kind, item, message)
             response = self.parser._parse_line(s)
             ok.response_code = (item.upper(), None)
             self.assertEqual(ok, response)
-        for item in ('uidnext', 'uidvalidity', 'unseen'):
-            s = '%s %s [%s] %s' % (tag, kind, item, message)
+        for item in (item.lower() for item in self.parser._response_code_number):
+            s = pattern % (tag, kind, item, message)
             # The actual value is missing -> let's treat it as
             # an uknown Response code
             response = self.parser._parse_line(s)
@@ -110,11 +111,42 @@ class IMAPParserParseLineTest(unittest.TestCase):
             self.assertEqual(ok, response)
             # now check for various values
             for num in (0, 1, 6, 37, 99, 12345, '', 'a', 'bc', 'x y'):
-                s = '%s %s [%s %s] %s' % (tag, kind, item, num, message)
+                s = pattern_param % (tag, kind, item, num, message)
                 response = self.parser._parse_line(s)
                 ok.response_code = (item.upper(), num)
                 self.assertEqual(ok, response)
-        # CAPABILITY is already tested in test_preauth_with_capability
+        for item in (item.lower() for item in
+                      self.parser._response_code_spaces):
+            s = pattern % (tag, kind, item, message)
+            # missing value, see above
+            response = self.parser._parse_line(s)
+            ok.response_code = (item.upper(), None)
+            self.assertEqual(ok, response)
+            for param1 in ('', '0', '6', '37', '12345', '', 'a', 'bc', 'x_y'):
+                for param2 in ('', ' ', ' 0', ' 2', ' ahoj', ')'):
+                    s = pattern_param % (tag, kind, item, param1 + param2,
+                                         message)
+                    response = self.parser._parse_line(s)
+                    ok.response_code = (item.upper(),
+                                   tuple((param1 + param2).upper().split(' '),))
+                    self.assertEqual(ok, response)
+        for item in (item.lower() for item in
+                      self.parser._response_code_parenthesized):
+            s = pattern % (tag, kind, item, message)
+            # missing value
+            response = self.parser._parse_line(s)
+            ok.response_code = (item.upper(), None)
+            self.assertEqual(ok, response)
+            for param1 in ('0', '6', '37', '12345', '', 'a', 'bc', 'x_y'):
+                for param2 in ('', ' ', ' 0', ' 2', ' ahoj', ')'):
+                    s = pattern_param % (tag, kind, item,
+                                         '(' + param1 + param2 + ')', message)
+                    response = self.parser._parse_line(s)
+                    ok.response_code = (item.upper(),
+                                   tuple((param1 + param2).upper().split(' ')),)
+                    if ok.response_code[1] == ('',):
+                        ok.response_code = (ok.response_code[0], ())
+                    self.assertEqual(ok, response)
 
     def test_untagged_responses(self):
         """Test the untagged responses with optional Response Code"""
