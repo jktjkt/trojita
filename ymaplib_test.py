@@ -1,3 +1,4 @@
+# -*- coding: utf-8
 """Unit tests for ymaplib"""
 
 import unittest
@@ -32,6 +33,11 @@ class IMAPParserParseLineTest(unittest.TestCase):
         self.assertRaises(ymaplib.UnknownResponseError, self.parser._parse_line,
                            '* ok')
 
+    def test_tagged_unknown_tag(self):
+        """Invalid tagname"""
+        self.assertRaises(ymaplib.ParseError, self.parser._parse_line,
+                           self.parser._tag_prefix.swapcase() + '12')
+
     def test_untagged_generic(self):
         """Untagged (OK|NO|BYE|PREAUTH)"""
         ok = ymaplib.IMAPResponse()
@@ -39,7 +45,7 @@ class IMAPParserParseLineTest(unittest.TestCase):
         ok.data = 'fOo baR Baz'
         for kind in ('ok', 'no', 'bye', 'preauth'):
             ok.kind = kind.upper()
-            response = self.parser._parse_line('* %s fOo baR Baz' % kind)
+            response = self.parser._parse_line('* %s %s' % (kind, ok.data))
             self.assertEqual(ok, response)
 
     def test_mallformed_response_code(self):
@@ -137,8 +143,9 @@ class IMAPParserParseLineTest(unittest.TestCase):
             response = self.parser._parse_line(s)
             ok.response_code = (item.upper(), None)
             self.assertEqual(ok, response)
-            for param1 in ('0', '6', '37', '12345', '', 'a', 'bc', 'x_y'):
-                for param2 in ('', ' ', ' 0', ' 2', ' ahoj', ')'):
+            for param1 in ('0', '6', '37', '', 'a', 'x_y', '(', ')'):
+                for param2 in ('', ' ', ' 2', ' ahoj', '(', ')', ' (', ') '):
+                    # FIXME: isn't it better to die if we have to deal with ")"?
                     s = pattern_param % (tag, kind, item,
                                          '(' + param1 + param2 + ')', message)
                     response = self.parser._parse_line(s)
@@ -148,12 +155,11 @@ class IMAPParserParseLineTest(unittest.TestCase):
                         ok.response_code = (ok.response_code[0], ())
                     self.assertEqual(ok, response)
 
-    def test_untagged_responses(self):
+    def test_untagged_status(self):
         """Test the untagged responses with optional Response Code"""
         ok = ymaplib.IMAPResponse()
         ok.tag = None
-        stuff = 'blabla trMs'
-        for stuff in ('blabla trMs', 'x', '',
+        for stuff in ('blabla trMs', 'x', '', '1', '4589',
                       'Ave caesar imperator, morituri te salutant'):
             for kind in ('ok', 'no', 'bye', 'preauth'):
                 ok.kind = kind.upper()
@@ -178,5 +184,41 @@ class IMAPParserParseLineTest(unittest.TestCase):
                 self.assertEqual(ok, response)
                 self._helper_test_response_codes(ok, ok.tag, kind, stuff)
 
+    def test_resp_capability(self):
+        """Test the CAPABILITY untagged response"""
+        ok = ymaplib.IMAPResponse()
+        ok.tag = None
+        ok.kind = 'CAPABILITY'
+        for capabilities in (('',), ('foo',), ('a', 'b')):
+            s = '* capaBility ' + ' '.join(capabilities)
+            ok.data = capabilities
+            response = self.parser._parse_line(s)
+            self.assertEqual(ok, response)
+
+    def test_resp_list_lsub(self):
+        """Test the LIST and LSUB responses"""
+        ok = ymaplib.IMAPResponse()
+        ok.tag = None
+        for kind in ('list', 'lsub'):
+            ok.kind = kind.upper()
+            for flags in ((), ('\\MarkEd',), ('\\foo', '\\bar')):
+                for separator in ('.', '/', '\\\\', 'w'):
+                    for mailbox in ('~/mail/fOo', 'trms', '"qwe"',
+                                    '"' + u'ěščřž' + '"', '"foo"'):
+                        s = '* %s (%s) "%s" %s' % (kind, ' '.join(flags),
+                                    separator, mailbox.encode('imap4-utf-7'))
+                        response = self.parser._parse_line(s)
+                        if mailbox.startswith('"'):
+                            my_mailbox = mailbox[1:-1]
+                        else:
+                            my_mailbox = mailbox
+                        if separator == '\\\\':
+                            my_separator = '\\'
+                        else:
+                            my_separator = separator
+                        ok.data = (tuple([item.upper() for item in flags]),
+                                   my_separator, unicode(my_mailbox))
+                        self.assertEqual(ok, response)
+                    
 if __name__ == '__main__':
     unittest.main()
