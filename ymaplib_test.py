@@ -257,17 +257,28 @@ class IMAPParserParseLineTest(unittest.TestCase):
         """Invalid data in a STATUS response"""
         for stuff in ('bs', '()', '(a)', '(a 1)', 'x(1)', 'x(1 2)', 'yy (a a)',
                       'fn (a 2 b)', ''):
-            s = '* status %s' % stuff
-            print s
-            try:
-                print self.parser._parse_line(s)
-            except:
-                pass
             self.assertRaises(ymaplib.ParseError, self.parser._parse_line,
                               '* status %s' % stuff)
 
     def test_resp_search(self):
         """Test the SEARCH response"""
-                    
+        ok = ymaplib.IMAPResponse()
+        ok.tag = None
+        ok.kind = 'SEARCH'
+        for stuff in ((), ('0',), ('1',), ('1', '2'),
+                      ('45', '9976', '99', '147', '251', '5')):
+            s = '* searCh %s' % (' '.join(stuff))
+            ok.data = tuple([int(item) for item in stuff])
+            response = self.parser._parse_line(s)
+            self.assertEqual(ok, response)
+
+    def test_resp_search_invalid(self):
+        """Garbage in SEARCH response"""
+        for stuff in ('x', 'x y', 'x y zzz', '1 2 a', 'a b 5', 'a54'):
+            self.assertRaises(ymaplib.ParseError, self.parser._parse_line,
+                              '* SEArCH %s' % stuff)
+
+
+
 if __name__ == '__main__':
     unittest.main()
