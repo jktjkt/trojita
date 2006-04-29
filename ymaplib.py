@@ -690,6 +690,9 @@ Based on the method of imaplib's IMAP4 class.
                 response.data = tuple(response.data.split(' '))
             elif response.kind == 'LIST' or response.kind == 'LSUB':
                 # [name_attributes, hierarchy_delimiter, name]
+                if not response.data.startswith('('):
+                    # start of attributes is missplaced or missing
+                    raise ParseError(response)
                 try:
                     pos1 = response.data.index('(')
                     pos2 = response.data.index(')')
@@ -707,6 +710,9 @@ Based on the method of imaplib's IMAP4 class.
                 (s, line) = self._extract_string(line)
                 buf.append(unicode(s.decode('imap4-utf-7')))
                 response.data = tuple(buf)
+                if not len(response.data[1]) or not len(response.data[2]):
+                    # empty separator or mailbox name
+                    raise ParseError(response.data)
             elif response.kind == 'STATUS':
                 (s, line) = self._extract_astring(response.data)
                 response.data = [s.decode('imap4-utf-7')]
@@ -719,14 +725,18 @@ Based on the method of imaplib's IMAP4 class.
                     if item == '':
                         break
                     if last is None:
-                        buf[item] = None
-                        last = item
+                        key = item.upper()
+                        buf[key] = None
+                        last = key
                     else:
                         try:
                             buf[last] = int(item)
                         except ValueError:
                             raise ParseError(response)
                         last = None
+                if last is not None:
+                    # missing value for a key
+                    raise ParseError(line)
                 response.data.append(buf)
                 response.data = tuple(response.data)
             elif response.kind == 'SEARCH':
