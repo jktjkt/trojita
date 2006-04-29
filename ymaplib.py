@@ -693,14 +693,19 @@ Based on the method of imaplib's IMAP4 class.
                 try:
                     pos1 = response.data.index('(')
                     pos2 = response.data.index(')')
-                    buf = [tuple(response.data[pos1 + 1:pos2].split(' '))]
+                    flags = [item.upper() for item in \
+                              response.data[pos1 + 1:pos2].split(' ')]
+                    if flags == ['']:
+                        flags = ()
+                    buf = [tuple(flags)]
                 except ValueError:
                     raise ParseError(response)
                 line = response.data[pos2 + 2:]
                 (s, line) = self._extract_astring(line)
-                buf.append(s.decode('imap4-utf-7'))
+                # don't decode the separator
+                buf.append(s)
                 (s, line) = self._extract_string(line)
-                buf.append(s.decode('imap4-utf-7'))
+                buf.append(unicode(s.decode('imap4-utf-7')))
                 response.data = tuple(buf)
             elif response.kind == 'STATUS':
                 (s, line) = self._extract_astring(response.data)
