@@ -8,6 +8,8 @@ __revision__ = '$Id$'
 
 class IMAPParserParseLineTest(unittest.TestCase):
     """Test for ymaplib.IMAPParser._parse_line()"""
+    mailbox_names = ('~/mail/fOo', 'trms', '"qwe"', '"' + u'ěščřž' + '"',
+                     '"foo"', '"ab\\\\c"')
 
     def setUp(self):
         self.parser = ymaplib.IMAPParser()
@@ -203,22 +205,69 @@ class IMAPParserParseLineTest(unittest.TestCase):
             ok.kind = kind.upper()
             for flags in ((), ('\\MarkEd',), ('\\foo', '\\bar')):
                 for separator in ('.', '/', '\\\\', 'w'):
-                    for mailbox in ('~/mail/fOo', 'trms', '"qwe"',
-                                    '"' + u'ěščřž' + '"', '"foo"'):
+                    for mailbox in self.mailbox_names:
+                        my_mailbox = mailbox.encode('imap4-utf-7')
                         s = '* %s (%s) "%s" %s' % (kind, ' '.join(flags),
-                                    separator, mailbox.encode('imap4-utf-7'))
+                                    separator, my_mailbox)
                         response = self.parser._parse_line(s)
-                        if mailbox.startswith('"'):
-                            my_mailbox = mailbox[1:-1]
+                        if my_mailbox.startswith('"'):
+                            my_mailbox = my_mailbox[1:-1].decode('string_escape')
                         else:
-                            my_mailbox = mailbox
-                        if separator == '\\\\':
-                            my_separator = '\\'
-                        else:
-                            my_separator = separator
+                            my_mailbox = my_mailbox.decode('string_escape')
                         ok.data = (tuple([item.upper() for item in flags]),
-                                   my_separator, unicode(my_mailbox))
+                                   separator.decode('string_escape'),
+                                   my_mailbox.decode('imap4-utf-7'))
                         self.assertEqual(ok, response)
+
+    def test_resp_list_lsub_invalid(self):
+        """Test invalid data in LIST/LSUB responses"""
+        for command in ('LIST', 'lsub'):
+            for stuff in ('(trms)', 'x (foo)', 'foo', '"" (bar)', '(bar) xy',
+                          '(x yz zz) zzz '):
+                self.assertRaises(ymaplib.ParseError, self.parser._parse_line,
+                                   '* %s %s' % (command, stuff))
+        
+
+    def test_resp_status(self):
+        """Test untagged STATUS response"""
+        ok = ymaplib.IMAPResponse()
+        ok.tag = None
+        ok.kind = 'STATUS'
+        args = ({'messages': 231, 'uidnExt': 44292, 'foobaR': 5},
+                {'foo': 10}, {'foo': 0}, {'x': 2}
+               )
+        for mailbox in self.mailbox_names:
+            for items in args:
+                my_mailbox = mailbox.encode('imap4-utf-7')
+                s_stack = []
+                stack = {}
+                for name in items:
+                    s_stack.append('%s %s' % (name, items[name]))
+                    stack[name.upper()] = items[name]
+                s = '* staTus %s (%s)' % (my_mailbox, ' '.join(s_stack))
+                response = self.parser._parse_line(s)
+                if my_mailbox.startswith('"'):
+                    my_mailbox = my_mailbox[1:-1].decode('string_escape')
+                else:
+                    my_mailbox = my_mailbox.decode('string_escape')
+                ok.data = (my_mailbox.decode('imap4-utf-7'), stack)
+                self.assertEqual(ok, response)
+
+    def test_resp_status_invalid(self):
+        """Invalid data in a STATUS response"""
+        for stuff in ('bs', '()', '(a)', '(a 1)', 'x(1)', 'x(1 2)', 'yy (a a)',
+                      'fn (a 2 b)', ''):
+            s = '* status %s' % stuff
+            print s
+            try:
+                print self.parser._parse_line(s)
+            except:
+                pass
+            self.assertRaises(ymaplib.ParseError, self.parser._parse_line,
+                              '* status %s' % stuff)
+
+    def test_resp_search(self):
+        """Test the SEARCH response"""
                     
 if __name__ == '__main__':
     unittest.main()
