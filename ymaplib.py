@@ -686,8 +686,9 @@ Based on the method of imaplib's IMAP4 class.
                response.kind == 'EXPUNGE':
                 # "* number FOO"
                 response.data = int(response.data)
-            elif response.kind == 'CAPABILITY' or response.kind == 'SORT':
-                response.data = tuple(response.data.split(' '))
+            elif response.kind == 'CAPABILITY':
+                response.data = tuple(
+                            [item.upper() for item in response.data.split(' ')])
             elif response.kind == 'LIST' or response.kind == 'LSUB':
                 # [name_attributes, hierarchy_delimiter, name]
                 if not response.data.startswith('('):
@@ -739,7 +740,7 @@ Based on the method of imaplib's IMAP4 class.
                     raise ParseError(line)
                 response.data.append(buf)
                 response.data = tuple(response.data)
-            elif response.kind == 'SEARCH':
+            elif response.kind == 'SEARCH' or response.kind == 'SORT':
                 items = response.data.split(' ')
                 if items == ['']:
                     response.data = ()
