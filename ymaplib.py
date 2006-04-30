@@ -752,9 +752,12 @@ Based on the method of imaplib's IMAP4 class.
             elif response.kind == 'FLAGS':
                 if not response.data.startswith('(') \
                   or not response.data.endswith(')'):
-                    raise ParseError(line)
+                    raise ParseError(response.data)
                 items = response.data[1:-1].split(' ')
-                response.data = tuple(items)
+                if items == ['']:
+                    response.data = ()
+                else:
+                    response.data = tuple([item.upper() for item in items])
             elif response.kind == 'FETCH':
                 # "* number FETCH (data...)"
                 try:
