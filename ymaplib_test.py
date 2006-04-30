@@ -76,8 +76,8 @@ class IMAPParserParseLineTest(unittest.TestCase):
         # not sure if that's the Right Thing(tm)
         # see the ymaplib.IMAPParser._parse_line for reasons...
         s = "* PREaUTH [CAPaBILiTY IMAP4rev1 SORT THREAD=REFERENCES " \
-            "MULTIAPPEND UNSELECT LITERAL+ IDLE CHILDREN NAMESPACE " \
-            "LOGIN-REFERRALS] IMAP server ready; logged in as someuser"
+            "MULTIAPPEND UNSeLECT LiTERAL+ IDLE CHILDREN NAMESPACE " \
+            "LOGIN-REFErRALS] IMAP server ready; logged in as someuser"
         response = self.parser._parse_line(s)
         self.assertEqual(ok, response)
 
@@ -96,7 +96,7 @@ class IMAPParserParseLineTest(unittest.TestCase):
         ok = ymaplib.IMAPResponse()
         ok.tag = None
         ok.kind = 'CAPABILITY'
-        ok.data = ('IMAP4rev1', 'foo', 'bar', 'baz')
+        ok.data = ('IMAP4REV1', 'FOO', 'BAR', 'BAZ')
         s = '* CAPABILITY IMAP4rev1 foo bar baz'
         response = self.parser._parse_line(s)
         self.assertEqual(ok, response)
@@ -193,7 +193,7 @@ class IMAPParserParseLineTest(unittest.TestCase):
         ok.kind = 'CAPABILITY'
         for capabilities in (('',), ('foo',), ('a', 'b')):
             s = '* capaBility ' + ' '.join(capabilities)
-            ok.data = capabilities
+            ok.data = tuple([item.upper() for item in capabilities])
             response = self.parser._parse_line(s)
             self.assertEqual(ok, response)
 
@@ -260,23 +260,25 @@ class IMAPParserParseLineTest(unittest.TestCase):
             self.assertRaises(ymaplib.ParseError, self.parser._parse_line,
                               '* status %s' % stuff)
 
-    def test_resp_search(self):
-        """Test the SEARCH response"""
+    def test_resp_search_sort(self):
+        """Test the SEARCH/SORT responses"""
         ok = ymaplib.IMAPResponse()
         ok.tag = None
-        ok.kind = 'SEARCH'
-        for stuff in ((), ('0',), ('1',), ('1', '2'),
-                      ('45', '9976', '99', '147', '251', '5')):
-            s = '* searCh %s' % (' '.join(stuff))
-            ok.data = tuple([int(item) for item in stuff])
-            response = self.parser._parse_line(s)
-            self.assertEqual(ok, response)
+        for command in ('search', 'sort'):
+            ok.kind = command.upper()
+            for stuff in ((), ('0',), ('1',), ('1', '2'),
+                          ('45', '9976', '99', '147', '251', '5')):
+                s = '* %s %s' % (command, ' '.join(stuff))
+                ok.data = tuple([int(item) for item in stuff])
+                response = self.parser._parse_line(s)
+                self.assertEqual(ok, response)
 
     def test_resp_search_invalid(self):
-        """Garbage in SEARCH response"""
-        for stuff in ('x', 'x y', 'x y zzz', '1 2 a', 'a b 5', 'a54'):
-            self.assertRaises(ymaplib.ParseError, self.parser._parse_line,
-                              '* SEArCH %s' % stuff)
+        """Garbage in SEARCH and SORT responses"""
+        for command in ('search', 'sort'):
+            for stuff in ('x', 'x y', 'x y zzz', '1 2 a', 'a b 5', 'a54'):
+                self.assertRaises(ymaplib.ParseError, self.parser._parse_line,
+                                  '* %s %s' % (command, stuff))
 
     def test_resp_flags(self):
         """Test the FLAGS response"""
