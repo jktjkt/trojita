@@ -324,7 +324,98 @@ class IMAPParserParseLineTest(unittest.TestCase):
                                   self.parser._parse_line,
                                   '* %s %d' % (command, stuff))
 
-    # FIXME: THREAD
+    def test_resp_thread(self):
+        """Test the THREAD response"""
+        ok = ymaplib.IMAPResponse()
+        ok.tag = None
+        ok.kind = 'THREAD'
+
+        ok.data = []
+        response = self.parser._parse_line('* thRead')
+        self.assertEqual(ok, response)
+        response = self.parser._parse_line('* thRead ')
+        self.assertEqual(ok, response)
+        response = self.parser._parse_line('* thRead ()')
+        self.assertEqual(ok, response)
+
+        response = self.parser._parse_line('* thRead (1 2 3)')
+        i1 = ymaplib.IMAPThreadItem()
+        i1.id = 1
+        i2 = ymaplib.IMAPThreadItem()
+        i2.id = 2
+        i3 = ymaplib.IMAPThreadItem()
+        i3.id = 3
+        i1.children = [i2]
+        i2.children = [i3]
+        ok.data = [i1]
+        self.assertEqual(ok, response)
+
+        i1 = ymaplib.IMAPThreadItem()
+        i1.id = 78
+        i2 = ymaplib.IMAPThreadItem()
+        i2.id = 23
+        ok.data = [i1, i2]
+        for s in ('(78)(23)', '(78) (23)'):
+            response = self.parser._parse_line('* thRead (78) (23)')
+            self.assertEqual(ok, response)
+
+        response = self.parser._parse_line('* thRead (1) (2 3)')
+        i1 = ymaplib.IMAPThreadItem()
+        i1.id = 1
+        i2 = ymaplib.IMAPThreadItem()
+        i2.id = 2
+        i3 = ymaplib.IMAPThreadItem()
+        i3.id = 3
+        i2.children = [i3]
+        ok.data = [i1, i2]
+        self.assertEqual(ok, response)
+
+        response = self.parser._parse_line('* thRead (2)(3 6 (4 23)(44 7 96))')
+        i2 = ymaplib.IMAPThreadItem()
+        i2.id = 2
+        i3 = ymaplib.IMAPThreadItem()
+        i3.id = 3
+        i6 = ymaplib.IMAPThreadItem()
+        i6.id = 6
+        i4 = ymaplib.IMAPThreadItem()
+        i4.id = 4
+        i23 = ymaplib.IMAPThreadItem()
+        i23.id = 23
+        i44 = ymaplib.IMAPThreadItem()
+        i44.id = 44
+        i7 = ymaplib.IMAPThreadItem()
+        i7.id = 7
+        i96 = ymaplib.IMAPThreadItem()
+        i96.id = 96
+        ok.data = [i2, i3]
+        i3.children = [i6]
+        i6.children = [i4, i44]
+        i4.children = [i23]
+        i44.children = [i7]
+        i7.children = [i96]
+        self.assertEqual(ok, response)
+
+        response = self.parser._parse_line('* thRead ((3)(5))')
+        iroot = ymaplib.IMAPThreadItem()
+        i3 = ymaplib.IMAPThreadItem()
+        i3.id = 3
+        i5 = ymaplib.IMAPThreadItem()
+        i5.id = 5
+        iroot.children = [i3, i5]
+        ok.data = [iroot]
+        self.assertEqual(ok, response)
+
+    def test_resp_thread_invalid(self):
+        """Junk data in a THREAD response"""
+        for stuff in ('2)', '(', ')', '(2', '5', '1 5 8', '(x) (y)', '(x)(4)'):
+            try:
+                print self.parser._parse_line('* thread %s' % stuff)
+                print stuff
+            except ymaplib.ParseError:
+                pass
+            self.assertRaises(ymaplib.ParseError, self.parser._parse_line,
+                              '* thread %s' % stuff)
+
     # FIXME: FETCH
 
 if __name__ == '__main__':

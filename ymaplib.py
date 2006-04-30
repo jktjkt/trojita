@@ -830,145 +830,51 @@ Based on the method of imaplib's IMAP4 class.
         
         See draft-ietf-imapext-sort-17
         """
+        if line == '':
+            return []
+        if (line.count('(') != line.count(')')) or not line.count('('):
+            raise ParseError(line)
+
         parent = IMAPThreadItem()
         parent.children = []
-        parent.id = None
+        parent.id = -1
         last = ' '
         stack = []
         root = parent
-        
+
         for item in self._extract_thread_response(line):
-            #print '"%s"' % item
-            if item.isdigit():
-                # append as a child of current parent
-                record = IMAPThreadItem()
-                record.id = int(item)
-                if parent.children is None:
-                    parent.children = [record]
-                else:
-                    parent.children.append(record)
-                parent = record
-            elif item == ' ':
-                pass
-            elif item == '(':
-                # next item will be appended *but* we have to save current position
-                #print '  saving %s' % parent.id
-                stack.append(parent)
-                if last == '(':
-                    temp = IMAPThreadItem()
+            try:
+                if item.isdigit():
+                    record = IMAPThreadItem()
+                    record.id = int(item)
                     if parent.children is None:
-                        parent.children = [temp]
+                        parent.children = [record]
                     else:
-                        parent.children.append(temp)
-                    parent = temp
-            elif item == ')':
-                # time to restore the old parent
-                parent = stack.pop()
-                #print ' restored %s' % parent.id
-            else:
-                # FUBAR.
+                        parent.children.append(record)
+                    parent = record
+                elif item == ' ':
+                    continue
+                elif item == '(':
+                    # next item will be appended *but* we have to save current position
+                    if last == '(':
+                        temp = IMAPThreadItem()
+                        if parent.children is None:
+                            parent.children = [temp]
+                        else:
+                            parent.children.append(temp)
+                        parent = temp
+                    stack.append(parent)
+                elif item == ')':
+                    # time to restore the old parent
+                    parent = stack.pop()
+                else:
+                    # FUBAR.
+                    raise ParseError(line)
+                last = item
+            except IndexError:
                 raise ParseError(line)
-            last = item
         return root.children
 
-        for cur in self._extract_thread_response(line):
-            # meaning of tokens:
-            if last == ' ':
-                if cur.isdigit():
-                    # last: ' ', cur: '1' -> item is a child of the recent one
-                    item = IMAPThreadItem()
-                    item.id = int(cur)
-                    parent.children.append(item)
-                    stack.append(parent)
-                    parent = item
-                elif cur == '(':
-                    # last: ' ', cur: '(' -> last item (which is also our parent) will have more children
-                    pass
-                elif cur == ')':
-                    # last: ' ', cur: ')' -> error
-                   raise ParseError(line)
-                elif cur == ' ':
-                    # last: ' ', cur: ' ' -> error
-                    raise ParseError(line)
-                else:
-                    raise ParseError(line)
-            elif last.isdigit():
-                if cur.isdigit():
-                    # last: '1', cur: '1' -> current is the only child of the former (which is also a parent)
-                    item = IMAPThreadItem()
-                    item.id = int(cur)
-                    if parent.children is not None:
-                        raise 'error in algo'
-                    parent.children = [item]
-                    stack.append(parent)
-                    parent = item
-                elif cur == '(':
-                    # last: '1', cur: '(' -> error
-                    raise ParseError(line)
-                elif cur == ')':
-                    # last: '1', cur: ')' -> last is the last child of its parent
-                    #parent = stack.pop()
-                    pass
-                elif cur == ' ':
-                    # last: '1'. cur: ' ' -> next will be a child/group of children
-                    pass
-                else:
-                    raise ParseError(line)
-            elif last == '(':
-                if cur.isdigit():
-                    # last: '(', cur: '1' -> cur is the first child of parent
-                    item = IMAPThreadItem()
-                    item.id = int(cur)
-                    if parent.children is not None:
-                        raise 'error in algo'
-                    parent.children = [item]
-                    stack.append(parent)
-                    parent = item
-                elif cur == '(':
-                    # last: '(', cur: '(' -> we're processing the first children
-                    #                        which is fake, but it has more children
-                    item = IMAPThreadItem()
-                    item.id = None
-                    if parent.children is not None:
-                        raise 'error in algo'
-                    parent.children = [item]
-                    stack.append(parent)
-                    parent = item
-                elif cur == ')':
-                    # last: '(', cur: ')' -> err
-                    raise ParseError(line)
-                elif cur == ' ':
-                    # last: '(', cur: ' ' -> err
-                    raise ParseError(line)
-                else:
-                    raise ParseError(line)
-            elif last == ')':
-                if cur.isdigit():
-                    # last: ')', cur: '1' -> err
-                    raise ParseError(line)
-                elif cur == '(':
-                    # last: ')', cur: '(' -> next child of my parent will follow
-                    parent = stack.pop()
-                    #pass
-                elif cur == ')':
-                    # last: ')', cur: ')' -> one level up ??
-                    parent = stack.pop()
-                    #pass
-                elif cur == ' ':
-                    # last: ')', cur: ' ' -> err
-                    raise ParseError(line)
-                else:
-                    raise ParseError(line)
-            else:
-                raise ParseError(line)
-            print '---'
-            print "'%s' -> '%s'" % (last, cur)
-            print root
-            print stack
-            print '---'
-            last = cur
-        return root
-    
     def _parse_fetch_response(self, line):
         """Parse a string with FETCH response to a Python data structure"""
         if not line.startswith('('):
