@@ -651,6 +651,7 @@ Based on the method of imaplib's IMAP4 class.
         elif self._helper_foreach(code,
                           self._re_response_code_parenthesized)[0] is not None:
             # "[atom (foo bar)]"
+            # we don't scream if we see garbage characters like ")"
             if not line.startswith('(') or not line.endswith(')'):
                 raise ParseError(line)
             buf = line[1:-1].split(' ')

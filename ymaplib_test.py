@@ -72,9 +72,6 @@ class IMAPParserParseLineTest(unittest.TestCase):
                                            'LOGIN-REFERRALS'))
         ok.kind = 'PREAUTH'
         
-        # FIXME: we might want to change the case of some letters, but I'm
-        # not sure if that's the Right Thing(tm)
-        # see the ymaplib.IMAPParser._parse_line for reasons...
         s = "* PREaUTH [CAPaBILiTY IMAP4rev1 SORT THREAD=REFERENCES " \
             "MULTIAPPEND UNSeLECT LiTERAL+ IDLE CHILDREN NAMESPACE " \
             "LOGIN-REFErRALS] IMAP server ready; logged in as someuser"
@@ -147,7 +144,6 @@ class IMAPParserParseLineTest(unittest.TestCase):
             self.assertEqual(ok, response)
             for param1 in ('0', '6', '37', '', 'a', 'x_y', '(', ')'):
                 for param2 in ('', ' ', ' 2', ' ahoj', '(', ')', ' (', ') '):
-                    # FIXME: isn't it better to die if we have to deal with ")"?
                     s = pattern_param % (tag, kind, item,
                                          '(' + param1 + param2 + ')', message)
                     response = self.parser._parse_line(s)
@@ -327,6 +323,9 @@ class IMAPParserParseLineTest(unittest.TestCase):
                 self.assertRaises(ymaplib.UnknownResponseError,
                                   self.parser._parse_line,
                                   '* %s %d' % (command, stuff))
+
+    # FIXME: THREAD
+    # FIXME: FETCH
 
 if __name__ == '__main__':
     unittest.main()
