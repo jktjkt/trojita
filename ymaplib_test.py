@@ -278,7 +278,26 @@ class IMAPParserParseLineTest(unittest.TestCase):
             self.assertRaises(ymaplib.ParseError, self.parser._parse_line,
                               '* SEArCH %s' % stuff)
 
+    def test_resp_flags(self):
+        """Test the FLAGS response"""
+        ok = ymaplib.IMAPResponse()
+        ok.tag = None
+        ok.kind = 'FLAGS'
+        for stuff in ((), ('',), ('foo', 'bar'), ('1',), ('\\bar',),
+                      ('\\ahoj', '\\voe'), ('\\x', 'y'), ('1', 'trms', '2')):
+            s = '* fLAgs (%s)' % (' '.join(stuff))
+            if stuff == ('',):
+                ok.data = ()
+            else:
+                ok.data = tuple([item.upper() for item in stuff])
+            response = self.parser._parse_line(s)
+            self.assertEqual(ok, response)
 
+    def test_resp_flags_invalid(self):
+        """Garbage in a FLAGS response"""
+        for stuff in ('', '(\\ab', '\\ba)', '(a b ', 'xy z gg)', 'a ba c'):
+            self.assertRaises(ymaplib.ParseError, self.parser._parse_line,
+                              '* fLags %s' % stuff)
 
 if __name__ == '__main__':
     unittest.main()
