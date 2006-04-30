@@ -299,5 +299,32 @@ class IMAPParserParseLineTest(unittest.TestCase):
             self.assertRaises(ymaplib.ParseError, self.parser._parse_line,
                               '* fLags %s' % stuff)
 
+    def test_resp_exists_recent_expunge(self):
+        """Test the EXISTS, RECENT and EXPUNGE responses"""
+        ok = ymaplib.IMAPResponse()
+        ok.tag = None
+        for command in ('exists', 'recent', 'expunge'):
+            ok.kind = command.upper()
+            for number in (0, 1, 6, 54, 789, 45612377):
+                s = '* %d %s' % (number, command)
+                ok.data = number
+                response = self.parser._parse_line(s)
+                self.assertEqual(ok, response)
+
+    def test_resp_exists_recent_expunge_invalid(self):
+        """Junk data in the EXISTS, RECENT and EXPUNGE responses"""
+        for command in ('exists', 'recent', 'expunge'):
+            for stuff in ('', 'ahoj', 'x y z', '1 2', '(1)'):
+                self.assertRaises(ymaplib.UnknownResponseError,
+                                  self.parser._parse_line,
+                                  '* %s %s' % (stuff, command))
+                self.assertRaises(ymaplib.UnknownResponseError,
+                                  self.parser._parse_line,
+                                  '* %s %s' % (command, stuff))
+            for stuff in (0, 2, 5489):
+                self.assertRaises(ymaplib.UnknownResponseError,
+                                  self.parser._parse_line,
+                                  '* %s %d' % (command, stuff))
+
 if __name__ == '__main__':
     unittest.main()
