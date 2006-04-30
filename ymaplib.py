@@ -29,7 +29,6 @@ __all__ = ["ProcessStream", "TCPStream", "IMAPResponse", "IMAPNIL",
 
 # FIXME: add support for IDLE
 # FIXME: implement all the standard commands
-# FIXME: make LITERAL+ *optional*
 # FIXME: MULTIAPPEND, ID, UIDPLUS, NAMESPACE, QUOTA
 
 CRLF = "\r\n"
@@ -210,6 +209,10 @@ class DisconnectedError(Exception):
     """Disconnected from server"""
     pass
 
+class CommandContinuationRequest(Exception):
+    """Command Continuation Request"""
+    pass
+
 class IMAPParser:
     """Streamed connection to the IMAP4rev1 compliant IMAP server"""
 
@@ -293,6 +296,7 @@ class IMAPParser:
        
         # does the server support LITERAL+ extension?
         self.literal_plus = False
+        self.enable_literal_plus = True
         self.okay = None
 
     def start_worker(self):
@@ -316,21 +320,27 @@ class IMAPParser:
             raise DisconnectedError
         self._check_worker_exceptions()
         self._incoming.put(command)
-    
+
+    def _loop_from_server(self):
+        """Helper processing server responses, internal use only"""
+        # some response to read
+        response = self._parse_line(self._get_line())
+        if response.kind == 'BYE' or not self._stream.okay:
+            self.okay = False
+        elif self.okay is None:
+            self.okay = True
+        if response.kind == 'CAPABILITY' and self.enable_literal_plus:
+            self.literal_plus = 'LITERAL+' in response.data
+        elif response.response_code[0] == 'CAPABILITY' \
+             and self.enable_literal_plus:
+            self.literal_plus = 'LITERAL+' in response.response_code[1]
+        self._outgoing.put(response)
+        return response
+
     def loop(self):
         """Main loop - parse responses from server, send commands,..."""
         if self._stream.has_data(50):
-            # some response to read
-            response = self._parse_line(self._get_line())
-            if response.kind == 'BYE' or not self._stream.okay:
-                self.okay = False
-            elif self.okay is None:
-                self.okay = True
-            if response.kind == 'CAPABILITY':
-                self.literal_plus = 'LITERAL+' in response.data
-            elif response.response_code[0] == 'CAPABILITY':
-                self.literal_plus = 'LITERAL+' in response.response_code[1]
-            self._outgoing.put(response)
+            response = self._loop_from_server()
         if not self._incoming.empty():
             # let's check if the connectin is still ok
             self._stream.has_data(0)
@@ -365,7 +375,19 @@ class IMAPParser:
                             self._write((' {%d+}' % len(item[0])) + CRLF +
                                         item[0])
                         else:
-                            raise NotImplementedError
+                            self._write((' {%d}' % len(item[0])) + CRLF)
+                            try:
+                                while 1:
+                                    # wait for the continuation request
+                                    response = self._loop_from_server()
+                                    if response.tag == tag_name \
+                                       and response.kind == 'BAD':
+                                        # server doesn't like our request
+                                        # there's no point in trying to continue
+                                        raise ParseError(response)
+                            except CommandContinuationRequest:
+                                # a little abuse of exceptions :)
+                                self._write(item[0])
             self._write(CRLF)
             self._stream.flush()
 
@@ -582,9 +604,9 @@ Based on the method of imaplib's IMAP4 class.
             line = line[2:]
         elif line.startswith('+ '):
             # Command Continuation Request
-            # we shouldn't get it here
-            # either IMAP server sucks or we've fscked up something
-            raise ParseError(line)
+            # either we handle it later or IMAP server sucks
+            # or we've fscked up something
+            raise CommandContinuationRequest(line)
         elif self._re_tagged_response.match(line):
             # Tagged response
             try:

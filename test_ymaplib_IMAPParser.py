@@ -5,10 +5,13 @@ import time
 
 imap_stream = ymaplib.ProcessStream('dovecot --exec-mail imap')
 parser = ymaplib.IMAPParser(imap_stream, 0)
-parser.literal_plus = not True
+parser.enable_literal_plus = False
 parser.start_worker()
 
 parser.cmd_capability()
+# this one will raise an exception
+#parser._queue_cmd(('FOO', 'CHARSET utf-8', ('text',), ('odkazy.\n',), ('to',), ('user-cs',)))
+
 parser.cmd_list('', '*')
 parser.cmd_select('gentoo.gentoo-user-cs')
 parser.cmd_search(('text', 'odkazy.\n', 'to', 'user-cs'), 'utf-8')

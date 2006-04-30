@@ -22,8 +22,10 @@ class IMAPParserParseLineTest(unittest.TestCase):
 
     def test_continuation(self):
         """Test if getting a continuation request raises exception"""
-        self.assertRaises(ymaplib.ParseError, self.parser._parse_line, '+ ')
-        self.assertRaises(ymaplib.ParseError, self.parser._parse_line, '+ foo')
+        self.assertRaises(ymaplib.CommandContinuationRequest,
+                          self.parser._parse_line, '+ ')
+        self.assertRaises(ymaplib.CommandContinuationRequest,
+                          self.parser._parse_line, '+ foo')
 
     def test_untagged_unknown(self):
         """Test correct parsing of untagged reply - unknown response"""
@@ -416,7 +418,9 @@ class IMAPParserParseLineTest(unittest.TestCase):
             self.assertRaises(ymaplib.ParseError, self.parser._parse_line,
                               '* thread %s' % stuff)
 
-    # FIXME: FETCH
+    # FETCH responses are difficult to test as they are likely to contain
+    # literals and literals are PITA to test (that would require dealing with
+    # ymaplib.IMAPParser._stream)
 
 if __name__ == '__main__':
     unittest.main()
