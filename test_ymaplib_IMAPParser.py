@@ -9,7 +9,7 @@ parser.enable_literal_plus = False
 parser.start_worker()
 
 parser.cmd_capability()
-# this one will raise an exception
+# the following line will raise an exception of working with LITERAL+
 #parser._queue_cmd(('FOO', 'CHARSET utf-8', ('text',), ('odkazy.\n',), ('to',), ('user-cs',)))
 
 parser.cmd_list('', '*')
