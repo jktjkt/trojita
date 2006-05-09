@@ -3,6 +3,7 @@
 
 import unittest
 import ymaplib
+import time
 
 __revision__ = '$Id$'
 
@@ -444,8 +445,8 @@ class IMAPParserParseLineTest(unittest.TestCase):
         response = self.parser._parse_line(s)
         tmp = ("Terry Gray", ymaplib.IMAPNIL(), "gray", "cac.washington.edu")
         ok.data = (12, {'FLAGS': ('\\SEEN',),
-         'INTERNALDATE': '17-Jul-1996 02:44:25 -0700', 'RFC822.SIZE': 4286,
-         'ENVELOPE': ymaplib.IMAPEnvelope(
+         'INTERNALDATE': time.mktime((1996, 7, 17, 11, 44, 25, 2, 199, 1)),
+         'RFC822.SIZE': 4286, 'ENVELOPE': ymaplib.IMAPEnvelope(
            date='Wed, 17 Jul 1996 02:23:25 -0700 (PDT)',
            subject="IMAP4rev1 WG mtg summary and minutes",
            from_=(tmp,), sender=(tmp,), reply_to=(tmp,), bcc=ymaplib.IMAPNIL(),

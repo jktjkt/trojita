@@ -20,6 +20,7 @@ import socket
 import time
 import traceback
 import imap4utf7
+import email.Utils
 
 __version__ = "0.1"
 __revision__ = '$Id$'
@@ -30,7 +31,6 @@ __all__ = ["ProcessStream", "TCPStream", "IMAPResponse", "IMAPNIL",
 # FIXME: add support for IDLE
 # FIXME: implement all the standard commands
 # FIXME: MULTIAPPEND, ID, UIDPLUS, NAMESPACE, QUOTA
-# FIXME: date parsing in FETCH responses (INTERNALDATE and ENVELOPE)
 
 CRLF = "\r\n"
 
@@ -926,6 +926,10 @@ Based on the method of imaplib's IMAP4 class.
                     if not isinstance(item, tuple):
                         raise ParseError(line)
                     buf[last] = tuple([flag.upper() for flag in item])
+                elif last == 'INTERNALDATE':
+                    buf[last] = email.Utils.mktime_tz(email.Utils.parsedate_tz(item))
+                    #print time.strftime('%c %Z', time.localtime(buf[last]))
+                    #print item
                 else:
                     buf[last] = item
                 last = None
@@ -1054,16 +1058,25 @@ class IMAPEnvelope:
     """Container for RFC822 envelope"""
     
     def __repr__(self):
+        if self.date is None:
+            date = 'None'
+        else:
+            date = time.strftime('%c %Z', time.localtime(self.date))
         return ('<ymaplib.IMAPEnvelope: Date: %s, Subj: "%s", From: %s, ' + \
                'Sender: %s, Reply-To: %s, To: %s, Cc: %s, Bcc: %s, ' + \
-               'In-Reply-To: %s, Message-Id: %s>') % (self.date, self.subject,
-               self.from_, self.sender, self.reply_to, self.to, self.cc, 
-               self.bcc, self.in_reply_to, self.message_id)
+               'In-Reply-To: %s, Message-Id: %s>') % (
+               date, self.subject, self.from_, self.sender, self.reply_to,
+               self.to, self.cc, self.bcc, self.in_reply_to, self.message_id)
     
     def __init__(self, date=None, subject=None, from_=None, sender=None, 
                  reply_to=None, to=None, cc=None, bcc=None, in_reply_to=None,
                  message_id=None):
-        self.date = date
+        if isinstance(date, basestring):
+            self.date = email.Utils.mktime_tz(email.Utils.parsedate_tz(date))
+        elif date is None:
+            self.date = None
+        else:
+            raise ParseError(date)
         self.subject = subject
         self.from_ = from_
         self.sender = sender
