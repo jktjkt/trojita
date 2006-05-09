@@ -30,6 +30,7 @@ __all__ = ["ProcessStream", "TCPStream", "IMAPResponse", "IMAPNIL",
 # FIXME: add support for IDLE
 # FIXME: implement all the standard commands
 # FIXME: MULTIAPPEND, ID, UIDPLUS, NAMESPACE, QUOTA
+# FIXME: date parsing in FETCH responses (INTERNALDATE and ENVELOPE)
 
 CRLF = "\r\n"
 
@@ -916,9 +917,20 @@ Based on the method of imaplib's IMAP4 class.
             if i % 2:
                 if last == 'ENVELOPE':
                     buf[last] = IMAPEnvelope(*item)
+                elif last == 'RFC822.SIZE':
+                    try:
+                        buf[last] = int(item)
+                    except ValueError:
+                        raise ParseError(line)
+                elif last == 'FLAGS':
+                    if not isinstance(item, tuple):
+                        raise ParseError(line)
+                    buf[last] = tuple([flag.upper() for flag in item])
                 else:
                     buf[last] = item
                 last = None
+            elif not isinstance(item, basestring):
+                raise ParseError(line)
             else:
                 last = item.upper()
         if last is not None:
@@ -1061,6 +1073,17 @@ class IMAPEnvelope:
         self.bcc = bcc
         self.in_reply_to = in_reply_to
         self.message_id = message_id
+
+    def __eq__(self, other):
+        return (self.date == other.date and self.subject == other.subject and
+                self.from_ == other.from_ and self.sender == other.sender and
+                self.reply_to == other.reply_to and self.to == other.to and
+                self.cc == other.cc and self.bcc == other.bcc and
+                self.in_reply_to == other.in_reply_to and
+                self.message_id == other.message_id)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 
 class IMAPMessage:
