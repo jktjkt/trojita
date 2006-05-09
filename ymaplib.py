@@ -319,7 +319,10 @@ class IMAPParser:
         if self.okay == False:
             raise DisconnectedError
         self._check_worker_exceptions()
-        self._incoming.put(command)
+        self.last_tag_num += 1
+        tag_name = self._make_tag()
+        self._incoming.put((tag_name, command))
+        return tag_name
 
     def _loop_from_server(self):
         """Helper processing server responses, internal use only"""
@@ -349,9 +352,7 @@ class IMAPParser:
             if self.okay == False:
                 raise DisconnectedError
             # there's a command in the queue, let's process it
-            command = self._incoming.get()
-            self.last_tag_num += 1
-            tag_name = self._make_tag()
+            (tag_name, command) = self._incoming.get()
             self._write(tag_name)
             for item in command:
                 if isinstance(item, str):
@@ -449,36 +450,36 @@ class IMAPParser:
 
     def cmd_select(self, mailbox):
         """Select a mailbox"""
-        self._queue_cmd(('SELECT', (mailbox.encode('imap4-utf-7'),)))
+        return self._queue_cmd(('SELECT', (mailbox.encode('imap4-utf-7'),)))
 
     def cmd_examine(self, mailbox):
         """Examine a mailbox"""
-        self._queue_cmd(('EXAMINE', (mailbox.encode('imap4-utf-7'),)))
+        return self._queue_cmd(('EXAMINE', (mailbox.encode('imap4-utf-7'),)))
 
     def cmd_create(self, mailbox):
         """Create a mailbox"""
-        self._queue_cmd(('CREATE', (mailbox.encode('imap4-utf-7'),)))
+        return self._queue_cmd(('CREATE', (mailbox.encode('imap4-utf-7'),)))
 
     def cmd_delete(self, mailbox):
         """Delete a mailbox"""
-        self._queue_cmd(('DELETE', (mailbox.encode('imap4-utf-7'),)))
+        return self._queue_cmd(('DELETE', (mailbox.encode('imap4-utf-7'),)))
 
     def cmd_rename(self, old_name, new_name):
         """Rename a mailbox"""
-        self._queue_cmd(('RENAME', (old_name.encode('imap4-utf-7'),),
+        return self._queue_cmd(('RENAME', (old_name.encode('imap4-utf-7'),),
                          (new_name.encode('imap4-utf-7'),)))
 
     def cmd_subscribe(self, mailbox):
         """Subscribe a mailbox"""
-        self._queue_cmd(('SUBSCRIBE', (mailbox.encode('imap4-utf-7'),)))
+        return self._queue_cmd(('SUBSCRIBE', (mailbox.encode('imap4-utf-7'),)))
 
     def cmd_unsubscribe(self, mailbox):
         """Unsubscribe a mailbox"""
-        self._queue_cmd(('UNSUBSCRIBE', (mailbox.encode('imap4-utf-7'),)))
+        return self._queue_cmd(('UNSUBSCRIBE', (mailbox.encode('imap4-utf-7'),)))
 
     def cmd_list(self, reference, name):
         """Send a LIST command"""
-        self._queue_cmd(('LIST', (reference.encode('imap4-utf-7'),),
+        return self._queue_cmd(('LIST', (reference.encode('imap4-utf-7'),),
                          (name.encode('imap4-utf-7'),)))
 
     def cmd_lsub(self, reference, name):
@@ -488,7 +489,7 @@ class IMAPParser:
 
     def cmd_status(self, mailbox, items):
         """Send a STATUS command"""
-        self._queue_cmd(('STATUS', (mailbox.encode('imap4-utf-7'),),
+        return self._queue_cmd(('STATUS', (mailbox.encode('imap4-utf-7'),),
                          "(" + items + ")"))
 
     def cmd_append(self, mailbox, message, flags=(), timestamp=None):
@@ -579,7 +580,6 @@ class IMAPParser:
 
 Based on the method of imaplib's IMAP4 class.
 """
-
         if not self._stream.has_data():
             raise TimeoutError
         line = self._stream.readline()
