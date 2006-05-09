@@ -19,7 +19,7 @@ import select
 import socket
 import time
 import traceback
-import IMAP4UTF7
+import imap4utf7
 
 __version__ = "0.1"
 __revision__ = '$Id$'
