@@ -433,7 +433,8 @@ class IMAPParser:
 
     def cmd_logout(self):
         """Send a LOGOUT command"""
-        # FIXME: adjust the state correctly...
+        # we don't adjust self.okay here as the LOGOUT command
+        # might actually fail
         return self._queue_cmd(('LOGOUT',))
 
     def cmd_starttls(self):
