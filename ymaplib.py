@@ -497,10 +497,21 @@ class IMAPParser:
         return self._queue_cmd(('STATUS', (mailbox.encode('imap4-utf-7'),),
                          "(" + items + ")"))
 
-    def cmd_append(self, mailbox, message, flags=(), timestamp=None):
+    def cmd_append(self, mailbox, message, flags=None, timestamp=None):
         """Send an APPEND command"""
-        # FIXME: APPEND
-        raise NotImplementedError
+        command = ['APPEND', (mailbox.encode('imap4-utf-7'),)]
+        if flags is not None:
+            if not len(flags):
+                flags_str = ''
+            else:
+                flags_str = ' '.join(flags)
+            command.append('(%s)' % flags_str)
+        if timestamp is not None:
+            date_rfc2822 = email.Utils.formatdate(timestamp, True)
+            command.append('"%s-%s-%s"' % (date_rfc2822[5:7],
+                            date_rfc2822[8:11], date_rfc2822[12:]))
+        command.append((message,))
+        return self._queue_cmd(tuple(command))
 
     def cmd_check(self):
         """Send a CHECK command"""
