@@ -355,6 +355,7 @@ class IMAPParser:
             # there's a command in the queue, let's process it
             (tag_name, command) = self._incoming.get()
             self._write(tag_name)
+            send_CRLF = True
             for item in command:
                 if isinstance(item, str):
                     self._write(' ' + item)
@@ -378,25 +379,25 @@ class IMAPParser:
                                         item[0])
                         else:
                             self._write((' {%d}' % len(item[0])) + CRLF)
-                            is_ok = True
+                            should_continue = True
                             try:
                                 while 1:
                                     # wait for the continuation request
                                     # or a notification that it never arrives :)
                                     response = self._loop_from_server()
-                                    if response.tag == tag_name \
-                                       and response.kind == 'BAD':
-                                        # server doesn't like our request
-                                        # there's no point in trying to continue
-                                        is_ok = False
+                                    if response.tag == tag_name:
+                                        # server doesn't want us to continue
+                                        should_continue = False
+                                        send_CRLF = False
                                         break
                             except CommandContinuationRequest:
                                 # a little abuse of exceptions :)
                                 self._write(item[0])
-                            if not is_ok:
+                            if not should_continue:
                                 # we don't have to send the rest of the command
                                 break
-            self._write(CRLF)
+            if send_CRLF:
+                self._write(CRLF)
             self._stream.flush()
 
     def get(self):
@@ -450,7 +451,7 @@ class IMAPParser:
     def cmd_login(self, username, password):
         """Login with supplied username and password"""
         # FIXME:
-        raise NotImplementedError
+        return self._queue_cmd(('LOGIN', (username,), (password,)))
 
     def cmd_select(self, mailbox):
         """Select a mailbox"""
