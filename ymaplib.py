@@ -489,7 +489,7 @@ class IMAPParser:
 
     def cmd_lsub(self, reference, name):
         """Send a LSUB command"""
-        self._queue_cmd(('LSUB', (reference.encode('imap4-utf-7'),),
+        return self._queue_cmd(('LSUB', (reference.encode('imap4-utf-7'),),
                          (name.encode('imap4-utf-7'),)))
 
     def cmd_status(self, mailbox, items):
