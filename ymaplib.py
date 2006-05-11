@@ -540,8 +540,12 @@ class IMAPParser:
 
     def _cmd_fetch(self, cmdname, sequence, items):
         """UID FETCH or FETCH"""
-        # FIXME:
-        raise NotImplementedError
+        if isinstance(items, basestring):
+            items_str = items
+        else:
+            items_str = '(' + ' '.join(items) + ')'
+        return self._queue_cmd((cmdname, self._sequence_to_str(sequence),
+                                items_str))
 
     def cmd_fetch(self, sequence, items):
         """Perform a FETCH command"""
@@ -590,6 +594,15 @@ class IMAPParser:
         """THREAD command"""
         return self._cmd_search('THREAD %s %s' % (algo, charset), criteria,
                                 None)
+
+    @classmethod
+    def _sequence_to_str(self, sequence):
+        """Returns the string representation of a sequence"""
+        if isinstance(sequence, basestring):
+            return sequence
+        else:
+            # FIXME: support for better datatype
+            raise NotImplementedError
 
     def _get_line(self):
         """Get one line of server's output.
