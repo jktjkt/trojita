@@ -33,25 +33,8 @@ __all__ = ["ProcessStream", "TCPStream", "IMAPResponse", "IMAPNIL",
 
 CRLF = "\r\n"
 
-class ProcessStream:
-    """Streamable interface to local process.
-
-Supports read(), readline(), write(), flush(), and has_data() methods. Doesn't
-work on Win32 systems due to their lack of poll() functionality on pipes.
-"""
-
-    def __init__(self, command, timeout=-1):
-        # disable buffering, otherwise readline() might read more than just
-        # one line and following poll() would say that there's nothing to read
-        (self._w, self._r) = os.popen2(command, bufsize=0)
-        self.read = self._r.read
-        self.readline = self._r.readline
-        self.write = self._w.write
-        self.flush = self._w.flush
-        self._r_poll = select.poll()
-        self._r_poll.register(self._r.fileno(), select.POLLIN | select.POLLHUP)
-        self.timeout = int(timeout)
-        self.okay = True
+class PollableStream:
+    """Implementation of has_data() call for other streams"""
 
     def has_data(self, timeout=None):
         """Check if we can read from socket without blocking"""
@@ -76,7 +59,28 @@ work on Win32 systems due to their lack of poll() functionality on pipes.
             return False
 
 
-class TCPStream:
+class ProcessStream(PollableStream):
+    """Streamable interface to local process.
+
+Supports read(), readline(), write(), flush(), and has_data() methods. Doesn't
+work on Win32 systems due to their lack of poll() functionality on pipes.
+"""
+
+    def __init__(self, command, timeout=-1):
+        # disable buffering, otherwise readline() might read more than just
+        # one line and following poll() would say that there's nothing to read
+        (self._w, self._r) = os.popen2(command, bufsize=0)
+        self.read = self._r.read
+        self.readline = self._r.readline
+        self.write = self._w.write
+        self.flush = self._w.flush
+        self._r_poll = select.poll()
+        self._r_poll.register(self._r.fileno(), select.POLLIN | select.POLLHUP)
+        self.timeout = int(timeout)
+        self.okay = True
+
+
+class TCPStream(PollableStream):
     """Streamed TCP/IP connection"""
     # FIXME: support everything from ProcessStream
 
@@ -85,21 +89,13 @@ class TCPStream:
         self._sock.connect((host, port))
         self._file = self._sock.makefile('rb', bufsize=0)
         self._r_poll = select.poll()
-        self._r_poll.register(self._sock.fileno(), select.POLLIN)
+        self._r_poll.register(self._sock.fileno(), select.POLLIN | select.POLLHUP)
         self.read = self._file.read
         self.readline = self._file.readline
         self.write = self._file.write
         self.flush = self._file.flush
         self.timeout = int(timeout)
-
-    def has_data(self, timeout=None):
-        """Check if we can read from the socket without blocking.
-
-        Needs further testing.
-        """
-        if timeout is None:
-            timeout = self.timeout
-        return bool(len(self._r_poll.poll(timeout)))
+        self.okay = True
 
 
 class IMAPResponse:
