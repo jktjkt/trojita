@@ -29,7 +29,7 @@ __all__ = ["ProcessStream", "TCPStream", "IMAPResponse", "IMAPNIL",
            "IMAPMailbox"]
 
 # FIXME: add support for IDLE
-# FIXME: implement all the standard commands
+# FIXME: AUTHENTICATE and STARTTLS
 # FIXME: MULTIAPPEND, ID, UIDPLUS, NAMESPACE, QUOTA
 
 CRLF = "\r\n"
@@ -450,7 +450,6 @@ class IMAPParser:
 
     def cmd_login(self, username, password):
         """Login with supplied username and password"""
-        # FIXME:
         return self._queue_cmd(('LOGIN', (username,), (password,)))
 
     def cmd_select(self, mailbox):
@@ -553,13 +552,17 @@ class IMAPParser:
 
     def cmd_store(self, sequence, item, value):
         """STORE message flags"""
-        # FIXME: STORE
-        raise NotImplementedError
+        if isinstance(value, basestring):
+            value_str = value
+        else:
+            value_str = ' '.join(value)
+        return self._queue_cmd(('STORE', self._sequence_to_str(sequence), item,
+                                value_str))
 
     def cmd_copy(self, sequence, mailbox):
         """COPY command"""
-        # FIXME: COPY
-        raise NotImplementedError
+        return self._queue_cmd(('COPY', self._sequence_to_str(sequence),
+                                (mailbox.encode('imap4-utf-7'),)))
 
     def cmd_uid_fetch(self, sequence, items):
         """UID FETCH command"""
@@ -571,7 +574,9 @@ class IMAPParser:
 
     def cmd_xatom(self):
         """X<atom> command"""
-        # FIXME :)
+        # We can't support X<atom> commands as we don't know anything
+        # about parameters
+        # You'll have to call _cmd_search() yourself
         raise NotImplementedError
 
     def cmd_unselect(self):
