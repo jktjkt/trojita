@@ -431,7 +431,6 @@ class IMAPParser:
     def get(self, timeout=None):
         """Return a server reply"""
         self._check_worker_exceptions()
-        # FIXME: needs timeouts etc...
         if timeout is None:
             # non-blocking invocation, might raise an exception
             return self._outgoing.get(False)
