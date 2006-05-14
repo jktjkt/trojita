@@ -1062,6 +1062,8 @@ Based on the method of imaplib's IMAP4 class.
                         escaping = False
                         # FIXME: need a mechanism to report non-fatal errors
                         #raise ParseError(string)
+                        if self.debug >= 6:
+                            self._log('escaping unknown character: %s' % string)
                     escaping = False
                 elif string[pos] == '"':
                     go_on = False
