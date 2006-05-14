@@ -441,7 +441,7 @@ class IMAPParserParseLineTest(unittest.TestCase):
         ' ("John Klensin" NIL "KLENSIN" "MIT.EDU")) NIL NIL' \
         ' "<B27397-0100000@cac.washington.edu>")' \
         ' BODY ("TEXT" "PLAIN" ("CHARSET" "US-ASCII") NIL NIL "7BIT" 3028' \
-        ' 92))'
+        ' 92) BODY[HEADER.FIELDS (DATE FROM)] ahoj)'
         response = self.parser._parse_line(s)
         tmp = ("Terry Gray", ymaplib.IMAPNIL(), "gray", "cac.washington.edu")
         ok.data = (12, {'FLAGS': ('\\SEEN',),
@@ -458,7 +458,8 @@ class IMAPParserParseLineTest(unittest.TestCase):
            in_reply_to = ymaplib.IMAPNIL(),
            message_id="<B27397-0100000@cac.washington.edu>"),
          'BODY': ('TEXT', 'PLAIN', ('CHARSET', 'US-ASCII'), ymaplib.IMAPNIL(),
-                  ymaplib.IMAPNIL(), '7BIT', '3028', '92')})
+                  ymaplib.IMAPNIL(), '7BIT', '3028', '92'),
+         'BODY[HEADER.FIELDS (DATE FROM)]': 'ahoj'})
         self.assertEqual(ok, response)
 
 if __name__ == '__main__':

@@ -941,30 +941,39 @@ Based on the method of imaplib's IMAP4 class.
             line = line[1:]
         buf = {}
         last = None
-        for i, item in enumerate(self._parse_parenthesized_line(line)[0]):
-            if i % 2:
-                if last == 'ENVELOPE':
-                    buf[last] = IMAPEnvelope(*item)
-                elif last == 'RFC822.SIZE':
-                    try:
-                        buf[last] = int(item)
-                    except ValueError:
+        for token in self._parse_parenthesized_line(line)[0]:
+            if isinstance(last, basestring):
+                # current item is either data or continuation of identifier
+                pos1 = last.find('[')
+                if pos1 != -1 and not last.endswith(']'):
+                    # incomplete identifier
+                    if isinstance(token, basestring):
+                        last += token.upper()
+                    elif isinstance(token, tuple):
+                        last += ' (' + ' '.join(token).upper() + ')'
+                    else:
                         raise ParseError(line)
-                elif last == 'FLAGS':
-                    if not isinstance(item, tuple):
-                        raise ParseError(line)
-                    buf[last] = tuple([flag.upper() for flag in item])
-                elif last == 'INTERNALDATE':
-                    buf[last] = email.Utils.mktime_tz(email.Utils.parsedate_tz(item))
-                    #print time.strftime('%c %Z', time.localtime(buf[last]))
-                    #print item
                 else:
-                    buf[last] = item
-                last = None
-            elif not isinstance(item, basestring):
-                raise ParseError(line)
+                    #buf[last] = token
+                    if last == 'ENVELOPE':
+                        buf[last] = IMAPEnvelope(*token)
+                    elif last == 'RFC822.SIZE':
+                        try:
+                            buf[last] = int(token)
+                        except ValueError:
+                            raise ParseError(line)
+                    elif last == 'FLAGS':
+                        if not isinstance(token, tuple):
+                            raise ParseError(line)
+                        buf[last] = tuple([flag.upper() for flag in token])
+                    elif last == 'INTERNALDATE':
+                        buf[last] = email.Utils.mktime_tz(email.Utils.parsedate_tz(token))
+                    else:
+                        buf[last] = token
+                    last = None
             else:
-                last = item.upper()
+                last = token.upper()
+
         if last is not None:
             # odd number of items
             raise InvalidResponseError(line)
