@@ -28,7 +28,6 @@ __all__ = ["ProcessStream", "TCPStream", "IMAPResponse", "IMAPNIL",
            "IMAPThreadItem", "IMAPParser", "IMAPEnvelope", "IMAPMessage",
            "IMAPMailbox"]
 
-# FIXME: add support for IDLE
 # FIXME: AUTHENTICATE and STARTTLS
 # FIXME: MULTIAPPEND, ID, UIDPLUS, NAMESPACE, QUOTA
 
@@ -79,6 +78,7 @@ work on Win32 systems due to their lack of poll() functionality on pipes.
 
 class TCPStream:
     """Streamed TCP/IP connection"""
+    # FIXME: support everything from ProcessStream
 
     def __init__(self, host, port, timeout=-1):
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -298,7 +298,10 @@ class IMAPParser:
         # does the server support LITERAL+ extension?
         self.literal_plus = False
         self.enable_literal_plus = True
+
+
         self.okay = None
+        self._in_idle = False
 
     def start_worker(self):
         """Create and start a thread doing all the work"""
@@ -353,9 +356,34 @@ class IMAPParser:
             if self.okay == False:
                 raise DisconnectedError
             # there's a command in the queue, let's process it
+
+            if self._in_idle:
+                # we have to terminate the idling at first
+                self._write('DONE')
+                self._write(CRLF)
+                self._in_idle = False
+
             (tag_name, command) = self._incoming.get()
             self._write(tag_name)
             send_CRLF = True
+
+            if command[0].upper() == 'IDLE':
+                self._write(' IDLE' + CRLF)
+                self._stream.flush()
+                try:
+                    while 1:
+                        # wait for the continuation request
+                        # or a notification that it never arrives :)
+                        response = self._loop_from_server()
+                        if response.tag == tag_name:
+                            # server doesn't want us to continue
+                            break
+                except CommandContinuationRequest:
+                    # a little abuse of exceptions :)
+                    self._in_idle = True
+                # don't process this command anymore
+                return
+
             for item in command:
                 if isinstance(item, str):
                     self._write(' ' + item)
@@ -599,6 +627,10 @@ class IMAPParser:
         """THREAD command"""
         return self._cmd_search('THREAD %s %s' % (algo, charset), criteria,
                                 None)
+
+    def cmd_idle(self):
+        """Enter the RFC 2177 IDLE mode"""
+        return self._queue_cmd(('IDLE',))
 
     @classmethod
     def _sequence_to_str(self, sequence):

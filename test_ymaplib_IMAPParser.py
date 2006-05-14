@@ -52,10 +52,21 @@ timestamp = time.mktime(time.localtime())
 parser.cmd_select('inbox')
 #parser.cmd_fetch('*:*', 'ALL')
 #parser.cmd_fetch('*:*', ('envelope', 'flags', 'internaldate', 'body.peek[]'))
-parser.cmd_fetch('*', ('FLAGS', 'BODY[HEADER.FIELDS (DATE FROM)]'))
+#parser.cmd_fetch('*', ('FLAGS', 'BODY[HEADER.FIELDS (DATE FROM)]'))
+#parser.cmd_store('*', '+FLAGS', '\\seen')
+#parser.cmd_copy('*', u'ěšč')
+parser.cmd_idle()
+#i=0
+#while 1:
+#    time.sleep(0.1)
+#    while not parser._outgoing.empty():
+#        print parser.get()
+#    if i>100:
+#        break
+#    i += 1
 
 parser.cmd_noop()
-parser._queue_cmd(('capability',))
+#parser._queue_cmd(('capability',))
 #parser._queue_cmd(('select gentoo.gentoo-user-cs',))
 #parser._queue_cmd(('fetch 1 full',))
 #parser._queue_cmd(('status inbox ()',))
