@@ -428,11 +428,19 @@ class IMAPParser:
                 self._write(CRLF)
             self._stream.flush()
 
-    def get(self):
+    def get(self, timeout=None):
         """Return a server reply"""
         self._check_worker_exceptions()
         # FIXME: needs timeouts etc...
-        return self._outgoing.get()
+        if timeout is None:
+            # non-blocking invocation, might raise an exception
+            return self._outgoing.get(False)
+        elif timeout == 0:
+            # block as long as needed
+            return self._outgoing.get(True)
+        else:
+            # block with timeout
+            return self._outgoing.get(True, timeout)
 
     def _read(self, size):
         """Read size octets from server's output"""
