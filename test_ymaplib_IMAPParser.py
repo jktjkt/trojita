@@ -4,16 +4,29 @@ import ymaplib
 import time
 
 imap_stream = ymaplib.ProcessStream('dovecot --exec-mail imap')
-parser = ymaplib.IMAPParser(imap_stream, 0)
+parser = ymaplib.IMAPParser(imap_stream, 10)
 parser.enable_literal_plus = False
 parser.start_worker()
 
-parser.cmd_capability()
+#parser.cmd_capability()
 # the following line will raise an exception of working with LITERAL+
 #parser._queue_cmd(('FOO', 'CHARSET utf-8', ('text',), ('odkazy.\n',), ('to',), ('user-cs',)))
 
-parser.cmd_list('', '*')
-parser.cmd_select('gentoo.gentoo-user-cs')
+message = """Date: Mon, 7 Feb 1994 21:52:25 -0800 (PST)
+From: Fred Foobar <foobar@Blurdybloop.COM>
+Subject: afternoon meeting
+To: mooch@owatagu.siam.edu
+Message-Id: <B27397-0100000@Blurdybloop.COM>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+
+Hello Joe, do you think we can meet at 3:30 tomorrow?"""
+flags = ('\\seen', '\\deleted')
+timestamp = time.mktime(time.localtime())
+#parser.cmd_append('INBOX', message, flags, timestamp)
+
+#parser.cmd_list('', '*')
+#parser.cmd_select('gentoo.gentoo-user-cs')
 #parser.cmd_search(('text', 'odkazy.\n', 'to', 'user-cs'), 'utf-8')
 #parser.cmd_uid_search(('text', 'odkazy.\n', 'to', 'user-cs'), 'utf-8')
 #parser.cmd_sort(('subject',), 'utf-8', ('from', 'jkt'))
@@ -34,10 +47,15 @@ parser.cmd_select('gentoo.gentoo-user-cs')
 #parser.cmd_select('foo\nbar')
 #parser.cmd_rename('foo\nbar', 'bar-foo')
 #parser.cmd_delete('bar-foo')
+#parser.cmd_noop()
+#parser.cmd_logout()
+parser.cmd_select('inbox')
+#parser.cmd_fetch('*:*', 'ALL')
+#parser.cmd_fetch('*:*', ('envelope', 'flags', 'internaldate', 'body.peek[]'))
+parser.cmd_fetch('*', ('FLAGS', 'BODY[HEADER.FIELDS (DATE FROM)]'))
+
 parser.cmd_noop()
-parser.cmd_logout()
-parser.cmd_noop()
-#parser._queue_cmd(('capability',))
+parser._queue_cmd(('capability',))
 #parser._queue_cmd(('select gentoo.gentoo-user-cs',))
 #parser._queue_cmd(('fetch 1 full',))
 #parser._queue_cmd(('status inbox ()',))
