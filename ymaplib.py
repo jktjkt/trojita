@@ -11,12 +11,9 @@ Inspired by the Python's imaplib library.
 
 from __future__ import generators
 import sys
-import os
 import re
 import threading
 import Queue
-import select
-import socket
 import time
 import traceback
 import imap4utf7
@@ -32,70 +29,6 @@ __all__ = ["ProcessStream", "TCPStream", "IMAPResponse", "IMAPNIL",
 # FIXME: MULTIAPPEND, ID, UIDPLUS, NAMESPACE, QUOTA
 
 CRLF = "\r\n"
-
-class PollableStream:
-    """Implementation of has_data() call for other streams"""
-
-    def has_data(self, timeout=None):
-        """Check if we can read from socket without blocking"""
-        if timeout is None:
-            timeout = self.timeout
-        polled = self._r_poll.poll(timeout)
-        if len(polled):
-            result = polled[0][1]
-            if result & select.POLLIN:
-                if result & select.POLLHUP:
-                    # closed connection, data still available
-                    self.okay = False
-                return True
-            elif result & select.POLLHUP:
-                # connection is closed
-                time.sleep(timeout/1000.0)
-                self.okay = False
-                return False
-            else:
-                return False
-        else:
-            return False
-
-
-class ProcessStream(PollableStream):
-    """Streamable interface to local process.
-
-Supports read(), readline(), write(), flush(), and has_data() methods. Doesn't
-work on Win32 systems due to their lack of poll() functionality on pipes.
-"""
-
-    def __init__(self, command, timeout=-1):
-        # disable buffering, otherwise readline() might read more than just
-        # one line and following poll() would say that there's nothing to read
-        (self._w, self._r) = os.popen2(command, bufsize=0)
-        self.read = self._r.read
-        self.readline = self._r.readline
-        self.write = self._w.write
-        self.flush = self._w.flush
-        self._r_poll = select.poll()
-        self._r_poll.register(self._r.fileno(), select.POLLIN | select.POLLHUP)
-        self.timeout = int(timeout)
-        self.okay = True
-
-
-class TCPStream(PollableStream):
-    """Streamed TCP/IP connection"""
-    # FIXME: support everything from ProcessStream
-
-    def __init__(self, host, port, timeout=-1):
-        self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._sock.connect((host, port))
-        self._file = self._sock.makefile('rb', bufsize=0)
-        self._r_poll = select.poll()
-        self._r_poll.register(self._sock.fileno(), select.POLLIN | select.POLLHUP)
-        self.read = self._file.read
-        self.readline = self._file.readline
-        self.write = self._file.write
-        self.flush = self._file.flush
-        self.timeout = int(timeout)
-        self.okay = True
 
 
 class IMAPResponse:
@@ -343,7 +276,7 @@ class IMAPParser:
     def loop(self):
         """Main loop - parse responses from server, send commands,..."""
         if self._stream.has_data(50):
-            response = self._loop_from_server()
+            self._loop_from_server()
         if not self._incoming.empty():
             # let's check if the connectin is still ok
             self._stream.has_data(0)
@@ -379,6 +312,18 @@ class IMAPParser:
                     self._in_idle = True
                 # don't process this command anymore
                 return
+            elif command[0].upper() == 'STARTTLS':
+                self._write(' STARTTLS' + CRLF)
+                self._stream.flush()
+                while 1:
+                    # wait for confirmation
+                    response = self._loop_from_server()
+                    if response.tag == tag_name:
+                        break
+                if response.kind == 'OK':
+                    return self._stream.starttls()
+                else:
+                    return False
 
             for item in command:
                 if isinstance(item, str):
@@ -471,8 +416,7 @@ class IMAPParser:
 
     def cmd_starttls(self):
         """Perform a TLS negotiation"""
-        # FIXME: STARTTLS
-        raise NotImplementedError
+        return self._queue_cmd(('STARTTLS',))
 
     def cmd_authenticate(self):
         """Authenticate to the server"""

@@ -1,15 +1,19 @@
 # -*- coding: utf-8
 """Simple ymaplib tester"""
 import ymaplib
+import streams
 import time
 
-imap_stream = ymaplib.ProcessStream('dovecot --exec-mail imap')
-#imap_stream = ymaplib.TCPStream('localhost', 143)
+imap_stream = streams.ProcessStream('dovecot --exec-mail imap')
+#imap_stream = streams.OpenSSLStream('localhost', 143, timeout=1500)
 parser = ymaplib.IMAPParser(imap_stream, 10)
 parser.enable_literal_plus = False
 parser.start_worker()
 
 parser.cmd_capability()
+parser.cmd_starttls()
+parser.cmd_capability()
+parser.cmd_noop()
 # the following line will raise an exception of working with LITERAL+
 #parser._queue_cmd(('FOO', 'CHARSET utf-8', ('text',), ('odkazy.\n',), ('to',), ('user-cs',)))
 
@@ -51,15 +55,15 @@ timestamp = time.mktime(time.localtime())
 #parser.cmd_noop()
 #parser.cmd_logout()
 #parser.cmd_login('foo', 'bar')
-parser.cmd_capability()
-parser.cmd_list('', '*')
-parser.cmd_select('inbox')
-parser.cmd_fetch('*:*', 'ALL')
-parser.cmd_fetch('*:*', ('envelope', 'flags', 'internaldate', 'body.peek[]'))
-parser.cmd_fetch('*', ('FLAGS', 'BODY[HEADER.FIELDS (DATE FROM)]'))
-parser.cmd_store('*', '+FLAGS', '\\seen')
-parser.cmd_copy('*', u'ěšč')
-parser.cmd_idle()
+#parser.cmd_capability()
+#parser.cmd_list('', '*')
+#parser.cmd_select('inbox')
+#parser.cmd_fetch('*:*', 'ALL')
+#parser.cmd_fetch('*:*', ('envelope', 'flags', 'internaldate', 'body.peek[]'))
+#parser.cmd_fetch('*', ('FLAGS', 'BODY[HEADER.FIELDS (DATE FROM)]'))
+#parser.cmd_store('*', '+FLAGS', '\\seen')
+#parser.cmd_copy('*', u'ěšč')
+#parser.cmd_idle()
 #i=0
 #while 1:
 #    time.sleep(0.1)
@@ -69,7 +73,7 @@ parser.cmd_idle()
 #        break
 #    i += 1
 
-parser.cmd_noop()
+#parser.cmd_noop()
 #parser._queue_cmd(('capability',))
 #parser._queue_cmd(('select gentoo.gentoo-user-cs',))
 #parser._queue_cmd(('fetch 1 full',))
