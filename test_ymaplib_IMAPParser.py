@@ -5,15 +5,20 @@ import streams
 import time
 
 imap_stream = streams.ProcessStream('dovecot --exec-mail imap')
-#imap_stream = streams.OpenSSLStream('localhost', 143, timeout=1500)
+#imap_stream = streams.TCPStream('localhost', 143, timeout=1.5)
+#imap_stream = streams.OpenSSLStream('localhost', 143, timeout=1.5)
 parser = ymaplib.IMAPParser(imap_stream, 10)
 parser.enable_literal_plus = False
 parser.start_worker()
 
 parser.cmd_capability()
-parser.cmd_starttls()
-parser.cmd_capability()
-parser.cmd_noop()
+#parser.cmd_starttls()
+#parser.cmd_capability()
+#parser.cmd_noop()
+#auth = ymaplib.PLAINAuthenticator('user', 'password')
+#parser.cmd_authenticate(auth)
+#parser.cmd_noop()
+
 # the following line will raise an exception of working with LITERAL+
 #parser._queue_cmd(('FOO', 'CHARSET utf-8', ('text',), ('odkazy.\n',), ('to',), ('user-cs',)))
 

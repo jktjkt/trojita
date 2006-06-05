@@ -18,6 +18,7 @@ import time
 import traceback
 import imap4utf7
 import email.Utils
+import base64
 
 __version__ = "0.1"
 __revision__ = '$Id$'
@@ -25,8 +26,9 @@ __all__ = ["ProcessStream", "TCPStream", "IMAPResponse", "IMAPNIL",
            "IMAPThreadItem", "IMAPParser", "IMAPEnvelope", "IMAPMessage",
            "IMAPMailbox"]
 
-# FIXME: AUTHENTICATE
 # FIXME: MULTIAPPEND, ID, UIDPLUS, NAMESPACE, QUOTA
+
+# FIXME: more authenticators...
 
 CRLF = "\r\n"
 
@@ -324,6 +326,25 @@ class IMAPParser:
                     return self._stream.starttls()
                 else:
                     return False
+            elif command[0].upper() == 'AUTHENTICATE':
+                authenticator = command[1]
+                self._write(' AUTHENTICATE ' + authenticator.mechanism + CRLF)
+                self._stream.flush()
+                while 1:
+                    try:
+                        response = self._loop_from_server()
+                        if response.tag == tag_name:
+                            # command finished
+                            break
+                    except CommandContinuationRequest, exc:
+                        stuff = authenticator.chat(base64.b64decode(exc.args[0]))
+                        if stuff is None:
+                            self._write('*' + CRLF)
+                            self._stream.flush()
+                        else:
+                            self._write(base64.b64encode(stuff) + CRLF)
+                            self._stream.flush()
+                return
 
             for item in command:
                 if isinstance(item, str):
@@ -418,10 +439,9 @@ class IMAPParser:
         """Perform a TLS negotiation"""
         return self._queue_cmd(('STARTTLS',))
 
-    def cmd_authenticate(self):
+    def cmd_authenticate(self, authenticator):
         """Authenticate to the server"""
-        # FIXME: implement it & update parameters
-        raise NotImplementedError
+        return self._queue_cmd(('AUTHENTICATE', authenticator))
 
     def cmd_login(self, username, password):
         """Login with supplied username and password"""
@@ -623,7 +643,7 @@ Based on the method of imaplib's IMAP4 class.
             # Command Continuation Request
             # either we handle it later or IMAP server sucks
             # or we've fscked up something
-            raise CommandContinuationRequest(line)
+            raise CommandContinuationRequest(line[2:])
         elif self._re_tagged_response.match(line):
             # Tagged response
             try:
@@ -1126,10 +1146,49 @@ class IMAPMessage:
     """RFC822 message stored on an IMAP server"""
     pass
 
+
 class IMAPMailbox:
     """Interface to an IMAP mailbox"""
     pass
 
+
+class Authenticator:
+    """Helper for authentications.
+
+Derived subclasses should override the _chat() method.
+"""
+# FIXME: auth mechanism *might* negotiate a switch to some encryption...
+
+    def __todo(self):
+        raise NotImplementedError()
+
+    def __init__(self):
+        self.mechanism = None
+
+    def __repr__(self):
+        return "<ymaplib.Authenticator>"
+
+    def chat(self, input):
+        """Do the chat :)
+
+Expects one line of server's respone. returns data to send back 
+or None if we changed our mind."""
+        return self._chat(input)
+
+    _chat = __todo
+
+class PLAINAuthenticator(Authenticator):
+    """Implements PLAIN SASL authentication"""
+
+    mechanism = 'PLAIN'
+
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+
+    def _chat(self, input):
+        return "\x00%s\x00%s" % (self.username.encode("utf-8"), 
+                                 self.password.encode("utf-8"))
 
 if __name__ == "__main__":
     print "ymaplib version %s (SVN %s)" % (__version__, __revision__)
