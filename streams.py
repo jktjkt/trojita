@@ -68,7 +68,35 @@ Positive floating point value is number of seconds to wait.
     _starttls = __todo
     _write = __todo
 
-class ProcessStream(Stream):
+class PollableStream(Stream):
+    """_has_data() helper for those streams that can use poll() for _has_data()"""
+    def _has_data(stream, timeout):
+        if timeout is None or timeout < -0.000001:
+            poll_timeout = None
+            # FIXME: what to do if timeout is "wait forever", ie negative or None?
+            sleep_timeout = 0
+        else:
+            poll_timeout = timeout * 1000
+            sleep_timeout = timeout
+        polled = stream._r_poll.poll(poll_timeout)
+        if len(polled):
+            result = polled[0][1]
+            if result & select.POLLIN:
+                if result & select.POLLHUP:
+                    # closed connection, data still available
+                    stream.okay = False
+                return True
+            elif result & select.POLLHUP:
+                # connection is closed
+                time.sleep(sleep_timeout)
+                stream.okay = False
+                return False
+            else:
+                return False
+        else:
+            return False
+
+class ProcessStream(PollableStream):
     """Streamable interface to local process.
 
 Doesn't work on Win32 systems due to their lack of poll() functionality on pipes.
@@ -90,28 +118,6 @@ Doesn't work on Win32 systems due to their lack of poll() functionality on pipes
     def _flush(self):
         return self._w.flush()
 
-    def _has_data(self, timeout):
-        if timeout is None:
-            timeout = self.timeout
-        polled = self._r_poll.poll(timeout * 1000)
-        if len(polled):
-            result = polled[0][1]
-            if result & select.POLLIN:
-                if result & select.POLLHUP:
-                    # closed connection, data still available
-                    self.okay = False
-                return True
-            elif result & select.POLLHUP:
-                # connection is closed
-                # FIXME: what to do if timeout is "wait forever", ie negative or None?
-                time.sleep(max(timeout, 0))
-                self.okay = False
-                return False
-            else:
-                return False
-        else:
-            return False
-
     def _read(self, size):
         return self._r.read(size)
 
@@ -122,7 +128,7 @@ Doesn't work on Win32 systems due to their lack of poll() functionality on pipes
         return self._w.write(data)
 
 
-class TCPStream(Stream):
+class TCPStream(PollableStream):
     """Streamed TCP/IP connection"""
 
     def __init__(self, host, port, timeout=default_timeout):
@@ -150,31 +156,13 @@ class TCPStream(Stream):
     def _write(self, data):
         return self._file.write(data)
 
-    def _has_data(self, timeout):
-        if timeout is None:
-            timeout = self.timeout
-        polled = self._r_poll.poll(timeout * 1000)
-        if len(polled):
-            result = polled[0][1]
-            if result & select.POLLIN:
-                if result & select.POLLHUP:
-                    # closed connection, data still available
-                    self.okay = False
-                return True
-            elif result & select.POLLHUP:
-                # connection is closed
-                # FIXME: what to do if timeout is "wait forever", ie negative or None?
-                time.sleep(max(timeout, 0))
-                self.okay = False
-                return False
-            else:
-                return False
-        else:
-            return False
-
 
 class GenericSSLStream(TCPStream):
-    """Generic SSL Stream template"""
+    """Generic SSL Stream template
+
+Subclasses should override _ssl_close(), _ssl_has_data(), _ssl_read(), 
+_ssl_redline(), _ssl_starttls() and _ssl_write().
+"""
 
     def __todo(self):
         """Dummy _ssl_*() function"""

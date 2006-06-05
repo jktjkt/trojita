@@ -593,7 +593,7 @@ class IMAPParser:
 
 Based on the method of imaplib's IMAP4 class.
 """
-        if not self._stream.has_data():
+        if not self._stream.has_data(None):
             raise TimeoutError
         line = self._stream.readline()
         if not line:
