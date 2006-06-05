@@ -70,7 +70,7 @@ Positive floating point value is number of seconds to wait.
 
 class PollableStream(Stream):
     """_has_data() helper for those streams that can use poll() for _has_data()"""
-    def _has_data(stream, timeout):
+    def _has_data(self, timeout):
         if timeout is None or timeout < -0.000001:
             poll_timeout = None
             # we won't wait if timeout is "wait forever", ie negative or None...
@@ -78,18 +78,18 @@ class PollableStream(Stream):
         else:
             poll_timeout = timeout * 1000
             sleep_timeout = timeout
-        polled = stream._r_poll.poll(poll_timeout)
+        polled = self._r_poll.poll(poll_timeout)
         if len(polled):
             result = polled[0][1]
             if result & select.POLLIN:
                 if result & select.POLLHUP:
                     # closed connection, data still available
-                    stream.okay = False
+                    self.okay = False
                 return True
             elif result & select.POLLHUP:
                 # connection is closed
                 time.sleep(sleep_timeout)
-                stream.okay = False
+                self.okay = False
                 return False
             else:
                 return False

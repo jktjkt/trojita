@@ -25,7 +25,7 @@ __all__ = ["ProcessStream", "TCPStream", "IMAPResponse", "IMAPNIL",
            "IMAPThreadItem", "IMAPParser", "IMAPEnvelope", "IMAPMessage",
            "IMAPMailbox"]
 
-# FIXME: AUTHENTICATE and STARTTLS
+# FIXME: AUTHENTICATE
 # FIXME: MULTIAPPEND, ID, UIDPLUS, NAMESPACE, QUOTA
 
 CRLF = "\r\n"
