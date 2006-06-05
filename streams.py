@@ -73,7 +73,7 @@ class PollableStream(Stream):
     def _has_data(stream, timeout):
         if timeout is None or timeout < -0.000001:
             poll_timeout = None
-            # FIXME: what to do if timeout is "wait forever", ie negative or None?
+            # we won't wait if timeout is "wait forever", ie negative or None...
             sleep_timeout = 0
         else:
             poll_timeout = timeout * 1000
@@ -231,7 +231,8 @@ class OpenSSLStream(GenericSSLStream):
         self._ssl_connection.sock_shutdown(socket.SHUT_RDWR)
 
     def _ssl_flush(self):
-        # FIXME: flush :)
+        # OpenSSL doesn't have anything like flush() so we just call
+        # the underlying socket's flush()
         return self._file.flush()
 
     def _ssl_has_data(self, timeout):
@@ -263,6 +264,7 @@ class OpenSSLStream(GenericSSLStream):
             return self._ssl_connection.recv(size)
 
     def _ssl_readline(self):
+        # FIXME: optimization would be nice...
         buf = [self._buffer]
         self._buffer = ''
         while 1:
