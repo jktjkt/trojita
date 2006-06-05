@@ -275,7 +275,7 @@ class IMAPParser:
 
     def loop(self):
         """Main loop - parse responses from server, send commands,..."""
-        if self._stream.has_data(50):
+        if self._stream.has_data(0.050):
             self._loop_from_server()
         if not self._incoming.empty():
             # let's check if the connectin is still ok

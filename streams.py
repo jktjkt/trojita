@@ -5,6 +5,9 @@ import select
 import socket
 from OpenSSL import SSL
 
+# default timeout in seconds
+default_timeout = 30
+
 class Stream:
     """Stream object.
 
@@ -24,33 +27,33 @@ need to redefine docstrings.
         raise NotImplementedError("streams.Stream doesn't support this method")
 
     def close(self):
-        self._close()
+        return self._close()
 
     def flush(self):
-        self._flush()
+        return self._flush()
 
     def has_data(self, timeout=0):
         """Check if we can read from socket without blocking
 
 Timeout is an optional parameter specifying the maximum time to wait for the 
-result. If omitted or None, there's no timeout - the function will block until
-there is something to read. If timeout is zero, the function will return 
-immediately. Positive floating point value is number of seconds to wait.
+result. If None, there's no timeout - the function will block until there is 
+something to read. If timeout is zero, the function will return immediately. 
+Positive floating point value is number of seconds to wait.
 """
-        self._has_data(timeout)
+        return self._has_data(timeout)
 
     def read(self, size=-1):
-        self._read(size)
+        return self._read(size)
 
     def readline(self):
-        self._readline()
+        return self._readline()
 
     def starttls(self):
         """Setup a SSL/TLS session over existing connection"""
-        self._starttls()
+        return self._starttls()
 
     def write(self, data):
-        self._write(data)
+        return self._write(data)
 
     close.__doc__ = file.close.__doc__
     flush.__doc__ = file.flush.__doc__
@@ -65,13 +68,13 @@ immediately. Positive floating point value is number of seconds to wait.
     _starttls = __todo
     _write = __todo
 
-class ProcessStream:
+class ProcessStream(Stream):
     """Streamable interface to local process.
 
 Doesn't work on Win32 systems due to their lack of poll() functionality on pipes.
 """
 
-    def __init__(self, command, timeout=-1):
+    def __init__(self, command, timeout=default_timeout):
         # disable buffering, otherwise readline() might read more than just
         # one line and following poll() would say that there's nothing to read
         (self._w, self._r) = os.popen2(command, bufsize=0)
@@ -90,7 +93,7 @@ Doesn't work on Win32 systems due to their lack of poll() functionality on pipes
     def _has_data(self, timeout):
         if timeout is None:
             timeout = self.timeout
-        polled = self._r_poll.poll(timeout)
+        polled = self._r_poll.poll(timeout * 1000)
         if len(polled):
             result = polled[0][1]
             if result & select.POLLIN:
@@ -100,7 +103,8 @@ Doesn't work on Win32 systems due to their lack of poll() functionality on pipes
                 return True
             elif result & select.POLLHUP:
                 # connection is closed
-                time.sleep(max(timeout/1000.0, 0))
+                # FIXME: what to do if timeout is "wait forever", ie negative or None?
+                time.sleep(max(timeout, 0))
                 self.okay = False
                 return False
             else:
@@ -121,7 +125,7 @@ Doesn't work on Win32 systems due to their lack of poll() functionality on pipes
 class TCPStream(Stream):
     """Streamed TCP/IP connection"""
 
-    def __init__(self, host, port, timeout=-1):
+    def __init__(self, host, port, timeout=default_timeout):
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._sock.connect((host, port))
         self._file = self._sock.makefile('rb', bufsize=0)
@@ -137,7 +141,7 @@ class TCPStream(Stream):
     def _flush(self):
         return self._file.flush()
 
-    def _read(self, size=-1):
+    def _read(self, size):
         return self._file.read(size)
 
     def _readline(self):
@@ -146,10 +150,10 @@ class TCPStream(Stream):
     def _write(self, data):
         return self._file.write(data)
 
-    def _has_data(self, timeout=None):
+    def _has_data(self, timeout):
         if timeout is None:
             timeout = self.timeout
-        polled = self._r_poll.poll(timeout)
+        polled = self._r_poll.poll(timeout * 1000)
         if len(polled):
             result = polled[0][1]
             if result & select.POLLIN:
@@ -159,7 +163,8 @@ class TCPStream(Stream):
                 return True
             elif result & select.POLLHUP:
                 # connection is closed
-                time.sleep(max(timeout/1000.0, 0))
+                # FIXME: what to do if timeout is "wait forever", ie negative or None?
+                time.sleep(max(timeout, 0))
                 self.okay = False
                 return False
             else:
@@ -182,7 +187,7 @@ class GenericSSLStream(TCPStream):
     _ssl_starttls = __todo
     _ssl_write = __todo
 
-    def __init__(self, host, port, timeout=-1):
+    def __init__(self, host, port, timeout=default_timeout):
         TCPStream.__init__(self, host, port, timeout)
         self.ssl = False
 
@@ -190,31 +195,31 @@ class GenericSSLStream(TCPStream):
         if self.ssl:
             return self._ssl_close()
         else:
-            return TCPStream.close(self)
+            return TCPStream._close(self)
 
     def _flush(self):
         if self.ssl:
             return self._ssl_flush()
         else:
-            return TCPStream.flush(self)
+            return TCPStream._flush(self)
 
     def _has_data(self, timeout):
         if self.ssl:
             return self._ssl_has_data(timeout)
         else:
-            return TCPStream.has_data(self, timeout)
+            return TCPStream._has_data(self, timeout)
 
     def _read(self, size):
         if self.ssl:
             return self._ssl_read(size)
         else:
-            return TCPStream.read(self, size)
+            return TCPStream._read(self, size)
 
     def _readline(self):
         if self.ssl:
             return self._ssl_readline()
         else:
-            return TCPStream.readline(self)
+            return TCPStream._readline(self)
 
     def _starttls(self):
         if self.ssl:
@@ -227,7 +232,7 @@ class GenericSSLStream(TCPStream):
         if self.ssl:
             return self._ssl_write(data)
         else:
-            return TCPStream.write(self, data)
+            return TCPStream._write(self, data)
 
 
 class OpenSSLStream(GenericSSLStream):
@@ -245,7 +250,7 @@ class OpenSSLStream(GenericSSLStream):
         if (self._ssl_connection.pending() > 0) or len(self._buffer):
             return True
         old_timeout = self._sock.gettimeout()
-        self._sock.settimeout(0)
+        self._sock.settimeout(timeout)
         res = True
         try:
             self._buffer = self._ssl_connection.recv(1)
