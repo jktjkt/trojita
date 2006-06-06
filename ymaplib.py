@@ -604,6 +604,8 @@ class IMAPParser:
         """Returns the string representation of a sequence"""
         if isinstance(sequence, basestring):
             return sequence
+        elif isinstance(sequence, int):
+            return str(sequence)
         else:
             # FIXME: support for better datatype
             raise NotImplementedError
@@ -948,8 +950,8 @@ Based on the method of imaplib's IMAP4 class.
         for token in self._parse_parenthesized_line(line)[0]:
             if isinstance(last, basestring):
                 # current item is either data or continuation of identifier
-                pos1 = last.find('[')
-                if pos1 != -1 and not last.endswith(']'):
+                if last.count('[') != last.count(']') or \
+                   last.count('<') != last.count('>'):
                     # incomplete identifier
                     if isinstance(token, basestring):
                         last += token.upper()
@@ -1144,7 +1146,19 @@ class IMAPEnvelope:
 
 class IMAPMessage:
     """RFC822 message stored on an IMAP server"""
-    pass
+
+    def __init__(self, mailbox=None, uid=None, seq=None, flags=None, 
+                 internaldate=None, size=None, envelope=None, body=None,
+                 text=None):
+        self.mailbox = mailbox # unicode string
+        self.uid = uid # int
+        self.seq = seq # int
+        self.flags = flags # list (set?)
+        self.internaldate = internaldate # date?
+        self.size = size # int
+        self.envelope = envelope # IMAPEnvelope
+        self.body = body # FIXME: proper data structure...
+        self.text = text # string ??
 
 
 class IMAPMailbox:
