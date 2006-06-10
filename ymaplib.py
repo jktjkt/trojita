@@ -978,7 +978,11 @@ Based on the method of imaplib's IMAP4 class.
                         buf[last] = token
                     last = None
             else:
-                last = token.upper()
+                if isinstance(token, basestring):
+                    last = token.upper()
+                else:
+                    # last token was garbage
+                    raise InvalidResponseError(line)
 
         if last is not None:
             # odd number of items
@@ -1159,6 +1163,7 @@ class IMAPMessage:
         self.envelope = envelope # IMAPEnvelope
         self.body = body # FIXME: proper data structure...
         self.text = text # string ??
+        # FIXME: something that can store partialy fetched data
 
 
 class IMAPMailbox:

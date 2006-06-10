@@ -430,7 +430,7 @@ class IMAPParserParseLineTest(unittest.TestCase):
 
         # RFC 3501, section 8
         s = \
-        '* 12 FETCH (FLAGS (\Seen) INTERNALDATE "17-Jul-1996 02:44:25 -0700"' \
+        '* 12 FETCH (FLaGS (\Seen) INTERnALDATE "17-Jul-1996 02:44:25 -0700"' \
         ' RFC822.SIZE 4286 ENVELOPE ("Wed, 17 Jul 1996 02:23:25 -0700 (PDT)"' \
         ' "IMAP4rev1 WG mtg summary and minutes"' \
         ' (("Terry Gray" NIL "gray" "cac.washington.edu"))' \
@@ -440,8 +440,8 @@ class IMAPParserParseLineTest(unittest.TestCase):
         ' ((NIL NIL "minutes" "CNRI.Reston.VA.US")' \
         ' ("John Klensin" NIL "KLENSIN" "MIT.EDU")) NIL NIL' \
         ' "<B27397-0100000@cac.washington.edu>")' \
-        ' BODY ("TEXT" "PLAIN" ("CHARSET" "US-ASCII") NIL NIL "7BIT" 3028' \
-        ' 92) BODY[HEADER.FIELDS (DATE FROM)] ahoj)'
+        ' BOdY ("TEXT" "PLAIN" ("CHARSET" "US-ASCII") NIL NIL "7BIT" 3028' \
+        ' 92) BOdY[HEADER.FIELDS (DAtE FROM)] ahoj)'
         response = self.parser._parse_line(s)
         tmp = ("Terry Gray", ymaplib.IMAPNIL(), "gray", "cac.washington.edu")
         ok.data = (12, {'FLAGS': ('\\SEEN',),
@@ -461,6 +461,17 @@ class IMAPParserParseLineTest(unittest.TestCase):
                   ymaplib.IMAPNIL(), '7BIT', '3028', '92'),
          'BODY[HEADER.FIELDS (DATE FROM)]': 'ahoj'})
         self.assertEqual(ok, response)
+
+        ok.data = (5, {'BODY[]<0>': 'Return-Path: <xyz'})
+        s = '* 5 fetch (BodY[]<0> "Return-Path: <xyz")'
+        response = self.parser._parse_line(s)
+        self.assertEqual(ok, response)
+
+        ok.data = (1, {'BODY[12]<56>': 'foo bar'})
+        s = '* 1 Fetch (BODy[12]<56> "foo bar")'
+        response = self.parser._parse_line(s)
+        self.assertEqual(ok, response)
+
 
 if __name__ == '__main__':
     unittest.main()
