@@ -36,8 +36,11 @@ timestamp = time.mktime(time.localtime())
 #parser.cmd_append('INBOX', message, flags, timestamp)
 
 #parser.cmd_list('', '*')
+
+# just a demo to show that we can resume :)
+print parser.start_worker(parser.stop_worker())
+
 parser.cmd_select('gentoo.gentoo-user-cs')
-parser.cmd_fetch(1, 'BODY.PEEK[]<0.2048>')
 #parser.cmd_search(('text', 'odkazy.\n', 'to', 'user-cs'), 'utf-8')
 #parser.cmd_uid_search(('text', 'odkazy.\n', 'to', 'user-cs'), 'utf-8')
 #parser.cmd_sort(('subject',), 'utf-8', ('from', 'jkt'))
@@ -84,6 +87,7 @@ parser.cmd_fetch(1, 'BODY.PEEK[]<0.2048>')
 #parser._queue_cmd(('select gentoo.gentoo-user-cs',))
 #parser._queue_cmd(('fetch 1 full',))
 #parser._queue_cmd(('status inbox ()',))
+
 time.sleep(2)
 
 while not parser._outgoing.empty():

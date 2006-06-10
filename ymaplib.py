@@ -158,7 +158,7 @@ class IMAPParser:
         def run(self):
             """Periodically run the IMAPParser.loop(), check for exceptions"""
             try:
-                while 1:
+                while self.parser._worker_flag.isSet():
                     self.parser.loop()
             except:
                 self.parser.worker_exceptions.put(sys.exc_info())
@@ -225,19 +225,42 @@ class IMAPParser:
         self._incoming = Queue.Queue()
         self._outgoing = Queue.Queue()
         self.worker_exceptions = Queue.Queue()
+        self._worker = None
+        self._worker_flag = threading.Event()
        
         # does the server support LITERAL+ extension?
         self.literal_plus = False
         self.enable_literal_plus = True
 
-
         self.okay = None
         self._in_idle = False
 
-    def start_worker(self):
+    def start_worker(self, incoming=None):
         """Create and start a thread doing all the work"""
+        if self._worker_flag.isSet():
+            # worker is already running...
+            return False
+
+        if isinstance(incoming, tuple) or isinstance(incoming, list):
+            for item in incoming:
+                self._incoming.put(item)
+        elif incoming is not None:
+            raise TypeError('incoming is not list or tuple', incoming)
+
         self._worker = self.WorkerThread(self)
+        self._worker_flag.set()
         self._worker.start()
+        return True
+
+    def stop_worker(self):
+        """Stop the worker thread, return pending items etc"""
+        self._worker_flag.clear()
+        self._worker.join()
+        # we should be single-threaded now
+        incoming = []
+        while not self._incoming.empty():
+            incoming.append(self._incoming.get())
+        return tuple(incoming)
 
     def _check_worker_exceptions(self):
         """Check if there was an exception in the worker thread"""
