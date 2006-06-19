@@ -113,7 +113,7 @@ Doesn't work on Win32 systems due to their lack of poll() functionality on pipes
 
     def _close(self):
         self._r.close()
-        self,_w.close()
+        self._w.close()
 
     def _flush(self):
         return self._w.flush()
