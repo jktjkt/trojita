@@ -5,6 +5,9 @@ import select
 import socket
 from OpenSSL import SSL
 
+__version__ = "0.1"
+__revision__ = "$Id$"
+
 # default timeout in seconds
 default_timeout = 30
 

@@ -5,6 +5,8 @@ Based on Twisted Mail stuff, Copyright (c) 2001-2004 Twisted Matrix Laboratories
 
 import codecs
 
+__revision__ = "$Id$"
+
 def modified_base64(s):
     s_utf7 = s.encode('utf-7')
     return s_utf7[1:-1].replace('/', ',')
