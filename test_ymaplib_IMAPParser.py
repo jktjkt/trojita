@@ -8,7 +8,7 @@ imap_stream = streams.ProcessStream('dovecot --exec-mail imap')
 #imap_stream = streams.TCPStream('localhost', 143, timeout=1.5)
 #imap_stream = streams.OpenSSLStream('localhost', 143, timeout=1.5)
 parser = ymaplib.IMAPParser(imap_stream, 10)
-parser.enable_literal_plus = False
+parser.capabilities_mask = ('LITERAL+')
 parser.start_worker()
 
 parser.cmd_capability()

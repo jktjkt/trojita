@@ -19,6 +19,8 @@ import traceback
 import imap4utf7
 import email.Utils
 import base64
+import email.Message
+import inspect
 
 __version__ = "0.1"
 __revision__ = '$Id$'
@@ -159,7 +161,7 @@ class IMAPParser:
             """Periodically run the IMAPParser.loop(), check for exceptions"""
             try:
                 while self.parser._worker_flag.isSet():
-                    self.parser.loop()
+                    self.parser._loop()
             except:
                 self.parser.worker_exceptions.put(sys.exc_info())
 
@@ -214,7 +216,7 @@ class IMAPParser:
 
     _re_literal = re.compile(r'{(\d+)}')
 
-    def __init__(self, stream=None, debug=0):
+    def __init__(self, stream=None, debug=0, capabilities_mask=()):
         self._stream = stream
         if __debug__:
             self.debug = debug
@@ -230,7 +232,8 @@ class IMAPParser:
        
         # does the server support LITERAL+ extension?
         self.literal_plus = False
-        self.enable_literal_plus = True
+        self.capabilities = ()
+        self.capabilities_mask = capabilities_mask
 
         self.okay = None
         self._in_idle = False
@@ -286,19 +289,28 @@ class IMAPParser:
         """Helper processing server responses, internal use only"""
         # some response to read
         response = self._parse_line(self._get_line())
+
         if response.kind == 'BYE' or not self._stream.okay:
             self.okay = False
         elif self.okay is None:
             self.okay = True
-        if response.kind == 'CAPABILITY' and self.enable_literal_plus:
-            self.literal_plus = 'LITERAL+' in response.data
-        elif response.response_code[0] == 'CAPABILITY' \
-             and self.enable_literal_plus:
-            self.literal_plus = 'LITERAL+' in response.response_code[1]
+
+        if response.kind == 'CAPABILITY':
+            source = response.data
+            do_caps = True
+        elif response.response_code[0] == 'CAPABILITY':
+            source = response.response_code[1]
+            do_caps = True
+        else:
+            do_caps = False
+        if do_caps:
+            self.capabilities = tuple([item for item in source if item not in self.capabilities_mask])
+            self.literal_plus = 'LITERAL+' in self.capabilities
+
         self._outgoing.put(response)
         return response
 
-    def loop(self):
+    def _loop(self):
         """Main loop - parse responses from server, send commands,..."""
         if self._stream.has_data(0.050):
             self._loop_from_server()
@@ -351,11 +363,11 @@ class IMAPParser:
                     return False
             elif command[0].upper() == 'AUTHENTICATE':
                 authenticator = command[1]
-		if authenticator is None:
-			# fake authenticator
-			self._write(' NOOP' + CRLF)
-			self._stream.flush()
-			return
+                if authenticator is None:
+                    # fake authenticator
+                    self._write(' NOOP' + CRLF)
+                    self._stream.flush()
+                    return
 
                 self._write(' AUTHENTICATE ' + authenticator.mechanism + CRLF)
                 self._stream.flush()
@@ -422,10 +434,10 @@ class IMAPParser:
     def get(self, timeout=None):
         """Return a server reply"""
         self._check_worker_exceptions()
-        if timeout is None:
+        if timeout == 0:
             # non-blocking invocation, might raise an exception
             return self._outgoing.get(False)
-        elif timeout == 0:
+        elif timeout is None:
             # block as long as needed
             return self._outgoing.get(True)
         else:
@@ -1180,24 +1192,131 @@ class IMAPEnvelope:
 class IMAPMessage:
     """RFC822 message stored on an IMAP server"""
 
-    def __init__(self, mailbox=None, uid=None, seq=None, flags=None, 
-                 internaldate=None, size=None, envelope=None, body=None,
-                 text=None):
-        self.mailbox = mailbox # unicode string
-        self.uid = uid # int
-        self.seq = seq # int
+    def __init__(self, flags=None, internaldate=None, size=None,
+                 envelope=None, body=None, text=None):
         self.flags = flags # list (set?)
         self.internaldate = internaldate # date?
         self.size = size # int
         self.envelope = envelope # IMAPEnvelope
-        self.body = body # FIXME: proper data structure...
-        self.text = text # string ??
-        # FIXME: something that can store partialy fetched data
+        self.body = body # email.Message
+        # note - we don't cache partially fetched data
+
+
+class IMAPClient:
+    """A client to IMAP server"""
+
+    def __init__(self, stream_type, stream_args, auth_type, auth_args,
+                  max_connections=None, capabilities_mask=(), debug=0):
+        self._stream_type = stream_type
+        self._stream_args = stream_args
+        self._auth_type = auth_type
+        self._auth_args = auth_args
+        self._connections = []
+        self.max_connections = max_connections
+        self.capabilities_mask = capabilities_mask
+        self._debug = debug
+
+
+class IMAPClientConnection:
+    """Connection to an IMAP server"""
+
+    def __init__(self, stream_type, stream_args, auth_type, auth_args,
+                  capabilities_mask=(), debug=0):
+        stream = stream_type(*stream_args)
+        self.parser = IMAPParser(stream, debug, capabilities_mask)
+        self.parser.start_worker()
+        if auth_type is not None:
+            auth = auth_type(*auth_args)
+            self.parser.cmd_authenticate(auth)
+        items = inspect.getmembers(self.parser, inspect.ismethod)
+        for method in items:
+            if method[0].startswith('cmd_') or \
+               method[0] in ('start_worker', 'stop_worker', 'get'):
+                setattr(self, method[0], method[1])
+        self.mailbox = None
 
 
 class IMAPMailbox:
     """Interface to an IMAP mailbox"""
-    pass
+
+    def __init__(self, name, connection, want_rw=False, create=False, timeout=None):
+        self.name = name
+        self._conn = connection
+        self.want_rw = want_rw
+        self.create = create
+        self.timeout = timeout
+        self._clearattrs()
+        self.open()
+
+    def _clearattrs(self):
+        self.rw = None
+        self.uidnext = None
+        self.uidvalidity = None
+        self.unseen = None
+        self.exists = None
+        self.recent = None
+        self.permanentflags = ()
+        self.flags = ()
+
+    def open(self):
+        if self.name != self._conn.mailbox:
+            if self.want_rw:
+                tag = self._conn.cmd_select(self.name)
+            else:
+                tag = self._conn.cmd_examine(self.name)
+            while 1:
+                response = self._conn.get(self.timeout)
+
+                if response.response_code[0] == 'READ-ONLY':
+                    self.rw = False
+                elif response.response_code[0] == 'READ-WRITE':
+                    self.rw = True
+                elif response.response_code[0] == 'UIDVALIDITY':
+                    self.uidvalidity = int(response.response_code[1])
+                elif response.response_code[0] == 'UIDNEXT':
+                    self.uidnext = int(response.response_code[1])
+                elif response.response_code[0] == 'UNSEEN':
+                    self.unseen = int(response.response_code[1])
+                elif response.response_code[0] == 'PERMANENTFLAGS':
+                    if not isinstance(response.response_code[1], tuple):
+                        raise TypeError("PERMANENTFLAGS response code isn't a tuple")
+                    self.permanentflags = response.response_code[1]
+
+                if response.kind == 'FLAGS':
+                    if not isinstance(response.data, tuple):
+                        raise TypeError("FLAGS response isn't a tuple")
+                    self.flags = response.data
+                elif response.kind == 'EXISTS':
+                    self.exists = int(response.data)
+                elif response.kind == 'RECENT':
+                    self.recent = int(response.data)
+
+                if self.rw is None:
+                    self.rw = True
+
+                if response.tag == tag:
+                    if response.kind != 'OK':
+                        self._conn.mailbox = None
+                        self._clearattrs()
+                    else:
+                        self._conn.mailbox = self.name
+                    break
+
+    def __repr__(self):
+        s = '<ymaplib.IMAPMailbox: '
+        if self.name == self._conn.mailbox:
+            s += 'connected'
+        else:
+            s += 'not connected'
+        s += ', "%s", ' % (self.name)
+        if self.rw:
+            s += 'RW, '
+        else:
+            s += 'RO, '
+        return s + ('UIDNEXT %s, UIDVALIDITY %s, UNSEEN %s, EXISTS %s, ' +
+             'RECENT %s, FLAGS (%s), PERMANENTFLAGS (%s)>') % (self.uidnext,
+             self.uidvalidity, self.unseen, self.exists, self.recent,
+             ' '.join(self.flags), ' '.join(self.permanentflags))
 
 
 class Authenticator:
@@ -1210,8 +1329,7 @@ Derived subclasses should override the _chat() method.
     def __todo(self):
         raise NotImplementedError()
 
-    def __init__(self):
-        self.mechanism = None
+    mechanism = None
 
     def __repr__(self):
         return "<ymaplib.Authenticator>"
@@ -1224,6 +1342,7 @@ or None if we changed our mind."""
         return self._chat(input)
 
     _chat = __todo
+
 
 class PLAINAuthenticator(Authenticator):
     """Implements PLAIN SASL authentication"""
