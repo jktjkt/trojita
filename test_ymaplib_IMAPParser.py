@@ -16,8 +16,9 @@ parser.cmd_capability()
 #parser.cmd_capability()
 #parser.cmd_noop()
 #auth = ymaplib.PLAINAuthenticator('user', 'password')
-#parser.cmd_authenticate(auth)
-#parser.cmd_noop()
+auth = None
+parser.cmd_authenticate(auth)
+parser.cmd_noop()
 
 # the following line will raise an exception of working with LITERAL+
 #parser._queue_cmd(('FOO', 'CHARSET utf-8', ('text',), ('odkazy.\n',), ('to',), ('user-cs',)))

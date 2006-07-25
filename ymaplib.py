@@ -351,6 +351,12 @@ class IMAPParser:
                     return False
             elif command[0].upper() == 'AUTHENTICATE':
                 authenticator = command[1]
+		if authenticator is None:
+			# fake authenticator
+			self._write(' NOOP' + CRLF)
+			self._stream.flush()
+			return
+
                 self._write(' AUTHENTICATE ' + authenticator.mechanism + CRLF)
                 self._stream.flush()
                 while 1:
