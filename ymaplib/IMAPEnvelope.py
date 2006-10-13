@@ -4,6 +4,8 @@
 # Copyright (c) Jan Kundrát <jkt@flaska.net>, 2006
 
 import time
+import email.Utils
+import exceptions
 
 __revision__ = '$Id$'
 

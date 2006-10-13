@@ -4,6 +4,8 @@
 
 __revision__ = '$Id$'
 
+import imap4utf7
+
 # FIXME: more authenticators...
 
 class Authenticator:

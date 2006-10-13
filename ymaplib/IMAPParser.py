@@ -12,9 +12,11 @@ import traceback
 import imap4utf7
 import email.Utils
 import base64
-import email.Message
-import inspect
-import cPickle
+from exceptions import *
+from IMAPResponse import IMAPResponse
+from IMAPNIL import IMAPNIL
+from IMAPThreadItem import IMAPThreadItem
+from IMAPEnvelope import IMAPEnvelope
 
 __revision__ = '$Id$'
 

@@ -3,6 +3,8 @@
 
 # Copyright (c) Jan Kundrát <jkt@flaska.net>, 2006
 
+import inspect
+
 __revision__ = '$Id$'
 
 class IMAPClientConnection:
