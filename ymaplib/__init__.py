@@ -24,12 +24,18 @@ from IMAPMailbox import IMAPMailbox
 from authenticators import (Authenticator, PLAINAuthenticator)
 
 __version__ = "0.1"
-__revision__ = '$Id$'
-#__all__ = ["IMAPResponse", "IMAPNIL", "IMAPThreadItem", "IMAPParser", "IMAPEnvelope", "IMAPMessage"]
-#
-#__all__ = ["ProcessStream", "TCPStream", "IMAPResponse", "IMAPNIL",
-#           "IMAPThreadItem", "IMAPParser", "IMAPEnvelope", "IMAPMessage",
-#           "IMAPMailbox"]
+__revision__ = "$Id$"
 
-if __name__ == "__main__":
-    print "ymaplib version %s (SVN %s)" % (__version__, __revision__)
+def get_revisions():
+    import sys, types
+    revisions = {}
+    for _module in sys.modules.values():
+        if type(_module) == types.ModuleType and _module.__name__ not in revisions and _module.__name__.startswith('ymaplib.'):
+            revisions[_module.__name__] = _module.__revision__
+    return revisions
+
+if __name__ == "__main__" or True:
+    print "ymaplib version %s (%s):" % (__version__, __revision__)
+
+    for (name, rev) in get_revisions().items():
+        print " %s: %s" % (name, rev)
