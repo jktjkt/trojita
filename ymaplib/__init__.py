@@ -34,8 +34,11 @@ def get_revisions():
             revisions[_module.__name__] = _module.__revision__
     return revisions
 
-if __name__ == "__main__" or True:
-    print "ymaplib version %s (%s):" % (__version__, __revision__)
-
+def banner():
+    buf = ["ymaplib version %s:" % __version__, " ymaplib:\t\t%s" % __revision__]
     for (name, rev) in get_revisions().items():
-        print " %s: %s" % (name, rev)
+        buf.append(" %s:\t%s" % (name, rev))
+    return "\n".join(buf)
+
+if __name__ == "__main__":
+    print banner()
