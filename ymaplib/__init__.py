@@ -15,26 +15,13 @@ from IMAPThreadItem import IMAPThreadItem
 from IMAPParser import IMAPParser
 from IMAPEnvelope import IMAPEnvelope
 from IMAPMessage import IMAPMessage
-from Exceptions import (InvalidResponseError, ParseError, UnknownResponseError,
+from exceptions import (InvalidResponseError, ParseError, UnknownResponseError,
                         TimeoutError, DisconnectedError,
                         CommandContinuationRequest)
 from IMAPClient import IMAPClient
 from IMAPClientConnection import IMAPClientConnection
 from IMAPMailbox import IMAPMailbox
-from Authenticators import (Authenticator, PLAINAuthenticator)
-
-import sys
-import re
-import threading
-import Queue
-import time
-import traceback
-import imap4utf7
-import email.Utils
-import base64
-import email.Message
-import inspect
-import cPickle
+from authenticators import (Authenticator, PLAINAuthenticator)
 
 __version__ = "0.1"
 __revision__ = '$Id$'
