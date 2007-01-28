@@ -3,6 +3,7 @@
 import os
 import select
 import socket
+import time
 from OpenSSL import SSL
 
 __version__ = "0.1"
