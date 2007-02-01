@@ -30,12 +30,15 @@ def get_revisions():
     import sys, types
     revisions = {}
     for _module in sys.modules.values():
-        if type(_module) == types.ModuleType and _module.__name__ not in revisions and _module.__name__.startswith('ymaplib.'):
+        if (type(_module) == types.ModuleType 
+	  and _module.__name__ not in revisions 
+	  and _module.__name__.startswith('ymaplib.')):
             revisions[_module.__name__] = _module.__revision__
     return revisions
 
 def banner():
-    buf = ["ymaplib version %s:" % __version__, " ymaplib:\t\t%s" % __revision__]
+    buf = ["ymaplib version %s:" % __version__,
+    	   " ymaplib:\t\t%s" % __revision__]
     for (name, rev) in get_revisions().items():
         buf.append(" %s:\t%s" % (name, rev))
     return "\n".join(buf)
