@@ -1,0 +1,140 @@
+<guide>
+<title>ymaplib: architecture and design</title>
+
+<author>
+<mail link="jkt@flaska.net">Jan Kundrát</mail>
+</author>
+
+<chapter>
+<section>
+<title>Overview</title>
+<body>
+
+<p>
+The ymaplib library is a basic part of the Trojtá project whose aim is to 
+implement a Mail User Agent (MUA) with small system requirements, multiple UIs
+(starting with ncurses TUI and a KDE-integratable Qt one), and all that in as
+compliant and interoperable manner as possible.
+</p>
+
+</body>
+</section>
+<section>
+<title>Motivation</title>
+<body>
+
+<p>
+Considering the fact that the main author is interested in learning new stuff,
+then as an effort to demonstrate that applications written in an interpreted 
+programming language doesn't have to be a humpty-dumpty ("otesánek") and also 
+because of swiftness of development pace, the Trojitá is written in Python.
+</p>
+
+<p>
+An IMAP library should be efficient. Users don't want to have their MUA's GUI 
+blocked just because the code decided that it's a good time to check for new 
+messages or that the user specified to download a huge email attachment. Thanks 
+to some unique features of IMAP, we can download message parts not only as a 
+whole, but also in ranges. 
+</p>
+
+<p>
+Users would get upset if they had to download the 
+same attachment over and over again, every time they launch the mail client, 
+so we have to do some caching as well. The cache (probably just a 
+directory structure on disk) should be smart, though -- there's no point in 
+keeping some stale cache files for an MPEG-4 movie lying around et cetera.
+</p>
+
+</body>
+</section>
+<section>
+<title>Present Status</title>
+<body>
+
+<p>
+As of January 2007, the only available part is the IMAP parser, ie. a thing 
+that sits near the socket dealing with all communication with IMAP 
+server, parsing the strings going through the network and converting them to
+instances of classes that are easier to handle and accepting commands from the 
+higher-level code, converting them to strings that IMAP server understands. Care 
+has been taken to make sure that this parser is fully RFC 3501 compliant 
+(including some extensions).
+</p>
+
+</body>
+</section>
+<section>
+<title>IMAPParser</title>
+<body>
+
+<p>
+In order to minimize latency, the most of IMAPParser's code runs in a dedicated 
+thread, talking to the rest of the library via a tuple of thread-safe queues 
+(from Python's standard library). How to use the parser? See the example below:
+</p>
+
+<pre caption="Example of IMAPParser's usage">
+import time
+import streams
+import ymaplib
+
+imap_stream = streams.ProcessStream('dovecot --exec-mail imap')
+parser = ymaplib.IMAPParser(imap_stream)
+
+<comment># now we start the "worker", ie. the thread handling the communication</comment>
+parser.start_worker()
+
+<comment># each of the cmd_* methods corresponds to some IMAP command
+# by calling them, we add the command to the parser's queue
+# it will send to the server as soon as possible in the same order as it was asked</comment>
+parser.cmd_capability()
+
+<comment># authenticator is something that performs a chat with server#
+# in order to persuade it that we're the user we're claiming to be</comment>
+auth = None
+parser.cmd_authenticate(auth)
+parser.cmd_noop()
+
+<comment># now we get the server a time to process what we wanted and the we dump what it told us</comment>
+time.sleep(2)
+while not parser._outgoing.empty():
+	print parser.get()
+</pre>
+
+<p>
+This simple example should be enough to tell you what you have to do in order 
+to access your data on an IMAP server. That's all you can do now, support 
+for a higher-level access to your IMAP mailboxes isn't ready/done/stable yet.
+</p>
+
+</body>
+</section>
+<section>
+<title>streams.py</title>
+<body>
+
+<p>
+As there's no standard framework for working with "streams" (ie. something 
+performing various IO operations and capable to decide if we can safely perform
+a read operation without blocking, yet staying in the synchronous mode), the
+"streams" module was written as a part of this project. Each class in this 
+module (except internal structures) supports the following methods: read(), 
+write(), readline(), flush(), has_data(). I've implemented this stuff for
+TCP connections, SSL over TCP (using PyOpenSSL) and -- on POSIX systems -- 
+for pipes as well. The latter doesn't work on win32 due to the lack of 
+select()/poll() syscalls that are provided by winsock rather than system on 
+that platform.
+</p>
+
+<p>
+Especially the last option opens interesting methods for accessing mail -- 
+it's possible to use SSH to access your IMAP server and launch the IMAP 
+process from the shell, using for example your SSH pubkey as an authenticator,
+feature that is unheard of in the IMAP server market, AFAIK. 
+</p>
+
+</body>
+</section>
+</chapter>
+</guide>
