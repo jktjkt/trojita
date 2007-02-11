@@ -1,7 +1,7 @@
 # -*- coding: utf-8
 """Streamed connection to the IMAP4rev1 compliant IMAP server"""
 
-# Copyright (c) Jan Kundrát <jkt@flaska.net>, 2006
+# Copyright (c) Jan Kundrát <jkt@flaska.net>, 2006 - 2007
 
 import sys
 import re

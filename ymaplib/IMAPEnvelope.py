@@ -1,7 +1,7 @@
 # -*- coding: utf-8
 """Container for the RFC822 envelope"""
 
-# Copyright (c) Jan Kundrát <jkt@flaska.net>, 2006
+# Copyright (c) Jan Kundrát <jkt@flaska.net>, 2006 - 2007
 
 import time
 import email.Utils

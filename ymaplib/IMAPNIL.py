@@ -1,7 +1,7 @@
 # -*- coding: utf-8
 """A simple class to hold the NIL token"""
 
-# Copyright (c) Jan Kundrát <jkt@flaska.net>, 2006
+# Copyright (c) Jan Kundrát <jkt@flaska.net>, 2006 - 2007
 
 __revision__ = '$Id$'
 

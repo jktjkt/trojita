@@ -1,4 +1,7 @@
+# -*- coding: utf-8
 """Supports a wide range of different streams."""
+
+# Copyright (c) Jan Kundrát <jkt@flaska.net>, 2006 - 2007
 
 import os
 import select

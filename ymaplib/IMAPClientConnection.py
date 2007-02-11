@@ -1,7 +1,7 @@
 # -*- coding: utf-8
 """Connection to an IMAP server"""
 
-# Copyright (c) Jan Kundrát <jkt@flaska.net>, 2006
+# Copyright (c) Jan Kundrát <jkt@flaska.net>, 2006 - 2007
 
 import inspect
 

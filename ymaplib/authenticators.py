@@ -1,6 +1,6 @@
 # -*- coding: utf-8
 
-# Copyright (c) Jan Kundrát <jkt@flaska.net>, 2006
+# Copyright (c) Jan Kundrát <jkt@flaska.net>, 2006 - 2007
 
 __revision__ = '$Id$'
 

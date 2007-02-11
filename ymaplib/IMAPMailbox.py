@@ -1,7 +1,7 @@
 # -*- coding: utf-8
 """Interface to an IMAP mailbox"""
 
-# Copyright (c) Jan Kundrát <jkt@flaska.net>, 2006
+# Copyright (c) Jan Kundrát <jkt@flaska.net>, 2006 - 2007
 
 import cPickle
 
