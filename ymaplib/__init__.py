@@ -9,6 +9,8 @@ Author: Jan Kundrát <jkt@flaska.net>
 Inspired by the Python's imaplib library.
 """
 
+# Copyright (c) Jan Kundrát <jkt@flaska.net>, 2006 - 2007
+
 from IMAPResponse import IMAPResponse
 from IMAPNIL import IMAPNIL
 from IMAPThreadItem import IMAPThreadItem
