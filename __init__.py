@@ -3,7 +3,7 @@
 
 # Copyright (c) Jan Kundrát <jkt@flaska.net>, 2006 - 2007
 
-__version__ = "0.1-svn"
+__version__ = "0.1"
 __revision__ = "$Id$"
 
 __all__ = ["gui", "streams", "ymaplib", "banner"]
@@ -12,7 +12,7 @@ def get_revisions():
 	import sys, types
 	import streams, ymaplib, gui, gui.controller
 	import gui.generic, gui.curses_simple
-	revisions = {}
+	revisions = {"trojita": __revision__}
 	for _module in sys.modules.values():
 		if (type(_module) == types.ModuleType
 		  and _module.__name__ not in revisions
@@ -29,12 +29,12 @@ def get_revisions():
 	return revisions
 
 def banner():
-	buf = ["trojita version %s:" % __version__,
-		" trojita:\t\t%s" % __revision__]
 	revisions = get_revisions().items()
+	latest_revision = max([number[1].split(" ")[2] for number in revisions]) 
+	buf = ["trojita version %s (svn %s):" % (__version__, latest_revision)]
 	revisions.sort()
 	for (name, rev) in revisions:
-		buf.append(" %s:\t%s" % (name, rev))
+		buf.append((" " * name.count(".")) + "%s %s" % (name, rev.split(" ")[2]))
 	return "\n".join(buf)
 
 if __name__ == "__main__":
