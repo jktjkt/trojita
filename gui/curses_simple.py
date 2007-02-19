@@ -6,10 +6,10 @@
 __revision__ = '$Id$'
 
 import curses
-from generic import GenericGUI
+from generic import Generic
 import time
 
-class CursesGUI(GenericGUI):
+class Curses(Generic):
 	def __init__(self, controller):
 		GenericGUI.__init__(self, controller)
 		self._stdscr = curses.initscr()
@@ -17,7 +17,7 @@ class CursesGUI(GenericGUI):
 		curses.cbreak()
 
 		# create subwindows
-		self._mbox_list = self._stdscr.
+		#self._mbox_list = self._stdscr.
 
 	def __del__(self):
 		# curses cleanup

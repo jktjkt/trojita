@@ -240,7 +240,7 @@ class IMAPMailbox:
         return "%d:%d" % (data[0], data[len(data) - 1])
 
     def __repr__(self):
-        s = '<ymaplib.IMAPMailbox: '
+        s = '<trojita.ymaplib.IMAPMailbox: '
         if self.name == self._conn.mailbox:
             s += 'connected'
         else:

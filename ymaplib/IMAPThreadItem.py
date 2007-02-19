@@ -12,7 +12,7 @@ class IMAPThreadItem:
         self.children = None
 
     def __repr__(self):
-        return "<ymaplib.IMAPThreadItem %s: %s>" % (self.id, self.children)
+        return "<trojita.ymaplib.IMAPThreadItem %s: %s>" % (self.id, self.children)
         #return self.__str__()
 
     #def __str__(self, depth=0):

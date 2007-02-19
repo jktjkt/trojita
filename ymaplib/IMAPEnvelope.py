@@ -17,7 +17,7 @@ class IMAPEnvelope:
             date = 'None'
         else:
             date = time.strftime('%c %Z', time.localtime(self.date))
-        return ('<ymaplib.IMAPEnvelope: Date: %s, Subj: "%s", From: %s, ' + \
+        return ('<trojita.ymaplib.IMAPEnvelope: Date: %s, Subj: "%s", From: %s, ' + \
                'Sender: %s, Reply-To: %s, To: %s, Cc: %s, Bcc: %s, ' + \
                'In-Reply-To: %s, Message-Id: %s>') % (
                date, self.subject, self.from_, self.sender, self.reply_to,

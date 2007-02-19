@@ -22,7 +22,7 @@ Storage only, don't expect to get usable methods here :)
         # string with human readable text or tuple with parsed items
 
     def __repr__(self):
-        s = "<ymaplib.IMAPResponse - "
+        s = "<trojita.ymaplib.IMAPResponse - "
         if self.tag is None:
             s += "untagged"
         else:

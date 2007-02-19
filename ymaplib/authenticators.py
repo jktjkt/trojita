@@ -21,7 +21,7 @@ Derived subclasses should override the _chat() method.
     mechanism = None
 
     def __repr__(self):
-        return "<ymaplib.Authenticator>"
+        return "<trojita.ymaplib.Authenticator>"
 
     def chat(self, input):
         """Do the chat :)
