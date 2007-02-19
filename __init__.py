@@ -19,6 +19,7 @@ def get_revisions():
 		  and (
 		    _module.__name__.startswith("ymaplib.") or
 		    _module.__name__.startswith("gui.") or
+		    _module.__name__.startswith("streams.") or
 		    _module.__name__.startswith("trojita.") or
 		    _module.__name__ in ("streams", "gui", "ymaplib", "imap4utf7"))):
 		    	if _module.__name__.startswith("trojita."):
