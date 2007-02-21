@@ -24,23 +24,24 @@ __revision__ = '$Id$'
 
 CRLF = "\r\n"
 
+class _WorkerThread(threading.Thread):
+    """A wrapper running IMAPParser.loop() with some exception handling"""
+    def __init__(self, parser):
+        threading.Thread.__init__(self)
+        self.setDaemon(True)
+        self.parser = parser
+
+    def run(self):
+        """Periodically run the IMAPParser.loop(), check for exceptions"""
+        try:
+            while self.parser._worker_flag.isSet():
+                self.parser._loop()
+        except:
+            self.parser.worker_exceptions.put(sys.exc_info())
+
 class IMAPParser:
     """Streamed connection to the IMAP4rev1 compliant IMAP server"""
 
-    class WorkerThread(threading.Thread):
-        """Just a wrapper around IMAPParser.loop() and exception handling"""
-        def __init__(self, parser):
-            threading.Thread.__init__(self)
-            self.setDaemon(True)
-            self.parser = parser
-
-        def run(self):
-            """Periodically run the IMAPParser.loop(), check for exceptions"""
-            try:
-                while self.parser._worker_flag.isSet():
-                    self.parser._loop()
-            except:
-                self.parser.worker_exceptions.put(sys.exc_info())
 
     _tag_prefix = "ym"
     _re_tagged_response = re.compile(_tag_prefix + r'\d+ ')
@@ -127,7 +128,7 @@ class IMAPParser:
         elif incoming is not None:
             raise TypeError('incoming is not list or tuple', incoming)
 
-        self._worker = self.WorkerThread(self)
+        self._worker = _WorkerThread(self)
         self._worker_flag.set()
         self._worker.start()
         return True
@@ -320,6 +321,10 @@ class IMAPParser:
         else:
             # block with timeout
             return self._outgoing.get(True, timeout)
+
+    def has_responses(self):
+        """Return True if we have parsed responses"""
+        return not self._outgoing.empty()
 
     def _read(self, size):
         """Read size octets from server's output"""
