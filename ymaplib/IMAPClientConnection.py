@@ -18,7 +18,7 @@ class IMAPClientConnection:
         if auth_type is not None:
             auth = auth_type(*auth_args)
             self.parser.cmd_authenticate(auth)
-	# publish all public methods from IMAPParser
+        # publish all public methods from IMAPParser
         items = inspect.getmembers(self.parser, inspect.ismethod)
         for method in items:
             if method[0].startswith('cmd_') or \

@@ -14,9 +14,9 @@ Inspired by the Python's imaplib library.
 __version__ = "0.1"
 __revision__ = "$Id$"
 __all__ = ["IMAPResponse", "IMAPNIL", "IMAPThreadItem", "IMAPParser",
-	"IMAPEnvelope", "IMAPMessage", "InvalidResponseError", "ParseError", 
-	"UnknownResponseError", "TimeoutError, DisconnectedError",
-	"CommandContinuationRequest"]
+    "IMAPEnvelope", "IMAPMessage", "InvalidResponseError", "ParseError", 
+    "UnknownResponseError", "TimeoutError, DisconnectedError",
+    "CommandContinuationRequest"]
 
 from IMAPResponse import IMAPResponse
 from IMAPNIL import IMAPNIL
