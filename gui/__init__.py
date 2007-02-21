@@ -5,3 +5,6 @@
 
 __revision__ = '$Id$'
 __all__ = ["Controller", "Generic", "Curses"]
+
+from controller import Controller
+from context import Context
