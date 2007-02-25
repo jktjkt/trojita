@@ -8,8 +8,8 @@ __revision__ = '$Id$'
 class IMAPResponse:
     """Simple container to hold a response from IMAP server.
 
-Storage only, don't expect to get usable methods here :)
-"""
+    Storage only, don't expect to get any usable method here :)
+    """
     def __init__(self):
         self.tag = False
         # response tag or None if untagged

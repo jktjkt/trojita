@@ -7,6 +7,7 @@ __revision__ = '$Id$'
 
 class IMAPNIL:
     """Simple class to hold the NIL token"""
+
     def __repr__(self):
         return '<trojita.ymaplib.IMAPNIL>'
 

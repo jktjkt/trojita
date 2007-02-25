@@ -68,6 +68,7 @@ class IMAPClient:
 
     def _conn_add(self):
         """Create a new connection to server"""
+
         stream = self._stream_type(*self._stream_args)
         parser = trojita.ymaplib.IMAPParser(stream, self._debug, self.capabilities_mask)
         parser.start_worker()
@@ -80,13 +81,9 @@ class IMAPClient:
 
     # begin of public API declarations
     # manipulation of mailboxes
+
     def namespace_get(self):
-        """Return namespaces as specified by server
-        
-        Returns a structure of three items for Personal, Other Poeple's and Shared
-        namespaces, respectively. Each item can specify multiple namespaces and
-        includes 
-        """
+        """Return namespaces (IMAPNamespace) as specified by server"""
         raise FIXME
 
 

@@ -7,6 +7,7 @@ __revision__ = '$Id$'
 
 class IMAPThreadItem:
     """One message in the threaded mailbox"""
+
     def __init__(self):
         self.id = None
         self.children = None
@@ -26,7 +27,7 @@ class IMAPThreadItem:
     #        return s
 
     def __eq__(self, other):
-        if not isinstance(other, IMAPThreadItem) or self.id != other.id:
+        if not isinstance(other, type(self)) or self.id != other.id:
             return False
         if self.children is None and other.children is None:
             return True

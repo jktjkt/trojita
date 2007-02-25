@@ -26,6 +26,10 @@ class IMAPEnvelope:
     def __init__(self, date=None, subject=None, from_=None, sender=None, 
                  reply_to=None, to=None, cc=None, bcc=None, in_reply_to=None,
                  message_id=None):
+        """Container for an Evelope as specified by RFC 3501
+
+        For meaning of parameters, see the above mentioned RFC.
+        """
         if isinstance(date, basestring):
             self.date = email.Utils.mktime_tz(email.Utils.parsedate_tz(date))
         elif date is None:
