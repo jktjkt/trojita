@@ -24,10 +24,10 @@ from IMAPThreadItem import IMAPThreadItem
 from IMAPParser import IMAPParser
 from IMAPEnvelope import IMAPEnvelope
 from IMAPMessage import IMAPMessage
+from IMAPMailbox import IMAPMailbox
+from IMAPNamespace import IMAPNamespace, IMAPNamespaceItem
 from exceptions import (InvalidResponseError, ParseError, UnknownResponseError,
                         TimeoutError, DisconnectedError,
                         CommandContinuationRequest)
-from IMAPClient import IMAPClient
-from IMAPClientConnection import IMAPClientConnection
-from IMAPMailbox import IMAPMailbox
+from IMAPClient import IMAPClient, _IMAPClientPoolItem
 from authenticators import (Authenticator, PLAINAuthenticator)

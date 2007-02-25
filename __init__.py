@@ -22,10 +22,16 @@ def get_revisions():
             _module.__name__.startswith("streams.") or
             _module.__name__.startswith("trojita.") or
             _module.__name__ in ("streams", "gui", "ymaplib", "imap4utf7"))):
-                if _module.__name__.startswith("trojita."):
-                revisions[_module.__name__] = _module.__revision__
-            else:
-                revisions["trojita." + _module.__name__] = _module.__revision__
+                # prepare proper module name
+                if _module.__name__.startswith("trojita"):
+                    name = _module.__name__
+                else:
+                    name = "trojita." + _module.__name__
+                # check for invalid __revision__ so that banner() doesn't fail
+                if _module.__revision__.count(" ") != 6:
+                    revisions[name] = "? " * 6
+                else:
+                    revisions[name] = _module.__revision__
     return revisions
 
 def banner():

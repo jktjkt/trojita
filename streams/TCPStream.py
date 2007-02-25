@@ -4,6 +4,7 @@
 # Copyright (c) Jan Kundrát <jkt@flaska.net>, 2006 - 2007
 
 import socket
+import select
 from PollableStream import PollableStream
 from common import default_timeout
 

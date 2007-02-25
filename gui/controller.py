@@ -78,3 +78,4 @@ class Controller:
 
     def __init__(self):
         # FIXME: create pool of parsers/connections,...
+        pass

@@ -185,6 +185,7 @@ class IMAPParser:
             self.capabilities = tuple([item for item in source if item not in self.capabilities_mask])
             self.literal_plus = 'LITERAL+' in self.capabilities
 
+        # TODO: state changes (SELECT/EXAMINE ok/failed,...)
         self._outgoing.put(response)
         return response
 

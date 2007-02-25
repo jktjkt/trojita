@@ -4,9 +4,9 @@ import ymaplib
 import streams
 import time
 
-imap_stream = streams.ProcessStream('dovecot --exec-mail imap')
+#imap_stream = streams.ProcessStream('dovecot --exec-mail imap')
 #imap_stream = streams.TCPStream('localhost', 143, timeout=1.5)
-#imap_stream = streams.OpenSSLStream('localhost', 143, timeout=1.5)
+imap_stream = streams.OpenSSLStream('localhost', 143, timeout=1.5)
 parser = ymaplib.IMAPParser(imap_stream, 10)
 parser.capabilities_mask = ('LITERAL+')
 parser.start_worker()
@@ -15,8 +15,9 @@ parser.cmd_capability()
 #parser.cmd_starttls()
 #parser.cmd_capability()
 #parser.cmd_noop()
-#auth = ymaplib.PLAINAuthenticator('user', 'password')
-auth = None
+parser.cmd_starttls()
+auth = ymaplib.PLAINAuthenticator('user', 'password')
+#auth = None
 parser.cmd_authenticate(auth)
 parser.cmd_noop()
 
@@ -89,7 +90,7 @@ parser.cmd_select('gentoo.gentoo-user-cs')
 #parser._queue_cmd(('fetch 1 full',))
 #parser._queue_cmd(('status inbox ()',))
 
-time.sleep(2)
+time.sleep(5)
 
 while not parser._outgoing.empty():
     print parser.get()
