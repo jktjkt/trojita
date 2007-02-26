@@ -36,7 +36,7 @@ def get_revisions():
 
 def banner():
     revisions = get_revisions().items()
-    latest_revision = max([number[1].split(" ")[2] for number in revisions]) 
+    latest_revision = max([number[1].split(" ")[2] for number in revisions])
     buf = ["trojita version %s (svn %s):" % (__version__, latest_revision)]
     revisions.sort()
     for (name, rev) in revisions:

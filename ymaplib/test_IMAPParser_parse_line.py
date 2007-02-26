@@ -74,7 +74,7 @@ class IMAPParserParseLineTest(unittest.TestCase):
                                            'CHILDREN', 'NAMESPACE',
                                            'LOGIN-REFERRALS'))
         ok.kind = 'PREAUTH'
-        
+
         s = "* PREaUTH [CAPaBILiTY IMAP4rev1 SORT THREAD=REFERENCES " \
             "MULTIAPPEND UNSeLECT LiTERAL+ IDLE CHILDREN NAMESPACE " \
             "LOGIN-REFErRALS] IMAP server ready; logged in as someuser"
@@ -225,7 +225,7 @@ class IMAPParserParseLineTest(unittest.TestCase):
                           '(x yz zz) zzz '):
                 self.assertRaises(ymaplib.ParseError, self.parser._parse_line,
                                    '* %s %s' % (command, stuff))
-        
+
 
     def test_resp_status(self):
         """Test untagged STATUS response"""

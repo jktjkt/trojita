@@ -41,7 +41,7 @@ class IMAPNamespace:
             self.shared = shared
 
     def __repr__(self):
-        return ("<trojita.ymaplib.IMAPNamespace: personal = %s, others = %s, " + 
+        return ("<trojita.ymaplib.IMAPNamespace: personal = %s, others = %s, " +
                 "shared = %s>") % (self.personal, self.others, self.shared)
 
     def __eq__(self, other):

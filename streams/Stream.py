@@ -12,8 +12,8 @@ class Stream:
 
 Stream is a special object that supports several file-object-like methods like
 close(), flush(), read(), readline() and write(). As a bonus :), there is
-a has_data() function that check if you can read from the stream without 
-blocking, and a starttls() which (if supported) switches to the encrypted 
+a has_data() function that check if you can read from the stream without
+blocking, and a starttls() which (if supported) switches to the encrypted
 communication channel on the fly.
 
 This class is just a template for other classes. They should override
@@ -34,9 +34,9 @@ need to redefine docstrings.
     def has_data(self, timeout=default_timeout):
         """Check if we can read from socket without blocking
 
-Timeout is an optional parameter specifying the maximum time to wait for the 
-result. If None, there's no timeout - the function will block until there is 
-something to read. If timeout is zero, the function will return immediately. 
+Timeout is an optional parameter specifying the maximum time to wait for the
+result. If None, there's no timeout - the function will block until there is
+something to read. If timeout is zero, the function will return immediately.
 Positive floating point value is number of seconds to wait.
 """
         return self._has_data(timeout)

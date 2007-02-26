@@ -13,7 +13,7 @@ __revision__ = '$Id$'
 class InvalidResponseError(Exception):
     """Invalid, unexpected, malformed or unparsable response.
 
-    Possible reasons might be YMAPlib bug, IMAP server error or connection 
+    Possible reasons might be YMAPlib bug, IMAP server error or connection
     borkage.
     """
     pass

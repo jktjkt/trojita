@@ -11,7 +11,7 @@ __revision__ = '$Id$'
 
 class IMAPEnvelope:
     """Container for RFC822 envelope"""
-    
+
     def __repr__(self):
         if self.date is None:
             date = 'None'
@@ -22,8 +22,8 @@ class IMAPEnvelope:
                'In-Reply-To: %s, Message-Id: %s>') % (
                date, self.subject, self.from_, self.sender, self.reply_to,
                self.to, self.cc, self.bcc, self.in_reply_to, self.message_id)
-    
-    def __init__(self, date=None, subject=None, from_=None, sender=None, 
+
+    def __init__(self, date=None, subject=None, from_=None, sender=None,
                  reply_to=None, to=None, cc=None, bcc=None, in_reply_to=None,
                  message_id=None):
         """Container for an Evelope as specified by RFC 3501

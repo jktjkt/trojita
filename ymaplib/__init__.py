@@ -14,7 +14,7 @@ Inspired by the Python's imaplib library.
 __version__ = "0.1"
 __revision__ = "$Id$"
 __all__ = ["IMAPResponse", "IMAPNIL", "IMAPThreadItem", "IMAPParser",
-    "IMAPEnvelope", "IMAPMessage", "InvalidResponseError", "ParseError", 
+    "IMAPEnvelope", "IMAPMessage", "InvalidResponseError", "ParseError",
     "UnknownResponseError", "TimeoutError, DisconnectedError",
     "CommandContinuationRequest"]
 
@@ -26,6 +26,7 @@ from IMAPEnvelope import IMAPEnvelope
 from IMAPMessage import IMAPMessage
 from IMAPMailbox import IMAPMailbox
 from IMAPNamespace import IMAPNamespace, IMAPNamespaceItem
+from IMAPMailboxItem import IMAPMailboxItem
 from exceptions import (InvalidResponseError, ParseError, UnknownResponseError,
                         TimeoutError, DisconnectedError,
                         CommandContinuationRequest)

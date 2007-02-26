@@ -5,6 +5,7 @@
 
 __revision__ = '$Id$'
 
+
 class Context:
     """Specifying a context for various Generic methods"""
 

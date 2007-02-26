@@ -11,7 +11,7 @@ from TCPStream import TCPStream
 class GenericSSLStream(TCPStream):
     """Generic SSL Stream template
 
-Subclasses should override _ssl_close(), _ssl_has_data(), _ssl_read(), 
+Subclasses should override _ssl_close(), _ssl_has_data(), _ssl_read(),
 _ssl_redline(), _ssl_starttls() and _ssl_write().
 """
 

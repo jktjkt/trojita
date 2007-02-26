@@ -173,7 +173,7 @@ class IMAPMailbox:
            self.uid_cache[sorted_sequences[current_middle]]:
             print "# this value was correct, now let's move towards the end"
             self._sync_uid_cache_job(
-             current_middle + (len(sorted_sequences) - current_middle) / 2.0 + 2, 
+             current_middle + (len(sorted_sequences) - current_middle) / 2.0 + 2,
              sorted_sequences)
         else:
             print '# throw the current part away'

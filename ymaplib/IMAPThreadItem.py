@@ -14,17 +14,6 @@ class IMAPThreadItem:
 
     def __repr__(self):
         return "<trojita.ymaplib.IMAPThreadItem %s: %s>" % (self.id, self.children)
-        #return self.__str__()
-
-    #def __str__(self, depth=0):
-    #    s = depth * ' ' + ("%s:" % self.id)
-    #    depth += 1
-    #    if self.children is None:
-    #        return '\n' + s + depth * ' ' + 'None'
-    #    else:
-    #        for child in self.children:
-    #            s += '\n' + depth * ' ' + child.__str__(depth)
-    #        return s
 
     def __eq__(self, other):
         if not isinstance(other, type(self)) or self.id != other.id:

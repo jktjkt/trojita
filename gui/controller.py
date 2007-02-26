@@ -44,35 +44,35 @@ class Controller:
     def gui_mailbox_set_active(self, context):
         """Users wants to see a specified mailbox"""
         raise NotImplementedError
-    
+
     def gui_mailbox_set_inactive(self, context):
         """User no longer has interest in that mailbox"""
         raise NotImplementedError
-    
+
     def gui_mailbox_create(self, context, name, with_children):
         """Create new mailbox whose parent is specified in context
-        
+
         If server doesn't support mailboxes with both mailboxes and data,
         with_children is used -- if it's true, mailbox will support only sub-mailboxes."""
         raise NotImplementedError
-    
+
     def gui_mailbox_move(self, context, target):
         """Move mailbox specified by context to target"""
         # FIXME: is "target" a parent or what?
         raise NotImplementedError
-    
+
     def gui_mailbox_delete(self, context):
         """Permanently delete specified mailbox"""
         raise NotImplementedError
-    
+
     def gui_mailbox_expunge(self, context):
         """Expunge messages from specified mailbox"""
         raise NotImplementedError
-    
+
     def gui_mailbox_check_for_new(self, context):
         """Force check for new messages in a specified mailbox"""
         raise NotImplementedError
-    
+
     # FIXME: sort, thread, threading/flat view, searching,...
     # FIXME: list of mailboxes, subscriptions,...
 

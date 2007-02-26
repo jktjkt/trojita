@@ -51,7 +51,7 @@ class IMAPParser:
     _resp_status = ('OK', 'NO', 'BAD', 'PREAUTH', 'BYE')
     _resp_status_tagged = ('OK', 'NO', 'BAD')
     # 7.2 - Server Responses - Server and Mailbox Status
-    _resp_server_mailbox_status = ('CAPABILITY', 'LIST', 'LSUB', 'STATUS', 
+    _resp_server_mailbox_status = ('CAPABILITY', 'LIST', 'LSUB', 'STATUS',
                                    'SEARCH', 'FLAGS')
     # 7.3 - Server Responses - Mailbox Size
     _resp_mailbox_size = ('EXISTS', 'RECENT')
@@ -62,12 +62,12 @@ class IMAPParser:
     # draft-ietf-imapext-sort-17:
     _resp_imapext_sort = ('SORT', 'THREAD')
 
-    _response_code_single = ('ALERT', 'PARSE', 'READ-ONLY', 'READ-WRITE', 
+    _response_code_single = ('ALERT', 'PARSE', 'READ-ONLY', 'READ-WRITE',
                              'TRYCREATE')
     _response_code_number = ('UIDNEXT', 'UIDVALIDITY', 'UNSEEN')
     _response_code_spaces = ('CAPABILITY',)
     _response_code_parenthesized = ('BADCHARSET', 'PERMANENTFLAGS')
-    
+
     def _make_res(expr, iterable):
         """Make tuple of (name, re(expr)) tuples"""
         buf = []
@@ -81,7 +81,7 @@ class IMAPParser:
     _re_resp_server_mailbox_status = _make_res('^%s ?(.*)',
                                       _resp_server_mailbox_status)
     _re_resp_mailbox_size = _make_res(r'^(\d+) %s', _resp_mailbox_size)
-    _re_resp_message_status = _make_res(r'^(\d+) %s ?(.*)', 
+    _re_resp_message_status = _make_res(r'^(\d+) %s ?(.*)',
                                          _resp_message_status)
     # the ' ?(.*)' is here to allow matching of FETCH responses
     _re_resp_imapext_sort = _make_res('^%s ?(.*)', _resp_imapext_sort)
@@ -107,7 +107,7 @@ class IMAPParser:
         self.worker_exceptions = Queue.Queue()
         self._worker = None
         self._worker_flag = threading.Event()
-       
+
         # does the server support LITERAL+ extension?
         self.literal_plus = False
         self.capabilities = ()
@@ -537,8 +537,9 @@ class IMAPParser:
     def _get_line(self):
         """Get one line of server's output.
 
-Based on the method of imaplib's IMAP4 class.
-"""
+        Based on the method of imaplib's IMAP4 class.
+        """
+
         if not self._stream.has_data(None):
             raise TimeoutError
         line = self._stream.readline()
@@ -640,7 +641,7 @@ Based on the method of imaplib's IMAP4 class.
     @classmethod
     def _helper_foreach(cls, item, iterable):
         """Helper function :)
-        
+
         If line matches iterable[x][1], returns (iterable[x][0], r.match(item))
         """
 
@@ -783,7 +784,7 @@ Based on the method of imaplib's IMAP4 class.
                     msgno = int(response.data[0])
                 except ValueError:
                     raise ParseError(response)
-                response.data = (msgno, 
+                response.data = (msgno,
                                  self._parse_fetch_response(response.data[1]))
             elif response.kind == 'THREAD':
                 # "* THREAD data"
@@ -812,7 +813,7 @@ Based on the method of imaplib's IMAP4 class.
 
     def _parse_thread_response(self, line):
         """Parse THREAD respone into Python data structure
-        
+
         See draft-ietf-imapext-sort-17
         """
         if line == '':
@@ -945,9 +946,9 @@ Based on the method of imaplib's IMAP4 class.
                         buf += string[pos]
                     else:
                         # escaping an unknown character
-                        # RFC 3501 doesn't specify what to do here, but such 
-                        # data aren't formatted as specified by the ABNF syntax 
-                        # at the end of the RFC 
+                        # RFC 3501 doesn't specify what to do here, but such
+                        # data aren't formatted as specified by the ABNF syntax
+                        # at the end of the RFC
                         buf += '\\' + string[pos]
                         escaping = False
                         # FIXME: need a mechanism to report non-fatal errors

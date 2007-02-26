@@ -9,12 +9,20 @@ IMAPParsers and work with them.
 
 Or, at least, should be when it's done :)
 
+Most of IMAPClient's methods wants you to "specify mailbox". To make things more
+interesting, this option is represented by two variables, usually "namespace"
+and "name", the former being an IMAPNamespace instance and the latter a
+list/tuple of (Unicode) strings where each item represents a mailbox name in the
+hierarchy, or a None if we want to specify a hypotetical mailbox that is parent
+for all mailboxes in that namespace. List of valid namespaces can be found by
+the namespace_get() function.
+
 
 * Mailbox specification:
 
-Several methods expects a specification of mailbox which you want to oeprate
+Several methods expects a specification of mailbox which you want to operate
 with. As IMAP supports nested mailboxes and their textual representation can
-contain multiple differring delimiters, we don't accept an IMAP name, but rather
+contain multiple differing delimiters, we don't accept an IMAP name, but rather
 a tuple/list specifying the "path" to mailbox, this: ("foo", "bar", "baz") can
 be translated to, say, "foo.bar/baz".
 
@@ -25,6 +33,7 @@ FIXME: is that really required?
 
 __revision__ = '$Id$'
 
+from os import O_RDONLY, O_RDWR
 import types
 
 class _IMAPClientPoolItem:
@@ -42,14 +51,15 @@ class IMAPClient:
                  auth_type=None, auth_args=None, max_conn_server=1,
                  max_conn_mailbox=1, capabilities_mask=(), debug=0):
         """IMAPClient contructor
-        
+
         stream_type -- class name of the stream to create
         stream_args -- what to use for its creation
         callback -- function that is called when some command is completed
         auth_type -- class name of the Authenticator
         auth_args -- what args to pass to the authenticator
         max_conn_server -- maximal number of connections to server
-        max_conn_mailbox -- maximal number of connections pointing to a given mailbox
+        max_conn_mailbox -- maximal number of connections pointing to a given
+                            mailbox
         capabilities_mask -- ignore listed IMAP capabilities
         debug -- debugging verbosity"""
 
@@ -70,7 +80,8 @@ class IMAPClient:
         """Create a new connection to server"""
 
         stream = self._stream_type(*self._stream_args)
-        parser = trojita.ymaplib.IMAPParser(stream, self._debug, self.capabilities_mask)
+        parser = trojita.ymaplib.IMAPParser(stream, self._debug,
+        self.capabilities_mask)
         parser.start_worker()
         # FIXME: method for authenticating, but only after a secure channel is
         # established
@@ -82,42 +93,134 @@ class IMAPClient:
     # begin of public API declarations
     # manipulation of mailboxes
 
+    def namespace_get_broken_default(self):
+        """Probably broken attempt to guess dumb namespace
+
+        This is only useful for crappy servers that don't support the NAMESPACE
+        extension. Users are likely to specify they own namespace in addition to
+        this guessed default."""
+        # FIXME: see namespace_get() about how to do it
+        raise FIXME
+
     def namespace_get(self):
-        """Return namespaces (IMAPNamespace) as specified by server"""
+        """Return supported namespaces, be it server defaults or a forced state
+
+        We have to handle the case when server doesn't support the NAMESPACE
+        extension (RFC 2342). If the namespace_supported() returns False, user
+        should feed us with emaningfull data. As a temporary workaround, we
+        initialize the list of supported namespaces to this:
+
+        namespace = IMAPNamespace(IMAPNamespaceItem("", delimiter), (), ())
+
+        where the delimiter is determined by running a 'LIST "" ""' command.
+        This sucks but it's the beast we can handle such a situation.
+        """
         raise FIXME
 
+    def namespace_set(self, namespaces):
+        """Force the namespace to the passed specification
 
-    def mbox_get_delimiter(self, level, force_update=False):
-        """Return a hiererarchy delimiter that is valid at the given level"""
+        To use a default namespace (fex when dealing with shitty servers), set
+        me to namespace_get_broken_default()."""
         raise FIXME
 
-    def mbox_get_names_all(self, level, search, force_update=False):
-        """List all mailboxes matching given pattern
+    def namespace_supported(self):
+        """Checks whether server supports the NAMESPACE extension properly
 
-        Try not to use this function as it really returns everything and thus
-        might be very slow and bandwidth-hungry. A good replacement is poking
-        only for the level you're interested in."""
+        Returns IMAPNamespace list of supported namespaces or False when this
+        extension is unsupported. In such a case, you are urged to feed us with
+        correct namespace specification. See namespace_get() for details.
+        """
         raise FIXME
 
-    def mbox_get_names(self, level, search, force_update=False):
-        """List mailboxes in current level matching given search criteria"""
+    def mbox_get_tree(self, namespace, name, show_nested=False,
+                      subscribed_only=False):
+        """Returns (structure) of mailboxes mathing given criteria
+
+        For a given namespace, we query the server for a list of mailboxes
+        matching given name, or only the subscribed ones.
+
+        namespace -- which namespace to operate on
+        name -- List of strings specifying the mailbox name. For each level,
+                we replace "*" with "%" when the show_nested flag is set
+        show_nested -- if set, allow wildcards to match even the separator
+        subscribed_only -- invoke LSUB instead of LIST
+        """
         raise FIXME
 
-    def mbox_get_subscribed_all(self, level, search, force_update=False):
-        """List all subscribed mailboxes matching given criteria"""
+    def mbox_create(self, namespace, parent, name):
+        """Create new mailbox
+
+        namespace and parent specify where to create at; parent==() means a
+        top-level mailbox in the given namespace
+        """
         raise FIXME
 
-    def mbox_create(self, mailbox):
-        """Create mailbox specified by the mailbox struct"""
-        raise FIXME
-
-    def mbox_delete(self, mailbox):
+    def mbox_delete(self, namespace, name):
         """Delete mailbox specified by the mailbox struct"""
         raise FIXME
 
-    def mbox_rename(self, old, new):
+    def mbox_rename(self, old_namespace, old_name, new_namespace, new_name):
         """Rename specified mailbox"""
         raise FIXME
 
+    def mbox_open(self, namespace, name, mode=O_RDWR):
+        """Express our interest in accessing this mailbox
 
-        
+        Before we can access a mailbox, the underlying IMAP protocol must
+        SELECT/EXAMINE it.
+
+        namespace -- which namespace this mailbox belongs to
+        name -- name of the mailbox to open
+        mode -- (O_RDONLY, O_RDWR) whether to do a SELECT or EXAMINE
+        """
+        raise FIXME
+
+    def mbox_close(self, namespace, name):
+        """We don't expect to access this mailbox anymore
+
+        At least for some time, we don't expect we will access this mailbox.
+        """
+        raise FIXME
+
+    def mbox_stat(self, namespace, name):
+        """Get some information about a mailbox
+
+        Feel free to abuse this function in any way you like it; it's smart
+        enough to cache data.
+
+        FIXME: return values...
+        """
+        raise FIXME
+
+    def mbox_message_store(self, namespace, name, message, flags=None,
+                            date=None):
+        """Store a message into the specified mailbox
+
+        namespace, name -- which mailbox
+        message -- FIXME: what type?
+        flags -- IMAP Flags
+        date -- IMAP Internal Date
+        """
+        raise FIXME
+
+    def mbox_expunge(self, namespace, name):
+        """Expunge all deleted messages from a mailbox"""
+        raise FIXME
+
+    def mbox_search(self, namespace, name, criteria, charset=None):
+        """Search mailbox using specified search terms
+
+        namespace, name -- usual mailbox specification
+        criteria -- Unicode string to be passed to the server, see RFC 3501
+                    page 49 for details
+
+        By default, searches are done either in UTF-8 or in US-ASCII encoding.
+        Other encodings will be tried it the reply from the server suggests that
+        we're talking to a dumb machine that can't speak UTF-8.
+        """
+        raise FIXME
+
+    def mbox_message(self, namespace, name, message):
+        """Returns an IMAPMessage instance (email.Message on steroids)"""
+        raise FIXME
