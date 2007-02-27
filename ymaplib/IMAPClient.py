@@ -9,24 +9,27 @@ IMAPParsers and work with them.
 
 Or, at least, should be when it's done :)
 
+
+* Specifying a mailbox
+
 Most of IMAPClient's methods wants you to "specify mailbox". To make things more
 interesting, this option is represented by two variables, usually "namespace"
-and "name", the former being an IMAPNamespace instance and the latter a
+and "mailbox", the former being an IMAPNamespace instance and the latter a
 list/tuple of (Unicode) strings where each item represents a mailbox name in the
 hierarchy, or a None if we want to specify a hypotetical mailbox that is parent
 for all mailboxes in that namespace. List of valid namespaces can be found by
 the namespace_get() function.
 
 
-* Mailbox specification:
+* Specifying a message
 
-Several methods expects a specification of mailbox which you want to operate
-with. As IMAP supports nested mailboxes and their textual representation can
-contain multiple differing delimiters, we don't accept an IMAP name, but rather
-a tuple/list specifying the "path" to mailbox, this: ("foo", "bar", "baz") can
-be translated to, say, "foo.bar/baz".
+Message identification is a bit tougher. IMAP has two numbers for each message
+in a mailbox, its Sequence number and the UID. Sequence number is just an index
+from the beginning of a mailbox, so it can't be considered as an "identifier" of
+a message. The UIDs are, on the other hand, typically valid for a long time, and
+get invalidated only when the UIDVALIDITY of a mailbox changes. Therefore we use
+a tuple of (UIDVALIDITY, UID) for message identification.
 
-FIXME: is that really required?
 """
 
 # Copyright (c) Jan Kundrát <jkt@flaska.net>, 2006 - 2007
@@ -36,8 +39,12 @@ __revision__ = '$Id$'
 from os import O_RDONLY, O_RDWR
 import types
 
+# constants for message identification
+UIDVALIDITY=0
+UID=1
+
 class _IMAPClientPoolItem:
-    """"Tuple" of Stream, Parser, Mailbox name and State"""
+    """"Tuple" of Stream, Parser, Mailbox mailbox and State"""
 
     def __init__(self, stream, parser):
         self.stream = stream
@@ -68,6 +75,7 @@ class IMAPClient:
         self._completion_callback = completion_callback
         self._auth_type = auth_type
         self._auth_args = auth_args
+        # FIXME: requiring TLS
         self._connections = []
         self.max_connections = max_connections
         # FIXME: capabilities_mask runtime changes
@@ -133,7 +141,7 @@ class IMAPClient:
         """
         raise FIXME
 
-    def mbox_get_tree(self, namespace, name, show_nested=False,
+    def mbox_get_tree(self, namespace, mailbox, show_nested=False,
                       subscribed_only=False):
         """Returns (structure) of mailboxes mathing given criteria
 
@@ -141,14 +149,14 @@ class IMAPClient:
         matching given name, or only the subscribed ones.
 
         namespace -- which namespace to operate on
-        name -- List of strings specifying the mailbox name. For each level,
+        mailbox -- List of strings specifying the mailbox name. For each level,
                 we replace "*" with "%" when the show_nested flag is set
         show_nested -- if set, allow wildcards to match even the separator
         subscribed_only -- invoke LSUB instead of LIST
         """
         raise FIXME
 
-    def mbox_create(self, namespace, parent, name):
+    def mbox_create(self, namespace, parent, mailbox):
         """Create new mailbox
 
         namespace and parent specify where to create at; parent==() means a
@@ -156,34 +164,35 @@ class IMAPClient:
         """
         raise FIXME
 
-    def mbox_delete(self, namespace, name):
+    def mbox_delete(self, namespace, mailbox):
         """Delete mailbox specified by the mailbox struct"""
         raise FIXME
 
-    def mbox_rename(self, old_namespace, old_name, new_namespace, new_name):
+    def mbox_rename(self, old_namespace, old_mailbox, new_namespace,
+                    new_mailbox):
         """Rename specified mailbox"""
         raise FIXME
 
-    def mbox_open(self, namespace, name, mode=O_RDWR):
+    def mbox_open(self, namespace, mailbox, mode=O_RDWR):
         """Express our interest in accessing this mailbox
 
         Before we can access a mailbox, the underlying IMAP protocol must
         SELECT/EXAMINE it.
 
         namespace -- which namespace this mailbox belongs to
-        name -- name of the mailbox to open
+        mailbox -- name of the mailbox to open
         mode -- (O_RDONLY, O_RDWR) whether to do a SELECT or EXAMINE
         """
         raise FIXME
 
-    def mbox_close(self, namespace, name):
+    def mbox_close(self, namespace, mailbox):
         """We don't expect to access this mailbox anymore
 
         At least for some time, we don't expect we will access this mailbox.
         """
         raise FIXME
 
-    def mbox_stat(self, namespace, name):
+    def mbox_stat(self, namespace, mailbox):
         """Get some information about a mailbox
 
         Feel free to abuse this function in any way you like it; it's smart
@@ -193,25 +202,25 @@ class IMAPClient:
         """
         raise FIXME
 
-    def mbox_message_store(self, namespace, name, message, flags=None,
+    def mbox_message_store(self, namespace, mailbox, message, flags=None,
                             date=None):
         """Store a message into the specified mailbox
 
-        namespace, name -- which mailbox
+        namespace, mailbox -- which mailbox
         message -- FIXME: what type?
         flags -- IMAP Flags
         date -- IMAP Internal Date
         """
         raise FIXME
 
-    def mbox_expunge(self, namespace, name):
+    def mbox_expunge(self, namespace, mailbox):
         """Expunge all deleted messages from a mailbox"""
         raise FIXME
 
-    def mbox_search(self, namespace, name, criteria, charset=None):
+    def mbox_search(self, namespace, mailbox, criteria, charset=None):
         """Search mailbox using specified search terms
 
-        namespace, name -- usual mailbox specification
+        namespace, mailbox -- usual mailbox specification
         criteria -- Unicode string to be passed to the server, see RFC 3501
                     page 49 for details
 
@@ -221,6 +230,25 @@ class IMAPClient:
         """
         raise FIXME
 
-    def mbox_message(self, namespace, name, message):
+    def mbox_message(self, namespace, mailbox, message):
         """Returns an IMAPMessage instance (email.Message on steroids)"""
         raise FIXME
+
+    def message_copy(self, old_namespace, old_mailbox, old_message,
+                     new_namespace, new_mailbox):
+        """Copy message to another mailbox
+
+        old_namespace, old_mailbox -- source mailbox
+        old_message -- which message to copy
+        new_namespace, new_mailbox -- where to put it
+        """
+        raise FIXME
+
+    def message_get(self, namespace, mailbox, message):
+        """Get an IMAPMessage from UID/UIDVALIDITY combo
+
+        namespace, mailbox -- mailbox specification
+        message -- tuple UIDVALIDITY/UID
+        """
+        raise FIXME
+

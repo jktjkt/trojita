@@ -37,3 +37,7 @@ class DisconnectedError(Exception):
 class CommandContinuationRequest(Exception):
     """Command Continuation Request"""
     pass
+
+class AttrReadOnlyError(TypeError):
+    """Object doesn't support assignment of this property"""
+    pass

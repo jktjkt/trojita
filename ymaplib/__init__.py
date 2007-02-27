@@ -16,7 +16,7 @@ __revision__ = "$Id$"
 __all__ = ["IMAPResponse", "IMAPNIL", "IMAPThreadItem", "IMAPParser",
     "IMAPEnvelope", "IMAPMessage", "InvalidResponseError", "ParseError",
     "UnknownResponseError", "TimeoutError, DisconnectedError",
-    "CommandContinuationRequest"]
+    "CommandContinuationRequest", "AttrReadOnlyError"]
 
 from IMAPResponse import IMAPResponse
 from IMAPNIL import IMAPNIL
@@ -29,6 +29,6 @@ from IMAPNamespace import IMAPNamespace, IMAPNamespaceItem
 from IMAPMailboxItem import IMAPMailboxItem
 from exceptions import (InvalidResponseError, ParseError, UnknownResponseError,
                         TimeoutError, DisconnectedError,
-                        CommandContinuationRequest)
+                        CommandContinuationRequest, AttrReadOnlyError)
 from IMAPClient import IMAPClient, _IMAPClientPoolItem
 from authenticators import (Authenticator, PLAINAuthenticator)
