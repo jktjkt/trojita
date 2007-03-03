@@ -5,8 +5,8 @@
 
 import os
 import select
+from Stream import default_timeout
 from PollableStream import PollableStream
-from common import default_timeout
 
 __revision__ = "$Id$"
 

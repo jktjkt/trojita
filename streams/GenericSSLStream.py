@@ -5,7 +5,7 @@
 
 __revision__ = "$Id$"
 
-from common import default_timeout
+from Stream import default_timeout
 from TCPStream import TCPStream
 
 class GenericSSLStream(TCPStream):
