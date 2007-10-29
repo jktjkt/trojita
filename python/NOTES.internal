@@ -1,3 +1,0 @@
-Some random notes:
-- don't issue a LITERAL+ on our first attempt, even if we can (bandwidth)
-  ^-- or just send it anyway, minimizing possible latency?
