@@ -48,12 +48,35 @@ class IMAPMessage(email.Message.Message):
         if self._structure is None:
             self._fetch_structure()
         # FIXME: we can't use the payload attribute as email.Message does...
-        if
         raise FIXME
 
     def get_charset(self):
         if self._structure is None:
             self._fetch_structure()
+        raise FIXME
+
+    def get_payload(self):
+        raise FIXME
+
+    def __len__(self):
+        raise FIXME
+
+    def __contains__(self):
+        raise FIXME
+
+    def keys(self):
+        raise FIXME
+
+    def values(self):
+        raise FIXME
+
+    def items(self):
+        raise FIXME
+
+    def get(self):
+        raise FIXME
+
+    def get_all(self):
         raise FIXME
 
     def _fetch_flags(self):

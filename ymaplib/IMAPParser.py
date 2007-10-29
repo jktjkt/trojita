@@ -24,6 +24,8 @@ __revision__ = '$Id$'
 
 CRLF = "\r\n"
 
+
+
 class _WorkerThread(threading.Thread):
     """A wrapper running IMAPParser.loop() with some exception handling"""
     def __init__(self, parser):
@@ -38,6 +40,7 @@ class _WorkerThread(threading.Thread):
                 self.parser._loop()
         except:
             self.parser.worker_exceptions.put(sys.exc_info())
+            self.parser._worker_flag.clear()
 
 class IMAPParser:
     """Streamed connection to the IMAP4rev1 compliant IMAP server"""
@@ -206,6 +209,7 @@ class IMAPParser:
                 # we have to terminate the idling at first
                 self._write('DONE')
                 self._write(CRLF)
+                self._stream.flush()
                 self._in_idle = False
 
             (tag_name, command) = self._incoming.get()

@@ -43,32 +43,33 @@ import types
 UIDVALIDITY=0
 UID=1
 
-class _IMAPClientPoolItem:
-    """"Tuple" of Stream, Parser, Mailbox mailbox and State"""
-
-    def __init__(self, stream, parser):
-        self.stream = stream
-        self.parser = parser
-
+# IMAPClient._pool
+_POOL_NAMESPACE=0
+_POOL_MAILBOX=1
+_POOL_MODE=2
+_POOL_PARSER=3
 
 class IMAPClient:
     """A client to IMAP server"""
 
     def __init__(self, stream_type, stream_args, completion_callback=None,
-                 auth_type=None, auth_args=None, max_conn_server=1,
-                 max_conn_mailbox=1, capabilities_mask=(), debug=0):
+                 auth_type=None, auth_args=None, max_connections=1,
+                 capabilities_mask=(), debug=0):
         """IMAPClient contructor
 
         stream_type -- class name of the stream to create
         stream_args -- what to use for its creation
-        callback -- function that is called when some command is completed
+        completion_callback -- function that is called when a command is
+                               completed
         auth_type -- class name of the Authenticator
         auth_args -- what args to pass to the authenticator
         max_conn_server -- maximal number of connections to server
         max_conn_mailbox -- maximal number of connections pointing to a given
                             mailbox
-        capabilities_mask -- ignore listed IMAP capabilities
-        debug -- debugging verbosity"""
+        capabilities_mask -- will pretend that IMAP server doesn't support
+                             listed capabilities
+        debug -- debugging verbosity
+        """
 
         self._stream_type = stream_type
         self._stream_args = stream_args
@@ -84,29 +85,62 @@ class IMAPClient:
 
         self._pool = []
 
-    def _conn_add(self):
-        """Create a new connection to server"""
+    def _parser_create(self, namespace=None, mailbox=None, mode=O_RDONLY):
+        """Create a new connection to server
+
+        namespace, mailbox -- where to point it (or just don't switch to any
+                              mailbox at all if both are None
+        mode -- whether to SELECT or EXAMINE
+        """
 
         stream = self._stream_type(*self._stream_args)
         parser = trojita.ymaplib.IMAPParser(stream, self._debug,
-        self.capabilities_mask)
-        parser.start_worker()
+                                            self.capabilities_mask)
+        #parser.start_worker()
         # FIXME: method for authenticating, but only after a secure channel is
         # established
         # -> move the start_tls invocation to the respective Authenticator?
-        connection = _IMAPClientConnectionPoolItem(stream, parser)
-        self._pool.append(connection)
-        return connection
+        if namespace is not None and mailbox is not None:
+            # switch to the specified mailbox
+            # FIXME: determine the mode
+            name = ''
+            if mode == O_RDWR:
+                tag = parser.cmd_select(name)
+            else:
+                tag = parser.cmd_examine(name)
+            # FIXME: wait for completion
+        self._pool.append([namespace, mailbox, mode, parser])
+        return parser
 
-    # begin of public API declarations
-    # manipulation of mailboxes
+    def _get_parser(self, namespace=None, mailbox=None, mode=O_RDONLY):
+        """Returns an internally registered IMAPParser for particular mailbox
+
+        Functions usually want to operate on some mailbox. This helper tries to
+        find one that has it already SELECTed/EXAMINEd or creates another one.
+        """
+
+        if len(self._pool):
+            # FIXME :)
+            pass
+        else:
+            # no existing parsers -> just create one
+            return self._parser_create(namespace, mailbox, mode)
+
+        if len(candidates):
+            # there are parsers that we can use
+            # switch first of them to that mailbox and be done with it
+            raise FIXME
+        else:
+            # all available slots are used, let's enter the killing spree
+            raise FIXME
 
     def namespace_get_broken_default(self):
         """Probably broken attempt to guess dumb namespace
 
         This is only useful for crappy servers that don't support the NAMESPACE
-        extension. Users are likely to specify they own namespace in addition to
-        this guessed default."""
+        extension. Users are likely to specify their own namespace in addition
+        to this guessed default.
+        """
         # FIXME: see namespace_get() about how to do it
         raise FIXME
 
@@ -129,7 +163,7 @@ class IMAPClient:
         """Force the namespace to the passed specification
 
         To use a default namespace (fex when dealing with shitty servers), set
-        me to namespace_get_broken_default()."""
+        this to namespace_get_broken_default()."""
         raise FIXME
 
     def namespace_supported(self):
@@ -143,7 +177,7 @@ class IMAPClient:
 
     def mbox_get_tree(self, namespace, mailbox, show_nested=False,
                       subscribed_only=False):
-        """Returns (structure) of mailboxes mathing given criteria
+        """Returns (structure) of mailboxes matching given criteria
 
         For a given namespace, we query the server for a list of mailboxes
         matching given name, or only the subscribed ones.
@@ -173,82 +207,16 @@ class IMAPClient:
         """Rename specified mailbox"""
         raise FIXME
 
-    def mbox_open(self, namespace, mailbox, mode=O_RDWR):
-        """Express our interest in accessing this mailbox
+    def mailbox(self, namespace, mailbox, mode=O_RDWR):
+        """Returns an IMAPMailbox instance
 
-        Before we can access a mailbox, the underlying IMAP protocol must
-        SELECT/EXAMINE it.
-
-        namespace -- which namespace this mailbox belongs to
-        mailbox -- name of the mailbox to open
-        mode -- (O_RDONLY, O_RDWR) whether to do a SELECT or EXAMINE
+        namespace, mailbox -- which mailbox to open
+        mode -- O_RDONLY, O_RDWR do we need write access?
         """
         raise FIXME
 
-    def mbox_close(self, namespace, mailbox):
-        """We don't expect to access this mailbox anymore
-
-        At least for some time, we don't expect we will access this mailbox.
-        """
+    def logout(self):
+        """Close all connections to given server"""
         raise FIXME
 
-    def mbox_stat(self, namespace, mailbox):
-        """Get some information about a mailbox
-
-        Feel free to abuse this function in any way you like it; it's smart
-        enough to cache data.
-
-        FIXME: return values...
-        """
-        raise FIXME
-
-    def mbox_message_store(self, namespace, mailbox, message, flags=None,
-                            date=None):
-        """Store a message into the specified mailbox
-
-        namespace, mailbox -- which mailbox
-        message -- FIXME: what type?
-        flags -- IMAP Flags
-        date -- IMAP Internal Date
-        """
-        raise FIXME
-
-    def mbox_expunge(self, namespace, mailbox):
-        """Expunge all deleted messages from a mailbox"""
-        raise FIXME
-
-    def mbox_search(self, namespace, mailbox, criteria, charset=None):
-        """Search mailbox using specified search terms
-
-        namespace, mailbox -- usual mailbox specification
-        criteria -- Unicode string to be passed to the server, see RFC 3501
-                    page 49 for details
-
-        By default, searches are done either in UTF-8 or in US-ASCII encoding.
-        Other encodings will be tried it the reply from the server suggests that
-        we're talking to a dumb machine that can't speak UTF-8.
-        """
-        raise FIXME
-
-    def mbox_message(self, namespace, mailbox, message):
-        """Returns an IMAPMessage instance (email.Message on steroids)"""
-        raise FIXME
-
-    def message_copy(self, old_namespace, old_mailbox, old_message,
-                     new_namespace, new_mailbox):
-        """Copy message to another mailbox
-
-        old_namespace, old_mailbox -- source mailbox
-        old_message -- which message to copy
-        new_namespace, new_mailbox -- where to put it
-        """
-        raise FIXME
-
-    def message_get(self, namespace, mailbox, message):
-        """Get an IMAPMessage from UID/UIDVALIDITY combo
-
-        namespace, mailbox -- mailbox specification
-        message -- tuple UIDVALIDITY/UID
-        """
-        raise FIXME
-
+IMAPClient.__doc__ = __doc__

@@ -4,22 +4,22 @@ import ymaplib
 import streams
 import time
 
-#imap_stream = streams.ProcessStream('dovecot --exec-mail imap')
+imap_stream = streams.ProcessStream('dovecot --exec-mail imap')
 #imap_stream = streams.TCPStream('localhost', 143, timeout=1.5)
-imap_stream = streams.OpenSSLStream('localhost', 143, timeout=1.5)
+#imap_stream = streams.OpenSSLStream('localhost', 143, timeout=1.5)
 parser = ymaplib.IMAPParser(imap_stream, 10)
 parser.capabilities_mask = ('LITERAL+')
 parser.start_worker()
 
-parser.cmd_capability()
+#parser.cmd_capability()
 #parser.cmd_starttls()
 #parser.cmd_capability()
 #parser.cmd_noop()
-parser.cmd_starttls()
-auth = ymaplib.PLAINAuthenticator('user', 'password')
+#parser.cmd_starttls()
+#auth = ymaplib.PLAINAuthenticator('user', 'password')
 #auth = None
-parser.cmd_authenticate(auth)
-parser.cmd_noop()
+#parser.cmd_authenticate(auth)
+#parser.cmd_noop()
 
 # the following line will raise an exception of working with LITERAL+
 #parser._queue_cmd(('FOO', 'CHARSET utf-8', ('text',), ('odkazy.\n',), ('to',), ('user-cs',)))
@@ -42,7 +42,7 @@ timestamp = time.mktime(time.localtime())
 # just a demo to show that we can resume :)
 print parser.start_worker(parser.stop_worker())
 
-parser.cmd_select('gentoo.gentoo-user-cs')
+parser.cmd_select('trms')
 #parser.cmd_search(('text', 'odkazy.\n', 'to', 'user-cs'), 'utf-8')
 #parser.cmd_uid_search(('text', 'odkazy.\n', 'to', 'user-cs'), 'utf-8')
 #parser.cmd_sort(('subject',), 'utf-8', ('from', 'jkt'))
@@ -71,6 +71,8 @@ parser.cmd_select('gentoo.gentoo-user-cs')
 #parser.cmd_select('inbox')
 #parser.cmd_fetch('*:*', 'ALL')
 #parser.cmd_fetch('*:*', ('envelope', 'flags', 'internaldate', 'body.peek[]'))
+#parser.cmd_fetch(",".join([str(foo) for foo in range(1,10)]), ('bodystructure',))
+parser.cmd_fetch("1:*", "bodystructure")
 #parser.cmd_fetch('*', ('FLAGS', 'BODY[HEADER.FIELDS (DATE FROM)]'))
 #parser.cmd_store('*', '+FLAGS', '\\seen')
 #parser.cmd_copy('*', u'ěšč')
@@ -90,15 +92,24 @@ parser.cmd_select('gentoo.gentoo-user-cs')
 #parser._queue_cmd(('fetch 1 full',))
 #parser._queue_cmd(('status inbox ()',))
 
-time.sleep(5)
+time.sleep(0.5)
+
+fetched=[]
 
 while not parser._outgoing.empty():
-    print parser.get()
+    response = parser.get()
+    print response
+    if response.kind == "FETCH":
+        fetched.append(response)
+print '*'*40
+import pprint
+for item in fetched:
+    pprint.pprint(item.data[1]['BODYSTRUCTURE'])
 
 #time.sleep(0.1)
 #parser._queue_cmd('thread references ascii from jakub')
 #parser._queue_cmd('logout')
-time.sleep(0.5)
+#time.sleep(0.5)
 #parser._queue_cmd('foo')
 #time.sleep(0.5)
 
