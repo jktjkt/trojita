@@ -52,26 +52,19 @@ namespace Imap {
 class Parser : public QObject {
     Q_OBJECT
 
-private:
-    // private copy constructors,...
-    Parser( const Parser& );
-    Parser& operator=( const Parser& );
-
 public:
     /** Constructor. Takes an QAbstractSocket instance as a parameter. */
     Parser( QObject* parent, QAbstractSocket * const socket );
 
 public slots:
-#if 0
     /** CAPABILITY, RFC 3501 sect 6.1.1 */
     CommandHandle capability();
-#endif
     /** NOOP, RFC 3501 sect 6.1.2 */
     CommandHandle noop();
-#if 0
     /** LOGOUT, RFC3501 sect 6.1.3 */
     CommandHandle logout();
 
+#if 0
     /** STARTTLS, RFC3501 sect 6.2.1 */
     CommandHandle startTls();
     /** AUTHENTICATE, RFC3501 sect 6.2.2 */
@@ -144,6 +137,17 @@ signals:
     void responseReceived( Response resp );
 
 private:
+    // private copy constructors,...
+    Parser( const Parser& );
+    Parser& operator=( const Parser& );
+
+    /** Add command to internal queue and schedule its execution.
+     *
+     * @arg command is a list of strings that are to be sent to the server
+     * (using apropriate form for each of them)
+     * */
+    CommandHandle queueCommand( const QStringList& command );
+
     QAbstractSocket * const _socket;
 
 };
