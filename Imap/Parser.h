@@ -61,12 +61,14 @@ public:
     /** Constructor. Takes an QAbstractSocket instance as a parameter. */
     Parser( QObject* parent, QAbstractSocket * const socket );
 
-#if 0
 public slots:
+#if 0
     /** CAPABILITY, RFC 3501 sect 6.1.1 */
     CommandHandle capability();
+#endif
     /** NOOP, RFC 3501 sect 6.1.2 */
     CommandHandle noop();
+#if 0
     /** LOGOUT, RFC3501 sect 6.1.3 */
     CommandHandle logout();
 
@@ -137,6 +139,7 @@ public slots:
     /** THREAD, draft-ietf-imapext-sort-19, section 3 */
     CommandHandle thread( const ThreadAlgorithm& algo, const QString charset, const QStringList& criteria );
 #endif
+
 signals:
     void responseReceived( Response resp );
 
