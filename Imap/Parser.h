@@ -68,7 +68,9 @@ public slots:
     /** STARTTLS, RFC3501 sect 6.2.1 */
     CommandHandle startTls();
     /** AUTHENTICATE, RFC3501 sect 6.2.2 */
-    CommandHandle authenticate( Authenticator auth );
+    // FIXME: use some kind of authenticator factory?
+    CommandHandle authenticate( Authenticator* auth );
+#endif
     /** LOGIN, RFC3501 sect 6.2.3 */
     CommandHandle login( const QString& username, const QString& password );
 
@@ -79,7 +81,7 @@ public slots:
     /** CREATE, RFC3501 sect 6.3.3 */
     CommandHandle create( const QString& mailbox );
     /** DELETE, RFC3501 sect 6.3.4 */
-    CommandHandle deleteMbox( const QString& mailbox );
+    CommandHandle deleteMailbox( const QString& mailbox );
     /** RENAME, RFC3501 sect 6.3.5
      *
      * Takes oldName and newName to remove from -> to. */
@@ -88,6 +90,7 @@ public slots:
     CommandHandle subscribe( const QString& mailbox );
     /** UNSUBSCRIBE, RFC3501 sect 6.3.7 */
     CommandHandle unsubscribe( const QString& mailbox );
+#if 0
     /** LIST, RFC3501 sect 6.3.8 */
     CommandHandle list( const QString& reference, const QString& name );
     /** LSUB, RFC3501 sect 6.3.9 */
