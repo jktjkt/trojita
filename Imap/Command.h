@@ -19,6 +19,7 @@
 #define IMAP_COMMAND_H
 #include <QTextStream>
 #include <QList>
+#include <QDateTime>
 
 /** Namespace for IMAP interaction */
 namespace Imap {
@@ -159,7 +160,7 @@ namespace Commands {
     /** APPEND, RFC3501 section 6.3.11 */
     class Append : public AbstractCommand {
     public:
-        Append( const QString& mailbox );
+        Append( const QString& mailbox, const QString& message, const QStringList& flags = QStringList(), const QDateTime& timestamp = QDateTime() );
     };
 
 

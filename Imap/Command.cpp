@@ -165,5 +165,15 @@ namespace Commands {
         _cmds.append( _PartOfCommand( TOKEN_QUOTED_STRING, mailbox ) );
         _cmds.append( _PartOfCommand( TOKEN_ATOM, "(" + fields.join(" ") +")") );
     }
+
+    Append::Append( const QString& mailbox, const QString& message, const QStringList& flags, const QDateTime& timeStamp )
+    {
+        _cmds.append( _PartOfCommand( TOKEN_ATOM, "APPEND" ) );
+        if (flags.count())
+            _cmds.append( _PartOfCommand( TOKEN_QUOTED_STRING, "(" + flags.join(" ") + ")" ) );
+        if (timeStamp.isValid())
+            _cmds.append( _PartOfCommand( TOKEN_QUOTED_STRING, timeStamp.toString() ) );
+        _cmds.append( _PartOfCommand( TOKEN_LITERAL, message ) );
+    }
 }
 }

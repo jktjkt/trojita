@@ -58,6 +58,9 @@ int main( int argc, char** argv) {
     Err << "Status" << "(some mailbox, () ):" << endl; command = new Imap::Commands::Status("some mailbox", QStringList()); Err << *command << endl; delete command; command = 0;
     Err << "Status" << "(some mailbox, (ahoj) ):" << endl; command = new Imap::Commands::Status("some mailbox", QStringList("ahoj")); Err << *command << endl; delete command; command = 0;
 
+    DUMP2(Append, some mailbox, some extra long message literal that is absolutely uninteresting here);
+    Err << "Append" << "(some mailbox, some message, (flagA flagB) ):" << endl; command = new Imap::Commands::Append(QString("some mailbox"), "some message", QStringList("flagA") << "flagB"); Err << *command << endl; delete command; command = 0;
+    // FIXME: test date
 
     DUMP0(UnSelect);
     DUMP0(Check);
