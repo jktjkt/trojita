@@ -48,7 +48,9 @@ int main( int argc, char** argv) {
     DUMP1(Examine, foo mailbox);
     DUMP1(Create, foo mailbox);
     DUMP1(Delete, foo mailbox);
-    DUMP2(Rename, foo mailbox old, bar mailbox new);
+    DUMP2(Rename, foo mailbox old, bar mailbox new that is so looooooooooooooooooooooooooong \
+            that it doesnt fit on this loooooooooooooooooooooooooooooooooooooooooooooooong \
+            line thats really loooooooooooooooooooooooooooooooooooooooooooooooooooooooong);
     DUMP1(Subscribe, foo mailbox);
     DUMP1(UnSubscribe, foo mailbox);
     DUMP2(List, , );

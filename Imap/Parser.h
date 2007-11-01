@@ -19,6 +19,13 @@
 #define IMAP_PARSER_H
 #include <QObject>
 
+/**
+ * @file
+ * A header file defining Parser class and various helpers.
+ *
+ * @author Jan Kundrát <jkt@gentoo.org>
+ */
+
 class QAbstractSocket;
 class QDateTime;
 template<class T> class QList;
@@ -127,12 +134,12 @@ private:
 
     /** Add command to internal queue and schedule its execution.
      *
-     * @arg command is a list of strings that are to be sent to the server
-     * (using apropriate form for each of them)
-     * */
+     * @param   command a list of strings that are to be sent to the server
+     *                  (using apropriate form for each of them)
+     */
     CommandHandle queueCommand( const QStringList& command );
 
-    QAbstractSocket * const _socket;
+    QAbstractSocket* _socket;
 
 };
 

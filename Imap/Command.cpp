@@ -15,6 +15,7 @@
    the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
+#include <ctype.h>
 #include <QStringList>
 #include "Command.h"
 
@@ -32,20 +33,39 @@ namespace Commands {
         return stream << endl;
     }
 
+    TokenType howToTransmit( const QString& str )
+    {
+        if (str.length() > 100)
+            return LITERAL;
+
+        if (str.isEmpty())
+            return QUOTED_STRING;
+
+        TokenType res = ATOM;
+
+        for ( int i = 0; i < str.size(); ++i ) {
+            char c = str.at(i).toAscii();
+
+            if ( !isalnum(c) )
+                res = QUOTED_STRING;
+
+            if ( !isascii(c) || c == '\r' || c == '\n' || c == '\0' || c == '"' ) {
+                return LITERAL;
+            }
+        }
+        return res;
+    }
+
     QTextStream& operator<<( QTextStream& stream, const _PartOfCommand& part )
     {
         switch (part._kind) {
-            case TOKEN_ATOM:
-                stream << part._text;
-                break;
-            case TOKEN_QUOTED_STRING:
-                stream << '"' << part._text << '"';
-                break;
-            case TOKEN_LITERAL:
-                stream << "{" << part._text.length() << "}" << endl << part._text;
-                break;
+            case ATOM:
+                return stream << part._text;
+            case QUOTED_STRING:
+                return stream << '"' << part._text << '"';
+            case LITERAL:
+                return stream << "{" << part._text.length() << "}" << endl << part._text;
         }
-        return stream;
     }
 
     /*
@@ -55,125 +75,125 @@ namespace Commands {
 
     Capability::Capability()
     {
-        _cmds.append( _PartOfCommand( TOKEN_ATOM, "CAPABILITY" ) );
+        _cmds.append( _PartOfCommand( ATOM, "CAPABILITY" ) );
     };
 
     Noop::Noop()
     {
-        _cmds.append( _PartOfCommand( TOKEN_ATOM, "NOOP" ) );
+        _cmds.append( _PartOfCommand( ATOM, "NOOP" ) );
     };
 
     Logout::Logout()
     {
-        _cmds.append( _PartOfCommand( TOKEN_ATOM, "LOGOUT" ) );
+        _cmds.append( _PartOfCommand( ATOM, "LOGOUT" ) );
     };
 
 
     StartTls::StartTls()
     {
-        _cmds.append( _PartOfCommand( TOKEN_ATOM, "STARTTLS" ) );
+        _cmds.append( _PartOfCommand( ATOM, "STARTTLS" ) );
     }
 
     Authenticate::Authenticate()
     {
-        _cmds.append( _PartOfCommand( TOKEN_ATOM, "AUTHENTICATE" ) );
+        _cmds.append( _PartOfCommand( ATOM, "AUTHENTICATE" ) );
     }
 
     Login::Login( const QString& user, const QString& pass )
     {
-        _cmds.append( _PartOfCommand( TOKEN_ATOM, "LOGIN" ) );
-        _cmds.append( _PartOfCommand( TOKEN_QUOTED_STRING, user ) );
-        _cmds.append( _PartOfCommand( TOKEN_QUOTED_STRING, pass ) );
+        _cmds.append( _PartOfCommand( ATOM, "LOGIN" ) );
+        _cmds.append( _PartOfCommand( user ) );
+        _cmds.append( _PartOfCommand( pass ) );
     }
 
 
     UnSelect::UnSelect()
     {
-        _cmds.append( _PartOfCommand( TOKEN_ATOM, "UNSELECT" ) );
+        _cmds.append( _PartOfCommand( ATOM, "UNSELECT" ) );
     };
 
     Check::Check()
     {
-        _cmds.append( _PartOfCommand( TOKEN_ATOM, "CHECK" ) );
+        _cmds.append( _PartOfCommand( ATOM, "CHECK" ) );
     };
 
     Idle::Idle()
     {
-        _cmds.append( _PartOfCommand( TOKEN_ATOM, "IDLE" ) );
+        _cmds.append( _PartOfCommand( ATOM, "IDLE" ) );
     };
 
     Select::Select( const QString& mailbox )
     {
-        _cmds.append( _PartOfCommand( TOKEN_ATOM, "SELECT" ) );
-        _cmds.append( _PartOfCommand( TOKEN_QUOTED_STRING, mailbox ) );
+        _cmds.append( _PartOfCommand( ATOM, "SELECT" ) );
+        _cmds.append( _PartOfCommand( mailbox ) );
     };
 
     Examine::Examine( const QString& mailbox )
     {
-        _cmds.append( _PartOfCommand( TOKEN_ATOM, "EXAMINE" ) );
-        _cmds.append( _PartOfCommand( TOKEN_QUOTED_STRING, mailbox ) );
+        _cmds.append( _PartOfCommand( ATOM, "EXAMINE" ) );
+        _cmds.append( _PartOfCommand( mailbox ) );
     };
 
     Create::Create( const QString& mailbox )
     {
-        _cmds.append( _PartOfCommand( TOKEN_ATOM, "CREATE" ) );
-        _cmds.append( _PartOfCommand( TOKEN_QUOTED_STRING, mailbox ) );
+        _cmds.append( _PartOfCommand( ATOM, "CREATE" ) );
+        _cmds.append( _PartOfCommand( mailbox ) );
     };
 
     Delete::Delete( const QString& mailbox )
     {
-        _cmds.append( _PartOfCommand( TOKEN_ATOM, "DELETE" ) );
-        _cmds.append( _PartOfCommand( TOKEN_QUOTED_STRING, mailbox ) );
+        _cmds.append( _PartOfCommand( ATOM, "DELETE" ) );
+        _cmds.append( _PartOfCommand( mailbox ) );
     };
 
     Rename::Rename( const QString& oldName, const QString& newName )
     {
-        _cmds.append( _PartOfCommand( TOKEN_ATOM, "RENAME" ) );
-        _cmds.append( _PartOfCommand( TOKEN_QUOTED_STRING, oldName ) );
-        _cmds.append( _PartOfCommand( TOKEN_QUOTED_STRING, newName ) );
+        _cmds.append( _PartOfCommand( ATOM, "RENAME" ) );
+        _cmds.append( _PartOfCommand( oldName ) );
+        _cmds.append( _PartOfCommand( newName ) );
     };
 
     Subscribe::Subscribe( const QString& mailbox )
     {
-        _cmds.append( _PartOfCommand( TOKEN_ATOM, "SUBSCRIBE" ) );
-        _cmds.append( _PartOfCommand( TOKEN_QUOTED_STRING, mailbox ) );
+        _cmds.append( _PartOfCommand( ATOM, "SUBSCRIBE" ) );
+        _cmds.append( _PartOfCommand( mailbox ) );
     };
 
     UnSubscribe::UnSubscribe( const QString& mailbox )
     {
-        _cmds.append( _PartOfCommand( TOKEN_ATOM, "UNSUBSCRIBE" ) );
-        _cmds.append( _PartOfCommand( TOKEN_QUOTED_STRING, mailbox ) );
+        _cmds.append( _PartOfCommand( ATOM, "UNSUBSCRIBE" ) );
+        _cmds.append( _PartOfCommand( mailbox ) );
     };
 
     List::List( const QString& reference, const QString& mailbox )
     {
-        _cmds.append( _PartOfCommand( TOKEN_ATOM, "LIST" ) );
-        _cmds.append( _PartOfCommand( TOKEN_QUOTED_STRING, reference ) );
-        _cmds.append( _PartOfCommand( TOKEN_QUOTED_STRING, mailbox ) );
+        _cmds.append( _PartOfCommand( ATOM, "LIST" ) );
+        _cmds.append( _PartOfCommand( reference ) );
+        _cmds.append( _PartOfCommand( mailbox ) );
     };
 
     LSub::LSub( const QString& reference, const QString& mailbox )
     {
-        _cmds.append( _PartOfCommand( TOKEN_ATOM, "LSUB" ) );
-        _cmds.append( _PartOfCommand( TOKEN_QUOTED_STRING, reference ) );
-        _cmds.append( _PartOfCommand( TOKEN_QUOTED_STRING, mailbox ) );
+        _cmds.append( _PartOfCommand( ATOM, "LSUB" ) );
+        _cmds.append( _PartOfCommand( reference ) );
+        _cmds.append( _PartOfCommand( mailbox ) );
     };
 
     Status::Status( const QString& mailbox, const QStringList& fields )
     {
-        _cmds.append( _PartOfCommand( TOKEN_ATOM, "STATUS" ) );
-        _cmds.append( _PartOfCommand( TOKEN_QUOTED_STRING, mailbox ) );
-        _cmds.append( _PartOfCommand( TOKEN_ATOM, "(" + fields.join(" ") +")") );
+        _cmds.append( _PartOfCommand( ATOM, "STATUS" ) );
+        _cmds.append( _PartOfCommand( mailbox ) );
+        _cmds.append( _PartOfCommand( ATOM, "(" + fields.join(" ") +")") );
     }
 
     Append::Append( const QString& mailbox, const QString& message, const QStringList& flags, const QDateTime& timeStamp )
     {
-        _cmds.append( _PartOfCommand( TOKEN_ATOM, "APPEND" ) );
+        _cmds.append( _PartOfCommand( ATOM, "APPEND" ) );
         if (flags.count())
-            _cmds.append( _PartOfCommand( TOKEN_ATOM, "(" + flags.join(" ") + ")" ) );
+            _cmds.append( _PartOfCommand( ATOM, "(" + flags.join(" ") + ")" ) );
         if (timeStamp.isValid())
-            _cmds.append( _PartOfCommand( TOKEN_QUOTED_STRING, timeStamp.toString() ) );
-        _cmds.append( _PartOfCommand( TOKEN_LITERAL, message ) );
+            _cmds.append( _PartOfCommand( timeStamp.toString() ) );
+        _cmds.append( _PartOfCommand( LITERAL, message ) );
     }
 }
 }

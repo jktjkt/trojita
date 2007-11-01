@@ -1,0 +1,7 @@
+/**
+  @mainpage Trojitá
+
+  Trojitá is an IMAP mail client written using the Qt framewrok. It's aim is to
+  be as standard-compliant and usable as possible.
+
+ */
