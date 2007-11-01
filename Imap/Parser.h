@@ -57,20 +57,13 @@ public:
     Parser( QObject* parent, QAbstractSocket * const socket );
 
 public slots:
-    /** CAPABILITY, RFC 3501 sect 6.1.1 */
-    CommandHandle capability();
-    /** NOOP, RFC 3501 sect 6.1.2 */
-    CommandHandle noop();
-    /** LOGOUT, RFC3501 sect 6.1.3 */
-    CommandHandle logout();
-
 #if 0
     /** STARTTLS, RFC3501 sect 6.2.1 */
     CommandHandle startTls();
     /** AUTHENTICATE, RFC3501 sect 6.2.2 */
     // FIXME: use some kind of authenticator factory?
     CommandHandle authenticate( Authenticator* auth );
-#endif
+
     /** LOGIN, RFC3501 sect 6.2.3 */
     CommandHandle login( const QString& username, const QString& password );
 
@@ -90,7 +83,6 @@ public slots:
     CommandHandle subscribe( const QString& mailbox );
     /** UNSUBSCRIBE, RFC3501 sect 6.3.7 */
     CommandHandle unsubscribe( const QString& mailbox );
-#if 0
     /** LIST, RFC3501 sect 6.3.8 */
     CommandHandle list( const QString& reference, const QString& name );
     /** LSUB, RFC3501 sect 6.3.9 */
@@ -100,12 +92,6 @@ public slots:
     /** APPEND, RFC3501 sect 6.3.11 */
     CommandHandle append( const QString& mailbox, const Message& message, const QSet<Flag>& flags, const QDateTime& stamp );
 
-    /** CHECK, RFC3501 sect 6.4.1 */
-    CommandHandle check();
-    /** CLOSE, RFC3501 sect 6.4.2 */
-    CommandHandle close();
-    /** EXPUNGE, RFC3501 sect 6.4.3 */
-    CommandHandle expunge();
     /** SEARCH, RFC3501 sect 6.4.4 */
     CommandHandle search( const QStringList& criteria, const QString& charset );
     /** FETCH, RFC3501 sect 6.4.5 */
@@ -122,11 +108,6 @@ public slots:
     /** X<atom>, RFC3501 sect 6.5.1 */
     CommandHandle xAtom( const QString& command );
 
-    /** UNSELECT, RFC3691 */
-    CommandHandle unSelect();
-
-    /** IDLE, RFC2177 */
-    CommandHandle idle();
 
     /** SORT, draft-ietf-imapext-sort-19, section 3 */
     CommandHandle sort( /*const SortAlgorithm& algo,*/ const QString& charset, const QStringList& criteria );
@@ -137,7 +118,7 @@ public slots:
 #endif
 
 signals:
-    void responseReceived( Response resp );
+    void responseReceived( CommandHandle command, Response resp );
 
 private:
     // private copy constructors,...

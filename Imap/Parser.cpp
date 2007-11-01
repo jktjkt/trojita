@@ -1,3 +1,20 @@
+/* Copyright (C) 2007 Jan Kundrát <jkt@gentoo.org>
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public
+   License as published by the Free Software Foundation; either
+   version 2 of the License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; see the file COPYING.  If not, write to
+   the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
+   Boston, MA 02110-1301, USA.
+*/
 #include <QStringList>
 #include "Parser.h"
 
@@ -5,83 +22,6 @@ namespace Imap {
 
 Parser::Parser( QObject* parent, QAbstractSocket * const socket ): QObject(parent), _socket(socket)
 {
-}
-
-CommandHandle Parser::capability()
-{
-    return queueCommand( QStringList("CAPABILITY") );
-}
-
-CommandHandle Parser::noop()
-{
-    return queueCommand( QStringList("NOOP") );
-}
-
-CommandHandle Parser::logout()
-{
-    return queueCommand( QStringList("LOGOUT") );
-}
-
-CommandHandle Parser::login( const QString& username, const QString& password )
-{
-    QStringList cmd( "LOGIN" );
-    cmd << username << password;
-    return queueCommand( cmd );
-}
-
-CommandHandle Parser::select( const QString& mailbox )
-{
-    QStringList cmd( "SELECT" );
-    cmd << mailbox;
-    return queueCommand( cmd );
-}
-
-CommandHandle Parser::examine( const QString& mailbox )
-{
-    QStringList cmd( "EXAMINE" );
-    cmd << mailbox;
-    return queueCommand( cmd );
-}
-
-CommandHandle Parser::create( const QString& mailbox )
-{
-    QStringList cmd( "CREATE" );
-    cmd << mailbox;
-    return queueCommand( cmd );
-}
-
-CommandHandle Parser::deleteMailbox( const QString& mailbox )
-{
-    QStringList cmd( "DELETE" );
-    cmd << mailbox;
-    return queueCommand( cmd );
-}
-
-CommandHandle Parser::rename( const QString& oldName, const QString& newName )
-{
-    QStringList cmd( "RENAME" );
-    cmd << oldName << newName;
-    return queueCommand( cmd );
-}
-
-CommandHandle Parser::subscribe( const QString& mailbox )
-{
-    QStringList cmd( "SUBSCRIBE" );
-    cmd << mailbox;
-    return queueCommand( cmd );
-}
-
-CommandHandle Parser::unsubscribe( const QString& mailbox )
-{
-    QStringList cmd( "UNSUBSCRIBE" );
-    cmd << mailbox;
-    return queueCommand( cmd );
-}
-
-CommandHandle Parser::queueCommand( const QStringList& cmd )
-{
-    // FIXME :)
-    return CommandHandle();
 }
 
 }
