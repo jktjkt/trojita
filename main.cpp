@@ -16,6 +16,7 @@
    Boston, MA 02110-1301, USA.
 */
 #include <QTcpSocket>
+#include <QStringList>
 #include "Imap/Parser.h"
 #include "Imap/Command.h"
 
@@ -50,6 +51,12 @@ int main( int argc, char** argv) {
     DUMP2(Rename, foo mailbox old, bar mailbox new);
     DUMP1(Subscribe, foo mailbox);
     DUMP1(UnSubscribe, foo mailbox);
+    DUMP2(List, , );
+    DUMP2(List, prefix, );
+    DUMP2(LSub, , smrt);
+    Err << "Status" << "(some mailbox, (a b c) ):" << endl; command = new Imap::Commands::Status("some mailbox", QStringList("a") << "b" << "c"); Err << *command << endl; delete command; command = 0;
+    Err << "Status" << "(some mailbox, () ):" << endl; command = new Imap::Commands::Status("some mailbox", QStringList()); Err << *command << endl; delete command; command = 0;
+    Err << "Status" << "(some mailbox, (ahoj) ):" << endl; command = new Imap::Commands::Status("some mailbox", QStringList("ahoj")); Err << *command << endl; delete command; command = 0;
 
 
     DUMP0(UnSelect);
