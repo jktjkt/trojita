@@ -42,7 +42,7 @@ namespace Commands {
                 stream << '"' << part._text << '"';
                 break;
             case TOKEN_LITERAL:
-                stream << "{" << part._text.length() << "}" << endl << part._text << endl;
+                stream << "{" << part._text.length() << "}" << endl << part._text;
                 break;
         }
         return stream;
@@ -170,7 +170,7 @@ namespace Commands {
     {
         _cmds.append( _PartOfCommand( TOKEN_ATOM, "APPEND" ) );
         if (flags.count())
-            _cmds.append( _PartOfCommand( TOKEN_QUOTED_STRING, "(" + flags.join(" ") + ")" ) );
+            _cmds.append( _PartOfCommand( TOKEN_ATOM, "(" + flags.join(" ") + ")" ) );
         if (timeStamp.isValid())
             _cmds.append( _PartOfCommand( TOKEN_QUOTED_STRING, timeStamp.toString() ) );
         _cmds.append( _PartOfCommand( TOKEN_LITERAL, message ) );
