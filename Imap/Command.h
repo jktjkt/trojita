@@ -230,9 +230,6 @@ namespace Commands {
     /** Used for dumping a command to debug stream */
     QTextStream& operator<<( QTextStream& stream, const AbstractCommand& cmd );
 
-    /** Helper for operator<<( QTextStream& stream, const Command& cmd ) */
-    QTextStream& operator<<( QTextStream& stream, const AbstractCommand& part );
-
     }
 }
 #endif /* IMAP_COMMAND_H */
