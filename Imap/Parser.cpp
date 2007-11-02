@@ -24,5 +24,9 @@ Parser::Parser( QObject* parent, QAbstractSocket * const socket ): QObject(paren
 {
 }
 
+CommandHandle Parser::queueCommand( std::auto_ptr<Commands::AbstractCommand> command )
+{
+}
+
 }
 #include "Parser.moc"

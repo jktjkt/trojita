@@ -47,17 +47,17 @@ namespace Commands {
      * This is used by Parser to decide whether
      * to send the string as-is, to quote them or use a literal form for them.
      */
-    class _PartOfCommand {
+    class PartOfCommand {
         TokenType _kind; /**< What encoding to use for this item */
         QString _text; /**< Actual text to send */
 
-        friend QTextStream& operator<<( QTextStream& stream, const _PartOfCommand& c );
+        friend QTextStream& operator<<( QTextStream& stream, const PartOfCommand& c );
 
     public:
         /** Default constructor */
-        _PartOfCommand( const TokenType kind, const QString& text): _kind(kind), _text(text) {};
+        PartOfCommand( const TokenType kind, const QString& text): _kind(kind), _text(text) {};
         /** Constructor that guesses correct type for passed string */
-        _PartOfCommand( const QString& text): _kind( howToTransmit(text) ), _text(text) {};
+        PartOfCommand( const QString& text): _kind( howToTransmit(text) ), _text(text) {};
 
     };
 
@@ -67,7 +67,7 @@ namespace Commands {
     public:
         virtual ~AbstractCommand() {};
     protected:
-        QList<_PartOfCommand> _cmds;
+        QList<PartOfCommand> _cmds;
     };
 
 
@@ -196,6 +196,20 @@ namespace Commands {
     class Expunge : public AbstractCommand {
     public:
         Expunge();
+    };
+
+
+    /** X<atom>, RFC3501 sect 6.5.1 */
+    class XAtom : public AbstractCommand {
+        /* If I try to use ': _cmds(commands) {};', I get following error
+         * message with Gentoo Hardened GCC 3.4.6-r2:
+         *
+         * In constructor `Imap::Commands::XAtom::XAtom(const QList<Imap::Commands::PartOfCommand>&)':
+         *     error: class `Imap::Commands::XAtom' does not have any field named `_cmds'
+         *
+         * Isn't that a compiler bug?
+         * */
+        XAtom( const QList<PartOfCommand>& commands ) { _cmds = commands; };
     };
 
 

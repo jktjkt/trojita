@@ -24,13 +24,12 @@ int main( int argc, char** argv) {
     QTextStream Err( stderr );
 
     QAbstractSocket* sock = new QTcpSocket();
-    Imap::Commands::AbstractCommand* command = 0;
+    std::auto_ptr<Imap::Commands::AbstractCommand> command;
 
     Err << "*** Begin testing: ***" << endl << endl;
-
-#define DUMP0(X) Err << #X << ":" << endl; command = new Imap::Commands::X(); Err << *command << endl; delete command; command = 0;
-#define DUMP1(X,Y) Err << #X << "(" << #Y << "):" << endl; command = new Imap::Commands::X(#Y); Err << *command << endl; delete command; command = 0;
-#define DUMP2(X,Y,Z) Err << #X << "(" << #Y << ", " << #Z << "):" << endl; command = new Imap::Commands::X(#Y, #Z); Err << *command << endl; delete command; command = 0;
+#define DUMP0(X) Err << #X << ":" << endl; command.reset( new Imap::Commands::X() ); Err << *command << endl;
+#define DUMP1(X,Y) Err << #X << "(" << #Y << "):" << endl; command.reset( new Imap::Commands::X(#Y) ); Err << *command << endl;
+#define DUMP2(X,Y,Z) Err << #X << "(" << #Y << ", " << #Z << "):" << endl; command.reset( new Imap::Commands::X(#Y, #Z) ); Err << *command << endl;
 
     DUMP0(Capability);
     DUMP0(Noop);
@@ -56,12 +55,12 @@ int main( int argc, char** argv) {
     DUMP2(List, , );
     DUMP2(List, prefix, );
     DUMP2(LSub, , smrt);
-    Err << "Status" << "(some mailbox, (a b c) ):" << endl; command = new Imap::Commands::Status("some mailbox", QStringList("a") << "b" << "c"); Err << *command << endl; delete command; command = 0;
-    Err << "Status" << "(some mailbox, () ):" << endl; command = new Imap::Commands::Status("some mailbox", QStringList()); Err << *command << endl; delete command; command = 0;
-    Err << "Status" << "(some mailbox, (ahoj) ):" << endl; command = new Imap::Commands::Status("some mailbox", QStringList("ahoj")); Err << *command << endl; delete command; command = 0;
+    Err << "Status" << "(some mailbox, (a b c) ):" << endl; command.reset( new Imap::Commands::Status("some mailbox", QStringList("a") << "b" << "c") ); Err << *command << endl;
+    Err << "Status" << "(some mailbox, () ):" << endl; command.reset( new Imap::Commands::Status("some mailbox", QStringList())); Err << *command << endl;
+    Err << "Status" << "(some mailbox, (ahoj) ):" << endl; command.reset( new Imap::Commands::Status("some mailbox", QStringList("ahoj"))); Err << *command << endl;
 
     DUMP2(Append, some mailbox, some extra long message literal that is absolutely uninteresting here);
-    Err << "Append" << "(some mailbox, some message, (flagA flagB) ):" << endl; command = new Imap::Commands::Append(QString("some mailbox"), "some message", QStringList("flagA") << "flagB"); Err << *command << endl; delete command; command = 0;
+    Err << "Append" << "(some mailbox, some message, (flagA flagB) ):" << endl; command.reset( new Imap::Commands::Append(QString("some mailbox"), "some message", QStringList("flagA") << "flagB")); Err << *command << endl;
     // FIXME: test date
 
     DUMP0(UnSelect);

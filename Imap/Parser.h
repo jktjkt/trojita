@@ -17,7 +17,9 @@
 */
 #ifndef IMAP_PARSER_H
 #define IMAP_PARSER_H
+#include <memory>
 #include <QObject>
+#include <Imap/Command.h>
 
 /**
  * @file
@@ -35,6 +37,7 @@ namespace Imap {
 
     /** A handle for accessing command results, FIXME */
     class CommandHandle {};
+
     /** Flag as defined in RFC3501, section 2.3.2, FIXME */
     class Flag;
     /** Fetchable item as specified in RFC3501, section 6.4.5, FIXME */
@@ -65,40 +68,6 @@ public:
 
 public slots:
 #if 0
-    /** STARTTLS, RFC3501 sect 6.2.1 */
-    CommandHandle startTls();
-    /** AUTHENTICATE, RFC3501 sect 6.2.2 */
-    // FIXME: use some kind of authenticator factory?
-    CommandHandle authenticate( Authenticator* auth );
-
-    /** LOGIN, RFC3501 sect 6.2.3 */
-    CommandHandle login( const QString& username, const QString& password );
-
-    /** SELECT, RFC3501 sect 6.3.1 */
-    CommandHandle select( const QString& mailbox );
-    /** EXAMINE, RFC3501 sect 6.3.2 */
-    CommandHandle examine( const QString& mailbox );
-    /** CREATE, RFC3501 sect 6.3.3 */
-    CommandHandle create( const QString& mailbox );
-    /** DELETE, RFC3501 sect 6.3.4 */
-    CommandHandle deleteMailbox( const QString& mailbox );
-    /** RENAME, RFC3501 sect 6.3.5
-     *
-     * Takes oldName and newName to remove from -> to. */
-    CommandHandle rename( const QString& oldName, const QString& newName );
-    /** SUBSCRIBE, RFC3501 sect 6.3.6 */
-    CommandHandle subscribe( const QString& mailbox );
-    /** UNSUBSCRIBE, RFC3501 sect 6.3.7 */
-    CommandHandle unsubscribe( const QString& mailbox );
-    /** LIST, RFC3501 sect 6.3.8 */
-    CommandHandle list( const QString& reference, const QString& name );
-    /** LSUB, RFC3501 sect 6.3.9 */
-    CommandHandle lSub( const QString& reference, const QString& name );
-    /** STATUS, RFC3501 sect 6.3.10 */
-    CommandHandle status( const QString& mailbox, const QList<Item>& items );
-    /** APPEND, RFC3501 sect 6.3.11 */
-    CommandHandle append( const QString& mailbox, const Message& message, const QSet<Flag>& flags, const QDateTime& stamp );
-
     /** SEARCH, RFC3501 sect 6.4.4 */
     CommandHandle search( const QStringList& criteria, const QString& charset );
     /** FETCH, RFC3501 sect 6.4.5 */
@@ -112,9 +81,6 @@ public slots:
     /** UID command (SEARCH), RFC3501 sect 6.4.8 */
     CommandHandle uidSearch( const QStringList& criteria, const QString& charset );
 
-    /** X<atom>, RFC3501 sect 6.5.1 */
-    CommandHandle xAtom( const QString& command );
-
 
     /** SORT, draft-ietf-imapext-sort-19, section 3 */
     CommandHandle sort( /*const SortAlgorithm& algo,*/ const QString& charset, const QStringList& criteria );
@@ -124,11 +90,14 @@ public slots:
     CommandHandle thread( const ThreadAlgorithm& algo, const QString charset, const QStringList& criteria );
 #endif
 
+    /** Queue command for execution.*/
+    CommandHandle queueCommand( std::auto_ptr<Imap::Commands::AbstractCommand> command );
+
 signals:
-    void responseReceived( CommandHandle command, Response resp );
+    void responseReceived( Response resp );
 
 private:
-    // private copy constructors,...
+    // private copy constructor & assignment operator
     Parser( const Parser& );
     Parser& operator=( const Parser& );
 
