@@ -21,40 +21,59 @@
 #include "Imap/Command.h"
 
 int main( int argc, char** argv) {
-    QTextStream Err( stderr );
-
+    QTextStream Err(stderr);
     QAbstractSocket* sock = new QTcpSocket();
-    std::auto_ptr<Imap::Commands::AbstractCommand> command;
 
-    Err << "*** Begin testing: ***" << endl << endl;
-#define DUMP0(X) Err << #X << ":" << endl; command.reset( new Imap::Commands::X() ); Err << *command << endl;
-#define DUMP1(X,Y) Err << #X << "(" << #Y << "):" << endl; command.reset( new Imap::Commands::X(#Y) ); Err << *command << endl;
-#define DUMP2(X,Y,Z) Err << #X << "(" << #Y << ", " << #Z << "):" << endl; command.reset( new Imap::Commands::X(#Y, #Z) ); Err << *command << endl;
+    Imap::Parser parser( 0, sock );
 
-    DUMP0(Capability);
-    DUMP0(Noop);
-    DUMP0(Logout);
+    parser.capability();
+    parser.noop();
+    parser.logout();
 
-    Err << endl;
+    parser.startTls();
+    parser.authenticate();
+    parser.login("user", "password with spaces");
 
-    DUMP0(StartTls);
-    DUMP0(Authenticate);
-    DUMP2(Login, user, password);
+    parser.select("foo mailbox");
+    parser.examine("foo mailbox");
+    parser.create("foo mailbox");
+    parser.deleteMailbox("foo mailbox");
+    parser.rename("foo mailbox old", "bar mailbox new that is so loooooooooooooooooooooooong"
+            "that it doesn't fit on a single line, despite the fact that it is also veeeeery"
+            "loooooooooooong");
+    parser.subscribe("smrt '");
+    parser.unSubscribe("smrt '");
+    parser.list("", "");
+    parser.list("prefix", "");
+    parser.lSub("", "smrt");
+    parser.status( "gfooo", QStringList("bar") << "baz" );
+    parser.append( "mbox", "message");
+    parser.append( "mbox with\nLF", "message\nwhich is a bit longer", QStringList("flagA") << "flagB");
 
-    Err << endl;
+    parser.check();
+    parser.close();
+    parser.expunge();
+    try {
+        parser.search( QStringList() );
+        Err << "BAD, empty search shouldn't be allowed" << endl;
+    } catch ( const Imap::InvalidArgumentException& e ) {
+        Err << "[Good, empty searches caught]" << endl;
+    }
+    try {
+        parser.search( QStringList("foo") );
+        Err << "BAD, odd search criteria shouldn't be allowed" << endl;
+    } catch ( const Imap::InvalidArgumentException& e ) {
+        Err << "[Good, even search criteria caught]" << endl;
+    }
+    parser.search( QStringList("foo") << "bar", "utf-8" );
 
-    DUMP1(Select, foo mailbox);
-    DUMP1(Examine, foo mailbox);
-    DUMP1(Create, foo mailbox);
-    DUMP1(Delete, foo mailbox);
-    DUMP2(Rename, foo mailbox old, bar mailbox new that is so looooooooooooooooooooooooooong \
-            that it doesnt fit on this loooooooooooooooooooooooooooooooooooooooooooooooong \
-            line thats really loooooooooooooooooooooooooooooooooooooooooooooooooooooooong);
-    DUMP1(Subscribe, foo mailbox);
-    DUMP1(UnSubscribe, foo mailbox);
-    DUMP2(List, , );
-    DUMP2(List, prefix, );
-    DUMP2(LSub, , smrt);
+
+    parser.xAtom( Imap::Commands::Command() << "XBLURDYBLOOP" << "FOOBAR" << "baz bazbazbaz 333" );
+
+    parser.unSelect();
+    parser.idle();
+
+#if 0
     Err << "Status" << "(some mailbox, (a b c) ):" << endl; command.reset( new Imap::Commands::Status("some mailbox", QStringList("a") << "b" << "c") ); Err << *command << endl;
     Err << "Status" << "(some mailbox, () ):" << endl; command.reset( new Imap::Commands::Status("some mailbox", QStringList())); Err << *command << endl;
     Err << "Status" << "(some mailbox, (ahoj) ):" << endl; command.reset( new Imap::Commands::Status("some mailbox", QStringList("ahoj"))); Err << *command << endl;
@@ -68,6 +87,6 @@ int main( int argc, char** argv) {
     DUMP0(Idle);
 #undef DUMP0
 #undef DUMP1
+#endif
 
-    Imap::Parser parser( 0, sock );
 }
