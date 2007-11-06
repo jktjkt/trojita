@@ -73,20 +73,4 @@ int main( int argc, char** argv) {
     parser.unSelect();
     parser.idle();
 
-#if 0
-    Err << "Status" << "(some mailbox, (a b c) ):" << endl; command.reset( new Imap::Commands::Status("some mailbox", QStringList("a") << "b" << "c") ); Err << *command << endl;
-    Err << "Status" << "(some mailbox, () ):" << endl; command.reset( new Imap::Commands::Status("some mailbox", QStringList())); Err << *command << endl;
-    Err << "Status" << "(some mailbox, (ahoj) ):" << endl; command.reset( new Imap::Commands::Status("some mailbox", QStringList("ahoj"))); Err << *command << endl;
-
-    DUMP2(Append, some mailbox, some extra long message literal that is absolutely uninteresting here);
-    Err << "Append" << "(some mailbox, some message, (flagA flagB) ):" << endl; command.reset( new Imap::Commands::Append(QString("some mailbox"), "some message", QStringList("flagA") << "flagB")); Err << *command << endl;
-    // FIXME: test date
-
-    DUMP0(UnSelect);
-    DUMP0(Check);
-    DUMP0(Idle);
-#undef DUMP0
-#undef DUMP1
-#endif
-
 }
