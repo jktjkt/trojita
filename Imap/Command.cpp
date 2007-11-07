@@ -60,20 +60,21 @@ namespace Commands {
     {
         switch (part._kind) {
             case ATOM:
-                return stream << part._text;
+                stream << part._text;
             case QUOTED_STRING:
-                return stream << '"' << part._text << '"';
+                stream << '"' << part._text << '"';
             case LITERAL:
-                return stream << "{" << part._text.length() << "}" << endl << part._text;
+                stream << "{" << part._text.length() << "}" << endl << part._text;
             case SPECIAL:
                 if ( part._text == "STARTTLS" ) {
-                    return stream << "STARTTLS" << endl << "[Starting TLS...]";
+                    stream << "STARTTLS" << endl << "[Starting TLS...]";
                 } else if ( part._text == "IDLE" ) {
-                    return stream << "IDLE" << endl << "[Entering IDLE mode...]";
+                    stream << "IDLE" << endl << "[Entering IDLE mode...]";
                 } else {
-                    return stream << "[Unknown command '" << part._text << "']";
+                    stream << "[Unknown command '" << part._text << "']";
                 }
         }
+        return stream;
     }
 
 }

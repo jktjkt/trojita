@@ -18,6 +18,8 @@
 
 project(trojita)
 
+SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+
 find_package(Boost 1.34 REQUIRED)
 
 find_package(Qt4 REQUIRED)

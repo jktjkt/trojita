@@ -21,6 +21,7 @@ namespace Imap {
 
 QTextStream& Responses::operator<<( QTextStream& stream, const Responses::AbstractResponse& r )
 {
+    return stream;
 }
 
 }
