@@ -22,7 +22,7 @@
 
 int main( int argc, char** argv) {
     QTextStream Err(stderr);
-    QAbstractSocket* sock = new QTcpSocket();
+    std::auto_ptr<QAbstractSocket> sock( new QTcpSocket() );
 
     Imap::Parser parser( 0, sock );
 

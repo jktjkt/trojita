@@ -18,10 +18,12 @@
 #ifndef IMAP_PARSER_H
 #define IMAP_PARSER_H
 #include <deque>
+#include <memory>
 #include <QObject>
 #include <QMutex>
 #include <QThread>
 #include <QSemaphore>
+#include <QAbstractSocket>
 #include <Imap/Response.h>
 #include <Imap/Command.h>
 
@@ -32,7 +34,6 @@
  * @author Jan Kundrát <jkt@gentoo.org>
  */
 
-class QAbstractSocket;
 class QDateTime;
 template<class T> class QList;
 
@@ -99,7 +100,7 @@ class Parser : public QObject {
 
 public:
     /** Constructor. Takes an QAbstractSocket instance as a parameter. */
-    Parser( QObject* parent, QAbstractSocket * const socket );
+    Parser( QObject* parent, std::auto_ptr<QAbstractSocket> socket );
 
     /** Destructor */
     ~Parser();
@@ -245,7 +246,7 @@ private:
 
     
     /** Connection to the IMAP server */
-    QAbstractSocket* _socket;
+    std::auto_ptr<QAbstractSocket> _socket;
 
     /** Keeps track of the last-used command tag */
     unsigned int _lastTagUsed;
