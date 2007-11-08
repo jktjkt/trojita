@@ -66,11 +66,13 @@ namespace Commands {
     class Command {
         friend QTextStream& operator<<( QTextStream& stream, const Command& c );
         QList<PartOfCommand> _cmds;
+        QString _tag;
     public:
         Command& operator<<( const PartOfCommand& part ) { _cmds << part; return *this; };
         Command& operator<<( const QString& text ) { _cmds << PartOfCommand( text ); return *this; };
         Command() {};
         Command( const QString& name ) { _cmds << PartOfCommand( ATOM, name ); };
+        void addTag( const QString& tag ) { _tag = tag; };
     };
 
 

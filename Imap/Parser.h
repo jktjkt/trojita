@@ -17,7 +17,11 @@
 */
 #ifndef IMAP_PARSER_H
 #define IMAP_PARSER_H
+#include <deque>
 #include <QObject>
+#include <QMutex>
+#include <QThread>
+#include <QSemaphore>
 #include <Imap/Response.h>
 #include <Imap/Command.h>
 
@@ -34,9 +38,6 @@ template<class T> class QList;
 
 /** Namespace for IMAP interaction */
 namespace Imap {
-
-    /** A handle for accessing command results, FIXME */
-    class CommandHandle {};
 
     /** Flag as defined in RFC3501, section 2.3.2, FIXME */
     class Flag;
@@ -67,14 +68,33 @@ namespace Imap {
         virtual ~InvalidArgumentException() throw() {};
     };
 
+    /** A handle identifying a command sent to the server */
+    typedef QString CommandHandle;
+
+
+    class Parser; // will be defined later
+
+    /** Helper thread for Parser that deals with actual I/O */
+    class WorkerThread : public QThread {
+        Q_OBJECT
+        virtual void run();
+        Parser* _parser;
+    public:
+        WorkerThread( Parser * const parser ) : _parser( parser ) {};
+    };
 
 /** Class that does all IMAP parsing */
 class Parser : public QObject {
     Q_OBJECT
 
+    friend class WorkerThread;
+
 public:
     /** Constructor. Takes an QAbstractSocket instance as a parameter. */
     Parser( QObject* parent, QAbstractSocket * const socket );
+
+    /** Destructor */
+    ~Parser();
 
 public slots:
 
@@ -194,7 +214,7 @@ private:
     Parser& operator=( const Parser& );
 
     /** Queue command for execution.*/
-    CommandHandle queueCommand( const Commands::Command& command );
+    CommandHandle queueCommand( Commands::Command command );
 
     /** Shortcut function; works exactly same as above mentioned queueCommand() */
     CommandHandle queueCommand( const Commands::TokenType kind, const QString& text ) {
@@ -204,8 +224,43 @@ private:
     /** Helper for search() and uidSearch() */
     CommandHandle _searchHelper( const QString& command, const QStringList& criteria, const QString& charset = QString::null );
 
+    /** Generate tag for next command */
+    QString generateTag();
 
+    /** Wait for a command continuation request being sent by the server */
+    void waitForContinuationRequest();
+
+    /** Execute first queued command, ie. send it to the server */
+    bool executeIfPossible();
+    /** Execute passed command right now */
+    bool executeACommand( const Commands::Command& cmd );
+
+    
+    /** Connection to the IMAP server */
     QAbstractSocket* _socket;
+
+    /** Keeps track of the last-used command tag */
+    unsigned int _lastTagUsed;
+
+
+    /** Mutex for synchronizing access to the _queue */
+    QMutex _queueMutex;
+
+    /** Queue storing commands that are about to be executed */
+    std::deque<Commands::Command> _queue;
+
+    /** Worker thread instance */
+    WorkerThread _workerThread;
+
+    /** Used for throttling worker thread's activity */
+    QSemaphore _workerSemaphore;
+
+    /** Ask worker thread to stop ASAP */
+    bool _workerStop;
+
+    /** Mutex guarding _workerStop */
+    QMutex _workerStopMutex;
+
 };
 
 }

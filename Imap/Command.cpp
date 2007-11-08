@@ -24,11 +24,9 @@ namespace Commands {
 
     QTextStream& operator<<( QTextStream& stream, const Command& cmd )
     {
-        bool doSpace = false;
-        for (QList<PartOfCommand>::const_iterator it = cmd._cmds.begin(); it != cmd._cmds.end(); ++it, doSpace = true ) {
-            if (doSpace)
-                stream << " ";
-            stream << *it;
+        stream << cmd._tag;
+        for (QList<PartOfCommand>::const_iterator it = cmd._cmds.begin(); it != cmd._cmds.end(); ++it ) {
+            stream << " " << *it;
         }
         return stream << endl;
     }
@@ -61,10 +59,13 @@ namespace Commands {
         switch (part._kind) {
             case ATOM:
                 stream << part._text;
+                break;
             case QUOTED_STRING:
                 stream << '"' << part._text << '"';
+                break;
             case LITERAL:
                 stream << "{" << part._text.length() << "}" << endl << part._text;
+                break;
             case SPECIAL:
                 if ( part._text == "STARTTLS" ) {
                     stream << "STARTTLS" << endl << "[Starting TLS...]";

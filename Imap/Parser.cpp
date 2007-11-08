@@ -16,6 +16,7 @@
    Boston, MA 02110-1301, USA.
 */
 #include <QStringList>
+#include <QMutexLocker>
 #include "Parser.h"
 
 /*
@@ -41,12 +42,33 @@
  *
  *
  *
+ * How it works under the hood:
+ *
+ * - When there are any data available on the net, process them ASAP
+ * - When user queues a command, process it ASAP
+ * - You can't block the caller of the queueCommand()
+ *
+ * So, how to implement this?
+ *
+ * - Whenever something interesting happens (data/command/exit
+ *   requested/available), we ask the worker thread to do something
+ *
  * */
 
 namespace Imap {
 
-Parser::Parser( QObject* parent, QAbstractSocket * const socket ): QObject(parent), _socket(socket)
+Parser::Parser( QObject* parent, QAbstractSocket * const socket ): QObject(parent), _socket(socket), _lastTagUsed(0), _workerThread( this ), _workerStop( false )
 {
+    _workerThread.start();
+}
+
+Parser::~Parser()
+{
+    _workerStopMutex.lock();
+    _workerStop = true;
+    _workerStopMutex.unlock();
+    _workerSemaphore.release();
+    _workerThread.wait();
 }
 
 CommandHandle Parser::noop()
@@ -219,12 +241,50 @@ CommandHandle Parser::idle()
     return queueCommand( Commands::SPECIAL, "IDLE" );
 }
 
-CommandHandle Parser::queueCommand( const Commands::Command& command )
+CommandHandle Parser::queueCommand( Commands::Command command )
+{
+    QMutexLocker locker( &_queueMutex );
+    QString tag = generateTag();
+    command.addTag( tag );
+    _queue.push_back( command );
+    _workerSemaphore.release();
+    return tag;
+}
+
+QString Parser::generateTag()
+{
+    return QString( "y%1" ).arg( _lastTagUsed++ );
+}
+
+bool Parser::executeIfPossible()
+{
+    QMutexLocker locker( &_queueMutex );
+    if ( !_queue.empty() ) {
+        Commands::Command cmd = _queue.front();
+        _queue.pop_front();
+        return executeACommand( cmd );
+    } else
+        return false;
+}
+
+bool Parser::executeACommand( const Commands::Command& cmd )
 {
     // FIXME :)
-    QTextStream Err( stderr );
-    Err << command;
-    return CommandHandle();
+    QTextStream Err(stderr);
+    Err << cmd;
+    Err.flush();
+    return true;
+}
+
+void WorkerThread::run()
+{
+    _parser->_workerStopMutex.lock();
+    while ( ! _parser->_workerStop ) {
+        _parser->_workerStopMutex.unlock();
+        _parser->_workerSemaphore.acquire();
+        _parser->executeIfPossible();
+        _parser->_workerStopMutex.lock();
+    }
 }
 
 }
