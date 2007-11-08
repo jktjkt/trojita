@@ -21,7 +21,7 @@
 
 /**
  * @file
- * Commaon IMAP-related exceptions
+ * Common IMAP-related exceptions
  *
  * @author Jan Kundrát <jkt@gentoo.org>
  */
