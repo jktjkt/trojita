@@ -18,7 +18,8 @@
 
 project(trojita)
 
-SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fno-common")
+#SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weffc++")
 
 find_package(Boost 1.34 REQUIRED)
 

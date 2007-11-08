@@ -71,14 +71,22 @@ namespace Imap {
     /** A handle identifying a command sent to the server */
     typedef QString CommandHandle;
 
-
     class Parser; // will be defined later
 
     /** Helper thread for Parser that deals with actual I/O */
     class WorkerThread : public QThread {
         Q_OBJECT
+
         virtual void run();
+
+        /** Prevent copying */
+        WorkerThread( const WorkerThread& );
+        /** Prevent copying */
+        WorkerThread& operator=( const WorkerThread& );
+
+        /** Reference to our parser */
         Parser* _parser;
+
     public:
         WorkerThread( Parser * const parser ) : _parser( parser ) {};
     };
