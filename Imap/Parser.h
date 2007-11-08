@@ -104,196 +104,196 @@ namespace Imap {
         WorkerThread( Parser * const parser ) : _parser( parser ) {};
     };
 
-/** Class that does all IMAP parsing */
-class Parser : public QObject {
-    Q_OBJECT
+    /** Class that does all IMAP parsing */
+    class Parser : public QObject {
+        Q_OBJECT
 
-    friend class WorkerThread;
+        friend class WorkerThread;
 
-public:
-    /** Constructor. Takes an QAbstractSocket instance as a parameter. */
-    Parser( QObject* parent, std::auto_ptr<QAbstractSocket> socket );
+    public:
+        /** Constructor. Takes an QAbstractSocket instance as a parameter. */
+        Parser( QObject* parent, std::auto_ptr<QAbstractSocket> socket );
 
-    /** Destructor */
-    ~Parser();
+        /** Destructor */
+        ~Parser();
 
-public slots:
+    public slots:
 
-    /** CAPABILITY, RFC 3501 section 6.1.1 */
-    CommandHandle capability();
+        /** CAPABILITY, RFC 3501 section 6.1.1 */
+        CommandHandle capability();
 
-    /** NOOP, RFC 3501 section 6.1.2 */
-    CommandHandle noop();
+        /** NOOP, RFC 3501 section 6.1.2 */
+        CommandHandle noop();
 
-    /** LOGOUT, RFC3501 section 6.1.3 */
-    CommandHandle logout();
-
-
-    /** STARTTLS, RFC3051 section 6.2.1 */
-    CommandHandle startTls();
-
-    /** AUTHENTICATE, RFC3501 section 6.2.2 */
-    CommandHandle authenticate( /* FIXME: parameter */ );
-
-    /** LOGIN, RFC3501 section 6.2.3 */
-    CommandHandle login( const QString& user, const QString& pass );
+        /** LOGOUT, RFC3501 section 6.1.3 */
+        CommandHandle logout();
 
 
-    /** SELECT, RFC3501 section 6.3.1 */
-    CommandHandle select( const QString& mailbox );
+        /** STARTTLS, RFC3051 section 6.2.1 */
+        CommandHandle startTls();
 
-    /** EXAMINE, RFC3501 section 6.3.2 */
-    CommandHandle examine( const QString& mailbox );
+        /** AUTHENTICATE, RFC3501 section 6.2.2 */
+        CommandHandle authenticate( /* FIXME: parameter */ );
 
-    /** CREATE, RFC3501 section 6.3.3 */
-    CommandHandle create( const QString& mailbox );
-
-    /** DELETE, RFC3501 section 6.3.4 */
-    CommandHandle deleteMailbox( const QString& mailbox );
-
-    /** RENAME, RFC3501 section 6.3.5 */
-    CommandHandle rename( const QString& oldName, const QString& newName );
-
-    /** SUBSCRIBE, RFC3501 section 6.3.6 */
-    CommandHandle subscribe( const QString& mailbox );
-    
-    /** UNSUBSCRIBE, RFC3501 section 6.3.7 */
-    CommandHandle unSubscribe( const QString& mailbox );
-
-    /** LIST, RFC3501 section 6.3.8 */
-    CommandHandle list( const QString& reference, const QString& mailbox );
-    
-    /** LSUB, RFC3501 section 6.3.9 */
-    CommandHandle lSub( const QString& reference, const QString& mailbox );
-
-    /** STATUS, RFC3501 section 6.3.10 */
-    CommandHandle status( const QString& mailbox, const QStringList& fields );
-    
-    /** APPEND, RFC3501 section 6.3.11 */
-    CommandHandle append( const QString& mailbox, const QString& message, const QStringList& flags = QStringList(), const QDateTime& timestamp = QDateTime() );
+        /** LOGIN, RFC3501 section 6.2.3 */
+        CommandHandle login( const QString& user, const QString& pass );
 
 
-    /** CHECK, RFC3501 sect 6.4.1 */
-    CommandHandle check();
+        /** SELECT, RFC3501 section 6.3.1 */
+        CommandHandle select( const QString& mailbox );
 
-    /** CLOSE, RFC3501 sect 6.4.2 */
-    CommandHandle close();
-    
-    /** EXPUNGE, RFC3501 sect 6.4.3 */
-    CommandHandle expunge();
+        /** EXAMINE, RFC3501 section 6.3.2 */
+        CommandHandle examine( const QString& mailbox );
 
-    /** SEARCH, RFC3501 sect 6.4.4 */
-    CommandHandle search( const QStringList& criteria, const QString& charset = QString::null ) {
-        return _searchHelper( "SEARCH", criteria, charset );
-    };
+        /** CREATE, RFC3501 section 6.3.3 */
+        CommandHandle create( const QString& mailbox );
 
-    /** FETCH, RFC3501 sect 6.4.5 */
-    CommandHandle fetch( const Sequence& seq, const QStringList& items );
+        /** DELETE, RFC3501 section 6.3.4 */
+        CommandHandle deleteMailbox( const QString& mailbox );
 
-    /** STORE, RFC3501 sect 6.4.6 */
-    CommandHandle store( const Sequence& seq, const QString& item, const QString& value );
+        /** RENAME, RFC3501 section 6.3.5 */
+        CommandHandle rename( const QString& oldName, const QString& newName );
 
-    /** COPY, RFC3501 sect 6.4.7 */
-    CommandHandle copy( const Sequence& seq, const QString& mailbox );
+        /** SUBSCRIBE, RFC3501 section 6.3.6 */
+        CommandHandle subscribe( const QString& mailbox );
+        
+        /** UNSUBSCRIBE, RFC3501 section 6.3.7 */
+        CommandHandle unSubscribe( const QString& mailbox );
 
-    /** UID command (FETCH), RFC3501 sect 6.4.8 */
-    CommandHandle uidFetch( const Sequence& seq, const QStringList& items );
+        /** LIST, RFC3501 section 6.3.8 */
+        CommandHandle list( const QString& reference, const QString& mailbox );
+        
+        /** LSUB, RFC3501 section 6.3.9 */
+        CommandHandle lSub( const QString& reference, const QString& mailbox );
 
-    /** UID command (SEARCH), RFC3501 sect 6.4.8 */
-    CommandHandle uidSearch( const QStringList& criteria, const QString& charset ) {
-        return _searchHelper( "UID SEARCH", criteria, charset );
-    };
-
-
-    /** X<atom>, RFC3501 sect 6.5.1 */
-    CommandHandle xAtom( const Commands::Command& commands );
+        /** STATUS, RFC3501 section 6.3.10 */
+        CommandHandle status( const QString& mailbox, const QStringList& fields );
+        
+        /** APPEND, RFC3501 section 6.3.11 */
+        CommandHandle append( const QString& mailbox, const QString& message, const QStringList& flags = QStringList(), const QDateTime& timestamp = QDateTime() );
 
 
-    /** UNSELECT, RFC3691 */
-    CommandHandle unSelect();
-    
-    /** IDLE, RFC2177 */
-    CommandHandle idle();
+        /** CHECK, RFC3501 sect 6.4.1 */
+        CommandHandle check();
+
+        /** CLOSE, RFC3501 sect 6.4.2 */
+        CommandHandle close();
+        
+        /** EXPUNGE, RFC3501 sect 6.4.3 */
+        CommandHandle expunge();
+
+        /** SEARCH, RFC3501 sect 6.4.4 */
+        CommandHandle search( const QStringList& criteria, const QString& charset = QString::null ) {
+            return _searchHelper( "SEARCH", criteria, charset );
+        };
+
+        /** FETCH, RFC3501 sect 6.4.5 */
+        CommandHandle fetch( const Sequence& seq, const QStringList& items );
+
+        /** STORE, RFC3501 sect 6.4.6 */
+        CommandHandle store( const Sequence& seq, const QString& item, const QString& value );
+
+        /** COPY, RFC3501 sect 6.4.7 */
+        CommandHandle copy( const Sequence& seq, const QString& mailbox );
+
+        /** UID command (FETCH), RFC3501 sect 6.4.8 */
+        CommandHandle uidFetch( const Sequence& seq, const QStringList& items );
+
+        /** UID command (SEARCH), RFC3501 sect 6.4.8 */
+        CommandHandle uidSearch( const QStringList& criteria, const QString& charset ) {
+            return _searchHelper( "UID SEARCH", criteria, charset );
+        };
+
+
+        /** X<atom>, RFC3501 sect 6.5.1 */
+        CommandHandle xAtom( const Commands::Command& commands );
+
+
+        /** UNSELECT, RFC3691 */
+        CommandHandle unSelect();
+        
+        /** IDLE, RFC2177 */
+        CommandHandle idle();
 
 
 #if 0
-    /** SORT, draft-ietf-imapext-sort-19, section 3 */
-    CommandHandle sort( /*const SortAlgorithm& algo,*/ const QString& charset, const QStringList& criteria );
-    /** UID SORT, draft-ietf-imapext-sort-19, section 3 */
-    CommandHandle uidSort( /*const SortAlgorithm& algo,*/ const QString charset, const QStringList& criteria );
-    /** THREAD, draft-ietf-imapext-sort-19, section 3 */
-    CommandHandle thread( const ThreadAlgorithm& algo, const QString charset, const QStringList& criteria );
+        /** SORT, draft-ietf-imapext-sort-19, section 3 */
+        CommandHandle sort( /*const SortAlgorithm& algo,*/ const QString& charset, const QStringList& criteria );
+        /** UID SORT, draft-ietf-imapext-sort-19, section 3 */
+        CommandHandle uidSort( /*const SortAlgorithm& algo,*/ const QString charset, const QStringList& criteria );
+        /** THREAD, draft-ietf-imapext-sort-19, section 3 */
+        CommandHandle thread( const ThreadAlgorithm& algo, const QString charset, const QStringList& criteria );
 #endif
 
-private slots:
+    private slots:
 
-    /** Socket told us that we can read data */
-    void socketReadyRead();
+        /** Socket told us that we can read data */
+        void socketReadyRead();
 
-    /** Socket got disconnected */
-    void socketDisconected();
+        /** Socket got disconnected */
+        void socketDisconected();
 
-signals:
-    /** Socket got disconnected */
-    void disconnected();
+    signals:
+        /** Socket got disconnected */
+        void disconnected();
 
-    //void responseReceived( std::tr1::shared_ptr<Responses::AbstractResponse> resp );
+        //void responseReceived( std::tr1::shared_ptr<Responses::AbstractResponse> resp );
 
-private:
-    /** Private copy constructor */
-    Parser( const Parser& );
-    /** Private assignment operator */
-    Parser& operator=( const Parser& );
+    private:
+        /** Private copy constructor */
+        Parser( const Parser& );
+        /** Private assignment operator */
+        Parser& operator=( const Parser& );
 
-    /** Queue command for execution.*/
-    CommandHandle queueCommand( Commands::Command command );
+        /** Queue command for execution.*/
+        CommandHandle queueCommand( Commands::Command command );
 
-    /** Shortcut function; works exactly same as above mentioned queueCommand() */
-    CommandHandle queueCommand( const Commands::TokenType kind, const QString& text ) {
-        return queueCommand( Commands::Command() << Commands::PartOfCommand( kind, text ) );
+        /** Shortcut function; works exactly same as above mentioned queueCommand() */
+        CommandHandle queueCommand( const Commands::TokenType kind, const QString& text ) {
+            return queueCommand( Commands::Command() << Commands::PartOfCommand( kind, text ) );
+        };
+
+        /** Helper for search() and uidSearch() */
+        CommandHandle _searchHelper( const QString& command, const QStringList& criteria, const QString& charset = QString::null );
+
+        /** Generate tag for next command */
+        QString generateTag();
+
+        /** Wait for a command continuation request being sent by the server */
+        void waitForContinuationRequest();
+
+        /** Execute first queued command, ie. send it to the server */
+        bool executeIfPossible();
+        /** Execute passed command right now */
+        bool executeACommand( const Commands::Command& cmd );
+
+        
+        /** Connection to the IMAP server */
+        std::auto_ptr<QAbstractSocket> _socket;
+
+        /** Keeps track of the last-used command tag */
+        unsigned int _lastTagUsed;
+
+
+        /** Mutex for synchronizing access to the _queue */
+        QMutex _queueMutex;
+
+        /** Queue storing commands that are about to be executed */
+        std::deque<Commands::Command> _queue;
+
+        /** Worker thread instance */
+        WorkerThread _workerThread;
+
+        /** Used for throttling worker thread's activity */
+        QSemaphore _workerSemaphore;
+
+        /** Ask worker thread to stop ASAP */
+        bool _workerStop;
+
+        /** Mutex guarding _workerStop */
+        QMutex _workerStopMutex;
+
     };
-
-    /** Helper for search() and uidSearch() */
-    CommandHandle _searchHelper( const QString& command, const QStringList& criteria, const QString& charset = QString::null );
-
-    /** Generate tag for next command */
-    QString generateTag();
-
-    /** Wait for a command continuation request being sent by the server */
-    void waitForContinuationRequest();
-
-    /** Execute first queued command, ie. send it to the server */
-    bool executeIfPossible();
-    /** Execute passed command right now */
-    bool executeACommand( const Commands::Command& cmd );
-
-    
-    /** Connection to the IMAP server */
-    std::auto_ptr<QAbstractSocket> _socket;
-
-    /** Keeps track of the last-used command tag */
-    unsigned int _lastTagUsed;
-
-
-    /** Mutex for synchronizing access to the _queue */
-    QMutex _queueMutex;
-
-    /** Queue storing commands that are about to be executed */
-    std::deque<Commands::Command> _queue;
-
-    /** Worker thread instance */
-    WorkerThread _workerThread;
-
-    /** Used for throttling worker thread's activity */
-    QSemaphore _workerSemaphore;
-
-    /** Ask worker thread to stop ASAP */
-    bool _workerStop;
-
-    /** Mutex guarding _workerStop */
-    QMutex _workerStopMutex;
-
-};
 
 }
 #endif /* IMAP_PARSER_H */
