@@ -26,6 +26,7 @@
 #include <QAbstractSocket>
 #include <Imap/Response.h>
 #include <Imap/Command.h>
+#include <Imap/Exceptions.h>
 
 /**
  * @file
@@ -57,28 +58,6 @@ namespace Imap {
     public:
         /** Converts sequence to string suitable for sending over the wire */
         QString toString() const {return "";};
-    };
-
-    /** General exception class */
-    class Exception : public std::exception {
-        /** The error message */
-        std::string _msg;
-    public:
-        Exception( const std::string& msg ) : _msg( msg ) {};
-        virtual const char* what() const throw() { return _msg.c_str(); };
-        virtual ~Exception() throw() {};
-    };
-
-    /** Invalid argument was passed to some function */
-    class InvalidArgumentException: public Exception {
-    public:
-        InvalidArgumentException( const std::string& msg ) : Exception( msg ) {};
-    };
-
-    /** Socket error */
-    class SocketException : public Exception {
-    public:
-        SocketException( const std::string& msg ) : Exception( msg ) {};
     };
 
     /** A handle identifying a command sent to the server */
