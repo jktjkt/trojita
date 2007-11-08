@@ -17,6 +17,7 @@
 */
 #ifndef IMAP_EXCEPTIONS_H
 #define IMAP_EXCEPTIONS_H
+#include <exception>
 
 /**
  * @file
