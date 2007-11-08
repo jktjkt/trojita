@@ -59,6 +59,7 @@ namespace Imap {
 
 Parser::Parser( QObject* parent, std::auto_ptr<QAbstractSocket> socket ): QObject(parent), _socket(socket), _lastTagUsed(0), _workerThread( this ), _workerStop( false )
 {
+    Q_ASSERT( _socket->state() == QAbstractSocket::ConnectedState );
     _workerThread.start();
 }
 
@@ -274,6 +275,16 @@ bool Parser::executeACommand( const Commands::Command& cmd )
     Err << cmd;
     Err.flush();
     return true;
+}
+
+void Parser::socketReadyRead()
+{
+    _workerSemaphore.release();
+}
+
+void Parser::socketDisconected()
+{
+    //FIXME
 }
 
 void WorkerThread::run()

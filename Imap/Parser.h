@@ -59,14 +59,26 @@ namespace Imap {
         QString toString() const {return "";};
     };
 
-    /** Invalid argument was passed to some function */
-    class InvalidArgumentException: public std::exception {
+    /** General exception class */
+    class Exception : public std::exception {
         /** The error message */
         std::string _msg;
     public:
-        InvalidArgumentException( const std::string& msg ) : _msg( msg ) {};
+        Exception( const std::string& msg ) : _msg( msg ) {};
         virtual const char* what() const throw() { return _msg.c_str(); };
-        virtual ~InvalidArgumentException() throw() {};
+        virtual ~Exception() throw() {};
+    };
+
+    /** Invalid argument was passed to some function */
+    class InvalidArgumentException: public Exception {
+    public:
+        InvalidArgumentException( const std::string& msg ) : Exception( msg ) {};
+    };
+
+    /** Socket error */
+    class SocketException : public Exception {
+    public:
+        SocketException( const std::string& msg ) : Exception( msg ) {};
     };
 
     /** A handle identifying a command sent to the server */
@@ -203,8 +215,8 @@ public slots:
     /** IDLE, RFC2177 */
     CommandHandle idle();
 
-#if 0
 
+#if 0
     /** SORT, draft-ietf-imapext-sort-19, section 3 */
     CommandHandle sort( /*const SortAlgorithm& algo,*/ const QString& charset, const QStringList& criteria );
     /** UID SORT, draft-ietf-imapext-sort-19, section 3 */
@@ -213,8 +225,19 @@ public slots:
     CommandHandle thread( const ThreadAlgorithm& algo, const QString charset, const QStringList& criteria );
 #endif
 
-/*signals:
-    void responseReceived( std::tr1::shared_ptr<Responses::AbstractResponse> resp );*/
+private slots:
+
+    /** Socket told us that we can read data */
+    void socketReadyRead();
+
+    /** Socket got disconnected */
+    void socketDisconected();
+
+signals:
+    /** Socket got disconnected */
+    void disconnected();
+
+    //void responseReceived( std::tr1::shared_ptr<Responses::AbstractResponse> resp );
 
 private:
     /** Private copy constructor */
