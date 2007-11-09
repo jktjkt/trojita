@@ -23,7 +23,7 @@
 #include <QMutex>
 #include <QThread>
 #include <QSemaphore>
-#include <QAbstractSocket>
+#include <QIODevice>
 #include <Imap/Response.h>
 #include <Imap/Command.h>
 #include <Imap/Exceptions.h>
@@ -90,8 +90,8 @@ namespace Imap {
         friend class WorkerThread;
 
     public:
-        /** Constructor. Takes an QAbstractSocket instance as a parameter. */
-        Parser( QObject* parent, std::auto_ptr<QAbstractSocket> socket );
+        /** Constructor. Takes an QIODevice instance as a parameter. */
+        Parser( QObject* parent, std::auto_ptr<QIODevice> socket );
 
         /** Destructor */
         ~Parser();
@@ -246,9 +246,12 @@ namespace Imap {
         /** Execute passed command right now */
         bool executeACommand( const Commands::Command& cmd );
 
+        /** Process a line from IMAP server */
+        void processLine();
+
         
         /** Connection to the IMAP server */
-        std::auto_ptr<QAbstractSocket> _socket;
+        std::auto_ptr<QIODevice> _socket;
 
         /** Keeps track of the last-used command tag */
         unsigned int _lastTagUsed;

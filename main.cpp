@@ -15,14 +15,21 @@
    the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#include <QTcpSocket>
 #include <QStringList>
+#include <QProcess>
+#include <QCoreApplication>
+#include <QTimer>
 #include "Imap/Parser.h"
 #include "Imap/Command.h"
+#include <unistd.h>
 
 int main( int argc, char** argv) {
+    QCoreApplication app( argc, argv );
     QTextStream Err(stderr);
-    std::auto_ptr<QAbstractSocket> sock( new QTcpSocket() );
+    std::auto_ptr<QIODevice> sock( new QProcess() );
+    //static_cast<QProcess*>( sock.get() )->start( "dovecot", QStringList() << "--exec-mail" << "imap" );
+    static_cast<QProcess*>( sock.get() )->start( "/home/jkt/work/prog/trojita/trunk/wrapper.sh" );
+    static_cast<QProcess*>( sock.get() )->waitForStarted();
 
     Imap::Parser parser( 0, sock );
 
@@ -73,4 +80,6 @@ int main( int argc, char** argv) {
     parser.unSelect();
     parser.idle();
 
+    QTimer::singleShot( 1500, &app, SLOT(quit()) );
+    app.exec();
 }

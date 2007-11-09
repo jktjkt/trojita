@@ -24,6 +24,9 @@
 /** Namespace for IMAP interaction */
 namespace Imap {
 
+// Forward required for friend declaration
+class Parser;
+
 /** Namespace holding all supported IMAP commands and variosu helpers */
 namespace Commands {
 
@@ -53,6 +56,7 @@ namespace Commands {
         QString _text; /**< Actual text to send */
 
         friend QTextStream& operator<<( QTextStream& stream, const PartOfCommand& c );
+        friend class ::Imap::Parser;
 
     public:
         /** Default constructor */
@@ -65,6 +69,7 @@ namespace Commands {
     /** Abstract class for specifying what command to execute */
     class Command {
         friend QTextStream& operator<<( QTextStream& stream, const Command& c );
+        friend class ::Imap::Parser;
         QList<PartOfCommand> _cmds;
         QString _tag;
     public:

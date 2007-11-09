@@ -17,6 +17,7 @@
 */
 #include <QStringList>
 #include <QMutexLocker>
+#include <QProcess>
 #include "Parser.h"
 
 /*
@@ -57,10 +58,10 @@
 
 namespace Imap {
 
-Parser::Parser( QObject* parent, std::auto_ptr<QAbstractSocket> socket ): QObject(parent), _socket(socket), _lastTagUsed(0), _workerThread( this ), _workerStop( false )
+Parser::Parser( QObject* parent, std::auto_ptr<QIODevice> socket ): QObject(parent), _socket(socket), _lastTagUsed(0), _workerThread( this ), _workerStop( false )
 {
-    Q_ASSERT( _socket->state() == QAbstractSocket::ConnectedState );
     _workerThread.start();
+    connect( _socket.get(), SIGNAL( readyRead() ), this, SLOT( socketReadyRead() ) );
 }
 
 Parser::~Parser()
@@ -70,6 +71,12 @@ Parser::~Parser()
     _workerStopMutex.unlock();
     _workerSemaphore.release();
     _workerThread.wait();
+
+    if ( QProcess* proc = dynamic_cast<QProcess*>( _socket.get() ) ) {
+        proc->terminate();
+        proc->waitForFinished(200);
+        proc->kill();
+    }
 }
 
 CommandHandle Parser::noop()
@@ -270,21 +277,37 @@ bool Parser::executeIfPossible()
 
 bool Parser::executeACommand( const Commands::Command& cmd )
 {
-    // FIXME :)
+    QByteArray buf;
+    buf.append( cmd._tag ).append( ' ' );
+    buf.append( "\r\n" );
+    _socket->write( buf );
+
     QTextStream Err(stderr);
-    Err << cmd;
+    Err << "sending following data: " << buf;
+    //Err << cmd;
     Err.flush();
+
     return true;
 }
 
 void Parser::socketReadyRead()
 {
+    QTextStream Err(stderr);
+    Err << "********** socketReadyRead() ***********" << endl;
     _workerSemaphore.release();
 }
 
 void Parser::socketDisconected()
 {
     //FIXME
+}
+
+void Parser::processLine()
+{
+    QTextStream Err(stderr);
+    Err << "canReadLine(): " << _socket->canReadLine() << endl;
+    QByteArray line = _socket->readLine();
+    Err << "line: " << line << endl;
 }
 
 void WorkerThread::run()
@@ -294,6 +317,12 @@ void WorkerThread::run()
         _parser->_workerStopMutex.unlock();
         _parser->_workerSemaphore.acquire();
         _parser->executeIfPossible();
+        if ( _parser->_socket->canReadLine() )
+            _parser->processLine();
+        else {
+            QTextStream Err(stderr);
+            Err << "No data from server: " << _parser->_socket->bytesAvailable() << endl;
+        }
         _parser->_workerStopMutex.lock();
     }
 }
