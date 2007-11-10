@@ -317,12 +317,8 @@ void WorkerThread::run()
         _parser->_workerStopMutex.unlock();
         _parser->_workerSemaphore.acquire();
         _parser->executeIfPossible();
-        if ( _parser->_socket->canReadLine() )
+        while ( _parser->_socket->canReadLine() )
             _parser->processLine();
-        else {
-            QTextStream Err(stderr);
-            Err << "No data from server: " << _parser->_socket->bytesAvailable() << endl;
-        }
         _parser->_workerStopMutex.lock();
     }
 }
