@@ -20,6 +20,8 @@
 #include <QProcess>
 #include "Parser.h"
 
+#include <QtDebug>
+
 /*
  * Parser interface considerations:
  *
@@ -278,22 +280,49 @@ bool Parser::executeIfPossible()
 bool Parser::executeACommand( const Commands::Command& cmd )
 {
     QByteArray buf;
-    buf.append( cmd._tag ).append( ' ' );
+    buf.append( cmd._tag );
+    for ( QList<Commands::PartOfCommand>::const_iterator it = cmd._cmds.begin(); it != cmd._cmds.end(); ++it ) {
+        buf.append( ' ' );
+        switch( (*it)._kind ) {
+            case Commands::ATOM:
+                buf.append( (*it)._text );
+                break;
+            case Commands::QUOTED_STRING:
+                buf.append( '"' );
+                buf.append( (*it)._text );
+                buf.append( '"' );
+                break;
+            case Commands::LITERAL:
+                if ( true ) { // FIXME: only if LITERAL+ is enabled
+                    buf.append( '{' );
+                    buf.append( QByteArray::number( (*it)._text.size() ) );
+                    buf.append( "}\r\n" );
+                    buf.append( (*it)._text );
+                }
+                break;
+            case Commands::SPECIAL:
+                {
+                    const QString& identifier = (*it)._text;
+                    if ( identifier == "STARTTLS" ) {
+                        buf.append( "STARTTLS\r\n" );
+                        // FIXME: real stuff here
+                        _socket->write( buf );
+                        return true;
+                    }
+                    // FIXME: other cases...
+                }
+                break;
+        }
+    }
     buf.append( "\r\n" );
+    qDebug() << buf;
     _socket->write( buf );
-
-    QTextStream Err(stderr);
-    Err << "sending following data: " << buf;
-    //Err << cmd;
-    Err.flush();
 
     return true;
 }
 
 void Parser::socketReadyRead()
 {
-    QTextStream Err(stderr);
-    Err << "********** socketReadyRead() ***********" << endl;
     _workerSemaphore.release();
 }
 
@@ -304,10 +333,24 @@ void Parser::socketDisconected()
 
 void Parser::processLine()
 {
-    QTextStream Err(stderr);
-    Err << "canReadLine(): " << _socket->canReadLine() << endl;
-    QByteArray line = _socket->readLine();
-    Err << "line: " << line << endl;
+    QList<QByteArray> line = _socket->readLine().split( ' ' );
+
+    if ( line[0] == "*" ) {
+        parseUntagged( line );
+    } else if ( line[0] == "+" ) {
+        // Command Continuation Request which really shouldn't happen here
+        // FIXME :]
+    } else {
+        parseTagged( line );
+    }
+}
+
+void Parser::parseUntagged( const QList<QByteArray>& line )
+{
+}
+
+void Parser::parseTagged( const QList<QByteArray>& line )
+{
 }
 
 void WorkerThread::run()

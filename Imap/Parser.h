@@ -249,6 +249,12 @@ namespace Imap {
         /** Process a line from IMAP server */
         void processLine();
 
+        /** Parse line for untagged reply */
+        void parseUntagged( const QList<QByteArray>& line );
+
+        /** Parse line for tagged reply */
+        void parseTagged( const QList<QByteArray>& line );
+
         
         /** Connection to the IMAP server */
         std::auto_ptr<QIODevice> _socket;

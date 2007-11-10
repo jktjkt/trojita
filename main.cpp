@@ -35,7 +35,6 @@ int main( int argc, char** argv) {
 
     parser.capability();
     parser.noop();
-    parser.logout();
 
     parser.startTls();
     parser.authenticate();
@@ -79,6 +78,8 @@ int main( int argc, char** argv) {
 
     parser.unSelect();
     parser.idle();
+
+    parser.logout();
 
     QTimer::singleShot( 1500, &app, SLOT(quit()) );
     app.exec();
