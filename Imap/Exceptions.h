@@ -40,9 +40,9 @@ namespace Imap {
     };
 
     /** Invalid argument was passed to some function */
-    class InvalidArgumentException: public Exception {
+    class InvalidArgument: public Exception {
     public:
-        InvalidArgumentException( const std::string& msg ) : Exception( msg ) {};
+        InvalidArgument( const std::string& msg ) : Exception( msg ) {};
     };
 
     /** Socket error */
@@ -51,5 +51,28 @@ namespace Imap {
         SocketException( const std::string& msg ) : Exception( msg ) {};
     };
 
+    /** General parse error */
+    class ParseError : public Exception {
+    public:
+        ParseError( const std::string& msg ) : Exception( msg ) {};
+    };
+
+    /** Parse error: No usable data */
+    class NoData : public ParseError {
+    public:
+        NoData( const std::string& msg ) : ParseError( msg ) {};
+    };
+
+    /** Command Continuation Request received, but we have no idea how to handle it here */
+    class ContinuationRequest : public Exception {
+    public:
+        ContinuationRequest( const std::string& msg ) : Exception( msg ) {};
+    };
+
+    /** Unknown command result (ie. anything else than OK, NO or BAD */
+    class UnknownCommandResult : public ParseError {
+    public:
+        UnknownCommandResult( const std::string& msg ) : ParseError( msg ) {};
+    };
 }
 #endif /* IMAP_EXCEPTIONS_H */

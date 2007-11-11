@@ -196,7 +196,7 @@ CommandHandle Parser::expunge()
 CommandHandle Parser::_searchHelper( const QString& command, const QStringList& criteria, const QString& charset )
 {
     if ( !criteria.count() || criteria.count() % 2 )
-        throw InvalidArgumentException("Invalid search criteria");
+        throw InvalidArgument("Invalid search criteria");
 
     Commands::Command cmd( command );
 
@@ -296,7 +296,7 @@ bool Parser::executeACommand( const Commands::Command& cmd )
                 if ( true ) { // FIXME: only if LITERAL+ is enabled
                     buf.append( '{' );
                     buf.append( QByteArray::number( (*it)._text.size() ) );
-                    buf.append( "}\r\n" );
+                    buf.append( "+}\r\n" );
                     buf.append( (*it)._text );
                 }
                 break;
@@ -333,25 +333,111 @@ void Parser::socketDisconected()
 
 void Parser::processLine()
 {
-    QList<QByteArray> line = _socket->readLine().split( ' ' );
+    QByteArray line = _socket->readLine();
 
-    if ( line[0] == "*" ) {
+    if ( line.startsWith( "* " ) ) {
         parseUntagged( line );
-    } else if ( line[0] == "+" ) {
+    } else if ( line.startsWith( "+ " ) ) {
         // Command Continuation Request which really shouldn't happen here
-        // FIXME :]
+        throw ContinuationRequest( line.constData() );
     } else {
         parseTagged( line );
     }
 }
 
-void Parser::parseUntagged( const QList<QByteArray>& line )
+void Parser::parseUntagged( const QByteArray& line )
 {
 }
 
-void Parser::parseTagged( const QList<QByteArray>& line )
+void Parser::parseTagged( const QByteArray& line )
 {
+    QList<QByteArray> splitted = line.split( ' ' );
+    if ( splitted.count() < 3 )
+        throw NoData( line.constData() );
+
+    /* line is guaranted to have at least three items */
+    QList<QByteArray>::const_iterator it = splitted.begin();
+
+    const QString tag( (*it).constData() );
+    ++it;
+
+    const QByteArray resultStr( (*it).toUpper() );
+    ++it;
+    CommandResult result;
+    if ( resultStr == "OK" )
+        result = CommandResult::OK();
+    else if ( resultStr == "NO" )
+        result = CommandResult::NO();
+    else if ( resultStr == "BAD" )
+        result = CommandResult::BAD();
+    else
+        throw UnknownCommandResult( line.constData() );
+
+    // The rest of line is 'resp-text'
+    const QList<QByteArray> respCodeList = _parseResponseCode( it, splitted.end() );
+
+    // FIXME: parse the response stuff
+
+    QByteArray text;
+    bool doSpace = false;
+    while ( it != splitted.end() ) {
+        if ( doSpace )
+            text.append( ' ' );
+        doSpace = true;
+        text.append( *it );
+        ++it;
+    }
+    Q_ASSERT( text.endsWith( "\r\n" ) );
+    text.chop(2);
+
+    // FIXME: make Response out of tag, result, parsed_respCodeList and text and
+    // queue it
+
+    QString resultQString;
+    QTextStream resultSS( &resultQString );
+    resultSS << result;
+    qDebug() << "tag:" << tag << ", result:" << resultQString << ", respCode:" << respCodeList << ", text:" << text;
+
 }
+
+QList<QByteArray> Parser::_parseResponseCode( QList<QByteArray>::const_iterator& begin, const QList<QByteArray>::const_iterator& end )
+{
+    QList<QByteArray> resp;
+
+    if ( (*begin).startsWith( '[' ) && (*begin).endsWith( ']' ) ) {
+
+        // only "[fooobar]"
+        QByteArray str = *begin;
+        str.chop(1);
+        str = str.right( str.size() - 1 );
+        resp << str;
+        ++begin;
+
+    } else if ( (*begin).startsWith( '[' ) ) {
+        QByteArray str = *begin;
+        str = str.right( str.size() - 1 );
+        resp << str;
+        ++begin;
+
+        while ( begin != end ) {
+            if ( (*begin).endsWith( ']' ) ) {
+                // this is the last item
+                str = *begin;
+                str.chop( 1 );
+                resp << str;
+                ++begin;
+                break;
+            } else {
+                resp << *begin;
+                ++begin;
+            }
+        }
+
+    }
+
+    return resp;
+}
+
 
 void WorkerThread::run()
 {
@@ -364,6 +450,22 @@ void WorkerThread::run()
             _parser->processLine();
         _parser->_workerStopMutex.lock();
     }
+}
+
+QTextStream& operator<<( QTextStream& stream, const CommandResult& res )
+{
+    switch ( res._kind ) {
+        case CommandResult::_OK:
+            stream << "OK";
+            break;
+        case CommandResult::_NO:
+            stream << "NO";
+            break;
+        case CommandResult::_BAD:
+            stream << "BAD";
+            break;
+    }
+    return stream;
 }
 
 }

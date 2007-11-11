@@ -27,8 +27,7 @@ int main( int argc, char** argv) {
     QCoreApplication app( argc, argv );
     QTextStream Err(stderr);
     std::auto_ptr<QIODevice> sock( new QProcess() );
-    //static_cast<QProcess*>( sock.get() )->start( "dovecot", QStringList() << "--exec-mail" << "imap" );
-    static_cast<QProcess*>( sock.get() )->start( "/home/jkt/work/prog/trojita/trunk/wrapper.sh" );
+    static_cast<QProcess*>( sock.get() )->start( "dovecot", QStringList() << "--exec-mail" << "imap" );
     static_cast<QProcess*>( sock.get() )->waitForStarted();
 
     Imap::Parser parser( 0, sock );
@@ -62,13 +61,13 @@ int main( int argc, char** argv) {
     try {
         parser.search( QStringList() );
         Err << "BAD, empty search shouldn't be allowed" << endl;
-    } catch ( const Imap::InvalidArgumentException& e ) {
+    } catch ( const Imap::InvalidArgument& e ) {
         Err << "[Good, empty searches caught]" << endl;
     }
     try {
         parser.search( QStringList("foo") );
         Err << "BAD, odd search criteria shouldn't be allowed" << endl;
-    } catch ( const Imap::InvalidArgumentException& e ) {
+    } catch ( const Imap::InvalidArgument& e ) {
         Err << "[Good, even search criteria caught]" << endl;
     }
     parser.search( QStringList("foo") << "bar", "utf-8" );

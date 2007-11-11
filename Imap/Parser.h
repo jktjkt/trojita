@@ -53,6 +53,19 @@ namespace Imap {
     class Authenticator {};
     class Message;
 
+    /** Result of a command */
+    class CommandResult {
+        enum _kind_enum { _OK, _NO, _BAD };
+        _kind_enum _kind;
+        CommandResult( _kind_enum kind ) : _kind( kind ) {};
+        friend QTextStream& operator<<( QTextStream& stream, const CommandResult& res );
+    public:
+        CommandResult() : _kind( _BAD ) {};
+        static CommandResult OK() { return CommandResult( _OK ); };
+        static CommandResult NO() { return CommandResult( _NO ); };
+        static CommandResult BAD() { return CommandResult( _BAD ); };
+    }; // aren't those comments just sexy? :)
+
     /** Class specifying a set of messagess to access */
     class Sequence {
     public:
@@ -250,18 +263,24 @@ namespace Imap {
         void processLine();
 
         /** Parse line for untagged reply */
-        void parseUntagged( const QList<QByteArray>& line );
+        void parseUntagged( const QByteArray& line );
 
         /** Parse line for tagged reply */
-        void parseTagged( const QList<QByteArray>& line );
+        void parseTagged( const QByteArray& line );
 
-        
+        /** Constructs ResponseCode instance from a pair of iterators.
+         *
+         * This function modifies its first argument so it points to the
+         * beginning of non-response-code data (which might be 'end').
+         */
+        QList<QByteArray> _parseResponseCode( QList<QByteArray>::const_iterator& begin, const QList<QByteArray>::const_iterator& end );
+
+
         /** Connection to the IMAP server */
         std::auto_ptr<QIODevice> _socket;
 
         /** Keeps track of the last-used command tag */
         unsigned int _lastTagUsed;
-
 
         /** Mutex for synchronizing access to the _queue */
         QMutex _queueMutex;
