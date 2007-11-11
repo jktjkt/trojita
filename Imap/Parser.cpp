@@ -365,18 +365,75 @@ void Parser::parseTagged( const QByteArray& line )
     ++it;
     CommandResult result;
     if ( resultStr == "OK" )
-        result = CommandResult::OK();
+        result = OK;
     else if ( resultStr == "NO" )
-        result = CommandResult::NO();
+        result = NO;
     else if ( resultStr == "BAD" )
-        result = CommandResult::BAD();
+        result = BAD;
     else
         throw UnknownCommandResult( line.constData() );
 
-    // The rest of line is 'resp-text'
-    const QList<QByteArray> respCodeList = _parseResponseCode( it, splitted.end() );
+    ResponseCode respCode = NONE;
+    QList<QByteArray> respCodeList = _parseResponseCode( it, splitted.end() );
+    if ( respCodeList.count() ) {
+        const QByteArray r = (*(respCodeList.begin())).toUpper();
+        if ( r == "ALERT" )
+            respCode = ALERT;
+        else if ( r == "BADCHARSET" )
+            respCode = BADCHARSET;
+        else if ( r == "CAPABILITY" )
+            respCode = CAPABILITY;
+        else if ( r == "PARSE" )
+            respCode = PARSE;
+        else if ( r == "PERMANENTFLAGS" )
+            respCode = PERMANENTFLAGS;
+        else if ( r == "READ-ONLY" )
+            respCode = READ_ONLY;
+        else if ( r == "READ-WRITE" )
+            respCode = READ_WRITE;
+        else if ( r == "TRYCREATE" )
+            respCode = TRYCREATE;
+        else if ( r == "UIDNEXT" )
+            respCode = UIDNEXT;
+        else if ( r == "UIDVALIDITY" )
+            respCode = UIDVALIDITY;
+        else if ( r == "UNSEEN" )
+            respCode = UNSEEN;
+        else
+            respCode = ATOM;
 
-    // FIXME: parse the response stuff
+        if ( respCode != ATOM )
+            respCodeList.pop_front();
+
+        // now perform validity check
+        switch ( respCode ) {
+            case ALERT:
+            case PARSE:
+            case READ_ONLY:
+            case READ_WRITE:
+            case TRYCREATE:
+                // check for "no more stuff"
+                if ( respCodeList.count() )
+                    throw InvalidResponseCode( line.constData() );
+                break;
+            case UIDNEXT:
+            case UIDVALIDITY:
+            case UNSEEN:
+                // check for "number only"
+                {
+                if ( ( respCodeList.count() != 1 ) )
+                    throw InvalidResponseCode( line.constData() );
+                bool ok;
+                respCodeList.first().toUInt( &ok );
+                if ( !ok )
+                    throw InvalidResponseCode( line.constData() );
+                }
+                break;
+            default:
+                // no sanity check here
+                break;
+        }
+    }
 
     QByteArray text;
     bool doSpace = false;
@@ -393,14 +450,19 @@ void Parser::parseTagged( const QByteArray& line )
     // FIXME: make Response out of tag, result, parsed_respCodeList and text and
     // queue it
 
-    QString resultQString;
-    QTextStream resultSS( &resultQString );
-    resultSS << result;
-    qDebug() << "tag:" << tag << ", result:" << resultQString << ", respCode:" << respCodeList << ", text:" << text;
+    QTextStream Err(stderr);
+    Err << "tag: " << tag << ", result: " << result << ", respCode: " << respCode;
+    if ( respCode != NONE ) {
+        Err << " (";
+        for ( QList<QByteArray>::const_iterator it = respCodeList.begin(); it != respCodeList.end(); ++it )
+            Err << *it << " ";
+        Err << ')';
+    }
+    Err << ", text: " << text << endl;
 
 }
 
-QList<QByteArray> Parser::_parseResponseCode( QList<QByteArray>::const_iterator& begin, const QList<QByteArray>::const_iterator& end )
+QList<QByteArray> Parser::_parseResponseCode( QList<QByteArray>::const_iterator& begin, const QList<QByteArray>::const_iterator& end ) const
 {
     QList<QByteArray> resp;
 
@@ -454,16 +516,49 @@ void WorkerThread::run()
 
 QTextStream& operator<<( QTextStream& stream, const CommandResult& res )
 {
-    switch ( res._kind ) {
-        case CommandResult::_OK:
+    switch ( res ) {
+        case OK:
             stream << "OK";
             break;
-        case CommandResult::_NO:
+        case NO:
             stream << "NO";
             break;
-        case CommandResult::_BAD:
+        case BAD:
             stream << "BAD";
             break;
+    }
+    return stream;
+}
+
+QTextStream& operator<<( QTextStream& stream, const ResponseCode& r )
+{
+    switch (r) {
+        case ATOM:
+            stream << "<<ATOM>>'"; break;
+        case ALERT:
+            stream << "ALERT"; break;
+        case BADCHARSET:
+            stream << "BADCHARSET"; break;
+        case CAPABILITY:
+            stream << "CAPABILITY"; break;
+        case PARSE:
+            stream << "PARSE"; break;
+        case PERMANENTFLAGS:
+            stream << "PERMANENTFLAGS"; break;
+        case READ_ONLY:
+            stream << "READ-ONLY"; break;
+        case READ_WRITE:
+            stream << "READ-WRITE"; break;
+        case TRYCREATE:
+            stream << "TRYCREATE"; break;
+        case UIDNEXT:
+            stream << "UIDNEXT"; break;
+        case UIDVALIDITY:
+            stream << "UIDVALIDITY"; break;
+        case UNSEEN:
+            stream << "UNSEEN"; break;
+        case NONE:
+            stream << "<<NONE>>"; break;
     }
     return stream;
 }

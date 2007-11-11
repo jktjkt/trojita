@@ -74,5 +74,14 @@ namespace Imap {
     public:
         UnknownCommandResult( const std::string& msg ) : ParseError( msg ) {};
     };
+
+    /** Invalid Response Code */
+    class InvalidResponseCode : public ParseError {
+    public:
+        InvalidResponseCode( const std::string& msg ) : ParseError( msg ) {};
+    };
+
+
+
 }
 #endif /* IMAP_EXCEPTIONS_H */

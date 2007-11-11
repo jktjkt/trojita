@@ -54,17 +54,31 @@ namespace Imap {
     class Message;
 
     /** Result of a command */
-    class CommandResult {
-        enum _kind_enum { _OK, _NO, _BAD };
-        _kind_enum _kind;
-        CommandResult( _kind_enum kind ) : _kind( kind ) {};
-        friend QTextStream& operator<<( QTextStream& stream, const CommandResult& res );
-    public:
-        CommandResult() : _kind( _BAD ) {};
-        static CommandResult OK() { return CommandResult( _OK ); };
-        static CommandResult NO() { return CommandResult( _NO ); };
-        static CommandResult BAD() { return CommandResult( _BAD ); };
+    enum CommandResult {
+        OK /**< OK */,
+        NO /**< NO */,
+        BAD /**< BAD */
     }; // aren't those comments just sexy? :)
+
+    /** Response Code */
+    enum ResponseCode {
+        NONE /**< No response code specified */,
+        ATOM /**< Not recognized */,
+        ALERT /**< ALERT */,
+        BADCHARSET /**< BADCHARSET */,
+        CAPABILITY /**< CAPABILITY */,
+        PARSE /**< PARSE */,
+        PERMANENTFLAGS /**< PERMANENTFLAGS */,
+        READ_ONLY /**< READ-ONLY */, 
+        READ_WRITE /**< READ-WRITE */,
+        TRYCREATE /**< TRYCREATE */,
+        UIDNEXT /**< UIDNEXT */,
+        UIDVALIDITY /**< UIDVALIDITY */,
+        UNSEEN /**< UNSEEN */
+    }; // luvly comments, huh? :)
+
+    QTextStream& operator<<( QTextStream& stream, const CommandResult& r );
+    QTextStream& operator<<( QTextStream& stream, const ResponseCode& r );
 
     /** Class specifying a set of messagess to access */
     class Sequence {
@@ -273,7 +287,7 @@ namespace Imap {
          * This function modifies its first argument so it points to the
          * beginning of non-response-code data (which might be 'end').
          */
-        QList<QByteArray> _parseResponseCode( QList<QByteArray>::const_iterator& begin, const QList<QByteArray>::const_iterator& end );
+        QList<QByteArray> _parseResponseCode( QList<QByteArray>::const_iterator& begin, const QList<QByteArray>::const_iterator& end ) const;
 
 
         /** Connection to the IMAP server */
