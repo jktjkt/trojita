@@ -19,10 +19,14 @@
 #define IMAP_RESPONSE_H
 
 #include <QTextStream>
+#include <QString>
+#include <QByteArray>
+#include <QList>
+#include "Imap/Command.h"
 
 /**
  * @file
- * A header file defining Parser class and various helpers.
+ * Various data structures related to IMAP responses
  *
  * @author Jan Kundrát <jkt@gentoo.org>
  */
@@ -30,17 +34,45 @@
 /** Namespace for IMAP interaction */
 namespace Imap {
 
-/** Namespace for results of commands */
-namespace Responses {
+    /** Response Code */
+    enum ResponseCode {
+        NONE /**< No response code specified */,
+        ATOM /**< Not recognized */,
+        ALERT /**< ALERT */,
+        BADCHARSET /**< BADCHARSET */,
+        CAPABILITY /**< CAPABILITY */,
+        PARSE /**< PARSE */,
+        PERMANENTFLAGS /**< PERMANENTFLAGS */,
+        READ_ONLY /**< READ-ONLY */, 
+        READ_WRITE /**< READ-WRITE */,
+        TRYCREATE /**< TRYCREATE */,
+        UIDNEXT /**< UIDNEXT */,
+        UIDVALIDITY /**< UIDVALIDITY */,
+        UNSEEN /**< UNSEEN */
+    }; // luvly comments, huh? :)
 
-    /** generic parent class */
-    class AbstractResponse {
-        friend QTextStream& operator<<( QTextStream& stream, const AbstractResponse& r );
+    /** Parsed IMAP server response */
+    class Response {
+        QString _tag;
+        CommandResult _result;
+        ResponseCode _respCode;
+        QList<QByteArray> _respCodeList;
+        QByteArray _data;
+        friend QTextStream& operator<<( QTextStream& stream, const Response& r );
+    public:
+        Response( const QString& tag, const CommandResult result,
+                const ResponseCode respCode, const QList<QByteArray>& respCodeList,
+                const QByteArray& data ) : _tag(tag), _result(result),
+                    _respCode(respCode), _respCodeList(respCodeList), _data(data) {};
+        const QString& tag() const { return _tag; };
+        const CommandResult& result() const { return _result; };
+        const ResponseCode& respCode() const { return _respCode; };
+        const QList<QByteArray>& respCodeList() const { return _respCodeList; };
+        const QByteArray& data() const { return _data; };
     };
 
-    QTextStream& operator<<( QTextStream& stream, const AbstractResponse& r );
-
-}
+    QTextStream& operator<<( QTextStream& stream, const ResponseCode& r );
+    QTextStream& operator<<( QTextStream& stream, const Response& r );
 
 }
 

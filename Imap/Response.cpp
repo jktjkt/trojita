@@ -19,8 +19,49 @@
 
 namespace Imap {
 
-QTextStream& Responses::operator<<( QTextStream& stream, const Responses::AbstractResponse& r )
+QTextStream& operator<<( QTextStream& stream, const ResponseCode& r )
 {
+    switch (r) {
+        case ATOM:
+            stream << "<<ATOM>>'"; break;
+        case ALERT:
+            stream << "ALERT"; break;
+        case BADCHARSET:
+            stream << "BADCHARSET"; break;
+        case CAPABILITY:
+            stream << "CAPABILITY"; break;
+        case PARSE:
+            stream << "PARSE"; break;
+        case PERMANENTFLAGS:
+            stream << "PERMANENTFLAGS"; break;
+        case READ_ONLY:
+            stream << "READ-ONLY"; break;
+        case READ_WRITE:
+            stream << "READ-WRITE"; break;
+        case TRYCREATE:
+            stream << "TRYCREATE"; break;
+        case UIDNEXT:
+            stream << "UIDNEXT"; break;
+        case UIDVALIDITY:
+            stream << "UIDVALIDITY"; break;
+        case UNSEEN:
+            stream << "UNSEEN"; break;
+        case NONE:
+            stream << "<<NONE>>"; break;
+    }
+    return stream;
+}
+
+QTextStream& operator<<( QTextStream& stream, const Response& r )
+{
+    stream << "tag: " << r.tag() << ", result: " << r.result() << ", respCode: " << r.respCode();
+    if ( r.respCode() != NONE ) {
+        stream << " (";
+        for ( QList<QByteArray>::const_iterator it = r.respCodeList().begin(); it != r.respCodeList().end(); ++it )
+            stream << *it << " ";
+        stream << ')';
+    }
+    stream << ( r.tag().isEmpty() ? ", data: " : ", text: " ) << r.data() << endl;
     return stream;
 }
 

@@ -53,33 +53,6 @@ namespace Imap {
     class Authenticator {};
     class Message;
 
-    /** Result of a command */
-    enum CommandResult {
-        OK /**< OK */,
-        NO /**< NO */,
-        BAD /**< BAD */
-    }; // aren't those comments just sexy? :)
-
-    /** Response Code */
-    enum ResponseCode {
-        NONE /**< No response code specified */,
-        ATOM /**< Not recognized */,
-        ALERT /**< ALERT */,
-        BADCHARSET /**< BADCHARSET */,
-        CAPABILITY /**< CAPABILITY */,
-        PARSE /**< PARSE */,
-        PERMANENTFLAGS /**< PERMANENTFLAGS */,
-        READ_ONLY /**< READ-ONLY */, 
-        READ_WRITE /**< READ-WRITE */,
-        TRYCREATE /**< TRYCREATE */,
-        UIDNEXT /**< UIDNEXT */,
-        UIDVALIDITY /**< UIDVALIDITY */,
-        UNSEEN /**< UNSEEN */
-    }; // luvly comments, huh? :)
-
-    QTextStream& operator<<( QTextStream& stream, const CommandResult& r );
-    QTextStream& operator<<( QTextStream& stream, const ResponseCode& r );
-
     /** Class specifying a set of messagess to access */
     class Sequence {
     public:
@@ -243,7 +216,8 @@ namespace Imap {
         /** Socket got disconnected */
         void disconnected();
 
-        //void responseReceived( std::tr1::shared_ptr<Responses::AbstractResponse> resp );
+        /** New response received */
+        void responseReceived();
 
     private:
         /** Private copy constructor */
@@ -274,7 +248,7 @@ namespace Imap {
         bool executeACommand( const Commands::Command& cmd );
 
         /** Process a line from IMAP server */
-        void processLine();
+        void processLine( const QByteArray& line );
 
         /** Parse line for untagged reply */
         void parseUntagged( const QByteArray& line );
@@ -289,6 +263,8 @@ namespace Imap {
          */
         QList<QByteArray> _parseResponseCode( QList<QByteArray>::const_iterator& begin, const QList<QByteArray>::const_iterator& end ) const;
 
+        /** Add parsed response to the internal queue, emit notification signal */
+        void queueResponse( const Response& resp );
 
         /** Connection to the IMAP server */
         std::auto_ptr<QIODevice> _socket;
@@ -296,11 +272,14 @@ namespace Imap {
         /** Keeps track of the last-used command tag */
         unsigned int _lastTagUsed;
 
-        /** Mutex for synchronizing access to the _queue */
-        QMutex _queueMutex;
+        /** Mutex for synchronizing access to our queues */
+        QMutex _cmdMutex, _respMutex;
 
         /** Queue storing commands that are about to be executed */
-        std::deque<Commands::Command> _queue;
+        std::deque<Commands::Command> _cmdQueue;
+
+        /** Queue storing parsed replies from the IMAP server */
+        std::deque<Response> _respQueue;
 
         /** Worker thread instance */
         WorkerThread _workerThread;

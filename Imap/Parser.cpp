@@ -20,8 +20,6 @@
 #include <QProcess>
 #include "Parser.h"
 
-#include <QtDebug>
-
 /*
  * Parser interface considerations:
  *
@@ -75,6 +73,7 @@ Parser::~Parser()
     _workerThread.wait();
 
     if ( QProcess* proc = dynamic_cast<QProcess*>( _socket.get() ) ) {
+        // Be nice to it, let it die peacefully before using an axe
         proc->terminate();
         proc->waitForFinished(200);
         proc->kill();
@@ -253,12 +252,19 @@ CommandHandle Parser::idle()
 
 CommandHandle Parser::queueCommand( Commands::Command command )
 {
-    QMutexLocker locker( &_queueMutex );
+    QMutexLocker locker( &_cmdMutex );
     QString tag = generateTag();
     command.addTag( tag );
-    _queue.push_back( command );
+    _cmdQueue.push_back( command );
     _workerSemaphore.release();
     return tag;
+}
+
+void Parser::queueResponse( const Response& resp )
+{
+    QMutexLocker locker( &_respMutex );
+    _respQueue.push_back( resp );
+    emit responseReceived();
 }
 
 QString Parser::generateTag()
@@ -268,10 +274,10 @@ QString Parser::generateTag()
 
 bool Parser::executeIfPossible()
 {
-    QMutexLocker locker( &_queueMutex );
-    if ( !_queue.empty() ) {
-        Commands::Command cmd = _queue.front();
-        _queue.pop_front();
+    QMutexLocker locker( &_cmdMutex );
+    if ( !_cmdQueue.empty() ) {
+        Commands::Command cmd = _cmdQueue.front();
+        _cmdQueue.pop_front();
         return executeACommand( cmd );
     } else
         return false;
@@ -315,7 +321,6 @@ bool Parser::executeACommand( const Commands::Command& cmd )
         }
     }
     buf.append( "\r\n" );
-    qDebug() << buf;
     _socket->write( buf );
 
     return true;
@@ -331,10 +336,8 @@ void Parser::socketDisconected()
     //FIXME
 }
 
-void Parser::processLine()
+void Parser::processLine( const QByteArray& line )
 {
-    QByteArray line = _socket->readLine();
-
     if ( line.startsWith( "* " ) ) {
         parseUntagged( line );
     } else if ( line.startsWith( "+ " ) ) {
@@ -447,19 +450,8 @@ void Parser::parseTagged( const QByteArray& line )
     Q_ASSERT( text.endsWith( "\r\n" ) );
     text.chop(2);
 
-    // FIXME: make Response out of tag, result, parsed_respCodeList and text and
-    // queue it
-
-    QTextStream Err(stderr);
-    Err << "tag: " << tag << ", result: " << result << ", respCode: " << respCode;
-    if ( respCode != NONE ) {
-        Err << " (";
-        for ( QList<QByteArray>::const_iterator it = respCodeList.begin(); it != respCodeList.end(); ++it )
-            Err << *it << " ";
-        Err << ')';
-    }
-    Err << ", text: " << text << endl;
-
+    Response resp( tag, result, respCode, respCodeList, text);
+    queueResponse( resp );
 }
 
 QList<QByteArray> Parser::_parseResponseCode( QList<QByteArray>::const_iterator& begin, const QList<QByteArray>::const_iterator& end ) const
@@ -509,7 +501,7 @@ void WorkerThread::run()
         _parser->_workerSemaphore.acquire();
         _parser->executeIfPossible();
         while ( _parser->_socket->canReadLine() )
-            _parser->processLine();
+            _parser->processLine( _parser->_socket->readLine() );
         _parser->_workerStopMutex.lock();
     }
 }
@@ -526,39 +518,6 @@ QTextStream& operator<<( QTextStream& stream, const CommandResult& res )
         case BAD:
             stream << "BAD";
             break;
-    }
-    return stream;
-}
-
-QTextStream& operator<<( QTextStream& stream, const ResponseCode& r )
-{
-    switch (r) {
-        case ATOM:
-            stream << "<<ATOM>>'"; break;
-        case ALERT:
-            stream << "ALERT"; break;
-        case BADCHARSET:
-            stream << "BADCHARSET"; break;
-        case CAPABILITY:
-            stream << "CAPABILITY"; break;
-        case PARSE:
-            stream << "PARSE"; break;
-        case PERMANENTFLAGS:
-            stream << "PERMANENTFLAGS"; break;
-        case READ_ONLY:
-            stream << "READ-ONLY"; break;
-        case READ_WRITE:
-            stream << "READ-WRITE"; break;
-        case TRYCREATE:
-            stream << "TRYCREATE"; break;
-        case UIDNEXT:
-            stream << "UIDNEXT"; break;
-        case UIDVALIDITY:
-            stream << "UIDVALIDITY"; break;
-        case UNSEEN:
-            stream << "UNSEEN"; break;
-        case NONE:
-            stream << "<<NONE>>"; break;
     }
     return stream;
 }
