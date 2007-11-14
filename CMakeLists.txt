@@ -29,15 +29,16 @@ INCLUDE_DIRECTORIES(${QT_INCLUDES})
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 
-#add_subdirectory( tests )
+add_subdirectory( tests )
 
-set(libImapUTF7_SRCS Imap/rfccodecs.cpp Imap/kcodecs.cpp)
-set(libImap_SRCS Imap/Parser.cpp Imap/Command.cpp Imap/Response.cpp)
+set(libImap_SRCS Imap/Parser.cpp Imap/Command.cpp Imap/Response.cpp
+    Imap/rfccodecs.cpp Imap/kcodecs.cpp)
 
-set(trojita_SRCS main.cpp ${libImap_SRCS} ${libImapUTF7_SRCS})
+set(trojita_SRCS main.cpp)
 
-qt4_automoc(${trojita_SRCS})
+qt4_automoc(${trojita_SRCS} ${libImap_SRCS})
 
+add_library(Imap ${libImap_SRCS})
 add_executable(trojita ${trojita_SRCS})
 
-target_link_libraries(trojita ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY})
+target_link_libraries(trojita Imap ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY})

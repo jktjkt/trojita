@@ -21,9 +21,9 @@
 
 #include <QtTest/QtTest>
 #include <stdlib.h>
-#include <kaboutdata.h>
-#include <kcmdlineargs.h>
-#include <kcomponentdata.h>
+//#include <kaboutdata.h>
+//#include <kcmdlineargs.h>
+//#include <kcomponentdata.h>
 #include <QtGui/QApplication>
 #include <QtCore/QEventLoop>
 #include <QtTest/QSignalSpy>
@@ -77,11 +77,11 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(KDEMainFlags)
 int main(int argc, char *argv[]) \
 { \
     setenv("LC_ALL", "C", 1); \
-    setenv("KDEHOME", QFile::encodeName( QDir::homePath() + "/.kde-unit-test" ), 1); \
+    /*setenv("KDEHOME", QFile::encodeName( QDir::homePath() + "/.kde-unit-test" ), 1);*/ \
     unsetenv("KDE_COLOR_DEBUG"); \
-    KAboutData aboutData( componentName, 0, ki18n("qttest"), "version" );  \
+    /*KAboutData aboutData( componentName, 0, ki18n("qttest"), "version" );*/  \
     KDEMainFlags mainFlags = flags;                         \
-    KComponentData cData(&aboutData); \
+    /*KComponentData cData(&aboutData);*/ \
     QApplication app( argc, argv, (mainFlags & GUI) != 0 ); \
     app.setApplicationName( "qttest" ); \
     TestObject tc; \
@@ -119,10 +119,10 @@ int main(int argc, char *argv[]) \
 int main(int argc, char *argv[]) \
 { \
     setenv("LC_ALL", "C", 1); \
-    setenv("KDEHOME", QFile::encodeName( QDir::homePath() + "/.kde-unit-test" ), 1); \
-    unsetenv("KDE_COLOR_DEBUG"); \
-    KAboutData aboutData( "qttest", 0, ki18n("qttest"), "version" );  \
-    KComponentData cData(&aboutData); \
+    /*setenv("KDEHOME", QFile::encodeName( QDir::homePath() + "/.kde-unit-test" ), 1);*/ \
+    /*unsetenv("KDE_COLOR_DEBUG");*/ \
+    /*KAboutData aboutData( "qttest", 0, ki18n("qttest"), "version" );*/  \
+    /*KComponentData cData(&aboutData);*/ \
     QCoreApplication app( argc, argv ); \
     app.setApplicationName( "qttest" ); \
     TestObject tc; \

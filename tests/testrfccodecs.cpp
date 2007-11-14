@@ -24,7 +24,7 @@
 
 QTEST_KDEMAIN_CORE( RFCCodecsTest )
 
-#include "kimap/rfccodecs.h"
+#include "Imap/rfccodecs.h"
 using namespace KIMAP;
 
 void RFCCodecsTest::testIMAPEncoding()
