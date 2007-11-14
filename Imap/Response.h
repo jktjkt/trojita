@@ -83,6 +83,7 @@ namespace Responses {
 
     QTextStream& operator<<( QTextStream& stream, const Code& r );
     QTextStream& operator<<( QTextStream& stream, const Response& r );
+    QTextStream& operator<<( QTextStream& stream, const CommandResult& res );
     bool operator==( const Response& r1, const Response& r2 );
 
 }
