@@ -43,7 +43,7 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QByteArray>
 #include <QtCore/QLatin1Char>
-#include <kcodecs.h>
+#include <Imap/kcodecs.h>
 
 using namespace KIMAP;
 

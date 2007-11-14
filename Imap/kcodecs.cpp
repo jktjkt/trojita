@@ -37,7 +37,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <kdebug.h>
+//#include <kdebug.h>
 #include <QtCore/QIODevice>
 
 #define KMD5_S11 7
@@ -728,7 +728,7 @@ void KMD5::update(const unsigned char* in, int len)
         return;
 
     if (m_finalized) {
-        kWarning() << "KMD5::update called after state was finalized!";
+        //kWarning() << "KMD5::update called after state was finalized!";
         return;
     }
 
