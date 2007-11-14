@@ -28,16 +28,9 @@ QTEST_KDEMAIN_CORE( ImapParserParseTest )
 
 void ImapParserParseTest::initTestCase()
 {
-    array = new QByteArray();
-    buf = new QBuffer( array );
-    parser = new Imap::Parser( 0, std::auto_ptr<QIODevice>( buf ) );
-}
-
-void ImapParserParseTest::cleanupTestCase()
-{
-    delete parser;
-    // buf is deleted by Imap::Parser's destructor
-    delete array;
+    array.reset( new QByteArray() );
+    buf.reset( new QBuffer( array.get() ) );
+    parser.reset( new Imap::Parser( 0, buf ) );
 }
 
 void ImapParserParseTest::testParseTagged()

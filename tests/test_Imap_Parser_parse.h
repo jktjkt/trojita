@@ -27,14 +27,13 @@ class QBuffer;
 class ImapParserParseTest : public QObject
 {
     Q_OBJECT
-    Imap::Parser* parser;
-    QByteArray* array;
-    QBuffer* buf;
+    std::auto_ptr<QByteArray> array;
+    std::auto_ptr<QIODevice> buf;
+    std::auto_ptr<Imap::Parser> parser;
 private Q_SLOTS:
     void testParseTagged();
     void testParseTagged_data();
     void initTestCase();
-    void cleanupTestCase();
 };
 
 #endif
