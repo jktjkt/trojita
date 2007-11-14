@@ -29,11 +29,7 @@ INCLUDE_DIRECTORIES(${QT_INCLUDES})
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 
-set(libImap_SRCS
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Parser.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Command.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Response.cpp
-    )
+set(libImap_SRCS Imap/Parser.cpp Imap/Command.cpp Imap/Response.cpp)
 
 set(trojita_SRCS main.cpp ${libImap_SRCS})
 
