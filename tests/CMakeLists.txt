@@ -1,15 +1,15 @@
+# shamelessly stolen from KDE SVN
 
 include_directories( ${CMAKE_SOURCE_DIR}/Imap )
 set( EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR} )
-########### next target ###############
 
-set(testrfccodecs_SRCS testrfccodecs.cpp )
+macro(trojita_test fname)
+    set(test_${fname}_SRCS test_${fname}.cpp)
+    qt4_automoc(${test_${fname}_SRCS})
+    add_executable(test_${fname} ${test_${fname}_SRCS})
+    target_link_libraries(test_${fname} Imap  ${QT_QTTEST_LIBRARY})
+    add_test(test_${fname} test_${fname})
+endmacro(trojita_test)
 
-qt4_automoc(${testrfccodecs_SRCS})
-
-add_executable(testrfccodecs ${testrfccodecs_SRCS})
-add_test(testrfccodecs testrfccodecs)
-
-target_link_libraries(testrfccodecs Imap ${QT_QTTEST_LIBRARY})
-
-########### install files ###############
+trojita_test(rfccodecs)
+trojita_test(Imap_Parser_parse)
