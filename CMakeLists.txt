@@ -17,6 +17,7 @@
 #
 
 project(trojita)
+enable_testing()
 
 SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fno-common")
 #SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weffc++")
@@ -42,4 +43,3 @@ add_library(Imap ${libImap_SRCS})
 add_executable(trojita ${trojita_SRCS})
 
 target_link_libraries(trojita Imap ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY})
-enable_testing()
