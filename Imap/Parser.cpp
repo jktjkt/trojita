@@ -351,6 +351,7 @@ void Parser::processLine( const QByteArray& line )
 
 Responses::Response Parser::parseUntagged( const QByteArray& line )
 {
+    return Responses::Response();
 }
 
 Responses::Response Parser::parseTagged( const QByteArray& line )
