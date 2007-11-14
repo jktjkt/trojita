@@ -34,8 +34,11 @@
 /** Namespace for IMAP interaction */
 namespace Imap {
 
+/** IMAP server responses */
+namespace Responses {
+
     /** Response Code */
-    enum ResponseCode {
+    enum Code {
         NONE /**< No response code specified */,
         ATOM /**< Not recognized */,
         ALERT /**< ALERT */,
@@ -55,24 +58,26 @@ namespace Imap {
     class Response {
         QString _tag;
         CommandResult _result;
-        ResponseCode _respCode;
-        QList<QByteArray> _respCodeList;
+        Code _code;
+        QList<QByteArray> _codeList;
         QByteArray _data;
         friend QTextStream& operator<<( QTextStream& stream, const Response& r );
     public:
         Response( const QString& tag, const CommandResult result,
-                const ResponseCode respCode, const QList<QByteArray>& respCodeList,
+                const Code code, const QList<QByteArray>& codeList,
                 const QByteArray& data ) : _tag(tag), _result(result),
-                    _respCode(respCode), _respCodeList(respCodeList), _data(data) {};
+                    _code(code), _codeList(codeList), _data(data) {};
         const QString& tag() const { return _tag; };
         const CommandResult& result() const { return _result; };
-        const ResponseCode& respCode() const { return _respCode; };
-        const QList<QByteArray>& respCodeList() const { return _respCodeList; };
+        const Code& code() const { return _code; };
+        const QList<QByteArray>& codeList() const { return _codeList; };
         const QByteArray& data() const { return _data; };
     };
 
-    QTextStream& operator<<( QTextStream& stream, const ResponseCode& r );
+    QTextStream& operator<<( QTextStream& stream, const Code& r );
     QTextStream& operator<<( QTextStream& stream, const Response& r );
+
+}
 
 }
 

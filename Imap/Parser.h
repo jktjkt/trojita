@@ -264,7 +264,7 @@ namespace Imap {
         QList<QByteArray> _parseResponseCode( QList<QByteArray>::const_iterator& begin, const QList<QByteArray>::const_iterator& end ) const;
 
         /** Add parsed response to the internal queue, emit notification signal */
-        void queueResponse( const Response& resp );
+        void queueResponse( const Responses::Response& resp );
 
         /** Connection to the IMAP server */
         std::auto_ptr<QIODevice> _socket;
@@ -279,7 +279,7 @@ namespace Imap {
         std::deque<Commands::Command> _cmdQueue;
 
         /** Queue storing parsed replies from the IMAP server */
-        std::deque<Response> _respQueue;
+        std::deque<Responses::Response> _respQueue;
 
         /** Worker thread instance */
         WorkerThread _workerThread;

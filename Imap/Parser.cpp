@@ -260,7 +260,7 @@ CommandHandle Parser::queueCommand( Commands::Command command )
     return tag;
 }
 
-void Parser::queueResponse( const Response& resp )
+void Parser::queueResponse( const Responses::Response& resp )
 {
     QMutexLocker locker( &_respMutex );
     _respQueue.push_back( resp );
@@ -376,52 +376,52 @@ void Parser::parseTagged( const QByteArray& line )
     else
         throw UnknownCommandResult( line.constData() );
 
-    ResponseCode respCode = NONE;
+    Responses::Code respCode = Responses::NONE;
     QList<QByteArray> respCodeList = _parseResponseCode( it, splitted.end() );
     if ( respCodeList.count() ) {
         const QByteArray r = (*(respCodeList.begin())).toUpper();
         if ( r == "ALERT" )
-            respCode = ALERT;
+            respCode = Responses::ALERT;
         else if ( r == "BADCHARSET" )
-            respCode = BADCHARSET;
+            respCode = Responses::BADCHARSET;
         else if ( r == "CAPABILITY" )
-            respCode = CAPABILITY;
+            respCode = Responses::CAPABILITY;
         else if ( r == "PARSE" )
-            respCode = PARSE;
+            respCode = Responses::PARSE;
         else if ( r == "PERMANENTFLAGS" )
-            respCode = PERMANENTFLAGS;
+            respCode = Responses::PERMANENTFLAGS;
         else if ( r == "READ-ONLY" )
-            respCode = READ_ONLY;
+            respCode = Responses::READ_ONLY;
         else if ( r == "READ-WRITE" )
-            respCode = READ_WRITE;
+            respCode = Responses::READ_WRITE;
         else if ( r == "TRYCREATE" )
-            respCode = TRYCREATE;
+            respCode = Responses::TRYCREATE;
         else if ( r == "UIDNEXT" )
-            respCode = UIDNEXT;
+            respCode = Responses::UIDNEXT;
         else if ( r == "UIDVALIDITY" )
-            respCode = UIDVALIDITY;
+            respCode = Responses::UIDVALIDITY;
         else if ( r == "UNSEEN" )
-            respCode = UNSEEN;
+            respCode = Responses::UNSEEN;
         else
-            respCode = ATOM;
+            respCode = Responses::ATOM;
 
-        if ( respCode != ATOM )
+        if ( respCode != Responses::ATOM )
             respCodeList.pop_front();
 
         // now perform validity check
         switch ( respCode ) {
-            case ALERT:
-            case PARSE:
-            case READ_ONLY:
-            case READ_WRITE:
-            case TRYCREATE:
+            case Responses::ALERT:
+            case Responses::PARSE:
+            case Responses::READ_ONLY:
+            case Responses::READ_WRITE:
+            case Responses::TRYCREATE:
                 // check for "no more stuff"
                 if ( respCodeList.count() )
                     throw InvalidResponseCode( line.constData() );
                 break;
-            case UIDNEXT:
-            case UIDVALIDITY:
-            case UNSEEN:
+            case Responses::UIDNEXT:
+            case Responses::UIDVALIDITY:
+            case Responses::UNSEEN:
                 // check for "number only"
                 {
                 if ( ( respCodeList.count() != 1 ) )
@@ -450,7 +450,7 @@ void Parser::parseTagged( const QByteArray& line )
     Q_ASSERT( text.endsWith( "\r\n" ) );
     text.chop(2);
 
-    Response resp( tag, result, respCode, respCodeList, text);
+    Responses::Response resp( tag, result, respCode, respCodeList, text);
     queueResponse( resp );
 }
 

@@ -18,8 +18,9 @@
 #include "Imap/Response.h"
 
 namespace Imap {
+namespace Responses {
 
-QTextStream& operator<<( QTextStream& stream, const ResponseCode& r )
+QTextStream& operator<<( QTextStream& stream, const Code& r )
 {
     switch (r) {
         case ATOM:
@@ -54,10 +55,10 @@ QTextStream& operator<<( QTextStream& stream, const ResponseCode& r )
 
 QTextStream& operator<<( QTextStream& stream, const Response& r )
 {
-    stream << "tag: " << r.tag() << ", result: " << r.result() << ", respCode: " << r.respCode();
-    if ( r.respCode() != NONE ) {
+    stream << "tag: " << r.tag() << ", result: " << r.result() << ", code: " << r.code();
+    if ( r.code() != NONE ) {
         stream << " (";
-        for ( QList<QByteArray>::const_iterator it = r.respCodeList().begin(); it != r.respCodeList().end(); ++it )
+        for ( QList<QByteArray>::const_iterator it = r.codeList().begin(); it != r.codeList().end(); ++it )
             stream << *it << " ";
         stream << ')';
     }
@@ -65,4 +66,5 @@ QTextStream& operator<<( QTextStream& stream, const Response& r )
     return stream;
 }
 
+}
 }
