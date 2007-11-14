@@ -66,5 +66,22 @@ QTextStream& operator<<( QTextStream& stream, const Response& r )
     return stream;
 }
 
+QTextStream& operator<<( QTextStream& stream, const Responses::CommandResult& res )
+{
+    switch ( res ) {
+        case Responses::OK:
+            stream << "OK";
+            break;
+        case Responses::NO:
+            stream << "NO";
+            break;
+        case Responses::BAD:
+            stream << "BAD";
+            break;
+    }
+    return stream;
+}
+
+
 }
 }

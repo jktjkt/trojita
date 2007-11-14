@@ -61,6 +61,7 @@ namespace Imap {
 Parser::Parser( QObject* parent, std::auto_ptr<QIODevice> socket ): QObject(parent), _socket(socket), _lastTagUsed(0), _workerThread( this ), _workerStop( false )
 {
     _workerThread.start();
+    Q_ASSERT( _socket.get() );
     connect( _socket.get(), SIGNAL( readyRead() ), this, SLOT( socketReadyRead() ) );
 }
 
@@ -366,13 +367,13 @@ void Parser::parseTagged( const QByteArray& line )
 
     const QByteArray resultStr( (*it).toUpper() );
     ++it;
-    CommandResult result;
+    Responses::CommandResult result;
     if ( resultStr == "OK" )
-        result = OK;
+        result = Responses::OK;
     else if ( resultStr == "NO" )
-        result = NO;
+        result = Responses::NO;
     else if ( resultStr == "BAD" )
-        result = BAD;
+        result = Responses::BAD;
     else
         throw UnknownCommandResult( line.constData() );
 
@@ -505,22 +506,6 @@ void WorkerThread::run()
             _parser->processLine( _parser->_socket->readLine() );
         _parser->_workerStopMutex.lock();
     }
-}
-
-QTextStream& operator<<( QTextStream& stream, const CommandResult& res )
-{
-    switch ( res ) {
-        case OK:
-            stream << "OK";
-            break;
-        case NO:
-            stream << "NO";
-            break;
-        case BAD:
-            stream << "BAD";
-            break;
-    }
-    return stream;
 }
 
 }

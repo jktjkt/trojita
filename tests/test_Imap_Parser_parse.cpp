@@ -17,14 +17,42 @@
 */
 
 #include <qtest_kde.h>
+#include <QFile>
 
 #include "test_Imap_Parser_parse.h"
 #include "test_Imap_Parser_parse.moc"
 
+Q_DECLARE_METATYPE(Imap::Responses::Response)
+
 QTEST_KDEMAIN_CORE( ImapParserParseTest )
+
+void ImapParserParseTest::initTestCase()
+{
+    array = new QByteArray();
+    buf = new QBuffer( array );
+    parser = new Imap::Parser( 0, std::auto_ptr<QIODevice>( buf ) );
+}
+
+void ImapParserParseTest::cleanupTestCase()
+{
+    delete parser;
+    // buf is deleted by Imap::Parser's destructor
+    delete array;
+}
 
 void ImapParserParseTest::testParseTagged()
 {
+
+}
+
+void ImapParserParseTest::testParseTagged_data()
+{
+    using namespace Imap::Responses;
+
+    QTest::addColumn<QByteArray>("line");
+    QTest::addColumn<Response>("response");
+
+    QTest::newRow("demo") << QByteArray("y01 OK Everything works, man!") << Response("y01", OK, NONE, QList<QByteArray>(), "OK Everything works, man!");
 }
 
 #include "Imap/Parser.h"

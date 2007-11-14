@@ -26,13 +26,7 @@ namespace Imap {
 
 // Forward required for friend declaration
 class Parser;
-
-    /** Result of a command */
-    enum CommandResult {
-        OK /**< OK */,
-        NO /**< NO */,
-        BAD /**< BAD */
-    }; // aren't those comments just sexy? :)
+class CommandResult;
 
     QTextStream& operator<<( QTextStream& stream, const CommandResult& r );
 

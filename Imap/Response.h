@@ -37,6 +37,13 @@ namespace Imap {
 /** IMAP server responses */
 namespace Responses {
 
+    /** Result of a command */
+    enum CommandResult {
+        OK /**< OK */,
+        NO /**< NO */,
+        BAD /**< BAD */
+    }; // aren't those comments just sexy? :)
+
     /** Response Code */
     enum Code {
         NONE /**< No response code specified */,
@@ -67,6 +74,7 @@ namespace Responses {
                 const Code code, const QList<QByteArray>& codeList,
                 const QByteArray& data ) : _tag(tag), _result(result),
                     _code(code), _codeList(codeList), _data(data) {};
+        Response() : _result(BAD), _code(NONE) {};
         const QString& tag() const { return _tag; };
         const CommandResult& result() const { return _result; };
         const Code& code() const { return _code; };
