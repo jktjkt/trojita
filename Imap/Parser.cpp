@@ -376,8 +376,60 @@ void Parser::parseTagged( const QByteArray& line )
     else
         throw UnknownCommandResult( line.constData() );
 
+    QPair<Responses::Code, QList<QByteArray> > parsedCode = _parseResponseCode( it, splitted.end(), line.constData() );
+    QByteArray text;
+    bool doSpace = false;
+    while ( it != splitted.end() ) {
+        if ( doSpace )
+            text.append( ' ' );
+        doSpace = true;
+        text.append( *it );
+        ++it;
+    }
+    Q_ASSERT( text.endsWith( "\r\n" ) );
+    text.chop(2);
+
+    Responses::Response resp( tag, result, parsedCode.first, parsedCode.second, text);
+    queueResponse( resp );
+}
+
+QPair<Responses::Code, QList<QByteArray> > Parser::_parseResponseCode( QList<QByteArray>::const_iterator& begin, const QList<QByteArray>::const_iterator& end, const char * const line ) const
+{
+    QList<QByteArray> respCodeList;
+
+    if ( (*begin).startsWith( '[' ) && (*begin).endsWith( ']' ) ) {
+
+        // only "[fooobar]"
+        QByteArray str = *begin;
+        str.chop(1);
+        str = str.right( str.size() - 1 );
+        respCodeList << str;
+        ++begin;
+
+    } else if ( (*begin).startsWith( '[' ) ) {
+        QByteArray str = *begin;
+        str = str.right( str.size() - 1 );
+        respCodeList << str;
+        ++begin;
+
+        while ( begin != end ) {
+            if ( (*begin).endsWith( ']' ) ) {
+                // this is the last item
+                str = *begin;
+                str.chop( 1 );
+                respCodeList << str;
+                ++begin;
+                break;
+            } else {
+                respCodeList << *begin;
+                ++begin;
+            }
+        }
+
+    }
+
     Responses::Code respCode = Responses::NONE;
-    QList<QByteArray> respCodeList = _parseResponseCode( it, splitted.end() );
+
     if ( respCodeList.count() ) {
         const QByteArray r = (*(respCodeList.begin())).toUpper();
         if ( r == "ALERT" )
@@ -417,7 +469,7 @@ void Parser::parseTagged( const QByteArray& line )
             case Responses::TRYCREATE:
                 // check for "no more stuff"
                 if ( respCodeList.count() )
-                    throw InvalidResponseCode( line.constData() );
+                    throw InvalidResponseCode( line );
                 break;
             case Responses::UIDNEXT:
             case Responses::UIDVALIDITY:
@@ -425,11 +477,11 @@ void Parser::parseTagged( const QByteArray& line )
                 // check for "number only"
                 {
                 if ( ( respCodeList.count() != 1 ) )
-                    throw InvalidResponseCode( line.constData() );
+                    throw InvalidResponseCode( line );
                 bool ok;
                 respCodeList.first().toUInt( &ok );
                 if ( !ok )
-                    throw InvalidResponseCode( line.constData() );
+                    throw InvalidResponseCode( line );
                 }
                 break;
             default:
@@ -438,58 +490,7 @@ void Parser::parseTagged( const QByteArray& line )
         }
     }
 
-    QByteArray text;
-    bool doSpace = false;
-    while ( it != splitted.end() ) {
-        if ( doSpace )
-            text.append( ' ' );
-        doSpace = true;
-        text.append( *it );
-        ++it;
-    }
-    Q_ASSERT( text.endsWith( "\r\n" ) );
-    text.chop(2);
-
-    Responses::Response resp( tag, result, respCode, respCodeList, text);
-    queueResponse( resp );
-}
-
-QList<QByteArray> Parser::_parseResponseCode( QList<QByteArray>::const_iterator& begin, const QList<QByteArray>::const_iterator& end ) const
-{
-    QList<QByteArray> resp;
-
-    if ( (*begin).startsWith( '[' ) && (*begin).endsWith( ']' ) ) {
-
-        // only "[fooobar]"
-        QByteArray str = *begin;
-        str.chop(1);
-        str = str.right( str.size() - 1 );
-        resp << str;
-        ++begin;
-
-    } else if ( (*begin).startsWith( '[' ) ) {
-        QByteArray str = *begin;
-        str = str.right( str.size() - 1 );
-        resp << str;
-        ++begin;
-
-        while ( begin != end ) {
-            if ( (*begin).endsWith( ']' ) ) {
-                // this is the last item
-                str = *begin;
-                str.chop( 1 );
-                resp << str;
-                ++begin;
-                break;
-            } else {
-                resp << *begin;
-                ++begin;
-            }
-        }
-
-    }
-
-    return resp;
+    return qMakePair(respCode, respCodeList);
 }
 
 

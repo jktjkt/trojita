@@ -24,6 +24,7 @@
 #include <QThread>
 #include <QSemaphore>
 #include <QIODevice>
+#include <QPair>
 #include <Imap/Response.h>
 #include <Imap/Command.h>
 #include <Imap/Exceptions.h>
@@ -149,7 +150,8 @@ namespace Imap {
         CommandHandle status( const QString& mailbox, const QStringList& fields );
         
         /** APPEND, RFC3501 section 6.3.11 */
-        CommandHandle append( const QString& mailbox, const QString& message, const QStringList& flags = QStringList(), const QDateTime& timestamp = QDateTime() );
+        CommandHandle append( const QString& mailbox, const QString& message,
+                const QStringList& flags = QStringList(), const QDateTime& timestamp = QDateTime() );
 
 
         /** CHECK, RFC3501 sect 6.4.1 */
@@ -234,7 +236,8 @@ namespace Imap {
         };
 
         /** Helper for search() and uidSearch() */
-        CommandHandle _searchHelper( const QString& command, const QStringList& criteria, const QString& charset = QString::null );
+        CommandHandle _searchHelper( const QString& command, const QStringList& criteria,
+                const QString& charset = QString::null );
 
         /** Generate tag for next command */
         QString generateTag();
@@ -260,8 +263,11 @@ namespace Imap {
          *
          * This function modifies its first argument so it points to the
          * beginning of non-response-code data (which might be 'end').
+         *
+         * Last argument, "line", is used only when raising exceptions.
          */
-        QList<QByteArray> _parseResponseCode( QList<QByteArray>::const_iterator& begin, const QList<QByteArray>::const_iterator& end ) const;
+        QPair<Responses::Code, QList<QByteArray> > _parseResponseCode( QList<QByteArray>::const_iterator& begin,
+                const QList<QByteArray>::const_iterator& end, const char * const line ) const;
 
         /** Add parsed response to the internal queue, emit notification signal */
         void queueResponse( const Responses::Response& resp );
