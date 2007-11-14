@@ -36,6 +36,7 @@
  * @author Jan Kundrát <jkt@gentoo.org>
  */
 
+class ImapParserParseTest;
 class QDateTime;
 template<class T> class QList;
 
@@ -89,6 +90,7 @@ namespace Imap {
         Q_OBJECT
 
         friend class WorkerThread;
+        friend class ImapParserParseTest;
 
     public:
         /** Constructor. Takes an QIODevice instance as a parameter. */
@@ -254,10 +256,10 @@ namespace Imap {
         void processLine( const QByteArray& line );
 
         /** Parse line for untagged reply */
-        void parseUntagged( const QByteArray& line );
+        Responses::Response parseUntagged( const QByteArray& line );
 
         /** Parse line for tagged reply */
-        void parseTagged( const QByteArray& line );
+        Responses::Response parseTagged( const QByteArray& line );
 
         /** Constructs ResponseCode instance from a pair of iterators.
          *

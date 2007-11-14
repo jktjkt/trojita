@@ -82,6 +82,10 @@ QTextStream& operator<<( QTextStream& stream, const Responses::CommandResult& re
     return stream;
 }
 
+bool operator==( const Response& r1, const Response& r2 )
+{
+    return r1.tag() == r2.tag() && r1.result() == r2.result() && r1.code() == r2.code() && r1.codeList() == r2.codeList() && r1.data() == r2.data();
+}
 
 }
 }

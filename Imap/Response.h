@@ -68,7 +68,6 @@ namespace Responses {
         Code _code;
         QList<QByteArray> _codeList;
         QByteArray _data;
-        friend QTextStream& operator<<( QTextStream& stream, const Response& r );
     public:
         Response( const QString& tag, const CommandResult result,
                 const Code code, const QList<QByteArray>& codeList,
@@ -84,6 +83,7 @@ namespace Responses {
 
     QTextStream& operator<<( QTextStream& stream, const Code& r );
     QTextStream& operator<<( QTextStream& stream, const Response& r );
+    bool operator==( const Response& r1, const Response& r2 );
 
 }
 

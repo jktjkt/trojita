@@ -42,7 +42,10 @@ void ImapParserParseTest::cleanupTestCase()
 
 void ImapParserParseTest::testParseTagged()
 {
+    QFETCH( QByteArray, line );
+    QFETCH( Imap::Responses::Response, response );
 
+    QCOMPARE( parser->parseTagged( line ), response );
 }
 
 void ImapParserParseTest::testParseTagged_data()
@@ -52,7 +55,9 @@ void ImapParserParseTest::testParseTagged_data()
     QTest::addColumn<QByteArray>("line");
     QTest::addColumn<Response>("response");
 
-    QTest::newRow("demo") << QByteArray("y01 OK Everything works, man!") << Response("y01", OK, NONE, QList<QByteArray>(), "OK Everything works, man!");
+    QTest::newRow("tagged-ok-simple") << QByteArray("y01 OK Everything works, man!\r\n") << Response("y01", OK, NONE, QList<QByteArray>(), "Everything works, man!");
+    QTest::newRow("tagged-no-simple") << QByteArray("12345 NO Nope, something is broken\r\n") << Response("12345", NO, NONE, QList<QByteArray>(), "Nope, something is broken");
+    QTest::newRow("tagged-bad-simple") << QByteArray("ahoj BaD WTF?\r\n") << Response("ahoj", BAD, NONE, QList<QByteArray>(), "WTF?");
 }
 
 #include "Imap/Parser.h"

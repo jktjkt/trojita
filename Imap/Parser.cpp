@@ -340,20 +340,20 @@ void Parser::socketDisconected()
 void Parser::processLine( const QByteArray& line )
 {
     if ( line.startsWith( "* " ) ) {
-        parseUntagged( line );
+        queueResponse( parseUntagged( line ) );
     } else if ( line.startsWith( "+ " ) ) {
         // Command Continuation Request which really shouldn't happen here
         throw ContinuationRequest( line.constData() );
     } else {
-        parseTagged( line );
+        queueResponse( parseTagged( line ) );
     }
 }
 
-void Parser::parseUntagged( const QByteArray& line )
+Responses::Response Parser::parseUntagged( const QByteArray& line )
 {
 }
 
-void Parser::parseTagged( const QByteArray& line )
+Responses::Response Parser::parseTagged( const QByteArray& line )
 {
     QList<QByteArray> splitted = line.split( ' ' );
     if ( splitted.count() < 3 )
@@ -391,7 +391,7 @@ void Parser::parseTagged( const QByteArray& line )
     text.chop(2);
 
     Responses::Response resp( tag, result, parsedCode.first, parsedCode.second, text);
-    queueResponse( resp );
+    return resp;
 }
 
 QPair<Responses::Code, QList<QByteArray> > Parser::_parseResponseCode( QList<QByteArray>::const_iterator& begin, const QList<QByteArray>::const_iterator& end, const char * const line ) const
