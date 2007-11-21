@@ -40,7 +40,7 @@ class ImapParserParseTest;
 class QDateTime;
 template<class T> class QList;
 
-/** Namespace for IMAP interaction */
+/** @short Namespace for IMAP interaction */
 namespace Imap {
 
     /** Flag as defined in RFC3501, section 2.3.2, FIXME */

@@ -21,7 +21,7 @@
 #include <QList>
 #include <QDateTime>
 
-/** Namespace for IMAP interaction */
+/** @short Namespace for IMAP interaction */
 namespace Imap {
 
 // Forward required for friend declaration
@@ -30,7 +30,7 @@ class CommandResult;
 
     QTextStream& operator<<( QTextStream& stream, const CommandResult& r );
 
-/** Namespace holding all supported IMAP commands and variosu helpers */
+/** @short Namespace holding all supported IMAP commands and variosu helpers */
 namespace Commands {
 
     /** Enumeration that specifies required method of transmission of this string */
@@ -41,7 +41,7 @@ namespace Commands {
         SPECIAL /**< Not a string to transmit, but a special action like "Start TLS" or "Enter IDLE mode" */
     };
 
-    /** Checks if we can use a quoted-string form for transmitting this string.
+    /** @short Checks if we can use a quoted-string form for transmitting this string.
      *
      * We have to use literals for transmitting strings that are either too
      * long (as that'd cause problems with servers using too small line buffers),
@@ -49,7 +49,7 @@ namespace Commands {
      */
     TokenType howToTransmit( const QString& str );
 
-    /** A part of the actual command.
+    /** @short A part of the actual command.
      *
      * This is used by Parser to decide whether
      * to send the string as-is, to quote them or use a literal form for them.
@@ -69,7 +69,7 @@ namespace Commands {
 
     };
 
-    /** Abstract class for specifying what command to execute */
+    /** @short Abstract class for specifying what command to execute */
     class Command {
         friend QTextStream& operator<<( QTextStream& stream, const Command& c );
         friend class ::Imap::Parser;
@@ -84,7 +84,7 @@ namespace Commands {
     };
 
 
-    /** Used for dumping a command to debug stream */
+    /** @short Used for dumping a command to debug stream */
     QTextStream& operator<<( QTextStream& stream, const Command& cmd );
 
 }
