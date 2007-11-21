@@ -16,6 +16,7 @@
    Boston, MA 02110-1301, USA.
 */
 #include "Imap/Response.h"
+#include "Imap/Exceptions.h"
 
 namespace Imap {
 namespace Responses {
@@ -29,7 +30,7 @@ QTextStream& operator<<( QTextStream& stream, const Code& r )
             stream << "ALERT"; break;
         case BADCHARSET:
             stream << "BADCHARSET"; break;
-        case CAPABILITY:
+        case CAPABILITIES:
             stream << "CAPABILITY"; break;
         case PARSE:
             stream << "PARSE"; break;
@@ -55,10 +56,10 @@ QTextStream& operator<<( QTextStream& stream, const Code& r )
 
 QTextStream& operator<<( QTextStream& stream, const Response& r )
 {
-    stream << "tag: " << r.tag() << ", result: " << r.result() << ", code: " << r.code();
+    stream << "tag: " << r.tag() << ", kind: " << r.kind() << ", code: " << r.code();
     if ( r.code() != NONE ) {
         stream << " (";
-        for ( QList<QByteArray>::const_iterator it = r.codeList().begin(); it != r.codeList().end(); ++it )
+        for ( QStringList::const_iterator it = r.codeList().begin(); it != r.codeList().end(); ++it )
             stream << *it << " ";
         stream << ')';
     }
@@ -66,7 +67,7 @@ QTextStream& operator<<( QTextStream& stream, const Response& r )
     return stream;
 }
 
-QTextStream& operator<<( QTextStream& stream, const CommandResult& res )
+QTextStream& operator<<( QTextStream& stream, const Kind& res )
 {
     switch ( res ) {
         case OK:
@@ -78,13 +79,67 @@ QTextStream& operator<<( QTextStream& stream, const CommandResult& res )
         case BAD:
             stream << "BAD";
             break;
+        case BYE:
+            stream << "BYE";
+            break;
+        case PREAUTH:
+            stream << "PREAUTH";
+            break;
+        case EXPUNGE:
+            stream << "EXPUNGE";
+            break;
+        case FETCH:
+            stream << "FETCH";
+            break;
+        case EXISTS:
+            stream << "EXISTS";
+            break;
+        case RECENT:
+            stream << "RECENT";
+            break;
+        case CAPABILITY:
+            stream << "CAPABILITY";
+            break;
+        case LIST:
+            stream << "LIST";
     }
     return stream;
 }
 
 bool operator==( const Response& r1, const Response& r2 )
 {
-    return r1.tag() == r2.tag() && r1.result() == r2.result() && r1.code() == r2.code() && r1.codeList() == r2.codeList() && r1.data() == r2.data();
+    return r1.tag() == r2.tag() && r1.kind() == r2.kind() && r1.code() == r2.code() && r1.codeList() == r2.codeList() && r1.data() == r2.data();
+}
+
+Kind kindFromString( QByteArray str )
+{
+    str = str.toUpper();
+
+    if ( str == "OK" )
+        return OK;
+    if ( str == "NO" )
+        return NO;
+    if ( str == "BAD" )
+        return BAD;
+    if ( str == "BYE" )
+        return BYE;
+    if ( str == "PREAUTH" )
+        return PREAUTH;
+    if ( str == "FETCH" )
+        return FETCH;
+    if ( str == "EXPUNGE" )
+        return EXPUNGE;
+    if ( str == "FETCH" )
+        return FETCH;
+    if ( str == "EXISTS" )
+        return EXISTS;
+    if ( str == "RECENT" )
+        return RECENT;
+    if ( str == "CAPABILITY" )
+        return CAPABILITY;
+    if ( str == "LIST" )
+        return LIST;
+    throw UnrecognizedResponseKind( str.constData() );
 }
 
 }

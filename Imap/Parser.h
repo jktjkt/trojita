@@ -261,14 +261,18 @@ namespace Imap {
         /** Parse line for tagged reply */
         Responses::Response parseTagged( const QByteArray& line );
 
+        /** Concatenate words to one QByteArray */
+        QByteArray _concatWords( QList<QByteArray>::const_iterator it, const QList<QByteArray>::const_iterator end );
+
         /** Constructs ResponseCode instance from a pair of iterators.
+         * Helper function for parseTagged() and parseUntagged().
          *
          * This function modifies its first argument so it points to the
          * beginning of non-response-code data (which might be 'end').
          *
          * Last argument, "line", is used only when raising exceptions.
          */
-        QPair<Responses::Code, QList<QByteArray> > _parseResponseCode( QList<QByteArray>::const_iterator& begin,
+        QPair<Responses::Code, QStringList> _parseResponseCode( QList<QByteArray>::const_iterator& begin,
                 const QList<QByteArray>::const_iterator& end, const char * const line ) const;
 
         /** Add parsed response to the internal queue, emit notification signal */

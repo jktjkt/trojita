@@ -22,6 +22,7 @@
 #include <QString>
 #include <QByteArray>
 #include <QList>
+#include <QStringList>
 #include "Imap/Command.h"
 
 /**
@@ -38,10 +39,18 @@ namespace Imap {
 namespace Responses {
 
     /** Result of a command */
-    enum CommandResult {
+    enum Kind {
         OK /**< OK */,
         NO /**< NO */,
-        BAD /**< BAD */
+        BAD /**< BAD */,
+        BYE,
+        PREAUTH,
+        EXPUNGE,
+        FETCH,
+        EXISTS,
+        RECENT,
+        CAPABILITY,
+        LIST
     }; // aren't those comments just sexy? :)
 
     /** Response Code */
@@ -50,7 +59,7 @@ namespace Responses {
         ATOM /**< Not recognized */,
         ALERT /**< ALERT */,
         BADCHARSET /**< BADCHARSET */,
-        CAPABILITY /**< CAPABILITY */,
+        CAPABILITIES /**< CAPABILITY. Yeah, it's different than the RFC3501 name for it. Responses::Kind already defines a CAPABILITY. */,
         PARSE /**< PARSE */,
         PERMANENTFLAGS /**< PERMANENTFLAGS */,
         READ_ONLY /**< READ-ONLY */, 
@@ -64,27 +73,44 @@ namespace Responses {
     /** Parsed IMAP server response */
     class Response {
         QString _tag;
-        CommandResult _result;
+        Kind _kind;
         Code _code;
-        QList<QByteArray> _codeList;
+        QStringList _codeList;
         QByteArray _data;
+        uint _number;
     public:
-        Response( const QString& tag, const CommandResult result,
-                const Code code, const QList<QByteArray>& codeList,
-                const QByteArray& data ) : _tag(tag), _result(result),
+        Response( const QString& tag, const Kind kind,
+                const Code code, const QStringList& codeList,
+                const QByteArray& data ) : _tag(tag), _kind(kind),
                     _code(code), _codeList(codeList), _data(data) {};
-        Response() : _result(BAD), _code(NONE) {};
+        static Response makeNumberResponse( const Kind kind, const uint number ) {
+            Response resp;
+            resp._kind = kind;
+            resp._number = number;
+            return resp;
+        };
+        static Response makeCapability( const QStringList& caps ) {
+            Response resp;
+            resp._kind = CAPABILITY;
+            resp._codeList = caps;
+            return resp;
+        };
+        Response() : _kind(BAD), _code(NONE) {};
         const QString& tag() const { return _tag; };
-        const CommandResult& result() const { return _result; };
+        const Kind& kind() const { return _kind; };
         const Code& code() const { return _code; };
-        const QList<QByteArray>& codeList() const { return _codeList; };
+        const QStringList& codeList() const { return _codeList; };
         const QByteArray& data() const { return _data; };
+        uint number() const { return _number; };
     };
 
     QTextStream& operator<<( QTextStream& stream, const Code& r );
     QTextStream& operator<<( QTextStream& stream, const Response& r );
-    QTextStream& operator<<( QTextStream& stream, const CommandResult& res );
+    QTextStream& operator<<( QTextStream& stream, const Kind& res );
     bool operator==( const Response& r1, const Response& r2 );
+
+    /** Build Responses::Kind from textual value */
+    Kind kindFromString( QByteArray str );
 
 }
 

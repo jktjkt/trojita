@@ -351,6 +351,79 @@ void Parser::processLine( const QByteArray& line )
 
 Responses::Response Parser::parseUntagged( const QByteArray& line )
 {
+    QList<QByteArray> splitted = line.split( ' ' );
+    if ( splitted.count() < 3 )
+        throw NoData( line.constData() );
+
+    // line is guaranted to have at least three items
+    QList<QByteArray>::const_iterator it = splitted.begin();
+
+    // ignore '*'
+    ++it;
+
+    bool isDigit;
+    uint number = (*it).toUInt( &isDigit );
+
+    if ( isDigit ) {
+        ++it;
+        if ( it == splitted.end() )
+            // number and nothing else
+            throw NoData( line.constData() );
+
+        Responses::Kind kind = Responses::kindFromString( *it );
+        ++it;
+
+        switch ( kind ) {
+            case Responses::EXISTS:
+            case Responses::RECENT:
+            case Responses::EXPUNGE:
+                // no more data should follow
+                if ( it != splitted.end() )
+                    throw TooMuchData( line.constData() );
+                else
+                    return Responses::Response::makeNumberResponse( kind, number );
+                break;
+
+            case Responses::FETCH:
+                // FIXME: parse fetch response
+                throw ParseError( "not implemented" );
+                break;
+
+            default:
+                throw UnexpectedHere( line.constData() );
+        }
+
+    } else {
+        // it starts with a token
+        Responses::Kind kind = Responses::kindFromString( *it );
+        switch ( kind ) {
+            case Responses::CAPABILITY:
+                {
+                    QStringList capabilities;
+                    for ( ; it != splitted.end(); ++it )
+                        capabilities << *it;
+                    if ( !capabilities.count() )
+                        throw NoData( line.constData() );
+                    return Responses::Response::makeCapability( capabilities );
+                }
+            case Responses::OK:
+            case Responses::NO:
+            case Responses::BAD:
+            case Responses::PREAUTH:
+                {
+                    QPair<Responses::Code, QStringList> parsedCode = _parseResponseCode( it, splitted.end(), line.constData() );
+                    return Responses::Response( QString::Null(), kind, parsedCode.first, parsedCode.second, _concatWords( it, splitted.end()) );
+                }
+            /*case Responses::BYE:
+                return Responses::makeBye();
+            /*case Responses::LIST:
+                // FIXME
+                break;
+            default:
+                throw UnexpectedHere( line.constData() );*/
+        }
+    }
+
     return Responses::Response();
 }
 
@@ -366,22 +439,26 @@ Responses::Response Parser::parseTagged( const QByteArray& line )
     const QString tag( (*it).constData() );
     ++it;
 
-    const QByteArray resultStr( (*it).toUpper() );
+    Responses::Kind kind = Responses::kindFromString( *it );
     ++it;
-    Responses::CommandResult result;
-    if ( resultStr == "OK" )
-        result = Responses::OK;
-    else if ( resultStr == "NO" )
-        result = Responses::NO;
-    else if ( resultStr == "BAD" )
-        result = Responses::BAD;
-    else
-        throw UnknownCommandResult( line.constData() );
+    switch ( kind ) {
+        case Responses::OK:
+        case Responses::NO:
+        case Responses::BAD:
+            break;
+        default:
+            throw UnexpectedHere( line.constData() );
+    }
 
-    QPair<Responses::Code, QList<QByteArray> > parsedCode = _parseResponseCode( it, splitted.end(), line.constData() );
+    QPair<Responses::Code, QStringList> parsedCode = _parseResponseCode( it, splitted.end(), line.constData() );
+    return Responses::Response( tag, kind, parsedCode.first, parsedCode.second, _concatWords( it, splitted.end()) );
+}
+
+QByteArray Parser::_concatWords( QList<QByteArray>::const_iterator it, const QList<QByteArray>::const_iterator end )
+{
     QByteArray text;
     bool doSpace = false;
-    while ( it != splitted.end() ) {
+    while ( it != end ) {
         if ( doSpace )
             text.append( ' ' );
         doSpace = true;
@@ -390,14 +467,13 @@ Responses::Response Parser::parseTagged( const QByteArray& line )
     }
     Q_ASSERT( text.endsWith( "\r\n" ) );
     text.chop(2);
-
-    Responses::Response resp( tag, result, parsedCode.first, parsedCode.second, text);
-    return resp;
+    return text;
 }
 
-QPair<Responses::Code, QList<QByteArray> > Parser::_parseResponseCode( QList<QByteArray>::const_iterator& begin, const QList<QByteArray>::const_iterator& end, const char * const line ) const
+QPair<Responses::Code, QStringList> Parser::_parseResponseCode( QList<QByteArray>::const_iterator& begin, const QList<QByteArray>::const_iterator& end, const char * const line ) const
 {
-    QList<QByteArray> respCodeList;
+    QStringList respCodeList;
+    // FIXME: encoding
 
     if ( (*begin).startsWith( '[' ) && (*begin).endsWith( ']' ) ) {
 
@@ -433,13 +509,13 @@ QPair<Responses::Code, QList<QByteArray> > Parser::_parseResponseCode( QList<QBy
     Responses::Code respCode = Responses::NONE;
 
     if ( respCodeList.count() ) {
-        const QByteArray r = (*(respCodeList.begin())).toUpper();
+        const QString r = (*(respCodeList.begin())).toUpper();
         if ( r == "ALERT" )
             respCode = Responses::ALERT;
         else if ( r == "BADCHARSET" )
             respCode = Responses::BADCHARSET;
         else if ( r == "CAPABILITY" )
-            respCode = Responses::CAPABILITY;
+            respCode = Responses::CAPABILITIES;
         else if ( r == "PARSE" )
             respCode = Responses::PARSE;
         else if ( r == "PERMANENTFLAGS" )

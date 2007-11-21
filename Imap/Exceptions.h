@@ -57,10 +57,34 @@ namespace Imap {
         ParseError( const std::string& msg ) : Exception( msg ) {};
     };
 
+    /** Parse error: unknown identifier */
+    class UnknownIdentifier : public ParseError {
+    public:
+        UnknownIdentifier( const std::string& msg ) : ParseError( msg ) {};
+    };
+
+    /** Parse error: unrecognized kind of response */
+    class UnrecognizedResponseKind : public UnknownIdentifier {
+    public:
+        UnrecognizedResponseKind( const std::string& msg ) : UnknownIdentifier( msg ) {};
+    };
+
+    /** Parse error: this is known, but not expected here */
+    class UnexpectedHere : public ParseError {
+    public:
+        UnexpectedHere( const std::string& msg ) : ParseError( msg ) {};
+    };
+
     /** Parse error: No usable data */
     class NoData : public ParseError {
     public:
         NoData( const std::string& msg ) : ParseError( msg ) {};
+    };
+
+    /** Parse error: too much data */
+    class TooMuchData : public ParseError {
+    public:
+        TooMuchData( const std::string& msg ) : ParseError( msg ) {};
     };
 
     /** Command Continuation Request received, but we have no idea how to handle it here */
