@@ -78,6 +78,8 @@ namespace Responses {
         QStringList _codeList;
         QByteArray _data;
         uint _number;
+        friend QTextStream& operator<<( QTextStream& stream, const Response& r );
+        friend bool operator==( const Response& r1, const Response& r2 );
     public:
         Response( const QString& tag, const Kind kind,
                 const Code code, const QStringList& codeList,
@@ -96,12 +98,6 @@ namespace Responses {
             return resp;
         };
         Response() : _kind(BAD), _code(NONE) {};
-        const QString& tag() const { return _tag; };
-        const Kind& kind() const { return _kind; };
-        const Code& code() const { return _code; };
-        const QStringList& codeList() const { return _codeList; };
-        const QByteArray& data() const { return _data; };
-        uint number() const { return _number; };
     };
 
     QTextStream& operator<<( QTextStream& stream, const Code& r );

@@ -56,14 +56,14 @@ QTextStream& operator<<( QTextStream& stream, const Code& r )
 
 QTextStream& operator<<( QTextStream& stream, const Response& r )
 {
-    stream << "tag: " << r.tag() << ", kind: " << r.kind() << ", code: " << r.code();
-    if ( r.code() != NONE ) {
+    stream << "tag: " << r._tag << ", kind: " << r._kind << ", code: " << r._code;
+    if ( r._code != NONE ) {
         stream << " (";
-        for ( QStringList::const_iterator it = r.codeList().begin(); it != r.codeList().end(); ++it )
+        for ( QStringList::const_iterator it = r._codeList.begin(); it != r._codeList.end(); ++it )
             stream << *it << " ";
         stream << ')';
     }
-    stream << ( r.tag().isEmpty() ? ", data: " : ", text: " ) << r.data() << endl;
+    stream << ( r._tag.isEmpty() ? ", data: " : ", text: " ) << r._data << endl;
     return stream;
 }
 
@@ -108,7 +108,7 @@ QTextStream& operator<<( QTextStream& stream, const Kind& res )
 
 bool operator==( const Response& r1, const Response& r2 )
 {
-    return r1.tag() == r2.tag() && r1.kind() == r2.kind() && r1.code() == r2.code() && r1.codeList() == r2.codeList() && r1.data() == r2.data();
+    return r1._tag == r2._tag && r1._kind == r2._kind && r1._code == r2._code && r1._codeList == r2._codeList && r1._data == r2._data;
 }
 
 Kind kindFromString( QByteArray str )
