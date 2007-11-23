@@ -43,10 +43,10 @@ template<class T> class QList;
 /** @short Namespace for IMAP interaction */
 namespace Imap {
 
-    /** Flag as defined in RFC3501, section 2.3.2, FIXME */
+    /** @short Flag as defined in RFC3501, section 2.3.2, FIXME */
     class Flag;
 
-    /** Threading algorithm for THREAD command */
+    /** @short Threading algorithm for THREAD command */
     enum ThreadAlgorithm {
         THREAD_ORDEREDSUBJECT /**< ORDEREDSUBJECT algorithm */,
         THREAD_REFERENCES /**< REFERENCES algorithm */
@@ -55,19 +55,19 @@ namespace Imap {
     class Authenticator {};
     class Message;
 
-    /** Class specifying a set of messagess to access */
+    /** @short Class specifying a set of messagess to access */
     class Sequence {
     public:
         /** Converts sequence to string suitable for sending over the wire */
         QString toString() const {return "";};
     };
 
-    /** A handle identifying a command sent to the server */
+    /** @short A handle identifying a command sent to the server */
     typedef QString CommandHandle;
 
     class Parser; // will be defined later
 
-    /** Helper thread for Parser that deals with actual I/O */
+    /** @short Helper thread for Parser that deals with actual I/O */
     class WorkerThread : public QThread {
         Q_OBJECT
 
@@ -85,7 +85,7 @@ namespace Imap {
         WorkerThread( Parser * const parser ) : _parser( parser ) {};
     };
 
-    /** Class that does all IMAP parsing */
+    /** @short Class that does all IMAP parsing */
     class Parser : public QObject {
         Q_OBJECT
 
@@ -93,109 +93,111 @@ namespace Imap {
         friend class ImapParserParseTest;
 
     public:
-        /** Constructor. Takes an QIODevice instance as a parameter. */
+        /** @short Constructor.
+         *
+         * Takes an QIODevice instance as a parameter. */
         Parser( QObject* parent, std::auto_ptr<QIODevice> socket );
 
-        /** Destructor */
+        /** @short Destructor */
         ~Parser();
 
     public slots:
 
-        /** CAPABILITY, RFC 3501 section 6.1.1 */
+        /** @short CAPABILITY, RFC 3501 section 6.1.1 */
         CommandHandle capability();
 
-        /** NOOP, RFC 3501 section 6.1.2 */
+        /** @short NOOP, RFC 3501 section 6.1.2 */
         CommandHandle noop();
 
-        /** LOGOUT, RFC3501 section 6.1.3 */
+        /** @short LOGOUT, RFC3501 section 6.1.3 */
         CommandHandle logout();
 
 
-        /** STARTTLS, RFC3051 section 6.2.1 */
+        /** @short STARTTLS, RFC3051 section 6.2.1 */
         CommandHandle startTls();
 
-        /** AUTHENTICATE, RFC3501 section 6.2.2 */
+        /** @short AUTHENTICATE, RFC3501 section 6.2.2 */
         CommandHandle authenticate( /* FIXME: parameter */ );
 
-        /** LOGIN, RFC3501 section 6.2.3 */
+        /** @short LOGIN, RFC3501 section 6.2.3 */
         CommandHandle login( const QString& user, const QString& pass );
 
 
-        /** SELECT, RFC3501 section 6.3.1 */
+        /** @short SELECT, RFC3501 section 6.3.1 */
         CommandHandle select( const QString& mailbox );
 
-        /** EXAMINE, RFC3501 section 6.3.2 */
+        /** @short EXAMINE, RFC3501 section 6.3.2 */
         CommandHandle examine( const QString& mailbox );
 
-        /** CREATE, RFC3501 section 6.3.3 */
+        /** @short CREATE, RFC3501 section 6.3.3 */
         CommandHandle create( const QString& mailbox );
 
-        /** DELETE, RFC3501 section 6.3.4 */
+        /** @short DELETE, RFC3501 section 6.3.4 */
         CommandHandle deleteMailbox( const QString& mailbox );
 
-        /** RENAME, RFC3501 section 6.3.5 */
+        /** @short RENAME, RFC3501 section 6.3.5 */
         CommandHandle rename( const QString& oldName, const QString& newName );
 
-        /** SUBSCRIBE, RFC3501 section 6.3.6 */
+        /** @short SUBSCRIBE, RFC3501 section 6.3.6 */
         CommandHandle subscribe( const QString& mailbox );
         
-        /** UNSUBSCRIBE, RFC3501 section 6.3.7 */
+        /** @short UNSUBSCRIBE, RFC3501 section 6.3.7 */
         CommandHandle unSubscribe( const QString& mailbox );
 
-        /** LIST, RFC3501 section 6.3.8 */
+        /** @short LIST, RFC3501 section 6.3.8 */
         CommandHandle list( const QString& reference, const QString& mailbox );
         
-        /** LSUB, RFC3501 section 6.3.9 */
+        /** @short LSUB, RFC3501 section 6.3.9 */
         CommandHandle lSub( const QString& reference, const QString& mailbox );
 
-        /** STATUS, RFC3501 section 6.3.10 */
+        /** @short STATUS, RFC3501 section 6.3.10 */
         CommandHandle status( const QString& mailbox, const QStringList& fields );
         
-        /** APPEND, RFC3501 section 6.3.11 */
+        /** @short APPEND, RFC3501 section 6.3.11 */
         CommandHandle append( const QString& mailbox, const QString& message,
                 const QStringList& flags = QStringList(), const QDateTime& timestamp = QDateTime() );
 
 
-        /** CHECK, RFC3501 sect 6.4.1 */
+        /** @short CHECK, RFC3501 sect 6.4.1 */
         CommandHandle check();
 
-        /** CLOSE, RFC3501 sect 6.4.2 */
+        /** @short CLOSE, RFC3501 sect 6.4.2 */
         CommandHandle close();
         
-        /** EXPUNGE, RFC3501 sect 6.4.3 */
+        /** @short EXPUNGE, RFC3501 sect 6.4.3 */
         CommandHandle expunge();
 
-        /** SEARCH, RFC3501 sect 6.4.4 */
+        /** @short SEARCH, RFC3501 sect 6.4.4 */
         CommandHandle search( const QStringList& criteria, const QString& charset = QString::null ) {
             return _searchHelper( "SEARCH", criteria, charset );
         };
 
-        /** FETCH, RFC3501 sect 6.4.5 */
+        /** @short FETCH, RFC3501 sect 6.4.5 */
         CommandHandle fetch( const Sequence& seq, const QStringList& items );
 
-        /** STORE, RFC3501 sect 6.4.6 */
+        /** @short STORE, RFC3501 sect 6.4.6 */
         CommandHandle store( const Sequence& seq, const QString& item, const QString& value );
 
-        /** COPY, RFC3501 sect 6.4.7 */
+        /** @short COPY, RFC3501 sect 6.4.7 */
         CommandHandle copy( const Sequence& seq, const QString& mailbox );
 
-        /** UID command (FETCH), RFC3501 sect 6.4.8 */
+        /** @short UID command (FETCH), RFC3501 sect 6.4.8 */
         CommandHandle uidFetch( const Sequence& seq, const QStringList& items );
 
-        /** UID command (SEARCH), RFC3501 sect 6.4.8 */
+        /** @short UID command (SEARCH), RFC3501 sect 6.4.8 */
         CommandHandle uidSearch( const QStringList& criteria, const QString& charset ) {
             return _searchHelper( "UID SEARCH", criteria, charset );
         };
 
 
-        /** X<atom>, RFC3501 sect 6.5.1 */
+        /** @short X<atom>, RFC3501 sect 6.5.1 */
         CommandHandle xAtom( const Commands::Command& commands );
 
 
-        /** UNSELECT, RFC3691 */
+        /** @short UNSELECT, RFC3691 */
         CommandHandle unSelect();
         
-        /** IDLE, RFC2177 */
+        /** @short IDLE, RFC2177 */
         CommandHandle idle();
 
 
@@ -210,61 +212,62 @@ namespace Imap {
 
     private slots:
 
-        /** Socket told us that we can read data */
+        /** @short Socket told us that we can read data */
         void socketReadyRead();
 
-        /** Socket got disconnected */
+        /** @short Socket got disconnected */
         void socketDisconected();
 
     signals:
-        /** Socket got disconnected */
+        /** @short Socket got disconnected */
         void disconnected();
 
-        /** New response received */
+        /** @short New response received */
         void responseReceived();
 
     private:
-        /** Private copy constructor */
+        /** @short Private copy constructor */
         Parser( const Parser& );
-        /** Private assignment operator */
+        /** @short Private assignment operator */
         Parser& operator=( const Parser& );
 
-        /** Queue command for execution.*/
+        /** @short Queue command for execution.*/
         CommandHandle queueCommand( Commands::Command command );
 
-        /** Shortcut function; works exactly same as above mentioned queueCommand() */
+        /** @short Shortcut function; works exactly same as above mentioned queueCommand() */
         CommandHandle queueCommand( const Commands::TokenType kind, const QString& text ) {
             return queueCommand( Commands::Command() << Commands::PartOfCommand( kind, text ) );
         };
 
-        /** Helper for search() and uidSearch() */
+        /** @short Helper for search() and uidSearch() */
         CommandHandle _searchHelper( const QString& command, const QStringList& criteria,
                 const QString& charset = QString::null );
 
-        /** Generate tag for next command */
+        /** @short Generate tag for next command */
         QString generateTag();
 
-        /** Wait for a command continuation request being sent by the server */
+        /** @short Wait for a command continuation request being sent by the server */
         void waitForContinuationRequest();
 
-        /** Execute first queued command, ie. send it to the server */
+        /** @short Execute first queued command, ie. send it to the server */
         bool executeIfPossible();
-        /** Execute passed command right now */
+        /** @short Execute passed command right now */
         bool executeACommand( const Commands::Command& cmd );
 
-        /** Process a line from IMAP server */
+        /** @short Process a line from IMAP server */
         void processLine( const QByteArray& line );
 
-        /** Parse line for untagged reply */
+        /** @short Parse line for untagged reply */
         Responses::Response parseUntagged( const QByteArray& line );
 
-        /** Parse line for tagged reply */
+        /** @short Parse line for tagged reply */
         Responses::Response parseTagged( const QByteArray& line );
 
-        /** Concatenate words to one QByteArray */
+        /** @short Concatenate words to one QByteArray */
         QByteArray _concatWords( QList<QByteArray>::const_iterator it, const QList<QByteArray>::const_iterator end );
 
-        /** Constructs ResponseCode instance from a pair of iterators.
+        /** @short Constructs ResponseCode instance from a pair of iterators.
+         *
          * Helper function for parseTagged() and parseUntagged().
          *
          * This function modifies its first argument so it points to the
@@ -275,34 +278,34 @@ namespace Imap {
         QPair<Responses::Code, QStringList> _parseResponseCode( QList<QByteArray>::const_iterator& begin,
                 const QList<QByteArray>::const_iterator& end, const char * const line ) const;
 
-        /** Add parsed response to the internal queue, emit notification signal */
+        /** @short Add parsed response to the internal queue, emit notification signal */
         void queueResponse( const Responses::Response& resp );
 
-        /** Connection to the IMAP server */
+        /** @short Connection to the IMAP server */
         std::auto_ptr<QIODevice> _socket;
 
-        /** Keeps track of the last-used command tag */
+        /** @short Keeps track of the last-used command tag */
         unsigned int _lastTagUsed;
 
-        /** Mutex for synchronizing access to our queues */
+        /** @short Mutex for synchronizing access to our queues */
         QMutex _cmdMutex, _respMutex;
 
-        /** Queue storing commands that are about to be executed */
+        /** @short Queue storing commands that are about to be executed */
         std::deque<Commands::Command> _cmdQueue;
 
-        /** Queue storing parsed replies from the IMAP server */
+        /** @short Queue storing parsed replies from the IMAP server */
         std::deque<Responses::Response> _respQueue;
 
-        /** Worker thread instance */
+        /** @short Worker thread instance */
         WorkerThread _workerThread;
 
-        /** Used for throttling worker thread's activity */
+        /** @short Used for throttling worker thread's activity */
         QSemaphore _workerSemaphore;
 
-        /** Ask worker thread to stop ASAP */
+        /** @short Ask worker thread to stop ASAP */
         bool _workerStop;
 
-        /** Mutex guarding _workerStop */
+        /** @short Mutex guarding _workerStop */
         QMutex _workerStopMutex;
 
     };
