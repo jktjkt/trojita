@@ -261,6 +261,13 @@ Status::Status( const QString& _tag, const Kind _kind, QList<QByteArray>::const_
     message.chop(2);
 }
 
+NumberResponse::NumberResponse( const Kind _kind, const uint _num ) throw(InvalidArgument):
+    AbstractResponse(_kind), number(_num)
+{
+    if ( kind != EXISTS || kind != EXPUNGE || kind != RECENT )
+        throw InvalidArgument( "Attempted to create NumberResponse of invalid kind" );
+}
+
 QTextStream& Status::dump( QTextStream& stream ) const
 {
     if ( !tag.isEmpty() )
@@ -278,6 +285,11 @@ QTextStream& Status::dump( QTextStream& stream ) const
 QTextStream& Capability::dump( QTextStream& stream ) const
 {
     return stream << "Capabilities: " << capabilities.join(", "); 
+}
+
+QTextStream& NumberResponse::dump( QTextStream& stream ) const
+{
+    return stream << kind << ": " << number; 
 }
 
 template<class T> QTextStream& RespCodeData<T>::dump( QTextStream& stream ) const
@@ -319,6 +331,17 @@ bool Capability::eq( const AbstractResponse& other ) const
         return false;
     }
 }
+
+bool NumberResponse::eq( const AbstractResponse& other ) const
+{
+    try {
+        const NumberResponse& num = dynamic_cast<const NumberResponse&>( other );
+        return number == num.number;
+    } catch ( std::bad_cast& ) {
+        return false;
+    }
+}
+
 
 bool Status::eq( const AbstractResponse& other ) const
 {

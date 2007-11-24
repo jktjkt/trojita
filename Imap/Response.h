@@ -205,6 +205,17 @@ namespace Responses {
     };
 
 
+    /** @short Structure for EXISTS/EXPUNGE/RECENT responses */
+    class NumberResponse : public AbstractResponse {
+    public:
+        /** @short Number that we're storing */
+        uint number;
+        NumberResponse( const Kind _kind, const uint _num ) throw( InvalidArgument );
+        virtual QTextStream& dump( QTextStream& s ) const;
+        virtual bool eq( const AbstractResponse& other ) const;
+    };
+
+
     QTextStream& operator<<( QTextStream& stream, const Code& r );
     QTextStream& operator<<( QTextStream& stream, const Kind& res );
     QTextStream& operator<<( QTextStream& stream, const AbstractResponse& res );

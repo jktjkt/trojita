@@ -382,8 +382,8 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::parseUntagged( const Q
                 if ( it != splitted.end() )
                     throw TooMuchData( line.constData() );
                 else
-                    throw 0; // FIXME
-                    //return Responses::Response::makeNumberResponse( kind, number );
+                    return std::tr1::shared_ptr<Responses::AbstractResponse>(
+                            new Responses::NumberResponse( kind, number ) );
                 break;
 
             case Responses::FETCH:
@@ -406,7 +406,8 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::parseUntagged( const Q
                         capabilities << *it;
                     if ( !capabilities.count() )
                         throw NoData( line.constData() );
-                    return std::tr1::shared_ptr<Responses::AbstractResponse>( new Responses::Capability( capabilities ) );
+                    return std::tr1::shared_ptr<Responses::AbstractResponse>(
+                            new Responses::Capability( capabilities ) );
                 }
             case Responses::OK:
             case Responses::NO:
@@ -423,7 +424,7 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::parseUntagged( const Q
         }
     }
 
-    throw 0; // FIXME
+    throw ParseError( line.constData() ); // we shouldn't ever make it so far
 }
 
 std::tr1::shared_ptr<Responses::AbstractResponse> Parser::parseTagged( const QByteArray& line )

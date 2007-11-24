@@ -59,14 +59,15 @@ void ImapParserParseTest::testParseTagged_data()
         << QByteArray("y01 OK Everything works, man!\r\n")
         << shared_ptr<AbstractResponse>( new Status("y01", OK, "Everything works, man!", NONE, emptyList ) );
 
-#if 0
     QTest::newRow("tagged-no-simple")
         << QByteArray("12345 NO Nope, something is broken\r\n")
-        << Response("12345", NO, NONE, QStringList(), "Nope, something is broken");
+        << shared_ptr<AbstractResponse>( new Status("12345", NO, "Nope, something is broken", NONE, emptyList ) );
+
     QTest::newRow("tagged-bad-simple") 
         << QByteArray("ahoj BaD WTF?\r\n") 
-        << Response("ahoj", BAD, NONE, QStringList(), "WTF?");
+        << shared_ptr<AbstractResponse>( new Status("ahoj", BAD, "WTF?", NONE, emptyList ) );
 
+#if 0
     QTest::newRow("tagged-ok-alert") 
         << QByteArray("y01 oK [ALERT] Server on fire\r\n") 
         << Response("y01", OK, ALERT, QStringList(), "Server on fire");
