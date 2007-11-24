@@ -259,28 +259,13 @@ namespace Imap {
         void processLine( const QByteArray& line );
 
         /** @short Parse line for untagged reply */
-        Responses::Response parseUntagged( const QByteArray& line );
+        std::tr1::shared_ptr<Responses::AbstractResponse> parseUntagged( const QByteArray& line );
 
         /** @short Parse line for tagged reply */
-        Responses::Response parseTagged( const QByteArray& line );
-
-        /** @short Concatenate words to one QByteArray */
-        QByteArray _concatWords( QList<QByteArray>::const_iterator it, const QList<QByteArray>::const_iterator end );
-
-        /** @short Constructs ResponseCode instance from a pair of iterators.
-         *
-         * Helper function for parseTagged() and parseUntagged().
-         *
-         * This function modifies its first argument so it points to the
-         * beginning of non-response-code data (which might be 'end').
-         *
-         * Last argument, "line", is used only when raising exceptions.
-         */
-        QPair<Responses::Code, QStringList> _parseResponseCode( QList<QByteArray>::const_iterator& begin,
-                const QList<QByteArray>::const_iterator& end, const char * const line ) const;
+        std::tr1::shared_ptr<Responses::AbstractResponse> parseTagged( const QByteArray& line );
 
         /** @short Add parsed response to the internal queue, emit notification signal */
-        void queueResponse( const Responses::Response& resp );
+        void queueResponse( const std::tr1::shared_ptr<Responses::AbstractResponse>& resp );
 
         /** @short Connection to the IMAP server */
         std::auto_ptr<QIODevice> _socket;
@@ -295,7 +280,7 @@ namespace Imap {
         std::deque<Commands::Command> _cmdQueue;
 
         /** @short Queue storing parsed replies from the IMAP server */
-        std::deque<Responses::Response> _respQueue;
+        std::deque<std::tr1::shared_ptr<Responses::AbstractResponse> > _respQueue;
 
         /** @short Worker thread instance */
         WorkerThread _workerThread;

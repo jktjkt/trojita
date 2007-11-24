@@ -18,27 +18,33 @@
 #ifndef IMAP_RESPONSE_H
 #define IMAP_RESPONSE_H
 
+#include <tr1/memory>
 #include <QTextStream>
 #include <QString>
 #include <QByteArray>
 #include <QList>
 #include <QStringList>
 #include "Imap/Command.h"
+#include "Imap/Exceptions.h"
 
 /**
  * @file
- * Various data structures related to IMAP responses
+ * @short Various data structures related to IMAP responses
  *
  * @author Jan Kundrát <jkt@gentoo.org>
  */
 
-/** Namespace for IMAP interaction */
+/** @short Namespace for IMAP interaction */
 namespace Imap {
 
-/** IMAP server responses */
+/** @short IMAP server responses
+ *
+ * @ref AbstractResponse is an abstarct parent of all classes. Each response
+ * that might be received from the server is a child of this one.
+ * */
 namespace Responses {
 
-    /** Result of a command */
+    /** @short Result of a command */
     enum Kind {
         OK /**< OK */,
         NO /**< NO */,
@@ -53,7 +59,7 @@ namespace Responses {
         LIST
     }; // aren't those comments just sexy? :)
 
-    /** Response Code */
+    /** @short Response Code */
     enum Code {
         NONE /**< No response code specified */,
         ATOM /**< Not recognized */,
@@ -70,43 +76,150 @@ namespace Responses {
         UNSEEN /**< UNSEEN */
     }; // luvly comments, huh? :)
 
-    /** Parsed IMAP server response */
-    class Response {
-        QString _tag;
-        Kind _kind;
-        Code _code;
-        QStringList _codeList;
-        QByteArray _data;
-        uint _number;
-        friend QTextStream& operator<<( QTextStream& stream, const Response& r );
-        friend bool operator==( const Response& r1, const Response& r2 );
+    /** @short Parent class for all server responses */
+    class AbstractResponse {
     public:
-        Response( const QString& tag, const Kind kind,
-                const Code code, const QStringList& codeList,
-                const QByteArray& data ) : _tag(tag), _kind(kind),
-                    _code(code), _codeList(codeList), _data(data) {};
-        static Response makeNumberResponse( const Kind kind, const uint number ) {
-            Response resp;
-            resp._kind = kind;
-            resp._number = number;
-            return resp;
-        };
-        static Response makeCapability( const QStringList& caps ) {
-            Response resp;
-            resp._kind = CAPABILITY;
-            resp._codeList = caps;
-            return resp;
-        };
-        Response() : _kind(BAD), _code(NONE) {};
+        const Kind kind;
+        AbstractResponse(): kind(BAD) {};
+        AbstractResponse( const Kind _kind ): kind(_kind) {};
+        virtual ~AbstractResponse() {};
+        virtual QTextStream& dump( QTextStream& ) const = 0;
+        virtual bool eq( const AbstractResponse& other ) const = 0;
     };
 
-    QTextStream& operator<<( QTextStream& stream, const Code& r );
-    QTextStream& operator<<( QTextStream& stream, const Response& r );
-    QTextStream& operator<<( QTextStream& stream, const Kind& res );
-    bool operator==( const Response& r1, const Response& r2 );
+    /** @short Parent of all "Response Code Data" classes
+     *
+     * More information available in AbstractRespCodeData's documentation.
+     * */
+    class AbstractRespCodeData {
+    public:
+        virtual ~AbstractRespCodeData() {};
+        virtual QTextStream& dump( QTextStream& ) const = 0;
+        virtual bool eq( const AbstractRespCodeData& other ) const = 0;
+    };
 
-    /** Build Responses::Kind from textual value */
-    Kind kindFromString( QByteArray str );
+    /** @short Storage for "Response Code Data"
+     *
+     * In IMAP, each status response might contain some additional information
+     * called "Response Code" and associated data. These data come in several
+     * shapes and this class servers as a storage for them.
+     * */
+    template<class T> class RespCodeData : public AbstractRespCodeData {
+    public:
+        T data;
+        RespCodeData( const T& _data ) : data(_data) {};
+        virtual QTextStream& dump( QTextStream& s ) const;
+        virtual bool eq( const AbstractRespCodeData& other ) const;
+    };
+
+    /** Explicit specialization for void as we can't define a void member of a
+     * class */
+    template<> class RespCodeData<void> : public AbstractRespCodeData {
+    public:
+        virtual QTextStream& dump( QTextStream& s ) const { return s; };
+        virtual bool eq( const AbstractRespCodeData& other ) const;
+    };
+
+    /** @short Structure storing OK/NO/BAD/PREAUTH/BYE responses */
+    class Status : public AbstractResponse {
+    public:
+        /** @short Tag name or QString::null if untagged */
+        QString tag;
+
+        /** @short Kind of response 
+         *
+         * A tagged status response might be either OK, NO or BAD.
+         * Untagged status response might be either te same as tagged or BYE or
+         * PREAUTH.
+         * */
+        Kind kind;
+
+        /** @short Textual information embedded in the response
+         *
+         * While this information might be handy for correct understanding of
+         * what happens at ther server, its value is not standardized so the
+         * meaning is usually either duplicate to what's already said elsewhere
+         * or only a hint to the user. Nevertheless, we decode and store it.
+         * */
+        QString message;
+
+        /** @short Kind of optional Response Code
+         *
+         * For each supported value, type of ResponseCodeData stored in the
+         * respCodeData is defined as follows:
+         *
+         *  ALERT, PARSE, READ_ONLY, READ_WRITE, TRYCREATE:
+         *      Nothing else should be included, ie. void
+         *
+         *  UIDNEXT, UIDVALIDITY, UNSEEN:
+         *      Only number, ie. unisgned int
+         *
+         *  BADCHARSET, PERMANENTFLAGS:
+         *      List of strings, ie. QStringList
+         *
+         *  default:
+         *      Any data, ie. QString
+         * */
+        Code respCode;
+
+        /** @short Response Code Data
+         *
+         * Format is explained in the respCode documentation.
+         * We have to use pointer indirection because virtual methods wouldn't
+         * work otherwise.
+         * */
+        std::tr1::shared_ptr<AbstractRespCodeData> respCodeData;
+
+        /** @short Default constructor
+         *
+         * No error checking takes place, we assume _respCodeData's type
+         * actually corresponds to all invariants we declare as per respCode's
+         * documentation.
+         * */
+        Status( const QString& _tag, const Kind _kind, const QString& _message,
+                const Code _respCode,
+                const std::tr1::shared_ptr<AbstractRespCodeData> _respCodeData ):
+            tag(_tag), kind(_kind), message(_message), respCode(_respCode),
+            respCodeData(_respCodeData) {};
+
+        /** @short "Smart" constructor that parses a response out of a QList<QByteArray> */
+        Status( const QString& _tag, const Kind _kind, QList<QByteArray>::const_iterator& it,
+                const QList<QByteArray>::const_iterator& end, const char * const line );
+
+        /** @short Default destructor that makes containers and QtTest happy */
+        Status(): respCode(NONE) {};
+
+        /** @short helper for operator<<( QTextStream& ) */
+        virtual QTextStream& dump( QTextStream& s ) const;
+        virtual bool eq( const AbstractResponse& other ) const;
+    };
+
+    /** @short Structure storing a CAPABILITY untagged response */
+    class Capability : public AbstractResponse {
+    public:
+        /** @short List of capabilities */
+        QStringList capabilities;
+        Capability( const QStringList& _caps ) : AbstractResponse(CAPABILITY), capabilities(_caps) {};
+        virtual QTextStream& dump( QTextStream& s ) const;
+        virtual bool eq( const AbstractResponse& other ) const;
+    };
+
+
+    QTextStream& operator<<( QTextStream& stream, const Code& r );
+    QTextStream& operator<<( QTextStream& stream, const Kind& res );
+    QTextStream& operator<<( QTextStream& stream, const AbstractResponse& res );
+    QTextStream& operator<<( QTextStream& stream, const AbstractRespCodeData& resp );
+
+    inline bool operator==( const AbstractResponse& first, const AbstractResponse& other ) {
+        return first.eq( other );
+    }
+
+    inline bool operator==( const AbstractRespCodeData& first, const AbstractRespCodeData& other ) {
+        return first.eq( other );
+    }
+
+    /** @short Build Responses::Kind from textual value */
+    Kind kindFromString( QByteArray str ) throw( UnrecognizedResponseKind );
 
 }
 

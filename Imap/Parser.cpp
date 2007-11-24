@@ -19,6 +19,7 @@
 #include <QMutexLocker>
 #include <QProcess>
 #include "Parser.h"
+#include "rfccodecs.h"
 
 /*
  * Parser interface considerations:
@@ -261,7 +262,7 @@ CommandHandle Parser::queueCommand( Commands::Command command )
     return tag;
 }
 
-void Parser::queueResponse( const Responses::Response& resp )
+void Parser::queueResponse( const std::tr1::shared_ptr<Responses::AbstractResponse>& resp )
 {
     QMutexLocker locker( &_respMutex );
     _respQueue.push_back( resp );
@@ -349,7 +350,7 @@ void Parser::processLine( const QByteArray& line )
     }
 }
 
-Responses::Response Parser::parseUntagged( const QByteArray& line )
+std::tr1::shared_ptr<Responses::AbstractResponse> Parser::parseUntagged( const QByteArray& line )
 {
     QList<QByteArray> splitted = line.split( ' ' );
     if ( splitted.count() < 3 )
@@ -381,7 +382,8 @@ Responses::Response Parser::parseUntagged( const QByteArray& line )
                 if ( it != splitted.end() )
                     throw TooMuchData( line.constData() );
                 else
-                    return Responses::Response::makeNumberResponse( kind, number );
+                    throw 0; // FIXME
+                    //return Responses::Response::makeNumberResponse( kind, number );
                 break;
 
             case Responses::FETCH:
@@ -404,18 +406,15 @@ Responses::Response Parser::parseUntagged( const QByteArray& line )
                         capabilities << *it;
                     if ( !capabilities.count() )
                         throw NoData( line.constData() );
-                    return Responses::Response::makeCapability( capabilities );
+                    return std::tr1::shared_ptr<Responses::AbstractResponse>( new Responses::Capability( capabilities ) );
                 }
             case Responses::OK:
             case Responses::NO:
             case Responses::BAD:
             case Responses::PREAUTH:
-                {
-                    QPair<Responses::Code, QStringList> parsedCode = _parseResponseCode( it, splitted.end(), line.constData() );
-                    return Responses::Response( QString::Null(), kind, parsedCode.first, parsedCode.second, _concatWords( it, splitted.end()) );
-                }
-            /*case Responses::BYE:
-                return Responses::makeBye();
+            case Responses::BYE:
+                return std::tr1::shared_ptr<Responses::AbstractResponse>(
+                        new Responses::Status( QString::null, kind, it, splitted.end(), line.constData() ) );
             /*case Responses::LIST:
                 // FIXME
                 break;
@@ -424,10 +423,10 @@ Responses::Response Parser::parseUntagged( const QByteArray& line )
         }
     }
 
-    return Responses::Response();
+    throw 0; // FIXME
 }
 
-Responses::Response Parser::parseTagged( const QByteArray& line )
+std::tr1::shared_ptr<Responses::AbstractResponse> Parser::parseTagged( const QByteArray& line )
 {
     QList<QByteArray> splitted = line.split( ' ' );
     if ( splitted.count() < 3 )
@@ -441,134 +440,9 @@ Responses::Response Parser::parseTagged( const QByteArray& line )
 
     Responses::Kind kind = Responses::kindFromString( *it );
     ++it;
-    switch ( kind ) {
-        case Responses::OK:
-        case Responses::NO:
-        case Responses::BAD:
-            break;
-        default:
-            throw UnexpectedHere( line.constData() );
-    }
 
-    QPair<Responses::Code, QStringList> parsedCode = _parseResponseCode( it, splitted.end(), line.constData() );
-    return Responses::Response( tag, kind, parsedCode.first, parsedCode.second, _concatWords( it, splitted.end()) );
-}
-
-QByteArray Parser::_concatWords( QList<QByteArray>::const_iterator it, const QList<QByteArray>::const_iterator end )
-{
-    QByteArray text;
-    bool doSpace = false;
-    while ( it != end ) {
-        if ( doSpace )
-            text.append( ' ' );
-        doSpace = true;
-        text.append( *it );
-        ++it;
-    }
-    Q_ASSERT( text.endsWith( "\r\n" ) );
-    text.chop(2);
-    return text;
-}
-
-QPair<Responses::Code, QStringList> Parser::_parseResponseCode( QList<QByteArray>::const_iterator& begin, const QList<QByteArray>::const_iterator& end, const char * const line ) const
-{
-    QStringList respCodeList;
-    // FIXME: encoding
-
-    if ( (*begin).startsWith( '[' ) && (*begin).endsWith( ']' ) ) {
-
-        // only "[fooobar]"
-        QByteArray str = *begin;
-        str.chop(1);
-        str = str.right( str.size() - 1 );
-        respCodeList << str;
-        ++begin;
-
-    } else if ( (*begin).startsWith( '[' ) ) {
-        QByteArray str = *begin;
-        str = str.right( str.size() - 1 );
-        respCodeList << str;
-        ++begin;
-
-        while ( begin != end ) {
-            if ( (*begin).endsWith( ']' ) ) {
-                // this is the last item
-                str = *begin;
-                str.chop( 1 );
-                respCodeList << str;
-                ++begin;
-                break;
-            } else {
-                respCodeList << *begin;
-                ++begin;
-            }
-        }
-
-    }
-
-    Responses::Code respCode = Responses::NONE;
-
-    if ( respCodeList.count() ) {
-        const QString r = (*(respCodeList.begin())).toUpper();
-        if ( r == "ALERT" )
-            respCode = Responses::ALERT;
-        else if ( r == "BADCHARSET" )
-            respCode = Responses::BADCHARSET;
-        else if ( r == "CAPABILITY" )
-            respCode = Responses::CAPABILITIES;
-        else if ( r == "PARSE" )
-            respCode = Responses::PARSE;
-        else if ( r == "PERMANENTFLAGS" )
-            respCode = Responses::PERMANENTFLAGS;
-        else if ( r == "READ-ONLY" )
-            respCode = Responses::READ_ONLY;
-        else if ( r == "READ-WRITE" )
-            respCode = Responses::READ_WRITE;
-        else if ( r == "TRYCREATE" )
-            respCode = Responses::TRYCREATE;
-        else if ( r == "UIDNEXT" )
-            respCode = Responses::UIDNEXT;
-        else if ( r == "UIDVALIDITY" )
-            respCode = Responses::UIDVALIDITY;
-        else if ( r == "UNSEEN" )
-            respCode = Responses::UNSEEN;
-        else
-            respCode = Responses::ATOM;
-
-        if ( respCode != Responses::ATOM )
-            respCodeList.pop_front();
-
-        // now perform validity check
-        switch ( respCode ) {
-            case Responses::ALERT:
-            case Responses::PARSE:
-            case Responses::READ_ONLY:
-            case Responses::READ_WRITE:
-            case Responses::TRYCREATE:
-                // check for "no more stuff"
-                if ( respCodeList.count() )
-                    throw InvalidResponseCode( line );
-                break;
-            case Responses::UIDNEXT:
-            case Responses::UIDVALIDITY:
-            case Responses::UNSEEN:
-                // check for "number only"
-                {
-                if ( ( respCodeList.count() != 1 ) )
-                    throw InvalidResponseCode( line );
-                bool ok;
-                respCodeList.first().toUInt( &ok );
-                if ( !ok )
-                    throw InvalidResponseCode( line );
-                }
-                break;
-            default:
-                // no sanity check here
-                break;
-        }
-    }
-
-    return qMakePair(respCode, respCodeList);
+    return std::tr1::shared_ptr<Responses::AbstractResponse>(
+            new Responses::Status( tag, kind, it, splitted.end(), line.constData() ) );
 }
 
 
