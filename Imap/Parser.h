@@ -19,6 +19,7 @@
 #define IMAP_PARSER_H
 #include <deque>
 #include <memory>
+#include <tr1/memory>
 #include <QObject>
 #include <QMutex>
 #include <QThread>

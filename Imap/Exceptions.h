@@ -21,15 +21,18 @@
 
 /**
  * @file
- * Common IMAP-related exceptions
+ * @short Common IMAP-related exceptions
+ *
+ * All IMAP-related exceptions inherit from Imap::Exception which inherits from
+ * std::exception.
  *
  * @author Jan Kundrát <jkt@gentoo.org>
  */
 
-/** Namespace for IMAP interaction */
+/** @short Namespace for IMAP interaction */
 namespace Imap {
 
-    /** General exception class */
+    /** @short General exception class */
     class Exception : public std::exception {
         /** The error message */
         std::string _msg;
@@ -39,67 +42,67 @@ namespace Imap {
         virtual ~Exception() throw() {};
     };
 
-    /** Invalid argument was passed to some function */
+    /** @short Invalid argument was passed to some function */
     class InvalidArgument: public Exception {
     public:
         InvalidArgument( const std::string& msg ) : Exception( msg ) {};
     };
 
-    /** Socket error */
+    /** @short Socket error */
     class SocketException : public Exception {
     public:
         SocketException( const std::string& msg ) : Exception( msg ) {};
     };
 
-    /** General parse error */
+    /** @short General parse error */
     class ParseError : public Exception {
     public:
         ParseError( const std::string& msg ) : Exception( msg ) {};
     };
 
-    /** Parse error: unknown identifier */
+    /** @short Parse error: unknown identifier */
     class UnknownIdentifier : public ParseError {
     public:
         UnknownIdentifier( const std::string& msg ) : ParseError( msg ) {};
     };
 
-    /** Parse error: unrecognized kind of response */
+    /** @short Parse error: unrecognized kind of response */
     class UnrecognizedResponseKind : public UnknownIdentifier {
     public:
         UnrecognizedResponseKind( const std::string& msg ) : UnknownIdentifier( msg ) {};
     };
 
-    /** Parse error: this is known, but not expected here */
+    /** @short Parse error: this is known, but not expected here */
     class UnexpectedHere : public ParseError {
     public:
         UnexpectedHere( const std::string& msg ) : ParseError( msg ) {};
     };
 
-    /** Parse error: No usable data */
+    /** @short Parse error: No usable data */
     class NoData : public ParseError {
     public:
         NoData( const std::string& msg ) : ParseError( msg ) {};
     };
 
-    /** Parse error: too much data */
+    /** @short Parse error: too much data */
     class TooMuchData : public ParseError {
     public:
         TooMuchData( const std::string& msg ) : ParseError( msg ) {};
     };
 
-    /** Command Continuation Request received, but we have no idea how to handle it here */
+    /** @short Command Continuation Request received, but we have no idea how to handle it here */
     class ContinuationRequest : public Exception {
     public:
         ContinuationRequest( const std::string& msg ) : Exception( msg ) {};
     };
 
-    /** Unknown command result (ie. anything else than OK, NO or BAD */
+    /** @short Unknown command result (ie. anything else than OK, NO or BAD */
     class UnknownCommandResult : public ParseError {
     public:
         UnknownCommandResult( const std::string& msg ) : ParseError( msg ) {};
     };
 
-    /** Invalid Response Code */
+    /** @short Invalid Response Code */
     class InvalidResponseCode : public ParseError {
     public:
         InvalidResponseCode( const std::string& msg ) : ParseError( msg ) {};

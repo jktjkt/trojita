@@ -33,6 +33,7 @@ void ImapParserParseTest::initTestCase()
     parser.reset( new Imap::Parser( 0, buf ) );
 }
 
+/** @short Test tagged response parsing */
 void ImapParserParseTest::testParseTagged()
 {
     QFETCH( QByteArray, line );

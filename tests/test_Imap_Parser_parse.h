@@ -24,6 +24,7 @@
 class QByteArray;
 class QBuffer;
 
+/** @short Unit tests for Imap::Parser */
 class ImapParserParseTest : public QObject
 {
     Q_OBJECT
