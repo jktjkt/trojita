@@ -242,11 +242,12 @@ Status::Status( const QString& _tag, const Kind _kind, QList<QByteArray>::const_
                 break;
             case Responses::BADCHARSET:
             case Responses::PERMANENTFLAGS:
+            case Responses::CAPABILITIES:
                 // no check here
                 respCodeData = std::tr1::shared_ptr<AbstractRespCodeData>( new RespCodeData<QStringList>( _list ) );
                 break;
-            default:
-                // no sanity check here, just make a string
+            case Responses::ATOM: // no sanity check here, just make a string
+            case Responses::NONE: // this won't happen, but if we ommit it, gcc warns us about that
                 respCodeData = std::tr1::shared_ptr<AbstractRespCodeData>( new RespCodeData<QString>( _list.join(" ") ) );
                 break;
         }
@@ -305,7 +306,7 @@ template<> QTextStream& RespCodeData<QStringList>::dump( QTextStream& stream ) c
 bool RespCodeData<void>::eq( const AbstractRespCodeData& other ) const
 {
     try {
-        const RespCodeData<void>& r = dynamic_cast<const RespCodeData<void>&>( other );
+        dynamic_cast<const RespCodeData<void>&>( other );
         return true;
     } catch ( std::bad_cast& ) {
         return false;

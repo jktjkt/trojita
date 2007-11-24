@@ -27,6 +27,19 @@ Q_DECLARE_METATYPE(Imap::Responses::Status)
 
 QTEST_KDEMAIN_CORE( ImapParserParseTest )
 
+namespace QTest {
+
+template<> char * toString( const Imap::Responses::AbstractResponse& resp )
+{
+    QByteArray buf;
+    QTextStream stream( &buf );
+    stream << resp;
+    stream.flush();
+    return qstrdup( buf.data() );
+}
+
+}
+
 void ImapParserParseTest::initTestCase()
 {
     array.reset( new QByteArray() );
@@ -50,61 +63,70 @@ void ImapParserParseTest::testParseTagged_data()
     using std::tr1::shared_ptr;
 
     QTest::addColumn<QByteArray>("line");
-    QTest::addColumn<std::tr1::shared_ptr<AbstractResponse> >("response");
+    QTest::addColumn<shared_ptr<AbstractResponse> >("response");
 
+    shared_ptr<AbstractRespCodeData> voidData( new RespCodeData<void>() );
     std::tr1::shared_ptr<AbstractRespCodeData> emptyList(
             new RespCodeData<QStringList>( QStringList() ) );
 
     QTest::newRow("tagged-ok-simple")
         << QByteArray("y01 OK Everything works, man!\r\n")
-        << shared_ptr<AbstractResponse>( new Status("y01", OK, "Everything works, man!", NONE, emptyList ) );
+        << shared_ptr<AbstractResponse>( new Status("y01", OK, "Everything works, man!", NONE, voidData ) );
 
     QTest::newRow("tagged-no-simple")
         << QByteArray("12345 NO Nope, something is broken\r\n")
-        << shared_ptr<AbstractResponse>( new Status("12345", NO, "Nope, something is broken", NONE, emptyList ) );
+        << shared_ptr<AbstractResponse>( new Status("12345", NO, "Nope, something is broken", NONE, voidData ) );
 
     QTest::newRow("tagged-bad-simple") 
         << QByteArray("ahoj BaD WTF?\r\n") 
-        << shared_ptr<AbstractResponse>( new Status("ahoj", BAD, "WTF?", NONE, emptyList ) );
+        << shared_ptr<AbstractResponse>( new Status("ahoj", BAD, "WTF?", NONE, voidData ) );
 
-#if 0
     QTest::newRow("tagged-ok-alert") 
         << QByteArray("y01 oK [ALERT] Server on fire\r\n") 
-        << Response("y01", OK, ALERT, QStringList(), "Server on fire");
+        << shared_ptr<AbstractResponse>( new Status("y01", OK, "Server on fire", ALERT, voidData ) );
     QTest::newRow("tagged-no-alert") 
         << QByteArray("1337 no [ALeRT] Server on fire\r\n")
-        << Response("1337", NO, ALERT, QStringList(), "Server on fire");
+        << shared_ptr<AbstractResponse>( new Status("1337", NO, "Server on fire", ALERT, voidData ) );
+
     QTest::newRow("tagged-ok-capability") 
         << QByteArray("y01 OK [CAPaBILITY blurdybloop IMAP4rev1 WTF] Capabilities updated\r\n") 
-        << Response("y01", OK, CAPABILITIES, QStringList() << "blurdybloop" << "IMAP4rev1" << "WTF", "Capabilities updated");
+        << shared_ptr<AbstractResponse>( new Status("y01", OK, "Capabilities updated", CAPABILITIES, 
+                        shared_ptr<AbstractRespCodeData>(
+                            new RespCodeData<QStringList>( QStringList() << "blurdybloop" << "IMAP4rev1" << "WTF") ) ) );
+
     QTest::newRow("tagged-ok-parse") 
         << QByteArray("y01 OK [PArSE] Parse error. What do you feed me with?\r\n") 
-        << Response("y01", OK, PARSE, QStringList(), "Parse error. What do you feed me with?");
+        << shared_ptr<AbstractResponse>( new Status("y01", OK, "Parse error. What do you feed me with?",
+                    PARSE, voidData) );
     QTest::newRow("tagged-ok-permanentflags-empty") 
         << QByteArray("y01 OK [PERMANENTfLAGS] Behold, the flags!\r\n") 
-        << Response("y01", OK, PERMANENTFLAGS, QStringList(), "Behold, the flags!");
+        << shared_ptr<AbstractResponse>( new Status("y01", OK, "Behold, the flags!", PERMANENTFLAGS, emptyList) );
     QTest::newRow("tagged-ok-permanentflags-flags") 
         << QByteArray("y01 OK [PErMANENTFLAGS \\Foo \\Bar SmrT] Behold, the flags!\r\n") 
-        << Response("y01", OK, PERMANENTFLAGS, QStringList() << "\\Foo" << "\\Bar" << "SmrT", "Behold, the flags!");
+        << shared_ptr<AbstractResponse>( new Status("y01", OK, "Behold, the flags!", PERMANENTFLAGS,
+                    shared_ptr<AbstractRespCodeData>( new RespCodeData<QStringList>(
+                            QStringList() << "\\Foo" << "\\Bar" << "SmrT" ))) );
     QTest::newRow("tagged-ok-readonly") 
-        << QByteArray("y01 OK [ReAD-ONLY] No writing for you\r\n") 
-        << Response("y01", OK, READ_ONLY, QStringList(), "No writing for you");
+        << QByteArray("333 OK [ReAD-ONLY] No writing for you\r\n") 
+        << shared_ptr<AbstractResponse>( new Status("333", OK, "No writing for you", READ_ONLY, voidData));
     QTest::newRow("tagged-ok-readwrite") 
         << QByteArray("y01 OK [REaD-WRITE] Write!!!\r\n") 
-        << Response("y01", OK, READ_WRITE, QStringList(), "Write!!!");
+        << shared_ptr<AbstractResponse>( new Status("y01", OK, "Write!!!", READ_WRITE, voidData));
     QTest::newRow("tagged-ok-trycreate") 
         << QByteArray("y01 OK [TryCreate] ...would be better :)\r\n") 
-        << Response("y01", OK, TRYCREATE, QStringList(), "...would be better :)");
+        << shared_ptr<AbstractResponse>( new Status("y01", OK, "...would be better :)", TRYCREATE, voidData));
     QTest::newRow("tagged-ok-uidnext") 
         << QByteArray("y01 OK [uidNext 5] Next UID\r\n") 
-        << Response("y01", OK, UIDNEXT, QStringList() << "5", "Next UID");
+        << shared_ptr<AbstractResponse>( new Status("y01", OK, "Next UID", UIDNEXT,
+                    shared_ptr<AbstractRespCodeData>( new RespCodeData<uint>( 5 ) )));
     QTest::newRow("tagged-ok-uidvalidity") 
         << QByteArray("y01 OK [UIDVALIDITY 17] UIDs valid\r\n") 
-        << Response("y01", OK, UIDVALIDITY, QStringList() << "17", "UIDs valid");
+        << shared_ptr<AbstractResponse>( new Status("y01", OK, "UIDs valid", UIDVALIDITY,
+                    shared_ptr<AbstractRespCodeData>( new RespCodeData<uint>( 17 ) )));
     QTest::newRow("tagged-ok-unseen") 
         << QByteArray("y01 OK [unSeen 666] I need my glasses\r\n") 
-        << Response("y01", OK, UNSEEN, QStringList() << "666", "I need my glasses");
-#endif
+        << shared_ptr<AbstractResponse>( new Status("y01", OK, "I need my glasses", UNSEEN,
+                    shared_ptr<AbstractRespCodeData>( new RespCodeData<uint>( 666 ) )));
 
 }
 
