@@ -25,19 +25,6 @@
 Q_DECLARE_METATYPE(Imap::Responses::Status)
 Q_DECLARE_METATYPE(respPtr)
 
-QTEST_KDEMAIN_CORE( ImapResponsesTest )
-
-namespace QTest {
-
-template<> char * toString( const Imap::Responses::AbstractResponse& resp )
-{
-    QByteArray buf;
-    QTextStream stream( &buf );
-    stream << resp;
-    stream.flush();
-    return qstrdup( buf.data() );
-}
-
 /** @short Make sure equal Responses are recognized as equal */
 void ImapResponsesTest::testCompareEq()
 {
@@ -126,6 +113,17 @@ void ImapResponsesTest::testCompareNe_data()
 
 }
 
+QTEST_KDEMAIN_CORE( ImapResponsesTest )
+
+namespace QTest {
+
+template<> char * toString( const Imap::Responses::AbstractResponse& resp )
+{
+    QByteArray buf;
+    QTextStream stream( &buf );
+    stream << resp;
+    stream.flush();
+    return qstrdup( buf.data() );
 }
 
-
+}

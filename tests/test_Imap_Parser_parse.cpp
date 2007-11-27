@@ -25,21 +25,6 @@
 Q_DECLARE_METATYPE(std::tr1::shared_ptr<Imap::Responses::AbstractResponse>)
 Q_DECLARE_METATYPE(Imap::Responses::Status)
 
-QTEST_KDEMAIN_CORE( ImapParserParseTest )
-
-namespace QTest {
-
-template<> char * toString( const Imap::Responses::AbstractResponse& resp )
-{
-    QByteArray buf;
-    QTextStream stream( &buf );
-    stream << resp;
-    stream.flush();
-    return qstrdup( buf.data() );
-}
-
-}
-
 void ImapParserParseTest::initTestCase()
 {
     array.reset( new QByteArray() );
@@ -159,5 +144,20 @@ void ImapParserParseTest::testParseUntagged_data()
     QTest::newRow("untagged-no-simple")
         << QByteArray("* NO Nope, something is broken\r\n")
         << shared_ptr<AbstractResponse>( new Status(QString::null, NO, "Nope, something is broken", NONE, voidData ) );
+
+}
+
+QTEST_KDEMAIN_CORE( ImapParserParseTest )
+
+namespace QTest {
+
+template<> char * toString( const Imap::Responses::AbstractResponse& resp )
+{
+    QByteArray buf;
+    QTextStream stream( &buf );
+    stream << resp;
+    stream.flush();
+    return qstrdup( buf.data() );
+}
 
 }
