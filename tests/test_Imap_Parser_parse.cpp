@@ -144,7 +144,13 @@ void ImapParserParseTest::testParseUntagged_data()
     QTest::newRow("untagged-no-simple")
         << QByteArray("* NO Nope, something is broken\r\n")
         << shared_ptr<AbstractResponse>( new Status(QString::null, NO, "Nope, something is broken", NONE, voidData ) );
-
+    QTest::newRow("untagged-ok-uidvalidity") 
+        << QByteArray("* OK [UIDVALIDITY 17] UIDs valid\r\n") 
+        << shared_ptr<AbstractResponse>( new Status(QString::null, OK, "UIDs valid", UIDVALIDITY,
+                    shared_ptr<AbstractRespCodeData>( new RespCodeData<uint>( 17 ) )));
+    QTest::newRow("untagged-bye")
+        << QByteArray("* BYE go away\r\n")
+        << shared_ptr<AbstractResponse>( new Status(QString::null, BYE, "go away", NONE, voidData ) );
 }
 
 QTEST_KDEMAIN_CORE( ImapParserParseTest )
