@@ -91,7 +91,7 @@ namespace Imap {
         Q_OBJECT
 
         friend class WorkerThread;
-        friend class ImapParserParseTest;
+        friend class ::ImapParserParseTest;
 
     public:
         /** @short Constructor.
