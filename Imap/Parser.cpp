@@ -398,6 +398,7 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::parseUntagged( const Q
     } else {
         // it starts with a token
         Responses::Kind kind = Responses::kindFromString( *it );
+        ++it;
         switch ( kind ) {
             case Responses::CAPABILITY:
                 {

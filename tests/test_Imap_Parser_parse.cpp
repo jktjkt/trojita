@@ -130,3 +130,34 @@ void ImapParserParseTest::testParseTagged_data()
 
 }
 
+/** @short Test untagged response parsing */
+void ImapParserParseTest::testParseUntagged()
+{
+    QFETCH( QByteArray, line );
+    QFETCH( std::tr1::shared_ptr<Imap::Responses::AbstractResponse>, response );
+
+    Q_ASSERT( response );
+    QCOMPARE( *(parser->parseUntagged( line )), *response );
+}
+
+void ImapParserParseTest::testParseUntagged_data()
+{
+    using namespace Imap::Responses;
+    using std::tr1::shared_ptr;
+
+    QTest::addColumn<QByteArray>("line");
+    QTest::addColumn<shared_ptr<AbstractResponse> >("response");
+
+    shared_ptr<AbstractRespCodeData> voidData( new RespCodeData<void>() );
+    std::tr1::shared_ptr<AbstractRespCodeData> emptyList(
+            new RespCodeData<QStringList>( QStringList() ) );
+
+    QTest::newRow("untagged-ok-simple")
+        << QByteArray("* OK Everything works, man!\r\n")
+        << shared_ptr<AbstractResponse>( new Status(QString::null, OK, "Everything works, man!", NONE, voidData ) );
+
+    QTest::newRow("untagged-no-simple")
+        << QByteArray("* NO Nope, something is broken\r\n")
+        << shared_ptr<AbstractResponse>( new Status(QString::null, NO, "Nope, something is broken", NONE, voidData ) );
+
+}

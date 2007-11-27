@@ -34,6 +34,8 @@ class ImapParserParseTest : public QObject
 private Q_SLOTS:
     void testParseTagged();
     void testParseTagged_data();
+    void testParseUntagged();
+    void testParseUntagged_data();
     void initTestCase();
 };
 
