@@ -184,6 +184,7 @@ void ImapParserParseTest::testParseUntagged_data()
     QTest::newRow("untagged-list-mailbox-quote")
         << QByteArray("* LIST () \".\" \"some\\\"Name\"\r\n")
         << shared_ptr<AbstractResponse>( new List( QStringList(), ".", "some\"Name" ) );
+#include "test_Imap_Parser_parse-Chinese.include"
 
 }
 
