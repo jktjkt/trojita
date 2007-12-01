@@ -84,7 +84,7 @@ namespace Imap {
         NoData( const std::string& msg ) : ParseError( msg ) {};
     };
 
-    /** @short Parse error: too much data */
+    /** @short Parse error: Too much data */
     class TooMuchData : public ParseError {
     public:
         TooMuchData( const std::string& msg ) : ParseError( msg ) {};

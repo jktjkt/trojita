@@ -215,6 +215,25 @@ namespace Responses {
         virtual bool eq( const AbstractResponse& other ) const;
     };
 
+    /** @short Structure storing a LIST untagged response */
+    class List : public AbstractResponse {
+    public:
+        /** @short Flags for this particular mailbox */
+        QStringList flags;
+        /** @short Hierarchy separator */
+        QString separator;
+        /** @short Mailbox name */
+        QString mailbox;
+
+        List( QList<QByteArray>::const_iterator& it,
+                const QList<QByteArray>::const_iterator end,
+                const char * const lineData);
+        List( const QStringList& _flags, const QString& _separator, const QString& _mailbox ):
+            AbstractResponse(LIST), flags(_flags), separator(_separator), mailbox(_mailbox) {};
+        virtual QTextStream& dump( QTextStream& s ) const;
+        virtual bool eq( const AbstractResponse& other ) const;
+    };
+
 
     QTextStream& operator<<( QTextStream& stream, const Code& r );
     QTextStream& operator<<( QTextStream& stream, const Kind& res );

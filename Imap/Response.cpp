@@ -20,6 +20,61 @@
 namespace Imap {
 namespace Responses {
 
+/** @short Parse parenthesized list 
+ *
+ * Parenthesized lists is defined as a sequence of space-separated strings
+ * enclosed between "open" and "close" characters.
+ *
+ * it, end -- iterators determining where to start and end
+ * lineData -- used when throwing exception
+ * allowNoList -- if false and there's no opening parenthesis, exception is
+ *                thrown
+ * allowEmptyList -- if false and the list is empty (ie. nothing between opening
+ *                   and closing bracket), exception is thrown
+ * */
+QStringList parseList( const char open, const char close,
+        QList<QByteArray>::const_iterator& it,
+        const QList<QByteArray>::const_iterator& end,
+        const char * const lineData,
+        const bool allowNoList = false, const bool allowEmptyList = true )
+{
+    if ( it->startsWith( open ) && it->endsWith( close ) ) {
+        QByteArray item = *it;
+        ++it;
+        item.chop(1);
+        item = item.right( item.size() - 1 );
+        if ( item.isEmpty() )
+            if ( allowEmptyList )
+                return QStringList();
+            else
+                throw NoData( lineData );
+        else
+            return QStringList( item );
+    } else if ( it->startsWith( open ) ) {
+        QByteArray item = *it;
+        item = item.right( item.size() - 1 );
+        ++it;
+        QStringList result( item );
+
+        bool foundParenth = false;
+        while ( it != end && !foundParenth ) {
+            QByteArray item = *it;
+            if ( item.endsWith( close ) ) {
+                foundParenth = true;
+                item.chop(1);
+            }
+            result << item;
+            ++it;
+        }
+        if ( !foundParenth )
+            throw NoData( lineData ); // unterminated list
+        return result;
+    } else if ( !allowNoList )
+        throw NoData( lineData ); 
+    else
+        return QStringList();
+}
+
 QTextStream& operator<<( QTextStream& stream, const Code& r )
 {
     switch (r) {
@@ -149,40 +204,8 @@ Status::Status( const QString& _tag, const Kind _kind, QList<QByteArray>::const_
         }
     }
 
-    QStringList _list;
+    QStringList _list = parseList( '[', ']', it, end, line, true, false );
     // FIXME: do we have to use KIMAP::decodeIMAPFolderName() here?
-
-    if ( (*it).startsWith( '[' ) && (*it).endsWith( ']' ) ) {
-
-        // only "[fooobar]"
-        QByteArray str = *it;
-        str.chop(1);
-        str = str.right( str.size() - 1 );
-        _list << str;
-        ++it;
-
-    } else if ( (*it).startsWith( '[' ) ) {
-
-        QByteArray str = *it;
-        str = str.right( str.size() - 1 );
-        _list << str;
-        ++it;
-
-        while ( it != end ) {
-            if ( (*it).endsWith( ']' ) ) {
-                // this is the last item
-                str = *it;
-                str.chop( 1 );
-                _list << str;
-                ++it;
-                break;
-            } else {
-                _list << *it;
-                ++it;
-            }
-        }
-
-    }
 
     if ( !_list.empty() ) {
         const QString r = (*(_list.begin())).toUpper();
@@ -269,6 +292,44 @@ NumberResponse::NumberResponse( const Kind _kind, const uint _num ) throw(Invali
         throw InvalidArgument( "Attempted to create NumberResponse of invalid kind" );
 }
 
+List::List( QList<QByteArray>::const_iterator& it,
+        const QList<QByteArray>::const_iterator end,
+        const char * const lineData): AbstractResponse(LIST)
+{
+    flags = parseList( '(', ')', it, end, lineData );
+
+    if ( it == end )
+        throw NoData( lineData ); // flags and nothing else
+
+    QByteArray str = *it;
+    switch ( str.size() ) {
+        case 3:
+            // ( DQUOTE, char, DQUOTE ) OR "nil"
+            // FIXME
+            if ( str.toLower() == "nil" )
+                separator = QString::null;
+            else
+                separator = str[1];
+            break;
+        case 4:
+            // DQUOTE, backslash, DQUOTE
+            separator = str[2];
+            break;
+        case 2:
+            // DQUOTE, backslash, space (!), DQUOTE
+            ++it;
+            separator = " ";
+            break;
+        default:
+            throw ParseError( lineData ); // weird separator
+    }
+    ++it;
+
+    if ( it == end )
+        throw NoData( lineData ); // no mailbox
+    // FIXME: get mailbox
+}
+
 QTextStream& Status::dump( QTextStream& stream ) const
 {
     if ( !tag.isEmpty() )
@@ -291,6 +352,11 @@ QTextStream& Capability::dump( QTextStream& stream ) const
 QTextStream& NumberResponse::dump( QTextStream& stream ) const
 {
     return stream << kind << ": " << number; 
+}
+
+QTextStream& List::dump( QTextStream& stream ) const
+{
+    return stream << "LIST: " << mailbox << " ( " << flags.join(", ") << "), separator " << separator; 
 }
 
 template<class T> QTextStream& RespCodeData<T>::dump( QTextStream& stream ) const
@@ -355,6 +421,16 @@ bool Status::eq( const AbstractResponse& other ) const
                 return *respCodeData == *s.respCodeData;
         else
             return false;
+    } catch ( std::bad_cast& ) {
+        return false;
+    }
+}
+
+bool List::eq( const AbstractResponse& other ) const
+{
+    try {
+        const List& r = dynamic_cast<const List&>( other );
+        return mailbox == r.mailbox && flags == r.flags && separator == r.separator;
     } catch ( std::bad_cast& ) {
         return false;
     }

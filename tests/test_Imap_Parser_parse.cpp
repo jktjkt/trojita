@@ -165,6 +165,18 @@ void ImapParserParseTest::testParseUntagged_data()
     QTest::newRow("untagged-capability")
         << QByteArray("* CAPABILITY fooBar IMAP4rev1 blah\r\n")
         << shared_ptr<AbstractResponse>( new Capability( QStringList() << "fooBar" << "IMAP4rev1" << "blah" ) );
+
+    QTest::newRow("untagged-list")
+        << QByteArray("* LIST (\\Noselect) \".\" \"\"\r\n")
+        << shared_ptr<AbstractResponse>( new List( QStringList() << "\\Noselect", ".", "" ) );
+    QTest::newRow("untagged-list-moreflags")
+        << QByteArray("* LIST (\\Noselect Blesmrt) \".\" \"\"\r\n")
+        << shared_ptr<AbstractResponse>( new List( QStringList() << "\\Noselect" << "Blesmrt", ".", "" ) );
+    QTest::newRow("untagged-list-mailbox")
+        << QByteArray("* LIST () \".\" \"someName\"\r\n")
+        << shared_ptr<AbstractResponse>( new List( QStringList(), ".", "someName" ) );
+
+
 }
 
 QTEST_KDEMAIN_CORE( ImapParserParseTest )
