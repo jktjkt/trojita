@@ -29,9 +29,7 @@ class ImapLowLevelParserTest : public QObject
 private Q_SLOTS:
     void testParseList();
     void testGetString();
-    void testGetString_data();
     void testGetAString();
-    void testGetAString_data();
 };
 
 #endif

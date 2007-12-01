@@ -71,7 +71,7 @@ QPair<QByteArray,LowLevelParser::ParsedAs> LowLevelParser::getString( QList<QByt
         const QList<QByteArray>::const_iterator& end,
         const char * const lineData )
 {
-    if ( it == end )
+    if ( it == end || it->isEmpty() )
         throw NoData( lineData );
 
     if ( it->startsWith( '"' ) ) {
@@ -81,8 +81,12 @@ QPair<QByteArray,LowLevelParser::ParsedAs> LowLevelParser::getString( QList<QByt
         bool done = false;
         QByteArray data;
         while ( it != end ) {
-            for ( QByteArray::const_iterator letter = it->begin(); /* intentionaly left out */; ++letter ) {
-                if ( letter == it->end() ) {
+            QByteArray word = *it;
+            if ( word.endsWith( "\r\n" ) )
+                word.chop(2);
+            QByteArray::const_iterator letter = word.begin();
+            for ( /* first two intentionaly left out */;; ++letter ) {
+                if ( letter == word.end() ) {
                     data += ' ';
                     break;
                 } else {
@@ -92,6 +96,7 @@ QPair<QByteArray,LowLevelParser::ParsedAs> LowLevelParser::getString( QList<QByt
                     } else if ( !escaping ) {
                         if ( *letter == '"' ) {
                             done = true;
+                            ++letter;
                             break;
                         } else if ( *letter == '\\' ) {
                             escaping = true;
@@ -110,7 +115,12 @@ QPair<QByteArray,LowLevelParser::ParsedAs> LowLevelParser::getString( QList<QByt
                     }
                 }
             }
+            if ( letter != word.end() ) {
+                throw ParseError( lineData ); // string terminated in the middle of a word
+            }
             ++it;
+            if (done)
+                break;
         }
         if ( !done )
             throw NoData( lineData ); // unterminated quoted string
@@ -126,7 +136,7 @@ QPair<QByteArray,LowLevelParser::ParsedAs> LowLevelParser::getAString( QList<QBy
         const QList<QByteArray>::const_iterator& end,
         const char * const lineData )
 {
-    if ( it == end )
+    if ( it == end || it->isEmpty() )
         throw NoData( lineData );
 
     QByteArray item = *it;

@@ -25,8 +25,6 @@
 
 typedef QPair<QByteArray,Imap::LowLevelParser::ParsedAs> StringWithKind;
 
-Q_DECLARE_METATYPE(StringWithKind)
-
 void ImapLowLevelParserTest::testParseList()
 {
     QByteArray line = "()";
@@ -94,30 +92,151 @@ void ImapLowLevelParserTest::testParseList()
 
 void ImapLowLevelParserTest::testGetString()
 {
-    /*QFETCH( StringWithKind, first );
-    QFETCH( StringWithKind, second );
-    QCOMPARE( first, second );*/
-}
+    using namespace Imap::LowLevelParser;
 
-void ImapLowLevelParserTest::testGetString_data()
-{
-    QTest::addColumn<StringWithKind>("first");
-    QTest::addColumn<StringWithKind>("second");
+    QByteArray line = "ahOj";
+    QList<QByteArray> splitted = line.split(' ');
+    QList<QByteArray>::const_iterator begin = splitted.begin();
+    QList<QByteArray>::const_iterator end = splitted.end();
+
+    try {
+        line = "ah0j 333"; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
+        StringWithKind res = getString( begin, begin, line.constData());
+        QFAIL( "getString() should scream on empty line" );
+    } catch ( Imap::NoData& ) {
+        QVERIFY( true );
+    }
+
+    try {
+        line = ""; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
+        StringWithKind res = getString( begin, end, line.constData());
+        QFAIL( "getString() should scream on empty line" );
+    } catch ( Imap::NoData& ) {
+        QVERIFY( true );
+    }
+
+    try {
+        line = "ah0j 333"; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
+        StringWithKind res = getString( begin, end, line.constData());
+        QFAIL( "getString() should ignore atoms" );
+    } catch ( Imap::UnexpectedHere& ) {
+        QVERIFY( true );
+    }
+
+    try {
+        line = "ah0j"; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
+        StringWithKind res = getString( begin, end, line.constData());
+        QFAIL( "getString() should ignore atoms" );
+    } catch ( Imap::UnexpectedHere& ) {
+        QVERIFY( true );
+    }
+
 }
 
 void ImapLowLevelParserTest::testGetAString()
 {
-    /*QFETCH( StringWithKind, first );
-    QFETCH( StringWithKind, second );
-    QCOMPARE( first, second );*/
-}
+    using namespace Imap::LowLevelParser;
 
-void ImapLowLevelParserTest::testGetAString_data()
-{
-    QTest::addColumn<StringWithKind>("first");
-    QTest::addColumn<StringWithKind>("second");
-}
+    QByteArray line = "ahOj";
+    QList<QByteArray> splitted = line.split(' ');
+    QList<QByteArray>::const_iterator begin = splitted.begin();
+    QList<QByteArray>::const_iterator end = splitted.end();
 
+    StringWithKind res = getAString( begin, end, line.constData());
+    QCOMPARE( res.first, QByteArray("ahOj") );
+    QCOMPARE( res.second, ATOM );
+    QCOMPARE( begin, end );
+
+    line = "ah0j 333"; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
+    res = getAString( begin, end, line.constData() );
+    QCOMPARE( res.first, QByteArray("ah0j") );
+    QCOMPARE( res.second, ATOM );
+    QCOMPARE( *begin, QByteArray("333") );
+
+    line = "\"ah0j\""; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
+    res = getAString( begin, end, line.constData() );
+    QCOMPARE( res.first, QByteArray("ah0j") );
+    QCOMPARE( res.second, QUOTED );
+    QCOMPARE( begin, end );
+
+    line = "\"ah0j\" blesmrt"; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
+    res = getAString( begin, end, line.constData() );
+    QCOMPARE( res.first, QByteArray("ah0j") );
+    QCOMPARE( res.second, QUOTED );
+    QCOMPARE( *begin, QByteArray("blesmrt") );
+
+    line = "\"ah0\\\\j\" blesmrt"; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
+    res = getAString( begin, end, line.constData() );
+    QCOMPARE( res.first, QByteArray("ah0\\j") );
+    QCOMPARE( res.second, QUOTED );
+    QCOMPARE( *begin, QByteArray("blesmrt") );
+
+    line = "\"ah0\\\"j\" blesmrt"; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
+    res = getAString( begin, end, line.constData() );
+    QCOMPARE( res.first, QByteArray("ah0\"j") );
+    QCOMPARE( res.second, QUOTED );
+    QCOMPARE( *begin, QByteArray("blesmrt") );
+
+    line = "\"ahoj blesmrt\""; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
+    res = getAString( begin, end, line.constData() );
+    QCOMPARE( res.first, QByteArray("ahoj blesmrt") );
+    QCOMPARE( res.second, QUOTED );
+    QCOMPARE( begin, end );
+
+    line = "\"ahoj blesmrt\" trojita"; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
+    res = getAString( begin, end, line.constData() );
+    QCOMPARE( res.first, QByteArray("ahoj blesmrt") );
+    QCOMPARE( res.second, QUOTED );
+    QCOMPARE( *begin, QByteArray("trojita") );
+
+    line = "\"ahoj\\\" blesmrt\" trojita"; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
+    res = getAString( begin, end, line.constData() );
+    QCOMPARE( res.first, QByteArray("ahoj\" blesmrt") );
+    QCOMPARE( res.second, QUOTED );
+    QCOMPARE( *begin, QByteArray("trojita") );
+
+    line = "\"\""; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
+    res = getAString( begin, end, line.constData() );
+    QCOMPARE( res.first, QByteArray("") );
+    QCOMPARE( res.second, QUOTED );
+    QCOMPARE( begin, end );
+
+    line = "\"\" trojita"; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
+    res = getAString( begin, end, line.constData() );
+    QCOMPARE( res.first, QByteArray("") );
+    QCOMPARE( res.second, QUOTED );
+    QCOMPARE( *begin, QByteArray("trojita") );
+
+    line = "\"\\\"\""; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
+    res = getAString( begin, end, line.constData() );
+    QCOMPARE( res.first, QByteArray("\"") );
+    QCOMPARE( res.second, QUOTED );
+    QCOMPARE( begin, end );
+
+    line = "\"\\\\\""; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
+    res = getAString( begin, end, line.constData() );
+    QCOMPARE( res.first, QByteArray("\\") );
+    QCOMPARE( res.second, QUOTED );
+    QCOMPARE( begin, end );
+
+    line = ""; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
+    try {
+        res = getAString( begin, begin, line.constData() );
+        QFAIL( "empty string should have raised an exception" );
+    } catch ( Imap::NoData& ) {
+        QVERIFY( true );
+    }
+
+    line = ""; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
+    try {
+        res = getAString( begin, end, line.constData() );
+        QFAIL( "empty string should have raised an exception" );
+    } catch ( Imap::NoData& ) {
+        QVERIFY( true );
+    }
+
+    // FIXME: literals
+}
 
 QTEST_KDEMAIN_CORE( ImapLowLevelParserTest )
 
