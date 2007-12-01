@@ -278,7 +278,7 @@ List::List( QList<QByteArray>::const_iterator& it,
     if ( res.second == ::Imap::LowLevelParser::ATOM && res.first.toUpper() == "INBOX" )
         mailbox = "INBOX";
     else
-        mailbox = res.second; // FIXME: decode mailbox' name
+        mailbox = res.first; // FIXME: decode mailbox' name
 }
 
 QTextStream& Status::dump( QTextStream& stream ) const
@@ -307,7 +307,7 @@ QTextStream& NumberResponse::dump( QTextStream& stream ) const
 
 QTextStream& List::dump( QTextStream& stream ) const
 {
-    return stream << "LIST: " << mailbox << " ( " << flags.join(", ") << "), separator " << separator; 
+    return stream << "LIST: '" << mailbox << "' (" << flags.join(", ") << "), separator " << separator; 
 }
 
 template<class T> QTextStream& RespCodeData<T>::dump( QTextStream& stream ) const
