@@ -153,7 +153,19 @@ void ImapLowLevelParserTest::testGetAString()
     QCOMPARE( res.second, ATOM );
     QCOMPARE( *begin, QByteArray("333") );
 
+    line = "ah0j\r\n"; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
+    res = getAString( begin, end, line.constData() );
+    QCOMPARE( res.first, QByteArray("ah0j") );
+    QCOMPARE( res.second, ATOM );
+    QCOMPARE( begin, end );
+
     line = "\"ah0j\""; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
+    res = getAString( begin, end, line.constData() );
+    QCOMPARE( res.first, QByteArray("ah0j") );
+    QCOMPARE( res.second, QUOTED );
+    QCOMPARE( begin, end );
+
+    line = "\"ah0j\"\r\n"; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
     res = getAString( begin, end, line.constData() );
     QCOMPARE( res.first, QByteArray("ah0j") );
     QCOMPARE( res.second, QUOTED );

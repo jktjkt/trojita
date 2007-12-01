@@ -144,6 +144,8 @@ QPair<QByteArray,LowLevelParser::ParsedAs> LowLevelParser::getAString( QList<QBy
         return getString( it, end, lineData );
     } else {
         ++it;
+        if ( item.endsWith("\r\n") )
+            item.chop(2);
         return qMakePair( item, ATOM );
     }
 }

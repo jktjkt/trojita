@@ -175,7 +175,15 @@ void ImapParserParseTest::testParseUntagged_data()
     QTest::newRow("untagged-list-mailbox")
         << QByteArray("* LIST () \".\" \"someName\"\r\n")
         << shared_ptr<AbstractResponse>( new List( QStringList(), ".", "someName" ) );
-
+    QTest::newRow("untagged-list-mailbox-atom")
+        << QByteArray("* LIST () \".\" someName\r\n")
+        << shared_ptr<AbstractResponse>( new List( QStringList(), ".", "someName" ) );
+    QTest::newRow("untagged-list-separator-nil")
+        << QByteArray("* LIST () NiL someName\r\n")
+        << shared_ptr<AbstractResponse>( new List( QStringList(), QString::null, "someName" ) );
+    QTest::newRow("untagged-list-mailbox-quote")
+        << QByteArray("* LIST () \".\" \"some\\\"Name\"\r\n")
+        << shared_ptr<AbstractResponse>( new List( QStringList(), ".", "some\"Name" ) );
 
 }
 

@@ -17,6 +17,7 @@
 */
 #include "Imap/Response.h"
 #include "Imap/LowLevelParser.h"
+#include "Imap/rfccodecs.h"
 
 namespace Imap {
 namespace Responses {
@@ -278,7 +279,7 @@ List::List( QList<QByteArray>::const_iterator& it,
     if ( res.second == ::Imap::LowLevelParser::ATOM && res.first.toUpper() == "INBOX" )
         mailbox = "INBOX";
     else
-        mailbox = res.first; // FIXME: decode mailbox' name
+        mailbox = KIMAP::decodeImapFolderName( res.first );
 }
 
 QTextStream& Status::dump( QTextStream& stream ) const
