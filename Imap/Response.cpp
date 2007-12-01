@@ -16,64 +16,10 @@
    Boston, MA 02110-1301, USA.
 */
 #include "Imap/Response.h"
+#include "Imap/LowLevelParser.h"
 
 namespace Imap {
 namespace Responses {
-
-/** @short Parse parenthesized list 
- *
- * Parenthesized lists is defined as a sequence of space-separated strings
- * enclosed between "open" and "close" characters.
- *
- * it, end -- iterators determining where to start and end
- * lineData -- used when throwing exception
- * allowNoList -- if false and there's no opening parenthesis, exception is
- *                thrown
- * allowEmptyList -- if false and the list is empty (ie. nothing between opening
- *                   and closing bracket), exception is thrown
- * */
-QStringList parseList( const char open, const char close,
-        QList<QByteArray>::const_iterator& it,
-        const QList<QByteArray>::const_iterator& end,
-        const char * const lineData,
-        const bool allowNoList = false, const bool allowEmptyList = true )
-{
-    if ( it->startsWith( open ) && it->endsWith( close ) ) {
-        QByteArray item = *it;
-        ++it;
-        item.chop(1);
-        item = item.right( item.size() - 1 );
-        if ( item.isEmpty() )
-            if ( allowEmptyList )
-                return QStringList();
-            else
-                throw NoData( lineData );
-        else
-            return QStringList( item );
-    } else if ( it->startsWith( open ) ) {
-        QByteArray item = *it;
-        item = item.right( item.size() - 1 );
-        ++it;
-        QStringList result( item );
-
-        bool foundParenth = false;
-        while ( it != end && !foundParenth ) {
-            QByteArray item = *it;
-            if ( item.endsWith( close ) ) {
-                foundParenth = true;
-                item.chop(1);
-            }
-            result << item;
-            ++it;
-        }
-        if ( !foundParenth )
-            throw NoData( lineData ); // unterminated list
-        return result;
-    } else if ( !allowNoList )
-        throw NoData( lineData ); 
-    else
-        return QStringList();
-}
 
 QTextStream& operator<<( QTextStream& stream, const Code& r )
 {
@@ -204,7 +150,7 @@ Status::Status( const QString& _tag, const Kind _kind, QList<QByteArray>::const_
         }
     }
 
-    QStringList _list = parseList( '[', ']', it, end, line, true, false );
+    QStringList _list = ::Imap::LowLevelParser::parseList( '[', ']', it, end, line, true, false );
     // FIXME: do we have to use KIMAP::decodeIMAPFolderName() here?
 
     if ( !_list.empty() ) {
@@ -296,7 +242,7 @@ List::List( QList<QByteArray>::const_iterator& it,
         const QList<QByteArray>::const_iterator end,
         const char * const lineData): AbstractResponse(LIST)
 {
-    flags = parseList( '(', ')', it, end, lineData );
+    flags = ::Imap::LowLevelParser::parseList( '(', ')', it, end, lineData );
 
     if ( it == end )
         throw NoData( lineData ); // flags and nothing else
@@ -327,7 +273,12 @@ List::List( QList<QByteArray>::const_iterator& it,
 
     if ( it == end )
         throw NoData( lineData ); // no mailbox
-    // FIXME: get mailbox
+
+    QPair<QByteArray,::Imap::LowLevelParser::ParsedAs> res = ::Imap::LowLevelParser::getAString( it, end, lineData );
+    if ( res.second == ::Imap::LowLevelParser::ATOM && res.first.toUpper() == "INBOX" )
+        mailbox = "INBOX";
+    else
+        mailbox = res.second; // FIXME: decode mailbox' name
 }
 
 QTextStream& Status::dump( QTextStream& stream ) const
