@@ -367,65 +367,74 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::parseUntagged( const Q
 
     if ( isDigit ) {
         ++it;
-        if ( it == splitted.end() )
-            // number and nothing else
-            throw NoData( line.constData() );
-
-        Responses::Kind kind = Responses::kindFromString( *it );
-        ++it;
-
-        switch ( kind ) {
-            case Responses::EXISTS:
-            case Responses::RECENT:
-            case Responses::EXPUNGE:
-                // no more data should follow
-                if ( it != splitted.end() )
-                    throw TooMuchData( line.constData() );
-                else
-                    return std::tr1::shared_ptr<Responses::AbstractResponse>(
-                            new Responses::NumberResponse( kind, number ) );
-                break;
-
-            case Responses::FETCH:
-                // FIXME: parse fetch response
-                throw ParseError( "not implemented" );
-                break;
-
-            default:
-                throw UnexpectedHere( line.constData() );
-        }
-
+        return _parseUntaggedNumber( it, splitted.end(), number, line.constData() );
     } else {
-        // it starts with a token
-        Responses::Kind kind = Responses::kindFromString( *it );
-        ++it;
-        switch ( kind ) {
-            case Responses::CAPABILITY:
-                {
-                    QStringList capabilities;
-                    for ( ; it != splitted.end(); ++it )
-                        capabilities << *it;
-                    if ( !capabilities.count() )
-                        throw NoData( line.constData() );
-                    return std::tr1::shared_ptr<Responses::AbstractResponse>(
-                            new Responses::Capability( capabilities ) );
-                }
-            case Responses::OK:
-            case Responses::NO:
-            case Responses::BAD:
-            case Responses::PREAUTH:
-            case Responses::BYE:
-                return std::tr1::shared_ptr<Responses::AbstractResponse>(
-                        new Responses::Status( QString::null, kind, it, splitted.end(), line.constData() ) );
-            /*case Responses::LIST:
-                // FIXME
-                break;
-            default:
-                throw UnexpectedHere( line.constData() );*/
-        }
+        return _parseUntaggedText( it, splitted.end(), line.constData() );
     }
+}
 
-    throw ParseError( line.constData() ); // we shouldn't ever make it so far
+std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedNumber(
+        QList<QByteArray>::const_iterator& it,
+        const QList<QByteArray>::const_iterator& end,
+        const uint number, const char * const lineData )
+{
+    if ( it == end )
+        // number and nothing else
+        throw NoData( lineData );
+
+    Responses::Kind kind = Responses::kindFromString( *it );
+    ++it;
+
+    switch ( kind ) {
+        case Responses::EXISTS:
+        case Responses::RECENT:
+        case Responses::EXPUNGE:
+            // no more data should follow
+            if ( it != end )
+                throw TooMuchData( lineData );
+            else
+                return std::tr1::shared_ptr<Responses::AbstractResponse>(
+                        new Responses::NumberResponse( kind, number ) );
+            break;
+
+        case Responses::FETCH:
+            // FIXME: parse fetch response
+            throw ParseError( "not implemented" );
+            break;
+
+        default:
+            throw UnexpectedHere( lineData );
+    }
+}
+
+std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedText(
+        QList<QByteArray>::const_iterator& it,
+        const QList<QByteArray>::const_iterator& end,
+        const char * const lineData )
+{
+    Responses::Kind kind = Responses::kindFromString( *it );
+    ++it;
+    switch ( kind ) {
+        case Responses::CAPABILITY:
+            {
+                QStringList capabilities;
+                for ( ; it != end; ++it )
+                    capabilities << *it;
+                if ( !capabilities.count() )
+                    throw NoData( lineData );
+                return std::tr1::shared_ptr<Responses::AbstractResponse>(
+                        new Responses::Capability( capabilities ) );
+            }
+        case Responses::OK:
+        case Responses::NO:
+        case Responses::BAD:
+        case Responses::PREAUTH:
+        case Responses::BYE:
+            return std::tr1::shared_ptr<Responses::AbstractResponse>(
+                    new Responses::Status( QString::null, kind, it, end, lineData ) );
+        default:
+            throw UnexpectedHere( lineData );
+    }
 }
 
 std::tr1::shared_ptr<Responses::AbstractResponse> Parser::parseTagged( const QByteArray& line )
