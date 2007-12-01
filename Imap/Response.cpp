@@ -90,6 +90,9 @@ QTextStream& operator<<( QTextStream& stream, const Kind& res )
             break;
         case LIST:
             stream << "LIST";
+            break;
+        case LSUB:
+            stream << "LSUB";
     }
     return stream;
 }
@@ -122,6 +125,8 @@ Kind kindFromString( QByteArray str ) throw( UnrecognizedResponseKind )
         return CAPABILITY;
     if ( str == "LIST" )
         return LIST;
+    if ( str == "LSUB" )
+        return LSUB;
     throw UnrecognizedResponseKind( str.constData() );
 }
 
@@ -239,10 +244,13 @@ NumberResponse::NumberResponse( const Kind _kind, const uint _num ) throw(Invali
         throw InvalidArgument( "Attempted to create NumberResponse of invalid kind" );
 }
 
-List::List( QList<QByteArray>::const_iterator& it,
+List::List( const Kind _kind, QList<QByteArray>::const_iterator& it,
         const QList<QByteArray>::const_iterator end,
-        const char * const lineData): AbstractResponse(LIST)
+        const char * const lineData): AbstractResponse(LIST), kind(_kind)
 {
+    if ( kind != LIST && kind != LSUB )
+        throw UnexpectedHere( lineData );
+
     flags = ::Imap::LowLevelParser::parseList( '(', ')', it, end, lineData );
 
     if ( it == end )
@@ -308,7 +316,7 @@ QTextStream& NumberResponse::dump( QTextStream& stream ) const
 
 QTextStream& List::dump( QTextStream& stream ) const
 {
-    return stream << "LIST: '" << mailbox << "' (" << flags.join(", ") << "), separator " << separator; 
+    return stream << kind << ": '" << mailbox << "' (" << flags.join(", ") << "), separator " << separator; 
 }
 
 template<class T> QTextStream& RespCodeData<T>::dump( QTextStream& stream ) const

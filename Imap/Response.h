@@ -56,7 +56,8 @@ namespace Responses {
         EXISTS,
         RECENT,
         CAPABILITY,
-        LIST
+        LIST,
+        LSUB
     }; // aren't those comments just sexy? :)
 
     /** @short Response Code */
@@ -218,6 +219,8 @@ namespace Responses {
     /** @short Structure storing a LIST untagged response */
     class List : public AbstractResponse {
     public:
+        /** @short LIST or LSUB */
+        Kind kind;
         /** @short Flags for this particular mailbox */
         QStringList flags;
         /** @short Hierarchy separator */
@@ -225,11 +228,11 @@ namespace Responses {
         /** @short Mailbox name */
         QString mailbox;
 
-        List( QList<QByteArray>::const_iterator& it,
+        List( const Kind _kind, QList<QByteArray>::const_iterator& it,
                 const QList<QByteArray>::const_iterator end,
                 const char * const lineData);
-        List( const QStringList& _flags, const QString& _separator, const QString& _mailbox ):
-            AbstractResponse(LIST), flags(_flags), separator(_separator), mailbox(_mailbox) {};
+        List( const Kind _kind, const QStringList& _flags, const QString& _separator, const QString& _mailbox ):
+            AbstractResponse(LIST), kind(_kind), flags(_flags), separator(_separator), mailbox(_mailbox) {};
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
     };

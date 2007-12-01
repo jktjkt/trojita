@@ -440,8 +440,9 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedText(
             return std::tr1::shared_ptr<Responses::AbstractResponse>(
                     new Responses::Status( QString::null, kind, it, end, lineData ) );
         case Responses::LIST:
+        case Responses::LSUB:
             return std::tr1::shared_ptr<Responses::AbstractResponse>(
-                    new Responses::List( it, end, lineData ) );
+                    new Responses::List( kind, it, end, lineData ) );
         default:
             throw UnexpectedHere( lineData );
     }

@@ -168,22 +168,25 @@ void ImapParserParseTest::testParseUntagged_data()
 
     QTest::newRow("untagged-list")
         << QByteArray("* LIST (\\Noselect) \".\" \"\"\r\n")
-        << shared_ptr<AbstractResponse>( new List( QStringList() << "\\Noselect", ".", "" ) );
+        << shared_ptr<AbstractResponse>( new List( LIST, QStringList() << "\\Noselect", ".", "" ) );
+    QTest::newRow("untagged-lsub")
+        << QByteArray("* LSUB (\\Noselect) \".\" \"\"\r\n")
+        << shared_ptr<AbstractResponse>( new List( LIST, QStringList() << "\\Noselect", ".", "" ) );
     QTest::newRow("untagged-list-moreflags")
         << QByteArray("* LIST (\\Noselect Blesmrt) \".\" \"\"\r\n")
-        << shared_ptr<AbstractResponse>( new List( QStringList() << "\\Noselect" << "Blesmrt", ".", "" ) );
+        << shared_ptr<AbstractResponse>( new List( LIST, QStringList() << "\\Noselect" << "Blesmrt", ".", "" ) );
     QTest::newRow("untagged-list-mailbox")
         << QByteArray("* LIST () \".\" \"someName\"\r\n")
-        << shared_ptr<AbstractResponse>( new List( QStringList(), ".", "someName" ) );
+        << shared_ptr<AbstractResponse>( new List( LIST, QStringList(), ".", "someName" ) );
     QTest::newRow("untagged-list-mailbox-atom")
         << QByteArray("* LIST () \".\" someName\r\n")
-        << shared_ptr<AbstractResponse>( new List( QStringList(), ".", "someName" ) );
+        << shared_ptr<AbstractResponse>( new List( LIST, QStringList(), ".", "someName" ) );
     QTest::newRow("untagged-list-separator-nil")
         << QByteArray("* LIST () NiL someName\r\n")
-        << shared_ptr<AbstractResponse>( new List( QStringList(), QString::null, "someName" ) );
+        << shared_ptr<AbstractResponse>( new List( LIST, QStringList(), QString::null, "someName" ) );
     QTest::newRow("untagged-list-mailbox-quote")
         << QByteArray("* LIST () \".\" \"some\\\"Name\"\r\n")
-        << shared_ptr<AbstractResponse>( new List( QStringList(), ".", "some\"Name" ) );
+        << shared_ptr<AbstractResponse>( new List( LIST, QStringList(), ".", "some\"Name" ) );
 #include "test_Imap_Parser_parse-Chinese.include"
 
 }
