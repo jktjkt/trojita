@@ -382,7 +382,10 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedNumber(
         // number and nothing else
         throw NoData( lineData );
 
-    Responses::Kind kind = Responses::kindFromString( *it );
+    QByteArray kindStr = *it;
+    if ( kindStr.endsWith( "\r\n" ) )
+            kindStr.chop(2);
+    Responses::Kind kind = Responses::kindFromString( kindStr );
     ++it;
 
     switch ( kind ) {
@@ -418,8 +421,12 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedText(
         case Responses::CAPABILITY:
             {
                 QStringList capabilities;
-                for ( ; it != end; ++it )
-                    capabilities << *it;
+                for ( ; it != end; ++it ) {
+                    QByteArray str = *it;
+                    if ( str.endsWith( "\r\n" ) )
+                        str.chop(2);
+                    capabilities << str;
+                }
                 if ( !capabilities.count() )
                     throw NoData( lineData );
                 return std::tr1::shared_ptr<Responses::AbstractResponse>(

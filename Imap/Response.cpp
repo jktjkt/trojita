@@ -265,7 +265,7 @@ Status::Status( const QString& _tag, const Kind _kind, QList<QByteArray>::const_
 NumberResponse::NumberResponse( const Kind _kind, const uint _num ) throw(InvalidArgument):
     AbstractResponse(_kind), number(_num)
 {
-    if ( kind != EXISTS || kind != EXPUNGE || kind != RECENT )
+    if ( kind != EXISTS && kind != EXPUNGE && kind != RECENT )
         throw InvalidArgument( "Attempted to create NumberResponse of invalid kind" );
 }
 

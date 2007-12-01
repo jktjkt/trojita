@@ -151,6 +151,20 @@ void ImapParserParseTest::testParseUntagged_data()
     QTest::newRow("untagged-bye")
         << QByteArray("* BYE go away\r\n")
         << shared_ptr<AbstractResponse>( new Status(QString::null, BYE, "go away", NONE, voidData ) );
+
+    QTest::newRow("untagged-expunge")
+        << QByteArray("* 1337 Expunge\r\n")
+        << shared_ptr<AbstractResponse>( new NumberResponse( EXPUNGE, 1337 ) );
+    QTest::newRow("untagged-exists")
+        << QByteArray("* 3 exIsts\r\n")
+        << shared_ptr<AbstractResponse>( new NumberResponse( EXISTS, 3 ) );
+    QTest::newRow("untagged-recent")
+        << QByteArray("* 666 recenT\r\n")
+        << shared_ptr<AbstractResponse>( new NumberResponse( RECENT, 666 ) );
+
+    QTest::newRow("untagged-capability")
+        << QByteArray("* CAPABILITY fooBar IMAP4rev1 blah\r\n")
+        << shared_ptr<AbstractResponse>( new Capability( QStringList() << "fooBar" << "IMAP4rev1" << "blah" ) );
 }
 
 QTEST_KDEMAIN_CORE( ImapParserParseTest )
