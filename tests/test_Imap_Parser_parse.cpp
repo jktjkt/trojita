@@ -23,7 +23,7 @@
 #include "test_Imap_Parser_parse.moc"
 
 Q_DECLARE_METATYPE(std::tr1::shared_ptr<Imap::Responses::AbstractResponse>)
-Q_DECLARE_METATYPE(Imap::Responses::Status)
+Q_DECLARE_METATYPE(Imap::Responses::State)
 
 void ImapParserParseTest::initTestCase()
 {
@@ -56,61 +56,61 @@ void ImapParserParseTest::testParseTagged_data()
 
     QTest::newRow("tagged-ok-simple")
         << QByteArray("y01 OK Everything works, man!\r\n")
-        << shared_ptr<AbstractResponse>( new Status("y01", OK, "Everything works, man!", NONE, voidData ) );
+        << shared_ptr<AbstractResponse>( new State("y01", OK, "Everything works, man!", NONE, voidData ) );
 
     QTest::newRow("tagged-no-simple")
         << QByteArray("12345 NO Nope, something is broken\r\n")
-        << shared_ptr<AbstractResponse>( new Status("12345", NO, "Nope, something is broken", NONE, voidData ) );
+        << shared_ptr<AbstractResponse>( new State("12345", NO, "Nope, something is broken", NONE, voidData ) );
 
     QTest::newRow("tagged-bad-simple") 
         << QByteArray("ahoj BaD WTF?\r\n") 
-        << shared_ptr<AbstractResponse>( new Status("ahoj", BAD, "WTF?", NONE, voidData ) );
+        << shared_ptr<AbstractResponse>( new State("ahoj", BAD, "WTF?", NONE, voidData ) );
 
     QTest::newRow("tagged-ok-alert") 
         << QByteArray("y01 oK [ALERT] Server on fire\r\n") 
-        << shared_ptr<AbstractResponse>( new Status("y01", OK, "Server on fire", ALERT, voidData ) );
+        << shared_ptr<AbstractResponse>( new State("y01", OK, "Server on fire", ALERT, voidData ) );
     QTest::newRow("tagged-no-alert") 
         << QByteArray("1337 no [ALeRT] Server on fire\r\n")
-        << shared_ptr<AbstractResponse>( new Status("1337", NO, "Server on fire", ALERT, voidData ) );
+        << shared_ptr<AbstractResponse>( new State("1337", NO, "Server on fire", ALERT, voidData ) );
 
     QTest::newRow("tagged-ok-capability") 
         << QByteArray("y01 OK [CAPaBILITY blurdybloop IMAP4rev1 WTF] Capabilities updated\r\n") 
-        << shared_ptr<AbstractResponse>( new Status("y01", OK, "Capabilities updated", CAPABILITIES, 
+        << shared_ptr<AbstractResponse>( new State("y01", OK, "Capabilities updated", CAPABILITIES, 
                         shared_ptr<AbstractRespCodeData>(
                             new RespCodeData<QStringList>( QStringList() << "blurdybloop" << "IMAP4rev1" << "WTF") ) ) );
 
     QTest::newRow("tagged-ok-parse") 
         << QByteArray("y01 OK [PArSE] Parse error. What do you feed me with?\r\n") 
-        << shared_ptr<AbstractResponse>( new Status("y01", OK, "Parse error. What do you feed me with?",
+        << shared_ptr<AbstractResponse>( new State("y01", OK, "Parse error. What do you feed me with?",
                     PARSE, voidData) );
     QTest::newRow("tagged-ok-permanentflags-empty") 
         << QByteArray("y01 OK [PERMANENTfLAGS] Behold, the flags!\r\n") 
-        << shared_ptr<AbstractResponse>( new Status("y01", OK, "Behold, the flags!", PERMANENTFLAGS, emptyList) );
+        << shared_ptr<AbstractResponse>( new State("y01", OK, "Behold, the flags!", PERMANENTFLAGS, emptyList) );
     QTest::newRow("tagged-ok-permanentflags-flags") 
         << QByteArray("y01 OK [PErMANENTFLAGS \\Foo \\Bar SmrT] Behold, the flags!\r\n") 
-        << shared_ptr<AbstractResponse>( new Status("y01", OK, "Behold, the flags!", PERMANENTFLAGS,
+        << shared_ptr<AbstractResponse>( new State("y01", OK, "Behold, the flags!", PERMANENTFLAGS,
                     shared_ptr<AbstractRespCodeData>( new RespCodeData<QStringList>(
                             QStringList() << "\\Foo" << "\\Bar" << "SmrT" ))) );
     QTest::newRow("tagged-ok-readonly") 
         << QByteArray("333 OK [ReAD-ONLY] No writing for you\r\n") 
-        << shared_ptr<AbstractResponse>( new Status("333", OK, "No writing for you", READ_ONLY, voidData));
+        << shared_ptr<AbstractResponse>( new State("333", OK, "No writing for you", READ_ONLY, voidData));
     QTest::newRow("tagged-ok-readwrite") 
         << QByteArray("y01 OK [REaD-WRITE] Write!!!\r\n") 
-        << shared_ptr<AbstractResponse>( new Status("y01", OK, "Write!!!", READ_WRITE, voidData));
+        << shared_ptr<AbstractResponse>( new State("y01", OK, "Write!!!", READ_WRITE, voidData));
     QTest::newRow("tagged-ok-trycreate") 
         << QByteArray("y01 OK [TryCreate] ...would be better :)\r\n") 
-        << shared_ptr<AbstractResponse>( new Status("y01", OK, "...would be better :)", TRYCREATE, voidData));
+        << shared_ptr<AbstractResponse>( new State("y01", OK, "...would be better :)", TRYCREATE, voidData));
     QTest::newRow("tagged-ok-uidnext") 
         << QByteArray("y01 OK [uidNext 5] Next UID\r\n") 
-        << shared_ptr<AbstractResponse>( new Status("y01", OK, "Next UID", UIDNEXT,
+        << shared_ptr<AbstractResponse>( new State("y01", OK, "Next UID", UIDNEXT,
                     shared_ptr<AbstractRespCodeData>( new RespCodeData<uint>( 5 ) )));
     QTest::newRow("tagged-ok-uidvalidity") 
         << QByteArray("y01 OK [UIDVALIDITY 17] UIDs valid\r\n") 
-        << shared_ptr<AbstractResponse>( new Status("y01", OK, "UIDs valid", UIDVALIDITY,
+        << shared_ptr<AbstractResponse>( new State("y01", OK, "UIDs valid", UIDVALIDITY,
                     shared_ptr<AbstractRespCodeData>( new RespCodeData<uint>( 17 ) )));
     QTest::newRow("tagged-ok-unseen") 
         << QByteArray("y01 OK [unSeen 666] I need my glasses\r\n") 
-        << shared_ptr<AbstractResponse>( new Status("y01", OK, "I need my glasses", UNSEEN,
+        << shared_ptr<AbstractResponse>( new State("y01", OK, "I need my glasses", UNSEEN,
                     shared_ptr<AbstractRespCodeData>( new RespCodeData<uint>( 666 ) )));
 
 }
@@ -139,18 +139,18 @@ void ImapParserParseTest::testParseUntagged_data()
 
     QTest::newRow("untagged-ok-simple")
         << QByteArray("* OK Everything works, man!\r\n")
-        << shared_ptr<AbstractResponse>( new Status(QString::null, OK, "Everything works, man!", NONE, voidData ) );
+        << shared_ptr<AbstractResponse>( new State(QString::null, OK, "Everything works, man!", NONE, voidData ) );
 
     QTest::newRow("untagged-no-simple")
         << QByteArray("* NO Nope, something is broken\r\n")
-        << shared_ptr<AbstractResponse>( new Status(QString::null, NO, "Nope, something is broken", NONE, voidData ) );
+        << shared_ptr<AbstractResponse>( new State(QString::null, NO, "Nope, something is broken", NONE, voidData ) );
     QTest::newRow("untagged-ok-uidvalidity") 
         << QByteArray("* OK [UIDVALIDITY 17] UIDs valid\r\n") 
-        << shared_ptr<AbstractResponse>( new Status(QString::null, OK, "UIDs valid", UIDVALIDITY,
+        << shared_ptr<AbstractResponse>( new State(QString::null, OK, "UIDs valid", UIDVALIDITY,
                     shared_ptr<AbstractRespCodeData>( new RespCodeData<uint>( 17 ) )));
     QTest::newRow("untagged-bye")
         << QByteArray("* BYE go away\r\n")
-        << shared_ptr<AbstractResponse>( new Status(QString::null, BYE, "go away", NONE, voidData ) );
+        << shared_ptr<AbstractResponse>( new State(QString::null, BYE, "go away", NONE, voidData ) );
 
     QTest::newRow("untagged-expunge")
         << QByteArray("* 1337 Expunge\r\n")

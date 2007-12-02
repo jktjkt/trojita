@@ -148,7 +148,7 @@ QTextStream& operator<<( QTextStream& stream, const AbstractRespCodeData& resp )
     return resp.dump( stream );
 }
 
-Status::Status( const QString& _tag, const Kind _kind, QList<QByteArray>::const_iterator& it, 
+State::State( const QString& _tag, const Kind _kind, QList<QByteArray>::const_iterator& it, 
         const QList<QByteArray>::const_iterator& end, const char * const line ):
     tag(_tag), kind(_kind), respCode( NONE )
 {
@@ -306,7 +306,7 @@ Flags::Flags( QList<QByteArray>::const_iterator& it,
         throw TooMuchData( lineData );
 }
 
-QTextStream& Status::dump( QTextStream& stream ) const
+QTextStream& State::dump( QTextStream& stream ) const
 {
     if ( !tag.isEmpty() )
         stream << "tag " << tag;
@@ -398,10 +398,10 @@ bool NumberResponse::eq( const AbstractResponse& other ) const
     }
 }
 
-bool Status::eq( const AbstractResponse& other ) const
+bool State::eq( const AbstractResponse& other ) const
 {
     try {
-        const Status& s = dynamic_cast<const Status&>( other );
+        const State& s = dynamic_cast<const State&>( other );
         if ( kind == s.kind && tag == s.tag && message == s.message && respCode == s.respCode )
             if ( respCode == NONE )
                 return true;

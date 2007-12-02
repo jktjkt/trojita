@@ -124,7 +124,7 @@ namespace Responses {
     };
 
     /** @short Structure storing OK/NO/BAD/PREAUTH/BYE responses */
-    class Status : public AbstractResponse {
+    class State : public AbstractResponse {
     public:
         /** @short Tag name or QString::null if untagged */
         QString tag;
@@ -179,18 +179,18 @@ namespace Responses {
          * actually corresponds to all invariants we declare as per respCode's
          * documentation.
          * */
-        Status( const QString& _tag, const Kind _kind, const QString& _message,
+        State( const QString& _tag, const Kind _kind, const QString& _message,
                 const Code _respCode,
                 const std::tr1::shared_ptr<AbstractRespCodeData> _respCodeData ):
             tag(_tag), kind(_kind), message(_message), respCode(_respCode),
             respCodeData(_respCodeData) {};
 
         /** @short "Smart" constructor that parses a response out of a QList<QByteArray> */
-        Status( const QString& _tag, const Kind _kind, QList<QByteArray>::const_iterator& it,
+        State( const QString& _tag, const Kind _kind, QList<QByteArray>::const_iterator& it,
                 const QList<QByteArray>::const_iterator& end, const char * const line );
 
         /** @short Default destructor that makes containers and QtTest happy */
-        Status(): respCode(NONE) {};
+        State(): respCode(NONE) {};
 
         /** @short helper for operator<<( QTextStream& ) */
         virtual QTextStream& dump( QTextStream& s ) const;

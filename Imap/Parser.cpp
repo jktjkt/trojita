@@ -443,7 +443,7 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedText(
         case Responses::PREAUTH:
         case Responses::BYE:
             return std::tr1::shared_ptr<Responses::AbstractResponse>(
-                    new Responses::Status( QString::null, kind, it, end, lineData ) );
+                    new Responses::State( QString::null, kind, it, end, lineData ) );
         case Responses::LIST:
         case Responses::LSUB:
             return std::tr1::shared_ptr<Responses::AbstractResponse>(
@@ -490,7 +490,7 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::parseTagged( const QBy
     ++it;
 
     return std::tr1::shared_ptr<Responses::AbstractResponse>(
-            new Responses::Status( tag, kind, it, splitted.end(), line.constData() ) );
+            new Responses::State( tag, kind, it, splitted.end(), line.constData() ) );
 }
 
 
