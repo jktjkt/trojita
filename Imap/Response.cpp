@@ -237,16 +237,17 @@ Status::Status( const QString& _tag, const Kind _kind, QList<QByteArray>::const_
     message.chop(2);
 }
 
-NumberResponse::NumberResponse( const Kind _kind, const uint _num ) throw(InvalidArgument):
+NumberResponse::NumberResponse( const Kind _kind, const uint _num ) throw(UnexpectedHere):
     AbstractResponse(_kind), number(_num)
 {
     if ( kind != EXISTS && kind != EXPUNGE && kind != RECENT )
-        throw InvalidArgument( "Attempted to create NumberResponse of invalid kind" );
+        throw UnexpectedHere( "Attempted to create NumberResponse of invalid kind" );
 }
 
 List::List( const Kind _kind, QList<QByteArray>::const_iterator& it,
         const QList<QByteArray>::const_iterator end,
-        const char * const lineData): AbstractResponse(LIST), kind(_kind)
+        const char * const lineData) throw(UnexpectedHere):
+    AbstractResponse(LIST), kind(_kind)
 {
     if ( kind != LIST && kind != LSUB )
         throw UnexpectedHere( lineData );
@@ -363,7 +364,7 @@ bool NumberResponse::eq( const AbstractResponse& other ) const
 {
     try {
         const NumberResponse& num = dynamic_cast<const NumberResponse&>( other );
-        return number == num.number;
+        return kind == num.kind && number == num.number;
     } catch ( std::bad_cast& ) {
         return false;
     }
@@ -390,7 +391,7 @@ bool List::eq( const AbstractResponse& other ) const
 {
     try {
         const List& r = dynamic_cast<const List&>( other );
-        return mailbox == r.mailbox && flags == r.flags && separator == r.separator;
+        return kind == r.kind && mailbox == r.mailbox && flags == r.flags && separator == r.separator;
     } catch ( std::bad_cast& ) {
         return false;
     }

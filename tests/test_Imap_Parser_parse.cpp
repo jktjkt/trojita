@@ -171,7 +171,7 @@ void ImapParserParseTest::testParseUntagged_data()
         << shared_ptr<AbstractResponse>( new List( LIST, QStringList() << "\\Noselect", ".", "" ) );
     QTest::newRow("untagged-lsub")
         << QByteArray("* LSUB (\\Noselect) \".\" \"\"\r\n")
-        << shared_ptr<AbstractResponse>( new List( LIST, QStringList() << "\\Noselect", ".", "" ) );
+        << shared_ptr<AbstractResponse>( new List( LSUB, QStringList() << "\\Noselect", ".", "" ) );
     QTest::newRow("untagged-list-moreflags")
         << QByteArray("* LIST (\\Noselect Blesmrt) \".\" \"\"\r\n")
         << shared_ptr<AbstractResponse>( new List( LIST, QStringList() << "\\Noselect" << "Blesmrt", ".", "" ) );

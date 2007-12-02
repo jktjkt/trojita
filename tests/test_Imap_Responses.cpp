@@ -66,6 +66,18 @@ void ImapResponsesTest::testCompareEq_data()
         respPtr( new Status( QString::null, NO, "foobar 1337", CAPABILITIES, dumbList ) ) <<
         respPtr( new Status( QString::null, NO, "foobar 1337", CAPABILITIES, dumbList ) );
 
+    QTest::newRow( "capability-caps" ) <<
+        respPtr( new Capability( QStringList() << "1337" << "trojita" ) ) <<
+        respPtr( new Capability( QStringList() << "1337" << "trojita" ) );
+
+    QTest::newRow( "number" ) <<
+        respPtr( new NumberResponse( EXISTS, 10 ) ) <<
+        respPtr( new NumberResponse( EXISTS, 10 ) );
+
+    QTest::newRow( "list" ) <<
+        respPtr( new List( LIST, QStringList( "\\Noselect" ), ".", "foOBar" ) ) <<
+        respPtr( new List( LIST, QStringList( "\\Noselect" ), ".", "foOBar" ) );
+
 }
 
 void ImapResponsesTest::testCompareNe_data()
@@ -79,37 +91,69 @@ void ImapResponsesTest::testCompareNe_data()
     std::tr1::shared_ptr<AbstractRespCodeData> dumbList( new RespCodeData<QStringList>( QStringList() << "foo" << "bar" ) );
     std::tr1::shared_ptr<AbstractRespCodeData> anotherList( new RespCodeData<QStringList>( QStringList() << "bar" << "baz" ) );
 
-    QTest::newRow( "different-tag" ) <<
+    QTest::newRow( "status-tag" ) <<
         respPtr( new Status( "123", OK, "foobar 333", NONE, voidData ) ) <<
         respPtr( new Status( "321", OK, "foobar 333", NONE, voidData ) );
 
-    QTest::newRow( "tagged-untagged" ) <<
+    QTest::newRow( "status-tagged-untagged" ) <<
         respPtr( new Status( "123", OK, "foobar 333", NONE, voidData ) ) <<
         respPtr( new Status( QString::null, OK, "foobar 333", NONE, voidData ) );
 
-    QTest::newRow( "different-kind" ) <<
+    QTest::newRow( "status-kind" ) <<
         respPtr( new Status( QString::null, OK, "foobar 333", NONE, voidData ) ) <<
         respPtr( new Status( QString::null, NO, "foobar 333", NONE, voidData ) );
 
-    QTest::newRow( "different-response-code" ) <<
+    QTest::newRow( "status-response-code" ) <<
         respPtr( new Status( QString::null, OK, "foobar 333", NONE, voidData ) ) <<
         respPtr( new Status( QString::null, OK, "foobar 333", ALERT, voidData ) );
 
-    QTest::newRow( "different-response-data-type" ) <<
+    QTest::newRow( "status-response-data-type" ) <<
         respPtr( new Status( QString::null, OK, "foobar 333", CAPABILITIES, dumbList ) ) <<
         respPtr( new Status( QString::null, OK, "foobar 333", CAPABILITIES, voidData ) );
 
-    QTest::newRow( "different-response-data-data" ) <<
+    QTest::newRow( "status-response-data-data" ) <<
         respPtr( new Status( QString::null, OK, "foobar 333", CAPABILITIES, dumbList ) ) <<
         respPtr( new Status( QString::null, OK, "foobar 333", CAPABILITIES, anotherList ) );
 
-    QTest::newRow( "different-message" ) <<
+    QTest::newRow( "status-message" ) <<
         respPtr( new Status( QString::null, OK, "foobar 333", NONE, voidData ) ) <<
         respPtr( new Status( QString::null, OK, "foobar 666", NONE, voidData ) );
 
-    QTest::newRow( "different-response" ) <<
+    QTest::newRow( "kind-status-capability" ) <<
         respPtr( new Status( QString::null, OK, "foobar 333", NONE, voidData ) ) <<
         respPtr( new Capability( QStringList() ) );
+
+    QTest::newRow( "capability-caps" ) <<
+        respPtr( new Capability( QStringList("333") ) ) <<
+        respPtr( new Capability( QStringList("666") ) );
+
+    QTest::newRow( "number-kind" ) <<
+        respPtr( new NumberResponse( EXISTS, 10 ) ) <<
+        respPtr( new NumberResponse( EXPUNGE, 10 ) );
+
+    QTest::newRow( "number-number" ) <<
+        respPtr( new NumberResponse( RECENT, 10 ) ) <<
+        respPtr( new NumberResponse( RECENT, 11 ) );
+
+    QTest::newRow( "list-kind" ) <<
+        respPtr( new List( LIST, QStringList(), ".", "blesmrt" ) ) <<
+        respPtr( new List( LSUB, QStringList(), ".", "blesmrt" ) );
+
+    QTest::newRow( "list-flags" ) <<
+        respPtr( new List( LIST, QStringList(), ".", "blesmrt" ) ) <<
+        respPtr( new List( LIST, QStringList("333"), ".", "blesmrt" ) );
+
+    QTest::newRow( "list-separator" ) <<
+        respPtr( new List( LIST, QStringList(), ".", "blesmrt" ) ) <<
+        respPtr( new List( LIST, QStringList(), "/", "blesmrt" ) );
+
+    QTest::newRow( "list-mailbox" ) <<
+        respPtr( new List( LIST, QStringList(), ".", "blesmrt" ) ) <<
+        respPtr( new List( LIST, QStringList(), ".", "trojita" ) );
+
+    QTest::newRow( "list-mailbox-case" ) <<
+        respPtr( new List( LIST, QStringList(), ".", "blesmrt" ) ) <<
+        respPtr( new List( LIST, QStringList(), ".", "blEsmrt" ) );
 
 }
 

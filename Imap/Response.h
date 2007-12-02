@@ -211,7 +211,7 @@ namespace Responses {
     public:
         /** @short Number that we're storing */
         uint number;
-        NumberResponse( const Kind _kind, const uint _num ) throw( InvalidArgument );
+        NumberResponse( const Kind _kind, const uint _num ) throw( UnexpectedHere );
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
     };
@@ -230,7 +230,7 @@ namespace Responses {
 
         List( const Kind _kind, QList<QByteArray>::const_iterator& it,
                 const QList<QByteArray>::const_iterator end,
-                const char * const lineData);
+                const char * const lineData) throw( UnexpectedHere );
         List( const Kind _kind, const QStringList& _flags, const QString& _separator, const QString& _mailbox ):
             AbstractResponse(LIST), kind(_kind), flags(_flags), separator(_separator), mailbox(_mailbox) {};
         virtual QTextStream& dump( QTextStream& s ) const;
