@@ -95,6 +95,8 @@ QTextStream& operator<<( QTextStream& stream, const Kind& res )
             stream << "LSUB";
         case FLAGS:
             stream << "FLAGS";
+        case SEARCH:
+            stream << "SEARCH";
     }
     return stream;
 }
@@ -131,6 +133,8 @@ Kind kindFromString( QByteArray str ) throw( UnrecognizedResponseKind )
         return LSUB;
     if ( str == "FLAGS" )
         return FLAGS;
+    if ( str == "SEARCH" || str == "SEARCH\r\n" )
+        return SEARCH;
     throw UnrecognizedResponseKind( str.constData() );
 }
 
@@ -338,6 +342,14 @@ QTextStream& Flags::dump( QTextStream& stream ) const
     return stream << "FLAGS: " << flags.join(", ");
 }
 
+QTextStream& Search::dump( QTextStream& stream ) const
+{
+    stream << "SEARCH:";
+    for (QList<uint>::const_iterator it = items.begin(); it != items.end(); ++it )
+        stream << " " << *it;
+    return stream;
+}
+
 template<class T> QTextStream& RespCodeData<T>::dump( QTextStream& stream ) const
 {
     return stream << data;
@@ -419,6 +431,16 @@ bool Flags::eq( const AbstractResponse& other ) const
     try {
         const Flags& fl = dynamic_cast<const Flags&>( other );
         return flags == fl.flags;
+    } catch ( std::bad_cast& ) {
+        return false;
+    }
+}
+
+bool Search::eq( const AbstractResponse& other ) const
+{
+    try {
+        const Search& s = dynamic_cast<const Search&>( other );
+        return items == s.items;
     } catch ( std::bad_cast& ) {
         return false;
     }

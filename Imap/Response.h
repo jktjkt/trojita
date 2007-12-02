@@ -58,7 +58,8 @@ namespace Responses {
         CAPABILITY,
         LIST,
         LSUB,
-        FLAGS
+        FLAGS,
+        SEARCH
     }; // aren't those comments just sexy? :)
 
     /** @short Response Code */
@@ -245,6 +246,16 @@ namespace Responses {
         Flags( const QStringList& _flags ) : AbstractResponse(FLAGS), flags(_flags) {};
         Flags( QList<QByteArray>::const_iterator& it, const QList<QByteArray>::const_iterator& end,
                 const char * const lineData );
+        virtual QTextStream& dump( QTextStream& s ) const;
+        virtual bool eq( const AbstractResponse& other ) const;
+    };
+
+    /** @short Structure storing a SEARCH untagged response */
+    class Search : public AbstractResponse {
+    public:
+        /** @short List of matching messages */
+        QList<uint> items;
+        Search( const QList<uint>& _items ) : AbstractResponse(SEARCH), items(_items) {};
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
     };

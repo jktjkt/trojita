@@ -81,6 +81,10 @@ void ImapResponsesTest::testCompareEq_data()
         respPtr( new Flags( QStringList( "\\Seen" ) ) ) <<
         respPtr( new Flags( QStringList( "\\Seen" ) ) );
 
+    QTest::newRow( "search" ) <<
+        respPtr( new Search( QList<uint>() << 333 ) ) <<
+        respPtr( new Search( QList<uint>() << 333 ) );
+
 }
 
 void ImapResponsesTest::testCompareNe_data()
@@ -161,6 +165,10 @@ void ImapResponsesTest::testCompareNe_data()
     QTest::newRow( "flags" ) <<
         respPtr( new Flags( QStringList("333") ) ) <<
         respPtr( new Flags( QStringList("666") ) );
+
+    QTest::newRow( "search" ) <<
+        respPtr( new Search( QList<uint>() << 333 ) ) <<
+        respPtr( new Search( QList<uint>() << 666 ) );
 
 }
 

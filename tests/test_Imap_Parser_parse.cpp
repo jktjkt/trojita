@@ -194,6 +194,15 @@ void ImapParserParseTest::testParseUntagged_data()
         << shared_ptr<AbstractResponse>(
                 new Flags( QStringList() << "\\Answered" << "\\Flagged" <<
                     "\\Deleted" << "\\Seen" << "\\Draft" ) );
+
+    QTest::newRow("search-empty")
+        << QByteArray("* SEARCH\r\n")
+        << shared_ptr<AbstractResponse>( new Search( QList<uint>() ) );
+
+    QTest::newRow("search-messages")
+        << QByteArray("* SEARCH 1 33 666\r\n")
+        << shared_ptr<AbstractResponse>( new Search( QList<uint>() << 1 << 33 << 666 ) );
+
 }
 
 QTEST_KDEMAIN_CORE( ImapParserParseTest )

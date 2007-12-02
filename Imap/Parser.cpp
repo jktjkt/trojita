@@ -353,10 +353,10 @@ void Parser::processLine( const QByteArray& line )
 std::tr1::shared_ptr<Responses::AbstractResponse> Parser::parseUntagged( const QByteArray& line )
 {
     QList<QByteArray> splitted = line.split( ' ' );
-    if ( splitted.count() < 3 )
+    if ( splitted.count() < 2 )
         throw NoData( line.constData() );
 
-    // line is guaranted to have at least three items
+    // line is guaranted to have at least two items
     QList<QByteArray>::const_iterator it = splitted.begin();
 
     // ignore '*'
@@ -417,6 +417,8 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedText(
 {
     Responses::Kind kind = Responses::kindFromString( *it );
     ++it;
+    if ( it == end && kind != Responses::SEARCH )
+        throw NoData( lineData );
     switch ( kind ) {
         case Responses::CAPABILITY:
             {
@@ -446,7 +448,24 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedText(
         case Responses::FLAGS:
             return std::tr1::shared_ptr<Responses::AbstractResponse>(
                     new Responses::Flags( it, end, lineData ) );
-        // FIXME: SEARCH, STATUS
+        case Responses::SEARCH:
+            {
+                QList<uint> numbers;
+                bool ok;
+                while ( it != end ) {
+                    QByteArray str = *it;
+                    if ( str.endsWith("\r\n") )
+                        str.chop(2);
+                    uint number = str.toUInt( &ok );
+                    if ( !ok )
+                        throw UnexpectedHere( lineData );
+                    numbers << number;
+                    ++it;
+                }
+                return std::tr1::shared_ptr<Responses::AbstractResponse>(
+                        new Responses::Search( numbers ) );
+            }
+        // FIXME: STATUS
         default:
             throw UnexpectedHere( lineData );
     }
