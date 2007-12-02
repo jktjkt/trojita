@@ -23,6 +23,7 @@
 #include <QString>
 #include <QByteArray>
 #include <QList>
+#include <QMap>
 #include <QStringList>
 #include "Imap/Command.h"
 #include "Imap/Exceptions.h"
@@ -59,7 +60,8 @@ namespace Responses {
         LIST,
         LSUB,
         FLAGS,
-        SEARCH
+        SEARCH,
+        STATUS
     }; // aren't those comments just sexy? :)
 
     /** @short Response Code */
@@ -263,9 +265,37 @@ namespace Responses {
         virtual bool eq( const AbstractResponse& other ) const;
     };
 
+    /** @short Structure storing a STATUS untagged response */
+    class Status : public AbstractResponse {
+    public:
+        /** @short Indentifies type of status data */
+        enum StateKind {
+            MESSAGES,
+            RECENT,
+            UIDNEXT,
+            UIDVALIDITY,
+            UNSEEN
+        };
+
+        /** @short Mailbox name */
+        QString mailbox;
+        /** @short Associative array of states */
+        QMap<StateKind,uint> states;
+
+        Status( const QString& _mailbox, const QMap<StateKind,uint>& _states ) :
+            AbstractResponse(STATUS), mailbox(_mailbox), states(_states) {};
+        Status( QList<QByteArray>::const_iterator& it,
+                const QList<QByteArray>::const_iterator& end,
+                const char * const lineData );
+        virtual QTextStream& dump( QTextStream& s ) const;
+        virtual bool eq( const AbstractResponse& other ) const;
+        static StateKind stateKindFromStr( QString s );
+    };
+
 
     QTextStream& operator<<( QTextStream& stream, const Code& r );
     QTextStream& operator<<( QTextStream& stream, const Kind& res );
+    QTextStream& operator<<( QTextStream& stream, const Status::StateKind& kind );
     QTextStream& operator<<( QTextStream& stream, const AbstractResponse& res );
     QTextStream& operator<<( QTextStream& stream, const AbstractRespCodeData& resp );
 

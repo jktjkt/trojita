@@ -16,11 +16,11 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include "Imap/LowLevelParser.h"
-#include "Imap/Exceptions.h"
-
 #include <QPair>
 #include <QStringList>
+#include "Imap/LowLevelParser.h"
+#include "Imap/Exceptions.h"
+#include "Imap/rfccodecs.h"
 
 namespace Imap {
 
@@ -152,6 +152,17 @@ QPair<QByteArray,LowLevelParser::ParsedAs> LowLevelParser::getAString( QList<QBy
             item.chop(2);
         return qMakePair( item, ATOM );
     }
+}
+
+QString LowLevelParser::getMailbox( QList<QByteArray>::const_iterator& it,
+        const QList<QByteArray>::const_iterator& end,
+        const char * const lineData )
+{
+    QPair<QByteArray,::Imap::LowLevelParser::ParsedAs> res = ::Imap::LowLevelParser::getAString( it, end, lineData );
+    if ( res.second == ::Imap::LowLevelParser::ATOM && res.first.toUpper() == "INBOX" )
+        return "INBOX";
+    else
+        return KIMAP::decodeImapFolderName( res.first );
 }
 
 }

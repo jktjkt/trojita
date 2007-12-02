@@ -468,7 +468,9 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedText(
                 return std::tr1::shared_ptr<Responses::AbstractResponse>(
                         new Responses::Search( numbers ) );
             }
-        // FIXME: STATUS
+        case Responses::STATUS:
+            return std::tr1::shared_ptr<Responses::AbstractResponse>(
+                    new Responses::Status( it, end, lineData ) );
         default:
             throw UnexpectedHere( lineData );
     }

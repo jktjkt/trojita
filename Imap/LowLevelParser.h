@@ -59,6 +59,10 @@ namespace LowLevelParser {
             const QList<QByteArray>::const_iterator& end,
             const char * const lineData );
 
+    QString getMailbox( QList<QByteArray>::const_iterator& it,
+            const QList<QByteArray>::const_iterator& end,
+            const char * const lineData );
+
 }
 }
 

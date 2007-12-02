@@ -17,7 +17,6 @@
 */
 #include "Imap/Response.h"
 #include "Imap/LowLevelParser.h"
-#include "Imap/rfccodecs.h"
 
 namespace Imap {
 namespace Responses {
@@ -93,10 +92,16 @@ QTextStream& operator<<( QTextStream& stream, const Kind& res )
             break;
         case LSUB:
             stream << "LSUB";
+            break;
         case FLAGS:
             stream << "FLAGS";
+            break;
         case SEARCH:
             stream << "SEARCH";
+            break;
+        case STATUS:
+            stream << "STATUS";
+            break;
     }
     return stream;
 }
@@ -135,7 +140,42 @@ Kind kindFromString( QByteArray str ) throw( UnrecognizedResponseKind )
         return FLAGS;
     if ( str == "SEARCH" || str == "SEARCH\r\n" )
         return SEARCH;
+    if ( str == "STATUS" )
+        return STATUS;
     throw UnrecognizedResponseKind( str.constData() );
+}
+
+QTextStream& operator<<( QTextStream& stream, const Status::StateKind& kind )
+{
+    switch (kind) {
+        case Status::MESSAGES:
+            stream << "MESSAGES"; break;
+        case Status::RECENT:
+            stream << "RECENT"; break;
+        case Status::UIDNEXT:
+            stream << "UIDNEXT"; break;
+        case Status::UIDVALIDITY:
+            stream << "UIDVALIDITY"; break;
+        case Status::UNSEEN:
+            stream << "UNSEEN"; break;
+    }
+    return stream;
+}
+
+Status::StateKind Status::stateKindFromStr( QString s )
+{
+    s = s.toUpper();
+    if ( s == "MESSAGES" )
+        return MESSAGES;
+    if ( s == "RECENT" )
+        return RECENT;
+    if ( s == "UIDNEXT" )
+        return UIDNEXT;
+    if ( s == "UIDVALIDITY" )
+        return UIDVALIDITY;
+    if ( s == "UNSEEN" )
+        return UNSEEN;
+    throw UnrecognizedResponseKind( s.toStdString() );
 }
 
 QTextStream& operator<<( QTextStream& stream, const AbstractResponse& res )
@@ -290,11 +330,7 @@ List::List( const Kind _kind, QList<QByteArray>::const_iterator& it,
     if ( it == end )
         throw NoData( lineData ); // no mailbox
 
-    QPair<QByteArray,::Imap::LowLevelParser::ParsedAs> res = ::Imap::LowLevelParser::getAString( it, end, lineData );
-    if ( res.second == ::Imap::LowLevelParser::ATOM && res.first.toUpper() == "INBOX" )
-        mailbox = "INBOX";
-    else
-        mailbox = KIMAP::decodeImapFolderName( res.first );
+    mailbox = ::Imap::LowLevelParser::getMailbox( it, end, lineData );
 }
 
 Flags::Flags( QList<QByteArray>::const_iterator& it,
@@ -304,6 +340,39 @@ Flags::Flags( QList<QByteArray>::const_iterator& it,
     flags = ::Imap::LowLevelParser::parseList( '(', ')', it, end, lineData );
     if ( it != end )
         throw TooMuchData( lineData );
+}
+
+Status::Status( QList<QByteArray>::const_iterator& it,
+        const QList<QByteArray>::const_iterator& end,
+        const char * const lineData )
+{
+    if ( it == end )
+        throw NoData( lineData );
+
+    mailbox = ::Imap::LowLevelParser::getMailbox( it, end, lineData );
+
+    QStringList items = ::Imap::LowLevelParser::parseList( '(', ')', it, end, lineData, false, false );
+    if ( it != end )
+        throw TooMuchData( lineData );
+
+    bool gotIdentifier = false;
+    QString identifier;
+    for ( QStringList::const_iterator it = items.begin(); it != items.end(); ++it ) {
+        if ( gotIdentifier ) {
+            gotIdentifier = false;
+            bool ok;
+            uint number = it->toUInt( &ok );
+            if (!ok)
+                throw ParseError( lineData );
+            StateKind kind = stateKindFromStr( identifier );
+            states[kind] = number;
+        } else {
+            identifier = *it;
+            gotIdentifier = true;
+        }
+    }
+    if ( gotIdentifier )
+        throw ParseError( lineData );
 }
 
 QTextStream& State::dump( QTextStream& stream ) const
@@ -345,6 +414,15 @@ QTextStream& Search::dump( QTextStream& stream ) const
     stream << "SEARCH:";
     for (QList<uint>::const_iterator it = items.begin(); it != items.end(); ++it )
         stream << " " << *it;
+    return stream;
+}
+
+QTextStream& Status::dump( QTextStream& stream ) const
+{
+    stream << "STATUS " << mailbox << ":";
+    for (QMap<Status::StateKind,uint>::const_iterator it = states.begin(); it != states.end(); ++it ) {
+        stream << " " << it.key() << " " << it.value();
+    }
     return stream;
 }
 
@@ -444,6 +522,15 @@ bool Search::eq( const AbstractResponse& other ) const
     }
 }
 
+bool Status::eq( const AbstractResponse& other ) const
+{
+    try {
+        const Status& s = dynamic_cast<const Status&>( other );
+        return mailbox == s.mailbox && states == s.states;
+    } catch ( std::bad_cast& ) {
+        return false;
+    }
+}
 
 }
 }

@@ -194,14 +194,24 @@ void ImapParserParseTest::testParseUntagged_data()
         << shared_ptr<AbstractResponse>(
                 new Flags( QStringList() << "\\Answered" << "\\Flagged" <<
                     "\\Deleted" << "\\Seen" << "\\Draft" ) );
-
     QTest::newRow("search-empty")
         << QByteArray("* SEARCH\r\n")
         << shared_ptr<AbstractResponse>( new Search( QList<uint>() ) );
-
     QTest::newRow("search-messages")
         << QByteArray("* SEARCH 1 33 666\r\n")
         << shared_ptr<AbstractResponse>( new Search( QList<uint>() << 1 << 33 << 666 ) );
+
+    QMap<Status::StateKind,uint> states;
+    states[Status::MESSAGES] = 231;
+    states[Status::UIDNEXT] = 44292;
+    QTest::newRow("status-1")
+        << QByteArray("* STATUS blurdybloop (MESSAGES 231 UIDNEXT 44292)\r\n")
+        << shared_ptr<AbstractResponse>( new Status( "blurdybloop", states ) );
+    states[Status::UIDVALIDITY] = 1337;
+    states[Status::RECENT] = 3234567890u;
+    QTest::newRow("status-2")
+        << QByteArray("* STATUS blurdybloop (MESSAGES 231 UIDNEXT 44292 UIDVALIDITY 1337 RECENT 3234567890)\r\n")
+        << shared_ptr<AbstractResponse>( new Status( "blurdybloop", states ) );
 
 }
 
