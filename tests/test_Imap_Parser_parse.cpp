@@ -189,6 +189,11 @@ void ImapParserParseTest::testParseUntagged_data()
         << shared_ptr<AbstractResponse>( new List( LIST, QStringList(), ".", "some\"Name" ) );
 #include "test_Imap_Parser_parse-Chinese.include"
 
+    QTest::newRow("untagged-flags")
+        << QByteArray("* FLAGS (\\Answered \\Flagged \\Deleted \\Seen \\Draft)\r\n")
+        << shared_ptr<AbstractResponse>(
+                new Flags( QStringList() << "\\Answered" << "\\Flagged" <<
+                    "\\Deleted" << "\\Seen" << "\\Draft" ) );
 }
 
 QTEST_KDEMAIN_CORE( ImapParserParseTest )

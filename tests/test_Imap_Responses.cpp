@@ -40,8 +40,7 @@ void ImapResponsesTest::testCompareNe()
     QFETCH( respPtr, first );
     QFETCH( respPtr, second );
 
-    QEXPECT_FAIL( "", "testing non-equality", Continue );
-    QCOMPARE( *first, *second );
+    QVERIFY2( *first != *second, "responses equal" );
 }
 
 void ImapResponsesTest::testCompareEq_data()
@@ -77,6 +76,10 @@ void ImapResponsesTest::testCompareEq_data()
     QTest::newRow( "list" ) <<
         respPtr( new List( LIST, QStringList( "\\Noselect" ), ".", "foOBar" ) ) <<
         respPtr( new List( LIST, QStringList( "\\Noselect" ), ".", "foOBar" ) );
+
+    QTest::newRow( "flags" ) <<
+        respPtr( new Flags( QStringList( "\\Seen" ) ) ) <<
+        respPtr( new Flags( QStringList( "\\Seen" ) ) );
 
 }
 
@@ -154,6 +157,10 @@ void ImapResponsesTest::testCompareNe_data()
     QTest::newRow( "list-mailbox-case" ) <<
         respPtr( new List( LIST, QStringList(), ".", "blesmrt" ) ) <<
         respPtr( new List( LIST, QStringList(), ".", "blEsmrt" ) );
+
+    QTest::newRow( "flags" ) <<
+        respPtr( new Flags( QStringList("333") ) ) <<
+        respPtr( new Flags( QStringList("666") ) );
 
 }
 

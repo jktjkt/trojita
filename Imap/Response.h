@@ -57,7 +57,8 @@ namespace Responses {
         RECENT,
         CAPABILITY,
         LIST,
-        LSUB
+        LSUB,
+        FLAGS
     }; // aren't those comments just sexy? :)
 
     /** @short Response Code */
@@ -205,7 +206,6 @@ namespace Responses {
         virtual bool eq( const AbstractResponse& other ) const;
     };
 
-
     /** @short Structure for EXISTS/EXPUNGE/RECENT responses */
     class NumberResponse : public AbstractResponse {
     public:
@@ -237,6 +237,18 @@ namespace Responses {
         virtual bool eq( const AbstractResponse& other ) const;
     };
 
+    /** @short Structure storing a FLAGS untagged response */
+    class Flags : public AbstractResponse {
+    public:
+        /** @short List of flags */
+        QStringList flags;
+        Flags( const QStringList& _flags ) : AbstractResponse(FLAGS), flags(_flags) {};
+        Flags( QList<QByteArray>::const_iterator& it, const QList<QByteArray>::const_iterator& end,
+                const char * const lineData );
+        virtual QTextStream& dump( QTextStream& s ) const;
+        virtual bool eq( const AbstractResponse& other ) const;
+    };
+
 
     QTextStream& operator<<( QTextStream& stream, const Code& r );
     QTextStream& operator<<( QTextStream& stream, const Kind& res );
@@ -245,6 +257,10 @@ namespace Responses {
 
     inline bool operator==( const AbstractResponse& first, const AbstractResponse& other ) {
         return first.eq( other );
+    }
+
+    inline bool operator!=( const AbstractResponse& first, const AbstractResponse& other ) {
+        return !first.eq( other );
     }
 
     inline bool operator==( const AbstractRespCodeData& first, const AbstractRespCodeData& other ) {

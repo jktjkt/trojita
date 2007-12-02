@@ -93,6 +93,8 @@ QTextStream& operator<<( QTextStream& stream, const Kind& res )
             break;
         case LSUB:
             stream << "LSUB";
+        case FLAGS:
+            stream << "FLAGS";
     }
     return stream;
 }
@@ -127,6 +129,8 @@ Kind kindFromString( QByteArray str ) throw( UnrecognizedResponseKind )
         return LIST;
     if ( str == "LSUB" )
         return LSUB;
+    if ( str == "FLAGS" )
+        return FLAGS;
     throw UnrecognizedResponseKind( str.constData() );
 }
 
@@ -291,6 +295,15 @@ List::List( const Kind _kind, QList<QByteArray>::const_iterator& it,
         mailbox = KIMAP::decodeImapFolderName( res.first );
 }
 
+Flags::Flags( QList<QByteArray>::const_iterator& it,
+        const QList<QByteArray>::const_iterator& end,
+        const char * const lineData )
+{
+    flags = ::Imap::LowLevelParser::parseList( '(', ')', it, end, lineData );
+    if ( it != end )
+        throw TooMuchData( lineData );
+}
+
 QTextStream& Status::dump( QTextStream& stream ) const
 {
     if ( !tag.isEmpty() )
@@ -318,6 +331,11 @@ QTextStream& NumberResponse::dump( QTextStream& stream ) const
 QTextStream& List::dump( QTextStream& stream ) const
 {
     return stream << kind << ": '" << mailbox << "' (" << flags.join(", ") << "), separator " << separator; 
+}
+
+QTextStream& Flags::dump( QTextStream& stream ) const
+{
+    return stream << "FLAGS: " << flags.join(", ");
 }
 
 template<class T> QTextStream& RespCodeData<T>::dump( QTextStream& stream ) const
@@ -370,7 +388,6 @@ bool NumberResponse::eq( const AbstractResponse& other ) const
     }
 }
 
-
 bool Status::eq( const AbstractResponse& other ) const
 {
     try {
@@ -392,6 +409,16 @@ bool List::eq( const AbstractResponse& other ) const
     try {
         const List& r = dynamic_cast<const List&>( other );
         return kind == r.kind && mailbox == r.mailbox && flags == r.flags && separator == r.separator;
+    } catch ( std::bad_cast& ) {
+        return false;
+    }
+}
+
+bool Flags::eq( const AbstractResponse& other ) const
+{
+    try {
+        const Flags& fl = dynamic_cast<const Flags&>( other );
+        return flags == fl.flags;
     } catch ( std::bad_cast& ) {
         return false;
     }

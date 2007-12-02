@@ -443,6 +443,10 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedText(
         case Responses::LSUB:
             return std::tr1::shared_ptr<Responses::AbstractResponse>(
                     new Responses::List( kind, it, end, lineData ) );
+        case Responses::FLAGS:
+            return std::tr1::shared_ptr<Responses::AbstractResponse>(
+                    new Responses::Flags( it, end, lineData ) );
+        // FIXME: SEARCH, STATUS
         default:
             throw UnexpectedHere( lineData );
     }
