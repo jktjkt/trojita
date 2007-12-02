@@ -19,66 +19,49 @@
 #include <QProcess>
 #include <QCoreApplication>
 #include <QTimer>
+
 #include "Imap/Parser.h"
-#include "Imap/Command.h"
-#include <unistd.h>
+#include "Demo/ParserMonitor.h"
 
 int main( int argc, char** argv) {
     QCoreApplication app( argc, argv );
-    QTextStream Err(stderr);
     std::auto_ptr<QIODevice> sock( new QProcess() );
     static_cast<QProcess*>( sock.get() )->start( "dovecot", QStringList() << "--exec-mail" << "imap" );
     static_cast<QProcess*>( sock.get() )->waitForStarted();
+    std::tr1::shared_ptr<Imap::Parser> parser( new Imap::Parser( 0, sock ) );
+    Demo::ParserMonitor monitor( 0, parser.get() );
 
-    Imap::Parser parser( 0, sock );
+    parser->capability();
+    parser->noop();
 
-    parser.capability();
-    parser.noop();
+    parser->startTls();
+    parser->authenticate();
+    parser->login("user", "password with spaces");
 
-    parser.startTls();
-    parser.authenticate();
-    parser.login("user", "password with spaces");
-
-    parser.select("foo mailbox");
-    parser.examine("foo mailbox");
-    parser.create("foo mailbox");
-    parser.deleteMailbox("foo mailbox");
-    parser.rename("foo mailbox old", "bar mailbox new that is so loooooooooooooooooooooooong"
+    parser->select("foo mailbox");
+    parser->examine("foo mailbox");
+    parser->create("foo mailbox");
+    parser->deleteMailbox("foo mailbox");
+    parser->rename("foo mailbox old", "bar mailbox new that is so loooooooooooooooooooooooong"
             "that it doesn't fit on a single line, despite the fact that it is also veeeeery"
             "loooooooooooong");
-    parser.subscribe("smrt '");
-    parser.unSubscribe("smrt '");
-    parser.list("", "");
-    parser.list("prefix", "");
-    parser.lSub("", "smrt");
-    parser.status( "gfooo", QStringList("bar") << "baz" );
-    parser.append( "mbox", "message");
-    parser.append( "mbox with\nLF", "message\nwhich is a bit longer", QStringList("flagA") << "flagB");
+    parser->subscribe("smrt '");
+    parser->unSubscribe("smrt '");
+    parser->list("", "");
+    parser->list("prefix", "");
+    parser->lSub("", "smrt");
+    parser->status( "gfooo", QStringList("bar") << "baz" );
+    parser->append( "mbox", "message");
+    parser->append( "mbox with\nLF", "message\nwhich is a bit longer", QStringList("flagA") << "flagB");
 
-    parser.check();
-    parser.close();
-    parser.expunge();
-    try {
-        parser.search( QStringList() );
-        Err << "BAD, empty search shouldn't be allowed" << endl;
-    } catch ( const Imap::InvalidArgument& e ) {
-        Err << "[Good, empty searches caught]" << endl;
-    }
-    try {
-        parser.search( QStringList("foo") );
-        Err << "BAD, odd search criteria shouldn't be allowed" << endl;
-    } catch ( const Imap::InvalidArgument& e ) {
-        Err << "[Good, even search criteria caught]" << endl;
-    }
-    parser.search( QStringList("foo") << "bar", "utf-8" );
+    parser->check();
+    parser->close();
+    parser->expunge();
+    parser->unSelect();
+    parser->idle();
 
+    parser->logout();
 
-    parser.xAtom( Imap::Commands::Command() << "XBLURDYBLOOP" << "FOOBAR" << "baz bazbazbaz 333" );
-
-    parser.unSelect();
-    parser.idle();
-
-    parser.logout();
 
     QTimer::singleShot( 1500, &app, SLOT(quit()) );
     app.exec();

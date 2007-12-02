@@ -131,7 +131,30 @@ QPair<QByteArray,LowLevelParser::ParsedAs> LowLevelParser::getString( QList<QByt
         return qMakePair( data, QUOTED );
     } else if ( it->startsWith( '{' ) ) {
         // literal
-        throw Exception( "not supported" );
+        QByteArray str = *it;
+        if ( ! str.endsWith( "}\r\n" ) )
+            throw ParseError( lineData );
+
+        str.chop(3);
+        str = str.right( str.size() - 1 );
+        bool ok;
+        int number = str.toInt( &ok );
+        if ( !ok )
+            throw ParseError( lineData );
+
+        ++it;
+        if ( it == end )
+            throw ParseError( lineData );
+        QByteArray buf( *it );
+
+        while ( buf.size() < number ) {
+            if ( it == end )
+                throw NoData( lineData );
+            buf += ' ';
+            buf += *it;
+            ++it;
+        }
+        return qMakePair( buf, LITERAL );
     } else
         throw UnexpectedHere( lineData );
 }

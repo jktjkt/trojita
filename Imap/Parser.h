@@ -95,6 +95,12 @@ namespace Imap {
         /** @short Destructor */
         ~Parser();
 
+        /** @short Checks for waiting responses */
+        bool hasResponse() const;
+
+        /** @short De-queue and return parsed response */
+        std::tr1::shared_ptr<Responses::AbstractResponse> getResponse();
+
     public slots:
 
         /** @short CAPABILITY, RFC 3501 section 6.1.1 */
@@ -249,7 +255,7 @@ namespace Imap {
         bool executeACommand( const Commands::Command& cmd );
 
         /** @short Process a line from IMAP server */
-        void processLine( const QByteArray& line );
+        void processLine( QByteArray line );
 
         /** @short Parse line for untagged reply */
         std::tr1::shared_ptr<Responses::AbstractResponse> parseUntagged( const QByteArray& line );
@@ -279,7 +285,8 @@ namespace Imap {
         unsigned int _lastTagUsed;
 
         /** @short Mutex for synchronizing access to our queues */
-        QMutex _cmdMutex, _respMutex;
+        QMutex _cmdMutex;
+        mutable QMutex _respMutex;
 
         /** @short Queue storing commands that are about to be executed */
         std::deque<Commands::Command> _cmdQueue;

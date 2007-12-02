@@ -269,6 +269,23 @@ void Parser::queueResponse( const std::tr1::shared_ptr<Responses::AbstractRespon
     emit responseReceived();
 }
 
+bool Parser::hasResponse() const
+{
+    QMutexLocker locker( &_respMutex );
+    return ! _respQueue.empty();
+}
+
+std::tr1::shared_ptr<Responses::AbstractResponse> Parser::getResponse()
+{
+    QMutexLocker locker( &_respMutex );
+    std::tr1::shared_ptr<Responses::AbstractResponse> ptr;
+    if ( _respQueue.empty() )
+        return ptr;
+    ptr = _respQueue.front();
+    _respQueue.pop_front();
+    return ptr;
+}
+
 QString Parser::generateTag()
 {
     return QString( "y%1" ).arg( _lastTagUsed++ );
@@ -341,9 +358,32 @@ void Parser::socketDisconected()
     //FIXME
 }
 
-void Parser::processLine( const QByteArray& line )
+void Parser::processLine( QByteArray line )
 {
     if ( line.startsWith( "* " ) ) {
+        // check for literals
+        int oldSize = 0;
+        while ( line.endsWith( "}\r\n" ) ) {
+            int offset = line.lastIndexOf( '{' );
+            if ( offset < oldSize )
+                throw ParseError( line.constData() );
+            bool ok;
+            int number = line.mid( offset + 1, line.size() - offset - 4 ).toInt( &ok );
+            if ( !ok )
+                throw ParseError( line.constData() );
+            if ( number < 0 )
+                throw ParseError( line.constData() );
+
+            oldSize = line.size();
+            QByteArray buf = _socket->read( number );
+            while ( buf.size() < number ) {
+                _socket->waitForReadyRead( -1 );
+                buf.append( _socket->read( number - buf.count() ) );
+            }
+            line += buf;
+        }
+        if ( !line.endsWith( "\r\n" ) )
+            line += _socket->readLine();
         queueResponse( parseUntagged( line ) );
     } else if ( line.startsWith( "+ " ) ) {
         // Command Continuation Request which really shouldn't happen here

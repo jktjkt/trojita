@@ -65,11 +65,14 @@ set(libImap_SRCS Imap/Parser.cpp Imap/Command.cpp Imap/Response.cpp
     Imap/LowLevelParser.cpp
     Imap/rfccodecs.cpp Imap/kcodecs.cpp)
 
+set(libDemo_SRCS Demo/ParserMonitor.cpp)
+
 set(trojita_SRCS main.cpp)
 
-qt4_automoc(${trojita_SRCS} ${libImap_SRCS})
+qt4_automoc(${trojita_SRCS} ${libImap_SRCS} ${libDemo_SRCS})
 
 add_library(Imap ${libImap_SRCS})
+add_library(Demo ${libDemo_SRCS})
 add_executable(trojita ${trojita_SRCS})
 
-target_link_libraries(trojita Imap ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY})
+target_link_libraries(trojita Imap Demo ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY})
