@@ -165,7 +165,6 @@ Status::Status( const QString& _tag, const Kind _kind, QList<QByteArray>::const_
     }
 
     QStringList _list = ::Imap::LowLevelParser::parseList( '[', ']', it, end, line, true, false );
-    // FIXME: do we have to use KIMAP::decodeIMAPFolderName() here?
 
     if ( !_list.empty() ) {
         const QString r = (*(_list.begin())).toUpper();
@@ -269,7 +268,6 @@ List::List( const Kind _kind, QList<QByteArray>::const_iterator& it,
     switch ( str.size() ) {
         case 3:
             // ( DQUOTE, char, DQUOTE ) OR "nil"
-            // FIXME
             if ( str.toLower() == "nil" )
                 separator = QString::null;
             else

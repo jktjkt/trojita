@@ -316,8 +316,11 @@ bool Parser::executeACommand( const Commands::Command& cmd )
                         // FIXME: real stuff here
                         _socket->write( buf );
                         return true;
+                    } else if ( identifier == "IDLE" ) {
+                        // FIXME: IDLE
+                    } else {
+                        throw InvalidArgument( identifier.toStdString() );
                     }
-                    // FIXME: other cases...
                 }
                 break;
         }

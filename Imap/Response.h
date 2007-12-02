@@ -224,7 +224,10 @@ namespace Responses {
         Kind kind;
         /** @short Flags for this particular mailbox */
         QStringList flags;
-        /** @short Hierarchy separator */
+        /** @short Hierarchy separator
+         *
+         * QString::null in case original response containded NIL
+         * */
         QString separator;
         /** @short Mailbox name */
         QString mailbox;

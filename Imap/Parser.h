@@ -43,17 +43,11 @@ template<class T> class QList;
 /** @short Namespace for IMAP interaction */
 namespace Imap {
 
-    /** @short Flag as defined in RFC3501, section 2.3.2, FIXME */
-    class Flag;
-
     /** @short Threading algorithm for THREAD command */
     enum ThreadAlgorithm {
         THREAD_ORDEREDSUBJECT /**< ORDEREDSUBJECT algorithm */,
         THREAD_REFERENCES /**< REFERENCES algorithm */
     };
-
-    class Authenticator {};
-    class Message;
 
     /** @short Class specifying a set of messagess to access */
     class Sequence {
