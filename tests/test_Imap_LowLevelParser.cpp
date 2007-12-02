@@ -64,7 +64,23 @@ void ImapLowLevelParserTest::testParseList()
             QStringList( "ahOj" ) );
     QCOMPARE( begin, end );
 
+    line = "(ahOj)\r\n";
+    splitted = line.split(' ');
+    begin = splitted.begin();
+    end = splitted.end();
+    QCOMPARE( Imap::LowLevelParser::parseList( '(', ')', begin, end, "dummy", false, false),
+            QStringList( "ahOj" ) );
+    QCOMPARE( begin, end );
+
     line = "(ahoJ nAzdar)";
+    splitted = line.split(' ');
+    begin = splitted.begin();
+    end = splitted.end();
+    QCOMPARE( Imap::LowLevelParser::parseList( '(', ')', begin, end, "dummy", false, false),
+            QStringList() << "ahoJ" << "nAzdar" );
+    QCOMPARE( begin, end );
+
+    line = "(ahoJ nAzdar)\r\n";
     splitted = line.split(' ');
     begin = splitted.begin();
     end = splitted.end();

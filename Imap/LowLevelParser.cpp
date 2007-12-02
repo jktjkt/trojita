@@ -30,8 +30,11 @@ QStringList LowLevelParser::parseList( const char open, const char close,
         const char * const lineData,
         const bool allowNoList, const bool allowEmptyList )
 {
-    if ( it->startsWith( open ) && it->endsWith( close ) ) {
-        QByteArray item = *it;
+    QByteArray item = *it;
+    if ( item.endsWith( "\r\n" ) )
+        item.chop(2);
+
+    if ( item.startsWith( open ) && item.endsWith( close ) ) {
         ++it;
         item.chop(1);
         item = item.right( item.size() - 1 );
@@ -42,8 +45,7 @@ QStringList LowLevelParser::parseList( const char open, const char close,
                 throw NoData( lineData );
         else
             return QStringList( item );
-    } else if ( it->startsWith( open ) ) {
-        QByteArray item = *it;
+    } else if ( item.startsWith( open ) ) {
         item = item.right( item.size() - 1 );
         ++it;
         QStringList result( item );
@@ -51,6 +53,8 @@ QStringList LowLevelParser::parseList( const char open, const char close,
         bool foundParenth = false;
         while ( it != end && !foundParenth ) {
             QByteArray item = *it;
+            if ( item.endsWith( "\r\n" ) )
+                item.chop(2);
             if ( item.endsWith( close ) ) {
                 foundParenth = true;
                 item.chop(1);
