@@ -292,6 +292,21 @@ namespace Responses {
         static StateKind stateKindFromStr( QString s );
     };
 
+    /** @short FETCH response */
+    class Fetch : public AbstractResponse {
+    public:
+        /** @short Sequence number of message that we're working with */
+        uint number;
+
+        /** @short Fetched items */
+        QMap<QString,std::tr1::shared_ptr<AbstractRespCodeData> > data;
+
+        Fetch( const uint _number, QList<QByteArray>::const_iterator& it,
+                const QList<QByteArray>::const_iterator& end,
+                const char * const lineData );
+        virtual QTextStream& dump( QTextStream& s ) const;
+        virtual bool eq( const AbstractResponse& other ) const;
+    };
 
     QTextStream& operator<<( QTextStream& stream, const Code& r );
     QTextStream& operator<<( QTextStream& stream, const Kind& res );
@@ -309,6 +324,10 @@ namespace Responses {
 
     inline bool operator==( const AbstractRespCodeData& first, const AbstractRespCodeData& other ) {
         return first.eq( other );
+    }
+
+    inline bool operator!=( const AbstractRespCodeData& first, const AbstractRespCodeData& other ) {
+        return !first.eq( other );
     }
 
     /** @short Build Responses::Kind from textual value */

@@ -51,9 +51,13 @@ namespace Imap {
 
     /** @short Class specifying a set of messagess to access */
     class Sequence {
+        uint _lo, _hi;
     public:
-        /** Converts sequence to string suitable for sending over the wire */
-        QString toString() const {return "";};
+        Sequence( const uint num ): _lo(num), _hi(num) {};
+        Sequence( const uint lo, const uint hi ): _lo(lo), _hi(hi) {};
+
+        /** @short Converts sequence to string suitable for sending over the wire */
+        QString toString() const;
     };
 
     /** @short A handle identifying a command sent to the server */
@@ -307,6 +311,8 @@ namespace Imap {
         QMutex _workerStopMutex;
 
     };
+
+    QTextStream& operator<<( QTextStream& stream, const Sequence& s );
 
 }
 #endif /* IMAP_PARSER_H */

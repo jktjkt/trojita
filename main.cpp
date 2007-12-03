@@ -33,35 +33,12 @@ int main( int argc, char** argv) {
 
     parser->capability();
     parser->noop();
-
-    parser->startTls();
-    parser->authenticate();
-    parser->login("user", "password with spaces");
-
-    parser->select("foo mailbox");
-    parser->examine("foo mailbox");
-    parser->create("foo mailbox");
-    parser->deleteMailbox("foo mailbox");
-    parser->rename("foo mailbox old", "bar mailbox new that is so loooooooooooooooooooooooong"
-            "that it doesn't fit on a single line, despite the fact that it is also veeeeery"
-            "loooooooooooong");
-    parser->subscribe("smrt '");
-    parser->unSubscribe("smrt '");
-    parser->list("", "");
-    parser->list("prefix", "");
-    parser->lSub("", "smrt");
-    parser->status( "gfooo", QStringList("bar") << "baz" );
-    parser->append( "mbox", "message");
-    parser->append( "mbox with\nLF", "message\nwhich is a bit longer", QStringList("flagA") << "flagB");
-
-    parser->check();
-    parser->close();
-    parser->expunge();
-    parser->unSelect();
-    parser->idle();
-
+    parser->list( "", "*" );
+    parser->select( "trms" );
+    //parser->fetch( Imap::Sequence(1), QStringList() << "RFC822.HEADER" );
+    //parser->fetch( Imap::Sequence(1, 6), QStringList() << "FLAGS" << "BODY[HEADER.FIELDS (DATE FROM)]");
+    parser->fetch( Imap::Sequence(1, 6), QStringList() << "UID" << "RFC822.HEADER");
     parser->logout();
-
 
     QTimer::singleShot( 1500, &app, SLOT(quit()) );
     app.exec();

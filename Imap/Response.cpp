@@ -375,43 +375,98 @@ Status::Status( QList<QByteArray>::const_iterator& it,
         throw ParseError( lineData );
 }
 
+Fetch::Fetch( const uint _number, QList<QByteArray>::const_iterator& it, //FIXME
+        const QList<QByteArray>::const_iterator& end,
+        const char * const lineData ):
+    AbstractResponse(FETCH), number(_number)
+{
+    if ( it == end )
+        throw NoData( lineData );
+
+    bool first = true;
+    QByteArray identifier;
+    while ( it != end ) {
+        if ( identifier.isEmpty() ) {
+            if ( first ) {
+                // we're reading first identifier
+                identifier = it->right( it->size() - 1 ).toUpper();
+                first = false;
+            } else {
+                // no need to strip '('
+                identifier = it->toUpper();
+            }
+            if ( identifier.isEmpty() )
+                throw ParseError( lineData );
+            ++it;
+
+        } else {
+            // we're supposed to read data now
+            if ( data.contains( identifier ) )
+                throw UnexpectedHere( lineData );
+
+            if ( identifier == "BODY" || identifier == "BODYSTRUCTURE" ) {
+                // FIXME
+            } else if ( identifier.startsWith( "BODY[" ) ) {
+                // FIXME
+            } else if ( identifier == "ENVELOPE" ) {
+                // FIXME
+            } else if ( identifier == "FLAGS" ) {
+                // FIXME
+            } else if ( identifier == "INTERNALDATE" ) {
+                // FIXME
+            } else if ( identifier == "RFC822" ||
+                    identifier == "RFC822.HEADER" || identifier == "RFC822.TEXT" ) {
+                QPair<QByteArray,::Imap::LowLevelParser::ParsedAs> item = ::Imap::LowLevelParser::getNString( it, end, lineData );
+                data[ identifier ] = std::tr1::shared_ptr<AbstractRespCodeData>(
+                        new RespCodeData<QByteArray>( item.first ) );
+            } else if ( identifier == "RFC822.SIZE" || identifier == "UID" ) {
+                uint number = ::Imap::LowLevelParser::getUInt( it, end, lineData );
+                data[ identifier ] = std::tr1::shared_ptr<AbstractRespCodeData>(
+                        new RespCodeData<uint>( number ) );
+            } else {
+                throw UnexpectedHere( identifier.constData() );
+            }
+            identifier.clear();
+        }
+    }
+}
+
+
 QTextStream& State::dump( QTextStream& stream ) const
 {
     if ( !tag.isEmpty() )
-        stream << "tag " << tag;
+        stream << tag;
     else
-        stream << "untagged";
-
-    stream << " " << kind << ", respCode " << respCode;
-    if ( respCode != NONE ) {
-        stream << ", respCodeData " << *respCodeData;
-    }
-    return stream << ", message: " << message;
+        stream << '*';
+    stream << ' ' << kind;
+    if ( respCode != NONE )
+        stream << " [" << respCode << ' ' << *respCodeData << ']';
+    return stream << ' ' << message;
 }
 
 QTextStream& Capability::dump( QTextStream& stream ) const
 {
-    return stream << "Capabilities: " << capabilities.join(", "); 
+    return stream << "* CAPABILITY " << capabilities.join(", "); 
 }
 
 QTextStream& NumberResponse::dump( QTextStream& stream ) const
 {
-    return stream << kind << ": " << number; 
+    return stream << kind << " " << number; 
 }
 
 QTextStream& List::dump( QTextStream& stream ) const
 {
-    return stream << kind << ": '" << mailbox << "' (" << flags.join(", ") << "), separator " << separator; 
+    return stream << kind << " '" << mailbox << "' (" << flags.join(", ") << "), sep '" << separator << "'"; 
 }
 
 QTextStream& Flags::dump( QTextStream& stream ) const
 {
-    return stream << "FLAGS: " << flags.join(", ");
+    return stream << "FLAGS " << flags.join(", ");
 }
 
 QTextStream& Search::dump( QTextStream& stream ) const
 {
-    stream << "SEARCH:";
+    stream << "SEARCH";
     for (QList<uint>::const_iterator it = items.begin(); it != items.end(); ++it )
         stream << " " << *it;
     return stream;
@@ -419,11 +474,20 @@ QTextStream& Search::dump( QTextStream& stream ) const
 
 QTextStream& Status::dump( QTextStream& stream ) const
 {
-    stream << "STATUS " << mailbox << ":";
+    stream << "STATUS " << mailbox;
     for (QMap<Status::StateKind,uint>::const_iterator it = states.begin(); it != states.end(); ++it ) {
         stream << " " << it.key() << " " << it.value();
     }
     return stream;
+}
+
+QTextStream& Fetch::dump( QTextStream& stream ) const // FIXME
+{
+    stream << "FETCH " << number << " (";
+    for ( QMap<QString, std::tr1::shared_ptr<AbstractRespCodeData> >::const_iterator it = data.begin();
+            it != data.end(); ++it )
+        stream << ' ' << it.key() << ' ' << *it.value();
+    return stream << ')';
 }
 
 template<class T> QTextStream& RespCodeData<T>::dump( QTextStream& stream ) const
@@ -433,7 +497,7 @@ template<class T> QTextStream& RespCodeData<T>::dump( QTextStream& stream ) cons
 
 template<> QTextStream& RespCodeData<QStringList>::dump( QTextStream& stream ) const
 {
-    return stream << data.join( "  " );
+    return stream << data.join( " " );
 }
 
 bool RespCodeData<void>::eq( const AbstractRespCodeData& other ) const
@@ -531,6 +595,25 @@ bool Status::eq( const AbstractResponse& other ) const
         return false;
     }
 }
+
+bool Fetch::eq( const AbstractResponse& other ) const
+{
+    try {
+        const Fetch& f = dynamic_cast<const Fetch&>( other );
+        if ( number != f.number )
+            return false;
+        if ( data.keys() != f.data.keys() )
+            return false;
+        for ( QMap<QString,std::tr1::shared_ptr<AbstractRespCodeData> >::const_iterator it = data.begin();
+                it != data.end(); ++it )
+            if ( *it.value() != *f.data[ it.key() ] )
+                return false;
+        return true;
+    } catch ( std::bad_cast& ) {
+        return false;
+    }
+}
+
 
 }
 }

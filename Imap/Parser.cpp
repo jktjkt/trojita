@@ -214,7 +214,7 @@ CommandHandle Parser::fetch( const Sequence& seq, const QStringList& items )
 {
     return queueCommand( Commands::Command( "FETCH" ) <<
             seq.toString() <<
-            Commands::PartOfCommand( Commands::ATOM, items.join(" ") ) );
+            Commands::PartOfCommand( Commands::ATOM, '(' + items.join(" ") + ')' ) );
 }
 
 CommandHandle Parser::store( const Sequence& seq, const QString& item, const QString& value )
@@ -363,7 +363,10 @@ void Parser::processLine( QByteArray line )
     if ( line.startsWith( "* " ) ) {
         // check for literals
         int oldSize = 0;
+        bool literalRead = false;
         while ( line.endsWith( "}\r\n" ) ) {
+            literalRead = true;
+            // find how many bytes to read
             int offset = line.lastIndexOf( '{' );
             if ( offset < oldSize )
                 throw ParseError( line.constData() );
@@ -374,15 +377,18 @@ void Parser::processLine( QByteArray line )
             if ( number < 0 )
                 throw ParseError( line.constData() );
 
+            // now keep pestering our QIODevice until we manage to read as much
+            // data as we want
             oldSize = line.size();
             QByteArray buf = _socket->read( number );
             while ( buf.size() < number ) {
                 _socket->waitForReadyRead( -1 );
-                buf.append( _socket->read( number - buf.count() ) );
+                buf.append( _socket->read( number - buf.size() ) );
             }
             line += buf;
         }
-        if ( !line.endsWith( "\r\n" ) )
+        // if we've had read a literal, we have to read rest of the line as well
+        if ( literalRead )
             line += _socket->readLine();
         queueResponse( parseUntagged( line ) );
     } else if ( line.startsWith( "+ " ) ) {
@@ -444,8 +450,8 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedNumber(
             break;
 
         case Responses::FETCH:
-            // FIXME: parse fetch response
-            throw ParseError( "not implemented" );
+            return std::tr1::shared_ptr<Responses::AbstractResponse>(
+                    new Responses::Fetch( number, it, end, lineData ) );
             break;
 
         default:
@@ -549,5 +555,20 @@ void WorkerThread::run()
     }
 }
 
+
+QString Sequence::toString() const
+{
+    if ( _lo == _hi )
+        return QString::number( _lo );
+    else
+        return QString::number( _lo ) + ':' + QString::number( _hi );
 }
+
+QTextStream& operator<<( QTextStream& stream, const Sequence& s )
+{
+    return stream << s.toString();
+}
+
+}
+
 #include "Parser.moc"

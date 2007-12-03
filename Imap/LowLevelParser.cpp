@@ -23,8 +23,9 @@
 #include "Imap/rfccodecs.h"
 
 namespace Imap {
+namespace LowLevelParser {
 
-QStringList LowLevelParser::parseList( const char open, const char close,
+QStringList parseList( const char open, const char close,
         QList<QByteArray>::const_iterator& it,
         const QList<QByteArray>::const_iterator& end,
         const char * const lineData,
@@ -71,7 +72,7 @@ QStringList LowLevelParser::parseList( const char open, const char close,
         return QStringList();
 }
 
-QPair<QByteArray,LowLevelParser::ParsedAs> LowLevelParser::getString( QList<QByteArray>::const_iterator& it,
+QPair<QByteArray,ParsedAs> getString( QList<QByteArray>::const_iterator& it,
         const QList<QByteArray>::const_iterator& end,
         const char * const lineData )
 {
@@ -131,21 +132,20 @@ QPair<QByteArray,LowLevelParser::ParsedAs> LowLevelParser::getString( QList<QByt
         return qMakePair( data, QUOTED );
     } else if ( it->startsWith( '{' ) ) {
         // literal
-        QByteArray str = *it;
-        if ( ! str.endsWith( "}\r\n" ) )
-            throw ParseError( lineData );
 
-        str.chop(3);
-        str = str.right( str.size() - 1 );
+        // find out how many bytes to read...
+        int pos = it->indexOf( "}\r\n" );
+        if ( pos < 0 )
+            throw ParseError( lineData );
+        QByteArray numStr = it->mid( 1, pos - 1 );
         bool ok;
-        int number = str.toInt( &ok );
+        int number = numStr.toInt( &ok );
         if ( !ok )
             throw ParseError( lineData );
 
+        // ...and read it
+        QByteArray buf( it->mid( pos + 3 ) );
         ++it;
-        if ( it == end )
-            throw ParseError( lineData );
-        QByteArray buf( *it );
 
         while ( buf.size() < number ) {
             if ( it == end )
@@ -154,12 +154,30 @@ QPair<QByteArray,LowLevelParser::ParsedAs> LowLevelParser::getString( QList<QByt
             buf += *it;
             ++it;
         }
+
+        // check that data ended with " "
+        if ( buf.size() != number ) {
+            QByteArray extraData = buf.mid( number );
+            buf.chop( buf.size() - number );
+            /* OK, this is bad, we've read more than we wanted. This is not
+             * really good.
+             * In IMAP, (a sequence of) ' ', ')' or "\r\n" can follow a literal.
+             * ' ' can't happen in this case (it'd be handled by
+             * QByteArray::split(' ') ), so we're dealing with sequence of
+             * "\r\n" and ')'. "\r\n" can be present only at the very end of the
+             * message (and in that case, we can safely strip it off), so the
+             * only problem is a sequence of "))))". Ignoring it is not an
+             * option :(.
+             * */
+            throw ParseError( lineData ); // FIXME!!!, this is not a solution!!!
+        }
+
         return qMakePair( buf, LITERAL );
     } else
         throw UnexpectedHere( lineData );
 }
 
-QPair<QByteArray,LowLevelParser::ParsedAs> LowLevelParser::getAString( QList<QByteArray>::const_iterator& it,
+QPair<QByteArray,ParsedAs> getAString( QList<QByteArray>::const_iterator& it,
         const QList<QByteArray>::const_iterator& end,
         const char * const lineData )
 {
@@ -177,15 +195,54 @@ QPair<QByteArray,LowLevelParser::ParsedAs> LowLevelParser::getAString( QList<QBy
     }
 }
 
-QString LowLevelParser::getMailbox( QList<QByteArray>::const_iterator& it,
+QPair<QByteArray,ParsedAs> getNString( QList<QByteArray>::const_iterator& it,
         const QList<QByteArray>::const_iterator& end,
         const char * const lineData )
 {
-    QPair<QByteArray,::Imap::LowLevelParser::ParsedAs> res = ::Imap::LowLevelParser::getAString( it, end, lineData );
-    if ( res.second == ::Imap::LowLevelParser::ATOM && res.first.toUpper() == "INBOX" )
+    if ( it == end || it->isEmpty() )
+        throw NoData( lineData );
+
+    QByteArray item = *it;
+    if ( item.startsWith( '"' ) || item.startsWith( '{' ) ) {
+        return getString( it, end, lineData );
+    } else if ( item.toUpper() == "NIL" ) {
+        return qMakePair( QByteArray("NIL"), ATOM );
+    } else {
+        throw UnexpectedHere( lineData );
+    }
+}
+
+QString getMailbox( QList<QByteArray>::const_iterator& it,
+        const QList<QByteArray>::const_iterator& end,
+        const char * const lineData )
+{
+    QPair<QByteArray,ParsedAs> res = getAString( it, end, lineData );
+    if ( res.second == ATOM && res.first.toUpper() == "INBOX" )
         return "INBOX";
     else
         return KIMAP::decodeImapFolderName( res.first );
 }
 
+uint getUInt( QList<QByteArray>::const_iterator& it,
+        const QList<QByteArray>::const_iterator& end,
+        const char * const lineData )
+{
+    if ( it == end )
+        throw NoData( lineData );
+
+    bool ok;
+    QByteArray item = *it;
+    if ( item.endsWith( ')' ) )
+        item.chop(1);
+    else if ( item.endsWith( ")\r\n" ) ) {
+        item.chop(3);
+    }
+    uint number = item.toUInt( &ok );
+    if ( !ok )
+        throw ParseError( lineData );
+    ++it;
+    return number;
+}
+
+}
 }
