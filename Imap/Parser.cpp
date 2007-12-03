@@ -386,6 +386,10 @@ void Parser::processLine( QByteArray line )
                 buf.append( _socket->read( number - buf.size() ) );
             }
             line += buf;
+            // Now the ultra-1337-cool trick: as we really really want our
+            // literal to end at the list item boundary, we magically add a
+            // space here that fixes all our issues :)
+            line += " ";
         }
         // if we've had read a literal, we have to read rest of the line as well
         if ( literalRead )

@@ -486,7 +486,7 @@ QTextStream& Fetch::dump( QTextStream& stream ) const // FIXME
     stream << "FETCH " << number << " (";
     for ( QMap<QString, std::tr1::shared_ptr<AbstractData> >::const_iterator it = data.begin();
             it != data.end(); ++it )
-        stream << ' ' << it.key() << ' ' << *it.value();
+        stream << ' ' << it.key() << " \"" << *it.value() << '"';
     return stream << ')';
 }
 
