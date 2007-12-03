@@ -94,13 +94,13 @@ namespace Responses {
 
     /** @short Parent of all "Response Code Data" classes
      *
-     * More information available in AbstractRespCodeData's documentation.
+     * More information available in AbstractData's documentation.
      * */
-    class AbstractRespCodeData {
+    class AbstractData {
     public:
-        virtual ~AbstractRespCodeData() {};
+        virtual ~AbstractData() {};
         virtual QTextStream& dump( QTextStream& ) const = 0;
-        virtual bool eq( const AbstractRespCodeData& other ) const = 0;
+        virtual bool eq( const AbstractData& other ) const = 0;
     };
 
     /** @short Storage for "Response Code Data"
@@ -109,20 +109,20 @@ namespace Responses {
      * called "Response Code" and associated data. These data come in several
      * shapes and this class servers as a storage for them.
      * */
-    template<class T> class RespCodeData : public AbstractRespCodeData {
+    template<class T> class RespData : public AbstractData {
     public:
         T data;
-        RespCodeData( const T& _data ) : data(_data) {};
+        RespData( const T& _data ) : data(_data) {};
         virtual QTextStream& dump( QTextStream& s ) const;
-        virtual bool eq( const AbstractRespCodeData& other ) const;
+        virtual bool eq( const AbstractData& other ) const;
     };
 
     /** Explicit specialization for void as we can't define a void member of a
      * class */
-    template<> class RespCodeData<void> : public AbstractRespCodeData {
+    template<> class RespData<void> : public AbstractData {
     public:
         virtual QTextStream& dump( QTextStream& s ) const { return s; };
-        virtual bool eq( const AbstractRespCodeData& other ) const;
+        virtual bool eq( const AbstractData& other ) const;
     };
 
     /** @short Structure storing OK/NO/BAD/PREAUTH/BYE responses */
@@ -173,7 +173,7 @@ namespace Responses {
          * We have to use pointer indirection because virtual methods wouldn't
          * work otherwise.
          * */
-        std::tr1::shared_ptr<AbstractRespCodeData> respCodeData;
+        std::tr1::shared_ptr<AbstractData> respCodeData;
 
         /** @short Default constructor
          *
@@ -183,7 +183,7 @@ namespace Responses {
          * */
         State( const QString& _tag, const Kind _kind, const QString& _message,
                 const Code _respCode,
-                const std::tr1::shared_ptr<AbstractRespCodeData> _respCodeData ):
+                const std::tr1::shared_ptr<AbstractData> _respCodeData ):
             tag(_tag), kind(_kind), message(_message), respCode(_respCode),
             respCodeData(_respCodeData) {};
 
@@ -299,7 +299,7 @@ namespace Responses {
         uint number;
 
         /** @short Fetched items */
-        QMap<QString,std::tr1::shared_ptr<AbstractRespCodeData> > data;
+        QMap<QString,std::tr1::shared_ptr<AbstractData> > data;
 
         Fetch( const uint _number, QList<QByteArray>::const_iterator& it,
                 const QList<QByteArray>::const_iterator& end,
@@ -312,7 +312,7 @@ namespace Responses {
     QTextStream& operator<<( QTextStream& stream, const Kind& res );
     QTextStream& operator<<( QTextStream& stream, const Status::StateKind& kind );
     QTextStream& operator<<( QTextStream& stream, const AbstractResponse& res );
-    QTextStream& operator<<( QTextStream& stream, const AbstractRespCodeData& resp );
+    QTextStream& operator<<( QTextStream& stream, const AbstractData& resp );
 
     inline bool operator==( const AbstractResponse& first, const AbstractResponse& other ) {
         return first.eq( other );
@@ -322,11 +322,11 @@ namespace Responses {
         return !first.eq( other );
     }
 
-    inline bool operator==( const AbstractRespCodeData& first, const AbstractRespCodeData& other ) {
+    inline bool operator==( const AbstractData& first, const AbstractData& other ) {
         return first.eq( other );
     }
 
-    inline bool operator!=( const AbstractRespCodeData& first, const AbstractRespCodeData& other ) {
+    inline bool operator!=( const AbstractData& first, const AbstractData& other ) {
         return !first.eq( other );
     }
 

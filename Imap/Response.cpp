@@ -183,7 +183,7 @@ QTextStream& operator<<( QTextStream& stream, const AbstractResponse& res )
     return res.dump( stream );
 }
 
-QTextStream& operator<<( QTextStream& stream, const AbstractRespCodeData& resp )
+QTextStream& operator<<( QTextStream& stream, const AbstractData& resp )
 {
     return resp.dump( stream );
 }
@@ -246,7 +246,7 @@ State::State( const QString& _tag, const Kind _kind, QList<QByteArray>::const_it
                 // check for "no more stuff"
                 if ( _list.count() )
                     throw InvalidResponseCode( line );
-                respCodeData = std::tr1::shared_ptr<AbstractRespCodeData>( new RespCodeData<void>() );
+                respCodeData = std::tr1::shared_ptr<AbstractData>( new RespData<void>() );
                 break;
             case Responses::UIDNEXT:
             case Responses::UIDVALIDITY:
@@ -259,18 +259,18 @@ State::State( const QString& _tag, const Kind _kind, QList<QByteArray>::const_it
                 uint number = _list.first().toUInt( &ok );
                 if ( !ok )
                     throw InvalidResponseCode( line );
-                respCodeData = std::tr1::shared_ptr<AbstractRespCodeData>( new RespCodeData<uint>( number ) );
+                respCodeData = std::tr1::shared_ptr<AbstractData>( new RespData<uint>( number ) );
                 }
                 break;
             case Responses::BADCHARSET:
             case Responses::PERMANENTFLAGS:
             case Responses::CAPABILITIES:
                 // no check here
-                respCodeData = std::tr1::shared_ptr<AbstractRespCodeData>( new RespCodeData<QStringList>( _list ) );
+                respCodeData = std::tr1::shared_ptr<AbstractData>( new RespData<QStringList>( _list ) );
                 break;
             case Responses::ATOM: // no sanity check here, just make a string
             case Responses::NONE: // this won't happen, but if we ommit it, gcc warns us about that
-                respCodeData = std::tr1::shared_ptr<AbstractRespCodeData>( new RespCodeData<QString>( _list.join(" ") ) );
+                respCodeData = std::tr1::shared_ptr<AbstractData>( new RespData<QString>( _list.join(" ") ) );
                 break;
         }
     }
@@ -417,12 +417,12 @@ Fetch::Fetch( const uint _number, QList<QByteArray>::const_iterator& it, //FIXME
             } else if ( identifier == "RFC822" ||
                     identifier == "RFC822.HEADER" || identifier == "RFC822.TEXT" ) {
                 QPair<QByteArray,::Imap::LowLevelParser::ParsedAs> item = ::Imap::LowLevelParser::getNString( it, end, lineData );
-                data[ identifier ] = std::tr1::shared_ptr<AbstractRespCodeData>(
-                        new RespCodeData<QByteArray>( item.first ) );
+                data[ identifier ] = std::tr1::shared_ptr<AbstractData>(
+                        new RespData<QByteArray>( item.first ) );
             } else if ( identifier == "RFC822.SIZE" || identifier == "UID" ) {
                 uint number = ::Imap::LowLevelParser::getUInt( it, end, lineData );
-                data[ identifier ] = std::tr1::shared_ptr<AbstractRespCodeData>(
-                        new RespCodeData<uint>( number ) );
+                data[ identifier ] = std::tr1::shared_ptr<AbstractData>(
+                        new RespData<uint>( number ) );
             } else {
                 throw UnexpectedHere( identifier.constData() );
             }
@@ -484,36 +484,36 @@ QTextStream& Status::dump( QTextStream& stream ) const
 QTextStream& Fetch::dump( QTextStream& stream ) const // FIXME
 {
     stream << "FETCH " << number << " (";
-    for ( QMap<QString, std::tr1::shared_ptr<AbstractRespCodeData> >::const_iterator it = data.begin();
+    for ( QMap<QString, std::tr1::shared_ptr<AbstractData> >::const_iterator it = data.begin();
             it != data.end(); ++it )
         stream << ' ' << it.key() << ' ' << *it.value();
     return stream << ')';
 }
 
-template<class T> QTextStream& RespCodeData<T>::dump( QTextStream& stream ) const
+template<class T> QTextStream& RespData<T>::dump( QTextStream& stream ) const
 {
     return stream << data;
 }
 
-template<> QTextStream& RespCodeData<QStringList>::dump( QTextStream& stream ) const
+template<> QTextStream& RespData<QStringList>::dump( QTextStream& stream ) const
 {
     return stream << data.join( " " );
 }
 
-bool RespCodeData<void>::eq( const AbstractRespCodeData& other ) const
+bool RespData<void>::eq( const AbstractData& other ) const
 {
     try {
-        dynamic_cast<const RespCodeData<void>&>( other );
+        dynamic_cast<const RespData<void>&>( other );
         return true;
     } catch ( std::bad_cast& ) {
         return false;
     }
 }
 
-template<class T> bool RespCodeData<T>::eq( const AbstractRespCodeData& other ) const
+template<class T> bool RespData<T>::eq( const AbstractData& other ) const
 {
     try {
-        const RespCodeData<T>& r = dynamic_cast<const RespCodeData<T>&>( other );
+        const RespData<T>& r = dynamic_cast<const RespData<T>&>( other );
         return data == r.data;
     } catch ( std::bad_cast& ) {
         return false;
@@ -604,7 +604,7 @@ bool Fetch::eq( const AbstractResponse& other ) const
             return false;
         if ( data.keys() != f.data.keys() )
             return false;
-        for ( QMap<QString,std::tr1::shared_ptr<AbstractRespCodeData> >::const_iterator it = data.begin();
+        for ( QMap<QString,std::tr1::shared_ptr<AbstractData> >::const_iterator it = data.begin();
                 it != data.end(); ++it )
             if ( *it.value() != *f.data[ it.key() ] )
                 return false;
