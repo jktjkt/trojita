@@ -25,7 +25,7 @@
 namespace Imap {
 namespace LowLevelParser {
 
-QStringList parseList( const char open, const char close,
+QPair<QStringList,QByteArray> parseList( const char open, const char close,
         QList<QByteArray>::const_iterator& it,
         const QList<QByteArray>::const_iterator& end,
         const char * const lineData,
@@ -38,20 +38,27 @@ QStringList parseList( const char open, const char close,
     if ( item.startsWith( open ) && item.endsWith( close ) ) {
         ++it;
         item.chop(1);
+        QByteArray chopped;
+        int pos = item.indexOf( close );
+        if ( pos > 0 ) {
+            chopped = item.mid( pos );
+            item.chop( chopped.size() );
+        }
         item = item.right( item.size() - 1 );
         if ( item.isEmpty() )
             if ( allowEmptyList )
-                return QStringList();
+                return qMakePair( QStringList(), chopped );
             else
                 throw NoData( lineData );
         else
-            return QStringList( item );
+            return qMakePair( QStringList( item ), chopped );
     } else if ( item.startsWith( open ) ) {
         item = item.right( item.size() - 1 );
         ++it;
         QStringList result( item );
 
         bool foundParenth = false;
+        QByteArray chopped;
         while ( it != end && !foundParenth ) {
             QByteArray item = *it;
             if ( item.endsWith( "\r\n" ) )
@@ -59,17 +66,24 @@ QStringList parseList( const char open, const char close,
             if ( item.endsWith( close ) ) {
                 foundParenth = true;
                 item.chop(1);
+
+                int pos = item.indexOf( close );
+                if ( pos > 0 ) {
+                    chopped = item.mid( pos );
+                    item.chop( chopped.size() );
+                }
             }
+
             result << item;
             ++it;
         }
         if ( !foundParenth )
             throw NoData( lineData ); // unterminated list
-        return result;
+        return qMakePair( result, chopped );
     } else if ( !allowNoList )
         throw NoData( lineData ); 
     else
-        return QStringList();
+        return qMakePair( QStringList(), QByteArray() );
 }
 
 QPair<QByteArray,ParsedAs> getString( QList<QByteArray>::const_iterator& it,

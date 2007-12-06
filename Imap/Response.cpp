@@ -204,7 +204,10 @@ State::State( const QString& _tag, const Kind _kind, QList<QByteArray>::const_it
         }
     }
 
-    QStringList _list = ::Imap::LowLevelParser::parseList( '[', ']', it, end, line, true, false );
+    QPair<QStringList,QByteArray> _parsedList = ::Imap::LowLevelParser::parseList( '[', ']', it, end, line, true, false );
+    QStringList _list = _parsedList.first;
+    if ( !_parsedList.second.isEmpty() )
+        throw ParseError( line );
 
     if ( !_list.empty() ) {
         const QString r = (*(_list.begin())).toUpper();
@@ -299,7 +302,10 @@ List::List( const Kind _kind, QList<QByteArray>::const_iterator& it,
     if ( kind != LIST && kind != LSUB )
         throw UnexpectedHere( lineData );
 
-    flags = ::Imap::LowLevelParser::parseList( '(', ')', it, end, lineData );
+    QPair<QStringList,QByteArray> _parsedList = ::Imap::LowLevelParser::parseList( '(', ')', it, end, lineData );
+    flags = _parsedList.first;
+    if ( !_parsedList.second.isEmpty() )
+        throw ParseError( lineData );
 
     if ( it == end )
         throw NoData( lineData ); // flags and nothing else
@@ -337,9 +343,12 @@ Flags::Flags( QList<QByteArray>::const_iterator& it,
         const QList<QByteArray>::const_iterator& end,
         const char * const lineData )
 {
-    flags = ::Imap::LowLevelParser::parseList( '(', ')', it, end, lineData );
+    QPair<QStringList,QByteArray> _parsedList = ::Imap::LowLevelParser::parseList( '(', ')', it, end, lineData );
+    if ( !_parsedList.second.isEmpty() )
+        throw TooMuchData( lineData );
     if ( it != end )
         throw TooMuchData( lineData );
+    flags = _parsedList.first;
 }
 
 Status::Status( QList<QByteArray>::const_iterator& it,
@@ -351,9 +360,10 @@ Status::Status( QList<QByteArray>::const_iterator& it,
 
     mailbox = ::Imap::LowLevelParser::getMailbox( it, end, lineData );
 
-    QStringList items = ::Imap::LowLevelParser::parseList( '(', ')', it, end, lineData, false, false );
-    if ( it != end )
+    QPair<QStringList,QByteArray> _parsedList = ::Imap::LowLevelParser::parseList( '(', ')', it, end, lineData, false, false );
+    if ( it != end || !_parsedList.second.isEmpty() )
         throw TooMuchData( lineData );
+    const QStringList& items = _parsedList.first;
 
     bool gotIdentifier = false;
     QString identifier;
@@ -375,7 +385,7 @@ Status::Status( QList<QByteArray>::const_iterator& it,
         throw ParseError( lineData );
 }
 
-Fetch::Fetch( const uint _number, QList<QByteArray>::const_iterator& it, //FIXME
+Fetch::Fetch( const uint _number, QList<QByteArray>::const_iterator& it,
         const QList<QByteArray>::const_iterator& end,
         const char * const lineData ):
     AbstractResponse(FETCH), number(_number)
@@ -411,7 +421,17 @@ Fetch::Fetch( const uint _number, QList<QByteArray>::const_iterator& it, //FIXME
             } else if ( identifier == "ENVELOPE" ) {
                 // FIXME
             } else if ( identifier == "FLAGS" ) {
-                // FIXME
+                QPair<QStringList,QByteArray> _parsedList = ::Imap::LowLevelParser::parseList( '(', ')', it, end, lineData );
+
+                if ( _parsedList.second.size() > 1 )
+                    throw ParseError( lineData );
+                if ( _parsedList.second.size() == 1 && ( _parsedList.second != ")" || it != end ) )
+                    throw ParseError( lineData );
+
+                data[ identifier ] = std::tr1::shared_ptr<AbstractData>(
+                        new RespData<QStringList>( _parsedList.first ) );
+
+
             } else if ( identifier == "INTERNALDATE" ) {
                 QPair<QByteArray,::Imap::LowLevelParser::ParsedAs> item =
                     ::Imap::LowLevelParser::getString( it, end, lineData );

@@ -33,7 +33,7 @@ void ImapLowLevelParserTest::testParseList()
     QList<QByteArray>::const_iterator end = splitted.end();
 
     QCOMPARE( Imap::LowLevelParser::parseList( '(', ')', begin, end, "dummy", false, true),
-            QStringList() );
+            qMakePair( QStringList(), QByteArray() ) );
     QCOMPARE( begin, end );
     begin = splitted.begin();
 
@@ -56,12 +56,28 @@ void ImapLowLevelParserTest::testParseList()
         QVERIFY( true );
     }
 
+    line = "())";
+    splitted = line.split(' ');
+    begin = splitted.begin();
+    end = splitted.end();
+    QCOMPARE( Imap::LowLevelParser::parseList( '(', ')', begin, end, "dummy", false, true),
+            qMakePair( QStringList(), QByteArray(")") ) );
+    QCOMPARE( begin, end );
+
     line = "(ahOj)";
     splitted = line.split(' ');
     begin = splitted.begin();
     end = splitted.end();
     QCOMPARE( Imap::LowLevelParser::parseList( '(', ')', begin, end, "dummy", false, false),
-            QStringList( "ahOj" ) );
+            qMakePair( QStringList( "ahOj" ), QByteArray() ) );
+    QCOMPARE( begin, end );
+
+    line = "(ahOj))))";
+    splitted = line.split(' ');
+    begin = splitted.begin();
+    end = splitted.end();
+    QCOMPARE( Imap::LowLevelParser::parseList( '(', ')', begin, end, "dummy", false, false),
+            qMakePair( QStringList( "ahOj" ), QByteArray(")))") ) );
     QCOMPARE( begin, end );
 
     line = "(ahOj)\r\n";
@@ -69,7 +85,7 @@ void ImapLowLevelParserTest::testParseList()
     begin = splitted.begin();
     end = splitted.end();
     QCOMPARE( Imap::LowLevelParser::parseList( '(', ')', begin, end, "dummy", false, false),
-            QStringList( "ahOj" ) );
+            qMakePair( QStringList( "ahOj" ), QByteArray() ) );
     QCOMPARE( begin, end );
 
     line = "(ahoJ nAzdar)";
@@ -77,7 +93,15 @@ void ImapLowLevelParserTest::testParseList()
     begin = splitted.begin();
     end = splitted.end();
     QCOMPARE( Imap::LowLevelParser::parseList( '(', ')', begin, end, "dummy", false, false),
-            QStringList() << "ahoJ" << "nAzdar" );
+            qMakePair( QStringList() << "ahoJ" << "nAzdar", QByteArray() ) );
+    QCOMPARE( begin, end );
+
+    line = "(ahoJ nAzdar)))";
+    splitted = line.split(' ');
+    begin = splitted.begin();
+    end = splitted.end();
+    QCOMPARE( Imap::LowLevelParser::parseList( '(', ')', begin, end, "dummy", false, false),
+            qMakePair( QStringList() << "ahoJ" << "nAzdar", QByteArray("))") ) );
     QCOMPARE( begin, end );
 
     line = "(ahoJ nAzdar)\r\n";
@@ -85,7 +109,15 @@ void ImapLowLevelParserTest::testParseList()
     begin = splitted.begin();
     end = splitted.end();
     QCOMPARE( Imap::LowLevelParser::parseList( '(', ')', begin, end, "dummy", false, false),
-            QStringList() << "ahoJ" << "nAzdar" );
+            qMakePair( QStringList() << "ahoJ" << "nAzdar", QByteArray() ) );
+    QCOMPARE( begin, end );
+
+    line = "(ahoJ nAzdar))\r\n";
+    splitted = line.split(' ');
+    begin = splitted.begin();
+    end = splitted.end();
+    QCOMPARE( Imap::LowLevelParser::parseList( '(', ')', begin, end, "dummy", false, false),
+            qMakePair( QStringList() << "ahoJ" << "nAzdar", QByteArray(")") ) );
     QCOMPARE( begin, end );
 
     line = "(ahoJ nAzdar) 333";
@@ -93,7 +125,15 @@ void ImapLowLevelParserTest::testParseList()
     begin = splitted.begin();
     end = splitted.end();
     QCOMPARE( Imap::LowLevelParser::parseList( '(', ')', begin, end, "dummy", false, false),
-            QStringList() << "ahoJ" << "nAzdar" );
+            qMakePair( QStringList() << "ahoJ" << "nAzdar", QByteArray() ) );
+    QCOMPARE( *begin, QByteArray("333") );
+
+    line = "(ahoJ nAzdar)) 333";
+    splitted = line.split(' ');
+    begin = splitted.begin();
+    end = splitted.end();
+    QCOMPARE( Imap::LowLevelParser::parseList( '(', ')', begin, end, "dummy", false, false),
+            qMakePair( QStringList() << "ahoJ" << "nAzdar", QByteArray(")") ) );
     QCOMPARE( *begin, QByteArray("333") );
 
     line = "[ahoJ} Blesmrt trojita\r\n";
@@ -101,7 +141,7 @@ void ImapLowLevelParserTest::testParseList()
     begin = splitted.begin();
     end = splitted.end();
     QCOMPARE( Imap::LowLevelParser::parseList( '[', '}', begin, end, "dummy", false, false),
-            QStringList( "ahoJ" ) );
+            qMakePair( QStringList( "ahoJ" ), QByteArray() ) );
     QCOMPARE( *begin, QByteArray("Blesmrt") );
 
 }
@@ -268,3 +308,15 @@ void ImapLowLevelParserTest::testGetAString()
 
 QTEST_KDEMAIN_CORE( ImapLowLevelParserTest )
 
+namespace QTest {
+
+template<> char * toString( const QPair<QStringList,QByteArray>& res )
+{
+    QByteArray buf;
+    QTextStream stream( &buf );
+    stream << "first: " << res.first.join(", ") << ", second: " << res.second;
+    stream.flush();
+    return qstrdup( buf.data() );
+}
+
+}

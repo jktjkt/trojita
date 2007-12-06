@@ -45,7 +45,7 @@ namespace LowLevelParser {
      * allowEmptyList -- if false and the list is empty (ie. nothing between opening
      *                   and closing bracket), exception is thrown
      * */
-    QStringList parseList( const char open, const char close,
+    QPair<QStringList,QByteArray> parseList( const char open, const char close,
             QList<QByteArray>::const_iterator& it,
             const QList<QByteArray>::const_iterator& end,
             const char * const lineData,
