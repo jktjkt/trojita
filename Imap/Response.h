@@ -277,12 +277,14 @@ namespace Responses {
             UNSEEN
         };
 
+        typedef QMap<StateKind,uint> stateDataType;
+
         /** @short Mailbox name */
         QString mailbox;
         /** @short Associative array of states */
-        QMap<StateKind,uint> states;
+        stateDataType states;
 
-        Status( const QString& _mailbox, const QMap<StateKind,uint>& _states ) :
+        Status( const QString& _mailbox, const stateDataType& _states ) :
             AbstractResponse(STATUS), mailbox(_mailbox), states(_states) {};
         Status( QList<QByteArray>::const_iterator& it,
                 const QList<QByteArray>::const_iterator& end,

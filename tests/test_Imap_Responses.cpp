@@ -85,7 +85,7 @@ void ImapResponsesTest::testCompareEq_data()
         respPtr( new Search( QList<uint>() << 333 ) ) <<
         respPtr( new Search( QList<uint>() << 333 ) );
 
-    QMap<Status::StateKind,uint> stateMap;
+    Status::stateDataType stateMap;
     QTest::newRow( "status-1" ) <<
         respPtr( new Status( "ahoj", stateMap ) ) <<
         respPtr( new Status( "ahoj", stateMap ) );
@@ -186,10 +186,10 @@ void ImapResponsesTest::testCompareNe_data()
         respPtr( new Search( QList<uint>() << 666 ) );
 
     QTest::newRow( "status-mailbox" ) <<
-        respPtr( new Status( "ahoj", QMap<Status::StateKind,uint>() ) ) <<
-        respPtr( new Status( "ahOj", QMap<Status::StateKind,uint>() ) );
+        respPtr( new Status( "ahoj", Status::stateDataType() ) ) <<
+        respPtr( new Status( "ahOj", Status::stateDataType() ) );
 
-    QMap<Status::StateKind,uint> stateMap1, stateMap2, stateMap3;
+    Status::stateDataType stateMap1, stateMap2, stateMap3;
     stateMap1[Status::MESSAGES] = 12;
     stateMap1[Status::RECENT] = 0;
 

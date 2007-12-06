@@ -513,7 +513,7 @@ QTextStream& Search::dump( QTextStream& stream ) const
 QTextStream& Status::dump( QTextStream& stream ) const
 {
     stream << "STATUS " << mailbox;
-    for (QMap<Status::StateKind,uint>::const_iterator it = states.begin(); it != states.end(); ++it ) {
+    for (stateDataType::const_iterator it = states.begin(); it != states.end(); ++it ) {
         stream << " " << it.key() << " " << it.value();
     }
     return stream;

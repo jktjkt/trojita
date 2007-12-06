@@ -201,7 +201,7 @@ void ImapParserParseTest::testParseUntagged_data()
         << QByteArray("* SEARCH 1 33 666\r\n")
         << shared_ptr<AbstractResponse>( new Search( QList<uint>() << 1 << 33 << 666 ) );
 
-    QMap<Status::StateKind,uint> states;
+    Status::stateDataType states;
     states[Status::MESSAGES] = 231;
     states[Status::UIDNEXT] = 44292;
     QTest::newRow("status-1")
