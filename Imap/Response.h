@@ -295,15 +295,18 @@ namespace Responses {
     /** @short FETCH response */
     class Fetch : public AbstractResponse {
     public:
+        typedef QMap<QString,std::tr1::shared_ptr<AbstractData> > dataType;
+
         /** @short Sequence number of message that we're working with */
         uint number;
 
         /** @short Fetched items */
-        QMap<QString,std::tr1::shared_ptr<AbstractData> > data;
+        dataType data;
 
         Fetch( const uint _number, QList<QByteArray>::const_iterator& it,
                 const QList<QByteArray>::const_iterator& end,
                 const char * const lineData );
+        Fetch( const uint _number, const dataType& _data );
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
     };

@@ -413,10 +413,44 @@ Fetch::Fetch( const uint _number, QList<QByteArray>::const_iterator& it, //FIXME
             } else if ( identifier == "FLAGS" ) {
                 // FIXME
             } else if ( identifier == "INTERNALDATE" ) {
-                // FIXME
+                QPair<QByteArray,::Imap::LowLevelParser::ParsedAs> item =
+                    ::Imap::LowLevelParser::getString( it, end, lineData );
+                if ( item.second != ::Imap::LowLevelParser::QUOTED )
+                    throw ParseError( lineData );
+                if ( item.first.size() != 26 )
+                    throw ParseError( lineData );
+
+                QDateTime date = QDateTime::fromString( item.first.left(20), "d-MMM-yyyy HH:mm:ss");
+
+                const char sign = item.first[21];
+                bool ok;
+                uint hours = item.first.mid(22, 2).toUInt( &ok );
+                if (!ok)
+                    throw ParseError( lineData );
+                uint minutes = item.first.mid(24, 2).toUInt( &ok );
+                if (!ok)
+                    throw ParseError( lineData );
+                switch (sign) {
+                    case '+':
+                        date.addSecs( 3600*hours + 60*minutes );
+                        break;
+                    case '-':
+                        date.addSecs( -3600*hours - 60*minutes );
+                        break;
+                    default:
+                        throw ParseError( lineData );
+                }
+
+                // we can't rely on server being in the same TZ as we are,
+                // so we have to convert to UTC here
+                date = date.toUTC(); 
+                data[ identifier ] = std::tr1::shared_ptr<AbstractData>(
+                        new RespData<QDateTime>( date ) );
+
             } else if ( identifier == "RFC822" ||
                     identifier == "RFC822.HEADER" || identifier == "RFC822.TEXT" ) {
-                QPair<QByteArray,::Imap::LowLevelParser::ParsedAs> item = ::Imap::LowLevelParser::getNString( it, end, lineData );
+                QPair<QByteArray,::Imap::LowLevelParser::ParsedAs> item =
+                    ::Imap::LowLevelParser::getNString( it, end, lineData );
                 data[ identifier ] = std::tr1::shared_ptr<AbstractData>(
                         new RespData<QByteArray>( item.first ) );
             } else if ( identifier == "RFC822.SIZE" || identifier == "UID" ) {
@@ -431,6 +465,10 @@ Fetch::Fetch( const uint _number, QList<QByteArray>::const_iterator& it, //FIXME
     }
 }
 
+Fetch::Fetch( const uint _number, const Fetch::dataType& _data ):
+    AbstractResponse(FETCH), number(_number), data(_data)
+{
+}
 
 QTextStream& State::dump( QTextStream& stream ) const
 {
@@ -484,7 +522,7 @@ QTextStream& Status::dump( QTextStream& stream ) const
 QTextStream& Fetch::dump( QTextStream& stream ) const // FIXME
 {
     stream << "FETCH " << number << " (";
-    for ( QMap<QString, std::tr1::shared_ptr<AbstractData> >::const_iterator it = data.begin();
+    for ( dataType::const_iterator it = data.begin();
             it != data.end(); ++it )
         stream << ' ' << it.key() << " \"" << *it.value() << '"';
     return stream << ')';
@@ -498,6 +536,11 @@ template<class T> QTextStream& RespData<T>::dump( QTextStream& stream ) const
 template<> QTextStream& RespData<QStringList>::dump( QTextStream& stream ) const
 {
     return stream << data.join( " " );
+}
+
+template<> QTextStream& RespData<QDateTime>::dump( QTextStream& stream ) const
+{
+    return stream << data.toString();
 }
 
 bool RespData<void>::eq( const AbstractData& other ) const
@@ -604,7 +647,7 @@ bool Fetch::eq( const AbstractResponse& other ) const
             return false;
         if ( data.keys() != f.data.keys() )
             return false;
-        for ( QMap<QString,std::tr1::shared_ptr<AbstractData> >::const_iterator it = data.begin();
+        for ( dataType::const_iterator it = data.begin();
                 it != data.end(); ++it )
             if ( *it.value() != *f.data[ it.key() ] )
                 return false;
