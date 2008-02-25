@@ -225,6 +225,25 @@ void ImapLowLevelParserTest::testGetUInt()
     Q_ASSERT( pos == line.size() );
 }
 
+void ImapLowLevelParserTest::testGetAtom()
+{
+    using namespace Imap::LowLevelParser;
+
+    QByteArray line = "blesmrt troj1ta s matovou\nomackou";
+    int pos = 0;
+
+    QCOMPARE( getAtom( line, pos ), QByteArray("blesmrt") );
+    ++pos;
+    QCOMPARE( getAtom( line, pos ), QByteArray("troj1ta") );
+    ++pos;
+    QCOMPARE( getAtom( line, pos ), QByteArray("s") );
+    ++pos;
+    QCOMPARE( getAtom( line, pos ), QByteArray("matovou") );
+    ++pos;
+    QCOMPARE( getAtom( line, pos ), QByteArray("omackou") );
+    Q_ASSERT( pos == line.size() );
+}
+
 void ImapLowLevelParserTest::testGetAString()
 {
     using namespace Imap::LowLevelParser;

@@ -290,5 +290,33 @@ uint getUInt( const QByteArray& line, int& start )
     return number;
 }
 
+QByteArray getAtom( const QByteArray& line, int& start )
+{
+    if ( start == line.size() )
+        throw NoData( line, start );
+
+    int old(start);
+    bool breakIt = false;
+    while (!breakIt && start < line.size() ) {
+        if ( line[start] <= '\x1f' ) {
+            // CTL characters (excluding 0x7f) as defined in ABNF
+            breakIt = true;
+            break;
+        }
+        switch (line[start]) {
+            case '(': case ')': case '{': case '\x20': case '\x7f':
+            case '%': case '*': case '"': case '\\': case ']':
+                breakIt  = true;
+                break;
+            default:
+                ++start;
+        }
+    }
+
+    if ( old == start )
+        throw ParseError( line, start );
+    return line.mid( old, start - old );
+}
+
 }
 }

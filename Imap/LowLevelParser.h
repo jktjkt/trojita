@@ -80,6 +80,8 @@ namespace LowLevelParser {
             const char * const lineData );
 
     uint getUInt( const QByteArray& line, int& start );
+
+    QByteArray getAtom( const QByteArray& line, int& start );
 }
 }
 
