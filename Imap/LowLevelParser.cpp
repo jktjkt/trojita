@@ -266,16 +266,19 @@ uint getUInt( QList<QByteArray>::const_iterator& it,
 uint getUInt( const QByteArray& line, int& start )
 {
     if ( start == line.size() )
-        throw NoData( "" );
+        throw NoData( line, start );
 
     QByteArray item;
-    for ( ; start < line.size(); ++start ) {
+    bool breakIt = false;
+    while ( !breakIt && start < line.size() ) {
         switch (line[start]) {
             case '0': case '1': case '2': case '3': case '4':
             case '5': case '6': case '7': case '8': case '9':
                 item.append( line[start] );
+                ++start;
                 break;
             default:
+                breakIt = true;
                 break;
         }
     }
@@ -283,7 +286,7 @@ uint getUInt( const QByteArray& line, int& start )
     bool ok;
     uint number = item.toUInt( &ok );
     if (!ok)
-        throw ParseError( "no int found" );
+        throw ParseError( line, start );
     return number;
 }
 

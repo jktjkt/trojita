@@ -30,6 +30,7 @@ private Q_SLOTS:
     void testParseList();
     void testGetString();
     void testGetAString();
+    void testGetUInt();
 };
 
 #endif

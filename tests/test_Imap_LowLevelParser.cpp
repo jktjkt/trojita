@@ -189,6 +189,42 @@ void ImapLowLevelParserTest::testGetString()
 
 }
 
+void ImapLowLevelParserTest::testGetUInt()
+{
+    using namespace Imap::LowLevelParser;
+
+    QByteArray line = "123456 789 a666b333";
+    uint res;
+    int pos = 0;
+
+    res = getUInt( line, pos );
+    QCOMPARE( res, 123456u );
+    ++pos;
+
+    res = getUInt( line, pos );
+    QCOMPARE( res, 789u );
+    ++pos;
+
+    try {
+        res = getUInt( line, pos );
+        QFAIL("exception not raised");
+    } catch (Imap::ParseError& e) {
+        QCOMPARE( pos, 11 );
+        ++pos;
+    }
+
+    res = getUInt( line, pos );
+    QCOMPARE( res, 666u );
+
+    QCOMPARE( pos, 15 );
+    ++pos;
+
+    res = getUInt( line, pos );
+    QCOMPARE( res, 333u );
+
+    Q_ASSERT( pos == line.size() );
+}
+
 void ImapLowLevelParserTest::testGetAString()
 {
     using namespace Imap::LowLevelParser;
