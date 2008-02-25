@@ -151,41 +151,59 @@ void ImapLowLevelParserTest::testGetString()
     using namespace Imap::LowLevelParser;
 
     QByteArray line = "ahOj";
-    QList<QByteArray> splitted = line.split(' ');
-    QList<QByteArray>::const_iterator begin = splitted.begin();
-    QList<QByteArray>::const_iterator end = splitted.end();
+    int pos = 0;
+    StringWithKind res;
 
     try {
-        line = "ah0j 333"; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
-        StringWithKind res = getString( begin, begin, line.constData());
+        line = ""; pos = 0;
+        res = getString( line, pos );
         QFAIL( "getString() should scream on empty line" );
     } catch ( Imap::NoData& ) {
-        QVERIFY( true );
+        QCOMPARE( pos, 0 );
     }
 
     try {
-        line = ""; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
-        StringWithKind res = getString( begin, end, line.constData());
-        QFAIL( "getString() should scream on empty line" );
-    } catch ( Imap::NoData& ) {
-        QVERIFY( true );
-    }
-
-    try {
-        line = "ah0j 333"; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
-        StringWithKind res = getString( begin, end, line.constData());
+        line = "ah0j 333"; pos = 0;
+        res = getString( line, pos );
         QFAIL( "getString() should ignore atoms" );
     } catch ( Imap::UnexpectedHere& ) {
-        QVERIFY( true );
+        QCOMPARE( pos, 0 );
     }
 
-    try {
-        line = "ah0j"; splitted = line.split(' '); begin = splitted.begin(); end = splitted.end();
-        StringWithKind res = getString( begin, end, line.constData());
-        QFAIL( "getString() should ignore atoms" );
-    } catch ( Imap::UnexpectedHere& ) {
-        QVERIFY( true );
-    }
+    line = "{0}\r\na"; pos = 0;
+    res = getString( line, pos );
+    QCOMPARE( res.first.size(), 0 );
+    QCOMPARE( res.second, LITERAL );
+    QCOMPARE( pos, line.size() - 1 );
+
+    line = "{3}\r\n666"; pos = 0;
+    res = getString( line, pos );
+    QCOMPARE( res.first, QByteArray("666") );
+    QCOMPARE( res.second, LITERAL );
+    QCOMPARE( pos, line.size() );
+
+    QByteArray myData;
+    myData.append('\x00');
+    myData.append("\x01\x02\x03 abcde");
+    line = QByteArray("{") + QByteArray::number( myData.size() ) + QByteArray("}\r\n");
+    line.append(myData);
+    pos = 0;
+    res = getString( line, pos );
+    QCOMPARE( res.first, myData );
+    QCOMPARE( res.second, LITERAL );
+    QCOMPARE( pos, line.size() );
+
+    line = "\"333\\\\ \\\" 666\"a"; pos = 0;
+    res = getString( line, pos );
+    QCOMPARE( res.first, QByteArray("333\\ \" 666") );
+    QCOMPARE( res.second, QUOTED );
+    QCOMPARE( line.at(pos), 'a' );
+
+    line = "\"\"x"; pos = 0;
+    res = getString( line, pos );
+    QCOMPARE( res.first.size(), 0 );
+    QCOMPARE( res.second, QUOTED );
+    QCOMPARE( pos, line.size() - 1 );
 
 }
 

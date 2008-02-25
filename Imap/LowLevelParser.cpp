@@ -318,5 +318,58 @@ QByteArray getAtom( const QByteArray& line, int& start )
     return line.mid( old, start - old );
 }
 
+QPair<QByteArray,ParsedAs> getString( const QByteArray& line, int& start )
+{
+    if ( start == line.size() )
+        throw NoData( line, start );
+
+    if ( line[start] == '"' ) {
+        // quoted string
+        ++start;
+        bool escaping = false;
+        QByteArray res;
+        bool terminated = false;
+        while ( start != line.size() && !terminated ) {
+            if (escaping) {
+                escaping = false;
+                if ( line[start] == '"' || line[start] == '\\' )
+                    res.append( line[start] );
+                else
+                    throw UnexpectedHere( line, start );
+            } else {
+                switch (line[start]) {
+                    case '"':
+                        terminated = true;
+                        break;
+                    case '\\':
+                        escaping = true;
+                        break;
+                    case '\r': case '\n':
+                        throw ParseError( line, start );
+                    default:
+                        res.append( line[start] );
+                }
+            }
+            ++start;
+        }
+        if (!terminated)
+            throw NoData( line, start );
+        return qMakePair( res, QUOTED );
+    } else if ( line[start] == '{' ) {
+        // literal
+        ++start;
+        int size = getUInt( line, start );
+        if ( line.mid( start, 3 ) != "}\r\n" )
+            throw ParseError( line, start );
+        start += 3;
+        if ( start >= line.size() + size )
+            throw NoData( line, start );
+        int old(start);
+        start += size;
+        return qMakePair( line.mid(old, size), LITERAL );
+    } else
+        throw UnexpectedHere( line, start );
+}
+
 }
 }
