@@ -18,6 +18,8 @@
 #ifndef IMAP_EXCEPTIONS_H
 #define IMAP_EXCEPTIONS_H
 #include <exception>
+#include <string>
+#include <QByteArray>
 
 /**
  * @file
@@ -36,79 +38,90 @@ namespace Imap {
     class Exception : public std::exception {
         /** The error message */
         std::string _msg;
+        /** Line with data that caused this error */
+        QByteArray _line;
+        /** Offset in line for error source */
+        int _offset;
     public:
-        Exception( const std::string& msg ) : _msg( msg ) {};
-        virtual const char* what() const throw() { return _msg.c_str(); };
+        Exception( const std::string& msg ) : _msg(msg), _offset(-1) {};
+        Exception( const std::string& msg, const QByteArray& line, const int offset ):
+            _msg(msg), _line(line), _offset(offset) {};
+        virtual const char* what( const int context ) const throw();
+        virtual const char* what() const throw() { return what( 10 ); };
         virtual ~Exception() throw() {};
     };
+
+#define ECBODY(CLASSNAME, PARENT) public: CLASSNAME( const std::string& msg ): PARENT(msg ) {};\
+    CLASSNAME( const QByteArray& line, const int offset ): PARENT( #CLASSNAME, line, offset ) {};\
+    CLASSNAME( const std::string& msg, const QByteArray& line, const int offset ): PARENT( msg, line, offset ) {};
 
     /** @short Invalid argument was passed to some function */
     class InvalidArgument: public Exception {
     public:
-        InvalidArgument( const std::string& msg ) : Exception( msg ) {};
+        ECBODY(InvalidArgument, Exception);
     };
 
     /** @short Socket error */
     class SocketException : public Exception {
     public:
-        SocketException( const std::string& msg ) : Exception( msg ) {};
+        ECBODY(SocketException, Exception);
     };
 
     /** @short General parse error */
     class ParseError : public Exception {
     public:
-        ParseError( const std::string& msg ) : Exception( msg ) {};
+        ECBODY(ParseError, Exception);
     };
 
     /** @short Parse error: unknown identifier */
     class UnknownIdentifier : public ParseError {
     public:
-        UnknownIdentifier( const std::string& msg ) : ParseError( msg ) {};
+        ECBODY(UnknownIdentifier, ParseError);
     };
 
     /** @short Parse error: unrecognized kind of response */
     class UnrecognizedResponseKind : public UnknownIdentifier {
     public:
-        UnrecognizedResponseKind( const std::string& msg ) : UnknownIdentifier( msg ) {};
+        ECBODY(UnrecognizedResponseKind, UnknownIdentifier);
     };
 
     /** @short Parse error: this is known, but not expected here */
     class UnexpectedHere : public ParseError {
     public:
-        UnexpectedHere( const std::string& msg ) : ParseError( msg ) {};
+        ECBODY(UnexpectedHere, ParseError);
     };
 
     /** @short Parse error: No usable data */
     class NoData : public ParseError {
     public:
-        NoData( const std::string& msg ) : ParseError( msg ) {};
+        ECBODY(NoData, ParseError);
     };
 
     /** @short Parse error: Too much data */
     class TooMuchData : public ParseError {
     public:
-        TooMuchData( const std::string& msg ) : ParseError( msg ) {};
+        ECBODY(TooMuchData, ParseError);
     };
 
     /** @short Command Continuation Request received, but we have no idea how to handle it here */
     class ContinuationRequest : public Exception {
     public:
-        ContinuationRequest( const std::string& msg ) : Exception( msg ) {};
+        ECBODY(ContinuationRequest, Exception);
     };
 
     /** @short Unknown command result (ie. anything else than OK, NO or BAD */
     class UnknownCommandResult : public ParseError {
     public:
-        UnknownCommandResult( const std::string& msg ) : ParseError( msg ) {};
+        ECBODY(UnknownCommandResult, ParseError);
     };
 
     /** @short Invalid Response Code */
     class InvalidResponseCode : public ParseError {
     public:
-        InvalidResponseCode( const std::string& msg ) : ParseError( msg ) {};
+        ECBODY(InvalidResponseCode, ParseError);
     };
 
-
+#undef ECBODY
 
 }
 #endif /* IMAP_EXCEPTIONS_H */

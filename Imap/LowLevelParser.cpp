@@ -88,14 +88,17 @@ QPair<QStringList,QByteArray> parseList( const char open, const char close,
 
 QPair<QByteArray,ParsedAs> getString( QList<QByteArray>::const_iterator& it,
         const QList<QByteArray>::const_iterator& end,
-        const char * const lineData )
+        const char * const lineData,
+        const char leading, const char trailing )
 {
     if ( it == end || it->isEmpty() )
         throw NoData( lineData );
 
-    if ( it->startsWith( '"' ) ) {
+    if ( ( leading == '\0' && it->startsWith( '"' ) ) ||
+            ( leading != '\0' && it->startsWith( QByteArray().append( leading ).append( '"' ) ) ) ) {
         // quoted
         bool first = true;
+        bool second = false;
         bool escaping = false;
         bool done = false;
         QByteArray data;
@@ -111,6 +114,11 @@ QPair<QByteArray,ParsedAs> getString( QList<QByteArray>::const_iterator& it,
                 } else {
                     if ( first ) {
                         first = false;
+                        if ( leading != '\0' )
+                            second = true;
+                        continue;
+                    } else if ( second ) {
+                        second = false;
                         continue;
                     } else if ( !escaping ) {
                         if ( *letter == '"' ) {
@@ -135,7 +143,9 @@ QPair<QByteArray,ParsedAs> getString( QList<QByteArray>::const_iterator& it,
                 }
             }
             if ( letter != word.end() ) {
-                throw ParseError( lineData ); // string terminated in the middle of a word
+                // FIXME
+                if ( trailing == '\0' || *letter != trailing )
+                    throw ParseError( lineData ); // string terminated in the middle of a word
             }
             ++it;
             if (done)
@@ -250,6 +260,30 @@ uint getUInt( QList<QByteArray>::const_iterator& it,
     if ( !ok )
         throw ParseError( lineData );
     ++it;
+    return number;
+}
+
+uint getUInt( const QByteArray& line, int& start )
+{
+    if ( start == line.size() )
+        throw NoData( "" );
+
+    QByteArray item;
+    for ( ; start < line.size(); ++start ) {
+        switch (line[start]) {
+            case '0': case '1': case '2': case '3': case '4':
+            case '5': case '6': case '7': case '8': case '9':
+                item.append( line[start] );
+                break;
+            default:
+                break;
+        }
+    }
+
+    bool ok;
+    uint number = item.toUInt( &ok );
+    if (!ok)
+        throw ParseError( "no int found" );
     return number;
 }
 
