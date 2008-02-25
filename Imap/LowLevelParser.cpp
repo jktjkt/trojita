@@ -371,5 +371,16 @@ QPair<QByteArray,ParsedAs> getString( const QByteArray& line, int& start )
         throw UnexpectedHere( line, start );
 }
 
+QPair<QByteArray,ParsedAs> getAString( const QByteArray& line, int& start )
+{
+    if ( start == line.size() )
+        throw NoData( line, start );
+
+    if ( line[start] == '{' || line[start] == '"' )
+        return getString( line, start );
+    else
+        return qMakePair( getAtom( line, start ), ATOM );
+}
+
 }
 }

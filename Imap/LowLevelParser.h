@@ -84,6 +84,8 @@ namespace LowLevelParser {
     QByteArray getAtom( const QByteArray& line, int& start );
 
     QPair<QByteArray,ParsedAs> getString( const QByteArray& line, int& start );
+
+    QPair<QByteArray,ParsedAs> getAString( const QByteArray& line, int& start );
 }
 }
 
