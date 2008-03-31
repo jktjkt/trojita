@@ -296,6 +296,46 @@ void ImapLowLevelParserTest::testGetAString()
     QCOMPARE( pos, line.size() );
 }
 
+void ImapLowLevelParserTest::testGetAnything()
+{
+    using namespace Imap::LowLevelParser;
+    QByteArray line = "ah0j";
+    int pos = 0;
+    QVariant res;
+
+    res = getAnything( line, pos );
+    QCOMPARE( line, res.toByteArray() );
+    QCOMPARE( pos, line.size() );
+
+    line = "ahoj cau";
+    pos = 0;
+    res = getAnything( line, pos );
+    QCOMPARE( QByteArray("ahoj"), res.toByteArray() );
+    QCOMPARE( line.at( pos ), ' ' );
+    ++pos;
+    res = getAnything( line, pos );
+    QCOMPARE( QByteArray("cau"), res.toByteArray() );
+    QCOMPARE( pos, line.size() );
+
+    line = "1337"; pos = 0;
+    res = getAnything( line, pos );
+    Q_ASSERT( res.canConvert( QVariant::Int ) );
+    QCOMPARE( 1337, res.toInt() );
+    QCOMPARE( pos, line.size() );
+
+    line = "0 666";
+    pos = 0;
+    res = getAnything( line, pos );
+    Q_ASSERT( res.canConvert( QVariant::Int ) );
+    QCOMPARE( 0, res.toInt() );
+    QCOMPARE( line.at( pos ), ' ' );
+    ++pos;
+    res = getAnything( line, pos );
+    Q_ASSERT( res.canConvert( QVariant::Int ) );
+    QCOMPARE( 666, res.toInt() );
+    QCOMPARE( pos, line.size() );
+}
+
 QTEST_KDEMAIN_CORE( ImapLowLevelParserTest )
 
 namespace QTest {

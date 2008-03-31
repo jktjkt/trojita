@@ -32,6 +32,7 @@ private Q_SLOTS:
     void testGetAString();
     void testGetUInt();
     void testGetAtom();
+    void testGetAnything();
 };
 
 #endif

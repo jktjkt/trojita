@@ -405,7 +405,7 @@ QString getMailbox( const QByteArray& line, int& start )
 
 QVariantList parseList( const char open, const char close,
         const QByteArray& line, int& start,
-        const bool allowNoList, const bool allowEmptyList )
+        const bool allowEmptyList )
 {
     if ( start >= line.size() )
         throw NoData( line, start );
@@ -416,16 +416,40 @@ QVariantList parseList( const char open, const char close,
         if ( start == line.size() )
             throw ParseError( line, start );
 
-        // FIXME: this doesn't work with nested lists at all
-        
-        while ( line[start] != close ) {
+        QVariantList res;
+        while (1) {
+            res.append( getAnything( line, start, open, close, allowEmptyList ) );
+
             if ( start == line.size() )
-                throw ParseError( line, start ); // unterminated parenthesized list
+                throw NoData( line, start ); // truncated list
+            if ( line[start] == close ) {
+                ++start;
+                return res;
+            }
+            ++start;
         }
-    } else if ( allowNoList ) {
-        return QVariantList();
     } else
         throw NoData( line, start );
+}
+
+QVariant getAnything( const QByteArray& line, int& start, const char open, const char close, const bool allowEmptyList )
+{
+    if ( start >= line.size() )
+        throw NoData( line, start );
+
+    if ( open && line[start] == open ) {
+        QVariant res = parseList( open, close, line, start, allowEmptyList );
+        return res;
+    } else if ( line[start] == '"' || line[start] == '{' ) {
+        QPair<QByteArray,ParsedAs> res = getString( line, start );
+        return res.first;
+    } else {
+        try {
+            return getUInt( line, start );
+        } catch ( ParseError& e ) {
+            return getAtom( line, start );
+        }
+    }
 }
 
 }
