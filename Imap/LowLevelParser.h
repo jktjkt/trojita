@@ -39,46 +39,6 @@ namespace LowLevelParser {
         NIL
     };
 
-
-    /** @short Parse parenthesized list 
-     *
-     * Parenthesized lists is defined as a sequence of space-separated strings
-     * enclosed between "open" and "close" characters.
-     *
-     * it, end -- iterators determining where to start and end
-     * lineData -- used when throwing exception
-     * allowNoList -- if false and there's no opening parenthesis, exception is
-     *                thrown
-     * allowEmptyList -- if false and the list is empty (ie. nothing between opening
-     *                   and closing bracket), exception is thrown
-     * */
-    QPair<QStringList,QByteArray> parseList( const char open, const char close,
-            QList<QByteArray>::const_iterator& it,
-            const QList<QByteArray>::const_iterator& end,
-            const char * const lineData,
-            const bool allowNoList = false, const bool allowEmptyList = true );
-
-    QPair<QByteArray,ParsedAs> getString( QList<QByteArray>::const_iterator& it,
-            const QList<QByteArray>::const_iterator& end,
-            const char * const lineData,
-            const char leading ='\0', const char trailing = '\0' );
-
-    QPair<QByteArray,ParsedAs> getAString( QList<QByteArray>::const_iterator& it,
-            const QList<QByteArray>::const_iterator& end,
-            const char * const lineData );
-
-    QPair<QByteArray,ParsedAs> getNString( QList<QByteArray>::const_iterator& it,
-            const QList<QByteArray>::const_iterator& end,
-            const char * const lineData );
-
-    QString getMailbox( QList<QByteArray>::const_iterator& it,
-            const QList<QByteArray>::const_iterator& end,
-            const char * const lineData );
-
-    uint getUInt( QList<QByteArray>::const_iterator& it,
-            const QList<QByteArray>::const_iterator& end,
-            const char * const lineData );
-
     uint getUInt( const QByteArray& line, int& start );
 
     QByteArray getAtom( const QByteArray& line, int& start );
