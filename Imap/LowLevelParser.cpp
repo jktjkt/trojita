@@ -428,7 +428,7 @@ QVariantList parseList( const char open, const char close,
         }
         return res;
     } else
-        throw NoData( line, start );
+        throw UnexpectedHere( line, start );
 }
 
 QVariant getAnything( const QByteArray& line, int& start, const char open, const char close )

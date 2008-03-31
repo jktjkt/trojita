@@ -60,7 +60,7 @@ void ImapLowLevelParserTest::testParseList()
         start = 0;
         res = parseList( '(', ')', line, start );
         QFAIL( "parseList() against a string parameter should have thrown an exception" );
-    } catch ( Imap::NoData& ) {
+    } catch ( Imap::UnexpectedHere& ) {
         QVERIFY( true );
     }
 
