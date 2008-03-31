@@ -20,6 +20,7 @@
 #include <QProcess>
 #include "Parser.h"
 #include "rfccodecs.h"
+#include "LowLevelParser.h"
 
 /*
  * Parser interface considerations:
@@ -405,49 +406,37 @@ void Parser::processLine( QByteArray line )
 
 std::tr1::shared_ptr<Responses::AbstractResponse> Parser::parseUntagged( const QByteArray& line )
 {
-    QList<QByteArray> splitted = line.split( ' ' );
-    if ( splitted.count() < 2 )
-        throw NoData( line.constData() );
+    int pos = 0;
+    QByteArray first = LowLevelParser::getAtom( line, pos );
+    if ( pos == line.size() )
+        throw NoData( line, pos );
 
-    // line is guaranted to have at least two items
-    QList<QByteArray>::const_iterator it = splitted.begin();
-
-    // ignore '*'
-    ++it;
-
-    bool isDigit;
-    uint number = (*it).toUInt( &isDigit );
-
-    if ( isDigit ) {
-        ++it;
-        return _parseUntaggedNumber( it, splitted.end(), number, line.constData() );
-    } else {
-        return _parseUntaggedText( it, splitted.end(), line.constData() );
+    try {
+        uint number = LowLevelParser::getUInt( line, pos );
+        return _parseUntaggedNumber( line, pos, number );
+    } catch ( ParseError& ) {
+        return _parseUntaggedText( line, pos );
     }
 }
 
 std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedNumber(
-        QList<QByteArray>::const_iterator& it,
-        const QList<QByteArray>::const_iterator& end,
-        const uint number, const char * const lineData )
+        const QByteArray& line, int& start, const uint number )
 {
-    if ( it == end )
+    if ( start == line.size() )
         // number and nothing else
-        throw NoData( lineData );
+        throw NoData( line, start );
 
-    QByteArray kindStr = *it;
-    if ( kindStr.endsWith( "\r\n" ) )
-            kindStr.chop(2);
+    QByteArray kindStr = LowLevelParser::getAtom( line, start );
     Responses::Kind kind = Responses::kindFromString( kindStr );
-    ++it;
+    ++start;
 
     switch ( kind ) {
         case Responses::EXISTS:
         case Responses::RECENT:
         case Responses::EXPUNGE:
             // no more data should follow
-            if ( it != end )
-                throw TooMuchData( lineData );
+            if ( start != line.size() )
+                throw TooMuchData( line, start );
             else
                 return std::tr1::shared_ptr<Responses::AbstractResponse>(
                         new Responses::NumberResponse( kind, number ) );
@@ -455,35 +444,34 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedNumber(
 
         case Responses::FETCH:
             return std::tr1::shared_ptr<Responses::AbstractResponse>(
-                    new Responses::Fetch( number, it, end, lineData ) );
+                    new Responses::Fetch( number, line, start ) );
             break;
 
         default:
-            throw UnexpectedHere( lineData );
+            throw UnexpectedHere( line, start );
     }
 }
 
 std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedText(
-        QList<QByteArray>::const_iterator& it,
-        const QList<QByteArray>::const_iterator& end,
-        const char * const lineData )
+        const QByteArray& line, int& start )
 {
-    Responses::Kind kind = Responses::kindFromString( *it );
-    ++it;
-    if ( it == end && kind != Responses::SEARCH )
-        throw NoData( lineData );
+    Responses::Kind kind = Responses::kindFromString( LowLevelParser::getAtom( line, start ) );
+    ++start;
+    if ( start == line.size() && kind != Responses::SEARCH )
+        throw NoData( line, start );
     switch ( kind ) {
         case Responses::CAPABILITY:
             {
                 QStringList capabilities;
-                for ( ; it != end; ++it ) {
+                QList<QByteArray> list = line.mid( start ).split( ' ' );
+                for ( QList<QByteArray>::const_iterator it = list.begin(); it != list.end(); ++it ) {
                     QByteArray str = *it;
                     if ( str.endsWith( "\r\n" ) )
                         str.chop(2);
                     capabilities << str;
                 }
                 if ( !capabilities.count() )
-                    throw NoData( lineData );
+                    throw NoData( line, start );
                 return std::tr1::shared_ptr<Responses::AbstractResponse>(
                         new Responses::Capability( capabilities ) );
             }
@@ -493,56 +481,46 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedText(
         case Responses::PREAUTH:
         case Responses::BYE:
             return std::tr1::shared_ptr<Responses::AbstractResponse>(
-                    new Responses::State( QString::null, kind, it, end, lineData ) );
+                    new Responses::State( QString::null, kind, line, start ) );
         case Responses::LIST:
         case Responses::LSUB:
             return std::tr1::shared_ptr<Responses::AbstractResponse>(
-                    new Responses::List( kind, it, end, lineData ) );
+                    new Responses::List( kind, line, start ) );
         case Responses::FLAGS:
             return std::tr1::shared_ptr<Responses::AbstractResponse>(
-                    new Responses::Flags( it, end, lineData ) );
+                    new Responses::Flags( line, start ) );
         case Responses::SEARCH:
             {
                 QList<uint> numbers;
-                bool ok;
-                while ( it != end ) {
-                    QByteArray str = *it;
-                    if ( str.endsWith("\r\n") )
-                        str.chop(2);
-                    uint number = str.toUInt( &ok );
-                    if ( !ok )
-                        throw UnexpectedHere( lineData );
-                    numbers << number;
-                    ++it;
+                while ( start < line.size() ) {
+                    try {
+                        uint number = LowLevelParser::getUInt( line, start );
+                        numbers << number;
+                    } catch ( ParseError& ) {
+                        throw UnexpectedHere( line, start );
+                    }
                 }
                 return std::tr1::shared_ptr<Responses::AbstractResponse>(
                         new Responses::Search( numbers ) );
             }
         case Responses::STATUS:
             return std::tr1::shared_ptr<Responses::AbstractResponse>(
-                    new Responses::Status( it, end, lineData ) );
+                    new Responses::Status( line, start ) );
         default:
-            throw UnexpectedHere( lineData );
+            throw UnexpectedHere( line, start );
     }
 }
 
 std::tr1::shared_ptr<Responses::AbstractResponse> Parser::parseTagged( const QByteArray& line )
 {
-    QList<QByteArray> splitted = line.split( ' ' );
-    if ( splitted.count() < 3 )
-        throw NoData( line.constData() );
-
-    /* line is guaranted to have at least three items */
-    QList<QByteArray>::const_iterator it = splitted.begin();
-
-    const QString tag( (*it).constData() );
-    ++it;
-
-    Responses::Kind kind = Responses::kindFromString( *it );
-    ++it;
-
+    int pos = 0;
+    const QByteArray tag = LowLevelParser::getAtom( line, pos );
+    ++pos;
+    const Responses::Kind kind = Responses::kindFromString( LowLevelParser::getAtom( line, pos ) );
+    ++pos;
+    
     return std::tr1::shared_ptr<Responses::AbstractResponse>(
-            new Responses::State( tag, kind, it, splitted.end(), line.constData() ) );
+            new Responses::State( tag, kind, line, pos ) );
 }
 
 

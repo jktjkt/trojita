@@ -269,15 +269,11 @@ namespace Imap {
 
         /** @short helper for parseUntagged() */
         std::tr1::shared_ptr<Responses::AbstractResponse> _parseUntaggedNumber(
-                QList<QByteArray>::const_iterator& it,
-                const QList<QByteArray>::const_iterator& end,
-                const uint number, const char * const lineData );
+                const QByteArray& line, int& start, const uint number );
 
         /** @short helper for parseUntagged() */
         std::tr1::shared_ptr<Responses::AbstractResponse> _parseUntaggedText(
-                QList<QByteArray>::const_iterator& it,
-                const QList<QByteArray>::const_iterator& end,
-                const char * const lineData );
+                const QByteArray& line, int& start );
 
         /** @short Add parsed response to the internal queue, emit notification signal */
         void queueResponse( const std::tr1::shared_ptr<Responses::AbstractResponse>& resp );

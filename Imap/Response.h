@@ -187,9 +187,8 @@ namespace Responses {
             tag(_tag), kind(_kind), message(_message), respCode(_respCode),
             respCodeData(_respCodeData) {};
 
-        /** @short "Smart" constructor that parses a response out of a QList<QByteArray> */
-        State( const QString& _tag, const Kind _kind, QList<QByteArray>::const_iterator& it,
-                const QList<QByteArray>::const_iterator& end, const char * const line );
+        /** @short "Smart" constructor that parses a response out of a QByteArray */
+        State( const QString& _tag, const Kind _kind, const QByteArray& line, int& start );
 
         /** @short Default destructor that makes containers and QtTest happy */
         State(): respCode(NONE) {};
@@ -234,9 +233,7 @@ namespace Responses {
         /** @short Mailbox name */
         QString mailbox;
 
-        List( const Kind _kind, QList<QByteArray>::const_iterator& it,
-                const QList<QByteArray>::const_iterator end,
-                const char * const lineData) throw( UnexpectedHere );
+        List( const Kind _kind, const QByteArray& line, int& start );
         List( const Kind _kind, const QStringList& _flags, const QString& _separator, const QString& _mailbox ):
             AbstractResponse(LIST), kind(_kind), flags(_flags), separator(_separator), mailbox(_mailbox) {};
         virtual QTextStream& dump( QTextStream& s ) const;
@@ -249,8 +246,7 @@ namespace Responses {
         /** @short List of flags */
         QStringList flags;
         Flags( const QStringList& _flags ) : AbstractResponse(FLAGS), flags(_flags) {};
-        Flags( QList<QByteArray>::const_iterator& it, const QList<QByteArray>::const_iterator& end,
-                const char * const lineData );
+        Flags( const QByteArray& line, int& start );
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
     };
@@ -286,9 +282,7 @@ namespace Responses {
 
         Status( const QString& _mailbox, const stateDataType& _states ) :
             AbstractResponse(STATUS), mailbox(_mailbox), states(_states) {};
-        Status( QList<QByteArray>::const_iterator& it,
-                const QList<QByteArray>::const_iterator& end,
-                const char * const lineData );
+        Status( const QByteArray& line, int& start );
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
         static StateKind stateKindFromStr( QString s );
@@ -305,9 +299,7 @@ namespace Responses {
         /** @short Fetched items */
         dataType data;
 
-        Fetch( const uint _number, QList<QByteArray>::const_iterator& it,
-                const QList<QByteArray>::const_iterator& end,
-                const char * const lineData );
+        Fetch( const uint _number, const QByteArray& line, int& start );
         Fetch( const uint _number, const dataType& _data );
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;

@@ -188,10 +188,10 @@ QTextStream& operator<<( QTextStream& stream, const AbstractData& resp )
     return resp.dump( stream );
 }
 
-State::State( const QString& _tag, const Kind _kind, QList<QByteArray>::const_iterator& it, 
-        const QList<QByteArray>::const_iterator& end, const char * const line ):
+State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int& start ):
     tag(_tag), kind(_kind), respCode( NONE )
 {
+#ifdef FIXME
     if ( !tag.isEmpty() ) {
         // tagged
         switch ( kind ) {
@@ -285,6 +285,7 @@ State::State( const QString& _tag, const Kind _kind, QList<QByteArray>::const_it
     message = _messageList.join( " " );
     Q_ASSERT( message.endsWith( "\r\n" ) );
     message.chop(2);
+#endif
 }
 
 NumberResponse::NumberResponse( const Kind _kind, const uint _num ) throw(UnexpectedHere):
@@ -294,11 +295,10 @@ NumberResponse::NumberResponse( const Kind _kind, const uint _num ) throw(Unexpe
         throw UnexpectedHere( "Attempted to create NumberResponse of invalid kind" );
 }
 
-List::List( const Kind _kind, QList<QByteArray>::const_iterator& it,
-        const QList<QByteArray>::const_iterator end,
-        const char * const lineData) throw(UnexpectedHere):
+List::List( const Kind _kind, const QByteArray& line, int& start ):
     AbstractResponse(LIST), kind(_kind)
 {
+#ifdef FIXME
     if ( kind != LIST && kind != LSUB )
         throw UnexpectedHere( lineData );
 
@@ -337,24 +337,24 @@ List::List( const Kind _kind, QList<QByteArray>::const_iterator& it,
         throw NoData( lineData ); // no mailbox
 
     mailbox = ::Imap::LowLevelParser::getMailbox( it, end, lineData );
+#endif
 }
 
-Flags::Flags( QList<QByteArray>::const_iterator& it,
-        const QList<QByteArray>::const_iterator& end,
-        const char * const lineData )
+Flags::Flags( const QByteArray& line, int& start )
 {
+#ifdef FIXME
     QPair<QStringList,QByteArray> _parsedList = ::Imap::LowLevelParser::parseList( '(', ')', it, end, lineData );
     if ( !_parsedList.second.isEmpty() )
         throw TooMuchData( lineData );
     if ( it != end )
         throw TooMuchData( lineData );
     flags = _parsedList.first;
+#endif
 }
 
-Status::Status( QList<QByteArray>::const_iterator& it,
-        const QList<QByteArray>::const_iterator& end,
-        const char * const lineData )
+Status::Status( const QByteArray& line, int& start )
 {
+#ifdef FIXME
     if ( it == end )
         throw NoData( lineData );
 
@@ -383,13 +383,21 @@ Status::Status( QList<QByteArray>::const_iterator& it,
     }
     if ( gotIdentifier )
         throw ParseError( lineData );
+#endif
 }
 
-Fetch::Fetch( const uint _number, QList<QByteArray>::const_iterator& it,
-        const QList<QByteArray>::const_iterator& end,
-        const char * const lineData ):
+#ifndef FIXME
+// explicit template instantiation, for the real code is commented
+template class RespData<QStringList>;
+template class RespData<unsigned int>;
+#endif
+
+Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
     AbstractResponse(FETCH), number(_number)
 {
+    if ( line.isEmpty() )
+        throw NoData( line, number );
+#ifdef FIXME
     if ( it == end )
         throw NoData( lineData );
 
@@ -483,6 +491,7 @@ Fetch::Fetch( const uint _number, QList<QByteArray>::const_iterator& it,
             identifier.clear();
         }
     }
+#endif
 }
 
 Fetch::Fetch( const uint _number, const Fetch::dataType& _data ):
