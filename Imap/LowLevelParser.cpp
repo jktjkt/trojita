@@ -18,6 +18,7 @@
 
 #include <QPair>
 #include <QStringList>
+#include <QVariant>
 #include "Imap/LowLevelParser.h"
 #include "Imap/Exceptions.h"
 #include "Imap/rfccodecs.h"
@@ -380,6 +381,51 @@ QPair<QByteArray,ParsedAs> getAString( const QByteArray& line, int& start )
         return getString( line, start );
     else
         return qMakePair( getAtom( line, start ), ATOM );
+}
+
+QPair<QByteArray,ParsedAs> getNString( const QByteArray& line, int& start )
+{
+    QPair<QByteArray,ParsedAs> r = getAString( line, start );
+    if ( r.second == ATOM && r.first.toUpper() == "NIL" ) {
+        r.first.clear();
+        r.second = NIL;
+    }
+    return r;
+}
+
+QString getMailbox( const QByteArray& line, int& start )
+{
+    QPair<QByteArray,ParsedAs> r = getAString( line, start );
+    if ( r.second == ATOM && r.first.toUpper() == "INBOX" )
+        return "INBOX";
+    else
+        return KIMAP::decodeImapFolderName( r.first );
+
+}
+
+QVariantList parseList( const char open, const char close,
+        const QByteArray& line, int& start,
+        const bool allowNoList, const bool allowEmptyList )
+{
+    if ( start >= line.size() )
+        throw NoData( line, start );
+
+    if ( line[start] == open ) {
+        // found the opening parenthesis
+        ++start;
+        if ( start == line.size() )
+            throw ParseError( line, start );
+
+        // FIXME: this doesn't work with nested lists at all
+        
+        while ( line[start] != close ) {
+            if ( start == line.size() )
+                throw ParseError( line, start ); // unterminated parenthesized list
+        }
+    } else if ( allowNoList ) {
+        return QVariantList();
+    } else
+        throw NoData( line, start );
 }
 
 }

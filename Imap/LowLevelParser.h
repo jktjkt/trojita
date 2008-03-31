@@ -20,8 +20,7 @@
 
 #include <QList>
 #include <QPair>
-class QStringList;
-class QByteArray;
+#include <QVariant>
 
 namespace Imap {
 namespace LowLevelParser {
@@ -36,7 +35,8 @@ namespace LowLevelParser {
     enum ParsedAs {
         ATOM,
         QUOTED,
-        LITERAL
+        LITERAL,
+        NIL
     };
 
 
@@ -86,6 +86,30 @@ namespace LowLevelParser {
     QPair<QByteArray,ParsedAs> getString( const QByteArray& line, int& start );
 
     QPair<QByteArray,ParsedAs> getAString( const QByteArray& line, int& start );
+
+    QPair<QByteArray,ParsedAs> getNString( const QByteArray& line, int& start );
+
+    QString getMailbox( const QByteArray& line, int& start );
+
+    /** @short Parse parenthesized list 
+     *
+     * Parenthesized lists is defined as a sequence of space-separated strings
+     * enclosed between "open" and "close" characters.
+     *
+     * open, close -- enclosing parentheses
+     * line, start -- full line data and starting offset
+     * allowNoList -- if false and there's no opening parenthesis, exception is
+     *                thrown
+     * allowEmptyList -- if false and the list is empty (ie. nothing between opening
+     *                   and closing bracket), exception is thrown
+     *
+     * We need to support parsing of nested lists (as found in the envelope data
+     * structure), that's why we deal with QVariant here.
+     * */
+    QVariantList parseList( const char open, const char close,
+            const QByteArray& line, int& start,
+            const bool allowNoList = false, const bool allowEmptyList = true );
+
 }
 }
 
