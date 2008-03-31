@@ -298,58 +298,43 @@ NumberResponse::NumberResponse( const Kind _kind, const uint _num ) throw(Unexpe
 List::List( const Kind _kind, const QByteArray& line, int& start ):
     AbstractResponse(LIST), kind(_kind)
 {
-#ifdef FIXME
     if ( kind != LIST && kind != LSUB )
-        throw UnexpectedHere( lineData );
+        throw UnexpectedHere( line, start ); // FIXME: well, "start" is too late here...
 
-    QPair<QStringList,QByteArray> _parsedList = ::Imap::LowLevelParser::parseList( '(', ')', it, end, lineData );
-    flags = _parsedList.first;
-    if ( !_parsedList.second.isEmpty() )
-        throw ParseError( lineData );
+    flags = QVariant( LowLevelParser::parseList( '(', ')', line, start ) ).toStringList();
+    ++start;
 
-    if ( it == end )
-        throw NoData( lineData ); // flags and nothing else
+    if ( start >= line.size() - 5 ) // FIXME: verify buffer size
+        throw NoData( line, start ); // flags and nothing else
 
-    QByteArray str = *it;
-    switch ( str.size() ) {
-        case 3:
-            // ( DQUOTE, char, DQUOTE ) OR "nil"
-            if ( str.toLower() == "nil" )
-                separator = QString::null;
-            else
-                separator = str[1];
-            break;
-        case 4:
-            // DQUOTE, backslash, DQUOTE
-            separator = str[2];
-            break;
-        case 2:
-            // DQUOTE, backslash, space (!), DQUOTE
-            ++it;
-            separator = " ";
-            break;
-        default:
-            throw ParseError( lineData ); // weird separator
-    }
-    ++it;
+    if ( line.at(start) == '"' ) {
+        ++start;
+        if ( line.at(start) == '\\' )
+            ++start;
+        separator = line.at(start);
+        ++start;
+        if ( line.at(start) != '"' )
+            throw ParseError( line, start );
+        ++start;
+    } else if ( line.mid( 0, 3 ).toLower() == "nil" ) {
+        separator = QString::null;
+        start += 3;
+    } else
+        throw ParseError( line, start );
+        
+    ++start;
 
-    if ( it == end )
-        throw NoData( lineData ); // no mailbox
+    if ( start >= line.size() )
+        throw NoData( line, start ); // no mailbox
 
-    mailbox = ::Imap::LowLevelParser::getMailbox( it, end, lineData );
-#endif
+    mailbox = LowLevelParser::getMailbox( line, start );
 }
 
 Flags::Flags( const QByteArray& line, int& start )
 {
-#ifdef FIXME
-    QPair<QStringList,QByteArray> _parsedList = ::Imap::LowLevelParser::parseList( '(', ')', it, end, lineData );
-    if ( !_parsedList.second.isEmpty() )
-        throw TooMuchData( lineData );
-    if ( it != end )
-        throw TooMuchData( lineData );
-    flags = _parsedList.first;
-#endif
+    flags = QVariant( LowLevelParser::parseList( '(', ')', line, start ) ).toStringList();
+    if ( start >= line.size() )
+        throw TooMuchData( line, start );
 }
 
 Status::Status( const QByteArray& line, int& start )
