@@ -107,12 +107,11 @@ namespace LowLevelParser {
      * structure), that's why we deal with QVariant here.
      * */
     QVariantList parseList( const char open, const char close,
-            const QByteArray& line, int& start,
-            const bool allowEmptyList = true );
+            const QByteArray& line, int& start );
 
     /** @short Read one item from input, store it in a most-appropriate form */
     QVariant getAnything( const QByteArray& line, int& start, const char open='\0',
-            const char close='\0', const bool allowEmptyList=true );
+            const char close='\0' );
 
 }
 }

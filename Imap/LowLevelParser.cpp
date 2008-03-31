@@ -404,8 +404,7 @@ QString getMailbox( const QByteArray& line, int& start )
 }
 
 QVariantList parseList( const char open, const char close,
-        const QByteArray& line, int& start,
-        const bool allowEmptyList )
+        const QByteArray& line, int& start )
 {
     if ( start >= line.size() )
         throw NoData( line, start );
@@ -417,9 +416,8 @@ QVariantList parseList( const char open, const char close,
             throw ParseError( line, start );
 
         QVariantList res;
-        while (1) {
-            res.append( getAnything( line, start, open, close, allowEmptyList ) );
-
+        while ( line[start] != close ) {
+            res.append( getAnything( line, start, open, close ) );
             if ( start == line.size() )
                 throw NoData( line, start ); // truncated list
             if ( line[start] == close ) {
@@ -428,17 +426,18 @@ QVariantList parseList( const char open, const char close,
             }
             ++start;
         }
+        return res;
     } else
         throw NoData( line, start );
 }
 
-QVariant getAnything( const QByteArray& line, int& start, const char open, const char close, const bool allowEmptyList )
+QVariant getAnything( const QByteArray& line, int& start, const char open, const char close )
 {
     if ( start >= line.size() )
         throw NoData( line, start );
 
     if ( open && line[start] == open ) {
-        QVariant res = parseList( open, close, line, start, allowEmptyList );
+        QVariant res = parseList( open, close, line, start );
         return res;
     } else if ( line[start] == '"' || line[start] == '{' ) {
         QPair<QByteArray,ParsedAs> res = getString( line, start );
