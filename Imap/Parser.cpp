@@ -387,10 +387,6 @@ void Parser::processLine( QByteArray line )
                 buf.append( _socket->read( number - buf.size() ) );
             }
             line += buf;
-            // Now the ultra-1337-cool trick: as we really really want our
-            // literal to end at the list item boundary, we magically add a
-            // space here that fixes all our issues :)
-            line += " ";
         }
         // if we've had read a literal, we have to read rest of the line as well
         if ( literalRead )
@@ -406,17 +402,15 @@ void Parser::processLine( QByteArray line )
 
 std::tr1::shared_ptr<Responses::AbstractResponse> Parser::parseUntagged( const QByteArray& line )
 {
-    int pos = 0;
-    QByteArray first = LowLevelParser::getAtom( line, pos );
-    if ( pos == line.size() )
-        throw NoData( line, pos );
-
+    int pos = 2;
+    uint number;
     try {
-        uint number = LowLevelParser::getUInt( line, pos );
-        return _parseUntaggedNumber( line, pos, number );
+        number = LowLevelParser::getUInt( line, pos );
+        ++pos;
     } catch ( ParseError& ) {
         return _parseUntaggedText( line, pos );
     }
+    return _parseUntaggedNumber( line, pos, number );
 }
 
 std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedNumber(
@@ -428,15 +422,16 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedNumber(
 
     QByteArray kindStr = LowLevelParser::getAtom( line, start );
     Responses::Kind kind = Responses::kindFromString( kindStr );
-    ++start;
 
     switch ( kind ) {
         case Responses::EXISTS:
         case Responses::RECENT:
         case Responses::EXPUNGE:
             // no more data should follow
-            if ( start != line.size() )
+            if ( start >= line.size() )
                 throw TooMuchData( line, start );
+            else if ( line.mid(start) != QByteArray( "\r\n" ) )
+                throw UnexpectedHere( line, start ); // expected CRLF
             else
                 return std::tr1::shared_ptr<Responses::AbstractResponse>(
                         new Responses::NumberResponse( kind, number ) );
