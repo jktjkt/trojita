@@ -191,7 +191,6 @@ QTextStream& operator<<( QTextStream& stream, const AbstractData& resp )
 State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int& start ):
     tag(_tag), kind(_kind), respCode( NONE )
 {
-#ifdef FIXME
     if ( !tag.isEmpty() ) {
         // tagged
         switch ( kind ) {
@@ -200,17 +199,22 @@ State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int
             case BAD:
                 break;
             default:
-                throw UnexpectedHere( line ); // tagged response of weird kind
+                throw UnexpectedHere( line, start ); // tagged response of weird kind
         }
     }
 
-    QPair<QStringList,QByteArray> _parsedList = ::Imap::LowLevelParser::parseList( '[', ']', it, end, line, true, false );
-    QStringList _list = _parsedList.first;
-    if ( !_parsedList.second.isEmpty() )
-        throw ParseError( line );
+    QStringList _list;
+    try {
+        _list = QVariant( LowLevelParser::parseList( '[', ']', line, start ) ).toStringList();
+        ++start;
+    } catch ( UnexpectedHere& ) {
+        // this is perfectly possible
+    }
+    if ( start >= line.size() - 2 )
+        throw NoData( line, start );
 
     if ( !_list.empty() ) {
-        const QString r = (*(_list.begin())).toUpper();
+        const QString r = _list.first().toUpper();
         if ( r == "ALERT" )
             respCode = Responses::ALERT;
         else if ( r == "BADCHARSET" )
@@ -248,7 +252,7 @@ State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int
             case Responses::TRYCREATE:
                 // check for "no more stuff"
                 if ( _list.count() )
-                    throw InvalidResponseCode( line );
+                    throw InvalidResponseCode( line, start );
                 respCodeData = std::tr1::shared_ptr<AbstractData>( new RespData<void>() );
                 break;
             case Responses::UIDNEXT:
@@ -256,12 +260,12 @@ State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int
             case Responses::UNSEEN:
                 // check for "number only"
                 {
-                if ( ( _list.count() != 1 ) )
-                    throw InvalidResponseCode( line );
+                if ( _list.count() != 1 )
+                    throw InvalidResponseCode( line, start );
                 bool ok;
                 uint number = _list.first().toUInt( &ok );
                 if ( !ok )
-                    throw InvalidResponseCode( line );
+                    throw InvalidResponseCode( line, start );
                 respCodeData = std::tr1::shared_ptr<AbstractData>( new RespData<uint>( number ) );
                 }
                 break;
@@ -278,14 +282,9 @@ State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int
         }
     }
 
-    QStringList _messageList;
-    for ( ; it != end; ++it ) {
-        _messageList << *it;
-    }
-    message = _messageList.join( " " );
+    message = line.mid( start );
     Q_ASSERT( message.endsWith( "\r\n" ) );
     message.chop(2);
-#endif
 }
 
 NumberResponse::NumberResponse( const Kind _kind, const uint _num ) throw(UnexpectedHere):

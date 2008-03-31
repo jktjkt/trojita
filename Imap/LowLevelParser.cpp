@@ -442,6 +442,10 @@ QVariant getAnything( const QByteArray& line, int& start, const char open, const
     } else if ( line[start] == '"' || line[start] == '{' ) {
         QPair<QByteArray,ParsedAs> res = getString( line, start );
         return res.first;
+    } else if ( line[start] == '\\' ) {
+        // valid for "flag"
+        ++start;
+        return QByteArray( 1, '\\' ) + getAtom( line, start );
     } else {
         try {
             return getUInt( line, start );

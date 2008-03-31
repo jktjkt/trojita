@@ -46,6 +46,17 @@ void ImapLowLevelParserTest::testParseList()
     QCOMPARE( list, QVariantList() <<  "smrt" );
     QCOMPARE( line.size(), start );
 
+    line = "[\\smrt] ahoj";
+    start = 0;
+    res = parseList( '[', ']', line, start );
+    Q_ASSERT( res.canConvert( QVariant::List ) );
+    list = res.toList();
+    QCOMPARE( list.size(), 1 );
+    QCOMPARE( list, QVariantList() <<  "\\smrt" );
+    QCOMPARE( line.at(start), ' ' );
+    ++start;
+    QCOMPARE( line.at(start), 'a' );
+
     line = "(smrt 3)";
     start = 0;
     res = parseList( '(', ')', line, start );
