@@ -213,6 +213,35 @@ void ImapParserParseTest::testParseUntagged_data()
         << QByteArray("* STATUS blurdybloop (MESSAGES 231 UIDNEXT 44292 UIDVALIDITY 1337 RECENT 3234567890)\r\n")
         << shared_ptr<AbstractResponse>( new Status( "blurdybloop", states ) );
 
+
+    Fetch::dataType fetchData;
+
+    QTest::newRow("fetch-empty")
+        << QByteArray("* 66 FETCH ()\r\n")
+        << shared_ptr<AbstractResponse>( new Fetch( 66, fetchData ) );
+
+    fetchData.clear();
+    fetchData[ "RFC822.SIZE" ] = std::tr1::shared_ptr<AbstractData>( new RespData<uint>( 1337 ) );
+    QTest::newRow("fetch-rfc822-size")
+        << QByteArray("* 123 FETCH (rfc822.size 1337)\r\n")
+        << shared_ptr<AbstractResponse>( new Fetch( 123, fetchData ) );
+
+    fetchData.clear();
+    fetchData[ "RFC822.SIZE" ] = std::tr1::shared_ptr<AbstractData>( new RespData<uint>( 1337 ) );
+    fetchData[ "UID" ] = std::tr1::shared_ptr<AbstractData>( new RespData<uint>( 666 ) );
+    QTest::newRow("fetch-rfc822-size-uid")
+        << QByteArray("* 123 FETCH (uID 666 rfc822.size 1337)\r\n")
+        << shared_ptr<AbstractResponse>( new Fetch( 123, fetchData ) );
+    QTest::newRow("fetch-rfc822-size-uid-swapped")
+        << QByteArray("* 123 FETCH (rfc822.size 1337 uId 666)\r\n")
+        << shared_ptr<AbstractResponse>( new Fetch( 123, fetchData ) );
+
+
+    fetchData.clear();
+    QTest::newRow("fetch-")
+        << QByteArray("* 23 FETCH ()\r\n")
+        << shared_ptr<AbstractResponse>( new Fetch( 23, fetchData ) );
+
 }
 
 QTEST_KDEMAIN_CORE( ImapParserParseTest )

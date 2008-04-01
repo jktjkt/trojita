@@ -369,7 +369,6 @@ Status::Status( const QByteArray& line, int& start )
 #ifndef FIXME
 // explicit template instantiation, for the real code is commented
 template class RespData<QStringList>;
-template class RespData<unsigned int>;
 #endif
 
 Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
@@ -441,18 +440,21 @@ Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
                 date = date.toUTC(); 
                 data[ identifier ] = std::tr1::shared_ptr<AbstractData>(
                         new RespData<QDateTime>( date ) );
+#endif
 
             } else if ( identifier == "RFC822" ||
                     identifier == "RFC822.HEADER" || identifier == "RFC822.TEXT" ) {
+#ifdef FIXME
                 QPair<QByteArray,::Imap::LowLevelParser::ParsedAs> item =
                     ::Imap::LowLevelParser::getNString( it, end, lineData );
                 data[ identifier ] = std::tr1::shared_ptr<AbstractData>(
                         new RespData<QByteArray>( item.first ) );
-            } else if ( identifier == "RFC822.SIZE" || identifier == "UID" ) {
-                uint number = ::Imap::LowLevelParser::getUInt( it, end, lineData );
-                data[ identifier ] = std::tr1::shared_ptr<AbstractData>(
-                        new RespData<uint>( number ) );
 #endif
+            } else if ( identifier == "RFC822.SIZE" || identifier == "UID" ) {
+                if ( it->type() != QVariant::UInt )
+                    throw ParseError( line, start ); // FIXME: wrong offset
+                data[ identifier ] = std::tr1::shared_ptr<AbstractData>(
+                        new RespData<uint>( it->toUInt() ) );
             } else {
                 throw UnexpectedHere( line, start ); // FIXME: wrong offset
             }
