@@ -236,11 +236,33 @@ void ImapParserParseTest::testParseUntagged_data()
         << QByteArray("* 123 FETCH (rfc822.size 1337 uId 666)\r\n")
         << shared_ptr<AbstractResponse>( new Fetch( 123, fetchData ) );
 
+    fetchData.clear();
+    fetchData[ "RFC822.HEADER" ] = std::tr1::shared_ptr<AbstractData>( new RespData<QByteArray>( "123456789012" ) );
+    QTest::newRow("fetch-rfc822-header")
+        << QByteArray("* 123 FETCH (rfc822.header {12}\r\n123456789012)\r\n")
+        << shared_ptr<AbstractResponse>( new Fetch( 123, fetchData ) );
 
     fetchData.clear();
-    QTest::newRow("fetch-")
-        << QByteArray("* 23 FETCH ()\r\n")
-        << shared_ptr<AbstractResponse>( new Fetch( 23, fetchData ) );
+    fetchData[ "RFC822.TEXT" ] = std::tr1::shared_ptr<AbstractData>( new RespData<QByteArray>( "abcdEf" ) );
+    QTest::newRow("fetch-rfc822-text")
+        << QByteArray("* 123 FETCH (rfc822.tExt abcdEf)\r\n")
+        << shared_ptr<AbstractResponse>( new Fetch( 123, fetchData ) );
+
+    fetchData.clear();
+    fetchData[ "INTERNALDATE" ] = std::tr1::shared_ptr<AbstractData>(
+            new RespData<QDateTime>( QDateTime( QDate(2007, 3, 7), QTime( 14, 3, 32 ), Qt::UTC ) ) );
+    QTest::newRow("fetch-rfc822-internaldate")
+        << QByteArray("* 123 FETCH (InternalDate \"07-Mar-2007 15:03:32 +0100\")\r\n")
+        << shared_ptr<AbstractResponse>( new Fetch( 123, fetchData ) );
+
+    fetchData.clear();
+    fetchData[ "INTERNALDATE" ] = std::tr1::shared_ptr<AbstractData>(
+            new RespData<QDateTime>( QDateTime( QDate(1981, 4, 6), QTime( 18, 33, 32 ), Qt::UTC ) ) );
+    QTest::newRow("fetch-rfc822-internaldate-shorter")
+        << QByteArray("* 123 FETCH (InternalDate \"6-Apr-1981 12:03:32 -0630\")\r\n")
+        << shared_ptr<AbstractResponse>( new Fetch( 123, fetchData ) );
+
+
 
 }
 

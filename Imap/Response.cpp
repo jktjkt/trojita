@@ -406,50 +406,46 @@ Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
                         new RespData<QStringList>( it->toStringList() ) );
 
             } else if ( identifier == "INTERNALDATE" ) {
-#ifdef FIXME
-                QPair<QByteArray,::Imap::LowLevelParser::ParsedAs> item =
-                    ::Imap::LowLevelParser::getString( it, end, lineData );
-                if ( item.second != ::Imap::LowLevelParser::QUOTED )
-                    throw ParseError( lineData );
-                if ( item.first.size() != 26 )
-                    throw ParseError( lineData );
+                if ( it->type() != QVariant::ByteArray )
+                        throw UnexpectedHere( line, start ); // FIXME: wrong offset
+                QByteArray _str = it->toByteArray();
+                if ( _str.size() == 25 )
+                    _str = QByteArray::number( 0 ) + _str;
+                if ( _str.size() != 26 )
+                    throw ParseError( line, start ); // FIXME: wrong offset
 
-                QDateTime date = QDateTime::fromString( item.first.left(20), "d-MMM-yyyy HH:mm:ss");
-
-                const char sign = item.first[21];
+                QDateTime date = QDateTime::fromString( _str.left(20), "d-MMM-yyyy HH:mm:ss");
+                const char sign = _str[21];
                 bool ok;
-                uint hours = item.first.mid(22, 2).toUInt( &ok );
+                uint hours = _str.mid(22, 2).toUInt( &ok );
                 if (!ok)
-                    throw ParseError( lineData );
-                uint minutes = item.first.mid(24, 2).toUInt( &ok );
+                    throw ParseError( line, start ); // FIXME: wrong offset
+                uint minutes = _str.mid(24, 2).toUInt( &ok );
                 if (!ok)
-                    throw ParseError( lineData );
+                    throw ParseError( line, start ); // FIXME: wrong offset
                 switch (sign) {
                     case '+':
-                        date.addSecs( 3600*hours + 60*minutes );
+                        date = date.addSecs( -3600*hours - 60*minutes );
                         break;
                     case '-':
-                        date.addSecs( -3600*hours - 60*minutes );
+                        date = date.addSecs( +3600*hours + 60*minutes );
                         break;
                     default:
-                        throw ParseError( lineData );
+                        throw ParseError( line, start ); // FIXME: wrong offset
                 }
 
                 // we can't rely on server being in the same TZ as we are,
                 // so we have to convert to UTC here
-                date = date.toUTC(); 
+                date.setTimeSpec( Qt::UTC );
                 data[ identifier ] = std::tr1::shared_ptr<AbstractData>(
                         new RespData<QDateTime>( date ) );
-#endif
 
             } else if ( identifier == "RFC822" ||
                     identifier == "RFC822.HEADER" || identifier == "RFC822.TEXT" ) {
-#ifdef FIXME
-                QPair<QByteArray,::Imap::LowLevelParser::ParsedAs> item =
-                    ::Imap::LowLevelParser::getNString( it, end, lineData );
+                if ( it->type() != QVariant::ByteArray )
+                    throw UnexpectedHere( line, start ); // FIXME: wrong offset
                 data[ identifier ] = std::tr1::shared_ptr<AbstractData>(
-                        new RespData<QByteArray>( item.first ) );
-#endif
+                        new RespData<QByteArray>( it->toByteArray() ) );
             } else if ( identifier == "RFC822.SIZE" || identifier == "UID" ) {
                 if ( it->type() != QVariant::UInt )
                     throw ParseError( line, start ); // FIXME: wrong offset
