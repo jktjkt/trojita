@@ -315,7 +315,7 @@ List::List( const Kind _kind, const QByteArray& line, int& start ):
         if ( line.at(start) != '"' )
             throw ParseError( line, start );
         ++start;
-    } else if ( line.mid( 0, 3 ).toLower() == "nil" ) {
+    } else if ( line.mid( start, 3 ).toLower() == "nil" ) {
         separator = QString::null;
         start += 3;
     } else
