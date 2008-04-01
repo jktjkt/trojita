@@ -487,10 +487,11 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedText(
         case Responses::SEARCH:
             {
                 QList<uint> numbers;
-                while ( start < line.size() ) {
+                while ( start < line.size() - 2 ) {
                     try {
                         uint number = LowLevelParser::getUInt( line, start );
                         numbers << number;
+                        ++start;
                     } catch ( ParseError& ) {
                         throw UnexpectedHere( line, start );
                     }
