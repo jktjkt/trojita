@@ -443,8 +443,9 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedNumber(
             break;
 
         default:
-            throw UnexpectedHere( line, start );
+            break;
     }
+    throw UnexpectedHere( line, start );
 }
 
 std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedText(
