@@ -36,6 +36,13 @@ void ImapLowLevelParserTest::testParseList()
 
     res = parseList( '(', ')', line, start );
     QCOMPARE( res, QVariant( QVariantList() ) );
+    QCOMPARE( start, line.size() );
+
+    line = "() 123";
+    start = 0;
+    res = parseList( '(', ')', line, start );
+    QCOMPARE( res, QVariant( QVariantList() ) );
+    QCOMPARE( line.mid(start), QByteArray(" 123") );
 
     line = "(smrt)";
     start = 0;

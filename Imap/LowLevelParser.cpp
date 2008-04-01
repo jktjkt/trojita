@@ -178,6 +178,10 @@ QVariantList parseList( const char open, const char close,
             throw ParseError( line, start );
 
         QVariantList res;
+        if ( line[start] == close ) {
+            ++start;
+            return res;
+        }
         while ( line[start] != close ) {
             res.append( getAnything( line, start ) );
             if ( start == line.size() )
