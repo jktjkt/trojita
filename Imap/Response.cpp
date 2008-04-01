@@ -375,33 +375,24 @@ template class RespData<unsigned int>;
 Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
     AbstractResponse(FETCH), number(_number)
 {
-    if ( line.isEmpty() )
+    ++start;
+
+    if ( start >= line.size() )
         throw NoData( line, number );
-#ifdef FIXME
-    if ( it == end )
-        throw NoData( lineData );
 
-    bool first = true;
-    QByteArray identifier;
-    while ( it != end ) {
-        if ( identifier.isEmpty() ) {
-            if ( first ) {
-                // we're reading first identifier
-                identifier = it->right( it->size() - 1 ).toUpper();
-                first = false;
-            } else {
-                // no need to strip '('
-                identifier = it->toUpper();
-            }
+    QVariantList list = LowLevelParser::parseList( '(', ')', line, start );
+
+    bool isIdentifier = true;
+    QString identifier;
+    for (QVariantList::const_iterator it = list.begin(); it != list.end();
+            ++it, isIdentifier = !isIdentifier ) {
+        if ( isIdentifier ) {
+            identifier = it->toString().toUpper();
             if ( identifier.isEmpty() )
-                throw ParseError( lineData );
-            ++it;
-
-        } else {
-            // we're supposed to read data now
+                throw UnexpectedHere( line, start ); // FIXME: wrong offset
             if ( data.contains( identifier ) )
-                throw UnexpectedHere( lineData );
-
+                throw UnexpectedHere( line, start ); // FIXME: wrong offset
+        } else {
             if ( identifier == "BODY" || identifier == "BODYSTRUCTURE" ) {
                 // FIXME
             } else if ( identifier.startsWith( "BODY[" ) ) {
@@ -409,18 +400,14 @@ Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
             } else if ( identifier == "ENVELOPE" ) {
                 // FIXME
             } else if ( identifier == "FLAGS" ) {
-                QPair<QStringList,QByteArray> _parsedList = ::Imap::LowLevelParser::parseList( '(', ')', it, end, lineData );
-
-                if ( _parsedList.second.size() > 1 )
-                    throw ParseError( lineData );
-                if ( _parsedList.second.size() == 1 && ( _parsedList.second != ")" || it != end ) )
-                    throw ParseError( lineData );
-
-                data[ identifier ] = std::tr1::shared_ptr<AbstractData>(
-                        new RespData<QStringList>( _parsedList.first ) );
-
+                if ( ! it->canConvert( QVariant::StringList ) )
+                    throw UnexpectedHere( line, start ); // FIXME: wrong offset
+            
+                data[identifier] = std::tr1::shared_ptr<AbstractData>(
+                        new RespData<QStringList>( it->toStringList() ) );
 
             } else if ( identifier == "INTERNALDATE" ) {
+#ifdef FIXME
                 QPair<QByteArray,::Imap::LowLevelParser::ParsedAs> item =
                     ::Imap::LowLevelParser::getString( it, end, lineData );
                 if ( item.second != ::Imap::LowLevelParser::QUOTED )
@@ -465,13 +452,17 @@ Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
                 uint number = ::Imap::LowLevelParser::getUInt( it, end, lineData );
                 data[ identifier ] = std::tr1::shared_ptr<AbstractData>(
                         new RespData<uint>( number ) );
+#endif
             } else {
-                throw UnexpectedHere( identifier.constData() );
+                throw UnexpectedHere( line, start ); // FIXME: wrong offset
             }
-            identifier.clear();
+
         }
     }
-#endif
+
+    if ( start != line.size() - 2 )
+        throw TooMuchData( line, start );
+
 }
 
 Fetch::Fetch( const uint _number, const Fetch::dataType& _data ):
