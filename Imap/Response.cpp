@@ -338,16 +338,13 @@ Flags::Flags( const QByteArray& line, int& start )
 
 Status::Status( const QByteArray& line, int& start )
 {
-#ifdef FIXME
-    if ( it == end )
-        throw NoData( lineData );
-
-    mailbox = ::Imap::LowLevelParser::getMailbox( it, end, lineData );
-
-    QPair<QStringList,QByteArray> _parsedList = ::Imap::LowLevelParser::parseList( '(', ')', it, end, lineData, false, false );
-    if ( it != end || !_parsedList.second.isEmpty() )
-        throw TooMuchData( lineData );
-    const QStringList& items = _parsedList.first;
+    mailbox = LowLevelParser::getMailbox( line, start );
+    ++start;
+    if ( start >= line.size() )
+        throw NoData( line, start );
+    QStringList items = QVariant( LowLevelParser::parseList( '(', ')', line, start  ) ).toStringList();
+    if ( start != line.size() - 2 )
+        throw TooMuchData( line, start );
 
     bool gotIdentifier = false;
     QString identifier;
@@ -357,7 +354,7 @@ Status::Status( const QByteArray& line, int& start )
             bool ok;
             uint number = it->toUInt( &ok );
             if (!ok)
-                throw ParseError( lineData );
+                throw ParseError( line, start );
             StateKind kind = stateKindFromStr( identifier );
             states[kind] = number;
         } else {
@@ -366,8 +363,7 @@ Status::Status( const QByteArray& line, int& start )
         }
     }
     if ( gotIdentifier )
-        throw ParseError( lineData );
-#endif
+        throw ParseError( line, start );
 }
 
 #ifndef FIXME
