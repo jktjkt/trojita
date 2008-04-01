@@ -70,8 +70,7 @@ namespace LowLevelParser {
             const QByteArray& line, int& start );
 
     /** @short Read one item from input, store it in a most-appropriate form */
-    QVariant getAnything( const QByteArray& line, int& start, const char open='\0',
-            const char close='\0' );
+    QVariant getAnything( const QByteArray& line, int& start );
 
 }
 }

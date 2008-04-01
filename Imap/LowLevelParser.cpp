@@ -179,7 +179,7 @@ QVariantList parseList( const char open, const char close,
 
         QVariantList res;
         while ( line[start] != close ) {
-            res.append( getAnything( line, start, open, close ) );
+            res.append( getAnything( line, start ) );
             if ( start == line.size() )
                 throw NoData( line, start ); // truncated list
             if ( line[start] == close ) {
@@ -193,13 +193,16 @@ QVariantList parseList( const char open, const char close,
         throw UnexpectedHere( line, start );
 }
 
-QVariant getAnything( const QByteArray& line, int& start, const char open, const char close )
+QVariant getAnything( const QByteArray& line, int& start )
 {
     if ( start >= line.size() )
         throw NoData( line, start );
 
-    if ( open && line[start] == open ) {
-        QVariant res = parseList( open, close, line, start );
+    if ( line[start] == '[' ) {
+        QVariant res = parseList( '[', ']', line, start );
+        return res;
+    } else if ( line[start] == '(' ) {
+        QVariant res = parseList( '(', ')', line, start );
         return res;
     } else if ( line[start] == '"' || line[start] == '{' ) {
         QPair<QByteArray,ParsedAs> res = getString( line, start );

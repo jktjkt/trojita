@@ -57,13 +57,15 @@ void ImapLowLevelParserTest::testParseList()
     ++start;
     QCOMPARE( line.at(start), 'a' );
 
-    line = "(smrt 3)";
+    line = "(smrt [666] (999 1337) 3)";
     start = 0;
     res = parseList( '(', ')', line, start );
     Q_ASSERT( res.canConvert( QVariant::List ) );
     list = res.toList();
-    QCOMPARE( list.size(), 2 );
-    QCOMPARE( list, QVariantList() <<  "smrt" << 3 );
+    QCOMPARE( list.size(), 4 );
+    QCOMPARE( list, QVariantList() <<  "smrt" <<
+            QVariant( QVariantList() << 666) << 
+            QVariant( QVariantList() << 999 << 1337 ) << 3 );
     QCOMPARE( line.size(), start );
 
     try {
