@@ -84,13 +84,13 @@ void ImapLowLevelParserTest::testParseList()
         QVERIFY( true );
     }
 
-    line = "(ahoj cau {6}\r\nnazdar 1337 666 \"aho\\\"oooj\") (bleee)";
+    line = "(ahoj cau {6}\r\nnazdar 1337 \\* 666 \"aho\\\"oooj\") (bleee \\*)";
     start = 0;
     res = parseList( '(', ')', line, start );
     Q_ASSERT( res.canConvert( QVariant::List ) );
     list = res.toList();
-    QCOMPARE( list.size(), 6 );
-    QCOMPARE( list, QVariantList() <<  "ahoj" << "cau" << "nazdar" << 1337 << 666 << "aho\"oooj" );
+    QCOMPARE( list.size(), 7 );
+    QCOMPARE( list, QVariantList() <<  "ahoj" << "cau" << "nazdar" << 1337 << "\\*" << 666 << "aho\"oooj" );
     QVERIFY( start < line.size() );
     QCOMPARE( line.at( start ), ' ' );
     ++start;
@@ -98,11 +98,9 @@ void ImapLowLevelParserTest::testParseList()
     res = parseList( '(', ')', line, start );
     Q_ASSERT( res.canConvert( QVariant::List ) );
     list = res.toList();
-    QCOMPARE( list.size(), 1 );
-    QCOMPARE( list, QVariantList() <<  "bleee" );
+    QCOMPARE( list.size(), 2 );
+    QCOMPARE( list, QVariantList() << "bleee" << "\\*" );
     QCOMPARE( start, line.size() );
-
-
 }
 
 void ImapLowLevelParserTest::testGetString()

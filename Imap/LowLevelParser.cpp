@@ -214,6 +214,12 @@ QVariant getAnything( const QByteArray& line, int& start )
     } else if ( line[start] == '\\' ) {
         // valid for "flag"
         ++start;
+        if ( start >= line.size() )
+            throw NoData( line, start );
+        if ( line[start] == '*' ) {
+            ++start;
+            return QByteArray( "\\*" );
+        }
         return QByteArray( 1, '\\' ) + getAtom( line, start );
     } else {
         try {
