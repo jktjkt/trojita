@@ -366,10 +366,36 @@ Status::Status( const QByteArray& line, int& start )
         throw ParseError( line, start );
 }
 
-#ifndef FIXME
-// explicit template instantiation, for the real code is commented
-template class RespData<QStringList>;
-#endif
+QDateTime Fetch::dateify( QByteArray str, const QByteArray& line, const int start )
+{
+    // FIXME: all offsets in exceptions are broken here.
+    if ( str.size() == 25 )
+        str = QByteArray::number( 0 ) + str;
+    if ( str.size() != 26 )
+        throw ParseError( line, start );
+
+    QDateTime date = QDateTime::fromString( str.left(20), "d-MMM-yyyy HH:mm:ss");
+    const char sign = str[21];
+    bool ok;
+    uint hours = str.mid(22, 2).toUInt( &ok );
+    if (!ok)
+        throw ParseError( line, start );
+    uint minutes = str.mid(24, 2).toUInt( &ok );
+    if (!ok)
+        throw ParseError( line, start );
+    switch (sign) {
+        case '+':
+            date = date.addSecs( -3600*hours - 60*minutes );
+            break;
+        case '-':
+            date = date.addSecs( +3600*hours + 60*minutes );
+            break;
+        default:
+            throw ParseError( line, start );
+    }
+    date.setTimeSpec( Qt::UTC );
+    return date;
+}
 
 Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
     AbstractResponse(FETCH), number(_number)
@@ -409,36 +435,8 @@ Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
                 if ( it->type() != QVariant::ByteArray )
                         throw UnexpectedHere( line, start ); // FIXME: wrong offset
                 QByteArray _str = it->toByteArray();
-                if ( _str.size() == 25 )
-                    _str = QByteArray::number( 0 ) + _str;
-                if ( _str.size() != 26 )
-                    throw ParseError( line, start ); // FIXME: wrong offset
-
-                QDateTime date = QDateTime::fromString( _str.left(20), "d-MMM-yyyy HH:mm:ss");
-                const char sign = _str[21];
-                bool ok;
-                uint hours = _str.mid(22, 2).toUInt( &ok );
-                if (!ok)
-                    throw ParseError( line, start ); // FIXME: wrong offset
-                uint minutes = _str.mid(24, 2).toUInt( &ok );
-                if (!ok)
-                    throw ParseError( line, start ); // FIXME: wrong offset
-                switch (sign) {
-                    case '+':
-                        date = date.addSecs( -3600*hours - 60*minutes );
-                        break;
-                    case '-':
-                        date = date.addSecs( +3600*hours + 60*minutes );
-                        break;
-                    default:
-                        throw ParseError( line, start ); // FIXME: wrong offset
-                }
-
-                // we can't rely on server being in the same TZ as we are,
-                // so we have to convert to UTC here
-                date.setTimeSpec( Qt::UTC );
                 data[ identifier ] = std::tr1::shared_ptr<AbstractData>(
-                        new RespData<QDateTime>( date ) );
+                        new RespData<QDateTime>( dateify( _str, line, start ) ) );
 
             } else if ( identifier == "RFC822" ||
                     identifier == "RFC822.HEADER" || identifier == "RFC822.TEXT" ) {

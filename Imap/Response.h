@@ -303,6 +303,8 @@ namespace Responses {
         Fetch( const uint _number, const dataType& _data );
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
+    private:
+        static QDateTime dateify( QByteArray str, const QByteArray& line, const int start );
     };
 
     QTextStream& operator<<( QTextStream& stream, const Code& r );
