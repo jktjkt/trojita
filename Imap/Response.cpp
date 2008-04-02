@@ -397,6 +397,39 @@ QDateTime Fetch::dateify( QByteArray str, const QByteArray& line, const int star
     return date;
 }
 
+QList<MailAddress> Envelope::getListOfAddresses( const QVariantList& in, const QByteArray& line, const int start )
+{
+    QList<MailAddress> res;
+    for ( QVariantList::const_iterator it = in.begin(); it != in.end(); ++it ) {
+        if ( it->type() != QVariant::List )
+            throw UnexpectedHere( line, start ); // FIXME: wrong offset
+        res.append( MailAddress( it->toList(), line, start ) );
+    }
+    return res;
+}
+
+MailAddress::MailAddress( const QVariantList& input, const QByteArray& line, const int start )
+{
+    // FIXME: all offsets are wrong here
+    // FIXME: decode strings from various RFC2822 encodings
+    if ( input.size() != 4 )
+        throw ParseError( line, start );
+
+    if ( input[0].type() != QVariant::ByteArray )
+        throw UnexpectedHere( line, start );
+    if ( input[1].type() != QVariant::ByteArray )
+        throw UnexpectedHere( line, start );
+    if ( input[2].type() != QVariant::ByteArray )
+        throw UnexpectedHere( line, start );
+    if ( input[3].type() != QVariant::ByteArray )
+        throw UnexpectedHere( line, start );
+
+    name = input[0].toByteArray();
+    adl = input[1].toByteArray();
+    mailbox = input[2].toByteArray();
+    host = input[3].toByteArray();
+}
+
 Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
     AbstractResponse(FETCH), number(_number)
 {
@@ -427,28 +460,92 @@ Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
                     throw UnexpectedHere( line, start );
 
                 QVariantList items = it->toList();
-                if ( items.size() != 10 ) {
-                    for ( int i = 0; i != items.size(); ++i ) {
-                        qDebug("%d (%s): %s", i, items[i].typeName(), items[i].toByteArray().constData() );
-                    }
+
+                if ( items.size() != 10 )
                     throw ParseError( line, start ); // FIXME: wrong offset
-                }
 
                 // date
                 QDateTime date;
                 if ( items[0].type() == QVariant::ByteArray ) {
                     QByteArray dateStr = items[0].toByteArray();
-                    /*
-                     * FIXME: this won't work, it's in RFC2822 format
-                    if ( !dateStr.isEmpty() )
-                        date = dateify( dateStr, line, start ); */
+                    // FIXME: convert date from RFC2822 format
                 }
                 // Otherwise it's "invalid", null.
 
-                // subject
-                QByteArray subject = items[1].toByteArray();
+                QByteArray subject = items[1].toByteArray(); // FIXME: decode
+               
 
-                // FIXME
+                QList<MailAddress> from, sender, replyTo, to, cc, bcc;
+
+                if ( items[2].type() == QVariant::ByteArray ) {
+                    if ( ! items[2].toByteArray().isNull() )
+                        throw UnexpectedHere( line, start );
+                } else if ( items[2].type() == QVariant::List )
+                    from = Envelope::getListOfAddresses( items[2].toList(), line, start );
+                else
+                    throw ParseError( line, start );
+
+                if ( items[3].type() == QVariant::ByteArray ) {
+                    if ( ! items[3].toByteArray().isNull() )
+                        throw UnexpectedHere( line, start );
+                } else if ( items[3].type() == QVariant::List )
+                    sender = Envelope::getListOfAddresses( items[3].toList(), line, start );
+                else
+                    throw ParseError( line, start );
+
+                if ( items[4].type() == QVariant::ByteArray ) {
+                    if ( ! items[4].toByteArray().isNull() )
+                        throw UnexpectedHere( line, start );
+                } else if ( items[4].type() == QVariant::List )
+                    replyTo = Envelope::getListOfAddresses( items[4].toList(), line, start );
+                else
+                    throw ParseError( line, start );
+
+                if ( items[5].type() == QVariant::ByteArray ) {
+                    if ( ! items[5].toByteArray().isNull() )
+                        throw UnexpectedHere( line, start );
+                } else if ( items[5].type() == QVariant::List )
+                    to = Envelope::getListOfAddresses( items[5].toList(), line, start );
+                else
+                    throw ParseError( line, start );
+
+                if ( items[6].type() == QVariant::ByteArray ) {
+                    if ( ! items[6].toByteArray().isNull() )
+                        throw UnexpectedHere( line, start );
+                } else if ( items[6].type() == QVariant::List )
+                    cc = Envelope::getListOfAddresses( items[6].toList(), line, start );
+                else
+                    throw ParseError( line, start );
+
+                if ( items[7].type() == QVariant::ByteArray ) {
+                    if ( ! items[7].toByteArray().isNull() )
+                        throw UnexpectedHere( line, start );
+                } else if ( items[7].type() == QVariant::List )
+                    bcc = Envelope::getListOfAddresses( items[7].toList(), line, start );
+                else
+                    throw ParseError( line, start );
+
+                QList<QByteArray> inReplyTo;
+                if ( items[8].type() == QVariant::ByteArray ) {
+                    if ( ! items[8].toByteArray().isNull() )
+                        throw UnexpectedHere( line, start );
+                } else if ( items[8].type() == QVariant::List ) {
+                    QVariantList list = items[8].toList();
+                    for ( QVariantList::const_iterator it = list.begin(); it != list.end(); ++it ) {
+                        if ( it->type() != QVariant::ByteArray )
+                            throw UnexpectedHere( line, start );
+                        inReplyTo.append( it->toByteArray() );
+                    }
+                } else
+                    throw ParseError( line, start );
+
+                if ( items[9].type() != QVariant::ByteArray )
+                    throw UnexpectedHere( line, start );
+                QByteArray messageId = items[9].toByteArray();
+
+                data[identifier] = std::tr1::shared_ptr<AbstractData>(
+                        new RespData<Envelope>(
+                            Envelope( date, subject, from, sender, replyTo, to, cc, bcc, inReplyTo, messageId ) ) );
 
             } else if ( identifier == "FLAGS" ) {
                 if ( ! it->canConvert( QVariant::StringList ) )
@@ -706,11 +803,26 @@ QTextStream& operator<<( QTextStream& stream, const Envelope& e )
         buf.append( *it );
         buf.append( " " );
     }
-    return stream << "Date: " << e.date.toString() << "\r\nSubject: " << e.subject << "\r\nFrom: " <<
-        e.from << "\r\nSender: " << e.sender << "\r\nReply-To: " << 
-        e.replyTo << "\r\nTo: " << e.to << "\r\nCc: " << e.cc << "\r\nBcc: " <<
-        e.bcc << "\r\nIn-Reply-To: " << buf << "\r\nMessage-Id: " << e.messageId <<
-        "\r\n";
+    if ( buf.isEmpty() )
+        buf = "none";
+    return stream << "Date: " << e.date.toString() << "\nSubject: " << e.subject << "\nFrom: " <<
+        e.from << "\nSender: " << e.sender << "\nReply-To: " << 
+        e.replyTo << "\nTo: " << e.to << "\nCc: " << e.cc << "\nBcc: " <<
+        e.bcc << "\nIn-Reply-To: " << buf << "\nMessage-Id: " << e.messageId <<
+        "\n";
+}
+
+bool operator==( const Envelope& a, const Envelope& b )
+{
+    return a.date == b.date && a.date == b.date && a.subject == b.subject &&
+        a.from == b.from && a.sender == b.sender && a.replyTo == b.replyTo &&
+        a.to == b.to && a.cc == b.cc && a.bcc == b.bcc &&
+        a.inReplyTo == b.inReplyTo && a.messageId == b.messageId;
+}
+
+bool operator==( const MailAddress& a, const MailAddress& b )
+{
+    return a.name == b.name && a.adl == b.adl && a.mailbox == b.mailbox && a.host == b.host;
 }
 
 }

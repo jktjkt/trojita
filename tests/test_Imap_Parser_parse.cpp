@@ -263,6 +263,20 @@ void ImapParserParseTest::testParseUntagged_data()
         << shared_ptr<AbstractResponse>( new Fetch( 123, fetchData ) );
 
     fetchData.clear();
+    QDateTime date; // FIXME
+    QString subject( "IMAP4rev1 WG mtg summary and minutes");
+    QList<MailAddress> from, sender, replyTo, to, cc, bcc;
+    from.append( MailAddress( "Terry Gray", QByteArray(), "gray", "cac.washington.edu") );
+    sender = replyTo = from;
+    to.append( MailAddress( QByteArray(), QByteArray(), "imap", "cac.washington.edu") );
+    cc.append( MailAddress( QByteArray(), QByteArray(), "minutes", "CNRI.Reston.VA.US") );
+    cc.append( MailAddress( "John Klensin", QByteArray(), "KLENSIN", "MIT.EDU") );
+    QList<QByteArray> inReplyTo;
+    QByteArray messageId( "<B27397-0100000@cac.washington.edu>" );
+    fetchData[ "ENVELOPE" ] = std::tr1::shared_ptr<AbstractData>(
+            new RespData<Envelope>(
+                Envelope( date, subject, from, sender, replyTo, to, cc, bcc, inReplyTo, messageId )
+                ) );
     QTest::newRow("fetch-envelope")
         << QByteArray( "* 12 FETCH (ENVELOPE (\"Wed, 17 Jul 1996 02:23:25 -0700 (PDT)\" "
             "\"IMAP4rev1 WG mtg summary and minutes\" "

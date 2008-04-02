@@ -25,6 +25,7 @@
 #include <QList>
 #include <QMap>
 #include <QStringList>
+#include <QVariantList>
 #include "Imap/Command.h"
 #include "Imap/Exceptions.h"
 
@@ -324,6 +325,7 @@ namespace Responses {
         MailAddress( const QByteArray& _name, const QByteArray& _adl, 
                 const QByteArray& _mailbox, const QByteArray& _host ):
             name(_name), adl(_adl), mailbox(_mailbox), host(_host) {};
+        MailAddress( const QVariantList& input, const QByteArray& line, const int start );
     };
 
     /** @short Storage for envelope */
@@ -343,9 +345,14 @@ namespace Responses {
                 const QList<MailAddress>& _sender, const QList<MailAddress>& _replyTo,
                 const QList<MailAddress>& _to, const QList<MailAddress>& _cc,
                 const QList<MailAddress>& _bcc, QList<QByteArray>& _inReplyTo,
-                QByteArray _messageId ):
+                const QByteArray& _messageId ):
             date(_date), subject(_subject), from(_from), sender(_sender), replyTo(_replyTo),
             to(_to), cc(_cc), bcc(_bcc), inReplyTo(_inReplyTo), messageId(_messageId) {};
+
+    private:
+        static QList<MailAddress> getListOfAddresses( const QVariantList& in,
+                const QByteArray& line, const int start );
+        friend class Fetch;
     };
 
     QTextStream& operator<<( QTextStream& stream, const Code& r );
@@ -372,6 +379,11 @@ namespace Responses {
     inline bool operator!=( const AbstractData& first, const AbstractData& other ) {
         return !first.eq( other );
     }
+
+    bool operator==( const Envelope& a, const Envelope& b );
+    inline bool operator!=( const Envelope& a, const Envelope& b ) { return !(a == b); };
+    bool operator==( const MailAddress& a, const MailAddress& b );
+    inline bool operator!=( const MailAddress& a, const MailAddress& b ) { return !(a == b); };
 
     /** @short Build Responses::Kind from textual value */
     Kind kindFromString( QByteArray str ) throw( UnrecognizedResponseKind );
