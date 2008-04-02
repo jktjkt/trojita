@@ -31,7 +31,10 @@ void ParserMonitor::responseReceived()
 {
     while ( _parser->hasResponse() ) {
         std::tr1::shared_ptr<Imap::Responses::AbstractResponse> resp = _parser->getResponse();
-        *_stream << *resp << "\r\n" << flush;
+        if ( resp )
+            *_stream << *resp << "\r\n" << flush;
+        else
+            *_stream << "(null)\r\n" << flush;
     }
 }
 
