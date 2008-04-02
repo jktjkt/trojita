@@ -307,11 +307,55 @@ namespace Responses {
         static QDateTime dateify( QByteArray str, const QByteArray& line, const int start );
     };
 
+    /** @short Storage container for one address from an envelope */
+    struct MailAddress {
+        /** @short Phrase from RFC2822 mailbox */
+        QByteArray name;
+
+        /** @hosrt Route information */
+        QByteArray adl;
+
+        /** @short RFC2822 Group Name or Local Part */
+        QByteArray mailbox;
+
+        /** @short RFC2822 Domain Name */
+        QByteArray host;
+
+        MailAddress( const QByteArray& _name, const QByteArray& _adl, 
+                const QByteArray& _mailbox, const QByteArray& _host ):
+            name(_name), adl(_adl), mailbox(_mailbox), host(_host) {};
+    };
+
+    /** @short Storage for envelope */
+    struct Envelope {
+        QDateTime date;
+        QString subject;
+        QList<MailAddress> from;
+        QList<MailAddress> sender;
+        QList<MailAddress> replyTo;
+        QList<MailAddress> to;
+        QList<MailAddress> cc;
+        QList<MailAddress> bcc;
+        QList<QByteArray> inReplyTo;
+        QByteArray messageId;
+
+        Envelope( const QDateTime& _date, const QString& _subject, const QList<MailAddress>& _from, 
+                const QList<MailAddress>& _sender, const QList<MailAddress>& _replyTo,
+                const QList<MailAddress>& _to, const QList<MailAddress>& _cc,
+                const QList<MailAddress>& _bcc, QList<QByteArray>& _inReplyTo,
+                QByteArray _messageId ):
+            date(_date), subject(_subject), from(_from), sender(_sender), replyTo(_replyTo),
+            to(_to), cc(_cc), bcc(_bcc), inReplyTo(_inReplyTo), messageId(_messageId) {};
+    };
+
     QTextStream& operator<<( QTextStream& stream, const Code& r );
     QTextStream& operator<<( QTextStream& stream, const Kind& res );
     QTextStream& operator<<( QTextStream& stream, const Status::StateKind& kind );
     QTextStream& operator<<( QTextStream& stream, const AbstractResponse& res );
     QTextStream& operator<<( QTextStream& stream, const AbstractData& resp );
+    QTextStream& operator<<( QTextStream& stream, const MailAddress& address );
+    QTextStream& operator<<( QTextStream& stream, const QList<MailAddress>& address );
+    QTextStream& operator<<( QTextStream& stream, const Envelope& e );
 
     inline bool operator==( const AbstractResponse& first, const AbstractResponse& other ) {
         return first.eq( other );

@@ -423,7 +423,33 @@ Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
             } else if ( identifier.startsWith( "BODY[" ) ) {
                 // FIXME
             } else if ( identifier == "ENVELOPE" ) {
+                if ( it->type() != QVariant::List )
+                    throw UnexpectedHere( line, start );
+
+                QVariantList items = it->toList();
+                if ( items.size() != 10 ) {
+                    for ( int i = 0; i != items.size(); ++i ) {
+                        qDebug("%d (%s): %s", i, items[i].typeName(), items[i].toByteArray().constData() );
+                    }
+                    throw ParseError( line, start ); // FIXME: wrong offset
+                }
+
+                // date
+                QDateTime date;
+                if ( items[0].type() == QVariant::ByteArray ) {
+                    QByteArray dateStr = items[0].toByteArray();
+                    /*
+                     * FIXME: this won't work, it's in RFC2822 format
+                    if ( !dateStr.isEmpty() )
+                        date = dateify( dateStr, line, start ); */
+                }
+                // Otherwise it's "invalid", null.
+
+                // subject
+                QByteArray subject = items[1].toByteArray();
+
                 // FIXME
+
             } else if ( identifier == "FLAGS" ) {
                 if ( ! it->canConvert( QVariant::StringList ) )
                     throw UnexpectedHere( line, start ); // FIXME: wrong offset
@@ -653,6 +679,39 @@ bool Fetch::eq( const AbstractResponse& other ) const
     }
 }
 
+QTextStream& operator<<( QTextStream& stream, const MailAddress& address )
+{
+    stream << '"' << address.name << "\" <";
+    if ( !address.host.isNull() )
+        stream << address.mailbox << '@' << address.host;
+    else
+        stream << address.mailbox;
+    stream << '>';
+    return stream;
+}
+
+QTextStream& operator<<( QTextStream& stream, const QList<MailAddress>& address )
+{
+    stream << "[ ";
+    for ( QList<MailAddress>::const_iterator it = address.begin(); it != address.end(); ++it )
+        stream << *it << ", ";
+    return stream << " ]";
+}
+
+QTextStream& operator<<( QTextStream& stream, const Envelope& e )
+{
+    QByteArray buf;
+    for ( QList<QByteArray>::const_iterator it = e.inReplyTo.begin();
+            it != e.inReplyTo.end(); ++it ) {
+        buf.append( *it );
+        buf.append( " " );
+    }
+    return stream << "Date: " << e.date.toString() << "\r\nSubject: " << e.subject << "\r\nFrom: " <<
+        e.from << "\r\nSender: " << e.sender << "\r\nReply-To: " << 
+        e.replyTo << "\r\nTo: " << e.to << "\r\nCc: " << e.cc << "\r\nBcc: " <<
+        e.bcc << "\r\nIn-Reply-To: " << buf << "\r\nMessage-Id: " << e.messageId <<
+        "\r\n";
+}
 
 }
 }
