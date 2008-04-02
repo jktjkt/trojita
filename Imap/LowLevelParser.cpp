@@ -211,6 +211,9 @@ QVariant getAnything( const QByteArray& line, int& start )
     } else if ( line[start] == '"' || line[start] == '{' ) {
         QPair<QByteArray,ParsedAs> res = getString( line, start );
         return res.first;
+    } else if ( line.mid( start, 3 ).toUpper() == "NIL" ) {
+        start += 3;
+        return QByteArray();
     } else if ( line[start] == '\\' ) {
         // valid for "flag"
         ++start;
