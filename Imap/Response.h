@@ -350,7 +350,7 @@ namespace Responses {
             to(_to), cc(_cc), bcc(_bcc), inReplyTo(_inReplyTo), messageId(_messageId) {};
 
     private:
-        static QList<MailAddress> getListOfAddresses( const QVariantList& in,
+        static QList<MailAddress> getListOfAddresses( const QVariant& in,
                 const QByteArray& line, const int start );
         friend class Fetch;
     };
