@@ -125,7 +125,7 @@ QPair<QByteArray,ParsedAs> getString( const QByteArray& line, int& start )
         if ( line.mid( start, 3 ) != "}\r\n" )
             throw ParseError( line, start );
         start += 3;
-        if ( start >= line.size() + size ) // FIXME: this is suspicious...
+        if ( start + size > line.size() )
             throw NoData( line, start );
         int old(start);
         start += size;
