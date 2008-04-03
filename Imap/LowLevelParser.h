@@ -25,13 +25,6 @@
 namespace Imap {
 namespace LowLevelParser {
 
-    /*
-     * FIXME: this is ugly. We should have used another scheme for iterators as
-     * we generally want to iterate over bytes, not over words separated by
-     * spaces. This should be fixed later, for now, let's stick with ugly hacks
-     * :-(.
-     * */
-
     enum ParsedAs {
         ATOM,
         QUOTED,

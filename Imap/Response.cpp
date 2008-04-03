@@ -303,7 +303,7 @@ List::List( const Kind _kind, const QByteArray& line, int& start ):
     flags = QVariant( LowLevelParser::parseList( '(', ')', line, start ) ).toStringList();
     ++start;
 
-    if ( start >= line.size() - 5 ) // FIXME: verify buffer size
+    if ( start >= line.size() - 5 )
         throw NoData( line, start ); // flags and nothing else
 
     if ( line.at(start) == '"' ) {
@@ -598,7 +598,7 @@ QTextStream& Status::dump( QTextStream& stream ) const
     return stream;
 }
 
-QTextStream& Fetch::dump( QTextStream& stream ) const // FIXME
+QTextStream& Fetch::dump( QTextStream& stream ) const
 {
     stream << "FETCH " << number << " (";
     for ( dataType::const_iterator it = data.begin();
