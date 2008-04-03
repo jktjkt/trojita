@@ -338,13 +338,13 @@ namespace Responses {
         QList<MailAddress> to;
         QList<MailAddress> cc;
         QList<MailAddress> bcc;
-        QList<QByteArray> inReplyTo;
+        QByteArray inReplyTo;
         QByteArray messageId;
 
         Envelope( const QDateTime& _date, const QString& _subject, const QList<MailAddress>& _from, 
                 const QList<MailAddress>& _sender, const QList<MailAddress>& _replyTo,
                 const QList<MailAddress>& _to, const QList<MailAddress>& _cc,
-                const QList<MailAddress>& _bcc, QList<QByteArray>& _inReplyTo,
+                const QList<MailAddress>& _bcc, const QByteArray& _inReplyTo,
                 const QByteArray& _messageId ):
             date(_date), subject(_subject), from(_from), sender(_sender), replyTo(_replyTo),
             to(_to), cc(_cc), bcc(_bcc), inReplyTo(_inReplyTo), messageId(_messageId) {};

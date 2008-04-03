@@ -125,7 +125,7 @@ QPair<QByteArray,ParsedAs> getString( const QByteArray& line, int& start )
         if ( line.mid( start, 3 ) != "}\r\n" )
             throw ParseError( line, start );
         start += 3;
-        if ( start >= line.size() + size )
+        if ( start >= line.size() + size ) // FIXME: this is suspicious...
             throw NoData( line, start );
         int old(start);
         start += size;
@@ -174,7 +174,7 @@ QVariantList parseList( const char open, const char close,
     if ( line[start] == open ) {
         // found the opening parenthesis
         ++start;
-        if ( start == line.size() )
+        if ( start >= line.size() )
             throw ParseError( line, start );
 
         QVariantList res;
@@ -184,7 +184,7 @@ QVariantList parseList( const char open, const char close,
         }
         while ( line[start] != close ) {
             res.append( getAnything( line, start ) );
-            if ( start == line.size() )
+            if ( start >= line.size() )
                 throw NoData( line, start ); // truncated list
             if ( line[start] == close ) {
                 ++start;
@@ -228,7 +228,16 @@ QVariant getAnything( const QByteArray& line, int& start )
         try {
             return getUInt( line, start );
         } catch ( ParseError& e ) {
-            return getAtom( line, start );
+            QByteArray atom = getAtom( line, start );
+            if ( atom.indexOf( '[', 0 ) != -1 ) {
+                int pos = line.indexOf( ']', start );
+                if ( pos == -1 )
+                    throw ParseError( line, start );
+                ++pos;
+                atom += line.mid( start, pos - start );
+                start = pos;
+            }
+            return atom;
         }
     }
 }

@@ -461,7 +461,12 @@ Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
             if ( identifier == "BODY" || identifier == "BODYSTRUCTURE" ) {
                 // FIXME
             } else if ( identifier.startsWith( "BODY[" ) ) {
-                // FIXME
+                // FIXME: split into more identifiers
+                if ( it->type() != QVariant::ByteArray )
+                    throw UnexpectedHere( line, start );
+                data[identifier] = std::tr1::shared_ptr<AbstractData>(
+                        new RespData<QByteArray>( it->toByteArray() ) );
+
             } else if ( identifier == "ENVELOPE" ) {
                 if ( it->type() != QVariant::List )
                     throw UnexpectedHere( line, start );
@@ -490,19 +495,9 @@ Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
                 cc = Envelope::getListOfAddresses( items[6], line, start );
                 bcc = Envelope::getListOfAddresses( items[7], line, start );
 
-                QList<QByteArray> inReplyTo;
-                if ( items[8].type() == QVariant::ByteArray ) {
-                    if ( ! items[8].toByteArray().isNull() )
-                        throw UnexpectedHere( line, start );
-                } else if ( items[8].type() == QVariant::List ) {
-                    QVariantList list = items[8].toList();
-                    for ( QVariantList::const_iterator it = list.begin(); it != list.end(); ++it ) {
-                        if ( it->type() != QVariant::ByteArray )
-                            throw UnexpectedHere( line, start );
-                        inReplyTo.append( it->toByteArray() );
-                    }
-                } else
-                    throw ParseError( line, start );
+                if ( items[8].type() != QVariant::ByteArray )
+                    throw UnexpectedHere( line, start );
+                QByteArray inReplyTo = items[8].toByteArray();
 
                 if ( items[9].type() != QVariant::ByteArray )
                     throw UnexpectedHere( line, start );
@@ -762,18 +757,10 @@ QTextStream& operator<<( QTextStream& stream, const QList<MailAddress>& address 
 
 QTextStream& operator<<( QTextStream& stream, const Envelope& e )
 {
-    QByteArray buf;
-    for ( QList<QByteArray>::const_iterator it = e.inReplyTo.begin();
-            it != e.inReplyTo.end(); ++it ) {
-        buf.append( *it );
-        buf.append( " " );
-    }
-    if ( buf.isEmpty() )
-        buf = "none";
     return stream << "Date: " << e.date.toString() << "\nSubject: " << e.subject << "\nFrom: " <<
         e.from << "\nSender: " << e.sender << "\nReply-To: " << 
         e.replyTo << "\nTo: " << e.to << "\nCc: " << e.cc << "\nBcc: " <<
-        e.bcc << "\nIn-Reply-To: " << buf << "\nMessage-Id: " << e.messageId <<
+        e.bcc << "\nIn-Reply-To: " << e.inReplyTo << "\nMessage-Id: " << e.messageId <<
         "\n";
 }
 

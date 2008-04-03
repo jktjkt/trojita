@@ -271,11 +271,10 @@ void ImapParserParseTest::testParseUntagged_data()
     to.append( MailAddress( QByteArray(), QByteArray(), "imap", "cac.washington.edu") );
     cc.append( MailAddress( QByteArray(), QByteArray(), "minutes", "CNRI.Reston.VA.US") );
     cc.append( MailAddress( "John Klensin", QByteArray(), "KLENSIN", "MIT.EDU") );
-    QList<QByteArray> inReplyTo;
     QByteArray messageId( "<B27397-0100000@cac.washington.edu>" );
     fetchData[ "ENVELOPE" ] = std::tr1::shared_ptr<AbstractData>(
             new RespData<Envelope>(
-                Envelope( date, subject, from, sender, replyTo, to, cc, bcc, inReplyTo, messageId )
+                Envelope( date, subject, from, sender, replyTo, to, cc, bcc, QByteArray(), messageId )
                 ) );
     QTest::newRow("fetch-envelope")
         << QByteArray( "* 12 FETCH (ENVELOPE (\"Wed, 17 Jul 1996 02:23:25 -0700 (PDT)\" "
@@ -288,6 +287,8 @@ void ImapParserParseTest::testParseUntagged_data()
             "(\"John Klensin\" NIL \"KLENSIN\" \"MIT.EDU\")) NIL NIL "
             "\"<B27397-0100000@cac.washington.edu>\"))\r\n" )
         << shared_ptr<AbstractResponse>( new Fetch( 12, fetchData ) );
+
+    // FIXME: more unit tests for ENVELOPE and BODY[
 
 }
 
