@@ -387,10 +387,9 @@ void Parser::processLine( QByteArray line )
                 buf.append( _socket->read( number - buf.size() ) );
             }
             line += buf;
-        }
-        // if we've had read a literal, we have to read rest of the line as well
-        if ( literalRead )
+            // as we've had read a literal, we have to read rest of the line as well
             line += _socket->readLine();
+        }
         queueResponse( parseUntagged( line ) );
     } else if ( line.startsWith( "+ " ) ) {
         // Command Continuation Request which really shouldn't happen here
