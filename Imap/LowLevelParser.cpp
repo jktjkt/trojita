@@ -225,19 +225,35 @@ QVariant getAnything( const QByteArray& line, int& start )
         }
         return QByteArray( 1, '\\' ) + getAtom( line, start );
     } else {
-        try {
-            return getUInt( line, start );
-        } catch ( ParseError& e ) {
-            QByteArray atom = getAtom( line, start );
-            if ( atom.indexOf( '[', 0 ) != -1 ) {
-                int pos = line.indexOf( ']', start );
-                if ( pos == -1 )
-                    throw ParseError( line, start );
-                ++pos;
-                atom += line.mid( start, pos - start );
-                start = pos;
-            }
-            return atom;
+        switch ( line.at( start ) ) {
+            case '0': case '1': case '2': case '3': case '4':
+            case '5': case '6': case '7': case '8': case '9':
+                return getUInt( line, start );
+                break;
+            default:
+                {
+                QByteArray atom = getAtom( line, start );
+                if ( atom.indexOf( '[', 0 ) != -1 ) {
+                    // "BODY[something]" -- there's no whitespace between "[" and
+                    // next atom...
+                    int pos = line.indexOf( ']', start );
+                    if ( pos == -1 )
+                        throw ParseError( line, start );
+                    ++pos;
+                    atom += line.mid( start, pos - start );
+                    start = pos;
+                    if ( start < line.size() && line[start] == '<' ) {
+                        // Let's check if it continues with "<range>"
+                        pos = line.indexOf( '>', start );
+                        if ( pos == -1 )
+                            throw ParseError( line, start );
+                        ++pos;
+                        atom += line.mid( start, pos - start );
+                        start = pos;
+                    }
+                }
+                return atom;
+                }
         }
     }
 }

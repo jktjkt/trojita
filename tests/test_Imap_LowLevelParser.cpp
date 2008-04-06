@@ -291,6 +291,21 @@ void ImapLowLevelParserTest::testGetAnything()
     Q_ASSERT( res.canConvert( QVariant::Int ) );
     QCOMPARE( 666, res.toInt() );
     QCOMPARE( pos, line.size() );
+
+    line = "Blesmrt[trojita (666 333 1337)]"; pos = 0;
+    res = getAnything( line, pos );
+    QCOMPARE( line, res.toByteArray() );
+    QCOMPARE( pos, line.size() );
+
+    line = "Blesmrt[trojita (666 333 1337)] ahoj"; pos = 0;
+    res = getAnything( line, pos );
+    QCOMPARE( QByteArray("Blesmrt[trojita (666 333 1337)]"), res.toByteArray() );
+    QCOMPARE( line.mid(pos), QByteArray(" ahoj") );
+
+    line = "Blesmrt[trojita (666 333 1337)]<1337> z666"; pos = 0;
+    res = getAnything( line, pos );
+    QCOMPARE( QByteArray("Blesmrt[trojita (666 333 1337)]<1337>"), res.toByteArray() );
+    QCOMPARE( line.mid(pos), QByteArray(" z666") );
 }
 
 QTEST_KDEMAIN_CORE( ImapLowLevelParserTest )
