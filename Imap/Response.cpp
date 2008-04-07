@@ -461,7 +461,7 @@ Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
             if ( identifier == "BODY" || identifier == "BODYSTRUCTURE" ) {
                 // FIXME
             } else if ( identifier.startsWith( "BODY[" ) ) {
-                // FIXME: split into more identifiers
+                // FIXME: split into more identifiers?
                 if ( it->type() != QVariant::ByteArray )
                     throw UnexpectedHere( line, start );
                 data[identifier] = std::tr1::shared_ptr<AbstractData>(
@@ -485,7 +485,6 @@ Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
                 // Otherwise it's "invalid", null.
 
                 QByteArray subject = items[1].toByteArray(); // FIXME: decode
-               
 
                 QList<MailAddress> from, sender, replyTo, to, cc, bcc;
                 from = Envelope::getListOfAddresses( items[2], line, start );
