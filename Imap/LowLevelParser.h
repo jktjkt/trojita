@@ -23,25 +23,46 @@
 #include <QVariant>
 
 namespace Imap {
+
+/** @short Low-level parsing of IMAP data
+ *
+ * This namespace contains functions for extracting low-level stuff like atoms,
+ * integers or strings from a raw data that server sent us.
+ *
+ * All functions share a similar API -- first argument, a QByteArray instance,
+ * holds *complete* line including trailing CRLF, second argument is offset
+ * where the parsing should start. It's a non-const reference to int as it gets
+ * changed after the requested item is read.
+ *
+ * All functions assume that all {size}-based literals are already prefetched,
+ * ie. there's no interaction with the Imap::Parser's methods for retrieving
+ * further data.
+ * */
 namespace LowLevelParser {
 
     enum ParsedAs {
-        ATOM,
-        QUOTED,
-        LITERAL,
-        NIL
+        ATOM /**< @short Parsed as RFC3501 "atom" data type */,
+        QUOTED /**< @short Quoted string (enclosed in single pair of double quotes */,
+        LITERAL /**< @short String literal, ie. the {size}-form */,
+        NIL /**< @short A special-case atom NIL */
     };
 
+    /** @short Read an unsigned integer from input */
     uint getUInt( const QByteArray& line, int& start );
 
+    /** @short Read an ATOM */
     QByteArray getAtom( const QByteArray& line, int& start );
 
+    /** @short Read a quoted string or literal */
     QPair<QByteArray,ParsedAs> getString( const QByteArray& line, int& start );
 
+    /** @short Read atom or string */
     QPair<QByteArray,ParsedAs> getAString( const QByteArray& line, int& start );
 
+    /** @short Read NIL or a string */
     QPair<QByteArray,ParsedAs> getNString( const QByteArray& line, int& start );
 
+    /** @short Retrieve mailbox name */
     QString getMailbox( const QByteArray& line, int& start );
 
     /** @short Parse parenthesized list 
@@ -51,10 +72,6 @@ namespace LowLevelParser {
      *
      * open, close -- enclosing parentheses
      * line, start -- full line data and starting offset
-     * allowNoList -- if false and there's no opening parenthesis, exception is
-     *                thrown
-     * allowEmptyList -- if false and the list is empty (ie. nothing between opening
-     *                   and closing bracket), exception is thrown
      *
      * We need to support parsing of nested lists (as found in the envelope data
      * structure), that's why we deal with QVariant here.

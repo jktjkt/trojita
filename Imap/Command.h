@@ -30,7 +30,7 @@ class CommandResult;
 
     QTextStream& operator<<( QTextStream& stream, const CommandResult& r );
 
-/** @short Namespace holding all supported IMAP commands and variosu helpers */
+/** @short Namespace holding all supported IMAP commands and various helpers */
 namespace Commands {
 
     /** Enumeration that specifies required method of transmission of this string */
@@ -82,7 +82,6 @@ namespace Commands {
         Command( const QString& name ) { _cmds << PartOfCommand( ATOM, name ); };
         void addTag( const QString& tag ) { _tag = tag; };
     };
-
 
     /** @short Used for dumping a command to debug stream */
     QTextStream& operator<<( QTextStream& stream, const Command& cmd );

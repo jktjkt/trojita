@@ -21,8 +21,10 @@
 #include <QTextStream>
 #include "Imap/Parser.h"
 
+/** @short Example application of trojita IMAP */
 namespace Demo {
 
+/** @short Print server responses through a text stream */
 class ParserMonitor: public QObject {
     Q_OBJECT
 
