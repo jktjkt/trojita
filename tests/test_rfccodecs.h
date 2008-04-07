@@ -24,11 +24,14 @@
 
 #include <QtCore/QObject>
 
+/** @short Unit tests for various codec helpers in KIMAP */
 class RFCCodecsTest : public QObject
 {
   Q_OBJECT
 private Q_SLOTS:
+  /** @short Test for KIMAP::encodeImapFolderName() */
   void testIMAPEncoding();
+  /** @short Tests for proper IMAP quoting and auote escaping */
   void testQuotes();
 };
 

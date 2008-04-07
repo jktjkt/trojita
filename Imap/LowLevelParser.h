@@ -70,8 +70,8 @@ namespace LowLevelParser {
      * Parenthesized lists is defined as a sequence of space-separated strings
      * enclosed between "open" and "close" characters.
      *
-     * open, close -- enclosing parentheses
-     * line, start -- full line data and starting offset
+     * @param open, close -- enclosing parentheses
+     * @param line, start -- full line data and starting offset
      *
      * We need to support parsing of nested lists (as found in the envelope data
      * structure), that's why we deal with QVariant here.

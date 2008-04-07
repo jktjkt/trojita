@@ -29,8 +29,10 @@ class ImapResponsesTest : public QObject
 {
     Q_OBJECT
 private Q_SLOTS:
+    /** @short Test operator==() */
     void testCompareEq();
     void testCompareEq_data();
+    /** @short Test cases for operator==() */
     void testCompareNe();
     void testCompareNe_data();
 };

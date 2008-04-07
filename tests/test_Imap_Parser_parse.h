@@ -32,8 +32,10 @@ class ImapParserParseTest : public QObject
     std::auto_ptr<QIODevice> buf;
     std::auto_ptr<Imap::Parser> parser;
 private Q_SLOTS:
+    /** @short Test parsing of various tagged responses */
     void testParseTagged();
     void testParseTagged_data();
+    /** @short Test parsing of untagged responses */
     void testParseUntagged();
     void testParseUntagged_data();
     void initTestCase();

@@ -22,16 +22,22 @@
 #include "Imap/LowLevelParser.h"
 
 
-/** @short Unit tests for Imap::Responses::AbstractResponse and friends */
+/** @short Unit tests for Imap::LowLevelParser */
 class ImapLowLevelParserTest : public QObject
 {
     Q_OBJECT
 private Q_SLOTS:
+    /** @short test Imap::LowLevelParser::parseList() */
     void testParseList();
+    /** @short test Imap::LowLevelParser::getString() */
     void testGetString();
+    /** @short test Imap::LowLevelParser::getAString() */
     void testGetAString();
+    /** @short test Imap::LowLevelParser::getUInt() */
     void testGetUInt();
+    /** @short test Imap::LowLevelParser::getAtom() */
     void testGetAtom();
+    /** @short test Imap::LowLevelParser::getAnything() */
     void testGetAnything();
 };
 
