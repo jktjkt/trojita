@@ -19,6 +19,7 @@
 #include <QPair>
 #include <QStringList>
 #include <QVariant>
+#include <QDateTime>
 #include "Imap/LowLevelParser.h"
 #include "Imap/Exceptions.h"
 #include "Imap/rfccodecs.h"
@@ -256,6 +257,46 @@ QVariant getAnything( const QByteArray& line, int& start )
                 }
         }
     }
+}
+
+QDateTime parseRFC2822DateTime( const QString& string )
+{
+    QStringList monthNames = QStringList() << "Jan" << "Feb" << "Mar" << "Apr"
+        << "May" << "Jun" << "Jul" << "Aug" << "Sep" << "Oct" << "Nov" << "Dec";
+        
+    QRegExp rx( QString( "^(?:\\s*([A-Z][a-z]+)\\s*,\\s*)?" // date-of-week
+                "(\\d{1,2})\\s+(%1)\\s+(\\d{2,4})" // date
+                "\\s+(\\d{2})\\s*:(\\d{2})\\s*(?::\\s*(\\d{2})\\s*)" // time
+                "\\s+(?:([+-])(\\d{2})(\\d{2}))|(UT|GMT|EST|EDT|CST|CDT|MST|MDT|PST|PDT|[A-IK-Za-ik-z])" // timezone
+                ).arg( monthNames.join( "|" ) ) );
+    int pos = rx.indexIn( string );
+
+    if ( pos == -1 )
+        throw ParseError( "Date format not recognized" );
+
+    QStringList list = rx.capturedTexts();
+
+    if ( list.size() != 12 )
+        throw ParseError( "Date regular expression returned weird data (internal error?)" );
+
+    int year = list[4].toInt();
+    int month = monthNames.indexOf( list[3] ) + 1;
+    if ( month == 0 )
+        throw ParseError( "Invalid month name" );
+    int day = list[2].toInt();
+    int hours = list[5].toInt();
+    int minutes = list[6].toInt();
+    int seconds = list[7].toInt();
+    int shift = list[9].toInt() * 60 + list[10].toInt();
+    if ( list[8] == "+" )
+        shift *= -60;
+    else
+        shift *= 60;
+
+    QDateTime date( QDate( year, month, day ), QTime( hours, minutes, seconds ), Qt::UTC );
+    date = date.addSecs( shift );
+
+    return date;
 }
 
 }

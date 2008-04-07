@@ -263,7 +263,7 @@ void ImapParserParseTest::testParseUntagged_data()
         << shared_ptr<AbstractResponse>( new Fetch( 123, fetchData ) );
 
     fetchData.clear();
-    QDateTime date; // FIXME
+    QDateTime date( QDate( 1996, 7, 17 ), QTime( 9, 23, 25 ), Qt::UTC );
     QString subject( "IMAP4rev1 WG mtg summary and minutes");
     QList<MailAddress> from, sender, replyTo, to, cc, bcc;
     from.append( MailAddress( "Terry Gray", QByteArray(), "gray", "cac.washington.edu") );

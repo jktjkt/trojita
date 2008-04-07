@@ -480,7 +480,14 @@ Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
                 QDateTime date;
                 if ( items[0].type() == QVariant::ByteArray ) {
                     QByteArray dateStr = items[0].toByteArray();
-                    // FIXME: convert date from RFC2822 format
+                    try {
+                        date = LowLevelParser::parseRFC2822DateTime( dateStr );
+                    } catch ( ParseError& e ) {
+                        qDebug( "\n%s", dateStr.constData() );
+                        qDebug( "%s", e.what() );
+                        // FIXME: better exception
+                        //throw ParseError( line, start );
+                    }
                 }
                 // Otherwise it's "invalid", null.
 
