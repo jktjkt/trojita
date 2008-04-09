@@ -48,9 +48,9 @@ namespace Responses {
 
     /** @short Result of a command */
     enum Kind {
-        OK /**< OK */,
-        NO /**< NO */,
-        BAD /**< BAD */,
+        OK /**< @short OK */,
+        NO /**< @short NO */,
+        BAD /**< @short BAD */,
         BYE,
         PREAUTH,
         EXPUNGE,
@@ -67,29 +67,39 @@ namespace Responses {
 
     /** @short Response Code */
     enum Code {
-        NONE /**< No response code specified */,
-        ATOM /**< Not recognized */,
-        ALERT /**< ALERT */,
-        BADCHARSET /**< BADCHARSET */,
-        CAPABILITIES /**< CAPABILITY. Yeah, it's different than the RFC3501 name for it. Responses::Kind already defines a CAPABILITY. */,
-        PARSE /**< PARSE */,
-        PERMANENTFLAGS /**< PERMANENTFLAGS */,
-        READ_ONLY /**< READ-ONLY */, 
-        READ_WRITE /**< READ-WRITE */,
-        TRYCREATE /**< TRYCREATE */,
-        UIDNEXT /**< UIDNEXT */,
-        UIDVALIDITY /**< UIDVALIDITY */,
-        UNSEEN /**< UNSEEN */
+        NONE /**< @short No response code specified */,
+        ATOM /**< @short Not recognized */,
+        ALERT /**< @short ALERT */,
+        BADCHARSET /**< @short BADCHARSET */,
+        /** @short CAPABILITY.
+         *
+         * Yeah, it's different than the RFC3501 name for it.
+         * Responses::Kind already defines a CAPABILITY and we aren't using
+         * C++0x yet.
+         *
+         * */
+        CAPABILITIES,
+        PARSE /**< @short PARSE */,
+        PERMANENTFLAGS /**< @short PERMANENTFLAGS */,
+        READ_ONLY /**< @short READ-ONLY */, 
+        READ_WRITE /**< @short READ-WRITE */,
+        TRYCREATE /**< @short TRYCREATE */,
+        UIDNEXT /**< @short UIDNEXT */,
+        UIDVALIDITY /**< @short UIDVALIDITY */,
+        UNSEEN /**< @short UNSEEN */
     }; // luvly comments, huh? :)
 
     /** @short Parent class for all server responses */
     class AbstractResponse {
     public:
+        /** @short Kind of reponse */
         const Kind kind;
         AbstractResponse(): kind(BAD) {};
         AbstractResponse( const Kind _kind ): kind(_kind) {};
         virtual ~AbstractResponse() {};
+        /** @short Helper for operator<<() */
         virtual QTextStream& dump( QTextStream& ) const = 0;
+        /** @short Helper for operator==() */
         virtual bool eq( const AbstractResponse& other ) const = 0;
     };
 
@@ -108,7 +118,8 @@ namespace Responses {
      *
      * In IMAP, each status response might contain some additional information
      * called "Response Code" and associated data. These data come in several
-     * shapes and this class servers as a storage for them.
+     * shapes and this class servers as a storage for them, as a kind of
+     * QVariant-like wrapper around real data.
      * */
     template<class T> class RespData : public AbstractData {
     public:
@@ -234,6 +245,7 @@ namespace Responses {
         /** @short Mailbox name */
         QString mailbox;
 
+        /** @short Parse line and construct List object from it */
         List( const Kind _kind, const QByteArray& line, int& start );
         List( const Kind _kind, const QStringList& _flags, const QString& _separator, const QString& _mailbox ):
             AbstractResponse(LIST), kind(_kind), flags(_flags), separator(_separator), mailbox(_mailbox) {};
