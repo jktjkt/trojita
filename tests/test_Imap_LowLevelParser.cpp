@@ -308,6 +308,60 @@ void ImapLowLevelParserTest::testGetAnything()
     QCOMPARE( line.mid(pos), QByteArray(" z666") );
 }
 
+void ImapLowLevelParserTest::testGetRFC2822DateTime()
+{
+    QFETCH( QString, line );
+    QFETCH( QDateTime, date );
+    QDateTime d;
+    try {
+        d = Imap::LowLevelParser::parseRFC2822DateTime( line );
+    } catch ( Imap::ParseError& e ) {
+        qDebug() << e.what();
+    }
+    QCOMPARE( d, date );
+}
+
+void ImapLowLevelParserTest::testGetRFC2822DateTime_data()
+{
+    QTest::addColumn<QString>("line");
+    QTest::addColumn<QDateTime>("date");
+
+    QTest::newRow("date-manual")
+        << QString("Wed, 09 Apr 2008 20:16:12 +0200")
+        << QDateTime( QDate( 2008, 4, 9 ), QTime( 18, 16, 12 ), Qt::UTC );
+
+    int month = 1;
+    int day = 1;
+    QTime time( 0, 0, 0 );
+    QStringList months = QStringList() << "Jan" << "Feb" << "Mar" << "Apr" <<
+        "May" << "Jun" << "Jul" << "Aug" << "Sep" << "Oct" << "Nov" << "Dec";
+    QStringList wDays = QStringList() << "Mon" << "Tue" << "Wed" << "Thu" <<
+        "Fri" << "Sat" << "Sun";
+    int tz = 11*60;
+    bool plusOrSpace = false;
+    for ( int year = 1970; year < 2035; year += 1, plusOrSpace = !plusOrSpace ) {
+        QDateTime date( QDate( year, month, day), time, Qt::UTC );
+        QString str = date.toString( "%1, dd %2 yyyy hh:mm:ss %3%4%5" ).arg(
+                        wDays[ date.date().dayOfWeek() - 1 ]
+                    ).arg(
+                        months[ month - 1 ]
+                    ).arg(
+                        ( tz >= 12* 60 ) ? ( plusOrSpace ? "" : "+" ) : "-"
+                    ).arg(
+                        qAbs(int( ( tz - 12*60 ) / 60 )), 2, 10, QChar('0')
+                    ).arg (
+                        qAbs( ( tz - 12 * 60 ) % 60 ), 2, 10, QChar('0') );
+        date = date.addSecs( - 60 * tz + 12*3600 );
+        QTest::newRow("date-generated") << str << date;
+
+        month = qMax( ( month + 1 ) % 12, 1 );
+        day = qMax( ( day + 3 ) % 31, 1 );
+        time = time.addSecs( 3600 * 13 + 60 * 27 + 17 );
+        tz = ( tz + 30 ) % ( 24 * 60 );
+    }
+    
+}
+
 QTEST_KDEMAIN_CORE( ImapLowLevelParserTest )
 
 namespace QTest {

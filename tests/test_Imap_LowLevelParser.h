@@ -39,6 +39,9 @@ private Q_SLOTS:
     void testGetAtom();
     /** @short test Imap::LowLevelParser::getAnything() */
     void testGetAnything();
+    /** @short Test Imap::LowLevelParser::getRFC2822DateTime() */
+    void testGetRFC2822DateTime();
+    void testGetRFC2822DateTime_data();
 };
 
 #endif

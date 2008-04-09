@@ -267,7 +267,7 @@ QDateTime parseRFC2822DateTime( const QString& string )
     QRegExp rx( QString( "^(?:\\s*([A-Z][a-z]+)\\s*,\\s*)?" // date-of-week
                 "(\\d{1,2})\\s+(%1)\\s+(\\d{2,4})" // date
                 "\\s+(\\d{2})\\s*:(\\d{2})\\s*(?::\\s*(\\d{2})\\s*)" // time
-                "\\s+(?:([+-])(\\d{2})(\\d{2}))|(UT|GMT|EST|EDT|CST|CDT|MST|MDT|PST|PDT|[A-IK-Za-ik-z])" // timezone
+                "\\s+(?:([+-]?)(\\d{2})(\\d{2}))|(UT|GMT|EST|EDT|CST|CDT|MST|MDT|PST|PDT|[A-IK-Za-ik-z])" // timezone
                 ).arg( monthNames.join( "|" ) ) );
     int pos = rx.indexIn( string );
 
@@ -288,10 +288,10 @@ QDateTime parseRFC2822DateTime( const QString& string )
     int minutes = list[6].toInt();
     int seconds = list[7].toInt();
     int shift = list[9].toInt() * 60 + list[10].toInt();
-    if ( list[8] == "+" )
-        shift *= -60;
-    else
+    if ( list[8] == "-" )
         shift *= 60;
+    else
+        shift *= -60;
 
     QDateTime date( QDate( year, month, day ), QTime( hours, minutes, seconds ), Qt::UTC );
     date = date.addSecs( shift );
