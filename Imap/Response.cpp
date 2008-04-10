@@ -459,7 +459,64 @@ Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
                 throw UnexpectedHere( line, start ); // FIXME: wrong offset
         } else {
             if ( identifier == "BODY" || identifier == "BODYSTRUCTURE" ) {
-                // FIXME
+                if ( it->type() != QVariant::List )
+                    throw UnexpectedHere( line, start );
+
+                QVariantList items = it->toList();
+                if ( items.size() < 3 )
+                    throw NoData( line, start );
+
+                if ( items[0].type() == QVariant::ByteArray ) {
+                    // it's a single-part message, hurray
+                    QString mediaType = items[0].toString().toLower();
+                    QString mediaSubType = items[1].toString().toLower();
+
+                    if ( items[2].type() != QVariant::List )
+                        throw UnexpectedHere( line, start ); // body-fld-param not recognized
+                    QStringList bodyFldParam = items[2].toStringList();
+                    if ( bodyFldParam.size() % 2 == 1 || bodyFldParam.size() < 2 )
+                        throw ParseError( line, start ); // body-fld-param of odd size
+
+                    if ( items[3].type() != QVariant::ByteArray )
+                        throw UnexpectedHere( line, start ); // body-fld-id not recognized
+                    QByteArray bodyFldId = items[3].toByteArray();
+
+                    if ( items[4].type() != QVariant::ByteArray )
+                        throw UnexpectedHere( line, start ); // body-fld-desc not recognized
+                    QByteArray bodyFldDesc = items[4].toByteArray();
+
+                    if ( items[5].type() != QVariant::ByteArray )
+                        throw UnexpectedHere( line, start ); // body-fld-enc not recognized
+                    QByteArray bodyFldEnc = items[5].toByteArray();
+
+                    if ( items[6].type() != QVariant::UInt )
+                        throw UnexpectedHere( line, start ); // body-fld-octets not recognized
+                    uint bodyFldOctets = items[6].toUInt();
+
+                    uint bodyFldLines;
+
+                    if ( mediaType == "message" && mediaSubType == "rfc822" ) {
+                        // FIXME: extract envelope, body, body-fld-lines
+                    } else if ( mediaType == "text" ) {
+                        // extract body-fld-lines
+                        if ( items[7].type() != QVariant::UInt )
+                            throw UnexpectedHere( line, start ); // body-fld-lines not found
+                        bodyFldLines = items[7].toUInt();
+                    } else {
+                        // don't extract anything as we're done here
+                    }
+                    // FIXME return something...
+                } else if ( items[0].type() == QVariant::List ) {
+                    // FIXME multipart parsing...
+                } else {
+                    throw UnexpectedHere( line, start );
+                }
+
+                /*for ( QVariantList::const_iterator it = items.begin(); it != items.end(); ++it ) {
+                    qDebug() << *it;
+                }*/
+
+
             } else if ( identifier.startsWith( "BODY[" ) ) {
                 // FIXME: split into more identifiers?
                 if ( it->type() != QVariant::ByteArray )

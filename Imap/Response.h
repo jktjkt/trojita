@@ -26,6 +26,7 @@
 #include <QMap>
 #include <QStringList>
 #include <QVariantList>
+#include <QPair>
 #include "Imap/Command.h"
 #include "Imap/Exceptions.h"
 
@@ -365,6 +366,61 @@ namespace Responses {
         static QList<MailAddress> getListOfAddresses( const QVariant& in,
                 const QByteArray& line, const int start );
         friend class Fetch;
+    };
+
+
+    /** @short Abstract parent of all Message classes
+     *
+     * A message can be either one-part (OneMessage) or multipart (MultiMessage)
+     * */
+    struct AbstractMessage {
+        virtual ~AbstractMessage() {};
+    };
+
+    /** @short Abstract parent class for all non-multipart messages */
+    struct OneMessage: public AbstractMessage {
+        QString mediaType;
+        QString mediaSubType;
+        QList<QByteArray> bodyFldParam;
+        QByteArray bodyFldId;
+        QByteArray bodyFldDesc;
+        QMap<QByteArray,QByteArray> bodyFldEnc;
+        uint bodyFldOctets;
+        // optional fields:
+        QByteArray bodyFldMd5;
+        QPair<QByteArray, QMap<QByteArray,QByteArray> > bodyFldDsp;
+        QList<QByteArray> bodyFldLang;
+        QByteArray bodyFldLoc;
+        QVariant bodyExtension;
+    };
+
+    /** @short Ordinary Message (body-type-basic in RFC3501) */
+    struct BasicMessage: public OneMessage {
+        // nothing new, just stuff from OneMessage
+    };
+
+    /** @short A message holding another RFC822 message (body-type-msg) */
+    struct MsgMessage: public OneMessage {
+        Envelope envelope;
+        std::tr1::shared_ptr<AbstractMessage> body;
+        uint bodyFldLines;
+    };
+
+    /** @short A text message (body-type-text) */
+    struct TextMessage: public OneMessage {
+        uint bodyFldLines;
+    };
+
+    /** @short Multipart message (body-type-mpart) */
+    struct MultiMessage: public AbstractMessage {
+        QList<std::tr1::shared_ptr<AbstractMessage> > bodies;
+        QString mediaSubtype;
+        // optional fields
+        QList<QByteArray> bodyFldParam;
+        QPair<QByteArray, QMap<QByteArray,QByteArray> > bodyFldDsp;
+        QList<QByteArray> bodyFldLang;
+        QByteArray bodyFldLoc;
+        QVariant bodyExtension;
     };
 
     QTextStream& operator<<( QTextStream& stream, const Code& r );
