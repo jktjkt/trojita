@@ -361,6 +361,7 @@ namespace Responses {
                 const QByteArray& _messageId ):
             date(_date), subject(_subject), from(_from), sender(_sender), replyTo(_replyTo),
             to(_to), cc(_cc), bcc(_bcc), inReplyTo(_inReplyTo), messageId(_messageId) {};
+        static Envelope fromList( const QVariantList& items, const QByteArray& line, const int start );
 
     private:
         static QList<MailAddress> getListOfAddresses( const QVariant& in,

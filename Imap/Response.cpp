@@ -437,6 +437,47 @@ MailAddress::MailAddress( const QVariantList& input, const QByteArray& line, con
     host = input[3].toByteArray();
 }
 
+Envelope Envelope::fromList( const QVariantList& items, const QByteArray& line, const int start )
+{
+    if ( items.size() != 10 )
+        throw ParseError( line, start ); // FIXME: wrong offset
+
+    // date
+    QDateTime date;
+    if ( items[0].type() == QVariant::ByteArray ) {
+        QByteArray dateStr = items[0].toByteArray();
+        try {
+            date = LowLevelParser::parseRFC2822DateTime( dateStr );
+        } catch ( ParseError& e ) {
+            qDebug( "\n%s", dateStr.constData() );
+            qDebug( "%s", e.what() );
+            // FIXME: better exception
+            //throw ParseError( line, start );
+        }
+    }
+    // Otherwise it's "invalid", null.
+
+    QByteArray subject = items[1].toByteArray(); // FIXME: decode
+
+    QList<MailAddress> from, sender, replyTo, to, cc, bcc;
+    from = Envelope::getListOfAddresses( items[2], line, start );
+    sender = Envelope::getListOfAddresses( items[3], line, start );
+    replyTo = Envelope::getListOfAddresses( items[4], line, start );
+    to = Envelope::getListOfAddresses( items[5], line, start );
+    cc = Envelope::getListOfAddresses( items[6], line, start );
+    bcc = Envelope::getListOfAddresses( items[7], line, start );
+
+    if ( items[8].type() != QVariant::ByteArray )
+        throw UnexpectedHere( line, start );
+    QByteArray inReplyTo = items[8].toByteArray();
+
+    if ( items[9].type() != QVariant::ByteArray )
+        throw UnexpectedHere( line, start );
+    QByteArray messageId = items[9].toByteArray();
+
+    return Envelope( date, subject, from, sender, replyTo, to, cc, bcc, inReplyTo, messageId );
+}
+
 Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
     AbstractResponse(FETCH), number(_number)
 {
@@ -527,48 +568,9 @@ Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
             } else if ( identifier == "ENVELOPE" ) {
                 if ( it->type() != QVariant::List )
                     throw UnexpectedHere( line, start );
-
                 QVariantList items = it->toList();
-
-                if ( items.size() != 10 )
-                    throw ParseError( line, start ); // FIXME: wrong offset
-
-                // date
-                QDateTime date;
-                if ( items[0].type() == QVariant::ByteArray ) {
-                    QByteArray dateStr = items[0].toByteArray();
-                    try {
-                        date = LowLevelParser::parseRFC2822DateTime( dateStr );
-                    } catch ( ParseError& e ) {
-                        qDebug( "\n%s", dateStr.constData() );
-                        qDebug( "%s", e.what() );
-                        // FIXME: better exception
-                        //throw ParseError( line, start );
-                    }
-                }
-                // Otherwise it's "invalid", null.
-
-                QByteArray subject = items[1].toByteArray(); // FIXME: decode
-
-                QList<MailAddress> from, sender, replyTo, to, cc, bcc;
-                from = Envelope::getListOfAddresses( items[2], line, start );
-                sender = Envelope::getListOfAddresses( items[3], line, start );
-                replyTo = Envelope::getListOfAddresses( items[4], line, start );
-                to = Envelope::getListOfAddresses( items[5], line, start );
-                cc = Envelope::getListOfAddresses( items[6], line, start );
-                bcc = Envelope::getListOfAddresses( items[7], line, start );
-
-                if ( items[8].type() != QVariant::ByteArray )
-                    throw UnexpectedHere( line, start );
-                QByteArray inReplyTo = items[8].toByteArray();
-
-                if ( items[9].type() != QVariant::ByteArray )
-                    throw UnexpectedHere( line, start );
-                QByteArray messageId = items[9].toByteArray();
-
                 data[identifier] = std::tr1::shared_ptr<AbstractData>(
-                        new RespData<Envelope>(
-                            Envelope( date, subject, from, sender, replyTo, to, cc, bcc, inReplyTo, messageId ) ) );
+                        new RespData<Envelope>( Envelope::fromList( items, line, start ) ) );
 
             } else if ( identifier == "FLAGS" ) {
                 if ( ! it->canConvert( QVariant::StringList ) )
