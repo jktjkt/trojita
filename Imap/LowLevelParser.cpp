@@ -191,7 +191,7 @@ QVariantList parseList( const char open, const char close,
                 ++start;
                 return res;
             }
-            ++start;
+            eatSpaces( line, start );
         }
         return res;
     } else
@@ -297,6 +297,12 @@ QDateTime parseRFC2822DateTime( const QString& string )
     date = date.addSecs( shift );
 
     return date;
+}
+
+void eatSpaces( const QByteArray& line, int& start )
+{
+    while ( line.size() > start && line[start] == ' ' )
+        ++start;
 }
 
 }
