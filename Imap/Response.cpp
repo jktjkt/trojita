@@ -583,7 +583,7 @@ std::tr1::shared_ptr<AbstractMessage> AbstractMessage::fromList( const QVariantL
         switch ( kind ) {
             case MESSAGE:
                 // FIXME
-                break;
+                throw Exception( "Body MESSAGE not implemented yet" );
             case TEXT:
                 return std::tr1::shared_ptr<AbstractMessage>(
                     new TextMessage( mediaType, mediaSubType, bodyFldParam,
@@ -593,15 +593,15 @@ std::tr1::shared_ptr<AbstractMessage> AbstractMessage::fromList( const QVariantL
                     );
             case BASIC:
                 // FIXME
-                break;
+                throw Exception( "Body BASIC not implemented yet" );
         }
 
     } else if ( items[0].type() == QVariant::List ) {
         // FIXME multipart parsing...
+        throw Exception( "MULTIPART message body parsing not done yet" );
     } else {
         throw UnexpectedHere( line, start );
     }
-
 }
 
 Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
