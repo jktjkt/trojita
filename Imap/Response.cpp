@@ -588,8 +588,8 @@ std::tr1::shared_ptr<AbstractMessage> AbstractMessage::fromList( const QVariantL
                 return std::tr1::shared_ptr<AbstractMessage>(
                     new TextMessage( mediaType, mediaSubType, bodyFldParam,
                         bodyFldId, bodyFldDesc, bodyFldEnc, bodyFldOctets,
-                        bodyFldMd5, bodyFldDsp,
-                        bodyFldLang, bodyFldLoc, bodyExtension, bodyFldLines )
+                        bodyFldMd5, bodyFldDsp, bodyFldLang, bodyFldLoc,
+                        bodyExtension, bodyFldLines )
                     );
             case BASIC:
                 // FIXME
