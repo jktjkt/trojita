@@ -492,12 +492,15 @@ std::tr1::shared_ptr<AbstractMessage> AbstractMessage::fromList( const QVariantL
         if ( items.size() < 7 )
             throw NoData( line, start );
 
-        QString mediaType = items[0].toString().toLower();
-        QString mediaSubType = items[1].toString().toLower();
+        int i = 0;
+        QString mediaType = items[i].toString().toLower();
+        ++i;
+        QString mediaSubType = items[i].toString().toLower();
+        ++i;
 
-        if ( items[2].type() != QVariant::List )
+        if ( items[i].type() != QVariant::List )
             throw UnexpectedHere( line, start ); // body-fld-param not recognized
-        QVariantList bodyFldParamRaw = items[2].toList();
+        QVariantList bodyFldParamRaw = items[i].toList();
         QList<QByteArray> bodyFldParam;
         for ( QVariantList::const_iterator it = bodyFldParamRaw.begin(); it != bodyFldParamRaw.end(); ++it )
             if ( it->type() != QVariant::ByteArray )
@@ -506,42 +509,93 @@ std::tr1::shared_ptr<AbstractMessage> AbstractMessage::fromList( const QVariantL
                 bodyFldParam.append( it->toByteArray() );
         if ( bodyFldParam.size() % 2 == 1 || bodyFldParam.size() < 2 )
             throw ParseError( line, start ); // body-fld-param of odd size
+        ++i;
 
-        if ( items[3].type() != QVariant::ByteArray )
+        if ( items[i].type() != QVariant::ByteArray )
             throw UnexpectedHere( line, start ); // body-fld-id not recognized
-        QByteArray bodyFldId = items[3].toByteArray();
+        QByteArray bodyFldId = items[i].toByteArray();
+        ++i;
 
-        if ( items[4].type() != QVariant::ByteArray )
+        if ( items[i].type() != QVariant::ByteArray )
             throw UnexpectedHere( line, start ); // body-fld-desc not recognized
-        QByteArray bodyFldDesc = items[4].toByteArray();
+        QByteArray bodyFldDesc = items[i].toByteArray();
+        ++i;
 
-        if ( items[5].type() != QVariant::ByteArray )
+        if ( items[i].type() != QVariant::ByteArray )
             throw UnexpectedHere( line, start ); // body-fld-enc not recognized
-        QByteArray bodyFldEnc = items[5].toByteArray();
+        QByteArray bodyFldEnc = items[i].toByteArray();
+        ++i;
 
-        if ( items[6].type() != QVariant::UInt )
+        if ( items[i].type() != QVariant::UInt )
             throw UnexpectedHere( line, start ); // body-fld-octets not recognized
-        uint bodyFldOctets = items[6].toUInt();
+        uint bodyFldOctets = items[i].toUInt();
+        ++i;
 
-        uint bodyFldLines;
+        uint bodyFldLines = 0;
+        Envelope envelope;
+        std::tr1::shared_ptr<AbstractMessage> body;
+
+        enum { MESSAGE, TEXT, BASIC} kind;
 
         if ( mediaType == "message" && mediaSubType == "rfc822" ) {
-            // FIXME: extract envelope, body, body-fld-lines
+            // extract envelope, body, body-fld-lines
+
+            if ( items.size() < 10 )
+                throw NoData( line, start ); // too few fields for a Message-message
+
+            kind = MESSAGE;
+            if ( items[i].type() != QVariant::List )
+                throw UnexpectedHere( line, start ); // envelope not recognized
+            envelope = Envelope::fromList( items[i].toList(), line, start );
+            ++i;
+
+            if ( items[i].type() != QVariant::List )
+                throw UnexpectedHere( line, start ); // body not recognized
+            body = AbstractMessage::fromList( items[i].toList(), line, start );
+            ++i;
+
+            if ( items[i].type() != QVariant::UInt )
+                throw UnexpectedHere( line, start ); // body-fld-lines not found
+            bodyFldLines = items[i].toUInt();
+            ++i;
+
         } else if ( mediaType == "text" ) {
             // extract body-fld-lines
-            if ( items[7].type() != QVariant::UInt )
+
+            kind = TEXT;
+            if ( items[i].type() != QVariant::UInt )
                 throw UnexpectedHere( line, start ); // body-fld-lines not found
-            bodyFldLines = items[7].toUInt();
-            return std::tr1::shared_ptr<AbstractMessage>(
-                    new TextMessage( mediaType, mediaSubType, bodyFldParam,
-                        bodyFldId, bodyFldDesc, bodyFldEnc, bodyFldOctets,
-                        QByteArray(), QPair<QByteArray,QMap<QByteArray,QByteArray> >(),
-                        QList<QByteArray>(), QByteArray(), QVariant(), 0 )
-                    );
+            bodyFldLines = items[i].toUInt();
+            ++i;
+
         } else {
             // don't extract anything as we're done here
+            kind = BASIC;
         }
-        // FIXME return something...
+
+        // FIXME: extract body-ext-1part to following variables
+        QByteArray bodyFldMd5;
+        QPair<QByteArray, QMap<QByteArray,QByteArray> > bodyFldDsp;
+        QList<QByteArray> bodyFldLang;
+        QByteArray bodyFldLoc;
+        QVariant bodyExtension;
+
+        switch ( kind ) {
+            case MESSAGE:
+                // FIXME
+                break;
+            case TEXT:
+                return std::tr1::shared_ptr<AbstractMessage>(
+                    new TextMessage( mediaType, mediaSubType, bodyFldParam,
+                        bodyFldId, bodyFldDesc, bodyFldEnc, bodyFldOctets,
+                        bodyFldMd5, bodyFldDsp,
+                        bodyFldLang, bodyFldLoc, bodyExtension, bodyFldLines )
+                    );
+            case BASIC:
+                // FIXME
+                break;
+        }
+
     } else if ( items[0].type() == QVariant::List ) {
         // FIXME multipart parsing...
     } else {

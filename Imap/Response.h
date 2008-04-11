@@ -354,6 +354,7 @@ namespace Responses {
         QByteArray inReplyTo;
         QByteArray messageId;
 
+        Envelope() {};
         Envelope( const QDateTime& _date, const QString& _subject, const QList<MailAddress>& _from, 
                 const QList<MailAddress>& _sender, const QList<MailAddress>& _replyTo,
                 const QList<MailAddress>& _to, const QList<MailAddress>& _cc,
