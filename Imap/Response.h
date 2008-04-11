@@ -374,8 +374,9 @@ namespace Responses {
      *
      * A message can be either one-part (OneMessage) or multipart (MultiMessage)
      * */
-    struct AbstractMessage {
+    struct AbstractMessage: public AbstractData {
         virtual ~AbstractMessage() {};
+        static std::tr1::shared_ptr<AbstractMessage> fromList( const QVariantList& items, const QByteArray& line, const int start );
     };
 
     /** @short Abstract parent class for all non-multipart messages */
@@ -385,7 +386,7 @@ namespace Responses {
         QList<QByteArray> bodyFldParam;
         QByteArray bodyFldId;
         QByteArray bodyFldDesc;
-        QMap<QByteArray,QByteArray> bodyFldEnc;
+        QByteArray bodyFldEnc;
         uint bodyFldOctets;
         // optional fields:
         QByteArray bodyFldMd5;
@@ -393,6 +394,17 @@ namespace Responses {
         QList<QByteArray> bodyFldLang;
         QByteArray bodyFldLoc;
         QVariant bodyExtension;
+        OneMessage( const QString& _mediaType, const QString& _mediaSubType,
+                const QList<QByteArray>& _bodyFldParam, const QByteArray& _bodyFldId,
+                const QByteArray& _bodyFldDesc, const QByteArray& _bodyFldEnc,
+                const uint _bodyFldOctets, const QByteArray& _bodyFldMd5,
+                const QPair<QByteArray, QMap<QByteArray,QByteArray> >& _bodyFldDsp,
+                const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,
+                const QVariant& _bodyExtension ):
+            mediaType(_mediaType), mediaSubType(_mediaSubType), bodyFldParam(_bodyFldParam),
+            bodyFldId(_bodyFldId), bodyFldDesc(_bodyFldDesc), bodyFldEnc(_bodyFldEnc),
+            bodyFldOctets(_bodyFldOctets), bodyFldMd5(_bodyFldMd5), bodyFldDsp(_bodyFldDsp),
+            bodyFldLang(_bodyFldLang), bodyFldLoc(_bodyFldLoc), bodyExtension(_bodyExtension) {};
     };
 
     /** @short Ordinary Message (body-type-basic in RFC3501) */
@@ -410,6 +422,20 @@ namespace Responses {
     /** @short A text message (body-type-text) */
     struct TextMessage: public OneMessage {
         uint bodyFldLines;
+        TextMessage( const QString& _mediaType, const QString& _mediaSubType,
+                const QList<QByteArray>& _bodyFldParam, const QByteArray& _bodyFldId,
+                const QByteArray& _bodyFldDesc, const QByteArray& _bodyFldEnc,
+                const uint _bodyFldOctets, const QByteArray& _bodyFldMd5,
+                const QPair<QByteArray, QMap<QByteArray,QByteArray> >& _bodyFldDsp,
+                const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,
+                const QVariant& _bodyExtension,
+                const uint _bodyFldLines ):
+            OneMessage( _mediaType, _mediaSubType, _bodyFldParam, _bodyFldId,
+                    _bodyFldDesc, _bodyFldEnc, _bodyFldOctets, _bodyFldMd5,
+                    _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension),
+            bodyFldLines(_bodyFldLines) {};
+        virtual QTextStream& dump( QTextStream& s ) const;
+        virtual bool eq( const AbstractData& other ) const;
     };
 
     /** @short Multipart message (body-type-mpart) */
