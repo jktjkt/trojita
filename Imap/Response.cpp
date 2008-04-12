@@ -573,12 +573,72 @@ std::tr1::shared_ptr<AbstractMessage> AbstractMessage::fromList( const QVariantL
             kind = BASIC;
         }
 
-        // FIXME: extract body-ext-1part to following variables
+        // extract body-ext-1part
+        // body-fld-md5
         QByteArray bodyFldMd5;
+        if ( i < items.size() ) {
+            if ( items[i].type() != QVariant::ByteArray )
+                throw UnexpectedHere( line, start ); // body-fld-md5 not found
+            bodyFldMd5 = items[i].toByteArray();
+            ++i;
+        }
+
+        // body-fld-dsp
         QPair<QByteArray, QMap<QByteArray,QByteArray> > bodyFldDsp;
+        if ( i < items.size() ) {
+            if ( items[i].type() != QVariant::List )
+                throw UnexpectedHere( line, start ); // body-fld-dsp not found
+            QVariantList list = items[i].toList();
+            if ( list.size() != 2 )
+                throw ParseError( line, start ); // body-fld-dsp: wrong number of entries in the list
+            if ( list[0].type() != QVariant::ByteArray )
+                throw UnexpectedHere( line, start ); // body-fld-dsp: first item is not a string
+            bodyFldDsp.first = list[0].toByteArray();
+            if ( list[1].type() != QVariant::List )
+                throw UnexpectedHere( line, start ); // body-fld-dsp: body-fld-param not recognized
+            list = list[1].toList();
+            if ( list.size() % 2 )
+                throw UnexpectedHere( line, start ); // body-fld-param: wrong number of entries
+            for ( int j = 0; j < list.size(); j += 2 )
+                if ( list[j].type() != QVariant::ByteArray || list[j+1].type() != QVariant::ByteArray )
+                    throw UnexpectedHere( line, start ); // body-fld-param: string not found
+                else
+                    bodyFldDsp.second[ list[j].toByteArray() ] = list[j+1].toByteArray();
+            ++i;
+        }
+
+        // body-fld-lang
         QList<QByteArray> bodyFldLang;
+        if ( i < items.size() ) {
+            if ( items[i].type() == QVariant::ByteArray ) {
+                bodyFldLang << items[i].toByteArray();
+            } else if ( items[i].type() == QVariant::List ) {
+                QVariantList list = items[i].toList();
+                for ( QVariantList::const_iterator it = list.begin(); it != list.end(); ++it )
+                    if ( it->type() != QVariant::ByteArray )
+                        throw UnexpectedHere( line, start ); // body-fld-lang has wrong structure
+                    else
+                        bodyFldLang << it->toByteArray();
+            } else
+                throw UnexpectedHere( line, start ); // body-fld-lang not found
+            ++i;
+        }
+
+        // body-fld-loc
         QByteArray bodyFldLoc;
+        if ( i < items.size() ) {
+            if ( items[i].type() != QVariant::ByteArray )
+                throw UnexpectedHere( line, start ); // body-fld-loc not found
+            bodyFldLoc = items[i].toByteArray();
+            ++i;
+        }
+
+        // body-extension
         QVariant bodyExtension;
+        if ( i < items.size() ) {
+            bodyExtension = items[i];
+            ++i;
+        }
 
         switch ( kind ) {
             case MESSAGE:
