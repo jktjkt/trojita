@@ -636,8 +636,15 @@ std::tr1::shared_ptr<AbstractMessage> AbstractMessage::fromList( const QVariantL
         // body-extension
         QVariant bodyExtension;
         if ( i < items.size() ) {
-            bodyExtension = items[i];
-            ++i;
+            if ( i == items.size() - 1 ) {
+                bodyExtension = items[i];
+                ++i;
+            } else {
+                QVariantList list;
+                for ( ; i < items.size(); ++i )
+                    list << items[i];
+                bodyExtension = list;
+            }
         }
 
         switch ( kind ) {
