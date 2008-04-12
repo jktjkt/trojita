@@ -333,9 +333,9 @@ void ImapLowLevelParserTest::testGetRFC2822DateTime_data()
     int month = 1;
     int day = 1;
     QTime time( 0, 0, 0 );
-    QStringList months = QStringList() << "Jan" << "Feb" << "Mar" << "Apr" <<
-        "May" << "Jun" << "Jul" << "Aug" << "Sep" << "Oct" << "Nov" << "Dec";
-    QStringList wDays = QStringList() << "Mon" << "Tue" << "Wed" << "Thu" <<
+    QStringList months = QStringList() << "Jan" << "FEb" << "mar" << "Apr" <<
+        "May" << "Jun" << "Jul" << "AUG" << "Sep" << "Oct" << "nOV" << "Dec";
+    QStringList wDays = QStringList() << "Mon" << "tue" << "WED" << "ThU" <<
         "Fri" << "Sat" << "Sun";
     int tz = 11*60;
     bool plusOrSpace = false;

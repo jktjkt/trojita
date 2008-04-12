@@ -261,14 +261,14 @@ QVariant getAnything( const QByteArray& line, int& start )
 
 QDateTime parseRFC2822DateTime( const QString& string )
 {
-    QStringList monthNames = QStringList() << "Jan" << "Feb" << "Mar" << "Apr"
-        << "May" << "Jun" << "Jul" << "Aug" << "Sep" << "Oct" << "Nov" << "Dec";
+    QStringList monthNames = QStringList() << "jan" << "feb" << "mar" << "apr"
+        << "may" << "jun" << "jul" << "aug" << "sep" << "oct" << "nov" << "dec";
         
     QRegExp rx( QString( "^(?:\\s*([A-Z][a-z]+)\\s*,\\s*)?" // date-of-week
                 "(\\d{1,2})\\s+(%1)\\s+(\\d{2,4})" // date
                 "\\s+(\\d{2})\\s*:(\\d{2})\\s*(?::\\s*(\\d{2})\\s*)" // time
                 "\\s+(?:([+-]?)(\\d{2})(\\d{2}))|(UT|GMT|EST|EDT|CST|CDT|MST|MDT|PST|PDT|[A-IK-Za-ik-z])" // timezone
-                ).arg( monthNames.join( "|" ) ) );
+                ).arg( monthNames.join( "|" ) ), Qt::CaseInsensitive );
     int pos = rx.indexIn( string );
 
     if ( pos == -1 )
@@ -280,7 +280,7 @@ QDateTime parseRFC2822DateTime( const QString& string )
         throw ParseError( "Date regular expression returned weird data (internal error?)" );
 
     int year = list[4].toInt();
-    int month = monthNames.indexOf( list[3] ) + 1;
+    int month = monthNames.indexOf( list[3].toLower() ) + 1;
     if ( month == 0 )
         throw ParseError( "Invalid month name" );
     int day = list[2].toInt();
