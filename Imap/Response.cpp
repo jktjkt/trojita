@@ -482,6 +482,28 @@ QTextStream& TextMessage::dump( QTextStream& s ) const
     return s;
 }
 
+bool MsgMessage::eq( const AbstractData& other ) const
+{
+    // FIXME
+    return false;
+}
+
+QTextStream& MsgMessage::dump( QTextStream& s ) const
+{
+    return s;
+}
+
+bool BasicMessage::eq( const AbstractData& other ) const
+{
+    // FIXME
+    return false;
+}
+
+QTextStream& BasicMessage::dump( QTextStream& s ) const
+{
+    return s;
+}
+
 std::tr1::shared_ptr<AbstractMessage> AbstractMessage::fromList( const QVariantList& items, const QByteArray& line, const int start )
 {
     if ( items.size() < 3 )
@@ -649,8 +671,12 @@ std::tr1::shared_ptr<AbstractMessage> AbstractMessage::fromList( const QVariantL
 
         switch ( kind ) {
             case MESSAGE:
-                // FIXME
-                throw Exception( "Body MESSAGE not implemented yet" );
+                return std::tr1::shared_ptr<AbstractMessage>(
+                    new MsgMessage( mediaType, mediaSubType, bodyFldParam,
+                        bodyFldId, bodyFldDesc, bodyFldEnc, bodyFldOctets,
+                        bodyFldMd5, bodyFldDsp, bodyFldLang, bodyFldLoc,
+                        bodyExtension, envelope, body, bodyFldLines )
+                    );
             case TEXT:
                 return std::tr1::shared_ptr<AbstractMessage>(
                     new TextMessage( mediaType, mediaSubType, bodyFldParam,
@@ -659,8 +685,12 @@ std::tr1::shared_ptr<AbstractMessage> AbstractMessage::fromList( const QVariantL
                         bodyExtension, bodyFldLines )
                     );
             case BASIC:
-                // FIXME
-                throw Exception( "Body BASIC not implemented yet" );
+                return std::tr1::shared_ptr<AbstractMessage>(
+                    new BasicMessage( mediaType, mediaSubType, bodyFldParam,
+                        bodyFldId, bodyFldDesc, bodyFldEnc, bodyFldOctets,
+                        bodyFldMd5, bodyFldDsp, bodyFldLang, bodyFldLoc,
+                        bodyExtension )
+                    );
         }
 
     } else if ( items[0].type() == QVariant::List ) {

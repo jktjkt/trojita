@@ -411,6 +411,18 @@ namespace Responses {
     /** @short Ordinary Message (body-type-basic in RFC3501) */
     struct BasicMessage: public OneMessage {
         // nothing new, just stuff from OneMessage
+        BasicMessage( const QString& _mediaType, const QString& _mediaSubType,
+                const QList<QByteArray>& _bodyFldParam, const QByteArray& _bodyFldId,
+                const QByteArray& _bodyFldDesc, const QByteArray& _bodyFldEnc,
+                const uint _bodyFldOctets, const QByteArray& _bodyFldMd5,
+                const QPair<QByteArray, QMap<QByteArray,QByteArray> >& _bodyFldDsp,
+                const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,
+                const QVariant& _bodyExtension ):
+            OneMessage( _mediaType, _mediaSubType, _bodyFldParam, _bodyFldId,
+                    _bodyFldDesc, _bodyFldEnc, _bodyFldOctets, _bodyFldMd5,
+                    _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension) {};
+        virtual QTextStream& dump( QTextStream& s ) const;
+        virtual bool eq( const AbstractData& other ) const;
     };
 
     /** @short A message holding another RFC822 message (body-type-msg) */
@@ -418,6 +430,21 @@ namespace Responses {
         Envelope envelope;
         std::tr1::shared_ptr<AbstractMessage> body;
         uint bodyFldLines;
+        MsgMessage( const QString& _mediaType, const QString& _mediaSubType,
+                const QList<QByteArray>& _bodyFldParam, const QByteArray& _bodyFldId,
+                const QByteArray& _bodyFldDesc, const QByteArray& _bodyFldEnc,
+                const uint _bodyFldOctets, const QByteArray& _bodyFldMd5,
+                const QPair<QByteArray, QMap<QByteArray,QByteArray> >& _bodyFldDsp,
+                const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,
+                const QVariant& _bodyExtension,
+                const Envelope& _envelope, const std::tr1::shared_ptr<AbstractMessage>& _body,
+                const uint _bodyFldLines ):
+            OneMessage( _mediaType, _mediaSubType, _bodyFldParam, _bodyFldId,
+                    _bodyFldDesc, _bodyFldEnc, _bodyFldOctets, _bodyFldMd5,
+                    _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension),
+            envelope(_envelope), body(_body), bodyFldLines(_bodyFldLines) {};
+        virtual QTextStream& dump( QTextStream& s ) const;
+        virtual bool eq( const AbstractData& other ) const;
     };
 
     /** @short A text message (body-type-text) */
