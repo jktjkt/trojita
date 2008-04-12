@@ -504,6 +504,67 @@ QTextStream& BasicMessage::dump( QTextStream& s ) const
     return s;
 }
 
+bool MultiMessage::eq( const AbstractData& other ) const
+{
+    // FIXME
+    return false;
+}
+
+QTextStream& MultiMessage::dump( QTextStream& s ) const
+{
+    return s;
+}
+
+AbstractMessage::bodyFldParam_t AbstractMessage::makeBodyFldParam( const QVariant& input, const QByteArray& line, const int start )
+{
+    if ( input.type() != QVariant::List )
+        throw UnexpectedHere( line, start ); // body-fld-param: not a list
+    bodyFldParam_t map;
+    QVariantList list = input.toList();
+    if ( list.size() % 2 )
+        throw UnexpectedHere( line, start ); // body-fld-param: wrong number of entries
+    for ( int j = 0; j < list.size(); j += 2 )
+        if ( list[j].type() != QVariant::ByteArray || list[j+1].type() != QVariant::ByteArray )
+            throw UnexpectedHere( line, start ); // body-fld-param: string not found
+        else
+            map[ list[j].toByteArray() ] = list[j+1].toByteArray();
+    return map;
+}
+
+AbstractMessage::bodyFldDsp_t AbstractMessage::makeBodyFldDsp( const QVariant& input, const QByteArray& line, const int start )
+{
+    if ( input.type() != QVariant::List )
+        throw UnexpectedHere( line, start ); // body-fld-dsp: not a list
+    QVariantList list = input.toList();
+    bodyFldDsp_t res;
+    if ( list.size() != 2 )
+        throw ParseError( line, start ); // body-fld-dsp: wrong number of entries in the list
+    if ( list[0].type() != QVariant::ByteArray )
+        throw UnexpectedHere( line, start ); // body-fld-dsp: first item is not a string
+    res.first = list[0].toByteArray();
+    if ( list[1].type() != QVariant::List )
+        throw UnexpectedHere( line, start ); // body-fld-dsp: body-fld-param not recognized
+    res.second = makeBodyFldParam( list[1].toList(), line, start );
+    return res;
+}
+
+QList<QByteArray> AbstractMessage::makeBodyFldLang( const QVariant& input, const QByteArray& line, const int start )
+{
+    QList<QByteArray> res;
+    if ( input.type() == QVariant::ByteArray ) {
+        res << input.toByteArray();
+    } else if ( input.type() == QVariant::List ) {
+        QVariantList list = input.toList();
+        for ( QVariantList::const_iterator it = list.begin(); it != list.end(); ++it )
+            if ( it->type() != QVariant::ByteArray )
+                throw UnexpectedHere( line, start ); // body-fld-lang has wrong structure
+            else
+                res << it->toByteArray();
+    } else
+        throw UnexpectedHere( line, start ); // body-fld-lang not found
+    return res;
+}
+
 std::tr1::shared_ptr<AbstractMessage> AbstractMessage::fromList( const QVariantList& items, const QByteArray& line, const int start )
 {
     if ( items.size() < 3 )
@@ -520,17 +581,7 @@ std::tr1::shared_ptr<AbstractMessage> AbstractMessage::fromList( const QVariantL
         QString mediaSubType = items[i].toString().toLower();
         ++i;
 
-        if ( items[i].type() != QVariant::List )
-            throw UnexpectedHere( line, start ); // body-fld-param not recognized
-        QVariantList bodyFldParamRaw = items[i].toList();
-        QList<QByteArray> bodyFldParam;
-        for ( QVariantList::const_iterator it = bodyFldParamRaw.begin(); it != bodyFldParamRaw.end(); ++it )
-            if ( it->type() != QVariant::ByteArray )
-                throw UnexpectedHere( line, start ); // body-fld-param contains strange data
-            else
-                bodyFldParam.append( it->toByteArray() );
-        if ( bodyFldParam.size() % 2 == 1 || bodyFldParam.size() < 2 )
-            throw ParseError( line, start ); // body-fld-param of odd size
+        bodyFldParam_t bodyFldParam = makeBodyFldParam( items[i], line, start );
         ++i;
 
         if ( items[i].type() != QVariant::ByteArray )
@@ -596,6 +647,7 @@ std::tr1::shared_ptr<AbstractMessage> AbstractMessage::fromList( const QVariantL
         }
 
         // extract body-ext-1part
+
         // body-fld-md5
         QByteArray bodyFldMd5;
         if ( i < items.size() ) {
@@ -606,43 +658,16 @@ std::tr1::shared_ptr<AbstractMessage> AbstractMessage::fromList( const QVariantL
         }
 
         // body-fld-dsp
-        QPair<QByteArray, QMap<QByteArray,QByteArray> > bodyFldDsp;
+        bodyFldDsp_t bodyFldDsp;
         if ( i < items.size() ) {
-            if ( items[i].type() != QVariant::List )
-                throw UnexpectedHere( line, start ); // body-fld-dsp not found
-            QVariantList list = items[i].toList();
-            if ( list.size() != 2 )
-                throw ParseError( line, start ); // body-fld-dsp: wrong number of entries in the list
-            if ( list[0].type() != QVariant::ByteArray )
-                throw UnexpectedHere( line, start ); // body-fld-dsp: first item is not a string
-            bodyFldDsp.first = list[0].toByteArray();
-            if ( list[1].type() != QVariant::List )
-                throw UnexpectedHere( line, start ); // body-fld-dsp: body-fld-param not recognized
-            list = list[1].toList();
-            if ( list.size() % 2 )
-                throw UnexpectedHere( line, start ); // body-fld-param: wrong number of entries
-            for ( int j = 0; j < list.size(); j += 2 )
-                if ( list[j].type() != QVariant::ByteArray || list[j+1].type() != QVariant::ByteArray )
-                    throw UnexpectedHere( line, start ); // body-fld-param: string not found
-                else
-                    bodyFldDsp.second[ list[j].toByteArray() ] = list[j+1].toByteArray();
+            bodyFldDsp = makeBodyFldDsp( items[i], line, start );
             ++i;
         }
 
         // body-fld-lang
         QList<QByteArray> bodyFldLang;
         if ( i < items.size() ) {
-            if ( items[i].type() == QVariant::ByteArray ) {
-                bodyFldLang << items[i].toByteArray();
-            } else if ( items[i].type() == QVariant::List ) {
-                QVariantList list = items[i].toList();
-                for ( QVariantList::const_iterator it = list.begin(); it != list.end(); ++it )
-                    if ( it->type() != QVariant::ByteArray )
-                        throw UnexpectedHere( line, start ); // body-fld-lang has wrong structure
-                    else
-                        bodyFldLang << it->toByteArray();
-            } else
-                throw UnexpectedHere( line, start ); // body-fld-lang not found
+            bodyFldLang = makeBodyFldLang( items[i], line, start );
             ++i;
         }
 
@@ -685,6 +710,7 @@ std::tr1::shared_ptr<AbstractMessage> AbstractMessage::fromList( const QVariantL
                         bodyExtension, bodyFldLines )
                     );
             case BASIC:
+            default:
                 return std::tr1::shared_ptr<AbstractMessage>(
                     new BasicMessage( mediaType, mediaSubType, bodyFldParam,
                         bodyFldId, bodyFldDesc, bodyFldEnc, bodyFldOctets,
@@ -694,8 +720,72 @@ std::tr1::shared_ptr<AbstractMessage> AbstractMessage::fromList( const QVariantL
         }
 
     } else if ( items[0].type() == QVariant::List ) {
-        // FIXME multipart parsing...
-        throw Exception( "MULTIPART message body parsing not done yet" );
+
+        if ( items.size() < 2 )
+            throw ParseError( line, start ); // body-type-mpart: structure should be "body* string"
+
+        int i = 0;
+
+        QList<std::tr1::shared_ptr<AbstractMessage> > bodies;
+        while ( items[i].type() == QVariant::List) {
+            bodies << fromList( items[i].toList(), line, start );
+            ++i;
+        }
+
+        if ( items[i].type() != QVariant::ByteArray )
+            throw UnexpectedHere( line, start ); // body-type-mpart: media-subtype not recognized
+        QString mediaSubType = items[i].toString();
+        ++i;
+
+        // body-ext-mpart
+
+        // body-fld-param
+        bodyFldParam_t bodyFldParam;
+        if ( i < items.size() ) {
+            bodyFldParam = makeBodyFldParam( items[i], line, start );
+            ++i;
+        }
+
+        // body-fld-dsp
+        bodyFldDsp_t bodyFldDsp;
+        if ( i < items.size() ) {
+            bodyFldDsp = makeBodyFldDsp( items[i], line, start );
+            ++i;
+        }
+
+        // body-fld-lang
+        QList<QByteArray> bodyFldLang;
+        if ( i < items.size() ) {
+            bodyFldLang = makeBodyFldLang( items[i], line, start );
+            ++i;
+        }
+
+        // body-fld-loc
+        QByteArray bodyFldLoc;
+        if ( i < items.size() ) {
+            if ( items[i].type() != QVariant::ByteArray )
+                throw UnexpectedHere( line, start ); // body-fld-loc not found
+            bodyFldLoc = items[i].toByteArray();
+            ++i;
+        }
+
+        // body-extension
+        QVariant bodyExtension;
+        if ( i < items.size() ) {
+            if ( i == items.size() - 1 ) {
+                bodyExtension = items[i];
+                ++i;
+            } else {
+                QVariantList list;
+                for ( ; i < items.size(); ++i )
+                    list << items[i];
+                bodyExtension = list;
+            }
+        }
+
+        return std::tr1::shared_ptr<AbstractMessage>(
+                new MultiMessage( bodies, mediaSubType, bodyFldParam,
+                    bodyFldDsp, bodyFldLang, bodyFldLoc, bodyExtension ) );
     } else {
         throw UnexpectedHere( line, start );
     }

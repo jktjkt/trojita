@@ -378,28 +378,35 @@ namespace Responses {
     struct AbstractMessage: public AbstractData {
         virtual ~AbstractMessage() {};
         static std::tr1::shared_ptr<AbstractMessage> fromList( const QVariantList& items, const QByteArray& line, const int start );
+
+        typedef QMap<QByteArray,QByteArray> bodyFldParam_t;
+        typedef QPair<QByteArray, bodyFldParam_t> bodyFldDsp_t;
+
+        static bodyFldParam_t makeBodyFldParam( const QVariant& list, const QByteArray& line, const int start );
+        static bodyFldDsp_t makeBodyFldDsp( const QVariant& list, const QByteArray& line, const int start );
+        static QList<QByteArray> makeBodyFldLang( const QVariant& input, const QByteArray& line, const int start );
     };
 
     /** @short Abstract parent class for all non-multipart messages */
     struct OneMessage: public AbstractMessage {
         QString mediaType;
         QString mediaSubType;
-        QList<QByteArray> bodyFldParam;
+        bodyFldParam_t bodyFldParam;
         QByteArray bodyFldId;
         QByteArray bodyFldDesc;
         QByteArray bodyFldEnc;
         uint bodyFldOctets;
         // optional fields:
         QByteArray bodyFldMd5;
-        QPair<QByteArray, QMap<QByteArray,QByteArray> > bodyFldDsp;
+        bodyFldDsp_t bodyFldDsp;
         QList<QByteArray> bodyFldLang;
         QByteArray bodyFldLoc;
         QVariant bodyExtension;
         OneMessage( const QString& _mediaType, const QString& _mediaSubType,
-                const QList<QByteArray>& _bodyFldParam, const QByteArray& _bodyFldId,
+                const bodyFldParam_t& _bodyFldParam, const QByteArray& _bodyFldId,
                 const QByteArray& _bodyFldDesc, const QByteArray& _bodyFldEnc,
                 const uint _bodyFldOctets, const QByteArray& _bodyFldMd5,
-                const QPair<QByteArray, QMap<QByteArray,QByteArray> >& _bodyFldDsp,
+                const bodyFldDsp_t& _bodyFldDsp,
                 const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,
                 const QVariant& _bodyExtension ):
             mediaType(_mediaType), mediaSubType(_mediaSubType), bodyFldParam(_bodyFldParam),
@@ -412,10 +419,10 @@ namespace Responses {
     struct BasicMessage: public OneMessage {
         // nothing new, just stuff from OneMessage
         BasicMessage( const QString& _mediaType, const QString& _mediaSubType,
-                const QList<QByteArray>& _bodyFldParam, const QByteArray& _bodyFldId,
+                const bodyFldParam_t& _bodyFldParam, const QByteArray& _bodyFldId,
                 const QByteArray& _bodyFldDesc, const QByteArray& _bodyFldEnc,
                 const uint _bodyFldOctets, const QByteArray& _bodyFldMd5,
-                const QPair<QByteArray, QMap<QByteArray,QByteArray> >& _bodyFldDsp,
+                const bodyFldDsp_t& _bodyFldDsp,
                 const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,
                 const QVariant& _bodyExtension ):
             OneMessage( _mediaType, _mediaSubType, _bodyFldParam, _bodyFldId,
@@ -431,10 +438,10 @@ namespace Responses {
         std::tr1::shared_ptr<AbstractMessage> body;
         uint bodyFldLines;
         MsgMessage( const QString& _mediaType, const QString& _mediaSubType,
-                const QList<QByteArray>& _bodyFldParam, const QByteArray& _bodyFldId,
+                const bodyFldParam_t& _bodyFldParam, const QByteArray& _bodyFldId,
                 const QByteArray& _bodyFldDesc, const QByteArray& _bodyFldEnc,
                 const uint _bodyFldOctets, const QByteArray& _bodyFldMd5,
-                const QPair<QByteArray, QMap<QByteArray,QByteArray> >& _bodyFldDsp,
+                const bodyFldDsp_t& _bodyFldDsp,
                 const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,
                 const QVariant& _bodyExtension,
                 const Envelope& _envelope, const std::tr1::shared_ptr<AbstractMessage>& _body,
@@ -451,10 +458,10 @@ namespace Responses {
     struct TextMessage: public OneMessage {
         uint bodyFldLines;
         TextMessage( const QString& _mediaType, const QString& _mediaSubType,
-                const QList<QByteArray>& _bodyFldParam, const QByteArray& _bodyFldId,
+                const bodyFldParam_t& _bodyFldParam, const QByteArray& _bodyFldId,
                 const QByteArray& _bodyFldDesc, const QByteArray& _bodyFldEnc,
                 const uint _bodyFldOctets, const QByteArray& _bodyFldMd5,
-                const QPair<QByteArray, QMap<QByteArray,QByteArray> >& _bodyFldDsp,
+                const bodyFldDsp_t& _bodyFldDsp,
                 const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,
                 const QVariant& _bodyExtension,
                 const uint _bodyFldLines ):
@@ -469,13 +476,24 @@ namespace Responses {
     /** @short Multipart message (body-type-mpart) */
     struct MultiMessage: public AbstractMessage {
         QList<std::tr1::shared_ptr<AbstractMessage> > bodies;
-        QString mediaSubtype;
+        QString mediaSubType;
         // optional fields
-        QList<QByteArray> bodyFldParam;
-        QPair<QByteArray, QMap<QByteArray,QByteArray> > bodyFldDsp;
+        bodyFldParam_t bodyFldParam;
+        bodyFldDsp_t bodyFldDsp;
         QList<QByteArray> bodyFldLang;
         QByteArray bodyFldLoc;
         QVariant bodyExtension;
+
+        MultiMessage( const QList<std::tr1::shared_ptr<AbstractMessage> >& _bodies,
+                const QString& _mediaSubType, const bodyFldParam_t& _bodyFldParam,
+                const bodyFldDsp_t& _bodyFldDsp,
+                const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,
+                const QVariant& _bodyExtension ):
+            bodies(_bodies), mediaSubType(_mediaSubType), bodyFldParam(_bodyFldParam),
+            bodyFldDsp(_bodyFldDsp), bodyFldLang(_bodyFldLang), bodyFldLoc(_bodyFldLoc),
+            bodyExtension(_bodyExtension) {};
+        virtual QTextStream& dump( QTextStream& s ) const;
+        virtual bool eq( const AbstractData& other ) const;
     };
 
     QTextStream& operator<<( QTextStream& stream, const Code& r );
