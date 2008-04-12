@@ -18,6 +18,7 @@
 
 #include <qtest_kde.h>
 #include <QFile>
+#include "Imap/Message.h"
 
 #include "test_Imap_Parser_parse.h"
 #include "test_Imap_Parser_parse.moc"
@@ -128,6 +129,7 @@ void ImapParserParseTest::testParseUntagged()
 void ImapParserParseTest::testParseUntagged_data()
 {
     using namespace Imap::Responses;
+    using namespace Imap::Message;
     using std::tr1::shared_ptr;
 
     QTest::addColumn<QByteArray>("line");

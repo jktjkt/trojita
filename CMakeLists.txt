@@ -62,7 +62,7 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 add_subdirectory( tests )
 
 set(libImap_SRCS Imap/Parser.cpp Imap/Command.cpp Imap/Response.cpp
-    Imap/LowLevelParser.cpp Imap/Exceptions.cpp
+    Imap/LowLevelParser.cpp Imap/Exceptions.cpp Imap/Data.cpp Imap/Message.cpp
     Imap/rfccodecs.cpp Imap/kcodecs.cpp)
 
 set(libDemo_SRCS Demo/ParserMonitor.cpp)

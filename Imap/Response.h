@@ -29,6 +29,7 @@
 #include <QPair>
 #include "Imap/Command.h"
 #include "Imap/Exceptions.h"
+#include "Imap/Data.h"
 
 /**
  * @file
@@ -42,7 +43,7 @@ namespace Imap {
 
 /** @short IMAP server responses
  *
- * @ref AbstractResponse is an abstarct parent of all classes. Each response
+ * @ref AbstractResponse is an abstact parent of all classes. Each response
  * that might be received from the server is a child of this one.
  * */
 namespace Responses {
@@ -102,40 +103,6 @@ namespace Responses {
         virtual QTextStream& dump( QTextStream& ) const = 0;
         /** @short Helper for operator==() */
         virtual bool eq( const AbstractResponse& other ) const = 0;
-    };
-
-    /** @short Parent of all "Response Code Data" classes
-     *
-     * More information available in AbstractData's documentation.
-     * */
-    class AbstractData {
-    public:
-        virtual ~AbstractData() {};
-        virtual QTextStream& dump( QTextStream& ) const = 0;
-        virtual bool eq( const AbstractData& other ) const = 0;
-    };
-
-    /** @short Storage for "Response Code Data"
-     *
-     * In IMAP, each status response might contain some additional information
-     * called "Response Code" and associated data. These data come in several
-     * shapes and this class servers as a storage for them, as a kind of
-     * QVariant-like wrapper around real data.
-     * */
-    template<class T> class RespData : public AbstractData {
-    public:
-        T data;
-        RespData( const T& _data ) : data(_data) {};
-        virtual QTextStream& dump( QTextStream& s ) const;
-        virtual bool eq( const AbstractData& other ) const;
-    };
-
-    /** Explicit specialization for void as we can't define a void member of a
-     * class */
-    template<> class RespData<void> : public AbstractData {
-    public:
-        virtual QTextStream& dump( QTextStream& s ) const { return s; };
-        virtual bool eq( const AbstractData& other ) const;
     };
 
     /** @short Structure storing OK/NO/BAD/PREAUTH/BYE responses */
@@ -321,189 +288,10 @@ namespace Responses {
         static QDateTime dateify( QByteArray str, const QByteArray& line, const int start );
     };
 
-    /** @short Storage container for one address from an envelope */
-    struct MailAddress {
-        /** @short Phrase from RFC2822 mailbox */
-        QByteArray name;
-
-        /** @hosrt Route information */
-        QByteArray adl;
-
-        /** @short RFC2822 Group Name or Local Part */
-        QByteArray mailbox;
-
-        /** @short RFC2822 Domain Name */
-        QByteArray host;
-
-        MailAddress( const QByteArray& _name, const QByteArray& _adl, 
-                const QByteArray& _mailbox, const QByteArray& _host ):
-            name(_name), adl(_adl), mailbox(_mailbox), host(_host) {};
-        MailAddress( const QVariantList& input, const QByteArray& line, const int start );
-    };
-
-    /** @short Storage for envelope */
-    struct Envelope {
-        QDateTime date;
-        QString subject;
-        QList<MailAddress> from;
-        QList<MailAddress> sender;
-        QList<MailAddress> replyTo;
-        QList<MailAddress> to;
-        QList<MailAddress> cc;
-        QList<MailAddress> bcc;
-        QByteArray inReplyTo;
-        QByteArray messageId;
-
-        Envelope() {};
-        Envelope( const QDateTime& _date, const QString& _subject, const QList<MailAddress>& _from, 
-                const QList<MailAddress>& _sender, const QList<MailAddress>& _replyTo,
-                const QList<MailAddress>& _to, const QList<MailAddress>& _cc,
-                const QList<MailAddress>& _bcc, const QByteArray& _inReplyTo,
-                const QByteArray& _messageId ):
-            date(_date), subject(_subject), from(_from), sender(_sender), replyTo(_replyTo),
-            to(_to), cc(_cc), bcc(_bcc), inReplyTo(_inReplyTo), messageId(_messageId) {};
-        static Envelope fromList( const QVariantList& items, const QByteArray& line, const int start );
-
-    private:
-        static QList<MailAddress> getListOfAddresses( const QVariant& in,
-                const QByteArray& line, const int start );
-        friend class Fetch;
-    };
-
-
-    /** @short Abstract parent of all Message classes
-     *
-     * A message can be either one-part (OneMessage) or multipart (MultiMessage)
-     * */
-    struct AbstractMessage: public AbstractData {
-        virtual ~AbstractMessage() {};
-        static std::tr1::shared_ptr<AbstractMessage> fromList( const QVariantList& items, const QByteArray& line, const int start );
-
-        typedef QMap<QByteArray,QByteArray> bodyFldParam_t;
-        typedef QPair<QByteArray, bodyFldParam_t> bodyFldDsp_t;
-
-        static bodyFldParam_t makeBodyFldParam( const QVariant& list, const QByteArray& line, const int start );
-        static bodyFldDsp_t makeBodyFldDsp( const QVariant& list, const QByteArray& line, const int start );
-        static QList<QByteArray> makeBodyFldLang( const QVariant& input, const QByteArray& line, const int start );
-    };
-
-    /** @short Abstract parent class for all non-multipart messages */
-    struct OneMessage: public AbstractMessage {
-        QString mediaType;
-        QString mediaSubType;
-        bodyFldParam_t bodyFldParam;
-        QByteArray bodyFldId;
-        QByteArray bodyFldDesc;
-        QByteArray bodyFldEnc;
-        uint bodyFldOctets;
-        // optional fields:
-        QByteArray bodyFldMd5;
-        bodyFldDsp_t bodyFldDsp;
-        QList<QByteArray> bodyFldLang;
-        QByteArray bodyFldLoc;
-        QVariant bodyExtension;
-        OneMessage( const QString& _mediaType, const QString& _mediaSubType,
-                const bodyFldParam_t& _bodyFldParam, const QByteArray& _bodyFldId,
-                const QByteArray& _bodyFldDesc, const QByteArray& _bodyFldEnc,
-                const uint _bodyFldOctets, const QByteArray& _bodyFldMd5,
-                const bodyFldDsp_t& _bodyFldDsp,
-                const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,
-                const QVariant& _bodyExtension ):
-            mediaType(_mediaType), mediaSubType(_mediaSubType), bodyFldParam(_bodyFldParam),
-            bodyFldId(_bodyFldId), bodyFldDesc(_bodyFldDesc), bodyFldEnc(_bodyFldEnc),
-            bodyFldOctets(_bodyFldOctets), bodyFldMd5(_bodyFldMd5), bodyFldDsp(_bodyFldDsp),
-            bodyFldLang(_bodyFldLang), bodyFldLoc(_bodyFldLoc), bodyExtension(_bodyExtension) {};
-    };
-
-    /** @short Ordinary Message (body-type-basic in RFC3501) */
-    struct BasicMessage: public OneMessage {
-        // nothing new, just stuff from OneMessage
-        BasicMessage( const QString& _mediaType, const QString& _mediaSubType,
-                const bodyFldParam_t& _bodyFldParam, const QByteArray& _bodyFldId,
-                const QByteArray& _bodyFldDesc, const QByteArray& _bodyFldEnc,
-                const uint _bodyFldOctets, const QByteArray& _bodyFldMd5,
-                const bodyFldDsp_t& _bodyFldDsp,
-                const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,
-                const QVariant& _bodyExtension ):
-            OneMessage( _mediaType, _mediaSubType, _bodyFldParam, _bodyFldId,
-                    _bodyFldDesc, _bodyFldEnc, _bodyFldOctets, _bodyFldMd5,
-                    _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension) {};
-        virtual QTextStream& dump( QTextStream& s ) const;
-        virtual bool eq( const AbstractData& other ) const;
-    };
-
-    /** @short A message holding another RFC822 message (body-type-msg) */
-    struct MsgMessage: public OneMessage {
-        Envelope envelope;
-        std::tr1::shared_ptr<AbstractMessage> body;
-        uint bodyFldLines;
-        MsgMessage( const QString& _mediaType, const QString& _mediaSubType,
-                const bodyFldParam_t& _bodyFldParam, const QByteArray& _bodyFldId,
-                const QByteArray& _bodyFldDesc, const QByteArray& _bodyFldEnc,
-                const uint _bodyFldOctets, const QByteArray& _bodyFldMd5,
-                const bodyFldDsp_t& _bodyFldDsp,
-                const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,
-                const QVariant& _bodyExtension,
-                const Envelope& _envelope, const std::tr1::shared_ptr<AbstractMessage>& _body,
-                const uint _bodyFldLines ):
-            OneMessage( _mediaType, _mediaSubType, _bodyFldParam, _bodyFldId,
-                    _bodyFldDesc, _bodyFldEnc, _bodyFldOctets, _bodyFldMd5,
-                    _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension),
-            envelope(_envelope), body(_body), bodyFldLines(_bodyFldLines) {};
-        virtual QTextStream& dump( QTextStream& s ) const;
-        virtual bool eq( const AbstractData& other ) const;
-    };
-
-    /** @short A text message (body-type-text) */
-    struct TextMessage: public OneMessage {
-        uint bodyFldLines;
-        TextMessage( const QString& _mediaType, const QString& _mediaSubType,
-                const bodyFldParam_t& _bodyFldParam, const QByteArray& _bodyFldId,
-                const QByteArray& _bodyFldDesc, const QByteArray& _bodyFldEnc,
-                const uint _bodyFldOctets, const QByteArray& _bodyFldMd5,
-                const bodyFldDsp_t& _bodyFldDsp,
-                const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,
-                const QVariant& _bodyExtension,
-                const uint _bodyFldLines ):
-            OneMessage( _mediaType, _mediaSubType, _bodyFldParam, _bodyFldId,
-                    _bodyFldDesc, _bodyFldEnc, _bodyFldOctets, _bodyFldMd5,
-                    _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension),
-            bodyFldLines(_bodyFldLines) {};
-        virtual QTextStream& dump( QTextStream& s ) const;
-        virtual bool eq( const AbstractData& other ) const;
-    };
-
-    /** @short Multipart message (body-type-mpart) */
-    struct MultiMessage: public AbstractMessage {
-        QList<std::tr1::shared_ptr<AbstractMessage> > bodies;
-        QString mediaSubType;
-        // optional fields
-        bodyFldParam_t bodyFldParam;
-        bodyFldDsp_t bodyFldDsp;
-        QList<QByteArray> bodyFldLang;
-        QByteArray bodyFldLoc;
-        QVariant bodyExtension;
-
-        MultiMessage( const QList<std::tr1::shared_ptr<AbstractMessage> >& _bodies,
-                const QString& _mediaSubType, const bodyFldParam_t& _bodyFldParam,
-                const bodyFldDsp_t& _bodyFldDsp,
-                const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,
-                const QVariant& _bodyExtension ):
-            bodies(_bodies), mediaSubType(_mediaSubType), bodyFldParam(_bodyFldParam),
-            bodyFldDsp(_bodyFldDsp), bodyFldLang(_bodyFldLang), bodyFldLoc(_bodyFldLoc),
-            bodyExtension(_bodyExtension) {};
-        virtual QTextStream& dump( QTextStream& s ) const;
-        virtual bool eq( const AbstractData& other ) const;
-    };
-
     QTextStream& operator<<( QTextStream& stream, const Code& r );
     QTextStream& operator<<( QTextStream& stream, const Kind& res );
     QTextStream& operator<<( QTextStream& stream, const Status::StateKind& kind );
     QTextStream& operator<<( QTextStream& stream, const AbstractResponse& res );
-    QTextStream& operator<<( QTextStream& stream, const AbstractData& resp );
-    QTextStream& operator<<( QTextStream& stream, const MailAddress& address );
-    QTextStream& operator<<( QTextStream& stream, const QList<MailAddress>& address );
-    QTextStream& operator<<( QTextStream& stream, const Envelope& e );
 
     inline bool operator==( const AbstractResponse& first, const AbstractResponse& other ) {
         return first.eq( other );
@@ -512,19 +300,6 @@ namespace Responses {
     inline bool operator!=( const AbstractResponse& first, const AbstractResponse& other ) {
         return !first.eq( other );
     }
-
-    inline bool operator==( const AbstractData& first, const AbstractData& other ) {
-        return first.eq( other );
-    }
-
-    inline bool operator!=( const AbstractData& first, const AbstractData& other ) {
-        return !first.eq( other );
-    }
-
-    bool operator==( const Envelope& a, const Envelope& b );
-    inline bool operator!=( const Envelope& a, const Envelope& b ) { return !(a == b); };
-    bool operator==( const MailAddress& a, const MailAddress& b );
-    inline bool operator!=( const MailAddress& a, const MailAddress& b ) { return !(a == b); };
 
     /** @short Build Responses::Kind from textual value */
     Kind kindFromString( QByteArray str ) throw( UnrecognizedResponseKind );
