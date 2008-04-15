@@ -99,6 +99,9 @@ namespace Message {
         static bodyFldParam_t makeBodyFldParam( const QVariant& list, const QByteArray& line, const int start );
         static bodyFldDsp_t makeBodyFldDsp( const QVariant& list, const QByteArray& line, const int start );
         static QList<QByteArray> makeBodyFldLang( const QVariant& input, const QByteArray& line, const int start );
+
+        virtual QTextStream& dump( QTextStream& s ) const { return dump( s, 0 ); };
+        virtual QTextStream& dump( QTextStream& s, const int indent ) const = 0;
     };
 
     /** @short Abstract parent class for all non-multipart messages */
@@ -144,7 +147,7 @@ namespace Message {
             OneMessage( _mediaType, _mediaSubType, _bodyFldParam, _bodyFldId,
                     _bodyFldDesc, _bodyFldEnc, _bodyFldOctets, _bodyFldMd5,
                     _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension) {};
-        virtual QTextStream& dump( QTextStream& s ) const;
+        virtual QTextStream& dump( QTextStream& s, const int indent ) const;
         /* No need for "virtual bool eq( const AbstractData& other ) const" as
          * it's already implemented in OneMessage::eq() */
     };
@@ -167,7 +170,7 @@ namespace Message {
                     _bodyFldDesc, _bodyFldEnc, _bodyFldOctets, _bodyFldMd5,
                     _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension),
             envelope(_envelope), body(_body), bodyFldLines(_bodyFldLines) {};
-        virtual QTextStream& dump( QTextStream& s ) const;
+        virtual QTextStream& dump( QTextStream& s, const int indent ) const;
         virtual bool eq( const AbstractData& other ) const;
     };
 
@@ -186,7 +189,7 @@ namespace Message {
                     _bodyFldDesc, _bodyFldEnc, _bodyFldOctets, _bodyFldMd5,
                     _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension),
             bodyFldLines(_bodyFldLines) {};
-        virtual QTextStream& dump( QTextStream& s ) const;
+        virtual QTextStream& dump( QTextStream& s, const int indent ) const;
         virtual bool eq( const AbstractData& other ) const;
     };
 
@@ -209,7 +212,7 @@ namespace Message {
             bodies(_bodies), mediaSubType(_mediaSubType), bodyFldParam(_bodyFldParam),
             bodyFldDsp(_bodyFldDsp), bodyFldLang(_bodyFldLang), bodyFldLoc(_bodyFldLoc),
             bodyExtension(_bodyExtension) {};
-        virtual QTextStream& dump( QTextStream& s ) const;
+        virtual QTextStream& dump( QTextStream& s, const int indent ) const;
         virtual bool eq( const AbstractData& other ) const;
     };
 

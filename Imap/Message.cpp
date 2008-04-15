@@ -121,15 +121,25 @@ bool TextMessage::eq( const AbstractData& other ) const
     }
 }
 
-QTextStream& TextMessage::dump( QTextStream& s ) const
+QTextStream& TextMessage::dump( QTextStream& s, const int indent ) const
 {
-    return s << "TextMessage( " << mediaType << "/" << mediaSubType << 
-        ", body-fld-param: " << bodyFldParam << ", body-fld-id: " <<
-        bodyFldId << ", body-fld-desc: " << bodyFldDesc << ", body-fld-enc: " <<
-        bodyFldEnc << ", body-fld-octets: " << bodyFldOctets << ", bodyFldMd5: " <<
-        bodyFldMd5 << ", body-fld-dsp: " << bodyFldDsp << ", body-fld-lang: " <<
-        bodyFldLang << ", body-fld-loc: " << bodyFldLoc << ", body-extension is " << 
-        bodyExtension.typeName() << ", body-fld-lines: " << bodyFldLines << " )";
+    QByteArray i( indent + 1, ' ' );
+    QByteArray lf( "\n" );
+
+    return s << QByteArray( " ", indent ) << "TextMessage( " << mediaType << "/" << mediaSubType << lf <<
+        i << "body-fld-param: " << bodyFldParam << lf <<
+        i << "body-fld-id: " << bodyFldId << lf << 
+        i << "body-fld-desc: " << bodyFldDesc << lf << 
+        i << "body-fld-enc: " << bodyFldEnc << lf << 
+        i << "body-fld-octets: " << bodyFldOctets << lf <<
+        i << "bodyFldMd5: " << bodyFldMd5 << lf <<
+        i << "body-fld-dsp: " << bodyFldDsp << lf <<
+        i << "body-fld-lang: " << bodyFldLang << lf <<
+        i << "body-fld-loc: " << bodyFldLoc << lf <<
+        i << "body-extension is " << bodyExtension.typeName() << lf <<
+        i << "body-fld-lines: " << bodyFldLines << lf <<
+        QByteArray( " ", indent ) << ")";
+    // FIXME: operator<< for QVariant...
 }
 
 bool MsgMessage::eq( const AbstractData& other ) const
@@ -155,25 +165,39 @@ bool MsgMessage::eq( const AbstractData& other ) const
     }
 }
 
-QTextStream& MsgMessage::dump( QTextStream& s ) const
+QTextStream& MsgMessage::dump( QTextStream& s, const int indent ) const
 {
-    s << "MsgMessage( envelope " << envelope << ", body-fld-lines " << bodyFldLines << ", body ";
+    QByteArray i( indent + 1, ' ' );
+    QByteArray lf( "\n" );
+
+    s << QByteArray( " ", indent ) << "MsgMessage(" << lf <<
+        i << "envelope " << envelope << lf << 
+        i << "body-fld-lines " << bodyFldLines << lf <<
+        i << "body " << lf;
     if ( body )
-        s << *body;
+        body->dump( s, indent + 1 );
     else
-        s << "(null)";
-    return s << " )";
+        s << i << " (null)";
+    return s << lf << QByteArray(" ", indent ) << ")";
 }
 
-QTextStream& BasicMessage::dump( QTextStream& s ) const
+QTextStream& BasicMessage::dump( QTextStream& s, const int indent ) const
 {
-    return s << "BasicMessage( " << mediaType << "/" << mediaSubType << 
-        ", body-fld-param: " << bodyFldParam << ", body-fld-id: " <<
-        bodyFldId << ", body-fld-desc: " << bodyFldDesc << ", body-fld-enc: " <<
-        bodyFldEnc << ", body-fld-octets: " << bodyFldOctets << ", bodyFldMd5: " <<
-        bodyFldMd5 << ", body-fld-dsp: " << bodyFldDsp << ", body-fld-lang: " <<
-        bodyFldLang << ", body-fld-loc: " << bodyFldLoc << ", body-extension is " << 
-        bodyExtension.typeName() << " )"; // FIXME: operator<< for QVariant...
+    QByteArray i( indent + 1, ' ' );
+    QByteArray lf( "\n" );
+
+    return s << QByteArray( " ", indent ) << "TextMessage( " << mediaType << "/" << mediaSubType << lf <<
+        i << "body-fld-param: " << bodyFldParam << lf <<
+        i << "body-fld-id: " << bodyFldId << lf << 
+        i << "body-fld-desc: " << bodyFldDesc << lf << 
+        i << "body-fld-enc: " << bodyFldEnc << lf << 
+        i << "body-fld-octets: " << bodyFldOctets << lf <<
+        i << "bodyFldMd5: " << bodyFldMd5 << lf <<
+        i << "body-fld-dsp: " << bodyFldDsp << lf <<
+        i << "body-fld-lang: " << bodyFldLang << lf <<
+        i << "body-fld-loc: " << bodyFldLoc << lf <<
+        i << "body-extension is " << bodyExtension.typeName() << lf <<
+        QByteArray( " ", indent ) << ")";
     // FIXME: operator<< for QVariant...
 }
 
@@ -205,20 +229,27 @@ bool MultiMessage::eq( const AbstractData& other ) const
     }
 }
 
-QTextStream& MultiMessage::dump( QTextStream& s ) const
+QTextStream& MultiMessage::dump( QTextStream& s, const int indent ) const
 {
-    s << "MultiMessage( multipart/" << mediaSubType << ", body-fld-param " << 
-        bodyFldParam << ", body-fld-dsp " << bodyFldDsp << ", body-fld-lang " <<
-        bodyFldLang << ", body-fld-loc " << bodyFldLoc << ", bodyExtension is " << 
-        bodyExtension.typeName() << ", bodies: [ ";
+    QByteArray i( indent + 1, ' ' );
+    QByteArray lf( "\n" );
+
+    s << QByteArray( " ", indent ) << "MultiMessage( multipart/" << mediaSubType << lf <<
+        i << "body-fld-param " << bodyFldParam << lf <<
+        i << "body-fld-dsp " << bodyFldDsp << lf << 
+        i << "body-fld-lang " << bodyFldLang << lf <<
+        i << "body-fld-loc " << bodyFldLoc << lf <<
+        i << "bodyExtension is " << bodyExtension.typeName() << lf <<
+        i << "bodies: [ " << lf;
 
     for ( QList<std::tr1::shared_ptr<AbstractMessage> >::const_iterator it = bodies.begin(); it != bodies.end(); ++it )
-        if ( *it )
-            s << **it << ", ";
-        else
-            s << "(null), ";
+        if ( *it ) {
+            (**it).dump( s, indent + 1 );
+            s << lf;
+        } else
+            s << i << " (null)" << lf;
 
-    return s << "] )";
+    return s << QByteArray( " ", indent ) << "] )";
 }
 
 AbstractMessage::bodyFldParam_t AbstractMessage::makeBodyFldParam( const QVariant& input, const QByteArray& line, const int start )
