@@ -17,6 +17,7 @@
 */
 
 #include "Imap/Message.h"
+#include <QDebug>
 
 namespace Imap {
 namespace Message {
@@ -95,55 +96,139 @@ Envelope Envelope::fromList( const QVariantList& items, const QByteArray& line, 
     return Envelope( date, subject, from, sender, replyTo, to, cc, bcc, inReplyTo, messageId );
 }
 
+bool OneMessage::eq( const AbstractData& other ) const
+{
+    try {
+        const OneMessage& o = dynamic_cast<const OneMessage&>( other );
+        return o.mediaType == mediaType && mediaSubType == o.mediaSubType &&
+            bodyFldParam == o.bodyFldParam && bodyFldId == o.bodyFldId && 
+            bodyFldDesc == o.bodyFldDesc && bodyFldEnc == o.bodyFldEnc &&
+            bodyFldOctets == o.bodyFldOctets && bodyFldMd5 == o.bodyFldMd5 &&
+            bodyFldDsp == o.bodyFldDsp && bodyFldLang == o.bodyFldLang &&
+            bodyFldLoc == o.bodyFldLoc && bodyExtension == o.bodyExtension;
+    } catch ( std::bad_cast& ) {
+        return false;
+    }
+}
+
 bool TextMessage::eq( const AbstractData& other ) const
 {
-    // FIXME
-    return false;
+    try {
+        const TextMessage& o = dynamic_cast<const TextMessage&>( other );
+        return OneMessage::eq( o ) && bodyFldLines == o.bodyFldLines;
+    } catch ( std::bad_cast& ) {
+        return false;
+    }
 }
 
 QTextStream& TextMessage::dump( QTextStream& s ) const
 {
-    return s;
+    return s << "TextMessage( " << mediaType << "/" << mediaSubType << 
+        ", body-fld-param: " << bodyFldParam << ", body-fld-id: " <<
+        bodyFldId << ", body-fld-desc: " << bodyFldDesc << ", body-fld-enc: " <<
+        bodyFldEnc << ", body-fld-octets: " << bodyFldOctets << ", bodyFldMd5: " <<
+        bodyFldMd5 << ", body-fld-dsp: " << bodyFldDsp << ", body-fld-lang: " <<
+        bodyFldLang << ", body-fld-loc: " << bodyFldLoc << ", body-extension is " << 
+        bodyExtension.typeName() << ", body-fld-lines: " << bodyFldLines << " )";
 }
 
 bool MsgMessage::eq( const AbstractData& other ) const
 {
-    // FIXME
-    return false;
+    try {
+        const MsgMessage& o = dynamic_cast<const MsgMessage&>( other );
+        if ( o.body ) {
+            if ( body ) {
+                if ( *body != *o.body ) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else if ( body )
+            return false;
+
+        return OneMessage::eq( o ) && bodyFldLines == o.bodyFldLines &&
+            envelope == o.envelope;
+
+    } catch ( std::bad_cast& ) {
+        return false;
+    }
 }
 
 QTextStream& MsgMessage::dump( QTextStream& s ) const
 {
-    return s;
-}
-
-bool BasicMessage::eq( const AbstractData& other ) const
-{
-    // FIXME
-    return false;
+    s << "MsgMessage( envelope " << envelope << ", body-fld-lines " << bodyFldLines << ", body ";
+    if ( body )
+        s << *body;
+    else
+        s << "(null)";
+    return s << " )";
 }
 
 QTextStream& BasicMessage::dump( QTextStream& s ) const
 {
-    return s;
+    return s << "BasicMessage( " << mediaType << "/" << mediaSubType << 
+        ", body-fld-param: " << bodyFldParam << ", body-fld-id: " <<
+        bodyFldId << ", body-fld-desc: " << bodyFldDesc << ", body-fld-enc: " <<
+        bodyFldEnc << ", body-fld-octets: " << bodyFldOctets << ", bodyFldMd5: " <<
+        bodyFldMd5 << ", body-fld-dsp: " << bodyFldDsp << ", body-fld-lang: " <<
+        bodyFldLang << ", body-fld-loc: " << bodyFldLoc << ", body-extension is " << 
+        bodyExtension.typeName() << " )"; // FIXME: operator<< for QVariant...
+    // FIXME: operator<< for QVariant...
 }
 
 bool MultiMessage::eq( const AbstractData& other ) const
 {
-    // FIXME
-    return false;
+    try {
+        const MultiMessage& o = dynamic_cast<const MultiMessage&>( other );
+
+        if ( bodies.count() != o.bodies.count() )
+            return false;
+
+        for ( int i = 0; i < bodies.count(); ++i ) {
+            if ( bodies[i] ) {
+                if ( o.bodies[i] ) {
+                    if ( *bodies[i] != *o.bodies[i] )
+                        return false;
+                } else
+                    return false;
+            } else if ( ! o.bodies[i] )
+                return false;
+        }
+
+        return mediaSubType == o.mediaSubType && bodyFldParam == o.bodyFldParam && 
+            bodyFldDsp == o.bodyFldDsp && bodyFldLang == o.bodyFldLang && 
+            bodyFldLoc == o.bodyFldLoc && bodyExtension == o.bodyExtension;
+
+    } catch ( std::bad_cast& ) {
+        return false;
+    }
 }
 
 QTextStream& MultiMessage::dump( QTextStream& s ) const
 {
-    return s;
+    s << "MultiMessage( multipart/" << mediaSubType << ", body-fld-param " << 
+        bodyFldParam << ", body-fld-dsp " << bodyFldDsp << ", body-fld-lang " <<
+        bodyFldLang << ", body-fld-loc " << bodyFldLoc << ", bodyExtension is " << 
+        bodyExtension.typeName() << ", bodies: [ ";
+
+    for ( QList<std::tr1::shared_ptr<AbstractMessage> >::const_iterator it = bodies.begin(); it != bodies.end(); ++it )
+        if ( *it )
+            s << **it << ", ";
+        else
+            s << "(null), ";
+
+    return s << "] )";
 }
 
 AbstractMessage::bodyFldParam_t AbstractMessage::makeBodyFldParam( const QVariant& input, const QByteArray& line, const int start )
 {
-    if ( input.type() != QVariant::List )
-        throw UnexpectedHere( line, start ); // body-fld-param: not a list
     bodyFldParam_t map;
+    if ( input.type() != QVariant::List ) {
+        if ( input.type() == QVariant::ByteArray && input.toByteArray().isNull() )
+            return map;
+        throw UnexpectedHere( line, start ); // body-fld-param: not a list / nil
+    }
     QVariantList list = input.toList();
     if ( list.size() % 2 )
         throw UnexpectedHere( line, start ); // body-fld-param: wrong number of entries
@@ -157,18 +242,20 @@ AbstractMessage::bodyFldParam_t AbstractMessage::makeBodyFldParam( const QVarian
 
 AbstractMessage::bodyFldDsp_t AbstractMessage::makeBodyFldDsp( const QVariant& input, const QByteArray& line, const int start )
 {
-    if ( input.type() != QVariant::List )
-        throw UnexpectedHere( line, start ); // body-fld-dsp: not a list
-    QVariantList list = input.toList();
     bodyFldDsp_t res;
+
+    if ( input.type() != QVariant::List ) {
+        if ( input.type() == QVariant::ByteArray && input.toByteArray().isNull() )
+            return res;
+        throw UnexpectedHere( line, start ); // body-fld-dsp: not a list / nil
+    }
+    QVariantList list = input.toList();
     if ( list.size() != 2 )
         throw ParseError( line, start ); // body-fld-dsp: wrong number of entries in the list
     if ( list[0].type() != QVariant::ByteArray )
         throw UnexpectedHere( line, start ); // body-fld-dsp: first item is not a string
     res.first = list[0].toByteArray();
-    if ( list[1].type() != QVariant::List )
-        throw UnexpectedHere( line, start ); // body-fld-dsp: body-fld-param not recognized
-    res.second = makeBodyFldParam( list[1].toList(), line, start );
+    res.second = makeBodyFldParam( list[1], line, start );
     return res;
 }
 
@@ -441,6 +528,27 @@ QTextStream& operator<<( QTextStream& stream, const Envelope& e )
         e.replyTo << "\nTo: " << e.to << "\nCc: " << e.cc << "\nBcc: " <<
         e.bcc << "\nIn-Reply-To: " << e.inReplyTo << "\nMessage-Id: " << e.messageId <<
         "\n";
+}
+
+QTextStream& operator<<( QTextStream& stream, const AbstractMessage::bodyFldParam_t& p )
+{
+    stream << "bodyFldParam[ ";
+    for ( AbstractMessage::bodyFldParam_t::const_iterator it = p.begin(); it != p.end(); ++it )
+        stream << it.key() << ": " << it.value() << ", ";
+    return stream << "]";
+}
+
+QTextStream& operator<<( QTextStream& stream, const AbstractMessage::bodyFldDsp_t& p )
+{
+    return stream << "bodyFldDsp( " << p.first << ", " << p.second << ")";
+}
+
+QTextStream& operator<<( QTextStream& stream, const QList<QByteArray>& list )
+{
+    stream << "( ";
+    for ( QList<QByteArray>::const_iterator it = list.begin(); it != list.end(); ++it )
+        stream << *it << ", ";
+    return stream << " )";
 }
 
 bool operator==( const Envelope& a, const Envelope& b )

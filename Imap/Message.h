@@ -127,6 +127,8 @@ namespace Message {
             bodyFldId(_bodyFldId), bodyFldDesc(_bodyFldDesc), bodyFldEnc(_bodyFldEnc),
             bodyFldOctets(_bodyFldOctets), bodyFldMd5(_bodyFldMd5), bodyFldDsp(_bodyFldDsp),
             bodyFldLang(_bodyFldLang), bodyFldLoc(_bodyFldLoc), bodyExtension(_bodyExtension) {};
+
+        virtual bool eq( const AbstractData& other ) const;
     };
 
     /** @short Ordinary Message (body-type-basic in RFC3501) */
@@ -143,7 +145,8 @@ namespace Message {
                     _bodyFldDesc, _bodyFldEnc, _bodyFldOctets, _bodyFldMd5,
                     _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension) {};
         virtual QTextStream& dump( QTextStream& s ) const;
-        virtual bool eq( const AbstractData& other ) const;
+        /* No need for "virtual bool eq( const AbstractData& other ) const" as
+         * it's already implemented in OneMessage::eq() */
     };
 
     /** @short A message holding another RFC822 message (body-type-msg) */
@@ -213,6 +216,9 @@ namespace Message {
     QTextStream& operator<<( QTextStream& stream, const MailAddress& address );
     QTextStream& operator<<( QTextStream& stream, const QList<MailAddress>& address );
     QTextStream& operator<<( QTextStream& stream, const Envelope& e );
+    QTextStream& operator<<( QTextStream& stream, const AbstractMessage::bodyFldParam_t& p );
+    QTextStream& operator<<( QTextStream& stream, const AbstractMessage::bodyFldDsp_t& p );
+    QTextStream& operator<<( QTextStream& stream, const QList<QByteArray>& list );
 
     bool operator==( const Envelope& a, const Envelope& b );
     inline bool operator!=( const Envelope& a, const Envelope& b ) { return !(a == b); };
