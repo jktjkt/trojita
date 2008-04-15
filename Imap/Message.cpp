@@ -516,8 +516,9 @@ QTextStream& operator<<( QTextStream& stream, const MailAddress& address )
 QTextStream& operator<<( QTextStream& stream, const QList<MailAddress>& address )
 {
     stream << "[ ";
-    for ( QList<MailAddress>::const_iterator it = address.begin(); it != address.end(); ++it )
-        stream << *it << ", ";
+    bool first = true;
+    for ( QList<MailAddress>::const_iterator it = address.begin(); it != address.end(); ++it, first = false )
+        stream << ( first ? "" : ", " ) << *it;
     return stream << " ]";
 }
 
@@ -533,8 +534,9 @@ QTextStream& operator<<( QTextStream& stream, const Envelope& e )
 QTextStream& operator<<( QTextStream& stream, const AbstractMessage::bodyFldParam_t& p )
 {
     stream << "bodyFldParam[ ";
-    for ( AbstractMessage::bodyFldParam_t::const_iterator it = p.begin(); it != p.end(); ++it )
-        stream << it.key() << ": " << it.value() << ", ";
+    bool first = true;
+    for ( AbstractMessage::bodyFldParam_t::const_iterator it = p.begin(); it != p.end(); ++it, first = false )
+        stream << ( first ? "" : ", " ) << it.key() << ": " << it.value();
     return stream << "]";
 }
 
@@ -546,8 +548,9 @@ QTextStream& operator<<( QTextStream& stream, const AbstractMessage::bodyFldDsp_
 QTextStream& operator<<( QTextStream& stream, const QList<QByteArray>& list )
 {
     stream << "( ";
-    for ( QList<QByteArray>::const_iterator it = list.begin(); it != list.end(); ++it )
-        stream << *it << ", ";
+    bool first = true;
+    for ( QList<QByteArray>::const_iterator it = list.begin(); it != list.end(); ++it, first = false )
+        stream << ( first ? "" : ", " ) << *it;
     return stream << " )";
 }
 
