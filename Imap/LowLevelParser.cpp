@@ -267,7 +267,7 @@ QDateTime parseRFC2822DateTime( const QString& string )
     QRegExp rx( QString( "^(?:\\s*([A-Z][a-z]+)\\s*,\\s*)?" // date-of-week
                 "(\\d{1,2})\\s+(%1)\\s+(\\d{2,4})" // date
                 "\\s+(\\d{2})\\s*:(\\d{2})\\s*(?::\\s*(\\d{2})\\s*)" // time
-                "\\s+(?:([+-]?)(\\d{2})(\\d{2}))|(UT|GMT|EST|EDT|CST|CDT|MST|MDT|PST|PDT|[A-IK-Za-ik-z])" // timezone
+                "\\s+(?:(?:([+-]?)(\\d{2})(\\d{2}))|(UT|GMT|EST|EDT|CST|CDT|MST|MDT|PST|PDT|[A-IK-Za-ik-z]))" // timezone
                 ).arg( monthNames.join( "|" ) ), Qt::CaseInsensitive );
     int pos = rx.indexIn( string );
 
@@ -292,6 +292,31 @@ QDateTime parseRFC2822DateTime( const QString& string )
         shift *= 60;
     else
         shift *= -60;
+    if ( ! list[11].isEmpty() ) {
+        const QString tz = list[11].toUpper();
+        if ( tz == "UT" || tz == "GMT" )
+            shift = 0;
+        else if ( tz == "EST" )
+            shift = 5 * 3600;
+        else if ( tz == "EDT" )
+            shift = 4 * 3600;
+        else if ( tz == "CST" )
+            shift = 6 * 3600;
+        else if ( tz == "CDT" )
+            shift = 5 * 3600;
+        else if ( tz == "MST" )
+            shift = 7 * 3600;
+        else if ( tz == "MDT" )
+            shift = 6 * 3600;
+        else if ( tz == "PST" )
+            shift = 8 * 3600;
+        else if ( tz == "PDT" )
+            shift = 7 * 3600;
+        else if ( tz.size() == 1 )
+            shift = 0;
+        else
+            throw ParseError( "Invalid TZ specification" );
+    }
 
     QDateTime date( QDate( year, month, day ), QTime( hours, minutes, seconds ), Qt::UTC );
     date = date.addSecs( shift );

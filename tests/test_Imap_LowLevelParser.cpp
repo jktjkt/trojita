@@ -330,6 +330,50 @@ void ImapLowLevelParserTest::testGetRFC2822DateTime_data()
         << QString("Wed, 09 Apr 2008 20:16:12 +0200")
         << QDateTime( QDate( 2008, 4, 9 ), QTime( 18, 16, 12 ), Qt::UTC );
 
+    QTest::newRow("date-ut")
+        << QString("Wed, 09 Apr 2008 20:16:12 UT")
+        << QDateTime( QDate( 2008, 4, 9 ), QTime( 20, 16, 12 ), Qt::UTC );
+
+    QTest::newRow("date-gmt")
+        << QString("Wed, 09 Apr 2008 20:16:12 gMt")
+        << QDateTime( QDate( 2008, 4, 9 ), QTime( 20, 16, 12 ), Qt::UTC );
+
+    QTest::newRow("date-est")
+        << QString("Wed, 09 Apr 2008 13:16:12 est")
+        << QDateTime( QDate( 2008, 4, 9 ), QTime( 18, 16, 12 ), Qt::UTC );
+
+    QTest::newRow("date-edt")
+        << QString("Wed, 09 Apr 2008 13:16:12 edt")
+        << QDateTime( QDate( 2008, 4, 9 ), QTime( 17, 16, 12 ), Qt::UTC );
+
+    QTest::newRow("date-cst")
+        << QString("Wed, 09 Apr 2008 10:17:12 CST")
+        << QDateTime( QDate( 2008, 4, 9 ), QTime( 16, 17, 12 ), Qt::UTC );
+
+    QTest::newRow("date-cdt")
+        << QString("Wed, 09 Apr 2008 20:16:12 CDT")
+        << QDateTime( QDate( 2008, 4, 10 ), QTime( 1, 16, 12 ), Qt::UTC );
+
+    QTest::newRow("date-mst")
+        << QString("wEd, 09 APr 2001 20:16:12 mst")
+        << QDateTime( QDate( 2001, 4, 10 ), QTime( 3, 16, 12 ), Qt::UTC );
+
+    QTest::newRow("date-mdt")
+        << QString("Wed, 09 Apr 2008 20:16:12 mdT")
+        << QDateTime( QDate( 2008, 4, 10 ), QTime( 2, 16, 12 ), Qt::UTC );
+
+    QTest::newRow("date-pst")
+        << QString("Wed, 09 Apr 2008 20:16:12 pst")
+        << QDateTime( QDate( 2008, 4, 10 ), QTime( 4, 16, 12 ), Qt::UTC );
+
+    QTest::newRow("date-pdt")
+        << QString("Wed, 09 Apr 2008 20:16:12 pdt")
+        << QDateTime( QDate( 2008, 4, 10 ), QTime( 3, 16, 12 ), Qt::UTC );
+
+    QTest::newRow("date-a")
+        << QString("Wed, 09 Apr 2008 20:16:12 a")
+        << QDateTime( QDate( 2008, 4, 9 ), QTime( 20, 16, 12 ), Qt::UTC );
+
     int month = 1;
     int day = 1;
     QTime time( 0, 0, 0 );
