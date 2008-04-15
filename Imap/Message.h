@@ -77,6 +77,7 @@ namespace Message {
             date(_date), subject(_subject), from(_from), sender(_sender), replyTo(_replyTo),
             to(_to), cc(_cc), bcc(_bcc), inReplyTo(_inReplyTo), messageId(_messageId) {};
         static Envelope fromList( const QVariantList& items, const QByteArray& line, const int start );
+        QTextStream& dump( QTextStream& s, const int indent ) const;
 
     private:
         static QList<MailAddress> getListOfAddresses( const QVariant& in,
@@ -217,7 +218,6 @@ namespace Message {
     };
 
     QTextStream& operator<<( QTextStream& stream, const MailAddress& address );
-    QTextStream& operator<<( QTextStream& stream, const QList<MailAddress>& address );
     QTextStream& operator<<( QTextStream& stream, const Envelope& e );
     QTextStream& operator<<( QTextStream& stream, const AbstractMessage::bodyFldParam_t& p );
     QTextStream& operator<<( QTextStream& stream, const AbstractMessage::bodyFldDsp_t& p );

@@ -124,9 +124,9 @@ bool TextMessage::eq( const AbstractData& other ) const
 QTextStream& TextMessage::dump( QTextStream& s, const int indent ) const
 {
     QByteArray i( indent + 1, ' ' );
-    QByteArray lf( "\n" );
+    QByteArray lf( "\r\n" );
 
-    return s << QByteArray( " ", indent ) << "TextMessage( " << mediaType << "/" << mediaSubType << lf <<
+    return s << QByteArray( indent, ' ' ) << "TextMessage( " << mediaType << "/" << mediaSubType << lf <<
         i << "body-fld-param: " << bodyFldParam << lf <<
         i << "body-fld-id: " << bodyFldId << lf << 
         i << "body-fld-desc: " << bodyFldDesc << lf << 
@@ -138,7 +138,7 @@ QTextStream& TextMessage::dump( QTextStream& s, const int indent ) const
         i << "body-fld-loc: " << bodyFldLoc << lf <<
         i << "body-extension is " << bodyExtension.typeName() << lf <<
         i << "body-fld-lines: " << bodyFldLines << lf <<
-        QByteArray( " ", indent ) << ")";
+        QByteArray( indent, ' ' ) << ")";
     // FIXME: operator<< for QVariant...
 }
 
@@ -168,25 +168,26 @@ bool MsgMessage::eq( const AbstractData& other ) const
 QTextStream& MsgMessage::dump( QTextStream& s, const int indent ) const
 {
     QByteArray i( indent + 1, ' ' );
-    QByteArray lf( "\n" );
+    QByteArray lf( "\r\n" );
 
-    s << QByteArray( " ", indent ) << "MsgMessage(" << lf <<
-        i << "envelope " << envelope << lf << 
+    s << QByteArray( indent, ' ' ) << "MsgMessage(" << lf;
+    envelope.dump( s, indent + 1 );
+    s << 
         i << "body-fld-lines " << bodyFldLines << lf <<
-        i << "body " << lf;
+        i << "body:" << lf;
     if ( body )
-        body->dump( s, indent + 1 );
+        body->dump( s, indent + 2 );
     else
         s << i << " (null)";
-    return s << lf << QByteArray(" ", indent ) << ")";
+    return s << lf << QByteArray( indent, ' ' ) << ")";
 }
 
 QTextStream& BasicMessage::dump( QTextStream& s, const int indent ) const
 {
     QByteArray i( indent + 1, ' ' );
-    QByteArray lf( "\n" );
+    QByteArray lf( "\r\n" );
 
-    return s << QByteArray( " ", indent ) << "TextMessage( " << mediaType << "/" << mediaSubType << lf <<
+    return s << QByteArray( indent, ' ' ) << "TextMessage( " << mediaType << "/" << mediaSubType << lf <<
         i << "body-fld-param: " << bodyFldParam << lf <<
         i << "body-fld-id: " << bodyFldId << lf << 
         i << "body-fld-desc: " << bodyFldDesc << lf << 
@@ -197,7 +198,7 @@ QTextStream& BasicMessage::dump( QTextStream& s, const int indent ) const
         i << "body-fld-lang: " << bodyFldLang << lf <<
         i << "body-fld-loc: " << bodyFldLoc << lf <<
         i << "body-extension is " << bodyExtension.typeName() << lf <<
-        QByteArray( " ", indent ) << ")";
+        QByteArray( indent, ' ' ) << ")";
     // FIXME: operator<< for QVariant...
 }
 
@@ -232,9 +233,9 @@ bool MultiMessage::eq( const AbstractData& other ) const
 QTextStream& MultiMessage::dump( QTextStream& s, const int indent ) const
 {
     QByteArray i( indent + 1, ' ' );
-    QByteArray lf( "\n" );
+    QByteArray lf( "\r\n" );
 
-    s << QByteArray( " ", indent ) << "MultiMessage( multipart/" << mediaSubType << lf <<
+    s << QByteArray( indent, ' ' ) << "MultiMessage( multipart/" << mediaSubType << lf <<
         i << "body-fld-param " << bodyFldParam << lf <<
         i << "body-fld-dsp " << bodyFldDsp << lf << 
         i << "body-fld-lang " << bodyFldLang << lf <<
@@ -244,12 +245,12 @@ QTextStream& MultiMessage::dump( QTextStream& s, const int indent ) const
 
     for ( QList<std::tr1::shared_ptr<AbstractMessage> >::const_iterator it = bodies.begin(); it != bodies.end(); ++it )
         if ( *it ) {
-            (**it).dump( s, indent + 1 );
+            (**it).dump( s, indent + 2 );
             s << lf;
         } else
             s << i << " (null)" << lf;
 
-    return s << QByteArray( " ", indent ) << "] )";
+    return s << QByteArray( indent, ' ' ) << "] )";
 }
 
 AbstractMessage::bodyFldParam_t AbstractMessage::makeBodyFldParam( const QVariant& input, const QByteArray& line, const int start )
@@ -544,22 +545,49 @@ QTextStream& operator<<( QTextStream& stream, const MailAddress& address )
     return stream;
 }
 
-QTextStream& operator<<( QTextStream& stream, const QList<MailAddress>& address )
+void dumpListOfAddresses( QTextStream& stream, const QList<MailAddress>& list, const int indent )
 {
-    stream << "[ ";
-    bool first = true;
-    for ( QList<MailAddress>::const_iterator it = address.begin(); it != address.end(); ++it, first = false )
-        stream << ( first ? "" : ", " ) << *it;
-    return stream << " ]";
+    QByteArray lf( "\r\n" );
+    switch ( list.size() ) {
+        case 0:
+            stream << "[ ]" << lf;
+            break;
+        case 1:
+            stream << "[ " << list.front() << " ]" << lf;
+            break;
+        default:
+            {
+                QByteArray i( indent + 1, ' ' );
+                stream << "[" << lf;
+                for ( QList<MailAddress>::const_iterator it = list.begin(); it != list.end(); ++it )
+                    stream << i << *it << lf;
+                stream << QByteArray( indent, ' ' ) << "]" << lf;
+            }
+    }
+}
+
+QTextStream& Envelope::dump( QTextStream& stream, const int indent ) const
+{
+    QByteArray i( indent + 1, ' ' );
+    QByteArray lf( "\r\n" );
+    stream << QByteArray( indent, ' ' ) << "Envelope(" << lf <<
+        i << "Date: " << date.toString() << lf <<
+        i << "Subject: " << subject << lf;
+    stream << i << "From: "; dumpListOfAddresses( stream, from, indent + 1 );
+    stream << i << "Sender: "; dumpListOfAddresses( stream, sender, indent + 1 );
+    stream << i << "Reply-To: "; dumpListOfAddresses( stream, replyTo, indent + 1 );
+    stream << i << "To: "; dumpListOfAddresses( stream, to, indent + 1 );
+    stream << i << "Cc: "; dumpListOfAddresses( stream, cc, indent + 1 );
+    stream << i << "Bcc: "; dumpListOfAddresses( stream, bcc, indent + 1 );
+    stream << 
+        i << "In-Reply-To: " << inReplyTo << lf <<
+        i << "Message-Id: " << messageId << lf;
+    return stream << QByteArray( indent, ' ' ) << ")" << lf;
 }
 
 QTextStream& operator<<( QTextStream& stream, const Envelope& e )
 {
-    return stream << "Date: " << e.date.toString() << "\nSubject: " << e.subject << "\nFrom: " <<
-        e.from << "\nSender: " << e.sender << "\nReply-To: " << 
-        e.replyTo << "\nTo: " << e.to << "\nCc: " << e.cc << "\nBcc: " <<
-        e.bcc << "\nIn-Reply-To: " << e.inReplyTo << "\nMessage-Id: " << e.messageId <<
-        "\n";
+    return e.dump( stream, 0 );
 }
 
 QTextStream& operator<<( QTextStream& stream, const AbstractMessage::bodyFldParam_t& p )
