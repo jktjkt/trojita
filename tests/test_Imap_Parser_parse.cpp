@@ -131,6 +131,7 @@ void ImapParserParseTest::testParseUntagged_data()
     using namespace Imap::Responses;
     using namespace Imap::Message;
     using std::tr1::shared_ptr;
+    using Imap::Responses::Fetch; // needed for gcc-3.4
 
     QTest::addColumn<QByteArray>("line");
     QTest::addColumn<shared_ptr<AbstractResponse> >("response");

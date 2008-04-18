@@ -25,6 +25,8 @@
 
 typedef QPair<QByteArray,Imap::LowLevelParser::ParsedAs> StringWithKind;
 
+Q_DECLARE_METATYPE(QDateTime) // needed for Qt-4.1
+
 void ImapLowLevelParserTest::testParseList()
 {
     using namespace Imap::LowLevelParser;
