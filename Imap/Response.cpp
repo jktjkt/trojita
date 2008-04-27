@@ -654,7 +654,7 @@ bool Fetch::eq( const AbstractResponse& other ) const
             return false;
         for ( dataType::const_iterator it = data.begin();
                 it != data.end(); ++it )
-            if ( *it.value() != *f.data[ it.key() ] )
+            if ( f.data.find( it.key() ) == f.data.end() || *it.value() != *f.data[ it.key() ] )
                 return false;
         return true;
     } catch ( std::bad_cast& ) {
