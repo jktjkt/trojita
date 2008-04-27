@@ -53,6 +53,7 @@ namespace Message {
                 const QByteArray& _mailbox, const QByteArray& _host ):
             name(_name), adl(_adl), mailbox(_mailbox), host(_host) {};
         MailAddress( const QVariantList& input, const QByteArray& line, const int start );
+        MailAddress() {};
     };
 
     /** @short Storage for envelope */
