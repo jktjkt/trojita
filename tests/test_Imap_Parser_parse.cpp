@@ -123,7 +123,16 @@ void ImapParserParseTest::testParseUntagged()
     QFETCH( std::tr1::shared_ptr<Imap::Responses::AbstractResponse>, response );
 
     Q_ASSERT( response );
-    QCOMPARE( *(parser->parseUntagged( line )), *response );
+    std::tr1::shared_ptr<Imap::Responses::AbstractResponse> r = parser->parseUntagged( line );
+#if 0 // qDebug()'s internal buffer is too small to be useful here, that's why QCOMPARE's normal dumping is not enough
+    if ( *r != *response ) {
+        QTextStream s( stderr );
+        s << "\nPARSED:\n" << *r;
+        s << "\nEXPETCED:\n";
+        s << *response;
+    }
+#endif
+    QCOMPARE( *r, *response );
 }
 
 void ImapParserParseTest::testParseUntagged_data()
@@ -292,6 +301,60 @@ void ImapParserParseTest::testParseUntagged_data()
         << shared_ptr<AbstractResponse>( new Fetch( 12, fetchData ) );
 
     // FIXME: more unit tests for ENVELOPE and BODY[
+
+    fetchData.clear();
+    AbstractMessage::bodyFldParam_t bodyFldParam;
+    AbstractMessage::bodyFldDsp_t bodyFldDsp;
+    bodyFldParam[ "charset" ] = "UTF-8";
+    bodyFldParam[ "format" ] = "flowed";
+    fetchData[ "BODYSTRUCTURE" ] = std::tr1::shared_ptr<AbstractData>(
+            new TextMessage( "text", "plain", bodyFldParam, QByteArray(), QByteArray(),
+                "8bit", 362, QByteArray(), bodyFldDsp, QList<QByteArray>(),
+                QByteArray(), QVariant(), 15 )
+            );
+    QTest::newRow("fetch-bodystructure-plain") <<
+        QByteArray( "* 3 FETCH (BODYSTRUCTURE (\"text\" \"plain\" (\"charset\" \"UTF-8\" \"format\" \"flowed\") NIL NIL \"8bit\" 362 15 NIL NIL NIL))\r\n" ) <<
+        shared_ptr<AbstractResponse>( new Fetch( 3, fetchData ) );
+
+
+    fetchData.clear();
+    QList<std::tr1::shared_ptr<AbstractMessage> > msgList;
+    // 1.1
+    bodyFldParam.clear();
+    bodyFldDsp = AbstractMessage::bodyFldDsp_t();
+    bodyFldParam[ "charset" ] = "US-ASCII";
+    bodyFldParam[ "delsp" ] = "yes";
+    bodyFldParam[ "format" ] = "flowed";
+    msgList.append( std::tr1::shared_ptr<AbstractMessage>(
+                new TextMessage( "text", "plain", bodyFldParam, QByteArray(), 
+                    QByteArray(), "7bit", 990, QByteArray(), bodyFldDsp,
+                    QList<QByteArray>(), QByteArray(), QVariant(), 27 )
+                ) );
+    // 1.2
+    bodyFldParam.clear();
+    bodyFldParam[ "x-mac-type" ] = "70674453";
+    bodyFldParam[ "name" ] = "PGP.sig";
+    bodyFldDsp = AbstractMessage::bodyFldDsp_t();
+    bodyFldDsp.first = "inline";
+    bodyFldDsp.second[ "filename" ] = "PGP.sig";
+    msgList.append( std::tr1::shared_ptr<AbstractMessage>(
+                new TextMessage( "application", "pgp-signature", bodyFldParam,
+                    QByteArray(), "This is a digitally signed message part",
+                    "7bit", 193, QByteArray(), bodyFldDsp, QList<QByteArray>(),
+                    QByteArray(), QVariant(), 0 )
+                ) );
+    // 1
+    bodyFldParam.clear();
+    bodyFldParam[ "protocol" ] = "application/pgp-signature";
+    bodyFldParam[ "micalg" ] = "pgp-sha1";
+    bodyFldParam[ "boundary" ] = "Apple-Mail-10--856231115";
+    bodyFldDsp = AbstractMessage::bodyFldDsp_t();
+    fetchData[ "BODYSTRUCTURE" ] = std::tr1::shared_ptr<AbstractData>(
+            new MultiMessage( msgList, "signed", bodyFldParam, bodyFldDsp, QList<QByteArray>(), QByteArray(), QVariant() )
+            );
+    QTest::newRow("fetch-bodystructure-signed") <<
+        QByteArray("* 1 FETCH (BODYSTRUCTURE ((\"text\" \"plain\" (\"charset\" \"US-ASCII\" \"delsp\" \"yes\" \"format\" \"flowed\") NIL NIL \"7bit\" 990 27 NIL NIL NIL)(\"application\" \"pgp-signature\" (\"x-mac-type\" \"70674453\" \"name\" \"PGP.sig\") NIL \"This is a digitally signed message part\" \"7bit\" 193 NIL (\"inline\" (\"filename\" \"PGP.sig\")) NIL) \"signed\" (\"protocol\" \"application/pgp-signature\" \"micalg\" \"pgp-sha1\" \"boundary\" \"Apple-Mail-10--856231115\") NIL NIL))\r\n") <<
+        shared_ptr<AbstractResponse>( new Fetch( 1, fetchData ) );
 
 }
 
