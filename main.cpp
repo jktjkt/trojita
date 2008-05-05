@@ -37,7 +37,7 @@ int main( int argc, char** argv) {
     parser->select( "trms" );
     //parser->fetch( Imap::Sequence(1), QStringList() << "UID" << "BODY[HEADER.FIELDS (Subject Received)]<100.10>" << "UID" );
     //parser->fetch( Imap::Sequence(1), QStringList() << "RFC822.HEADER" );
-    parser->fetch( Imap::Sequence(7), QStringList() << "bodyStructure" );
+    parser->fetch( Imap::Sequence(1, 7), QStringList() << "bodyStructure" );
     //parser->fetch( Imap::Sequence(1, 6), QStringList() << "FLAGS" << "BODY[HEADER.FIELDS (DATE FROM)]");
     parser->fetch( Imap::Sequence(1, 6), QStringList() << "UID" << /*"RFC822.HEADER" <<*/ "INTERNALDATE" << "RFC822.SIZE" << "FLAGS" );
     parser->logout();
