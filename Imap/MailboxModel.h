@@ -22,7 +22,7 @@
 #include <tr1/memory>
 #include <QAbstractItemModel>
 #include "Imap/Cache.h"
-#include "Imap/ParserPool.h"
+#include "Imap/Parser.h"
 
 /** @short Namespace for IMAP interaction */
 namespace Imap {

@@ -16,8 +16,8 @@
    Boston, MA 02110-1301, USA.
 */
 
-#ifndef IMAP_PARSERPOOL_H
-#define IMAP_PARSERPOOL_H
+#ifndef IMAP_SOCKETFACTORY_H
+#define IMAP_SOCKETFACTORY_H
 
 #include <tr1/memory>
 #include "Imap/Parser.h"
@@ -27,12 +27,6 @@ namespace Imap {
 
 /** @short Classes for handling of mailboxes and connections */
 namespace Mailbox {
-
-/** @short IMAP connection manager */
-class ParserPool {
-public:
-    Imap::ParserPtr get();
-};
 
 /** @short Abstract interface for creating new socket that is somehow connected
  * to the IMAP server */
@@ -56,11 +50,8 @@ public:
     virtual Imap::Parser::Socket create();
 };
 
-/** @short A convenience typedef */
-typedef std::tr1::shared_ptr<ParserPool> ParserPoolPtr;
-
 }
 
 }
 
-#endif /* IMAP_PARSERPOOL_H */
+#endif /* IMAP_SOCKETFACTORY_H */

@@ -34,7 +34,7 @@ add_subdirectory( tests )
 
 set(libImap_SRCS Imap/Parser.cpp Imap/Command.cpp Imap/Response.cpp
     Imap/LowLevelParser.cpp Imap/Exceptions.cpp Imap/Data.cpp Imap/Message.cpp
-    Imap/Cache.cpp Imap/MailboxModel.cpp Imap/ParserPool.cpp
+    Imap/Cache.cpp Imap/MailboxModel.cpp Imap/SocketFactory.cpp
     Imap/rfccodecs.cpp Imap/kcodecs.cpp)
 
 set(libDemo_SRCS Demo/ParserMonitor.cpp)

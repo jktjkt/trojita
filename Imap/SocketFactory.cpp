@@ -16,7 +16,7 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include "Imap/ParserPool.h"
+#include "Imap/SocketFactory.h"
 #include <QProcess>
 
 namespace Imap {
