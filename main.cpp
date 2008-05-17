@@ -21,14 +21,16 @@
 #include <QTimer>
 
 #include "Imap/Parser.h"
+#include "Imap/ParserPool.h"
 #include "Demo/ParserMonitor.h"
 
 int main( int argc, char** argv) {
     QCoreApplication app( argc, argv );
-    std::auto_ptr<QIODevice> sock( new QProcess() );
-    static_cast<QProcess*>( sock.get() )->start( "dovecot", QStringList() << "--exec-mail" << "imap" );
-    static_cast<QProcess*>( sock.get() )->waitForStarted();
-    std::tr1::shared_ptr<Imap::Parser> parser( new Imap::Parser( 0, sock ) );
+
+    Imap::Mailbox::SocketFactoryPtr factory(
+            new Imap::Mailbox::ProcessSocketFactory( "dovecot",
+                QStringList() << "--exec-mail" << "imap" ) );
+    Imap::ParserPtr parser( new Imap::Parser( 0, factory->create() ) );
     Demo::ParserMonitor monitor( 0, parser.get() );
 
     parser->capability();

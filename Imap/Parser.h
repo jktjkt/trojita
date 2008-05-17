@@ -91,10 +91,12 @@ namespace Imap {
         friend class ::ImapParserParseTest;
 
     public:
+        typedef std::auto_ptr<QIODevice> Socket;
+
         /** @short Constructor.
          *
          * Takes an QIODevice instance as a parameter. */
-        Parser( QObject* parent, std::auto_ptr<QIODevice> socket );
+        Parser( QObject* parent, Socket socket );
 
         /** @short Destructor */
         ~Parser();
@@ -279,7 +281,7 @@ namespace Imap {
         void queueResponse( const std::tr1::shared_ptr<Responses::AbstractResponse>& resp );
 
         /** @short Connection to the IMAP server */
-        std::auto_ptr<QIODevice> _socket;
+        Socket _socket;
 
         /** @short Keeps track of the last-used command tag */
         unsigned int _lastTagUsed;
@@ -307,6 +309,9 @@ namespace Imap {
         QMutex _workerStopMutex;
 
     };
+
+    /** @short A convenience typedef */
+    typedef std::tr1::shared_ptr<Parser> ParserPtr;
 
     QTextStream& operator<<( QTextStream& stream, const Sequence& s );
 

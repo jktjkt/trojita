@@ -60,7 +60,7 @@
 
 namespace Imap {
 
-Parser::Parser( QObject* parent, std::auto_ptr<QIODevice> socket ): QObject(parent), _socket(socket), _lastTagUsed(0), _workerThread( this ), _workerStop( false )
+Parser::Parser( QObject* parent, Socket socket ): QObject(parent), _socket(socket), _lastTagUsed(0), _workerThread( this ), _workerStop( false )
 {
     _workerThread.start();
     Q_ASSERT( _socket.get() );

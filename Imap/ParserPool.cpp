@@ -15,30 +15,28 @@
    the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#ifndef TEST_IMAP_PARSER_PARSE
-#define TEST_IMAP_PARSER_PARSE
 
-#include <QtCore/QObject>
-#include "Imap/Parser.h"
+#include "Imap/ParserPool.h"
+#include <QProcess>
 
-class QByteArray;
-class QBuffer;
+namespace Imap {
+namespace Mailbox {
 
-/** @short Unit tests for Imap::Parser */
-class ImapParserParseTest : public QObject
+ProcessSocketFactory::ProcessSocketFactory(
+        const QString& executable, const QStringList& args):
+    _executable(executable), _args(args)
 {
-    Q_OBJECT
-    std::auto_ptr<QByteArray> array;
-    Imap::Parser::Socket buf;
-    Imap::ParserPtr parser;
-private Q_SLOTS:
-    /** @short Test parsing of various tagged responses */
-    void testParseTagged();
-    void testParseTagged_data();
-    /** @short Test parsing of untagged responses */
-    void testParseUntagged();
-    void testParseUntagged_data();
-    void initTestCase();
-};
+}
 
-#endif
+Imap::Parser::Socket ProcessSocketFactory::create()
+{
+    // FIXME: this may leak memory if an exception strikes in this function
+    // (before we return the pointer)
+    QProcess* proc = new QProcess();
+    proc->start( _executable, _args );
+    proc->waitForStarted();
+    return Imap::Parser::Socket( proc );
+}
+
+}
+}

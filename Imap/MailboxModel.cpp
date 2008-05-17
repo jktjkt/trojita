@@ -15,30 +15,34 @@
    the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#ifndef TEST_IMAP_PARSER_PARSE
-#define TEST_IMAP_PARSER_PARSE
 
-#include <QtCore/QObject>
-#include "Imap/Parser.h"
+#include "Imap/MailboxModel.h"
+#include <QDebug>
 
-class QByteArray;
-class QBuffer;
+namespace Imap {
+namespace Mailbox {
 
-/** @short Unit tests for Imap::Parser */
-class ImapParserParseTest : public QObject
+MailboxModel::MailboxModel( QObject* parent, CachePtr cache,
+        ParserPtr parser, const QString& mailbox, const bool readWrite,
+        const ThreadSorting sorting ):
+    QAbstractItemModel( parent ), _cache(cache), _parser(parser), 
+    _mailbox(mailbox), _threadSorting(sorting), _readWrite(readWrite)
 {
-    Q_OBJECT
-    std::auto_ptr<QByteArray> array;
-    Imap::Parser::Socket buf;
-    Imap::ParserPtr parser;
-private Q_SLOTS:
-    /** @short Test parsing of various tagged responses */
-    void testParseTagged();
-    void testParseTagged_data();
-    /** @short Test parsing of untagged responses */
-    void testParseUntagged();
-    void testParseUntagged_data();
-    void initTestCase();
-};
+    // FIXME :)
+    // setup up parser, connect to correct mailbox,...
+    // start listening for events, react to them, make signals,... (another thread?)
+}
 
-#endif
+MailboxModel::ThreadSorting MailboxModel::threadSorting()
+{
+    return _threadSorting;
+}
+
+void MailboxModel::setThreadSorting( const ThreadSorting value )
+{
+    _threadSorting = value;
+}
+
+
+}
+}

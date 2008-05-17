@@ -15,30 +15,13 @@
    the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#ifndef TEST_IMAP_PARSER_PARSE
-#define TEST_IMAP_PARSER_PARSE
 
-#include <QtCore/QObject>
-#include "Imap/Parser.h"
+#include "Imap/Cache.h"
+#include <QDebug>
 
-class QByteArray;
-class QBuffer;
+namespace Imap {
+namespace Mailbox {
 
-/** @short Unit tests for Imap::Parser */
-class ImapParserParseTest : public QObject
-{
-    Q_OBJECT
-    std::auto_ptr<QByteArray> array;
-    Imap::Parser::Socket buf;
-    Imap::ParserPtr parser;
-private Q_SLOTS:
-    /** @short Test parsing of various tagged responses */
-    void testParseTagged();
-    void testParseTagged_data();
-    /** @short Test parsing of untagged responses */
-    void testParseUntagged();
-    void testParseUntagged_data();
-    void initTestCase();
-};
 
-#endif
+}
+}
