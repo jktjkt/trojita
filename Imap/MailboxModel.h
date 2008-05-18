@@ -22,6 +22,7 @@
 #include <tr1/memory>
 #include <QAbstractItemModel>
 #include "Imap/Cache.h"
+#include "Imap/Authenticator.h"
 #include "Imap/Parser.h"
 
 /** @short Namespace for IMAP interaction */
@@ -45,7 +46,8 @@ public:
         IMAP_STATE_LOGOUT /**< We have been logged out */
     };
 
-    MailboxModel( QObject* parent, CachePtr cache, ParserPtr parser,
+    MailboxModel( QObject* parent, CachePtr cache,
+            AuthenticatorPtr authenticator, ParserPtr parser,
             const QString& mailbox, const bool readWrite = true,
             const ThreadAlgorithm sorting = THREAD_NONE );
     ThreadAlgorithm threadSorting();
@@ -69,8 +71,13 @@ private:
     void responseReceived( std::tr1::shared_ptr<Imap::Responses::AbstractResponse> resp );
 
     void handleInitial( const Imap::Responses::State* const state );
+    void authenticate();
+    void select();
+    void alert( const Imap::Responses::AbstractResponse* const resp, const QString& message );
+    void unknownResponseCode( const Imap::Responses::AbstractResponse* const resp );
 
     CachePtr _cache;
+    AuthenticatorPtr _authenticator;
     ParserPtr _parser;
     QString _mailbox;
     ThreadAlgorithm _threadSorting;
@@ -80,6 +87,7 @@ private:
     QStringList _capabilities;
 
     bool _capabilitiesFresh;
+    bool _waitingForSelect;
 
     /** @short Tag used for sending the AUTHENTICATE command */
     Imap::CommandHandle _authTag;
@@ -87,6 +95,8 @@ private:
     /** @short Tag used for selecting mailbox */
     Imap::CommandHandle _selectTag;
 };
+
+QTextStream& operator<<( QTextStream& s, const MailboxModel::ImapState state );
 
 }
 

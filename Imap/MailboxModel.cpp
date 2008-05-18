@@ -23,16 +23,15 @@ namespace Imap {
 namespace Mailbox {
 
 MailboxModel::MailboxModel( QObject* parent, CachePtr cache,
-        ParserPtr parser, const QString& mailbox, const bool readWrite,
+        AuthenticatorPtr authenticator, ParserPtr parser,
+        const QString& mailbox, const bool readWrite,
         const ThreadAlgorithm sorting ):
-    QAbstractItemModel( parent ), _cache(cache), _parser(parser), 
-    _mailbox(mailbox), _threadSorting(sorting), _readWrite(readWrite),
+    QAbstractItemModel( parent ), _cache(cache),
+    _authenticator(authenticator), _parser(parser), _mailbox(mailbox),
+    _threadSorting(sorting), _readWrite(readWrite),
     _state(IMAP_STATE_CONN_ESTABLISHED), _capabilitiesFresh(false)
 {
     connect( _parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
-    // FIXME :)
-    // setup up parser, connect to correct mailbox,...
-    // start listening for events, react to them, make signals,... (another thread?)
 }
 
 Imap::ThreadAlgorithm MailboxModel::threadSorting()
@@ -64,34 +63,59 @@ void MailboxModel::responseReceived( std::tr1::shared_ptr<Imap::Responses::Abstr
     const State* state = dynamic_cast<const State*>( resp.get() );
 
     if ( capability ) {
+
         _capabilities = capability->capabilities;
         _capabilitiesFresh = true;
-    }
 
-    if ( state ) {
-        // handle most of the work here :(
-        QString tag = state->tag;
-        if ( ! tag.isEmpty() ) {
-            switch ( _state ) {
-                case IMAP_STATE_CONN_ESTABLISHED:
-                    // this is certainly unexpected here
-                    break;
-            }
-        } else {
-            switch ( _state ) {
-                case IMAP_STATE_CONN_ESTABLISHED:
-                    // server's initial greeting
-                    handleInitial( state );
-                    break;
-            }
+    } else if ( state ) {
+
+        // Check for common stuff like ALERT and CAPABILITIES update
+        switch ( state->respCode ) {
+            case ALERT:
+                {
+                    const RespData<QString>* const msg = dynamic_cast<const RespData<QString>* const>(
+                            state->respCodeData.get() );
+                    alert( state, msg ? msg->data : QString() );
+                }
+                break;
+            case CAPABILITIES:
+                {
+                    const RespData<QStringList>* const caps = dynamic_cast<const RespData<QStringList>* const>(
+                            state->respCodeData.get() );
+                    if ( caps ) {
+                        _capabilities = caps->data;
+                        _capabilitiesFresh = true;
+                    }
+                }
+                break;
+            default:
+                // do nothing here, it must be handled later
+                break;
         }
+
+        QString tag = state->tag;
+
+        switch ( _state ) {
+            case IMAP_STATE_CONN_ESTABLISHED:
+                if ( ! tag.isEmpty() )
+                    throw UnexpectedResponseReceived( "Received a tagged response when expecting server greeting", *state );
+                else
+                    handleInitial( state );
+                break;
+            default:
+                // FIXME
+                break;
+        }
+
     }
 }
 
 void MailboxModel::updateState( const ImapState state )
 {
     _state = state;
-    // FIXME: emit state change
+    // FIXME: emit state change signal
+    QTextStream s(stderr);
+    s << "Updating state to " << state << "\r\n";
 }
 
 void MailboxModel::handleInitial( const Imap::Responses::State* const state )
@@ -114,7 +138,76 @@ void MailboxModel::handleInitial( const Imap::Responses::State* const state )
                     *state );
     }
 
+    switch ( state->respCode ) {
+        case ALERT:
+        case CAPABILITIES:
+            // already handled in the responseReceived()
+            break;
+        default:
+            // nothing else is expected here
+            unknownResponseCode( state );
+    }
+
+    QTextStream s(stderr);
+    s << *state << "\r\n";
+
+    switch ( _state ) {
+        case IMAP_STATE_AUTH:
+            select();
+            break;
+        case IMAP_STATE_NOT_AUTH:
+            authenticate();
+            select();
+            break;
+        default:
+            throw Imap::UnexpectedResponseReceived( "It seems that IMAP server won't let us go in", *state );
+            break;
+    }
+}
+
+void MailboxModel::authenticate()
+{
+    // FIXME: real authentication here; *die* if server doesn't let us in
+    qDebug() << "MailboxModel::authenticate()";
+}
+
+void MailboxModel::select()
+{
     _selectTag = _readWrite ? _parser->select( _mailbox ) : _parser->examine( _mailbox );
+    _waitingForSelect = true;
+}
+
+void MailboxModel::alert( const Imap::Responses::AbstractResponse* const resp, const QString& message )
+{
+    // FIXME
+    qDebug() << "ALERT: " << message;
+}
+
+void MailboxModel::unknownResponseCode( const Imap::Responses::AbstractResponse* const resp )
+{
+    // FIXME
+}
+
+QTextStream& operator<<( QTextStream& s, const MailboxModel::ImapState state )
+{
+    switch (state) {
+        case MailboxModel::IMAP_STATE_CONN_ESTABLISHED:
+            s << "IMAP_STATE_CONN_ESTABLISHED";
+            break;
+        case MailboxModel::IMAP_STATE_NOT_AUTH:
+            s << "IMAP_STATE_NOT_AUTH";
+            break;
+        case MailboxModel::IMAP_STATE_AUTH:
+            s << "IMAP_STATE_AUTH";
+            break;
+        case MailboxModel::IMAP_STATE_SELECTED:
+            s << "IMAP_STATE_SELECTED";
+            break;
+        case MailboxModel::IMAP_STATE_LOGOUT:
+            s << "IMAP_STATE_LOGOUT";
+            break;
+    }
+    return s;
 }
 
 }

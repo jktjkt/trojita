@@ -32,8 +32,9 @@ int main( int argc, char** argv) {
 
     Imap::ParserPtr parser( new Imap::Parser( 0, factory->create() ) );
     Imap::Mailbox::CachePtr cache;
+    Imap::Mailbox::AuthenticatorPtr auth;
 
-    Imap::Mailbox::MailboxModel model( 0, cache, parser, "INBOX", true, Imap::THREAD_NONE );
+    Imap::Mailbox::MailboxModel model( 0, cache, auth, parser, "INBOX", true, Imap::THREAD_NONE );
     
     QTimer::singleShot( 1500, &app, SLOT(quit()) );
     app.exec();
