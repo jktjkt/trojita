@@ -123,3 +123,7 @@ model-view-architecture interface.  This means that it is extremely easy to add
 a graphical view to the application, as the Qt library already provides one.
 The idea here is that all the views could be extremely stupid (they indeed are),
 and all the IMAP logic like caching is to be provided by the lower layers.
+
+FIXME: describe (and implement :) ) Imap::Mailbox::Cache and
+(yet-to-be-thought-about) Imap::Mailbox::ParserPool for multiplexing of Parsers
+among multiple MailboxModels.
