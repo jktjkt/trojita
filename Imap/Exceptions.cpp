@@ -49,7 +49,8 @@ UnexpectedResponseReceived::UnexpectedResponseReceived( const char* const msg,
 {
     QByteArray buf;
     QTextStream s( &buf );
-    s << msg << ' ' << response;
+    s << msg << "\r\n" << response;
+    s.flush();
     _msg = buf.constData();
 }
 
