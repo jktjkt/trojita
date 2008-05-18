@@ -1,0 +1,36 @@
+The trojita IMAP Client
+-----------------------
+
+What is it?
+-----------
+
+At the time I started to work with e-mail on a more advanced level than a free
+e-mail provider could offer, my quest for an advanced and standards-compliant
+"Mail Client" (MUA) begun.  At first, I have no idea about various mail-related
+protocols, but during the process, I learned the meaning of abbreviations like
+SMTP, POP and IMAP.  As I'm a fan of open solutions, I have immediately put
+proprietary protocols out of consideration.  This left me with essentially just
+two choices for accessing my mail collection, either POP3 or IMAP4.
+
+POP3 is an older protocol.  While it certainly has its advantages (it's really
+simple to implement, for one), it wasn't designed for managing mail from
+multiple places, and it doesn't really support multiple mailboxes.  As I used to
+read my e-mails from at least four computers, I went on and had a closer look on
+the only remaining protocol, the IMAP4.
+
+Unlike POP, which was designed for retrieval of messages and wasn't designed
+for use-cases where they remain on the central server, the IMAP is built in a
+server-centric way.  The only place where the messages are kept permanently is
+the IMAP server.  The protocol, defined in RFC 3501, offers a rich suite of
+commands for both data access and data manipulation.  It is no longer needed to
+download a whole 5MB mail that has three lines of text and a JPEG attachment
+just because you wanted to see the text.  IMAP offers a comprehensive set of
+commands for determining message structure, partial message retrieval and even
+server-side message sorting based on message threading.
+
+This power of IMAP is, however, often not exploited by today's IMAP clients.  In
+fact, most of them are just dumb POP-clients upgraded to speak the IMAP
+language.  Such clients are more vulnerable to various attacks (one
+badly-formatted mail is parsed not only by the IMAP server, but then by the MUA
+again, increasing the risk of buffer overflows and other security-related issue)
+and are also wasting system resources.
