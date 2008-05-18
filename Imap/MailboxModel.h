@@ -68,9 +68,24 @@ private slots:
 private:
 
     void updateState( const ImapState state );
-    void responseReceived( std::tr1::shared_ptr<Imap::Responses::AbstractResponse> resp );
+
+#define PLUG(X) \
+    friend class Imap::Responses::X; \
+    void handle##X( const Imap::Responses::X* const resp );
+
+    PLUG(State)
+    PLUG(Capability)
+    PLUG(NumberResponse)
+    PLUG(List)
+    PLUG(Flags)
+    PLUG(Search)
+    PLUG(Status)
+    PLUG(Fetch)
+#undef PLUG
 
     void handleInitial( const Imap::Responses::State* const state );
+    void handleStateAuthenticated( const Imap::Responses::State* const state );
+    void handleStateSelected( const Imap::Responses::State* const state );
     void authenticate();
     void select();
     void alert( const Imap::Responses::AbstractResponse* const resp, const QString& message );

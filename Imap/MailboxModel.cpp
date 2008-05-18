@@ -52,62 +52,104 @@ void MailboxModel::responseReceived()
             // this shouldn't happen, but it's better to be safe anyway
             continue;
         }
-        responseReceived( resp );
+        resp->plug( this );
     }
 }
 
-void MailboxModel::responseReceived( std::tr1::shared_ptr<Imap::Responses::AbstractResponse> resp )
+void MailboxModel::handleFetch(Imap::Responses::Fetch const* resp )
+{
+}
+
+void MailboxModel::handleStatus(Imap::Responses::Status const* resp )
+{}
+
+void MailboxModel::handleSearch(Imap::Responses::Search const* resp )
+{}
+
+void MailboxModel::handleFlags(Imap::Responses::Flags const* resp )
+{}
+
+void MailboxModel::handleList(Imap::Responses::List const* resp )
+{}
+
+void MailboxModel::handleNumberResponse(Imap::Responses::NumberResponse const* resp )
+{}
+
+void MailboxModel::handleCapability(Imap::Responses::Capability const* r_capability )
+{
+    _capabilities = r_capability->capabilities;
+    _capabilitiesFresh = true;
+}
+
+void MailboxModel::handleState(Imap::Responses::State const* r_state )
 {
     using namespace Imap::Responses;
-    const Capability* capability = dynamic_cast<const Capability*>( resp.get() );
-    const State* state = dynamic_cast<const State*>( resp.get() );
 
-    if ( capability ) {
-
-        _capabilities = capability->capabilities;
-        _capabilitiesFresh = true;
-
-    } else if ( state ) {
-
-        // Check for common stuff like ALERT and CAPABILITIES update
-        switch ( state->respCode ) {
-            case ALERT:
-                {
-                    const RespData<QString>* const msg = dynamic_cast<const RespData<QString>* const>(
-                            state->respCodeData.get() );
-                    alert( state, msg ? msg->data : QString() );
+    // Check for common stuff like ALERT and CAPABILITIES update
+    switch ( r_state->respCode ) {
+        case ALERT:
+            {
+                const RespData<QString>* const msg = dynamic_cast<const RespData<QString>* const>(
+                        r_state->respCodeData.get() );
+                alert( r_state, msg ? msg->data : QString() );
+            }
+            break;
+        case CAPABILITIES:
+            {
+                const RespData<QStringList>* const caps = dynamic_cast<const RespData<QStringList>* const>(
+                        r_state->respCodeData.get() );
+                if ( caps ) {
+                    _capabilities = caps->data;
+                    _capabilitiesFresh = true;
                 }
-                break;
-            case CAPABILITIES:
-                {
-                    const RespData<QStringList>* const caps = dynamic_cast<const RespData<QStringList>* const>(
-                            state->respCodeData.get() );
-                    if ( caps ) {
-                        _capabilities = caps->data;
-                        _capabilitiesFresh = true;
-                    }
-                }
-                break;
-            default:
-                // do nothing here, it must be handled later
-                break;
-        }
-
-        QString tag = state->tag;
-
-        switch ( _state ) {
-            case IMAP_STATE_CONN_ESTABLISHED:
-                if ( ! tag.isEmpty() )
-                    throw UnexpectedResponseReceived( "Received a tagged response when expecting server greeting", *state );
-                else
-                    handleInitial( state );
-                break;
-            default:
-                // FIXME
-                break;
-        }
-
+            }
+            break;
+        default:
+            // do nothing here, it must be handled later
+            break;
     }
+
+    QString tag = r_state->tag;
+
+    switch ( _state ) {
+        case IMAP_STATE_CONN_ESTABLISHED:
+            if ( ! tag.isEmpty() )
+                throw UnexpectedResponseReceived( 
+                        "Received a tagged response when expecting server greeting", 
+                        *r_state );
+            else
+                handleInitial( r_state );
+            break;
+        case IMAP_STATE_NOT_AUTH:
+            // either I'm terribly mistaken or this is really guarded by the
+            // authenticate() function, so that it can't happen :)
+            throw UnexpectedResponseReceived(
+                    "Somehow we managed to get back to the "
+                    "IMAP_STATE_NOT_AUTH, which is rather confusing", 
+                    *r_state );
+            break;
+        case IMAP_STATE_AUTH:
+            handleStateAuthenticated( r_state );
+            break;
+        case IMAP_STATE_SELECTED:
+            handleStateSelected( r_state );
+            break;
+        case IMAP_STATE_LOGOUT:
+            // hey, we're supposed to be logged out, how come that
+            // *anything* made it here?
+            throw UnexpectedResponseReceived(
+                    "WTF, we're logged out, yet I just got this message", 
+                    *r_state );
+            break;
+    }
+}
+
+void MailboxModel::handleStateAuthenticated( const Imap::Responses::State* const state )
+{
+}
+
+void MailboxModel::handleStateSelected( const Imap::Responses::State* const state )
+{
 }
 
 void MailboxModel::updateState( const ImapState state )

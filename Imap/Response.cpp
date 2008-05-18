@@ -18,6 +18,7 @@
 #include "Imap/Response.h"
 #include "Imap/Message.h"
 #include "Imap/LowLevelParser.h"
+#include "Imap/MailboxModel.h"
 
 namespace Imap {
 namespace Responses {
@@ -661,6 +662,21 @@ bool Fetch::eq( const AbstractResponse& other ) const
         return false;
     }
 }
+
+#define PLUG(X) void X::plug( Imap::Mailbox::MailboxModel* mailboxModel ) const \
+{ mailboxModel->handle##X( this ); }
+
+PLUG( State )
+PLUG( Capability )
+PLUG( NumberResponse )
+PLUG( List )
+PLUG( Flags )
+PLUG( Search )
+PLUG( Status )
+PLUG( Fetch )
+
+#undef PLUG
+
 
 }
 }
