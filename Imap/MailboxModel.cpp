@@ -26,10 +26,23 @@ MailboxModel::MailboxModel( QObject* parent, CachePtr cache,
         AuthenticatorPtr authenticator, ParserPtr parser,
         const QString& mailbox, const bool readWrite,
         const ThreadAlgorithm sorting ):
-    QAbstractItemModel( parent ), _cache(cache),
-    _authenticator(authenticator), _parser(parser), _mailbox(mailbox),
-    _threadSorting(sorting), _readWrite(readWrite),
-    _state(IMAP_STATE_CONN_ESTABLISHED), _capabilitiesFresh(false)
+    // parent
+    QAbstractItemModel( parent ),
+    // our tools
+    _cache(cache), _authenticator(authenticator), _parser(parser),
+    // parameters
+    _mailbox(mailbox), _threadSorting(sorting), _readWrite(readWrite),
+    // internal state
+    _state(IMAP_STATE_CONN_ESTABLISHED),
+    // mailbox metadata
+    _exists(0), _recent(0), _unSeen(0), _uidNext(0), _uidValidity(0),
+    // freshness
+    _existsDone(false), _recentDone(false), _unSeenDone(false),
+    _uidNextDone(false), _uidValidityDone(false), _flagsDone(false),
+    _permanentFlagsDone(false),
+    _capabilitiesFresh(false),
+    // internal state again
+    _waitingForSelect(false)
 {
     connect( _parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
 }
@@ -83,7 +96,8 @@ void MailboxModel::handleFlags(Imap::Responses::Flags const* resp )
     if ( _state != IMAP_STATE_SELECTING )
     switch ( _state ) {
         case IMAP_STATE_SELECTING:
-            // FIXME
+            _flags = resp->flags;
+            _flagsDone = true;
             break;
         default:
             throw UnexpectedResponseReceived( "FLAGS reply, wtf?", *resp );
@@ -98,9 +112,24 @@ void MailboxModel::handleList(Imap::Responses::List const* resp )
 
 void MailboxModel::handleNumberResponse(Imap::Responses::NumberResponse const* resp )
 {
+    using namespace Imap::Responses;
+
     switch ( _state ) {
         case IMAP_STATE_SELECTING:
-            // FIXME
+            switch ( resp->kind ) {
+                case EXISTS:
+                    _exists = resp->number;
+                    _existsDone = true;
+                    break;
+                case RECENT:
+                    _recent = resp->number;
+                    _recentDone = true;
+                    break;
+                default:
+                    throw UnexpectedResponseReceived( 
+                            "NUMBER reply of weird kind when SELECTing", 
+                            *resp );
+            }
             break;
         default:
             throw UnexpectedResponseReceived( "NUMBER reply, wtf?", *resp );
@@ -187,23 +216,56 @@ void MailboxModel::handleStateAuthenticated( const Imap::Responses::State* const
 
 void MailboxModel::handleStateSelecting( const Imap::Responses::State* const state )
 {
+    using namespace Imap::Responses;
+
     switch ( state->kind ) {
-        case Imap::Responses::BAD:
+        case BAD:
             throw UnexpectedResponseReceived(
                     "Got a BAD result when trying to SELECT/EXAMINE a mailbox",
                     *state );
             break;
-        case Imap::Responses::NO:
+        case NO:
             updateState( IMAP_STATE_AUTH );
             // FIXME: throw an exception?
             break;
-        case Imap::Responses::OK:
+        case OK:
             if ( state->tag.isEmpty() ) {
-                // FIXME
+                switch ( state->respCode ) {
+                    case UNSEEN:
+                        _unSeen = dynamic_cast<const RespData<uint>* const>( state->respCodeData.get() )->data;
+                        _unSeenDone = true;
+                        break;
+                    case PERMANENTFLAGS:
+                        _permanentFlags = dynamic_cast<const RespData<QStringList>* const>( state->respCodeData.get() )->data;
+                        _permanentFlagsDone = true;
+                        break;
+                    case UIDNEXT:
+                        _uidNext = dynamic_cast<const RespData<uint>* const>( state->respCodeData.get() )->data;
+                        _uidNextDone = true;
+                        break;
+                    case UIDVALIDITY:
+                        _uidValidity = dynamic_cast<const RespData<uint>* const>( state->respCodeData.get() )->data;
+                        _uidValidityDone = true;
+                        break;
+                    default:
+                        unknownResponseCode( state );
+                }
             } else {
-                // FIXME: update RW, check required fields to be already retrieved
+                if ( ! ( _existsDone && _recentDone && _flagsDone ) )
+                    throw ServerError( "Server didn't provide all required fields for mailbox status",
+                            *state );
+                if ( ! ( _unSeenDone && _uidNextDone && _uidValidityDone && _permanentFlagsDone ) )
+                    throw ServerError( "Server is conforming to an old standard only, it didn't provide us"
+                            " with all required information of mailbox status as per RFC3501. We should've"
+                            " handled this, but it isn't implemented yet.", *state );
+                // FIXME: cache re-sync
                 updateState( IMAP_STATE_SELECTED );
             }
+            break;
+        case BYE:
+            // FIXME: throw an exception, inform all clients that we are going
+            // to die
+            updateState( IMAP_STATE_LOGOUT );
             break;
         default:
             throw UnexpectedResponseReceived(
@@ -280,6 +342,8 @@ void MailboxModel::authenticate()
 
 void MailboxModel::select()
 {
+    _existsDone = _recentDone = _unSeenDone = _uidNextDone = _uidValidityDone =
+        _flagsDone = _permanentFlagsDone = false;
     _selectTag = _readWrite ? _parser->select( _mailbox ) : _parser->examine( _mailbox );
     _waitingForSelect = true;
     updateState( IMAP_STATE_SELECTING );

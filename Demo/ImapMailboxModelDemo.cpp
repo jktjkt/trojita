@@ -34,8 +34,8 @@ int main( int argc, char** argv) {
     Imap::Mailbox::CachePtr cache;
     Imap::Mailbox::AuthenticatorPtr auth;
 
-    Imap::Mailbox::MailboxModel model( 0, cache, auth, parser, "INBOX", true, Imap::THREAD_NONE );
+    Imap::Mailbox::MailboxModel model( 0, cache, auth, parser, "trms", true, Imap::THREAD_NONE );
     
-    QTimer::singleShot( 1500, &app, SLOT(quit()) );
+    //QTimer::singleShot( 1500, &app, SLOT(quit()) );
     app.exec();
 }

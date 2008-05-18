@@ -127,14 +127,34 @@ namespace Responses {
 
 #undef ECBODY
 
-    /** @short Server sent us something that isn't expected right now */
-    class UnexpectedResponseReceived : public std::exception {
+    /** @short Parent for all exceptions thrown by Imap::Mailbox-related classes */
+    class MailboxException : public std::exception {
         std::string _msg;
     public:
-        UnexpectedResponseReceived( const char* const msg, const Imap::Responses::AbstractResponse& response );
+        MailboxException( const char* const msg, const Imap::Responses::AbstractResponse& response );
         virtual const char* what() const throw () { return _msg.c_str(); };
+        virtual ~MailboxException() throw () {};
+
+    };
+
+    /** @short Server sent us something that isn't expected right now */
+    class UnexpectedResponseReceived : public MailboxException {
+        std::string _msg;
+    public:
+        UnexpectedResponseReceived( const char* const msg, const Imap::Responses::AbstractResponse& response ):
+            MailboxException( msg, response ) {};
         virtual ~UnexpectedResponseReceived() throw () {};
     };
+
+    /** @short Server is broken */
+    class ServerError : public MailboxException {
+        std::string _msg;
+    public:
+        ServerError( const char* const msg, const Imap::Responses::AbstractResponse& response ):
+            MailboxException( msg, response ) {};
+        virtual ~ServerError() throw () {};
+    };
+
 
 }
 #endif /* IMAP_EXCEPTIONS_H */

@@ -44,7 +44,7 @@ const char* ParserException::what( const int context ) const throw()
 }
 
 
-UnexpectedResponseReceived::UnexpectedResponseReceived( const char* const msg,
+MailboxException::MailboxException( const char* const msg,
         const Imap::Responses::AbstractResponse& response )
 {
     QByteArray buf;

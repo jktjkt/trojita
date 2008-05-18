@@ -144,7 +144,7 @@ namespace Responses {
          *      Nothing else should be included, ie. void
          *
          *  UIDNEXT, UIDVALIDITY, UNSEEN:
-         *      Only number, ie. unisgned int
+         *      Only number, ie. unsigned int
          *
          *  BADCHARSET, PERMANENTFLAGS:
          *      List of strings, ie. QStringList

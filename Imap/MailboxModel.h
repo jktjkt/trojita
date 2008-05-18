@@ -103,6 +103,11 @@ private:
     ImapState _state;
     QStringList _capabilities;
 
+    uint _exists, _recent, _unSeen, _uidNext, _uidValidity;
+    QStringList _flags, _permanentFlags;
+
+    bool _existsDone, _recentDone, _unSeenDone, _uidNextDone, _uidValidityDone, _flagsDone, _permanentFlagsDone;
+
     bool _capabilitiesFresh;
     bool _waitingForSelect;
 
