@@ -34,8 +34,12 @@
 /** @short Namespace for IMAP interaction */
 namespace Imap {
 
+namespace Responses {
+    class AbstractResponse;
+}
+
     /** @short General exception class */
-    class Exception : public std::exception {
+    class ParserException : public std::exception {
         /** The error message */
         std::string _msg;
         /** Line with data that caused this error */
@@ -43,12 +47,12 @@ namespace Imap {
         /** Offset in line for error source */
         int _offset;
     public:
-        Exception( const std::string& msg ) : _msg(msg), _offset(-1) {};
-        Exception( const std::string& msg, const QByteArray& line, const int offset ):
+        ParserException( const std::string& msg ) : _msg(msg), _offset(-1) {};
+        ParserException( const std::string& msg, const QByteArray& line, const int offset ):
             _msg(msg), _line(line), _offset(offset) {};
         virtual const char* what( const int context ) const throw();
         virtual const char* what() const throw() { return what( 10 ); };
-        virtual ~Exception() throw() {};
+        virtual ~ParserException() throw() {};
     };
 
 #define ECBODY(CLASSNAME, PARENT) public: CLASSNAME( const std::string& msg ): PARENT(msg ) {};\
@@ -56,21 +60,21 @@ namespace Imap {
     CLASSNAME( const std::string& msg, const QByteArray& line, const int offset ): PARENT( msg, line, offset ) {};
 
     /** @short Invalid argument was passed to some function */
-    class InvalidArgument: public Exception {
+    class InvalidArgument: public ParserException {
     public:
-        ECBODY(InvalidArgument, Exception);
+        ECBODY(InvalidArgument, ParserException);
     };
 
     /** @short Socket error */
-    class SocketException : public Exception {
+    class SocketException : public ParserException {
     public:
-        ECBODY(SocketException, Exception);
+        ECBODY(SocketException, ParserException);
     };
 
     /** @short General parse error */
-    class ParseError : public Exception {
+    class ParseError : public ParserException {
     public:
-        ECBODY(ParseError, Exception);
+        ECBODY(ParseError, ParserException);
     };
 
     /** @short Parse error: unknown identifier */
@@ -104,9 +108,9 @@ namespace Imap {
     };
 
     /** @short Command Continuation Request received, but we have no idea how to handle it here */
-    class ContinuationRequest : public Exception {
+    class ContinuationRequest : public ParserException {
     public:
-        ECBODY(ContinuationRequest, Exception);
+        ECBODY(ContinuationRequest, ParserException);
     };
 
     /** @short Unknown command result (ie. anything else than OK, NO or BAD */
@@ -122,6 +126,15 @@ namespace Imap {
     };
 
 #undef ECBODY
+
+    /** @short Server sent us something that isn't expected right now */
+    class UnexpectedResponseReceived : public std::exception {
+        std::string _msg;
+    public:
+        UnexpectedResponseReceived( const char* const msg, const Imap::Responses::AbstractResponse& response );
+        virtual const char* what() const throw () { return _msg.c_str(); };
+        virtual ~UnexpectedResponseReceived() throw () {};
+    };
 
 }
 #endif /* IMAP_EXCEPTIONS_H */

@@ -109,7 +109,9 @@ void MailboxModel::handleInitial( const Imap::Responses::State* const state )
             updateState( IMAP_STATE_LOGOUT );
             break;
         default:
-            throw Imap::UnexpectedHere( "wtf" );
+            throw Imap::UnexpectedResponseReceived(
+                    "Waiting for initial OK/BYE/PREAUTH, but got this instead",
+                    *state );
     }
 
     _selectTag = _readWrite ? _parser->select( _mailbox ) : _parser->examine( _mailbox );

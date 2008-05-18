@@ -17,9 +17,12 @@
 */
 #include "Exceptions.h"
 
+#include <QTextStream>
+#include "Response.h"
+
 namespace Imap {
 
-const char* Exception::what( const int context ) const throw()
+const char* ParserException::what( const int context ) const throw()
 {
     if ( _offset == -1 )
         return _msg.c_str();
@@ -38,6 +41,16 @@ const char* Exception::what( const int context ) const throw()
         out += "^ here\n";
         return out.constData();
     }
+}
+
+
+UnexpectedResponseReceived::UnexpectedResponseReceived( const char* const msg,
+        const Imap::Responses::AbstractResponse& response )
+{
+    QByteArray buf;
+    QTextStream s( &buf );
+    s << msg << ' ' << response;
+    _msg = buf.constData();
 }
 
 }
