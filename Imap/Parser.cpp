@@ -345,6 +345,7 @@ bool Parser::executeACommand( const Commands::Command& cmd )
     }
     buf.append( "\r\n" );
     _socket->write( buf );
+    _socket->waitForBytesWritten( -1 );
 
     return true;
 }
