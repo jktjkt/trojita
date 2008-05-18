@@ -52,28 +52,60 @@ void MailboxModel::responseReceived()
             // this shouldn't happen, but it's better to be safe anyway
             continue;
         }
-        resp->plug( this );
+        QTextStream s(stderr);
+        s << "<<< " << *resp << "\r\n";
+        s.flush();
+        resp->plug( this ); // make use of RTTI instead of messing with dynamic_cast<> by hand
     }
 }
 
 void MailboxModel::handleFetch(Imap::Responses::Fetch const* resp )
 {
+    // FIXME
+    throw UnexpectedResponseReceived( "FETCH reply, wtf?", *resp );
+
 }
 
 void MailboxModel::handleStatus(Imap::Responses::Status const* resp )
-{}
+{
+    // FIXME
+    throw UnexpectedResponseReceived( "STATUS reply, wtf?", *resp );
+}
 
 void MailboxModel::handleSearch(Imap::Responses::Search const* resp )
-{}
+{
+    // FIXME
+    throw UnexpectedResponseReceived( "SEARCH reply, wtf?", *resp );
+}
 
 void MailboxModel::handleFlags(Imap::Responses::Flags const* resp )
-{}
+{
+    if ( _state != IMAP_STATE_SELECTING )
+    switch ( _state ) {
+        case IMAP_STATE_SELECTING:
+            // FIXME
+            break;
+        default:
+            throw UnexpectedResponseReceived( "FLAGS reply, wtf?", *resp );
+    }
+}
 
 void MailboxModel::handleList(Imap::Responses::List const* resp )
-{}
+{
+    // FIXME
+    throw UnexpectedResponseReceived( "LIST reply, wtf?", *resp );
+}
 
 void MailboxModel::handleNumberResponse(Imap::Responses::NumberResponse const* resp )
-{}
+{
+    switch ( _state ) {
+        case IMAP_STATE_SELECTING:
+            // FIXME
+            break;
+        default:
+            throw UnexpectedResponseReceived( "NUMBER reply, wtf?", *resp );
+    }
+}
 
 void MailboxModel::handleCapability(Imap::Responses::Capability const* r_capability )
 {
@@ -131,6 +163,9 @@ void MailboxModel::handleState(Imap::Responses::State const* r_state )
         case IMAP_STATE_AUTH:
             handleStateAuthenticated( r_state );
             break;
+        case IMAP_STATE_SELECTING:
+            handleStateSelecting( r_state );
+            break;
         case IMAP_STATE_SELECTED:
             handleStateSelected( r_state );
             break;
@@ -146,10 +181,42 @@ void MailboxModel::handleState(Imap::Responses::State const* r_state )
 
 void MailboxModel::handleStateAuthenticated( const Imap::Responses::State* const state )
 {
+    // FIXME
+    throw UnexpectedResponseReceived( "AUTHENTICATED state, tagged reply, wtf?", *state );
+}
+
+void MailboxModel::handleStateSelecting( const Imap::Responses::State* const state )
+{
+    switch ( state->kind ) {
+        case Imap::Responses::BAD:
+            throw UnexpectedResponseReceived(
+                    "Got a BAD result when trying to SELECT/EXAMINE a mailbox",
+                    *state );
+            break;
+        case Imap::Responses::NO:
+            updateState( IMAP_STATE_AUTH );
+            // FIXME: throw an exception?
+            break;
+        case Imap::Responses::OK:
+            if ( state->tag.isEmpty() ) {
+                // FIXME
+            } else {
+                // FIXME: update RW, check required fields to be already retrieved
+                updateState( IMAP_STATE_SELECTED );
+            }
+            break;
+        default:
+            throw UnexpectedResponseReceived(
+                    "Got strange STATE response when awaiting SELECT/EXAMINE command completion",
+                    *state );
+            break;
+    }
 }
 
 void MailboxModel::handleStateSelected( const Imap::Responses::State* const state )
 {
+    // FIXME
+    throw UnexpectedResponseReceived( "SELECTED state, tagged reply, wtf?", *state );
 }
 
 void MailboxModel::updateState( const ImapState state )
@@ -158,6 +225,7 @@ void MailboxModel::updateState( const ImapState state )
     // FIXME: emit state change signal
     QTextStream s(stderr);
     s << "Updating state to " << state << "\r\n";
+    s.flush();
 }
 
 void MailboxModel::handleInitial( const Imap::Responses::State* const state )
@@ -190,9 +258,6 @@ void MailboxModel::handleInitial( const Imap::Responses::State* const state )
             unknownResponseCode( state );
     }
 
-    QTextStream s(stderr);
-    s << *state << "\r\n";
-
     switch ( _state ) {
         case IMAP_STATE_AUTH:
             select();
@@ -217,6 +282,7 @@ void MailboxModel::select()
 {
     _selectTag = _readWrite ? _parser->select( _mailbox ) : _parser->examine( _mailbox );
     _waitingForSelect = true;
+    updateState( IMAP_STATE_SELECTING );
 }
 
 void MailboxModel::alert( const Imap::Responses::AbstractResponse* const resp, const QString& message )
@@ -241,6 +307,9 @@ QTextStream& operator<<( QTextStream& s, const MailboxModel::ImapState state )
             break;
         case MailboxModel::IMAP_STATE_AUTH:
             s << "IMAP_STATE_AUTH";
+            break;
+        case MailboxModel::IMAP_STATE_SELECTING:
+            s << "IMAP_STATE_SELECTING";
             break;
         case MailboxModel::IMAP_STATE_SELECTED:
             s << "IMAP_STATE_SELECTED";

@@ -42,6 +42,7 @@ public:
         IMAP_STATE_CONN_ESTABLISHED /**< Connection established, no details known yet */,
         IMAP_STATE_NOT_AUTH /**< Before we can do anything, we have to authenticate ourselves */,
         IMAP_STATE_AUTH /**< We are authenticated, now we must select a mailbox */,
+        IMAP_STATE_SELECTING /**< The SELECT/EXAMINE command has been issued, but not yet completed */,
         IMAP_STATE_SELECTED /**< Some mailbox is selected */,
         IMAP_STATE_LOGOUT /**< We have been logged out */
     };
@@ -85,6 +86,7 @@ private:
 
     void handleInitial( const Imap::Responses::State* const state );
     void handleStateAuthenticated( const Imap::Responses::State* const state );
+    void handleStateSelecting( const Imap::Responses::State* const state );
     void handleStateSelected( const Imap::Responses::State* const state );
     void authenticate();
     void select();
