@@ -253,10 +253,12 @@ void MailboxModel::handleStateSelecting( const Imap::Responses::State* const sta
                 if ( ! ( _existsDone && _recentDone && _flagsDone ) )
                     throw ServerError( "Server didn't provide all required fields for mailbox status",
                             *state );
-                if ( ! ( _unSeenDone && _uidNextDone && _uidValidityDone && _permanentFlagsDone ) )
-                    throw ServerError( "Server is conforming to an old standard only, it didn't provide us"
+                if ( ! ( _unSeenDone && _uidNextDone && _uidValidityDone && _permanentFlagsDone ) ) {
+                    /*throw ServerError( "Server is conforming to an old standard only, it didn't provide us"
                             " with all required information of mailbox status as per RFC3501. We should've"
-                            " handled this, but it isn't implemented yet.", *state );
+                            " handled this, but it isn't implemented yet.", *state );*/
+                    // well, it's an allowed behavior :)
+                }
                 // FIXME: cache re-sync
                 updateState( IMAP_STATE_SELECTED );
             }
