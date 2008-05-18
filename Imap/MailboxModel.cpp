@@ -93,7 +93,6 @@ void MailboxModel::handleSearch(Imap::Responses::Search const* resp )
 
 void MailboxModel::handleFlags(Imap::Responses::Flags const* resp )
 {
-    if ( _state != IMAP_STATE_SELECTING )
     switch ( _state ) {
         case IMAP_STATE_SELECTING:
             _flags = resp->flags;
