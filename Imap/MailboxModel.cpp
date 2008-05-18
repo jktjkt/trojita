@@ -259,7 +259,7 @@ void MailboxModel::handleStateSelecting( const Imap::Responses::State* const sta
                             " handled this, but it isn't implemented yet.", *state );*/
                     // well, it's an allowed behavior :)
                 }
-                // FIXME: cache re-sync
+                // FIXME: cache re-sync, RO/RW update,...
                 updateState( IMAP_STATE_SELECTED );
             }
             break;
