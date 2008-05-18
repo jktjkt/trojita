@@ -45,9 +45,12 @@ namespace Imap {
 
     /** @short Threading algorithm for THREAD command */
     enum ThreadAlgorithm {
+        THREAD_NONE /**< No thread sorting (plain list of mails) */,
         THREAD_ORDEREDSUBJECT /**< ORDEREDSUBJECT algorithm */,
         THREAD_REFERENCES /**< REFERENCES algorithm */
     };
+
+    Q_ENUMS( ThreadAlgorithm )
 
     /** @short Class specifying a set of messagess to access */
     class Sequence {
