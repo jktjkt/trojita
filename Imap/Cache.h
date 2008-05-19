@@ -20,8 +20,7 @@
 #define IMAP_CACHE_H
 
 #include <tr1/memory>
-
-typedef unsigned int uint;
+#include <QtGlobal>
 
 /** @short Namespace for IMAP interaction */
 namespace Imap {
