@@ -259,7 +259,23 @@ void MailboxModel::handleStateSelecting( const Imap::Responses::State* const sta
                             " handled this, but it isn't implemented yet.", *state );*/
                     // well, it's an allowed behavior :)
                 }
-                // FIXME: cache re-sync, RO/RW update,...
+                // FIXME: cache re-sync,...
+                switch ( state->respCode ) {
+                    case READ_ONLY:
+                        _readWrite = false;
+                        break;
+                    case READ_WRITE:
+                        _readWrite = true;
+                        break;
+                    case TRYCREATE:
+                        // FIXME: better exception
+                        throw WontPerform(
+                                "The requested mailbox doesn't exists, try creating it", 
+                                *state );
+                        break;
+                    default:
+                        unknownResponseCode( state );
+                }
                 updateState( IMAP_STATE_SELECTED );
             }
             break;

@@ -139,7 +139,6 @@ namespace Responses {
 
     /** @short Server sent us something that isn't expected right now */
     class UnexpectedResponseReceived : public MailboxException {
-        std::string _msg;
     public:
         UnexpectedResponseReceived( const char* const msg, const Imap::Responses::AbstractResponse& response ):
             MailboxException( msg, response ) {};
@@ -148,13 +147,19 @@ namespace Responses {
 
     /** @short Server is broken */
     class ServerError : public MailboxException {
-        std::string _msg;
     public:
         ServerError( const char* const msg, const Imap::Responses::AbstractResponse& response ):
             MailboxException( msg, response ) {};
         virtual ~ServerError() throw () {};
     };
 
+    /** @short Can't fulfil a request */
+    class WontPerform : public MailboxException {
+    public:
+        WontPerform( const char* const msg, const Imap::Responses::AbstractResponse& response ):
+            MailboxException( msg, response ) {};
+        virtual ~WontPerform() throw () {};
+    };
 
 }
 #endif /* IMAP_EXCEPTIONS_H */
