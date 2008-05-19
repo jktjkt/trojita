@@ -26,20 +26,12 @@ NoCache::NoCache():
     _uidNext(0), _uidValidity(0), _exists(0)
 {}
 
-void NoCache::setUidNext( const uint uidNext )
+void NoCache::setNewNumbers( const uint uidValidity, const uint uidNext, const uint exists )
 {
     qDebug() << "setUidNext: " << uidNext;
     _uidNext = uidNext;
-}
-
-void NoCache::setUidValidity( const uint uidValidity )
-{
     qDebug() << "setUidValidity: " << uidValidity;
     _uidValidity = uidValidity;
-}
-
-void NoCache::setExists( const uint exists )
-{
     qDebug() << "setExists: " << exists;
     _exists = exists;
 }
@@ -47,6 +39,12 @@ void NoCache::setExists( const uint exists )
 void NoCache::forget()
 {
     qDebug() << "NoCache::forget()";
+    forgetSeqUid();
+}
+
+void NoCache::forgetSeqUid()
+{
+    qDebug() << "NoCache::forgetSeqUid()";
 }
 
 uint NoCache::getUidNext()

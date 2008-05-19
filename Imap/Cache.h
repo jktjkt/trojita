@@ -35,9 +35,7 @@ public:
     virtual ~AbstractCache() {};
 
     /** @short Server sends us new UIDNEXT */
-    virtual void setUidNext( const uint uidNext ) = 0;
-    virtual void setUidValidity( const uint uidValidity ) = 0;
-    virtual void setExists( const uint uidExists ) = 0;
+    virtual void setNewNumbers( const uint uidValidity, const uint uidNext, const uint exists ) = 0;
 
     /** @short Throw away all cached information */
     virtual void forget() = 0;
@@ -54,6 +52,8 @@ public:
     virtual bool seqToUid( const uint seq, uint& uid ) = 0;
     virtual bool uidToSeq( const uint uid, uint& seq ) = 0;
     virtual void addSeqUid( const uint seq, const uint uid ) = 0;
+
+    virtual void forgetSeqUid() = 0;
 };
 
 /** @short A cache implementation that actually doesn't cache anything */
@@ -61,9 +61,7 @@ class NoCache : public AbstractCache {
     uint _uidNext, _uidValidity, _exists;
 public:
     NoCache();
-    virtual void setUidNext( const uint uidNext );
-    virtual void setUidValidity( const uint uidValidity );
-    virtual void setExists( const uint exists );
+    virtual void setNewNumbers( const uint uidValidity, const uint uidNext, const uint exists );
     virtual void forget();
     virtual uint getUidNext();
     virtual uint getExists();
@@ -71,6 +69,7 @@ public:
     virtual bool seqToUid( const uint seq, uint& uid );
     virtual bool uidToSeq( const uint uid, uint& seq );
     virtual void addSeqUid( const uint seq, const uint uid );
+    virtual void forgetSeqUid();
 };
 
 /** @short A convenience typedef */

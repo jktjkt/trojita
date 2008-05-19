@@ -274,9 +274,7 @@ void MailboxModel::handleStateSelecting( const Imap::Responses::State* const sta
                     else
                         reSync( oldUidNext, oldExists );
 
-                    _cache->setUidNext( _uidNext );
-                    _cache->setUidValidity( _uidValidity );
-                    _cache->setExists( _exists );
+                    _cache->setNewNumbers( _uidValidity, _uidNext, _exists );
                 }
 
                 switch ( state->respCode ) {
@@ -362,11 +360,21 @@ void MailboxModel::reSync( const uint oldUidNext, const uint oldExists )
     }
 
     if ( checkAdditions ) {
-        // FIXME
+        // Old messages were left untouched, so we don't have to throw away any
+        // information
+        mailboxChanged();
     } else if ( checkDeletions ) {
-        // FIXME
+        // Some messages were deleted. While it's possible to find out what
+        // particular messages were deleted, re-fetching seq-uid mapping is
+        // pretty cheap, so we just throw it away here
+        _cache->forgetSeqUid();
+        mailboxChanged();
     } else if ( checkGeneral ) {
-        // FIXME
+        // We don't have the slightest clue about what happened -- something has
+        // been added, something was deleted, hell, don't waste time here and
+        // fetch it again, it is just a small amount of data
+        _cache->forgetSeqUid();
+        mailboxChanged();
     }
 }
 
@@ -452,7 +460,15 @@ void MailboxModel::alert( const Imap::Responses::AbstractResponse* const resp, c
 
 void MailboxModel::unknownResponseCode( const Imap::Responses::AbstractResponse* const resp )
 {
+    QTextStream err(stderr);
+    err << "unknownResponseCode(): " << resp << "\r\n";
     // FIXME
+}
+
+void MailboxModel::mailboxChanged()
+{
+    // FIXME: emit some funny signals, so that views know that messages were
+    // added/removed
 }
 
 QTextStream& operator<<( QTextStream& s, const MailboxModel::ImapState state )
