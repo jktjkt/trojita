@@ -21,6 +21,8 @@
 
 #include <tr1/memory>
 
+typedef unsigned int uint;
+
 /** @short Namespace for IMAP interaction */
 namespace Imap {
 
@@ -30,7 +32,45 @@ namespace Mailbox {
 /** @short An abstract parent for all IMAP cache implementations */
 class AbstractCache {
 public:
-    virtual ~AbstractCache();
+    virtual ~AbstractCache() {};
+
+    /** @short Server sends us new UIDNEXT */
+    virtual void setUidNext( const uint uidNext ) = 0;
+    virtual void setUidValidity( const uint uidValidity ) = 0;
+    virtual void setExists( const uint uidExists ) = 0;
+
+    /** @short Throw away all cached information */
+    virtual void forget() = 0;
+
+    /** @short Get stored (old?) value of UIDNEXT */
+    virtual uint getUidNext() = 0;
+
+    /** @short Get stored (old?) value of EXISTS */
+    virtual uint getExists() = 0;
+
+    /** @short Get stored (old?) value of UIDVALIDITY */
+    virtual uint getUidValidity() = 0;
+
+    virtual bool seqToUid( const uint seq, uint& uid ) = 0;
+    virtual bool uidToSeq( const uint uid, uint& seq ) = 0;
+    virtual void addSeqUid( const uint seq, const uint uid ) = 0;
+};
+
+/** @short A cache implementation that actually doesn't cache anything */
+class NoCache : public AbstractCache {
+    uint _uidNext, _uidValidity, _exists;
+public:
+    NoCache();
+    virtual void setUidNext( const uint uidNext );
+    virtual void setUidValidity( const uint uidValidity );
+    virtual void setExists( const uint exists );
+    virtual void forget();
+    virtual uint getUidNext();
+    virtual uint getExists();
+    virtual uint getUidValidity();
+    virtual bool seqToUid( const uint seq, uint& uid );
+    virtual bool uidToSeq( const uint uid, uint& seq );
+    virtual void addSeqUid( const uint seq, const uint uid );
 };
 
 /** @short A convenience typedef */

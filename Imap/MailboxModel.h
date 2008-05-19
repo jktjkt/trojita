@@ -90,6 +90,7 @@ private:
     void handleStateSelected( const Imap::Responses::State* const state );
     void authenticate();
     void select();
+    void reSync( const uint oldUidNext, const uint oldExists );
     void alert( const Imap::Responses::AbstractResponse* const resp, const QString& message );
     void unknownResponseCode( const Imap::Responses::AbstractResponse* const resp );
 

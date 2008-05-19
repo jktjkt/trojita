@@ -253,13 +253,32 @@ void MailboxModel::handleStateSelecting( const Imap::Responses::State* const sta
                 if ( ! ( _existsDone && _recentDone && _flagsDone ) )
                     throw ServerError( "Server didn't provide all required fields for mailbox status",
                             *state );
-                if ( ! ( _unSeenDone && _uidNextDone && _uidValidityDone && _permanentFlagsDone ) ) {
+                if ( ! ( _unSeenDone && _permanentFlagsDone ) ) {
                     /*throw ServerError( "Server is conforming to an old standard only, it didn't provide us"
                             " with all required information of mailbox status as per RFC3501. We should've"
                             " handled this, but it isn't implemented yet.", *state );*/
-                    // well, it's an allowed behavior :)
+                    // well, it's an allowed behavior :) -> do nothing
                 }
-                // FIXME: cache re-sync,...
+
+                if ( ! ( _uidNextDone && _uidValidityDone ) ) {
+                    // server sucks
+                    _cache->forget();
+                } else {
+                    // real fun begins :)
+                    uint oldUidNext = _cache->getUidNext();
+                    uint oldExists = _cache->getExists();
+                    uint oldUidValidity = _cache->getUidValidity();
+
+                    if ( _uidValidity != oldUidValidity )
+                        _cache->forget();
+                    else
+                        reSync( oldUidNext, oldExists );
+
+                    _cache->setUidNext( _uidNext );
+                    _cache->setUidValidity( _uidValidity );
+                    _cache->setExists( _exists );
+                }
+
                 switch ( state->respCode ) {
                     case READ_ONLY:
                         _readWrite = false;
@@ -289,6 +308,65 @@ void MailboxModel::handleStateSelecting( const Imap::Responses::State* const sta
                     "Got strange STATE response when awaiting SELECT/EXAMINE command completion",
                     *state );
             break;
+    }
+}
+
+void MailboxModel::reSync( const uint oldUidNext, const uint oldExists )
+{
+    bool checkAdditions = false;
+    bool checkDeletions = false;
+    bool checkGeneral = false;
+
+    if ( oldUidNext > _uidNext ) {
+        // this is prohibited by IMAP
+        throw ServerError( "Server decremented the UIDNEXT value. "
+                "This is forbidden by the IMAP protocol." );
+        // FIXME: perhaps change that to warning and "just" nuke
+        // the cache
+    } else if ( oldUidNext == _uidNext ) {
+        // no new mails
+        if ( _exists == oldExists ) {
+            // nothing happened, hurray, we are D0N3!!!!
+        } else if ( _exists > oldExists ) {
+            // prohibited by protocol design
+            throw ServerError( "Server claims that UIDNEXT is "
+                    "constant while the EXISTS got increased. "
+                    "This is forbidden by the IMAP protocol." );
+        } else {
+            // something got deleted
+            checkDeletions = true;
+        }
+    } else {
+        // something got added, but might have disappeard
+        if ( oldExists == _exists ) {
+            // we know exactly nothing about performed changes
+            checkGeneral = true;
+        } else if ( oldExists < _exists ) {
+            int deltaExists = _exists - oldExists;
+            int deltaUidNext = _uidNext - oldUidNext;
+
+            if ( deltaExists == deltaUidNext ) {
+                // messages was just added
+                checkAdditions = true;
+            } else if ( deltaExists > deltaUidNext ) {
+                throw ServerError( "Difference in EXISTS is bigger than UIDNEXT increment. "
+                        "This is forbidden by the IMAP protocol." );
+            } else {
+                // the general case again :(
+                checkGeneral = true;
+            }
+        } else {
+            // general case
+            checkGeneral = true;
+        }
+    }
+
+    if ( checkAdditions ) {
+        // FIXME
+    } else if ( checkDeletions ) {
+        // FIXME
+    } else if ( checkGeneral ) {
+        // FIXME
     }
 }
 

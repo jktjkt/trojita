@@ -22,6 +22,65 @@
 namespace Imap {
 namespace Mailbox {
 
+NoCache::NoCache():
+    _uidNext(0), _uidValidity(0), _exists(0)
+{}
+
+void NoCache::setUidNext( const uint uidNext )
+{
+    qDebug() << "setUidNext: " << uidNext;
+    _uidNext = uidNext;
+}
+
+void NoCache::setUidValidity( const uint uidValidity )
+{
+    qDebug() << "setUidValidity: " << uidValidity;
+    _uidValidity = uidValidity;
+}
+
+void NoCache::setExists( const uint exists )
+{
+    qDebug() << "setExists: " << exists;
+    _exists = exists;
+}
+
+void NoCache::forget()
+{
+    qDebug() << "NoCache::forget()";
+}
+
+uint NoCache::getUidNext()
+{
+    return _uidNext;
+}
+
+uint NoCache::getExists()
+{
+    return _exists;
+}
+
+uint NoCache::getUidValidity()
+{
+    return _uidValidity;
+}
+
+bool NoCache::seqToUid( const uint seq, uint& uid )
+{
+    qDebug() << "seqToUid( " << seq << ") = ?";
+    return false;
+}
+
+bool NoCache::uidToSeq( const uint uid, uint& seq )
+{
+    qDebug() << "uidToSeq( " << uid << ") = ?";
+    return false;
+}
+
+void NoCache::addSeqUid( const uint seq, const uint uid )
+{
+    qDebug() << "addSeqUid: seq " << seq << " uid " << uid;
+}
+
 
 }
 }

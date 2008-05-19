@@ -54,4 +54,8 @@ MailboxException::MailboxException( const char* const msg,
     _msg = buf.constData();
 }
 
+MailboxException::MailboxException( const char* const msg ): _msg(msg)
+{
+}
+
 }

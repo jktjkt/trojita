@@ -132,6 +132,7 @@ namespace Responses {
         std::string _msg;
     public:
         MailboxException( const char* const msg, const Imap::Responses::AbstractResponse& response );
+        MailboxException( const char* const msg );
         virtual const char* what() const throw () { return _msg.c_str(); };
         virtual ~MailboxException() throw () {};
 
@@ -150,6 +151,7 @@ namespace Responses {
     public:
         ServerError( const char* const msg, const Imap::Responses::AbstractResponse& response ):
             MailboxException( msg, response ) {};
+        ServerError( const char* const msg ): MailboxException( msg ) {};
         virtual ~ServerError() throw () {};
     };
 
