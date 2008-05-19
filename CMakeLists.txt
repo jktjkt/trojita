@@ -50,4 +50,4 @@ add_executable(ImapMailboxModelDemo ${ImapMailboxModelDemo_SRCS})
 
 target_link_libraries(trojita Imap ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY})
 target_link_libraries(ImapMailboxModelDemo Imap ${QT_QTCORE_LIBRARY}
-    ${QT_QTNETWORK_LIBRARY})
+    ${QT_QTNETWORK_LIBRARY} ${QT_QTGUI_LIBRARY} )

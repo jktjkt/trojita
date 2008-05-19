@@ -55,11 +55,11 @@ public:
     void setThreadSorting( const ThreadAlgorithm value );
 
 
-    virtual QModelIndex index(int, int, const QModelIndex&) const {return QModelIndex();};
-    virtual QModelIndex parent(const QModelIndex&) const {return QModelIndex();};
-    virtual int rowCount(const QModelIndex&) const {return 0;};
-    virtual int columnCount(const QModelIndex&) const {return 0;};
-    virtual QVariant data(const QModelIndex&, int) const { return QVariant();};
+    virtual QModelIndex index(int, int, const QModelIndex&) const;
+    virtual QModelIndex parent(const QModelIndex&) const;
+    virtual int rowCount(const QModelIndex&) const;
+    virtual int columnCount(const QModelIndex&) const;
+    virtual QVariant data(const QModelIndex&, int) const;
 
 
 

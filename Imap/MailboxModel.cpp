@@ -250,9 +250,11 @@ void MailboxModel::handleStateSelecting( const Imap::Responses::State* const sta
                         unknownResponseCode( state );
                 }
             } else {
+
                 if ( ! ( _existsDone && _recentDone && _flagsDone ) )
                     throw ServerError( "Server didn't provide all required fields for mailbox status",
                             *state );
+
                 if ( ! ( _unSeenDone && _permanentFlagsDone ) ) {
                     /*throw ServerError( "Server is conforming to an old standard only, it didn't provide us"
                             " with all required information of mailbox status as per RFC3501. We should've"
@@ -294,6 +296,7 @@ void MailboxModel::handleStateSelecting( const Imap::Responses::State* const sta
                         unknownResponseCode( state );
                 }
                 updateState( IMAP_STATE_SELECTED );
+                mailboxChanged();
             }
             break;
         case BYE:
@@ -362,19 +365,16 @@ void MailboxModel::reSync( const uint oldUidNext, const uint oldExists )
     if ( checkAdditions ) {
         // Old messages were left untouched, so we don't have to throw away any
         // information
-        mailboxChanged();
     } else if ( checkDeletions ) {
         // Some messages were deleted. While it's possible to find out what
         // particular messages were deleted, re-fetching seq-uid mapping is
         // pretty cheap, so we just throw it away here
         _cache->forgetSeqUid();
-        mailboxChanged();
     } else if ( checkGeneral ) {
         // We don't have the slightest clue about what happened -- something has
         // been added, something was deleted, hell, don't waste time here and
         // fetch it again, it is just a small amount of data
         _cache->forgetSeqUid();
-        mailboxChanged();
     }
 }
 
@@ -469,6 +469,54 @@ void MailboxModel::mailboxChanged()
 {
     // FIXME: emit some funny signals, so that views know that messages were
     // added/removed
+
+    emit layoutAboutToBeChanged();
+    emit layoutChanged();
+}
+
+
+
+
+QModelIndex MailboxModel::index( int row, int column, const QModelIndex& parent ) const
+{
+    // FIXME
+    QModelIndex res = parent.isValid() ? QModelIndex() : createIndex( row, column, 0 );
+    return res;
+}
+
+QModelIndex MailboxModel::parent( const QModelIndex& index ) const
+{
+    // FIXME
+    return QModelIndex();
+}
+
+int MailboxModel::rowCount( const QModelIndex& parent ) const 
+{
+    // FIXME
+    int res = parent.isValid() ? 0 : _exists;
+    return res;
+}
+
+int MailboxModel::columnCount( const QModelIndex& parent ) const
+{
+    // FIXME
+    int res = parent.isValid() ? 0 : 1;
+    return res;
+}
+
+QVariant MailboxModel::data( const QModelIndex& index, int role ) const 
+{ 
+    // FIXME
+    if ( ! index.isValid() )
+        return QVariant();
+
+    if ( static_cast<uint>( index.row() ) >= _exists )
+        return QVariant();
+
+    if ( role == Qt::DisplayRole )
+        return QVariant( "666" );
+    else
+        return QVariant();
 }
 
 QTextStream& operator<<( QTextStream& s, const MailboxModel::ImapState state )

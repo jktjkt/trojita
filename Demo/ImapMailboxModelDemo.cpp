@@ -17,14 +17,15 @@
 */
 #include <QStringList>
 #include <QProcess>
-#include <QCoreApplication>
+#include <QApplication>
 #include <QTimer>
+#include <QTreeView>
 
 #include "Imap/SocketFactory.h"
 #include "Imap/MailboxModel.h"
 
 int main( int argc, char** argv) {
-    QCoreApplication app( argc, argv );
+    QApplication app( argc, argv );
 
     Imap::Mailbox::SocketFactoryPtr factory(
             new Imap::Mailbox::ProcessSocketFactory( "dovecot",
@@ -36,6 +37,11 @@ int main( int argc, char** argv) {
 
     Imap::Mailbox::MailboxModel model( 0, cache, auth, parser, "trms", true, Imap::THREAD_NONE );
     
-    QTimer::singleShot( 1500, &app, SLOT(quit()) );
-    app.exec();
+    QTreeView tree;
+    tree.setModel( &model );
+    tree.setWindowTitle( "IMAP mailbox" );
+    tree.show();
+
+    //QTimer::singleShot( 1500, &app, SLOT(quit()) );
+    return app.exec();
 }
