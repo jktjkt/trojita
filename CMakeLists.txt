@@ -19,7 +19,7 @@
 project(trojita)
 enable_testing()
 
-SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fno-common")
+SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fno-common -ggdb")
 #SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weffc++")
 
 include( cmake/StdTr1Memory.cmake )
