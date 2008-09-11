@@ -247,6 +247,19 @@ void ImapParserParseTest::testParseUntagged_data()
                     QList<NamespaceData>() << NamespaceData( "blesmrt", "trojita" ), 
                     QList<NamespaceData>() << NamespaceData( "foo", "bar" ) ) );
 
+    QTest::newRow("namespace-5")
+        << QByteArray("* NAMESPACE ((\"\" \"/\")(\"#mhinbox\" NIL)(\"#mh/\" \"/\")) ((\"~\" \"/\")) "
+                "((\"#shared/\" \"/\")(\"#ftp/\" \"/\")(\"#news.\" \".\")(\"#public/\" \"/\"))\r\n")
+        << shared_ptr<AbstractResponse>( new Namespace( 
+                    QList<NamespaceData>() << NamespaceData( "", "/" ) << NamespaceData( "#mhinbox", QByteArray() ) 
+                        << NamespaceData( "#mh/", "/" ),
+                    QList<NamespaceData>() << NamespaceData( "~", "/" ),
+                    QList<NamespaceData>() << NamespaceData( "#shared/", "/" ) << NamespaceData( "#ftp/", "/" ) 
+                        << NamespaceData( "#news.", "." ) << NamespaceData( "#public/", "/" )
+                    ) );
+
+
+
     Fetch::dataType fetchData;
 
     QTest::newRow("fetch-empty")
