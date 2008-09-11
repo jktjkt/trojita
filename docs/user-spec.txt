@@ -117,6 +117,36 @@ shuffle them around and otherwise mess with them, and we want that window with a
 quoted text to appear when we click the "reply" button.  Here's where the next
 layer comes in.
 
+We have a choice to make here -- either we can use a traditional IMAP-like
+approach and treat mailboxes as a completely separated hierarchy, or we can
+deal with the IMAP server as a whole.  The former is what older development
+versions (as of end of May 2008) used, the latter is what the Right Thing (TM)
+is :).  In this new approach, there's only one tree-like model representing all
+mailboxes on the IMAP server, as one user sees it.  All views interact with this
+huge model only, and each of these views might be tied to a subtree of the whole
+model.
+
+While this design choice has numerous advantages (like simplified sharing of
+Parser instances, which in turn enables working with servers that don't
+particularly like dozens of open connections per one user), it has to be
+carefully thought-out before implementation.  In the following, we'll discuss
+how we employ the whole Interview framework of Qt in trojitá.
+
+There's only one top-level item in our view.
+
+Children of this top-level item represent mailbox hierarchy, possible in
+different namespaces (a namespace is a term from IMAP, see RFC 3501 for
+details).  A mailbox can hold number of other mailboxes (properly nested), or a
+list of messages, or a combination of thereof.
+
+A message itself is hierarchically structured.  The structure matches closely
+the MIME structure of the real email message.  In addition, there are some
+metadata (like IMAP flags or envelope) that are also part of the message
+representation in the view.
+
+This scenario has a problem that needs to be solved -- if a mailbox can contain
+both messages and other mailboxes, how does one distinguish among them?
+
 The purpose of the Imap::Mailbox::MailboxModel is to provide a nice high-level
 overview of an IMAP mailbox.  This is implemented by a standard Qt
 model-view-architecture interface.  This means that it is extremely easy to add
