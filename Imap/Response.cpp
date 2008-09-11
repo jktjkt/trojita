@@ -664,7 +664,7 @@ bool Fetch::eq( const AbstractResponse& other ) const
 }
 
 #define PLUG(X) void X::plug( Imap::ParserPtr parser, Imap::Mailbox::Model* model ) const \
-{ /*model->handle##X( parser, this );*/ }
+{ model->handle##X( parser, this ); }
 
 PLUG( State )
 PLUG( Capability )

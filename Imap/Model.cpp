@@ -17,6 +17,7 @@
 */
 
 #include "Imap/Model.h"
+#include "Imap/MailboxTree.h"
 #include <QDebug>
 
 namespace Imap {
@@ -27,39 +28,222 @@ Model::Model( QObject* parent, CachePtr cache, AuthenticatorPtr authenticator,
     // parent
     QAbstractItemModel( parent ),
     // our tools
-    _cache(cache), _authenticator(authenticator), _parser(parser)
+    _cache(cache), _authenticator(authenticator), _parser(parser),
+    _state( CONN_STATE_ESTABLISHED ), _capabilitiesFresh(false), _mailboxes(0)
 {
     connect( _parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
+    _mailboxes = new TreeItemMailbox( 0, QString::null );
 }
 
-QVariant Model::data(const QModelIndex&, int) const
+void Model::responseReceived()
 {
-    // FIXME
-    return QVariant();
+    while ( _parser->hasResponse() ) {
+        std::tr1::shared_ptr<Imap::Responses::AbstractResponse> resp = _parser->getResponse();
+        Q_ASSERT( resp );
+
+        QTextStream s(stderr);
+        s << "<<< " << *resp << "\r\n";
+        s.flush();
+        resp->plug( _parser, this );
+    }
 }
 
-QModelIndex Model::index(int, int, const QModelIndex&) const
+void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* const resp )
+{
+    // OK/NO/BAD/PREAUTH/BYE
+    using namespace Imap::Responses;
+
+    const QString& tag = resp->tag;
+
+    // Check for common stuff like ALERT and CAPABILITIES update
+    switch ( resp->respCode ) {
+        case ALERT:
+            {
+                const RespData<QString>* const msg = dynamic_cast<const RespData<QString>* const>(
+                        resp->respCodeData.get() );
+                //alert( resp, msg ? msg->data : QString() );
+                throw 42; // FIXME
+            }
+            break;
+        case CAPABILITIES:
+            {
+                const RespData<QStringList>* const caps = dynamic_cast<const RespData<QStringList>* const>(
+                        resp->respCodeData.get() );
+                if ( caps ) {
+                    _capabilities = caps->data;
+                    _capabilitiesFresh = true;
+                }
+            }
+            break;
+        default:
+            // do nothing here, it must be handled later
+            break;
+    }
+
+    switch ( _state ) {
+        case CONN_STATE_ESTABLISHED:
+            if ( ! tag.isEmpty() )
+                throw UnexpectedResponseReceived( "Received a tagged response when expecting server greeting", *resp );
+            else
+                handleStateInitial( resp );
+            break;
+        case CONN_STATE_NOT_AUTH:
+            throw UnexpectedResponseReceived(
+                    "Somehow we managed to get back to the "
+                    "IMAP_STATE_NOT_AUTH, which is rather confusing",
+                    *resp );
+            break;
+        case CONN_STATE_AUTH:
+            handleStateAuthenticated( resp );
+            break;
+        case CONN_STATE_SELECTING:
+            handleStateSelecting( resp );
+            break;
+        case CONN_STATE_SELECTED:
+            handleStateSelected( resp );
+            break;
+        case CONN_STATE_LOGOUT:
+            // hey, we're supposed to be logged out, how come that
+            // *anything* made it here?
+            throw UnexpectedResponseReceived(
+                    "WTF, we're logged out, yet I just got this message", 
+                    *resp );
+            break;
+    }
+}
+
+void Model::handleStateInitial( const Imap::Responses::State* const state )
+{
+    using namespace Imap::Responses;
+
+    /*switch ( state->kind ) {
+        case PREAUTH:
+            _updateState( CONN_STATE_AUTH );
+            break;
+        case OK:
+            _updateState( CONN_STATE_NOT_AUTH );
+        case BYE:
+            _updateState( CONN_STATE_LOGOUT );
+        default:
+            throw Imap::UnexpectedResponseReceived(
+                    "Waiting for initial OK/BYE/PREAUTH, but got this instead",
+                    *state );
+    }
+
+    switch ( state->respCode() ) {
+        case ALERT:
+        case CAPABILITIES:
+            // already handled in handleState()
+            break;
+        default:
+            _unknownResponseCode( state );
+    }*/
+    
+    // FIXME
+}
+
+void Model::handleStateAuthenticated( const Imap::Responses::State* const state )
+{
+}
+
+void Model::handleStateSelecting( const Imap::Responses::State* const state )
+{
+}
+
+void Model::handleStateSelected( const Imap::Responses::State* const state )
+{
+}
+
+
+void Model::handleCapability( Imap::ParserPtr ptr, const Imap::Responses::Capability* const resp )
+{
+}
+
+void Model::handleNumberResponse( Imap::ParserPtr ptr, const Imap::Responses::NumberResponse* const resp )
+{
+}
+
+void Model::handleList( Imap::ParserPtr ptr, const Imap::Responses::List* const resp )
+{
+    throw UnexpectedResponseReceived( "LIST reply, wtf?", *resp );
+}
+
+void Model::handleFlags( Imap::ParserPtr ptr, const Imap::Responses::Flags* const resp )
+{
+}
+
+void Model::handleSearch( Imap::ParserPtr ptr, const Imap::Responses::Search* const resp )
+{
+    throw UnexpectedResponseReceived( "SEARCH reply, wtf?", *resp );
+}
+
+void Model::handleStatus( Imap::ParserPtr ptr, const Imap::Responses::Status* const resp )
+{
+    throw UnexpectedResponseReceived( "STATUS reply, wtf?", *resp );
+}
+
+void Model::handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* const resp )
+{
+    throw UnexpectedResponseReceived( "FETCH reply, wtf?", *resp );
+}
+
+
+
+QVariant Model::data(const QModelIndex& index, int role ) const
 {
     // FIXME
+    //qDebug() << "Model::data" << index << role;
+    switch ( role ) {
+        case Qt::DisplayRole:
+            return QVariant( "333666" );
+        default:
+            return QVariant();
+    }
+}
+
+QModelIndex Model::index(int row, int column, const QModelIndex& parent ) const
+{
+    // FIXME
+    qDebug() << "Model::index" << row << column << parent;
+    return QAbstractItemModel::createIndex( row, column );
+}
+
+QModelIndex Model::parent(const QModelIndex& index ) const
+{
+    // FIXME
+    qDebug() << "Model::parent" << index;
     return QModelIndex();
 }
 
-QModelIndex Model::parent(const QModelIndex&) const
+int Model::rowCount(const QModelIndex& index ) const
 {
-    // FIXME
-    return QModelIndex();
+    qDebug() << "Model::rowCount" << index;
+
+    TreeItem* node = static_cast<TreeItem*>( index.internalPointer() );
+    if ( !node ) {
+        node = _mailboxes;
+    }
+    Q_ASSERT(node);
+    return node->rowCount( this );
 }
 
-int Model::rowCount(const QModelIndex&) const
+int Model::columnCount(const QModelIndex& index ) const
 {
-    // FIXME
-    return 0;
+    qDebug() << "Model::columnCount" << index;
+
+    TreeItem* node = static_cast<TreeItem*>( index.internalPointer() );
+    if ( !node ) {
+        node = _mailboxes;
+    }
+    Q_ASSERT(node);
+    return node->columnCount( this );
 }
 
-int Model::columnCount(const QModelIndex&) const
+
+void Model::_askForChildrenOfMailbox( const QString& mailbox ) const
 {
-    // FIXME
-    return 0;
+    qDebug() << "_askForChildrenOfMailbox() called!";
+    _parser->list( "", mailbox );
 }
 
 }

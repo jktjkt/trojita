@@ -34,7 +34,7 @@ add_subdirectory( tests )
 
 set(libImap_SRCS Imap/Parser.cpp Imap/Command.cpp Imap/Response.cpp
     Imap/LowLevelParser.cpp Imap/Exceptions.cpp Imap/Data.cpp Imap/Message.cpp
-    Imap/Cache.cpp Imap/Model.cpp Imap/SocketFactory.cpp
+    Imap/Cache.cpp Imap/Model.cpp Imap/MailboxTree.cpp Imap/SocketFactory.cpp
     Imap/Authenticator.cpp Imap/rfccodecs.cpp Imap/kcodecs.cpp)
 
 set(trojita_SRCS main.cpp Demo/ParserMonitor.cpp)

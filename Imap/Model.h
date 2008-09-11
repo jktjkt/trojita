@@ -1,4 +1,4 @@
-/* Copyright (C) 2007 Jan Kundrát <jkt@gentoo.org>
+/* Copyright (C) 2007 - 2008 Jan Kundrát <jkt@gentoo.org>
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public
@@ -30,6 +30,20 @@ namespace Imap {
 /** @short Classes for handling of mailboxes and connections */
 namespace Mailbox {
 
+/** @short IMAP state of a connection */
+enum ConnectionState {
+    CONN_STATE_ESTABLISHED /**< Connection established, no details known yet */,
+    CONN_STATE_NOT_AUTH /**< Before we can do anything, we have to authenticate ourselves */,
+    CONN_STATE_AUTH /**< We are authenticated, now we must select a mailbox */,
+    CONN_STATE_SELECTING /**< The SELECT/EXAMINE command has been issued, but not yet completed */,
+    CONN_STATE_SELECTED /**< Some mailbox is selected */,
+    CONN_STATE_LOGOUT /**< We have been logged out */
+};
+
+class TreeItemMailbox;
+class TreeItemMessage;
+class TreeItemPart;
+
 /** @short A model implementing view of the whole IMAP server */
 class Model: public QAbstractItemModel {
     Q_OBJECT
@@ -38,19 +52,52 @@ class Model: public QAbstractItemModel {
     CachePtr _cache;
     AuthenticatorPtr _authenticator;
     ParserPtr _parser;
+    ConnectionState _state;
+
+    QStringList _capabilities;
+    bool _capabilitiesFresh;
+
+    mutable TreeItemMailbox* _mailboxes;
 
 public:
     Model( QObject* parent, CachePtr cache, AuthenticatorPtr authenticator,
             ParserPtr parser );
 
-    virtual QModelIndex index(int, int, const QModelIndex&) const;
-    virtual QModelIndex parent(const QModelIndex&) const;
-    virtual int rowCount(const QModelIndex&) const;
-    virtual int columnCount(const QModelIndex&) const;
-    virtual QVariant data(const QModelIndex&, int) const;
+    virtual QModelIndex index(int row, int column, const QModelIndex& parent ) const;
+    virtual QModelIndex parent(const QModelIndex& index ) const;
+    virtual int rowCount(const QModelIndex& index ) const;
+    virtual int columnCount(const QModelIndex& index ) const;
+    virtual QVariant data(const QModelIndex& index, int role ) const;
+
+    void handleState( Imap::ParserPtr ptr, const Imap::Responses::State* const resp );
+    void handleCapability( Imap::ParserPtr ptr, const Imap::Responses::Capability* const resp );
+    void handleNumberResponse( Imap::ParserPtr ptr, const Imap::Responses::NumberResponse* const resp );
+    void handleList( Imap::ParserPtr ptr, const Imap::Responses::List* const resp );
+    void handleFlags( Imap::ParserPtr ptr, const Imap::Responses::Flags* const resp );
+    void handleSearch( Imap::ParserPtr ptr, const Imap::Responses::Search* const resp );
+    void handleStatus( Imap::ParserPtr ptr, const Imap::Responses::Status* const resp );
+    void handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* const resp );
+
+private:
+    void handleStateInitial( const Imap::Responses::State* const state );
+    void handleStateAuthenticated( const Imap::Responses::State* const state );
+    void handleStateSelecting( const Imap::Responses::State* const state );
+    void handleStateSelected( const Imap::Responses::State* const state );
+
+    void _updateState( const ConnectionState state );
+
+
+    friend class TreeItemMailbox;
+    friend class TreeItemMessage;
+    friend class TreeItemPart;
+
+    void _askForChildrenOfMailbox( const QString& mailbox ) const;
+    TreeItemMailbox* _treeItemOfMailbox( const QString& mailbox ) const;
+
+protected slots:
+    void responseReceived();
 
 };
-
 
 }
 
