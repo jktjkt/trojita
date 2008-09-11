@@ -210,6 +210,10 @@ namespace Imap {
         CommandHandle idle();
 
 
+        /** @short NAMESPACE, RFC 2342 */
+        CommandHandle namespaceCommand();
+
+
 #if 0
         /** SORT, draft-ietf-imapext-sort-19, section 3 */
         CommandHandle sort( /*const SortAlgorithm& algo,*/ const QString& charset, const QStringList& criteria );

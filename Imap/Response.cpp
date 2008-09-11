@@ -104,6 +104,9 @@ QTextStream& operator<<( QTextStream& stream, const Kind& res )
         case STATUS:
             stream << "STATUS";
             break;
+        case NAMESPACE:
+            stream << "NAMESPACE";
+            break;
     }
     return stream;
 }
@@ -144,6 +147,8 @@ Kind kindFromString( QByteArray str ) throw( UnrecognizedResponseKind )
         return SEARCH;
     if ( str == "STATUS" )
         return STATUS;
+    if ( str == "NAMESPACE" )
+        return NAMESPACE;
     throw UnrecognizedResponseKind( str.constData() );
 }
 
@@ -162,6 +167,11 @@ QTextStream& operator<<( QTextStream& stream, const Status::StateKind& kind )
             stream << "UNSEEN"; break;
     }
     return stream;
+}
+
+QTextStream& operator<<( QTextStream& stream, const NamespaceData& data )
+{
+    return stream << "( prefix \"" << data.prefix << "\", separator \"" << data.separator << "\")";
 }
 
 Status::StateKind Status::stateKindFromStr( QString s )
@@ -476,6 +486,39 @@ Fetch::Fetch( const uint _number, const Fetch::dataType& _data ):
 {
 }
 
+QList<NamespaceData> NamespaceData::listFromLine( const QByteArray& line, int& start )
+{
+    QList<NamespaceData> result;
+    try {
+        QVariantList list = LowLevelParser::parseList( '(', ')', line, start );
+        for ( QVariantList::const_iterator it = list.begin(); it != list.end(); ++it ) {
+            if ( it->type() != QVariant::List )
+                throw UnexpectedHere( "Mallformed data found when processing one item "
+                        "in NAMESPACE record (not a list)", line, start );
+            QStringList list = it->toStringList();
+            if ( list.size() != 2 )
+                throw UnexpectedHere( "Mallformed data found when processing one item "
+                        "in NAMESPACE record (list of weird size)", line, start );
+            result << NamespaceData( list[0], list[1] );
+        }
+    } catch ( UnexpectedHere& ) {
+        // must be a NIL, then
+        QPair<QByteArray,LowLevelParser::ParsedAs> res = LowLevelParser::getNString( line, start );
+        if ( res.second != LowLevelParser::NIL ) {
+            throw UnexpectedHere( "Top-level NAMESPACE record is neither list nor NIL", line, start );
+        }
+    }
+    ++start;
+    return result;
+}
+
+Namespace::Namespace( const QByteArray& line, int& start )
+{
+    personal = NamespaceData::listFromLine( line, start );
+    users = NamespaceData::listFromLine( line, start );
+    other = NamespaceData::listFromLine( line, start );
+}
+
 QTextStream& State::dump( QTextStream& stream ) const
 {
     if ( !tag.isEmpty() )
@@ -532,6 +575,21 @@ QTextStream& Fetch::dump( QTextStream& stream ) const
             it != data.end(); ++it )
         stream << ' ' << it.key() << " \"" << *it.value() << '"';
     return stream << ')';
+}
+
+QTextStream& Namespace::dump( QTextStream& stream ) const
+{
+    stream << "NAMESPACE (";
+    QList<NamespaceData>::const_iterator it;
+    for ( it = personal.begin(); it != personal.end(); ++it )
+        stream << *it << ",";
+    stream << ") (";
+    for ( it = users.begin(); it != users.end(); ++it )
+        stream << *it << ",";
+    stream << ") (";
+    for ( it = other.begin(); it != other.end(); ++it )
+        stream << *it << ",";
+    return stream << ")";
 }
 
 template<class T> QTextStream& RespData<T>::dump( QTextStream& stream ) const
@@ -663,6 +721,26 @@ bool Fetch::eq( const AbstractResponse& other ) const
     }
 }
 
+bool Namespace::eq( const AbstractResponse& otherResp ) const
+{
+    try {
+        const Namespace& ns = dynamic_cast<const Namespace&>( otherResp );
+        return ns.personal == personal && ns.users == users && ns.other == other;
+    } catch ( std::bad_cast& ) {
+        return false;
+    }
+}
+
+bool NamespaceData::operator==( const NamespaceData& other ) const
+{
+    return separator == other.separator && prefix == other.prefix;
+}
+
+bool NamespaceData::operator!=( const NamespaceData& other ) const
+{
+    return ! ( *this == other );
+}
+
 #define PLUG(X) void X::plug( Imap::ParserPtr parser, Imap::Mailbox::Model* model ) const \
 { model->handle##X( parser, this ); }
 
@@ -674,6 +752,7 @@ PLUG( Flags )
 PLUG( Search )
 PLUG( Status )
 PLUG( Fetch )
+PLUG( Namespace )
 
 #undef PLUG
 

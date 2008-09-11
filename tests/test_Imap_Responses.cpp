@@ -100,6 +100,11 @@ void ImapResponsesTest::testCompareEq_data()
         respPtr( new Status( "ahoj", stateMap ) ) <<
         respPtr( new Status( "ahoj", stateMap ) );
 
+    QTest::newRow( "namespace-1" ) <<
+        respPtr( new Namespace( QList<NamespaceData>() << NamespaceData( "foo", "bar"), QList<NamespaceData>(), 
+                    QList<NamespaceData>() ) ) <<
+        respPtr( new Namespace( QList<NamespaceData>() << NamespaceData( "foo", "bar"), QList<NamespaceData>(), 
+                    QList<NamespaceData>() ) );
 }
 
 void ImapResponsesTest::testCompareNe_data()
@@ -211,6 +216,11 @@ void ImapResponsesTest::testCompareNe_data()
         respPtr( new Status( "ahoj", stateMap1 ) ) <<
         respPtr( new Status( "ahoj", stateMap3 ) );
 
+    QTest::newRow( "namespace-1" ) <<
+        respPtr( new Namespace( QList<NamespaceData>(), QList<NamespaceData>() << NamespaceData( "foo", "bar" ), 
+                    QList<NamespaceData>() ) ) <<
+        respPtr( new Namespace( QList<NamespaceData>() << NamespaceData( "foo", "bar"), QList<NamespaceData>(), 
+                    QList<NamespaceData>() ) );
 }
 
 QTEST_KDEMAIN_CORE( ImapResponsesTest )

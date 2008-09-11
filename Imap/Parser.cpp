@@ -253,6 +253,11 @@ CommandHandle Parser::idle()
     return queueCommand( Commands::SPECIAL, "IDLE" );
 }
 
+CommandHandle Parser::namespaceCommand()
+{
+    return queueCommand( Commands::ATOM, "NAMESPACE" );
+}
+
 CommandHandle Parser::queueCommand( Commands::Command command )
 {
     QMutexLocker locker( &_cmdMutex );
@@ -503,6 +508,9 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedText(
         case Responses::STATUS:
             return std::tr1::shared_ptr<Responses::AbstractResponse>(
                     new Responses::Status( line, start ) );
+        case Responses::NAMESPACE:
+            return std::tr1::shared_ptr<Responses::AbstractResponse>(
+                    new Responses::Namespace( line, start ) );
         default:
             throw UnexpectedHere( line, start );
     }

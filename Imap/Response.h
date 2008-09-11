@@ -71,7 +71,8 @@ namespace Responses {
         LSUB,
         FLAGS,
         SEARCH,
-        STATUS
+        STATUS,
+        NAMESPACE
     }; // aren't those comments just sexy? :)
 
     /** @short Response Code */
@@ -235,6 +236,30 @@ namespace Responses {
         virtual void plug( Imap::ParserPtr parser, Imap::Mailbox::Model* model ) const;
     };
 
+    struct NamespaceData {
+        QString prefix;
+        QString separator;
+        NamespaceData( const QString& _prefix, const QString& _separator ): prefix(_prefix), separator(_separator) {};
+        bool operator==( const NamespaceData& other ) const;
+        bool operator!=( const NamespaceData& other ) const;
+        static QList<NamespaceData> listFromLine( const QByteArray& line, int& start );
+    };
+
+    /** @short Structure storing a NAMESPACE untagged response */
+    class Namespace : public AbstractResponse {
+        QList<NamespaceData> personal, users, other;
+    public:
+        /** @short Parse line and construct List object from it */
+        Namespace( const QByteArray& line, int& start );
+        Namespace( const QList<NamespaceData>& _personal, const QList<NamespaceData>& _users,
+                const QList<NamespaceData>& _other ):
+            personal(_personal), users(_users), other(_other) {};
+        virtual QTextStream& dump( QTextStream& s ) const;
+        virtual bool eq( const AbstractResponse& other ) const;
+        virtual void plug( Imap::ParserPtr parser, Imap::Mailbox::Model* model ) const;
+    };
+
+
     /** @short Structure storing a FLAGS untagged response */
     class Flags : public AbstractResponse {
     public:
@@ -310,6 +335,7 @@ namespace Responses {
     QTextStream& operator<<( QTextStream& stream, const Kind& res );
     QTextStream& operator<<( QTextStream& stream, const Status::StateKind& kind );
     QTextStream& operator<<( QTextStream& stream, const AbstractResponse& res );
+    QTextStream& operator<<( QTextStream& stream, const NamespaceData& res );
 
     inline bool operator==( const AbstractResponse& first, const AbstractResponse& other ) {
         return first.eq( other );

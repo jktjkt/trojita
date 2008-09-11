@@ -225,6 +225,27 @@ void ImapParserParseTest::testParseUntagged_data()
         << QByteArray("* STATUS blurdybloop (MESSAGES 231 UIDNEXT 44292 UIDVALIDITY 1337 RECENT 3234567890)\r\n")
         << shared_ptr<AbstractResponse>( new Status( "blurdybloop", states ) );
 
+    QTest::newRow("namespace-1")
+        << QByteArray("* Namespace nil NIL nil\r\n")
+        << shared_ptr<AbstractResponse>( new Namespace( QList<NamespaceData>(), 
+                    QList<NamespaceData>(), QList<NamespaceData>() ) );
+
+    QTest::newRow("namespace-2")
+        << QByteArray("* Namespace () NIL nil\r\n")
+        << shared_ptr<AbstractResponse>( new Namespace( QList<NamespaceData>(), 
+                    QList<NamespaceData>(), QList<NamespaceData>() ) );
+
+    QTest::newRow("namespace-3")
+        << QByteArray("* Namespace ((\"\" \"/\")) NIL nil\r\n")
+        << shared_ptr<AbstractResponse>( new Namespace( QList<NamespaceData>() << NamespaceData( "", "/" ),
+                    QList<NamespaceData>(), QList<NamespaceData>() ) );
+
+    QTest::newRow("namespace-4")
+        << QByteArray("* Namespace ((\"prefix\" \".\")(\"\" \"/\")) ((\"blesmrt\" \"trojita\")) ((\"foo\" \"bar\"))\r\n")
+        << shared_ptr<AbstractResponse>( new Namespace( 
+                    QList<NamespaceData>() << NamespaceData( "prefix", "." ) << NamespaceData( "", "/" ),
+                    QList<NamespaceData>() << NamespaceData( "blesmrt", "trojita" ), 
+                    QList<NamespaceData>() << NamespaceData( "foo", "bar" ) ) );
 
     Fetch::dataType fetchData;
 
