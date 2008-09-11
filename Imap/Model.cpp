@@ -38,5 +38,31 @@ QVariant Model::data(const QModelIndex&, int) const
     return QVariant();
 }
 
+QModelIndex Model::index(int, int, const QModelIndex&) const
+{
+    // FIXME
+    return QModelIndex();
+}
+
+QModelIndex Model::parent(const QModelIndex&) const
+{
+    // FIXME
+    return QModelIndex();
+}
+
+int Model::rowCount(const QModelIndex&) const
+{
+    // FIXME
+    return 0;
+}
+
+int Model::columnCount(const QModelIndex&) const
+{
+    // FIXME
+    return 0;
+}
+
 }
 }
+
+#include "Model.moc"

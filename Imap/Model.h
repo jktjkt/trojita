@@ -33,7 +33,7 @@ namespace Mailbox {
 /** @short A model implementing view of the whole IMAP server */
 class Model: public QAbstractItemModel {
     Q_OBJECT
-    Q_PROPERTY( ThreadAlgorithm threadSorting READ threadSorting WRITE setThreadSorting )
+    //Q_PROPERTY( ThreadAlgorithm threadSorting READ threadSorting WRITE setThreadSorting )
 
     CachePtr _cache;
     AuthenticatorPtr _authenticator;
