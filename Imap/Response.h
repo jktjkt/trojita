@@ -103,7 +103,7 @@ namespace Responses {
     class AbstractResponse {
     public:
         /** @short Kind of reponse */
-        const Kind kind;
+        Kind kind;
         AbstractResponse(): kind(BAD) {};
         AbstractResponse( const Kind _kind ): kind(_kind) {};
         virtual ~AbstractResponse() {};
