@@ -34,20 +34,20 @@ add_subdirectory( tests )
 
 set(libImap_SRCS Imap/Parser.cpp Imap/Command.cpp Imap/Response.cpp
     Imap/LowLevelParser.cpp Imap/Exceptions.cpp Imap/Data.cpp Imap/Message.cpp
-    Imap/Cache.cpp Imap/MailboxModel.cpp Imap/SocketFactory.cpp
+    Imap/Cache.cpp Imap/Model.cpp Imap/SocketFactory.cpp
     Imap/Authenticator.cpp Imap/rfccodecs.cpp Imap/kcodecs.cpp)
 
 set(trojita_SRCS main.cpp Demo/ParserMonitor.cpp)
 
-set(ImapMailboxModelDemo_SRCS Demo/ImapMailboxModelDemo.cpp)
+set(ImapModelDemo_SRCS Demo/ImapModelDemo.cpp)
 
 qt4_automoc(${trojita_SRCS} ${libImap_SRCS}
-    ${ImapMailboxModelDemo_SRCS})
+    ${ImapModelDemo_SRCS})
 
 add_library(Imap ${libImap_SRCS})
 add_executable(trojita ${trojita_SRCS})
-add_executable(ImapMailboxModelDemo ${ImapMailboxModelDemo_SRCS})
+add_executable(ImapModelDemo ${ImapModelDemo_SRCS})
 
 target_link_libraries(trojita Imap ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY})
-target_link_libraries(ImapMailboxModelDemo Imap ${QT_QTCORE_LIBRARY}
+target_link_libraries(ImapModelDemo Imap ${QT_QTCORE_LIBRARY}
     ${QT_QTNETWORK_LIBRARY} ${QT_QTGUI_LIBRARY} )

@@ -22,7 +22,7 @@
 #include <QTreeView>
 
 #include "Imap/SocketFactory.h"
-#include "Imap/MailboxModel.h"
+#include "Imap/Model.h"
 
 int main( int argc, char** argv) {
     QApplication app( argc, argv );
@@ -35,7 +35,7 @@ int main( int argc, char** argv) {
     Imap::Mailbox::CachePtr cache( new Imap::Mailbox::NoCache() );
     Imap::Mailbox::AuthenticatorPtr auth;
 
-    Imap::Mailbox::MailboxModel model( 0, cache, auth, parser, "trms", true, Imap::THREAD_NONE );
+    Imap::Mailbox::Model model( 0, cache, auth, parser );
     
     QTreeView tree;
     tree.setModel( &model );
