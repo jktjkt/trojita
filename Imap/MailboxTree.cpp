@@ -43,13 +43,20 @@ TreeItem* TreeItem::child( unsigned int offset, const Model* const model )
     return _children[ offset ];
 }
 
+int TreeItem::row() const
+{
+    return _parent ? _parent->_children.indexOf( const_cast<TreeItem*>(this) ) : 0;
+}
+
+
 TreeItemMailbox::TreeItemMailbox( TreeItem* parent ):
     TreeItem(parent)
 {
 }
 
 TreeItemMailbox::TreeItemMailbox( TreeItem* parent, Responses::List response ):
-    TreeItem(parent), _mailbox(response.mailbox), _separator(response.separator), _flags(response.flags)
+    TreeItem(parent), _mailbox(response.mailbox),
+    _separator(response.separator), _flags(response.flags)
 {
 }
 
@@ -91,7 +98,7 @@ QVariant TreeItemMailbox::data( const Model* const model, int role )
     if ( role != Qt::DisplayRole )
         return QVariant();
 
-    return mailbox();
+    return mailbox().split( separator() ).last() ;
 }
 
 }

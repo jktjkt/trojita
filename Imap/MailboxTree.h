@@ -46,6 +46,7 @@ public:
     virtual void setChildren( const QList<TreeItem*> items ) = 0;
     virtual QVariant data( const Model* const model, int role ) = 0;
     TreeItem* parent() const { return _parent; };
+    int row() const;
 };
 
 class TreeItemMailbox: public TreeItem {
@@ -59,6 +60,7 @@ public:
     virtual unsigned int columnCount( const Model* const model );
     virtual unsigned int rowCount( const Model* const model );
     QString mailbox() const { return _mailbox; };
+    QString separator() const { return _separator; };
     virtual void setChildren( const QList<TreeItem*> items );
     virtual QVariant data( const Model* const model, int role );
 };

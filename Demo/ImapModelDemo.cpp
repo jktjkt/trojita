@@ -29,7 +29,10 @@ int main( int argc, char** argv) {
 
     Imap::Mailbox::SocketFactoryPtr factory(
             new Imap::Mailbox::ProcessSocketFactory( "dovecot",
-                QStringList() << "--exec-mail" << "imap" ) );
+                QStringList() << "--exec-mail" << "imap" )
+            /*new Imap::Mailbox::ProcessSocketFactory( "ssh",
+                QStringList() << "sosna.fzu.cz" << "/usr/sbin/imapd" )*/
+            );
 
     Imap::ParserPtr parser( new Imap::Parser( 0, factory->create() ) );
     Imap::Mailbox::CachePtr cache( new Imap::Mailbox::NoCache() );
@@ -40,8 +43,9 @@ int main( int argc, char** argv) {
     QTreeView tree;
     tree.setModel( &model );
     tree.setWindowTitle( "IMAP mailbox" );
+    tree.setUniformRowHeights( true );
     tree.show();
 
-    QTimer::singleShot( 15000, &app, SLOT(quit()) );
+    //QTimer::singleShot( 15000, &app, SLOT(quit()) );
     return app.exec();
 }

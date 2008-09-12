@@ -134,16 +134,18 @@ void Model::_finalizeList( const QMap<CommandHandle, Task>::const_iterator comma
 {
     emit layoutAboutToBeChanged();
     QList<TreeItem*> mailboxes;
+    TreeItemMailbox* mailboxPtr = static_cast<TreeItemMailbox*>( command->what );
     for ( QList<Responses::List>::const_iterator it = _listResponses.begin();
             it != _listResponses.end(); ++it ) {
-        mailboxes << new TreeItemMailbox( command->what, *it );
+        if ( it->mailbox != mailboxPtr->mailbox() + mailboxPtr->separator() )
+            mailboxes << new TreeItemMailbox( command->what, *it );
     }
     _listResponses.clear();
     qSort( mailboxes.begin(), mailboxes.end(), SortMailboxes );
     command->what->setChildren( mailboxes );
     emit layoutChanged();
 
-    qDebug() << "_finalizeList" << static_cast<TreeItemMailbox*>( command->what )->mailbox();
+    qDebug() << "_finalizeList" << mailboxPtr->mailbox();
 }
 
 bool SortMailboxes( const TreeItem* const a, const TreeItem* const b )
@@ -274,7 +276,7 @@ QModelIndex Model::parent(const QModelIndex& index ) const
     if ( parentItem == _mailboxes )
         return QModelIndex();
 
-    return QAbstractItemModel::createIndex( /*parentItem->row()*/ 0, 0, parentItem );
+    return QAbstractItemModel::createIndex( parentItem->row(), 0, parentItem );
 }
 
 int Model::rowCount(const QModelIndex& index ) const
