@@ -40,7 +40,10 @@ unsigned int TreeItem::childrenCount( const Model* const model )
 TreeItem* TreeItem::child( unsigned int offset, const Model* const model )
 {
     fetch( model );
-    return _children[ offset ];
+    if ( offset < _children.size() )
+        return _children[ offset ];
+    else
+        return 0;
 }
 
 int TreeItem::row() const
@@ -96,6 +99,9 @@ QVariant TreeItemMailbox::data( const Model* const model, int role )
     fetch( model );
 
     if ( role != Qt::DisplayRole )
+        return QVariant();
+
+    if ( mailbox().isNull() )
         return QVariant();
 
     return mailbox().split( separator() ).last() ;

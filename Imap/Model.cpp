@@ -257,8 +257,10 @@ QVariant Model::data(const QModelIndex& index, int role ) const
 
 QModelIndex Model::index(int row, int column, const QModelIndex& parent ) const
 {
-    TreeItem* parentItem = parent.internalPointer() ? 
-        static_cast<TreeItem*>( parent.internalPointer() ) : _mailboxes;
+    TreeItem* parentItem = translatePtr( parent );
+
+    if ( column != 0 )
+        return QModelIndex();
 
     TreeItem* child = parentItem->child( row, this );
 
