@@ -34,6 +34,7 @@ int main( int argc, char** argv) {
     Demo::ParserMonitor monitor( 0, parser.get() );
 
     parser->capability();
+    parser->namespaceCommand();
     parser->noop();
     parser->list( "", "*" );
     parser->select( "trms" );

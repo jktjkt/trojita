@@ -40,6 +40,7 @@ enum ConnectionState {
     CONN_STATE_LOGOUT /**< We have been logged out */
 };
 
+class TreeItem;
 class TreeItemMailbox;
 class TreeItemMessage;
 class TreeItemPart;
@@ -48,6 +49,14 @@ class TreeItemPart;
 class Model: public QAbstractItemModel {
     Q_OBJECT
     //Q_PROPERTY( ThreadAlgorithm threadSorting READ threadSorting WRITE setThreadSorting )
+
+    struct Task {
+        enum Kind { NONE, LIST };
+        Kind kind;
+        TreeItem* what;
+        Task( const Kind _kind, TreeItem* _what ): kind(_kind), what(_what) {};
+        Task(): kind(NONE) {};
+    };
 
     CachePtr _cache;
     AuthenticatorPtr _authenticator;
@@ -58,6 +67,12 @@ class Model: public QAbstractItemModel {
     bool _capabilitiesFresh;
 
     mutable TreeItemMailbox* _mailboxes;
+    mutable QMap<CommandHandle, Task> _commandMap;
+
+    QList<Responses::List> _listResponses;
+
+    QList<Imap::Responses::NamespaceData> _personalNamespace, _otherUsersNamespace, _sharedNamespace;
+
 
 public:
     Model( QObject* parent, CachePtr cache, AuthenticatorPtr authenticator,
@@ -77,6 +92,7 @@ public:
     void handleSearch( Imap::ParserPtr ptr, const Imap::Responses::Search* const resp );
     void handleStatus( Imap::ParserPtr ptr, const Imap::Responses::Status* const resp );
     void handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* const resp );
+    void handleNamespace( Imap::ParserPtr ptr, const Imap::Responses::Namespace* const resp );
 
 private:
     void handleStateInitial( const Imap::Responses::State* const state );
@@ -91,13 +107,18 @@ private:
     friend class TreeItemMessage;
     friend class TreeItemPart;
 
-    void _askForChildrenOfMailbox( const QString& mailbox ) const;
-    TreeItemMailbox* _treeItemOfMailbox( const QString& mailbox ) const;
+    void _askForChildrenOfMailbox( TreeItem* item ) const;
+
+    void _finalizeList( const QMap<CommandHandle, Task>::const_iterator command );
+
+    TreeItem* translatePtr( const QModelIndex& index ) const;
 
 protected slots:
     void responseReceived();
 
 };
+
+bool SortMailboxes( const TreeItem* const a, const TreeItem* const b );
 
 }
 

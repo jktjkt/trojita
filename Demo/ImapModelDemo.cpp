@@ -42,6 +42,6 @@ int main( int argc, char** argv) {
     tree.setWindowTitle( "IMAP mailbox" );
     tree.show();
 
-    //QTimer::singleShot( 1500, &app, SLOT(quit()) );
+    QTimer::singleShot( 15000, &app, SLOT(quit()) );
     return app.exec();
 }

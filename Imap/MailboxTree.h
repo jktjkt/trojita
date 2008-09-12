@@ -21,6 +21,7 @@
 
 #include <QList>
 #include <QString>
+#include "Response.h"
 
 namespace Imap {
 
@@ -33,7 +34,7 @@ protected:
     TreeItem* _parent;
     QList<TreeItem*> _children;
     Model* _model;
-    bool _fetched;
+    bool _fetched, _loading;
 public:
     TreeItem( TreeItem* parent );
     virtual ~TreeItem();
@@ -42,15 +43,24 @@ public:
     virtual void fetch( const Model* const model ) = 0;
     virtual unsigned int columnCount( const Model* const model ) = 0;
     virtual unsigned int rowCount( const Model* const model ) = 0;
+    virtual void setChildren( const QList<TreeItem*> items ) = 0;
+    virtual QVariant data( const Model* const model, int role ) = 0;
+    TreeItem* parent() const { return _parent; };
 };
 
 class TreeItemMailbox: public TreeItem {
     QString _mailbox;
+    QString _separator;
+    QStringList _flags;
 public:
-    TreeItemMailbox( TreeItem* parent, const QString& mailbox );
+    TreeItemMailbox( TreeItem* parent );
+    TreeItemMailbox( TreeItem* parent, Responses::List );
     virtual void fetch( const Model* const model );
     virtual unsigned int columnCount( const Model* const model );
     virtual unsigned int rowCount( const Model* const model );
+    QString mailbox() const { return _mailbox; };
+    virtual void setChildren( const QList<TreeItem*> items );
+    virtual QVariant data( const Model* const model, int role );
 };
 
 class TreeItemMessage: public TreeItem {

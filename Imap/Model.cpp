@@ -1,4 +1,4 @@
-/* Copyright (C) 2007 Jan Kundrát <jkt@gentoo.org>
+/* Copyright (C) 2007 - 2008 Jan Kundrát <jkt@gentoo.org>
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public
@@ -32,7 +32,7 @@ Model::Model( QObject* parent, CachePtr cache, AuthenticatorPtr authenticator,
     _state( CONN_STATE_ESTABLISHED ), _capabilitiesFresh(false), _mailboxes(0)
 {
     connect( _parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
-    _mailboxes = new TreeItemMailbox( 0, QString::null );
+    _mailboxes = new TreeItemMailbox( 0 );
 }
 
 void Model::responseReceived()
@@ -80,6 +80,24 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
             break;
     }
 
+    // FIXME: we shouldn't mix tag-based and state-based stuff here
+
+    if ( ! tag.isEmpty() ) {
+        QMap<CommandHandle, Task>::const_iterator command = _commandMap.find( tag );
+        if ( command == _commandMap.end() )
+            throw UnexpectedResponseReceived( "Unknown tag in tagged response", *resp );
+
+        switch ( command->kind ) {
+            case Task::NONE:
+                throw 42; // FIXME internal error
+                break;
+            case Task::LIST:
+                _finalizeList( command );
+                return;
+                break;
+        }
+    }
+
     switch ( _state ) {
         case CONN_STATE_ESTABLISHED:
             if ( ! tag.isEmpty() )
@@ -112,11 +130,39 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
     }
 }
 
+void Model::_finalizeList( const QMap<CommandHandle, Task>::const_iterator command )
+{
+    emit layoutAboutToBeChanged();
+    QList<TreeItem*> mailboxes;
+    for ( QList<Responses::List>::const_iterator it = _listResponses.begin();
+            it != _listResponses.end(); ++it ) {
+        mailboxes << new TreeItemMailbox( command->what, *it );
+    }
+    _listResponses.clear();
+    qSort( mailboxes.begin(), mailboxes.end(), SortMailboxes );
+    command->what->setChildren( mailboxes );
+    emit layoutChanged();
+
+    qDebug() << "_finalizeList" << static_cast<TreeItemMailbox*>( command->what )->mailbox();
+}
+
+bool SortMailboxes( const TreeItem* const a, const TreeItem* const b )
+{
+    return dynamic_cast<const TreeItemMailbox* const>(a)->mailbox().compare( 
+            dynamic_cast<const TreeItemMailbox* const>(b)->mailbox(), Qt::CaseInsensitive 
+            ) < 1;
+}
+
+void Model::_updateState( const ConnectionState state )
+{
+    _state = state;
+}
+
 void Model::handleStateInitial( const Imap::Responses::State* const state )
 {
     using namespace Imap::Responses;
 
-    /*switch ( state->kind ) {
+    switch ( state->kind ) {
         case PREAUTH:
             _updateState( CONN_STATE_AUTH );
             break;
@@ -130,7 +176,7 @@ void Model::handleStateInitial( const Imap::Responses::State* const state )
                     *state );
     }
 
-    switch ( state->respCode() ) {
+    /*switch ( state->respCode() ) {
         case ALERT:
         case CAPABILITIES:
             // already handled in handleState()
@@ -144,6 +190,7 @@ void Model::handleStateInitial( const Imap::Responses::State* const state )
 
 void Model::handleStateAuthenticated( const Imap::Responses::State* const state )
 {
+    const QString& tag = state->tag;
 }
 
 void Model::handleStateSelecting( const Imap::Responses::State* const state )
@@ -165,7 +212,7 @@ void Model::handleNumberResponse( Imap::ParserPtr ptr, const Imap::Responses::Nu
 
 void Model::handleList( Imap::ParserPtr ptr, const Imap::Responses::List* const resp )
 {
-    throw UnexpectedResponseReceived( "LIST reply, wtf?", *resp );
+    _listResponses << *resp;
 }
 
 void Model::handleFlags( Imap::ParserPtr ptr, const Imap::Responses::Flags* const resp )
@@ -187,38 +234,51 @@ void Model::handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* cons
     throw UnexpectedResponseReceived( "FETCH reply, wtf?", *resp );
 }
 
+void Model::handleNamespace( Imap::ParserPtr ptr, const Imap::Responses::Namespace* const resp )
+{
+    throw UnexpectedResponseReceived( "NAMESPACE reply, wtf?", *resp );
+}
 
+
+
+
+
+TreeItem* Model::translatePtr( const QModelIndex& index ) const
+{
+    return index.internalPointer() ? static_cast<TreeItem*>( index.internalPointer() ) : _mailboxes;
+}
 
 QVariant Model::data(const QModelIndex& index, int role ) const
 {
-    // FIXME
-    //qDebug() << "Model::data" << index << role;
-    switch ( role ) {
-        case Qt::DisplayRole:
-            return QVariant( "333666" );
-        default:
-            return QVariant();
-    }
+    return translatePtr( index )->data( this, role );
 }
 
 QModelIndex Model::index(int row, int column, const QModelIndex& parent ) const
 {
-    // FIXME
-    qDebug() << "Model::index" << row << column << parent;
-    return QAbstractItemModel::createIndex( row, column );
+    TreeItem* parentItem = parent.internalPointer() ? 
+        static_cast<TreeItem*>( parent.internalPointer() ) : _mailboxes;
+
+    TreeItem* child = parentItem->child( row, this );
+
+    return child ? QAbstractItemModel::createIndex( row, column, child ) : QModelIndex();
 }
 
 QModelIndex Model::parent(const QModelIndex& index ) const
 {
-    // FIXME
-    qDebug() << "Model::parent" << index;
-    return QModelIndex();
+    if ( !index.isValid() )
+        return QModelIndex();
+
+    TreeItem *childItem = static_cast<TreeItem*>(index.internalPointer());
+    TreeItem *parentItem = childItem->parent();
+
+    if ( parentItem == _mailboxes )
+        return QModelIndex();
+
+    return QAbstractItemModel::createIndex( /*parentItem->row()*/ 0, 0, parentItem );
 }
 
 int Model::rowCount(const QModelIndex& index ) const
 {
-    qDebug() << "Model::rowCount" << index;
-
     TreeItem* node = static_cast<TreeItem*>( index.internalPointer() );
     if ( !node ) {
         node = _mailboxes;
@@ -229,8 +289,6 @@ int Model::rowCount(const QModelIndex& index ) const
 
 int Model::columnCount(const QModelIndex& index ) const
 {
-    qDebug() << "Model::columnCount" << index;
-
     TreeItem* node = static_cast<TreeItem*>( index.internalPointer() );
     if ( !node ) {
         node = _mailboxes;
@@ -240,10 +298,18 @@ int Model::columnCount(const QModelIndex& index ) const
 }
 
 
-void Model::_askForChildrenOfMailbox( const QString& mailbox ) const
+void Model::_askForChildrenOfMailbox( TreeItem* item ) const
 {
-    qDebug() << "_askForChildrenOfMailbox() called!";
-    _parser->list( "", mailbox );
+    QString mailbox = dynamic_cast<TreeItemMailbox*>( item )->mailbox();
+
+    if ( mailbox.isNull() )
+        mailbox = "%";
+    else
+        mailbox = QString::fromLatin1("%1.%").arg( mailbox ); // FIXME: separator
+
+    qDebug() << "_askForChildrenOfMailbox()" << mailbox;
+    CommandHandle cmd = _parser->list( "", mailbox );
+    _commandMap[ cmd ] = Task( Task::LIST, item );
 }
 
 }

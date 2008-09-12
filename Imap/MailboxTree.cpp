@@ -22,7 +22,7 @@
 namespace Imap {
 namespace Mailbox {
 
-TreeItem::TreeItem( TreeItem* parent ): _parent(parent), _fetched(false)
+TreeItem::TreeItem( TreeItem* parent ): _parent(parent), _fetched(false), _loading(false)
 {
 }
 
@@ -43,18 +43,25 @@ TreeItem* TreeItem::child( unsigned int offset, const Model* const model )
     return _children[ offset ];
 }
 
-TreeItemMailbox::TreeItemMailbox( TreeItem* parent, const QString& mailbox ): 
-    TreeItem(parent), _mailbox(mailbox)
+TreeItemMailbox::TreeItemMailbox( TreeItem* parent ):
+    TreeItem(parent)
 {
 }
 
+TreeItemMailbox::TreeItemMailbox( TreeItem* parent, Responses::List response ):
+    TreeItem(parent), _mailbox(response.mailbox), _separator(response.separator), _flags(response.flags)
+{
+}
 
 void TreeItemMailbox::fetch( const Model* const model )
 {
     if ( _fetched )
         return;
 
-    model->_askForChildrenOfMailbox( _mailbox );
+    if ( ! _loading ) {
+        model->_askForChildrenOfMailbox( this );
+        _loading = true;
+    }
 }
 
 unsigned int TreeItemMailbox::columnCount( const Model* const model )
@@ -67,6 +74,24 @@ unsigned int TreeItemMailbox::rowCount( const Model* const model )
 {
     fetch( model );
     return _children.size();
+}
+
+void TreeItemMailbox::setChildren( const QList<TreeItem*> items )
+{
+    qDeleteAll( _children );
+    _children = items;
+    _fetched = true;
+    _loading = false;
+}
+
+QVariant TreeItemMailbox::data( const Model* const model, int role )
+{
+    fetch( model );
+
+    if ( role != Qt::DisplayRole )
+        return QVariant();
+
+    return mailbox();
 }
 
 }
