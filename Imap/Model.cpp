@@ -301,6 +301,15 @@ int Model::columnCount(const QModelIndex& index ) const
     return node->columnCount( this );
 }
 
+bool Model::hasChildren( const QModelIndex& parent ) const
+{
+    TreeItem* node = translatePtr( parent );
+
+    if ( node )
+        return node->hasChildren( this );
+    else
+        return false;
+}
 
 void Model::_askForChildrenOfMailbox( TreeItem* item ) const
 {

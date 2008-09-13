@@ -37,6 +37,9 @@ protected:
     bool _fetched, _loading;
 public:
     TreeItem( TreeItem* parent );
+    TreeItem* parent() const { return _parent; };
+    int row() const;
+
     virtual ~TreeItem();
     virtual unsigned int childrenCount( const Model* const model );
     virtual TreeItem* child( const unsigned int offset, const Model* const model );
@@ -45,8 +48,7 @@ public:
     virtual unsigned int rowCount( const Model* const model ) = 0;
     virtual void setChildren( const QList<TreeItem*> items ) = 0;
     virtual QVariant data( const Model* const model, int role ) = 0;
-    TreeItem* parent() const { return _parent; };
-    int row() const;
+    virtual bool hasChildren( const Model* const model ) = 0;
 };
 
 class TreeItemMailbox: public TreeItem {
@@ -56,13 +58,16 @@ class TreeItemMailbox: public TreeItem {
 public:
     TreeItemMailbox( TreeItem* parent );
     TreeItemMailbox( TreeItem* parent, Responses::List );
+
     virtual void fetch( const Model* const model );
     virtual unsigned int columnCount( const Model* const model );
     virtual unsigned int rowCount( const Model* const model );
-    QString mailbox() const { return _mailbox; };
-    QString separator() const { return _separator; };
     virtual void setChildren( const QList<TreeItem*> items );
     virtual QVariant data( const Model* const model, int role );
+    virtual bool hasChildren( const Model* const model );
+
+    QString mailbox() const { return _mailbox; };
+    QString separator() const { return _separator; };
 };
 
 class TreeItemMessage: public TreeItem {

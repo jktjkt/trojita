@@ -96,15 +96,29 @@ void TreeItemMailbox::setChildren( const QList<TreeItem*> items )
 
 QVariant TreeItemMailbox::data( const Model* const model, int role )
 {
-    fetch( model );
-
     if ( role != Qt::DisplayRole )
         return QVariant();
 
-    if ( mailbox().isNull() )
+    if ( ! _parent )
         return QVariant();
 
+    if ( _loading )
+        return "[loading]";
+
     return mailbox().split( separator() ).last() ;
+}
+    
+bool TreeItemMailbox::hasChildren( const Model* const model )
+{
+    // FIXME: case sensitivity
+    if ( _flags.contains( "\\NoInferiors" ) || _flags.contains( "\\HasNoChildren" ) )
+        return false;
+    else if ( _flags.contains( "\\HasChildren" ) )
+        return true;
+    else {
+        fetch( model );
+        return ! _children.isEmpty();
+    }
 }
 
 }
