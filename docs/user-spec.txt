@@ -134,7 +134,7 @@ how we employ the whole Interview framework of Qt in trojitá.
 
 There's only one top-level item in our view.
 
-Children of this top-level item represent mailbox hierarchy, possible in
+Children of this top-level item represent mailbox hierarchy, possibly in
 different namespaces (a namespace is a term from IMAP, see RFC 3501 for
 details).  A mailbox can hold number of other mailboxes (properly nested), or a
 list of messages, or a combination of thereof.
@@ -147,8 +147,8 @@ representation in the view.
 This scenario has a problem that needs to be solved -- if a mailbox can contain
 both messages and other mailboxes, how does one distinguish among them?
 
-The purpose of the Imap::Mailbox::MailboxModel is to provide a nice high-level
-overview of an IMAP mailbox.  This is implemented by a standard Qt
+The purpose of the Imap::Mailbox::Model is to provide a nice high-level
+overview of an IMAP mailbox.  This is implemented using a standard Qt
 model-view-architecture interface.  This means that it is extremely easy to add
 a graphical view to the application, as the Qt library already provides one.
 The idea here is that all the views could be extremely stupid (they indeed are),
@@ -156,4 +156,4 @@ and all the IMAP logic like caching is to be provided by the lower layers.
 
 FIXME: describe (and implement :) ) Imap::Mailbox::Cache and
 (yet-to-be-thought-about) Imap::Mailbox::ParserPool for multiplexing of Parsers
-among multiple MailboxModels.
+among multiple Models.
