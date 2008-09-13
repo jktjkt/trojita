@@ -43,10 +43,10 @@ public:
     virtual ~TreeItem();
     virtual unsigned int childrenCount( const Model* const model );
     virtual TreeItem* child( const int offset, const Model* const model );
+    virtual void setChildren( const QList<TreeItem*> items );
     virtual void fetch( const Model* const model ) = 0;
-    virtual unsigned int columnCount( const Model* const model ) = 0;
+    virtual unsigned int columnCount( const Model* const model ) { return 1; };
     virtual unsigned int rowCount( const Model* const model ) = 0;
-    virtual void setChildren( const QList<TreeItem*> items ) = 0;
     virtual QVariant data( const Model* const model, int role ) = 0;
     virtual bool hasChildren( const Model* const model ) = 0;
 };
@@ -59,10 +59,9 @@ public:
     TreeItemMailbox( TreeItem* parent );
     TreeItemMailbox( TreeItem* parent, Responses::List );
 
-    virtual void fetch( const Model* const model );
-    virtual unsigned int columnCount( const Model* const model );
-    virtual unsigned int rowCount( const Model* const model );
     virtual void setChildren( const QList<TreeItem*> items );
+    virtual void fetch( const Model* const model );
+    virtual unsigned int rowCount( const Model* const model );
     virtual QVariant data( const Model* const model, int role );
     virtual bool hasChildren( const Model* const model );
 
@@ -70,7 +69,25 @@ public:
     QString separator() const { return _separator; };
 };
 
+class TreeItemMsgList: public TreeItem {
+    friend class TreeItemMailbox;
+public:
+    TreeItemMsgList( TreeItem* parent );
+
+    virtual void fetch( const Model* const model );
+    virtual unsigned int rowCount( const Model* const model );
+    virtual QVariant data( const Model* const model, int role );
+    virtual bool hasChildren( const Model* const model );
+};
+
 class TreeItemMessage: public TreeItem {
+public:
+    TreeItemMessage( TreeItem* parent );
+
+    virtual void fetch( const Model* const model );
+    virtual unsigned int rowCount( const Model* const model );
+    virtual QVariant data( const Model* const model, int role );
+    virtual bool hasChildren( const Model* const model ) { return true; };
 };
 
 class TreeItemPart: public TreeItem {

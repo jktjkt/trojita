@@ -42,6 +42,7 @@ enum ConnectionState {
 
 class TreeItem;
 class TreeItemMailbox;
+class TreeItemMsgList;
 class TreeItemMessage;
 class TreeItemPart;
 
@@ -51,7 +52,7 @@ class Model: public QAbstractItemModel {
     //Q_PROPERTY( ThreadAlgorithm threadSorting READ threadSorting WRITE setThreadSorting )
 
     struct Task {
-        enum Kind { NONE, LIST };
+        enum Kind { NONE, LIST, STATUS };
         Kind kind;
         TreeItem* what;
         Task( const Kind _kind, TreeItem* _what ): kind(_kind), what(_what) {};
@@ -70,6 +71,7 @@ class Model: public QAbstractItemModel {
     mutable QMap<CommandHandle, Task> _commandMap;
 
     QList<Responses::List> _listResponses;
+    QList<Responses::Status> _statusResponses;
 
     QList<Imap::Responses::NamespaceData> _personalNamespace, _otherUsersNamespace, _sharedNamespace;
 
@@ -105,12 +107,15 @@ private:
 
 
     friend class TreeItemMailbox;
+    friend class TreeItemMsgList;
     friend class TreeItemMessage;
     friend class TreeItemPart;
 
     void _askForChildrenOfMailbox( TreeItem* item ) const;
+    void _askForMessagesInMailbox( TreeItem* item ) const;
 
     void _finalizeList( const QMap<CommandHandle, Task>::const_iterator command );
+    void _finalizeStatus( const QMap<CommandHandle, Task>::const_iterator command );
 
     TreeItem* translatePtr( const QModelIndex& index ) const;
 

@@ -40,7 +40,7 @@ unsigned int TreeItem::childrenCount( const Model* const model )
 TreeItem* TreeItem::child( int offset, const Model* const model )
 {
     fetch( model );
-    if ( offset < _children.size() )
+    if ( offset >= 0 && offset < _children.size() )
         return _children[ offset ];
     else
         return 0;
@@ -51,6 +51,15 @@ int TreeItem::row() const
     return _parent ? _parent->_children.indexOf( const_cast<TreeItem*>(this) ) : 0;
 }
 
+void TreeItem::setChildren( const QList<TreeItem*> items )
+{
+    qDeleteAll( _children );
+    _children = items;
+    _fetched = true;
+    _loading = false;
+}
+
+
 
 TreeItemMailbox::TreeItemMailbox( TreeItem* parent ):
     TreeItem(parent)
@@ -59,8 +68,10 @@ TreeItemMailbox::TreeItemMailbox( TreeItem* parent ):
 
 TreeItemMailbox::TreeItemMailbox( TreeItem* parent, Responses::List response ):
     TreeItem(parent), _mailbox(response.mailbox),
-    _separator(response.separator), _flags(response.flags)
+    _separator(response.separator)
 {
+    for ( QStringList::const_iterator it = response.flags.begin(); it != response.flags.end(); ++it )
+        _flags.append( it->toUpper() );
 }
 
 void TreeItemMailbox::fetch( const Model* const model )
@@ -74,24 +85,10 @@ void TreeItemMailbox::fetch( const Model* const model )
     }
 }
 
-unsigned int TreeItemMailbox::columnCount( const Model* const model )
-{
-    Q_UNUSED( model );
-    return 1;
-}
-
 unsigned int TreeItemMailbox::rowCount( const Model* const model )
 {
     fetch( model );
     return _children.size();
-}
-
-void TreeItemMailbox::setChildren( const QList<TreeItem*> items )
-{
-    qDeleteAll( _children );
-    _children = items;
-    _fetched = true;
-    _loading = false;
 }
 
 QVariant TreeItemMailbox::data( const Model* const model, int role )
@@ -110,17 +107,105 @@ QVariant TreeItemMailbox::data( const Model* const model, int role )
     
 bool TreeItemMailbox::hasChildren( const Model* const model )
 {
+    return true; // we have that "messages" thing built it
+
     // FIXME: case sensitivity
     if ( _fetched )
         return ! _children.isEmpty();
-    else if ( _flags.contains( "\\NoInferiors" ) || _flags.contains( "\\HasNoChildren" ) )
+    else if ( _flags.contains( "\\NOINFERIORS" ) || _flags.contains( "\\HASNOCHILDRen" ) )
         return false;
-    else if ( _flags.contains( "\\HasChildren" ) )
+    else if ( _flags.contains( "\\HASCHILDREN" ) )
         return true;
     else {
         fetch( model );
         return ! _children.isEmpty();
     }
+}
+
+void TreeItemMailbox::setChildren( const QList<TreeItem*> items )
+{
+    TreeItem::setChildren( items );
+    _children.prepend( new TreeItemMsgList( this ) );
+
+    // FIXME: anything else required for \Noselect?
+    if ( _flags.contains( "\\NOSELECT" ) )
+        static_cast<TreeItemMsgList*>( _children[0] )->_fetched = true;
+}
+
+
+TreeItemMsgList::TreeItemMsgList( TreeItem* parent ): TreeItem(parent)
+{
+    if ( ! parent->parent() )
+        _fetched = true;
+}
+
+void TreeItemMsgList::fetch( const Model* const model )
+{
+    if ( _fetched )
+        return;
+
+    if ( ! _loading ) {
+        model->_askForMessagesInMailbox( this );
+        _loading = true;
+    }
+}
+
+unsigned int TreeItemMsgList::rowCount( const Model* const model )
+{
+    return childrenCount( model );
+}
+
+QVariant TreeItemMsgList::data( const Model* const model, int role )
+{
+    if ( role != Qt::DisplayRole )
+        return QVariant();
+
+    if ( ! _parent )
+        return QVariant();
+
+    if ( _loading )
+        return "[loading messages...]";
+
+    if ( _fetched )
+        return hasChildren( model ) ? QString("[%1 messages]").arg( childrenCount( model ) ) : "[no messages]";
+    
+    return "[messages?]";
+}
+
+bool TreeItemMsgList::hasChildren( const Model* const model )
+{
+    return true; // we can easily wait here
+    // return childrenCount( model ) > 0;
+}
+
+
+
+TreeItemMessage::TreeItemMessage( TreeItem* parent ): TreeItem(parent)
+{}
+
+void TreeItemMessage::fetch( const Model* const model )
+{
+    // FIXME
+}
+
+unsigned int TreeItemMessage::rowCount( const Model* const model )
+{
+    // FIXME
+    return 0;
+}
+
+QVariant TreeItemMessage::data( const Model* const model, int role )
+{
+    if ( role != Qt::DisplayRole )
+        return QVariant();
+
+    if ( ! _parent )
+        return QVariant();
+
+    if ( _loading )
+        return "[loading...]";
+
+    return "[message]";
 }
 
 }

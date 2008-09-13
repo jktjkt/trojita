@@ -95,6 +95,8 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
                 _finalizeList( command );
                 return;
                 break;
+            case Task::STATUS:
+                _finalizeStatus( command );
         }
     }
 
@@ -132,6 +134,7 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
 
 void Model::_finalizeList( const QMap<CommandHandle, Task>::const_iterator command )
 {
+    // FIXME: more fine-grained resizing than layoutChanged()
     emit layoutAboutToBeChanged();
     QList<TreeItem*> mailboxes;
     TreeItemMailbox* mailboxPtr = static_cast<TreeItemMailbox*>( command->what );
@@ -146,6 +149,49 @@ void Model::_finalizeList( const QMap<CommandHandle, Task>::const_iterator comma
     emit layoutChanged();
 
     qDebug() << "_finalizeList" << mailboxPtr->mailbox();
+}
+
+void Model::_finalizeStatus( const QMap<CommandHandle, Task>::const_iterator command )
+{
+    // FIXME: more fine-grained resizing than layoutChanged()
+    emit layoutAboutToBeChanged();
+    QList<TreeItem*> messages;
+    TreeItemMsgList* listPtr = static_cast<TreeItemMsgList*>( command->what );
+
+    uint sMessages = 0, sRecent = 0, sUidNext = 0, sUidValidity = 0, sUnSeen = 0;
+    for ( QList<Responses::Status>::const_iterator it = _statusResponses.begin();
+            it != _statusResponses.end(); ++it ) {
+
+        for ( Responses::Status::stateDataType::const_iterator item = it->states.begin();
+                item != it->states.end(); ++item ) {
+            switch ( item.key() ) {
+                case Responses::Status::MESSAGES:
+                    sMessages = item.value();
+                    break;
+                case Responses::Status::RECENT:
+                    sRecent = item.value();
+                    break;
+                case Responses::Status::UIDNEXT:
+                    sUidNext = item.value();
+                    break;
+                case Responses::Status::UIDVALIDITY:
+                    sUidValidity = item.value();
+                    break;
+                case Responses::Status::UNSEEN:
+                    sUnSeen = item.value();
+                    break;
+            }
+        }
+    }
+    _statusResponses.clear();
+
+    // FIXME: do something with more of these data...
+    for ( uint i = 0; i < sMessages; ++i )
+        messages.append( new TreeItemMessage( listPtr ) );
+
+    command->what->setChildren( messages );
+    emit layoutChanged();
+    qDebug() << "_finalizeStatus" << dynamic_cast<TreeItemMailbox*>( listPtr->parent() )->mailbox();
 }
 
 bool SortMailboxes( const TreeItem* const a, const TreeItem* const b )
@@ -227,7 +273,10 @@ void Model::handleSearch( Imap::ParserPtr ptr, const Imap::Responses::Search* co
 
 void Model::handleStatus( Imap::ParserPtr ptr, const Imap::Responses::Status* const resp )
 {
-    throw UnexpectedResponseReceived( "STATUS reply, wtf?", *resp );
+    // FIXME: we should check state here -- this is not really important now
+    // when we don't actually SELECT/EXAMINE any mailbox, but *HAS* to be
+    // changed as soon as we do so
+    _statusResponses << *resp;
 }
 
 void Model::handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* const resp )
@@ -322,6 +371,17 @@ void Model::_askForChildrenOfMailbox( TreeItem* item ) const
     qDebug() << "_askForChildrenOfMailbox()" << mailbox;
     CommandHandle cmd = _parser->list( "", mailbox );
     _commandMap[ cmd ] = Task( Task::LIST, item );
+}
+
+void Model::_askForMessagesInMailbox( TreeItem* item ) const
+{
+    Q_ASSERT( item->parent() );
+
+    QString mailbox = dynamic_cast<TreeItemMailbox*>( item->parent() )->mailbox();
+
+    qDebug() << "_askForMessagesInMailbox()" << mailbox;
+    CommandHandle cmd = _parser->status( mailbox, QStringList() << "MESSAGES" /*<< "RECENT" << "UIDNEXT" << "UIDVALIDITY" << "UNSEEN"*/ );
+    _commandMap[ cmd ] = Task( Task::STATUS, item );
 }
 
 }
