@@ -37,7 +37,7 @@ unsigned int TreeItem::childrenCount( const Model* const model )
     return _children.size();
 }
 
-TreeItem* TreeItem::child( unsigned int offset, const Model* const model )
+TreeItem* TreeItem::child( int offset, const Model* const model )
 {
     fetch( model );
     if ( offset < _children.size() )

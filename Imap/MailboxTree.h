@@ -42,7 +42,7 @@ public:
 
     virtual ~TreeItem();
     virtual unsigned int childrenCount( const Model* const model );
-    virtual TreeItem* child( const unsigned int offset, const Model* const model );
+    virtual TreeItem* child( const int offset, const Model* const model );
     virtual void fetch( const Model* const model ) = 0;
     virtual unsigned int columnCount( const Model* const model ) = 0;
     virtual unsigned int rowCount( const Model* const model ) = 0;

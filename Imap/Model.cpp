@@ -59,9 +59,9 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
     switch ( resp->respCode ) {
         case ALERT:
             {
-                const RespData<QString>* const msg = dynamic_cast<const RespData<QString>* const>(
+                /*const RespData<QString>* const msg = dynamic_cast<const RespData<QString>* const>(
                         resp->respCodeData.get() );
-                //alert( resp, msg ? msg->data : QString() );
+                alert( resp, msg ? msg->data : QString() );*/
                 throw 42; // FIXME
             }
             break;
@@ -192,7 +192,6 @@ void Model::handleStateInitial( const Imap::Responses::State* const state )
 
 void Model::handleStateAuthenticated( const Imap::Responses::State* const state )
 {
-    const QString& tag = state->tag;
 }
 
 void Model::handleStateSelecting( const Imap::Responses::State* const state )
