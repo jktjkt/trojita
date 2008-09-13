@@ -42,7 +42,7 @@ int main( int argc, char** argv) {
 
     Imap::Mailbox::Model model( 0, cache, auth, parser );
 
-    new ModelTest( &model );
+    //new ModelTest( &model );
     
     QTreeView tree;
     tree.setModel( &model );

@@ -111,7 +111,9 @@ QVariant TreeItemMailbox::data( const Model* const model, int role )
 bool TreeItemMailbox::hasChildren( const Model* const model )
 {
     // FIXME: case sensitivity
-    if ( _flags.contains( "\\NoInferiors" ) || _flags.contains( "\\HasNoChildren" ) )
+    if ( _fetched )
+        return ! _children.isEmpty();
+    else if ( _flags.contains( "\\NoInferiors" ) || _flags.contains( "\\HasNoChildren" ) )
         return false;
     else if ( _flags.contains( "\\HasChildren" ) )
         return true;
