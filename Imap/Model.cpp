@@ -29,10 +29,10 @@ Model::Model( QObject* parent, CachePtr cache, AuthenticatorPtr authenticator,
     QAbstractItemModel( parent ),
     // our tools
     _cache(cache), _authenticator(authenticator), _socketFactory(socketFactory),
-    _state( CONN_STATE_ESTABLISHED ), _capabilitiesFresh(false), _mailboxes(0)
+    _capabilitiesFresh(false), _mailboxes(0)
 {
     ParserPtr parser( new Imap::Parser( this, _socketFactory->create() ) );
-    _parsers.append( ParserState( parser, QString::null, ReadOnly ) );
+    _parsers[ parser.get() ] = ParserState( parser, QString::null, ReadOnly, CONN_STATE_ESTABLISHED );
     connect( parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
     _mailboxes = new TreeItemMailbox( 0 );
 }
@@ -45,14 +45,14 @@ Model::~Model()
 void Model::responseReceived()
 {
     // FIXME: multiple parsers...
-    while ( _parsers[0].parser->hasResponse() ) {
-        std::tr1::shared_ptr<Imap::Responses::AbstractResponse> resp = _parsers[0].parser->getResponse();
+    while ( _parsers.begin().key()->hasResponse() ) {
+        std::tr1::shared_ptr<Imap::Responses::AbstractResponse> resp = _parsers.begin().value().parser->getResponse();
         Q_ASSERT( resp );
 
         QTextStream s(stderr);
         s << "<<< " << *resp << "\r\n";
         s.flush();
-        resp->plug( _parsers[0].parser, this );
+        resp->plug( _parsers.begin().value().parser, this );
     }
 }
 
@@ -108,12 +108,29 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
         }
     }
 
-    switch ( _state ) {
+    switch ( _parsers[ ptr.get() ].connState ) {
         case CONN_STATE_ESTABLISHED:
             if ( ! tag.isEmpty() )
                 throw UnexpectedResponseReceived( "Received a tagged response when expecting server greeting", *resp );
-            else
-                handleStateInitial( resp );
+            else {
+                using namespace Imap::Responses;
+
+                switch ( resp->kind ) {
+                    case PREAUTH:
+                        _parsers[ ptr.get() ].connState = CONN_STATE_AUTH;
+                        break;
+                    case OK:
+                        _parsers[ ptr.get() ].connState = CONN_STATE_NOT_AUTH;
+                        break;
+                    case BYE:
+                        _parsers[ ptr.get() ].connState = CONN_STATE_LOGOUT;
+                        break;
+                    default:
+                        throw Imap::UnexpectedResponseReceived(
+                                "Waiting for initial OK/BYE/PREAUTH, but got this instead",
+                                *resp );
+                }
+            }
             break;
         case CONN_STATE_NOT_AUTH:
             throw UnexpectedResponseReceived(
@@ -122,13 +139,9 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
                     *resp );
             break;
         case CONN_STATE_AUTH:
-            handleStateAuthenticated( resp );
-            break;
         case CONN_STATE_SELECTING:
-            handleStateSelecting( resp );
-            break;
         case CONN_STATE_SELECTED:
-            handleStateSelected( resp );
+            // FIXME
             break;
         case CONN_STATE_LOGOUT:
             // hey, we're supposed to be logged out, how come that
@@ -208,54 +221,6 @@ bool SortMailboxes( const TreeItem* const a, const TreeItem* const b )
             dynamic_cast<const TreeItemMailbox* const>(b)->mailbox(), Qt::CaseInsensitive 
             ) < 1;
 }
-
-void Model::_updateState( const ConnectionState state )
-{
-    _state = state;
-}
-
-void Model::handleStateInitial( const Imap::Responses::State* const state )
-{
-    using namespace Imap::Responses;
-
-    switch ( state->kind ) {
-        case PREAUTH:
-            _updateState( CONN_STATE_AUTH );
-            break;
-        case OK:
-            _updateState( CONN_STATE_NOT_AUTH );
-        case BYE:
-            _updateState( CONN_STATE_LOGOUT );
-        default:
-            throw Imap::UnexpectedResponseReceived(
-                    "Waiting for initial OK/BYE/PREAUTH, but got this instead",
-                    *state );
-    }
-
-    /*switch ( state->respCode() ) {
-        case ALERT:
-        case CAPABILITIES:
-            // already handled in handleState()
-            break;
-        default:
-            _unknownResponseCode( state );
-    }*/
-    
-    // FIXME
-}
-
-void Model::handleStateAuthenticated( const Imap::Responses::State* const state )
-{
-}
-
-void Model::handleStateSelecting( const Imap::Responses::State* const state )
-{
-}
-
-void Model::handleStateSelected( const Imap::Responses::State* const state )
-{
-}
-
 
 void Model::handleCapability( Imap::ParserPtr ptr, const Imap::Responses::Capability* const resp )
 {
@@ -395,7 +360,7 @@ void Model::_askForMessagesInMailbox( TreeItem* item ) const
 ParserPtr Model::_getParser(QString const&, Imap::Mailbox::Model::RWMode) const
 {
     // FIXME: correct mailbox!
-    return _parsers[0].parser;
+    return _parsers.begin().value().parser;
 }
 
 }

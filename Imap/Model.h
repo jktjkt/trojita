@@ -31,16 +31,6 @@ namespace Imap {
 /** @short Classes for handling of mailboxes and connections */
 namespace Mailbox {
 
-/** @short IMAP state of a connection */
-enum ConnectionState {
-    CONN_STATE_ESTABLISHED /**< Connection established, no details known yet */,
-    CONN_STATE_NOT_AUTH /**< Before we can do anything, we have to authenticate ourselves */,
-    CONN_STATE_AUTH /**< We are authenticated, now we must select a mailbox */,
-    CONN_STATE_SELECTING /**< The SELECT/EXAMINE command has been issued, but not yet completed */,
-    CONN_STATE_SELECTED /**< Some mailbox is selected */,
-    CONN_STATE_LOGOUT /**< We have been logged out */
-};
-
 class TreeItem;
 class TreeItemMailbox;
 class TreeItemMsgList;
@@ -62,19 +52,31 @@ class Model: public QAbstractItemModel {
 
     enum RWMode { ReadOnly, ReadWrite };
 
+    /** @short IMAP state of a connection */
+    enum ConnectionState {
+        CONN_STATE_ESTABLISHED /**< Connection established, no details known yet */,
+        CONN_STATE_NOT_AUTH /**< Before we can do anything, we have to authenticate ourselves */,
+        CONN_STATE_AUTH /**< We are authenticated, now we must select a mailbox */,
+        CONN_STATE_SELECTING /**< The SELECT/EXAMINE command has been issued, but not yet completed */,
+        CONN_STATE_SELECTED /**< Some mailbox is selected */,
+        CONN_STATE_LOGOUT /**< We have been logged out */
+    };
+
     struct ParserState {
         ParserPtr parser;
         QString mailbox;
         RWMode mode;
-        ParserState( ParserPtr _parser, const QString& _mailbox, const RWMode _mode ): 
-            parser(_parser), mailbox(_mailbox), mode(_mode) {};
+        ConnectionState connState;
+        ParserState( ParserPtr _parser, const QString& _mailbox, const RWMode _mode, 
+                const ConnectionState _connState ): 
+            parser(_parser), mailbox(_mailbox), mode(_mode), connState(_connState) {};
+        ParserState(): mode(ReadOnly), connState(CONN_STATE_LOGOUT) {};
     };
 
     CachePtr _cache;
     AuthenticatorPtr _authenticator;
     SocketFactoryPtr _socketFactory;
-    mutable QList<ParserState> _parsers;
-    ConnectionState _state;
+    mutable QMap<Parser*,ParserState> _parsers;
 
     QStringList _capabilities;
     bool _capabilitiesFresh;
@@ -113,12 +115,6 @@ public:
 private:
     Model& operator=( const Model& ); // don't implement
 
-    void handleStateInitial( const Imap::Responses::State* const state );
-    void handleStateAuthenticated( const Imap::Responses::State* const state );
-    void handleStateSelecting( const Imap::Responses::State* const state );
-    void handleStateSelected( const Imap::Responses::State* const state );
-
-    void _updateState( const ConnectionState state );
 
 
     friend class TreeItemMailbox;
