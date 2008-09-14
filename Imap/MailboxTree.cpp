@@ -102,7 +102,7 @@ QVariant TreeItemMailbox::data( const Model* const model, int role )
     if ( _loading )
         return "[loading]";
 
-    return mailbox().split( separator() ).last() ;
+    return separator().isEmpty() ? mailbox() : mailbox().split( separator(), QString::SkipEmptyParts ).last() ;
 }
     
 bool TreeItemMailbox::hasChildren( const Model* const model )
