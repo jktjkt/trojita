@@ -24,27 +24,35 @@ namespace Imap {
 namespace Mailbox {
 
 Model::Model( QObject* parent, CachePtr cache, AuthenticatorPtr authenticator,
-        ParserPtr parser ):
+        SocketFactoryPtr socketFactory ):
     // parent
     QAbstractItemModel( parent ),
     // our tools
-    _cache(cache), _authenticator(authenticator), _parser(parser),
+    _cache(cache), _authenticator(authenticator), _socketFactory(socketFactory),
     _state( CONN_STATE_ESTABLISHED ), _capabilitiesFresh(false), _mailboxes(0)
 {
-    connect( _parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
+    ParserPtr parser( new Imap::Parser( this, _socketFactory->create() ) );
+    _parsers.append( ParserState( parser, QString::null, ReadOnly ) );
+    connect( parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
     _mailboxes = new TreeItemMailbox( 0 );
+}
+
+Model::~Model()
+{
+    delete _mailboxes;
 }
 
 void Model::responseReceived()
 {
-    while ( _parser->hasResponse() ) {
-        std::tr1::shared_ptr<Imap::Responses::AbstractResponse> resp = _parser->getResponse();
+    // FIXME: multiple parsers...
+    while ( _parsers[0].parser->hasResponse() ) {
+        std::tr1::shared_ptr<Imap::Responses::AbstractResponse> resp = _parsers[0].parser->getResponse();
         Q_ASSERT( resp );
 
         QTextStream s(stderr);
         s << "<<< " << *resp << "\r\n";
         s.flush();
-        resp->plug( _parser, this );
+        resp->plug( _parsers[0].parser, this );
     }
 }
 
@@ -369,7 +377,7 @@ void Model::_askForChildrenOfMailbox( TreeItem* item ) const
         mailbox = QString::fromLatin1("%1.%").arg( mailbox ); // FIXME: separator
 
     qDebug() << "_askForChildrenOfMailbox()" << mailbox;
-    CommandHandle cmd = _parser->list( "", mailbox );
+    CommandHandle cmd = _getParser( QString::null, ReadOnly )->list( "", mailbox );
     _commandMap[ cmd ] = Task( Task::LIST, item );
 }
 
@@ -380,8 +388,14 @@ void Model::_askForMessagesInMailbox( TreeItem* item ) const
     QString mailbox = dynamic_cast<TreeItemMailbox*>( item->parent() )->mailbox();
 
     qDebug() << "_askForMessagesInMailbox()" << mailbox;
-    CommandHandle cmd = _parser->status( mailbox, QStringList() << "MESSAGES" /*<< "RECENT" << "UIDNEXT" << "UIDVALIDITY" << "UNSEEN"*/ );
+    CommandHandle cmd = _getParser( QString::null, ReadOnly )->status( mailbox, QStringList() << "MESSAGES" /*<< "RECENT" << "UIDNEXT" << "UIDVALIDITY" << "UNSEEN"*/ );
     _commandMap[ cmd ] = Task( Task::STATUS, item );
+}
+
+ParserPtr Model::_getParser(QString const&, Imap::Mailbox::Model::RWMode) const
+{
+    // FIXME: correct mailbox!
+    return _parsers[0].parser;
 }
 
 }

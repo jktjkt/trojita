@@ -30,6 +30,7 @@ namespace Mailbox {
 class Model;
 
 class TreeItem {
+    void operator=( const TreeItem& ); // don't implement
 protected:
     TreeItem* _parent;
     QList<TreeItem*> _children;
@@ -52,6 +53,7 @@ public:
 };
 
 class TreeItemMailbox: public TreeItem {
+    void operator=( const TreeItem& ); // don't implement
     QString _mailbox;
     QString _separator;
     QStringList _flags;
@@ -70,6 +72,7 @@ public:
 };
 
 class TreeItemMsgList: public TreeItem {
+    void operator=( const TreeItem& ); // don't implement
     friend class TreeItemMailbox;
 public:
     TreeItemMsgList( TreeItem* parent );
@@ -81,6 +84,7 @@ public:
 };
 
 class TreeItemMessage: public TreeItem {
+    void operator=( const TreeItem& ); // don't implement
 public:
     TreeItemMessage( TreeItem* parent );
 
@@ -91,6 +95,7 @@ public:
 };
 
 class TreeItemPart: public TreeItem {
+    void operator=( const TreeItem& ); // don't implement
 };
 
 }

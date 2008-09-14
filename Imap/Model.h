@@ -23,6 +23,7 @@
 #include "Imap/Cache.h"
 #include "Imap/Authenticator.h"
 #include "Imap/Parser.h"
+#include "Imap/SocketFactory.h"
 
 /** @short Namespace for IMAP interaction */
 namespace Imap {
@@ -59,9 +60,20 @@ class Model: public QAbstractItemModel {
         Task(): kind(NONE) {};
     };
 
+    enum RWMode { ReadOnly, ReadWrite };
+
+    struct ParserState {
+        ParserPtr parser;
+        QString mailbox;
+        RWMode mode;
+        ParserState( ParserPtr _parser, const QString& _mailbox, const RWMode _mode ): 
+            parser(_parser), mailbox(_mailbox), mode(_mode) {};
+    };
+
     CachePtr _cache;
     AuthenticatorPtr _authenticator;
-    ParserPtr _parser;
+    SocketFactoryPtr _socketFactory;
+    mutable QList<ParserState> _parsers;
     ConnectionState _state;
 
     QStringList _capabilities;
@@ -78,7 +90,8 @@ class Model: public QAbstractItemModel {
 
 public:
     Model( QObject* parent, CachePtr cache, AuthenticatorPtr authenticator,
-            ParserPtr parser );
+            SocketFactoryPtr socketFactory );
+    ~Model();
 
     virtual QModelIndex index(int row, int column, const QModelIndex& parent ) const;
     virtual QModelIndex parent(const QModelIndex& index ) const;
@@ -98,6 +111,8 @@ public:
     void handleNamespace( Imap::ParserPtr ptr, const Imap::Responses::Namespace* const resp );
 
 private:
+    Model& operator=( const Model& ); // don't implement
+
     void handleStateInitial( const Imap::Responses::State* const state );
     void handleStateAuthenticated( const Imap::Responses::State* const state );
     void handleStateSelecting( const Imap::Responses::State* const state );
@@ -118,6 +133,15 @@ private:
     void _finalizeStatus( const QMap<CommandHandle, Task>::const_iterator command );
 
     TreeItem* translatePtr( const QModelIndex& index ) const;
+
+    /** @short Returns parser suitable for dealing with some mailbox.
+     *
+     * This parser might be already working hard in another mailbox; if that is
+     * the case, it is asked to switch to the correct one.
+     *
+     * If allowed by policy, new parser might be created in the background.
+     * */
+    ParserPtr _getParser( const QString& mailbox, const RWMode rw ) const;
 
 protected slots:
     void responseReceived();

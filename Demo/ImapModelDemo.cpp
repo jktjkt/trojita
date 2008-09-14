@@ -36,11 +36,10 @@ int main( int argc, char** argv) {
                 QStringList() << "sosna.fzu.cz" << "/usr/sbin/imapd" )*/
             );
 
-    Imap::ParserPtr parser( new Imap::Parser( 0, factory->create() ) );
     Imap::Mailbox::CachePtr cache( new Imap::Mailbox::NoCache() );
     Imap::Mailbox::AuthenticatorPtr auth;
 
-    Imap::Mailbox::Model model( 0, cache, auth, parser );
+    Imap::Mailbox::Model model( 0, cache, auth, factory );
 
     //new ModelTest( &model );
     
