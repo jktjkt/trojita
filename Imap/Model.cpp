@@ -29,10 +29,10 @@ Model::Model( QObject* parent, CachePtr cache, AuthenticatorPtr authenticator,
     QAbstractItemModel( parent ),
     // our tools
     _cache(cache), _authenticator(authenticator), _socketFactory(socketFactory),
-    _capabilitiesFresh(false), _mailboxes(0)
+    _maxParsers(1), _capabilitiesFresh(false), _mailboxes(0)
 {
     ParserPtr parser( new Imap::Parser( this, _socketFactory->create() ) );
-    _parsers[ parser.get() ] = ParserState( parser, QString::null, ReadOnly, CONN_STATE_ESTABLISHED );
+    _parsers[ parser.get() ] = ParserState( parser, 0, ReadOnly, CONN_STATE_ESTABLISHED );
     connect( parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
     _mailboxes = new TreeItemMailbox( 0 );
 }
@@ -88,11 +88,9 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
             break;
     }
 
-    // FIXME: we shouldn't mix tag-based and state-based stuff here
-
     if ( ! tag.isEmpty() ) {
-        QMap<CommandHandle, Task>::const_iterator command = _commandMap.find( tag );
-        if ( command == _commandMap.end() )
+        QMap<CommandHandle, Task>::const_iterator command = _parsers[ ptr.get() ].commandMap.find( tag );
+        if ( command == _parsers[ ptr.get() ].commandMap.end() )
             throw UnexpectedResponseReceived( "Unknown tag in tagged response", *resp );
 
         switch ( command->kind ) {
@@ -101,20 +99,22 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
                 break;
             case Task::LIST:
                 _finalizeList( command );
-                return;
                 break;
             case Task::STATUS:
                 _finalizeStatus( command );
+                break;
+            case Task::SELECT:
+                _finalizeSelect( ptr, command );
+                break;
+            case Task::FETCH:
+                _finalizeFetch( command );
         }
-    }
+    } else {
+        // untagged response
 
-    switch ( _parsers[ ptr.get() ].connState ) {
-        case CONN_STATE_ESTABLISHED:
-            if ( ! tag.isEmpty() )
-                throw UnexpectedResponseReceived( "Received a tagged response when expecting server greeting", *resp );
-            else {
+        switch ( _parsers[ ptr.get() ].connState ) {
+            case CONN_STATE_ESTABLISHED:
                 using namespace Imap::Responses;
-
                 switch ( resp->kind ) {
                     case PREAUTH:
                         _parsers[ ptr.get() ].connState = CONN_STATE_AUTH;
@@ -130,26 +130,27 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
                                 "Waiting for initial OK/BYE/PREAUTH, but got this instead",
                                 *resp );
                 }
-            }
-            break;
-        case CONN_STATE_NOT_AUTH:
-            throw UnexpectedResponseReceived(
-                    "Somehow we managed to get back to the "
-                    "IMAP_STATE_NOT_AUTH, which is rather confusing",
-                    *resp );
-            break;
-        case CONN_STATE_AUTH:
-        case CONN_STATE_SELECTING:
-        case CONN_STATE_SELECTED:
-            // FIXME
-            break;
-        case CONN_STATE_LOGOUT:
-            // hey, we're supposed to be logged out, how come that
-            // *anything* made it here?
-            throw UnexpectedResponseReceived(
-                    "WTF, we're logged out, yet I just got this message", 
-                    *resp );
-            break;
+                break;
+            case CONN_STATE_NOT_AUTH:
+                throw UnexpectedResponseReceived(
+                        "Somehow we managed to get back to the "
+                        "IMAP_STATE_NOT_AUTH, which is rather confusing. "
+                        "Internal error in trojita?",
+                        *resp );
+                break;
+            case CONN_STATE_AUTH:
+            case CONN_STATE_SELECTING:
+            case CONN_STATE_SELECTED:
+                // FIXME: untagged status reply...
+                break;
+            case CONN_STATE_LOGOUT:
+                // hey, we're supposed to be logged out, how come that
+                // *anything* made it here?
+                throw UnexpectedResponseReceived(
+                        "WTF, we're logged out, yet I just got this message", 
+                        *resp );
+                break;
+        }
     }
 }
 
@@ -215,6 +216,16 @@ void Model::_finalizeStatus( const QMap<CommandHandle, Task>::const_iterator com
     qDebug() << "_finalizeStatus" << dynamic_cast<TreeItemMailbox*>( listPtr->parent() )->mailbox();
 }
 
+void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command )
+{
+    _parsers[ parser.get() ].handler = dynamic_cast<TreeItemMailbox*>( command->what );
+}
+
+void Model::_finalizeFetch( const QMap<CommandHandle, Task>::const_iterator command )
+{
+    // FIXME
+}
+
 bool SortMailboxes( const TreeItem* const a, const TreeItem* const b )
 {
     return dynamic_cast<const TreeItemMailbox* const>(a)->mailbox().compare( 
@@ -254,7 +265,11 @@ void Model::handleStatus( Imap::ParserPtr ptr, const Imap::Responses::Status* co
 
 void Model::handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* const resp )
 {
-    throw UnexpectedResponseReceived( "FETCH reply, wtf?", *resp );
+    TreeItemMailbox* mailbox = _parsers[ ptr.get() ].handler;
+    if ( ! mailbox )
+        throw UnexpectedResponseReceived( "Received FETCH reply, but AFAIK we haven't selected any mailbox yet", *resp );
+
+    // FIXME: somehow plug it into the mailbox...
 }
 
 void Model::handleNamespace( Imap::ParserPtr ptr, const Imap::Responses::Namespace* const resp )
@@ -342,8 +357,9 @@ void Model::_askForChildrenOfMailbox( TreeItem* item ) const
         mailbox = QString::fromLatin1("%1.%").arg( mailbox ); // FIXME: separator
 
     qDebug() << "_askForChildrenOfMailbox()" << mailbox;
-    CommandHandle cmd = _getParser( QString::null, ReadOnly )->list( "", mailbox );
-    _commandMap[ cmd ] = Task( Task::LIST, item );
+    ParserPtr parser = _getParser( 0, ReadOnly );
+    CommandHandle cmd = parser->list( "", mailbox );
+    _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::LIST, item );
 }
 
 void Model::_askForMessagesInMailbox( TreeItem* item ) const
@@ -353,14 +369,67 @@ void Model::_askForMessagesInMailbox( TreeItem* item ) const
     QString mailbox = dynamic_cast<TreeItemMailbox*>( item->parent() )->mailbox();
 
     qDebug() << "_askForMessagesInMailbox()" << mailbox;
-    CommandHandle cmd = _getParser( QString::null, ReadOnly )->status( mailbox, QStringList() << "MESSAGES" /*<< "RECENT" << "UIDNEXT" << "UIDVALIDITY" << "UNSEEN"*/ );
-    _commandMap[ cmd ] = Task( Task::STATUS, item );
+    ParserPtr parser = _getParser( 0, ReadOnly );
+    CommandHandle cmd = parser->status( mailbox, QStringList() << "MESSAGES" /*<< "RECENT" << "UIDNEXT" << "UIDVALIDITY" << "UNSEEN"*/ );
+    _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::STATUS, item );
 }
 
-ParserPtr Model::_getParser(QString const&, Imap::Mailbox::Model::RWMode) const
+void Model::_askForMsgEnvelope( TreeItem* item ) const
 {
-    // FIXME: correct mailbox!
-    return _parsers.begin().value().parser;
+    Q_ASSERT( item->parent() );
+    Q_ASSERT( item->parent()->parent() );
+
+    TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( item->parent()->parent() );
+    int order = item->row();
+
+    qDebug() << "_askForMsgEnvelope()" << mailboxPtr->mailbox() << order;
+    ParserPtr parser = _getParser( mailboxPtr, ReadOnly );
+    CommandHandle cmd = parser->fetch( Sequence( order + 1 ), QStringList() << "ENVELOPE" );
+    _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, item );
+}
+
+ParserPtr Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode ) const
+{
+    if ( ! mailbox ) {
+        return _parsers.begin().value().parser;
+    } else {
+        for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
+            if ( it->mailbox == mailbox ) {
+                if ( mode == ReadOnly || it->mode == mode ) {
+                    return it->parser;
+                } else {
+                    it->mode = ReadWrite;
+                    CommandHandle cmd = it->parser->select( mailbox->mailbox() );
+                    _parsers[ it->parser.get() ].commandMap[ cmd ] = Task( Task::SELECT, mailbox );
+                    return it->parser;
+                }
+            }
+        }
+    }
+    if ( _parsers.size() >= _maxParsers ) {
+        ParserState& parser = _parsers.begin().value();
+        parser.mode = mode;
+        parser.mailbox = mailbox;
+        CommandHandle cmd;
+        if ( mode == ReadWrite )
+            cmd = parser.parser->select( mailbox->mailbox() );
+        else
+            cmd = parser.parser->examine( mailbox->mailbox() );
+        _parsers[ parser.parser.get() ].commandMap[ cmd ] = Task( Task::SELECT, mailbox );
+        return parser.parser;
+    } else {
+        // we can create one more
+        ParserPtr parser( new Parser( const_cast<Model*>( this ), _socketFactory->create() ) );
+        _parsers[ parser.get() ] = ParserState( parser, mailbox, mode, CONN_STATE_ESTABLISHED );
+        connect( parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
+        CommandHandle cmd;
+        if ( mode == ReadWrite )
+            cmd = parser->select( mailbox->mailbox() );
+        else
+            cmd = parser->examine( mailbox->mailbox() );
+        _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::SELECT, mailbox );
+        return parser;
+    }
 }
 
 }

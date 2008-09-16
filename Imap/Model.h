@@ -43,7 +43,7 @@ class Model: public QAbstractItemModel {
     //Q_PROPERTY( ThreadAlgorithm threadSorting READ threadSorting WRITE setThreadSorting )
 
     struct Task {
-        enum Kind { NONE, LIST, STATUS };
+        enum Kind { NONE, LIST, STATUS, SELECT, FETCH };
         Kind kind;
         TreeItem* what;
         Task( const Kind _kind, TreeItem* _what ): kind(_kind), what(_what) {};
@@ -64,25 +64,28 @@ class Model: public QAbstractItemModel {
 
     struct ParserState {
         ParserPtr parser;
-        QString mailbox;
+        TreeItemMailbox* mailbox;
         RWMode mode;
         ConnectionState connState;
-        ParserState( ParserPtr _parser, const QString& _mailbox, const RWMode _mode, 
+        TreeItemMailbox* handler;
+        QMap<CommandHandle, Task> commandMap;
+
+        ParserState( ParserPtr _parser, TreeItemMailbox* _mailbox, const RWMode _mode, 
                 const ConnectionState _connState ): 
-            parser(_parser), mailbox(_mailbox), mode(_mode), connState(_connState) {};
-        ParserState(): mode(ReadOnly), connState(CONN_STATE_LOGOUT) {};
+            parser(_parser), mailbox(_mailbox), mode(_mode), connState(_connState), handler(0) {};
+        ParserState(): mailbox(0), mode(ReadOnly), connState(CONN_STATE_LOGOUT), handler(0) {};
     };
 
     CachePtr _cache;
     AuthenticatorPtr _authenticator;
     SocketFactoryPtr _socketFactory;
     mutable QMap<Parser*,ParserState> _parsers;
+    int _maxParsers;
 
     QStringList _capabilities;
     bool _capabilitiesFresh;
 
     mutable TreeItemMailbox* _mailboxes;
-    mutable QMap<CommandHandle, Task> _commandMap;
 
     QList<Responses::List> _listResponses;
     QList<Responses::Status> _statusResponses;
@@ -124,9 +127,12 @@ private:
 
     void _askForChildrenOfMailbox( TreeItem* item ) const;
     void _askForMessagesInMailbox( TreeItem* item ) const;
+    void _askForMsgEnvelope( TreeItem* item ) const;
 
     void _finalizeList( const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeStatus( const QMap<CommandHandle, Task>::const_iterator command );
+    void _finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command );
+    void _finalizeFetch( const QMap<CommandHandle, Task>::const_iterator command );
 
     TreeItem* translatePtr( const QModelIndex& index ) const;
 
@@ -137,7 +143,7 @@ private:
      *
      * If allowed by policy, new parser might be created in the background.
      * */
-    ParserPtr _getParser( const QString& mailbox, const RWMode rw ) const;
+    ParserPtr _getParser( TreeItemMailbox* mailbox, const RWMode rw ) const;
 
 protected slots:
     void responseReceived();

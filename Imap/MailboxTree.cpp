@@ -185,13 +185,17 @@ TreeItemMessage::TreeItemMessage( TreeItem* parent ): TreeItem(parent)
 
 void TreeItemMessage::fetch( const Model* const model )
 {
-    // FIXME
+    if ( _fetched || _loading )
+        return;
+
+    model->_askForMsgEnvelope( this );
+    _loading = true;
 }
 
 unsigned int TreeItemMessage::rowCount( const Model* const model )
 {
-    // FIXME
-    return 0;
+    fetch( model );
+    return _children.size();
 }
 
 QVariant TreeItemMessage::data( const Model* const model, int role )
@@ -201,6 +205,8 @@ QVariant TreeItemMessage::data( const Model* const model, int role )
 
     if ( ! _parent )
         return QVariant();
+
+    fetch( model );
 
     if ( _loading )
         return "[loading...]";
