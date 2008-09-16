@@ -64,6 +64,7 @@ void TreeItem::setChildren( const QList<TreeItem*> items )
 TreeItemMailbox::TreeItemMailbox( TreeItem* parent ):
     TreeItem(parent)
 {
+    _children.prepend( new TreeItemMsgList( this ) );
 }
 
 TreeItemMailbox::TreeItemMailbox( TreeItem* parent, Responses::List response ):
@@ -72,6 +73,7 @@ TreeItemMailbox::TreeItemMailbox( TreeItem* parent, Responses::List response ):
 {
     for ( QStringList::const_iterator it = response.flags.begin(); it != response.flags.end(); ++it )
         _flags.append( it->toUpper() );
+    _children.prepend( new TreeItemMsgList( this ) );
 }
 
 void TreeItemMailbox::fetch( const Model* const model )
@@ -124,13 +126,36 @@ bool TreeItemMailbox::hasChildren( const Model* const model )
 
 void TreeItemMailbox::setChildren( const QList<TreeItem*> items )
 {
+    TreeItemMsgList* list = static_cast<TreeItemMsgList*>( _children[0] );
+    _children[0] = 0;
     TreeItem::setChildren( items );
-    _children.prepend( new TreeItemMsgList( this ) );
+    _children.prepend( list );
 
     // FIXME: anything else required for \Noselect?
     if ( _flags.contains( "\\NOSELECT" ) )
-        static_cast<TreeItemMsgList*>( _children[0] )->_fetched = true;
+        list->_fetched = true;
 }
+
+void TreeItemMailbox::handleFetchResponse( const Model* const model, const Responses::Fetch& response )
+{
+    fetch( model );
+    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[0] );
+    Q_ASSERT( list );
+    
+    int number = response.number - 1;
+    if ( number < 0 || number >= list->_children.size() )
+        throw UnknownMessageIndex( "Got FETCH ", response );
+
+    TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->child( number, model ) );
+    Q_ASSERT( message );
+
+    if ( response.data.contains( "ENVELOPE" ) ) {
+        message->_envelope = dynamic_cast<const Responses::RespData<Message::Envelope>&>( *response.data["ENVELOPE"] ).data;
+        message->_fetched = true;
+        message->_loading = false;
+    }
+}
+
 
 
 TreeItemMsgList::TreeItemMsgList( TreeItem* parent ): TreeItem(parent)
@@ -211,7 +236,8 @@ QVariant TreeItemMessage::data( const Model* const model, int role )
     if ( _loading )
         return "[loading...]";
 
-    return "[message]";
+    // FIXME
+    return _envelope.subject;
 }
 
 }

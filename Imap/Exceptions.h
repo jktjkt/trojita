@@ -163,6 +163,15 @@ namespace Responses {
         virtual ~ServerError() throw () {};
     };
 
+    /** @short Server sent us information about message we don't know */
+    class UnknownMessageIndex : public MailboxException {
+    public:
+        UnknownMessageIndex( const char* const msg, const Imap::Responses::AbstractResponse& response ):
+            MailboxException( msg, response ) {};
+        UnknownMessageIndex( const char* const msg ): MailboxException( msg ) {};
+        virtual ~UnknownMessageIndex() throw () {};
+    };
+
     /** @short Can't fulfil a request */
     class WontPerform : public MailboxException {
     public:

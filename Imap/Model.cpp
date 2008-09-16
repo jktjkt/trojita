@@ -142,9 +142,12 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
                         *resp );
                 break;
             case CONN_STATE_AUTH:
-            case CONN_STATE_SELECTING:
             case CONN_STATE_SELECTED:
-                // FIXME: untagged status reply...
+                if ( _parsers[ ptr.get() ].handler ) {
+                    // FIXME: pass it to mailbox
+                } else {
+                    // FIXME: somehow handle this one...
+                }
                 break;
             case CONN_STATE_LOGOUT:
                 // hey, we're supposed to be logged out, how come that
@@ -231,9 +234,14 @@ void Model::_finalizeFetch( const QMap<CommandHandle, Task>::const_iterator comm
 
 bool SortMailboxes( const TreeItem* const a, const TreeItem* const b )
 {
-    return dynamic_cast<const TreeItemMailbox* const>(a)->mailbox().compare( 
-            dynamic_cast<const TreeItemMailbox* const>(b)->mailbox(), Qt::CaseInsensitive 
-            ) < 1;
+    const TreeItemMailbox* const mailboxA = dynamic_cast<const TreeItemMailbox* const>(a);
+    const TreeItemMailbox* const mailboxB = dynamic_cast<const TreeItemMailbox* const>(b);
+
+    if ( mailboxA->mailbox() == QLatin1String( "INBOX" ) ) 
+        return true;
+    if ( mailboxB->mailbox() == QLatin1String( "INBOX" ) )
+        return false;
+    return mailboxA->mailbox().compare( mailboxB->mailbox(), Qt::CaseInsensitive ) < 1;
 }
 
 void Model::handleCapability( Imap::ParserPtr ptr, const Imap::Responses::Capability* const resp )
@@ -272,7 +280,11 @@ void Model::handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* cons
     if ( ! mailbox )
         throw UnexpectedResponseReceived( "Received FETCH reply, but AFAIK we haven't selected any mailbox yet", *resp );
 
-    // FIXME: somehow plug it into the mailbox...
+    mailbox->handleFetchResponse( this, *resp );
+    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->child( 0, this ) );
+    TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->child( resp->number - 1, this ) );
+    QModelIndex index = QAbstractItemModel::createIndex( resp->number - 1, 0, message );
+    emit dataChanged( index, index ); 
 }
 
 void Model::handleNamespace( Imap::ParserPtr ptr, const Imap::Responses::Namespace* const resp )

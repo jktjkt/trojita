@@ -57,7 +57,6 @@ class Model: public QAbstractItemModel {
         CONN_STATE_ESTABLISHED /**< Connection established, no details known yet */,
         CONN_STATE_NOT_AUTH /**< Before we can do anything, we have to authenticate ourselves */,
         CONN_STATE_AUTH /**< We are authenticated, now we must select a mailbox */,
-        CONN_STATE_SELECTING /**< The SELECT/EXAMINE command has been issued, but not yet completed */,
         CONN_STATE_SELECTED /**< Some mailbox is selected */,
         CONN_STATE_LOGOUT /**< We have been logged out */
     };

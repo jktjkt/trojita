@@ -22,6 +22,7 @@
 #include <QList>
 #include <QString>
 #include "Response.h"
+#include "Message.h"
 
 namespace Imap {
 
@@ -69,6 +70,7 @@ public:
 
     QString mailbox() const { return _mailbox; };
     QString separator() const { return _separator; };
+    void handleFetchResponse( const Model* const model, const Responses::Fetch& response );
 };
 
 class TreeItemMsgList: public TreeItem {
@@ -85,6 +87,8 @@ public:
 
 class TreeItemMessage: public TreeItem {
     void operator=( const TreeItem& ); // don't implement
+    friend class TreeItemMailbox;
+    Message::Envelope _envelope;
 public:
     TreeItemMessage( TreeItem* parent );
 
