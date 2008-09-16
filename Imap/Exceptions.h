@@ -146,6 +146,14 @@ namespace Responses {
         virtual ~UnexpectedResponseReceived() throw () {};
     };
 
+    /** @short Internal error in Imap::Mailbox code -- there must be bug in its code */
+    class CantHappen : public MailboxException {
+    public:
+        CantHappen( const char* const msg, const Imap::Responses::AbstractResponse& response ):
+            MailboxException( msg, response ) {};
+        virtual ~CantHappen() throw () {};
+    };
+
     /** @short Server is broken */
     class ServerError : public MailboxException {
     public:

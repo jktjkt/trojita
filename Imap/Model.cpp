@@ -89,13 +89,13 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
     }
 
     if ( ! tag.isEmpty() ) {
-        QMap<CommandHandle, Task>::const_iterator command = _parsers[ ptr.get() ].commandMap.find( tag );
+        QMap<CommandHandle, Task>::iterator command = _parsers[ ptr.get() ].commandMap.find( tag );
         if ( command == _parsers[ ptr.get() ].commandMap.end() )
             throw UnexpectedResponseReceived( "Unknown tag in tagged response", *resp );
 
         switch ( command->kind ) {
             case Task::NONE:
-                throw 42; // FIXME internal error
+                throw CantHappen( "Internal Error: command that is supposed to do nothing?", *resp );
                 break;
             case Task::LIST:
                 _finalizeList( command );
@@ -109,6 +109,9 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
             case Task::FETCH:
                 _finalizeFetch( command );
         }
+
+        _parsers[ ptr.get() ].commandMap.erase( command );
+
     } else {
         // untagged response
 
