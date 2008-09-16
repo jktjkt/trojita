@@ -165,7 +165,7 @@ void Model::_finalizeList( const QMap<CommandHandle, Task>::const_iterator comma
     // FIXME: more fine-grained resizing than layoutChanged()
     emit layoutAboutToBeChanged();
     QList<TreeItem*> mailboxes;
-    TreeItemMailbox* mailboxPtr = static_cast<TreeItemMailbox*>( command->what );
+    TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( command->what );
     for ( QList<Responses::List>::const_iterator it = _listResponses.begin();
             it != _listResponses.end(); ++it ) {
         if ( it->mailbox != mailboxPtr->mailbox() + mailboxPtr->separator() )
@@ -184,7 +184,7 @@ void Model::_finalizeStatus( const QMap<CommandHandle, Task>::const_iterator com
     // FIXME: more fine-grained resizing than layoutChanged()
     emit layoutAboutToBeChanged();
     QList<TreeItem*> messages;
-    TreeItemMsgList* listPtr = static_cast<TreeItemMsgList*>( command->what );
+    TreeItemMsgList* listPtr = dynamic_cast<TreeItemMsgList*>( command->what );
 
     uint sMessages = 0, sRecent = 0, sUidNext = 0, sUidValidity = 0, sUnSeen = 0;
     for ( QList<Responses::Status>::const_iterator it = _statusResponses.begin();
@@ -280,11 +280,13 @@ void Model::handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* cons
     if ( ! mailbox )
         throw UnexpectedResponseReceived( "Received FETCH reply, but AFAIK we haven't selected any mailbox yet", *resp );
 
+    emit layoutAboutToBeChanged();
     mailbox->handleFetchResponse( this, *resp );
-    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->child( 0, this ) );
+    /*TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->child( 0, this ) );
     TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->child( resp->number - 1, this ) );
     QModelIndex index = QAbstractItemModel::createIndex( resp->number - 1, 0, message );
-    emit dataChanged( index, index ); 
+    emit dataChanged( index, index ); */
+    emit layoutChanged();
 }
 
 void Model::handleNamespace( Imap::ParserPtr ptr, const Imap::Responses::Namespace* const resp )
@@ -399,7 +401,7 @@ void Model::_askForMsgEnvelope( TreeItem* item ) const
 
     qDebug() << "_askForMsgEnvelope()" << mailboxPtr->mailbox() << order;
     ParserPtr parser = _getParser( mailboxPtr, ReadOnly );
-    CommandHandle cmd = parser->fetch( Sequence( order + 1 ), QStringList() << "ENVELOPE" );
+    CommandHandle cmd = parser->fetch( Sequence( order + 1 ), QStringList() << "ENVELOPE" << "BODYSTRUCTURE" );
     _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, item );
 }
 

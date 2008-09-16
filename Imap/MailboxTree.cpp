@@ -18,6 +18,7 @@
 
 #include "MailboxTree.h"
 #include "Model.h"
+#include <QtDebug>
 
 namespace Imap {
 namespace Mailbox {
@@ -126,7 +127,7 @@ bool TreeItemMailbox::hasChildren( const Model* const model )
 
 void TreeItemMailbox::setChildren( const QList<TreeItem*> items )
 {
-    TreeItemMsgList* list = static_cast<TreeItemMsgList*>( _children[0] );
+    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[0] );
     _children[0] = 0;
     TreeItem::setChildren( items );
     _children.prepend( list );
@@ -153,6 +154,10 @@ void TreeItemMailbox::handleFetchResponse( const Model* const model, const Respo
         message->_envelope = dynamic_cast<const Responses::RespData<Message::Envelope>&>( *response.data["ENVELOPE"] ).data;
         message->_fetched = true;
         message->_loading = false;
+    }
+
+    if ( response.data.contains( "BODYSTRUCTURE" ) ) {
+        message->setChildren( dynamic_cast<const Message::AbstractMessage&>( *response.data["BODYSTRUCTURE"] ).createTreeItems( message ) );
     }
 }
 
@@ -238,6 +243,71 @@ QVariant TreeItemMessage::data( const Model* const model, int role )
 
     // FIXME
     return _envelope.subject;
+}
+
+
+
+TreeItemPart::TreeItemPart( TreeItem* parent, const QString& mimeType ): TreeItem(parent), _mimeType(mimeType)
+{}
+
+unsigned int TreeItemPart::childrenCount( const Model* const model )
+{
+    return _children.size();
+}
+
+TreeItem* TreeItemPart::child( const int offset, const Model* const model )
+{
+    if ( offset >= 0 && offset < _children.size() )
+        return _children[ offset ];
+    else
+        return 0;
+}
+
+void TreeItemPart::setChildren( const QList<TreeItem*> items )
+{
+    bool fetched = _fetched;
+    bool loading = _loading;
+    TreeItem::setChildren( items );
+    _fetched = fetched;
+    _loading = loading;
+}
+
+void TreeItemPart::fetch( const Model* const model )
+{
+    if ( _fetched || _loading )
+        return;
+
+    // FIXME model->_askForMsgPart( this );
+    _loading = true;
+}
+
+unsigned int TreeItemPart::rowCount( const Model* const model )
+{
+    // no call to fetch() required
+    return _children.size();
+}
+
+QVariant TreeItemPart::data( const Model* const model, int role )
+{
+    if ( role != Qt::DisplayRole )
+        return QVariant();
+
+    if ( ! _parent )
+        return QVariant();
+
+    // no need to fetch() here
+
+    if ( _loading )
+        return QString("[loading (%1)...]").arg( _mimeType );
+
+    // FIXME
+    return _mimeType;
+}
+
+bool TreeItemPart::hasChildren( const Model* const model )
+{
+    // no need to fetch() here
+    return ! _children.isEmpty();
 }
 
 }

@@ -17,7 +17,7 @@
 */
 
 #include "Imap/Message.h"
-#include <QDebug>
+#include "Imap/MailboxTree.h"
 
 namespace Imap {
 namespace Message {
@@ -628,6 +628,43 @@ bool operator==( const MailAddress& a, const MailAddress& b )
     return a.name == b.name && a.adl == b.adl && a.mailbox == b.mailbox && a.host == b.host;
 }
 
+
+QList<Mailbox::TreeItem*> TextMessage::createTreeItems( Mailbox::TreeItem* parent ) const
+{
+    QList<Mailbox::TreeItem*> list;
+    list << new Mailbox::TreeItemPart( parent, QString("%1/%2").arg( mediaType, mediaSubType) );
+    return list;
+}
+
+QList<Mailbox::TreeItem*> BasicMessage::createTreeItems( Mailbox::TreeItem* parent ) const
+{
+    QList<Mailbox::TreeItem*> list;
+    list << new Mailbox::TreeItemPart( parent, QString("%1/%2").arg( mediaType, mediaSubType) );
+    return list;
+}
+
+QList<Mailbox::TreeItem*> MsgMessage::createTreeItems( Mailbox::TreeItem* parent ) const
+{
+    // FIXME: store more data?
+    QList<Mailbox::TreeItem*> list;
+    Mailbox::TreeItemPart* part = new Mailbox::TreeItemPart( parent, QString("%1/%2").arg( mediaType, mediaSubType) );
+    part->setChildren( body->createTreeItems( part ) );
+    list << part;
+    return list;
+}
+
+QList<Mailbox::TreeItem*> MultiMessage::createTreeItems( Mailbox::TreeItem* parent ) const
+{
+    // FIXME: store more data?
+    QList<Mailbox::TreeItem*> list, list2;
+    Mailbox::TreeItemPart* part = new Mailbox::TreeItemPart( parent, QString("multipart/%1").arg( mediaSubType) );
+    for ( QList<std::tr1::shared_ptr<AbstractMessage> >::const_iterator it = bodies.begin(); it != bodies.end(); ++it ) {
+        list2 << (*it)->createTreeItems( part );
+    }
+    part->setChildren( list2 );
+    list << part;
+    return list;
+}
 
 
 }

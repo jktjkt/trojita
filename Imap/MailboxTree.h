@@ -100,6 +100,19 @@ public:
 
 class TreeItemPart: public TreeItem {
     void operator=( const TreeItem& ); // don't implement
+    QString _mimeType;
+    QByteArray _data;
+public:
+    TreeItemPart( TreeItem* parent, const QString& mimeType );
+
+    virtual unsigned int childrenCount( const Model* const model );
+    virtual TreeItem* child( const int offset, const Model* const model );
+    virtual void setChildren( const QList<TreeItem*> items );
+
+    virtual void fetch( const Model* const model );
+    virtual unsigned int rowCount( const Model* const model );
+    virtual QVariant data( const Model* const model, int role );
+    virtual bool hasChildren( const Model* const model );
 };
 
 }
