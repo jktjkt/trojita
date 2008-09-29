@@ -71,6 +71,7 @@ public:
     QString mailbox() const { return _mailbox; };
     QString separator() const { return _separator; };
     void handleFetchResponse( const Model* const model, const Responses::Fetch& response );
+    void finalizeFetch( const Model* const model, const Responses::Status& response );
 };
 
 class TreeItemMsgList: public TreeItem {

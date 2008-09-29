@@ -107,7 +107,7 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
                 _finalizeSelect( ptr, command );
                 break;
             case Task::FETCH:
-                _finalizeFetch( command );
+                _finalizeFetch( ptr, command );
         }
 
         _parsers[ ptr.get() ].commandMap.erase( command );
@@ -227,7 +227,7 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
     _parsers[ parser.get() ].handler = dynamic_cast<TreeItemMailbox*>( command->what );
 }
 
-void Model::_finalizeFetch( const QMap<CommandHandle, Task>::const_iterator command )
+void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command )
 {
     // FIXME
 }
@@ -391,7 +391,7 @@ void Model::_askForMessagesInMailbox( TreeItem* item ) const
     _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::STATUS, item );
 }
 
-void Model::_askForMsgEnvelope( TreeItem* item ) const
+void Model::_askForMsgMetadata( TreeItem* item ) const
 {
     Q_ASSERT( item->parent() );
     Q_ASSERT( item->parent()->parent() );

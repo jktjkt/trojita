@@ -126,12 +126,12 @@ private:
 
     void _askForChildrenOfMailbox( TreeItem* item ) const;
     void _askForMessagesInMailbox( TreeItem* item ) const;
-    void _askForMsgEnvelope( TreeItem* item ) const;
+    void _askForMsgMetadata( TreeItem* item ) const;
 
     void _finalizeList( const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeStatus( const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command );
-    void _finalizeFetch( const QMap<CommandHandle, Task>::const_iterator command );
+    void _finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command );
 
     TreeItem* translatePtr( const QModelIndex& index ) const;
 

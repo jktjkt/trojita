@@ -16,6 +16,7 @@
    Boston, MA 02110-1301, USA.
 */
 
+#include <QTextStream>
 #include "MailboxTree.h"
 #include "Model.h"
 #include <QtDebug>
@@ -161,6 +162,11 @@ void TreeItemMailbox::handleFetchResponse( const Model* const model, const Respo
     }
 }
 
+void TreeItemMailbox::finalizeFetch( const Model* const model, const Responses::Status& response )
+{
+
+}
+
 
 
 TreeItemMsgList::TreeItemMsgList( TreeItem* parent ): TreeItem(parent)
@@ -218,7 +224,7 @@ void TreeItemMessage::fetch( const Model* const model )
     if ( _fetched || _loading )
         return;
 
-    model->_askForMsgEnvelope( this );
+    model->_askForMsgMetadata( this );
     _loading = true;
 }
 
@@ -230,9 +236,6 @@ unsigned int TreeItemMessage::rowCount( const Model* const model )
 
 QVariant TreeItemMessage::data( const Model* const model, int role )
 {
-    if ( role != Qt::DisplayRole )
-        return QVariant();
-
     if ( ! _parent )
         return QVariant();
 
@@ -241,8 +244,19 @@ QVariant TreeItemMessage::data( const Model* const model, int role )
     if ( _loading )
         return "[loading...]";
 
-    // FIXME
-    return _envelope.subject;
+    switch ( role ) {
+        case Qt::DisplayRole:
+            return _envelope.subject;
+        case Qt::ToolTipRole:
+            {
+                QString buf;
+                QTextStream stream( &buf );
+                stream << _envelope;
+                return buf;
+            }
+        default:
+            return QVariant();
+    }
 }
 
 
