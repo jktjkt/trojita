@@ -44,7 +44,6 @@ Model::~Model()
 
 void Model::responseReceived()
 {
-    // FIXME: multiple parsers...
     QMap<Parser*,ParserState>::iterator it = _parsers.find( qobject_cast<Imap::Parser*>( sender() ));
     Q_ASSERT( it != _parsers.end() );
 
