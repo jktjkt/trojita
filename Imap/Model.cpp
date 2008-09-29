@@ -45,14 +45,17 @@ Model::~Model()
 void Model::responseReceived()
 {
     // FIXME: multiple parsers...
-    while ( _parsers.begin().key()->hasResponse() ) {
-        std::tr1::shared_ptr<Imap::Responses::AbstractResponse> resp = _parsers.begin().value().parser->getResponse();
+    QMap<Parser*,ParserState>::iterator it = _parsers.find( qobject_cast<Imap::Parser*>( sender() ));
+    Q_ASSERT( it != _parsers.end() );
+
+    while ( it.value().parser->hasResponse() ) {
+        std::tr1::shared_ptr<Imap::Responses::AbstractResponse> resp = it.value().parser->getResponse();
         Q_ASSERT( resp );
 
         QTextStream s(stderr);
         s << "<<< " << *resp << "\r\n";
         s.flush();
-        resp->plug( _parsers.begin().value().parser, this );
+        resp->plug( it.value().parser, this );
     }
 }
 
