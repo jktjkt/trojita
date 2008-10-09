@@ -28,23 +28,44 @@ find_package(Qt4 REQUIRED)
 ADD_DEFINITIONS(${QT_DEFINITIONS})
 INCLUDE_DIRECTORIES(${QT_INCLUDES})
 
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 
 add_subdirectory( tests )
 
-set(libImap_SRCS Imap/Parser.cpp Imap/Command.cpp Imap/Response.cpp
-    Imap/LowLevelParser.cpp Imap/Exceptions.cpp Imap/Data.cpp Imap/Message.cpp
-    Imap/Cache.cpp Imap/Model.cpp Imap/MailboxTree.cpp Imap/SocketFactory.cpp
-    Imap/Authenticator.cpp Imap/rfccodecs.cpp Imap/kcodecs.cpp )
+set(libImap_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Parser.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Command.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Response.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/LowLevelParser.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Exceptions.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Data.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Message.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Cache.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/MailboxTree.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/SocketFactory.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Authenticator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/rfccodecs.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/kcodecs.cpp
+    )
 
-set(libModelTest_SRCS Imap/modeltest.cpp Imap/ModelTestMoc.cpp )
+set(libModelTest_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/modeltest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/ModelTestMoc.cpp
+    )
 
-set(trojita_SRCS main.cpp Demo/ParserMonitor.cpp)
+set(trojita_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Demo/ParserMonitor.cpp
+    )
 
-set(ImapModelDemo_SRCS Demo/ImapModelDemo.cpp)
+set(ImapModelDemo_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/Demo/ImapModelDemo.cpp
+    )
 
 qt4_automoc(${trojita_SRCS} ${libImap_SRCS}
-    ${ImapModelDemo_SRCS})
+    ${libModelTest_SRCS} ${ImapModelDemo_SRCS})
 
 add_library(Imap ${libImap_SRCS})
 add_library(ModelTest ${libModelTest_SRCS})
