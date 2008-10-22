@@ -112,17 +112,20 @@ QVariant TreeItemMailbox::data( const Model* const model, int role )
 bool TreeItemMailbox::hasChildren( const Model* const model )
 {
     return true; // we have that "messages" thing built it
+}
 
+bool TreeItemMailbox::hasChildMailboxes( const Model* const model )
+{
     // FIXME: case sensitivity
     if ( _fetched )
-        return ! _children.isEmpty();
+        return _children.size() > 1;
     else if ( _flags.contains( "\\NOINFERIORS" ) || _flags.contains( "\\HASNOCHILDRen" ) )
         return false;
     else if ( _flags.contains( "\\HASCHILDREN" ) )
         return true;
     else {
         fetch( model );
-        return ! _children.isEmpty();
+        return _children.size() > 1;
     }
 }
 

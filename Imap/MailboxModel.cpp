@@ -36,6 +36,18 @@ bool MailboxModel::filterAcceptsRow( int source_row, const QModelIndex& source_p
                 ) );
 }
 
+bool MailboxModel::hasChildren( const QModelIndex& parent ) const
+{
+    QModelIndex index = mapToSource( parent );
+    TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>(
+            static_cast<TreeItem*>(
+                index.internalPointer()
+                ) );
+    return mbox ?
+        mbox->hasChildMailboxes( static_cast<Model*>( sourceModel() ) )
+        : sourceModel()->hasChildren( index );
+}
+
 }
 }
 

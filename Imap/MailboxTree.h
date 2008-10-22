@@ -68,6 +68,8 @@ public:
     virtual QVariant data( const Model* const model, int role );
     virtual bool hasChildren( const Model* const model );
 
+    bool hasChildMailboxes( const Model* const model );
+
     QString mailbox() const { return _mailbox; };
     QString separator() const { return _separator; };
     void handleFetchResponse( const Model* const model, const Responses::Fetch& response );

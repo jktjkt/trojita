@@ -37,6 +37,7 @@ public:
 
 protected:
     virtual bool filterAcceptsRow( int source_row, const QModelIndex& source_parent ) const;
+    virtual bool hasChildren( const QModelIndex& parent = QModelIndex() ) const;
 
 private:
     MailboxModel& operator=( const Model& ); // don't implement
