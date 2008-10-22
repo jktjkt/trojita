@@ -20,9 +20,11 @@
 #include <QApplication>
 #include <QTimer>
 #include <QTreeView>
+#include <QHBoxLayout>
 
 #include "Imap/SocketFactory.h"
 #include "Imap/Model.h"
+#include "Imap/MailboxModel.h"
 
 #include "Imap/ModelTest/modeltest.h"
 
@@ -41,13 +43,30 @@ int main( int argc, char** argv) {
 
     Imap::Mailbox::Model model( 0, cache, auth, factory );
 
+    Imap::Mailbox::MailboxModel mboxModel( 0, &model );
+
     //new ModelTest( &model );
+    //new ModelTest( &mboxModel );
     
-    QTreeView tree;
-    tree.setModel( &model );
-    tree.setWindowTitle( "IMAP mailbox" );
-    tree.setUniformRowHeights( true );
-    tree.show();
+    QWidget* mainWidget = new QWidget();
+
+    QTreeView* tree = new QTreeView( mainWidget );
+    tree->setModel( &model );
+    tree->setWindowTitle( "IMAP mailbox" );
+    tree->setUniformRowHeights( true );
+    tree->setHeaderHidden( true );
+
+    QTreeView* mboxTree = new QTreeView( mainWidget );
+    mboxTree->setModel( &mboxModel );
+    mboxTree->setWindowTitle( "IMAP mailbox" );
+    mboxTree->setUniformRowHeights( true );
+    mboxTree->setHeaderHidden( true );
+
+    QHBoxLayout* lay = new QHBoxLayout( mainWidget );
+    lay->addWidget( tree );
+    lay->addWidget( mboxTree );
+
+    mainWidget->show();
 
     //QTimer::singleShot( 15000, &app, SLOT(quit()) );
     return app.exec();
