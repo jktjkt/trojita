@@ -25,6 +25,7 @@
 #include "Imap/SocketFactory.h"
 #include "Imap/Model.h"
 #include "Imap/MailboxModel.h"
+#include "Imap/MsgListModel.h"
 
 #include "Imap/ModelTest/modeltest.h"
 
@@ -42,8 +43,8 @@ int main( int argc, char** argv) {
     Imap::Mailbox::AuthenticatorPtr auth;
 
     Imap::Mailbox::Model model( 0, cache, auth, factory );
-
     Imap::Mailbox::MailboxModel mboxModel( 0, &model );
+    Imap::Mailbox::MsgListModel msgListModel( 0, &model );
 
     //new ModelTest( &model );
     //new ModelTest( &mboxModel );
@@ -52,19 +53,29 @@ int main( int argc, char** argv) {
 
     QTreeView* tree = new QTreeView( mainWidget );
     tree->setModel( &model );
-    tree->setWindowTitle( "IMAP mailbox" );
+    tree->setWindowTitle( "IMAP tree" );
     tree->setUniformRowHeights( true );
     tree->setHeaderHidden( true );
 
     QTreeView* mboxTree = new QTreeView( mainWidget );
     mboxTree->setModel( &mboxModel );
-    mboxTree->setWindowTitle( "IMAP mailbox" );
+    mboxTree->setWindowTitle( "IMAP mailboxes" );
     mboxTree->setUniformRowHeights( true );
     mboxTree->setHeaderHidden( true );
+
+    QTreeView* msgListTree = new QTreeView( mainWidget );
+    msgListTree->setModel( &msgListModel );
+    msgListTree->setWindowTitle( "IMAP messages" );
+    msgListTree->setUniformRowHeights( true );
+    msgListTree->setHeaderHidden( true );
+
+    QObject::connect( tree, SIGNAL( clicked(const QModelIndex&) ), &msgListModel, SLOT( setMailbox(const QModelIndex&) ) );
+    QObject::connect( mboxTree, SIGNAL( clicked(const QModelIndex&) ), &msgListModel, SLOT( setMailbox(const QModelIndex&) ) );
 
     QHBoxLayout* lay = new QHBoxLayout( mainWidget );
     lay->addWidget( tree );
     lay->addWidget( mboxTree );
+    lay->addWidget( msgListTree );
 
     mainWidget->show();
 
