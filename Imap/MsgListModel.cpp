@@ -36,15 +36,16 @@ QModelIndex MsgListModel::index( int row, int column, const QModelIndex& parent 
     if ( ! msgList )
         return QModelIndex();
 
-    if ( parent.internalPointer() != msgList )
+    if ( parent.isValid() )
         return QModelIndex();
 
     if ( column != 0 )
         return QModelIndex();
 
-    Model* model = static_cast<Model*>( sourceModel() );
+    Model* model = dynamic_cast<Model*>( sourceModel() );
+    Q_ASSERT( model );
 
-    if ( row < 0 || row >= static_cast<int>( msgList->rowCount( model ) ) )
+    if ( row >= static_cast<int>( msgList->rowCount( model ) ) )
         return QModelIndex();
 
     return createIndex( row, column, msgList->child( row, model ) );
@@ -55,6 +56,11 @@ QModelIndex MsgListModel::parent( const QModelIndex& index ) const
     return QModelIndex();
 }
 
+bool MsgListModel::hasChildren( const QModelIndex& parent ) const
+{
+    return ! parent.isValid();
+}
+
 int MsgListModel::rowCount( const QModelIndex& parent ) const
 {
     if ( parent.isValid() )
@@ -63,7 +69,7 @@ int MsgListModel::rowCount( const QModelIndex& parent ) const
     if ( ! msgList )
         return 0;
 
-    return msgList->rowCount( static_cast<Model*>( sourceModel() ) );
+    return msgList->rowCount( dynamic_cast<Model*>( sourceModel() ) );
 }
 
 int MsgListModel::columnCount( const QModelIndex& parent ) const
@@ -76,7 +82,16 @@ QModelIndex MsgListModel::mapToSource( const QModelIndex& proxyIndex ) const
     if ( ! msgList )
         return QModelIndex();
 
-    return sourceModel()->index( proxyIndex.row(), proxyIndex.column(), QModelIndex() );
+    if ( proxyIndex.parent().isValid() )
+        return QModelIndex();
+
+    Model* model = dynamic_cast<Model*>( sourceModel() );
+    Q_ASSERT( model );
+
+    if ( proxyIndex.column() != 0 )
+        return QModelIndex();
+
+    return model->createIndex( proxyIndex.row(), proxyIndex.column(), msgList->child( proxyIndex.row(), model ) );
 }
 
 QModelIndex MsgListModel::mapFromSource( const QModelIndex& sourceIndex ) const
@@ -93,6 +108,7 @@ void MsgListModel::setMailbox( const QModelIndex& index )
      * going through the MsgListModel, which is a QSortFilterProxyModel, which
      * uses indices for its own twisted internal perverse purposes. Oh well,
      * this is even documented, kind of... */
+
     const Model* originalModel = dynamic_cast<const Model*>( index.model() );
     const MailboxModel* mailboxModel = dynamic_cast<const MailboxModel*>( index.model() );
 
@@ -122,7 +138,6 @@ void MsgListModel::setMailbox( const QModelIndex& index )
     }
 
     if ( list ) {
-        qDebug() << "setMailbox succeeded";
         msgList = list;
         reset();
     } else {

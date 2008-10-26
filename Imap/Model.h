@@ -36,6 +36,7 @@ class TreeItemMailbox;
 class TreeItemMsgList;
 class TreeItemMessage;
 class TreeItemPart;
+class MsgListModel;
 
 /** @short A model implementing view of the whole IMAP server */
 class Model: public QAbstractItemModel {
@@ -124,6 +125,7 @@ private:
     friend class TreeItemMsgList;
     friend class TreeItemMessage;
     friend class TreeItemPart;
+    friend class MsgListModel; // needs access to createIndex()
 
     void _askForChildrenOfMailbox( TreeItem* item ) const;
     void _askForMessagesInMailbox( TreeItem* item ) const;
