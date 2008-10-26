@@ -129,6 +129,13 @@ bool TreeItemMailbox::hasChildMailboxes( const Model* const model )
     }
 }
 
+TreeItem* TreeItemMailbox::child( const int offset, const Model* const model )
+{
+    if ( offset == 0 )
+        return _children[ 0 ];
+    return TreeItem::child( offset, model );
+}
+
 void TreeItemMailbox::setChildren( const QList<TreeItem*> items )
 {
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[0] );

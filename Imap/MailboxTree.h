@@ -67,6 +67,7 @@ public:
     virtual unsigned int rowCount( const Model* const model );
     virtual QVariant data( const Model* const model, int role );
     virtual bool hasChildren( const Model* const model );
+    virtual TreeItem* child( const int offset, const Model* const model );
 
     bool hasChildMailboxes( const Model* const model );
 
