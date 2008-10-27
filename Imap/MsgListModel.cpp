@@ -29,6 +29,29 @@ namespace Mailbox {
 MsgListModel::MsgListModel( QObject* parent, Model* model ): QAbstractProxyModel(parent), msgList(0)
 {
     setSourceModel( model );
+
+    // FIXME: will need to be expanded when Model supports more signals...
+    connect( model, SIGNAL( modelReset() ), this, SIGNAL( modelReset() ) );
+    connect( model, SIGNAL( layoutAboutToBeChanged() ), this, SIGNAL( layoutAboutToBeChanged() ) );
+    connect( model, SIGNAL( layoutChanged() ), this, SIGNAL( layoutChanged() ) );
+    connect( model, SIGNAL( dataChanged( const QModelIndex&, const QModelIndex& ) ),
+            this, SLOT( handleDataChanged( const QModelIndex&, const QModelIndex& ) ) );
+}
+
+void MsgListModel::handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight )
+{
+    if ( topLeft.parent() != bottomRight.parent() || topLeft.column() != bottomRight.column() )
+        emit layoutChanged();
+
+    QModelIndex first = mapFromSource( topLeft );
+    QModelIndex second = mapFromSource( bottomRight );
+
+    if ( first.isValid() && second.isValid() && first.parent() == second.parent() && first.column() == second.column() ) {
+        emit dataChanged( first, second );
+    } else {
+        // can't do much besides throwing out everything
+        emit layoutChanged();
+    }
 }
 
 QModelIndex MsgListModel::index( int row, int column, const QModelIndex& parent ) const

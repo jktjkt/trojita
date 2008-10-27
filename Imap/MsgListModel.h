@@ -45,6 +45,7 @@ public:
 
 public slots:
     void setMailbox( const QModelIndex& index );
+    void handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight );
 
 private:
     MsgListModel& operator=( const Model& ); // don't implement
