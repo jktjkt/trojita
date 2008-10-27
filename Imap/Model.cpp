@@ -366,9 +366,9 @@ bool Model::hasChildren( const QModelIndex& parent ) const
         return false;
 }
 
-void Model::_askForChildrenOfMailbox( TreeItem* item ) const
+void Model::_askForChildrenOfMailbox( TreeItemMailbox* item ) const
 {
-    QString mailbox = dynamic_cast<TreeItemMailbox*>( item )->mailbox();
+    QString mailbox = item->mailbox();
 
     if ( mailbox.isNull() )
         mailbox = "%";
@@ -381,11 +381,13 @@ void Model::_askForChildrenOfMailbox( TreeItem* item ) const
     _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::LIST, item );
 }
 
-void Model::_askForMessagesInMailbox( TreeItem* item ) const
+void Model::_askForMessagesInMailbox( TreeItemMsgList* item ) const
 {
     Q_ASSERT( item->parent() );
+    TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( item->parent() );
+    Q_ASSERT( mailboxPtr );
 
-    QString mailbox = dynamic_cast<TreeItemMailbox*>( item->parent() )->mailbox();
+    QString mailbox = mailboxPtr->mailbox();
 
     qDebug() << "_askForMessagesInMailbox()" << mailbox;
     ParserPtr parser = _getParser( 0, ReadOnly );
@@ -393,12 +395,13 @@ void Model::_askForMessagesInMailbox( TreeItem* item ) const
     _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::STATUS, item );
 }
 
-void Model::_askForMsgMetadata( TreeItem* item ) const
+void Model::_askForMsgMetadata( TreeItemMessage* item ) const
 {
     Q_ASSERT( item->parent() );
     Q_ASSERT( item->parent()->parent() );
-
     TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( item->parent()->parent() );
+    Q_ASSERT( mailboxPtr );
+
     int order = item->row();
 
     qDebug() << "_askForMsgEnvelope()" << mailboxPtr->mailbox() << order;
