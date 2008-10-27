@@ -131,8 +131,10 @@ bool TreeItemMailbox::hasChildMailboxes( const Model* const model )
 
 TreeItem* TreeItemMailbox::child( const int offset, const Model* const model )
 {
+    // accessing TreeItemMsgList doesn't need fetch()
     if ( offset == 0 )
         return _children[ 0 ];
+
     return TreeItem::child( offset, model );
 }
 
@@ -150,16 +152,24 @@ void TreeItemMailbox::setChildren( const QList<TreeItem*> items )
 
 void TreeItemMailbox::handleFetchResponse( const Model* const model, const Responses::Fetch& response )
 {
-    fetch( model );
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[0] );
     Q_ASSERT( list );
     
+    if ( ! list->_fetched ) {
+        // this is bad -- we got a reply about a mailbox' state before we had
+        // consistent information :(
+        // FIXME: this needs more work (we might not have to throw the
+        // exception, simple return *might* work)
+        throw UnexpectedResponseReceived( "Received a FETCH response before we synced the mailbox state "
+                "(TreeItemMsgList not up-to-speed yet)", response );
+    }
+
     int number = response.number - 1;
     if ( number < 0 || number >= list->_children.size() )
-        throw UnknownMessageIndex( "Got FETCH ", response );
+        throw UnknownMessageIndex( "Got FETCH that is out of bounds", response );
 
     TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->child( number, model ) );
-    Q_ASSERT( message );
+    Q_ASSERT( message ); // FIXME: this should be relaxed for allowing null pointers instead of "unfetched" TreeItemMessage
 
     if ( response.data.contains( "ENVELOPE" ) ) {
         message->_envelope = dynamic_cast<const Responses::RespData<Message::Envelope>&>( *response.data["ENVELOPE"] ).data;
