@@ -142,7 +142,7 @@ void TreeItemMailbox::setChildren( const QList<TreeItem*> items )
 {
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[0] );
     _children[0] = 0;
-    TreeItem::setChildren( items );
+    TreeItem::setChildren( items ); // this also adjusts _loading and _fetched
     _children.prepend( list );
 
     // FIXME: anything else required for \Noselect?
