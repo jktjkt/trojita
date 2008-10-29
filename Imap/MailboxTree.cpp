@@ -311,7 +311,7 @@ void TreeItemPart::fetch( const Model* const model )
     if ( _fetched || _loading )
         return;
 
-    // FIXME model->_askForMsgPart( this );
+    model->_askForMsgPart( this );
     _loading = true;
 }
 
@@ -329,19 +329,52 @@ QVariant TreeItemPart::data( const Model* const model, int role )
     if ( ! _parent )
         return QVariant();
 
-    // no need to fetch() here
+    fetch( model );
 
     if ( _loading )
-        return QString("[loading (%1)...]").arg( _mimeType );
+        return QString("[loading %1 (%2)...]").arg( _mimeType ).arg( partId() );
 
-    // FIXME
-    return _mimeType;
+    switch ( role ) {
+        case Qt::DisplayRole:
+            return _mimeType;
+        case Qt::ToolTipRole:
+            return _mimeType; // FIXME
+        default:
+            return QVariant();
+    }
 }
 
 bool TreeItemPart::hasChildren( const Model* const model )
 {
     // no need to fetch() here
     return ! _children.isEmpty();
+}
+
+QString TreeItemPart::partId() const
+{
+    if ( dynamic_cast<TreeItemMessage*>( this->parent() ) ) {
+        return QString::fromAscii("TEXT");
+    } else {
+        TreeItemPart* ptr = dynamic_cast<TreeItemPart*>( this->parent() );
+        Q_ASSERT( ptr );
+        QString parent = ptr->partId();
+        if ( parent == QString::fromAscii("TEXT") )
+            return QString::number( row() + 1 );
+        else
+            return parent + QChar('.') + QString::number( row() + 1 );
+    }
+}
+
+TreeItemMessage* TreeItemPart::message()
+{
+    const TreeItemPart* part = this;
+    while ( part ) {
+        TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( part->parent() );
+        if ( message )
+            return message;
+        part = dynamic_cast<TreeItemPart*>( part->parent() );
+    }
+    return 0;
 }
 
 }

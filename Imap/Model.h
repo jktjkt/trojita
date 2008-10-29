@@ -130,6 +130,7 @@ private:
     void _askForChildrenOfMailbox( TreeItemMailbox* item ) const;
     void _askForMessagesInMailbox( TreeItemMsgList* item ) const;
     void _askForMsgMetadata( TreeItemMessage* item ) const;
+    void _askForMsgPart( TreeItemPart* item ) const;
 
     void _finalizeList( const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeStatus( const QMap<CommandHandle, Task>::const_iterator command );

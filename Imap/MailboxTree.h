@@ -117,6 +117,9 @@ public:
     virtual unsigned int rowCount( const Model* const model );
     virtual QVariant data( const Model* const model, int role );
     virtual bool hasChildren( const Model* const model );
+
+    QString partId() const;
+    TreeItemMessage* message();
 };
 
 }
