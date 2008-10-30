@@ -71,6 +71,12 @@ namespace Responses {
         ECBODY(SocketException, ParserException);
     };
 
+    /** @short Waiting for something from the socket took too long */
+    class SocketTimeout : public SocketException {
+    public:
+        ECBODY(SocketTimeout, SocketException);
+    };
+
     /** @short General parse error */
     class ParseError : public ParserException {
     public:

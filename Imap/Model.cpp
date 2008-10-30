@@ -55,7 +55,7 @@ void Model::responseReceived()
         QTextStream s(&buf);
         s << "<<< " << *resp << "\r\n";
         s.flush();
-        //qDebug() << buf.left(400);
+        qDebug() << buf.left(100);
         resp->plug( it.value().parser, this );
     }
 }

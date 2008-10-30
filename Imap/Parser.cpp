@@ -18,6 +18,7 @@
 #include <QStringList>
 #include <QMutexLocker>
 #include <QProcess>
+#include <QTime>
 #include "Parser.h"
 #include "rfccodecs.h"
 #include "LowLevelParser.h"
@@ -370,9 +371,11 @@ void Parser::processLine( QByteArray line )
     if ( line.startsWith( "* " ) ) {
         // check for literals
         int oldSize = 0;
-        bool literalRead = false;
+
+        const int timeout = 5000;
+        QTime timer;
         while ( line.endsWith( "}\r\n" ) ) {
-            literalRead = true;
+            timer.restart();
             // find how many bytes to read
             int offset = line.lastIndexOf( '{' );
             if ( offset < oldSize )
@@ -389,7 +392,16 @@ void Parser::processLine( QByteArray line )
             oldSize = line.size();
             QByteArray buf = _socket->read( number );
             while ( buf.size() < number ) {
-                _socket->waitForReadyRead( -1 );
+                if ( timer.elapsed() > timeout ) {
+                    QByteArray out;
+                    QTextStream s( &out );
+                    s << "Reading a literal took too long (line " << line.size() <<
+                        " bytes so far, buffer " << buf.size() << ", expected literal size " <<
+                        number << ")";
+                    s.flush();
+                    throw SocketTimeout( out.constData() );
+                }
+                _socket->waitForReadyRead( 500 );
                 buf.append( _socket->read( number - buf.size() ) );
             }
             line += buf;
