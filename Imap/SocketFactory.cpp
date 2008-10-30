@@ -34,7 +34,9 @@ Imap::Parser::Socket ProcessSocketFactory::create()
     // (before we return the pointer)
     QProcess* proc = new QProcess();
     proc->start( _executable, _args );
-    proc->waitForStarted();
+    if ( ! proc->waitForStarted() )
+        return Imap::Parser::Socket( 0 );
+
     return Imap::Parser::Socket( proc );
 }
 
