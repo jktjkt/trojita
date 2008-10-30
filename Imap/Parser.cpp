@@ -393,12 +393,22 @@ void Parser::processLine( QByteArray line )
             QByteArray buf = _socket->read( number );
             while ( buf.size() < number ) {
                 if ( timer.elapsed() > timeout ) {
+                    QProcess* proc = qobject_cast<QProcess*>( _socket.get() );
+                    if ( proc->state() != QProcess::Running ) {
+                        // It's dead, Jim. Unfortunately we can't output more debug
+                        // info, as errorString() might contain completely useless
+                        // stuff from previous failed waitFor*(). Oh noes.
+                        throw SocketException( "The QProcess is dead" );
+                    }
+
                     QByteArray out;
                     QTextStream s( &out );
                     s << "Reading a literal took too long (line " << line.size() <<
                         " bytes so far, buffer " << buf.size() << ", expected literal size " <<
                         number << ")";
                     s.flush();
+                    // FIXME: we need something more flexible, including restart
+                    // of failed requests...
                     throw SocketTimeout( out.constData() );
                 }
                 _socket->waitForReadyRead( 500 );
