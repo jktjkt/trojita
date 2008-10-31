@@ -199,7 +199,7 @@ CommandHandle Parser::expunge()
 CommandHandle Parser::_searchHelper( const QString& command, const QStringList& criteria, const QString& charset )
 {
     if ( !criteria.count() || criteria.count() % 2 )
-        throw InvalidArgument("Invalid search criteria");
+        throw InvalidArgument("Function called with invalid search criteria");
 
     Commands::Command cmd( command );
 
@@ -343,7 +343,8 @@ bool Parser::executeACommand( const Commands::Command& cmd )
                     } else if ( identifier == "IDLE" ) {
                         // FIXME: IDLE
                     } else {
-                        throw InvalidArgument( identifier.toStdString() );
+                        throw InvalidArgument( std::string("Dunno how to handle \"special\" command ") +
+                                identifier.toStdString() );
                     }
                 }
                 break;
@@ -379,13 +380,13 @@ void Parser::processLine( QByteArray line )
             // find how many bytes to read
             int offset = line.lastIndexOf( '{' );
             if ( offset < oldSize )
-                throw ParseError( line.constData() );
+                throw ParseError( "Got unmatched '}'", line, line.size() - 3 );
             bool ok;
             int number = line.mid( offset + 1, line.size() - offset - 4 ).toInt( &ok );
             if ( !ok )
-                throw ParseError( line.constData() );
+                throw ParseError( "Can't parse numeric literal size", line, offset );
             if ( number < 0 )
-                throw ParseError( line.constData() );
+                throw ParseError( "Negative literal size", line, offset );
 
             // now keep pestering our QIODevice until we manage to read as much
             // data as we want
@@ -465,8 +466,12 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedNumber(
             else if ( line.mid(start) != QByteArray( "\r\n" ) )
                 throw UnexpectedHere( line, start ); // expected CRLF
             else
-                return std::tr1::shared_ptr<Responses::AbstractResponse>(
-                        new Responses::NumberResponse( kind, number ) );
+                try {
+                    return std::tr1::shared_ptr<Responses::AbstractResponse>(
+                            new Responses::NumberResponse( kind, number ) );
+                } catch ( UnexpectedHere& e ) {
+                    throw UnexpectedHere( e.what(), line, start );
+                }
             break;
 
         case Responses::FETCH:

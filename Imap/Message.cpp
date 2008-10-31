@@ -71,7 +71,11 @@ Envelope Envelope::fromList( const QVariantList& items, const QByteArray& line, 
     QDateTime date;
     if ( items[0].type() == QVariant::ByteArray ) {
         QByteArray dateStr = items[0].toByteArray();
-        date = LowLevelParser::parseRFC2822DateTime( dateStr );
+        try {
+            date = LowLevelParser::parseRFC2822DateTime( dateStr );
+        } catch ( ParseError& e ) {
+            throw ParseError( e.what(), line, start );
+        }
     }
     // Otherwise it's "invalid", null.
 
