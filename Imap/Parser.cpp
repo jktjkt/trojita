@@ -448,7 +448,12 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedNumber(
         throw NoData( line, start );
 
     QByteArray kindStr = LowLevelParser::getAtom( line, start );
-    Responses::Kind kind = Responses::kindFromString( kindStr );
+    Responses::Kind kind;
+    try {
+        kind = Responses::kindFromString( kindStr );
+    } catch ( UnrecognizedResponseKind& e ) {
+        throw UnrecognizedResponseKind( e.what(), line, start );
+    }
 
     switch ( kind ) {
         case Responses::EXISTS:
@@ -478,7 +483,12 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedNumber(
 std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedText(
         const QByteArray& line, int& start )
 {
-    Responses::Kind kind = Responses::kindFromString( LowLevelParser::getAtom( line, start ) );
+    Responses::Kind kind;
+    try {
+        kind = Responses::kindFromString( LowLevelParser::getAtom( line, start ) );
+    } catch ( UnrecognizedResponseKind& e ) {
+        throw UnrecognizedResponseKind( e.what(), line, start );
+    }
     ++start;
     if ( start == line.size() && kind != Responses::SEARCH )
         throw NoData( line, start );

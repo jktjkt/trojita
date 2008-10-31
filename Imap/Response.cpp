@@ -362,7 +362,12 @@ Status::Status( const QByteArray& line, int& start )
             uint number = it->toUInt( &ok );
             if (!ok)
                 throw ParseError( line, start );
-            StateKind kind = stateKindFromStr( identifier );
+            StateKind kind;
+            try {
+                kind = stateKindFromStr( identifier );
+            } catch ( UnrecognizedResponseKind& e ) {
+                throw UnrecognizedResponseKind( e.what(), line, start );
+            }
             states[kind] = number;
         } else {
             identifier = *it;
