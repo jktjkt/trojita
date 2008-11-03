@@ -23,7 +23,39 @@
 
 namespace Imap {
 
-    typedef std::auto_ptr<QIODevice> SocketPtr;
+    class Socket: public QObject {
+        Q_OBJECT
+    public:
+        virtual bool canReadLine() = 0;
+        virtual QByteArray read( qint64 maxSize ) = 0;
+        virtual QByteArray readLine( qint64 maxSize = 0 ) = 0;
+        virtual bool waitForReadyRead( int msec ) = 0;
+        virtual bool waitForBytesWritten( int msec ) = 0;
+        virtual qint64 write( const QByteArray& byteArray ) = 0;
+    signals:
+        void aboutToClose();
+        void readyRead();
+    };
+
+    typedef std::auto_ptr<Socket> SocketPtr;
+
+    class IODeviceSocket: public Socket {
+        Q_OBJECT
+    public:
+        IODeviceSocket( QIODevice* device );
+        virtual bool canReadLine();
+        virtual QByteArray read( qint64 maxSize );
+        virtual QByteArray readLine( qint64 maxSize = 0 );
+        virtual bool waitForReadyRead( int msec );
+        virtual bool waitForBytesWritten( int msec );
+        virtual qint64 write( const QByteArray& byteArray );
+        QIODevice* device() const;
+    signals:
+        void aboutToClose();
+        void readyRead();
+    private:
+        QIODevice* d;
+    };
 
 };
 

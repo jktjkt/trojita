@@ -37,7 +37,7 @@ Imap::SocketPtr ProcessSocketFactory::create()
     if ( ! proc->waitForStarted() )
         return Imap::SocketPtr( 0 );
 
-    return Imap::SocketPtr( proc );
+    return Imap::SocketPtr( new IODeviceSocket( proc ) );
 }
 
 }

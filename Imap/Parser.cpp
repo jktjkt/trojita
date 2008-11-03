@@ -394,12 +394,15 @@ void Parser::processLine( QByteArray line )
             QByteArray buf = _socket->read( number );
             while ( buf.size() < number ) {
                 if ( timer.elapsed() > timeout ) {
-                    QProcess* proc = qobject_cast<QProcess*>( _socket.get() );
-                    if ( proc && proc->state() != QProcess::Running ) {
-                        // It's dead, Jim. Unfortunately we can't output more debug
-                        // info, as errorString() might contain completely useless
-                        // stuff from previous failed waitFor*(). Oh noes.
-                        throw SocketException( "The QProcess is dead" );
+                    IODeviceSocket* ioSock = qobject_cast<IODeviceSocket*>( _socket.get() );
+                    if ( ioSock ) {
+                        QProcess* proc = qobject_cast<QProcess*>( ioSock->device() );
+                        if ( proc && proc->state() != QProcess::Running ) {
+                            // It's dead, Jim. Unfortunately we can't output more debug
+                            // info, as errorString() might contain completely useless
+                            // stuff from previous failed waitFor*(). Oh noes.
+                            throw SocketException( "The QProcess is dead" );
+                        }
                     }
 
                     QByteArray out;

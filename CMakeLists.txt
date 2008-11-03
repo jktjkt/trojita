@@ -47,6 +47,7 @@ set(libImap_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/MsgListModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/MailboxTree.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/SocketFactory.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Socket.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Authenticator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/rfccodecs.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/kcodecs.cpp
