@@ -25,9 +25,9 @@
 #include <QThread>
 #include <QSemaphore>
 #include <QIODevice>
-#include <Imap/Response.h>
-#include <Imap/Command.h>
-#include <Imap/Exceptions.h>
+#include "Imap/Response.h"
+#include "Imap/Command.h"
+#include "Imap/Exceptions.h"
 
 /**
  * @file
