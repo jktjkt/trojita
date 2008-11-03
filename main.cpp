@@ -28,7 +28,7 @@ int main( int argc, char** argv) {
     QCoreApplication app( argc, argv );
 
     Imap::Mailbox::SocketFactoryPtr factory(
-            new Imap::Mailbox::ProcessSocketFactory( "dovecot",
+            new Imap::Mailbox::ProcessSocketFactory( "/usr/sbin/dovecot",
                 QStringList() << "--exec-mail" << "imap" ) );
     Imap::ParserPtr parser( new Imap::Parser( 0, factory->create() ) );
     Demo::ParserMonitor monitor( 0, parser.get() );
@@ -36,13 +36,14 @@ int main( int argc, char** argv) {
     parser->capability();
     parser->namespaceCommand();
     parser->noop();
-    parser->list( "", "*" );
-    parser->select( "trms" );
+    parser->list( "", "%" );
+    parser->select( "MBOX-torture-test" );
     //parser->fetch( Imap::Sequence(1), QStringList() << "UID" << "BODY[HEADER.FIELDS (Subject Received)]<100.10>" << "UID" );
     //parser->fetch( Imap::Sequence(1), QStringList() << "RFC822.HEADER" );
-    parser->fetch( Imap::Sequence(1, 7), QStringList() << "bodyStructure" );
+    //parser->fetch( Imap::Sequence(1, 7), QStringList() << "bodyStructure" );
     //parser->fetch( Imap::Sequence(1, 6), QStringList() << "FLAGS" << "BODY[HEADER.FIELDS (DATE FROM)]");
-    parser->fetch( Imap::Sequence(1, 6), QStringList() << "UID" << /*"RFC822.HEADER" <<*/ "INTERNALDATE" << "RFC822.SIZE" << "FLAGS" );
+    //parser->fetch( Imap::Sequence(1, 6), QStringList() << "UID" << /*"RFC822.HEADER" <<*/ "INTERNALDATE" << "RFC822.SIZE" << "FLAGS" );
+    parser->fetch( Imap::Sequence(1), QStringList() << "body[]" );
     parser->logout();
 
     QTimer::singleShot( 1500, &app, SLOT(quit()) );

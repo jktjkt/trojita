@@ -33,7 +33,7 @@ int main( int argc, char** argv) {
     QApplication app( argc, argv );
 
     Imap::Mailbox::SocketFactoryPtr factory(
-            new Imap::Mailbox::ProcessSocketFactory( "dovecot",
+            new Imap::Mailbox::ProcessSocketFactory( "/usr/sbin/dovecot",
                 QStringList() << "--exec-mail" << "imap" )
             /*new Imap::Mailbox::ProcessSocketFactory( "ssh",
                 QStringList() << "sosna.fzu.cz" << "/usr/sbin/imapd" )*/
