@@ -20,7 +20,8 @@
 #define IMAP_SOCKETFACTORY_H
 
 #include <tr1/memory>
-#include "Imap/Parser.h"
+#include <QStringList>
+#include "Imap/Socket.h"
 
 /** @short Namespace for IMAP interaction */
 namespace Imap {
@@ -34,7 +35,7 @@ class SocketFactory {
 public:
     virtual ~SocketFactory() {};
     /** @short Create new socket and return a smart pointer to it */
-    virtual Imap::Parser::Socket create() = 0;
+    virtual Imap::SocketPtr create() = 0;
 };
 
 typedef std::auto_ptr<SocketFactory> SocketFactoryPtr;
@@ -47,7 +48,7 @@ class ProcessSocketFactory: public SocketFactory {
     QStringList _args;
 public:
     ProcessSocketFactory( const QString& executable, const QStringList& args );
-    virtual Imap::Parser::Socket create();
+    virtual Imap::SocketPtr create();
 };
 
 }

@@ -16,8 +16,8 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include "Imap/SocketFactory.h"
 #include <QProcess>
+#include "Imap/SocketFactory.h"
 
 namespace Imap {
 namespace Mailbox {
@@ -28,16 +28,16 @@ ProcessSocketFactory::ProcessSocketFactory(
 {
 }
 
-Imap::Parser::Socket ProcessSocketFactory::create()
+Imap::SocketPtr ProcessSocketFactory::create()
 {
     // FIXME: this may leak memory if an exception strikes in this function
     // (before we return the pointer)
     QProcess* proc = new QProcess();
     proc->start( _executable, _args );
     if ( ! proc->waitForStarted() )
-        return Imap::Parser::Socket( 0 );
+        return Imap::SocketPtr( 0 );
 
-    return Imap::Parser::Socket( proc );
+    return Imap::SocketPtr( proc );
 }
 
 }

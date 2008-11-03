@@ -24,10 +24,10 @@
 #include <QMutex>
 #include <QThread>
 #include <QSemaphore>
-#include <QIODevice>
 #include "Imap/Response.h"
 #include "Imap/Command.h"
 #include "Imap/Exceptions.h"
+#include "Imap/Socket.h"
 
 /**
  * @file
@@ -94,12 +94,10 @@ namespace Imap {
         friend class ::ImapParserParseTest;
 
     public:
-        typedef std::auto_ptr<QIODevice> Socket;
-
         /** @short Constructor.
          *
          * Takes an QIODevice instance as a parameter. */
-        Parser( QObject* parent, Socket socket );
+        Parser( QObject* parent, SocketPtr socket );
 
         /** @short Destructor */
         ~Parser();
@@ -288,7 +286,7 @@ namespace Imap {
         void queueResponse( const std::tr1::shared_ptr<Responses::AbstractResponse>& resp );
 
         /** @short Connection to the IMAP server */
-        Socket _socket;
+        SocketPtr _socket;
 
         /** @short Keeps track of the last-used command tag */
         unsigned int _lastTagUsed;
