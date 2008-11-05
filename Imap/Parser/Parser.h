@@ -26,8 +26,8 @@
 #include <QSemaphore>
 #include "Response.h"
 #include "Command.h"
-#include "Exceptions.h"
-#include "Streams/Socket.h"
+#include "../Exceptions.h"
+#include "../Streams/Socket.h"
 
 /**
  * @file

@@ -19,7 +19,7 @@
 #define DEMO_PARSERMONITOR_H
 
 #include <QTextStream>
-#include "Imap/Parser.h"
+#include "../Imap/Parser/Parser.h"
 
 /** @short Example application of trojita IMAP */
 namespace Demo {

@@ -19,7 +19,7 @@
 #define TEST_IMAP_PARSER_PARSE
 
 #include <QtCore/QObject>
-#include "Imap/LowLevelParser.h"
+#include "Imap/Parser/LowLevelParser.h"
 
 
 /** @short Unit tests for Imap::LowLevelParser */

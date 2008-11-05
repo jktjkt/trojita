@@ -15,10 +15,10 @@
    the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#include "Imap/Response.h"
-#include "Imap/Message.h"
-#include "Imap/LowLevelParser.h"
-#include "Imap/Model.h"
+#include "Response.h"
+#include "Message.h"
+#include "LowLevelParser.h"
+#include "../Model.h"
 
 namespace Imap {
 namespace Responses {

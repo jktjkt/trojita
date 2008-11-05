@@ -16,7 +16,7 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include <qtest_kde.h>
+#include "qtest_kde.h"
 
 #include "test_Imap_LowLevelParser.h"
 #include "test_Imap_LowLevelParser.moc"

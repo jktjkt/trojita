@@ -16,7 +16,7 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include "Imap/Data.h"
+#include "Data.h"
 
 namespace Imap {
 namespace Responses {

@@ -20,7 +20,7 @@
 #include <QCoreApplication>
 #include <QTimer>
 
-#include "Imap/Parser.h"
+#include "Imap/Parser/Parser.h"
 #include "Imap/Streams/SocketFactory.h"
 #include "Demo/ParserMonitor.h"
 

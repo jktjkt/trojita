@@ -20,7 +20,7 @@
 
 #include <tr1/memory>
 #include <QtCore/QObject>
-#include "Imap/Message.h"
+#include "Imap/Parser/Message.h"
 
 /** @short Unit tests for Imap::Message and friends */
 class ImapMessageTest : public QObject

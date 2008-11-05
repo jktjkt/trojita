@@ -22,7 +22,7 @@
 #include <QAbstractItemModel>
 #include "Cache.h"
 #include "Authenticator.h"
-#include "Parser.h"
+#include "Parser/Parser.h"
 #include "Streams/SocketFactory.h"
 
 /** @short Namespace for IMAP interaction */

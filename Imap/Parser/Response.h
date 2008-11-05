@@ -27,9 +27,9 @@
 #include <QStringList>
 #include <QVariantList>
 #include <QPair>
-#include "Imap/Command.h"
-#include "Imap/Exceptions.h"
-#include "Imap/Data.h"
+#include "Command.h"
+#include "../Exceptions.h"
+#include "Data.h"
 
 /**
  * @file

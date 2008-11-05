@@ -25,9 +25,9 @@
 #include <QDateTime>
 #include <QString>
 #include <QPair>
-#include "Imap/Data.h"
-#include "Imap/Exceptions.h"
-#include "Imap/LowLevelParser.h"
+#include "Data.h"
+#include "../Exceptions.h"
+#include "LowLevelParser.h"
 
 /** @short Namespace for IMAP interaction */
 namespace Imap {

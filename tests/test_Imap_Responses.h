@@ -20,7 +20,7 @@
 
 #include <tr1/memory>
 #include <QtCore/QObject>
-#include "Imap/Response.h"
+#include "Imap/Parser/Response.h"
 
 typedef std::tr1::shared_ptr<Imap::Responses::AbstractResponse> respPtr;
 

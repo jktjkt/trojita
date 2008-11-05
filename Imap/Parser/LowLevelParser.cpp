@@ -20,9 +20,9 @@
 #include <QStringList>
 #include <QVariant>
 #include <QDateTime>
-#include "Imap/LowLevelParser.h"
-#include "Imap/Exceptions.h"
-#include "Imap/rfccodecs.h"
+#include "LowLevelParser.h"
+#include "../Exceptions.h"
+#include "rfccodecs.h"
 
 namespace Imap {
 namespace LowLevelParser {

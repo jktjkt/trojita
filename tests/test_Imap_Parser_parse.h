@@ -19,7 +19,7 @@
 #define TEST_IMAP_PARSER_PARSE
 
 #include <QtCore/QObject>
-#include "Imap/Parser.h"
+#include "Imap/Parser/Parser.h"
 
 class QByteArray;
 class QBuffer;

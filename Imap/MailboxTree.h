@@ -21,8 +21,8 @@
 
 #include <QList>
 #include <QString>
-#include "Response.h"
-#include "Message.h"
+#include "Parser/Response.h"
+#include "Parser/Message.h"
 
 namespace Imap {
 

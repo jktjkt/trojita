@@ -34,24 +34,29 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 add_subdirectory( tests )
 
 set(libImap_SRCS
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Parser.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Command.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Response.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/LowLevelParser.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Parser/Parser.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Parser/Command.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Parser/Response.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Parser/LowLevelParser.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Parser/Data.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Parser/Message.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Parser/rfccodecs.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Parser/kcodecs.cpp
+
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Exceptions.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Data.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Message.cpp
+
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Cache.cpp
+
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/MailboxModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/MsgListModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/MailboxTree.cpp
+
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Streams/SocketFactory.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Streams/Socket.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Streams/IODeviceSocket.cpp
+
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Authenticator.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/rfccodecs.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/kcodecs.cpp
     )
 
 set(libModelTest_SRCS
