@@ -17,7 +17,7 @@
 */
 
 #include <QProcess>
-#include "Imap/IODeviceSocket.h"
+#include "IODeviceSocket.h"
 
 namespace Imap {
 

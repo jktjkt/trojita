@@ -22,7 +22,7 @@
 #include <QTreeView>
 #include <QHBoxLayout>
 
-#include "Imap/SocketFactory.h"
+#include "Imap/Streams/SocketFactory.h"
 #include "Imap/Model.h"
 #include "Imap/MailboxModel.h"
 #include "Imap/MsgListModel.h"

@@ -22,7 +22,7 @@
 #include "Parser.h"
 #include "rfccodecs.h"
 #include "LowLevelParser.h"
-#include "IODeviceSocket.h"
+#include "Streams/IODeviceSocket.h"
 
 /*
  * Parser interface considerations:

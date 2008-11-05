@@ -20,10 +20,10 @@
 #define IMAP_MODEL_H
 
 #include <QAbstractItemModel>
-#include "Imap/Cache.h"
-#include "Imap/Authenticator.h"
-#include "Imap/Parser.h"
-#include "Imap/SocketFactory.h"
+#include "Cache.h"
+#include "Authenticator.h"
+#include "Parser.h"
+#include "Streams/SocketFactory.h"
 
 /** @short Namespace for IMAP interaction */
 namespace Imap {

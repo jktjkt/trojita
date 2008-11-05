@@ -16,6 +16,6 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include "Imap/Socket.h"
+#include "Socket.h"
 
 #include "Socket.moc"

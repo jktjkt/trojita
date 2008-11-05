@@ -21,7 +21,7 @@
 
 #include <tr1/memory>
 #include <QStringList>
-#include "Imap/Socket.h"
+#include "Socket.h"
 
 /** @short Namespace for IMAP interaction */
 namespace Imap {

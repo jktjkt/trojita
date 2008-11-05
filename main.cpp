@@ -21,7 +21,7 @@
 #include <QTimer>
 
 #include "Imap/Parser.h"
-#include "Imap/SocketFactory.h"
+#include "Imap/Streams/SocketFactory.h"
 #include "Demo/ParserMonitor.h"
 
 int main( int argc, char** argv) {

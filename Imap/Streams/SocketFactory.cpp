@@ -17,8 +17,8 @@
 */
 
 #include <QProcess>
-#include "Imap/SocketFactory.h"
-#include "Imap/IODeviceSocket.h"
+#include "SocketFactory.h"
+#include "IODeviceSocket.h"
 
 namespace Imap {
 namespace Mailbox {

@@ -24,10 +24,10 @@
 #include <QMutex>
 #include <QThread>
 #include <QSemaphore>
-#include "Imap/Response.h"
-#include "Imap/Command.h"
-#include "Imap/Exceptions.h"
-#include "Imap/Socket.h"
+#include "Response.h"
+#include "Command.h"
+#include "Exceptions.h"
+#include "Streams/Socket.h"
 
 /**
  * @file
