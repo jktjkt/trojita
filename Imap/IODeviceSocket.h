@@ -15,31 +15,33 @@
    the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
+#ifndef IMAP_IODEVICE_SOCKET_H
+#define IMAP_IODEVICE_SOCKET_H
 
-#include <QProcess>
-#include "Imap/SocketFactory.h"
-#include "Imap/IODeviceSocket.h"
+#include <QIODevice>
+#include "Socket.h"
 
 namespace Imap {
-namespace Mailbox {
 
-ProcessSocketFactory::ProcessSocketFactory(
-        const QString& executable, const QStringList& args):
-    _executable(executable), _args(args)
-{
-}
+    class IODeviceSocket: public Socket {
+        Q_OBJECT
+    public:
+        IODeviceSocket( QIODevice* device );
+        ~IODeviceSocket();
+        virtual bool canReadLine();
+        virtual QByteArray read( qint64 maxSize );
+        virtual QByteArray readLine( qint64 maxSize = 0 );
+        virtual bool waitForReadyRead( int msec );
+        virtual bool waitForBytesWritten( int msec );
+        virtual qint64 write( const QByteArray& byteArray );
+        QIODevice* device() const;
+    signals:
+        void aboutToClose();
+        void readyRead();
+    private:
+        QIODevice* d;
+    };
 
-Imap::SocketPtr ProcessSocketFactory::create()
-{
-    // FIXME: this may leak memory if an exception strikes in this function
-    // (before we return the pointer)
-    QProcess* proc = new QProcess();
-    proc->start( _executable, _args );
-    if ( ! proc->waitForStarted() )
-        return Imap::SocketPtr( 0 );
+};
 
-    return Imap::SocketPtr( new IODeviceSocket( proc ) );
-}
-
-}
-}
+#endif /* IMAP_IODEVICE_SOCKET_H */

@@ -19,6 +19,7 @@
 #include <qtest_kde.h>
 #include <QFile>
 #include "Imap/Message.h"
+#include "Imap/IODeviceSocket.h"
 
 #include "test_Imap_Parser_parse.h"
 #include "test_Imap_Parser_parse.moc"

@@ -19,7 +19,7 @@
 #define IMAP_SOCKET_H
 
 #include <memory>
-#include <QIODevice>
+#include <QObject>
 
 namespace Imap {
 
@@ -39,25 +39,6 @@ namespace Imap {
     };
 
     typedef std::auto_ptr<Socket> SocketPtr;
-
-    class IODeviceSocket: public Socket {
-        Q_OBJECT
-    public:
-        IODeviceSocket( QIODevice* device );
-        ~IODeviceSocket();
-        virtual bool canReadLine();
-        virtual QByteArray read( qint64 maxSize );
-        virtual QByteArray readLine( qint64 maxSize = 0 );
-        virtual bool waitForReadyRead( int msec );
-        virtual bool waitForBytesWritten( int msec );
-        virtual qint64 write( const QByteArray& byteArray );
-        QIODevice* device() const;
-    signals:
-        void aboutToClose();
-        void readyRead();
-    private:
-        QIODevice* d;
-    };
 
 };
 

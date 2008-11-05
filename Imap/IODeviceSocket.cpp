@@ -17,7 +17,7 @@
 */
 
 #include <QProcess>
-#include "Imap/Socket.h"
+#include "Imap/IODeviceSocket.h"
 
 namespace Imap {
 
@@ -76,4 +76,4 @@ QIODevice* IODeviceSocket::device() const
 
 }
 
-#include "Socket.moc"
+#include "IODeviceSocket.moc"
