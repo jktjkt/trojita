@@ -16,8 +16,8 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include "Imap/Model.h"
-#include "Imap/MailboxTree.h"
+#include "Model.h"
+#include "MailboxTree.h"
 #include <QDebug>
 
 namespace Imap {

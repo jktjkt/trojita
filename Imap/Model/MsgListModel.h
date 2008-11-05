@@ -20,7 +20,7 @@
 #define IMAP_MSGLISTMODEL_H
 
 #include <QAbstractProxyModel>
-#include "Imap/Model.h"
+#include "Model.h"
 
 /** @short Namespace for IMAP interaction */
 namespace Imap {

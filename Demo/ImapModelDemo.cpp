@@ -23,9 +23,9 @@
 #include <QHBoxLayout>
 
 #include "Imap/Streams/SocketFactory.h"
-#include "Imap/Model.h"
-#include "Imap/MailboxModel.h"
-#include "Imap/MsgListModel.h"
+#include "Imap/Model/Model.h"
+#include "Imap/Model/MailboxModel.h"
+#include "Imap/Model/MsgListModel.h"
 
 #include "Imap/ModelTest/modeltest.h"
 

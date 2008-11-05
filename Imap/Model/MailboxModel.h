@@ -20,7 +20,7 @@
 #define IMAP_MAILBOXMODEL_H
 
 #include <QSortFilterProxyModel>
-#include "Imap/Model.h"
+#include "Model.h"
 
 /** @short Namespace for IMAP interaction */
 namespace Imap {
