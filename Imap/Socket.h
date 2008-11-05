@@ -32,6 +32,7 @@ namespace Imap {
         virtual bool waitForReadyRead( int msec ) = 0;
         virtual bool waitForBytesWritten( int msec ) = 0;
         virtual qint64 write( const QByteArray& byteArray ) = 0;
+        virtual ~Socket() {};
     signals:
         void aboutToClose();
         void readyRead();
@@ -43,6 +44,7 @@ namespace Imap {
         Q_OBJECT
     public:
         IODeviceSocket( QIODevice* device );
+        ~IODeviceSocket();
         virtual bool canReadLine();
         virtual QByteArray read( qint64 maxSize );
         virtual QByteArray readLine( qint64 maxSize = 0 );

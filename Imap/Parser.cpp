@@ -70,18 +70,12 @@ Parser::Parser( QObject* parent, SocketPtr socket ): QObject(parent), _socket(so
 
 Parser::~Parser()
 {
+    disconnect( _socket.get(), SIGNAL( readyRead() ), this, SLOT( socketReadyRead() ) );
     _workerStopMutex.lock();
     _workerStop = true;
     _workerStopMutex.unlock();
     _workerSemaphore.release();
     _workerThread.wait();
-
-    if ( QProcess* proc = dynamic_cast<QProcess*>( _socket.get() ) ) {
-        // Be nice to it, let it die peacefully before using an axe
-        proc->terminate();
-        proc->waitForFinished(200);
-        proc->kill();
-    }
 }
 
 CommandHandle Parser::noop()

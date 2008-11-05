@@ -16,16 +16,27 @@
    Boston, MA 02110-1301, USA.
 */
 
+#include <QProcess>
 #include "Imap/Socket.h"
 
 namespace Imap {
-
-// FIXME: delete in dtor?
 
 IODeviceSocket::IODeviceSocket( QIODevice* device ): d(device)
 {
     connect( d, SIGNAL(readyRead()), this, SIGNAL(readyRead()) );
     connect( d, SIGNAL(aboutToClose()), this, SIGNAL(aboutToClose()) );
+}
+
+IODeviceSocket::~IODeviceSocket()
+{
+    if ( QProcess* proc = qobject_cast<QProcess*>( d ) ) {
+        // Be nice to it, let it die peacefully before using an axe
+        proc->terminate();
+        proc->waitForFinished(200);
+        proc->kill();
+    }
+
+    delete d;
 }
 
 bool IODeviceSocket::canReadLine()
