@@ -18,7 +18,7 @@
 #include "Response.h"
 #include "Message.h"
 #include "LowLevelParser.h"
-#include "../Model.h"
+#include "../Model/Model.h"
 
 namespace Imap {
 namespace Responses {

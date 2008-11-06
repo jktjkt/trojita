@@ -18,7 +18,7 @@
 #include "Exceptions.h"
 
 #include <QTextStream>
-#include "Response.h"
+#include "Parser/Response.h"
 
 namespace Imap {
 

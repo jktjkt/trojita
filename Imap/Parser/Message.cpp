@@ -17,7 +17,7 @@
 */
 
 #include "Message.h"
-#include "../MailboxTree.h"
+#include "../Model/MailboxTree.h"
 
 namespace Imap {
 namespace Message {
