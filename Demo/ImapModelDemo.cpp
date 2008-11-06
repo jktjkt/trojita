@@ -27,7 +27,7 @@
 #include "Imap/Model/MailboxModel.h"
 #include "Imap/Model/MsgListModel.h"
 
-#include "Imap/ModelTest/modeltest.h"
+#include "Imap/Model/ModelTest/modeltest.h"
 
 int main( int argc, char** argv) {
     QApplication app( argc, argv );

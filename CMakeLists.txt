@@ -60,8 +60,8 @@ set(libImap_SRCS
     )
 
 set(libModelTest_SRCS
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/modeltest.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/ModelTestMoc.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/ModelTest/modeltest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/ModelTest/ModelTestMoc.cpp
     )
 
 set(trojita_SRCS
