@@ -55,6 +55,7 @@ set(libImap_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Streams/SocketFactory.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Streams/Socket.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Streams/IODeviceSocket.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Streams/UnixSocket.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Authenticator.cpp
     )
