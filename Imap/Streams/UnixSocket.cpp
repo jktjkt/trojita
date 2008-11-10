@@ -19,6 +19,7 @@
 #include "UnixSocket.h"
 #include "../Exceptions.h"
 #include <QTextStream>
+#include <QDebug>
 #include <errno.h>
 #include <stdlib.h>
 
@@ -28,6 +29,7 @@ UnixSocket::UnixSocket( const QList<QByteArray>& args ): d(new UnixSocketThread(
 {
     connect( d, SIGNAL(readyRead()), this, SIGNAL(readyRead()), Qt::QueuedConnection );
     connect( d, SIGNAL(aboutToClose()), this, SIGNAL(aboutToClose()), Qt::QueuedConnection );
+    d->start();
 }
 
 UnixSocket::~UnixSocket()
@@ -37,50 +39,63 @@ UnixSocket::~UnixSocket()
 
 bool UnixSocket::canReadLine()
 {
+    qDebug() << "UnixSocket::canReadLine()";
     return false; // FIXME
 }
 
 QByteArray UnixSocket::read( qint64 maxSize )
 {
+    qDebug() << "UnixSocket::read(" << maxSize << ")";
     //FIXME: internal buffer!
     pauseThread();
-    d->accessSemaphore.acquire();
     QByteArray buf;
     buf.resize( maxSize );
-    qint64 ret = wrappedRead( d->fdProcess[0], buf.data(), maxSize );
+    qint64 ret = wrappedRead( d->fdStdout[0], buf.data(), maxSize );
     buf.resize( ret );
     d->selectSemaphore.release();
+    qDebug() << "released SELECT";
+    qDebug() << "UnixSocket::read(): return" << buf.size() << "bytes";
     return buf;
 
 }
 
 QByteArray UnixSocket::readLine( qint64 maxSize )
 {
+    qDebug() << "UnixSocket::readLine(" << maxSize << ")";
     return QByteArray(); // FIXME
 }
 
 bool UnixSocket::waitForReadyRead( int msec )
 {
+    qDebug() << "UnixSocket::waitForReadyRead(" << msec << ")";
     return true; // FIXME
 }
 
 bool UnixSocket::waitForBytesWritten( int msec )
 {
+    qDebug() << "UnixSocket::waitForBytesWritten(" << msec << ")";
     return true;
 }
 
 qint64 UnixSocket::write( const QByteArray& byteArray )
 {
+    qDebug() << "UnixSocket::write(" << byteArray.size() << "bytes)";
     pauseThread();
-    d->accessSemaphore.acquire();
-    qint64 ret = wrappedWrite( d->fdProcess[1], byteArray.constData(), byteArray.size() );
+    qint64 ret = wrappedWrite( d->fdStdin[1], byteArray.constData(), byteArray.size() );
     d->selectSemaphore.release();
+    qDebug() << "released SELECT";
+    qDebug() << "UnixSocket::write(): return" << ret;
     return ret;
 }
 
 void UnixSocket::pauseThread()
 {
-    while ( -1 == wrappedWrite( d->fdInternalPipe[1], "x", 1 ) );
+    qDebug() << "UnixSocket::pauseThread()";
+    int ret = wrappedWrite( d->fdInternalPipe[1], "x", 1 );
+    qDebug() << "UnixSocket::pauseThread(): write() returned" << ret;
+    qDebug() << "...acquiring ACCESS...";
+    d->accessSemaphore.acquire();
+    qDebug() << "got ACCESS";
 }
 
 ssize_t UnixSocket::wrappedRead( int fd, void* buf, size_t count )
@@ -101,12 +116,30 @@ ssize_t UnixSocket::wrappedWrite( int fd, const void* buf, size_t count )
     return ret;
 }
 
-int UnixSocket::wrappedPipe(int pipefd[2])
+int UnixSocket::wrappedPipe( int pipefd[2] )
 {
     int ret;
     do {
         ret = ::pipe( pipefd );
     } while ( ret == -1 && errno == EAGAIN );
+    return ret;
+}
+
+int UnixSocket::wrappedClose( int fd )
+{
+    int ret;
+    do {
+        ret = ::close( fd );
+    } while ( ret == -1 && errno == EINTR );
+    return ret;
+}
+
+int UnixSocket::wrappedDup2( int oldfd, int newfd )
+{
+    int ret;
+    do {
+        ret = ::dup2( oldfd, newfd );
+    } while ( ret == -1 && ( errno == EINTR || errno == EBUSY ) );
     return ret;
 }
 
@@ -117,26 +150,55 @@ UnixSocketThread::UnixSocketThread( const QList<QByteArray>& args )
     if ( ret == -1 ) {
         QByteArray buf;
         QTextStream ss( &buf );
-        ss << "UnixSocketThread: Can't create internal pipe (" << errno << ")";
+        ss << "UnixSocketThread: Can't create internal pipe: " << errno;
+        ss.flush();
+        throw SocketException( buf.constData() );
+    }
+    
+    ret = UnixSocket::wrappedPipe( fdStdout );
+    if ( ret == -1 ) {
+        QByteArray buf;
+        QTextStream ss( &buf );
+        ss << "UnixSocketThread: Can't create stdout pipe: " << errno;
         ss.flush();
         throw SocketException( buf.constData() );
     }
 
-    pid_t child = fork();
-    while ( child == -1 && errno == EAGAIN )
-        child = fork();
-
-    if ( child == 0 ) {
-        // I'm a parent
-    } else if ( child == -1 ) {
-        // still failed
+    ret = UnixSocket::wrappedPipe( fdStdin );
+    if ( ret == -1 ) {
         QByteArray buf;
         QTextStream ss( &buf );
-        ss << "UnixSocketThread: Can't fork (" << errno << ")";
+        ss << "UnixSocketThread: Can't create stdin pipe: " << errno;
         ss.flush();
         throw SocketException( buf.constData() );
-    } else {
+    }
+
+
+    childPid = fork();
+    while ( childPid && errno == EAGAIN )
+        childPid = fork();
+
+    if ( childPid == 0 ) {
         // I'm the child
+        if ( UnixSocket::wrappedDup2( fdStdin[0], 0 ) == -1 ) {
+            QByteArray buf;
+            QTextStream ss( &buf );
+            ss << "UnixSocketThread: Can't dup2(stdin): " << errno;
+            ss.flush();
+            throw SocketException( buf.constData() );
+        }
+        if ( UnixSocket::wrappedDup2( fdStdout[1], 1 ) == -1 ) {
+            QByteArray buf;
+            QTextStream ss( &buf );
+            ss << "UnixSocketThread: Can't dup2(stdout): " << errno;
+            ss.flush();
+            throw SocketException( buf.constData() );
+        }
+        // FIXME: error checking?
+        UnixSocket::wrappedClose( fdStdin[0] );
+        UnixSocket::wrappedClose( fdStdin[1] );
+        UnixSocket::wrappedClose( fdStdout[0] );
+        UnixSocket::wrappedClose( fdStdout[1] );
         do {
             // yuck
             char **argv = new char *[args.size() + 1];
@@ -146,21 +208,69 @@ UnixSocketThread::UnixSocketThread( const QList<QByteArray>& args )
             ret = ::execv( args[0].constData(), argv );
             delete[] argv;
         } while ( ret == -1 && errno == EAGAIN );
+        QByteArray buf;
+        QTextStream ss( &buf );
+        ss << "UnixSocketThread: execv() failed: " << errno;
+        ss.flush();
+        throw SocketException( buf.constData() );
+    } else if ( childPid == -1 ) {
+        // still failed
+        QByteArray buf;
+        QTextStream ss( &buf );
+        ss << "UnixSocketThread: Can't fork: " << errno;
+        ss.flush();
+        throw SocketException( buf.constData() );
+    } else {
+        // I'm a parent
     }
-
-    // FIXME: do something with pipes here
 
     selectSemaphore.release();
 }
 
 void UnixSocketThread::run()
 {
+    fd_set rfds;
+    struct timeval tv;
+    int ret;
     while (true) {
+        qDebug() << "acquirung SELECT...";
         selectSemaphore.acquire();
-        // fdInternalPipe[0] is for reading
-        // FIXME: select() goes here
+        qDebug() << "got SELECT semaphore";
+        while (true) {
+            FD_ZERO( &rfds );
+            FD_SET( fdInternalPipe[0], &rfds );
+            FD_SET( fdStdout[0], &rfds );
+            tv.tv_sec = 2;
+            tv.tv_usec = 0;
+            do {
+                ret = select( qMax( fdStdout[0], fdInternalPipe[0] ) + 1, &rfds, 0, 0, &tv );
+            } while ( ret == -1 && errno == EINTR );
+            if ( ret < 0 ) {
+                // select() failed
+                qDebug() << "select() failed";
+            } else if ( ret == 0 ) {
+                // timeout
+                qDebug() << "select(): timeout";
+            } else {
+                if ( FD_ISSET( fdInternalPipe[0], &rfds ) ) {
+                    qDebug() << "select(): big brother wants us to sleep...";
+                    break;
+                } else if ( FD_ISSET( fdStdout[0], &rfds ) ) {
+                    qDebug() << "select(): got some data";
+                    emit readyRead();
+                } else {
+                    qDebug() << "select(): wtf, got nothing?";
+                }
+            }
+        }
+        qDebug() << "releaseing ACCESS";
         accessSemaphore.release();
     }
+}
+
+UnixSocketThread::~UnixSocketThread()
+{
+    // FIXME: kill the son
 }
 
 }

@@ -52,7 +52,9 @@ namespace Imap {
         friend class UnixSocketThread;
         static ssize_t wrappedRead( int fd, void* buf, size_t count );
         static ssize_t wrappedWrite( int fd, const void* buf, size_t count );
-        static int wrappedPipe(int pipefd[2]);
+        static int wrappedPipe( int pipefd[2] );
+        static int wrappedClose( int fd );
+        static int wrappedDup2( int oldfd, int newfd );
     };
 
     class UnixSocketThread: public QThread {
@@ -75,7 +77,9 @@ namespace Imap {
         QSemaphore accessSemaphore;
 
         int fdInternalPipe[2];
-        int fdProcess[3];
+        int fdStdin[2];
+        int fdStdout[2];
+        pid_t childPid;
     };
 
 };

@@ -19,6 +19,7 @@
 #include <QProcess>
 #include "SocketFactory.h"
 #include "IODeviceSocket.h"
+#include "UnixSocket.h"
 
 namespace Imap {
 namespace Mailbox {
@@ -40,6 +41,20 @@ Imap::SocketPtr ProcessSocketFactory::create()
 
     return Imap::SocketPtr( new IODeviceSocket( proc ) );
 }
+
+UnixProcessSocketFactory::UnixProcessSocketFactory(
+        const QString& executable, const QStringList& args)
+{
+    _argv << executable.toLocal8Bit();
+    for ( QStringList::const_iterator it = args.begin(); it != args.end(); ++it )
+        _argv << it->toLocal8Bit();
+}
+
+Imap::SocketPtr UnixProcessSocketFactory::create()
+{
+    return Imap::SocketPtr( new UnixSocket( _argv ) );
+}
+
 
 }
 }

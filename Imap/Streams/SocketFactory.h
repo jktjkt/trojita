@@ -51,6 +51,16 @@ public:
     virtual Imap::SocketPtr create();
 };
 
+/** @short Manufacture sockets based on a QProcess replacement */
+class UnixProcessSocketFactory: public SocketFactory {
+    /** @short Arguments to launch the process with */
+    QList<QByteArray> _argv;
+public:
+    UnixProcessSocketFactory( const QString& executable, const QStringList& args );
+    virtual Imap::SocketPtr create();
+};
+
+
 }
 
 }
