@@ -50,6 +50,7 @@ namespace Imap {
         bool hasLine;
 
         QByteArray reallyRead( qint64 maxSize );
+        void terminate();
 
         friend class UnixSocketThread;
         static ssize_t wrappedRead( int fd, void* buf, size_t count );
@@ -64,7 +65,6 @@ namespace Imap {
 
     public:
         UnixSocketThread( const QList<QByteArray>& args );
-        ~UnixSocketThread();
 
     protected:
         virtual void run();

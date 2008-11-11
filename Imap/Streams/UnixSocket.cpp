@@ -18,11 +18,15 @@
 
 #include "UnixSocket.h"
 #include "../Exceptions.h"
+
 #include <QTextStream>
 #include <QTime>
 #include <QDebug>
+
 #include <errno.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <signal.h>
 
 namespace Imap {
 
@@ -35,6 +39,8 @@ UnixSocket::UnixSocket( const QList<QByteArray>& args ): d(new UnixSocketThread(
 
 UnixSocket::~UnixSocket()
 {
+    terminate();
+    d->wait();
     delete d;
 }
 
@@ -214,8 +220,26 @@ int UnixSocket::wrappedDup2( int oldfd, int newfd )
     return ret;
 }
 
+void UnixSocket::terminate()
+{
+    if ( d->fdStdin[1] >= 0 ) {
+        wrappedClose( d->fdStdin[1] );
+        d->fdStdin[1] = -1;
+    }
+    if ( d->fdStdout[0] >= 0 ) {
+        wrappedClose( d->fdStdout[0] );
+        d->fdStdout[0] = -1;
+    }
+    if ( d->childPid ) {
+        ::kill( d->childPid, SIGTERM );
+        d->childPid = 0;
+    }
+    d->readyReadAlreadyDone.release();
+}
 
-UnixSocketThread::UnixSocketThread( const QList<QByteArray>& args )
+
+
+UnixSocketThread::UnixSocketThread( const QList<QByteArray>& args ): childPid(0)
 {
     int ret = UnixSocket::wrappedPipe( fdStdout );
     if ( ret == -1 ) {
@@ -309,11 +333,6 @@ void UnixSocketThread::run()
             }
         }
     }
-}
-
-UnixSocketThread::~UnixSocketThread()
-{
-    // FIXME: kill the son
 }
 
 }
