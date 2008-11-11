@@ -28,7 +28,7 @@ int main( int argc, char** argv) {
     QCoreApplication app( argc, argv );
 
     Imap::Mailbox::SocketFactoryPtr factory(
-            new Imap::Mailbox::ProcessSocketFactory( "/usr/sbin/dovecot",
+            new Imap::Mailbox::UnixProcessSocketFactory( "/usr/sbin/dovecot",
                 QStringList() << "--exec-mail" << "imap" ) );
     Imap::ParserPtr parser( new Imap::Parser( 0, factory->create() ) );
     Demo::ParserMonitor monitor( 0, parser.get() );
