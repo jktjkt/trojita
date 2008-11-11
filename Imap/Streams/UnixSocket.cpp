@@ -19,13 +19,22 @@
 #include "UnixSocket.h"
 #include "../Exceptions.h"
 #include <QTextStream>
+#include <QTime>
 #include <QDebug>
 #include <errno.h>
 #include <stdlib.h>
 
+namespace {
+    QDebug _qDebug()
+    {
+        static QTime timer;
+        return qDebug() << timer.elapsed() << QThread::currentThread();
+    }
+}
+
 namespace Imap {
 
-UnixSocket::UnixSocket( const QList<QByteArray>& args ): d(new UnixSocketThread(args))
+UnixSocket::UnixSocket( const QList<QByteArray>& args ): d(new UnixSocketThread(args)), hasLine(false)
 {
     connect( d, SIGNAL(readyRead()), this, SIGNAL(readyRead()), Qt::QueuedConnection );
     connect( d, SIGNAL(aboutToClose()), this, SIGNAL(aboutToClose()), Qt::QueuedConnection );
@@ -39,63 +48,132 @@ UnixSocket::~UnixSocket()
 
 bool UnixSocket::canReadLine()
 {
-    qDebug() << "UnixSocket::canReadLine()";
-    return false; // FIXME
+    //_qDebug() << "UnixSocket::canReadLine()";
+    if ( hasLine ) {
+        _qDebug() << "canReadLine(): cached hasLine == true";
+        return true;
+    }
+    if ( buffer.indexOf( QByteArray("\r\n") ) != -1 ) {
+        _qDebug() << "canReadLine(): found CRLF in the buffer";
+        return hasLine = true;
+    }
+    // we'll have to check the socket and read some reasonable size to be able
+    // to tell if we can read stuff
+    while ( waitForReadyRead( 0 ) && buffer.size() < 8192 ) {
+        buffer += reallyRead( 8192 );
+    }
+    if ( buffer.indexOf( QByteArray("\r\n") ) != -1 ) {
+        _qDebug() << "canReadLine(): read some data, CRLF found" << buffer.size();
+        return hasLine = true;
+    } else {
+        _qDebug() << "canReadLine(): read some data, no CRLF, sorry" << buffer.size();
+        return false;
+    }
 }
 
 QByteArray UnixSocket::read( qint64 maxSize )
 {
-    qDebug() << "UnixSocket::read(" << maxSize << ")";
-    //FIXME: internal buffer!
+    //_qDebug() << "UnixSocket::read(" << maxSize << ")";
+    if ( ! buffer.isEmpty() ) {
+        QByteArray tmp = buffer.left( maxSize );
+        //_qDebug() << "returning" << tmp.size() << "bytes, shrinking buffer from" << buffer.size();
+        buffer = buffer.right( buffer.size() - tmp.size() );
+        //_qDebug() << "buffer shrunk to" << buffer.size();
+        hasLine = ( buffer.indexOf( QByteArray("\r\n") ) != -1 );
+        _qDebug() << "UnixSocket::read()" << maxSize << tmp;
+        return tmp;
+    }
+    return reallyRead( maxSize );
+}
+
+QByteArray UnixSocket::reallyRead( qint64 maxSize )
+{
     pauseThread();
     QByteArray buf;
     buf.resize( maxSize );
     qint64 ret = wrappedRead( d->fdStdout[0], buf.data(), maxSize );
     buf.resize( ret );
     d->selectSemaphore.release();
-    qDebug() << "released SELECT";
-    qDebug() << "UnixSocket::read(): return" << buf.size() << "bytes";
+    _qDebug() << "UnixSocket::reallyRead()" << maxSize << buf;
     return buf;
-
 }
 
 QByteArray UnixSocket::readLine( qint64 maxSize )
 {
-    qDebug() << "UnixSocket::readLine(" << maxSize << ")";
-    return QByteArray(); // FIXME
+    // FIXME: maxSize
+    while ( ! canReadLine() ) {
+        waitForReadyRead( -1 );
+    }
+    int pos = buffer.indexOf( "\r\n" ); // FIXME: keep track of the offset
+    QByteArray tmp = buffer.left( pos + 2 );
+    buffer = buffer.right( buffer.size() - tmp.size() );
+    hasLine = ( buffer.indexOf( QByteArray("\r\n") ) != -1 );
+    _qDebug() << "UnixSocket::readLine()" << maxSize << tmp;
+    return tmp;
 }
 
 bool UnixSocket::waitForReadyRead( int msec )
 {
-    qDebug() << "UnixSocket::waitForReadyRead(" << msec << ")";
-    return true; // FIXME
+    _qDebug() << "UnixSocket::waitForReadyRead(" << msec << ")";
+    pauseThread();
+
+    fd_set rfds;
+    struct timeval tv;
+    int ret;
+
+    FD_ZERO( &rfds );
+    FD_SET( d->fdStdout[0], &rfds );
+    // FIXME: might be better for dividing to tv_sec as well?
+    tv.tv_sec = 0;
+    tv.tv_usec = 1000 * msec;
+    do {
+        ret = select( d->fdStdout[0] + 1, &rfds, 0, 0, &tv );
+    } while ( ret == -1 && errno == EINTR );
+    if ( ret == 0 ) {
+        // timeout
+        d->selectSemaphore.release();
+        _qDebug() << "wfrr: timeout";
+        return false;
+    } else if ( ret > 0 ) {
+        if ( FD_ISSET( d->fdStdout[0], &rfds ) ) {
+            d->selectSemaphore.release();
+            _qDebug() << "wfrr: got data!";
+            return true;
+        } else {
+            _qDebug() << "select(): wtf, got nothing?";
+            d->selectSemaphore.release();
+            return false;
+        }
+    }
+    Q_ASSERT( false );
+    return false;
 }
 
 bool UnixSocket::waitForBytesWritten( int msec )
 {
-    qDebug() << "UnixSocket::waitForBytesWritten(" << msec << ")";
+    // it isn't buffered
     return true;
 }
 
 qint64 UnixSocket::write( const QByteArray& byteArray )
 {
-    qDebug() << "UnixSocket::write(" << byteArray.size() << "bytes)";
+    _qDebug() << "UnixSocket::write(" << byteArray.size() << "bytes)";
     pauseThread();
     qint64 ret = wrappedWrite( d->fdStdin[1], byteArray.constData(), byteArray.size() );
     d->selectSemaphore.release();
-    qDebug() << "released SELECT";
-    qDebug() << "UnixSocket::write(): return" << ret;
+    //_qDebug() << "released SELECT";
+    _qDebug() << "UnixSocket::write(): return" << ret;
     return ret;
 }
 
 void UnixSocket::pauseThread()
 {
-    qDebug() << "UnixSocket::pauseThread()";
+    _qDebug() << "UnixSocket::pauseThread()";
     int ret = wrappedWrite( d->fdInternalPipe[1], "x", 1 );
-    qDebug() << "UnixSocket::pauseThread(): write() returned" << ret;
-    qDebug() << "...acquiring ACCESS...";
+    //_qDebug() << "UnixSocket::pauseThread(): write() returned" << ret;
+    //_qDebug() << "...acquiring ACCESS...";
     d->accessSemaphore.acquire();
-    qDebug() << "got ACCESS";
+    _qDebug() << "got ACCESS";
 }
 
 ssize_t UnixSocket::wrappedRead( int fd, void* buf, size_t count )
@@ -233,37 +311,40 @@ void UnixSocketThread::run()
     struct timeval tv;
     int ret;
     while (true) {
-        qDebug() << "acquirung SELECT...";
+        //_qDebug() << "acquirung SELECT...";
         selectSemaphore.acquire();
-        qDebug() << "got SELECT semaphore";
+        //_qDebug() << "got SELECT semaphore";
         while (true) {
             FD_ZERO( &rfds );
             FD_SET( fdInternalPipe[0], &rfds );
             FD_SET( fdStdout[0], &rfds );
             tv.tv_sec = 2;
             tv.tv_usec = 0;
+            _qDebug() << "...select()";
             do {
                 ret = select( qMax( fdStdout[0], fdInternalPipe[0] ) + 1, &rfds, 0, 0, &tv );
             } while ( ret == -1 && errno == EINTR );
+            _qDebug() << "...select() done";
             if ( ret < 0 ) {
                 // select() failed
-                qDebug() << "select() failed";
+                _qDebug() << "select() failed";
             } else if ( ret == 0 ) {
                 // timeout
-                qDebug() << "select(): timeout";
+                _qDebug() << "select(): timeout";
             } else {
                 if ( FD_ISSET( fdInternalPipe[0], &rfds ) ) {
-                    qDebug() << "select(): big brother wants us to sleep...";
+                    _qDebug() << "select(): big brother wants us to sleep...";
                     break;
                 } else if ( FD_ISSET( fdStdout[0], &rfds ) ) {
-                    qDebug() << "select(): got some data";
+                    _qDebug() << "select(): got some data, emiting signal";
                     emit readyRead();
+                    //usleep( 1000 * 400 );
                 } else {
-                    qDebug() << "select(): wtf, got nothing?";
+                    _qDebug() << "select(): wtf, got nothing?";
                 }
             }
         }
-        qDebug() << "releaseing ACCESS";
+        //_qDebug() << "releaseing ACCESS";
         accessSemaphore.release();
     }
 }

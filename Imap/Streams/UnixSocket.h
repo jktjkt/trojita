@@ -46,8 +46,12 @@ namespace Imap {
 
     private:
         UnixSocketThread* d;
+        QByteArray buffer;
+        bool hasLine;
 
         void pauseThread();
+
+        QByteArray reallyRead( qint64 maxSize );
 
         friend class UnixSocketThread;
         static ssize_t wrappedRead( int fd, void* buf, size_t count );
