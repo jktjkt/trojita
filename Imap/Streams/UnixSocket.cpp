@@ -100,9 +100,8 @@ bool UnixSocket::waitForReadyRead( int msec )
 
     FD_ZERO( &rfds );
     FD_SET( d->fdStdout[0], &rfds );
-    // FIXME: might be better for dividing to tv_sec as well?
-    tv.tv_sec = 0;
-    tv.tv_usec = 1000 * msec;
+    tv.tv_sec = msec / 1000;
+    tv.tv_usec = 1000 * (msec % 1000 );
     do {
         ret = select( d->fdStdout[0] + 1, &rfds, 0, 0, &tv );
     } while ( ret == -1 && errno == EINTR );
@@ -117,7 +116,7 @@ bool UnixSocket::waitForReadyRead( int msec )
             return false;
         }
     } else {
-        qDebug() << "wfrr: slect failed, errno" << errno;
+        qDebug() << "wfrr: select failed, errno" << errno;
         Q_ASSERT(false);
         return false;
     }
@@ -256,15 +255,12 @@ UnixSocketThread::UnixSocketThread( const QList<QByteArray>& args )
 void UnixSocketThread::run()
 {
     fd_set rfds;
-    struct timeval tv;
     int ret;
     while (true) {
         FD_ZERO( &rfds );
         FD_SET( fdStdout[0], &rfds );
-        tv.tv_sec = 2;
-        tv.tv_usec = 0;
         do {
-            ret = select( fdStdout[0] + 1, &rfds, 0, 0, &tv );
+            ret = select( fdStdout[0] + 1, &rfds, 0, 0, 0 );
         } while ( ret == -1 && errno == EINTR );
         if ( ret < 0 ) {
             // select() failed
@@ -274,7 +270,6 @@ void UnixSocketThread::run()
             qDebug() << "select(): timeout";
         } else {
             if ( FD_ISSET( fdStdout[0], &rfds ) ) {
-                usleep( 1000 * 400 );
                 emit readyRead();
                 readyReadAlreadyDone.acquire();
             }
