@@ -77,8 +77,7 @@ namespace Imap {
 
     private:
         friend class UnixSocket;
-        QSemaphore selectSemaphore;
-        QSemaphore accessSemaphore;
+        QSemaphore readyReadAlreadyDone;
 
         int fdInternalPipe[2];
         int fdStdin[2];

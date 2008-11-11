@@ -80,7 +80,7 @@ QByteArray UnixSocket::read( qint64 maxSize )
         buffer = buffer.right( buffer.size() - tmp.size() );
         //_qDebug() << "buffer shrunk to" << buffer.size();
         hasLine = ( buffer.indexOf( QByteArray("\r\n") ) != -1 );
-        _qDebug() << "UnixSocket::read()" << maxSize << tmp;
+        _qDebug() << "UnixSocket::read()" << maxSize;
         return tmp;
     }
     return reallyRead( maxSize );
@@ -93,8 +93,11 @@ QByteArray UnixSocket::reallyRead( qint64 maxSize )
     buf.resize( maxSize );
     qint64 ret = wrappedRead( d->fdStdout[0], buf.data(), maxSize );
     buf.resize( ret );
+    d->readyReadAlreadyDone.release();
+    /*_qDebug() << "RELEASE SELECT 1/2" << d->selectSemaphore.available();
     d->selectSemaphore.release();
-    _qDebug() << "UnixSocket::reallyRead()" << maxSize << buf;
+    _qDebug() << "RELEASE SELECT 2/2" << d->selectSemaphore.available();*/
+    _qDebug() << "UnixSocket::reallyRead()" << maxSize;
     return buf;
 }
 
@@ -115,7 +118,6 @@ QByteArray UnixSocket::readLine( qint64 maxSize )
 bool UnixSocket::waitForReadyRead( int msec )
 {
     _qDebug() << "UnixSocket::waitForReadyRead(" << msec << ")";
-    pauseThread();
 
     fd_set rfds;
     struct timeval tv;
@@ -126,27 +128,30 @@ bool UnixSocket::waitForReadyRead( int msec )
     // FIXME: might be better for dividing to tv_sec as well?
     tv.tv_sec = 0;
     tv.tv_usec = 1000 * msec;
+    pauseThread();
     do {
         ret = select( d->fdStdout[0] + 1, &rfds, 0, 0, &tv );
     } while ( ret == -1 && errno == EINTR );
+    /*_qDebug() << "RELEASE SELECT 1/2" << d->selectSemaphore.available();
+    d->selectSemaphore.release();
+    _qDebug() << "RELEASE SELECT 2/2" << d->selectSemaphore.available();*/
     if ( ret == 0 ) {
         // timeout
-        d->selectSemaphore.release();
         _qDebug() << "wfrr: timeout";
         return false;
     } else if ( ret > 0 ) {
         if ( FD_ISSET( d->fdStdout[0], &rfds ) ) {
-            d->selectSemaphore.release();
             _qDebug() << "wfrr: got data!";
             return true;
         } else {
             _qDebug() << "select(): wtf, got nothing?";
-            d->selectSemaphore.release();
             return false;
         }
+    } else {
+        _qDebug() << "wfrr: slect failed, errno" << errno;
+        Q_ASSERT(false);
+        return false;
     }
-    Q_ASSERT( false );
-    return false;
 }
 
 bool UnixSocket::waitForBytesWritten( int msec )
@@ -160,20 +165,21 @@ qint64 UnixSocket::write( const QByteArray& byteArray )
     _qDebug() << "UnixSocket::write(" << byteArray.size() << "bytes)";
     pauseThread();
     qint64 ret = wrappedWrite( d->fdStdin[1], byteArray.constData(), byteArray.size() );
+    /*_qDebug() << "RELEASE SELECT 1/2" << d->selectSemaphore.available();
     d->selectSemaphore.release();
-    //_qDebug() << "released SELECT";
+    _qDebug() << "RELEASE SELECT 2/2" << d->selectSemaphore.available();*/
     _qDebug() << "UnixSocket::write(): return" << ret;
     return ret;
 }
 
 void UnixSocket::pauseThread()
 {
+    return;
     _qDebug() << "UnixSocket::pauseThread()";
     int ret = wrappedWrite( d->fdInternalPipe[1], "x", 1 );
     //_qDebug() << "UnixSocket::pauseThread(): write() returned" << ret;
-    //_qDebug() << "...acquiring ACCESS...";
-    d->accessSemaphore.acquire();
-    _qDebug() << "got ACCESS";
+    /*_qDebug() << "ACQUIRE ACCESS 1/2" << d->accessSemaphore.available();
+    _qDebug() << "ACQUIRE ACCESS 2/2" << d->accessSemaphore.available();*/
 }
 
 ssize_t UnixSocket::wrappedRead( int fd, void* buf, size_t count )
@@ -302,7 +308,9 @@ UnixSocketThread::UnixSocketThread( const QList<QByteArray>& args )
         // I'm a parent
     }
 
+    /*_qDebug() << "RELEASE SELECT 1/2" << selectSemaphore.available();
     selectSemaphore.release();
+    _qDebug() << "RELEASE SELECT 2/2" << selectSemaphore.available();*/
 }
 
 void UnixSocketThread::run()
@@ -311,9 +319,9 @@ void UnixSocketThread::run()
     struct timeval tv;
     int ret;
     while (true) {
-        //_qDebug() << "acquirung SELECT...";
+        /*_qDebug() << "ACQUIRE SELECT 1/2" << selectSemaphore.available();
         selectSemaphore.acquire();
-        //_qDebug() << "got SELECT semaphore";
+        _qDebug() << "ACQUIRE SELECT 2/2" << selectSemaphore.available();*/
         while (true) {
             FD_ZERO( &rfds );
             FD_SET( fdInternalPipe[0], &rfds );
@@ -332,20 +340,28 @@ void UnixSocketThread::run()
                 // timeout
                 _qDebug() << "select(): timeout";
             } else {
+                bool found = false;
                 if ( FD_ISSET( fdInternalPipe[0], &rfds ) ) {
                     _qDebug() << "select(): big brother wants us to sleep...";
-                    break;
-                } else if ( FD_ISSET( fdStdout[0], &rfds ) ) {
+                    found = true;
+                }
+                if ( FD_ISSET( fdStdout[0], &rfds ) ) {
                     _qDebug() << "select(): got some data, emiting signal";
-                    emit readyRead();
+                    found = true;
                     //usleep( 1000 * 400 );
+                    emit readyRead();
+                    readyReadAlreadyDone.acquire();
+                }
+                if ( found ) {
+                    break;
                 } else {
                     _qDebug() << "select(): wtf, got nothing?";
                 }
             }
         }
-        //_qDebug() << "releaseing ACCESS";
+        /*_qDebug() << "RELEASE ACCESS 1/2" << accessSemaphore.available();
         accessSemaphore.release();
+        _qDebug() << "RELEASE ACCESS 2/2" << accessSemaphore.available();*/
     }
 }
 
