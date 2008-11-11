@@ -39,6 +39,7 @@ UnixSocket::UnixSocket( const QList<QByteArray>& args ): d(new UnixSocketThread(
 
 UnixSocket::~UnixSocket()
 {
+    wrappedWrite( d->fdExitPipe[1], "x", 1 );
     terminate();
     d->wait();
     delete d;
@@ -241,7 +242,15 @@ void UnixSocket::terminate()
 
 UnixSocketThread::UnixSocketThread( const QList<QByteArray>& args ): childPid(0)
 {
-    int ret = UnixSocket::wrappedPipe( fdStdout );
+    int ret = UnixSocket::wrappedPipe( fdExitPipe );
+    if ( ret == -1 ) {
+        QByteArray buf;
+        QTextStream ss( &buf );
+        ss << "UnixSocketThread: Can't create internal pipe: " << errno;
+        ss.flush();
+        throw SocketException( buf.constData() );
+    }
+    ret = UnixSocket::wrappedPipe( fdStdout );
     if ( ret == -1 ) {
         QByteArray buf;
         QTextStream ss( &buf );
@@ -318,13 +327,17 @@ void UnixSocketThread::run()
     while (true) {
         FD_ZERO( &rfds );
         FD_SET( fdStdout[0], &rfds );
+        FD_SET( fdExitPipe[0], &rfds );
         do {
-            ret = select( fdStdout[0] + 1, &rfds, 0, 0, 0 );
+            ret = select( qMax( fdStdout[0], fdExitPipe[0] ) + 1, &rfds, 0, 0, 0 );
         } while ( ret == -1 && errno == EINTR );
         if ( ret < 0 ) {
             // select() failed
             qDebug() << "select() failed:" << errno;
         } else if ( ret > 0 ) {
+            if ( FD_ISSET( fdExitPipe[0], &rfds ) ) {
+                break;
+            }
             if ( FD_ISSET( fdStdout[0], &rfds ) ) {
                 emit readyRead();
                 // we don't want to loop around select() till the other threads

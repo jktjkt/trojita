@@ -79,6 +79,7 @@ namespace Imap {
 
         int fdStdin[2];
         int fdStdout[2];
+        int fdExitPipe[2];
         pid_t childPid;
     };
 
