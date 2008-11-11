@@ -132,7 +132,7 @@ bool UnixSocket::waitForReadyRead( int msec )
     tv.tv_sec = msec / 1000;
     tv.tv_usec = 1000 * (msec % 1000 );
     do {
-        ret = select( d->fdStdout[0] + 1, &rfds, 0, 0, &tv );
+        ret = select( d->fdStdout[0] + 1, &rfds, 0, 0, msec < 0 ? 0 : &tv );
     } while ( ret == -1 && errno == EINTR );
     if ( ret == 0 ) {
         // timeout
@@ -145,7 +145,7 @@ bool UnixSocket::waitForReadyRead( int msec )
             return false;
         }
     } else {
-        qDebug() << "wfrr: select failed, errno" << errno << d->fdStdout[0] + 1 << &rfds << &tv;
+        qDebug() << "wfrr: select failed, errno" << errno << d->fdStdout[0] + 1 << &rfds << tv.tv_sec << tv.tv_usec;
         Q_ASSERT(false);
         return false;
     }
