@@ -38,6 +38,10 @@ UnixSocket::~UnixSocket()
     delete d;
 }
 
+/** @short Check if we can read the whole line without blocking
+ *
+ * Data doesn't have to be stored in our internal buffer.
+ * */
 bool UnixSocket::canReadLine()
 {
     if ( hasLine ) {
@@ -46,8 +50,9 @@ bool UnixSocket::canReadLine()
     if ( buffer.indexOf( QByteArray("\r\n") ) != -1 ) {
         return hasLine = true;
     }
-    // we'll have to check the socket and read some reasonable size to be able
+    // We'll have to check the socket and read some reasonable size to be able
     // to tell if we can read stuff
+    // FIXME: this should be implemented with checking for CRLF
     while ( waitForReadyRead( 0 ) && buffer.size() < 8192 ) {
         buffer += reallyRead( 8192 );
     }
@@ -58,6 +63,16 @@ bool UnixSocket::canReadLine()
     }
 }
 
+/** @short Retrieve data from stdout
+ *
+ * If there's some data in our internal buffer, we return everything (up to
+ * maxSize) from it. No real read() to the underlying socket is performed.
+ *
+ * If there are no data in there, we invoke the real read() syscall. If there
+ * are no data waiting in the OS buffer, this call will block. If there's
+ * something, we return an unspecified portion of data. The only guarantee is
+ * that 0 < size <= maxSize.
+ * */
 QByteArray UnixSocket::read( qint64 maxSize )
 {
     if ( ! buffer.isEmpty() ) {
@@ -69,6 +84,11 @@ QByteArray UnixSocket::read( qint64 maxSize )
     return reallyRead( maxSize );
 }
 
+/** @short Helper function for read()
+ *
+ * This function maintains the internal semaphore used for starting/suspending
+ * the background thread doing select()s.
+ * */
 QByteArray UnixSocket::reallyRead( qint64 maxSize )
 {
     QByteArray buf;
@@ -79,6 +99,11 @@ QByteArray UnixSocket::reallyRead( qint64 maxSize )
     return buf;
 }
 
+/** @short Returns a line from the stdout
+ *
+ * This function will block till there are enough data to read. The argument is
+ * ignored, yet.
+ * */
 QByteArray UnixSocket::readLine( qint64 maxSize )
 {
     // FIXME: maxSize
@@ -92,6 +117,10 @@ QByteArray UnixSocket::readLine( qint64 maxSize )
     return tmp;
 }
 
+/** @short Waits till there are some data to be read from the socket
+ *
+ * Any data we might have in the internal buffer are ignored.
+ * */
 bool UnixSocket::waitForReadyRead( int msec )
 {
     fd_set rfds;
@@ -116,24 +145,26 @@ bool UnixSocket::waitForReadyRead( int msec )
             return false;
         }
     } else {
-        qDebug() << "wfrr: select failed, errno" << errno;
+        qDebug() << "wfrr: select failed, errno" << errno << d->fdStdout[0] + 1 << &rfds << &tv;
         Q_ASSERT(false);
         return false;
     }
 }
 
+/** @short Doesn't do anything, as we don't buffer writes */
 bool UnixSocket::waitForBytesWritten( int msec )
 {
     // it isn't buffered
     return true;
 }
 
+/** @short Write data to the underlying socket */
 qint64 UnixSocket::write( const QByteArray& byteArray )
 {
-    qint64 ret = wrappedWrite( d->fdStdin[1], byteArray.constData(), byteArray.size() );
-    return ret;
+    return wrappedWrite( d->fdStdin[1], byteArray.constData(), byteArray.size() );
 }
 
+/** @short Safe wrapper around syscall that ignores interruptions by signals */
 ssize_t UnixSocket::wrappedRead( int fd, void* buf, size_t count )
 {
     ssize_t ret = 0;
@@ -143,6 +174,7 @@ ssize_t UnixSocket::wrappedRead( int fd, void* buf, size_t count )
     return ret;
 }
 
+/** @short Safe wrapper around syscall that ignores interruptions by signals */
 ssize_t UnixSocket::wrappedWrite( int fd, const void* buf, size_t count )
 {
     ssize_t ret = 0;
@@ -152,6 +184,7 @@ ssize_t UnixSocket::wrappedWrite( int fd, const void* buf, size_t count )
     return ret;
 }
 
+/** @short Safe wrapper around syscall that ignores interruptions by signals */
 int UnixSocket::wrappedPipe( int pipefd[2] )
 {
     int ret;
@@ -161,6 +194,7 @@ int UnixSocket::wrappedPipe( int pipefd[2] )
     return ret;
 }
 
+/** @short Safe wrapper around syscall that ignores interruptions by signals */
 int UnixSocket::wrappedClose( int fd )
 {
     int ret;
@@ -170,6 +204,7 @@ int UnixSocket::wrappedClose( int fd )
     return ret;
 }
 
+/** @short Safe wrapper around syscall that ignores interruptions by signals */
 int UnixSocket::wrappedDup2( int oldfd, int newfd )
 {
     int ret;
@@ -264,13 +299,12 @@ void UnixSocketThread::run()
         } while ( ret == -1 && errno == EINTR );
         if ( ret < 0 ) {
             // select() failed
-            qDebug() << "select() failed";
-        } else if ( ret == 0 ) {
-            // timeout
-            qDebug() << "select(): timeout";
-        } else {
+            qDebug() << "select() failed:" << errno;
+        } else if ( ret > 0 ) {
             if ( FD_ISSET( fdStdout[0], &rfds ) ) {
                 emit readyRead();
+                // we don't want to loop around select() till the other threads
+                // handle the signal...
                 readyReadAlreadyDone.acquire();
             }
         }
