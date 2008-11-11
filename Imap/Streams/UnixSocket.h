@@ -49,8 +49,6 @@ namespace Imap {
         QByteArray buffer;
         bool hasLine;
 
-        void pauseThread();
-
         QByteArray reallyRead( qint64 maxSize );
 
         friend class UnixSocketThread;
@@ -79,7 +77,6 @@ namespace Imap {
         friend class UnixSocket;
         QSemaphore readyReadAlreadyDone;
 
-        int fdInternalPipe[2];
         int fdStdin[2];
         int fdStdout[2];
         pid_t childPid;

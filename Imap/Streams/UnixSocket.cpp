@@ -71,7 +71,6 @@ QByteArray UnixSocket::read( qint64 maxSize )
 
 QByteArray UnixSocket::reallyRead( qint64 maxSize )
 {
-    pauseThread();
     QByteArray buf;
     buf.resize( maxSize );
     qint64 ret = wrappedRead( d->fdStdout[0], buf.data(), maxSize );
@@ -104,7 +103,6 @@ bool UnixSocket::waitForReadyRead( int msec )
     // FIXME: might be better for dividing to tv_sec as well?
     tv.tv_sec = 0;
     tv.tv_usec = 1000 * msec;
-    pauseThread();
     do {
         ret = select( d->fdStdout[0] + 1, &rfds, 0, 0, &tv );
     } while ( ret == -1 && errno == EINTR );
@@ -133,13 +131,8 @@ bool UnixSocket::waitForBytesWritten( int msec )
 
 qint64 UnixSocket::write( const QByteArray& byteArray )
 {
-    pauseThread();
     qint64 ret = wrappedWrite( d->fdStdin[1], byteArray.constData(), byteArray.size() );
     return ret;
-}
-
-void UnixSocket::pauseThread()
-{
 }
 
 ssize_t UnixSocket::wrappedRead( int fd, void* buf, size_t count )
@@ -190,16 +183,7 @@ int UnixSocket::wrappedDup2( int oldfd, int newfd )
 
 UnixSocketThread::UnixSocketThread( const QList<QByteArray>& args )
 {
-    int ret = UnixSocket::wrappedPipe( fdInternalPipe );
-    if ( ret == -1 ) {
-        QByteArray buf;
-        QTextStream ss( &buf );
-        ss << "UnixSocketThread: Can't create internal pipe: " << errno;
-        ss.flush();
-        throw SocketException( buf.constData() );
-    }
-    
-    ret = UnixSocket::wrappedPipe( fdStdout );
+    int ret = UnixSocket::wrappedPipe( fdStdout );
     if ( ret == -1 ) {
         QByteArray buf;
         QTextStream ss( &buf );
@@ -275,37 +259,24 @@ void UnixSocketThread::run()
     struct timeval tv;
     int ret;
     while (true) {
-        while (true) {
-            FD_ZERO( &rfds );
-            FD_SET( fdInternalPipe[0], &rfds );
-            FD_SET( fdStdout[0], &rfds );
-            tv.tv_sec = 2;
-            tv.tv_usec = 0;
-            do {
-                ret = select( qMax( fdStdout[0], fdInternalPipe[0] ) + 1, &rfds, 0, 0, &tv );
-            } while ( ret == -1 && errno == EINTR );
-            if ( ret < 0 ) {
-                // select() failed
-                qDebug() << "select() failed";
-            } else if ( ret == 0 ) {
-                // timeout
-                qDebug() << "select(): timeout";
-            } else {
-                bool found = false;
-                if ( FD_ISSET( fdInternalPipe[0], &rfds ) ) {
-                    found = true;
-                }
-                if ( FD_ISSET( fdStdout[0], &rfds ) ) {
-                    found = true;
-                    //usleep( 1000 * 400 );
-                    emit readyRead();
-                    readyReadAlreadyDone.acquire();
-                }
-                if ( found ) {
-                    break;
-                } else {
-                    qDebug() << "select(): wtf, got nothing?";
-                }
+        FD_ZERO( &rfds );
+        FD_SET( fdStdout[0], &rfds );
+        tv.tv_sec = 2;
+        tv.tv_usec = 0;
+        do {
+            ret = select( fdStdout[0] + 1, &rfds, 0, 0, &tv );
+        } while ( ret == -1 && errno == EINTR );
+        if ( ret < 0 ) {
+            // select() failed
+            qDebug() << "select() failed";
+        } else if ( ret == 0 ) {
+            // timeout
+            qDebug() << "select(): timeout";
+        } else {
+            if ( FD_ISSET( fdStdout[0], &rfds ) ) {
+                usleep( 1000 * 400 );
+                emit readyRead();
+                readyReadAlreadyDone.acquire();
             }
         }
     }
