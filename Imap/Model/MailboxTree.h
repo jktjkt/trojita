@@ -126,7 +126,7 @@ public:
     QString partId() const;
     TreeItemMessage* message();
 private:
-    QString partIdHelper() const;
+    bool isTopLevelMultiPart() const;
 };
 
 }

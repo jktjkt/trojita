@@ -187,7 +187,6 @@ void TreeItemMailbox::handleFetchResponse( const Model* const model, const Respo
             part->_data = dynamic_cast<const Responses::RespData<QByteArray>&>( *(it.value()) ).data;
             part->_fetched = true;
             part->_loading = false;
-            qDebug() << it.key() << "received" << part->_data;
         } else {
             qDebug() << "TreeItemMailbox::handleFetchResponse: unknown FETCH identifier" << it.key();
         }
@@ -213,6 +212,10 @@ TreeItemPart* TreeItemMailbox::partIdToPtr( const Model* const model, const int 
             throw UnknownMessageIndex( ( QString::fromAscii(
                             "Can't translate received offset of the message part to a number: " ) 
                         + msgId ).toAscii().constData() );
+
+        TreeItemPart* part = dynamic_cast<TreeItemPart*>( item->child( 0, model ) );
+        if ( part && part->isTopLevelMultiPart() )
+            item = part;
         item = item->child( number - 1, model );
         if ( ! item ) {
             throw UnknownMessageIndex( ( QString::fromAscii(
@@ -320,7 +323,7 @@ QVariant TreeItemMessage::data( const Model* const model, int role )
 
 
 
-TreeItemPart::TreeItemPart( TreeItem* parent, const QString& mimeType ): TreeItem(parent), _mimeType(mimeType)
+TreeItemPart::TreeItemPart( TreeItem* parent, const QString& mimeType ): TreeItem(parent), _mimeType(mimeType.toLower())
 {}
 
 unsigned int TreeItemPart::childrenCount( const Model* const model )
@@ -350,8 +353,13 @@ void TreeItemPart::fetch( const Model* const model )
     if ( _fetched || _loading )
         return;
 
-    model->_askForMsgPart( this );
-    _loading = true;
+    if ( isTopLevelMultiPart() ) {
+        // we can safely ignore this
+        _fetched = true;
+    } else {
+        model->_askForMsgPart( this );
+        _loading = true;
+    }
 }
 
 unsigned int TreeItemPart::rowCount( const Model* const model )
@@ -372,9 +380,10 @@ QVariant TreeItemPart::data( const Model* const model, int role )
 
     switch ( role ) {
         case Qt::DisplayRole:
-            return _mimeType;
+            //return _mimeType;
+            return QString("%2 (%1)").arg( _mimeType ).arg( partId() );
         case Qt::ToolTipRole:
-            return _data;
+            return _data.size() > 10000 ? QString::number(_data.size()) + QString(" bytes of data") : _data;
         default:
             return QVariant();
     }
@@ -386,28 +395,31 @@ bool TreeItemPart::hasChildren( const Model* const model )
     return ! _children.isEmpty();
 }
 
-QString TreeItemPart::partIdHelper() const
+/** @short Returns true if we're a multipart, top-level item in the body of a message */
+bool TreeItemPart::isTopLevelMultiPart() const
 {
-    if ( dynamic_cast<TreeItemMessage*>( this->parent() ) ) {
-        return QString::null;
-    } else {
-        TreeItemPart* ptr = dynamic_cast<TreeItemPart*>( this->parent() );
-        Q_ASSERT( ptr );
-        QString parent = ptr->partId();
-        if ( parent.isNull() )
-            return QString::number( row() + 1 );
-        else
-            return parent + QChar('.') + QString::number( row() + 1 );
-    }
+    TreeItemMessage* msg = dynamic_cast<TreeItemMessage*>( parent() );
+    TreeItemPart* part = dynamic_cast<TreeItemPart*>( parent() );
+    return  _mimeType.startsWith( "multipart/" ) && ( msg || ( part && part->_mimeType.startsWith("message/")) );
 }
 
 QString TreeItemPart::partId() const
 {
-    QString res = partIdHelper();
-    if ( res.isEmpty() )
+    if ( isTopLevelMultiPart() ) {
+        TreeItemPart* part = dynamic_cast<TreeItemPart*>( parent() );
+        if ( part )
+            return part->partId();
+        else
+            return QString::null;
+    } else if ( dynamic_cast<TreeItemMessage*>( parent() ) ) {
         return QString::number( row() + 1 );
-    else
-        return res;
+    } else {
+        QString parentId = dynamic_cast<TreeItemPart*>( parent() )->partId();
+        if ( parentId.isNull() )
+            return QString::number( row() + 1 );
+        else
+            return parentId + QChar('.') + QString::number( row() + 1 );
+    }
 }
 
 TreeItemMessage* TreeItemPart::message()
