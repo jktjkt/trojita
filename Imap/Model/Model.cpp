@@ -58,6 +58,8 @@ void Model::responseReceived()
         qDebug() << buf.left(100);*/
         resp->plug( it.value().parser, this );
     }
+    // FIXME: all handle*() methods need something for removing processed items
+    // from commandMap
 }
 
 void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* const resp )
@@ -377,7 +379,7 @@ void Model::_askForChildrenOfMailbox( TreeItemMailbox* item ) const
     else
         mailbox = QString::fromLatin1("%1.%").arg( mailbox ); // FIXME: separator
 
-    qDebug() << "_askForChildrenOfMailbox()" << mailbox;
+    //qDebug() << "_askForChildrenOfMailbox()" << mailbox;
     ParserPtr parser = _getParser( 0, ReadOnly );
     CommandHandle cmd = parser->list( "", mailbox );
     _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::LIST, item );
@@ -391,7 +393,7 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item ) const
 
     QString mailbox = mailboxPtr->mailbox();
 
-    qDebug() << "_askForMessagesInMailbox()" << mailbox;
+    //qDebug() << "_askForMessagesInMailbox()" << mailbox;
     ParserPtr parser = _getParser( 0, ReadOnly );
     CommandHandle cmd = parser->status( mailbox, QStringList() << "MESSAGES" /*<< "RECENT" << "UIDNEXT" << "UIDVALIDITY" << "UNSEEN"*/ );
     _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::STATUS, item );
@@ -399,14 +401,14 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item ) const
 
 void Model::_askForMsgMetadata( TreeItemMessage* item ) const
 {
-    Q_ASSERT( item->parent() );
-    Q_ASSERT( item->parent()->parent() );
+    Q_ASSERT( item->parent() ); // TreeItemMsgList
+    Q_ASSERT( item->parent()->parent() ); // TreeItemMailbox
     TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( item->parent()->parent() );
     Q_ASSERT( mailboxPtr );
 
     int order = item->row();
 
-    qDebug() << "_askForMsgEnvelope()" << mailboxPtr->mailbox() << order;
+    //qDebug() << "_askForMsgEnvelope()" << mailboxPtr->mailbox() << order;
     ParserPtr parser = _getParser( mailboxPtr, ReadOnly );
     CommandHandle cmd = parser->fetch( Sequence( order + 1 ), QStringList() << "ENVELOPE" << "BODYSTRUCTURE" );
     _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, item );
@@ -415,13 +417,13 @@ void Model::_askForMsgMetadata( TreeItemMessage* item ) const
 void Model::_askForMsgPart( TreeItemPart* item ) const
 {
     // FIXME: fetch parts in chunks, not at once
-    Q_ASSERT( item->message() );
-    Q_ASSERT( item->message()->parent() );
-    Q_ASSERT( item->message()->parent()->parent() );
+    Q_ASSERT( item->message() ); // TreeItemMessage
+    Q_ASSERT( item->message()->parent() ); // TreeItemMsgList
+    Q_ASSERT( item->message()->parent()->parent() ); // TreeItemMailbox
     TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( item->message()->parent()->parent() );
     Q_ASSERT( mailboxPtr );
 
-    qDebug() << "fetching part" << item->partId() << "of msg#" << ( item->message()->row() + 1 );
+    //qDebug() << "fetching part" << item->partId() << "of msg#" << ( item->message()->row() + 1 );
     ParserPtr parser = _getParser( mailboxPtr, ReadOnly );
     CommandHandle cmd = parser->fetch( Sequence( item->message()->row() + 1 ),
             QStringList() << QString::fromAscii("BODY[%1]").arg( item->partId() ) );
