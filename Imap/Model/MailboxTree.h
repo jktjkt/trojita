@@ -53,6 +53,8 @@ public:
     virtual bool hasChildren( const Model* const model ) = 0;
 };
 
+class TreeItemPart;
+
 class TreeItemMailbox: public TreeItem {
     void operator=( const TreeItem& ); // don't implement
     QString _mailbox;
@@ -75,6 +77,8 @@ public:
     QString separator() const { return _separator; };
     void handleFetchResponse( const Model* const model, const Responses::Fetch& response );
     void finalizeFetch( const Model* const model, const Responses::Status& response );
+private:
+    TreeItemPart* partIdToPtr( const Model* model, const int msgNumber, const QString& msgId );
 };
 
 class TreeItemMsgList: public TreeItem {
@@ -104,6 +108,7 @@ public:
 
 class TreeItemPart: public TreeItem {
     void operator=( const TreeItem& ); // don't implement
+    friend class TreeItemMailbox; // needs access to _data
     QString _mimeType;
     QByteArray _data;
 public:

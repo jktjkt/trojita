@@ -171,14 +171,26 @@ void TreeItemMailbox::handleFetchResponse( const Model* const model, const Respo
     TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->child( number, model ) );
     Q_ASSERT( message ); // FIXME: this should be relaxed for allowing null pointers instead of "unfetched" TreeItemMessage
 
-    if ( response.data.contains( "ENVELOPE" ) ) {
-        message->_envelope = dynamic_cast<const Responses::RespData<Message::Envelope>&>( *response.data["ENVELOPE"] ).data;
-        message->_fetched = true;
-        message->_loading = false;
-    }
-
-    if ( response.data.contains( "BODYSTRUCTURE" ) ) {
-        message->setChildren( dynamic_cast<const Message::AbstractMessage&>( *response.data["BODYSTRUCTURE"] ).createTreeItems( message ) );
+    for ( Responses::Fetch::dataType::const_iterator it = response.data.begin(); it != response.data.end(); ++ it ) {
+        if ( it.key() == "ENVELOPE" ) {
+            message->_envelope = dynamic_cast<const Responses::RespData<Message::Envelope>&>( *(it.value()) ).data;
+            message->_fetched = true;
+            message->_loading = false;
+        } else if ( it.key() == "BODYSTRUCTURE" ) {
+            message->setChildren( dynamic_cast<const Message::AbstractMessage&>( *(it.value()) ).createTreeItems( message ) );
+        } else if ( it.key().startsWith( "BODY[" ) ) {
+            if ( it.key()[ it.key().size() - 1 ] != ']' )
+                throw UnknownMessageIndex( "Can't parse such BODY[]", response );
+            TreeItemPart* part = partIdToPtr( model, response.number, it.key().mid( 5, it.key().size() - 6 ) );
+            if ( ! part )
+                throw UnknownMessageIndex( "Got BODY[] fetch that is out of bounds", response );
+            part->_data = dynamic_cast<const Responses::RespData<QByteArray>&>( *(it.value()) ).data;
+            part->_fetched = true;
+            part->_loading = false;
+            qDebug() << it.key() << "received" << part->_data;
+        } else {
+            qDebug() << "TreeItemMailbox::handleFetchResponse: unknown FETCH identifier" << it.key();
+        }
     }
 }
 
@@ -187,6 +199,33 @@ void TreeItemMailbox::finalizeFetch( const Model* const model, const Responses::
 
 }
 
+TreeItemPart* TreeItemMailbox::partIdToPtr( const Model* const model, const int msgNumber, const QString& msgId )
+{
+    TreeItem* item = _children[0]; // TreeItemMsgList
+    Q_ASSERT( static_cast<TreeItemMsgList*>( item )->_fetched );
+    item = item->child( msgNumber - 1, model ); // TreeItemMessage
+    Q_ASSERT( item );
+    QStringList separated = msgId.split( '.' );
+    for ( QStringList::const_iterator it = separated.begin(); it != separated.end(); ++it ) {
+        bool ok;
+        uint number = it->toUInt( &ok );
+        if ( !ok )
+            throw UnknownMessageIndex( ( QString::fromAscii(
+                            "Can't translate received offset of the message part to a number: " ) 
+                        + msgId ).toAscii().constData() );
+        item = item->child( number - 1, model );
+        if ( ! item ) {
+            throw UnknownMessageIndex( ( QString::fromAscii(
+                            "Offset of the message part not found: " ) 
+                        + QString::number( number ) + QString::fromAscii(" of ") + msgId ).toAscii().constData() );}
+    }
+    TreeItemPart* part = dynamic_cast<TreeItemPart*>( item );
+    if ( ! part )
+        throw UnknownMessageIndex( ( QString::fromAscii(
+                        "Offset of the message part doesn't point anywhere: " ) 
+                    + msgId ).toAscii().constData() );
+    return part;
+}
 
 
 TreeItemMsgList::TreeItemMsgList( TreeItem* parent ): TreeItem(parent)
@@ -323,9 +362,6 @@ unsigned int TreeItemPart::rowCount( const Model* const model )
 
 QVariant TreeItemPart::data( const Model* const model, int role )
 {
-    if ( role != Qt::DisplayRole )
-        return QVariant();
-
     if ( ! _parent )
         return QVariant();
 
@@ -338,7 +374,7 @@ QVariant TreeItemPart::data( const Model* const model, int role )
         case Qt::DisplayRole:
             return _mimeType;
         case Qt::ToolTipRole:
-            return _mimeType; // FIXME
+            return _data;
         default:
             return QVariant();
     }
