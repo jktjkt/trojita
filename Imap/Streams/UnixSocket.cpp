@@ -39,9 +39,7 @@ UnixSocket::UnixSocket( const QList<QByteArray>& args ): d(new UnixSocketThread(
 
 UnixSocket::~UnixSocket()
 {
-    wrappedWrite( d->fdExitPipe[1], "x", 1 );
     terminate();
-    d->wait();
     delete d;
 }
 
@@ -223,6 +221,13 @@ int UnixSocket::wrappedDup2( int oldfd, int newfd )
 
 void UnixSocket::terminate()
 {
+    wrappedWrite( d->fdExitPipe[1], "x", 1 );
+    if ( d->childPid ) {
+        ::kill( d->childPid, SIGTERM );
+        d->childPid = 0;
+    }
+    d->readyReadAlreadyDone.release();
+    d->wait();
     if ( d->fdStdin[1] >= 0 ) {
         wrappedClose( d->fdStdin[1] );
         d->fdStdin[1] = -1;
@@ -231,11 +236,6 @@ void UnixSocket::terminate()
         wrappedClose( d->fdStdout[0] );
         d->fdStdout[0] = -1;
     }
-    if ( d->childPid ) {
-        ::kill( d->childPid, SIGTERM );
-        d->childPid = 0;
-    }
-    d->readyReadAlreadyDone.release();
 }
 
 
