@@ -58,7 +58,8 @@ bool UnixSocket::canReadLine()
     // We'll have to check the socket and read some reasonable size to be able
     // to tell if we can read stuff
     // FIXME: this should be implemented with checking for CRLF
-    while ( waitForReadyRead( 0 ) && buffer.size() < 8192 ) {
+    // FIXME: max line size?
+    while ( waitForReadyRead( 0 ) && buffer.size() < 1048576 ) {
         buffer += reallyRead( 8192 );
     }
     if ( buffer.indexOf( QByteArray("\r\n") ) != -1 ) {
