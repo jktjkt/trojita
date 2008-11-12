@@ -120,6 +120,8 @@ public:
 
     QString partId() const;
     TreeItemMessage* message();
+private:
+    QString partIdHelper() const;
 };
 
 }

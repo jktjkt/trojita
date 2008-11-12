@@ -350,19 +350,28 @@ bool TreeItemPart::hasChildren( const Model* const model )
     return ! _children.isEmpty();
 }
 
-QString TreeItemPart::partId() const
+QString TreeItemPart::partIdHelper() const
 {
     if ( dynamic_cast<TreeItemMessage*>( this->parent() ) ) {
-        return QString::fromAscii("TEXT");
+        return QString::null;
     } else {
         TreeItemPart* ptr = dynamic_cast<TreeItemPart*>( this->parent() );
         Q_ASSERT( ptr );
         QString parent = ptr->partId();
-        if ( parent == QString::fromAscii("TEXT") )
+        if ( parent.isNull() )
             return QString::number( row() + 1 );
         else
             return parent + QChar('.') + QString::number( row() + 1 );
     }
+}
+
+QString TreeItemPart::partId() const
+{
+    QString res = partIdHelper();
+    if ( res.isEmpty() )
+        return QString::number( row() + 1 );
+    else
+        return res;
 }
 
 TreeItemMessage* TreeItemPart::message()
