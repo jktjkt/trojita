@@ -112,6 +112,7 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
                 break;
             case Task::FETCH:
                 _finalizeFetch( ptr, command );
+                break;
         }
 
         _parsers[ ptr.get() ].commandMap.erase( command );
@@ -233,7 +234,14 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
 
 void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command )
 {
-    // FIXME
+    TreeItemPart* part = dynamic_cast<TreeItemPart*>( command.value().what );
+    if ( part && part->_loading ) {
+        qDebug() << "Imap::Model::_finalizeFetch(): didn't receive anything about message" <<
+            part->message()->row() << "part" << part->partId() << "in mailbox" <<
+            _parsers[ parser.get() ].mailbox->mailbox();
+        part->_loading = false;
+        part->_fetched = true;
+    }
 }
 
 bool SortMailboxes( const TreeItem* const a, const TreeItem* const b )
