@@ -376,12 +376,15 @@ QVariant TreeItemPart::data( const Model* const model, int role )
     fetch( model );
 
     if ( _loading )
-        return QString("[loading %1 (%2)...]").arg( _mimeType ).arg( partId() );
+        return isTopLevelMultiPart() ?
+            QString("[loading %1...]").arg( _mimeType ) : 
+            QString("[loading %1: %2...]").arg( partId() ).arg( _mimeType );
 
     switch ( role ) {
         case Qt::DisplayRole:
-            //return _mimeType;
-            return QString("%2 (%1)").arg( _mimeType ).arg( partId() );
+            return isTopLevelMultiPart() ?
+                QString("%1").arg( _mimeType ) : 
+                QString("%1: %2").arg( partId() ).arg( _mimeType );
         case Qt::ToolTipRole:
             return _data.size() > 10000 ? QString::number(_data.size()) + QString(" bytes of data") : _data;
         default:
