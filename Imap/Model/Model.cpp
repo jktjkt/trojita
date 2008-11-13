@@ -58,8 +58,6 @@ void Model::responseReceived()
         qDebug() << buf.left(100);*/
         resp->plug( it.value().parser, this );
     }
-    // FIXME: all handle*() methods need something for removing processed items
-    // from commandMap
 }
 
 void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* const resp )
