@@ -335,6 +335,23 @@ void ImapParserParseTest::testParseUntagged_data()
             "\"<B27397-0100000@cac.washington.edu>\"))\r\n" )
         << shared_ptr<AbstractResponse>( new Fetch( 12, fetchData ) );
 
+    fetchData.clear();
+    fetchData[ "ENVELOPE" ] = std::tr1::shared_ptr<AbstractData>(
+            new RespData<Envelope>(
+                Envelope( QDateTime(), subject, from, sender, replyTo, to, cc, bcc, QByteArray(), messageId )
+                ) );
+    QTest::newRow("fetch-envelope-nildate")
+        << QByteArray( "* 13 FETCH (ENVELOPE (NIL "
+            "\"IMAP4rev1 WG mtg summary and minutes\" "
+            "((\"Terry Gray\" NIL \"gray\" \"cac.washington.edu\")) "
+            "((\"Terry Gray\" NIL \"gray\" \"cac.washington.edu\")) "
+            "((\"Terry Gray\" NIL \"gray\" \"cac.washington.edu\")) "
+            "((NIL NIL \"imap\" \"cac.washington.edu\")) "
+            "((NIL NIL \"minutes\" \"CNRI.Reston.VA.US\") "
+            "(\"John Klensin\" NIL \"KLENSIN\" \"MIT.EDU\")) NIL NIL "
+            "\"<B27397-0100000@cac.washington.edu>\"))\r\n" )
+        << shared_ptr<AbstractResponse>( new Fetch( 13, fetchData ) );
+
     // FIXME: more unit tests for ENVELOPE and BODY[
 
     fetchData.clear();
