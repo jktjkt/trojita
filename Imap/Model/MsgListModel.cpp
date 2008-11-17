@@ -163,8 +163,6 @@ void MsgListModel::setMailbox( const QModelIndex& index )
     if ( list ) {
         msgList = list;
         reset();
-    } else {
-        qDebug() << "setMailbox failed";
     }
 }
 
