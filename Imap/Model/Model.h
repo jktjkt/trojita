@@ -69,11 +69,17 @@ class Model: public QAbstractItemModel {
         ConnectionState connState;
         TreeItemMailbox* handler;
         QMap<CommandHandle, Task> commandMap;
+        QStringList capabilities;
+        QList<Responses::List> listResponses;
+        QList<Responses::Status> statusResponses;
+        bool capabilitiesFresh;
 
         ParserState( ParserPtr _parser, TreeItemMailbox* _mailbox, const RWMode _mode, 
                 const ConnectionState _connState ): 
-            parser(_parser), mailbox(_mailbox), mode(_mode), connState(_connState), handler(0) {};
-        ParserState(): mailbox(0), mode(ReadOnly), connState(CONN_STATE_LOGOUT), handler(0) {};
+            parser(_parser), mailbox(_mailbox), mode(_mode),
+            connState(_connState), handler(0), capabilitiesFresh(false) {};
+        ParserState(): mailbox(0), mode(ReadOnly), connState(CONN_STATE_LOGOUT),
+            handler(0), capabilitiesFresh(false) {};
     };
 
     CachePtr _cache;
@@ -81,14 +87,7 @@ class Model: public QAbstractItemModel {
     SocketFactoryPtr _socketFactory;
     mutable QMap<Parser*,ParserState> _parsers;
     int _maxParsers;
-
-    QStringList _capabilities;
-    bool _capabilitiesFresh;
-
     mutable TreeItemMailbox* _mailboxes;
-
-    QList<Responses::List> _listResponses;
-    QList<Responses::Status> _statusResponses;
 
     QList<Imap::Responses::NamespaceData> _personalNamespace, _otherUsersNamespace, _sharedNamespace;
 
@@ -132,8 +131,8 @@ private:
     void _askForMsgMetadata( TreeItemMessage* item ) const;
     void _askForMsgPart( TreeItemPart* item ) const;
 
-    void _finalizeList( const QMap<CommandHandle, Task>::const_iterator command );
-    void _finalizeStatus( const QMap<CommandHandle, Task>::const_iterator command );
+    void _finalizeList( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command );
+    void _finalizeStatus( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command );
 

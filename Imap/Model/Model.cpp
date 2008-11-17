@@ -29,7 +29,7 @@ Model::Model( QObject* parent, CachePtr cache, AuthenticatorPtr authenticator,
     QAbstractItemModel( parent ),
     // our tools
     _cache(cache), _authenticator(authenticator), _socketFactory(socketFactory),
-    _maxParsers(1), _capabilitiesFresh(false), _mailboxes(0)
+    _maxParsers(1), _mailboxes(0)
 {
     ParserPtr parser( new Imap::Parser( this, _socketFactory->create() ) );
     _parsers[ parser.get() ] = ParserState( parser, 0, ReadOnly, CONN_STATE_ESTABLISHED );
@@ -82,8 +82,8 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
                 const RespData<QStringList>* const caps = dynamic_cast<const RespData<QStringList>* const>(
                         resp->respCodeData.get() );
                 if ( caps ) {
-                    _capabilities = caps->data;
-                    _capabilitiesFresh = true;
+                    _parsers[ ptr.get() ].capabilities = caps->data;
+                    _parsers[ ptr.get() ].capabilitiesFresh = true;
                 }
             }
             break;
@@ -102,10 +102,10 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
                 throw CantHappen( "Internal Error: command that is supposed to do nothing?", *resp );
                 break;
             case Task::LIST:
-                _finalizeList( command );
+                _finalizeList( ptr, command );
                 break;
             case Task::STATUS:
-                _finalizeStatus( command );
+                _finalizeStatus( ptr, command );
                 break;
             case Task::SELECT:
                 _finalizeSelect( ptr, command );
@@ -165,18 +165,19 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
     }
 }
 
-void Model::_finalizeList( const QMap<CommandHandle, Task>::const_iterator command )
+void Model::_finalizeList( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command )
 {
     // FIXME: more fine-grained resizing than layoutChanged()
     emit layoutAboutToBeChanged();
     QList<TreeItem*> mailboxes;
     TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( command->what );
-    for ( QList<Responses::List>::const_iterator it = _listResponses.begin();
-            it != _listResponses.end(); ++it ) {
+    QList<Responses::List>& listResponses = _parsers[ parser.get() ].listResponses;
+    for ( QList<Responses::List>::const_iterator it = listResponses.begin();
+            it != listResponses.end(); ++it ) {
         if ( it->mailbox != mailboxPtr->mailbox() + mailboxPtr->separator() )
             mailboxes << new TreeItemMailbox( command->what, *it );
     }
-    _listResponses.clear();
+    listResponses.clear();
     qSort( mailboxes.begin(), mailboxes.end(), SortMailboxes );
     command->what->setChildren( mailboxes );
     emit layoutChanged();
@@ -184,7 +185,7 @@ void Model::_finalizeList( const QMap<CommandHandle, Task>::const_iterator comma
     qDebug() << "_finalizeList" << mailboxPtr->mailbox();
 }
 
-void Model::_finalizeStatus( const QMap<CommandHandle, Task>::const_iterator command )
+void Model::_finalizeStatus( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command )
 {
     // FIXME: more fine-grained resizing than layoutChanged()
     emit layoutAboutToBeChanged();
@@ -192,8 +193,9 @@ void Model::_finalizeStatus( const QMap<CommandHandle, Task>::const_iterator com
     TreeItemMsgList* listPtr = dynamic_cast<TreeItemMsgList*>( command->what );
 
     uint sMessages = 0, sRecent = 0, sUidNext = 0, sUidValidity = 0, sUnSeen = 0;
-    for ( QList<Responses::Status>::const_iterator it = _statusResponses.begin();
-            it != _statusResponses.end(); ++it ) {
+    QList<Responses::Status>& statusResponses = _parsers[ parser.get() ].statusResponses;
+    for ( QList<Responses::Status>::const_iterator it = statusResponses.begin();
+            it != statusResponses.end(); ++it ) {
 
         for ( Responses::Status::stateDataType::const_iterator item = it->states.begin();
                 item != it->states.end(); ++item ) {
@@ -216,7 +218,7 @@ void Model::_finalizeStatus( const QMap<CommandHandle, Task>::const_iterator com
             }
         }
     }
-    _statusResponses.clear();
+    statusResponses.clear();
 
     // FIXME: do something with more of these data...
     for ( uint i = 0; i < sMessages; ++i )
@@ -266,7 +268,7 @@ void Model::handleNumberResponse( Imap::ParserPtr ptr, const Imap::Responses::Nu
 
 void Model::handleList( Imap::ParserPtr ptr, const Imap::Responses::List* const resp )
 {
-    _listResponses << *resp;
+    _parsers[ ptr.get() ].listResponses << *resp;
 }
 
 void Model::handleFlags( Imap::ParserPtr ptr, const Imap::Responses::Flags* const resp )
@@ -283,7 +285,7 @@ void Model::handleStatus( Imap::ParserPtr ptr, const Imap::Responses::Status* co
     // FIXME: we should check state here -- this is not really important now
     // when we don't actually SELECT/EXAMINE any mailbox, but *HAS* to be
     // changed as soon as we do so
-    _statusResponses << *resp;
+    _parsers[ ptr.get() ].statusResponses << *resp;
 }
 
 void Model::handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* const resp )
