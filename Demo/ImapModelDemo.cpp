@@ -53,19 +53,16 @@ int main( int argc, char** argv) {
 
     QTreeView* tree = new QTreeView( mainWidget );
     tree->setModel( &model );
-    tree->setWindowTitle( "IMAP tree" );
     tree->setUniformRowHeights( true );
     tree->setHeaderHidden( true );
 
     QTreeView* mboxTree = new QTreeView( mainWidget );
     mboxTree->setModel( &mboxModel );
-    mboxTree->setWindowTitle( "IMAP mailboxes" );
     mboxTree->setUniformRowHeights( true );
     mboxTree->setHeaderHidden( true );
 
     QTreeView* msgListTree = new QTreeView( mainWidget );
     msgListTree->setModel( &msgListModel );
-    msgListTree->setWindowTitle( "IMAP messages" );
     msgListTree->setUniformRowHeights( true );
     msgListTree->setHeaderHidden( true );
 
