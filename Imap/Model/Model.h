@@ -63,6 +63,12 @@ class Model: public QAbstractItemModel {
     };
 
     struct ParserState {
+        struct SyncState {
+            uint exists, recent, unSeen, uidNext, uidValidity;
+            QList<QByteArray> flags, permanentFlags;
+            SyncState(): exists(0), recent(0), unSeen(0), uidNext(0), uidValidity(0) {};
+        };
+
         ParserPtr parser;
         TreeItemMailbox* mailbox;
         RWMode mode;
@@ -70,9 +76,10 @@ class Model: public QAbstractItemModel {
         TreeItemMailbox* handler;
         QMap<CommandHandle, Task> commandMap;
         QStringList capabilities;
+        bool capabilitiesFresh;
         QList<Responses::List> listResponses;
         QList<Responses::Status> statusResponses;
-        bool capabilitiesFresh;
+        SyncState syncState;
 
         ParserState( ParserPtr _parser, TreeItemMailbox* _mailbox, const RWMode _mode, 
                 const ConnectionState _connState ): 

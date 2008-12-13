@@ -264,6 +264,25 @@ void Model::handleCapability( Imap::ParserPtr ptr, const Imap::Responses::Capabi
 
 void Model::handleNumberResponse( Imap::ParserPtr ptr, const Imap::Responses::NumberResponse* const resp )
 {
+    switch ( resp->kind ) {
+        case Imap::Responses::EXISTS:
+            _parsers[ ptr.get() ].syncState.exists = resp->number;
+            break;
+        case Imap::Responses::EXPUNGE:
+            {
+                ParserState& parser = _parsers[ ptr.get() ];
+                Q_ASSERT( parser.handler );
+                Q_ASSERT( parser.handler->_fetched );
+                // FIXME: delete the message
+                throw 42;
+            }
+            break;
+        case Imap::Responses::RECENT:
+            _parsers[ ptr.get() ].syncState.recent = resp->number;
+            break;
+        default:
+            throw CantHappen( "Got a NumberResponse of invalid kind. This is supposed to be handled in its constructor!", *resp );
+    }
 }
 
 void Model::handleList( Imap::ParserPtr ptr, const Imap::Responses::List* const resp )
