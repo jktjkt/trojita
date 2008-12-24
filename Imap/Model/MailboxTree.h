@@ -36,7 +36,6 @@ class TreeItem {
 protected:
     TreeItem* _parent;
     QList<TreeItem*> _children;
-    Model* _model;
     bool _fetched, _loading;
 public:
     TreeItem( TreeItem* parent );
