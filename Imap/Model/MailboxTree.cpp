@@ -70,11 +70,10 @@ TreeItemMailbox::TreeItemMailbox( TreeItem* parent ):
 }
 
 TreeItemMailbox::TreeItemMailbox( TreeItem* parent, Responses::List response ):
-    TreeItem(parent), _mailbox(response.mailbox),
-    _separator(response.separator)
+    TreeItem(parent), _metadata( response.mailbox, response.separator, QStringList() )
 {
     for ( QStringList::const_iterator it = response.flags.begin(); it != response.flags.end(); ++it )
-        _flags.append( it->toUpper() );
+        _metadata.flags.append( it->toUpper() );
     _children.prepend( new TreeItemMsgList( this ) );
 }
 
@@ -119,9 +118,9 @@ bool TreeItemMailbox::hasChildMailboxes( const Model* const model )
     // FIXME: case sensitivity
     if ( _fetched )
         return _children.size() > 1;
-    else if ( _flags.contains( "\\NOINFERIORS" ) || _flags.contains( "\\HASNOCHILDRen" ) )
+    else if ( _metadata.flags.contains( "\\NOINFERIORS" ) || _metadata.flags.contains( "\\HASNOCHILDRen" ) )
         return false;
-    else if ( _flags.contains( "\\HASCHILDREN" ) )
+    else if ( _metadata.flags.contains( "\\HASCHILDREN" ) )
         return true;
     else {
         fetch( model );
@@ -148,7 +147,7 @@ void TreeItemMailbox::setChildren( const QList<TreeItem*> items )
     _children.prepend( list );
 
     // FIXME: anything else required for \Noselect?
-    if ( _flags.contains( "\\NOSELECT" ) )
+    if ( _metadata.flags.contains( "\\NOSELECT" ) )
         list->_fetched = true;
 }
 

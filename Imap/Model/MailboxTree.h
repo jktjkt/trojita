@@ -23,6 +23,7 @@
 #include <QString>
 #include "../Parser/Response.h"
 #include "../Parser/Message.h"
+#include "MailboxMetadata.h"
 
 namespace Imap {
 
@@ -57,9 +58,7 @@ class TreeItemPart;
 
 class TreeItemMailbox: public TreeItem {
     void operator=( const TreeItem& ); // don't implement
-    QString _mailbox;
-    QString _separator;
-    QStringList _flags;
+    MailboxMetadata _metadata;
 public:
     TreeItemMailbox( TreeItem* parent );
     TreeItemMailbox( TreeItem* parent, Responses::List );
@@ -73,8 +72,8 @@ public:
 
     bool hasChildMailboxes( const Model* const model );
 
-    QString mailbox() const { return _mailbox; };
-    QString separator() const { return _separator; };
+    QString mailbox() const { return _metadata.mailbox; };
+    QString separator() const { return _metadata.separator; };
     void handleFetchResponse( const Model* const model, const Responses::Fetch& response );
     void finalizeFetch( const Model* const model, const Responses::Status& response );
 private:
