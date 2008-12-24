@@ -66,6 +66,7 @@ void MainWindow::setupModels()
     msgListModel = new Imap::Mailbox::MsgListModel( this, model );
 
     QObject::connect( mboxTree, SIGNAL( clicked(const QModelIndex&) ), msgListModel, SLOT( setMailbox(const QModelIndex&) ) );
+    QObject::connect( mboxTree, SIGNAL( activated(const QModelIndex&) ), msgListModel, SLOT( setMailbox(const QModelIndex&) ) );
 
     mboxTree->setModel( mboxModel );
     msgListTree->setModel( msgListModel );
