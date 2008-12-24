@@ -140,7 +140,9 @@ TreeItem* TreeItemMailbox::child( const int offset, const Model* const model )
 
 void TreeItemMailbox::setChildren( const QList<TreeItem*> items )
 {
+    // This function has to be special because we want to preserve _children[0]
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[0] );
+    Q_ASSERT( list );
     _children[0] = 0;
     TreeItem::setChildren( items ); // this also adjusts _loading and _fetched
     _children.prepend( list );
