@@ -67,21 +67,14 @@ set(libModelTest_SRCS
 
 set(trojita_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Demo/ParserMonitor.cpp
-    )
-
-set(ImapModelDemo_SRCS
-    ${CMAKE_CURRENT_SOURCE_DIR}/Demo/ImapModelDemo.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/MainWindow/Window.cpp
     )
 
 qt4_automoc(${trojita_SRCS} ${libImap_SRCS}
-    ${libModelTest_SRCS} ${ImapModelDemo_SRCS})
+    ${libModelTest_SRCS})
 
 add_library(Imap ${libImap_SRCS})
 add_library(ModelTest ${libModelTest_SRCS})
 add_executable(trojita ${trojita_SRCS})
-add_executable(ImapModelDemo ${ImapModelDemo_SRCS})
 
-target_link_libraries(trojita Imap ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY})
-target_link_libraries(ImapModelDemo Imap ModelTest ${QT_QTCORE_LIBRARY}
-    ${QT_QTNETWORK_LIBRARY} ${QT_QTGUI_LIBRARY} )
+target_link_libraries(trojita Imap ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTGUI_LIBRARY})
