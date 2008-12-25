@@ -20,7 +20,7 @@
 #define IMAP_CACHE_H
 
 #include <tr1/memory>
-#include <QtGlobal>
+#include "Model/MailboxMetadata.h"
 
 /** @short Namespace for IMAP interaction */
 namespace Imap {
@@ -33,42 +33,19 @@ class AbstractCache {
 public:
     virtual ~AbstractCache() {};
 
-    /** @short Server sends us new UIDNEXT */
-    virtual void setNewNumbers( const uint uidValidity, const uint uidNext, const uint exists ) = 0;
-
-    /** @short Throw away all cached information */
-    virtual void forget() = 0;
-
-    /** @short Get stored (old?) value of UIDNEXT */
-    virtual uint getUidNext() = 0;
-
-    /** @short Get stored (old?) value of EXISTS */
-    virtual uint getExists() = 0;
-
-    /** @short Get stored (old?) value of UIDVALIDITY */
-    virtual uint getUidValidity() = 0;
-
-    virtual bool seqToUid( const uint seq, uint& uid ) = 0;
-    virtual bool uidToSeq( const uint uid, uint& seq ) = 0;
-    virtual void addSeqUid( const uint seq, const uint uid ) = 0;
-
-    virtual void forgetSeqUid() = 0;
+    virtual QList<MailboxMetadata> childMailboxes( const QString& mailbox ) const = 0;
+    virtual bool childMailboxesFresh( const QString& mailbox ) const = 0;
+    virtual void setChildMailboxes( const QString& mailbox, const QList<MailboxMetadata>& data ) = 0;
 };
 
 /** @short A cache implementation that actually doesn't cache anything */
 class NoCache : public AbstractCache {
-    uint _uidNext, _uidValidity, _exists;
 public:
     NoCache();
-    virtual void setNewNumbers( const uint uidValidity, const uint uidNext, const uint exists );
-    virtual void forget();
-    virtual uint getUidNext();
-    virtual uint getExists();
-    virtual uint getUidValidity();
-    virtual bool seqToUid( const uint seq, uint& uid );
-    virtual bool uidToSeq( const uint uid, uint& seq );
-    virtual void addSeqUid( const uint seq, const uint uid );
-    virtual void forgetSeqUid();
+
+    virtual QList<MailboxMetadata> childMailboxes( const QString& mailbox ) const;
+    virtual bool childMailboxesFresh( const QString& mailbox ) const;
+    virtual void setChildMailboxes( const QString& mailbox, const QList<MailboxMetadata>& data );
 };
 
 /** @short A convenience typedef */

@@ -74,6 +74,7 @@ public:
 
     QString mailbox() const { return _metadata.mailbox; };
     QString separator() const { return _metadata.separator; };
+    const MailboxMetadata& mailboxMetadata() const { return _metadata; };
     void handleFetchResponse( const Model* const model, const Responses::Fetch& response );
     void finalizeFetch( const Model* const model, const Responses::Status& response );
 private:

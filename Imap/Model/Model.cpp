@@ -179,6 +179,13 @@ void Model::_finalizeList( ParserPtr parser, const QMap<CommandHandle, Task>::co
     }
     listResponses.clear();
     qSort( mailboxes.begin(), mailboxes.end(), SortMailboxes );
+
+    QList<MailboxMetadata> metadataToCache;
+    for ( QList<TreeItem*>::const_iterator it = mailboxes.begin(); it != mailboxes.end(); ++it ) {
+        metadataToCache.append( dynamic_cast<TreeItemMailbox*>( *it )->mailboxMetadata() );
+    }
+    _cache->setChildMailboxes( mailboxPtr->mailbox(), metadataToCache );
+
     command->what->setChildren( mailboxes );
     emit layoutChanged();
 

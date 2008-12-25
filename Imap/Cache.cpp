@@ -22,63 +22,21 @@
 namespace Imap {
 namespace Mailbox {
 
-NoCache::NoCache():
-    _uidNext(0), _uidValidity(0), _exists(0)
+NoCache::NoCache()
 {}
 
-void NoCache::setNewNumbers( const uint uidValidity, const uint uidNext, const uint exists )
+QList<MailboxMetadata> NoCache::childMailboxes( const QString& mailbox ) const
 {
-    qDebug() << "setUidNext: " << uidNext;
-    _uidNext = uidNext;
-    qDebug() << "setUidValidity: " << uidValidity;
-    _uidValidity = uidValidity;
-    qDebug() << "setExists: " << exists;
-    _exists = exists;
+    return QList<MailboxMetadata>();
 }
 
-void NoCache::forget()
+bool NoCache::childMailboxesFresh( const QString& mailbox ) const
 {
-    qDebug() << "NoCache::forget()";
-    forgetSeqUid();
-}
-
-void NoCache::forgetSeqUid()
-{
-    qDebug() << "NoCache::forgetSeqUid()";
-}
-
-uint NoCache::getUidNext()
-{
-    return _uidNext;
-}
-
-uint NoCache::getExists()
-{
-    return _exists;
-}
-
-uint NoCache::getUidValidity()
-{
-    return _uidValidity;
-}
-
-bool NoCache::seqToUid( const uint seq, uint& uid )
-{
-    qDebug() << "seqToUid( " << seq << ") = ?";
     return false;
 }
 
-bool NoCache::uidToSeq( const uint uid, uint& seq )
-{
-    qDebug() << "uidToSeq( " << uid << ") = ?";
-    return false;
-}
-
-void NoCache::addSeqUid( const uint seq, const uint uid )
-{
-    qDebug() << "addSeqUid: seq " << seq << " uid " << uid;
-}
-
+void NoCache::setChildMailboxes( const QString& mailbox, const QList<MailboxMetadata>& data )
+{}
 
 }
 }

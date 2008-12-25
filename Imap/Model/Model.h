@@ -121,6 +121,8 @@ public:
     void handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* const resp );
     void handleNamespace( Imap::ParserPtr ptr, const Imap::Responses::Namespace* const resp );
 
+    CachePtr cache() const { return _cache; };
+
 private:
     Model& operator=( const Model& ); // don't implement
     Model( const Model& ); // don't implement
