@@ -77,4 +77,5 @@ add_library(Imap ${libImap_SRCS})
 add_library(ModelTest ${libModelTest_SRCS})
 add_executable(trojita ${trojita_SRCS})
 
-target_link_libraries(trojita Imap ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTGUI_LIBRARY})
+target_link_libraries(Imap ModelTest ${QT_QTGUI_LIBRARY})
+target_link_libraries(trojita Imap)
