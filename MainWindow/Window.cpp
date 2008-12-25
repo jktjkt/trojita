@@ -16,7 +16,6 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include <QDebug>
 #include <QDockWidget>
 #include <QMenuBar>
 #include <QTreeView>
@@ -24,8 +23,11 @@
 #include "Window.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/MailboxModel.h"
+#include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/MsgListModel.h"
 #include "Imap/Streams/SocketFactory.h"
+
+#include <QDebug>
 
 namespace Gui {
 
@@ -99,7 +101,19 @@ void MainWindow::showContextMenuMboxTree( const QPoint& position )
 
 void MainWindow::slotReloadMboxList()
 {
-    qDebug() << "slotReloadMboxList:" << mboxTree->selectionModel()->selectedIndexes().count();
+    QModelIndexList indices = mboxTree->selectionModel()->selectedIndexes();
+    Q_FOREACH( QModelIndex idx, indices ) {
+        Q_ASSERT( idx.isValid() );
+        Q_ASSERT( idx.model() == mboxModel );
+        Imap::Mailbox::TreeItemMailbox* mbox = dynamic_cast<Imap::Mailbox::TreeItemMailbox*>(
+                static_cast<Imap::Mailbox::TreeItem*>(
+                    mboxModel->mapToSource( idx ).internalPointer()
+                    )
+                );
+        Q_ASSERT( mbox );
+        qDebug() << Q_FUNC_INFO << "mbox:" << mbox << ", parent:" << mbox->parent() << ", parent2:" << mbox->parent()->parent();
+        mbox->rescanForChildMailboxes( model );
+    }
 }
 
 }
