@@ -46,7 +46,7 @@ public:
     virtual ~TreeItem();
     virtual unsigned int childrenCount( const Model* const model );
     virtual TreeItem* child( const int offset, const Model* const model );
-    virtual void setChildren( const QList<TreeItem*> items );
+    virtual QList<TreeItem*> setChildren( const QList<TreeItem*> items );
     virtual void fetch( const Model* const model ) = 0;
     virtual unsigned int columnCount( const Model* const model ) { return 1; };
     virtual unsigned int rowCount( const Model* const model ) = 0;
@@ -63,7 +63,7 @@ public:
     TreeItemMailbox( TreeItem* parent );
     TreeItemMailbox( TreeItem* parent, Responses::List );
 
-    virtual void setChildren( const QList<TreeItem*> items );
+    virtual QList<TreeItem*> setChildren( const QList<TreeItem*> items );
     virtual void fetch( const Model* const model );
     virtual unsigned int rowCount( const Model* const model );
     virtual QVariant data( const Model* const model, int role );
@@ -77,6 +77,7 @@ public:
     const MailboxMetadata& mailboxMetadata() const { return _metadata; };
     void handleFetchResponse( const Model* const model, const Responses::Fetch& response );
     void finalizeFetch( const Model* const model, const Responses::Status& response );
+    void rescanForChildMailboxes( const Model* const model );
 private:
     TreeItemPart* partIdToPtr( const Model* model, const int msgNumber, const QString& msgId );
 };
@@ -116,7 +117,7 @@ public:
 
     virtual unsigned int childrenCount( const Model* const model );
     virtual TreeItem* child( const int offset, const Model* const model );
-    virtual void setChildren( const QList<TreeItem*> items );
+    virtual QList<TreeItem*> setChildren( const QList<TreeItem*> items );
 
     virtual void fetch( const Model* const model );
     virtual unsigned int rowCount( const Model* const model );

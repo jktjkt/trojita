@@ -186,7 +186,20 @@ void Model::_finalizeList( ParserPtr parser, const QMap<CommandHandle, Task>::co
     }
     _cache->setChildMailboxes( mailboxPtr->mailbox(), metadataToCache );
 
-    command->what->setChildren( mailboxes );
+    QModelIndex parent = QAbstractItemModel::createIndex( mailboxPtr->row(), 0, mailboxPtr );
+    QList<TreeItem*> oldItems;
+    if ( mailboxPtr->_fetched ) {
+        int count = mailboxPtr->rowCount( this );
+        beginRemoveRows( parent, 1, count - 1 );
+        oldItems = mailboxPtr->setChildren( QList<TreeItem*>() );
+        endRemoveRows();
+    }
+
+    beginInsertRows( parent, 1, mailboxes.size() );
+    QList<TreeItem*> deletedItems = mailboxPtr->setChildren( mailboxes );
+    endInsertRows();
+    qDeleteAll( deletedItems );
+    qDeleteAll( oldItems );
     emit layoutChanged();
 
     qDebug() << "_finalizeList" << mailboxPtr->mailbox();
@@ -231,7 +244,8 @@ void Model::_finalizeStatus( ParserPtr parser, const QMap<CommandHandle, Task>::
     for ( uint i = 0; i < sMessages; ++i )
         messages.append( new TreeItemMessage( listPtr ) );
 
-    command->what->setChildren( messages );
+    // FIXME: emit signals to prevent nasty segfaults
+    qDeleteAll( command->what->setChildren( messages ) );
     emit layoutChanged();
     qDebug() << "_finalizeStatus" << dynamic_cast<TreeItemMailbox*>( listPtr->parent() )->mailbox();
 }
@@ -368,7 +382,7 @@ QModelIndex Model::parent(const QModelIndex& index ) const
     TreeItem *childItem = static_cast<TreeItem*>(index.internalPointer());
     TreeItem *parentItem = childItem->parent();
 
-    if ( parentItem == _mailboxes )
+    if ( ! parentItem || parentItem == _mailboxes )
         return QModelIndex();
 
     return QAbstractItemModel::createIndex( parentItem->row(), 0, parentItem );

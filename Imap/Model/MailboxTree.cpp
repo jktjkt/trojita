@@ -53,12 +53,13 @@ int TreeItem::row() const
     return _parent ? _parent->_children.indexOf( const_cast<TreeItem*>(this) ) : 0;
 }
 
-void TreeItem::setChildren( const QList<TreeItem*> items )
+QList<TreeItem*> TreeItem::setChildren( const QList<TreeItem*> items )
 {
-    qDeleteAll( _children );
+    QList<TreeItem*> res = _children;
     _children = items;
     _fetched = true;
     _loading = false;
+    return res;
 }
 
 
@@ -86,6 +87,12 @@ void TreeItemMailbox::fetch( const Model* const model )
         model->_askForChildrenOfMailbox( this );
         _loading = true;
     }
+}
+
+void TreeItemMailbox::rescanForChildMailboxes( const Model* const model )
+{
+    _fetched = false;
+    fetch( model );
 }
 
 unsigned int TreeItemMailbox::rowCount( const Model* const model )
@@ -137,18 +144,23 @@ TreeItem* TreeItemMailbox::child( const int offset, const Model* const model )
     return TreeItem::child( offset, model );
 }
 
-void TreeItemMailbox::setChildren( const QList<TreeItem*> items )
+QList<TreeItem*> TreeItemMailbox::setChildren( const QList<TreeItem*> items )
 {
     // This function has to be special because we want to preserve _children[0]
-    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[0] );
-    Q_ASSERT( list );
-    _children[0] = 0;
-    TreeItem::setChildren( items ); // this also adjusts _loading and _fetched
-    _children.prepend( list );
+
+    TreeItemMsgList* msgList = dynamic_cast<TreeItemMsgList*>( _children[0] );
+    Q_ASSERT( msgList );
+    _children.removeFirst();
+
+    QList<TreeItem*> list = TreeItem::setChildren( items ); // this also adjusts _loading and _fetched
+
+    _children.prepend( msgList );
 
     // FIXME: anything else required for \Noselect?
     if ( _metadata.flags.contains( "\\NOSELECT" ) )
-        list->_fetched = true;
+        msgList->_fetched = true;
+
+    return list;
 }
 
 void TreeItemMailbox::handleFetchResponse( const Model* const model, const Responses::Fetch& response )
@@ -178,7 +190,9 @@ void TreeItemMailbox::handleFetchResponse( const Model* const model, const Respo
             message->_fetched = true;
             message->_loading = false;
         } else if ( it.key() == "BODYSTRUCTURE" ) {
-            message->setChildren( dynamic_cast<const Message::AbstractMessage&>( *(it.value()) ).createTreeItems( message ) );
+            // FIXME: proper signaling to prevent double-delete
+            QList<TreeItem*> oldChildren = message->setChildren( dynamic_cast<const Message::AbstractMessage&>( *(it.value()) ).createTreeItems( message ) );
+            qDeleteAll( oldChildren );
         } else if ( it.key().startsWith( "BODY[" ) ) {
             if ( it.key()[ it.key().size() - 1 ] != ']' )
                 throw UnknownMessageIndex( "Can't parse such BODY[]", response );
@@ -340,13 +354,14 @@ TreeItem* TreeItemPart::child( const int offset, const Model* const model )
         return 0;
 }
 
-void TreeItemPart::setChildren( const QList<TreeItem*> items )
+QList<TreeItem*> TreeItemPart::setChildren( const QList<TreeItem*> items )
 {
     bool fetched = _fetched;
     bool loading = _loading;
-    TreeItem::setChildren( items );
+    QList<TreeItem*> res = TreeItem::setChildren( items );
     _fetched = fetched;
     _loading = loading;
+    return res;
 }
 
 void TreeItemPart::fetch( const Model* const model )
