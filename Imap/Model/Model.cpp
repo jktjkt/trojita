@@ -188,17 +188,23 @@ void Model::_finalizeList( ParserPtr parser, const QMap<CommandHandle, Task>::co
 
     QModelIndex parent = QAbstractItemModel::createIndex( mailboxPtr->row(), 0, mailboxPtr );
     QList<TreeItem*> oldItems;
-    if ( mailboxPtr->_fetched ) {
+    if ( mailboxPtr->_children.size() != 1 ) {
+        // there's something besides the TreeItemMsgList
         int count = mailboxPtr->rowCount( this );
         beginRemoveRows( parent, 1, count - 1 );
         oldItems = mailboxPtr->setChildren( QList<TreeItem*>() );
         endRemoveRows();
     }
 
-    beginInsertRows( parent, 1, mailboxes.size() );
-    QList<TreeItem*> deletedItems = mailboxPtr->setChildren( mailboxes );
-    endInsertRows();
-    qDeleteAll( deletedItems );
+    if ( ! mailboxes.isEmpty() ) {
+        beginInsertRows( parent, 1, mailboxes.size() );
+        QList<TreeItem*> deletedItems = mailboxPtr->setChildren( mailboxes );
+        endInsertRows();
+        qDeleteAll( deletedItems );
+    } else {
+        QList<TreeItem*> dummy = mailboxPtr->setChildren( mailboxes );
+        Q_ASSERT( dummy.isEmpty() );
+    }
     qDeleteAll( oldItems );
     emit layoutChanged();
 
