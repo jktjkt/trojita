@@ -44,7 +44,12 @@ class MainWindow: public QMainWindow {
 public:
     MainWindow();
 
+private slots:
+    void showContextMenuMboxTree( const QPoint& position );
+    void slotReloadMboxList();
+
 private:
+    void createMenus();
     void createDockWindows();
     void setupModels();
 
@@ -57,6 +62,8 @@ private:
 
     QTreeView* mboxTree;
     QTreeView* msgListTree;
+
+    QAction* reloadMboxList;
 };
 
 }

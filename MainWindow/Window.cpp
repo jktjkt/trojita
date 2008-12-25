@@ -16,7 +16,9 @@
    Boston, MA 02110-1301, USA.
 */
 
+#include <QDebug>
 #include <QDockWidget>
+#include <QMenuBar>
 #include <QTreeView>
 
 #include "Window.h"
@@ -29,8 +31,17 @@ namespace Gui {
 
 MainWindow::MainWindow(): QMainWindow()
 {
+    createMenus();
     createDockWindows();
     setupModels();
+}
+
+void MainWindow::createMenus()
+{
+    reloadMboxList = new QAction( "Rescan Child Mailboxes", this );
+    connect( reloadMboxList, SIGNAL( triggered() ), this, SLOT( slotReloadMboxList() ) );
+    /*QMenu* mailboxMenu = menuBar()->addMenu( "Mailbox" );
+    mailboxMenu->addAction( reloadMboxList );*/
 }
 
 void MainWindow::createDockWindows()
@@ -39,6 +50,10 @@ void MainWindow::createDockWindows()
     mboxTree = new QTreeView( dock );
     mboxTree->setUniformRowHeights( true );
     mboxTree->setHeaderHidden( true );
+    mboxTree->setContextMenuPolicy(Qt::CustomContextMenu);
+    mboxTree->setSelectionMode( QAbstractItemView::ExtendedSelection );
+    connect( mboxTree, SIGNAL( customContextMenuRequested( const QPoint & ) ),
+            this, SLOT( showContextMenuMboxTree( const QPoint& ) ) );
     dock->setWidget( mboxTree );
     addDockWidget(Qt::LeftDockWidgetArea, dock);
 
@@ -70,6 +85,21 @@ void MainWindow::setupModels()
 
     mboxTree->setModel( mboxModel );
     msgListTree->setModel( msgListModel );
+}
+
+void MainWindow::showContextMenuMboxTree( const QPoint& position )
+{
+    QList<QAction*> actionList;
+    if ( mboxTree->indexAt( position ).isValid() ) {
+        actionList.append( reloadMboxList );
+    }
+    if ( ! actionList.isEmpty() )
+        QMenu::exec( actionList, mboxTree->mapToGlobal( position ) );
+}
+
+void MainWindow::slotReloadMboxList()
+{
+    qDebug() << "slotReloadMboxList:" << mboxTree->selectionModel()->selectedIndexes().count();
 }
 
 }
