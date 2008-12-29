@@ -142,6 +142,7 @@ void MsgListModel::setMailbox( const QModelIndex& index )
                 static_cast<TreeItem*>(
                     mailboxModel->mapToSource( index ).internalPointer()
                     ) );
+        Q_ASSERT( mbox );
         Model* realModel = dynamic_cast<Model*>( mailboxModel->sourceModel() );
         if ( realModel ) {
             list = dynamic_cast<TreeItemMsgList*>( mbox->child( 0, realModel ) );
