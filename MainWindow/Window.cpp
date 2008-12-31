@@ -27,8 +27,6 @@
 #include "Imap/Model/MsgListModel.h"
 #include "Imap/Streams/SocketFactory.h"
 
-#include <QDebug>
-
 namespace Gui {
 
 MainWindow::MainWindow(): QMainWindow()
@@ -111,7 +109,6 @@ void MainWindow::slotReloadMboxList()
                     )
                 );
         Q_ASSERT( mbox );
-        qDebug() << Q_FUNC_INFO << "mbox:" << mbox << ", parent:" << mbox->parent() << ", parent2:" << mbox->parent()->parent();
         mbox->rescanForChildMailboxes( model );
     }
 }
