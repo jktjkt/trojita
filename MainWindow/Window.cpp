@@ -22,7 +22,6 @@
 
 #include "Window.h"
 #include "Imap/Model/Model.h"
-#include "Imap/Model/ModelWatcher.h"
 #include "Imap/Model/MailboxModel.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/MsgListModel.h"
@@ -64,13 +63,6 @@ void MainWindow::createDockWindows()
     msgListTree->setHeaderHidden( true );
     dock->setWidget( msgListTree );
     addDockWidget(Qt::RightDockWidgetArea, dock);
-
-    dock = new QDockWidget( "Full Tree", this );
-    allTree = new QTreeView( dock );
-    allTree->setUniformRowHeights( true );
-    allTree->setHeaderHidden( true );
-    dock->setWidget( allTree );
-    addDockWidget(Qt::RightDockWidgetArea, dock);
 }
 
 void MainWindow::setupModels()
@@ -93,16 +85,8 @@ void MainWindow::setupModels()
     QObject::connect( mboxTree, SIGNAL( clicked(const QModelIndex&) ), msgListModel, SLOT( setMailbox(const QModelIndex&) ) );
     QObject::connect( mboxTree, SIGNAL( activated(const QModelIndex&) ), msgListModel, SLOT( setMailbox(const QModelIndex&) ) );
 
-    Imap::Mailbox::ModelWatcher* w = new Imap::Mailbox::ModelWatcher( this );
-    w->setModel( model );
-    w = new Imap::Mailbox::ModelWatcher( this );
-    w->setModel( mboxModel );
-    w = new Imap::Mailbox::ModelWatcher( this );
-    w->setModel( msgListModel );
-
     mboxTree->setModel( mboxModel );
     msgListTree->setModel( msgListModel );
-    allTree->setModel( model );
 }
 
 void MainWindow::showContextMenuMboxTree( const QPoint& position )
