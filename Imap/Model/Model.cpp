@@ -189,7 +189,8 @@ void Model::_finalizeList( ParserPtr parser, const QMap<CommandHandle, Task>::co
     QModelIndex parent = QAbstractItemModel::createIndex( mailboxPtr->row(), 0, mailboxPtr );
     QList<TreeItem*> oldItems;
     if ( mailboxPtr->_children.size() != 1 ) {
-        // there's something besides the TreeItemMsgList
+        // There's something besides the TreeItemMsgList and we're going to
+        // overwrite them, so we have to delete them right now
         int count = mailboxPtr->rowCount( this );
         beginRemoveRows( parent, 1, count - 1 );
         oldItems = mailboxPtr->setChildren( QList<TreeItem*>() );
@@ -198,9 +199,9 @@ void Model::_finalizeList( ParserPtr parser, const QMap<CommandHandle, Task>::co
 
     if ( ! mailboxes.isEmpty() ) {
         beginInsertRows( parent, 1, mailboxes.size() );
-        QList<TreeItem*> deletedItems = mailboxPtr->setChildren( mailboxes );
+        QList<TreeItem*> dummy = mailboxPtr->setChildren( mailboxes );
         endInsertRows();
-        qDeleteAll( deletedItems );
+        Q_ASSERT( dummy.isEmpty() );
     } else {
         QList<TreeItem*> dummy = mailboxPtr->setChildren( mailboxes );
         Q_ASSERT( dummy.isEmpty() );
