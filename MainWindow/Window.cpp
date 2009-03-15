@@ -65,7 +65,7 @@ void MainWindow::createDockWindows()
     dock->setWidget( msgListTree );
     addDockWidget(Qt::RightDockWidgetArea, dock);
 
-    dock = new QDockWidget( "Messages", this );
+    dock = new QDockWidget( "Full Tree", this );
     allTree = new QTreeView( dock );
     allTree->setUniformRowHeights( true );
     allTree->setHeaderHidden( true );
