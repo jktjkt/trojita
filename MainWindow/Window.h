@@ -62,6 +62,7 @@ private:
 
     QTreeView* mboxTree;
     QTreeView* msgListTree;
+    QTreeView* allTree;
 
     QAction* reloadMboxList;
 };
