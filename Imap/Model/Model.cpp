@@ -167,7 +167,25 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
 
 void Model::_finalizeList( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command )
 {
-    // FIXME: more fine-grained resizing than layoutChanged()
+    /* It would be nice to avoid calling layoutAboutToBeChanged(), but
+       unfortunately it seems that it is neccessary for QTreeView to work
+       correctly (at least in Qt 4.5).
+
+       Additionally, the fine-frained signals aren't popagated via
+       QSortFilterProxyModel, on which we rely for detailed models like
+       MailboxModel.
+
+       Some observations are at http://lists.trolltech.com/qt-interest/2006-01/thread00099-0.html
+
+       Trolltech's QFileSystemModel works in the same way:
+            rowsAboutToBeInserted( QModelIndex(0,0,0x9bbf290,QFileSystemModel(0x9bac530) )  0 16 )
+            rowsInserted( QModelIndex(0,0,0x9bbf290,QFileSystemModel(0x9bac530) )  0 16 )
+            layoutAboutToBeChanged()
+            layoutChanged()
+
+       This applies to other handlers in this file which update model layout as
+       well.
+    */
     emit layoutAboutToBeChanged();
     QList<TreeItem*> mailboxes;
     TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( command->what );
@@ -192,13 +210,13 @@ void Model::_finalizeList( ParserPtr parser, const QMap<CommandHandle, Task>::co
         // There's something besides the TreeItemMsgList and we're going to
         // overwrite them, so we have to delete them right now
         int count = mailboxPtr->rowCount( this );
-        beginRemoveRows( parent, 1, count - 1 );
+        beginRemoveRows( parent, 0, count - 1 );
         oldItems = mailboxPtr->setChildren( QList<TreeItem*>() );
         endRemoveRows();
     }
 
     if ( ! mailboxes.isEmpty() ) {
-        beginInsertRows( parent, 1, mailboxes.size() );
+        beginInsertRows( parent, 0, mailboxes.size() );
         QList<TreeItem*> dummy = mailboxPtr->setChildren( mailboxes );
         endInsertRows();
         Q_ASSERT( dummy.isEmpty() );
@@ -214,7 +232,6 @@ void Model::_finalizeList( ParserPtr parser, const QMap<CommandHandle, Task>::co
 
 void Model::_finalizeStatus( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command )
 {
-    // FIXME: more fine-grained resizing than layoutChanged()
     emit layoutAboutToBeChanged();
     QList<TreeItem*> messages;
     TreeItemMsgList* listPtr = dynamic_cast<TreeItemMsgList*>( command->what );
