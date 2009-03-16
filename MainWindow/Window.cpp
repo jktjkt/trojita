@@ -26,6 +26,7 @@
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/MsgListModel.h"
 #include "Imap/Streams/SocketFactory.h"
+#include "View/MessageView.h"
 
 namespace Gui {
 
@@ -63,6 +64,11 @@ void MainWindow::createDockWindows()
     msgListTree->setHeaderHidden( true );
     dock->setWidget( msgListTree );
     addDockWidget(Qt::RightDockWidgetArea, dock);
+
+    dock = new QDockWidget( "Mail", this );
+    msgView = new MessageView( dock );
+    dock->setWidget( msgView );
+    addDockWidget(Qt::BottomDockWidgetArea, dock);
 }
 
 void MainWindow::setupModels()

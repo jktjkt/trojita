@@ -38,6 +38,8 @@ class MsgListModel;
 
 namespace Gui {
 
+class MessageView;
+
 class MainWindow: public QMainWindow {
     Q_OBJECT
 
@@ -62,6 +64,7 @@ private:
 
     QTreeView* mboxTree;
     QTreeView* msgListTree;
+    MessageView* msgView;
 
     QAction* reloadMboxList;
 };

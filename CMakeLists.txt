@@ -60,6 +60,10 @@ set(libImap_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Authenticator.cpp
     )
 
+set(libView_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/View/MessageView.cpp
+)
+
 set(libModelTest_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/ModelTest/modeltest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/ModelTest/ModelTestMoc.cpp
@@ -71,11 +75,13 @@ set(trojita_SRCS
     )
 
 qt4_automoc(${trojita_SRCS} ${libImap_SRCS}
-    ${libModelTest_SRCS})
+    ${libView_SRCS} ${libModelTest_SRCS} )
 
 add_library(Imap ${libImap_SRCS})
+add_library(View ${libView_SRCS})
 add_library(ModelTest ${libModelTest_SRCS})
 add_executable(trojita ${trojita_SRCS})
 
 target_link_libraries(Imap ${QT_QTGUI_LIBRARY})
-target_link_libraries(trojita Imap ModelTest)
+target_link_libraries(View ${QT_QTWEBKIT_LIBRARY})
+target_link_libraries(trojita Imap View ModelTest )
