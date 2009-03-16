@@ -21,12 +21,12 @@
 #include <QTreeView>
 
 #include "Window.h"
+#include "MessageView.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/MailboxModel.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/MsgListModel.h"
 #include "Streams/SocketFactory.h"
-#include "MessageView/MessageView.h"
 
 namespace Gui {
 

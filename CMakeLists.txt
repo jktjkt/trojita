@@ -61,7 +61,7 @@ set(libImap_SRCS
 )
 
 set(libMessageView_SRCS
-    ${CMAKE_CURRENT_SOURCE_DIR}/MessageView/MessageView.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Gui/MessageView.cpp
 )
 
 set(libModelTest_SRCS
@@ -78,7 +78,7 @@ set(libStreams_SRCS
 
 set(trojita_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/MainWindow/Window.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Gui/Window.cpp
     )
 
 qt4_automoc(${trojita_SRCS} ${libImap_SRCS} ${libStreams_SRCS}
