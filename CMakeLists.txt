@@ -51,7 +51,6 @@ set(libImap_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/MailboxModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/MsgListModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/MailboxTree.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/MessageModel.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Streams/SocketFactory.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Streams/Socket.cpp
