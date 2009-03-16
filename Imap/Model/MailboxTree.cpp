@@ -441,7 +441,7 @@ QString TreeItemPart::partId() const
     }
 }
 
-TreeItemMessage* TreeItemPart::message()
+TreeItemMessage* TreeItemPart::message() const
 {
     const TreeItemPart* part = this;
     while ( part ) {

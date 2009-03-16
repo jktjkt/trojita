@@ -125,7 +125,7 @@ public:
     virtual bool hasChildren( const Model* const model );
 
     QString partId() const;
-    TreeItemMessage* message();
+    TreeItemMessage* message() const;
 private:
     bool isTopLevelMultiPart() const;
 };
