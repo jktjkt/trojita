@@ -19,6 +19,8 @@
 project(trojita)
 enable_testing()
 
+cmake_minimum_required(VERSION 2.6)
+
 SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fno-common -ggdb")
 #SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weffc++")
 
@@ -47,21 +49,19 @@ set(libImap_SRCS
 
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Cache.cpp
 
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Authenticator.cpp
+
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/Model.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/MailboxModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/MsgListModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/MailboxTree.cpp
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Streams/SocketFactory.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Streams/Socket.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Streams/IODeviceSocket.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Streams/UnixSocket.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Network/MsgPartNetworkReply.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Network/MsgPartNetAccessManager.cpp
+)
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Authenticator.cpp
-    )
-
-set(libView_SRCS
-    ${CMAKE_CURRENT_SOURCE_DIR}/View/MessageView.cpp
+set(libMessageView_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/MessageView/MessageView.cpp
 )
 
 set(libModelTest_SRCS
@@ -69,19 +69,27 @@ set(libModelTest_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/ModelTest/ModelTestMoc.cpp
     )
 
+set(libStreams_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/Streams/SocketFactory.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Streams/Socket.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Streams/IODeviceSocket.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Streams/UnixSocket.cpp
+)
+
 set(trojita_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/MainWindow/Window.cpp
     )
 
-qt4_automoc(${trojita_SRCS} ${libImap_SRCS}
-    ${libView_SRCS} ${libModelTest_SRCS} )
+qt4_automoc(${trojita_SRCS} ${libImap_SRCS} ${libStreams_SRCS}
+    ${libMessageView_SRCS} ${libModelTest_SRCS})
 
 add_library(Imap ${libImap_SRCS})
-add_library(View ${libView_SRCS})
+add_library(MessageView ${libMessageView_SRCS})
+add_library(Streams ${libStreams_SRCS})
 add_library(ModelTest ${libModelTest_SRCS})
 add_executable(trojita ${trojita_SRCS})
 
-target_link_libraries(Imap ${QT_QTGUI_LIBRARY})
-target_link_libraries(View ${QT_QTWEBKIT_LIBRARY})
-target_link_libraries(trojita Imap View ModelTest )
+target_link_libraries(Imap Streams ${QT_QTGUI_LIBRARY})
+target_link_libraries(MessageView ${QT_QTWEBKIT_LIBRARY})
+target_link_libraries(trojita Imap MessageView ModelTest )

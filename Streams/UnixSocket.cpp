@@ -17,7 +17,7 @@
 */
 
 #include "UnixSocket.h"
-#include "../Exceptions.h"
+#include "../Imap/Exceptions.h"
 
 #include <QTextStream>
 #include <QTime>
