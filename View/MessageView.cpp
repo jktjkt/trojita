@@ -15,6 +15,16 @@ MessageView::MessageView( QWidget* parent ): QWidget(parent), message(0), model(
     webView = new QWebView( this );
     layout->addWidget( webView );
     layout->setContentsMargins( 0, 0, 0, 0 );
+
+    QWebSettings* s = webView->settings();
+    s->setAttribute( QWebSettings::JavascriptEnabled, false );
+    s->setAttribute( QWebSettings::JavaEnabled, false );
+    s->setAttribute( QWebSettings::PluginsEnabled, false );
+    s->setAttribute( QWebSettings::PrivateBrowsingEnabled, true );
+    s->setAttribute( QWebSettings::JavaEnabled, false );
+    s->setAttribute( QWebSettings::OfflineStorageDatabaseEnabled, false );
+    s->setAttribute( QWebSettings::OfflineWebApplicationCacheEnabled, false );
+    s->setAttribute( QWebSettings::LocalStorageDatabaseEnabled, false );
 }
 
 void MessageView::setMessage( const QModelIndex& index )
