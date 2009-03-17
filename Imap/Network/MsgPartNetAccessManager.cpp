@@ -2,7 +2,8 @@
 #include <QDebug>
 
 #include "MsgPartNetAccessManager.h"
-#include "Imap/Network/ForbiddenReply.h"
+#include "ForbiddenReply.h"
+#include "MsgPartNetworkReply.h"
 
 namespace Imap {
 namespace Network {
@@ -24,8 +25,7 @@ QNetworkReply* MsgPartNetAccessManager::createRequest( Operation op,
 {
     if ( req.url().scheme() == QLatin1String( "trojita-imap" ) ) {
         qDebug() << req.url();
-        // FIXME: return IMAP stuff...
-        return new Imap::Network::ForbiddenReply( this );
+        return new Imap::Network::MsgPartNetworkReply( this, model, message );
     } else {
         qDebug() << "Forbidden per policy:" << req.url();
         return new Imap::Network::ForbiddenReply( this );
