@@ -10,7 +10,7 @@ class MsgPartNetworkReply : public QNetworkReply
 {
 Q_OBJECT
 public:
-    MsgPartNetworkReply();
+    MsgPartNetworkReply( QObject* parent );
 };
 
 }

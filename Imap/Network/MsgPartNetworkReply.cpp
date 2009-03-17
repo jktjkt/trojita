@@ -3,7 +3,8 @@
 namespace Imap {
 namespace Network {
 
-MsgPartNetworkReply::MsgPartNetworkReply()
+MsgPartNetworkReply::MsgPartNetworkReply( QObject* parent ):
+    QNetworkReply(parent)
 {
 }
 

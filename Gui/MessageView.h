@@ -12,6 +12,9 @@ namespace Mailbox {
 class TreeItemMessage;
 class Model;
 }
+namespace Network {
+class MsgPartNetAccessManager;
+}
 }
 
 namespace Gui {
@@ -28,6 +31,7 @@ private:
     QLayout* layout;
     const Imap::Mailbox::TreeItemMessage* message;
     const Imap::Mailbox::Model* model;
+    Imap::Network::MsgPartNetAccessManager* netAccess;
 };
 
 }

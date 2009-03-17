@@ -55,13 +55,14 @@ set(libImap_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/MailboxModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/MsgListModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/MailboxTree.cpp
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Network/MsgPartNetworkReply.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Network/MsgPartNetAccessManager.cpp
 )
 
 set(libMessageView_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/MessageView.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Network/MsgPartNetworkReply.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Network/ForbiddenReply.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Network/MsgPartNetAccessManager.cpp
 )
 
 set(libModelTest_SRCS

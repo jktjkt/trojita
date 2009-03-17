@@ -4,8 +4,9 @@
 
 #include "MessageView.h"
 
-#include "Imap/Model/MsgListModel.h"
 #include "Imap/Model/MailboxTree.h"
+#include "Imap/Model/MsgListModel.h"
+#include "Imap/Network/MsgPartNetAccessManager.h"
 
 namespace Gui {
 
@@ -25,6 +26,9 @@ MessageView::MessageView( QWidget* parent ): QWidget(parent), message(0), model(
     s->setAttribute( QWebSettings::OfflineStorageDatabaseEnabled, false );
     s->setAttribute( QWebSettings::OfflineWebApplicationCacheEnabled, false );
     s->setAttribute( QWebSettings::LocalStorageDatabaseEnabled, false );
+
+    netAccess = new Imap::Network::MsgPartNetAccessManager( webView );
+    webView->page()->setNetworkAccessManager( netAccess );
 }
 
 void MessageView::setMessage( const QModelIndex& index )
@@ -61,7 +65,9 @@ void MessageView::setMessage( const QModelIndex& index )
     Q_ASSERT( model );
     Q_ASSERT( message );
 
+    netAccess->setModelMessage( model, message );
     webView->setUrl( QUrl( QString("trojita-imap://current-msg") ) );
+
 }
 
 }
