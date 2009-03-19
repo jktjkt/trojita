@@ -52,6 +52,7 @@ public:
     virtual unsigned int rowCount( const Model* const model ) = 0;
     virtual QVariant data( const Model* const model, int role ) = 0;
     virtual bool hasChildren( const Model* const model ) = 0;
+    virtual bool fetched() const { return _fetched; };
 };
 
 class TreeItemPart;
@@ -126,6 +127,15 @@ public:
 
     QString partId() const;
     TreeItemMessage* message() const;
+
+    /** @short Provide access to the internal buffer holding data
+
+        It is safe to access the obtained pointer as long as this object is not
+        deleted. This function violates the classic concept of object
+        encapsulation, but is really useful for the implementation of
+        Imap::Network::MsgPartNetworkReply.
+     */
+    QByteArray* dataPtr();
 private:
     bool isTopLevelMultiPart() const;
 };

@@ -202,6 +202,7 @@ void TreeItemMailbox::handleFetchResponse( const Model* const model, const Respo
             part->_data = dynamic_cast<const Responses::RespData<QByteArray>&>( *(it.value()) ).data;
             part->_fetched = true;
             part->_loading = false;
+            // FIXME: emit a signal saying "hey, we finally got the data!"
         } else {
             qDebug() << "TreeItemMailbox::handleFetchResponse: unknown FETCH identifier" << it.key();
         }
@@ -451,6 +452,11 @@ TreeItemMessage* TreeItemPart::message() const
         part = dynamic_cast<TreeItemPart*>( part->parent() );
     }
     return 0;
+}
+
+QByteArray* TreeItemPart::dataPtr()
+{
+    return &_data;
 }
 
 }
