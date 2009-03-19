@@ -31,6 +31,7 @@ void ModelWatcher::setModel( QAbstractItemModel* model )
     connect( model, SIGNAL( layoutChanged() ), this, SLOT( layoutChanged() ) );
     connect( model, SIGNAL( modelAboutToBeReset() ), this, SLOT( modelAboutToBeReset() ) );
     connect( model, SIGNAL( modelReset() ), this, SLOT( modelReset() ) );
+    _model = model;
 }
 
 void ModelWatcher::columnsAboutToBeInserted( const QModelIndex& parent, int start, int end )
@@ -56,6 +57,7 @@ void ModelWatcher::columnsRemoved( const QModelIndex& parent, int start, int end
 void ModelWatcher::dataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight )
 {
     qDebug() << QObject::sender()->objectName() << "dataChanged(" << topLeft << bottomRight << ")";
+    qDebug() << "new data" << _model->data( topLeft, Qt::DisplayRole );
 }
 void ModelWatcher::headerDataChanged( Qt::Orientation orientation, int first, int last )
 {

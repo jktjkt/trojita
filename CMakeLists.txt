@@ -55,6 +55,8 @@ set(libImap_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/MailboxModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/MsgListModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/MailboxTree.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/ModelWatcher.cpp
 )
 
 set(libMessageView_SRCS

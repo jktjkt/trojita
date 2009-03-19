@@ -25,6 +25,7 @@
 #include "Imap/Model/Model.h"
 #include "Imap/Model/MailboxModel.h"
 #include "Imap/Model/MailboxTree.h"
+#include "Imap/Model/ModelWatcher.h"
 #include "Imap/Model/MsgListModel.h"
 #include "Streams/SocketFactory.h"
 
@@ -102,6 +103,9 @@ void MainWindow::setupModels()
 
     QObject::connect( msgListTree, SIGNAL( clicked(const QModelIndex&) ), msgView, SLOT( setMessage(const QModelIndex&) ) );
     QObject::connect( msgListTree, SIGNAL( activated(const QModelIndex&) ), msgView, SLOT( setMessage(const QModelIndex&) ) );
+
+    Imap::Mailbox::ModelWatcher* w = new Imap::Mailbox::ModelWatcher( this );
+    w->setModel( model );
 
     mboxTree->setModel( mboxModel );
     msgListTree->setModel( msgListModel );
