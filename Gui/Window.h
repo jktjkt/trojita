@@ -19,6 +19,8 @@
 #ifndef TROJITA_WINDOW_H
 #define TROJITA_WINDOW_H
 
+//#define FULL_VIEW
+
 #include <QMainWindow>
 
 #include "Imap/Authenticator.h"
@@ -64,6 +66,9 @@ private:
 
     QTreeView* mboxTree;
     QTreeView* msgListTree;
+#ifdef FULL_VIEW
+    QTreeView* allTree;
+#endif
     MessageView* msgView;
 
     QAction* reloadMboxList;

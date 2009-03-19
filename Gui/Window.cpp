@@ -69,6 +69,15 @@ void MainWindow::createDockWindows()
     msgView = new MessageView( dock );
     dock->setWidget( msgView );
     addDockWidget(Qt::BottomDockWidgetArea, dock);
+
+#ifdef FULL_VIEW
+    dock = new QDockWidget( "Everything", this );
+    allTree = new QTreeView( dock );
+    allTree->setUniformRowHeights( true );
+    allTree->setHeaderHidden( true );
+    dock->setWidget( allTree );
+    addDockWidget(Qt::NoDockWidgetArea, dock);
+#endif
 }
 
 void MainWindow::setupModels()
@@ -96,6 +105,9 @@ void MainWindow::setupModels()
 
     mboxTree->setModel( mboxModel );
     msgListTree->setModel( msgListModel );
+#ifdef FULL_VIEW
+    allTree->setModel( model  );
+#endif
 }
 
 void MainWindow::showContextMenuMboxTree( const QPoint& position )
