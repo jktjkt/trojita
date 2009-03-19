@@ -104,8 +104,8 @@ void MainWindow::setupModels()
     QObject::connect( msgListTree, SIGNAL( clicked(const QModelIndex&) ), msgView, SLOT( setMessage(const QModelIndex&) ) );
     QObject::connect( msgListTree, SIGNAL( activated(const QModelIndex&) ), msgView, SLOT( setMessage(const QModelIndex&) ) );
 
-    Imap::Mailbox::ModelWatcher* w = new Imap::Mailbox::ModelWatcher( this );
-    w->setModel( model );
+    //Imap::Mailbox::ModelWatcher* w = new Imap::Mailbox::ModelWatcher( this );
+    //w->setModel( model );
 
     mboxTree->setModel( mboxModel );
     msgListTree->setModel( msgListModel );
