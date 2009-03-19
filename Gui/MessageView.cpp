@@ -36,7 +36,7 @@ void MessageView::setMessage( const QModelIndex& index )
     // first, let's get a real model
     const Imap::Mailbox::Model* modelCandidate = dynamic_cast<const Imap::Mailbox::Model*>( index.model() );
     const Imap::Mailbox::MsgListModel* msgListModel = dynamic_cast<const Imap::Mailbox::MsgListModel*>( index.model() );
-    const Imap::Mailbox::TreeItem* item = static_cast<Imap::Mailbox::TreeItem*>( index.internalPointer() );
+    Imap::Mailbox::TreeItem* item = static_cast<Imap::Mailbox::TreeItem*>( index.internalPointer() );
 
     if ( modelCandidate ) {
         model = modelCandidate;
@@ -46,7 +46,7 @@ void MessageView::setMessage( const QModelIndex& index )
     }
 
     // now let's find a real message root
-    const Imap::Mailbox::TreeItemMessage* messageCandidate = dynamic_cast<const Imap::Mailbox::TreeItemMessage*>( item );
+    Imap::Mailbox::TreeItemMessage* messageCandidate = dynamic_cast<Imap::Mailbox::TreeItemMessage*>( item );
     if ( messageCandidate ) {
         message = messageCandidate;
     } else {
@@ -66,7 +66,8 @@ void MessageView::setMessage( const QModelIndex& index )
     Q_ASSERT( message );
 
     netAccess->setModelMessage( model, message );
-    webView->setUrl( QUrl( QString("trojita-imap://current-msg") ) );
+    webView->setUrl( QUrl( QString("trojita-imap://msg/0") ) );
+    // There is never more than one top-level child item, so we can safely use /0 as the path
 
 }
 

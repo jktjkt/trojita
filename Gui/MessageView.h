@@ -29,7 +29,7 @@ public slots:
 private:
     QWebView* webView;
     QLayout* layout;
-    const Imap::Mailbox::TreeItemMessage* message;
+    Imap::Mailbox::TreeItemMessage* message;
     const Imap::Mailbox::Model* model;
     Imap::Network::MsgPartNetAccessManager* netAccess;
 };

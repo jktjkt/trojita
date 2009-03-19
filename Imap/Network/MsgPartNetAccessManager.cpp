@@ -14,7 +14,7 @@ MsgPartNetAccessManager::MsgPartNetAccessManager( QObject* parent ):
 }
 
 void MsgPartNetAccessManager::setModelMessage( const Imap::Mailbox::Model* _model,
-    const Imap::Mailbox::TreeItemMessage* _message )
+    Imap::Mailbox::TreeItemMessage* _message )
 {
     model = _model;
     message = _message;
@@ -23,9 +23,10 @@ void MsgPartNetAccessManager::setModelMessage( const Imap::Mailbox::Model* _mode
 QNetworkReply* MsgPartNetAccessManager::createRequest( Operation op,
     const QNetworkRequest& req, QIODevice* outgoingData )
 {
-    if ( req.url().scheme() == QLatin1String( "trojita-imap" ) ) {
-        qDebug() << req.url();
-        return new Imap::Network::MsgPartNetworkReply( this, model, message );
+    if ( req.url().scheme() == QLatin1String( "trojita-imap" ) &&
+         req.url().host() == QLatin1String("msg") ) {
+        return new Imap::Network::MsgPartNetworkReply( this, model, message,
+                                                       req.url().path() );
     } else {
         qDebug() << "Forbidden per policy:" << req.url();
         return new Imap::Network::ForbiddenReply( this );

@@ -18,13 +18,13 @@ class MsgPartNetAccessManager : public QNetworkAccessManager
 public:
     MsgPartNetAccessManager( QObject* parent=0 );
     void setModelMessage( const Imap::Mailbox::Model* _model,
-        const Imap::Mailbox::TreeItemMessage* _message );
+        Imap::Mailbox::TreeItemMessage* _message );
 protected:
     virtual QNetworkReply* createRequest( Operation op,
         const QNetworkRequest& req, QIODevice* outgoingData=0 );
 private:
     const Imap::Mailbox::Model* model;
-    const Imap::Mailbox::TreeItemMessage* message;
+    Imap::Mailbox::TreeItemMessage* message;
 };
 
 }
