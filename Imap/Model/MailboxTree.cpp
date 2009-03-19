@@ -163,7 +163,9 @@ QList<TreeItem*> TreeItemMailbox::setChildren( const QList<TreeItem*> items )
     return list;
 }
 
-void TreeItemMailbox::handleFetchResponse( const Model* const model, const Responses::Fetch& response )
+void TreeItemMailbox::handleFetchResponse( const Model* const model,
+                                           const Responses::Fetch& response,
+                                           TreeItemPart** changedPart )
 {
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[0] );
     Q_ASSERT( list );
@@ -190,9 +192,15 @@ void TreeItemMailbox::handleFetchResponse( const Model* const model, const Respo
             message->_fetched = true;
             message->_loading = false;
         } else if ( it.key() == "BODYSTRUCTURE" ) {
-            // FIXME: proper signaling to prevent double-delete
-            QList<TreeItem*> oldChildren = message->setChildren( dynamic_cast<const Message::AbstractMessage&>( *(it.value()) ).createTreeItems( message ) );
-            qDeleteAll( oldChildren );
+            if ( message->_fetched ) {
+                // The message structure is already known, so we are free to ignore it
+            } else {
+                // We had no idea about the structure of the message
+                QList<TreeItem*> newChildren = dynamic_cast<const Message::AbstractMessage&>( *(it.value()) ).createTreeItems( message );
+                // FIXME: it would be nice to use more fine-grained signals here
+                QList<TreeItem*> oldChildren = message->setChildren( newChildren );
+                Q_ASSERT( oldChildren.size() == 0 );
+            }
         } else if ( it.key().startsWith( "BODY[" ) ) {
             if ( it.key()[ it.key().size() - 1 ] != ']' )
                 throw UnknownMessageIndex( "Can't parse such BODY[]", response );
@@ -202,7 +210,9 @@ void TreeItemMailbox::handleFetchResponse( const Model* const model, const Respo
             part->_data = dynamic_cast<const Responses::RespData<QByteArray>&>( *(it.value()) ).data;
             part->_fetched = true;
             part->_loading = false;
-            // FIXME: emit a signal saying "hey, we finally got the data!"
+            if ( changedPart ) {
+                *changedPart = part;
+            }
         } else {
             qDebug() << "TreeItemMailbox::handleFetchResponse: unknown FETCH identifier" << it.key();
         }
@@ -340,7 +350,13 @@ QVariant TreeItemMessage::data( const Model* const model, int role )
 
 
 TreeItemPart::TreeItemPart( TreeItem* parent, const QString& mimeType ): TreeItem(parent), _mimeType(mimeType.toLower())
-{}
+{
+    if ( isTopLevelMultiPart() ) {
+        // Note that top-level multipart messages are special, their immediate contents
+        // can't be fetched. That's why we have to update the status here.
+        _fetched = true;
+    }
+}
 
 unsigned int TreeItemPart::childrenCount( const Model* const model )
 {
@@ -370,13 +386,8 @@ void TreeItemPart::fetch( const Model* const model )
     if ( _fetched || _loading )
         return;
 
-    if ( isTopLevelMultiPart() ) {
-        // we can safely ignore this
-        _fetched = true;
-    } else {
-        model->_askForMsgPart( this );
-        _loading = true;
-    }
+    model->_askForMsgPart( this );
+    _loading = true;
 }
 
 unsigned int TreeItemPart::rowCount( const Model* const model )

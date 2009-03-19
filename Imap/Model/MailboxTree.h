@@ -76,7 +76,14 @@ public:
     QString mailbox() const { return _metadata.mailbox; };
     QString separator() const { return _metadata.separator; };
     const MailboxMetadata& mailboxMetadata() const { return _metadata; };
-    void handleFetchResponse( const Model* const model, const Responses::Fetch& response );
+    /** @short Update internal tree with the results of a FETCH response
+
+      If \a changedPart is not null, it will be updated to point to the message
+      part whose content got fetched.
+    */
+    void handleFetchResponse( const Model* const model,
+                              const Responses::Fetch& response,
+                              TreeItemPart** changedPart=0 );
     void finalizeFetch( const Model* const model, const Responses::Status& response );
     void rescanForChildMailboxes( const Model* const model );
 private:

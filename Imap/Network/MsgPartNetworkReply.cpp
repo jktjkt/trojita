@@ -1,7 +1,10 @@
+#include <QDebug>
 #include <QStringList>
+#include <QTimer>
 
 #include "MsgPartNetworkReply.h"
 #include "Imap/Model/MailboxTree.h"
+#include "Imap/Model/Model.h"
 
 namespace Imap {
 
@@ -34,7 +37,34 @@ MsgPartNetworkReply::MsgPartNetworkReply( QObject* parent,
 
     if ( ok ) {
         Q_ASSERT( part );
+
+        connect( _model, SIGNAL( dataChanged( const QModelIndex&, const QModelIndex& ) ),
+                 this, SLOT( slotModelDataChanged( const QModelIndex&, const QModelIndex& ) ) );
+
+        if ( part->fetched() ) {
+            QTimer::singleShot( 0, this, SLOT( slotMyDataChanged() ) );
+        }
     }
+}
+
+void MsgPartNetworkReply::slotModelDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight )
+{
+    // FIXME: use bottomRight as well!
+    if ( topLeft.model() != model ) {
+        return;
+    }
+    Imap::Mailbox::TreeItemPart* receivedPart = dynamic_cast<Imap::Mailbox::TreeItemPart*> (
+            static_cast<Imap::Mailbox::TreeItem*>( topLeft.internalPointer() ) );
+    if ( receivedPart == part ) {
+        slotMyDataChanged();
+    }
+}
+
+void MsgPartNetworkReply::slotMyDataChanged()
+{
+    // FIXME :)
+    qDebug() << this << "hey, our data has changed!";
+    emit readyRead();
 }
 
 void MsgPartNetworkReply::abort()

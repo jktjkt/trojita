@@ -1,6 +1,7 @@
 #ifndef MSGPARTNETWORKREPLY_H
 #define MSGPARTNETWORKREPLY_H
 
+#include <QModelIndex>
 #include <QNetworkReply>
 
 namespace Imap {
@@ -19,6 +20,9 @@ public:
     MsgPartNetworkReply( QObject* parent, const Imap::Mailbox::Model* _model,
         Imap::Mailbox::TreeItemMessage* _msg, const QString& _part );
     virtual void abort();
+public slots:
+    void slotModelDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight );
+    void slotMyDataChanged();
 protected:
     virtual qint64 readData( char* data, qint64 maxSize );
 private:

@@ -359,12 +359,15 @@ void Model::handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* cons
         throw UnexpectedResponseReceived( "Received FETCH reply, but AFAIK we haven't selected any mailbox yet", *resp );
 
     emit layoutAboutToBeChanged();
-    mailbox->handleFetchResponse( this, *resp );
-    /*TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->child( 0, this ) );
-    TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->child( resp->number - 1, this ) );
-    QModelIndex index = QAbstractItemModel::createIndex( resp->number - 1, 0, message );
-    emit dataChanged( index, index ); */
+
+    TreeItemPart* changedPart = 0;
+    mailbox->handleFetchResponse( this, *resp, &changedPart );
     emit layoutChanged();
+    if ( changedPart ) {
+        QModelIndex index = QAbstractItemModel::createIndex( changedPart->row(),
+                                                             0, changedPart );
+        emit dataChanged( index, index );
+    }
 }
 
 void Model::handleNamespace( Imap::ParserPtr ptr, const Imap::Responses::Namespace* const resp )
