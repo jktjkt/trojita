@@ -1,6 +1,7 @@
 #ifndef MSGPARTNETWORKREPLY_H
 #define MSGPARTNETWORKREPLY_H
 
+#include <QBuffer>
 #include <QModelIndex>
 #include <QNetworkReply>
 
@@ -20,6 +21,8 @@ public:
     MsgPartNetworkReply( QObject* parent, const Imap::Mailbox::Model* _model,
         Imap::Mailbox::TreeItemMessage* _msg, const QString& _part );
     virtual void abort();
+    virtual void close();
+    virtual qint64 bytesAvailable() const;
 public slots:
     void slotModelDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight );
     void slotMyDataChanged();
@@ -29,6 +32,7 @@ private:
     const Imap::Mailbox::Model* model;
     Imap::Mailbox::TreeItemMessage* msg;
     Imap::Mailbox::TreeItemPart* part;
+    QBuffer buffer;
 };
 
 }

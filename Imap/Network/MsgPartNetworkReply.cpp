@@ -16,6 +16,7 @@ MsgPartNetworkReply::MsgPartNetworkReply( QObject* parent,
         const QString& _part ):
     QNetworkReply(parent), model(_model), msg(_msg), part(0)
 {
+    setOpenMode( QIODevice::ReadOnly | QIODevice::Unbuffered );
     Q_ASSERT( model );
     Q_ASSERT( msg );
 
@@ -44,6 +45,14 @@ MsgPartNetworkReply::MsgPartNetworkReply( QObject* parent,
         if ( part->fetched() ) {
             QTimer::singleShot( 0, this, SLOT( slotMyDataChanged() ) );
         }
+
+        buffer.setBuffer( part->dataPtr() );
+        buffer.open( QIODevice::ReadOnly );
+        //open( QIODevice::ReadOnly | QIODevice::Unbuffered );
+        qDebug() << "iodevice opened";
+        part->fetch( model );
+    } else {
+        qDebug() << "not ok";
     }
 }
 
@@ -63,19 +72,42 @@ void MsgPartNetworkReply::slotModelDataChanged( const QModelIndex& topLeft, cons
 void MsgPartNetworkReply::slotMyDataChanged()
 {
     // FIXME :)
-    qDebug() << this << "hey, our data has changed!";
+    setHeader( QNetworkRequest::ContentTypeHeader, QVariant( "text/plain" ) );
+    qDebug() << this << "hey, our data has changed!" << part->partId();
+    emit downloadProgress( 0, buffer.bytesAvailable() );
+    emit downloadProgress( buffer.bytesAvailable(), buffer.bytesAvailable() );
     emit readyRead();
+    emit finished();
 }
 
 void MsgPartNetworkReply::abort()
 {
     // can't really do anything
+    qDebug() << Q_FUNC_INFO;
+}
+
+void MsgPartNetworkReply::close()
+{
+    qDebug() << Q_FUNC_INFO;
+    buffer.close();
+}
+
+qint64 MsgPartNetworkReply::bytesAvailable() const
+{
+    qint64 res = buffer.bytesAvailable() + QNetworkReply::bytesAvailable();
+    qDebug() << Q_FUNC_INFO << res << buffer.bytesAvailable() << QNetworkReply::bytesAvailable();
+    return res;
 }
 
 qint64 MsgPartNetworkReply::readData( char* data, qint64 maxSize )
 {
-    // FIXME
-    return -1;
+    qDebug() << Q_FUNC_INFO << maxSize << buffer.bytesAvailable();
+    qint64 res = buffer.read( data, maxSize );
+    if ( res <= 0 )
+        emit finished();
+    else
+        emit readyRead();
+    return res;
 }
 
 }
