@@ -48,11 +48,7 @@ MsgPartNetworkReply::MsgPartNetworkReply( QObject* parent,
 
         buffer.setBuffer( part->dataPtr() );
         buffer.open( QIODevice::ReadOnly );
-        //open( QIODevice::ReadOnly | QIODevice::Unbuffered );
-        qDebug() << "iodevice opened";
         part->fetch( model );
-    } else {
-        qDebug() << "not ok";
     }
 }
 
@@ -73,9 +69,6 @@ void MsgPartNetworkReply::slotMyDataChanged()
 {
     // FIXME :)
     setHeader( QNetworkRequest::ContentTypeHeader, QVariant( "text/plain" ) );
-    qDebug() << this << "hey, our data has changed!" << part->partId();
-    emit downloadProgress( 0, buffer.bytesAvailable() );
-    emit downloadProgress( buffer.bytesAvailable(), buffer.bytesAvailable() );
     emit readyRead();
     emit finished();
 }
@@ -84,6 +77,7 @@ void MsgPartNetworkReply::abort()
 {
     // can't really do anything
     qDebug() << Q_FUNC_INFO;
+    close();
 }
 
 void MsgPartNetworkReply::close()

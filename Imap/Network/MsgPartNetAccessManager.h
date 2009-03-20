@@ -19,8 +19,6 @@ public:
     MsgPartNetAccessManager( QObject* parent=0 );
     void setModelMessage( const Imap::Mailbox::Model* _model,
         Imap::Mailbox::TreeItemMessage* _message );
-public slots:
-    void replyFinished();
 protected:
     virtual QNetworkReply* createRequest( Operation op,
         const QNetworkRequest& req, QIODevice* outgoingData=0 );
