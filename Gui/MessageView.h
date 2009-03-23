@@ -13,7 +13,7 @@ class TreeItemMessage;
 class Model;
 }
 namespace Network {
-class MsgPartNetAccessManager;
+class FormattingNetAccessManager;
 }
 }
 
@@ -31,7 +31,7 @@ private:
     QLayout* layout;
     Imap::Mailbox::TreeItemMessage* message;
     const Imap::Mailbox::Model* model;
-    Imap::Network::MsgPartNetAccessManager* netAccess;
+    Imap::Network::FormattingNetAccessManager* netAccess;
 };
 
 }

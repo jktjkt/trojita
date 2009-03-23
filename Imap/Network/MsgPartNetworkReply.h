@@ -19,7 +19,7 @@ class MsgPartNetworkReply : public QNetworkReply
 Q_OBJECT
 public:
     MsgPartNetworkReply( QObject* parent, const Imap::Mailbox::Model* _model,
-        Imap::Mailbox::TreeItemMessage* _msg, const QString& _part );
+        Imap::Mailbox::TreeItemMessage* _msg, Imap::Mailbox::TreeItemPart* _part );
     virtual void abort();
     virtual void close();
     virtual qint64 bytesAvailable() const;

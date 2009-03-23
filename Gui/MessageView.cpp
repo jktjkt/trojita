@@ -6,7 +6,7 @@
 
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/MsgListModel.h"
-#include "Imap/Network/MsgPartNetAccessManager.h"
+#include "Imap/Network/FormattingNetAccessManager.h"
 
 namespace Gui {
 
@@ -27,7 +27,7 @@ MessageView::MessageView( QWidget* parent ): QWidget(parent), message(0), model(
     s->setAttribute( QWebSettings::OfflineWebApplicationCacheEnabled, false );
     s->setAttribute( QWebSettings::LocalStorageDatabaseEnabled, false );
 
-    netAccess = new Imap::Network::MsgPartNetAccessManager( webView );
+    netAccess = new Imap::Network::FormattingNetAccessManager( webView );
     webView->page()->setNetworkAccessManager( netAccess );
 }
 

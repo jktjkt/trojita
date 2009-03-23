@@ -1,5 +1,5 @@
-#ifndef MSGPARTNETACCESSMANAGER_H
-#define MSGPARTNETACCESSMANAGER_H
+#ifndef FORMATTINGNETACCESSMANAGER_H
+#define FORMATTINGNETACCESSMANAGER_H
 
 #include <QNetworkAccessManager>
 
@@ -8,30 +8,27 @@ namespace Imap {
 namespace Mailbox {
 class Model;
 class TreeItemMessage;
-class TreeItemPart;
 }
 
 namespace Network {
 
-class FormattingNetAccessManager;
+class MsgPartNetAccessManager;
 
-class MsgPartNetAccessManager : public QNetworkAccessManager
+class FormattingNetAccessManager : public QNetworkAccessManager
 {
     Q_OBJECT
 public:
-    MsgPartNetAccessManager( QObject* parent=0 );
+    FormattingNetAccessManager( QObject* parent=0 );
     void setModelMessage( const Imap::Mailbox::Model* _model,
         Imap::Mailbox::TreeItemMessage* _message );
-    Imap::Mailbox::TreeItemPart* pathToPart( const QString& path );
 protected:
     virtual QNetworkReply* createRequest( Operation op,
         const QNetworkRequest& req, QIODevice* outgoingData=0 );
 private:
-    friend class FormattingNetAccessManager;
-    const Imap::Mailbox::Model* model;
     Imap::Mailbox::TreeItemMessage* message;
+    MsgPartNetAccessManager* partManager;
 };
 
 }
 }
-#endif // MSGPARTNETACCESSMANAGER_H
+#endif // FORMATTINGNETACCESSMANAGER_H

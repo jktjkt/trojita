@@ -65,6 +65,8 @@ set(libMessageView_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Network/MsgPartNetworkReply.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Network/ForbiddenReply.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Network/MsgPartNetAccessManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Network/FormattingNetAccessManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Network/FormattingReply.cpp
 )
 
 set(libModelTest_SRCS

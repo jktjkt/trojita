@@ -143,6 +143,7 @@ public:
         Imap::Network::MsgPartNetworkReply.
      */
     QByteArray* dataPtr();
+    QString mimeType() { return _mimeType; };
 private:
     bool isTopLevelMultiPart() const;
 };
