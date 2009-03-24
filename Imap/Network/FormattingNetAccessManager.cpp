@@ -30,7 +30,12 @@ QNetworkReply* FormattingNetAccessManager::createRequest( Operation op,
     Imap::Mailbox::TreeItemPart* part = partManager->pathToPart( req.url().path() );
     if ( req.url().scheme() == QLatin1String( "trojita-imap" ) &&
          req.url().host() == QLatin1String( "msg" ) ) {
-        return new Imap::Network::FormattingReply( this, partManager->model, partManager->message, part );
+        if ( part ) {
+            return new Imap::Network::FormattingReply( this, partManager->model, partManager->message, part );
+        } else {
+            qDebug() << "Forbidden per policy:" << req.url();
+            return new Imap::Network::ForbiddenReply( this );
+        }
     } else if ( req.url().scheme() == QLatin1String( "trojita-imap" ) &&
                 req.url().host() == QLatin1String( "part" ) ) {
         return new Imap::Network::MsgPartNetworkReply( this, partManager->model, partManager->message,
