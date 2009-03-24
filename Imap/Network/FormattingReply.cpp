@@ -31,9 +31,7 @@ void FormattingReply::close()
 
 qint64 FormattingReply::bytesAvailable() const
 {
-    qint64 res = buffer.bytesAvailable() + QNetworkReply::bytesAvailable();
-    qDebug() << Q_FUNC_INFO << res;
-    return res;
+    return buffer.bytesAvailable() + QNetworkReply::bytesAvailable();
 }
 
 qint64 FormattingReply::readData( char* data, qint64 maxSize )
@@ -43,7 +41,6 @@ qint64 FormattingReply::readData( char* data, qint64 maxSize )
         emit finished();
     else
         emit readyRead();
-    qDebug() << Q_FUNC_INFO << res;
     return res;
 }
 
@@ -95,18 +92,23 @@ void FormattingReply::anotherReplyFinished( MsgPartNetworkReply* anotherReply )
 void FormattingReply::mainReplyFinished()
 {
     QString mimeType = part->mimeType();
-    everythingFinished();
-    // FIXME: parse it
-    // if ( noOtherParts ) everythingFinished();
+    if ( mimeType.startsWith( QLatin1String( "text/" ) ) ) {
+        setHeader( QNetworkRequest::ContentTypeHeader, mimeType );
+        buffer.setData( replies[0]->readAll() );
+        emit everythingFinished();
+    } else if ( mimeType.startsWith( QLatin1String( "multipart/signed" ) ) ) {
+        // FIXME
+    } else {
+        setHeader( QNetworkRequest::ContentTypeHeader, mimeType );
+        buffer.setData( replies[0]->readAll() );
+        emit everythingFinished();
+    }
 }
 
 void FormattingReply::everythingFinished()
 {
-    // FIXME
     Q_ASSERT( ! buffer.isOpen() );
-    buffer.setData( replies[0]->readAll() );
     buffer.open( QIODevice::ReadOnly );
-    setHeader( QNetworkRequest::ContentTypeHeader, QVariant( "text/plain" ) );
     emit readyRead();
 }
 
