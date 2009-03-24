@@ -638,7 +638,12 @@ bool operator==( const MailAddress& a, const MailAddress& b )
 QList<Mailbox::TreeItem*> TextMessage::createTreeItems( Mailbox::TreeItem* parent ) const
 {
     QList<Mailbox::TreeItem*> list;
-    list << new Mailbox::TreeItemPart( parent, QString("%1/%2").arg( mediaType, mediaSubType) );
+    Mailbox::TreeItemPart* p = new Mailbox::TreeItemPart( parent, QString("%1/%2").arg( mediaType, mediaSubType) );
+    bodyFldParam_t::const_iterator it = bodyFldParam.find( "charset" );
+    if ( it != bodyFldParam.end() ) {
+        p->setCharset( *it );
+    }
+    list << p;
     return list;
 }
 

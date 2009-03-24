@@ -93,7 +93,11 @@ void FormattingReply::mainReplyFinished()
 {
     QString mimeType = part->mimeType();
     if ( mimeType.startsWith( QLatin1String( "text/" ) ) ) {
-        setHeader( QNetworkRequest::ContentTypeHeader, mimeType );
+        if ( part->charset().isEmpty() )
+            setHeader( QNetworkRequest::ContentTypeHeader, mimeType );
+        else
+            setHeader( QNetworkRequest::ContentTypeHeader,
+                       QString("%1; charset=%2").arg( mimeType ).arg( part->charset() ) );
         buffer.setData( replies[0]->readAll() );
         emit everythingFinished();
     } else if ( mimeType.startsWith( QLatin1String( "multipart/signed" ) ) ) {

@@ -119,6 +119,7 @@ class TreeItemPart: public TreeItem {
     void operator=( const TreeItem& ); // don't implement
     friend class TreeItemMailbox; // needs access to _data
     QString _mimeType;
+    QString _charset;
     QByteArray _data;
 public:
     TreeItemPart( TreeItem* parent, const QString& mimeType );
@@ -143,7 +144,9 @@ public:
         Imap::Network::MsgPartNetworkReply.
      */
     QByteArray* dataPtr();
-    QString mimeType() { return _mimeType; };
+    QString mimeType() const { return _mimeType; };
+    QString charset() const { return _charset; };
+    void setCharset( const QString& ch ) { _charset = ch; };
 private:
     bool isTopLevelMultiPart() const;
 };
