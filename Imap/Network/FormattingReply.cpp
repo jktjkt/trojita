@@ -61,8 +61,10 @@ void FormattingReply::requestAnotherPart( Imap::Mailbox::TreeItemPart* anotherPa
 
 void FormattingReply::handleAlreadyFinished()
 {
-    for( QList<MsgPartNetworkReply*>::const_iterator it = reqAlreadyFetched.begin();
-         it != reqAlreadyFetched.end(); ++it ) {
+    QList<MsgPartNetworkReply*> fetchedItems = reqAlreadyFetched;
+    reqAlreadyFetched.clear();
+    for( QList<MsgPartNetworkReply*>::const_iterator it = fetchedItems.begin();
+         it != fetchedItems.end(); ++it ) {
         anotherReplyFinished( *it );
     }
 }
