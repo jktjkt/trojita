@@ -83,6 +83,7 @@ void FormattingReply::anotherReplyFinished( MsgPartNetworkReply* anotherReply )
         --pendingCount;
     }
     disconnect( anotherReply, SIGNAL( finished() ), this, SLOT( anotherReplyFinished() ) );
+
     if ( offset == 0 )
         mainReplyFinished();
     else if ( pendingCount == 0 )
@@ -93,20 +94,21 @@ void FormattingReply::mainReplyFinished()
 {
     QString mimeType = part->mimeType();
     if ( mimeType.startsWith( QLatin1String( "text/" ) ) ) {
-        if ( part->charset().isEmpty() )
-            setHeader( QNetworkRequest::ContentTypeHeader, mimeType );
-        else
-            setHeader( QNetworkRequest::ContentTypeHeader,
-                       QString("%1; charset=%2").arg( mimeType ).arg( part->charset() ) );
-        buffer.setData( replies[0]->readAll() );
-        emit everythingFinished();
-    } else if ( mimeType.startsWith( QLatin1String( "multipart/signed" ) ) ) {
-        // FIXME
+        setData( part->charset().isEmpty() ?
+                    mimeType :
+                    QString("%1; charset=%2").arg( mimeType ).arg( part->charset() ),
+                 replies[0]->readAll() );
+        everythingFinished();
     } else {
-        setHeader( QNetworkRequest::ContentTypeHeader, mimeType );
-        buffer.setData( replies[0]->readAll() );
-        emit everythingFinished();
+        setData( mimeType, replies[0]->readAll() );
+        everythingFinished();
     }
+}
+
+void FormattingReply::setData( const QString& mimeType, const QByteArray& data )
+{
+    setHeader( QNetworkRequest::ContentTypeHeader, mimeType );
+    buffer.setData( data );
 }
 
 void FormattingReply::everythingFinished()

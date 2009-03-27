@@ -22,22 +22,32 @@ Q_OBJECT
 public:
     FormattingReply( QObject* parent, const Imap::Mailbox::Model* _model,
         Imap::Mailbox::TreeItemMessage* _msg, Imap::Mailbox::TreeItemPart* _part );
+    virtual ~FormattingReply() {};
     virtual void abort();
     virtual void close();
     virtual qint64 bytesAvailable() const;
-protected:
-    virtual qint64 readData( char* data, qint64 maxSize );
-    /** @short Launch a request for some message part */
-    void requestAnotherPart( Imap::Mailbox::TreeItemPart* anotherPart );
+
 protected slots:
     /** @short This slot is invoked whenever any sub-request has finished loading */
     void anotherReplyFinished();
-    /** @short All of the raw data for the original message part is available now */
-    void mainReplyFinished();
-    void handleAlreadyFinished();
-    void everythingFinished();
-private:
     void anotherReplyFinished( MsgPartNetworkReply* finishedReply );
+
+    /** @short All of the raw data for the original message part is available now */
+    virtual void mainReplyFinished();
+
+    void handleAlreadyFinished();
+
+protected:
+    virtual qint64 readData( char* data, qint64 maxSize );
+
+    /** @short Launch a request for some message part */
+    void requestAnotherPart( Imap::Mailbox::TreeItemPart* anotherPart );
+
+    void setData( const QString& mimeType, const QByteArray& data );
+
+    /** @short Tell te world that we're done here */
+    virtual void everythingFinished();
+
 
     const Imap::Mailbox::Model* model;
     Imap::Mailbox::TreeItemMessage* msg;

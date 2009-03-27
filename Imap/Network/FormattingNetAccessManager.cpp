@@ -6,6 +6,8 @@
 #include "FormattingReply.h"
 #include "MsgPartNetAccessManager.h"
 #include "MsgPartNetworkReply.h"
+#include "MultipartSignedReply.h"
+#include "Imap/Model/MailboxTree.h"
 
 namespace Imap {
 namespace Network {
@@ -31,7 +33,12 @@ QNetworkReply* FormattingNetAccessManager::createRequest( Operation op,
     if ( req.url().scheme() == QLatin1String( "trojita-imap" ) &&
          req.url().host() == QLatin1String( "msg" ) ) {
         if ( part ) {
-            return new Imap::Network::FormattingReply( this, partManager->model, partManager->message, part );
+            if ( part->mimeType() == QLatin1String( "multipart/signed" ) ) {
+                return new Imap::Network::MultipartSignedReply( this, partManager->model, partManager->message, part );
+            } else {
+                // text/* or anything generic
+                return new Imap::Network::FormattingReply( this, partManager->model, partManager->message, part );
+            }
         } else {
             qDebug() << "Forbidden per policy:" << req.url();
             return new Imap::Network::ForbiddenReply( this );

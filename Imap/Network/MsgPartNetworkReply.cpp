@@ -49,7 +49,7 @@ void MsgPartNetworkReply::slotModelDataChanged( const QModelIndex& topLeft, cons
 void MsgPartNetworkReply::slotMyDataChanged()
 {
     // FIXME :)
-    setHeader( QNetworkRequest::ContentTypeHeader, QVariant( "text/plain" ) );
+    setHeader( QNetworkRequest::ContentTypeHeader, part->mimeType() );
     emit readyRead();
     emit finished();
 }
