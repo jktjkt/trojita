@@ -1,6 +1,7 @@
 #include <QNetworkRequest>
 #include <QDebug>
 
+#include "AuxiliaryReply.h"
 #include "ForbiddenReply.h"
 #include "FormattingNetAccessManager.h"
 #include "FormattingReply.h"
@@ -33,8 +34,14 @@ QNetworkReply* FormattingNetAccessManager::createRequest( Operation op,
     if ( req.url().scheme() == QLatin1String( "trojita-imap" ) &&
          req.url().host() == QLatin1String( "msg" ) ) {
         if ( part ) {
-            if ( part->mimeType() == QLatin1String( "multipart/signed" ) ) {
-                return new Imap::Network::MultipartSignedReply( this, partManager->model, partManager->message, part );
+            if ( part->mimeType().startsWith( QLatin1String( "multipart/" ) ) ) {
+                if ( part->mimeType() == QLatin1String( "multipart/signed" ) ) {
+                    return new Imap::Network::MultipartSignedReply( this, partManager->model, partManager->message, part );
+                } else {
+                    return new Imap::Network::AuxiliaryReply( this,
+                        QLatin1String("Message type ") + part->mimeType() +
+                        QLatin1String(" is not supported") );
+                }
             } else {
                 // text/* or anything generic
                 return new Imap::Network::FormattingReply( this, partManager->model, partManager->message, part );
