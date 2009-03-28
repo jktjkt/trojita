@@ -71,12 +71,7 @@ qint64 MsgPartNetworkReply::bytesAvailable() const
 
 qint64 MsgPartNetworkReply::readData( char* data, qint64 maxSize )
 {
-    qint64 res = buffer.read( data, maxSize );
-    if ( res <= 0 )
-        emit finished();
-    else
-        emit readyRead();
-    return res;
+    return buffer.read( data, maxSize );
 }
 
 }

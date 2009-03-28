@@ -37,10 +37,6 @@ qint64 FormattingReply::bytesAvailable() const
 qint64 FormattingReply::readData( char* data, qint64 maxSize )
 {
     qint64 res = buffer.read( data, maxSize );
-    if ( res <= 0 )
-        emit finished();
-    else
-        emit readyRead();
     return res;
 }
 
@@ -118,6 +114,7 @@ void FormattingReply::everythingFinished()
     Q_ASSERT( ! buffer.isOpen() );
     buffer.open( QIODevice::ReadOnly );
     emit readyRead();
+    emit finished();
 }
 
 }
