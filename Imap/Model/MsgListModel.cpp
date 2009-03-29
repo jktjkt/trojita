@@ -68,7 +68,7 @@ QModelIndex MsgListModel::index( int row, int column, const QModelIndex& parent 
     Model* model = dynamic_cast<Model*>( sourceModel() );
     Q_ASSERT( model );
 
-    if ( row >= static_cast<int>( msgList->rowCount( model ) ) )
+    if ( row >= static_cast<int>( msgList->rowCount( model ) ) || row < 0 )
         return QModelIndex();
 
     return createIndex( row, column, msgList->child( row, model ) );

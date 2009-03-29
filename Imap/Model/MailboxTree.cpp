@@ -329,19 +329,20 @@ QVariant TreeItemMessage::data( const Model* const model, int role )
 
     fetch( model );
 
-    if ( _loading )
-        return "[loading...]";
-
     switch ( role ) {
         case Qt::DisplayRole:
-            return _envelope.subject;
+            if ( _loading )
+                return "[loading...]";
+            else
+                return _envelope.subject;
         case Qt::ToolTipRole:
-            {
+            if ( ! _loading ) {
                 QString buf;
                 QTextStream stream( &buf );
                 stream << _envelope;
                 return buf;
-            }
+            } else
+                return QVariant();
         default:
             return QVariant();
     }
