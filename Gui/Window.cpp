@@ -29,6 +29,8 @@
 #include "Imap/Model/MsgListModel.h"
 #include "Streams/SocketFactory.h"
 
+//#include "Imap/Model/ModelTest/modeltest.h"
+
 namespace Gui {
 
 MainWindow::MainWindow(): QMainWindow()
@@ -106,6 +108,8 @@ void MainWindow::setupModels()
 
     //Imap::Mailbox::ModelWatcher* w = new Imap::Mailbox::ModelWatcher( this );
     //w->setModel( model );
+
+    //ModelTest* tester = new ModelTest( mboxModel, this ); // when testing, test just one model at time
 
     mboxTree->setModel( mboxModel );
     msgListTree->setModel( msgListModel );
