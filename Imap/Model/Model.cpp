@@ -216,7 +216,7 @@ void Model::_finalizeList( ParserPtr parser, const QMap<CommandHandle, Task>::co
     }
 
     if ( ! mailboxes.isEmpty() ) {
-        beginInsertRows( parent, 0, mailboxes.size() );
+        beginInsertRows( parent, 1, mailboxes.size() );
         QList<TreeItem*> dummy = mailboxPtr->setChildren( mailboxes );
         endInsertRows();
         Q_ASSERT( dummy.isEmpty() );
