@@ -19,7 +19,7 @@
 #ifndef IMAP_MAILBOXMODEL_H
 #define IMAP_MAILBOXMODEL_H
 
-#include <QSortFilterProxyModel>
+#include <QAbstractProxyModel>
 #include "Model.h"
 
 /** @short Namespace for IMAP interaction */
@@ -29,19 +29,30 @@ namespace Imap {
 namespace Mailbox {
 
 /** @short A model implementing view of the whole IMAP server */
-class MailboxModel: public QSortFilterProxyModel {
+class MailboxModel: public QAbstractProxyModel {
     Q_OBJECT
 
 public:
     MailboxModel( QObject* parent, Model* model );
 
+    virtual QModelIndex index( int row, int column, const QModelIndex& parent=QModelIndex() ) const;
+    virtual QModelIndex parent( const QModelIndex& index ) const;
+    virtual int rowCount( const QModelIndex& parent=QModelIndex() ) const;
+    virtual int columnCount( const QModelIndex& parent=QModelIndex() ) const;
+    virtual QModelIndex mapToSource( const QModelIndex& proxyIndex ) const;
+    virtual QModelIndex mapFromSource( const QModelIndex& sourceIndex ) const;
+    virtual QVariant data( const QModelIndex& proxyIndex, int role ) const;
+
+
 protected:
-    virtual bool filterAcceptsRow( int source_row, const QModelIndex& source_parent ) const;
     virtual bool hasChildren( const QModelIndex& parent = QModelIndex() ) const;
+    void handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight );
 
 private:
     MailboxModel& operator=( const Model& ); // don't implement
     MailboxModel( const Model& ); // don't implement
+
+    mutable QString foo;
 };
 
 }

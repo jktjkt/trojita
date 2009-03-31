@@ -29,7 +29,7 @@
 #include "Imap/Model/MsgListModel.h"
 #include "Streams/SocketFactory.h"
 
-//#include "Imap/Model/ModelTest/modeltest.h"
+#include "Imap/Model/ModelTest/modeltest.h"
 
 namespace Gui {
 
