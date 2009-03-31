@@ -40,8 +40,10 @@ MsgListModel::MsgListModel( QObject* parent, Model* model ): QAbstractProxyModel
 
 void MsgListModel::handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight )
 {
-    if ( topLeft.parent() != bottomRight.parent() || topLeft.column() != bottomRight.column() )
+    if ( topLeft.parent() != bottomRight.parent() || topLeft.column() != bottomRight.column() ) {
+        emit layoutAboutToBeChanged();
         emit layoutChanged();
+    }
 
     QModelIndex first = mapFromSource( topLeft );
     QModelIndex second = mapFromSource( bottomRight );
@@ -50,6 +52,7 @@ void MsgListModel::handleDataChanged( const QModelIndex& topLeft, const QModelIn
         emit dataChanged( first, second );
     } else {
         // can't do much besides throwing out everything
+        emit layoutAboutToBeChanged();
         emit layoutChanged();
     }
 }
