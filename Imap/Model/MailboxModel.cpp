@@ -49,7 +49,6 @@ bool MailboxModel::hasChildren( const QModelIndex& parent ) const
             sourceModel()->hasChildren( index );
 }
 
-
 void MailboxModel::handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight )
 {
     if ( topLeft.parent() != bottomRight.parent() || topLeft.column() != bottomRight.column() ) {
