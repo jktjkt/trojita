@@ -130,44 +130,10 @@ QModelIndex MsgListModel::mapFromSource( const QModelIndex& sourceIndex ) const
 
 void MsgListModel::setMailbox( const QModelIndex& index )
 {
-    /* We can't just grab QModelIndex::internalPointer(), as we want to support
-     * going through the MsgListModel, which is a QSortFilterProxyModel, which
-     * uses indices for its own twisted internal perverse purposes. Oh well,
-     * this is even documented, kind of... */
-
-    const Model* originalModel = dynamic_cast<const Model*>( index.model() );
-    const MailboxModel* mailboxModel = dynamic_cast<const MailboxModel*>( index.model() );
-
-    TreeItemMsgList* list = 0;
-    TreeItemMailbox* mbox = 0;
-    if ( mailboxModel ) {
-        mbox = dynamic_cast<TreeItemMailbox*>(
-                static_cast<TreeItem*>(
-                    mailboxModel->mapToSource( index ).internalPointer()
-                    ) );
-        Q_ASSERT( mbox );
-        Model* realModel = dynamic_cast<Model*>( mailboxModel->sourceModel() );
-        if ( realModel ) {
-            list = dynamic_cast<TreeItemMsgList*>( mbox->child( 0, realModel ) );
-        }
-    } else if ( originalModel ) {
-        mbox = dynamic_cast<TreeItemMailbox*>(
-                static_cast<TreeItem*>(
-                    index.internalPointer()
-                    ) );
-        list = dynamic_cast<TreeItemMsgList*>(
-                static_cast<TreeItem*>( index.internalPointer() ) );
-        if ( mbox && ! list ) {
-            list = dynamic_cast<TreeItemMsgList*>( mbox->child( 0, originalModel ) );
-        }
-    } else {
-        qDebug() << "unrecognized kind of model, sorry:" << typeid(index.model()).name();
-    }
-
-    if ( list ) {
-        msgList = list;
-        reset();
-    }
+    TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( index.internalPointer() ));
+    Q_ASSERT( mbox );
+    msgList = dynamic_cast<TreeItemMsgList*>( mbox->child( 0, static_cast<const Model*>( index.model() ) ) );
+    Q_ASSERT( msgList );
 }
 
 }
