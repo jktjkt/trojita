@@ -24,7 +24,7 @@
 namespace Imap {
 namespace Mailbox {
 
-MailboxModel::MailboxModel( QObject* parent, Model* model ): QAbstractProxyModel(parent), foo("%1")
+MailboxModel::MailboxModel( QObject* parent, Model* model ): QAbstractProxyModel(parent)
 {
     setSourceModel( model );
 

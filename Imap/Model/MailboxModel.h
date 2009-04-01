@@ -49,8 +49,6 @@ protected slots:
 private:
     MailboxModel& operator=( const Model& ); // don't implement
     MailboxModel( const Model& ); // don't implement
-
-    mutable QString foo;
 };
 
 }
