@@ -134,6 +134,7 @@ void MsgListModel::setMailbox( const QModelIndex& index )
     Q_ASSERT( mbox );
     msgList = dynamic_cast<TreeItemMsgList*>( mbox->child( 0, static_cast<const Model*>( index.model() ) ) );
     Q_ASSERT( msgList );
+    reset();
 }
 
 }
