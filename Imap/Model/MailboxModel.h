@@ -41,10 +41,9 @@ public:
     virtual int columnCount( const QModelIndex& parent=QModelIndex() ) const;
     virtual QModelIndex mapToSource( const QModelIndex& proxyIndex ) const;
     virtual QModelIndex mapFromSource( const QModelIndex& sourceIndex ) const;
-
-
-protected:
     virtual bool hasChildren( const QModelIndex& parent = QModelIndex() ) const;
+
+protected slots:
     void handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight );
 
 private:
