@@ -41,7 +41,6 @@ public:
     virtual int columnCount( const QModelIndex& parent=QModelIndex() ) const;
     virtual QModelIndex mapToSource( const QModelIndex& proxyIndex ) const;
     virtual QModelIndex mapFromSource( const QModelIndex& sourceIndex ) const;
-    virtual QVariant data( const QModelIndex& proxyIndex, int role ) const;
 
 
 protected:

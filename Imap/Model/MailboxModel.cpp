@@ -85,10 +85,11 @@ QModelIndex MailboxModel::index( int row, int column, const QModelIndex& parent 
     QModelIndex res;
     QModelIndex translatedParent = mapToSource( parent );
 
-    if ( hasChildren( translatedParent ) &&
-         column < sourceModel()->columnCount( translatedParent ) &&
+    if ( column < sourceModel()->columnCount( translatedParent ) &&
          row < sourceModel()->rowCount( translatedParent ) - 1 ) {
-        res = createIndex( row, column, translatedParent.child( row, column ).internalPointer() );
+        void* ptr = sourceModel()->index( row + 1, column, translatedParent ).internalPointer();
+        Q_ASSERT( ptr );
+        res = createIndex( row, column, ptr );
     } else {
         res = QModelIndex();
     }
@@ -102,8 +103,11 @@ QModelIndex MailboxModel::parent( const QModelIndex& index ) const
     QModelIndex res;
     if ( !index.isValid() )
         res = QModelIndex();
-    else
-        res = mapFromSource( mapToSource( index ).parent() );
+    else {
+        QModelIndex sourceIndex = mapToSource( index );
+        qDebug() << "BLesmrt" << sourceIndex << sourceIndex.parent();
+        res = mapFromSource( sourceIndex.parent() );
+    }
     foo = foo.mid( 1 ); qDebug() << foo.arg("-> parent") << res;
     return res;
 }
@@ -111,7 +115,9 @@ QModelIndex MailboxModel::parent( const QModelIndex& index ) const
 int MailboxModel::rowCount( const QModelIndex& parent ) const
 {
     qDebug() << foo.arg("rowCount") << parent; foo = " " + foo;
-    int res = sourceModel()->rowCount( mapToSource( parent ) ) - 1;
+    int res = sourceModel()->rowCount( mapToSource( parent ) );
+    if ( res > 0 )
+        --res;
     foo = foo.mid( 1 ); qDebug() << foo.arg("-> rowCount") << res;
     return res;
 }
@@ -124,49 +130,29 @@ int MailboxModel::columnCount( const QModelIndex& parent ) const
     return res;
 }
 
-QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
-{
-    // FIXME: delete after debugging
-    qDebug() << foo.arg("data") << proxyIndex; foo = " " + foo;
-    QVariant res = QAbstractProxyModel::data( proxyIndex, role );
-    foo = foo.mid( 1 ); qDebug() << foo.arg("-> data") << res;
-    return res;
-}
-
 QModelIndex MailboxModel::mapToSource( const QModelIndex& proxyIndex ) const
 {
-    Q_ASSERT( foo.length() < 20 );
-    qDebug() << foo.arg("mapToSource") << proxyIndex; foo = " " + foo;
     int row = proxyIndex.row();
-    if ( row >= 0 ) {
-        // because all real mailboxes in the source model start at 1, 0 is a list of messages
-        ++row;
-    }
-    QModelIndex res;
-    if ( proxyIndex.isValid() ) {
-        //res = sourceModel()->index( row, proxyIndex.column(), mapToSource( parent( proxyIndex ) ) );
-        res = sourceModel()->index( row, proxyIndex.column(), proxyIndex );
-    }
-    foo = foo.mid( 1 ); qDebug() << foo.arg("-> mapToSource") << res;
-    return res;
+    if ( row < 0 || proxyIndex.column() < 0 )
+        return QModelIndex();
+    if ( row == -1 )
+        return QModelIndex();
+    ++row;
+    return static_cast<Imap::Mailbox::Model*>( sourceModel() )->createIndex( row, proxyIndex.column(), proxyIndex.internalPointer() );
 }
 
 QModelIndex MailboxModel::mapFromSource( const QModelIndex& sourceIndex ) const
 {
-    qDebug() << foo.arg("mapFromSource") << sourceIndex; foo = " " + foo;
-    QModelIndex res;
-    int row = sourceIndex.row();
-    if ( row == 0 ) {
-        foo = foo.mid( 1 ); qDebug() << foo.arg("-> mapFromSource") << QModelIndex();
+    if ( !sourceIndex.isValid() )
         return QModelIndex();
-    }
 
+    int row = sourceIndex.row();
+    if ( row == 0 )
+        return QModelIndex();
     if ( row > 0 )
         --row;
-    if ( sourceIndex.isValid() )
-        res = createIndex( row, sourceIndex.column(), sourceIndex.internalPointer() );
-    foo = foo.mid( 1 ); qDebug() << foo.arg("-> mapFromSource") << res;
-    return res;
+
+    return createIndex( sourceIndex.row(), sourceIndex.column(), sourceIndex.internalPointer() );
 }
 
 }
