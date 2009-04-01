@@ -152,7 +152,7 @@ QModelIndex MailboxModel::mapFromSource( const QModelIndex& sourceIndex ) const
     if ( row > 0 )
         --row;
 
-    return createIndex( sourceIndex.row(), sourceIndex.column(), sourceIndex.internalPointer() );
+    return createIndex( row, sourceIndex.column(), sourceIndex.internalPointer() );
 }
 
 }
