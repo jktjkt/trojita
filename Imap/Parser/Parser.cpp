@@ -25,7 +25,7 @@
 #include "LowLevelParser.h"
 #include "../Streams/IODeviceSocket.h"
 
-#define PRINT_TRAFFIC
+//#define PRINT_TRAFFIC
 
 /*
  * Parser interface considerations:
