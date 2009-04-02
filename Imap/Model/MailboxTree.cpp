@@ -125,7 +125,7 @@ bool TreeItemMailbox::hasChildMailboxes( const Model* const model )
     // FIXME: case sensitivity
     if ( _fetched )
         return _children.size() > 1;
-    else if ( _metadata.flags.contains( "\\NOINFERIORS" ) || _metadata.flags.contains( "\\HASNOCHILDRen" ) )
+    else if ( _metadata.flags.contains( "\\NOINFERIORS" ) || _metadata.flags.contains( "\\HASNOCHILDREN" ) )
         return false;
     else if ( _metadata.flags.contains( "\\HASCHILDREN" ) )
         return true;
