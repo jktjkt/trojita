@@ -50,12 +50,6 @@ void Model::responseReceived()
     while ( it.value().parser->hasResponse() ) {
         std::tr1::shared_ptr<Imap::Responses::AbstractResponse> resp = it.value().parser->getResponse();
         Q_ASSERT( resp );
-
-        /*QString buf;
-        QTextStream s(&buf);
-        s << "<<< " << *resp << "\r\n";
-        s.flush();
-        qDebug() << buf.left(100);*/
         resp->plug( it.value().parser, this );
     }
 }

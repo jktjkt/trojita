@@ -15,6 +15,7 @@
    the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
+#include <QDebug>
 #include <QStringList>
 #include <QMutexLocker>
 #include <QProcess>
@@ -23,6 +24,8 @@
 #include "rfccodecs.h"
 #include "LowLevelParser.h"
 #include "../Streams/IODeviceSocket.h"
+
+#define PRINT_TRAFFIC
 
 /*
  * Parser interface considerations:
@@ -266,6 +269,14 @@ CommandHandle Parser::queueCommand( Commands::Command command )
 
 void Parser::queueResponse( const std::tr1::shared_ptr<Responses::AbstractResponse>& resp )
 {
+#ifdef PRINT_TRAFFIC
+    QString buf;
+    QTextStream s(&buf);
+    s << "<<< " << *resp << "\r\n";
+    s.flush();
+    qDebug() << buf.left(100);
+#endif
+
     QMutexLocker locker( &_respMutex );
     _respQueue.push_back( resp );
     emit responseReceived();
@@ -348,6 +359,10 @@ bool Parser::executeACommand( const Commands::Command& cmd )
     buf.append( "\r\n" );
     _socket->write( buf );
     _socket->waitForBytesWritten( -1 );
+
+#ifdef PRINT_TRAFFIC
+    qDebug() << ">>>" << buf;
+#endif
 
     return true;
 }
