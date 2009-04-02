@@ -217,8 +217,12 @@ State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int
     } catch ( UnexpectedHere& ) {
         // this is perfectly possible
     }
-    if ( start >= line.size() - 2 )
-        throw NoData( line, start );
+    if ( start >= line.size() - 2 ) {
+        if ( _list.empty() )
+            throw NoData( "Response doesn't contain any data at all", line, start );
+        else
+            throw NoData( "Response doesn't contain any data besides the response code", line, start );
+    }
 
     if ( !_list.empty() ) {
         const QString r = _list.first().toUpper();
@@ -259,7 +263,9 @@ State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int
             case Responses::TRYCREATE:
                 // check for "no more stuff"
                 if ( _list.count() )
-                    throw InvalidResponseCode( line, start );
+                    throw InvalidResponseCode( "Got ALERT/PARSE/READ_ONLY/READ_WRITE/TRYCREATE"
+                                               " response code with extra data inside the brackets",
+                                               line, start );
                 respCodeData = std::tr1::shared_ptr<AbstractData>( new RespData<void>() );
                 break;
             case Responses::UIDNEXT:
