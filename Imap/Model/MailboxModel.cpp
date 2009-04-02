@@ -120,6 +120,10 @@ QModelIndex MailboxModel::mapFromSource( const QModelIndex& sourceIndex ) const
     if ( !sourceIndex.isValid() )
         return QModelIndex();
 
+    if ( ! dynamic_cast<Imap::Mailbox::TreeItemMailbox*>(
+            static_cast<Imap::Mailbox::TreeItem*>( sourceIndex.internalPointer() ) ) )
+        return QModelIndex();
+
     int row = sourceIndex.row();
     if ( row == 0 )
         return QModelIndex();
