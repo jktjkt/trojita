@@ -124,6 +124,9 @@ public:
 
     CachePtr cache() const { return _cache; };
 
+public slots:
+    void reloadMailboxList();
+
 signals:
     void alertReceived( const QString& message );
 
@@ -149,6 +152,8 @@ private:
     void _finalizeStatus( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command );
+
+    void replaceChildMailboxes( ParserPtr parser, TreeItemMailbox* mailboxPtr, const QList<TreeItem*> mailboxes );
 
     TreeItem* translatePtr( const QModelIndex& index ) const;
 

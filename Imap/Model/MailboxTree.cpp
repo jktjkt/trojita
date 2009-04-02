@@ -78,6 +78,13 @@ TreeItemMailbox::TreeItemMailbox( TreeItem* parent, Responses::List response ):
     _children.prepend( new TreeItemMsgList( this ) );
 }
 
+TreeItemMailbox* TreeItemMailbox::fromMetadata( TreeItem* parent, const MailboxMetadata& metadata )
+{
+    TreeItemMailbox* res = new TreeItemMailbox( parent );
+    res->_metadata = metadata;
+    return res;
+}
+
 void TreeItemMailbox::fetch( Model* const model )
 {
     if ( _fetched )
@@ -91,7 +98,8 @@ void TreeItemMailbox::fetch( Model* const model )
 
 void TreeItemMailbox::rescanForChildMailboxes( Model* const model )
 {
-    _fetched = false;
+    model->_cache->forgetChildMailboxes( mailbox() );
+    model->_askForChildrenOfMailbox( this );
     fetch( model );
 }
 

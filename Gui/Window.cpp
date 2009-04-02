@@ -36,15 +36,17 @@ namespace Gui {
 
 MainWindow::MainWindow(): QMainWindow()
 {
-    createMenus();
     createDockWindows();
     setupModels();
+    createMenus();
 }
 
 void MainWindow::createMenus()
 {
     reloadMboxList = new QAction( "Rescan Child Mailboxes", this );
     connect( reloadMboxList, SIGNAL( triggered() ), this, SLOT( slotReloadMboxList() ) );
+    reloadAllMailboxes = new QAction( "Reload All Mailboxes", this );
+    connect( reloadAllMailboxes, SIGNAL( triggered() ), model, SLOT( reloadMailboxList() ) );
     /*QMenu* mailboxMenu = menuBar()->addMenu( "Mailbox" );
     mailboxMenu->addAction( reloadMboxList );*/
 }
@@ -127,8 +129,8 @@ void MainWindow::showContextMenuMboxTree( const QPoint& position )
     if ( mboxTree->indexAt( position ).isValid() ) {
         actionList.append( reloadMboxList );
     }
-    if ( ! actionList.isEmpty() )
-        QMenu::exec( actionList, mboxTree->mapToGlobal( position ) );
+    actionList.append( reloadAllMailboxes );
+    QMenu::exec( actionList, mboxTree->mapToGlobal( position ) );
 }
 
 void MainWindow::slotReloadMboxList()

@@ -162,6 +162,29 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
 
 void Model::_finalizeList( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command )
 {
+    TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( command->what );
+    QList<TreeItem*> mailboxes;
+
+    QList<Responses::List>& listResponses = _parsers[ parser.get() ].listResponses;
+    for ( QList<Responses::List>::const_iterator it = listResponses.begin();
+            it != listResponses.end(); ++it ) {
+        if ( it->mailbox != mailboxPtr->mailbox() + mailboxPtr->separator() )
+            mailboxes << new TreeItemMailbox( command->what, *it );
+    }
+    listResponses.clear();
+    qSort( mailboxes.begin(), mailboxes.end(), SortMailboxes );
+
+    QList<MailboxMetadata> metadataToCache;
+    for ( QList<TreeItem*>::const_iterator it = mailboxes.begin(); it != mailboxes.end(); ++it ) {
+        metadataToCache.append( dynamic_cast<TreeItemMailbox*>( *it )->mailboxMetadata() );
+    }
+    _cache->setChildMailboxes( mailboxPtr->mailbox(), metadataToCache );
+
+    replaceChildMailboxes( parser, mailboxPtr, mailboxes );
+}
+
+void Model::replaceChildMailboxes( ParserPtr parser, TreeItemMailbox* mailboxPtr, const QList<TreeItem*> mailboxes )
+{
     /* It would be nice to avoid calling layoutAboutToBeChanged(), but
        unfortunately it seems that it is neccessary for QTreeView to work
        correctly (at least in Qt 4.5).
@@ -181,23 +204,8 @@ void Model::_finalizeList( ParserPtr parser, const QMap<CommandHandle, Task>::co
        This applies to other handlers in this file which update model layout as
        well.
     */
-    emit layoutAboutToBeChanged();
-    QList<TreeItem*> mailboxes;
-    TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( command->what );
-    QList<Responses::List>& listResponses = _parsers[ parser.get() ].listResponses;
-    for ( QList<Responses::List>::const_iterator it = listResponses.begin();
-            it != listResponses.end(); ++it ) {
-        if ( it->mailbox != mailboxPtr->mailbox() + mailboxPtr->separator() )
-            mailboxes << new TreeItemMailbox( command->what, *it );
-    }
-    listResponses.clear();
-    qSort( mailboxes.begin(), mailboxes.end(), SortMailboxes );
 
-    QList<MailboxMetadata> metadataToCache;
-    for ( QList<TreeItem*>::const_iterator it = mailboxes.begin(); it != mailboxes.end(); ++it ) {
-        metadataToCache.append( dynamic_cast<TreeItemMailbox*>( *it )->mailboxMetadata() );
-    }
-    _cache->setChildMailboxes( mailboxPtr->mailbox(), metadataToCache );
+    emit layoutAboutToBeChanged();
 
     QModelIndex parent = QAbstractItemModel::createIndex( mailboxPtr->row(), 0, mailboxPtr );
     QList<TreeItem*> oldItems;
@@ -446,9 +454,30 @@ void Model::_askForChildrenOfMailbox( TreeItemMailbox* item )
     else
         mailbox = QString::fromLatin1("%1.%").arg( mailbox ); // FIXME: separator
 
+    if ( _cache->childMailboxesFresh( item->mailbox() ) ) {
+        QList<MailboxMetadata> metadata = _cache->childMailboxes( item->mailbox() );
+        QList<TreeItem*> mailboxes;
+        for ( QList<MailboxMetadata>::const_iterator it = metadata.begin(); it != metadata.end(); ++it ) {
+            mailboxes << TreeItemMailbox::fromMetadata( item, *it );
+        }
+        ParserPtr parser = _getParser( 0, ReadOnly );
+        TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( item );
+        Q_ASSERT( mailboxPtr );
+        item->_loading = false;
+        item->_fetched = true;
+        replaceChildMailboxes( parser, item, mailboxes );
+    } else {
+        ParserPtr parser = _getParser( 0, ReadOnly );
+        CommandHandle cmd = parser->list( "", mailbox );
+        _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::LIST, item );
+    }
+}
+
+void Model::reloadMailboxList()
+{
     ParserPtr parser = _getParser( 0, ReadOnly );
-    CommandHandle cmd = parser->list( "", mailbox );
-    _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::LIST, item );
+    CommandHandle cmd = parser->list( "", "%" );
+    _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::LIST, _mailboxes );
 }
 
 void Model::_askForMessagesInMailbox( TreeItemMsgList* item )

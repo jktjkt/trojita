@@ -20,6 +20,7 @@
 #define IMAP_CACHE_H
 
 #include <tr1/memory>
+#include <QMap>
 #include "Model/MailboxMetadata.h"
 
 /** @short Namespace for IMAP interaction */
@@ -33,9 +34,15 @@ class AbstractCache {
 public:
     virtual ~AbstractCache() {};
 
+    /** @short Return a list of all known child mailboxes */
     virtual QList<MailboxMetadata> childMailboxes( const QString& mailbox ) const = 0;
+    /** @short Is the result of childMailboxes() fresh enough? */
     virtual bool childMailboxesFresh( const QString& mailbox ) const = 0;
+    /** @short Update cache info about the state of child mailboxes */
     virtual void setChildMailboxes( const QString& mailbox, const QList<MailboxMetadata>& data ) = 0;
+    /** @short Forget about child mailboxes */
+    virtual void forgetChildMailboxes( const QString& mailbox ) = 0;
+
 };
 
 /** @short A cache implementation that actually doesn't cache anything */
@@ -46,6 +53,10 @@ public:
     virtual QList<MailboxMetadata> childMailboxes( const QString& mailbox ) const;
     virtual bool childMailboxesFresh( const QString& mailbox ) const;
     virtual void setChildMailboxes( const QString& mailbox, const QList<MailboxMetadata>& data );
+    virtual void forgetChildMailboxes( const QString& mailbox );
+
+private:
+    QMap<QString, QList<MailboxMetadata> > _cache;
 };
 
 /** @short A convenience typedef */

@@ -63,6 +63,7 @@ class TreeItemMailbox: public TreeItem {
 public:
     TreeItemMailbox( TreeItem* parent );
     TreeItemMailbox( TreeItem* parent, Responses::List );
+    static TreeItemMailbox* fromMetadata( TreeItem* parent, const MailboxMetadata& metadata );
 
     virtual QList<TreeItem*> setChildren( const QList<TreeItem*> items );
     virtual void fetch( Model* const model );

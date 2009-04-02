@@ -23,20 +23,29 @@ namespace Imap {
 namespace Mailbox {
 
 NoCache::NoCache()
-{}
+{
+    //_cache[ "" ] = QList<MailboxMetadata>() << MailboxMetadata( "INBOX", "", QStringList() << "\\HASNOCHILDREN" );
+}
 
 QList<MailboxMetadata> NoCache::childMailboxes( const QString& mailbox ) const
 {
-    return QList<MailboxMetadata>();
+    return _cache[ mailbox ];
 }
 
 bool NoCache::childMailboxesFresh( const QString& mailbox ) const
 {
-    return false;
+    return _cache.contains( mailbox );
 }
 
 void NoCache::setChildMailboxes( const QString& mailbox, const QList<MailboxMetadata>& data )
-{}
+{
+    _cache[ mailbox ] = data;
+}
+
+void NoCache::forgetChildMailboxes( const QString& mailbox )
+{
+    _cache.remove( mailbox );
+}
 
 }
 }

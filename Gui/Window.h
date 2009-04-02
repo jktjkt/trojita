@@ -73,6 +73,7 @@ private:
     MessageView* msgView;
 
     QAction* reloadMboxList;
+    QAction* reloadAllMailboxes;
 };
 
 }
