@@ -19,7 +19,7 @@ class FormattingNetAccessManager : public QNetworkAccessManager
     Q_OBJECT
 public:
     FormattingNetAccessManager( QObject* parent=0 );
-    void setModelMessage( const Imap::Mailbox::Model* _model,
+    void setModelMessage( Imap::Mailbox::Model* _model,
         Imap::Mailbox::TreeItemMessage* _message );
 protected:
     virtual QNetworkReply* createRequest( Operation op,

@@ -90,14 +90,14 @@ class Model: public QAbstractItemModel {
             handler(0), capabilitiesFresh(false) {};
     };
 
-    CachePtr _cache;
-    AuthenticatorPtr _authenticator;
-    SocketFactoryPtr _socketFactory;
+    mutable CachePtr _cache;
+    mutable AuthenticatorPtr _authenticator;
+    mutable SocketFactoryPtr _socketFactory;
     mutable QMap<Parser*,ParserState> _parsers;
     int _maxParsers;
     mutable TreeItemMailbox* _mailboxes;
 
-    QList<Imap::Responses::NamespaceData> _personalNamespace, _otherUsersNamespace, _sharedNamespace;
+    mutable QList<Imap::Responses::NamespaceData> _personalNamespace, _otherUsersNamespace, _sharedNamespace;
 
 
 public:
@@ -140,10 +140,10 @@ private:
     friend class MsgListModel; // needs access to createIndex()
     friend class MailboxModel; // needs access to createIndex()
 
-    void _askForChildrenOfMailbox( TreeItemMailbox* item ) const;
-    void _askForMessagesInMailbox( TreeItemMsgList* item ) const;
-    void _askForMsgMetadata( TreeItemMessage* item ) const;
-    void _askForMsgPart( TreeItemPart* item ) const;
+    void _askForChildrenOfMailbox( TreeItemMailbox* item );
+    void _askForMessagesInMailbox( TreeItemMsgList* item );
+    void _askForMsgMetadata( TreeItemMessage* item );
+    void _askForMsgPart( TreeItemPart* item );
 
     void _finalizeList( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeStatus( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command );

@@ -9,7 +9,7 @@ namespace Imap {
 namespace Network {
 
 MultipartSignedReply::MultipartSignedReply( QObject* parent,
-    const Imap::Mailbox::Model* _model, Imap::Mailbox::TreeItemMessage* _msg,
+    Imap::Mailbox::Model* _model, Imap::Mailbox::TreeItemMessage* _msg,
     Imap::Mailbox::TreeItemPart* _part ):
 FormattingReply( parent, _model, _msg, _part)
 {

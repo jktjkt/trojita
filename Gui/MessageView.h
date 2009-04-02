@@ -30,7 +30,7 @@ private:
     QWebView* webView;
     QLayout* layout;
     Imap::Mailbox::TreeItemMessage* message;
-    const Imap::Mailbox::Model* model;
+    Imap::Mailbox::Model* model;
     Imap::Network::FormattingNetAccessManager* netAccess;
 };
 

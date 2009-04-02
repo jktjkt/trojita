@@ -20,7 +20,7 @@ class MsgPartNetAccessManager : public QNetworkAccessManager
     Q_OBJECT
 public:
     MsgPartNetAccessManager( QObject* parent=0 );
-    void setModelMessage( const Imap::Mailbox::Model* _model,
+    void setModelMessage( Imap::Mailbox::Model* _model,
         Imap::Mailbox::TreeItemMessage* _message );
     Imap::Mailbox::TreeItemPart* pathToPart( const QString& path );
 protected:
@@ -28,7 +28,7 @@ protected:
         const QNetworkRequest& req, QIODevice* outgoingData=0 );
 private:
     friend class FormattingNetAccessManager;
-    const Imap::Mailbox::Model* model;
+    Imap::Mailbox::Model* model;
     Imap::Mailbox::TreeItemMessage* message;
 };
 

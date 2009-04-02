@@ -34,7 +34,7 @@ MessageView::MessageView( QWidget* parent ): QWidget(parent), message(0), model(
 void MessageView::setMessage( const QModelIndex& index )
 {
     // first, let's get a real model
-    const Imap::Mailbox::Model* modelCandidate = dynamic_cast<const Imap::Mailbox::Model*>( index.model() );
+    Imap::Mailbox::Model* modelCandidate = dynamic_cast<Imap::Mailbox::Model*>( const_cast<QAbstractItemModel*>( index.model() ) );
     const Imap::Mailbox::MsgListModel* msgListModel = dynamic_cast<const Imap::Mailbox::MsgListModel*>( index.model() );
     Imap::Mailbox::TreeItem* item = static_cast<Imap::Mailbox::TreeItem*>( index.internalPointer() );
 
@@ -42,7 +42,7 @@ void MessageView::setMessage( const QModelIndex& index )
         model = modelCandidate;
     } else {
         Q_ASSERT( msgListModel );
-        model = dynamic_cast<const Imap::Mailbox::Model*>( msgListModel->sourceModel() );
+        model = dynamic_cast<Imap::Mailbox::Model*>( msgListModel->sourceModel() );
     }
 
     // now let's find a real message root

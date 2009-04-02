@@ -11,7 +11,7 @@ namespace Imap {
 
 namespace Network {
 
-FormattingReply::FormattingReply( QObject* parent, const Imap::Mailbox::Model* _model,
+FormattingReply::FormattingReply( QObject* parent, Imap::Mailbox::Model* _model,
         Imap::Mailbox::TreeItemMessage* _msg, Imap::Mailbox::TreeItemPart* _part ):
     QNetworkReply( parent ), model(_model), msg(_msg), part(_part), pendingCount(0)
 {

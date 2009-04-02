@@ -20,7 +20,7 @@ class FormattingReply : public QNetworkReply
 {
 Q_OBJECT
 public:
-    FormattingReply( QObject* parent, const Imap::Mailbox::Model* _model,
+    FormattingReply( QObject* parent, Imap::Mailbox::Model* _model,
         Imap::Mailbox::TreeItemMessage* _msg, Imap::Mailbox::TreeItemPart* _part );
     virtual ~FormattingReply() {};
     virtual void abort();
@@ -49,7 +49,7 @@ protected:
     virtual void everythingFinished();
 
 
-    const Imap::Mailbox::Model* model;
+    Imap::Mailbox::Model* model;
     Imap::Mailbox::TreeItemMessage* msg;
     Imap::Mailbox::TreeItemPart* part;
     QBuffer buffer;

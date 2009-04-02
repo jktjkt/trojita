@@ -44,14 +44,14 @@ public:
     int row() const;
 
     virtual ~TreeItem();
-    virtual unsigned int childrenCount( const Model* const model );
-    virtual TreeItem* child( const int offset, const Model* const model );
+    virtual unsigned int childrenCount( Model* const model );
+    virtual TreeItem* child( const int offset, Model* const model );
     virtual QList<TreeItem*> setChildren( const QList<TreeItem*> items );
-    virtual void fetch( const Model* const model ) = 0;
-    virtual unsigned int columnCount( const Model* const model ) { return 1; };
-    virtual unsigned int rowCount( const Model* const model ) = 0;
-    virtual QVariant data( const Model* const model, int role ) = 0;
-    virtual bool hasChildren( const Model* const model ) = 0;
+    virtual void fetch( Model* const model ) = 0;
+    virtual unsigned int columnCount( Model* const model ) { return 1; };
+    virtual unsigned int rowCount( Model* const model ) = 0;
+    virtual QVariant data( Model* const model, int role ) = 0;
+    virtual bool hasChildren( Model* const model ) = 0;
     virtual bool fetched() const { return _fetched; };
 };
 
@@ -65,13 +65,13 @@ public:
     TreeItemMailbox( TreeItem* parent, Responses::List );
 
     virtual QList<TreeItem*> setChildren( const QList<TreeItem*> items );
-    virtual void fetch( const Model* const model );
-    virtual unsigned int rowCount( const Model* const model );
-    virtual QVariant data( const Model* const model, int role );
-    virtual bool hasChildren( const Model* const model );
-    virtual TreeItem* child( const int offset, const Model* const model );
+    virtual void fetch( Model* const model );
+    virtual unsigned int rowCount( Model* const model );
+    virtual QVariant data( Model* const model, int role );
+    virtual bool hasChildren( Model* const model );
+    virtual TreeItem* child( const int offset, Model* const model );
 
-    bool hasChildMailboxes( const Model* const model );
+    bool hasChildMailboxes( Model* const model );
 
     QString mailbox() const { return _metadata.mailbox; };
     QString separator() const { return _metadata.separator; };
@@ -81,13 +81,13 @@ public:
       If \a changedPart is not null, it will be updated to point to the message
       part whose content got fetched.
     */
-    void handleFetchResponse( const Model* const model,
+    void handleFetchResponse( Model* const model,
                               const Responses::Fetch& response,
                               TreeItemPart** changedPart=0 );
-    void finalizeFetch( const Model* const model, const Responses::Status& response );
-    void rescanForChildMailboxes( const Model* const model );
+    void finalizeFetch( Model* const model, const Responses::Status& response );
+    void rescanForChildMailboxes( Model* const model );
 private:
-    TreeItemPart* partIdToPtr( const Model* model, const int msgNumber, const QString& msgId );
+    TreeItemPart* partIdToPtr( Model* model, const int msgNumber, const QString& msgId );
 };
 
 class TreeItemMsgList: public TreeItem {
@@ -96,10 +96,10 @@ class TreeItemMsgList: public TreeItem {
 public:
     TreeItemMsgList( TreeItem* parent );
 
-    virtual void fetch( const Model* const model );
-    virtual unsigned int rowCount( const Model* const model );
-    virtual QVariant data( const Model* const model, int role );
-    virtual bool hasChildren( const Model* const model );
+    virtual void fetch( Model* const model );
+    virtual unsigned int rowCount( Model* const model );
+    virtual QVariant data( Model* const model, int role );
+    virtual bool hasChildren( Model* const model );
 };
 
 class TreeItemMessage: public TreeItem {
@@ -109,10 +109,10 @@ class TreeItemMessage: public TreeItem {
 public:
     TreeItemMessage( TreeItem* parent );
 
-    virtual void fetch( const Model* const model );
-    virtual unsigned int rowCount( const Model* const model );
-    virtual QVariant data( const Model* const model, int role );
-    virtual bool hasChildren( const Model* const model ) { return true; };
+    virtual void fetch( Model* const model );
+    virtual unsigned int rowCount( Model* const model );
+    virtual QVariant data( Model* const model, int role );
+    virtual bool hasChildren( Model* const model ) { return true; };
 };
 
 class TreeItemPart: public TreeItem {
@@ -124,14 +124,14 @@ class TreeItemPart: public TreeItem {
 public:
     TreeItemPart( TreeItem* parent, const QString& mimeType );
 
-    virtual unsigned int childrenCount( const Model* const model );
-    virtual TreeItem* child( const int offset, const Model* const model );
+    virtual unsigned int childrenCount( Model* const model );
+    virtual TreeItem* child( const int offset, Model* const model );
     virtual QList<TreeItem*> setChildren( const QList<TreeItem*> items );
 
-    virtual void fetch( const Model* const model );
-    virtual unsigned int rowCount( const Model* const model );
-    virtual QVariant data( const Model* const model, int role );
-    virtual bool hasChildren( const Model* const model );
+    virtual void fetch( Model* const model );
+    virtual unsigned int rowCount( Model* const model );
+    virtual QVariant data( Model* const model, int role );
+    virtual bool hasChildren( Model* const model );
 
     QString partId() const;
     TreeItemMessage* message() const;

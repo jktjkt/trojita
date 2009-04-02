@@ -378,7 +378,7 @@ TreeItem* Model::translatePtr( const QModelIndex& index ) const
 
 QVariant Model::data(const QModelIndex& index, int role ) const
 {
-    return translatePtr( index )->data( this, role );
+    return translatePtr( index )->data( const_cast<Model*>( this ), role );
 }
 
 QModelIndex Model::index(int row, int column, const QModelIndex& parent ) const
@@ -388,7 +388,7 @@ QModelIndex Model::index(int row, int column, const QModelIndex& parent ) const
     if ( column != 0 )
         return QModelIndex();
 
-    TreeItem* child = parentItem->child( row, this );
+    TreeItem* child = parentItem->child( row, const_cast<Model*>( this ) );
 
     return child ? QAbstractItemModel::createIndex( row, column, child ) : QModelIndex();
 }
@@ -414,7 +414,7 @@ int Model::rowCount(const QModelIndex& index ) const
         node = _mailboxes;
     }
     Q_ASSERT(node);
-    return node->rowCount( this );
+    return node->rowCount( const_cast<Model*>( this ) );
 }
 
 int Model::columnCount(const QModelIndex& index ) const
@@ -424,7 +424,7 @@ int Model::columnCount(const QModelIndex& index ) const
         node = _mailboxes;
     }
     Q_ASSERT(node);
-    return node->columnCount( this );
+    return node->columnCount( const_cast<Model*>( this ) );
 }
 
 bool Model::hasChildren( const QModelIndex& parent ) const
@@ -432,12 +432,12 @@ bool Model::hasChildren( const QModelIndex& parent ) const
     TreeItem* node = translatePtr( parent );
 
     if ( node )
-        return node->hasChildren( this );
+        return node->hasChildren( const_cast<Model*>( this ) );
     else
         return false;
 }
 
-void Model::_askForChildrenOfMailbox( TreeItemMailbox* item ) const
+void Model::_askForChildrenOfMailbox( TreeItemMailbox* item )
 {
     QString mailbox = item->mailbox();
 
@@ -451,7 +451,7 @@ void Model::_askForChildrenOfMailbox( TreeItemMailbox* item ) const
     _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::LIST, item );
 }
 
-void Model::_askForMessagesInMailbox( TreeItemMsgList* item ) const
+void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
 {
     Q_ASSERT( item->parent() );
     TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( item->parent() );
@@ -464,7 +464,7 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item ) const
     _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::STATUS, item );
 }
 
-void Model::_askForMsgMetadata( TreeItemMessage* item ) const
+void Model::_askForMsgMetadata( TreeItemMessage* item )
 {
     Q_ASSERT( item->parent() ); // TreeItemMsgList
     Q_ASSERT( item->parent()->parent() ); // TreeItemMailbox
@@ -478,7 +478,7 @@ void Model::_askForMsgMetadata( TreeItemMessage* item ) const
     _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, item );
 }
 
-void Model::_askForMsgPart( TreeItemPart* item ) const
+void Model::_askForMsgPart( TreeItemPart* item )
 {
     // FIXME: fetch parts in chunks, not at once
     Q_ASSERT( item->message() ); // TreeItemMessage

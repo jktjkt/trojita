@@ -15,7 +15,7 @@ MsgPartNetAccessManager::MsgPartNetAccessManager( QObject* parent ):
 {
 }
 
-void MsgPartNetAccessManager::setModelMessage( const Imap::Mailbox::Model* _model,
+void MsgPartNetAccessManager::setModelMessage( Imap::Mailbox::Model* _model,
     Imap::Mailbox::TreeItemMessage* _message )
 {
     model = _model;

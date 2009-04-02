@@ -10,7 +10,7 @@ class MultipartSignedReply : public FormattingReply
 {
 Q_OBJECT
 public:
-    MultipartSignedReply( QObject* parent, const Imap::Mailbox::Model* _model,
+    MultipartSignedReply( QObject* parent, Imap::Mailbox::Model* _model,
         Imap::Mailbox::TreeItemMessage* _msg, Imap::Mailbox::TreeItemPart* _part );
 protected slots:
     virtual void mainReplyFinished();

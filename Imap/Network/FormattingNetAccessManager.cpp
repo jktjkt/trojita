@@ -18,7 +18,7 @@ FormattingNetAccessManager::FormattingNetAccessManager( QObject* parent ):
 {
 }
 
-void FormattingNetAccessManager::setModelMessage( const Imap::Mailbox::Model* _model,
+void FormattingNetAccessManager::setModelMessage( Imap::Mailbox::Model* _model,
     Imap::Mailbox::TreeItemMessage* _message )
 {
     partManager->setModelMessage( _model, _message );

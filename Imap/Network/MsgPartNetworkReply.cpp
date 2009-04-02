@@ -11,7 +11,7 @@ namespace Imap {
 namespace Network {
 
 MsgPartNetworkReply::MsgPartNetworkReply( QObject* parent,
-        const Imap::Mailbox::Model* _model,
+        Imap::Mailbox::Model* _model,
         Imap::Mailbox::TreeItemMessage* _msg,
         Imap::Mailbox::TreeItemPart* _part ):
     QNetworkReply(parent), model(_model), msg(_msg), part(_part)

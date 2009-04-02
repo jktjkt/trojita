@@ -132,7 +132,7 @@ void MsgListModel::setMailbox( const QModelIndex& index )
 {
     TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( index.internalPointer() ));
     Q_ASSERT( mbox );
-    msgList = dynamic_cast<TreeItemMsgList*>( mbox->child( 0, static_cast<const Model*>( index.model() ) ) );
+    msgList = dynamic_cast<TreeItemMsgList*>( mbox->child( 0, static_cast<Model*>( const_cast<QAbstractItemModel*>( index.model() ) ) ) );
     Q_ASSERT( msgList );
     reset();
 }
