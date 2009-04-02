@@ -18,6 +18,7 @@
 
 #include <QDockWidget>
 #include <QMenuBar>
+#include <QMessageBox>
 #include <QTreeView>
 
 #include "Window.h"
@@ -106,6 +107,8 @@ void MainWindow::setupModels()
     QObject::connect( msgListTree, SIGNAL( clicked(const QModelIndex&) ), msgView, SLOT( setMessage(const QModelIndex&) ) );
     QObject::connect( msgListTree, SIGNAL( activated(const QModelIndex&) ), msgView, SLOT( setMessage(const QModelIndex&) ) );
 
+    connect( model, SIGNAL( alertReceived( const QString& ) ), this, SLOT( alertReceived( const QString& ) ) );
+
     //Imap::Mailbox::ModelWatcher* w = new Imap::Mailbox::ModelWatcher( this );
     //w->setModel( model );
 
@@ -142,6 +145,11 @@ void MainWindow::slotReloadMboxList()
         Q_ASSERT( mbox );
         mbox->rescanForChildMailboxes( model );
     }
+}
+
+void MainWindow::alertReceived( const QString& message )
+{
+    QMessageBox::warning( this, QLatin1String("IMAP Alert"), message );
 }
 
 }

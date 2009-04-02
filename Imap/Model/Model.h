@@ -124,6 +124,9 @@ public:
 
     CachePtr cache() const { return _cache; };
 
+signals:
+    void alertReceived( const QString& message );
+
 private:
     Model& operator=( const Model& ); // don't implement
     Model( const Model& ); // don't implement

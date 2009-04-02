@@ -417,6 +417,11 @@ void Parser::processLine( QByteArray line )
             // as we've had read a literal, we have to read rest of the line as well
             line += _socket->readLine();
         }
+        static bool pwn = false;
+        if ( ! pwn ) {
+            queueResponse( parseUntagged( "* OK [ALERT] blesmrt\r\n" ) );
+            pwn = true;
+        }
         queueResponse( parseUntagged( line ) );
     } else if ( line.startsWith( "+ " ) ) {
         // Command Continuation Request which really shouldn't happen here

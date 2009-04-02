@@ -71,10 +71,7 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
     switch ( resp->respCode ) {
         case ALERT:
             {
-                /*const RespData<QString>* const msg = dynamic_cast<const RespData<QString>* const>(
-                        resp->respCodeData.get() );
-                alert( resp, msg ? msg->data : QString() );*/
-                throw 42; // FIXME
+                emit alertReceived( QString("The server sent the following ALERT:\n%1").arg( resp->message ) );
             }
             break;
         case CAPABILITIES:
