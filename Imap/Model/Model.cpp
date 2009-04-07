@@ -427,12 +427,7 @@ int Model::rowCount(const QModelIndex& index ) const
 
 int Model::columnCount(const QModelIndex& index ) const
 {
-    TreeItem* node = static_cast<TreeItem*>( index.internalPointer() );
-    if ( !node ) {
-        node = _mailboxes;
-    }
-    Q_ASSERT(node);
-    return node->columnCount( const_cast<Model*>( this ) );
+    return 1;
 }
 
 bool Model::hasChildren( const QModelIndex& parent ) const

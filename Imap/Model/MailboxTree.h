@@ -48,7 +48,6 @@ public:
     virtual TreeItem* child( const int offset, Model* const model );
     virtual QList<TreeItem*> setChildren( const QList<TreeItem*> items );
     virtual void fetch( Model* const model ) = 0;
-    virtual unsigned int columnCount( Model* const model ) { return 1; };
     virtual unsigned int rowCount( Model* const model ) = 0;
     virtual QVariant data( Model* const model, int role ) = 0;
     virtual bool hasChildren( Model* const model ) = 0;
