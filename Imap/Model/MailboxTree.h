@@ -86,6 +86,9 @@ public:
                               TreeItemPart** changedPart=0 );
     void finalizeFetch( Model* const model, const Responses::Status& response );
     void rescanForChildMailboxes( Model* const model );
+
+    int totalMessageCount( Model* const model );
+    int unreadMessageCount( Model* const model );
 private:
     TreeItemPart* partIdToPtr( Model* model, const int msgNumber, const QString& msgId );
 };
@@ -100,6 +103,9 @@ public:
     virtual unsigned int rowCount( Model* const model );
     virtual QVariant data( Model* const model, int role );
     virtual bool hasChildren( Model* const model );
+
+    int totalMessageCount( Model* const model );
+    int unreadMessageCount( Model* const model );
 };
 
 class TreeItemMessage: public TreeItem {

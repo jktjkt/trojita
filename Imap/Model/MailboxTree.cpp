@@ -264,6 +264,16 @@ TreeItemPart* TreeItemMailbox::partIdToPtr( Model* const model, const int msgNum
     return part;
 }
 
+int TreeItemMailbox::totalMessageCount( Model* const model )
+{
+    return static_cast<TreeItemMsgList*>( _children[ 0 ] )->totalMessageCount( model );
+}
+
+int TreeItemMailbox::unreadMessageCount( Model* const model )
+{
+    return static_cast<TreeItemMsgList*>( _children[ 0 ] )->unreadMessageCount( model );
+}
+
 
 TreeItemMsgList::TreeItemMsgList( TreeItem* parent ): TreeItem(parent)
 {
@@ -308,6 +318,18 @@ bool TreeItemMsgList::hasChildren( Model* const model )
 {
     return true; // we can easily wait here
     // return childrenCount( model ) > 0;
+}
+
+int TreeItemMsgList::totalMessageCount( Model* const model )
+{
+    return rowCount( model );
+}
+
+int TreeItemMsgList::unreadMessageCount( Model* const model )
+{
+    fetch( model );
+    // FIXME :)
+    return 42;
 }
 
 

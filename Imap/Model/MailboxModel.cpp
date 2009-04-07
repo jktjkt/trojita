@@ -38,6 +38,9 @@ MailboxModel::MailboxModel( QObject* parent, Model* model ): QAbstractProxyModel
 
 bool MailboxModel::hasChildren( const QModelIndex& parent ) const
 {
+    if ( parent.isValid() && parent.column() != 0 )
+        return false;
+
     QModelIndex index = mapToSource( parent );
 
     TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>(
@@ -73,12 +76,15 @@ QModelIndex MailboxModel::index( int row, int column, const QModelIndex& parent 
     if ( row < 0 || column < 0 )
         return QModelIndex();
 
+    if ( parent.column() !=  0 && parent.column() != -1 )
+        return QModelIndex();
+
     QModelIndex res;
     QModelIndex translatedParent = mapToSource( parent );
 
-    if ( column < sourceModel()->columnCount( translatedParent ) &&
+    if ( column < COLUMN_COUNT &&
          row < sourceModel()->rowCount( translatedParent ) - 1 ) {
-        void* ptr = sourceModel()->index( row + 1, column, translatedParent ).internalPointer();
+        void* ptr = sourceModel()->index( row + 1, 0, translatedParent ).internalPointer();
         Q_ASSERT( ptr );
         return createIndex( row, column, ptr );
     } else {
@@ -88,11 +94,13 @@ QModelIndex MailboxModel::index( int row, int column, const QModelIndex& parent 
 
 QModelIndex MailboxModel::parent( const QModelIndex& index ) const
 {
-    return index.isValid() ? mapFromSource( mapToSource( index ).parent() ) : QModelIndex();
+    return mapFromSource( mapToSource( index ).parent() );
 }
 
 int MailboxModel::rowCount( const QModelIndex& parent ) const
 {
+    if ( parent.column() != 0 && parent.column() != -1 )
+        return 0;
     int res = sourceModel()->rowCount( mapToSource( parent ) );
     if ( res > 0 )
         --res;
@@ -101,7 +109,7 @@ int MailboxModel::rowCount( const QModelIndex& parent ) const
 
 int MailboxModel::columnCount( const QModelIndex& parent ) const
 {
-    return sourceModel()->columnCount( mapToSource( parent ) );
+    return parent.column() == 0 || parent.column() == -1 ? COLUMN_COUNT : 0;
 }
 
 QModelIndex MailboxModel::mapToSource( const QModelIndex& proxyIndex ) const
@@ -109,10 +117,8 @@ QModelIndex MailboxModel::mapToSource( const QModelIndex& proxyIndex ) const
     int row = proxyIndex.row();
     if ( row < 0 || proxyIndex.column() < 0 )
         return QModelIndex();
-    if ( row == -1 )
-        return QModelIndex();
     ++row;
-    return static_cast<Imap::Mailbox::Model*>( sourceModel() )->createIndex( row, proxyIndex.column(), proxyIndex.internalPointer() );
+    return static_cast<Imap::Mailbox::Model*>( sourceModel() )->createIndex( row, 0, proxyIndex.internalPointer() );
 }
 
 QModelIndex MailboxModel::mapFromSource( const QModelIndex& sourceIndex ) const
@@ -130,7 +136,39 @@ QModelIndex MailboxModel::mapFromSource( const QModelIndex& sourceIndex ) const
     if ( row > 0 )
         --row;
 
-    return createIndex( row, sourceIndex.column(), sourceIndex.internalPointer() );
+    return createIndex( row, 0, sourceIndex.internalPointer() );
+}
+
+QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
+{
+    if ( role == Qt::DisplayRole ) {
+        switch ( proxyIndex.column() ) {
+            case 0:
+                return QAbstractProxyModel::data( proxyIndex, role );
+            case 1:
+                {
+                    TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>(
+                            static_cast<TreeItem*>( proxyIndex.internalPointer() )
+                            );
+                    Q_ASSERT( mbox );
+                    return mbox->totalMessageCount( static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
+                }
+            case 2:
+                {
+                    TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>(
+                            static_cast<TreeItem*>( proxyIndex.internalPointer() )
+                            );
+                    Q_ASSERT( mbox );
+                    return mbox->unreadMessageCount( static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
+                }
+            default:
+                return QVariant();
+        }
+        return QLatin1String("blesmrt");
+    } else {
+        QModelIndex translated = createIndex( proxyIndex.row(), 0, proxyIndex.internalPointer() );
+        return QAbstractProxyModel::data( translated, role );
+    }
 }
 
 }
