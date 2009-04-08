@@ -19,6 +19,7 @@
 #include <QTextStream>
 #include "MailboxTree.h"
 #include "Model.h"
+#include "Imap/Parser/rfccodecs.h"
 #include <QtDebug>
 
 namespace Imap {
@@ -364,7 +365,7 @@ QVariant TreeItemMessage::data( Model* const model, int role )
             if ( _loading )
                 return "[loading...]";
             else
-                return _envelope.subject;
+                return KIMAP::decodeRFC2047String( _envelope.subject );
         case Qt::ToolTipRole:
             if ( ! _loading ) {
                 QString buf;
