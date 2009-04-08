@@ -59,6 +59,7 @@ void MainWindow::createDockWindows()
     mboxTree->setHeaderHidden( true );
     mboxTree->setContextMenuPolicy(Qt::CustomContextMenu);
     mboxTree->setSelectionMode( QAbstractItemView::ExtendedSelection );
+    mboxTree->setAllColumnsShowFocus( true );
     connect( mboxTree, SIGNAL( customContextMenuRequested( const QPoint & ) ),
             this, SLOT( showContextMenuMboxTree( const QPoint& ) ) );
     dock->setWidget( mboxTree );
@@ -68,6 +69,8 @@ void MainWindow::createDockWindows()
     msgListTree = new QTreeView( dock );
     msgListTree->setUniformRowHeights( true );
     msgListTree->setHeaderHidden( true );
+    msgListTree->setSelectionMode( QAbstractItemView::ExtendedSelection );
+    msgListTree->setAllColumnsShowFocus( true );
     dock->setWidget( msgListTree );
     addDockWidget(Qt::RightDockWidgetArea, dock);
 
