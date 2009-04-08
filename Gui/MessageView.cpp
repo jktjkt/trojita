@@ -63,8 +63,7 @@ void MessageView::setMessage( const QModelIndex& index )
     Q_ASSERT( messageCandidate );
 
     if ( message != messageCandidate ) {
-        // So that we don't needlessly re-initialize stuff; FIXME: broken
-        qDebug() << "pwned";
+        // So that we don't needlessly re-initialize stuff
         message = messageCandidate;
         netAccess->setModelMessage( model, message );
         webView->setUrl( QUrl( QString("trojita-imap://msg/0") ) );
