@@ -47,14 +47,11 @@ void MessageView::setMessage( const QModelIndex& index )
 
     // now let's find a real message root
     Imap::Mailbox::TreeItemMessage* messageCandidate = dynamic_cast<Imap::Mailbox::TreeItemMessage*>( item );
-    if ( messageCandidate ) {
-        message = messageCandidate;
-    } else {
+    if ( ! messageCandidate ) {
         const Imap::Mailbox::TreeItemPart* part = dynamic_cast<const Imap::Mailbox::TreeItemPart*>( item );
         if ( part ) {
             messageCandidate = part->message();
             Q_ASSERT( messageCandidate );
-            message = messageCandidate;
         } else {
             // it's something completely different -> let's ignore altogether, perhaps user clicked on a model  or something
             qDebug() << Q_FUNC_INFO << "Can't find out, sorry";
@@ -63,11 +60,16 @@ void MessageView::setMessage( const QModelIndex& index )
     }
 
     Q_ASSERT( model );
-    Q_ASSERT( message );
+    Q_ASSERT( messageCandidate );
 
-    netAccess->setModelMessage( model, message );
-    webView->setUrl( QUrl( QString("trojita-imap://msg/0") ) );
-    // There is never more than one top-level child item, so we can safely use /0 as the path
+    if ( message != messageCandidate ) {
+        // So that we don't needlessly re-initialize stuff; FIXME: broken
+        qDebug() << "pwned";
+        message = messageCandidate;
+        netAccess->setModelMessage( model, message );
+        webView->setUrl( QUrl( QString("trojita-imap://msg/0") ) );
+        // There is never more than one top-level child item, so we can safely use /0 as the path
+    }
 
 }
 
