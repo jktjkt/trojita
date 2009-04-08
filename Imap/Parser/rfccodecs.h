@@ -97,6 +97,12 @@ namespace KIMAP {
   KIMAP_EXPORT const QString encodeRFC2047String( const QString &str );
 
   /**
+    Encodes a RFC2047 string @p str.
+    @param str is the QString to encode.
+  */
+  KIMAP_EXPORT const QByteArray encodeRFC2047String( const QByteArray &str );
+
+  /**
     Encodes a RFC2231 string @p str.
     @param str is the QString to encode.
   */

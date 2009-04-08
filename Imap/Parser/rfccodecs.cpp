@@ -332,7 +332,7 @@ const QString KIMAP::decodeRFC2047String( const QString &str,
     if ( *pos != '?' || i < 4 || i >= maxLen ) {
       valid = false;
     } else {
-      charset = QByteArray( beg, i - 2 );
+      charset = QByteArray( beg, i - 2 );  // -2 + 1 for the zero
       int pt = charset.lastIndexOf( '*' );
       if ( pt != -1 ) {
         // save language for later usage
@@ -350,13 +350,12 @@ const QString KIMAP::decodeRFC2047String( const QString &str,
       }
       pos += 3;
       i += 3;
-//  kDebug(7116) << "KIMAP::decodeRFC2047String - charset" << charset
-//               << "- language" << language << "-'" << pos << "'";
+//  kDebug() << "Charset:" << charset << "- Language:" << language << "-'" << pos << "'";
     }
     if ( valid ) {
       mid = pos;
       // search for end of encoded part
-      while ( i < maxLen && *pos && !( *pos == '?' && *(pos + 1) == '=' ) ) {
+      while ( i < maxLen && *pos && !( *pos == '?' && *( pos + 1 ) == '=' ) ) {
         i++;
         pos++;
       }
@@ -368,7 +367,7 @@ const QString KIMAP::decodeRFC2047String( const QString &str,
     if ( valid ) {
       ch = *pos;
       *pos = '\0';
-      cstr = QByteArray(mid);
+      cstr = QByteArray (mid).left( (int)( mid - pos - 1 ) );
       if ( encoding == 'Q' ) {
         // decode quoted printable text
         for ( i = cstr.length () - 1; i >= 0; i-- ) {
@@ -376,10 +375,10 @@ const QString KIMAP::decodeRFC2047String( const QString &str,
             cstr[i] = ' ';
           }
         }
-//    kDebug(7116) << "KIMAP::decodeRFC2047String - before QP '"
+//    kDebug() << "before QP '"
 //    << cstr << "'";
         cstr = KCodecs::quotedPrintableDecode( cstr );
-//    kDebug(7116) << "KIMAP::decodeRFC2047String - after QP '"
+//    kDebug() << "after QP '"
 //    << cstr << "'";
       } else {
         // decode base64 text
@@ -393,7 +392,7 @@ const QString KIMAP::decodeRFC2047String( const QString &str,
 
       pos = end - 1;
     } else {
-//    kDebug(7116) << "KIMAP::decodeRFC2047String - invalid";
+//    kDebug() << "invalid";
       //result += "=?";
       //pos = beg -1; // because pos gets increased shortly afterwards
       pos = beg - 2;
@@ -404,7 +403,7 @@ const QString KIMAP::decodeRFC2047String( const QString &str,
   if ( !charset.isEmpty () ) {
     QTextCodec *aCodec = codecForName( charset.toAscii () );
     if ( aCodec ) {
-//    kDebug(7116) << "Codec is" << aCodec->name();
+//    kDebug() << "Codec is" << aCodec->name();
       return aCodec->toUnicode( result );
     }
   }
@@ -414,13 +413,19 @@ const QString KIMAP::decodeRFC2047String( const QString &str,
 //-----------------------------------------------------------------------------
 const QString KIMAP::encodeRFC2047String( const QString &str )
 {
+  return encodeRFC2047String( str.toLatin1() );
+}
+
+//-----------------------------------------------------------------------------
+const QByteArray KIMAP::encodeRFC2047String( const QByteArray &str )
+{
   if ( str.isEmpty () ) {
     return str;
   }
 
   const signed char *latin =
     reinterpret_cast<const signed char *>
-    ( str.toLatin1().data() ), *l, *start, *stop;
+    ( str.data() ), *l, *start, *stop;
   char hexcode;
   int numQuotes, i;
   int rptr = 0;
@@ -472,7 +477,7 @@ const QString KIMAP::encodeRFC2047String( const QString &str )
       if ( resultLen - rptr - 1 <= start -  latin + 1 + 16 ) {
         // =?iso-88...
         resultLen += ( start - latin + 1 ) * 2 + 20; // more space
-	result.resize( resultLen );
+        result.resize( resultLen );
       }
       while ( latin < start ) {
         result[rptr++] = *latin;
@@ -482,7 +487,7 @@ const QString KIMAP::encodeRFC2047String( const QString &str )
       rptr += 15;
       if ( resultLen - rptr - 1 <= 3 * ( stop - latin + 1 ) ) {
         resultLen += ( stop - latin + 1 ) * 4 + 20; // more space
-	result.resize( resultLen );
+        result.resize( resultLen );
       }
       while ( latin < stop ) {
         // can add up to 3 chars/iteration
@@ -526,7 +531,6 @@ const QString KIMAP::encodeRFC2047String( const QString &str )
     }
   }
   result[rptr] = 0;
-  //free (latinStart);
   return result;
 }
 
@@ -537,7 +541,7 @@ const QString KIMAP::encodeRFC2231String( const QString &str )
     return str;
   }
 
-  signed char *latin = (signed char *) calloc (1, str.length () + 1);
+  signed char *latin = (signed char *)calloc( 1, str.length () + 1 );
   char *latin_us = (char *)latin;
   strcpy( latin_us, str.toLatin1 () );
   signed char *l = latin;
@@ -606,7 +610,7 @@ const QString KIMAP::decodeRFC2231String( const QString &str )
   QString st = str.mid ( l + 1 );
   QString language = str.mid ( p + 1, l - p - 1 );
 
-  //kDebug(7116) << "Charset:" << charset << "Language:" << language;
+  //kDebug() << "Charset:" << charset << "Language:" << language;
 
   char ch, ch2;
   p = 0;
