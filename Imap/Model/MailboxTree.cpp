@@ -378,6 +378,12 @@ QVariant TreeItemMessage::data( Model* const model, int role )
     }
 }
 
+Message::Envelope TreeItemMessage::envelope( Model* const model )
+{
+    fetch( model );
+    return _envelope;
+}
+
 
 
 TreeItemPart::TreeItemPart( TreeItem* parent, const QString& mimeType ): TreeItem(parent), _mimeType(mimeType.toLower())

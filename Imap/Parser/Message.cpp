@@ -18,6 +18,7 @@
 
 #include "Message.h"
 #include "../Model/MailboxTree.h"
+#include "rfccodecs.h"
 
 namespace Imap {
 namespace Message {
@@ -43,7 +44,6 @@ QList<MailAddress> Envelope::getListOfAddresses( const QVariant& in, const QByte
 MailAddress::MailAddress( const QVariantList& input, const QByteArray& line, const int start )
 {
     // FIXME: all offsets are wrong here
-    // FIXME: decode strings from various RFC2822 encodings
     if ( input.size() != 4 )
         throw ParseError( line, start );
 
@@ -56,10 +56,23 @@ MailAddress::MailAddress( const QVariantList& input, const QByteArray& line, con
     if ( input[3].type() != QVariant::ByteArray )
         throw UnexpectedHere( line, start );
 
-    name = input[0].toByteArray();
-    adl = input[1].toByteArray();
-    mailbox = input[2].toByteArray();
-    host = input[3].toByteArray();
+    name = KIMAP::decodeRFC2047String( input[0].toByteArray() );
+    adl = KIMAP::decodeRFC2047String( input[1].toByteArray() );
+    mailbox = KIMAP::decodeRFC2047String( input[2].toByteArray() );
+    host = KIMAP::decodeRFC2047String( input[3].toByteArray() );
+}
+
+QString MailAddress::prettyName() const
+{
+    return name + QString::fromAscii( " <" ) + mailbox + QChar( '@' ) + host + QChar( '>' );
+}
+
+QString MailAddress::prettyList( const QList<MailAddress>& list )
+{
+    QStringList buf;
+    for ( QList<MailAddress>::const_iterator it = list.begin(); it != list.end(); ++it )
+        buf << it->prettyName();
+    return buf.join( QString::fromAscii(", ") );
 }
 
 Envelope Envelope::fromList( const QVariantList& items, const QByteArray& line, const int start )

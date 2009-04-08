@@ -42,22 +42,25 @@ namespace Message {
     /** @short Storage container for one address from an envelope */
     struct MailAddress {
         /** @short Phrase from RFC2822 mailbox */
-        QByteArray name;
+        QString name;
 
         /** @hosrt Route information */
-        QByteArray adl;
+        QString adl;
 
         /** @short RFC2822 Group Name or Local Part */
-        QByteArray mailbox;
+        QString mailbox;
 
         /** @short RFC2822 Domain Name */
-        QByteArray host;
+        QString host;
 
-        MailAddress( const QByteArray& _name, const QByteArray& _adl, 
-                const QByteArray& _mailbox, const QByteArray& _host ):
+        MailAddress( const QString& _name, const QString& _adl,
+                const QString& _mailbox, const QString& _host ):
             name(_name), adl(_adl), mailbox(_mailbox), host(_host) {};
         MailAddress( const QVariantList& input, const QByteArray& line, const int start );
         MailAddress() {};
+        QString prettyName() const;
+
+        static QString prettyList( const QList<MailAddress>& list );
     };
 
     /** @short Storage for envelope */

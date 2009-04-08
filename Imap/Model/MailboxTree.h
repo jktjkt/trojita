@@ -119,6 +119,7 @@ public:
     virtual unsigned int rowCount( Model* const model );
     virtual QVariant data( Model* const model, int role );
     virtual bool hasChildren( Model* const model ) { return true; };
+    Message::Envelope envelope( Model* const model );
 };
 
 class TreeItemPart: public TreeItem {

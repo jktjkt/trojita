@@ -134,16 +134,27 @@ QModelIndex MsgListModel::mapFromSource( const QModelIndex& sourceIndex ) const
 
 QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
 {
-    if ( role == Qt::DisplayRole ) {
+    if ( ! proxyIndex.internalPointer() )
+        return QVariant();
+    if ( role == Qt::DisplayRole || role == Qt::ToolTipRole ) {
         switch ( proxyIndex.column() ) {
             case SUBJECT:
-                return QAbstractProxyModel::data( proxyIndex, role );
+                return QAbstractProxyModel::data( proxyIndex, Qt::DisplayRole );
             case FROM:
-                return QLatin1String("From");
+                return Imap::Message::MailAddress::prettyList(
+                        dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
+                            proxyIndex.internalPointer() )
+                            )->envelope( static_cast<Model*>( sourceModel() ) ).from );
             case TO:
+                return Imap::Message::MailAddress::prettyList(
+                        dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
+                            proxyIndex.internalPointer() )
+                            )->envelope( static_cast<Model*>( sourceModel() ) ).to );
                 return QLatin1String("To");
             case DATE:
-                return QLatin1String("Date");
+                return dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
+                            proxyIndex.internalPointer() )
+                            )->envelope( static_cast<Model*>( sourceModel() ) ).date;
             case SIZE:
                 return QLatin1String("Size");
             default:
