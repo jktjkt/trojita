@@ -112,6 +112,7 @@ class TreeItemMessage: public TreeItem {
     void operator=( const TreeItem& ); // don't implement
     friend class TreeItemMailbox;
     Message::Envelope _envelope;
+    uint _size;
 public:
     TreeItemMessage( TreeItem* parent );
 
@@ -120,6 +121,7 @@ public:
     virtual QVariant data( Model* const model, int role );
     virtual bool hasChildren( Model* const model ) { return true; };
     Message::Envelope envelope( Model* const model );
+    uint size( Model* const model );
 };
 
 class TreeItemPart: public TreeItem {

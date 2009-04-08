@@ -210,6 +210,8 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
                 QList<TreeItem*> oldChildren = message->setChildren( newChildren );
                 Q_ASSERT( oldChildren.size() == 0 );
             }
+        } else if ( it.key() == "RFC822.SIZE" ) {
+            message->_size = dynamic_cast<const Responses::RespData<uint>&>( *(it.value()) ).data;
         } else if ( it.key().startsWith( "BODY[" ) ) {
             if ( it.key()[ it.key().size() - 1 ] != ']' )
                 throw UnknownMessageIndex( "Can't parse such BODY[]", response );
@@ -335,7 +337,7 @@ int TreeItemMsgList::unreadMessageCount( Model* const model )
 
 
 
-TreeItemMessage::TreeItemMessage( TreeItem* parent ): TreeItem(parent)
+TreeItemMessage::TreeItemMessage( TreeItem* parent ): TreeItem(parent), _size(0)
 {}
 
 void TreeItemMessage::fetch( Model* const model )
@@ -385,6 +387,11 @@ Message::Envelope TreeItemMessage::envelope( Model* const model )
     return _envelope;
 }
 
+uint TreeItemMessage::size( Model* const model )
+{
+    fetch( model );
+    return _size;
+}
 
 
 TreeItemPart::TreeItemPart( TreeItem* parent, const QString& mimeType ): TreeItem(parent), _mimeType(mimeType.toLower())

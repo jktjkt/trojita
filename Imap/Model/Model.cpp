@@ -498,7 +498,7 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
     int order = item->row();
 
     ParserPtr parser = _getParser( mailboxPtr, ReadOnly );
-    CommandHandle cmd = parser->fetch( Sequence( order + 1 ), QStringList() << "ENVELOPE" << "BODYSTRUCTURE" );
+    CommandHandle cmd = parser->fetch( Sequence( order + 1 ), QStringList() << "ENVELOPE" << "BODYSTRUCTURE" << "RFC822.SIZE" );
     _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, item );
 }
 

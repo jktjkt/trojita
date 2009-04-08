@@ -155,7 +155,12 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
                             proxyIndex.internalPointer() )
                             )->envelope( static_cast<Model*>( sourceModel() ) ).date;
             case SIZE:
-                return QLatin1String("Size");
+                {
+                uint size = dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
+                            proxyIndex.internalPointer() )
+                            )->size( static_cast<Model*>( sourceModel() ) );
+                return size; // FIXME: nice format
+                }
             default:
                 return QVariant();
         }
