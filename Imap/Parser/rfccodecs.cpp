@@ -332,7 +332,7 @@ const QString KIMAP::decodeRFC2047String( const QString &str,
     if ( *pos != '?' || i < 4 || i >= maxLen ) {
       valid = false;
     } else {
-      charset = QByteArray( beg, i - 2 );  // -2 + 1 for the zero
+      charset = QByteArray( beg, i - 2 );
       int pt = charset.lastIndexOf( '*' );
       if ( pt != -1 ) {
         // save language for later usage
@@ -367,7 +367,7 @@ const QString KIMAP::decodeRFC2047String( const QString &str,
     if ( valid ) {
       ch = *pos;
       *pos = '\0';
-      cstr = QByteArray (mid).left( (int)( mid - pos - 1 ) );
+      cstr = QByteArray(mid);
       if ( encoding == 'Q' ) {
         // decode quoted printable text
         for ( i = cstr.length () - 1; i >= 0; i-- ) {
