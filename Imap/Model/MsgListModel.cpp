@@ -48,7 +48,7 @@ void MsgListModel::handleDataChanged( const QModelIndex& topLeft, const QModelIn
     QModelIndex first = mapFromSource( topLeft );
     QModelIndex second = mapFromSource( bottomRight );
 
-    if ( first.isValid() && second.isValid() && first.parent() == second.parent() && first.column() == second.column() ) {
+    if ( first.isValid() && second.isValid() && first.parent() == second.parent() ) {
         emit dataChanged( first, second );
     } else {
         // can't do much besides throwing out everything
@@ -65,7 +65,7 @@ QModelIndex MsgListModel::index( int row, int column, const QModelIndex& parent 
     if ( parent.isValid() )
         return QModelIndex();
 
-    if ( column != 0 )
+    if ( column < 0 || column >= COLUMN_COUNT )
         return QModelIndex();
 
     Model* model = dynamic_cast<Model*>( sourceModel() );
@@ -100,7 +100,7 @@ int MsgListModel::rowCount( const QModelIndex& parent ) const
 
 int MsgListModel::columnCount( const QModelIndex& parent ) const
 {
-    return parent.isValid() ? 0 : 1; // FIXME: probably shouldn't be hardcoded...
+    return parent.isValid() ? 0 : COLUMN_COUNT;
 }
 
 QModelIndex MsgListModel::mapToSource( const QModelIndex& proxyIndex ) const
@@ -117,7 +117,7 @@ QModelIndex MsgListModel::mapToSource( const QModelIndex& proxyIndex ) const
     if ( proxyIndex.column() != 0 )
         return QModelIndex();
 
-    return model->createIndex( proxyIndex.row(), proxyIndex.column(), msgList->child( proxyIndex.row(), model ) );
+    return model->createIndex( proxyIndex.row(), 0, msgList->child( proxyIndex.row(), model ) );
 }
 
 QModelIndex MsgListModel::mapFromSource( const QModelIndex& sourceIndex ) const
@@ -126,6 +126,29 @@ QModelIndex MsgListModel::mapFromSource( const QModelIndex& sourceIndex ) const
         return QModelIndex();
 
     return index( sourceIndex.row(), 0, QModelIndex() );
+}
+
+QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
+{
+    if ( role == Qt::DisplayRole ) {
+        switch ( proxyIndex.column() ) {
+            case SUBJECT:
+                return QAbstractProxyModel::data( proxyIndex, role );
+            case FROM:
+                return QLatin1String("From");
+            case TO:
+                return QLatin1String("To");
+            case DATE:
+                return QLatin1String("Date");
+            case SIZE:
+                return QLatin1String("Size");
+            default:
+                return QVariant();
+        }
+    } else {
+        QModelIndex translated = createIndex( proxyIndex.row(), 0, proxyIndex.internalPointer() );
+        return QAbstractProxyModel::data( translated, role );
+    }
 }
 
 void MsgListModel::setMailbox( const QModelIndex& index )

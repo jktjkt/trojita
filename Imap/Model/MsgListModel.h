@@ -32,6 +32,8 @@ namespace Mailbox {
 class MsgListModel: public QAbstractProxyModel {
     Q_OBJECT
 
+    enum { SUBJECT, FROM, TO, DATE, SIZE, COLUMN_COUNT };
+
 public:
     MsgListModel( QObject* parent, Model* model );
 
@@ -42,6 +44,7 @@ public:
     virtual QModelIndex mapToSource( const QModelIndex& proxyIndex ) const;
     virtual QModelIndex mapFromSource( const QModelIndex& sourceIndex ) const;
     virtual bool hasChildren( const QModelIndex& parent=QModelIndex() ) const;
+    virtual QVariant data(const QModelIndex &proxyIndex, int role=Qt::DisplayRole) const;
 
 public slots:
     void setMailbox( const QModelIndex& index );
