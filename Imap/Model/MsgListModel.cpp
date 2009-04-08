@@ -100,7 +100,11 @@ int MsgListModel::rowCount( const QModelIndex& parent ) const
 
 int MsgListModel::columnCount( const QModelIndex& parent ) const
 {
-    return parent.isValid() ? 0 : COLUMN_COUNT;
+    if ( parent.isValid() )
+        return 0;
+    if ( parent.column() != 0 && parent.column() != -1 )
+        return 0;
+    return COLUMN_COUNT;
 }
 
 QModelIndex MsgListModel::mapToSource( const QModelIndex& proxyIndex ) const
@@ -114,18 +118,18 @@ QModelIndex MsgListModel::mapToSource( const QModelIndex& proxyIndex ) const
     Model* model = dynamic_cast<Model*>( sourceModel() );
     Q_ASSERT( model );
 
-    if ( proxyIndex.column() != 0 )
-        return QModelIndex();
-
     return model->createIndex( proxyIndex.row(), 0, msgList->child( proxyIndex.row(), model ) );
 }
 
 QModelIndex MsgListModel::mapFromSource( const QModelIndex& sourceIndex ) const
 {
-    if ( sourceIndex.internalPointer() != msgList )
+    if ( sourceIndex.model() != sourceModel() )
         return QModelIndex();
-
-    return index( sourceIndex.row(), 0, QModelIndex() );
+    if ( dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>( sourceIndex.internalPointer() ) ) ) {
+        return index( sourceIndex.row(), 0, QModelIndex() );
+    } else {
+        return QModelIndex();
+    }
 }
 
 QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
