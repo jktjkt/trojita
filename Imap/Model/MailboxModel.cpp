@@ -143,9 +143,9 @@ QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
 {
     if ( role == Qt::DisplayRole ) {
         switch ( proxyIndex.column() ) {
-            case 0:
+            case NAME:
                 return QAbstractProxyModel::data( proxyIndex, role );
-            case 1:
+            case TOTAL_MESSAGE_COUNT:
                 {
                     TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>(
                             static_cast<TreeItem*>( proxyIndex.internalPointer() )
@@ -153,7 +153,7 @@ QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
                     Q_ASSERT( mbox );
                     return mbox->totalMessageCount( static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
                 }
-            case 2:
+            case UNREAD_MESSAGE_COUNT:
                 {
                     TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>(
                             static_cast<TreeItem*>( proxyIndex.internalPointer() )

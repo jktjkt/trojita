@@ -31,7 +31,7 @@ namespace Mailbox {
 /** @short A model implementing view of the whole IMAP server */
 class MailboxModel: public QAbstractProxyModel {
     Q_OBJECT
-    enum { COLUMN_COUNT = 3 };
+    enum { NAME, TOTAL_MESSAGE_COUNT, UNREAD_MESSAGE_COUNT, COLUMN_COUNT = 3 };
 
 public:
     MailboxModel( QObject* parent, Model* model );
