@@ -365,7 +365,7 @@ QVariant TreeItemMessage::data( Model* const model, int role )
             if ( _loading )
                 return "[loading...]";
             else
-                return KIMAP::decodeRFC2047String( _envelope.subject );
+                return _envelope.subject;
         case Qt::ToolTipRole:
             if ( ! _loading ) {
                 QString buf;

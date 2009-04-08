@@ -150,7 +150,6 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
                         dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
                             proxyIndex.internalPointer() )
                             )->envelope( static_cast<Model*>( sourceModel() ) ).to );
-                return QLatin1String("To");
             case DATE:
                 return dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
                             proxyIndex.internalPointer() )

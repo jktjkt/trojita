@@ -75,6 +75,8 @@ QString MailAddress::prettyList( const QList<MailAddress>& list )
     return buf.join( QString::fromAscii(", ") );
 }
 
+
+
 Envelope Envelope::fromList( const QVariantList& items, const QByteArray& line, const int start )
 {
     if ( items.size() != 10 )
@@ -94,7 +96,7 @@ Envelope Envelope::fromList( const QVariantList& items, const QByteArray& line, 
     }
     // Otherwise it's "invalid", null.
 
-    QByteArray subject = items[1].toByteArray(); // FIXME: decode
+    QString subject = KIMAP::decodeRFC2047String( items[1].toByteArray() );
 
     QList<MailAddress> from, sender, replyTo, to, cc, bcc;
     from = Envelope::getListOfAddresses( items[2], line, start );
