@@ -80,7 +80,7 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
             break;
         case BADCHARSET:
         case PARSE:
-            throw WontPerform( "The server was having troubles with understanding what we wanted to do", *resp );
+            qDebug() << "The server was having troubles with parsing message data:" << resp->message;
             break;
         default:
             // do nothing here, it must be handled later
