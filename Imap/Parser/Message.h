@@ -34,6 +34,7 @@ namespace Imap {
 
 namespace Mailbox {
     class TreeItem;
+    class TreeItemPart;
 }
 
 /** @short Classes for handling e-mail messages */
@@ -142,6 +143,9 @@ namespace Message {
             bodyFldLang(_bodyFldLang), bodyFldLoc(_bodyFldLoc), bodyExtension(_bodyExtension) {};
 
         virtual bool eq( const AbstractData& other ) const;
+
+    protected:
+        void storeInterestingFields( Mailbox::TreeItemPart* p ) const;
     };
 
     /** @short Ordinary Message (body-type-basic in RFC3501) */

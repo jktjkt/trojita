@@ -129,6 +129,7 @@ class TreeItemPart: public TreeItem {
     friend class TreeItemMailbox; // needs access to _data
     QString _mimeType;
     QString _charset;
+    QByteArray _encoding;
     QByteArray _data;
 public:
     TreeItemPart( TreeItem* parent, const QString& mimeType );
@@ -156,6 +157,8 @@ public:
     QString mimeType() const { return _mimeType; };
     QString charset() const { return _charset; };
     void setCharset( const QString& ch ) { _charset = ch; };
+    void setEncoding( const QByteArray& encoding ) { _encoding = encoding; };
+    QByteArray encoding() const { return _encoding; };
 private:
     bool isTopLevelMultiPart() const;
 };

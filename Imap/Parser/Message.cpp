@@ -649,15 +649,20 @@ bool operator==( const MailAddress& a, const MailAddress& b )
     return a.name == b.name && a.adl == b.adl && a.mailbox == b.mailbox && a.host == b.host;
 }
 
+void OneMessage::storeInterestingFields( Mailbox::TreeItemPart* p ) const
+{
+    p->setEncoding( bodyFldEnc.toLower() );
+    bodyFldParam_t::const_iterator it = bodyFldParam.find( "charset" );
+    if ( it != bodyFldParam.end() ) {
+        p->setCharset( *it );
+    }
+}
 
 QList<Mailbox::TreeItem*> TextMessage::createTreeItems( Mailbox::TreeItem* parent ) const
 {
     QList<Mailbox::TreeItem*> list;
     Mailbox::TreeItemPart* p = new Mailbox::TreeItemPart( parent, QString("%1/%2").arg( mediaType, mediaSubType) );
-    bodyFldParam_t::const_iterator it = bodyFldParam.find( "charset" );
-    if ( it != bodyFldParam.end() ) {
-        p->setCharset( *it );
-    }
+    storeInterestingFields( p );
     list << p;
     return list;
 }
@@ -665,16 +670,18 @@ QList<Mailbox::TreeItem*> TextMessage::createTreeItems( Mailbox::TreeItem* paren
 QList<Mailbox::TreeItem*> BasicMessage::createTreeItems( Mailbox::TreeItem* parent ) const
 {
     QList<Mailbox::TreeItem*> list;
-    list << new Mailbox::TreeItemPart( parent, QString("%1/%2").arg( mediaType, mediaSubType) );
+    Mailbox::TreeItemPart* p = new Mailbox::TreeItemPart( parent, QString("%1/%2").arg( mediaType, mediaSubType) );
+    storeInterestingFields( p );
+    list << p;
     return list;
 }
 
 QList<Mailbox::TreeItem*> MsgMessage::createTreeItems( Mailbox::TreeItem* parent ) const
 {
-    // FIXME: store more data?
     QList<Mailbox::TreeItem*> list;
     Mailbox::TreeItemPart* part = new Mailbox::TreeItemPart( parent, QString("%1/%2").arg( mediaType, mediaSubType) );
     part->setChildren( body->createTreeItems( part ) ); // always returns an empty list -> no need to qDeleteAll()
+    storeInterestingFields( part );
     list << part;
     return list;
 }
