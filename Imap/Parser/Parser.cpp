@@ -269,14 +269,6 @@ CommandHandle Parser::queueCommand( Commands::Command command )
 
 void Parser::queueResponse( const std::tr1::shared_ptr<Responses::AbstractResponse>& resp )
 {
-#ifdef PRINT_TRAFFIC
-    QString buf;
-    QTextStream s(&buf);
-    s << "<<< " << *resp << "\r\n";
-    s.flush();
-    qDebug() << buf.left(100);
-#endif
-
     QMutexLocker locker( &_respMutex );
     _respQueue.push_back( resp );
     emit responseReceived();
@@ -379,6 +371,9 @@ void Parser::socketDisconected()
 
 void Parser::processLine( QByteArray line )
 {
+#ifdef PRINT_TRAFFIC
+    qDebug() << "<<<" << line;
+#endif
     if ( line.startsWith( "* " ) ) {
         // check for literals
         int oldSize = 0;
