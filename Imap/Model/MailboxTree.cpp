@@ -127,12 +127,11 @@ QVariant TreeItemMailbox::data( Model* const model, int role )
     
 bool TreeItemMailbox::hasChildren( Model* const model )
 {
-    return true; // we have that "messages" thing built it
+    return true; // we have that "messages" thing built in
 }
 
 bool TreeItemMailbox::hasChildMailboxes( Model* const model )
 {
-    // FIXME: case sensitivity
     if ( _fetched )
         return _children.size() > 1;
     else if ( _metadata.flags.contains( "\\NOINFERIORS" ) || _metadata.flags.contains( "\\HASNOCHILDREN" ) )
@@ -342,7 +341,7 @@ int TreeItemMsgList::totalMessageCount( Model* const model )
 int TreeItemMsgList::unreadMessageCount( Model* const model )
 {
     fetch( model );
-    // FIXME :)
+    // FIXME: implement unreadMessageCount()
     return 42;
 }
 
