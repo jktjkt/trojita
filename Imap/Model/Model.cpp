@@ -447,7 +447,7 @@ void Model::_askForChildrenOfMailbox( TreeItemMailbox* item )
     if ( mailbox.isNull() )
         mailbox = "%";
     else
-        mailbox = QString::fromLatin1("%1.%").arg( mailbox ); // FIXME: separator
+        mailbox = mailbox + item->separator() + QChar( '%' );
 
     if ( _cache->childMailboxesFresh( item->mailbox() ) ) {
         QList<MailboxMetadata> metadata = _cache->childMailboxes( item->mailbox() );
