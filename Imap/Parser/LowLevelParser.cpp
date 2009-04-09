@@ -267,7 +267,7 @@ QDateTime parseRFC2822DateTime( const QString& string )
     QRegExp rx( QString( "^(?:\\s*([A-Z][a-z]+)\\s*,\\s*)?" // date-of-week
                 "(\\d{1,2})\\s+(%1)\\s+(\\d{2,4})" // date
                 "\\s+(\\d{2})\\s*:(\\d{2})\\s*(?::\\s*(\\d{2})\\s*)" // time
-                "\\s+(?:(?:([+-]?)(\\d{2})(\\d{2}))|(UT|GMT|EST|EDT|CST|CDT|MST|MDT|PST|PDT|[A-IK-Za-ik-z]))" // timezone
+                "(\\s+(?:(?:([+-]?)(\\d{2})(\\d{2}))|(UT|GMT|EST|EDT|CST|CDT|MST|MDT|PST|PDT|[A-IK-Za-ik-z])))?" // timezone
                 ).arg( monthNames.join( "|" ) ), Qt::CaseInsensitive );
     int pos = rx.indexIn( string );
 
@@ -276,7 +276,7 @@ QDateTime parseRFC2822DateTime( const QString& string )
 
     QStringList list = rx.capturedTexts();
 
-    if ( list.size() != 12 )
+    if ( list.size() != 13 )
         throw ParseError( "Date regular expression returned weird data (internal error?)" );
 
     int year = list[4].toInt();
@@ -287,13 +287,13 @@ QDateTime parseRFC2822DateTime( const QString& string )
     int hours = list[5].toInt();
     int minutes = list[6].toInt();
     int seconds = list[7].toInt();
-    int shift = list[9].toInt() * 60 + list[10].toInt();
-    if ( list[8] == "-" )
+    int shift = list[10].toInt() * 60 + list[11].toInt();
+    if ( list[9] == "-" )
         shift *= 60;
     else
         shift *= -60;
-    if ( ! list[11].isEmpty() ) {
-        const QString tz = list[11].toUpper();
+    if ( ! list[12].isEmpty() ) {
+        const QString tz = list[12].toUpper();
         if ( tz == "UT" || tz == "GMT" )
             shift = 0;
         else if ( tz == "EST" )

@@ -332,6 +332,18 @@ void ImapLowLevelParserTest::testGetRFC2822DateTime_data()
         << QString("Wed, 09 Apr 2008 20:16:12 +0200")
         << QDateTime( QDate( 2008, 4, 9 ), QTime( 18, 16, 12 ), Qt::UTC );
 
+    QTest::newRow("date-wo-weekday")
+        << QString("09 Apr 2008 20:16:12 +0200")
+        << QDateTime( QDate( 2008, 4, 9 ), QTime( 18, 16, 12 ), Qt::UTC );
+
+    QTest::newRow("date-no-weekday-no-zone")
+        << QString("08 Apr 2009 03:00:19")
+        << QDateTime( QDate( 2009, 4, 8 ), QTime( 3, 0, 19 ), Qt::UTC );
+
+    QTest::newRow("date-no-zone")
+        << QString("Wed, 08 Apr 2009 03:00:19")
+        << QDateTime( QDate( 2009, 4, 8 ), QTime( 3, 0, 19 ), Qt::UTC );
+
     QTest::newRow("date-ut")
         << QString("Wed, 09 Apr 2008 20:16:12 UT")
         << QDateTime( QDate( 2008, 4, 9 ), QTime( 20, 16, 12 ), Qt::UTC );
