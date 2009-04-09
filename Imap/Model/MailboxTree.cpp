@@ -119,10 +119,9 @@ QVariant TreeItemMailbox::data( Model* const model, int role )
     if ( ! _parent )
         return QVariant();
 
-    if ( _loading )
-        return "[loading]";
+    QString res = separator().isEmpty() ? mailbox() : mailbox().split( separator(), QString::SkipEmptyParts ).last();
 
-    return separator().isEmpty() ? mailbox() : mailbox().split( separator(), QString::SkipEmptyParts ).last() ;
+    return _loading ? res + " [loading]" : res;
 }
     
 bool TreeItemMailbox::hasChildren( Model* const model )
@@ -335,14 +334,18 @@ bool TreeItemMsgList::hasChildren( Model* const model )
 
 int TreeItemMsgList::totalMessageCount( Model* const model )
 {
-    return rowCount( model );
+    fetch( model );
+    if ( _loading )
+        return -1;
+    else
+        return rowCount( model );
 }
 
 int TreeItemMsgList::unreadMessageCount( Model* const model )
 {
     fetch( model );
+    return -1;
     // FIXME: implement unreadMessageCount()
-    return 42;
 }
 
 
