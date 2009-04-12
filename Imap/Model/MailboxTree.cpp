@@ -511,6 +511,20 @@ QString TreeItemPart::partId() const
     }
 }
 
+QString TreeItemPart::pathToPart() const
+{
+    TreeItemPart* part = dynamic_cast<TreeItemPart*>( parent() );
+    TreeItemMessage* msg = dynamic_cast<TreeItemMessage*>( parent() );
+    if ( part )
+        return part->pathToPart() + QLatin1Char('/') + QString::number( row() );
+    else if ( msg )
+        return QLatin1Char('/') + QString::number( row() );
+    else {
+        Q_ASSERT( false );
+        return QString();
+    }
+}
+
 TreeItemMessage* TreeItemPart::message() const
 {
     const TreeItemPart* part = this;

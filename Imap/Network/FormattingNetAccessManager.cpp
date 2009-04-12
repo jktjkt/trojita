@@ -8,6 +8,7 @@
 #include "MsgPartNetAccessManager.h"
 #include "MsgPartNetworkReply.h"
 #include "MultipartSignedReply.h"
+#include "MultipartMixedReply.h"
 #include "Imap/Model/MailboxTree.h"
 
 namespace Imap {
@@ -31,12 +32,15 @@ QNetworkReply* FormattingNetAccessManager::createRequest( Operation op,
     // some stub and somehow setup signals for updating the view
 
     Imap::Mailbox::TreeItemPart* part = partManager->pathToPart( req.url().path() );
+
     if ( req.url().scheme() == QLatin1String( "trojita-imap" ) &&
          req.url().host() == QLatin1String( "msg" ) ) {
         if ( part ) {
             if ( part->mimeType().startsWith( QLatin1String( "multipart/" ) ) ) {
                 if ( part->mimeType() == QLatin1String( "multipart/signed" ) ) {
                     return new Imap::Network::MultipartSignedReply( this, partManager->model, partManager->message, part );
+                } else if ( part->mimeType() == QLatin1String( "multipart/mixed" ) ) {
+                    return new Imap::Network::MultipartMixedReply( this, partManager->model, partManager->message, part );
                 } else {
                     return new Imap::Network::AuxiliaryReply( this,
                         QLatin1String("Message type ") + part->mimeType() +
@@ -52,8 +56,11 @@ QNetworkReply* FormattingNetAccessManager::createRequest( Operation op,
         }
     } else if ( req.url().scheme() == QLatin1String( "trojita-imap" ) &&
                 req.url().host() == QLatin1String( "part" ) ) {
-        return new Imap::Network::MsgPartNetworkReply( this, partManager->model, partManager->message,
-                                                       part );
+        if ( part )
+            return new Imap::Network::MsgPartNetworkReply( this, partManager->model, partManager->message,
+                                                           part );
+        else
+            return new Imap::Network::AuxiliaryReply( this, QLatin1String( "Can't find message part " ) + req.url().toString() );
     } else {
         qDebug() << "Forbidden per policy:" << req.url();
         return new Imap::Network::ForbiddenReply( this );

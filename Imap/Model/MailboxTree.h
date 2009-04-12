@@ -144,6 +144,7 @@ public:
     virtual bool hasChildren( Model* const model );
 
     QString partId() const;
+    QString pathToPart() const;
     TreeItemMessage* message() const;
 
     /** @short Provide access to the internal buffer holding data
