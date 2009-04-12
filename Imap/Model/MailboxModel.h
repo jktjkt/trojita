@@ -45,6 +45,7 @@ public:
     virtual bool hasChildren( const QModelIndex& parent = QModelIndex() ) const;
 
     virtual QVariant data(const QModelIndex &proxyIndex, int role = Qt::DisplayRole) const;
+    virtual QVariant headerData ( int section, Qt::Orientation orientation, int role=Qt::DisplayRole ) const;
 
 protected slots:
     void handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight );

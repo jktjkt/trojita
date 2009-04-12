@@ -20,7 +20,9 @@
 #include "MailboxTree.h"
 #include "MailboxModel.h"
 
+#include <QApplication>
 #include <QDebug>
+#include <QFontMetrics>
 #include <typeinfo>
 
 namespace Imap {
@@ -136,37 +138,70 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
 {
     if ( ! proxyIndex.internalPointer() )
         return QVariant();
-    if ( role == Qt::DisplayRole || role == Qt::ToolTipRole ) {
-        switch ( proxyIndex.column() ) {
-            case SUBJECT:
-                return QAbstractProxyModel::data( proxyIndex, Qt::DisplayRole );
-            case FROM:
-                return Imap::Message::MailAddress::prettyList(
-                        dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
-                            proxyIndex.internalPointer() )
-                            )->envelope( static_cast<Model*>( sourceModel() ) ).from );
-            case TO:
-                return Imap::Message::MailAddress::prettyList(
-                        dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
-                            proxyIndex.internalPointer() )
-                            )->envelope( static_cast<Model*>( sourceModel() ) ).to );
-            case DATE:
-                return dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
-                            proxyIndex.internalPointer() )
-                            )->envelope( static_cast<Model*>( sourceModel() ) ).date;
-            case SIZE:
-                {
-                uint size = dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
-                            proxyIndex.internalPointer() )
-                            )->size( static_cast<Model*>( sourceModel() ) );
-                return size; // FIXME: nice format
-                }
-            default:
-                return QVariant();
-        }
-    } else {
-        QModelIndex translated = createIndex( proxyIndex.row(), 0, proxyIndex.internalPointer() );
-        return QAbstractProxyModel::data( translated, role );
+
+    switch ( role ) {
+        case Qt::DisplayRole:
+        case Qt::ToolTipRole:
+            switch ( proxyIndex.column() ) {
+                case SUBJECT:
+                    return QAbstractProxyModel::data( proxyIndex, Qt::DisplayRole );
+                case FROM:
+                    return Imap::Message::MailAddress::prettyList(
+                            dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
+                                proxyIndex.internalPointer() )
+                                )->envelope( static_cast<Model*>( sourceModel() ) ).from );
+                case TO:
+                    return Imap::Message::MailAddress::prettyList(
+                            dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
+                                proxyIndex.internalPointer() )
+                                )->envelope( static_cast<Model*>( sourceModel() ) ).to );
+                case DATE:
+                    return dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
+                                proxyIndex.internalPointer() )
+                                )->envelope( static_cast<Model*>( sourceModel() ) ).date;
+                case SIZE:
+                    {
+                    uint size = dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
+                                proxyIndex.internalPointer() )
+                                )->size( static_cast<Model*>( sourceModel() ) );
+                    return size; // FIXME: nice format
+                    }
+                default:
+                    return QVariant();
+            }
+        case Qt::TextAlignmentRole:
+            switch ( proxyIndex.column() ) {
+                case SIZE:
+                    return Qt::AlignRight;
+                default:
+                    return QVariant();
+            }
+        default:
+            {
+            QModelIndex translated = createIndex( proxyIndex.row(), 0, proxyIndex.internalPointer() );
+            return QAbstractProxyModel::data( translated, role );
+            }
+    }
+}
+
+QVariant MsgListModel::headerData ( int section, Qt::Orientation orientation, int role ) const
+{
+    if ( orientation != Qt::Horizontal || role != Qt::DisplayRole )
+        return QAbstractItemModel::headerData( section, orientation, role );
+
+    switch ( section ) {
+        case SUBJECT:
+            return QString::fromAscii( "Subject" );
+        case FROM:
+            return QString::fromAscii( "From" );
+        case TO:
+            return QString::fromAscii( "To" );
+        case DATE:
+            return QString::fromAscii( "Date" );
+        case SIZE:
+            return QString::fromAscii( "Size" );
+        default:
+            return QVariant();
     }
 }
 
@@ -179,6 +214,7 @@ void MsgListModel::setMailbox( const QModelIndex& index )
     if ( newList != msgList ) {
         msgList = newList;
         reset();
+        emit mailboxChanged();
     }
 }
 

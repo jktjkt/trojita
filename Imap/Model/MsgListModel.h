@@ -45,10 +45,14 @@ public:
     virtual QModelIndex mapFromSource( const QModelIndex& sourceIndex ) const;
     virtual bool hasChildren( const QModelIndex& parent=QModelIndex() ) const;
     virtual QVariant data(const QModelIndex &proxyIndex, int role=Qt::DisplayRole) const;
+    virtual QVariant headerData ( int section, Qt::Orientation orientation, int role=Qt::DisplayRole ) const;
 
 public slots:
     void setMailbox( const QModelIndex& index );
     void handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight );
+
+signals:
+    void mailboxChanged();
 
 private:
     MsgListModel& operator=( const Model& ); // don't implement

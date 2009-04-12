@@ -17,6 +17,7 @@
 */
 
 #include <QDockWidget>
+#include <QHeaderView>
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QTreeView>
@@ -56,7 +57,6 @@ void MainWindow::createDockWindows()
     QDockWidget* dock = new QDockWidget( "Mailbox Folders", this );
     mboxTree = new QTreeView( dock );
     mboxTree->setUniformRowHeights( true );
-    mboxTree->setHeaderHidden( true );
     mboxTree->setContextMenuPolicy(Qt::CustomContextMenu);
     mboxTree->setSelectionMode( QAbstractItemView::ExtendedSelection );
     mboxTree->setAllColumnsShowFocus( true );
@@ -68,7 +68,6 @@ void MainWindow::createDockWindows()
     dock = new QDockWidget( "Messages", this );
     msgListTree = new QTreeView( dock );
     msgListTree->setUniformRowHeights( true );
-    msgListTree->setHeaderHidden( true );
     msgListTree->setSelectionMode( QAbstractItemView::ExtendedSelection );
     msgListTree->setAllColumnsShowFocus( true );
     dock->setWidget( msgListTree );
@@ -108,6 +107,7 @@ void MainWindow::setupModels()
 
     QObject::connect( mboxTree, SIGNAL( clicked(const QModelIndex&) ), msgListModel, SLOT( setMailbox(const QModelIndex&) ) );
     QObject::connect( mboxTree, SIGNAL( activated(const QModelIndex&) ), msgListModel, SLOT( setMailbox(const QModelIndex&) ) );
+    QObject::connect( msgListModel, SIGNAL( mailboxChanged() ), this, SLOT( slotResizeMsgListColumns() ) );
 
     QObject::connect( msgListTree, SIGNAL( clicked(const QModelIndex&) ), msgView, SLOT( setMessage(const QModelIndex&) ) );
     QObject::connect( msgListTree, SIGNAL( activated(const QModelIndex&) ), msgView, SLOT( setMessage(const QModelIndex&) ) );
@@ -124,6 +124,12 @@ void MainWindow::setupModels()
 #ifdef FULL_VIEW
     allTree->setModel( model  );
 #endif
+}
+
+void MainWindow::slotResizeMsgListColumns()
+{
+    for ( int i = 0; i < msgListTree->header()->count(); ++i )
+        msgListTree->resizeColumnToContents( i );
 }
 
 void MainWindow::showContextMenuMboxTree( const QPoint& position )

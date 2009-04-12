@@ -51,6 +51,7 @@ public:
 private slots:
     void showContextMenuMboxTree( const QPoint& position );
     void slotReloadMboxList();
+    void slotResizeMsgListColumns();
     void alertReceived( const QString& message );
 
 private:

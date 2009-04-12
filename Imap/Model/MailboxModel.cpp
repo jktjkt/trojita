@@ -141,41 +141,68 @@ QModelIndex MailboxModel::mapFromSource( const QModelIndex& sourceIndex ) const
 
 QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
 {
-    if ( role == Qt::DisplayRole ) {
-        switch ( proxyIndex.column() ) {
-            case NAME:
-                return QAbstractProxyModel::data( proxyIndex, role );
-            case TOTAL_MESSAGE_COUNT:
-                {
-                    TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>(
-                            static_cast<TreeItem*>( proxyIndex.internalPointer() )
-                            );
-                    Q_ASSERT( mbox );
-                    int num = mbox->totalMessageCount( static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
-                    if ( num == -1 )
-                        return "?";
-                    else
-                        return num;
-                }
-            case UNREAD_MESSAGE_COUNT:
-                {
-                    TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>(
-                            static_cast<TreeItem*>( proxyIndex.internalPointer() )
-                            );
-                    Q_ASSERT( mbox );
-                    int num = mbox->unreadMessageCount( static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
-                    if ( num == -1 )
-                        return "?";
-                    else
-                        return num;
-                }
-            default:
-                return QVariant();
-        }
-        return QLatin1String("blesmrt");
-    } else {
-        QModelIndex translated = createIndex( proxyIndex.row(), 0, proxyIndex.internalPointer() );
-        return QAbstractProxyModel::data( translated, role );
+    switch ( role ) {
+        case Qt::DisplayRole:
+            switch ( proxyIndex.column() ) {
+                case NAME:
+                    return QAbstractProxyModel::data( proxyIndex, role );
+                case TOTAL_MESSAGE_COUNT:
+                    {
+                        TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>(
+                                static_cast<TreeItem*>( proxyIndex.internalPointer() )
+                                );
+                        Q_ASSERT( mbox );
+                        int num = mbox->totalMessageCount( static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
+                        if ( num == -1 )
+                            return "?";
+                        else
+                            return num;
+                    }
+                case UNREAD_MESSAGE_COUNT:
+                    {
+                        TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>(
+                                static_cast<TreeItem*>( proxyIndex.internalPointer() )
+                                );
+                        Q_ASSERT( mbox );
+                        int num = mbox->unreadMessageCount( static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
+                        if ( num == -1 )
+                            return "?";
+                        else
+                            return num;
+                    }
+                default:
+                    return QVariant();
+            }
+        case Qt::TextAlignmentRole:
+            switch ( proxyIndex.column() ) {
+                case TOTAL_MESSAGE_COUNT:
+                case UNREAD_MESSAGE_COUNT:
+                    return Qt::AlignRight;
+                default:
+                    return QVariant();
+            }
+        default:
+            {
+            QModelIndex translated = createIndex( proxyIndex.row(), 0, proxyIndex.internalPointer() );
+            return QAbstractProxyModel::data( translated, role );
+            }
+    }
+}
+
+QVariant MailboxModel::headerData ( int section, Qt::Orientation orientation, int role ) const
+{
+    if ( orientation != Qt::Horizontal || role != Qt::DisplayRole )
+        return QAbstractItemModel::headerData( section, orientation, role );
+
+    switch ( section ) {
+        case NAME:
+            return QString::fromAscii( "Mailbox" );
+        case TOTAL_MESSAGE_COUNT:
+            return QString::fromAscii( "Total" );
+        case UNREAD_MESSAGE_COUNT:
+            return QString::fromAscii( "Unread" );
+        default:
+            return QVariant();
     }
 }
 
