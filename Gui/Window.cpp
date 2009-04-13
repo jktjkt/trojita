@@ -20,6 +20,7 @@
 #include <QHeaderView>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QSplitter>
 #include <QTreeView>
 
 #include "Window.h"
@@ -54,37 +55,37 @@ void MainWindow::createMenus()
 
 void MainWindow::createDockWindows()
 {
-    QDockWidget* dock = new QDockWidget( "Mailbox Folders", this );
-    mboxTree = new QTreeView( dock );
+    mboxTree = new QTreeView();
     mboxTree->setUniformRowHeights( true );
     mboxTree->setContextMenuPolicy(Qt::CustomContextMenu);
     mboxTree->setSelectionMode( QAbstractItemView::ExtendedSelection );
     mboxTree->setAllColumnsShowFocus( true );
     connect( mboxTree, SIGNAL( customContextMenuRequested( const QPoint & ) ),
             this, SLOT( showContextMenuMboxTree( const QPoint& ) ) );
-    dock->setWidget( mboxTree );
-    addDockWidget(Qt::LeftDockWidgetArea, dock);
 
-    dock = new QDockWidget( "Messages", this );
-    msgListTree = new QTreeView( dock );
+    msgListTree = new QTreeView();
     msgListTree->setUniformRowHeights( true );
     msgListTree->setSelectionMode( QAbstractItemView::ExtendedSelection );
     msgListTree->setAllColumnsShowFocus( true );
-    dock->setWidget( msgListTree );
-    addDockWidget(Qt::RightDockWidgetArea, dock);
 
-    dock = new QDockWidget( "Mail", this );
-    msgView = new MessageView( dock );
-    dock->setWidget( msgView );
-    addDockWidget(Qt::BottomDockWidgetArea, dock);
+    msgView = new MessageView();
+
+    QSplitter* hSplitter = new QSplitter();
+    QSplitter* vSplitter = new QSplitter();
+    vSplitter->setOrientation( Qt::Vertical );
+    vSplitter->addWidget( msgListTree );
+    vSplitter->addWidget( msgView );
+    hSplitter->addWidget( mboxTree );
+    hSplitter->addWidget( vSplitter );
+    setCentralWidget( hSplitter );
 
 #ifdef FULL_VIEW
-    dock = new QDockWidget( "Everything", this );
+    QDockWidget* dock = new QDockWidget( "Everything", this );
     allTree = new QTreeView( dock );
     allTree->setUniformRowHeights( true );
     allTree->setHeaderHidden( true );
     dock->setWidget( allTree );
-    addDockWidget(Qt::NoDockWidgetArea, dock);
+    addDockWidget(Qt::LeftDockWidgetArea, dock);
 #endif
 }
 
