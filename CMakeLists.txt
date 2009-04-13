@@ -69,6 +69,7 @@ set(libMessageView_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Network/FormattingReply.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Network/MultipartSignedReply.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Network/MultipartMixedReply.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Network/MultipartAlternativeReply.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Network/AuxiliaryReply.cpp
 )
 
