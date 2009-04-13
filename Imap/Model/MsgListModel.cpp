@@ -191,15 +191,15 @@ QVariant MsgListModel::headerData ( int section, Qt::Orientation orientation, in
 
     switch ( section ) {
         case SUBJECT:
-            return QString::fromAscii( "Subject" );
+            return tr( "Subject" );
         case FROM:
-            return QString::fromAscii( "From" );
+            return tr( "From" );
         case TO:
-            return QString::fromAscii( "To" );
+            return tr( "To" );
         case DATE:
-            return QString::fromAscii( "Date" );
+            return tr( "Date" );
         case SIZE:
-            return QString::fromAscii( "Size" );
+            return tr( "Size" );
         default:
             return QVariant();
     }

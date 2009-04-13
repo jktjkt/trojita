@@ -46,8 +46,7 @@ QNetworkReply* FormattingNetAccessManager::createRequest( Operation op,
                     return new Imap::Network::MultipartAlternativeReply( this, partManager->model, partManager->message, part );
                 } else {
                     return new Imap::Network::AuxiliaryReply( this,
-                        QLatin1String("Message type ") + part->mimeType() +
-                        QLatin1String(" is not supported") );
+                        tr("Message type %1 is not supported").arg( part->mimeType() ) );
                 }
             } else {
                 // text/* or anything generic
@@ -63,7 +62,7 @@ QNetworkReply* FormattingNetAccessManager::createRequest( Operation op,
             return new Imap::Network::MsgPartNetworkReply( this, partManager->model, partManager->message,
                                                            part );
         else
-            return new Imap::Network::AuxiliaryReply( this, QLatin1String( "Can't find message part " ) + req.url().toString() );
+            return new Imap::Network::AuxiliaryReply( this, tr( "Can't find message part %1" ).arg( req.url().toString() ) );
     } else {
         qDebug() << "Forbidden per policy:" << req.url();
         return new Imap::Network::ForbiddenReply( this );

@@ -45,9 +45,9 @@ MainWindow::MainWindow(): QMainWindow()
 
 void MainWindow::createMenus()
 {
-    reloadMboxList = new QAction( "Rescan Child Mailboxes", this );
+    reloadMboxList = new QAction( tr("Rescan Child Mailboxes"), this );
     connect( reloadMboxList, SIGNAL( triggered() ), this, SLOT( slotReloadMboxList() ) );
-    reloadAllMailboxes = new QAction( "Reload All Mailboxes", this );
+    reloadAllMailboxes = new QAction( tr("Reload All Mailboxes"), this );
     connect( reloadAllMailboxes, SIGNAL( triggered() ), model, SLOT( reloadMailboxList() ) );
     /*QMenu* mailboxMenu = menuBar()->addMenu( "Mailbox" );
     mailboxMenu->addAction( reloadMboxList );*/
@@ -161,7 +161,7 @@ void MainWindow::slotReloadMboxList()
 
 void MainWindow::alertReceived( const QString& message )
 {
-    QMessageBox::warning( this, QLatin1String("IMAP Alert"), message );
+    QMessageBox::warning( this, tr("IMAP Alert"), message );
 }
 
 }

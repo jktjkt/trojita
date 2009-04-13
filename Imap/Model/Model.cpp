@@ -65,7 +65,7 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
     switch ( resp->respCode ) {
         case ALERT:
             {
-                emit alertReceived( QString("The server sent the following ALERT:\n%1").arg( resp->message ) );
+                emit alertReceived( tr("The server sent the following ALERT:\n%1").arg( resp->message ) );
             }
             break;
         case CAPABILITIES:

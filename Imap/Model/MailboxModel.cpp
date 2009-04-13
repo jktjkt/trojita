@@ -196,11 +196,11 @@ QVariant MailboxModel::headerData ( int section, Qt::Orientation orientation, in
 
     switch ( section ) {
         case NAME:
-            return QString::fromAscii( "Mailbox" );
+            return tr( "Mailbox" );
         case TOTAL_MESSAGE_COUNT:
-            return QString::fromAscii( "Total" );
+            return tr( "Total" );
         case UNREAD_MESSAGE_COUNT:
-            return QString::fromAscii( "Unread" );
+            return tr( "Unread" );
         default:
             return QVariant();
     }

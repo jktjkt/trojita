@@ -9,7 +9,7 @@ ForbiddenReply::ForbiddenReply( QObject* parent):
     QNetworkReply( parent )
 {
     setError( QNetworkReply::ContentOperationNotPermittedError,
-        QLatin1String("Remote Content Is Banned"));
+        tr("Remote Content Is Banned"));
     QTimer::singleShot( 0, this, SLOT( slotFinish() ) );
 }
 

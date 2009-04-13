@@ -18,7 +18,7 @@ FormattingReply( parent, _model, _msg, _part)
 void MultipartSignedReply::mainReplyFinished()
 {
     if ( part->childrenCount( model ) != 2 ) {
-        setData( QLatin1String("text/plain"), "Malformed multipart/signed reply" );
+        setData( QLatin1String("text/plain"), tr("Malformed multipart/signed reply").toUtf8() );
         FormattingReply::everythingFinished();
     } else {
         requestAnotherPart( static_cast<Imap::Mailbox::TreeItemPart*>( part->child( 0, model ) ) );
