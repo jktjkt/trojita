@@ -26,7 +26,7 @@
 namespace Imap {
 namespace Mailbox {
 
-TreeItem::TreeItem( TreeItem* parent ): _parent(parent), _fetched(false), _loading(false)
+TreeItem::TreeItem( TreeItem* parent ): _parent(parent), _fetchStatus(NONE)
 {
 }
 
@@ -59,8 +59,7 @@ QList<TreeItem*> TreeItem::setChildren( const QList<TreeItem*> items )
 {
     QList<TreeItem*> res = _children;
     _children = items;
-    _fetched = true;
-    _loading = false;
+    _fetchStatus = DONE;
     return res;
 }
 
@@ -89,12 +88,12 @@ TreeItemMailbox* TreeItemMailbox::fromMetadata( TreeItem* parent, const MailboxM
 
 void TreeItemMailbox::fetch( Model* const model )
 {
-    if ( _fetched )
+    if ( fetched() )
         return;
 
-    if ( ! _loading ) {
+    if ( ! loading() ) {
         model->_askForChildrenOfMailbox( this );
-        _loading = true;
+        _fetchStatus = LOADING;
     }
 }
 
@@ -121,7 +120,7 @@ QVariant TreeItemMailbox::data( Model* const model, int role )
 
     QString res = separator().isEmpty() ? mailbox() : mailbox().split( separator(), QString::SkipEmptyParts ).last();
 
-    return _loading ? res + " [loading]" : res;
+    return loading() ? res + " [loading]" : res;
 }
     
 bool TreeItemMailbox::hasChildren( Model* const model )
@@ -131,7 +130,7 @@ bool TreeItemMailbox::hasChildren( Model* const model )
 
 bool TreeItemMailbox::hasChildMailboxes( Model* const model )
 {
-    if ( _fetched )
+    if ( fetched() )
         return _children.size() > 1;
     else if ( _metadata.flags.contains( "\\NOINFERIORS" ) || _metadata.flags.contains( "\\HASNOCHILDREN" ) )
         return false;
@@ -166,7 +165,7 @@ QList<TreeItem*> TreeItemMailbox::setChildren( const QList<TreeItem*> items )
 
     // FIXME: anything else required for \Noselect?
     if ( _metadata.flags.contains( "\\NOSELECT" ) )
-        msgList->_fetched = true;
+        msgList->_fetchStatus = DONE;
 
     return list;
 }
@@ -178,7 +177,7 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[0] );
     Q_ASSERT( list );
     
-    if ( ! list->_fetched ) {
+    if ( ! list->fetched() ) {
         // this is bad -- we got a reply about a mailbox' state before we had
         // consistent information :(
         // FIXME: this needs more work (we might not have to throw the
@@ -197,10 +196,9 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
     for ( Responses::Fetch::dataType::const_iterator it = response.data.begin(); it != response.data.end(); ++ it ) {
         if ( it.key() == "ENVELOPE" ) {
             message->_envelope = dynamic_cast<const Responses::RespData<Message::Envelope>&>( *(it.value()) ).data;
-            message->_fetched = true;
-            message->_loading = false;
+            message->_fetchStatus = DONE;
         } else if ( it.key() == "BODYSTRUCTURE" ) {
-            if ( message->_fetched ) {
+            if ( message->fetched() ) {
                 // The message structure is already known, so we are free to ignore it
             } else {
                 // We had no idea about the structure of the message
@@ -228,8 +226,7 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
                 qDebug() << "Warning: unknown encoding" << part->encoding();
                 part->_data = data;
             }
-            part->_fetched = true;
-            part->_loading = false;
+            part->_fetchStatus = DONE;
             if ( changedPart ) {
                 *changedPart = part;
             }
@@ -247,7 +244,7 @@ void TreeItemMailbox::finalizeFetch( Model* const model, const Responses::Status
 TreeItemPart* TreeItemMailbox::partIdToPtr( Model* const model, const int msgNumber, const QString& msgId )
 {
     TreeItem* item = _children[0]; // TreeItemMsgList
-    Q_ASSERT( static_cast<TreeItemMsgList*>( item )->_fetched );
+    Q_ASSERT( static_cast<TreeItemMsgList*>( item )->fetched() );
     item = item->child( msgNumber - 1, model ); // TreeItemMessage
     Q_ASSERT( item );
     QStringList separated = msgId.split( '.' );
@@ -290,17 +287,17 @@ int TreeItemMailbox::unreadMessageCount( Model* const model )
 TreeItemMsgList::TreeItemMsgList( TreeItem* parent ): TreeItem(parent)
 {
     if ( ! parent->parent() )
-        _fetched = true;
+        _fetchStatus = DONE;
 }
 
 void TreeItemMsgList::fetch( Model* const model )
 {
-    if ( _fetched )
+    if ( fetched() )
         return;
 
-    if ( ! _loading ) {
+    if ( ! loading() ) {
         model->_askForMessagesInMailbox( this );
-        _loading = true;
+        _fetchStatus = LOADING;
     }
 }
 
@@ -317,10 +314,10 @@ QVariant TreeItemMsgList::data( Model* const model, int role )
     if ( ! _parent )
         return QVariant();
 
-    if ( _loading )
+    if ( loading() )
         return "[loading messages...]";
 
-    if ( _fetched )
+    if ( fetched() )
         return hasChildren( model ) ? QString("[%1 messages]").arg( childrenCount( model ) ) : "[no messages]";
     
     return "[messages?]";
@@ -335,7 +332,7 @@ bool TreeItemMsgList::hasChildren( Model* const model )
 int TreeItemMsgList::totalMessageCount( Model* const model )
 {
     fetch( model );
-    if ( _loading )
+    if ( loading() )
         return -1;
     else
         return rowCount( model );
@@ -355,11 +352,11 @@ TreeItemMessage::TreeItemMessage( TreeItem* parent ): TreeItem(parent), _size(0)
 
 void TreeItemMessage::fetch( Model* const model )
 {
-    if ( _fetched || _loading )
+    if ( fetched() || loading() )
         return;
 
     model->_askForMsgMetadata( this );
-    _loading = true;
+    _fetchStatus = LOADING;
 }
 
 unsigned int TreeItemMessage::rowCount( Model* const model )
@@ -377,12 +374,12 @@ QVariant TreeItemMessage::data( Model* const model, int role )
 
     switch ( role ) {
         case Qt::DisplayRole:
-            if ( _loading )
+            if ( loading() )
                 return "[loading...]";
             else
                 return _envelope.subject;
         case Qt::ToolTipRole:
-            if ( ! _loading ) {
+            if ( ! loading() ) {
                 QString buf;
                 QTextStream stream( &buf );
                 stream << _envelope;
@@ -412,7 +409,7 @@ TreeItemPart::TreeItemPart( TreeItem* parent, const QString& mimeType ): TreeIte
     if ( isTopLevelMultiPart() ) {
         // Note that top-level multipart messages are special, their immediate contents
         // can't be fetched. That's why we have to update the status here.
-        _fetched = true;
+        _fetchStatus = DONE;
     }
 }
 
@@ -431,21 +428,19 @@ TreeItem* TreeItemPart::child( const int offset, Model* const model )
 
 QList<TreeItem*> TreeItemPart::setChildren( const QList<TreeItem*> items )
 {
-    bool fetched = _fetched;
-    bool loading = _loading;
+    FetchingState fetchStatus = _fetchStatus;
     QList<TreeItem*> res = TreeItem::setChildren( items );
-    _fetched = fetched;
-    _loading = loading;
+    _fetchStatus = fetchStatus;
     return res;
 }
 
 void TreeItemPart::fetch(  Model* const model )
 {
-    if ( _fetched || _loading )
+    if ( fetched() || loading() )
         return;
 
     model->_askForMsgPart( this );
-    _loading = true;
+    _fetchStatus = LOADING;
 }
 
 unsigned int TreeItemPart::rowCount( Model* const model )
@@ -461,7 +456,7 @@ QVariant TreeItemPart::data( Model* const model, int role )
 
     fetch( model );
 
-    if ( _loading )
+    if ( loading() )
         return isTopLevelMultiPart() ?
             QObject::tr("[loading %1...]").arg( _mimeType ) :
             QObject::tr("[loading %1: %2...]").arg( partId() ).arg( _mimeType );

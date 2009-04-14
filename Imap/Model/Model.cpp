@@ -284,12 +284,11 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
 void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command )
 {
     TreeItemPart* part = dynamic_cast<TreeItemPart*>( command.value().what );
-    if ( part && part->_loading ) {
+    if ( part && part->loading() ) {
         qDebug() << "Imap::Model::_finalizeFetch(): didn't receive anything about message" <<
             part->message()->row() << "part" << part->partId() << "in mailbox" <<
             _parsers[ parser.get() ].mailbox->mailbox();
-        part->_loading = false;
-        part->_fetched = true;
+        part->_fetchStatus = TreeItem::DONE;
     }
 }
 
@@ -319,7 +318,7 @@ void Model::handleNumberResponse( Imap::ParserPtr ptr, const Imap::Responses::Nu
             {
                 ParserState& parser = _parsers[ ptr.get() ];
                 Q_ASSERT( parser.handler );
-                Q_ASSERT( parser.handler->_fetched );
+                Q_ASSERT( parser.handler->fetched() );
                 // FIXME: delete the message
                 throw 42;
             }
@@ -460,8 +459,7 @@ void Model::_askForChildrenOfMailbox( TreeItemMailbox* item )
         ParserPtr parser = _getParser( 0, ReadOnly );
         TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( item );
         Q_ASSERT( mailboxPtr );
-        item->_loading = false;
-        item->_fetched = true;
+        item->_fetchStatus = TreeItem::DONE;
         replaceChildMailboxes( parser, item, mailboxes );
     } else {
         ParserPtr parser = _getParser( 0, ReadOnly );

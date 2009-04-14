@@ -34,10 +34,19 @@ class Model;
 class TreeItem {
     friend class Model; // for _loading and _fetched
     void operator=( const TreeItem& ); // don't implement
+
 protected:
+    /** @short Availability of an item */
+    enum FetchingState {
+        NONE, /**< @short No attempt to download an item has been made yet */
+        UNAVAILABLE, /**< @short Item isn't cached and remote requests are disabled */
+        LOADING, /**< @short Download of an item is already scheduled */
+        DONE /**< @short Item is available right now */
+    };
+
     TreeItem* _parent;
     QList<TreeItem*> _children;
-    bool _fetched, _loading;
+    FetchingState _fetchStatus;
 public:
     TreeItem( TreeItem* parent );
     TreeItem* parent() const { return _parent; };
@@ -51,7 +60,8 @@ public:
     virtual unsigned int rowCount( Model* const model ) = 0;
     virtual QVariant data( Model* const model, int role ) = 0;
     virtual bool hasChildren( Model* const model ) = 0;
-    virtual bool fetched() const { return _fetched; };
+    virtual bool fetched() const { return _fetchStatus == DONE; }
+    virtual bool loading() const { return _fetchStatus == LOADING; }
 };
 
 class TreeItemPart;
