@@ -38,7 +38,7 @@ namespace Gui {
 
 MainWindow::MainWindow(): QMainWindow()
 {
-    createDockWindows();
+    createWidgets();
     setupModels();
     createActions();
     createMenus();
@@ -92,7 +92,7 @@ void MainWindow::createMenus()
     mailboxMenu->addAction( reloadAllMailboxes );
 }
 
-void MainWindow::createDockWindows()
+void MainWindow::createWidgets()
 {
     mboxTree = new QTreeView();
     mboxTree->setUniformRowHeights( true );

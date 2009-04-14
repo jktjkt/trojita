@@ -59,7 +59,7 @@ private slots:
 private:
     void createMenus();
     void createActions();
-    void createDockWindows();
+    void createWidgets();
     void setupModels();
 
     Imap::Mailbox::AuthenticatorPtr authenticator;
