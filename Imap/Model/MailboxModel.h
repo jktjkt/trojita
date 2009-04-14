@@ -53,6 +53,9 @@ protected slots:
 private slots:
     void resetMe();
 
+signals:
+    void someMailboxesWereRemoved();
+
 private:
     MailboxModel& operator=( const Model& ); // don't implement
     MailboxModel( const Model& ); // don't implement

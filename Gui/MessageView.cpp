@@ -31,6 +31,11 @@ MessageView::MessageView( QWidget* parent ): QWidget(parent), message(0), model(
     webView->page()->setNetworkAccessManager( netAccess );
 }
 
+void MessageView::setEmpty()
+{
+    webView->setUrl( QUrl("about:blank") );
+}
+
 void MessageView::setMessage( const QModelIndex& index )
 {
     // first, let's get a real model

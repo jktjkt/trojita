@@ -26,6 +26,7 @@ public:
     MessageView( QWidget* parent=0);
 public slots:
     void setMessage( const QModelIndex& index );
+    void setEmpty();
 private:
     QWebView* webView;
     QLayout* layout;

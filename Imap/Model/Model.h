@@ -160,6 +160,8 @@ signals:
     void networkPolicyExpensive();
     void networkPolicyOnline();
 
+    void someMailboxesWereRemoved();
+
 private:
     Model& operator=( const Model& ); // don't implement
     Model( const Model& ); // don't implement

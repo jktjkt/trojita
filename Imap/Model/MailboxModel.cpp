@@ -34,6 +34,7 @@ MailboxModel::MailboxModel( QObject* parent, Model* model ): QAbstractProxyModel
     connect( model, SIGNAL( layoutChanged() ), this, SIGNAL( layoutChanged() ) );
     connect( model, SIGNAL( dataChanged( const QModelIndex&, const QModelIndex& ) ),
             this, SLOT( handleDataChanged( const QModelIndex&, const QModelIndex& ) ) );
+    connect( model, SIGNAL( someMailboxesWereRemoved() ), this, SIGNAL( someMailboxesWereRemoved() ) );
 }
 
 void MailboxModel::resetMe()
