@@ -34,7 +34,6 @@ MsgListModel::MsgListModel( QObject* parent, Model* model ): QAbstractProxyModel
 
     // FIXME: will need to be expanded when Model supports more signals...
     connect( model, SIGNAL( modelAboutToBeReset() ), this, SLOT( resetMe() ) );
-    connect( model, SIGNAL( modelReset() ), this, SLOT( setInvalid() ) );
     connect( model, SIGNAL( layoutAboutToBeChanged() ), this, SIGNAL( layoutAboutToBeChanged() ) );
     connect( model, SIGNAL( layoutChanged() ), this, SIGNAL( layoutChanged() ) );
     connect( model, SIGNAL( dataChanged( const QModelIndex&, const QModelIndex& ) ),
