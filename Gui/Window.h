@@ -19,8 +19,6 @@
 #ifndef TROJITA_WINDOW_H
 #define TROJITA_WINDOW_H
 
-//#define FULL_VIEW
-
 #include <QMainWindow>
 
 #include "Imap/Authenticator.h"
@@ -56,6 +54,7 @@ private slots:
     void networkPolicyOffline();
     void networkPolicyExpensive();
     void networkPolicyOnline();
+    void fullViewToggled( bool show );
 
 private:
     void createMenus();
@@ -72,10 +71,9 @@ private:
 
     QTreeView* mboxTree;
     QTreeView* msgListTree;
-#ifdef FULL_VIEW
     QTreeView* allTree;
-#endif
     MessageView* msgView;
+    QDockWidget* allDock;
 
     QAction* reloadMboxList;
     QAction* reloadAllMailboxes;
@@ -83,6 +81,7 @@ private:
     QAction* netExpensive;
     QAction* netOnline;
     QAction* exitAction;
+    QAction* showFullView;
 };
 
 }

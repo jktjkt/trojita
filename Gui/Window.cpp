@@ -68,6 +68,11 @@ void MainWindow::createActions()
     netOnline = new QAction( tr("Free Access"), netPolicyGroup );
     netOnline->setCheckable( true );
     connect( netOnline, SIGNAL( triggered() ), model, SLOT( setNetworkOnline() ) );
+
+    showFullView = new QAction( tr("Show Full Tree Window"), this );
+    showFullView->setCheckable( true );
+    connect( showFullView, SIGNAL( triggered(bool) ), this, SLOT( fullViewToggled(bool) ) );
+    connect( allDock, SIGNAL( visibilityChanged(bool) ), showFullView, SLOT( setChecked(bool) ) );
 }
 
 void MainWindow::createMenus()
@@ -79,10 +84,12 @@ void MainWindow::createMenus()
     imapMenu->addAction( netExpensive );
     imapMenu->addAction( netOnline );
     imapMenu->addSeparator();
+    imapMenu->addAction( showFullView );
+    imapMenu->addSeparator();
     imapMenu->addAction( exitAction );
 
     QMenu* mailboxMenu = menuBar()->addMenu( tr("Mailbox") );
-    mailboxMenu->addAction( reloadMboxList );
+    mailboxMenu->addAction( reloadAllMailboxes );
 }
 
 void MainWindow::createDockWindows()
@@ -111,14 +118,12 @@ void MainWindow::createDockWindows()
     hSplitter->addWidget( vSplitter );
     setCentralWidget( hSplitter );
 
-#ifdef FULL_VIEW
-    QDockWidget* dock = new QDockWidget( "Everything", this );
-    allTree = new QTreeView( dock );
+    allDock = new QDockWidget( "Everything", this );
+    allTree = new QTreeView( allDock );
+    allDock->hide();
     allTree->setUniformRowHeights( true );
     allTree->setHeaderHidden( true );
-    dock->setWidget( allTree );
-    addDockWidget(Qt::LeftDockWidgetArea, dock);
-#endif
+    allDock->setWidget( allTree );
 }
 
 void MainWindow::setupModels()
@@ -158,9 +163,6 @@ void MainWindow::setupModels()
 
     mboxTree->setModel( mboxModel );
     msgListTree->setModel( msgListModel );
-#ifdef FULL_VIEW
-    allTree->setModel( model  );
-#endif
 }
 
 void MainWindow::slotResizeMsgListColumns()
@@ -219,6 +221,17 @@ void MainWindow::networkPolicyOnline()
     netOffline->setChecked( false );
     netExpensive->setChecked( false );
     netOnline->setChecked( true );
+}
+
+void MainWindow::fullViewToggled( bool showIt )
+{
+    if ( showIt ) {
+        allDock->show();
+        allTree->setModel( model );
+        addDockWidget(Qt::LeftDockWidgetArea, allDock);
+    } else {
+        removeDockWidget( allDock );
+    }
 }
 
 }
