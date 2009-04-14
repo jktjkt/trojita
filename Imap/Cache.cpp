@@ -44,7 +44,14 @@ void NoCache::setChildMailboxes( const QString& mailbox, const QList<MailboxMeta
 
 void NoCache::forgetChildMailboxes( const QString& mailbox )
 {
-    _cache.remove( mailbox );
+    for ( QMap<QString,QList<MailboxMetadata> >::iterator it = _cache.begin();
+          it != _cache.end(); /* do nothing */ ) {
+        if ( it.key().startsWith( mailbox ) ) {
+            it = _cache.erase( it );
+        } else {
+            ++it;
+        }
+    }
 }
 
 }

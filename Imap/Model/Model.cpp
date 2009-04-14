@@ -470,9 +470,7 @@ void Model::_askForChildrenOfMailbox( TreeItemMailbox* item )
 
 void Model::reloadMailboxList()
 {
-    ParserPtr parser = _getParser( 0, ReadOnly );
-    CommandHandle cmd = parser->list( "", "%" );
-    _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::LIST, _mailboxes );
+    _mailboxes->rescanForChildMailboxes( this );
 }
 
 void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
