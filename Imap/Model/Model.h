@@ -90,12 +90,34 @@ class Model: public QAbstractItemModel {
             handler(0), capabilitiesFresh(false) {};
     };
 
+    /** @short Policy for accessing network */
+    enum NetworkPolicy {
+        /**< @short No access to the network at all
+
+        All network activity is suspended. If an action requires network access,
+        it will either fail or be queued for later. */
+        NETWORK_OFFLINE,
+        /** @short Connections are possible, but expensive
+
+        Information that is cached is preferred, as long as it is usable.
+        Trojita will never miss a mail in this mode, but for example it won't
+        check for new mailboxes. */
+        NETWORK_EXPENSIVE,
+        /** @short Connections have zero cost
+
+        Normal mode of operation. All network activity is assumed to have zero
+        cost and Trojita is free to ask network as often as possible. It will
+        still use local cache when it makes sense, though. */
+        NETWORK_ONLINE
+    };
+
     mutable CachePtr _cache;
     mutable AuthenticatorPtr _authenticator;
     mutable SocketFactoryPtr _socketFactory;
     mutable QMap<Parser*,ParserState> _parsers;
     int _maxParsers;
     mutable TreeItemMailbox* _mailboxes;
+    mutable NetworkPolicy _netPolicy;
 
     mutable QList<Imap::Responses::NamespaceData> _personalNamespace, _otherUsersNamespace, _sharedNamespace;
 
@@ -124,11 +146,19 @@ public:
 
     CachePtr cache() const { return _cache; };
 
+
 public slots:
     void reloadMailboxList();
 
+    void setNetworkOffline() { setNetworkPolicy( NETWORK_OFFLINE ); }
+    void setNetworkExpensive() { setNetworkPolicy( NETWORK_EXPENSIVE ); }
+    void setNetworkOnline() { setNetworkPolicy( NETWORK_ONLINE ); }
+
 signals:
     void alertReceived( const QString& message );
+    void networkPolicyOffline();
+    void networkPolicyExpensive();
+    void networkPolicyOnline();
 
 private:
     Model& operator=( const Model& ); // don't implement
@@ -165,6 +195,10 @@ private:
      * If allowed by policy, new parser might be created in the background.
      * */
     ParserPtr _getParser( TreeItemMailbox* mailbox, const RWMode rw ) const;
+
+    NetworkPolicy networkPolicy() const { return _netPolicy; };
+    void setNetworkPolicy( const NetworkPolicy policy );
+
 
 protected slots:
     void responseReceived();

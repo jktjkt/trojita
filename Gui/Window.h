@@ -53,9 +53,13 @@ private slots:
     void slotReloadMboxList();
     void slotResizeMsgListColumns();
     void alertReceived( const QString& message );
+    void networkPolicyOffline();
+    void networkPolicyExpensive();
+    void networkPolicyOnline();
 
 private:
     void createMenus();
+    void createActions();
     void createDockWindows();
     void setupModels();
 
@@ -75,6 +79,10 @@ private:
 
     QAction* reloadMboxList;
     QAction* reloadAllMailboxes;
+    QAction* netOffline;
+    QAction* netExpensive;
+    QAction* netOnline;
+    QAction* exitAction;
 };
 
 }

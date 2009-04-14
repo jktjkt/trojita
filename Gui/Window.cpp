@@ -40,17 +40,49 @@ MainWindow::MainWindow(): QMainWindow()
 {
     createDockWindows();
     setupModels();
+    createActions();
     createMenus();
+}
+
+void MainWindow::createActions()
+{
+    reloadMboxList = new QAction( tr("Rescan Child Mailboxes"), this );
+    connect( reloadMboxList, SIGNAL( triggered() ), this, SLOT( slotReloadMboxList() ) );
+
+    reloadAllMailboxes = new QAction( tr("Reload All Mailboxes"), this );
+    connect( reloadAllMailboxes, SIGNAL( triggered() ), model, SLOT( reloadMailboxList() ) );
+
+    exitAction = new QAction( tr("E&xit"), this );
+    exitAction->setShortcut( tr("Ctrl+Q") );
+    exitAction->setStatusTip( tr("Exit the application") );
+    connect( exitAction, SIGNAL( triggered() ), this, SLOT( close() ) );
+
+    QActionGroup* netPolicyGroup = new QActionGroup( this );
+    netPolicyGroup->setExclusive( true );
+    netOffline = new QAction( tr("Offline"), netPolicyGroup );
+    netOffline->setCheckable( true );
+    connect( netOffline, SIGNAL( triggered() ), model, SLOT( setNetworkOffline() ) );
+    netExpensive = new QAction( tr("Expensive Connection"), netPolicyGroup );
+    netExpensive->setCheckable( true );
+    connect( netExpensive, SIGNAL( triggered() ), model, SLOT( setNetworkExpensive() ) );
+    netOnline = new QAction( tr("Free Access"), netPolicyGroup );
+    netOnline->setCheckable( true );
+    connect( netOnline, SIGNAL( triggered() ), model, SLOT( setNetworkOnline() ) );
 }
 
 void MainWindow::createMenus()
 {
-    reloadMboxList = new QAction( tr("Rescan Child Mailboxes"), this );
-    connect( reloadMboxList, SIGNAL( triggered() ), this, SLOT( slotReloadMboxList() ) );
-    reloadAllMailboxes = new QAction( tr("Reload All Mailboxes"), this );
-    connect( reloadAllMailboxes, SIGNAL( triggered() ), model, SLOT( reloadMailboxList() ) );
-    /*QMenu* mailboxMenu = menuBar()->addMenu( "Mailbox" );
-    mailboxMenu->addAction( reloadMboxList );*/
+    QMenu* imapMenu = menuBar()->addMenu( tr("IMAP") );
+    QMenu* newMenu = imapMenu->addMenu( tr("New") );
+    imapMenu->addSeparator()->setText( tr("Network Access") );
+    imapMenu->addAction( netOffline );
+    imapMenu->addAction( netExpensive );
+    imapMenu->addAction( netOnline );
+    imapMenu->addSeparator();
+    imapMenu->addAction( exitAction );
+
+    QMenu* mailboxMenu = menuBar()->addMenu( tr("Mailbox") );
+    mailboxMenu->addAction( reloadMboxList );
 }
 
 void MainWindow::createDockWindows()
@@ -115,6 +147,10 @@ void MainWindow::setupModels()
 
     connect( model, SIGNAL( alertReceived( const QString& ) ), this, SLOT( alertReceived( const QString& ) ) );
 
+    connect( model, SIGNAL( networkPolicyOffline() ), this, SLOT( networkPolicyOffline() ) );
+    connect( model, SIGNAL( networkPolicyExpensive() ), this, SLOT( networkPolicyExpensive() ) );
+    connect( model, SIGNAL( networkPolicyOnline() ), this, SLOT( networkPolicyOnline() ) );
+
     //Imap::Mailbox::ModelWatcher* w = new Imap::Mailbox::ModelWatcher( this );
     //w->setModel( model );
 
@@ -162,6 +198,27 @@ void MainWindow::slotReloadMboxList()
 void MainWindow::alertReceived( const QString& message )
 {
     QMessageBox::warning( this, tr("IMAP Alert"), message );
+}
+
+void MainWindow::networkPolicyOffline()
+{
+    netOffline->setChecked( true );
+    netExpensive->setChecked( false );
+    netOnline->setChecked( false );
+}
+
+void MainWindow::networkPolicyExpensive()
+{
+    netOffline->setChecked( false );
+    netExpensive->setChecked( true );
+    netOnline->setChecked( false );
+}
+
+void MainWindow::networkPolicyOnline()
+{
+    netOffline->setChecked( false );
+    netExpensive->setChecked( false );
+    netOnline->setChecked( true );
 }
 
 }

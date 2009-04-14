@@ -19,6 +19,7 @@
 #include "Model.h"
 #include "MailboxTree.h"
 #include <QDebug>
+#include <QTimer>
 
 namespace Imap {
 namespace Mailbox {
@@ -29,12 +30,13 @@ Model::Model( QObject* parent, CachePtr cache, AuthenticatorPtr authenticator,
     QAbstractItemModel( parent ),
     // our tools
     _cache(cache), _authenticator(authenticator), _socketFactory(socketFactory),
-    _maxParsers(1), _mailboxes(0)
+    _maxParsers(1), _mailboxes(0), _netPolicy( NETWORK_ONLINE )
 {
     ParserPtr parser( new Imap::Parser( this, _socketFactory->create() ) );
     _parsers[ parser.get() ] = ParserState( parser, 0, ReadOnly, CONN_STATE_ESTABLISHED );
     connect( parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
     _mailboxes = new TreeItemMailbox( 0 );
+    QTimer::singleShot( 0, this, SLOT( setNetworkOnline() ) );
 }
 
 Model::~Model()
@@ -560,6 +562,22 @@ ParserPtr Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode ) const
         _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::SELECT, mailbox );
         return parser;
     }
+}
+
+void Model::setNetworkPolicy( const NetworkPolicy policy )
+{
+    switch ( policy ) {
+        case NETWORK_OFFLINE:
+            emit networkPolicyOffline();
+            break;
+        case NETWORK_EXPENSIVE:
+            emit networkPolicyExpensive();
+            break;
+        case NETWORK_ONLINE:
+            emit networkPolicyOnline();
+            break;
+    }
+    _netPolicy = policy;
 }
 
 }
