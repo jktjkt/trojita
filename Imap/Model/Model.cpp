@@ -216,6 +216,8 @@ void Model::replaceChildMailboxes( ParserPtr parser, TreeItemMailbox* mailboxPtr
         QList<TreeItem*> oldItems = mailboxPtr->setChildren( QList<TreeItem*>() );
         endRemoveRows();
         reset(); // FIXME: if we don't call reset() here, the attached QTreeView segfaults
+        // FIXME: cancel all requests that might refer to this item to prevent nasty segfault
+        // (like in _finalizeFetch())
         qDeleteAll( oldItems );
     }
 
