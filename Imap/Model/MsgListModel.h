@@ -48,6 +48,7 @@ public:
     virtual QVariant headerData ( int section, Qt::Orientation orientation, int role=Qt::DisplayRole ) const;
 
 public slots:
+    void resetMe();
     void setMailbox( const QModelIndex& index );
     void handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight );
 

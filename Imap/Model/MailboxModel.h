@@ -50,6 +50,9 @@ public:
 protected slots:
     void handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight );
 
+private slots:
+    void resetMe();
+
 private:
     MailboxModel& operator=( const Model& ); // don't implement
     MailboxModel( const Model& ); // don't implement

@@ -29,11 +29,16 @@ MailboxModel::MailboxModel( QObject* parent, Model* model ): QAbstractProxyModel
     setSourceModel( model );
 
     // FIXME: will need to be expanded when Model supports more signals...
-    connect( model, SIGNAL( modelReset() ), this, SIGNAL( modelReset() ) );
+    connect( model, SIGNAL( modelAboutToBeReset() ), this, SLOT( resetMe() ) );
     connect( model, SIGNAL( layoutAboutToBeChanged() ), this, SIGNAL( layoutAboutToBeChanged() ) );
     connect( model, SIGNAL( layoutChanged() ), this, SIGNAL( layoutChanged() ) );
     connect( model, SIGNAL( dataChanged( const QModelIndex&, const QModelIndex& ) ),
             this, SLOT( handleDataChanged( const QModelIndex&, const QModelIndex& ) ) );
+}
+
+void MailboxModel::resetMe()
+{
+    reset();
 }
 
 bool MailboxModel::hasChildren( const QModelIndex& parent ) const

@@ -207,30 +207,30 @@ void Model::replaceChildMailboxes( ParserPtr parser, TreeItemMailbox* mailboxPtr
        well.
     */
 
-    emit layoutAboutToBeChanged();
-
     QModelIndex parent = QAbstractItemModel::createIndex( mailboxPtr->row(), 0, mailboxPtr );
-    QList<TreeItem*> oldItems;
     if ( mailboxPtr->_children.size() != 1 ) {
         // There's something besides the TreeItemMsgList and we're going to
         // overwrite them, so we have to delete them right now
         int count = mailboxPtr->rowCount( this );
-        beginRemoveRows( parent, 0, count - 1 );
-        oldItems = mailboxPtr->setChildren( QList<TreeItem*>() );
+        beginRemoveRows( parent, 1, count - 1 );
+        QList<TreeItem*> oldItems = mailboxPtr->setChildren( QList<TreeItem*>() );
         endRemoveRows();
+        reset(); // FIXME: if we don't call reset() here, the attached QTreeView segfaults
+        qDeleteAll( oldItems );
     }
 
     if ( ! mailboxes.isEmpty() ) {
+        emit layoutAboutToBeChanged();
         beginInsertRows( parent, 1, mailboxes.size() );
         QList<TreeItem*> dummy = mailboxPtr->setChildren( mailboxes );
         endInsertRows();
+        emit layoutChanged();
         Q_ASSERT( dummy.isEmpty() );
     } else {
         QList<TreeItem*> dummy = mailboxPtr->setChildren( mailboxes );
         Q_ASSERT( dummy.isEmpty() );
     }
-    qDeleteAll( oldItems );
-    emit layoutChanged();
+
 }
 
 void Model::_finalizeStatus( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command )

@@ -33,7 +33,8 @@ MsgListModel::MsgListModel( QObject* parent, Model* model ): QAbstractProxyModel
     setSourceModel( model );
 
     // FIXME: will need to be expanded when Model supports more signals...
-    connect( model, SIGNAL( modelReset() ), this, SIGNAL( modelReset() ) );
+    connect( model, SIGNAL( modelAboutToBeReset() ), this, SLOT( resetMe() ) );
+    connect( model, SIGNAL( modelReset() ), this, SLOT( setInvalid() ) );
     connect( model, SIGNAL( layoutAboutToBeChanged() ), this, SIGNAL( layoutAboutToBeChanged() ) );
     connect( model, SIGNAL( layoutChanged() ), this, SIGNAL( layoutChanged() ) );
     connect( model, SIGNAL( dataChanged( const QModelIndex&, const QModelIndex& ) ),
@@ -125,6 +126,9 @@ QModelIndex MsgListModel::mapToSource( const QModelIndex& proxyIndex ) const
 
 QModelIndex MsgListModel::mapFromSource( const QModelIndex& sourceIndex ) const
 {
+    if ( ! msgList )
+        return QModelIndex();
+
     if ( sourceIndex.model() != sourceModel() )
         return QModelIndex();
     if ( dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>( sourceIndex.internalPointer() ) ) ) {
@@ -136,6 +140,9 @@ QModelIndex MsgListModel::mapFromSource( const QModelIndex& sourceIndex ) const
 
 QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
 {
+    if ( ! msgList )
+        return QVariant();
+
     if ( ! proxyIndex.internalPointer() )
         return QVariant();
 
@@ -205,8 +212,19 @@ QVariant MsgListModel::headerData ( int section, Qt::Orientation orientation, in
     }
 }
 
+void MsgListModel::resetMe()
+{
+    setMailbox( QModelIndex() );
+}
+
 void MsgListModel::setMailbox( const QModelIndex& index )
 {
+    if ( ! index.isValid() ) {
+        msgList = 0;
+        emit mailboxChanged();
+        return;
+    }
+
     TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( index.internalPointer() ));
     Q_ASSERT( mbox );
     TreeItemMsgList* newList = dynamic_cast<TreeItemMsgList*>( mbox->child( 0, static_cast<Model*>( const_cast<QAbstractItemModel*>( index.model() ) ) ) );
