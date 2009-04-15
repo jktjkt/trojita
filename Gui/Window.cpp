@@ -159,16 +159,9 @@ void MainWindow::setupModels()
     //Imap::Mailbox::ModelWatcher* w = new Imap::Mailbox::ModelWatcher( this );
     //w->setModel( model );
 
-    ModelTest* tester = new ModelTest( mboxModel, this ); // when testing, test just one model at time
+    //ModelTest* tester = new ModelTest( mboxModel, this ); // when testing, test just one model at time
 
     mboxTree->setModel( mboxModel );
-    // FIXME: if we don't do this, QAbstractItemView will segfault when switching current index
-    //connect( mboxModel, SIGNAL( someMailboxesWereRemoved() ), mboxTree->selectionModel(), SLOT( clear() ) );
-    // FIXME: better safe then sorry here
-    connect( mboxModel, SIGNAL( someMailboxesWereRemoved() ), msgListModel, SLOT( resetMe() ) );
-    // this is not really required, but doesn't hurt either
-    connect( mboxModel, SIGNAL( someMailboxesWereRemoved() ), msgView, SLOT( setEmpty() ) );
-
     msgListTree->setModel( msgListModel );
 }
 
@@ -237,9 +230,6 @@ void MainWindow::fullViewToggled( bool showIt )
     if ( showIt ) {
         allDock->show();
         allTree->setModel( model );
-        // FIXME: see similar comment in setupModels()
-        //connect( model, SIGNAL( rowsAboutToBeRemoved(const QModelIndex&, int, int) ),
-        //         allTree->selectionModel(), SLOT( clear() ) );
         addDockWidget(Qt::LeftDockWidgetArea, allDock);
     } else {
         removeDockWidget( allDock );

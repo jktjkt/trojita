@@ -219,9 +219,6 @@ void Model::replaceChildMailboxes( ParserPtr parser, TreeItemMailbox* mailboxPtr
         QList<TreeItem*> oldItems = mailboxPtr->setChildren( QList<TreeItem*>() );
         endRemoveRows();
 
-        // FIXME: if we don't emit this, attached QAbstractItemView will segfault when dealing with QAbstractItemView::currentChanged
-        //emit someMailboxesWereRemoved();
-
         // FIXME: this should be less drastical (ie cancel only what is reqlly really required to be cancelled
         for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
             it->commandMap.clear();

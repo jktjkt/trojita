@@ -34,12 +34,11 @@ MailboxModel::MailboxModel( QObject* parent, Model* model ): QAbstractProxyModel
     connect( model, SIGNAL( layoutChanged() ), this, SIGNAL( layoutChanged() ) );
     connect( model, SIGNAL( dataChanged( const QModelIndex&, const QModelIndex& ) ),
             this, SLOT( handleDataChanged( const QModelIndex&, const QModelIndex& ) ) );
-    connect( model, SIGNAL( someMailboxesWereRemoved() ), this, SIGNAL( someMailboxesWereRemoved() ) );
     connect( model, SIGNAL( rowsAboutToBeRemoved( const QModelIndex&, int, int ) ),
              this, SLOT( handleRowsAboutToBeRemoved( const QModelIndex&, int, int ) ) );
     connect( model, SIGNAL( rowsRemoved( const QModelIndex&, int, int ) ),
              this, SLOT( handleRowsRemoved( const QModelIndex&, int, int ) ) );
-
+    // FIXME: rowsAboutToBeInserted, just for the sake of completeness :)
 }
 
 void MailboxModel::resetMe()
@@ -219,7 +218,6 @@ QVariant MailboxModel::headerData ( int section, Qt::Orientation orientation, in
 
 void MailboxModel::handleRowsAboutToBeRemoved( const QModelIndex& parent, int first, int last )
 {
-    qDebug() << Q_FUNC_INFO << parent << first << last;
     TreeItemMailbox* parentMbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( parent.internalPointer() ) );
     if ( parent.internalPointer() && ! parentMbox )
         return;
@@ -232,7 +230,6 @@ void MailboxModel::handleRowsAboutToBeRemoved( const QModelIndex& parent, int fi
 
 void MailboxModel::handleRowsRemoved( const QModelIndex& parent, int first, int last )
 {
-    qDebug() << Q_FUNC_INFO << parent << first << last;
     TreeItemMailbox* parentMbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( parent.internalPointer() ) );
     if ( parent.internalPointer() && ! parentMbox )
         return;

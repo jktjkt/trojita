@@ -26,27 +26,6 @@
 namespace Imap {
 namespace Mailbox {
 
-TreeItemMailbox::~TreeItemMailbox()
-{
-    //qDebug() << "~TreeItemMailbox" << this << mailbox();
-}
-
-TreeItemMsgList::~TreeItemMsgList()
-{
-    //qDebug() << "~TreeItemMsgList" << this << _parent;
-}
-
-TreeItemPart::~TreeItemPart()
-{
-    //qDebug() << "~TreeItemPart" << this << _parent;
-}
-
-TreeItemMessage::~TreeItemMessage()
-{
-    //qDebug() << "~TreeItemMessage" << this << _parent;
-}
-
-
 TreeItem::TreeItem( TreeItem* parent ): _parent(parent), _fetchStatus(NONE)
 {
 }

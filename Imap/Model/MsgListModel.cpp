@@ -38,7 +38,7 @@ MsgListModel::MsgListModel( QObject* parent, Model* model ): QAbstractProxyModel
     connect( model, SIGNAL( layoutChanged() ), this, SIGNAL( layoutChanged() ) );
     connect( model, SIGNAL( dataChanged( const QModelIndex&, const QModelIndex& ) ),
             this, SLOT( handleDataChanged( const QModelIndex&, const QModelIndex& ) ) );
-    connect( model, SIGNAL( rowsAboutToBeRemoved( const QModelIndex&, int, int ) ), this, SLOT( resetMe() ) );
+    connect( model, SIGNAL( rowsAboutToBeRemoved( const QModelIndex&, int, int ) ), this, SLOT( resetMe() ) ); // FIXME: fine-grain it *AND* inform the messageView to prevent segfault
 }
 
 void MsgListModel::handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight )
