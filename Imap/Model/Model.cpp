@@ -91,8 +91,10 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
 
     if ( ! tag.isEmpty() ) {
         QMap<CommandHandle, Task>::iterator command = _parsers[ ptr.get() ].commandMap.find( tag );
-        if ( command == _parsers[ ptr.get() ].commandMap.end() )
-            throw UnexpectedResponseReceived( "Unknown tag in tagged response", *resp );
+        if ( command == _parsers[ ptr.get() ].commandMap.end() ) {
+            qDebug() << "This command is not valid anymore" << tag;
+            return;
+        }
 
         switch ( command->kind ) {
             case Task::NONE:
@@ -207,7 +209,8 @@ void Model::replaceChildMailboxes( ParserPtr parser, TreeItemMailbox* mailboxPtr
        well.
     */
 
-    QModelIndex parent = QAbstractItemModel::createIndex( mailboxPtr->row(), 0, mailboxPtr );
+    QModelIndex parent = mailboxPtr == _mailboxes ? QModelIndex() : QAbstractItemModel::createIndex( mailboxPtr->row(), 0, mailboxPtr );
+
     if ( mailboxPtr->_children.size() != 1 ) {
         // There's something besides the TreeItemMsgList and we're going to
         // overwrite them, so we have to delete them right now
@@ -215,10 +218,14 @@ void Model::replaceChildMailboxes( ParserPtr parser, TreeItemMailbox* mailboxPtr
         beginRemoveRows( parent, 1, count - 1 );
         QList<TreeItem*> oldItems = mailboxPtr->setChildren( QList<TreeItem*>() );
         endRemoveRows();
+
         // FIXME: if we don't emit this, attached QAbstractItemView will segfault when dealing with QAbstractItemView::currentChanged
-        emit someMailboxesWereRemoved();
-        // FIXME: cancel all requests that might refer to this item to prevent nasty segfault
-        // (like in _finalizeFetch())
+        //emit someMailboxesWereRemoved();
+
+        // FIXME: this should be less drastical (ie cancel only what is reqlly really required to be cancelled
+        for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
+            it->commandMap.clear();
+        }
         qDeleteAll( oldItems );
     }
 
@@ -233,7 +240,6 @@ void Model::replaceChildMailboxes( ParserPtr parser, TreeItemMailbox* mailboxPtr
         QList<TreeItem*> dummy = mailboxPtr->setChildren( mailboxes );
         Q_ASSERT( dummy.isEmpty() );
     }
-
 }
 
 void Model::_finalizeStatus( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command )

@@ -26,6 +26,27 @@
 namespace Imap {
 namespace Mailbox {
 
+TreeItemMailbox::~TreeItemMailbox()
+{
+    //qDebug() << "~TreeItemMailbox" << this << mailbox();
+}
+
+TreeItemMsgList::~TreeItemMsgList()
+{
+    //qDebug() << "~TreeItemMsgList" << this << _parent;
+}
+
+TreeItemPart::~TreeItemPart()
+{
+    //qDebug() << "~TreeItemPart" << this << _parent;
+}
+
+TreeItemMessage::~TreeItemMessage()
+{
+    //qDebug() << "~TreeItemMessage" << this << _parent;
+}
+
+
 TreeItem::TreeItem( TreeItem* parent ): _parent(parent), _fetchStatus(NONE)
 {
 }
@@ -92,15 +113,17 @@ void TreeItemMailbox::fetch( Model* const model )
         return;
 
     if ( ! loading() ) {
-        model->_askForChildrenOfMailbox( this );
         _fetchStatus = LOADING;
+        model->_askForChildrenOfMailbox( this );
     }
 }
 
 void TreeItemMailbox::rescanForChildMailboxes( Model* const model )
 {
+    // FIXME: fix duplicate requests (ie. don't allow more when some are on their way)
+    // FIXME: gotta be fixed in the Model, or spontaneous replies from server can break us
     model->_cache->forgetChildMailboxes( mailbox() );
-    model->_askForChildrenOfMailbox( this );
+    _fetchStatus = NONE;
     fetch( model );
 }
 

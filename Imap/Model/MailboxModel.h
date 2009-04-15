@@ -52,6 +52,8 @@ protected slots:
 
 private slots:
     void resetMe();
+    void handleRowsAboutToBeRemoved( const QModelIndex& parent, int first, int last );
+    void handleRowsRemoved( const QModelIndex& parent, int first, int last );
 
 signals:
     void someMailboxesWereRemoved();

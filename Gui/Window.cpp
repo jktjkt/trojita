@@ -159,11 +159,11 @@ void MainWindow::setupModels()
     //Imap::Mailbox::ModelWatcher* w = new Imap::Mailbox::ModelWatcher( this );
     //w->setModel( model );
 
-    //ModelTest* tester = new ModelTest( mboxModel, this ); // when testing, test just one model at time
+    ModelTest* tester = new ModelTest( mboxModel, this ); // when testing, test just one model at time
 
     mboxTree->setModel( mboxModel );
     // FIXME: if we don't do this, QAbstractItemView will segfault when switching current index
-    connect( mboxModel, SIGNAL( someMailboxesWereRemoved() ), mboxTree->selectionModel(), SLOT( clear() ) );
+    //connect( mboxModel, SIGNAL( someMailboxesWereRemoved() ), mboxTree->selectionModel(), SLOT( clear() ) );
     // FIXME: better safe then sorry here
     connect( mboxModel, SIGNAL( someMailboxesWereRemoved() ), msgListModel, SLOT( resetMe() ) );
     // this is not really required, but doesn't hurt either
@@ -191,12 +191,14 @@ void MainWindow::showContextMenuMboxTree( const QPoint& position )
 void MainWindow::slotReloadMboxList()
 {
     QModelIndexList indices = mboxTree->selectionModel()->selectedIndexes();
-    Q_FOREACH( QModelIndex idx, indices ) {
-        Q_ASSERT( idx.isValid() );
-        Q_ASSERT( idx.model() == mboxModel );
+    for ( QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it ) {
+        Q_ASSERT( it->isValid() );
+        Q_ASSERT( it->model() == mboxModel );
+        if ( it->column() != 0 )
+            continue;
         Imap::Mailbox::TreeItemMailbox* mbox = dynamic_cast<Imap::Mailbox::TreeItemMailbox*>(
                 static_cast<Imap::Mailbox::TreeItem*>(
-                    mboxModel->mapToSource( idx ).internalPointer()
+                    mboxModel->mapToSource( *it ).internalPointer()
                     )
                 );
         Q_ASSERT( mbox );
@@ -236,8 +238,8 @@ void MainWindow::fullViewToggled( bool showIt )
         allDock->show();
         allTree->setModel( model );
         // FIXME: see similar comment in setupModels()
-        connect( model, SIGNAL( rowsAboutToBeRemoved(const QModelIndex&, int, int) ),
-                 allTree->selectionModel(), SLOT( clear() ) );
+        //connect( model, SIGNAL( rowsAboutToBeRemoved(const QModelIndex&, int, int) ),
+        //         allTree->selectionModel(), SLOT( clear() ) );
         addDockWidget(Qt::LeftDockWidgetArea, allDock);
     } else {
         removeDockWidget( allDock );

@@ -30,6 +30,7 @@ namespace Imap {
 namespace Mailbox {
 
 class Model;
+class MailboxModel;
 
 class TreeItem {
     friend class Model; // for _loading and _fetched
@@ -69,7 +70,9 @@ class TreeItemPart;
 class TreeItemMailbox: public TreeItem {
     void operator=( const TreeItem& ); // don't implement
     MailboxMetadata _metadata;
+    friend class MailboxModel;
 public:
+    virtual ~TreeItemMailbox();
     TreeItemMailbox( TreeItem* parent );
     TreeItemMailbox( TreeItem* parent, Responses::List );
     static TreeItemMailbox* fromMetadata( TreeItem* parent, const MailboxMetadata& metadata );
@@ -107,6 +110,7 @@ class TreeItemMsgList: public TreeItem {
     void operator=( const TreeItem& ); // don't implement
     friend class TreeItemMailbox;
 public:
+    virtual ~TreeItemMsgList();
     TreeItemMsgList( TreeItem* parent );
 
     virtual void fetch( Model* const model );
@@ -124,6 +128,7 @@ class TreeItemMessage: public TreeItem {
     Message::Envelope _envelope;
     uint _size;
 public:
+    virtual ~TreeItemMessage();
     TreeItemMessage( TreeItem* parent );
 
     virtual void fetch( Model* const model );
@@ -142,6 +147,7 @@ class TreeItemPart: public TreeItem {
     QByteArray _encoding;
     QByteArray _data;
 public:
+    virtual ~TreeItemPart();
     TreeItemPart( TreeItem* parent, const QString& mimeType );
 
     virtual unsigned int childrenCount( Model* const model );
