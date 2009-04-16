@@ -27,6 +27,7 @@ public:
 public slots:
     void setMessage( const QModelIndex& index );
     void setEmpty();
+    void handleMessageRemoved( void* msg );
 private:
     QWebView* webView;
     QLayout* layout;

@@ -31,6 +31,12 @@ MessageView::MessageView( QWidget* parent ): QWidget(parent), message(0), model(
     webView->page()->setNetworkAccessManager( netAccess );
 }
 
+void MessageView::handleMessageRemoved( void* msg )
+{
+    if ( msg == message )
+        setEmpty();
+}
+
 void MessageView::setEmpty()
 {
     webView->setUrl( QUrl("about:blank") );

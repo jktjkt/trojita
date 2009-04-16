@@ -38,7 +38,10 @@ MsgListModel::MsgListModel( QObject* parent, Model* model ): QAbstractProxyModel
     connect( model, SIGNAL( layoutChanged() ), this, SIGNAL( layoutChanged() ) );
     connect( model, SIGNAL( dataChanged( const QModelIndex&, const QModelIndex& ) ),
             this, SLOT( handleDataChanged( const QModelIndex&, const QModelIndex& ) ) );
-    connect( model, SIGNAL( rowsAboutToBeRemoved( const QModelIndex&, int, int ) ), this, SLOT( resetMe() ) ); // FIXME: fine-grain it *AND* inform the messageView to prevent segfault
+    connect( model, SIGNAL( rowsAboutToBeRemoved( const QModelIndex&, int, int ) ),
+             this, SLOT( handleRowsAboutToBeRemoved(const QModelIndex&, int,int ) ) );
+    connect( model, SIGNAL( rowsRemoved( const QModelIndex&, int, int ) ),
+             this, SLOT( handleRowsRemoved(const QModelIndex&, int,int ) ) );
 }
 
 void MsgListModel::handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight )
@@ -217,10 +220,54 @@ void MsgListModel::resetMe()
     setMailbox( QModelIndex() );
 }
 
+void MsgListModel::handleRowsAboutToBeRemoved( const QModelIndex& parent, int start, int end )
+{
+    TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( parent.internalPointer() ) );
+    TreeItemMsgList* newList = dynamic_cast<TreeItemMsgList*>( static_cast<TreeItem*>( parent.internalPointer() ) );
+
+    if ( parent.isValid() ) {
+        Q_ASSERT( parent.model() == sourceModel() );
+    } else {
+        // a top-level mailbox might have been deleted, so we gotta setup proper pointer
+        mailbox = static_cast<Model*>( sourceModel() )->_mailboxes;
+        Q_ASSERT( mailbox );
+    }
+
+    if ( newList ) {
+        if ( newList == msgList ) {
+            beginRemoveRows( mapFromSource( parent ), start, end );
+            for ( int i = start; i <= end; ++i )
+                emit messageRemoved( msgList->child( i, static_cast<Model*>( sourceModel() ) ) );
+        }
+    } else if ( mailbox ) {
+        Q_ASSERT( start > 0 );
+        // if we're below it, we're gonna die
+        for ( int i = start; i <= end; ++i ) {
+            TreeItemMailbox* m = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( sourceModel()->index( i, 0, parent ).internalPointer() ) );
+            Q_ASSERT( m );
+            TreeItem* up = msgList->parent();
+            while ( up ) {
+                if ( m == up ) {
+                    resetMe();
+                    return;
+                }
+                up = up->parent();
+            }
+        }
+    }
+}
+
+void MsgListModel::handleRowsRemoved( const QModelIndex& parent, int start, int end )
+{
+    if ( parent.isValid() && dynamic_cast<TreeItemMsgList*>( static_cast<TreeItem*>( parent.internalPointer() ) ) )
+        endRemoveRows();
+}
+
 void MsgListModel::setMailbox( const QModelIndex& index )
 {
     if ( ! index.isValid() ) {
         msgList = 0;
+        reset();
         emit mailboxChanged();
         return;
     }

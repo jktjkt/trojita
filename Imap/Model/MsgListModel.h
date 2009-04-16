@@ -51,8 +51,11 @@ public slots:
     void resetMe();
     void setMailbox( const QModelIndex& index );
     void handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight );
+    void handleRowsAboutToBeRemoved( const QModelIndex& parent, int start, int end );
+    void handleRowsRemoved( const QModelIndex& parent, int start, int end );
 
 signals:
+    void messageRemoved( void* );
     void mailboxChanged();
 
 private:
