@@ -37,6 +37,7 @@ public:
     UnixSocketDeadWatcher();
     ~UnixSocketDeadWatcher();
     void add( UnixSocketThread* t );
+    void remove( UnixSocketThread* t );
     void run();
 private:
     QMutex mutex;
@@ -394,6 +395,7 @@ void UnixSocketThread::run()
             }
         }
     }
+    getDeadWatcher()->remove( this );
 }
 
 static void (*UnixSocketDeadWatcher_OldSigChldHandler)(int) = 0;
@@ -438,10 +440,17 @@ void UnixSocketDeadWatcher::add( UnixSocketThread* t )
     children.append( t );
 }
 
+void UnixSocketDeadWatcher::remove( UnixSocketThread* t )
+{
+    QMutexLocker lock( &mutex );
+    children.removeOne( t );
+}
+
 UnixSocketDeadWatcher::~UnixSocketDeadWatcher()
 {
     UnixSocket::wrappedWrite( UnixSocketDeadWatcherPipe[1], "x", 1 );
     UnixSocket::wrappedClose( UnixSocketDeadWatcherPipe[1] );
+    wait();
 }
 
 void UnixSocketDeadWatcher::run()
