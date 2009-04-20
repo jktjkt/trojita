@@ -557,6 +557,7 @@ ParserPtr Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode ) const
         ParserPtr parser( new Parser( const_cast<Model*>( this ), _socketFactory->create() ) );
         _parsers[ parser.get() ] = ParserState( parser, mailbox, mode, CONN_STATE_ESTABLISHED );
         connect( parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
+        connect( parser.get(), SIGNAL( disconnected() ), this, SLOT( slotParserDisconnected() ) );
         CommandHandle cmd;
         if ( mode == ReadWrite )
             cmd = parser->select( mailbox->mailbox() );
@@ -585,6 +586,14 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
 
 void Model::slotParserDisconnected()
 {
+    Parser* which = qobject_cast<Parser*>( sender() );
+    if ( ! which )
+        return;
+    for ( QMap<CommandHandle, Task>::const_iterator it = _parsers[ which ].commandMap.begin();
+            it != _parsers[ which ].commandMap.end(); ++it ) {
+        // FIXME: fail the command, perform cleanup,...
+    }
+    // FIXME: tell the user (or not?)
     qDebug() << sender() << "disconnected";
 }
 
