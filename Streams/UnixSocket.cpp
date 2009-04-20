@@ -52,7 +52,7 @@ static int UnixSocketDeadWatcherPipe[2];
 UnixSocket::UnixSocket( const QList<QByteArray>& args ): d(new UnixSocketThread(args)), hasLine(false)
 {
     connect( d, SIGNAL(readyRead()), this, SIGNAL(readyRead()), Qt::QueuedConnection );
-    connect( d, SIGNAL( readChannelFinished() ), this, SIGNAL( readChannelFinished() ) );
+    connect( d, SIGNAL( readChannelFinished() ), this, SIGNAL( readChannelFinished() ), Qt::QueuedConnection );
     d->start();
 }
 
