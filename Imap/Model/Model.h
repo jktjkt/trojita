@@ -154,6 +154,9 @@ public slots:
     void setNetworkExpensive() { setNetworkPolicy( NETWORK_EXPENSIVE ); }
     void setNetworkOnline() { setNetworkPolicy( NETWORK_ONLINE ); }
 
+private slots:
+    void slotParserDisconnected();
+
 signals:
     void alertReceived( const QString& message );
     void networkPolicyOffline();

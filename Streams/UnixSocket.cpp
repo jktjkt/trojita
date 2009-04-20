@@ -19,6 +19,7 @@
 #include "UnixSocket.h"
 #include "../Imap/Exceptions.h"
 
+#include <QMutexLocker>
 #include <QTextStream>
 #include <QTime>
 #include <QDebug>
@@ -26,14 +27,31 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <signal.h>
 
 namespace Imap {
 
+class UnixSocketDeadWatcher: public QThread {
+public:
+    UnixSocketDeadWatcher();
+    ~UnixSocketDeadWatcher();
+    void add( UnixSocketThread* t );
+    void run();
+private:
+    QMutex mutex;
+    QList<UnixSocketThread*> children;
+};
+
+Q_GLOBAL_STATIC( UnixSocketDeadWatcher, getDeadWatcher );
+
+static int UnixSocketDeadWatcherPipe[2];
+
+
 UnixSocket::UnixSocket( const QList<QByteArray>& args ): d(new UnixSocketThread(args)), hasLine(false)
 {
     connect( d, SIGNAL(readyRead()), this, SIGNAL(readyRead()), Qt::QueuedConnection );
-    connect( d, SIGNAL(aboutToClose()), this, SIGNAL(aboutToClose()), Qt::QueuedConnection );
+    connect( d, SIGNAL( readChannelFinished() ), this, SIGNAL( readChannelFinished() ) );
     d->start();
 }
 
@@ -100,6 +118,10 @@ QByteArray UnixSocket::reallyRead( qint64 maxSize )
     QByteArray buf;
     buf.resize( maxSize );
     qint64 ret = wrappedRead( d->fdStdout[0], buf.data(), maxSize );
+    if ( ret == 0 ) {
+        qDebug() << "readChannelFinished()";
+        emit readChannelFinished();
+    }
     buf.resize( ret );
     d->readyReadAlreadyDone.release();
     return buf;
@@ -220,6 +242,16 @@ int UnixSocket::wrappedDup2( int oldfd, int newfd )
     return ret;
 }
 
+/** @short Safe wrapper around waitpid which handles EINTR */
+pid_t UnixSocket::wrappedWaitpid(pid_t pid, int *status, int options)
+{
+    pid_t ret;
+    do {
+        ret = ::waitpid( pid, status, options );
+    } while ( ret == -1 &&  errno == EINTR );
+    return ret;
+}
+
 void UnixSocket::terminate()
 {
     wrappedWrite( d->fdExitPipe[1], "x", 1 );
@@ -323,6 +355,8 @@ UnixSocketThread::UnixSocketThread( const QList<QByteArray>& args ): childPid(0)
 
 void UnixSocketThread::run()
 {
+    getDeadWatcher()->start();
+    getDeadWatcher()->add( this );
     fd_set rfds;
     int ret;
     while (true) {
@@ -337,13 +371,117 @@ void UnixSocketThread::run()
             qDebug() << "select() failed:" << errno;
         } else if ( ret > 0 ) {
             if ( FD_ISSET( fdExitPipe[0], &rfds ) ) {
-                break;
+                char buf;
+                ret = UnixSocket::wrappedRead( fdExitPipe[0], &buf, 1 );
+                if ( ret && buf == 'c' ) {
+                    emit readChannelFinished();
+                    break;
+                } else if ( ret && buf == 'x' ) {
+                    break;
+                } else {
+                    QByteArray ebuf;
+                    QTextStream ss( &ebuf );
+                    ss << "UnixSocketThread: weird result at internal pipe: " << buf << ret;
+                    ss.flush();
+                    throw SocketException( ebuf.constData() );
+                }
             }
             if ( FD_ISSET( fdStdout[0], &rfds ) ) {
                 emit readyRead();
                 // we don't want to loop around select() till the other threads
                 // handle the signal...
                 readyReadAlreadyDone.acquire();
+            }
+        }
+    }
+}
+
+static void (*UnixSocketDeadWatcher_OldSigChldHandler)(int) = 0;
+static void UnixSocketDeadWatcher_SigChldHandler( int signum )
+{
+    // can't use UnixSocket::wrappedWrite directly
+    ssize_t ret = 0;
+    do {
+        ret = ::write( UnixSocketDeadWatcherPipe[1], "c", 1 );
+    } while (ret == -1 && errno == EINTR);
+
+    if ( UnixSocketDeadWatcher_OldSigChldHandler && UnixSocketDeadWatcher_OldSigChldHandler != SIG_IGN )
+        UnixSocketDeadWatcher_OldSigChldHandler( signum );
+}
+
+UnixSocketDeadWatcher::UnixSocketDeadWatcher()
+{
+    int ret = UnixSocket::wrappedPipe( UnixSocketDeadWatcherPipe );
+    if ( ret == -1 ) {
+        QByteArray buf;
+        QTextStream ss( &buf );
+        ss << "UnixSocketDeadWatcher: Can't create internal pipe: " << errno;
+        ss.flush();
+        throw SocketException( buf.constData() );
+    }
+    struct sigaction oldAction;
+    struct sigaction action;
+    memset(&action, 0, sizeof(action));
+
+    action.sa_handler = UnixSocketDeadWatcher_SigChldHandler;
+    action.sa_flags = SA_NOCLDSTOP;
+    do {
+        ret = ::sigaction( SIGCHLD, &action, &oldAction );
+    } while ( ret == -1 && errno == EINTR );
+    if ( oldAction.sa_handler != UnixSocketDeadWatcher_SigChldHandler )
+        UnixSocketDeadWatcher_OldSigChldHandler = oldAction.sa_handler;
+}
+
+void UnixSocketDeadWatcher::add( UnixSocketThread* t )
+{
+    QMutexLocker lock( &mutex );
+    children.append( t );
+}
+
+UnixSocketDeadWatcher::~UnixSocketDeadWatcher()
+{
+    UnixSocket::wrappedWrite( UnixSocketDeadWatcherPipe[1], "x", 1 );
+    UnixSocket::wrappedClose( UnixSocketDeadWatcherPipe[1] );
+}
+
+void UnixSocketDeadWatcher::run()
+{
+    int ret;
+    fd_set rfds;
+    while (true) {
+        FD_ZERO( &rfds );
+        FD_SET( UnixSocketDeadWatcherPipe[0], &rfds );
+        do {
+            ret = select( UnixSocketDeadWatcherPipe[0] + 1, &rfds, 0, 0, 0 );
+        } while ( ret == -1 && errno == EINTR );
+        if ( ret < 0 ) {
+            // select() failed
+            qDebug() << "select() failed:" << errno;
+        } else if ( ret > 0 ) {
+            if ( FD_ISSET( UnixSocketDeadWatcherPipe[0], &rfds ) ) {
+                char buf;
+                ret = UnixSocket::wrappedRead( UnixSocketDeadWatcherPipe[0], &buf, 1 );
+                if ( ret && buf == 'c' ) {
+                    int status;
+                    pid_t deadChild = UnixSocket::wrappedWaitpid( -1, &status, WNOHANG );
+                    if ( deadChild < 0 ) {
+                        QByteArray buf;
+                        QTextStream ss( &buf );
+                        ss << "UnixSocketDeadWatcher: waitpid(): " << deadChild << errno;
+                        ss.flush();
+                        throw SocketException( buf.constData() );
+                    }
+                    QMutexLocker lock( &mutex );
+                    for ( QList<UnixSocketThread*>::const_iterator it = children.begin();
+                          it != children.end(); ++it ) {
+                        if ( deadChild == (*it)->childPid ) {
+                            UnixSocket::wrappedWrite( (*it)->fdExitPipe[1], "c", 1 );
+                        }
+                    }
+                } else if ( ret && buf == 'x' ) {
+                    // we're asked to exit
+                    break;
+                }
             }
         }
     }

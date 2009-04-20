@@ -35,6 +35,7 @@ Model::Model( QObject* parent, CachePtr cache, AuthenticatorPtr authenticator,
     ParserPtr parser( new Imap::Parser( this, _socketFactory->create() ) );
     _parsers[ parser.get() ] = ParserState( parser, 0, ReadOnly, CONN_STATE_ESTABLISHED );
     connect( parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
+    connect( parser.get(), SIGNAL( disconnected() ), this, SLOT( slotParserDisconnected() ) );
     _mailboxes = new TreeItemMailbox( 0 );
     QTimer::singleShot( 0, this, SLOT( setNetworkOnline() ) );
 }
@@ -580,6 +581,11 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
             break;
     }
     _netPolicy = policy;
+}
+
+void Model::slotParserDisconnected()
+{
+    qDebug() << sender() << "disconnected";
 }
 
 }

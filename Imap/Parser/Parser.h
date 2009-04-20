@@ -226,9 +226,6 @@ namespace Imap {
         /** @short Socket told us that we can read data */
         void socketReadyRead();
 
-        /** @short Socket got disconnected */
-        void socketDisconected();
-
     signals:
         /** @short Socket got disconnected */
         void disconnected();

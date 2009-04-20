@@ -70,11 +70,13 @@ Parser::Parser( QObject* parent, SocketPtr socket ): QObject(parent), _socket(so
     _workerThread.start();
     Q_ASSERT( _socket.get() );
     connect( _socket.get(), SIGNAL( readyRead() ), this, SLOT( socketReadyRead() ) );
+    connect( _socket.get(), SIGNAL( readChannelFinished() ), this, SIGNAL( disconnected() ) );
 }
 
 Parser::~Parser()
 {
     disconnect( _socket.get(), SIGNAL( readyRead() ), this, SLOT( socketReadyRead() ) );
+    disconnect( _socket.get(), SIGNAL( readChannelFinished() ), this, SIGNAL( disconnected() ) );
     _workerStopMutex.lock();
     _workerStop = true;
     _workerStopMutex.unlock();
@@ -362,11 +364,6 @@ bool Parser::executeACommand( const Commands::Command& cmd )
 void Parser::socketReadyRead()
 {
     _workerSemaphore.release();
-}
-
-void Parser::socketDisconected()
-{
-    //FIXME
 }
 
 void Parser::processLine( QByteArray line )

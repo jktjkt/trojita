@@ -34,7 +34,7 @@ namespace Imap {
         virtual qint64 write( const QByteArray& byteArray ) = 0;
         virtual ~Socket() {};
     signals:
-        void aboutToClose();
+        void readChannelFinished();
         void readyRead();
     };
 

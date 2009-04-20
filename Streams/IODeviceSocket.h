@@ -35,9 +35,6 @@ namespace Imap {
         virtual bool waitForBytesWritten( int msec );
         virtual qint64 write( const QByteArray& byteArray );
         QIODevice* device() const;
-    signals:
-        void aboutToClose();
-        void readyRead();
     private:
         QIODevice* d;
     };

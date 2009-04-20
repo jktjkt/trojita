@@ -24,7 +24,7 @@ namespace Imap {
 IODeviceSocket::IODeviceSocket( QIODevice* device ): d(device)
 {
     connect( d, SIGNAL(readyRead()), this, SIGNAL(readyRead()) );
-    connect( d, SIGNAL(aboutToClose()), this, SIGNAL(aboutToClose()) );
+    connect( d, SIGNAL(readChannelFinished()), this, SIGNAL(readChannelFinished()) );
 }
 
 IODeviceSocket::~IODeviceSocket()

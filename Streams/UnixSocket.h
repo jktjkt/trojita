@@ -26,6 +26,7 @@
 namespace Imap {
 
     class UnixSocketThread;
+    class UnixSocketDeadWatcher;
 
     class UnixSocket: public Socket {
         Q_OBJECT
@@ -40,10 +41,6 @@ namespace Imap {
         virtual bool waitForBytesWritten( int msec );
         virtual qint64 write( const QByteArray& byteArray );
 
-    signals:
-        void aboutToClose();
-        void readyRead();
-
     private:
         UnixSocketThread* d;
         QByteArray buffer;
@@ -53,11 +50,13 @@ namespace Imap {
         void terminate();
 
         friend class UnixSocketThread;
+        friend class UnixSocketDeadWatcher;
         static ssize_t wrappedRead( int fd, void* buf, size_t count );
         static ssize_t wrappedWrite( int fd, const void* buf, size_t count );
         static int wrappedPipe( int pipefd[2] );
         static int wrappedClose( int fd );
         static int wrappedDup2( int oldfd, int newfd );
+        static pid_t wrappedWaitpid(pid_t pid, int *status, int options);
     };
 
     class UnixSocketThread: public QThread {
@@ -70,11 +69,12 @@ namespace Imap {
         virtual void run();
 
     signals:
-        void aboutToClose();
         void readyRead();
+        void readChannelFinished();
 
     private:
         friend class UnixSocket;
+        friend class UnixSocketDeadWatcher;
         QSemaphore readyReadAlreadyDone;
 
         int fdStdin[2];
