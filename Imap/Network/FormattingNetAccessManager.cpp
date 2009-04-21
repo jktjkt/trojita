@@ -63,6 +63,11 @@ QNetworkReply* FormattingNetAccessManager::createRequest( Operation op,
                                                            part );
         else
             return new Imap::Network::AuxiliaryReply( this, tr( "Can't find message part %1" ).arg( req.url().toString() ) );
+    } else if ( req.url().scheme() == QLatin1String("data") ) {
+        // The whole point of this Network Access Manager is to filter out remote connections
+        // while allowing our special internal ones. It's therefore safe to allow
+        // the data: URL scheme.
+        return QNetworkAccessManager::createRequest( op, req, outgoingData );
     } else {
         qDebug() << "Forbidden per policy:" << req.url();
         return new Imap::Network::ForbiddenReply( this );
