@@ -6,6 +6,7 @@
 #include <QTabWidget>
 #include <QVBoxLayout>
 #include "SettingsDialog.h"
+#include "SettingsNames.h"
 
 namespace Gui {
 
@@ -40,20 +41,19 @@ void SettingsDialog::accept()
     QDialog::accept();
 }
 
-IdentityPage::IdentityPage( QWidget* parent, QSettings& s ): QWidget(parent),
-    realNameKey(QLatin1String("identity.realName")), addressKey(QLatin1String("identity.address"))
+IdentityPage::IdentityPage( QWidget* parent, QSettings& s ): QWidget(parent)
 {
     QFormLayout* layout = new QFormLayout( this );
-    realName = new QLineEdit( s.value( realNameKey ).toString(), this );
+    realName = new QLineEdit( s.value( SettingsNames::realNameKey ).toString(), this );
     layout->addRow( tr("Real Name"), realName );
-    address = new QLineEdit( s.value( addressKey ).toString(), this );
+    address = new QLineEdit( s.value( SettingsNames::addressKey ).toString(), this );
     layout->addRow( tr("E-mail"), address );
 }
 
 void IdentityPage::save( QSettings& s )
 {
-    s.setValue( realNameKey, realName->text() );
-    s.setValue( addressKey, address->text() );
+    s.setValue( SettingsNames::realNameKey, realName->text() );
+    s.setValue( SettingsNames::addressKey, address->text() );
 }
 
 ImapPage::ImapPage( QWidget* parent, QSettings& s ): QWidget(parent)
@@ -64,42 +64,34 @@ void ImapPage::save( QSettings& s )
 {
 }
 
-OutgoingPage::OutgoingPage( QWidget* parent, QSettings& s ): QWidget(parent),
-    methodKey(QLatin1String("msa.method")), methodSMTP(QLatin1String("SMTP")),
-    methodSENDMAIL(QLatin1String("sendmail")),
-    smtpHostKey(QLatin1String("msa.smtp.host")),
-    smtpPortKey(QLatin1String("msa.smtp.port")),
-    smtpAuthKey(QLatin1String("msa.smtp.auth")),
-    smtpUserKey(QLatin1String("msa.smtp.auth.user")),
-    smtpPassKey(QLatin1String("msa.smtp.auth.pass")),
-    sendmailKey(QLatin1String("msa.sendmail"))
+OutgoingPage::OutgoingPage( QWidget* parent, QSettings& s ): QWidget(parent)
 {
     QFormLayout* layout = new QFormLayout( this );
     method = new QComboBox( this );
     method->insertItem( 0, tr("SMTP"), QVariant( SMTP ) );
     method->insertItem( 1, tr("Local sendmail-compatible"), QVariant( SENDMAIL ) );
-    if ( QSettings().value( methodKey ).toString() == methodSMTP ) {
+    if ( QSettings().value( SettingsNames::methodKey ).toString() == SettingsNames::methodSMTP ) {
         method->setCurrentIndex( 0 );
     } else {
         method->setCurrentIndex( 1 );
     }
     layout->addRow( tr("Method"), method );
 
-    smtpHost = new QLineEdit( s.value( smtpHostKey ).toString(), this );
+    smtpHost = new QLineEdit( s.value( SettingsNames::smtpHostKey ).toString(), this );
     layout->addRow( tr("SMTP Server"), smtpHost );
-    smtpPort = new QLineEdit(s.value( smtpPortKey, 25 ).toString(), this );
+    smtpPort = new QLineEdit(s.value( SettingsNames::smtpPortKey, 25 ).toString(), this );
     smtpPort->setInputMask( QLatin1String("D0") );
     layout->addRow( tr("Port"), smtpPort );
     smtpAuth = new QCheckBox( this );
-    smtpAuth->setChecked( s.value( smtpAuthKey, false ).toBool() );
+    smtpAuth->setChecked( s.value( SettingsNames::smtpAuthKey, false ).toBool() );
     layout->addRow( tr("SMTP Auth"), smtpAuth );
-    smtpUser = new QLineEdit( s.value( smtpUserKey ).toString(), this );
+    smtpUser = new QLineEdit( s.value( SettingsNames::smtpUserKey ).toString(), this );
     layout->addRow( tr("User"), smtpUser );
-    smtpPass = new QLineEdit( s.value( smtpPassKey ).toString(), this );
+    smtpPass = new QLineEdit( s.value( SettingsNames::smtpPassKey ).toString(), this );
     smtpPass->setEchoMode( QLineEdit::Password );
     layout->addRow( tr("Password"), smtpPass );
 
-    sendmail = new QLineEdit( s.value( sendmailKey ).toString(), this );
+    sendmail = new QLineEdit( s.value( SettingsNames::sendmailKey ).toString(), this );
     layout->addRow( tr("Sendmail-compatible Executable"), sendmail );
 
     connect( method, SIGNAL( currentIndexChanged( int ) ), this, SLOT( updateWidgets() ) );
@@ -148,15 +140,15 @@ void OutgoingPage::updateWidgets()
 void OutgoingPage::save( QSettings& s )
 {
     if ( method->currentIndex() == SMTP ) {
-        s.setValue( methodKey, methodSMTP );
-        s.setValue( smtpHostKey, smtpHost->text() );
-        s.setValue( smtpPortKey, smtpPort->text() );
-        s.setValue( smtpAuthKey, smtpAuth->isChecked() );
-        s.setValue( smtpUserKey, smtpUser->text() );
-        s.setValue( smtpPassKey, smtpPass->text() );
+        s.setValue( SettingsNames::methodKey, SettingsNames::methodSMTP );
+        s.setValue( SettingsNames::smtpHostKey, smtpHost->text() );
+        s.setValue( SettingsNames::smtpPortKey, smtpPort->text() );
+        s.setValue( SettingsNames::smtpAuthKey, smtpAuth->isChecked() );
+        s.setValue( SettingsNames::smtpUserKey, smtpUser->text() );
+        s.setValue( SettingsNames::smtpPassKey, smtpPass->text() );
     } else {
-        s.setValue( methodKey, methodSENDMAIL );
-        s.setValue( sendmailKey, sendmail->text() );
+        s.setValue( SettingsNames::methodKey, SettingsNames::methodSENDMAIL );
+        s.setValue( SettingsNames::sendmailKey, sendmail->text() );
     }
 }
 

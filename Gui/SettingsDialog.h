@@ -19,7 +19,6 @@ public:
 private:
     QLineEdit* realName;
     QLineEdit* address;
-    QString  realNameKey, addressKey;
 };
 
 class OutgoingPage : public QWidget
@@ -39,9 +38,6 @@ private:
     QLineEdit* smtpPass;
 
     QLineEdit* sendmail;
-
-    QString methodKey, methodSMTP, methodSENDMAIL, smtpHostKey, smtpPortKey,
-            smtpAuthKey, smtpUserKey, smtpPassKey, sendmailKey;
 private slots:
     void updateWidgets();
 };
