@@ -21,6 +21,10 @@
 
 int main( int argc, char** argv) {
     QApplication app( argc, argv );
+    QCoreApplication::setApplicationName( QString::fromAscii("trojita") );
+    QCoreApplication::setApplicationVersion( QString::fromAscii("HEAD") );
+    QCoreApplication::setOrganizationDomain( QString::fromAscii("flaska.net") );
+    QCoreApplication::setOrganizationName( QString::fromAscii("flaska.net") );
     Gui::MainWindow win;
     win.show();
     return app.exec();

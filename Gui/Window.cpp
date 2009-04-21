@@ -25,6 +25,7 @@
 
 #include "Window.h"
 #include "MessageView.h"
+#include "SettingsDialog.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/MailboxModel.h"
 #include "Imap/Model/MailboxTree.h"
@@ -73,6 +74,9 @@ void MainWindow::createActions()
     showFullView->setCheckable( true );
     connect( showFullView, SIGNAL( triggered(bool) ), this, SLOT( fullViewToggled(bool) ) );
     connect( allDock, SIGNAL( visibilityChanged(bool) ), showFullView, SLOT( setChecked(bool) ) );
+
+    configSettings = new QAction( tr("Settings..."), this );
+    connect( configSettings, SIGNAL( triggered() ), this, SLOT( slotShowSettings() ) );
 }
 
 void MainWindow::createMenus()
@@ -85,6 +89,8 @@ void MainWindow::createMenus()
     imapMenu->addAction( netOnline );
     imapMenu->addSeparator();
     imapMenu->addAction( showFullView );
+    imapMenu->addSeparator();
+    imapMenu->addAction( configSettings );
     imapMenu->addSeparator();
     imapMenu->addAction( exitAction );
 
@@ -236,6 +242,12 @@ void MainWindow::fullViewToggled( bool showIt )
     } else {
         removeDockWidget( allDock );
     }
+}
+
+void MainWindow::slotShowSettings()
+{
+    SettingsDialog* dialog = new SettingsDialog();
+    dialog->exec();
 }
 
 }

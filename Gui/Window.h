@@ -55,6 +55,7 @@ private slots:
     void networkPolicyExpensive();
     void networkPolicyOnline();
     void fullViewToggled( bool show );
+    void slotShowSettings();
 
 private:
     void createMenus();
@@ -82,6 +83,7 @@ private:
     QAction* netOnline;
     QAction* exitAction;
     QAction* showFullView;
+    QAction* configSettings;
 };
 
 }
