@@ -28,7 +28,7 @@ public:
     OutgoingPage( QWidget* parent, QSettings& s );
     void save( QSettings& s );
 private:
-    typedef enum { SMTP, SENDMAIL } Kind;
+    enum { SMTP, SENDMAIL };
     QComboBox* method;
 
     QLineEdit* smtpHost;
@@ -48,6 +48,20 @@ class ImapPage : public QWidget
 public:
     ImapPage( QWidget* parent, QSettings& s );
     void save( QSettings& s );
+private:
+private:
+    enum { TCP, SSL, PROCESS };
+    QComboBox* method;
+
+    QLineEdit* imapHost;
+    QLineEdit* imapPort;
+    QCheckBox* startTls;
+    QLineEdit* imapUser;
+    QLineEdit* imapPass;
+
+    QLineEdit* processPath;
+private slots:
+    void updateWidgets();
 };
 
 class SettingsDialog : public QDialog

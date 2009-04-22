@@ -8,8 +8,10 @@ namespace Gui {
 struct SettingsNames
 {
     static QString  realNameKey, addressKey;
-    static QString methodKey, methodSMTP, methodSENDMAIL, smtpHostKey, smtpPortKey,
+    static QString msaMethodKey, methodSMTP, methodSENDMAIL, smtpHostKey, smtpPortKey,
             smtpAuthKey, smtpUserKey, smtpPassKey, sendmailKey;
+    static QString imapMethodKey, methodTCP, methodSSL, methodProcess, imapHostKey,
+            imapPortKey, imapStartTlsKey, imapUserKey, imapPassKey, imapProcessKey;
 };
 
 }

@@ -58,10 +58,119 @@ void IdentityPage::save( QSettings& s )
 
 ImapPage::ImapPage( QWidget* parent, QSettings& s ): QWidget(parent)
 {
+    QFormLayout* layout = new QFormLayout( this );
+    method = new QComboBox( this );
+    method->insertItem( 0, tr("TCP"), QVariant( TCP ) );
+    method->insertItem( 1, tr("SSL"), QVariant( SSL ) );
+    method->insertItem( 2, tr("Local Process"), QVariant( PROCESS ) );
+    if ( QSettings().value( SettingsNames::imapMethodKey ).toString() == SettingsNames::methodTCP ) {
+        method->setCurrentIndex( 0 );
+    } else if ( QSettings().value( SettingsNames::imapMethodKey ).toString() == SettingsNames::methodSSL ) {
+        method->setCurrentIndex( 1 );
+    } else {
+        method->setCurrentIndex( 2 );
+    }
+    layout->addRow( tr("Method"), method );
+
+    imapHost = new QLineEdit( s.value( SettingsNames::imapHostKey ).toString(), this );
+    layout->addRow( tr("IMAP Server"), imapHost );
+    imapPort = new QLineEdit(s.value( SettingsNames::imapPortKey, 143 ).toString(), this );
+    QValidator* validator = new QIntValidator( 1, 65535, this );
+    imapPort->setValidator( validator );
+    layout->addRow( tr("Port"), imapPort );
+    startTls = new QCheckBox( this );
+    startTls->setChecked( s.value( SettingsNames::imapStartTlsKey, true ).toBool() );
+    layout->addRow( tr("Perform STARTTLS"), startTls );
+    imapUser = new QLineEdit( s.value( SettingsNames::imapUserKey ).toString(), this );
+    layout->addRow( tr("User"), imapUser );
+    imapPass = new QLineEdit( s.value( SettingsNames::imapPassKey ).toString(), this );
+    imapPass->setEchoMode( QLineEdit::Password );
+    layout->addRow( tr("Password"), imapPass );
+
+    processPath = new QLineEdit( s.value( SettingsNames::imapProcessKey ).toString(), this );
+    layout->addRow( tr("Path to Server Binary"), processPath );
+
+    connect( method, SIGNAL( currentIndexChanged( int ) ), this, SLOT( updateWidgets() ) );
+    updateWidgets();
+}
+
+void ImapPage::updateWidgets()
+{
+    QFormLayout* lay = qobject_cast<QFormLayout*>( layout() );
+    Q_ASSERT( lay );
+
+    switch ( method->itemData( method->currentIndex() ).toInt() ) {
+        case TCP:
+            imapHost->setEnabled( true );
+            lay->labelForField( imapHost )->setEnabled( true );
+            imapPort->setEnabled( true );
+            imapPort->setText( QString::number( 143 ) );
+            lay->labelForField( imapPort )->setEnabled( true );
+            startTls->setEnabled( true );
+            startTls->setChecked( true );
+            lay->labelForField( startTls )->setEnabled( true );
+            imapUser->setEnabled( true );
+            lay->labelForField( imapUser )->setEnabled( true );
+            imapPass->setEnabled( true );
+            lay->labelForField( imapPass )->setEnabled( true );
+            processPath->setEnabled( false );
+            lay->labelForField( processPath )->setEnabled( false );
+            break;
+        case SSL:
+            imapHost->setEnabled( true );
+            lay->labelForField( imapHost )->setEnabled( true );
+            imapPort->setEnabled( true );
+            imapPort->setText( QString::number( 993 ) );
+            lay->labelForField( imapPort )->setEnabled( true );
+            startTls->setEnabled( false );
+            startTls->setChecked( false );
+            lay->labelForField( startTls )->setEnabled( false );
+            imapUser->setEnabled( true );
+            lay->labelForField( imapUser )->setEnabled( true );
+            imapPass->setEnabled( true );
+            lay->labelForField( imapPass )->setEnabled( true );
+            processPath->setEnabled( false );
+            lay->labelForField( processPath )->setEnabled( false );
+            break;
+        default:
+            imapHost->setEnabled( false );
+            lay->labelForField( imapHost )->setEnabled( false );
+            imapPort->setEnabled( false );
+            lay->labelForField( imapPort )->setEnabled( false );
+            startTls->setEnabled( false );
+            lay->labelForField( startTls )->setEnabled( false );
+            imapUser->setEnabled( false );
+            lay->labelForField( imapUser )->setEnabled( false );
+            imapPass->setEnabled( false );
+            lay->labelForField( imapPass )->setEnabled( false );
+            processPath->setEnabled( true );
+            lay->labelForField( processPath )->setEnabled( true );
+    }
 }
 
 void ImapPage::save( QSettings& s )
 {
+    switch ( method->currentIndex() ) {
+        case TCP:
+            s.setValue( SettingsNames::imapMethodKey, SettingsNames::methodTCP );
+            s.setValue( SettingsNames::imapHostKey, imapHost->text() );
+            s.setValue( SettingsNames::imapPortKey, imapPort->text() );
+            s.setValue( SettingsNames::imapStartTlsKey, startTls->isChecked() );
+            s.setValue( SettingsNames::imapUserKey, imapUser->text() );
+            s.setValue( SettingsNames::imapPassKey, imapPass->text() );
+            break;
+        case SSL:
+            s.setValue( SettingsNames::imapMethodKey, SettingsNames::methodSSL );
+            s.setValue( SettingsNames::imapHostKey, imapHost->text() );
+            s.setValue( SettingsNames::imapPortKey, imapPort->text() );
+            s.setValue( SettingsNames::imapStartTlsKey, startTls->isChecked() );
+            s.setValue( SettingsNames::imapUserKey, imapUser->text() );
+            s.setValue( SettingsNames::imapPassKey, imapPass->text() );
+            break;
+        default:
+            s.setValue( SettingsNames::imapMethodKey, SettingsNames::methodProcess );
+            s.setValue( SettingsNames::imapProcessKey, processPath->text() );
+    }
 }
 
 OutgoingPage::OutgoingPage( QWidget* parent, QSettings& s ): QWidget(parent)
@@ -70,7 +179,7 @@ OutgoingPage::OutgoingPage( QWidget* parent, QSettings& s ): QWidget(parent)
     method = new QComboBox( this );
     method->insertItem( 0, tr("SMTP"), QVariant( SMTP ) );
     method->insertItem( 1, tr("Local sendmail-compatible"), QVariant( SENDMAIL ) );
-    if ( QSettings().value( SettingsNames::methodKey ).toString() == SettingsNames::methodSMTP ) {
+    if ( QSettings().value( SettingsNames::msaMethodKey ).toString() == SettingsNames::methodSMTP ) {
         method->setCurrentIndex( 0 );
     } else {
         method->setCurrentIndex( 1 );
@@ -80,7 +189,8 @@ OutgoingPage::OutgoingPage( QWidget* parent, QSettings& s ): QWidget(parent)
     smtpHost = new QLineEdit( s.value( SettingsNames::smtpHostKey ).toString(), this );
     layout->addRow( tr("SMTP Server"), smtpHost );
     smtpPort = new QLineEdit(s.value( SettingsNames::smtpPortKey, 25 ).toString(), this );
-    smtpPort->setInputMask( QLatin1String("D0") );
+    QValidator* validator = new QIntValidator( 1, 65535, this );
+    smtpPort->setValidator( validator );
     layout->addRow( tr("Port"), smtpPort );
     smtpAuth = new QCheckBox( this );
     smtpAuth->setChecked( s.value( SettingsNames::smtpAuthKey, false ).toBool() );
@@ -140,14 +250,14 @@ void OutgoingPage::updateWidgets()
 void OutgoingPage::save( QSettings& s )
 {
     if ( method->currentIndex() == SMTP ) {
-        s.setValue( SettingsNames::methodKey, SettingsNames::methodSMTP );
+        s.setValue( SettingsNames::msaMethodKey, SettingsNames::methodSMTP );
         s.setValue( SettingsNames::smtpHostKey, smtpHost->text() );
         s.setValue( SettingsNames::smtpPortKey, smtpPort->text() );
         s.setValue( SettingsNames::smtpAuthKey, smtpAuth->isChecked() );
         s.setValue( SettingsNames::smtpUserKey, smtpUser->text() );
         s.setValue( SettingsNames::smtpPassKey, smtpPass->text() );
     } else {
-        s.setValue( SettingsNames::methodKey, SettingsNames::methodSENDMAIL );
+        s.setValue( SettingsNames::msaMethodKey, SettingsNames::methodSENDMAIL );
         s.setValue( SettingsNames::sendmailKey, sendmail->text() );
     }
 }

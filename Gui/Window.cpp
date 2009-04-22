@@ -26,6 +26,7 @@
 #include "Window.h"
 #include "MessageView.h"
 #include "SettingsDialog.h"
+#include "SettingsNames.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/MailboxModel.h"
 #include "Imap/Model/MailboxTree.h"
@@ -134,12 +135,20 @@ void MainWindow::createWidgets()
 
 void MainWindow::setupModels()
 {
-    Imap::Mailbox::SocketFactoryPtr factory(
-            new Imap::Mailbox::UnixProcessSocketFactory( "/usr/sbin/dovecot",
-                QStringList() << "--exec-mail" << "imap" )
-            /*new Imap::Mailbox::ProcessSocketFactory( "ssh",
-                QStringList() << "sosna.fzu.cz" << "/usr/sbin/imapd" )*/
-            );
+    Imap::Mailbox::SocketFactoryPtr factory;
+    QSettings s;
+    if ( s.value( SettingsNames::imapMethodKey ).toString() == SettingsNames::methodTCP ) {
+        Q_ASSERT( false ); // not implemented yet
+    } else if ( s.value( SettingsNames::imapMethodKey ).toString() == SettingsNames::methodSSL ) {
+        factory.reset( new Imap::Mailbox::SslSocketFactory(
+                s.value( SettingsNames::imapHostKey ).toString(),
+                s.value( SettingsNames::imapPortKey ).toUInt() ) );
+    } else {
+        QStringList args = s.value( SettingsNames::imapProcessKey ).toString().split( QLatin1Char(' ') );
+        Q_ASSERT( ! args.isEmpty() ); // FIXME
+        QString appName = args.takeFirst();
+        factory.reset( new Imap::Mailbox::ProcessSocketFactory( appName, args ) );
+    }
 
     cache.reset( new Imap::Mailbox::NoCache() );
     model = new Imap::Mailbox::Model( this, cache, authenticator, factory );
