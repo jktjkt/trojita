@@ -60,6 +60,17 @@ public:
     virtual Imap::SocketPtr create();
 };
 
+/** @short Manufacture sockets based on QSslSocket */
+class SslSocketFactory: public SocketFactory {
+    /** @short Hostname of the remote host */
+    QString _host;
+    /** @short Port number */
+    quint16 _port;
+public:
+    SslSocketFactory( const QString& host, const quint16 port );
+    virtual Imap::SocketPtr create();
+};
+
 
 }
 

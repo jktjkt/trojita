@@ -17,6 +17,7 @@
 */
 
 #include <QProcess>
+#include <QSslSocket>
 #include "SocketFactory.h"
 #include "IODeviceSocket.h"
 #include "UnixSocket.h"
@@ -55,6 +56,27 @@ Imap::SocketPtr UnixProcessSocketFactory::create()
     return Imap::SocketPtr( new UnixSocket( _argv ) );
 }
 
+SslSocketFactory::SslSocketFactory( const QString& host, const quint16 port ):
+    _host(host), _port(port)
+{
+}
+
+Imap::SocketPtr SslSocketFactory::create()
+{
+    QSslSocket* sslSock = new QSslSocket();
+    sslSock->ignoreSslErrors(); // big fat FIXME here!!!
+    sslSock->setPeerVerifyMode( QSslSocket::QueryPeer );
+    sslSock->connectToHostEncrypted( _host, _port );
+    if ( ! sslSock->waitForEncrypted() ) {
+        qDebug() << "Encrypted connection failed";
+        QList<QSslError> e = sslSock->sslErrors();
+        for ( QList<QSslError>::const_iterator it = e.begin(); it != e.end(); ++it ) {
+            qDebug() << *it;
+        }
+    }
+    // FIXME: handle & signal errors
+    return Imap::SocketPtr( new IODeviceSocket( sslSock ) );
+}
 
 }
 }
