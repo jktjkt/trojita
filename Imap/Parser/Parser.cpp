@@ -20,6 +20,7 @@
 #include <QMutexLocker>
 #include <QProcess>
 #include <QTime>
+#include <QTimer>
 #include "Parser.h"
 #include "rfccodecs.h"
 #include "LowLevelParser.h"
@@ -65,13 +66,12 @@
 
 namespace Imap {
 
-Parser::Parser( QObject* parent, SocketPtr socket ): QObject(parent), _socket(socket), _lastTagUsed(0), _workerThread( this )
+Parser::Parser( QObject* parent, Imap::Mailbox::SocketFactoryPtr factory ):
+        QObject(parent), _factory(factory), _lastTagUsed(0), _workerThread( this )
 {
-    connect( this, SIGNAL( commandQueued() ), &_workerThread, SLOT( slotSubmitCommand() ) );
-    _workerThread.start();
-    Q_ASSERT( _socket.get() );
-    connect( _socket.get(), SIGNAL( readChannelFinished() ), this, SIGNAL( disconnected() ) );
     connect( &_workerThread, SIGNAL( disconnected() ), this, SIGNAL( disconnected() ) );
+    _workerThread.start();
+    _workerReady.acquire();
 }
 
 Parser::~Parser()
@@ -569,17 +569,31 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::parseTagged( const QBy
 
 WorkerThread::WorkerThread( Parser * const parser ) : _parser( parser )
 {
-    connect( _parser->_socket.get(), SIGNAL( readyRead() ), this, SLOT( slotReadyRead() ) );
-    connect( _parser->_socket.get(), SIGNAL( readChannelFinished() ), this, SIGNAL( disconnected() ) );
 }
 
-void WorkerThread::slotReadyRead()
+void WorkerThread::run()
+{
+    _parser->_socket = _parser->_factory->create();
+    helper = new WorkerHelper( _parser );
+    connect( _parser, SIGNAL( commandQueued() ), helper, SLOT( slotSubmitCommand() ) );
+    connect( _parser->_socket.get(), SIGNAL( readyRead() ), helper, SLOT( slotReadyRead() ) );
+    connect( _parser->_socket.get(), SIGNAL( readChannelFinished() ), this, SIGNAL( disconnected() ) );
+    QTimer::singleShot( 0, helper, SLOT( slotImRunning() ) );
+    exec();
+}
+
+void WorkerHelper::slotImRunning()
+{
+    _parser->_workerReady.release();
+}
+
+void WorkerHelper::slotReadyRead()
 {
     while ( _parser->_socket->canReadLine() )
         _parser->processLine( _parser->_socket->readLine() );
 }
 
-void WorkerThread::slotSubmitCommand()
+void WorkerHelper::slotSubmitCommand()
 {
     _parser->executeIfPossible();
 }

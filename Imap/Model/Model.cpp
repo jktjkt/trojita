@@ -32,7 +32,7 @@ Model::Model( QObject* parent, CachePtr cache, AuthenticatorPtr authenticator,
     _cache(cache), _authenticator(authenticator), _socketFactory(socketFactory),
     _maxParsers(1), _mailboxes(0), _netPolicy( NETWORK_ONLINE )
 {
-    ParserPtr parser( new Imap::Parser( this, _socketFactory->create() ) );
+    ParserPtr parser( new Imap::Parser( this, _socketFactory ) );
     _parsers[ parser.get() ] = ParserState( parser, 0, ReadOnly, CONN_STATE_ESTABLISHED );
     connect( parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
     connect( parser.get(), SIGNAL( disconnected() ), this, SLOT( slotParserDisconnected() ) );
@@ -554,7 +554,7 @@ ParserPtr Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode ) const
         return parser.parser;
     } else {
         // we can create one more
-        ParserPtr parser( new Parser( const_cast<Model*>( this ), _socketFactory->create() ) );
+        ParserPtr parser( new Parser( const_cast<Model*>( this ), _socketFactory ) );
         _parsers[ parser.get() ] = ParserState( parser, mailbox, mode, CONN_STATE_ESTABLISHED );
         connect( parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
         connect( parser.get(), SIGNAL( disconnected() ), this, SLOT( slotParserDisconnected() ) );

@@ -68,6 +68,19 @@ namespace Imap {
 
     class Parser; // will be defined later
 
+    class WorkerHelper: public QObject {
+        Q_OBJECT
+    public:
+        WorkerHelper( Parser* parser ): _parser(parser) {};
+    public slots:
+        void slotReadyRead();
+        void slotSubmitCommand();
+    private slots:
+        void slotImRunning();
+    private:
+        Parser* _parser;
+    };
+
     /** @short Helper thread for Parser that deals with actual I/O */
     class WorkerThread : public QThread {
         Q_OBJECT
@@ -80,9 +93,9 @@ namespace Imap {
         /** Reference to our parser */
         Parser* _parser;
 
-    private slots:
-        void slotReadyRead();
-        void slotSubmitCommand();
+        void run();
+
+        WorkerHelper* helper;
 
     signals:
         void disconnected();
@@ -95,6 +108,7 @@ namespace Imap {
     class Parser : public QObject {
         Q_OBJECT
 
+        friend class WorkerHelper;
         friend class WorkerThread;
         friend class ::ImapParserParseTest;
 
@@ -102,7 +116,7 @@ namespace Imap {
         /** @short Constructor.
          *
          * Takes an QIODevice instance as a parameter. */
-        Parser( QObject* parent, SocketPtr socket );
+        Parser( QObject* parent, Imap::Mailbox::SocketFactoryPtr factory );
 
         /** @short Destructor */
         ~Parser();
@@ -286,6 +300,7 @@ namespace Imap {
 
         /** @short Connection to the IMAP server */
         SocketPtr _socket;
+        Imap::Mailbox::SocketFactoryPtr _factory;
 
         /** @short Keeps track of the last-used command tag */
         unsigned int _lastTagUsed;
@@ -302,6 +317,8 @@ namespace Imap {
 
         /** @short Worker thread instance */
         WorkerThread _workerThread;
+
+        QSemaphore _workerReady;
 
     };
 

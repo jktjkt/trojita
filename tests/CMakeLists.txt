@@ -10,7 +10,7 @@ macro(trojita_test fname)
     set(test_${fname}_SRCS test_${fname}.cpp)
     qt4_automoc(${test_${fname}_SRCS})
     add_executable(test_${fname} ${test_${fname}_SRCS})
-    target_link_libraries(test_${fname} Imap  ${QT_QTTEST_LIBRARY})
+    target_link_libraries(test_${fname} Imap ${QT_QTTEST_LIBRARY} ${QT_QTNETWORK_LIBRARY})
     add_test(test_${fname} test_${fname})
 endmacro(trojita_test)
 
