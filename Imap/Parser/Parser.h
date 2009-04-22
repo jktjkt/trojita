@@ -27,7 +27,7 @@
 #include "Response.h"
 #include "Command.h"
 #include "../Exceptions.h"
-#include "../Streams/Socket.h"
+#include "../Streams/SocketFactory.h"
 
 /**
  * @file
@@ -72,8 +72,6 @@ namespace Imap {
     class WorkerThread : public QThread {
         Q_OBJECT
 
-        virtual void run();
-
         /** Prevent copying */
         WorkerThread( const WorkerThread& );
         /** Prevent copying */
@@ -82,8 +80,15 @@ namespace Imap {
         /** Reference to our parser */
         Parser* _parser;
 
+    private slots:
+        void slotReadyRead();
+        void slotSubmitCommand();
+
+    signals:
+        void disconnected();
+
     public:
-        WorkerThread( Parser * const parser ) : _parser( parser ) {};
+        WorkerThread( Parser * const parser );
     };
 
     /** @short Class that does all IMAP parsing */
@@ -221,17 +226,14 @@ namespace Imap {
         CommandHandle thread( const ThreadAlgorithm& algo, const QString charset, const QStringList& criteria );
 #endif
 
-    private slots:
-
-        /** @short Socket told us that we can read data */
-        void socketReadyRead();
-
     signals:
         /** @short Socket got disconnected */
         void disconnected();
 
         /** @short New response received */
         void responseReceived();
+
+        void commandQueued();
 
     private:
         /** @short Private copy constructor */
@@ -300,15 +302,6 @@ namespace Imap {
 
         /** @short Worker thread instance */
         WorkerThread _workerThread;
-
-        /** @short Used for throttling worker thread's activity */
-        QSemaphore _workerSemaphore;
-
-        /** @short Ask worker thread to stop ASAP */
-        bool _workerStop;
-
-        /** @short Mutex guarding _workerStop */
-        QMutex _workerStopMutex;
 
     };
 

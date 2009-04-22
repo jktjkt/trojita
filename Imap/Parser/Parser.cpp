@@ -65,22 +65,18 @@
 
 namespace Imap {
 
-Parser::Parser( QObject* parent, SocketPtr socket ): QObject(parent), _socket(socket), _lastTagUsed(0), _workerThread( this ), _workerStop( false )
+Parser::Parser( QObject* parent, SocketPtr socket ): QObject(parent), _socket(socket), _lastTagUsed(0), _workerThread( this )
 {
+    connect( this, SIGNAL( commandQueued() ), &_workerThread, SLOT( slotSubmitCommand() ) );
     _workerThread.start();
     Q_ASSERT( _socket.get() );
-    connect( _socket.get(), SIGNAL( readyRead() ), this, SLOT( socketReadyRead() ) );
     connect( _socket.get(), SIGNAL( readChannelFinished() ), this, SIGNAL( disconnected() ) );
+    connect( &_workerThread, SIGNAL( disconnected() ), this, SIGNAL( disconnected() ) );
 }
 
 Parser::~Parser()
 {
-    disconnect( _socket.get(), SIGNAL( readyRead() ), this, SLOT( socketReadyRead() ) );
-    disconnect( _socket.get(), SIGNAL( readChannelFinished() ), this, SIGNAL( disconnected() ) );
-    _workerStopMutex.lock();
-    _workerStop = true;
-    _workerStopMutex.unlock();
-    _workerSemaphore.release();
+    _workerThread.quit();
     _workerThread.wait();
 }
 
@@ -261,18 +257,23 @@ CommandHandle Parser::namespaceCommand()
 
 CommandHandle Parser::queueCommand( Commands::Command command )
 {
-    QMutexLocker locker( &_cmdMutex );
-    QString tag = generateTag();
-    command.addTag( tag );
-    _cmdQueue.push_back( command );
-    _workerSemaphore.release();
+    QString tag;
+    {
+        QMutexLocker locker( &_cmdMutex );
+        tag = generateTag();
+        command.addTag( tag );
+        _cmdQueue.push_back( command );
+    }
+    emit commandQueued();
     return tag;
 }
 
 void Parser::queueResponse( const std::tr1::shared_ptr<Responses::AbstractResponse>& resp )
 {
-    QMutexLocker locker( &_respMutex );
-    _respQueue.push_back( resp );
+    {
+        QMutexLocker locker( &_respMutex );
+        _respQueue.push_back( resp );
+    }
     emit responseReceived();
 }
 
@@ -359,11 +360,6 @@ bool Parser::executeACommand( const Commands::Command& cmd )
 #endif
 
     return true;
-}
-
-void Parser::socketReadyRead()
-{
-    _workerSemaphore.release();
 }
 
 void Parser::processLine( QByteArray line )
@@ -571,17 +567,21 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::parseTagged( const QBy
 }
 
 
-void WorkerThread::run()
+WorkerThread::WorkerThread( Parser * const parser ) : _parser( parser )
 {
-    _parser->_workerStopMutex.lock();
-    while ( ! _parser->_workerStop ) {
-        _parser->_workerStopMutex.unlock();
-        _parser->_workerSemaphore.acquire();
-        _parser->executeIfPossible();
-        while ( _parser->_socket->canReadLine() )
-            _parser->processLine( _parser->_socket->readLine() );
-        _parser->_workerStopMutex.lock();
-    }
+    connect( _parser->_socket.get(), SIGNAL( readyRead() ), this, SLOT( slotReadyRead() ) );
+    connect( _parser->_socket.get(), SIGNAL( readChannelFinished() ), this, SIGNAL( disconnected() ) );
+}
+
+void WorkerThread::slotReadyRead()
+{
+    while ( _parser->_socket->canReadLine() )
+        _parser->processLine( _parser->_socket->readLine() );
+}
+
+void WorkerThread::slotSubmitCommand()
+{
+    _parser->executeIfPossible();
 }
 
 
