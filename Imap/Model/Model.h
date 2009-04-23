@@ -203,6 +203,8 @@ private:
     NetworkPolicy networkPolicy() const { return _netPolicy; };
     void setNetworkPolicy( const NetworkPolicy policy );
 
+    void completelyReset();
+
 
 protected slots:
     void responseReceived();

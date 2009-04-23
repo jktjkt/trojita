@@ -609,6 +609,19 @@ void Model::slotParserDisconnected()
     qDebug() << sender() << "disconnected";
 }
 
+void Model::completelyReset()
+{
+    // FIXME: some replies might be already flying on their way to the parser, so we might receive duplicate data...
+    delete _mailboxes;
+    for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
+        it->commandMap.clear();
+        it->listResponses.clear();
+        it->statusResponses.clear();
+    }
+    _mailboxes = new TreeItemMailbox( 0 );
+    reset();
+}
+
 }
 }
 
