@@ -222,6 +222,9 @@ void MsgListModel::resetMe()
 
 void MsgListModel::handleRowsAboutToBeRemoved( const QModelIndex& parent, int start, int end )
 {
+    if ( ! msgList )
+        return;
+
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( parent.internalPointer() ) );
     TreeItemMsgList* newList = dynamic_cast<TreeItemMsgList*>( static_cast<TreeItem*>( parent.internalPointer() ) );
 
