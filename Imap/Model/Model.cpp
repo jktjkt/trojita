@@ -26,7 +26,7 @@ namespace Mailbox {
 
 namespace {
 
-bool MailboxNamesEquals( const TreeItem* const a, const TreeItem* const b )
+bool MailboxNamesEqual( const TreeItem* const a, const TreeItem* const b )
 {
     const TreeItemMailbox* const mailboxA = dynamic_cast<const TreeItemMailbox* const>(a);
     const TreeItemMailbox* const mailboxB = dynamic_cast<const TreeItemMailbox* const>(b);
@@ -34,7 +34,7 @@ bool MailboxNamesEquals( const TreeItem* const a, const TreeItem* const b )
     return mailboxA && mailboxB && mailboxA->mailbox() == mailboxB->mailbox();
 }
 
-bool SortMailboxes( const TreeItem* const a, const TreeItem* const b )
+bool MailboxNameComparator( const TreeItem* const a, const TreeItem* const b )
 {
     const TreeItemMailbox* const mailboxA = dynamic_cast<const TreeItemMailbox* const>(a);
     const TreeItemMailbox* const mailboxB = dynamic_cast<const TreeItemMailbox* const>(b);
@@ -210,7 +210,7 @@ void Model::_finalizeList( ParserPtr parser, const QMap<CommandHandle, Task>::co
             mailboxes << new TreeItemMailbox( command->what, *it );
     }
     listResponses.clear();
-    qSort( mailboxes.begin(), mailboxes.end(), SortMailboxes );
+    qSort( mailboxes.begin(), mailboxes.end(), MailboxNameComparator );
 
     // Remove duplicates; would be great if this could be done in a STLish way,
     // but unfortunately std::unique won't help here (the "duped" part of the
@@ -219,7 +219,7 @@ void Model::_finalizeList( ParserPtr parser, const QMap<CommandHandle, Task>::co
         QList<TreeItem*>::iterator it = mailboxes.begin();
         ++it;
         while ( it != mailboxes.end() ) {
-            if ( MailboxNamesEquals( it[-1], *it ) ) {
+            if ( MailboxNamesEqual( it[-1], *it ) ) {
                 delete *it;
                 it = mailboxes.erase( it );
             } else {
