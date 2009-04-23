@@ -37,8 +37,10 @@ Model::Model( QObject* parent, CachePtr cache, AuthenticatorPtr authenticator,
     _parsers[ parser.get() ] = ParserState( parser, 0, ReadOnly, CONN_STATE_ESTABLISHED );
     connect( parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
     connect( parser.get(), SIGNAL( disconnected() ), this, SLOT( slotParserDisconnected() ) );
-    if ( _startTls )
-        parser->startTls();
+    if ( _startTls ) {
+        CommandHandle cmd = parser->startTls();
+        _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::STARTTLS, 0 );
+    }
     _mailboxes = new TreeItemMailbox( 0 );
     QTimer::singleShot( 0, this, SLOT( setNetworkOnline() ) );
 }
@@ -101,6 +103,9 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
         }
 
         switch ( command->kind ) {
+            case Task::STARTTLS:
+                // safe to ignore
+                break;
             case Task::NONE:
                 throw CantHappen( "Internal Error: command that is supposed to do nothing?", *resp );
                 break;
@@ -561,9 +566,11 @@ ParserPtr Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode ) const
         _parsers[ parser.get() ] = ParserState( parser, mailbox, mode, CONN_STATE_ESTABLISHED );
         connect( parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
         connect( parser.get(), SIGNAL( disconnected() ), this, SLOT( slotParserDisconnected() ) );
-        if ( _startTls )
-            parser->startTls();
         CommandHandle cmd;
+        if ( _startTls ) {
+            cmd = parser->startTls();
+            _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::STARTTLS, 0 );
+        }
         if ( mode == ReadWrite )
             cmd = parser->select( mailbox->mailbox() );
         else

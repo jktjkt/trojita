@@ -45,7 +45,7 @@ class Model: public QAbstractItemModel {
     //Q_PROPERTY( ThreadAlgorithm threadSorting READ threadSorting WRITE setThreadSorting )
 
     struct Task {
-        enum Kind { NONE, LIST, STATUS, SELECT, FETCH };
+        enum Kind { NONE, STARTTLS, LIST, STATUS, SELECT, FETCH };
         Kind kind;
         TreeItem* what;
         Task( const Kind _kind, TreeItem* _what ): kind(_kind), what(_what) {};
