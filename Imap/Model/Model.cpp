@@ -183,6 +183,16 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
                         break;
                     case OK:
                         _parsers[ ptr.get() ].connState = CONN_STATE_NOT_AUTH;
+                        if ( !_startTls ) {
+                            QAuthenticator auth;
+                            emit authRequested( &auth );
+                            if ( auth.isNull() ) {
+                                emit connectionError( tr("Can't login without user/password data") );
+                            } else {
+                                CommandHandle cmd = ptr->login( auth.user(), auth.password() );
+                                _parsers[ ptr.get() ].commandMap[ cmd ] = Task( Task::LOGIN, 0 );
+                            }
+                        }
                         break;
                     case BYE:
                         _parsers[ ptr.get() ].connState = CONN_STATE_LOGOUT;
@@ -670,6 +680,7 @@ void Model::completelyReset()
     }
     _mailboxes = new TreeItemMailbox( 0 );
     reset();
+    reloadMailboxList(); // FIXME: or just empty mailbox cache? or prevent empty set from being remembered in the first place?
 }
 
 }
