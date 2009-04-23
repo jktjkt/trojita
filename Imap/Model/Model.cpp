@@ -129,7 +129,7 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
 
         switch ( command->kind ) {
             case Task::STARTTLS:
-                // safe to ignore
+                _parsers[ ptr.get() ].capabilitiesFresh = false;
                 break;
             case Task::NONE:
                 throw CantHappen( "Internal Error: command that is supposed to do nothing?", *resp );
