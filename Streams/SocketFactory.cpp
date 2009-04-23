@@ -78,5 +78,24 @@ Imap::SocketPtr SslSocketFactory::create()
     return Imap::SocketPtr( new IODeviceSocket( sslSock ) );
 }
 
+TlsAbleSocketFactory::TlsAbleSocketFactory( const QString& host, const quint16 port ):
+    _host(host), _port(port)
+{
+}
+
+Imap::SocketPtr TlsAbleSocketFactory::create()
+{
+    QSslSocket* sslSock = new QSslSocket();
+    sslSock->ignoreSslErrors(); // big fat FIXME here!!!
+    sslSock->setPeerVerifyMode( QSslSocket::QueryPeer );
+    sslSock->connectToHost( _host, _port );
+    if ( ! sslSock->waitForConnected() ) {
+        qDebug() << "Connection failed:" << sslSock->errorString();
+    }
+    // FIXME: handle & signal errors
+    return Imap::SocketPtr( new IODeviceSocket( sslSock ) );
+}
+
+
 }
 }

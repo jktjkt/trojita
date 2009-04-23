@@ -138,7 +138,9 @@ void MainWindow::setupModels()
     Imap::Mailbox::SocketFactoryPtr factory;
     QSettings s;
     if ( s.value( SettingsNames::imapMethodKey ).toString() == SettingsNames::methodTCP ) {
-        Q_ASSERT( false ); // not implemented yet
+        factory.reset( new Imap::Mailbox::TlsAbleSocketFactory(
+                s.value( SettingsNames::imapHostKey ).toString(),
+                s.value( SettingsNames::imapPortKey ).toUInt() ) );
     } else if ( s.value( SettingsNames::imapMethodKey ).toString() == SettingsNames::methodSSL ) {
         factory.reset( new Imap::Mailbox::SslSocketFactory(
                 s.value( SettingsNames::imapHostKey ).toString(),

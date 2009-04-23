@@ -71,6 +71,17 @@ public:
     virtual Imap::SocketPtr create();
 };
 
+/** @short Factory for regular TCP sockets that are able to STARTTLS */
+class TlsAbleSocketFactory: public SocketFactory {
+    /** @short Hostname of the remote host */
+    QString _host;
+    /** @short Port number */
+    quint16 _port;
+public:
+    TlsAbleSocketFactory( const QString& host, const quint16 port );
+    virtual Imap::SocketPtr create();
+};
+
 
 }
 
