@@ -24,6 +24,19 @@
 namespace Imap {
 namespace Mailbox {
 
+namespace {
+
+bool MailboxNamesEquals( const TreeItem* const a, const TreeItem* const b )
+{
+    const TreeItemMailbox* const mailboxA = dynamic_cast<const TreeItemMailbox* const>(a);
+    const TreeItemMailbox* const mailboxB = dynamic_cast<const TreeItemMailbox* const>(b);
+
+    return mailboxA && mailboxB && mailboxA->mailbox() == mailboxB->mailbox();
+}
+
+}
+
+
 Model::Model( QObject* parent, CachePtr cache, AuthenticatorPtr authenticator,
         SocketFactoryPtr socketFactory ):
     // parent
@@ -186,6 +199,22 @@ void Model::_finalizeList( ParserPtr parser, const QMap<CommandHandle, Task>::co
     }
     listResponses.clear();
     qSort( mailboxes.begin(), mailboxes.end(), SortMailboxes );
+
+    // Remove duplicates; would be great if this could be done in a STLish way,
+    // but unfortunately std::unique won't help here (the "duped" part of the
+    // sequnce contains undefined items
+    if ( mailboxes.size() > 1 ) {
+        QList<TreeItem*>::iterator it = mailboxes.begin();
+        ++it;
+        while ( it != mailboxes.end() ) {
+            if ( MailboxNamesEquals( it[-1], *it ) ) {
+                delete *it;
+                it = mailboxes.erase( it );
+            } else {
+                ++it;
+            }
+        }
+    }
 
     QList<MailboxMetadata> metadataToCache;
     for ( QList<TreeItem*>::const_iterator it = mailboxes.begin(); it != mailboxes.end(); ++it ) {
