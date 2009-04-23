@@ -21,9 +21,9 @@
 
 #include <QMainWindow>
 
-#include "Imap/Authenticator.h"
 #include "Imap/Cache.h"
 
+class QAuthenticator;
 class QTreeView;
 
 namespace Imap {
@@ -56,6 +56,8 @@ private slots:
     void networkPolicyOnline();
     void fullViewToggled( bool show );
     void slotShowSettings();
+    void connectionError( const QString& message );
+    void authenticationRequested( QAuthenticator* auth );
 
 private:
     void createMenus();
@@ -63,7 +65,6 @@ private:
     void createWidgets();
     void setupModels();
 
-    Imap::Mailbox::AuthenticatorPtr authenticator;
     Imap::Mailbox::CachePtr cache;
 
     Imap::Mailbox::Model* model;

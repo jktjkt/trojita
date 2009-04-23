@@ -49,8 +49,6 @@ set(libImap_SRCS
 
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Cache.cpp
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Authenticator.cpp
-
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/Model.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/MailboxModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/MsgListModel.cpp

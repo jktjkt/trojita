@@ -16,8 +16,10 @@
    Boston, MA 02110-1301, USA.
 */
 
+#include <QAuthenticator>
 #include <QDockWidget>
 #include <QHeaderView>
+#include <QInputDialog>
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QSplitter>
@@ -154,7 +156,7 @@ void MainWindow::setupModels()
     }
 
     cache.reset( new Imap::Mailbox::NoCache() );
-    model = new Imap::Mailbox::Model( this, cache, authenticator, factory );
+    model = new Imap::Mailbox::Model( this, cache, factory );
     model->setObjectName( QLatin1String("model") );
     mboxModel = new Imap::Mailbox::MailboxModel( this, model );
     mboxModel->setObjectName( QLatin1String("mboxModel") );
@@ -171,6 +173,8 @@ void MainWindow::setupModels()
     QObject::connect( msgListModel, SIGNAL( messageRemoved( void* ) ), msgView, SLOT( handleMessageRemoved( void* ) ) );
 
     connect( model, SIGNAL( alertReceived( const QString& ) ), this, SLOT( alertReceived( const QString& ) ) );
+    connect( model, SIGNAL( connectionError( const QString& ) ), this, SLOT( connectionError( const QString& ) ) );
+    connect( model, SIGNAL( authRequested( QAuthenticator* ) ), this, SLOT( authenticationRequested( QAuthenticator* ) ) );
 
     connect( model, SIGNAL( networkPolicyOffline() ), this, SLOT( networkPolicyOffline() ) );
     connect( model, SIGNAL( networkPolicyExpensive() ), this, SLOT( networkPolicyExpensive() ) );
@@ -224,6 +228,11 @@ void MainWindow::alertReceived( const QString& message )
     QMessageBox::warning( this, tr("IMAP Alert"), message );
 }
 
+void MainWindow::connectionError( const QString& message )
+{
+    QMessageBox::critical( this, tr("Connection Error"), message );
+}
+
 void MainWindow::networkPolicyOffline()
 {
     netOffline->setChecked( true );
@@ -260,6 +269,20 @@ void MainWindow::slotShowSettings()
 {
     SettingsDialog* dialog = new SettingsDialog();
     dialog->exec();
+}
+
+void MainWindow::authenticationRequested( QAuthenticator* auth )
+{
+    QSettings s;
+    bool ok;
+    QString user = s.value( SettingsNames::imapUserKey ).toString();
+    QString pass = QInputDialog::getText( this, tr("Password"),
+                                          tr("Please provide password for %1").arg( user ),
+                                          QLineEdit::Password, QString::null, &ok );
+    if ( ok ) {
+        auth->setUser( user );
+        auth->setPassword( pass );
+    }
 }
 
 }

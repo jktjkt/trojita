@@ -21,9 +21,10 @@
 
 #include <QAbstractItemModel>
 #include "../Cache.h"
-#include "../Authenticator.h"
 #include "../Parser/Parser.h"
 #include "../Streams/SocketFactory.h"
+
+class QAuthenticator;
 
 /** @short Namespace for IMAP interaction */
 namespace Imap {
@@ -45,7 +46,7 @@ class Model: public QAbstractItemModel {
     //Q_PROPERTY( ThreadAlgorithm threadSorting READ threadSorting WRITE setThreadSorting )
 
     struct Task {
-        enum Kind { NONE, STARTTLS, LIST, STATUS, SELECT, FETCH };
+        enum Kind { NONE, STARTTLS, LOGIN, LIST, STATUS, SELECT, FETCH };
         Kind kind;
         TreeItem* what;
         Task( const Kind _kind, TreeItem* _what ): kind(_kind), what(_what) {};
@@ -112,7 +113,6 @@ class Model: public QAbstractItemModel {
     };
 
     mutable CachePtr _cache;
-    mutable AuthenticatorPtr _authenticator;
     mutable SocketFactoryPtr _socketFactory;
     mutable QMap<Parser*,ParserState> _parsers;
     int _maxParsers;
@@ -124,8 +124,7 @@ class Model: public QAbstractItemModel {
 
 
 public:
-    Model( QObject* parent, CachePtr cache, AuthenticatorPtr authenticator,
-            SocketFactoryPtr socketFactory );
+    Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory );
     ~Model();
 
     virtual QModelIndex index(int row, int column, const QModelIndex& parent ) const;
@@ -163,6 +162,8 @@ signals:
     void networkPolicyOffline();
     void networkPolicyExpensive();
     void networkPolicyOnline();
+    void connectionError( const QString& message );
+    void authRequested( QAuthenticator* auth );
 
 private:
     Model& operator=( const Model& ); // don't implement

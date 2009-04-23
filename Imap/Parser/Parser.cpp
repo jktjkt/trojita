@@ -101,10 +101,12 @@ CommandHandle Parser::startTls()
     return queueCommand( Commands::SPECIAL, "STARTTLS" );
 }
 
+#if 0
 CommandHandle Parser::authenticate( /*Authenticator FIXME*/)
 {
     return queueCommand( Commands::ATOM, "AUTHENTICATE" );
 }
+#endif
 
 CommandHandle Parser::login( const QString& username, const QString& password )
 {

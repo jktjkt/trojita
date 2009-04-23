@@ -18,6 +18,7 @@
 
 #include "Model.h"
 #include "MailboxTree.h"
+#include <QAuthenticator>
 #include <QDebug>
 #include <QTimer>
 
@@ -49,12 +50,11 @@ bool MailboxNameComparator( const TreeItem* const a, const TreeItem* const b )
 }
 
 
-Model::Model( QObject* parent, CachePtr cache, AuthenticatorPtr authenticator,
-        SocketFactoryPtr socketFactory ):
+Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory ):
     // parent
     QAbstractItemModel( parent ),
     // our tools
-    _cache(cache), _authenticator(authenticator), _socketFactory(socketFactory),
+    _cache(cache), _socketFactory(socketFactory),
     _maxParsers(1), _mailboxes(0), _netPolicy( NETWORK_ONLINE )
 {
     _startTls = _socketFactory->startTlsRequired();
@@ -130,7 +130,27 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
         switch ( command->kind ) {
             case Task::STARTTLS:
                 _parsers[ ptr.get() ].capabilitiesFresh = false;
+                if ( resp->kind == Responses::OK ) {
+                    QAuthenticator auth;
+                    emit authRequested( &auth );
+                    if ( auth.isNull() ) {
+                        emit connectionError( tr("Can't login without user/password data") );
+                    } else {
+                        CommandHandle cmd = ptr->login( auth.user(), auth.password() );
+                        _parsers[ ptr.get() ].commandMap[ cmd ] = Task( Task::LOGIN, 0 );
+                    }
+                } else {
+                    emit connectionError( tr("Can't establish a secure connection to the server (STARTTLS failed). Refusing to proceed.") );
+                }
                 break;
+            case Task::LOGIN:
+                if ( resp->kind == Responses::OK ) {
+                    _parsers[ ptr.get() ].connState = CONN_STATE_AUTH;
+                    completelyReset();
+                } else {
+                    // FIXME: handle this in a sane way
+                    emit connectionError( tr("Login Failed") );
+                }
             case Task::NONE:
                 throw CantHappen( "Internal Error: command that is supposed to do nothing?", *resp );
                 break;

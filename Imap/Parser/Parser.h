@@ -142,8 +142,10 @@ namespace Imap {
         /** @short STARTTLS, RFC3051 section 6.2.1 */
         CommandHandle startTls();
 
+#if 0
         /** @short AUTHENTICATE, RFC3501 section 6.2.2 */
         CommandHandle authenticate( /* FIXME: parameter */ );
+#endif
 
         /** @short LOGIN, RFC3501 section 6.2.3 */
         CommandHandle login( const QString& user, const QString& pass );
