@@ -211,8 +211,6 @@ protected slots:
 
 };
 
-bool SortMailboxes( const TreeItem* const a, const TreeItem* const b );
-
 }
 
 }

@@ -34,6 +34,18 @@ bool MailboxNamesEquals( const TreeItem* const a, const TreeItem* const b )
     return mailboxA && mailboxB && mailboxA->mailbox() == mailboxB->mailbox();
 }
 
+bool SortMailboxes( const TreeItem* const a, const TreeItem* const b )
+{
+    const TreeItemMailbox* const mailboxA = dynamic_cast<const TreeItemMailbox* const>(a);
+    const TreeItemMailbox* const mailboxB = dynamic_cast<const TreeItemMailbox* const>(b);
+
+    if ( mailboxA->mailbox() == QLatin1String( "INBOX" ) )
+        return true;
+    if ( mailboxB->mailbox() == QLatin1String( "INBOX" ) )
+        return false;
+    return mailboxA->mailbox().compare( mailboxB->mailbox(), Qt::CaseInsensitive ) < 1;
+}
+
 }
 
 
@@ -334,18 +346,6 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
             _parsers[ parser.get() ].mailbox->mailbox();
         part->_fetchStatus = TreeItem::DONE;
     }
-}
-
-bool SortMailboxes( const TreeItem* const a, const TreeItem* const b )
-{
-    const TreeItemMailbox* const mailboxA = dynamic_cast<const TreeItemMailbox* const>(a);
-    const TreeItemMailbox* const mailboxB = dynamic_cast<const TreeItemMailbox* const>(b);
-
-    if ( mailboxA->mailbox() == QLatin1String( "INBOX" ) ) 
-        return true;
-    if ( mailboxB->mailbox() == QLatin1String( "INBOX" ) )
-        return false;
-    return mailboxA->mailbox().compare( mailboxB->mailbox(), Qt::CaseInsensitive ) < 1;
 }
 
 void Model::handleCapability( Imap::ParserPtr ptr, const Imap::Responses::Capability* const resp )
