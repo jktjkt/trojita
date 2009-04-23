@@ -151,6 +151,7 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
                     // FIXME: handle this in a sane way
                     emit connectionError( tr("Login Failed") );
                 }
+                break;
             case Task::NONE:
                 throw CantHappen( "Internal Error: command that is supposed to do nothing?", *resp );
                 break;
