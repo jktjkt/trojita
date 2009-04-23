@@ -214,7 +214,7 @@ void Model::_finalizeList( ParserPtr parser, const QMap<CommandHandle, Task>::co
 
     // Remove duplicates; would be great if this could be done in a STLish way,
     // but unfortunately std::unique won't help here (the "duped" part of the
-    // sequnce contains undefined items
+    // sequence contains undefined items
     if ( mailboxes.size() > 1 ) {
         QList<TreeItem*>::iterator it = mailboxes.begin();
         ++it;
