@@ -141,6 +141,7 @@ void MainWindow::setupModels()
         factory.reset( new Imap::Mailbox::TlsAbleSocketFactory(
                 s.value( SettingsNames::imapHostKey ).toString(),
                 s.value( SettingsNames::imapPortKey ).toUInt() ) );
+        factory->setStartTlsRequired( s.value( SettingsNames::imapStartTlsKey, true ).toBool() );
     } else if ( s.value( SettingsNames::imapMethodKey ).toString() == SettingsNames::methodSSL ) {
         factory.reset( new Imap::Mailbox::SslSocketFactory(
                 s.value( SettingsNames::imapHostKey ).toString(),

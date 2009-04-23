@@ -25,6 +25,20 @@
 namespace Imap {
 namespace Mailbox {
 
+SocketFactory::SocketFactory(): _startTls(false)
+{
+}
+
+void SocketFactory::setStartTlsRequired( const bool doIt )
+{
+    _startTls = doIt;
+}
+
+bool SocketFactory::startTlsRequired()
+{
+    return _startTls;
+}
+
 ProcessSocketFactory::ProcessSocketFactory(
         const QString& executable, const QStringList& args):
     _executable(executable), _args(args)

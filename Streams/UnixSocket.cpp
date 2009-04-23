@@ -272,6 +272,11 @@ void UnixSocket::terminate()
     }
 }
 
+void UnixSocket::startTls()
+{
+    throw InvalidArgument( "UnixSocket has no support for STARTTLS" );
+}
+
 
 
 UnixSocketThread::UnixSocketThread( const QList<QByteArray>& args ): childPid(0)

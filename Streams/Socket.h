@@ -32,6 +32,7 @@ namespace Imap {
         virtual bool waitForReadyRead( int msec ) = 0;
         virtual bool waitForBytesWritten( int msec ) = 0;
         virtual qint64 write( const QByteArray& byteArray ) = 0;
+        virtual void startTls() = 0;
         virtual ~Socket() {};
     signals:
         void readChannelFinished();

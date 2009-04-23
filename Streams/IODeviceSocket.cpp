@@ -17,7 +17,9 @@
 */
 
 #include <QProcess>
+#include <QSslSocket>
 #include "IODeviceSocket.h"
+#include "Imap/Exceptions.h"
 
 namespace Imap {
 
@@ -67,6 +69,17 @@ bool IODeviceSocket::waitForBytesWritten( int msec )
 qint64 IODeviceSocket::write( const QByteArray& byteArray )
 {
     return d->write( byteArray );
+}
+
+void IODeviceSocket::startTls()
+{
+    QSslSocket* sock = qobject_cast<QSslSocket*>( device() );
+    if ( ! sock ) {
+        throw InvalidArgument( "This IODeviceSocket is not a QSslSocket, and therefore doesn't support STARTTLS." );
+    } else {
+        sock->startClientEncryption();
+        sock->waitForEncrypted();
+    }
 }
 
 QIODevice* IODeviceSocket::device() const

@@ -40,6 +40,7 @@ namespace Imap {
         virtual bool waitForReadyRead( int msec );
         virtual bool waitForBytesWritten( int msec );
         virtual qint64 write( const QByteArray& byteArray );
+        virtual void startTls();
 
     private:
         UnixSocketThread* d;

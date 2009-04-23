@@ -32,10 +32,13 @@ Model::Model( QObject* parent, CachePtr cache, AuthenticatorPtr authenticator,
     _cache(cache), _authenticator(authenticator), _socketFactory(socketFactory),
     _maxParsers(1), _mailboxes(0), _netPolicy( NETWORK_ONLINE )
 {
+    _startTls = _socketFactory->startTlsRequired();
     ParserPtr parser( new Imap::Parser( this, _socketFactory ) );
     _parsers[ parser.get() ] = ParserState( parser, 0, ReadOnly, CONN_STATE_ESTABLISHED );
     connect( parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
     connect( parser.get(), SIGNAL( disconnected() ), this, SLOT( slotParserDisconnected() ) );
+    if ( _startTls )
+        parser->startTls();
     _mailboxes = new TreeItemMailbox( 0 );
     QTimer::singleShot( 0, this, SLOT( setNetworkOnline() ) );
 }
@@ -558,6 +561,8 @@ ParserPtr Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode ) const
         _parsers[ parser.get() ] = ParserState( parser, mailbox, mode, CONN_STATE_ESTABLISHED );
         connect( parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
         connect( parser.get(), SIGNAL( disconnected() ), this, SLOT( slotParserDisconnected() ) );
+        if ( _startTls )
+            parser->startTls();
         CommandHandle cmd;
         if ( mode == ReadWrite )
             cmd = parser->select( mailbox->mailbox() );

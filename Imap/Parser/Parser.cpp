@@ -338,8 +338,12 @@ bool Parser::executeACommand( const Commands::Command& cmd )
                     const QString& identifier = (*it)._text;
                     if ( identifier == "STARTTLS" ) {
                         buf.append( "STARTTLS\r\n" );
-                        // FIXME: real stuff here
                         _socket->write( buf );
+#ifdef PRINT_TRAFFIC
+                        qDebug() << ">>>" << buf;
+                        qDebug() << "*** STARTTLS";
+#endif
+                        _socket->startTls();
                         return true;
                     } else if ( identifier == "IDLE" ) {
                         // FIXME: IDLE

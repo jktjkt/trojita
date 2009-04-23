@@ -118,6 +118,7 @@ class Model: public QAbstractItemModel {
     int _maxParsers;
     mutable TreeItemMailbox* _mailboxes;
     mutable NetworkPolicy _netPolicy;
+    bool _startTls;
 
     mutable QList<Imap::Responses::NamespaceData> _personalNamespace, _otherUsersNamespace, _sharedNamespace;
 

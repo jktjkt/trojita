@@ -32,10 +32,14 @@ namespace Mailbox {
 /** @short Abstract interface for creating new socket that is somehow connected
  * to the IMAP server */
 class SocketFactory {
+    bool _startTls;
 public:
+    SocketFactory();
     virtual ~SocketFactory() {};
     /** @short Create new socket and return a smart pointer to it */
     virtual Imap::SocketPtr create() = 0;
+    void setStartTlsRequired( const bool doIt );
+    bool startTlsRequired();
 };
 
 typedef std::auto_ptr<SocketFactory> SocketFactoryPtr;
