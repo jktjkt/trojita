@@ -338,9 +338,13 @@ bool Parser::executeACommand( const Commands::Command& cmd )
                     const QString& identifier = (*it)._text;
                     if ( identifier == "STARTTLS" ) {
                         buf.append( "STARTTLS\r\n" );
-                        _socket->write( buf );
 #ifdef PRINT_TRAFFIC
                         qDebug() << ">>>" << buf;
+#endif
+                        _socket->write( buf );
+                        _socket->waitForBytesWritten( -1 );
+                        _socket->waitForReadyRead( -1 );
+#ifdef PRINT_TRAFFIC
                         qDebug() << "*** STARTTLS";
 #endif
                         _socket->startTls();
