@@ -592,7 +592,9 @@ void WorkerThread::run()
     _parser->_socket = _parser->_factory->create();
     helper = new WorkerHelper( _parser );
     connect( _parser, SIGNAL( commandQueued() ), helper, SLOT( slotSubmitCommand() ) );
-    connect( _parser->_socket.get(), SIGNAL( readyRead() ), helper, SLOT( slotReadyRead() ) );
+    // readyRead() has to be queued, otherwise bad things happen
+    // see Trolltech Task Tracker #217111
+    connect( _parser->_socket.get(), SIGNAL( readyRead() ), helper, SLOT( slotReadyRead() ), Qt::QueuedConnection );
     connect( _parser->_socket.get(), SIGNAL( readChannelFinished() ), this, SIGNAL( disconnected() ) );
     QTimer::singleShot( 0, helper, SLOT( slotImRunning() ) );
     exec();
