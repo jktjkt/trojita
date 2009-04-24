@@ -152,7 +152,11 @@ void MainWindow::setupModels()
         QStringList args = s.value( SettingsNames::imapProcessKey ).toString().split( QLatin1Char(' ') );
         Q_ASSERT( ! args.isEmpty() ); // FIXME
         QString appName = args.takeFirst();
+#ifdef CUSTOM_UNIX_SOCKET
+        factory.reset( new Imap::Mailbox::UnixProcessSocketFactory( appName, args ) );
+#else
         factory.reset( new Imap::Mailbox::ProcessSocketFactory( appName, args ) );
+#endif
     }
 
     cache.reset( new Imap::Mailbox::NoCache() );
