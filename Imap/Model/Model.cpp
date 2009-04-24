@@ -127,6 +127,7 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
             return;
         }
 
+        // FIXME: distinguish among OK/NO/BAD here
         switch ( command->kind ) {
             case Task::STARTTLS:
                 _parsers[ ptr.get() ].capabilitiesFresh = false;
@@ -156,7 +157,11 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
                 throw CantHappen( "Internal Error: command that is supposed to do nothing?", *resp );
                 break;
             case Task::LIST:
-                _finalizeList( ptr, command );
+                if ( resp->kind == Responses::OK ) {
+                    _finalizeList( ptr, command );
+                } else {
+                    // FIXME
+                }
                 break;
             case Task::STATUS:
                 _finalizeStatus( ptr, command );
@@ -245,7 +250,7 @@ void Model::_finalizeList( ParserPtr parser, const QMap<CommandHandle, Task>::co
 
     // Remove duplicates; would be great if this could be done in a STLish way,
     // but unfortunately std::unique won't help here (the "duped" part of the
-    // sequence contains undefined items
+    // sequence contains undefined items)
     if ( mailboxes.size() > 1 ) {
         QList<TreeItem*>::iterator it = mailboxes.begin();
         ++it;
@@ -680,7 +685,6 @@ void Model::completelyReset()
     }
     _mailboxes = new TreeItemMailbox( 0 );
     reset();
-    reloadMailboxList(); // FIXME: or just empty mailbox cache? or prevent empty set from being remembered in the first place?
 }
 
 }
