@@ -26,7 +26,10 @@ namespace Imap {
 IODeviceSocket::IODeviceSocket( QIODevice* device ): d(device)
 {
     connect( d, SIGNAL(readyRead()), this, SIGNAL(readyRead()) );
-    connect( d, SIGNAL(readChannelFinished()), this, SIGNAL(readChannelFinished()) );
+    connect( d, SIGNAL(readChannelFinished()), this, SLOT( handleStateChanged() ) );
+    if ( QAbstractSocket* sock = qobject_cast<QAbstractSocket*>( device ) ) {
+        connect( sock, SIGNAL( error( QAbstractSocket::SocketError ) ), this, SLOT(handleError(QAbstractSocket::SocketError)) );
+    }
 }
 
 IODeviceSocket::~IODeviceSocket()
@@ -85,6 +88,34 @@ void IODeviceSocket::startTls()
 QIODevice* IODeviceSocket::device() const
 {
     return d;
+}
+
+bool IODeviceSocket::isDead()
+{
+    if ( QProcess* proc = qobject_cast<QProcess*>( device() ) ) {
+        return proc->state() != QProcess::Running;
+    } else if ( QAbstractSocket* sock = qobject_cast<QAbstractSocket*>( device() ) ) {
+        return sock->state() != QAbstractSocket::ConnectedState;
+    } else {
+        Q_ASSERT( false );
+        return false;
+    }
+}
+
+void IODeviceSocket::handleStateChanged()
+{
+    // FIXME
+/*    if ( QAbstractSocket* sock = qobject_cast<QAbstractSocket*>( device() ) ) {
+        if ( sock->state() != QAbstractSocket::ConnectedState ) {
+
+        }
+    }
+    */
+}
+
+void IODeviceSocket::handleError( QAbstractSocket::SocketError err )
+{
+    // FIXME
 }
 
 }

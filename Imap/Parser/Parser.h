@@ -98,7 +98,7 @@ namespace Imap {
         WorkerHelper* helper;
 
     signals:
-        void disconnected();
+        void disconnected( const QString );
 
     public:
         WorkerThread( Parser * const parser );
@@ -244,7 +244,7 @@ namespace Imap {
 
     signals:
         /** @short Socket got disconnected */
-        void disconnected();
+        void disconnected( const QString );
 
         /** @short New response received */
         void responseReceived();
@@ -280,7 +280,6 @@ namespace Imap {
         /** @short Execute passed command right now */
         bool executeACommand( const Commands::Command& cmd );
 
-        /** @short Process a line from IMAP server */
         void processLine( QByteArray line );
 
         /** @short Parse line for untagged reply */

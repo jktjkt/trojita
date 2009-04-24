@@ -155,7 +155,7 @@ public slots:
     void setNetworkOnline() { setNetworkPolicy( NETWORK_ONLINE ); }
 
 private slots:
-    void slotParserDisconnected();
+    void slotParserDisconnected( const QString );
 
 signals:
     void alertReceived( const QString& message );

@@ -41,11 +41,16 @@ namespace Imap {
         virtual bool waitForBytesWritten( int msec );
         virtual qint64 write( const QByteArray& byteArray );
         virtual void startTls();
+        virtual bool isDead();
+
+    private slots:
+        void markAsDead();
 
     private:
         UnixSocketThread* d;
         QByteArray buffer;
         bool hasLine;
+        bool _isDead;
 
         QByteArray reallyRead( qint64 maxSize );
         void terminate();

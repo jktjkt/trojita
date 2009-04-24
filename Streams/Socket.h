@@ -19,7 +19,7 @@
 #define IMAP_SOCKET_H
 
 #include <memory>
-#include <QObject>
+#include <QAbstractSocket>
 
 namespace Imap {
 
@@ -33,9 +33,10 @@ namespace Imap {
         virtual bool waitForBytesWritten( int msec ) = 0;
         virtual qint64 write( const QByteArray& byteArray ) = 0;
         virtual void startTls() = 0;
+        virtual bool isDead() = 0;
         virtual ~Socket() {};
     signals:
-        void readChannelFinished();
+        void disconnected( const QString );
         void readyRead();
     };
 

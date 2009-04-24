@@ -69,7 +69,7 @@ namespace Imap {
 Parser::Parser( QObject* parent, Imap::Mailbox::SocketFactoryPtr factory ):
         QObject(parent), _factory(factory), _lastTagUsed(0), _workerThread( this )
 {
-    connect( &_workerThread, SIGNAL( disconnected() ), this, SIGNAL( disconnected() ) );
+    connect( &_workerThread, SIGNAL( disconnected( const QString ) ), this, SIGNAL(disconnected( const QString )) );
     _workerThread.start();
     _workerReady.acquire();
 }
@@ -370,8 +370,15 @@ bool Parser::executeACommand( const Commands::Command& cmd )
 #endif
 
     return true;
-}
 
+}
+/** @short Process a line from IMAP server
+
+    Due to the nature of the IMAP protocol, it isn't possible to tell if we will
+    need to read more data before we see the end of current line. This is the
+    purpose of this function -- it will make sure to read any subsequent data,
+    if needed.
+*/
 void Parser::processLine( QByteArray line )
 {
     if ( line.startsWith( "* " ) ) {
@@ -398,26 +405,15 @@ void Parser::processLine( QByteArray line )
             oldSize = line.size();
             QByteArray buf = _socket->read( number );
             while ( buf.size() < number ) {
-                if ( timer.elapsed() > timeout ) {
-                    IODeviceSocket* ioSock = qobject_cast<IODeviceSocket*>( _socket.get() );
-                    if ( ioSock ) {
-                        QProcess* proc = qobject_cast<QProcess*>( ioSock->device() );
-                        if ( proc && proc->state() != QProcess::Running ) {
-                            // It's dead, Jim. Unfortunately we can't output more debug
-                            // info, as errorString() might contain completely useless
-                            // stuff from previous failed waitFor*(). Oh noes.
-                            throw SocketException( "The QProcess is dead" );
-                        }
-                    }
-
+                if ( _socket->isDead() ) {
+                    throw SocketException( "The socket has closed" );
+                } else if ( timer.elapsed() > timeout ) {
                     QByteArray out;
                     QTextStream s( &out );
                     s << "Reading a literal took too long (line " << line.size() <<
                         " bytes so far, buffer " << buf.size() << ", expected literal size " <<
                         number << ")";
                     s.flush();
-                    // FIXME: we need something more flexible, including restart
-                    // of failed requests...
                     throw SocketTimeout( out.constData() );
                 }
                 _socket->waitForReadyRead( 500 );
@@ -595,7 +591,7 @@ void WorkerThread::run()
     // readyRead() has to be queued, otherwise bad things happen
     // see Trolltech Task Tracker #217111
     connect( _parser->_socket.get(), SIGNAL( readyRead() ), helper, SLOT( slotReadyRead() ), Qt::QueuedConnection );
-    connect( _parser->_socket.get(), SIGNAL( readChannelFinished() ), this, SIGNAL( disconnected() ) );
+    connect( _parser->_socket.get(), SIGNAL( disconnected( const QString ) ), this, SIGNAL( disconnected( const QString ) ) );
     QTimer::singleShot( 0, helper, SLOT( slotImRunning() ) );
     exec();
 }

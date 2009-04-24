@@ -18,7 +18,7 @@
 #ifndef IMAP_IODEVICE_SOCKET_H
 #define IMAP_IODEVICE_SOCKET_H
 
-#include <QIODevice>
+#include <QAbstractSocket>
 #include "Socket.h"
 
 namespace Imap {
@@ -35,7 +35,11 @@ namespace Imap {
         virtual bool waitForBytesWritten( int msec );
         virtual qint64 write( const QByteArray& byteArray );
         virtual void startTls();
+        virtual bool isDead();
         QIODevice* device() const;
+    private slots:
+        void handleStateChanged();
+        void handleError( QAbstractSocket::SocketError );
     private:
         QIODevice* d;
     };

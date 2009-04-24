@@ -49,10 +49,10 @@ Q_GLOBAL_STATIC( UnixSocketDeadWatcher, getDeadWatcher );
 static int UnixSocketDeadWatcherPipe[2];
 
 
-UnixSocket::UnixSocket( const QList<QByteArray>& args ): d(new UnixSocketThread(args)), hasLine(false)
+UnixSocket::UnixSocket( const QList<QByteArray>& args ): d(new UnixSocketThread(args)), hasLine(false), _isDead(false)
 {
     connect( d, SIGNAL(readyRead()), this, SIGNAL(readyRead()), Qt::QueuedConnection );
-    connect( d, SIGNAL( readChannelFinished() ), this, SIGNAL( readChannelFinished() ), Qt::QueuedConnection );
+    connect( d, SIGNAL( readChannelFinished() ), this, SLOT( markAsDead() ), Qt::QueuedConnection );
     d->start();
 }
 
@@ -120,12 +120,23 @@ QByteArray UnixSocket::reallyRead( qint64 maxSize )
     buf.resize( maxSize );
     qint64 ret = wrappedRead( d->fdStdout[0], buf.data(), maxSize );
     if ( ret == 0 ) {
-        qDebug() << "readChannelFinished()";
-        emit readChannelFinished();
+        markAsDead();
     }
     buf.resize( ret );
     d->readyReadAlreadyDone.release();
     return buf;
+}
+
+void UnixSocket::markAsDead()
+{
+    qDebug() << "readChannelFinished()";
+    _isDead = true;
+    emit disconnected( tr( "The child process has exited" ) );
+}
+
+bool UnixSocket::isDead()
+{
+    return _isDead;
 }
 
 /** @short Returns a line from the stdout
@@ -349,6 +360,7 @@ UnixSocketThread::UnixSocketThread( const QList<QByteArray>& args ): childPid(0)
         throw SocketException( buf.constData() );
     } else if ( childPid == -1 ) {
         // still failed
+        emit readChannelFinished();
         QByteArray buf;
         QTextStream ss( &buf );
         ss << "UnixSocketThread: Can't fork: " << errno;

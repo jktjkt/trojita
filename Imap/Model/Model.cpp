@@ -61,7 +61,7 @@ Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory ):
     ParserPtr parser( new Imap::Parser( this, _socketFactory ) );
     _parsers[ parser.get() ] = ParserState( parser, 0, ReadOnly, CONN_STATE_ESTABLISHED );
     connect( parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
-    connect( parser.get(), SIGNAL( disconnected() ), this, SLOT( slotParserDisconnected() ) );
+    connect( parser.get(), SIGNAL( disconnected( const QString ) ), this, SLOT( slotParserDisconnected( const QString ) ) );
     if ( _startTls ) {
         CommandHandle cmd = parser->startTls();
         _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::STARTTLS, 0 );
@@ -661,7 +661,7 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
     _netPolicy = policy;
 }
 
-void Model::slotParserDisconnected()
+void Model::slotParserDisconnected( const QString msg )
 {
     Parser* which = qobject_cast<Parser*>( sender() );
     if ( ! which )
@@ -671,7 +671,7 @@ void Model::slotParserDisconnected()
         // FIXME: fail the command, perform cleanup,...
     }
     // FIXME: tell the user (or not?)
-    qDebug() << sender() << "disconnected";
+    qDebug() << sender() << "disconnected:" << msg;
 }
 
 void Model::completelyReset()
