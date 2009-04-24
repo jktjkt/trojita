@@ -328,6 +328,12 @@ void ImapLowLevelParserTest::testGetRFC2822DateTime_data()
     QTest::addColumn<QString>("line");
     QTest::addColumn<QDateTime>("date");
 
+    /*
+      courier-imap on woodpecker.gentoo.org won't convert the following:
+    QTest::newRow("date-no-leading-zero")
+        << QString("Fri Apr  3 00:21:52 UTC 2009")
+        << QDateTime( QDate( 2009, 4, 3 ), QTime( 0, 21, 52), Qt::UTC );*/
+
     QTest::newRow("date-manual")
         << QString("Wed, 09 Apr 2008 20:16:12 +0200")
         << QDateTime( QDate( 2008, 4, 9 ), QTime( 18, 16, 12 ), Qt::UTC );

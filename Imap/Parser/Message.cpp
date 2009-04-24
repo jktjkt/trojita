@@ -90,7 +90,8 @@ Envelope Envelope::fromList( const QVariantList& items, const QByteArray& line, 
             try {
                 date = LowLevelParser::parseRFC2822DateTime( dateStr );
             } catch ( ParseError& e ) {
-                throw ParseError( e.what(), line, start );
+                // FIXME: log this
+                //throw ParseError( e.what(), line, start );
             }
         }
     }
