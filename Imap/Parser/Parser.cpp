@@ -24,7 +24,7 @@
 #include "Parser.h"
 #include "rfccodecs.h"
 #include "LowLevelParser.h"
-#include "../Streams/IODeviceSocket.h"
+#include "../../Streams/IODeviceSocket.h"
 
 //#define PRINT_TRAFFIC
 
