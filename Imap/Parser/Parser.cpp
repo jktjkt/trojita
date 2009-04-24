@@ -374,9 +374,6 @@ bool Parser::executeACommand( const Commands::Command& cmd )
 
 void Parser::processLine( QByteArray line )
 {
-#ifdef PRINT_TRAFFIC
-    qDebug() << "<<<" << line;
-#endif
     if ( line.startsWith( "* " ) ) {
         // check for literals
         int oldSize = 0;
@@ -430,11 +427,20 @@ void Parser::processLine( QByteArray line )
             // as we've had read a literal, we have to read rest of the line as well
             line += _socket->readLine();
         }
+#ifdef PRINT_TRAFFIC
+    qDebug() << "<<<" << line;
+#endif
         queueResponse( parseUntagged( line ) );
     } else if ( line.startsWith( "+ " ) ) {
+#ifdef PRINT_TRAFFIC
+    qDebug() << "<<<" << line;
+#endif
         // Command Continuation Request which really shouldn't happen here
         throw ContinuationRequest( line.constData() );
     } else {
+#ifdef PRINT_TRAFFIC
+    qDebug() << "<<<" << line;
+#endif
         queueResponse( parseTagged( line ) );
     }
 }
