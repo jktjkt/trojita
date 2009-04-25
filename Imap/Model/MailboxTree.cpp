@@ -19,8 +19,8 @@
 #include <QTextStream>
 #include "MailboxTree.h"
 #include "Model.h"
-#include "Imap/Parser/kcodecs.h"
-#include "Imap/Parser/rfccodecs.h"
+#include "Imap/Parser/3rdparty/kcodecs.h"
+#include "Imap/Parser/3rdparty/rfccodecs.h"
 #include <QtDebug>
 
 namespace Imap {

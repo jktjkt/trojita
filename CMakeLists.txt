@@ -42,8 +42,8 @@ set(libImap_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Parser/LowLevelParser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Parser/Data.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Parser/Message.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Parser/rfccodecs.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Parser/kcodecs.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Parser/3rdparty/rfccodecs.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Parser/3rdparty/kcodecs.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Exceptions.cpp
 

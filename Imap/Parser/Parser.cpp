@@ -22,7 +22,7 @@
 #include <QTime>
 #include <QTimer>
 #include "Parser.h"
-#include "rfccodecs.h"
+#include "3rdparty/rfccodecs.h"
 #include "LowLevelParser.h"
 #include "../../Streams/IODeviceSocket.h"
 

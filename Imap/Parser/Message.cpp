@@ -18,7 +18,7 @@
 
 #include "Message.h"
 #include "../Model/MailboxTree.h"
-#include "rfccodecs.h"
+#include "3rdparty/rfccodecs.h"
 
 namespace Imap {
 namespace Message {

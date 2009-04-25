@@ -22,7 +22,7 @@
 #include <QDateTime>
 #include "LowLevelParser.h"
 #include "../Exceptions.h"
-#include "rfccodecs.h"
+#include "3rdparty/rfccodecs.h"
 
 namespace Imap {
 namespace LowLevelParser {
