@@ -32,6 +32,33 @@ namespace Imap {
 /** @short Classes for handling of mailboxes and connections */
 namespace Mailbox {
 
+class Model;
+
+/** @short Response handler for implementing the State Pattern */
+class ModelStateHandler: public QObject {
+    Q_OBJECT
+public:
+    ModelStateHandler( Model* _m );
+
+    virtual void handleState( Imap::ParserPtr ptr, const Imap::Responses::State* const resp ) = 0;
+    virtual void handleCapability( Imap::ParserPtr ptr, const Imap::Responses::Capability* const resp ) = 0;
+    virtual void handleNumberResponse( Imap::ParserPtr ptr, const Imap::Responses::NumberResponse* const resp ) = 0;
+    virtual void handleList( Imap::ParserPtr ptr, const Imap::Responses::List* const resp ) = 0;
+    virtual void handleFlags( Imap::ParserPtr ptr, const Imap::Responses::Flags* const resp ) = 0;
+    virtual void handleSearch( Imap::ParserPtr ptr, const Imap::Responses::Search* const resp ) = 0;
+    virtual void handleStatus( Imap::ParserPtr ptr, const Imap::Responses::Status* const resp ) = 0;
+    virtual void handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* const resp ) = 0;
+    virtual void handleNamespace( Imap::ParserPtr ptr, const Imap::Responses::Namespace* const resp ) = 0;
+
+protected:
+    Model* m;
+};
+
+class UnauthenticatedHandler;
+class AuthenticatedHandler;
+class SyncingHandler;
+class SelectedHandler;
+
 class TreeItem;
 class TreeItemMailbox;
 class TreeItemMsgList;
@@ -57,9 +84,9 @@ class Model: public QAbstractItemModel {
 
     /** @short IMAP state of a connection */
     enum ConnectionState {
-        CONN_STATE_ESTABLISHED /**< Connection established, no details known yet */,
-        CONN_STATE_NOT_AUTH /**< Before we can do anything, we have to authenticate ourselves */,
+        CONN_STATE_ESTABLISHED /**< Connection established */,
         CONN_STATE_AUTH /**< We are authenticated, now we must select a mailbox */,
+        CONN_STATE_SYNC /**< We are synchronizing a mailbox */,
         CONN_STATE_SELECTED /**< Some mailbox is selected */,
         CONN_STATE_LOGOUT /**< We have been logged out */
     };
@@ -82,13 +109,15 @@ class Model: public QAbstractItemModel {
         QList<Responses::List> listResponses;
         QList<Responses::Status> statusResponses;
         SyncState syncState;
+        ModelStateHandler* responseHandler;
 
         ParserState( ParserPtr _parser, TreeItemMailbox* _mailbox, const RWMode _mode, 
-                const ConnectionState _connState ): 
+                const ConnectionState _connState, ModelStateHandler* _respHandler ):
             parser(_parser), mailbox(_mailbox), mode(_mode),
-            connState(_connState), handler(0), capabilitiesFresh(false) {};
+            connState(_connState), handler(0), capabilitiesFresh(false),
+            responseHandler(_respHandler) {};
         ParserState(): mailbox(0), mode(ReadOnly), connState(CONN_STATE_LOGOUT),
-            handler(0), capabilitiesFresh(false) {};
+            handler(0), capabilitiesFresh(false), responseHandler(0) {};
     };
 
     /** @short Policy for accessing network */
@@ -178,6 +207,11 @@ private:
     friend class MsgListModel; // needs access to createIndex()
     friend class MailboxModel; // needs access to createIndex()
 
+    friend class UnauthenticatedHandler;
+    friend class AuthenticatedHandler;
+    friend class SyncingHandler;
+    friend class SelectedHandler;
+
     void _askForChildrenOfMailbox( TreeItemMailbox* item );
     void _askForMessagesInMailbox( TreeItemMsgList* item );
     void _askForMsgMetadata( TreeItemMessage* item );
@@ -206,6 +240,10 @@ private:
 
     void completelyReset();
 
+    ModelStateHandler* unauthHandler;
+    ModelStateHandler* authenticatedHandler;
+    ModelStateHandler* syncingHandler;
+    ModelStateHandler* selectedHandler;
 
 protected slots:
     void responseReceived();

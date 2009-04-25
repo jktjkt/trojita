@@ -18,6 +18,10 @@
 
 #include "Model.h"
 #include "MailboxTree.h"
+#include "UnauthenticatedHandler.h"
+#include "AuthenticatedHandler.h"
+#include "SyncingHandler.h"
+#include "SelectedHandler.h"
 #include <QAuthenticator>
 #include <QDebug>
 #include <QTimer>
@@ -49,6 +53,10 @@ bool MailboxNameComparator( const TreeItem* const a, const TreeItem* const b )
 
 }
 
+ModelStateHandler::ModelStateHandler( Model* _m ): m(_m)
+{
+}
+
 
 Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory ):
     // parent
@@ -58,8 +66,14 @@ Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory ):
     _maxParsers(1), _mailboxes(0), _netPolicy( NETWORK_ONLINE )
 {
     _startTls = _socketFactory->startTlsRequired();
+
+    unauthHandler = new UnauthenticatedHandler( this );
+    authenticatedHandler = new AuthenticatedHandler( this );
+    syncingHandler = new SyncingHandler( this );
+    selectedHandler = new SelectedHandler( this );
+
     ParserPtr parser( new Imap::Parser( this, _socketFactory ) );
-    _parsers[ parser.get() ] = ParserState( parser, 0, ReadOnly, CONN_STATE_ESTABLISHED );
+    _parsers[ parser.get() ] = ParserState( parser, 0, ReadOnly, CONN_STATE_ESTABLISHED, unauthHandler );
     connect( parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
     connect( parser.get(), SIGNAL( disconnected( const QString ) ), this, SLOT( slotParserDisconnected( const QString ) ) );
     if ( _startTls ) {
@@ -147,6 +161,7 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
             case Task::LOGIN:
                 if ( resp->kind == Responses::OK ) {
                     _parsers[ ptr.get() ].connState = CONN_STATE_AUTH;
+                    _parsers[ ptr.get() ].responseHandler = authenticatedHandler;
                     completelyReset();
                 } else {
                     // FIXME: handle this in a sane way
@@ -178,59 +193,8 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
 
     } else {
         // untagged response
-
-        switch ( _parsers[ ptr.get() ].connState ) {
-            case CONN_STATE_ESTABLISHED:
-                using namespace Imap::Responses;
-                switch ( resp->kind ) {
-                    case PREAUTH:
-                        _parsers[ ptr.get() ].connState = CONN_STATE_AUTH;
-                        break;
-                    case OK:
-                        _parsers[ ptr.get() ].connState = CONN_STATE_NOT_AUTH;
-                        if ( !_startTls ) {
-                            QAuthenticator auth;
-                            emit authRequested( &auth );
-                            if ( auth.isNull() ) {
-                                emit connectionError( tr("Can't login without user/password data") );
-                            } else {
-                                CommandHandle cmd = ptr->login( auth.user(), auth.password() );
-                                _parsers[ ptr.get() ].commandMap[ cmd ] = Task( Task::LOGIN, 0 );
-                            }
-                        }
-                        break;
-                    case BYE:
-                        _parsers[ ptr.get() ].connState = CONN_STATE_LOGOUT;
-                        break;
-                    default:
-                        throw Imap::UnexpectedResponseReceived(
-                                "Waiting for initial OK/BYE/PREAUTH, but got this instead",
-                                *resp );
-                }
-                break;
-            case CONN_STATE_NOT_AUTH:
-                throw UnexpectedResponseReceived(
-                        "Somehow we managed to get back to the "
-                        "IMAP_STATE_NOT_AUTH, which is rather confusing. "
-                        "Internal error in trojita?",
-                        *resp );
-                break;
-            case CONN_STATE_AUTH:
-            case CONN_STATE_SELECTED:
-                if ( _parsers[ ptr.get() ].handler ) {
-                    // FIXME: pass it to mailbox
-                } else {
-                    // FIXME: somehow handle this one...
-                }
-                break;
-            case CONN_STATE_LOGOUT:
-                // hey, we're supposed to be logged out, how come that
-                // *anything* made it here?
-                throw UnexpectedResponseReceived(
-                        "WTF, we're logged out, yet I just got this message", 
-                        *resp );
-                break;
-        }
+        if ( _parsers[ ptr.get() ].responseHandler )
+            _parsers[ ptr.get() ].responseHandler->handleState( ptr, resp );
     }
 }
 
@@ -371,6 +335,7 @@ void Model::_finalizeStatus( ParserPtr parser, const QMap<CommandHandle, Task>::
 void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command )
 {
     _parsers[ parser.get() ].handler = dynamic_cast<TreeItemMailbox*>( command->what );
+    _parsers[ parser.get() ].responseHandler = selectedHandler;
 }
 
 void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command )
@@ -386,74 +351,50 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
 
 void Model::handleCapability( Imap::ParserPtr ptr, const Imap::Responses::Capability* const resp )
 {
+    if ( _parsers[ ptr.get() ].responseHandler )
+        _parsers[ ptr.get() ].responseHandler->handleCapability( ptr, resp );
 }
 
 void Model::handleNumberResponse( Imap::ParserPtr ptr, const Imap::Responses::NumberResponse* const resp )
 {
-    switch ( resp->kind ) {
-        case Imap::Responses::EXISTS:
-            _parsers[ ptr.get() ].syncState.exists = resp->number;
-            break;
-        case Imap::Responses::EXPUNGE:
-            {
-                ParserState& parser = _parsers[ ptr.get() ];
-                Q_ASSERT( parser.handler );
-                Q_ASSERT( parser.handler->fetched() );
-                // FIXME: delete the message
-                throw 42;
-            }
-            break;
-        case Imap::Responses::RECENT:
-            _parsers[ ptr.get() ].syncState.recent = resp->number;
-            break;
-        default:
-            throw CantHappen( "Got a NumberResponse of invalid kind. This is supposed to be handled in its constructor!", *resp );
-    }
+    if ( _parsers[ ptr.get() ].responseHandler )
+        _parsers[ ptr.get() ].responseHandler->handleNumberResponse( ptr, resp );
 }
 
 void Model::handleList( Imap::ParserPtr ptr, const Imap::Responses::List* const resp )
 {
-    _parsers[ ptr.get() ].listResponses << *resp;
+    if ( _parsers[ ptr.get() ].responseHandler )
+        _parsers[ ptr.get() ].responseHandler->handleList( ptr, resp );
 }
 
 void Model::handleFlags( Imap::ParserPtr ptr, const Imap::Responses::Flags* const resp )
 {
+    if ( _parsers[ ptr.get() ].responseHandler )
+        _parsers[ ptr.get() ].responseHandler->handleFlags( ptr, resp );
 }
 
 void Model::handleSearch( Imap::ParserPtr ptr, const Imap::Responses::Search* const resp )
 {
-    throw UnexpectedResponseReceived( "SEARCH reply, wtf?", *resp );
+    if ( _parsers[ ptr.get() ].responseHandler )
+        _parsers[ ptr.get() ].responseHandler->handleSearch( ptr, resp );
 }
 
 void Model::handleStatus( Imap::ParserPtr ptr, const Imap::Responses::Status* const resp )
 {
-    // FIXME: we should check state here -- this is not really important now
-    // when we don't actually SELECT/EXAMINE any mailbox, but *HAS* to be
-    // changed as soon as we do so
-    _parsers[ ptr.get() ].statusResponses << *resp;
+    if ( _parsers[ ptr.get() ].responseHandler )
+        _parsers[ ptr.get() ].responseHandler->handleStatus( ptr, resp );
 }
 
 void Model::handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* const resp )
 {
-    TreeItemMailbox* mailbox = _parsers[ ptr.get() ].handler;
-    if ( ! mailbox )
-        throw UnexpectedResponseReceived( "Received FETCH reply, but AFAIK we haven't selected any mailbox yet", *resp );
-
-    emit layoutAboutToBeChanged();
-
-    TreeItemPart* changedPart = 0;
-    mailbox->handleFetchResponse( this, *resp, &changedPart );
-    emit layoutChanged();
-    if ( changedPart ) {
-        QModelIndex index = QAbstractItemModel::createIndex( changedPart->row(),
-                                                             0, changedPart );
-        emit dataChanged( index, index );
-    }
+    if ( _parsers[ ptr.get() ].responseHandler )
+        _parsers[ ptr.get() ].responseHandler->handleFetch( ptr, resp );
 }
 
 void Model::handleNamespace( Imap::ParserPtr ptr, const Imap::Responses::Namespace* const resp )
 {
-    throw UnexpectedResponseReceived( "NAMESPACE reply, wtf?", *resp );
+    if ( _parsers[ ptr.get() ].responseHandler )
+        _parsers[ ptr.get() ].responseHandler->handleNamespace( ptr, resp );
 }
 
 
@@ -564,6 +505,7 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
     ParserPtr parser = _getParser( 0, ReadOnly );
     CommandHandle cmd = parser->status( mailbox, QStringList() << "MESSAGES" /*<< "RECENT" << "UIDNEXT" << "UIDVALIDITY" << "UNSEEN"*/ );
     _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::STATUS, item );
+    _parsers[ parser.get() ].responseHandler = syncingHandler;
 }
 
 void Model::_askForMsgMetadata( TreeItemMessage* item )
@@ -628,7 +570,7 @@ ParserPtr Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode ) const
     } else {
         // we can create one more
         ParserPtr parser( new Parser( const_cast<Model*>( this ), _socketFactory ) );
-        _parsers[ parser.get() ] = ParserState( parser, mailbox, mode, CONN_STATE_ESTABLISHED );
+        _parsers[ parser.get() ] = ParserState( parser, mailbox, mode, CONN_STATE_ESTABLISHED, unauthHandler );
         connect( parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
         connect( parser.get(), SIGNAL( disconnected() ), this, SLOT( slotParserDisconnected() ) );
         CommandHandle cmd;
