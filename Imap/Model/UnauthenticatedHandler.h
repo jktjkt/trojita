@@ -20,6 +20,8 @@ public:
     virtual void handleStatus( Imap::ParserPtr ptr, const Imap::Responses::Status* const resp );
     virtual void handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* const resp );
     virtual void handleNamespace( Imap::ParserPtr ptr, const Imap::Responses::Namespace* const resp );
+private:
+    void handleResponseCode( Imap::ParserPtr ptr, const Imap::Responses::State* const resp );
 };
 
 }

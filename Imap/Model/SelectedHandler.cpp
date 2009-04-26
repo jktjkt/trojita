@@ -12,16 +12,12 @@ SelectedHandler::SelectedHandler( Model* _m ): ModelStateHandler(_m)
 
 void SelectedHandler::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* const resp )
 {
-    if ( resp->kind == Imap::Responses::BYE ) {
-        // FIXME
-        m->_parsers[ ptr.get() ].connState = Model::CONN_STATE_LOGOUT;
-        m->_parsers[ ptr.get() ].responseHandler = 0;
-    }
+    m->unauthHandler->handleState( ptr, resp );
 }
 
 void SelectedHandler::handleCapability( Imap::ParserPtr ptr, const Imap::Responses::Capability* const resp )
 {
-    // FIXME
+    m->unauthHandler->handleCapability( ptr, resp );
 }
 
 void SelectedHandler::handleNumberResponse( Imap::ParserPtr ptr, const Imap::Responses::NumberResponse* const resp )
@@ -68,7 +64,8 @@ void SelectedHandler::handleSearch( Imap::ParserPtr ptr, const Imap::Responses::
 
 void SelectedHandler::handleStatus( Imap::ParserPtr ptr, const Imap::Responses::Status* const resp )
 {
-    m->unauthHandler->handleStatus( ptr, resp );
+    // FIXME
+    m->authenticatedHandler->handleStatus( ptr, resp );
 }
 
 void SelectedHandler::handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* const resp )

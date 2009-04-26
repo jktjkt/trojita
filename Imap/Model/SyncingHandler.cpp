@@ -12,16 +12,12 @@ SyncingHandler::SyncingHandler( Model* _m ): ModelStateHandler(_m)
 
 void SyncingHandler::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* const resp )
 {
-    if ( resp->kind == Imap::Responses::BYE ) {
-        // FIXME
-        m->_parsers[ ptr.get() ].connState = Model::CONN_STATE_LOGOUT;
-        m->_parsers[ ptr.get() ].responseHandler = 0;
-    }
+    m->unauthHandler->handleState( ptr, resp );
 }
 
 void SyncingHandler::handleCapability( Imap::ParserPtr ptr, const Imap::Responses::Capability* const resp )
 {
-    // FIXME
+    m->unauthHandler->handleCapability( ptr, resp );
 }
 
 void SyncingHandler::handleNumberResponse( Imap::ParserPtr ptr, const Imap::Responses::NumberResponse* const resp )

@@ -108,32 +108,6 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
 
     const QString& tag = resp->tag;
 
-    // Check for common stuff like ALERT and CAPABILITIES update
-    switch ( resp->respCode ) {
-        case ALERT:
-            {
-                emit alertReceived( tr("The server sent the following ALERT:\n%1").arg( resp->message ) );
-            }
-            break;
-        case CAPABILITIES:
-            {
-                const RespData<QStringList>* const caps = dynamic_cast<const RespData<QStringList>* const>(
-                        resp->respCodeData.get() );
-                if ( caps ) {
-                    _parsers[ ptr.get() ].capabilities = caps->data;
-                    _parsers[ ptr.get() ].capabilitiesFresh = true;
-                }
-            }
-            break;
-        case BADCHARSET:
-        case PARSE:
-            qDebug() << "The server was having troubles with parsing message data:" << resp->message;
-            break;
-        default:
-            // do nothing here, it must be handled later
-            break;
-    }
-
     if ( ! tag.isEmpty() ) {
         QMap<CommandHandle, Task>::iterator command = _parsers[ ptr.get() ].commandMap.find( tag );
         if ( command == _parsers[ ptr.get() ].commandMap.end() ) {
