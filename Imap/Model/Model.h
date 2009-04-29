@@ -209,7 +209,6 @@ private:
 
     friend class UnauthenticatedHandler;
     friend class AuthenticatedHandler;
-    friend class SyncingHandler;
     friend class SelectedHandler;
 
     void _askForChildrenOfMailbox( TreeItemMailbox* item );
@@ -242,7 +241,6 @@ private:
 
     ModelStateHandler* unauthHandler;
     ModelStateHandler* authenticatedHandler;
-    ModelStateHandler* syncingHandler;
     ModelStateHandler* selectedHandler;
 
 protected slots:

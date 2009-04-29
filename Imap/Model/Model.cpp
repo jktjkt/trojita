@@ -20,7 +20,6 @@
 #include "MailboxTree.h"
 #include "UnauthenticatedHandler.h"
 #include "AuthenticatedHandler.h"
-#include "SyncingHandler.h"
 #include "SelectedHandler.h"
 #include <QAuthenticator>
 #include <QDebug>
@@ -69,7 +68,6 @@ Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory ):
 
     unauthHandler = new UnauthenticatedHandler( this );
     authenticatedHandler = new AuthenticatedHandler( this );
-    syncingHandler = new SyncingHandler( this );
     selectedHandler = new SelectedHandler( this );
 
     ParserPtr parser( new Imap::Parser( this, _socketFactory ) );
@@ -479,7 +477,6 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
     ParserPtr parser = _getParser( 0, ReadOnly );
     CommandHandle cmd = parser->status( mailbox, QStringList() << "MESSAGES" /*<< "RECENT" << "UIDNEXT" << "UIDVALIDITY" << "UNSEEN"*/ );
     _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::STATUS, item );
-    _parsers[ parser.get() ].responseHandler = syncingHandler;
 }
 
 void Model::_askForMsgMetadata( TreeItemMessage* item )
