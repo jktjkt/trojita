@@ -14,6 +14,48 @@ AuthenticatedHandler::AuthenticatedHandler( Model* _m ): ModelStateHandler(_m)
 void AuthenticatedHandler::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* const resp )
 {
     static_cast<UnauthenticatedHandler*>( m->unauthHandler )->handleResponseCode( ptr, resp );
+
+    switch ( resp->respCode ) {
+        case Responses::UNSEEN:
+        {
+            const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.get() );
+            if ( num )
+                m->_parsers[ ptr.get() ].syncState.unSeen = num->data;
+            else
+                throw CantHappen( "State response has invalid UNSEEN respCodeData", *resp );
+            break;
+        }
+        case Responses::PERMANENTFLAGS:
+        {
+            const Responses::RespData<QStringList>* const num = dynamic_cast<const Responses::RespData<QStringList>* const>( resp->respCodeData.get() );
+            if ( num )
+                m->_parsers[ ptr.get() ].syncState.permanentFlags = num->data;
+            else
+                throw CantHappen( "State response has invalid PERMANENTFLAGS respCodeData", *resp );
+            break;
+        }
+        case Responses::UIDNEXT:
+        {
+            const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.get() );
+            if ( num )
+                m->_parsers[ ptr.get() ].syncState.uidNext = num->data;
+            else
+                throw CantHappen( "State response has invalid UIDNEXT respCodeData", *resp );
+            break;
+        }
+        case Responses::UIDVALIDITY:
+        {
+            const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.get() );
+            if ( num )
+                m->_parsers[ ptr.get() ].syncState.uidValidity = num->data;
+            else
+                throw CantHappen( "State response has invalid UIDVALIDITY respCodeData", *resp );
+            break;
+        }
+            break;
+        default:
+            break;
+    }
 }
 
 void AuthenticatedHandler::handleCapability( Imap::ParserPtr ptr, const Imap::Responses::Capability* const resp )
@@ -25,7 +67,6 @@ void AuthenticatedHandler::handleNumberResponse( Imap::ParserPtr ptr, const Imap
 {
     switch ( resp->kind ) {
         case Imap::Responses::EXISTS:
-            // FIXME: exception
             m->_parsers[ ptr.get() ].syncState.exists = resp->number;
             break;
         case Imap::Responses::EXPUNGE:
@@ -53,8 +94,7 @@ void AuthenticatedHandler::handleList( Imap::ParserPtr ptr, const Imap::Response
 
 void AuthenticatedHandler::handleFlags( Imap::ParserPtr ptr, const Imap::Responses::Flags* const resp )
 {
-    // FIXME
-    //throw UnexpectedResponseReceived( "FLAGS response in authenticated state", *resp );
+    m->_parsers[ ptr.get() ].syncState.flags = resp->flags;
 }
 
 void AuthenticatedHandler::handleSearch( Imap::ParserPtr ptr, const Imap::Responses::Search* const resp )

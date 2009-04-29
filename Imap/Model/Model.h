@@ -94,7 +94,7 @@ class Model: public QAbstractItemModel {
     struct ParserState {
         struct SyncState {
             uint exists, recent, unSeen, uidNext, uidValidity;
-            QList<QByteArray> flags, permanentFlags;
+            QStringList flags, permanentFlags;
             SyncState(): exists(0), recent(0), unSeen(0), uidNext(0), uidValidity(0) {};
         };
 
