@@ -479,9 +479,13 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
 
     QString mailbox = mailboxPtr->mailbox();
 
-    ParserPtr parser = _getParser( 0, ReadOnly );
-    CommandHandle cmd = parser->status( mailbox, QStringList() << "MESSAGES" /*<< "RECENT" << "UIDNEXT" << "UIDVALIDITY" << "UNSEEN"*/ );
-    _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::STATUS, item );
+    if ( networkPolicy() == NETWORK_OFFLINE ) {
+        item->_fetchStatus = TreeItem::UNAVAILABLE;
+    } else {
+        ParserPtr parser = _getParser( 0, ReadOnly );
+        CommandHandle cmd = parser->status( mailbox, QStringList() << "MESSAGES" /*<< "RECENT" << "UIDNEXT" << "UIDVALIDITY" << "UNSEEN"*/ );
+        _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::STATUS, item );
+    }
 }
 
 void Model::_askForMsgMetadata( TreeItemMessage* item )
@@ -493,9 +497,13 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
 
     int order = item->row();
 
-    ParserPtr parser = _getParser( mailboxPtr, ReadOnly );
-    CommandHandle cmd = parser->fetch( Sequence( order + 1 ), QStringList() << "ENVELOPE" << "BODYSTRUCTURE" << "RFC822.SIZE" );
-    _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, item );
+    if ( networkPolicy() == NETWORK_OFFLINE ) {
+        item->_fetchStatus = TreeItem::UNAVAILABLE;
+    } else {
+        ParserPtr parser = _getParser( mailboxPtr, ReadOnly );
+        CommandHandle cmd = parser->fetch( Sequence( order + 1 ), QStringList() << "ENVELOPE" << "BODYSTRUCTURE" << "RFC822.SIZE" );
+        _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, item );
+    }
 }
 
 void Model::_askForMsgPart( TreeItemPart* item )
@@ -507,11 +515,14 @@ void Model::_askForMsgPart( TreeItemPart* item )
     TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( item->message()->parent()->parent() );
     Q_ASSERT( mailboxPtr );
 
-    ParserPtr parser = _getParser( mailboxPtr, ReadOnly );
-    CommandHandle cmd = parser->fetch( Sequence( item->message()->row() + 1 ),
-            QStringList() << QString::fromAscii("BODY[%1]").arg( item->partId() ) );
-    _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, item );
-    // FIXME: handle results somehow...
+    if ( networkPolicy() == NETWORK_OFFLINE ) {
+        item->_fetchStatus = TreeItem::UNAVAILABLE;
+    } else {
+        ParserPtr parser = _getParser( mailboxPtr, ReadOnly );
+        CommandHandle cmd = parser->fetch( Sequence( item->message()->row() + 1 ),
+                QStringList() << QString::fromAscii("BODY[%1]").arg( item->partId() ) );
+        _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, item );
+    }
 }
 
 ParserPtr Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode ) const

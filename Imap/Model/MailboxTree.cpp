@@ -299,12 +299,12 @@ TreeItemMsgList::TreeItemMsgList( TreeItem* parent ): TreeItem(parent)
 
 void TreeItemMsgList::fetch( Model* const model )
 {
-    if ( fetched() )
+    if ( fetched() || isUnavailable( model ) )
         return;
 
     if ( ! loading() ) {
-        model->_askForMessagesInMailbox( this );
         _fetchStatus = LOADING;
+        model->_askForMessagesInMailbox( this );
     }
 }
 
@@ -324,6 +324,9 @@ QVariant TreeItemMsgList::data( Model* const model, int role )
     if ( loading() )
         return "[loading messages...]";
 
+    if ( isUnavailable( model ) )
+        return "[offline]";
+
     if ( fetched() )
         return hasChildren( model ) ? QString("[%1 messages]").arg( childrenCount( model ) ) : "[no messages]";
     
@@ -339,7 +342,7 @@ bool TreeItemMsgList::hasChildren( Model* const model )
 int TreeItemMsgList::totalMessageCount( Model* const model )
 {
     fetch( model );
-    if ( loading() )
+    if ( loading() || isUnavailable( model ) )
         return -1;
     else
         return rowCount( model );
@@ -359,11 +362,11 @@ TreeItemMessage::TreeItemMessage( TreeItem* parent ): TreeItem(parent), _size(0)
 
 void TreeItemMessage::fetch( Model* const model )
 {
-    if ( fetched() || loading() )
+    if ( fetched() || loading() || isUnavailable( model ) )
         return;
 
-    model->_askForMsgMetadata( this );
     _fetchStatus = LOADING;
+    model->_askForMsgMetadata( this );
 }
 
 unsigned int TreeItemMessage::rowCount( Model* const model )
@@ -383,10 +386,12 @@ QVariant TreeItemMessage::data( Model* const model, int role )
         case Qt::DisplayRole:
             if ( loading() )
                 return "[loading...]";
+            else if ( isUnavailable( model ) )
+                return "[offline]";
             else
                 return _envelope.subject;
         case Qt::ToolTipRole:
-            if ( ! loading() ) {
+            if ( fetched() ) {
                 QString buf;
                 QTextStream stream( &buf );
                 stream << _envelope;
@@ -443,11 +448,11 @@ QList<TreeItem*> TreeItemPart::setChildren( const QList<TreeItem*> items )
 
 void TreeItemPart::fetch(  Model* const model )
 {
-    if ( fetched() || loading() )
+    if ( fetched() || loading() || isUnavailable( model ) )
         return;
 
-    model->_askForMsgPart( this );
     _fetchStatus = LOADING;
+    model->_askForMsgPart( this );
 }
 
 unsigned int TreeItemPart::rowCount( Model* const model )
