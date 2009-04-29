@@ -154,7 +154,13 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
                 _finalizeStatus( ptr, command );
                 break;
             case Task::SELECT:
-                _finalizeSelect( ptr, command );
+                if ( resp->kind == Responses::OK ) {
+                    _finalizeSelect( ptr, command );
+                } else {
+                    if ( _parsers[ ptr.get() ].connState == CONN_STATE_SELECTED )
+                        _parsers[ ptr.get() ].connState = CONN_STATE_AUTH;
+                    // FIXME: error handling
+                }
                 break;
             case Task::FETCH:
                 _finalizeFetch( ptr, command );
