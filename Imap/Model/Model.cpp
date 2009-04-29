@@ -443,7 +443,8 @@ void Model::_askForChildrenOfMailbox( TreeItemMailbox* item )
     else
         mailbox = mailbox + item->separator() + QChar( '%' );
 
-    if ( _cache->childMailboxesFresh( item->mailbox() ) ) {
+    if ( networkPolicy() != NETWORK_ONLINE && _cache->childMailboxesFresh( item->mailbox() ) ) {
+        // If we're online, ignore the permanent cache.
         QList<MailboxMetadata> metadata = _cache->childMailboxes( item->mailbox() );
         QList<TreeItem*> mailboxes;
         for ( QList<MailboxMetadata>::const_iterator it = metadata.begin(); it != metadata.end(); ++it ) {
