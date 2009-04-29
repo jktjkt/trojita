@@ -444,7 +444,7 @@ void Model::_askForChildrenOfMailbox( TreeItemMailbox* item )
         mailbox = mailbox + item->separator() + QChar( '%' );
 
     if ( networkPolicy() != NETWORK_ONLINE && _cache->childMailboxesFresh( item->mailbox() ) ) {
-        // If we're online, ignore the permanent cache.
+        // We aren't online and the permanent cache contains relevant data
         QList<MailboxMetadata> metadata = _cache->childMailboxes( item->mailbox() );
         QList<TreeItem*> mailboxes;
         for ( QList<MailboxMetadata>::const_iterator it = metadata.begin(); it != metadata.end(); ++it ) {
@@ -455,7 +455,11 @@ void Model::_askForChildrenOfMailbox( TreeItemMailbox* item )
         Q_ASSERT( mailboxPtr );
         item->_fetchStatus = TreeItem::DONE;
         replaceChildMailboxes( parser, item, mailboxes );
+    } else if ( networkPolicy() == NETWORK_OFFLINE ) {
+        // No cached data, no network -> fail
+        item->_fetchStatus = TreeItem::UNAVAILABLE;
     } else {
+        // We have to go to the network
         ParserPtr parser = _getParser( 0, ReadOnly );
         CommandHandle cmd = parser->list( "", mailbox );
         _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::LIST, item );

@@ -199,7 +199,7 @@ private:
     Model( const Model& ); // don't implement
 
 
-
+    friend class TreeItem;
     friend class TreeItemMailbox;
     friend class TreeItemMsgList;
     friend class TreeItemMessage;

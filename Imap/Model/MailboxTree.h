@@ -63,6 +63,7 @@ public:
     virtual bool hasChildren( Model* const model ) = 0;
     virtual bool fetched() const { return _fetchStatus == DONE; }
     virtual bool loading() const { return _fetchStatus == LOADING; }
+    virtual bool isUnavailable( Model* const model ) const;
 };
 
 class TreeItemPart;

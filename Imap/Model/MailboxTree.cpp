@@ -63,6 +63,11 @@ QList<TreeItem*> TreeItem::setChildren( const QList<TreeItem*> items )
     return res;
 }
 
+ bool TreeItem::isUnavailable( Model* const model ) const
+ {
+     return _fetchStatus == UNAVAILABLE && model->networkPolicy() == Model::NETWORK_OFFLINE;
+ }
+
 
 
 TreeItemMailbox::TreeItemMailbox( TreeItem* parent ):
@@ -88,7 +93,7 @@ TreeItemMailbox* TreeItemMailbox::fromMetadata( TreeItem* parent, const MailboxM
 
 void TreeItemMailbox::fetch( Model* const model )
 {
-    if ( fetched() )
+    if ( fetched() || isUnavailable( model ) )
         return;
 
     if ( ! loading() ) {
@@ -132,7 +137,7 @@ bool TreeItemMailbox::hasChildren( Model* const model )
 
 bool TreeItemMailbox::hasChildMailboxes( Model* const model )
 {
-    if ( fetched() )
+    if ( fetched() || isUnavailable( model ) )
         return _children.size() > 1;
     else if ( _metadata.flags.contains( "\\NOINFERIORS" ) || _metadata.flags.contains( "\\HASNOCHILDREN" ) )
         return false;
