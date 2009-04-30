@@ -213,13 +213,14 @@ CommandHandle Parser::_searchHelper( const QString& command, const QStringList& 
 CommandHandle Parser::fetch( const Sequence& seq, const QStringList& items )
 {
     return queueCommand( Commands::Command( "FETCH" ) <<
-            seq.toString() <<
+            Commands::PartOfCommand( Commands::ATOM, seq.toString() ) <<
             Commands::PartOfCommand( Commands::ATOM, '(' + items.join(" ") + ')' ) );
 }
 
 CommandHandle Parser::store( const Sequence& seq, const QString& item, const QString& value )
 {
-    return queueCommand( Commands::Command( "STORE" ) << seq.toString() <<
+    return queueCommand( Commands::Command( "STORE" ) <<
+            Commands::PartOfCommand( Commands::ATOM, seq.toString() ) <<
             Commands::PartOfCommand( Commands::ATOM, item ) <<
             Commands::PartOfCommand( Commands::ATOM, value )
             );
@@ -227,13 +228,15 @@ CommandHandle Parser::store( const Sequence& seq, const QString& item, const QSt
 
 CommandHandle Parser::copy( const Sequence& seq, const QString& mailbox )
 {
-    return queueCommand( Commands::Command("COPY") << seq.toString() << mailbox );
+    return queueCommand( Commands::Command("COPY") <<
+            Commands::PartOfCommand( Commands::ATOM, seq.toString() ) <<
+            mailbox );
 }
 
 CommandHandle Parser::uidFetch( const Sequence& seq, const QStringList& items )
 {
     return queueCommand( Commands::Command( "UID FETCH" ) <<
-            seq.toString() <<
+            Commands::PartOfCommand( Commands::ATOM, seq.toString() ) <<
             Commands::PartOfCommand( Commands::ATOM, items.join(" ") ) );
 }
 
