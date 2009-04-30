@@ -612,10 +612,18 @@ void WorkerHelper::slotSubmitCommand()
     _parser->executeIfPossible();
 }
 
+Sequence Sequence::startingAt( const uint lo )
+{
+    Sequence res( lo, 0 );
+    res._upperUnlimited = true;
+    return res;
+}
 
 QString Sequence::toString() const
 {
-    if ( _lo == _hi )
+    if ( _upperUnlimited )
+        return QString::number( _lo ) + ":*";
+    else if ( _lo == _hi )
         return QString::number( _lo );
     else
         return QString::number( _lo ) + ':' + QString::number( _hi );

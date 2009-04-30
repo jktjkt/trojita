@@ -55,9 +55,11 @@ namespace Imap {
     /** @short Class specifying a set of messagess to access */
     class Sequence {
         uint _lo, _hi;
+        bool _upperUnlimited;
     public:
-        Sequence( const uint num ): _lo(num), _hi(num) {};
-        Sequence( const uint lo, const uint hi ): _lo(lo), _hi(hi) {};
+        Sequence( const uint num ): _lo(num), _hi(num), _upperUnlimited(false) {};
+        Sequence( const uint lo, const uint hi ): _lo(lo), _hi(hi), _upperUnlimited(false) {};
+        static Sequence startingAt( const uint lo );
 
         /** @short Converts sequence to string suitable for sending over the wire */
         QString toString() const;
