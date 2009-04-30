@@ -17,6 +17,11 @@ bool SyncState::isComplete() const
             _hasUidNext && _hasUidValidity && _hasUnSeen;
 }
 
+bool SyncState::isUsableForSyncing() const
+{
+    return _hasExists && _hasUidNext && _hasUidValidity;
+}
+
 uint SyncState::exists() const
 {
     return _exists;

@@ -34,6 +34,7 @@ struct MailboxMetadata {
     MailboxMetadata() {};
 };
 
+/** @short Class for keeping track of information from the SELECT command */
 class SyncState {
    uint _exists, _recent, _unSeen, _uidNext, _uidValidity;
    QStringList _flags, _permanentFlags;
@@ -58,7 +59,14 @@ public:
     void setFlags( const QStringList& flags );
     void setPermanentFlags( const QStringList& permanentFlags );
 
+    /** @short Return true if all fields required by RFC3501 are filed */
     bool isComplete() const;
+    /** @short Return true if all items really required for re-sync are available
+
+      These fields are just UIDNEXT, UIDVALIDITY and EIXSTS. We don't care about
+      crap like RECENT.
+    */
+    bool isUsableForSyncing() const;
 };
 
 }
