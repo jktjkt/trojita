@@ -1,4 +1,5 @@
 #include <QVBoxLayout>
+#include <QtWebKit/QWebHistory>
 #include <QtWebKit/QWebView>
 #include <QDebug>
 
@@ -40,6 +41,7 @@ void MessageView::handleMessageRemoved( void* msg )
 void MessageView::setEmpty()
 {
     webView->setUrl( QUrl("about:blank") );
+    webView->page()->history()->clear();
 }
 
 void MessageView::setMessage( const QModelIndex& index )
@@ -78,6 +80,7 @@ void MessageView::setMessage( const QModelIndex& index )
         message = messageCandidate;
         netAccess->setModelMessage( model, message );
         webView->setUrl( QUrl( QString("trojita-imap://msg/0") ) );
+        webView->page()->history()->clear();
         // There is never more than one top-level child item, so we can safely use /0 as the path
     }
 
