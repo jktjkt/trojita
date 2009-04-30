@@ -157,6 +157,7 @@ namespace Responses {
     public:
         CantHappen( const char* const msg, const Imap::Responses::AbstractResponse& response ):
             MailboxException( msg, response ) {};
+        CantHappen( const char* const msg ): MailboxException( msg ) {};
         virtual ~CantHappen() throw () {};
     };
 
