@@ -20,7 +20,7 @@ void AuthenticatedHandler::handleState( Imap::ParserPtr ptr, const Imap::Respons
         {
             const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.get() );
             if ( num )
-                m->_parsers[ ptr.get() ].syncState.unSeen = num->data;
+                m->_parsers[ ptr.get() ].syncState.setUnSeen( num->data );
             else
                 throw CantHappen( "State response has invalid UNSEEN respCodeData", *resp );
             break;
@@ -29,7 +29,7 @@ void AuthenticatedHandler::handleState( Imap::ParserPtr ptr, const Imap::Respons
         {
             const Responses::RespData<QStringList>* const num = dynamic_cast<const Responses::RespData<QStringList>* const>( resp->respCodeData.get() );
             if ( num )
-                m->_parsers[ ptr.get() ].syncState.permanentFlags = num->data;
+                m->_parsers[ ptr.get() ].syncState.setPermanentFlags( num->data );
             else
                 throw CantHappen( "State response has invalid PERMANENTFLAGS respCodeData", *resp );
             break;
@@ -38,7 +38,7 @@ void AuthenticatedHandler::handleState( Imap::ParserPtr ptr, const Imap::Respons
         {
             const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.get() );
             if ( num )
-                m->_parsers[ ptr.get() ].syncState.uidNext = num->data;
+                m->_parsers[ ptr.get() ].syncState.setUidNext( num->data );
             else
                 throw CantHappen( "State response has invalid UIDNEXT respCodeData", *resp );
             break;
@@ -47,7 +47,7 @@ void AuthenticatedHandler::handleState( Imap::ParserPtr ptr, const Imap::Respons
         {
             const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.get() );
             if ( num )
-                m->_parsers[ ptr.get() ].syncState.uidValidity = num->data;
+                m->_parsers[ ptr.get() ].syncState.setUidValidity( num->data );
             else
                 throw CantHappen( "State response has invalid UIDVALIDITY respCodeData", *resp );
             break;
@@ -67,7 +67,7 @@ void AuthenticatedHandler::handleNumberResponse( Imap::ParserPtr ptr, const Imap
 {
     switch ( resp->kind ) {
         case Imap::Responses::EXISTS:
-            m->_parsers[ ptr.get() ].syncState.exists = resp->number;
+            m->_parsers[ ptr.get() ].syncState.setExists( resp->number );
             break;
         case Imap::Responses::EXPUNGE:
             {
@@ -80,7 +80,7 @@ void AuthenticatedHandler::handleNumberResponse( Imap::ParserPtr ptr, const Imap
             break;
         case Imap::Responses::RECENT:
             // FIXME: exception
-            m->_parsers[ ptr.get() ].syncState.recent = resp->number;
+            m->_parsers[ ptr.get() ].syncState.setRecent( resp->number );
             break;
         default:
             throw CantHappen( "Got a NumberResponse of invalid kind. This is supposed to be handled in its constructor!", *resp );
@@ -94,7 +94,7 @@ void AuthenticatedHandler::handleList( Imap::ParserPtr ptr, const Imap::Response
 
 void AuthenticatedHandler::handleFlags( Imap::ParserPtr ptr, const Imap::Responses::Flags* const resp )
 {
-    m->_parsers[ ptr.get() ].syncState.flags = resp->flags;
+    m->_parsers[ ptr.get() ].syncState.setFlags( resp->flags );
 }
 
 void AuthenticatedHandler::handleSearch( Imap::ParserPtr ptr, const Imap::Responses::Search* const resp )

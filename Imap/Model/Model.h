@@ -91,13 +91,35 @@ class Model: public QAbstractItemModel {
         CONN_STATE_LOGOUT /**< We have been logged out */
     };
 
-    struct ParserState {
-        struct SyncState {
-            uint exists, recent, unSeen, uidNext, uidValidity;
-            QStringList flags, permanentFlags;
-            SyncState(): exists(0), recent(0), unSeen(0), uidNext(0), uidValidity(0) {};
-        };
+    class SyncState {
+        uint _exists, _recent, _unSeen, _uidNext, _uidValidity;
+        QStringList _flags, _permanentFlags;
 
+        bool _hasExists, _hasRecent, _hasUnSeen, _hasUidNext, _hasUidValidity,
+            _hasFlags, _hasPermanentFlags;
+    public:
+        SyncState();
+        uint exists() const;
+        uint recent() const;
+        uint unSeen() const;
+        uint uidNext() const;
+        uint uidValidity() const;
+        QStringList flags() const;
+        QStringList permanentFlags() const;
+
+        void setExists( const uint exists );
+        void setRecent( const uint recent );
+        void setUnSeen( const uint unSeen );
+        void setUidNext( const uint uidNext );
+        void setUidValidity( const uint uidValidity );
+        void setFlags( const QStringList& flags );
+        void setPermanentFlags( const QStringList& permanentFlags );
+
+        bool isComplete() const;
+    };
+
+
+    struct ParserState {
         ParserPtr parser;
         TreeItemMailbox* mailbox;
         RWMode mode;

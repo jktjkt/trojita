@@ -50,6 +50,7 @@ set(libImap_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Cache.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/Model.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/SyncState.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/UnauthenticatedHandler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/AuthenticatedHandler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/SelectedHandler.cpp
