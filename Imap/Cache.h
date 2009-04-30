@@ -43,6 +43,10 @@ public:
     /** @short Forget about child mailboxes */
     virtual void forgetChildMailboxes( const QString& mailbox ) = 0;
 
+    /** @short Return previous known state of a mailbox */
+    virtual SyncState mailboxSyncState( const QString& mailbox ) const = 0;
+    /** @short Set current syncing state */
+    virtual void setMailboxSyncState( const QString& mailbox, const SyncState& state ) = 0;
 };
 
 /** @short A cache implementation that actually doesn't cache anything */
@@ -55,8 +59,12 @@ public:
     virtual void setChildMailboxes( const QString& mailbox, const QList<MailboxMetadata>& data );
     virtual void forgetChildMailboxes( const QString& mailbox );
 
+    virtual SyncState mailboxSyncState( const QString& mailbox ) const;
+    virtual void setMailboxSyncState( const QString& mailbox, const SyncState& state );
+
 private:
     QMap<QString, QList<MailboxMetadata> > _cache;
+    QMap<QString, SyncState> _syncState;
 };
 
 /** @short A convenience typedef */

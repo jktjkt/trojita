@@ -312,16 +312,20 @@ void Model::_finalizeStatus( ParserPtr parser, const QMap<CommandHandle, Task>::
 
 void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command )
 {
+    _parsers[ parser.get() ].handler = dynamic_cast<TreeItemMailbox*>( command->what );
+    _parsers[ parser.get() ].responseHandler = selectedHandler;
+
     const SyncState& syncState = _parsers[ parser.get() ].syncState;
-    if ( syncState.isComplete() ) {
+    const QString& mailbox = _parsers[ parser.get() ].handler->mailbox();
+    const SyncState& oldState = _cache->mailboxSyncState( mailbox );
+    if ( syncState.isComplete() && oldState.isComplete() ) {
         // Perform a nice re-sync
         // FIXME
     } else {
         // Forget everything, do a dumb sync
         // FIXME
     }
-    _parsers[ parser.get() ].handler = dynamic_cast<TreeItemMailbox*>( command->what );
-    _parsers[ parser.get() ].responseHandler = selectedHandler;
+    _cache->setMailboxSyncState( mailbox, syncState );
 }
 
 void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command )

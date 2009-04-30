@@ -54,5 +54,15 @@ void NoCache::forgetChildMailboxes( const QString& mailbox )
     }
 }
 
+SyncState NoCache::mailboxSyncState( const QString& mailbox ) const
+{
+    return _syncState[ mailbox ];
+}
+
+void NoCache::setMailboxSyncState( const QString& mailbox, const SyncState& state )
+{
+    _syncState[ mailbox ] = state;
+}
+
 }
 }
