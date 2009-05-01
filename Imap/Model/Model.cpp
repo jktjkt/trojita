@@ -334,8 +334,6 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
             if ( syncState.exists() == oldState.exists() ) {
                 // No deletions, either, so we resync only flag changes
 
-                qDebug() << mailbox->mailbox() << "No new or deleted messages";
-
                 if ( syncState.exists() ) {
                     CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ),
                                                        QStringList( "FLAGS" ) );
@@ -347,8 +345,6 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
                     for ( uint i = 0; i < syncState.exists(); ++i )
                         messages << new TreeItemMessage( list );
                     list->setChildren( messages );
-
-                    qDebug() << "Added" << syncState.exists() << "messages";
 
                 } else {
                     if ( syncState.exists() != static_cast<uint>( list->_children.size() ) ) {
@@ -362,8 +358,6 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
 
             } else {
                 // Some messages got deleted, but there have been no additions
-
-                qDebug() << mailbox->mailbox() << "Some messages got deleted, but certainly none have arrived";
 
                 CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ),
                                                    QStringList() << "UID" << "FLAGS" );
@@ -384,13 +378,10 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
             if ( syncState.uidNext() - oldState.uidNext() == syncState.exists() - oldState.exists() ) {
                 // Only some new arrivals, no deletions
 
-                qDebug() << mailbox->mailbox() << "Only new messages";
-
                 for ( uint i = 0; i < syncState.uidNext() - oldState.uidNext(); ++i ) {
                     list->_children << new TreeItemMessage( list );
                 }
 
-                qDebug() << "Added" << syncState.uidNext() - oldState.uidNext() << "new messages to the end";
                 QStringList items = ( networkPolicy() == NETWORK_ONLINE ) ?
                                     _onlineMessageFetch : QStringList() << "UID" << "FLAGS";
                 CommandHandle cmd = parser->fetch( Sequence::startingAt( oldState.exists() + 1 ),
@@ -400,8 +391,6 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
             } else {
                 // Generic case; we don't know anything about which messages were deleted and which added
                 // FIXME: might be possible to optimize here...
-
-                qDebug() << mailbox->mailbox() << "Generic case";
 
                 // At first, let's ask for UID numbers and FLAGS for all messages
                 CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ),
@@ -417,12 +406,10 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
         }
     } else {
         // Forget everything, do a dumb sync
-        qDebug() << mailbox->mailbox() << "full sync";
         // FIXME: wipe cache
 
         QModelIndex parent = createIndex( 0, 0, list );
         if ( ! list->_children.isEmpty() ) {
-            qDebug() << "Removing" << list->_children.size() << "messages";
             beginRemoveRows( parent, 0, list->_children.size() - 1 );
             qDeleteAll( list->_children );
             list->_children.clear();
@@ -430,7 +417,6 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
             emit messageCountPossiblyChanged( parent.parent() );
         }
         if ( syncState.exists() ) {
-            qDebug() << "Inserting" << syncState.exists() << "messages";
             beginInsertRows( parent, 0, syncState.exists() );
             for ( uint i = 0; i < syncState.exists(); ++i ) {
                 list->_children << new TreeItemMessage( list );
@@ -458,7 +444,6 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
     }
     if ( dynamic_cast<TreeItemMailbox*>( command.value().what ) &&
             _parsers[ parser.get() ].responseHandler == selectingHandler ) {
-        qDebug() << "selecting -> selected";
         _parsers[ parser.get() ].responseHandler = selectedHandler;
 
         QList<uint>& uidMap = _parsers[ parser.get() ].uidMap;
@@ -467,44 +452,35 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
 
         QModelIndex parent = createIndex( 0, 0, list );
         if ( uidMap.isEmpty() ) {
-            qDebug() << "Removing all messages";
             beginRemoveRows( parent, 0, list->_children.size() - 1 );
             qDeleteAll( list->setChildren( QList<TreeItem*>() ) );
             endRemoveRows();
         } else {
             int pos = 0;
-            qDebug() << uidMap.size();
-            qDebug() << uidMap;
             for ( int i = 0; i < uidMap.size(); ++i ) {
-                qDebug() << "i" << i;
                 if ( i >= list->_children.size() ) {
-                    qDebug() << "_finalize: adding row" << i;
                     beginInsertRows( parent, i, i );
                     TreeItemMessage * msg = new TreeItemMessage( list );
                     msg->_uid = uidMap[ i ];
                     list->_children << msg;
                     endInsertRows();
                 } else if ( dynamic_cast<TreeItemMessage*>( list->_children[pos] )->_uid == uidMap[ i ] ) {
-                    qDebug() << "_finalize: row" << i << "ok";
                     continue;
                 } else {
                     int pos = i;
                     bool found = false;
                     while ( pos < list->_children.size() ) {
                         if ( dynamic_cast<TreeItemMessage*>( list->_children[pos] )->_uid != uidMap[ i ] ) {
-                            qDebug() << "_finalize: removing row" << pos;
                             beginRemoveRows( parent, pos, pos );
                             delete list->_children.takeAt( pos );
                             endRemoveRows();
                         } else {
-                            qDebug() << "found match at" << pos;
                             found = true;
                             break;
                         }
                     }
                     if ( ! found ) {
                         Q_ASSERT( pos == list->_children.size() ); // we're at the end of the list
-                        qDebug() << "_finalize: adding row" << i;
                         beginInsertRows( parent, i, i );
                         TreeItemMessage * msg = new TreeItemMessage( list );
                         msg->_uid = uidMap[ i ];
@@ -525,7 +501,6 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
         uidMap.clear();
         _parsers[ parser.get() ].syncingFlags.clear(); // FIXME: commit FLAGS changes to the TreeItemMessages
 
-        qDebug();
         emit messageCountPossiblyChanged( parent.parent() );
     }
 }
