@@ -472,6 +472,7 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
             qDebug() << uidMap.size();
             qDebug() << uidMap;
             for ( int i = 0; i < uidMap.size(); ++i ) {
+                qDebug() << "i" << i;
                 if ( i >= list->_children.size() ) {
                     qDebug() << "_finalize: adding row" << i;
                     beginInsertRows( parent, i, i );
@@ -484,6 +485,7 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
                     continue;
                 } else {
                     int pos = i;
+                    bool found = false;
                     while ( pos < list->_children.size() ) {
                         if ( dynamic_cast<TreeItemMessage*>( list->_children[pos] )->_uid != uidMap[ i ] ) {
                             qDebug() << "_finalize: removing row" << pos;
@@ -491,9 +493,19 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
                             delete list->_children.takeAt( pos );
                             endRemoveRows();
                         } else {
-                            qDebug() << "found match for new row" << i;
+                            qDebug() << "found match at" << pos;
+                            found = true;
                             break;
                         }
+                    }
+                    if ( ! found ) {
+                        Q_ASSERT( pos == list->_children.size() ); // we're at the end of the list
+                        qDebug() << "_finalize: adding row" << i;
+                        beginInsertRows( parent, i, i );
+                        TreeItemMessage * msg = new TreeItemMessage( list );
+                        msg->_uid = uidMap[ i ];
+                        list->_children << msg;
+                        endInsertRows();
                     }
                 }
             }
