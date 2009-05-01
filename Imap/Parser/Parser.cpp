@@ -427,18 +427,18 @@ void Parser::processLine( QByteArray line )
             line += _socket->readLine();
         }
 #ifdef PRINT_TRAFFIC
-    qDebug() << "<<<" << line;
+    qDebug() << "<<<" << line.left( 100 );
 #endif
         queueResponse( parseUntagged( line ) );
     } else if ( line.startsWith( "+ " ) ) {
 #ifdef PRINT_TRAFFIC
-    qDebug() << "<<<" << line;
+    qDebug() << "<<<" << line.left( 100 );
 #endif
         // Command Continuation Request which really shouldn't happen here
         throw ContinuationRequest( line.constData() );
     } else {
 #ifdef PRINT_TRAFFIC
-    qDebug() << "<<<" << line;
+    qDebug() << "<<<" << line.left( 100 );
 #endif
         queueResponse( parseTagged( line ) );
     }
