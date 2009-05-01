@@ -262,7 +262,13 @@ void MsgListModel::handleRowsAboutToBeRemoved( const QModelIndex& parent, int st
 
 void MsgListModel::handleRowsRemoved( const QModelIndex& parent, int start, int end )
 {
-    if ( parent.isValid() && dynamic_cast<TreeItemMsgList*>( static_cast<TreeItem*>( parent.internalPointer() ) ) )
+    if ( ! msgList )
+        return;
+
+    if ( ! parent.isValid() )
+        return;
+
+    if( dynamic_cast<TreeItemMsgList*>( static_cast<TreeItem*>( parent.internalPointer() ) ) == msgList )
         endRemoveRows();
 }
 
