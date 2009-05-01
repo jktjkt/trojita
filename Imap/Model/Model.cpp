@@ -417,12 +417,12 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
                 list->_children << new TreeItemMessage( list );
             }
             endInsertRows();
-        }
 
-        QStringList items = ( networkPolicy() == NETWORK_ONLINE ) ?
-                            _onlineMessageFetch : QStringList() << "UID" << "FLAGS";
-        CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ), items );
-        _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, mailbox );
+            QStringList items = ( networkPolicy() == NETWORK_ONLINE ) ?
+                                _onlineMessageFetch : QStringList() << "UID" << "FLAGS";
+            CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ), items );
+            _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, mailbox );
+        }
     }
     _cache->setMailboxSyncState( mailbox->mailbox(), syncState ); // FIXME: only after everything's been done?
 }
