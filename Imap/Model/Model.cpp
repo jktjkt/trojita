@@ -499,7 +499,19 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
         }
 
         uidMap.clear();
-        _parsers[ parser.get() ].syncingFlags.clear(); // FIXME: commit FLAGS changes to the TreeItemMessages
+
+        for ( QList<TreeItem*>::const_iterator it = list->_children.begin();
+              it != list->_children.end(); ++it ) {
+            TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( *it );
+            Q_ASSERT( message );
+            if ( message->_uid == 0 ) {
+                qDebug() << "Message with unknown UID";
+            } else {
+                // FIXME: emit signals?
+                message->_flags = _parsers[ parser.get() ].syncingFlags[ message->_uid ];
+            }
+        }
+        _parsers[ parser.get() ].syncingFlags.clear();
 
         emit messageCountPossiblyChanged( parent.parent() );
     }
