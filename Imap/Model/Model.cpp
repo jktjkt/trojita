@@ -336,9 +336,11 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
 
                 qDebug() << mailbox->mailbox() << "No new or deleted messages";
 
-                CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ),
-                                                   QStringList( "FLAGS" ) );
-                _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, mailbox );
+                if ( syncState.exists() ) {
+                    CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ),
+                                                       QStringList( "FLAGS" ) );
+                    _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, mailbox );
+                }
 
                 if ( list->_children.isEmpty() ) {
                     QList<TreeItem*> messages;
