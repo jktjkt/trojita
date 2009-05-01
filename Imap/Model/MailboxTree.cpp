@@ -275,7 +275,7 @@ void TreeItemMailbox::handleFetchWhileSyncing( Model* const model, ParserPtr ptr
         uidMap[ number ] = uid;
         flagMap[ uid ] = flags;
     } else {
-        qDebug() << "Warning: Got useless FETCH reply (didn't specify UID)";
+        qWarning() << "Warning: Got useless FETCH reply (didn't specify UID)";
     }
 }
 
