@@ -347,6 +347,8 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
                     for ( uint i = 0; i < syncState.exists(); ++i )
                         messages << new TreeItemMessage( list );
                     list->setChildren( messages );
+
+                    qDebug() << "Added" << syncState.exists() << "messages";
                 } else {
                     if ( syncState.exists() != static_cast<uint>( list->_children.size() ) ) {
                         throw CantHappen( "TreeItemMsgList has wrong number of "
@@ -366,6 +368,11 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
                 _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, mailbox );
                 // selecting handler should do the rest
                 _parsers[ parser.get() ].responseHandler = selectingHandler;
+                QList<uint>& uidMap = _parsers[ parser.get() ].uidMap;
+                uidMap.clear();
+                _parsers[ parser.get() ].syncingFlags.clear();
+                for ( uint i = 0; i < syncState.exists(); ++i )
+                    uidMap << 0;
             }
 
         } else {
@@ -380,6 +387,8 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
                 for ( uint i = 0; i < syncState.uidNext() - oldState.uidNext(); ++i ) {
                     list->_children << new TreeItemMessage( list );
                 }
+
+                qDebug() << "Added" << syncState.uidNext() - oldState.uidNext() << "new messages to the end";
                 QStringList items = ( networkPolicy() == NETWORK_ONLINE ) ?
                                     _onlineMessageFetch : QStringList() << "UID" << "FLAGS";
                 CommandHandle cmd = parser->fetch( Sequence::startingAt( oldState.exists() + 1 ),
@@ -397,6 +406,11 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
                                                    QStringList() << "UID" << "FLAGS" );
                 _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, mailbox );
                 _parsers[ parser.get() ].responseHandler = selectingHandler;
+                QList<uint>& uidMap = _parsers[ parser.get() ].uidMap;
+                uidMap.clear();
+                _parsers[ parser.get() ].syncingFlags.clear();
+                for ( uint i = 0; i < syncState.exists(); ++i )
+                    uidMap << 0;
             }
         }
     } else {
@@ -406,12 +420,14 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
 
         QModelIndex parent = createIndex( 0, 0, list );
         if ( ! list->_children.isEmpty() ) {
+            qDebug() << "Removing" << list->_children.size() << "messages";
             beginRemoveRows( parent, 0, list->_children.size() - 1 );
             qDeleteAll( list->_children );
             list->_children.clear();
             endRemoveRows();
         }
         if ( syncState.exists() ) {
+            qDebug() << "Inserting" << syncState.exists() << "messages";
             beginInsertRows( parent, 0, syncState.exists() );
             for ( uint i = 0; i < syncState.exists(); ++i ) {
                 list->_children << new TreeItemMessage( list );
@@ -440,6 +456,60 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
             _parsers[ parser.get() ].responseHandler == selectingHandler ) {
         qDebug() << "selecting -> selected";
         _parsers[ parser.get() ].responseHandler = selectedHandler;
+
+        QList<uint>& uidMap = _parsers[ parser.get() ].uidMap;
+        TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( command.value().what->_children[0] );
+        Q_ASSERT( list );
+
+        QModelIndex parent = createIndex( 0, 0, list );
+        if ( uidMap.isEmpty() ) {
+            qDebug() << "Removing all messages";
+            beginRemoveRows( parent, 0, list->_children.size() - 1 );
+            qDeleteAll( list->setChildren( QList<TreeItem*>() ) );
+            endRemoveRows();
+        } else {
+            int pos = 0;
+            qDebug() << uidMap.size();
+            qDebug() << uidMap;
+            for ( int i = 0; i < uidMap.size(); ++i ) {
+                if ( i >= list->_children.size() ) {
+                    qDebug() << "_finalize: adding row" << i;
+                    beginInsertRows( parent, i, i );
+                    TreeItemMessage * msg = new TreeItemMessage( list );
+                    msg->_uid = uidMap[ i ];
+                    list->_children << msg;
+                    endInsertRows();
+                } else if ( dynamic_cast<TreeItemMessage*>( list->_children[pos] )->_uid == uidMap[ i ] ) {
+                    qDebug() << "_finalize: row" << i << "ok";
+                    continue;
+                } else {
+                    int pos = i;
+                    while ( pos < list->_children.size() ) {
+                        if ( dynamic_cast<TreeItemMessage*>( list->_children[pos] )->_uid != uidMap[ i ] ) {
+                            qDebug() << "_finalize: removing row" << pos;
+                            beginRemoveRows( parent, pos, pos );
+                            delete list->_children.takeAt( pos );
+                            endRemoveRows();
+                        } else {
+                            qDebug() << "found match for new row" << i;
+                            break;
+                        }
+                    }
+                }
+            }
+            if ( uidMap.size() != list->_children.size() ) {
+                // remove items at the end
+                beginRemoveRows( parent, uidMap.size(), list->_children.size() - 1 );
+                for ( int i = uidMap.size(); i < list->_children.size(); ++i )
+                    delete list->_children.takeAt( i );
+                endRemoveRows();
+            }
+        }
+
+        uidMap.clear();
+        _parsers[ parser.get() ].syncingFlags.clear(); // FIXME: commit FLAGS changes to the TreeItemMessages
+
+        qDebug();
     }
 }
 

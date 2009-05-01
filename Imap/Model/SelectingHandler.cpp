@@ -22,7 +22,8 @@ void SelectingHandler::handleCapability( Imap::ParserPtr ptr, const Imap::Respon
 
 void SelectingHandler::handleNumberResponse( Imap::ParserPtr ptr, const Imap::Responses::NumberResponse* const resp )
 {
-    // FIXME
+    // FIXME ?
+    throw UnexpectedResponseReceived( "Numeric reply while syncing mailbox", *resp );
 }
 
 void SelectingHandler::handleList( Imap::ParserPtr ptr, const Imap::Responses::List* const resp )
@@ -32,12 +33,12 @@ void SelectingHandler::handleList( Imap::ParserPtr ptr, const Imap::Responses::L
 
 void SelectingHandler::handleFlags( Imap::ParserPtr ptr, const Imap::Responses::Flags* const resp )
 {
-    throw UnexpectedResponseReceived( "FLAGS reply, wtf?", *resp );
+    throw UnexpectedResponseReceived( "FLAGS reply while syncing mailbox", *resp );
 }
 
 void SelectingHandler::handleSearch( Imap::ParserPtr ptr, const Imap::Responses::Search* const resp )
 {
-    throw UnexpectedResponseReceived( "SEARCH reply, wtf?", *resp );
+    throw UnexpectedResponseReceived( "SEARCH reply while syncing mailbox", *resp );
 }
 
 void SelectingHandler::handleStatus( Imap::ParserPtr ptr, const Imap::Responses::Status* const resp )
@@ -51,7 +52,7 @@ void SelectingHandler::handleFetch( Imap::ParserPtr ptr, const Imap::Responses::
     if ( ! mailbox )
         throw UnexpectedResponseReceived( "Received FETCH reply, but we don't know what mailbox are we syncing", *resp );
 
-    mailbox->handleFetchWhileSyncing( m, *resp );
+    mailbox->handleFetchWhileSyncing( m, ptr, *resp );
 }
 
 void SelectingHandler::handleNamespace( Imap::ParserPtr ptr, const Imap::Responses::Namespace* resp )

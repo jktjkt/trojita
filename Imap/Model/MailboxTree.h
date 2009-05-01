@@ -97,7 +97,7 @@ public:
     void handleFetchResponse( Model* const model,
                               const Responses::Fetch& response,
                               TreeItemPart** changedPart=0 );
-    void handleFetchWhileSyncing( Model* const model, const Responses::Fetch& response );
+    void handleFetchWhileSyncing( Model* const model, ParserPtr ptr, const Responses::Fetch& response );
     void finalizeFetch( Model* const model, const Responses::Status& response );
     void rescanForChildMailboxes( Model* const model );
 
@@ -125,6 +125,7 @@ public:
 class TreeItemMessage: public TreeItem {
     void operator=( const TreeItem& ); // don't implement
     friend class TreeItemMailbox;
+    friend class Model;
     Message::Envelope _envelope;
     uint _size;
     uint _uid;
@@ -138,8 +139,6 @@ public:
     virtual bool hasChildren( Model* const model ) { return true; };
     Message::Envelope envelope( Model* const model );
     uint size( Model* const model );
-    uint uid( Model* const model );
-    QStringList flags( Model* const model );
 };
 
 class TreeItemPart: public TreeItem {

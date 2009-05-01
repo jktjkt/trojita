@@ -247,15 +247,36 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
     }
 }
 
-void TreeItemMailbox::handleFetchWhileSyncing( Model* const model, const Responses::Fetch& response )
+void TreeItemMailbox::handleFetchWhileSyncing( Model* const model, ParserPtr ptr, const Responses::Fetch& response )
 {
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[0] );
     Q_ASSERT( list );
-    Q_ASSERT( list->loading() );
 
+    QList<uint>& uidMap = model->_parsers[ ptr.get() ].uidMap;
+    QMap<uint,QStringList> flagMap = model->_parsers[ ptr.get() ].syncingFlags;
+
+    int number = response.number - 1;
+    if ( number < 0 || number >= uidMap.size() )
+        throw UnknownMessageIndex( "FECTH response during mailbox sync referrs "
+                                   "to a message that is out-of-bounds", response );
+
+    uint uid = 0;
+    QStringList flags;
     for ( Responses::Fetch::dataType::const_iterator it = response.data.begin(); it != response.data.end(); ++ it ) {
+        if ( it.key() == "UID" ) {
+            uid = dynamic_cast<const Responses::RespData<uint>&>( *(it.value()) ).data;
+        } else if ( it.key() == "FLAGS" ) {
+            flags = dynamic_cast<const Responses::RespData<QStringList>&>( *(it.value()) ).data;
+        } else {
+            qDebug() << "Ignoring FETCH field" << it.key() << "while syncing mailbox";
+        }
     }
-    // FIXME
+    if ( uid ) {
+        uidMap[ number ] = uid;
+        flagMap[ uid ] = flags;
+    } else {
+        qDebug() << "Warning: Got useless FETCH reply (didn't specify UID)";
+    }
 }
 
 void TreeItemMailbox::finalizeFetch( Model* const model, const Responses::Status& response )

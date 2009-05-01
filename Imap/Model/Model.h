@@ -104,6 +104,8 @@ class Model: public QAbstractItemModel {
         QList<Responses::Status> statusResponses;
         SyncState syncState;
         ModelStateHandler* responseHandler;
+        QList<uint> uidMap;
+        QMap<uint, QStringList> syncingFlags;
 
         ParserState( ParserPtr _parser, TreeItemMailbox* _mailbox, const RWMode _mode, 
                 const ConnectionState _connState, ModelStateHandler* _respHandler ):
