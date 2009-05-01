@@ -21,6 +21,7 @@
 #include "UnauthenticatedHandler.h"
 #include "AuthenticatedHandler.h"
 #include "SelectedHandler.h"
+#include "SelectingHandler.h"
 #include <QAuthenticator>
 #include <QDebug>
 #include <QTimer>
@@ -69,6 +70,7 @@ Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory ):
     unauthHandler = new UnauthenticatedHandler( this );
     authenticatedHandler = new AuthenticatedHandler( this );
     selectedHandler = new SelectedHandler( this );
+    selectingHandler = new SelectingHandler( this );
 
     ParserPtr parser( new Imap::Parser( this, _socketFactory ) );
     _parsers[ parser.get() ] = ParserState( parser, 0, ReadOnly, CONN_STATE_ESTABLISHED, unauthHandler );
@@ -80,6 +82,8 @@ Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory ):
     }
     _mailboxes = new TreeItemMailbox( 0 );
     QTimer::singleShot( 0, this, SLOT( setNetworkOnline() ) );
+
+    _onlineMessageFetch << "ENVELOPE" << "BODYSTRUCTURE" << "RFC822.SIZE" << "UID" << "FLAGS";
 }
 
 Model::~Model()
@@ -312,20 +316,110 @@ void Model::_finalizeStatus( ParserPtr parser, const QMap<CommandHandle, Task>::
 
 void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command )
 {
-    _parsers[ parser.get() ].handler = dynamic_cast<TreeItemMailbox*>( command->what );
+    TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( command->what );
+    Q_ASSERT( mailbox );
+    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[ 0 ] );
+    Q_ASSERT( list );
+    _parsers[ parser.get() ].handler = mailbox;
     _parsers[ parser.get() ].responseHandler = selectedHandler;
 
     const SyncState& syncState = _parsers[ parser.get() ].syncState;
-    const QString& mailbox = _parsers[ parser.get() ].handler->mailbox();
-    const SyncState& oldState = _cache->mailboxSyncState( mailbox );
-    if ( syncState.isComplete() && oldState.isComplete() ) {
+    const SyncState& oldState = _cache->mailboxSyncState( mailbox->mailbox() );
+    if ( syncState.isUsableForSyncing() && oldState.isUsableForSyncing() && syncState.uidValidity() == oldState.uidValidity() ) {
         // Perform a nice re-sync
-        // FIXME
+        qDebug() << mailbox->mailbox() << "re-sync";
+
+        if ( syncState.uidNext() == oldState.uidNext() ) {
+            // No new messages
+
+            if ( syncState.exists() == oldState.exists() ) {
+                // No deletions, either, so we resync only flag changes
+
+                qDebug() << "No new or deleted messages";
+
+                CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ),
+                                                   QStringList( "FLAGS" ) );
+                _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, mailbox );
+
+                if ( list->_children.isEmpty() ) {
+                    QList<TreeItem*> messages;
+                    for ( uint i = 0; i < syncState.exists(); ++i )
+                        messages << new TreeItemMessage( list );
+                    list->setChildren( messages );
+                } else {
+                    if ( syncState.exists() != static_cast<uint>( list->_children.size() ) ) {
+                        throw CantHappen( "TreeItemMsgList has wrong number of "
+                                          "children, even though no change of "
+                                          "message count occured" );
+                    }
+                }
+                list->_fetchStatus = TreeItem::DONE;
+
+            } else {
+                // Some messages got deleted, but there have been no additions
+
+                qDebug() << "Some messages got deleted, but certainly none have arrived";
+
+                CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ),
+                                                   QStringList() << "UID" << "FLAGS" );
+                _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, mailbox );
+                // selecting handler should do the rest
+                _parsers[ parser.get() ].responseHandler = selectingHandler;
+            }
+
+        } else {
+            // Some new messages were delivered since we checked the last time.
+            // There's no guarantee they are still present, though.
+
+            if ( syncState.uidNext() - oldState.uidNext() == syncState.exists() - oldState.exists() ) {
+                // Only some new arrivals, no deletions
+
+                for ( uint i = 0; i < syncState.uidNext() - oldState.uidNext(); ++i ) {
+                    list->_children << new TreeItemMessage( list );
+                }
+                QStringList items = ( networkPolicy() == NETWORK_ONLINE ) ?
+                                    _onlineMessageFetch : QStringList() << "UID" << "FLAGS";
+                CommandHandle cmd = parser->fetch( Sequence::startingAt( oldState.exists() + 1 ),
+                                                   items );
+                _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, mailbox );
+
+            } else {
+                // Generic case; we don't know anything about which messages were deleted and which added
+                // FIXME: might be possible to optimize here...
+
+                // At first, let's ask for UID numbers and FLAGS for all messages
+                CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ),
+                                                   QStringList() << "UID" << "FLAGS" );
+                _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, mailbox );
+                _parsers[ parser.get() ].responseHandler = selectingHandler;
+            }
+        }
     } else {
         // Forget everything, do a dumb sync
-        // FIXME
+        qDebug() << mailbox->mailbox() << "full sync";
+        // FIXME: wipe cache
+
+        QModelIndex parent = createIndex( 0, 0, list );
+        if ( ! list->_children.isEmpty() ) {
+            beginRemoveRows( parent, 0, list->_children.size() - 1 );
+            qDeleteAll( list->_children );
+            list->_children.clear();
+            endRemoveRows();
+        }
+        if ( syncState.exists() ) {
+            beginInsertRows( parent, 0, syncState.exists() );
+            for ( uint i = 0; i < syncState.exists(); ++i ) {
+                list->_children << new TreeItemMessage( list );
+            }
+            endInsertRows();
+        }
+
+        QStringList items = ( networkPolicy() == NETWORK_ONLINE ) ?
+                            _onlineMessageFetch : QStringList() << "UID" << "FLAGS";
+        CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ), items );
+        _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, mailbox );
     }
-    _cache->setMailboxSyncState( mailbox, syncState );
+    _cache->setMailboxSyncState( mailbox->mailbox(), syncState ); // FIXME: only after everything's been done?
 }
 
 void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command )
@@ -336,6 +430,10 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
             part->message()->row() << "part" << part->partId() << "in mailbox" <<
             _parsers[ parser.get() ].mailbox->mailbox();
         part->_fetchStatus = TreeItem::DONE;
+    }
+    if ( dynamic_cast<TreeItemMailbox*>( command.value().what ) &&
+            _parsers[ parser.get() ].responseHandler == selectingHandler ) {
+        _parsers[ parser.get() ].responseHandler = selectedHandler;
     }
 }
 
@@ -500,9 +598,14 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
     if ( networkPolicy() == NETWORK_OFFLINE ) {
         item->_fetchStatus = TreeItem::UNAVAILABLE;
     } else {
+#if 0
         ParserPtr parser = _getParser( 0, ReadOnly );
         CommandHandle cmd = parser->status( mailbox, QStringList() << "MESSAGES" /*<< "RECENT" << "UIDNEXT" << "UIDVALIDITY" << "UNSEEN"*/ );
         _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::STATUS, item );
+#endif
+        ParserPtr parser = _getParser( mailboxPtr, ReadOnly );
+        CommandHandle cmd = parser->examine( mailbox );
+        _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::SELECT, mailboxPtr );
     }
 }
 
@@ -519,7 +622,7 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
         item->_fetchStatus = TreeItem::UNAVAILABLE;
     } else {
         ParserPtr parser = _getParser( mailboxPtr, ReadOnly );
-        CommandHandle cmd = parser->fetch( Sequence( order + 1 ), QStringList() << "ENVELOPE" << "BODYSTRUCTURE" << "RFC822.SIZE" );
+        CommandHandle cmd = parser->fetch( Sequence( order + 1 ), _onlineMessageFetch );
         _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, item );
     }
 }

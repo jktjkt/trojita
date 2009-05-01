@@ -204,6 +204,7 @@ private:
     friend class UnauthenticatedHandler;
     friend class AuthenticatedHandler;
     friend class SelectedHandler;
+    friend class SelectingHandler;
 
     void _askForChildrenOfMailbox( TreeItemMailbox* item );
     void _askForMessagesInMailbox( TreeItemMsgList* item );
@@ -236,6 +237,9 @@ private:
     ModelStateHandler* unauthHandler;
     ModelStateHandler* authenticatedHandler;
     ModelStateHandler* selectedHandler;
+    ModelStateHandler* selectingHandler;
+
+    QStringList _onlineMessageFetch;
 
 protected slots:
     void responseReceived();

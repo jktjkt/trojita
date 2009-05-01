@@ -237,10 +237,25 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
             if ( changedPart ) {
                 *changedPart = part;
             }
+        } else if ( it.key() == "UID" ) {
+            message->_uid = dynamic_cast<const Responses::RespData<uint>&>( *(it.value()) ).data;
+        } else if ( it.key() == "FLAGS" ) {
+            message->_flags = dynamic_cast<const Responses::RespData<QStringList>&>( *(it.value()) ).data;
         } else {
             qDebug() << "TreeItemMailbox::handleFetchResponse: unknown FETCH identifier" << it.key();
         }
     }
+}
+
+void TreeItemMailbox::handleFetchWhileSyncing( Model* const model, const Responses::Fetch& response )
+{
+    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[0] );
+    Q_ASSERT( list );
+    Q_ASSERT( list->loading() );
+
+    for ( Responses::Fetch::dataType::const_iterator it = response.data.begin(); it != response.data.end(); ++ it ) {
+    }
+    // FIXME
 }
 
 void TreeItemMailbox::finalizeFetch( Model* const model, const Responses::Status& response )
@@ -357,7 +372,7 @@ int TreeItemMsgList::unreadMessageCount( Model* const model )
 
 
 
-TreeItemMessage::TreeItemMessage( TreeItem* parent ): TreeItem(parent), _size(0)
+TreeItemMessage::TreeItemMessage( TreeItem* parent ): TreeItem(parent), _size(0), _uid(0)
 {}
 
 void TreeItemMessage::fetch( Model* const model )

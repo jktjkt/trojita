@@ -54,6 +54,7 @@ set(libImap_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/UnauthenticatedHandler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/AuthenticatedHandler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/SelectedHandler.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/SelectingHandler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/MailboxModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/MsgListModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/MailboxTree.cpp
