@@ -38,6 +38,8 @@ MailboxModel::MailboxModel( QObject* parent, Model* model ): QAbstractProxyModel
              this, SLOT( handleRowsAboutToBeRemoved( const QModelIndex&, int, int ) ) );
     connect( model, SIGNAL( rowsRemoved( const QModelIndex&, int, int ) ),
              this, SLOT( handleRowsRemoved( const QModelIndex&, int, int ) ) );
+    connect( model, SIGNAL( messageCountPossiblyChanged( const QModelIndex& ) ),
+             this, SLOT( handleMessageCountPossiblyChanged( const QModelIndex& ) ) );
     // FIXME: rowsAboutToBeInserted, just for the sake of completeness :)
 }
 
@@ -196,6 +198,16 @@ QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
             QModelIndex translated = createIndex( proxyIndex.row(), 0, proxyIndex.internalPointer() );
             return QAbstractProxyModel::data( translated, role );
             }
+    }
+}
+
+void MailboxModel::handleMessageCountPossiblyChanged( const QModelIndex& mailbox )
+{
+    QModelIndex translated = mapFromSource( mailbox );
+    if ( translated.isValid() ) {
+        QModelIndex topLeft = createIndex( translated.row(), TOTAL_MESSAGE_COUNT, translated.internalPointer() );
+        QModelIndex bottomRight = createIndex( translated.row(), UNREAD_MESSAGE_COUNT, translated.internalPointer() );
+        emit dataChanged( topLeft, bottomRight );
     }
 }
 

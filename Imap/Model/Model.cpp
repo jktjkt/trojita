@@ -349,6 +349,7 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
                     list->setChildren( messages );
 
                     qDebug() << "Added" << syncState.exists() << "messages";
+
                 } else {
                     if ( syncState.exists() != static_cast<uint>( list->_children.size() ) ) {
                         throw CantHappen( "TreeItemMsgList has wrong number of "
@@ -357,6 +358,7 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
                     }
                 }
                 list->_fetchStatus = TreeItem::DONE;
+                emit messageCountPossiblyChanged( createIndex( 0, 0, mailbox ) );
 
             } else {
                 // Some messages got deleted, but there have been no additions
@@ -425,6 +427,7 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
             qDeleteAll( list->_children );
             list->_children.clear();
             endRemoveRows();
+            emit messageCountPossiblyChanged( parent.parent() );
         }
         if ( syncState.exists() ) {
             qDebug() << "Inserting" << syncState.exists() << "messages";
@@ -438,6 +441,7 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
                                 _onlineMessageFetch : QStringList() << "UID" << "FLAGS";
             CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ), items );
             _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, mailbox );
+            emit messageCountPossiblyChanged( parent.parent() );
         }
     }
     _cache->setMailboxSyncState( mailbox->mailbox(), syncState ); // FIXME: only after everything's been done?
@@ -522,6 +526,7 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
         _parsers[ parser.get() ].syncingFlags.clear(); // FIXME: commit FLAGS changes to the TreeItemMessages
 
         qDebug();
+        emit messageCountPossiblyChanged( parent.parent() );
     }
 }
 

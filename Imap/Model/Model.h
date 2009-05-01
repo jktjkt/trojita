@@ -192,6 +192,8 @@ signals:
     void connectionError( const QString& message );
     void authRequested( QAuthenticator* auth );
 
+    void messageCountPossiblyChanged( const QModelIndex& mailbox );
+
 private:
     Model& operator=( const Model& ); // don't implement
     Model( const Model& ); // don't implement
