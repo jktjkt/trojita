@@ -49,6 +49,7 @@ public:
 private slots:
     void showContextMenuMboxTree( const QPoint& position );
     void slotReloadMboxList();
+    void slotResyncMboxList();
     void slotResizeMsgListColumns();
     void alertReceived( const QString& message );
     void networkPolicyOffline();
@@ -79,6 +80,7 @@ private:
 
     QAction* reloadMboxList;
     QAction* reloadAllMailboxes;
+    QAction* resyncMboxList;
     QAction* netOffline;
     QAction* netExpensive;
     QAction* netOnline;

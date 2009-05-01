@@ -327,7 +327,6 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
     const SyncState& oldState = _cache->mailboxSyncState( mailbox->mailbox() );
     if ( syncState.isUsableForSyncing() && oldState.isUsableForSyncing() && syncState.uidValidity() == oldState.uidValidity() ) {
         // Perform a nice re-sync
-        qDebug() << mailbox->mailbox() << "re-sync";
 
         if ( syncState.uidNext() == oldState.uidNext() ) {
             // No new messages
@@ -335,7 +334,7 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
             if ( syncState.exists() == oldState.exists() ) {
                 // No deletions, either, so we resync only flag changes
 
-                qDebug() << "No new or deleted messages";
+                qDebug() << mailbox->mailbox() << "No new or deleted messages";
 
                 CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ),
                                                    QStringList( "FLAGS" ) );
@@ -358,7 +357,7 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
             } else {
                 // Some messages got deleted, but there have been no additions
 
-                qDebug() << "Some messages got deleted, but certainly none have arrived";
+                qDebug() << mailbox->mailbox() << "Some messages got deleted, but certainly none have arrived";
 
                 CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ),
                                                    QStringList() << "UID" << "FLAGS" );
@@ -374,6 +373,8 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
             if ( syncState.uidNext() - oldState.uidNext() == syncState.exists() - oldState.exists() ) {
                 // Only some new arrivals, no deletions
 
+                qDebug() << mailbox->mailbox() << "Only new messages";
+
                 for ( uint i = 0; i < syncState.uidNext() - oldState.uidNext(); ++i ) {
                     list->_children << new TreeItemMessage( list );
                 }
@@ -386,6 +387,8 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
             } else {
                 // Generic case; we don't know anything about which messages were deleted and which added
                 // FIXME: might be possible to optimize here...
+
+                qDebug() << mailbox->mailbox() << "Generic case";
 
                 // At first, let's ask for UID numbers and FLAGS for all messages
                 CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ),
@@ -433,6 +436,7 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
     }
     if ( dynamic_cast<TreeItemMailbox*>( command.value().what ) &&
             _parsers[ parser.get() ].responseHandler == selectingHandler ) {
+        qDebug() << "selecting -> selected";
         _parsers[ parser.get() ].responseHandler = selectedHandler;
     }
 }
@@ -646,7 +650,12 @@ void Model::_askForMsgPart( TreeItemPart* item )
     }
 }
 
-ParserPtr Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode ) const
+void Model::resyncMailbox( TreeItemMailbox* mbox )
+{
+    _getParser( mbox, ReadOnly, true );
+}
+
+ParserPtr Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bool reSync ) const
 {
     if ( ! mailbox ) {
         return _parsers.begin().value().parser;
@@ -654,6 +663,12 @@ ParserPtr Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode ) const
         for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
             if ( it->mailbox == mailbox ) {
                 if ( mode == ReadOnly || it->mode == mode ) {
+                    if ( reSync ) {
+                        CommandHandle cmd = ( it->mode == ReadWrite ) ?
+                                            it->parser->select( mailbox->mailbox() ) :
+                                            it->parser->examine( mailbox->mailbox() );
+                        _parsers[ it->parser.get() ].commandMap[ cmd ] = Task( Task::SELECT, mailbox );
+                    }
                     return it->parser;
                 } else {
                     it->mode = ReadWrite;

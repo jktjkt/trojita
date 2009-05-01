@@ -169,6 +169,8 @@ public:
 
     CachePtr cache() const { return _cache; };
 
+    void resyncMailbox( TreeItemMailbox* mbox );
+
 
 public slots:
     void reloadMailboxList();
@@ -227,7 +229,7 @@ private:
      *
      * If allowed by policy, new parser might be created in the background.
      * */
-    ParserPtr _getParser( TreeItemMailbox* mailbox, const RWMode rw ) const;
+    ParserPtr _getParser( TreeItemMailbox* mailbox, const RWMode rw, const bool reSync=false ) const;
 
     NetworkPolicy networkPolicy() const { return _netPolicy; };
     void setNetworkPolicy( const NetworkPolicy policy );

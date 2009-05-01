@@ -53,6 +53,9 @@ void MainWindow::createActions()
     reloadMboxList = new QAction( tr("Rescan Child Mailboxes"), this );
     connect( reloadMboxList, SIGNAL( triggered() ), this, SLOT( slotReloadMboxList() ) );
 
+    resyncMboxList = new QAction( tr("Re-synchronize Mailbox with Server"), this );
+    connect( resyncMboxList, SIGNAL(triggered()), this, SLOT(slotResyncMboxList()) );
+
     reloadAllMailboxes = new QAction( tr("Reload All Mailboxes"), this );
     connect( reloadAllMailboxes, SIGNAL( triggered() ), model, SLOT( reloadMailboxList() ) );
 
@@ -203,6 +206,7 @@ void MainWindow::showContextMenuMboxTree( const QPoint& position )
 {
     QList<QAction*> actionList;
     if ( mboxTree->indexAt( position ).isValid() ) {
+        actionList.append( resyncMboxList );
         actionList.append( reloadMboxList );
     }
     actionList.append( reloadAllMailboxes );
@@ -224,6 +228,24 @@ void MainWindow::slotReloadMboxList()
                 );
         Q_ASSERT( mbox );
         mbox->rescanForChildMailboxes( model );
+    }
+}
+
+void MainWindow::slotResyncMboxList()
+{
+    QModelIndexList indices = mboxTree->selectionModel()->selectedIndexes();
+    for ( QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it ) {
+        Q_ASSERT( it->isValid() );
+        Q_ASSERT( it->model() == mboxModel );
+        if ( it->column() != 0 )
+            continue;
+        Imap::Mailbox::TreeItemMailbox* mbox = dynamic_cast<Imap::Mailbox::TreeItemMailbox*>(
+                static_cast<Imap::Mailbox::TreeItem*>(
+                    mboxModel->mapToSource( *it ).internalPointer()
+                    )
+                );
+        Q_ASSERT( mbox );
+        model->resyncMailbox( mbox );
     }
 }
 
