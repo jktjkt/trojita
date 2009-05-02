@@ -75,6 +75,7 @@ Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory ):
     _parsers[ parser.get() ] = ParserState( parser, 0, ReadOnly, CONN_STATE_ESTABLISHED, unauthHandler );
     connect( parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
     connect( parser.get(), SIGNAL( disconnected( const QString ) ), this, SLOT( slotParserDisconnected( const QString ) ) );
+    connect( parser.get(), SIGNAL( idleTerminated() ), this, SLOT( idleTerminated() ) );
     if ( _startTls ) {
         CommandHandle cmd = parser->startTls();
         _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::STARTTLS, 0 );
@@ -746,6 +747,7 @@ ParserPtr Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const 
         _parsers[ parser.get() ] = ParserState( parser, mailbox, mode, CONN_STATE_ESTABLISHED, unauthHandler );
         connect( parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
         connect( parser.get(), SIGNAL( disconnected() ), this, SLOT( slotParserDisconnected() ) );
+        connect( parser.get(), SIGNAL( idleTerminated() ), this, SLOT( idleTerminated() ) );
         CommandHandle cmd;
         if ( _startTls ) {
             cmd = parser->startTls();
@@ -793,6 +795,18 @@ void Model::slotParserDisconnected( const QString msg )
     emit connectionError( msg );
 }
 
+void Model::idleTerminated()
+{
+    QMap<Parser*,ParserState>::iterator it = _parsers.find( qobject_cast<Imap::Parser*>( sender() ));
+    if ( it == _parsers.end() )
+        return;
+    else {
+        // FIXME: right now, we enter IDLE immediately. It would be better to wait a bit...
+        enterIdle( it->parser );
+    }
+}
+
+
 void Model::completelyReset()
 {
     // FIXME: some replies might be already flying on their way to the parser, so we might receive duplicate data...
@@ -813,8 +827,19 @@ void Model::switchToMailbox( const QModelIndex& mbox )
 
     if ( TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>(
                  static_cast<TreeItem*>( mbox.internalPointer() ) ) ) {
-        _getParser( mailbox, ReadOnly );
+        ParserPtr ptr = _getParser( mailbox, ReadOnly );
+        if ( _parsers[ ptr.get() ].capabilitiesFresh &&
+             _parsers[ ptr.get() ].capabilities.contains( QLatin1String( "IDLE" ) ) ) {
+            enterIdle( ptr );
+        }
     }
+}
+
+void Model::enterIdle( ParserPtr parser )
+{
+    noopTimer->stop();
+    CommandHandle cmd = parser->idle();
+    _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::NOOP, 0 );
 }
 
 }

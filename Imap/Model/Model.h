@@ -192,6 +192,7 @@ public slots:
 private slots:
     void slotParserDisconnected( const QString );
     void performNoop();
+    void idleTerminated();
 
 signals:
     void alertReceived( const QString& message );
@@ -232,6 +233,7 @@ private:
     void _finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command );
 
     void replaceChildMailboxes( ParserPtr parser, TreeItemMailbox* mailboxPtr, const QList<TreeItem*> mailboxes );
+    void enterIdle( ParserPtr parser );
 
     TreeItem* translatePtr( const QModelIndex& index ) const;
 

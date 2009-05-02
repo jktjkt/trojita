@@ -256,6 +256,8 @@ namespace Imap {
 
         void commandQueued();
 
+        void idleTerminated();
+
     private:
         /** @short Private copy constructor */
         Parser( const Parser& );

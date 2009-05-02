@@ -328,6 +328,7 @@ bool Parser::executeACommand( const Commands::Command& cmd )
         _socket->write( "DONE\r\n" );
         _socket->waitForBytesWritten( -1 );
         _idling = false;
+        emit idleTerminated();
     }
 
     QByteArray buf;
