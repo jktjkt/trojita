@@ -277,11 +277,12 @@ void TreeItemMailbox::handleExpunge( Model* const model, const Responses::Number
     }
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[ 0 ] );
     Q_ASSERT( list );
-    if ( resp.number >= static_cast<uint>( list->_children.size() ) ) {
+    if ( resp.number > static_cast<uint>( list->_children.size() ) || resp.number == 0 ) {
         throw UnknownMessageIndex( "EXPUNGE references message number which is out-of-bounds" );
     }
-    model->beginRemoveRows( model->createIndex( 0, 0, list ), resp.number, resp.number );
-    delete list->_children.takeAt( resp.number );
+    uint offset = resp.number - 1;
+    model->beginRemoveRows( model->createIndex( 0, 0, list ), offset, offset );
+    delete list->_children.takeAt( offset );
     model->endRemoveRows();
 }
 
