@@ -789,6 +789,7 @@ void Model::slotParserDisconnected( const QString msg )
             it != _parsers[ which ].commandMap.end(); ++it ) {
         // FIXME: fail the command, perform cleanup,...
     }
+    noopTimer->stop();
     emit connectionError( msg );
 }
 
