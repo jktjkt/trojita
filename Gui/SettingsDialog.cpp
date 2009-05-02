@@ -107,7 +107,7 @@ void ImapPage::updateWidgets()
             imapPort->setText( QString::number( 143 ) );
             lay->labelForField( imapPort )->setEnabled( true );
             startTls->setEnabled( true );
-            startTls->setChecked( true );
+            startTls->setChecked( QSettings().value( SettingsNames::imapStartTlsKey, true ).toBool() );
             lay->labelForField( startTls )->setEnabled( true );
             imapUser->setEnabled( true );
             lay->labelForField( imapUser )->setEnabled( true );
