@@ -53,6 +53,7 @@ void MsgListModel::handleDataChanged( const QModelIndex& topLeft, const QModelIn
     if ( topLeft.parent() != bottomRight.parent() || topLeft.column() != bottomRight.column() ) {
         emit layoutAboutToBeChanged();
         emit layoutChanged();
+        return;
     }
 
     QModelIndex first = mapFromSource( topLeft );
