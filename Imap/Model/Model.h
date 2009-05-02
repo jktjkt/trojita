@@ -96,7 +96,8 @@ class Model: public QAbstractItemModel {
         TreeItemMailbox* mailbox;
         RWMode mode;
         ConnectionState connState;
-        TreeItemMailbox* handler;
+        TreeItemMailbox* currentMbox;
+        uint selectingAnother;
         QMap<CommandHandle, Task> commandMap;
         QStringList capabilities;
         bool capabilitiesFresh;
@@ -110,10 +111,11 @@ class Model: public QAbstractItemModel {
         ParserState( ParserPtr _parser, TreeItemMailbox* _mailbox, const RWMode _mode, 
                 const ConnectionState _connState, ModelStateHandler* _respHandler ):
             parser(_parser), mailbox(_mailbox), mode(_mode),
-            connState(_connState), handler(0), capabilitiesFresh(false),
-            responseHandler(_respHandler) {};
+            connState(_connState), currentMbox(0), selectingAnother(0),
+            capabilitiesFresh(false), responseHandler(_respHandler) {};
         ParserState(): mailbox(0), mode(ReadOnly), connState(CONN_STATE_LOGOUT),
-            handler(0), capabilitiesFresh(false), responseHandler(0) {};
+            currentMbox(0), selectingAnother(0), capabilitiesFresh(false),
+            responseHandler(0) {};
     };
 
     /** @short Policy for accessing network */

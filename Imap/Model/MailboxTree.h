@@ -100,6 +100,8 @@ public:
     void handleFetchWhileSyncing( Model* const model, ParserPtr ptr, const Responses::Fetch& response );
     void finalizeFetch( Model* const model, const Responses::Status& response );
     void rescanForChildMailboxes( Model* const model );
+    void handleExpunge( Model* const model, const Responses::NumberResponse& resp );
+    void handleExistsSynced( Model* const model, ParserPtr ptr, const Responses::NumberResponse& resp );
 
     int totalMessageCount( Model* const model );
     int unreadMessageCount( Model* const model );

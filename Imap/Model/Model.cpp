@@ -158,6 +158,7 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
                 _finalizeStatus( ptr, command );
                 break;
             case Task::SELECT:
+                --_parsers[ ptr.get() ].selectingAnother;
                 if ( resp->kind == Responses::OK ) {
                     _finalizeSelect( ptr, command );
                 } else {
@@ -282,8 +283,9 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
     Q_ASSERT( mailbox );
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[ 0 ] );
     Q_ASSERT( list );
-    _parsers[ parser.get() ].handler = mailbox;
+    _parsers[ parser.get() ].currentMbox = mailbox;
     _parsers[ parser.get() ].responseHandler = selectedHandler;
+    list->_fetchStatus = TreeItem::DONE;
 
     const SyncState& syncState = _parsers[ parser.get() ].syncState;
     const SyncState& oldState = _cache->mailboxSyncState( mailbox->mailbox() );
@@ -315,7 +317,6 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
                                           "message count occured" );
                     }
                 }
-                list->_fetchStatus = TreeItem::DONE;
                 emit messageCountPossiblyChanged( createIndex( 0, 0, mailbox ) );
 
             } else {
@@ -640,14 +641,8 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
     if ( networkPolicy() == NETWORK_OFFLINE ) {
         item->_fetchStatus = TreeItem::UNAVAILABLE;
     } else {
-#if 0
-        ParserPtr parser = _getParser( 0, ReadOnly );
-        CommandHandle cmd = parser->status( mailbox, QStringList() << "MESSAGES" /*<< "RECENT" << "UIDNEXT" << "UIDVALIDITY" << "UNSEEN"*/ );
-        _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::STATUS, item );
-#endif
-        ParserPtr parser = _getParser( mailboxPtr, ReadOnly );
-        CommandHandle cmd = parser->examine( mailbox );
-        _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::SELECT, mailboxPtr );
+        _getParser( mailboxPtr, ReadOnly );
+        // and that's all -- we will detect following replies and sync automatically
     }
 }
 
@@ -706,12 +701,14 @@ ParserPtr Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const 
                                             it->parser->select( mailbox->mailbox() ) :
                                             it->parser->examine( mailbox->mailbox() );
                         _parsers[ it->parser.get() ].commandMap[ cmd ] = Task( Task::SELECT, mailbox );
+                        ++_parsers[ it->parser.get() ].selectingAnother;
                     }
                     return it->parser;
                 } else {
                     it->mode = ReadWrite;
                     CommandHandle cmd = it->parser->select( mailbox->mailbox() );
                     _parsers[ it->parser.get() ].commandMap[ cmd ] = Task( Task::SELECT, mailbox );
+                    ++_parsers[ it->parser.get() ].selectingAnother;
                     return it->parser;
                 }
             }
@@ -727,6 +724,7 @@ ParserPtr Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const 
         else
             cmd = parser.parser->examine( mailbox->mailbox() );
         _parsers[ parser.parser.get() ].commandMap[ cmd ] = Task( Task::SELECT, mailbox );
+        ++_parsers[ parser.parser.get() ].selectingAnother;
         return parser.parser;
     } else {
         // we can create one more
@@ -744,6 +742,7 @@ ParserPtr Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const 
         else
             cmd = parser->examine( mailbox->mailbox() );
         _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::SELECT, mailbox );
+        ++_parsers[ parser.get() ].selectingAnother;
         return parser;
     }
 }

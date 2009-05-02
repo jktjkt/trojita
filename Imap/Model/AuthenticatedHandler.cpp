@@ -70,16 +70,9 @@ void AuthenticatedHandler::handleNumberResponse( Imap::ParserPtr ptr, const Imap
             m->_parsers[ ptr.get() ].syncState.setExists( resp->number );
             break;
         case Imap::Responses::EXPUNGE:
-            {
-                Model::ParserState& parser = m->_parsers[ ptr.get() ];
-                Q_ASSERT( parser.handler );
-                Q_ASSERT( parser.handler->fetched() );
-                // FIXME: delete the message
-                throw 42;
-            }
+            // must be handled elsewhere
             break;
         case Imap::Responses::RECENT:
-            // FIXME: exception
             m->_parsers[ ptr.get() ].syncState.setRecent( resp->number );
             break;
         default:

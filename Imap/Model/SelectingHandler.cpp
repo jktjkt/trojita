@@ -48,7 +48,7 @@ void SelectingHandler::handleStatus( Imap::ParserPtr ptr, const Imap::Responses:
 
 void SelectingHandler::handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* const resp )
 {
-    TreeItemMailbox* mailbox = m->_parsers[ ptr.get() ].handler;
+    TreeItemMailbox* mailbox = m->_parsers[ ptr.get() ].currentMbox;
     if ( ! mailbox )
         throw UnexpectedResponseReceived( "Received FETCH reply, but we don't know what mailbox are we syncing", *resp );
 

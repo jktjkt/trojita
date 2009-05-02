@@ -184,15 +184,6 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[0] );
     Q_ASSERT( list );
     
-    if ( ! list->fetched() ) {
-        // this is bad -- we got a reply about a mailbox' state before we had
-        // consistent information :(
-        // FIXME: this needs more work (we might not have to throw the
-        // exception, simple return *might* work)
-        throw UnexpectedResponseReceived( "Received a FETCH response before we synced the mailbox state "
-                "(TreeItemMsgList not up-to-speed yet)", response );
-    }
-
     int number = response.number - 1;
     if ( number < 0 || number >= list->_children.size() )
         throw UnknownMessageIndex( "Got FETCH that is out of bounds", response );
@@ -277,6 +268,41 @@ void TreeItemMailbox::handleFetchWhileSyncing( Model* const model, ParserPtr ptr
     } else {
         qWarning() << "Warning: Got useless FETCH reply (didn't specify UID)";
     }
+}
+
+void TreeItemMailbox::handleExpunge( Model* const model, const Responses::NumberResponse& resp )
+{
+    if( ! fetched() ) {
+        throw UnexpectedResponseReceived( "Got EXPUNGE before we fully synced", resp );
+    }
+    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[ 0 ] );
+    Q_ASSERT( list );
+    if ( resp.number >= static_cast<uint>( list->_children.size() ) ) {
+        throw UnknownMessageIndex( "EXPUNGE references message number which is out-of-bounds" );
+    }
+    model->beginRemoveRows( model->createIndex( 0, 0, list ), resp.number, resp.number );
+    delete list->_children.takeAt( resp.number );
+    model->endRemoveRows();
+}
+
+void TreeItemMailbox::handleExistsSynced( Model* const model, ParserPtr ptr, const Responses::NumberResponse& resp )
+{
+    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[ 0 ] );
+    Q_ASSERT( list );
+    qDebug() << mailbox() << resp.number << list->_children.size();
+    if ( resp.number < static_cast<uint>( list->_children.size() ) ) {
+        qDebug() << "pwned :(";
+        throw UnexpectedResponseReceived( "EXISTS response attempted to decrease number of messages", resp );
+    }
+    uint diff = resp.number - static_cast<uint>( list->_children.size() );
+    model->beginInsertRows( model->createIndex( 0, 0, list ), list->_children.size(), list->_children.size() + diff );
+    for ( uint i = 0; i < diff; ++i )
+        list->_children.append( new TreeItemMessage( list ) );
+    model->endInsertRows();
+    QStringList items = ( model->networkPolicy() == Model::NETWORK_ONLINE ) ?
+                        model->_onlineMessageFetch : QStringList() << "UID" << "FLAGS" ;
+    CommandHandle cmd = ptr->fetch( Sequence( resp.number ), items );
+    model->_parsers[ ptr.get() ].commandMap[ cmd ] = Model::Task( Model::Task::FETCH, this );
 }
 
 void TreeItemMailbox::finalizeFetch( Model* const model, const Responses::Status& response )

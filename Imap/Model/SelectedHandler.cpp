@@ -23,7 +23,20 @@ void SelectedHandler::handleCapability( Imap::ParserPtr ptr, const Imap::Respons
 void SelectedHandler::handleNumberResponse( Imap::ParserPtr ptr, const Imap::Responses::NumberResponse* const resp )
 {
     m->authenticatedHandler->handleNumberResponse( ptr, resp );
-    // FIXME
+
+    if ( resp->kind == Imap::Responses::EXPUNGE ) {
+        Model::ParserState& parser = m->_parsers[ ptr.get() ];
+        Q_ASSERT( parser.currentMbox );
+        parser.currentMbox->handleExpunge( m, *resp );
+        parser.syncState.setExists( parser.syncState.exists() - 1 );
+    } else if ( resp->kind == Imap::Responses::EXISTS ) {
+        // EXISTS is already updated by AuthenticatedHandler
+        Model::ParserState& parser = m->_parsers[ ptr.get() ];
+        Q_ASSERT( parser.currentMbox );
+        if ( parser.selectingAnother == 0 ) {
+            parser.currentMbox->handleExistsSynced( m, ptr, *resp );
+        }
+    }
 }
 
 void SelectedHandler::handleList( Imap::ParserPtr ptr, const Imap::Responses::List* const resp )
@@ -52,7 +65,7 @@ void SelectedHandler::handleStatus( Imap::ParserPtr ptr, const Imap::Responses::
 
 void SelectedHandler::handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* const resp )
 {
-    TreeItemMailbox* mailbox = m->_parsers[ ptr.get() ].handler;
+    TreeItemMailbox* mailbox = m->_parsers[ ptr.get() ].currentMbox;
     if ( ! mailbox )
         throw UnexpectedResponseReceived( "Received FETCH reply, but AFAIK we haven't selected any mailbox yet", *resp );
 
