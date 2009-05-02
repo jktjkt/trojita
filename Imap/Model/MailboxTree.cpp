@@ -272,11 +272,11 @@ void TreeItemMailbox::handleFetchWhileSyncing( Model* const model, ParserPtr ptr
 
 void TreeItemMailbox::handleExpunge( Model* const model, const Responses::NumberResponse& resp )
 {
-    if( ! fetched() ) {
-        throw UnexpectedResponseReceived( "Got EXPUNGE before we fully synced", resp );
-    }
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[ 0 ] );
     Q_ASSERT( list );
+    if( ! list->fetched() ) {
+        throw UnexpectedResponseReceived( "Got EXPUNGE before we fully synced", resp );
+    }
     if ( resp.number > static_cast<uint>( list->_children.size() ) || resp.number == 0 ) {
         throw UnknownMessageIndex( "EXPUNGE references message number which is out-of-bounds" );
     }
