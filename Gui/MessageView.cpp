@@ -42,6 +42,7 @@ void MessageView::setEmpty()
 {
     webView->setUrl( QUrl("about:blank") );
     webView->page()->history()->clear();
+    message = 0;
 }
 
 void MessageView::setMessage( const QModelIndex& index )
