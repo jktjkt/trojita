@@ -16,7 +16,6 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include <QProcess>
 #include <QSslSocket>
 #include "IODeviceSocket.h"
 #include "Imap/Exceptions.h"
@@ -28,7 +27,9 @@ IODeviceSocket::IODeviceSocket( QIODevice* device ): d(device)
     connect( d, SIGNAL(readyRead()), this, SIGNAL(readyRead()) );
     connect( d, SIGNAL(readChannelFinished()), this, SLOT( handleStateChanged() ) );
     if ( QAbstractSocket* sock = qobject_cast<QAbstractSocket*>( device ) ) {
-        connect( sock, SIGNAL( error( QAbstractSocket::SocketError ) ), this, SLOT(handleError(QAbstractSocket::SocketError)) );
+        connect( sock, SIGNAL( error( QAbstractSocket::SocketError ) ), this, SLOT(handleSocketError(QAbstractSocket::SocketError)) );
+    } else if ( QProcess* proc = qobject_cast<QProcess*>( device ) ) {
+        connect( proc, SIGNAL(error(QProcess::ProcessError)), this, SLOT(handleProcessError(QProcess::ProcessError)) );
     }
 }
 
@@ -104,18 +105,43 @@ bool IODeviceSocket::isDead()
 
 void IODeviceSocket::handleStateChanged()
 {
-    // FIXME
-/*    if ( QAbstractSocket* sock = qobject_cast<QAbstractSocket*>( device() ) ) {
-        if ( sock->state() != QAbstractSocket::ConnectedState ) {
-
+    if ( QProcess* proc = qobject_cast<QProcess*>( device() ) ) {
+        switch ( proc->state() ) {
+            case QProcess::Running:
+            case QProcess::Starting:
+                break;
+            case QProcess::NotRunning:
+                emit disconnected( tr("The QProcess has exited") );
         }
+    } else if ( QAbstractSocket* sock = qobject_cast<QAbstractSocket*>( device() ) ) {
+        switch ( sock->state() ) {
+            case QAbstractSocket::HostLookupState:
+            case QAbstractSocket::ConnectedState:
+            case QAbstractSocket::ConnectingState:
+            case QAbstractSocket::BoundState:
+            case QAbstractSocket::ListeningState:
+                break;
+            case QAbstractSocket::UnconnectedState:
+            case QAbstractSocket::ClosingState:
+                emit disconnected( tr("Socket is disconnected: %1").arg( sock->errorString() ) );
+        }
+    } else {
+        Q_ASSERT( false );
     }
-    */
 }
 
-void IODeviceSocket::handleError( QAbstractSocket::SocketError err )
+void IODeviceSocket::handleSocketError( QAbstractSocket::SocketError err )
 {
-    // FIXME
+    QAbstractSocket* sock = qobject_cast<QAbstractSocket*>( device() );
+    Q_ASSERT( sock );
+    emit disconnected( tr( "The underlying socket is having troubles: %1" ).arg( sock->errorString() ) );
+}
+
+void IODeviceSocket::handleProcessError( QProcess::ProcessError err )
+{
+    QProcess* proc = qobject_cast<QProcess*>( device() );
+    Q_ASSERT( proc );
+    emit disconnected( tr( "The QProcess is having troubles: %1" ).arg( proc->errorString() ) );
 }
 
 }

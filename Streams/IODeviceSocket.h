@@ -19,6 +19,7 @@
 #define IMAP_IODEVICE_SOCKET_H
 
 #include <QAbstractSocket>
+#include <QProcess>
 #include "Socket.h"
 
 namespace Imap {
@@ -39,7 +40,8 @@ namespace Imap {
         QIODevice* device() const;
     private slots:
         void handleStateChanged();
-        void handleError( QAbstractSocket::SocketError );
+        void handleSocketError( QAbstractSocket::SocketError );
+        void handleProcessError( QProcess::ProcessError );
     private:
         QIODevice* d;
     };
