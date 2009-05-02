@@ -129,7 +129,6 @@ QByteArray UnixSocket::reallyRead( qint64 maxSize )
 
 void UnixSocket::markAsDead()
 {
-    qDebug() << "readChannelFinished()";
     _isDead = true;
     emit disconnected( tr( "The child process has exited" ) );
 }

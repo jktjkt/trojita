@@ -79,8 +79,12 @@ UnixProcessSocketFactory::UnixProcessSocketFactory(
 
 Imap::SocketPtr UnixProcessSocketFactory::create()
 {
-    // FIXME: error handling
-    return Imap::SocketPtr( new UnixSocket( _argv ) );
+    try {
+        return Imap::SocketPtr( new UnixSocket( _argv ) );
+    } catch ( std::exception& e ) {
+        emit error( tr("UnixSocket exception %1").arg( e.what() ) );
+        return Imap::SocketPtr( 0 );
+    }
 }
 
 SslSocketFactory::SslSocketFactory( const QString& host, const quint16 port ):

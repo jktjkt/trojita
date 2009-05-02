@@ -69,6 +69,7 @@ namespace Imap {
 Parser::Parser( QObject* parent, Imap::Mailbox::SocketFactoryPtr factory ):
         QObject(parent), _factory(factory), _lastTagUsed(0), _workerThread( this )
 {
+    // FIXME: add a mechanism for propagating signals from factory->create to our owner
     connect( _factory.get(), SIGNAL( error( const QString& ) ), this, SIGNAL( disconnected( const QString& ) ) );
     connect( &_workerThread, SIGNAL( disconnected( const QString ) ), this, SIGNAL(disconnected( const QString )) );
     _workerThread.start();
