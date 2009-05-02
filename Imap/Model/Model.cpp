@@ -807,8 +807,10 @@ void Model::completelyReset()
 
 void Model::switchToMailbox( const QModelIndex& mbox )
 {
-    if ( mbox.isValid() &&
-         TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>(
+    if ( ! mbox.isValid() )
+        return;
+
+    if ( TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>(
                  static_cast<TreeItem*>( mbox.internalPointer() ) ) ) {
         _getParser( mailbox, ReadOnly );
     }
