@@ -273,45 +273,7 @@ void Model::replaceChildMailboxes( ParserPtr parser, TreeItemMailbox* mailboxPtr
 
 void Model::_finalizeStatus( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command )
 {
-    emit layoutAboutToBeChanged();
-    QList<TreeItem*> messages;
-    TreeItemMsgList* listPtr = dynamic_cast<TreeItemMsgList*>( command->what );
-
-    uint sMessages = 0, sRecent = 0, sUidNext = 0, sUidValidity = 0, sUnSeen = 0;
-    QList<Responses::Status>& statusResponses = _parsers[ parser.get() ].statusResponses;
-    for ( QList<Responses::Status>::const_iterator it = statusResponses.begin();
-            it != statusResponses.end(); ++it ) {
-
-        for ( Responses::Status::stateDataType::const_iterator item = it->states.begin();
-                item != it->states.end(); ++item ) {
-            switch ( item.key() ) {
-                case Responses::Status::MESSAGES:
-                    sMessages = item.value();
-                    break;
-                case Responses::Status::RECENT:
-                    sRecent = item.value();
-                    break;
-                case Responses::Status::UIDNEXT:
-                    sUidNext = item.value();
-                    break;
-                case Responses::Status::UIDVALIDITY:
-                    sUidValidity = item.value();
-                    break;
-                case Responses::Status::UNSEEN:
-                    sUnSeen = item.value();
-                    break;
-            }
-        }
-    }
-    statusResponses.clear();
-
-    // FIXME: do something with more of these data...
-    for ( uint i = 0; i < sMessages; ++i )
-        messages.append( new TreeItemMessage( listPtr ) );
-
-    // FIXME: emit signals to prevent nasty segfaults
-    qDeleteAll( command->what->setChildren( messages ) );
-    emit layoutChanged();
+    throw CantHappen( "Got unexpected STATUS response -- we don't issue any STATUS commands anymore!" );
 }
 
 void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command )
