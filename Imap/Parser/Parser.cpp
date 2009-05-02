@@ -26,7 +26,7 @@
 #include "LowLevelParser.h"
 #include "../../Streams/IODeviceSocket.h"
 
-//#define PRINT_TRAFFIC
+//#define PRINT_TRAFFIC 1000
 
 /*
  * Parser interface considerations:
@@ -428,18 +428,18 @@ void Parser::processLine( QByteArray line )
             line += _socket->readLine();
         }
 #ifdef PRINT_TRAFFIC
-    qDebug() << "<<<" << line.left( 100 );
+    qDebug() << "<<<" << line.left( PRINT_TRAFFIC );
 #endif
         queueResponse( parseUntagged( line ) );
     } else if ( line.startsWith( "+ " ) ) {
 #ifdef PRINT_TRAFFIC
-    qDebug() << "<<<" << line.left( 100 );
+    qDebug() << "<<<" << line.left( PRINT_TRAFFIC );
 #endif
         // Command Continuation Request which really shouldn't happen here
         throw ContinuationRequest( line.constData() );
     } else {
 #ifdef PRINT_TRAFFIC
-    qDebug() << "<<<" << line.left( 100 );
+    qDebug() << "<<<" << line.left( PRINT_TRAFFIC );
 #endif
         queueResponse( parseTagged( line ) );
     }
