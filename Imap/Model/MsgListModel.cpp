@@ -42,6 +42,10 @@ MsgListModel::MsgListModel( QObject* parent, Model* model ): QAbstractProxyModel
              this, SLOT( handleRowsAboutToBeRemoved(const QModelIndex&, int,int ) ) );
     connect( model, SIGNAL( rowsRemoved( const QModelIndex&, int, int ) ),
              this, SLOT( handleRowsRemoved(const QModelIndex&, int,int ) ) );
+    connect( model, SIGNAL( rowsAboutToBeInserted( const QModelIndex&, int, int ) ),
+             this, SLOT( handleRowsAboutToBeInserted(const QModelIndex&, int,int ) ) );
+    connect( model, SIGNAL( rowsInserted( const QModelIndex&, int, int ) ),
+             this, SLOT( handleRowsInserted(const QModelIndex&, int,int ) ) );
 }
 
 void MsgListModel::handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight )
@@ -270,6 +274,22 @@ void MsgListModel::handleRowsRemoved( const QModelIndex& parent, int start, int 
 
     if( dynamic_cast<TreeItemMsgList*>( static_cast<TreeItem*>( parent.internalPointer() ) ) == msgList )
         endRemoveRows();
+}
+
+void MsgListModel::handleRowsAboutToBeInserted( const QModelIndex& parent, int start, int end )
+{
+    TreeItemMsgList* newList = dynamic_cast<TreeItemMsgList*>( static_cast<TreeItem*>( parent.internalPointer() ) );
+    if ( msgList && msgList == newList ) {
+        beginInsertRows( mapFromSource( parent), start, end );
+    }
+}
+
+void MsgListModel::handleRowsInserted( const QModelIndex& parent, int start, int end )
+{
+    TreeItemMsgList* newList = dynamic_cast<TreeItemMsgList*>( static_cast<TreeItem*>( parent.internalPointer() ) );
+    if ( msgList && msgList == newList ) {
+        endInsertRows();
+    }
 }
 
 void MsgListModel::setMailbox( const QModelIndex& index )

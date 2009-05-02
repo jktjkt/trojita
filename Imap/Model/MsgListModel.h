@@ -53,6 +53,8 @@ public slots:
     void handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight );
     void handleRowsAboutToBeRemoved( const QModelIndex& parent, int start, int end );
     void handleRowsRemoved( const QModelIndex& parent, int start, int end );
+    void handleRowsAboutToBeInserted( const QModelIndex& parent, int start, int end );
+    void handleRowsInserted( const QModelIndex& parent, int start, int end );
 
 signals:
     void messageRemoved( void* );
