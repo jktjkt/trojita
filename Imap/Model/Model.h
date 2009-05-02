@@ -187,6 +187,8 @@ public slots:
     void setNetworkExpensive() { setNetworkPolicy( NETWORK_EXPENSIVE ); }
     void setNetworkOnline() { setNetworkPolicy( NETWORK_ONLINE ); }
 
+    void switchToMailbox( const QModelIndex& mbox );
+
 private slots:
     void slotParserDisconnected( const QString );
     void performNoop();
