@@ -308,15 +308,18 @@ void MainWindow::slotShowSettings()
 void MainWindow::authenticationRequested( QAuthenticator* auth )
 {
     QSettings s;
-    bool ok;
     QString user = s.value( SettingsNames::imapUserKey ).toString();
     QString pass = s.value( SettingsNames::imapPassKey ).toString();
     if ( pass.isEmpty() ) {
+        bool ok;
         pass = QInputDialog::getText( this, tr("Password"),
                                       tr("Please provide password for %1").arg( user ),
                                       QLineEdit::Password, QString::null, &ok );
-    }
-    if ( ok ) {
+        if ( ok ) {
+            auth->setUser( user );
+            auth->setPassword( pass );
+        }
+    } else {
         auth->setUser( user );
         auth->setPassword( pass );
     }
