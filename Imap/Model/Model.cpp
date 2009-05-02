@@ -773,8 +773,7 @@ void Model::slotParserDisconnected( const QString msg )
             it != _parsers[ which ].commandMap.end(); ++it ) {
         // FIXME: fail the command, perform cleanup,...
     }
-    // FIXME: tell the user (or not?)
-    qDebug() << sender() << "disconnected:" << msg;
+    emit connectionError( msg );
 }
 
 void Model::completelyReset()

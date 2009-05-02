@@ -51,9 +51,21 @@ Imap::SocketPtr ProcessSocketFactory::create()
     // (before we return the pointer)
     QProcess* proc = new QProcess();
     proc->start( _executable, _args );
-    if ( ! proc->waitForStarted() )
-        return Imap::SocketPtr( 0 );
-
+    if ( ! proc->waitForStarted() ) {
+        switch( proc->error() ) {
+            case QProcess::FailedToStart:
+                emit error( tr( "The IMAP process failed to start" ) );
+                break;
+            case QProcess::Crashed:
+                emit error( tr( "The IMAP process has crashed" ) );
+                break;
+            case QProcess::Timedout:
+                emit error( tr( "The IMAP process didn't start in a timely fashion" ) );
+                break;
+            default:
+                emit error( tr( "Unknown error occured while starting the child process" ) );
+        }
+    }
     return Imap::SocketPtr( new IODeviceSocket( proc ) );
 }
 
@@ -67,6 +79,7 @@ UnixProcessSocketFactory::UnixProcessSocketFactory(
 
 Imap::SocketPtr UnixProcessSocketFactory::create()
 {
+    // FIXME: error handling
     return Imap::SocketPtr( new UnixSocket( _argv ) );
 }
 
@@ -82,13 +95,14 @@ Imap::SocketPtr SslSocketFactory::create()
     sslSock->setPeerVerifyMode( QSslSocket::QueryPeer );
     sslSock->connectToHostEncrypted( _host, _port );
     if ( ! sslSock->waitForEncrypted() ) {
-        qDebug() << "Encrypted connection failed";
+        QString err = tr( "Encrypted connection failed" );
         QList<QSslError> e = sslSock->sslErrors();
         for ( QList<QSslError>::const_iterator it = e.begin(); it != e.end(); ++it ) {
-            qDebug() << *it;
+            err.append( QLatin1String( "\r\n" ) );
+            err.append( it->errorString() );
         }
+        emit error( err );
     }
-    // FIXME: handle & signal errors
     return Imap::SocketPtr( new IODeviceSocket( sslSock ) );
 }
 
@@ -104,12 +118,13 @@ Imap::SocketPtr TlsAbleSocketFactory::create()
     sslSock->setPeerVerifyMode( QSslSocket::QueryPeer );
     sslSock->connectToHost( _host, _port );
     if ( ! sslSock->waitForConnected() ) {
-        qDebug() << "Connection failed:" << sslSock->errorString();
+        emit error( tr( "Connection failed: %1").arg( sslSock->errorString() ) );
     }
-    // FIXME: handle & signal errors
     return Imap::SocketPtr( new IODeviceSocket( sslSock ) );
 }
 
 
 }
 }
+
+#include "SocketFactory.moc"
