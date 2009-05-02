@@ -20,6 +20,7 @@
 #define IMAP_MODEL_H
 
 #include <QAbstractItemModel>
+#include <QTimer>
 #include "../Cache.h"
 #include "../Parser/Parser.h"
 #include "../Streams/SocketFactory.h"
@@ -73,7 +74,7 @@ class Model: public QAbstractItemModel {
     //Q_PROPERTY( ThreadAlgorithm threadSorting READ threadSorting WRITE setThreadSorting )
 
     struct Task {
-        enum Kind { NONE, STARTTLS, LOGIN, LIST, STATUS, SELECT, FETCH };
+        enum Kind { NONE, STARTTLS, LOGIN, LIST, STATUS, SELECT, FETCH, NOOP };
         Kind kind;
         TreeItem* what;
         Task( const Kind _kind, TreeItem* _what ): kind(_kind), what(_what) {};
@@ -139,6 +140,8 @@ class Model: public QAbstractItemModel {
         NETWORK_ONLINE
     };
 
+    enum { PollingPeriod = 60000 };
+
     mutable CachePtr _cache;
     mutable SocketFactoryPtr _socketFactory;
     mutable QMap<Parser*,ParserState> _parsers;
@@ -146,6 +149,7 @@ class Model: public QAbstractItemModel {
     mutable TreeItemMailbox* _mailboxes;
     mutable NetworkPolicy _netPolicy;
     bool _startTls;
+    QTimer* noopTimer;
 
     mutable QList<Imap::Responses::NamespaceData> _personalNamespace, _otherUsersNamespace, _sharedNamespace;
 
@@ -185,6 +189,7 @@ public slots:
 
 private slots:
     void slotParserDisconnected( const QString );
+    void performNoop();
 
 signals:
     void alertReceived( const QString& message );

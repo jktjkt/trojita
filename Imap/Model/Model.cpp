@@ -24,7 +24,6 @@
 #include "SelectingHandler.h"
 #include <QAuthenticator>
 #include <QDebug>
-#include <QTimer>
 
 namespace Imap {
 namespace Mailbox {
@@ -84,6 +83,10 @@ Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory ):
     QTimer::singleShot( 0, this, SLOT( setNetworkOnline() ) );
 
     _onlineMessageFetch << "ENVELOPE" << "BODYSTRUCTURE" << "RFC822.SIZE" << "UID" << "FLAGS";
+
+    noopTimer = new QTimer( this );
+    connect( noopTimer, SIGNAL(timeout()), this, SLOT(performNoop()) );
+    noopTimer->start( PollingPeriod ); // FIXME: polling is ugly, even if done just once a minute
 }
 
 Model::~Model()
@@ -169,6 +172,9 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
                 break;
             case Task::FETCH:
                 _finalizeFetch( ptr, command );
+                break;
+            case Task::NOOP:
+                // We don't have to do anything here
                 break;
         }
 
@@ -688,6 +694,14 @@ void Model::resyncMailbox( TreeItemMailbox* mbox )
     _getParser( mbox, ReadOnly, true );
 }
 
+void Model::performNoop()
+{
+    for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
+        CommandHandle cmd = it->parser->noop();
+        it->commandMap[ cmd ] = Task( Task::NOOP, 0 );
+    }
+}
+
 ParserPtr Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bool reSync ) const
 {
     if ( ! mailbox ) {
@@ -751,12 +765,15 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
 {
     switch ( policy ) {
         case NETWORK_OFFLINE:
+            noopTimer->stop();
             emit networkPolicyOffline();
             break;
         case NETWORK_EXPENSIVE:
+            noopTimer->stop();
             emit networkPolicyExpensive();
             break;
         case NETWORK_ONLINE:
+            noopTimer->start( PollingPeriod );
             emit networkPolicyOnline();
             break;
     }
