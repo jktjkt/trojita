@@ -66,6 +66,8 @@ private:
     void createWidgets();
     void setupModels();
 
+    void nukeModels();
+
     Imap::Mailbox::CachePtr cache;
 
     Imap::Mailbox::Model* model;

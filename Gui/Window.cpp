@@ -256,7 +256,11 @@ void MainWindow::alertReceived( const QString& message )
 
 void MainWindow::connectionError( const QString& message )
 {
-    QMessageBox::critical( this, tr("Connection Error"), message );
+    if ( QSettings().contains( SettingsNames::imapMethodKey ) ) {
+        QMessageBox::critical( this, tr("Connection Error"), message );
+    } else {
+        slotShowSettings();
+    }
 }
 
 void MainWindow::networkPolicyOffline()
@@ -294,7 +298,11 @@ void MainWindow::fullViewToggled( bool showIt )
 void MainWindow::slotShowSettings()
 {
     SettingsDialog* dialog = new SettingsDialog();
-    dialog->exec();
+    if ( dialog->exec() == QDialog::Accepted ) {
+        // FIXME: wipe cache in case we're moving between servers
+        nukeModels();
+        setupModels();
+    }
 }
 
 void MainWindow::authenticationRequested( QAuthenticator* auth )
@@ -309,6 +317,20 @@ void MainWindow::authenticationRequested( QAuthenticator* auth )
         auth->setUser( user );
         auth->setPassword( pass );
     }
+}
+
+void MainWindow::nukeModels()
+{
+    mboxTree->setModel( 0 );
+    msgListTree->setModel( 0 );
+    allTree->setModel( 0 );
+    msgListModel->deleteLater();
+    msgListModel = 0;
+    mboxModel->deleteLater();
+    mboxModel = 0;
+    model->deleteLater();
+    model = 0;
+    cache.reset();
 }
 
 }
