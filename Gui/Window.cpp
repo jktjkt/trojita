@@ -321,6 +321,7 @@ void MainWindow::authenticationRequested( QAuthenticator* auth )
 
 void MainWindow::nukeModels()
 {
+    msgView->setEmpty();
     mboxTree->setModel( 0 );
     msgListTree->setModel( 0 );
     allTree->setModel( 0 );
