@@ -313,6 +313,7 @@ bool Parser::executeIfPossible()
     if ( !_cmdQueue.empty() ) {
         Commands::Command cmd = _cmdQueue.front();
         _cmdQueue.pop_front();
+        locker.unlock();
         return executeACommand( cmd );
     } else
         return false;
