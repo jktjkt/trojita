@@ -67,7 +67,8 @@
 namespace Imap {
 
 Parser::Parser( QObject* parent, Imap::Mailbox::SocketFactoryPtr factory ):
-        QObject(parent), _factory(factory), _lastTagUsed(0), _workerThread( this )
+        QObject(parent), _factory(factory), _lastTagUsed(0), _workerThread( this ),
+        _idling(false)
 {
     // FIXME: add a mechanism for propagating signals from factory->create to our owner
     connect( _factory.get(), SIGNAL( error( const QString& ) ), this, SIGNAL( disconnected( const QString& ) ) );
@@ -319,6 +320,15 @@ bool Parser::executeIfPossible()
 
 bool Parser::executeACommand( const Commands::Command& cmd )
 {
+    if ( _idling ) {
+#ifdef PRINT_TRAFFIC
+        qDebug() << ">>>" << "DONE\r\n";
+#endif
+        _socket->write( "DONE\r\n" );
+        _socket->waitForBytesWritten( -1 );
+        _idling = false;
+    }
+
     QByteArray buf;
     buf.append( cmd._tag );
     for ( QList<Commands::PartOfCommand>::const_iterator it = cmd._cmds.begin(); it != cmd._cmds.end(); ++it ) {
@@ -357,7 +367,15 @@ bool Parser::executeACommand( const Commands::Command& cmd )
                         _socket->startTls();
                         return true;
                     } else if ( identifier == "IDLE" ) {
-                        // FIXME: IDLE
+                        _idling = true;
+                        buf.append( "IDLE\r\n" );
+#ifdef PRINT_TRAFFIC
+                        qDebug() << ">>>" << buf;
+#endif
+                        _socket->write( buf );
+                        _socket->waitForBytesWritten( -1 );
+                        waitForContinuationRequest();
+                        return true;
                     } else {
                         throw InvalidArgument( std::string("Dunno how to handle \"special\" command ") +
                                 identifier.toStdString() );
@@ -377,6 +395,26 @@ bool Parser::executeACommand( const Commands::Command& cmd )
     return true;
 
 }
+
+void Parser::waitForContinuationRequest()
+{
+    while ( 1 ) {
+        if ( ! _socket->canReadLine() ) {
+            _socket->waitForReadyRead( 5000 );
+        }
+        QByteArray line = _socket->readLine();
+        if ( line.isEmpty() ) {
+            emit disconnected( tr("Timed out when waiting for Command Continuation Request") );
+            break;
+        }
+        try {
+            processLine( line );
+        } catch ( ContinuationRequest& e ) {
+            break;
+        }
+    }
+}
+
 /** @short Process a line from IMAP server
 
     Due to the nature of the IMAP protocol, it isn't possible to tell if we will

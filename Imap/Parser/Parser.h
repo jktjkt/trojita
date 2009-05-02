@@ -227,7 +227,10 @@ namespace Imap {
         /** @short UNSELECT, RFC3691 */
         CommandHandle unSelect();
         
-        /** @short IDLE, RFC2177 */
+        /** @short IDLE, RFC2177
+
+          The IDLE command will be automatically terminated by queueing of any command.
+         */
         CommandHandle idle();
 
 
@@ -322,6 +325,8 @@ namespace Imap {
         WorkerThread _workerThread;
 
         QSemaphore _workerReady;
+
+        bool _idling;
 
     };
 
