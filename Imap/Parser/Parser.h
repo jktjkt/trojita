@@ -220,7 +220,8 @@ namespace Imap {
 
     private slots:
         void handleReadyRead();
-        void executeCommand();
+        void executeACommand();
+        void executeCommands();
 
     private:
         /** @short Private copy constructor */
@@ -277,6 +278,7 @@ namespace Imap {
         bool _idling;
 
         bool _literalPlus;
+        bool _waitingForContinuation;
 
         enum { ReadingLine, ReadingNumberOfBytes } _readingMode;
         QByteArray _currentLine;

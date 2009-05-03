@@ -68,7 +68,8 @@ namespace Imap {
 
 Parser::Parser( QObject* parent, Imap::SocketPtr socket ):
         QObject(parent), _socket(socket), _lastTagUsed(0), _idling(false),
-        _literalPlus(false), _readingMode(ReadingLine), _oldLiteralPosition(0)
+        _literalPlus(false), _waitingForContinuation(false),
+        _readingMode(ReadingLine), _oldLiteralPosition(0)
 {
     connect( _socket.get(), SIGNAL( disconnected( const QString& ) ), this, SIGNAL( disconnected( const QString& ) ) );
     connect( _socket.get(), SIGNAL( readyRead() ), this, SLOT( handleReadyRead() ) );
@@ -259,7 +260,7 @@ CommandHandle Parser::queueCommand( Commands::Command command )
     QString tag = generateTag();
     command.addTag( tag );
     _cmdQueue.append( command );
-    QTimer::singleShot( 0, this, SLOT(executeCommand()) );
+    QTimer::singleShot( 0, this, SLOT(executeCommands()) );
     return tag;
 }
 
@@ -314,7 +315,8 @@ void Parser::handleReadyRead()
                         try {
                             processLine( _currentLine );
                         } catch ( ContinuationRequest& cont ) {
-                            executeCommand();
+                            _waitingForContinuation = false;
+                            executeCommands();
                         }
                         _currentLine.clear();
                         _oldLiteralPosition = 0;
@@ -343,7 +345,13 @@ void Parser::handleReadyRead()
     }
 }
 
-void Parser::executeCommand()
+void Parser::executeCommands()
+{
+    while ( ! _waitingForContinuation && ! _cmdQueue.isEmpty() )
+        executeACommand();
+}
+
+void Parser::executeACommand()
 {
     Q_ASSERT( ! _cmdQueue.isEmpty() );
     Commands::Command& cmd = _cmdQueue.first();
@@ -377,6 +385,7 @@ void Parser::executeCommand()
 #endif
                     _socket->write( buf );
                     part._numberSent = true;
+                    _waitingForContinuation = true;
                     return; // and wait for continuation request
                 }
                 break;
