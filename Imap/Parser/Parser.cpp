@@ -410,27 +410,8 @@ void Parser::executeCommand()
         emit idleTerminated();
     }
 
-    QByteArray buf;
-    buf.append( cmd._tag );
-    for ( QList<Commands::PartOfCommand>::const_iterator it = cmd._cmds.begin(); it != cmd._cmds.end(); ++it ) {
-        buf.append( ' ' );
-        switch( (*it)._kind ) {
-            case Commands::ATOM:
-                buf.append( (*it)._text );
-                break;
-            case Commands::QUOTED_STRING:
-                buf.append( '"' );
-                buf.append( (*it)._text );
-                buf.append( '"' );
-                break;
-            case Commands::LITERAL:
-                if ( true ) { // FIXME: only if LITERAL+ is enabled
-                    buf.append( '{' );
-                    buf.append( QByteArray::number( (*it)._text.size() ) );
-                    buf.append( "+}\r\n" );
-                    buf.append( (*it)._text );
-                }
-                break;
+    ...
+
             case Commands::SPECIAL:
                 {
                     const QString& identifier = (*it)._text;
@@ -461,41 +442,8 @@ void Parser::executeCommand()
                         throw InvalidArgument( std::string("Dunno how to handle \"special\" command ") +
                                 identifier.toStdString() );
                     }
-                }
-                break;
-        }
-    }
-    buf.append( "\r\n" );
-    _socket->write( buf );
-    _socket->waitForBytesWritten( -1 );
-
-#ifdef PRINT_TRAFFIC
-    qDebug() << ">>>" << buf;
-#endif
-
-    return true;
 #endif
 }
-
-#if 0
-void Parser::waitForContinuationRequest()
-{
-    while ( ! _socket->isDead() ) {
-        if ( ! _socket->canReadLine() ) {
-            _socket->waitForReadyRead( 5000 );
-        }
-        QByteArray line = _socket->readLine();
-        if ( line.isEmpty() ) {
-            continue;
-        }
-        try {
-            processLine( line );
-        } catch ( ContinuationRequest& e ) {
-            break;
-        }
-    }
-}
-#endif
 
 /** @short Process a line from IMAP server */
 void Parser::processLine( QByteArray line )
