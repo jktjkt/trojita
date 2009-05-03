@@ -321,7 +321,7 @@ bool Parser::executeIfPossible()
 
 bool Parser::executeACommand( const Commands::Command& cmd )
 {
-    if ( _idling ) {
+    if ( _idling && ! _socket->isDead() ) {
 #ifdef PRINT_TRAFFIC
         qDebug() << ">>>" << "DONE\r\n";
 #endif
@@ -400,14 +400,13 @@ bool Parser::executeACommand( const Commands::Command& cmd )
 
 void Parser::waitForContinuationRequest()
 {
-    while ( 1 ) {
+    while ( ! _socket->isDead() ) {
         if ( ! _socket->canReadLine() ) {
             _socket->waitForReadyRead( 5000 );
         }
         QByteArray line = _socket->readLine();
         if ( line.isEmpty() ) {
-            emit disconnected( tr("Timed out when waiting for Command Continuation Request") );
-            break;
+            continue;
         }
         try {
             processLine( line );
@@ -426,6 +425,10 @@ void Parser::waitForContinuationRequest()
 */
 void Parser::processLine( QByteArray line )
 {
+    while ( ! line.endsWith( "\r\n" ) && ! _socket->isDead() ) {
+        _socket->waitForReadyRead(-1);
+        line += _socket->readLine();
+    }
     if ( line.startsWith( "* " ) ) {
         // check for literals
         int oldSize = 0;
@@ -466,7 +469,13 @@ void Parser::processLine( QByteArray line )
             }
             line += buf;
             // as we've had read a literal, we have to read rest of the line as well
-            line += _socket->readLine();
+            QByteArray restOfLine = _socket->readLine();
+            line += restOfLine;
+            while ( restOfLine.isEmpty() || ! restOfLine.endsWith( "\r\n" ) ) {
+                _socket->waitForReadyRead(-1);
+                restOfLine = _socket->readLine();
+                line += restOfLine;
+            }
         }
 #ifdef PRINT_TRAFFIC
     qDebug() << "<<<" << line.left( PRINT_TRAFFIC );
