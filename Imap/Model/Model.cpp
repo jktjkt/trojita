@@ -56,6 +56,36 @@ ModelStateHandler::ModelStateHandler( Model* _m ): m(_m)
 {
 }
 
+IdleLauncher::IdleLauncher( Model* model, ParserPtr ptr ):
+        m(model), parser(ptr), _idling(false)
+{
+    timer = new QTimer( this );
+    timer->setSingleShot( true );
+    timer->setInterval( 1000 );
+    connect( timer, SIGNAL(timeout()), this, SLOT(perform()) );
+}
+
+void IdleLauncher::perform()
+{
+    m->enterIdle( parser );
+    _idling = true;
+}
+
+void IdleLauncher::idlingTerminated()
+{
+    _idling = false;
+}
+
+void IdleLauncher::restart()
+{
+    timer->start();
+}
+
+bool IdleLauncher::idling()
+{
+    return _idling;
+}
+
 
 Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory ):
     // parent
@@ -75,7 +105,6 @@ Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory ):
     _parsers[ parser.get() ] = ParserState( parser, 0, ReadOnly, CONN_STATE_ESTABLISHED, unauthHandler );
     connect( parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
     connect( parser.get(), SIGNAL( disconnected( const QString ) ), this, SLOT( slotParserDisconnected( const QString ) ) );
-    connect( parser.get(), SIGNAL( idleTerminated() ), this, SLOT( idleTerminated() ) );
     if ( _startTls ) {
         CommandHandle cmd = parser->startTls();
         _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::STARTTLS, 0 );
@@ -747,7 +776,6 @@ ParserPtr Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const 
         _parsers[ parser.get() ] = ParserState( parser, mailbox, mode, CONN_STATE_ESTABLISHED, unauthHandler );
         connect( parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
         connect( parser.get(), SIGNAL( disconnected() ), this, SLOT( slotParserDisconnected() ) );
-        connect( parser.get(), SIGNAL( idleTerminated() ), this, SLOT( idleTerminated() ) );
         CommandHandle cmd;
         if ( _startTls ) {
             cmd = parser->startTls();
@@ -801,8 +829,8 @@ void Model::idleTerminated()
     if ( it == _parsers.end() )
         return;
     else {
-        // FIXME: right now, we enter IDLE immediately. It would be better to wait a bit...
-        enterIdle( it->parser );
+        Q_ASSERT( it->idleLauncher );
+        it->idleLauncher->restart();
     }
 }
 
@@ -830,7 +858,13 @@ void Model::switchToMailbox( const QModelIndex& mbox )
         ParserPtr ptr = _getParser( mailbox, ReadOnly );
         if ( _parsers[ ptr.get() ].capabilitiesFresh &&
              _parsers[ ptr.get() ].capabilities.contains( QLatin1String( "IDLE" ) ) ) {
-            enterIdle( ptr );
+            if ( ! _parsers[ ptr.get() ].idleLauncher ) {
+                _parsers[ ptr.get() ].idleLauncher = new IdleLauncher( this, ptr );
+                connect( ptr.get(), SIGNAL( idleTerminated() ), this, SLOT( idleTerminated() ) );
+            }
+            if ( ! _parsers[ ptr.get() ].idleLauncher->idling() ) {
+                _parsers[ ptr.get() ].idleLauncher->restart();
+            }
         }
     }
 }

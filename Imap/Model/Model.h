@@ -68,6 +68,22 @@ class TreeItemPart;
 class MsgListModel;
 class MailboxModel;
 
+class IdleLauncher: public QObject {
+    Q_OBJECT
+public:
+    IdleLauncher( Model* model, ParserPtr ptr );
+    void restart();
+    bool idling();
+public slots:
+    void perform();
+    void idlingTerminated();
+private:
+    Model* m;
+    ParserPtr parser;
+    QTimer* timer;
+    bool _idling;
+};
+
 /** @short A model implementing view of the whole IMAP server */
 class Model: public QAbstractItemModel {
     Q_OBJECT
@@ -108,15 +124,16 @@ class Model: public QAbstractItemModel {
         ModelStateHandler* responseHandler;
         QList<uint> uidMap;
         QMap<uint, QStringList> syncingFlags;
+        IdleLauncher* idleLauncher;
 
         ParserState( ParserPtr _parser, TreeItemMailbox* _mailbox, const RWMode _mode, 
                 const ConnectionState _connState, ModelStateHandler* _respHandler ):
             parser(_parser), mailbox(_mailbox), mode(_mode),
             connState(_connState), currentMbox(0), selectingAnother(0),
-            capabilitiesFresh(false), responseHandler(_respHandler) {};
+            capabilitiesFresh(false), responseHandler(_respHandler), idleLauncher(0) {};
         ParserState(): mailbox(0), mode(ReadOnly), connState(CONN_STATE_LOGOUT),
             currentMbox(0), selectingAnother(0), capabilitiesFresh(false),
-            responseHandler(0) {};
+            responseHandler(0), idleLauncher(0) {};
     };
 
     /** @short Policy for accessing network */
@@ -221,6 +238,8 @@ private:
     friend class AuthenticatedHandler;
     friend class SelectedHandler;
     friend class SelectingHandler;
+
+    friend class IdleLauncher;
 
     void _askForChildrenOfMailbox( TreeItemMailbox* item );
     void _askForMessagesInMailbox( TreeItemMsgList* item );
