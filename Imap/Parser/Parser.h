@@ -273,6 +273,8 @@ namespace Imap {
 
         bool _idling;
 
+        bool _literalPlus;
+
         enum { ReadingLine, ReadingNumberOfBytes } _readingMode;
         QByteArray _currentLine;
         int _oldLiteralPosition;

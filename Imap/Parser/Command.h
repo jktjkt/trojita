@@ -57,15 +57,16 @@ namespace Commands {
     class PartOfCommand {
         TokenType _kind; /**< What encoding to use for this item */
         QString _text; /**< Actual text to send */
+        bool _numberSent;
 
         friend QTextStream& operator<<( QTextStream& stream, const PartOfCommand& c );
         friend class ::Imap::Parser;
 
     public:
         /** Default constructor */
-        PartOfCommand( const TokenType kind, const QString& text): _kind(kind), _text(text) {};
+        PartOfCommand( const TokenType kind, const QString& text): _kind(kind), _text(text), _numberSent(false) {}
         /** Constructor that guesses correct type for passed string */
-        PartOfCommand( const QString& text): _kind( howToTransmit(text) ), _text(text) {};
+        PartOfCommand( const QString& text): _kind( howToTransmit(text) ), _text(text), _numberSent(false) {}
 
     };
 

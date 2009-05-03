@@ -68,7 +68,7 @@ namespace Imap {
 
 Parser::Parser( QObject* parent, Imap::SocketPtr socket ):
         QObject(parent), _socket(socket), _lastTagUsed(0), _idling(false),
-        _readingMode(ReadingLine), _oldLiteralPosition(0)
+        _literalPlus(false), _readingMode(ReadingLine), _oldLiteralPosition(0)
 {
     connect( _socket.get(), SIGNAL( disconnected( const QString& ) ), this, SIGNAL( disconnected( const QString& ) ) );
     connect( _socket.get(), SIGNAL( readyRead() ), this, SLOT( handleReadyRead() ) );
@@ -310,7 +310,11 @@ void Parser::handleReadyRead()
                         _readingBytes = number;
                     } else if ( _currentLine.endsWith( "\r\n" ) ) {
                         // it's complete
-                        processLine( _currentLine );
+                        try {
+                            processLine( _currentLine );
+                        } catch ( ContinuationRequest& cont ) {
+                            executeCommand();
+                        }
                         _currentLine.clear();
                         _oldLiteralPosition = 0;
                     } else {
@@ -345,7 +349,7 @@ void Parser::executeCommand()
 
     QByteArray buf;
     while ( 1 ) {
-        const Commands::PartOfCommand& part = cmd._cmds[ cmd._currentPart ];
+        Commands::PartOfCommand& part = cmd._cmds[ cmd._currentPart ];
         switch( part._kind ) {
             case Commands::ATOM:
                 buf.append( part._text );
@@ -356,10 +360,24 @@ void Parser::executeCommand()
                 buf.append( '"' );
                 break;
             case Commands::LITERAL:
-                // FIXME: only if it supports LITERAL+
-                buf.append( '{' );
-                buf.append( QByteArray::number( part._text.size() ) );
-                buf.append( "+}\r\n" );
+                if ( _literalPlus ) {
+                    buf.append( '{' );
+                    buf.append( QByteArray::number( part._text.size() ) );
+                    buf.append( "+}\r\n" );
+                    buf.append( part._text );
+                } else if ( part._numberSent ) {
+                    buf.append( part._text );
+                } else {
+                    buf.append( '{' );
+                    buf.append( QByteArray::number( part._text.size() ) );
+                    buf.append( "}\r\n" );
+#ifdef PRINT_TRAFFIC
+                    qDebug() << ">>>" << buf.left( PRINT_TRAFFIC );
+#endif
+                    _socket->write( buf );
+                    part._numberSent = true;
+                    return; // and wait for continuation request
+                }
                 break;
             case Commands::SPECIAL:
                 // FIXME
