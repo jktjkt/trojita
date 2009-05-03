@@ -26,6 +26,7 @@ void UnauthenticatedHandler::handleResponseCode( Imap::ParserPtr ptr, const Imap
                 if ( caps ) {
                     m->_parsers[ ptr.get() ].capabilities = caps->data;
                     m->_parsers[ ptr.get() ].capabilitiesFresh = true;
+                    m->updateCapabilities( ptr, caps->data );
                 }
             }
             break;
@@ -82,6 +83,7 @@ void UnauthenticatedHandler::handleCapability( Imap::ParserPtr ptr, const Imap::
 {
     m->_parsers[ ptr.get() ].capabilities = resp->capabilities;
     m->_parsers[ ptr.get() ].capabilitiesFresh = true;
+    m->updateCapabilities( ptr, resp->capabilities );
 }
 
 void UnauthenticatedHandler::handleNumberResponse( Imap::ParserPtr ptr, const Imap::Responses::NumberResponse* const resp )

@@ -86,6 +86,9 @@ namespace Imap {
         /** @short De-queue and return parsed response */
         std::tr1::shared_ptr<Responses::AbstractResponse> getResponse();
 
+        /** @short Enable/Disable sending literals using the LITERAL+ extension */
+        void enableLiteralPlus( const bool enabled=true );
+
     public slots:
 
         /** @short CAPABILITY, RFC 3501 section 6.1.1 */

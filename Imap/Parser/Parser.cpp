@@ -114,7 +114,8 @@ CommandHandle Parser::select( const QString& mailbox )
 
 CommandHandle Parser::examine( const QString& mailbox )
 {
-    return queueCommand( Commands::Command( "EXAMINE" ) << mailbox );
+    //return queueCommand( Commands::Command( "EXAMINE" ) << mailbox );
+    return queueCommand( Commands::Command( "EXAMINE" ) << Commands::PartOfCommand( Commands::LITERAL, mailbox ) );
 }
 
 CommandHandle Parser::deleteMailbox( const QString& mailbox )
@@ -649,6 +650,10 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::parseTagged( const QBy
             new Responses::State( tag, kind, line, pos ) );
 }
 
+void Parser::enableLiteralPlus( const bool enabled )
+{
+    _literalPlus = enabled;
+}
 
 Sequence Sequence::startingAt( const uint lo )
 {

@@ -172,6 +172,10 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
                 if ( resp->kind == Responses::OK ) {
                     _parsers[ ptr.get() ].connState = CONN_STATE_AUTH;
                     _parsers[ ptr.get() ].responseHandler = authenticatedHandler;
+                    if ( ! _parsers[ ptr.get() ].capabilitiesFresh ) {
+                        CommandHandle cmd = ptr->capability();
+                        _parsers[ ptr.get() ].commandMap[ cmd ] = Task( Task::CAPABILITY, 0 );
+                    }
                     completelyReset();
                 } else {
                     // FIXME: handle this in a sane way
@@ -205,6 +209,7 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
                 _finalizeFetch( ptr, command );
                 break;
             case Task::NOOP:
+            case Task::CAPABILITY:
                 // We don't have to do anything here
                 break;
         }
@@ -876,6 +881,11 @@ void Model::enterIdle( ParserPtr parser )
     noopTimer->stop();
     CommandHandle cmd = parser->idle();
     _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::NOOP, 0 );
+}
+
+void Model::updateCapabilities( ParserPtr parser, const QStringList capabilities )
+{
+    parser->enableLiteralPlus( capabilities.contains( QLatin1String( "LITERAL+" ) ) );
 }
 
 }
