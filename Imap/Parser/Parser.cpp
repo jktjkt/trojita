@@ -315,8 +315,14 @@ void Parser::handleReadyRead()
                         try {
                             processLine( _currentLine );
                         } catch ( ContinuationRequest& cont ) {
-                            _waitingForContinuation = false;
-                            executeCommands();
+                            if ( _waitingForContinuation ) {
+                                _waitingForContinuation = false;
+                                executeCommands();
+                            } else if ( _idling ) {
+                                // do nothing
+                            } else {
+                                throw;
+                            }
                         }
                         _currentLine.clear();
                         _oldLiteralPosition = 0;
@@ -357,6 +363,18 @@ void Parser::executeACommand()
     Commands::Command& cmd = _cmdQueue.first();
 
     QByteArray buf;
+
+    if ( _idling ) {
+        buf.append( "DONE\r\n" );
+#ifdef PRINT_TRAFFIC
+        qDebug() << ">>>" << buf.left( PRINT_TRAFFIC );
+#endif
+        _socket->write( buf );
+        buf.clear();
+        _idling = false;
+        emit idleTerminated();
+    }
+
     while ( 1 ) {
         Commands::PartOfCommand& part = cmd._cmds[ cmd._currentPart ];
         switch( part._kind ) {
@@ -390,7 +408,19 @@ void Parser::executeACommand()
                 }
                 break;
             case Commands::SPECIAL:
-                // FIXME
+                if ( part._text == QLatin1String( "IDLE" ) ) {
+                    buf.append( "IDLE\r\n" );
+#ifdef PRINT_TRAFFIC
+                    qDebug() << ">>>" << buf.left( PRINT_TRAFFIC );
+#endif
+                    _socket->write( buf );
+                    _idling = true;
+                    _cmdQueue.pop_front();
+                    return;
+                } else {
+                    // FIXME
+                    Q_ASSERT( 0 );
+                }
                 break;
         }
         if ( cmd._currentPart == cmd._cmds.size() - 1 ) {
@@ -409,18 +439,6 @@ void Parser::executeACommand()
     }
 
 #if 0
-    if ( _idling && ! _socket->isDead() ) {
-#ifdef PRINT_TRAFFIC
-        qDebug() << ">>>" << "DONE\r\n";
-#endif
-        _socket->write( "DONE\r\n" );
-        _socket->waitForBytesWritten( -1 );
-        _idling = false;
-        emit idleTerminated();
-    }
-
-    ...
-
             case Commands::SPECIAL:
                 {
                     const QString& identifier = (*it)._text;
