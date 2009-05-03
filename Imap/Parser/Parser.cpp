@@ -318,6 +318,7 @@ void Parser::handleReadyRead()
                         // it's complete
                         processLine( _currentLine );
                         _currentLine.clear();
+                        _oldLiteralPosition = 0;
                     } else {
                         throw CantHappen( "canReadLine() returned true, but following readLine() failed" );
                     }
