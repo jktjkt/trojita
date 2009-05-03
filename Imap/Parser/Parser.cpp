@@ -290,17 +290,12 @@ QString Parser::generateTag()
 
 void Parser::handleReadyRead()
 {
-    //qDebug() << Q_FUNC_INFO;
     while ( 1 ) {
-        //qDebug() << "loop";
         switch ( _readingMode ) {
             case ReadingLine:
-                //qDebug() << "reading line";
                 if ( _socket->canReadLine() ) {
-                    //qDebug() << " can read line";
                     _currentLine += _socket->readLine();
                     if ( _currentLine.endsWith( "}\r\n" ) ) {
-                        //qDebug() << "  reading literal";
                         int offset = _currentLine.lastIndexOf( '{' );
                         if ( offset < _oldLiteralPosition )
                             throw ParseError( "Got unmatched '}'", _currentLine, _currentLine.size() - 3 );
@@ -314,7 +309,6 @@ void Parser::handleReadyRead()
                         _readingMode = ReadingNumberOfBytes;
                         _readingBytes = number;
                     } else if ( _currentLine.endsWith( "\r\n" ) ) {
-                        //qDebug() << "  it's complete";
                         // it's complete
                         processLine( _currentLine );
                         _currentLine.clear();
@@ -323,23 +317,19 @@ void Parser::handleReadyRead()
                         throw CantHappen( "canReadLine() returned true, but following readLine() failed" );
                     }
                 } else {
-                    //qDebug() << " not enough data yet";
                     // Not enough data yet, let's try again later
                     return;
                 }
                 break;
             case ReadingNumberOfBytes:
                 {
-                    //qDebug() << "reading # bytes" << _readingBytes;
                     QByteArray buf = _socket->read( _readingBytes );
                     _readingBytes -= buf.size();
                     _currentLine += buf;
                     if ( _readingBytes == 0 ) {
-                        //qDebug() << " all read";
                         // we've read the literal
                         _readingMode = ReadingLine;
                     } else {
-                        //qDebug() << "still to read something";
                         return;
                     }
                 }
