@@ -30,8 +30,8 @@ Q_DECLARE_METATYPE(Imap::Responses::State)
 void ImapParserParseTest::initTestCase()
 {
     array.reset( new QByteArray() );
-    Imap::Mailbox::SocketFactoryPtr factory( new Imap::Mailbox::ProcessSocketFactory( QString(), QStringList() ) );
-    parser.reset( new Imap::Parser( 0, factory ) );
+    Imap::SocketPtr sock( new Imap::IODeviceSocket( new QBuffer() ) );
+    parser.reset( new Imap::Parser( 0, sock ) );
 }
 
 /** @short Test tagged response parsing */

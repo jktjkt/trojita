@@ -74,13 +74,13 @@ namespace Commands {
         friend QTextStream& operator<<( QTextStream& stream, const Command& c );
         friend class ::Imap::Parser;
         QList<PartOfCommand> _cmds;
-        QString _tag;
+        int _currentPart;
     public:
-        Command& operator<<( const PartOfCommand& part ) { _cmds << part; return *this; };
-        Command& operator<<( const QString& text ) { _cmds << PartOfCommand( text ); return *this; };
-        Command() {};
-        Command( const QString& name ) { _cmds << PartOfCommand( ATOM, name ); };
-        void addTag( const QString& tag ) { _tag = tag; };
+        Command& operator<<( const PartOfCommand& part ) { _cmds << part; return *this; }
+        Command& operator<<( const QString& text ) { _cmds << PartOfCommand( text ); return *this; }
+        Command(): _currentPart(0) {}
+        Command( const QString& name ): _currentPart(0) { _cmds << PartOfCommand( ATOM, name ); }
+        void addTag( const QString& tag ) { _cmds.insert( 0, PartOfCommand( ATOM, tag ) ); }
     };
 
     /** @short Used for dumping a command to debug stream */

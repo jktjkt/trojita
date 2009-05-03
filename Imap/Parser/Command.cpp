@@ -24,9 +24,11 @@ namespace Commands {
 
     QTextStream& operator<<( QTextStream& stream, const Command& cmd )
     {
-        stream << cmd._tag;
         for (QList<PartOfCommand>::const_iterator it = cmd._cmds.begin(); it != cmd._cmds.end(); ++it ) {
-            stream << " " << *it;
+            if ( it != cmd._cmds.begin () ) {
+                stream << " ";
+            }
+            stream << *it;
         }
         return stream << endl;
     }

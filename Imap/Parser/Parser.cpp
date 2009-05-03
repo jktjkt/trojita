@@ -26,7 +26,7 @@
 #include "LowLevelParser.h"
 #include "../../Streams/IODeviceSocket.h"
 
-//#define PRINT_TRAFFIC 1000
+#define PRINT_TRAFFIC 1000
 
 /*
  * Parser interface considerations:
@@ -66,21 +66,12 @@
 
 namespace Imap {
 
-Parser::Parser( QObject* parent, Imap::Mailbox::SocketFactoryPtr factory ):
-        QObject(parent), _factory(factory), _lastTagUsed(0), _workerThread( this ),
-        _idling(false)
+Parser::Parser( QObject* parent, Imap::SocketPtr socket ):
+        QObject(parent), _socket(socket), _lastTagUsed(0), _idling(false),
+        _readingMode(ReadingLine), _oldLiteralPosition(0)
 {
-    // FIXME: add a mechanism for propagating signals from factory->create to our owner
-    connect( _factory.get(), SIGNAL( error( const QString& ) ), this, SIGNAL( disconnected( const QString& ) ) );
-    connect( &_workerThread, SIGNAL( disconnected( const QString ) ), this, SIGNAL(disconnected( const QString )) );
-    _workerThread.start();
-    _workerReady.acquire();
-}
-
-Parser::~Parser()
-{
-    _workerThread.quit();
-    _workerThread.wait();
+    connect( _socket.get(), SIGNAL( disconnected( const QString& ) ), this, SIGNAL( disconnected( const QString& ) ) );
+    connect( _socket.get(), SIGNAL( readyRead() ), this, SLOT( handleReadyRead() ) );
 }
 
 CommandHandle Parser::noop()
@@ -100,7 +91,6 @@ CommandHandle Parser::capability()
 
 CommandHandle Parser::startTls()
 {
-    // FIXME: actual implementation  (which won't be here, but in the event loop
     return queueCommand( Commands::SPECIAL, "STARTTLS" );
 }
 
@@ -265,35 +255,26 @@ CommandHandle Parser::namespaceCommand()
 
 CommandHandle Parser::queueCommand( Commands::Command command )
 {
-    QString tag;
-    {
-        QMutexLocker locker( &_cmdMutex );
-        tag = generateTag();
-        command.addTag( tag );
-        _cmdQueue.push_back( command );
-    }
-    emit commandQueued();
+    QString tag = generateTag();
+    command.addTag( tag );
+    _cmdQueue.append( command );
+    QTimer::singleShot( 0, this, SLOT(executeCommand()) );
     return tag;
 }
 
 void Parser::queueResponse( const std::tr1::shared_ptr<Responses::AbstractResponse>& resp )
 {
-    {
-        QMutexLocker locker( &_respMutex );
-        _respQueue.push_back( resp );
-    }
+    _respQueue.push_back( resp );
     emit responseReceived();
 }
 
 bool Parser::hasResponse() const
 {
-    QMutexLocker locker( &_respMutex );
     return ! _respQueue.empty();
 }
 
 std::tr1::shared_ptr<Responses::AbstractResponse> Parser::getResponse()
 {
-    QMutexLocker locker( &_respMutex );
     std::tr1::shared_ptr<Responses::AbstractResponse> ptr;
     if ( _respQueue.empty() )
         return ptr;
@@ -307,20 +288,108 @@ QString Parser::generateTag()
     return QString( "y%1" ).arg( _lastTagUsed++ );
 }
 
-bool Parser::executeIfPossible()
+void Parser::handleReadyRead()
 {
-    QMutexLocker locker( &_cmdMutex );
-    if ( !_cmdQueue.empty() ) {
-        Commands::Command cmd = _cmdQueue.front();
-        _cmdQueue.pop_front();
-        locker.unlock();
-        return executeACommand( cmd );
-    } else
-        return false;
+    //qDebug() << Q_FUNC_INFO;
+    while ( 1 ) {
+        //qDebug() << "loop";
+        switch ( _readingMode ) {
+            case ReadingLine:
+                //qDebug() << "reading line";
+                if ( _socket->canReadLine() ) {
+                    //qDebug() << " can read line";
+                    _currentLine += _socket->readLine();
+                    if ( _currentLine.endsWith( "}\r\n" ) ) {
+                        //qDebug() << "  reading literal";
+                        int offset = _currentLine.lastIndexOf( '{' );
+                        if ( offset < _oldLiteralPosition )
+                            throw ParseError( "Got unmatched '}'", _currentLine, _currentLine.size() - 3 );
+                        bool ok;
+                        int number = _currentLine.mid( offset + 1, _currentLine.size() - offset - 4 ).toInt( &ok );
+                        if ( !ok )
+                            throw ParseError( "Can't parse numeric literal size", _currentLine, offset );
+                        if ( number < 0 )
+                            throw ParseError( "Negative literal size", _currentLine, offset );
+                        _oldLiteralPosition = offset;
+                        _readingMode = ReadingNumberOfBytes;
+                        _readingBytes = number;
+                    } else if ( _currentLine.endsWith( "\r\n" ) ) {
+                        //qDebug() << "  it's complete";
+                        // it's complete
+                        processLine( _currentLine );
+                        _currentLine.clear();
+                    } else {
+                        throw CantHappen( "canReadLine() returned true, but following readLine() failed" );
+                    }
+                } else {
+                    //qDebug() << " not enough data yet";
+                    // Not enough data yet, let's try again later
+                    return;
+                }
+                break;
+            case ReadingNumberOfBytes:
+                {
+                    //qDebug() << "reading # bytes" << _readingBytes;
+                    QByteArray buf = _socket->read( _readingBytes );
+                    _readingBytes -= buf.size();
+                    _currentLine += buf;
+                    if ( _readingBytes == 0 ) {
+                        //qDebug() << " all read";
+                        // we've read the literal
+                        _readingMode = ReadingLine;
+                    } else {
+                        //qDebug() << "still to read something";
+                        return;
+                    }
+                }
+                break;
+        }
+    }
 }
 
-bool Parser::executeACommand( const Commands::Command& cmd )
+void Parser::executeCommand()
 {
+    Q_ASSERT( ! _cmdQueue.isEmpty() );
+    Commands::Command& cmd = _cmdQueue.first();
+
+    QByteArray buf;
+    while ( 1 ) {
+        const Commands::PartOfCommand& part = cmd._cmds[ cmd._currentPart ];
+        switch( part._kind ) {
+            case Commands::ATOM:
+                buf.append( part._text );
+                break;
+            case Commands::QUOTED_STRING:
+                buf.append( '"' );
+                buf.append( part._text );
+                buf.append( '"' );
+                break;
+            case Commands::LITERAL:
+                // FIXME: only if it supports LITERAL+
+                buf.append( '{' );
+                buf.append( QByteArray::number( part._text.size() ) );
+                buf.append( "+}\r\n" );
+                break;
+            case Commands::SPECIAL:
+                // FIXME
+                break;
+        }
+        if ( cmd._currentPart == cmd._cmds.size() - 1 ) {
+            // finalize
+            buf.append( "\r\n" );
+#ifdef PRINT_TRAFFIC
+            qDebug() << ">>>" << buf.left( PRINT_TRAFFIC );
+#endif
+            _socket->write( buf );
+            _cmdQueue.pop_front();
+            break;
+        } else {
+            buf.append( ' ' );
+            ++cmd._currentPart;
+        }
+    }
+
+#if 0
     if ( _idling && ! _socket->isDead() ) {
 #ifdef PRINT_TRAFFIC
         qDebug() << ">>>" << "DONE\r\n";
@@ -395,9 +464,10 @@ bool Parser::executeACommand( const Commands::Command& cmd )
 #endif
 
     return true;
-
+#endif
 }
 
+#if 0
 void Parser::waitForContinuationRequest()
 {
     while ( ! _socket->isDead() ) {
@@ -415,82 +485,20 @@ void Parser::waitForContinuationRequest()
         }
     }
 }
+#endif
 
-/** @short Process a line from IMAP server
-
-    Due to the nature of the IMAP protocol, it isn't possible to tell if we will
-    need to read more data before we see the end of current line. This is the
-    purpose of this function -- it will make sure to read any subsequent data,
-    if needed.
-*/
+/** @short Process a line from IMAP server */
 void Parser::processLine( QByteArray line )
 {
-    while ( ! line.endsWith( "\r\n" ) && ! _socket->isDead() ) {
-        _socket->waitForReadyRead(-1);
-        line += _socket->readLine();
-    }
-    if ( line.startsWith( "* " ) ) {
-        // check for literals
-        int oldSize = 0;
-
-        const int timeout = 5000;
-        QTime timer;
-        while ( line.endsWith( "}\r\n" ) ) {
-            timer.restart();
-            // find how many bytes to read
-            int offset = line.lastIndexOf( '{' );
-            if ( offset < oldSize )
-                throw ParseError( "Got unmatched '}'", line, line.size() - 3 );
-            bool ok;
-            int number = line.mid( offset + 1, line.size() - offset - 4 ).toInt( &ok );
-            if ( !ok )
-                throw ParseError( "Can't parse numeric literal size", line, offset );
-            if ( number < 0 )
-                throw ParseError( "Negative literal size", line, offset );
-
-            // now keep pestering our QIODevice until we manage to read as much
-            // data as we want
-            oldSize = line.size();
-            QByteArray buf = _socket->read( number );
-            while ( buf.size() < number ) {
-                if ( _socket->isDead() ) {
-                    throw SocketException( "The socket has closed" );
-                } else if ( timer.elapsed() > timeout ) {
-                    QByteArray out;
-                    QTextStream s( &out );
-                    s << "Reading a literal took too long (line " << line.size() <<
-                        " bytes so far, buffer " << buf.size() << ", expected literal size " <<
-                        number << ")";
-                    s.flush();
-                    throw SocketTimeout( out.constData() );
-                }
-                _socket->waitForReadyRead( 500 );
-                buf.append( _socket->read( number - buf.size() ) );
-            }
-            line += buf;
-            // as we've had read a literal, we have to read rest of the line as well
-            QByteArray restOfLine = _socket->readLine();
-            line += restOfLine;
-            while ( restOfLine.isEmpty() || ! restOfLine.endsWith( "\r\n" ) ) {
-                _socket->waitForReadyRead(-1);
-                restOfLine = _socket->readLine();
-                line += restOfLine;
-            }
-        }
 #ifdef PRINT_TRAFFIC
     qDebug() << "<<<" << line.left( PRINT_TRAFFIC );
 #endif
+    if ( line.startsWith( "* " ) ) {
         queueResponse( parseUntagged( line ) );
     } else if ( line.startsWith( "+ " ) ) {
-#ifdef PRINT_TRAFFIC
-    qDebug() << "<<<" << line.left( PRINT_TRAFFIC );
-#endif
         // Command Continuation Request which really shouldn't happen here
         throw ContinuationRequest( line.constData() );
     } else {
-#ifdef PRINT_TRAFFIC
-    qDebug() << "<<<" << line.left( PRINT_TRAFFIC );
-#endif
         queueResponse( parseTagged( line ) );
     }
 }
@@ -632,39 +640,6 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::parseTagged( const QBy
             new Responses::State( tag, kind, line, pos ) );
 }
 
-
-WorkerThread::WorkerThread( Parser * const parser ) : _parser( parser )
-{
-}
-
-void WorkerThread::run()
-{
-    _parser->_socket = _parser->_factory->create();
-    helper = new WorkerHelper( _parser );
-    connect( _parser, SIGNAL( commandQueued() ), helper, SLOT( slotSubmitCommand() ) );
-    // readyRead() has to be queued, otherwise bad things happen
-    // see Trolltech Task Tracker #217111
-    connect( _parser->_socket.get(), SIGNAL( readyRead() ), helper, SLOT( slotReadyRead() ), Qt::QueuedConnection );
-    connect( _parser->_socket.get(), SIGNAL( disconnected( const QString ) ), this, SIGNAL( disconnected( const QString ) ) );
-    QTimer::singleShot( 0, helper, SLOT( slotImRunning() ) );
-    exec();
-}
-
-void WorkerHelper::slotImRunning()
-{
-    _parser->_workerReady.release();
-}
-
-void WorkerHelper::slotReadyRead()
-{
-    while ( _parser->_socket->canReadLine() )
-        _parser->processLine( _parser->_socket->readLine() );
-}
-
-void WorkerHelper::slotSubmitCommand()
-{
-    _parser->executeIfPossible();
-}
 
 Sequence Sequence::startingAt( const uint lo )
 {

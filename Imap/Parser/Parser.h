@@ -27,7 +27,7 @@
 #include "Response.h"
 #include "Command.h"
 #include "../Exceptions.h"
-#include "../Streams/SocketFactory.h"
+#include "../Streams/Socket.h"
 
 /**
  * @file
@@ -68,60 +68,17 @@ namespace Imap {
     /** @short A handle identifying a command sent to the server */
     typedef QString CommandHandle;
 
-    class Parser; // will be defined later
-
-    class WorkerHelper: public QObject {
-        Q_OBJECT
-    public:
-        WorkerHelper( Parser* parser ): _parser(parser) {};
-    public slots:
-        void slotReadyRead();
-        void slotSubmitCommand();
-    private slots:
-        void slotImRunning();
-    private:
-        Parser* _parser;
-    };
-
-    /** @short Helper thread for Parser that deals with actual I/O */
-    class WorkerThread : public QThread {
-        Q_OBJECT
-
-        /** Prevent copying */
-        WorkerThread( const WorkerThread& );
-        /** Prevent copying */
-        WorkerThread& operator=( const WorkerThread& );
-
-        /** Reference to our parser */
-        Parser* _parser;
-
-        void run();
-
-        WorkerHelper* helper;
-
-    signals:
-        void disconnected( const QString );
-
-    public:
-        WorkerThread( Parser * const parser );
-    };
-
     /** @short Class that does all IMAP parsing */
     class Parser : public QObject {
         Q_OBJECT
 
-        friend class WorkerHelper;
-        friend class WorkerThread;
         friend class ::ImapParserParseTest;
 
     public:
         /** @short Constructor.
          *
          * Takes an QIODevice instance as a parameter. */
-        Parser( QObject* parent, Imap::Mailbox::SocketFactoryPtr factory );
-
-        /** @short Destructor */
-        ~Parser();
+        Parser( QObject* parent, Imap::SocketPtr socket );
 
         /** @short Checks for waiting responses */
         bool hasResponse() const;
@@ -258,6 +215,10 @@ namespace Imap {
 
         void idleTerminated();
 
+    private slots:
+        void handleReadyRead();
+        void executeCommand();
+
     private:
         /** @short Private copy constructor */
         Parser( const Parser& );
@@ -278,14 +239,6 @@ namespace Imap {
 
         /** @short Generate tag for next command */
         QString generateTag();
-
-        /** @short Wait for a command continuation request being sent by the server */
-        void waitForContinuationRequest();
-
-        /** @short Execute first queued command, ie. send it to the server */
-        bool executeIfPossible();
-        /** @short Execute passed command right now */
-        bool executeACommand( const Commands::Command& cmd );
 
         void processLine( QByteArray line );
 
@@ -308,27 +261,22 @@ namespace Imap {
 
         /** @short Connection to the IMAP server */
         SocketPtr _socket;
-        Imap::Mailbox::SocketFactoryPtr _factory;
 
         /** @short Keeps track of the last-used command tag */
         unsigned int _lastTagUsed;
 
-        /** @short Mutex for synchronizing access to our queues */
-        QMutex _cmdMutex;
-        mutable QMutex _respMutex;
-
         /** @short Queue storing commands that are about to be executed */
-        std::deque<Commands::Command> _cmdQueue;
+        QList<Commands::Command> _cmdQueue;
 
         /** @short Queue storing parsed replies from the IMAP server */
         std::deque<std::tr1::shared_ptr<Responses::AbstractResponse> > _respQueue;
 
-        /** @short Worker thread instance */
-        WorkerThread _workerThread;
-
-        QSemaphore _workerReady;
-
         bool _idling;
+
+        enum { ReadingLine, ReadingNumberOfBytes } _readingMode;
+        QByteArray _currentLine;
+        int _oldLiteralPosition;
+        uint _readingBytes;
 
     };
 
