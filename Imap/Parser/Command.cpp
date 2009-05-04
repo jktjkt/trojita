@@ -68,14 +68,12 @@ namespace Commands {
             case LITERAL:
                 stream << "{" << part._text.length() << "}" << endl << part._text;
                 break;
-            case SPECIAL:
-                if ( part._text == "STARTTLS" ) {
-                    stream << "STARTTLS" << endl << "[Starting TLS...]";
-                } else if ( part._text == "IDLE" ) {
-                    stream << "IDLE" << endl << "[Entering IDLE mode...]";
-                } else {
-                    stream << "[Unknown command '" << part._text << "']";
-                }
+            case IDLE:
+                stream << "IDLE" << endl << "[Entering IDLE mode...]";
+                break;
+            case STARTTLS:
+                stream << "STARTTLS" << endl << "[Starting TLS...]";
+                break;
         }
         return stream;
     }

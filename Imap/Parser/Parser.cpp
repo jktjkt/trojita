@@ -92,7 +92,7 @@ CommandHandle Parser::capability()
 
 CommandHandle Parser::startTls()
 {
-    return queueCommand( Commands::SPECIAL, "STARTTLS" );
+    return queueCommand( Commands::STARTTLS, "STARTTLS" );
 }
 
 #if 0
@@ -247,7 +247,7 @@ CommandHandle Parser::unSelect()
 
 CommandHandle Parser::idle()
 {
-    return queueCommand( Commands::SPECIAL, "IDLE" );
+    return queueCommand( Commands::IDLE, "IDLE" );
 }
 
 CommandHandle Parser::namespaceCommand()
@@ -413,8 +413,7 @@ void Parser::executeACommand()
                     return; // and wait for continuation request
                 }
                 break;
-            case Commands::SPECIAL:
-                if ( part._text == QLatin1String( "IDLE" ) ) {
+            case Commands::IDLE:
                     buf.append( "IDLE\r\n" );
 #ifdef PRINT_TRAFFIC
                     qDebug() << ">>>" << buf.left( PRINT_TRAFFIC );
@@ -423,7 +422,8 @@ void Parser::executeACommand()
                     _idling = true;
                     _cmdQueue.pop_front();
                     return;
-                } else if ( part._text == QLatin1String( "STARTTLS" ) ) {
+                    break;
+            case Commands::STARTTLS:
                     if ( part._numberSent ) {
                         qDebug() << "*** STARTTLS";
                         _cmdQueue.pop_front();
@@ -442,11 +442,6 @@ void Parser::executeACommand()
                         _startTlsInProgress = true;
                         return;
                     }
-                } else {
-                    _cmdQueue.pop_front();
-                    throw InvalidArgument( std::string("Dunno how to handle \"special\" command ") +
-                                           part._text.toStdString() );
-                }
                 break;
         }
         if ( cmd._currentPart == cmd._cmds.size() - 1 ) {

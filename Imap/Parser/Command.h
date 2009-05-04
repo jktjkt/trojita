@@ -38,7 +38,8 @@ namespace Commands {
         ATOM /**< Don't use any extra encoding, just send it directly, perhaps because it's already encoded */,
         QUOTED_STRING /**< Transmit using double-quotes */,
         LITERAL /**< Don't bother with checking this data, always use literal form */,
-        SPECIAL /**< Not a string to transmit, but a special action like "Start TLS" or "Enter IDLE mode" */
+        IDLE, /**< Special case: IDLE command */
+        STARTTLS /**< Special case: STARTTLS */
     };
 
     /** @short Checks if we can use a quoted-string form for transmitting this string.
