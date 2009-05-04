@@ -96,6 +96,7 @@ Imap::SocketPtr SslSocketFactory::create()
 {
     QSslSocket* sslSock = new QSslSocket();
     sslSock->ignoreSslErrors(); // big fat FIXME here!!!
+    sslSock->setProtocol( QSsl::AnyProtocol );
     sslSock->setPeerVerifyMode( QSslSocket::QueryPeer );
     sslSock->connectToHostEncrypted( _host, _port );
     if ( ! sslSock->waitForEncrypted() ) {
@@ -119,6 +120,7 @@ Imap::SocketPtr TlsAbleSocketFactory::create()
 {
     QSslSocket* sslSock = new QSslSocket();
     sslSock->ignoreSslErrors(); // big fat FIXME here!!!
+    sslSock->setProtocol( QSsl::AnyProtocol );
     sslSock->setPeerVerifyMode( QSslSocket::QueryPeer );
     sslSock->connectToHost( _host, _port );
     if ( ! sslSock->waitForConnected() ) {
