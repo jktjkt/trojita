@@ -68,7 +68,7 @@ namespace Imap {
 
 Parser::Parser( QObject* parent, Imap::SocketPtr socket ):
         QObject(parent), _socket(socket), _lastTagUsed(0), _idling(false),
-        _literalPlus(false), _waitingForContinuation(false),
+        _literalPlus(false), _waitingForContinuation(false), _startTlsInProgress(false),
         _readingMode(ReadingLine), _oldLiteralPosition(0)
 {
     connect( _socket.get(), SIGNAL( disconnected( const QString& ) ), this, SIGNAL( disconnected( const QString& ) ) );
@@ -313,11 +313,17 @@ void Parser::handleReadyRead()
                     } else if ( _currentLine.endsWith( "\r\n" ) ) {
                         // it's complete
                         try {
+                            if ( _startTlsInProgress && _currentLine.startsWith( _startTlsCommand ) ) {
+                                _startTlsCommand.clear();
+                                _startTlsReply = _currentLine;
+                                QTimer::singleShot( 0, this, SLOT(executeACommand()) );
+                                return;
+                            }
                             processLine( _currentLine );
                         } catch ( ContinuationRequest& cont ) {
                             if ( _waitingForContinuation ) {
                                 _waitingForContinuation = false;
-                                executeCommands();
+                                QTimer::singleShot( 0, this, SLOT(executeCommands()) );
                             } else if ( _idling ) {
                                 // do nothing
                             } else {
@@ -353,7 +359,7 @@ void Parser::handleReadyRead()
 
 void Parser::executeCommands()
 {
-    while ( ! _waitingForContinuation && ! _cmdQueue.isEmpty() )
+    while ( ! _waitingForContinuation && ! _cmdQueue.isEmpty() && ! _startTlsInProgress )
         executeACommand();
 }
 
@@ -417,9 +423,29 @@ void Parser::executeACommand()
                     _idling = true;
                     _cmdQueue.pop_front();
                     return;
+                } else if ( part._text == QLatin1String( "STARTTLS" ) ) {
+                    if ( part._numberSent ) {
+                        qDebug() << "*** STARTTLS";
+                        _cmdQueue.pop_front();
+                        _socket->startTls(); // warn: this might invoke event loop
+                        _startTlsInProgress = false;
+                        processLine( _startTlsReply );
+                        return;
+                    } else {
+                        _startTlsCommand = buf;
+                        buf.append( "STARTTLS\r\n" );
+#ifdef PRINT_TRAFFIC
+                        qDebug() << ">>>" << buf.left( PRINT_TRAFFIC );
+#endif
+                        _socket->write( buf );
+                        part._numberSent = true;
+                        _startTlsInProgress = true;
+                        return;
+                    }
                 } else {
-                    // FIXME
-                    Q_ASSERT( 0 );
+                    _cmdQueue.pop_front();
+                    throw InvalidArgument( std::string("Dunno how to handle \"special\" command ") +
+                                           part._text.toStdString() );
                 }
                 break;
         }
@@ -437,39 +463,6 @@ void Parser::executeACommand()
             ++cmd._currentPart;
         }
     }
-
-#if 0
-            case Commands::SPECIAL:
-                {
-                    const QString& identifier = (*it)._text;
-                    if ( identifier == "STARTTLS" ) {
-                        buf.append( "STARTTLS\r\n" );
-#ifdef PRINT_TRAFFIC
-                        qDebug() << ">>>" << buf;
-#endif
-                        _socket->write( buf );
-                        _socket->waitForBytesWritten( -1 );
-                        _socket->waitForReadyRead( -1 );
-#ifdef PRINT_TRAFFIC
-                        qDebug() << "*** STARTTLS";
-#endif
-                        _socket->startTls();
-                        return true;
-                    } else if ( identifier == "IDLE" ) {
-                        _idling = true;
-                        buf.append( "IDLE\r\n" );
-#ifdef PRINT_TRAFFIC
-                        qDebug() << ">>>" << buf;
-#endif
-                        _socket->write( buf );
-                        _socket->waitForBytesWritten( -1 );
-                        waitForContinuationRequest();
-                        return true;
-                    } else {
-                        throw InvalidArgument( std::string("Dunno how to handle \"special\" command ") +
-                                identifier.toStdString() );
-                    }
-#endif
 }
 
 /** @short Process a line from IMAP server */

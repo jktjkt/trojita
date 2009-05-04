@@ -279,11 +279,14 @@ namespace Imap {
 
         bool _literalPlus;
         bool _waitingForContinuation;
+        bool _startTlsInProgress;
 
         enum { ReadingLine, ReadingNumberOfBytes } _readingMode;
         QByteArray _currentLine;
         int _oldLiteralPosition;
         uint _readingBytes;
+        QByteArray _startTlsCommand;
+        QByteArray _startTlsReply;
 
     };
 
