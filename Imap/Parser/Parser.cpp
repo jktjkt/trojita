@@ -26,7 +26,7 @@
 #include "LowLevelParser.h"
 #include "../../Streams/IODeviceSocket.h"
 
-#define PRINT_TRAFFIC 1000
+//#define PRINT_TRAFFIC 1000
 
 /*
  * Parser interface considerations:
@@ -425,7 +425,9 @@ void Parser::executeACommand()
                 break;
             case Commands::STARTTLS:
                 if ( part._numberSent ) {
+#ifdef PRINT_TRAFFIC
                     qDebug() << "*** STARTTLS";
+#endif
                     _cmdQueue.pop_front();
                     _socket->startTls(); // warn: this might invoke event loop
                     _startTlsInProgress = false;
