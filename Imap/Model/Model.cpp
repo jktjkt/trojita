@@ -122,6 +122,10 @@ Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory ):
 
 Model::~Model()
 {
+    for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
+        disconnect( it.key(), SIGNAL( disconnected( const QString ) ), this, SLOT( slotParserDisconnected( const QString ) ) );
+        disconnect( it.key(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
+    }
     delete _mailboxes;
 }
 
