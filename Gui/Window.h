@@ -59,6 +59,7 @@ private slots:
     void slotShowSettings();
     void connectionError( const QString& message );
     void authenticationRequested( QAuthenticator* auth );
+    void slotComposeMail();
 
 private:
     void createMenus();
@@ -89,6 +90,7 @@ private:
     QAction* exitAction;
     QAction* showFullView;
     QAction* configSettings;
+    QAction* composeMail;
 };
 
 }

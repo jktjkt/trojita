@@ -26,6 +26,7 @@
 #include <QTreeView>
 
 #include "Window.h"
+#include "ComposeWidget.h"
 #include "MessageView.h"
 #include "SettingsDialog.h"
 #include "SettingsNames.h"
@@ -83,12 +84,15 @@ void MainWindow::createActions()
 
     configSettings = new QAction( tr("Settings..."), this );
     connect( configSettings, SIGNAL( triggered() ), this, SLOT( slotShowSettings() ) );
+
+    composeMail = new QAction( tr("Compose Mail..."), this );
+    connect( composeMail, SIGNAL(triggered()), this, SLOT(slotComposeMail()) );
 }
 
 void MainWindow::createMenus()
 {
     QMenu* imapMenu = menuBar()->addMenu( tr("IMAP") );
-    QMenu* newMenu = imapMenu->addMenu( tr("New") );
+    imapMenu->addAction( composeMail );
     imapMenu->addSeparator()->setText( tr("Network Access") );
     imapMenu->addAction( netOffline );
     imapMenu->addAction( netExpensive );
@@ -340,6 +344,18 @@ void MainWindow::nukeModels()
     model->deleteLater();
     model = 0;
     cache.reset();
+}
+
+void MainWindow::slotComposeMail()
+{
+    QSettings s;
+    ComposeWidget* w = new ComposeWidget( this,
+        QString::fromAscii("%1 <%2>").arg(
+                s.value( SettingsNames::realNameKey ).toString(),
+                s.value( SettingsNames::addressKey ).toString() ),
+        QList<QPair<QString,QString> >(),
+        QString() );
+    w->show();
 }
 
 }
