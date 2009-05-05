@@ -53,6 +53,7 @@ void RecipientsWidget::handleItemChanged( QTableWidgetItem* changedItem )
     if ( changedItem->row() == rowCount() - 1 ) {
         if ( ! changedItem->text().isEmpty() ) {
             addRecipient( changedItem->row() + 1, qMakePair( item( changedItem->row(), 0 )->text(), QString() ) );
+            setCurrentCell( currentItem()->row() + 1, 1 );
         }
     } else if ( changedItem->text().isEmpty() && rowCount() != 1 ) {
         removeRow( changedItem->row() );
