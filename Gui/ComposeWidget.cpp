@@ -1,6 +1,5 @@
 #include "ComposeWidget.h"
 #include <QHBoxLayout>
-#include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
 #include <QSettings>
@@ -33,8 +32,6 @@ void ComposeWidget::setupWidgets( const QString& from,
     hLayout->addWidget( fromField );
     layout->addLayout( hLayout );
     recipientsField = new RecipientsWidget( this, recipients );
-    recipientsField->horizontalHeader()->hide();
-    recipientsField->verticalHeader()->hide();
     layout->addWidget( recipientsField );
     hLayout = new QHBoxLayout();
     lbl = new QLabel( tr("Subject"), this );

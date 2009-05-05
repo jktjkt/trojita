@@ -1,24 +1,20 @@
 #include "RecipientsWidget.h"
 
 #include <QComboBox>
+#include <QHeaderView>
 
 namespace Gui {
 
 RecipientsWidget::RecipientsWidget( QWidget* parent ): QTableWidget( parent )
 {
-    setSelectionMode( NoSelection );
-    setColumnCount( 2 );
-    setItemDelegate( new AddressTypeDelegate( this ) );
+    commonInit();
     addRecipient( 0, qMakePair( tr("To"), QString() ) );
-    connect( this, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(handleItemChanged(QTableWidgetItem*)) );
 }
 
 RecipientsWidget::RecipientsWidget( QWidget* parent, const QList<QPair<QString, QString> >& recipients ):
         QTableWidget( parent )
 {
-    setSelectionMode( NoSelection );
-    setColumnCount( 2 );
-    setItemDelegate( new AddressTypeDelegate( this ) );
+    commonInit();
     if ( recipients.isEmpty() ) {
         addRecipient( 0, qMakePair( tr("To"), QString() ) );
     } else {
@@ -26,6 +22,16 @@ RecipientsWidget::RecipientsWidget( QWidget* parent, const QList<QPair<QString, 
             addRecipient( i, recipients[i] );
         }
     }
+}
+
+void RecipientsWidget::commonInit()
+{
+    setSelectionMode( NoSelection );
+    setColumnCount( 2 );
+    horizontalHeader()->hide();
+    horizontalHeader()->setStretchLastSection( true );
+    verticalHeader()->hide();
+    setItemDelegate( new AddressTypeDelegate( this ) );
     connect( this, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(handleItemChanged(QTableWidgetItem*)) );
 }
 

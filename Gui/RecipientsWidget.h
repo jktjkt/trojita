@@ -17,6 +17,8 @@ private:
     void addRecipient( const int position, const QPair<QString, QString>& recipient );
 private slots:
     void handleItemChanged( QTableWidgetItem* item );
+private:
+    void commonInit();
 };
 
 class AddressTypeDelegate: public QStyledItemDelegate {
