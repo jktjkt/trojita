@@ -1,3 +1,4 @@
+#include <QTimer>
 #include <QVBoxLayout>
 #include <QtWebKit/QWebHistory>
 #include <QtWebKit/QWebView>
@@ -30,6 +31,10 @@ MessageView::MessageView( QWidget* parent ): QWidget(parent), message(0), model(
 
     netAccess = new Imap::Network::FormattingNetAccessManager( webView );
     webView->page()->setNetworkAccessManager( netAccess );
+
+    markAsReadTimer = new QTimer( this );
+    markAsReadTimer->setSingleShot( true );
+    connect( markAsReadTimer, SIGNAL(timeout()), this, SLOT(markAsRead()) );
 }
 
 void MessageView::handleMessageRemoved( void* msg )
@@ -40,6 +45,7 @@ void MessageView::handleMessageRemoved( void* msg )
 
 void MessageView::setEmpty()
 {
+    markAsReadTimer->stop();
     webView->setUrl( QUrl("about:blank") );
     webView->page()->history()->clear();
     message = 0;
@@ -84,7 +90,14 @@ void MessageView::setMessage( const QModelIndex& index )
         webView->page()->history()->clear();
         // There is never more than one top-level child item, so we can safely use /0 as the path
     }
+    markAsReadTimer->start( 2000 ); // FIXME: make this configurable
+}
 
+void MessageView::markAsRead()
+{
+    if ( ! message )
+        return;
+    model->markMessageRead( message, true );
 }
 
 }

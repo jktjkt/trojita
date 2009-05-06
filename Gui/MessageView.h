@@ -6,6 +6,7 @@
 class QWebView;
 class QLayout;
 class QModelIndex;
+class QTimer;
 
 namespace Imap {
 namespace Mailbox {
@@ -28,12 +29,15 @@ public slots:
     void setMessage( const QModelIndex& index );
     void setEmpty();
     void handleMessageRemoved( void* msg );
+private slots:
+    void markAsRead();
 private:
     QWebView* webView;
     QLayout* layout;
     Imap::Mailbox::TreeItemMessage* message;
     Imap::Mailbox::Model* model;
     Imap::Network::FormattingNetAccessManager* netAccess;
+    QTimer* markAsReadTimer;
 };
 
 }
