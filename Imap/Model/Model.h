@@ -49,7 +49,6 @@ public:
     virtual void handleSearch( Imap::ParserPtr ptr, const Imap::Responses::Search* const resp ) = 0;
     virtual void handleStatus( Imap::ParserPtr ptr, const Imap::Responses::Status* const resp ) = 0;
     virtual void handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* const resp ) = 0;
-    virtual void handleNamespace( Imap::ParserPtr ptr, const Imap::Responses::Namespace* const resp ) = 0;
 
 protected:
     Model* m;

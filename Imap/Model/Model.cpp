@@ -574,8 +574,7 @@ void Model::handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* cons
 
 void Model::handleNamespace( Imap::ParserPtr ptr, const Imap::Responses::Namespace* const resp )
 {
-    if ( _parsers[ ptr.get() ].responseHandler )
-        _parsers[ ptr.get() ].responseHandler->handleNamespace( ptr, resp );
+    // FIXME
 }
 
 

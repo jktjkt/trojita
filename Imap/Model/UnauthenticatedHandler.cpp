@@ -116,11 +116,6 @@ void UnauthenticatedHandler::handleFetch( Imap::ParserPtr ptr, const Imap::Respo
     throw UnexpectedResponseReceived( "FETCH reply in unauthenticated state", *resp );
 }
 
-void UnauthenticatedHandler::handleNamespace( Imap::ParserPtr ptr, const Imap::Responses::Namespace* resp )
-{
-    throw UnexpectedResponseReceived( "NAMESPACE reply in unauthenticated state", *resp );
-}
-
 }
 }
 

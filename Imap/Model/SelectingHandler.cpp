@@ -55,11 +55,6 @@ void SelectingHandler::handleFetch( Imap::ParserPtr ptr, const Imap::Responses::
     mailbox->handleFetchWhileSyncing( m, ptr, *resp );
 }
 
-void SelectingHandler::handleNamespace( Imap::ParserPtr ptr, const Imap::Responses::Namespace* resp )
-{
-    m->unauthHandler->handleNamespace( ptr, resp );
-}
-
 }
 }
 

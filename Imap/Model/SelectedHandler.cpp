@@ -85,11 +85,6 @@ void SelectedHandler::handleFetch( Imap::ParserPtr ptr, const Imap::Responses::F
     }
 }
 
-void SelectedHandler::handleNamespace( Imap::ParserPtr ptr, const Imap::Responses::Namespace* resp )
-{
-    m->unauthHandler->handleNamespace( ptr, resp );
-}
-
 }
 }
 
