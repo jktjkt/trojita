@@ -466,12 +466,11 @@ QVariant TreeItemMessage::data( Model* const model, int role )
             } else
                 return QVariant();
         case Qt::FontRole:
-            if ( _flags.contains( QLatin1String("\\Deleted"), Qt::CaseInsensitive ) ) {
+            {
                 QFont font;
-                font.setStrikeOut( true );
+                if ( _flags.contains( QLatin1String("\\Deleted"), Qt::CaseInsensitive ) )
+                    font.setStrikeOut( true );
                 return font;
-            } else {
-                return QVariant();
             }
         default:
             return QVariant();
