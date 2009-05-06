@@ -154,8 +154,8 @@ QByteArray ComposeWidget::extractMailAddress( const QString& text, bool& ok )
     int pos1 = text.lastIndexOf( QChar('<') );
     int pos2 = text.lastIndexOf( QChar('>') );
     if ( pos1 == -1 || pos2 == -1 || pos2 < pos1 ) {
-        ok = false;
-        return QByteArray();
+        ok = true;
+        return text.toUtf8();
     } else {
         ok = true;
         return text.mid( pos1 + 1, pos2 - pos1 - 1 ).toUtf8();
