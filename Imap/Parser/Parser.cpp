@@ -320,24 +320,13 @@ void Parser::handleReadyRead()
                         _readingBytes = number;
                     } else if ( _currentLine.endsWith( "\r\n" ) ) {
                         // it's complete
-                        try {
-                            if ( _startTlsInProgress && _currentLine.startsWith( _startTlsCommand ) ) {
-                                _startTlsCommand.clear();
-                                _startTlsReply = _currentLine;
-                                QTimer::singleShot( 0, this, SLOT(executeACommand()) );
-                                return;
-                            }
-                            processLine( _currentLine );
-                        } catch ( ContinuationRequest& cont ) {
-                            if ( _waitingForContinuation ) {
-                                _waitingForContinuation = false;
-                                QTimer::singleShot( 0, this, SLOT(executeCommands()) );
-                            } else if ( _idling ) {
-                                // do nothing
-                            } else {
-                                throw;
-                            }
+                        if ( _startTlsInProgress && _currentLine.startsWith( _startTlsCommand ) ) {
+                            _startTlsCommand.clear();
+                            _startTlsReply = _currentLine;
+                            QTimer::singleShot( 0, this, SLOT(executeACommand()) );
+                            return;
                         }
+                        processLine( _currentLine );
                         _currentLine.clear();
                         _oldLiteralPosition = 0;
                     } else {
@@ -479,8 +468,14 @@ void Parser::processLine( QByteArray line )
     if ( line.startsWith( "* " ) ) {
         queueResponse( parseUntagged( line ) );
     } else if ( line.startsWith( "+ " ) ) {
-        // Command Continuation Request which really shouldn't happen here
-        throw ContinuationRequest( line.constData() );
+        if ( _waitingForContinuation ) {
+            _waitingForContinuation = false;
+            QTimer::singleShot( 0, this, SLOT(executeCommands()) );
+        } else if ( _idling ) {
+            // do nothing
+        } else {
+            throw ContinuationRequest( line.constData() );
+        }
     } else {
         queueResponse( parseTagged( line ) );
     }
