@@ -27,11 +27,6 @@
 #include <QtCore/QString>
 #include <QtCore/QTextCodec>
 
-#include <ctype.h>
-#include <time.h>
-#include <stdlib.h>
-#include <unistd.h>
-
 namespace KMime {
 
 #if 0
@@ -108,17 +103,17 @@ QByteArray encodeRFC2047String( const QString &src, const QByteArray &charset,
 {
   QByteArray encoded8Bit, result, usedCS;
   int start=0, end=0;
-  bool nonAscii=false, ok=true, useQEncoding=false;
-  QTextCodec *codec=0;
+  bool nonAscii=false, useQEncoding=false;
+  QTextCodec *codec= QTextCodec::codecForName( charset );
 
   usedCS = charset;
-  codec = KGlobal::charsets()->codecForName( usedCS, ok );
+  /*codec = KGlobal::charsets()->codecForName( usedCS, ok );
 
   if ( !ok ) {
     //no codec available => try local8Bit and hope the best ;-)
     usedCS = KGlobal::locale()->encoding();
     codec = KGlobal::charsets()->codecForName( usedCS, ok );
-  }
+  }*/
 
   if ( usedCS.contains( "8859-" ) ) { // use "B"-Encoding for non iso-8859-x charsets
     useQEncoding = true;
