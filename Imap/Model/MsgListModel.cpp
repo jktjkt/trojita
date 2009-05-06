@@ -191,6 +191,10 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
                 default:
                     return QVariant();
             }
+        case Qt::FontRole:
+            return dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
+                                proxyIndex.internalPointer() ) )->data(
+                                        static_cast<Model*>( sourceModel() ), Qt::FontRole );
         default:
             {
             QModelIndex translated = createIndex( proxyIndex.row(), 0, proxyIndex.internalPointer() );

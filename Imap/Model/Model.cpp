@@ -516,8 +516,9 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
             if ( message->_uid == 0 ) {
                 qDebug() << "Message with unknown UID";
             } else {
-                // FIXME: emit signals?
                 message->_flags = _parsers[ parser.get() ].syncingFlags[ message->_uid ];
+                QModelIndex index = createIndex( message->row(), 0, message );
+                emit dataChanged( index, index );
             }
         }
         _parsers[ parser.get() ].syncingFlags.clear();

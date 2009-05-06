@@ -72,10 +72,15 @@ void SelectedHandler::handleFetch( Imap::ParserPtr ptr, const Imap::Responses::F
     emit m->layoutAboutToBeChanged();
 
     TreeItemPart* changedPart = 0;
-    mailbox->handleFetchResponse( m, *resp, &changedPart );
+    TreeItemMessage* changedMessage = 0;
+    mailbox->handleFetchResponse( m, *resp, &changedPart, &changedMessage );
     emit m->layoutChanged();
     if ( changedPart ) {
         QModelIndex index = m->createIndex( changedPart->row(), 0, changedPart );
+        emit m->dataChanged( index, index );
+    }
+    if ( changedMessage ) {
+        QModelIndex index = m->createIndex( changedMessage->row(), 0, changedMessage );
         emit m->dataChanged( index, index );
     }
 }

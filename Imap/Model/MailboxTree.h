@@ -67,6 +67,7 @@ public:
 };
 
 class TreeItemPart;
+class TreeItemMessage;
 
 class TreeItemMailbox: public TreeItem {
     void operator=( const TreeItem& ); // don't implement
@@ -96,7 +97,8 @@ public:
     */
     void handleFetchResponse( Model* const model,
                               const Responses::Fetch& response,
-                              TreeItemPart** changedPart=0 );
+                              TreeItemPart** changedPart=0,
+                              TreeItemMessage** changedMessage=0 );
     void handleFetchWhileSyncing( Model* const model, ParserPtr ptr, const Responses::Fetch& response );
     void finalizeFetch( Model* const model, const Responses::Status& response );
     void rescanForChildMailboxes( Model* const model );

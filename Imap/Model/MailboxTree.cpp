@@ -16,6 +16,7 @@
    Boston, MA 02110-1301, USA.
 */
 
+#include <QFont>
 #include <QTextStream>
 #include "MailboxTree.h"
 #include "Model.h"
@@ -179,7 +180,8 @@ QList<TreeItem*> TreeItemMailbox::setChildren( const QList<TreeItem*> items )
 
 void TreeItemMailbox::handleFetchResponse( Model* const model,
                                            const Responses::Fetch& response,
-                                           TreeItemPart** changedPart )
+                                           TreeItemPart** changedPart,
+                                           TreeItemMessage** changedMessage )
 {
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[0] );
     Q_ASSERT( list );
@@ -232,6 +234,8 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
             message->_uid = dynamic_cast<const Responses::RespData<uint>&>( *(it.value()) ).data;
         } else if ( it.key() == "FLAGS" ) {
             message->_flags = dynamic_cast<const Responses::RespData<QStringList>&>( *(it.value()) ).data;
+            if ( changedMessage )
+                *changedMessage = message;
         } else {
             qDebug() << "TreeItemMailbox::handleFetchResponse: unknown FETCH identifier" << it.key();
         }
@@ -461,6 +465,14 @@ QVariant TreeItemMessage::data( Model* const model, int role )
                 return buf;
             } else
                 return QVariant();
+        case Qt::FontRole:
+            if ( _flags.contains( QLatin1String("\\Deleted"), Qt::CaseInsensitive ) ) {
+                QFont font;
+                font.setStrikeOut( true );
+                return font;
+            } else {
+                return QVariant();
+            }
         default:
             return QVariant();
     }
