@@ -307,9 +307,7 @@ void TreeItemMailbox::handleExistsSynced( Model* const model, ParserPtr ptr, con
 {
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[ 0 ] );
     Q_ASSERT( list );
-    qDebug() << mailbox() << resp.number << list->_children.size();
     if ( resp.number < static_cast<uint>( list->_children.size() ) ) {
-        qDebug() << "pwned :(";
         throw UnexpectedResponseReceived( "EXISTS response attempted to decrease number of messages", resp );
     }
     uint diff = resp.number - static_cast<uint>( list->_children.size() );
