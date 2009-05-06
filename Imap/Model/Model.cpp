@@ -998,11 +998,20 @@ void Model::markMessageRead( TreeItemMessage* msg, bool marked )
 
 TreeItemMailbox* Model::findMailboxByName( const QString& name ) const
 {
-    // FIXME: this is WRONG implementation, just for testing purposes!
-    Q_ASSERT( ! _mailboxes->_children.isEmpty() );
-    for ( int i = 1; i < _mailboxes->_children.size(); ++i ) {
-        if ( static_cast<TreeItemMailbox*>( _mailboxes->_children[i] )->mailbox() == name )
-            return static_cast<TreeItemMailbox*>( _mailboxes->_children[i] );
+    return findMailboxByName( name, _mailboxes );
+}
+
+TreeItemMailbox* Model::findMailboxByName( const QString& name,
+                                           const TreeItemMailbox* const root ) const
+{
+    Q_ASSERT( ! root->_children.isEmpty() );
+    // FIXME: names are sorted, so linear search is not required
+    for ( int i = 1; i < root->_children.size(); ++i ) {
+        TreeItemMailbox* mailbox = static_cast<TreeItemMailbox*>( root->_children[i] );
+        if ( name == mailbox->mailbox() )
+            return mailbox;
+        else if ( name.startsWith( mailbox->mailbox() ) )
+            return findMailboxByName( name, mailbox );
     }
     return 0;
 }

@@ -259,6 +259,7 @@ private:
     TreeItem* translatePtr( const QModelIndex& index ) const;
 
     TreeItemMailbox* findMailboxByName( const QString& name ) const;
+    TreeItemMailbox* findMailboxByName( const QString& name, const TreeItemMailbox* const root ) const;
 
     /** @short Returns parser suitable for dealing with some mailbox.
      *
