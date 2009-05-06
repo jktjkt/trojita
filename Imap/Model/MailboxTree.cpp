@@ -138,11 +138,17 @@ bool TreeItemMailbox::hasChildren( Model* const model )
 
 bool TreeItemMailbox::hasChildMailboxes( Model* const model )
 {
+    QLatin1String noInferiors( "\\NOINFERIORS" );
+    QLatin1String hasNoChildren( "\\HASNOCHILDREN" );
+    QLatin1String hasChildren( "\\HASCHILDREN" );
     if ( fetched() || isUnavailable( model ) )
         return _children.size() > 1;
-    else if ( _metadata.flags.contains( "\\NOINFERIORS" ) || _metadata.flags.contains( "\\HASNOCHILDREN" ) )
+    else if ( _metadata.flags.contains( noInferiors ) ||
+              ( _metadata.flags.contains( hasNoChildren ) &&
+                ! _metadata.flags.contains( hasChildren ) ) )
         return false;
-    else if ( _metadata.flags.contains( "\\HASCHILDREN" ) )
+    else if ( _metadata.flags.contains( hasChildren ) &&
+              ! _metadata.flags.contains( hasNoChildren ) )
         return true;
     else {
         fetch( model );
