@@ -470,6 +470,8 @@ QVariant TreeItemMessage::data( Model* const model, int role )
                 QFont font;
                 if ( _flags.contains( QLatin1String("\\Deleted"), Qt::CaseInsensitive ) )
                     font.setStrikeOut( true );
+                if ( ! _flags.contains( QLatin1String("\\Seen"), Qt::CaseInsensitive ) )
+                    font.setBold( true );
                 return font;
             }
         default:
