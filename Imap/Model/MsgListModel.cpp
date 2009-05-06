@@ -195,6 +195,12 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
             return dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
                                 proxyIndex.internalPointer() ) )->data(
                                         static_cast<Model*>( sourceModel() ), Qt::FontRole );
+        case RoleIsMarkedAsDeleted:
+            return dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
+                                proxyIndex.internalPointer() ) )->isMarkedAsDeleted();
+        case RoleIsMarkedAsRead:
+            return dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
+                                proxyIndex.internalPointer() ) )->isMarkedAsRead();
         default:
             {
             QModelIndex translated = createIndex( proxyIndex.row(), 0, proxyIndex.internalPointer() );

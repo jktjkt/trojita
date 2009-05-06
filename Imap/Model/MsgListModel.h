@@ -47,6 +47,8 @@ public:
     virtual QVariant data(const QModelIndex &proxyIndex, int role=Qt::DisplayRole) const;
     virtual QVariant headerData ( int section, Qt::Orientation orientation, int role=Qt::DisplayRole ) const;
 
+    enum { RoleIsMarkedAsRead = Qt::UserRole + 1, RoleIsMarkedAsDeleted };
+
 public slots:
     void resetMe();
     void setMailbox( const QModelIndex& index );
