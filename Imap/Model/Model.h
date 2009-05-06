@@ -90,7 +90,7 @@ class Model: public QAbstractItemModel {
     //Q_PROPERTY( ThreadAlgorithm threadSorting READ threadSorting WRITE setThreadSorting )
 
     struct Task {
-        enum Kind { NONE, STARTTLS, LOGIN, LIST, STATUS, SELECT, FETCH, NOOP, CAPABILITY };
+        enum Kind { NONE, STARTTLS, LOGIN, LIST, STATUS, SELECT, FETCH, NOOP, CAPABILITY, STORE };
         Kind kind;
         TreeItem* what;
         Task( const Kind _kind, TreeItem* _what ): kind(_kind), what(_what) {};
@@ -195,7 +195,8 @@ public:
     CachePtr cache() const { return _cache; };
 
     void resyncMailbox( TreeItemMailbox* mbox );
-
+    void markMessageDeleted( TreeItemMessage* msg, bool marked );
+    void markMessageRead( TreeItemMessage* msg, bool marked );
 
 public slots:
     void reloadMailboxList();
@@ -254,6 +255,7 @@ private:
     void replaceChildMailboxes( ParserPtr parser, TreeItemMailbox* mailboxPtr, const QList<TreeItem*> mailboxes );
     void enterIdle( ParserPtr parser );
     void updateCapabilities( ParserPtr parser, const QStringList capabilities );
+    void updateFlags( TreeItemMessage* message, const QString& flagOperation, const QString& flags );
 
     TreeItem* translatePtr( const QModelIndex& index ) const;
 

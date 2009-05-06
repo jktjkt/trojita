@@ -87,6 +87,14 @@ void MainWindow::createActions()
 
     composeMail = new QAction( tr("Compose Mail..."), this );
     connect( composeMail, SIGNAL(triggered()), this, SLOT(slotComposeMail()) );
+
+    markAsRead = new QAction( tr("Mark as Read"), this );
+    markAsRead->setCheckable( true );
+    connect( markAsRead, SIGNAL(triggered(bool)), this, SLOT(handleMarkAsRead(bool)) );
+
+    markAsDeleted = new QAction( tr("Mark as Deleted"), this );
+    markAsDeleted->setCheckable( true );
+    connect( markAsDeleted, SIGNAL(triggered(bool)), this, SLOT(handleMarkAsDeleted(bool)) );
 }
 
 void MainWindow::createMenus()
@@ -120,8 +128,11 @@ void MainWindow::createWidgets()
 
     msgListTree = new QTreeView();
     msgListTree->setUniformRowHeights( true );
+    msgListTree->setContextMenuPolicy(Qt::CustomContextMenu);
     msgListTree->setSelectionMode( QAbstractItemView::ExtendedSelection );
     msgListTree->setAllColumnsShowFocus( true );
+    connect( msgListTree, SIGNAL( customContextMenuRequested( const QPoint & ) ),
+            this, SLOT( showContextMenuMsgListTree( const QPoint& ) ) );
 
     msgView = new MessageView();
 
@@ -217,6 +228,20 @@ void MainWindow::showContextMenuMboxTree( const QPoint& position )
     }
     actionList.append( reloadAllMailboxes );
     QMenu::exec( actionList, mboxTree->mapToGlobal( position ) );
+}
+
+void MainWindow::showContextMenuMsgListTree( const QPoint& position )
+{
+    QList<QAction*> actionList;
+    QModelIndex index = msgListTree->indexAt( position );
+    if ( index.isValid() ) {
+        markAsRead->setChecked( msgListModel->data( index, Imap::Mailbox::MsgListModel::RoleIsMarkedAsRead ).toBool() );
+        actionList.append( markAsRead );
+        markAsDeleted->setChecked( msgListModel->data( index, Imap::Mailbox::MsgListModel::RoleIsMarkedAsDeleted ).toBool() );
+        actionList.append( markAsDeleted );
+    }
+    if ( ! actionList.isEmpty() )
+        QMenu::exec( actionList, msgListTree->mapToGlobal( position ) );
 }
 
 void MainWindow::slotReloadMboxList()
@@ -356,6 +381,42 @@ void MainWindow::slotComposeMail()
         QList<QPair<QString,QString> >(),
         QString() );
     w->show();
+}
+
+void MainWindow::handleMarkAsRead( bool value )
+{
+    QModelIndexList indices = msgListTree->selectionModel()->selectedIndexes();
+    for ( QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it ) {
+        Q_ASSERT( it->isValid() );
+        Q_ASSERT( it->model() == msgListModel );
+        if ( it->column() != 0 )
+            continue;
+        Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
+                static_cast<Imap::Mailbox::TreeItem*>(
+                    msgListModel->mapToSource( *it ).internalPointer()
+                    )
+                );
+        Q_ASSERT( message );
+        model->markMessageRead( message, value );
+    }
+}
+
+void MainWindow::handleMarkAsDeleted( bool value )
+{
+    QModelIndexList indices = msgListTree->selectionModel()->selectedIndexes();
+    for ( QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it ) {
+        Q_ASSERT( it->isValid() );
+        Q_ASSERT( it->model() == msgListModel );
+        if ( it->column() != 0 )
+            continue;
+        Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
+                static_cast<Imap::Mailbox::TreeItem*>(
+                    msgListModel->mapToSource( *it ).internalPointer()
+                    )
+                );
+        Q_ASSERT( message );
+        model->markMessageDeleted( message, value );
+    }
 }
 
 }

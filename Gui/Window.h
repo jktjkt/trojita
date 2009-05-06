@@ -48,6 +48,7 @@ public:
 
 private slots:
     void showContextMenuMboxTree( const QPoint& position );
+    void showContextMenuMsgListTree( const QPoint& position );
     void slotReloadMboxList();
     void slotResyncMboxList();
     void slotResizeMsgListColumns();
@@ -60,6 +61,8 @@ private slots:
     void connectionError( const QString& message );
     void authenticationRequested( QAuthenticator* auth );
     void slotComposeMail();
+    void handleMarkAsRead( bool );
+    void handleMarkAsDeleted( bool );
 
 private:
     void createMenus();
@@ -91,6 +94,9 @@ private:
     QAction* showFullView;
     QAction* configSettings;
     QAction* composeMail;
+
+    QAction* markAsRead;
+    QAction* markAsDeleted;
 };
 
 }

@@ -216,6 +216,9 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
             case Task::CAPABILITY:
                 // We don't have to do anything here
                 break;
+            case Task::STORE:
+                // FIXME: check for errors
+                break;
         }
 
         _parsers[ ptr.get() ].commandMap.erase( command );
@@ -891,6 +894,30 @@ void Model::enterIdle( ParserPtr parser )
 void Model::updateCapabilities( ParserPtr parser, const QStringList capabilities )
 {
     parser->enableLiteralPlus( capabilities.contains( QLatin1String( "LITERAL+" ) ) );
+}
+
+void Model::updateFlags( TreeItemMessage* message, const QString& flagOperation, const QString& flags )
+{
+    ParserPtr parser = _getParser( dynamic_cast<TreeItemMailbox*>(
+            static_cast<TreeItem*>( message->parent()->parent() ) ), ReadWrite );
+    if ( message->_uid == 0 ) {
+        qDebug() << "Error: attempted to work with message with UID 0";
+        return;
+    }
+    CommandHandle cmd = parser->uidStore( Sequence( message->_uid ), flagOperation, flags );
+    _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::STORE, message );
+}
+
+void Model::markMessageDeleted( TreeItemMessage* msg, bool marked )
+{
+    updateFlags( msg, marked ? QLatin1String("+FLAGS") : QLatin1String("-FLAGS"),
+                 QLatin1String("(\\Deleted)") );
+}
+
+void Model::markMessageRead( TreeItemMessage* msg, bool marked )
+{
+    updateFlags( msg, marked ? QLatin1String("+FLAGS") : QLatin1String("-FLAGS"),
+                 QLatin1String("(\\Seen)") );
 }
 
 }
