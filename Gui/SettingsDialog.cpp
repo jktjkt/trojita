@@ -201,7 +201,7 @@ OutgoingPage::OutgoingPage( QWidget* parent, QSettings& s ): QWidget(parent)
     smtpPass->setEchoMode( QLineEdit::Password );
     layout->addRow( tr("Password"), smtpPass );
 
-    sendmail = new QLineEdit( s.value( SettingsNames::sendmailKey ).toString(), this );
+    sendmail = new QLineEdit( s.value( SettingsNames::sendmailKey, SettingsNames::sendmailDefaultCmd ).toString(), this );
     layout->addRow( tr("Sendmail-compatible Executable"), sendmail );
 
     connect( method, SIGNAL( currentIndexChanged( int ) ), this, SLOT( updateWidgets() ) );
@@ -244,6 +244,8 @@ void OutgoingPage::updateWidgets()
             lay->labelForField( smtpPass )->setEnabled( false );
             sendmail->setEnabled( true );
             lay->labelForField( sendmail )->setEnabled( true );
+            if ( sendmail->text().isEmpty() )
+                sendmail->setText( SettingsNames::sendmailDefaultCmd );
     }
 }
 

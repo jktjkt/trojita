@@ -13,6 +13,7 @@ QString SettingsNames::smtpAuthKey = QLatin1String("msa.smtp.auth");
 QString SettingsNames::smtpUserKey = QLatin1String("msa.smtp.auth.user");
 QString SettingsNames::smtpPassKey = QLatin1String("msa.smtp.auth.pass");
 QString SettingsNames::sendmailKey = QLatin1String("msa.sendmail");
+QString SettingsNames::sendmailDefaultCmd = QLatin1String("sendmail -bm -oi");
 QString SettingsNames::imapMethodKey = QLatin1String("imap.method");
 QString SettingsNames::methodTCP = QLatin1String("TCP");
 QString SettingsNames::methodSSL = QLatin1String("SSL");

@@ -88,6 +88,11 @@ set(libStreams_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/Streams/UnixSocket.cpp
 )
 
+set(libMSA_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/MSA/AbstractMSA.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/MSA/Sendmail.cpp
+)
+
 set(trojita_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/Window.cpp
@@ -98,14 +103,15 @@ set(trojita_SRCS
     )
 
 qt4_automoc(${trojita_SRCS} ${libImap_SRCS} ${libStreams_SRCS}
-    ${libMessageView_SRCS} ${libModelTest_SRCS})
+    ${libMessageView_SRCS} ${libModelTest_SRCS} ${libMSA_SRCS})
 
 add_library(Imap ${libImap_SRCS})
 add_library(MessageView ${libMessageView_SRCS})
 add_library(Streams ${libStreams_SRCS})
+add_library(MSA ${libMSA_SRCS})
 add_library(ModelTest ${libModelTest_SRCS})
 add_executable(trojita ${trojita_SRCS})
 
 target_link_libraries(Imap Streams ${QT_QTGUI_LIBRARY})
 target_link_libraries(MessageView ${QT_QTWEBKIT_LIBRARY})
-target_link_libraries(trojita Imap MessageView ModelTest )
+target_link_libraries(trojita Imap MessageView ModelTest MSA)

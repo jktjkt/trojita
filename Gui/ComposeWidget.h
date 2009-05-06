@@ -4,6 +4,7 @@
 #include <QWidget>
 
 class QLineEdit;
+class QPushButton;
 class QTextEdit;
 
 namespace Gui {
@@ -15,12 +16,17 @@ class ComposeWidget : public QWidget
     Q_OBJECT
 public:
     ComposeWidget( QWidget* parent, const QString& from, const QList<QPair<QString, QString> >& recipients, const QString& subject );
+private slots:
+    void send();
+    void gotError( const QString& error );
+    void sent();
 private:
     void setupWidgets( const QString& from, const QList<QPair<QString, QString> >& recipients, const QString& subject );
 
     QLineEdit* fromField;
     RecipientsWidget* recipientsField;
     QLineEdit* subjectField;
+    QPushButton* sendButton;
     QTextEdit* bodyField;
 };
 
