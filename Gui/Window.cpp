@@ -215,8 +215,9 @@ void MainWindow::setupModels()
 
 void MainWindow::slotResizeMsgListColumns()
 {
-    for ( int i = 0; i < msgListTree->header()->count(); ++i )
-        msgListTree->resizeColumnToContents( i );
+    // it's broken and forces loading of all envelopes and budy structures
+    /*for ( int i = 0; i < msgListTree->header()->count(); ++i )
+        msgListTree->resizeColumnToContents( i );*/
 }
 
 void MainWindow::showContextMenuMboxTree( const QPoint& position )
