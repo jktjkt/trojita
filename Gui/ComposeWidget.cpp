@@ -84,8 +84,10 @@ void ComposeWidget::send()
                                        tr("Can't parse \"%1\" as an e-mail address").arg( it->second ) );
                 return;
             }
-            recipientHeaders.append( it->first ).append( ": " ).append(
-                    encodeHeaderField( it->second ) ).append( "\r\n" );
+            if ( it->first != QLatin1String("Bcc") ) {
+                recipientHeaders.append( it->first ).append( ": " ).append(
+                        encodeHeaderField( it->second ) ).append( "\r\n" );
+            }
         }
     }
 
