@@ -339,10 +339,21 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
     Q_ASSERT( list );
     _parsers[ parser.get() ].currentMbox = mailbox;
     _parsers[ parser.get() ].responseHandler = selectedHandler;
-    list->_fetchStatus = TreeItem::DONE;
 
     const SyncState& syncState = _parsers[ parser.get() ].syncState;
     const SyncState& oldState = _cache->mailboxSyncState( mailbox->mailbox() );
+
+    mailbox->_totalMessageCount = syncState.exists();
+    mailbox->_unreadMessageCount = -1;
+
+    if ( _parsers[ parser.get() ].selectingAnother ) {
+        // We have already queued a command that switches to another mailbox
+        // Asking the parser to switch back would only make the situation worse,
+        // so we can't do anything better than exit right now
+        emit messageCountPossiblyChanged( createIndex( 0, 0, mailbox ) );
+        return;
+    }
+
     if ( syncState.isUsableForSyncing() && oldState.isUsableForSyncing() && syncState.uidValidity() == oldState.uidValidity() ) {
         // Perform a nice re-sync
 
@@ -371,7 +382,9 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
                                           "message count occured" );
                     }
                 }
-                emit messageCountPossiblyChanged( createIndex( 0, 0, mailbox ) );
+
+                list->_fetchStatus = TreeItem::DONE;
+                _cache->setMailboxSyncState( mailbox->mailbox(), syncState );
 
             } else {
                 // Some messages got deleted, but there have been no additions
@@ -440,6 +453,9 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
                 list->_children << new TreeItemMessage( list );
             }
             endInsertRows();
+            list->_fetchStatus = TreeItem::DONE;
+
+            Q_ASSERT( ! _parsers[ parser.get() ].selectingAnother );
 
             QStringList items = ( networkPolicy() == NETWORK_ONLINE &&
                                   syncState.exists() <= StructureFetchLimit ) ?
@@ -449,11 +465,12 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
             emit messageCountPossiblyChanged( parent.parent() );
         }
     }
-    _cache->setMailboxSyncState( mailbox->mailbox(), syncState ); // FIXME: only after everything's been done?
+    emit messageCountPossiblyChanged( createIndex( 0, 0, mailbox ) );
 }
 
 void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command )
 {
+    TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( command.value().what );
     TreeItemPart* part = dynamic_cast<TreeItemPart*>( command.value().what );
     if ( part && part->loading() ) {
         qDebug() << "Imap::Model::_finalizeFetch(): didn't receive anything about message" <<
@@ -461,13 +478,19 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
             _parsers[ parser.get() ].mailbox->mailbox();
         part->_fetchStatus = TreeItem::DONE;
     }
-    if ( dynamic_cast<TreeItemMailbox*>( command.value().what ) &&
-            _parsers[ parser.get() ].responseHandler == selectingHandler ) {
+    if ( mailbox && _parsers[ parser.get() ].responseHandler == selectedHandler ) {
+        mailbox->_children[0]->_fetchStatus = TreeItem::DONE;
+        _cache->setMailboxSyncState( mailbox->mailbox(), _parsers[ parser.get() ].syncState );
+        QModelIndex index = createIndex( mailbox->row(), 0, mailbox );
+        emit messageCountPossiblyChanged( index );
+    } else if ( mailbox && _parsers[ parser.get() ].responseHandler == selectingHandler ) {
         _parsers[ parser.get() ].responseHandler = selectedHandler;
+        _cache->setMailboxSyncState( mailbox->mailbox(), _parsers[ parser.get() ].syncState );
 
         QList<uint>& uidMap = _parsers[ parser.get() ].uidMap;
-        TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( command.value().what->_children[0] );
+        TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[0] );
         Q_ASSERT( list );
+        list->_fetchStatus = TreeItem::DONE;
 
         QModelIndex parent = createIndex( 0, 0, list );
         if ( uidMap.isEmpty() ) {
@@ -532,7 +555,6 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
             }
         }
         _parsers[ parser.get() ].syncingFlags.clear();
-
         emit messageCountPossiblyChanged( parent.parent() );
     }
 }

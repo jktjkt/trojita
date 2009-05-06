@@ -72,7 +72,11 @@ class TreeItemMessage;
 class TreeItemMailbox: public TreeItem {
     void operator=( const TreeItem& ); // don't implement
     MailboxMetadata _metadata;
+    friend class Model;
     friend class MailboxModel;
+
+    int _totalMessageCount;
+    int _unreadMessageCount;
 public:
     TreeItemMailbox( TreeItem* parent );
     TreeItemMailbox( TreeItem* parent, Responses::List );

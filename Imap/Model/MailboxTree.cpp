@@ -72,13 +72,14 @@ QList<TreeItem*> TreeItem::setChildren( const QList<TreeItem*> items )
 
 
 TreeItemMailbox::TreeItemMailbox( TreeItem* parent ):
-    TreeItem(parent)
+    TreeItem(parent), _totalMessageCount(-1), _unreadMessageCount(-1)
 {
     _children.prepend( new TreeItemMsgList( this ) );
 }
 
 TreeItemMailbox::TreeItemMailbox( TreeItem* parent, Responses::List response ):
-    TreeItem(parent), _metadata( response.mailbox, response.separator, QStringList() )
+    TreeItem(parent), _metadata( response.mailbox, response.separator, QStringList() ),
+    _totalMessageCount(-1), _unreadMessageCount(-1)
 {
     for ( QStringList::const_iterator it = response.flags.begin(); it != response.flags.end(); ++it )
         _metadata.flags.append( it->toUpper() );
@@ -191,6 +192,14 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
 {
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[0] );
     Q_ASSERT( list );
+    if ( ! list->fetched() ) {
+        QByteArray buf;
+        QTextStream ss( &buf );
+        ss << response;
+        ss.flush();
+        qDebug() << "Ignoring FETCH response to a mailbox that isn't synced yet:" << buf;
+        return;
+    }
     
     int number = response.number - 1;
     if ( number < 0 || number >= list->_children.size() )
@@ -355,11 +364,15 @@ TreeItemPart* TreeItemMailbox::partIdToPtr( Model* const model, const int msgNum
 
 int TreeItemMailbox::totalMessageCount( Model* const model )
 {
+    if ( _totalMessageCount != -1 )
+        return _totalMessageCount;
     return static_cast<TreeItemMsgList*>( _children[ 0 ] )->totalMessageCount( model );
 }
 
 int TreeItemMailbox::unreadMessageCount( Model* const model )
 {
+    if ( _unreadMessageCount != -1 )
+        return _unreadMessageCount;
     return static_cast<TreeItemMsgList*>( _children[ 0 ] )->unreadMessageCount( model );
 }
 
