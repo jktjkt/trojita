@@ -585,11 +585,23 @@ void Model::handleNamespace( Imap::ParserPtr ptr, const Imap::Responses::Namespa
     ParserPtr parser = _getParser( 0, ReadOnly );
     QList<Responses::NamespaceData>::const_iterator it;
     for ( it = resp->personal.begin(); it != resp->personal.end(); ++it )
-        parser->list( QLatin1String(""), it->prefix );
+        parser->list( QLatin1String(""),
+                      ( it->prefix.isEmpty() ?
+                            QLatin1String("") :
+                            ( it->prefix + it->separator ) )
+                      + QLatin1Char('%') );
     for ( it = resp->users.begin(); it != resp->users.end(); ++it )
-        parser->list( QLatin1String(""), it->prefix );
+        parser->list( QLatin1String(""),
+                      ( it->prefix.isEmpty() ?
+                            QLatin1String("") :
+                            ( it->prefix + it->separator ) )
+                      + QLatin1Char('%') );
     for ( it = resp->other.begin(); it != resp->other.end(); ++it )
-        parser->list( QLatin1String(""), it->prefix );
+        parser->list( QLatin1String(""),
+                      ( it->prefix.isEmpty() ?
+                            QLatin1String("") :
+                            ( it->prefix + it->separator ) )
+                      + QLatin1Char('%') );
 
     // FIXME: this will work only on servers that don't re-order commands
     CommandHandle cmd;
