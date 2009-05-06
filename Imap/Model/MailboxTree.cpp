@@ -468,15 +468,25 @@ QVariant TreeItemMessage::data( Model* const model, int role )
         case Qt::FontRole:
             {
                 QFont font;
-                if ( _flags.contains( QLatin1String("\\Deleted"), Qt::CaseInsensitive ) )
+                if ( isMarkedAsDeleted() )
                     font.setStrikeOut( true );
-                if ( ! _flags.contains( QLatin1String("\\Seen"), Qt::CaseInsensitive ) )
+                if ( ! isMarkedAsRead() )
                     font.setBold( true );
                 return font;
             }
         default:
             return QVariant();
     }
+}
+
+bool TreeItemMessage::isMarkedAsDeleted() const
+{
+    return _flags.contains( QLatin1String("\\Deleted"), Qt::CaseInsensitive );
+}
+
+bool TreeItemMessage::isMarkedAsRead() const
+{
+    return _flags.contains( QLatin1String("\\Seen"), Qt::CaseInsensitive );
 }
 
 Message::Envelope TreeItemMessage::envelope( Model* const model )

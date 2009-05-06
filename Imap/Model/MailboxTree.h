@@ -143,6 +143,8 @@ public:
     virtual bool hasChildren( Model* const model ) { return true; };
     Message::Envelope envelope( Model* const model );
     uint size( Model* const model );
+    bool isMarkedAsDeleted() const;
+    bool isMarkedAsRead() const;
 };
 
 class TreeItemPart: public TreeItem {
