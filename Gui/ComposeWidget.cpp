@@ -77,7 +77,13 @@ void ComposeWidget::send()
     for ( QList<QPair<QString,QString> >::const_iterator it = recipients.begin();
           it != recipients.end(); ++it ) {
         if ( ! it->second.isEmpty() ) {
-            mailDestinations << it->second;
+            bool ok;
+            mailDestinations << extractMailAddress( it->second, ok );
+            if ( ! ok ) {
+                QMessageBox::critical( this, tr("Invalid Address"),
+                                       tr("Can't parse \"%1\" as an e-mail address").arg( it->second ) );
+                return;
+            }
             recipientHeaders.append( it->first ).append( ": " ).append(
                     encodeHeaderField( it->second ) ).append( "\r\n" );
         }
@@ -133,6 +139,20 @@ void ComposeWidget::sent()
 QByteArray ComposeWidget::encodeHeaderField( const QString& text )
 {
     return KMime::encodeRFC2047String( text, "utf-8" );
+}
+
+QByteArray ComposeWidget::extractMailAddress( const QString& text, bool& ok )
+{
+    // This is of course far from complete, but at least catches "Real Name" <foo@bar>
+    int pos1 = text.lastIndexOf( QChar('<') );
+    int pos2 = text.lastIndexOf( QChar('>') );
+    if ( pos1 == -1 || pos2 == -1 || pos2 < pos1 ) {
+        ok = false;
+        return QByteArray();
+    } else {
+        ok = true;
+        return text.mid( pos1 + 1, pos2 - pos1 - 1 ).toUtf8();
+    }
 }
 
 }

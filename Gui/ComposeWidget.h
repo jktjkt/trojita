@@ -23,6 +23,7 @@ private slots:
 private:
     void setupWidgets( const QString& from, const QList<QPair<QString, QString> >& recipients, const QString& subject );
     static QByteArray encodeHeaderField( const QString& text );
+    static QByteArray extractMailAddress( const QString& text, bool& ok );
 
     QLineEdit* fromField;
     RecipientsWidget* recipientsField;
