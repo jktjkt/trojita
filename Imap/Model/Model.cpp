@@ -199,7 +199,7 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
                 }
                 break;
             case Task::STATUS:
-                _finalizeStatus( ptr, command );
+                // FIXME
                 break;
             case Task::SELECT:
                 --_parsers[ ptr.get() ].selectingAnother;
@@ -326,11 +326,6 @@ void Model::replaceChildMailboxes( ParserPtr parser, TreeItemMailbox* mailboxPtr
     }
 }
 
-void Model::_finalizeStatus( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command )
-{
-    throw CantHappen( "Got unexpected STATUS response -- we don't issue any STATUS commands anymore!" );
-}
-
 void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command )
 {
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( command->what );
@@ -343,8 +338,8 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
     const SyncState& syncState = _parsers[ parser.get() ].syncState;
     const SyncState& oldState = _cache->mailboxSyncState( mailbox->mailbox() );
 
-    mailbox->_totalMessageCount = syncState.exists();
-    mailbox->_unreadMessageCount = -1;
+    static_cast<TreeItemMsgList*>( mailbox->_children[0] )->_totalMessageCount = syncState.exists();
+    static_cast<TreeItemMsgList*>( mailbox->_children[0] )->_unreadMessageCount = -1;
 
     if ( _parsers[ parser.get() ].selectingAnother ) {
         // We have already queued a command that switches to another mailbox
@@ -592,8 +587,19 @@ void Model::handleSearch( Imap::ParserPtr ptr, const Imap::Responses::Search* co
 
 void Model::handleStatus( Imap::ParserPtr ptr, const Imap::Responses::Status* const resp )
 {
-    if ( _parsers[ ptr.get() ].responseHandler )
-        _parsers[ ptr.get() ].responseHandler->handleStatus( ptr, resp );
+    TreeItemMailbox* mailbox = findMailboxByName( resp->mailbox );
+    if ( ! mailbox ) {
+        qDebug() << "Couldn't find out which mailbox is" << resp->mailbox << "when parsing a STATUS reply";
+        return;
+    }
+    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[0] );
+    Q_ASSERT( list );
+    if ( resp->states.contains( Imap::Responses::Status::MESSAGES ) )
+        list->_totalMessageCount = resp->states[ Imap::Responses::Status::MESSAGES ];
+    if ( resp->states.contains( Imap::Responses::Status::UNSEEN ) )
+        list->_unreadMessageCount = resp->states[ Imap::Responses::Status::UNSEEN ];
+    QModelIndex index = createIndex( mailbox->row(), 0, mailbox );
+    emit messageCountPossiblyChanged( index );
 }
 
 void Model::handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* const resp )
@@ -748,6 +754,22 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
     } else {
         _getParser( mailboxPtr, ReadOnly );
         // and that's all -- we will detect following replies and sync automatically
+    }
+}
+
+void Model::_askForNumberOfMessages( TreeItemMsgList* item )
+{
+    Q_ASSERT( item->parent() );
+    TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( item->parent() );
+    Q_ASSERT( mailboxPtr );
+
+    if ( networkPolicy() == NETWORK_OFFLINE ) {
+        item->_numberFetchingStatus = TreeItem::UNAVAILABLE;
+    } else {
+        ParserPtr parser = _getParser( 0, ReadOnly );
+        CommandHandle cmd = parser->status( mailboxPtr->mailbox(),
+                                            QStringList() << QLatin1String("MESSAGES") << QLatin1String("UNSEEN") );
+        _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::STATUS, item );
     }
 }
 
@@ -912,7 +934,6 @@ void Model::completelyReset()
     for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
         it->commandMap.clear();
         it->listResponses.clear();
-        it->statusResponses.clear();
     }
     _mailboxes = new TreeItemMailbox( 0 );
     reset();
@@ -973,6 +994,17 @@ void Model::markMessageRead( TreeItemMessage* msg, bool marked )
 {
     updateFlags( msg, marked ? QLatin1String("+FLAGS") : QLatin1String("-FLAGS"),
                  QLatin1String("(\\Seen)") );
+}
+
+TreeItemMailbox* Model::findMailboxByName( const QString& name ) const
+{
+    // FIXME: this is WRONG implementation, just for testing purposes!
+    Q_ASSERT( ! _mailboxes->_children.isEmpty() );
+    for ( int i = 1; i < _mailboxes->_children.size(); ++i ) {
+        if ( static_cast<TreeItemMailbox*>( _mailboxes->_children[i] )->mailbox() == name )
+            return static_cast<TreeItemMailbox*>( _mailboxes->_children[i] );
+    }
+    return 0;
 }
 
 }

@@ -71,15 +71,13 @@ QList<TreeItem*> TreeItem::setChildren( const QList<TreeItem*> items )
 
 
 
-TreeItemMailbox::TreeItemMailbox( TreeItem* parent ):
-    TreeItem(parent), _totalMessageCount(-1), _unreadMessageCount(-1)
+TreeItemMailbox::TreeItemMailbox( TreeItem* parent ): TreeItem(parent)
 {
     _children.prepend( new TreeItemMsgList( this ) );
 }
 
 TreeItemMailbox::TreeItemMailbox( TreeItem* parent, Responses::List response ):
-    TreeItem(parent), _metadata( response.mailbox, response.separator, QStringList() ),
-    _totalMessageCount(-1), _unreadMessageCount(-1)
+    TreeItem(parent), _metadata( response.mailbox, response.separator, QStringList() )
 {
     for ( QStringList::const_iterator it = response.flags.begin(); it != response.flags.end(); ++it )
         _metadata.flags.append( it->toUpper() );
@@ -362,22 +360,11 @@ TreeItemPart* TreeItemMailbox::partIdToPtr( Model* const model, const int msgNum
     return part;
 }
 
-int TreeItemMailbox::totalMessageCount( Model* const model )
-{
-    if ( _totalMessageCount != -1 )
-        return _totalMessageCount;
-    return static_cast<TreeItemMsgList*>( _children[ 0 ] )->totalMessageCount( model );
-}
-
-int TreeItemMailbox::unreadMessageCount( Model* const model )
-{
-    if ( _unreadMessageCount != -1 )
-        return _unreadMessageCount;
-    return static_cast<TreeItemMsgList*>( _children[ 0 ] )->unreadMessageCount( model );
-}
 
 
-TreeItemMsgList::TreeItemMsgList( TreeItem* parent ): TreeItem(parent)
+TreeItemMsgList::TreeItemMsgList( TreeItem* parent ):
+        TreeItem(parent), _numberFetchingStatus(NONE), _totalMessageCount(-1),
+        _unreadMessageCount(-1)
 {
     if ( ! parent->parent() )
         _fetchStatus = DONE;
@@ -391,6 +378,14 @@ void TreeItemMsgList::fetch( Model* const model )
     if ( ! loading() ) {
         _fetchStatus = LOADING;
         model->_askForMessagesInMailbox( this );
+    }
+}
+
+void TreeItemMsgList::fetchNumbers( Model* const model )
+{
+    if ( _numberFetchingStatus == NONE ) {
+        _numberFetchingStatus = LOADING;
+        model->_askForNumberOfMessages( this );
     }
 }
 
@@ -427,18 +422,17 @@ bool TreeItemMsgList::hasChildren( Model* const model )
 
 int TreeItemMsgList::totalMessageCount( Model* const model )
 {
-    fetch( model );
-    if ( loading() || isUnavailable( model ) )
-        return -1;
-    else
-        return rowCount( model );
+    // yes, we really check the normal fetch status
+    if ( ! fetched() )
+        fetchNumbers( model );
+    return _totalMessageCount;
 }
 
 int TreeItemMsgList::unreadMessageCount( Model* const model )
 {
-    fetch( model );
-    return -1;
-    // FIXME: implement unreadMessageCount()
+    if ( ! fetched() )
+        fetchNumbers( model );
+    return _unreadMessageCount;
 }
 
 

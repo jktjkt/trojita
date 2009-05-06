@@ -90,12 +90,6 @@ void AuthenticatedHandler::handleSearch( Imap::ParserPtr ptr, const Imap::Respon
     throw UnexpectedResponseReceived( "SEARCH response in authenticated state", *resp );
 }
 
-void AuthenticatedHandler::handleStatus( Imap::ParserPtr ptr, const Imap::Responses::Status* const resp )
-{
-    // FIXME: deprecate STATUS replies altogether?
-    m->_parsers[ ptr.get() ].statusResponses << *resp;
-}
-
 void AuthenticatedHandler::handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* const resp )
 {
     throw UnexpectedResponseReceived( "FETCH response in authenticated state", *resp );

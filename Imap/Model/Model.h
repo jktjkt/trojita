@@ -46,7 +46,6 @@ public:
     virtual void handleList( Imap::ParserPtr ptr, const Imap::Responses::List* const resp ) = 0;
     virtual void handleFlags( Imap::ParserPtr ptr, const Imap::Responses::Flags* const resp ) = 0;
     virtual void handleSearch( Imap::ParserPtr ptr, const Imap::Responses::Search* const resp ) = 0;
-    virtual void handleStatus( Imap::ParserPtr ptr, const Imap::Responses::Status* const resp ) = 0;
     virtual void handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* const resp ) = 0;
 
 protected:
@@ -120,7 +119,6 @@ class Model: public QAbstractItemModel {
         QStringList capabilities;
         bool capabilitiesFresh;
         QList<Responses::List> listResponses;
-        QList<Responses::Status> statusResponses;
         SyncState syncState;
         ModelStateHandler* responseHandler;
         QList<uint> uidMap;
@@ -245,11 +243,11 @@ private:
 
     void _askForChildrenOfMailbox( TreeItemMailbox* item );
     void _askForMessagesInMailbox( TreeItemMsgList* item );
+    void _askForNumberOfMessages( TreeItemMsgList* item );
     void _askForMsgMetadata( TreeItemMessage* item );
     void _askForMsgPart( TreeItemPart* item );
 
     void _finalizeList( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command );
-    void _finalizeStatus( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command );
 
@@ -259,6 +257,8 @@ private:
     void updateFlags( TreeItemMessage* message, const QString& flagOperation, const QString& flags );
 
     TreeItem* translatePtr( const QModelIndex& index ) const;
+
+    TreeItemMailbox* findMailboxByName( const QString& name ) const;
 
     /** @short Returns parser suitable for dealing with some mailbox.
      *

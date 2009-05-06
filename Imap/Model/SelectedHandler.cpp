@@ -50,14 +50,6 @@ void SelectedHandler::handleSearch( Imap::ParserPtr ptr, const Imap::Responses::
     throw UnexpectedResponseReceived( "SEARCH reply, wtf?", *resp );
 }
 
-void SelectedHandler::handleStatus( Imap::ParserPtr ptr, const Imap::Responses::Status* const resp )
-{
-    // FIXME: we should check state here -- this is not really important now
-    // when we don't actually SELECT/EXAMINE any mailbox, but *HAS* to be
-    // changed as soon as we do so
-    m->authenticatedHandler->handleStatus( ptr, resp );
-}
-
 void SelectedHandler::handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* const resp )
 {
     TreeItemMailbox* mailbox = m->_parsers[ ptr.get() ].currentMbox;

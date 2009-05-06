@@ -164,7 +164,9 @@ QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
                                 static_cast<TreeItem*>( proxyIndex.internalPointer() )
                                 );
                         Q_ASSERT( mbox );
-                        int num = mbox->totalMessageCount( static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
+                        TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mbox->_children[0] );
+                        Q_ASSERT( list );
+                        int num = list->totalMessageCount( static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
                         if ( num == -1 )
                             return "?";
                         else
@@ -176,7 +178,9 @@ QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
                                 static_cast<TreeItem*>( proxyIndex.internalPointer() )
                                 );
                         Q_ASSERT( mbox );
-                        int num = mbox->unreadMessageCount( static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
+                        TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mbox->_children[0] );
+                        Q_ASSERT( list );
+                        int num = list->unreadMessageCount( static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
                         if ( num == -1 )
                             return "?";
                         else

@@ -72,11 +72,7 @@ class TreeItemMessage;
 class TreeItemMailbox: public TreeItem {
     void operator=( const TreeItem& ); // don't implement
     MailboxMetadata _metadata;
-    friend class Model;
     friend class MailboxModel;
-
-    int _totalMessageCount;
-    int _unreadMessageCount;
 public:
     TreeItemMailbox( TreeItem* parent );
     TreeItemMailbox( TreeItem* parent, Responses::List );
@@ -108,9 +104,6 @@ public:
     void rescanForChildMailboxes( Model* const model );
     void handleExpunge( Model* const model, const Responses::NumberResponse& resp );
     void handleExistsSynced( Model* const model, ParserPtr ptr, const Responses::NumberResponse& resp );
-
-    int totalMessageCount( Model* const model );
-    int unreadMessageCount( Model* const model );
 private:
     TreeItemPart* partIdToPtr( Model* model, const int msgNumber, const QString& msgId );
 };
@@ -118,6 +111,10 @@ private:
 class TreeItemMsgList: public TreeItem {
     void operator=( const TreeItem& ); // don't implement
     friend class TreeItemMailbox;
+    friend class Model;
+    FetchingState _numberFetchingStatus;
+    int _totalMessageCount;
+    int _unreadMessageCount;
 public:
     TreeItemMsgList( TreeItem* parent );
 
@@ -128,6 +125,7 @@ public:
 
     int totalMessageCount( Model* const model );
     int unreadMessageCount( Model* const model );
+    void fetchNumbers( Model* const model );
 };
 
 class TreeItemMessage: public TreeItem {

@@ -36,11 +36,6 @@ void SelectingHandler::handleSearch( Imap::ParserPtr ptr, const Imap::Responses:
     throw UnexpectedResponseReceived( "SEARCH reply while syncing mailbox", *resp );
 }
 
-void SelectingHandler::handleStatus( Imap::ParserPtr ptr, const Imap::Responses::Status* const resp )
-{
-    throw UnexpectedResponseReceived( "STATUS reply while syncing mailbox", *resp );
-}
-
 void SelectingHandler::handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* const resp )
 {
     TreeItemMailbox* mailbox = m->_parsers[ ptr.get() ].currentMbox;
