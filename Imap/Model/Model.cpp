@@ -339,7 +339,7 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
     const SyncState& oldState = _cache->mailboxSyncState( mailbox->mailbox() );
 
     static_cast<TreeItemMsgList*>( mailbox->_children[0] )->_totalMessageCount = syncState.exists();
-    static_cast<TreeItemMsgList*>( mailbox->_children[0] )->_unreadMessageCount = -1;
+    static_cast<TreeItemMsgList*>( mailbox->_children[0] )->_unreadMessageCount = syncState.unSeen();
 
     if ( _parsers[ parser.get() ].selectingAnother ) {
         // We have already queued a command that switches to another mailbox
