@@ -356,7 +356,8 @@ void Parser::handleReadyRead()
 
 void Parser::executeCommands()
 {
-    while ( ! _waitingForContinuation && ! _cmdQueue.isEmpty() && ! _startTlsInProgress )
+    while ( ! _waitingForContinuation && ! _waitForInitialIdle &&
+            ! _cmdQueue.isEmpty() && ! _startTlsInProgress )
         executeACommand();
 }
 
@@ -474,6 +475,7 @@ void Parser::processLine( QByteArray line )
             QTimer::singleShot( 0, this, SLOT(executeCommands()) );
         } else if ( _waitForInitialIdle ) {
             _waitForInitialIdle = false;
+            QTimer::singleShot( 0, this, SLOT(executeCommands()) );
         } else {
             throw ContinuationRequest( line.constData() );
         }
