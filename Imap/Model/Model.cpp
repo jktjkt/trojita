@@ -728,7 +728,7 @@ void Model::_askForMsgPart( TreeItemPart* item )
     } else {
         ParserPtr parser = _getParser( mailboxPtr, ReadOnly );
         CommandHandle cmd = parser->fetch( Sequence( item->message()->row() + 1 ),
-                QStringList() << QString::fromAscii("BODY[%1]").arg( item->partId() ) );
+                QStringList() << QString::fromAscii("BODY.PEEK[%1]").arg( item->partId() ) );
         _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, item );
     }
 }
