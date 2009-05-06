@@ -279,6 +279,7 @@ namespace Imap {
         std::deque<std::tr1::shared_ptr<Responses::AbstractResponse> > _respQueue;
 
         bool _idling;
+        bool _waitForInitialIdle;
 
         bool _literalPlus;
         bool _waitingForContinuation;

@@ -67,7 +67,7 @@
 namespace Imap {
 
 Parser::Parser( QObject* parent, Imap::SocketPtr socket ):
-        QObject(parent), _socket(socket), _lastTagUsed(0), _idling(false),
+        QObject(parent), _socket(socket), _lastTagUsed(0), _idling(false), _waitForInitialIdle(false),
         _literalPlus(false), _waitingForContinuation(false), _startTlsInProgress(false),
         _readingMode(ReadingLine), _oldLiteralPosition(0)
 {
@@ -417,6 +417,7 @@ void Parser::executeACommand()
 #endif
                 _socket->write( buf );
                 _idling = true;
+                _waitForInitialIdle = true;
                 _cmdQueue.pop_front();
                 return;
                 break;
@@ -471,8 +472,8 @@ void Parser::processLine( QByteArray line )
         if ( _waitingForContinuation ) {
             _waitingForContinuation = false;
             QTimer::singleShot( 0, this, SLOT(executeCommands()) );
-        } else if ( _idling ) {
-            // do nothing
+        } else if ( _waitForInitialIdle ) {
+            _waitForInitialIdle = false;
         } else {
             throw ContinuationRequest( line.constData() );
         }
