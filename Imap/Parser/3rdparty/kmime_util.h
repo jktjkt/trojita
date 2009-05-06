@@ -24,62 +24,17 @@
 #define __KMIME_UTIL_H__
 
 #include <QtCore/QString>
-#include "kmime_export.h"
+
+#define KMIME_EXPORT
 
 namespace KMime {
 
-/**
-  Consult the charset cache. Only used for reducing mem usage by
-  keeping strings in a common repository.
-  @param name
-*/
-KMIME_EXPORT extern QByteArray cachedCharset( const QByteArray &name );
-
-/**
-  Consult the language cache. Only used for reducing mem usage by
-  keeping strings in a common repository.
-  @param name
-*/
-KMIME_EXPORT extern QByteArray cachedLanguage( const QByteArray &name );
-
+#if 0
 /**
   Checks whether @p s contains any non-us-ascii characters.
   @param s
 */
 KMIME_EXPORT extern bool isUsAscii( const QString &s );
-
-//@cond PRIVATE
-extern const uchar specialsMap[16];
-extern const uchar tSpecialsMap[16];
-extern const uchar aTextMap[16];
-extern const uchar tTextMap[16];
-extern const uchar eTextMap[16];
-
-inline bool isOfSet( const uchar map[16], unsigned char ch )
-{
-  return ( ch < 128 ) && ( map[ ch/8 ] & 0x80 >> ch%8 );
-}
-inline bool isSpecial( char ch )
-{
-  return isOfSet( specialsMap, ch );
-}
-inline bool isTSpecial( char ch )
-{
-  return isOfSet( tSpecialsMap, ch );
-}
-inline bool isAText( char ch )
-{
-  return isOfSet( aTextMap, ch );
-}
-inline bool isTText( char ch )
-{
-  return isOfSet( tTextMap, ch );
-}
-inline bool isEText( char ch )
-{
-  return isOfSet( eTextMap, ch );
-}
-//@endcond
 
 /**
   Decodes string @p src according to RFC2047,i.e., the construct
@@ -104,6 +59,7 @@ KMIME_EXPORT extern QString decodeRFC2047String(
     @return the decoded string.
 */
 KMIME_EXPORT extern QString decodeRFC2047String( const QByteArray &src );
+#endif
 
 /**
   Encodes string @p src according to RFC2047 using charset @p charset.
@@ -119,129 +75,6 @@ KMIME_EXPORT extern QString decodeRFC2047String( const QByteArray &src );
 KMIME_EXPORT extern QByteArray encodeRFC2047String(
   const QString &src, const QByteArray &charset, bool addressHeader=false,
   bool allow8bitHeaders=false );
-
-/**
-  Uses current time, pid and random numbers to construct a string
-  that aims to be unique on a per-host basis (ie. for the local
-  part of a message-id or for multipart boundaries.
-
-  @return the unique string.
-  @see multiPartBoundary
-*/
-KMIME_EXPORT extern QByteArray uniqueString();
-
-/**
-  Constructs a random string (sans leading/trailing "--") that can
-  be used as a multipart delimiter (ie. as @p boundary parameter
-  to a multipart/... content-type).
-
-  @return the randomized string.
-  @see uniqueString
-*/
-KMIME_EXPORT extern QByteArray multiPartBoundary();
-
-/**
-  Unfolds the given header if necessary.
-  @param header The header to unfold.
-*/
-KMIME_EXPORT extern QByteArray unfoldHeader( const QByteArray &header );
-
-/**
-  Tries to extract the header with name @p name from the string
-  @p src, unfolding it if necessary.
-
-  @param src  the source string.
-  @param name the name of the header to search for.
-
-  @return the first instance of the header @p name in @p src
-          or a null QCString if no such header was found.
-*/
-KMIME_EXPORT extern QByteArray extractHeader( const QByteArray &src,
-                                 const QByteArray &name );
-
-/**
-  Tries to extract the headers with name @p name from the string
-  @p src, unfolding it if necessary.
-
-  @param src  the source string.
-  @param name the name of the header to search for.
-
-  @return all instances of the header @p name in @p src
-
-  @since 4.2
-*/
-KMIME_EXPORT extern QList<QByteArray> extractHeaders( const QByteArray &src,
-                                 const QByteArray &name );
-
-/**
-  Converts all occurrences of "\r\n" (CRLF) in @p s to "\n" (LF).
-
-  This function is expensive and should be used only if the mail
-  will be stored locally. All decode functions can cope with both
-  line endings.
-
-  @param s source string containing CRLF's
-
-  @return the string with CRLF's substitued for LF's
-  @see CRLFtoLF(const char*) LFtoCRLF
-*/
-KMIME_EXPORT extern QByteArray CRLFtoLF( const QByteArray &s );
-
-/**
-  Converts all occurrences of "\r\n" (CRLF) in @p s to "\n" (LF).
-
-  This function is expensive and should be used only if the mail
-  will be stored locally. All decode functions can cope with both
-  line endings.
-
-  @param s source string containing CRLF's
-
-  @return the string with CRLF's substitued for LF's
-  @see CRLFtoLF(const QCString&) LFtoCRLF
-*/
-KMIME_EXPORT extern QByteArray CRLFtoLF( const char *s );
-
-/**
-  Converts all occurrences of "\n" (LF) in @p s to "\r\n" (CRLF).
-
-  This function is expensive and should be used only if the mail
-  will be transmitted as an RFC822 message later. All decode
-  functions can cope with and all encode functions can optionally
-  produce both line endings, which is much faster.
-
-  @param s source string containing CRLF's
-
-  @return the string with CRLF's substitued for LF's
-  @see CRLFtoLF(const QCString&) LFtoCRLF
-*/
-KMIME_EXPORT extern QByteArray LFtoCRLF( const QByteArray &s );
-
-/**
-  Removes quote (DQUOTE) characters and decodes "quoted-pairs"
-  (ie. backslash-escaped characters)
-
-  @param str the string to work on.
-  @see addQuotes
-*/
-KMIME_EXPORT extern void removeQuots( QByteArray &str );
-
-/**
-  Removes quote (DQUOTE) characters and decodes "quoted-pairs"
-  (ie. backslash-escaped characters)
-
-  @param str the string to work on.
-  @see addQuotes
-*/
-KMIME_EXPORT extern void removeQuots( QString &str );
-
-/**
-  Converts the given string into a quoted-string if the string contains
-  any special characters (ie. one of ()<>@,.;:[]=\").
-
-  @param str us-ascii string to work on.
-  @param forceQuotes if @p true, always add quote characters.
-*/
-KMIME_EXPORT extern void addQuotes( QByteArray &str, bool forceQuotes );
 
 } // namespace KMime
 
