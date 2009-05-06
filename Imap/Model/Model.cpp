@@ -901,7 +901,7 @@ void Model::switchToMailbox( const QModelIndex& mbox )
 
     if ( TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>(
                  static_cast<TreeItem*>( mbox.internalPointer() ) ) ) {
-        ParserPtr ptr = _getParser( mailbox, ReadOnly );
+        ParserPtr ptr = _getParser( mailbox, ReadWrite );
         if ( _parsers[ ptr.get() ].capabilitiesFresh &&
              _parsers[ ptr.get() ].capabilities.contains( QLatin1String( "IDLE" ) ) ) {
             if ( ! _parsers[ ptr.get() ].idleLauncher ) {
