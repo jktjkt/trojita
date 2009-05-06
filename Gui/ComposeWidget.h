@@ -22,6 +22,7 @@ private slots:
     void sent();
 private:
     void setupWidgets( const QString& from, const QList<QPair<QString, QString> >& recipients, const QString& subject );
+    QByteArray encodeHeaderField( const QString& text );
 
     QLineEdit* fromField;
     RecipientsWidget* recipientsField;

@@ -15,6 +15,7 @@
 #include "SettingsNames.h"
 #include "RecipientsWidget.h"
 #include "MSA/Sendmail.h"
+#include "Imap/Parser/3rdparty/kmime_util.h"
 
 
 namespace Gui {
@@ -77,7 +78,8 @@ void ComposeWidget::send()
           it != recipients.end(); ++it ) {
         if ( ! it->second.isEmpty() ) {
             mailDestinations << it->second;
-            recipientHeaders.append( it->first ).append( ": " ).append( "" /*to string*/ ).append( "\r\n" );
+            recipientHeaders.append( it->first ).append( ": " ).append(
+                    encodeHeaderField( it->second ) ).append( "\r\n" );
         }
     }
 
@@ -87,15 +89,13 @@ void ComposeWidget::send()
     }
 
     QByteArray mailData;
-    mailData.append( "From: foo bar <trojita@flaska.net>\r\n" );
+    mailData.append( "From: " ).append( encodeHeaderField( fromField->text() ) ).append( "\r\n" );
     mailData.append( recipientHeaders );
+    mailData.append( "Subject: " ).append( encodeHeaderField( subjectField->text() ) ).append( "\r\n" );
+    mailData.append( "Content-Type: text/plain; charset=utf-8\r\n"
+                     "Content-Transfer-Encoding: 8bit\r\n");
 
-    mailData.append( "Subject: testovaci mail\r\n"
-                     "Content-Type: text/plain; charset=utf-8\r\n"
-                     "Content-Transfer-Encoding: 8bit");
-    mailData.append( "\r\n" );
-
-    mailData.append( "Message-ID: <4A00C5A4.1080301@fzu.cz>\r\n" );
+    //mailData.append( "Message-ID: <4A00C5A4.1080301@fzu.cz>\r\n" ); // FIXME
     QDateTime now = QDateTime::currentDateTime().toUTC(); // FIXME: will neeed proper timzeone...
     mailData.append( "Date: " ).append( now.toString(
             QString::fromAscii( "ddd, dd MMM yyyy hh:mm:ss" ) ).append(
@@ -103,6 +103,7 @@ void ComposeWidget::send()
     mailData.append( "User-Agent: ").append( qApp->applicationName() ).append(
             "/").append( qApp->applicationVersion() ).append( "\r\n");
     mailData.append( "MIME-Version: 1.0\r\n" );
+    mailData.append( "\r\n" );
     mailData.append( bodyField->toPlainText().toUtf8() );
 
     QProgressDialog* progress = new QProgressDialog(
@@ -111,12 +112,11 @@ void ComposeWidget::send()
     connect( msa, SIGNAL(progress(int)), progress, SLOT(setValue(int)) );
     connect( msa, SIGNAL(error(QString)), progress, SLOT(close()) );
     connect( msa, SIGNAL(sent()), progress, SLOT(close()) );
+    connect( msa, SIGNAL(sent()), this, SLOT(sent()) );
+    connect( msa, SIGNAL(sent()), this, SLOT(deleteLater()) );
     connect( progress, SIGNAL(canceled()), msa, SLOT(cancel()) );
     connect( msa, SIGNAL(error(QString)), this, SLOT(gotError(QString)) );
 
-    qDebug() << "now really sending";
-    qDebug() << mailDestinations;
-    qDebug() << mailData;
     msa->sendMail( mailDestinations, mailData );
 }
 
@@ -128,6 +128,11 @@ void ComposeWidget::gotError( const QString& error )
 void ComposeWidget::sent()
 {
     QMessageBox::information( this, tr("OK"), tr("Message Sent") );
+}
+
+QByteArray ComposeWidget::encodeHeaderField( const QString& text )
+{
+    return KMime::encodeRFC2047String( text, "utf-8" );
 }
 
 }
