@@ -58,11 +58,6 @@ void AuthenticatedHandler::handleState( Imap::ParserPtr ptr, const Imap::Respons
     }
 }
 
-void AuthenticatedHandler::handleCapability( Imap::ParserPtr ptr, const Imap::Responses::Capability* const resp )
-{
-    m->unauthHandler->handleCapability( ptr, resp );
-}
-
 void AuthenticatedHandler::handleNumberResponse( Imap::ParserPtr ptr, const Imap::Responses::NumberResponse* const resp )
 {
     switch ( resp->kind ) {

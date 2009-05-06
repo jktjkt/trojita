@@ -79,13 +79,6 @@ void UnauthenticatedHandler::handleState( Imap::ParserPtr ptr, const Imap::Respo
     }
 }
 
-void UnauthenticatedHandler::handleCapability( Imap::ParserPtr ptr, const Imap::Responses::Capability* const resp )
-{
-    m->_parsers[ ptr.get() ].capabilities = resp->capabilities;
-    m->_parsers[ ptr.get() ].capabilitiesFresh = true;
-    m->updateCapabilities( ptr, resp->capabilities );
-}
-
 void UnauthenticatedHandler::handleNumberResponse( Imap::ParserPtr ptr, const Imap::Responses::NumberResponse* const resp )
 {
     throw UnexpectedResponseReceived( "Numeric reply in unauthenticated state", *resp );

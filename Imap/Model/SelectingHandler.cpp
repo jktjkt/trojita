@@ -15,11 +15,6 @@ void SelectingHandler::handleState( Imap::ParserPtr ptr, const Imap::Responses::
     m->authenticatedHandler->handleState( ptr, resp );
 }
 
-void SelectingHandler::handleCapability( Imap::ParserPtr ptr, const Imap::Responses::Capability* const resp )
-{
-    m->unauthHandler->handleCapability( ptr, resp );
-}
-
 void SelectingHandler::handleNumberResponse( Imap::ParserPtr ptr, const Imap::Responses::NumberResponse* const resp )
 {
     // FIXME ?

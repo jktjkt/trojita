@@ -15,11 +15,6 @@ void SelectedHandler::handleState( Imap::ParserPtr ptr, const Imap::Responses::S
     m->authenticatedHandler->handleState( ptr, resp );
 }
 
-void SelectedHandler::handleCapability( Imap::ParserPtr ptr, const Imap::Responses::Capability* const resp )
-{
-    m->unauthHandler->handleCapability( ptr, resp );
-}
-
 void SelectedHandler::handleNumberResponse( Imap::ParserPtr ptr, const Imap::Responses::NumberResponse* const resp )
 {
     m->authenticatedHandler->handleNumberResponse( ptr, resp );

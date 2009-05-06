@@ -532,8 +532,9 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
 
 void Model::handleCapability( Imap::ParserPtr ptr, const Imap::Responses::Capability* const resp )
 {
-    if ( _parsers[ ptr.get() ].responseHandler )
-        _parsers[ ptr.get() ].responseHandler->handleCapability( ptr, resp );
+    _parsers[ ptr.get() ].capabilities = resp->capabilities;
+    _parsers[ ptr.get() ].capabilitiesFresh = true;
+    updateCapabilities( ptr, resp->capabilities );
 }
 
 void Model::handleNumberResponse( Imap::ParserPtr ptr, const Imap::Responses::NumberResponse* const resp )

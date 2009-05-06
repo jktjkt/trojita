@@ -42,7 +42,6 @@ public:
     ModelStateHandler( Model* _m );
 
     virtual void handleState( Imap::ParserPtr ptr, const Imap::Responses::State* const resp ) = 0;
-    virtual void handleCapability( Imap::ParserPtr ptr, const Imap::Responses::Capability* const resp ) = 0;
     virtual void handleNumberResponse( Imap::ParserPtr ptr, const Imap::Responses::NumberResponse* const resp ) = 0;
     virtual void handleList( Imap::ParserPtr ptr, const Imap::Responses::List* const resp ) = 0;
     virtual void handleFlags( Imap::ParserPtr ptr, const Imap::Responses::Flags* const resp ) = 0;

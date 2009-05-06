@@ -12,7 +12,6 @@ class AuthenticatedHandler : public ModelStateHandler
 public:
     AuthenticatedHandler( Model* _m );
     virtual void handleState( Imap::ParserPtr ptr, const Imap::Responses::State* const resp );
-    virtual void handleCapability( Imap::ParserPtr ptr, const Imap::Responses::Capability* const resp );
     virtual void handleNumberResponse( Imap::ParserPtr ptr, const Imap::Responses::NumberResponse* const resp );
     virtual void handleList( Imap::ParserPtr ptr, const Imap::Responses::List* const resp );
     virtual void handleFlags( Imap::ParserPtr ptr, const Imap::Responses::Flags* const resp );
