@@ -26,7 +26,7 @@
 #include "LowLevelParser.h"
 #include "../../Streams/IODeviceSocket.h"
 
-//#define PRINT_TRAFFIC 1000
+//#define PRINT_TRAFFIC 100
 
 /*
  * Parser interface considerations:
@@ -115,8 +115,7 @@ CommandHandle Parser::select( const QString& mailbox )
 
 CommandHandle Parser::examine( const QString& mailbox )
 {
-    //return queueCommand( Commands::Command( "EXAMINE" ) << mailbox );
-    return queueCommand( Commands::Command( "EXAMINE" ) << Commands::PartOfCommand( Commands::LITERAL, mailbox ) );
+    return queueCommand( Commands::Command( "EXAMINE" ) << mailbox );
 }
 
 CommandHandle Parser::deleteMailbox( const QString& mailbox )
