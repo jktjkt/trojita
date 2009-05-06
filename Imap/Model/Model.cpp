@@ -180,6 +180,8 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
                         CommandHandle cmd = ptr->capability();
                         _parsers[ ptr.get() ].commandMap[ cmd ] = Task( Task::CAPABILITY, 0 );
                     }
+                    CommandHandle cmd = ptr->namespaceCommand();
+                    _parsers[ ptr.get() ].commandMap[ cmd ] = Task( Task::NAMESPACE, 0 );
                     completelyReset();
                 } else {
                     // FIXME: handle this in a sane way
@@ -218,6 +220,9 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
                 break;
             case Task::STORE:
                 // FIXME: check for errors
+                break;
+            case Task::NAMESPACE:
+                // FIXME: what to do
                 break;
         }
 
@@ -575,7 +580,21 @@ void Model::handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* cons
 
 void Model::handleNamespace( Imap::ParserPtr ptr, const Imap::Responses::Namespace* const resp )
 {
-    // FIXME
+    return; // because it's broken and won't fly
+
+    ParserPtr parser = _getParser( 0, ReadOnly );
+    QList<Responses::NamespaceData>::const_iterator it;
+    for ( it = resp->personal.begin(); it != resp->personal.end(); ++it )
+        parser->list( QLatin1String(""), it->prefix );
+    for ( it = resp->users.begin(); it != resp->users.end(); ++it )
+        parser->list( QLatin1String(""), it->prefix );
+    for ( it = resp->other.begin(); it != resp->other.end(); ++it )
+        parser->list( QLatin1String(""), it->prefix );
+
+    // FIXME: this will work only on servers that don't re-order commands
+    CommandHandle cmd;
+    cmd = parser->list( QLatin1String(""), QLatin1String("INBOX") );
+    _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::LIST, _mailboxes );
 }
 
 

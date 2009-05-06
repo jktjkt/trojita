@@ -53,11 +53,20 @@ void UnauthenticatedHandler::handleState( Imap::ParserPtr ptr, const Imap::Respo
     using namespace Imap::Responses;
     switch ( resp->kind ) {
         case PREAUTH:
+        {
             m->_parsers[ ptr.get() ].connState = Model::CONN_STATE_AUTH;
             m->_parsers[ ptr.get() ].responseHandler = m->authenticatedHandler;
+            if ( ! m->_parsers[ ptr.get() ].capabilitiesFresh ) {
+                CommandHandle cmd = ptr->capability();
+                m->_parsers[ ptr.get() ].commandMap[ cmd ] = Model::Task( Model::Task::CAPABILITY, 0 );
+            }
+            CommandHandle cmd = ptr->namespaceCommand();
+            m->_parsers[ ptr.get() ].commandMap[ cmd ] = Model::Task( Model::Task::NAMESPACE, 0 );
             break;
+        }
         case OK:
             if ( !m->_startTls ) {
+                // FIXME: obey LOGINDISABLED
                 QAuthenticator auth;
                 emit m->authRequested( &auth );
                 if ( auth.isNull() ) {
