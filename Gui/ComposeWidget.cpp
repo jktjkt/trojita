@@ -116,6 +116,7 @@ void ComposeWidget::send()
 
     QProgressDialog* progress = new QProgressDialog(
             tr("Sending mail"), tr("Abort"), 0, mailData.size(), this );
+    progress->setMinimumDuration( 0 );
     connect( msa, SIGNAL(progressMax(int)), progress, SLOT(setMaximum(int)) );
     connect( msa, SIGNAL(progress(int)), progress, SLOT(setValue(int)) );
     connect( msa, SIGNAL(error(QString)), progress, SLOT(close()) );
@@ -125,17 +126,21 @@ void ComposeWidget::send()
     connect( progress, SIGNAL(canceled()), msa, SLOT(cancel()) );
     connect( msa, SIGNAL(error(QString)), this, SLOT(gotError(QString)) );
 
+    setEnabled( false );
+
     msa->sendMail( mailDestinations, mailData );
 }
 
 void ComposeWidget::gotError( const QString& error )
 {
     QMessageBox::critical( this, tr("Failed to Send Mail"), error );
+    setEnabled( true );
 }
 
 void ComposeWidget::sent()
 {
     QMessageBox::information( this, tr("OK"), tr("Message Sent") );
+    setEnabled( true );
 }
 
 QByteArray ComposeWidget::encodeHeaderField( const QString& text )

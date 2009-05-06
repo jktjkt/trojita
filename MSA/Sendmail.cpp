@@ -22,6 +22,7 @@ Sendmail::~Sendmail()
 void Sendmail::sendMail( const QList<QString>& to, const QByteArray& data )
 {
     emit progressMax( data.size() );
+    emit progress( 0 );
     QStringList myArgs = args;
     for ( QStringList::const_iterator it = to.begin(); it != to.end(); ++it ) {
         myArgs << *it;
