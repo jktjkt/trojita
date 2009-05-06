@@ -345,7 +345,7 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
         // We have already queued a command that switches to another mailbox
         // Asking the parser to switch back would only make the situation worse,
         // so we can't do anything better than exit right now
-        emit messageCountPossiblyChanged( createIndex( 0, 0, mailbox ) );
+        emit messageCountPossiblyChanged( createIndex( mailbox->row(), 0, mailbox ) );
         return;
     }
 
@@ -460,7 +460,7 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
             emit messageCountPossiblyChanged( parent.parent() );
         }
     }
-    emit messageCountPossiblyChanged( createIndex( 0, 0, mailbox ) );
+    emit messageCountPossiblyChanged( createIndex( mailbox->row(), 0, mailbox ) );
 }
 
 void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command )
