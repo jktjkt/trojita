@@ -98,6 +98,8 @@ class Model: public QAbstractItemModel {
 
     enum RWMode { ReadOnly, ReadWrite };
 
+    enum { StructureFetchLimit = 100 };
+
     /** @short IMAP state of a connection */
     enum ConnectionState {
         CONN_STATE_ESTABLISHED /**< Connection established */,

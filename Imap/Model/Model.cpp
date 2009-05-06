@@ -399,7 +399,8 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
                     list->_children << new TreeItemMessage( list );
                 }
 
-                QStringList items = ( networkPolicy() == NETWORK_ONLINE ) ?
+                QStringList items = ( networkPolicy() == NETWORK_ONLINE &&
+                                      syncState.uidNext() - oldState.uidNext() <= StructureFetchLimit ) ?
                                     _onlineMessageFetch : QStringList() << "UID" << "FLAGS";
                 CommandHandle cmd = parser->fetch( Sequence::startingAt( oldState.exists() + 1 ),
                                                    items );
@@ -440,7 +441,8 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
             }
             endInsertRows();
 
-            QStringList items = ( networkPolicy() == NETWORK_ONLINE ) ?
+            QStringList items = ( networkPolicy() == NETWORK_ONLINE &&
+                                  syncState.exists() <= StructureFetchLimit ) ?
                                 _onlineMessageFetch : QStringList() << "UID" << "FLAGS";
             CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ), items );
             _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, mailbox );
