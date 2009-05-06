@@ -174,6 +174,9 @@ namespace Imap {
         /** @short UID command (FETCH), RFC3501 sect 6.4.8 */
         CommandHandle uidFetch( const Sequence& seq, const QStringList& items );
 
+        /** @short UID command (STORE), RFC3501 sect 6.4.8 */
+        CommandHandle uidStore( const Sequence& seq, const QString& item, const QString& value );
+
         /** @short UID command (SEARCH), RFC3501 sect 6.4.8 */
         CommandHandle uidSearch( const QStringList& criteria, const QString& charset ) {
             return _searchHelper( "UID SEARCH", criteria, charset );

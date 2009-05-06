@@ -235,6 +235,14 @@ CommandHandle Parser::uidFetch( const Sequence& seq, const QStringList& items )
             Commands::PartOfCommand( Commands::ATOM, items.join(" ") ) );
 }
 
+CommandHandle Parser::uidStore( const Sequence& seq, const QString& item, const QString& value )
+{
+    return queueCommand( Commands::Command( "UID STORE" ) <<
+            Commands::PartOfCommand( Commands::ATOM, seq.toString() ) <<
+            Commands::PartOfCommand( Commands::ATOM, item ) <<
+            Commands::PartOfCommand( Commands::ATOM, value ) );
+}
+
 CommandHandle Parser::xAtom( const Commands::Command& cmd )
 {
     return queueCommand( cmd );
