@@ -489,9 +489,11 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
 
         QModelIndex parent = createIndex( 0, 0, list );
         if ( uidMap.isEmpty() ) {
-            beginRemoveRows( parent, 0, list->_children.size() - 1 );
-            qDeleteAll( list->setChildren( QList<TreeItem*>() ) );
-            endRemoveRows();
+            if ( list->_children.size() > 1 ) {
+                beginRemoveRows( parent, 0, list->_children.size() - 1 );
+                qDeleteAll( list->setChildren( QList<TreeItem*>() ) );
+                endRemoveRows();
+            }
         } else {
             int pos = 0;
             for ( int i = 0; i < uidMap.size(); ++i ) {
