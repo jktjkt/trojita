@@ -88,6 +88,9 @@ void MainWindow::createActions()
     composeMail = new QAction( tr("Compose Mail..."), this );
     connect( composeMail, SIGNAL(triggered()), this, SLOT(slotComposeMail()) );
 
+    expunge = new QAction( tr("Expunge Mailbox"), this );
+    connect( expunge, SIGNAL(triggered()), this, SLOT(slotExpunge()) );
+
     markAsRead = new QAction( tr("Mark as Read"), this );
     markAsRead->setCheckable( true );
     connect( markAsRead, SIGNAL(triggered(bool)), this, SLOT(handleMarkAsRead(bool)) );
@@ -101,6 +104,7 @@ void MainWindow::createMenus()
 {
     QMenu* imapMenu = menuBar()->addMenu( tr("IMAP") );
     imapMenu->addAction( composeMail );
+    imapMenu->addAction( expunge );
     imapMenu->addSeparator()->setText( tr("Network Access") );
     imapMenu->addAction( netOffline );
     imapMenu->addAction( netExpensive );
@@ -418,6 +422,11 @@ void MainWindow::handleMarkAsDeleted( bool value )
         Q_ASSERT( message );
         model->markMessageDeleted( message, value );
     }
+}
+
+void MainWindow::slotExpunge()
+{
+    model->expungeMailbox( msgListModel->currentMailbox() );
 }
 
 }

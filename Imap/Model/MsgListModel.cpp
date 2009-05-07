@@ -323,6 +323,11 @@ void MsgListModel::setMailbox( const QModelIndex& index )
     }
 }
 
+TreeItemMailbox* MsgListModel::currentMailbox() const
+{
+    return msgList ? dynamic_cast<TreeItemMailbox*>( msgList->parent() ) : 0;
+}
+
 }
 }
 

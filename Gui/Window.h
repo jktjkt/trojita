@@ -58,6 +58,7 @@ private slots:
     void networkPolicyOnline();
     void fullViewToggled( bool show );
     void slotShowSettings();
+    void slotExpunge();
     void connectionError( const QString& message );
     void authenticationRequested( QAuthenticator* auth );
     void slotComposeMail();
@@ -94,6 +95,7 @@ private:
     QAction* showFullView;
     QAction* configSettings;
     QAction* composeMail;
+    QAction* expunge;
 
     QAction* markAsRead;
     QAction* markAsDeleted;

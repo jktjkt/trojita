@@ -88,7 +88,7 @@ class Model: public QAbstractItemModel {
 
     struct Task {
         enum Kind { NONE, STARTTLS, LOGIN, LIST, STATUS, SELECT, FETCH, NOOP,
-                    CAPABILITY, STORE, NAMESPACE };
+                    CAPABILITY, STORE, NAMESPACE, EXPUNGE };
         Kind kind;
         TreeItem* what;
         Task( const Kind _kind, TreeItem* _what ): kind(_kind), what(_what) {};
@@ -196,6 +196,7 @@ public:
     void resyncMailbox( TreeItemMailbox* mbox );
     void markMessageDeleted( TreeItemMessage* msg, bool marked );
     void markMessageRead( TreeItemMessage* msg, bool marked );
+    void expungeMailbox( TreeItemMailbox* mbox );
 
 public slots:
     void reloadMailboxList();

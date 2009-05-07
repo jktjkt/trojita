@@ -224,6 +224,9 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
             case Task::NAMESPACE:
                 // FIXME: what to do
                 break;
+            case Task::EXPUNGE:
+                // FIXME
+                break;
         }
 
         _parsers[ ptr.get() ].commandMap.erase( command );
@@ -1016,6 +1019,16 @@ TreeItemMailbox* Model::findMailboxByName( const QString& name,
             return findMailboxByName( name, mailbox );
     }
     return 0;
+}
+
+void Model::expungeMailbox( TreeItemMailbox* mbox )
+{
+    if ( ! mbox )
+        return;
+
+    ParserPtr parser = _getParser( mbox, ReadWrite );
+    CommandHandle cmd = parser->expunge(); // BIG FAT WARNING: what happens if the SELECT fails???
+    _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::EXPUNGE, mbox );
 }
 
 }
