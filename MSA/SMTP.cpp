@@ -27,8 +27,12 @@ void SMTP::handleDone( bool ok )
 {
     if ( ok )
         emit sent();
-    else if ( ! _failed )
-        emit error( tr("Sending of the message failed. QwwSmtpClient unfortunately won't tell us how.") );
+    else if ( ! _failed ) {
+        if ( _qwwSmtp->errorString().isEmpty() )
+            emit error( tr("Sending of the message failed.") );
+        else
+            emit error( tr("Sending of the message failed with the following error: %1").arg( _qwwSmtp->errorString() ) );
+    }
 }
 
 void SMTP::handleError(QAbstractSocket::SocketError err, const QString& msg )
