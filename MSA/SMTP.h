@@ -17,6 +17,7 @@ public:
 public slots:
     virtual void cancel();
     void handleDone( bool ok );
+    void handleError( QAbstractSocket::SocketError err, const QString& msg );
 private:
     QwwSmtpClient* _qwwSmtp;
     QString _host;
@@ -26,6 +27,7 @@ private:
     bool _auth;
     QString _user;
     QString _pass;
+    bool _failed;
 };
 
 }

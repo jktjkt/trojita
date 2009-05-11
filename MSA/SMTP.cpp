@@ -7,13 +7,15 @@ SMTP::SMTP( QObject* parent, const QString& host, quint16 port,
           const QString& user, const QString& pass ):
 AbstractMSA(parent), _host(host), _port(port),
 _encryptedConnect(encryptedConnect), _startTls(startTls), _auth(auth),
-_user(user), _pass(pass)
+_user(user), _pass(pass), _failed(false)
 {
     _qwwSmtp = new QwwSmtpClient( this );
     // FIXME: handle SSL errors properly
     connect( _qwwSmtp, SIGNAL(sslErrors(QList<QSslError>)), _qwwSmtp, SLOT(ignoreSslErrors()) );
     connect( _qwwSmtp, SIGNAL(connected()), this, SIGNAL(sending()) );
     connect( _qwwSmtp, SIGNAL(done(bool)), this, SLOT(handleDone(bool)) );
+    connect( _qwwSmtp, SIGNAL(error(QAbstractSocket::SocketError,QString)),
+             this, SLOT(handleError(QAbstractSocket::SocketError,QString)) );
 }
 
 void SMTP::cancel()
@@ -23,11 +25,16 @@ void SMTP::cancel()
 
 void SMTP::handleDone( bool ok )
 {
-    qDebug() << "handleDone" << ok;
     if ( ok )
         emit sent();
-    else
-        emit error( "blesmrt" );
+    else if ( ! _failed )
+        emit error( tr("Sending of the message failed. QwwSmtpClient unfortunately won't tell us how.") );
+}
+
+void SMTP::handleError(QAbstractSocket::SocketError err, const QString& msg )
+{
+    _failed = true;
+    emit error( msg );
 }
 
 void SMTP::sendMail( const QStringList& to, const QByteArray& data )
@@ -44,7 +51,7 @@ void SMTP::sendMail( const QStringList& to, const QByteArray& data )
     if ( _auth )
         _qwwSmtp->authenticate( _user, _pass );
     emit sending(); // FIXME: later
-    _qwwSmtp->sendMail( /*FIXME*/ "kundratj@fzu.cz", to, data );
+    _qwwSmtp->sendMail( /*FIXME*/ "kundratj@fzu.cz", to, QString::fromUtf8( data ) );
     _qwwSmtp->disconnectFromHost();
 }
 

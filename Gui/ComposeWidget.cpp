@@ -132,6 +132,7 @@ void ComposeWidget::send()
     connect( msa, SIGNAL(error(QString)), this, SLOT(gotError(QString)) );
 
     setEnabled( false );
+    progress->setEnabled( true );
 
     msa->sendMail( mailDestinations, mailData );
 }
