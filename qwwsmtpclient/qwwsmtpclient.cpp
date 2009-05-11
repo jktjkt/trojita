@@ -317,7 +317,7 @@ void QwwSmtpClientPrivate::_q_readFromSocket() {
                 default: break;
             }
         } else {
-            qDebug() << "RegExp nie pasuje";
+            qDebug() << "None of two regular expressions matched the input" << line;
         }
     }
 }
@@ -381,7 +381,6 @@ void QwwSmtpClientPrivate::processNextCommand(bool ok) {
     }
     break;
     case SMTPCommand::Mail:
-    qDebug() << "MAIL";
         setState(QwwSmtpClient::Sending);
         socket->write(QString("MAIL FROM: %1\r\n").arg(cmd.data.toList().at(0).toString()).toUtf8());
         break;
