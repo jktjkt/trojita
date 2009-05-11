@@ -630,4 +630,4 @@ QString QwwSmtpClient::errorString() const{
     return d->errorString;
 }
 
-#include "moc_qwwsmtpclient.cpp"
+#include "qwwsmtpclient.moc"
