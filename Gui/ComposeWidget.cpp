@@ -15,6 +15,7 @@
 #include "SettingsNames.h"
 #include "RecipientsWidget.h"
 #include "MSA/Sendmail.h"
+#include "MSA/SMTP.h"
 #include "Imap/Parser/3rdparty/kmime_util.h"
 
 
@@ -62,8 +63,12 @@ void ComposeWidget::send()
     QSettings s;
     MSA::AbstractMSA* msa = 0;
     if ( s.value( SettingsNames::msaMethodKey ).toString() == SettingsNames::methodSMTP ) {
-        qFatal( "SMTP not implemented yet, sorry" );
-        return;
+        msa = new MSA::SMTP( this, s.value( SettingsNames::smtpHostKey ).toString(),
+                             s.value( SettingsNames::smtpPortKey ).toInt(),
+                             false, false, // FIXME: encryption & startTls
+                             s.value( SettingsNames::smtpAuthKey ).toBool(),
+                             s.value( SettingsNames::smtpUserKey ).toString(),
+                             s.value( SettingsNames::smtpPassKey ).toString() );
     } else {
         QStringList args = s.value( SettingsNames::sendmailKey, SettingsNames::sendmailDefaultCmd ).toString().split( QLatin1Char(' ') );
         Q_ASSERT( ! args.isEmpty() ); // FIXME

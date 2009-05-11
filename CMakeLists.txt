@@ -92,6 +92,7 @@ set(libStreams_SRCS
 set(libMSA_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/MSA/AbstractMSA.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/MSA/Sendmail.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/MSA/SMTP.cpp
 )
 
 set(trojita_SRCS
