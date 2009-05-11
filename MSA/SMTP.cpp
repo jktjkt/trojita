@@ -14,7 +14,7 @@ _user(user), _pass(pass), _failed(false)
     connect( _qwwSmtp, SIGNAL(sslErrors(QList<QSslError>)), _qwwSmtp, SLOT(ignoreSslErrors()) );
     connect( _qwwSmtp, SIGNAL(connected()), this, SIGNAL(sending()) );
     connect( _qwwSmtp, SIGNAL(done(bool)), this, SLOT(handleDone(bool)) );
-    connect( _qwwSmtp, SIGNAL(error(QAbstractSocket::SocketError,QString)),
+    connect( _qwwSmtp, SIGNAL(socketError(QAbstractSocket::SocketError,QString)),
              this, SLOT(handleError(QAbstractSocket::SocketError,QString)) );
 }
 

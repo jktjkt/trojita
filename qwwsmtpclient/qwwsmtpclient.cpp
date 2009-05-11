@@ -129,7 +129,7 @@ void QwwSmtpClientPrivate::onDisconnected() {
 
 void QwwSmtpClientPrivate::onError(QAbstractSocket::SocketError e)
 {
-    emit q->error(e, socket->errorString());
+    emit q->socketError(e, socket->errorString());
     onDisconnected();
 }
 

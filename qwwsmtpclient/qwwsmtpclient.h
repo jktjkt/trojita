@@ -87,7 +87,7 @@ signals:
     void authenticated();
     void rawCommandReply(int code, const QString &details);
     void sslErrors(const QList<QSslError> &);
-    void error(QAbstractSocket::SocketError err, const QString& message);
+    void socketError(QAbstractSocket::SocketError err, const QString& message);
 
 private:
     QwwSmtpClientPrivate *d;
