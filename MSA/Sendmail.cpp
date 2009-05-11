@@ -19,7 +19,7 @@ Sendmail::~Sendmail()
     proc->waitForFinished();
 }
 
-void Sendmail::sendMail( const QList<QString>& to, const QByteArray& data )
+void Sendmail::sendMail( const QStringList& to, const QByteArray& data )
 {
     emit progressMax( data.size() );
     emit progress( 0 );
