@@ -301,6 +301,9 @@ void TreeItemMailbox::handleExpunge( Model* const model, const Responses::Number
     model->beginRemoveRows( model->createIndex( 0, 0, list ), offset, offset );
     delete list->_children.takeAt( offset );
     model->endRemoveRows();
+    list->_totalMessageCount = list->_children.size();
+    // FIXME: update \Unseen count
+    emit model->messageCountPossiblyChanged( model->createIndex( row(), 0, this ) );
 }
 
 void TreeItemMailbox::handleExistsSynced( Model* const model, ParserPtr ptr, const Responses::NumberResponse& resp )
@@ -315,6 +318,9 @@ void TreeItemMailbox::handleExistsSynced( Model* const model, ParserPtr ptr, con
     for ( uint i = 0; i < diff; ++i )
         list->_children.append( new TreeItemMessage( list ) );
     model->endInsertRows();
+    list->_totalMessageCount = list->_children.size();
+    // FIXME: update \Unseen
+    emit model->messageCountPossiblyChanged( model->createIndex( row(), 0, this ) );
     QStringList items = ( model->networkPolicy() == Model::NETWORK_ONLINE ) ?
                         model->_onlineMessageFetch : QStringList() << "UID" << "FLAGS" ;
     CommandHandle cmd = ptr->fetch( Sequence( resp.number ), items );
