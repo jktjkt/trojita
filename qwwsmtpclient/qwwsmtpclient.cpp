@@ -71,6 +71,7 @@ public:
 
     void onConnected();
     void onDisconnected();
+    void onError(QAbstractSocket::SocketError);
     void _q_readFromSocket();
     void _q_encrypted();
     void processNextCommand(bool ok = true);
@@ -118,12 +119,18 @@ void QwwSmtpClientPrivate::onDisconnected() {
         emit q->commandFinished(commandqueue.head().id, true);
         commandqueue.clear();
         inProgress = false;
-        emit q->done(true);
+        emit q->done(false);
     } else if (commandqueue.isEmpty()) {
         inProgress = false;
         emit q->done(true);
     } else
         processNextCommand();
+}
+
+void QwwSmtpClientPrivate::onError(QAbstractSocket::SocketError e)
+{
+    emit q->error(e, socket->errorString());
+    onDisconnected();
 }
 
 // main logic of the component - a slot triggered upon data entering the socket
@@ -490,6 +497,7 @@ QwwSmtpClient::QwwSmtpClient(QObject *parent)
     d->localName = "localhost";
     d->socket = new QSslSocket(this);
     connect(d->socket, SIGNAL(connected()), this, SLOT(onConnected()));
+    connect(d->socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(onError(QAbstractSocket::SocketError)) );
     connect(d->socket, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
     connect(d->socket, SIGNAL(readyRead()), this, SLOT(_q_readFromSocket()));
     connect(d->socket, SIGNAL(sslErrors(const QList<QSslError> &)), this, SIGNAL(sslErrors(const QList<QSslError>&)));
