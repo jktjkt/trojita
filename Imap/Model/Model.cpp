@@ -459,7 +459,7 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
             emit messageCountPossiblyChanged( parent.parent() );
         }
         if ( syncState.exists() ) {
-            beginInsertRows( parent, 0, syncState.exists() );
+            beginInsertRows( parent, 0, syncState.exists() - 1 );
             for ( uint i = 0; i < syncState.exists(); ++i ) {
                 list->_children << new TreeItemMessage( list );
             }
