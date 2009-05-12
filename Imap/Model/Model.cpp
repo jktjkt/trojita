@@ -636,6 +636,7 @@ void Model::handleStatus( Imap::ParserPtr ptr, const Imap::Responses::Status* co
         list->_totalMessageCount = resp->states[ Imap::Responses::Status::MESSAGES ];
     if ( resp->states.contains( Imap::Responses::Status::UNSEEN ) )
         list->_unreadMessageCount = resp->states[ Imap::Responses::Status::UNSEEN ];
+    list->_numberFetchingStatus = TreeItem::DONE;
     QModelIndex index = createIndex( mailbox->row(), 0, mailbox );
     emit messageCountPossiblyChanged( index );
 }
