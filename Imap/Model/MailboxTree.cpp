@@ -337,7 +337,7 @@ void TreeItemMailbox::handleExistsSynced( Model* const model, ParserPtr ptr, con
     uint firstNew = static_cast<uint>( list->_children.size() );
     uint diff = resp.number - firstNew;
 
-    bool willLoad = diff < Model::StructureFetchLimit && model->networkPolicy() == Model::NETWORK_ONLINE;
+    bool willLoad = diff <= Model::StructureFetchLimit && model->networkPolicy() == Model::NETWORK_ONLINE;
 
     model->beginInsertRows( model->createIndex( 0, 0, list ), list->_children.size(), resp.number - 1 );
     for ( uint i = 0; i < diff; ++i ) {
