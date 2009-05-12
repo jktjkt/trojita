@@ -126,16 +126,20 @@ public:
     int totalMessageCount( Model* const model );
     int unreadMessageCount( Model* const model );
     void fetchNumbers( Model* const model );
+    void recalcUnreadMessageCount();
+    bool numbersFetched() const;
 };
 
 class TreeItemMessage: public TreeItem {
     void operator=( const TreeItem& ); // don't implement
     friend class TreeItemMailbox;
+    friend class TreeItemMsgList;
     friend class Model;
     Message::Envelope _envelope;
     uint _size;
     uint _uid;
     QStringList _flags;
+    bool _flagsHandled;
 public:
     TreeItemMessage( TreeItem* parent );
 

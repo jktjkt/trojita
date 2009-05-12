@@ -212,6 +212,7 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
                 }
                 break;
             case Task::FETCH:
+            case Task::FETCH_WITH_FLAGS:
                 _finalizeFetch( ptr, command );
                 break;
             case Task::NOOP:
@@ -342,7 +343,7 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
     const SyncState& oldState = _cache->mailboxSyncState( mailbox->mailbox() );
 
     static_cast<TreeItemMsgList*>( mailbox->_children[0] )->_totalMessageCount = syncState.exists();
-    static_cast<TreeItemMsgList*>( mailbox->_children[0] )->_unreadMessageCount = syncState.unSeen();
+    // Note: syncState.unSeen() is the NUMBER of the first unseen message, not their count!
 
     if ( _parsers[ parser.get() ].selectingAnother ) {
         // We have already queued a command that switches to another mailbox
@@ -364,7 +365,13 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
                 if ( syncState.exists() ) {
                     CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ),
                                                        QStringList( "FLAGS" ) );
-                    _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, mailbox );
+                    _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
+                    list->_numberFetchingStatus = TreeItem::LOADING;
+                    list->_unreadMessageCount = 0;
+                } else {
+                    list->_unreadMessageCount = 0;
+                    list->_totalMessageCount = 0;
+                    list->_numberFetchingStatus = TreeItem::DONE;
                 }
 
                 if ( list->_children.isEmpty() ) {
@@ -389,7 +396,9 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
 
                 CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ),
                                                    QStringList() << "UID" << "FLAGS" );
-                _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, mailbox );
+                _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
+                list->_numberFetchingStatus = TreeItem::LOADING;
+                list->_unreadMessageCount = 0;
                 // selecting handler should do the rest
                 _parsers[ parser.get() ].responseHandler = selectingHandler;
                 QList<uint>& uidMap = _parsers[ parser.get() ].uidMap;
@@ -415,7 +424,9 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
                                     _onlineMessageFetch : QStringList() << "UID" << "FLAGS";
                 CommandHandle cmd = parser->fetch( Sequence::startingAt( oldState.exists() + 1 ),
                                                    items );
-                _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, mailbox );
+                _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
+                list->_numberFetchingStatus = TreeItem::LOADING;
+                list->_unreadMessageCount = 0;
 
             } else {
                 // Generic case; we don't know anything about which messages were deleted and which added
@@ -424,8 +435,10 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
                 // At first, let's ask for UID numbers and FLAGS for all messages
                 CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ),
                                                    QStringList() << "UID" << "FLAGS" );
-                _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, mailbox );
+                _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
                 _parsers[ parser.get() ].responseHandler = selectingHandler;
+                list->_numberFetchingStatus = TreeItem::LOADING;
+                list->_unreadMessageCount = 0;
                 QList<uint>& uidMap = _parsers[ parser.get() ].uidMap;
                 uidMap.clear();
                 _parsers[ parser.get() ].syncingFlags.clear();
@@ -459,8 +472,14 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
                                   syncState.exists() <= StructureFetchLimit ) ?
                                 _onlineMessageFetch : QStringList() << "UID" << "FLAGS";
             CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ), items );
-            _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, mailbox );
+            _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
+            list->_numberFetchingStatus = TreeItem::LOADING;
+            list->_unreadMessageCount = 0;
             emit messageCountPossiblyChanged( parent.parent() );
+        } else {
+            list->_totalMessageCount = 0;
+            list->_unreadMessageCount = 0;
+            list->_numberFetchingStatus = TreeItem::DONE;
         }
     }
     emit messageCountPossiblyChanged( createIndex( mailbox->row(), 0, mailbox ) );
@@ -479,6 +498,13 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
     if ( mailbox && _parsers[ parser.get() ].responseHandler == selectedHandler ) {
         mailbox->_children[0]->_fetchStatus = TreeItem::DONE;
         _cache->setMailboxSyncState( mailbox->mailbox(), _parsers[ parser.get() ].syncState );
+        TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[0] );
+        Q_ASSERT( list );
+        if ( command->kind == Task::FETCH_WITH_FLAGS ) {
+            qDebug() << "upgrading number syncing state to DONE:" << list->_unreadMessageCount;
+            list->recalcUnreadMessageCount();
+            list->_numberFetchingStatus = TreeItem::DONE;
+        }
         QModelIndex index = createIndex( mailbox->row(), 0, mailbox );
         emit messageCountPossiblyChanged( index );
     } else if ( mailbox && _parsers[ parser.get() ].responseHandler == selectingHandler ) {
@@ -542,6 +568,7 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
 
         uidMap.clear();
 
+        int unSeenCount = 0;
         for ( QList<TreeItem*>::const_iterator it = list->_children.begin();
               it != list->_children.end(); ++it ) {
             TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( *it );
@@ -550,10 +577,16 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
                 qDebug() << "Message with unknown UID";
             } else {
                 message->_flags = _parsers[ parser.get() ].syncingFlags[ message->_uid ];
+                if ( ! message->isMarkedAsRead() )
+                    ++unSeenCount;
+                message->_flagsHandled = true;
                 QModelIndex index = createIndex( message->row(), 0, message );
                 emit dataChanged( index, index );
             }
         }
+        list->_totalMessageCount = list->_children.size();
+        list->_unreadMessageCount = unSeenCount;
+        list->_numberFetchingStatus = TreeItem::DONE;
         _parsers[ parser.get() ].syncingFlags.clear();
         emit messageCountPossiblyChanged( parent.parent() );
     }

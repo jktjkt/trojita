@@ -246,7 +246,29 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
         } else if ( it.key() == "UID" ) {
             message->_uid = dynamic_cast<const Responses::RespData<uint>&>( *(it.value()) ).data;
         } else if ( it.key() == "FLAGS" ) {
+            bool wasSeen = message->isMarkedAsRead();
             message->_flags = dynamic_cast<const Responses::RespData<QStringList>&>( *(it.value()) ).data;
+            if ( list->_numberFetchingStatus == DONE ) {
+                bool isSeen = message->isMarkedAsRead();
+                qDebug() << "OK, we are already fetched, seen before" << wasSeen << "now" << isSeen;
+                if ( message->_flagsHandled ) {
+                    if ( wasSeen && ! isSeen ) {
+                        qDebug() << "++ unread";
+                        ++list->_unreadMessageCount;
+                    } else if ( ! wasSeen && isSeen ) {
+                        qDebug() << "-- unread";
+                        --list->_unreadMessageCount;
+                    }
+                } else {
+                    // it's a new message
+                    message->_flagsHandled = true;
+                    if ( ! isSeen ) {
+                        ++list->_unreadMessageCount;
+                    }
+                }
+            } else {
+                qDebug() << "numbers NOT FETCHED YET!!!!";
+            }
             if ( changedMessage )
                 *changedMessage = message;
         } else {
@@ -298,11 +320,13 @@ void TreeItemMailbox::handleExpunge( Model* const model, const Responses::Number
         throw UnknownMessageIndex( "EXPUNGE references message number which is out-of-bounds" );
     }
     uint offset = resp.number - 1;
+
     model->beginRemoveRows( model->createIndex( 0, 0, list ), offset, offset );
     delete list->_children.takeAt( offset );
     model->endRemoveRows();
-    list->_totalMessageCount = list->_children.size();
-    // FIXME: update \Unseen count
+
+    --list->_totalMessageCount;
+    list->recalcUnreadMessageCount();
     emit model->messageCountPossiblyChanged( model->createIndex( row(), 0, this ) );
 }
 
@@ -319,7 +343,7 @@ void TreeItemMailbox::handleExistsSynced( Model* const model, ParserPtr ptr, con
         list->_children.append( new TreeItemMessage( list ) );
     model->endInsertRows();
     list->_totalMessageCount = list->_children.size();
-    // FIXME: update \Unseen
+    // we don't know the flags yet, so we can't update \seen count
     emit model->messageCountPossiblyChanged( model->createIndex( row(), 0, this ) );
     QStringList items = ( model->networkPolicy() == Model::NETWORK_ONLINE ) ?
                         model->_onlineMessageFetch : QStringList() << "UID" << "FLAGS" ;
@@ -434,14 +458,32 @@ int TreeItemMsgList::totalMessageCount( Model* const model )
 
 int TreeItemMsgList::unreadMessageCount( Model* const model )
 {
+    // yes, we really check the normal fetch status
     if ( ! fetched() )
         fetchNumbers( model );
     return _unreadMessageCount;
 }
 
+void TreeItemMsgList::recalcUnreadMessageCount()
+{
+    _unreadMessageCount = 0;
+    for ( int i = 0; i < _children.size(); ++i ) {
+        TreeItemMessage* message = static_cast<TreeItemMessage*>( _children[i] );
+        message->_flagsHandled = true;
+        if ( ! message->isMarkedAsRead() )
+            ++_unreadMessageCount;
+    }
+}
+
+bool TreeItemMsgList::numbersFetched() const
+{
+    return fetched() || _numberFetchingStatus == DONE;
+}
 
 
-TreeItemMessage::TreeItemMessage( TreeItem* parent ): TreeItem(parent), _size(0), _uid(0)
+
+TreeItemMessage::TreeItemMessage( TreeItem* parent ):
+        TreeItem(parent), _size(0), _uid(0), _flagsHandled(false)
 {}
 
 void TreeItemMessage::fetch( Model* const model )

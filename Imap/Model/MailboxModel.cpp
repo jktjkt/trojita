@@ -167,10 +167,10 @@ QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
                         TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mbox->_children[0] );
                         Q_ASSERT( list );
                         int num = list->totalMessageCount( static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
-                        if ( num == -1 )
-                            return "?";
-                        else
+                        if ( list->numbersFetched() )
                             return num;
+                        else
+                            return "?";
                     }
                 case UNREAD_MESSAGE_COUNT:
                     {
@@ -181,10 +181,10 @@ QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
                         TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mbox->_children[0] );
                         Q_ASSERT( list );
                         int num = list->unreadMessageCount( static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
-                        if ( num == -1 )
-                            return "?";
-                        else
+                        if ( list->numbersFetched() )
                             return num;
+                        else
+                            return "?";
                     }
                 default:
                     return QVariant();

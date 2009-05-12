@@ -88,7 +88,7 @@ class Model: public QAbstractItemModel {
 
     struct Task {
         enum Kind { NONE, STARTTLS, LOGIN, LIST, STATUS, SELECT, FETCH, NOOP,
-                    CAPABILITY, STORE, NAMESPACE, EXPUNGE };
+                    CAPABILITY, STORE, NAMESPACE, EXPUNGE, FETCH_WITH_FLAGS };
         Kind kind;
         TreeItem* what;
         Task( const Kind _kind, TreeItem* _what ): kind(_kind), what(_what) {};
