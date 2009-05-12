@@ -181,7 +181,7 @@ void MainWindow::setupModels()
 #endif
     }
 
-    cache.reset( new Imap::Mailbox::NoCache() );
+    cache.reset( new Imap::Mailbox::MemoryCache() );
     model = new Imap::Mailbox::Model( this, cache, factory );
     model->setObjectName( QLatin1String("model") );
     mboxModel = new Imap::Mailbox::MailboxModel( this, model );

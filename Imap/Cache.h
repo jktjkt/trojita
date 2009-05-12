@@ -32,7 +32,7 @@ namespace Mailbox {
 /** @short An abstract parent for all IMAP cache implementations */
 class AbstractCache {
 public:
-    virtual ~AbstractCache() {};
+    virtual ~AbstractCache() {}
 
     /** @short Return a list of all known child mailboxes */
     virtual QList<MailboxMetadata> childMailboxes( const QString& mailbox ) const = 0;
@@ -49,10 +49,10 @@ public:
     virtual void setMailboxSyncState( const QString& mailbox, const SyncState& state ) = 0;
 };
 
-/** @short A cache implementation that actually doesn't cache anything */
-class NoCache : public AbstractCache {
+/** @short A cache implementation that uses only in-memory cache */
+class MemoryCache : public AbstractCache {
 public:
-    NoCache();
+    MemoryCache();
 
     virtual QList<MailboxMetadata> childMailboxes( const QString& mailbox ) const;
     virtual bool childMailboxesFresh( const QString& mailbox ) const;

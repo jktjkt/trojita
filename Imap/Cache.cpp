@@ -22,27 +22,27 @@
 namespace Imap {
 namespace Mailbox {
 
-NoCache::NoCache()
+MemoryCache::MemoryCache()
 {
     //_cache[ "" ] = QList<MailboxMetadata>() << MailboxMetadata( "INBOX", "", QStringList() << "\\HASNOCHILDREN" );
 }
 
-QList<MailboxMetadata> NoCache::childMailboxes( const QString& mailbox ) const
+QList<MailboxMetadata> MemoryCache::childMailboxes( const QString& mailbox ) const
 {
     return _cache[ mailbox ];
 }
 
-bool NoCache::childMailboxesFresh( const QString& mailbox ) const
+bool MemoryCache::childMailboxesFresh( const QString& mailbox ) const
 {
     return _cache.contains( mailbox );
 }
 
-void NoCache::setChildMailboxes( const QString& mailbox, const QList<MailboxMetadata>& data )
+void MemoryCache::setChildMailboxes( const QString& mailbox, const QList<MailboxMetadata>& data )
 {
     _cache[ mailbox ] = data;
 }
 
-void NoCache::forgetChildMailboxes( const QString& mailbox )
+void MemoryCache::forgetChildMailboxes( const QString& mailbox )
 {
     for ( QMap<QString,QList<MailboxMetadata> >::iterator it = _cache.begin();
           it != _cache.end(); /* do nothing */ ) {
@@ -54,12 +54,12 @@ void NoCache::forgetChildMailboxes( const QString& mailbox )
     }
 }
 
-SyncState NoCache::mailboxSyncState( const QString& mailbox ) const
+SyncState MemoryCache::mailboxSyncState( const QString& mailbox ) const
 {
     return _syncState[ mailbox ];
 }
 
-void NoCache::setMailboxSyncState( const QString& mailbox, const SyncState& state )
+void MemoryCache::setMailboxSyncState( const QString& mailbox, const SyncState& state )
 {
     _syncState[ mailbox ] = state;
 }
