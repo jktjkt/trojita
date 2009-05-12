@@ -336,19 +336,21 @@ void TreeItemMailbox::handleExistsSynced( Model* const model, ParserPtr ptr, con
     }
     uint firstNew = static_cast<uint>( list->_children.size() );
     uint diff = resp.number - firstNew;
+
+    bool willLoad = diff < Model::StructureFetchLimit && model->networkPolicy() == Model::NETWORK_ONLINE;
+
     model->beginInsertRows( model->createIndex( 0, 0, list ), list->_children.size(), resp.number - 1 );
     for ( uint i = 0; i < diff; ++i ) {
         TreeItemMessage* message = new TreeItemMessage( list );
         list->_children.append( message );
-        if ( model->networkPolicy() == Model::NETWORK_ONLINE )
+        if ( willLoad )
             message->_fetchStatus = TreeItem::LOADING;
     }
     model->endInsertRows();
     list->_totalMessageCount = list->_children.size();
     // we don't know the flags yet, so we can't update \seen count
     emit model->messageCountPossiblyChanged( model->createIndex( row(), 0, this ) );
-    QStringList items = ( model->networkPolicy() == Model::NETWORK_ONLINE ) ?
-                        model->_onlineMessageFetch : QStringList() << "UID" << "FLAGS" ;
+    QStringList items = willLoad ? model->_onlineMessageFetch : QStringList() << "UID" << "FLAGS" ;
     CommandHandle cmd = ptr->fetch( Sequence::startingAt( firstNew + 1 ), items );
     model->_parsers[ ptr.get() ].commandMap[ cmd ] = Model::Task( Model::Task::FETCH, this );
 }
