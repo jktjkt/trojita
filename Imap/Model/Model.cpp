@@ -459,18 +459,20 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
             emit messageCountPossiblyChanged( parent.parent() );
         }
         if ( syncState.exists() ) {
+            bool willLoad = networkPolicy() == NETWORK_ONLINE && syncState.exists() <= StructureFetchLimit;
             beginInsertRows( parent, 0, syncState.exists() - 1 );
             for ( uint i = 0; i < syncState.exists(); ++i ) {
-                list->_children << new TreeItemMessage( list );
+                TreeItemMessage* message = new TreeItemMessage( list );
+                list->_children << message;
+                if ( willLoad )
+                    message->_fetchStatus = TreeItem::LOADING;
             }
             endInsertRows();
             list->_fetchStatus = TreeItem::DONE;
 
             Q_ASSERT( ! _parsers[ parser.get() ].selectingAnother );
 
-            QStringList items = ( networkPolicy() == NETWORK_ONLINE &&
-                                  syncState.exists() <= StructureFetchLimit ) ?
-                                _onlineMessageFetch : QStringList() << "UID" << "FLAGS";
+            QStringList items = willLoad ? _onlineMessageFetch : QStringList() << "UID" << "FLAGS";
             CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ), items );
             _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
             list->_numberFetchingStatus = TreeItem::LOADING;
