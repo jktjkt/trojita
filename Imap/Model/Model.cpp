@@ -480,6 +480,8 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
             list->_totalMessageCount = 0;
             list->_unreadMessageCount = 0;
             list->_numberFetchingStatus = TreeItem::DONE;
+            list->_fetchStatus = TreeItem::DONE;
+            _cache->setMailboxSyncState( mailbox->mailbox(), syncState );
         }
     }
     emit messageCountPossiblyChanged( createIndex( mailbox->row(), 0, mailbox ) );
