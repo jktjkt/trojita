@@ -358,15 +358,15 @@ void ImapParserParseTest::testParseUntagged_data()
     fetchData.clear();
     AbstractMessage::bodyFldParam_t bodyFldParam;
     AbstractMessage::bodyFldDsp_t bodyFldDsp;
-    bodyFldParam[ "charset" ] = "UTF-8";
-    bodyFldParam[ "format" ] = "flowed";
+    bodyFldParam[ "CHARSET" ] = "UTF-8";
+    bodyFldParam[ "FORMAT" ] = "flowed";
     fetchData[ "BODYSTRUCTURE" ] = std::tr1::shared_ptr<AbstractData>(
             new TextMessage( "text", "plain", bodyFldParam, QByteArray(), QByteArray(),
                 "8bit", 362, QByteArray(), bodyFldDsp, QList<QByteArray>(),
                 QByteArray(), QVariant(), 15 )
             );
     QTest::newRow("fetch-bodystructure-plain") <<
-        QByteArray( "* 3 FETCH (BODYSTRUCTURE (\"text\" \"plain\" (\"charset\" \"UTF-8\" \"format\" \"flowed\") NIL NIL \"8bit\" 362 15 NIL NIL NIL))\r\n" ) <<
+        QByteArray( "* 3 FETCH (BODYSTRUCTURE (\"text\" \"plain\" (\"chaRset\" \"UTF-8\" \"format\" \"flowed\") NIL NIL \"8bit\" 362 15 NIL NIL NIL))\r\n" ) <<
         shared_ptr<AbstractResponse>( new Fetch( 3, fetchData ) );
 
 
@@ -375,9 +375,9 @@ void ImapParserParseTest::testParseUntagged_data()
     // 1.1
     bodyFldParam.clear();
     bodyFldDsp = AbstractMessage::bodyFldDsp_t();
-    bodyFldParam[ "charset" ] = "US-ASCII";
-    bodyFldParam[ "delsp" ] = "yes";
-    bodyFldParam[ "format" ] = "flowed";
+    bodyFldParam[ "CHARSET" ] = "US-ASCII";
+    bodyFldParam[ "DELSP" ] = "yes";
+    bodyFldParam[ "FORMAT" ] = "flowed";
     msgList.append( std::tr1::shared_ptr<AbstractMessage>(
                 new TextMessage( "text", "plain", bodyFldParam, QByteArray(), 
                     QByteArray(), "7bit", 990, QByteArray(), bodyFldDsp,
@@ -385,11 +385,11 @@ void ImapParserParseTest::testParseUntagged_data()
                 ) );
     // 1.2
     bodyFldParam.clear();
-    bodyFldParam[ "x-mac-type" ] = "70674453";
-    bodyFldParam[ "name" ] = "PGP.sig";
+    bodyFldParam[ "X-MAC-TYPE" ] = "70674453";
+    bodyFldParam[ "NAME" ] = "PGP.sig";
     bodyFldDsp = AbstractMessage::bodyFldDsp_t();
     bodyFldDsp.first = "inline";
-    bodyFldDsp.second[ "filename" ] = "PGP.sig";
+    bodyFldDsp.second[ "FILENAME" ] = "PGP.sig";
     msgList.append( std::tr1::shared_ptr<AbstractMessage>(
                 new TextMessage( "application", "pgp-signature", bodyFldParam,
                     QByteArray(), "This is a digitally signed message part",
@@ -398,9 +398,9 @@ void ImapParserParseTest::testParseUntagged_data()
                 ) );
     // 1
     bodyFldParam.clear();
-    bodyFldParam[ "protocol" ] = "application/pgp-signature";
-    bodyFldParam[ "micalg" ] = "pgp-sha1";
-    bodyFldParam[ "boundary" ] = "Apple-Mail-10--856231115";
+    bodyFldParam[ "PROTOCOL" ] = "application/pgp-signature";
+    bodyFldParam[ "MICALG" ] = "pgp-sha1";
+    bodyFldParam[ "BOUNDARY" ] = "Apple-Mail-10--856231115";
     bodyFldDsp = AbstractMessage::bodyFldDsp_t();
     fetchData[ "BODYSTRUCTURE" ] = std::tr1::shared_ptr<AbstractData>(
             new MultiMessage( msgList, "signed", bodyFldParam, bodyFldDsp, QList<QByteArray>(), QByteArray(), QVariant() )

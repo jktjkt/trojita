@@ -290,7 +290,7 @@ AbstractMessage::bodyFldParam_t AbstractMessage::makeBodyFldParam( const QVarian
         if ( list[j].type() != QVariant::ByteArray || list[j+1].type() != QVariant::ByteArray )
             throw UnexpectedHere( line, start ); // body-fld-param: string not found
         else
-            map[ list[j].toByteArray() ] = list[j+1].toByteArray();
+            map[ list[j].toByteArray().toUpper() ] = list[j+1].toByteArray();
     return map;
 }
 
@@ -653,7 +653,7 @@ bool operator==( const MailAddress& a, const MailAddress& b )
 void OneMessage::storeInterestingFields( Mailbox::TreeItemPart* p ) const
 {
     p->setEncoding( bodyFldEnc.toLower() );
-    bodyFldParam_t::const_iterator it = bodyFldParam.find( "charset" );
+    bodyFldParam_t::const_iterator it = bodyFldParam.find( "CHARSET" );
     if ( it != bodyFldParam.end() ) {
         p->setCharset( *it );
     }
