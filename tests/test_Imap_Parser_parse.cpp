@@ -26,6 +26,7 @@
 
 Q_DECLARE_METATYPE(std::tr1::shared_ptr<Imap::Responses::AbstractResponse>)
 Q_DECLARE_METATYPE(Imap::Responses::State)
+Q_DECLARE_METATYPE(Imap::Sequence)
 
 void ImapParserParseTest::initTestCase()
 {
@@ -408,6 +409,57 @@ void ImapParserParseTest::testParseUntagged_data()
         QByteArray("* 1 FETCH (BODYSTRUCTURE ((\"text\" \"plain\" (\"charset\" \"US-ASCII\" \"delsp\" \"yes\" \"format\" \"flowed\") NIL NIL \"7bit\" 990 27 NIL NIL NIL)(\"application\" \"pgp-signature\" (\"x-mac-type\" \"70674453\" \"name\" \"PGP.sig\") NIL \"This is a digitally signed message part\" \"7bit\" 193 NIL (\"inline\" (\"filename\" \"PGP.sig\")) NIL) \"signed\" (\"protocol\" \"application/pgp-signature\" \"micalg\" \"pgp-sha1\" \"boundary\" \"Apple-Mail-10--856231115\") NIL NIL))\r\n") <<
         shared_ptr<AbstractResponse>( new Fetch( 1, fetchData ) );
 
+}
+
+void ImapParserParseTest::testSequences()
+{
+    QFETCH( Imap::Sequence, sequence );
+    QFETCH( QString, muster );
+    QCOMPARE( sequence.toString(), muster );
+}
+
+void ImapParserParseTest::testSequences_data()
+{
+    QTest::addColumn<Imap::Sequence>("sequence");
+    QTest::addColumn<QString>("muster");
+
+    QTest::newRow("sequence-one") <<
+            Imap::Sequence( 33 ) << "33";
+
+    QTest::newRow("sequence-unlimited") <<
+            Imap::Sequence::startingAt(666) << "666:*";
+
+    QTest::newRow("sequence-range") <<
+            Imap::Sequence( 333, 666 ) << "333:666";
+
+    QTest::newRow("sequence-distinct") <<
+            Imap::Sequence( 20 ).add( 10 ).add( 30 ) << "10,20,30";
+
+    QTest::newRow("sequence-collapsed-2") <<
+            Imap::Sequence( 10 ).add( 11 ) << "10:11";
+
+    QTest::newRow("sequence-collapsed-3") <<
+            Imap::Sequence( 10 ).add( 11 ).add( 12 ) << "10:12";
+
+    QTest::newRow("sequence-head-and-collapsed") <<
+            Imap::Sequence( 3 ).add( 31 ).add( 32 ).add( 33 ) << "3,31:33";
+
+    QTest::newRow("sequence-collapsed-and-tail") <<
+            Imap::Sequence( 666 ).add( 31 ).add( 32 ).add( 33 ) << "31:33,666";
+
+    QTest::newRow("sequence-head-collapsed-tail") <<
+            Imap::Sequence( 666 ).add( 31 ).add( 32 ).add( 1 ).add( 33 ) << "1,31:33,666";
+
+    QTest::newRow("sequence-same") <<
+            Imap::Sequence( 2 ).add( 2 ) << "2";
+
+    QTest::newRow("sequence-multiple-consequent") <<
+            Imap::Sequence( 2 ).add( 3 ).add( 4 ).add( 6 ).add( 7 ) << "2:4,6:7";
+
+    QTest::newRow("sequence-complex") <<
+            Imap::Sequence( 2 ).add( 3 ).add( 4 ).add( 6 ).add( 7 ).add( 1 )
+            .add( 100 ).add( 101 ).add( 102 ).add( 99 ).add( 666 ).add( 333 ).add( 666 ) <<
+            "1:4,6:7,99:102,333,666";
 }
 
 QTEST_KDEMAIN_CORE( ImapParserParseTest )

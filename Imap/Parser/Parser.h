@@ -52,14 +52,49 @@ namespace Imap {
 
     Q_ENUMS( ThreadAlgorithm )
 
-    /** @short Class specifying a set of messagess to access */
+    /** @short Class specifying a set of messagess to access
+
+      Although named a sequence, there's no reason for a sequence to contain
+      only consecutive ranges of numbers. For example, a set of
+      { 1, 2, 3, 10, 15, 16, 17 } is perfectly valid sequence.
+*/
     class Sequence {
         uint _lo, _hi;
-        bool _upperUnlimited;
+        QList<uint> _list;
+        enum { DISTINCT, RANGE, UNLIMITED } _kind;
     public:
-        Sequence( const uint num ): _lo(num), _hi(num), _upperUnlimited(false) {};
-        Sequence( const uint lo, const uint hi ): _lo(lo), _hi(hi), _upperUnlimited(false) {};
+        /** @short Construct an invalid sequence */
+        Sequence(): _kind(DISTINCT) {}
+
+        /** @short Construct a sequence holding only one number
+
+          Such a sequence can be subsequently expanded by using its add() method.
+          There's no way to turn it into an unlimited sequence, though -- use
+          the startingAt() for creating sequences that grow to the "infinite".
+*/
+        Sequence( const uint num );
+
+        /** @short Construct a sequence holding a set of numbers between upper and lower bound
+
+          This sequence can't be expanded ever after. Calling add() on it will
+          assert().
+*/
+        Sequence( const uint lo, const uint hi ): _lo(lo), _hi(hi), _kind(RANGE) {}
+
+        /** @short Create an "unlimited" sequence
+
+          That's a sequence that starts at the specified offset and grow to the
+          current maximal boundary. There's no way to add a distinct item to
+          this set; doing so via the add() method will assert */
         static Sequence startingAt( const uint lo );
+
+        /** @short Add another number to the sequence
+
+          Note that you can only add numbers to a sequence created by the
+          Sequence( const uint num ) constructor. Attempting to do so on other
+          kinds of sequences will assert().
+*/
+        Sequence& add( const uint num );
 
         /** @short Converts sequence to string suitable for sending over the wire */
         QString toString() const;

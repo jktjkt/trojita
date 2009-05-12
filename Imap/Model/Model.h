@@ -95,9 +95,19 @@ class Model: public QAbstractItemModel {
         Task(): kind(NONE) {};
     };
 
-    enum RWMode { ReadOnly, ReadWrite };
+    /** @short How to open a mailbox */
+    enum RWMode {
+        ReadOnly /**< @short Use EXAMINE or leave it in SELECTed mode*/,
+        ReadWrite /**< @short Invoke SELECT if necessarry */
+    };
 
-    enum { StructureFetchLimit = 100 };
+    enum {
+        /** @short Don't request message structures etc when the number of messages we'd ask for is greater than this */
+        StructureFetchLimit = 100 };
+
+    enum {
+        /** @short How many messages before and after to preload when structure of one is being requested */
+        StructurePreload = 50 };
 
     /** @short IMAP state of a connection */
     enum ConnectionState {

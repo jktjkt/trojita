@@ -817,19 +817,43 @@ void Model::_askForNumberOfMessages( TreeItemMsgList* item )
 
 void Model::_askForMsgMetadata( TreeItemMessage* item )
 {
-    Q_ASSERT( item->parent() ); // TreeItemMsgList
-    Q_ASSERT( item->parent()->parent() ); // TreeItemMailbox
-    TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( item->parent()->parent() );
+    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( item->parent() );
+    Q_ASSERT( list );
+    TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( list->parent() );
     Q_ASSERT( mailboxPtr );
 
     int order = item->row();
 
-    if ( networkPolicy() == NETWORK_OFFLINE ) {
-        item->_fetchStatus = TreeItem::UNAVAILABLE;
-    } else {
-        ParserPtr parser = _getParser( mailboxPtr, ReadOnly );
-        CommandHandle cmd = parser->fetch( Sequence( order + 1 ), _onlineMessageFetch );
-        _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, item );
+    switch ( networkPolicy() ) {
+        case NETWORK_OFFLINE:
+            item->_fetchStatus = TreeItem::UNAVAILABLE;
+            break;
+        case NETWORK_EXPENSIVE:
+        {
+            ParserPtr parser = _getParser( mailboxPtr, ReadOnly );
+            CommandHandle cmd = parser->fetch( Sequence( order + 1 ), _onlineMessageFetch );
+            _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, item );
+            break;
+        }
+        case NETWORK_ONLINE:
+        {
+            // preload
+            Sequence seq( order + 1 );
+            for ( int i = qMax( 1, order + 1 - StructurePreload );
+                  i < qMin( item->parent()->_children.size() - 1, order + 1 + StructurePreload );
+                  ++i ) {
+                TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->_children[i] );
+                Q_ASSERT( message );
+                if ( item != message && ! message->fetched() && ! message->loading() ) {
+                    message->_fetchStatus = TreeItem::LOADING;
+                    seq.add( message->row() + 1 );
+                }
+            }
+            ParserPtr parser = _getParser( mailboxPtr, ReadOnly );
+            CommandHandle cmd = parser->fetch( seq, _onlineMessageFetch );
+            _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH, item );
+            break;
+        }
     }
 }
 

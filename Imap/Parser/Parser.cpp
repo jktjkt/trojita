@@ -625,21 +625,65 @@ void Parser::enableLiteralPlus( const bool enabled )
     _literalPlus = enabled;
 }
 
+Sequence::Sequence( const uint num ): _kind(DISTINCT)
+{
+    _list << num;
+}
+
 Sequence Sequence::startingAt( const uint lo )
 {
-    Sequence res( lo, 0 );
-    res._upperUnlimited = true;
+    Sequence res( lo );
+    res._lo = lo;
+    res._kind = UNLIMITED;
     return res;
 }
 
 QString Sequence::toString() const
 {
-    if ( _upperUnlimited )
-        return QString::number( _lo ) + ":*";
-    else if ( _lo == _hi )
-        return QString::number( _lo );
-    else
-        return QString::number( _lo ) + ':' + QString::number( _hi );
+    switch ( _kind ) {
+        case DISTINCT:
+        {
+            Q_ASSERT( ! _list.isEmpty() );
+
+            QStringList res;
+            int i = 0;
+            while ( i < _list.size() ) {
+                int old = i;
+                while ( i < _list.size() - 1 &&
+                        _list[i] == _list[ i + 1 ] - 1 )
+                    ++i;
+                if ( old != i ) {
+                    // we've found a sequence
+                    res << QString::number( _list[old] ) + QLatin1Char(':') + QString::number( _list[i] );
+                } else {
+                    res << QString::number( _list[i] );
+                }
+                ++i;
+            }
+            return res.join( QLatin1String(",") );
+            break;
+        }
+        case RANGE:
+            Q_ASSERT( _lo <= _hi );
+            if ( _lo == _hi )
+                return QString::number( _lo );
+            else
+                return QString::number( _lo ) + QLatin1Char(':') + QString::number( _hi );
+        case UNLIMITED:
+            return QString::number( _lo ) + QLatin1String(":*");
+    }
+    // fix gcc warning
+    Q_ASSERT( false );
+    return QString();
+}
+
+Sequence& Sequence::add( uint num )
+{
+    Q_ASSERT( _kind == DISTINCT );
+    QList<uint>::iterator it = qLowerBound( _list.begin(), _list.end(), num );
+    if ( *it != num )
+        _list.insert( it, num );
+    return *this;
 }
 
 QTextStream& operator<<( QTextStream& stream, const Sequence& s )

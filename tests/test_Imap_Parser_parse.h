@@ -37,6 +37,9 @@ private Q_SLOTS:
     /** @short Test parsing of untagged responses */
     void testParseUntagged();
     void testParseUntagged_data();
+    /** @short Test sequence output */
+    void testSequences();
+    void testSequences_data();
     void initTestCase();
 };
 
