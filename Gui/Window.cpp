@@ -35,6 +35,7 @@
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/ModelWatcher.h"
 #include "Imap/Model/MsgListModel.h"
+#include "Imap/Model/MemoryCache.h"
 #include "Streams/SocketFactory.h"
 
 #include "Imap/Model/ModelTest/modeltest.h"

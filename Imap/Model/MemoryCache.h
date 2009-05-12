@@ -16,38 +16,17 @@
    Boston, MA 02110-1301, USA.
 */
 
-#ifndef IMAP_CACHE_H
-#define IMAP_CACHE_H
+#ifndef IMAP_MODEL_MEMORYCACHE_H
+#define IMAP_MODEL_MEMORYCACHE_H
 
-#include <tr1/memory>
+#include "Cache.h"
 #include <QMap>
-#include "Model/MailboxMetadata.h"
 
 /** @short Namespace for IMAP interaction */
 namespace Imap {
 
 /** @short Classes for handling of mailboxes and connections */
 namespace Mailbox {
-
-/** @short An abstract parent for all IMAP cache implementations */
-class AbstractCache {
-public:
-    virtual ~AbstractCache() {}
-
-    /** @short Return a list of all known child mailboxes */
-    virtual QList<MailboxMetadata> childMailboxes( const QString& mailbox ) const = 0;
-    /** @short Is the result of childMailboxes() fresh enough? */
-    virtual bool childMailboxesFresh( const QString& mailbox ) const = 0;
-    /** @short Update cache info about the state of child mailboxes */
-    virtual void setChildMailboxes( const QString& mailbox, const QList<MailboxMetadata>& data ) = 0;
-    /** @short Forget about child mailboxes */
-    virtual void forgetChildMailboxes( const QString& mailbox ) = 0;
-
-    /** @short Return previous known state of a mailbox */
-    virtual SyncState mailboxSyncState( const QString& mailbox ) const = 0;
-    /** @short Set current syncing state */
-    virtual void setMailboxSyncState( const QString& mailbox, const SyncState& state ) = 0;
-};
 
 /** @short A cache implementation that uses only in-memory cache */
 class MemoryCache : public AbstractCache {
@@ -67,11 +46,8 @@ private:
     QMap<QString, SyncState> _syncState;
 };
 
-/** @short A convenience typedef */
-typedef std::tr1::shared_ptr<AbstractCache> CachePtr;
-
 }
 
 }
 
-#endif /* IMAP_CACHE_H */
+#endif /* IMAP_MODEL_MEMORYCACHE_H */

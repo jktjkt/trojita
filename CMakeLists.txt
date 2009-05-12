@@ -48,8 +48,6 @@ set(libImap_SRCS
 
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Exceptions.cpp
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Cache.cpp
-
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/Model.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/SyncState.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/UnauthenticatedHandler.cpp
@@ -59,6 +57,7 @@ set(libImap_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/MailboxModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/MsgListModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/MailboxTree.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/MemoryCache.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/ModelWatcher.cpp
 )

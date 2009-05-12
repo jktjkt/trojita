@@ -21,7 +21,7 @@
 
 #include <QAbstractItemModel>
 #include <QTimer>
-#include "../Cache.h"
+#include "Cache.h"
 #include "../Parser/Parser.h"
 #include "../Streams/SocketFactory.h"
 

@@ -21,7 +21,7 @@
 
 #include <QMainWindow>
 
-#include "Imap/Cache.h"
+#include "Imap/Model/Cache.h"
 
 class QAuthenticator;
 class QTreeView;

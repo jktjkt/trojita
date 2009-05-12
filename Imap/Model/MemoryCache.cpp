@@ -16,7 +16,7 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include "Imap/Cache.h"
+#include "MemoryCache.h"
 #include <QDebug>
 
 namespace Imap {
