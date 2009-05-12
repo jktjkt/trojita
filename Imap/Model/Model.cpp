@@ -501,7 +501,6 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
         TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[0] );
         Q_ASSERT( list );
         if ( command->kind == Task::FETCH_WITH_FLAGS ) {
-            qDebug() << "upgrading number syncing state to DONE:" << list->_unreadMessageCount;
             list->recalcUnreadMessageCount();
             list->_numberFetchingStatus = TreeItem::DONE;
         }

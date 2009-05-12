@@ -250,15 +250,11 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
             message->_flags = dynamic_cast<const Responses::RespData<QStringList>&>( *(it.value()) ).data;
             if ( list->_numberFetchingStatus == DONE ) {
                 bool isSeen = message->isMarkedAsRead();
-                qDebug() << "OK, we are already fetched, seen before" << wasSeen << "now" << isSeen;
                 if ( message->_flagsHandled ) {
-                    if ( wasSeen && ! isSeen ) {
-                        qDebug() << "++ unread";
+                    if ( wasSeen && ! isSeen )
                         ++list->_unreadMessageCount;
-                    } else if ( ! wasSeen && isSeen ) {
-                        qDebug() << "-- unread";
+                    else if ( ! wasSeen && isSeen )
                         --list->_unreadMessageCount;
-                    }
                 } else {
                     // it's a new message
                     message->_flagsHandled = true;
@@ -266,8 +262,6 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
                         ++list->_unreadMessageCount;
                     }
                 }
-            } else {
-                qDebug() << "numbers NOT FETCHED YET!!!!";
             }
             if ( changedMessage )
                 *changedMessage = message;
