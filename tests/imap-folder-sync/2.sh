@@ -15,7 +15,7 @@ send_mail() {
 
 delete_sequence() {
     (
-    echo -e "1 SELECT INBOX\r\n2 STORE $1 FLAGS (\\deleted)\r\n"\
+    echo -e "1 SELECT INBOX\r\n2 STORE $1 +FLAGS (\\deleted)\r\n"\
 "3 EXPUNGE\r\n4 LOGOUT\r\n"; sleep 1) | dovecot --exec-mail imap >/dev/null
     echo
 }
