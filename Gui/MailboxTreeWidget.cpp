@@ -15,7 +15,7 @@ int MailboxTreeWidget::sizeHintForColumn( int column ) const
 {
     switch ( column ) {
         case Imap::Mailbox::MailboxModel::NAME:
-            return 200;
+            return 150;
         case Imap::Mailbox::MailboxModel::TOTAL_MESSAGE_COUNT:
         case Imap::Mailbox::MailboxModel::UNREAD_MESSAGE_COUNT:
             return fontMetrics().size( Qt::TextSingleLine, QLatin1String("88888") ).width();
@@ -31,6 +31,8 @@ void MailboxTreeWidget::slotFixSize()
         qDebug() << "Can't fix the header size of the icon, sorry";
         return;
     }
+    header()->setStretchLastSection( false );
+    header()->setResizeMode( Imap::Mailbox::MailboxModel::NAME, QHeaderView::Stretch );
     header()->setResizeMode( Imap::Mailbox::MailboxModel::TOTAL_MESSAGE_COUNT, QHeaderView::Fixed );
     header()->setResizeMode( Imap::Mailbox::MailboxModel::UNREAD_MESSAGE_COUNT, QHeaderView::Fixed );
 }

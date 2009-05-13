@@ -129,7 +129,7 @@ void MainWindow::createWidgets()
     mboxTree = new MailboxTreeWidget();
     mboxTree->setUniformRowHeights( true );
     mboxTree->setContextMenuPolicy(Qt::CustomContextMenu);
-    mboxTree->setSelectionMode( QAbstractItemView::ExtendedSelection );
+    mboxTree->setSelectionMode( QAbstractItemView::SingleSelection );
     mboxTree->setAllColumnsShowFocus( true );
     connect( mboxTree, SIGNAL( customContextMenuRequested( const QPoint & ) ),
             this, SLOT( showContextMenuMboxTree( const QPoint& ) ) );
