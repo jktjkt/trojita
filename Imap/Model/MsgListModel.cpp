@@ -23,7 +23,6 @@
 #include <QApplication>
 #include <QDebug>
 #include <QFontMetrics>
-#include <typeinfo>
 #include <cmath>
 
 namespace Imap {
