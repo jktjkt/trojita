@@ -136,6 +136,7 @@ void MainWindow::createWidgets()
     msgListTree->setContextMenuPolicy(Qt::CustomContextMenu);
     msgListTree->setSelectionMode( QAbstractItemView::ExtendedSelection );
     msgListTree->setAllColumnsShowFocus( true );
+    msgListTree->setAlternatingRowColors( true );
     connect( msgListTree, SIGNAL( customContextMenuRequested( const QPoint & ) ),
             this, SLOT( showContextMenuMsgListTree( const QPoint& ) ) );
 
