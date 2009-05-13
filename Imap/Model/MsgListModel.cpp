@@ -203,6 +203,9 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
                                 proxyIndex.internalPointer() ) );
                 Q_ASSERT( message );
 
+                if ( ! message->fetched() )
+                    return QVariant();
+
                 QFont font;
                 if ( message->isMarkedAsDeleted() )
                     font.setStrikeOut( true );
