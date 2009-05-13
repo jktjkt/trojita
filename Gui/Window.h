@@ -25,6 +25,7 @@
 
 class QAuthenticator;
 class QTreeView;
+class QModelIndex;
 
 namespace Imap {
 namespace Mailbox {
@@ -67,6 +68,7 @@ private slots:
     void slotComposeMail();
     void handleMarkAsRead( bool );
     void handleMarkAsDeleted( bool );
+    void messageListClicked( const QModelIndex& );
 
 private:
     void createMenus();

@@ -203,6 +203,7 @@ void MainWindow::setupModels()
 
     connect( msgListTree, SIGNAL( clicked(const QModelIndex&) ), msgView, SLOT( setMessage(const QModelIndex&) ) );
     connect( msgListTree, SIGNAL( activated(const QModelIndex&) ), msgView, SLOT( setMessage(const QModelIndex&) ) );
+    connect( msgListTree, SIGNAL( clicked(const QModelIndex&) ), this, SLOT( messageListClicked(const QModelIndex&) ) );
     connect( msgListModel, SIGNAL( modelAboutToBeReset() ), msgView, SLOT( setEmpty() ) );
     connect( msgListModel, SIGNAL( messageRemoved( void* ) ), msgView, SLOT( handleMessageRemoved( void* ) ) );
 
@@ -221,6 +222,24 @@ void MainWindow::setupModels()
 
     mboxTree->setModel( mboxModel );
     msgListTree->setModel( msgListModel );
+}
+
+void MainWindow::messageListClicked( const QModelIndex& index )
+{
+    if ( index.column() != Imap::Mailbox::MsgListModel::SEEN )
+        return;
+
+    Q_ASSERT( index.isValid() );
+    Q_ASSERT( index.model() == msgListModel );
+    Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
+            static_cast<Imap::Mailbox::TreeItem*>(
+                    msgListModel->mapToSource( index ).internalPointer()
+                    )
+            );
+    Q_ASSERT( message );
+    if ( ! message->fetched() )
+        return;
+    model->markMessageRead( message, ! message->isMarkedAsRead() );
 }
 
 void MainWindow::slotResizeMsgListColumns()
