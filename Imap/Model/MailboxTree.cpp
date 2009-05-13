@@ -128,7 +128,7 @@ QVariant TreeItemMailbox::data( Model* const model, int role )
 
     return loading() ? res + " [loading]" : res;
 }
-    
+
 bool TreeItemMailbox::hasChildren( Model* const model )
 {
     return true; // we have that "messages" thing built in
@@ -197,7 +197,7 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
         qDebug() << "Ignoring FETCH response to a mailbox that isn't synced yet:" << buf;
         return;
     }
-    
+
     int number = response.number - 1;
     if ( number < 0 || number >= list->_children.size() )
         throw UnknownMessageIndex( "Got FETCH that is out of bounds", response );
@@ -371,7 +371,7 @@ TreeItemPart* TreeItemMailbox::partIdToPtr( Model* const model, const int msgNum
         uint number = it->toUInt( &ok );
         if ( !ok )
             throw UnknownMessageIndex( ( QString::fromAscii(
-                            "Can't translate received offset of the message part to a number: " ) 
+                            "Can't translate received offset of the message part to a number: " )
                         + msgId ).toAscii().constData() );
 
         TreeItemPart* part = dynamic_cast<TreeItemPart*>( item->child( 0, model ) );
@@ -380,13 +380,13 @@ TreeItemPart* TreeItemMailbox::partIdToPtr( Model* const model, const int msgNum
         item = item->child( number - 1, model );
         if ( ! item ) {
             throw UnknownMessageIndex( ( QString::fromAscii(
-                            "Offset of the message part not found: " ) 
+                            "Offset of the message part not found: " )
                         + QString::number( number ) + QString::fromAscii(" of ") + msgId ).toAscii().constData() );}
     }
     TreeItemPart* part = dynamic_cast<TreeItemPart*>( item );
     if ( ! part )
         throw UnknownMessageIndex( ( QString::fromAscii(
-                        "Offset of the message part doesn't point anywhere: " ) 
+                        "Offset of the message part doesn't point anywhere: " )
                     + msgId ).toAscii().constData() );
     return part;
 }
@@ -441,7 +441,7 @@ QVariant TreeItemMsgList::data( Model* const model, int role )
 
     if ( fetched() )
         return hasChildren( model ) ? QString("[%1 messages]").arg( childrenCount( model ) ) : "[no messages]";
-    
+
     return "[messages?]";
 }
 
@@ -625,16 +625,16 @@ QVariant TreeItemPart::data( Model* const model, int role )
 
     if ( loading() )
         return isTopLevelMultiPart() ?
-            QObject::tr("[loading %1...]").arg( _mimeType ) :
-            QObject::tr("[loading %1: %2...]").arg( partId() ).arg( _mimeType );
+            model->tr("[loading %1...]").arg( _mimeType ) :
+            model->tr("[loading %1: %2...]").arg( partId() ).arg( _mimeType );
 
     switch ( role ) {
         case Qt::DisplayRole:
             return isTopLevelMultiPart() ?
-                QString("%1").arg( _mimeType ) : 
+                QString("%1").arg( _mimeType ) :
                 QString("%1: %2").arg( partId() ).arg( _mimeType );
         case Qt::ToolTipRole:
-            return _data.size() > 10000 ? QObject::tr("%1 bytes of data").arg( _data.size() ) : _data;
+            return _data.size() > 10000 ? model->tr("%1 bytes of data").arg( _data.size() ) : _data;
         default:
             return QVariant();
     }

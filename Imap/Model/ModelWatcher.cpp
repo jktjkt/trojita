@@ -36,71 +36,71 @@ void ModelWatcher::setModel( QAbstractItemModel* model )
 
 void ModelWatcher::columnsAboutToBeInserted( const QModelIndex& parent, int start, int end )
 {
-    qDebug() << QObject::sender()->objectName() << "columnsAboutToBeInserted(" << parent << start << end << ")";
+    qDebug() << sender()->objectName() << "columnsAboutToBeInserted(" << parent << start << end << ")";
 }
 
 void ModelWatcher::columnsAboutToBeRemoved( const QModelIndex& parent, int start, int end )
 {
-    qDebug() << QObject::sender()->objectName() << "columnsAboutToBeRemoved(" << parent << start << end << ")";
+    qDebug() << sender()->objectName() << "columnsAboutToBeRemoved(" << parent << start << end << ")";
 }
 
 void ModelWatcher::columnsInserted( const QModelIndex& parent, int start, int end )
 {
-    qDebug() << QObject::sender()->objectName() << "columnsInserted(" << parent << start << end << ")";
+    qDebug() << sender()->objectName() << "columnsInserted(" << parent << start << end << ")";
 }
 
 void ModelWatcher::columnsRemoved( const QModelIndex& parent, int start, int end )
 {
-    qDebug() << QObject::sender()->objectName() << "columnsRemoved(" << parent << start << end << ")";
+    qDebug() << sender()->objectName() << "columnsRemoved(" << parent << start << end << ")";
 }
 
 void ModelWatcher::dataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight )
 {
-    qDebug() << QObject::sender()->objectName() << "dataChanged(" << topLeft << bottomRight << ")";
+    qDebug() << sender()->objectName() << "dataChanged(" << topLeft << bottomRight << ")";
     qDebug() << "new data" << _model->data( topLeft, Qt::DisplayRole );
 }
 void ModelWatcher::headerDataChanged( Qt::Orientation orientation, int first, int last )
 {
-    qDebug() << QObject::sender()->objectName() << "headerDataChanged(" << orientation << first << last << ")";
+    qDebug() << sender()->objectName() << "headerDataChanged(" << orientation << first << last << ")";
 }
 void ModelWatcher::layoutAboutToBeChanged()
 {
-    qDebug() << QObject::sender()->objectName() << "layoutAboutToBeChanged()";
+    qDebug() << sender()->objectName() << "layoutAboutToBeChanged()";
 }
 
 void ModelWatcher::layoutChanged()
 {
-    qDebug() << QObject::sender()->objectName() << "layoutChanged()";
+    qDebug() << sender()->objectName() << "layoutChanged()";
 }
 
 void ModelWatcher::modelAboutToBeReset()
 {
-    qDebug() << QObject::sender()->objectName() << "modelAboutToBeReset()";
+    qDebug() << sender()->objectName() << "modelAboutToBeReset()";
 }
 
 void ModelWatcher::modelReset()
 {
-    qDebug() << QObject::sender()->objectName() << "modelReset()";
+    qDebug() << sender()->objectName() << "modelReset()";
 }
 
 void ModelWatcher::rowsAboutToBeInserted( const QModelIndex& parent, int start, int end )
 {
-    qDebug() << QObject::sender()->objectName() << "rowsAboutToBeInserted(" << parent << start << end << ")";
+    qDebug() << sender()->objectName() << "rowsAboutToBeInserted(" << parent << start << end << ")";
 }
 
 void ModelWatcher::rowsAboutToBeRemoved( const QModelIndex& parent, int start, int end )
 {
-    qDebug() << QObject::sender()->objectName() << "rowsAboutToBeRemoved(" << parent << start << end << ")";
+    qDebug() << sender()->objectName() << "rowsAboutToBeRemoved(" << parent << start << end << ")";
 }
 
 void ModelWatcher::rowsInserted( const QModelIndex& parent, int start, int end )
 {
-    qDebug() << QObject::sender()->objectName() << "rowsInserted(" << parent << start << end << ")";
+    qDebug() << sender()->objectName() << "rowsInserted(" << parent << start << end << ")";
 }
 
 void ModelWatcher::rowsRemoved( const QModelIndex& parent, int start, int end )
 {
-    qDebug() << QObject::sender()->objectName() << "rowsRemoved(" << parent << start << end << ")";
+    qDebug() << sender()->objectName() << "rowsRemoved(" << parent << start << end << ")";
 }
 
 }
