@@ -59,9 +59,9 @@ namespace Message {
             name(_name), adl(_adl), mailbox(_mailbox), host(_host) {};
         MailAddress( const QVariantList& input, const QByteArray& line, const int start );
         MailAddress() {};
-        QString prettyName() const;
+        QString prettyName( bool nice ) const;
 
-        static QString prettyList( const QList<MailAddress>& list );
+        static QString prettyList( const QList<MailAddress>& list, bool nice );
     };
 
     /** @short Storage for envelope */

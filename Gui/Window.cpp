@@ -23,11 +23,11 @@
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QSplitter>
-#include <QTreeView>
 
 #include "Window.h"
 #include "ComposeWidget.h"
 #include "MessageView.h"
+#include "MsgListWidget.h"
 #include "SettingsDialog.h"
 #include "SettingsNames.h"
 #include "Imap/Model/Model.h"
@@ -131,7 +131,7 @@ void MainWindow::createWidgets()
     connect( mboxTree, SIGNAL( customContextMenuRequested( const QPoint & ) ),
             this, SLOT( showContextMenuMboxTree( const QPoint& ) ) );
 
-    msgListTree = new QTreeView();
+    msgListTree = new MsgListWidget();
     msgListTree->setUniformRowHeights( true );
     msgListTree->setContextMenuPolicy(Qt::CustomContextMenu);
     msgListTree->setSelectionMode( QAbstractItemView::ExtendedSelection );
@@ -221,9 +221,8 @@ void MainWindow::setupModels()
 
 void MainWindow::slotResizeMsgListColumns()
 {
-    // it's broken and forces loading of all envelopes and budy structures
-    /*for ( int i = 0; i < msgListTree->header()->count(); ++i )
-        msgListTree->resizeColumnToContents( i );*/
+    for ( int i = 0; i < msgListTree->header()->count(); ++i )
+        msgListTree->resizeColumnToContents( i );
 }
 
 void MainWindow::showContextMenuMboxTree( const QPoint& position )

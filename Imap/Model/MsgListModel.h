@@ -32,8 +32,6 @@ namespace Mailbox {
 class MsgListModel: public QAbstractProxyModel {
     Q_OBJECT
 
-    enum { SUBJECT, FROM, TO, DATE, SIZE, COLUMN_COUNT };
-
 public:
     MsgListModel( QObject* parent, Model* model );
 
@@ -50,6 +48,7 @@ public:
     TreeItemMailbox* currentMailbox() const;
 
     enum { RoleIsMarkedAsRead = Qt::UserRole + 1, RoleIsMarkedAsDeleted };
+    enum { SUBJECT, FROM, TO, DATE, SIZE, COLUMN_COUNT };
 
 public slots:
     void resetMe();
@@ -67,6 +66,8 @@ signals:
 private:
     MsgListModel& operator=( const Model& ); // don't implement
     MsgListModel( const Model& ); // don't implement
+
+    static QString prettySize( uint bytes );
 
     TreeItemMsgList* msgList;
 };

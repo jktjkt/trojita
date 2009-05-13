@@ -24,6 +24,7 @@
 #include <QDebug>
 #include <QFontMetrics>
 #include <typeinfo>
+#include <cmath>
 
 namespace Imap {
 namespace Mailbox {
@@ -164,23 +165,28 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
                     return Imap::Message::MailAddress::prettyList(
                             dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
                                 proxyIndex.internalPointer() )
-                                )->envelope( static_cast<Model*>( sourceModel() ) ).from );
+                                )->envelope( static_cast<Model*>( sourceModel() ) ).from,
+                            role == Qt::DisplayRole );
                 case TO:
                     return Imap::Message::MailAddress::prettyList(
                             dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
                                 proxyIndex.internalPointer() )
-                                )->envelope( static_cast<Model*>( sourceModel() ) ).to );
+                                )->envelope( static_cast<Model*>( sourceModel() ) ).to,
+                            role == Qt::DisplayRole );
                 case DATE:
-                    return dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
+                {
+                    QDateTime res = dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
                                 proxyIndex.internalPointer() )
                                 )->envelope( static_cast<Model*>( sourceModel() ) ).date;
+                    if ( res.date() == QDate::currentDate() )
+                        return res.time().toString( Qt::SystemLocaleShortDate );
+                    else
+                        return res.toString( Qt::SystemLocaleShortDate );
+                }
                 case SIZE:
-                    {
-                    uint size = dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
+                    return prettySize( dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
                                 proxyIndex.internalPointer() )
-                                )->size( static_cast<Model*>( sourceModel() ) );
-                    return size; // FIXME: nice format
-                    }
+                                )->size( static_cast<Model*>( sourceModel() ) ) );
                 default:
                     return QVariant();
             }
@@ -326,6 +332,27 @@ void MsgListModel::setMailbox( const QModelIndex& index )
 TreeItemMailbox* MsgListModel::currentMailbox() const
 {
     return msgList ? dynamic_cast<TreeItemMailbox*>( msgList->parent() ) : 0;
+}
+
+QString MsgListModel::prettySize( uint bytes )
+{
+    if ( bytes == 0 )
+        return tr("0");
+    int order = std::log( bytes ) / std::log( 1024 );
+    QString suffix;
+    if ( order <= 0 )
+        suffix = QLatin1String("");
+    else if ( order == 1 )
+        suffix = tr("kB");
+    else if ( order == 2 )
+        suffix = tr("MB");
+    else if ( order == 3 )
+        suffix = tr("GB");
+    else
+        suffix = tr("TB"); // shame on you for such mails
+    return tr("%1 %2").arg( QString::number(
+            bytes / ( std::pow( 1024, order ) ),
+            'f', 1 ), suffix );
 }
 
 }

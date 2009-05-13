@@ -62,16 +62,19 @@ MailAddress::MailAddress( const QVariantList& input, const QByteArray& line, con
     host = KIMAP::decodeRFC2047String( input[3].toByteArray() );
 }
 
-QString MailAddress::prettyName() const
+QString MailAddress::prettyName( bool nice ) const
 {
-    return name + QString::fromAscii( " <" ) + mailbox + QChar( '@' ) + host + QChar( '>' );
+    if ( nice )
+        return name;
+    else
+        return name + QString::fromAscii( " <" ) + mailbox + QChar( '@' ) + host + QChar( '>' );
 }
 
-QString MailAddress::prettyList( const QList<MailAddress>& list )
+QString MailAddress::prettyList( const QList<MailAddress>& list, bool nice )
 {
     QStringList buf;
     for ( QList<MailAddress>::const_iterator it = list.begin(); it != list.end(); ++it )
-        buf << it->prettyName();
+        buf << it->prettyName( nice );
     return buf.join( QString::fromAscii(", ") );
 }
 

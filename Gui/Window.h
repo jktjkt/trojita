@@ -39,6 +39,7 @@ class MsgListModel;
 namespace Gui {
 
 class MessageView;
+class MsgListWidget;
 
 class MainWindow: public QMainWindow {
     Q_OBJECT
@@ -80,7 +81,7 @@ private:
     Imap::Mailbox::MsgListModel* msgListModel;
 
     QTreeView* mboxTree;
-    QTreeView* msgListTree;
+    MsgListWidget* msgListTree;
     QTreeView* allTree;
     MessageView* msgView;
     QDockWidget* allDock;
