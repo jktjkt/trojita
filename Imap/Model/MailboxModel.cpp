@@ -155,39 +155,29 @@ QModelIndex MailboxModel::mapFromSource( const QModelIndex& sourceIndex ) const
 
 QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
 {
+    TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>(
+            static_cast<TreeItem*>( proxyIndex.internalPointer() )
+            );
+    Q_ASSERT( mbox );
+    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mbox->_children[0] );
+    Q_ASSERT( list );
     switch ( role ) {
         case Qt::DisplayRole:
             switch ( proxyIndex.column() ) {
                 case NAME:
                     return QAbstractProxyModel::data( proxyIndex, role );
                 case TOTAL_MESSAGE_COUNT:
-                    {
-                        TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>(
-                                static_cast<TreeItem*>( proxyIndex.internalPointer() )
-                                );
-                        Q_ASSERT( mbox );
-                        TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mbox->_children[0] );
-                        Q_ASSERT( list );
-                        int num = list->totalMessageCount( static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
-                        if ( list->numbersFetched() )
-                            return num;
-                        else
-                            return "?";
-                    }
+                {
+                    int num = list->totalMessageCount(
+                                    static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
+                    return list->numbersFetched() ? QString::number( num ) : tr("?");
+                }
                 case UNREAD_MESSAGE_COUNT:
-                    {
-                        TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>(
-                                static_cast<TreeItem*>( proxyIndex.internalPointer() )
-                                );
-                        Q_ASSERT( mbox );
-                        TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mbox->_children[0] );
-                        Q_ASSERT( list );
-                        int num = list->unreadMessageCount( static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
-                        if ( list->numbersFetched() )
-                            return num;
-                        else
-                            return "?";
-                    }
+                {
+                    int num = list->unreadMessageCount(
+                                    static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
+                    return list->numbersFetched() ? QString::number( num ) : tr("?");
+                }
                 default:
                     return QVariant();
             }
@@ -202,13 +192,6 @@ QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
         case Qt::DecorationRole:
             switch ( proxyIndex.column() ) {
                 case NAME:
-                {
-                    TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>(
-                            static_cast<TreeItem*>( proxyIndex.internalPointer() )
-                            );
-                    Q_ASSERT( mbox );
-                    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mbox->_children[0] );
-                    Q_ASSERT( list );
                     if ( list->loading() || ! list->numbersFetched() )
                         return QtIconLoader::icon( QLatin1String("folder-grey"),
                                                    QtIconLoader::icon( QLatin1String("folder") ) );
@@ -217,15 +200,11 @@ QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
                                                    QtIconLoader::icon( QLatin1String("folder") ) );
                     else
                         return QtIconLoader::icon( QLatin1String("folder") );
-                }
                 default:
                     return QVariant();
             }
         default:
-            {
-            QModelIndex translated = createIndex( proxyIndex.row(), 0, proxyIndex.internalPointer() );
-            return QAbstractProxyModel::data( translated, role );
-            }
+            return QAbstractProxyModel::data( createIndex( proxyIndex.row(), 0, proxyIndex.internalPointer() ), role );
     }
 }
 
