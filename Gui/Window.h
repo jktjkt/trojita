@@ -39,6 +39,7 @@ class MsgListModel;
 namespace Gui {
 
 class MessageView;
+class MailboxTreeWidget;
 class MsgListWidget;
 
 class MainWindow: public QMainWindow {
@@ -53,6 +54,7 @@ private slots:
     void slotReloadMboxList();
     void slotResyncMboxList();
     void slotResizeMsgListColumns();
+    void slotResizeMailboxTreeColumns();
     void alertReceived( const QString& message );
     void networkPolicyOffline();
     void networkPolicyExpensive();
@@ -80,7 +82,7 @@ private:
     Imap::Mailbox::MailboxModel* mboxModel;
     Imap::Mailbox::MsgListModel* msgListModel;
 
-    QTreeView* mboxTree;
+    MailboxTreeWidget* mboxTree;
     MsgListWidget* msgListTree;
     QTreeView* allTree;
     MessageView* msgView;

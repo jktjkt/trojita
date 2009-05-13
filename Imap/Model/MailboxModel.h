@@ -31,7 +31,6 @@ namespace Mailbox {
 /** @short A model implementing view of the whole IMAP server */
 class MailboxModel: public QAbstractProxyModel {
     Q_OBJECT
-    enum { NAME, TOTAL_MESSAGE_COUNT, UNREAD_MESSAGE_COUNT, COLUMN_COUNT = 3 };
 
 public:
     MailboxModel( QObject* parent, Model* model );
@@ -46,6 +45,8 @@ public:
 
     virtual QVariant data(const QModelIndex &proxyIndex, int role = Qt::DisplayRole) const;
     virtual QVariant headerData ( int section, Qt::Orientation orientation, int role=Qt::DisplayRole ) const;
+
+    enum { NAME, TOTAL_MESSAGE_COUNT, UNREAD_MESSAGE_COUNT, COLUMN_COUNT = 3 };
 
 protected slots:
     void handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight );
