@@ -20,7 +20,6 @@
 #define IMAP_MSGLISTMODEL_H
 
 #include <QAbstractProxyModel>
-#include <QIcon>
 #include "Model.h"
 
 /** @short Namespace for IMAP interaction */
@@ -71,7 +70,6 @@ private:
     static QString prettySize( uint bytes );
 
     TreeItemMsgList* msgList;
-    QIcon transparent;
 };
 
 }

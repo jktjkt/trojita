@@ -203,12 +203,13 @@ QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
                 case NAME:
                     if ( list->loading() || ! list->numbersFetched() )
                         return QtIconLoader::icon( QLatin1String("folder-grey"),
-                                                   QtIconLoader::icon( QLatin1String("folder") ) );
+                                                   QIcon( QLatin1String(":/icons/folder-grey.png") ) );
                     else if ( mbox->mailbox().toUpper() == QLatin1String("INBOX") )
                         return QtIconLoader::icon( QLatin1String("mail-folder-inbox"),
-                                                   QtIconLoader::icon( QLatin1String("folder") ) );
+                                                   QIcon( QLatin1String(":/icons/mail-folder-inbox") ) );
                     else
-                        return QtIconLoader::icon( QLatin1String("folder") );
+                        return QtIconLoader::icon( QLatin1String("folder"),
+                                                   QIcon( QLatin1String(":/icons/folder.png") ) );
                 default:
                     return QVariant();
             }

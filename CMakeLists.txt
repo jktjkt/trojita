@@ -105,6 +105,10 @@ set(trojita_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/MailboxTreeWidget.cpp
     )
 
+SET(trojita_RCC_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/icons.qrc
+)
+
 set(libQwwSmtpClient_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/qwwsmtpclient/qwwsmtpclient.cpp
 )
@@ -118,6 +122,8 @@ qt4_automoc(${trojita_SRCS} ${libImap_SRCS} ${libStreams_SRCS}
     ${libMessageView_SRCS} ${libModelTest_SRCS} ${libMSA_SRCS}
     ${libQwwSmtpClient_SRCS} ${libQtIconLoader_SRCS})
 
+qt4_add_resources(trojita_RCCS ${trojita_RCC_SRCS})
+
 add_library(Imap ${libImap_SRCS})
 add_library(MessageView ${libMessageView_SRCS})
 add_library(Streams ${libStreams_SRCS})
@@ -125,7 +131,7 @@ add_library(MSA ${libMSA_SRCS})
 add_library(ModelTest ${libModelTest_SRCS})
 add_library(QwwSmtpClient ${libQwwSmtpClient_SRCS})
 add_library(QtIconLoader ${libQtIconLoader_SRCS})
-add_executable(trojita ${trojita_SRCS})
+add_executable(trojita ${trojita_SRCS} ${trojita_RCCS})
 
 target_link_libraries(Imap Streams ${QT_QTGUI_LIBRARY})
 target_link_libraries(MessageView ${QT_QTWEBKIT_LIBRARY})
