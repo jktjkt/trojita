@@ -12,6 +12,8 @@ public:
     MsgListWidget( QWidget* parent=0 );
 protected:
     virtual int sizeHintForColumn( int column ) const;
+private slots:
+    void slotFixSize();
 };
 
 }

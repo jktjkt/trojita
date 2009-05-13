@@ -49,7 +49,7 @@ public:
     TreeItemMailbox* currentMailbox() const;
 
     enum { RoleIsMarkedAsRead = Qt::UserRole + 1, RoleIsMarkedAsDeleted };
-    enum { SUBJECT, FROM, TO, DATE, SIZE, COLUMN_COUNT };
+    enum { SUBJECT, SEEN, FROM, TO, DATE, SIZE, COLUMN_COUNT };
 
 public slots:
     void resetMe();

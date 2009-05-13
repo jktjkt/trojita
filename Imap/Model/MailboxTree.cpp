@@ -552,6 +552,11 @@ bool TreeItemMessage::isMarkedAsForwarded() const
     return _flags.contains( QLatin1String("$Forwarded"), Qt::CaseInsensitive );
 }
 
+bool TreeItemMessage::isMarkedAsRecent() const
+{
+    return _flags.contains( QLatin1String("\\Recent"), Qt::CaseInsensitive );
+}
+
 
 Message::Envelope TreeItemMessage::envelope( Model* const model )
 {

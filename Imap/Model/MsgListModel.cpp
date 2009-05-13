@@ -160,6 +160,10 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
     if ( ! proxyIndex.internalPointer() )
         return QVariant();
 
+    TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
+                                proxyIndex.internalPointer() ) );
+                        Q_ASSERT( message );
+
     switch ( role ) {
         case Qt::DisplayRole:
         case Qt::ToolTipRole:
@@ -168,30 +172,22 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
                     return QAbstractProxyModel::data( proxyIndex, Qt::DisplayRole );
                 case FROM:
                     return Imap::Message::MailAddress::prettyList(
-                            dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
-                                proxyIndex.internalPointer() )
-                                )->envelope( static_cast<Model*>( sourceModel() ) ).from,
+                            message->envelope( static_cast<Model*>( sourceModel() ) ).from,
                             role == Qt::DisplayRole );
                 case TO:
                     return Imap::Message::MailAddress::prettyList(
-                            dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
-                                proxyIndex.internalPointer() )
-                                )->envelope( static_cast<Model*>( sourceModel() ) ).to,
+                            message->envelope( static_cast<Model*>( sourceModel() ) ).to,
                             role == Qt::DisplayRole );
                 case DATE:
                 {
-                    QDateTime res = dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
-                                proxyIndex.internalPointer() )
-                                )->envelope( static_cast<Model*>( sourceModel() ) ).date;
+                    QDateTime res = message->envelope( static_cast<Model*>( sourceModel() ) ).date;
                     if ( res.date() == QDate::currentDate() )
                         return res.time().toString( Qt::SystemLocaleShortDate );
                     else
                         return res.toString( Qt::SystemLocaleShortDate );
                 }
                 case SIZE:
-                    return prettySize( dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
-                                proxyIndex.internalPointer() )
-                                )->size( static_cast<Model*>( sourceModel() ) ) );
+                    return prettySize( message->size( static_cast<Model*>( sourceModel() ) ) );
                 default:
                     return QVariant();
             }
@@ -203,28 +199,32 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
                     return QVariant();
             }
         case Qt::DecorationRole:
-            {
-                if ( proxyIndex.column() != SUBJECT )
+                switch ( proxyIndex.column() ) {
+                case SUBJECT:
+                    if ( ! message->fetched() )
+                        return QVariant();
+                    if ( message->isMarkedAsDeleted() )
+                        return QtIconLoader::icon( QLatin1String("mail-deleted") );
+                    else if ( message->isMarkedAsForwarded() && message->isMarkedAsReplied() )
+                        return QtIconLoader::icon( QLatin1String("mail-replied-forw") );
+                    else if ( message->isMarkedAsReplied() )
+                        return QtIconLoader::icon( QLatin1String("mail-replied") );
+                    else if ( message->isMarkedAsForwarded() )
+                        return QtIconLoader::icon( QLatin1String("mail-forwarded") );
+                    else if ( message->isMarkedAsRecent() )
+                        return QtIconLoader::icon( QLatin1String("mail-recent") );
+                    else
+                        return transparent;
+                case SEEN:
+                    if ( ! message->fetched() )
+                        return QVariant();
+                    if ( ! message->isMarkedAsRead() )
+                        return QtIconLoader::icon( QLatin1String("mail-unread") );
+                    else
+                        return QtIconLoader::icon( QLatin1String("mail-read") );
+                default:
                     return QVariant();
-
-                TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
-                                proxyIndex.internalPointer() ) );
-                Q_ASSERT( message );
-                if ( ! message->fetched() )
-                    return QVariant();
-                if ( message->isMarkedAsDeleted() )
-                    return QtIconLoader::icon( QLatin1String("mail-deleted") );
-                else if ( message->isMarkedAsForwarded() && message->isMarkedAsReplied() )
-                    return QtIconLoader::icon( QLatin1String("mail-replied-forw") );
-                else if ( message->isMarkedAsReplied() )
-                    return QtIconLoader::icon( QLatin1String("mail-replied") );
-                else if ( message->isMarkedAsForwarded() )
-                    return QtIconLoader::icon( QLatin1String("mail-forwarded") );
-                else if ( ! message->isMarkedAsRead() )
-                    return QtIconLoader::icon( QLatin1String("mail-unread") );
-                else
-                    return transparent;
-            }
+                }
         case Qt::FontRole:
             {
                 TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(

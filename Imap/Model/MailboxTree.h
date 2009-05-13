@@ -153,6 +153,7 @@ public:
     bool isMarkedAsRead() const;
     bool isMarkedAsReplied() const;
     bool isMarkedAsForwarded() const;
+    bool isMarkedAsRecent() const;
 };
 
 class TreeItemPart: public TreeItem {
