@@ -19,6 +19,8 @@
 #include "MailboxModel.h"
 #include "MailboxTree.h"
 
+#include "iconloader/qticonloader.h"
+
 #include <QDebug>
 
 namespace Imap {
@@ -194,6 +196,28 @@ QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
                 case TOTAL_MESSAGE_COUNT:
                 case UNREAD_MESSAGE_COUNT:
                     return Qt::AlignRight;
+                default:
+                    return QVariant();
+            }
+        case Qt::DecorationRole:
+            switch ( proxyIndex.column() ) {
+                case NAME:
+                {
+                    TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>(
+                            static_cast<TreeItem*>( proxyIndex.internalPointer() )
+                            );
+                    Q_ASSERT( mbox );
+                    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mbox->_children[0] );
+                    Q_ASSERT( list );
+                    if ( list->loading() || ! list->numbersFetched() )
+                        return QtIconLoader::icon( QLatin1String("folder-grey"),
+                                                   QtIconLoader::icon( QLatin1String("folder") ) );
+                    else if ( mbox->mailbox().toUpper() == QLatin1String("INBOX") )
+                        return QtIconLoader::icon( QLatin1String("mail-folder-inbox"),
+                                                   QtIconLoader::icon( QLatin1String("folder") ) );
+                    else
+                        return QtIconLoader::icon( QLatin1String("folder") );
+                }
                 default:
                     return QVariant();
             }

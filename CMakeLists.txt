@@ -108,9 +108,14 @@ set(libQwwSmtpClient_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/qwwsmtpclient/qwwsmtpclient.cpp
 )
 
+set(libQtIconLoader_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/iconloader/qticonloader.cpp
+)
+
+
 qt4_automoc(${trojita_SRCS} ${libImap_SRCS} ${libStreams_SRCS}
     ${libMessageView_SRCS} ${libModelTest_SRCS} ${libMSA_SRCS}
-    ${libQwwSmtpClient_SRCS})
+    ${libQwwSmtpClient_SRCS} ${libQtIconLoader_SRCS})
 
 add_library(Imap ${libImap_SRCS})
 add_library(MessageView ${libMessageView_SRCS})
@@ -118,8 +123,9 @@ add_library(Streams ${libStreams_SRCS})
 add_library(MSA ${libMSA_SRCS})
 add_library(ModelTest ${libModelTest_SRCS})
 add_library(QwwSmtpClient ${libQwwSmtpClient_SRCS})
+add_library(QtIconLoader ${libQtIconLoader_SRCS})
 add_executable(trojita ${trojita_SRCS})
 
 target_link_libraries(Imap Streams ${QT_QTGUI_LIBRARY})
 target_link_libraries(MessageView ${QT_QTWEBKIT_LIBRARY})
-target_link_libraries(trojita Imap MessageView ModelTest MSA QwwSmtpClient)
+target_link_libraries(trojita Imap MessageView ModelTest MSA QwwSmtpClient QtIconLoader)
