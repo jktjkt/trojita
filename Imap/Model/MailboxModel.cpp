@@ -22,6 +22,7 @@
 #include "iconloader/qticonloader.h"
 
 #include <QDebug>
+#include <QFont>
 
 namespace Imap {
 namespace Mailbox {
@@ -181,6 +182,14 @@ QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
                 default:
                     return QVariant();
             }
+        case Qt::FontRole:
+            if ( list->numbersFetched() && list->unreadMessageCount(
+                                    static_cast<Imap::Mailbox::Model*>( sourceModel() ) ) > 0 ) {
+                QFont font;
+                font.setBold( true );
+                return font;
+            } else
+                return QVariant();
         case Qt::TextAlignmentRole:
             switch ( proxyIndex.column() ) {
                 case TOTAL_MESSAGE_COUNT:

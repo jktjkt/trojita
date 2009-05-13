@@ -18,7 +18,11 @@ int MailboxTreeWidget::sizeHintForColumn( int column ) const
             return 150;
         case Imap::Mailbox::MailboxModel::TOTAL_MESSAGE_COUNT:
         case Imap::Mailbox::MailboxModel::UNREAD_MESSAGE_COUNT:
-            return fontMetrics().size( Qt::TextSingleLine, QLatin1String("88888") ).width();
+            {
+                QFont currentFont = font();
+                currentFont.setBold( true );
+                return QFontMetrics( currentFont ).size( Qt::TextSingleLine, QLatin1String("88888") ).width();
+            }
         default:
             return QTreeView::sizeHintForColumn( column );
     }
