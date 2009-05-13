@@ -198,9 +198,18 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
                     return QVariant();
             }
         case Qt::FontRole:
-            return dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
-                                proxyIndex.internalPointer() ) )->data(
-                                        static_cast<Model*>( sourceModel() ), Qt::FontRole );
+            {
+                TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
+                                proxyIndex.internalPointer() ) );
+                Q_ASSERT( message );
+
+                QFont font;
+                if ( message->isMarkedAsDeleted() )
+                    font.setStrikeOut( true );
+                if ( ! message->isMarkedAsRead() )
+                    font.setBold( true );
+                return font;
+            }
         case RoleIsMarkedAsDeleted:
             return dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
                                 proxyIndex.internalPointer() ) )->isMarkedAsDeleted();

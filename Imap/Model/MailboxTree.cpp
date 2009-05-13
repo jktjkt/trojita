@@ -16,7 +16,6 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include <QFont>
 #include <QTextStream>
 #include "MailboxTree.h"
 #include "Model.h"
@@ -528,15 +527,6 @@ QVariant TreeItemMessage::data( Model* const model, int role )
                 return buf;
             } else
                 return QVariant();
-        case Qt::FontRole:
-            {
-                QFont font;
-                if ( isMarkedAsDeleted() )
-                    font.setStrikeOut( true );
-                if ( ! isMarkedAsRead() )
-                    font.setBold( true );
-                return font;
-            }
         default:
             return QVariant();
     }
