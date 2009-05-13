@@ -40,6 +40,8 @@
 
 #include "Imap/Model/ModelTest/modeltest.h"
 
+#include "iconloader/qticonloader.h"
+
 namespace Gui {
 
 MainWindow::MainWindow(): QMainWindow()
@@ -61,7 +63,7 @@ void MainWindow::createActions()
     reloadAllMailboxes = new QAction( tr("Reload All Mailboxes"), this );
     connect( reloadAllMailboxes, SIGNAL( triggered() ), model, SLOT( reloadMailboxList() ) );
 
-    exitAction = new QAction( tr("E&xit"), this );
+    exitAction = new QAction( QtIconLoader::icon( QLatin1String("application-exit") ), tr("E&xit"), this );
     exitAction->setShortcut( tr("Ctrl+Q") );
     exitAction->setStatusTip( tr("Exit the application") );
     connect( exitAction, SIGNAL( triggered() ), this, SLOT( close() ) );
