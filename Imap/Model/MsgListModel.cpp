@@ -20,6 +20,8 @@
 #include "MailboxTree.h"
 #include "MailboxModel.h"
 
+#include "iconloader/qticonloader.h"
+
 #include <QApplication>
 #include <QDebug>
 #include <QFontMetrics>
@@ -46,6 +48,10 @@ MsgListModel::MsgListModel( QObject* parent, Model* model ): QAbstractProxyModel
              this, SLOT( handleRowsAboutToBeInserted(const QModelIndex&, int,int ) ) );
     connect( model, SIGNAL( rowsInserted( const QModelIndex&, int, int ) ),
              this, SLOT( handleRowsInserted(const QModelIndex&, int,int ) ) );
+
+    QPixmap pixmap( 16, 16 );
+    pixmap.fill( Qt::transparent );
+    transparent = QIcon( pixmap );
 }
 
 void MsgListModel::handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight )
@@ -195,6 +201,29 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
                     return Qt::AlignRight;
                 default:
                     return QVariant();
+            }
+        case Qt::DecorationRole:
+            {
+                if ( proxyIndex.column() != SUBJECT )
+                    return QVariant();
+
+                TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
+                                proxyIndex.internalPointer() ) );
+                Q_ASSERT( message );
+                if ( ! message->fetched() )
+                    return QVariant();
+                if ( message->isMarkedAsDeleted() )
+                    return QtIconLoader::icon( QLatin1String("mail-deleted") );
+                else if ( message->isMarkedAsForwarded() && message->isMarkedAsReplied() )
+                    return QtIconLoader::icon( QLatin1String("mail-replied-forw") );
+                else if ( message->isMarkedAsReplied() )
+                    return QtIconLoader::icon( QLatin1String("mail-replied") );
+                else if ( message->isMarkedAsForwarded() )
+                    return QtIconLoader::icon( QLatin1String("mail-forwarded") );
+                else if ( ! message->isMarkedAsRead() )
+                    return QtIconLoader::icon( QLatin1String("mail-unread") );
+                else
+                    return transparent;
             }
         case Qt::FontRole:
             {

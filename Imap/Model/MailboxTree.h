@@ -151,6 +151,8 @@ public:
     uint size( Model* const model );
     bool isMarkedAsDeleted() const;
     bool isMarkedAsRead() const;
+    bool isMarkedAsReplied() const;
+    bool isMarkedAsForwarded() const;
 };
 
 class TreeItemPart: public TreeItem {

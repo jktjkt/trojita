@@ -542,6 +542,17 @@ bool TreeItemMessage::isMarkedAsRead() const
     return _flags.contains( QLatin1String("\\Seen"), Qt::CaseInsensitive );
 }
 
+bool TreeItemMessage::isMarkedAsReplied() const
+{
+    return _flags.contains( QLatin1String("\\Answered"), Qt::CaseInsensitive );
+}
+
+bool TreeItemMessage::isMarkedAsForwarded() const
+{
+    return _flags.contains( QLatin1String("$Forwarded"), Qt::CaseInsensitive );
+}
+
+
 Message::Envelope TreeItemMessage::envelope( Model* const model )
 {
     fetch( model );
