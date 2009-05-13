@@ -90,7 +90,7 @@ QModelIndex MailboxModel::index( int row, int column, const QModelIndex& parent 
     if ( row < 0 || column < 0 )
         return QModelIndex();
 
-    if ( parent.column() !=  0 && parent.column() != -1 )
+    if ( parent.column() != 0 && parent.column() != -1 )
         return QModelIndex();
 
     QModelIndex res;
