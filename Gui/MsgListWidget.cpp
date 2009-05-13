@@ -15,7 +15,7 @@ int MsgListWidget::sizeHintForColumn( int column ) const
 {
     switch ( column ) {
         case Imap::Mailbox::MsgListModel::SUBJECT:
-            return 400;
+            return 200;
         case Imap::Mailbox::MsgListModel::SEEN:
             return 16;
         case Imap::Mailbox::MsgListModel::FROM:
@@ -40,6 +40,8 @@ void MsgListWidget::slotFixSize()
         qDebug() << "Can't fix the header size of the icon, sorry";
         return;
     }
+    header()->setStretchLastSection( false );
+    header()->setResizeMode( Imap::Mailbox::MsgListModel::SUBJECT, QHeaderView::Stretch );
     header()->setResizeMode( Imap::Mailbox::MsgListModel::SEEN, QHeaderView::Fixed );
 }
 
