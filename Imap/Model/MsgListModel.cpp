@@ -286,6 +286,11 @@ Qt::ItemFlags MsgListModel::flags( const QModelIndex& index ) const
         return QAbstractProxyModel::flags( index );
 }
 
+Qt::DropActions MsgListModel::supportedDropActions() const
+{
+    return Qt::CopyAction | Qt::MoveAction;
+}
+
 QStringList MsgListModel::mimeTypes() const
 {
     return QStringList() << QLatin1String("application/x-trojita-message-list");
