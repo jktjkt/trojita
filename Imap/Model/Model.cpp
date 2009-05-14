@@ -228,6 +228,9 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
             case Task::EXPUNGE:
                 // FIXME
                 break;
+            case Task::COPY:
+                // FIXME
+                break;
         }
 
         _parsers[ ptr.get() ].commandMap.erase( command );
@@ -1060,6 +1063,22 @@ void Model::markMessageRead( TreeItemMessage* msg, bool marked )
 {
     updateFlags( msg, marked ? QLatin1String("+FLAGS") : QLatin1String("-FLAGS"),
                  QLatin1String("(\\Seen)") );
+}
+
+void Model::copyMessages( TreeItemMailbox* sourceMbox, const QString& destMailboxName, const Sequence& seq )
+{
+    Q_ASSERT( sourceMbox );
+    ParserPtr parser = _getParser( sourceMbox, ReadOnly );
+    CommandHandle cmd = parser->uidCopy( seq, destMailboxName );
+    _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::COPY, sourceMbox );
+}
+
+void Model::markUidsDeleted( TreeItemMailbox* mbox, const Sequence& messages )
+{
+    Q_ASSERT( mbox );
+    ParserPtr parser = _getParser( mbox, ReadWrite );
+    CommandHandle cmd = parser->uidStore( messages, QLatin1String("+FLAGS"), QLatin1String("\\Deleted") );
+    _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::STORE, mbox );
 }
 
 TreeItemMailbox* Model::findMailboxByName( const QString& name ) const

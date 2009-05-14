@@ -154,6 +154,7 @@ public:
     bool isMarkedAsReplied() const;
     bool isMarkedAsForwarded() const;
     bool isMarkedAsRecent() const;
+    uint uid() const;
 };
 
 class TreeItemPart: public TreeItem {

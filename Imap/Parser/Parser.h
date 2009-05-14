@@ -165,19 +165,19 @@ namespace Imap {
 
         /** @short SUBSCRIBE, RFC3501 section 6.3.6 */
         CommandHandle subscribe( const QString& mailbox );
-        
+
         /** @short UNSUBSCRIBE, RFC3501 section 6.3.7 */
         CommandHandle unSubscribe( const QString& mailbox );
 
         /** @short LIST, RFC3501 section 6.3.8 */
         CommandHandle list( const QString& reference, const QString& mailbox );
-        
+
         /** @short LSUB, RFC3501 section 6.3.9 */
         CommandHandle lSub( const QString& reference, const QString& mailbox );
 
         /** @short STATUS, RFC3501 section 6.3.10 */
         CommandHandle status( const QString& mailbox, const QStringList& fields );
-        
+
         /** @short APPEND, RFC3501 section 6.3.11 */
         CommandHandle append( const QString& mailbox, const QString& message,
                 const QStringList& flags = QStringList(), const QDateTime& timestamp = QDateTime() );
@@ -188,7 +188,7 @@ namespace Imap {
 
         /** @short CLOSE, RFC3501 sect 6.4.2 */
         CommandHandle close();
-        
+
         /** @short EXPUNGE, RFC3501 sect 6.4.3 */
         CommandHandle expunge();
 
@@ -212,6 +212,9 @@ namespace Imap {
         /** @short UID command (STORE), RFC3501 sect 6.4.8 */
         CommandHandle uidStore( const Sequence& seq, const QString& item, const QString& value );
 
+        /** @short UID command (COPY), RFC3501 sect 6.4.8 */
+        CommandHandle uidCopy( const Sequence& seq, const QString& mailbox );
+
         /** @short UID command (SEARCH), RFC3501 sect 6.4.8 */
         CommandHandle uidSearch( const QStringList& criteria, const QString& charset ) {
             return _searchHelper( "UID SEARCH", criteria, charset );
@@ -224,7 +227,7 @@ namespace Imap {
 
         /** @short UNSELECT, RFC3691 */
         CommandHandle unSelect();
-        
+
         /** @short IDLE, RFC2177
 
           The IDLE command will be automatically terminated by queueing of any command.

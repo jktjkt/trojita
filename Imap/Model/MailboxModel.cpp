@@ -267,18 +267,38 @@ QStringList MailboxModel::mimeTypes() const
 bool MailboxModel::dropMimeData( const QMimeData* data, Qt::DropAction action,
                                  int row, int column, const QModelIndex& parent )
 {
-    // FIXME
-    QString msg;
-    switch ( action ) {
-        case Qt::CopyAction:
-            msg = "copying"; break;
-        case Qt::MoveAction:
-            msg = "moving"; break;
-        default:
-            msg = "unknown action"; break;
+    if ( action != Qt::CopyAction && action != Qt::MoveAction )
+        return false;
+
+    if ( ! parent.isValid() )
+        return false;
+
+    TreeItemMailbox* target = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( parent.internalPointer() ) );
+    Q_ASSERT( target );
+
+    QByteArray encodedData = data->data( "application/x-trojita-message-list" );
+    QDataStream stream( &encodedData, QIODevice::ReadOnly );
+
+    Q_ASSERT( ! stream.atEnd() );
+    QString origMboxName;
+    stream >> origMboxName;
+    TreeItemMailbox* origMbox = static_cast<Model*>( sourceModel() )->findMailboxByName( origMboxName );
+    if ( ! origMbox ) {
+        qDebug() << "Can't find original mailbox when performing a drag&drop on messages";
+        return false;
     }
-    qDebug() << "dropped" << data->formats() << msg;
-    return false;
+
+    Imap::Sequence seq;
+    while ( ! stream.atEnd() ) {
+        uint uid;
+        stream >> uid;
+        seq.add( uid );
+    }
+
+    static_cast<Model*>( sourceModel() )->copyMessages( origMbox, target->mailbox(), seq );
+    if ( action == Qt::MoveAction )
+        static_cast<Model*>( sourceModel() )->markUidsDeleted( origMbox, seq );
+    return true;
 }
 
 void MailboxModel::handleRowsAboutToBeRemoved( const QModelIndex& parent, int first, int last )

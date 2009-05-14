@@ -557,6 +557,11 @@ bool TreeItemMessage::isMarkedAsRecent() const
     return _flags.contains( QLatin1String("\\Recent"), Qt::CaseInsensitive );
 }
 
+uint TreeItemMessage::uid() const
+{
+    return _uid;
+}
+
 
 Message::Envelope TreeItemMessage::envelope( Model* const model )
 {

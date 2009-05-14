@@ -242,6 +242,13 @@ CommandHandle Parser::uidStore( const Sequence& seq, const QString& item, const 
             Commands::PartOfCommand( Commands::ATOM, value ) );
 }
 
+CommandHandle Parser::uidCopy( const Sequence& seq, const QString& mailbox )
+{
+    return queueCommand( Commands::Command( "UID COPY" ) <<
+            Commands::PartOfCommand( Commands::ATOM, seq.toString() ) <<
+            mailbox );
+}
+
 CommandHandle Parser::xAtom( const Commands::Command& cmd )
 {
     return queueCommand( cmd );
@@ -615,7 +622,7 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::parseTagged( const QBy
     ++pos;
     const Responses::Kind kind = Responses::kindFromString( LowLevelParser::getAtom( line, pos ) );
     ++pos;
-    
+
     return std::tr1::shared_ptr<Responses::AbstractResponse>(
             new Responses::State( tag, kind, line, pos ) );
 }

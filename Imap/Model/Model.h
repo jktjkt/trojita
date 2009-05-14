@@ -88,7 +88,8 @@ class Model: public QAbstractItemModel {
 
     struct Task {
         enum Kind { NONE, STARTTLS, LOGIN, LIST, STATUS, SELECT, FETCH, NOOP,
-                    CAPABILITY, STORE, NAMESPACE, EXPUNGE, FETCH_WITH_FLAGS };
+                    CAPABILITY, STORE, NAMESPACE, EXPUNGE, FETCH_WITH_FLAGS,
+                    COPY };
         Kind kind;
         TreeItem* what;
         Task( const Kind _kind, TreeItem* _what ): kind(_kind), what(_what) {};
@@ -135,7 +136,7 @@ class Model: public QAbstractItemModel {
         QMap<uint, QStringList> syncingFlags;
         IdleLauncher* idleLauncher;
 
-        ParserState( ParserPtr _parser, TreeItemMailbox* _mailbox, const RWMode _mode, 
+        ParserState( ParserPtr _parser, TreeItemMailbox* _mailbox, const RWMode _mode,
                 const ConnectionState _connState, ModelStateHandler* _respHandler ):
             parser(_parser), mailbox(_mailbox), mode(_mode),
             connState(_connState), currentMbox(0), selectingAnother(0),
@@ -207,6 +208,8 @@ public:
     void markMessageDeleted( TreeItemMessage* msg, bool marked );
     void markMessageRead( TreeItemMessage* msg, bool marked );
     void expungeMailbox( TreeItemMailbox* mbox );
+    void markUidsDeleted( TreeItemMailbox* mbox, const Sequence& messages );
+    void copyMessages( TreeItemMailbox* sourceMbox, const QString& destMboxName, const Sequence& seq );
 
 public slots:
     void reloadMailboxList();

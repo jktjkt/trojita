@@ -280,10 +280,17 @@ QVariant MsgListModel::headerData ( int section, Qt::Orientation orientation, in
 
 Qt::ItemFlags MsgListModel::flags( const QModelIndex& index ) const
 {
-    if ( index.isValid() )
-        return Qt::ItemIsDragEnabled | QAbstractProxyModel::flags( index );
-    else
+    if ( ! index.isValid() || index.model() != this )
         return QAbstractProxyModel::flags( index );
+
+    TreeItemMessage* message = dynamic_cast<TreeItemMessage*>(
+            static_cast<TreeItem*>( index.internalPointer() ) );
+    Q_ASSERT( message );
+
+    if ( ! message->fetched() )
+        return QAbstractProxyModel::flags( index );
+
+    return Qt::ItemIsDragEnabled | QAbstractProxyModel::flags( index );
 }
 
 Qt::DropActions MsgListModel::supportedDropActions() const
@@ -298,9 +305,27 @@ QStringList MsgListModel::mimeTypes() const
 
 QMimeData* MsgListModel::mimeData( const QModelIndexList& indexes ) const
 {
+    if ( indexes.isEmpty() )
+        return 0;
+
     QMimeData* res = new QMimeData();
-    // FIXME: serialize
-    res->setData( QLatin1String("application/x-trojita-message-list"), "blesmrt" );
+    QByteArray encodedData;
+    QDataStream stream( &encodedData, QIODevice::WriteOnly );
+
+    TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>(
+            indexes.front().internalPointer() )->parent()->parent() );
+    Q_ASSERT( mailbox );
+    stream << mailbox->mailbox();
+
+    for ( QModelIndexList::const_iterator it = indexes.begin(); it != indexes.end(); ++it ) {
+        TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>( it->internalPointer() ) );
+        Q_ASSERT( message );
+        Q_ASSERT( message->fetched() ); // should've been handled by flags()
+        Q_ASSERT( message->parent()->parent() == mailbox );
+        Q_ASSERT( message->uid() > 0 );
+        stream << message->uid();
+    }
+    res->setData( QLatin1String("application/x-trojita-message-list"), encodedData );
     return res;
 }
 
