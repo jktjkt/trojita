@@ -145,6 +145,7 @@ void MainWindow::createWidgets()
     msgListTree->setSelectionMode( QAbstractItemView::ExtendedSelection );
     msgListTree->setAllColumnsShowFocus( true );
     msgListTree->setAlternatingRowColors( true );
+    msgListTree->setDragEnabled( true );
 
     connect( msgListTree, SIGNAL( customContextMenuRequested( const QPoint & ) ),
             this, SLOT( showContextMenuMsgListTree( const QPoint& ) ) );

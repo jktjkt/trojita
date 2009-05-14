@@ -25,6 +25,7 @@
 #include <QApplication>
 #include <QDebug>
 #include <QFontMetrics>
+#include <QMimeData>
 #include <cmath>
 
 namespace Imap {
@@ -275,6 +276,27 @@ QVariant MsgListModel::headerData ( int section, Qt::Orientation orientation, in
         default:
             return QVariant();
     }
+}
+
+Qt::ItemFlags MsgListModel::flags( const QModelIndex& index ) const
+{
+    if ( index.isValid() )
+        return Qt::ItemIsDragEnabled | QAbstractProxyModel::flags( index );
+    else
+        return QAbstractProxyModel::flags( index );
+}
+
+QStringList MsgListModel::mimeTypes() const
+{
+    return QStringList() << QLatin1String("application/x-trojita-message-list");
+}
+
+QMimeData* MsgListModel::mimeData( const QModelIndexList& indexes ) const
+{
+    QMimeData* res = new QMimeData();
+    // FIXME: serialize
+    res->setData( QLatin1String("application/x-trojita-message-list"), "blesmrt" );
+    return res;
 }
 
 void MsgListModel::resetMe()
