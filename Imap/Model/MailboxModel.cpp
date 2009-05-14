@@ -170,7 +170,7 @@ QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
                     return QAbstractProxyModel::data( proxyIndex, role );
                 case TOTAL_MESSAGE_COUNT:
                 {
-                    if ( mbox->_metadata.flags.contains( QLatin1String( "\\NOSELECT" ) ) )
+                    if ( ! mbox->isSelectable() )
                         return QVariant();
 
                     int num = list->totalMessageCount(
@@ -179,7 +179,7 @@ QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
                 }
                 case UNREAD_MESSAGE_COUNT:
                 {
-                    if ( mbox->_metadata.flags.contains( QLatin1String( "\\NOSELECT" ) ) )
+                    if ( ! mbox->isSelectable() )
                         return QVariant();
 
                     int num = list->unreadMessageCount(
@@ -259,10 +259,10 @@ Qt::ItemFlags MailboxModel::flags( const QModelIndex& index ) const
 
     TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( index.internalPointer() ) );
     Q_ASSERT( mbox );
-    if ( mbox->_metadata.flags.contains( QLatin1String( "\\NOSELECT" ) ) )
-        return QAbstractProxyModel::flags( index );
-    else
+    if ( mbox->isSelectable() )
         return Qt::ItemIsDropEnabled | QAbstractProxyModel::flags( index );
+    else
+        return QAbstractProxyModel::flags( index );
 }
 
 Qt::DropActions MailboxModel::supportedDropActions() const
@@ -287,7 +287,7 @@ bool MailboxModel::dropMimeData( const QMimeData* data, Qt::DropAction action,
     TreeItemMailbox* target = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( parent.internalPointer() ) );
     Q_ASSERT( target );
 
-    if ( target->_metadata.flags.contains( QLatin1String( "\\NOSELECT" ) ) )
+    if ( ! target->isSelectable() )
         return false;
 
     QByteArray encodedData = data->data( "application/x-trojita-message-list" );

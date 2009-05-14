@@ -176,7 +176,7 @@ QList<TreeItem*> TreeItemMailbox::setChildren( const QList<TreeItem*> items )
     _children.prepend( msgList );
 
     // FIXME: anything else required for \Noselect?
-    if ( _metadata.flags.contains( "\\NOSELECT" ) )
+    if ( ! isSelectable() )
         msgList->_fetchStatus = DONE;
 
     return list;
@@ -389,6 +389,11 @@ TreeItemPart* TreeItemMailbox::partIdToPtr( Model* const model, const int msgNum
                         "Offset of the message part doesn't point anywhere: " )
                     + msgId ).toAscii().constData() );
     return part;
+}
+
+bool TreeItemMailbox::isSelectable() const
+{
+    return ! _metadata.flags.contains( QLatin1String("\\NOSELECT") );
 }
 
 

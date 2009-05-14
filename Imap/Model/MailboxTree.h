@@ -104,6 +104,7 @@ public:
     void rescanForChildMailboxes( Model* const model );
     void handleExpunge( Model* const model, const Responses::NumberResponse& resp );
     void handleExistsSynced( Model* const model, ParserPtr ptr, const Responses::NumberResponse& resp );
+    bool isSelectable() const;
 private:
     TreeItemPart* partIdToPtr( Model* model, const int msgNumber, const QString& msgId );
 };
