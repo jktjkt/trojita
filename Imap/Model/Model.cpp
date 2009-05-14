@@ -1101,7 +1101,7 @@ TreeItemMailbox* Model::findMailboxByName( const QString& name,
         TreeItemMailbox* mailbox = static_cast<TreeItemMailbox*>( root->_children[i] );
         if ( name == mailbox->mailbox() )
             return mailbox;
-        else if ( name.startsWith( mailbox->mailbox() ) )
+        else if ( name.startsWith( mailbox->mailbox() + mailbox->separator() ) )
             return findMailboxByName( name, mailbox );
     }
     return 0;
