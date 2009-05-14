@@ -136,6 +136,8 @@ void MainWindow::createWidgets()
     mboxTree->setContextMenuPolicy(Qt::CustomContextMenu);
     mboxTree->setSelectionMode( QAbstractItemView::SingleSelection );
     mboxTree->setAllColumnsShowFocus( true );
+    mboxTree->setAcceptDrops( true );
+    mboxTree->setDropIndicatorShown( true );
     connect( mboxTree, SIGNAL( customContextMenuRequested( const QPoint & ) ),
             this, SLOT( showContextMenuMboxTree( const QPoint& ) ) );
 

@@ -23,6 +23,7 @@
 
 #include <QDebug>
 #include <QFont>
+#include <QMimeData>
 
 namespace Imap {
 namespace Mailbox {
@@ -243,6 +244,41 @@ QVariant MailboxModel::headerData ( int section, Qt::Orientation orientation, in
         default:
             return QVariant();
     }
+}
+
+Qt::ItemFlags MailboxModel::flags( const QModelIndex& index ) const
+{
+    if ( index.isValid() )
+        return Qt::ItemIsDropEnabled | QAbstractProxyModel::flags( index );
+    else
+        return QAbstractProxyModel::flags( index );
+}
+
+Qt::DropActions MailboxModel::supportedDropActions() const
+{
+    return Qt::CopyAction | Qt::MoveAction;
+}
+
+QStringList MailboxModel::mimeTypes() const
+{
+    return QStringList() << QLatin1String("application/x-trojita-message-list");
+}
+
+bool MailboxModel::dropMimeData( const QMimeData* data, Qt::DropAction action,
+                                 int row, int column, const QModelIndex& parent )
+{
+    // FIXME
+    QString msg;
+    switch ( action ) {
+        case Qt::CopyAction:
+            msg = "copying"; break;
+        case Qt::MoveAction:
+            msg = "moving"; break;
+        default:
+            msg = "unknown action"; break;
+    }
+    qDebug() << "dropped" << data->formats() << msg;
+    return false;
 }
 
 void MailboxModel::handleRowsAboutToBeRemoved( const QModelIndex& parent, int first, int last )
