@@ -115,6 +115,9 @@ void MainWindow::createActions()
 
     createTopMailbox = new QAction( tr("Create New Mailbox..."), this );
     connect( createTopMailbox, SIGNAL(triggered()), this, SLOT(slotCreateTopMailbox()) );
+
+    deleteCurrentMailbox = new QAction( tr("Delete Mailbox"), this );
+    connect( deleteCurrentMailbox, SIGNAL(triggered()), this, SLOT(slotDeleteCurrentMailbox()) );
 }
 
 void MainWindow::createMenus()
@@ -289,9 +292,10 @@ void MainWindow::showContextMenuMboxTree( const QPoint& position )
 {
     QList<QAction*> actionList;
     if ( mboxTree->indexAt( position ).isValid() ) {
+        actionList.append( createChildMailbox );
+        actionList.append( deleteCurrentMailbox );
         actionList.append( resyncMboxList );
         actionList.append( reloadMboxList );
-        actionList.append( createChildMailbox );
     } else {
         actionList.append( createTopMailbox );
     }
@@ -527,6 +531,22 @@ void MainWindow::createMailboxBelow( const QModelIndex& index )
             parts << QString();
         QString targetName = parts.join( mboxPtr ? mboxPtr->separator() : QString() ); // FIXME: top-level separator
         model->createMailbox( targetName );
+    }
+}
+
+void MainWindow::slotDeleteCurrentMailbox()
+{
+    if ( ! mboxTree->currentIndex().isValid() )
+        return;
+
+    Imap::Mailbox::TreeItemMailbox* mailbox = dynamic_cast<Imap::Mailbox::TreeItemMailbox*>(
+        static_cast<Imap::Mailbox::TreeItem*>( mboxTree->currentIndex().internalPointer() ) );
+    Q_ASSERT( mailbox );
+
+    if ( QMessageBox::question( this, tr("Delete Mailbox"),
+                                tr("Are you sure to delete mailbox %1?").arg( mailbox->mailbox() ),
+                                QMessageBox::Yes | QMessageBox::No ) == QMessageBox::Yes ) {
+        model->deleteMailbox( mailbox->mailbox() );
     }
 }
 

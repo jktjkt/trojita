@@ -234,6 +234,9 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
             case Task::CREATE:
                 // FIXME
                 break;
+            case Task::DELETE:
+                // FIXME: error reporting...
+                break;
         }
 
         _parsers[ ptr.get() ].commandMap.erase( command );
@@ -1119,6 +1122,15 @@ void Model::createMailbox( const QString& name )
     ParserPtr parser = _getParser( 0, ReadOnly );
     CommandHandle cmd = parser->create( name );
     _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::CREATE, 0 );
+    // FIXME: issue a LIST as well?
+}
+
+void Model::deleteMailbox( const QString& name )
+{
+    ParserPtr parser = _getParser( 0, ReadOnly );
+    CommandHandle cmd = parser->deleteMailbox( name );
+    _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::DELETE, 0 );
+    // FIXME: issue a LIST as well?
 }
 
 }

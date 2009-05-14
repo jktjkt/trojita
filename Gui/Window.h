@@ -73,6 +73,7 @@ private slots:
     void msgListSelectionChanged( const QItemSelection& selected, const QItemSelection& deselected );
     void slotCreateMailboxBelowCurrent();
     void slotCreateTopMailbox();
+    void slotDeleteCurrentMailbox();
 
 private:
     void createMenus();
@@ -109,6 +110,7 @@ private:
     QAction* expunge;
     QAction* createChildMailbox;
     QAction* createTopMailbox;
+    QAction* deleteCurrentMailbox;
 
     QAction* markAsRead;
     QAction* markAsDeleted;

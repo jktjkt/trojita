@@ -89,7 +89,7 @@ class Model: public QAbstractItemModel {
     struct Task {
         enum Kind { NONE, STARTTLS, LOGIN, LIST, STATUS, SELECT, FETCH, NOOP,
                     CAPABILITY, STORE, NAMESPACE, EXPUNGE, FETCH_WITH_FLAGS,
-                    COPY, CREATE };
+                    COPY, CREATE, DELETE };
         Kind kind;
         TreeItem* what;
         Task( const Kind _kind, TreeItem* _what ): kind(_kind), what(_what) {};
@@ -211,6 +211,7 @@ public:
     void markUidsDeleted( TreeItemMailbox* mbox, const Sequence& messages );
     void copyMessages( TreeItemMailbox* sourceMbox, const QString& destMboxName, const Sequence& seq );
     void createMailbox( const QString& name );
+    void deleteMailbox( const QString& name );
 
 public slots:
     void reloadMailboxList();
