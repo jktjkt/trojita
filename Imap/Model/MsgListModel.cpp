@@ -221,9 +221,9 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
                     if ( ! message->fetched() )
                         return QVariant();
                     if ( ! message->isMarkedAsRead() )
-                        return QtIconLoader::icon( QLatin1String("mail-unread") );
+                        return QIcon( QLatin1String(":/icons/mail-unread.png") );
                     else
-                        return QtIconLoader::icon( QLatin1String("mail-read") );
+                        return QIcon( QLatin1String(":/icons/mail-read.png") );
                 default:
                     return QVariant();
                 }
