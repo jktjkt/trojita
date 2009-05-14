@@ -105,6 +105,10 @@ set(trojita_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/MailboxTreeWidget.cpp
     )
 
+set(Gui_UI_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/Gui/CreateMailboxDialog.ui
+)
+
 SET(trojita_RCC_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/icons.qrc
 )
@@ -123,6 +127,7 @@ qt4_automoc(${trojita_SRCS} ${libImap_SRCS} ${libStreams_SRCS}
     ${libQwwSmtpClient_SRCS} ${libQtIconLoader_SRCS})
 
 qt4_add_resources(trojita_RCCS ${trojita_RCC_SRCS})
+qt4_wrap_ui(Gui_UIS ${Gui_UI_SRCS})
 
 add_library(Imap ${libImap_SRCS})
 add_library(MessageView ${libMessageView_SRCS})
@@ -131,7 +136,7 @@ add_library(MSA ${libMSA_SRCS})
 add_library(ModelTest ${libModelTest_SRCS})
 add_library(QwwSmtpClient ${libQwwSmtpClient_SRCS})
 add_library(QtIconLoader ${libQtIconLoader_SRCS})
-add_executable(trojita ${trojita_SRCS} ${trojita_RCCS})
+add_executable(trojita ${trojita_SRCS} ${trojita_RCCS} ${Gui_UIS})
 
 target_link_libraries(Imap Streams ${QT_QTGUI_LIBRARY})
 target_link_libraries(MessageView ${QT_QTWEBKIT_LIBRARY})

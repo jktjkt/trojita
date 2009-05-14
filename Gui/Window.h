@@ -71,6 +71,8 @@ private slots:
     void handleMarkAsDeleted( bool );
     void msgListClicked( const QModelIndex& );
     void msgListSelectionChanged( const QItemSelection& selected, const QItemSelection& deselected );
+    void slotCreateMailboxBelowCurrent();
+    void slotCreateTopMailbox();
 
 private:
     void createMenus();
@@ -79,6 +81,8 @@ private:
     void setupModels();
 
     void nukeModels();
+
+    void createMailboxBelow( const QModelIndex& index );
 
     Imap::Mailbox::CachePtr cache;
 
@@ -103,6 +107,8 @@ private:
     QAction* configSettings;
     QAction* composeMail;
     QAction* expunge;
+    QAction* createChildMailbox;
+    QAction* createTopMailbox;
 
     QAction* markAsRead;
     QAction* markAsDeleted;

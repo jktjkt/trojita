@@ -231,6 +231,9 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
             case Task::COPY:
                 // FIXME
                 break;
+            case Task::CREATE:
+                // FIXME
+                break;
         }
 
         _parsers[ ptr.get() ].commandMap.erase( command );
@@ -1109,6 +1112,13 @@ void Model::expungeMailbox( TreeItemMailbox* mbox )
     ParserPtr parser = _getParser( mbox, ReadWrite );
     CommandHandle cmd = parser->expunge(); // BIG FAT WARNING: what happens if the SELECT fails???
     _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::EXPUNGE, mbox );
+}
+
+void Model::createMailbox( const QString& name )
+{
+    ParserPtr parser = _getParser( 0, ReadOnly );
+    CommandHandle cmd = parser->create( name );
+    _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::CREATE, 0 );
 }
 
 }

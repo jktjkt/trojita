@@ -40,6 +40,8 @@
 #include "Imap/Model/MemoryCache.h"
 #include "Streams/SocketFactory.h"
 
+#include "ui_CreateMailboxDialog.h"
+
 #include "Imap/Model/ModelTest/modeltest.h"
 
 #include "iconloader/qticonloader.h"
@@ -107,6 +109,12 @@ void MainWindow::createActions()
     markAsDeleted->setShortcut( Qt::Key_Delete );
     msgListTree->addAction( markAsDeleted );
     connect( markAsDeleted, SIGNAL(triggered(bool)), this, SLOT(handleMarkAsDeleted(bool)) );
+
+    createChildMailbox = new QAction( tr("Create Child Mailbox..."), this );
+    connect( createChildMailbox, SIGNAL(triggered()), this, SLOT(slotCreateMailboxBelowCurrent()) );
+
+    createTopMailbox = new QAction( tr("Create New Mailbox..."), this );
+    connect( createTopMailbox, SIGNAL(triggered()), this, SLOT(slotCreateTopMailbox()) );
 }
 
 void MainWindow::createMenus()
@@ -283,6 +291,9 @@ void MainWindow::showContextMenuMboxTree( const QPoint& position )
     if ( mboxTree->indexAt( position ).isValid() ) {
         actionList.append( resyncMboxList );
         actionList.append( reloadMboxList );
+        actionList.append( createChildMailbox );
+    } else {
+        actionList.append( createTopMailbox );
     }
     actionList.append( reloadAllMailboxes );
     QMenu::exec( actionList, mboxTree->mapToGlobal( position ) );
@@ -480,6 +491,43 @@ void MainWindow::handleMarkAsDeleted( bool value )
 void MainWindow::slotExpunge()
 {
     model->expungeMailbox( msgListModel->currentMailbox() );
+}
+
+void MainWindow::slotCreateMailboxBelowCurrent()
+{
+    createMailboxBelow( mboxTree->currentIndex() );
+}
+
+void MainWindow::slotCreateTopMailbox()
+{
+    createMailboxBelow( QModelIndex() );
+}
+
+void MainWindow::createMailboxBelow( const QModelIndex& index )
+{
+    Imap::Mailbox::TreeItemMailbox* mboxPtr = index.isValid() ?
+        dynamic_cast<Imap::Mailbox::TreeItemMailbox*>(
+                static_cast<Imap::Mailbox::TreeItem*>( index.internalPointer() ) ) :
+        0;
+
+    Ui::CreateMailboxDialog ui;
+    QDialog* dialog = new QDialog( this );
+    ui.setupUi( dialog );
+
+    dialog->setWindowTitle( mboxPtr ?
+        tr("Create a Subfolder of %1").arg( mboxPtr->mailbox() ) :
+        tr("Create a Top-level Mailbox") );
+
+    if ( dialog->exec() == QDialog::Accepted ) {
+        QStringList parts;
+        if ( mboxPtr )
+            parts << mboxPtr->mailbox();
+        parts << ui.mailboxName->text();
+        if ( ui.otherMailboxes->isChecked() )
+            parts << QString();
+        QString targetName = parts.join( mboxPtr ? mboxPtr->separator() : QString() ); // FIXME: top-level separator
+        model->createMailbox( targetName );
+    }
 }
 
 }
