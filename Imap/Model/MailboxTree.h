@@ -50,7 +50,7 @@ protected:
     FetchingState _fetchStatus;
 public:
     TreeItem( TreeItem* parent );
-    TreeItem* parent() const { return _parent; };
+    TreeItem* parent() const { return _parent; }
     int row() const;
 
     virtual ~TreeItem();
@@ -87,9 +87,9 @@ public:
 
     bool hasChildMailboxes( Model* const model );
 
-    QString mailbox() const { return _metadata.mailbox; };
-    QString separator() const { return _metadata.separator; };
-    const MailboxMetadata& mailboxMetadata() const { return _metadata; };
+    QString mailbox() const { return _metadata.mailbox; }
+    QString separator() const { return _metadata.separator; }
+    const MailboxMetadata& mailboxMetadata() const { return _metadata; }
     /** @short Update internal tree with the results of a FETCH response
 
       If \a changedPart is not null, it will be updated to point to the message
@@ -146,7 +146,7 @@ public:
     virtual void fetch( Model* const model );
     virtual unsigned int rowCount( Model* const model );
     virtual QVariant data( Model* const model, int role );
-    virtual bool hasChildren( Model* const model ) { return true; };
+    virtual bool hasChildren( Model* const model ) { return true; }
     Message::Envelope envelope( Model* const model );
     uint size( Model* const model );
     bool isMarkedAsDeleted() const;
@@ -188,11 +188,11 @@ public:
         Imap::Network::MsgPartNetworkReply.
      */
     QByteArray* dataPtr();
-    QString mimeType() const { return _mimeType; };
-    QString charset() const { return _charset; };
-    void setCharset( const QString& ch ) { _charset = ch; };
-    void setEncoding( const QByteArray& encoding ) { _encoding = encoding; };
-    QByteArray encoding() const { return _encoding; };
+    QString mimeType() const { return _mimeType; }
+    QString charset() const { return _charset; }
+    void setCharset( const QString& ch ) { _charset = ch; }
+    void setEncoding( const QByteArray& encoding ) { _encoding = encoding; }
+    QByteArray encoding() const { return _encoding; }
 private:
     bool isTopLevelMultiPart() const;
 };
