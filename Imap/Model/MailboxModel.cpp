@@ -170,12 +170,18 @@ QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
                     return QAbstractProxyModel::data( proxyIndex, role );
                 case TOTAL_MESSAGE_COUNT:
                 {
+                    if ( mbox->_metadata.flags.contains( QLatin1String( "\\NOSELECT" ) ) )
+                        return QVariant();
+
                     int num = list->totalMessageCount(
                                     static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
                     return list->numbersFetched() ? QString::number( num ) : tr("?");
                 }
                 case UNREAD_MESSAGE_COUNT:
                 {
+                    if ( mbox->_metadata.flags.contains( QLatin1String( "\\NOSELECT" ) ) )
+                        return QVariant();
+
                     int num = list->unreadMessageCount(
                                     static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
                     return list->numbersFetched() ? QString::number( num ) : tr("?");
@@ -248,10 +254,15 @@ QVariant MailboxModel::headerData ( int section, Qt::Orientation orientation, in
 
 Qt::ItemFlags MailboxModel::flags( const QModelIndex& index ) const
 {
-    if ( index.isValid() )
-        return Qt::ItemIsDropEnabled | QAbstractProxyModel::flags( index );
-    else
+    if ( ! index.isValid() )
         return QAbstractProxyModel::flags( index );
+
+    TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( index.internalPointer() ) );
+    Q_ASSERT( mbox );
+    if ( mbox->_metadata.flags.contains( QLatin1String( "\\NOSELECT" ) ) || ! mbox->fetched() )
+        return QAbstractProxyModel::flags( index );
+    else
+        return Qt::ItemIsDropEnabled | QAbstractProxyModel::flags( index );
 }
 
 Qt::DropActions MailboxModel::supportedDropActions() const
@@ -275,6 +286,9 @@ bool MailboxModel::dropMimeData( const QMimeData* data, Qt::DropAction action,
 
     TreeItemMailbox* target = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( parent.internalPointer() ) );
     Q_ASSERT( target );
+
+    if ( target->_metadata.flags.contains( QLatin1String( "\\NOSELECT" ) ) || ! target->fetched() )
+        return false;
 
     QByteArray encodedData = data->data( "application/x-trojita-message-list" );
     QDataStream stream( &encodedData, QIODevice::ReadOnly );
