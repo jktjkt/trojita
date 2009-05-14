@@ -20,6 +20,7 @@
 #include <QDockWidget>
 #include <QHeaderView>
 #include <QInputDialog>
+#include <QItemSelectionModel>
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QSplitter>
@@ -97,10 +98,14 @@ void MainWindow::createActions()
 
     markAsRead = new QAction( tr("Mark as Read"), this );
     markAsRead->setCheckable( true );
+    markAsRead->setShortcut( Qt::Key_M );
+    msgListTree->addAction( markAsRead );
     connect( markAsRead, SIGNAL(triggered(bool)), this, SLOT(handleMarkAsRead(bool)) );
 
     markAsDeleted = new QAction( tr("Mark as Deleted"), this );
     markAsDeleted->setCheckable( true );
+    markAsDeleted->setShortcut( Qt::Key_Delete );
+    msgListTree->addAction( markAsDeleted );
     connect( markAsDeleted, SIGNAL(triggered(bool)), this, SLOT(handleMarkAsDeleted(bool)) );
 }
 
@@ -140,6 +145,7 @@ void MainWindow::createWidgets()
     msgListTree->setSelectionMode( QAbstractItemView::ExtendedSelection );
     msgListTree->setAllColumnsShowFocus( true );
     msgListTree->setAlternatingRowColors( true );
+
     connect( msgListTree, SIGNAL( customContextMenuRequested( const QPoint & ) ),
             this, SLOT( showContextMenuMsgListTree( const QPoint& ) ) );
 
@@ -201,9 +207,8 @@ void MainWindow::setupModels()
     connect( mboxModel, SIGNAL( layoutAboutToBeChanged() ), this, SLOT( slotResizeMailboxTreeColumns() ) );
     connect( msgListModel, SIGNAL( mailboxChanged() ), this, SLOT( slotResizeMsgListColumns() ) );
 
-    connect( msgListTree, SIGNAL( clicked(const QModelIndex&) ), msgView, SLOT( setMessage(const QModelIndex&) ) );
-    connect( msgListTree, SIGNAL( activated(const QModelIndex&) ), msgView, SLOT( setMessage(const QModelIndex&) ) );
-    connect( msgListTree, SIGNAL( clicked(const QModelIndex&) ), this, SLOT( messageListClicked(const QModelIndex&) ) );
+    connect( msgListTree, SIGNAL( activated(const QModelIndex&) ), this, SLOT( msgListClicked(const QModelIndex&) ) );
+    connect( msgListTree, SIGNAL( clicked(const QModelIndex&) ), this, SLOT( msgListClicked(const QModelIndex&) ) );
     connect( msgListModel, SIGNAL( modelAboutToBeReset() ), msgView, SLOT( setEmpty() ) );
     connect( msgListModel, SIGNAL( messageRemoved( void* ) ), msgView, SLOT( handleMessageRemoved( void* ) ) );
 
@@ -222,24 +227,38 @@ void MainWindow::setupModels()
 
     mboxTree->setModel( mboxModel );
     msgListTree->setModel( msgListModel );
+    connect( msgListTree->selectionModel(), SIGNAL( selectionChanged( const QItemSelection&, const QItemSelection& ) ),
+             this, SLOT( msgListSelectionChanged( const QItemSelection&, const QItemSelection& ) ) );
 }
 
-void MainWindow::messageListClicked( const QModelIndex& index )
+void MainWindow::msgListSelectionChanged( const QItemSelection& selected, const QItemSelection& deselected )
 {
-    if ( index.column() != Imap::Mailbox::MsgListModel::SEEN )
+    if ( selected.indexes().isEmpty() )
         return;
 
+    QModelIndex index = selected.indexes().front();
+    markAsRead->setChecked( msgListModel->data( index, Imap::Mailbox::MsgListModel::RoleIsMarkedAsRead ).toBool() );
+    markAsDeleted->setChecked( msgListModel->data( index, Imap::Mailbox::MsgListModel::RoleIsMarkedAsDeleted ).toBool() );
+}
+
+void MainWindow::msgListClicked( const QModelIndex& index )
+{
     Q_ASSERT( index.isValid() );
     Q_ASSERT( index.model() == msgListModel );
-    Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
-            static_cast<Imap::Mailbox::TreeItem*>(
-                    msgListModel->mapToSource( index ).internalPointer()
-                    )
-            );
-    Q_ASSERT( message );
-    if ( ! message->fetched() )
-        return;
-    model->markMessageRead( message, ! message->isMarkedAsRead() );
+
+    if ( index.column() == Imap::Mailbox::MsgListModel::SEEN ) {
+        Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
+                static_cast<Imap::Mailbox::TreeItem*>(
+                        msgListModel->mapToSource( index ).internalPointer()
+                        )
+                );
+        Q_ASSERT( message );
+        if ( ! message->fetched() )
+            return;
+        model->markMessageRead( message, ! message->isMarkedAsRead() );
+    } else {
+        msgView->setMessage( index );
+    }
 }
 
 void MainWindow::slotResizeMsgListColumns()

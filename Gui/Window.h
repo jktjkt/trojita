@@ -24,8 +24,9 @@
 #include "Imap/Model/Cache.h"
 
 class QAuthenticator;
-class QTreeView;
+class QItemSelection;
 class QModelIndex;
+class QTreeView;
 
 namespace Imap {
 namespace Mailbox {
@@ -68,7 +69,8 @@ private slots:
     void slotComposeMail();
     void handleMarkAsRead( bool );
     void handleMarkAsDeleted( bool );
-    void messageListClicked( const QModelIndex& );
+    void msgListClicked( const QModelIndex& );
+    void msgListSelectionChanged( const QItemSelection& selected, const QItemSelection& deselected );
 
 private:
     void createMenus();
