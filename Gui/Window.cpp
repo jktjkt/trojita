@@ -258,6 +258,7 @@ void MainWindow::msgListClicked( const QModelIndex& index )
         model->markMessageRead( message, ! message->isMarkedAsRead() );
     } else {
         msgView->setMessage( index );
+        msgListTree->setCurrentIndex( index );
     }
 }
 
