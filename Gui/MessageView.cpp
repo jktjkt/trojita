@@ -61,6 +61,7 @@ void MessageView::setEmpty()
     markAsReadTimer->stop();
     webView->setUrl( QUrl("about:blank") );
     webView->page()->history()->clear();
+    webView->setMinimumSize( 1, 1 );
     message = 0;
 }
 
@@ -98,6 +99,7 @@ void MessageView::setMessage( const QModelIndex& index )
     if ( message != messageCandidate ) {
         // So that we don't needlessly re-initialize stuff
         message = messageCandidate;
+        webView->setMinimumSize( 1, 1 );
         netAccess->setModelMessage( model, message );
         webView->setUrl( QUrl( QString("trojita-imap://msg/0") ) );
         webView->page()->history()->clear();
