@@ -3,11 +3,11 @@
 
 #include <QWidget>
 
-class QWebView;
 class QLabel;
 class QLayout;
 class QModelIndex;
 class QTimer;
+class QWebView;
 
 namespace Imap {
 namespace Mailbox {
