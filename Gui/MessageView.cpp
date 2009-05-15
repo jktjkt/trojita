@@ -1,5 +1,6 @@
 #include <QEvent>
 #include <QLabel>
+#include <QTextDocument>
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QtWebKit/QWebFrame>
@@ -19,7 +20,7 @@ MessageView::MessageView( QWidget* parent ): QWidget(parent), message(0), model(
 {
     layout = new QVBoxLayout( this );
     webView = new QWebView( this );
-    header = new QLabel( tr("blesmrt je dnes obzvlast trojita"), this );
+    header = new QLabel( this );
     layout->addWidget( header );
     layout->addWidget( webView );
     layout->setContentsMargins( 0, 0, 0, 0 );
@@ -48,6 +49,8 @@ MessageView::MessageView( QWidget* parent ): QWidget(parent), message(0), model(
 
     // We want to propagate the QWheelEvent to upper layers
     webView->installEventFilter( this );
+
+    header->setIndent( 5 );
 }
 
 void MessageView::handleMessageRemoved( void* msg )
@@ -59,6 +62,7 @@ void MessageView::handleMessageRemoved( void* msg )
 void MessageView::setEmpty()
 {
     markAsReadTimer->stop();
+    header->setText( QString() );
     webView->setUrl( QUrl("about:blank") );
     webView->page()->history()->clear();
     webView->setMinimumSize( 1, 1 );
@@ -102,8 +106,9 @@ void MessageView::setMessage( const QModelIndex& index )
         webView->setMinimumSize( 1, 1 );
         netAccess->setModelMessage( model, message );
         webView->setUrl( QUrl( QString("trojita-imap://msg/0") ) );
-        webView->page()->history()->clear();
         // There is never more than one top-level child item, so we can safely use /0 as the path
+        webView->page()->history()->clear();
+        header->setText( headerText() );
     }
     markAsReadTimer->start( 2000 ); // FIXME: make this configurable
 }
@@ -128,6 +133,31 @@ bool MessageView::eventFilter( QObject* object, QEvent* event )
     } else {
         return QObject::eventFilter( object, event );
     }
+}
+
+QString MessageView::headerText()
+{
+    if ( ! message )
+        return QString();
+
+    QString res;
+    if ( ! message->envelope( model ).from.isEmpty() )
+        res += tr("<b>From:</b>&nbsp;%1<br/>").arg( Qt::escape(
+                Imap::Message::MailAddress::prettyList( message->envelope( model ).from, false ) ) );
+    if ( ! message->envelope( model ).to.isEmpty() )
+        res += tr("<b>To:</b>&nbsp;%1<br/>").arg( Qt::escape(
+                Imap::Message::MailAddress::prettyList( message->envelope( model ).to, false ) ) );
+    if ( ! message->envelope( model ).cc.isEmpty() )
+        res += tr("<b>Cc:</b>&nbsp;%1<br/>").arg( Qt::escape(
+                Imap::Message::MailAddress::prettyList( message->envelope( model ).cc, false ) ) );
+    if ( ! message->envelope( model ).bcc.isEmpty() )
+        res += tr("<b>Bcc:</b>&nbsp;%1<br/>").arg( Qt::escape(
+                Imap::Message::MailAddress::prettyList( message->envelope( model ).bcc, false ) ) );
+    res += tr("<b>Subject:</b>&nbsp;%1").arg( Qt::escape( message->envelope( model ).subject ) );
+    if ( message->envelope( model ).date.isValid() )
+        res += tr("<br/><b>Date:</b>&nbsp;%1").arg(
+                message->envelope( model ).date.toString( Qt::SystemLocaleLongDate ) );
+    return res;
 }
 
 }

@@ -35,6 +35,7 @@ private slots:
     void pageLoadFinished();
 private:
     bool eventFilter( QObject* object, QEvent* event );
+    QString headerText();
 
     QWebView* webView;
     QLabel* header;
