@@ -168,8 +168,8 @@ void MainWindow::createWidgets()
     area = new QScrollArea();
     area->setWidget( msgView );
     area->setWidgetResizable( true );
-    //area->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-    //area->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
+    area->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
+    area->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
 
     QSplitter* hSplitter = new QSplitter();
     QSplitter* vSplitter = new QSplitter();
