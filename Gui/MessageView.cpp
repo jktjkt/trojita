@@ -1,5 +1,8 @@
+#include <QEvent>
+#include <QLabel>
 #include <QTimer>
 #include <QVBoxLayout>
+#include <QtWebKit/QWebFrame>
 #include <QtWebKit/QWebHistory>
 #include <QtWebKit/QWebView>
 #include <QDebug>
@@ -16,6 +19,8 @@ MessageView::MessageView( QWidget* parent ): QWidget(parent), message(0), model(
 {
     layout = new QVBoxLayout( this );
     webView = new QWebView( this );
+    header = new QLabel( tr("blesmrt je dnes obzvlast trojita"), this );
+    layout->addWidget( header );
     layout->addWidget( webView );
     layout->setContentsMargins( 0, 0, 0, 0 );
 
@@ -35,6 +40,14 @@ MessageView::MessageView( QWidget* parent ): QWidget(parent), message(0), model(
     markAsReadTimer = new QTimer( this );
     markAsReadTimer->setSingleShot( true );
     connect( markAsReadTimer, SIGNAL(timeout()), this, SLOT(markAsRead()) );
+
+    // Scrolling is implemented on upper layers
+    webView->page()->mainFrame()->setScrollBarPolicy( Qt::Horizontal, Qt::ScrollBarAlwaysOff );
+    webView->page()->mainFrame()->setScrollBarPolicy( Qt::Vertical, Qt::ScrollBarAlwaysOff );
+    connect( webView, SIGNAL(loadFinished(bool)), this, SLOT(pageLoadFinished()) );
+
+    // We want to propagate the QWheelEvent to upper layers
+    webView->installEventFilter( this );
 }
 
 void MessageView::handleMessageRemoved( void* msg )
@@ -98,6 +111,21 @@ void MessageView::markAsRead()
     if ( ! message )
         return;
     model->markMessageRead( message, true );
+}
+
+void MessageView::pageLoadFinished()
+{
+    webView->setMinimumSize( webView->page()->mainFrame()->contentsSize() );
+}
+
+bool MessageView::eventFilter( QObject* object, QEvent* event )
+{
+    if ( event->type() == QEvent::Wheel ) {
+        MessageView::event( event );
+        return true;
+    } else {
+        return QObject::eventFilter( object, event );
+    }
 }
 
 }

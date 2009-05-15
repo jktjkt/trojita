@@ -23,6 +23,7 @@
 #include <QItemSelectionModel>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QScrollArea>
 #include <QSplitter>
 
 #include "Window.h"
@@ -164,12 +165,17 @@ void MainWindow::createWidgets()
             this, SLOT( showContextMenuMsgListTree( const QPoint& ) ) );
 
     msgView = new MessageView();
+    area = new QScrollArea();
+    area->setWidget( msgView );
+    area->setWidgetResizable( true );
+    //area->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+    //area->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
 
     QSplitter* hSplitter = new QSplitter();
     QSplitter* vSplitter = new QSplitter();
     vSplitter->setOrientation( Qt::Vertical );
     vSplitter->addWidget( msgListTree );
-    vSplitter->addWidget( msgView );
+    vSplitter->addWidget( area );
     hSplitter->addWidget( mboxTree );
     hSplitter->addWidget( vSplitter );
     setCentralWidget( hSplitter );

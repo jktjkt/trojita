@@ -26,6 +26,7 @@
 class QAuthenticator;
 class QItemSelection;
 class QModelIndex;
+class QScrollArea;
 class QTreeView;
 
 namespace Imap {
@@ -96,6 +97,8 @@ private:
     QTreeView* allTree;
     MessageView* msgView;
     QDockWidget* allDock;
+
+    QScrollArea* area;
 
     QAction* reloadMboxList;
     QAction* reloadAllMailboxes;

@@ -4,6 +4,7 @@
 #include <QWidget>
 
 class QWebView;
+class QLabel;
 class QLayout;
 class QModelIndex;
 class QTimer;
@@ -31,8 +32,12 @@ public slots:
     void handleMessageRemoved( void* msg );
 private slots:
     void markAsRead();
+    void pageLoadFinished();
 private:
+    bool eventFilter( QObject* object, QEvent* event );
+
     QWebView* webView;
+    QLabel* header;
     QLayout* layout;
     Imap::Mailbox::TreeItemMessage* message;
     Imap::Mailbox::Model* model;
