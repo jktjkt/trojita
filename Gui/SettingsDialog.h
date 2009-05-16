@@ -49,7 +49,6 @@ public:
     ImapPage( QWidget* parent, QSettings& s );
     void save( QSettings& s );
 private:
-private:
     enum { TCP, SSL, PROCESS };
     QComboBox* method;
 
@@ -63,6 +62,7 @@ private:
 private slots:
     void updateWidgets();
 };
+
 
 class SettingsDialog : public QDialog
 {
