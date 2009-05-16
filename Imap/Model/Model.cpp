@@ -464,8 +464,8 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
         }
     } else {
         // Forget everything, do a dumb sync
-        // FIXME: wipe cache
         _cache->clearUidMapping( mailbox->mailbox() );
+        _cache->clearAllMessages( mailbox->mailbox() );
 
         QModelIndex parent = createIndex( 0, 0, list );
         if ( ! list->_children.isEmpty() ) {
