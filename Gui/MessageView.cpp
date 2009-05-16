@@ -110,12 +110,14 @@ void MessageView::setMessage( const QModelIndex& index )
         webView->page()->history()->clear();
         header->setText( headerText() );
     }
-    markAsReadTimer->start( 2000 ); // FIXME: make this configurable
+
+    if ( model->isNetworkAvailable() )
+        markAsReadTimer->start( 2000 ); // FIXME: make this configurable
 }
 
 void MessageView::markAsRead()
 {
-    if ( ! message )
+    if ( ! message || ! model->isNetworkAvailable() )
         return;
     model->markMessageRead( message, true );
 }

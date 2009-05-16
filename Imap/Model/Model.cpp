@@ -1085,6 +1085,10 @@ void Model::updateCapabilities( Parser* parser, const QStringList capabilities )
 
 void Model::updateFlags( TreeItemMessage* message, const QString& flagOperation, const QString& flags )
 {
+    if ( _netPolicy == NETWORK_OFFLINE ) {
+        qDebug() << "Ignoring requests to modify message flags when OFFLINE";
+        return;
+    }
     Parser* parser = _getParser( dynamic_cast<TreeItemMailbox*>(
             static_cast<TreeItem*>( message->parent()->parent() ) ), ReadWrite );
     if ( message->_uid == 0 ) {

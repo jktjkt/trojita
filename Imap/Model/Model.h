@@ -214,6 +214,8 @@ public:
     void createMailbox( const QString& name );
     void deleteMailbox( const QString& name );
 
+    bool isNetworkAvailable() const { return _netPolicy != NETWORK_OFFLINE; }
+
 public slots:
     void reloadMailboxList();
 
