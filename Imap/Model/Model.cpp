@@ -803,7 +803,6 @@ void Model::_askForChildrenOfMailbox( TreeItemMailbox* item )
         for ( QList<MailboxMetadata>::const_iterator it = metadata.begin(); it != metadata.end(); ++it ) {
             mailboxes << TreeItemMailbox::fromMetadata( item, *it );
         }
-        Parser* parser = _getParser( 0, ReadOnly );
         TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( item );
         Q_ASSERT( mailboxPtr );
         item->_fetchStatus = TreeItem::DONE;
