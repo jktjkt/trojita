@@ -19,6 +19,21 @@
 #include "MemoryCache.h"
 #include <QDebug>
 
+#define CACHE_DEBUG
+
+QDebug operator<<( QDebug& dbg, const Imap::Mailbox::MailboxMetadata& metadata )
+{
+    return dbg << metadata.mailbox << metadata.separator << metadata.flags;
+}
+
+QDebug operator<<( QDebug& dbg, const Imap::Mailbox::SyncState& state )
+{
+    return dbg << "UIDVALIDITY" << state.uidValidity() << "UIDNEXT" << state.uidNext() <<
+            "EXISTS" << state.exists() << "UNSEEN" << state.unSeen() <<
+            "RECENT" << state.recent() << "PERMANENTFLAGS" << state.permanentFlags();
+}
+
+
 namespace Imap {
 namespace Mailbox {
 
@@ -39,6 +54,9 @@ bool MemoryCache::childMailboxesFresh( const QString& mailbox ) const
 
 void MemoryCache::setChildMailboxes( const QString& mailbox, const QList<MailboxMetadata>& data )
 {
+#ifdef CACHE_DEBUG
+    qDebug() << "setting child mailboxes for" << mailbox << "to" << data;
+#endif
     _cache[ mailbox ] = data;
 }
 
@@ -47,6 +65,9 @@ void MemoryCache::forgetChildMailboxes( const QString& mailbox )
     for ( QMap<QString,QList<MailboxMetadata> >::iterator it = _cache.begin();
           it != _cache.end(); /* do nothing */ ) {
         if ( it.key().startsWith( mailbox ) ) {
+#ifdef CACHE_DEBUG
+                qDebug() << "forgetting about mailbox" << it.key();
+#endif
             it = _cache.erase( it );
         } else {
             ++it;
@@ -61,6 +82,9 @@ SyncState MemoryCache::mailboxSyncState( const QString& mailbox ) const
 
 void MemoryCache::setMailboxSyncState( const QString& mailbox, const SyncState& state )
 {
+#ifdef CACHE_DEBUG
+    qDebug() << "setting mailbox sync state of" << mailbox << "to" << state;
+#endif
     _syncState[ mailbox ] = state;
 }
 
