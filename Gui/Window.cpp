@@ -226,6 +226,7 @@ void MainWindow::setupModels()
     connect( mboxTree, SIGNAL( activated(const QModelIndex&) ), model, SLOT( switchToMailbox( const QModelIndex& ) ) );
     connect( mboxModel, SIGNAL( layoutAboutToBeChanged() ), this, SLOT( slotResizeMailboxTreeColumns() ) );
     connect( msgListModel, SIGNAL( mailboxChanged() ), this, SLOT( slotResizeMsgListColumns() ) );
+    connect( msgListModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ), this, SLOT( updateMessageFlags() ) );
 
     connect( msgListTree, SIGNAL( activated(const QModelIndex&) ), this, SLOT( msgListClicked(const QModelIndex&) ) );
     connect( msgListTree, SIGNAL( clicked(const QModelIndex&) ), this, SLOT( msgListClicked(const QModelIndex&) ) );
@@ -554,6 +555,12 @@ void MainWindow::slotDeleteCurrentMailbox()
                                 QMessageBox::Yes | QMessageBox::No ) == QMessageBox::Yes ) {
         model->deleteMailbox( mailbox->mailbox() );
     }
+}
+
+void MainWindow::updateMessageFlags()
+{
+    markAsRead->setChecked( msgListModel->data( msgListTree->currentIndex(), Imap::Mailbox::MsgListModel::RoleIsMarkedAsRead ).toBool() );
+    markAsDeleted->setChecked( msgListModel->data( msgListTree->currentIndex(), Imap::Mailbox::MsgListModel::RoleIsMarkedAsDeleted ).toBool() );
 }
 
 }
