@@ -92,8 +92,8 @@ class Model: public QAbstractItemModel {
                     COPY, CREATE, DELETE };
         Kind kind;
         TreeItem* what;
-        Task( const Kind _kind, TreeItem* _what ): kind(_kind), what(_what) {};
-        Task(): kind(NONE) {};
+        Task( const Kind _kind, TreeItem* _what ): kind(_kind), what(_what) {}
+        Task(): kind(NONE) {}
     };
 
     /** @short How to open a mailbox */
@@ -140,10 +140,10 @@ class Model: public QAbstractItemModel {
                 const ConnectionState _connState, ModelStateHandler* _respHandler ):
             parser(_parser), mailbox(_mailbox), mode(_mode),
             connState(_connState), currentMbox(0), selectingAnother(0),
-            capabilitiesFresh(false), responseHandler(_respHandler), idleLauncher(0) {};
+            capabilitiesFresh(false), responseHandler(_respHandler), idleLauncher(0) {}
         ParserState(): mailbox(0), mode(ReadOnly), connState(CONN_STATE_LOGOUT),
             currentMbox(0), selectingAnother(0), capabilitiesFresh(false),
-            responseHandler(0), idleLauncher(0) {};
+            responseHandler(0), idleLauncher(0) {}
     };
 
     /** @short Policy for accessing network */
@@ -202,7 +202,7 @@ public:
     void handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* const resp );
     void handleNamespace( Imap::ParserPtr ptr, const Imap::Responses::Namespace* const resp );
 
-    CachePtr cache() const { return _cache; };
+    CachePtr cache() const { return _cache; }
 
     void resyncMailbox( TreeItemMailbox* mbox );
     void markMessageDeleted( TreeItemMessage* msg, bool marked );
@@ -286,7 +286,7 @@ private:
      * */
     ParserPtr _getParser( TreeItemMailbox* mailbox, const RWMode rw, const bool reSync=false ) const;
 
-    NetworkPolicy networkPolicy() const { return _netPolicy; };
+    NetworkPolicy networkPolicy() const { return _netPolicy; }
     void setNetworkPolicy( const NetworkPolicy policy );
 
     void completelyReset();
