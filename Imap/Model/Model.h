@@ -277,6 +277,8 @@ private:
     TreeItemMailbox* findMailboxByName( const QString& name ) const;
     TreeItemMailbox* findMailboxByName( const QString& name, const TreeItemMailbox* const root ) const;
 
+    void saveUidMap( TreeItemMsgList* list );
+
     /** @short Returns parser suitable for dealing with some mailbox.
      *
      * This parser might be already working hard in another mailbox; if that is

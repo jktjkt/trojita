@@ -320,6 +320,7 @@ void TreeItemMailbox::handleExpunge( Model* const model, const Responses::Number
 
     --list->_totalMessageCount;
     list->recalcUnreadMessageCount();
+    model->saveUidMap( list );
     emit model->messageCountPossiblyChanged( model->createIndex( row(), 0, this ) );
 }
 

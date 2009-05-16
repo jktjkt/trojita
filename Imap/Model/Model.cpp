@@ -399,6 +399,7 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
 
                 list->_fetchStatus = TreeItem::DONE;
                 _cache->setMailboxSyncState( mailbox->mailbox(), syncState );
+                saveUidMap( list );
 
             } else {
                 // Some messages got deleted, but there have been no additions
@@ -415,6 +416,7 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
                 _parsers[ parser.get() ].syncingFlags.clear();
                 for ( uint i = 0; i < syncState.exists(); ++i )
                     uidMap << 0;
+                _cache->clearUidMapping( mailbox->mailbox() );
             }
 
         } else {
@@ -436,6 +438,7 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
                 _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
                 list->_numberFetchingStatus = TreeItem::LOADING;
                 list->_unreadMessageCount = 0;
+                _cache->clearUidMapping( mailbox->mailbox() );
 
             } else {
                 // Generic case; we don't know anything about which messages were deleted and which added
@@ -453,11 +456,13 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
                 _parsers[ parser.get() ].syncingFlags.clear();
                 for ( uint i = 0; i < syncState.exists(); ++i )
                     uidMap << 0;
+                _cache->clearUidMapping( mailbox->mailbox() );
             }
         }
     } else {
         // Forget everything, do a dumb sync
         // FIXME: wipe cache
+        _cache->clearUidMapping( mailbox->mailbox() );
 
         QModelIndex parent = createIndex( 0, 0, list );
         if ( ! list->_children.isEmpty() ) {
@@ -493,6 +498,7 @@ void Model::_finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::
             list->_numberFetchingStatus = TreeItem::DONE;
             list->_fetchStatus = TreeItem::DONE;
             _cache->setMailboxSyncState( mailbox->mailbox(), syncState );
+            saveUidMap( list );
         }
     }
     emit messageCountPossiblyChanged( createIndex( mailbox->row(), 0, mailbox ) );
@@ -513,6 +519,7 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
         _cache->setMailboxSyncState( mailbox->mailbox(), _parsers[ parser.get() ].syncState );
         TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[0] );
         Q_ASSERT( list );
+        saveUidMap( list );
         if ( command->kind == Task::FETCH_WITH_FLAGS ) {
             list->recalcUnreadMessageCount();
             list->_numberFetchingStatus = TreeItem::DONE;
@@ -599,6 +606,7 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
         list->_totalMessageCount = list->_children.size();
         list->_unreadMessageCount = unSeenCount;
         list->_numberFetchingStatus = TreeItem::DONE;
+        saveUidMap( list );
         _parsers[ parser.get() ].syncingFlags.clear();
         emit messageCountPossiblyChanged( parent.parent() );
     }
@@ -1131,6 +1139,14 @@ void Model::deleteMailbox( const QString& name )
     CommandHandle cmd = parser->deleteMailbox( name );
     _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::DELETE, 0 );
     // FIXME: issue a LIST as well?
+}
+
+void Model::saveUidMap( TreeItemMsgList* list )
+{
+    QList<uint> seqToUid;
+    for ( int i = 0; i < list->_children.size(); ++i )
+        seqToUid << static_cast<TreeItemMessage*>( list->_children[ i ] )->uid();
+    _cache->setUidMapping( static_cast<TreeItemMailbox*>( list->parent() )->mailbox(), seqToUid );
 }
 
 }
