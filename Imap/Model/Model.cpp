@@ -243,6 +243,18 @@ void Model::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* cons
             case Task::DELETE:
                 // FIXME: error reporting...
                 break;
+            case Task::LOGOUT:
+                {
+                    // Now it should be obvious that using shared_ptr with QObject
+                    // is a *bad* idea :(
+                    // FIXME: convert ParserPtr to QPointer :(
+                    Parser* p = ptr.get();
+                    ptr.reset();
+                    p->deleteLater();
+                    _parsers.remove( p );
+                    return;
+                }
+                break;
         }
 
         _parsers[ ptr.get() ].commandMap.erase( command );
@@ -919,6 +931,8 @@ void Model::performNoop()
 
 ParserPtr Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bool reSync ) const
 {
+    Q_ASSERT( _netPolicy != NETWORK_OFFLINE );
+
     if ( ! mailbox && ! _parsers.isEmpty() ) {
         return _parsers.begin().value().parser;
     } else {
@@ -984,6 +998,10 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
     switch ( policy ) {
         case NETWORK_OFFLINE:
             noopTimer->stop();
+            for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
+                CommandHandle cmd = _parsers[ it.key() ].parser->logout();
+                _parsers[ it.key() ].commandMap[ cmd ] = Task( Task::LOGOUT, 0 );
+            }
             emit networkPolicyOffline();
             break;
         case NETWORK_EXPENSIVE:
