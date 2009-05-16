@@ -434,7 +434,7 @@ QString MsgListModel::prettySize( uint bytes )
     int order = std::log( bytes ) / std::log( 1024 );
     QString suffix;
     if ( order <= 0 )
-        suffix = QLatin1String("");
+        return QString::number( bytes );
     else if ( order == 1 )
         suffix = tr("kB");
     else if ( order == 2 )
