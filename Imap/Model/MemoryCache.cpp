@@ -100,6 +100,7 @@ void MemoryCache::clearAllMessages( const QString& mailbox )
     _sizes.remove( mailbox );
     _envelopes.remove( mailbox );
     _parts.remove( mailbox );
+    _bodyStructure.remove( mailbox );
 }
 
 void MemoryCache::clearMessage( const QString mailbox, uint uid )
@@ -115,6 +116,8 @@ void MemoryCache::clearMessage( const QString mailbox, uint uid )
         _envelopes[ mailbox ].remove( uid );
     if ( _parts.contains( mailbox ) )
         _parts[ mailbox ].remove( uid );
+    if ( _bodyStructure.contains( mailbox ) )
+        _bodyStructure[ mailbox ].remove( uid );
 }
 
 void MemoryCache::setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data )
@@ -141,10 +144,10 @@ void MemoryCache::setMsgSize( const QString& mailbox, uint uid, uint size )
     _sizes[ mailbox ][ uid ] = size;
 }
 
-void MemoryCache::setMsgStructure( const QString& mailbox, uint uid, const Imap::Message::AbstractMessage& data )
+void MemoryCache::setMsgStructure( const QString& mailbox, uint uid, const QByteArray& serializedData )
 {
 #ifdef CACHE_DEBUG
-    qDebug() << "set msg structure (NOT IMPLEMENTED)" << mailbox << uid;
+    qDebug() << "set msg body structure" << mailbox << uid << serializedData.size();
 #endif
 }
 
@@ -154,6 +157,44 @@ void MemoryCache::setMsgFlags( const QString& mailbox, uint uid, const QStringLi
     qDebug() << "set FLAGS for" << mailbox << uid << flags;
 #endif
     _flags[ mailbox ][ uid ] = flags;
+}
+
+QList<uint> MemoryCache::uidMapping( const QString& mailbox )
+{
+    return _seqToUid[ mailbox ];
+}
+
+QList<MemoryCache::MessageDataBundle> MemoryCache::messageDataForMailbox( const QString& mailbox )
+{
+    QList<MessageDataBundle> res;
+    for ( QMap<uint,QByteArray>::const_iterator it = _bodyStructure[ mailbox ].begin();
+            it != _bodyStructure[ mailbox ].end(); ++it ) {
+        MessageDataBundle buf;
+        if ( ! _envelopes.contains( mailbox ) )
+            continue;
+        if ( ! _envelopes[ mailbox ].contains( it.key() ) )
+            continue;
+        buf.envelope = _envelopes[ mailbox ][ it.key() ];
+        buf.uid = it.key();
+        buf.serializedBodyStructure = it.value();
+        // These fields are not critical, so nothing happens if they aren't filed correctly:
+        buf.flags = _flags[ mailbox ][ it.key() ];
+        buf.size = _sizes[ mailbox ][ it.key() ];
+    }
+    return res;
+}
+
+QByteArray MemoryCache::messagePart( const QString& mailbox, uint uid, const QString& partId )
+{
+    if ( ! _parts.contains( mailbox ) )
+        return QByteArray();
+    const QMap<uint, QMap<QString, QByteArray> >& mailboxParts = _parts[ mailbox ];
+    if ( ! mailboxParts.contains( uid ) )
+        return QByteArray();
+    const QMap<QString, QByteArray>& messageParts = mailboxParts[ uid ];
+    if ( ! messageParts.contains( partId ) )
+        return QByteArray();
+    return messageParts[ partId ];
 }
 
 }

@@ -32,6 +32,29 @@ namespace Mailbox {
 /** @short An abstract parent for all IMAP cache implementations */
 class AbstractCache {
 public:
+
+    /** @short Helper for retrieving all data about a particular message from the cache */
+    struct MessageDataBundle {
+        /** @short The UID of the message */
+        uint uid;
+        /** @short Envelope */
+        Imap::Message::Envelope envelope;
+        /** @short RFC822.SIZE */
+        uint size;
+        /** @short FLAGS, a volatile parameter! */
+        QStringList flags;
+        /** @short Serialized form of BODYSTRUCTURE
+
+        Due to the complex nature of BODYSTRUCTURE and the way we use, simly
+        archiving the resulting object is far from trivial. The simplest way is
+        offered by Imap::Message::AbstractMessage::fromList. Therefore, this item
+        contains a QVariantList as serialized by QDataStream.
+*/
+        QByteArray serializedBodyStructure;
+
+        MessageDataBundle(): uid(0) {}
+    };
+
     virtual ~AbstractCache() {}
 
     /** @short Return a list of all known child mailboxes */
@@ -64,9 +87,18 @@ public:
     /** @short Save the message size */
     virtual void setMsgSize( const QString& mailbox, uint uid, uint size ) = 0;
     /** @short Save the BODYSTRUCTURE of a message */
-    virtual void setMsgStructure( const QString& mailbox, uint uid, const Imap::Message::AbstractMessage& data ) = 0;
+    virtual void setMsgStructure( const QString& mailbox, uint uid, const QByteArray& serializedData ) = 0;
     /** @short Save flags for one message in mailbox */
     virtual void setMsgFlags( const QString& mailbox, uint uid, const QStringList& flags ) = 0;
+
+    /** @short Retrieve sequence to UID mapping */
+    virtual QList<uint> uidMapping( const QString& mailbox ) = 0;
+
+    /** @short Returns a list which contains all known data for each message in the given mailbox (except real parts data) */
+    virtual QList<MessageDataBundle> messageDataForMailbox( const QString& mailbox ) = 0;
+
+    /** @short Return part data or a null QByteArray if none available */
+    virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId ) = 0;
 };
 
 /** @short A convenience typedef */

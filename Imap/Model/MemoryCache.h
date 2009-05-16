@@ -49,8 +49,12 @@ public:
     virtual void setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data );
     virtual void setMsgEnvelope( const QString& mailbox, uint uid, const Imap::Message::Envelope& envelope );
     virtual void setMsgSize( const QString& mailbox, uint uid, uint size );
-    virtual void setMsgStructure( const QString& mailbox, uint uid, const Imap::Message::AbstractMessage& data );
+    virtual void setMsgStructure( const QString& mailbox, uint uid, const QByteArray& serializedData );
     virtual void setMsgFlags( const QString& mailbox, uint uid, const QStringList& flags );
+
+    virtual QList<uint> uidMapping( const QString& mailbox );
+    virtual QList<MessageDataBundle> messageDataForMailbox( const QString& mailbox );
+    virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId );
 
 private:
     QMap<QString, QList<MailboxMetadata> > _cache;
@@ -58,6 +62,7 @@ private:
     QMap<QString, QList<uint> > _seqToUid;
     QMap<QString, QMap<uint,QStringList> > _flags;
     QMap<QString, QMap<uint,uint> > _sizes;
+    QMap<QString, QMap<uint,QByteArray> > _bodyStructure;
     QMap<QString, QMap<uint, Imap::Message::Envelope> > _envelopes;
     QMap<QString, QMap<uint, QMap<QString, QByteArray> > > _parts;
 };

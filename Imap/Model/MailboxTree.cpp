@@ -220,13 +220,12 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
                 // The message structure is already known, so we are free to ignore it
             } else {
                 // We had no idea about the structure of the message
-                const Message::AbstractMessage& msgData = dynamic_cast<const Message::AbstractMessage&>( *(it.value()) );
-                QList<TreeItem*> newChildren = msgData.createTreeItems( message );
+                QList<TreeItem*> newChildren = dynamic_cast<const Message::AbstractMessage&>( *(it.value()) ).createTreeItems( message );
                 // FIXME: it would be nice to use more fine-grained signals here
                 QList<TreeItem*> oldChildren = message->setChildren( newChildren );
                 Q_ASSERT( oldChildren.size() == 0 );
                 if ( message->uid() )
-                    model->cache()->setMsgStructure( mailbox(), message->uid(), msgData );
+                    model->cache()->setMsgStructure( mailbox(), message->uid(), QByteArray() ); // FIXME: real data
             }
         } else if ( it.key() == "RFC822.SIZE" ) {
             message->_size = dynamic_cast<const Responses::RespData<uint>&>( *(it.value()) ).data;
