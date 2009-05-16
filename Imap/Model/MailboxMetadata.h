@@ -30,8 +30,8 @@ struct MailboxMetadata {
     QStringList flags;
 
     MailboxMetadata( const QString& _mailbox, const QString& _separator, const QStringList& _flags ):
-        mailbox(_mailbox), separator(_separator), flags(_flags) {};
-    MailboxMetadata() {};
+        mailbox(_mailbox), separator(_separator), flags(_flags) {}
+    MailboxMetadata() {}
 };
 
 /** @short Class for keeping track of information from the SELECT command */
