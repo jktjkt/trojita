@@ -21,6 +21,7 @@
 
 #include <tr1/memory>
 #include <QByteArray>
+#include <QDebug>
 #include <QVariant>
 #include <QDateTime>
 #include <QString>
@@ -248,5 +249,7 @@ namespace Message {
 }
 
 }
+
+QDebug operator<<( QDebug& dbg, const Imap::Message::Envelope& envelope );
 
 #endif /* IMAP_MESSAGE_H */

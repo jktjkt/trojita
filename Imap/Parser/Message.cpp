@@ -126,7 +126,7 @@ bool OneMessage::eq( const AbstractData& other ) const
     try {
         const OneMessage& o = dynamic_cast<const OneMessage&>( other );
         return o.mediaType == mediaType && mediaSubType == o.mediaSubType &&
-            bodyFldParam == o.bodyFldParam && bodyFldId == o.bodyFldId && 
+            bodyFldParam == o.bodyFldParam && bodyFldId == o.bodyFldId &&
             bodyFldDesc == o.bodyFldDesc && bodyFldEnc == o.bodyFldEnc &&
             bodyFldOctets == o.bodyFldOctets && bodyFldMd5 == o.bodyFldMd5 &&
             bodyFldDsp == o.bodyFldDsp && bodyFldLang == o.bodyFldLang &&
@@ -153,9 +153,9 @@ QTextStream& TextMessage::dump( QTextStream& s, const int indent ) const
 
     return s << QByteArray( indent, ' ' ) << "TextMessage( " << mediaType << "/" << mediaSubType << lf <<
         i << "body-fld-param: " << bodyFldParam << lf <<
-        i << "body-fld-id: " << bodyFldId << lf << 
-        i << "body-fld-desc: " << bodyFldDesc << lf << 
-        i << "body-fld-enc: " << bodyFldEnc << lf << 
+        i << "body-fld-id: " << bodyFldId << lf <<
+        i << "body-fld-desc: " << bodyFldDesc << lf <<
+        i << "body-fld-enc: " << bodyFldEnc << lf <<
         i << "body-fld-octets: " << bodyFldOctets << lf <<
         i << "bodyFldMd5: " << bodyFldMd5 << lf <<
         i << "body-fld-dsp: " << bodyFldDsp << lf <<
@@ -197,7 +197,7 @@ QTextStream& MsgMessage::dump( QTextStream& s, const int indent ) const
 
     s << QByteArray( indent, ' ' ) << "MsgMessage(" << lf;
     envelope.dump( s, indent + 1 );
-    s << 
+    s <<
         i << "body-fld-lines " << bodyFldLines << lf <<
         i << "body:" << lf;
     if ( body )
@@ -214,9 +214,9 @@ QTextStream& BasicMessage::dump( QTextStream& s, const int indent ) const
 
     return s << QByteArray( indent, ' ' ) << "TextMessage( " << mediaType << "/" << mediaSubType << lf <<
         i << "body-fld-param: " << bodyFldParam << lf <<
-        i << "body-fld-id: " << bodyFldId << lf << 
-        i << "body-fld-desc: " << bodyFldDesc << lf << 
-        i << "body-fld-enc: " << bodyFldEnc << lf << 
+        i << "body-fld-id: " << bodyFldId << lf <<
+        i << "body-fld-desc: " << bodyFldDesc << lf <<
+        i << "body-fld-enc: " << bodyFldEnc << lf <<
         i << "body-fld-octets: " << bodyFldOctets << lf <<
         i << "bodyFldMd5: " << bodyFldMd5 << lf <<
         i << "body-fld-dsp: " << bodyFldDsp << lf <<
@@ -246,8 +246,8 @@ bool MultiMessage::eq( const AbstractData& other ) const
                 return false;
         }
 
-        return mediaSubType == o.mediaSubType && bodyFldParam == o.bodyFldParam && 
-            bodyFldDsp == o.bodyFldDsp && bodyFldLang == o.bodyFldLang && 
+        return mediaSubType == o.mediaSubType && bodyFldParam == o.bodyFldParam &&
+            bodyFldDsp == o.bodyFldDsp && bodyFldLang == o.bodyFldLang &&
             bodyFldLoc == o.bodyFldLoc && bodyExtension == o.bodyExtension;
 
     } catch ( std::bad_cast& ) {
@@ -262,7 +262,7 @@ QTextStream& MultiMessage::dump( QTextStream& s, const int indent ) const
 
     s << QByteArray( indent, ' ' ) << "MultiMessage( multipart/" << mediaSubType << lf <<
         i << "body-fld-param " << bodyFldParam << lf <<
-        i << "body-fld-dsp " << bodyFldDsp << lf << 
+        i << "body-fld-dsp " << bodyFldDsp << lf <<
         i << "body-fld-lang " << bodyFldLang << lf <<
         i << "body-fld-loc " << bodyFldLoc << lf <<
         i << "bodyExtension is " << bodyExtension.typeName() << lf <<
@@ -606,7 +606,7 @@ QTextStream& Envelope::dump( QTextStream& stream, const int indent ) const
     stream << i << "To: "; dumpListOfAddresses( stream, to, indent + 1 );
     stream << i << "Cc: "; dumpListOfAddresses( stream, cc, indent + 1 );
     stream << i << "Bcc: "; dumpListOfAddresses( stream, bcc, indent + 1 );
-    stream << 
+    stream <<
         i << "In-Reply-To: " << inReplyTo << lf <<
         i << "Message-Id: " << messageId << lf;
     return stream << QByteArray( indent, ' ' ) << ")" << lf;
@@ -703,6 +703,17 @@ QList<Mailbox::TreeItem*> MultiMessage::createTreeItems( Mailbox::TreeItem* pare
     return list;
 }
 
-
 }
+}
+
+QDebug operator<<( QDebug& dbg, const Imap::Message::Envelope& envelope )
+{
+    using namespace Imap::Message;
+    return dbg << "Envelope( FROM" << MailAddress::prettyList( envelope.from, false ) <<
+            "TO" << MailAddress::prettyList( envelope.to, false ) <<
+            "CC" << MailAddress::prettyList( envelope.cc, false ) <<
+            "BCC" << MailAddress::prettyList( envelope.bcc, false ) <<
+            "SUBJECT" << envelope.subject <<
+            "DATE" << envelope.date <<
+            "MESSAGEID" << envelope.messageId;
 }
