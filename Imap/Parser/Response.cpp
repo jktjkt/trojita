@@ -333,7 +333,7 @@ List::List( const Kind _kind, const QByteArray& line, int& start ):
         start += 3;
     } else
         throw ParseError( line, start );
-        
+
     ++start;
 
     if ( start >= line.size() )
@@ -440,6 +440,11 @@ Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
                 if ( it->type() != QVariant::List )
                     throw UnexpectedHere( line, start );
                 data[identifier] = Message::AbstractMessage::fromList( it->toList(), line, start );
+                QByteArray buffer;
+                QDataStream stream( &buffer, QIODevice::WriteOnly );
+                stream << it->toList();
+                data["x-trojita-bodystructure"] = std::tr1::shared_ptr<AbstractData>(
+                        new RespData<QByteArray>( buffer ) );;
 
             } else if ( identifier.startsWith( "BODY[" ) ) {
                 // FIXME: split into more identifiers?
@@ -458,7 +463,7 @@ Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
             } else if ( identifier == "FLAGS" ) {
                 if ( ! it->canConvert( QVariant::StringList ) )
                     throw UnexpectedHere( line, start ); // FIXME: wrong offset
-            
+
                 data[identifier] = std::tr1::shared_ptr<AbstractData>(
                         new RespData<QStringList>( it->toStringList() ) );
 
@@ -544,17 +549,17 @@ QTextStream& State::dump( QTextStream& stream ) const
 
 QTextStream& Capability::dump( QTextStream& stream ) const
 {
-    return stream << "* CAPABILITY " << capabilities.join(", "); 
+    return stream << "* CAPABILITY " << capabilities.join(", ");
 }
 
 QTextStream& NumberResponse::dump( QTextStream& stream ) const
 {
-    return stream << kind << " " << number; 
+    return stream << kind << " " << number;
 }
 
 QTextStream& List::dump( QTextStream& stream ) const
 {
-    return stream << kind << " '" << mailbox << "' (" << flags.join(", ") << "), sep '" << separator << "'"; 
+    return stream << kind << " '" << mailbox << "' (" << flags.join(", ") << "), sep '" << separator << "'";
 }
 
 QTextStream& Flags::dump( QTextStream& stream ) const

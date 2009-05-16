@@ -209,6 +209,7 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
     if ( response.data.find( "UID" ) != response.data.end() )
         message->_uid = dynamic_cast<const Responses::RespData<uint>&>( *(response.data[ "UID" ]) ).data;
 
+    bool savedBodyStructure = false;
     for ( Responses::Fetch::dataType::const_iterator it = response.data.begin(); it != response.data.end(); ++ it ) {
         if ( it.key() == "ENVELOPE" ) {
             message->_envelope = dynamic_cast<const Responses::RespData<Message::Envelope>&>( *(it.value()) ).data;
@@ -224,9 +225,12 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
                 // FIXME: it would be nice to use more fine-grained signals here
                 QList<TreeItem*> oldChildren = message->setChildren( newChildren );
                 Q_ASSERT( oldChildren.size() == 0 );
-                if ( message->uid() )
-                    model->cache()->setMsgStructure( mailbox(), message->uid(), QByteArray() ); // FIXME: real data
+                savedBodyStructure = true;
             }
+        } else if ( it.key() == "x-trojita-bodystructure" ) {
+            if ( savedBodyStructure )
+                model->cache()->setMsgStructure( mailbox(), message->uid(),
+                    dynamic_cast<const Responses::RespData<QByteArray>&>( *(it.value()) ).data );
         } else if ( it.key() == "RFC822.SIZE" ) {
             message->_size = dynamic_cast<const Responses::RespData<uint>&>( *(it.value()) ).data;
             if ( message->uid() )

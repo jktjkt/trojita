@@ -134,6 +134,9 @@ void ImapParserParseTest::testParseUntagged()
         s << *response;
     }
 #endif
+    if ( Imap::Responses::Fetch* fetchResult = dynamic_cast<Imap::Responses::Fetch*>( r.get() ) ) {
+        fetchResult->data.remove( "x-trojita-bodystructure" );
+    }
     QCOMPARE( *r, *response );
 }
 
