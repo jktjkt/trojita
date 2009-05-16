@@ -182,7 +182,7 @@ class Model: public QAbstractItemModel {
 
 
 public:
-    Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory );
+    Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory, bool offline );
     ~Model();
 
     virtual QModelIndex index(int row, int column, const QModelIndex& parent ) const;

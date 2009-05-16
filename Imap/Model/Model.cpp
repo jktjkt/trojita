@@ -87,7 +87,7 @@ bool IdleLauncher::idling()
 }
 
 
-Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory ):
+Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory, bool offline ):
     // parent
     QAbstractItemModel( parent ),
     // our tools
@@ -101,23 +101,29 @@ Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory ):
     selectedHandler = new SelectedHandler( this );
     selectingHandler = new SelectingHandler( this );
 
-    // FIXME: socket error handling
-    ParserPtr parser( new Imap::Parser( this, _socketFactory->create() ) );
-    _parsers[ parser.get() ] = ParserState( parser, 0, ReadOnly, CONN_STATE_ESTABLISHED, unauthHandler );
-    connect( parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
-    connect( parser.get(), SIGNAL( disconnected( const QString ) ), this, SLOT( slotParserDisconnected( const QString ) ) );
-    if ( _startTls ) {
-        CommandHandle cmd = parser->startTls();
-        _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::STARTTLS, 0 );
-    }
     _mailboxes = new TreeItemMailbox( 0 );
-    QTimer::singleShot( 0, this, SLOT( setNetworkOnline() ) );
 
     _onlineMessageFetch << "ENVELOPE" << "BODYSTRUCTURE" << "RFC822.SIZE" << "UID" << "FLAGS";
 
     noopTimer = new QTimer( this );
     connect( noopTimer, SIGNAL(timeout()), this, SLOT(performNoop()) );
-    noopTimer->start( PollingPeriod );
+
+    if ( offline ) {
+        _netPolicy = NETWORK_OFFLINE;
+        QTimer::singleShot( 0, this, SLOT(setNetworkOffline()) );
+    } else {
+        // FIXME: socket error handling
+        ParserPtr parser( new Imap::Parser( this, _socketFactory->create() ) );
+        _parsers[ parser.get() ] = ParserState( parser, 0, ReadOnly, CONN_STATE_ESTABLISHED, unauthHandler );
+        connect( parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
+        connect( parser.get(), SIGNAL( disconnected( const QString ) ), this, SLOT( slotParserDisconnected( const QString ) ) );
+        if ( _startTls ) {
+            CommandHandle cmd = parser->startTls();
+            _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::STARTTLS, 0 );
+        }
+        QTimer::singleShot( 0, this, SLOT( setNetworkOnline() ) );
+        noopTimer->start( PollingPeriod );
+    }
 }
 
 Model::~Model()
@@ -913,7 +919,7 @@ void Model::performNoop()
 
 ParserPtr Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bool reSync ) const
 {
-    if ( ! mailbox ) {
+    if ( ! mailbox && ! _parsers.isEmpty() ) {
         return _parsers.begin().value().parser;
     } else {
         for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
@@ -955,18 +961,20 @@ ParserPtr Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const 
         ParserPtr parser( new Parser( const_cast<Model*>( this ), _socketFactory->create() ) );
         _parsers[ parser.get() ] = ParserState( parser, mailbox, mode, CONN_STATE_ESTABLISHED, unauthHandler );
         connect( parser.get(), SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
-        connect( parser.get(), SIGNAL( disconnected() ), this, SLOT( slotParserDisconnected() ) );
+        connect( parser.get(), SIGNAL( disconnected( const QString ) ), this, SLOT( slotParserDisconnected( const QString ) ) );
         CommandHandle cmd;
         if ( _startTls ) {
             cmd = parser->startTls();
             _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::STARTTLS, 0 );
         }
-        if ( mode == ReadWrite )
-            cmd = parser->select( mailbox->mailbox() );
-        else
-            cmd = parser->examine( mailbox->mailbox() );
-        _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::SELECT, mailbox );
-        ++_parsers[ parser.get() ].selectingAnother;
+        if ( mailbox ) {
+            if ( mode == ReadWrite )
+                cmd = parser->select( mailbox->mailbox() );
+            else
+                cmd = parser->examine( mailbox->mailbox() );
+            _parsers[ parser.get() ].commandMap[ cmd ] = Task( Task::SELECT, mailbox );
+            ++_parsers[ parser.get() ].selectingAnother;
+        }
         return parser;
     }
 }

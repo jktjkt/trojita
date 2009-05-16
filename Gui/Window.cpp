@@ -213,7 +213,7 @@ void MainWindow::setupModels()
     }
 
     cache.reset( new Imap::Mailbox::MemoryCache() );
-    model = new Imap::Mailbox::Model( this, cache, factory );
+    model = new Imap::Mailbox::Model( this, cache, factory, s.value( SettingsNames::imapStartOffline ).toBool() );
     model->setObjectName( QLatin1String("model") );
     mboxModel = new Imap::Mailbox::MailboxModel( this, model );
     mboxModel->setObjectName( QLatin1String("mboxModel") );

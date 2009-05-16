@@ -24,5 +24,6 @@ QString SettingsNames::imapStartTlsKey = QLatin1String("imap.starttls");
 QString SettingsNames::imapUserKey = QLatin1String("imap.auth.user");
 QString SettingsNames::imapPassKey = QLatin1String("imap.auth.pass");
 QString SettingsNames::imapProcessKey = QLatin1String("imap.process");
+QString SettingsNames::imapStartOffline = QLatin1String("imap.offline");
 
 }

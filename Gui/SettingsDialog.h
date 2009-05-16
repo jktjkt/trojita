@@ -59,6 +59,8 @@ private:
     QLineEdit* imapPass;
 
     QLineEdit* processPath;
+
+    QCheckBox* startOffline;
 private slots:
     void updateWidgets();
 };

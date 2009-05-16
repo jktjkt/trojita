@@ -90,6 +90,10 @@ ImapPage::ImapPage( QWidget* parent, QSettings& s ): QWidget(parent)
     processPath = new QLineEdit( s.value( SettingsNames::imapProcessKey ).toString(), this );
     layout->addRow( tr("Path to Server Binary"), processPath );
 
+    startOffline = new QCheckBox( this );
+    startOffline->setChecked( s.value( SettingsNames::imapStartOffline ).toBool() );
+    layout->addRow( tr("Start in Offline Mode"), startOffline );
+
     connect( method, SIGNAL( currentIndexChanged( int ) ), this, SLOT( updateWidgets() ) );
     updateWidgets();
 }
@@ -171,6 +175,7 @@ void ImapPage::save( QSettings& s )
             s.setValue( SettingsNames::imapMethodKey, SettingsNames::methodProcess );
             s.setValue( SettingsNames::imapProcessKey, processPath->text() );
     }
+    s.setValue( SettingsNames::imapStartOffline, startOffline->isChecked() );
 }
 
 OutgoingPage::OutgoingPage( QWidget* parent, QSettings& s ): QWidget(parent)
