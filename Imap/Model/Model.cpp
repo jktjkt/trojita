@@ -117,7 +117,7 @@ Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory ):
 
     noopTimer = new QTimer( this );
     connect( noopTimer, SIGNAL(timeout()), this, SLOT(performNoop()) );
-    noopTimer->start( PollingPeriod ); // FIXME: polling is ugly, even if done just once a minute
+    noopTimer->start( PollingPeriod );
 }
 
 Model::~Model()
