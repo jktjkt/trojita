@@ -21,6 +21,7 @@
 
 #include <tr1/memory>
 #include "MailboxMetadata.h"
+#include "../Parser/Message.h"
 
 /** @short Namespace for IMAP interaction */
 namespace Imap {
@@ -49,9 +50,23 @@ public:
 
     /** @short Store the mapping of sequence numbers to UIDs */
     virtual void setUidMapping( const QString& mailbox, const QList<uint>& seqToUid ) = 0;
-
     /** @short Forget the cached seq->UID mapping for given mailbox */
     virtual void clearUidMapping( const QString& mailbox ) = 0;
+
+    /** @short Remove all messages in given mailbox from the cache */
+    virtual void clearAllMessages( const QString& mailbox ) = 0;
+    /** @short Remove all info for given message in the mailbox from cache */
+    virtual void clearMessage( const QString mailbox, uint uid ) = 0;
+    /** @short Save data for one message part */
+    virtual void setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data ) = 0;
+    /** @short Store the ENVELOPE of one message */
+    virtual void setMsgEnvelope( const QString& mailbox, uint uid, const Imap::Message::Envelope& envelope ) = 0;
+    /** @short Save the message size */
+    virtual void setMsgSize( const QString& mailbox, uint uid, uint size ) = 0;
+    /** @short Save the BODYSTRUCTURE of a message */
+    virtual void setMsgStructure( const QString& mailbox, uint uid, const Imap::Message::AbstractMessage& data ) = 0;
+    /** @short Save flags for one message in mailbox */
+    virtual void setMsgFlags( const QString& mailbox, uint uid, const QStringList& flags ) = 0;
 };
 
 /** @short A convenience typedef */

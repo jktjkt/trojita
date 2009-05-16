@@ -209,22 +209,27 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
         if ( it.key() == "ENVELOPE" ) {
             message->_envelope = dynamic_cast<const Responses::RespData<Message::Envelope>&>( *(it.value()) ).data;
             message->_fetchStatus = DONE;
+            model->cache()->setMsgEnvelope( mailbox(), message->uid(), message->_envelope );
         } else if ( it.key() == "BODYSTRUCTURE" ) {
             if ( message->fetched() ) {
                 // The message structure is already known, so we are free to ignore it
             } else {
                 // We had no idea about the structure of the message
-                QList<TreeItem*> newChildren = dynamic_cast<const Message::AbstractMessage&>( *(it.value()) ).createTreeItems( message );
+                const Message::AbstractMessage& msgData = dynamic_cast<const Message::AbstractMessage&>( *(it.value()) );
+                QList<TreeItem*> newChildren = msgData.createTreeItems( message );
                 // FIXME: it would be nice to use more fine-grained signals here
                 QList<TreeItem*> oldChildren = message->setChildren( newChildren );
                 Q_ASSERT( oldChildren.size() == 0 );
+                model->cache()->setMsgStructure( mailbox(), message->uid(), msgData );
             }
         } else if ( it.key() == "RFC822.SIZE" ) {
             message->_size = dynamic_cast<const Responses::RespData<uint>&>( *(it.value()) ).data;
+            model->cache()->setMsgSize( mailbox(), message->uid(), message->_size );
         } else if ( it.key().startsWith( "BODY[" ) ) {
             if ( it.key()[ it.key().size() - 1 ] != ']' )
                 throw UnknownMessageIndex( "Can't parse such BODY[]", response );
-            TreeItemPart* part = partIdToPtr( model, response.number, it.key().mid( 5, it.key().size() - 6 ) );
+            QString partIdentification = it.key().mid( 5, it.key().size() - 6 );
+            TreeItemPart* part = partIdToPtr( model, response.number, partIdentification );
             if ( ! part )
                 throw UnknownMessageIndex( "Got BODY[] fetch that is out of bounds", response );
             const QByteArray& data = dynamic_cast<const Responses::RespData<QByteArray>&>( *(it.value()) ).data;
@@ -239,6 +244,7 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
                 part->_data = data;
             }
             part->_fetchStatus = DONE;
+            model->cache()->setMsgPart( mailbox(), message->uid(), partIdentification, part->_data );
             if ( changedPart ) {
                 *changedPart = part;
             }
@@ -247,6 +253,7 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
         } else if ( it.key() == "FLAGS" ) {
             bool wasSeen = message->isMarkedAsRead();
             message->_flags = dynamic_cast<const Responses::RespData<QStringList>&>( *(it.value()) ).data;
+            model->cache()->setMsgFlags( mailbox(), message->uid(), message->_flags );
             if ( list->_numberFetchingStatus == DONE ) {
                 bool isSeen = message->isMarkedAsRead();
                 if ( message->_flagsHandled ) {

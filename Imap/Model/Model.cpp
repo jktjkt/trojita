@@ -596,6 +596,7 @@ void Model::_finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::c
                 qDebug() << "Message with unknown UID";
             } else {
                 message->_flags = _parsers[ parser.get() ].syncingFlags[ message->_uid ];
+                cache()->setMsgFlags( mailbox->mailbox(), message->uid(), message->_flags );
                 if ( ! message->isMarkedAsRead() )
                     ++unSeenCount;
                 message->_flagsHandled = true;

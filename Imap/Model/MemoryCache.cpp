@@ -91,5 +91,70 @@ void MemoryCache::clearUidMapping( const QString& mailbox )
     _seqToUid.remove( mailbox );
 }
 
+void MemoryCache::clearAllMessages( const QString& mailbox )
+{
+#ifdef CACHE_DEBUG
+    qDebug() << "pruging all info for mailbox" << mailbox;
+#endif
+    _flags.remove( mailbox );
+    _sizes.remove( mailbox );
+    _envelopes.remove( mailbox );
+    _parts.remove( mailbox );
+}
+
+void MemoryCache::clearMessage( const QString mailbox, uint uid )
+{
+#ifdef CACHE_DEBUG
+    qDebug() << "pruging all info for message" << mailbox << uid;
+#endif
+    if ( _flags.contains( mailbox ) )
+        _flags[ mailbox ].remove( uid );
+    if ( _sizes.contains( mailbox ) )
+        _sizes[ mailbox ].remove( uid );
+    if ( _envelopes.contains( mailbox ) )
+        _envelopes[ mailbox ].remove( uid );
+    if ( _parts.contains( mailbox ) )
+        _parts[ mailbox ].remove( uid );
+}
+
+void MemoryCache::setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data )
+{
+#ifdef CACHE_DEBUG
+    qDebug() << "set message part" << mailbox << uid << partId << data.size();
+#endif
+    _parts[ mailbox ][ uid ][ partId ] = data;
+}
+
+void MemoryCache::setMsgEnvelope( const QString& mailbox, uint uid, const Imap::Message::Envelope& envelope )
+{
+#ifdef CACHE_DEBUG
+    qDebug() << "set envelope" << mailbox << uid << envelope;
+#endif
+    _envelopes[ mailbox ][ uid ] = envelope;
+}
+
+void MemoryCache::setMsgSize( const QString& mailbox, uint uid, uint size )
+{
+#ifdef CACHE_DEBUG
+    qDebug() << "set msg size" << mailbox << uid << size;
+#endif
+    _sizes[ mailbox ][ uid ] = size;
+}
+
+void MemoryCache::setMsgStructure( const QString& mailbox, uint uid, const Imap::Message::AbstractMessage& data )
+{
+#ifdef CACHE_DEBUG
+    qDebug() << "set msg structure (NOT IMPLEMENTED)" << mailbox << uid;
+#endif
+}
+
+void MemoryCache::setMsgFlags( const QString& mailbox, uint uid, const QStringList& flags )
+{
+#ifdef CACHE_DEBUG
+    qDebug() << "set FLAGS for" << mailbox << uid << flags;
+#endif
+    _flags[ mailbox ][ uid ] = flags;
+}
+
 }
 }
