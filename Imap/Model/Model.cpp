@@ -251,6 +251,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
             case Task::LOGOUT:
                 disconnect( ptr, SIGNAL( disconnected( const QString& ) ), this, SLOT( slotParserDisconnected( const QString& ) ) );
                 ptr->deleteLater();
+                _parsers[ ptr ].parser = 0; // because sometimes it isn't deleted yet
                 return;
         }
 
