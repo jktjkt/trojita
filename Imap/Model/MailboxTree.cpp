@@ -205,11 +205,16 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
     TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->child( number, model ) );
     Q_ASSERT( message ); // FIXME: this should be relaxed for allowing null pointers instead of "unfetched" TreeItemMessage
 
+    // store UID earlier, for we need it for saving items
+    if ( response.data.find( "UID" ) != response.data.end() )
+        message->_uid = dynamic_cast<const Responses::RespData<uint>&>( *(response.data[ "UID" ]) ).data;
+
     for ( Responses::Fetch::dataType::const_iterator it = response.data.begin(); it != response.data.end(); ++ it ) {
         if ( it.key() == "ENVELOPE" ) {
             message->_envelope = dynamic_cast<const Responses::RespData<Message::Envelope>&>( *(it.value()) ).data;
             message->_fetchStatus = DONE;
-            model->cache()->setMsgEnvelope( mailbox(), message->uid(), message->_envelope );
+            if ( message->uid() )
+                model->cache()->setMsgEnvelope( mailbox(), message->uid(), message->_envelope );
         } else if ( it.key() == "BODYSTRUCTURE" ) {
             if ( message->fetched() ) {
                 // The message structure is already known, so we are free to ignore it
@@ -220,11 +225,13 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
                 // FIXME: it would be nice to use more fine-grained signals here
                 QList<TreeItem*> oldChildren = message->setChildren( newChildren );
                 Q_ASSERT( oldChildren.size() == 0 );
-                model->cache()->setMsgStructure( mailbox(), message->uid(), msgData );
+                if ( message->uid() )
+                    model->cache()->setMsgStructure( mailbox(), message->uid(), msgData );
             }
         } else if ( it.key() == "RFC822.SIZE" ) {
             message->_size = dynamic_cast<const Responses::RespData<uint>&>( *(it.value()) ).data;
-            model->cache()->setMsgSize( mailbox(), message->uid(), message->_size );
+            if ( message->uid() )
+                model->cache()->setMsgSize( mailbox(), message->uid(), message->_size );
         } else if ( it.key().startsWith( "BODY[" ) ) {
             if ( it.key()[ it.key().size() - 1 ] != ']' )
                 throw UnknownMessageIndex( "Can't parse such BODY[]", response );
@@ -244,7 +251,8 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
                 part->_data = data;
             }
             part->_fetchStatus = DONE;
-            model->cache()->setMsgPart( mailbox(), message->uid(), partIdentification, part->_data );
+            if ( message->uid() )
+                model->cache()->setMsgPart( mailbox(), message->uid(), partIdentification, part->_data );
             if ( changedPart ) {
                 *changedPart = part;
             }
@@ -253,7 +261,8 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
         } else if ( it.key() == "FLAGS" ) {
             bool wasSeen = message->isMarkedAsRead();
             message->_flags = dynamic_cast<const Responses::RespData<QStringList>&>( *(it.value()) ).data;
-            model->cache()->setMsgFlags( mailbox(), message->uid(), message->_flags );
+            if ( message->uid() )
+                model->cache()->setMsgFlags( mailbox(), message->uid(), message->_flags );
             if ( list->_numberFetchingStatus == DONE ) {
                 bool isSeen = message->isMarkedAsRead();
                 if ( message->_flagsHandled ) {
