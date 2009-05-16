@@ -322,6 +322,9 @@ void Model::replaceChildMailboxes( ParserPtr parser, TreeItemMailbox* mailboxPtr
         // FIXME: this should be less drastical (ie cancel only what is reqlly really required to be cancelled
         for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
             it->commandMap.clear();
+            it->mailbox = 0;
+            it->currentMbox = 0;
+            it->responseHandler = authenticatedHandler;
         }
         qDeleteAll( oldItems );
     }
