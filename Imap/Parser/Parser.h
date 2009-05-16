@@ -332,9 +332,6 @@ namespace Imap {
 
     };
 
-    /** @short A convenience typedef */
-    typedef std::tr1::shared_ptr<Parser> ParserPtr;
-
     QTextStream& operator<<( QTextStream& stream, const Sequence& s );
 
 }

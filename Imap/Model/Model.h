@@ -20,6 +20,7 @@
 #define IMAP_MODEL_H
 
 #include <QAbstractItemModel>
+#include <QPointer>
 #include <QTimer>
 #include "Cache.h"
 #include "../Parser/Parser.h"
@@ -41,12 +42,12 @@ class ModelStateHandler: public QObject {
 public:
     ModelStateHandler( Model* _m );
 
-    virtual void handleState( Imap::ParserPtr ptr, const Imap::Responses::State* const resp ) = 0;
-    virtual void handleNumberResponse( Imap::ParserPtr ptr, const Imap::Responses::NumberResponse* const resp ) = 0;
-    virtual void handleList( Imap::ParserPtr ptr, const Imap::Responses::List* const resp ) = 0;
-    virtual void handleFlags( Imap::ParserPtr ptr, const Imap::Responses::Flags* const resp ) = 0;
-    virtual void handleSearch( Imap::ParserPtr ptr, const Imap::Responses::Search* const resp ) = 0;
-    virtual void handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* const resp ) = 0;
+    virtual void handleState( Imap::Parser* ptr, const Imap::Responses::State* const resp ) = 0;
+    virtual void handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp ) = 0;
+    virtual void handleList( Imap::Parser* ptr, const Imap::Responses::List* const resp ) = 0;
+    virtual void handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp ) = 0;
+    virtual void handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp ) = 0;
+    virtual void handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp ) = 0;
 
 protected:
     Model* m;
@@ -68,7 +69,7 @@ class MailboxModel;
 class IdleLauncher: public QObject {
     Q_OBJECT
 public:
-    IdleLauncher( Model* model, ParserPtr ptr );
+    IdleLauncher( Model* model, Parser* ptr );
     void restart();
     bool idling();
 public slots:
@@ -76,7 +77,7 @@ public slots:
     void idlingTerminated();
 private:
     Model* m;
-    ParserPtr parser;
+    QPointer<Parser> parser;
     QTimer* timer;
     bool _idling;
 };
@@ -120,7 +121,7 @@ class Model: public QAbstractItemModel {
     };
 
     struct ParserState {
-        ParserPtr parser;
+        QPointer<Parser> parser;
         TreeItemMailbox* mailbox;
         RWMode mode;
         ConnectionState connState;
@@ -136,7 +137,7 @@ class Model: public QAbstractItemModel {
         QMap<uint, QStringList> syncingFlags;
         IdleLauncher* idleLauncher;
 
-        ParserState( ParserPtr _parser, TreeItemMailbox* _mailbox, const RWMode _mode,
+        ParserState( Parser* _parser, TreeItemMailbox* _mailbox, const RWMode _mode,
                 const ConnectionState _connState, ModelStateHandler* _respHandler ):
             parser(_parser), mailbox(_mailbox), mode(_mode),
             connState(_connState), currentMbox(0), selectingAnother(0),
@@ -192,15 +193,15 @@ public:
     virtual QVariant data(const QModelIndex& index, int role ) const;
     virtual bool hasChildren( const QModelIndex& parent = QModelIndex() ) const;
 
-    void handleState( Imap::ParserPtr ptr, const Imap::Responses::State* const resp );
-    void handleCapability( Imap::ParserPtr ptr, const Imap::Responses::Capability* const resp );
-    void handleNumberResponse( Imap::ParserPtr ptr, const Imap::Responses::NumberResponse* const resp );
-    void handleList( Imap::ParserPtr ptr, const Imap::Responses::List* const resp );
-    void handleFlags( Imap::ParserPtr ptr, const Imap::Responses::Flags* const resp );
-    void handleSearch( Imap::ParserPtr ptr, const Imap::Responses::Search* const resp );
-    void handleStatus( Imap::ParserPtr ptr, const Imap::Responses::Status* const resp );
-    void handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* const resp );
-    void handleNamespace( Imap::ParserPtr ptr, const Imap::Responses::Namespace* const resp );
+    void handleState( Imap::Parser* ptr, const Imap::Responses::State* const resp );
+    void handleCapability( Imap::Parser* ptr, const Imap::Responses::Capability* const resp );
+    void handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp );
+    void handleList( Imap::Parser* ptr, const Imap::Responses::List* const resp );
+    void handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp );
+    void handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp );
+    void handleStatus( Imap::Parser* ptr, const Imap::Responses::Status* const resp );
+    void handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );
+    void handleNamespace( Imap::Parser* ptr, const Imap::Responses::Namespace* const resp );
 
     CachePtr cache() const { return _cache; }
 
@@ -263,13 +264,13 @@ private:
     void _askForMsgMetadata( TreeItemMessage* item );
     void _askForMsgPart( TreeItemPart* item );
 
-    void _finalizeList( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command );
-    void _finalizeSelect( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command );
-    void _finalizeFetch( ParserPtr parser, const QMap<CommandHandle, Task>::const_iterator command );
+    void _finalizeList( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
+    void _finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
+    void _finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
 
-    void replaceChildMailboxes( ParserPtr parser, TreeItemMailbox* mailboxPtr, const QList<TreeItem*> mailboxes );
-    void enterIdle( ParserPtr parser );
-    void updateCapabilities( ParserPtr parser, const QStringList capabilities );
+    void replaceChildMailboxes( Parser* parser, TreeItemMailbox* mailboxPtr, const QList<TreeItem*> mailboxes );
+    void enterIdle( Parser* parser );
+    void updateCapabilities( Parser* parser, const QStringList capabilities );
     void updateFlags( TreeItemMessage* message, const QString& flagOperation, const QString& flags );
 
     TreeItem* translatePtr( const QModelIndex& index ) const;
@@ -286,7 +287,7 @@ private:
      *
      * If allowed by policy, new parser might be created in the background.
      * */
-    ParserPtr _getParser( TreeItemMailbox* mailbox, const RWMode rw, const bool reSync=false ) const;
+    Parser* _getParser( TreeItemMailbox* mailbox, const RWMode rw, const bool reSync=false ) const;
 
     NetworkPolicy networkPolicy() const { return _netPolicy; }
     void setNetworkPolicy( const NetworkPolicy policy );

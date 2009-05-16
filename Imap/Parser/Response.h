@@ -46,7 +46,6 @@ namespace Mailbox {
 }
 
 class Parser;
-typedef std::tr1::shared_ptr<Parser> ParserPtr;
 
 /** @short IMAP server responses
  *
@@ -91,7 +90,7 @@ namespace Responses {
         CAPABILITIES,
         PARSE /**< @short PARSE */,
         PERMANENTFLAGS /**< @short PERMANENTFLAGS */,
-        READ_ONLY /**< @short READ-ONLY */, 
+        READ_ONLY /**< @short READ-ONLY */,
         READ_WRITE /**< @short READ-WRITE */,
         TRYCREATE /**< @short TRYCREATE */,
         UIDNEXT /**< @short UIDNEXT */,
@@ -113,7 +112,7 @@ namespace Responses {
         virtual bool eq( const AbstractResponse& other ) const = 0;
         /** @short Helper for Imap::Mailbox::MailboxModel to prevent ugly
          * dynamic_cast<>s */
-        virtual void plug( Imap::ParserPtr parser, Imap::Mailbox::Model* model ) const = 0;
+        virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const = 0;
     };
 
     /** @short Structure storing OK/NO/BAD/PREAUTH/BYE responses */
@@ -122,7 +121,7 @@ namespace Responses {
         /** @short Tag name or QString::null if untagged */
         QString tag;
 
-        /** @short Kind of response 
+        /** @short Kind of response
          *
          * A tagged status response might be either OK, NO or BAD.
          * Untagged status response might be either te same as tagged or BYE or
@@ -187,7 +186,7 @@ namespace Responses {
         /** @short helper for operator<<( QTextStream& ) */
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
-        virtual void plug( Imap::ParserPtr parser, Imap::Mailbox::Model* model ) const;
+        virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const;
     };
 
     /** @short Structure storing a CAPABILITY untagged response */
@@ -198,7 +197,7 @@ namespace Responses {
         Capability( const QStringList& _caps ) : AbstractResponse(CAPABILITY), capabilities(_caps) {};
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
-        virtual void plug( Imap::ParserPtr parser, Imap::Mailbox::Model* model ) const;
+        virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const;
     };
 
     /** @short Structure for EXISTS/EXPUNGE/RECENT responses */
@@ -209,7 +208,7 @@ namespace Responses {
         NumberResponse( const Kind _kind, const uint _num ) throw( UnexpectedHere );
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
-        virtual void plug( Imap::ParserPtr parser, Imap::Mailbox::Model* model ) const;
+        virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const;
     };
 
     /** @short Structure storing a LIST untagged response */
@@ -233,7 +232,7 @@ namespace Responses {
             AbstractResponse(LIST), kind(_kind), flags(_flags), separator(_separator), mailbox(_mailbox) {};
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
-        virtual void plug( Imap::ParserPtr parser, Imap::Mailbox::Model* model ) const;
+        virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const;
     };
 
     struct NamespaceData {
@@ -255,7 +254,7 @@ namespace Responses {
             personal(_personal), users(_users), other(_other) {};
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
-        virtual void plug( Imap::ParserPtr parser, Imap::Mailbox::Model* model ) const;
+        virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const;
     };
 
 
@@ -268,7 +267,7 @@ namespace Responses {
         Flags( const QByteArray& line, int& start );
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
-        virtual void plug( Imap::ParserPtr parser, Imap::Mailbox::Model* model ) const;
+        virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const;
     };
 
     /** @short Structure storing a SEARCH untagged response */
@@ -279,7 +278,7 @@ namespace Responses {
         Search( const QList<uint>& _items ) : AbstractResponse(SEARCH), items(_items) {};
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
-        virtual void plug( Imap::ParserPtr parser, Imap::Mailbox::Model* model ) const;
+        virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const;
     };
 
     /** @short Structure storing a STATUS untagged response */
@@ -307,7 +306,7 @@ namespace Responses {
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
         static StateKind stateKindFromStr( QString s );
-        virtual void plug( Imap::ParserPtr parser, Imap::Mailbox::Model* model ) const;
+        virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const;
     };
 
     /** @short FETCH response */
@@ -325,7 +324,7 @@ namespace Responses {
         Fetch( const uint _number, const dataType& _data );
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
-        virtual void plug( Imap::ParserPtr parser, Imap::Mailbox::Model* model ) const;
+        virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const;
     private:
         static QDateTime dateify( QByteArray str, const QByteArray& line, const int start );
     };

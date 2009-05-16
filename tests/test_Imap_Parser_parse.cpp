@@ -32,7 +32,7 @@ void ImapParserParseTest::initTestCase()
 {
     array.reset( new QByteArray() );
     Imap::SocketPtr sock( new Imap::IODeviceSocket( new QBuffer() ) );
-    parser.reset( new Imap::Parser( 0, sock ) );
+    parser = new Imap::Parser( this, sock );
 }
 
 /** @short Test tagged response parsing */

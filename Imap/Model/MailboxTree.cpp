@@ -289,13 +289,13 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
     }
 }
 
-void TreeItemMailbox::handleFetchWhileSyncing( Model* const model, ParserPtr ptr, const Responses::Fetch& response )
+void TreeItemMailbox::handleFetchWhileSyncing( Model* const model, Parser* ptr, const Responses::Fetch& response )
 {
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[0] );
     Q_ASSERT( list );
 
-    QList<uint>& uidMap = model->_parsers[ ptr.get() ].uidMap;
-    QMap<uint,QStringList> flagMap = model->_parsers[ ptr.get() ].syncingFlags;
+    QList<uint>& uidMap = model->_parsers[ ptr ].uidMap;
+    QMap<uint,QStringList> flagMap = model->_parsers[ ptr ].syncingFlags;
 
     int number = response.number - 1;
     if ( number < 0 || number >= uidMap.size() )
@@ -343,7 +343,7 @@ void TreeItemMailbox::handleExpunge( Model* const model, const Responses::Number
     emit model->messageCountPossiblyChanged( model->createIndex( row(), 0, this ) );
 }
 
-void TreeItemMailbox::handleExistsSynced( Model* const model, ParserPtr ptr, const Responses::NumberResponse& resp )
+void TreeItemMailbox::handleExistsSynced( Model* const model, Parser* ptr, const Responses::NumberResponse& resp )
 {
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[ 0 ] );
     Q_ASSERT( list );
@@ -371,7 +371,7 @@ void TreeItemMailbox::handleExistsSynced( Model* const model, ParserPtr ptr, con
     emit model->messageCountPossiblyChanged( model->createIndex( row(), 0, this ) );
     QStringList items = willLoad ? model->_onlineMessageFetch : QStringList() << "UID" << "FLAGS" ;
     CommandHandle cmd = ptr->fetch( Sequence::startingAt( firstNew + 1 ), items );
-    model->_parsers[ ptr.get() ].commandMap[ cmd ] = Model::Task( Model::Task::FETCH, this );
+    model->_parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::FETCH, this );
 }
 
 void TreeItemMailbox::finalizeFetch( Model* const model, const Responses::Status& response )

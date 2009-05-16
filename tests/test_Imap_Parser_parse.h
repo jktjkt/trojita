@@ -29,7 +29,7 @@ class ImapParserParseTest : public QObject
 {
     Q_OBJECT
     std::auto_ptr<QByteArray> array;
-    Imap::ParserPtr parser;
+    Imap::Parser* parser;
 private Q_SLOTS:
     /** @short Test parsing of various tagged responses */
     void testParseTagged();

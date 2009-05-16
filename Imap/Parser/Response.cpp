@@ -757,7 +757,7 @@ bool NamespaceData::operator!=( const NamespaceData& other ) const
     return ! ( *this == other );
 }
 
-#define PLUG(X) void X::plug( Imap::ParserPtr parser, Imap::Mailbox::Model* model ) const \
+#define PLUG(X) void X::plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const \
 { model->handle##X( parser, this ); }
 
 PLUG( State )

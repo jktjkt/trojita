@@ -9,7 +9,7 @@ UnauthenticatedHandler::UnauthenticatedHandler( Model* _m ): ModelStateHandler(_
 {
 }
 
-void UnauthenticatedHandler::handleResponseCode( Imap::ParserPtr ptr, const Imap::Responses::State* const resp )
+void UnauthenticatedHandler::handleResponseCode( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
     using namespace Imap::Responses;
     // Check for common stuff like ALERT and CAPABILITIES update
@@ -24,8 +24,8 @@ void UnauthenticatedHandler::handleResponseCode( Imap::ParserPtr ptr, const Imap
                 const RespData<QStringList>* const caps = dynamic_cast<const RespData<QStringList>* const>(
                         resp->respCodeData.get() );
                 if ( caps ) {
-                    m->_parsers[ ptr.get() ].capabilities = caps->data;
-                    m->_parsers[ ptr.get() ].capabilitiesFresh = true;
+                    m->_parsers[ ptr ].capabilities = caps->data;
+                    m->_parsers[ ptr ].capabilitiesFresh = true;
                     m->updateCapabilities( ptr, caps->data );
                 }
             }
@@ -40,7 +40,7 @@ void UnauthenticatedHandler::handleResponseCode( Imap::ParserPtr ptr, const Imap
     }
 }
 
-void UnauthenticatedHandler::handleState( Imap::ParserPtr ptr, const Imap::Responses::State* const resp )
+void UnauthenticatedHandler::handleState( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
     handleResponseCode( ptr, resp );
 
@@ -54,14 +54,14 @@ void UnauthenticatedHandler::handleState( Imap::ParserPtr ptr, const Imap::Respo
     switch ( resp->kind ) {
         case PREAUTH:
         {
-            m->_parsers[ ptr.get() ].connState = Model::CONN_STATE_AUTH;
-            m->_parsers[ ptr.get() ].responseHandler = m->authenticatedHandler;
-            if ( ! m->_parsers[ ptr.get() ].capabilitiesFresh ) {
+            m->_parsers[ ptr ].connState = Model::CONN_STATE_AUTH;
+            m->_parsers[ ptr ].responseHandler = m->authenticatedHandler;
+            if ( ! m->_parsers[ ptr ].capabilitiesFresh ) {
                 CommandHandle cmd = ptr->capability();
-                m->_parsers[ ptr.get() ].commandMap[ cmd ] = Model::Task( Model::Task::CAPABILITY, 0 );
+                m->_parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::CAPABILITY, 0 );
             }
             CommandHandle cmd = ptr->namespaceCommand();
-            m->_parsers[ ptr.get() ].commandMap[ cmd ] = Model::Task( Model::Task::NAMESPACE, 0 );
+            m->_parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::NAMESPACE, 0 );
             break;
         }
         case OK:
@@ -73,13 +73,13 @@ void UnauthenticatedHandler::handleState( Imap::ParserPtr ptr, const Imap::Respo
                     emit m->connectionError( tr("Can't login without user/password data") );
                 } else {
                     CommandHandle cmd = ptr->login( auth.user(), auth.password() );
-                    m->_parsers[ ptr.get() ].commandMap[ cmd ] = Model::Task( Model::Task::LOGIN, 0 );
+                    m->_parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::LOGIN, 0 );
                 }
             }
             break;
         case BYE:
-            m->_parsers[ ptr.get() ].connState = Model::CONN_STATE_LOGOUT;
-            m->_parsers[ ptr.get() ].responseHandler = 0;
+            m->_parsers[ ptr ].connState = Model::CONN_STATE_LOGOUT;
+            m->_parsers[ ptr ].responseHandler = 0;
             break;
         default:
             throw Imap::UnexpectedResponseReceived(
@@ -88,27 +88,27 @@ void UnauthenticatedHandler::handleState( Imap::ParserPtr ptr, const Imap::Respo
     }
 }
 
-void UnauthenticatedHandler::handleNumberResponse( Imap::ParserPtr ptr, const Imap::Responses::NumberResponse* const resp )
+void UnauthenticatedHandler::handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp )
 {
     throw UnexpectedResponseReceived( "Numeric reply in unauthenticated state", *resp );
 }
 
-void UnauthenticatedHandler::handleList( Imap::ParserPtr ptr, const Imap::Responses::List* const resp )
+void UnauthenticatedHandler::handleList( Imap::Parser* ptr, const Imap::Responses::List* const resp )
 {
     throw UnexpectedResponseReceived( "LIST reply in unauthenticated state", *resp );
 }
 
-void UnauthenticatedHandler::handleFlags( Imap::ParserPtr ptr, const Imap::Responses::Flags* const resp )
+void UnauthenticatedHandler::handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp )
 {
     throw UnexpectedResponseReceived( "FLAGS reply in unauthenticated state", *resp );
 }
 
-void UnauthenticatedHandler::handleSearch( Imap::ParserPtr ptr, const Imap::Responses::Search* const resp )
+void UnauthenticatedHandler::handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp )
 {
     throw UnexpectedResponseReceived( "SEARCH reply in unauthenticated state", *resp );
 }
 
-void UnauthenticatedHandler::handleFetch( Imap::ParserPtr ptr, const Imap::Responses::Fetch* const resp )
+void UnauthenticatedHandler::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
 {
     throw UnexpectedResponseReceived( "FETCH reply in unauthenticated state", *resp );
 }
