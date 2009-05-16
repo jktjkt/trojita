@@ -56,9 +56,9 @@ namespace Message {
 
         MailAddress( const QString& _name, const QString& _adl,
                 const QString& _mailbox, const QString& _host ):
-            name(_name), adl(_adl), mailbox(_mailbox), host(_host) {};
+            name(_name), adl(_adl), mailbox(_mailbox), host(_host) {}
         MailAddress( const QVariantList& input, const QByteArray& line, const int start );
-        MailAddress() {};
+        MailAddress() {}
         QString prettyName( bool nice ) const;
 
         static QString prettyList( const QList<MailAddress>& list, bool nice );
@@ -77,14 +77,14 @@ namespace Message {
         QByteArray inReplyTo;
         QByteArray messageId;
 
-        Envelope() {};
-        Envelope( const QDateTime& _date, const QString& _subject, const QList<MailAddress>& _from, 
+        Envelope() {}
+        Envelope( const QDateTime& _date, const QString& _subject, const QList<MailAddress>& _from,
                 const QList<MailAddress>& _sender, const QList<MailAddress>& _replyTo,
                 const QList<MailAddress>& _to, const QList<MailAddress>& _cc,
                 const QList<MailAddress>& _bcc, const QByteArray& _inReplyTo,
                 const QByteArray& _messageId ):
             date(_date), subject(_subject), from(_from), sender(_sender), replyTo(_replyTo),
-            to(_to), cc(_cc), bcc(_bcc), inReplyTo(_inReplyTo), messageId(_messageId) {};
+            to(_to), cc(_cc), bcc(_bcc), inReplyTo(_inReplyTo), messageId(_messageId) {}
         static Envelope fromList( const QVariantList& items, const QByteArray& line, const int start );
         QTextStream& dump( QTextStream& s, const int indent ) const;
 
@@ -100,7 +100,7 @@ namespace Message {
      * A message can be either one-part (OneMessage) or multipart (MultiMessage)
      * */
     struct AbstractMessage: public Responses::AbstractData {
-        virtual ~AbstractMessage() {};
+        virtual ~AbstractMessage() {}
         static std::tr1::shared_ptr<AbstractMessage> fromList( const QVariantList& items, const QByteArray& line, const int start );
 
         typedef QMap<QByteArray,QByteArray> bodyFldParam_t;
@@ -110,7 +110,7 @@ namespace Message {
         static bodyFldDsp_t makeBodyFldDsp( const QVariant& list, const QByteArray& line, const int start );
         static QList<QByteArray> makeBodyFldLang( const QVariant& input, const QByteArray& line, const int start );
 
-        virtual QTextStream& dump( QTextStream& s ) const { return dump( s, 0 ); };
+        virtual QTextStream& dump( QTextStream& s ) const { return dump( s, 0 ); }
         virtual QTextStream& dump( QTextStream& s, const int indent ) const = 0;
         virtual QList<Mailbox::TreeItem*> createTreeItems( Mailbox::TreeItem* parent ) const = 0;
     };
@@ -140,7 +140,7 @@ namespace Message {
             mediaType(_mediaType), mediaSubType(_mediaSubType), bodyFldParam(_bodyFldParam),
             bodyFldId(_bodyFldId), bodyFldDesc(_bodyFldDesc), bodyFldEnc(_bodyFldEnc),
             bodyFldOctets(_bodyFldOctets), bodyFldMd5(_bodyFldMd5), bodyFldDsp(_bodyFldDsp),
-            bodyFldLang(_bodyFldLang), bodyFldLoc(_bodyFldLoc), bodyExtension(_bodyExtension) {};
+            bodyFldLang(_bodyFldLang), bodyFldLoc(_bodyFldLoc), bodyExtension(_bodyExtension) {}
 
         virtual bool eq( const AbstractData& other ) const;
 
@@ -184,7 +184,7 @@ namespace Message {
             OneMessage( _mediaType, _mediaSubType, _bodyFldParam, _bodyFldId,
                     _bodyFldDesc, _bodyFldEnc, _bodyFldOctets, _bodyFldMd5,
                     _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension),
-            envelope(_envelope), body(_body), bodyFldLines(_bodyFldLines) {};
+            envelope(_envelope), body(_body), bodyFldLines(_bodyFldLines) {}
         virtual QTextStream& dump( QTextStream& s, const int indent ) const;
         virtual bool eq( const AbstractData& other ) const;
         virtual QList<Mailbox::TreeItem*> createTreeItems( Mailbox::TreeItem* parent ) const;
@@ -204,7 +204,7 @@ namespace Message {
             OneMessage( _mediaType, _mediaSubType, _bodyFldParam, _bodyFldId,
                     _bodyFldDesc, _bodyFldEnc, _bodyFldOctets, _bodyFldMd5,
                     _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension),
-            bodyFldLines(_bodyFldLines) {};
+            bodyFldLines(_bodyFldLines) {}
         virtual QTextStream& dump( QTextStream& s, const int indent ) const;
         virtual bool eq( const AbstractData& other ) const;
         virtual QList<Mailbox::TreeItem*> createTreeItems( Mailbox::TreeItem* parent ) const;
@@ -228,7 +228,7 @@ namespace Message {
                 const QVariant& _bodyExtension ):
             bodies(_bodies), mediaSubType(_mediaSubType), bodyFldParam(_bodyFldParam),
             bodyFldDsp(_bodyFldDsp), bodyFldLang(_bodyFldLang), bodyFldLoc(_bodyFldLoc),
-            bodyExtension(_bodyExtension) {};
+            bodyExtension(_bodyExtension) {}
         virtual QTextStream& dump( QTextStream& s, const int indent ) const;
         virtual bool eq( const AbstractData& other ) const;
         virtual QList<Mailbox::TreeItem*> createTreeItems( Mailbox::TreeItem* parent ) const;
@@ -241,9 +241,9 @@ namespace Message {
     QTextStream& operator<<( QTextStream& stream, const QList<QByteArray>& list );
 
     bool operator==( const Envelope& a, const Envelope& b );
-    inline bool operator!=( const Envelope& a, const Envelope& b ) { return !(a == b); };
+    inline bool operator!=( const Envelope& a, const Envelope& b ) { return !(a == b); }
     bool operator==( const MailAddress& a, const MailAddress& b );
-    inline bool operator!=( const MailAddress& a, const MailAddress& b ) { return !(a == b); };
+    inline bool operator!=( const MailAddress& a, const MailAddress& b ) { return !(a == b); }
 
 }
 
