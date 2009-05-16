@@ -3,6 +3,7 @@
 namespace Imap {
 namespace Mailbox {
 
+
 SyncState::SyncState():
         _exists(0), _recent(0), _unSeen(0), _uidNext(0), _uidValidity(0),
         _hasExists(false), _hasRecent(false), _hasUnSeen(false),
@@ -100,4 +101,17 @@ void SyncState::setUnSeen( const uint unSeen )
 }
 
 }
+}
+
+
+QDebug operator<<( QDebug& dbg, const Imap::Mailbox::MailboxMetadata& metadata )
+{
+    return dbg << metadata.mailbox << metadata.separator << metadata.flags;
+}
+
+QDebug operator<<( QDebug& dbg, const Imap::Mailbox::SyncState& state )
+{
+    return dbg << "UIDVALIDITY" << state.uidValidity() << "UIDNEXT" << state.uidNext() <<
+            "EXISTS" << state.exists() << "UNSEEN" << state.unSeen() <<
+            "RECENT" << state.recent() << "PERMANENTFLAGS" << state.permanentFlags();
 }

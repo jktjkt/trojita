@@ -19,6 +19,7 @@
 #ifndef IMAP_MODEL_MAILBOXMETADATA_H
 #define IMAP_MODEL_MAILBOXMETADATA_H
 
+#include <QDebug>
 #include <QStringList>
 
 namespace Imap {
@@ -71,5 +72,8 @@ public:
 
 }
 }
+
+QDebug operator<<( QDebug& dbg, const Imap::Mailbox::MailboxMetadata& metadata );
+QDebug operator<<( QDebug& dbg, const Imap::Mailbox::SyncState& state );
 
 #endif
