@@ -41,9 +41,13 @@ public:
     virtual SyncState mailboxSyncState( const QString& mailbox ) const;
     virtual void setMailboxSyncState( const QString& mailbox, const SyncState& state );
 
+    virtual void setUidMapping( const QString& mailbox, const QList<uint>& seqToUid );
+    virtual void clearUidMapping( const QString& mailbox );
+
 private:
     QMap<QString, QList<MailboxMetadata> > _cache;
     QMap<QString, SyncState> _syncState;
+    QMap<QString, QList<uint> > _seqToUid;
 };
 
 }

@@ -46,6 +46,12 @@ public:
     virtual SyncState mailboxSyncState( const QString& mailbox ) const = 0;
     /** @short Set current syncing state */
     virtual void setMailboxSyncState( const QString& mailbox, const SyncState& state ) = 0;
+
+    /** @short Store the mapping of sequence numbers to UIDs */
+    virtual void setUidMapping( const QString& mailbox, const QList<uint>& seqToUid ) = 0;
+
+    /** @short Forget the cached seq->UID mapping for given mailbox */
+    virtual void clearUidMapping( const QString& mailbox ) = 0;
 };
 
 /** @short A convenience typedef */

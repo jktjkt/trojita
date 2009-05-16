@@ -21,19 +21,6 @@
 
 #define CACHE_DEBUG
 
-QDebug operator<<( QDebug& dbg, const Imap::Mailbox::MailboxMetadata& metadata )
-{
-    return dbg << metadata.mailbox << metadata.separator << metadata.flags;
-}
-
-QDebug operator<<( QDebug& dbg, const Imap::Mailbox::SyncState& state )
-{
-    return dbg << "UIDVALIDITY" << state.uidValidity() << "UIDNEXT" << state.uidNext() <<
-            "EXISTS" << state.exists() << "UNSEEN" << state.unSeen() <<
-            "RECENT" << state.recent() << "PERMANENTFLAGS" << state.permanentFlags();
-}
-
-
 namespace Imap {
 namespace Mailbox {
 
@@ -86,6 +73,22 @@ void MemoryCache::setMailboxSyncState( const QString& mailbox, const SyncState& 
     qDebug() << "setting mailbox sync state of" << mailbox << "to" << state;
 #endif
     _syncState[ mailbox ] = state;
+}
+
+void MemoryCache::setUidMapping( const QString& mailbox, const QList<uint>& seqToUid )
+{
+#ifdef CACHE_DEBUG
+    qDebug() << "saving UID mapping for" << mailbox << "to" << seqToUid;
+#endif
+    _seqToUid[ mailbox ] = seqToUid;
+}
+
+void MemoryCache::clearUidMapping( const QString& mailbox )
+{
+#ifdef CACHE_DEBUG
+    qDebug() << "clearing UID mapping for" << mailbox;
+#endif
+    _seqToUid.remove( mailbox );
 }
 
 }
