@@ -692,6 +692,9 @@ void Model::handleNamespace( Imap::Parser* ptr, const Imap::Responses::Namespace
 {
     return; // because it's broken and won't fly
 
+    if ( _netPolicy == NETWORK_OFFLINE )
+        return;
+
     Parser* parser = _getParser( 0, ReadOnly );
     QList<Responses::NamespaceData>::const_iterator it;
     for ( it = resp->personal.begin(); it != resp->personal.end(); ++it )
@@ -1054,6 +1057,9 @@ void Model::completelyReset()
 void Model::switchToMailbox( const QModelIndex& mbox )
 {
     if ( ! mbox.isValid() )
+        return;
+
+    if ( _netPolicy == NETWORK_OFFLINE )
         return;
 
     if ( TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>(
