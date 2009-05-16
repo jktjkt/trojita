@@ -270,7 +270,7 @@ private:
     void _finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
 
-    void replaceChildMailboxes( Parser* parser, TreeItemMailbox* mailboxPtr, const QList<TreeItem*> mailboxes );
+    void replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<TreeItem*> mailboxes );
     void enterIdle( Parser* parser );
     void updateCapabilities( Parser* parser, const QStringList capabilities );
     void updateFlags( TreeItemMessage* message, const QString& flagOperation, const QString& flags );

@@ -300,10 +300,10 @@ void Model::_finalizeList( Parser* parser, const QMap<CommandHandle, Task>::cons
     }
     _cache->setChildMailboxes( mailboxPtr->mailbox(), metadataToCache );
 
-    replaceChildMailboxes( parser, mailboxPtr, mailboxes );
+    replaceChildMailboxes( mailboxPtr, mailboxes );
 }
 
-void Model::replaceChildMailboxes( Parser* parser, TreeItemMailbox* mailboxPtr, const QList<TreeItem*> mailboxes )
+void Model::replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<TreeItem*> mailboxes )
 {
     /* It would be nice to avoid calling layoutAboutToBeChanged(), but
        unfortunately it seems that it is neccessary for QTreeView to work
@@ -807,7 +807,7 @@ void Model::_askForChildrenOfMailbox( TreeItemMailbox* item )
         TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( item );
         Q_ASSERT( mailboxPtr );
         item->_fetchStatus = TreeItem::DONE;
-        replaceChildMailboxes( parser, item, mailboxes );
+        replaceChildMailboxes( item, mailboxes );
     } else if ( networkPolicy() == NETWORK_OFFLINE ) {
         // No cached data, no network -> fail
         item->_fetchStatus = TreeItem::UNAVAILABLE;
