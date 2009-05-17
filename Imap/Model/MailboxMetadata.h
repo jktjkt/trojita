@@ -76,4 +76,9 @@ public:
 QDebug operator<<( QDebug& dbg, const Imap::Mailbox::MailboxMetadata& metadata );
 QDebug operator<<( QDebug& dbg, const Imap::Mailbox::SyncState& state );
 
+QDataStream& operator>>( QDataStream& stream, Imap::Mailbox::SyncState& ss );
+QDataStream& operator<<( QDataStream& stream, const Imap::Mailbox::SyncState& ss );
+QDataStream& operator>>( QDataStream& stream, Imap::Mailbox::MailboxMetadata& mm );
+QDataStream& operator<<( QDataStream& stream, const Imap::Mailbox::MailboxMetadata& mm );
+
 #endif

@@ -717,3 +717,25 @@ QDebug operator<<( QDebug& dbg, const Imap::Message::Envelope& envelope )
             "DATE" << envelope.date <<
             "MESSAGEID" << envelope.messageId;
 }
+
+QDataStream& operator>>( QDataStream& stream, Imap::Message::Envelope& e )
+{
+    return stream >> e.bcc >> e.cc >> e.date >> e.from >> e.inReplyTo >>
+            e.messageId >> e.replyTo >> e.sender >> e.subject >> e.to;
+}
+
+QDataStream& operator<<( QDataStream& stream, const Imap::Message::Envelope& e )
+{
+    return stream << e.bcc << e.cc << e.date << e.from << e.inReplyTo <<
+            e.messageId << e.replyTo << e.sender << e.subject << e.to;
+}
+
+QDataStream& operator>>( QDataStream& stream, Imap::Message::MailAddress& a )
+{
+    return stream >> a.adl >> a.host >> a.mailbox >> a.name;
+}
+
+QDataStream& operator<<( QDataStream& stream, const Imap::Message::MailAddress& a )
+{
+    return stream << a.adl << a.host << a.mailbox << a.name;
+}

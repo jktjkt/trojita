@@ -115,3 +115,34 @@ QDebug operator<<( QDebug& dbg, const Imap::Mailbox::SyncState& state )
             "EXISTS" << state.exists() << "UNSEEN" << state.unSeen() <<
             "RECENT" << state.recent() << "PERMANENTFLAGS" << state.permanentFlags();
 }
+
+QDataStream& operator>>( QDataStream& stream, Imap::Mailbox::SyncState& ss )
+{
+    uint i;
+    QStringList list;
+    stream >> i; ss.setExists( i );
+    stream >> list; ss.setFlags( list );
+    stream >> list; ss.setPermanentFlags( list );
+    stream >> i; ss.setRecent( i );
+    stream >> i; ss.setUidNext( i );
+    stream >> i; ss.setUidValidity( i );
+    stream >> i; ss.setUnSeen( i );
+    return stream;
+}
+
+QDataStream& operator<<( QDataStream& stream, const Imap::Mailbox::SyncState& ss )
+{
+    return stream << ss.exists() << ss.flags() << ss.permanentFlags() <<
+            ss.recent() << ss.uidNext() << ss.uidValidity() << ss.unSeen();
+}
+
+QDataStream& operator>>( QDataStream& stream, Imap::Mailbox::MailboxMetadata& mm )
+{
+    return stream >> mm.flags >> mm.mailbox >> mm.separator;
+}
+
+QDataStream& operator<<( QDataStream& stream, const Imap::Mailbox::MailboxMetadata& mm )
+{
+    return stream << mm.flags << mm.mailbox << mm.separator;
+}
+

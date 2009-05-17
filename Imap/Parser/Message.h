@@ -252,4 +252,10 @@ namespace Message {
 
 QDebug operator<<( QDebug& dbg, const Imap::Message::Envelope& envelope );
 
+QDataStream& operator>>( QDataStream& stream, Imap::Message::Envelope& e );
+QDataStream& operator<<( QDataStream& stream, const Imap::Message::Envelope& e );
+QDataStream& operator>>( QDataStream& stream, Imap::Message::MailAddress& a );
+QDataStream& operator<<( QDataStream& stream, const Imap::Message::MailAddress& a );
+
+
 #endif /* IMAP_MESSAGE_H */
