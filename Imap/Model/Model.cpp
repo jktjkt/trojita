@@ -391,8 +391,8 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                 // No deletions, either, so we resync only flag changes
 
                 if ( syncState.exists() ) {
-                    bool uidsOk = true;
                     // Verify that we indeed have all UIDs and not need them anymore
+                    bool uidsOk = ! list->_children.isEmpty();
                     for ( int i = 0; i < list->_children.size(); ++i ) {
                         if ( ! static_cast<TreeItemMessage*>( list->_children[i] )->uid() ) {
                             uidsOk = false;
