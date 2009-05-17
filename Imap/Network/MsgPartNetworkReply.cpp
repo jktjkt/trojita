@@ -24,13 +24,14 @@ MsgPartNetworkReply::MsgPartNetworkReply( QObject* parent,
     connect( _model, SIGNAL( dataChanged( const QModelIndex&, const QModelIndex& ) ),
              this, SLOT( slotModelDataChanged( const QModelIndex&, const QModelIndex& ) ) );
 
+    // We have to ask for contents before we check whether it's already fetched
+    part->fetch( model );
     if ( part->fetched() ) {
         QTimer::singleShot( 0, this, SLOT( slotMyDataChanged() ) );
     }
 
     buffer.setBuffer( part->dataPtr() );
     buffer.open( QIODevice::ReadOnly );
-    part->fetch( model );
 }
 
 void MsgPartNetworkReply::slotModelDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight )
