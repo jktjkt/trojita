@@ -155,6 +155,7 @@ void MemoryCache::setMsgStructure( const QString& mailbox, uint uid, const QByte
 #ifdef CACHE_DEBUG
     qDebug() << "set msg body structure" << mailbox << uid << serializedData.size();
 #endif
+    _bodyStructure[ mailbox ][ uid ] = serializedData;
 }
 
 void MemoryCache::setMsgFlags( const QString& mailbox, uint uid, const QStringList& flags )
