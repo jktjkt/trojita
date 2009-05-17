@@ -391,8 +391,19 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                 // No deletions, either, so we resync only flag changes
 
                 if ( syncState.exists() ) {
+                    bool uidsOk = true;
+                    // Verify that we indeed have all UIDs and not need them anymore
+                    for ( int i = 0; i < list->_children.size(); ++i ) {
+                        if ( ! static_cast<TreeItemMessage*>( list->_children[i] )->uid() ) {
+                            uidsOk = false;
+                            break;
+                        }
+                    }
+                    QStringList items = QStringList( "FLAGS" );
+                    if ( ! uidsOk )
+                        items << "UID";
                     CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ),
-                                                       QStringList( "FLAGS" ) );
+                                                       items );
                     _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
                     list->_numberFetchingStatus = TreeItem::LOADING;
                     list->_unreadMessageCount = 0;
@@ -890,7 +901,23 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
 
     switch ( networkPolicy() ) {
         case NETWORK_OFFLINE:
-            item->_fetchStatus = TreeItem::UNAVAILABLE;
+            // FIXME: use these data in all modes
+            if ( item->uid() ) {
+                qDebug() << "UID ok";
+                AbstractCache::MessageDataBundle data = cache()->messageMetadata( mailboxPtr->mailbox(), item->uid() );
+                if ( data.uid != item->uid() ) {
+                    item->_fetchStatus = TreeItem::UNAVAILABLE;
+                } else {
+                    item->_envelope = data.envelope;
+                    item->_flags = data.flags;
+                    item->_size = data.size;
+                    //item->_children =
+                    item->_fetchStatus = TreeItem::DONE;
+                }
+            } else {
+                qDebug() << "invalid uid";
+                item->_fetchStatus = TreeItem::UNAVAILABLE;
+            }
             break;
         case NETWORK_EXPENSIVE:
         {
