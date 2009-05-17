@@ -259,7 +259,7 @@ Qt::ItemFlags MailboxModel::flags( const QModelIndex& index ) const
 
     TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( index.internalPointer() ) );
     Q_ASSERT( mbox );
-    if ( mbox->isSelectable() )
+    if ( mbox->isSelectable() && static_cast<Model*>( sourceModel() )->isNetworkAvailable() )
         return Qt::ItemIsDropEnabled | QAbstractProxyModel::flags( index );
     else
         return QAbstractProxyModel::flags( index );
@@ -282,6 +282,9 @@ bool MailboxModel::dropMimeData( const QMimeData* data, Qt::DropAction action,
         return false;
 
     if ( ! parent.isValid() )
+        return false;
+
+    if ( ! static_cast<Model*>( sourceModel() )->isNetworkAvailable() )
         return false;
 
     TreeItemMailbox* target = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( parent.internalPointer() ) );

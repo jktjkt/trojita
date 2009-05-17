@@ -1119,6 +1119,11 @@ void Model::markMessageRead( TreeItemMessage* msg, bool marked )
 
 void Model::copyMessages( TreeItemMailbox* sourceMbox, const QString& destMailboxName, const Sequence& seq )
 {
+    if ( _netPolicy == NETWORK_OFFLINE ) {
+        // FIXME: error signalling
+        return;
+    }
+
     Q_ASSERT( sourceMbox );
     Parser* parser = _getParser( sourceMbox, ReadOnly );
     CommandHandle cmd = parser->uidCopy( seq, destMailboxName );
@@ -1158,6 +1163,11 @@ void Model::expungeMailbox( TreeItemMailbox* mbox )
     if ( ! mbox )
         return;
 
+    if ( _netPolicy == NETWORK_OFFLINE ) {
+        qDebug() << "Can't expunge while offline";
+        return;
+    }
+
     Parser* parser = _getParser( mbox, ReadWrite );
     CommandHandle cmd = parser->expunge(); // BIG FAT WARNING: what happens if the SELECT fails???
     _parsers[ parser ].commandMap[ cmd ] = Task( Task::EXPUNGE, mbox );
@@ -1165,6 +1175,11 @@ void Model::expungeMailbox( TreeItemMailbox* mbox )
 
 void Model::createMailbox( const QString& name )
 {
+    if ( _netPolicy == NETWORK_OFFLINE ) {
+        qDebug() << "Can't create mailboxes while offline";
+        return;
+    }
+
     Parser* parser = _getParser( 0, ReadOnly );
     CommandHandle cmd = parser->create( name );
     _parsers[ parser ].commandMap[ cmd ] = Task( Task::CREATE, 0 );
@@ -1173,6 +1188,11 @@ void Model::createMailbox( const QString& name )
 
 void Model::deleteMailbox( const QString& name )
 {
+    if ( _netPolicy == NETWORK_OFFLINE ) {
+        qDebug() << "Can't delete mailboxes while offline";
+        return;
+    }
+
     Parser* parser = _getParser( 0, ReadOnly );
     CommandHandle cmd = parser->deleteMailbox( name );
     _parsers[ parser ].commandMap[ cmd ] = Task( Task::DELETE, 0 );

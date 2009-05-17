@@ -87,6 +87,8 @@ private:
 
     void createMailboxBelow( const QModelIndex& index );
 
+    void updateActionsOnlineOffline( bool online );
+
     Imap::Mailbox::CachePtr cache;
 
     Imap::Mailbox::Model* model;

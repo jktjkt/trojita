@@ -344,6 +344,9 @@ void MainWindow::slotReloadMboxList()
 
 void MainWindow::slotResyncMboxList()
 {
+    if ( ! model->isNetworkAvailable() )
+        return;
+
     QModelIndexList indices = mboxTree->selectionModel()->selectedIndexes();
     for ( QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it ) {
         Q_ASSERT( it->isValid() );
@@ -379,6 +382,7 @@ void MainWindow::networkPolicyOffline()
     netOffline->setChecked( true );
     netExpensive->setChecked( false );
     netOnline->setChecked( false );
+    updateActionsOnlineOffline( false );
 }
 
 void MainWindow::networkPolicyExpensive()
@@ -386,6 +390,7 @@ void MainWindow::networkPolicyExpensive()
     netOffline->setChecked( false );
     netExpensive->setChecked( true );
     netOnline->setChecked( false );
+    updateActionsOnlineOffline( true );
 }
 
 void MainWindow::networkPolicyOnline()
@@ -393,6 +398,7 @@ void MainWindow::networkPolicyOnline()
     netOffline->setChecked( false );
     netExpensive->setChecked( false );
     netOnline->setChecked( true );
+    updateActionsOnlineOffline( true );
 }
 
 void MainWindow::fullViewToggled( bool showIt )
@@ -561,6 +567,19 @@ void MainWindow::updateMessageFlags()
 {
     markAsRead->setChecked( msgListModel->data( msgListTree->currentIndex(), Imap::Mailbox::MsgListModel::RoleIsMarkedAsRead ).toBool() );
     markAsDeleted->setChecked( msgListModel->data( msgListTree->currentIndex(), Imap::Mailbox::MsgListModel::RoleIsMarkedAsDeleted ).toBool() );
+}
+
+void MainWindow::updateActionsOnlineOffline( bool online )
+{
+    reloadMboxList->setEnabled( online );
+    reloadAllMailboxes->setEnabled( online );
+    resyncMboxList->setEnabled( online );
+    expunge->setEnabled( online );
+    createChildMailbox->setEnabled( online );
+    createTopMailbox->setEnabled( online );
+    deleteCurrentMailbox->setEnabled( online );
+    markAsDeleted->setEnabled( online );
+    markAsRead->setEnabled( online );
 }
 
 }
