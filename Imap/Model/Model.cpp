@@ -882,7 +882,7 @@ void Model::_askForNumberOfMessages( TreeItemMsgList* item )
     if ( networkPolicy() == NETWORK_OFFLINE ) {
         Imap::Mailbox::SyncState syncState = cache()->mailboxSyncState( mailboxPtr->mailbox() );
         if ( syncState.isComplete() ) {
-            item->_unreadMessageCount = syncState.unSeen();
+            item->_unreadMessageCount = 0;
             item->_totalMessageCount = syncState.exists();
             item->_numberFetchingStatus = TreeItem::DONE;
             emit messageCountPossiblyChanged( createIndex( mailboxPtr->row(), 0, mailboxPtr ) );
