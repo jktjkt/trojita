@@ -903,7 +903,6 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
         case NETWORK_OFFLINE:
             // FIXME: use these data in all modes
             if ( item->uid() ) {
-                qDebug() << "UID ok";
                 AbstractCache::MessageDataBundle data = cache()->messageMetadata( mailboxPtr->mailbox(), item->uid() );
                 if ( data.uid != item->uid() ) {
                     item->_fetchStatus = TreeItem::UNAVAILABLE;
@@ -911,11 +910,25 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
                     item->_envelope = data.envelope;
                     item->_flags = data.flags;
                     item->_size = data.size;
-                    //item->_children =
-                    item->_fetchStatus = TreeItem::DONE;
+                    QDataStream stream( &data.serializedBodyStructure, QIODevice::ReadOnly );
+                    QVariantList unserialized;
+                    stream >> unserialized;
+                    std::tr1::shared_ptr<Message::AbstractMessage> abstractMessage;
+                    try {
+                        abstractMessage = Message::AbstractMessage::fromList( unserialized, QByteArray(), 0 );
+                    } catch ( Imap::ParserException& e ) {
+                        qDebug() << "Error when parsing cached BODYSTRUCTURE" << e.what();
+                    }
+                    if ( ! abstractMessage ) {
+                        item->_fetchStatus = TreeItem::UNAVAILABLE;
+                    } else {
+                        QList<TreeItem*> newChildren = abstractMessage->createTreeItems( item );
+                        QList<TreeItem*> oldChildren = item->setChildren( newChildren );
+                        Q_ASSERT( oldChildren.size() == 0 );
+                        item->_fetchStatus = TreeItem::DONE;
+                    }
                 }
             } else {
-                qDebug() << "invalid uid";
                 item->_fetchStatus = TreeItem::UNAVAILABLE;
             }
             break;
