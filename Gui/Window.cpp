@@ -68,7 +68,7 @@ void MainWindow::createActions()
     connect( resyncMboxList, SIGNAL(triggered()), this, SLOT(slotResyncMboxList()) );
 
     reloadAllMailboxes = new QAction( tr("Reload All Mailboxes"), this );
-    connect( reloadAllMailboxes, SIGNAL( triggered() ), model, SLOT( reloadMailboxList() ) );
+    // connect later
 
     exitAction = new QAction( QtIconLoader::icon( QLatin1String("application-exit") ), tr("E&xit"), this );
     exitAction->setShortcut( tr("Ctrl+Q") );
@@ -79,13 +79,13 @@ void MainWindow::createActions()
     netPolicyGroup->setExclusive( true );
     netOffline = new QAction( tr("Offline"), netPolicyGroup );
     netOffline->setCheckable( true );
-    connect( netOffline, SIGNAL( triggered() ), model, SLOT( setNetworkOffline() ) );
+    // connect later
     netExpensive = new QAction( tr("Expensive Connection"), netPolicyGroup );
     netExpensive->setCheckable( true );
-    connect( netExpensive, SIGNAL( triggered() ), model, SLOT( setNetworkExpensive() ) );
+    // connect later
     netOnline = new QAction( tr("Free Access"), netPolicyGroup );
     netOnline->setCheckable( true );
-    connect( netOnline, SIGNAL( triggered() ), model, SLOT( setNetworkOnline() ) );
+    // connect later
 
     showFullView = new QAction( tr("Show Full Tree Window"), this );
     showFullView->setCheckable( true );
@@ -121,6 +121,16 @@ void MainWindow::createActions()
 
     deleteCurrentMailbox = new QAction( tr("Delete Mailbox"), this );
     connect( deleteCurrentMailbox, SIGNAL(triggered()), this, SLOT(slotDeleteCurrentMailbox()) );
+
+    connectModelActions();
+}
+
+void MainWindow::connectModelActions()
+{
+    connect( reloadAllMailboxes, SIGNAL( triggered() ), model, SLOT( reloadMailboxList() ) );
+    connect( netOffline, SIGNAL( triggered() ), model, SLOT( setNetworkOffline() ) );
+    connect( netExpensive, SIGNAL( triggered() ), model, SLOT( setNetworkExpensive() ) );
+    connect( netOnline, SIGNAL( triggered() ), model, SLOT( setNetworkOnline() ) );
 }
 
 void MainWindow::createMenus()
@@ -194,6 +204,11 @@ void MainWindow::setupModels()
 {
     Imap::Mailbox::SocketFactoryPtr factory;
     QSettings s;
+
+    if ( ! s.contains( SettingsNames::imapMethodKey ) ) {
+        QTimer::singleShot( 0, this, SLOT(slotShowSettings()) );
+    }
+
     if ( s.value( SettingsNames::imapMethodKey ).toString() == SettingsNames::methodTCP ) {
         factory.reset( new Imap::Mailbox::TlsAbleSocketFactory(
                 s.value( SettingsNames::imapHostKey ).toString(),
@@ -430,6 +445,7 @@ void MainWindow::slotShowSettings()
         // FIXME: wipe cache in case we're moving between servers
         nukeModels();
         setupModels();
+        connectModelActions();
     }
 }
 

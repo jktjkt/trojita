@@ -84,6 +84,7 @@ private:
     void setupModels();
 
     void nukeModels();
+    void connectModelActions();
 
     void createMailboxBelow( const QModelIndex& index );
 
