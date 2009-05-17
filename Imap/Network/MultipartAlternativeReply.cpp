@@ -24,6 +24,7 @@ FormattingReply( parent, _model, _msg, _part)
         Q_ASSERT( anotherPart );
         if ( allowed.contains( anotherPart->mimeType() ) ) {
             target = anotherPart;
+            break;
         }
     }
     if ( ! target )
