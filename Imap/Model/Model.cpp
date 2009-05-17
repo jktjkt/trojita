@@ -848,26 +848,28 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
 
     QString mailbox = mailboxPtr->mailbox();
 
-    if ( networkPolicy() == NETWORK_OFFLINE ) {
-        Q_ASSERT( item->_children.size() == 0 );
-        QList<uint> uidMapping = cache()->uidMapping( mailbox );
-        if ( uidMapping.size() != item->_totalMessageCount ) {
-            qDebug() << "UID cache stale for mailbox" << mailbox;
+    Q_ASSERT( item->_children.size() == 0 );
+
+    bool cacheOk = false;
+    QList<uint> uidMapping = cache()->uidMapping( mailbox );
+    if ( uidMapping.size() != item->_totalMessageCount ) {
+        qDebug() << "UID cache stale for mailbox" << mailbox;
+        if ( networkPolicy() == NETWORK_OFFLINE )
             item->_fetchStatus = TreeItem::UNAVAILABLE;
-        } else {
-            if ( uidMapping.size() ) {
-                QModelIndex listIndex = createIndex( item->row(), 0, item );
-                beginInsertRows( listIndex, 0, uidMapping.size() - 1 );
-                for ( uint seq = 0; seq < static_cast<uint>( uidMapping.size() ); ++seq ) {
-                    TreeItemMessage* message = new TreeItemMessage( item );
-                    message->_uid = uidMapping[ seq ];
-                    item->_children << message;
-                }
-                endInsertRows();
-            }
-            item->_fetchStatus = TreeItem::DONE;
+    } else if ( uidMapping.size() ) {
+        QModelIndex listIndex = createIndex( item->row(), 0, item );
+        beginInsertRows( listIndex, 0, uidMapping.size() - 1 );
+        for ( uint seq = 0; seq < static_cast<uint>( uidMapping.size() ); ++seq ) {
+            TreeItemMessage* message = new TreeItemMessage( item );
+            message->_uid = uidMapping[ seq ];
+            item->_children << message;
         }
-    } else {
+        endInsertRows();
+        cacheOk = true;
+        item->_fetchStatus = TreeItem::DONE; // required for FETCH processing later on
+    }
+
+    if ( networkPolicy() != NETWORK_OFFLINE ) {
         _getParser( mailboxPtr, ReadOnly );
         // and that's all -- we will detect following replies and sync automatically
     }
