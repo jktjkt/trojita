@@ -832,7 +832,23 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
     QString mailbox = mailboxPtr->mailbox();
 
     if ( networkPolicy() == NETWORK_OFFLINE ) {
-        item->_fetchStatus = TreeItem::UNAVAILABLE;
+        Q_ASSERT( item->_children.size() == 0 );
+        QList<uint> uidMapping = cache()->uidMapping( mailbox );
+        if ( uidMapping.size() != item->_totalMessageCount ) {
+            qDebug() << "UID cache stale for mailbox" << mailbox;
+            item->_fetchStatus = TreeItem::UNAVAILABLE;
+        } else {
+            QModelIndex listIndex = createIndex( item->row(), 0, item );
+            beginInsertRows( listIndex, 0, uidMapping.size() - 1 );
+            //const QList<Imap::Mailbox::AbstractCache::MessageDataBundle>& bundle = cache()->messageDataForMailbox( mailbox );
+            for ( uint seq = 0; seq < static_cast<uint>( uidMapping.size() ); ++seq ) {
+                TreeItemMessage* message = new TreeItemMessage( item );
+                message->_uid = uidMapping[ seq ];
+                item->_children << message;
+            }
+            endInsertRows();
+            item->_fetchStatus = TreeItem::DONE;
+        }
     } else {
         _getParser( mailboxPtr, ReadOnly );
         // and that's all -- we will detect following replies and sync automatically
@@ -846,7 +862,15 @@ void Model::_askForNumberOfMessages( TreeItemMsgList* item )
     Q_ASSERT( mailboxPtr );
 
     if ( networkPolicy() == NETWORK_OFFLINE ) {
-        item->_numberFetchingStatus = TreeItem::UNAVAILABLE;
+        Imap::Mailbox::SyncState syncState = cache()->mailboxSyncState( mailboxPtr->mailbox() );
+        if ( syncState.isComplete() ) {
+            item->_unreadMessageCount = syncState.unSeen();
+            item->_totalMessageCount = syncState.exists();
+            item->_numberFetchingStatus = TreeItem::DONE;
+            emit messageCountPossiblyChanged( createIndex( mailboxPtr->row(), 0, mailboxPtr ) );
+        } else {
+            item->_numberFetchingStatus = TreeItem::UNAVAILABLE;
+        }
     } else {
         Parser* parser = _getParser( 0, ReadOnly );
         CommandHandle cmd = parser->status( mailboxPtr->mailbox(),
