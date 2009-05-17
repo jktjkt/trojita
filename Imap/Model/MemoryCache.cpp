@@ -171,26 +171,6 @@ QList<uint> MemoryCache::uidMapping( const QString& mailbox )
     return _seqToUid[ mailbox ];
 }
 
-QList<MemoryCache::MessageDataBundle> MemoryCache::messageDataForMailbox( const QString& mailbox )
-{
-    QList<MessageDataBundle> res;
-    for ( QMap<uint,QByteArray>::const_iterator it = _bodyStructure[ mailbox ].begin();
-            it != _bodyStructure[ mailbox ].end(); ++it ) {
-        MessageDataBundle buf;
-        if ( ! _envelopes.contains( mailbox ) )
-            continue;
-        if ( ! _envelopes[ mailbox ].contains( it.key() ) )
-            continue;
-        buf.envelope = _envelopes[ mailbox ][ it.key() ];
-        buf.uid = it.key();
-        buf.serializedBodyStructure = it.value();
-        // These fields are not critical, so nothing happens if they aren't filed correctly:
-        buf.flags = _flags[ mailbox ][ it.key() ];
-        buf.size = _sizes[ mailbox ][ it.key() ];
-    }
-    return res;
-}
-
 QByteArray MemoryCache::messagePart( const QString& mailbox, uint uid, const QString& partId )
 {
     if ( ! _parts.contains( mailbox ) )

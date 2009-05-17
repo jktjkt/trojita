@@ -33,28 +33,6 @@ namespace Mailbox {
 class AbstractCache {
 public:
 
-    /** @short Helper for retrieving all data about a particular message from the cache */
-    struct MessageDataBundle {
-        /** @short The UID of the message */
-        uint uid;
-        /** @short Envelope */
-        Imap::Message::Envelope envelope;
-        /** @short RFC822.SIZE */
-        uint size;
-        /** @short FLAGS, a volatile parameter! */
-        QStringList flags;
-        /** @short Serialized form of BODYSTRUCTURE
-
-        Due to the complex nature of BODYSTRUCTURE and the way we use, simly
-        archiving the resulting object is far from trivial. The simplest way is
-        offered by Imap::Message::AbstractMessage::fromList. Therefore, this item
-        contains a QVariantList as serialized by QDataStream.
-*/
-        QByteArray serializedBodyStructure;
-
-        MessageDataBundle(): uid(0) {}
-    };
-
     virtual ~AbstractCache() {}
 
     /** @short Return a list of all known child mailboxes */
@@ -93,9 +71,6 @@ public:
 
     /** @short Retrieve sequence to UID mapping */
     virtual QList<uint> uidMapping( const QString& mailbox ) = 0;
-
-    /** @short Returns a list which contains all known data for each message in the given mailbox (except real parts data) */
-    virtual QList<MessageDataBundle> messageDataForMailbox( const QString& mailbox ) = 0;
 
     /** @short Return part data or a null QByteArray if none available */
     virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId ) = 0;
