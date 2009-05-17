@@ -508,46 +508,46 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
 
 void Model::_fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, Parser* parser, const SyncState& syncState )
 {
-        // Forget everything, do a dumb sync
-        _cache->clearUidMapping( mailbox->mailbox() );
-        _cache->clearAllMessages( mailbox->mailbox() );
+    // Forget everything, do a dumb sync
+    _cache->clearUidMapping( mailbox->mailbox() );
+    _cache->clearAllMessages( mailbox->mailbox() );
 
-        QModelIndex parent = createIndex( 0, 0, list );
-        if ( ! list->_children.isEmpty() ) {
-            beginRemoveRows( parent, 0, list->_children.size() - 1 );
-            qDeleteAll( list->_children );
-            list->_children.clear();
-            endRemoveRows();
-            emit messageCountPossiblyChanged( parent.parent() );
+    QModelIndex parent = createIndex( 0, 0, list );
+    if ( ! list->_children.isEmpty() ) {
+        beginRemoveRows( parent, 0, list->_children.size() - 1 );
+        qDeleteAll( list->_children );
+        list->_children.clear();
+        endRemoveRows();
+        emit messageCountPossiblyChanged( parent.parent() );
+    }
+    if ( syncState.exists() ) {
+        bool willLoad = networkPolicy() == NETWORK_ONLINE && syncState.exists() <= StructureFetchLimit;
+        beginInsertRows( parent, 0, syncState.exists() - 1 );
+        for ( uint i = 0; i < syncState.exists(); ++i ) {
+            TreeItemMessage* message = new TreeItemMessage( list );
+            list->_children << message;
+            if ( willLoad )
+                message->_fetchStatus = TreeItem::LOADING;
         }
-        if ( syncState.exists() ) {
-            bool willLoad = networkPolicy() == NETWORK_ONLINE && syncState.exists() <= StructureFetchLimit;
-            beginInsertRows( parent, 0, syncState.exists() - 1 );
-            for ( uint i = 0; i < syncState.exists(); ++i ) {
-                TreeItemMessage* message = new TreeItemMessage( list );
-                list->_children << message;
-                if ( willLoad )
-                    message->_fetchStatus = TreeItem::LOADING;
-            }
-            endInsertRows();
-            list->_fetchStatus = TreeItem::DONE;
+        endInsertRows();
+        list->_fetchStatus = TreeItem::DONE;
 
-            Q_ASSERT( ! _parsers[ parser ].selectingAnother );
+        Q_ASSERT( ! _parsers[ parser ].selectingAnother );
 
-            QStringList items = willLoad ? _onlineMessageFetch : QStringList() << "UID" << "FLAGS";
-            CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ), items );
-            _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
-            list->_numberFetchingStatus = TreeItem::LOADING;
-            list->_unreadMessageCount = 0;
-            emit messageCountPossiblyChanged( parent.parent() );
-        } else {
-            list->_totalMessageCount = 0;
-            list->_unreadMessageCount = 0;
-            list->_numberFetchingStatus = TreeItem::DONE;
-            list->_fetchStatus = TreeItem::DONE;
-            _cache->setMailboxSyncState( mailbox->mailbox(), syncState );
-            saveUidMap( list );
-        }
+        QStringList items = willLoad ? _onlineMessageFetch : QStringList() << "UID" << "FLAGS";
+        CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ), items );
+        _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
+        list->_numberFetchingStatus = TreeItem::LOADING;
+        list->_unreadMessageCount = 0;
+        emit messageCountPossiblyChanged( parent.parent() );
+    } else {
+        list->_totalMessageCount = 0;
+        list->_unreadMessageCount = 0;
+        list->_numberFetchingStatus = TreeItem::DONE;
+        list->_fetchStatus = TreeItem::DONE;
+        _cache->setMailboxSyncState( mailbox->mailbox(), syncState );
+        saveUidMap( list );
+    }
 }
 
 void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command )
