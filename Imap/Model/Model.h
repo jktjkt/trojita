@@ -281,6 +281,7 @@ private:
     TreeItemMailbox* findMailboxByName( const QString& name, const TreeItemMailbox* const root ) const;
 
     void saveUidMap( TreeItemMsgList* list );
+    void _fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, Parser* parser, const SyncState& syncState );
 
     /** @short Returns parser suitable for dealing with some mailbox.
      *

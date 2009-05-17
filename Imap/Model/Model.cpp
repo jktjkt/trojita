@@ -391,7 +391,12 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                 // No deletions, either, so we resync only flag changes
 
                 QList<uint> seqToUid = cache()->uidMapping( mailbox->mailbox() );
-                Q_ASSERT( static_cast<uint>( seqToUid.size() ) == syncState.exists() );
+                if ( static_cast<uint>( seqToUid.size() ) != syncState.exists() ) {
+                    qDebug() << "Inconsistent cache data, falling back to full sync";
+                    _fullMboxSync( mailbox, list, parser, syncState );
+                    emit messageCountPossiblyChanged( createIndex( mailbox->row(), 0, mailbox ) );
+                    return;
+                }
 
                 if ( syncState.exists() ) {
                     // Verify that we indeed have all UIDs and not need them anymore
@@ -496,6 +501,13 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
             }
         }
     } else {
+        _fullMboxSync( mailbox, list, parser, syncState );
+    }
+    emit messageCountPossiblyChanged( createIndex( mailbox->row(), 0, mailbox ) );
+}
+
+void Model::_fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, Parser* parser, const SyncState& syncState )
+{
         // Forget everything, do a dumb sync
         _cache->clearUidMapping( mailbox->mailbox() );
         _cache->clearAllMessages( mailbox->mailbox() );
@@ -536,8 +548,6 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
             _cache->setMailboxSyncState( mailbox->mailbox(), syncState );
             saveUidMap( list );
         }
-    }
-    emit messageCountPossiblyChanged( createIndex( mailbox->row(), 0, mailbox ) );
 }
 
 void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command )
