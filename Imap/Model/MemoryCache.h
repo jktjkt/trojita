@@ -58,6 +58,7 @@ public:
     virtual void setMsgFlags( const QString& mailbox, uint uid, const QStringList& flags );
 
     virtual QList<uint> uidMapping( const QString& mailbox );
+    virtual MessageDataBundle messageMetadata( const QString& mailbox, uint uid );
     virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId );
 
 private:

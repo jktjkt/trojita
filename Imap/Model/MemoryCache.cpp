@@ -28,7 +28,6 @@ namespace Mailbox {
 MemoryCache::MemoryCache( const QString& fileName ): _fileName(fileName)
 {
     loadData();
-    //_cache[ "" ] = QList<MailboxMetadata>() << MailboxMetadata( "INBOX", "", QStringList() << "\\HASNOCHILDREN" );
 }
 
 MemoryCache::~MemoryCache()
@@ -169,6 +168,26 @@ void MemoryCache::setMsgFlags( const QString& mailbox, uint uid, const QStringLi
 QList<uint> MemoryCache::uidMapping( const QString& mailbox )
 {
     return _seqToUid[ mailbox ];
+}
+
+MemoryCache::MessageDataBundle MemoryCache::messageMetadata( const QString& mailbox, uint uid )
+{
+    MessageDataBundle buf;
+    if ( ! _envelopes.contains( mailbox ) )
+        return buf;
+    if ( ! _envelopes[ mailbox ].contains( uid ) )
+        return buf;
+    if ( ! _bodyStructure.contains( mailbox ) )
+        return buf;
+    if ( ! _bodyStructure[ mailbox ].contains( uid ) )
+        return buf;
+    buf.serializedBodyStructure = _bodyStructure[ mailbox ][ uid ];
+    buf.envelope = _envelopes[ mailbox ][ uid ];
+    buf.uid = uid;
+    // These fields are not critical, so nothing happens if they aren't filed correctly:
+    buf.flags = _flags[ mailbox ][ uid ];
+    buf.size = _sizes[ mailbox ][ uid ];
+    return buf;
 }
 
 QByteArray MemoryCache::messagePart( const QString& mailbox, uint uid, const QString& partId )
