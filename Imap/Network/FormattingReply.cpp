@@ -46,23 +46,7 @@ void FormattingReply::requestAnotherPart( Imap::Mailbox::TreeItemPart* anotherPa
     replies.append( reply );
     pendingBitmap.append( true );
     ++pendingCount;
-    if ( anotherPart->fetched() ) {
-        // there will be no finished() signal
-        reqAlreadyFetched << reply;
-        QTimer::singleShot( 0, this, SLOT( handleAlreadyFinished() ) );
-    } else {
-        connect( reply, SIGNAL( finished() ), this, SLOT( anotherReplyFinished() ) );
-    }
-}
-
-void FormattingReply::handleAlreadyFinished()
-{
-    QList<MsgPartNetworkReply*> fetchedItems = reqAlreadyFetched;
-    reqAlreadyFetched.clear();
-    for( QList<MsgPartNetworkReply*>::const_iterator it = fetchedItems.begin();
-         it != fetchedItems.end(); ++it ) {
-        anotherReplyFinished( *it );
-    }
+    connect( reply, SIGNAL( finished() ), this, SLOT( anotherReplyFinished() ) );
 }
 
 void FormattingReply::anotherReplyFinished()

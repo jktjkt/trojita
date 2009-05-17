@@ -35,8 +35,6 @@ protected slots:
     /** @short All of the raw data for the original message part is available now */
     virtual void mainReplyFinished();
 
-    void handleAlreadyFinished();
-
 protected:
     virtual qint64 readData( char* data, qint64 maxSize );
 
