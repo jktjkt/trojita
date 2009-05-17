@@ -173,14 +173,30 @@ QList<uint> MemoryCache::uidMapping( const QString& mailbox )
 MemoryCache::MessageDataBundle MemoryCache::messageMetadata( const QString& mailbox, uint uid )
 {
     MessageDataBundle buf;
-    if ( ! _envelopes.contains( mailbox ) )
+    if ( ! _envelopes.contains( mailbox ) ) {
+#ifdef CACHE_DEBUG
+        qDebug() << "No ENVELOPEs for" << mailbox;
+#endif
         return buf;
-    if ( ! _envelopes[ mailbox ].contains( uid ) )
+    }
+    if ( ! _envelopes[ mailbox ].contains( uid ) ) {
+#ifdef CACHE_DEBUG
+        qDebug() << "No ENVELOPE for" << mailbox << uid;
+#endif
         return buf;
-    if ( ! _bodyStructure.contains( mailbox ) )
+    }
+    if ( ! _bodyStructure.contains( mailbox ) ) {
+#ifdef CACHE_DEBUG
+        qDebug() << "No BODYSTRUCTUREs for" << mailbox;
+#endif
         return buf;
-    if ( ! _bodyStructure[ mailbox ].contains( uid ) )
+    }
+    if ( ! _bodyStructure[ mailbox ].contains( uid ) ) {
+#ifdef CACHE_DEBUG
+        qDebug() << "No BODYSTRUCTURE for" << mailbox << uid;
+#endif
         return buf;
+    }
     buf.serializedBodyStructure = _bodyStructure[ mailbox ][ uid ];
     buf.envelope = _envelopes[ mailbox ][ uid ];
     buf.uid = uid;
