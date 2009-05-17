@@ -17,6 +17,8 @@
 */
 
 #include <QAuthenticator>
+#include <QDesktopServices>
+#include <QDir>
 #include <QDockWidget>
 #include <QHeaderView>
 #include <QInputDialog>
@@ -212,7 +214,16 @@ void MainWindow::setupModels()
 #endif
     }
 
-    cache.reset( new Imap::Mailbox::MemoryCache() );
+    QString cacheDir = QDesktopServices::storageLocation( QDesktopServices::CacheLocation );
+    if ( cacheDir.isEmpty() )
+        cacheDir = QDir::homePath() + QLatin1String("/.") + QCoreApplication::applicationName();
+    if ( ! QDir().mkpath( cacheDir ) ) {
+        QMessageBox::critical( this, tr("Cache Error"), tr("Failed to create directory %1").arg( cacheDir ) );
+        cacheDir = QString();
+    } else {
+        cacheDir += QLatin1String("/imap.cache");
+    }
+    cache.reset( new Imap::Mailbox::MemoryCache( cacheDir ) );
     model = new Imap::Mailbox::Model( this, cache, factory, s.value( SettingsNames::imapStartOffline ).toBool() );
     model->setObjectName( QLatin1String("model") );
     mboxModel = new Imap::Mailbox::MailboxModel( this, model );

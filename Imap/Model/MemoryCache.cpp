@@ -18,15 +18,22 @@
 
 #include "MemoryCache.h"
 #include <QDebug>
+#include <QFile>
 
 //#define CACHE_DEBUG
 
 namespace Imap {
 namespace Mailbox {
 
-MemoryCache::MemoryCache()
+MemoryCache::MemoryCache( const QString& fileName ): _fileName(fileName)
 {
+    loadData();
     //_cache[ "" ] = QList<MailboxMetadata>() << MailboxMetadata( "INBOX", "", QStringList() << "\\HASNOCHILDREN" );
+}
+
+MemoryCache::~MemoryCache()
+{
+    saveData();
 }
 
 QList<MailboxMetadata> MemoryCache::childMailboxes( const QString& mailbox ) const
@@ -196,6 +203,37 @@ QByteArray MemoryCache::messagePart( const QString& mailbox, uint uid, const QSt
         return QByteArray();
     return messageParts[ partId ];
 }
+
+bool MemoryCache::loadData()
+{
+    if ( ! _fileName.isEmpty() ) {
+        QFile file( _fileName );
+        if ( ! file.open( QIODevice::ReadOnly ) )
+            return false;
+        QDataStream stream( &file );
+        stream >> _cache >> _syncState >> _seqToUid >> _flags >> _sizes >>
+                _bodyStructure >> _envelopes >> _parts;
+        file.close();
+        return true;
+    }
+    return false;
+}
+
+bool MemoryCache::saveData() const
+{
+    if ( ! _fileName.isEmpty() ) {
+        QFile file( _fileName );
+        if ( ! file.open( QIODevice::WriteOnly ) )
+            return false;
+        QDataStream stream( &file );
+        stream << _cache << _syncState << _seqToUid << _flags << _sizes <<
+                _bodyStructure << _envelopes << _parts;
+        file.close();
+        return true;
+    }
+    return false;
+}
+
 
 }
 }

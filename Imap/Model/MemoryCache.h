@@ -28,10 +28,15 @@ namespace Imap {
 /** @short Classes for handling of mailboxes and connections */
 namespace Mailbox {
 
-/** @short A cache implementation that uses only in-memory cache */
+/** @short A cache implementation that uses in-memory cache
+
+    It also has an optional feature to dump the data to a local file and read
+    it back in. Is isn't suitable for real production use, but it's a good start.
+ */
 class MemoryCache : public AbstractCache {
 public:
-    MemoryCache();
+    MemoryCache( const QString& fileName );
+    ~MemoryCache();
 
     virtual QList<MailboxMetadata> childMailboxes( const QString& mailbox ) const;
     virtual bool childMailboxesFresh( const QString& mailbox ) const;
@@ -57,6 +62,9 @@ public:
     virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId );
 
 private:
+    bool loadData();
+    bool saveData() const;
+
     QMap<QString, QList<MailboxMetadata> > _cache;
     QMap<QString, SyncState> _syncState;
     QMap<QString, QList<uint> > _seqToUid;
@@ -65,6 +73,8 @@ private:
     QMap<QString, QMap<uint,QByteArray> > _bodyStructure;
     QMap<QString, QMap<uint, Imap::Message::Envelope> > _envelopes;
     QMap<QString, QMap<uint, QMap<QString, QByteArray> > > _parts;
+
+    QString _fileName;
 };
 
 }
