@@ -64,6 +64,7 @@ public:
 private:
     bool loadData();
     bool saveData() const;
+    void dump() const;
 
     QMap<QString, QList<MailboxMetadata> > _cache;
     QMap<QString, SyncState> _syncState;

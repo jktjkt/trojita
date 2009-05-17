@@ -20,7 +20,7 @@
 #include <QDebug>
 #include <QFile>
 
-//#define CACHE_DEBUG
+#define CACHE_DEBUG
 
 namespace Imap {
 namespace Mailbox {
@@ -237,6 +237,9 @@ bool MemoryCache::loadData()
 
 bool MemoryCache::saveData() const
 {
+#ifdef CACHE_DEBUG
+    dump();
+#endif
     if ( ! _fileName.isEmpty() ) {
         QFile file( _fileName );
         if ( ! file.open( QIODevice::WriteOnly ) )
@@ -248,6 +251,32 @@ bool MemoryCache::saveData() const
         return true;
     }
     return false;
+}
+
+void MemoryCache::dump() const
+{
+    qDebug() << "--------------------\nStatistics\n--------------------";
+    qDebug() << "Sequences:";
+    qDebug();
+    QStringList mailboxes;
+    mailboxes = _seqToUid.keys();
+    Q_FOREACH( const QString& mbox, mailboxes ) {
+        qDebug() << " " << mbox << _seqToUid[ mbox ];
+    }
+    qDebug();
+    qDebug() << "Envelopes:";
+    qDebug();
+    mailboxes = _envelopes.keys();
+    Q_FOREACH( const QString& mbox, mailboxes ) {
+        qDebug() << " " << mbox << _envelopes[ mbox ].keys();
+    }
+    qDebug();
+    qDebug() << "Body structures:";
+    qDebug();
+    mailboxes = _bodyStructure.keys();
+    Q_FOREACH( const QString& mbox, mailboxes ) {
+        qDebug() << " " << mbox << _bodyStructure[ mbox ].keys();
+    }
 }
 
 
