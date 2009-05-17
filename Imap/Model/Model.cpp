@@ -855,15 +855,16 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
             qDebug() << "UID cache stale for mailbox" << mailbox;
             item->_fetchStatus = TreeItem::UNAVAILABLE;
         } else {
-            QModelIndex listIndex = createIndex( item->row(), 0, item );
-            beginInsertRows( listIndex, 0, uidMapping.size() - 1 );
-            //const QList<Imap::Mailbox::AbstractCache::MessageDataBundle>& bundle = cache()->messageDataForMailbox( mailbox );
-            for ( uint seq = 0; seq < static_cast<uint>( uidMapping.size() ); ++seq ) {
-                TreeItemMessage* message = new TreeItemMessage( item );
-                message->_uid = uidMapping[ seq ];
-                item->_children << message;
+            if ( uidMapping.size() ) {
+                QModelIndex listIndex = createIndex( item->row(), 0, item );
+                beginInsertRows( listIndex, 0, uidMapping.size() - 1 );
+                for ( uint seq = 0; seq < static_cast<uint>( uidMapping.size() ); ++seq ) {
+                    TreeItemMessage* message = new TreeItemMessage( item );
+                    message->_uid = uidMapping[ seq ];
+                    item->_children << message;
+                }
+                endInsertRows();
             }
-            endInsertRows();
             item->_fetchStatus = TreeItem::DONE;
         }
     } else {
