@@ -390,9 +390,12 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
             if ( syncState.exists() == oldState.exists() ) {
                 // No deletions, either, so we resync only flag changes
 
+                QList<uint> seqToUid = cache()->uidMapping( mailbox->mailbox() );
+                Q_ASSERT( static_cast<uint>( seqToUid.size() ) == syncState.exists() );
+
                 if ( syncState.exists() ) {
                     // Verify that we indeed have all UIDs and not need them anymore
-                    bool uidsOk = ! list->_children.isEmpty();
+                    bool uidsOk = true;
                     for ( int i = 0; i < list->_children.size(); ++i ) {
                         if ( ! static_cast<TreeItemMessage*>( list->_children[i] )->uid() ) {
                             uidsOk = false;
@@ -415,8 +418,11 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
 
                 if ( list->_children.isEmpty() ) {
                     QList<TreeItem*> messages;
-                    for ( uint i = 0; i < syncState.exists(); ++i )
-                        messages << new TreeItemMessage( list );
+                    for ( uint i = 0; i < syncState.exists(); ++i ) {
+                        TreeItemMessage* msg = new TreeItemMessage( list );
+                        msg->_uid = seqToUid[ i ];
+                        messages << msg;
+                    }
                     list->setChildren( messages );
 
                 } else {
