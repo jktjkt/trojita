@@ -16,10 +16,17 @@
 
 namespace Gui {
 
+class WebViewNoContextMenu: public QWebView {
+public:
+    WebViewNoContextMenu( QWidget* parent ): QWebView(parent) {}
+protected:
+    void contextMenuEvent( QContextMenuEvent* event ) {}
+};
+
 MessageView::MessageView( QWidget* parent ): QWidget(parent), message(0), model(0)
 {
     layout = new QVBoxLayout( this );
-    webView = new QWebView( this );
+    webView = new WebViewNoContextMenu( this );
     header = new QLabel( this );
     layout->addWidget( header );
     layout->addWidget( webView );
