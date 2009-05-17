@@ -18,7 +18,7 @@ FormattingReply( parent, _model, _msg, _part)
     QStringList allowed;
     allowed << QLatin1String("text/plain") << QLatin1String("text/html");
     Imap::Mailbox::TreeItemPart* target = 0;
-    for ( int i = msg->childrenCount( model ); i >=0; --i ) {
+    for ( int i = msg->childrenCount( model ) - 1; i >=0; --i ) {
         Imap::Mailbox::TreeItemPart* anotherPart =
                 dynamic_cast<Imap::Mailbox::TreeItemPart*>( part->child( i, model ) );
         Q_ASSERT( anotherPart );
