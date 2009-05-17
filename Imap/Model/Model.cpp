@@ -971,7 +971,18 @@ void Model::_askForMsgPart( TreeItemPart* item )
     Q_ASSERT( mailboxPtr );
 
     if ( networkPolicy() == NETWORK_OFFLINE ) {
-        item->_fetchStatus = TreeItem::UNAVAILABLE;
+        uint uid = static_cast<TreeItemMessage*>( item->message() )->uid();
+        if ( uid ) {
+            const QByteArray& data = cache()->messagePart( mailboxPtr->mailbox(), uid, item->partId() );
+            if ( data.isNull() ) {
+                item->_fetchStatus = TreeItem::UNAVAILABLE;
+            } else {
+                item->_data = data;
+                item->_fetchStatus = TreeItem::DONE;
+            }
+        } else {
+            item->_fetchStatus = TreeItem::UNAVAILABLE;
+        }
     } else {
         Parser* parser = _getParser( mailboxPtr, ReadOnly );
         CommandHandle cmd = parser->fetch( Sequence( item->message()->row() + 1 ),

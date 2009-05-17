@@ -161,6 +161,7 @@ public:
 class TreeItemPart: public TreeItem {
     void operator=( const TreeItem& ); // don't implement
     friend class TreeItemMailbox; // needs access to _data
+    friend class Model; // dtto
     QString _mimeType;
     QString _charset;
     QByteArray _encoding;
