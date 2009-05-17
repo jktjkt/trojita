@@ -20,7 +20,12 @@
 #include <QDebug>
 #include <QFile>
 
-#define CACHE_DEBUG
+//#define CACHE_DEBUG
+#define CACHE_STATS
+
+#ifdef CACHE_DEBUG
+#define CACHE_STATS
+#endif
 
 namespace Imap {
 namespace Mailbox {
@@ -237,7 +242,7 @@ bool MemoryCache::loadData()
 
 bool MemoryCache::saveData() const
 {
-#ifdef CACHE_DEBUG
+#ifdef CACHE_STATS
     dump();
 #endif
     if ( ! _fileName.isEmpty() ) {
