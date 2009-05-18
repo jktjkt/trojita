@@ -51,13 +51,8 @@ void FormattingReply::requestAnotherPart( Imap::Mailbox::TreeItemPart* anotherPa
 
 void FormattingReply::anotherReplyFinished()
 {
-    MsgPartNetworkReply* reply = qobject_cast<MsgPartNetworkReply*>( sender() );
-    Q_ASSERT( reply );
-    anotherReplyFinished( reply );
-}
-
-void FormattingReply::anotherReplyFinished( MsgPartNetworkReply* anotherReply )
-{
+    MsgPartNetworkReply* anotherReply = qobject_cast<MsgPartNetworkReply*>( sender() );
+    Q_ASSERT( anotherReply );
     int offset = replies.indexOf( anotherReply );
     Q_ASSERT( offset != -1 );
     if ( pendingBitmap[ offset ] ) {

@@ -30,7 +30,6 @@ public:
 protected slots:
     /** @short This slot is invoked whenever any sub-request has finished loading */
     void anotherReplyFinished();
-    void anotherReplyFinished( MsgPartNetworkReply* finishedReply );
 
     /** @short All of the raw data for the original message part is available now */
     virtual void mainReplyFinished();
