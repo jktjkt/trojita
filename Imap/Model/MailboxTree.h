@@ -166,6 +166,7 @@ class TreeItemPart: public TreeItem {
     QString _charset;
     QByteArray _encoding;
     QByteArray _data;
+    QByteArray _bodyFldId;
 public:
     TreeItemPart( TreeItem* parent, const QString& mimeType );
 
@@ -195,6 +196,8 @@ public:
     void setCharset( const QString& ch ) { _charset = ch; }
     void setEncoding( const QByteArray& encoding ) { _encoding = encoding; }
     QByteArray encoding() const { return _encoding; }
+    void setBodyFldId( const QByteArray& id ) { _bodyFldId = id; }
+    QByteArray bodyFldId() const { return _bodyFldId; }
 private:
     bool isTopLevelMultiPart() const;
 };

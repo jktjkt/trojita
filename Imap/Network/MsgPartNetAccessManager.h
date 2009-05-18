@@ -11,6 +11,7 @@ namespace Imap {
 
 namespace Mailbox {
 class Model;
+class TreeItem;
 class TreeItemMessage;
 class TreeItemPart;
 }
@@ -25,6 +26,7 @@ public:
     void setModelMessage( Imap::Mailbox::Model* _model,
         Imap::Mailbox::TreeItemMessage* _message );
     Imap::Mailbox::TreeItemPart* pathToPart( const QString& path );
+    Imap::Mailbox::TreeItemPart* cidToPart( const QByteArray& cid, Imap::Mailbox::TreeItem* root );
 protected:
     virtual QNetworkReply* createRequest( Operation op,
         const QNetworkRequest& req, QIODevice* outgoingData=0 );

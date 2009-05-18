@@ -660,6 +660,7 @@ void OneMessage::storeInterestingFields( Mailbox::TreeItemPart* p ) const
     if ( it != bodyFldParam.end() ) {
         p->setCharset( *it );
     }
+    p->setBodyFldId( bodyFldId );
 }
 
 QList<Mailbox::TreeItem*> TextMessage::createTreeItems( Mailbox::TreeItem* parent ) const
