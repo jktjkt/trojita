@@ -43,6 +43,18 @@ QWidget* PartWidgetFactory::create( Imap::Mailbox::TreeItemPart* part )
                     part->child( 0, manager->model ) );
             layout->addWidget( create( anotherPart ) );
             return top;
+        } else {
+            // multipart/mixed or anything else, as mandated by RFC 2046, Section 5.1.3
+            QGroupBox* top = new QGroupBox( tr("Multipart Message"), 0 );
+            QVBoxLayout* layout = new QVBoxLayout( top );
+            for ( uint i = 0; i < part->childrenCount( manager->model ); ++i ) {
+                TreeItemPart* anotherPart = dynamic_cast<TreeItemPart*>(
+                        part->child( i, manager->model ) );
+                Q_ASSERT( anotherPart );
+                QWidget* res = create( anotherPart );
+                layout->addWidget( res );
+            }
+            return top;
         }
     } else if ( part->mimeType() == QLatin1String("message/rfc822") ) {
         // dtto
