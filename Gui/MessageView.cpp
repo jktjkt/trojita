@@ -3,12 +3,11 @@
 #include <QTextDocument>
 #include <QTimer>
 #include <QVBoxLayout>
-#include <QtWebKit/QWebFrame>
 #include <QtWebKit/QWebHistory>
-#include <QtWebKit/QWebView>
 #include <QDebug>
 
 #include "MessageView.h"
+#include "EmbeddedWebView.h"
 
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/MsgListModel.h"
@@ -16,43 +15,19 @@
 
 namespace Gui {
 
-class WebViewNoContextMenu: public QWebView {
-public:
-    WebViewNoContextMenu( QWidget* parent ): QWebView(parent) {}
-protected:
-    void contextMenuEvent( QContextMenuEvent* event ) {}
-};
-
 MessageView::MessageView( QWidget* parent ): QWidget(parent), message(0), model(0)
 {
+    netAccess = new Imap::Network::FormattingNetAccessManager( this );
     layout = new QVBoxLayout( this );
-    webView = new WebViewNoContextMenu( this );
+    webView = new EmbeddedWebView( this, netAccess );
     header = new QLabel( this );
     layout->addWidget( header );
     layout->addWidget( webView );
     layout->setContentsMargins( 0, 0, 0, 0 );
 
-    QWebSettings* s = webView->settings();
-    s->setAttribute( QWebSettings::JavascriptEnabled, false );
-    s->setAttribute( QWebSettings::JavaEnabled, false );
-    s->setAttribute( QWebSettings::PluginsEnabled, false );
-    s->setAttribute( QWebSettings::PrivateBrowsingEnabled, true );
-    s->setAttribute( QWebSettings::JavaEnabled, false );
-    s->setAttribute( QWebSettings::OfflineStorageDatabaseEnabled, false );
-    s->setAttribute( QWebSettings::OfflineWebApplicationCacheEnabled, false );
-    s->setAttribute( QWebSettings::LocalStorageDatabaseEnabled, false );
-
-    netAccess = new Imap::Network::FormattingNetAccessManager( webView );
-    webView->page()->setNetworkAccessManager( netAccess );
-
     markAsReadTimer = new QTimer( this );
     markAsReadTimer->setSingleShot( true );
     connect( markAsReadTimer, SIGNAL(timeout()), this, SLOT(markAsRead()) );
-
-    // Scrolling is implemented on upper layers
-    webView->page()->mainFrame()->setScrollBarPolicy( Qt::Horizontal, Qt::ScrollBarAlwaysOff );
-    webView->page()->mainFrame()->setScrollBarPolicy( Qt::Vertical, Qt::ScrollBarAlwaysOff );
-    connect( webView, SIGNAL(loadFinished(bool)), this, SLOT(pageLoadFinished()) );
 
     // We want to propagate the QWheelEvent to upper layers
     webView->installEventFilter( this );
@@ -127,11 +102,6 @@ void MessageView::markAsRead()
     if ( ! message || ! model->isNetworkAvailable() )
         return;
     model->markMessageRead( message, true );
-}
-
-void MessageView::pageLoadFinished()
-{
-    webView->setMinimumSize( webView->page()->mainFrame()->contentsSize() );
 }
 
 bool MessageView::eventFilter( QObject* object, QEvent* event )

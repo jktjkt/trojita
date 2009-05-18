@@ -32,7 +32,6 @@ public slots:
     void handleMessageRemoved( void* msg );
 private slots:
     void markAsRead();
-    void pageLoadFinished();
 private:
     bool eventFilter( QObject* object, QEvent* event );
     QString headerText();
