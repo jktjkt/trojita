@@ -68,6 +68,7 @@ set(libMessageView_SRCS
 
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/PartWidgetFactory.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/SimplePartWidget.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Gui/Rfc822HeaderView.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Network/MsgPartNetworkReply.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Network/ForbiddenReply.cpp

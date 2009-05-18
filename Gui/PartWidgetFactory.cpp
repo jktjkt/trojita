@@ -1,5 +1,6 @@
 #include "PartWidgetFactory.h"
 #include "SimplePartWidget.h"
+#include "Rfc822HeaderView.h"
 #include "Imap/Model/MailboxTree.h"
 
 #include <QGroupBox>
@@ -60,10 +61,7 @@ QWidget* PartWidgetFactory::create( Imap::Mailbox::TreeItemPart* part )
     } else if ( part->mimeType() == QLatin1String("message/rfc822") ) {
         QGroupBox* top = new QGroupBox( tr("Message"), 0 );
         QVBoxLayout* layout = new QVBoxLayout( top );
-        QLabel* header = new QLabel( 0 );
-        // FIXME: wait for data...
-        part->fetch( manager->model );
-        header->setText( *part->dataPtr() );
+        QLabel* header = new Rfc822HeaderView( 0, manager->model, part );
         layout->addWidget( header );
         for ( uint i = 0; i < part->childrenCount( manager->model ); ++i ) {
             TreeItemPart* anotherPart = dynamic_cast<TreeItemPart*>(
