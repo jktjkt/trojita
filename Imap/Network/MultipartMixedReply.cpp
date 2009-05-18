@@ -22,7 +22,10 @@ void MultipartMixedReply::mainReplyFinished()
     for ( uint i = 0; i < part->childrenCount( model ); ++i ) {
         Imap::Mailbox::TreeItemPart* anotherPart = static_cast<Imap::Mailbox::TreeItemPart*>(
                 part->child( i, model ) );
-        buf.append( "<iframe src=\"trojita-imap://part" + anotherPart->pathToPart() + "\"></iframe>\n" );
+        buf.append( QString::fromAscii("<object type=\"application/x-trojita-imap-part\" "
+                                       "data=\"trojita-imap://part%1\" "
+                                       "width=\"660\" height=1000 style=\"border: 1px solid red !important\"></object><hr/>\n").arg( anotherPart->pathToPart() )  );
+        //buf.append( "<iframe src=\"trojita-imap://part" + anotherPart->pathToPart() + "\"></iframe>\n" );
     }
     buf.append( "</html>" );
     setData( QLatin1String( "text/html" ), buf );

@@ -18,8 +18,9 @@ namespace Gui {
 MessageView::MessageView( QWidget* parent ): QWidget(parent), message(0), model(0)
 {
     netAccess = new Imap::Network::FormattingNetAccessManager( this );
+    QWebPluginFactory* pluginFactory = new ImapPartPluginFactory( this, netAccess );
     layout = new QVBoxLayout( this );
-    webView = new EmbeddedWebView( this, netAccess );
+    webView = new EmbeddedWebView( this, netAccess, pluginFactory );
     header = new QLabel( this );
     layout->addWidget( header );
     layout->addWidget( webView );
