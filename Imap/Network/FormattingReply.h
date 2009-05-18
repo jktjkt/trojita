@@ -22,7 +22,7 @@ Q_OBJECT
 public:
     FormattingReply( QObject* parent, Imap::Mailbox::Model* _model,
         Imap::Mailbox::TreeItemMessage* _msg, Imap::Mailbox::TreeItemPart* _part );
-    virtual ~FormattingReply() {};
+    virtual ~FormattingReply() {}
     virtual void abort();
     virtual void close();
     virtual qint64 bytesAvailable() const;
