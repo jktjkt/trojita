@@ -49,8 +49,14 @@ void MsgPartNetworkReply::slotModelDataChanged( const QModelIndex& topLeft, cons
 
 void MsgPartNetworkReply::slotMyDataChanged()
 {
-    // FIXME :)
-    setHeader( QNetworkRequest::ContentTypeHeader, part->mimeType() );
+    if ( part->mimeType().startsWith( QLatin1String( "text/" ) ) ) {
+        setHeader( QNetworkRequest::ContentTypeHeader,
+                   part->charset().isEmpty() ?
+                    part->mimeType() :
+                    QString::fromAscii("%1; charset=%2").arg( part->mimeType(), part->charset() ) );
+    } else {
+        setHeader( QNetworkRequest::ContentTypeHeader, part->mimeType() );
+    }
     emit readyRead();
     emit finished();
 }
