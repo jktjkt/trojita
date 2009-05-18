@@ -8,6 +8,7 @@
 #include "MsgPartNetAccessManager.h"
 #include "MsgPartNetworkReply.h"
 #include "MultipartAlternativeReply.h"
+#include "MultipartRelatedReply.h"
 #include "MultipartSignedReply.h"
 #include "MultipartMixedReply.h"
 #include "Imap/Model/MailboxTree.h"
@@ -44,6 +45,8 @@ QNetworkReply* FormattingNetAccessManager::createRequest( Operation op,
                     return new Imap::Network::MultipartMixedReply( this, partManager->model, partManager->message, part );
                 } else if ( part->mimeType() == QLatin1String( "multipart/alternative" ) ) {
                     return new Imap::Network::MultipartAlternativeReply( this, partManager->model, partManager->message, part );
+                } else if ( part->mimeType() == QLatin1String( "multipart/related" ) ) {
+                    return new Imap::Network::MultipartRelatedReply( this, partManager->model, partManager->message, part );
                 } else {
                     return new Imap::Network::AuxiliaryReply( this,
                         tr("Message type %1 is not supported").arg( part->mimeType() ) );
