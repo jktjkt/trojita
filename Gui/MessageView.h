@@ -15,11 +15,13 @@ class TreeItemMessage;
 class Model;
 }
 namespace Network {
-class FormattingNetAccessManager;
+class MsgPartNetAccessManager;
 }
 }
 
 namespace Gui {
+
+class PartWidgetFactory;
 
 class MessageView : public QWidget
 {
@@ -36,13 +38,15 @@ private:
     bool eventFilter( QObject* object, QEvent* event );
     QString headerText();
 
-    QWebView* webView;
+    QWidget* viewer;
     QLabel* header;
     QLayout* layout;
     Imap::Mailbox::TreeItemMessage* message;
     Imap::Mailbox::Model* model;
-    Imap::Network::FormattingNetAccessManager* netAccess;
+    Imap::Network::MsgPartNetAccessManager* netAccess;
     QTimer* markAsReadTimer;
+    QWebView* emptyView;
+    PartWidgetFactory* factory;
 };
 
 }

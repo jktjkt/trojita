@@ -8,30 +8,30 @@
 
 #include "MessageView.h"
 #include "EmbeddedWebView.h"
+#include "PartWidgetFactory.h"
 
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/MsgListModel.h"
-#include "Imap/Network/FormattingNetAccessManager.h"
+#include "Imap/Network/MsgPartNetAccessManager.h"
 
 namespace Gui {
 
 MessageView::MessageView( QWidget* parent ): QWidget(parent), message(0), model(0)
 {
-    netAccess = new Imap::Network::FormattingNetAccessManager( this );
-    QWebPluginFactory* pluginFactory = new ImapPartPluginFactory( this, netAccess );
+    netAccess = new Imap::Network::MsgPartNetAccessManager( this );
+    emptyView = new EmbeddedWebView( this, netAccess );
+    factory = new PartWidgetFactory( netAccess );
+
     layout = new QVBoxLayout( this );
-    webView = new EmbeddedWebView( this, netAccess, pluginFactory );
+    viewer = emptyView;
     header = new QLabel( this );
     layout->addWidget( header );
-    layout->addWidget( webView );
+    layout->addWidget( viewer );
     layout->setContentsMargins( 0, 0, 0, 0 );
 
     markAsReadTimer = new QTimer( this );
     markAsReadTimer->setSingleShot( true );
     connect( markAsReadTimer, SIGNAL(timeout()), this, SLOT(markAsRead()) );
-
-    // We want to propagate the QWheelEvent to upper layers
-    webView->installEventFilter( this );
 
     header->setIndent( 5 );
 }
@@ -46,10 +46,14 @@ void MessageView::setEmpty()
 {
     markAsReadTimer->stop();
     header->setText( QString() );
-    webView->setUrl( QUrl("about:blank") );
-    webView->page()->history()->clear();
-    webView->setMinimumSize( 1, 1 );
     message = 0;
+    if ( viewer != emptyView ) {
+        layout->removeWidget( viewer );
+        viewer->deleteLater();
+        viewer = emptyView;
+        viewer->show();
+        layout->addWidget( viewer );
+    }
 }
 
 void MessageView::setMessage( const QModelIndex& index )
@@ -68,30 +72,27 @@ void MessageView::setMessage( const QModelIndex& index )
 
     // now let's find a real message root
     Imap::Mailbox::TreeItemMessage* messageCandidate = dynamic_cast<Imap::Mailbox::TreeItemMessage*>( item );
-    if ( ! messageCandidate ) {
-        const Imap::Mailbox::TreeItemPart* part = dynamic_cast<const Imap::Mailbox::TreeItemPart*>( item );
-        if ( part ) {
-            messageCandidate = part->message();
-            Q_ASSERT( messageCandidate );
-        } else {
-            // it's something completely different -> let's ignore altogether, perhaps user clicked on a model  or something
-            qDebug() << Q_FUNC_INFO << "Can't find out, sorry";
-            return;
-        }
-    }
-
     Q_ASSERT( model );
     Q_ASSERT( messageCandidate );
+    Imap::Mailbox::TreeItemPart* part = dynamic_cast<Imap::Mailbox::TreeItemPart*>( messageCandidate->child( 0, model ) );
 
     if ( message != messageCandidate ) {
-        // So that we don't needlessly re-initialize stuff
+        emptyView->hide();
+        layout->removeWidget( viewer );
+        if ( viewer != emptyView ) {
+            viewer->setParent( 0 );
+            viewer->deleteLater();
+        }
         message = messageCandidate;
-        webView->setMinimumSize( 1, 1 );
         netAccess->setModelMessage( model, message );
-        webView->setUrl( QUrl( QString("trojita-imap://msg/0") ) );
-        // There is never more than one top-level child item, so we can safely use /0 as the path
-        webView->page()->history()->clear();
+        viewer = factory->create( part );
+        viewer->setParent( this );
+        layout->addWidget( viewer );
+        viewer->show();
         header->setText( headerText() );
+
+        // We want to propagate the QWheelEvent to upper layers
+        viewer->installEventFilter( this );
     }
 
     if ( model->isNetworkAvailable() )

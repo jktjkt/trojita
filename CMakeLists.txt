@@ -66,6 +66,9 @@ set(libMessageView_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/MessageView.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/EmbeddedWebView.cpp
 
+    ${CMAKE_CURRENT_SOURCE_DIR}/Gui/PartWidgetFactory.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Gui/SimplePartWidget.cpp
+
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Network/MsgPartNetworkReply.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Network/ForbiddenReply.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Network/MsgPartNetAccessManager.cpp

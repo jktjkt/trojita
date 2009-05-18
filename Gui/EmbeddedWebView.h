@@ -9,24 +9,11 @@ namespace Gui {
 class EmbeddedWebView: public QWebView {
     Q_OBJECT
 public:
-    EmbeddedWebView( QWidget* parent, QNetworkAccessManager* networkManager,
-                     QWebPluginFactory* pluginFactory );
+    EmbeddedWebView( QWidget* parent, QNetworkAccessManager* networkManager );
 protected:
     void contextMenuEvent( QContextMenuEvent* event );
 private slots:
     void handlePageLoadFinished( bool ok );
-};
-
-class ImapPartPluginFactory: public QWebPluginFactory {
-    Q_OBJECT
-public:
-    ImapPartPluginFactory( QObject* parent, QNetworkAccessManager* networkManager );
-    virtual QObject* create( const QString& mimeType, const QUrl& url,
-                             const QStringList& argumentNames,
-                             const QStringList& argumentValues ) const;
-    virtual QList<Plugin> plugins() const;
-private:
-    QNetworkAccessManager* _networkManager;
 };
 
 }
