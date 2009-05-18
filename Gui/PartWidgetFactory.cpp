@@ -5,6 +5,7 @@
 #include <QGroupBox>
 #include <QLabel>
 #include <QTabWidget>
+#include <QTextEdit>
 #include <QVBoxLayout>
 
 namespace Gui {
@@ -57,7 +58,21 @@ QWidget* PartWidgetFactory::create( Imap::Mailbox::TreeItemPart* part )
             return top;
         }
     } else if ( part->mimeType() == QLatin1String("message/rfc822") ) {
-        // dtto
+        QGroupBox* top = new QGroupBox( tr("Message"), 0 );
+        QVBoxLayout* layout = new QVBoxLayout( top );
+        QLabel* header = new QLabel( 0 );
+        // FIXME: wait for data...
+        part->fetch( manager->model );
+        header->setText( *part->dataPtr() );
+        layout->addWidget( header );
+        for ( uint i = 0; i < part->childrenCount( manager->model ); ++i ) {
+            TreeItemPart* anotherPart = dynamic_cast<TreeItemPart*>(
+                    part->child( i, manager->model ) );
+            Q_ASSERT( anotherPart );
+            QWidget* res = create( anotherPart );
+            layout->addWidget( res );
+        }
+        return top;
     } else {
         // can't do much besides forwarding
         SimplePartWidget* widget = new SimplePartWidget( 0, manager, part );
