@@ -3,6 +3,7 @@
 #include "Imap/Model/MailboxTree.h"
 
 #include <QLabel>
+#include <QTabWidget>
 
 namespace Gui {
 
@@ -13,9 +14,22 @@ PartWidgetFactory::PartWidgetFactory( Imap::Network::MsgPartNetAccessManager* _m
 
 QWidget* PartWidgetFactory::create( Imap::Mailbox::TreeItemPart* part )
 {
+    using namespace Imap::Mailbox;
     Q_ASSERT( part );
     if ( part->mimeType().startsWith( QLatin1String("multipart/") ) ) {
         // it's a compound part
+        if ( part->mimeType() == QLatin1String("multipart/alternative") ) {
+            QTabWidget* top = new QTabWidget();
+            for ( uint i = 0; i < part->childrenCount( manager->model ); ++i ) {
+                TreeItemPart* anotherPart = dynamic_cast<TreeItemPart*>(
+                        part->child( i, manager->model ) );
+                Q_ASSERT( anotherPart );
+                QWidget* item = create( anotherPart );
+                top->addTab( item, anotherPart->mimeType() );
+            }
+            top->setCurrentIndex( part->childrenCount( manager->model ) - 1 );
+            return top;
+        }
     } else if ( part->mimeType() == QLatin1String("message/rfc822") ) {
         // dtto
     } else {

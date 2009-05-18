@@ -3,6 +3,10 @@
 
 #include <QNetworkAccessManager>
 
+namespace Gui {
+class PartWidgetFactory;
+}
+
 namespace Imap {
 
 namespace Mailbox {
@@ -25,6 +29,7 @@ protected:
     virtual QNetworkReply* createRequest( Operation op,
         const QNetworkRequest& req, QIODevice* outgoingData=0 );
 private:
+    friend class Gui::PartWidgetFactory;
     Imap::Mailbox::Model* model;
     Imap::Mailbox::TreeItemMessage* message;
 };
