@@ -239,6 +239,8 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
             if ( it.key()[ it.key().size() - 1 ] != ']' )
                 throw UnknownMessageIndex( "Can't parse such BODY[]", response );
             QString partIdentification = it.key().mid( 5, it.key().size() - 6 );
+            if ( partIdentification.endsWith( QLatin1String(".HEADER") ) )
+                partIdentification = partIdentification.left( partIdentification.size() - QString::fromAscii(".HEADER").size() );
             TreeItemPart* part = partIdToPtr( model, response.number, partIdentification );
             if ( ! part )
                 throw UnknownMessageIndex( "Got BODY[] fetch that is out of bounds", response );
