@@ -2,8 +2,10 @@
 #include "SimplePartWidget.h"
 #include "Imap/Model/MailboxTree.h"
 
+#include <QGroupBox>
 #include <QLabel>
 #include <QTabWidget>
+#include <QVBoxLayout>
 
 namespace Gui {
 
@@ -28,6 +30,18 @@ QWidget* PartWidgetFactory::create( Imap::Mailbox::TreeItemPart* part )
                 top->addTab( item, anotherPart->mimeType() );
             }
             top->setCurrentIndex( part->childrenCount( manager->model ) - 1 );
+            return top;
+        } else if ( part->mimeType() == QLatin1String("multipart/signed") ) {
+            uint childrenCount = part->childrenCount( manager->model );
+            if ( childrenCount != 2 ) {
+                QLabel* lbl = new QLabel( tr("Mallformed multipart/signed message"), 0 );
+                return lbl;
+            }
+            QGroupBox* top = new QGroupBox( tr("Signed Message"), 0 );
+            QVBoxLayout* layout = new QVBoxLayout( top );
+            TreeItemPart* anotherPart = dynamic_cast<TreeItemPart*>(
+                    part->child( 0, manager->model ) );
+            layout->addWidget( create( anotherPart ) );
             return top;
         }
     } else if ( part->mimeType() == QLatin1String("message/rfc822") ) {

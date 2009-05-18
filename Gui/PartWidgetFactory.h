@@ -3,10 +3,13 @@
 
 #include "Imap/Network/MsgPartNetAccessManager.h"
 
+#include <QCoreApplication>
+
 namespace Gui {
 
 class PartWidgetFactory
 {
+    Q_DECLARE_TR_FUNCTIONS(PartWidgetFactory)
 public:
     PartWidgetFactory( Imap::Network::MsgPartNetAccessManager* _manager );
     QWidget* create( Imap::Mailbox::TreeItemPart* part );
