@@ -48,8 +48,8 @@ QNetworkReply* FormattingNetAccessManager::createRequest( Operation op,
                 } else if ( part->mimeType() == QLatin1String( "multipart/related" ) ) {
                     return new Imap::Network::MultipartRelatedReply( this, partManager->model, partManager->message, part );
                 } else {
-                    return new Imap::Network::AuxiliaryReply( this,
-                        tr("Message type %1 is not supported").arg( part->mimeType() ) );
+                    qDebug() << "MIME type" << part->mimeType() << "not supported, falling back to multipart/mixed";
+                    return new Imap::Network::MultipartMixedReply( this, partManager->model, partManager->message, part );
                 }
             } else {
                 // text/* or anything generic
