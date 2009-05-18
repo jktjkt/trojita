@@ -13,8 +13,6 @@ class TreeItemPart;
 
 namespace Network {
 
-class FormattingNetAccessManager;
-
 class MsgPartNetAccessManager : public QNetworkAccessManager
 {
     Q_OBJECT
@@ -27,7 +25,6 @@ protected:
     virtual QNetworkReply* createRequest( Operation op,
         const QNetworkRequest& req, QIODevice* outgoingData=0 );
 private:
-    friend class FormattingNetAccessManager;
     Imap::Mailbox::Model* model;
     Imap::Mailbox::TreeItemMessage* message;
 };
