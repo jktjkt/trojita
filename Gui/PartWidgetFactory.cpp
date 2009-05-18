@@ -11,8 +11,8 @@
 
 namespace Gui {
 
-PartWidgetFactory::PartWidgetFactory( Imap::Network::MsgPartNetAccessManager* _manager ):
-        manager(_manager)
+PartWidgetFactory::PartWidgetFactory( Imap::Network::MsgPartNetAccessManager* _manager, QObject* _wheelEventFilter ):
+        manager(_manager), wheelEventFilter(_wheelEventFilter)
 {
 }
 
@@ -74,6 +74,7 @@ QWidget* PartWidgetFactory::create( Imap::Mailbox::TreeItemPart* part )
     } else {
         // can't do much besides forwarding
         SimplePartWidget* widget = new SimplePartWidget( 0, manager, part );
+        widget->installEventFilter( wheelEventFilter );
         return widget;
     }
     QLabel* lbl = new QLabel( part->mimeType(), 0 );

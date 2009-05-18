@@ -20,7 +20,7 @@ MessageView::MessageView( QWidget* parent ): QWidget(parent), message(0), model(
 {
     netAccess = new Imap::Network::MsgPartNetAccessManager( this );
     emptyView = new EmbeddedWebView( this, netAccess );
-    factory = new PartWidgetFactory( netAccess );
+    factory = new PartWidgetFactory( netAccess, this );
 
     layout = new QVBoxLayout( this );
     viewer = emptyView;

@@ -11,10 +11,11 @@ class PartWidgetFactory
 {
     Q_DECLARE_TR_FUNCTIONS(PartWidgetFactory)
 public:
-    PartWidgetFactory( Imap::Network::MsgPartNetAccessManager* _manager );
+    PartWidgetFactory( Imap::Network::MsgPartNetAccessManager* _manager, QObject* _wheelEventFilter );
     QWidget* create( Imap::Mailbox::TreeItemPart* part );
 private:
     Imap::Network::MsgPartNetAccessManager* manager;
+    QObject* wheelEventFilter;
 };
 
 }
