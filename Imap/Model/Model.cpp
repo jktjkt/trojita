@@ -381,7 +381,19 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
         return;
     }
 
-    if ( syncState.isUsableForSyncing() && oldState.isUsableForSyncing() && syncState.uidValidity() == oldState.uidValidity() ) {
+    QList<uint> seqToUid = cache()->uidMapping( mailbox->mailbox() );
+
+    if ( static_cast<uint>( seqToUid.size() ) != oldState.exists() ||
+         oldState.exists() != static_cast<uint>( list->_children.size() ) ) {
+
+        qDebug() << "Inconsistent cache data, falling back to full sync (" <<
+                seqToUid.size() << "in UID map," << oldState.exists() <<
+                "EXIST before," << list->_children.size() << "nodes)";
+        _fullMboxSync( mailbox, list, parser, syncState );
+        emit messageCountPossiblyChanged( createIndex( mailbox->row(), 0, mailbox ) );
+        return;
+
+    } else if ( syncState.isUsableForSyncing() && oldState.isUsableForSyncing() && syncState.uidValidity() == oldState.uidValidity() ) {
         // Perform a nice re-sync
 
         if ( syncState.uidNext() == oldState.uidNext() ) {
@@ -389,14 +401,6 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
 
             if ( syncState.exists() == oldState.exists() ) {
                 // No deletions, either, so we resync only flag changes
-
-                QList<uint> seqToUid = cache()->uidMapping( mailbox->mailbox() );
-                if ( static_cast<uint>( seqToUid.size() ) != syncState.exists() ) {
-                    qDebug() << "Inconsistent cache data, falling back to full sync";
-                    _fullMboxSync( mailbox, list, parser, syncState );
-                    emit messageCountPossiblyChanged( createIndex( mailbox->row(), 0, mailbox ) );
-                    return;
-                }
 
                 if ( syncState.exists() ) {
                     // Verify that we indeed have all UIDs and not need them anymore
@@ -501,6 +505,8 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
             }
         }
     } else {
+        // Forget everything, do a dumb sync
+        _cache->clearAllMessages( mailbox->mailbox() );
         _fullMboxSync( mailbox, list, parser, syncState );
     }
     emit messageCountPossiblyChanged( createIndex( mailbox->row(), 0, mailbox ) );
@@ -508,9 +514,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
 
 void Model::_fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, Parser* parser, const SyncState& syncState )
 {
-    // Forget everything, do a dumb sync
     _cache->clearUidMapping( mailbox->mailbox() );
-    _cache->clearAllMessages( mailbox->mailbox() );
 
     QModelIndex parent = createIndex( 0, 0, list );
     if ( ! list->_children.isEmpty() ) {
@@ -862,10 +866,11 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
 
     bool cacheOk = false;
     QList<uint> uidMapping = cache()->uidMapping( mailbox );
-    if ( uidMapping.size() != item->_totalMessageCount ) {
-        qDebug() << "UID cache stale for mailbox" << mailbox;
-        if ( networkPolicy() == NETWORK_OFFLINE )
-            item->_fetchStatus = TreeItem::UNAVAILABLE;
+    if ( networkPolicy() == NETWORK_OFFLINE && uidMapping.size() != item->_totalMessageCount ) {
+        qDebug() << "UID cache stale for mailbox" << mailbox <<
+                "(" << uidMapping.size() << "in UID cache vs." <<
+                item->_totalMessageCount << "as totalMessageCount)";;
+        item->_fetchStatus = TreeItem::UNAVAILABLE;
     } else if ( uidMapping.size() ) {
         QModelIndex listIndex = createIndex( item->row(), 0, item );
         beginInsertRows( listIndex, 0, uidMapping.size() - 1 );
