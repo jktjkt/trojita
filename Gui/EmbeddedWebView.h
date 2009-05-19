@@ -10,8 +10,6 @@ class EmbeddedWebView: public QWebView {
     Q_OBJECT
 public:
     EmbeddedWebView( QWidget* parent, QNetworkAccessManager* networkManager );
-protected:
-    void contextMenuEvent( QContextMenuEvent* event );
 private slots:
     void handlePageLoadFinished( bool ok );
 };

@@ -25,10 +25,8 @@ EmbeddedWebView::EmbeddedWebView( QWidget* parent, QNetworkAccessManager* networ
     page()->mainFrame()->setScrollBarPolicy( Qt::Vertical, Qt::ScrollBarAlwaysOff );
 
     connect( this, SIGNAL(loadFinished(bool)), this, SLOT(handlePageLoadFinished(bool)) );
-}
 
-void EmbeddedWebView::contextMenuEvent( QContextMenuEvent* event )
-{
+    setContextMenuPolicy( Qt::NoContextMenu );
 }
 
 void EmbeddedWebView::handlePageLoadFinished( bool ok )
