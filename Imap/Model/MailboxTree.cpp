@@ -297,7 +297,7 @@ void TreeItemMailbox::handleFetchWhileSyncing( Model* const model, Parser* ptr, 
     Q_ASSERT( list );
 
     QList<uint>& uidMap = model->_parsers[ ptr ].uidMap;
-    QMap<uint,QStringList> flagMap = model->_parsers[ ptr ].syncingFlags;
+    QMap<uint,QStringList>& flagMap = model->_parsers[ ptr ].syncingFlags;
 
     int number = response.number - 1;
     if ( number < 0 || number >= uidMap.size() )
