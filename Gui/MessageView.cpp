@@ -34,6 +34,7 @@ MessageView::MessageView( QWidget* parent ): QWidget(parent), message(0), model(
     connect( markAsReadTimer, SIGNAL(timeout()), this, SLOT(markAsRead()) );
 
     header->setIndent( 5 );
+    header->setWordWrap( true );
 }
 
 void MessageView::handleMessageRemoved( void* msg )
