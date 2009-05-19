@@ -25,6 +25,7 @@ private:
     Imap::Mailbox::TreeItemPart* part;
     QNetworkReply* reply;
     QFile saving;
+    bool saved;
 };
 
 }

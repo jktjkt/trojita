@@ -43,6 +43,7 @@ void AttachmentView::slotDownloadClicked()
     connect( reply, SIGNAL(finished()), this, SLOT(slotDataTransfered()) );
     connect( reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(slotTransferError()) );
     connect( manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(slotDeleteReply(QNetworkReply*)) );
+    saved = false;
 }
 
 void AttachmentView::slotDataTransfered()
@@ -52,6 +53,7 @@ void AttachmentView::slotDataTransfered()
         saving.open( QIODevice::WriteOnly );
         saving.write( reply->readAll() );
         saving.close();
+        saved = true;
     }
 }
 
@@ -65,6 +67,8 @@ void AttachmentView::slotTransferError()
 void AttachmentView::slotDeleteReply(QNetworkReply* reply)
 {
     if ( reply == this->reply ) {
+        if ( ! saved )
+            slotDataTransfered();
         delete reply;
         this->reply = 0;
     }
