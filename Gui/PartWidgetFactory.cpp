@@ -1,10 +1,13 @@
 #include "PartWidgetFactory.h"
+#include "AttachmentView.h"
 #include "SimplePartWidget.h"
 #include "Rfc822HeaderView.h"
 #include "Imap/Model/MailboxTree.h"
 
 #include <QGroupBox>
+#include <QHBoxLayout>
 #include <QLabel>
+#include <QPushButton>
 #include <QTabWidget>
 #include <QTextEdit>
 #include <QVBoxLayout>
@@ -72,10 +75,24 @@ QWidget* PartWidgetFactory::create( Imap::Mailbox::TreeItemPart* part )
         }
         return top;
     } else {
-        // can't do much besides forwarding
-        SimplePartWidget* widget = new SimplePartWidget( 0, manager, part );
-        widget->installEventFilter( wheelEventFilter );
-        return widget;
+        bool showInline = false;
+        QStringList allowedMimeTypes;
+        allowedMimeTypes << "text/html" << "text/plain" << "image/jpeg" <<
+                "image/jpg" << "image/png" << "image/gif";
+        // The problem is that some nasty MUAs (hint hint Thunderbird) would
+        // happily attach a .tar.gz and call it "inline"
+        if ( part->bodyDisposition().toLower() == "attachment" ) {
+            // show as attachment
+        } else if ( allowedMimeTypes.contains( part->mimeType() ) ) {
+            showInline = true;
+        }
+        if ( showInline ) {
+            SimplePartWidget* widget = new SimplePartWidget( 0, manager, part );
+            widget->installEventFilter( wheelEventFilter );
+            return widget;
+        } else {
+            return new AttachmentView( 0, manager, part );
+        }
     }
     QLabel* lbl = new QLabel( part->mimeType(), 0 );
     lbl->setMinimumSize( 800, 600 );

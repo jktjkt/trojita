@@ -660,6 +660,15 @@ void OneMessage::storeInterestingFields( Mailbox::TreeItemPart* p ) const
     if ( it != bodyFldParam.end() ) {
         p->setCharset( *it );
     }
+    if ( ! bodyFldDsp.first.isNull() ) {
+        p->setBodyDisposition( bodyFldDsp.first );
+        it = bodyFldDsp.second.find( "FILENAME" );
+        if ( it != bodyFldDsp.second.end() ) {
+            p->setFileName( *it );
+        } else if ( ( it = bodyFldParam.find( "NAME" ) ) != bodyFldParam.end() ) {
+            p->setFileName( *it );
+        }
+    }
     p->setBodyFldId( bodyFldId );
 }
 

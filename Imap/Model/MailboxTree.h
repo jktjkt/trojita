@@ -167,6 +167,8 @@ class TreeItemPart: public TreeItem {
     QByteArray _encoding;
     QByteArray _data;
     QByteArray _bodyFldId;
+    QByteArray _bodyDisposition;
+    QByteArray _fileName;
 public:
     TreeItemPart( TreeItem* parent, const QString& mimeType );
 
@@ -198,6 +200,10 @@ public:
     QByteArray encoding() const { return _encoding; }
     void setBodyFldId( const QByteArray& id ) { _bodyFldId = id; }
     QByteArray bodyFldId() const { return _bodyFldId; }
+    void setBodyDisposition( const QByteArray& disposition ) { _bodyDisposition = disposition; }
+    QByteArray bodyDisposition() const { return _bodyDisposition; }
+    void setFileName( const QByteArray& name ) { _fileName = name; }
+    QByteArray fileName() const { return _fileName; }
 private:
     bool isTopLevelMultiPart() const;
 };
