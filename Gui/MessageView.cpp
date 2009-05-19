@@ -1,4 +1,4 @@
-#include <QEvent>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QTextDocument>
 #include <QTimer>
@@ -111,6 +111,22 @@ bool MessageView::eventFilter( QObject* object, QEvent* event )
     if ( event->type() == QEvent::Wheel ) {
         MessageView::event( event );
         return true;
+    } else if ( event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease ) {
+        QKeyEvent* keyEvent = static_cast<QKeyEvent*>( event );
+        switch ( keyEvent->key() ) {
+            case Qt::Key_Left:
+            case Qt::Key_Right:
+            case Qt::Key_Up:
+            case Qt::Key_Down:
+            case Qt::Key_PageUp:
+            case Qt::Key_PageDown:
+            case Qt::Key_Home:
+            case Qt::Key_End:
+                MessageView::event( event );
+                return true;
+            default:
+                return QObject::eventFilter( object, event );
+        }
     } else {
         return QObject::eventFilter( object, event );
     }
