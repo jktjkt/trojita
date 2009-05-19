@@ -76,6 +76,7 @@ private slots:
     void slotCreateTopMailbox();
     void slotDeleteCurrentMailbox();
     void updateMessageFlags();
+    void scrollMessageUp();
 
 private:
     void createMenus();

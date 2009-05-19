@@ -182,6 +182,7 @@ void MainWindow::createWidgets()
     area->setWidgetResizable( true );
     area->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
     area->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
+    connect( msgView, SIGNAL(messageChanged()), this, SLOT(scrollMessageUp()) );
 
     QSplitter* hSplitter = new QSplitter();
     QSplitter* vSplitter = new QSplitter();
@@ -608,6 +609,11 @@ void MainWindow::updateActionsOnlineOffline( bool online )
     deleteCurrentMailbox->setEnabled( online );
     markAsDeleted->setEnabled( online );
     markAsRead->setEnabled( online );
+}
+
+void MainWindow::scrollMessageUp()
+{
+    area->ensureVisible( 0, 0, 0, 0 );
 }
 
 }

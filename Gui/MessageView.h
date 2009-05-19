@@ -34,6 +34,8 @@ public slots:
     void handleMessageRemoved( void* msg );
 private slots:
     void markAsRead();
+signals:
+    void messageChanged();
 private:
     bool eventFilter( QObject* object, QEvent* event );
     QString headerText();

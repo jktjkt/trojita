@@ -54,6 +54,7 @@ void MessageView::setEmpty()
         viewer = emptyView;
         viewer->show();
         layout->addWidget( viewer );
+        emit messageChanged();
     }
 }
 
@@ -91,6 +92,7 @@ void MessageView::setMessage( const QModelIndex& index )
         layout->addWidget( viewer );
         viewer->show();
         header->setText( headerText() );
+        emit messageChanged();
 
         // We want to propagate the QWheelEvent to upper layers
         viewer->installEventFilter( this );
