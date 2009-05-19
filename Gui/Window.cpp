@@ -286,6 +286,7 @@ void MainWindow::msgListSelectionChanged( const QItemSelection& selected, const 
     QModelIndex index = selected.indexes().front();
     markAsRead->setChecked( msgListModel->data( index, Imap::Mailbox::MsgListModel::RoleIsMarkedAsRead ).toBool() );
     markAsDeleted->setChecked( msgListModel->data( index, Imap::Mailbox::MsgListModel::RoleIsMarkedAsDeleted ).toBool() );
+    msgView->setMessage( index );
 }
 
 void MainWindow::msgListClicked( const QModelIndex& index )
