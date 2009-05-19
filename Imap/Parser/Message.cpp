@@ -64,8 +64,13 @@ MailAddress::MailAddress( const QVariantList& input, const QByteArray& line, con
 
 QString MailAddress::prettyName( bool nice ) const
 {
+    if ( name.isEmpty() )
+        nice = false;
+
     if ( nice )
         return name;
+    else if ( name.isEmpty() )
+        return mailbox + QChar('@') + host;
     else
         return name + QString::fromAscii( " <" ) + mailbox + QChar( '@' ) + host + QChar( '>' );
 }
