@@ -587,7 +587,7 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
 
         QModelIndex parent = createIndex( 0, 0, list );
         if ( uidMap.isEmpty() ) {
-            if ( list->_children.size() > 1 ) {
+            if ( list->_children.size() > 0 ) {
                 beginRemoveRows( parent, 0, list->_children.size() - 1 );
                 qDeleteAll( list->setChildren( QList<TreeItem*>() ) );
                 endRemoveRows();
