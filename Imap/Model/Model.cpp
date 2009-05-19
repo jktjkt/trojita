@@ -482,6 +482,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                                                    items );
                 _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
                 list->_numberFetchingStatus = TreeItem::LOADING;
+                list->_fetchStatus = TreeItem::DONE;
                 list->_unreadMessageCount = 0;
                 _cache->clearUidMapping( mailbox->mailbox() );
 
@@ -967,8 +968,8 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
         {
             // preload
             Sequence seq( order + 1 );
-            for ( int i = qMax( 1, order + 1 - StructurePreload );
-                  i < qMin( item->parent()->_children.size() - 1, order + 1 + StructurePreload );
+            for ( int i = qMax( 0, order - StructurePreload );
+                  i < qMin( list->_children.size(), order + StructurePreload );
                   ++i ) {
                 TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->_children[i] );
                 Q_ASSERT( message );
