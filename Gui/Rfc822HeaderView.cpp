@@ -15,6 +15,8 @@ Rfc822HeaderView::Rfc822HeaderView( QWidget* parent,
     part->fetch( model );
     if ( part->fetched() ) {
         setCorrectText();
+    } else if ( part->isUnavailable( model ) ) {
+        setText( tr("Offline") );
     } else {
         setText( tr("Loading...") );
         connect( model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleDataChanged(QModelIndex,QModelIndex)) );
