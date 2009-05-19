@@ -24,6 +24,7 @@ void SelectedHandler::handleNumberResponse( Imap::Parser* ptr, const Imap::Respo
         Q_ASSERT( parser.currentMbox );
         parser.currentMbox->handleExpunge( m, *resp );
         parser.syncState.setExists( parser.syncState.exists() - 1 );
+        m->cache()->setMailboxSyncState( parser.currentMbox->mailbox(), parser.syncState );
     } else if ( resp->kind == Imap::Responses::EXISTS ) {
         // EXISTS is already updated by AuthenticatedHandler
         Model::ParserState& parser = m->_parsers[ ptr ];
