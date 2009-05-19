@@ -664,9 +664,9 @@ void OneMessage::storeInterestingFields( Mailbox::TreeItemPart* p ) const
         p->setBodyDisposition( bodyFldDsp.first );
         it = bodyFldDsp.second.find( "FILENAME" );
         if ( it != bodyFldDsp.second.end() ) {
-            p->setFileName( *it );
+            p->setFileName( KIMAP::decodeRFC2047String( *it ) );
         } else if ( ( it = bodyFldParam.find( "NAME" ) ) != bodyFldParam.end() ) {
-            p->setFileName( *it );
+            p->setFileName( KIMAP::decodeRFC2047String( *it ) );
         }
     }
     p->setBodyFldId( bodyFldId );
