@@ -76,7 +76,15 @@ void MessageView::setMessage( const QModelIndex& index )
     Imap::Mailbox::TreeItemMessage* messageCandidate = dynamic_cast<Imap::Mailbox::TreeItemMessage*>( item );
     Q_ASSERT( model );
     Q_ASSERT( messageCandidate );
+
+    if ( ! messageCandidate->fetched() ) {
+        qDebug() << "Attempted to load a message that hasn't been synced yet";
+        setEmpty();
+        return;
+    }
+
     Imap::Mailbox::TreeItemPart* part = dynamic_cast<Imap::Mailbox::TreeItemPart*>( messageCandidate->child( 0, model ) );
+    Q_ASSERT( part );
 
     if ( message != messageCandidate ) {
         emptyView->hide();
