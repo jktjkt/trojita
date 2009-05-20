@@ -1,166 +1,226 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%                                    %%%
-%%% ©ablona bakaláøské práce na MFF UK %%%
-%%%                                    %%%
-%%% (c) Franti¹ek ©trupl, 2005         %%%
-%%%                                    %%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%% POZOR: Úprava bakaláøské práce je závislá rovnì¾ na volbì jednostranného resp. oboustranného tisku.
-%%%        Bli¾¹i informace naleznete v dokumentu Úprava bakaláøské práce, kterı se nalézá na adrese:
-%%%        http://www.mff.cuni.cz/studium/obecne/bplayout/pok12mo4.pdf
-
 \documentclass[12pt,notitlepage]{report}
 %\pagestyle{headings}
 \pagestyle{plain}
 
-\frenchspacing % aktivuje pou¾ití nìkterıch èeskıch typografickıch pravidel
+%\frenchspacing
 
-\usepackage[latin2]{inputenc} % nastavuje pou¾ité kódování, u¾ivatelé Windows zamìní latin2 za cp1250
-\usepackage{czech}
-\usepackage{a4wide} % nastavuje standardní evropskı formát stránek A4
-%\usepackage{index} % nutno pou¾ít v pøípadì tvorby rejstøíku balíèkem makeindex
-%\usepackage{fancybox} % umo¾òuje pokroèilé rámeèkování :-)
-\usepackage{graphicx} % nezbytné pro standardní vkládání obrázkù do dokumentu
+\usepackage[utf8]{inputenc}
+%\usepackage{czech}
+\usepackage{a4wide}
+%\usepackage{index} % nutno pouÅ¾Ã­t v pÅ™Ã­padÄ› tvorby rejstÅ™Ã­ku balÃ­Äkem makeindex
+%\usepackage{fancybox} % umoÅ¾Åˆuje pokroÄilÃ© rÃ¡meÄkovÃ¡nÃ­ :-)
+\usepackage{graphicx} % nezbytnÃ© pro standardnÃ­ vklÃ¡dÃ¡nÃ­ obrÃ¡zkÅ¯ do dokumentu
 
-\usepackage[left=4cm]{geometry} % nastavení dané velikosti okrajù
+\usepackage[left=4cm]{geometry}
+\usepackage{xspace}
 
-%\newindex{default}{idx}{ind}{Rejstøík} % zavádí rejstøík v pøípadì pou¾ití balíku index
+%\newindex{default}{idx}{ind}{RejstÅ™Ã­k} % zavÃ¡dÃ­ rejstÅ™Ã­k v pÅ™Ã­padÄ› pouÅ¾itÃ­ balÃ­ku index
 
-\title{Název práce}   % tyto dvì polo¾ky jsou zde v podstatì formálnì, ve skuteènosti nejsou nikde 
-\author{Jméno autora} % dále v dokumentu pou¾ity
+\title{Trojita: A Qt IMAP Client}
+\author{Jan KundrÃ¡t}
+
+\newcommand{\trojita}{Trojita\xspace}
 
 %\date{}
 
 \begin{document}
 
-%\csprimeson % zapne jednoduché psaní èeskıch uvozovek pomocí klasickıch znakù, ale potom pozor 
-             % na originální apostrofy, které budou chybnì interpretovány!!!
+%\csprimeson % zapne jednoduchÃ© psanÃ­ ÄeskÃ½ch uvozovek pomocÃ­ klasickÃ½ch znakÅ¯, ale potom pozor 
+             % na originÃ¡lnÃ­ apostrofy, kterÃ© budou chybnÄ› interpretovÃ¡ny!!!
 
-%%% Následuje první, úvodní, strana bakaláøské práce. Jednotlivé polo¾ky nahraïte dle vlastních
-%%% údajù. Zmìnit podle konkrétní délky jednotlivıch polo¾ek mù¾ete i zalomení øádkù.
+%%% NÃ¡sleduje prvnÃ­, ÃºvodnÃ­, strana bakalÃ¡Å™skÃ© prÃ¡ce. JednotlivÃ© poloÅ¾ky nahraÄte dle vlastnÃ­ch
+%%% ÃºdajÅ¯. ZmÄ›nit podle konkrÃ©tnÃ­ dÃ©lky jednotlivÃ½ch poloÅ¾ek mÅ¯Å¾ete i zalomenÃ­ Å™Ã¡dkÅ¯.
 \begin{titlepage}
 \begin{center}
-\ \\
+%\ \\
 
 \vspace{15mm}
 
 \large
-Univerzita Karlova v Praze\\
-Matematicko-fyzikální fakulta\\
+Charles University in Prague\\
+Faculty of Mathematics and Physics\\
 
 \vspace{5mm}
 
-{\Large\bf BAKALÁØSKÁ PRÁCE}
+{\Large\bf BACHELOR THESIS}
 
 \vspace{10mm}
 
-%%% Aby vlo¾ní loga v¹e správnì fungovalo, je tøeba mít soubor logo.eps nahranı v pracovním adresáøi,
-%%% tj. v adresáøi, kde se nachází pøekládanı zdrojovı soubor. Soubor logo.eps je mo¾né získat napø.
-%%% na adrese: http://www.mff.cuni.cz/fakulta/symboly/logo.eps
-\includegraphics[scale=0.3]{logo.eps} 
+%\includegraphics[scale=0.3]{logo.eps} FIXME
 
 \vspace{15mm}
 
 %\normalsize
-{\Large Jméno autora}\\ % doplòte va¹e jméno
+{\Large Jan KundrÃ¡t}\\
 \vspace{5mm}
-{\Large\bf Název práce (pøesnì podle zadání)}\\ % doplòte název práce
+{\Large\bf IMAP E-mail Client}\\
 \vspace{5mm}
-Název katedry èi ústavu\\ % doplòte název katedry èi ústavu
-\end{center}
+Department of Software Engineering\\
+%\end{center}
 \vspace{15mm}
 
 \large
-\noindent Vedoucí bakaláøské práce: Jméno se v¹emi tituly a pracovi¹tì, % doplòte odpovídající údaje
-%%% dal¹í øádek mù¾ete ve vìt¹inì pøípadù (tj. pokud údaje uvedené vı¹e nejsou pøíli¹ dlouhé) zru¹it
-\hskip20mm   je-li odli¹né od uvedeného názvu katedry èi ústavu 
+\noindent Supervisor: Mgr. Vlastimil babka
+%\hskip20mm   je-li odliÅ¡nÃ© od uvedenÃ©ho nÃ¡zvu katedry Äi Ãºstavu 
 \vspace{1mm} 
 
-\noindent Studijní program: název studijního programu, název studijního % doplòte odpovídající údaje
-%%% dal¹í øádek mù¾ete ve vìt¹inì pøípadù (tj. pokud údaje uvedené vı¹e nejsou pøíli¹ dlouhé) zru¹it
-\hskip20mm oboru (smìru),  pøíp. název studijního plánu
+\noindent Study Program: Computer Science, Programming
+%\hskip20mm oboru (smÄ›ru),  pÅ™Ã­p. nÃ¡zev studijnÃ­ho plÃ¡nu
 
 \vspace{20mm}
 
-\begin{center}
-2006 % doplòte rok vzniku va¹í bakaláøské práce
+%\begin{center}
+2009
 \end{center}
 
-\end{titlepage} % zde konèí úvodní strana
+\end{titlepage}
 
-\normalsize % nastavení normální velikosti fontu
-\setcounter{page}{2} % nastavení èíslování stránek
+\normalsize
+\setcounter{page}{2}
 \ \vspace{10mm} 
 
-\noindent Na tomto místì mohou bıt napsána pøípadná podìkování (vedoucímu práce, konzultantovi, tomu, kdo pùjèil software, literaturu, poskytl data apod.). % doplòte vlastní text
+\noindent I'd like to thank my supervisor, Mgr. Vlastimil Babka, for his numerous
+advices during the writing of this thesis, and Ms. Anna AdamcovÃ¡ for her great
+patience.
 
-\vspace{\fill} % nastavuje dynamické umístìní následujícího textu do spodní èásti stránky
-\noindent Prohla¹uji, ¾e jsem svou bakaláøskou práci napsal(a) samostatnì a vıhradnì s pou¾itím citovanıch pramenù. Souhlasím se zapùjèováním práce a jejím zveøejòováním.
+\vspace{\fill}
+\noindent I hereby declare that I wrote this thesis using only the referenced
+sources. I also agree with lending and publishing of this thesis.
 
 \bigskip
-\noindent V Praze dne \hspace{\fill}Jméno Pøíjmení\\ % doplòte patøièné datum, jméno a pøíjmení
+\noindent Prague, May 29, 2009 \hspace{\fill}Jan KundrÃ¡t\\
 
-%%%   Vıtisk pak na tomto míste nezapomeòte PODEPSAT!
-%%%                                         *********
+% FIXME SIGNATURE!!!
 
-\tableofcontents % vkládá automaticky generovanı obsah dokumentu
+\tableofcontents
 
-\newpage % pøechod na novou stránku
+\newpage
 
-%%% Následuje strana s abstrakty. Doplòte vlastní údaje.
 \noindent
-Název práce: Název bakaláøské práce\\
-Autor: Jméno autora\\
-Katedra (ústav): Název katedry èi ústavu\\
-Vedoucí bakaláøské práce: Jméno se v¹emi tituly, event. pracovi¹tì\\
-e-mail vedoucího: e-mailová adresa vedoucího\\
+NÃ¡zev prÃ¡ce: IMAP E-mail Client\\
+Autor: Jan KundrÃ¡t\\
+Katedra (Ãºstav): Katedra softwarovÃ©ho inÅ¾enÃ½rstvÃ­\\
+VedoucÃ­ bakalÃ¡Å™skÃ© prÃ¡ce: Mgr. Vlastimil Babka\\
+e-mail vedoucÃ­ho: Vlastimil.Babka@mff.cuni.cz\\
 
-\noindent Abstrakt:  V pøedlo¾ené práci studujeme ... Uvede se abstrakt v rozsahu 80 a¾ 200 slov. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Ut sit amet sem. Mauris nec turpis ac sem mollis pretium. Suspendisse neque massa, suscipit id, dictum in, porta at, quam. Nunc suscipit, pede vel elementum pretium, nisl urna sodales velit, sit amet auctor elit quam id tellus. Nullam sollicitudin. Donec hendrerit. Aliquam ac nibh. Vivamus mi. Sed felis. Proin pretium elit in neque. Pellentesque at turpis. Maecenas convallis. Vestibulum id lectus. Fusce dictum augue ut nibh. Etiam non urna nec mi mattis volutpat. Curabitur in tortor at magna nonummy gravida. Mauris turpis quam, volutpat quis, porttitor ut, condimentum sit amet, felis.\\
+\noindent Abstrakt:  V pÅ™edloÅ¾enÃ© prÃ¡ci studujeme ... Uvede se abstrakt v rozsahu 80 aÅ¾ 200 slov. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Ut sit amet sem. Mauris nec turpis ac sem mollis pretium. Suspendisse neque massa, suscipit id, dictum in, porta at, quam. Nunc suscipit, pede vel elementum pretium, nisl urna sodales velit, sit amet auctor elit quam id tellus. Nullam sollicitudin. Donec hendrerit. Aliquam ac nibh. Vivamus mi. Sed felis. Proin pretium elit in neque. Pellentesque at turpis. Maecenas convallis. Vestibulum id lectus. Fusce dictum augue ut nibh. Etiam non urna nec mi mattis volutpat. Curabitur in tortor at magna nonummy gravida. Mauris turpis quam, volutpat quis, porttitor ut, condimentum sit amet, felis.\\
 
-\noindent Klíèová slova: klíèová slova (3 a¾ 5)
+\noindent KlÃ­ÄovÃ¡ slova: IMAP, e-mail, SMTP
 
 \vspace{10mm}
 
 \noindent
-Title: Název bakaláøské práce v angliètinì\\
-Author: Jméno autora\\
-Department: Název katedry èi ústavu v angliètinì\\
-Supervisor: Jméno s tituly jako v èeské verzi, event. pracovi¹tì\\
-Supervisor's e-mail address: e-mailová adresa vedoucího\\
+Title: IMAP E-mail Client\\
+Author: Jan KundrÃ¡t\\
+Department: Department of Software Engineering\\
+Supervisor: Mgr. Vlastimil Babka\\
+Supervisor's e-mail address: Vlastimil.Babka@mff.cuni.cz\\
 
-\noindent Abstract: In the present work we study ... Uvede se anglickı abstrakt v rozsahu 80 a¾ 200 slov. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Ut sit amet sem. Mauris nec turpis ac sem mollis pretium. Suspendisse neque massa, suscipit id, dictum in, porta at, quam. Nunc suscipit, pede vel elementum pretium, nisl urna sodales velit, sit amet auctor elit quam id tellus. Nullam sollicitudin. Donec hendrerit. Aliquam ac nibh. Vivamus mi. Sed felis. Proin pretium elit in neque. Pellentesque at turpis. Maecenas convallis. Vestibulum id lectus. Fusce dictum augue ut nibh. Etiam non urna nec mi mattis volutpat. Curabitur in tortor at magna nonummy gravida. Mauris turpis quam, volutpat quis, porttitor ut, condimentum sit amet, felis. \\
+\noindent Abstract: In the present work we study ... Uvede se anglickÃ½ abstrakt v rozsahu 80 aÅ¾ 200 slov. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Ut sit amet sem. Mauris nec turpis ac sem mollis pretium. Suspendisse neque massa, suscipit id, dictum in, porta at, quam. Nunc suscipit, pede vel elementum pretium, nisl urna sodales velit, sit amet auctor elit quam id tellus. Nullam sollicitudin. Donec hendrerit. Aliquam ac nibh. Vivamus mi. Sed felis. Proin pretium elit in neque. Pellentesque at turpis. Maecenas convallis. Vestibulum id lectus. Fusce dictum augue ut nibh. Etiam non urna nec mi mattis volutpat. Curabitur in tortor at magna nonummy gravida. Mauris turpis quam, volutpat quis, porttitor ut, condimentum sit amet, felis. \\
 
-\noindent Keywords: klíèová slova (3 a¾ 5) v angliètinì
+\noindent Keywords: IMAP, e-mail, SMTP
 
 \newpage
 
-%%% Následuje text bakaláøské práce èlenìnı do kapitol, které se èíslují, oznaèí názvy a graficky oddìlí.
-%%% Nedoporuèuje se pou¾ívat víc ne¾ dvì úrovnì èíslování kapitol, viz pøíklad ní¾e.
 
-\chapter{Název první kapitoly}
+\chapter{User's Guide}
 
-\section{Název první podkapitoly v první kapitole}
+\section{About Trojita}
 
-\section{Název druhé podkapitoly v první kapitole}
+\trojita is a standards-compliant IMAP Mail User Agent. Designed with portability
+and efficiency in mind, it allows the user to operate over congested network
+lines with high latency, while still providing sufficient comfort.
 
-\chapter{Název druhé kapitoly}
+\section{Installation}
 
-\section{Název první podkapitoly v druhé kapitole}
+\subsection{Prerequisites}
 
-\section{Název druhé podkapitoly v druhé kapitole}
+In order to build \trojita from source, some libraries and helper programs are
+required to be present on the system.
 
+\begin{enumerate}
+    \item{\texttt{cmake 2.6}}
+    \item{Qt 4.4}
+    \item{Working implementation of the TR1 C++ standard}
+\end{enumerate}
 
-%%% Seznam literatury
-%%%
-%%% Literatura se øadí abecednì. Úvádí se pouze literatura, na kterou se v textu odkazuje.
-%%% Pøi odkazu na knihu se v¾dy uvádìjí èísla stránek.
+Recommended version of the Qt framework is at least 4.5. \trojita, however,
+includes compatibility code for older versions of Qt up to 4.4. Any older
+version can't be supported, as the WebKit HTML engine was added during the 4.4
+development. If users choose to build against 4.4, some \trojita features might
+be missing.
+
+Unlike most Qt projects (and due to author's familiarity with this particular
+build tool), \trojita uses CMake instead of {\tt qmake}.
+
+\trojita makes use of some standard C++ features that were adding during the TR1
+standardisation, namely the {\tt std::tr1::shared\_ptr} smart pointer. A working
+implementation of said container is required.  \trojita build system will make
+use of built-in TR1 support, if available, and resort to using Boost if the
+compiler doesn't support this extension.
+
+\subsection{Obtaining source code}
+
+Source code is available from the CD attached to this thesis or online at FIXME.
+
+\subsection{Installing}
+
+Unpack the source tarball, prepare the build environment and launch the compile
+process by entering these commands:
+
+\begin{enumerate}
+    \item{{\tt tar -xf trojita-1.0.tar.bz2}}
+    \item{{\tt cd trojita-1.0}}
+    \item{{\tt mkdir \_build}}
+    \item{{\tt cd \_build}}
+    \item{{\tt cmake -DCMAKE\_BUILD\_TYPE=RelWithDebInfo ..}}
+    \item{{\tt make}}
+\end{enumerate}
+
+After a while, a new binary, {\tt trojita}, will appear in the build directory.
+Launch it to start \trojita.
+
+\subsection{Configuration}
+
+All configuration is, thanks to the Qt's QSettings, stored in a usual space on
+the target platform. The only supported mean of configuring \trojita is through
+its built-in configuration dialog that will automatically appear on the first
+run.  It can also be launched it any time later from the menu.
+
+% FIXME: screenshot
+
+On the first page, user is asked to provide identity data. These are used for
+composing e-mail messages.
+
+Second page is the most important one in configuration of \trojita. It is the
+place where the user tells the application which IMAP server is it supposed to
+talk to, which credentials should be used for authentication et cetera.
+
+One unusual thing which is not common among other MUAs is the choice of how to
+connect to the IMAP server.  Most users are probably familiar with connections
+over TCP, optionally secured by SSL/TLS, but the last option, the {\em Local
+Process}, is unique to \trojita. If selected, it replaces the usual TCP
+connection to the IMAP server with launching a local process, which is in turn
+used instead of the remote IMAP server. The most interesting use case is to set
+up SSH connection to the remote server (along with proper SSH keys) and use that
+as a secure, reliable and convenient way for accessing e-mail, without having to
+enter passwords all the time.
+
+The last page serves for configuring the message composition and sending.
+
+\subsection{\trojita in use}
+
+After the configuration is complete, the user is presented with a familiar user
+interface. The left pane presents a view of remote mailboxes, or folders, on the
+IMAP server. The top widget contains list of messages in currently opened
+folder, and finally the bottom area is reserved for displaying of the actual
+e-mail messages.
 
 \begin{thebibliography}{99}
 \addcontentsline{toc}{chapter}{Literatura}
  \bibitem{abraham-marsden}Abraham R., Marsden J. E.: {\em Foundations of Mechanics}, Addison-Wesley, Reading, 1985.
  \bibitem{derbes}Derbes D.: {\em Reinventing the wheel: Hodographic solutions to the Kepler problems}, Am. J. Phys. {\bf 69} (2001) 481--489.
- \bibitem{kvasnica}Kvasnica J.: {\em Teorie elektromagnetického pole}, Academia, Praha, 1985.
+ \bibitem{kvasnica}Kvasnica J.: {\em Teorie elektromagnetickÃ©ho pole}, Academia, Praha, 1985.
 \end{thebibliography}
 
 \end{document}
