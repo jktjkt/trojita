@@ -924,65 +924,63 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
 
     int order = item->row();
 
+    if ( item->uid() ) {
+        AbstractCache::MessageDataBundle data = cache()->messageMetadata( mailboxPtr->mailbox(), item->uid() );
+        if ( data.uid == item->uid() ) {
+            item->_envelope = data.envelope;
+            item->_flags = data.flags;
+            item->_size = data.size;
+            QDataStream stream( &data.serializedBodyStructure, QIODevice::ReadOnly );
+            QVariantList unserialized;
+            stream >> unserialized;
+            std::tr1::shared_ptr<Message::AbstractMessage> abstractMessage;
+            try {
+                abstractMessage = Message::AbstractMessage::fromList( unserialized, QByteArray(), 0 );
+            } catch ( Imap::ParserException& e ) {
+                qDebug() << "Error when parsing cached BODYSTRUCTURE" << e.what();
+            }
+            if ( ! abstractMessage ) {
+                item->_fetchStatus = TreeItem::UNAVAILABLE;
+            } else {
+                QList<TreeItem*> newChildren = abstractMessage->createTreeItems( item );
+                QList<TreeItem*> oldChildren = item->setChildren( newChildren );
+                Q_ASSERT( oldChildren.size() == 0 );
+                item->_fetchStatus = TreeItem::DONE;
+            }
+        }
+    }
+
     switch ( networkPolicy() ) {
         case NETWORK_OFFLINE:
-            // FIXME: use these data in all modes
-            if ( item->uid() ) {
-                AbstractCache::MessageDataBundle data = cache()->messageMetadata( mailboxPtr->mailbox(), item->uid() );
-                if ( data.uid != item->uid() ) {
-                    item->_fetchStatus = TreeItem::UNAVAILABLE;
-                } else {
-                    item->_envelope = data.envelope;
-                    item->_flags = data.flags;
-                    item->_size = data.size;
-                    QDataStream stream( &data.serializedBodyStructure, QIODevice::ReadOnly );
-                    QVariantList unserialized;
-                    stream >> unserialized;
-                    std::tr1::shared_ptr<Message::AbstractMessage> abstractMessage;
-                    try {
-                        abstractMessage = Message::AbstractMessage::fromList( unserialized, QByteArray(), 0 );
-                    } catch ( Imap::ParserException& e ) {
-                        qDebug() << "Error when parsing cached BODYSTRUCTURE" << e.what();
-                    }
-                    if ( ! abstractMessage ) {
-                        item->_fetchStatus = TreeItem::UNAVAILABLE;
-                    } else {
-                        QList<TreeItem*> newChildren = abstractMessage->createTreeItems( item );
-                        QList<TreeItem*> oldChildren = item->setChildren( newChildren );
-                        Q_ASSERT( oldChildren.size() == 0 );
-                        item->_fetchStatus = TreeItem::DONE;
-                    }
-                }
-            } else {
-                item->_fetchStatus = TreeItem::UNAVAILABLE;
-            }
             break;
         case NETWORK_EXPENSIVE:
-        {
-            Parser* parser = _getParser( mailboxPtr, ReadOnly );
-            CommandHandle cmd = parser->fetch( Sequence( order + 1 ), _onlineMessageFetch );
-            _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH, item );
-            break;
-        }
-        case NETWORK_ONLINE:
-        {
-            // preload
-            Sequence seq( order + 1 );
-            for ( int i = qMax( 0, order - StructurePreload );
-                  i < qMin( list->_children.size(), order + StructurePreload );
-                  ++i ) {
-                TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->_children[i] );
-                Q_ASSERT( message );
-                if ( item != message && ! message->fetched() && ! message->loading() ) {
-                    message->_fetchStatus = TreeItem::LOADING;
-                    seq.add( message->row() + 1 );
-                }
+            if ( ! item->fetched() ) {
+                item->_fetchStatus = TreeItem::LOADING;
+                Parser* parser = _getParser( mailboxPtr, ReadOnly );
+                CommandHandle cmd = parser->fetch( Sequence( order + 1 ), _onlineMessageFetch );
+                _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH, item );
             }
-            Parser* parser = _getParser( mailboxPtr, ReadOnly );
-            CommandHandle cmd = parser->fetch( seq, _onlineMessageFetch );
-            _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH, item );
             break;
-        }
+        case NETWORK_ONLINE:
+            if ( ! item->fetched() ) {
+                item->_fetchStatus = TreeItem::LOADING;
+                // preload
+                Sequence seq( order + 1 );
+                for ( int i = qMax( 0, order - StructurePreload );
+                      i < qMin( list->_children.size(), order + StructurePreload );
+                      ++i ) {
+                    TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->_children[i] );
+                    Q_ASSERT( message );
+                    if ( item != message && ! message->fetched() && ! message->loading() ) {
+                        message->_fetchStatus = TreeItem::LOADING;
+                        seq.add( message->row() + 1 );
+                    }
+                }
+                Parser* parser = _getParser( mailboxPtr, ReadOnly );
+                CommandHandle cmd = parser->fetch( seq, _onlineMessageFetch );
+                _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH, item );
+            }
+            break;
     }
 }
 
