@@ -407,6 +407,7 @@ void MainWindow::connectionError( const QString& message )
     } else {
         slotShowSettings();
     }
+    netOffline->trigger();
 }
 
 void MainWindow::networkPolicyOffline()
