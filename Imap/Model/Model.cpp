@@ -592,6 +592,7 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
                 beginRemoveRows( parent, 0, list->_children.size() - 1 );
                 qDeleteAll( list->setChildren( QList<TreeItem*>() ) );
                 endRemoveRows();
+                cache()->clearAllMessages( mailbox->mailbox() );
             }
         } else {
             int pos = 0;
@@ -608,7 +609,9 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
                     int pos = i;
                     bool found = false;
                     while ( pos < list->_children.size() ) {
-                        if ( dynamic_cast<TreeItemMessage*>( list->_children[pos] )->_uid != uidMap[ i ] ) {
+                        TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->_children[pos] );
+                        if ( message->_uid != uidMap[ i ] ) {
+                            cache()->clearMessage( mailbox->mailbox(), message->uid() );
                             beginRemoveRows( parent, pos, pos );
                             delete list->_children.takeAt( pos );
                             endRemoveRows();
@@ -630,8 +633,11 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
             if ( uidMap.size() != list->_children.size() ) {
                 // remove items at the end
                 beginRemoveRows( parent, uidMap.size(), list->_children.size() - 1 );
-                for ( int i = uidMap.size(); i < list->_children.size(); ++i )
-                    delete list->_children.takeAt( i );
+                for ( int i = uidMap.size(); i < list->_children.size(); ++i ) {
+                    TreeItemMessage* message = static_cast<TreeItemMessage*>( list->_children.takeAt( i ) );
+                    cache()->clearMessage( mailbox->mailbox(), message->uid() );
+                    delete message;
+                }
                 endRemoveRows();
             }
         }

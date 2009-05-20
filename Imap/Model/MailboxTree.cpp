@@ -336,7 +336,9 @@ void TreeItemMailbox::handleExpunge( Model* const model, const Responses::Number
     uint offset = resp.number - 1;
 
     model->beginRemoveRows( model->createIndex( 0, 0, list ), offset, offset );
-    delete list->_children.takeAt( offset );
+    TreeItemMessage* message = static_cast<TreeItemMessage*>( list->_children.takeAt( offset ) );
+    model->cache()->clearMessage( static_cast<TreeItemMailbox*>( list->parent() )->mailbox(), message->uid() );
+    delete message;
     model->endRemoveRows();
 
     --list->_totalMessageCount;
