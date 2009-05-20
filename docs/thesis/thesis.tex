@@ -1,0 +1,166 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%                                    %%%
+%%% ©ablona bakaláøské práce na MFF UK %%%
+%%%                                    %%%
+%%% (c) Franti¹ek ©trupl, 2005         %%%
+%%%                                    %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% POZOR: Úprava bakaláøské práce je závislá rovnì¾ na volbì jednostranného resp. oboustranného tisku.
+%%%        Bli¾¹i informace naleznete v dokumentu Úprava bakaláøské práce, který se nalézá na adrese:
+%%%        http://www.mff.cuni.cz/studium/obecne/bplayout/pok12mo4.pdf
+
+\documentclass[12pt,notitlepage]{report}
+%\pagestyle{headings}
+\pagestyle{plain}
+
+\frenchspacing % aktivuje pou¾ití nìkterých èeských typografických pravidel
+
+\usepackage[latin2]{inputenc} % nastavuje pou¾ité kódování, u¾ivatelé Windows zamìní latin2 za cp1250
+\usepackage{czech}
+\usepackage{a4wide} % nastavuje standardní evropský formát stránek A4
+%\usepackage{index} % nutno pou¾ít v pøípadì tvorby rejstøíku balíèkem makeindex
+%\usepackage{fancybox} % umo¾òuje pokroèilé rámeèkování :-)
+\usepackage{graphicx} % nezbytné pro standardní vkládání obrázkù do dokumentu
+
+\usepackage[left=4cm]{geometry} % nastavení dané velikosti okrajù
+
+%\newindex{default}{idx}{ind}{Rejstøík} % zavádí rejstøík v pøípadì pou¾ití balíku index
+
+\title{Název práce}   % tyto dvì polo¾ky jsou zde v podstatì formálnì, ve skuteènosti nejsou nikde 
+\author{Jméno autora} % dále v dokumentu pou¾ity
+
+%\date{}
+
+\begin{document}
+
+%\csprimeson % zapne jednoduché psaní èeských uvozovek pomocí klasických znakù, ale potom pozor 
+             % na originální apostrofy, které budou chybnì interpretovány!!!
+
+%%% Následuje první, úvodní, strana bakaláøské práce. Jednotlivé polo¾ky nahraïte dle vlastních
+%%% údajù. Zmìnit podle konkrétní délky jednotlivých polo¾ek mù¾ete i zalomení øádkù.
+\begin{titlepage}
+\begin{center}
+\ \\
+
+\vspace{15mm}
+
+\large
+Univerzita Karlova v Praze\\
+Matematicko-fyzikální fakulta\\
+
+\vspace{5mm}
+
+{\Large\bf BAKALÁØSKÁ PRÁCE}
+
+\vspace{10mm}
+
+%%% Aby vlo¾ní loga v¹e správnì fungovalo, je tøeba mít soubor logo.eps nahraný v pracovním adresáøi,
+%%% tj. v adresáøi, kde se nachází pøekládaný zdrojový soubor. Soubor logo.eps je mo¾né získat napø.
+%%% na adrese: http://www.mff.cuni.cz/fakulta/symboly/logo.eps
+\includegraphics[scale=0.3]{logo.eps} 
+
+\vspace{15mm}
+
+%\normalsize
+{\Large Jméno autora}\\ % doplòte va¹e jméno
+\vspace{5mm}
+{\Large\bf Název práce (pøesnì podle zadání)}\\ % doplòte název práce
+\vspace{5mm}
+Název katedry èi ústavu\\ % doplòte název katedry èi ústavu
+\end{center}
+\vspace{15mm}
+
+\large
+\noindent Vedoucí bakaláøské práce: Jméno se v¹emi tituly a pracovi¹tì, % doplòte odpovídající údaje
+%%% dal¹í øádek mù¾ete ve vìt¹inì pøípadù (tj. pokud údaje uvedené vý¹e nejsou pøíli¹ dlouhé) zru¹it
+\hskip20mm   je-li odli¹né od uvedeného názvu katedry èi ústavu 
+\vspace{1mm} 
+
+\noindent Studijní program: název studijního programu, název studijního % doplòte odpovídající údaje
+%%% dal¹í øádek mù¾ete ve vìt¹inì pøípadù (tj. pokud údaje uvedené vý¹e nejsou pøíli¹ dlouhé) zru¹it
+\hskip20mm oboru (smìru),  pøíp. název studijního plánu
+
+\vspace{20mm}
+
+\begin{center}
+2006 % doplòte rok vzniku va¹í bakaláøské práce
+\end{center}
+
+\end{titlepage} % zde konèí úvodní strana
+
+\normalsize % nastavení normální velikosti fontu
+\setcounter{page}{2} % nastavení èíslování stránek
+\ \vspace{10mm} 
+
+\noindent Na tomto místì mohou být napsána pøípadná podìkování (vedoucímu práce, konzultantovi, tomu, kdo pùjèil software, literaturu, poskytl data apod.). % doplòte vlastní text
+
+\vspace{\fill} % nastavuje dynamické umístìní následujícího textu do spodní èásti stránky
+\noindent Prohla¹uji, ¾e jsem svou bakaláøskou práci napsal(a) samostatnì a výhradnì s pou¾itím citovaných pramenù. Souhlasím se zapùjèováním práce a jejím zveøejòováním.
+
+\bigskip
+\noindent V Praze dne \hspace{\fill}Jméno Pøíjmení\\ % doplòte patøièné datum, jméno a pøíjmení
+
+%%%   Výtisk pak na tomto míste nezapomeòte PODEPSAT!
+%%%                                         *********
+
+\tableofcontents % vkládá automaticky generovaný obsah dokumentu
+
+\newpage % pøechod na novou stránku
+
+%%% Následuje strana s abstrakty. Doplòte vlastní údaje.
+\noindent
+Název práce: Název bakaláøské práce\\
+Autor: Jméno autora\\
+Katedra (ústav): Název katedry èi ústavu\\
+Vedoucí bakaláøské práce: Jméno se v¹emi tituly, event. pracovi¹tì\\
+e-mail vedoucího: e-mailová adresa vedoucího\\
+
+\noindent Abstrakt:  V pøedlo¾ené práci studujeme ... Uvede se abstrakt v rozsahu 80 a¾ 200 slov. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Ut sit amet sem. Mauris nec turpis ac sem mollis pretium. Suspendisse neque massa, suscipit id, dictum in, porta at, quam. Nunc suscipit, pede vel elementum pretium, nisl urna sodales velit, sit amet auctor elit quam id tellus. Nullam sollicitudin. Donec hendrerit. Aliquam ac nibh. Vivamus mi. Sed felis. Proin pretium elit in neque. Pellentesque at turpis. Maecenas convallis. Vestibulum id lectus. Fusce dictum augue ut nibh. Etiam non urna nec mi mattis volutpat. Curabitur in tortor at magna nonummy gravida. Mauris turpis quam, volutpat quis, porttitor ut, condimentum sit amet, felis.\\
+
+\noindent Klíèová slova: klíèová slova (3 a¾ 5)
+
+\vspace{10mm}
+
+\noindent
+Title: Název bakaláøské práce v angliètinì\\
+Author: Jméno autora\\
+Department: Název katedry èi ústavu v angliètinì\\
+Supervisor: Jméno s tituly jako v èeské verzi, event. pracovi¹tì\\
+Supervisor's e-mail address: e-mailová adresa vedoucího\\
+
+\noindent Abstract: In the present work we study ... Uvede se anglický abstrakt v rozsahu 80 a¾ 200 slov. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Ut sit amet sem. Mauris nec turpis ac sem mollis pretium. Suspendisse neque massa, suscipit id, dictum in, porta at, quam. Nunc suscipit, pede vel elementum pretium, nisl urna sodales velit, sit amet auctor elit quam id tellus. Nullam sollicitudin. Donec hendrerit. Aliquam ac nibh. Vivamus mi. Sed felis. Proin pretium elit in neque. Pellentesque at turpis. Maecenas convallis. Vestibulum id lectus. Fusce dictum augue ut nibh. Etiam non urna nec mi mattis volutpat. Curabitur in tortor at magna nonummy gravida. Mauris turpis quam, volutpat quis, porttitor ut, condimentum sit amet, felis. \\
+
+\noindent Keywords: klíèová slova (3 a¾ 5) v angliètinì
+
+\newpage
+
+%%% Následuje text bakaláøské práce èlenìný do kapitol, které se èíslují, oznaèí názvy a graficky oddìlí.
+%%% Nedoporuèuje se pou¾ívat víc ne¾ dvì úrovnì èíslování kapitol, viz pøíklad ní¾e.
+
+\chapter{Název první kapitoly}
+
+\section{Název první podkapitoly v první kapitole}
+
+\section{Název druhé podkapitoly v první kapitole}
+
+\chapter{Název druhé kapitoly}
+
+\section{Název první podkapitoly v druhé kapitole}
+
+\section{Název druhé podkapitoly v druhé kapitole}
+
+
+%%% Seznam literatury
+%%%
+%%% Literatura se øadí abecednì. Úvádí se pouze literatura, na kterou se v textu odkazuje.
+%%% Pøi odkazu na knihu se v¾dy uvádìjí èísla stránek.
+
+\begin{thebibliography}{99}
+\addcontentsline{toc}{chapter}{Literatura}
+ \bibitem{abraham-marsden}Abraham R., Marsden J. E.: {\em Foundations of Mechanics}, Addison-Wesley, Reading, 1985.
+ \bibitem{derbes}Derbes D.: {\em Reinventing the wheel: Hodographic solutions to the Kepler problems}, Am. J. Phys. {\bf 69} (2001) 481--489.
+ \bibitem{kvasnica}Kvasnica J.: {\em Teorie elektromagnetického pole}, Academia, Praha, 1985.
+\end{thebibliography}
+
+\end{document}
