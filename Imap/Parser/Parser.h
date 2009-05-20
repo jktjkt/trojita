@@ -27,7 +27,7 @@
 #include "Response.h"
 #include "Command.h"
 #include "../Exceptions.h"
-#include "../Streams/Socket.h"
+#include "Streams/Socket.h"
 
 /**
  * @file

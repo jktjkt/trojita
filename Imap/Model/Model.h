@@ -24,7 +24,7 @@
 #include <QTimer>
 #include "Cache.h"
 #include "../Parser/Parser.h"
-#include "../Streams/SocketFactory.h"
+#include "Streams/SocketFactory.h"
 
 class QAuthenticator;
 
