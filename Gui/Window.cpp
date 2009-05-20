@@ -230,7 +230,11 @@ void MainWindow::setupModels()
 #endif
     }
 
+#if QT_VERSION >= 0x040500
     QString cacheDir = QDesktopServices::storageLocation( QDesktopServices::CacheLocation );
+#else
+    QString cacheDir;
+#endif
     if ( cacheDir.isEmpty() )
         cacheDir = QDir::homePath() + QLatin1String("/.") + QCoreApplication::applicationName();
     if ( ! QDir().mkpath( cacheDir ) ) {
