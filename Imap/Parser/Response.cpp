@@ -217,12 +217,6 @@ State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int
     } catch ( UnexpectedHere& ) {
         // this is perfectly possible
     }
-    if ( start >= line.size() - 2 ) {
-        if ( _list.empty() )
-            throw NoData( "Response doesn't contain any data at all", line, start );
-        else
-            throw NoData( "Response doesn't contain any data besides the response code", line, start );
-    }
 
     if ( !_list.empty() ) {
         const QString r = _list.first().toUpper();
@@ -295,9 +289,17 @@ State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int
         }
     }
 
-    message = line.mid( start );
-    Q_ASSERT( message.endsWith( "\r\n" ) );
-    message.chop(2);
+    if ( start >= line.size() - 2 ) {
+        if ( _list.empty() ) {
+            throw NoData( "Response doesn't contain any data at all", line, start );
+        } else {
+            qDebug() << "Response with no data besides the response code, yuck" << line;
+        }
+    } else {
+        message = line.mid( start );
+        Q_ASSERT( message.endsWith( "\r\n" ) );
+        message.chop(2);
+    }
 }
 
 NumberResponse::NumberResponse( const Kind _kind, const uint _num ) throw(UnexpectedHere):
