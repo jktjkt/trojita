@@ -183,6 +183,7 @@ process by entering these commands:
 After a while, a new binary, {\tt trojita}, will appear in the build directory.
 Launch it to start \trojita.
 
+\section{Using \trojita}
 \subsection{Configuration}
 
 All configuration is, thanks to the Qt's QSettings, stored in a usual space on
@@ -211,7 +212,7 @@ enter passwords all the time.
 
 The last page serves for configuring the message composition and sending.
 
-\subsection{\trojita in use}
+\subsection{basic usage}
 
 After the configuration is complete, the user is presented with a familiar user
 interface. The left pane presents a view of remote mailboxes, or folders, on the
@@ -289,8 +290,30 @@ mouse to the target mailbox.  If user wants to move them instead of performing a
 copy, she is supposed to hold the {\tt Shift} key.  This behavior is determined
 by the Qt framework, so it might vary among the supported platforms.
 
+\subsection{Message Composition}
+
+Message Composition widget is triggered by the corresponding item in the menus.
+The displayed dialog should be familiar to most users.
+
+\subsection{Checking Mail}
+
+\trojita automatically checks the current folder for new messages.  If the
+remote server supports the IDLE extension \cite{rfc-idle}, the method used is
+extremely friendly to both network and server resources.  In cases the server
+doesn't support this feature, \trojita resorts to polling with all it
+disadvantages.
+
+\section{Advanced usage}
+
+\subsection{Offline Mode}
+
+
+
 \begin{thebibliography}{99}
-\addcontentsline{toc}{chapter}{Literatura}
+\addcontentsline{toc}{chapter}{Bibliography}
+    \bibitem{rfc-idle}Leiba B.: IMAP4 IDLE command, {\em RFC2177}
+
+
  \bibitem{abraham-marsden}Abraham R., Marsden J. E.: {\em Foundations of Mechanics}, Addison-Wesley, Reading, 1985.
  \bibitem{derbes}Derbes D.: {\em Reinventing the wheel: Hodographic solutions to the Kepler problems}, Am. J. Phys. {\bf 69} (2001) 481--489.
  \bibitem{kvasnica}Kvasnica J.: {\em Teorie elektromagnetického pole}, Academia, Praha, 1985.
