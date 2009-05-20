@@ -1,3 +1,6 @@
+% vim: spelllang=en spell
+
+
 \documentclass[12pt,notitlepage]{report}
 %\pagestyle{headings}
 \pagestyle{plain}
@@ -215,6 +218,76 @@ interface. The left pane presents a view of remote mailboxes, or folders, on the
 IMAP server. The top widget contains list of messages in currently opened
 folder, and finally the bottom area is reserved for displaying of the actual
 e-mail messages.
+
+Depending on the network parameters and server load, it might take a while
+before the list of mailboxes appears. The delay is only significant when
+launching \trojita for the first time, for the retrieved list of mailboxes is
+cached on a persistent disk cache for later use.
+
+After the list of mailboxes is loaded, user can click on them to open them in
+the {\em Message List} widget on the bottom right corner of the application.
+After having selected a mailbox, the list of messages appears shortly. Again,
+the loading is faster next time \trojita is launched.
+
+Depending on user settings, \trojita typically won't transfer all messages
+metadata upon opening a mailbox.  This feature is implemented to conserve
+both server's and client's resources and to be nice to the network traffic.  In
+a typical mode, that is, when not being told to be extra-mean with resources,
+\trojita fetches only metadata of those messages that are displayed on the
+visible screen region, and some more to make scrolling smoother.  More on this
+topic is said in another chapter of this thesis.
+
+Message contents is transfered on-demand only, that is, when user selects a
+message for viewing.  As before, all persistent contents once downloaded from
+the server is cached in a persistent on-disk cache for future use.  This applies
+to both message metadata and the real contents of e-mails.
+
+\subsection{Managing Messages and Mailboxes}
+
+Messages displayed to user are automatically marked as read after some delay.
+The idea behind this feature is to allow users to peek on a particular message,
+shortly judge its contents, classify it as a ``process later'' and then move on
+to another one.  This is a common approach shared with other MUAs as well.
+
+Manipulating with {\em message flags} \ref{imap-attr-message-flags} is possible
+via the context menu (appearing on the message list) as well by standard
+keyboard shortcuts.  The {\tt M} key toggles the {\em Read} status and {\tt
+Delete} key schedules messages for removal.
+
+In consistency with usual IMAP approach (and unlike the common modus operandi on
+mainstream desktop MUAs), \trojita has no concept of {\em Trash}
+\footnote{A {\em Trash} is a mailbox that presents a view of all deleted
+messages.  It might or might not be a real mailbox on the server, or just a
+virtual folder implemented purely in the e-mail client.} for
+messages.  Instead, each message can be marked as deleted.  If flagged as such,
+\trojita displays a graphical indicator next to the message subject.  A deleted
+message won't be physically removed from the mailbox until the user explicitly
+requests such an action.  This operation, called {\em expunge} in the IMAP
+dictionary, is available from the application menu.  Expunging happens on one
+mailbox at a time, there is no way to tell the IMAP server to permanently remove
+all deleted messages from all mailboxes.
+
+To create new mailbox, user is expected to use the context menu on the left {\em
+mailbox view} pane.  Due to technical limitations, some IMAP servers distinguish
+among folders that can contain other mailboxes and folders for message store
+only.  Additionally, there is no reliable way for the IMAP client to tell
+whether the remote server is affected by this limitation or not.  Therefore,
+\trojita uses the same approach as other common MUAs and ask user what kind of
+mailbox she wants to create.
+
+% FIXME screenshot
+
+Mailbox removal is triggered from the context menu as well.  Due to the possibly
+serious consequences of this action (there is no way to undelete a removed
+mailbox), user is presented with a confirmation dialogue asking her whether she
+is serious in her intent to remove the mailbox.
+
+Messages can be copied or moved between mailboxes by simple drag-and-drop
+operations.  To place a copy of one or more messages into another mailbox,
+simply select the messages to copy in the opened mailbox and then drag them with
+mouse to the target mailbox.  If user wants to move them instead of performing a
+copy, she is supposed to hold the {\tt Shift} key.  This behavior is determined
+by the Qt framework, so it might vary among the supported platforms.
 
 \begin{thebibliography}{99}
 \addcontentsline{toc}{chapter}{Literatura}
