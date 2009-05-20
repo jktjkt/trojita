@@ -24,15 +24,13 @@
 
 \newcommand{\trojita}{Trojita\xspace}
 
+\hyphenation{WebKit Imap Trojita}
+
 %\date{}
 
 \begin{document}
 
-%\csprimeson % zapne jednoduché psaní českých uvozovek pomocí klasických znaků, ale potom pozor 
-             % na originální apostrofy, které budou chybně interpretovány!!!
 
-%%% Následuje první, úvodní, strana bakalářské práce. Jednotlivé položky nahraďte dle vlastních
-%%% údajů. Změnit podle konkrétní délky jednotlivých položek můžete i zalomení řádků.
 \begin{titlepage}
 \begin{center}
 %\ \\
@@ -63,12 +61,10 @@ Department of Software Engineering\\
 \vspace{15mm}
 
 \large
-\noindent Supervisor: Mgr. Vlastimil babka
-%\hskip20mm   je-li odlišné od uvedeného názvu katedry či ústavu 
+\noindent Supervisor: Mgr. Vlastimil Babka
 \vspace{1mm} 
 
 \noindent Study Program: Computer Science, Programming
-%\hskip20mm oboru (směru),  příp. název studijního plánu
 
 \vspace{20mm}
 
@@ -84,16 +80,14 @@ Department of Software Engineering\\
 
 \noindent I'd like to thank my supervisor, Mgr. Vlastimil Babka, for his numerous
 advices during the writing of this thesis, and Ms. Anna Adamcová for her great
-patience.
+patience and support.
 
 \vspace{\fill}
-\noindent I hereby declare that I wrote this thesis using only the referenced
-sources. I also agree with lending and publishing of this thesis.
+\noindent I hereby declare that I wrote this thesis myself using only the
+referenced sources. I also agree with lending and publishing of this thesis.
 
 \bigskip
 \noindent Prague, May 29, 2009 \hspace{\fill}Jan Kundrát\\
-
-% FIXME SIGNATURE!!!
 
 \tableofcontents
 
@@ -106,7 +100,16 @@ Katedra (ústav): Katedra softwarového inženýrství\\
 Vedoucí bakalářské práce: Mgr. Vlastimil Babka\\
 e-mail vedoucího: Vlastimil.Babka@mff.cuni.cz\\
 
-\noindent Abstrakt:  V předložené práci studujeme ... Uvede se abstrakt v rozsahu 80 až 200 slov. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Ut sit amet sem. Mauris nec turpis ac sem mollis pretium. Suspendisse neque massa, suscipit id, dictum in, porta at, quam. Nunc suscipit, pede vel elementum pretium, nisl urna sodales velit, sit amet auctor elit quam id tellus. Nullam sollicitudin. Donec hendrerit. Aliquam ac nibh. Vivamus mi. Sed felis. Proin pretium elit in neque. Pellentesque at turpis. Maecenas convallis. Vestibulum id lectus. Fusce dictum augue ut nibh. Etiam non urna nec mi mattis volutpat. Curabitur in tortor at magna nonummy gravida. Mauris turpis quam, volutpat quis, porttitor ut, condimentum sit amet, felis.\\
+\noindent Abstrakt:  V předložené práci studujeme ... Uvede se abstrakt v
+rozsahu 80 až 200 slov. Lorem ipsum dolor sit amet, consectetuer adipiscing
+elit. Ut sit amet sem. Mauris nec turpis ac sem mollis pretium. Suspendisse
+neque massa, suscipit id, dictum in, porta at, quam. Nunc suscipit, pede vel
+elementum pretium, nisl urna sodales velit, sit amet auctor elit quam id tellus.
+Nullam sollicitudin. Donec hendrerit. Aliquam ac nibh. Vivamus mi. Sed felis.
+Proin pretium elit in neque. Pellentesque at turpis. Maecenas convallis.
+Vestibulum id lectus. Fusce dictum augue ut nibh. Etiam non urna nec mi mattis
+volutpat. Curabitur in tortor at magna nonummy gravida. Mauris turpis quam,
+volutpat quis, porttitor ut, condimentum sit amet, felis.\\
 
 \noindent Klíčová slova: IMAP, e-mail, SMTP
 
@@ -119,12 +122,37 @@ Department: Department of Software Engineering\\
 Supervisor: Mgr. Vlastimil Babka\\
 Supervisor's e-mail address: Vlastimil.Babka@mff.cuni.cz\\
 
-\noindent Abstract: In the present work we study ... Uvede se anglický abstrakt v rozsahu 80 až 200 slov. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Ut sit amet sem. Mauris nec turpis ac sem mollis pretium. Suspendisse neque massa, suscipit id, dictum in, porta at, quam. Nunc suscipit, pede vel elementum pretium, nisl urna sodales velit, sit amet auctor elit quam id tellus. Nullam sollicitudin. Donec hendrerit. Aliquam ac nibh. Vivamus mi. Sed felis. Proin pretium elit in neque. Pellentesque at turpis. Maecenas convallis. Vestibulum id lectus. Fusce dictum augue ut nibh. Etiam non urna nec mi mattis volutpat. Curabitur in tortor at magna nonummy gravida. Mauris turpis quam, volutpat quis, porttitor ut, condimentum sit amet, felis. \\
+\noindent Abstract: In the present work we study ... Uvede se anglický abstrakt
+v rozsahu 80 až 200 slov. Lorem ipsum dolor sit amet, consectetuer adipiscing
+elit. Ut sit amet sem. Mauris nec turpis ac sem mollis pretium. Suspendisse
+neque massa, suscipit id, dictum in, porta at, quam. Nunc suscipit, pede vel
+elementum pretium, nisl urna sodales velit, sit amet auctor elit quam id tellus.
+Nullam sollicitudin. Donec hendrerit. Aliquam ac nibh. Vivamus mi. Sed felis.
+Proin pretium elit in neque. Pellentesque at turpis. Maecenas convallis.
+Vestibulum id lectus. Fusce dictum augue ut nibh. Etiam non urna nec mi mattis
+volutpat. Curabitur in tortor at magna nonummy gravida. Mauris turpis quam,
+volutpat quis, porttitor ut, condimentum sit amet, felis. \\
 
 \noindent Keywords: IMAP, e-mail, SMTP
 
 \newpage
 
+\chapter{Introduction}
+
+Hic sunt Leones.
+
+\subsection{Motivation}
+
+While there are certainly numerous stable and widely-used Mail User Agents on
+the market, none of them fulfils my expectations of reasonable performance and
+efficiency.  Indeed, most of these applications started as MUAs speaking the
+POP3 protocol \footnote{The POP3 protocol\ldots FIXME}, adding support for IMAP
+later on.  Typically, this support was added long since the initial design phase
+of the product was completed, resulting in suboptimal design choices. FIXME
+
+\chapter{IMAP Protocol}
+
+\chapter{\trojita Design}
 
 \chapter{User's Guide}
 
@@ -142,25 +170,26 @@ In order to build \trojita from source, some libraries and helper programs are
 required to be present on the system.
 
 \begin{enumerate}
-    \item{\texttt{cmake 2.6}}
+    \item{CMake 2.6}
     \item{Qt 4.4}
     \item{Working implementation of the TR1 C++ standard}
 \end{enumerate}
 
-Recommended version of the Qt framework is at least 4.5. \trojita, however,
-includes compatibility code for older versions of Qt up to 4.4. Any older
-version can't be supported, as the WebKit HTML engine was added during the 4.4
+Recommended version of the Qt framework \cite{qt} is at least 4.5. \trojita,
+however, includes compatibility code for older versions of Qt. Minimal supported
+version is Qt/4.4. Any older release can't be supported, as the WebKit HTML
+engine which we use for e-mail rendering rendering was added during the 4.4
 development. If users choose to build against 4.4, some \trojita features might
 be missing.
 
-Unlike most Qt projects (and due to author's familiarity with this particular
-build tool), \trojita uses CMake instead of {\tt qmake}.
+Unlike most Qt projects, \trojita uses CMake \cite{cmake} instead of {\tt qmake},
+especially due to author's familiarity with the former system.
 
 \trojita makes use of some standard C++ features that were adding during the TR1
-standardisation, namely the {\tt std::tr1::shared\_ptr} smart pointer. A working
-implementation of said container is required.  \trojita build system will make
-use of built-in TR1 support, if available, and resort to using Boost if the
-compiler doesn't support this extension.
+\cite{std-tr1} standardisation, namely the {\tt std::tr1::shared\_ptr} smart
+pointer. A working implementation of said class is required.  \trojita build
+system will make use of compiler's built-in TR1 support, if available, and
+resort to using Boost if the compiler doesn't support this extension.
 
 \subsection{Obtaining source code}
 
@@ -212,7 +241,7 @@ enter passwords all the time.
 
 The last page serves for configuring the message composition and sending.
 
-\subsection{basic usage}
+\subsection{Basic usage}
 
 After the configuration is complete, the user is presented with a familiar user
 interface. The left pane presents a view of remote mailboxes, or folders, on the
@@ -309,14 +338,20 @@ disadvantages.
 
 
 
+
+\chapter{Conclusion}
+
+\trojita, the IMAP e-mail client implemented for this thesis,\ldots
+
 \begin{thebibliography}{99}
 \addcontentsline{toc}{chapter}{Bibliography}
-    \bibitem{rfc-idle}Leiba B.: IMAP4 IDLE command, {\em RFC2177}
-
-
- \bibitem{abraham-marsden}Abraham R., Marsden J. E.: {\em Foundations of Mechanics}, Addison-Wesley, Reading, 1985.
- \bibitem{derbes}Derbes D.: {\em Reinventing the wheel: Hodographic solutions to the Kepler problems}, Am. J. Phys. {\bf 69} (2001) 481--489.
- \bibitem{kvasnica}Kvasnica J.: {\em Teorie elektromagnetického pole}, Academia, Praha, 1985.
+    \bibitem{rfc-imap}Crispin, M.: Internet Message Access Protocol - Version
+        4rev1, {\em RFC3501}, March 2003
+    \bibitem{rfc-idle}Leiba, B.: IMAP4 IDLE command, {\em RFC2177}, June 1997
+    \bibitem{qt} Qt Reference Documentation, {\tt http://doc.trolltech.com/4.5/}
+    \bibitem{cmake} CMake Documentation, {\tt
+        http://www.cmake.org/cmake/help/documentation.html}
+    \bibitem{std-tr1} ISO/IEC TR 19768, C++ Library Extensions
 \end{thebibliography}
 
 \end{document}
