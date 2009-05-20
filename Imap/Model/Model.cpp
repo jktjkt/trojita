@@ -1111,17 +1111,21 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
                 _parsers[ it.key() ].commandMap[ cmd ] = Task( Task::LOGOUT, 0 );
             }
             emit networkPolicyOffline();
+            _netPolicy = NETWORK_OFFLINE;
             break;
         case NETWORK_EXPENSIVE:
+            _netPolicy = NETWORK_EXPENSIVE;
             noopTimer->stop();
+            _getParser( 0, ReadOnly );
             emit networkPolicyExpensive();
             break;
         case NETWORK_ONLINE:
+            _netPolicy = NETWORK_ONLINE;
+            _getParser( 0, ReadOnly );
             noopTimer->start( PollingPeriod );
             emit networkPolicyOnline();
             break;
     }
-    _netPolicy = policy;
 }
 
 void Model::slotParserDisconnected( const QString msg )
