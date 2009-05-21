@@ -353,6 +353,38 @@ substitute for parsing the RFC 2822 headers.  Sender and recipient data is
 available from the IMAP {\tt ENVELOPE}, message size as {\tt RFC822.SIZE}, IMAP
 itself provides extensions for message threading \cite{rfc-threading} et cetera.
 
+\section{IMAP Protocol Flow}
+
+Upon a successful connection to a remote IMAP server, a client might choose to
+authenticate itself, if the server hasn't pre-authenticated it automatically
+(perhaps as a result of being run by a wrapper script under non-privileged user
+who can't switch to any other anyway).  After that, or in case the
+authentication is not required, the connection enters the {\em authenticated}
+state.  In this phase, no mailbox is selected, and only a subset of commands is
+valid.  Clients can, for example, ask for listings of mailbox tree, can get
+quick information about number of messages in a particular mailbox, or otherwise
+manage mailboxes as whole.  They have to, however, {\em select} a mailbox in
+order to do anything else, like retrieving messages or marking them as red.
+
+A mailbox can be opened read-only or for both reading and writing, provided the
+authenticated user has enough privileges.  Retrieving messages can be done in
+both modes, but write operations (like storing a new message to mailbox or
+manipulating the message flags) requires read-write access.
+
+\subsection{Mailbox Synchronization}
+
+For efficiency reasons, each client usually keeps some data in its persistent
+cache.  Good candidates are message texts, cached copy of body structures or
+perhaps even flags from a previous session.  Because some server replies, namely
+the {\tt EXPUNGE}, which informs the client that a message has been removed from
+the mailbox, refer to messages only by their sequence numbers and clients
+usually identify messages by UIDs in order to allow message texts caching, a
+compliant client has also to keep its UID-sequence number mapping up-to-speed
+with the server.  Doing so for just a visible (on the GUI) part of the mailbox
+might seem tempting, but the risks involved therein (like not knowing what to
+purge from local cache as a result of received EXPUNGE without extra {\tt
+FETCH}) are high and usually outweigh possible initial savings.
+
 \chapter{\trojita Design}
 
 \section{Overview}
