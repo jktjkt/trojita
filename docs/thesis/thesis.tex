@@ -335,10 +335,63 @@ disadvantages.
 
 \section{Advanced usage}
 
+\subsection{Partial Message Fetching}
+
+Thanks to unique features of the IMAP protocol, it isn't necessary to fetch the
+whole message in order to display just a fragment of it.  \trojita handles this
+automatically, fetching message parts on demand.  It also won't transfer message
+metadata (like its RFC2822 envelope) unless really needed.
+
 \subsection{Offline Mode}
 
+When put into {\em offline mode}, \trojita will prevent itself from accessing
+the network at all.  Users will be still able to view already transfered data, but
+no checks for new messages will be performed and those that aren't stored in
+local offline cache won't have actual message bodies displayed until the user
+selects either {\em online} or {\em expensive network} mode from the menu.
 
+\subsection{Expensive Network}
 
+Some users connect to their IMAP servers over a slow or otherwise unsuitable
+network.  Examples include dial-up connections or various mobile solutions like
+GPRS\footnote{General packet radio service (GPRS) is a mobile data service
+typically offering low bandwidth, high latency connection that is billed
+based on transfered data.} where the overall convenience of having all messages
+immediately available is usually held back by the need to conserve network
+resources.  In such environments, it might be desirable to fetch only the
+absolute minimum data required to provide properly synchronized view of the
+remote mailbox.
+
+In this situation, user is expected to choose the {\em Expensive Network} mode
+from the application menu.  \trojita will not preload data to improve
+interactivity, nor will it show all message parts by default.  Upon viewing a
+message, only parts smaller than a certain size are transfered automatically,
+others will be loaded after clicking a button.  This on-demand loading is
+implemented separately for each part, allowing great flexibility for user to
+choose what is interesting and what can be ignored.
+
+\subsection{Online Mode}
+
+{\em Online mode}, the common mode of operation, is what users are familiar from
+other IMAP clients.  \trojita employs intelligent preloading of interesting
+contents to minimize waiting times, yet doesn't blindly download everything,
+including parts that won't be ever shown.
+
+\subsection{Local Cache}
+
+All data once transfered form the network\footnote{Subject to some restrictions
+like maximal message part size and cache parameters} are kept in a persistent
+offline on-disk cache.  If a message data is transfered twice, it means that at
+least one of the following conditions is met:
+
+\begin{enumerate}
+    \item{The server can't guarantee the immutability of messages.  This might
+        happen when some process touches on-disk data internal to the IMAP
+        server in a non-standard way.}
+    \item{User changes her settings.  Whenever any data used to access the
+        remote server changes, the only safe thing to do is to throw away
+        anything in the local cache and start over again.}
+\end{enumerate}
 
 \chapter{Conclusion}
 
