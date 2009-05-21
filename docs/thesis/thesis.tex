@@ -206,7 +206,8 @@ process by entering these commands:
     \item{{\tt cd trojita-1.0}}
     \item{{\tt mkdir \_build}}
     \item{{\tt cd \_build}}
-    \item{{\tt cmake -DCMAKE\_BUILD\_TYPE=RelWithDebInfo ..}}
+    \item{{\tt cmake -DCMAKE\_BUILD\_TYPE=RelWithDebInfo ..}} (the {\tt ..} are
+        not a typo)
     \item{{\tt make}}
 \end{enumerate}
 
@@ -216,10 +217,10 @@ Launch it to start \trojita.
 \section{Using \trojita}
 \subsection{Configuration}
 
-All configuration is, thanks to the Qt's QSettings, stored in a usual space on
-the target platform. The only supported mean of configuring \trojita is through
-its built-in configuration dialog that will automatically appear on the first
-run.  It can also be launched it any time later from the menu.
+All configuration is, thanks to the Qt's QSettings, stored in target platform's
+common storage location. The only supported mean of configuring \trojita is
+through its built-in configuration dialog that will automatically appear on the
+first run.  It can also be launched any time later from the application menu.
 
 % FIXME: screenshot
 
@@ -238,9 +239,15 @@ connection to the IMAP server with launching a local process, which is in turn
 used instead of the remote IMAP server. The most interesting use case is to set
 up SSH connection to the remote server (along with proper SSH keys) and use that
 as a secure, reliable and convenient way for accessing e-mail, without having to
-enter passwords all the time.
+enter passwords all the time. For example, to launch an instance of Dovecot IMAP
+server on host {\tt mail.example.org}, user should enter {\tt ssh
+mail.example.org dovecot --exec-mail imap}.
 
 The last page serves for configuring the message composition and sending.
+\trojita supports mail submission via SMTP\footnote{Simple Mail Transfer
+Protocol} and local {\tt sendmail}-compatible MSA\footnote{Mail Submission
+Agent\cite{rfc-msa}, a local gateway whose purpose is forwarding e-mail to the
+network of MTAs} application.
 
 \subsection{Basic usage}
 
@@ -256,9 +263,9 @@ launching \trojita for the first time, for the retrieved list of mailboxes is
 cached on a persistent disk cache for later use.
 
 After the list of mailboxes is loaded, user can click on them to open them in
-the {\em Message List} widget on the bottom right corner of the application.
-After having selected a mailbox, the list of messages appears shortly. Again,
-the loading is faster next time \trojita is launched.
+the {\em Message List} widget on the bottom right corner of the application
+window.  After having selected a mailbox, the list of messages appears shortly.
+Again, the loading is faster next time \trojita is launched.
 
 Depending on user settings, \trojita typically won't transfer all messages
 metadata upon opening a mailbox.  This feature is implemented to conserve
@@ -382,13 +389,13 @@ including parts that won't be ever shown.
 All data once transfered form the network\footnote{Subject to some restrictions
 like maximal message part size and cache parameters} are kept in a persistent
 offline on-disk cache.  If a message data is transfered twice, it means that at
-least one of the following conditions is met:
+least one of the following conditions was met:
 
 \begin{enumerate}
-    \item{The server can't guarantee the immutability of messages.  This might
+    \item{The server couldn't guarantee the immutability of messages.  This might
         happen when some process touches on-disk data internal to the IMAP
         server in a non-standard way.}
-    \item{User changes her settings.  Whenever any data used to access the
+    \item{User has changed her settings.  Whenever any data used to access the
         remote server changes, the only safe thing to do is to throw away
         anything in the local cache and start over again.}
 \end{enumerate}
@@ -408,6 +415,8 @@ least one of the following conditions is met:
     \bibitem{client-best-practices}Sirainen, T., Cridland, D. et al.: Best
         Practices for Implementing an IMAP Client, {\tt
         http://www.imapwiki.org/ClientImplementation}
+    \bibitem{rfc-msa}Gellens, R., Klensin, J.: Message Submission, {\em
+        RFC2476}, December 1998
     \bibitem{qt} Qt Reference Documentation, {\tt http://doc.trolltech.com/4.5/}
     \bibitem{cmake} CMake Documentation, {\tt
         http://www.cmake.org/cmake/help/documentation.html}
