@@ -71,8 +71,6 @@ private:
     MsgListModel& operator=( const Model& ); // don't implement
     MsgListModel( const Model& ); // don't implement
 
-    static QString prettySize( uint bytes );
-
     TreeItemMsgList* msgList;
 };
 

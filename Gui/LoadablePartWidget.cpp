@@ -1,5 +1,6 @@
 #include "LoadablePartWidget.h"
 #include "Imap/Model/MailboxTree.h"
+#include "Imap/Model/Utils.h"
 
 #include <QPushButton>
 
@@ -12,7 +13,7 @@ LoadablePartWidget::LoadablePartWidget( QWidget* parent,
 QStackedWidget(parent), manager(_manager), part(_part), wheelEventFilter(_wheelEventFilter)
 {
     loadButton = new QPushButton( tr("Load %1 (%2)").arg(
-            part->mimeType(), QString::number( part->octets() ) ), this );
+            part->mimeType(), Imap::Mailbox::PrettySize::prettySize( part->octets() ) ), this );
     connect( loadButton, SIGNAL(clicked()), this, SLOT(loadClicked()) );
     addWidget( loadButton );
 }

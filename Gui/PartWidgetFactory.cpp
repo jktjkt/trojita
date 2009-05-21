@@ -92,7 +92,7 @@ QWidget* PartWidgetFactory::create( Imap::Mailbox::TreeItemPart* part )
             part->fetchFromCache( manager->model );
             bool showDirectly = true;
             if ( ! part->fetched() )
-                showDirectly = manager->model->isNetworkOnline();
+                showDirectly = manager->model->isNetworkOnline() || part->octets() <= ExpensiveFetchThreshold;
 
             QWidget* widget = 0;
             if ( showDirectly )

@@ -19,6 +19,7 @@
 #include "MsgListModel.h"
 #include "MailboxTree.h"
 #include "MailboxModel.h"
+#include "Utils.h"
 
 #include "iconloader/qticonloader.h"
 
@@ -26,7 +27,6 @@
 #include <QDebug>
 #include <QFontMetrics>
 #include <QMimeData>
-#include <cmath>
 
 namespace Imap {
 namespace Mailbox {
@@ -184,7 +184,7 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
                         return res.toString( Qt::SystemLocaleShortDate );
                 }
                 case SIZE:
-                    return prettySize( message->size( static_cast<Model*>( sourceModel() ) ) );
+                    return PrettySize::prettySize( message->size( static_cast<Model*>( sourceModel() ) ) );
                 default:
                     return QVariant();
             }
@@ -425,27 +425,6 @@ void MsgListModel::setMailbox( const QModelIndex& index )
 TreeItemMailbox* MsgListModel::currentMailbox() const
 {
     return msgList ? dynamic_cast<TreeItemMailbox*>( msgList->parent() ) : 0;
-}
-
-QString MsgListModel::prettySize( uint bytes )
-{
-    if ( bytes == 0 )
-        return tr("0");
-    int order = std::log( bytes ) / std::log( 1024 );
-    QString suffix;
-    if ( order <= 0 )
-        return QString::number( bytes );
-    else if ( order == 1 )
-        suffix = tr("kB");
-    else if ( order == 2 )
-        suffix = tr("MB");
-    else if ( order == 3 )
-        suffix = tr("GB");
-    else
-        suffix = tr("TB"); // shame on you for such mails
-    return tr("%1 %2").arg( QString::number(
-            bytes / ( std::pow( 1024, order ) ),
-            'f', 1 ), suffix );
 }
 
 }
