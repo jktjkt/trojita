@@ -1112,6 +1112,7 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
             }
             emit networkPolicyOffline();
             _netPolicy = NETWORK_OFFLINE;
+            // FIXME: kill the connection
             break;
         case NETWORK_EXPENSIVE:
             _netPolicy = NETWORK_EXPENSIVE;
