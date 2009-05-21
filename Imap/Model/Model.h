@@ -215,6 +215,7 @@ public:
     void deleteMailbox( const QString& name );
 
     bool isNetworkAvailable() const { return _netPolicy != NETWORK_OFFLINE; }
+    bool isNetworkOnline() const { return _netPolicy == NETWORK_ONLINE; }
 
 public slots:
     void reloadMailboxList();
@@ -264,7 +265,7 @@ private:
     void _askForMessagesInMailbox( TreeItemMsgList* item );
     void _askForNumberOfMessages( TreeItemMsgList* item );
     void _askForMsgMetadata( TreeItemMessage* item );
-    void _askForMsgPart( TreeItemPart* item );
+    void _askForMsgPart( TreeItemPart* item, bool onlyFromCache=false );
 
     void _finalizeList( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );

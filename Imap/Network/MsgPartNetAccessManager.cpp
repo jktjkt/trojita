@@ -6,6 +6,7 @@
 #include "ForbiddenReply.h"
 #include "MsgPartNetworkReply.h"
 #include "Imap/Model/MailboxTree.h"
+#include "Imap/Model/Model.h"
 
 namespace Imap {
 namespace Network {

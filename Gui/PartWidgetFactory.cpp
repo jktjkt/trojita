@@ -1,8 +1,10 @@
 #include "PartWidgetFactory.h"
 #include "AttachmentView.h"
+#include "LoadablePartWidget.h"
 #include "SimplePartWidget.h"
 #include "Rfc822HeaderView.h"
 #include "Imap/Model/MailboxTree.h"
+#include "Imap/Model/Model.h"
 
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -87,7 +89,18 @@ QWidget* PartWidgetFactory::create( Imap::Mailbox::TreeItemPart* part )
             showInline = true;
         }
         if ( showInline ) {
-            SimplePartWidget* widget = new SimplePartWidget( 0, manager, part );
+            part->fetchFromCache( manager->model );
+            bool showDirectly = true;
+            if ( ! part->fetched() )
+                showDirectly = manager->model->isNetworkOnline();
+
+            QWidget* widget = 0;
+            if ( showDirectly )
+                widget = new SimplePartWidget( 0, manager, part );
+            else if ( manager->model->isNetworkAvailable() )
+                widget = new LoadablePartWidget( 0, manager, part, wheelEventFilter );
+            else
+                widget = new QLabel( tr("Offline"), 0 );
             widget->installEventFilter( wheelEventFilter );
             return widget;
         } else {

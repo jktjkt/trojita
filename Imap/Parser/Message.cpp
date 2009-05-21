@@ -661,6 +661,7 @@ bool operator==( const MailAddress& a, const MailAddress& b )
 void OneMessage::storeInterestingFields( Mailbox::TreeItemPart* p ) const
 {
     p->setEncoding( bodyFldEnc.toLower() );
+    p->setOctets( bodyFldOctets );
     bodyFldParam_t::const_iterator it = bodyFldParam.find( "CHARSET" );
     if ( it != bodyFldParam.end() ) {
         p->setCharset( *it );

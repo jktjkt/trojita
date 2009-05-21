@@ -990,7 +990,7 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
     }
 }
 
-void Model::_askForMsgPart( TreeItemPart* item )
+void Model::_askForMsgPart( TreeItemPart* item, bool onlyFromCache )
 {
     // FIXME: fetch parts in chunks, not at once
     Q_ASSERT( item->message() ); // TreeItemMessage
@@ -999,20 +999,19 @@ void Model::_askForMsgPart( TreeItemPart* item )
     TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( item->message()->parent()->parent() );
     Q_ASSERT( mailboxPtr );
 
-    if ( networkPolicy() == NETWORK_OFFLINE ) {
-        uint uid = static_cast<TreeItemMessage*>( item->message() )->uid();
-        if ( uid ) {
-            const QByteArray& data = cache()->messagePart( mailboxPtr->mailbox(), uid, item->partId() );
-            if ( data.isNull() ) {
-                item->_fetchStatus = TreeItem::UNAVAILABLE;
-            } else {
-                item->_data = data;
-                item->_fetchStatus = TreeItem::DONE;
-            }
-        } else {
-            item->_fetchStatus = TreeItem::UNAVAILABLE;
+    uint uid = static_cast<TreeItemMessage*>( item->message() )->uid();
+    if ( uid ) {
+        const QByteArray& data = cache()->messagePart( mailboxPtr->mailbox(), uid, item->partId() );
+        if ( ! data.isNull() ) {
+            item->_data = data;
+            item->_fetchStatus = TreeItem::DONE;
         }
-    } else {
+    }
+
+    if ( networkPolicy() == NETWORK_OFFLINE ) {
+        if ( item->_fetchStatus != TreeItem::DONE )
+            item->_fetchStatus = TreeItem::UNAVAILABLE;
+    } else if ( ! onlyFromCache ) {
         Parser* parser = _getParser( mailboxPtr, ReadOnly );
         CommandHandle cmd = parser->fetch( Sequence( item->message()->row() + 1 ),
                 QStringList() << QString::fromAscii("BODY.PEEK[%1]").arg(

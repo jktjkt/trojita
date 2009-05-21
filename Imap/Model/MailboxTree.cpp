@@ -644,6 +644,14 @@ void TreeItemPart::fetch(  Model* const model )
     model->_askForMsgPart( this );
 }
 
+void TreeItemPart::fetchFromCache( Model* const model )
+{
+    if ( fetched() || loading() || isUnavailable( model ) )
+        return;
+
+    model->_askForMsgPart( this, true );
+}
+
 unsigned int TreeItemPart::rowCount( Model* const model )
 {
     // no call to fetch() required

@@ -169,6 +169,7 @@ class TreeItemPart: public TreeItem {
     QByteArray _bodyFldId;
     QByteArray _bodyDisposition;
     QString _fileName;
+    uint _octets;
 public:
     TreeItemPart( TreeItem* parent, const QString& mimeType );
 
@@ -176,6 +177,7 @@ public:
     virtual TreeItem* child( const int offset, Model* const model );
     virtual QList<TreeItem*> setChildren( const QList<TreeItem*> items );
 
+    void fetchFromCache( Model* const model );
     virtual void fetch( Model* const model );
     virtual unsigned int rowCount( Model* const model );
     virtual QVariant data( Model* const model, int role );
@@ -204,6 +206,9 @@ public:
     QByteArray bodyDisposition() const { return _bodyDisposition; }
     void setFileName( const QString& name ) { _fileName = name; }
     QString fileName() const { return _fileName; }
+    void setOctets( const uint size ) { _octets = size; }
+    /** @short Return the downloadable size of the message part */
+    uint octets() const { return _octets; }
 private:
     bool isTopLevelMultiPart() const;
 };
