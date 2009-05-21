@@ -309,9 +309,9 @@ Most of these containers are defined in RFC 2045 \cite{rfc-2045} and 2046
 \cite{rfc-2046}, one was added in RFC 2387 \cite{rfc-multipart-related}.
 
 The {\tt multipart/alternative} encoding provides a mean of transmitting a
-message that comes in several different formats, but provide the same
-data.  The MUA is expected to pick one of the underlying content types
-and display it, perhaps allowing the user to override this selection as a bonus.
+message that comes in several different formats, but provide the same data.  The
+MUA is expected to pick one of the underlying parts and display it, perhaps
+allowing the user to override this selection as a bonus.
 
 The {\tt multipart/mixed} is a generic catch-all MIME type for multipart
 messages.  If a compliant MUA sees a multipart content type that it can not
@@ -321,7 +321,37 @@ showing all embedded parts next to each other.
 There are several more content types defined, but describing them in detail is
 out of scope for this thesis.
 
-\subsection
+\subsection{International Characters in Messages}
+
+Original SMTP mail, as defined by RFC 822, is suitable only for transferring
+7bit data.  Nowadays, 8bit data are far more common, both for representation of
+international characters and transfer of binary data.  Therefore, the MIME
+family defines {\em transfer encodings} for conversion of generic 8bit binary
+data into a 7bit character stream and a portable mean for expressing national
+characters using 7bit ASCII characters only.
+
+For the former, two standard encodings are available, the {\em Quoted printable}
+and {\em Base64} (as well as a ``fake'' {\em binary} or {\em 8bit} encoding for
+transport of binary data over less restrictive tunnels), the latter is supported
+by a similar approach, as defined in RFC 2047 \cite{rfc-2047}.
+
+\subsection{MIME Support in IMAP}
+
+Much of the MIME work can be offloaded to the IMAP server.  This is especially
+true for message structure parsing, where the IMAP specification provisions ways
+to explore the ``tree'' of a message, as well as fetch the resulting body parts
+separately (and even including byte ranges for more convenient download).
+
+The IMAP protocol doesn't, however, handle the second part of MIME, nor much of
+other header parsing.  While it is common to ask the server for just a named
+subset of RFC 2822 mail headers, the returned data are not pre-parsed in any
+way.  Therefore, much of the work from coalescing several header parts to
+decoding international character data is left as an exercise to the client.
+
+Fortunately, various message attributes in the IMAP protocol can serve as a
+substitute for parsing the RFC 2822 headers.  Sender and recipient data is
+available from the IMAP {\tt ENVELOPE}, message size as {\tt RFC822.SIZE}, IMAP
+itself provides extensions for message threading \cite{rfc-threading} et cetera.
 
 \chapter{\trojita Design}
 
@@ -630,6 +660,8 @@ desired.  More on this matter can be found in another place in this thesis
     \bibitem{rfc-content-disposition}Troost, R., Dorner, S., Moore, K.:
         Communicating Presentation Information in Internet Messages: The
         Content-Disposition Header Field, {\em RFC2183}, August 1997
+    \bibitem{rfc-threading}Crispin, M., Murchison, K.: Internet Message Access
+        Protocol - SORT and THREAD Extensions, {\em RFC5256}, June 2008
     \bibitem{qt} Qt Reference Documentation, {\tt http://doc.trolltech.com/4.5/}
     \bibitem{cmake} CMake Documentation, {\tt
         http://www.cmake.org/cmake/help/documentation.html}
