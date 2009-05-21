@@ -172,8 +172,8 @@ the numerous standards which deal with this highly complex topic.
 
 \section{Basic Concepts}
 
-An {\em email message}, or a RFC-822 \footnote{As defined by the RFC822 standard
-and subsequently modified by RFC2822\cite{rfc-2822} and others} message,
+An {\em email message}, or a RFC-822\footnote{As defined by the RFC 822 standard
+and subsequently modified by RFC 2822 \cite{rfc-2822} and others} message,
 consists of three parts: {\em Envelope}, {\em Headers} and {\em Body}. The {\em
 envelope} is the only relevant part for the mail exchange among the Internet
 hosts; it includes basic information like addresses of the sender and recipient.
@@ -181,7 +181,7 @@ hosts; it includes basic information like addresses of the sender and recipient.
 human-readable sender addresses and message route traces to user-defined
 headers.  Some pieces of this information are used when the original delivery
 fails for some reason, like the {\tt Return-Path} header.  The {\em header} also
-serves as a basis for the {\em envelope} in the IMAP-meaning which are explained
+serves as a basis for the {\em IMAP envelope data} which is explained
 in chapter \ref{imap-envelope}.  Finally, the {\em message body} is what an
 average user typically refers to as ``the e-mail''.  It might contain just a
 plain US-ASCII text, an HTML message with embedded images, or it could be a
@@ -193,7 +193,7 @@ might be located at user's employer's data center or on the user's laptop, for
 example.
 
 An {\em MTA}\footnote{Mail Transfer Agent} or an {\em SMTP Server} is an
-Internet host whose purpose is delivery of the RFC2822 mail.  MTAs in the
+Internet host whose purpose is delivery of the RFC 2822 mail.  MTAs in the
 Internet communicate with each other, determining routing information from
 MX-records\footnote{Mail eXchange, a special record in the Domain Name Service
 which specifies what servers are responsible for accepting all incoming e-mail
@@ -212,9 +212,116 @@ mixing of both.
 
 \section{IMAP-specific Attributes}
 
-\label{imap-envelope}
-\label{imap-msg-flags}
-blah
+A message in the IMAP sense is {\em immutable}, that is, its contents (like
+header, structure of the body or the actual message parts) can't change, ever.
+Each message also has mutable attributes, the most important being {\em flags}.
+
+Messages in a remote IMAP mailbox are identified by two partially independent
+numbers, the {\em sequence number} and the {\em UID}.  Sequence numbers start at
+one and are consecutive, that is, they dynamically change when a message in the
+middle of the mailbox is removed.  This means that one particular message can
+have multiple sequence numbers assigned over time and that one sequence number
+can refer to totally unrelated messages, as the numbering changes.
+
+On the other hand, the {\em UIDs} work differently.  When a message is delivered
+to the mailbox, it receives a UID one greater than the previous one.  After the
+UID is assigned, it will never change for that particular message, and the
+mailbox remembers the biggest assigned UID so far.  This means that UIDs are
+never recycled over the normal life span of a mailbox and they can be used as a
+persistent identifier to a one message in a particular mailbox.
+
+Sometimes a non-standard situation might happen, e.g. when a third-party
+accessed the mailbox data behind the back of the IMAP server.  Perhaps the user
+tried a utility program that removes huge attachment from an otherwise valuable
+message, or a spam classifier modified message headers directly, bypassing
+standard mechanisms for proper flagging.  In any such cases, the IMAP guarantee
+of immutable nature of the messages doesn't hold, and a compliant IMAP server
+has to communicate this problem to all clients.  The {\em UIDVALIDITY} mailbox
+attribute serves this purpose.  Whenever the UIDVALIDITY changes, a compliant
+client is required to throw away any cached information about a mailbox because
+the UID assignment starts over again.
+
+UID and UIDVALIDITY combined together form a 64bit integer which is absolutely
+guaranteed to be an unique identifier for any message in the given mailbox -- if
+the IMAP client once retrieved any immutable part from mailbox A with this 64bit
+identifier, subsequent queries for the part identified by the same 64bit number
+in the same mailbox can be satisfied in client's cache.
+
+It should be noted that this UID/UIDNEXT numbering is strictly per-mailbox and
+not per-server, and that different users accessing the same server might see the
+same 64bit number for totally unrelated messages.  While RFC3501 \cite{rfc-imap}
+strongly recommends that UIDVALIDITY should be kept constant if at all possible,
+a compliant IMAP client has to deal with UIDVALIDITY changes nonetheless.
+
+The \label{imap-envelope}{\em IMAP envelope} is a data structure holding
+interesting values determined from various message headers.  It is {\em not} the
+same thing as the SMTP envelope.
+
+The {\em Internal date} holds a time stamp about when was the message delivered
+to the IMAP server.  {\em Size} attribute is the number of octets required for
+storing a full copy of message in RFC2822 format.  {\em Body structure}
+represents the tree-like structure of the MIME message.
+
+The \label{imap-msg-flags}{\em IMAP flags} is an attribute holding a set of zero
+or more named tokens associated with the message.  A flag can be either {\em
+permanent} or {\em session-only}.  Permanent flags are stored in the mailbox
+itself, while the session-only flags disappear on a subsequent reconnect to the
+mailbox.  Some of the flags are defined by the RFC 3501 standard itself, others
+are added by various recommendations and extension standards.  An IMAP server
+might allow IMAP clients to store their own message flags.  A special means of
+communicating this via the protocol exist\footnote{The {\tt PERMANENTFLAGS}
+response code}.
+
+Finally, message contents itself is distributed in form of {\em message texts}.
+Clients are free to choose from retrieving MIME message parts separately or as
+one blob.
+
+\section{MIME}
+
+Multipurpose Internet Mail Extensions \cite{rfc-2045} \cite{rfc-2046}
+\cite{rfc-2047}, or just MIME, is a set of standards for extending the old SMTP
+mail from 7bit ASCII texts to rich multimedia contents.  Parts of the standard
+deal with encapsulation of non-ASCII characters in message headers, as well as
+providing instructions about how to embed non-textual data in e-mail messages.
+
+\subsection{Message as a Container}
+
+An important aspect in MIME is its introduction of an internal structure to
+e-mail message bodies.  Previously, a message body was just a plain text, while
+from the codification of this standard, it became possible to exchange more
+structured information.  Contemporary users are probably familiar with HTML
+e-mails containing embedded images and a PDF attachment for seamless printing.
+Users routinely send mails with attached photographs from their holidays, or an
+archive containing business presentation.
+
+MIME standard achieves this by defining a {\em content type} for the message
+body.  This content type, usually set by a header in the RFC 2822 headers of a
+message, determines how a compliant mail client displays the message.  The
+old-school non-MIME mails have a default MIME type of {\tt text/plain}, an
+unformatted text in 7bit US-ASCII encoding.
+
+Another portion of the standard defines generic-purpose containers, i.e.
+abstract content types which contains other message parts below itself.  Using
+these containers, a message can suddenly evolve from an unstructured blob of
+text to a deep tree of unrelated body parts.
+
+Most of these containers are defined in RFC 2045 \cite{rfc-2045} and 2046
+\cite{rfc-2046}, one was added in RFC 2387 \cite{rfc-multipart-related}.
+
+The {\tt multipart/alternative} encoding provides a mean of transmitting a
+message that comes in several different formats, but provide the same
+data.  The MUA is expected to pick one of the underlying content types
+and display it, perhaps allowing the user to override this selection as a bonus.
+
+The {\tt multipart/mixed} is a generic catch-all MIME type for multipart
+messages.  If a compliant MUA sees a multipart content type that it can not
+recognize, it should behave as if it was the mixed multipart.  Typical action is
+showing all embedded parts next to each other.
+
+There are several more content types defined, but describing them in detail is
+out of scope for this thesis.
+
+\subsection
 
 \chapter{\trojita Design}
 
@@ -227,6 +334,8 @@ blah
 \section{Low-level Parser}
 
 \section{Cache}
+
+\chapter{Other IMAP Implementations}
 
 \chapter{User's Guide}
 
@@ -504,8 +613,23 @@ desired.  More on this matter can be found in another place in this thesis
     \bibitem{client-best-practices}Sirainen, T., Cridland, D. et al.: Best
         Practices for Implementing an IMAP Client, {\tt
         http://www.imapwiki.org/ClientImplementation}
+    \bibitem{rfc-2822}Resnick, P. (editor) et al.: Internet Message Format, {\em
+        RFC2822}, April 2001
     \bibitem{rfc-msa}Gellens, R., Klensin, J.: Message Submission, {\em
         RFC2476}, December 1998
+    \bibitem{rfc-2045}Freed, N., Borenstein, N.: Multipurpose Internet
+        Mail Extensions (MIME) Part One: Format of Internet Message Bodies, {\em
+        RFC2045}, November 1996
+    \bibitem{rfc-2046}Freed, N., Borenstein, N..: Multipurpose Internet
+        Mail Extensions (MIME) Part Two: Media Types, {\em RFC2046}, November 1996
+    \bibitem{rfc-2047}Moore, K.: MIME (Multipurpose Internet Mail Extensions)
+        Part Three: Message Header Extensions for Non-ASCII Text, {\em RFC2047},
+        November 1996
+    \bibitem{rfc-multipart-related}Levinson, E.: The MIME Multipart/Related
+        Content-type, {\em RFC 2387}, August 1998
+    \bibitem{rfc-content-disposition}Troost, R., Dorner, S., Moore, K.:
+        Communicating Presentation Information in Internet Messages: The
+        Content-Disposition Header Field, {\em RFC2183}, August 1997
     \bibitem{qt} Qt Reference Documentation, {\tt http://doc.trolltech.com/4.5/}
     \bibitem{cmake} CMake Documentation, {\tt
         http://www.cmake.org/cmake/help/documentation.html}
