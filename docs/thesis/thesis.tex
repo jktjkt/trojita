@@ -149,7 +149,16 @@ efficiency.  Indeed, most of these applications started as MUAs speaking the
 POP3 protocol \footnote{The POP3 protocol\ldots FIXME}, adding support for IMAP
 later on.  Typically, this support was added long since the initial design phase
 of the product was completed, resulting in suboptimal design
-choices.\cite{crispin-ten-commandments} Some clients, like the
+choices.\cite{crispin-ten-commandments} Some clients, like the \ldots FIXME
+
+\subsection{Structure of the thesis}
+
+In the following chapter, we provide a gentle introduction to the world of
+IMAP and related standards like MIME.  Following that, we move to explain some
+design choices made during the development proces of \trojita, as well as
+elaborate on the internal application architecture and structure.  User
+documentation is the next chapter, and we finish the whole thesis by a wrap-up
+providing an overview of what we implemented and how is the result usable.
 
 \chapter{IMAP Protocol}
 
@@ -399,6 +408,22 @@ least one of the following conditions was met:
         remote server changes, the only safe thing to do is to throw away
         anything in the local cache and start over again.}
 \end{enumerate}
+
+\subsection{Full Tree View}
+
+As an optional part of the GUI, the {\em full tree view}, activated by the
+corresponding item in the menu, provides a full view of the server contents,
+including mailbox hierarchy, messages in mailboxes and mailbox parts.  This
+widget is a nice demonstration of a complex nature of MIME messages -- while
+most users are probably familiar with the concept of attachments, the truth is
+that MIME defines a fully recursive structure that one message can consist of.
+For example, it's perfectly possible to have a message composed of six parts,
+each of them being a forwarded message, and each of these forwarded messages
+being rich-structured as well.  \trojita does its best at formatting the message
+in a sane and familiar way, but unfortunately some senders don't really follow
+the same philosophy and produce messages whose structure leaves much to be
+desired.  More on this matter can be found in another place in this thesis
+\ref{FIXME}.
 
 \chapter{Conclusion}
 
