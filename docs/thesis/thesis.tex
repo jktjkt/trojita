@@ -160,9 +160,73 @@ elaborate on the internal application architecture and structure.  User
 documentation is the next chapter, and we finish the whole thesis by a wrap-up
 providing an overview of what we implemented and how is the result usable.
 
-\chapter{IMAP Protocol}
+\chapter{IMAP and Related Technologies}
+
+Electronic mail, or a SMTP-mail, is a public service suitable for automated
+message exchange among connected entities.  Interoperability is guaranteed by
+several {\em Internet standards}, usually codified in the form of RFC documents.
+Subject to these standards are various protocols specifying the rules of what
+entities can communicate to each other, as well as definition of the format of
+all transmitted messages. In this section, we provide a gentle introduction to
+the numerous standards which deal with this highly complex topic.
+
+\section{Basic Concepts}
+
+An {\em email message}, or a RFC-822 \footnote{As defined by the RFC822 standard
+and subsequently modified by RFC2822\cite{rfc-2822} and others} message,
+consists of three parts: {\em Envelope}, {\em Headers} and {\em Body}. The {\em
+envelope} is the only relevant part for the mail exchange among the Internet
+hosts; it includes basic information like addresses of the sender and recipient.
+{\em Headers} provides more detailed metadata about a message, from
+human-readable sender addresses and message route traces to user-defined
+headers.  Some pieces of this information are used when the original delivery
+fails for some reason, like the {\tt Return-Path} header.  The {\em header} also
+serves as a basis for the {\em envelope} in the IMAP-meaning which are explained
+in chapter \ref{imap-envelope}.  Finally, the {\em message body} is what an
+average user typically refers to as ``the e-mail''.  It might contain just a
+plain US-ASCII text, an HTML message with embedded images, or it could be a
+recursively defined entity with rich tree structure.
+
+An {\em IMAP server} is a host in the Internet which provides access to a local
+mail store via the standard protocol, IMAP4rev1 in this case. The IMAP server
+might be located at user's employer's data center or on the user's laptop, for
+example.
+
+An {\em MTA}\footnote{Mail Transfer Agent} or an {\em SMTP Server} is an
+Internet host whose purpose is delivery of the RFC2822 mail.  MTAs in the
+Internet communicate with each other, determining routing information from
+MX-records\footnote{Mail eXchange, a special record in the Domain Name Service
+which specifies what servers are responsible for accepting all incoming e-mail
+for the particular domain} in the DNS.  As a common practice nowadays, these
+servers also accept outgoing e-mail from their own users, provided the
+connection is properly authenticated, either by simple fact that it originates
+in a trusted network or that the user has provided her credentials, typically as
+a user and password combination or as an X.509 certificate.
+
+A {\em Mailbox} or a {\em Mail Folder} is a place on the IMAP server where the
+messages are logically stored.  A mailbox might contain number of child
+mailboxes, if the server implementation allows it.  Certain IMAP software has to
+be told in advance whether the mailbox just being created is supposed to contain
+only other mailboxes or only regular e-mail messages, while others allow free
+mixing of both.
+
+\section{IMAP-specific Attributes}
+
+\label{imap-envelope}
+\label{imap-msg-flags}
+blah
 
 \chapter{\trojita Design}
+
+\section{Overview}
+
+\section{Model-View Architecture}
+
+\section{Parser}
+
+\section{Low-level Parser}
+
+\section{Cache}
 
 \chapter{User's Guide}
 
@@ -296,7 +360,7 @@ The idea behind this feature is to allow users to peek on a particular message,
 shortly judge its contents, classify it as a ``process later'' and then move on
 to another one.  This is a common approach shared with other MUAs as well.
 
-Manipulating with {\em message flags} \ref{imap-attr-message-flags} is possible
+Manipulating with {\em message flags} (see chapter \ref{imap-msg-flags}) is possible
 via the context menu (appearing on the message list) as well by standard
 keyboard shortcuts.  The {\tt M} key toggles the {\em Read} status and {\tt
 Delete} key schedules messages for removal.
