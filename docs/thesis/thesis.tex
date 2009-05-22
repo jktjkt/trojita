@@ -166,7 +166,7 @@ Electronic mail, or a SMTP-mail, is a public service suitable for automated
 message exchange among connected entities.  Interoperability is guaranteed by
 several {\em Internet standards}, usually codified in the form of RFC documents.
 Subject to these standards are various protocols specifying the rules of what
-entities can communicate to each other, as well as definition of the format of
+entities can communicate to each other as well as definition of the format of
 all transmitted messages. In this section, we provide a gentle introduction to
 the numerous standards which deal with this highly complex topic.
 
@@ -174,22 +174,22 @@ the numerous standards which deal with this highly complex topic.
 
 An {\em email message}, or a RFC-822\footnote{As defined by the RFC 822 standard
 and subsequently modified by RFC 2822 \cite{rfc-2822} and others} message,
-consists of three parts: {\em Envelope}, {\em Headers} and {\em Body}. The {\em
-envelope} is the only relevant part for the mail exchange among the Internet
+consists of three parts: {\em Envelope}, {\em Header} and {\em Body}. The {\em
+envelope} is the only relevant part for mail exchange among Internet
 hosts; it includes basic information like addresses of the sender and recipient.
-{\em Headers} provides more detailed metadata about a message, from
+A {\em header} provides more detailed metadata about the message, from
 human-readable sender addresses and message route traces to user-defined
-headers.  Some pieces of this information are used when the original delivery
+fields.  Some pieces of this information are used when the original delivery
 fails for some reason, like the {\tt Return-Path} header.  The {\em header} also
-serves as a basis for the {\em IMAP envelope data} which is explained
-in chapter \ref{imap-envelope}.  Finally, the {\em message body} is what an
+serves as a basis for an {\em IMAP envelope data} which is explained later
+in chapter \ref{imap-envelope}.  Finally, a {\em message body} is what an
 average user typically refers to as ``the e-mail''.  It might contain just a
-plain US-ASCII text, an HTML message with embedded images, or it could be a
+plain US-ASCII text, an HTML message with embedded images or it could be a
 recursively defined entity with rich tree structure.
 
-An {\em IMAP server} is a host in the Internet which provides access to a local
+An {\em IMAP server} is a host in the Internet which provides access to local
 mail store via the standard protocol, IMAP4rev1 in this case. The IMAP server
-might be located at user's employer's data center or on the user's laptop, for
+might be located in user's employer's data center or on the user's laptop, for
 example.
 
 An {\em MTA}\footnote{Mail Transfer Agent} or an {\em SMTP Server} is an
@@ -200,12 +200,12 @@ which specifies what servers are responsible for accepting all incoming e-mail
 for the particular domain} in the DNS.  As a common practice nowadays, these
 servers also accept outgoing e-mail from their own users, provided the
 connection is properly authenticated, either by simple fact that it originates
-in a trusted network or that the user has provided her credentials, typically as
-a user and password combination or as an X.509 certificate.
+from a trusted network or that the user has provided her credentials, typically as
+a user name and password combination or in the form of an X.509 certificate.
 
 A {\em Mailbox} or a {\em Mail Folder} is a place on the IMAP server where the
 messages are logically stored.  A mailbox might contain number of child
-mailboxes, if the server implementation allows it.  Certain IMAP software has to
+mailboxes if the server implementation allows it.  Certain IMAP software has to
 be told in advance whether the mailbox just being created is supposed to contain
 only other mailboxes or only regular e-mail messages, while others allow free
 mixing of both.
@@ -228,13 +228,13 @@ to the mailbox, it receives a UID one greater than the previous one.  After the
 UID is assigned, it will never change for that particular message, and the
 mailbox remembers the biggest assigned UID so far.  This means that UIDs are
 never recycled over the normal life span of a mailbox and they can be used as a
-persistent identifier to a one message in a particular mailbox.
+persistent identifier to one message in a particular mailbox.
 
 Sometimes a non-standard situation might happen, e.g. when a third-party
 accessed the mailbox data behind the back of the IMAP server.  Perhaps the user
 tried a utility program that removes huge attachment from an otherwise valuable
 message, or a spam classifier modified message headers directly, bypassing
-standard mechanisms for proper flagging.  In any such cases, the IMAP guarantee
+standard mechanisms for proper flagging.  In any such case, the IMAP guarantee
 of immutable nature of the messages doesn't hold, and a compliant IMAP server
 has to communicate this problem to all clients.  The {\em UIDVALIDITY} mailbox
 attribute serves this purpose.  Whenever the UIDVALIDITY changes, a compliant
@@ -245,7 +245,7 @@ UID and UIDVALIDITY combined together form a 64bit integer which is absolutely
 guaranteed to be an unique identifier for any message in the given mailbox -- if
 the IMAP client once retrieved any immutable part from mailbox A with this 64bit
 identifier, subsequent queries for the part identified by the same 64bit number
-in the same mailbox can be satisfied in client's cache.
+in the same mailbox can be satisfied from the client's cache.
 
 It should be noted that this UID/UIDNEXT numbering is strictly per-mailbox and
 not per-server, and that different users accessing the same server might see the
@@ -255,9 +255,9 @@ a compliant IMAP client has to deal with UIDVALIDITY changes nonetheless.
 
 The \label{imap-envelope}{\em IMAP envelope} is a data structure holding
 interesting values determined from various message headers.  It is {\em not} the
-same thing as the SMTP envelope.
+same thing as the SMTP envelope, which typically stores less information.
 
-The {\em Internal date} holds a time stamp about when was the message delivered
+The {\em Internal date} holds a time stamp about when the message was delivered
 to the IMAP server.  {\em Size} attribute is the number of octets required for
 storing a full copy of message in RFC2822 format.  {\em Body structure}
 represents the tree-like structure of the MIME message.
@@ -294,14 +294,14 @@ e-mails containing embedded images and a PDF attachment for seamless printing.
 Users routinely send mails with attached photographs from their holidays, or an
 archive containing business presentation.
 
-MIME standard achieves this by defining a {\em content type} for the message
-body.  This content type, usually set by a header in the RFC 2822 headers of a
+MIME standard achieves this by defining a {\em content type} for message
+bodies.  This content type, usually set by an RFC 2822 header of a
 message, determines how a compliant mail client displays the message.  The
 old-school non-MIME mails have a default MIME type of {\tt text/plain}, an
 unformatted text in 7bit US-ASCII encoding.
 
 Another portion of the standard defines generic-purpose containers, i.e.
-abstract content types which contains other message parts below itself.  Using
+abstract content types which contains other message parts within.  Using
 these containers, a message can suddenly evolve from an unstructured blob of
 text to a deep tree of unrelated body parts.
 
@@ -309,9 +309,9 @@ Most of these containers are defined in RFC 2045 \cite{rfc-2045} and 2046
 \cite{rfc-2046}, one was added in RFC 2387 \cite{rfc-multipart-related}.
 
 The {\tt multipart/alternative} encoding provides a mean of transmitting a
-message that comes in several different formats, but provide the same data.  The
+message that comes in several different formats, but each of them provides the same data.  The
 MUA is expected to pick one of the underlying parts and display it, perhaps
-allowing the user to override this selection as a bonus.
+allowing the user to override this selection as a nice bonus.
 
 The {\tt multipart/mixed} is a generic catch-all MIME type for multipart
 messages.  If a compliant MUA sees a multipart content type that it can not
@@ -323,11 +323,11 @@ out of scope for this thesis.
 
 \subsection{International Characters in Messages}
 
-Original SMTP mail, as defined by RFC 822, is suitable only for transferring
-7bit data.  Nowadays, 8bit data are far more common, both for representation of
+Original SMTP mail as defined by RFC 822 is suitable only for transferring
+7bit data.  Nowadays, 8bit transport channels are far more common, both for representation of
 international characters and transfer of binary data.  Therefore, the MIME
 family defines {\em transfer encodings} for conversion of generic 8bit binary
-data into a 7bit character stream and a portable mean for expressing national
+data into a 7bit character stream and a portable way of expressing national
 characters using 7bit ASCII characters only.
 
 For the former, two standard encodings are available, the {\em Quoted printable}
@@ -376,7 +376,7 @@ manipulating the message flags) require read-write access.
 For efficiency reasons, each client usually keeps some data in its persistent
 cache.  Good candidates for caching are message texts, a copy of body structure or
 perhaps even flags from the previous session.  Because some server replies, namely
-the {\tt EXPUNGE}, which informs the client that a message has been removed from
+the {\tt EXPUNGE} which informs the client that a message has been removed from
 the mailbox, refer to messages only by their sequence numbers and clients
 usually identify messages by UIDs in order to allow message texts caching, a
 compliant client has also to keep its UID-to-sequence number mapping up-to-speed
