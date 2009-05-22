@@ -523,6 +523,44 @@ available in MIME standard.  Subsequent revisions to IMAP therefore defined
 support for more intelligent searches which support unified searching through
 message that arrived in different character sets.
 
+\subsection{Manipulating Mailboxes}
+
+Due to some historic reasons (especially the old versions of SMTP protocol being
+7bit), IMAP doesn't use any standard encoding for mailbox names.  Instead, a
+modified version of UTF-7 called simply {\em modified UTF-7} is mandated.  The
+standard doesn't specify what to do if the other side uses 8bit data in mailbox
+name, but most implementations nowadays fall back to UTF-8, which is arguably a
+good thing to do.
+
+Mailboxes can be created, deleted and renamed by IMAP clients.  If the server
+supports it, they form a tree hierarchy.  Some servers distinguish between
+mailboxes for storing messages and those that contain only other mailboxes,
+while other implementations allow free mixing of both.  Unfortunately there is
+no reliable way to tell to which class the target server belongs, but provisions
+are given about how to create a folder for message and how for other mailboxes.
+If mailboxes form a tree, the server implementation specifies which character is
+used as a hierarchy delimiter.  Most common choices in today's mainstream IMAP
+servers are dot ({\tt .}) which is common among servers exporting Maildir
+folders and slash ({\tt /}) as used by servers exporting traditional mbox UNIX
+mail store.  This inconsistence might lead to user confusion, but can't be
+avoided without breaking backward compatibility.
+
+\section{Other Methods of Mail Store Access}
+
+IMAP is not the only protocol for accessing mails stored on a remote server.  In
+this section, we will introduce some of the alternatives and discuss their
+advantages and disadvantages when compared to IMAP.
+
+\subsection{POP3}
+
+The main difference between IMAP and POP3\footnote{Post Office Protocol version
+3} protocol is the philosophy --- IMAP was designed for scenarios where user
+leaves all her e-mail at a central place which has authoritative answer about
+what messages are supposed to ``be there'' while POP3 expects their users to
+download all e-mail to a computer where the POP3 client runs.  This fundamental
+difference is FIXME
+
+\subsection{IMAP Criticism}
 
 \chapter{\trojita Design}
 
