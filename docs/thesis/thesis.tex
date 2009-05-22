@@ -436,6 +436,30 @@ pointer. A working implementation of said class is required.  \trojita build
 system will make use of compiler's built-in TR1 support, if available, and
 resort to using Boost if the compiler doesn't support this extension.
 
+Some 3rd party code also bundled in the source code distribution.  A list of
+such products including the reason for not just using an external library
+follows:
+
+\begin{enumerate}
+    \item{QwwSmtpClient \cite{qwwsmtpclient} is a Qt SMTP client library written
+        by Witold Wysota.  Released to public only in mid May 2009, obtaining a
+        package of it might prove challenging.  The copy in \trojita's codebase
+        also contains some fixes which didn't made it to the publicly released
+        version yet.}
+    \item{ModelTest \cite{modeltest}, a class for verifying certain assumptions
+        of the Interview Model-View framework of Qt.  Qt Software (former
+        Trolltech) doesn't ship it with Qt sources, so \trojita includes a copy
+        for developers' convenience.  This feature is not turned on by default
+        in release builds.}
+    \item{QtIconLoader \cite{qticonloader}, another helper library from Qt
+        Software.  Purpose of it is providing a unified icon set, as per
+        relevant XDG standards.}
+    \item{KCodecs \cite{kcodecs}, an implementation of UTF-7, Base64,
+        Quoted-Printable and related RFC 2047 standards.  These functions are
+        reasonably self-contained, so they are bundled with \trojita instead of
+        depending on quite heavyweight {\tt kdelibs}.}
+\end{enumerate}
+
 \subsection{Obtaining source code}
 
 Source code is available from the CD attached to this thesis or online at FIXME.
@@ -698,6 +722,15 @@ desired.  More on this matter can be found in another place in this thesis
     \bibitem{cmake} CMake Documentation, {\tt
         http://www.cmake.org/cmake/help/documentation.html}
     \bibitem{std-tr1} ISO/IEC TR 19768, C++ Library Extensions
+    \bibitem{qwwsmtpclient} Wysota, W.: QwwSmtpClient released, May 2009, \\
+        {\tt
+        http://blog.wysota.eu.org/index.php/2009/05/13/qwwsmtpclient-released/}
+    \bibitem{modeltest} Qt Software, ModelTest, February 2008, {\tt
+        http://labs.trolltech.com/page/Projects/Itemview/Modeltest}
+    \bibitem{qticonloader} Qt Software, February 2009, \\ {\tt
+        http://labs.trolltech.com/blogs/2009/02/13/freedesktop-icons-in-qt/}
+    \bibitem{kcodecs} The KDE Project: kdelibs, {\tt
+        http://api.kde.org/4.x-api/kdelibs-apidocs/}
 \end{thebibliography}
 
 \end{document}
