@@ -545,6 +545,10 @@ folders and slash ({\tt /}) as used by servers exporting traditional mbox UNIX
 mail store.  This inconsistence might lead to user confusion, but can't be
 avoided without breaking backward compatibility.
 
+\subsection{IMAP Extensions}
+
+FIXME.
+
 \section{Other Methods of Mail Store Access}
 
 IMAP is not the only protocol for accessing mails stored on a remote server.  In
@@ -554,13 +558,75 @@ advantages and disadvantages when compared to IMAP.
 \subsection{POP3}
 
 The main difference between IMAP and POP3\footnote{Post Office Protocol version
-3} protocol is the philosophy --- IMAP was designed for scenarios where user
+3} protocol is their philosophy --- IMAP was designed for scenarios where user
 leaves all her e-mail at a central place which has authoritative answer about
 what messages are supposed to ``be there'' while POP3 expects their users to
-download all e-mail to a computer where the POP3 client runs.  This fundamental
-difference is FIXME
+download all e-mail to a computer where the POP3 client runs and then {\em
+permanently remove the original messages from the server}.  Upon each reconnect,
+POP3 client downloads and deletes all new messages again.  This fundamental
+difference leads to troubles when user wants to use POP3 in situations it wasn't
+designed for -- a classic example is accessing one mailbox from two places over
+time, like a work computer and a laptop at home.  While there are certain ways
+to work around these POP3 design limitations, they all remain just hot fixes
+instead of providing a proper and reliable solution.  An excellent comparison of
+these two paradigms is available from Grey's paper \cite{imap-vs-pop}.
+
+\subsection{MAPI}
+
+A proprietary protocol from Microsoft which documentation got recently opened
+for public access after a pressure from both government an non-government
+organisations.  It has some nice features comparable to IMAP, but offers no real
+advantage besides tight integration with other Exchange services (which might or
+actually might not be considered an advantage).  Implementations from other
+parties than the original vendor are scarce.
+
+\subsection{Webmail}
+
+Several years ago, a boom of online services from well-known companies like
+Google or regional Internet portals grew popularity.  Despite inherent
+limitations of web-based user interfaces, most ``casual'' users of e-mail,
+especially the second ``home mailboxes'' of regular employees, are today hosted
+and accessed via the webmail interface.  Although hardly any of these services
+offers any guarantee about availability or performing backups, regular users
+typically aren't concerned about these issues.  Reliability of these services
+is, on the other hand, typically greater than that of a typical home PC with
+aging hardware, and even friendliness of the UI improved with advent of recent
+web technologies.
 
 \subsection{IMAP Criticism}
+
+During more than 20 years of the IMAP history, the standard has certainly
+accumulated some aging dust.  A typical example are the synchronizing literals,
+originally the only way to send more complex data to the server, which require
+explicit server's acknowledgment before continuation.  Given a typical GPRS
+connection which is still common in many countries, a latency of 500ms can delay
+all interaction with the IMAP server considerably.  Many similar aspects were
+fixed by subsequent modifications to the standard, others are rather unfixable
+design limitations.
+
+A fine example of such limitation, at least when perceived by contemporary
+optics, is the concept of mailboxes.  Online messaging services like GMail
+introduced a new way of thinking about messages -- previously a message would
+belong to exactly one mailbox and if user wanted to have it available from two
+places (perhaps in ``work related'' and ``mailing list'' folders), she would
+have to store two copies.  IMAP has no concept of a ``link'' between two
+messages.  When one is flagged, the other copy is left intact.  Another
+prehistoric feature of IMAP is its modified UTF-7 encoding which is not used
+anywhere else besides the IMAP protocol.  Another point -- IMAP usually does a
+good job in shielding the client implementation from the need to parse all MIME
+data, but certain pieces remain, like the RFC 2822 headers with international
+characters.
+
+Some authors also criticize the protocol on basis of its complexity and being
+loosely-defined in certain aspects.  An example is the IDLE \cite{rfc-idle}
+extension, which adds an explicit mode indicating to the server that the client
+is really ready to process any updates to mailbox state, while the original RFC
+mandated the client to be in such condition all the time.  Most common MUAs also
+have troubles with getting all side-corners of IMAP right.
+
+That being said, the IMAP is the only widely implemented standard for accessing
+an online or disconnected mail store.  It has certain deficiencies, but all in
+all, it's a perfectly usable protocol.
 
 \chapter{\trojita Design}
 
@@ -897,6 +963,9 @@ desired.  More on this matter can be found in another place in this thesis
         Content-Disposition Header Field, {\em RFC2183}, August 1997
     \bibitem{rfc-threading}Crispin, M., Murchison, K.: Internet Message Access
         Protocol - SORT and THREAD Extensions, {\em RFC5256}, June 2008
+    \bibitem{imap-vs-pop}Gray, T.: Message Access Paradigms and Protocols,
+        September 1995, online at {\tt
+        ftp://ftp.cac.washington.edu/mail/imap.vs.pop}
     \bibitem{qt} Qt Reference Documentation, {\tt http://doc.trolltech.com/4.5/}
     \bibitem{cmake} CMake Documentation, {\tt
         http://www.cmake.org/cmake/help/documentation.html}
