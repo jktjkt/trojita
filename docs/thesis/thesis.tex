@@ -189,7 +189,7 @@ recursively defined entity with rich tree structure.
 
 An {\em IMAP server} is a host in the Internet which provides access to local
 mail store via the standard protocol, IMAP4rev1 in this case. The IMAP server
-might be located in user's employer's data center or on the user's laptop, for
+might be located in an employer's data center or on the user's laptop, for
 example.
 
 An {\em MTA}\footnote{Mail Transfer Agent} or an {\em SMTP Server} is an
@@ -254,8 +254,9 @@ strongly recommends that UIDVALIDITY should be kept constant if at all possible,
 a compliant IMAP client has to deal with UIDVALIDITY changes nonetheless.
 
 The \label{imap-envelope}{\em IMAP envelope} is a data structure holding
-interesting values determined from various message headers.  It is {\em not} the
-same thing as the SMTP envelope, which typically stores less information.
+interesting values determined mostly from various message headers.  It is {\em
+not} the same thing as the SMTP envelope, which typically stores less
+information.
 
 The {\em Internal date} holds a time stamp about when the message was delivered
 to the IMAP server.  {\em Size} attribute is the number of octets required for
@@ -291,7 +292,7 @@ e-mail message bodies.  Previously, a message body was just a plain text, while
 from the codification of this standard, it became possible to exchange more
 structured information.  Contemporary users are probably familiar with HTML
 e-mails containing embedded images and a PDF attachment for seamless printing.
-Users routinely send mails with attached photographs from their holidays, or an
+Users routinely send e-mails with attached photographs from their holidays, or an
 archive containing business presentation.
 
 MIME standard achieves this by defining a {\em content type} for message
@@ -337,12 +338,13 @@ by a similar approach, as defined in RFC 2047 \cite{rfc-2047}.
 
 \subsection{MIME Support in IMAP}
 
-Much of the MIME work can be offloaded to the IMAP server.  This is especially
-true for message structure parsing, where the IMAP specification provisions ways
-to explore the ``tree'' of a message, as well as fetch the resulting body parts
-separately (and even including byte ranges for more convenient download).
+A large part of work involving the MIME support can be performed by the IMAP
+server.  This is especially true for message structure parsing, where the IMAP
+specification provisions ways to explore the ``tree'' of a message, as well as
+methods for retrieving the resulting body parts separately (and even including
+byte ranges for more convenient download).
 
-The IMAP protocol doesn't, however, handle the second part of MIME, nor much of
+The IMAP protocol doesn't, however, handle the rest of MIME support, nor much of
 other header parsing.  While it is common to ask the server for just a named
 subset of RFC 2822 mail headers, the returned data are not pre-parsed in any
 way.  Therefore, much of the work from coalescing several header parts to
@@ -355,20 +357,19 @@ itself provides extensions for message threading \cite{rfc-threading} et cetera.
 
 \section{IMAP Protocol Flow}
 
-Upon a successful connection to a remote IMAP server, a client might choose to
-authenticate itself if the server hasn't pre-authenticated it automatically
-(perhaps as a result of being run by a wrapper script under non-privileged user
-who can't switch to any other anyway).  After that or in case the
-authentication is not required, the connection enters the {\em authenticated}
-state.  In this phase, no mailbox is selected and only a subset of commands is
-valid.  Clients can, for example, ask for listings of mailbox tree, get
-quick information about number of messages in a particular mailbox or otherwise
-manage mailboxes as whole.  They have to, however, {\em select} a mailbox in
-order to do anything else, like retrieving messages or marking them as read.
+Upon a successful connection to a remote IMAP server, client might choose to
+authenticate itself if the server has not already pre-authenticated it automatically
+under a particular user account.  After that or in case the authentication is
+not required, the connection enters the {\em authenticated} state.  In this
+phase, no mailbox is selected and only a subset of commands is valid.  Clients
+can, for example, ask for listings of the mailbox tree, get quick information
+about number of messages in a particular mailbox or otherwise manage mailboxes
+as a whole.  They have to, however, {\em select} a mailbox in order to do
+anything else, like retrieving messages or marking them as read.
 
-A mailbox can be opened read-only or for both reading and writing, provided the
-authenticated user has enough privileges.  Retrieving messages can be done in
-both modes, but write operations (like storing a new message to mailbox or
+A mailbox can be opened as read-only or for both reading and writing, provided the
+authenticated user has sufficient privileges.  Retrieving messages can be done in
+both modes, but write operations (like storing a new message to the mailbox or
 manipulating the message flags) require read-write access.
 
 \subsection{Commands and responses}
@@ -390,10 +391,10 @@ rules\footnote{See section 5.5 of RFC 3501}.
 Each command usually leads to at least one server response, the {\em tagged
 reply}.  This response contains the same tag as the client sent in the original
 command, allowing the client to find out if the command failed or succeeded.
-Some commands also result in sending another replies, the {\em untagged
-replies}.  The important thing in IMAP is that such untagged replies could occur
+Some commands may result in sending further replies, the {\em untagged
+replies}.  An important detail of the protocol is that such untagged replies are allowed to occur
 at almost any time during the conversation and {\em not} only as a result of a
-particular command.  All clients must be prepared for this situation and handle
+particular command.  A compliant client must be prepared for this situation and handle
 it correctly, for there is no difference between those unilaterally generated
 and ``requested'' replies.
 
@@ -412,7 +413,7 @@ purge from local cache as a result of received EXPUNGE without extra {\tt
 FETCH}) are high and usually outweigh possible initial savings.
 
 An IMAP server fully conforming to RFC 3501 is required to sent a few ``status''
-replies as a part of selecting of a mailbox.  Interesting fields for mailbox
+replies as a part of selecting of a mailbox.  Interesting fields for the mailbox
 synchronization are updates on UIDVALIDITY, UIDNEXT and EXISTS.  After receiving
 all three, client has enough information to decide about what actions are
 necessary to bring the particular mailbox back to a fully synchronized state.
@@ -427,7 +428,7 @@ syncing form an initial state where client has no knowledge about the target
 mailbox. In the following text, we will assume that the UIDVALIDITY value is the
 same as on the previous synchronization.
 
-If the UIDNEXT value didn't change, either, no messages were delivered to the
+If the UIDNEXT value did not change either, no messages were delivered to the
 mailbox since the last time.  If the EXISTS number is the same as well, there
 have been no changes at all and the only item to re-synchronize are message
 flags.  If EXISTS number changed, some messages were permanently removed.
@@ -440,9 +441,9 @@ and which require re-synchronization.
 If the UIDNEXT changed\footnote{It could only grow up, because UID numbers are
 strictly ascending} and the $\Delta UID$ is the same as $\Delta EXISTS$, some
 new messages arrived, but none were deleted and the client only has to ask for
-UIDs of these new messages (and FLAGS for all message in the mailbox).  If the
-differences in UIDNEXT and EXISTS increments differ, a fallback to generic
-synchronizing approach where client retrieves UIDs of all messages in mailbox is
+UIDs of these new messages (and FLAGS for all messages in the mailbox).  If the
+increments of UIDNEXT and EXISTS differ, a fallback to generic
+synchronizing approach where client retrieves UIDs of all messages in the mailbox is
 necessary.  It is also reasonable to transfer flags as a part of this step.
 
 If there were no cached information or a UIDVALIDITY change occurred, clients
@@ -453,10 +454,10 @@ client is in a fully synchronized state and ready for receiving mailbox updates.
 
 \subsection{Changes to Mailbox}
 
-Currently selected mailbox is typically of some interest to the user.  The
+The mailbox that is selected is typically of some interest to the user.  The
 original IMAP RFC mandated that all clients must be prepared for receiving
 updates about number of messages contained therein, removal of old ones and
-deliver of new, but due to lacking support in clients at that time, this feature
+deliver of new, but due to the lack of support by clients at that time, this feature
 was rarely fully utilized.  Instead, the {\em NOOP} command was widely used as a
 polling check for new messages.  However, this had all the disadvantages about
 polling-based approach, especially unneeded increase in network traffic, lower
@@ -483,7 +484,7 @@ mailbox, as this is already handled by EXPUNGE.
 
 \subsection{Fetching and Manipulating Messages}
 
-Once selected, messages in the mailbox can be queried and downloaded ot the
+Once selected, messages in the mailbox can be queried and downloaded to the
 client.  The {\em FETCH} command serves for retrieving all data from body
 structures and IMAP envelopes to actual message parts.  Message flags are
 updated by the {\em STORE} command and its variants.  Existing messages can be
@@ -493,11 +494,11 @@ stored into a mail folder by command {\em APPEND}.
 \subsection{Queries Against Other Mailboxes}
 
 Because most graphical MUAs want to show the user more than one mailbox at a
-time, at least in a collapsed view with amounts of new or unread messages, and
+time, at least in a collapsed view with counts of new or unread messages, and
 frequent switching among several mailboxes is not a cheap operation, IMAP also
-contains command for determining state of other than currently selected mailbox,
-the {\em STATUS} command.  Using this command for querying state of currently
-selected mailboxes is explicitly forbidden by the RFC, for a conforming client
+provides a command for determining state of other than currently selected mailbox,
+the {\em STATUS} command.  Using this command for querying state of a currently
+selected mailbox is explicitly forbidden by the RFC, for a conforming client
 already has all required information to compute all possible message counts.
 Another reason for disallowing STATUS on current mailbox is that in some server
 implementations, this operation might cause a process to open the mailbox once
@@ -509,13 +510,13 @@ even more.
 Even the base specification of the IMAP protocol provides facilities for
 searching the messages stored in current mailbox.  This was extended over time
 by ways to request specific message ordering or threading \cite{rfc-threading}.
-Most e-mail clients therefore don't have to have all message bodies and headers
+Most e-mail clients therefore do not need to have all message bodies and headers
 fetched and available in local cache in order to allow their users to search
 through messages.  However, this searching and sorting is not available in
 offline clients which have to implement their own code for such purposes, or
 disallow these operations when network access is disabled.
 
-Following revision also specified certain extensions related to
+Following revisions also specified certain extensions related to
 internationalization of e-mail traffic.  For example, searching for non-ASCII
 characters in messages would be very hard using the bare-bone SEARCH command
 only, as each message in mailbox can be store in one of the myriad encodings
@@ -526,9 +527,9 @@ message that arrived in different character sets.
 \subsection{Manipulating Mailboxes}
 
 Due to some historic reasons (especially the old versions of SMTP protocol being
-7bit), IMAP doesn't use any standard encoding for mailbox names.  Instead, a
+7bit), IMAP does not use any standard encoding for mailbox names.  Instead, a
 modified version of UTF-7 called simply {\em modified UTF-7} is mandated.  The
-standard doesn't specify what to do if the other side uses 8bit data in mailbox
+standard does not specify what to do if the other side uses 8bit data in mailbox
 name, but most implementations nowadays fall back to UTF-8, which is arguably a
 good thing to do.
 
@@ -542,7 +543,7 @@ If mailboxes form a tree, the server implementation specifies which character is
 used as a hierarchy delimiter.  Most common choices in today's mainstream IMAP
 servers are dot ({\tt .}) which is common among servers exporting Maildir
 folders and slash ({\tt /}) as used by servers exporting traditional mbox UNIX
-mail store.  This inconsistence might lead to user confusion, but can't be
+mail store.  This inconsistence might lead to user confusion, but cannot be
 avoided without breaking backward compatibility.
 
 \subsection{IMAP Extensions}
@@ -559,7 +560,7 @@ advantages and disadvantages when compared to IMAP.
 
 The main difference between IMAP and POP3\footnote{Post Office Protocol version
 3} protocol is their philosophy --- IMAP was designed for scenarios where user
-leaves all her e-mail at a central place which has authoritative answer about
+leaves all her e-mail at a central place which has authoritative answer (FIXME answer?) about
 what messages are supposed to ``be there'' while POP3 expects their users to
 download all e-mail to a computer where the POP3 client runs and then {\em
 permanently remove the original messages from the server}.  Upon each reconnect,
@@ -567,7 +568,8 @@ POP3 client downloads and deletes all new messages again.  This fundamental
 difference leads to troubles when user wants to use POP3 in situations it wasn't
 designed for -- a classic example is accessing one mailbox from two places over
 time, like a work computer and a laptop at home.  While there are certain ways
-to work around these POP3 design limitations, they all remain just hot fixes
+to work around these POP3 design limitations which allow leaving a copy of each
+message on the POP3 server, they all remain just hot fixes
 instead of providing a proper and reliable solution.  An excellent comparison of
 these two paradigms is available from Grey's paper \cite{imap-vs-pop}.
 
@@ -583,14 +585,14 @@ parties than the original vendor are scarce.
 \subsection{Webmail}
 
 Several years ago, a boom of online services from well-known companies like
-Google or regional Internet portals grew popularity.  Despite inherent
+Google or regional Internet portals grew in popularity.  Despite inherent
 limitations of web-based user interfaces, most ``casual'' users of e-mail,
 especially the second ``home mailboxes'' of regular employees, are today hosted
-and accessed via the webmail interface.  Although hardly any of these services
+and accessed via a webmail interface.  Although hardly any of these services
 offers any guarantee about availability or performing backups, regular users
 typically aren't concerned about these issues.  Reliability of these services
 is, on the other hand, typically greater than that of a typical home PC with
-aging hardware, and even friendliness of the UI improved with advent of recent
+aging hardware, and friendliness of the UI improved with advent of recent
 web technologies.
 
 \subsection{IMAP Criticism}
