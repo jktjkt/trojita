@@ -213,7 +213,7 @@ mixing of both.
 \section{IMAP-specific Attributes}
 
 A message in the IMAP sense is {\em immutable}, that is, its contents (like
-header, structure of the body or the actual message parts) can't change, ever.
+header, structure of the body or the actual message parts) cannot change, ever.
 Each message also has mutable attributes, the most important being {\em flags}.
 
 Messages in a remote IMAP mailbox are identified by two partially independent
@@ -235,7 +235,7 @@ accessed the mailbox data behind the back of the IMAP server.  Perhaps the user
 tried a utility program that removes huge attachment from an otherwise valuable
 message, or a spam classifier modified message headers directly, bypassing
 standard mechanisms for proper flagging.  In any such case, the IMAP guarantee
-of immutable nature of the messages doesn't hold, and a compliant IMAP server
+of immutable nature of the messages does not hold, and a compliant IMAP server
 has to communicate this problem to all clients.  The {\em UIDVALIDITY} mailbox
 attribute serves this purpose.  Whenever the UIDVALIDITY changes, a compliant
 client is required to throw away any cached information about a mailbox because
@@ -344,7 +344,7 @@ specification provisions ways to explore the ``tree'' of a message, as well as
 methods for retrieving the resulting body parts separately (and even including
 byte ranges for more convenient download).
 
-The IMAP protocol doesn't, however, handle the rest of MIME support, nor much of
+The IMAP protocol does not, however, handle the rest of MIME support, nor much of
 other header parsing.  While it is common to ask the server for just a named
 subset of RFC 2822 mail headers, the returned data are not pre-parsed in any
 way.  Therefore, much of the work from coalescing several header parts to
@@ -565,7 +565,7 @@ what messages are supposed to ``be there'' while POP3 expects their users to
 download all e-mail to a computer where the POP3 client runs and then {\em
 permanently remove the original messages from the server}.  Upon each reconnect,
 POP3 client downloads and deletes all new messages again.  This fundamental
-difference leads to troubles when user wants to use POP3 in situations it wasn't
+difference leads to troubles when user wants to use POP3 in situations it was not
 designed for -- a classic example is accessing one mailbox from two places over
 time, like a work computer and a laptop at home.  While there are certain ways
 to work around these POP3 design limitations which allow leaving a copy of each
@@ -590,7 +590,7 @@ limitations of web-based user interfaces, most ``casual'' users of e-mail,
 especially the second ``home mailboxes'' of regular employees, are today hosted
 and accessed via a webmail interface.  Although hardly any of these services
 offers any guarantee about availability or performing backups, regular users
-typically aren't concerned about these issues.  Reliability of these services
+typically are not concerned about these issues.  Reliability of these services
 is, on the other hand, typically greater than that of a typical home PC with
 aging hardware, and friendliness of the UI improved with advent of recent
 web technologies.
@@ -628,7 +628,7 @@ have troubles with getting all side-corners of IMAP right.
 
 That being said, the IMAP is the only widely implemented standard for accessing
 an online or disconnected mail store.  It has certain deficiencies, but all in
-all, it's a perfectly usable protocol.
+all, it is a perfectly usable protocol.
 
 \chapter{\trojita Design}
 
@@ -667,7 +667,7 @@ required to be present on the system.
 
 Recommended version of the Qt framework \cite{qt} is at least 4.5. \trojita,
 however, includes compatibility code for older versions of Qt. Minimal supported
-version is Qt/4.4. Any older release can't be supported, as the WebKit HTML
+version is Qt/4.4. Any older release cannot be supported, as the WebKit HTML
 engine which we use for e-mail rendering rendering was added during the 4.4
 development. If users choose to build against 4.4, some \trojita features might
 be missing.
@@ -679,7 +679,7 @@ especially due to author's familiarity with the former system.
 \cite{std-tr1} standardisation, namely the {\tt std::tr1::shared\_ptr} smart
 pointer. A working implementation of said class is required.  \trojita build
 system will make use of compiler's built-in TR1 support, if available, and
-resort to using Boost if the compiler doesn't support this extension.
+resort to using Boost if the compiler does not support this extension.
 
 Some 3rd party code is also bundled in the source code distribution.  A list of
 such products including the reason for not just using an external library
@@ -689,11 +689,11 @@ follows:
     \item{QwwSmtpClient \cite{qwwsmtpclient} is a Qt SMTP client library written
         by Witold Wysota.  Released to public only in mid May 2009, obtaining a
         package of it might prove challenging.  The copy in \trojita's codebase
-        also contains some fixes which didn't made it to the publicly released
+        also contains some fixes which did not made it to the publicly released
         version yet.}
     \item{ModelTest \cite{modeltest}, a class for verifying certain assumptions
         of the Interview Model-View framework of Qt.  Qt Software (former
-        Trolltech) doesn't ship it with Qt sources, so \trojita includes a copy
+        Trolltech) does not ship it with Qt sources, so \trojita includes a copy
         for developers' convenience.  This feature is not turned on by default
         in release builds.}
     \item{QtIconLoader \cite{qticonloader}, another helper library from Qt
@@ -780,7 +780,7 @@ the {\em Message List} widget on the bottom right corner of the application
 window.  After having selected a mailbox, the list of messages appears shortly.
 Again, the loading is faster next time \trojita is launched.
 
-Depending on user settings, \trojita typically won't transfer all messages
+Depending on user settings, \trojita typically will not transfer all messages
 metadata upon opening a mailbox.  This feature is implemented to conserve
 both server's and client's resources and to be nice to the network traffic.  In
 a typical mode, that is, when not being told to be extra-mean with resources,
@@ -812,7 +812,7 @@ messages.  It might or might not be a real mailbox on the server, or just a
 virtual folder implemented purely in the e-mail client.} for
 messages.  Instead, each message can be marked as deleted.  If flagged as such,
 \trojita displays a graphical indicator next to the message subject.  A deleted
-message won't be physically removed from the mailbox until the user explicitly
+message will not be physically removed from the mailbox until the user explicitly
 requests such an action.  This operation, called {\em expunge} in the IMAP
 dictionary, is available from the application menu.  Expunging happens on one
 mailbox at a time, there is no way to tell the IMAP server to permanently remove
@@ -850,24 +850,24 @@ The displayed dialog should be familiar to most users.
 \trojita automatically checks the current folder for new messages.  If the
 remote server supports the IDLE extension \cite{rfc-idle}, the method used is
 extremely friendly to both network and server resources.  In cases the server
-doesn't support this feature, \trojita resorts to polling with all it
+does not support this feature, \trojita resorts to polling with all it
 disadvantages.
 
 \section{Advanced usage}
 
 \subsection{Partial Message Fetching}
 
-Thanks to unique features of the IMAP protocol, it isn't necessary to fetch the
+Thanks to unique features of the IMAP protocol, it is not necessary to fetch the
 whole message in order to display just a fragment of it.  \trojita handles this
-automatically, fetching message parts on demand.  It also won't transfer message
+automatically, fetching message parts on demand.  It also will not transfer message
 metadata (like its RFC2822 envelope) unless really needed.
 
 \subsection{Offline Mode}
 
 When put into {\em offline mode}, \trojita will prevent itself from accessing
 the network at all.  Users will be still able to view already transfered data, but
-no checks for new messages will be performed and those that aren't stored in
-local offline cache won't have actual message bodies displayed until the user
+no checks for new messages will be performed and those that are not stored in
+local offline cache will not have actual message bodies displayed until the user
 selects either {\em online} or {\em expensive network} mode from the menu.
 
 \subsection{Expensive Network}
@@ -894,8 +894,8 @@ choose what is interesting and what can be ignored.
 
 {\em Online mode}, the common mode of operation, is what users are familiar from
 other IMAP clients.  \trojita employs intelligent preloading of interesting
-contents to minimize waiting times, yet doesn't blindly download everything,
-including parts that won't be ever shown.
+contents to minimize waiting times, yet does not blindly download everything,
+including parts that will not be ever shown.
 
 \subsection{Local Cache}
 
@@ -905,7 +905,7 @@ offline on-disk cache.  If a message data is transfered twice, it means that at
 least one of the following conditions was met:
 
 \begin{enumerate}
-    \item{The server couldn't guarantee the immutability of messages.  This might
+    \item{The server could not guarantee the immutability of messages.  This might
         happen when some process touches on-disk data internal to the IMAP
         server in a non-standard way.}
     \item{User has changed her settings.  Whenever any data used to access the
@@ -921,10 +921,10 @@ including mailbox hierarchy, messages in mailboxes and mailbox parts.  This
 widget is a nice demonstration of a complex nature of MIME messages -- while
 most users are probably familiar with the concept of attachments, the truth is
 that MIME defines a fully recursive structure that one message can consist of.
-For example, it's perfectly possible to have a message composed of six parts,
+For example, it is perfectly possible to have a message composed of six parts,
 each of them being a forwarded message, and each of these forwarded messages
 being rich-structured as well.  \trojita does its best at formatting the message
-in a sane and familiar way, but unfortunately some senders don't really follow
+in a sane and familiar way, but unfortunately some senders do not really follow
 the same philosophy and produce messages whose structure leaves much to be
 desired.  More on this matter can be found in another place in this thesis
 \ref{FIXME}.
