@@ -736,6 +736,20 @@ mailbox synchronization is invoked after the new view asks the model about how
 many messages to show, and then for more data concerning those messages that are
 visible in the current viewport.
 
+One important feature implemented in \trojita which is lacking in most e-mail
+clients, especially those which started with POP3 as the data model, is delayed
+on-demand fetching with an intelligent preload.  Suppose a user has a big
+mailbox with more than 30,000 e-mail messages.  A naive client would open a
+connection to the server, select the mailbox and then fetch envelopes for all
+messages in the mailbox.  Most of these messages will not be ever shown to the
+user, though -- thirty thousands messages is too much to be displayed on one
+screen.  What \trojita does is, however, more clever -- it creates thirty
+thousand of {\em fake} entries in the Model, each displaying a {\em
+loading\ldots} sign, and ask for the real data only for those that are actually
+visible (with some read-ahead and read-behind for increased efficiency).  This
+effectively minimizes the amount of network traffic as well as local cache
+bloat and the load on the remote IMAP server.
+
 \section{Parser}
 
 \section{Low-level Parser}
