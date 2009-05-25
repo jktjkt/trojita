@@ -548,7 +548,12 @@ avoided without breaking backward compatibility.
 
 \subsection{IMAP Extensions}
 
-FIXME.
+The IMAP protocol also has support for extending its functionality.  Extensions
+can add new commands, replies and reply codes and even change basic aspects of
+the protocol, as shown by the introduction of non-synchronizing literals.
+Support for these extensions is strictly voluntary, and each compliant IMAP
+protocol entity has to work even when talking to an implementation supporting
+bare IMAP4rev1 as specified by RFC~3051.
 
 \section{Other Methods of Mail Store Access}
 
