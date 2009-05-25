@@ -391,12 +391,12 @@ rules\footnote{See section 5.5 of RFC 3501}.
 Each command usually leads to at least one server response, the {\em tagged
 reply}.  This response contains the same tag as the client sent in the original
 command, allowing the client to find out if the command failed or succeeded.
-Some commands may result in sending further replies, the {\em untagged
-replies}.  An important detail of the protocol is that such untagged replies are allowed to occur
-at almost any time during the conversation and {\em not} only as a result of a
-particular command.  A compliant client must be prepared for this situation and handle
-it correctly, for there is no difference between those unilaterally generated
-and ``requested'' replies.
+Some commands may result in sending further replies, the {\em untagged replies}.
+An important detail of the protocol is that such untagged replies are allowed to
+occur at almost any time during the conversation and {\em not} only as a result
+of a particular command.  A compliant client must be prepared for this situation
+and handle it correctly, for there is no difference between those unilaterally
+generated and ``requested'' replies.
 
 \subsection{Mailbox Synchronization}
 
