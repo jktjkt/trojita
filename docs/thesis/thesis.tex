@@ -657,7 +657,44 @@ all, it is a perfectly usable protocol.
 
 \chapter{\trojita Design}
 
+As evidenced by numerous available MUAs on the market, there are many possible
+ways on how to implement a usable e-mail client.  In this chapter, we explain
+some design choices behind \trojita.
+
 \section{Overview}
+
+\trojita is composed of several logically decoupled layers of independent
+components.  Communication between them adheres to a strictly defined interface.
+
+On the top of the hierarchy lies the {\em GUI}.  This part is what the user
+interacts with; it provides views showing all mailboxes on a server, list of
+messages in currently selected mailbox and the contents of e-mail messages
+themselves.  The GUI is based on the Qt framework, making use of various
+standard components, especially the Interview framework~\cite{qt-interview} and
+the WebKit~\cite{qt-webkit} as well as certain custom widgets.
+
+The GUI is fed with data by the {\em Model}, a model-view implementation created
+with the Qt item views.  This part works in a close collaboration with the IMAP
+server, building a representation of data stored on the remote host based on
+IMAP replies received and sending command to the server in response to user
+actions.  Most of the IMAP protocol logic is implemented in this layer.
+
+The Model is assisted by a {\em Cache}.  The cache provides persistent storage
+for certain data which are convenient to be present on next invocation of the
+application.  Examples of such data include message parts or some mailbox
+metadata allowing for quick resynchronization after a reconnect.  While its role
+and the data stored therein is not critical for the operation, having a local
+cache can considerably speed up operation.  A layer serving a similar purpose is
+common among other e-mail clients as well.
+
+Beneath the Model is the IMAP {\em Parser}, a component converting stream of
+data flowing from the server into structured (and as the name suggests, parsed)
+data.  The parser is assisted by a {\em Low-level parser}, an entity responsible
+for analysing the byte stream into tokens of data like strings or numbers.
+
+Finally, all network IO is managed by a {\em Stream} and associated classes
+which provide a consistent interface for managing connections to the remote
+server.
 
 \section{Model-View Architecture}
 
@@ -994,6 +1031,10 @@ desired.  More on this matter can be found in another place in this thesis
         September 1995, online at {\tt
         ftp://ftp.cac.washington.edu/mail/imap.vs.pop}
     \bibitem{qt} Qt Reference Documentation, {\tt http://doc.trolltech.com/4.5/}
+    \bibitem{qt-interview}Qt Software: The Interview Framework, {\tt
+        http://doc.trolltech.com/4.5/qt4-interview.html}
+    \bibitem{qt-webkit}Qt Software: QtWebKit Module, {\tt
+        http://doc.trolltech.com/4.5/qtwebkit.html}
     \bibitem{cmake} CMake Documentation, {\tt
         http://www.cmake.org/cmake/help/documentation.html}
     \bibitem{std-tr1} ISO/IEC TR 19768, C++ Library Extensions
