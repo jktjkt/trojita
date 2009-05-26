@@ -674,18 +674,19 @@ standard components, especially the Interview framework~\cite{qt-interview} and
 the WebKit~\cite{qt-webkit} as well as certain custom widgets.
 
 The GUI is fed with data by the {\em Model}, a model-view implementation created
-with the Qt item views.  This part works in a close collaboration with the IMAP
-server, building a representation of data stored on the remote host based on
-IMAP replies received and sending command to the server in response to user
-actions.  Most of the IMAP protocol logic is implemented in this layer.
+with the Qt item views.  This part works in close collaboration with the IMAP
+server. It is responsible for processing server replies, building a
+representation of data stored on the remote host and sending commands to the
+server in response to user actions.  Most of the IMAP protocol logic is
+concentrated on this layer.
 
 The Model is assisted by a {\em Cache}.  The cache provides persistent storage
 for certain data which are convenient to be present on next invocation of the
-application.  Examples of such data include message parts or some mailbox
-metadata allowing for quick resynchronization after a reconnect.  While its role
-and the data stored therein is not critical for the operation, having a local
-cache can considerably speed up operation.  A layer serving a similar purpose is
-common among other e-mail clients as well.
+application.  Examples of such data include message parts or a mailbox state
+information which allows a quick resynchronization after a reconnect.  While the
+role of the cache and the data stored therein is not critical for \trojita's
+operation, having a local cache can considerably speed up the runtime.  A layer
+serving a similar purpose is common among other e-mail clients as well.
 
 Beneath the Model is the IMAP {\em Parser}, a component converting stream of
 data flowing from the server into structured (and as the name suggests, parsed)
@@ -699,7 +700,7 @@ server.
 \section{Model-View Architecture}
 
 \trojita's heart, the Model, implements an interface of the QAbstractItemModel,
-a variation of a well-known Model-View-Controller design pattern.  This
+a variant of a well-known Model-View-Controller design pattern.  This
 architecture provides natural separation between how data are stored and how
 they are displayed.  In case of \trojita, we went a bit ahead when compared to
 the common approach and made essentially everything just a node, a part in one
@@ -708,9 +709,9 @@ contains all mailboxes, all messages stored in them and even the message
 structure and actual message body parts as its nodes, while several {\em
 filtering models} provide more user-oriented view, like ``all mailboxes'' or
 ``messages in a mailbox''.  An alternative to this one-big-tree approach were
-separate models for the list of mailboxes and for each opened mailbox.  While
+separate models for list of mailboxes and for each opened mailbox.  While
 the latter might make more sense at a first glance and from the perspective of a
-reader who just went through the IMAP standard, subsequent analysis suggests
+reader who just went through the IMAP protocol standard, subsequent analysis suggests
 that one big model actually fits the situation better, unless we wanted to deal
 with nasty issues that would immediately pop up as a result of sharing one
 Parser instance among several Models facing several mailboxes.
@@ -720,35 +721,38 @@ operate.  Upon successful startup, for example, \trojita will not perform much
 commands besides making sure a connection to the remote IMAP server enters the
 authenticated state.  This might involve issuing a {\tt STARTTLS} for
 establishing a secure channel, optional user authentication etc., but none of
-tasks like mailbox listing or even opening of them.  This listing is, however,
+tasks like mailbox listing or even opening some of them.  This listing is, however,
 fetched as a result of a call from the GUI which asks the model what should be
-shown in the view showing a list of mailboxes.
+shown in the view representing a list of mailboxes.
 
-After the list of mailboxes is transmitted, the model tells all the attached
+After the list of mailboxes is received and processed, the model tells all the attached
 views that its layout has changed and that views should update what they show to
 the user.  Views react by requesting more information from the Model, like
 number of unread messages or a total message count for each visible mailbox.
 
-When a user clicks a particular mailbox, another view is pointed to a subset of
+When a user clicks on a particular mailbox, another view is pointed to a subset of
 the big model, now containing a list of messages in the mailbox.  Again, the
-action of clicking to the mailbox does not involve any direct action; the
-mailbox synchronization is invoked after the new view asks the model about how
+action of clicking to the mailbox does not involve any direct action in the model itself; the
+mailbox synchronization is initiated only after the new view asks the model about how
 many messages to show, and then for more data concerning those messages that are
 visible in the current viewport.
 
-One important feature implemented in \trojita which is lacking in most e-mail
-clients, especially those which started with POP3 as the data model, is delayed
-on-demand fetching with an intelligent preload.  Suppose a user has a big
+One important feature implemented in \trojita which is absent from most e-mail
+clients (especially those which started with POP3 as the data model) is delayed
+on-demand fetching with an intelligent preloading.  Suppose a user has a big
 mailbox with more than 30,000 e-mail messages.  A naive client would open a
 connection to the server, select the mailbox and then fetch envelopes for all
 messages in the mailbox.  Most of these messages will not be ever shown to the
-user, though -- thirty thousands messages is too much to be displayed on one
+user, though, as thirty thousands messages is too much to be displayed on one
 screen.  What \trojita does is, however, more clever -- it creates thirty
 thousand of {\em fake} entries in the Model, each displaying a {\em
 loading\ldots} sign, and ask for the real data only for those that are actually
 visible (with some read-ahead and read-behind for increased efficiency).  This
 effectively minimizes the amount of network traffic as well as local cache
-bloat and the load on the remote IMAP server.
+bloat and the load on the remote IMAP server, while user barely notices any
+slowdown.
+
+FIXME: more.
 
 \section{Parser}
 
