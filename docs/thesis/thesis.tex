@@ -839,6 +839,36 @@ introduced only in Qt 4.5 while \trojita still supports building against the
 4.4 release, albeit with reduced feature set.  Therefore, it was deemed that a
 simple custom caching framework is worth the extra work.
 
+
+\section{Streams}
+
+The Qt framework already provides an implementation of an entity with support
+for sequential reading and writing as well as informing the rest of the
+application about the availability of new data.  However, no unified interface
+for reporting errors is provided.  Therefore, most of the classes in the Stream
+sub-library are just thin wrappers around various {\tt QIODevice} subclasses,
+adding unified signals and functions for error handling.
+
+\trojita includes support for communication over unencrypted TCP sockets, over a
+connection secured by SSL\footnote{Secure Socket Layers}/TLS\footnote{Transport
+Layer Security} with the possibility to defer the SSL/TLS negotiation to a later
+point during the IMAP conversation\footnote{The STARTTLS command, cf. section
+6.2.1 of RFC~3501 \cite{rfc-imap}}, and finally over a UNIX pipe to a local
+process.  For the latter, two implementations are actually included, first one
+being a wrapper around the QProcess from Qt and the other a standalone class
+making direct use of POSIX syscalls.  The standalone implementation is no longer
+necessary, but was used in an earlier implementation of the Parser which made
+heavy use of nested calls to QIODevice's {\tt waitForReadyRead()} method.  This
+usage led to hard-to-debug failures in the networking code when using other
+QIODevices than QTcpSocket.  After a communication with Qt Software support
+personnel \cite{qt-qprocess-sigpipe}, it was suggested to abandon these nested
+waitForReadyRead() calls and follow an approach common to Qt applications which
+simply ignore the availability of new data until there is enough bytes to
+process a whole response at once.  In addition to more obvious and cleaner
+code, this eliminated the need for blocking IO and subsequently any advantages
+of a threaded design of the Parser.  Therefore, multithreading was abandoned and
+new single-threaded network handler implemented.
+
 \chapter{Other IMAP Implementations}
 
 \chapter{User's Guide}
@@ -1170,6 +1200,10 @@ desired.  More on this matter can be found in another place in this thesis
         http://doc.trolltech.com/4.5/qt4-interview.html}
     \bibitem{qt-webkit}Qt Software: QtWebKit Module, {\tt
         http://doc.trolltech.com/4.5/qtwebkit.html}
+    \bibitem{qt-qprocess-sigpipe}QProcess could close the reading pipe, thus
+        killing the child process with SIGPIPE, {\em a thread on the qt-interest
+        mailing list}, {\tt
+        http://lists.trolltech.com/pipermail/qt-interest/2009-May/006341.html}
     \bibitem{cmake} CMake Documentation, {\tt
         http://www.cmake.org/cmake/help/documentation.html}
     \bibitem{std-tr1} ISO/IEC TR 19768, C++ Library Extensions
