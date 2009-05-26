@@ -754,9 +754,43 @@ and the load on the remote IMAP server, while user barely notices any slowdown.
 
 FIXME: more.
 
+\subsection{The Tree}
+
+FIXME: Explain TreeItem and derived classes.
+
 \section{Parser}
 
-\section{Low-level Parser}
+The {\em Parser} is responsible for converting raw network replies into data
+suitable for processing by the Model.
+
+\subsection{Low-level Parser}
+
+Certain low-level tasks like extraction of a string literal from the input
+stream are offloaded to a lower-level class, the LowLevelParser.  Reading raw,
+unstructured byte stream as the input, its job is to extract a certain field
+and return it in the specified form.  The resulting type of this tokenizing is
+not, however, determined by the LowLevelParser itself, but by the upper layers.
+LowLevelParser thus works as a dumb context-free extractor rather than a full
+parser.  Examples of functions implemented in the LowLevelParser are {\tt
+getAtom()}, {\tt parseList()} or {\tt getNString()}.
+
+\subsection{Parser}
+
+Parser listens to events from the underlying Socket, sending queued commands to
+the server and processing incoming data as they arrive.  During the development
+of \trojita (and thanks to being the first component to be actually
+implemented), its shape changed several times.  Originally it started as a
+threaded implementation due to certain concerns about interactivity and network
+IO, but after encountering some issues with Qt's handling of the asynchronous
+events signalling ``data available'' and a recommendation from one of the core
+Qt developers, it was refactored into a single-threaded state machine with a
+more conservative handling of the network IO.
+
+When a reply from the server arrives, it instructs the auxiliary LowLevelParser
+to read tokens from the byte stream and builds a reply on-the-fly.  Due to the
+limitations of polymorphism in C++ and concerns about object lifetime and
+ownership, the Parser makes heavy use of the C++ smart pointers, as defined by
+the TR1~\cite{std-tr1}.  Error handling is implemented with exceptions.
 
 \section{Cache}
 
