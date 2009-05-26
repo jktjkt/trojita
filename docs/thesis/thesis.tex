@@ -700,13 +700,13 @@ server.
 \section{Model-View Architecture}
 
 \trojita's heart, the Model, implements an interface of the QAbstractItemModel,
-a variant of a well-known Model-View-Controller design pattern.  This
+a variant of the well-known Model-View-Controller design pattern.  This
 architecture provides natural separation between how data are stored and how
 they are displayed.  In case of \trojita, we went a bit ahead when compared to
 the common approach and made essentially everything just a node, a part in one
 big tree which exports all data available on the server.  This tree then
 contains all mailboxes, all messages stored in them and even the message
-structure and actual message body parts as its nodes, while several {\em
+structure and actual message body parts as its nodes. Several {\em
 filtering models} provide more user-oriented view, like ``all mailboxes'' or
 ``messages in a mailbox''.  An alternative to this one-big-tree approach were
 separate models for list of mailboxes and for each opened mailbox.  While the
@@ -714,7 +714,9 @@ latter might make more sense at a first glance and from the perspective of a
 reader who just went through the IMAP protocol standard, subsequent analysis
 suggests that one big model actually fits the situation better, unless we wanted
 to deal with nasty issues that would immediately pop up as a result of sharing
-one Parser instance among several Models facing several mailboxes.
+one Parser instance among several Models facing several mailboxes.  The upper
+layers are not affected by this decision, as they use a strictly defined
+model-view interface for actual data retrieval.
 
 The model-view architecture subsequently affected how \trojita and her Model
 operate.  Upon successful startup, for example, \trojita will not perform much
