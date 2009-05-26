@@ -754,11 +754,8 @@ visible (with some read-ahead and read-behind for increased efficiency).  This
 effectively minimizes the amount of network traffic as well as local cache bloat
 and the load on the remote IMAP server, while user barely notices any slowdown.
 
-FIXME: more.
-
-\subsection{The Tree}
-
-FIXME: Explain TreeItem and derived classes.
+Being the central part of \trojita, the Model and related components is
+described in section \ref{model-in-detail} at the end of this chapter.
 
 \section{Parser}
 
@@ -870,6 +867,102 @@ process a whole response at once.  In addition to more obvious and cleaner
 code, this eliminated the need for blocking IO and subsequently any advantages
 of a threaded design of the Parser.  Therefore, multithreading was abandoned and
 new single-threaded network handler implemented.
+
+
+\section{Model in Detail}
+\label{model-in-detail}
+
+The {\em Model} is the most complex part of \trojita.  It is responsible for
+correctly figuring out the meaning of various IMAP server replies, requesting
+further data as they are to be shown to the user, managing a pool of connections
+to opened mailboxes as well as handling of certain non-standard situations.
+
+\subsection{The Tree}
+
+Being an implementation of QAbstractItemModel, Model has to provide an interface
+with which the attached views and proxy models\footnote{Proxy models are
+auxiliary models which do not supply their own data, but instead provide a
+filtered and modified view of data published by the parent model.  More on this
+topic is explained in section \ref{model-proxies}.} can operate.
+
+As most of other complex implementations of the QAbstractItemModel which provide
+a tree view with deep hierarchy, the Model maintains an internal tree of classes
+representing different entities in the big tree.  These entities are:
+
+\begin{description}
+    \item[TreeItem] An abstract parent class providing a common interface for
+        all specialized implementations
+    \item[TreeItemMailbox] A class representing a remote mailbox on the IMAP
+        server.  Children of the mailbox are other mailboxes and a {\em list of
+        messages}.
+    \item[TreeItemMsgList] A container holding all messages in mailbox
+    \item[TreeItemMessage] One message in a particular mailbox
+    \item[TreeItemPart] One MIME body part of a message
+\end{description}
+
+Each of the mentioned classes contains enough information to be able to handle
+all delegated operations related to the Interview framework.  For example, when
+the Model is asked for a displayable textual data for a particular index, it
+delegates the query to the corresponding TreeItem instance using virtual
+methods.  The target instance then decides about {\em what is actually
+requested} and {\em how to retrieve that data}.  Certain requests might be
+satisfied from the data already stored in the TreeItem instance itself while
+other require a query against the IMAP server.  If the latter happens, the
+TreeItem asks the Model to submit a request to the IMAP server and returns some
+{\em temporary data} in response to the original request which most likely
+originated from the GUI.  A typical temporary representation is a translated
+form of {\em ``loading\ldots''} or a question mark.  As soon as the real data
+arrive from the server, the view is asked to update the display with new value.
+
+To illustrate this complex theory in reality, suppose a view just scrolled to a
+new message in the mailbox.  The view obtained a {\em model index\footnote{A
+temporary index used for referring to certain item in the Model.  The model
+index is a standard term from the Qt Interview framework, and as such is not
+described in detail in this thesis.  Readers are referred to excellent Qt online
+documentation for details.}} from the Model and called the Model's {\tt data()}
+function to find out what should be displayed on screen.  This function call was
+immediately propagated to the newly created TreeItemMessage instance.  As the
+message just arrived to the mailbox, the class didn't have time to request more
+data about it yet.  The TreeItemMessage instance is therefore in an {\em initial
+state} indicating that no attempt to load the data from the server was
+performed, and thus the {\tt data()} implementation does not havy any real
+answer to the original request.  Therefore, it submits a request to the Model to
+fetch the IMAP envelope of the particular message.  However, the reply to this
+message is not guaranteed to arrive in a timely manner and the TreeItemMessage
+implementation cannot afford to block the GUI while it waits for the
+corresponding reply.  It therefore returns an empty placeholder (or some
+intuitive string like the {\em loading\ldots} text already mentioned) for the
+time being.  This text is then displayed in the GUI, for the Model does not have
+anything better to show to the user yet.  In addition to that, the
+TreeItemMessage changes its state to {\em loading} which indicates that the
+remote server was already asked for the data and there is no point in requesting
+it over and over again.
+
+In the meanwhile, the Model receives TreeItemMessage's request for fetching an
+envelope.  It decides that the requested data belong to, say, message No. 666 in
+the mailbox, the total message count is 670 and that no messages between 660
+and 670 got fetched yet.  To enhance the user experience and minimize network
+round-trips, the Model submits a request to fetch message envelopes of all these
+messages, as chances are high that most of them will be queried for data soon
+anyway.  As a part of this request, they are all flagged as {\em loading}.
+
+After a while, the response from the server arrives.  As usual, the Model
+delegates the actual processing of the reply to the TreeItemMailbox or
+TreeItemMessage instance.  The instance notices that enough data for updating
+its state from {\em loading} to {\em fetched} has arrived, so it marks itself as
+{\em fetched} and tells the Model to broadcast this change to the attached
+consumers (views).  The view, upon receiving a {\tt dataChanged()} signal from
+the Model, asks for the displayable data again.  Model passes the function call
+to the TreeItemMessage instance which discovers that it has the data already
+available in memory and returns the real textual field (like a message Subject)
+this time.
+
+FIXME: more!
+
+\subsection{The Proxy Models}
+\label{model-proxies}
+
+FIXME
 
 \chapter{Other IMAP Implementations}
 
