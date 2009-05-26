@@ -709,33 +709,34 @@ contains all mailboxes, all messages stored in them and even the message
 structure and actual message body parts as its nodes, while several {\em
 filtering models} provide more user-oriented view, like ``all mailboxes'' or
 ``messages in a mailbox''.  An alternative to this one-big-tree approach were
-separate models for list of mailboxes and for each opened mailbox.  While
-the latter might make more sense at a first glance and from the perspective of a
-reader who just went through the IMAP protocol standard, subsequent analysis suggests
-that one big model actually fits the situation better, unless we wanted to deal
-with nasty issues that would immediately pop up as a result of sharing one
-Parser instance among several Models facing several mailboxes.
+separate models for list of mailboxes and for each opened mailbox.  While the
+latter might make more sense at a first glance and from the perspective of a
+reader who just went through the IMAP protocol standard, subsequent analysis
+suggests that one big model actually fits the situation better, unless we wanted
+to deal with nasty issues that would immediately pop up as a result of sharing
+one Parser instance among several Models facing several mailboxes.
 
 The model-view architecture subsequently affected how \trojita and her Model
 operate.  Upon successful startup, for example, \trojita will not perform much
 commands besides making sure a connection to the remote IMAP server enters the
 authenticated state.  This might involve issuing a {\tt STARTTLS} for
 establishing a secure channel, optional user authentication etc., but none of
-tasks like mailbox listing or even opening some of them.  This listing is, however,
-fetched as a result of a call from the GUI which asks the model what should be
-shown in the view representing a list of mailboxes.
+tasks like mailbox listing or even opening some of them.  This listing is,
+however, fetched as a result of a call from the GUI which asks the model what
+should be shown in the view representing a list of mailboxes.
 
-After the list of mailboxes is received and processed, the model tells all the attached
-views that its layout has changed and that views should update what they show to
-the user.  Views react by requesting more information from the Model, like
-number of unread messages or a total message count for each visible mailbox.
+After the list of mailboxes is received and processed, the model tells all the
+attached views that its layout has changed and that views should update what
+they show to the user.  Views react by requesting more information from the
+Model, like number of unread messages or a total message count for each visible
+mailbox.
 
-When a user clicks on a particular mailbox, another view is pointed to a subset of
-the big model, now containing a list of messages in the mailbox.  Again, the
-action of clicking to the mailbox does not involve any direct action in the model itself; the
-mailbox synchronization is initiated only after the new view asks the model about how
-many messages to show, and then for more data concerning those messages that are
-visible in the current viewport.
+When a user clicks on a particular mailbox, another view is pointed to a subset
+of the big model, now containing a list of messages in the mailbox.  Again, the
+action of clicking to the mailbox does not involve any direct action in the
+model itself; the mailbox synchronization is initiated only after the new view
+asks the model about how many messages to show, and then for more data
+concerning those messages that are visible in the current viewport.
 
 One important feature implemented in \trojita which is absent from most e-mail
 clients (especially those which started with POP3 as the data model) is delayed
@@ -748,9 +749,8 @@ screen.  What \trojita does is, however, more clever -- it creates thirty
 thousand of {\em fake} entries in the Model, each displaying a {\em
 loading\ldots} sign, and ask for the real data only for those that are actually
 visible (with some read-ahead and read-behind for increased efficiency).  This
-effectively minimizes the amount of network traffic as well as local cache
-bloat and the load on the remote IMAP server, while user barely notices any
-slowdown.
+effectively minimizes the amount of network traffic as well as local cache bloat
+and the load on the remote IMAP server, while user barely notices any slowdown.
 
 FIXME: more.
 
