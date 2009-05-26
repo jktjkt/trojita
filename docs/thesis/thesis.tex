@@ -787,10 +787,14 @@ Qt developers, it was refactored into a single-threaded state machine with a
 more conservative handling of the network IO.
 
 When a reply from the server arrives, it instructs the auxiliary LowLevelParser
-to read tokens from the byte stream and builds a reply on-the-fly.  Due to the
-limitations of polymorphism in C++ and concerns about object lifetime and
-ownership, the Parser makes heavy use of the C++ smart pointers, as defined by
-the TR1~\cite{std-tr1}.  Error handling is implemented with exceptions.
+to read tokens from the byte stream and builds a complex {\tt AbstractResponse}
+instance on-the-fly.  Due to the limitations of polymorphism in C++ and concerns
+about object lifetime and ownership, the Parser makes heavy use of the C++ smart
+pointers, as defined by the TR1~\cite{std-tr1}.  Error handling is implemented
+with exceptions.
+
+This part of \trojita has an extensive unit test coverage based both on
+real-world traffic and artificial corner cases.
 
 \section{Cache}
 
