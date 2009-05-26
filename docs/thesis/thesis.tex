@@ -816,8 +816,28 @@ serialized to the Qt's event delivery system, though, but remain stored in an
 internal queue in the Parser which provides queue-like semantics for accessing
 them.
 
-
 \section{Cache}
+
+A main purpose of the Cache is providing a persistent copy of certain useful
+data for speeding up mailbox re-synchronization upon a subsequent select as well
+as storing already requested message structure and message body parts.
+
+\trojita is ready for multiple cache implementations.  The implementation and
+interface are properly separated -- an abstract class\footnote{{\tt
+Imap::Mailbox::AbstractCache} as defined in {\tt Imap/Model/Cache.h}} specifies
+the only required methods of interaction between the Model and the Cache.
+
+A simple cache implementation storing all data in operational memory with an
+optional possibility of persistent data store on the disk is provided.  As no
+object life management or partial updates of the on-disk representation are
+implemented in this simple cache, it is not recommended for production use.
+Advanced caching implementations are expected to be developed after the thesis
+is finished.  Candidates include using an sqlite database or an Qt caching
+object from WebKit, the {\tt QNetworkDiskCache}.  One reason for developing a
+simple, in-house caching solution is the fact that the Qt caching framework was
+introduced only in Qt 4.5 while \trojita still supports building against the
+4.4 release, albeit with reduced feature set.  Therefore, it was deemed that a
+simple custom caching framework is worth the extra work.
 
 \chapter{Other IMAP Implementations}
 
