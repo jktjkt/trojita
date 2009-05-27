@@ -141,7 +141,7 @@ volutpat quis, porttitor ut, condimentum sit amet, felis. \\
 
 Hic sunt Leones.
 
-\subsection{Motivation}
+\section{Motivation}
 
 While there are certainly numerous stable and widely-used Mail User Agents on
 the market, none of them fulfils my expectations of reasonable performance and
@@ -151,7 +151,7 @@ later on.  Typically, this support was added long since the initial design phase
 of the product was completed, resulting in suboptimal design
 choices.\cite{crispin-ten-commandments} Some clients, like the \ldots FIXME
 
-\subsection{Structure of the thesis}
+\section{Structure of the thesis}
 
 In the following chapter, we provide a gentle introduction to the world of
 IMAP and related standards like MIME.  Following that, we move to explain some
@@ -670,9 +670,9 @@ On the top of the hierarchy lies the {\em GUI}.  This part is what the user
 interacts with; it provides views showing all mailboxes on a server, a list of
 messages in the currently selected mailbox and the contents of the e-mail
 messages themselves.  The GUI is based on the Qt framework, making use of
-various standard components, especially the Interview
+various standard components.  A substantial part is based on the Interview
 framework~\cite{qt-interview} and the WebKit~\cite{qt-webkit} as well as certain
-custom widgets.
+custom widgets, especially the Message View (section \ref{message-view}).
 
 The GUI is fed with data by the {\em Model}, a model-view implementation created
 with the Qt item views.  This part works in close collaboration with the IMAP
@@ -990,7 +990,7 @@ responsible for properly freeing all resources associated with it, including
 destroying the children.
 
 \trojita already tries to minimize the memory footprint, not fetching data
-unless needed, yet an empty TreeItemMessage instance is still created for each
+until needed, yet an empty TreeItemMessage instance is still created for each
 message in the opened mailbox.  The memory consumption associated with these
 operations is difficult to measure\footnote{The increase in memory usage
 includes internal QTreeView data structures which could not be eliminated even
@@ -1034,7 +1034,8 @@ The expensive mode mostly eliminates various optimistic preloading, as well as
 changes the operation of the message view to not show all body parts
 automatically.
 
-\section{The Message View}
+\section{Message View}
+\label{message-view}
 
 Rendering an e-mail message is not as simple as it seems.  First problem that
 the implementation has to face is the delayed on-demand loading of the message
@@ -1166,6 +1167,40 @@ An interesting fact about \trojita is that her support for the {\tt cid:} URLs
 is more feature-complete than that of Thunderbird/2.0.0.14 which has troubles
 identifying certain body parts in some HTML messages\footnote{For example those
 from the {\tt http://mon.itor.us/} monitoring service.}.
+
+\section{GUI}
+
+No matter how advanced the underlying engine is, if the GUI does not keep up
+with the features offered or is not intuitive enough, users will switch to a
+competing product.
+
+\trojita makes use of standard widgets from the Qt library whenever possible.
+Common and well-known components such as tree views builds the core of the GUI,
+showing list of messages and list of mailboxes.  When the standard widgets did
+not exist or were not usable, new were implemented, re-using the existing ones
+as much as possible.
+
+An example of a well-done re-use is the Message View.  Building on already
+complex parts such as the WebKit and the associated helper classes, it combines
+the widgets with whom the user is probably already familiar into a big
+functional part.  Without an unneeded user confusion, it manages to render the
+MIME structure of the received message faithfully.
+
+The mail composer widget closely mimics the {\em Write New Mail} window from
+Mozilla Thunderbird.  The recipients matrix was implemented in a similar way,
+providing users with a familiar experience and reducing the need of getting
+accustomed to yet another software.
+
+Similarly, the icons indicating message state (such as being flagged for
+deletion, already replied to, forwarded to another recipient et cetera) are
+indicated by standard icons.  \trojita will, thanks to the
+QtIconLoader~\cite{qticonloader}, try to load standard icons as per the relevant
+FreeDesktop.org standard~\cite{xdg-icons}, and for those that are absent from
+the system, a built-in icon from Thunderbird is used.
+
+Drag and drop is used for copying and moving messages between mailboxes.  No
+support for drag and drop outside of the \trojita is available yet, mainly due
+to a lack of widely accepted standard MIME type for doing so.
 
 \chapter{Other IMAP Implementations}
 
@@ -1518,6 +1553,9 @@ More on this matter can be found in section \ref{big-tree}.
         http://labs.trolltech.com/page/Projects/Itemview/Modeltest}
     \bibitem{qticonloader} Qt Software, February 2009, \\ {\tt
         http://labs.trolltech.com/blogs/2009/02/13/freedesktop-icons-in-qt/}
+    \bibitem{xdg-icons}Dawes, R., The FreeDesktop Project: Icon Naming
+        Specification v.~0.8.90, {\tt
+        http://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-0.8.90.html}
     \bibitem{kcodecs} The KDE Project: kdelibs, {\tt
         http://api.kde.org/4.x-api/kdelibs-apidocs/}
 \end{thebibliography}
