@@ -881,7 +881,7 @@ to opened mailboxes as well as handling of certain non-standard situations.
 
 \subsection{The Tree}
 
-Being an implementation of QAbstractItemModel, Model has to provide an interface
+Being an implementation of QAbstractItemModel, the Model has to provide an interface
 with which the attached views and proxy models\footnote{Proxy models are
 auxiliary models which do not supply their own data, but instead provide a
 filtered and modified view of data published by the parent model.  More on this
@@ -897,7 +897,7 @@ representing different entities in the big tree.  These entities are:
     \item[TreeItemMailbox] A class representing a remote mailbox on the IMAP
         server.  Children of the mailbox are other mailboxes and a {\em list of
         messages}.
-    \item[TreeItemMsgList] A container holding all messages in mailbox
+    \item[TreeItemMsgList] A container holding all messages in the mailbox
     \item[TreeItemMessage] One message in a particular mailbox
     \item[TreeItemPart] One MIME body part of a message
 \end{description}
@@ -926,37 +926,40 @@ function to find out what should be displayed on screen.  This function call was
 immediately propagated to the newly created TreeItemMessage instance.  As the
 message just arrived to the mailbox, the class didn't have time to request more
 data about it yet.  The TreeItemMessage instance is therefore in an {\em initial
-state} indicating that no attempt to load the data from the server was
+state} indicating that no attempt to load the data from the server has been
 performed, and thus the {\tt data()} implementation does not havy any real
-answer to the original request.  Therefore, it submits a request to the Model to
-fetch the IMAP envelope of the particular message.  However, the reply to this
+answer to the original query.  Therefore, it submits a request to the Model
+asking it to fetch the IMAP envelope of the particular message.  However, the reply to this
 message is not guaranteed to arrive in a timely manner and the TreeItemMessage
 implementation cannot afford to block the GUI while it waits for the
-corresponding reply.  It therefore returns an empty placeholder (or some
+corresponding reply.  Therefore, it returns an empty placeholder (or some
 intuitive string like the {\em loading\ldots} text already mentioned) for the
 time being.  This text is then displayed in the GUI, for the Model does not have
 anything better to show to the user yet.  In addition to that, the
 TreeItemMessage changes its state to {\em loading} which indicates that the
 remote server was already asked for the data and there is no point in requesting
-it over and over again.
+it over and over again\footnote{If the {\tt data()} function concerning the same
+index is called again, the same placeholder data is returned, but no further
+requests to the IMAP server are initiated.}.
 
 In the meanwhile, the Model receives TreeItemMessage's request for fetching an
-envelope.  It decides that the requested data belong to, say, message No. 666 in
-the mailbox, the total message count is 670 and that no messages between 660
-and 670 got fetched yet.  To enhance the user experience and minimize network
-round-trips, the Model submits a request to fetch message envelopes of all these
-messages, as chances are high that most of them will be queried for data soon
-anyway.  As a part of this request, they are all flagged as {\em loading}.
+envelope.  It decides that the requested data belong to, e.g. message No. 666 in
+the mailbox. The total message count is 670 and no messages between 660
+and 670 were fetched yet.  To enhance the user experience and minimize network
+round-trips, the Model submits a batched request to fetch message envelopes of all these
+messages at once, as chances are high that most of them will be queried for data soon
+anyway.  As a part of this request, they are all flagged as {\em loading} in
+order to prevent duplicate fetching requests.
 
 After a while, the response from the server arrives.  As usual, the Model
 delegates the actual processing of the reply to the TreeItemMailbox or
-TreeItemMessage instance.  The instance notices that enough data for updating
+TreeItemMessage instance.  The class notices that enough data for updating
 its state from {\em loading} to {\em fetched} has arrived, so it marks itself as
 {\em fetched} and tells the Model to broadcast this change to the attached
-consumers (views).  The view, upon receiving a {\tt dataChanged()} signal from
-the Model, asks for the displayable data again.  Model passes the function call
+consumers (views).  Each view, upon receiving a {\tt dataChanged()} signal from
+the Model, asks for the displayable data again.  Model passes the {\tt data()} function call
 to the TreeItemMessage instance which discovers that it has the data already
-available in memory and returns the real textual field (like a message Subject)
+available in memory and returns the real text field (like a message Subject)
 this time.
 
 FIXME: more!
