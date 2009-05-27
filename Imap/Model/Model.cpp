@@ -23,6 +23,7 @@
 #include "SelectedHandler.h"
 #include "SelectingHandler.h"
 #include <QAuthenticator>
+#include <QCoreApplication>
 #include <QDebug>
 
 namespace Imap {
@@ -149,6 +150,7 @@ void Model::responseReceived()
             _parsers.erase( it );
             break;
         }
+        qApp->processEvents();
     }
 }
 
