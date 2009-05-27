@@ -57,12 +57,9 @@ void SelectedHandler::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fet
     if ( ! mailbox )
         throw UnexpectedResponseReceived( "Received FETCH reply, but AFAIK we haven't selected any mailbox yet", *resp );
 
-    emit m->layoutAboutToBeChanged();
-
     TreeItemPart* changedPart = 0;
     TreeItemMessage* changedMessage = 0;
     mailbox->handleFetchResponse( m, *resp, &changedPart, &changedMessage );
-    emit m->layoutChanged();
     if ( changedPart ) {
         QModelIndex index = m->createIndex( changedPart->row(), 0, changedPart );
         emit m->dataChanged( index, index );

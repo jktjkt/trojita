@@ -223,8 +223,10 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
                 // We had no idea about the structure of the message
                 QList<TreeItem*> newChildren = dynamic_cast<const Message::AbstractMessage&>( *(it.value()) ).createTreeItems( message );
                 // FIXME: it would be nice to use more fine-grained signals here
+                emit model->layoutAboutToBeChanged();
                 QList<TreeItem*> oldChildren = message->setChildren( newChildren );
                 Q_ASSERT( oldChildren.size() == 0 );
+                emit model->layoutChanged();
                 savedBodyStructure = true;
             }
         } else if ( it.key() == "x-trojita-bodystructure" ) {
