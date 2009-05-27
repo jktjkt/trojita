@@ -1246,6 +1246,33 @@ foundation of the IMAP support in Akonady, a framework for
 PIM~\footnote{Personal Information Management} information exchange in the
 then-upcoming KDE4 desktop.
 
+We were unable to test the version identified as ``1.5.0-beta1'' on KDE 4.2.1 as
+it crashed with a segmentation fault each time we tried to make it talk to our
+testing Dovecot instance.  A similar result was observed when trying the older
+0.5.0 version on KDE 3.5.10.
+
+From the dumps obtained before it crashed, it is evident that while the authors
+of Mailody certainly thought about how to implement IMAP properly, as documented
+by the splitting of message ranges to fetch into several intervals, it is not a
+finished product.  As an example, IMAP allows to pack a contiguous sequence into
+an interval specified by both boundaries.  Mailody fails to use this feature,
+requesting the range by enumerating all values.  It also does not seem to notice
+the IMAP envelope at all, fetching the corresponding headers directly.  While
+the latter it not an error, strictly speaking, it at least make the reader of
+the source code wonder what led to that particular choice.
+
+Earlier versions of Mailody had troubles even with mailbox names being passed as
+literals instead of quoted strings.  This might be caused by the fact that the
+source code used rigid regular expressions for parsing of server replies which
+did not account for each possible response variation.
+
+\section{Outlook Express}
+
+
+\section{Windows Live Mail}
+
+Oh noes\ldots
+
 \chapter{User's Guide}
 
 \section{About Trojita}
