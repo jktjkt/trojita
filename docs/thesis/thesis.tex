@@ -700,10 +700,10 @@ server.
 \section{Model-View Architecture}
 
 \trojita's heart, the Model, implements an interface of the QAbstractItemModel,
-a variant of the well-known Model-View-Controller design pattern \cite{FIXME-GoF}.  This
+a variant of the well-known Model-View-Controller design pattern \cite{GoF}.  This
 architecture provides natural separation between how data are stored and how
 they are displayed.  In case of \trojita, we went a bit ahead compared to
-the common approach\footnote{FIXME: clarify what a common approach is?} and made essentially everything just a node, a part in one
+the common approach and made essentially everything just a node, a part in one
 big tree which exports all data available on the server.  This tree then
 contains all mailboxes, all messages stored in them and even the message
 structure and actual message body parts as its nodes. Several {\em
@@ -1295,6 +1295,9 @@ desired.  More on this matter can be found in another place in this thesis
         http://doc.trolltech.com/4.5/qt4-interview.html}
     \bibitem{qt-webkit}Qt Software: QtWebKit Module, {\tt
         http://doc.trolltech.com/4.5/qtwebkit.html}
+    \bibitem{GoF}Gamma, E., Helm, R., Johnson, R., Vlissides, J.: Design
+        Patterns: Elements of Reusable Object-Oriented Software, Boston:
+        Addison-Wesley, 1995
     \bibitem{qt-qprocess-sigpipe}QProcess could close the reading pipe, thus
         killing the child process with SIGPIPE, {\em a thread on the qt-interest
         mailing list}, {\tt
