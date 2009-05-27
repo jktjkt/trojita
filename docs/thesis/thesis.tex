@@ -1204,6 +1204,48 @@ to a lack of widely accepted standard MIME type for doing so.
 
 \chapter{Other IMAP Implementations}
 
+Albeit the guarantee of interoperability is arguable the most important aspect
+of a standardization process, certain e-mail clients perform better than the
+others.  In this section, we try to provide a basic overview of selected e-mail
+implementations.
+
+This overview is by no means complete, for there are many more e-mail client
+implementations than pages in this thesis.  We therefore focus on highlighting
+issues observed during the course of interoperability testing and on a
+comparison with \trojita.
+
+\section{Alpine 2.0}
+
+Alpine \cite{alpine}, a successor of {\tt pine}, is a console e-mail client by
+Mark Crispin, the principal author of the IMAP protocol.  As such, its qualities
+are widely acknowledged and its performance hard to beat.  When coupled with the
+UW-imapd, an IMAP server implementation from the University of Washington from
+the same author, they offer some non-standard features such as multi-mailbox
+search.  The IMAP part of the code base is available as the {\tt c-client}, an
+implementation of the IMAP protocol in the C programming language.
+
+\section{KMail 3.5}
+
+Being the default e-mail client in KDE 3.5, KMail~\cite{kmail} has a broad user
+community.  However, its IMAP support might sometimes seem a bit rusty -- there
+is, for one, no support for IDLE, and quite a number of bugs against the IMAP
+implementation is reported at its Bugzilla.
+
+\section{Mozilla Thunderbird 2.0}
+
+Mozilla Thunderbird~\cite{thunderbird} has been the e-mail client of choice of
+the author of this thesis.  The GUI is excellent, not only well-looking, but
+also extremely convenient to use.  However, its support for detecting changes to
+the mailbox performed by another session leave much to be desired.
+
+\section{Mailody}
+
+Mailody~\cite{mailody} originally started as a standalone IMAP e-mail client, an
+alternative to KMail.  During the development of KDE4, its code base became the
+foundation of the IMAP support in Akonady, a framework for
+PIM~\footnote{Personal Information Management} information exchange in the
+then-upcoming KDE4 desktop.
+
 \chapter{User's Guide}
 
 \section{About Trojita}
@@ -1558,6 +1600,11 @@ More on this matter can be found in section \ref{big-tree}.
         http://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-0.8.90.html}
     \bibitem{kcodecs} The KDE Project: kdelibs, {\tt
         http://api.kde.org/4.x-api/kdelibs-apidocs/}
+    \bibitem{alpine}Alpine Messaging System, {\tt http://www.washington.edu/alpine/}
+    \bibitem{kmail}KMail: Kontact Mail, {\tt http://kontact.kde.org/kmail/}
+    \bibitem{thunderbird}Mozilla Thunderbird, {\tt
+        http://www.mozillamessaging.com/en-US/thunderbird/}
+    \bibitem{mailody}Mailody, {\tt http://www.mailody.net/}
 \end{thebibliography}
 
 \end{document}
