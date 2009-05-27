@@ -999,7 +999,7 @@ show that opening a mailbox with more than 43,000 messages increases the
 overall memory usage by about 6.5~MB on an x86 machine.  Slightly less than one
 third of this memory is consumed by the QTreeView itself.
 
-\subsection{The Proxy Models}
+\subsection{Proxy Models}
 \label{model-proxies}
 
 While browsing the huge mailbox tree itself is certainly an educating experience
@@ -1036,7 +1036,136 @@ automatically.
 
 \section{The Message View}
 
-FIXME
+Rendering an e-mail message is not as simple as it seems.  First problem that
+the implementation has to face is the delayed on-demand loading of the message
+parts.  Due to the rich tree structure of MIME messages, \trojita does not know
+which parts are required to be shown before an attempt to render the message is
+made, and loading all of them in advance would be not only suboptimal in terms
+of network utilization, but could cause an inconvenient delay when displaying
+huge messages as well.  Similarly, blocking for a full delivery of all required
+message parts when the rendering starts is not an option, as this process should
+not block the GUI.
+
+The second problem originates in the complex nested structure of MIME messages.
+There is no limit for the maximal allowed depth of the body part nesting, so a
+message could have an attachment which in turn is another message containing
+further complex structure, easily stretching for many levels.
+
+A first version implemented in \trojita dealt with the first problem, while
+leaving the second one unsolved.  Since that, the message view widget was
+rewritten and the version presented in this thesis supports unlimited nesting of
+messages.
+
+The core of both message rendering widgets is based on the WebKit
+\cite{qt-webkit}, a standards compliant HTML rendering engine.
+
+\subsection{Network Manager}
+\label{network-manager}
+
+The QWebView class is a component providing the HTML rendering engine as well as
+certain auxiliary infrastructure such as a client implementation of the HTTP
+stack.  These parts combined together contain everything required for building an
+application which displays HTML pages retrieved from the network via a standard
+protocol like HTTP.  Messages stored on a remote IMAP server are not, however,
+usually available over HTTP.  Therefore, the QWebView had to be extended in order
+to be usable in \trojita.
+
+Luckily the QWebView provides a straightforward way to delegate the network
+processing to a custom component via the QNetworkAccessManager interface.  That
+custom component is then responsible for handling all network requests that
+originate as part of the processing of the HTML page.
+
+In \trojita, we created a special network manager\footnote{The {\tt
+MsgPartNetworkAccessmanager}} whose job is to provide an access to the message
+bodies stored on the remote IMAP server as well as filter out any access to the
+regular Internet.
+
+Reason for the former is security and spam filtering.  For example, when an HTML
+message contains a reference to a remote image, a naive e-mail client which
+allows the retrieval of external entities via HTTP would provide an accurate
+indication about when the message was read and even confirm the very existence
+of the addressee's e-mail address to the attacker.
+
+The most interesting part of the network manager is, however, providing an
+access to the body parts.  When the URL to be retrieved specifies the {\tt
+trojita-imap} scheme and {\tt message} as the ``host name'', the {\em path} of
+the URL is directly used as a logical address of the requested body part.  If
+such a part exists, an auxiliary helper structure, a subclass of QNetworkReply,
+is returned which immediately requests the retrieval of the corresponding part
+from the IMAP server (or the local cache, if available therein).
+
+In an old implementation, the QNetworkReply itself was responsible for properly
+handling the MIME content-type of the body part.  For example, it contained a
+code for selecting the preferred part among several available in the
+multipart/alternative, or including multiple commands in case of
+multipart/mixed.  This approach, however, did not scale.  Therefore, the new
+implementation moves this logic to the upper layer where it arguably belongs.
+
+The QNetworkReply subclasses in the new implementation do not handle any
+formatting logic.  They are, as their name indicates, just thin wrappers dealing
+with raw data I/O from the TreeItemPart instance.  For handling the formatting,
+a new class, the {\tt PartWidgetfactory}, factory was created.
+
+\subsection{Widget Factory}
+
+The {\tt PartWidgetfactory} is a classic example of the well-known {\em Factory}
+design pattern.  Its only public method, {\tt create()}, is responsible for
+returning a QWidget which is supposed to display a representation of the actual
+body part.
+
+For some ``trivial''\footnote{{\em Trivial} in this context refers to a message
+part which could not be decomposed to more elementary parts.  Examples of {\em
+trivial} content-types are {\tt text/plain} or {\tt image/jpeg} while examples
+of {\em non-trivial} ones are {\tt multipart/mixed} or {\tt message/rfc822}.}
+content-types, the factory returns an instance of a slightly
+modified\footnote{The modifications include filtering of the mouse wheel events,
+because the widget is supposed to be as large as required and leave implementing
+a scrolling view to itself to an upper layer.} QWebView.
+
+If the type is complex, a wrapping widget is created.  A classic example of the
+wrapper is the handler of {\tt multipart/alternative} MIME content-type.  In
+this case, a QTabWidget whose tabs contain the actual nested parts is returned.
+Widgets for the nested parts are obtained by a recursive call to the {\tt
+create()} function, solving the problem of the nested body parts in an ellegant
+way.
+
+RFC~2183~\cite{rfc-content-disposition} introduced a method for specifying
+whether a body part is to be shown {\em inline}, that is, as any other regular
+part, or as an {\em attachment} through the Content-Disposition header.  If the
+part is an attachment, most MUAs would not render its contents, but instead show
+a control for downloading the body part to the disk.  \trojita works in a
+similar way.  Unfortunately, certain e-mail clients don't distinguish among an
+attachment and an inline part, labeling data such as attached ZIP files as {\em
+inline}.  Therefore, \trojita process the Content-Disposition header only as a
+suggestion if it asks for an inline display.
+
+In consistence with the usual {\em expensive network} conventions, \trojita will
+not load all children of the multipart/alternative body in an expensive mode.
+If this mode is active, only the preferred body part is shown directly, while
+others are downloaded only upon explicit user action.
+
+This part of \trojita is ready for further extensions.  One particular extension
+which would be extremely useful to be implemented is support for signed and
+encrypted messages.  Signatures are currently only recognized and indicated in
+the GUI, but not verified at all.
+
+\subsection{HTML Mail}
+
+A common format for today's commercial e-mail messages is the {\em HTML mail}.
+Building on top of the RFC~2387~\cite{rfc-multipart-related} and
+RFC~2111~\cite{rfc-content-id}, the HTML e-mail allows grouping HTML text and
+related data such as images into one MIME message part.
+
+Conforming to the above mentioned standards, \trojita supports the {\tt cid} URL
+scheme.  The network access manager (see section \ref{network-manager}) is
+extended with support for those URLs -- if a message part with the corresponding
+Content-ID header is found among the current message bodies, it is returned in
+response to a {\tt cid:} URL.
+
+An interesting fact about \trojita is that her support for the {\tt cid:} URLs
+is more feature-complete than that of Thunderbird/2.0.0.14 which has troubles
+identifying certain body parts in some HTML messages\footnote{For example those
+from the {\tt http://mon.itor.us/} monitoring service.}.
 
 \chapter{Other IMAP Implementations}
 
@@ -1357,6 +1486,8 @@ More on this matter can be found in section \ref{big-tree}.
         November 1996
     \bibitem{rfc-multipart-related}Levinson, E.: The MIME Multipart/Related
         Content-type, {\em RFC 2387}, August 1998
+    \bibitem{rfc-content-id}Levinson, E.: Content-ID and Message-ID Uniform
+        Resource Locators, {\em RFC~2111}, March~1997
     \bibitem{rfc-content-disposition}Troost, R., Dorner, S., Moore, K.:
         Communicating Presentation Information in Internet Messages: The
         Content-Disposition Header Field, {\em RFC2183}, August 1997
