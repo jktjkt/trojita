@@ -13,6 +13,7 @@ public:
     RecipientsWidget( QWidget* parent );
     RecipientsWidget( QWidget* parent, const QList<QPair<QString, QString> >& recipients );
     QList<QPair<QString, QString> > recipients() const;
+    virtual QSize sizeHint() const;
 private:
     void addRecipient( const int position, const QPair<QString, QString>& recipient );
 private slots:

@@ -52,10 +52,13 @@ void ComposeWidget::setupWidgets( const QString& from,
     hLayout->addWidget( subjectField );
     layout->addLayout( hLayout );
     bodyField = new QTextEdit( this );
+    bodyField->setMinimumSize( 600, 400 );
     layout->addWidget( bodyField );
     sendButton = new QPushButton( tr("Send"), this );
+    //sendButton->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed ) );
     layout->addWidget( sendButton );
     connect( sendButton, SIGNAL(clicked()), this, SLOT(send()) );
+    recipientsField->setFocus();
 }
 
 void ComposeWidget::send()

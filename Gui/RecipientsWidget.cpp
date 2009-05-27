@@ -9,6 +9,7 @@ RecipientsWidget::RecipientsWidget( QWidget* parent ): QTableWidget( parent )
 {
     commonInit();
     addRecipient( 0, qMakePair( tr("To"), QString() ) );
+    setCurrentCell( 0, 1 );
 }
 
 RecipientsWidget::RecipientsWidget( QWidget* parent, const QList<QPair<QString, QString> >& recipients ):
@@ -22,6 +23,11 @@ RecipientsWidget::RecipientsWidget( QWidget* parent, const QList<QPair<QString, 
             addRecipient( i, recipients[i] );
         }
     }
+}
+
+QSize RecipientsWidget::sizeHint() const
+{
+    return QSize( 400, 100 );
 }
 
 void RecipientsWidget::commonInit()
