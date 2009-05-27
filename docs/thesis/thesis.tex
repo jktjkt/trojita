@@ -699,6 +699,7 @@ which provide a consistent interface for managing connections to the remote
 server.
 
 \section{Model-View Architecture}
+\label{big-tree}
 
 \trojita's heart, the Model, implements an interface of the QAbstractItemModel,
 a variant of the well-known Model-View-Controller design pattern \cite{GoF}.
@@ -962,7 +963,7 @@ to the TreeItemMessage instance which discovers that it has the data already
 available in memory and returns the real text field (like a message Subject)
 this time.
 
-The ultimate goal of this lazy population is reducing network usage and server
+The ultimate goal of this lazy population is reducing network traffic and server
 load, as well as the client's memory usage.
 
 The delayed loading is employed in all places in the Model where possible.  For
@@ -976,10 +977,11 @@ messages in a sequence.
 One notable exception to this approach is building a list of mailboxes.  Due to
 the way the {\tt LIST} response is defined\footnote{Consult the
 RFC~3501~\cite{rfc-imap}, section 7.2.2}, no reliable way of requesting a
-partial listing of the mailbox tree at a given hierarchy level is provided.
+partial listing of the mailbox tree is provided besides indicating that the
+result should include mailboxes from the specified hierarchy level only.
 \trojita therefore has to fetch all the names of top-level mailboxes at once.
-Requesting a listing of their children is delayed until the user clicks the
-``expand'' widget next to the mailbox name, however.  Also the numbers
+Requesting a listing of their children is then delayed until the user clicks the
+``expand'' widget next to the mailbox name.  Also the numbers
 indicating a total message count or the number of new messages in a mailbox are
 not requested for mailboxes that were not shown yet.
 
@@ -993,7 +995,7 @@ message in the opened mailbox.  The memory consumption associated with these
 operations is difficult to measure\footnote{The increase in memory usage
 includes internal QTreeView data structures which could not be eliminated even
 if \trojita did not create any new objects for its own purposes}.  Experiments
-show that opening a mailbox with more than 43~thousands messages increases the
+show that opening a mailbox with more than 43,000 messages increases the
 overall memory usage by about 6.5~MB on an x86 machine.  Slightly less than one
 third of this memory is consumed by the QTreeView itself.
 
@@ -1009,7 +1011,28 @@ resources.
 A proxy model works in close collaboration with the parent model, providing a
 modified and filtered view of the parent's data to the attached views.  \trojita
 uses two proxy models, one for providing a list of mailboxes and the other for
-listing messages in the opened mailbox.
+listing messages in the opened mailbox.  Neither of these models contain
+significant intelligence, as most of the hard work is already done by the
+original parent Model.
+
+\subsection{Offline and Expensive Network Mode}
+
+In addition to the mode of operation described above, the Model can be
+instructed to change its behavior in order to either reduce the network traffic
+even further or to avoid any communication with the remote IMAP server
+altogether.  For the former, and {\em expensive network} mode is provided, the
+latter is handled by an {\em offline mode}.
+
+When offline, essentially any network traffic\footnote{Besides shutting down the
+already established connection} is blocked.  All requests which cannot be
+satisfied from the cache will fail, and the corresponding TreeItem's state will
+be changed to {\em offline}.  This particular status is reflected in the GUI in
+an intuitive way, mostly by changing the unknown message subjects to {\em
+offline} et cetera.
+
+The expensive mode mostly eliminates various optimistic preloading, as well as
+changes the operation of the message view to not show all body parts
+automatically.
 
 \section{The Message View}
 
@@ -1299,8 +1322,9 @@ each of them being a forwarded message, and each of these forwarded messages
 being rich-structured as well.  \trojita does its best at formatting the message
 in a sane and familiar way, but unfortunately some senders do not really follow
 the same philosophy and produce messages whose structure leaves much to be
-desired.  More on this matter can be found in another place in this thesis
-\ref{FIXME}.
+desired.
+
+More on this matter can be found in section \ref{big-tree}.
 
 \chapter{Conclusion}
 
