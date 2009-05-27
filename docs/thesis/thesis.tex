@@ -962,10 +962,56 @@ to the TreeItemMessage instance which discovers that it has the data already
 available in memory and returns the real text field (like a message Subject)
 this time.
 
-FIXME: more!
+The ultimate goal of this lazy population is reducing network usage and server
+load, as well as the client's memory usage.
+
+The delayed loading is employed in all places in the Model where possible.  For
+the efficiency reasons, though, certain data items which are known to be needed
+shortly after each other are requested in one block.  Examples of such data are
+groups of the message envelope, the IMAP internal date, the message size, the
+UID, the body structure and the message flags concerning a particular message.
+As suggested earlier, these fields are also preloaded for previous and following
+messages in a sequence.
+
+One notable exception to this approach is building a list of mailboxes.  Due to
+the way the {\tt LIST} response is defined\footnote{Consult the
+RFC~3501~\cite{rfc-imap}, section 7.2.2}, no reliable way of requesting a
+partial listing of the mailbox tree at a given hierarchy level is provided.
+\trojita therefore has to fetch all the names of top-level mailboxes at once.
+Requesting a listing of their children is delayed until the user clicks the
+``expand'' widget next to the mailbox name, however.  Also the numbers
+indicating a total message count or the number of new messages in a mailbox are
+not requested for mailboxes that were not shown yet.
+
+The tree nodes do not make use of smart pointers, instead, the parent node is
+responsible for properly freeing all resources associated with it, including
+destroying the children.
+
+\trojita already tries to minimize the memory footprint, not fetching data
+unless needed, yet an empty TreeItemMessage instance is still created for each
+message in the opened mailbox.  The memory consumption associated with these
+operations is difficult to measure\footnote{The increase in memory usage
+includes internal QTreeView data structures which could not be eliminated even
+if \trojita did not create any new objects for its own purposes}.  Experiments
+show that opening a mailbox with more than 43~thousands messages increases the
+overall memory usage by about 6.5~MB on an x86 machine.  Slightly less than one
+third of this memory is consumed by the QTreeView itself.
 
 \subsection{The Proxy Models}
 \label{model-proxies}
+
+While browsing the huge mailbox tree itself is certainly an educating experience
+for users wishing to become familiar with e-mail processing and the IMAP
+standard, it is far from being user-friendly.  Therefore, \trojita provides {\em
+proxy models} for presenting a more conservative view to the remote server's
+resources.
+
+A proxy model works in close collaboration with the parent model, providing a
+modified and filtered view of the parent's data to the attached views.  \trojita
+uses two proxy models, one for providing a list of mailboxes and the other for
+listing messages in the opened mailbox.
+
+\section{The Message View}
 
 FIXME
 

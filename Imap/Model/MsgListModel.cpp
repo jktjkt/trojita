@@ -61,6 +61,7 @@ void MsgListModel::handleDataChanged( const QModelIndex& topLeft, const QModelIn
 
     QModelIndex first = mapFromSource( topLeft );
     QModelIndex second = mapFromSource( bottomRight );
+    second = createIndex( second.row(), COLUMN_COUNT - 1, second.internalPointer() );
 
     if ( first.isValid() && second.isValid() && first.parent() == second.parent() ) {
         emit dataChanged( first, second );
