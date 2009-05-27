@@ -141,6 +141,8 @@ void Model::responseReceived()
     QMap<Parser*,ParserState>::iterator it = _parsers.find( qobject_cast<Imap::Parser*>( sender() ));
     Q_ASSERT( it != _parsers.end() );
 
+    int i = 0;
+
     while ( it.value().parser->hasResponse() ) {
         std::tr1::shared_ptr<Imap::Responses::AbstractResponse> resp = it.value().parser->getResponse();
         Q_ASSERT( resp );
@@ -150,7 +152,11 @@ void Model::responseReceived()
             _parsers.erase( it );
             break;
         }
-        qApp->processEvents();
+        ++i;
+        if ( i == 100 ) {
+            qApp->processEvents();
+            i = 0;
+        }
     }
 }
 
