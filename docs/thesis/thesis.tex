@@ -668,10 +668,11 @@ components.  Communication between them adheres to a strictly defined interface.
 
 On the top of the hierarchy lies the {\em GUI}.  This part is what the user
 interacts with; it provides views showing all mailboxes on a server, a list of
-messages in the currently selected mailbox and the contents of the e-mail messages
-themselves.  The GUI is based on the Qt framework, making use of various
-standard components, especially the Interview framework~\cite{qt-interview} and
-the WebKit~\cite{qt-webkit} as well as certain custom widgets.
+messages in the currently selected mailbox and the contents of the e-mail
+messages themselves.  The GUI is based on the Qt framework, making use of
+various standard components, especially the Interview
+framework~\cite{qt-interview} and the WebKit~\cite{qt-webkit} as well as certain
+custom widgets.
 
 The GUI is fed with data by the {\em Model}, a model-view implementation created
 with the Qt item views.  This part works in close collaboration with the IMAP
@@ -700,38 +701,38 @@ server.
 \section{Model-View Architecture}
 
 \trojita's heart, the Model, implements an interface of the QAbstractItemModel,
-a variant of the well-known Model-View-Controller design pattern \cite{GoF}.  This
-architecture provides natural separation between how data are stored and how
-they are displayed.  In case of \trojita, we went a bit ahead compared to
+a variant of the well-known Model-View-Controller design pattern \cite{GoF}.
+This architecture provides natural separation between how data are stored and
+how they are displayed.  In case of \trojita, we went a bit ahead compared to
 the common approach and made essentially everything just a node, a part in one
 big tree which exports all data available on the server.  This tree then
 contains all mailboxes, all messages stored in them and even the message
-structure and actual message body parts as its nodes. Several {\em
-filtering models} provide more user-oriented view, like ``all mailboxes'' or
-``messages in a mailbox''.  An alternative to this one-big-tree approach were
-separate models for list of mailboxes and for each opened mailbox.  While the
-latter might make more sense at a first glance and from the perspective of a
-reader who just went through the IMAP protocol standard, subsequent analysis
-suggests that one big model actually fits the situation better, unless we wanted
-to deal with nasty issues that would immediately pop up as a result of sharing
-one Parser instance among several Models facing several mailboxes.  The upper
-layers are not affected by this decision, as they use a strictly defined
-model-view interface for actual data retrieval.
+structure and actual message body parts as its nodes. Several {\em filtering
+models} provide more user-oriented view, like ``all mailboxes'' or ``messages in
+a mailbox''.  An alternative to this one-big-tree approach were separate models
+for list of mailboxes and for each opened mailbox.  While the latter might make
+more sense at a first glance and from the perspective of a reader who just went
+through the IMAP protocol standard, subsequent analysis suggests that one big
+model actually fits the situation better, unless we wanted to deal with nasty
+issues that would immediately pop up as a result of sharing one Parser instance
+among several Models facing several mailboxes.  The upper layers are not
+affected by this decision, as they use a strictly defined model-view interface
+for actual data retrieval.
 
 The model-view architecture subsequently affects how \trojita and her Model
 operate.  Upon successful startup, for example, \trojita will not execute many
-IMAP commands besides making sure that a connection to the remote IMAP server enters the
-authenticated state.  This might involve issuing a {\tt STARTTLS} command for
-establishing a secure channel, optional user authentication etc., but none of
-tasks like mailbox listing or even opening some of them.  This listing is
-only fetched as a result of a call from the GUI which asks the model what
-should be shown in the view representing a list of mailboxes.
+IMAP commands besides making sure that a connection to the remote IMAP server
+enters the authenticated state.  This might involve issuing a {\tt STARTTLS}
+command for establishing a secure channel, optional user authentication etc.,
+but none of tasks like mailbox listing or even opening some of them.  This
+listing is only fetched as a result of a call from the GUI which asks the model
+what should be shown in the view representing a list of mailboxes.
 
 After the list of mailboxes is received and processed, the model tells all the
 attached views that its layout has changed and that the views should update what
 they show to the user.  The views react by requesting more information from the
-Model, e.g. a number of unread messages or a total message count for each visible
-mailbox.
+Model, e.g. a number of unread messages or a total message count for each
+visible mailbox.
 
 When a user clicks on a particular mailbox, another view is pointed to a subset
 of the big model, now containing a list of messages in the mailbox.  Again, the
@@ -741,18 +742,19 @@ asks the model about how many messages to show, and then for more data
 concerning those messages that are visible in the current viewport.
 
 One important feature implemented in \trojita which is absent from most e-mail
-clients (especially those whose data model was designed with only POP3 in mind) is delayed
-on-demand fetching with an intelligent preloading.  Suppose a user has a big
-mailbox with more than 30,000 e-mail messages.  A naive client would open a
-connection to the server, select the mailbox and then fetch envelopes for all
-messages in the mailbox.  Most of these messages would never be shown to the
+clients (especially those whose data model was designed with only POP3 in mind)
+is delayed on-demand fetching with an intelligent preloading.  Suppose a user
+has a big mailbox with more than 30,000 e-mail messages.  A naive client would
+open a connection to the server, select the mailbox and then fetch envelopes for
+all messages in the mailbox.  Most of these messages would never be shown to the
 user, though, as thirty thousands messages is too much to be displayed on one
 screen.  What \trojita does is, however, more clever -- it creates thirty
 thousand of {\em fake} entries in the Model, each displaying a {\em
 loading\ldots} sign, and ask for the real data only for those that are actually
 visible (with some read-ahead and read-behind for increased efficiency).  This
-effectively minimizes the amount of network traffic as well as the local cache size
-and the load on the remote IMAP server, while the user barely notices any slowdown.
+effectively minimizes the amount of network traffic as well as the local cache
+size and the load on the remote IMAP server, while the user barely notices any
+slowdown.
 
 Being the central part of \trojita, the Model and related components is
 described in section \ref{model-in-detail} at the end of this chapter.
@@ -784,9 +786,9 @@ available in the Doxygen documentation.
 
 \subsection{Parser}
 
-The Parser listens to events from the underlying Socket, sending queued commands to
-the server and processing incoming data as they arrive.  During the development
-of \trojita (and thanks to being the first component to be actually
+The Parser listens to events from the underlying Socket, sending queued commands
+to the server and processing incoming data as they arrive.  During the
+development of \trojita (and thanks to being the first component to be actually
 implemented), design of the Parser changed several times.  Originally it started
 as a threaded implementation due to certain concerns about interactivity and
 network I/O, but after encountering some issues with Qt's handling of
@@ -798,17 +800,17 @@ When a reply from the server arrives, Parser instructs the auxiliary
 LowLevelParser instance to read tokens from the byte stream.  These tokens are
 then used to build a complex {\tt AbstractResponse} instance on-the-fly.  Due to
 the limitations of polymorphism in C++ and concerns about object lifetime and
-ownership, the Parser makes heavy use of C++ smart pointers, as introduced in the
-TR1~\cite{std-tr1}.  An alternative would be to use smart pointer implementation
-from the Qt framework, the QSharedPointer.  It provides a similar interface, so
-the possibility of eliminating a dependency on TR1 implementation
+ownership, the Parser makes heavy use of C++ smart pointers, as introduced in
+the TR1~\cite{std-tr1}.  An alternative would be to use smart pointer
+implementation from the Qt framework, the QSharedPointer.  It provides a similar
+interface, so the possibility of eliminating a dependency on TR1 implementation
 is open for further consideration.
 
 This part of \trojita has an extensive unit test coverage based both on
 real-world traffic and artificial corner cases.  Error handling is implemented
-via exceptions.  Being a class derived from QObject, the Parser uses signals
-and slots for communication with the rest of the application -- incoming data
-are read and parsed in code connected to the {\tt readyRead()} signal from the
+via exceptions.  Being a class derived from QObject, the Parser uses signals and
+slots for communication with the rest of the application -- incoming data are
+read and parsed in code connected to the {\tt readyRead()} signal from the
 underlying socket and availability of processed server replies is announced by
 emission of {\tt responseReceived()} signal.  The responses themselves are not
 serialized to the Qt's event delivery system, though, but remain stored in an
@@ -834,8 +836,8 @@ Advanced caching implementations are expected to be developed after the thesis
 is finished.  Candidates include using an sqlite database or an Qt caching
 object from WebKit, the {\tt QNetworkDiskCache}.  One reason for developing a
 simple, in-house caching solution is the fact that the Qt caching framework was
-introduced only in Qt 4.5 while \trojita still supports building against the
-4.4 release, albeit with reduced feature set.  Therefore, it was deemed that a
+introduced only in Qt 4.5 while \trojita still supports building against the 4.4
+release, albeit with reduced feature set.  Therefore, it was deemed that a
 simple custom caching framework is worth the extra work.
 
 
@@ -863,10 +865,10 @@ QIODevices than QTcpSocket.  After a communication with Qt Software support
 personnel \cite{qt-qprocess-sigpipe}, it was suggested to abandon these nested
 waitForReadyRead() calls and follow an approach common to Qt applications which
 simply ignore the availability of new data until there is enough bytes to
-process a whole response at once.  In addition to more obvious and cleaner
-code, this eliminated the need for blocking I/O and subsequently any advantages
-of a threaded design of the Parser.  Therefore, multithreading was abandoned and
-new single-threaded network handler implemented.
+process a whole response at once.  In addition to more obvious and cleaner code,
+this eliminated the need for blocking I/O and subsequently any advantages of a
+threaded design of the Parser.  Therefore, multithreading was abandoned and new
+single-threaded network handler implemented.
 
 
 \section{Model in Detail}
