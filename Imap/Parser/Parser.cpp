@@ -71,7 +71,8 @@ Parser::Parser( QObject* parent, Imap::SocketPtr socket ):
         _literalPlus(false), _waitingForContinuation(false), _startTlsInProgress(false),
         _readingMode(ReadingLine), _oldLiteralPosition(0)
 {
-    connect( _socket.get(), SIGNAL( disconnected( const QString& ) ), this, SIGNAL( disconnected( const QString& ) ) );
+    connect( _socket.get(), SIGNAL( disconnected( const QString& ) ),
+             this, SLOT( handleDisconnected( const QString& ) ) );
     connect( _socket.get(), SIGNAL( readyRead() ), this, SLOT( handleReadyRead() ) );
 }
 
@@ -630,6 +631,14 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::parseTagged( const QBy
 void Parser::enableLiteralPlus( const bool enabled )
 {
     _literalPlus = enabled;
+}
+
+void Parser::handleDisconnected( const QString& reason )
+{
+#ifdef PRINT_TRAFFIC
+    qDebug() << "*** Socket disconnected";
+#endif
+    emit disconnected( reason );
 }
 
 Sequence::Sequence( const uint num ): _kind(DISTINCT)

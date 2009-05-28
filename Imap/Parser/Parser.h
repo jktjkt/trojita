@@ -261,6 +261,7 @@ namespace Imap {
 
     private slots:
         void handleReadyRead();
+        void handleDisconnected( const QString& reason );
         void executeACommand();
         void executeCommands();
 
