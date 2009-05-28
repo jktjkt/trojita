@@ -1389,17 +1389,30 @@ response codes}, which is free to be present in most situations.
 
 \section{Outlook Express}
 
-The Outlook Express is a built-in e-mail client in various versions of Microsoft
-Windows.  The version we tested was shipped with Windows XP, and is the latest
-release of the Outlook Express ever\footnote{The product got re-branded to
-Windows Mail and subsequently to Windows Live Mail}.
+The Outlook Express is the built-in e-mail client in various versions of
+Microsoft Windows.  The version we tested was shipped with Windows XP, and is
+the latest release of the Outlook Express ever\footnote{The product got
+re-branded to {\em Windows Mail} and subsequently to {\em Windows Live Mail}}.
 
-FIXME: IMAP
+The IMAP support in the Outlook Express is suboptimal, to say the least.  An
+example of the ``efficiency'' of the protocol implementation is how the Outlook
+Express behaves when the user has selected several folders to be subscribed.  At
+first, the application opens multiple connections to the server.  Each of these
+connections then changes the subscription status of {\em one} mailbox, enters
+IDLE for a short time and finally terminates.
+
+When the application opened a mailbox with roughly five thousand test messages,
+it began an immediate full download of all of them.  Each messages was fetched
+by a dedicated command, adding one useless parameter to the list of items to
+fetch, and the IDLE mode was entered and immediately left between each two
+commands.  That accounts for circa five thousand attempts to enter the IDLE
+mode, each of them lasting several milliseconds.
 
 The GUI part of the application leaves much to be desired, too.  A notable
-example is its handling of multipart/signed message parts -- if the signature is
-done by PGP/MIME, Outlook Express displays an empty message with two
-attachments, the signed body and the signature itself.  This effectively
+example is its handling of {\tt multipart/signed} message parts -- if the
+signature is made according to the MIME/OpenPGP~\cite{rfc-mime-openpgp}, Outlook
+Express displays an empty message with two attachments, the signed body and the
+signature itself.  This effectively
 prevents most users from actually reading the PGP-signed e-mails, as they do not
 expect the ``real message body'' to be available as an attachment only.  Another
 problem exists with the display of the X-509 signed e-mails which contain a
@@ -1410,7 +1423,7 @@ that the certificate of the CA\footnote{Certificate Authority, an entity which
 issues certificates to other entities} is not found and thus the signature could
 not be verified.  An extra click or two is needed to display the actual message
 body.  This again presents a big obstacle to the actual usage of the signed
-e-mail on the Internet, for the Outlook Express still has substantial market
+e-mail on the Internet, for the Outlook Express still has a substantial market
 share.
 
 \section{Windows Live Mail}
@@ -1805,6 +1818,9 @@ More on this matter can be found in section \ref{big-tree}.
     \bibitem{mozilla-imap}Mozilla Developer Center: IMAP, \\
         {\tt https://developer.mozilla.org/en/IMAP}
     \bibitem{mailody}Mailody, \\{\tt http://www.mailody.net/}
+    \bibitem{rfc-mime-openpgp}Elkins, M. et al.: MIME Security with OpenPGP,
+        {\em RFC~3156}, \\
+        {\tt http://tools.ietf.org/html/rfc3156}
 \end{thebibliography}
 
 \end{document}
