@@ -98,20 +98,20 @@ Název práce: IMAP E-mail Client\\
 Autor: Jan Kundrát\\
 Katedra (ústav): Katedra softwarového inženýrství\\
 Vedoucí bakalářské práce: Mgr. Vlastimil Babka\\
-e-mail vedoucího: Vlastimil.Babka@mff.cuni.cz\\
+E-mail vedoucího: Vlastimil.Babka@mff.cuni.cz\\
 
-\noindent Abstrakt:  V předložené práci studujeme ... Uvede se abstrakt v
-rozsahu 80 až 200 slov. Lorem ipsum dolor sit amet, consectetuer adipiscing
-elit. Ut sit amet sem. Mauris nec turpis ac sem mollis pretium. Suspendisse
-neque massa, suscipit id, dictum in, porta at, quam. Nunc suscipit, pede vel
-elementum pretium, nisl urna sodales velit, sit amet auctor elit quam id tellus.
-Nullam sollicitudin. Donec hendrerit. Aliquam ac nibh. Vivamus mi. Sed felis.
-Proin pretium elit in neque. Pellentesque at turpis. Maecenas convallis.
-Vestibulum id lectus. Fusce dictum augue ut nibh. Etiam non urna nec mi mattis
-volutpat. Curabitur in tortor at magna nonummy gravida. Mauris turpis quam,
-volutpat quis, porttitor ut, condimentum sit amet, felis.\\
+\noindent Abstrakt:  Předložená práce popisuje implementaci pokročilého klienta
+pro práci s~poštou pomocí protokolu IMAP.  Hlavním zaměřením je podpora
+relevantních standardů s~důrazem na efektivní implementaci; využívá se
+pokročilých vlastností IMAPu, jako například IDLE notifikací, parsování zpráv na
+straně serveru či lokálního ukládání e-mailů s možností práce offline.  Spojení
+s~IMAP serverem je realizováno protokolem TCP s~volitelnou možností TLS
+šifrování či přes lokálně bežící proces.  Projekt umožňuje psaní a odesílání
+jednoduchých mailů, podporováno je odesílání pomocí protokolu SMTP a sendmailem.
+Cílová platforma je framework Qt na Linuxu, avšak aplikace je portovatelná i na
+jiné platformy.\\
 
-\noindent Klíčová slova: IMAP, e-mail, SMTP
+\noindent Klíčová slova: IMAP, e-mail, MIME, Qt, SMTP
 
 \vspace{10mm}
 
@@ -122,18 +122,18 @@ Department: Department of Software Engineering\\
 Supervisor: Mgr. Vlastimil Babka\\
 Supervisor's e-mail address: Vlastimil.Babka@mff.cuni.cz\\
 
-\noindent Abstract: In the present work we study ... Uvede se anglický abstrakt
-v rozsahu 80 až 200 slov. Lorem ipsum dolor sit amet, consectetuer adipiscing
-elit. Ut sit amet sem. Mauris nec turpis ac sem mollis pretium. Suspendisse
-neque massa, suscipit id, dictum in, porta at, quam. Nunc suscipit, pede vel
-elementum pretium, nisl urna sodales velit, sit amet auctor elit quam id tellus.
-Nullam sollicitudin. Donec hendrerit. Aliquam ac nibh. Vivamus mi. Sed felis.
-Proin pretium elit in neque. Pellentesque at turpis. Maecenas convallis.
-Vestibulum id lectus. Fusce dictum augue ut nibh. Etiam non urna nec mi mattis
-volutpat. Curabitur in tortor at magna nonummy gravida. Mauris turpis quam,
-volutpat quis, porttitor ut, condimentum sit amet, felis. \\
+\noindent Abstract: This thesis describes the implementation of an advanced IMAP
+e-mail client, \trojita.  Focusing on standard compliance, the client supports
+wide range of IMAP features crucial for an efficient implementation such as IDLE
+notifications, server-side message parsing and caching of retrieved body data
+for offline operation.  Connecting to the IMAP server is supported over TCP
+sockets, optionally secured via the TLS encryption, as well as through a local
+process.  Basic message composition and sending via both SMTP and a local
+sendmail instance is supported.  The target platform is the Qt framework on
+Linux, but the application is reasonably portable.
+\\
 
-\noindent Keywords: IMAP, e-mail, SMTP
+\noindent Keywords: IMAP, e-mail, MIME, Qt, SMTP
 
 \newpage
 
