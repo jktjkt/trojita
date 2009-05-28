@@ -1776,11 +1776,25 @@ More on this matter can be found in section \ref{big-tree}.
 
 \chapter{Conclusion}
 
-\trojita, the IMAP e-mail client implemented for this thesis,\ldots
+The goal of this thesis was to demonstrate that an IMAP e-mail client could be
+usable, yet implement the relevant RFCs properly and behaves in an efficient
+way.  After an introduction to the world of IMAP and other Internet messaging
+standards in the second chapter of the thesis, we described in detail the design
+of \trojita, the application implemented in this thesis, as well as provided a
+comparison with other commonly used IMAP e-mail clients.
 
-The goal of this thesis was to demonstrate that it is possible to write an IMAP
-e-mail client that is usable, yet implements the relevant RFCs properly.  While 
+While it is evident that the GUI of \trojita is not as well-thought as the
+interface of other, more established Mail User Agents such as Mozilla
+Thunderbird or the KMail, the core IMAP engine is implemented properly.  Already
+offering complete support for the IMAP4rev1 protocol as defined by
+RFC~3501~\cite{rfc-imap}, it implements most important IMAP extensions such as
+IDLE~\cite{rfc-idle} and conforms to various IMAP client implementation
+recommendations which accumulated over more than twenty years of the IMAP
+history.  The IMAP client developed as part of \trojita proved to be
+stable and standard-compliant.
 
+It is written in a modular way; adding new features to the core parts of
+\trojita therefore does not require significant effort.
 
 \begin{thebibliography}{99}
 \addcontentsline{toc}{chapter}{Bibliography}
