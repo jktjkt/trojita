@@ -395,6 +395,7 @@ both modes, but write operations (like storing a new message to the mailbox or
 manipulating the message flags) require read-write access.
 
 \subsection{Commands and responses}
+\label{response-code}
 
 IMAP is a line-oriented text protocol.  Anything that server sends to its client
 is called a {\em response} while all data flowing in the opposite direction are
@@ -1338,8 +1339,9 @@ large list to fetch.  On the other hand, assuming that the user did not mark
 too many mailboxes is probably acceptable.  The MIME parsing is deferred to the
 e-mail client, as common among the graphical Mail User Agents.  We assume that
 this is a direct result of support for other protocols than IMAP which do not
-provide any form of server-side MIME support, and clients therefore have no
-reason not to decompose the message themselves.
+provide any form of server-side MIME support, and the clients therefore has no
+reason not to decompose the message itself, after receiving the full body in one
+part.
 
 Thunderbird by default opens several connections to the IMAP server and uses
 IDLE for asynchronous notifications about new messages in each of them.  The
@@ -1347,7 +1349,7 @@ limit on number of concurrent connections is configurable~\cite{mozilla-imap},
 which is probably the only reasonable approach to figuring out how many of them
 will not yet be considered an abuse by the server operators\footnote{Client
 developers might argue that leaving tens of concurrent connections to the server
-open at the same time, each in the IDLE mode in a particular mailbox, is
+open at the same time, each of them in the IDLE mode in a particular mailbox, is
 actually {\em better} for the server than multiplexing the access using just one
 or a few of IMAP threads.  The client developers are of course right, but the
 server administrators usually cannot be expected to have such a deep
@@ -1359,7 +1361,7 @@ such a user.}.
 Mailody~\cite{mailody} originally started as a standalone IMAP e-mail client, an
 alternative to KMail.  During the development of KDE4, its code base became the
 foundation of the IMAP support in Akonady, a framework for
-PIM~\footnote{Personal Information Management} information exchange in the
+PIM\footnote{Personal Information Management} information exchange in the
 then-upcoming KDE4 desktop.
 
 We were unable to test the version identified as ``1.5.0-beta1'' on KDE 4.2.1 as
@@ -1367,27 +1369,43 @@ it crashed with a segmentation fault each time we tried to make it talk to our
 testing Dovecot instance.  A similar result was observed when trying the older
 0.5.0 version on KDE 3.5.10.
 
-From the dumps obtained before it crashed, it is evident that while the authors
-of Mailody certainly thought about how to implement IMAP properly, as documented
-by the splitting of message ranges to fetch into several intervals, it is not a
-finished product.  As an example, IMAP allows to pack a contiguous sequence into
+From the IMAP traffic dumps obtained before the application crashed, it is evident that while the authors
+of Mailody certainly thought about how to implement IMAP properly (as documented e.g.
+by an attempt to group a large message set to smaller parts), it is not a
+finished product yet.  As an example, IMAP allows packing of a contiguous sequence into
 an interval specified by both boundaries.  Mailody fails to use this feature,
-requesting the range by enumerating all values.  It also does not seem to notice
+requesting the range by enumerating all values contained therein.  It also does not seem to notice
 the IMAP envelope at all, fetching the corresponding headers directly.  While
-the latter it not an error, strictly speaking, it at least make the reader of
+the latter it not an error, strictly speaking, it at least makes the reader of
 the source code wonder what led to that particular choice.
 
 Earlier versions of Mailody had troubles even with mailbox names being passed as
 literals instead of quoted strings.  This might be caused by the fact that the
 source code used rigid regular expressions for parsing of server replies which
-did not account for each possible response variation.
+did not account for each possible response variation.  For example, such a naive
+parser would have troubles recognizing a reply containing a response
+code\footnote{Consult Section \ref{response-code} for more on the concept of
+response codes}, which is free to be present in most situations.
 
 \section{Outlook Express}
 
 
 \section{Windows Live Mail}
 
-Oh noes\ldots
+After the deprecation of the Outlook Express during the development phase of
+Windows Vista, a new e-mail application called {\em Windows Mail} has been
+introduced.  However, it was not being shipped for a long time, as yet another
+successor, the {\em Windows Live Mail}, got introduced.  Windows Live Mail is
+expected to be the e-mail application distributed with the upcoming Windows
+Seven operating system.
+
+Unfortunately, most of the issues mentioned in the section about Outlook Express
+still stands.  Both applications apparently use not only the same (or remarkably
+similar) IMAP code, but also a not-so-different GUI layer -- while the overall
+appearance has certainly changed since Outlook Express, the issues with
+presentation of e.g. the PGP/MIME signed e-mail messages still stand.  We will
+therefore end this section by an observation that the IMAP experience is almost
+same as with the Outlook Express.
 
 \chapter{User's Guide}
 \label{users-guide}
