@@ -1228,7 +1228,7 @@ to a lack of widely accepted standard MIME type for doing so.
 \chapter{Other IMAP Implementations}
 \label{other-imap-implementations}
 
-Albeit the guarantee of interoperability is arguable the most important aspect
+Albeit the guarantee of interoperability is arguably the most important aspect
 of a standardization process, certain e-mail clients perform better than the
 others.  In this section, we try to provide a basic overview of selected e-mail
 implementations.
@@ -1238,29 +1238,125 @@ implementations than pages in this thesis.  We therefore focus on highlighting
 issues observed during the course of interoperability testing and on a
 comparison with \trojita.
 
+Each client was tested against an instance of the Dovecot IMAP
+server~\cite{dovecot}.  INBOX contained roughly five thousands messages, most of
+them were trivial text/plain e-mails with just one line of the message body.
+Other mail folders were however filed with certain testing messages representing
+a typical e-mail usage of the author of this thesis.  Samples include GnuPG
+signed mail (the multipart/signed MIME type) and a special ``MIME Torture
+Test''~\cite{mime-torture-test} message whose purpose is to test deep MIME part
+nesting as well some common decoder errors.
+
 \section{Alpine 2.0}
 
 Alpine \cite{alpine}, a successor of {\tt pine}, is a console e-mail client by
 Mark Crispin, the principal author of the IMAP protocol.  As such, its qualities
-are widely acknowledged and its performance hard to beat.  When coupled with the
-UW-imapd, an IMAP server implementation from the University of Washington from
-the same author, they offer some non-standard features such as multi-mailbox
-search.  The IMAP part of the code base is available as the {\tt c-client}, an
-implementation of the IMAP protocol in the C programming language.
+are widely acknowledged.  When coupled with the UW-imapd, an IMAP server
+implementation from the University of Washington from the same author, they
+offer some non-standard features such as multi-mailbox search.  The IMAP part of
+the code base is available as the {\tt c-client}, an implementation of the IMAP
+protocol in the C programming language.
+
+The testing process showed that Alpine performs as an {\em online client}, that
+is, a client with no local persistent cache for retrieved message parts.  These
+parts are cached for the session life time, but any downloaded data will be
+fetched again on a subsequent Alpine invocation.  A nice feature of Alpine is,
+on the other hand, that it does not fetch any data about messages not currently
+visible on screen at all, achieving the lowest amount of initial network traffic
+among all tested IMAP implementations.
+
+As a surprise comes the marketed lack of support for the {\tt IDLE} IMAP
+command.  Crispin argues~\cite{pine-idle} that in today's world of
+NAT\footnote{Network Address Translation}, a real client will have its
+connection to the server sewered by a network device much sooner than before the
+30~minutes timeout period guaranteed by the RFC, and suggests to use {\tt
+NOOP}-based polling instead.  This opinion is arguable, and most e-mail clients'
+authors do not seem to share it.
+
+\section{Mutt 1.5.19}
+
+The second console e-mail client, the Mutt~\cite{mutt}, is a popular text-based
+application.  Controlling its user interface is slightly less intuitive than
+that of Alpine, but the advanced users praise its speed and the fact that the
+GUI does not block their operations.
+
+Similar to Alpine, the Mutt is an {\em online client} without any persistent
+IMAP cache for downloaded message parts.  In addition, Mutt will not issue the
+{\tt IDLE} IMAP command unless specifically told so in the configuration file.
+As a reason for this are stated issues with certain server
+implementations\footnote{Interestingly enough, Dovecot is blamed, while new
+version of Dovecot contain a workaround claimed to ``fix Mutt issues'', so
+figuring out which party to blame is left as an exercise to the reader.}.  Even
+when IDLE is enabled, Mutt only enters this mode when showing a list of
+messages in the mailbox and not when viewing one message.
 
 \section{KMail 3.5}
 
-Being the default e-mail client in KDE 3.5, KMail~\cite{kmail} has a broad user
-community.  However, its IMAP support might sometimes seem a bit rusty -- there
-is, for one, no support for IDLE, and quite a number of bugs against the IMAP
+Being the default e-mail client in KDE 3.5, the KMail~\cite{kmail} has a broad
+user community.  However, its IMAP support might sometimes seem a bit rusty --
+there is, for one, no support for IDLE\footnote{The authors state that this
+limitation is present due to the architecture of the KDE's KIO framework, which
+does not really allow similar modes of operation, but is rather designed for
+client-initiated actions.}, and quite a number of bugs against the IMAP
 implementation is reported at its Bugzilla.
+
+In fact, the KMail contains two distinct implementations of IMAP, the first one
+being an {\em online mode} and the second one a {\em disconnected mode}.  In the
+disconnected mode, all message bodies selected for being available when offline
+are transfered and all MIME parsing is deferred to the client, no matter what
+structure the e-mail message has.
+
+In the online mode, a first surprise is KMail's handling of the IMAP message
+flags.  In spite of using the proper command forms for {\em updating} certain
+individual flags and not blindly specifying the resulting state of {\em all}
+flags for a particular message, the operations are apparently too wide, they
+target most of the messages in the mailbox, even when some of them were not
+shown to the user yet.  In addition, KMail needlessly introduces its own flag
+names even for those flags whose names are either standardized or their use
+widely supported.  An example is setting both {\tt KMAILFORWARDED} and {\tt
+\$FORWARDED} flags instead of just the former,
+semi-standardized~\cite{imap-keywords-flags} one.
+
+The body parts of the complex MIME message from the MIME Torture Test are
+retrieved separately and the rendered representation of the message corresponds
+to the original body structure, which is an impressive result that no other
+e-mail client in this test (besides \trojita) achieved.  The {\tt text/plain}
+messages are, however, fetched as one entity at once, along with their headers.
+
+Common to both implementations, the mailbox hierarchy discovery is performed as
+recommended by the IMAP best-practices~\cite{client-best-practices}, i.e. using
+the {\tt ``\%''} character instead of {\tt ``*''}.
 
 \section{Mozilla Thunderbird 2.0}
 
-Mozilla Thunderbird~\cite{thunderbird} has been the e-mail client of choice of
+Mozilla Thunderbird~\cite{thunderbird} has been the e-mail client of choice for
 the author of this thesis.  The GUI is excellent, not only well-looking, but
 also extremely convenient to use.  However, its support for detecting changes to
-the mailbox performed by another session leaves much to be desired.
+the mailbox performed by another session leaves much to be desired -- sometimes
+it is prone to not updating the displayed state based on what is received from
+the server.
+
+Thunderbird by default shows only {\em subscribed mailboxes}, i.e. those that
+were flagged by the user as interesting in some way.  Their discovery is
+performed using the {\tt ``*''} wild mask, which might potentially result in a
+large list to fetch.  On the other hand, assuming that the user did not mark
+too many mailboxes is probably acceptable.  The MIME parsing is deferred to the
+e-mail client, as common among the graphical Mail User Agents.  We assume that
+this is a direct result of support for other protocols than IMAP which do not
+provide any form of server-side MIME support, and clients therefore have no
+reason not to decompose the message themselves.
+
+Thunderbird by default opens several connections to the IMAP server and uses
+IDLE for asynchronous notifications about new messages in each of them.  The
+limit on number of concurrent connections is configurable~\cite{mozilla-imap},
+which is probably the only reasonable approach to figuring out how many
+concurrent connections will not be considered abuse by the server
+administrators\footnote{Client developers might argue that leaving tens of
+concurrent connections to the server open at the same time, each in the IDLE
+command in a particular mailbox, is actually {\em better} for the server than
+multiplexing the access using just one or a few of IMAP threads, but the server
+administrators usually cannot be expected to have such a deep understanding of
+the IMAP protocol.  Indeed, most of them would prefer to ban such a user.}.
 
 \section{Mailody}
 
@@ -1623,6 +1719,9 @@ More on this matter can be found in section \ref{big-tree}.
         Content-Disposition Header Field, {\em RFC~2183}, August 1997
     \bibitem{rfc-threading}Crispin, M., Murchison, K.: Internet Message Access
         Protocol - SORT and THREAD Extensions, {\em RFC~5256}, June 2008
+    \bibitem{imap-keywords-flags}Melnikov, A.: Common IMAP keywords, {\em
+        Expired Internet Draft}, \\
+        {\tt http://tools.ietf.org/html/draft-melnikov-imap-keywords-03}
     \bibitem{imap-vs-pop}Gray, T.: Message Access Paradigms and Protocols,
         September 1995, online at {\tt
         ftp://ftp.cac.washington.edu/mail/imap.vs.pop}
@@ -1653,10 +1752,21 @@ More on this matter can be found in section \ref{big-tree}.
         http://standards.freedesktop.org/icon-naming-spec/\\icon-naming-spec-0.8.90.html}
     \bibitem{kcodecs} The KDE Project: kdelibs, \\{\tt
         http://api.kde.org/4.x-api/kdelibs-apidocs/}
+    \bibitem{dovecot}Dovecot, Secure IMAP server, \\
+        {\tt http://www.dovecot.org/}
+    \bibitem{mime-torture-test}Crispin, M.: The MIME Torture Test Mailbox, \\
+        {\tt ftp://ftp.cac.washington.edu/imap/mime-examples/torture-test.mbox}
     \bibitem{alpine}Alpine Messaging System, \\{\tt http://www.washington.edu/alpine/}
+    \bibitem{pine-idle}Does pine make use of the IMAP IDLE command?, {\em
+        discussion board}, \\
+        {\tt http://objectmix.com/pine/206216-does-pine-make-use-imap-idle-command.html}
+    \bibitem{mutt}The Mutt E-mail Client, \\
+        {\tt http://www.mutt.org/}
     \bibitem{kmail}KMail: Kontact Mail, \\{\tt http://kontact.kde.org/kmail/}
     \bibitem{thunderbird}Mozilla Thunderbird, \\{\tt
         http://www.mozillamessaging.com/en-US/thunderbird/}
+    \bibitem{mozilla-imap}Mozilla Developer Center: IMAP, \\
+        {\tt https://developer.mozilla.org/en/IMAP}
     \bibitem{mailody}Mailody, \\{\tt http://www.mailody.net/}
 \end{thebibliography}
 
