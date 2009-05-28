@@ -1777,24 +1777,48 @@ More on this matter can be found in section \ref{big-tree}.
 \chapter{Conclusion}
 
 The goal of this thesis was to demonstrate that an IMAP e-mail client could be
-usable, yet implement the relevant RFCs properly and behave in an efficient
-way.  After an introduction to the world of IMAP and other Internet messaging
-standards in the second chapter of the thesis, we described in detail the design
-of \trojita, the application implemented in this thesis, as well as provided a
+usable, yet implement the relevant RFCs properly and behave in an efficient way.
+
+After an introduction to the world of IMAP and other Internet messaging
+standards in the second chapter of the thesis, we described the design of
+\trojita, the application implemented in this thesis, as well as provided a
 comparison with other commonly used IMAP e-mail clients.
 
-While it is evident that the GUI of \trojita is not as mature as the
-interface of other, more established Mail User Agents such as Mozilla
-Thunderbird or the KMail, the core IMAP engine is implemented properly.  Already
-offering complete support for the IMAP4rev1 protocol as defined by
-RFC~3501~\cite{rfc-imap}, it implements most important IMAP extensions such as
-IDLE~\cite{rfc-idle} and conforms to various IMAP client implementation
-recommendations which accumulated over more than twenty years of the IMAP
-history.  The IMAP client developed as part of \trojita proved to be
-stable and standard-compliant.
+While it is evident that the GUI of \trojita is not as mature as the interface
+of other, more established Mail User Agents such as Mozilla Thunderbird or the
+KMail, the core IMAP engine design is sound.  Already offering complete support
+for the IMAP4rev1 protocol as defined by RFC~3501~\cite{rfc-imap}, \trojita
+implements most important IMAP extensions such as IDLE~\cite{rfc-idle} and
+conforms to various IMAP client implementation recommendations which accumulated
+over more than twenty years of the IMAP history.  Special emphasis is placed at
+transferring only the required data, minimizing network transfers as well as
+memory consumption.  As a results of these optimizations, \trojita operates
+swiftly even when faced with huge mailboxes containing tens of thousands of
+e-mail messages.
 
-It is written in a modular way; adding new features to the core parts of
-\trojita therefore does not require significant effort.
+Mailbox re-synchronization uses as much data from the previously recorded
+mailbox state as permitted by the standards while the persistent offline cache
+with a pluggable architecture allows storing of already downloaded message parts
+among sessions and enables offline browsing of the remote server's contents when
+no network connection is available.
+
+The rendering of the MIME messages provides a faithful reflection of the MIME
+structure, yet sustains an acceptable level of user-friendliness.
+
+Finally, \trojita, as presented in this thesis, is a result of several years of
+the author's involvement in the area of Internet messaging.  \trojita, being
+written in a modular way, provides a mature design platform, enabling the
+convenient and rapid integration of new features.  It is the ultimate goal of
+the author to deliver a fully usable IMAP client aimed at advanced users who
+need to work with lots of e-mail in an effective way.  Therefore, he plans to
+continue the maintenance of the project and develop new features in the years to
+come.  After the GUI is matured, whole range of possibilities for new functions
+is open, from message encryption to supporting even experimental IMAP
+extensions.
+
+Thanks to its unique design employing both well-known design patterns as well as
+new features offered by the modern Qt toolkit, \trojita certainly has the
+potential of becoming {\em the} IMAP client on the open source desktop scene.
 
 \begin{thebibliography}{99}
 \addcontentsline{toc}{chapter}{Bibliography}
