@@ -257,6 +257,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 // FIXME: error reporting...
                 break;
             case Task::LOGOUT:
+                // we are inside while loop in responseReceived(), so we can't delete current parser just yet
                 disconnect( ptr, SIGNAL( disconnected( const QString& ) ), this, SLOT( slotParserDisconnected( const QString& ) ) );
                 ptr->deleteLater();
                 _parsers[ ptr ].parser = 0; // because sometimes it isn't deleted yet
@@ -1147,6 +1148,10 @@ void Model::slotParserDisconnected( const QString msg )
     }
     noopTimer->stop();
     emit connectionError( msg );
+    disconnect( which, SIGNAL(responseReceived()), this, SLOT(responseReceived()) );
+    disconnect( which, SIGNAL(disconnected(QString)), this, SLOT(slotParserDisconnected(QString)) );
+    which->deleteLater();
+    _parsers.remove( which );
 }
 
 void Model::idleTerminated()
