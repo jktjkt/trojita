@@ -1150,7 +1150,7 @@ If the type is complex, a wrapping widget is created.  A classic example of the
 wrapper is the handler of {\tt multipart/alternative} MIME content-type.  In
 this case, a QTabWidget whose tabs contain the actual nested parts is returned.
 Widgets for the nested parts are obtained by a recursive call to the {\tt
-create()} function, solving the problem of the nested body parts in an ellegant
+create()} function, solving the problem of the nested body parts in an elegant
 way.
 
 RFC~2183~\cite{rfc-content-disposition} introduced a method for specifying
@@ -1162,11 +1162,6 @@ similar way.  Unfortunately, certain e-mail clients don't distinguish among an
 attachment and an inline part, labeling data such as attached ZIP files as {\em
 inline}.  Therefore, \trojita process the Content-Disposition header only as a
 suggestion if it asks for an inline display.
-
-In consistence with the usual {\em expensive network} conventions, \trojita will
-not load all children of the multipart/alternative body in an expensive mode.
-If this mode is active, only the preferred body part is shown directly, while
-others are downloaded only upon explicit user action.
 
 This part of \trojita is ready for further extensions.  One particular extension
 which would be extremely useful to be implemented is support for signed and
