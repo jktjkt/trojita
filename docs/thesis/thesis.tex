@@ -1360,24 +1360,24 @@ such a user.}.
 
 Mailody~\cite{mailody} originally started as a standalone IMAP e-mail client, an
 alternative to KMail.  During the development of KDE4, its code base became the
-foundation of the IMAP support in Akonady, a framework for
-PIM\footnote{Personal Information Management} information exchange in the
-then-upcoming KDE4 desktop.
+foundation of the IMAP support in Akonady, a framework for PIM\footnote{Personal
+Information Management} information exchange in the then-upcoming KDE4 desktop.
 
 We were unable to test the version identified as ``1.5.0-beta1'' on KDE 4.2.1 as
 it crashed with a segmentation fault each time we tried to make it talk to our
 testing Dovecot instance.  A similar result was observed when trying the older
 0.5.0 version on KDE 3.5.10.
 
-From the IMAP traffic dumps obtained before the application crashed, it is evident that while the authors
-of Mailody certainly thought about how to implement IMAP properly (as documented e.g.
-by an attempt to group a large message set to smaller parts), it is not a
-finished product yet.  As an example, IMAP allows packing of a contiguous sequence into
-an interval specified by both boundaries.  Mailody fails to use this feature,
-requesting the range by enumerating all values contained therein.  It also does not seem to notice
-the IMAP envelope at all, fetching the corresponding headers directly.  While
-the latter it not an error, strictly speaking, it at least makes the reader of
-the source code wonder what led to that particular choice.
+From the IMAP traffic dumps obtained before the application crashed, it is
+evident that while the authors of Mailody certainly thought about how to
+implement IMAP properly (as documented e.g.  by an attempt to group a large
+message set to smaller parts), it is not a finished product yet.  As an example,
+IMAP allows packing of a contiguous sequence into an interval specified by both
+boundaries.  Mailody fails to use this feature, requesting the range by
+enumerating all values contained therein.  It also does not seem to notice the
+IMAP envelope at all, fetching the corresponding headers directly.  While the
+latter it not an error, strictly speaking, it at least makes the reader of the
+source code wonder what led to that particular choice.
 
 Earlier versions of Mailody had troubles even with mailbox names being passed as
 literals instead of quoted strings.  This might be caused by the fact that the
