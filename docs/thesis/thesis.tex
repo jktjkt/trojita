@@ -1323,6 +1323,9 @@ Common to both implementations, the mailbox hierarchy discovery is performed as
 recommended by the IMAP best-practices~\cite{client-best-practices}, i.e. using
 the {\tt ``\%''} wild character instead of {\tt ``*''}.
 
+KMail 1.11.1 with KDE 4.2.1 performed in a similar way to the already discussed
+version.
+
 \section{Mozilla Thunderbird 2.0}
 
 Mozilla Thunderbird~\cite{thunderbird} has been the e-mail client of choice for
@@ -1441,6 +1444,48 @@ appearance has certainly changed since Outlook Express, the issues with
 presentation of e.g. the PGP/MIME signed e-mail messages still stand.  We will
 therefore end this section by an observation that the IMAP experience is almost
 same as with the Outlook Express.
+
+\section{\trojita}
+
+\trojita is an  IMAP client with support for various mail access modes.  It
+can be told not to request data which were not loaded from the network yet,
+supports an efficient re-synchronization mode which tries to minimize the
+network traffic and tries to deal with even most advanced MIME messages
+reasonably.  The IMAP conversation could still be improved, though -- for
+example, an initial LIST is issued even before the user is properly
+authenticated.
+
+In general, we believe that we have implemented the IMAP protocol completely and
+properly.  We tried to follow the IMAP RFC to the letter, but were sometimes
+forced to relax our requirements a bit, for example when talking to the Cyrus
+IMAP server which regularly sends replies which do not contain a textual part at
+all, in spite of the protocol grammar mandating its presence.  We try to handle
+most situations gracefully, e.g. by resorting to a full mailbox
+re-synchronization when \trojita detects that the mailbox state changed in other
+ways than the server already acknowledged.
+
+When compared to Alpine and Mutt, \trojita supports an offline message cache
+which allows its operation even when the connection to the remote IMAP server
+cannot be obtained.  Its support for IDLE is also arguably better than that of
+Mutt, entering the IDLE more often.
+
+Comparing with the messaging platform from Microsoft would not be fair.  It is
+commonly accepted that the Outlook Express managed to implement IMAP in such a
+broken way that any further comment would be redundant.
+
+The KMail offers a nice GUI and integration with the rest of the KDE desktop.
+Its IMAP support is, however, not that polished up.  If \trojita had the GUI and
+related features of KMail, it would be hard to beat in terms of usability.
+
+Finally, Mozilla Thunderbird is quite an impressive application.  Even though we
+might have certain reservations to the overall Mozilla architecture, the GUI is
+user friendly and clean, and the application just works most of the time.  In
+certain corner-cases, such as when working over a low-bandwidth network
+connection, \trojita has potential for outperforming the Thunderbird thanks to
+the employment of server-side MIME parsing.
+
+A conclusion of \trojita's overall usability is provided in the end of the
+thesis.
 
 \chapter{User's Guide}
 \label{users-guide}
@@ -1732,6 +1777,10 @@ More on this matter can be found in section \ref{big-tree}.
 \chapter{Conclusion}
 
 \trojita, the IMAP e-mail client implemented for this thesis,\ldots
+
+The goal of this thesis was to demonstrate that it is possible to write an IMAP
+e-mail client that is usable, yet implements the relevant RFCs properly.  While 
+
 
 \begin{thebibliography}{99}
 \addcontentsline{toc}{chapter}{Bibliography}
