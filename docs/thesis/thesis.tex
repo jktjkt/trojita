@@ -1344,14 +1344,15 @@ reason not to decompose the message themselves.
 Thunderbird by default opens several connections to the IMAP server and uses
 IDLE for asynchronous notifications about new messages in each of them.  The
 limit on number of concurrent connections is configurable~\cite{mozilla-imap},
-which is probably the only reasonable approach to figuring out how many
-of them will not yet be considered an abuse by the server
-operators\footnote{Client developers might argue that leaving tens of
-concurrent connections to the server open at the same time, each in the IDLE
-mode in a particular mailbox, is actually {\em better} for the server than
-multiplexing the access using just one or a few of IMAP threads.  The client
-developers are of course right, but the server administrators usually cannot be expected to have such a deep understanding of
-the IMAP protocol.  Indeed, most of them would prefer to ban such a user.}.
+which is probably the only reasonable approach to figuring out how many of them
+will not yet be considered an abuse by the server operators\footnote{Client
+developers might argue that leaving tens of concurrent connections to the server
+open at the same time, each in the IDLE mode in a particular mailbox, is
+actually {\em better} for the server than multiplexing the access using just one
+or a few of IMAP threads.  The client developers are of course right, but the
+server administrators usually cannot be expected to have such a deep
+understanding of the IMAP protocol.  Indeed, most of them would prefer to ban
+such a user.}.
 
 \section{Mailody}
 
