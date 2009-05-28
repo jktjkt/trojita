@@ -1290,9 +1290,9 @@ messages in the mailbox and not when viewing one message.
 Being the default e-mail client in KDE 3.5, the KMail~\cite{kmail} has a broad
 user community.  However, its IMAP support might sometimes seem a bit rusty --
 there is, for one, no support for IDLE\footnote{The authors state that this
-limitation is present due to the architecture of the KDE's KIO framework, which
-does not really allow similar modes of operation, but is rather designed for
-client-initiated actions.}, and quite a number of bugs against the IMAP
+limitation is present due to the architecture of the KDE's KIO framework which
+does not really allow similar modes of operation but is designed for
+client-initiated actions only.}, and quite a number of bugs against the IMAP
 implementation is reported at its Bugzilla.
 
 In fact, the KMail contains two distinct implementations of IMAP, the first one
@@ -1303,9 +1303,9 @@ structure the e-mail message has.
 
 In the online mode, a first surprise is KMail's handling of the IMAP message
 flags.  In spite of using the proper command forms for {\em updating} certain
-individual flags and not blindly specifying the resulting state of {\em all}
-flags for a particular message, the operations are apparently too wide, they
-target most of the messages in the mailbox, even when some of them were not
+individual flags instead of blindly specifying the resulting state of {\em all}
+flags for a particular message, the operations are apparently aimed too wide,
+targeting most of the messages in the mailbox even when some of them were not
 shown to the user yet.  In addition, KMail needlessly introduces its own flag
 names even for those flags whose names are either standardized or their use
 widely supported.  An example is setting both {\tt KMAILFORWARDED} and {\tt
@@ -1316,11 +1316,11 @@ The body parts of the complex MIME message from the MIME Torture Test are
 retrieved separately and the rendered representation of the message corresponds
 to the original body structure, which is an impressive result that no other
 e-mail client in this test (besides \trojita) achieved.  The {\tt text/plain}
-messages are, however, fetched as one entity at once, along with their headers.
+messages are, however, fetched as one compact entity along with their headers.
 
 Common to both implementations, the mailbox hierarchy discovery is performed as
 recommended by the IMAP best-practices~\cite{client-best-practices}, i.e. using
-the {\tt ``\%''} character instead of {\tt ``*''}.
+the {\tt ``\%''} wild character instead of {\tt ``*''}.
 
 \section{Mozilla Thunderbird 2.0}
 
