@@ -139,26 +139,47 @@ volutpat quis, porttitor ut, condimentum sit amet, felis. \\
 
 \chapter{Introduction}
 
-Hic sunt Leones.
+Although being surpassed in popularity by other technologies like the World Wide
+Web and peer-to-peer applications, the electronic mail is still one of the few
+services that an average user can name when talking about the Internet.  There are
+many ways how to send and receive the e-mail, some of them being more popular
+than the others.  In this thesis, we try to resurrect the older approach to
+reading e-mail, that is, using an standalone application.
+
+In the recent years, the improvements in the field of web browsers and related
+technologies allowed rapid development of new features that were not conceivable
+just five years ago.  Using these new functions, the popularity of web-based
+e-mail readers grew accordingly.  However, using a proper standalone application
+has numerous benefits from being able to work when not connected to the Internet
+to providing a really instant feedback, a feature that is still somewhat missing
+from most of the web applications.  Managing e-mail over a standardized protocol
+also avoids the vendor lock-in, a highly dangerous phenomenon associated with
+using the proprietary messaging solutions.  To date, the {\em Internet Message
+Access Protocol}~\cite{rfc-imap} (or IMAP) is the only such protocol.
 
 \section{Motivation}
 
-While there are certainly numerous stable and widely-used Mail User Agents on
-the market, none of them fulfils my expectations of reasonable performance and
-efficiency.  Indeed, most of these applications started as MUAs speaking the
-POP3 protocol \footnote{The POP3 protocol\ldots FIXME}, adding support for IMAP
-later on.  Typically, this support was added long since the initial design phase
-of the product was completed, resulting in suboptimal design
-choices.\cite{crispin-ten-commandments} Some clients, like the \ldots FIXME
+Implementing an IMAP client is far from trivial.  While there are certainly
+numerous stable and widely-used Mail User Agents on the market, none of them
+fulfils all the expectations of reasonable performance and efficiency.  Indeed,
+most of these applications started as MUAs speaking the POP3 protocol only,
+adding support for IMAP later on.  Typically, this support was implemented long
+since the initial design phase of the product was completed, resulting in
+suboptimal design choices~\cite{crispin-ten-commandments}.  Therefore, we
+believe there is still a place on the market for a stable, highly performing
+IMAP e-mail application.
 
 \section{Structure of the thesis}
 
-In the following chapter, we provide a gentle introduction to the world of
-IMAP and related standards like MIME.  Following that, we move to explain some
-design choices made during the development proces of \trojita, as well as
-elaborate on the internal application architecture and structure.  User
-documentation is the next chapter, and we finish the whole thesis by a wrap-up
-providing an overview of what we implemented and how is the result usable.
+In the following chapter, we provide a gentle introduction to the world of IMAP
+and related standards such as MIME.  Chapter \ref{trojita-design} explains some
+of the design choices made during the development proces of \trojita, as well as
+elaborates on the internal application architecture and structure.  An overview
+of other IMAP implementations on the market is provided in
+chapter~\ref{other-imap-implementations}.  Finally, the User's Guide is
+available in chapter~\ref{users-guide} and the whole thesis is finished by a
+wrap-up providing an overview of what we implemented and how is the result
+usable.
 
 \chapter{IMAP and Related Technologies}
 
@@ -656,6 +677,7 @@ an online or disconnected mail store.  It has certain deficiencies, but all in
 all, it is a perfectly usable protocol.
 
 \chapter{\trojita Design}
+\label{trojita-design}
 
 As evidenced by numerous available MUAs on the market, there are many possible
 ways on how to implement a usable e-mail client.  In this chapter, we explain
@@ -1203,6 +1225,7 @@ support for drag and drop outside of the \trojita is available yet, mainly due
 to a lack of widely accepted standard MIME type for doing so.
 
 \chapter{Other IMAP Implementations}
+\label{other-imap-implementations}
 
 Albeit the guarantee of interoperability is arguable the most important aspect
 of a standardization process, certain e-mail clients perform better than the
@@ -1274,6 +1297,7 @@ did not account for each possible response variation.
 Oh noes\ldots
 
 \chapter{User's Guide}
+\label{users-guide}
 
 \section{About Trojita}
 
