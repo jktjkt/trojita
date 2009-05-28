@@ -1389,6 +1389,29 @@ response codes}, which is free to be present in most situations.
 
 \section{Outlook Express}
 
+The Outlook Express is a built-in e-mail client in various versions of Microsoft
+Windows.  The version we tested was shipped with Windows XP, and is the latest
+release of the Outlook Express ever\footnote{The product got re-branded to
+Windows Mail and subsequently to Windows Live Mail}.
+
+FIXME: IMAP
+
+The GUI part of the application leaves much to be desired, too.  A notable
+example is its handling of multipart/signed message parts -- if the signature is
+done by PGP/MIME, Outlook Express displays an empty message with two
+attachments, the signed body and the signature itself.  This effectively
+prevents most users from actually reading the PGP-signed e-mails, as they do not
+expect the ``real message body'' to be available as an attachment only.  Another
+problem exists with the display of the X-509 signed e-mails which contain a
+valid signature that cannot be verified.  If such a signature is found, the
+Outlook Express displays a misleading warning about a possible security threat
+to the {\em local computer} instead of calmly informing the user about the fact
+that the certificate of the CA\footnote{Certificate Authority, an entity which
+issues certificates to other entities} is not found and thus the signature could
+not be verified.  An extra click or two is needed to display the actual message
+body.  This again presents a big obstacle to the actual usage of the signed
+e-mail on the Internet, for the Outlook Express still has substantial market
+share.
 
 \section{Windows Live Mail}
 
