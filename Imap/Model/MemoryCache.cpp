@@ -21,7 +21,7 @@
 #include <QFile>
 
 //#define CACHE_DEBUG
-#define CACHE_STATS
+//#define CACHE_STATS
 
 #ifdef CACHE_DEBUG
 #define CACHE_STATS
