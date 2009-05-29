@@ -21,7 +21,7 @@ QString PrettySize::prettySize( uint bytes )
     else
         suffix = tr("TB"); // shame on you for such mails
     return tr("%1 %2").arg( QString::number(
-            bytes / ( std::pow( 1024, order ) ),
+            bytes / ( std::pow( 1024.0, order ) ),
             'f', 1 ), suffix );
 }
 
