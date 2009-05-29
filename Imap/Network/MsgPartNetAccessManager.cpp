@@ -9,6 +9,8 @@
 #include "Imap/Model/Model.h"
 
 namespace Imap {
+
+/** @short Classes associated with the implementation of the QNetworkAccessManager */
 namespace Network {
 
 MsgPartNetAccessManager::MsgPartNetAccessManager( QObject* parent ):

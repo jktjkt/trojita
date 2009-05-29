@@ -49,6 +49,7 @@
 
 #include "iconloader/qticonloader.h"
 
+/** @short All user-facing widgets and related classes */
 namespace Gui {
 
 MainWindow::MainWindow(): QMainWindow()
