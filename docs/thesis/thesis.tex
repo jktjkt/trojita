@@ -302,7 +302,7 @@ one blob.
 
 \section{MIME}
 
-Multipurpose Internet Mail Extensions \cite{rfc-2045} \cite{rfc-2046}
+Multipurpose Internet Mail Extensions~\cite{rfc-2045}, \cite{rfc-2046},
 \cite{rfc-2047}, or just MIME, is a set of standards for extending the old SMTP
 mail from 7bit ASCII texts to rich multimedia contents.  Parts of the standard
 deal with encapsulation of non-ASCII characters in message headers, as well as
@@ -329,8 +329,8 @@ abstract content types which contains other message parts within.  Using
 these containers, a message can suddenly evolve from an unstructured blob of
 text to a deep tree of unrelated body parts.
 
-Most of these containers are defined in RFC 2045 \cite{rfc-2045} and 2046
-\cite{rfc-2046}, one was added in RFC 2387 \cite{rfc-multipart-related}.
+Most of these containers are defined in RFC~2045~\cite{rfc-2045} and
+2046~\cite{rfc-2046}, one was added in RFC~2387~\cite{rfc-multipart-related}.
 
 The {\tt multipart/alternative} encoding provides a mean of transmitting a
 message that comes in several different formats, but each of them contains the same data.  The
@@ -1835,19 +1835,11 @@ desktop scene.
 \addcontentsline{toc}{chapter}{Bibliography}
     \bibitem{rfc-imap}Crispin, M.: Internet Message Access Protocol - Version
         4rev1, {\em RFC~3501}, March 2003
-    \bibitem{rfc-literalplus}Myers, J.: IMAP4 non-synchronizing literals, {\em
-        RFC~2088}, January 1997
-    \bibitem{rfc-idle}Leiba, B.: IMAP4 IDLE command, {\em RFC~2177}, June 1997
     \bibitem{crispin-ten-commandments}Crispin, M.: Ten Commandments of How to
         Write an IMAP client, September 2006, Washington,\\
         {\tt http://www.washington.edu/imap/documentation/commndmt.txt.html}
-    \bibitem{client-best-practices}Sirainen, T., Cridland, D. et al.: Best
-        Practices for Implementing an IMAP Client, {\tt
-        http://www.imapwiki.org/ClientImplementation}
     \bibitem{rfc-2822}Resnick, P. (editor) et al.: Internet Message Format, {\em
         RFC~2822}, April 2001
-    \bibitem{rfc-msa}Gellens, R., Klensin, J.: Message Submission, {\em
-        RFC~2476}, December 1998
     \bibitem{rfc-2045}Freed, N., Borenstein, N.: Multipurpose Internet
         Mail Extensions (MIME) Part One: Format of Internet Message Bodies, {\em
         RFC~2045}, November 1996
@@ -1858,47 +1850,37 @@ desktop scene.
         Part Three: Message Header Extensions for Non-ASCII Text, {\em RFC~2047},
         November 1996
     \bibitem{rfc-multipart-related}Levinson, E.: The MIME Multipart/Related
-        Content-type, {\em RFC 2~387}, August 1998
-    \bibitem{rfc-content-id}Levinson, E.: Content-ID and Message-ID Uniform
-        Resource Locators, {\em RFC~2111}, March~1997
-    \bibitem{rfc-content-disposition}Troost, R., Dorner, S., Moore, K.:
-        Communicating Presentation Information in Internet Messages: The
-        Content-Disposition Header Field, {\em RFC~2183}, August 1997
+        Content-type, {\em RFC~2387}, August 1998
     \bibitem{rfc-threading}Crispin, M., Murchison, K.: Internet Message Access
         Protocol - SORT and THREAD Extensions, {\em RFC~5256}, June 2008
-    \bibitem{imap-keywords-flags}Melnikov, A.: Common IMAP keywords, {\em
-        Expired Internet Draft}, \\
-        {\tt http://tools.ietf.org/html/draft-melnikov-imap-keywords-03}
+    \bibitem{rfc-literalplus}Myers, J.: IMAP4 non-synchronizing literals, {\em
+        RFC~2088}, January 1997
+    \bibitem{rfc-idle}Leiba, B.: IMAP4 IDLE command, {\em RFC~2177}, June 1997
     \bibitem{imap-vs-pop}Gray, T.: Message Access Paradigms and Protocols,
         September 1995, online at {\tt
         ftp://ftp.cac.washington.edu/mail/imap.vs.pop}
-    \bibitem{qt} Qt Reference Documentation, {\tt http://doc.trolltech.com/4.5/}
     \bibitem{qt-interview}Qt Software: The Interview Framework, \\
         {\tt http://doc.trolltech.com/4.5/qt4-interview.html}
     \bibitem{qt-webkit}Qt Software: QtWebKit Module, \\
         {\tt http://doc.trolltech.com/4.5/qtwebkit.html}
-    \bibitem{GoF}Gamma, E., Helm, R., Johnson, R., Vlissides, J.: Design
-        Patterns: Elements of Reusable Object-Oriented Software, Boston:
-        Addison-Wesley, 1995
+    \bibitem{std-tr1} ISO/IEC TR 19768, C++ Library Extensions
     \bibitem{qt-qprocess-sigpipe}QProcess could close the reading pipe, thus
         killing the child process with SIGPIPE, {\em a thread on the qt-interest
         mailing list}, {\tt
         http://lists.trolltech.com/pipermail/qt-interest/2009-May/006341.html}
-    \bibitem{cmake} CMake Documentation, \\{\tt
-        http://www.cmake.org/cmake/help/documentation.html}
-    \bibitem{std-tr1} ISO/IEC TR 19768, C++ Library Extensions
-    \bibitem{qwwsmtpclient} Wysota, W.: QwwSmtpClient released, May 2009, \\
-        {\tt
-        http://blog.wysota.eu.org/index.php/2009/05/13/qwwsmtpclient-released/}
-    \bibitem{modeltest} Qt Software, ModelTest, February 2008, \\
-        {\tt http://labs.trolltech.com/page/Projects/Itemview/Modeltest}
+    \bibitem{GoF}Gamma, E., Helm, R., Johnson, R., Vlissides, J.: Design
+        Patterns: Elements of Reusable Object-Oriented Software, Boston:
+        Addison-Wesley, 1995
+    \bibitem{rfc-content-disposition}Troost, R., Dorner, S., Moore, K.:
+        Communicating Presentation Information in Internet Messages: The
+        Content-Disposition Header Field, {\em RFC~2183}, August 1997
+    \bibitem{rfc-content-id}Levinson, E.: Content-ID and Message-ID Uniform
+        Resource Locators, {\em RFC~2111}, March~1997
     \bibitem{qticonloader} Qt Software, February 2009, \\ {\tt
         http://labs.trolltech.com/blogs/2009/02/13/freedesktop-icons-in-qt/}
     \bibitem{xdg-icons}Dawes, R., The FreeDesktop Project: Icon Naming
         Specification v.~0.8.90, \\{\tt
         http://standards.freedesktop.org/icon-naming-spec/\\icon-naming-spec-0.8.90.html}
-    \bibitem{kcodecs} The KDE Project: kdelibs, \\{\tt
-        http://api.kde.org/4.x-api/kdelibs-apidocs/}
     \bibitem{dovecot}Dovecot, Secure IMAP server, \\
         {\tt http://www.dovecot.org/}
     \bibitem{mime-torture-test}Crispin, M.: The MIME Torture Test Mailbox, \\
@@ -1910,6 +1892,12 @@ desktop scene.
     \bibitem{mutt}The Mutt E-mail Client, \\
         {\tt http://www.mutt.org/}
     \bibitem{kmail}KMail: Kontact Mail, \\{\tt http://kontact.kde.org/kmail/}
+    \bibitem{imap-keywords-flags}Melnikov, A.: Common IMAP keywords, {\em
+        Expired Internet Draft}, \\
+        {\tt http://tools.ietf.org/html/draft-melnikov-imap-keywords-03}
+    \bibitem{client-best-practices}Sirainen, T., Cridland, D. et al.: Best
+        Practices for Implementing an IMAP Client, {\tt
+        http://www.imapwiki.org/ClientImplementation}
     \bibitem{thunderbird}Mozilla Thunderbird, \\{\tt
         http://www.mozillamessaging.com/en-US/thunderbird/}
     \bibitem{mozilla-imap}Mozilla Developer Center: IMAP, \\
@@ -1918,6 +1906,18 @@ desktop scene.
     \bibitem{rfc-mime-openpgp}Elkins, M. et al.: MIME Security with OpenPGP,
         {\em RFC~3156}, \\
         {\tt http://tools.ietf.org/html/rfc3156}
+    \bibitem{qt} Qt Reference Documentation, {\tt http://doc.trolltech.com/4.5/}
+    \bibitem{cmake} CMake Documentation, \\{\tt
+        http://www.cmake.org/cmake/help/documentation.html}
+    \bibitem{qwwsmtpclient} Wysota, W.: QwwSmtpClient released, May 2009, \\
+        {\tt
+        http://blog.wysota.eu.org/index.php/2009/05/13/qwwsmtpclient-released/}
+    \bibitem{modeltest} Qt Software, ModelTest, February 2008, \\
+        {\tt http://labs.trolltech.com/page/Projects/Itemview/Modeltest}
+    \bibitem{kcodecs} The KDE Project: kdelibs, \\{\tt
+        http://api.kde.org/4.x-api/kdelibs-apidocs/}
+    \bibitem{rfc-msa}Gellens, R., Klensin, J.: Message Submission, {\em
+        RFC~2476}, December 1998
 \end{thebibliography}
 
 \begin{appendix}
