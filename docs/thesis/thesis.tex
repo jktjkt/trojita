@@ -195,8 +195,8 @@ the numerous standards which deal with this highly complex topic.
 
 \section{Basic Concepts}
 
-An {\em email message}, or a RFC-822\footnote{As defined by the RFC 822 standard
-and subsequently modified by RFC 2822 \cite{rfc-2822} and others} message,
+An {\em email message}, or a RFC-822\footnote{As defined by the RFC~822 standard
+and subsequently modified by RFC~2822~\cite{rfc-2822} and others} message,
 consists of three parts: {\em Envelope}, {\em Header} and {\em Body}. The {\em
 envelope} is the only relevant part for mail exchange among Internet
 hosts; it includes basic information like addresses of the sender and recipient.
@@ -272,7 +272,7 @@ in the same mailbox can be satisfied from the client's cache.
 
 It should be noted that this UID/UIDNEXT numbering is strictly per-mailbox and
 not per-server, and that different users accessing the same server might see the
-same 64bit number for totally unrelated messages.  While RFC3501 \cite{rfc-imap}
+same 64bit number for totally unrelated messages.  While RFC~3501~\cite{rfc-imap}
 strongly recommends that UIDVALIDITY should be kept constant if at all possible,
 a compliant IMAP client has to deal with UIDVALIDITY changes nonetheless.
 
@@ -283,7 +283,7 @@ information.
 
 The {\em Internal date} holds a time stamp about when the message was delivered
 to the IMAP server.  {\em Size} attribute is the number of octets required for
-storing a full copy of message in RFC2822 format.  {\em Body structure}
+storing a full copy of message in RFC~2822 format.  {\em Body structure}
 represents the tree-like structure of the MIME message.
 
 The \label{imap-msg-flags}{\em IMAP flags} is an attribute holding a set of zero
@@ -357,7 +357,7 @@ characters using 7bit ASCII characters only.
 For the former, two standard encodings are available, the {\em Quoted printable}
 and {\em Base64} (as well as a ``fake'' {\em binary} or {\em 8bit} encoding for
 transport of binary data over less restrictive tunnels), the latter is supported
-by a similar approach, as defined in RFC 2047 \cite{rfc-2047}.
+by a similar approach, as defined in RFC~2047~\cite{rfc-2047}.
 
 \subsection{MIME Support in IMAP}
 
@@ -376,7 +376,7 @@ decoding international character data is left as an exercise to the client.
 Fortunately, various message attributes in the IMAP protocol can serve as a
 substitute for parsing the RFC 2822 headers.  Sender and recipient data is
 available from the IMAP {\tt ENVELOPE}, message size as {\tt RFC822.SIZE}, IMAP
-itself provides extensions for message threading \cite{rfc-threading} et cetera.
+itself provides extensions for message threading~\cite{rfc-threading} et cetera.
 
 \section{IMAP Protocol Flow}
 
@@ -405,7 +405,7 @@ identifier called {\em tag} which is followed by the actual command identifier.
 Most commands also accept (or require) a {\em parameter} which might be a string
 literal, a number, an atom, a parenthesized list of other types etc.
 Transmission of generic string literals requires an explicit confirmation from
-the server unless the LITERAL+ \cite{rfc-literalplus} extension is active.
+the server unless the LITERAL+~\cite{rfc-literalplus} extension is active.
 Support for this extension is crucial for good performance, as if absent, most
 commands would be delayed by at least network round-trip-time and no support for
 pipelining of such commands would be possible.  Clients are free to issue several
@@ -496,7 +496,7 @@ polling check for new messages.  However, this had all the disadvantages of a
 polling-based approach, especially unnecessary increase of network traffic, lower
 possibility to enter deep sleep for battery powered devices and even delays in
 mail delivery, for some clients were rather hesitant to poll for changes too
-often.  A solution to this problem is presented in RFC 2177 \cite{rfc-idle}
+often.  A solution to this problem is presented in RFC~2177~\cite{rfc-idle}
 where client enters a special mode (which is syntactically similar to
 synchronizing literals that are used when support for LITERAL+
 \cite{rfc-literalplus} is absent) to tell the server that it can really send
@@ -620,7 +620,7 @@ time, like a work computer and a laptop at home.  While there are certain ways
 to work around these POP3 design limitations which allow leaving a copy of each
 message on the POP3 server, they all remain just hot fixes
 instead of providing a proper and reliable solution.  An excellent comparison of
-these two paradigms is available from Grey's paper \cite{imap-vs-pop}.
+these two paradigms is available from Grey's paper~\cite{imap-vs-pop}.
 
 \subsection{MAPI}
 
@@ -669,7 +669,7 @@ data, but certain pieces remain, like the RFC 2822 headers with international
 characters.
 
 Some authors also criticize the protocol on basis of its complexity and being
-loosely-defined in certain aspects.  An example is the IDLE \cite{rfc-idle}
+loosely-defined in certain aspects.  An example is the IDLE~\cite{rfc-idle}
 extension, which adds an explicit mode indicating to the server that the client
 is really ready to process any updates to mailbox state, while the original RFC
 mandated the client to be in such condition all the time.  Most common MUAs also
@@ -880,7 +880,7 @@ adding unified signals and functions for error handling.
 connection secured by SSL\footnote{Secure Socket Layers}/TLS\footnote{Transport
 Layer Security} with the possibility to defer the SSL/TLS negotiation to a later
 point during the IMAP conversation\footnote{The STARTTLS command, cf. section
-6.2.1 of RFC~3501 \cite{rfc-imap}}, and finally over a UNIX pipe to a local
+6.2.1 of RFC~3501~\cite{rfc-imap}}, and finally over a UNIX pipe to a local
 process.  For the latter, two implementations are actually included, first one
 being a wrapper around the QProcess from Qt and the other a standalone class
 making direct use of POSIX syscalls.  The standalone implementation is no longer
@@ -888,7 +888,7 @@ necessary, but was used in an earlier implementation of the Parser which made
 heavy use of nested calls to QIODevice's {\tt waitForReadyRead()} method.  This
 usage led to hard-to-debug failures in the networking code when using other
 QIODevices than QTcpSocket.  After a communication with Qt Software support
-personnel \cite{qt-qprocess-sigpipe}, it was suggested to abandon these nested
+personnel~\cite{qt-qprocess-sigpipe}, it was suggested to abandon these nested
 waitForReadyRead() calls and follow an approach common to Qt applications which
 simply ignore the availability of new data until there is enough bytes to
 process a whole response at once.  In addition to more obvious and cleaner code,
@@ -1246,7 +1246,7 @@ nesting as well some common decoder errors.
 
 \section{Alpine 2.0}
 
-Alpine \cite{alpine}, a successor of {\tt pine}, is a console e-mail client by
+Alpine~\cite{alpine}, a successor of {\tt pine}, is a console e-mail client by
 Mark Crispin, the principal author of the IMAP protocol.  As such, its qualities
 are widely acknowledged.  When coupled with the UW-imapd, an IMAP server
 implementation from the University of Washington from the same author, they
@@ -1513,14 +1513,14 @@ required to be present on the system.
         newer or the Boost libraries}
 \end{enumerate}
 
-A recommended version of the Qt framework \cite{qt} is at least 4.5. \trojita,
+A recommended version of the Qt framework~\cite{qt} is at least 4.5. \trojita,
 however, includes compatibility code for older versions of Qt. The minimal supported
 version is Qt/4.4. Any older release cannot be supported, as the WebKit HTML
 engine which we use for e-mail rendering was added during the 4.4
 development. If users choose to build against 4.4, some \trojita features might
 be missing.
 
-Unlike most Qt projects, \trojita uses CMake \cite{cmake} instead of {\tt qmake},
+Unlike most Qt projects, \trojita uses CMake~\cite{cmake} instead of {\tt qmake},
 especially due to author's familiarity with the former system.
 
 \trojita makes use of some standard C++ features that were adding during the TR1
@@ -1534,20 +1534,20 @@ such products including the reason for not just using an external library
 follows:
 
 \begin{enumerate}
-    \item{QwwSmtpClient \cite{qwwsmtpclient} is a Qt SMTP client library written
+    \item{QwwSmtpClient~\cite{qwwsmtpclient} is a Qt SMTP client library written
         by Witold Wysota.  Released to public only in mid May 2009, obtaining a
         package of it might prove challenging.  The copy in \trojita's codebase
         also contains some fixes which did not made it to the publicly released
         version yet.}
-    \item{ModelTest \cite{modeltest}, a class for verifying certain assumptions
+    \item{ModelTest~\cite{modeltest}, a class for verifying certain assumptions
         of the Interview Model-View framework of Qt.  Qt Software (former
         Trolltech) does not ship it with Qt sources, so \trojita includes a copy
         for developers' convenience.  This feature is not turned on by default
         in release builds.}
-    \item{QtIconLoader \cite{qticonloader}, another helper library from Qt
+    \item{QtIconLoader~\cite{qticonloader}, another helper library from Qt
         Software.  Its purpose is to provide a unified icon set, as per
         relevant XDG standards.}
-    \item{KCodecs \cite{kcodecs}, an implementation of UTF-7, Base64,
+    \item{KCodecs~\cite{kcodecs}, an implementation of UTF-7, Base64,
         Quoted-Printable and related RFC 2047 standards.  These functions are
         reasonably self-contained, so they are bundled with \trojita instead of
         depending on quite heavyweight {\tt kdelibs}.}
@@ -1697,7 +1697,7 @@ The displayed dialog should be familiar to most users.
 \subsection{Checking Mail}
 
 \trojita automatically checks the current folder for new messages.  If the
-remote server supports the IDLE extension \cite{rfc-idle}, the method used is
+remote server supports the IDLE extension~\cite{rfc-idle}, the method used is
 extremely friendly to both network and server resources.  In cases the server
 does not support this feature, \trojita resorts to polling with all it
 disadvantages.
@@ -1709,7 +1709,7 @@ disadvantages.
 Thanks to unique features of the IMAP protocol, it is not necessary to fetch the
 whole message in order to display just a fragment of it.  \trojita handles this
 automatically, fetching message parts on demand.  It also will not transfer message
-metadata (like its RFC2822 envelope) unless really needed.
+metadata (like its RFC~2822 envelope) unless really needed.
 
 \subsection{Offline Mode}
 
