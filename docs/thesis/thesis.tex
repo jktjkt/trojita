@@ -689,7 +689,16 @@ some design choices behind \trojita.
 \section{Overview}
 
 \trojita is composed of several logically decoupled layers of independent
-components.  Communication between them adheres to a strictly defined interface.
+components, see figure \ref{fig:trojita-design} on page
+\pageref{fig:trojita-design}.  Communication between them adheres to a strictly
+defined interface.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[clip, trim=0cm 7cm 0cm 0cm, scale=0.6]{fig-trojita-design}
+    \caption{A diagram showing the \trojita architecture}
+    \label{fig:trojita-design}
+\end{figure}
 
 On the top of the hierarchy lies the {\em GUI}.  This part is what the user
 interacts with; it provides views showing all mailboxes on a server, a list of
