@@ -893,8 +893,8 @@ waitForReadyRead() calls and follow an approach common to Qt applications which
 simply ignore the availability of new data until there is enough bytes to
 process a whole response at once.  In addition to more obvious and cleaner code,
 this eliminated the need for blocking I/O and subsequently any advantages of a
-threaded design of the Parser.  Therefore, multithreading was abandoned and new
-single-threaded network handler implemented.
+threaded design of the Parser.  Therefore, multithreading was abandoned and a new
+single-threaded network handler was implemented.
 
 
 \section{Model in Detail}
@@ -908,7 +908,7 @@ to opened mailboxes as well as handling of certain non-standard situations.
 \subsection{The Tree}
 
 Being an implementation of QAbstractItemModel, the Model has to provide an interface
-with which the attached views and proxy models\footnote{Proxy models are
+through which the attached views and proxy models\footnote{Proxy models are
 auxiliary models which do not supply their own data, but instead provide a
 filtered and modified view of data published by the parent model.  More on this
 topic is explained in section \ref{model-proxies}.} can operate.
@@ -942,7 +942,7 @@ originated from the GUI.  A typical temporary representation is a translated
 form of {\em ``loading\ldots''} or a question mark.  As soon as the real data
 arrive from the server, the view is asked to update the display with new value.
 
-To illustrate this complex theory in reality, suppose a view just scrolled to a
+To illustrate this rather complex theory on a concrete example, suppose a view just scrolled to a
 new message in the mailbox.  The view obtained a {\em model index\footnote{A
 temporary index used for referring to certain item in the Model.  The model
 index is a standard term from the Qt Interview framework, and as such is not
@@ -953,7 +953,7 @@ immediately propagated to the newly created TreeItemMessage instance.  As the
 message just arrived to the mailbox, the class didn't have time to request more
 data about it yet.  The TreeItemMessage instance is therefore in an {\em initial
 state} indicating that no attempt to load the data from the server has been
-performed, and thus the {\tt data()} implementation does not havy any real
+performed, and thus the {\tt data()} implementation does not have any real
 answer to the original query.  Therefore, it submits a request to the Model
 asking it to fetch the IMAP envelope of the particular message.  However, the reply to this
 message is not guaranteed to arrive in a timely manner and the TreeItemMessage
@@ -1104,9 +1104,9 @@ originate as part of the processing of the HTML page.
 In \trojita, we created a special network manager\footnote{The {\tt
 MsgPartNetworkAccessmanager}} whose job is to provide an access to the message
 bodies stored on the remote IMAP server as well as filter out any access to the
-regular Internet.
+``regular Internet''.
 
-Reason for the former is security and spam filtering.  For example, when an HTML
+The reason for the former is security and spam filtering.  For example, when an HTML
 message contains a reference to a remote image, a naive e-mail client which
 allows the retrieval of external entities via HTTP would provide an accurate
 indication about when the message was read and even confirm the very existence
@@ -1341,10 +1341,10 @@ were flagged by the user as interesting in some way.  Their discovery is
 performed using the {\tt ``*''} wild mask, which might potentially result in a
 large list to fetch.  On the other hand, assuming that the user did not mark
 too many mailboxes is probably acceptable.  The MIME parsing is deferred to the
-e-mail client, as common among the graphical Mail User Agents.  We assume that
+e-mail client, as a common choice among the graphical Mail User Agents.  We assume that
 this is a direct result of support for other protocols than IMAP which do not
-provide any form of server-side MIME support, and the clients therefore has no
-reason not to decompose the message itself, after receiving the full body in one
+provide any form of server-side MIME support, and the client therefore has no
+reason not to decompose the message itself after receiving the full body in one
 part.
 
 Thunderbird by default opens several connections to the IMAP server and uses
@@ -1414,7 +1414,7 @@ mode, each of them lasting several milliseconds.
 
 The GUI part of the application leaves much to be desired, too.  A notable
 example is its handling of {\tt multipart/signed} message parts -- if the
-signature is made according to the MIME/OpenPGP~\cite{rfc-mime-openpgp}, Outlook
+signature is made according to MIME/OpenPGP~\cite{rfc-mime-openpgp}, Outlook
 Express displays an empty message with two attachments, the signed body and the
 signature itself.  This effectively prevents most users from actually reading
 the PGP-signed e-mails, as they do not expect the ``real message body'' to be
@@ -1439,19 +1439,19 @@ expected to be the e-mail application distributed with the upcoming Windows
 Seven operating system.
 
 Unfortunately, most of the issues mentioned in the section about Outlook Express
-still stands.  Both applications apparently use not only the same (or remarkably
+still stand.  Both applications apparently use not only the same (or remarkably
 similar) IMAP code, but also a not-so-different GUI layer -- while the overall
 appearance has certainly changed since Outlook Express, the issues with
-presentation of e.g. the PGP/MIME signed e-mail messages still stand.  We will
+presentation of e.g. the PGP/MIME signed e-mail messages persist.  We will
 therefore end this section by an observation that the IMAP experience is almost
-same as with the Outlook Express.
+the same as with the Outlook Express.
 
 \section{\trojita}
 
 \trojita is an  IMAP client with support for various mail access modes.  It
 can be told not to request data which were not loaded from the network yet,
 supports an efficient re-synchronization mode which tries to minimize the
-network traffic and tries to deal with even most advanced MIME messages
+network traffic and tries to deal with even the most advanced MIME messages
 reasonably.  The IMAP conversation could still be improved, though -- for
 example, an initial LIST is issued even before the user is properly
 authenticated.
@@ -1503,19 +1503,20 @@ lines with high latency, while still providing sufficient comfort.
 
 \subsection{Prerequisites}
 
-In order to build \trojita from source, some libraries and helper programs are
+In order to build \trojita from source, several libraries and helper programs are
 required to be present on the system.
 
 \begin{enumerate}
-    \item{CMake 2.6}
-    \item{Qt 4.4}
-    \item{Working implementation of the TR1 C++ standard}
+    \item{CMake 2.6 or later}
+    \item{Qt 4.4 or later}
+    \item{Working implementation of the TR1 C++ standard such as GCC 4.3 or
+        newer or the Boost libraries}
 \end{enumerate}
 
-Recommended version of the Qt framework \cite{qt} is at least 4.5. \trojita,
-however, includes compatibility code for older versions of Qt. Minimal supported
+A recommended version of the Qt framework \cite{qt} is at least 4.5. \trojita,
+however, includes compatibility code for older versions of Qt. The minimal supported
 version is Qt/4.4. Any older release cannot be supported, as the WebKit HTML
-engine which we use for e-mail rendering rendering was added during the 4.4
+engine which we use for e-mail rendering was added during the 4.4
 development. If users choose to build against 4.4, some \trojita features might
 be missing.
 
@@ -1528,7 +1529,7 @@ pointer. A working implementation of said class is required.  \trojita build
 system will make use of compiler's built-in TR1 support, if available, and
 resort to using Boost if the compiler does not support this extension.
 
-Some 3rd party code is also bundled in the source code distribution.  A list of
+Some third-party code is also bundled in the source code distribution.  A list of
 such products including the reason for not just using an external library
 follows:
 
@@ -1544,7 +1545,7 @@ follows:
         for developers' convenience.  This feature is not turned on by default
         in release builds.}
     \item{QtIconLoader \cite{qticonloader}, another helper library from Qt
-        Software.  Purpose of it is providing a unified icon set, as per
+        Software.  Its purpose is to provide a unified icon set, as per
         relevant XDG standards.}
     \item{KCodecs \cite{kcodecs}, an implementation of UTF-7, Base64,
         Quoted-Printable and related RFC 2047 standards.  These functions are
@@ -1554,7 +1555,7 @@ follows:
 
 \subsection{Obtaining source code}
 
-Source code is available from the CD attached to this thesis or online at {\tt
+Source code is available from the CD (see \ref{cd-content}) attached to this thesis or online at {\tt
 http://trojita.flaska.net/}.
 
 \subsection{Installing}
@@ -1614,8 +1615,8 @@ network of MTAs} application.
 
 After the configuration is complete, the user is presented with a familiar user
 interface. The left pane presents a view of remote mailboxes, or folders, on the
-IMAP server. The top widget contains list of messages in currently opened
-folder, and finally the bottom area is reserved for displaying of the actual
+IMAP server. The top widget contains a list of messages in the currently opened
+folder, and finally the bottom area is reserved for displaying the actual
 e-mail messages.
 
 Depending on the network parameters and server load, it might take a while
@@ -1624,17 +1625,17 @@ launching \trojita for the first time, for the retrieved list of mailboxes is
 cached on a persistent disk cache for later use.
 
 After the list of mailboxes is loaded, user can click on them to open them in
-the {\em Message List} widget on the bottom right corner of the application
+the {\em Message List} widget on the upper right corner of the application
 window.  After having selected a mailbox, the list of messages appears shortly.
 Again, the loading is faster next time \trojita is launched.
 
-Depending on user settings, \trojita typically will not transfer all messages
+Depending on user settings, \trojita typically will not transfer all message
 metadata upon opening a mailbox.  This feature is implemented to conserve
 both server's and client's resources and to be nice to the network traffic.  In
 a typical mode, that is, when not being told to be extra-mean with resources,
 \trojita fetches only metadata of those messages that are displayed on the
 visible screen region, and some more to make scrolling smoother.  More on this
-topic is said in another chapter of this thesis.
+topic is said in section~\ref{model-in-detail} of this thesis.
 
 Message contents is transfered on-demand only, that is, when user selects a
 message for viewing.  As before, all persistent contents once downloaded from
@@ -1643,7 +1644,7 @@ to both message metadata and the real contents of e-mails.
 
 \subsection{Managing Messages and Mailboxes}
 
-Messages displayed to user are automatically marked as read after some delay.
+Messages displayed to the user are automatically marked as read after some delay.
 The idea behind this feature is to allow users to peek on a particular message,
 shortly judge its contents, classify it as a ``process later'' and then move on
 to another one.  This is a common approach shared with other MUAs as well.
@@ -1653,7 +1654,7 @@ via the context menu (appearing on the message list) as well by standard
 keyboard shortcuts.  The {\tt M} key toggles the {\em Read} status and {\tt
 Delete} key schedules messages for removal.
 
-In consistency with usual IMAP approach (and unlike the common modus operandi on
+In consistency with the usual IMAP approach (and unlike the common modus operandi on
 mainstream desktop MUAs), \trojita has no concept of {\em Trash}
 \footnote{A {\em Trash} is a mailbox that presents a view of all deleted
 messages.  It might or might not be a real mailbox on the server, or just a
@@ -1730,12 +1731,12 @@ network resources.  In such environments, it might be desirable to fetch only
 the absolute minimum data required to provide properly synchronized view of the
 remote mailbox.
 
-In this situation, user is expected to choose the {\em Expensive Network} mode
+In this situation, the user is expected to choose the {\em Expensive Network} mode
 from the application menu.  \trojita will not preload data to improve
 interactivity, nor will it show all message parts by default.  Upon viewing a
 message, only parts smaller than a certain size are transfered automatically,
 others will be loaded after clicking a button.  This on-demand loading is
-implemented separately for each part, allowing great flexibility for user to
+implemented separately for each part, allowing great flexibility for the user to
 choose what is interesting and what can be ignored.
 
 \subsection{Online Mode}
@@ -1921,6 +1922,7 @@ desktop scene.
 
 \begin{appendix}
 \chapter{Contents of the CD}
+\label{cd-content}
 
 The attached CD-ROM is an integral part of this thesis.  The contents of the
 top-level {\tt trojita} directory is the following:
