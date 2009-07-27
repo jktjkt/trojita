@@ -322,8 +322,6 @@ void MainWindow::msgListDoubleClicked( const QModelIndex& index )
     Q_ASSERT( index.isValid() );
     Q_ASSERT( index.model() == msgListModel );
 
-    // FIXME: The MessageView should be changed to not set up the custom event filter in this case...
-    // FIXME: The standalone view should behave differently when setEmpty() is called...
     MessageView* newView = new MessageView( 0 );
     QModelIndex realIndex = msgListModel->mapToSource( index );
     Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
@@ -331,7 +329,6 @@ void MainWindow::msgListDoubleClicked( const QModelIndex& index )
     Q_ASSERT( message );
     Q_ASSERT( realIndex.model() == model );
     newView->setMessage( index );
-    newView->setWindowTitle( message->envelope( 0 ).subject ); // FIXME: nullptr!
 
     // Now make sure we check all possible paths that could possibly lead to problems when a message gets deleted
     // big fat FIXME: This is too simplified, albeit safe. What we really want here, however,
@@ -341,7 +338,14 @@ void MainWindow::msgListDoubleClicked( const QModelIndex& index )
     connect( msgListModel, SIGNAL( modelAboutToBeReset() ), newView, SLOT( setEmpty() ) );
     connect( msgListModel, SIGNAL( messageRemoved( void* ) ), newView, SLOT( handleMessageRemoved( void* ) ) );
     connect( msgListModel, SIGNAL( destroyed() ), newView, SLOT( setEmpty() ) );
-    newView->show();
+
+    QScrollArea* widget = new QScrollArea();
+    widget->setWidget( newView );
+    widget->setWidgetResizable( true );
+    widget->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
+    widget->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
+    widget->setWindowTitle( message->envelope( 0 ).subject ); // FIXME: nullptr!
+    widget->show();
 }
 
 void MainWindow::slotResizeMsgListColumns()
