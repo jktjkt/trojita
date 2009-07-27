@@ -262,6 +262,7 @@ void MainWindow::setupModels()
 
     connect( msgListTree, SIGNAL( activated(const QModelIndex&) ), this, SLOT( msgListClicked(const QModelIndex&) ) );
     connect( msgListTree, SIGNAL( clicked(const QModelIndex&) ), this, SLOT( msgListClicked(const QModelIndex&) ) );
+    connect( msgListTree, SIGNAL( doubleClicked( const QModelIndex& ) ), this, SLOT( msgListDoubleClicked( const QModelIndex& ) ) );
     connect( msgListModel, SIGNAL( modelAboutToBeReset() ), msgView, SLOT( setEmpty() ) );
     connect( msgListModel, SIGNAL( messageRemoved( void* ) ), msgView, SLOT( handleMessageRemoved( void* ) ) );
 
@@ -314,6 +315,29 @@ void MainWindow::msgListClicked( const QModelIndex& index )
         msgView->setMessage( index );
         msgListTree->setCurrentIndex( index );
     }
+}
+
+void MainWindow::msgListDoubleClicked( const QModelIndex& index )
+{
+    Q_ASSERT( index.isValid() );
+    Q_ASSERT( index.model() == msgListModel );
+
+    // FIXME: The MessageView should be changed to not set up the custom event filter in this case...
+    // FIXME: The standalone view should behave differently when setEmpty() is called...
+    MessageView* newView = new MessageView( 0 );
+    Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
+            static_cast<Imap::Mailbox::TreeItem*>(
+                    msgListModel->mapToSource( index ).internalPointer()
+                    )
+            );
+    Q_ASSERT( message );
+    newView->setMessage( index );
+    newView->setWindowTitle( message->envelope( 0 ).subject ); // FIXME: nullptr!
+    // Now make sure we check all possible paths that could possibly lead to problems when a message gets deleted
+    connect( msgListModel, SIGNAL( modelAboutToBeReset() ), newView, SLOT( setEmpty() ) );
+    connect( msgListModel, SIGNAL( messageRemoved( void* ) ), newView, SLOT( handleMessageRemoved( void* ) ) );
+    connect( msgListModel, SIGNAL( destroyed() ), newView, SLOT( setEmpty() ) );
+    newView->show();
 }
 
 void MainWindow::slotResizeMsgListColumns()
