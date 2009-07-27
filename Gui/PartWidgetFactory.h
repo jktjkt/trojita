@@ -15,6 +15,8 @@ public:
     PartWidgetFactory( Imap::Network::MsgPartNetAccessManager* _manager, QObject* _wheelEventFilter );
     QWidget* create( Imap::Mailbox::TreeItemPart* part );
 private:
+    QWidget* create( Imap::Mailbox::TreeItemPart* part, int recursionDepth );
+
     Imap::Network::MsgPartNetAccessManager* manager;
     QObject* wheelEventFilter;
 };

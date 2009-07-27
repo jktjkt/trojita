@@ -23,8 +23,20 @@ PartWidgetFactory::PartWidgetFactory( Imap::Network::MsgPartNetAccessManager* _m
 
 QWidget* PartWidgetFactory::create( Imap::Mailbox::TreeItemPart* part )
 {
+    return create( part, 0 );
+}
+
+QWidget* PartWidgetFactory::create( Imap::Mailbox::TreeItemPart* part, int recursionDepth )
+{
     using namespace Imap::Mailbox;
     Q_ASSERT( part );
+
+    if ( recursionDepth > 1000 ) {
+        return new QLabel( tr("This message contains too deep nesting of MIME message parts.\n"
+                              "To prevent stack exhaustion and your head from exploding, only\n"
+                              "the top-most thousand items or so are shown."), 0 );
+    }
+
     if ( part->mimeType().startsWith( QLatin1String("multipart/") ) ) {
         // it's a compound part
         if ( part->mimeType() == QLatin1String("multipart/alternative") ) {
@@ -33,7 +45,7 @@ QWidget* PartWidgetFactory::create( Imap::Mailbox::TreeItemPart* part )
                 TreeItemPart* anotherPart = dynamic_cast<TreeItemPart*>(
                         part->child( i, manager->model ) );
                 Q_ASSERT( anotherPart );
-                QWidget* item = create( anotherPart );
+                QWidget* item = create( anotherPart, recursionDepth + 1 );
                 top->addTab( item, anotherPart->mimeType() );
             }
             top->setCurrentIndex( part->childrenCount( manager->model ) - 1 );
@@ -48,7 +60,7 @@ QWidget* PartWidgetFactory::create( Imap::Mailbox::TreeItemPart* part )
             QVBoxLayout* layout = new QVBoxLayout( top );
             TreeItemPart* anotherPart = dynamic_cast<TreeItemPart*>(
                     part->child( 0, manager->model ) );
-            layout->addWidget( create( anotherPart ) );
+            layout->addWidget( create( anotherPart, recursionDepth + 1 ) );
             return top;
         } else {
             // multipart/mixed or anything else, as mandated by RFC 2046, Section 5.1.3
@@ -58,7 +70,7 @@ QWidget* PartWidgetFactory::create( Imap::Mailbox::TreeItemPart* part )
                 TreeItemPart* anotherPart = dynamic_cast<TreeItemPart*>(
                         part->child( i, manager->model ) );
                 Q_ASSERT( anotherPart );
-                QWidget* res = create( anotherPart );
+                QWidget* res = create( anotherPart, recursionDepth + 1 );
                 layout->addWidget( res );
             }
             return top;
@@ -72,7 +84,7 @@ QWidget* PartWidgetFactory::create( Imap::Mailbox::TreeItemPart* part )
             TreeItemPart* anotherPart = dynamic_cast<TreeItemPart*>(
                     part->child( i, manager->model ) );
             Q_ASSERT( anotherPart );
-            QWidget* res = create( anotherPart );
+            QWidget* res = create( anotherPart, recursionDepth + 1 );
             layout->addWidget( res );
         }
         return top;
