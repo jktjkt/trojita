@@ -11,5 +11,6 @@
         <file>icons/mail-unread.png</file>
         <file>icons/folder.png</file>
         <file>icons/transparent.png</file>
+        <file>icons/3.png</file>
     </qresource>
 </RCC>
