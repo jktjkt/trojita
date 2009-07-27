@@ -325,15 +325,19 @@ void MainWindow::msgListDoubleClicked( const QModelIndex& index )
     // FIXME: The MessageView should be changed to not set up the custom event filter in this case...
     // FIXME: The standalone view should behave differently when setEmpty() is called...
     MessageView* newView = new MessageView( 0 );
+    QModelIndex realIndex = msgListModel->mapToSource( index );
     Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
-            static_cast<Imap::Mailbox::TreeItem*>(
-                    msgListModel->mapToSource( index ).internalPointer()
-                    )
-            );
+            static_cast<Imap::Mailbox::TreeItem*>( realIndex.internalPointer() ) );
     Q_ASSERT( message );
+    Q_ASSERT( realIndex.model() == model );
     newView->setMessage( index );
     newView->setWindowTitle( message->envelope( 0 ).subject ); // FIXME: nullptr!
+
     // Now make sure we check all possible paths that could possibly lead to problems when a message gets deleted
+    // big fat FIXME: This is too simplified, albeit safe. What we really want here, however,
+    // is to have a way in which the *real* Model signals a deletion of a particular message.
+    // That way we can safely ignore signals coming from msgListModel which might be result of,
+    // say, switching the view to another mailbox...
     connect( msgListModel, SIGNAL( modelAboutToBeReset() ), newView, SLOT( setEmpty() ) );
     connect( msgListModel, SIGNAL( messageRemoved( void* ) ), newView, SLOT( handleMessageRemoved( void* ) ) );
     connect( msgListModel, SIGNAL( destroyed() ), newView, SLOT( setEmpty() ) );
