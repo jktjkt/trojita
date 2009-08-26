@@ -18,7 +18,7 @@
 #ifndef IMAP_RESPONSE_H
 #define IMAP_RESPONSE_H
 
-#include <tr1/memory>
+#include <QSharedPointer>
 #include <QTextStream>
 #include <QString>
 #include <QByteArray>
@@ -163,7 +163,7 @@ namespace Responses {
          * We have to use pointer indirection because virtual methods wouldn't
          * work otherwise.
          * */
-        std::tr1::shared_ptr<AbstractData> respCodeData;
+        QSharedPointer<AbstractData> respCodeData;
 
         /** @short Default constructor
          *
@@ -173,7 +173,7 @@ namespace Responses {
          * */
         State( const QString& _tag, const Kind _kind, const QString& _message,
                 const Code _respCode,
-                const std::tr1::shared_ptr<AbstractData> _respCodeData ):
+                const QSharedPointer<AbstractData> _respCodeData ):
             tag(_tag), kind(_kind), message(_message), respCode(_respCode),
             respCodeData(_respCodeData) {};
 
@@ -312,7 +312,7 @@ namespace Responses {
     /** @short FETCH response */
     class Fetch : public AbstractResponse {
     public:
-        typedef QMap<QString,std::tr1::shared_ptr<AbstractData> > dataType;
+        typedef QMap<QString,QSharedPointer<AbstractData> > dataType;
 
         /** @short Sequence number of message that we're working with */
         uint number;

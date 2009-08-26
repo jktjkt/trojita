@@ -144,7 +144,7 @@ void Model::responseReceived()
     int i = 0;
 
     while ( it.value().parser->hasResponse() ) {
-        std::tr1::shared_ptr<Imap::Responses::AbstractResponse> resp = it.value().parser->getResponse();
+        QSharedPointer<Imap::Responses::AbstractResponse> resp = it.value().parser->getResponse();
         Q_ASSERT( resp );
         resp->plug( it.value().parser, this );
         if ( ! it.value().parser ) {
@@ -948,7 +948,7 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
             QDataStream stream( &data.serializedBodyStructure, QIODevice::ReadOnly );
             QVariantList unserialized;
             stream >> unserialized;
-            std::tr1::shared_ptr<Message::AbstractMessage> abstractMessage;
+            QSharedPointer<Message::AbstractMessage> abstractMessage;
             try {
                 abstractMessage = Message::AbstractMessage::fromList( unserialized, QByteArray(), 0 );
             } catch ( Imap::ParserException& e ) {

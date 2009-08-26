@@ -1,4 +1,4 @@
     QTest::newRow("untagged-list-unicode")
         << QByteArray("* LIST () \"/\" \"~Peter/mail/&U,BTFw-/&ZeVnLIqe-\"\r\n")
-        << shared_ptr<AbstractResponse>( new List( LIST, QStringList(), "/", QString::fromUtf8("~Peter/mail/台北/日本語") ) );
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), "/", QString::fromUtf8("~Peter/mail/台北/日本語") ) );
 

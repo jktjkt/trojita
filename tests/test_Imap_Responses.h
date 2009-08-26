@@ -18,11 +18,11 @@
 #ifndef TEST_IMAP_PARSER_PARSE
 #define TEST_IMAP_PARSER_PARSE
 
-#include <tr1/memory>
+#include <QSharedPointer>
 #include <QtCore/QObject>
 #include "Imap/Parser/Response.h"
 
-typedef std::tr1::shared_ptr<Imap::Responses::AbstractResponse> respPtr;
+typedef QSharedPointer<Imap::Responses::AbstractResponse> respPtr;
 
 /** @short Unit tests for Imap::Responses::AbstractResponse and friends */
 class ImapResponsesTest : public QObject

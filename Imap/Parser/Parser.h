@@ -19,7 +19,7 @@
 #define IMAP_PARSER_H
 #include <deque>
 #include <memory>
-#include <tr1/memory>
+#include <QSharedPointer>
 #include <QObject>
 #include <QMutex>
 #include <QThread>
@@ -119,7 +119,7 @@ namespace Imap {
         bool hasResponse() const;
 
         /** @short De-queue and return parsed response */
-        std::tr1::shared_ptr<Responses::AbstractResponse> getResponse();
+        QSharedPointer<Responses::AbstractResponse> getResponse();
 
         /** @short Enable/Disable sending literals using the LITERAL+ extension */
         void enableLiteralPlus( const bool enabled=true );
@@ -289,21 +289,21 @@ namespace Imap {
         void processLine( QByteArray line );
 
         /** @short Parse line for untagged reply */
-        std::tr1::shared_ptr<Responses::AbstractResponse> parseUntagged( const QByteArray& line );
+        QSharedPointer<Responses::AbstractResponse> parseUntagged( const QByteArray& line );
 
         /** @short Parse line for tagged reply */
-        std::tr1::shared_ptr<Responses::AbstractResponse> parseTagged( const QByteArray& line );
+        QSharedPointer<Responses::AbstractResponse> parseTagged( const QByteArray& line );
 
         /** @short helper for parseUntagged() */
-        std::tr1::shared_ptr<Responses::AbstractResponse> _parseUntaggedNumber(
+        QSharedPointer<Responses::AbstractResponse> _parseUntaggedNumber(
                 const QByteArray& line, int& start, const uint number );
 
         /** @short helper for parseUntagged() */
-        std::tr1::shared_ptr<Responses::AbstractResponse> _parseUntaggedText(
+        QSharedPointer<Responses::AbstractResponse> _parseUntaggedText(
                 const QByteArray& line, int& start );
 
         /** @short Add parsed response to the internal queue, emit notification signal */
-        void queueResponse( const std::tr1::shared_ptr<Responses::AbstractResponse>& resp );
+        void queueResponse( const QSharedPointer<Responses::AbstractResponse>& resp );
 
         /** @short Connection to the IMAP server */
         SocketPtr _socket;
@@ -315,7 +315,7 @@ namespace Imap {
         QList<Commands::Command> _cmdQueue;
 
         /** @short Queue storing parsed replies from the IMAP server */
-        std::deque<std::tr1::shared_ptr<Responses::AbstractResponse> > _respQueue;
+        std::deque<QSharedPointer<Responses::AbstractResponse> > _respQueue;
 
         bool _idling;
         bool _waitForInitialIdle;

@@ -50,8 +50,8 @@ void ImapResponsesTest::testCompareEq_data()
     QTest::addColumn<respPtr>("first");
     QTest::addColumn<respPtr>("second");
 
-    std::tr1::shared_ptr<AbstractData> voidData( new RespData<void>() );
-    std::tr1::shared_ptr<AbstractData> dumbList( new RespData<QStringList>( QStringList() << "foo" << "bar" ) );
+    QSharedPointer<AbstractData> voidData( new RespData<void>() );
+    QSharedPointer<AbstractData> dumbList( new RespData<QStringList>( QStringList() << "foo" << "bar" ) );
 
     QTest::newRow( "tagged-OK-nothing" ) <<
         respPtr( new State( "123", OK, "foobar 333", NONE, voidData ) ) <<
@@ -114,9 +114,9 @@ void ImapResponsesTest::testCompareNe_data()
     QTest::addColumn<respPtr>("first");
     QTest::addColumn<respPtr>("second");
 
-    std::tr1::shared_ptr<AbstractData> voidData( new RespData<void>() );
-    std::tr1::shared_ptr<AbstractData> dumbList( new RespData<QStringList>( QStringList() << "foo" << "bar" ) );
-    std::tr1::shared_ptr<AbstractData> anotherList( new RespData<QStringList>( QStringList() << "bar" << "baz" ) );
+    QSharedPointer<AbstractData> voidData( new RespData<void>() );
+    QSharedPointer<AbstractData> dumbList( new RespData<QStringList>( QStringList() << "foo" << "bar" ) );
+    QSharedPointer<AbstractData> anotherList( new RespData<QStringList>( QStringList() << "bar" << "baz" ) );
 
     QTest::newRow( "status-tag" ) <<
         respPtr( new State( "123", OK, "foobar 333", NONE, voidData ) ) <<

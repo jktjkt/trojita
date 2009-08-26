@@ -279,7 +279,7 @@ CommandHandle Parser::queueCommand( Commands::Command command )
     return tag;
 }
 
-void Parser::queueResponse( const std::tr1::shared_ptr<Responses::AbstractResponse>& resp )
+void Parser::queueResponse( const QSharedPointer<Responses::AbstractResponse>& resp )
 {
     _respQueue.push_back( resp );
     emit responseReceived();
@@ -290,9 +290,9 @@ bool Parser::hasResponse() const
     return ! _respQueue.empty();
 }
 
-std::tr1::shared_ptr<Responses::AbstractResponse> Parser::getResponse()
+QSharedPointer<Responses::AbstractResponse> Parser::getResponse()
 {
-    std::tr1::shared_ptr<Responses::AbstractResponse> ptr;
+    QSharedPointer<Responses::AbstractResponse> ptr;
     if ( _respQueue.empty() )
         return ptr;
     ptr = _respQueue.front();
@@ -491,7 +491,7 @@ void Parser::processLine( QByteArray line )
     }
 }
 
-std::tr1::shared_ptr<Responses::AbstractResponse> Parser::parseUntagged( const QByteArray& line )
+QSharedPointer<Responses::AbstractResponse> Parser::parseUntagged( const QByteArray& line )
 {
     int pos = 2;
     uint number;
@@ -504,7 +504,7 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::parseUntagged( const Q
     return _parseUntaggedNumber( line, pos, number );
 }
 
-std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedNumber(
+QSharedPointer<Responses::AbstractResponse> Parser::_parseUntaggedNumber(
         const QByteArray& line, int& start, const uint number )
 {
     if ( start == line.size() )
@@ -530,7 +530,7 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedNumber(
                 throw UnexpectedHere( line, start ); // expected CRLF
             else
                 try {
-                    return std::tr1::shared_ptr<Responses::AbstractResponse>(
+                    return QSharedPointer<Responses::AbstractResponse>(
                             new Responses::NumberResponse( kind, number ) );
                 } catch ( UnexpectedHere& e ) {
                     throw UnexpectedHere( e.what(), line, start );
@@ -538,7 +538,7 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedNumber(
             break;
 
         case Responses::FETCH:
-            return std::tr1::shared_ptr<Responses::AbstractResponse>(
+            return QSharedPointer<Responses::AbstractResponse>(
                     new Responses::Fetch( number, line, start ) );
             break;
 
@@ -548,7 +548,7 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedNumber(
     throw UnexpectedHere( line, start );
 }
 
-std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedText(
+QSharedPointer<Responses::AbstractResponse> Parser::_parseUntaggedText(
         const QByteArray& line, int& start )
 {
     Responses::Kind kind;
@@ -573,7 +573,7 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedText(
                 }
                 if ( !capabilities.count() )
                     throw NoData( line, start );
-                return std::tr1::shared_ptr<Responses::AbstractResponse>(
+                return QSharedPointer<Responses::AbstractResponse>(
                         new Responses::Capability( capabilities ) );
             }
         case Responses::OK:
@@ -581,14 +581,14 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedText(
         case Responses::BAD:
         case Responses::PREAUTH:
         case Responses::BYE:
-            return std::tr1::shared_ptr<Responses::AbstractResponse>(
+            return QSharedPointer<Responses::AbstractResponse>(
                     new Responses::State( QString::null, kind, line, start ) );
         case Responses::LIST:
         case Responses::LSUB:
-            return std::tr1::shared_ptr<Responses::AbstractResponse>(
+            return QSharedPointer<Responses::AbstractResponse>(
                     new Responses::List( kind, line, start ) );
         case Responses::FLAGS:
-            return std::tr1::shared_ptr<Responses::AbstractResponse>(
+            return QSharedPointer<Responses::AbstractResponse>(
                     new Responses::Flags( line, start ) );
         case Responses::SEARCH:
             {
@@ -602,21 +602,21 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::_parseUntaggedText(
                         throw UnexpectedHere( line, start );
                     }
                 }
-                return std::tr1::shared_ptr<Responses::AbstractResponse>(
+                return QSharedPointer<Responses::AbstractResponse>(
                         new Responses::Search( numbers ) );
             }
         case Responses::STATUS:
-            return std::tr1::shared_ptr<Responses::AbstractResponse>(
+            return QSharedPointer<Responses::AbstractResponse>(
                     new Responses::Status( line, start ) );
         case Responses::NAMESPACE:
-            return std::tr1::shared_ptr<Responses::AbstractResponse>(
+            return QSharedPointer<Responses::AbstractResponse>(
                     new Responses::Namespace( line, start ) );
         default:
             throw UnexpectedHere( line, start );
     }
 }
 
-std::tr1::shared_ptr<Responses::AbstractResponse> Parser::parseTagged( const QByteArray& line )
+QSharedPointer<Responses::AbstractResponse> Parser::parseTagged( const QByteArray& line )
 {
     int pos = 0;
     const QByteArray tag = LowLevelParser::getAtom( line, pos );
@@ -624,7 +624,7 @@ std::tr1::shared_ptr<Responses::AbstractResponse> Parser::parseTagged( const QBy
     const Responses::Kind kind = Responses::kindFromString( LowLevelParser::getAtom( line, pos ) );
     ++pos;
 
-    return std::tr1::shared_ptr<Responses::AbstractResponse>(
+    return QSharedPointer<Responses::AbstractResponse>(
             new Responses::State( tag, kind, line, pos ) );
 }
 

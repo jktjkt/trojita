@@ -18,7 +18,7 @@ void AuthenticatedHandler::handleState( Imap::Parser* ptr, const Imap::Responses
     switch ( resp->respCode ) {
         case Responses::UNSEEN:
         {
-            const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.get() );
+            const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.data() );
             if ( num )
                 m->_parsers[ ptr ].syncState.setUnSeen( num->data );
             else
@@ -27,7 +27,7 @@ void AuthenticatedHandler::handleState( Imap::Parser* ptr, const Imap::Responses
         }
         case Responses::PERMANENTFLAGS:
         {
-            const Responses::RespData<QStringList>* const num = dynamic_cast<const Responses::RespData<QStringList>* const>( resp->respCodeData.get() );
+            const Responses::RespData<QStringList>* const num = dynamic_cast<const Responses::RespData<QStringList>* const>( resp->respCodeData.data() );
             if ( num )
                 m->_parsers[ ptr ].syncState.setPermanentFlags( num->data );
             else
@@ -36,7 +36,7 @@ void AuthenticatedHandler::handleState( Imap::Parser* ptr, const Imap::Responses
         }
         case Responses::UIDNEXT:
         {
-            const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.get() );
+            const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.data() );
             if ( num )
                 m->_parsers[ ptr ].syncState.setUidNext( num->data );
             else
@@ -45,7 +45,7 @@ void AuthenticatedHandler::handleState( Imap::Parser* ptr, const Imap::Responses
         }
         case Responses::UIDVALIDITY:
         {
-            const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.get() );
+            const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.data() );
             if ( num )
                 m->_parsers[ ptr ].syncState.setUidValidity( num->data );
             else

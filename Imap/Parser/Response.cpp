@@ -260,7 +260,7 @@ State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int
                     throw InvalidResponseCode( "Got ALERT/PARSE/READ_ONLY/READ_WRITE/TRYCREATE"
                                                " response code with extra data inside the brackets",
                                                line, start );
-                respCodeData = std::tr1::shared_ptr<AbstractData>( new RespData<void>() );
+                respCodeData = QSharedPointer<AbstractData>( new RespData<void>() );
                 break;
             case Responses::UIDNEXT:
             case Responses::UIDVALIDITY:
@@ -273,18 +273,18 @@ State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int
                 uint number = _list.first().toUInt( &ok );
                 if ( !ok )
                     throw InvalidResponseCode( line, start );
-                respCodeData = std::tr1::shared_ptr<AbstractData>( new RespData<uint>( number ) );
+                respCodeData = QSharedPointer<AbstractData>( new RespData<uint>( number ) );
                 }
                 break;
             case Responses::BADCHARSET:
             case Responses::PERMANENTFLAGS:
             case Responses::CAPABILITIES:
                 // no check here
-                respCodeData = std::tr1::shared_ptr<AbstractData>( new RespData<QStringList>( _list ) );
+                respCodeData = QSharedPointer<AbstractData>( new RespData<QStringList>( _list ) );
                 break;
             case Responses::ATOM: // no sanity check here, just make a string
             case Responses::NONE: // this won't happen, but if we ommit it, gcc warns us about that
-                respCodeData = std::tr1::shared_ptr<AbstractData>( new RespData<QString>( _list.join(" ") ) );
+                respCodeData = QSharedPointer<AbstractData>( new RespData<QString>( _list.join(" ") ) );
                 break;
         }
     }
@@ -445,47 +445,47 @@ Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
                 QByteArray buffer;
                 QDataStream stream( &buffer, QIODevice::WriteOnly );
                 stream << it->toList();
-                data["x-trojita-bodystructure"] = std::tr1::shared_ptr<AbstractData>(
+                data["x-trojita-bodystructure"] = QSharedPointer<AbstractData>(
                         new RespData<QByteArray>( buffer ) );;
 
             } else if ( identifier.startsWith( "BODY[" ) ) {
                 // FIXME: split into more identifiers?
                 if ( it->type() != QVariant::ByteArray )
                     throw UnexpectedHere( line, start );
-                data[identifier] = std::tr1::shared_ptr<AbstractData>(
+                data[identifier] = QSharedPointer<AbstractData>(
                         new RespData<QByteArray>( it->toByteArray() ) );
 
             } else if ( identifier == "ENVELOPE" ) {
                 if ( it->type() != QVariant::List )
                     throw UnexpectedHere( line, start );
                 QVariantList items = it->toList();
-                data[identifier] = std::tr1::shared_ptr<AbstractData>(
+                data[identifier] = QSharedPointer<AbstractData>(
                         new RespData<Message::Envelope>( Message::Envelope::fromList( items, line, start ) ) );
 
             } else if ( identifier == "FLAGS" ) {
                 if ( ! it->canConvert( QVariant::StringList ) )
                     throw UnexpectedHere( line, start ); // FIXME: wrong offset
 
-                data[identifier] = std::tr1::shared_ptr<AbstractData>(
+                data[identifier] = QSharedPointer<AbstractData>(
                         new RespData<QStringList>( it->toStringList() ) );
 
             } else if ( identifier == "INTERNALDATE" ) {
                 if ( it->type() != QVariant::ByteArray )
                         throw UnexpectedHere( line, start ); // FIXME: wrong offset
                 QByteArray _str = it->toByteArray();
-                data[ identifier ] = std::tr1::shared_ptr<AbstractData>(
+                data[ identifier ] = QSharedPointer<AbstractData>(
                         new RespData<QDateTime>( dateify( _str, line, start ) ) );
 
             } else if ( identifier == "RFC822" ||
                     identifier == "RFC822.HEADER" || identifier == "RFC822.TEXT" ) {
                 if ( it->type() != QVariant::ByteArray )
                     throw UnexpectedHere( line, start ); // FIXME: wrong offset
-                data[ identifier ] = std::tr1::shared_ptr<AbstractData>(
+                data[ identifier ] = QSharedPointer<AbstractData>(
                         new RespData<QByteArray>( it->toByteArray() ) );
             } else if ( identifier == "RFC822.SIZE" || identifier == "UID" ) {
                 if ( it->type() != QVariant::UInt )
                     throw ParseError( line, start ); // FIXME: wrong offset
-                data[ identifier ] = std::tr1::shared_ptr<AbstractData>(
+                data[ identifier ] = QSharedPointer<AbstractData>(
                         new RespData<uint>( it->toUInt() ) );
             } else {
                 throw UnexpectedHere( line, start ); // FIXME: wrong offset

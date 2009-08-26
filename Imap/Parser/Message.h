@@ -19,7 +19,7 @@
 #ifndef IMAP_MESSAGE_H
 #define IMAP_MESSAGE_H
 
-#include <tr1/memory>
+#include <QSharedPointer>
 #include <QByteArray>
 #include <QDebug>
 #include <QVariant>
@@ -102,7 +102,7 @@ namespace Message {
      * */
     struct AbstractMessage: public Responses::AbstractData {
         virtual ~AbstractMessage() {}
-        static std::tr1::shared_ptr<AbstractMessage> fromList( const QVariantList& items, const QByteArray& line, const int start );
+        static QSharedPointer<AbstractMessage> fromList( const QVariantList& items, const QByteArray& line, const int start );
 
         typedef QMap<QByteArray,QByteArray> bodyFldParam_t;
         typedef QPair<QByteArray, bodyFldParam_t> bodyFldDsp_t;
@@ -171,7 +171,7 @@ namespace Message {
     /** @short A message holding another RFC822 message (body-type-msg) */
     struct MsgMessage: public OneMessage {
         Envelope envelope;
-        std::tr1::shared_ptr<AbstractMessage> body;
+        QSharedPointer<AbstractMessage> body;
         uint bodyFldLines;
         MsgMessage( const QString& _mediaType, const QString& _mediaSubType,
                 const bodyFldParam_t& _bodyFldParam, const QByteArray& _bodyFldId,
@@ -180,7 +180,7 @@ namespace Message {
                 const bodyFldDsp_t& _bodyFldDsp,
                 const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,
                 const QVariant& _bodyExtension,
-                const Envelope& _envelope, const std::tr1::shared_ptr<AbstractMessage>& _body,
+                const Envelope& _envelope, const QSharedPointer<AbstractMessage>& _body,
                 const uint _bodyFldLines ):
             OneMessage( _mediaType, _mediaSubType, _bodyFldParam, _bodyFldId,
                     _bodyFldDesc, _bodyFldEnc, _bodyFldOctets, _bodyFldMd5,
@@ -213,7 +213,7 @@ namespace Message {
 
     /** @short Multipart message (body-type-mpart) */
     struct MultiMessage: public AbstractMessage {
-        QList<std::tr1::shared_ptr<AbstractMessage> > bodies;
+        QList<QSharedPointer<AbstractMessage> > bodies;
         QString mediaSubType;
         // optional fields
         bodyFldParam_t bodyFldParam;
@@ -222,7 +222,7 @@ namespace Message {
         QByteArray bodyFldLoc;
         QVariant bodyExtension;
 
-        MultiMessage( const QList<std::tr1::shared_ptr<AbstractMessage> >& _bodies,
+        MultiMessage( const QList<QSharedPointer<AbstractMessage> >& _bodies,
                 const QString& _mediaSubType, const bodyFldParam_t& _bodyFldParam,
                 const bodyFldDsp_t& _bodyFldDsp,
                 const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,

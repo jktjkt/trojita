@@ -16,6 +16,8 @@
    Boston, MA 02110-1301, USA.
 */
 
+#include <typeinfo>
+
 #include "Message.h"
 #include "../Model/MailboxTree.h"
 #include "3rdparty/rfccodecs.h"
@@ -273,7 +275,7 @@ QTextStream& MultiMessage::dump( QTextStream& s, const int indent ) const
         i << "bodyExtension is " << bodyExtension.typeName() << lf <<
         i << "bodies: [ " << lf;
 
-    for ( QList<std::tr1::shared_ptr<AbstractMessage> >::const_iterator it = bodies.begin(); it != bodies.end(); ++it )
+    for ( QList<QSharedPointer<AbstractMessage> >::const_iterator it = bodies.begin(); it != bodies.end(); ++it )
         if ( *it ) {
             (**it).dump( s, indent + 2 );
             s << lf;
@@ -340,7 +342,7 @@ QList<QByteArray> AbstractMessage::makeBodyFldLang( const QVariant& input, const
     return res;
 }
 
-std::tr1::shared_ptr<AbstractMessage> AbstractMessage::fromList( const QVariantList& items, const QByteArray& line, const int start )
+QSharedPointer<AbstractMessage> AbstractMessage::fromList( const QVariantList& items, const QByteArray& line, const int start )
 {
     if ( items.size() < 3 )
         throw NoData( line, start );
@@ -381,7 +383,7 @@ std::tr1::shared_ptr<AbstractMessage> AbstractMessage::fromList( const QVariantL
 
         uint bodyFldLines = 0;
         Envelope envelope;
-        std::tr1::shared_ptr<AbstractMessage> body;
+        QSharedPointer<AbstractMessage> body;
 
         enum { MESSAGE, TEXT, BASIC} kind;
 
@@ -471,14 +473,14 @@ std::tr1::shared_ptr<AbstractMessage> AbstractMessage::fromList( const QVariantL
 
         switch ( kind ) {
             case MESSAGE:
-                return std::tr1::shared_ptr<AbstractMessage>(
+                return QSharedPointer<AbstractMessage>(
                     new MsgMessage( mediaType, mediaSubType, bodyFldParam,
                         bodyFldId, bodyFldDesc, bodyFldEnc, bodyFldOctets,
                         bodyFldMd5, bodyFldDsp, bodyFldLang, bodyFldLoc,
                         bodyExtension, envelope, body, bodyFldLines )
                     );
             case TEXT:
-                return std::tr1::shared_ptr<AbstractMessage>(
+                return QSharedPointer<AbstractMessage>(
                     new TextMessage( mediaType, mediaSubType, bodyFldParam,
                         bodyFldId, bodyFldDesc, bodyFldEnc, bodyFldOctets,
                         bodyFldMd5, bodyFldDsp, bodyFldLang, bodyFldLoc,
@@ -486,7 +488,7 @@ std::tr1::shared_ptr<AbstractMessage> AbstractMessage::fromList( const QVariantL
                     );
             case BASIC:
             default:
-                return std::tr1::shared_ptr<AbstractMessage>(
+                return QSharedPointer<AbstractMessage>(
                     new BasicMessage( mediaType, mediaSubType, bodyFldParam,
                         bodyFldId, bodyFldDesc, bodyFldEnc, bodyFldOctets,
                         bodyFldMd5, bodyFldDsp, bodyFldLang, bodyFldLoc,
@@ -501,7 +503,7 @@ std::tr1::shared_ptr<AbstractMessage> AbstractMessage::fromList( const QVariantL
 
         int i = 0;
 
-        QList<std::tr1::shared_ptr<AbstractMessage> > bodies;
+        QList<QSharedPointer<AbstractMessage> > bodies;
         while ( items[i].type() == QVariant::List) {
             bodies << fromList( items[i].toList(), line, start );
             ++i;
@@ -558,7 +560,7 @@ std::tr1::shared_ptr<AbstractMessage> AbstractMessage::fromList( const QVariantL
             }
         }
 
-        return std::tr1::shared_ptr<AbstractMessage>(
+        return QSharedPointer<AbstractMessage>(
                 new MultiMessage( bodies, mediaSubType, bodyFldParam,
                     bodyFldDsp, bodyFldLang, bodyFldLoc, bodyExtension ) );
     } else {
@@ -711,7 +713,7 @@ QList<Mailbox::TreeItem*> MultiMessage::createTreeItems( Mailbox::TreeItem* pare
     // FIXME: store more data?
     QList<Mailbox::TreeItem*> list, list2;
     Mailbox::TreeItemPart* part = new Mailbox::TreeItemPart( parent, QString("multipart/%1").arg( mediaSubType) );
-    for ( QList<std::tr1::shared_ptr<AbstractMessage> >::const_iterator it = bodies.begin(); it != bodies.end(); ++it ) {
+    for ( QList<QSharedPointer<AbstractMessage> >::const_iterator it = bodies.begin(); it != bodies.end(); ++it ) {
         list2 << (*it)->createTreeItems( part );
     }
     part->setChildren( list2 ); // always returns an empty list -> no need to qDeleteAll()
