@@ -27,10 +27,7 @@ void AttachmentView::slotDownloadClicked()
 {
     QString saveFileName = QFileDialog::getSaveFileName( this, tr("Save Attachment"),
                                                          part->fileName(), QString(),
-                                                         0
-#if QT_VERSION >= 0x040500
-                                                         , QFileDialog::HideNameFilterDetails
-#endif
+                                                         0, QFileDialog::HideNameFilterDetails
                                                        );
     if ( saveFileName.isEmpty() )
         return;
