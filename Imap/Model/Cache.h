@@ -19,7 +19,7 @@
 #ifndef IMAP_MODEL_CACHE_H
 #define IMAP_MODEL_CACHE_H
 
-#include <tr1/memory>
+#include <QSharedPointer>
 #include "MailboxMetadata.h"
 #include "../Parser/Message.h"
 
@@ -102,7 +102,7 @@ public:
 };
 
 /** @short A convenience typedef */
-typedef std::tr1::shared_ptr<AbstractCache> CachePtr;
+typedef QSharedPointer<AbstractCache> CachePtr;
 
 }
 

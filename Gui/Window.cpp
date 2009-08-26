@@ -244,7 +244,7 @@ void MainWindow::setupModels()
     } else {
         cacheDir += QLatin1String("/imap.cache");
     }
-    cache.reset( new Imap::Mailbox::MemoryCache( cacheDir ) );
+    cache = Imap::Mailbox::CachePtr( new Imap::Mailbox::MemoryCache( cacheDir ) );
     model = new Imap::Mailbox::Model( this, cache, factory, s.value( SettingsNames::imapStartOffline ).toBool() );
     model->setObjectName( QLatin1String("model") );
     mboxModel = new Imap::Mailbox::MailboxModel( this, model );
@@ -521,7 +521,7 @@ void MainWindow::nukeModels()
     mboxModel = 0;
     model->deleteLater();
     model = 0;
-    cache.reset();
+    cache.clear();
 }
 
 void MainWindow::slotComposeMail()
