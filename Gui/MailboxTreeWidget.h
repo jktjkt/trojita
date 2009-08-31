@@ -5,6 +5,7 @@
 
 namespace Gui {
 
+/** @short A standard QTreeView with certain tweaks for showing a tree of nested mailboxes */
 class MailboxTreeWidget : public QTreeView
 {
     Q_OBJECT

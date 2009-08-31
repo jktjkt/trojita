@@ -9,6 +9,13 @@ class QPushButton;
 
 namespace Gui {
 
+/** @short Widget which implements "click-through" for loading message parts on demand
+
+  When a policy dictates that certain body parts should not be shown unless
+  really required, this widget comes to action.  It provides a click-wrapped
+  meaning of showing huge body parts.  No data are transfered unless the user
+  clicks a button.
+*/
 class LoadablePartWidget : public QStackedWidget
 {
     Q_OBJECT

@@ -11,6 +11,10 @@ namespace Gui {
 
 class RecipientsWidget;
 
+/** @short A "Compose New Mail..." dialog
+
+  Implements a widget which can act as a standalone window for composing e-mail messages
+  */
 class ComposeWidget : public QWidget
 {
     Q_OBJECT

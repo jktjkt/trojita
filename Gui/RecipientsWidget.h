@@ -6,6 +6,12 @@
 
 namespace Gui {
 
+/** @short Grid-like widget for input of mail recipients
+
+    Design of this widget is inspired by the addresses input widget from Mozilla
+    Thunderbird.  It provides an area for specifying a list of recipients and for
+    each of them, a kind of delivery (To, Cc and Bcc).
+*/
 class RecipientsWidget : public QTableWidget
 {
     Q_OBJECT

@@ -8,6 +8,13 @@
 
 namespace Gui {
 
+/** @short Widget depicting an attachment
+
+  This widget provides a graphical representation about an e-mail attachment,
+  that is, an interactive item which shows some basic information like the MIME
+  type of the body part and the download button.  It also includes code for
+  handling the actual download.
+*/
 class AttachmentView : public QWidget
 {
     Q_OBJECT

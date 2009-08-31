@@ -23,6 +23,12 @@ namespace Gui {
 
 class PartWidgetFactory;
 
+
+/** @short Widget for displaying complete e-mail messages as available from the IMAP server
+
+  Widget which can render a regular message as exported by the Imap::Mailbox::Model model.
+  Notably, this class will not render message/rfc822 MIME parts.
+*/
 class MessageView : public QWidget
 {
 Q_OBJECT
