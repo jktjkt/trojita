@@ -142,3 +142,6 @@ add_executable(trojita ${trojita_SRCS} ${trojita_RCCS} ${Gui_UIS})
 target_link_libraries(Imap Streams ${QT_QTGUI_LIBRARY})
 target_link_libraries(MessageView ${QT_QTWEBKIT_LIBRARY})
 target_link_libraries(trojita Imap MessageView ModelTest MSA QwwSmtpClient QtIconLoader)
+
+install(TARGETS trojita
+    RUNTIME DESTINATION bin)
