@@ -93,6 +93,13 @@ void MainWindow::createActions()
     connect( showFullView, SIGNAL( triggered(bool) ), this, SLOT( fullViewToggled(bool) ) );
     connect( allDock, SIGNAL( visibilityChanged(bool) ), showFullView, SLOT( setChecked(bool) ) );
 
+    showMenuBar = new QAction( tr("Show Main Menu Bar"), this );
+    showMenuBar->setCheckable( true );
+    showMenuBar->setChecked( true );
+    showMenuBar->setShortcut( tr("Ctrl+M") );
+    addAction( showMenuBar ); // otherwise it won't work with hidden menu bar
+    connect( showMenuBar, SIGNAL( triggered(bool) ), menuBar(), SLOT(setShown(bool)) );
+
     configSettings = new QAction( tr("Settings..."), this );
     connect( configSettings, SIGNAL( triggered() ), this, SLOT( slotShowSettings() ) );
 
@@ -147,6 +154,7 @@ void MainWindow::createMenus()
     imapMenu->addAction( showFullView );
     imapMenu->addSeparator();
     imapMenu->addAction( configSettings );
+    imapMenu->addAction( showMenuBar );
     imapMenu->addSeparator();
     imapMenu->addAction( exitAction );
 

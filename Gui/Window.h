@@ -114,6 +114,7 @@ private:
     QAction* netOnline;
     QAction* exitAction;
     QAction* showFullView;
+    QAction* showMenuBar;
     QAction* configSettings;
     QAction* composeMail;
     QAction* expunge;
