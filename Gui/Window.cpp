@@ -537,6 +537,7 @@ void MainWindow::slotComposeMail()
                 s.value( SettingsNames::addressKey ).toString() ),
         QList<QPair<QString,QString> >(),
         QString() );
+    w->setAttribute( Qt::WA_DeleteOnClose, true );
     w->show();
 }
 
