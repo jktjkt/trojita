@@ -86,7 +86,6 @@ set(libStreams_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/Streams/SocketFactory.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Streams/Socket.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Streams/IODeviceSocket.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Streams/UnixSocket.cpp
 )
 
 set(libMSA_SRCS
