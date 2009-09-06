@@ -55,7 +55,8 @@ void SMTP::sendMail( const QStringList& to, const QByteArray& data )
     if ( _auth )
         _qwwSmtp->authenticate( _user, _pass );
     emit sending(); // FIXME: later
-    _qwwSmtp->sendMail( /*FIXME*/ "kundratj@fzu.cz", to, QString::fromUtf8( data ) );
+    // FIXME: parse the From: address and use it instead of hard-coded stub
+    _qwwSmtp->sendMail( "example@example.org", to, QString::fromUtf8( data ) );
     _qwwSmtp->disconnectFromHost();
 }
 
