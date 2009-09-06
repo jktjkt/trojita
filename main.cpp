@@ -25,7 +25,7 @@ int main( int argc, char** argv) {
     QCoreApplication::setApplicationVersion( QString::fromAscii("HEAD") );
     QCoreApplication::setOrganizationDomain( QString::fromAscii("flaska.net") );
     QCoreApplication::setOrganizationName( QString::fromAscii("flaska.net") );
-    app.setWindowIcon( QIcon( QString::fromAscii(":/icons/3.png") ) );
+    app.setWindowIcon( QIcon( QString::fromAscii(":/icons/trojita.png") ) );
     Gui::MainWindow win;
     win.show();
     return app.exec();
