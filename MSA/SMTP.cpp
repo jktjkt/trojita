@@ -41,7 +41,7 @@ void SMTP::handleError(QAbstractSocket::SocketError err, const QString& msg )
     emit error( msg );
 }
 
-void SMTP::sendMail( const QStringList& to, const QByteArray& data )
+void SMTP::sendMail( const QString& from, const QStringList& to, const QByteArray& data )
 {
     emit progressMax( data.size() );
     emit progress( 0 );
@@ -55,8 +55,7 @@ void SMTP::sendMail( const QStringList& to, const QByteArray& data )
     if ( _auth )
         _qwwSmtp->authenticate( _user, _pass );
     emit sending(); // FIXME: later
-    // FIXME: parse the From: address and use it instead of hard-coded stub
-    _qwwSmtp->sendMail( "example@example.org", to, QString::fromUtf8( data ) );
+    _qwwSmtp->sendMail( from, to, QString::fromUtf8( data ) );
     _qwwSmtp->disconnectFromHost();
 }
 

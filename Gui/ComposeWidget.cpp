@@ -137,7 +137,8 @@ void ComposeWidget::send()
     setEnabled( false );
     progress->setEnabled( true );
 
-    msa->sendMail( mailDestinations, mailData );
+    // FIXME: parse the From: address and use it instead of hard-coded stub
+    msa->sendMail( "example@example.org", mailDestinations, mailData );
 }
 
 void ComposeWidget::gotError( const QString& error )

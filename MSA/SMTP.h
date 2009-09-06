@@ -13,7 +13,7 @@ public:
     SMTP( QObject* parent, const QString& host, quint16 port,
           bool encryptedConnect, bool startTls, bool auth,
           const QString& user, const QString& pass );
-    virtual void sendMail( const QStringList& to, const QByteArray& data );
+    virtual void sendMail( const QString& from, const QStringList& to, const QByteArray& data );
 public slots:
     virtual void cancel();
     void handleDone( bool ok );

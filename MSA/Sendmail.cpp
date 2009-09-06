@@ -19,10 +19,12 @@ Sendmail::~Sendmail()
     proc->waitForFinished();
 }
 
-void Sendmail::sendMail( const QStringList& to, const QByteArray& data )
+void Sendmail::sendMail( const QString& from, const QStringList& to, const QByteArray& data )
 {
+    // FIXME: from
     emit progressMax( data.size() );
     emit progress( 0 );
+    // FIXME: support for passing the from argument, perhaps via the formatting options?
     QStringList myArgs = args;
     for ( QStringList::const_iterator it = to.begin(); it != to.end(); ++it ) {
         myArgs << *it;
