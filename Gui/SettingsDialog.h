@@ -6,6 +6,7 @@
 
 class QCheckBox;
 class QComboBox;
+class QLineEdit;
 class QTabWidget;
 
 namespace Gui {
