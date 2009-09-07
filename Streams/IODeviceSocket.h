@@ -37,7 +37,6 @@ namespace Imap {
         virtual qint64 write( const QByteArray& byteArray );
         virtual void startTls();
         virtual bool isDead();
-        QIODevice* device() const;
     private slots:
         void handleStateChanged();
         void handleSocketError( QAbstractSocket::SocketError );
