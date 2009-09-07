@@ -106,10 +106,17 @@ void IODeviceSocket::handleStateChanged()
             case QProcess::Starting:
                 break;
             case QProcess::NotRunning:
-                emit disconnected(
-                        tr("The QProcess has exited with return code %1:\n\n%2").arg(
-                                proc->exitCode() ).arg(
-                                QString::fromLocal8Bit( proc->readAllStandardError() ) ) );
+                {
+                    QString stdErr = QString::fromLocal8Bit( proc->readAllStandardError() );
+                    if ( stdErr.isEmpty() )
+                        emit disconnected( tr("The QProcess has exited with return code %1.").arg(
+                                proc->exitCode() ) );
+                    else
+                        emit disconnected(
+                            tr("The QProcess has exited with return code %1:\n\n%2").arg(
+                                    proc->exitCode() ).arg( stdErr ) );
+                }
+                break;
         }
     } else if ( QAbstractSocket* sock = qobject_cast<QAbstractSocket*>( d ) ) {
         switch ( sock->state() ) {
