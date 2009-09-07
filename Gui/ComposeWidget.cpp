@@ -138,7 +138,13 @@ void ComposeWidget::send()
     progress->setEnabled( true );
 
     // FIXME: parse the From: address and use it instead of hard-coded stub
-    msa->sendMail( "example@example.org", mailDestinations, mailData );
+    bool senderMailIsCorrect = false;
+    QString senderMail = extractMailAddress( fromField->text(), senderMailIsCorrect );
+    if ( ! senderMailIsCorrect ) {
+        gotError( tr("The From: address does not look like a valid one") );
+        return;
+    }
+    msa->sendMail( senderMail, mailDestinations, mailData );
 }
 
 void ComposeWidget::gotError( const QString& error )
