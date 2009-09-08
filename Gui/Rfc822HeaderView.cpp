@@ -21,6 +21,7 @@ Rfc822HeaderView::Rfc822HeaderView( QWidget* parent,
         setText( tr("Loading...") );
         connect( model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleDataChanged(QModelIndex,QModelIndex)) );
     }
+    setTextInteractionFlags( Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse );
 }
 
 void Rfc822HeaderView::handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight )

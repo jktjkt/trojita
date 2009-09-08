@@ -25,6 +25,7 @@ MessageView::MessageView( QWidget* parent ): QWidget(parent), message(0), model(
     layout = new QVBoxLayout( this );
     viewer = emptyView;
     header = new QLabel( this );
+    header->setTextInteractionFlags( Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse );
     layout->addWidget( header );
     layout->addWidget( viewer );
     layout->setContentsMargins( 0, 0, 0, 0 );
