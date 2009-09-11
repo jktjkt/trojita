@@ -138,8 +138,10 @@ add_library(QwwSmtpClient ${libQwwSmtpClient_SRCS})
 add_library(QtIconLoader ${libQtIconLoader_SRCS})
 add_executable(trojita ${trojita_SRCS} ${trojita_RCCS} ${Gui_UIS})
 
-target_link_libraries(Imap Streams ${QT_QTGUI_LIBRARY})
-target_link_libraries(MessageView ${QT_QTWEBKIT_LIBRARY})
+target_link_libraries(Streams ${QT_QTNETWORK_LIBRARY})
+target_link_libraries(Imap Streams ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
+target_link_libraries(MessageView ${QT_QTWEBKIT_LIBRARY} ${QT_QTNETWORK_LIBRARY})
+target_link_libraries(QwwSmtpClient ${QT_QTNETWORK_LIBRARY})
 target_link_libraries(trojita Imap MessageView ModelTest MSA QwwSmtpClient QtIconLoader)
 
 install(TARGETS trojita
