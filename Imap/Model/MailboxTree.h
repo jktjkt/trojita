@@ -147,7 +147,7 @@ public:
     virtual void fetch( Model* const model );
     virtual unsigned int rowCount( Model* const model );
     virtual QVariant data( Model* const model, int role );
-    virtual bool hasChildren( Model* const model ) { return true; }
+    virtual bool hasChildren( Model* const model ) { Q_UNUSED( model ); return true; }
     Message::Envelope envelope( Model* const model );
     uint size( Model* const model );
     bool isMarkedAsDeleted() const;

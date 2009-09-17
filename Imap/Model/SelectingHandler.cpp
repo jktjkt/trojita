@@ -28,11 +28,13 @@ void SelectingHandler::handleList( Imap::Parser* ptr, const Imap::Responses::Lis
 
 void SelectingHandler::handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp )
 {
+    Q_UNUSED( ptr );
     throw UnexpectedResponseReceived( "FLAGS reply while syncing mailbox", *resp );
 }
 
 void SelectingHandler::handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp )
 {
+    Q_UNUSED( ptr );
     throw UnexpectedResponseReceived( "SEARCH reply while syncing mailbox", *resp );
 }
 

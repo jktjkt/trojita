@@ -90,26 +90,31 @@ void UnauthenticatedHandler::handleState( Imap::Parser* ptr, const Imap::Respons
 
 void UnauthenticatedHandler::handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp )
 {
+    Q_UNUSED( ptr );
     throw UnexpectedResponseReceived( "Numeric reply in unauthenticated state", *resp );
 }
 
 void UnauthenticatedHandler::handleList( Imap::Parser* ptr, const Imap::Responses::List* const resp )
 {
+    Q_UNUSED( ptr );
     throw UnexpectedResponseReceived( "LIST reply in unauthenticated state", *resp );
 }
 
 void UnauthenticatedHandler::handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp )
 {
+    Q_UNUSED( ptr );
     throw UnexpectedResponseReceived( "FLAGS reply in unauthenticated state", *resp );
 }
 
 void UnauthenticatedHandler::handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp )
 {
+    Q_UNUSED( ptr );
     throw UnexpectedResponseReceived( "SEARCH reply in unauthenticated state", *resp );
 }
 
 void UnauthenticatedHandler::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
 {
+    Q_UNUSED( ptr );
     throw UnexpectedResponseReceived( "FETCH reply in unauthenticated state", *resp );
 }
 

@@ -28,6 +28,8 @@ void MsgPartNetAccessManager::setModelMessage( Imap::Mailbox::Model* _model,
 QNetworkReply* MsgPartNetAccessManager::createRequest( Operation op,
     const QNetworkRequest& req, QIODevice* outgoingData )
 {
+    Q_UNUSED( op );
+    Q_UNUSED( outgoingData );
     Imap::Mailbox::TreeItemPart* part = pathToPart( req.url().path() );
     if ( req.url().scheme() == QLatin1String( "trojita-imap" ) &&
          req.url().host() == QLatin1String("msg") && part ) {

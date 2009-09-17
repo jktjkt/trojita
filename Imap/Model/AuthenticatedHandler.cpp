@@ -87,11 +87,13 @@ void AuthenticatedHandler::handleFlags( Imap::Parser* ptr, const Imap::Responses
 
 void AuthenticatedHandler::handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp )
 {
+    Q_UNUSED( ptr );
     throw UnexpectedResponseReceived( "SEARCH response in authenticated state", *resp );
 }
 
 void AuthenticatedHandler::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
 {
+    Q_UNUSED( ptr );
     throw UnexpectedResponseReceived( "FETCH response in authenticated state", *resp );
 }
 
