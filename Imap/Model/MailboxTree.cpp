@@ -118,6 +118,7 @@ unsigned int TreeItemMailbox::rowCount( Model* const model )
 
 QVariant TreeItemMailbox::data( Model* const model, int role )
 {
+    Q_UNUSED( model );
     if ( role != Qt::DisplayRole )
         return QVariant();
 
@@ -131,6 +132,7 @@ QVariant TreeItemMailbox::data( Model* const model, int role )
 
 bool TreeItemMailbox::hasChildren( Model* const model )
 {
+    Q_UNUSED( model );
     return true; // we have that "messages" thing built in
 }
 
@@ -478,8 +480,8 @@ QVariant TreeItemMsgList::data( Model* const model, int role )
 
 bool TreeItemMsgList::hasChildren( Model* const model )
 {
+    Q_UNUSED( model );
     return true; // we can easily wait here
-    // return childrenCount( model ) > 0;
 }
 
 int TreeItemMsgList::totalMessageCount( Model* const model )
@@ -618,11 +620,13 @@ TreeItemPart::TreeItemPart( TreeItem* parent, const QString& mimeType ): TreeIte
 
 unsigned int TreeItemPart::childrenCount( Model* const model )
 {
+    Q_UNUSED( model );
     return _children.size();
 }
 
 TreeItem* TreeItemPart::child( const int offset, Model* const model )
 {
+    Q_UNUSED( model );
     if ( offset >= 0 && offset < _children.size() )
         return _children[ offset ];
     else
@@ -657,6 +661,7 @@ void TreeItemPart::fetchFromCache( Model* const model )
 unsigned int TreeItemPart::rowCount( Model* const model )
 {
     // no call to fetch() required
+    Q_UNUSED( model );
     return _children.size();
 }
 
@@ -687,6 +692,7 @@ QVariant TreeItemPart::data( Model* const model, int role )
 bool TreeItemPart::hasChildren( Model* const model )
 {
     // no need to fetch() here
+    Q_UNUSED( model );
     return ! _children.isEmpty();
 }
 

@@ -332,6 +332,8 @@ void MailboxModel::handleRowsAboutToBeRemoved( const QModelIndex& parent, int fi
 
 void MailboxModel::handleRowsRemoved( const QModelIndex& parent, int first, int last )
 {
+    Q_UNUSED( first );
+    Q_UNUSED( last );
     TreeItemMailbox* parentMbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( parent.internalPointer() ) );
     if ( parent.internalPointer() && ! parentMbox )
         return;

@@ -137,6 +137,7 @@ void IODeviceSocket::handleStateChanged()
 
 void IODeviceSocket::handleSocketError( QAbstractSocket::SocketError err )
 {
+    Q_UNUSED( err );
     QAbstractSocket* sock = qobject_cast<QAbstractSocket*>( d );
     Q_ASSERT( sock );
     emit disconnected( tr( "The underlying socket is having troubles: %1" ).arg( sock->errorString() ) );
@@ -144,6 +145,7 @@ void IODeviceSocket::handleSocketError( QAbstractSocket::SocketError err )
 
 void IODeviceSocket::handleProcessError( QProcess::ProcessError err )
 {
+    Q_UNUSED( err );
     QProcess* proc = qobject_cast<QProcess*>( d );
     Q_ASSERT( proc );
     emit disconnected( tr( "The QProcess is having troubles: %1" ).arg( proc->errorString() ) );

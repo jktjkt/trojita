@@ -37,6 +37,7 @@ void SMTP::handleDone( bool ok )
 
 void SMTP::handleError(QAbstractSocket::SocketError err, const QString& msg )
 {
+    Q_UNUSED( err );
     _failed = true;
     emit error( msg );
 }

@@ -287,6 +287,7 @@ void MainWindow::setupModels()
 
 void MainWindow::msgListSelectionChanged( const QItemSelection& selected, const QItemSelection& deselected )
 {
+    Q_UNUSED( deselected );
     if ( selected.indexes().isEmpty() )
         return;
 

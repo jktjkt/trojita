@@ -713,6 +713,7 @@ void Model::handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* cons
 
 void Model::handleStatus( Imap::Parser* ptr, const Imap::Responses::Status* const resp )
 {
+    Q_UNUSED( ptr );
     TreeItemMailbox* mailbox = findMailboxByName( resp->mailbox );
     if ( ! mailbox ) {
         qDebug() << "Couldn't find out which mailbox is" << resp->mailbox << "when parsing a STATUS reply";
@@ -821,6 +822,7 @@ int Model::rowCount(const QModelIndex& index ) const
 
 int Model::columnCount(const QModelIndex& index ) const
 {
+    Q_UNUSED( index );
     return 1;
 }
 

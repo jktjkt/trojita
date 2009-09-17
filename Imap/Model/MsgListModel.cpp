@@ -94,6 +94,7 @@ QModelIndex MsgListModel::index( int row, int column, const QModelIndex& parent 
 
 QModelIndex MsgListModel::parent( const QModelIndex& index ) const
 {
+    Q_UNUSED( index );
     return QModelIndex();
 }
 
@@ -377,6 +378,8 @@ void MsgListModel::handleRowsAboutToBeRemoved( const QModelIndex& parent, int st
 
 void MsgListModel::handleRowsRemoved( const QModelIndex& parent, int start, int end )
 {
+    Q_UNUSED( start );
+    Q_UNUSED( end );
     if ( ! msgList )
         return;
 
@@ -397,6 +400,8 @@ void MsgListModel::handleRowsAboutToBeInserted( const QModelIndex& parent, int s
 
 void MsgListModel::handleRowsInserted( const QModelIndex& parent, int start, int end )
 {
+    Q_UNUSED( start );
+    Q_UNUSED( end );
     TreeItemMsgList* newList = dynamic_cast<TreeItemMsgList*>( static_cast<TreeItem*>( parent.internalPointer() ) );
     if ( msgList && msgList == newList ) {
         endInsertRows();
