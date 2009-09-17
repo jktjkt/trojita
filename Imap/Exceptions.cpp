@@ -22,19 +22,12 @@
 
 namespace Imap {
 
-const char* ParserException::what( const int context ) const throw()
+const char* ParserException::what() const throw()
 {
     if ( _offset == -1 )
         return _msg.c_str();
     else {
         QByteArray out(_msg.c_str());
-        /*
-        out += " when parsing this:\n...";
-        out += _line.mid( qMax(0, _offset - context), 2 * context );
-        out += "...\n";
-        out += QByteArray( 3+qMax(0, _offset - context) + _offset, ' ' );
-        out += "^ here\n";
-        */
         out += " when parsing this:\n";
         out += _line;
         out += QByteArray( _offset, ' ' );

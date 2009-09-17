@@ -50,8 +50,7 @@ namespace Responses {
         ParserException( const std::string& msg ) : _msg(msg), _offset(-1) {};
         ParserException( const std::string& msg, const QByteArray& line, const int offset ):
             _msg(msg), _line(line), _offset(offset) {};
-        virtual const char* what( const int context ) const throw();
-        virtual const char* what() const throw() { return what( 10 ); };
+        virtual const char* what() const throw();
         virtual ~ParserException() throw() {};
     };
 
