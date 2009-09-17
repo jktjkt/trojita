@@ -18,7 +18,6 @@
 #ifndef TEST_IMAP_MESSAGE
 #define TEST_IMAP_MESSAGE
 
-#include <tr1/memory>
 #include <QtCore/QObject>
 #include "Imap/Parser/Message.h"
 

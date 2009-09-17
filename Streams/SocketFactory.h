@@ -19,7 +19,6 @@
 #ifndef IMAP_SOCKETFACTORY_H
 #define IMAP_SOCKETFACTORY_H
 
-#include <tr1/memory>
 #include <QStringList>
 #include "Socket.h"
 

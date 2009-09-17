@@ -16,7 +16,6 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include <tr1/memory>
 #include <qtest_kde.h>
 
 #include "test_Imap_Responses.h"
