@@ -163,6 +163,7 @@ namespace Message {
                     _bodyFldDesc, _bodyFldEnc, _bodyFldOctets, _bodyFldMd5,
                     _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension) {};
         virtual QTextStream& dump( QTextStream& s, const int indent ) const;
+        using OneMessage::dump;
         /* No need for "virtual bool eq( const AbstractData& other ) const" as
          * it's already implemented in OneMessage::eq() */
         virtual QList<Mailbox::TreeItem*> createTreeItems( Mailbox::TreeItem* parent ) const;
@@ -187,6 +188,7 @@ namespace Message {
                     _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension),
             envelope(_envelope), body(_body), bodyFldLines(_bodyFldLines) {}
         virtual QTextStream& dump( QTextStream& s, const int indent ) const;
+        using OneMessage::dump;
         virtual bool eq( const AbstractData& other ) const;
         virtual QList<Mailbox::TreeItem*> createTreeItems( Mailbox::TreeItem* parent ) const;
     };
@@ -207,6 +209,7 @@ namespace Message {
                     _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension),
             bodyFldLines(_bodyFldLines) {}
         virtual QTextStream& dump( QTextStream& s, const int indent ) const;
+        using OneMessage::dump;
         virtual bool eq( const AbstractData& other ) const;
         virtual QList<Mailbox::TreeItem*> createTreeItems( Mailbox::TreeItem* parent ) const;
     };
@@ -231,6 +234,7 @@ namespace Message {
             bodyFldDsp(_bodyFldDsp), bodyFldLang(_bodyFldLang), bodyFldLoc(_bodyFldLoc),
             bodyExtension(_bodyExtension) {}
         virtual QTextStream& dump( QTextStream& s, const int indent ) const;
+        using AbstractMessage::dump;
         virtual bool eq( const AbstractData& other ) const;
         virtual QList<Mailbox::TreeItem*> createTreeItems( Mailbox::TreeItem* parent ) const;
     };
