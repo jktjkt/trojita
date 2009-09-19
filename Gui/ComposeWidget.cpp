@@ -18,6 +18,7 @@ ComposeWidget::ComposeWidget(QWidget *parent) :
     ui(new Ui::ComposeWidget)
 {
     ui->setupUi(this);
+    connect( ui->sendButton, SIGNAL(clicked()), this, SLOT(send()) );
 }
 
 ComposeWidget::~ComposeWidget()
