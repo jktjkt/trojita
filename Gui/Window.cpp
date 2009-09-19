@@ -54,6 +54,7 @@ namespace Gui {
 
 MainWindow::MainWindow(): QMainWindow()
 {
+    setWindowTitle( trUtf8("Trojitá") );
     createWidgets();
     setupModels();
     createActions();
