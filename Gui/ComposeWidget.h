@@ -31,6 +31,9 @@ private slots:
     void gotError( const QString& error );
     void sent();
 
+signals:
+    void fakeMail(const QString& body);
+
 private:
     static QByteArray encodeHeaderField( const QString& text );
     static QByteArray extractMailAddress( const QString& text, bool& ok );

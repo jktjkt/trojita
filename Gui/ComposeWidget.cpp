@@ -121,7 +121,10 @@ void ComposeWidget::send()
         gotError( tr("The From: address does not look like a valid one") );
         return;
     }
-    msa->sendMail( senderMail, mailDestinations, mailData );
+    // FIXME: enable later
+    // msa->sendMail( senderMail, mailDestinations, mailData );
+    connect( this, SIGNAL(fakeMail(QString)), this, SLOT(gotError(QString)) );
+    emit fakeMail( mailData );
 }
 
 void ComposeWidget::setData( const QString& from, const QList<QPair<QString, QString> >& recipients,
