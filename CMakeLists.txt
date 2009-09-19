@@ -108,6 +108,7 @@ set(trojita_SRCS
 
 set(Gui_UI_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/CreateMailboxDialog.ui
+    ${CMAKE_CURRENT_SOURCE_DIR}/Gui/ComposeWidget.ui
 )
 
 SET(trojita_RCC_SRCS

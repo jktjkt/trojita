@@ -1,64 +1,40 @@
-#include "ComposeWidget.h"
-#include <QApplication>
 #include <QDateTime>
-#include <QDebug>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QLineEdit>
 #include <QMessageBox>
 #include <QProgressDialog>
-#include <QPushButton>
 #include <QSettings>
-#include <QTableWidget>
-#include <QTextEdit>
-#include <QVBoxLayout>
+
+#include "ComposeWidget.h"
+#include "ui_ComposeWidget.h"
+
 #include "SettingsNames.h"
-#include "RecipientsWidget.h"
 #include "MSA/Sendmail.h"
 #include "MSA/SMTP.h"
 #include "Imap/Parser/3rdparty/kmime_util.h"
 
-
 namespace Gui {
 
-ComposeWidget::ComposeWidget( QWidget* parent, const QString& from,
-                              const QList<QPair<QString, QString> >& recipients,
-                              const QString& subject ):
-QWidget(parent, Qt::Window)
+ComposeWidget::ComposeWidget(QWidget *parent) :
+    QWidget(parent, Qt::Window),
+    ui(new Ui::ComposeWidget)
 {
-    setupWidgets( from, recipients, subject );
-    setWindowTitle( tr("Compose Mail") );
+    ui->setupUi(this);
 }
 
-void ComposeWidget::setupWidgets( const QString& from,
-                                  const QList<QPair<QString, QString> >& recipients,
-                                  const QString& subject )
+ComposeWidget::~ComposeWidget()
 {
-    QVBoxLayout* layout = new QVBoxLayout( this );
-    QHBoxLayout* hLayout = new QHBoxLayout();
-    QLabel* lbl = new QLabel( tr("From"), this );
-    hLayout->addWidget( lbl );
-    fromField = new QLineEdit( this );
-    fromField->setText( from );
-    hLayout->addWidget( fromField );
-    layout->addLayout( hLayout );
-    recipientsField = new RecipientsWidget( this, recipients );
-    layout->addWidget( recipientsField );
-    hLayout = new QHBoxLayout();
-    lbl = new QLabel( tr("Subject"), this );
-    hLayout->addWidget( lbl );
-    subjectField = new QLineEdit( this );
-    subjectField->setText( subject );
-    hLayout->addWidget( subjectField );
-    layout->addLayout( hLayout );
-    bodyField = new QTextEdit( this );
-    bodyField->setMinimumSize( 600, 400 );
-    layout->addWidget( bodyField );
-    sendButton = new QPushButton( tr("Send"), this );
-    //sendButton->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed ) );
-    layout->addWidget( sendButton );
-    connect( sendButton, SIGNAL(clicked()), this, SLOT(send()) );
-    recipientsField->setFocus();
+    delete ui;
+}
+
+void ComposeWidget::changeEvent(QEvent *e)
+{
+    QWidget::changeEvent(e);
+    switch (e->type()) {
+    case QEvent::LanguageChange:
+        ui->retranslateUi(this);
+        break;
+    default:
+        break;
+    }
 }
 
 void ComposeWidget::send()
@@ -79,7 +55,7 @@ void ComposeWidget::send()
         msa = new MSA::Sendmail( this, appName, args );
     }
 
-    QList<QPair<QString,QString> > recipients = recipientsField->recipients();
+    QList<QPair<QString,QString> > recipients; // FIXME UI = recipientsField->recipients();
     QList<QString> mailDestinations;
     QByteArray recipientHeaders;
     for ( QList<QPair<QString,QString> >::const_iterator it = recipients.begin();
@@ -105,9 +81,9 @@ void ComposeWidget::send()
     }
 
     QByteArray mailData;
-    mailData.append( "From: " ).append( encodeHeaderField( fromField->text() ) ).append( "\r\n" );
+    mailData.append( "From: " ).append( encodeHeaderField( ui->sender->currentText() ) ).append( "\r\n" );
     mailData.append( recipientHeaders );
-    mailData.append( "Subject: " ).append( encodeHeaderField( subjectField->text() ) ).append( "\r\n" );
+    mailData.append( "Subject: " ).append( encodeHeaderField( ui->subject->text() ) ).append( "\r\n" );
     mailData.append( "Content-Type: text/plain; charset=utf-8\r\n"
                      "Content-Transfer-Encoding: 8bit\r\n");
 
@@ -120,7 +96,7 @@ void ComposeWidget::send()
             "/").append( qApp->applicationVersion() ).append( "\r\n");
     mailData.append( "MIME-Version: 1.0\r\n" );
     mailData.append( "\r\n" );
-    mailData.append( bodyField->toPlainText().toUtf8() );
+    mailData.append( ui->mailText->toPlainText().toUtf8() );
 
     QProgressDialog* progress = new QProgressDialog(
             tr("Sending mail"), tr("Abort"), 0, mailData.size(), this );
@@ -139,12 +115,22 @@ void ComposeWidget::send()
 
     // FIXME: parse the From: address and use it instead of hard-coded stub
     bool senderMailIsCorrect = false;
-    QString senderMail = extractMailAddress( fromField->text(), senderMailIsCorrect );
+    QString senderMail = extractMailAddress( ui->sender->currentText(), senderMailIsCorrect );
     if ( ! senderMailIsCorrect ) {
         gotError( tr("The From: address does not look like a valid one") );
         return;
     }
     msa->sendMail( senderMail, mailDestinations, mailData );
+}
+
+void ComposeWidget::setData( const QString& from, const QList<QPair<QString, QString> >& recipients,
+                             const QString& subject, const QString& body )
+{
+    // FIXME: combobox for from...
+    ui->sender->addItem( from );
+    // FIXME: recipients...
+    ui->subject->setText( subject );
+    ui->mailText->setText( body );
 }
 
 void ComposeWidget::gotError( const QString& error )

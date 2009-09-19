@@ -3,13 +3,11 @@
 
 #include <QWidget>
 
-class QLineEdit;
-class QPushButton;
-class QTextEdit;
+namespace Ui {
+    class ComposeWidget;
+}
 
 namespace Gui {
-
-class RecipientsWidget;
 
 /** @short A "Compose New Mail..." dialog
 
@@ -19,21 +17,25 @@ class ComposeWidget : public QWidget
 {
     Q_OBJECT
 public:
-    ComposeWidget( QWidget* parent, const QString& from, const QList<QPair<QString, QString> >& recipients, const QString& subject );
+    ComposeWidget(QWidget *parent = 0);
+    ~ComposeWidget();
+
+    void setData( const QString& from, const QList<QPair<QString, QString> >& recipients,
+                  const QString& subject, const QString& body );
+
+protected:
+    void changeEvent(QEvent *e);
+
 private slots:
     void send();
     void gotError( const QString& error );
     void sent();
+
 private:
-    void setupWidgets( const QString& from, const QList<QPair<QString, QString> >& recipients, const QString& subject );
     static QByteArray encodeHeaderField( const QString& text );
     static QByteArray extractMailAddress( const QString& text, bool& ok );
 
-    QLineEdit* fromField;
-    RecipientsWidget* recipientsField;
-    QLineEdit* subjectField;
-    QPushButton* sendButton;
-    QTextEdit* bodyField;
+    Ui::ComposeWidget *ui;
 };
 
 }

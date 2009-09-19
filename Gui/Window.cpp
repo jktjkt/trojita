@@ -528,12 +528,12 @@ void MainWindow::nukeModels()
 void MainWindow::slotComposeMail()
 {
     QSettings s;
-    ComposeWidget* w = new ComposeWidget( this,
-        QString::fromAscii("%1 <%2>").arg(
+    ComposeWidget* w = new ComposeWidget( this );
+    w->setData( QString::fromAscii("%1 <%2>").arg(
                 s.value( SettingsNames::realNameKey ).toString(),
                 s.value( SettingsNames::addressKey ).toString() ),
         QList<QPair<QString,QString> >(),
-        QString() );
+        QString(), QString() );
     w->setAttribute( Qt::WA_DeleteOnClose, true );
     w->show();
 }
