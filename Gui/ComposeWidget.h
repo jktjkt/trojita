@@ -7,6 +7,9 @@ namespace Ui {
     class ComposeWidget;
 }
 
+class QComboBox;
+class QLineEdit;
+
 namespace Gui {
 
 /** @short A "Compose New Mail..." dialog
@@ -30,6 +33,7 @@ private slots:
     void send();
     void gotError( const QString& error );
     void sent();
+    void handleRecipientAddressChange();
 
 signals:
     void fakeMail(const QString& body);
@@ -37,8 +41,12 @@ signals:
 private:
     static QByteArray encodeHeaderField( const QString& text );
     static QByteArray extractMailAddress( const QString& text, bool& ok );
+    void addRecipient( int position, const QString& kind, const QString& address );
+    QList<QPair<QString, QString> > _parseRecipients();
 
     Ui::ComposeWidget *ui;
+    QList<QComboBox*> _recipientsKind;
+    QList<QLineEdit*> _recipientsAddress;
 };
 
 }

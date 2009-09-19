@@ -11,6 +11,10 @@
 #include "MSA/SMTP.h"
 #include "Imap/Parser/3rdparty/kmime_util.h"
 
+namespace {
+    enum { OFFSET_OF_FIRST_ADDRESSEE = 1 };
+}
+
 namespace Gui {
 
 ComposeWidget::ComposeWidget(QWidget *parent) :
@@ -56,7 +60,7 @@ void ComposeWidget::send()
         msa = new MSA::Sendmail( this, appName, args );
     }
 
-    QList<QPair<QString,QString> > recipients; // FIXME UI = recipientsField->recipients();
+    QList<QPair<QString,QString> > recipients = _parseRecipients();
     QList<QString> mailDestinations;
     QByteArray recipientHeaders;
     for ( QList<QPair<QString,QString> >::const_iterator it = recipients.begin();
@@ -132,9 +136,63 @@ void ComposeWidget::setData( const QString& from, const QList<QPair<QString, QSt
 {
     // FIXME: combobox for from...
     ui->sender->addItem( from );
-    // FIXME: recipients...
+    for ( int i = 0; i < recipients.size(); ++i ) {
+        addRecipient( i, recipients[i].first, recipients[i].second );
+    }
+    if ( recipients.isEmpty() )
+        addRecipient( 0, tr("To"), QString() );
+    else
+        addRecipient( recipients.size(), recipients.last().first, QString() );
     ui->subject->setText( subject );
     ui->mailText->setText( body );
+}
+
+void ComposeWidget::addRecipient( int position, const QString& kind, const QString& address )
+{
+    QComboBox* combo = new QComboBox( this );
+    QStringList toCcBcc = QStringList() << tr("To") << tr("Cc") << tr("Bcc");
+    combo->addItems( toCcBcc );
+    combo->setCurrentIndex( toCcBcc.indexOf( kind ) );
+    QLineEdit* edit = new QLineEdit( this );
+    _recipientsAddress.insert( position, edit );
+    _recipientsKind.insert( position, combo );
+    connect( edit, SIGNAL(editingFinished()), this, SLOT(handleRecipientAddressChange()) );
+    ui->formLayout->insertRow( position + OFFSET_OF_FIRST_ADDRESSEE, combo, edit );
+}
+
+void ComposeWidget::handleRecipientAddressChange()
+{
+    QLineEdit* item = qobject_cast<QLineEdit*>( sender() );
+    Q_ASSERT( item );
+    int index = _recipientsAddress.indexOf( item );
+    Q_ASSERT( index >= 0 );
+
+    if ( index == _recipientsAddress.size() - 1 ) {
+        if ( ! item->text().isEmpty() ) {
+            addRecipient( index + 1, _recipientsKind[ index ]->currentText(), QString() );
+            _recipientsAddress[index + 1]->setFocus();
+        }
+    } else if ( item->text().isEmpty() && _recipientsAddress.size() != 1 ) {
+        delete _recipientsAddress.takeAt( index );
+        delete _recipientsKind.takeAt( index );
+
+        delete ui->formLayout;
+        ui->formLayout = new QFormLayout( this );
+
+        // the first line
+        ui->formLayout->addRow( ui->fromLabel, ui->sender );
+
+        // note: number of layout items before this one has to match OFFSET_OF_FIRST_ADDRESSEE
+        for ( int i = 0; i < _recipientsAddress.size(); ++i ) {
+            ui->formLayout->addRow( _recipientsKind[ i ], _recipientsAddress[ i ] );
+        }
+
+        // all other stuff
+        ui->formLayout->addRow( ui->subjectLabel, ui->subject );
+        ui->formLayout->addRow( ui->mailText );
+        ui->formLayout->addRow( 0, ui->sendButton );
+        setLayout( ui->formLayout );
+    }
 }
 
 void ComposeWidget::gotError( const QString& error )
@@ -166,6 +224,21 @@ QByteArray ComposeWidget::extractMailAddress( const QString& text, bool& ok )
         ok = true;
         return text.mid( pos1 + 1, pos2 - pos1 - 1 ).toUtf8();
     }
+}
+
+QList<QPair<QString, QString> > ComposeWidget::_parseRecipients()
+{
+    QList<QPair<QString, QString> > res;
+    Q_ASSERT( _recipientsAddress.size() == _recipientsKind.size() );
+    for ( int i = 0; i < _recipientsAddress.size(); ++i ) {
+        QString kind = QLatin1String("To");
+        if ( _recipientsKind[i]->currentText() == tr("Cc") )
+            kind = QLatin1String("Cc");
+        else if ( _recipientsKind[i]->currentText() == tr("Bcc") )
+            kind = QLatin1String("Bcc");
+        res << qMakePair( kind, _recipientsAddress[i]->text() );
+    }
+    return res;
 }
 
 }
