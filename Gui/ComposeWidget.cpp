@@ -55,7 +55,10 @@ void ComposeWidget::send()
                              s.value( SettingsNames::smtpPassKey ).toString() );
     } else {
         QStringList args = s.value( SettingsNames::sendmailKey, SettingsNames::sendmailDefaultCmd ).toString().split( QLatin1Char(' ') );
-        Q_ASSERT( ! args.isEmpty() ); // FIXME
+        if ( args.isEmpty() ) {
+            QMessageBox::critical( this, tr("Error"), tr("Please configure the SMTP or sendmail settings in application settings.") );
+            return;
+        }
         QString appName = args.takeFirst();
         msa = new MSA::Sendmail( this, appName, args );
     }
