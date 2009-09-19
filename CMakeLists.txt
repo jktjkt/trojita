@@ -101,7 +101,6 @@ set(trojita_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/SettingsDialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/SettingsNames.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/ComposeWidget.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Gui/RecipientsWidget.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/MsgListWidget.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Gui/MailboxTreeWidget.cpp
     )
