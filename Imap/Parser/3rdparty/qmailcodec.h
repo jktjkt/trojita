@@ -41,7 +41,8 @@
 #ifndef QMAILCODEC_H
 #define QMAILCODEC_H
 
-#include "qmailglobal.h"
+#define QTOPIAMAIL_EXPORT
+
 #include <QByteArray>
 #include <QDataStream>
 #include <QString>

@@ -39,10 +39,9 @@
 **
 ****************************************************************************/
 
-#include <qmailcodec.h>
+#include "qmailcodec.h"
 #include <QIODevice>
 #include <QTextCodec>
-#include "qmaillog.h"
 #include <ctype.h>
 #include <QtDebug>
 
