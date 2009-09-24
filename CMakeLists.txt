@@ -45,6 +45,8 @@ set(libImap_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Parser/3rdparty/kcodecs.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Parser/3rdparty/kmime_util.cpp
 
+    ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Parser/3rdparty/qmailcodec.cpp
+
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Exceptions.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/Imap/Model/Model.cpp
