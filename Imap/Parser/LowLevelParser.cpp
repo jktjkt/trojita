@@ -22,7 +22,7 @@
 #include <QDateTime>
 #include "LowLevelParser.h"
 #include "../Exceptions.h"
-#include "3rdparty/rfccodecs.h"
+#include "Imap/Encoders.h"
 
 namespace Imap {
 namespace LowLevelParser {
@@ -162,7 +162,7 @@ QString getMailbox( const QByteArray& line, int& start )
     if ( r.second == ATOM && r.first.toUpper() == "INBOX" )
         return "INBOX";
     else
-        return KIMAP::decodeImapFolderName( r.first );
+        return decodeImapFolderName( r.first );
 
 }
 

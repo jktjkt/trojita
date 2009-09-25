@@ -1,5 +1,6 @@
 #include "Encoders.h"
 #include "Parser/3rdparty/qmailcodec.h"
+#include "Parser/3rdparty/rfccodecs.h"
 
 namespace Imap {
 
@@ -15,9 +16,15 @@ QString decodeRFC2047String( const QByteArray& raw )
     return codec.decode( raw, QLatin1String("utf-8") );
 }
 
-QByteArray encodeImapFolderName( const QString& text );
+QByteArray encodeImapFolderName( const QString& text )
+{
+    return KIMAP::encodeImapFolderName( text ).toAscii();
+}
 
-QString decodeImapFolderName( const QByteArray& raw );
+QString decodeImapFolderName( const QByteArray& raw )
+{
+    return KIMAP::decodeImapFolderName( raw );
+}
 
 QString quotedPrintableDecode( const QByteArray& raw );
 

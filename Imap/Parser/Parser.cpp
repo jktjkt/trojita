@@ -22,7 +22,7 @@
 #include <QTime>
 #include <QTimer>
 #include "Parser.h"
-#include "3rdparty/rfccodecs.h"
+#include "Imap/Encoders.h"
 #include "LowLevelParser.h"
 #include "../../Streams/IODeviceSocket.h"
 
@@ -111,54 +111,54 @@ CommandHandle Parser::login( const QString& username, const QString& password )
 
 CommandHandle Parser::select( const QString& mailbox )
 {
-    return queueCommand( Commands::Command( "SELECT" ) << KIMAP::encodeImapFolderName( mailbox ) );
+    return queueCommand( Commands::Command( "SELECT" ) << encodeImapFolderName( mailbox ) );
 }
 
 CommandHandle Parser::examine( const QString& mailbox )
 {
-    return queueCommand( Commands::Command( "EXAMINE" ) << KIMAP::encodeImapFolderName( mailbox ) );
+    return queueCommand( Commands::Command( "EXAMINE" ) << encodeImapFolderName( mailbox ) );
 }
 
 CommandHandle Parser::deleteMailbox( const QString& mailbox )
 {
-    return queueCommand( Commands::Command( "DELETE" ) << KIMAP::encodeImapFolderName( mailbox ) );
+    return queueCommand( Commands::Command( "DELETE" ) << encodeImapFolderName( mailbox ) );
 }
 
 CommandHandle Parser::create( const QString& mailbox )
 {
-    return queueCommand( Commands::Command( "CREATE" ) << KIMAP::encodeImapFolderName( mailbox ) );
+    return queueCommand( Commands::Command( "CREATE" ) << encodeImapFolderName( mailbox ) );
 }
 
 CommandHandle Parser::rename( const QString& oldName, const QString& newName )
 {
     return queueCommand( Commands::Command( "RENAME" ) <<
-                         KIMAP::encodeImapFolderName( oldName ) <<
-                         KIMAP::encodeImapFolderName( newName ) );
+                         encodeImapFolderName( oldName ) <<
+                         encodeImapFolderName( newName ) );
 }
 
 CommandHandle Parser::subscribe( const QString& mailbox )
 {
-    return queueCommand( Commands::Command( "SUBSCRIBE" ) << KIMAP::encodeImapFolderName( mailbox ) );
+    return queueCommand( Commands::Command( "SUBSCRIBE" ) << encodeImapFolderName( mailbox ) );
 }
 
 CommandHandle Parser::unSubscribe( const QString& mailbox )
 {
-    return queueCommand( Commands::Command( "UNSUBSCRIBE" ) << KIMAP::encodeImapFolderName( mailbox ) );
+    return queueCommand( Commands::Command( "UNSUBSCRIBE" ) << encodeImapFolderName( mailbox ) );
 }
 
 CommandHandle Parser::list( const QString& reference, const QString& mailbox )
 {
-    return queueCommand( Commands::Command( "LIST" ) << reference << KIMAP::encodeImapFolderName( mailbox ) );
+    return queueCommand( Commands::Command( "LIST" ) << reference << encodeImapFolderName( mailbox ) );
 }
 
 CommandHandle Parser::lSub( const QString& reference, const QString& mailbox )
 {
-    return queueCommand( Commands::Command( "LSUB" ) << reference << KIMAP::encodeImapFolderName( mailbox ) );
+    return queueCommand( Commands::Command( "LSUB" ) << reference << encodeImapFolderName( mailbox ) );
 }
 
 CommandHandle Parser::status( const QString& mailbox, const QStringList& fields )
 {
-    return queueCommand( Commands::Command( "STATUS" ) << KIMAP::encodeImapFolderName( mailbox ) <<
+    return queueCommand( Commands::Command( "STATUS" ) << encodeImapFolderName( mailbox ) <<
             Commands::PartOfCommand( Commands::ATOM, "(" + fields.join(" ") +")" )
             );
 }
@@ -166,7 +166,7 @@ CommandHandle Parser::status( const QString& mailbox, const QStringList& fields 
 CommandHandle Parser::append( const QString& mailbox, const QString& message, const QStringList& flags, const QDateTime& timestamp )
 {
     Commands::Command command( "APPEND" );
-    command << KIMAP::encodeImapFolderName( mailbox );
+    command << encodeImapFolderName( mailbox );
     if ( flags.count() )
         command << Commands::PartOfCommand( Commands::ATOM, "(" + flags.join(" ") + ")" );
     if ( timestamp.isValid() )
@@ -227,7 +227,7 @@ CommandHandle Parser::copy( const Sequence& seq, const QString& mailbox )
 {
     return queueCommand( Commands::Command("COPY") <<
             Commands::PartOfCommand( Commands::ATOM, seq.toString() ) <<
-            KIMAP::encodeImapFolderName( mailbox ) );
+            encodeImapFolderName( mailbox ) );
 }
 
 CommandHandle Parser::uidFetch( const Sequence& seq, const QStringList& items )
@@ -249,7 +249,7 @@ CommandHandle Parser::uidCopy( const Sequence& seq, const QString& mailbox )
 {
     return queueCommand( Commands::Command( "UID COPY" ) <<
             Commands::PartOfCommand( Commands::ATOM, seq.toString() ) <<
-            KIMAP::encodeImapFolderName( mailbox ) );
+            encodeImapFolderName( mailbox ) );
 }
 
 CommandHandle Parser::xAtom( const Commands::Command& cmd )
