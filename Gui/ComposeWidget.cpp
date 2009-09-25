@@ -9,7 +9,7 @@
 #include "SettingsNames.h"
 #include "MSA/Sendmail.h"
 #include "MSA/SMTP.h"
-#include "Imap/Parser/3rdparty/kmime_util.h"
+#include "Imap/Encoders.h"
 
 namespace {
     enum { OFFSET_OF_FIRST_ADDRESSEE = 1 };
@@ -209,7 +209,7 @@ void ComposeWidget::sent()
 
 QByteArray ComposeWidget::encodeHeaderField( const QString& text )
 {
-    return KMime::encodeRFC2047String( text, "utf-8" );
+    return Imap::encodeRFC2047String( text );
 }
 
 QByteArray ComposeWidget::extractMailAddress( const QString& text, bool& ok )

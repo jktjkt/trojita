@@ -20,7 +20,7 @@
 
 #include "Message.h"
 #include "../Model/MailboxTree.h"
-#include "3rdparty/rfccodecs.h"
+#include "../Encoders.h"
 
 namespace Imap {
 namespace Message {
@@ -58,10 +58,10 @@ MailAddress::MailAddress( const QVariantList& input, const QByteArray& line, con
     if ( input[3].type() != QVariant::ByteArray )
         throw UnexpectedHere( line, start );
 
-    name = KIMAP::decodeRFC2047String( input[0].toByteArray() );
-    adl = KIMAP::decodeRFC2047String( input[1].toByteArray() );
-    mailbox = KIMAP::decodeRFC2047String( input[2].toByteArray() );
-    host = KIMAP::decodeRFC2047String( input[3].toByteArray() );
+    name = Imap::decodeRFC2047String( input[0].toByteArray() );
+    adl = Imap::decodeRFC2047String( input[1].toByteArray() );
+    mailbox = Imap::decodeRFC2047String( input[2].toByteArray() );
+    host = Imap::decodeRFC2047String( input[3].toByteArray() );
 }
 
 QString MailAddress::prettyName( bool nice ) const
@@ -107,7 +107,7 @@ Envelope Envelope::fromList( const QVariantList& items, const QByteArray& line, 
     }
     // Otherwise it's "invalid", null.
 
-    QString subject = KIMAP::decodeRFC2047String( items[1].toByteArray() );
+    QString subject = Imap::decodeRFC2047String( items[1].toByteArray() );
 
     QList<MailAddress> from, sender, replyTo, to, cc, bcc;
     from = Envelope::getListOfAddresses( items[2], line, start );
@@ -672,9 +672,9 @@ void OneMessage::storeInterestingFields( Mailbox::TreeItemPart* p ) const
         p->setBodyDisposition( bodyFldDsp.first );
         it = bodyFldDsp.second.find( "FILENAME" );
         if ( it != bodyFldDsp.second.end() ) {
-            p->setFileName( KIMAP::decodeRFC2047String( *it ) );
+            p->setFileName( Imap::decodeRFC2047String( *it ) );
         } else if ( ( it = bodyFldParam.find( "NAME" ) ) != bodyFldParam.end() ) {
-            p->setFileName( KIMAP::decodeRFC2047String( *it ) );
+            p->setFileName( Imap::decodeRFC2047String( *it ) );
         }
     }
     p->setBodyFldId( bodyFldId );
