@@ -686,10 +686,16 @@ static inline void lineBreak(QDataStream& out, int* _encodeLineCharsRemaining, i
 
 static inline unsigned char decodeCharacter(unsigned char value)
 {
-    if (value >= 0x41)
+    if ((value >= 0x30) && (value <= 0x39))
+        return (value - 0x30);
+
+    if ((value >= 0x41) && (value <= 0x46))
         return ((value - 0x41) + 10);
 
-    return (value - 0x30);
+    if ((value >= 0x61) && (value <= 0x66))
+        return ((value - 0x61) + 10);
+
+    return 0;
 }
 
 
