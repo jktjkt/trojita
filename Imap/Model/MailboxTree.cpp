@@ -19,8 +19,7 @@
 #include <QTextStream>
 #include "MailboxTree.h"
 #include "Model.h"
-#include "Imap/Parser/3rdparty/kcodecs.h"
-#include "Imap/Parser/3rdparty/rfccodecs.h"
+#include "Imap/Encoders.h"
 #include <QtDebug>
 
 namespace Imap {
@@ -250,7 +249,7 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
                 throw UnknownMessageIndex( "Got BODY[] fetch that is out of bounds", response );
             const QByteArray& data = dynamic_cast<const Responses::RespData<QByteArray>&>( *(it.value()) ).data;
             if ( part->encoding() == "quoted-printable" )
-                part->_data = KCodecs::quotedPrintableDecode( data );
+                part->_data = Imap::quotedPrintableDecode( data );
             else if ( part->encoding() == "base64" )
                 part->_data = QByteArray::fromBase64( data );
             else if ( part->encoding() == "7bit" || part->encoding() == "8bit" || part->encoding() == "binary" )

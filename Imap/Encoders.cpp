@@ -1,6 +1,7 @@
 #include "Encoders.h"
 #include "Parser/3rdparty/qmailcodec.h"
 #include "Parser/3rdparty/rfccodecs.h"
+#include "Parser/3rdparty/kcodecs.h"
 
 namespace {
     template<typename StringType>
@@ -80,6 +81,9 @@ QString decodeImapFolderName( const QByteArray& raw )
     return KIMAP::decodeImapFolderName( raw );
 }
 
-QString quotedPrintableDecode( const QByteArray& raw );
+QByteArray quotedPrintableDecode( const QByteArray& raw )
+{
+    return KCodecs::quotedPrintableDecode( raw );
+}
 
 }

@@ -13,7 +13,7 @@ QByteArray encodeImapFolderName( const QString& text );
 
 QString decodeImapFolderName( const QByteArray& raw );
 
-QString quotedPrintableDecode( const QByteArray& raw );
+QByteArray quotedPrintableDecode( const QByteArray& raw );
 
 }
 
