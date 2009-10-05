@@ -3,6 +3,10 @@
  *   rfccodecs  - handler for various rfc/mime encodings
  *   Copyright (C) 2000 s.carstens@gmx.de
  *
+ *   Imported from KDE's SVN and stripped of various parts which are not
+ *   used in Trojita. Please see KDE SVN or Trojita's git repo for the
+ *   original version.
+ *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
  *   License as published by the Free Software Foundation; either
@@ -59,60 +63,6 @@ namespace KIMAP {
     @param src is the QString to quote.
   */
   KIMAP_EXPORT QString quoteIMAP( const QString &src );
-
-  /**
-    Fetches a Codec by @p name.
-    @param name is the QString version of the Codec name.
-    @return Text Codec object
-  */
-  KIMAP_EXPORT QTextCodec *codecForName( const QString &name );
-
-  /**
-    Decodes a RFC2047 string @p str.
-    @param str is the QString to decode.
-    @param charset is the character set to use when decoding.
-    @param language is the language found in the charset.
-  */
-  KIMAP_EXPORT const QString decodeRFC2047String( const QString &str,
-                                                  QString &charset,
-                                                  QString &language );
-  /**
-    Decodes a RFC2047 string @p str.
-    @param str is the QString to decode.
-    @param charset is the character set to use when decoding.
-  */
-  KIMAP_EXPORT const QString decodeRFC2047String( const QString &str,
-                                                  QString &charset );
-
-  /**
-    Decodes a RFC2047 string @p str.
-    @param str is the QString to decode.
-  */
-  KIMAP_EXPORT const QString decodeRFC2047String( const QString &str );
-
-  /**
-    Encodes a RFC2047 string @p str.
-    @param str is the QString to encode.
-  */
-  KIMAP_EXPORT const QString encodeRFC2047String( const QString &str );
-
-  /**
-    Encodes a RFC2047 string @p str.
-    @param str is the QString to encode.
-  */
-  KIMAP_EXPORT const QByteArray encodeRFC2047String( const QByteArray &str );
-
-  /**
-    Encodes a RFC2231 string @p str.
-    @param str is the QString to encode.
-  */
-  KIMAP_EXPORT const QString encodeRFC2231String( const QString &str );
-
-  /**
-    Decodes a RFC2231 string @p str.
-    @param str is the QString to decode.
-  */
-  KIMAP_EXPORT const QString decodeRFC2231String( const QString &str );
 }
 
 #endif
