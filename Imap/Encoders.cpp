@@ -21,14 +21,71 @@ namespace {
 
         return src;
     }
+
+    static QByteArray generateEncodedWord(const QByteArray& codec, char encoding, const QByteArray& text)
+    {
+        QByteArray result("=?");
+        result.append(codec);
+        result.append('?');
+        result.append(encoding);
+        result.append('?');
+        result.append(text);
+        result.append("?=");
+        return result;
+    }
+
+    QByteArray generateEncodedWord(const QByteArray& codec, char encoding, const QList<QByteArray>& list)
+    {
+        QByteArray result;
+
+        foreach (const QByteArray& item, list)
+        {
+            if (!result.isEmpty())
+                result.append(' ');
+
+            result.append(generateEncodedWord(codec, encoding, item));
+        }
+
+        return result;
+    }
+
+    static QList<QByteArray> split(const QByteArray& input, const QByteArray& separator)
+    {
+        QList<QByteArray> result;
+
+        int index = -1;
+        int lastIndex = -1;
+        do
+        {
+            lastIndex = index;
+            index = input.indexOf(separator, lastIndex + 1);
+
+            int offset = (lastIndex == -1 ? 0 : lastIndex + separator.length());
+            int length = (index == -1 ? -1 : index - offset);
+            result.append(input.mid(offset, length));
+        } while (index != -1);
+
+        return result;
+    }
+
 }
 
 namespace Imap {
 
 QByteArray encodeRFC2047String( const QString& text )
 {
-    QMailQuotedPrintableCodec codec( QMailQuotedPrintableCodec::Text, QMailQuotedPrintableCodec::Rfc2047 );
-    return codec.encode( text, QLatin1String("utf-8") );
+    // We can't allow more than 75 chars per encoded-word, including the boiler plate...
+    int maximumEncoded = 75 - 7 - 5; // 5 == length("utf-8")
+
+#ifdef ENCODER_USE_QUOTED_PRINTABLE_UNICODE
+    QMailQuotedPrintableCodec codec(QMailQuotedPrintableCodec::Text, QMailQuotedPrintableCodec::Rfc2047, maximumEncoded);
+    QByteArray encoded = codec.encode(text, "utf-8");
+    return generateEncodedWord("utf-8", 'Q', split(encoded, "=\n"));
+#else
+    QMailBase64Codec codec(QMailBase64Codec::Binary, maximumEncoded);
+    QByteArray encoded = codec.encode(text, "utf-8");
+    return generateEncodedWord("utf-8", 'B', split(encoded, "\r\n"));
+#endif
 }
 
 QString decodeRFC2047String( const QByteArray& encodedWord )
