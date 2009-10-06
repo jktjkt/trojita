@@ -27,6 +27,7 @@
 #include <QMessageBox>
 #include <QScrollArea>
 #include <QSplitter>
+#include <QToolBar>
 
 #include "Window.h"
 #include "ComposeWidget.h"
@@ -63,10 +64,10 @@ MainWindow::MainWindow(): QMainWindow()
 
 void MainWindow::createActions()
 {
-    reloadMboxList = new QAction( tr("Rescan Child Mailboxes"), this );
+    reloadMboxList = new QAction( style()->standardIcon(QStyle::SP_ArrowRight), tr("Rescan Child Mailboxes"), this );
     connect( reloadMboxList, SIGNAL( triggered() ), this, SLOT( slotReloadMboxList() ) );
 
-    resyncMboxList = new QAction( tr("Re-synchronize Mailbox with Server"), this );
+    resyncMboxList = new QAction( QtIconLoader::icon( QLatin1String("view-refresh") ), tr("Re-synchronize Mailbox with Server"), this );
     connect( resyncMboxList, SIGNAL(triggered()), this, SLOT(slotResyncMboxList()) );
 
     reloadAllMailboxes = new QAction( tr("Reload All Mailboxes"), this );
@@ -89,34 +90,34 @@ void MainWindow::createActions()
     netOnline->setCheckable( true );
     // connect later
 
-    showFullView = new QAction( tr("Show Full Tree Window"), this );
+    showFullView = new QAction( QtIconLoader::icon( QLatin1String("edit-find-mail") ), tr("Show Full Tree Window"), this );
     showFullView->setCheckable( true );
     connect( showFullView, SIGNAL( triggered(bool) ), this, SLOT( fullViewToggled(bool) ) );
     connect( allDock, SIGNAL( visibilityChanged(bool) ), showFullView, SLOT( setChecked(bool) ) );
 
-    showMenuBar = new QAction( tr("Show Main Menu Bar"), this );
+    showMenuBar = new QAction( QtIconLoader::icon( QLatin1String("view-list-text") ),  tr("Show Main Menu Bar"), this );
     showMenuBar->setCheckable( true );
     showMenuBar->setChecked( true );
     showMenuBar->setShortcut( tr("Ctrl+M") );
     addAction( showMenuBar ); // otherwise it won't work with hidden menu bar
     connect( showMenuBar, SIGNAL( triggered(bool) ), menuBar(), SLOT(setShown(bool)) );
 
-    configSettings = new QAction( tr("Settings..."), this );
+    configSettings = new QAction( QtIconLoader::icon( QLatin1String("configure") ),  tr("Settings..."), this );
     connect( configSettings, SIGNAL( triggered() ), this, SLOT( slotShowSettings() ) );
 
-    composeMail = new QAction( tr("Compose Mail..."), this );
+    composeMail = new QAction( QtIconLoader::icon( QLatin1String("document-edit") ),  tr("Compose Mail..."), this );
     connect( composeMail, SIGNAL(triggered()), this, SLOT(slotComposeMail()) );
 
-    expunge = new QAction( tr("Expunge Mailbox"), this );
+    expunge = new QAction( QtIconLoader::icon( QLatin1String("trash-empty") ),  tr("Expunge Mailbox"), this );
     connect( expunge, SIGNAL(triggered()), this, SLOT(slotExpunge()) );
 
-    markAsRead = new QAction( tr("Mark as Read"), this );
+    markAsRead = new QAction( QtIconLoader::icon( QLatin1String("mail-mark-read") ),  tr("Mark as Read"), this );
     markAsRead->setCheckable( true );
     markAsRead->setShortcut( Qt::Key_M );
     msgListTree->addAction( markAsRead );
     connect( markAsRead, SIGNAL(triggered(bool)), this, SLOT(handleMarkAsRead(bool)) );
 
-    markAsDeleted = new QAction( tr("Mark as Deleted"), this );
+    markAsDeleted = new QAction( QtIconLoader::icon( QLatin1String("list-remove") ),  tr("Mark as Deleted"), this );
     markAsDeleted->setCheckable( true );
     markAsDeleted->setShortcut( Qt::Key_Delete );
     msgListTree->addAction( markAsDeleted );
@@ -132,6 +133,17 @@ void MainWindow::createActions()
     connect( deleteCurrentMailbox, SIGNAL(triggered()), this, SLOT(slotDeleteCurrentMailbox()) );
 
     connectModelActions();
+
+    QToolBar *toolBar = addToolBar(tr("Navigation"));
+    toolBar->setMovable(false);
+    toolBar->addAction(composeMail);
+    toolBar->addSeparator();
+    toolBar->addAction(markAsRead);
+    toolBar->addAction(markAsDeleted);
+    toolBar->addAction(expunge);
+    toolBar->addSeparator();
+    toolBar->addAction(showMenuBar);
+    toolBar->addAction(configSettings);
 }
 
 void MainWindow::connectModelActions()
@@ -148,9 +160,10 @@ void MainWindow::createMenus()
     imapMenu->addAction( composeMail );
     imapMenu->addAction( expunge );
     imapMenu->addSeparator()->setText( tr("Network Access") );
-    imapMenu->addAction( netOffline );
-    imapMenu->addAction( netExpensive );
-    imapMenu->addAction( netOnline );
+    QMenu* netPolicyMenu = imapMenu->addMenu( tr("Network Access"));
+    netPolicyMenu->addAction( netOffline );
+    netPolicyMenu->addAction( netExpensive );
+    netPolicyMenu->addAction( netOnline );
     imapMenu->addSeparator();
     imapMenu->addAction( showFullView );
     imapMenu->addSeparator();
