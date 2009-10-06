@@ -135,7 +135,6 @@ void MainWindow::createActions()
     connectModelActions();
 
     QToolBar *toolBar = addToolBar(tr("Navigation"));
-    toolBar->setMovable(false);
     toolBar->addAction(composeMail);
     toolBar->addSeparator();
     toolBar->addAction(markAsRead);
