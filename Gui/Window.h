@@ -55,7 +55,7 @@ private slots:
     void showContextMenuMboxTree( const QPoint& position );
     void showContextMenuMsgListTree( const QPoint& position );
     void slotReloadMboxList();
-    void slotResyncMboxList();
+    void slotResyncMbox();
     void slotResizeMsgListColumns();
     void slotResizeMailboxTreeColumns();
     void alertReceived( const QString& message );
@@ -108,7 +108,7 @@ private:
 
     QAction* reloadMboxList;
     QAction* reloadAllMailboxes;
-    QAction* resyncMboxList;
+    QAction* resyncMbox;
     QAction* netOffline;
     QAction* netExpensive;
     QAction* netOnline;

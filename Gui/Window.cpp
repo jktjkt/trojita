@@ -64,13 +64,13 @@ MainWindow::MainWindow(): QMainWindow()
 
 void MainWindow::createActions()
 {
-    reloadMboxList = new QAction( style()->standardIcon(QStyle::SP_ArrowRight), tr("Rescan Child Mailboxes"), this );
+    reloadMboxList = new QAction( style()->standardIcon(QStyle::SP_ArrowRight), tr("Update List of Child Mailboxes"), this );
     connect( reloadMboxList, SIGNAL( triggered() ), this, SLOT( slotReloadMboxList() ) );
 
-    resyncMboxList = new QAction( QtIconLoader::icon( QLatin1String("view-refresh") ), tr("Re-synchronize Mailbox with Server"), this );
-    connect( resyncMboxList, SIGNAL(triggered()), this, SLOT(slotResyncMboxList()) );
+    resyncMbox = new QAction( QtIconLoader::icon( QLatin1String("view-refresh") ), tr("Check for New Messages"), this );
+    connect( resyncMbox, SIGNAL(triggered()), this, SLOT(slotResyncMbox()) );
 
-    reloadAllMailboxes = new QAction( tr("Reload All Mailboxes"), this );
+    reloadAllMailboxes = new QAction( tr("Reload Everything"), this );
     // connect later
 
     exitAction = new QAction( QtIconLoader::icon( QLatin1String("application-exit") ), tr("E&xit"), this );
@@ -172,6 +172,8 @@ void MainWindow::createMenus()
     imapMenu->addAction( exitAction );
 
     QMenu* mailboxMenu = menuBar()->addMenu( tr("Mailbox") );
+    mailboxMenu->addAction( resyncMbox );
+    mailboxMenu->addSeparator();
     mailboxMenu->addAction( reloadAllMailboxes );
 }
 
@@ -380,7 +382,7 @@ void MainWindow::showContextMenuMboxTree( const QPoint& position )
     if ( mboxTree->indexAt( position ).isValid() ) {
         actionList.append( createChildMailbox );
         actionList.append( deleteCurrentMailbox );
-        actionList.append( resyncMboxList );
+        actionList.append( resyncMbox );
         actionList.append( reloadMboxList );
     } else {
         actionList.append( createTopMailbox );
@@ -403,6 +405,9 @@ void MainWindow::showContextMenuMsgListTree( const QPoint& position )
         QMenu::exec( actionList, msgListTree->mapToGlobal( position ) );
 }
 
+/** @short Ask for an updated list of mailboxes situated below the selected one
+
+*/
 void MainWindow::slotReloadMboxList()
 {
     QModelIndexList indices = mboxTree->selectionModel()->selectedIndexes();
@@ -421,7 +426,8 @@ void MainWindow::slotReloadMboxList()
     }
 }
 
-void MainWindow::slotResyncMboxList()
+/** @short Request a check for new messages in selected mailbox */
+void MainWindow::slotResyncMbox()
 {
     if ( ! model->isNetworkAvailable() )
         return;
@@ -449,6 +455,7 @@ void MainWindow::alertReceived( const QString& message )
 
 void MainWindow::connectionError( const QString& message )
 {
+    // hack: this slot is called even on the first run with no configuration
     if ( QSettings().contains( SettingsNames::imapMethodKey ) ) {
         QMessageBox::critical( this, tr("Connection Error"), message );
     } else {
@@ -655,7 +662,7 @@ void MainWindow::updateActionsOnlineOffline( bool online )
 {
     reloadMboxList->setEnabled( online );
     reloadAllMailboxes->setEnabled( online );
-    resyncMboxList->setEnabled( online );
+    resyncMbox->setEnabled( online );
     expunge->setEnabled( online );
     createChildMailbox->setEnabled( online );
     createTopMailbox->setEnabled( online );
