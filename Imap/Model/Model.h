@@ -205,10 +205,26 @@ public:
 
     CachePtr cache() const { return _cache; }
 
+    /** @short Force a SELECT / EXAMINE of a mailbox
+
+This command sends a SELECT or EXAMINE command to the remote server, even if the
+requested mailbox is currently selected. This has a side effect that we synchronize
+the list of messages, which is why this function exists in the first place.
+*/
     void resyncMailbox( TreeItemMailbox* mbox );
+
+    /** @short Ask the server to set/unset the \\Deleted flag for a particular message */
     void markMessageDeleted( TreeItemMessage* msg, bool marked );
+    /** @short Ask the server to set/unset the \\Seen flag for a particular message */
     void markMessageRead( TreeItemMessage* msg, bool marked );
+
+    /** @short Run the EXPUNGE command in the specified mailbox */
     void expungeMailbox( TreeItemMailbox* mbox );
+
+    /** @short Mark multiple messages \\Deleted at once
+
+      This is useful mainly for drag & drop operations
+*/
     void markUidsDeleted( TreeItemMailbox* mbox, const Sequence& messages );
     void copyMessages( TreeItemMailbox* sourceMbox, const QString& destMboxName, const Sequence& seq );
     void createMailbox( const QString& name );
