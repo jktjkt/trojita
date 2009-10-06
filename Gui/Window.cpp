@@ -136,10 +136,10 @@ void MainWindow::createActions()
 
     QToolBar *toolBar = addToolBar(tr("Navigation"));
     toolBar->addAction(composeMail);
+    toolBar->addAction(expunge);
     toolBar->addSeparator();
     toolBar->addAction(markAsRead);
     toolBar->addAction(markAsDeleted);
-    toolBar->addAction(expunge);
     toolBar->addSeparator();
     toolBar->addAction(showMenuBar);
     toolBar->addAction(configSettings);
