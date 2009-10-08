@@ -42,6 +42,7 @@
 #include "Imap/Model/ModelWatcher.h"
 #include "Imap/Model/MsgListModel.h"
 #include "Imap/Model/MemoryCache.h"
+#include "Imap/Model/PrettyMailboxModel.h"
 #include "Streams/SocketFactory.h"
 
 #include "ui_CreateMailboxDialog.h"
@@ -264,6 +265,8 @@ void MainWindow::setupModels()
     model->setObjectName( QLatin1String("model") );
     mboxModel = new Imap::Mailbox::MailboxModel( this, model );
     mboxModel->setObjectName( QLatin1String("mboxModel") );
+    prettyMboxModel = new Imap::Mailbox::PrettyMailboxModel( this, mboxModel );
+    prettyMboxModel->setObjectName( QLatin1String("prettyMboxModel") );
     msgListModel = new Imap::Mailbox::MsgListModel( this, model );
     msgListModel->setObjectName( QLatin1String("msgListModel") );
 
@@ -292,9 +295,9 @@ void MainWindow::setupModels()
     //Imap::Mailbox::ModelWatcher* w = new Imap::Mailbox::ModelWatcher( this );
     //w->setModel( model );
 
-    //ModelTest* tester = new ModelTest( mboxModel, this ); // when testing, test just one model at time
+    //ModelTest* tester = new ModelTest( prettyMboxModel, this ); // when testing, test just one model at time
 
-    mboxTree->setModel( mboxModel );
+    mboxTree->setModel( prettyMboxModel );
     msgListTree->setModel( msgListModel );
     connect( msgListTree->selectionModel(), SIGNAL( selectionChanged( const QItemSelection&, const QItemSelection& ) ),
              this, SLOT( msgListSelectionChanged( const QItemSelection&, const QItemSelection& ) ) );
@@ -411,7 +414,6 @@ void MainWindow::slotReloadMboxList()
     QModelIndexList indices = mboxTree->selectionModel()->selectedIndexes();
     for ( QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it ) {
         Q_ASSERT( it->isValid() );
-        Q_ASSERT( it->model() == mboxModel );
         if ( it->column() != 0 )
             continue;
         Imap::Mailbox::TreeItemMailbox* mbox = dynamic_cast<Imap::Mailbox::TreeItemMailbox*>(
@@ -431,7 +433,6 @@ void MainWindow::slotResyncMbox()
     QModelIndexList indices = mboxTree->selectionModel()->selectedIndexes();
     for ( QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it ) {
         Q_ASSERT( it->isValid() );
-        Q_ASSERT( it->model() == mboxModel );
         if ( it->column() != 0 )
             continue;
         Imap::Mailbox::TreeItemMailbox* mbox = dynamic_cast<Imap::Mailbox::TreeItemMailbox*>(
@@ -534,6 +535,8 @@ void MainWindow::nukeModels()
     msgListModel = 0;
     mboxModel->deleteLater();
     mboxModel = 0;
+    prettyMboxModel->deleteLater();
+    prettyMboxModel = 0;
     model->deleteLater();
     model = 0;
     cache.clear();

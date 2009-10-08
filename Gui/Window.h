@@ -35,6 +35,7 @@ namespace Mailbox {
 class Model;
 class MailboxModel;
 class MsgListModel;
+class PrettyMailboxModel;
 
 }
 }
@@ -96,6 +97,7 @@ private:
 
     Imap::Mailbox::Model* model;
     Imap::Mailbox::MailboxModel* mboxModel;
+    Imap::Mailbox::PrettyMailboxModel* prettyMboxModel;
     Imap::Mailbox::MsgListModel* msgListModel;
 
     MailboxTreeWidget* mboxTree;
