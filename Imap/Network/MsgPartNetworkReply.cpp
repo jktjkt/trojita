@@ -41,7 +41,7 @@ void MsgPartNetworkReply::slotModelDataChanged( const QModelIndex& topLeft, cons
         return;
     }
     Imap::Mailbox::TreeItemPart* receivedPart = dynamic_cast<Imap::Mailbox::TreeItemPart*> (
-            static_cast<Imap::Mailbox::TreeItem*>( topLeft.internalPointer() ) );
+            Imap::Mailbox::Model::realTreeItem( topLeft ) );
     if ( receivedPart == part ) {
         slotMyDataChanged();
     }

@@ -28,7 +28,7 @@ void Rfc822HeaderView::handleDataChanged( const QModelIndex& topLeft, const QMod
 {
     Q_ASSERT( topLeft.model() == model );
     Imap::Mailbox::TreeItemPart* source = dynamic_cast<Imap::Mailbox::TreeItemPart*>(
-            static_cast<Imap::Mailbox::TreeItem*>( topLeft.internalPointer() ) );
+            Imap::Mailbox::Model::realTreeItem( topLeft ) );
     if ( source == part )
         setCorrectText();
 }

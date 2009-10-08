@@ -319,9 +319,7 @@ void MainWindow::msgListClicked( const QModelIndex& index )
 
     if ( index.column() == Imap::Mailbox::MsgListModel::SEEN ) {
         Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
-                static_cast<Imap::Mailbox::TreeItem*>(
-                        msgListModel->mapToSource( index ).internalPointer()
-                        )
+                Imap::Mailbox::Model::realTreeItem( index )
                 );
         Q_ASSERT( message );
         if ( ! message->fetched() )
@@ -341,7 +339,7 @@ void MainWindow::msgListDoubleClicked( const QModelIndex& index )
     MessageView* newView = new MessageView( 0 );
     QModelIndex realIndex = msgListModel->mapToSource( index );
     Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
-            static_cast<Imap::Mailbox::TreeItem*>( realIndex.internalPointer() ) );
+            Imap::Mailbox::Model::realTreeItem( index ) );
     Q_ASSERT( message );
     Q_ASSERT( realIndex.model() == model );
     newView->setMessage( index );
@@ -417,9 +415,7 @@ void MainWindow::slotReloadMboxList()
         if ( it->column() != 0 )
             continue;
         Imap::Mailbox::TreeItemMailbox* mbox = dynamic_cast<Imap::Mailbox::TreeItemMailbox*>(
-                static_cast<Imap::Mailbox::TreeItem*>(
-                    mboxModel->mapToSource( *it ).internalPointer()
-                    )
+                Imap::Mailbox::Model::realTreeItem( *it )
                 );
         Q_ASSERT( mbox );
         mbox->rescanForChildMailboxes( model );
@@ -439,9 +435,7 @@ void MainWindow::slotResyncMbox()
         if ( it->column() != 0 )
             continue;
         Imap::Mailbox::TreeItemMailbox* mbox = dynamic_cast<Imap::Mailbox::TreeItemMailbox*>(
-                static_cast<Imap::Mailbox::TreeItem*>(
-                    mboxModel->mapToSource( *it ).internalPointer()
-                    )
+                    Imap::Mailbox::Model::realTreeItem( *it )
                 );
         Q_ASSERT( mbox );
         model->resyncMailbox( mbox );
@@ -567,9 +561,7 @@ void MainWindow::handleMarkAsRead( bool value )
         if ( it->column() != 0 )
             continue;
         Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
-                static_cast<Imap::Mailbox::TreeItem*>(
-                    msgListModel->mapToSource( *it ).internalPointer()
-                    )
+                Imap::Mailbox::Model::realTreeItem( *it )
                 );
         Q_ASSERT( message );
         model->markMessageRead( message, value );
@@ -585,9 +577,7 @@ void MainWindow::handleMarkAsDeleted( bool value )
         if ( it->column() != 0 )
             continue;
         Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
-                static_cast<Imap::Mailbox::TreeItem*>(
-                    msgListModel->mapToSource( *it ).internalPointer()
-                    )
+                Imap::Mailbox::Model::realTreeItem( *it )
                 );
         Q_ASSERT( message );
         model->markMessageDeleted( message, value );
@@ -613,7 +603,7 @@ void MainWindow::createMailboxBelow( const QModelIndex& index )
 {
     Imap::Mailbox::TreeItemMailbox* mboxPtr = index.isValid() ?
         dynamic_cast<Imap::Mailbox::TreeItemMailbox*>(
-                static_cast<Imap::Mailbox::TreeItem*>( index.internalPointer() ) ) :
+                Imap::Mailbox::Model::realTreeItem( index ) ) :
         0;
 
     Ui::CreateMailboxDialog ui;
@@ -642,7 +632,7 @@ void MainWindow::slotDeleteCurrentMailbox()
         return;
 
     Imap::Mailbox::TreeItemMailbox* mailbox = dynamic_cast<Imap::Mailbox::TreeItemMailbox*>(
-        static_cast<Imap::Mailbox::TreeItem*>( mboxTree->currentIndex().internalPointer() ) );
+        Imap::Mailbox::Model::realTreeItem( mboxTree->currentIndex() ) );
     Q_ASSERT( mailbox );
 
     if ( QMessageBox::question( this, tr("Delete Mailbox"),

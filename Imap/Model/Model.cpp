@@ -22,6 +22,7 @@
 #include "AuthenticatedHandler.h"
 #include "SelectedHandler.h"
 #include "SelectingHandler.h"
+#include <QAbstractProxyModel>
 #include <QAuthenticator>
 #include <QCoreApplication>
 #include <QDebug>
@@ -1332,6 +1333,21 @@ void Model::saveUidMap( TreeItemMsgList* list )
     for ( int i = 0; i < list->_children.size(); ++i )
         seqToUid << static_cast<TreeItemMessage*>( list->_children[ i ] )->uid();
     _cache->setUidMapping( static_cast<TreeItemMailbox*>( list->parent() )->mailbox(), seqToUid );
+}
+
+
+TreeItem* Model::realTreeItem( QModelIndex index )
+{
+    const QAbstractProxyModel* proxy = qobject_cast<const QAbstractProxyModel*>( index.model() );
+    while ( proxy ) {
+        index = proxy->mapToSource( index );
+        proxy = qobject_cast<const QAbstractProxyModel*>( index.model() );
+    }
+    if ( ! qobject_cast<const Model*>( index.model() ) ) {
+        qDebug() << index << "does not belong to Imap::Mailbox::Model";
+        return 0;
+    }
+    return static_cast<TreeItem*>( index.internalPointer() );
 }
 
 }

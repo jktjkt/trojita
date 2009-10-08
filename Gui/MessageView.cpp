@@ -64,7 +64,7 @@ void MessageView::setMessage( const QModelIndex& index )
     // first, let's get a real model
     Imap::Mailbox::Model* modelCandidate = dynamic_cast<Imap::Mailbox::Model*>( const_cast<QAbstractItemModel*>( index.model() ) );
     const Imap::Mailbox::MsgListModel* msgListModel = dynamic_cast<const Imap::Mailbox::MsgListModel*>( index.model() );
-    Imap::Mailbox::TreeItem* item = static_cast<Imap::Mailbox::TreeItem*>( index.internalPointer() );
+    Imap::Mailbox::TreeItem* item = Imap::Mailbox::Model::realTreeItem( index );
 
     if ( modelCandidate ) {
         model = modelCandidate;

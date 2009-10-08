@@ -233,6 +233,15 @@ the list of messages, which is why this function exists in the first place.
     bool isNetworkAvailable() const { return _netPolicy != NETWORK_OFFLINE; }
     bool isNetworkOnline() const { return _netPolicy == NETWORK_ONLINE; }
 
+    /** @short Return a TreeItem* for a specified index
+
+Certain proxy models implement their own indexes. These indexes typically won't
+share the internalPointer() with the original model.  Because we use this pointer
+quite often, a method is needed to automatically go through the list of all proxy
+models and return the appropriate raw pointer.
+*/
+    static TreeItem* realTreeItem( QModelIndex index );
+
 public slots:
     void reloadMailboxList();
 
