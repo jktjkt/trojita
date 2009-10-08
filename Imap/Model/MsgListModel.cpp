@@ -339,8 +339,11 @@ void MsgListModel::resetMe()
 
 void MsgListModel::handleRowsAboutToBeRemoved( const QModelIndex& parent, int start, int end )
 {
-    if ( ! parent.isValid() )
+    if ( ! parent.isValid() ) {
+        // Top-level items are tricky :(. As a quick hack, let's just die.
+        resetMe();
         return;
+    }
 
     if ( ! msgList )
         return;
@@ -390,14 +393,13 @@ void MsgListModel::handleRowsRemoved( const QModelIndex& parent, int start, int 
     Q_UNUSED( start );
     Q_UNUSED( end );
 
-    if ( ! parent.isValid() )
-        return;
-
     if ( ! msgList )
         return;
 
-    if ( ! parent.isValid() )
+    if ( ! parent.isValid() ) {
+        // already handled by resetMe() in handleRowsAboutToBeRemoved()
         return;
+    }
 
     if( dynamic_cast<TreeItemMsgList*>( Model::realTreeItem( parent ) ) == msgList )
         endRemoveRows();
