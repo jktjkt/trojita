@@ -61,6 +61,9 @@ void MsgListModel::handleDataChanged( const QModelIndex& topLeft, const QModelIn
 
     QModelIndex first = mapFromSource( topLeft );
     QModelIndex second = mapFromSource( bottomRight );
+    if ( ! first.isValid() || ! second.isValid() ) {
+        return;
+    }
     second = createIndex( second.row(), COLUMN_COUNT - 1, Model::realTreeItem( second ) );
 
     if ( first.isValid() && second.isValid() && first.parent() == second.parent() ) {
@@ -336,6 +339,9 @@ void MsgListModel::resetMe()
 
 void MsgListModel::handleRowsAboutToBeRemoved( const QModelIndex& parent, int start, int end )
 {
+    if ( ! parent.isValid() )
+        return;
+
     if ( ! msgList )
         return;
 
@@ -383,6 +389,10 @@ void MsgListModel::handleRowsRemoved( const QModelIndex& parent, int start, int 
 {
     Q_UNUSED( start );
     Q_UNUSED( end );
+
+    if ( ! parent.isValid() )
+        return;
+
     if ( ! msgList )
         return;
 
@@ -395,6 +405,9 @@ void MsgListModel::handleRowsRemoved( const QModelIndex& parent, int start, int 
 
 void MsgListModel::handleRowsAboutToBeInserted( const QModelIndex& parent, int start, int end )
 {
+    if ( ! parent.isValid() )
+        return;
+
     TreeItemMsgList* newList = dynamic_cast<TreeItemMsgList*>( Model::realTreeItem( parent ) );
     if ( msgList && msgList == newList ) {
         beginInsertRows( mapFromSource( parent), start, end );
@@ -403,6 +416,9 @@ void MsgListModel::handleRowsAboutToBeInserted( const QModelIndex& parent, int s
 
 void MsgListModel::handleRowsInserted( const QModelIndex& parent, int start, int end )
 {
+    if ( ! parent.isValid() )
+        return;
+
     Q_UNUSED( start );
     Q_UNUSED( end );
     TreeItemMsgList* newList = dynamic_cast<TreeItemMsgList*>( Model::realTreeItem( parent ) );
