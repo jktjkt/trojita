@@ -239,8 +239,15 @@ Certain proxy models implement their own indexes. These indexes typically won't
 share the internalPointer() with the original model.  Because we use this pointer
 quite often, a method is needed to automatically go through the list of all proxy
 models and return the appropriate raw pointer.
+
+Upon success, a valid pointer is returned, *whichModel is set to point to the
+corresponding Model instance and *translatedIndex contains the index in the real
+underlying model. If any of these pointers is NULL, it won't get changed, of course.
+
+Upon failure, this function returns 0 and doesn't touch any of @arg whichModel
+and @arg translatedIndex.
 */
-    static TreeItem* realTreeItem( QModelIndex index );
+    static TreeItem* realTreeItem( QModelIndex index, const Model** whichModel = 0, QModelIndex* translatedIndex = 0 );
 
 public slots:
     void reloadMailboxList();

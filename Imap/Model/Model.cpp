@@ -1190,7 +1190,7 @@ void Model::switchToMailbox( const QModelIndex& mbox )
         return;
 
     if ( TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>(
-                 static_cast<TreeItem*>( mbox.internalPointer() ) ) ) {
+                 realTreeItem( mbox ) ) ) {
         Parser* ptr = _getParser( mailbox, ReadWrite );
         if ( _parsers[ ptr ].capabilitiesFresh &&
              _parsers[ ptr ].capabilities.contains( QLatin1String( "IDLE" ) ) ) {
@@ -1336,17 +1336,23 @@ void Model::saveUidMap( TreeItemMsgList* list )
 }
 
 
-TreeItem* Model::realTreeItem( QModelIndex index )
+TreeItem* Model::realTreeItem( QModelIndex index, const Model** whichModel, QModelIndex* translatedIndex )
 {
     const QAbstractProxyModel* proxy = qobject_cast<const QAbstractProxyModel*>( index.model() );
     while ( proxy ) {
+        qDebug() << proxy->objectName();
         index = proxy->mapToSource( index );
         proxy = qobject_cast<const QAbstractProxyModel*>( index.model() );
     }
-    if ( ! qobject_cast<const Model*>( index.model() ) ) {
+    const Model* model = qobject_cast<const Model*>( index.model() );
+    if ( ! model ) {
         qDebug() << index << "does not belong to Imap::Mailbox::Model";
         return 0;
     }
+    if ( whichModel )
+        *whichModel = model;
+    if ( translatedIndex )
+        *translatedIndex = index;
     return static_cast<TreeItem*>( index.internalPointer() );
 }
 

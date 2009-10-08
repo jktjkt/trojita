@@ -61,7 +61,7 @@ void MsgListModel::handleDataChanged( const QModelIndex& topLeft, const QModelIn
 
     QModelIndex first = mapFromSource( topLeft );
     QModelIndex second = mapFromSource( bottomRight );
-    second = createIndex( second.row(), COLUMN_COUNT - 1, second.internalPointer() );
+    second = createIndex( second.row(), COLUMN_COUNT - 1, Model::realTreeItem( second ) );
 
     if ( first.isValid() && second.isValid() && first.parent() == second.parent() ) {
         emit dataChanged( first, second );
@@ -144,7 +144,7 @@ QModelIndex MsgListModel::mapFromSource( const QModelIndex& sourceIndex ) const
 
     if ( sourceIndex.model() != sourceModel() )
         return QModelIndex();
-    if ( dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>( sourceIndex.internalPointer() ) ) ) {
+    if ( dynamic_cast<TreeItemMessage*>( Model::realTreeItem( sourceIndex ) ) ) {
         return index( sourceIndex.row(), 0, QModelIndex() );
     } else {
         return QModelIndex();
@@ -156,11 +156,10 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
     if ( ! msgList )
         return QVariant();
 
-    if ( ! proxyIndex.internalPointer() )
+    if ( ! proxyIndex.isValid() )
         return QVariant();
 
-    TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
-                                proxyIndex.internalPointer() ) );
+    TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( Model::realTreeItem( proxyIndex ) );
                         Q_ASSERT( message );
 
     switch ( role ) {
@@ -231,8 +230,7 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
                 }
         case Qt::FontRole:
             {
-                TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
-                                proxyIndex.internalPointer() ) );
+                TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( Model::realTreeItem( proxyIndex ) );
                 Q_ASSERT( message );
 
                 if ( ! message->fetched() )
@@ -246,14 +244,14 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
                 return font;
             }
         case RoleIsMarkedAsDeleted:
-            return dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
-                                proxyIndex.internalPointer() ) )->isMarkedAsDeleted();
+            return dynamic_cast<TreeItemMessage*>( Model::realTreeItem(
+                                proxyIndex ) )->isMarkedAsDeleted();
         case RoleIsMarkedAsRead:
-            return dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>(
-                                proxyIndex.internalPointer() ) )->isMarkedAsRead();
+            return dynamic_cast<TreeItemMessage*>( Model::realTreeItem(
+                                proxyIndex ) )->isMarkedAsRead();
         default:
             {
-            QModelIndex translated = createIndex( proxyIndex.row(), 0, proxyIndex.internalPointer() );
+            QModelIndex translated = createIndex( proxyIndex.row(), 0, Model::realTreeItem( proxyIndex ) );
             return QAbstractProxyModel::data( translated, role );
             }
     }
@@ -286,7 +284,7 @@ Qt::ItemFlags MsgListModel::flags( const QModelIndex& index ) const
         return QAbstractProxyModel::flags( index );
 
     TreeItemMessage* message = dynamic_cast<TreeItemMessage*>(
-            static_cast<TreeItem*>( index.internalPointer() ) );
+            Model::realTreeItem( index ) );
     Q_ASSERT( message );
 
     if ( ! message->fetched() )
@@ -314,13 +312,13 @@ QMimeData* MsgListModel::mimeData( const QModelIndexList& indexes ) const
     QByteArray encodedData;
     QDataStream stream( &encodedData, QIODevice::WriteOnly );
 
-    TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>(
-            indexes.front().internalPointer() )->parent()->parent() );
+    TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( Model::realTreeItem(
+            indexes.front() )->parent()->parent() );
     Q_ASSERT( mailbox );
     stream << mailbox->mailbox();
 
     for ( QModelIndexList::const_iterator it = indexes.begin(); it != indexes.end(); ++it ) {
-        TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>( it->internalPointer() ) );
+        TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( Model::realTreeItem( *it ) );
         Q_ASSERT( message );
         Q_ASSERT( message->fetched() ); // should've been handled by flags()
         Q_ASSERT( message->parent()->parent() == mailbox );
@@ -341,8 +339,9 @@ void MsgListModel::handleRowsAboutToBeRemoved( const QModelIndex& parent, int st
     if ( ! msgList )
         return;
 
-    TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( parent.internalPointer() ) );
-    TreeItemMsgList* newList = dynamic_cast<TreeItemMsgList*>( static_cast<TreeItem*>( parent.internalPointer() ) );
+    TreeItem* item = Model::realTreeItem( parent );
+    TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( item );
+    TreeItemMsgList* newList = dynamic_cast<TreeItemMsgList*>( item );
 
     if ( parent.isValid() ) {
         Q_ASSERT( parent.model() == sourceModel() );
@@ -362,7 +361,11 @@ void MsgListModel::handleRowsAboutToBeRemoved( const QModelIndex& parent, int st
         Q_ASSERT( start > 0 );
         // if we're below it, we're gonna die
         for ( int i = start; i <= end; ++i ) {
-            TreeItemMailbox* m = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( sourceModel()->index( i, 0, parent ).internalPointer() ) );
+            const Model* model = 0;
+            QModelIndex translatedParent;
+            Model::realTreeItem( parent, &model, &translatedParent );
+            // FIXME: this assumes that no rows were removed by the proxy model
+            TreeItemMailbox* m = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( model->index( i, 0, translatedParent ).internalPointer() ) );
             Q_ASSERT( m );
             TreeItem* up = msgList->parent();
             while ( up ) {
@@ -386,13 +389,13 @@ void MsgListModel::handleRowsRemoved( const QModelIndex& parent, int start, int 
     if ( ! parent.isValid() )
         return;
 
-    if( dynamic_cast<TreeItemMsgList*>( static_cast<TreeItem*>( parent.internalPointer() ) ) == msgList )
+    if( dynamic_cast<TreeItemMsgList*>( Model::realTreeItem( parent ) ) == msgList )
         endRemoveRows();
 }
 
 void MsgListModel::handleRowsAboutToBeInserted( const QModelIndex& parent, int start, int end )
 {
-    TreeItemMsgList* newList = dynamic_cast<TreeItemMsgList*>( static_cast<TreeItem*>( parent.internalPointer() ) );
+    TreeItemMsgList* newList = dynamic_cast<TreeItemMsgList*>( Model::realTreeItem( parent ) );
     if ( msgList && msgList == newList ) {
         beginInsertRows( mapFromSource( parent), start, end );
     }
@@ -402,7 +405,7 @@ void MsgListModel::handleRowsInserted( const QModelIndex& parent, int start, int
 {
     Q_UNUSED( start );
     Q_UNUSED( end );
-    TreeItemMsgList* newList = dynamic_cast<TreeItemMsgList*>( static_cast<TreeItem*>( parent.internalPointer() ) );
+    TreeItemMsgList* newList = dynamic_cast<TreeItemMsgList*>( Model::realTreeItem( parent ) );
     if ( msgList && msgList == newList ) {
         endInsertRows();
     }
@@ -417,9 +420,11 @@ void MsgListModel::setMailbox( const QModelIndex& index )
         return;
     }
 
-    TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( index.internalPointer() ));
+    const Model* model = 0;
+    TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>( Model::realTreeItem( index, &model ));
     Q_ASSERT( mbox );
-    TreeItemMsgList* newList = dynamic_cast<TreeItemMsgList*>( mbox->child( 0, static_cast<Model*>( const_cast<QAbstractItemModel*>( index.model() ) ) ) );
+    TreeItemMsgList* newList = dynamic_cast<TreeItemMsgList*>(
+            mbox->child( 0, const_cast<Model*>( model ) ) );
     Q_ASSERT( newList );
     if ( newList != msgList && mbox->isSelectable() ) {
         msgList = newList;
