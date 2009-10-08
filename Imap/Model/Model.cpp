@@ -1340,7 +1340,6 @@ TreeItem* Model::realTreeItem( QModelIndex index, const Model** whichModel, QMod
 {
     const QAbstractProxyModel* proxy = qobject_cast<const QAbstractProxyModel*>( index.model() );
     while ( proxy ) {
-        qDebug() << proxy->objectName();
         index = proxy->mapToSource( index );
         proxy = qobject_cast<const QAbstractProxyModel*>( index.model() );
     }
