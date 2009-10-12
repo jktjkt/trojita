@@ -31,7 +31,6 @@
 
 #include "Window.h"
 #include "ComposeWidget.h"
-#include "MailboxTreeWidget.h"
 #include "MessageView.h"
 #include "MsgListWidget.h"
 #include "SettingsDialog.h"
@@ -180,7 +179,7 @@ void MainWindow::createMenus()
 
 void MainWindow::createWidgets()
 {
-    mboxTree = new MailboxTreeWidget();
+    mboxTree = new QTreeView();
     mboxTree->setUniformRowHeights( true );
     mboxTree->setContextMenuPolicy(Qt::CustomContextMenu);
     mboxTree->setSelectionMode( QAbstractItemView::SingleSelection );
@@ -274,7 +273,6 @@ void MainWindow::setupModels()
     connect( mboxTree, SIGNAL( activated(const QModelIndex&) ), msgListModel, SLOT( setMailbox(const QModelIndex&) ) );
     connect( mboxTree, SIGNAL( clicked(const QModelIndex&) ), model, SLOT( switchToMailbox( const QModelIndex& ) ) );
     connect( mboxTree, SIGNAL( activated(const QModelIndex&) ), model, SLOT( switchToMailbox( const QModelIndex& ) ) );
-    connect( mboxModel, SIGNAL( layoutAboutToBeChanged() ), this, SLOT( slotResizeMailboxTreeColumns() ) );
     connect( msgListModel, SIGNAL( mailboxChanged() ), this, SLOT( slotResizeMsgListColumns() ) );
     connect( msgListModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ), this, SLOT( updateMessageFlags() ) );
 
@@ -369,12 +367,6 @@ void MainWindow::slotResizeMsgListColumns()
 {
     for ( int i = 0; i < msgListTree->header()->count(); ++i )
         msgListTree->resizeColumnToContents( i );
-}
-
-void MainWindow::slotResizeMailboxTreeColumns()
-{
-    for ( int i = 0; i < mboxTree->header()->count(); ++i )
-        mboxTree->resizeColumnToContents( i );
 }
 
 void MainWindow::showContextMenuMboxTree( const QPoint& position )
