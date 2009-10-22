@@ -412,6 +412,35 @@ void ImapParserParseTest::testParseUntagged_data()
 
 }
 
+void ImapParserParseTest::benchmark()
+{
+    QByteArray line1 = "* 1 FETCH (BODYSTRUCTURE ((\"text\" \"plain\" "
+        "(\"charset\" \"US-ASCII\" \"delsp\" \"yes\" \"format\" \"flowed\") "
+        "NIL NIL \"7bit\" 990 27 NIL NIL NIL)"
+        "(\"application\" \"pgp-signature\" (\"x-mac-type\" \"70674453\" \"name\" \"PGP.sig\") NIL "
+        "\"This is a digitally signed message part\" \"7bit\" 193 NIL (\"inline\" "
+        "(\"filename\" \"PGP.sig\")) NIL) \"signed\" (\"protocol\" "
+        "\"application/pgp-signature\" \"micalg\" \"pgp-sha1\" \"boundary\" "
+        "\"Apple-Mail-10--856231115\") NIL NIL))\r\n";
+    QByteArray line2 = "* 13 FETCH (ENVELOPE (NIL "
+            "\"IMAP4rev1 WG mtg summary and minutes\" "
+            "((\"Terry Gray\" NIL \"gray\" \"cac.washington.edu\")) "
+            "((\"Terry Gray\" NIL \"gray\" \"cac.washington.edu\")) "
+            "((\"Terry Gray\" NIL \"gray\" \"cac.washington.edu\")) "
+            "((NIL NIL \"imap\" \"cac.washington.edu\")) "
+            "((NIL NIL \"minutes\" \"CNRI.Reston.VA.US\") "
+            "(\"John Klensin\" NIL \"KLENSIN\" \"MIT.EDU\")) NIL NIL "
+            "\"<B27397-0100000@cac.washington.edu>\"))\r\n";
+    QByteArray line3 = "* 123 FETCH (InternalDate \"6-Apr-1981 12:03:32 -0630\")\r\n";
+    QBENCHMARK {
+        parser->processLine( line1 );
+        parser->processLine( line2 );
+        parser->processLine( line3 );
+    }
+    while ( parser->hasResponse() )
+        parser->getResponse();
+}
+
 void ImapParserParseTest::testSequences()
 {
     QFETCH( Imap::Sequence, sequence );
