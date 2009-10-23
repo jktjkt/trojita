@@ -671,10 +671,15 @@ QVariant TreeItemPart::data( Model* const model, int role )
 
     fetch( model );
 
-    if ( loading() )
-        return isTopLevelMultiPart() ?
-            model->tr("[loading %1...]").arg( _mimeType ) :
-            model->tr("[loading %1: %2...]").arg( partId() ).arg( _mimeType );
+    if ( loading() ) {
+        if ( role == Qt::DisplayRole ) {
+            return isTopLevelMultiPart() ?
+                model->tr("[loading %1...]").arg( _mimeType ) :
+                model->tr("[loading %1: %2...]").arg( partId() ).arg( _mimeType );
+        } else {
+            return QVariant();
+        }
+    }
 
     switch ( role ) {
         case Qt::DisplayRole:
