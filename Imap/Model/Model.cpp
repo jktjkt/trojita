@@ -384,10 +384,10 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
     // Note: syncState.unSeen() is the NUMBER of the first unseen message, not their count!
 
     if ( _parsers[ parser ].selectingAnother ) {
+        emit messageCountPossiblyChanged( createIndex( mailbox->row(), 0, mailbox ) );
         // We have already queued a command that switches to another mailbox
         // Asking the parser to switch back would only make the situation worse,
         // so we can't do anything better than exit right now
-        emit messageCountPossiblyChanged( createIndex( mailbox->row(), 0, mailbox ) );
         return;
     }
 
