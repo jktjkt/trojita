@@ -347,7 +347,7 @@ void TreeItemMailbox::handleExpunge( Model* const model, const Responses::Number
     --list->_totalMessageCount;
     list->recalcUnreadMessageCount();
     model->saveUidMap( list );
-    emit model->messageCountPossiblyChanged( model->createIndex( row(), 0, this ) );
+    model->emitMessageCountChanged( this );
 }
 
 void TreeItemMailbox::handleExistsSynced( Model* const model, Parser* ptr, const Responses::NumberResponse& resp )
@@ -375,7 +375,7 @@ void TreeItemMailbox::handleExistsSynced( Model* const model, Parser* ptr, const
     model->endInsertRows();
     list->_totalMessageCount = list->_children.size();
     // we don't know the flags yet, so we can't update \seen count
-    emit model->messageCountPossiblyChanged( model->createIndex( row(), 0, this ) );
+    model->emitMessageCountChanged( this );
     QStringList items = willLoad ? model->_onlineMessageFetch : QStringList() << "UID" << "FLAGS" ;
     CommandHandle cmd = ptr->fetch( Sequence::startingAt( firstNew + 1 ), items );
     model->_parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::FETCH, this );

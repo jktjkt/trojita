@@ -310,6 +310,8 @@ private:
 
     TreeItem* translatePtr( const QModelIndex& index ) const;
 
+    void emitMessageCountChanged( TreeItemMailbox* const mailbox );
+
     TreeItemMailbox* findMailboxByName( const QString& name ) const;
     TreeItemMailbox* findMailboxByName( const QString& name, const TreeItemMailbox* const root ) const;
 
