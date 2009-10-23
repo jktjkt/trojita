@@ -366,6 +366,7 @@ void Model::replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<Tree
         QList<TreeItem*> dummy = mailboxPtr->setChildren( mailboxes );
         Q_ASSERT( dummy.isEmpty() );
     }
+    emit dataChanged( parent, parent );
 }
 
 void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command )
@@ -871,6 +872,8 @@ void Model::_askForChildrenOfMailbox( TreeItemMailbox* item )
         CommandHandle cmd = parser->list( "", mailbox );
         _parsers[ parser ].commandMap[ cmd ] = Task( Task::LIST, item );
     }
+    QModelIndex idx = createIndex( item->row(), 0, item );
+    emit dataChanged( idx, idx );
 }
 
 void Model::reloadMailboxList()
