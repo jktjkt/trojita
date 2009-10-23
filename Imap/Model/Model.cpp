@@ -380,7 +380,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
     const SyncState& syncState = _parsers[ parser ].syncState;
     const SyncState& oldState = _cache->mailboxSyncState( mailbox->mailbox() );
 
-    static_cast<TreeItemMsgList*>( mailbox->_children[0] )->_totalMessageCount = syncState.exists();
+    list->_totalMessageCount = syncState.exists();
     // Note: syncState.unSeen() is the NUMBER of the first unseen message, not their count!
 
     if ( _parsers[ parser ].selectingAnother ) {
