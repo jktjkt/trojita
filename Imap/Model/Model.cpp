@@ -265,6 +265,8 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 return;
         }
 
+        Q_ASSERT( _parsers.contains( ptr ) );
+        Q_ASSERT( _parsers[ ptr ].commandMap.contains( command.key() ) );
         _parsers[ ptr ].commandMap.erase( command );
 
     } else {
