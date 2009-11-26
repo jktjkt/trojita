@@ -265,9 +265,13 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 return;
         }
 
-        Q_ASSERT( _parsers.contains( ptr ) );
-        Q_ASSERT( _parsers[ ptr ].commandMap.contains( command.key() ) );
-        _parsers[ ptr ].commandMap.erase( command );
+        // We have to verify that the command is still registered in the
+        // commandMap, as it might have been removed in the meanwhile, for
+        // example by the replaceChildMailboxes()
+        if ( _parsers[ ptr ].commandMap.find( tag ) != _parsers[ ptr ].commandMap.end() )
+            _parsers[ ptr ].commandMap.erase( command );
+        else
+            qDebug() << "This command is not valid anymore at the end of the loop" << tag;
 
     } else {
         // untagged response
