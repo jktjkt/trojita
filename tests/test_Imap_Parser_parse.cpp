@@ -228,6 +228,11 @@ void ImapParserParseTest::testParseUntagged_data()
         << QByteArray("* STATUS blurdybloop (MESSAGES 231 UIDNEXT 44292 UIDVALIDITY 1337 RECENT 3234567890)\r\n")
         << QSharedPointer<AbstractResponse>( new Status( "blurdybloop", states ) );
 
+    // notice the trailing whitespace
+    QTest::newRow("status-exchange-botched-1")
+        << QByteArray("* STATUS blurdybloop (MESSAGES 231 UIDNEXT 44292 UIDVALIDITY 1337 RECENT 3234567890) \r\n")
+        << QSharedPointer<AbstractResponse>( new Status( "blurdybloop", states ) );
+
     QTest::newRow("namespace-1")
         << QByteArray("* Namespace nil NIL nil\r\n")
         << QSharedPointer<AbstractResponse>( new Namespace( QList<NamespaceData>(),

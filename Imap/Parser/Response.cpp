@@ -359,7 +359,7 @@ Status::Status( const QByteArray& line, int& start )
     if ( start >= line.size() )
         throw NoData( line, start );
     QStringList items = QVariant( LowLevelParser::parseList( '(', ')', line, start  ) ).toStringList();
-    if ( start != line.size() - 2 )
+    if ( start != line.size() - 2 && line.mid( start ) != QByteArray( " \r\n" ) )
         throw TooMuchData( line, start );
 
     bool gotIdentifier = false;
