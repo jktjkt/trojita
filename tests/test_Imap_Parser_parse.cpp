@@ -415,6 +415,18 @@ void ImapParserParseTest::testParseUntagged_data()
         QByteArray("* 1 FETCH (BODYSTRUCTURE ((\"text\" \"plain\" (\"charset\" \"US-ASCII\" \"delsp\" \"yes\" \"format\" \"flowed\") NIL NIL \"7bit\" 990 27 NIL NIL NIL)(\"application\" \"pgp-signature\" (\"x-mac-type\" \"70674453\" \"name\" \"PGP.sig\") NIL \"This is a digitally signed message part\" \"7bit\" 193 NIL (\"inline\" (\"filename\" \"PGP.sig\")) NIL) \"signed\" (\"protocol\" \"application/pgp-signature\" \"micalg\" \"pgp-sha1\" \"boundary\" \"Apple-Mail-10--856231115\") NIL NIL))\r\n") <<
         QSharedPointer<AbstractResponse>( new Fetch( 1, fetchData ) );
 
+    fetchData.clear();
+    bodyFldParam.clear();
+    bodyFldParam[ "CHARSET" ] = "UTF-8";
+    bodyFldParam[ "FORMAT" ] = "flowed";
+    fetchData[ "BODYSTRUCTURE" ] = QSharedPointer<AbstractData>(
+            new TextMessage( "text", "plain", bodyFldParam, QByteArray(), QByteArray(),
+                             "quoted-printable", 0, QByteArray(), bodyFldDsp, QList<QByteArray>(), QByteArray(), QVariant(), 0 ) );
+    QTest::newRow("fetch-exchange-screwup-1") <<
+            QByteArray("* 61 FETCH "
+                       "(BODYSTRUCTURE (\"text\" \"plain\" (\"charset\" \"UTF-8\" \"format\" \"flowed\") "
+                       "NIL NIL \"quoted-printable\" -1 -1 NIL NIL NIL NIL))\r\n") <<
+            QSharedPointer<AbstractResponse>( new Fetch( 61, fetchData ) );
 }
 
 void ImapParserParseTest::benchmark()
