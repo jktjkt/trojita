@@ -114,6 +114,8 @@ namespace Message {
         virtual QTextStream& dump( QTextStream& s ) const { return dump( s, 0 ); }
         virtual QTextStream& dump( QTextStream& s, const int indent ) const = 0;
         virtual QList<Mailbox::TreeItem*> createTreeItems( Mailbox::TreeItem* parent ) const = 0;
+    protected:
+        static uint extractUInt( const QVariant& var, const QByteArray& line, const int start );
     };
 
     /** @short Abstract parent class for all non-multipart messages */

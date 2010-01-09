@@ -342,6 +342,18 @@ QList<QByteArray> AbstractMessage::makeBodyFldLang( const QVariant& input, const
     return res;
 }
 
+uint AbstractMessage::extractUInt( const QVariant& var, const QByteArray& line, const int start )
+{
+    if ( var.type() == QVariant::UInt )
+        return var.toUInt();
+    if ( var.type() == QVariant::ByteArray && var.toByteArray() == QByteArray("-1") ) {
+        qDebug() << "Parser warning: -1 is not an unsigned int";
+        return 0;
+    }
+    throw UnexpectedHere( line, start );
+}
+
+
 QSharedPointer<AbstractMessage> AbstractMessage::fromList( const QVariantList& items, const QByteArray& line, const int start )
 {
     if ( items.size() < 3 )
@@ -376,9 +388,7 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList( const QVariantList& i
         QByteArray bodyFldEnc = items[i].toByteArray();
         ++i;
 
-        if ( items[i].type() != QVariant::UInt )
-            throw UnexpectedHere( line, start ); // body-fld-octets not recognized
-        uint bodyFldOctets = items[i].toUInt();
+        uint bodyFldOctets = extractUInt( items[i], line, start );
         ++i;
 
         uint bodyFldLines = 0;
@@ -404,18 +414,14 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList( const QVariantList& i
             body = AbstractMessage::fromList( items[i].toList(), line, start );
             ++i;
 
-            if ( items[i].type() != QVariant::UInt )
-                throw UnexpectedHere( line, start ); // body-fld-lines not found
-            bodyFldLines = items[i].toUInt();
+            bodyFldLines = extractUInt( items[i], line, start );
             ++i;
 
         } else if ( mediaType == "text" ) {
             // extract body-fld-lines
 
             kind = TEXT;
-            if ( items[i].type() != QVariant::UInt )
-                throw UnexpectedHere( line, start ); // body-fld-lines not found
-            bodyFldLines = items[i].toUInt();
+            bodyFldLines = extractUInt( items[i], line, start );
             ++i;
 
         } else {
