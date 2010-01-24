@@ -54,12 +54,12 @@ bool MailboxNameComparator( const TreeItem* const a, const TreeItem* const b )
 
 }
 
-ModelStateHandler::ModelStateHandler( Model* _m ): m(_m)
+ModelStateHandler::ModelStateHandler( Model* _m ): QObject(_m), m(_m)
 {
 }
 
 IdleLauncher::IdleLauncher( Model* model, Parser* ptr ):
-        m(model), parser(ptr), _idling(false)
+        QObject(model), m(model), parser(ptr), _idling(false)
 {
     timer = new QTimer( this );
     timer->setSingleShot( true );

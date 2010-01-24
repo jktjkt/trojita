@@ -38,6 +38,11 @@ MessageView::MessageView( QWidget* parent ): QWidget(parent), message(0), model(
     header->setWordWrap( true );
 }
 
+MessageView::~MessageView()
+{
+    delete factory;
+}
+
 void MessageView::handleMessageRemoved( void* msg )
 {
     if ( msg == message )
