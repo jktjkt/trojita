@@ -1,6 +1,7 @@
 #include "AttachmentView.h"
 #include "Imap/Model/MailboxTree.h"
 
+#include <QDesktopServices>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QMessageBox>
@@ -26,8 +27,8 @@ AttachmentView::AttachmentView( QWidget* parent,
 void AttachmentView::slotDownloadClicked()
 {
     QString saveFileName = QFileDialog::getSaveFileName( this, tr("Save Attachment"),
-                                                         part->fileName(), QString(),
-                                                         0, QFileDialog::HideNameFilterDetails
+                                                         QDir( QDesktopServices::storageLocation( QDesktopServices::DocumentsLocation ) ).filePath( part->fileName() ),
+                                                         QString(), 0, QFileDialog::HideNameFilterDetails
                                                        );
     if ( saveFileName.isEmpty() )
         return;
