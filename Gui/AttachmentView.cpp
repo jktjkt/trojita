@@ -26,8 +26,11 @@ AttachmentView::AttachmentView( QWidget* parent,
 
 QString AttachmentView::toRealFileName( Imap::Mailbox::TreeItemPart* part )
 {
+    QString name = part->fileName().isEmpty() ?
+                   tr("msg_%1_%2").arg( part->message()->uid() ).arg( part->partId() )
+                   : part->fileName();
     return QDir( QDesktopServices::storageLocation( QDesktopServices::DocumentsLocation )
-                 ).filePath( part->fileName() );
+                 ).filePath( name );
 }
 
 void AttachmentView::slotDownloadClicked()
