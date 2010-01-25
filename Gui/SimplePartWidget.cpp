@@ -2,6 +2,7 @@
 #include <QMessageBox>
 #include <QNetworkReply>
 
+#include "AttachmentView.h"
 #include "SimplePartWidget.h"
 #include "Imap/Model/MailboxTree.h"
 
@@ -31,7 +32,7 @@ SimplePartWidget::SimplePartWidget( QWidget* parent,
 void SimplePartWidget::slotSaveContents()
 {
     QString saveFileName = QFileDialog::getSaveFileName( this, tr("Save Attachment"),
-                                                         part->fileName(), QString(),
+                                                         AttachmentView::toRealFileName( part ), QString(),
                                                          0, QFileDialog::HideNameFilterDetails
                                                        );
     if ( saveFileName.isEmpty() )
