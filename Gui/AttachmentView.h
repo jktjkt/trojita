@@ -22,6 +22,8 @@ public:
     AttachmentView( QWidget* parent,
                     Imap::Network::MsgPartNetAccessManager* _manager,
                     Imap::Mailbox::TreeItemPart* _part );
+
+    static QString toRealFileName( Imap::Mailbox::TreeItemPart* part );
 private slots:
     void slotDownloadClicked();
     void slotDataTransfered();

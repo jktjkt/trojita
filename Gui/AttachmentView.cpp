@@ -24,11 +24,17 @@ AttachmentView::AttachmentView( QWidget* parent,
     connect( download, SIGNAL(clicked()), this, SLOT(slotDownloadClicked()) );
 }
 
+QString AttachmentView::toRealFileName( Imap::Mailbox::TreeItemPart* part )
+{
+    return QDir( QDesktopServices::storageLocation( QDesktopServices::DocumentsLocation )
+                 ).filePath( part->fileName() );
+}
+
 void AttachmentView::slotDownloadClicked()
 {
     QString saveFileName = QFileDialog::getSaveFileName( this, tr("Save Attachment"),
-                                                         QDir( QDesktopServices::storageLocation( QDesktopServices::DocumentsLocation ) ).filePath( part->fileName() ),
-                                                         QString(), 0, QFileDialog::HideNameFilterDetails
+                                                         toRealFileName( part ), QString(),
+                                                         0, QFileDialog::HideNameFilterDetails
                                                        );
     if ( saveFileName.isEmpty() )
         return;
