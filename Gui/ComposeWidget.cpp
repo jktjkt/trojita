@@ -153,7 +153,7 @@ void ComposeWidget::addRecipient( int position, const QString& kind, const QStri
     QStringList toCcBcc = QStringList() << tr("To") << tr("Cc") << tr("Bcc");
     combo->addItems( toCcBcc );
     combo->setCurrentIndex( toCcBcc.indexOf( kind ) );
-    QLineEdit* edit = new QLineEdit( this );
+    QLineEdit* edit = new QLineEdit( address, this );
     _recipientsAddress.insert( position, edit );
     _recipientsKind.insert( position, combo );
     connect( edit, SIGNAL(editingFinished()), this, SLOT(handleRecipientAddressChange()) );
