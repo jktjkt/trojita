@@ -4,6 +4,7 @@
 #include <QAction>
 #include <QFile>
 
+#include "AbstractPartWidget.h"
 #include "EmbeddedWebView.h"
 #include "Imap/Network/MsgPartNetAccessManager.h"
 
@@ -15,13 +16,14 @@ More complicated parts are handled by other widgets. Role of this one is to
 simply render data that can't be broken down to more trivial pieces.
 */
 
-class SimplePartWidget : public EmbeddedWebView
+class SimplePartWidget : public EmbeddedWebView, AbstractPartWidget
 {
     Q_OBJECT
 public:
     SimplePartWidget( QWidget* parent,
                       Imap::Network::MsgPartNetAccessManager* manager,
                       Imap::Mailbox::TreeItemPart* _part );
+    virtual QString quoteMe() const;
 private slots:
     void slotSaveContents();
     void slotDataTransfered();

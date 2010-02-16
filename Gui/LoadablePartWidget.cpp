@@ -10,7 +10,8 @@ LoadablePartWidget::LoadablePartWidget( QWidget* parent,
                          Imap::Network::MsgPartNetAccessManager* _manager,
                          Imap::Mailbox::TreeItemPart* _part,
                          QObject* _wheelEventFilter ):
-QStackedWidget(parent), manager(_manager), part(_part), wheelEventFilter(_wheelEventFilter)
+QStackedWidget(parent), manager(_manager), part(_part), realPart(0),
+wheelEventFilter(_wheelEventFilter)
 {
     loadButton = new QPushButton( tr("Load %1 (%2)").arg(
             part->mimeType(), Imap::Mailbox::PrettySize::prettySize( part->octets() ) ), this );
@@ -24,6 +25,11 @@ void LoadablePartWidget::loadClicked()
     realPart->installEventFilter( wheelEventFilter );
     addWidget( realPart );
     setCurrentIndex( 1 );
+}
+
+QString LoadablePartWidget::quoteMe() const
+{
+    return realPart ? realPart->quoteMe() : QString();
 }
 
 }

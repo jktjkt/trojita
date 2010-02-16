@@ -3,6 +3,7 @@
 
 #include <QStackedWidget>
 
+#include "AbstractPartWidget.h"
 #include "SimplePartWidget.h"
 
 class QPushButton;
@@ -16,7 +17,7 @@ namespace Gui {
   meaning of showing huge body parts.  No data are transfered unless the user
   clicks a button.
 */
-class LoadablePartWidget : public QStackedWidget
+class LoadablePartWidget : public QStackedWidget, AbstractPartWidget
 {
     Q_OBJECT
 public:
@@ -24,6 +25,7 @@ public:
                         Imap::Network::MsgPartNetAccessManager* _manager,
                         Imap::Mailbox::TreeItemPart* _part,
                         QObject* _wheelEventFilter );
+    QString quoteMe() const;
 private slots:
     void loadClicked();
 private:

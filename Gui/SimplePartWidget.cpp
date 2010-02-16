@@ -81,6 +81,10 @@ void SimplePartWidget::slotDeleteReply(QNetworkReply* reply)
     }
 }
 
+QString SimplePartWidget::quoteMe() const
+{
+    return QString();
+}
 
 }
 

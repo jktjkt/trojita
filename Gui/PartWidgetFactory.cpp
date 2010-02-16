@@ -1,8 +1,8 @@
 #include "PartWidgetFactory.h"
 #include "AttachmentView.h"
 #include "LoadablePartWidget.h"
+#include "PartWidget.h"
 #include "SimplePartWidget.h"
-#include "Rfc822HeaderView.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
 
@@ -40,54 +40,14 @@ QWidget* PartWidgetFactory::create( Imap::Mailbox::TreeItemPart* part, int recur
     if ( part->mimeType().startsWith( QLatin1String("multipart/") ) ) {
         // it's a compound part
         if ( part->mimeType() == QLatin1String("multipart/alternative") ) {
-            QTabWidget* top = new QTabWidget();
-            for ( uint i = 0; i < part->childrenCount( manager->model ); ++i ) {
-                TreeItemPart* anotherPart = dynamic_cast<TreeItemPart*>(
-                        part->child( i, manager->model ) );
-                Q_ASSERT( anotherPart );
-                QWidget* item = create( anotherPart, recursionDepth + 1 );
-                top->addTab( item, anotherPart->mimeType() );
-            }
-            top->setCurrentIndex( part->childrenCount( manager->model ) - 1 );
-            return top;
+            return new MultipartAlternativeWidget( 0, this, part, recursionDepth );
         } else if ( part->mimeType() == QLatin1String("multipart/signed") ) {
-            uint childrenCount = part->childrenCount( manager->model );
-            if ( childrenCount != 2 ) {
-                QLabel* lbl = new QLabel( tr("Mallformed multipart/signed message"), 0 );
-                return lbl;
-            }
-            QGroupBox* top = new QGroupBox( tr("Signed Message"), 0 );
-            QVBoxLayout* layout = new QVBoxLayout( top );
-            TreeItemPart* anotherPart = dynamic_cast<TreeItemPart*>(
-                    part->child( 0, manager->model ) );
-            layout->addWidget( create( anotherPart, recursionDepth + 1 ) );
-            return top;
+            return new MultipartSignedWidget( 0, this, part, recursionDepth );
         } else {
-            // multipart/mixed or anything else, as mandated by RFC 2046, Section 5.1.3
-            QGroupBox* top = new QGroupBox( tr("Multipart Message"), 0 );
-            QVBoxLayout* layout = new QVBoxLayout( top );
-            for ( uint i = 0; i < part->childrenCount( manager->model ); ++i ) {
-                TreeItemPart* anotherPart = dynamic_cast<TreeItemPart*>(
-                        part->child( i, manager->model ) );
-                Q_ASSERT( anotherPart );
-                QWidget* res = create( anotherPart, recursionDepth + 1 );
-                layout->addWidget( res );
-            }
-            return top;
+            return new GenericMultipartWidget( 0, this, part, recursionDepth );
         }
     } else if ( part->mimeType() == QLatin1String("message/rfc822") ) {
-        QGroupBox* top = new QGroupBox( tr("Message"), 0 );
-        QVBoxLayout* layout = new QVBoxLayout( top );
-        QLabel* header = new Rfc822HeaderView( 0, manager->model, part );
-        layout->addWidget( header );
-        for ( uint i = 0; i < part->childrenCount( manager->model ); ++i ) {
-            TreeItemPart* anotherPart = dynamic_cast<TreeItemPart*>(
-                    part->child( i, manager->model ) );
-            Q_ASSERT( anotherPart );
-            QWidget* res = create( anotherPart, recursionDepth + 1 );
-            layout->addWidget( res );
-        }
-        return top;
+        return new Message822Widget( 0, this, part, recursionDepth );
     } else {
         bool showInline = false;
         QStringList allowedMimeTypes;
@@ -122,6 +82,11 @@ QWidget* PartWidgetFactory::create( Imap::Mailbox::TreeItemPart* part, int recur
     QLabel* lbl = new QLabel( part->mimeType(), 0 );
     lbl->setMinimumSize( 800, 600 );
     return lbl;
+}
+
+Imap::Mailbox::Model* PartWidgetFactory::model() const
+{
+    return manager->model;
 }
 
 }
