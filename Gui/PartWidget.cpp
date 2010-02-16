@@ -9,6 +9,17 @@
 
 namespace Gui {
 
+QString quoteMeHelper( const QObjectList& children )
+{
+    QStringList res;
+    for ( QObjectList::const_iterator it = children.begin(); it != children.end(); ++it ) {
+        const AbstractPartWidget* w = dynamic_cast<const AbstractPartWidget*>( *it );
+        if ( w )
+            res += w->quoteMe();
+    }
+    return res.join("\n");
+}
+
 MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
     PartWidgetFactory *factory, Imap::Mailbox::TreeItemPart *part,
     const int recursionDepth ):
@@ -27,7 +38,8 @@ MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
 
 QString MultipartAlternativeWidget::quoteMe() const
 {
-    return QString();
+    const AbstractPartWidget* w = dynamic_cast<const AbstractPartWidget*>( currentWidget() );
+    return w ? w->quoteMe() : QString();
 }
 
 MultipartSignedWidget::MultipartSignedWidget(QWidget *parent,
@@ -50,7 +62,7 @@ MultipartSignedWidget::MultipartSignedWidget(QWidget *parent,
 
 QString MultipartSignedWidget::quoteMe() const
 {
-    return QString();
+    return quoteMeHelper( children() );
 }
 
 GenericMultipartWidget::GenericMultipartWidget(QWidget *parent,
@@ -72,7 +84,7 @@ GenericMultipartWidget::GenericMultipartWidget(QWidget *parent,
 
 QString GenericMultipartWidget::quoteMe() const
 {
-    return QString();
+    return quoteMeHelper( children() );
 }
 
 Message822Widget::Message822Widget(QWidget *parent,
@@ -95,7 +107,7 @@ Message822Widget::Message822Widget(QWidget *parent,
 
 QString Message822Widget::quoteMe() const
 {
-    return QString();
+    return quoteMeHelper( children() );
 }
 
 }
