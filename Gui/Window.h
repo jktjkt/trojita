@@ -47,9 +47,12 @@ class MsgListWidget;
 
 class MainWindow: public QMainWindow {
     Q_OBJECT
-
+    typedef QList<QPair<QString,QString> > _recipientsType;
 public:
     MainWindow();
+    void invokeComposeDialog( const QString& subject = QString(),
+                              const QString& body = QString(),
+                              const _recipientsType& recipients = _recipientsType() );
 
 private slots:
     void showContextMenuMboxTree( const QPoint& position );
@@ -67,6 +70,8 @@ private slots:
     void connectionError( const QString& message );
     void authenticationRequested( QAuthenticator* auth );
     void slotComposeMail();
+    void slotReplyTo();
+    void slotReplyAll();
     void handleMarkAsRead( bool );
     void handleMarkAsDeleted( bool );
     void msgListClicked( const QModelIndex& );
@@ -117,6 +122,8 @@ private:
     QAction* showMenuBar;
     QAction* configSettings;
     QAction* composeMail;
+    QAction* replyTo;
+    QAction* replyAll;
     QAction* expunge;
     QAction* createChildMailbox;
     QAction* createTopMailbox;

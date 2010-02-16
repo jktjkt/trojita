@@ -21,6 +21,7 @@ class MsgPartNetAccessManager;
 
 namespace Gui {
 
+class MainWindow;
 class PartWidgetFactory;
 
 
@@ -35,7 +36,9 @@ Q_OBJECT
 public:
     MessageView( QWidget* parent=0);
     ~MessageView();
-    QString quoteText() const;
+    enum ReplyMode { REPLY_SENDER_ONLY, /**< @short Reply to sender(s) only */
+                     REPLY_ALL /**< @short Reply to all recipients */ };
+    void reply( MainWindow* mainWindow, ReplyMode mode );
 public slots:
     void setMessage( const QModelIndex& index );
     void setEmpty();
@@ -47,6 +50,8 @@ signals:
 private:
     bool eventFilter( QObject* object, QEvent* event );
     QString headerText();
+    QString quoteText() const;
+    static QString replySubject( const QString& subject );
 
     QWidget* viewer;
     QLabel* header;

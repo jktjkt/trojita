@@ -9,6 +9,7 @@
 #include "MessageView.h"
 #include "AbstractPartWidget.h"
 #include "EmbeddedWebView.h"
+#include "Window.h"
 #include "PartWidgetFactory.h"
 
 #include "Imap/Model/MailboxTree.h"
@@ -179,6 +180,35 @@ QString MessageView::quoteText() const
 {
     const AbstractPartWidget* w = dynamic_cast<const AbstractPartWidget*>( viewer );
     return w ? w->quoteMe() : QString();
+}
+
+void MessageView::reply( MainWindow* mainWindow, ReplyMode mode )
+{
+    if ( ! message )
+        return;
+
+    const Imap::Message::Envelope& envelope = message->envelope( model );
+    QList<QPair<QString,QString> > recipients;
+    for ( QList<Imap::Message::MailAddress>::const_iterator it = envelope.from.begin(); it != envelope.from.end(); ++it ) {
+        recipients << qMakePair( tr("To"), QString::fromAscii("%1@%2").arg( it->mailbox, it->host ));
+    }
+    if ( mode == REPLY_ALL ) {
+        for ( QList<Imap::Message::MailAddress>::const_iterator it = envelope.to.begin(); it != envelope.to.end(); ++it ) {
+            recipients << qMakePair( tr("Cc"), QString::fromAscii("%1@%2").arg( it->mailbox, it->host ));
+        }
+        for ( QList<Imap::Message::MailAddress>::const_iterator it = envelope.cc.begin(); it != envelope.cc.end(); ++it ) {
+            recipients << qMakePair( tr("Cc"), QString::fromAscii("%1@%2").arg( it->mailbox, it->host ));
+        }
+    }
+    mainWindow->invokeComposeDialog( replySubject( envelope.subject ), quoteText(), recipients );
+}
+
+QString MessageView::replySubject( const QString& subject )
+{
+    if ( ! subject.startsWith(tr("Re:")) )
+        return tr("Re: ") + subject;
+    else
+        return subject;
 }
 
 }

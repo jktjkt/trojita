@@ -132,10 +132,20 @@ void MainWindow::createActions()
     deleteCurrentMailbox = new QAction( tr("Delete Mailbox"), this );
     connect( deleteCurrentMailbox, SIGNAL(triggered()), this, SLOT(slotDeleteCurrentMailbox()) );
 
+    replyTo = new QAction( tr("Reply..."), this );
+    replyTo->setShortcut( tr("Ctrl+R") );
+    connect( replyTo, SIGNAL(triggered()), this, SLOT(slotReplyTo()) );
+
+    replyAll = new QAction( tr("Reply All..."), this );
+    replyAll->setShortcut( tr("Ctrl+Shift+R") );
+    connect( replyAll, SIGNAL(triggered()), this, SLOT(slotReplyAll()) );
+
     connectModelActions();
 
     QToolBar *toolBar = addToolBar(tr("Navigation"));
     toolBar->addAction(composeMail);
+    toolBar->addAction(replyTo);
+    toolBar->addAction(replyAll);
     toolBar->addAction(expunge);
     toolBar->addSeparator();
     toolBar->addAction(markAsRead);
@@ -157,6 +167,8 @@ void MainWindow::createMenus()
 {
     QMenu* imapMenu = menuBar()->addMenu( tr("IMAP") );
     imapMenu->addAction( composeMail );
+    imapMenu->addAction( replyTo );
+    imapMenu->addAction( replyAll );
     imapMenu->addAction( expunge );
     imapMenu->addSeparator()->setText( tr("Network Access") );
     QMenu* netPolicyMenu = imapMenu->addMenu( tr("Network Access"));
@@ -536,15 +548,7 @@ void MainWindow::nukeModels()
 
 void MainWindow::slotComposeMail()
 {
-    QSettings s;
-    ComposeWidget* w = new ComposeWidget( this );
-    w->setData( QString::fromAscii("%1 <%2>").arg(
-                s.value( SettingsNames::realNameKey ).toString(),
-                s.value( SettingsNames::addressKey ).toString() ),
-        QList<QPair<QString,QString> >(),
-        QString(), QString() );
-    w->setAttribute( Qt::WA_DeleteOnClose, true );
-    w->show();
+    invokeComposeDialog();
 }
 
 void MainWindow::handleMarkAsRead( bool value )
@@ -659,6 +663,29 @@ void MainWindow::updateActionsOnlineOffline( bool online )
 void MainWindow::scrollMessageUp()
 {
     area->ensureVisible( 0, 0, 0, 0 );
+}
+
+void MainWindow::slotReplyTo()
+{
+    msgView->reply( this, MessageView::REPLY_SENDER_ONLY );
+}
+
+void MainWindow::slotReplyAll()
+{
+    msgView->reply( this, MessageView::REPLY_ALL );
+}
+
+void MainWindow::invokeComposeDialog( const QString& subject, const QString& body,
+                                      const QList<QPair<QString,QString> >& recipients )
+{
+    QSettings s;
+    ComposeWidget* w = new ComposeWidget( this );
+    w->setData( QString::fromAscii("%1 <%2>").arg(
+                s.value( SettingsNames::realNameKey ).toString(),
+                s.value( SettingsNames::addressKey ).toString() ),
+        recipients, subject, body );
+    w->setAttribute( Qt::WA_DeleteOnClose, true );
+    w->show();
 }
 
 }
