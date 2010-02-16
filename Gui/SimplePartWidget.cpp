@@ -1,6 +1,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QNetworkReply>
+#include <QWebFrame>
 
 #include "AttachmentView.h"
 #include "SimplePartWidget.h"
@@ -83,7 +84,11 @@ void SimplePartWidget::slotDeleteReply(QNetworkReply* reply)
 
 QString SimplePartWidget::quoteMe() const
 {
-    return QString();
+    QString selection = selectedText();
+    if ( selection.isEmpty() )
+        return page()->mainFrame()->toPlainText();
+    else
+        return selection;
 }
 
 }
