@@ -17,7 +17,7 @@ namespace Gui {
   meaning of showing huge body parts.  No data are transfered unless the user
   clicks a button.
 */
-class LoadablePartWidget : public QStackedWidget, AbstractPartWidget
+class LoadablePartWidget : public QStackedWidget, public AbstractPartWidget
 {
     Q_OBJECT
 public:

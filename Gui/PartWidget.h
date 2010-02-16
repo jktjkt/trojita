@@ -17,7 +17,7 @@ namespace Gui {
 class PartWidgetFactory;
 
 /** @short Message quoting support for multipart/alternative MIME type */
-class MultipartAlternativeWidget: public QTabWidget, AbstractPartWidget
+class MultipartAlternativeWidget: public QTabWidget, public AbstractPartWidget
 {
     Q_OBJECT
 public:
@@ -28,7 +28,7 @@ public:
 };
 
 /** @short Message quoting support for multipart/signed MIME type */
-class MultipartSignedWidget: public QGroupBox, AbstractPartWidget
+class MultipartSignedWidget: public QGroupBox, public AbstractPartWidget
 {
     Q_OBJECT
 public:
@@ -39,7 +39,7 @@ public:
 };
 
 /** @short Message quoting support for generic multipart/ * */
-class GenericMultipartWidget: public QGroupBox, AbstractPartWidget
+class GenericMultipartWidget: public QGroupBox, public AbstractPartWidget
 {
     Q_OBJECT
 public:
@@ -50,7 +50,7 @@ public:
 };
 
 /** @short Message quoting support for generic multipart/ * */
-class Message822Widget: public QGroupBox, AbstractPartWidget
+class Message822Widget: public QGroupBox, public AbstractPartWidget
 {
     Q_OBJECT
 public:

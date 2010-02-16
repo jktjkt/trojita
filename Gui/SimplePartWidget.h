@@ -16,7 +16,7 @@ More complicated parts are handled by other widgets. Role of this one is to
 simply render data that can't be broken down to more trivial pieces.
 */
 
-class SimplePartWidget : public EmbeddedWebView, AbstractPartWidget
+class SimplePartWidget : public EmbeddedWebView, public AbstractPartWidget
 {
     Q_OBJECT
 public:
