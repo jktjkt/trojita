@@ -35,6 +35,7 @@ Q_OBJECT
 public:
     MessageView( QWidget* parent=0);
     ~MessageView();
+    QString quoteText() const;
 public slots:
     void setMessage( const QModelIndex& index );
     void setEmpty();

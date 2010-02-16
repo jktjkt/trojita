@@ -7,6 +7,7 @@
 #include <QDebug>
 
 #include "MessageView.h"
+#include "AbstractPartWidget.h"
 #include "EmbeddedWebView.h"
 #include "PartWidgetFactory.h"
 
@@ -172,6 +173,12 @@ QString MessageView::headerText()
         res += tr("<br/><b>Date:</b>&nbsp;%1").arg(
                 message->envelope( model ).date.toString( Qt::SystemLocaleLongDate ) );
     return res;
+}
+
+QString MessageView::quoteText() const
+{
+    const AbstractPartWidget* w = dynamic_cast<const AbstractPartWidget*>( viewer );
+    return w ? w->quoteMe() : QString();
 }
 
 }
