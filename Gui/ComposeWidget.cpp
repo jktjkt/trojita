@@ -173,8 +173,8 @@ void ComposeWidget::handleRecipientAddressChange()
             _recipientsAddress[index + 1]->setFocus();
         }
     } else if ( item->text().isEmpty() && _recipientsAddress.size() != 1 ) {
-        delete _recipientsAddress.takeAt( index );
-        delete _recipientsKind.takeAt( index );
+        _recipientsAddress.takeAt( index )->deleteLater();
+        _recipientsKind.takeAt( index )->deleteLater();
 
         delete ui->formLayout;
         ui->formLayout = new QFormLayout( this );
