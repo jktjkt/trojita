@@ -83,6 +83,8 @@ private slots:
     void updateMessageFlags();
     void scrollMessageUp();
 
+    void slotMailboxDeleteFailed( const QString& mailbox, const QString& msg );
+
 private:
     void createMenus();
     void createActions();

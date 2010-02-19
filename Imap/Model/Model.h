@@ -93,7 +93,9 @@ class Model: public QAbstractItemModel {
                     COPY, CREATE, DELETE, LOGOUT };
         Kind kind;
         TreeItem* what;
+        QString str;
         Task( const Kind _kind, TreeItem* _what ): kind(_kind), what(_what) {}
+        Task( const Kind _kind, const QString& _str ): kind(_kind), str(_str) {}
         Task(): kind(NONE) {}
     };
 
@@ -273,6 +275,9 @@ signals:
 
     void messageCountPossiblyChanged( const QModelIndex& mailbox );
 
+    void mailboxDeletionSucceded( const QString& mailbox );
+    void mailboxDeletionFailed( const QString& mailbox, const QString& message );
+
 private:
     Model& operator=( const Model& ); // don't implement
     Model( const Model& ); // don't implement
@@ -302,6 +307,7 @@ private:
     void _finalizeList( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
+    void _finalizeDelete( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command,  const Imap::Responses::State* const resp );
 
     void replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<TreeItem*> mailboxes );
     void enterIdle( Parser* parser );

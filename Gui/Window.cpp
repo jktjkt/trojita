@@ -688,6 +688,12 @@ void MainWindow::invokeComposeDialog( const QString& subject, const QString& bod
     w->show();
 }
 
+void MainWindow::slotMailboxDeleteFailed( const QString& mailbox, const QString& msg )
+{
+    QMessageBox::warning( this, tr("Can't delete mailbox $1").arg( mailbox ),
+                          tr("Mailbox deletion failed with the following message:\n$1").arg( msg ) );
+}
+
 }
 
 #include "Window.moc"
