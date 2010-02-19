@@ -704,7 +704,6 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
 
 void Model::_finalizeDelete( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command,  const Imap::Responses::State* const resp )
 {
-    // FIXME: error reporting...
     if ( resp->kind == Responses::OK ) {
         TreeItemMailbox* mailboxPtr = findMailboxByName( command->str );
         if ( mailboxPtr ) {
