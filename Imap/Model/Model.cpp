@@ -286,12 +286,20 @@ void Model::_finalizeList( Parser* parser, const QMap<CommandHandle, Task>::cons
     QList<TreeItem*> mailboxes;
 
     QList<Responses::List>& listResponses = _parsers[ parser ].listResponses;
-    for ( QList<Responses::List>::const_iterator it = listResponses.begin();
-            it != listResponses.end(); ++it ) {
-        if ( it->mailbox != mailboxPtr->mailbox() + mailboxPtr->separator() )
+    const QString prefix = mailboxPtr->mailbox() + mailboxPtr->separator();
+    for ( QList<Responses::List>::iterator it = listResponses.begin();
+            it != listResponses.end(); /* nothing */ ) {
+        if ( it->mailbox == mailboxPtr->mailbox() || it->mailbox == prefix ) {
+            // rubbish, ignore
+            it = listResponses.erase( it );
+        } else if ( it->mailbox.startsWith( prefix ) ) {
             mailboxes << new TreeItemMailbox( command->what, *it );
+            it = listResponses.erase( it );
+        } else {
+            // it clearly is someone else's LIST response
+            ++it;
+        }
     }
-    listResponses.clear();
     qSort( mailboxes.begin(), mailboxes.end(), MailboxNameComparator );
 
     // Remove duplicates; would be great if this could be done in a STLish way,
