@@ -218,6 +218,13 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                     // FIXME
                 }
                 break;
+            case Task::LIST_AFTER_CREATE:
+                if ( resp->kind == Responses::OK ) {
+                    _finalizeIncrementalList( ptr, command );
+                } else {
+                    // FIXME
+                }
+                break;
             case Task::STATUS:
                 // FIXME
                 break;
@@ -252,7 +259,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 // FIXME
                 break;
             case Task::CREATE:
-                // FIXME
+                _finalizeCreate( ptr, command, resp );
                 break;
             case Task::DELETE:
                 _finalizeDelete( ptr, command, resp );
@@ -325,6 +332,53 @@ void Model::_finalizeList( Parser* parser, const QMap<CommandHandle, Task>::cons
     _cache->setChildMailboxes( mailboxPtr->mailbox(), metadataToCache );
 
     replaceChildMailboxes( mailboxPtr, mailboxes );
+}
+
+void Model::_finalizeIncrementalList( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command )
+{
+    TreeItemMailbox* parentMbox = findParentMailboxByName( command->str );
+    if ( ! parentMbox ) {
+        qDebug() << "Weird, no idea where to put the newly created mailbox" << command->str;
+        return;
+    }
+
+    QList<TreeItem*> mailboxes;
+
+    QList<Responses::List>& listResponses = _parsers[ parser ].listResponses;
+    for ( QList<Responses::List>::iterator it = listResponses.begin();
+            it != listResponses.end(); /* nothing */ ) {
+        if ( it->mailbox == command->str ) {
+            mailboxes << new TreeItemMailbox( parentMbox, *it );
+            it = listResponses.erase( it );
+        } else {
+            // it clearly is someone else's LIST response
+            ++it;
+        }
+    }
+    qSort( mailboxes.begin(), mailboxes.end(), MailboxNameComparator );
+
+    if ( mailboxes.size() == 0) {
+        qDebug() << "Weird, no matching LIST response for our prompt after CREATE";
+        qDeleteAll( mailboxes );
+        return;
+    } else if ( mailboxes.size() > 1 ) {
+        qDebug() << "Weird, too many LIST responses for our prompt after CREATE";
+        qDeleteAll( mailboxes );
+        return;
+    }
+
+    QList<TreeItem*>::iterator it = parentMbox->_children.begin();
+    Q_ASSERT( it != parentMbox->_children.end() );
+    ++it;
+    while ( it != parentMbox->_children.end() && MailboxNameComparator( *it, mailboxes[0] ) )
+        ++it;
+    QModelIndex parentIdx = parentMbox == _mailboxes ? QModelIndex() : QAbstractItemModel::createIndex( parentMbox->row(), 0, parentMbox );
+    if ( it == parentMbox->_children.end() )
+        beginInsertRows( parentIdx, parentMbox->_children.size(), parentMbox->_children.size() );
+    else
+        beginInsertRows( parentIdx, (*it)->row(), (*it)->row() );
+    parentMbox->_children.insert( it, mailboxes[0] );
+    endInsertRows();
 }
 
 void Model::replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<TreeItem*> mailboxes )
@@ -699,6 +753,17 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
         saveUidMap( list );
         _parsers[ parser ].syncingFlags.clear();
         emitMessageCountChanged( mailbox );
+    }
+}
+
+void Model::_finalizeCreate( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command,  const Imap::Responses::State* const resp )
+{
+    if ( resp->kind == Responses::OK ) {
+        emit mailboxCreationSucceded( command->str );
+        CommandHandle cmd = parser->list( QLatin1String(""), command->str );
+        _parsers[ parser ].commandMap[ cmd ] = Task( Task::LIST_AFTER_CREATE, command->str );
+    } else {
+        emit mailboxCreationFailed( command->str, resp->message );
     }
 }
 
@@ -1330,6 +1395,30 @@ TreeItemMailbox* Model::findMailboxByName( const QString& name,
     return 0;
 }
 
+TreeItemMailbox* Model::findParentMailboxByName( const QString& name ) const
+{
+    TreeItemMailbox* root = _mailboxes;
+    while ( true ) {
+        if ( root->_children.size() == 1 ) {
+            break;
+        }
+        bool found = false;
+        for ( int i = 1; ! found && i < root->_children.size(); ++i ) {
+            TreeItemMailbox* const item = dynamic_cast<TreeItemMailbox*>( root->_children[i] );
+            Q_ASSERT( item );
+            if ( name.startsWith( item->mailbox() + item->separator() ) ) {
+                root = item;
+                found = true;
+            }
+        }
+        if ( ! found ) {
+            return root;
+        }
+    }
+    return root;
+}
+
+
 void Model::expungeMailbox( TreeItemMailbox* mbox )
 {
     if ( ! mbox )
@@ -1354,8 +1443,7 @@ void Model::createMailbox( const QString& name )
 
     Parser* parser = _getParser( 0, ReadOnly );
     CommandHandle cmd = parser->create( name );
-    _parsers[ parser ].commandMap[ cmd ] = Task( Task::CREATE, 0 );
-    // FIXME: issue a LIST as well?
+    _parsers[ parser ].commandMap[ cmd ] = Task( Task::CREATE, name );
 }
 
 void Model::deleteMailbox( const QString& name )

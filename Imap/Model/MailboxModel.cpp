@@ -42,9 +42,12 @@ MailboxModel::MailboxModel( QObject* parent, Model* model ): QAbstractProxyModel
              this, SLOT( handleRowsAboutToBeRemoved( const QModelIndex&, int, int ) ) );
     connect( model, SIGNAL( rowsRemoved( const QModelIndex&, int, int ) ),
              this, SLOT( handleRowsRemoved( const QModelIndex&, int, int ) ) );
+    connect( model, SIGNAL( rowsAboutToBeInserted( const QModelIndex&, int, int ) ),
+             this, SLOT( handleRowsAboutToBeInserted( const QModelIndex&, int, int ) ) );
+    connect( model, SIGNAL( rowsInserted( const QModelIndex&, int, int ) ),
+             this, SLOT( handleRowsInserted( const QModelIndex&, int, int ) ) );
     connect( model, SIGNAL( messageCountPossiblyChanged( const QModelIndex& ) ),
              this, SLOT( handleMessageCountPossiblyChanged( const QModelIndex& ) ) );
-    // FIXME: rowsAboutToBeInserted, just for the sake of completeness :)
 }
 
 void MailboxModel::resetMe()
@@ -342,6 +345,33 @@ void MailboxModel::handleRowsRemoved( const QModelIndex& parent, int first, int 
     if ( parent.internalPointer() && ! parentMbox )
         return;
     endRemoveRows();
+}
+
+void MailboxModel::handleRowsAboutToBeInserted( const QModelIndex& parent, int first, int last )
+{
+    TreeItemMailbox* parentMbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( parent.internalPointer() ) );
+    if ( parent.internalPointer() && ! parentMbox )
+        return;
+    if ( ! parentMbox )
+        parentMbox = static_cast<Imap::Mailbox::Model*>( sourceModel() )->_mailboxes;
+    if ( first == 0 && last == 0 )
+        return;
+    if ( first != 0 )
+        first--;
+    last--;
+    beginInsertRows( mapFromSource( parent ), first, last );
+}
+
+void MailboxModel::handleRowsInserted( const QModelIndex& parent, int first, int last )
+{
+    Q_UNUSED( first );
+    Q_UNUSED( last );
+    TreeItemMailbox* parentMbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( parent.internalPointer() ) );
+    if ( parent.internalPointer() && ! parentMbox )
+        return;
+    if ( first == 0 && last == 0 )
+        return;
+    endInsertRows();
 }
 
 

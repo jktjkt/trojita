@@ -90,7 +90,7 @@ class Model: public QAbstractItemModel {
     struct Task {
         enum Kind { NONE, STARTTLS, LOGIN, LIST, STATUS, SELECT, FETCH, NOOP,
                     CAPABILITY, STORE, NAMESPACE, EXPUNGE, FETCH_WITH_FLAGS,
-                    COPY, CREATE, DELETE, LOGOUT };
+                    COPY, CREATE, DELETE, LOGOUT, LIST_AFTER_CREATE };
         Kind kind;
         TreeItem* what;
         QString str;
@@ -275,6 +275,8 @@ signals:
 
     void messageCountPossiblyChanged( const QModelIndex& mailbox );
 
+    void mailboxCreationSucceded( const QString& mailbox );
+    void mailboxCreationFailed( const QString& mailbox, const QString& message );
     void mailboxDeletionSucceded( const QString& mailbox );
     void mailboxDeletionFailed( const QString& mailbox, const QString& message );
 
@@ -305,8 +307,10 @@ private:
     void _askForMsgPart( TreeItemPart* item, bool onlyFromCache=false );
 
     void _finalizeList( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
+    void _finalizeIncrementalList( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
+    void _finalizeCreate( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command,  const Imap::Responses::State* const resp );
     void _finalizeDelete( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command,  const Imap::Responses::State* const resp );
 
     void replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<TreeItem*> mailboxes );
@@ -320,6 +324,7 @@ private:
 
     TreeItemMailbox* findMailboxByName( const QString& name ) const;
     TreeItemMailbox* findMailboxByName( const QString& name, const TreeItemMailbox* const root ) const;
+    TreeItemMailbox* findParentMailboxByName( const QString& name ) const;
 
     void saveUidMap( TreeItemMsgList* list );
     void _fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, Parser* parser, const SyncState& syncState );
