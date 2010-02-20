@@ -98,7 +98,6 @@ QModelIndex MailboxModel::index( int row, int column, const QModelIndex& parent 
     if ( parent.column() != 0 && parent.column() != -1 )
         return QModelIndex();
 
-    QModelIndex res;
     QModelIndex translatedParent = mapToSource( parent );
 
     if ( column < COLUMN_COUNT &&
