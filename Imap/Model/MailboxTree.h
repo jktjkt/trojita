@@ -73,6 +73,9 @@ class TreeItemMailbox: public TreeItem {
     void operator=( const TreeItem& ); // don't implement
     MailboxMetadata _metadata;
     friend class MailboxModel;
+    static QLatin1String _noInferiors;
+    static QLatin1String _hasNoChildren;
+    static QLatin1String _hasChildren;
 public:
     TreeItemMailbox( TreeItem* parent );
     TreeItemMailbox( TreeItem* parent, Responses::List );

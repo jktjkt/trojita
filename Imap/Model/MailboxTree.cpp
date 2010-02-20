@@ -135,19 +135,20 @@ bool TreeItemMailbox::hasChildren( Model* const model )
     return true; // we have that "messages" thing built in
 }
 
+QLatin1String TreeItemMailbox::_noInferiors( "\\NOINFERIORS" );
+QLatin1String TreeItemMailbox::_hasNoChildren( "\\HASNOCHILDREN" );
+QLatin1String TreeItemMailbox::_hasChildren( "\\HASCHILDREN" );
+
 bool TreeItemMailbox::hasChildMailboxes( Model* const model )
 {
-    QLatin1String noInferiors( "\\NOINFERIORS" );
-    QLatin1String hasNoChildren( "\\HASNOCHILDREN" );
-    QLatin1String hasChildren( "\\HASCHILDREN" );
     if ( fetched() || isUnavailable( model ) )
         return _children.size() > 1;
-    else if ( _metadata.flags.contains( noInferiors ) ||
-              ( _metadata.flags.contains( hasNoChildren ) &&
-                ! _metadata.flags.contains( hasChildren ) ) )
+    else if ( _metadata.flags.contains( _noInferiors ) ||
+              ( _metadata.flags.contains( _hasNoChildren ) &&
+                ! _metadata.flags.contains( _hasChildren ) ) )
         return false;
-    else if ( _metadata.flags.contains( hasChildren ) &&
-              ! _metadata.flags.contains( hasNoChildren ) )
+    else if ( _metadata.flags.contains( _hasChildren ) &&
+              ! _metadata.flags.contains( _hasNoChildren ) )
         return true;
     else {
         fetch( model );
