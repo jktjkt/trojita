@@ -12,5 +12,6 @@
         <file>icons/folder.png</file>
         <file>icons/transparent.png</file>
         <file>icons/trojita.png</file>
+        <file>icons/folder-open.png</file>
     </qresource>
 </RCC>

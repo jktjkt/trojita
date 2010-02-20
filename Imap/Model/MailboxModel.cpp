@@ -219,9 +219,12 @@ QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
                     else if ( mbox->mailbox().toUpper() == QLatin1String("INBOX") )
                         return QtIconLoader::icon( QLatin1String("mail-folder-inbox"),
                                                    QIcon( QLatin1String(":/icons/mail-folder-inbox") ) );
-                    else
+                    else if ( mbox->isSelectable() )
                         return QtIconLoader::icon( QLatin1String("folder"),
                                                    QIcon( QLatin1String(":/icons/folder.png") ) );
+                    else
+                        return QtIconLoader::icon( QLatin1String("folder-open"),
+                                                   QIcon( QLatin1String(":/icons/folder-open.png") ) );
                 default:
                     return QVariant();
             }
@@ -264,6 +267,7 @@ Qt::ItemFlags MailboxModel::flags( const QModelIndex& index ) const
 
     TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( index.internalPointer() ) );
     Q_ASSERT( mbox );
+    // We can't really disable the Qt::ItemIsSelectable here, as it'd block any user interaction
     if ( mbox->isSelectable() && static_cast<Model*>( sourceModel() )->isNetworkAvailable() )
         return Qt::ItemIsDropEnabled | QAbstractProxyModel::flags( index );
     else
