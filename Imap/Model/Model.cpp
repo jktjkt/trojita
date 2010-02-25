@@ -235,6 +235,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 } else {
                     if ( _parsers[ ptr ].connState == CONN_STATE_SELECTED )
                         _parsers[ ptr ].connState = CONN_STATE_AUTH;
+                    _parsers[ ptr ].currentMbox = 0;
                     // FIXME: error handling
                 }
                 break;
