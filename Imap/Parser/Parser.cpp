@@ -601,6 +601,13 @@ QSharedPointer<Responses::AbstractResponse> Parser::_parseUntaggedText(
         case Responses::NAMESPACE:
             return QSharedPointer<Responses::AbstractResponse>(
                     new Responses::Namespace( line, start ) );
+
+        // Those already handled above follow here
+        case Responses::EXPUNGE:
+        case Responses::FETCH:
+        case Responses::EXISTS:
+        case Responses::RECENT:
+            Q_ASSERT(0);
     }
     throw UnexpectedHere( line, start );
 }
