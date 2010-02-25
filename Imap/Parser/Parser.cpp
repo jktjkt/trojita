@@ -613,9 +613,8 @@ QSharedPointer<Responses::AbstractResponse> Parser::_parseUntaggedText(
         case Responses::NAMESPACE:
             return QSharedPointer<Responses::AbstractResponse>(
                     new Responses::Namespace( line, start ) );
-        default:
-            throw UnexpectedHere( line, start );
     }
+    throw UnexpectedHere( line, start );
 }
 
 QSharedPointer<Responses::AbstractResponse> Parser::parseTagged( const QByteArray& line )
