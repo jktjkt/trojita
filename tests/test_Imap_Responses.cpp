@@ -104,6 +104,20 @@ void ImapResponsesTest::testCompareEq_data()
                     QList<NamespaceData>() ) ) <<
         respPtr( new Namespace( QList<NamespaceData>() << NamespaceData( "foo", "bar"), QList<NamespaceData>(), 
                     QList<NamespaceData>() ) );
+
+    QTest::newRow( "sort-empty" ) << respPtr( new Sort( QList<uint>() ) ) << respPtr( new Sort( QList<uint>() ) );
+    QTest::newRow( "sort-1" ) << respPtr( new Sort( QList<uint>() << 3 << 6 ) ) << respPtr( new Sort( QList<uint>() << 3 << 6 ) );
+
+    Thread::Node node;
+    node.num = 666;
+    QTest::newRow( "thread-1" ) <<
+        respPtr( new Thread( QList<Thread::Node>() << node ) ) <<
+        respPtr( new Thread( QList<Thread::Node>() << node ) );
+    Thread::Node node2;
+    node.children.append( QList<Thread::Node>() << node2 );
+    QTest::newRow( "thread-2" ) <<
+        respPtr( new Thread( QList<Thread::Node>() << node ) ) <<
+        respPtr( new Thread( QList<Thread::Node>() << node ) );
 }
 
 void ImapResponsesTest::testCompareNe_data()
@@ -220,6 +234,24 @@ void ImapResponsesTest::testCompareNe_data()
                     QList<NamespaceData>() ) ) <<
         respPtr( new Namespace( QList<NamespaceData>() << NamespaceData( "foo", "bar"), QList<NamespaceData>(), 
                     QList<NamespaceData>() ) );
+
+    QTest::newRow( "sort-empty-1" ) << respPtr( new Sort( QList<uint>() ) ) << respPtr( new Sort( QList<uint>() << 3 ) );
+    QTest::newRow( "sort-empty-2" ) << respPtr( new Sort( QList<uint>() << 6 ) ) << respPtr( new Sort( QList<uint>() ) );
+    QTest::newRow( "sort-1" ) << respPtr( new Sort( QList<uint>() << 33 << 6 ) ) << respPtr( new Sort( QList<uint>() << 3 << 6 ) );
+
+    Thread::Node node( 666  );
+    Thread::Node node2( 333 );
+    QTest::newRow( "thread-1" ) <<
+        respPtr( new Thread( QList<Thread::Node>() ) ) <<
+        respPtr( new Thread( QList<Thread::Node>() << node ) );
+    QTest::newRow( "thread-2" ) <<
+        respPtr( new Thread( QList<Thread::Node>() << node2 ) ) <<
+        respPtr( new Thread( QList<Thread::Node>() << node ) );
+    Thread::Node node3;
+    node.children.append( QList<Thread::Node>() << node3 );
+    QTest::newRow( "thread-3" ) <<
+        respPtr( new Thread( QList<Thread::Node>() << node ) ) <<
+        respPtr( new Thread( QList<Thread::Node>() << node << node3 ) );
 }
 
 QTEST_KDEMAIN_CORE( ImapResponsesTest )

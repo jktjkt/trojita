@@ -266,6 +266,78 @@ void ImapParserParseTest::testParseUntagged_data()
                         << NamespaceData( "#news.", "." ) << NamespaceData( "#public/", "/" )
                     ) );
 
+    QTest::newRow("sort-1")
+        << QByteArray("* SORT") << QSharedPointer<AbstractResponse>( new Sort( QList<uint>() ) );
+    QTest::newRow("sort-2")
+        << QByteArray("* SORT ") << QSharedPointer<AbstractResponse>( new Sort( QList<uint>() ) );
+    QTest::newRow("sort-3")
+        << QByteArray("* SORT 13 1 6 5 7 9 10 11 12 4 3 2 8\r\n")
+        << QSharedPointer<AbstractResponse>( new Sort( QList<uint>() << 13 << 1 << 6 << 5 << 7 << 9 << 10 << 11 << 12 << 4 << 3 << 2 << 8 ) );
+
+    Thread::Node node2(2), node3(3), node6(6), node4(4), node23(23), node44(44), node7(7), node96(96);
+    QList<Thread::Node> rootNodes;
+    node4.children << node23;
+    node7.children << node96;
+    node44.children << node7;
+    node6.children << node4 << node44;
+    node3.children << node6;
+    rootNodes << node2 << node3;
+    QTest::newRow("thread-1")
+        << QByteArray("* THREAD (2)(3 6 (4 23)(44 7 96))\r\n")
+        << QSharedPointer<AbstractResponse>( new Thread( rootNodes ) );
+
+    rootNodes.clear();
+    Thread::Node node203(3), node205(5), anonymousNode201;
+    anonymousNode201.children << node203 << node205;
+    rootNodes << anonymousNode201;
+    QTest::newRow("thread-2")
+        << QByteArray("* THREAD ((3)(5))\r\n")
+        << QSharedPointer<AbstractResponse>( new Thread( rootNodes ) );
+
+    rootNodes.clear();
+    Thread::Node node301(1), node302(2), node303(3);
+    rootNodes << node301 << node302 << node303;
+    QTest::newRow("thread-3")
+        << QByteArray("* THREAD (1)(2)(3)\r\n")
+        << QSharedPointer<AbstractResponse>( new Thread( rootNodes ) );
+
+    rootNodes.clear();
+    Thread::Node node401(1), node402(2), node403(3);
+    node401.children << node402 << node403;
+    rootNodes << node401;
+    QTest::newRow("thread-4")
+        << QByteArray("* THREAD (1(2)(3))\r\n")
+        << QSharedPointer<AbstractResponse>( new Thread( rootNodes ) );
+
+    rootNodes.clear();
+    Thread::Node node502(2), node503(3), node506(6), node504(4), node523(23),
+        node544(44), node507(7), node596(96), node513(13), node566(66), anon501, anon502;
+    node504.children << node523;
+    node507.children << node596;
+    node544.children << node507;
+    anon502.children << node566;
+    anon501.children << anon502;
+    node506.children << node504 << node544 << node513 << anon501;
+    node503.children << node506;
+    rootNodes << node502 << node503;
+    QTest::newRow("thread-5")
+        << QByteArray("* THREAD (2)(3 6 (4 23)(44 7 96) (13) (((66))))\r\n")
+        << QSharedPointer<AbstractResponse>( new Thread( rootNodes ) );
+
+    rootNodes.clear();
+    Thread::Node node608(8), node602(2), node603(3), node604(4), node607(7), node609(9),
+        node610(10), node611(11), node612(12), node605(5), node601(1), node606(6), node613(13);
+    node603.children << node604;
+    node602.children << node603;
+    rootNodes << node608 << node602 << node607 << node609 << node610;
+    rootNodes << Thread::Node(0, QList<Thread::Node>() << node611 << node612 );
+    rootNodes << node605;
+    rootNodes << Thread::Node(0, QList<Thread::Node>() << node601 << node606 );
+    rootNodes << node613;
+    QTest::newRow("thread-6")
+        << QByteArray("* THREAD (8)(2 3 4)(7)(9)(10)((11)(12))(5)((1)(6))(13)\r\n")
+        << QSharedPointer<AbstractResponse>( new Thread( rootNodes ) );
+
 
 
     Fetch::dataType fetchData;

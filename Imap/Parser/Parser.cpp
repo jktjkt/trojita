@@ -207,6 +207,53 @@ CommandHandle Parser::_searchHelper( const QString& command, const QStringList& 
     return queueCommand( cmd );
 }
 
+CommandHandle Parser::_sortHelper(const QString &command, const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria)
+{
+    Q_ASSERT( ! sortCriteria.isEmpty() );
+    Commands::Command cmd;
+
+    cmd << Commands::PartOfCommand( Commands::ATOM, command ) <<
+            Commands::PartOfCommand( Commands::ATOM, QString::fromAscii("(%1)").arg( sortCriteria.join( QString(' ') ) ) ) <<
+            charset;
+
+    for ( QStringList::const_iterator it = searchCriteria.begin(); it != searchCriteria.end(); ++it )
+        cmd << *it;
+
+    return queueCommand( cmd );
+}
+
+CommandHandle Parser::sort(const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria)
+{
+    return _sortHelper( QLatin1String("SORT"), sortCriteria, charset, searchCriteria );
+}
+
+CommandHandle Parser::uidSort(const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria)
+{
+    return _sortHelper( QLatin1String("UID SORT"), sortCriteria, charset, searchCriteria );
+}
+
+CommandHandle Parser::_threadHelper(const QString &command, const QString &algo, const QString &charset, const QStringList &searchCriteria)
+{
+    Commands::Command cmd;
+
+    cmd << Commands::PartOfCommand( Commands::ATOM, command ) << algo << charset;
+
+    for ( QStringList::const_iterator it = searchCriteria.begin(); it != searchCriteria.end(); ++it )
+        cmd << *it;
+
+    return queueCommand( cmd );
+}
+
+CommandHandle Parser::thread(const QString &algo, const QString &charset, const QStringList &searchCriteria)
+{
+    return _threadHelper( QLatin1String("THREAD"), algo, charset, searchCriteria );
+}
+
+CommandHandle Parser::uidThread(const QString &algo, const QString &charset, const QStringList &searchCriteria)
+{
+    return _threadHelper( QLatin1String("UID THREAD"), algo, charset, searchCriteria );
+}
+
 CommandHandle Parser::fetch( const Sequence& seq, const QStringList& items )
 {
     return queueCommand( Commands::Command( "FETCH" ) <<
@@ -560,7 +607,7 @@ QSharedPointer<Responses::AbstractResponse> Parser::_parseUntaggedText(
         throw UnrecognizedResponseKind( e.what(), line, start );
     }
     ++start;
-    if ( start == line.size() && kind != Responses::SEARCH )
+    if ( start == line.size() && kind != Responses::SEARCH && kind != Responses::SORT )
         throw NoData( line, start );
     switch ( kind ) {
         case Responses::CAPABILITY:
@@ -601,6 +648,12 @@ QSharedPointer<Responses::AbstractResponse> Parser::_parseUntaggedText(
         case Responses::NAMESPACE:
             return QSharedPointer<Responses::AbstractResponse>(
                     new Responses::Namespace( line, start ) );
+        case Responses::SORT:
+            return QSharedPointer<Responses::AbstractResponse>(
+                    new Responses::Sort( line, start ) );
+        case Responses::THREAD:
+            return QSharedPointer<Responses::AbstractResponse>(
+                    new Responses::Thread( line, start ) );
 
         // Those already handled above follow here
         case Responses::EXPUNGE:

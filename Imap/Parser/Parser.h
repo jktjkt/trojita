@@ -43,15 +43,6 @@ template<class T> class QList;
 /** @short Namespace for IMAP interaction */
 namespace Imap {
 
-    /** @short Threading algorithm for THREAD command */
-    enum ThreadAlgorithm {
-        THREAD_NONE /**< No thread sorting (plain list of mails) */,
-        THREAD_ORDEREDSUBJECT /**< ORDEREDSUBJECT algorithm */,
-        THREAD_REFERENCES /**< REFERENCES algorithm */
-    };
-
-    Q_ENUMS( ThreadAlgorithm )
-
     /** @short Class specifying a set of messagess to access
 
       Although named a sequence, there's no reason for a sequence to contain
@@ -238,15 +229,14 @@ namespace Imap {
         /** @short NAMESPACE, RFC 2342 */
         CommandHandle namespaceCommand();
 
-
-#if 0
-        /** SORT, draft-ietf-imapext-sort-19, section 3 */
-        CommandHandle sort( /*const SortAlgorithm& algo,*/ const QString& charset, const QStringList& criteria );
-        /** UID SORT, draft-ietf-imapext-sort-19, section 3 */
-        CommandHandle uidSort( /*const SortAlgorithm& algo,*/ const QString charset, const QStringList& criteria );
-        /** THREAD, draft-ietf-imapext-sort-19, section 3 */
-        CommandHandle thread( const ThreadAlgorithm& algo, const QString charset, const QStringList& criteria );
-#endif
+        /** SORT, RFC5256 */
+        CommandHandle sort( const QStringList& sortCriteria, const QString& charset, const QStringList& searchCriteria );
+        /** UID SORT, RFC5256 */
+        CommandHandle uidSort( const QStringList& sortCriteria, const QString& charset, const QStringList& searchCriteria );
+        /** THREAD, RFC5256 */
+        CommandHandle thread( const QString& algo, const QString& charset, const QStringList& searchCriteria );
+        /** UID THREAD, RFC5256 */
+        CommandHandle uidThread( const QString& algo, const QString& charset, const QStringList& searchCriteria );
 
     signals:
         /** @short Socket got disconnected */
@@ -282,6 +272,9 @@ namespace Imap {
         /** @short Helper for search() and uidSearch() */
         CommandHandle _searchHelper( const QString& command, const QStringList& criteria,
                 const QString& charset = QString::null );
+
+        CommandHandle _sortHelper(const QString& command, const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria);
+        CommandHandle _threadHelper(const QString& command, const QString &algo, const QString &charset, const QStringList &searchCriteria);
 
         /** @short Generate tag for next command */
         QString generateTag();

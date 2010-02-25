@@ -71,7 +71,9 @@ namespace Responses {
         FLAGS,
         SEARCH,
         STATUS,
-        NAMESPACE
+        NAMESPACE,
+        SORT,
+        THREAD
     }; // aren't those comments just sexy? :)
 
     /** @short Response Code */
@@ -329,6 +331,37 @@ namespace Responses {
     private:
         static QDateTime dateify( QByteArray str, const QByteArray& line, const int start );
     };
+
+    /** @short Structure storing a SORT untagged response */
+    class Sort : public AbstractResponse {
+    public:
+        QList<uint> numbers;
+        Sort( const QByteArray& line, int& start );
+        Sort( const QList<uint>& items ): AbstractResponse(SORT), numbers(items) {}
+        virtual QTextStream& dump( QTextStream& s ) const;
+        virtual bool eq( const AbstractResponse& other ) const;
+        virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const;
+    };
+
+    /** @short Structure storing a THREAD untagged response */
+    class Thread : public AbstractResponse {
+    public:
+        struct Node {
+            uint num;
+            QList<Node> children;
+            Node( const uint _num=0, const QList<Node>& _children=QList<Node>() ): num(_num), children(_children) {}
+        };
+        QList<Node> rootItems;
+        Thread( const QByteArray& line, int& start );
+        Thread( const QList<Node>& items ): AbstractResponse(THREAD), rootItems(items) {}
+        virtual QTextStream& dump( QTextStream& s ) const;
+        virtual bool eq( const AbstractResponse& other ) const;
+        virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const;
+    private:
+        void insertHere( Node* where, const QVariantList& what );
+        static QString dumpHelper( const Node& node );
+    };
+
 
     QTextStream& operator<<( QTextStream& stream, const Code& r );
     QTextStream& operator<<( QTextStream& stream, const Kind& res );

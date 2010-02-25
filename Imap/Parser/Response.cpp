@@ -108,6 +108,11 @@ QTextStream& operator<<( QTextStream& stream, const Kind& res )
         case NAMESPACE:
             stream << "NAMESPACE";
             break;
+        case SORT:
+            stream << "SORT";
+        case THREAD:
+            stream << "THREAD";
+            break;
     }
     return stream;
 }
@@ -150,6 +155,10 @@ Kind kindFromString( QByteArray str ) throw( UnrecognizedResponseKind )
         return STATUS;
     if ( str == "NAMESPACE" )
         return NAMESPACE;
+    if ( str == "SORT" )
+        return SORT;
+    if ( str == "THREAD" )
+        return THREAD;
     throw UnrecognizedResponseKind( str.constData() );
 }
 
@@ -551,6 +560,52 @@ Namespace::Namespace( const QByteArray& line, int& start )
     other = NamespaceData::listFromLine( line, start );
 }
 
+Sort::Sort( const QByteArray &line, int &start ): AbstractResponse(THREAD)
+{
+    while ( start < line.size() - 2 ) {
+        try {
+            uint number = LowLevelParser::getUInt( line, start );
+            numbers << number;
+            ++start;
+        } catch ( ParseError& ) {
+            throw UnexpectedHere( line, start );
+        }
+    }
+}
+
+
+Thread::Thread( const QByteArray &line, int &start ): AbstractResponse(THREAD)
+{
+    QList<QByteArray> foo;
+    Node node;
+    while ( start < line.size() - 2 ) {
+        QVariantList current = LowLevelParser::parseList( '(', ')', line, start );
+        insertHere( &node, current );
+        rootItems = node.children;
+    }
+}
+
+void Thread::insertHere( Node* where, const QVariantList& what )
+{
+    bool first = true;
+    for ( QVariantList::const_iterator it = what.begin(); it != what.end(); ++it ) {
+        if ( it->type() == QVariant::UInt ) {
+            where->children.append( Node() );
+            where = &( where->children.last() );
+            where->num = it->toUInt();
+        } else if ( it->type() == QVariant::List ) {
+            if ( first ) {
+                where->children.append( Node() );
+                where = &( where->children.last() );
+            }
+            insertHere( where, it->toList() );
+        } else {
+            throw UnexpectedHere( "THREAD structure contains garbage; expecting fancy list of uints" );
+        }
+        first = false;
+    }
+}
+
 QTextStream& State::dump( QTextStream& stream ) const
 {
     if ( !tag.isEmpty() )
@@ -623,6 +678,35 @@ QTextStream& Namespace::dump( QTextStream& stream ) const
         stream << *it << ",";
     return stream << ")";
 }
+
+QTextStream& Sort::dump( QTextStream& stream ) const
+{
+    stream << "SORT ";
+    for (QList<uint>::const_iterator it = numbers.begin(); it != numbers.end(); ++it )
+        stream << " " << *it;
+    return stream;
+}
+
+QTextStream& Thread::dump( QTextStream& stream ) const
+{
+    Thread::Node node;
+    node.children = rootItems;
+    return stream << "THREAD {parsed-into-sane-form}" << dumpHelper( node );
+}
+
+QString Thread::dumpHelper( const Node& node )
+{
+    if ( node.children.isEmpty() ) {
+        return QString::number( node.num );
+    } else {
+        QStringList res;
+        for ( QList<Node>::const_iterator it = node.children.begin(); it != node.children.end(); ++it ) {
+            res << dumpHelper( *it );
+        }
+        return QString::fromAscii("%1: {%2}").arg( node.num ).arg( res.join(QString::fromAscii(", ") ) );
+    }
+}
+
 
 template<class T> QTextStream& RespData<T>::dump( QTextStream& stream ) const
 {
@@ -763,6 +847,34 @@ bool Namespace::eq( const AbstractResponse& otherResp ) const
     }
 }
 
+bool Sort::eq( const AbstractResponse& other ) const
+{
+    try {
+        const Sort& s = dynamic_cast<const Sort&>( other );
+        return numbers == s.numbers;
+    } catch ( std::bad_cast& ) {
+        return false;
+    }
+}
+
+inline bool operator==( const Thread::Node& n1, const Thread::Node& n2 ) {
+    return n1.num == n2.num && n1.children == n2.children;
+}
+
+inline bool operator!=( const Thread::Node& n1, const Thread::Node& n2 ) {
+    return ! ( n1 == n2 );
+}
+
+bool Thread::eq(const AbstractResponse &other) const
+{
+    try {
+        const Thread& t = dynamic_cast<const Thread&>( other );
+        return rootItems == t.rootItems;
+    } catch ( std::bad_cast& ) {
+        return false;
+    }
+}
+
 bool NamespaceData::operator==( const NamespaceData& other ) const
 {
     return separator == other.separator && prefix == other.prefix;
@@ -785,6 +897,8 @@ PLUG( Search )
 PLUG( Status )
 PLUG( Fetch )
 PLUG( Namespace )
+PLUG( Sort )
+PLUG( Thread )
 
 #undef PLUG
 

@@ -213,6 +213,8 @@ public:
     void handleStatus( Imap::Parser* ptr, const Imap::Responses::Status* const resp );
     void handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );
     void handleNamespace( Imap::Parser* ptr, const Imap::Responses::Namespace* const resp );
+    void handleSort( Imap::Parser* ptr, const Imap::Responses::Sort* const resp );
+    void handleThread( Imap::Parser* ptr, const Imap::Responses::Thread* const resp );
 
     CachePtr cache() const { return _cache; }
 

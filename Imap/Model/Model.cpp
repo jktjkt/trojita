@@ -879,9 +879,15 @@ void Model::handleNamespace( Imap::Parser* ptr, const Imap::Responses::Namespace
     _parsers[ parser ].commandMap[ cmd ] = Task( Task::LIST, _mailboxes );
 }
 
+void Model::handleSort(Imap::Parser *ptr, const Imap::Responses::Sort *const resp)
+{
+    // FIXME
+}
 
-
-
+void Model::handleThread(Imap::Parser *ptr, const Imap::Responses::Thread *const resp)
+{
+    // FIXME
+}
 
 TreeItem* Model::translatePtr( const QModelIndex& index ) const
 {
