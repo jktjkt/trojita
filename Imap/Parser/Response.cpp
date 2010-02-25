@@ -352,6 +352,19 @@ Flags::Flags( const QByteArray& line, int& start )
         throw TooMuchData( line, start );
 }
 
+Search::Search( const QByteArray& line, int& start )
+{
+    while ( start < line.size() - 2 ) {
+        try {
+            uint number = LowLevelParser::getUInt( line, start );
+            items << number;
+            ++start;
+        } catch ( ParseError& ) {
+            throw UnexpectedHere( line, start );
+        }
+    }
+}
+
 Status::Status( const QByteArray& line, int& start )
 {
     mailbox = LowLevelParser::getMailbox( line, start );

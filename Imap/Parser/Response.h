@@ -275,6 +275,7 @@ namespace Responses {
     public:
         /** @short List of matching messages */
         QList<uint> items;
+        Search( const QByteArray& line, int& start );
         Search( const QList<uint>& _items ) : AbstractResponse(SEARCH), items(_items) {};
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;

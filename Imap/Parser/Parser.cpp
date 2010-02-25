@@ -593,20 +593,8 @@ QSharedPointer<Responses::AbstractResponse> Parser::_parseUntaggedText(
             return QSharedPointer<Responses::AbstractResponse>(
                     new Responses::Flags( line, start ) );
         case Responses::SEARCH:
-            {
-                QList<uint> numbers;
-                while ( start < line.size() - 2 ) {
-                    try {
-                        uint number = LowLevelParser::getUInt( line, start );
-                        numbers << number;
-                        ++start;
-                    } catch ( ParseError& ) {
-                        throw UnexpectedHere( line, start );
-                    }
-                }
-                return QSharedPointer<Responses::AbstractResponse>(
-                        new Responses::Search( numbers ) );
-            }
+            return QSharedPointer<Responses::AbstractResponse>(
+                    new Responses::Search( line, start ) );
         case Responses::STATUS:
             return QSharedPointer<Responses::AbstractResponse>(
                     new Responses::Status( line, start ) );
