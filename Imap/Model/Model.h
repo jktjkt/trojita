@@ -122,16 +122,25 @@ class Model: public QAbstractItemModel {
         CONN_STATE_LOGOUT /**< We have been logged out */
     };
 
+    /** @short Helper structure for keeping track of each parser's state */
     struct ParserState {
+        /** @short Which parser are we talking about here */
         QPointer<Parser> parser;
+        /** @short The mailbox which we'd like to have selected */
         TreeItemMailbox* mailbox;
         RWMode mode;
         ConnectionState connState;
+        /** @short The mailboxin which we're right now, as per IMAP server's opinion */
         TreeItemMailbox* currentMbox;
+        /** @short Number of mailboxes which we've already requested to be SELECT/EXAMINEd */
         uint selectingAnother;
+        /** @short Mapping of IMAP tag to the helper structure */
         QMap<CommandHandle, Task> commandMap;
+        /** @short A list of cepabilities, as advertised by the server */
         QStringList capabilities;
+        /** @short Is the @arg capabilities usable? */
         bool capabilitiesFresh;
+        /** @short LIST responses which were not processed yet */
         QList<Responses::List> listResponses;
         SyncState syncState;
         ModelStateHandler* responseHandler;
