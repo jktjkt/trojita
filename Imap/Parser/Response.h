@@ -335,6 +335,7 @@ namespace Responses {
     /** @short Structure storing a SORT untagged response */
     class Sort : public AbstractResponse {
     public:
+        /** @short List of sequence/UID numbers as returned by the server */
         QList<uint> numbers;
         Sort( const QByteArray& line, int& start );
         Sort( const QList<uint>& items ): AbstractResponse(SORT), numbers(items) {}
@@ -346,11 +347,25 @@ namespace Responses {
     /** @short Structure storing a THREAD untagged response */
     class Thread : public AbstractResponse {
     public:
+        /** @short Structure for keeping track of the message hierarchy */
         struct Node {
+            /** @short Message sequence number or UID number
+
+              Which of the two allowed numbering schemes would be used depends on
+            the command which triggered this reply, if it was plain THREAD, it
+            will use message sequence numbers, if it was an UID THREAD command,
+            it uses UIDs.
+
+            Special value 0 means "parent is present and its existence can be
+            proved, but it doesn't match the search criteria or it isn't in the
+            mailbox.
+*/
             uint num;
+            /** @short Recursive data structure storing numbers of all messages which are children of the current one */
             QList<Node> children;
             Node( const uint _num=0, const QList<Node>& _children=QList<Node>() ): num(_num), children(_children) {}
         };
+        /** @short List of "top-level" messages */
         QList<Node> rootItems;
         Thread( const QByteArray& line, int& start );
         Thread( const QList<Node>& items ): AbstractResponse(THREAD), rootItems(items) {}
