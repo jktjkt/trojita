@@ -43,7 +43,7 @@ class PrettyMailboxModel;
 namespace Gui {
 
 class MessageView;
-class MsgListWidget;
+class MsgListView;
 
 class MainWindow: public QMainWindow {
     Q_OBJECT
@@ -106,7 +106,7 @@ private:
     Imap::Mailbox::MsgListModel* msgListModel;
 
     QTreeView* mboxTree;
-    MsgListWidget* msgListTree;
+    MsgListView* msgListTree;
     QTreeView* allTree;
     MessageView* msgView;
     QDockWidget* allDock;

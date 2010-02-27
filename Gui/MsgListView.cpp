@@ -1,4 +1,4 @@
-#include "MsgListWidget.h"
+#include "MsgListView.h"
 
 #include <QFontMetrics>
 #include <QHeaderView>
@@ -6,12 +6,12 @@
 
 namespace Gui {
 
-MsgListWidget::MsgListWidget( QWidget* parent ): QTreeView(parent)
+MsgListView::MsgListView( QWidget* parent ): QTreeView(parent)
 {
     connect( header(), SIGNAL(geometriesChanged()), this, SLOT(slotFixSize()) );
 }
 
-int MsgListWidget::sizeHintForColumn( int column ) const
+int MsgListView::sizeHintForColumn( int column ) const
 {
     switch ( column ) {
         case Imap::Mailbox::MsgListModel::SUBJECT:
@@ -33,7 +33,7 @@ int MsgListWidget::sizeHintForColumn( int column ) const
     }
 }
 
-void MsgListWidget::slotFixSize()
+void MsgListView::slotFixSize()
 {
     if ( header()->visualIndex( Imap::Mailbox::MsgListModel::SEEN ) == -1 ) {
         // calling setResizeMode() would assert()
@@ -47,4 +47,4 @@ void MsgListWidget::slotFixSize()
 
 }
 
-#include "MsgListWidget.moc"
+#include "MsgListView.moc"

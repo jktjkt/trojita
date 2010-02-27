@@ -1,5 +1,5 @@
-#ifndef MSGLISTWIDGET_H
-#define MSGLISTWIDGET_H
+#ifndef MSGLISTVIEW_H
+#define MSGLISTVIEW_H
 
 #include <QTreeView>
 
@@ -7,11 +7,11 @@ namespace Gui {
 
 
 /** @short A slightly tweaked QTreeView optimized for showing a list of messages in one mailbox */
-class MsgListWidget : public QTreeView
+class MsgListView : public QTreeView
 {
     Q_OBJECT
 public:
-    MsgListWidget( QWidget* parent=0 );
+    MsgListView( QWidget* parent=0 );
 protected:
     virtual int sizeHintForColumn( int column ) const;
 private slots:
@@ -20,4 +20,4 @@ private slots:
 
 }
 
-#endif // MSGLISTWIDGET_H
+#endif // MSGLISTVIEW_H

@@ -32,7 +32,7 @@
 #include "Window.h"
 #include "ComposeWidget.h"
 #include "MessageView.h"
-#include "MsgListWidget.h"
+#include "MsgListView.h"
 #include "SettingsDialog.h"
 #include "SettingsNames.h"
 #include "Imap/Model/Model.h"
@@ -201,7 +201,7 @@ void MainWindow::createWidgets()
     connect( mboxTree, SIGNAL( customContextMenuRequested( const QPoint & ) ),
             this, SLOT( showContextMenuMboxTree( const QPoint& ) ) );
 
-    msgListTree = new MsgListWidget();
+    msgListTree = new MsgListView();
     msgListTree->setUniformRowHeights( true );
     msgListTree->setContextMenuPolicy(Qt::CustomContextMenu);
     msgListTree->setSelectionMode( QAbstractItemView::ExtendedSelection );
