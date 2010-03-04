@@ -28,6 +28,9 @@ private:
     QString _user;
     QString _pass;
     bool _failed;
+
+    SMTP(const SMTP&); // don't implement
+    SMTP& operator=(const SMTP&); // don't implement
 };
 
 }

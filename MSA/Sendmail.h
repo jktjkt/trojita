@@ -27,6 +27,9 @@ private:
     QStringList args;
     QByteArray dataToSend;
     int writtenSoFar;
+
+    Sendmail(const Sendmail&); // don't implement
+    Sendmail& operator=(const Sendmail&); // don't implement
 };
 
 }

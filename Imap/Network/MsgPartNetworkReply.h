@@ -33,6 +33,9 @@ private:
     Imap::Mailbox::TreeItemMessage* msg;
     Imap::Mailbox::TreeItemPart* part;
     QBuffer buffer;
+
+    MsgPartNetworkReply(const MsgPartNetworkReply&); // don't implement
+    MsgPartNetworkReply& operator=(const MsgPartNetworkReply&); // don't implement
 };
 
 }

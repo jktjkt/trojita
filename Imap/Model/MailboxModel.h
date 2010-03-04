@@ -66,8 +66,8 @@ private slots:
     void handleRowsInserted( const QModelIndex& parent, int first, int last );
 
 private:
-    MailboxModel& operator=( const Model& ); // don't implement
-    MailboxModel( const Model& ); // don't implement
+    MailboxModel& operator=( const MailboxModel& ); // don't implement
+    MailboxModel( const MailboxModel& ); // don't implement
 };
 
 }

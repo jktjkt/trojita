@@ -12,6 +12,7 @@ class MsgListView : public QTreeView
     Q_OBJECT
 public:
     MsgListView( QWidget* parent=0 );
+    virtual ~MsgListView() {}
 protected:
     virtual int sizeHintForColumn( int column ) const;
 private slots:

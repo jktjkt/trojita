@@ -19,6 +19,9 @@ public:
 private:
     Imap::Network::MsgPartNetAccessManager* manager;
     QObject* wheelEventFilter;
+
+    PartWidgetFactory(const PartWidgetFactory&); // don't implement
+    PartWidgetFactory& operator=(const PartWidgetFactory&); // don't implement
 };
 
 }

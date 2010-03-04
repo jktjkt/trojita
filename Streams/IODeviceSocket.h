@@ -43,6 +43,9 @@ namespace Imap {
         void handleProcessError( QProcess::ProcessError );
     private:
         QIODevice* d;
+
+        IODeviceSocket(const IODeviceSocket&); // don't implement
+        IODeviceSocket& operator=(const Imap::IODeviceSocket&); // don't implement
     };
 
 };

@@ -44,6 +44,9 @@ private:
     Ui::ComposeWidget *ui;
     QList<QComboBox*> _recipientsKind;
     QList<QLineEdit*> _recipientsAddress;
+
+    ComposeWidget(const ComposeWidget&); // don't implement
+    ComposeWidget& operator=(const ComposeWidget&); // don't implement
 };
 
 }

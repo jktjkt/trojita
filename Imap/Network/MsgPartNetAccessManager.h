@@ -34,6 +34,9 @@ private:
     friend class Gui::PartWidgetFactory;
     Imap::Mailbox::Model* model;
     Imap::Mailbox::TreeItemMessage* message;
+
+    MsgPartNetAccessManager(const MsgPartNetAccessManager&); // don't implement
+    MsgPartNetAccessManager& operator=(const MsgPartNetAccessManager&); // don't implement
 };
 
 }

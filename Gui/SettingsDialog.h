@@ -20,6 +20,9 @@ public:
 private:
     QLineEdit* realName;
     QLineEdit* address;
+
+    IdentityPage(const IdentityPage&); // don't implement
+    IdentityPage& operator=(const IdentityPage&); // don't implement
 };
 
 class OutgoingPage : public QWidget
@@ -41,6 +44,10 @@ private:
     QLineEdit* sendmail;
 private slots:
     void updateWidgets();
+
+private:
+    OutgoingPage(const OutgoingPage&); // don't implement
+    OutgoingPage& operator=(const OutgoingPage&); // don't implement
 };
 
 class ImapPage : public QWidget
@@ -64,6 +71,10 @@ private:
     QCheckBox* startOffline;
 private slots:
     void updateWidgets();
+
+private:
+    ImapPage(const ImapPage&); // don't implement
+    ImapPage& operator=(const ImapPage&); // don't implement
 };
 
 
@@ -79,6 +90,9 @@ private:
     IdentityPage* identity;
     ImapPage* imap;
     OutgoingPage* outgoing;
+
+    SettingsDialog(const SettingsDialog&); // don't implement
+    SettingsDialog& operator=(const SettingsDialog&); // don't implement
 };
 
 }

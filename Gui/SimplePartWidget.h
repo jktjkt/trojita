@@ -35,6 +35,9 @@ private:
     QFile saving;
     QAction* saveAction;
     bool saved;
+
+    SimplePartWidget(const SimplePartWidget&); // don't implement
+    SimplePartWidget& operator=(const SimplePartWidget&); // don't implement
 };
 
 }

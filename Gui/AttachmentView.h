@@ -35,6 +35,9 @@ private:
     QNetworkReply* reply;
     QFile saving;
     bool saved;
+
+    AttachmentView(const AttachmentView&); // don't implement
+    AttachmentView& operator=(const AttachmentView&); // don't implement
 };
 
 }

@@ -133,6 +133,9 @@ private:
 
     QAction* markAsRead;
     QAction* markAsDeleted;
+
+    MainWindow(const MainWindow&); // don't implement
+    MainWindow& operator=(const MainWindow&); // don't implement
 };
 
 }

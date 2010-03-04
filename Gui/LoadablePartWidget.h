@@ -34,6 +34,9 @@ private:
     SimplePartWidget* realPart;
     QObject* wheelEventFilter;
     QPushButton* loadButton;
+
+    LoadablePartWidget(const LoadablePartWidget&); // don't implement
+    LoadablePartWidget& operator=(const LoadablePartWidget&); // don't implement
 };
 
 }

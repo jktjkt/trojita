@@ -51,6 +51,9 @@ public:
 
 protected:
     Model* m;
+private:
+    ModelStateHandler(const ModelStateHandler&); // don't implement
+    ModelStateHandler& operator=(const ModelStateHandler&); // don't implement
 };
 
 class UnauthenticatedHandler;
@@ -80,6 +83,9 @@ private:
     QPointer<Parser> parser;
     QTimer* timer;
     bool _idling;
+
+    IdleLauncher(const Imap::Mailbox::IdleLauncher&); // don't implement
+    IdleLauncher& operator=(const Imap::Mailbox::IdleLauncher&); // don't implement
 };
 
 /** @short A model implementing view of the whole IMAP server */

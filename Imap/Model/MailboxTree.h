@@ -34,6 +34,7 @@ class MailboxModel;
 
 class TreeItem {
     friend class Model; // for _loading and _fetched
+    TreeItem(const TreeItem&); // don't implement
     void operator=( const TreeItem& ); // don't implement
 
 protected:

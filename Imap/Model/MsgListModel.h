@@ -68,8 +68,8 @@ signals:
     void mailboxChanged();
 
 private:
-    MsgListModel& operator=( const Model& ); // don't implement
-    MsgListModel( const Model& ); // don't implement
+    MsgListModel& operator=( const MsgListModel& ); // don't implement
+    MsgListModel( const MsgListModel& ); // don't implement
 
     TreeItemMsgList* msgList;
 };

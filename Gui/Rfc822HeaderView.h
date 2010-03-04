@@ -25,6 +25,9 @@ private slots:
 private:
     Imap::Mailbox::Model* model;
     Imap::Mailbox::TreeItemPart* part;
+
+    Rfc822HeaderView(const Rfc822HeaderView&); // don't implement
+    Rfc822HeaderView& operator=(const Rfc822HeaderView&); // don't implement
 };
 
 }

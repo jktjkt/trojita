@@ -97,6 +97,9 @@ private:
     Q_PRIVATE_SLOT(d, void _q_readFromSocket());
     Q_PRIVATE_SLOT(d, void _q_encrypted());
     friend class QwwSmtpClientPrivate;
+
+    QwwSmtpClient(const QwwSmtpClient&); // don't implement
+    QwwSmtpClient& operator=(const QwwSmtpClient&); // don't implement
 };
 
 #endif

@@ -62,6 +62,9 @@ private:
     QTimer* markAsReadTimer;
     QWebView* emptyView;
     PartWidgetFactory* factory;
+
+    MessageView(const MessageView&); // don't implement
+    MessageView& operator=(const MessageView&); // don't implement
 };
 
 }

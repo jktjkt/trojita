@@ -98,6 +98,9 @@ public:
     QQueue<SMTPCommand> commandqueue;
 private:
     QwwSmtpClient *q;
+
+    QwwSmtpClientPrivate(const QwwSmtpClientPrivate&); // don't implement
+    QwwSmtpClientPrivate& operator=(const QwwSmtpClientPrivate&); // don't implement
 };
 
 // private slot triggered upon connection to the server
