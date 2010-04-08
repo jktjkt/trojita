@@ -207,7 +207,7 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
     TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->child( number, model ) );
     Q_ASSERT( message ); // FIXME: this should be relaxed for allowing null pointers instead of "unfetched" TreeItemMessage
 
-    // store UID earlier, for we need it for saving items
+    // we got to store UID before we process the rest of the data (UID is the key)
     if ( response.data.find( "UID" ) != response.data.end() )
         message->_uid = dynamic_cast<const Responses::RespData<uint>&>( *(response.data[ "UID" ]) ).data;
 
