@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>Trojitá, a Qt IMAP e-mail client</title>
+  <link rel="stylesheet" type="text/css" href="screen.css" media="screen,projection">
+  <link rel="stylesheet" type="text/css" href="print.css" media="print">
+</head>
+<body lang="cs">
+<div id="wrapper">
+
+  <div id="header">
+    <a href="#"><h1>Trojitá</h1></a>
+    <h2>A Qt IMAP e-mail client</h2>
+
+    <ul id="menu">
+    <li class="menuitem active"><a href="/">About</a></li>
+    <li class="menuitem noactive"><a href="/screenshots.html">Screenshots</a></li>
+    <li class="menuitem noactive"><a href="/download.html">Downloads</a></li>
+    <li class="menuitem noactive"><a href="http://projects.flaska.net/wiki/trojita">Wiki</a></li>
+    <li class="menuitem noactive"><a href="http://projects.flaska.net/projects/show/trojita">Development</a></li>
+    </ul>
+
+  </div>
+
+  <div id="pagecontent">
+  <h1>Trojitá, a Qt IMAP e-mail client</h1>
+    <h2>Quick Facts</h2>
+
+      <ul>
+       <li>A pure Qt4 application with no additional dependencies</li>
+       <li>Robust IMAP core implemented using Qt's Model-View framework</li>
+       <li>Standards compliance is a design goal</li>
+       <li>Support for bandwidth-saving mode aimed at mobile users with expensive connection</li>
+       <li>IMAP over SSH -- instead of going over an SSL socket, the server could be accessed via SSH</li>
+       <li>On-demand body part loading</li>
+       <li>Offline IMAP support (you can access data you already have; there's no complete "offline mail access" yet, though)</li>
+       <li>Safe dealing with HTML mail (actually more robust than Thunderbird's)</li>
+      </ul>
+
+
+    <h2>Getting the source</h2>
+      <h3>Git</h3>
+	<p>The code is hosted at <a href="http://gitorious.org/trojita">Gitorious</a>. You can obtain your local copy by running following command:</p>
+	<code>$ git clone git://<a href="http://gitorious.org/trojita">gitorious.org/trojita</a>/trojita.git</code>
+      <h3>Source tarball</h3>
+	<p>Alternatively, if you don't feel like working with git, you can download this <a href="http://gitorious.org/trojita/trojita/archive-tarball/master">archive with the latest revision</a> of the master branch.</p>
+    <h2>Building</h2>
+      <h3>Dependencies</h3>
+      <ul>
+	<li><a href="http://qt.nokia.com/">Qt framework</a> (&gt;= 4.5)</li>
+	<li><a href="http://www.cmake.org/">CMake</a> (&gt;= 2.6)</li>
+      </ul>
+      <h3>Compilation</h3>
+      <p>Go to the directory created by Git (or unpacked from the archive) and run:</p>
+      <code>$ mkdir _build &amp;&amp; cd _build<br>
+      $ cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo .. <br>
+      $ make -j4</code>
+    <h2>Running Trojitá</h2>
+      <p>After successful compilation, you can run Trojitá from the _build directory:</p>
+      <code>$ ./trojita</code>
+    <h2>Reporting bugs &amp; requesting features</h2>
+      <h3>Tracker</h3>
+	<p>If you encounter a bug in Trojitá, please report it to it's <a href="http://projects.flaska.net/projects/show/trojita">issue tracker</a>.</p>
+	<p>Wishlist items belong to the same place.</p>
+      <h3>IRC</h3>
+	<p>Trojitá's IRC channel <code>#trojita</code> is hosted on <a href="http://freenode.net/">Freenode</a> network. The main author, <code>jkt</code>, is often to be found there.</p>
+      <h3>E-mail</h3>
+	<p>You can always contact the author by <a href="mailto: jkt@gentoo.org">e-mail</a>. However, issue tracker is the preferred way for reporting bugs and requesting features.</p>
+    
+  </div>
+  <div class="push"></div>
+  </div>
+    <div id="footer">&copy; 2009 <a href="#">Trojitá</a> team. Web done by helb.</div>
+
+
+
+
+</body>
+</html>
