@@ -77,7 +77,6 @@ QWidget* PartWidgetFactory::create( Imap::Mailbox::TreeItemPart* part, int recur
         }
     }
     QLabel* lbl = new QLabel( part->mimeType(), 0 );
-    lbl->setMinimumSize( 800, 600 );
     return lbl;
 }
 
