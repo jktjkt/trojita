@@ -757,5 +757,3 @@ QTextStream& operator<<( QTextStream& stream, const Sequence& s )
 }
 
 }
-
-#include "Parser.moc"

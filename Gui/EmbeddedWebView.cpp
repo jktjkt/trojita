@@ -34,5 +34,3 @@ EmbeddedWebView::EmbeddedWebView( QWidget* parent, QNetworkAccessManager* networ
 }
 
 }
-
-#include "EmbeddedWebView.moc"

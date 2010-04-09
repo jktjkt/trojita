@@ -47,4 +47,4 @@ void MsgListView::slotFixSize()
 
 }
 
-#include "MsgListView.moc"
+

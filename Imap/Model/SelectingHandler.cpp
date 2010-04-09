@@ -61,5 +61,3 @@ void SelectingHandler::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fe
 
 }
 }
-
-#include "SelectingHandler.moc"

@@ -49,5 +49,3 @@ bool PrettyMailboxModel::filterAcceptsColumn( int source_column, const QModelInd
 }
 
 }
-
-#include "PrettyMailboxModel.moc"

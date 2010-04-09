@@ -1497,5 +1497,3 @@ TreeItem* Model::realTreeItem( QModelIndex index, const Model** whichModel, QMod
 
 }
 }
-
-#include "Model.moc"

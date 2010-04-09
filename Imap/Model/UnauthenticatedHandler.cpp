@@ -132,5 +132,3 @@ void UnauthenticatedHandler::handleFetch( Imap::Parser* ptr, const Imap::Respons
 
 }
 }
-
-#include "UnauthenticatedHandler.moc"

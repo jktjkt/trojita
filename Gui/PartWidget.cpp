@@ -112,4 +112,4 @@ QString Message822Widget::quoteMe() const
 
 }
 
-#include "PartWidget.moc"
+

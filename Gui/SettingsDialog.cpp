@@ -271,4 +271,4 @@ void OutgoingPage::save( QSettings& s )
 
 }
 
-#include "SettingsDialog.moc"
+

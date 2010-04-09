@@ -83,4 +83,3 @@ qint64 MsgPartNetworkReply::readData( char* data, qint64 maxSize )
 
 }
 }
-#include "MsgPartNetworkReply.moc"

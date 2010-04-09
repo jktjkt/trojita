@@ -86,5 +86,3 @@ void AttachmentView::slotDeleteReply(QNetworkReply* reply)
 }
 
 }
-
-#include "AttachmentView.moc"

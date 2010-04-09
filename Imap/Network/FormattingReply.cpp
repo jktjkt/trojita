@@ -98,4 +98,3 @@ void FormattingReply::everythingFinished()
 
 }
 }
-#include "FormattingReply.moc"

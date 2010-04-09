@@ -60,5 +60,3 @@ void Sendmail::handleBytesWritten( qint64 bytes )
 }
 
 }
-
-#include "Sendmail.moc"

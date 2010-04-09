@@ -152,5 +152,3 @@ void IODeviceSocket::handleProcessError( QProcess::ProcessError err )
 }
 
 }
-
-#include "IODeviceSocket.moc"

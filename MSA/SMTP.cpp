@@ -61,5 +61,3 @@ void SMTP::sendMail( const QString& from, const QStringList& to, const QByteArra
 }
 
 }
-
-#include "SMTP.moc"

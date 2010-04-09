@@ -106,5 +106,3 @@ void ModelWatcher::rowsRemoved( const QModelIndex& parent, int start, int end )
 }
 
 }
-
-#include "ModelWatcher.moc"

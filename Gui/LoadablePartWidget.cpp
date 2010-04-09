@@ -34,4 +34,4 @@ QString LoadablePartWidget::quoteMe() const
 
 }
 
-#include "LoadablePartWidget.moc"
+

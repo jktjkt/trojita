@@ -21,4 +21,4 @@ void ForbiddenReply::slotFinish()
 
 }
 }
-#include "ForbiddenReply.moc"
+

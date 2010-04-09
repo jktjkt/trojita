@@ -111,5 +111,3 @@ void AuthenticatedHandler::handleFetch( Imap::Parser* ptr, const Imap::Responses
 
 }
 }
-
-#include "AuthenticatedHandler.moc"

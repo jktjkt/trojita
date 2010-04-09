@@ -460,5 +460,3 @@ TreeItemMailbox* MsgListModel::currentMailbox() const
 
 }
 }
-
-#include "MsgListModel.moc"

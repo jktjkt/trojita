@@ -12,5 +12,3 @@ AbstractMSA::~AbstractMSA()
 }
 
 }
-
-#include "AbstractMSA.moc"

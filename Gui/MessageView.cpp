@@ -213,4 +213,3 @@ QString MessageView::replySubject( const QString& subject )
 
 }
 
-#include "MessageView.moc"

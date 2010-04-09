@@ -696,4 +696,4 @@ void MainWindow::slotMailboxDeleteFailed( const QString& mailbox, const QString&
 
 }
 
-#include "Window.moc"
+

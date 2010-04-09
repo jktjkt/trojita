@@ -44,4 +44,4 @@ qint64 AuxiliaryReply::readData( char* data, qint64 maxSize )
 
 }
 }
-#include "AuxiliaryReply.moc"
+

@@ -113,5 +113,3 @@ Imap::SocketPtr TlsAbleSocketFactory::create()
 
 }
 }
-
-#include "SocketFactory.moc"

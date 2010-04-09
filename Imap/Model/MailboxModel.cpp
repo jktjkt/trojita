@@ -380,5 +380,3 @@ void MailboxModel::handleRowsInserted( const QModelIndex& parent, int first, int
 
 }
 }
-
-#include "MailboxModel.moc"

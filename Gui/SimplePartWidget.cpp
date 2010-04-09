@@ -93,4 +93,3 @@ QString SimplePartWidget::quoteMe() const
 
 }
 
-#include "SimplePartWidget.moc"

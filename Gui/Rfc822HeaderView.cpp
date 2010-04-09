@@ -40,4 +40,4 @@ void Rfc822HeaderView::setCorrectText()
 
 }
 
-#include "Rfc822HeaderView.moc"
+

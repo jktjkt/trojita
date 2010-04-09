@@ -243,4 +243,4 @@ QList<QPair<QString, QString> > ComposeWidget::_parseRecipients()
 
 }
 
-#include "ComposeWidget.moc"
+

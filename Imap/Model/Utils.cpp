@@ -29,5 +29,3 @@ QString PrettySize::prettySize( uint bytes )
 }
 
 }
-
-#include "Utils.moc"
