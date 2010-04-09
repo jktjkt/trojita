@@ -30,17 +30,8 @@ EmbeddedWebView::EmbeddedWebView( QWidget* parent, QNetworkAccessManager* networ
     copyAction->setShortcut( tr("Ctrl+C") );
     addAction( copyAction );
 
-    connect( this, SIGNAL(loadFinished(bool)), this, SLOT(handlePageLoadFinished(bool)) );
-
     setContextMenuPolicy( Qt::NoContextMenu );
 }
-
-void EmbeddedWebView::handlePageLoadFinished( bool ok )
-{
-    Q_UNUSED( ok );
-    setMinimumSize( page()->mainFrame()->contentsSize() );
-}
-
 
 }
 

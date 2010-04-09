@@ -7,11 +7,13 @@
 namespace Gui {
 
 
-/** @short An embeddable QWebView which makes itself big enough to display all of the contents
+/** @short An embeddable QWebView with some safety checks
 
-  This class configures the QWebView in such a way that it will resize itself to
-  show all required contents.  Note that one still has to provide a proper
-  eventFilter in the parent widget (and register it for use).
+  This class configures the QWebView in such a way that it will prevent certain
+  dangerous (or unexpected, in the context of a MUA) features from being invoked.
+
+  Note that you still have to provide a proper eventFilter in the parent widget
+  (and register it for use).
 
   @see Gui::MessageView
 
@@ -20,8 +22,6 @@ class EmbeddedWebView: public QWebView {
     Q_OBJECT
 public:
     EmbeddedWebView( QWidget* parent, QNetworkAccessManager* networkManager );
-private slots:
-    void handlePageLoadFinished( bool ok );
 };
 
 }
