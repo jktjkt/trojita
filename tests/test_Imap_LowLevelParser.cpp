@@ -19,7 +19,6 @@
 #include "qtest_kde.h"
 
 #include "test_Imap_LowLevelParser.h"
-#include "test_Imap_LowLevelParser.moc"
 
 #include "Imap/Exceptions.h"
 

@@ -20,7 +20,6 @@
 #include <qtest_kde.h>
 
 #include "test_rfccodecs.h"
-#include "test_rfccodecs.moc"
 
 QTEST_KDEMAIN_CORE( RFCCodecsTest )
 

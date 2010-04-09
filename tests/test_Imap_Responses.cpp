@@ -19,7 +19,6 @@
 #include <qtest_kde.h>
 
 #include "test_Imap_Responses.h"
-#include "test_Imap_Responses.moc"
 
 Q_DECLARE_METATYPE(Imap::Responses::State)
 Q_DECLARE_METATYPE(respPtr)

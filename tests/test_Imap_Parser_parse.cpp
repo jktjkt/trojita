@@ -22,7 +22,6 @@
 #include "Streams/IODeviceSocket.h"
 
 #include "test_Imap_Parser_parse.h"
-#include "test_Imap_Parser_parse.moc"
 
 Q_DECLARE_METATYPE(QSharedPointer<Imap::Responses::AbstractResponse>)
 Q_DECLARE_METATYPE(Imap::Responses::State)

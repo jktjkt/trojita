@@ -19,7 +19,6 @@
 #include <qtest_kde.h>
 
 #include "test_Imap_Message.h"
-#include "test_Imap_Message.moc"
 
 Q_DECLARE_METATYPE(Imap::Message::MailAddress)
 Q_DECLARE_METATYPE(Imap::Message::Envelope)
