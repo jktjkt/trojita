@@ -19,7 +19,7 @@ AttachmentView::AttachmentView( QWidget* parent,
     QLabel* lbl = new QLabel( tr("Attachment %1 (%2)").arg( part->fileName(), part->mimeType() ) );
     layout->addWidget( lbl );
     QPushButton* download = new QPushButton( tr("Download") );
-    download->setSizePolicy( QSizePolicy::Maximum, QSizePolicy::Maximum );
+    download->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
     layout->addWidget( download );
     connect( download, SIGNAL(clicked()), this, SLOT(slotDownloadClicked()) );
 }
