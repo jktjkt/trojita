@@ -138,7 +138,7 @@ class Model: public QAbstractItemModel {
         TreeItemMailbox* mailbox;
         RWMode mode;
         ConnectionState connState;
-        /** @short The mailboxin which we're right now, as per IMAP server's opinion */
+        /** @short The mailbox in which we're right now, as per IMAP server's opinion */
         TreeItemMailbox* currentMbox;
         /** @short Number of mailboxes which we've already requested to be SELECT/EXAMINEd */
         uint selectingAnother;
