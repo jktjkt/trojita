@@ -639,3 +639,5 @@ QwwSmtpClient::Options QwwSmtpClient::options() const{
 QString QwwSmtpClient::errorString() const{
     return d->errorString;
 }
+
+#include "moc_qwwsmtpclient.cpp"
