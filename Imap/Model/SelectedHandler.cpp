@@ -51,6 +51,18 @@ void SelectedHandler::handleSearch( Imap::Parser* ptr, const Imap::Responses::Se
     throw UnexpectedResponseReceived( "SEARCH reply, wtf?", *resp );
 }
 
+void SelectedHandler::handleSort( Imap::Parser* ptr, const Imap::Responses::Sort* const resp )
+{
+    // FIXME
+    throw UnexpectedResponseReceived( "SORT reply, wtf?", *resp );
+}
+
+void SelectedHandler::handleThread( Imap::Parser* ptr, const Imap::Responses::Thread* const resp )
+{
+    // FIXME
+    throw UnexpectedResponseReceived( "THREAD reply, wtf?", *resp );
+}
+
 void SelectedHandler::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
 {
     TreeItemMailbox* mailbox = m->_parsers[ ptr ].currentMbox;

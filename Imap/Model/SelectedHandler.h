@@ -16,6 +16,8 @@ public:
     virtual void handleList( Imap::Parser* ptr, const Imap::Responses::List* const resp );
     virtual void handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp );
     virtual void handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp );
+    virtual void handleSort( Imap::Parser* ptr, const Imap::Responses::Sort* const resp );
+    virtual void handleThread( Imap::Parser* ptr, const Imap::Responses::Thread* const resp );
     virtual void handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );
 };
 

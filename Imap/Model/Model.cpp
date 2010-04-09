@@ -881,12 +881,14 @@ void Model::handleNamespace( Imap::Parser* ptr, const Imap::Responses::Namespace
 
 void Model::handleSort(Imap::Parser *ptr, const Imap::Responses::Sort *const resp)
 {
-    // FIXME
+    if ( _parsers[ ptr ].responseHandler )
+        _parsers[ ptr ].responseHandler->handleSort( ptr, resp );
 }
 
 void Model::handleThread(Imap::Parser *ptr, const Imap::Responses::Thread *const resp)
 {
-    // FIXME
+    if ( _parsers[ ptr ].responseHandler )
+        _parsers[ ptr ].responseHandler->handleThread( ptr, resp );
 }
 
 TreeItem* Model::translatePtr( const QModelIndex& index ) const

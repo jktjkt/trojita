@@ -112,6 +112,18 @@ void UnauthenticatedHandler::handleSearch( Imap::Parser* ptr, const Imap::Respon
     throw UnexpectedResponseReceived( "SEARCH reply in unauthenticated state", *resp );
 }
 
+void UnauthenticatedHandler::handleSort( Imap::Parser* ptr, const Imap::Responses::Sort* const resp )
+{
+    Q_UNUSED( ptr );
+    throw UnexpectedResponseReceived( "SORT response in unauthenticated state", *resp );
+}
+
+void UnauthenticatedHandler::handleThread( Imap::Parser* ptr, const Imap::Responses::Thread* const resp )
+{
+    Q_UNUSED( ptr );
+    throw UnexpectedResponseReceived( "THREAD reply in unauthenticated state", *resp );
+}
+
 void UnauthenticatedHandler::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
 {
     Q_UNUSED( ptr );

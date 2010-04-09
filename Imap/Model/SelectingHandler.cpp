@@ -38,6 +38,18 @@ void SelectingHandler::handleSearch( Imap::Parser* ptr, const Imap::Responses::S
     throw UnexpectedResponseReceived( "SEARCH reply while syncing mailbox", *resp );
 }
 
+void SelectingHandler::handleSort( Imap::Parser* ptr, const Imap::Responses::Sort* const resp )
+{
+    Q_UNUSED( ptr );
+    throw UnexpectedResponseReceived( "SORT response while syncing mailbox", *resp );
+}
+
+void SelectingHandler::handleThread(Imap::Parser *ptr, const Imap::Responses::Thread *const resp)
+{
+    Q_UNUSED( ptr );
+    throw UnexpectedResponseReceived( "THREAD reply while syncing mailbox", *resp);
+}
+
 void SelectingHandler::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
 {
     TreeItemMailbox* mailbox = m->_parsers[ ptr ].currentMbox;

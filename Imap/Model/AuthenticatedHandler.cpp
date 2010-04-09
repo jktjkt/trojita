@@ -91,6 +91,18 @@ void AuthenticatedHandler::handleSearch( Imap::Parser* ptr, const Imap::Response
     throw UnexpectedResponseReceived( "SEARCH response in authenticated state", *resp );
 }
 
+void AuthenticatedHandler::handleSort( Imap::Parser* ptr, const Imap::Responses::Sort* const resp )
+{
+    Q_UNUSED( ptr );
+    throw UnexpectedResponseReceived( "SORT response in authenticated state", *resp );
+}
+
+void AuthenticatedHandler::handleThread( Imap::Parser* ptr, const Imap::Responses::Thread* const resp )
+{
+    Q_UNUSED( ptr );
+    throw UnexpectedResponseReceived( "THREAD response in authenticated state", *resp );
+}
+
 void AuthenticatedHandler::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
 {
     Q_UNUSED( ptr );
