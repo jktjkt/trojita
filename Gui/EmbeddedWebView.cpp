@@ -40,11 +40,18 @@ EmbeddedWebView::EmbeddedWebView( QWidget* parent, QNetworkAccessManager* networ
     setContextMenuPolicy( Qt::NoContextMenu );
 }
 
-void EmbeddedWebView::slotLinkClicked(const QUrl &url)
+void EmbeddedWebView::slotLinkClicked( const QUrl& url )
 {
     // Only allow external http:// links for safety reasons
-    if ( url.scheme().toLower() == QLatin1String("http") || url.scheme().toLower() == QLatin1String("mailto") ) {
+    if ( url.scheme().toLower() == QLatin1String("http") ) {
         QDesktopServices::openUrl( url );
+    } else if ( url.scheme().toLower() == QLatin1String("mailto") ) {
+        // The mailto: scheme is registered by Gui::MainWindow and handled internally;
+        // even if it wasn't, opening a third-party application in response to a
+        // user-initiated click does not pose a security risk
+        QUrl betterUrl(url);
+        betterUrl.setScheme( url.scheme().toLower() );
+        QDesktopServices::openUrl( betterUrl );
     }
 }
 
