@@ -22,6 +22,7 @@ AttachmentView::AttachmentView( QWidget* parent,
     download->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
     layout->addWidget( download );
     connect( download, SIGNAL(clicked()), this, SLOT(slotDownloadClicked()) );
+    setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
 }
 
 QString AttachmentView::toRealFileName( Imap::Mailbox::TreeItemPart* part )
