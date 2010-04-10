@@ -71,6 +71,7 @@ SOURCES +=  ./Imap/Parser/Parser.cpp \
     ./Gui/SettingsNames.cpp \
     ./Gui/ComposeWidget.cpp \
     ./Gui/MsgListView.cpp \
+    ./Gui/ExternalElementsWidget.cpp \
     ./qwwsmtpclient/qwwsmtpclient.cpp \
     ./iconloader/qticonloader.cpp
 
@@ -132,7 +133,8 @@ HEADERS += ./Streams/SocketFactory.h \
 ./Gui/SettingsDialog.h\
 ./Gui/PartWidgetFactory.h\
 ./Gui/MsgListView.h\
-./Gui/AttachmentView.h
+./Gui/AttachmentView.h\
+./Gui/ExternalElementsWidget.h
 
 
 

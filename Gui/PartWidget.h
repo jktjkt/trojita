@@ -25,6 +25,7 @@ public:
                                 Imap::Mailbox::TreeItemPart* part,
                                 const int recursionDepth );
     virtual QString quoteMe() const;
+    virtual void reloadContents();
 };
 
 /** @short Message quoting support for multipart/signed MIME type */
@@ -36,6 +37,7 @@ public:
                                 Imap::Mailbox::TreeItemPart* part,
                                 const int recursionDepth );
     virtual QString quoteMe() const;
+    virtual void reloadContents();
 };
 
 /** @short Message quoting support for generic multipart/ * */
@@ -47,6 +49,7 @@ public:
                                 Imap::Mailbox::TreeItemPart* part,
                                 const int recursionDepth );
     virtual QString quoteMe() const;
+    virtual void reloadContents();
 };
 
 /** @short Message quoting support for generic multipart/ * */
@@ -58,6 +61,7 @@ public:
                                 Imap::Mailbox::TreeItemPart* part,
                                 const int recursionDepth );
     virtual QString quoteMe() const;
+    virtual void reloadContents();
 };
 
 

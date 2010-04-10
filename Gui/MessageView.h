@@ -7,6 +7,7 @@ class QLabel;
 class QLayout;
 class QModelIndex;
 class QTimer;
+class QUrl;
 class QWebView;
 
 namespace Imap {
@@ -23,6 +24,7 @@ namespace Gui {
 
 class MainWindow;
 class PartWidgetFactory;
+class ExternalElementsWidget;
 
 
 /** @short Widget for displaying complete e-mail messages as available from the IMAP server
@@ -45,6 +47,8 @@ public slots:
     void handleMessageRemoved( void* msg );
 private slots:
     void markAsRead();
+    void externalsRequested( const QUrl& url );
+    void externalsEnabled();
 signals:
     void messageChanged();
 private:
@@ -55,6 +59,7 @@ private:
 
     QWidget* viewer;
     QLabel* header;
+    ExternalElementsWidget* externalElements;
     QLayout* layout;
     Imap::Mailbox::TreeItemMessage* message;
     Imap::Mailbox::Model* model;

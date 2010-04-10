@@ -26,6 +26,7 @@ public:
                         Imap::Mailbox::TreeItemPart* _part,
                         QObject* _wheelEventFilter );
     QString quoteMe() const;
+    virtual void reloadContents() {}
 private slots:
     void loadClicked();
 private:

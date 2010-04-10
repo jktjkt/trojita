@@ -11,6 +11,7 @@ class AbstractPartWidget
 public:
     virtual QString quoteMe() const = 0;
     virtual ~AbstractPartWidget() {}
+    virtual void reloadContents() = 0;
 };
 
 }

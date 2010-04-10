@@ -91,5 +91,10 @@ QString SimplePartWidget::quoteMe() const
         return selection;
 }
 
+void SimplePartWidget::reloadContents()
+{
+    EmbeddedWebView::reload();
+}
+
 }
 

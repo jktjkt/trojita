@@ -42,6 +42,17 @@ QString MultipartAlternativeWidget::quoteMe() const
     return w ? w->quoteMe() : QString();
 }
 
+void MultipartAlternativeWidget::reloadContents()
+{
+    if ( count() ) {
+        for ( int i = 0; i < count(); ++i ) {
+            AbstractPartWidget* w = dynamic_cast<AbstractPartWidget*>( widget(i) );
+            if ( w )
+                w->reloadContents();
+        }
+    }
+}
+
 MultipartSignedWidget::MultipartSignedWidget(QWidget *parent,
     PartWidgetFactory *factory, Imap::Mailbox::TreeItemPart *part,
     const int recursionDepth ):
@@ -109,6 +120,26 @@ QString Message822Widget::quoteMe() const
 {
     return quoteMeHelper( children() );
 }
+
+#define IMPL_RELOAD(CLASS) void CLASS::reloadContents() \
+{\
+    /*qDebug() << metaObject()->className() << children().size();*/\
+    Q_FOREACH( QObject* const obj, children() ) {\
+        /*qDebug() << obj->metaObject()->className();*/\
+        AbstractPartWidget* w = dynamic_cast<AbstractPartWidget*>( obj );\
+        if ( w ) {\
+            /*qDebug() << "reloadContents:" << w;*/\
+            w->reloadContents();\
+        }\
+    }\
+}
+
+IMPL_RELOAD(MultipartSignedWidget);
+IMPL_RELOAD(GenericMultipartWidget);
+IMPL_RELOAD(Message822Widget);
+
+#undef IMPL_RELOAD
+
 
 }
 

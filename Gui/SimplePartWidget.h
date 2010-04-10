@@ -24,6 +24,7 @@ public:
                       Imap::Network::MsgPartNetAccessManager* manager,
                       Imap::Mailbox::TreeItemPart* _part );
     virtual QString quoteMe() const;
+    virtual void reloadContents();
 private slots:
     void slotSaveContents();
     void slotDataTransfered();

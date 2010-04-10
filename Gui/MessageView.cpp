@@ -2,6 +2,7 @@
 #include <QLabel>
 #include <QTextDocument>
 #include <QTimer>
+#include <QUrl>
 #include <QVBoxLayout>
 #include <QtWebKit/QWebHistory>
 #include <QDebug>
@@ -9,6 +10,7 @@
 #include "MessageView.h"
 #include "AbstractPartWidget.h"
 #include "EmbeddedWebView.h"
+#include "ExternalElementsWidget.h"
 #include "Window.h"
 #include "PartWidgetFactory.h"
 
@@ -21,6 +23,7 @@ namespace Gui {
 MessageView::MessageView( QWidget* parent ): QWidget(parent), message(0), model(0)
 {
     netAccess = new Imap::Network::MsgPartNetAccessManager( this );
+    connect(netAccess, SIGNAL(requestingExternal(QUrl)), this, SLOT(externalsRequested(QUrl)));
     emptyView = new EmbeddedWebView( this, netAccess );
     factory = new PartWidgetFactory( netAccess, this );
 
@@ -28,6 +31,10 @@ MessageView::MessageView( QWidget* parent ): QWidget(parent), message(0), model(
     viewer = emptyView;
     header = new QLabel( this );
     header->setTextInteractionFlags( Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse );
+    externalElements = new ExternalElementsWidget( this );
+    externalElements->hide();
+    connect(externalElements, SIGNAL(loadingEnabled()), this, SLOT(externalsEnabled()));
+    layout->addWidget( externalElements );
     layout->addWidget( header );
     layout->addWidget( viewer );
     layout->setContentsMargins( 0, 0, 0, 0 );
@@ -102,6 +109,8 @@ void MessageView::setMessage( const QModelIndex& index )
             viewer->deleteLater();
         }
         message = messageCandidate;
+        netAccess->setExternalsEnabled( false );
+        externalElements->hide();
         netAccess->setModelMessage( model, message );
         viewer = factory->create( part );
         viewer->setParent( this );
@@ -209,6 +218,21 @@ QString MessageView::replySubject( const QString& subject )
         return tr("Re: ") + subject;
     else
         return subject;
+}
+
+void MessageView::externalsRequested( const QUrl &url )
+{
+    Q_UNUSED(url);
+    externalElements->show();
+}
+
+void MessageView::externalsEnabled()
+{
+    netAccess->setExternalsEnabled( true );
+    externalElements->hide();
+    AbstractPartWidget* w = dynamic_cast<AbstractPartWidget*>( viewer );
+    if ( w )
+        w->reloadContents();
 }
 
 }

@@ -14,7 +14,7 @@ namespace Imap {
 namespace Network {
 
 MsgPartNetAccessManager::MsgPartNetAccessManager( QObject* parent ):
-    QNetworkAccessManager( parent )
+    QNetworkAccessManager( parent ), _externalsEnabled(false)
 {
 }
 
@@ -50,8 +50,18 @@ QNetworkReply* MsgPartNetAccessManager::createRequest( Operation op,
             return new Imap::Network::ForbiddenReply( this );
         }
     } else {
-        qDebug() << "Forbidden per policy:" << req.url();
-        return new Imap::Network::ForbiddenReply( this );
+        if ( req.url().scheme() == QLatin1String("http") ||
+             req.url().scheme() == QLatin1String("ftp") ) {
+            if ( _externalsEnabled ) {
+                return QNetworkAccessManager::createRequest( op, req, outgoingData );
+            } else {
+                emit requestingExternal( req.url() );
+                return new Imap::Network::ForbiddenReply( this );
+            }
+        } else {
+            qDebug() << "Forbidden per policy:" << req.url();
+            return new Imap::Network::ForbiddenReply( this );
+        }
     }
 }
 
@@ -92,6 +102,11 @@ Imap::Mailbox::TreeItemPart* MsgPartNetAccessManager::cidToPart( const QByteArra
             return part;
     }
     return 0;
+}
+
+void MsgPartNetAccessManager::setExternalsEnabled( bool enabled )
+{
+    _externalsEnabled = enabled;
 }
 
 }
