@@ -1,8 +1,11 @@
 #include "EmbeddedWebView.h"
 
 #include <QAction>
+#include <QDesktopServices>
 #include <QWebFrame>
 #include <QWebHistory>
+
+#include <QDebug>
 
 namespace Gui {
 
@@ -22,6 +25,9 @@ EmbeddedWebView::EmbeddedWebView( QWidget* parent, QNetworkAccessManager* networ
     s->setAttribute( QWebSettings::LocalStorageDatabaseEnabled, false );
     s->clearMemoryCaches();
 
+    page()->setLinkDelegationPolicy( QWebPage::DelegateAllLinks );
+    connect(this, SIGNAL(linkClicked(QUrl)), this, SLOT(slotLinkClicked(QUrl)));
+
     // Scrolling is implemented on upper layers
     page()->mainFrame()->setScrollBarPolicy( Qt::Horizontal, Qt::ScrollBarAlwaysOff );
     page()->mainFrame()->setScrollBarPolicy( Qt::Vertical, Qt::ScrollBarAlwaysOff );
@@ -32,6 +38,15 @@ EmbeddedWebView::EmbeddedWebView( QWidget* parent, QNetworkAccessManager* networ
     addAction( copyAction );
 
     setContextMenuPolicy( Qt::NoContextMenu );
+}
+
+void EmbeddedWebView::slotLinkClicked(const QUrl &url)
+{
+    // FIXME: handle mailto: links internally...
+    // Only allow http:// links for safety reasons
+    if ( url.scheme().toLower() == QLatin1String("http") ) {
+        QDesktopServices::openUrl( url );
+    }
 }
 
 }

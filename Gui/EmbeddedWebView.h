@@ -22,6 +22,8 @@ class EmbeddedWebView: public QWebView {
     Q_OBJECT
 public:
     EmbeddedWebView( QWidget* parent, QNetworkAccessManager* networkManager );
+private slots:
+    void slotLinkClicked( const QUrl& url );
 };
 
 }
