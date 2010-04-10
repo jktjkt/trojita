@@ -20,6 +20,7 @@ EmbeddedWebView::EmbeddedWebView( QWidget* parent, QNetworkAccessManager* networ
     s->setAttribute( QWebSettings::OfflineStorageDatabaseEnabled, false );
     s->setAttribute( QWebSettings::OfflineWebApplicationCacheEnabled, false );
     s->setAttribute( QWebSettings::LocalStorageDatabaseEnabled, false );
+    s->clearMemoryCaches();
 
     // Scrolling is implemented on upper layers
     page()->mainFrame()->setScrollBarPolicy( Qt::Horizontal, Qt::ScrollBarAlwaysOff );
