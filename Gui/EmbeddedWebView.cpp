@@ -42,9 +42,8 @@ EmbeddedWebView::EmbeddedWebView( QWidget* parent, QNetworkAccessManager* networ
 
 void EmbeddedWebView::slotLinkClicked(const QUrl &url)
 {
-    // FIXME: handle mailto: links internally...
-    // Only allow http:// links for safety reasons
-    if ( url.scheme().toLower() == QLatin1String("http") ) {
+    // Only allow external http:// links for safety reasons
+    if ( url.scheme().toLower() == QLatin1String("http") || url.scheme().toLower() == QLatin1String("mailto") ) {
         QDesktopServices::openUrl( url );
     }
 }

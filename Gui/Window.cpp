@@ -28,6 +28,7 @@
 #include <QScrollArea>
 #include <QSplitter>
 #include <QToolBar>
+#include <QUrl>
 
 #include "Window.h"
 #include "ComposeWidget.h"
@@ -60,6 +61,9 @@ MainWindow::MainWindow(): QMainWindow()
     setupModels();
     createActions();
     createMenus();
+
+    // Please note that Qt 4.6.1 really requires passing the method signature this way, *not* using the SLOT() macro
+    QDesktopServices::setUrlHandler( QLatin1String("mailto"), this, "slotComposeMailUrl" );
 }
 
 void MainWindow::createActions()
@@ -673,6 +677,13 @@ void MainWindow::slotReplyTo()
 void MainWindow::slotReplyAll()
 {
     msgView->reply( this, MessageView::REPLY_ALL );
+}
+
+void MainWindow::slotComposeMailUrl( const QUrl &url )
+{
+    Q_ASSERT( url.scheme().toLower() == QLatin1String("mailto") );
+
+    // FIXME
 }
 
 void MainWindow::invokeComposeDialog( const QString& subject, const QString& body,

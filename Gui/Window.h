@@ -69,6 +69,7 @@ private slots:
     void slotExpunge();
     void connectionError( const QString& message );
     void authenticationRequested( QAuthenticator* auth );
+    void slotComposeMailUrl( const QUrl& url );
     void slotComposeMail();
     void slotReplyTo();
     void slotReplyAll();
