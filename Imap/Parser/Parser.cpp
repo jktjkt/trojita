@@ -379,7 +379,9 @@ void Parser::handleReadyRead()
                         if ( _startTlsInProgress && _currentLine.startsWith( _startTlsCommand ) ) {
                             _startTlsCommand.clear();
                             _startTlsReply = _currentLine;
-                            QTimer::singleShot( 0, this, SLOT(executeACommand()) );
+                            _currentLine.clear();
+                            _oldLiteralPosition = 0;
+                            QTimer::singleShot( 0, this, SLOT(finishStartTls()) );
                             return;
                         }
                         processLine( _currentLine );
@@ -415,6 +417,17 @@ void Parser::executeCommands()
     while ( ! _waitingForContinuation && ! _waitForInitialIdle &&
             ! _cmdQueue.isEmpty() && ! _startTlsInProgress )
         executeACommand();
+}
+
+void Parser::finishStartTls()
+{
+#ifdef PRINT_TRAFFIC
+    qDebug() << "*** STARTTLS";
+#endif
+    _cmdQueue.pop_front();
+    _socket->startTls(); // warn: this might invoke event loop
+    _startTlsInProgress = false;
+    processLine( _startTlsReply );
 }
 
 void Parser::executeACommand()
@@ -479,26 +492,14 @@ void Parser::executeACommand()
                 return;
                 break;
             case Commands::STARTTLS:
-                if ( part._numberSent ) {
+                _startTlsCommand = buf;
+                buf.append( "STARTTLS\r\n" );
 #ifdef PRINT_TRAFFIC
-                    qDebug() << "*** STARTTLS";
+                qDebug() << ">>>" << buf.left( PRINT_TRAFFIC );
 #endif
-                    _cmdQueue.pop_front();
-                    _socket->startTls(); // warn: this might invoke event loop
-                    _startTlsInProgress = false;
-                    processLine( _startTlsReply );
-                    return;
-                } else {
-                    _startTlsCommand = buf;
-                    buf.append( "STARTTLS\r\n" );
-#ifdef PRINT_TRAFFIC
-                    qDebug() << ">>>" << buf.left( PRINT_TRAFFIC );
-#endif
-                    _socket->write( buf );
-                    part._numberSent = true;
-                    _startTlsInProgress = true;
-                    return;
-                }
+                _socket->write( buf );
+                _startTlsInProgress = true;
+                return;
                 break;
         }
         if ( cmd._currentPart == cmd._cmds.size() - 1 ) {

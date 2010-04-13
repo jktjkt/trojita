@@ -254,6 +254,7 @@ namespace Imap {
         void handleDisconnected( const QString& reason );
         void executeACommand();
         void executeCommands();
+        void finishStartTls();
 
     private:
         /** @short Private copy constructor */
