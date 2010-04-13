@@ -440,7 +440,7 @@ void Parser::executeACommand()
     if ( _idling ) {
         buf.append( "DONE\r\n" );
 #ifdef PRINT_TRAFFIC
-        qDebug() << ">>>" << buf.left( PRINT_TRAFFIC );
+        qDebug() << ">>>" << buf.left( PRINT_TRAFFIC ).trimmed();
 #endif
         _socket->write( buf );
         buf.clear();
@@ -472,7 +472,7 @@ void Parser::executeACommand()
                     buf.append( QByteArray::number( part._text.size() ) );
                     buf.append( "}\r\n" );
 #ifdef PRINT_TRAFFIC
-                    qDebug() << ">>>" << buf.left( PRINT_TRAFFIC );
+                    qDebug() << ">>>" << buf.left( PRINT_TRAFFIC ).trimmed();
 #endif
                     _socket->write( buf );
                     part._numberSent = true;
@@ -483,7 +483,7 @@ void Parser::executeACommand()
             case Commands::IDLE:
                 buf.append( "IDLE\r\n" );
 #ifdef PRINT_TRAFFIC
-                qDebug() << ">>>" << buf.left( PRINT_TRAFFIC );
+                qDebug() << ">>>" << buf.left( PRINT_TRAFFIC ).trimmed();
 #endif
                 _socket->write( buf );
                 _idling = true;
@@ -495,7 +495,7 @@ void Parser::executeACommand()
                 _startTlsCommand = buf;
                 buf.append( "STARTTLS\r\n" );
 #ifdef PRINT_TRAFFIC
-                qDebug() << ">>>" << buf.left( PRINT_TRAFFIC );
+                qDebug() << ">>>" << buf.left( PRINT_TRAFFIC ).trimmed();
 #endif
                 _socket->write( buf );
                 _startTlsInProgress = true;
@@ -506,7 +506,7 @@ void Parser::executeACommand()
             // finalize
             buf.append( "\r\n" );
 #ifdef PRINT_TRAFFIC
-            qDebug() << ">>>" << buf.left( PRINT_TRAFFIC );
+            qDebug() << ">>>" << buf.left( PRINT_TRAFFIC ).trimmed();
 #endif
             _socket->write( buf );
             _cmdQueue.pop_front();
@@ -522,7 +522,11 @@ void Parser::executeACommand()
 void Parser::processLine( QByteArray line )
 {
 #ifdef PRINT_TRAFFIC
-    qDebug() << "<<<" << line.left( PRINT_TRAFFIC );
+    QByteArray debugLine = line.trimmed();
+    if ( debugLine.size() > PRINT_TRAFFIC )
+        qDebug() << "<<<" << debugLine.left( PRINT_TRAFFIC ) << "...";
+    else
+        qDebug() << "<<<" << debugLine;
 #endif
     if ( line.startsWith( "* " ) ) {
         queueResponse( parseUntagged( line ) );
