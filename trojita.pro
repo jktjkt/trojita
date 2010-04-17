@@ -6,6 +6,8 @@ QT += core \
     webkit \
     network
 
+include(install.pri)
+
 DEFINES -= QT3_SUPPORT
 DEFINES += LOG_AND_TRACE_ACTIVE
 TARGET = trojita
