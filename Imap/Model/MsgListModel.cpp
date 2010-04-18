@@ -450,6 +450,8 @@ void MsgListModel::setMailbox( const QModelIndex& index )
         msgList = newList;
         reset();
         emit mailboxChanged();
+        // We want to tell the Model that it should consider starting the IDLE command
+        const_cast<Model*>( model )->switchToMailbox( index );
     }
 }
 

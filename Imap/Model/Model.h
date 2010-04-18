@@ -277,6 +277,12 @@ public slots:
     void setNetworkExpensive() { setNetworkPolicy( NETWORK_EXPENSIVE ); }
     void setNetworkOnline() { setNetworkPolicy( NETWORK_ONLINE ); }
 
+    /** @short Try to maintain a connection to the given mailbox
+
+      This function informs the Model that the user is interested in receiving
+      updates about the mailbox state, such as about the arrival of new messages.
+      The usual response to such a hint is launching the IDLE command.
+    */
     void switchToMailbox( const QModelIndex& mbox );
 
 private slots:
