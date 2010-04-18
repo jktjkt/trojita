@@ -649,7 +649,7 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
     if ( part && part->loading() ) {
         qDebug() << "Imap::Model::_finalizeFetch(): didn't receive anything about message" <<
             part->message()->row() << "part" << part->partId() << "in mailbox" <<
-            _parsers[ parser ].mailbox->mailbox();
+            _parsers[ parser ].currentMbox->mailbox();
         part->_fetchStatus = TreeItem::DONE;
     }
     if ( mailbox && _parsers[ parser ].responseHandler == selectedHandler ) {
@@ -1177,30 +1177,38 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
     Q_ASSERT( _netPolicy != NETWORK_OFFLINE );
 
     if ( ! mailbox && ! _parsers.isEmpty() ) {
+        // Request does not specify a target mailbox
         return _parsers.begin().value().parser;
     } else {
+        // Got to make sure we already have a mailbox selected
         for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
             if ( it->mailbox == mailbox ) {
                 if ( mode == ReadOnly || it->mode == mode ) {
+                    // The mailbox is already opened in a correct mode
                     if ( reSync ) {
                         CommandHandle cmd = ( it->mode == ReadWrite ) ?
                                             it->parser->select( mailbox->mailbox() ) :
                                             it->parser->examine( mailbox->mailbox() );
-                        _parsers[ it->parser ].commandMap[ cmd ] = Task( Task::SELECT, mailbox );
-                        ++_parsers[ it->parser ].selectingAnother;
+                        it->commandMap[ cmd ] = Task( Task::SELECT, mailbox );
+                        it->mailbox = mailbox;
+                        ++it->selectingAnother;
                     }
                     return it->parser;
                 } else {
+                    // Got to upgrade to R/W mode
                     it->mode = ReadWrite;
                     CommandHandle cmd = it->parser->select( mailbox->mailbox() );
-                    _parsers[ it->parser ].commandMap[ cmd ] = Task( Task::SELECT, mailbox );
-                    ++_parsers[ it->parser ].selectingAnother;
+                    it->commandMap[ cmd ] = Task( Task::SELECT, mailbox );
+                    it->mailbox = mailbox;
+                    ++it->selectingAnother;
                     return it->parser;
                 }
             }
         }
     }
+    // At this point, we're sure that there was no parser which already had opened the correct mailbox
     if ( _parsers.size() >= _maxParsers ) {
+        // We can't create more parsers
         ParserState& parser = _parsers.begin().value();
         parser.mode = mode;
         parser.mailbox = mailbox;
@@ -1209,11 +1217,28 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
             cmd = parser.parser->select( mailbox->mailbox() );
         else
             cmd = parser.parser->examine( mailbox->mailbox() );
-        _parsers[ parser.parser ].commandMap[ cmd ] = Task( Task::SELECT, mailbox );
-        ++_parsers[ parser.parser ].selectingAnother;
+        parser.commandMap[ cmd ] = Task( Task::SELECT, mailbox );
+        ++parser.selectingAnother;
         return parser.parser;
     } else {
-        // we can create one more
+        // We can create one more, but we should try to find one which already exists,
+        // but doesn't have an opened mailbox yet
+
+        for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
+            if ( ! it->mailbox ) {
+                // ... and that's the one!
+                CommandHandle cmd = it->parser->select( mailbox->mailbox() );
+                it->commandMap[ cmd ] = Task( Task::SELECT, mailbox );
+                it->mailbox = mailbox;
+                it->mode = ReadWrite;
+                ++it->selectingAnother;
+                return it->parser;
+            }
+        }
+
+        // Now we can be sure that all the already-existing parsers are occupied and we can create one more
+        // -> go for it.
+
         // FIXME: socket error handling
         Parser* parser( new Parser( const_cast<Model*>( this ), _socketFactory->create() ) );
         _parsers[ parser ] = ParserState( parser, mailbox, mode, CONN_STATE_ESTABLISHED, unauthHandler );
@@ -1230,6 +1255,8 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
             else
                 cmd = parser->examine( mailbox->mailbox() );
             _parsers[ parser ].commandMap[ cmd ] = Task( Task::SELECT, mailbox );
+            _parsers[ parser ].mailbox = mailbox;
+            _parsers[ parser ].mode = mode;
             ++_parsers[ parser ].selectingAnother;
         }
         return parser;
