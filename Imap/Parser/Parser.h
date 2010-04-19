@@ -17,8 +17,8 @@
 */
 #ifndef IMAP_PARSER_H
 #define IMAP_PARSER_H
-#include <deque>
 #include <memory>
+#include <QLinkedList>
 #include <QSharedPointer>
 #include <QObject>
 #include <QMutex>
@@ -306,10 +306,10 @@ namespace Imap {
         unsigned int _lastTagUsed;
 
         /** @short Queue storing commands that are about to be executed */
-        QList<Commands::Command> _cmdQueue;
+        QLinkedList<Commands::Command> _cmdQueue;
 
         /** @short Queue storing parsed replies from the IMAP server */
-        std::deque<QSharedPointer<Responses::AbstractResponse> > _respQueue;
+        QLinkedList<QSharedPointer<Responses::AbstractResponse> > _respQueue;
 
         bool _idling;
         bool _waitForInitialIdle;
