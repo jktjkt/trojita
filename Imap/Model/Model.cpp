@@ -1227,10 +1227,14 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
         for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
             if ( ! it->mailbox ) {
                 // ... and that's the one!
-                CommandHandle cmd = it->parser->select( mailbox->mailbox() );
+                CommandHandle cmd;
+                if ( mode == ReadWrite )
+                    cmd = it->parser->select( mailbox->mailbox() );
+                else
+                    cmd = it->parser->examine( mailbox->mailbox() );
                 it->commandMap[ cmd ] = Task( Task::SELECT, mailbox );
                 it->mailbox = mailbox;
-                it->mode = ReadWrite;
+                it->mode = mode;
                 ++it->selectingAnother;
                 return it->parser;
             }
