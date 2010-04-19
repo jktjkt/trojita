@@ -17,15 +17,14 @@
 */
 #ifndef IMAP_PARSER_H
 #define IMAP_PARSER_H
-#include <memory>
 #include <QLinkedList>
-#include <QSharedPointer>
-#include <QObject>
 #include <QMutex>
-#include <QThread>
+#include <QObject>
 #include <QSemaphore>
-#include "Response.h"
+#include <QSharedPointer>
+#include <QThread>
 #include "Command.h"
+#include "Response.h"
 #include "../Exceptions.h"
 #include "Streams/Socket.h"
 
