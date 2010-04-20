@@ -98,7 +98,8 @@ Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory, b
     QAbstractItemModel( parent ),
     // our tools
     _cache(cache), _socketFactory(socketFactory),
-    _maxParsers(4), _mailboxes(0), _netPolicy( NETWORK_ONLINE )
+    _maxParsers(4), _mailboxes(0), _netPolicy( NETWORK_ONLINE ),
+    _authenticator(0)
 {
     _startTls = _socketFactory->startTlsRequired();
 
@@ -197,6 +198,9 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                     //_parsers[ ptr ].commandMap[ cmd ] = Task( Task::NAMESPACE, 0 );
                     ptr->authStateReached();
                 } else {
+                    if ( _authenticator )
+                        delete _authenticator;
+                    _authenticator = 0;
                     // FIXME: handle this in a sane way
                     emit connectionError( tr("Login Failed") );
                 }
@@ -1511,12 +1515,17 @@ TreeItem* Model::realTreeItem( QModelIndex index, const Model** whichModel, QMod
 void Model::performAuthentication( Imap::Parser* ptr )
 {
     // FIXME: obey LOGINDISABLED
-    QAuthenticator auth;
-    emit authRequested( &auth );
-    if ( auth.isNull() ) {
+    if ( ! _authenticator ) {
+        _authenticator = new QAuthenticator();
+        emit authRequested( _authenticator );
+    }
+
+    if ( _authenticator->isNull() ) {
+        delete _authenticator;
+        _authenticator = 0;
         emit connectionError( tr("Can't login without user/password data") );
     } else {
-        CommandHandle cmd = ptr->login( auth.user(), auth.password() );
+        CommandHandle cmd = ptr->login( _authenticator->user(), _authenticator->password() );
         _parsers[ ptr ].commandMap[ cmd ] = Task( Task::LOGIN, 0 );
     }
 }

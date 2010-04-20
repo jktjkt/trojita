@@ -376,6 +376,14 @@ private:
 
     QStringList _onlineMessageFetch;
 
+    /** @short Helper for keeping track of user/pass over time
+
+    The reason for using QAuthenticator* instead of non-pointer member is that isNull()
+    and operator=() does not really work together and that I got a mysterious segfault when
+    trying the operator=(). Oh well...
+    */
+    QAuthenticator* _authenticator;
+
 protected slots:
     void responseReceived();
 
