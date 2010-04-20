@@ -74,6 +74,8 @@ namespace Commands {
             case STARTTLS:
                 stream << "STARTTLS" << endl << "[Starting TLS...]";
                 break;
+            case WAIT_FOR_AUTH:
+                stream << "[waiting for authentication]" << endl;
         }
         return stream;
     }

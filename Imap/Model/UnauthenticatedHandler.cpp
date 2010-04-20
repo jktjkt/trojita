@@ -62,6 +62,7 @@ void UnauthenticatedHandler::handleState( Imap::Parser* ptr, const Imap::Respons
             }
             CommandHandle cmd = ptr->namespaceCommand();
             m->_parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::NAMESPACE, 0 );
+            ptr->authStateReached();
             // Now the UI layer should re-request mailboxes
             m->reset();
             break;

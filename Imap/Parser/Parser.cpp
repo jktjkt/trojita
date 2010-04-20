@@ -15,6 +15,7 @@
    the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
+#include <algorithm>
 #include <QDebug>
 #include <QStringList>
 #include <QMutexLocker>
@@ -69,11 +70,12 @@ namespace Imap {
 Parser::Parser( QObject* parent, Imap::SocketPtr socket ):
         QObject(parent), _socket(socket), _lastTagUsed(0), _idling(false), _waitForInitialIdle(false),
         _literalPlus(false), _waitingForContinuation(false), _startTlsInProgress(false),
-        _readingMode(ReadingLine), _oldLiteralPosition(0)
+        _waitingForAuth(false), _readingMode(ReadingLine), _oldLiteralPosition(0)
 {
     connect( _socket.get(), SIGNAL( disconnected( const QString& ) ),
              this, SLOT( handleDisconnected( const QString& ) ) );
     connect( _socket.get(), SIGNAL( readyRead() ), this, SLOT( handleReadyRead() ) );
+    waitForAuth();
 }
 
 CommandHandle Parser::noop()
@@ -415,6 +417,7 @@ void Parser::handleReadyRead()
 void Parser::executeCommands()
 {
     while ( ! _waitingForContinuation && ! _waitForInitialIdle &&
+            ! _waitingForAuth &&
             ! _cmdQueue.isEmpty() && ! _startTlsInProgress )
         executeACommand();
 }
@@ -499,6 +502,15 @@ void Parser::executeACommand()
 #endif
                 _socket->write( buf );
                 _startTlsInProgress = true;
+                return;
+                break;
+            case Commands::WAIT_FOR_AUTH:
+#ifdef PRINT_TRAFFIC
+                qDebug() << static_cast<void*>(this) << "[waiting for authentication]";
+#endif
+                _waitingForAuth = true;
+                // No call to pop_front yet; the reason is that we have to allow queuing of
+                // commands like LOGIN, AUTHENTICATE or CAPABILITY
                 return;
                 break;
         }
@@ -693,6 +705,24 @@ void Parser::handleDisconnected( const QString& reason )
     qDebug() << static_cast<void*>(this) << "*** Socket disconnected";
 #endif
     emit disconnected( reason );
+}
+
+void Parser::authStateReached()
+{
+    QLinkedList<Commands::Command>::iterator it = std::find_if(
+            _cmdQueue.begin(), _cmdQueue.end(), std::mem_fun_ref(&Commands::Command::isWaitForAuth) );
+    Q_ASSERT( it != _cmdQueue.end() );
+    _cmdQueue.erase( it );
+    _waitingForAuth = false;
+    QTimer::singleShot( 0, this, SLOT(executeCommands()));
+}
+
+void Parser::waitForAuth()
+{
+    Commands::Command cmd;
+    cmd << Commands::PartOfCommand( Commands::WAIT_FOR_AUTH, QString() );
+    _cmdQueue.append( cmd );
+    QTimer::singleShot( 0, this, SLOT(executeCommands()) );
 }
 
 Sequence::Sequence( const uint num ): _kind(DISTINCT)

@@ -237,6 +237,13 @@ namespace Imap {
         /** UID THREAD, RFC5256 */
         CommandHandle uidThread( const QString& algo, const QString& charset, const QStringList& searchCriteria );
 
+
+        /** @short Postpone execution of other commands until the authStateReached() gets called */
+        void waitForAuth();
+
+        /** @short Tell the parser that it is now authenticated and can therefore proceed with commands */
+        void authStateReached();
+
     signals:
         /** @short Socket got disconnected */
         void disconnected( const QString );
@@ -263,6 +270,9 @@ namespace Imap {
 
         /** @short Queue command for execution.*/
         CommandHandle queueCommand( Commands::Command command );
+
+        /** @short Schedule a command for execution immediately before the existing "wait for..." command */
+        CommandHandle queueCommandBeforeWaitForAuth( Commands::Command command );
 
         /** @short Shortcut function; works exactly same as above mentioned queueCommand() */
         CommandHandle queueCommand( const Commands::TokenType kind, const QString& text ) {
@@ -316,6 +326,7 @@ namespace Imap {
         bool _literalPlus;
         bool _waitingForContinuation;
         bool _startTlsInProgress;
+        bool _waitingForAuth;
 
         enum { ReadingLine, ReadingNumberOfBytes } _readingMode;
         QByteArray _currentLine;

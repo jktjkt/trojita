@@ -203,6 +203,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                     CommandHandle cmd = ptr->namespaceCommand();
                     _parsers[ ptr ].commandMap[ cmd ] = Task( Task::NAMESPACE, 0 );
                     completelyReset();
+                    ptr->authStateReached();
                 } else {
                     // FIXME: handle this in a sane way
                     emit connectionError( tr("Login Failed") );
