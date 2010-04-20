@@ -67,10 +67,10 @@
 
 namespace Imap {
 
-Parser::Parser( QObject* parent, Imap::SocketPtr socket ):
+Parser::Parser( QObject* parent, Imap::SocketPtr socket, const uint myId ):
         QObject(parent), _socket(socket), _lastTagUsed(0), _idling(false), _waitForInitialIdle(false),
         _literalPlus(false), _waitingForContinuation(false), _startTlsInProgress(false),
-        _waitingForAuth(false), _readingMode(ReadingLine), _oldLiteralPosition(0)
+        _waitingForAuth(false), _readingMode(ReadingLine), _oldLiteralPosition(0), _parserId(myId)
 {
     connect( _socket.get(), SIGNAL( disconnected( const QString& ) ),
              this, SLOT( handleDisconnected( const QString& ) ) );
@@ -439,7 +439,7 @@ void Parser::executeCommands()
 void Parser::finishStartTls()
 {
 #ifdef PRINT_TRAFFIC
-    qDebug() << static_cast<void*>(this) << "*** STARTTLS";
+    qDebug() << _parserId << "*** STARTTLS";
 #endif
     _cmdQueue.pop_front();
     _socket->startTls(); // warn: this might invoke event loop
@@ -457,7 +457,7 @@ void Parser::executeACommand()
     if ( _idling ) {
         buf.append( "DONE\r\n" );
 #ifdef PRINT_TRAFFIC
-        qDebug() << static_cast<void*>(this) << ">>>" << buf.left( PRINT_TRAFFIC ).trimmed();
+        qDebug() << _parserId << ">>>" << buf.left( PRINT_TRAFFIC ).trimmed();
 #endif
         _socket->write( buf );
         buf.clear();
@@ -489,7 +489,7 @@ void Parser::executeACommand()
                     buf.append( QByteArray::number( part._text.size() ) );
                     buf.append( "}\r\n" );
 #ifdef PRINT_TRAFFIC
-                    qDebug() << static_cast<void*>(this) << ">>>" << buf.left( PRINT_TRAFFIC ).trimmed();
+                    qDebug() << _parserId << ">>>" << buf.left( PRINT_TRAFFIC ).trimmed();
 #endif
                     _socket->write( buf );
                     part._numberSent = true;
@@ -500,7 +500,7 @@ void Parser::executeACommand()
             case Commands::IDLE:
                 buf.append( "IDLE\r\n" );
 #ifdef PRINT_TRAFFIC
-                qDebug() << static_cast<void*>(this) << ">>>" << buf.left( PRINT_TRAFFIC ).trimmed();
+                qDebug() << _parserId << ">>>" << buf.left( PRINT_TRAFFIC ).trimmed();
 #endif
                 _socket->write( buf );
                 _idling = true;
@@ -512,7 +512,7 @@ void Parser::executeACommand()
                 _startTlsCommand = buf;
                 buf.append( "STARTTLS\r\n" );
 #ifdef PRINT_TRAFFIC
-                qDebug() << static_cast<void*>(this) << ">>>" << buf.left( PRINT_TRAFFIC ).trimmed();
+                qDebug() << _parserId << ">>>" << buf.left( PRINT_TRAFFIC ).trimmed();
 #endif
                 _socket->write( buf );
                 _startTlsInProgress = true;
@@ -520,7 +520,7 @@ void Parser::executeACommand()
                 break;
             case Commands::WAIT_FOR_AUTH:
 #ifdef PRINT_TRAFFIC
-                qDebug() << static_cast<void*>(this) << "*** Waiting for authentication";
+                qDebug() << _parserId << "*** Waiting for authentication";
 #endif
                 _waitingForAuth = true;
                 // No call to pop_front yet; the reason is that we have to allow queuing of
@@ -532,7 +532,7 @@ void Parser::executeACommand()
             // finalize
             buf.append( "\r\n" );
 #ifdef PRINT_TRAFFIC
-            qDebug() << static_cast<void*>(this) << ">>>" << buf.left( PRINT_TRAFFIC ).trimmed();
+            qDebug() << _parserId << ">>>" << buf.left( PRINT_TRAFFIC ).trimmed();
 #endif
             _socket->write( buf );
             _cmdQueue.pop_front();
@@ -550,9 +550,9 @@ void Parser::processLine( QByteArray line )
 #ifdef PRINT_TRAFFIC
     QByteArray debugLine = line.trimmed();
     if ( debugLine.size() > PRINT_TRAFFIC )
-        qDebug() << static_cast<void*>(this) << "<<<" << debugLine.left( PRINT_TRAFFIC ) << "...";
+        qDebug() << _parserId << "<<<" << debugLine.left( PRINT_TRAFFIC ) << "...";
     else
-        qDebug() << static_cast<void*>(this) << "<<<" << debugLine;
+        qDebug() << _parserId << "<<<" << debugLine;
 #endif
     if ( line.startsWith( "* " ) ) {
         queueResponse( parseUntagged( line ) );
@@ -716,7 +716,7 @@ void Parser::enableLiteralPlus( const bool enabled )
 void Parser::handleDisconnected( const QString& reason )
 {
 #ifdef PRINT_TRAFFIC
-    qDebug() << static_cast<void*>(this) << "*** Socket disconnected";
+    qDebug() << _parserId << "*** Socket disconnected";
 #endif
     emit disconnected( reason );
 }
@@ -729,7 +729,7 @@ void Parser::authStateReached()
     _cmdQueue.erase( it );
     _waitingForAuth = false;
 #ifdef PRINT_TRAFFIC
-    qDebug() << static_cast<void*>(this) << "*** Auth state reached, enabling commands";
+    qDebug() << _parserId << "*** Auth state reached, enabling commands";
 #endif
     QTimer::singleShot( 0, this, SLOT(executeCommands()));
 }

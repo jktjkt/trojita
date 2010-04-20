@@ -103,7 +103,7 @@ namespace Imap {
         /** @short Constructor.
          *
          * Takes an QIODevice instance as a parameter. */
-        Parser( QObject* parent, Imap::SocketPtr socket );
+        Parser( QObject* parent, Imap::SocketPtr socket, const uint myId );
 
         /** @short Checks for waiting responses */
         bool hasResponse() const;
@@ -335,6 +335,8 @@ namespace Imap {
         QByteArray _startTlsCommand;
         QByteArray _startTlsReply;
 
+        /** @short Unique-id for debugging purposes */
+        uint _parserId;
     };
 
     QTextStream& operator<<( QTextStream& stream, const Sequence& s );

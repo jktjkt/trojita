@@ -119,7 +119,7 @@ Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory, b
         QTimer::singleShot( 0, this, SLOT(setNetworkOffline()) );
     } else {
         // FIXME: socket error handling
-        Parser* parser( new Imap::Parser( this, _socketFactory->create() ) );
+        Parser* parser( new Imap::Parser( this, _socketFactory->create(), 0 ) );
         _parsers[ parser ] = ParserState( parser, 0, ReadOnly, CONN_STATE_ESTABLISHED, unauthHandler );
         connect( parser, SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
         connect( parser, SIGNAL( disconnected( const QString ) ), this, SLOT( slotParserDisconnected( const QString ) ) );
@@ -1168,6 +1168,8 @@ void Model::performNoop()
 
 Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bool reSync ) const
 {
+    static uint lastParserId = 0;
+
     Q_ASSERT( _netPolicy != NETWORK_OFFLINE );
 
     if ( ! mailbox && ! _parsers.isEmpty() ) {
@@ -1238,7 +1240,7 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
         // -> go for it.
 
         // FIXME: socket error handling
-        Parser* parser( new Parser( const_cast<Model*>( this ), _socketFactory->create() ) );
+        Parser* parser( new Parser( const_cast<Model*>( this ), _socketFactory->create(), ++lastParserId ) );
         _parsers[ parser ] = ParserState( parser, mailbox, mode, CONN_STATE_ESTABLISHED, unauthHandler );
         connect( parser, SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
         connect( parser, SIGNAL( disconnected( const QString ) ), this, SLOT( slotParserDisconnected( const QString ) ) );
