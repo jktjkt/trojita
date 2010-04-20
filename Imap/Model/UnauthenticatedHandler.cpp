@@ -1,5 +1,3 @@
-#include <QAuthenticator>
-#include "MailboxTree.h"
 #include "UnauthenticatedHandler.h"
 
 namespace Imap {

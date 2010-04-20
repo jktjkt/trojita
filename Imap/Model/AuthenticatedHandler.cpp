@@ -1,5 +1,3 @@
-#include <QAuthenticator>
-#include "MailboxTree.h"
 #include "AuthenticatedHandler.h"
 #include "UnauthenticatedHandler.h"
 

@@ -1,4 +1,3 @@
-#include <QAuthenticator>
 #include "MailboxTree.h"
 #include "SelectedHandler.h"
 
