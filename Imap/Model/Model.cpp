@@ -980,12 +980,6 @@ void Model::_askForChildrenOfMailbox( TreeItemMailbox* item )
     } else {
         // We have to go to the network
         Parser* parser = _getParser( 0, ReadOnly );
-        if ( _parsers[ parser ].connState < CONN_STATE_AUTH && item == _mailboxes ) {
-            // We haven't authenticated yet and this is a request for top-level mailbox list
-            // We better wait till we get logged in
-            item->_fetchStatus = TreeItem::NONE;
-            return;
-        }
         CommandHandle cmd = parser->list( "", mailbox );
         _parsers[ parser ].commandMap[ cmd ] = Task( Task::LIST, item );
     }
