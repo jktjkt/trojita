@@ -85,7 +85,7 @@ CommandHandle Parser::noop()
 
 CommandHandle Parser::logout()
 {
-    return queueCommand( Commands::ATOM, "LOGOUT" );
+    return queueCommandBeforeWaitForAuth( Commands::Command( "LOGOUT") );
 }
 
 CommandHandle Parser::capability()
@@ -95,19 +95,21 @@ CommandHandle Parser::capability()
 
 CommandHandle Parser::startTls()
 {
-    return queueCommand( Commands::STARTTLS, "STARTTLS" );
+    return queueCommandBeforeWaitForAuth( Commands::Command() <<
+                                          Commands::PartOfCommand( Commands::STARTTLS, "STARTTLS" ) );
 }
 
 #if 0
 CommandHandle Parser::authenticate( /*Authenticator FIXME*/)
 {
+    // FIXME: needs higher priority
     return queueCommand( Commands::ATOM, "AUTHENTICATE" );
 }
 #endif
 
 CommandHandle Parser::login( const QString& username, const QString& password )
 {
-    return queueCommand( Commands::Command( "LOGIN" ) <<
+    return queueCommandBeforeWaitForAuth( Commands::Command( "LOGIN" ) <<
             Commands::PartOfCommand( username ) << Commands::PartOfCommand( password ) );
 }
 
@@ -326,6 +328,18 @@ CommandHandle Parser::queueCommand( Commands::Command command )
     QString tag = generateTag();
     command.addTag( tag );
     _cmdQueue.append( command );
+    QTimer::singleShot( 0, this, SLOT(executeCommands()) );
+    return tag;
+}
+
+CommandHandle Parser::queueCommandBeforeWaitForAuth( Commands::Command command )
+{
+    QLinkedList<Commands::Command>::iterator it = std::find_if(
+            _cmdQueue.begin(), _cmdQueue.end(), std::mem_fun_ref(&Commands::Command::isWaitForAuth) );
+    QString tag = generateTag();
+    command.addTag( tag );
+    _cmdQueue.insert( it, command );
+    _waitingForAuth = false; // will be set again when this command gets sent -- the WAIT_FOR_AUTH is still queued
     QTimer::singleShot( 0, this, SLOT(executeCommands()) );
     return tag;
 }
