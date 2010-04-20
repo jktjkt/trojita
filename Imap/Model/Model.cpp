@@ -1262,6 +1262,9 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
 
 void Model::setNetworkPolicy( const NetworkPolicy policy )
 {
+    // If we're connecting after being offline, we should ask for an updated list of mailboxes
+    // The main reason is that this happens after entering wrong password and going back online
+    bool shouldReloadMailboxes = _netPolicy == NETWORK_OFFLINE && policy != NETWORK_OFFLINE;
     switch ( policy ) {
         case NETWORK_OFFLINE:
             noopTimer->stop();
@@ -1286,6 +1289,8 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
             emit networkPolicyOnline();
             break;
     }
+    if ( shouldReloadMailboxes )
+        reloadMailboxList();
 }
 
 void Model::slotParserDisconnected( const QString msg )
