@@ -520,7 +520,7 @@ void Parser::executeACommand()
                 break;
             case Commands::WAIT_FOR_AUTH:
 #ifdef PRINT_TRAFFIC
-                qDebug() << static_cast<void*>(this) << "[waiting for authentication]";
+                qDebug() << static_cast<void*>(this) << "*** Waiting for authentication";
 #endif
                 _waitingForAuth = true;
                 // No call to pop_front yet; the reason is that we have to allow queuing of
@@ -729,7 +729,7 @@ void Parser::authStateReached()
     _cmdQueue.erase( it );
     _waitingForAuth = false;
 #ifdef PRINT_TRAFFIC
-    qDebug() << static_cast<void*>(this) << "[auth state reached, enabling commands]";
+    qDebug() << static_cast<void*>(this) << "*** Auth state reached, enabling commands";
 #endif
     QTimer::singleShot( 0, this, SLOT(executeCommands()));
 }
