@@ -238,9 +238,6 @@ namespace Imap {
         CommandHandle uidThread( const QString& algo, const QString& charset, const QStringList& searchCriteria );
 
 
-        /** @short Postpone execution of other commands until the authStateReached() gets called */
-        void waitForAuth();
-
         /** @short Tell the parser that it is now authenticated and can therefore proceed with commands */
         void authStateReached();
 
@@ -307,6 +304,9 @@ namespace Imap {
 
         /** @short Add parsed response to the internal queue, emit notification signal */
         void queueResponse( const QSharedPointer<Responses::AbstractResponse>& resp );
+
+        /** @short Postpone execution of other commands until the authStateReached() gets called */
+        void waitForAuth();
 
         /** @short Connection to the IMAP server */
         SocketPtr _socket;
