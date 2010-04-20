@@ -366,6 +366,9 @@ private:
     NetworkPolicy networkPolicy() const { return _netPolicy; }
     void setNetworkPolicy( const NetworkPolicy policy );
 
+    /** @short Try to authenticate the user to the IMAP server */
+    void performAuthentication( Imap::Parser* ptr );
+
     ModelStateHandler* unauthHandler;
     ModelStateHandler* authenticatedHandler;
     ModelStateHandler* selectedHandler;

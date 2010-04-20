@@ -67,15 +67,7 @@ void UnauthenticatedHandler::handleState( Imap::Parser* ptr, const Imap::Respons
         }
         case OK:
             if ( !m->_startTls ) {
-                // FIXME: obey LOGINDISABLED
-                QAuthenticator auth;
-                emit m->authRequested( &auth );
-                if ( auth.isNull() ) {
-                    emit m->connectionError( tr("Can't login without user/password data") );
-                } else {
-                    CommandHandle cmd = ptr->login( auth.user(), auth.password() );
-                    m->_parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::LOGIN, 0 );
-                }
+                m->performAuthentication( ptr );
             }
             break;
         case BYE:

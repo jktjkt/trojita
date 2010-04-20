@@ -180,14 +180,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
             case Task::STARTTLS:
                 _parsers[ ptr ].capabilitiesFresh = false;
                 if ( resp->kind == Responses::OK ) {
-                    QAuthenticator auth;
-                    emit authRequested( &auth );
-                    if ( auth.isNull() ) {
-                        emit connectionError( tr("Can't login without user/password data") );
-                    } else {
-                        CommandHandle cmd = ptr->login( auth.user(), auth.password() );
-                        _parsers[ ptr ].commandMap[ cmd ] = Task( Task::LOGIN, 0 );
-                    }
+                    performAuthentication( ptr );
                 } else {
                     emit connectionError( tr("Can't establish a secure connection to the server (STARTTLS failed). Refusing to proceed.") );
                 }
@@ -1513,6 +1506,19 @@ TreeItem* Model::realTreeItem( QModelIndex index, const Model** whichModel, QMod
     if ( translatedIndex )
         *translatedIndex = index;
     return static_cast<TreeItem*>( index.internalPointer() );
+}
+
+void Model::performAuthentication( Imap::Parser* ptr )
+{
+    // FIXME: obey LOGINDISABLED
+    QAuthenticator auth;
+    emit authRequested( &auth );
+    if ( auth.isNull() ) {
+        emit connectionError( tr("Can't login without user/password data") );
+    } else {
+        CommandHandle cmd = ptr->login( auth.user(), auth.password() );
+        _parsers[ ptr ].commandMap[ cmd ] = Task( Task::LOGIN, 0 );
+    }
 }
 
 }
