@@ -193,8 +193,8 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                         CommandHandle cmd = ptr->capability();
                         _parsers[ ptr ].commandMap[ cmd ] = Task( Task::CAPABILITY, 0 );
                     }
-                    CommandHandle cmd = ptr->namespaceCommand();
-                    _parsers[ ptr ].commandMap[ cmd ] = Task( Task::NAMESPACE, 0 );
+                    //CommandHandle cmd = ptr->namespaceCommand();
+                    //_parsers[ ptr ].commandMap[ cmd ] = Task( Task::NAMESPACE, 0 );
                     ptr->authStateReached();
                 } else {
                     // FIXME: handle this in a sane way
