@@ -98,7 +98,7 @@ Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory, b
     QAbstractItemModel( parent ),
     // our tools
     _cache(cache), _socketFactory(socketFactory),
-    _maxParsers(1), _mailboxes(0), _netPolicy( NETWORK_ONLINE )
+    _maxParsers(4), _mailboxes(0), _netPolicy( NETWORK_ONLINE )
 {
     _startTls = _socketFactory->startTlsRequired();
 
