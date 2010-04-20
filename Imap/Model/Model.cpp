@@ -202,7 +202,6 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                     }
                     CommandHandle cmd = ptr->namespaceCommand();
                     _parsers[ ptr ].commandMap[ cmd ] = Task( Task::NAMESPACE, 0 );
-                    completelyReset();
                     ptr->authStateReached();
                 } else {
                     // FIXME: handle this in a sane way
@@ -1316,19 +1315,6 @@ void Model::idleTerminated()
         Q_ASSERT( it->idleLauncher );
         it->idleLauncher->restart();
     }
-}
-
-
-void Model::completelyReset()
-{
-    // FIXME: some replies might be already flying on their way to the parser, so we might receive duplicate data...
-    delete _mailboxes;
-    for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
-        it->commandMap.clear();
-        it->listResponses.clear();
-    }
-    _mailboxes = new TreeItemMailbox( 0 );
-    reset();
 }
 
 void Model::switchToMailbox( const QModelIndex& mbox )
