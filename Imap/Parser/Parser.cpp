@@ -728,6 +728,9 @@ void Parser::authStateReached()
     Q_ASSERT( it != _cmdQueue.end() );
     _cmdQueue.erase( it );
     _waitingForAuth = false;
+#ifdef PRINT_TRAFFIC
+    qDebug() << static_cast<void*>(this) << "[auth state reached, enabling commands]";
+#endif
     QTimer::singleShot( 0, this, SLOT(executeCommands()));
 }
 
