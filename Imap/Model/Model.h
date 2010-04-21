@@ -247,11 +247,18 @@ the list of messages, which is why this function exists in the first place.
       This is useful mainly for drag & drop operations
 */
     void markUidsDeleted( TreeItemMailbox* mbox, const Sequence& messages );
+
+    /** @short Copy a sequence of messages between two mailboxes */
     void copyMessages( TreeItemMailbox* sourceMbox, const QString& destMboxName, const Sequence& seq );
+
+    /** @short Create a new mailbox */
     void createMailbox( const QString& name );
+    /** @short Delete an existing mailbox */
     void deleteMailbox( const QString& name );
 
+    /** @short Returns true if we are allowed to access the network */
     bool isNetworkAvailable() const { return _netPolicy != NETWORK_OFFLINE; }
+    /** @short Returns true if the network access is cheap */
     bool isNetworkOnline() const { return _netPolicy == NETWORK_ONLINE; }
 
     /** @short Return a TreeItem* for a specified index
@@ -271,10 +278,14 @@ and @arg translatedIndex.
     static TreeItem* realTreeItem( QModelIndex index, const Model** whichModel = 0, QModelIndex* translatedIndex = 0 );
 
 public slots:
+    /** @short Ask for an updated list of mailboxes on the server */
     void reloadMailboxList();
 
+    /** @short Set the netowrk access policy to "no access allowed" */
     void setNetworkOffline() { setNetworkPolicy( NETWORK_OFFLINE ); }
+    /** @short Set the network access policy to "possible, but expensive" */
     void setNetworkExpensive() { setNetworkPolicy( NETWORK_EXPENSIVE ); }
+    /** @short Set the network access policy to "it's cheap to use it" */
     void setNetworkOnline() { setNetworkPolicy( NETWORK_ONLINE ); }
 
     /** @short Try to maintain a connection to the given mailbox
@@ -286,23 +297,47 @@ public slots:
     void switchToMailbox( const QModelIndex& mbox );
 
 private slots:
+    /** @short Handler for the "parser got disconnected" event */
     void slotParserDisconnected( const QString );
+    /** @short Send a NOOP over all connections
+
+      The main reason for such an action is to ask for updated data for all mailboxes
+*/
     void performNoop();
+    /** @short An event handler which tries to restart the IDLE command, if possible */
     void idleTerminated();
 
 signals:
+    /** @short This signal is emitted then the server sent us an ALERT response code */
     void alertReceived( const QString& message );
+    /** @short The network went offline
+
+      This signal is emitted if the network connection went offline for any reason.
+    Common reasons are an explicit user action or a network error.
+ */
     void networkPolicyOffline();
+    /** @short The network access policy got changed to "expensive" */
     void networkPolicyExpensive();
+    /** @short The network is available and cheap again */
     void networkPolicyOnline();
+    /** @short A connection error has been encountered */
     void connectionError( const QString& message );
+    /** @short The server requests the user to authenticate
+
+      The user is expected to file username and password to the QAuthenticator* object.
+*/
     void authRequested( QAuthenticator* auth );
 
+    /** @short The amount of messages in the indicated mailbox might have changed */
     void messageCountPossiblyChanged( const QModelIndex& mailbox );
 
+    /** @short We've succeeded to create the given mailbox */
     void mailboxCreationSucceded( const QString& mailbox );
+    /** @short The mailbox creation failed for some reason */
     void mailboxCreationFailed( const QString& mailbox, const QString& message );
+    /** @short We've succeeded to delete a mailbox */
     void mailboxDeletionSucceded( const QString& mailbox );
+    /** @short Mailbox deletion failed */
     void mailboxDeletionFailed( const QString& mailbox, const QString& message );
 
 private:
