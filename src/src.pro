@@ -12,17 +12,7 @@ DEFINES -= QT3_SUPPORT
 DEFINES += LOG_AND_TRACE_ACTIVE
 TARGET = trojita
 TEMPLATE = app
-INCLUDEPATH += ./Imap/Parser \
-               ./Imap \
-               ./Imap/Model \
-#               ./Imap/Model/ModelTest \
-               ./Imap/Parser/3rdparty \
-               ./Gui \
-               ./Imap/Network \
-               ./Streams \
-               ./MSA \
-               ./qwwsmtpclient \
-               ./iconloader
+
 SOURCES +=  ./Imap/Parser/Parser.cpp \
     ./Imap/Parser/Command.cpp \
     ./Imap/Parser/Response.cpp \
