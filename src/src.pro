@@ -60,8 +60,7 @@ SOURCES +=  ./Imap/Parser/Parser.cpp \
     ./Imap/Network/FormattingReply.cpp \
     ./Imap/Network/MsgPartNetAccessManager.cpp \
     ./Imap/Network/AuxiliaryReply.cpp \
-#    ./Imap/Model/ModelTest/modeltest.cpp \
-#    ./Imap/Model/ModelTest/ModelTestMoc.cpp \
+    ./Imap/Model/ModelTest/modeltest.cpp \
     ./Streams/SocketFactory.cpp \
     ./Streams/IODeviceSocket.cpp \
     ./MSA/AbstractMSA.cpp \
@@ -95,7 +94,7 @@ HEADERS += ./Streams/SocketFactory.h \
 ./Imap/Model/MailboxTree.h\
 ./Imap/Model/PrettyMailboxModel.h\
 ./Imap/Model/MailboxMetadata.h\
-#./Imap/Model/ModelTest/modeltest.h\
+./Imap/Model/ModelTest/modeltest.h\
 ./Imap/Model/ModelWatcher.h\
 ./Imap/Model/UnauthenticatedHandler.h\
 ./Imap/Model/AuthenticatedHandler.h\
