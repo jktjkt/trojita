@@ -54,4 +54,4 @@ FORMS += CreateMailboxDialog.ui \
 RESOURCES += ../icons.qrc
 
 LIBS += -L../Imap/Parser -L../Imap/Model -L../Imap/Network -L../MSA -L../Streams -L../iconloader -L../qwwsmtpclient
-LIBS += -lImapParser -lImapModel -lImapNetwork -lMSA -lStreams -liconloader -lqwwsmtpclient
+LIBS += -lImapModel -lImapParser -lImapNetwork -lMSA -lStreams -liconloader -lqwwsmtpclient
