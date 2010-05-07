@@ -11,11 +11,6 @@ DEFINES -= QT3_SUPPORT
 TARGET = trojita
 TEMPLATE = app
 SOURCES += \
-    ../Imap/Network/MsgPartNetworkReply.cpp \
-    ../Imap/Network/ForbiddenReply.cpp \
-    ../Imap/Network/FormattingReply.cpp \
-    ../Imap/Network/MsgPartNetAccessManager.cpp \
-    ../Imap/Network/AuxiliaryReply.cpp \
 #    ../Imap/Model/ModelTest/modeltest.cpp \
     ../main.cpp \
     MessageView.cpp \
@@ -33,11 +28,6 @@ SOURCES += \
     MsgListView.cpp \
     ExternalElementsWidget.cpp
 HEADERS += \
-    ../Imap/Network/ForbiddenReply.h \
-    ../Imap/Network/AuxiliaryReply.h \
-    ../Imap/Network/MsgPartNetAccessManager.h \
-    ../Imap/Network/MsgPartNetworkReply.h \
-    ../Imap/Network/FormattingReply.h \
 # ./tests/test_rfccodecs.h\
 # ./tests/test_Imap_Parser_parse.h\
 # ./tests/test_Imap_Responses.h\
@@ -63,5 +53,5 @@ FORMS += CreateMailboxDialog.ui \
     ComposeWidget.ui
 RESOURCES += ../icons.qrc
 
-LIBS += -L../Imap -L../MSA -L../Streams -L../iconloader -L../qwwsmtpclient
-LIBS += -lImap -lMSA -lStreams -liconloader -lqwwsmtpclient
+LIBS += -L../Imap/Parser -L../Imap/Model -L../Imap/Network -L../MSA -L../Streams -L../iconloader -L../qwwsmtpclient
+LIBS += -lImapParser -lImapModel -lImapNetwork -lMSA -lStreams -liconloader -lqwwsmtpclient
