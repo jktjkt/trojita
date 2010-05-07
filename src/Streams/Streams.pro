@@ -2,7 +2,7 @@ QT += core network
 CONFIG += staticlib
 DEFINES -= QT3_SUPPORT
 INCLUDEPATH += ../
-TARGET = Socket
+TARGET = Streams
 TEMPLATE = lib
 SOURCES += SocketFactory.cpp \
     IODeviceSocket.cpp
