@@ -1,0 +1,67 @@
+# -------------------------------------------------
+# Project created by QtCreator 2009-12-30T21:03:09
+# -------------------------------------------------
+QT += core \
+    gui \
+    webkit \
+    network
+include(../../install.pri)
+INCLUDEPATH += ../
+DEFINES -= QT3_SUPPORT
+TARGET = trojita
+TEMPLATE = app
+SOURCES += \
+    ../Imap/Network/MsgPartNetworkReply.cpp \
+    ../Imap/Network/ForbiddenReply.cpp \
+    ../Imap/Network/FormattingReply.cpp \
+    ../Imap/Network/MsgPartNetAccessManager.cpp \
+    ../Imap/Network/AuxiliaryReply.cpp \
+#    ../Imap/Model/ModelTest/modeltest.cpp \
+    ../main.cpp \
+    MessageView.cpp \
+    EmbeddedWebView.cpp \
+    PartWidgetFactory.cpp \
+    PartWidget.cpp \
+    SimplePartWidget.cpp \
+    Rfc822HeaderView.cpp \
+    AttachmentView.cpp \
+    LoadablePartWidget.cpp \
+    Window.cpp \
+    SettingsDialog.cpp \
+    SettingsNames.cpp \
+    ComposeWidget.cpp \
+    MsgListView.cpp \
+    ExternalElementsWidget.cpp
+HEADERS += \
+    ../Imap/Network/ForbiddenReply.h \
+    ../Imap/Network/AuxiliaryReply.h \
+    ../Imap/Network/MsgPartNetAccessManager.h \
+    ../Imap/Network/MsgPartNetworkReply.h \
+    ../Imap/Network/FormattingReply.h \
+# ./tests/test_rfccodecs.h\
+# ./tests/test_Imap_Parser_parse.h\
+# ./tests/test_Imap_Responses.h\
+# ./tests/test_Imap_Message.h\
+# ./tests/test_Imap_LowLevelParser.h\
+# ./tests/qtest_kde.h\
+    ComposeWidget.h \
+    MessageView.h \
+    SimplePartWidget.h \
+    AbstractPartWidget.h \
+    EmbeddedWebView.h \
+    Window.h \
+    Rfc822HeaderView.h \
+    LoadablePartWidget.h \
+    PartWidget.h \
+    SettingsNames.h \
+    SettingsDialog.h \
+    PartWidgetFactory.h \
+    MsgListView.h \
+    AttachmentView.h \
+    ExternalElementsWidget.h
+FORMS += CreateMailboxDialog.ui \
+    ComposeWidget.ui
+RESOURCES += ../icons.qrc
+
+LIBS += -L../Imap -L../MSA -L../Streams -L../iconloader -L../qwwsmtpclient
+LIBS += -lImap -lMSA -lSocket -liconloader -lqwwsmtpclient
