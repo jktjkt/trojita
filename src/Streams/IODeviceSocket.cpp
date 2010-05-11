@@ -84,7 +84,6 @@ void IODeviceSocket::startTls()
         throw InvalidArgument( "This IODeviceSocket is not a QSslSocket, and therefore doesn't support STARTTLS." );
     } else {
         sock->startClientEncryption();
-        sock->waitForEncrypted();
     }
 }
 
