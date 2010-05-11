@@ -66,16 +66,6 @@ QByteArray IODeviceSocket::readLine( qint64 maxSize )
     return d->readLine( maxSize );
 }
 
-bool IODeviceSocket::waitForReadyRead( int msec )
-{
-    return d->waitForReadyRead( msec );
-}
-
-bool IODeviceSocket::waitForBytesWritten( int msec )
-{
-    return d->waitForBytesWritten( msec );
-}
-
 qint64 IODeviceSocket::write( const QByteArray& byteArray )
 {
     return d->write( byteArray );

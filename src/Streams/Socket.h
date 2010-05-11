@@ -40,12 +40,6 @@ namespace Imap {
         /** @short Read a line from the socket (up to the @arg maxSize bytes) */
         virtual QByteArray readLine( qint64 maxSize = 0 ) = 0;
 
-        /** @short Block until the socket receives some data (or timeout) */
-        virtual bool waitForReadyRead( int msec ) = 0;
-
-        /** @short Block until the socket has finished writing its buffer (or timeout) */
-        virtual bool waitForBytesWritten( int msec ) = 0;
-
         /** @short Write the contents of the @arg byteArray buffer to the socket */
         virtual qint64 write( const QByteArray& byteArray ) = 0;
 

@@ -36,8 +36,6 @@ namespace Imap {
         virtual bool canReadLine();
         virtual QByteArray read( qint64 maxSize );
         virtual QByteArray readLine( qint64 maxSize = 0 );
-        virtual bool waitForReadyRead( int msec );
-        virtual bool waitForBytesWritten( int msec );
         virtual qint64 write( const QByteArray& byteArray );
         virtual void startTls();
         virtual bool isDead();
