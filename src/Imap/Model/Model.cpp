@@ -129,6 +129,7 @@ Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory, b
         if ( _startTls ) {
             CommandHandle cmd = parser->startTls();
             _parsers[ parser ].commandMap[ cmd ] = Task( Task::STARTTLS, 0 );
+            emit activityHappening( true );
         }
         QTimer::singleShot( 0, this, SLOT( setNetworkOnline() ) );
         noopTimer->start( PollingPeriod );
@@ -195,6 +196,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                     if ( ! _parsers[ ptr ].capabilitiesFresh ) {
                         CommandHandle cmd = ptr->capability();
                         _parsers[ ptr ].commandMap[ cmd ] = Task( Task::CAPABILITY, 0 );
+                        emit activityHappening( true );
                     }
                     //CommandHandle cmd = ptr->namespaceCommand();
                     //_parsers[ ptr ].commandMap[ cmd ] = Task( Task::NAMESPACE, 0 );
@@ -280,6 +282,8 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
             _parsers[ ptr ].commandMap.erase( command );
         else
             qDebug() << "This command is not valid anymore at the end of the loop" << tag;
+
+        parsersMightBeIdling();
 
     } else {
         // untagged response
@@ -498,6 +502,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                     CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ),
                                                        items );
                     _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
+                    emit activityHappening( true );
                     list->_numberFetchingStatus = TreeItem::LOADING;
                     list->_unreadMessageCount = 0;
                 } else {
@@ -533,6 +538,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                 CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ),
                                                    QStringList() << "UID" << "FLAGS" );
                 _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
+                emit activityHappening( true );
                 list->_numberFetchingStatus = TreeItem::LOADING;
                 list->_unreadMessageCount = 0;
                 // selecting handler should do the rest
@@ -562,6 +568,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                 CommandHandle cmd = parser->fetch( Sequence::startingAt( oldState.exists() + 1 ),
                                                    items );
                 _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
+                emit activityHappening( true );
                 list->_numberFetchingStatus = TreeItem::LOADING;
                 list->_fetchStatus = TreeItem::DONE;
                 list->_unreadMessageCount = 0;
@@ -575,6 +582,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                 CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ),
                                                    QStringList() << "UID" << "FLAGS" );
                 _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
+                emit activityHappening( true );
                 _parsers[ parser ].responseHandler = selectingHandler;
                 list->_numberFetchingStatus = TreeItem::LOADING;
                 list->_unreadMessageCount = 0;
@@ -630,6 +638,7 @@ void Model::_fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, Pars
         QStringList items = willLoad ? _onlineMessageFetch : QStringList() << "UID" << "FLAGS";
         CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ), items );
         _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
+        emit activityHappening( true );
         list->_numberFetchingStatus = TreeItem::LOADING;
         list->_unreadMessageCount = 0;
     } else {
@@ -766,6 +775,7 @@ void Model::_finalizeCreate( Parser* parser, const QMap<CommandHandle, Task>::co
         emit mailboxCreationSucceded( command->str );
         CommandHandle cmd = parser->list( QLatin1String(""), command->str );
         _parsers[ parser ].commandMap[ cmd ] = Task( Task::LIST_AFTER_CREATE, command->str );
+        emit activityHappening( true );
     } else {
         emit mailboxCreationFailed( command->str, resp->message );
     }
@@ -883,6 +893,7 @@ void Model::handleNamespace( Imap::Parser* ptr, const Imap::Responses::Namespace
     CommandHandle cmd;
     cmd = parser->list( QLatin1String(""), QLatin1String("INBOX") );
     _parsers[ parser ].commandMap[ cmd ] = Task( Task::LIST, _mailboxes );
+    emit activityHappening( true );
 }
 
 void Model::handleSort(Imap::Parser *ptr, const Imap::Responses::Sort *const resp)
@@ -987,6 +998,7 @@ void Model::_askForChildrenOfMailbox( TreeItemMailbox* item )
         Parser* parser = _getParser( 0, ReadOnly );
         CommandHandle cmd = parser->list( "", mailbox );
         _parsers[ parser ].commandMap[ cmd ] = Task( Task::LIST, item );
+        emit activityHappening( true );
     }
     QModelIndex idx = createIndex( item->row(), 0, item );
     emit dataChanged( idx, idx );
@@ -1054,6 +1066,7 @@ void Model::_askForNumberOfMessages( TreeItemMsgList* item )
         CommandHandle cmd = parser->status( mailboxPtr->mailbox(),
                                             QStringList() << QLatin1String("MESSAGES") << QLatin1String("UNSEEN") );
         _parsers[ parser ].commandMap[ cmd ] = Task( Task::STATUS, item );
+        emit activityHappening( true );
     }
 }
 
@@ -1101,6 +1114,7 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
                 Parser* parser = _getParser( mailboxPtr, ReadOnly );
                 CommandHandle cmd = parser->fetch( Sequence( order + 1 ), _onlineMessageFetch );
                 _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH, item );
+                emit activityHappening( true );
             }
             break;
         case NETWORK_ONLINE:
@@ -1121,6 +1135,7 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
                 Parser* parser = _getParser( mailboxPtr, ReadOnly );
                 CommandHandle cmd = parser->fetch( seq, _onlineMessageFetch );
                 _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH, item );
+                emit activityHappening( true );
             }
             break;
     }
@@ -1156,6 +1171,7 @@ void Model::_askForMsgPart( TreeItemPart* item, bool onlyFromCache )
                             item->partId()
                         ) );
         _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH, item );
+        emit activityHappening( true );
     }
 }
 
@@ -1220,6 +1236,7 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
         else
             cmd = parser.parser->examine( mailbox->mailbox() );
         parser.commandMap[ cmd ] = Task( Task::SELECT, mailbox );
+        emit const_cast<Model*>(this)->activityHappening( true );
         ++parser.selectingAnother;
         return parser.parser;
     } else {
@@ -1256,6 +1273,7 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
         if ( _startTls ) {
             cmd = parser->startTls();
             _parsers[ parser ].commandMap[ cmd ] = Task( Task::STARTTLS, 0 );
+            emit const_cast<Model*>(this)->activityHappening( true );
         }
         if ( mailbox ) {
             if ( mode == ReadWrite )
@@ -1263,6 +1281,7 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
             else
                 cmd = parser->examine( mailbox->mailbox() );
             _parsers[ parser ].commandMap[ cmd ] = Task( Task::SELECT, mailbox );
+            emit const_cast<Model*>(this)->activityHappening( true );
             _parsers[ parser ].mailbox = mailbox;
             _parsers[ parser ].mode = mode;
             ++_parsers[ parser ].selectingAnother;
@@ -1282,6 +1301,7 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
             for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
                 CommandHandle cmd = _parsers[ it.key() ].parser->logout();
                 _parsers[ it.key() ].commandMap[ cmd ] = Task( Task::LOGOUT, 0 );
+                emit activityHappening( true );
             }
             emit networkPolicyOffline();
             _netPolicy = NETWORK_OFFLINE;
@@ -1319,6 +1339,8 @@ void Model::slotParserDisconnected( const QString msg )
     disconnect( which, SIGNAL(disconnected(QString)), this, SLOT(slotParserDisconnected(QString)) );
     which->deleteLater();
     _parsers.remove( which );
+
+    parsersMightBeIdling();
 }
 
 void Model::idleTerminated()
@@ -1382,6 +1404,7 @@ void Model::updateFlags( TreeItemMessage* message, const QString& flagOperation,
     }
     CommandHandle cmd = parser->uidStore( Sequence( message->_uid ), flagOperation, flags );
     _parsers[ parser ].commandMap[ cmd ] = Task( Task::STORE, message );
+    emit activityHappening( true );
 }
 
 void Model::markMessageDeleted( TreeItemMessage* msg, bool marked )
@@ -1407,6 +1430,7 @@ void Model::copyMessages( TreeItemMailbox* sourceMbox, const QString& destMailbo
     Parser* parser = _getParser( sourceMbox, ReadOnly );
     CommandHandle cmd = parser->uidCopy( seq, destMailboxName );
     _parsers[ parser ].commandMap[ cmd ] = Task( Task::COPY, sourceMbox );
+    emit activityHappening( true );
 }
 
 void Model::markUidsDeleted( TreeItemMailbox* mbox, const Sequence& messages )
@@ -1415,6 +1439,7 @@ void Model::markUidsDeleted( TreeItemMailbox* mbox, const Sequence& messages )
     Parser* parser = _getParser( mbox, ReadWrite );
     CommandHandle cmd = parser->uidStore( messages, QLatin1String("+FLAGS"), QLatin1String("\\Deleted") );
     _parsers[ parser ].commandMap[ cmd ] = Task( Task::STORE, mbox );
+    emit activityHappening( true );
 }
 
 TreeItemMailbox* Model::findMailboxByName( const QString& name ) const
@@ -1474,6 +1499,7 @@ void Model::expungeMailbox( TreeItemMailbox* mbox )
     Parser* parser = _getParser( mbox, ReadWrite );
     CommandHandle cmd = parser->expunge(); // BIG FAT WARNING: what happens if the SELECT fails???
     _parsers[ parser ].commandMap[ cmd ] = Task( Task::EXPUNGE, mbox );
+    emit activityHappening( true );
 }
 
 void Model::createMailbox( const QString& name )
@@ -1486,6 +1512,7 @@ void Model::createMailbox( const QString& name )
     Parser* parser = _getParser( 0, ReadOnly );
     CommandHandle cmd = parser->create( name );
     _parsers[ parser ].commandMap[ cmd ] = Task( Task::CREATE, name );
+    emit activityHappening( true );
 }
 
 void Model::deleteMailbox( const QString& name )
@@ -1498,6 +1525,7 @@ void Model::deleteMailbox( const QString& name )
     Parser* parser = _getParser( 0, ReadOnly );
     CommandHandle cmd = parser->deleteMailbox( name );
     _parsers[ parser ].commandMap[ cmd ] = Task( Task::DELETE, name );
+    emit activityHappening( true );
 }
 
 void Model::saveUidMap( TreeItemMsgList* list )
@@ -1543,6 +1571,7 @@ void Model::performAuthentication( Imap::Parser* ptr )
     } else {
         CommandHandle cmd = ptr->login( _authenticator->user(), _authenticator->password() );
         _parsers[ ptr ].commandMap[ cmd ] = Task( Task::LOGIN, 0 );
+        emit activityHappening( true );
     }
 }
 
@@ -1585,6 +1614,22 @@ void Model::parserIsSendingCommand( const QString& tag)
             changeConnectionState( ptr, CONN_STATE_SYNCING );
             break;
     }
+}
+
+void Model::parsersMightBeIdling()
+{
+    bool someParserBusy = false;
+    Q_FOREACH( const ParserState& p, _parsers ) {
+        if ( p.commandMap.isEmpty() )
+            continue;
+        Q_FOREACH( const Task& t, p.commandMap ) {
+            if ( t.kind != Task::NOOP ) {
+                someParserBusy = true;
+                break;
+            }
+        }
+    }
+    emit activityHappening( someParserBusy );
 }
 
 }

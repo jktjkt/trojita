@@ -27,6 +27,7 @@
 class QAuthenticator;
 class QItemSelection;
 class QModelIndex;
+class QProgressBar;
 class QScrollArea;
 class QTreeView;
 
@@ -85,6 +86,7 @@ private slots:
     void updateMessageFlags();
     void scrollMessageUp();
     void showConnectionStatus( QObject* parser, Imap::ConnectionState state );
+    void updateBusyParsers( bool busy );
 
     void slotMailboxDeleteFailed( const QString& mailbox, const QString& msg );
 
@@ -136,6 +138,8 @@ private:
 
     QAction* markAsRead;
     QAction* markAsDeleted;
+
+    QProgressBar* busyParsersIndicator;
 
     MainWindow(const MainWindow&); // don't implement
     MainWindow& operator=(const MainWindow&); // don't implement

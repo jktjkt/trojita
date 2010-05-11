@@ -341,6 +341,9 @@ signals:
     /** @short Inform the GUI about the progress of a connection */
     void connectionStateChanged( QObject* parser, Imap::ConnectionState state ); // got to use fully qualified namespace here
 
+    /** @short An interaction with the remote server is taking place */
+    void activityHappening( bool isHappening );
+
 private:
     Model& operator=( const Model& ); // don't implement
     Model( const Model& ); // don't implement
@@ -407,6 +410,9 @@ private:
 
     /** @short Try to authenticate the user to the IMAP server */
     void performAuthentication( Imap::Parser* ptr );
+
+    /** @short Check if all the parsers are indeed idling, and update the GUI if so */
+    void parsersMightBeIdling();
 
     ModelStateHandler* unauthHandler;
     ModelStateHandler* authenticatedHandler;

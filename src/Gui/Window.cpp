@@ -25,6 +25,7 @@
 #include <QItemSelectionModel>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QProgressBar>
 #include <QScrollArea>
 #include <QSplitter>
 #include <QStatusBar>
@@ -240,6 +241,11 @@ void MainWindow::createWidgets()
     allTree->setUniformRowHeights( true );
     allTree->setHeaderHidden( true );
     allDock->setWidget( allTree );
+
+    busyParsersIndicator = new QProgressBar( this );
+    statusBar()->addPermanentWidget( busyParsersIndicator );
+    busyParsersIndicator->setMinimum(0);
+    busyParsersIndicator->setMaximum(0);
 }
 
 void MainWindow::setupModels()
@@ -307,6 +313,8 @@ void MainWindow::setupModels()
 
     connect( model, SIGNAL(connectionStateChanged(QObject*,Imap::ConnectionState)),
              this, SLOT(showConnectionStatus(QObject*,Imap::ConnectionState)) );
+
+    connect( model, SIGNAL(activityHappening(bool)), this, SLOT(updateBusyParsers(bool)) );
 
     //Imap::Mailbox::ModelWatcher* w = new Imap::Mailbox::ModelWatcher( this );
     //w->setModel( model );
@@ -750,6 +758,11 @@ void MainWindow::showConnectionStatus( QObject* parser, Imap::ConnectionState st
     }
     qDebug() << parser << message;
     statusBar()->showMessage( message );
+}
+
+void MainWindow::updateBusyParsers(bool busy)
+{
+    busyParsersIndicator->setVisible(busy);
 }
 
 }
