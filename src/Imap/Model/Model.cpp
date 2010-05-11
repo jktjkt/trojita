@@ -124,6 +124,7 @@ Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory, b
         _parsers[ parser ] = ParserState( parser, 0, ReadOnly, CONN_STATE_NONE, unauthHandler );
         connect( parser, SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
         connect( parser, SIGNAL( disconnected( const QString ) ), this, SLOT( slotParserDisconnected( const QString ) ) );
+        connect( parser, SIGNAL(connectionStateChanged(Imap::ConnectionState)), this, SLOT(handleSocketStateChanged(Imap::ConnectionState)) );
         if ( _startTls ) {
             CommandHandle cmd = parser->startTls();
             _parsers[ parser ].commandMap[ cmd ] = Task( Task::STARTTLS, 0 );
@@ -1244,6 +1245,7 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
         _parsers[ parser ] = ParserState( parser, mailbox, mode, CONN_STATE_NONE, unauthHandler );
         connect( parser, SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
         connect( parser, SIGNAL( disconnected( const QString ) ), this, SLOT( slotParserDisconnected( const QString ) ) );
+        connect( parser, SIGNAL(connectionStateChanged(Imap::ConnectionState)), this, SLOT(handleSocketStateChanged(Imap::ConnectionState)) );
         CommandHandle cmd;
         if ( _startTls ) {
             cmd = parser->startTls();
@@ -1542,6 +1544,15 @@ void Model::changeConnectionState(Parser *parser, ConnectionState state)
 {
     _parsers[ parser ].connState = state;
     emit connectionStateChanged( parser, state );
+}
+
+void Model::handleSocketStateChanged(Imap::ConnectionState state)
+{
+    Parser* ptr = qobject_cast<Parser*>( sender() );
+    Q_ASSERT(ptr);
+    if ( _parsers[ ptr ].connState < state ) {
+        changeConnectionState( ptr, state );
+    }
 }
 
 }

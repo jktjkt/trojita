@@ -299,6 +299,9 @@ private slots:
     /** @short An event handler which tries to restart the IDLE command, if possible */
     void idleTerminated();
 
+    /** @short Helper for low-level state change propagation */
+    void handleSocketStateChanged(Imap::ConnectionState state);
+
 signals:
     /** @short This signal is emitted then the server sent us an ALERT response code */
     void alertReceived( const QString& message );

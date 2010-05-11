@@ -77,6 +77,7 @@ Parser::Parser( QObject* parent, Imap::SocketPtr socket, const uint myId ):
              this, SLOT( handleDisconnected( const QString& ) ) );
     connect( _socket.get(), SIGNAL( readyRead() ), this, SLOT( handleReadyRead() ) );
     connect( _socket.get(), SIGNAL(connected()), this, SLOT(handleConnectionEstablished()) );
+    connect( _socket.get(), SIGNAL(stateChanged(Imap::ConnectionState)), this, SIGNAL(connectionStateChanged(Imap::ConnectionState)) );
     waitForAuth();
 }
 

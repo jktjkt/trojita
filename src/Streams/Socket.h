@@ -20,6 +20,7 @@
 
 #include <memory>
 #include <QAbstractSocket>
+#include "../Imap/ConnectionState.h"
 
 namespace Imap {
 
@@ -64,6 +65,9 @@ namespace Imap {
 
         /** @short Some data could be read from the socket */
         void readyRead();
+
+        /** @short Low-level state of the connection has changed */
+        void stateChanged(Imap::ConnectionState state);
     };
 
     typedef std::auto_ptr<Socket> SocketPtr;

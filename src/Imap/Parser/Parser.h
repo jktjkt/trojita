@@ -252,6 +252,9 @@ namespace Imap {
 
         void idleTerminated();
 
+        /** @short The socket's state has changed */
+        void connectionStateChanged(Imap::ConnectionState);
+
     private slots:
         void handleReadyRead();
         void handleConnectionEstablished();

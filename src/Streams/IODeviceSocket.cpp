@@ -104,8 +104,10 @@ void IODeviceSocket::handleStateChanged()
         switch ( proc->state() ) {
             case QProcess::Running:
                 emit connected();
+                emit stateChanged(Imap::CONN_STATE_ESTABLISHED);
                 break;
             case QProcess::Starting:
+                emit stateChanged(Imap::CONN_STATE_CONNECTING);
                 break;
             case QProcess::NotRunning:
                 {
@@ -123,13 +125,19 @@ void IODeviceSocket::handleStateChanged()
     } else if ( QAbstractSocket* sock = qobject_cast<QAbstractSocket*>( d ) ) {
         switch ( sock->state() ) {
             case QAbstractSocket::HostLookupState:
+                emit stateChanged(Imap::CONN_STATE_HOST_LOOKUP);
+                break;
             case QAbstractSocket::ConnectingState:
+                emit stateChanged(Imap::CONN_STATE_CONNECTING);
+                break;
             case QAbstractSocket::BoundState:
             case QAbstractSocket::ListeningState:
                 break;
             case QAbstractSocket::ConnectedState:
-                if ( ! _startEncrypted )
+                if ( ! _startEncrypted ) {
                     emit connected();
+                    emit stateChanged(Imap::CONN_STATE_ESTABLISHED);
+                }
                 break;
             case QAbstractSocket::UnconnectedState:
             case QAbstractSocket::ClosingState:
