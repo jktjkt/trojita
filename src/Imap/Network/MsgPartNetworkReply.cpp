@@ -36,6 +36,7 @@ MsgPartNetworkReply::MsgPartNetworkReply( QObject* parent,
 
 void MsgPartNetworkReply::slotModelDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight )
 {
+    Q_UNUSED(bottomRight);
     // FIXME: use bottomRight as well!
     if ( topLeft.model() != model ) {
         return;

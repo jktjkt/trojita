@@ -43,6 +43,7 @@ QVariant PrettyMailboxModel::data( const QModelIndex& index, int role ) const
 
 bool PrettyMailboxModel::filterAcceptsColumn( int source_column, const QModelIndex& source_parent ) const
 {
+    Q_UNUSED(source_parent);
     return source_column == 0;
 }
 

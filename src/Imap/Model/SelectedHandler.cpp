@@ -41,23 +41,27 @@ void SelectedHandler::handleList( Imap::Parser* ptr, const Imap::Responses::List
 
 void SelectedHandler::handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp )
 {
+    Q_UNUSED(ptr); Q_UNUSED(resp);
     // FIXME
 }
 
 void SelectedHandler::handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp )
 {
+    Q_UNUSED(ptr);
     // FIXME
     throw UnexpectedResponseReceived( "SEARCH reply, wtf?", *resp );
 }
 
 void SelectedHandler::handleSort( Imap::Parser* ptr, const Imap::Responses::Sort* const resp )
 {
+    Q_UNUSED(ptr);
     // FIXME
     throw UnexpectedResponseReceived( "SORT reply, wtf?", *resp );
 }
 
 void SelectedHandler::handleThread( Imap::Parser* ptr, const Imap::Responses::Thread* const resp )
 {
+    Q_UNUSED(ptr);
     // FIXME
     throw UnexpectedResponseReceived( "THREAD reply, wtf?", *resp );
 }

@@ -384,7 +384,8 @@ void TreeItemMailbox::handleExistsSynced( Model* const model, Parser* ptr, const
 
 void TreeItemMailbox::finalizeFetch( Model* const model, const Responses::Status& response )
 {
-
+    Q_UNUSED(model); Q_UNUSED(response);
+    // FIXME: implement me?
 }
 
 TreeItemPart* TreeItemMailbox::partIdToPtr( Model* const model, const int msgNumber, const QString& msgId )

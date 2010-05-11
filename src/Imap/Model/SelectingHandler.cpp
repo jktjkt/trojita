@@ -16,6 +16,7 @@ void SelectingHandler::handleState( Imap::Parser* ptr, const Imap::Responses::St
 
 void SelectingHandler::handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp )
 {
+    Q_UNUSED(ptr);
     // FIXME ?
     throw UnexpectedResponseReceived( "Numeric reply while syncing mailbox", *resp );
 }

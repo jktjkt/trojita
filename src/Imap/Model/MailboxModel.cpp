@@ -287,6 +287,7 @@ QStringList MailboxModel::mimeTypes() const
 bool MailboxModel::dropMimeData( const QMimeData* data, Qt::DropAction action,
                                  int row, int column, const QModelIndex& parent )
 {
+    Q_UNUSED(row); Q_UNUSED(column);
     if ( action != Qt::CopyAction && action != Qt::MoveAction )
         return false;
 
