@@ -735,8 +735,11 @@ void MainWindow::showConnectionStatus( QObject* parser, Imap::ConnectionState st
     case CONN_STATE_AUTHENTICATED:
         message = tr("Logged in.");
         break;
-    case CONN_STATE_SYNCING:
+    case CONN_STATE_SELECTING:
         message = tr("Opening mailbox...");
+        break;
+    case CONN_STATE_SYNCING:
+        message = tr("Synchronizing mailbox...");
         break;
     case CONN_STATE_SELECTED:
         message = tr("Mailbox opened.");

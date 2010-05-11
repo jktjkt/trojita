@@ -302,6 +302,9 @@ private slots:
     /** @short Helper for low-level state change propagation */
     void handleSocketStateChanged(Imap::ConnectionState state);
 
+    /** @short Handler for the Parser::sendingCommand() signal */
+    void parserIsSendingCommand( const QString& tag );
+
 signals:
     /** @short This signal is emitted then the server sent us an ALERT response code */
     void alertReceived( const QString& message );

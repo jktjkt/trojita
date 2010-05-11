@@ -125,6 +125,7 @@ Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory, b
         connect( parser, SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
         connect( parser, SIGNAL( disconnected( const QString ) ), this, SLOT( slotParserDisconnected( const QString ) ) );
         connect( parser, SIGNAL(connectionStateChanged(Imap::ConnectionState)), this, SLOT(handleSocketStateChanged(Imap::ConnectionState)) );
+        connect( parser, SIGNAL(sendingCommand(QString)), this, SLOT(parserIsSendingCommand(QString)) );
         if ( _startTls ) {
             CommandHandle cmd = parser->startTls();
             _parsers[ parser ].commandMap[ cmd ] = Task( Task::STARTTLS, 0 );
@@ -536,7 +537,6 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                 list->_unreadMessageCount = 0;
                 // selecting handler should do the rest
                 _parsers[ parser ].responseHandler = selectingHandler;
-                changeConnectionState( parser, CONN_STATE_SYNCING );
                 QList<uint>& uidMap = _parsers[ parser ].uidMap;
                 uidMap.clear();
                 _parsers[ parser ].syncingFlags.clear();
@@ -576,7 +576,6 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                                                    QStringList() << "UID" << "FLAGS" );
                 _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
                 _parsers[ parser ].responseHandler = selectingHandler;
-                changeConnectionState( parser, CONN_STATE_SYNCING );
                 list->_numberFetchingStatus = TreeItem::LOADING;
                 list->_unreadMessageCount = 0;
                 QList<uint>& uidMap = _parsers[ parser ].uidMap;
@@ -663,6 +662,7 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
         if ( command->kind == Task::FETCH_WITH_FLAGS ) {
             list->recalcUnreadMessageCount();
             list->_numberFetchingStatus = TreeItem::DONE;
+            changeConnectionState( parser, CONN_STATE_SELECTED );
         }
         emitMessageCountChanged( mailbox );
     } else if ( mailbox && _parsers[ parser ].responseHandler == selectingHandler ) {
@@ -1251,6 +1251,7 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
         connect( parser, SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
         connect( parser, SIGNAL( disconnected( const QString ) ), this, SLOT( slotParserDisconnected( const QString ) ) );
         connect( parser, SIGNAL(connectionStateChanged(Imap::ConnectionState)), this, SLOT(handleSocketStateChanged(Imap::ConnectionState)) );
+        connect( parser, SIGNAL(sendingCommand(QString)), this, SLOT(parserIsSendingCommand(QString)) );
         CommandHandle cmd;
         if ( _startTls ) {
             cmd = parser->startTls();
@@ -1542,7 +1543,6 @@ void Model::performAuthentication( Imap::Parser* ptr )
     } else {
         CommandHandle cmd = ptr->login( _authenticator->user(), _authenticator->password() );
         _parsers[ ptr ].commandMap[ cmd ] = Task( Task::LOGIN, 0 );
-        changeConnectionState( ptr, CONN_STATE_LOGIN );
     }
 }
 
@@ -1558,6 +1558,32 @@ void Model::handleSocketStateChanged(Imap::ConnectionState state)
     Q_ASSERT(ptr);
     if ( _parsers[ ptr ].connState < state ) {
         changeConnectionState( ptr, state );
+    }
+}
+
+void Model::parserIsSendingCommand( const QString& tag)
+{
+    Parser* ptr = qobject_cast<Parser*>( sender() );
+    Q_ASSERT(ptr);
+    QMap<CommandHandle, Task>::const_iterator it = _parsers[ ptr ].commandMap.find( tag );
+    if ( it == _parsers[ ptr ].commandMap.end() ) {
+        qDebug() << "Dunno anything about command" << tag;
+        return;
+    }
+
+    switch ( it->kind ) {
+        case Task::NONE: // invalid
+        case Task::STARTTLS: // handled elsewhere
+        case Task::NAMESPACE: // FIXME: not needed yet
+        case Task::LOGOUT: // not worth the effort
+            break;
+        case Task::LOGIN:
+            changeConnectionState( ptr, CONN_STATE_LOGIN );
+            break;
+        case Task::SELECT:
+        case Task::FETCH_WITH_FLAGS:
+            changeConnectionState( ptr, CONN_STATE_SYNCING );
+            break;
     }
 }
 

@@ -13,6 +13,7 @@ namespace Imap {
         CONN_STATE_LOGIN, /**< @short Performing login */
         CONN_STATE_LOGIN_FAILED, /**< @short Failed to log in */
         CONN_STATE_AUTHENTICATED, /**< @short Logged in */
+        CONN_STATE_SELECTING, /**< @short Selecting a mailbox -- initial state */
         CONN_STATE_SYNCING, /**< @short Selecting a mailbox -- performing synchronization */
         CONN_STATE_SELECTED, /**< @short Mailbox is selected and synchronized */
         CONN_STATE_LOGOUT, /**< @short Logging out */
