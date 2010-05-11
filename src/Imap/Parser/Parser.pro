@@ -2,7 +2,8 @@ QT -= gui
 QT += network
 CONFIG += staticlib
 DEFINES -= QT3_SUPPORT
-INCLUDEPATH += ../ ../..
+INCLUDEPATH += ../ \
+    ../..
 TARGET = ImapParser
 TEMPLATE = lib
 SOURCES += Parser.cpp \
