@@ -707,7 +707,7 @@ void MainWindow::slotMailboxDeleteFailed( const QString& mailbox, const QString&
                           tr("Mailbox deletion failed with the following message:\n$1").arg( msg ) );
 }
 
-void MainWindow::showConnectionStatus( QObject*, Imap::ConnectionState state )
+void MainWindow::showConnectionStatus( QObject* parser, Imap::ConnectionState state )
 {
     using namespace Imap;
     QString message;
@@ -742,6 +742,7 @@ void MainWindow::showConnectionStatus( QObject*, Imap::ConnectionState state )
         message = tr("Logged out.");
         break;
     }
+    qDebug() << parser << message;
     statusBar()->showMessage( message );
 }
 

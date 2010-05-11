@@ -84,7 +84,7 @@ private slots:
     void slotDeleteCurrentMailbox();
     void updateMessageFlags();
     void scrollMessageUp();
-    void showConnectionStatus( QObject*, Imap::ConnectionState state );
+    void showConnectionStatus( QObject* parser, Imap::ConnectionState state );
 
     void slotMailboxDeleteFailed( const QString& mailbox, const QString& msg );
 
