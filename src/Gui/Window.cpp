@@ -729,6 +729,9 @@ void MainWindow::showConnectionStatus( QObject* parser, Imap::ConnectionState st
     case CONN_STATE_LOGIN:
         message = tr("Logging in...");
         break;
+    case CONN_STATE_LOGIN_FAILED:
+        message = tr("Login failed.");
+        break;
     case CONN_STATE_AUTHENTICATED:
         message = tr("Logged in.");
         break;

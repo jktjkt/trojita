@@ -203,6 +203,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                         delete _authenticator;
                     _authenticator = 0;
                     // FIXME: handle this in a sane way
+                    changeConnectionState( ptr, CONN_STATE_LOGIN_FAILED );
                     emit connectionError( tr("Login Failed") );
                 }
                 break;
@@ -444,6 +445,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
     Q_ASSERT( list );
     _parsers[ parser ].currentMbox = mailbox;
     _parsers[ parser ].responseHandler = selectedHandler;
+    changeConnectionState( parser, CONN_STATE_SELECTED );
 
     const SyncState& syncState = _parsers[ parser ].syncState;
     const SyncState& oldState = _cache->mailboxSyncState( mailbox->mailbox() );
@@ -534,6 +536,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                 list->_unreadMessageCount = 0;
                 // selecting handler should do the rest
                 _parsers[ parser ].responseHandler = selectingHandler;
+                changeConnectionState( parser, CONN_STATE_SYNCING );
                 QList<uint>& uidMap = _parsers[ parser ].uidMap;
                 uidMap.clear();
                 _parsers[ parser ].syncingFlags.clear();
@@ -573,6 +576,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                                                    QStringList() << "UID" << "FLAGS" );
                 _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
                 _parsers[ parser ].responseHandler = selectingHandler;
+                changeConnectionState( parser, CONN_STATE_SYNCING );
                 list->_numberFetchingStatus = TreeItem::LOADING;
                 list->_unreadMessageCount = 0;
                 QList<uint>& uidMap = _parsers[ parser ].uidMap;
@@ -663,6 +667,7 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
         emitMessageCountChanged( mailbox );
     } else if ( mailbox && _parsers[ parser ].responseHandler == selectingHandler ) {
         _parsers[ parser ].responseHandler = selectedHandler;
+        changeConnectionState( parser, CONN_STATE_SELECTED );
         _cache->setMailboxSyncState( mailbox->mailbox(), _parsers[ parser ].syncState );
 
         QList<uint>& uidMap = _parsers[ parser ].uidMap;
@@ -1537,6 +1542,7 @@ void Model::performAuthentication( Imap::Parser* ptr )
     } else {
         CommandHandle cmd = ptr->login( _authenticator->user(), _authenticator->password() );
         _parsers[ ptr ].commandMap[ cmd ] = Task( Task::LOGIN, 0 );
+        changeConnectionState( ptr, CONN_STATE_LOGIN );
     }
 }
 

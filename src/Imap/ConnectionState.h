@@ -11,6 +11,7 @@ namespace Imap {
         CONN_STATE_STARTTLS, /**< @short Negotiating authentication */
         CONN_STATE_ESTABLISHED, /**< @short The connection is ready, including optional encryption */
         CONN_STATE_LOGIN, /**< @short Performing login */
+        CONN_STATE_LOGIN_FAILED, /**< @short Failed to log in */
         CONN_STATE_AUTHENTICATED, /**< @short Logged in */
         CONN_STATE_SYNCING, /**< @short Selecting a mailbox -- performing synchronization */
         CONN_STATE_SELECTED, /**< @short Mailbox is selected and synchronized */
