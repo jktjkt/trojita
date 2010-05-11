@@ -17,6 +17,7 @@
 */
 
 #include <QSslSocket>
+#include <QTimer>
 #include "IODeviceSocket.h"
 #include "Imap/Exceptions.h"
 
@@ -33,6 +34,9 @@ IODeviceSocket::IODeviceSocket( QIODevice* device, const bool startEncrypted ): 
         connect( proc, SIGNAL(stateChanged(QProcess::ProcessState)), this, SLOT(handleStateChanged()) );
         connect( proc, SIGNAL(error(QProcess::ProcessError)), this, SLOT(handleProcessError(QProcess::ProcessError)) );
     }
+    delayedDisconnect = new QTimer();
+    delayedDisconnect->setSingleShot( true );
+    connect(delayedDisconnect, SIGNAL(timeout()), this, SLOT(emitError()));
 }
 
 IODeviceSocket::~IODeviceSocket()
@@ -101,6 +105,11 @@ bool IODeviceSocket::isDead()
 
 void IODeviceSocket::handleStateChanged()
 {
+    /* Qt delivers the stateChanged() signal before the error() one.
+    That's a problem because we really want to provide a nice error message
+    to the user and QAbstractSocket::error() is not set yet by the time this
+    function executes. That's why we have to delay the first disconnected() signal. */
+
     if ( QProcess* proc = qobject_cast<QProcess*>( d ) ) {
         switch ( proc->state() ) {
             case QProcess::Running:
@@ -112,12 +121,12 @@ void IODeviceSocket::handleStateChanged()
                 {
                     QString stdErr = QString::fromLocal8Bit( proc->readAllStandardError() );
                     if ( stdErr.isEmpty() )
-                        emit disconnected( tr("The QProcess has exited with return code %1.").arg(
-                                proc->exitCode() ) );
+                        disconnectedMessage = tr("The QProcess has exited with return code %1.").arg(
+                                proc->exitCode() );
                     else
-                        emit disconnected(
-                            tr("The QProcess has exited with return code %1:\n\n%2").arg(
-                                    proc->exitCode() ).arg( stdErr ) );
+                        disconnectedMessage = tr("The QProcess has exited with return code %1:\n\n%2").arg(
+                                    proc->exitCode() ).arg( stdErr );
+                    delayedDisconnect->start();
                 }
                 break;
         }
@@ -134,7 +143,9 @@ void IODeviceSocket::handleStateChanged()
                 break;
             case QAbstractSocket::UnconnectedState:
             case QAbstractSocket::ClosingState:
-                emit disconnected( tr("Socket is disconnected: %1").arg( sock->errorString() ) );
+                disconnectedMessage = tr("Socket is disconnected: %1").arg( sock->errorString() );
+                delayedDisconnect->start();
+                break;
         }
     } else {
         Q_ASSERT( false );
@@ -146,7 +157,13 @@ void IODeviceSocket::handleSocketError( QAbstractSocket::SocketError err )
     Q_UNUSED( err );
     QAbstractSocket* sock = qobject_cast<QAbstractSocket*>( d );
     Q_ASSERT( sock );
+    delayedDisconnect->stop();
     emit disconnected( tr( "The underlying socket is having troubles: %1" ).arg( sock->errorString() ) );
+}
+
+void IODeviceSocket::emitError()
+{
+    emit disconnected( disconnectedMessage );
 }
 
 void IODeviceSocket::handleProcessError( QProcess::ProcessError err )

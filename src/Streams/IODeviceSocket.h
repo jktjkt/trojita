@@ -22,6 +22,8 @@
 #include <QProcess>
 #include "Socket.h"
 
+class QTimer;
+
 namespace Imap {
 
     class IODeviceSocket: public Socket {
@@ -41,10 +43,14 @@ namespace Imap {
         void handleStateChanged();
         void handleSocketError( QAbstractSocket::SocketError );
         void handleProcessError( QProcess::ProcessError );
+        void emitError();
     private:
         QIODevice* d;
 
         bool _startEncrypted;
+
+        QTimer* delayedDisconnect;
+        QString disconnectedMessage;
 
         IODeviceSocket(const IODeviceSocket&); // don't implement
         IODeviceSocket& operator=(const Imap::IODeviceSocket&); // don't implement
