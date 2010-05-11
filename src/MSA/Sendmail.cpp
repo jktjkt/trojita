@@ -49,8 +49,8 @@ void Sendmail::handleStarted()
 
 void Sendmail::handleError( QProcess::ProcessError e )
 {
-    // FIXME: nicer errors...
-    emit error( tr("The sendmail process has failed" ) );
+    Q_UNUSED(e);
+    emit error( tr("The sendmail process has failed: %1" ).arg( proc->errorString()) );
 }
 
 void Sendmail::handleBytesWritten( qint64 bytes )
