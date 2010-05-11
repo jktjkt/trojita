@@ -333,7 +333,7 @@ signals:
     void mailboxDeletionFailed( const QString& mailbox, const QString& message );
 
     /** @short Inform the GUI about the progress of a connection */
-    void connectionStateChanged( QObject* parser, ConnectionState state );
+    void connectionStateChanged( QObject* parser, Imap::ConnectionState state ); // got to use fully qualified namespace here
 
 private:
     Model& operator=( const Model& ); // don't implement
