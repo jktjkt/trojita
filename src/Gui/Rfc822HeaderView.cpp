@@ -26,6 +26,7 @@ Rfc822HeaderView::Rfc822HeaderView( QWidget* parent,
 
 void Rfc822HeaderView::handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight )
 {
+    // FIXME: verify that th dataChanged() is emitted separately for each message
     Q_ASSERT( topLeft.model() == model );
     Imap::Mailbox::TreeItemPart* source = dynamic_cast<Imap::Mailbox::TreeItemPart*>(
             Imap::Mailbox::Model::realTreeItem( topLeft ) );
