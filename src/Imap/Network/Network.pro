@@ -3,6 +3,7 @@ QT += network
 CONFIG += staticlib
 DEFINES -= QT3_SUPPORT
 INCLUDEPATH += ../ ../..
+DEPENDPATH += ../ ../..
 TARGET = ImapNetwork
 TEMPLATE = lib
 SOURCES += \

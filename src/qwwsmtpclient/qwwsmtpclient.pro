@@ -2,6 +2,7 @@ QT += core network
 CONFIG += staticlib
 DEFINES -= QT3_SUPPORT
 INCLUDEPATH += ../
+DEPENDPATH += ../
 TARGET = qwwsmtpclient
 TEMPLATE = lib
 SOURCES += qwwsmtpclient.cpp

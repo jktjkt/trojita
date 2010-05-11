@@ -7,6 +7,7 @@ QT += core \
     network
 include(../../install.pri)
 INCLUDEPATH += ../
+DEPENDPATH += ../
 DEFINES -= QT3_SUPPORT
 TARGET = trojita
 TEMPLATE = app
