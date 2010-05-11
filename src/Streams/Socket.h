@@ -36,6 +36,7 @@ namespace Imap {
         virtual bool isDead() = 0;
         virtual ~Socket() {};
     signals:
+        void connected();
         void disconnected( const QString );
         void readyRead();
     };

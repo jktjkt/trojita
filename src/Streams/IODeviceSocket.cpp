@@ -22,13 +22,15 @@
 
 namespace Imap {
 
-IODeviceSocket::IODeviceSocket( QIODevice* device ): d(device)
+IODeviceSocket::IODeviceSocket( QIODevice* device, const bool startEncrypted ): d(device), _startEncrypted(startEncrypted)
 {
     connect( d, SIGNAL(readyRead()), this, SIGNAL(readyRead()) );
     connect( d, SIGNAL(readChannelFinished()), this, SLOT( handleStateChanged() ) );
     if ( QAbstractSocket* sock = qobject_cast<QAbstractSocket*>( device ) ) {
+        connect( sock, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(handleStateChanged()) );
         connect( sock, SIGNAL( error( QAbstractSocket::SocketError ) ), this, SLOT(handleSocketError(QAbstractSocket::SocketError)) );
     } else if ( QProcess* proc = qobject_cast<QProcess*>( device ) ) {
+        connect( proc, SIGNAL(stateChanged(QProcess::ProcessState)), this, SLOT(handleStateChanged()) );
         connect( proc, SIGNAL(error(QProcess::ProcessError)), this, SLOT(handleProcessError(QProcess::ProcessError)) );
     }
 }
@@ -103,6 +105,8 @@ void IODeviceSocket::handleStateChanged()
     if ( QProcess* proc = qobject_cast<QProcess*>( d ) ) {
         switch ( proc->state() ) {
             case QProcess::Running:
+                emit connected();
+                break;
             case QProcess::Starting:
                 break;
             case QProcess::NotRunning:
@@ -121,10 +125,13 @@ void IODeviceSocket::handleStateChanged()
     } else if ( QAbstractSocket* sock = qobject_cast<QAbstractSocket*>( d ) ) {
         switch ( sock->state() ) {
             case QAbstractSocket::HostLookupState:
-            case QAbstractSocket::ConnectedState:
             case QAbstractSocket::ConnectingState:
             case QAbstractSocket::BoundState:
             case QAbstractSocket::ListeningState:
+                break;
+            case QAbstractSocket::ConnectedState:
+                if ( ! _startEncrypted )
+                    emit connected();
                 break;
             case QAbstractSocket::UnconnectedState:
             case QAbstractSocket::ClosingState:

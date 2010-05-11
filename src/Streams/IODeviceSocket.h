@@ -27,7 +27,7 @@ namespace Imap {
     class IODeviceSocket: public Socket {
         Q_OBJECT
     public:
-        IODeviceSocket( QIODevice* device );
+        IODeviceSocket( QIODevice* device, const bool startEncrypted = false );
         ~IODeviceSocket();
         virtual bool canReadLine();
         virtual QByteArray read( qint64 maxSize );
@@ -43,6 +43,8 @@ namespace Imap {
         void handleProcessError( QProcess::ProcessError );
     private:
         QIODevice* d;
+
+        bool _startEncrypted;
 
         IODeviceSocket(const IODeviceSocket&); // don't implement
         IODeviceSocket& operator=(const Imap::IODeviceSocket&); // don't implement

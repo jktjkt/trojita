@@ -70,11 +70,13 @@ namespace Imap {
 Parser::Parser( QObject* parent, Imap::SocketPtr socket, const uint myId ):
         QObject(parent), _socket(socket), _lastTagUsed(0), _idling(false), _waitForInitialIdle(false),
         _literalPlus(false), _waitingForContinuation(false), _startTlsInProgress(false),
-        _waitingForAuth(false), _readingMode(ReadingLine), _oldLiteralPosition(0), _parserId(myId)
+        _waitingForAuth(false), _waitingForConnection(true), _readingMode(ReadingLine),
+        _oldLiteralPosition(0), _parserId(myId)
 {
     connect( _socket.get(), SIGNAL( disconnected( const QString& ) ),
              this, SLOT( handleDisconnected( const QString& ) ) );
     connect( _socket.get(), SIGNAL( readyRead() ), this, SLOT( handleReadyRead() ) );
+    connect( _socket.get(), SIGNAL(connected()), this, SLOT(handleConnectionEstablished()) );
     waitForAuth();
 }
 
@@ -431,7 +433,7 @@ void Parser::handleReadyRead()
 void Parser::executeCommands()
 {
     while ( ! _waitingForContinuation && ! _waitForInitialIdle &&
-            ! _waitingForAuth &&
+            ! _waitingForAuth && ! _waitingForConnection &&
             ! _cmdQueue.isEmpty() && ! _startTlsInProgress )
         executeACommand();
 }
@@ -729,7 +731,7 @@ void Parser::authStateReached()
     _cmdQueue.erase( it );
     _waitingForAuth = false;
 #ifdef PRINT_TRAFFIC
-    qDebug() << _parserId << "*** Auth state reached, enabling commands";
+    qDebug() << _parserId << "*** Auth state reached, enabling commands (if already connected)";
 #endif
     QTimer::singleShot( 0, this, SLOT(executeCommands()));
 }
@@ -740,6 +742,15 @@ void Parser::waitForAuth()
     cmd << Commands::PartOfCommand( Commands::WAIT_FOR_AUTH, QString() );
     _cmdQueue.append( cmd );
     QTimer::singleShot( 0, this, SLOT(executeCommands()) );
+}
+
+void Parser::handleConnectionEstablished()
+{
+#ifdef PRINT_TRAFFIC
+    qDebug() << _parserId << "*** Connection established";
+#endif
+    _waitingForConnection = false;
+    QTimer::singleShot( 0, this, SLOT(executeCommands()));
 }
 
 Sequence::Sequence( const uint num ): _kind(DISTINCT)

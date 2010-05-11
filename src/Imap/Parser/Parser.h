@@ -254,6 +254,7 @@ namespace Imap {
 
     private slots:
         void handleReadyRead();
+        void handleConnectionEstablished();
         void handleDisconnected( const QString& reason );
         void executeACommand();
         void executeCommands();
@@ -327,6 +328,7 @@ namespace Imap {
         bool _waitingForContinuation;
         bool _startTlsInProgress;
         bool _waitingForAuth;
+        bool _waitingForConnection;
 
         enum { ReadingLine, ReadingNumberOfBytes } _readingMode;
         QByteArray _currentLine;

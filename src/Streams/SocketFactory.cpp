@@ -50,21 +50,6 @@ Imap::SocketPtr ProcessSocketFactory::create()
     // (before we return the pointer)
     QProcess* proc = new QProcess();
     proc->start( _executable, _args );
-    if ( ! proc->waitForStarted() ) {
-        switch( proc->error() ) {
-            case QProcess::FailedToStart:
-                emit error( tr( "The IMAP process failed to start" ) );
-                break;
-            case QProcess::Crashed:
-                emit error( tr( "The IMAP process has crashed" ) );
-                break;
-            case QProcess::Timedout:
-                emit error( tr( "The IMAP process didn't start in a timely fashion" ) );
-                break;
-            default:
-                emit error( tr( "Unknown error occured while starting the child process" ) );
-        }
-    }
     return Imap::SocketPtr( new IODeviceSocket( proc ) );
 }
 
@@ -79,17 +64,10 @@ Imap::SocketPtr SslSocketFactory::create()
     sslSock->ignoreSslErrors(); // big fat FIXME here!!!
     sslSock->setProtocol( QSsl::AnyProtocol );
     sslSock->setPeerVerifyMode( QSslSocket::QueryPeer );
+    IODeviceSocket* ioSock = new IODeviceSocket( sslSock, true );
+    connect( sslSock, SIGNAL(encrypted()), ioSock, SIGNAL(connected()) );
     sslSock->connectToHostEncrypted( _host, _port );
-    if ( ! sslSock->waitForEncrypted() ) {
-        QString err = tr( "Encrypted connection failed" );
-        QList<QSslError> e = sslSock->sslErrors();
-        for ( QList<QSslError>::const_iterator it = e.begin(); it != e.end(); ++it ) {
-            err.append( QLatin1String( "\r\n" ) );
-            err.append( it->errorString() );
-        }
-        emit error( err );
-    }
-    return Imap::SocketPtr( new IODeviceSocket( sslSock ) );
+    return Imap::SocketPtr( ioSock );
 }
 
 TlsAbleSocketFactory::TlsAbleSocketFactory( const QString& host, const quint16 port ):
@@ -104,9 +82,6 @@ Imap::SocketPtr TlsAbleSocketFactory::create()
     sslSock->setProtocol( QSsl::AnyProtocol );
     sslSock->setPeerVerifyMode( QSslSocket::QueryPeer );
     sslSock->connectToHost( _host, _port );
-    if ( ! sslSock->waitForConnected() ) {
-        emit error( tr( "Connection failed: %1").arg( sslSock->errorString() ) );
-    }
     return Imap::SocketPtr( new IODeviceSocket( sslSock ) );
 }
 
