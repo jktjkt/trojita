@@ -27,6 +27,7 @@
 #include <QMessageBox>
 #include <QScrollArea>
 #include <QSplitter>
+#include <QStatusBar>
 #include <QToolBar>
 #include <QUrl>
 
@@ -303,6 +304,9 @@ void MainWindow::setupModels()
     connect( model, SIGNAL( networkPolicyOffline() ), this, SLOT( networkPolicyOffline() ) );
     connect( model, SIGNAL( networkPolicyExpensive() ), this, SLOT( networkPolicyExpensive() ) );
     connect( model, SIGNAL( networkPolicyOnline() ), this, SLOT( networkPolicyOnline() ) );
+
+    connect( model, SIGNAL(connectionStateChanged(QObject*,Imap::ConnectionState)),
+             this, SLOT(showConnectionStatus(QObject*,Imap::ConnectionState)) );
 
     //Imap::Mailbox::ModelWatcher* w = new Imap::Mailbox::ModelWatcher( this );
     //w->setModel( model );
@@ -701,6 +705,44 @@ void MainWindow::slotMailboxDeleteFailed( const QString& mailbox, const QString&
 {
     QMessageBox::warning( this, tr("Can't delete mailbox $1").arg( mailbox ),
                           tr("Mailbox deletion failed with the following message:\n$1").arg( msg ) );
+}
+
+void MainWindow::showConnectionStatus( QObject*, Imap::ConnectionState state )
+{
+    using namespace Imap;
+    QString message;
+    switch ( state ) {
+    case CONN_STATE_NONE:
+        return;
+    case CONN_STATE_HOST_LOOKUP:
+        message = tr("Resolving hostname...");
+        break;
+    case CONN_STATE_CONNECTING:
+        message = tr("Connecting to the IMAP server...");
+        break;
+    case CONN_STATE_STARTTLS:
+        message = tr("Negotiating encryption...");
+        break;
+    case CONN_STATE_ESTABLISHED:
+        message = tr("Connection established.");
+        break;
+    case CONN_STATE_LOGIN:
+        message = tr("Logging in...");
+        break;
+    case CONN_STATE_AUTHENTICATED:
+        message = tr("Logged in.");
+        break;
+    case CONN_STATE_SYNCING:
+        message = tr("Opening mailbox...");
+        break;
+    case CONN_STATE_SELECTED:
+        message = tr("Mailbox opened.");
+        break;
+    case CONN_STATE_LOGOUT:
+        message = tr("Logged out.");
+        break;
+    }
+    statusBar()->showMessage( message );
 }
 
 }
