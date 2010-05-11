@@ -468,6 +468,9 @@ void Parser::executeACommand()
         emit idleTerminated();
     }
 
+    if ( cmd._cmds[ cmd._currentPart ]._kind == Commands::ATOM )
+        emit sendingCommand( cmd._cmds[ cmd._currentPart ]._text );
+
     while ( 1 ) {
         Commands::PartOfCommand& part = cmd._cmds[ cmd._currentPart ];
         switch( part._kind ) {
