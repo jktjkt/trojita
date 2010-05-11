@@ -1,2 +1,3 @@
 TEMPLATE = subdirs
-SUBDIRS  = Gui Imap MSA Streams iconloader qwwsmtpclient
+SUBDIRS  = Imap MSA Streams iconloader qwwsmtpclient Gui
+CONFIG += ordered
