@@ -121,7 +121,7 @@ Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory, b
     } else {
         // FIXME: socket error handling
         Parser* parser( new Imap::Parser( this, _socketFactory->create(), 0 ) );
-        _parsers[ parser ] = ParserState( parser, 0, ReadOnly, CONN_STATE_ESTABLISHED, unauthHandler );
+        _parsers[ parser ] = ParserState( parser, 0, ReadOnly, CONN_STATE_NONE, unauthHandler );
         connect( parser, SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
         connect( parser, SIGNAL( disconnected( const QString ) ), this, SLOT( slotParserDisconnected( const QString ) ) );
         if ( _startTls ) {
@@ -188,7 +188,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 break;
             case Task::LOGIN:
                 if ( resp->kind == Responses::OK ) {
-                    _parsers[ ptr ].connState = CONN_STATE_AUTH;
+                    _parsers[ ptr ].connState = CONN_STATE_AUTHENTICATED;
                     _parsers[ ptr ].responseHandler = authenticatedHandler;
                     if ( ! _parsers[ ptr ].capabilitiesFresh ) {
                         CommandHandle cmd = ptr->capability();
@@ -231,7 +231,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                     _finalizeSelect( ptr, command );
                 } else {
                     if ( _parsers[ ptr ].connState == CONN_STATE_SELECTED )
-                        _parsers[ ptr ].connState = CONN_STATE_AUTH;
+                        _parsers[ ptr ].connState = CONN_STATE_AUTHENTICATED;
                     _parsers[ ptr ].currentMbox = 0;
                     // FIXME: error handling
                 }
@@ -1238,7 +1238,7 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
 
         // FIXME: socket error handling
         Parser* parser( new Parser( const_cast<Model*>( this ), _socketFactory->create(), ++lastParserId ) );
-        _parsers[ parser ] = ParserState( parser, mailbox, mode, CONN_STATE_ESTABLISHED, unauthHandler );
+        _parsers[ parser ] = ParserState( parser, mailbox, mode, CONN_STATE_NONE, unauthHandler );
         connect( parser, SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
         connect( parser, SIGNAL( disconnected( const QString ) ), this, SLOT( slotParserDisconnected( const QString ) ) );
         CommandHandle cmd;

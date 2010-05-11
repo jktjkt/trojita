@@ -28,4 +28,5 @@ HEADERS += Parser.h \
     3rdparty/kcodecs.h \
     3rdparty/qmailcodec.h \
     ../Encoders.h \
-    ../Exceptions.h
+    ../Exceptions.h \
+    ../ConnectionState.h

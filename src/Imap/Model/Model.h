@@ -23,6 +23,7 @@
 #include <QPointer>
 #include <QTimer>
 #include "Cache.h"
+#include "../ConnectionState.h"
 #include "../Parser/Parser.h"
 #include "Streams/SocketFactory.h"
 
@@ -121,15 +122,6 @@ class Model: public QAbstractItemModel {
         /** @short How many messages before and after to preload when structure of one is being requested */
         StructurePreload = 50 };
 
-    /** @short IMAP state of a connection */
-    enum ConnectionState {
-        CONN_STATE_ESTABLISHED /**< Connection established */,
-        CONN_STATE_AUTH /**< We are authenticated, now we must select a mailbox */,
-        CONN_STATE_SYNC /**< We are synchronizing a mailbox */,
-        CONN_STATE_SELECTED /**< Some mailbox is selected */,
-        CONN_STATE_LOGOUT /**< We have been logged out */
-    };
-
     /** @short Helper structure for keeping track of each parser's state */
     struct ParserState {
         /** @short Which parser are we talking about here */
@@ -161,7 +153,7 @@ class Model: public QAbstractItemModel {
             parser(_parser), mailbox(_mailbox), mode(_mode),
             connState(_connState), currentMbox(0), selectingAnother(0),
             capabilitiesFresh(false), responseHandler(_respHandler), idleLauncher(0) {}
-        ParserState(): mailbox(0), mode(ReadOnly), connState(CONN_STATE_LOGOUT),
+        ParserState(): mailbox(0), mode(ReadOnly), connState(CONN_STATE_NONE),
             currentMbox(0), selectingAnother(0), capabilitiesFresh(false),
             responseHandler(0), idleLauncher(0) {}
     };
