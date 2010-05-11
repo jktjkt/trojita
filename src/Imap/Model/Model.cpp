@@ -767,6 +767,7 @@ void Model::_finalizeCreate( Parser* parser, const QMap<CommandHandle, Task>::co
 
 void Model::_finalizeDelete( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command,  const Imap::Responses::State* const resp )
 {
+    Q_UNUSED(parser);
     if ( resp->kind == Responses::OK ) {
         TreeItemMailbox* mailboxPtr = findMailboxByName( command->str );
         if ( mailboxPtr ) {
@@ -845,6 +846,8 @@ void Model::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const 
 void Model::handleNamespace( Imap::Parser* ptr, const Imap::Responses::Namespace* const resp )
 {
     return; // because it's broken and won't fly
+
+    Q_UNUSED(ptr);
 
     if ( _netPolicy == NETWORK_OFFLINE )
         return;
