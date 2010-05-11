@@ -52,7 +52,7 @@ void UnauthenticatedHandler::handleState( Imap::Parser* ptr, const Imap::Respons
     switch ( resp->kind ) {
         case PREAUTH:
         {
-            m->_parsers[ ptr ].connState = CONN_STATE_AUTHENTICATED;
+            m->changeConnectionState( ptr, CONN_STATE_AUTHENTICATED);
             m->_parsers[ ptr ].responseHandler = m->authenticatedHandler;
             if ( ! m->_parsers[ ptr ].capabilitiesFresh ) {
                 CommandHandle cmd = ptr->capability();
@@ -69,7 +69,7 @@ void UnauthenticatedHandler::handleState( Imap::Parser* ptr, const Imap::Respons
             }
             break;
         case BYE:
-            m->_parsers[ ptr ].connState = CONN_STATE_LOGOUT;
+            m->changeConnectionState( ptr, CONN_STATE_LOGOUT );
             m->_parsers[ ptr ].responseHandler = 0;
             break;
         default:
