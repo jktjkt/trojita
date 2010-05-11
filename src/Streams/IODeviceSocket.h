@@ -29,6 +29,8 @@ namespace Imap {
     class IODeviceSocket: public Socket {
         Q_OBJECT
     public:
+        /** Set the @arg startEncrypted to true if the wrapper is supposed to emit
+        connected() only after it has established proper encryption */
         IODeviceSocket( QIODevice* device, const bool startEncrypted = false );
         ~IODeviceSocket();
         virtual bool canReadLine();
