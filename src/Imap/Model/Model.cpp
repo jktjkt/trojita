@@ -188,7 +188,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 break;
             case Task::LOGIN:
                 if ( resp->kind == Responses::OK ) {
-                    _parsers[ ptr ].connState = CONN_STATE_AUTHENTICATED;
+                    changeConnectionState( ptr, CONN_STATE_AUTHENTICATED );
                     _parsers[ ptr ].responseHandler = authenticatedHandler;
                     if ( ! _parsers[ ptr ].capabilitiesFresh ) {
                         CommandHandle cmd = ptr->capability();
@@ -231,7 +231,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                     _finalizeSelect( ptr, command );
                 } else {
                     if ( _parsers[ ptr ].connState == CONN_STATE_SELECTED )
-                        _parsers[ ptr ].connState = CONN_STATE_AUTHENTICATED;
+                        changeConnectionState( ptr, CONN_STATE_AUTHENTICATED);
                     _parsers[ ptr ].currentMbox = 0;
                     // FIXME: error handling
                 }
@@ -1533,6 +1533,12 @@ void Model::performAuthentication( Imap::Parser* ptr )
         CommandHandle cmd = ptr->login( _authenticator->user(), _authenticator->password() );
         _parsers[ ptr ].commandMap[ cmd ] = Task( Task::LOGIN, 0 );
     }
+}
+
+void Model::changeConnectionState(Parser *parser, ConnectionState state)
+{
+    _parsers[ parser ].connState = state;
+    emit connectionStateChanged( parser, state );
 }
 
 }

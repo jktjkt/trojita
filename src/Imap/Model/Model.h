@@ -332,6 +332,9 @@ signals:
     /** @short Mailbox deletion failed */
     void mailboxDeletionFailed( const QString& mailbox, const QString& message );
 
+    /** @short Inform the GUI about the progress of a connection */
+    void connectionStateChanged( QObject* parser, ConnectionState state );
+
 private:
     Model& operator=( const Model& ); // don't implement
     Model( const Model& ); // don't implement
@@ -392,6 +395,9 @@ private:
 
     NetworkPolicy networkPolicy() const { return _netPolicy; }
     void setNetworkPolicy( const NetworkPolicy policy );
+
+    /** @short Helper function for changing connection state */
+    void changeConnectionState( Parser* parser, ConnectionState state );
 
     /** @short Try to authenticate the user to the IMAP server */
     void performAuthentication( Imap::Parser* ptr );
