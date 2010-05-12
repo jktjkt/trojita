@@ -545,11 +545,6 @@ unsigned int TreeItemMessage::rowCount( Model* const model )
 int TreeItemMessage::row() const
 {
     Q_ASSERT( _offset != -1 );
-    int foo = TreeItem::row();
-    if ( foo != _offset ) {
-        qDebug() << foo << _offset;
-        return foo;
-    }
     return _offset;
 }
 
