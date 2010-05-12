@@ -1655,6 +1655,8 @@ void Model::parserIsSendingCommand( const QString& tag)
             changeConnectionState( ptr, CONN_STATE_LOGIN );
             break;
         case Task::SELECT:
+            changeConnectionState( ptr, CONN_STATE_SELECTING );
+            break;
         case Task::FETCH_WITH_FLAGS:
             changeConnectionState( ptr, CONN_STATE_SYNCING );
             break;
