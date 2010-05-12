@@ -105,6 +105,8 @@ namespace Imap {
          * Takes an QIODevice instance as a parameter. */
         Parser( QObject* parent, Imap::SocketPtr socket, const uint myId );
 
+        ~Parser();
+
         /** @short Checks for waiting responses */
         bool hasResponse() const;
 

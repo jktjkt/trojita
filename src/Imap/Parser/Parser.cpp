@@ -757,6 +757,14 @@ void Parser::handleConnectionEstablished()
     QTimer::singleShot( 0, this, SLOT(executeCommands()));
 }
 
+Parser::~Parser()
+{
+    // We want to prevent nasty signals from the underlying socket from
+    // interfering with this object -- some of our local data might have
+    // been already destroyed!
+    _socket.get()->disconnect( this );
+}
+
 Sequence::Sequence( const uint num ): _kind(DISTINCT)
 {
     _list << num;
