@@ -652,17 +652,26 @@ void Model::_fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, Pars
     emitMessageCountChanged( mailbox );
 }
 
+/** @short A FETCH command has completed
+
+This function is triggered when the remote server indicates that the FETCH command has been completed
+and that it already sent all the data for the FETCH command.
+*/
 void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command )
 {
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( command.value().what );
     TreeItemPart* part = dynamic_cast<TreeItemPart*>( command.value().what );
+
     if ( part && part->loading() ) {
+        // basically, there's nothing to do if the FETCH targetted a message part and not the message as a whole
         qDebug() << "Imap::Model::_finalizeFetch(): didn't receive anything about message" <<
             part->message()->row() << "part" << part->partId() << "in mailbox" <<
             _parsers[ parser ].currentMbox->mailbox();
         part->_fetchStatus = TreeItem::DONE;
     }
+
     if ( mailbox && _parsers[ parser ].responseHandler == selectedHandler ) {
+        // the mailbox was already synced (?)
         mailbox->_children[0]->_fetchStatus = TreeItem::DONE;
         _cache->setMailboxSyncState( mailbox->mailbox(), _parsers[ parser ].syncState );
         TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[0] );
@@ -675,6 +684,7 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
         }
         emitMessageCountChanged( mailbox );
     } else if ( mailbox && _parsers[ parser ].responseHandler == selectingHandler ) {
+        // the synchronization was still in progress
         _parsers[ parser ].responseHandler = selectedHandler;
         changeConnectionState( parser, CONN_STATE_SELECTED );
         _cache->setMailboxSyncState( mailbox->mailbox(), _parsers[ parser ].syncState );
@@ -685,7 +695,9 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
         list->_fetchStatus = TreeItem::DONE;
 
         QModelIndex parent = createIndex( 0, 0, list );
+
         if ( uidMap.isEmpty() ) {
+            // the mailbox is empty
             if ( list->_children.size() > 0 ) {
                 beginRemoveRows( parent, 0, list->_children.size() - 1 );
                 qDeleteAll( list->setChildren( QList<TreeItem*>() ) );
@@ -693,32 +705,41 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
                 cache()->clearAllMessages( mailbox->mailbox() );
             }
         } else {
+            // some messages are present *now*; they might or might not have been there before
             int pos = 0;
             for ( int i = 0; i < uidMap.size(); ++i ) {
                 if ( i >= list->_children.size() ) {
+                    // now we're just adding new messages to the end of the list
                     beginInsertRows( parent, i, i );
                     TreeItemMessage * msg = new TreeItemMessage( list );
                     msg->_uid = uidMap[ i ];
                     list->_children << msg;
                     endInsertRows();
                 } else if ( dynamic_cast<TreeItemMessage*>( list->_children[pos] )->_uid == uidMap[ i ] ) {
+                    // current message has correct UID
                     continue;
                 } else {
+                    // Traverse the messages we have in the cache, checking their UIDs. The idea here
+                    // is that we should be deleting all messages with UIDs different from the current
+                    // "supposed UID" (ie. uidMap[i]); this is a valid behavior per the IMAP standard.
                     int pos = i;
                     bool found = false;
                     while ( pos < list->_children.size() ) {
                         TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->_children[pos] );
                         if ( message->_uid != uidMap[ i ] ) {
+                            // this message is free to go
                             cache()->clearMessage( mailbox->mailbox(), message->uid() );
                             beginRemoveRows( parent, pos, pos );
                             delete list->_children.takeAt( pos );
                             endRemoveRows();
                         } else {
+                            // this message is the correct one -> keep it, go to the next UID
                             found = true;
                             break;
                         }
                     }
                     if ( ! found ) {
+                        // Add one message, continue the loop
                         Q_ASSERT( pos == list->_children.size() ); // we're at the end of the list
                         beginInsertRows( parent, i, i );
                         TreeItemMessage * msg = new TreeItemMessage( list );
