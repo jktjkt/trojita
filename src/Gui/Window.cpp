@@ -719,6 +719,8 @@ void MainWindow::showConnectionStatus( QObject* parser, Imap::ConnectionState st
 {
     using namespace Imap;
     QString message;
+    enum { DURATION = 10000 };
+    bool transient = false;
     switch ( state ) {
     case CONN_STATE_NONE:
         return;
@@ -733,15 +735,18 @@ void MainWindow::showConnectionStatus( QObject* parser, Imap::ConnectionState st
         break;
     case CONN_STATE_ESTABLISHED:
         message = tr("Connection established.");
+        transient = true;
         break;
     case CONN_STATE_LOGIN:
         message = tr("Logging in...");
         break;
     case CONN_STATE_LOGIN_FAILED:
         message = tr("Login failed.");
+        transient = true;
         break;
     case CONN_STATE_AUTHENTICATED:
         message = tr("Logged in.");
+        transient = true;
         break;
     case CONN_STATE_SELECTING:
         message = tr("Opening mailbox...");
@@ -751,6 +756,7 @@ void MainWindow::showConnectionStatus( QObject* parser, Imap::ConnectionState st
         break;
     case CONN_STATE_SELECTED:
         message = tr("Mailbox opened.");
+        transient = true;
         break;
     case CONN_STATE_FETCHING_PART:
         message = tr("Downloading message...");
@@ -763,7 +769,7 @@ void MainWindow::showConnectionStatus( QObject* parser, Imap::ConnectionState st
         break;
     }
     qDebug() << parser << message;
-    statusBar()->showMessage( message );
+    statusBar()->showMessage( message, transient ? DURATION : 0 );
 }
 
 void MainWindow::updateBusyParsers(bool busy)
