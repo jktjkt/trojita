@@ -111,6 +111,8 @@ void IODeviceSocket::handleStateChanged()
                 break;
             case QProcess::NotRunning:
                 {
+                    if ( delayedDisconnect->isActive() )
+                        break;
                     QString stdErr = QString::fromLocal8Bit( proc->readAllStandardError() );
                     if ( stdErr.isEmpty() )
                         disconnectedMessage = tr("The QProcess has exited with return code %1.").arg(
