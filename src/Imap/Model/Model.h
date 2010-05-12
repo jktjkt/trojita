@@ -99,7 +99,8 @@ class Model: public QAbstractItemModel {
     struct Task {
         enum Kind { NONE, STARTTLS, LOGIN, LIST, STATUS, SELECT, FETCH, NOOP,
                     CAPABILITY, STORE, NAMESPACE, EXPUNGE, FETCH_WITH_FLAGS,
-                    COPY, CREATE, DELETE, LOGOUT, LIST_AFTER_CREATE };
+                    COPY, CREATE, DELETE, LOGOUT, LIST_AFTER_CREATE,
+                    FETCH_PART };
         Kind kind;
         TreeItem* what;
         QString str;
@@ -374,6 +375,7 @@ private:
     void _finalizeIncrementalList( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
+    void _finalizeFetchPart( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeCreate( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command,  const Imap::Responses::State* const resp );
     void _finalizeDelete( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command,  const Imap::Responses::State* const resp );
 

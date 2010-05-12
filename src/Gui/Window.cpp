@@ -752,6 +752,9 @@ void MainWindow::showConnectionStatus( QObject* parser, Imap::ConnectionState st
     case CONN_STATE_SELECTED:
         message = tr("Mailbox opened.");
         break;
+    case CONN_STATE_FETCHING_PART:
+        message = tr("Downloading message...");
+        break;
     case CONN_STATE_LOGOUT:
         message = tr("Logged out.");
         break;

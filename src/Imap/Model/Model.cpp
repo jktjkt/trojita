@@ -245,6 +245,9 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
             case Task::FETCH_WITH_FLAGS:
                 _finalizeFetch( ptr, command );
                 break;
+            case Task::FETCH_PART:
+                _finalizeFetchPart( ptr, command );
+                break;
             case Task::NOOP:
             case Task::CAPABILITY:
                 // We don't have to do anything here
@@ -656,6 +659,22 @@ void Model::_fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, Pars
     emitMessageCountChanged( mailbox );
 }
 
+/** @short Retrieval of a message part has completed */
+void Model::_finalizeFetchPart( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command )
+{
+    TreeItemPart* part = dynamic_cast<TreeItemPart*>( command.value().what );
+    Q_ASSERT(part);
+
+    if ( part->loading() ) {
+        // basically, there's nothing to do if the FETCH targetted a message part and not the message as a whole
+        qDebug() << "Imap::Model::_finalizeFetch(): didn't receive anything about message" <<
+            part->message()->row() << "part" << part->partId() << "in mailbox" <<
+            _parsers[ parser ].currentMbox->mailbox();
+        part->_fetchStatus = TreeItem::DONE;
+    }
+    changeConnectionState( parser, CONN_STATE_SELECTED );
+}
+
 /** @short A FETCH command has completed
 
 This function is triggered when the remote server indicates that the FETCH command has been completed
@@ -664,15 +683,6 @@ and that it already sent all the data for the FETCH command.
 void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command )
 {
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( command.value().what );
-    TreeItemPart* part = dynamic_cast<TreeItemPart*>( command.value().what );
-
-    if ( part && part->loading() ) {
-        // basically, there's nothing to do if the FETCH targetted a message part and not the message as a whole
-        qDebug() << "Imap::Model::_finalizeFetch(): didn't receive anything about message" <<
-            part->message()->row() << "part" << part->partId() << "in mailbox" <<
-            _parsers[ parser ].currentMbox->mailbox();
-        part->_fetchStatus = TreeItem::DONE;
-    }
 
     if ( mailbox && _parsers[ parser ].responseHandler == selectedHandler ) {
         // the mailbox was already synced (?)
@@ -1201,7 +1211,7 @@ void Model::_askForMsgPart( TreeItemPart* item, bool onlyFromCache )
                             QString::fromAscii("%1.HEADER").arg( item->partId() ) :
                             item->partId()
                         ) );
-        _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH, item );
+        _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_PART, item );
         emit activityHappening( true );
     }
 }
@@ -1644,6 +1654,8 @@ void Model::parserIsSendingCommand( const QString& tag)
         case Task::FETCH_WITH_FLAGS:
             changeConnectionState( ptr, CONN_STATE_SYNCING );
             break;
+        case Task::FETCH_PART:
+            changeConnectionState( ptr, CONN_STATE_FETCHING_PART );
     }
 }
 
