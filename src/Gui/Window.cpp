@@ -222,8 +222,6 @@ void MainWindow::createWidgets()
     area = new QScrollArea();
     area->setWidget( msgView );
     area->setWidgetResizable( true );
-    area->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
-    area->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
     connect( msgView, SIGNAL(messageChanged()), this, SLOT(scrollMessageUp()) );
 
     QSplitter* hSplitter = new QSplitter();
@@ -383,8 +381,6 @@ void MainWindow::msgListDoubleClicked( const QModelIndex& index )
     QScrollArea* widget = new QScrollArea();
     widget->setWidget( newView );
     widget->setWidgetResizable( true );
-    widget->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
-    widget->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
     widget->setWindowTitle( message->envelope( 0 ).subject ); // FIXME: nullptr!
     widget->show();
 }
