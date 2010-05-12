@@ -515,6 +515,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                     QList<TreeItem*> messages;
                     for ( uint i = 0; i < syncState.exists(); ++i ) {
                         TreeItemMessage* msg = new TreeItemMessage( list );
+                        msg->_offset = i;
                         msg->_uid = seqToUid[ i ];
                         messages << msg;
                     }
@@ -559,7 +560,9 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                 // Only some new arrivals, no deletions
 
                 for ( uint i = 0; i < syncState.uidNext() - oldState.uidNext(); ++i ) {
-                    list->_children << new TreeItemMessage( list );
+                    TreeItemMessage* msg = new TreeItemMessage( list );
+                    msg->_offset = i + oldState.exists();
+                    list->_children << msg;
                 }
 
                 QStringList items = ( networkPolicy() == NETWORK_ONLINE &&
@@ -626,6 +629,7 @@ void Model::_fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, Pars
         beginInsertRows( parent, 0, syncState.exists() - 1 );
         for ( uint i = 0; i < syncState.exists(); ++i ) {
             TreeItemMessage* message = new TreeItemMessage( list );
+            message->_offset = i;
             list->_children << message;
             if ( willLoad )
                 message->_fetchStatus = TreeItem::LOADING;
@@ -712,11 +716,13 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
                     // now we're just adding new messages to the end of the list
                     beginInsertRows( parent, i, i );
                     TreeItemMessage * msg = new TreeItemMessage( list );
+                    msg->_offset = i;
                     msg->_uid = uidMap[ i ];
                     list->_children << msg;
                     endInsertRows();
                 } else if ( dynamic_cast<TreeItemMessage*>( list->_children[pos] )->_uid == uidMap[ i ] ) {
                     // current message has correct UID
+                    dynamic_cast<TreeItemMessage*>( list->_children[pos] )->_offset = i;
                     continue;
                 } else {
                     // Traverse the messages we have in the cache, checking their UIDs. The idea here
@@ -731,10 +737,12 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
                             cache()->clearMessage( mailbox->mailbox(), message->uid() );
                             beginRemoveRows( parent, pos, pos );
                             delete list->_children.takeAt( pos );
+                            // the _offset of all subsequent messages will be updated later
                             endRemoveRows();
                         } else {
                             // this message is the correct one -> keep it, go to the next UID
                             found = true;
+                            message->_offset = i;
                             break;
                         }
                     }
@@ -744,6 +752,7 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
                         beginInsertRows( parent, i, i );
                         TreeItemMessage * msg = new TreeItemMessage( list );
                         msg->_uid = uidMap[ i ];
+                        msg->_offset = i;
                         list->_children << msg;
                         endInsertRows();
                     }
@@ -1052,6 +1061,7 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
         beginInsertRows( listIndex, 0, uidMapping.size() - 1 );
         for ( uint seq = 0; seq < static_cast<uint>( uidMapping.size() ); ++seq ) {
             TreeItemMessage* message = new TreeItemMessage( item );
+            message->_offset = seq;
             message->_uid = uidMapping[ seq ];
             item->_children << message;
         }

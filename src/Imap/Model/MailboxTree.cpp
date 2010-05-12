@@ -343,6 +343,9 @@ void TreeItemMailbox::handleExpunge( Model* const model, const Responses::Number
     TreeItemMessage* message = static_cast<TreeItemMessage*>( list->_children.takeAt( offset ) );
     model->cache()->clearMessage( static_cast<TreeItemMailbox*>( list->parent() )->mailbox(), message->uid() );
     delete message;
+    for ( int i = offset; i < list->_children.size(); ++i ) {
+        --static_cast<TreeItemMessage*>( list->_children[i] )->_offset;
+    }
     model->endRemoveRows();
 
     --list->_totalMessageCount;
@@ -369,6 +372,7 @@ void TreeItemMailbox::handleExistsSynced( Model* const model, Parser* ptr, const
     model->beginInsertRows( model->createIndex( 0, 0, list ), list->_children.size(), resp.number - 1 );
     for ( uint i = 0; i < diff; ++i ) {
         TreeItemMessage* message = new TreeItemMessage( list );
+        message->_offset = firstNew + i;
         list->_children.append( message );
         if ( willLoad )
             message->_fetchStatus = TreeItem::LOADING;
@@ -520,7 +524,7 @@ bool TreeItemMsgList::numbersFetched() const
 
 
 TreeItemMessage::TreeItemMessage( TreeItem* parent ):
-        TreeItem(parent), _size(0), _uid(0), _flagsHandled(false)
+        TreeItem(parent), _size(0), _uid(0), _flagsHandled(false), _offset(-1)
 {}
 
 void TreeItemMessage::fetch( Model* const model )
@@ -536,6 +540,17 @@ unsigned int TreeItemMessage::rowCount( Model* const model )
 {
     fetch( model );
     return _children.size();
+}
+
+int TreeItemMessage::row() const
+{
+    Q_ASSERT( _offset != -1 );
+    int foo = TreeItem::row();
+    if ( foo != _offset ) {
+        qDebug() << foo << _offset;
+        return foo;
+    }
+    return _offset;
 }
 
 QVariant TreeItemMessage::data( Model* const model, int role )

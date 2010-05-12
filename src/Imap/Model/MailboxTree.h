@@ -52,7 +52,7 @@ protected:
 public:
     TreeItem( TreeItem* parent );
     TreeItem* parent() const { return _parent; }
-    int row() const;
+    virtual int row() const;
 
     virtual ~TreeItem();
     virtual unsigned int childrenCount( Model* const model );
@@ -145,9 +145,11 @@ class TreeItemMessage: public TreeItem {
     uint _uid;
     QStringList _flags;
     bool _flagsHandled;
+    int _offset;
 public:
     TreeItemMessage( TreeItem* parent );
 
+    virtual int row() const;
     virtual void fetch( Model* const model );
     virtual unsigned int rowCount( Model* const model );
     virtual QVariant data( Model* const model, int role );
