@@ -27,6 +27,7 @@ EmbeddedWebView::EmbeddedWebView( QWidget* parent, QNetworkAccessManager* networ
 
     page()->setLinkDelegationPolicy( QWebPage::DelegateAllLinks );
     connect(this, SIGNAL(linkClicked(QUrl)), this, SLOT(slotLinkClicked(QUrl)));
+    connect( this, SIGNAL(loadFinished(bool)), this, SLOT(handlePageLoadFinished(bool)) );
 
     // Scrolling is implemented on upper layers
     page()->mainFrame()->setScrollBarPolicy( Qt::Horizontal, Qt::ScrollBarAlwaysOff );
@@ -53,6 +54,12 @@ void EmbeddedWebView::slotLinkClicked( const QUrl& url )
         betterUrl.setScheme( url.scheme().toLower() );
         QDesktopServices::openUrl( betterUrl );
     }
+}
+
+void EmbeddedWebView::handlePageLoadFinished( bool ok )
+{
+    Q_UNUSED( ok );
+    setMinimumSize( page()->mainFrame()->contentsSize() );
 }
 
 }
