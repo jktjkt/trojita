@@ -17,6 +17,7 @@ namespace Imap {
         CONN_STATE_SYNCING, /**< @short Selecting a mailbox -- performing synchronization */
         CONN_STATE_SELECTED, /**< @short Mailbox is selected and synchronized */
         CONN_STATE_FETCHING_PART, /** @short Downloading an actual body part */
+        CONN_STATE_FETCHING_MSG_METADATA, /** @short Retrieving message metadata */
         CONN_STATE_LOGOUT, /**< @short Logging out */
     } ConnectionState;
 

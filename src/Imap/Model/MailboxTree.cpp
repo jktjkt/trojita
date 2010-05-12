@@ -383,7 +383,7 @@ void TreeItemMailbox::handleExistsSynced( Model* const model, Parser* ptr, const
     model->emitMessageCountChanged( this );
     QStringList items = willLoad ? model->_onlineMessageFetch : QStringList() << "UID" << "FLAGS" ;
     CommandHandle cmd = ptr->fetch( Sequence::startingAt( firstNew + 1 ), items );
-    model->_parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::FETCH, this );
+    model->_parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::FETCH_MESSAGE_METADATA, this );
 }
 
 void TreeItemMailbox::finalizeFetch( Model* const model, const Responses::Status& response )

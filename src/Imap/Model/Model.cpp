@@ -241,7 +241,11 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                     // FIXME: error handling
                 }
                 break;
-            case Task::FETCH:
+            case Task::FETCH_MESSAGE_METADATA:
+                // Either we were fetching just UID & FLAGS, or that and stuff like BODYSTRUCTURE.
+                // In any case, we don't have to do anything here, besides updating message status
+                changeConnectionState( ptr, CONN_STATE_SELECTED );
+                break;
             case Task::FETCH_WITH_FLAGS:
                 _finalizeFetch( ptr, command );
                 break;
@@ -1154,7 +1158,7 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
                 item->_fetchStatus = TreeItem::LOADING;
                 Parser* parser = _getParser( mailboxPtr, ReadOnly );
                 CommandHandle cmd = parser->fetch( Sequence( order + 1 ), _onlineMessageFetch );
-                _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH, item );
+                _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_MESSAGE_METADATA, item );
                 emit activityHappening( true );
             }
             break;
@@ -1175,7 +1179,7 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
                 }
                 Parser* parser = _getParser( mailboxPtr, ReadOnly );
                 CommandHandle cmd = parser->fetch( seq, _onlineMessageFetch );
-                _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH, item );
+                _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_MESSAGE_METADATA, item );
                 emit activityHappening( true );
             }
             break;
@@ -1656,6 +1660,10 @@ void Model::parserIsSendingCommand( const QString& tag)
             break;
         case Task::FETCH_PART:
             changeConnectionState( ptr, CONN_STATE_FETCHING_PART );
+            break;
+        case Task::FETCH_MESSAGE_METADATA:
+            changeConnectionState( ptr, CONN_STATE_FETCHING_MSG_METADATA );
+            break;
     }
 }
 

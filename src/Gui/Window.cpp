@@ -755,6 +755,9 @@ void MainWindow::showConnectionStatus( QObject* parser, Imap::ConnectionState st
     case CONN_STATE_FETCHING_PART:
         message = tr("Downloading message...");
         break;
+    case CONN_STATE_FETCHING_MSG_METADATA:
+        message = tr("Downloading message structure...");
+        break;
     case CONN_STATE_LOGOUT:
         message = tr("Logged out.");
         break;

@@ -97,7 +97,7 @@ class Model: public QAbstractItemModel {
     //Q_PROPERTY( ThreadAlgorithm threadSorting READ threadSorting WRITE setThreadSorting )
 
     struct Task {
-        enum Kind { NONE, STARTTLS, LOGIN, LIST, STATUS, SELECT, FETCH, NOOP,
+        enum Kind { NONE, STARTTLS, LOGIN, LIST, STATUS, SELECT, FETCH_MESSAGE_METADATA, NOOP,
                     CAPABILITY, STORE, NAMESPACE, EXPUNGE, FETCH_WITH_FLAGS,
                     COPY, CREATE, DELETE, LOGOUT, LIST_AFTER_CREATE,
                     FETCH_PART };
