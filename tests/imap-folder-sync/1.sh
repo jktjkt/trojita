@@ -11,6 +11,8 @@ send_mail() {
 "To: jkt@flaska.net\r\n"\
 "Subject: $1\r\n"\
 "Date: dneska\r\n\r\nblesmrt 333 666\r\n"| /usr/libexec/dovecot/deliver -e
+
+sleep 0.1s
 }
 
 delete_sequence() {
