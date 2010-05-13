@@ -29,5 +29,6 @@ HEADERS += Model.h \
     MsgListModel.h \
     MailboxTree.h \
     MemoryCache.h \
+    Cache.h \
     Utils.h \
     ModelWatcher.h
