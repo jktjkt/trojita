@@ -29,6 +29,7 @@ SOURCES += Parser/Parser.cpp \
     Model/MsgListModel.cpp \
     Model/MailboxTree.cpp \
     Model/MemoryCache.cpp \
+    Model/SQLCache.cpp \
     Model/Utils.cpp \
     Model/ModelWatcher.cpp \
     Network/MsgPartNetworkReply.cpp \
@@ -59,6 +60,7 @@ HEADERS += Parser/Parser.h \
     Model/MsgListModel.h \
     Model/MailboxTree.h \
     Model/MemoryCache.h \
+    Model/SQLCache.h \
     Model/Cache.h \
     Model/Utils.h \
     Model/ModelWatcher.h \
