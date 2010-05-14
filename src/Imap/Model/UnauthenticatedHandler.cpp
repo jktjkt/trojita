@@ -57,6 +57,7 @@ void UnauthenticatedHandler::handleState( Imap::Parser* ptr, const Imap::Respons
             if ( ! m->_parsers[ ptr ].capabilitiesFresh ) {
                 CommandHandle cmd = ptr->capability();
                 m->_parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::CAPABILITY, 0 );
+                emit m->activityHappening( true );
             }
             //CommandHandle cmd = ptr->namespaceCommand();
             //m->_parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::NAMESPACE, 0 );
@@ -69,6 +70,7 @@ void UnauthenticatedHandler::handleState( Imap::Parser* ptr, const Imap::Respons
             } else {
                 // The STARTTLS surely has not been issued yet
                 if ( ! m->_parsers[ ptr ].capabilitiesFresh ) {
+
                     // FIXME: We have no idea if we are free to login :(
                     qDebug() << "Dunno if we can login already :(";
                 }
