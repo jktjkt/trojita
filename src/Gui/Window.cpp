@@ -381,7 +381,7 @@ void MainWindow::msgListDoubleClicked( const QModelIndex& index )
     QScrollArea* widget = new QScrollArea();
     widget->setWidget( newView );
     widget->setWidgetResizable( true );
-    widget->setWindowTitle( message->envelope( 0 ).subject ); // FIXME: nullptr!
+    widget->setWindowTitle( message->envelope( model ).subject );
     widget->show();
 }
 
