@@ -208,7 +208,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                     _authenticator = 0;
                     // FIXME: handle this in a sane way
                     changeConnectionState( ptr, CONN_STATE_LOGIN_FAILED );
-                    emit connectionError( tr("Login Failed") );
+                    emit connectionError( tr("Login Failed: %1").arg( resp->message ) );
                 }
                 break;
             case Task::NONE:
