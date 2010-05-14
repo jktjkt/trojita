@@ -254,8 +254,22 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 _finalizeFetchPart( ptr, command );
                 break;
             case Task::NOOP:
-            case Task::CAPABILITY:
                 // We don't have to do anything here
+                break;
+            case Task::CAPABILITY:
+                if ( _parsers[ ptr ].connState < CONN_STATE_AUTHENTICATED ) {
+                    // This CAPABILITY is crucial for LOGIN
+                    if ( _parsers[ ptr ].capabilities.contains( QLatin1String("LOGINDISABLED") ) ) {
+                        qDebug() << "Can't login yet, trying STARTTLS";
+                        // ... and we are forbidden from logging in, so we have to try the STARTTLS
+                        CommandHandle cmd = ptr->startTls();
+                        _parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::STARTTLS, 0 );
+                        emit activityHappening( true );
+                    } else {
+                        // Apparently no need for STARTTLS and we are free to login
+                        performAuthentication( ptr );
+                    }
+                }
                 break;
             case Task::STORE:
                 // FIXME: check for errors

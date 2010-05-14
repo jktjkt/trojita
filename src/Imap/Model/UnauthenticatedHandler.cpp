@@ -70,11 +70,10 @@ void UnauthenticatedHandler::handleState( Imap::Parser* ptr, const Imap::Respons
             } else {
                 // The STARTTLS surely has not been issued yet
                 if ( ! m->_parsers[ ptr ].capabilitiesFresh ) {
-
-                    // FIXME: We have no idea if we are free to login :(
-                    qDebug() << "Dunno if we can login already :(";
-                }
-                if ( m->_parsers[ ptr ].capabilities.contains( QLatin1String("LOGINDISABLED") ) ) {
+                    CommandHandle cmd = ptr->capability();
+                    m->_parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::CAPABILITY, 0 );
+                    emit m->activityHappening( true );
+                } else if ( m->_parsers[ ptr ].capabilities.contains( QLatin1String("LOGINDISABLED") ) ) {
                     qDebug() << "Can't login yet, trying STARTTLS";
                     // ... and we are forbidden from logging in, so we have to try the STARTTLS
                     CommandHandle cmd = ptr->startTls();
