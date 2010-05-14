@@ -93,7 +93,9 @@ CommandHandle Parser::logout()
 
 CommandHandle Parser::capability()
 {
-    return queueCommand( Commands::ATOM, "CAPABILITY" );
+    // CAPABILITY should take precedence over LOGIN, because we have to check for LOGINDISABLED
+    return queueCommandBeforeWaitForAuth( Commands::Command() <<
+                                          Commands::PartOfCommand( Commands::ATOM, "CAPABILITY" ) );
 }
 
 CommandHandle Parser::startTls()
