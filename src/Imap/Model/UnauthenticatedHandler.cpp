@@ -88,9 +88,15 @@ void UnauthenticatedHandler::handleState( Imap::Parser* ptr, const Imap::Respons
             m->changeConnectionState( ptr, CONN_STATE_LOGOUT );
             m->_parsers[ ptr ].responseHandler = 0;
             break;
+        case BAD:
+            // If it was an ALERT, we've already warned the user
+            if ( resp->respCode != ALERT ) {
+                emit m->alertReceived( tr("The server replied with the following BAD response:\n%1").arg( resp->message ) );
+            }
+            break;
         default:
             throw Imap::UnexpectedResponseReceived(
-                "Waiting for initial OK/BYE/PREAUTH, but got this instead",
+                "Waiting for initial OK/BYE/BAD/PREAUTH, but got this instead",
                 *resp );
     }
 }
