@@ -184,6 +184,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
             case Task::STARTTLS:
                 _parsers[ ptr ].capabilitiesFresh = false;
                 if ( resp->kind == Responses::OK ) {
+                    // The connection is secured -> we can login
                     performAuthentication( ptr );
                 } else {
                     emit connectionError( tr("Can't establish a secure connection to the server (STARTTLS failed). Refusing to proceed.") );
@@ -1603,7 +1604,7 @@ TreeItem* Model::realTreeItem( QModelIndex index, const Model** whichModel, QMod
 
 void Model::performAuthentication( Imap::Parser* ptr )
 {
-    // FIXME: obey LOGINDISABLED
+    // The LOGINDISABLED capability is checked elsewhere
     if ( ! _authenticator ) {
         _authenticator = new QAuthenticator();
         emit authRequested( _authenticator );

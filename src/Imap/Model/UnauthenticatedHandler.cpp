@@ -64,8 +64,24 @@ void UnauthenticatedHandler::handleState( Imap::Parser* ptr, const Imap::Respons
             break;
         }
         case OK:
-            if ( !m->_startTls ) {
-                m->performAuthentication( ptr );
+            if ( m->_startTls ) {
+                // The STARTTLS command is already queued -> no need to issue it once again
+            } else {
+                // The STARTTLS surely has not been issued yet
+                if ( ! m->_parsers[ ptr ].capabilitiesFresh ) {
+                    // FIXME: We have no idea if we are free to login :(
+                    qDebug() << "Dunno if we can login already :(";
+                }
+                if ( m->_parsers[ ptr ].capabilities.contains( QLatin1String("LOGINDISABLED") ) ) {
+                    qDebug() << "Can't login yet, trying STARTTLS";
+                    // ... and we are forbidden from logging in, so we have to try the STARTTLS
+                    CommandHandle cmd = ptr->startTls();
+                    m->_parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::STARTTLS, 0 );
+                    emit m->activityHappening( true );
+                } else {
+                    // Apparently no need for STARTTLS and we are free to login
+                    m->performAuthentication( ptr );
+                }
             }
             break;
         case BYE:
