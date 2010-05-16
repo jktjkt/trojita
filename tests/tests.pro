@@ -20,7 +20,8 @@ HEADERS += test_rfccodecs.h \
     test_Imap_LowLevelParser.h \
     qtest_kde.h
 
-LIBS += -L../src/Imap/Parser
-LIBS += -lImapParser
+LIBS += -L../src/Imap/Model -L../src/Imap/Parser
+LIBS += -lImapModel -lImapParser
 
-PRE_TARGETDEPS += ../src/Imap/Parser/libImapParser.a
+PRE_TARGETDEPS += ../src/Imap/Parser/libImapParser.a \
+    ../src/Imap/Parser/libImapParser.a
