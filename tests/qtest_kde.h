@@ -103,6 +103,11 @@ int main(int argc, char *argv[]) \
  */
 #define QTEST_KDEMAIN(TestObject, flags) QTEST_KDEMAIN_WITH_COMPONENTNAME(TestObject, flags, "qttest")
 
+// there's no setenv() on windows, so just ignore it
+#ifdef Q_OS_WIN32
+#define setenv(X,Y,Z) /* no setenv here */
+#endif
+
 /**
  * \short KDE Replacement for QTEST_MAIN from QTestLib, for non-gui code.
  *
