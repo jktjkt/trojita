@@ -28,14 +28,7 @@ SOURCES += \
     ComposeWidget.cpp \
     MsgListView.cpp \
     ExternalElementsWidget.cpp
-HEADERS += \
-# ./tests/test_rfccodecs.h\
-# ./tests/test_Imap_Parser_parse.h\
-# ./tests/test_Imap_Responses.h\
-# ./tests/test_Imap_Message.h\
-# ./tests/test_Imap_LowLevelParser.h\
-# ./tests/qtest_kde.h\
-    ComposeWidget.h \
+HEADERS += ComposeWidget.h \
     MessageView.h \
     SimplePartWidget.h \
     AbstractPartWidget.h \
