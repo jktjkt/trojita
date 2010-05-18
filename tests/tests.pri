@@ -1,7 +1,7 @@
 QT += core network
 CONFIG += qtestlib no_lflags_merge
 DEFINES -= QT3_SUPPORT
-DEPENDPATH += ../../src/
+DEPENDPATH += ../../src/ ../
 INCLUDEPATH += ../../src/ ../
 TEMPLATE = app
 HEADERS += ../qtest_kde.h
