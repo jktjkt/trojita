@@ -416,6 +416,9 @@ private:
     /** @short Check if all the parsers are indeed idling, and update the GUI if so */
     void parsersMightBeIdling();
 
+    /** @short Dispose of the parser in a C++-safe way */
+    void killParser( Parser* parser );
+
     ModelStateHandler* unauthHandler;
     ModelStateHandler* authenticatedHandler;
     ModelStateHandler* selectedHandler;

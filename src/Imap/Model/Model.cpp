@@ -119,18 +119,6 @@ Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory, b
         _netPolicy = NETWORK_OFFLINE;
         QTimer::singleShot( 0, this, SLOT(setNetworkOffline()) );
     } else {
-        // FIXME: socket error handling
-        Parser* parser( new Imap::Parser( this, _socketFactory->create(), 0 ) );
-        _parsers[ parser ] = ParserState( parser, 0, ReadOnly, CONN_STATE_NONE, unauthHandler );
-        connect( parser, SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
-        connect( parser, SIGNAL( disconnected( const QString ) ), this, SLOT( slotParserDisconnected( const QString ) ) );
-        connect( parser, SIGNAL(connectionStateChanged(Imap::ConnectionState)), this, SLOT(handleSocketStateChanged(Imap::ConnectionState)) );
-        connect( parser, SIGNAL(sendingCommand(QString)), this, SLOT(parserIsSendingCommand(QString)) );
-        if ( _startTls ) {
-            CommandHandle cmd = parser->startTls();
-            _parsers[ parser ].commandMap[ cmd ] = Task( Task::STARTTLS, 0 );
-            emit activityHappening( true );
-        }
         QTimer::singleShot( 0, this, SLOT( setNetworkOnline() ) );
         noopTimer->start( PollingPeriod );
     }
@@ -291,9 +279,8 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 break;
             case Task::LOGOUT:
                 // we are inside while loop in responseReceived(), so we can't delete current parser just yet
-                disconnect( ptr, SIGNAL( disconnected( const QString& ) ), this, SLOT( slotParserDisconnected( const QString& ) ) );
-                ptr->deleteLater();
-                _parsers[ ptr ].parser = 0; // because sometimes it isn't deleted yet
+                killParser( ptr );
+                parsersMightBeIdling();
                 return;
         }
 
@@ -1386,20 +1373,15 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
 
 void Model::slotParserDisconnected( const QString msg )
 {
+    emit connectionError( msg );
+
     Parser* which = qobject_cast<Parser*>( sender() );
     if ( ! which )
         return;
-    for ( QMap<CommandHandle, Task>::const_iterator it = _parsers[ which ].commandMap.begin();
-            it != _parsers[ which ].commandMap.end(); ++it ) {
-        // FIXME: fail the command, perform cleanup,...
-    }
-    noopTimer->stop();
-    emit connectionError( msg );
-    disconnect( which, SIGNAL(responseReceived()), this, SLOT(responseReceived()) );
-    disconnect( which, SIGNAL(disconnected(QString)), this, SLOT(slotParserDisconnected(QString)) );
-    which->deleteLater();
-    _parsers.remove( which );
 
+    // This function is *not* called from inside the responseReceived(), so we have to remove the parser from the list, too
+    killParser( which );
+    _parsers.remove( which );
     parsersMightBeIdling();
 }
 
@@ -1698,6 +1680,18 @@ void Model::parsersMightBeIdling()
         }
     }
     emit activityHappening( someParserBusy );
+}
+
+void Model::killParser(Parser *parser)
+{
+    for ( QMap<CommandHandle, Task>::const_iterator it = _parsers[ parser ].commandMap.begin();
+            it != _parsers[ parser ].commandMap.end(); ++it ) {
+        // FIXME: fail the command, perform cleanup,...
+    }
+    noopTimer->stop();
+    parser->disconnect();
+    parser->deleteLater();
+    _parsers[ parser ].parser = 0;
 }
 
 }
