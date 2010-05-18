@@ -1688,6 +1688,7 @@ void Model::killParser(Parser *parser)
             it != _parsers[ parser ].commandMap.end(); ++it ) {
         // FIXME: fail the command, perform cleanup,...
     }
+    _parsers[ parser ].commandMap.clear();
     noopTimer->stop();
     parser->disconnect();
     parser->deleteLater();
