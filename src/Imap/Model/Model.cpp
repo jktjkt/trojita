@@ -1309,7 +1309,6 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
         // Now we can be sure that all the already-existing parsers are occupied and we can create one more
         // -> go for it.
 
-        // FIXME: socket error handling
         Parser* parser( new Parser( const_cast<Model*>( this ), _socketFactory->create(), ++lastParserId ) );
         _parsers[ parser ] = ParserState( parser, mailbox, mode, CONN_STATE_NONE, unauthHandler );
         connect( parser, SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
