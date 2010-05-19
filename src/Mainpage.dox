@@ -4,4 +4,22 @@
   Trojitá is an IMAP mail client written using the Qt framewrok. Its aim is to
   be as standard-compliant and usable as possible.
 
+  The Trojita e-mail application consists of several distinct parts.  Classes
+  related to actual e-mail processing are defined in the Gui namespace.  Actuall
+  IMAP implementation is in the Imap namespace.  Code dealing with message
+  submission is in the MSA namespace.
+  
+  Third-party components typically either define their own namespace (KIMAP,
+  KCodecs,...) or are in the global namespace.
+
+  The core of the IMAP protocol implementation is the Imap::Mailbox::Model
+  class.  It is assisted by handful other classes.  Parsing of the data stream
+  from the IMAP server is handled by the Imap::Parser class.
+
+  The IMAP library's Imap::Mailbox::Model fully implements the Qt's
+  QAbstractItemModel interface.  The primary method for dealing with remote IMAP
+  server is therefore to use standard MVC methods when retrieving data.
+  Specialized methods are provided for functions like creating new mailboxes,
+  deleting existing ones etc.
+
  */
