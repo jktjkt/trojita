@@ -1,4 +1,3 @@
-QT -= gui
 QT += network
 CONFIG += staticlib
 DEFINES -= QT3_SUPPORT

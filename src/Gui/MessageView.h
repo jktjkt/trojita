@@ -49,6 +49,7 @@ private slots:
     void markAsRead();
     void externalsRequested( const QUrl& url );
     void externalsEnabled();
+    void linkInTitleHovered( const QString& target );
 signals:
     void messageChanged();
 private:

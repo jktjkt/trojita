@@ -43,6 +43,14 @@ namespace Message {
 
     /** @short Storage container for one address from an envelope */
     struct MailAddress {
+
+        /** @short Mode to format the address to string */
+        typedef enum {
+            FORMAT_JUST_NAME, /**< @short Just the human-readable name */
+            FORMAT_READABLE, /**< @short Real Name <foo@example.org> */
+            FORMAT_CLICKABLE /**< @short HTML clickable form of FORMAT_READABLE */
+        } FormattingMode;
+
         /** @short Phrase from RFC2822 mailbox */
         QString name;
 
@@ -60,9 +68,9 @@ namespace Message {
             name(_name), adl(_adl), mailbox(_mailbox), host(_host) {}
         MailAddress( const QVariantList& input, const QByteArray& line, const int start );
         MailAddress() {}
-        QString prettyName( bool nice ) const;
+        QString prettyName( FormattingMode mode ) const;
 
-        static QString prettyList( const QList<MailAddress>& list, bool nice );
+        static QString prettyList( const QList<MailAddress>& list, FormattingMode mode );
     };
 
     /** @short Storage for envelope */

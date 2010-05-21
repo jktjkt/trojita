@@ -18,6 +18,8 @@
 
 #include <typeinfo>
 
+#include <QTextDocument>
+#include <QUrl>
 #include "Message.h"
 #include "../Model/MailboxTree.h"
 #include "../Encoders.h"
@@ -64,24 +66,42 @@ MailAddress::MailAddress( const QVariantList& input, const QByteArray& line, con
     host = Imap::decodeRFC2047String( input[3].toByteArray() );
 }
 
-QString MailAddress::prettyName( bool nice ) const
+QString MailAddress::prettyName( FormattingMode mode ) const
 {
-    if ( name.isEmpty() )
-        nice = false;
-
-    if ( nice )
+    if ( name.isEmpty() && mode == FORMAT_JUST_NAME )
+        mode = FORMAT_READABLE;
+    
+    if ( mode == FORMAT_JUST_NAME ) {
         return name;
-    else if ( name.isEmpty() )
-        return mailbox + QChar('@') + host;
-    else
-        return name + QString::fromAscii( " <" ) + mailbox + QChar( '@' ) + host + QChar( '>' );
+    } else {
+        QString address = mailbox + QChar('@') + host;
+        QString result;
+        QString niceName;
+        if ( name.isEmpty() ) {
+            result = address;
+            niceName = address;
+        } else {
+            result = name + QString::fromAscii( " <" ) + address + QChar( '>' );
+            niceName = name;
+        }
+        if ( mode == FORMAT_READABLE ) {
+            return result;
+        } else {
+            QUrl target;
+            target.setScheme( QLatin1String("mailto") );
+            target.setUserName( mailbox );
+            target.setHost( host );
+            target.addQueryItem( QLatin1String("X-Trojita-DisplayName"), niceName );
+            return QString::fromAscii( "<a href=\"%1\">%2</a>" ).arg( Qt::escape( target.toString() ), Qt::escape( niceName ) );
+        }
+    }
 }
 
-QString MailAddress::prettyList( const QList<MailAddress>& list, bool nice )
+QString MailAddress::prettyList( const QList<MailAddress>& list, FormattingMode mode )
 {
     QStringList buf;
     for ( QList<MailAddress>::const_iterator it = list.begin(); it != list.end(); ++it )
-        buf << it->prettyName( nice );
+        buf << it->prettyName( mode );
     return buf.join( QString::fromAscii(", ") );
 }
 
@@ -733,10 +753,10 @@ QList<Mailbox::TreeItem*> MultiMessage::createTreeItems( Mailbox::TreeItem* pare
 QDebug operator<<( QDebug& dbg, const Imap::Message::Envelope& envelope )
 {
     using namespace Imap::Message;
-    return dbg << "Envelope( FROM" << MailAddress::prettyList( envelope.from, false ) <<
-            "TO" << MailAddress::prettyList( envelope.to, false ) <<
-            "CC" << MailAddress::prettyList( envelope.cc, false ) <<
-            "BCC" << MailAddress::prettyList( envelope.bcc, false ) <<
+    return dbg << "Envelope( FROM" << MailAddress::prettyList( envelope.from, MailAddress::FORMAT_READABLE ) <<
+            "TO" << MailAddress::prettyList( envelope.to, MailAddress::FORMAT_READABLE ) <<
+            "CC" << MailAddress::prettyList( envelope.cc, MailAddress::FORMAT_READABLE ) <<
+            "BCC" << MailAddress::prettyList( envelope.bcc, MailAddress::FORMAT_READABLE ) <<
             "SUBJECT" << envelope.subject <<
             "DATE" << envelope.date <<
             "MESSAGEID" << envelope.messageId;

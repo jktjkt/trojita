@@ -31,6 +31,7 @@ MessageView::MessageView( QWidget* parent ): QWidget(parent), message(0), model(
     viewer = emptyView;
     header = new QLabel( this );
     header->setTextInteractionFlags( Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse );
+    connect( header, SIGNAL(linkHovered(QString)), this, SLOT(linkInTitleHovered(QString)) );
     externalElements = new ExternalElementsWidget( this );
     externalElements->hide();
     connect(externalElements, SIGNAL(loadingEnabled()), this, SLOT(externalsEnabled()));
@@ -167,17 +168,17 @@ QString MessageView::headerText()
 
     QString res;
     if ( ! message->envelope( model ).from.isEmpty() )
-        res += tr("<b>From:</b>&nbsp;%1<br/>").arg( Qt::escape(
-                Imap::Message::MailAddress::prettyList( message->envelope( model ).from, false ) ) );
+        res += tr("<b>From:</b>&nbsp;%1<br/>").arg(
+                Imap::Message::MailAddress::prettyList( message->envelope( model ).from, Imap::Message::MailAddress::FORMAT_CLICKABLE ) );
     if ( ! message->envelope( model ).to.isEmpty() )
-        res += tr("<b>To:</b>&nbsp;%1<br/>").arg( Qt::escape(
-                Imap::Message::MailAddress::prettyList( message->envelope( model ).to, false ) ) );
+        res += tr("<b>To:</b>&nbsp;%1<br/>").arg(
+                Imap::Message::MailAddress::prettyList( message->envelope( model ).to, Imap::Message::MailAddress::FORMAT_CLICKABLE ) );
     if ( ! message->envelope( model ).cc.isEmpty() )
-        res += tr("<b>Cc:</b>&nbsp;%1<br/>").arg( Qt::escape(
-                Imap::Message::MailAddress::prettyList( message->envelope( model ).cc, false ) ) );
+        res += tr("<b>Cc:</b>&nbsp;%1<br/>").arg(
+                Imap::Message::MailAddress::prettyList( message->envelope( model ).cc, Imap::Message::MailAddress::FORMAT_CLICKABLE ) );
     if ( ! message->envelope( model ).bcc.isEmpty() )
-        res += tr("<b>Bcc:</b>&nbsp;%1<br/>").arg( Qt::escape(
-                Imap::Message::MailAddress::prettyList( message->envelope( model ).bcc, false ) ) );
+        res += tr("<b>Bcc:</b>&nbsp;%1<br/>").arg(
+                Imap::Message::MailAddress::prettyList( message->envelope( model ).bcc, Imap::Message::MailAddress::FORMAT_CLICKABLE ) );
     res += tr("<b>Subject:</b>&nbsp;%1").arg( Qt::escape( message->envelope( model ).subject ) );
     if ( message->envelope( model ).date.isValid() )
         res += tr("<br/><b>Date:</b>&nbsp;%1").arg(
@@ -233,6 +234,23 @@ void MessageView::externalsEnabled()
     AbstractPartWidget* w = dynamic_cast<AbstractPartWidget*>( viewer );
     if ( w )
         w->reloadContents();
+}
+
+void MessageView::linkInTitleHovered( const QString &target )
+{
+    if ( target.isEmpty() ) {
+        header->setToolTip( QString() );
+        return;
+    }
+
+    QUrl url(target);
+    QString niceName = url.queryItemValue( QLatin1String("X-Trojita-DisplayName") );
+    if ( niceName.isEmpty() )
+        header->setToolTip( QString::fromAscii("%1@%2").arg(
+                Qt::escape( url.userName() ), Qt::escape( url.host() ) ) );
+    else
+        header->setToolTip( QString::fromAscii("<p style='white-space:pre'>%1 &lt;%2@%3&gt;</p>").arg(
+                Qt::escape( niceName ), Qt::escape( url.userName() ), Qt::escape( url.host() ) ) );
 }
 
 }
