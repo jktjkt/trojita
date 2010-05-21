@@ -48,7 +48,7 @@ IODeviceSocket::~IODeviceSocket()
         proc->kill();
     }
 
-    delete d;
+    d->deleteLater();
 }
 
 bool IODeviceSocket::canReadLine()
