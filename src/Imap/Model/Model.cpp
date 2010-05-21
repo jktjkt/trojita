@@ -1372,8 +1372,6 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
 
 void Model::slotParserDisconnected( const QString msg )
 {
-    emit connectionError( msg );
-
     Parser* which = qobject_cast<Parser*>( sender() );
     if ( ! which )
         return;
@@ -1381,6 +1379,8 @@ void Model::slotParserDisconnected( const QString msg )
     // This function is *not* called from inside the responseReceived(), so we have to remove the parser from the list, too
     killParser( which );
     _parsers.remove( which );
+
+    emit connectionError( msg );
     parsersMightBeIdling();
 }
 
