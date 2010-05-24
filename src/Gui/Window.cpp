@@ -60,6 +60,12 @@ MainWindow::MainWindow(): QMainWindow()
 {
     setWindowTitle( trUtf8("Trojitá") );
     createWidgets();
+
+    QSettings s;
+    if ( ! s.contains( SettingsNames::imapMethodKey ) ) {
+        QTimer::singleShot( 0, this, SLOT(slotShowSettings()) );
+    }
+
     setupModels();
     createActions();
     createMenus();
@@ -250,10 +256,6 @@ void MainWindow::setupModels()
 {
     Imap::Mailbox::SocketFactoryPtr factory;
     QSettings s;
-
-    if ( ! s.contains( SettingsNames::imapMethodKey ) ) {
-        QTimer::singleShot( 0, this, SLOT(slotShowSettings()) );
-    }
 
     if ( s.value( SettingsNames::imapMethodKey ).toString() == SettingsNames::methodTCP ) {
         factory.reset( new Imap::Mailbox::TlsAbleSocketFactory(
@@ -464,11 +466,12 @@ void MainWindow::alertReceived( const QString& message )
 
 void MainWindow::connectionError( const QString& message )
 {
-    // hack: this slot is called even on the first run with no configuration
     if ( QSettings().contains( SettingsNames::imapMethodKey ) ) {
         QMessageBox::critical( this, tr("Connection Error"), message );
     } else {
-        slotShowSettings();
+        // hack: this slot is called even on the first run with no configuration
+        // We shouldn't have to worry about that, since the dialog is already scheduled for calling
+        // -> do nothing
     }
     netOffline->trigger();
 }
