@@ -70,8 +70,6 @@ namespace Imap {
         void stateChanged(Imap::ConnectionState state);
     };
 
-    typedef std::auto_ptr<Socket> SocketPtr;
-
 };
 
 #endif /* IMAP_SOCKET_H */

@@ -30,7 +30,7 @@ Q_DECLARE_METATYPE(Imap::Sequence)
 void ImapParserParseTest::initTestCase()
 {
     array.reset( new QByteArray() );
-    Imap::SocketPtr sock( new Imap::IODeviceSocket( new QBuffer() ) );
+    Imap::Socket* sock( new Imap::IODeviceSocket( new QBuffer() ) );
     parser = new Imap::Parser( this, sock, 666 );
 }
 

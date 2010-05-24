@@ -44,13 +44,13 @@ ProcessSocketFactory::ProcessSocketFactory(
 {
 }
 
-Imap::SocketPtr ProcessSocketFactory::create()
+Socket* ProcessSocketFactory::create()
 {
     // FIXME: this may leak memory if an exception strikes in this function
     // (before we return the pointer)
     QProcess* proc = new QProcess();
     proc->start( _executable, _args );
-    return Imap::SocketPtr( new IODeviceSocket( proc ) );
+    return new IODeviceSocket( proc );
 }
 
 SslSocketFactory::SslSocketFactory( const QString& host, const quint16 port ):
@@ -58,7 +58,7 @@ SslSocketFactory::SslSocketFactory( const QString& host, const quint16 port ):
 {
 }
 
-Imap::SocketPtr SslSocketFactory::create()
+Socket* SslSocketFactory::create()
 {
     QSslSocket* sslSock = new QSslSocket();
     sslSock->ignoreSslErrors(); // big fat FIXME here!!!
@@ -67,7 +67,7 @@ Imap::SocketPtr SslSocketFactory::create()
     IODeviceSocket* ioSock = new IODeviceSocket( sslSock, true );
     connect( sslSock, SIGNAL(encrypted()), ioSock, SIGNAL(connected()) );
     sslSock->connectToHostEncrypted( _host, _port );
-    return Imap::SocketPtr( ioSock );
+    return ioSock;
 }
 
 TlsAbleSocketFactory::TlsAbleSocketFactory( const QString& host, const quint16 port ):
@@ -75,14 +75,14 @@ TlsAbleSocketFactory::TlsAbleSocketFactory( const QString& host, const quint16 p
 {
 }
 
-Imap::SocketPtr TlsAbleSocketFactory::create()
+Socket* TlsAbleSocketFactory::create()
 {
     QSslSocket* sslSock = new QSslSocket();
     sslSock->ignoreSslErrors(); // big fat FIXME here!!!
     sslSock->setProtocol( QSsl::AnyProtocol );
     sslSock->setPeerVerifyMode( QSslSocket::QueryPeer );
     sslSock->connectToHost( _host, _port );
-    return Imap::SocketPtr( new IODeviceSocket( sslSock ) );
+    return new IODeviceSocket( sslSock );
 }
 
 

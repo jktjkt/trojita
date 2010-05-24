@@ -103,7 +103,7 @@ namespace Imap {
         /** @short Constructor.
          *
          * Takes an QIODevice instance as a parameter. */
-        Parser( QObject* parent, Imap::SocketPtr socket, const uint myId );
+        Parser( QObject* parent, Imap::Socket* socket, const uint myId );
 
         ~Parser();
 
@@ -322,7 +322,7 @@ namespace Imap {
         void waitForAuth();
 
         /** @short Connection to the IMAP server */
-        SocketPtr _socket;
+        Socket* _socket;
 
         /** @short Keeps track of the last-used command tag */
         unsigned int _lastTagUsed;

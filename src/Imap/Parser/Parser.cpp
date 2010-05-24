@@ -67,17 +67,17 @@
 
 namespace Imap {
 
-Parser::Parser( QObject* parent, Imap::SocketPtr socket, const uint myId ):
+Parser::Parser( QObject* parent, Socket* socket, const uint myId ):
         QObject(parent), _socket(socket), _lastTagUsed(0), _idling(false), _waitForInitialIdle(false),
         _literalPlus(false), _waitingForContinuation(false), _startTlsInProgress(false),
         _waitingForAuth(false), _waitingForConnection(true), _readingMode(ReadingLine),
         _oldLiteralPosition(0), _parserId(myId)
 {
-    connect( _socket.get(), SIGNAL( disconnected( const QString& ) ),
+    connect( _socket, SIGNAL( disconnected( const QString& ) ),
              this, SLOT( handleDisconnected( const QString& ) ) );
-    connect( _socket.get(), SIGNAL( readyRead() ), this, SLOT( handleReadyRead() ) );
-    connect( _socket.get(), SIGNAL(connected()), this, SLOT(handleConnectionEstablished()) );
-    connect( _socket.get(), SIGNAL(stateChanged(Imap::ConnectionState)), this, SIGNAL(connectionStateChanged(Imap::ConnectionState)) );
+    connect( _socket, SIGNAL( readyRead() ), this, SLOT( handleReadyRead() ) );
+    connect( _socket, SIGNAL(connected()), this, SLOT(handleConnectionEstablished()) );
+    connect( _socket, SIGNAL(stateChanged(Imap::ConnectionState)), this, SIGNAL(connectionStateChanged(Imap::ConnectionState)) );
     waitForAuth();
 }
 
@@ -764,7 +764,8 @@ Parser::~Parser()
     // We want to prevent nasty signals from the underlying socket from
     // interfering with this object -- some of our local data might have
     // been already destroyed!
-    _socket.get()->disconnect( this );
+    _socket->disconnect( this );
+    _socket->deleteLater();
 }
 
 Sequence::Sequence( const uint num ): _kind(DISTINCT)

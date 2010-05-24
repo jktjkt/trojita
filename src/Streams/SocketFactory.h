@@ -37,7 +37,7 @@ public:
     SocketFactory();
     virtual ~SocketFactory() {};
     /** @short Create new socket and return a smart pointer to it */
-    virtual Imap::SocketPtr create() = 0;
+    virtual Socket* create() = 0;
     void setStartTlsRequired( const bool doIt );
     bool startTlsRequired();
 signals:
@@ -55,7 +55,7 @@ class ProcessSocketFactory: public SocketFactory {
     QStringList _args;
 public:
     ProcessSocketFactory( const QString& executable, const QStringList& args );
-    virtual Imap::SocketPtr create();
+    virtual Socket* create();
 };
 
 /** @short Manufacture sockets based on QSslSocket */
@@ -67,7 +67,7 @@ class SslSocketFactory: public SocketFactory {
     quint16 _port;
 public:
     SslSocketFactory( const QString& host, const quint16 port );
-    virtual Imap::SocketPtr create();
+    virtual Socket* create();
 };
 
 /** @short Factory for regular TCP sockets that are able to STARTTLS */
@@ -79,7 +79,7 @@ class TlsAbleSocketFactory: public SocketFactory {
     quint16 _port;
 public:
     TlsAbleSocketFactory( const QString& host, const quint16 port );
-    virtual Imap::SocketPtr create();
+    virtual Socket* create();
 };
 
 
