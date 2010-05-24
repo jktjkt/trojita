@@ -43,9 +43,12 @@ IODeviceSocket::~IODeviceSocket()
 {
     if ( QProcess* proc = qobject_cast<QProcess*>( d ) ) {
         // Be nice to it, let it die peacefully before using an axe
-        proc->terminate();
-        proc->waitForFinished(200);
-        proc->kill();
+        // QTBUG-5990, don't call waitForFinished() on a process which hadn't started
+        if ( proc->state() == QProcess::Running ) {
+            proc->terminate();
+            proc->waitForFinished(200);
+            proc->kill();
+        }
     }
 
     d->deleteLater();
