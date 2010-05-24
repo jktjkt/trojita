@@ -287,7 +287,7 @@ public slots:
       updates about the mailbox state, such as about the arrival of new messages.
       The usual response to such a hint is launching the IDLE command.
     */
-    void switchToMailbox( const QModelIndex& mbox );
+    void switchToMailbox( const QModelIndex& mbox, const RWMode mode );
 
 private slots:
     /** @short Handler for the "parser got disconnected" event */

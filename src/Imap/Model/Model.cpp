@@ -1397,7 +1397,7 @@ void Model::idleTerminated()
     }
 }
 
-void Model::switchToMailbox( const QModelIndex& mbox )
+void Model::switchToMailbox( const QModelIndex& mbox, const RWMode mode )
 {
     if ( ! mbox.isValid() )
         return;
@@ -1407,7 +1407,7 @@ void Model::switchToMailbox( const QModelIndex& mbox )
 
     if ( TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>(
                  realTreeItem( mbox ) ) ) {
-        Parser* ptr = _getParser( mailbox, ReadOnly );
+        Parser* ptr = _getParser( mailbox, mode );
         if ( _parsers[ ptr ].capabilitiesFresh &&
              _parsers[ ptr ].capabilities.contains( QLatin1String( "IDLE" ) ) ) {
             if ( ! _parsers[ ptr ].idleLauncher ) {
