@@ -91,6 +91,10 @@ private:
     IdleLauncher& operator=(const Imap::Mailbox::IdleLauncher&); // don't implement
 };
 
+class ImapTask;
+class GetConnectionTask;
+class OpenMailboxTask;
+
 /** @short A model implementing view of the whole IMAP server */
 class Model: public QAbstractItemModel {
     Q_OBJECT
@@ -137,6 +141,8 @@ class Model: public QAbstractItemModel {
         uint selectingAnother;
         /** @short Mapping of IMAP tag to the helper structure */
         QMap<CommandHandle, Task> commandMap;
+        /** @short Tasks which are still in progress */
+        QMap<CommandHandle, ImapTask*> taskMap;
         /** @short A list of cepabilities, as advertised by the server */
         QStringList capabilities;
         /** @short Is the @arg capabilities usable? */
@@ -364,6 +370,9 @@ private:
     friend class SelectingHandler;
 
     friend class IdleLauncher;
+
+    friend class GetConnectionTask;
+    friend class OpenMailboxTask;
 
     void _askForChildrenOfMailbox( TreeItemMailbox* item );
     void _askForMessagesInMailbox( TreeItemMsgList* item );
