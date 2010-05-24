@@ -3,7 +3,8 @@ CONFIG += staticlib
 DEFINES -= QT3_SUPPORT
 INCLUDEPATH += ../ \
     ../..
-DEPENDPATH += ../ ../..
+DEPENDPATH += ../ \
+    ../..
 TARGET = ImapParser
 TEMPLATE = lib
 SOURCES += Parser.cpp \
