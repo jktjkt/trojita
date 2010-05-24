@@ -62,6 +62,7 @@ IdleLauncher::IdleLauncher( Model* model, Parser* ptr ):
         QObject(model), m(model), parser(ptr), _idling(false)
 {
     timer = new QTimer( this );
+    timer->setObjectName( QString::fromAscii("IdleLauncher-%1").arg( model->objectName() ) );
     timer->setSingleShot( true );
     timer->setInterval( 1000 );
     connect( timer, SIGNAL(timeout()), this, SLOT(perform()) );
@@ -113,6 +114,7 @@ Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory, b
     _onlineMessageFetch << "ENVELOPE" << "BODYSTRUCTURE" << "RFC822.SIZE" << "UID" << "FLAGS";
 
     noopTimer = new QTimer( this );
+    noopTimer->setObjectName( QString::fromAscii("noopTimer-%1").arg( objectName() ) );
     connect( noopTimer, SIGNAL(timeout()), this, SLOT(performNoop()) );
 
     if ( offline ) {
