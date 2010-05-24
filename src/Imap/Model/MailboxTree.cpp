@@ -382,7 +382,7 @@ void TreeItemMailbox::handleExistsSynced( Model* const model, Parser* ptr, const
     // we don't know the flags yet, so we can't update \seen count
     model->emitMessageCountChanged( this );
     QStringList items = willLoad ? model->_onlineMessageFetch : QStringList() << "UID" << "FLAGS" ;
-    CommandHandle cmd = ptr->fetch( Sequence::startingAt( firstNew + 1 ), items );
+    CommandHandle cmd = ptr->fetch( Sequence( firstNew + 1, list->_totalMessageCount ), items );
     model->_parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::FETCH_MESSAGE_METADATA, this );
 }
 

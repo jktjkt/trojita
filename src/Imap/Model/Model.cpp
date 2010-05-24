@@ -510,7 +510,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                     QStringList items = QStringList( "FLAGS" );
                     if ( ! uidsOk )
                         items << "UID";
-                    CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ),
+                    CommandHandle cmd = parser->fetch( Sequence( 1, syncState.exists() ),
                                                        items );
                     _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
                     emit activityHappening( true );
@@ -547,7 +547,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
             } else {
                 // Some messages got deleted, but there have been no additions
 
-                CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ),
+                CommandHandle cmd = parser->fetch( Sequence( 1, syncState.exists() ),
                                                    QStringList() << "UID" << "FLAGS" );
                 _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
                 emit activityHappening( true );
@@ -579,7 +579,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                 QStringList items = ( networkPolicy() == NETWORK_ONLINE &&
                                       syncState.uidNext() - oldState.uidNext() <= StructureFetchLimit ) ?
                                     _onlineMessageFetch : QStringList() << "UID" << "FLAGS";
-                CommandHandle cmd = parser->fetch( Sequence::startingAt( oldState.exists() + 1 ),
+                CommandHandle cmd = parser->fetch( Sequence( oldState.exists() + 1, syncState.exists() ),
                                                    items );
                 _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
                 emit activityHappening( true );
@@ -593,7 +593,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                 // FIXME: might be possible to optimize here...
 
                 // At first, let's ask for UID numbers and FLAGS for all messages
-                CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ),
+                CommandHandle cmd = parser->fetch( Sequence( 1, syncState.exists() ),
                                                    QStringList() << "UID" << "FLAGS" );
                 _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
                 emit activityHappening( true );
@@ -651,7 +651,7 @@ void Model::_fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, Pars
         Q_ASSERT( ! _parsers[ parser ].selectingAnother );
 
         QStringList items = willLoad ? _onlineMessageFetch : QStringList() << "UID" << "FLAGS";
-        CommandHandle cmd = parser->fetch( Sequence::startingAt( 1 ), items );
+        CommandHandle cmd = parser->fetch( Sequence( 1, syncState.exists() ), items );
         _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
         emit activityHappening( true );
         list->_numberFetchingStatus = TreeItem::LOADING;
