@@ -174,6 +174,7 @@ void IODeviceSocket::handleProcessError( QProcess::ProcessError err )
     Q_UNUSED( err );
     QProcess* proc = qobject_cast<QProcess*>( d );
     Q_ASSERT( proc );
+    delayedDisconnect->stop();
     emit disconnected( tr( "The QProcess is having troubles: %1" ).arg( proc->errorString() ) );
 }
 
