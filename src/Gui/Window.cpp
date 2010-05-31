@@ -152,6 +152,9 @@ void MainWindow::createActions()
     replyAll->setShortcut( tr("Ctrl+Shift+R") );
     connect( replyAll, SIGNAL(triggered()), this, SLOT(slotReplyAll()) );
 
+    aboutTrojita = new QAction( trUtf8("About Trojitá..."), this );
+    connect( aboutTrojita, SIGNAL(triggered()), this, SLOT(slotShowAboutTrojita()) );
+
     connectModelActions();
 
     QToolBar *toolBar = addToolBar(tr("Navigation"));
@@ -199,6 +202,9 @@ void MainWindow::createMenus()
     mailboxMenu->addAction( resyncMbox );
     mailboxMenu->addSeparator();
     mailboxMenu->addAction( reloadAllMailboxes );
+
+    QMenu* helpMenu = menuBar()->addMenu( tr("Help") );
+    helpMenu->addAction( aboutTrojita );
 }
 
 void MainWindow::createWidgets()
@@ -782,6 +788,16 @@ void MainWindow::updateBusyParsers(bool busy)
         wasBusy = busy;
         QApplication::restoreOverrideCursor();
     }
+}
+
+void MainWindow::slotShowAboutTrojita()
+{
+    QMessageBox::about( this, trUtf8("About Trojitá"),
+                        trUtf8("<p>This is <b>Trojitá</b>, a Qt IMAP e-mail client</p>"
+                               "<p>Copyright &copy; 2007-2010 Jan Kundrát &lt;jkt@flaska.net&gt;</p>"
+                               "<p>More information at http://trojita.flaska.net/</p>"
+                               "<p>You are using version %1.</p>").arg(
+                                       QApplication::applicationVersion() ) );
 }
 
 }

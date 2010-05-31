@@ -87,6 +87,7 @@ private slots:
     void scrollMessageUp();
     void showConnectionStatus( QObject* parser, Imap::ConnectionState state );
     void updateBusyParsers( bool busy );
+    void slotShowAboutTrojita();
 
     void slotMailboxDeleteFailed( const QString& mailbox, const QString& msg );
 
@@ -135,6 +136,7 @@ private:
     QAction* createChildMailbox;
     QAction* createTopMailbox;
     QAction* deleteCurrentMailbox;
+    QAction* aboutTrojita;
 
     QAction* markAsRead;
     QAction* markAsDeleted;
