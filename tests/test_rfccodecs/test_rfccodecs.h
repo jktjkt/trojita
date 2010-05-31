@@ -33,6 +33,9 @@ private Q_SLOTS:
   void testIMAPEncoding();
   /** @short Tests for proper IMAP quoting and auote escaping */
   void testQuotes();
+  /** @short Test the RFC2047 decoder */
+  void testDecodeRFC2047String();
+  void testDecodeRFC2047String_data();
 };
 
 #endif

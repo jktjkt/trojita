@@ -24,6 +24,7 @@
 QTEST_KDEMAIN_CORE( RFCCodecsTest )
 
 #include "Imap/Parser/3rdparty/rfccodecs.h"
+#include "Imap/Encoders.h"
 using namespace KIMAP;
 
 void RFCCodecsTest::testIMAPEncoding()
@@ -54,3 +55,36 @@ void RFCCodecsTest::testQuotes()
   QVERIFY( quoteIMAP( "tom\\allen" ) == "tom\\\\allen" );
 }
 
+void RFCCodecsTest::testDecodeRFC2047String()
+{
+    QFETCH( QByteArray, raw );
+    QFETCH( QString, decoded );
+
+    QString res = Imap::decodeRFC2047String( raw );
+
+    if ( res != decoded ) {
+        if ( res.size() != decoded.size() ) {
+            qDebug() << "Different size:" << res.size() << decoded.size();
+        }
+        int size = qMin( res.size(), decoded.size() );
+        for ( int i = 0; i < size; ++i ) {
+            QChar c1 = res.at(i);
+            QChar c2 = decoded.at(i);
+            if ( c1 != c2 ) {
+                qDebug() << "Offset" << size << c1 << c1.unicode() << c2 << c2.unicode();
+            }
+        }
+    }
+
+    QCOMPARE( res, decoded );
+}
+
+void RFCCodecsTest::testDecodeRFC2047String_data()
+{
+    QTest::addColumn<QByteArray>("raw");
+    QTest::addColumn<QString>("decoded");
+
+    QTest::newRow("katuska-suject")
+        << QByteArray("Subject: =?UTF-8?Q?moc=20pros=C3=ADm,=20mohl=20by=20ses=20na=20to=20kouk?= =?UTF-8?Q?nout=3F=20cht=C4=9Bla=20bych=20to=20m=C3=ADt=20spr=C3=A1vn?= =?UTF-8?Q?=C4=9B:,)?=")
+        << QString::fromUtf8("moc prosím, mohl by ses na to kouknout? chtěla bych to mít správně:,)");
+}
