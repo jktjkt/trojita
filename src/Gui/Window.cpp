@@ -773,7 +773,15 @@ void MainWindow::showConnectionStatus( QObject* parser, Imap::ConnectionState st
 
 void MainWindow::updateBusyParsers(bool busy)
 {
+    static bool wasBusy = false;
     busyParsersIndicator->setVisible(busy);
+    if ( ! wasBusy && busy ) {
+        wasBusy = busy;
+        QApplication::setOverrideCursor( Qt::WaitCursor );
+    } else if ( wasBusy && ! busy ) {
+        wasBusy = busy;
+        QApplication::restoreOverrideCursor();
+    }
 }
 
 }
