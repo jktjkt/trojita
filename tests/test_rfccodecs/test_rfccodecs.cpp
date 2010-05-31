@@ -70,8 +70,10 @@ void RFCCodecsTest::testDecodeRFC2047String()
         for ( int i = 0; i < size; ++i ) {
             QChar c1 = res.at(i);
             QChar c2 = decoded.at(i);
-            if ( c1 != c2 ) {
-                qDebug() << "Offset" << size << c1 << c1.unicode() << c2 << c2.unicode();
+            if ( c1 == c2 ) {
+                qDebug() << "OK" << i << c1 << c1.unicode();
+            } else {
+                qDebug() << "Offset" << i << c1 << c1.unicode() << c2 << c2.unicode();
             }
         }
     }
