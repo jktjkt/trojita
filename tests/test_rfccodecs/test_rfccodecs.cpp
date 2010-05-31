@@ -90,4 +90,9 @@ void RFCCodecsTest::testDecodeRFC2047String_data()
     QTest::newRow("katuska-suject")
         << QByteArray("Subject: =?UTF-8?Q?moc=20pros=C3=ADm,=20mohl=20by=20ses=20na=20to=20kouk?= =?UTF-8?Q?nout=3F=20cht=C4=9Bla=20bych=20to=20m=C3=ADt=20spr=C3=A1vn?= =?UTF-8?Q?=C4=9B:,)?=")
         << QString::fromUtf8("moc prosím, mohl by ses na to kouknout? chtěla bych to mít správně:,)");
+
+    QTest::newRow("jirka-prives")
+        << QByteArray("=?UTF-8?Q?P=C5=AFj=C4=8Den=C3=AD=20p=C5=99=C3=ADv=C4=9Bsu=20na=20lod?=\r\n"
+                      "=?UTF-8?Q?=C4=9B?=")
+        << QString::fromUtf8("Půjčení přívěsu na lodě");
 }
