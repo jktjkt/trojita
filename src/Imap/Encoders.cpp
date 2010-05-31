@@ -49,6 +49,92 @@ namespace {
         return result;
     }
 
+    QString decodeWord( const QByteArray& encodedWord )
+    {
+        QString result;
+        int index[4];
+
+        // Find the parts of the input
+        index[0] = encodedWord.indexOf("=?");
+        if (index[0] != -1)
+        {
+            index[1] = encodedWord.indexOf('?', index[0] + 2);
+            if (index[1] != -1)
+            {
+                index[2] = encodedWord.indexOf('?', index[1] + 1);
+                index[3] = encodedWord.lastIndexOf("?=");
+                if ((index[2] != -1) && (index[3] > index[2]))
+                {
+                    QByteArray charset = ::unquoteString(encodedWord.mid(index[0] + 2, (index[1] - index[0] - 2)));
+                    QByteArray encoding = encodedWord.mid(index[1] + 1, (index[2] - index[1] - 1)).toUpper();
+                    QByteArray encoded = encodedWord.mid(index[2] + 1, (index[3] - index[2] - 1));
+
+                    if (encoding == "Q")
+                    {
+                        QMailQuotedPrintableCodec codec(QMailQuotedPrintableCodec::Text, QMailQuotedPrintableCodec::Rfc2047);
+                        result = codec.decode(encoded, charset);
+                    }
+                    else if (encoding == "B")
+                    {
+                        QMailBase64Codec codec(QMailBase64Codec::Binary);
+                        result = codec.decode(encoded, charset);
+                    }
+                }
+            }
+        }
+
+        if (result.isEmpty())
+            result = encodedWord;
+
+        return result;
+    }
+
+    QString decodeWordSequence(const QByteArray& str)
+    {
+        static const QRegExp whitespace("^\\s+$");
+
+        QString out;
+
+        // Any idea why this isn't matching?
+        //QRegExp encodedWord("\\b=\\?\\S+\\?\\S+\\?\\S*\\?=\\b");
+        QRegExp encodedWord("=\\?\\S+\\?\\S+\\?\\S*\\?=");
+
+        int pos = 0;
+        int lastPos = 0;
+        int length = str.length();
+
+        while (pos != -1) {
+            pos = encodedWord.indexIn(str, pos);
+            if (pos != -1) {
+                int endPos = pos + encodedWord.matchedLength();
+
+                if ( ((pos == 0) || (::isspace(str[pos - 1]))) &&
+                     ((endPos == length) || (::isspace(str[endPos]))) ) {
+
+                    QString preceding(str.mid(lastPos, (pos - lastPos)));
+                    QString decoded = decodeWord(str.mid(pos, (endPos - pos)));
+
+                    // If there is only whitespace between two encoded words, it should not be included
+                    if (!whitespace.exactMatch(preceding))
+                        out.append(preceding);
+
+                    out.append(decoded);
+
+                    pos = endPos;
+                    lastPos = pos;
+                }
+                else
+                    pos = endPos;
+            }
+        }
+
+        // Copy anything left
+        out.append(str.mid(lastPos));
+
+        return out;
+    }
+
+
     static QList<QByteArray> split(const QByteArray& input, const QByteArray& separator)
     {
         QList<QByteArray> result;
@@ -88,44 +174,9 @@ QByteArray encodeRFC2047String( const QString& text )
 #endif
 }
 
-QString decodeRFC2047String( const QByteArray& encodedWord )
+QString decodeRFC2047String( const QByteArray& raw )
 {
-    QString result;
-    int index[4];
-
-    // Find the parts of the input
-    index[0] = encodedWord.indexOf("=?");
-    if (index[0] != -1)
-    {
-        index[1] = encodedWord.indexOf('?', index[0] + 2);
-        if (index[1] != -1)
-        {
-            index[2] = encodedWord.indexOf('?', index[1] + 1);
-            index[3] = encodedWord.lastIndexOf("?=");
-            if ((index[2] != -1) && (index[3] > index[2]))
-            {
-                QByteArray charset = ::unquoteString(encodedWord.mid(index[0] + 2, (index[1] - index[0] - 2)));
-                QByteArray encoding = encodedWord.mid(index[1] + 1, (index[2] - index[1] - 1)).toUpper();
-                QByteArray encoded = encodedWord.mid(index[2] + 1, (index[3] - index[2] - 1));
-
-                if (encoding == "Q")
-                {
-                    QMailQuotedPrintableCodec codec(QMailQuotedPrintableCodec::Text, QMailQuotedPrintableCodec::Rfc2047);
-                    result = codec.decode(encoded, charset);
-                }
-                else if (encoding == "B")
-                {
-                    QMailBase64Codec codec(QMailBase64Codec::Binary);
-                    result = codec.decode(encoded, charset);
-                }
-            }
-        }
-    }
-
-    if (result.isEmpty())
-        result = encodedWord;
-
-    return result;
+    return ::decodeWordSequence( raw );
 }
 
 QByteArray encodeImapFolderName( const QString& text )
