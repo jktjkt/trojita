@@ -99,4 +99,8 @@ void RFCCodecsTest::testDecodeRFC2047String_data()
     QTest::newRow("second-word-encoded")
         << QByteArray("Domen =?UTF-8?Q?Ko=C5=BEar?=")
         << QString::fromUtf8("Domen Kožar");
+
+    QTest::newRow("csa")
+        << QByteArray("=?utf-8?Q?HOLIDAYS Czech Airlines?=")
+        << QString::fromUtf8("HOLIDAYS Czech Airlines");
 }
