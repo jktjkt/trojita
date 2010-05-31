@@ -47,7 +47,7 @@ FORMS += CreateMailboxDialog.ui \
     ComposeWidget.ui
 RESOURCES += ../icons.qrc
 
-trojita_libs = Imap/Model Imap/Parser Imap/Network MSA Streams iconloader qwwsmtpclient
+trojita_libs = Imap MSA Streams iconloader qwwsmtpclient
 
 myprefix = ../
 include(../linking.pri)
