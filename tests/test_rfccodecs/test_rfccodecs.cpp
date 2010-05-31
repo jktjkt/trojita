@@ -30,10 +30,10 @@ void RFCCodecsTest::testIMAPEncoding()
 {
   QString encoded, decoded;
 
-  encoded = encodeImapFolderName( "Test.Frode Rønning" );
+  encoded = encodeImapFolderName( QString::fromUtf8("Test.Frode RÃ¸nning") );
   QVERIFY( encoded == "Test.Frode R&APg-nning" );
   decoded = decodeImapFolderName( "Test.Frode R&APg-nning" );
-  QVERIFY( decoded == "Test.Frode Rønning" );
+  QVERIFY( decoded == QString::fromUtf8("Test.Frode RÃ¸nning") );
 
   encoded = encodeImapFolderName( "Test.tom & jerry" );
   QVERIFY( encoded == "Test.tom &- jerry" );
