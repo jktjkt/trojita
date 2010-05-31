@@ -4,7 +4,12 @@ exists($$join(GITVERSION_PREFIX,,,/.git/HEAD)) {
     gitversion.name = Creating GIT version
     gitversion.input = GITVERSION_FILES
     gitversion.depends = FORCE
+unix {
     gitversion.commands = echo \"const char* gitVersion=\\\"$$system(git describe --dirty --long)\\\";\" > ${QMAKE_FILE_BASE}.version.cpp
+}
+windows {
+    gitversion.commands = echo const char* gitVersion=\"$$system(git describe --dirty --long)\"; > ${QMAKE_FILE_BASE}.version.cpp
+}
     gitversion.output = ${QMAKE_FILE_BASE}.version.cpp
     gitversion.variable_out = SOURCES
     gitversion.CONFIG += no_link
