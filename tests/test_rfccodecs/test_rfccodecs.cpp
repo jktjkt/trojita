@@ -71,9 +71,10 @@ void RFCCodecsTest::testDecodeRFC2047String()
             QChar c1 = res.at(i);
             QChar c2 = decoded.at(i);
             if ( c1 == c2 ) {
-                qDebug() << "OK" << i << c1 << c1.unicode();
+                qDebug() << "OK" << i << QString::number( c1.unicode(), 16 ).prepend("0x") << c1;
             } else {
-                qDebug() << "Offset" << i << c1 << c1.unicode() << c2 << c2.unicode();
+                qDebug() << "Offset" << i << QString::number( c1.unicode(), 16 ).prepend("0x")
+                        << QString::number( c2.unicode(), 16 ).prepend("0x") << c1 << c2;
             }
         }
     }
