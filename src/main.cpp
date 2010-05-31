@@ -19,10 +19,17 @@
 
 #include "Gui/Window.h"
 
+#ifdef HAS_GITVERSION
+extern const char* gitVersion;
+#endif
+
 int main( int argc, char** argv) {
     QApplication app( argc, argv );
     QCoreApplication::setApplicationName( QString::fromAscii("trojita") );
-    QCoreApplication::setApplicationVersion( QString::fromAscii("HEAD") );
+#ifdef HAS_GITVERSION
+    QCoreApplication::setApplicationVersion( QString::fromAscii( gitVersion ) );
+#endif
+    qDebug() << QCoreApplication::applicationVersion();
     QCoreApplication::setOrganizationDomain( QString::fromAscii("flaska.net") );
     QCoreApplication::setOrganizationName( QString::fromAscii("flaska.net") );
     app.setWindowIcon( QIcon( QString::fromAscii(":/icons/trojita.png") ) );
