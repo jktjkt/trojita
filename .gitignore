@@ -10,3 +10,10 @@ qrc_*.cpp
 ui_*.h
 object_script.*
 .*.swp
+src/Gui/trojita
+tests/test_Imap_LowLevelParser/test_Imap_LowLevelParser
+tests/test_Imap_Message/test_Imap_Message
+tests/test_Imap_Parser_parse/test_Imap_Parser_parse
+tests/test_Imap_Responses/test_Imap_Responses
+tests/test_rfccodecs/test_rfccodecs
+src/Gui/main.version.cpp
