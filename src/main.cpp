@@ -29,7 +29,6 @@ int main( int argc, char** argv) {
 #ifdef HAS_GITVERSION
     QCoreApplication::setApplicationVersion( QString::fromAscii( gitVersion ) );
 #endif
-    qDebug() << QCoreApplication::applicationVersion();
     QCoreApplication::setOrganizationDomain( QString::fromAscii("flaska.net") );
     QCoreApplication::setOrganizationName( QString::fromAscii("flaska.net") );
     app.setWindowIcon( QIcon( QString::fromAscii(":/icons/trojita.png") ) );
