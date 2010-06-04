@@ -30,6 +30,10 @@ namespace Mailbox {
 
 /** @short A cache implementation using an sqlite database for the underlying storage
 
+  This class should not be used on its own, as it simply puts everything into a database.
+This is clearly a suboptimal way to store large binary data, like e-mail attachments. The
+purpose of this class is therefore to serve as one of a few caching backends, which are
+subsequently used by an intelligent cache manager.
  */
 class SQLCache : public AbstractCache {
 public:
