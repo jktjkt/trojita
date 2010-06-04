@@ -482,7 +482,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
     changeConnectionState( parser, CONN_STATE_SELECTED );
 
     const SyncState& syncState = _parsers[ parser ].syncState;
-    const SyncState& oldState = _cache->mailboxSyncState( mailbox->mailbox() );
+    const SyncState& oldState = cache()->mailboxSyncState( mailbox->mailbox() );
 
     list->_totalMessageCount = syncState.exists();
     // Note: syncState.unSeen() is the NUMBER of the first unseen message, not their count!
@@ -559,7 +559,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                 }
 
                 list->_fetchStatus = TreeItem::DONE;
-                _cache->setMailboxSyncState( mailbox->mailbox(), syncState );
+                cache()->setMailboxSyncState( mailbox->mailbox(), syncState );
                 saveUidMap( list );
 
             } else {
@@ -578,7 +578,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                 _parsers[ parser ].syncingFlags.clear();
                 for ( uint i = 0; i < syncState.exists(); ++i )
                     uidMap << 0;
-                _cache->clearUidMapping( mailbox->mailbox() );
+                cache()->clearUidMapping( mailbox->mailbox() );
             }
 
         } else {
@@ -604,7 +604,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                 list->_numberFetchingStatus = TreeItem::LOADING;
                 list->_fetchStatus = TreeItem::DONE;
                 list->_unreadMessageCount = 0;
-                _cache->clearUidMapping( mailbox->mailbox() );
+                cache()->clearUidMapping( mailbox->mailbox() );
 
             } else {
                 // Generic case; we don't know anything about which messages were deleted and which added
@@ -623,12 +623,12 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                 _parsers[ parser ].syncingFlags.clear();
                 for ( uint i = 0; i < syncState.exists(); ++i )
                     uidMap << 0;
-                _cache->clearUidMapping( mailbox->mailbox() );
+                cache()->clearUidMapping( mailbox->mailbox() );
             }
         }
     } else {
         // Forget everything, do a dumb sync
-        _cache->clearAllMessages( mailbox->mailbox() );
+        cache()->clearAllMessages( mailbox->mailbox() );
         _fullMboxSync( mailbox, list, parser, syncState );
     }
     emitMessageCountChanged( mailbox );
@@ -644,7 +644,7 @@ void Model::emitMessageCountChanged( TreeItemMailbox* const mailbox )
 
 void Model::_fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, Parser* parser, const SyncState& syncState )
 {
-    _cache->clearUidMapping( mailbox->mailbox() );
+    cache()->clearUidMapping( mailbox->mailbox() );
 
     QModelIndex parent = createIndex( 0, 0, list );
     if ( ! list->_children.isEmpty() ) {
@@ -679,7 +679,7 @@ void Model::_fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, Pars
         list->_unreadMessageCount = 0;
         list->_numberFetchingStatus = TreeItem::DONE;
         list->_fetchStatus = TreeItem::DONE;
-        _cache->setMailboxSyncState( mailbox->mailbox(), syncState );
+        cache()->setMailboxSyncState( mailbox->mailbox(), syncState );
         saveUidMap( list );
     }
     emitMessageCountChanged( mailbox );
@@ -713,7 +713,7 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
     if ( mailbox && _parsers[ parser ].responseHandler == selectedHandler ) {
         // the mailbox was already synced (?)
         mailbox->_children[0]->_fetchStatus = TreeItem::DONE;
-        _cache->setMailboxSyncState( mailbox->mailbox(), _parsers[ parser ].syncState );
+        cache()->setMailboxSyncState( mailbox->mailbox(), _parsers[ parser ].syncState );
         TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[0] );
         Q_ASSERT( list );
         saveUidMap( list );
@@ -727,7 +727,7 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
         // the synchronization was still in progress
         _parsers[ parser ].responseHandler = selectedHandler;
         changeConnectionState( parser, CONN_STATE_SELECTED );
-        _cache->setMailboxSyncState( mailbox->mailbox(), _parsers[ parser ].syncState );
+        cache()->setMailboxSyncState( mailbox->mailbox(), _parsers[ parser ].syncState );
 
         QList<uint>& uidMap = _parsers[ parser ].uidMap;
         TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[0] );
@@ -1045,9 +1045,9 @@ void Model::_askForChildrenOfMailbox( TreeItemMailbox* item )
     else
         mailbox = mailbox + item->separator() + QChar( '%' );
 
-    if ( networkPolicy() != NETWORK_ONLINE && _cache->childMailboxesFresh( item->mailbox() ) ) {
+    if ( networkPolicy() != NETWORK_ONLINE && cache()->childMailboxesFresh( item->mailbox() ) ) {
         // We aren't online and the permanent cache contains relevant data
-        QList<MailboxMetadata> metadata = _cache->childMailboxes( item->mailbox() );
+        QList<MailboxMetadata> metadata = cache()->childMailboxes( item->mailbox() );
         QList<TreeItem*> mailboxes;
         for ( QList<MailboxMetadata>::const_iterator it = metadata.begin(); it != metadata.end(); ++it ) {
             mailboxes << TreeItemMailbox::fromMetadata( item, *it );
@@ -1595,7 +1595,7 @@ void Model::saveUidMap( TreeItemMsgList* list )
     QList<uint> seqToUid;
     for ( int i = 0; i < list->_children.size(); ++i )
         seqToUid << static_cast<TreeItemMessage*>( list->_children[ i ] )->uid();
-    _cache->setUidMapping( static_cast<TreeItemMailbox*>( list->parent() )->mailbox(), seqToUid );
+    cache()->setUidMapping( static_cast<TreeItemMailbox*>( list->parent() )->mailbox(), seqToUid );
 }
 
 

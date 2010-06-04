@@ -104,7 +104,7 @@ void TreeItemMailbox::rescanForChildMailboxes( Model* const model )
 {
     // FIXME: fix duplicate requests (ie. don't allow more when some are on their way)
     // FIXME: gotta be fixed in the Model, or spontaneous replies from server can break us
-    model->_cache->forgetChildMailboxes( mailbox() );
+    model->cache()->forgetChildMailboxes( mailbox() );
     _fetchStatus = NONE;
     fetch( model );
 }
