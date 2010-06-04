@@ -196,6 +196,7 @@ bool SQLCache::childMailboxesFresh( const QString& mailbox ) const
 
 void SQLCache::setChildMailboxes( const QString& mailbox, const QList<MailboxMetadata>& data )
 {
+    TransactionHelper txn(&db);
     QString myMailbox = mailbox.isEmpty() ? QString::fromAscii("") : mailbox;
     QVariantList mailboxFields, parentFields, separatorFields, flagsFelds;
     Q_FOREACH( const MailboxMetadata& item, data ) {
@@ -220,6 +221,7 @@ void SQLCache::setChildMailboxes( const QString& mailbox, const QList<MailboxMet
         emitError( tr("Query querySetChildMailboxesFresh failed"), querySetChildMailboxesFresh );
         return;
     }
+    txn.commit();
 }
 
 void SQLCache::forgetChildMailboxes( const QString& mailbox )
