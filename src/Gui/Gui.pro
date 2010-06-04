@@ -4,7 +4,8 @@
 QT += core \
     gui \
     webkit \
-    network
+    network \
+    sql
 include(../../install.pri)
 INCLUDEPATH += ../
 DEPENDPATH += ../

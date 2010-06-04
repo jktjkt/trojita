@@ -21,6 +21,7 @@
 
 #include "Cache.h"
 #include <QSqlDatabase>
+#include <QSqlQuery>
 
 /** @short Namespace for IMAP interaction */
 namespace Imap {
@@ -35,9 +36,10 @@ This is clearly a suboptimal way to store large binary data, like e-mail attachm
 purpose of this class is therefore to serve as one of a few caching backends, which are
 subsequently used by an intelligent cache manager.
  */
-class SQLCache : public AbstractCache {
+class SQLCache : public QObject, public AbstractCache {
+    Q_OBJECT
 public:
-    SQLCache( const QString& fileName );
+    SQLCache( const QString& name, const QString& fileName );
     ~SQLCache();
 
     virtual QList<MailboxMetadata> childMailboxes( const QString& mailbox ) const;
@@ -67,7 +69,18 @@ public:
     bool open();
 
 private:
+    void emitError( const QString& message, const QSqlQuery& query ) const;
+    void emitError( const QString& message, const QSqlDatabase& database ) const;
+    void emitError( const QString& message ) const;
+
+signals:
+    void databaseError( const QString& error ) const;
+
+private:
     QSqlDatabase db;
+
+    mutable QSqlQuery queryChildMailboxes;
+    mutable QSqlQuery queryChildMailboxesFresh;
 };
 
 }

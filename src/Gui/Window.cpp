@@ -43,7 +43,7 @@
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/ModelWatcher.h"
 #include "Imap/Model/MsgListModel.h"
-#include "Imap/Model/MemoryCache.h"
+#include "Imap/Model/SQLCache.h"
 #include "Imap/Model/PrettyMailboxModel.h"
 #include "Streams/SocketFactory.h"
 
@@ -286,9 +286,9 @@ void MainWindow::setupModels()
         QMessageBox::critical( this, tr("Cache Error"), tr("Failed to create directory %1").arg( cacheDir ) );
         cacheDir = QString();
     } else {
-        cacheDir += QLatin1String("/imap.cache");
+        cacheDir += QLatin1String("/imap.cache.sqlite");
     }
-    cache = Imap::Mailbox::CachePtr( new Imap::Mailbox::MemoryCache( cacheDir ) );
+    cache = Imap::Mailbox::CachePtr( new Imap::Mailbox::SQLCache( QLatin1String("trojita-imap-cache"), cacheDir ) );
     model = new Imap::Mailbox::Model( this, cache, factory, s.value( SettingsNames::imapStartOffline ).toBool() );
     model->setObjectName( QLatin1String("model") );
     mboxModel = new Imap::Mailbox::MailboxModel( this, model );
