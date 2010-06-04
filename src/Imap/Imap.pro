@@ -1,4 +1,5 @@
-QT += network
+QT += network \
+    sql
 CONFIG += staticlib
 DEFINES -= QT3_SUPPORT
 INCLUDEPATH += ../ \
