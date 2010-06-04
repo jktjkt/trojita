@@ -21,6 +21,11 @@
 #include <QSqlRecord>
 
 namespace {
+    /** @short An auto-commiter
+
+      A utility class using the RAII idiom -- when its instance goes out of scope,
+      it aborts the current transaction
+*/
     class TransactionHelper {
     public:
         TransactionHelper( QSqlDatabase* db ): _db(db), _commited(false)
