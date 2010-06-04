@@ -93,6 +93,17 @@ bool IdleLauncher::idling()
     return _idling;
 }
 
+_MailboxListUpdater::_MailboxListUpdater( Model* model, TreeItemMailbox* mailbox, const QList<TreeItem*>& children ):
+        QObject(model), _model(model), _mailbox(mailbox), _children(children)
+{
+}
+
+void _MailboxListUpdater::perform()
+{
+    _model->replaceChildMailboxes( _mailbox, _children );
+    deleteLater();
+}
+
 
 Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory, bool offline ):
     // parent
@@ -1036,8 +1047,9 @@ void Model::_askForChildrenOfMailbox( TreeItemMailbox* item )
         }
         TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( item );
         Q_ASSERT( mailboxPtr );
-        item->_fetchStatus = TreeItem::DONE;
-        replaceChildMailboxes( item, mailboxes );
+        // We can't call replaceChildMailboxes() here directly, as we're likely invoked from inside GUI
+        _MailboxListUpdater* updater = new _MailboxListUpdater( this, mailboxPtr, mailboxes );
+        QTimer::singleShot( 0, updater, SLOT(perform()) );
     } else if ( networkPolicy() == NETWORK_OFFLINE ) {
         // No cached data, no network -> fail
         item->_fetchStatus = TreeItem::UNAVAILABLE;
