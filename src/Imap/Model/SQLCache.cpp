@@ -82,16 +82,16 @@ bool SQLCache::open()
         }
         if ( ! q.exec( QLatin1String(
                 "CREATE TABLE child_mailboxes ( "
-                "mailbox STRING NOT NULL PRIMARY KEY, "
-                "parent STRING NOT NULL, "
-                "separator STRING NOT NULL, "
-                "flags BINARY NOT NULL"
+                "mailbox STRING PRIMARY KEY, "
+                "parent STRING, "
+                "separator STRING, "
+                "flags BINARY"
                 ")"
                 ) ) ) {
             emitError( tr("Can't create table child_mailboxes") );
             return false;
         }
-        if ( ! q.exec( QLatin1String("CREATE TABLE child_mailboxes_fresh ( mailbox STRING NOT NULL PRIMARY KEY )") ) ) {
+        if ( ! q.exec( QLatin1String("CREATE TABLE child_mailboxes_fresh ( mailbox STRING PRIMARY KEY )") ) ) {
             emitError( tr("Can't create table child_mailboxes_fresh") );
             return false;
         }
@@ -117,7 +117,7 @@ bool SQLCache::open()
     txn.commit();
 
     queryChildMailboxes = QSqlQuery(db);
-    if ( ! queryChildMailboxes.prepare( "SELECT mailbox, parent, separator, flags FROM child_mailboxes WHERE mailbox = ?") ) {
+    if ( ! queryChildMailboxes.prepare( "SELECT mailbox, separator, flags FROM child_mailboxes WHERE parent = ?") ) {
         emitError( tr("Failed to prepare queryChildMailboxes"), queryChildMailboxes );
         return false;
     }
@@ -125,6 +125,18 @@ bool SQLCache::open()
     queryChildMailboxesFresh = QSqlQuery(db);
     if ( ! queryChildMailboxesFresh.prepare( QLatin1String("SELECT mailbox FROM child_mailboxes_fresh WHERE mailbox = ?") ) ) {
         emitError( tr("Failed to prepare queryChildMailboxesFresh"), queryChildMailboxesFresh );
+        return false;
+    }
+
+    querySetChildMailboxes = QSqlQuery(db);
+    if ( ! querySetChildMailboxes.prepare( QLatin1String("INSERT OR REPLACE INTO child_mailboxes ( mailbox, parent, separator, flags ) VALUES (?, ?, ?, ?)") ) ) {
+        emitError( tr("Failed to prepare querySetChildMailboxes"), querySetChildMailboxes );
+        return false;
+    }
+
+    querySetChildMailboxesFresh = QSqlQuery(db);
+    if ( ! querySetChildMailboxesFresh.prepare( QLatin1String("INSERT OR REPLACE INTO child_mailboxes_fresh ( mailbox ) VALUES (?)") ) ) {
+        emitError( tr("Failed to prepare querySetChildMailboxesFresh"), querySetChildMailboxesFresh );
         return false;
     }
 
@@ -149,8 +161,27 @@ void SQLCache::emitError( const QString& message ) const
 
 QList<MailboxMetadata> SQLCache::childMailboxes( const QString& mailbox ) const
 {
-    // FIXME
-    return QList<MailboxMetadata>();
+    QList<MailboxMetadata> res;
+    queryChildMailboxes.bindValue( 0, mailbox );
+    if ( ! queryChildMailboxes.exec() ) {
+        emitError( tr("Query queryChildMailboxes failed"), queryChildMailboxes );
+        return res;
+    }
+    while ( queryChildMailboxes.next() ) {
+        MailboxMetadata item;
+        item.mailbox = queryChildMailboxes.value(0).toString();
+        item.separator = queryChildMailboxes.value(1).toString();
+        QByteArray buf;
+        QDataStream stream( queryChildMailboxes.value(2).toByteArray() );
+        stream >> item.flags;
+        if ( stream.status() != QDataStream::Ok ) {
+            emitError( tr("Corrupt data when reading child items for mailbox %1, line %2").arg( mailbox, item.mailbox ) );
+            return QList<MailboxMetadata>();
+        }
+        item.flags = queryChildMailboxes.value(2).toStringList();
+        res << item;
+    }
+    return res;
 }
 
 bool SQLCache::childMailboxesFresh( const QString& mailbox ) const
@@ -165,7 +196,29 @@ bool SQLCache::childMailboxesFresh( const QString& mailbox ) const
 
 void SQLCache::setChildMailboxes( const QString& mailbox, const QList<MailboxMetadata>& data )
 {
-    // FIXME
+    QVariantList mailboxFields, parentFields, separatorFields, flagsFelds;
+    Q_FOREACH( const MailboxMetadata& item, data ) {
+        mailboxFields << item.mailbox;
+        parentFields << mailbox;
+        separatorFields << item.separator;
+        QByteArray buf;
+        QDataStream stream( &buf, QIODevice::ReadWrite );
+        stream << item.flags;
+        flagsFelds << buf;
+    }
+    querySetChildMailboxes.bindValue( 0, mailboxFields );
+    querySetChildMailboxes.bindValue( 1, parentFields );
+    querySetChildMailboxes.bindValue( 2, separatorFields );
+    querySetChildMailboxes.bindValue( 3, flagsFelds );
+    if ( ! querySetChildMailboxes.execBatch() ) {
+        emitError( tr("Query querySetChildMailboxes failed"), querySetChildMailboxes );
+        return;
+    }
+    querySetChildMailboxesFresh.bindValue(0, mailbox);
+    if ( ! querySetChildMailboxesFresh.exec() ) {
+        emitError( tr("Query querySetChildMailboxesFresh failed"), querySetChildMailboxesFresh );
+        return;
+    }
 }
 
 void SQLCache::forgetChildMailboxes( const QString& mailbox )
