@@ -82,8 +82,8 @@ bool SQLCache::open()
         }
         if ( ! q.exec( QLatin1String(
                 "CREATE TABLE child_mailboxes ( "
-                "mailbox STRING PRIMARY KEY, "
-                "parent STRING, "
+                "mailbox STRING NOT NULL PRIMARY KEY, "
+                "parent STRING NOT NULL, "
                 "separator STRING, "
                 "flags BINARY"
                 ")"
@@ -91,7 +91,7 @@ bool SQLCache::open()
             emitError( tr("Can't create table child_mailboxes") );
             return false;
         }
-        if ( ! q.exec( QLatin1String("CREATE TABLE child_mailboxes_fresh ( mailbox STRING PRIMARY KEY )") ) ) {
+        if ( ! q.exec( QLatin1String("CREATE TABLE child_mailboxes_fresh ( mailbox STRING NOT NULL PRIMARY KEY )") ) ) {
             emitError( tr("Can't create table child_mailboxes_fresh") );
             return false;
         }
@@ -162,7 +162,7 @@ void SQLCache::emitError( const QString& message ) const
 QList<MailboxMetadata> SQLCache::childMailboxes( const QString& mailbox ) const
 {
     QList<MailboxMetadata> res;
-    queryChildMailboxes.bindValue( 0, mailbox );
+    queryChildMailboxes.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     if ( ! queryChildMailboxes.exec() ) {
         emitError( tr("Query queryChildMailboxes failed"), queryChildMailboxes );
         return res;
@@ -186,7 +186,7 @@ QList<MailboxMetadata> SQLCache::childMailboxes( const QString& mailbox ) const
 
 bool SQLCache::childMailboxesFresh( const QString& mailbox ) const
 {
-    queryChildMailboxesFresh.bindValue( 0, mailbox );
+    queryChildMailboxesFresh.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     if ( ! queryChildMailboxesFresh.exec() ) {
         emitError( tr("Query queryChildMailboxesFresh failed"), queryChildMailboxesFresh );
         return false;
@@ -196,10 +196,11 @@ bool SQLCache::childMailboxesFresh( const QString& mailbox ) const
 
 void SQLCache::setChildMailboxes( const QString& mailbox, const QList<MailboxMetadata>& data )
 {
+    QString myMailbox = mailbox.isEmpty() ? QString::fromAscii("") : mailbox;
     QVariantList mailboxFields, parentFields, separatorFields, flagsFelds;
     Q_FOREACH( const MailboxMetadata& item, data ) {
         mailboxFields << item.mailbox;
-        parentFields << mailbox;
+        parentFields << myMailbox;
         separatorFields << item.separator;
         QByteArray buf;
         QDataStream stream( &buf, QIODevice::ReadWrite );
@@ -214,7 +215,7 @@ void SQLCache::setChildMailboxes( const QString& mailbox, const QList<MailboxMet
         emitError( tr("Query querySetChildMailboxes failed"), querySetChildMailboxes );
         return;
     }
-    querySetChildMailboxesFresh.bindValue(0, mailbox);
+    querySetChildMailboxesFresh.bindValue(0, myMailbox);
     if ( ! querySetChildMailboxesFresh.exec() ) {
         emitError( tr("Query querySetChildMailboxesFresh failed"), querySetChildMailboxesFresh );
         return;
