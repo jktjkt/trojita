@@ -61,6 +61,9 @@ public:
     virtual MessageDataBundle messageMetadata( const QString& mailbox, uint uid );
     virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId );
 
+    virtual void startBatch();
+    virtual void commitBatch();
+
 private:
     bool loadData();
     bool saveData() const;

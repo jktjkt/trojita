@@ -284,6 +284,14 @@ void MemoryCache::dump() const
     }
 }
 
+void MemoryCache::startBatch()
+{
+}
+
+void MemoryCache::commitBatch()
+{
+}
+
 
 }
 }

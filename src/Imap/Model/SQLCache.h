@@ -68,6 +68,9 @@ public:
     /** @short Open a connection to the cache */
     bool open();
 
+    virtual void startBatch();
+    virtual void commitBatch();
+
 private:
     void emitError( const QString& message, const QSqlQuery& query ) const;
     void emitError( const QString& message, const QSqlDatabase& database ) const;

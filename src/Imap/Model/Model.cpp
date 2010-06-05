@@ -362,9 +362,11 @@ void Model::_finalizeList( Parser* parser, const QMap<CommandHandle, Task>::cons
             mailboxesWithoutChildren << mailbox;
         }
     }
+    cache()->startBatch();
     cache()->setChildMailboxes( mailboxPtr->mailbox(), metadataToCache );
     for ( QList<TreeItemMailbox*>::const_iterator it = mailboxesWithoutChildren.begin(); it != mailboxesWithoutChildren.end(); ++it )
         cache()->setChildMailboxes( (*it)->mailbox(), QList<MailboxMetadata>() );
+    cache()->commitBatch();
     replaceChildMailboxes( mailboxPtr, mailboxes );
 }
 

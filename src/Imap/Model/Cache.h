@@ -99,6 +99,11 @@ public:
 
     /** @short Return part data or a null QByteArray if none available */
     virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId ) = 0;
+
+    /** @short Suggest that we're doing a batched update */
+    virtual void startBatch() = 0;
+    /** @short Indicate an end of a batched update */
+    virtual void commitBatch() = 0;
 };
 
 /** @short A convenience typedef */
