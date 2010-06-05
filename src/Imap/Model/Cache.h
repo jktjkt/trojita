@@ -75,6 +75,8 @@ public:
     virtual void setUidMapping( const QString& mailbox, const QList<uint>& seqToUid ) = 0;
     /** @short Forget the cached seq->UID mapping for given mailbox */
     virtual void clearUidMapping( const QString& mailbox ) = 0;
+    /** @short Retrieve sequence to UID mapping */
+    virtual QList<uint> uidMapping( const QString& mailbox ) = 0;
 
     /** @short Remove all messages in given mailbox from the cache */
     virtual void clearAllMessages( const QString& mailbox ) = 0;
@@ -90,9 +92,6 @@ public:
     virtual void setMsgStructure( const QString& mailbox, uint uid, const QByteArray& serializedData ) = 0;
     /** @short Save flags for one message in mailbox */
     virtual void setMsgFlags( const QString& mailbox, uint uid, const QStringList& flags ) = 0;
-
-    /** @short Retrieve sequence to UID mapping */
-    virtual QList<uint> uidMapping( const QString& mailbox ) = 0;
 
     /** @short Returns all known data for a message in the given mailbox (except real parts data) */
     virtual MessageDataBundle messageMetadata( const QString& mailbox, uint uid ) = 0;

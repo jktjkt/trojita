@@ -48,6 +48,7 @@ public:
 
     virtual void setUidMapping( const QString& mailbox, const QList<uint>& seqToUid );
     virtual void clearUidMapping( const QString& mailbox );
+    virtual QList<uint> uidMapping( const QString& mailbox );
 
     virtual void clearAllMessages( const QString& mailbox );
     virtual void clearMessage( const QString mailbox, uint uid );
@@ -57,7 +58,6 @@ public:
     virtual void setMsgStructure( const QString& mailbox, uint uid, const QByteArray& serializedData );
     virtual void setMsgFlags( const QString& mailbox, uint uid, const QStringList& flags );
 
-    virtual QList<uint> uidMapping( const QString& mailbox );
     virtual MessageDataBundle messageMetadata( const QString& mailbox, uint uid );
     virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId );
 
