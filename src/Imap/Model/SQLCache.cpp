@@ -158,6 +158,7 @@ bool SQLCache::_createTables()
                                  "mailbox STRING NOT NULL, "
                                  "uid INT NOT NULL, "
                                  "envelope BINARY, "
+                                 "bodystructure BINARY, "
                                  "size INT, "
                                  "PRIMARY KEY (mailbox, uid)"
                                  ")") ) ) {
@@ -247,13 +248,13 @@ bool SQLCache::_prepareQueries()
     }
 
     queryMessageMetadata = QSqlQuery(db);
-    if ( ! queryMessageMetadata.prepare( QLatin1String("SELECT envelope, size FROM msg_metadata WHERE mailbox = ? AND uid = ?") ) ) {
+    if ( ! queryMessageMetadata.prepare( QLatin1String("SELECT envelope, bodystructure, size FROM msg_metadata WHERE mailbox = ? AND uid = ?") ) ) {
         emitError( tr("Failed to prepare queryMessageMetadata"), queryMessageMetadata );
         return false;
     }
 
     querySetMessageMetadata = QSqlQuery(db);
-    if ( ! querySetMessageMetadata.prepare( QLatin1String("INSERT OR REPLACE INTO msg_metadata ( mailbox, uid, envelope, size ) VALUES ( ?, ?, ?, ? )") ) ) {
+    if ( ! querySetMessageMetadata.prepare( QLatin1String("INSERT OR REPLACE INTO msg_metadata ( mailbox, uid, envelope, bodystructure, size ) VALUES ( ?, ?, ?, ?, ? )") ) ) {
         emitError( tr("Failed to prepare querySetMessageMetadata"), querySetMessageMetadata );
         return false;
     }
@@ -501,10 +502,13 @@ AbstractCache::MessageDataBundle SQLCache::messageMetadata( const QString& mailb
         return res;
     }
     if ( queryMessageMetadata.first() ) {
+        // Order of result: envelope, bodystructure, size
         res.uid = uid;
-        QDataStream stream( queryMessageMetadata.value(0).toByteArray() );
-        stream >> res.envelope;
-        res.size = queryMessageMetadata.value(1).toUInt();
+        QDataStream stream1( queryMessageMetadata.value(0).toByteArray() );
+        stream1 >> res.envelope;
+        QDataStream stream2( queryMessageMetadata.value(1).toByteArray() );
+        stream2 >> res.serializedBodyStructure;
+        res.size = queryMessageMetadata.value(2).toUInt();
     }
     // "Not found" is not an error here
     return res;
@@ -512,13 +516,18 @@ AbstractCache::MessageDataBundle SQLCache::messageMetadata( const QString& mailb
 
 void SQLCache::setMessageMetadata( const QString& mailbox, uint uid, const MessageDataBundle& metadata )
 {
+    // Order of values: mailbox, uid, envelope, bodystructure, size
     querySetMessageMetadata.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     querySetMessageMetadata.bindValue( 1, uid );
-    QByteArray buf;
-    QDataStream stream( &buf, QIODevice::ReadWrite );
-    stream << metadata.envelope;
-    querySetMessageMetadata.bindValue( 2, buf );
-    querySetMessageMetadata.bindValue( 3, metadata.size );
+    QByteArray buf1;
+    QDataStream stream1( &buf1, QIODevice::ReadWrite );
+    stream1 << metadata.envelope;
+    querySetMessageMetadata.bindValue( 2, buf1 );
+    QByteArray buf2;
+    QDataStream stream2( &buf2, QIODevice::ReadWrite );
+    stream2 << metadata.serializedBodyStructure;
+    querySetMessageMetadata.bindValue( 3, buf2 );
+    querySetMessageMetadata.bindValue( 4, metadata.size );
     if ( ! querySetMessageMetadata.exec() ) {
         emitError( tr("Query querySetMessageMetadata failed"), querySetMessageMetadata );
     }
