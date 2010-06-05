@@ -22,6 +22,7 @@
 #include "AuthenticatedHandler.h"
 #include "SelectedHandler.h"
 #include "SelectingHandler.h"
+#include "ModelUpdaters.h"
 #include <QAbstractProxyModel>
 #include <QAuthenticator>
 #include <QCoreApplication>
@@ -92,18 +93,6 @@ bool IdleLauncher::idling()
 {
     return _idling;
 }
-
-_MailboxListUpdater::_MailboxListUpdater( Model* model, TreeItemMailbox* mailbox, const QList<TreeItem*>& children ):
-        QObject(model), _model(model), _mailbox(mailbox), _children(children)
-{
-}
-
-void _MailboxListUpdater::perform()
-{
-    _model->replaceChildMailboxes( _mailbox, _children );
-    deleteLater();
-}
-
 
 Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory, bool offline ):
     // parent
@@ -1127,7 +1116,9 @@ void Model::_askForNumberOfMessages( TreeItemMsgList* item )
             item->_unreadMessageCount = 0;
             item->_totalMessageCount = syncState.exists();
             item->_numberFetchingStatus = TreeItem::DONE;
-            emitMessageCountChanged( mailboxPtr );
+            // We're most likely invoked from deep inside the GUI, so we have to delay the update
+            _NumberOfMessagesUpdater* updater = new _NumberOfMessagesUpdater( this, mailboxPtr );
+            QTimer::singleShot( 0, updater, SLOT(perform()) );
         } else {
             item->_numberFetchingStatus = TreeItem::UNAVAILABLE;
         }

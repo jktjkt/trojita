@@ -25,6 +25,7 @@ SOURCES += Parser/Parser.cpp \
     Model/AuthenticatedHandler.cpp \
     Model/SelectedHandler.cpp \
     Model/SelectingHandler.cpp \
+    Model/ModelUpdaters.cpp \
     Model/MailboxModel.cpp \
     Model/PrettyMailboxModel.cpp \
     Model/MsgListModel.cpp \
@@ -56,6 +57,7 @@ HEADERS += Parser/Parser.h \
     Model/AuthenticatedHandler.h \
     Model/SelectedHandler.h \
     Model/SelectingHandler.h \
+    Model/ModelUpdaters.h \
     Model/MailboxModel.h \
     Model/PrettyMailboxModel.h \
     Model/MsgListModel.h \
