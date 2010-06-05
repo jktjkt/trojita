@@ -97,6 +97,10 @@ private:
     mutable QSqlQuery queryUidMapping;
     mutable QSqlQuery querySetUidMapping;
     mutable QSqlQuery queryClearUidMapping;
+    mutable QSqlQuery queryMessageMetadata;
+    mutable QSqlQuery querySetMessageMetadata;
+    mutable QSqlQuery queryMessageFlags;
+    mutable QSqlQuery querySetMessageFlags;
 };
 
 }

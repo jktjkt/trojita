@@ -154,6 +154,25 @@ bool SQLCache::_createTables()
         return false;
     }
 
+    if ( ! q.exec( QLatin1String("CREATE TABLE msg_metadata ("
+                                 "mailbox STRING NOT NULL, "
+                                 "uid INT NOT NULL, "
+                                 "envelope BINARY, "
+                                 "size INT, "
+                                 "PRIMARY KEY (mailbox, uid)"
+                                 ")") ) ) {
+        emitError( tr("Can't create table msg_metadata"), q );
+    }
+
+    if ( ! q.exec( QLatin1String("CREATE TABLE flags ("
+                                 "mailbox STRING NOT NULL, "
+                                 "uid INT NOT NULL, "
+                                 "flags BINARY, "
+                                 "PRIMARY KEY (mailbox, uid)"
+                                 ")") ) ) {
+        emitError( tr("Can't create table flags"), q );
+    }
+
     return true;
 }
 
@@ -224,6 +243,30 @@ bool SQLCache::_prepareQueries()
     queryClearUidMapping = QSqlQuery(db);
     if ( ! queryClearUidMapping.prepare( QLatin1String("DELETE FROM uid_mapping WHERE mailbox = ?") ) ) {
         emitError( tr("Failed to prepare queryClearUidMapping"), queryClearUidMapping );
+        return false;
+    }
+
+    queryMessageMetadata = QSqlQuery(db);
+    if ( ! queryMessageMetadata.prepare( QLatin1String("SELECT envelope, size FROM msg_metadata WHERE mailbox = ? AND uid = ?") ) ) {
+        emitError( tr("Failed to prepare queryMessageMetadata"), queryMessageMetadata );
+        return false;
+    }
+
+    querySetMessageMetadata = QSqlQuery(db);
+    if ( ! querySetMessageMetadata.prepare( QLatin1String("INSERT OR REPLACE INTO msg_metadata ( mailbox, uid, envelope, size ) VALUES ( ?, ?, ?, ? )") ) ) {
+        emitError( tr("Failed to prepare querySetMessageMetadata"), querySetMessageMetadata );
+        return false;
+    }
+
+    queryMessageFlags = QSqlQuery(db);
+    if ( ! queryMessageFlags.prepare( QLatin1String("SELECT flags FROM flags WHERE mailbox = ? AND uid = ?") ) ) {
+        emitError( tr("Failed to prepare queryMessageFlags"), queryMessageFlags );
+        return false;
+    }
+
+    querySetMessageFlags = QSqlQuery(db);
+    if ( ! querySetMessageFlags.prepare( QLatin1String("INSERT OR REPLACE INTO flags ( mailbox, uid, flags ) VALUES ( ?, ?, ? )") ) ) {
+        emitError( tr("Failed to prepare querySetMessageFlags"), querySetMessageFlags );
         return false;
     }
 
@@ -420,24 +463,65 @@ void SQLCache::clearMessage( const QString mailbox, uint uid )
 
 QStringList SQLCache::msgFlags( const QString& mailbox, uint uid ) const
 {
-    // FIXME
-    return QStringList();
+    QStringList res;
+    queryMessageFlags.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
+    queryMessageFlags.bindValue( 1, uid );
+    if ( ! queryMessageFlags.exec() ) {
+        emitError( tr("Query queryMessageFlags failed"), queryMessageFlags );
+        return res;
+    }
+    if ( queryMessageFlags.first() ) {
+        QDataStream stream( queryMessageFlags.value(0).toByteArray() );
+        stream >> res;
+    }
+    // "Not found" is not an error here
+    return res;
 }
 
 void SQLCache::setMsgFlags( const QString& mailbox, uint uid, const QStringList& flags )
 {
-    // FIXME
+    querySetMessageFlags.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
+    querySetMessageFlags.bindValue( 1, uid );
+    QByteArray buf;
+    QDataStream stream( &buf, QIODevice::ReadWrite );
+    stream << flags;
+    querySetMessageFlags.bindValue( 2, buf );
+    if ( ! querySetMessageFlags.exec() ) {
+        emitError( tr("Query querySetMessageFlags failed"), querySetMessageFlags );
+    }
 }
 
 AbstractCache::MessageDataBundle SQLCache::messageMetadata( const QString& mailbox, uint uid )
 {
-    // FIXME
-    return AbstractCache::MessageDataBundle();
+    AbstractCache::MessageDataBundle res;
+    queryMessageMetadata.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
+    queryMessageMetadata.bindValue( 1, uid );
+    if ( ! queryMessageMetadata.exec() ) {
+        emitError( tr("Query queryMessageMetadata failed"), queryMessageMetadata );
+        return res;
+    }
+    if ( queryMessageMetadata.first() ) {
+        res.uid = uid;
+        QDataStream stream( queryMessageMetadata.value(0).toByteArray() );
+        stream >> res.envelope;
+        res.size = queryMessageMetadata.value(1).toUInt();
+    }
+    // "Not found" is not an error here
+    return res;
 }
 
 void SQLCache::setMessageMetadata( const QString& mailbox, uint uid, const MessageDataBundle& metadata )
 {
-    // FIXME
+    querySetMessageMetadata.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
+    querySetMessageMetadata.bindValue( 1, uid );
+    QByteArray buf;
+    QDataStream stream( &buf, QIODevice::ReadWrite );
+    stream << metadata.envelope;
+    querySetMessageMetadata.bindValue( 2, buf );
+    querySetMessageMetadata.bindValue( 3, metadata.size );
+    if ( ! querySetMessageMetadata.exec() ) {
+        emitError( tr("Query querySetMessageMetadata failed"), querySetMessageMetadata );
+    }
 }
 
 QByteArray SQLCache::messagePart( const QString& mailbox, uint uid, const QString& partId )
