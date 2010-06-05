@@ -353,11 +353,18 @@ void Model::_finalizeList( Parser* parser, const QMap<CommandHandle, Task>::cons
     }
 
     QList<MailboxMetadata> metadataToCache;
+    QList<TreeItemMailbox*> mailboxesWithoutChildren;
     for ( QList<TreeItem*>::const_iterator it = mailboxes.begin(); it != mailboxes.end(); ++it ) {
-        metadataToCache.append( dynamic_cast<TreeItemMailbox*>( *it )->mailboxMetadata() );
+        TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( *it );
+        Q_ASSERT( mailbox );
+        metadataToCache.append( mailbox->mailboxMetadata() );
+        if ( mailbox->hasNoChildMaliboxesAlreadyKnown() ) {
+            mailboxesWithoutChildren << mailbox;
+        }
     }
-    _cache->setChildMailboxes( mailboxPtr->mailbox(), metadataToCache );
-
+    cache()->setChildMailboxes( mailboxPtr->mailbox(), metadataToCache );
+    for ( QList<TreeItemMailbox*>::const_iterator it = mailboxesWithoutChildren.begin(); it != mailboxesWithoutChildren.end(); ++it )
+        cache()->setChildMailboxes( (*it)->mailbox(), QList<MailboxMetadata>() );
     replaceChildMailboxes( mailboxPtr, mailboxes );
 }
 

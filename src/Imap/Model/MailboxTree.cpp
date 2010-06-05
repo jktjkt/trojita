@@ -139,13 +139,21 @@ QLatin1String TreeItemMailbox::_noInferiors( "\\NOINFERIORS" );
 QLatin1String TreeItemMailbox::_hasNoChildren( "\\HASNOCHILDREN" );
 QLatin1String TreeItemMailbox::_hasChildren( "\\HASCHILDREN" );
 
+bool TreeItemMailbox::hasNoChildMaliboxesAlreadyKnown()
+{
+    if ( _metadata.flags.contains( _noInferiors ) ||
+                  ( _metadata.flags.contains( _hasNoChildren ) &&
+                    ! _metadata.flags.contains( _hasChildren ) ) )
+            return true;
+    else
+            return false;
+}
+
 bool TreeItemMailbox::hasChildMailboxes( Model* const model )
 {
     if ( fetched() || isUnavailable( model ) )
         return _children.size() > 1;
-    else if ( _metadata.flags.contains( _noInferiors ) ||
-              ( _metadata.flags.contains( _hasNoChildren ) &&
-                ! _metadata.flags.contains( _hasChildren ) ) )
+    else if ( hasNoChildMaliboxesAlreadyKnown() )
         return false;
     else if ( _metadata.flags.contains( _hasChildren ) &&
               ! _metadata.flags.contains( _hasNoChildren ) )

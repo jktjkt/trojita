@@ -89,7 +89,16 @@ public:
     virtual bool hasChildren( Model* const model );
     virtual TreeItem* child( const int offset, Model* const model );
 
+    /** @short Returns true if this mailbox has child mailboxes
+
+This function might access the network if the answer can't be decided, for example on basis of mailbox flags.
+*/
     bool hasChildMailboxes( Model* const model );
+    /** @short Return true if the mailbox is already known to not have any child mailboxes
+
+No network activity will be caused. If the answer is not known for sure, we return false (meaning "don't know").
+*/
+    bool hasNoChildMaliboxesAlreadyKnown();
 
     QString mailbox() const { return _metadata.mailbox; }
     QString separator() const { return _metadata.separator; }
