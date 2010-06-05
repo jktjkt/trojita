@@ -256,6 +256,7 @@ void MainWindow::createWidgets()
     statusBar()->addPermanentWidget( busyParsersIndicator );
     busyParsersIndicator->setMinimum(0);
     busyParsersIndicator->setMaximum(0);
+    busyParsersIndicator->hide();
 }
 
 void MainWindow::setupModels()
