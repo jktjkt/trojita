@@ -90,6 +90,9 @@ private:
     mutable QSqlQuery queryForgetChildMailboxes2;
     mutable QSqlQuery queryMailboxSyncState;
     mutable QSqlQuery querySetMailboxSyncState;
+    mutable QSqlQuery queryUidMapping;
+    mutable QSqlQuery querySetUidMapping;
+    mutable QSqlQuery queryClearUidMapping;
 };
 
 }

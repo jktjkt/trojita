@@ -114,6 +114,14 @@ bool SQLCache::open()
             emitError( tr("Can't create table mailbox_sync_state"), q );
             return false;
         }
+
+        if ( ! q.exec( QLatin1String("CREATE TABLE uid_mapping ( "
+                                     "mailbox STRING NOT NULL PRIMARY KEY, "
+                                     "mapping BINARY"
+                                     " )") ) ) {
+            emitError( tr("Can't create table uid_mapping"), q );
+            return false;
+        }
     }
 
     if ( ! q.exec( QLatin1String("SELECT version FROM trojita") ) ) {
@@ -182,6 +190,24 @@ bool SQLCache::open()
                                                            "( mailbox, m_exists, recent, uidnext, uidvalidity, unseen, flags, permanentflags ) "
                                                            "VALUES ( ?, ?, ?, ?, ?, ?, ?, ? )") ) ) {
         emitError( tr("Failed to prepare querySetMailboxSyncState"), querySetMailboxSyncState );
+        return false;
+    }
+
+    queryUidMapping = QSqlQuery(db);
+    if ( ! queryUidMapping.prepare( QLatin1String("SELECT mapping FROM uid_mapping WHERE mailbox = ?") ) ) {
+        emitError( tr("Failed to prepare queryUidMapping"), queryUidMapping );
+        return false;
+    }
+
+    querySetUidMapping = QSqlQuery(db);
+    if ( ! querySetUidMapping.prepare( QLatin1String("INSERT OR REPLACE INTO uid_mapping (mailbox, mapping) VALUES  ( ?, ? )") ) ) {
+        emitError( tr("Failed to prepare querySetUidMapping"), querySetUidMapping );
+        return false;
+    }
+
+    queryClearUidMapping = QSqlQuery(db);
+    if ( ! queryClearUidMapping.prepare( QLatin1String("DELETE FROM uid_mapping WHERE mailbox = ?") ) ) {
+        emitError( tr("Failed to prepare queryClearUidMapping"), queryClearUidMapping );
         return false;
     }
 
@@ -333,12 +359,22 @@ void SQLCache::setMailboxSyncState( const QString& mailbox, const SyncState& sta
 
 void SQLCache::setUidMapping( const QString& mailbox, const QList<uint>& seqToUid )
 {
-    // FIXME
+    querySetUidMapping.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
+    QByteArray buf;
+    QDataStream stream( &buf, QIODevice::ReadWrite );
+    stream << seqToUid;
+    querySetUidMapping.bindValue( 1, buf );
+    if ( ! querySetUidMapping.exec() ) {
+        emitError( tr("Query querySetUidMapping failed"), querySetUidMapping );
+    }
 }
 
 void SQLCache::clearUidMapping( const QString& mailbox )
 {
-    // FIXME
+    queryClearUidMapping.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
+    if ( ! queryClearUidMapping.exec() ) {
+        emitError( tr("Query queryClearUidMapping failed"), queryClearUidMapping );
+    }
 }
 
 void SQLCache::clearAllMessages( const QString& mailbox )
@@ -378,8 +414,18 @@ void SQLCache::setMsgFlags( const QString& mailbox, uint uid, const QStringList&
 
 QList<uint> SQLCache::uidMapping( const QString& mailbox )
 {
-    // FIXME
-    return QList<uint>();
+    QList<uint> res;
+    queryUidMapping.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
+    if ( ! queryUidMapping.exec() ) {
+        emitError( tr("Query queryUidMapping failed"), queryUidMapping );
+        return res;
+    }
+    if ( queryUidMapping.first() ) {
+        QDataStream stream( queryUidMapping.value(0).toByteArray() );
+        stream >> res;
+    }
+    // "No data present" doesn't necessarily imply a problem -- it simply might not be there yet :)
+    return res;
 }
 
 AbstractCache::MessageDataBundle SQLCache::messageMetadata( const QString& mailbox, uint uid )
