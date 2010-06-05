@@ -100,6 +100,20 @@ bool SQLCache::open()
             emitError( tr("Can't create table child_mailboxes_fresh") );
             return false;
         }
+
+        if ( ! q.exec( QLatin1String("CREATE TABLE mailbox_sync_state ( "
+                                     "mailbox STRING NOT NULL PRIMARY KEY, "
+                                     "m_exists INT NOT NULL, "
+                                     "recent INT NOT NULL, "
+                                     "uidnext INT NOT NULL, "
+                                     "uidvalidity INT NOT NULL, "
+                                     "unseen INT NOT NULL, "
+                                     "flags BINARY, "
+                                     "permanentflags BINARY"
+                                     " )") ) ) {
+            emitError( tr("Can't create table mailbox_sync_state"), q );
+            return false;
+        }
     }
 
     if ( ! q.exec( QLatin1String("SELECT version FROM trojita") ) ) {
@@ -154,6 +168,20 @@ bool SQLCache::open()
     queryForgetChildMailboxes2 = QSqlQuery(db);
     if ( ! queryForgetChildMailboxes2.prepare( QLatin1String("DELETE FROM child_mailboxes_fresh WHERE mailbox = ?") ) ) {
         emitError( tr("Failed to prepare queryForgetChildMailboxes2"), queryForgetChildMailboxes2 );
+        return false;
+    }
+
+    queryMailboxSyncState = QSqlQuery(db);
+    if ( ! queryMailboxSyncState.prepare( QLatin1String("SELECT m_exists, recent, uidnext, uidvalidity, unseen, flags, permanentflags FROM mailbox_sync_state WHERE mailbox = ?") ) ) {
+        emitError( tr("Failed to prepare queryMailboxSyncState"), queryMailboxSyncState );
+        return false;
+    }
+
+    querySetMailboxSyncState = QSqlQuery(db);
+    if ( ! querySetMailboxSyncState.prepare( QLatin1String("INSERT OR REPLACE INTO mailbox_sync_state "
+                                                           "( mailbox, m_exists, recent, uidnext, uidvalidity, unseen, flags, permanentflags ) "
+                                                           "VALUES ( ?, ?, ?, ?, ?, ?, ?, ? )") ) ) {
+        emitError( tr("Failed to prepare querySetMailboxSyncState"), querySetMailboxSyncState );
         return false;
     }
 
@@ -254,13 +282,53 @@ void SQLCache::forgetChildMailboxes( const QString& mailbox )
 
 SyncState SQLCache::mailboxSyncState( const QString& mailbox ) const
 {
-    // FIXME
-    return SyncState();
+    SyncState res;
+    queryMailboxSyncState.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
+    if ( ! queryMailboxSyncState.exec() ) {
+        emitError( tr("Query queryMailboxSyncState failed"), queryMailboxSyncState );
+        return res;
+    }
+    if ( queryMailboxSyncState.first() ) {
+        // Order of arguments: exists, recent, uidnext, uidvalidity, unseen, flags, permanentflags
+        res.setExists( queryMailboxSyncState.value(0).toUInt() );
+        res.setRecent( queryMailboxSyncState.value(1).toUInt() );
+        res.setUidNext( queryMailboxSyncState.value(2).toUInt() );
+        res.setUidValidity( queryMailboxSyncState.value(3).toUInt() );
+        res.setUnSeen( queryMailboxSyncState.value(4).toUInt() );
+        QDataStream stream1( queryMailboxSyncState.value(5).toByteArray() );
+        QStringList list;
+        stream1 >> list;
+        res.setFlags( list );
+        list.clear();
+        QDataStream stream2( queryMailboxSyncState.value(6).toByteArray() );
+        stream2 >> list;
+        res.setPermanentFlags( list );
+    }
+    // "No data present" doesn't necessarily imply a problem -- it simply might not be there yet :)
+    return res;
 }
 
 void SQLCache::setMailboxSyncState( const QString& mailbox, const SyncState& state )
 {
-    // FIXME
+    // Order of arguments: mailbox, exists, recent, uidnext, uidvalidity, unseen, flags, permanentflags
+    querySetMailboxSyncState.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
+    querySetMailboxSyncState.bindValue( 1, state.exists() );
+    querySetMailboxSyncState.bindValue( 2, state.recent() );
+    querySetMailboxSyncState.bindValue( 3, state.uidNext() );
+    querySetMailboxSyncState.bindValue( 4, state.uidValidity() );
+    querySetMailboxSyncState.bindValue( 5, state.unSeen() );
+    QByteArray buf1;
+    QDataStream stream1( &buf1, QIODevice::ReadWrite );
+    stream1 << state.flags();
+    querySetMailboxSyncState.bindValue( 6, buf1 );
+    QByteArray buf2;
+    QDataStream stream2( &buf2, QIODevice::ReadWrite );
+    stream2 << state.permanentFlags();
+    querySetMailboxSyncState.bindValue( 7, buf2 );
+    if ( ! querySetMailboxSyncState.exec() ) {
+        emitError( tr("Query querySetMailboxSyncState failed"), querySetMailboxSyncState );
+        return;
+    }
 }
 
 void SQLCache::setUidMapping( const QString& mailbox, const QList<uint>& seqToUid )
