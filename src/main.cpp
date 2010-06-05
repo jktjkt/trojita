@@ -25,6 +25,7 @@ extern const char* gitVersion;
 
 int main( int argc, char** argv) {
     QApplication app( argc, argv );
+    Q_INIT_RESOURCE(icons);
     QCoreApplication::setApplicationName( QString::fromAscii("trojita") );
 #ifdef HAS_GITVERSION
     QCoreApplication::setApplicationVersion( QString::fromAscii( gitVersion ) );
