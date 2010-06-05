@@ -93,13 +93,13 @@ void MainWindow::createActions()
 
     QActionGroup* netPolicyGroup = new QActionGroup( this );
     netPolicyGroup->setExclusive( true );
-    netOffline = new QAction( QtIconLoader::icon( QLatin1String("network-offline") ), tr("Offline"), netPolicyGroup );
+    netOffline = new QAction( QIcon( QLatin1String(":/icons/network-offline") ), tr("Offline"), netPolicyGroup );
     netOffline->setCheckable( true );
     // connect later
-    netExpensive = new QAction( QtIconLoader::icon( QLatin1String("network-expensive") ), tr("Expensive Connection"), netPolicyGroup );
+    netExpensive = new QAction( QIcon( QLatin1String(":/icons/network-expensive") ), tr("Expensive Connection"), netPolicyGroup );
     netExpensive->setCheckable( true );
     // connect later
-    netOnline = new QAction( QtIconLoader::icon( QLatin1String("network-online") ), tr("Free Access"), netPolicyGroup );
+    netOnline = new QAction( QIcon( QLatin1String(":/icons/network-online") ), tr("Free Access"), netPolicyGroup );
     netOnline->setCheckable( true );
     // connect later
 
