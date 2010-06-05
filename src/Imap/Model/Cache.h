@@ -41,8 +41,6 @@ public:
         Imap::Message::Envelope envelope;
         /** @short RFC822.SIZE */
         uint size;
-        /** @short FLAGS, a volatile parameter! */
-        QStringList flags;
         /** @short Serialized form of BODYSTRUCTURE
 
         Due to the complex nature of BODYSTRUCTURE and the way we use, simly
@@ -82,22 +80,20 @@ public:
     virtual void clearAllMessages( const QString& mailbox ) = 0;
     /** @short Remove all info for given message in the mailbox from cache */
     virtual void clearMessage( const QString mailbox, uint uid ) = 0;
-    /** @short Save data for one message part */
-    virtual void setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data ) = 0;
-    /** @short Store the ENVELOPE of one message */
-    virtual void setMsgEnvelope( const QString& mailbox, uint uid, const Imap::Message::Envelope& envelope ) = 0;
-    /** @short Save the message size */
-    virtual void setMsgSize( const QString& mailbox, uint uid, uint size ) = 0;
-    /** @short Save the BODYSTRUCTURE of a message */
-    virtual void setMsgStructure( const QString& mailbox, uint uid, const QByteArray& serializedData ) = 0;
-    /** @short Save flags for one message in mailbox */
-    virtual void setMsgFlags( const QString& mailbox, uint uid, const QStringList& flags ) = 0;
 
     /** @short Returns all known data for a message in the given mailbox (except real parts data) */
     virtual MessageDataBundle messageMetadata( const QString& mailbox, uint uid ) = 0;
+    virtual void setMessageMetadata( const QString& mailbox, uint uid, const MessageDataBundle& metadata ) = 0;
+
+    /** @short Retrieve flags for one message in a mailbox */
+    virtual QStringList msgFlags( const QString& mailbox, uint uid ) const = 0;
+    /** @short Save flags for one message in mailbox */
+    virtual void setMsgFlags( const QString& mailbox, uint uid, const QStringList& flags ) = 0;
 
     /** @short Return part data or a null QByteArray if none available */
     virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId ) = 0;
+    /** @short Save data for one message part */
+    virtual void setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data ) = 0;
 
     /** @short Suggest that we're doing a batched update */
     virtual void startBatch() = 0;

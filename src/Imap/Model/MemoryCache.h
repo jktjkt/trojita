@@ -52,14 +52,15 @@ public:
 
     virtual void clearAllMessages( const QString& mailbox );
     virtual void clearMessage( const QString mailbox, uint uid );
-    virtual void setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data );
-    virtual void setMsgEnvelope( const QString& mailbox, uint uid, const Imap::Message::Envelope& envelope );
-    virtual void setMsgSize( const QString& mailbox, uint uid, uint size );
-    virtual void setMsgStructure( const QString& mailbox, uint uid, const QByteArray& serializedData );
-    virtual void setMsgFlags( const QString& mailbox, uint uid, const QStringList& flags );
 
     virtual MessageDataBundle messageMetadata( const QString& mailbox, uint uid );
+    virtual void setMessageMetadata( const QString& mailbox, uint uid, const MessageDataBundle& metadata );
+
+    virtual QStringList msgFlags( const QString& mailbox, uint uid ) const;
+    virtual void setMsgFlags( const QString& mailbox, uint uid, const QStringList& flags );
+
     virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId );
+    virtual void setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data );
 
     virtual void startBatch();
     virtual void commitBatch();

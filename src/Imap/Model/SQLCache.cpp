@@ -418,24 +418,10 @@ void SQLCache::clearMessage( const QString mailbox, uint uid )
     // FIXME
 }
 
-void SQLCache::setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data )
+QStringList SQLCache::msgFlags( const QString& mailbox, uint uid ) const
 {
     // FIXME
-}
-
-void SQLCache::setMsgEnvelope( const QString& mailbox, uint uid, const Imap::Message::Envelope& envelope )
-{
-    // FIXME
-}
-
-void SQLCache::setMsgSize( const QString& mailbox, uint uid, uint size )
-{
-    // FIXME
-}
-
-void SQLCache::setMsgStructure( const QString& mailbox, uint uid, const QByteArray& serializedData )
-{
-    // FIXME
+    return QStringList();
 }
 
 void SQLCache::setMsgFlags( const QString& mailbox, uint uid, const QStringList& flags )
@@ -449,10 +435,20 @@ AbstractCache::MessageDataBundle SQLCache::messageMetadata( const QString& mailb
     return AbstractCache::MessageDataBundle();
 }
 
+void SQLCache::setMessageMetadata( const QString& mailbox, uint uid, const MessageDataBundle& metadata )
+{
+    // FIXME
+}
+
 QByteArray SQLCache::messagePart( const QString& mailbox, uint uid, const QString& partId )
 {
     // FIXME
     return QByteArray();
+}
+
+void SQLCache::setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data )
+{
+    // FIXME
 }
 
 void SQLCache::startBatch()

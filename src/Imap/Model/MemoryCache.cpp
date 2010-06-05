@@ -139,30 +139,6 @@ void MemoryCache::setMsgPart( const QString& mailbox, uint uid, const QString& p
     _parts[ mailbox ][ uid ][ partId ] = data;
 }
 
-void MemoryCache::setMsgEnvelope( const QString& mailbox, uint uid, const Imap::Message::Envelope& envelope )
-{
-#ifdef CACHE_DEBUG
-    qDebug() << "set envelope" << mailbox << uid << envelope;
-#endif
-    _envelopes[ mailbox ][ uid ] = envelope;
-}
-
-void MemoryCache::setMsgSize( const QString& mailbox, uint uid, uint size )
-{
-#ifdef CACHE_DEBUG
-    qDebug() << "set msg size" << mailbox << uid << size;
-#endif
-    _sizes[ mailbox ][ uid ] = size;
-}
-
-void MemoryCache::setMsgStructure( const QString& mailbox, uint uid, const QByteArray& serializedData )
-{
-#ifdef CACHE_DEBUG
-    qDebug() << "set msg body structure" << mailbox << uid << serializedData.size();
-#endif
-    _bodyStructure[ mailbox ][ uid ] = serializedData;
-}
-
 void MemoryCache::setMsgFlags( const QString& mailbox, uint uid, const QStringList& flags )
 {
 #ifdef CACHE_DEBUG
@@ -171,9 +147,21 @@ void MemoryCache::setMsgFlags( const QString& mailbox, uint uid, const QStringLi
     _flags[ mailbox ][ uid ] = flags;
 }
 
+QStringList MemoryCache::msgFlags( const QString& mailbox, uint uid ) const
+{
+    return _flags[ mailbox ][ uid ];
+}
+
 QList<uint> MemoryCache::uidMapping( const QString& mailbox )
 {
     return _seqToUid[ mailbox ];
+}
+
+void MemoryCache::setMessageMetadata( const QString& mailbox, uint uid, const MessageDataBundle& metadata )
+{
+    _bodyStructure[ mailbox ][ uid ] = metadata.serializedBodyStructure;
+    _sizes[ mailbox ][ uid ] = metadata.size;
+    _envelopes[ mailbox ][ uid ] = metadata.envelope;
 }
 
 MemoryCache::MessageDataBundle MemoryCache::messageMetadata( const QString& mailbox, uint uid )
@@ -207,7 +195,6 @@ MemoryCache::MessageDataBundle MemoryCache::messageMetadata( const QString& mail
     buf.envelope = _envelopes[ mailbox ][ uid ];
     buf.uid = uid;
     // These fields are not critical, so nothing happens if they aren't filed correctly:
-    buf.flags = _flags[ mailbox ][ uid ];
     buf.size = _sizes[ mailbox ][ uid ];
     return buf;
 }

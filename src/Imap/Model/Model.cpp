@@ -1144,7 +1144,7 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
         AbstractCache::MessageDataBundle data = cache()->messageMetadata( mailboxPtr->mailbox(), item->uid() );
         if ( data.uid == item->uid() ) {
             item->_envelope = data.envelope;
-            item->_flags = data.flags;
+            item->_flags = cache()->msgFlags( mailboxPtr->mailbox(), item->uid() );
             item->_size = data.size;
             QDataStream stream( &data.serializedBodyStructure, QIODevice::ReadOnly );
             QVariantList unserialized;
