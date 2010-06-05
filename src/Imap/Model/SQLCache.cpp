@@ -73,56 +73,14 @@ bool SQLCache::open()
     }
 
     TransactionHelper txn( &db );
-    QSqlQuery q( QString(), db );
 
     QSqlRecord trojitaNames = db.record( QLatin1String("trojita") );
     if ( ! trojitaNames.contains( QLatin1String("version") ) ) {
-        if ( ! q.exec( QLatin1String("CREATE TABLE trojita ( version STRING NOT NULL )") ) ) {
-            emitError( tr("Failed to prepare table structures"), q );
+        if ( ! _createTables() )
             return false;
-        }
-        if ( ! q.exec( QLatin1String("INSERT INTO trojita ( version ) VALUES ( 1 )") ) ) {
-            emitError( tr("Can't store version info"), q );
-            return false;
-        }
-        if ( ! q.exec( QLatin1String(
-                "CREATE TABLE child_mailboxes ( "
-                "mailbox STRING NOT NULL PRIMARY KEY, "
-                "parent STRING NOT NULL, "
-                "separator STRING, "
-                "flags BINARY"
-                ")"
-                ) ) ) {
-            emitError( tr("Can't create table child_mailboxes") );
-            return false;
-        }
-        if ( ! q.exec( QLatin1String("CREATE TABLE child_mailboxes_fresh ( mailbox STRING NOT NULL PRIMARY KEY )") ) ) {
-            emitError( tr("Can't create table child_mailboxes_fresh") );
-            return false;
-        }
-
-        if ( ! q.exec( QLatin1String("CREATE TABLE mailbox_sync_state ( "
-                                     "mailbox STRING NOT NULL PRIMARY KEY, "
-                                     "m_exists INT NOT NULL, "
-                                     "recent INT NOT NULL, "
-                                     "uidnext INT NOT NULL, "
-                                     "uidvalidity INT NOT NULL, "
-                                     "unseen INT NOT NULL, "
-                                     "flags BINARY, "
-                                     "permanentflags BINARY"
-                                     " )") ) ) {
-            emitError( tr("Can't create table mailbox_sync_state"), q );
-            return false;
-        }
-
-        if ( ! q.exec( QLatin1String("CREATE TABLE uid_mapping ( "
-                                     "mailbox STRING NOT NULL PRIMARY KEY, "
-                                     "mapping BINARY"
-                                     " )") ) ) {
-            emitError( tr("Can't create table uid_mapping"), q );
-            return false;
-        }
     }
+
+    QSqlQuery q( QString(), db );
 
     if ( ! q.exec( QLatin1String("SELECT version FROM trojita") ) ) {
         emitError( tr("Failed to verify version"), q );
@@ -143,6 +101,64 @@ bool SQLCache::open()
 
     txn.commit();
 
+    return _prepareQueries();
+}
+
+bool SQLCache::_createTables()
+{
+    QSqlQuery q( QString(), db );
+
+    if ( ! q.exec( QLatin1String("CREATE TABLE trojita ( version STRING NOT NULL )") ) ) {
+        emitError( tr("Failed to prepare table structures"), q );
+        return false;
+    }
+    if ( ! q.exec( QLatin1String("INSERT INTO trojita ( version ) VALUES ( 1 )") ) ) {
+        emitError( tr("Can't store version info"), q );
+        return false;
+    }
+    if ( ! q.exec( QLatin1String(
+            "CREATE TABLE child_mailboxes ( "
+            "mailbox STRING NOT NULL PRIMARY KEY, "
+            "parent STRING NOT NULL, "
+            "separator STRING, "
+            "flags BINARY"
+            ")"
+            ) ) ) {
+        emitError( tr("Can't create table child_mailboxes") );
+        return false;
+    }
+    if ( ! q.exec( QLatin1String("CREATE TABLE child_mailboxes_fresh ( mailbox STRING NOT NULL PRIMARY KEY )") ) ) {
+        emitError( tr("Can't create table child_mailboxes_fresh") );
+        return false;
+    }
+
+    if ( ! q.exec( QLatin1String("CREATE TABLE mailbox_sync_state ( "
+                                 "mailbox STRING NOT NULL PRIMARY KEY, "
+                                 "m_exists INT NOT NULL, "
+                                 "recent INT NOT NULL, "
+                                 "uidnext INT NOT NULL, "
+                                 "uidvalidity INT NOT NULL, "
+                                 "unseen INT NOT NULL, "
+                                 "flags BINARY, "
+                                 "permanentflags BINARY"
+                                 " )") ) ) {
+        emitError( tr("Can't create table mailbox_sync_state"), q );
+        return false;
+    }
+
+    if ( ! q.exec( QLatin1String("CREATE TABLE uid_mapping ( "
+                                 "mailbox STRING NOT NULL PRIMARY KEY, "
+                                 "mapping BINARY"
+                                 " )") ) ) {
+        emitError( tr("Can't create table uid_mapping"), q );
+        return false;
+    }
+
+    return true;
+}
+
+bool SQLCache::_prepareQueries()
+{
     queryChildMailboxes = QSqlQuery(db);
     if ( ! queryChildMailboxes.prepare( "SELECT mailbox, separator, flags FROM child_mailboxes WHERE parent = ?") ) {
         emitError( tr("Failed to prepare queryChildMailboxes"), queryChildMailboxes );

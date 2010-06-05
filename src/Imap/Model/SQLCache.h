@@ -76,6 +76,9 @@ private:
     void emitError( const QString& message, const QSqlDatabase& database ) const;
     void emitError( const QString& message ) const;
 
+    bool _createTables();
+    bool _prepareQueries();
+
 signals:
     void databaseError( const QString& error ) const;
 
