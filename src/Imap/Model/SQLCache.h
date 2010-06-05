@@ -86,7 +86,8 @@ private:
     mutable QSqlQuery queryChildMailboxesFresh;
     mutable QSqlQuery querySetChildMailboxes;
     mutable QSqlQuery querySetChildMailboxesFresh;
-    mutable QSqlQuery queryForgetChildMailboxes;
+    mutable QSqlQuery queryForgetChildMailboxes1;
+    mutable QSqlQuery queryForgetChildMailboxes2;
 };
 
 }
