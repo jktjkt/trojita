@@ -22,6 +22,7 @@
 #include "AuthenticatedHandler.h"
 #include "SelectedHandler.h"
 #include "SelectingHandler.h"
+#include "ModelUpdaters.h"
 #include <QAbstractProxyModel>
 #include <QAuthenticator>
 #include <QCoreApplication>
@@ -92,28 +93,6 @@ bool IdleLauncher::idling()
 {
     return _idling;
 }
-
-_MailboxListUpdater::_MailboxListUpdater( Model* model, TreeItemMailbox* mailbox, const QList<TreeItem*>& children ):
-        QObject(model), _model(model), _mailbox(mailbox), _children(children)
-{
-}
-
-void _MailboxListUpdater::perform()
-{
-    _model->replaceChildMailboxes( _mailbox, _children );
-    deleteLater();
-}
-
-_NumberOfMessagesUpdater::_NumberOfMessagesUpdater( Model* model, TreeItemMailbox* mailbox ):
-        QObject(model), _model(model), _mailbox(mailbox)
-{
-}
-
-void _NumberOfMessagesUpdater::perform()
-{
-    _model->emitMessageCountChanged( _mailbox );
-}
-
 
 Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory, bool offline ):
     // parent

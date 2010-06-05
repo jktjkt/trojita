@@ -91,28 +91,8 @@ private:
     IdleLauncher& operator=(const Imap::Mailbox::IdleLauncher&); // don't implement
 };
 
-class _MailboxListUpdater: public QObject {
-    Q_OBJECT
-public:
-    _MailboxListUpdater( Model* model, TreeItemMailbox* mailbox, const QList<TreeItem*>& children );
-public slots:
-    void perform();
-private:
-    Model* _model;
-    TreeItemMailbox* _mailbox;
-    QList<TreeItem*> _children;
-};
-
-class _NumberOfMessagesUpdater: public QObject {
-    Q_OBJECT
-public:
-    _NumberOfMessagesUpdater( Model* model, TreeItemMailbox* mailbox );
-public slots:
-    void perform();
-private:
-    Model* _model;
-    TreeItemMailbox* _mailbox;
-};
+class _MailboxListUpdater;
+class _NumberOfMessagesUpdater;
 
 /** @short A model implementing view of the whole IMAP server */
 class Model: public QAbstractItemModel {
