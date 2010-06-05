@@ -242,7 +242,6 @@ QList<MailboxMetadata> SQLCache::childMailboxes( const QString& mailbox ) const
         MailboxMetadata item;
         item.mailbox = queryChildMailboxes.value(0).toString();
         item.separator = queryChildMailboxes.value(1).toString();
-        QByteArray buf;
         QDataStream stream( queryChildMailboxes.value(2).toByteArray() );
         stream >> item.flags;
         if ( stream.status() != QDataStream::Ok ) {
