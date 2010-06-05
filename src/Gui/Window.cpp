@@ -30,6 +30,7 @@
 #include <QSplitter>
 #include <QStatusBar>
 #include <QToolBar>
+#include <QToolButton>
 #include <QUrl>
 
 #include "Window.h"
@@ -92,13 +93,13 @@ void MainWindow::createActions()
 
     QActionGroup* netPolicyGroup = new QActionGroup( this );
     netPolicyGroup->setExclusive( true );
-    netOffline = new QAction( tr("Offline"), netPolicyGroup );
+    netOffline = new QAction( QtIconLoader::icon( QLatin1String("network-offline") ), tr("Offline"), netPolicyGroup );
     netOffline->setCheckable( true );
     // connect later
-    netExpensive = new QAction( tr("Expensive Connection"), netPolicyGroup );
+    netExpensive = new QAction( QtIconLoader::icon( QLatin1String("network-expensive") ), tr("Expensive Connection"), netPolicyGroup );
     netExpensive->setCheckable( true );
     // connect later
-    netOnline = new QAction( tr("Free Access"), netPolicyGroup );
+    netOnline = new QAction( QtIconLoader::icon( QLatin1String("network-online") ), tr("Free Access"), netPolicyGroup );
     netOnline->setCheckable( true );
     // connect later
 
@@ -205,6 +206,9 @@ void MainWindow::createMenus()
 
     QMenu* helpMenu = menuBar()->addMenu( tr("Help") );
     helpMenu->addAction( aboutTrojita );
+
+    networkIndicator->setMenu( netPolicyMenu );
+    networkIndicator->setDefaultAction( netOnline );
 }
 
 void MainWindow::createWidgets()
@@ -257,6 +261,10 @@ void MainWindow::createWidgets()
     busyParsersIndicator->setMinimum(0);
     busyParsersIndicator->setMaximum(0);
     busyParsersIndicator->hide();
+
+    networkIndicator = new QToolButton( this );
+    networkIndicator->setPopupMode( QToolButton::InstantPopup );
+    statusBar()->addPermanentWidget( networkIndicator );
 }
 
 void MainWindow::setupModels()
@@ -489,6 +497,7 @@ void MainWindow::networkPolicyOffline()
     netExpensive->setChecked( false );
     netOnline->setChecked( false );
     updateActionsOnlineOffline( false );
+    networkIndicator->setDefaultAction( netOffline );
 }
 
 void MainWindow::networkPolicyExpensive()
@@ -497,6 +506,7 @@ void MainWindow::networkPolicyExpensive()
     netExpensive->setChecked( true );
     netOnline->setChecked( false );
     updateActionsOnlineOffline( true );
+    networkIndicator->setDefaultAction( netExpensive );
 }
 
 void MainWindow::networkPolicyOnline()
@@ -505,6 +515,7 @@ void MainWindow::networkPolicyOnline()
     netExpensive->setChecked( false );
     netOnline->setChecked( true );
     updateActionsOnlineOffline( true );
+    networkIndicator->setDefaultAction( netOnline );
 }
 
 void MainWindow::fullViewToggled( bool showIt )

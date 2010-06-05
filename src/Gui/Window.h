@@ -29,6 +29,7 @@ class QItemSelection;
 class QModelIndex;
 class QProgressBar;
 class QScrollArea;
+class QToolButton;
 class QTreeView;
 
 namespace Imap {
@@ -142,6 +143,7 @@ private:
     QAction* markAsDeleted;
 
     QProgressBar* busyParsersIndicator;
+    QToolButton* networkIndicator;
 
     MainWindow(const MainWindow&); // don't implement
     MainWindow& operator=(const MainWindow&); // don't implement
