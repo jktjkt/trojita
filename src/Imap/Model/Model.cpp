@@ -522,6 +522,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                     CommandHandle cmd = parser->fetch( Sequence( 1, syncState.exists() ),
                                                        items );
                     _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
+                    cache()->startBatch();
                     emit activityHappening( true );
                     list->_numberFetchingStatus = TreeItem::LOADING;
                     list->_unreadMessageCount = 0;
@@ -559,6 +560,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                 CommandHandle cmd = parser->fetch( Sequence( 1, syncState.exists() ),
                                                    QStringList() << "UID" << "FLAGS" );
                 _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
+                cache()->startBatch();
                 emit activityHappening( true );
                 list->_numberFetchingStatus = TreeItem::LOADING;
                 list->_unreadMessageCount = 0;
@@ -591,6 +593,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                 CommandHandle cmd = parser->fetch( Sequence( oldState.exists() + 1, syncState.exists() ),
                                                    items );
                 _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
+                cache()->startBatch();
                 emit activityHappening( true );
                 list->_numberFetchingStatus = TreeItem::LOADING;
                 list->_fetchStatus = TreeItem::DONE;
@@ -605,6 +608,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                 CommandHandle cmd = parser->fetch( Sequence( 1, syncState.exists() ),
                                                    QStringList() << "UID" << "FLAGS" );
                 _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
+                cache()->startBatch();
                 emit activityHappening( true );
                 _parsers[ parser ].responseHandler = selectingHandler;
                 list->_numberFetchingStatus = TreeItem::LOADING;
@@ -662,6 +666,7 @@ void Model::_fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, Pars
         QStringList items = willLoad ? _onlineMessageFetch : QStringList() << "UID" << "FLAGS";
         CommandHandle cmd = parser->fetch( Sequence( 1, syncState.exists() ), items );
         _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
+        cache()->startBatch();
         emit activityHappening( true );
         list->_numberFetchingStatus = TreeItem::LOADING;
         list->_unreadMessageCount = 0;
@@ -824,6 +829,7 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
         _parsers[ parser ].syncingFlags.clear();
         emitMessageCountChanged( mailbox );
     }
+    cache()->commitBatch();
 }
 
 void Model::_finalizeCreate( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command,  const Imap::Responses::State* const resp )

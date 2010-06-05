@@ -101,6 +101,8 @@ private:
     mutable QSqlQuery querySetMessageMetadata;
     mutable QSqlQuery queryMessageFlags;
     mutable QSqlQuery querySetMessageFlags;
+
+    uint inflightTransactions;
 };
 
 }

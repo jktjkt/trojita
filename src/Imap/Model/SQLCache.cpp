@@ -52,7 +52,7 @@ namespace Imap {
 namespace Mailbox {
 
 SQLCache::SQLCache( const QString& name, const QString& fileName ):
-        QObject(0)
+        QObject(0), inflightTransactions(0)
 {
     db = QSqlDatabase::addDatabase( QLatin1String("QSQLITE"), name );
     db.setDatabaseName( fileName );
@@ -537,12 +537,16 @@ void SQLCache::setMsgPart( const QString& mailbox, uint uid, const QString& part
 
 void SQLCache::startBatch()
 {
-    db.transaction();
+    ++inflightTransactions;
+    if ( inflightTransactions == 1 )
+        db.transaction();
 }
 
 void SQLCache::commitBatch()
 {
-    db.commit();
+    --inflightTransactions;
+    if ( inflightTransactions == 0 )
+        db.commit();
 }
 
 }
