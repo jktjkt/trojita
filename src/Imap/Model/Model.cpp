@@ -104,6 +104,16 @@ void _MailboxListUpdater::perform()
     deleteLater();
 }
 
+_NumberOfMessagesUpdater::_NumberOfMessagesUpdater( Model* model, TreeItemMailbox* mailbox ):
+        QObject(model), _model(model), _mailbox(mailbox)
+{
+}
+
+void _NumberOfMessagesUpdater::perform()
+{
+    _model->emitMessageCountChanged( _mailbox );
+}
+
 
 Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory, bool offline ):
     // parent
@@ -1125,7 +1135,9 @@ void Model::_askForNumberOfMessages( TreeItemMsgList* item )
             item->_unreadMessageCount = 0;
             item->_totalMessageCount = syncState.exists();
             item->_numberFetchingStatus = TreeItem::DONE;
-            emitMessageCountChanged( mailboxPtr );
+            // We're most likely invoked from deep inside the GUI, so we have to delay the update
+            _NumberOfMessagesUpdater* updater = new _NumberOfMessagesUpdater( this, mailboxPtr );
+            QTimer::singleShot( 0, updater, SLOT(perform()) );
         } else {
             item->_numberFetchingStatus = TreeItem::UNAVAILABLE;
         }

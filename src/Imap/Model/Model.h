@@ -103,6 +103,17 @@ private:
     QList<TreeItem*> _children;
 };
 
+class _NumberOfMessagesUpdater: public QObject {
+    Q_OBJECT
+public:
+    _NumberOfMessagesUpdater( Model* model, TreeItemMailbox* mailbox );
+public slots:
+    void perform();
+private:
+    Model* _model;
+    TreeItemMailbox* _mailbox;
+};
+
 /** @short A model implementing view of the whole IMAP server */
 class Model: public QAbstractItemModel {
     Q_OBJECT
@@ -377,6 +388,7 @@ private:
 
     friend class IdleLauncher;
     friend class _MailboxListUpdater;
+    friend class _NumberOfMessagesUpdater;
 
     void _askForChildrenOfMailbox( TreeItemMailbox* item );
     void _askForMessagesInMailbox( TreeItemMsgList* item );
