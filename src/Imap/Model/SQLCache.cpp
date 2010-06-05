@@ -357,6 +357,22 @@ void SQLCache::setMailboxSyncState( const QString& mailbox, const SyncState& sta
     }
 }
 
+QList<uint> SQLCache::uidMapping( const QString& mailbox )
+{
+    QList<uint> res;
+    queryUidMapping.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
+    if ( ! queryUidMapping.exec() ) {
+        emitError( tr("Query queryUidMapping failed"), queryUidMapping );
+        return res;
+    }
+    if ( queryUidMapping.first() ) {
+        QDataStream stream( queryUidMapping.value(0).toByteArray() );
+        stream >> res;
+    }
+    // "No data present" doesn't necessarily imply a problem -- it simply might not be there yet :)
+    return res;
+}
+
 void SQLCache::setUidMapping( const QString& mailbox, const QList<uint>& seqToUid )
 {
     querySetUidMapping.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
@@ -410,22 +426,6 @@ void SQLCache::setMsgStructure( const QString& mailbox, uint uid, const QByteArr
 void SQLCache::setMsgFlags( const QString& mailbox, uint uid, const QStringList& flags )
 {
     // FIXME
-}
-
-QList<uint> SQLCache::uidMapping( const QString& mailbox )
-{
-    QList<uint> res;
-    queryUidMapping.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
-    if ( ! queryUidMapping.exec() ) {
-        emitError( tr("Query queryUidMapping failed"), queryUidMapping );
-        return res;
-    }
-    if ( queryUidMapping.first() ) {
-        QDataStream stream( queryUidMapping.value(0).toByteArray() );
-        stream >> res;
-    }
-    // "No data present" doesn't necessarily imply a problem -- it simply might not be there yet :)
-    return res;
 }
 
 AbstractCache::MessageDataBundle SQLCache::messageMetadata( const QString& mailbox, uint uid )
