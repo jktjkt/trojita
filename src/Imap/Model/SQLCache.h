@@ -117,6 +117,7 @@ private:
     mutable QSqlQuery querySetMessagePart;
 
     QTimer* delayedCommit;
+    QTimer* tooMuchTimeWithoutCommit;
     bool inTransaction;
 };
 

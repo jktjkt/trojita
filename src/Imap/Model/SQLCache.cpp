@@ -62,7 +62,12 @@ SQLCache::SQLCache( const QString& name, const QString& fileName ):
     open();
     delayedCommit = new QTimer( this );
     delayedCommit->setInterval( 10000 );
+    delayedCommit->setObjectName( QString::fromAscii("delayedCommit-%1").arg( objectName() ) );
     connect( delayedCommit, SIGNAL(timeout()), this, SLOT(timeToCommit()) );
+    tooMuchTimeWithoutCommit = new QTimer( this );
+    tooMuchTimeWithoutCommit->setInterval( 60000 );
+    tooMuchTimeWithoutCommit->setObjectName( QString::fromAscii("tooMuchTimeWithoutCommit-%1").arg( objectName() ) );
+    connect( tooMuchTimeWithoutCommit, SIGNAL(timeout()), this, SLOT(timeToCommit()) );
 }
 
 SQLCache::~SQLCache()
@@ -700,6 +705,7 @@ void SQLCache::touchingDB()
 #endif
         inTransaction = true;
         db.transaction();
+        tooMuchTimeWithoutCommit->start();
     }
 }
 
