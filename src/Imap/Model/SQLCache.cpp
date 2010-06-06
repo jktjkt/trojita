@@ -177,8 +177,9 @@ bool SQLCache::_createTables()
     if ( ! q.exec( QLatin1String("CREATE TABLE parts ("
                                  "mailbox STRING NOT NULL, "
                                  "uid INT NOT NULL, "
+                                 "part_id BINARY, "
                                  "data BINARY, "
-                                 "PRIMARY KEY (mailbox, uid)"
+                                 "PRIMARY KEY (mailbox, uid, part_id)"
                                  ")") ) ) {
         emitError( tr("Can't create table parts"), q );
     }
@@ -313,6 +314,18 @@ bool SQLCache::_prepareQueries()
     queryClearMessage3 = QSqlQuery(db);
     if ( ! queryClearMessage3.prepare( QLatin1String("DELETE FROM parts WHERE mailbox = ? AND uid = ?") ) ) {
         emitError( tr("Failed to prepare queryClearMessage3"), queryClearMessage3 );
+        return false;
+    }
+
+    queryMessagePart = QSqlQuery(db);
+    if ( ! queryMessagePart.prepare( QLatin1String("SELECT data FROM parts WHERE mailbox = ? AND uid = ? AND part_id = ?") ) ) {
+        emitError( tr("Failed to prepare queryMessagePart"), queryMessagePart );
+        return false;
+    }
+
+    querySetMessagePart = QSqlQuery(db);
+    if ( ! querySetMessagePart.prepare( QLatin1String("INSERT OR REPLACE INTO parts ( mailbox, uid, part_id, data ) VALUES (?, ?, ?, ?)") ) ) {
+        emitError( tr("Failed to prepare querySetMessagePart"), querySetMessagePart );
         return false;
     }
 
@@ -609,13 +622,30 @@ void SQLCache::setMessageMetadata( const QString& mailbox, uint uid, const Messa
 
 QByteArray SQLCache::messagePart( const QString& mailbox, uint uid, const QString& partId ) const
 {
-    // FIXME
-    return QByteArray();
+    QByteArray res;
+    queryMessagePart.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
+    queryMessagePart.bindValue( 1, uid );
+    queryMessagePart.bindValue( 2, partId );
+    if ( ! queryMessagePart.exec() ) {
+        emitError( tr("Query queryMessagePart failed"), queryMessagePart );
+        return res;
+    }
+    if ( queryMessagePart.first() ) {
+        res = queryMessagePart.value(0).toByteArray();
+        queryMessagePart.finish();
+    }
+    return res;
 }
 
 void SQLCache::setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data )
 {
-    // FIXME
+    querySetMessagePart.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
+    querySetMessagePart.bindValue( 1, uid );
+    querySetMessagePart.bindValue( 2, partId );
+    querySetMessagePart.bindValue( 3, data );
+    if ( ! querySetMessagePart.exec() ) {
+        emitError( tr("Query querySetMessagePart failed"), querySetMessagePart );
+    }
 }
 
 void SQLCache::startBatch()

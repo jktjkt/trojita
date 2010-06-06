@@ -107,6 +107,8 @@ private:
     mutable QSqlQuery queryClearMessage1;
     mutable QSqlQuery queryClearMessage2;
     mutable QSqlQuery queryClearMessage3;
+    mutable QSqlQuery queryMessagePart;
+    mutable QSqlQuery querySetMessagePart;
 
     uint inflightTransactions;
 };
