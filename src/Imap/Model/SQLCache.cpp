@@ -174,6 +174,15 @@ bool SQLCache::_createTables()
         emitError( tr("Can't create table flags"), q );
     }
 
+    if ( ! q.exec( QLatin1String("CREATE TABLE parts ("
+                                 "mailbox STRING NOT NULL, "
+                                 "uid INT NOT NULL, "
+                                 "data BINARY, "
+                                 "PRIMARY KEY (mailbox, uid)"
+                                 ")") ) ) {
+        emitError( tr("Can't create table parts"), q );
+    }
+
     return true;
 }
 
@@ -268,6 +277,42 @@ bool SQLCache::_prepareQueries()
     querySetMessageFlags = QSqlQuery(db);
     if ( ! querySetMessageFlags.prepare( QLatin1String("INSERT OR REPLACE INTO flags ( mailbox, uid, flags ) VALUES ( ?, ?, ? )") ) ) {
         emitError( tr("Failed to prepare querySetMessageFlags"), querySetMessageFlags );
+        return false;
+    }
+
+    queryClearAllMessages1 = QSqlQuery(db);
+    if ( ! queryClearAllMessages1.prepare( QLatin1String("DELETE FROM msg_metadata WHERE mailbox = ?") ) ) {
+        emitError( tr("Failed to prepare queryClearAllMessages1"), queryClearAllMessages1 );
+        return false;
+    }
+
+    queryClearAllMessages2 = QSqlQuery(db);
+    if ( ! queryClearAllMessages2.prepare( QLatin1String("DELETE FROM flags WHERE mailbox = ?") ) ) {
+        emitError( tr("Failed to prepare queryClearAllMessages2"), queryClearAllMessages2 );
+        return false;
+    }
+
+    queryClearAllMessages3 = QSqlQuery(db);
+    if ( ! queryClearAllMessages3.prepare( QLatin1String("DELETE FROM parts WHERE mailbox = ?") ) ) {
+        emitError( tr("Failed to prepare queryClearAllMessages3"), queryClearAllMessages2 );
+        return false;
+    }
+
+    queryClearMessage1 = QSqlQuery(db);
+    if ( ! queryClearMessage1.prepare( QLatin1String("DELETE FROM msg_metadata WHERE mailbox = ? AND uid = ?") ) ) {
+        emitError( tr("Failed to prepare queryClearMessage1"), queryClearMessage1 );
+        return false;
+    }
+
+    queryClearMessage2 = QSqlQuery(db);
+    if ( ! queryClearMessage2.prepare( QLatin1String("DELETE FROM flags WHERE mailbox = ? AND uid = ?") ) ) {
+        emitError( tr("Failed to prepare queryClearMessage2"), queryClearMessage2 );
+        return false;
+    }
+
+    queryClearMessage3 = QSqlQuery(db);
+    if ( ! queryClearMessage3.prepare( QLatin1String("DELETE FROM parts WHERE mailbox = ? AND uid = ?") ) ) {
+        emitError( tr("Failed to prepare queryClearMessage3"), queryClearMessage3 );
         return false;
     }
 
@@ -454,12 +499,41 @@ void SQLCache::clearUidMapping( const QString& mailbox )
 
 void SQLCache::clearAllMessages( const QString& mailbox )
 {
-    // FIXME
+    startBatch();
+    queryClearAllMessages1.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
+    queryClearAllMessages2.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
+    queryClearAllMessages3.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
+    if ( ! queryClearAllMessages1.exec() ) {
+        emitError( tr("Query queryClearAllMessages1 failed"), queryClearAllMessages1 );
+    }
+    if ( ! queryClearAllMessages2.exec() ) {
+        emitError( tr("Query queryClearAllMessages2 failed"), queryClearAllMessages2 );
+    }
+    if ( ! queryClearAllMessages3.exec() ) {
+        emitError( tr("Query queryClearAllMessages3 failed"), queryClearAllMessages3 );
+    }
+    commitBatch();
 }
 
 void SQLCache::clearMessage( const QString mailbox, uint uid )
 {
-    // FIXME
+    startBatch();
+    queryClearMessage1.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
+    queryClearMessage1.bindValue( 1, uid );
+    queryClearMessage2.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
+    queryClearMessage2.bindValue( 1, uid );
+    queryClearMessage3.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
+    queryClearMessage3.bindValue( 1, uid );
+    if ( ! queryClearMessage1.exec() ) {
+        emitError( tr("Query queryClearMessage1 failed"), queryClearMessage1 );
+    }
+    if ( ! queryClearMessage2.exec() ) {
+        emitError( tr("Query queryClearMessage2 failed"), queryClearMessage2 );
+    }
+    if ( ! queryClearMessage3.exec() ) {
+        emitError( tr("Query queryClearMessage3 failed"), queryClearMessage3 );
+    }
+    commitBatch();
 }
 
 QStringList SQLCache::msgFlags( const QString& mailbox, uint uid ) const
