@@ -220,12 +220,15 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
         message->_uid = dynamic_cast<const Responses::RespData<uint>&>( *(response.data[ "UID" ]) ).data;
 
     bool savedBodyStructure = false;
+    bool gotEnvelope = false;
+    bool gotSize = false;
+    bool gotFlags = false;
+
     for ( Responses::Fetch::dataType::const_iterator it = response.data.begin(); it != response.data.end(); ++ it ) {
         if ( it.key() == "ENVELOPE" ) {
             message->_envelope = dynamic_cast<const Responses::RespData<Message::Envelope>&>( *(it.value()) ).data;
             message->_fetchStatus = DONE;
-            if ( message->uid() )
-                model->cache()->setMsgEnvelope( mailbox(), message->uid(), message->_envelope );
+            gotEnvelope = true;
         } else if ( it.key() == "BODYSTRUCTURE" ) {
             if ( message->fetched() ) {
                 // The message structure is already known, so we are free to ignore it
@@ -240,13 +243,10 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
                 savedBodyStructure = true;
             }
         } else if ( it.key() == "x-trojita-bodystructure" ) {
-            if ( savedBodyStructure )
-                model->cache()->setMsgStructure( mailbox(), message->uid(),
-                    dynamic_cast<const Responses::RespData<QByteArray>&>( *(it.value()) ).data );
+            // do nothing
         } else if ( it.key() == "RFC822.SIZE" ) {
             message->_size = dynamic_cast<const Responses::RespData<uint>&>( *(it.value()) ).data;
-            if ( message->uid() )
-                model->cache()->setMsgSize( mailbox(), message->uid(), message->_size );
+            gotSize = true;
         } else if ( it.key().startsWith( "BODY[" ) ) {
             if ( it.key()[ it.key().size() - 1 ] != ']' )
                 throw UnknownMessageIndex( "Can't parse such BODY[]", response );
@@ -278,8 +278,7 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
         } else if ( it.key() == "FLAGS" ) {
             bool wasSeen = message->isMarkedAsRead();
             message->_flags = dynamic_cast<const Responses::RespData<QStringList>&>( *(it.value()) ).data;
-            if ( message->uid() )
-                model->cache()->setMsgFlags( mailbox(), message->uid(), message->_flags );
+            gotFlags = true;
             if ( list->_numberFetchingStatus == DONE ) {
                 bool isSeen = message->isMarkedAsRead();
                 if ( message->_flagsHandled ) {
@@ -300,6 +299,21 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
         } else {
             qDebug() << "TreeItemMailbox::handleFetchResponse: unknown FETCH identifier" << it.key();
         }
+    }
+    if ( message->uid() ) {
+        model->cache()->startBatch();
+        if ( gotEnvelope && gotSize && savedBodyStructure ) {
+            Imap::Mailbox::AbstractCache::MessageDataBundle dataForCache;
+            dataForCache.envelope = message->_envelope;
+            dataForCache.serializedBodyStructure = dynamic_cast<const Responses::RespData<QByteArray>&>( *(response.data[ "x-trojita-bodystructure" ]) ).data;
+            dataForCache.size = message->_size;
+            dataForCache.uid = message->uid();
+            model->cache()->setMessageMetadata( mailbox(), message->uid(), dataForCache );
+        }
+        if ( gotFlags ) {
+            model->cache()->setMsgFlags( mailbox(), message->uid(), message->_flags );
+        }
+        model->cache()->commitBatch();
     }
 }
 
