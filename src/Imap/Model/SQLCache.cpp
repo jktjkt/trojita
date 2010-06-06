@@ -20,6 +20,8 @@
 #include <QSqlError>
 #include <QSqlRecord>
 
+//#define CACHE_DEBUG
+
 namespace {
     /** @short An auto-commiter
 
@@ -384,6 +386,9 @@ bool SQLCache::childMailboxesFresh( const QString& mailbox ) const
 
 void SQLCache::setChildMailboxes( const QString& mailbox, const QList<MailboxMetadata>& data )
 {
+#ifdef CACHE_DEBUG
+    qDebug() << "Setting child mailboxes for" << mailbox;
+#endif
     QString myMailbox = mailbox.isEmpty() ? QString::fromAscii("") : mailbox;
     QVariantList mailboxFields, parentFields, separatorFields, flagsFelds;
     Q_FOREACH( const MailboxMetadata& item, data ) {
@@ -412,6 +417,9 @@ void SQLCache::setChildMailboxes( const QString& mailbox, const QList<MailboxMet
 
 void SQLCache::forgetChildMailboxes( const QString& mailbox )
 {
+#ifdef CACHE_DEBUG
+    qDebug() << "Forgetting child mailboxes for" << mailbox;
+#endif
     QString myMailbox = mailbox.isEmpty() ? QString::fromAscii("") : mailbox;
     queryForgetChildMailboxes1.bindValue( 0, myMailbox );
     if ( ! queryForgetChildMailboxes1.exec() ) {
@@ -453,6 +461,9 @@ SyncState SQLCache::mailboxSyncState( const QString& mailbox ) const
 
 void SQLCache::setMailboxSyncState( const QString& mailbox, const SyncState& state )
 {
+#ifdef CACHE_DEBUG
+    qDebug() << "Setting sync state for" << mailbox;
+#endif
     // Order of arguments: mailbox, exists, recent, uidnext, uidvalidity, unseen, flags, permanentflags
     querySetMailboxSyncState.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     querySetMailboxSyncState.bindValue( 1, state.exists() );
@@ -492,6 +503,9 @@ QList<uint> SQLCache::uidMapping( const QString& mailbox ) const
 
 void SQLCache::setUidMapping( const QString& mailbox, const QList<uint>& seqToUid )
 {
+#ifdef CACHE_DEBUG
+    qDebug() << "Setting UID mapping for" << mailbox;
+#endif
     querySetUidMapping.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     QByteArray buf;
     QDataStream stream( &buf, QIODevice::ReadWrite );
@@ -504,6 +518,9 @@ void SQLCache::setUidMapping( const QString& mailbox, const QList<uint>& seqToUi
 
 void SQLCache::clearUidMapping( const QString& mailbox )
 {
+#ifdef CACHE_DEBUG
+    qDebug() << "Clearing UID mapping for" << mailbox;
+#endif
     queryClearUidMapping.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     if ( ! queryClearUidMapping.exec() ) {
         emitError( tr("Query queryClearUidMapping failed"), queryClearUidMapping );
@@ -512,6 +529,9 @@ void SQLCache::clearUidMapping( const QString& mailbox )
 
 void SQLCache::clearAllMessages( const QString& mailbox )
 {
+#ifdef CACHE_DEBUG
+    qDebug() << "Clearing all messages from" << mailbox;
+#endif
     startBatch();
     queryClearAllMessages1.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     queryClearAllMessages2.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
@@ -530,6 +550,9 @@ void SQLCache::clearAllMessages( const QString& mailbox )
 
 void SQLCache::clearMessage( const QString mailbox, uint uid )
 {
+#ifdef CACHE_DEBUG
+    qDebug() << "Clearing message" << uid << "from" << mailbox;
+#endif
     startBatch();
     queryClearMessage1.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     queryClearMessage1.bindValue( 1, uid );
@@ -568,6 +591,9 @@ QStringList SQLCache::msgFlags( const QString& mailbox, uint uid ) const
 
 void SQLCache::setMsgFlags( const QString& mailbox, uint uid, const QStringList& flags )
 {
+#ifdef CACHE_DEBUG
+    qDebug() << "Updating flags for" << mailbox << uid;
+#endif
     querySetMessageFlags.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     querySetMessageFlags.bindValue( 1, uid );
     QByteArray buf;
@@ -603,6 +629,9 @@ AbstractCache::MessageDataBundle SQLCache::messageMetadata( const QString& mailb
 
 void SQLCache::setMessageMetadata( const QString& mailbox, uint uid, const MessageDataBundle& metadata )
 {
+#ifdef CACHE_DEBUG
+    qDebug() << "Setting message metadata for" << uid << mailbox;
+#endif
     // Order of values: mailbox, uid, envelope, bodystructure, size
     querySetMessageMetadata.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     querySetMessageMetadata.bindValue( 1, uid );
@@ -639,6 +668,9 @@ QByteArray SQLCache::messagePart( const QString& mailbox, uint uid, const QStrin
 
 void SQLCache::setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data )
 {
+#ifdef CACHE_DEBUG
+    qDebug() << "Saving message part" << partId << uid << mailbox;
+#endif
     querySetMessagePart.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     querySetMessagePart.bindValue( 1, uid );
     querySetMessagePart.bindValue( 2, partId );
@@ -651,15 +683,23 @@ void SQLCache::setMsgPart( const QString& mailbox, uint uid, const QString& part
 void SQLCache::startBatch()
 {
     ++inflightTransactions;
-    if ( inflightTransactions == 1 )
+    if ( inflightTransactions == 1 ) {
+#ifdef CACHE_DEBUG
+    qDebug() << "Starting transaction";
+#endif
         db.transaction();
+    }
 }
 
 void SQLCache::commitBatch()
 {
     --inflightTransactions;
-    if ( inflightTransactions == 0 )
+    if ( inflightTransactions == 0 ) {
+#ifdef CACHE_DEBUG
+    qDebug() << "Real commit";
+#endif
         db.commit();
+    }
 }
 
 }
