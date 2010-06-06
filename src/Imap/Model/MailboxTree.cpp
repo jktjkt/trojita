@@ -406,6 +406,7 @@ void TreeItemMailbox::handleExistsSynced( Model* const model, Parser* ptr, const
     QStringList items = willLoad ? model->_onlineMessageFetch : QStringList() << "UID" << "FLAGS" ;
     CommandHandle cmd = ptr->fetch( Sequence( firstNew + 1, list->_totalMessageCount ), items );
     model->_parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::FETCH_MESSAGE_METADATA, this );
+    model->cache()->startBatch();
 }
 
 void TreeItemMailbox::finalizeFetch( Model* const model, const Responses::Status& response )

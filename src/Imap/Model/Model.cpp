@@ -236,6 +236,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 // Either we were fetching just UID & FLAGS, or that and stuff like BODYSTRUCTURE.
                 // In any case, we don't have to do anything here, besides updating message status
                 changeConnectionState( ptr, CONN_STATE_SELECTED );
+                cache()->commitBatch();
                 break;
             case Task::FETCH_WITH_FLAGS:
                 _finalizeFetch( ptr, command );
@@ -1181,6 +1182,7 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
                 Parser* parser = _getParser( mailboxPtr, ReadOnly );
                 CommandHandle cmd = parser->fetch( Sequence( order + 1 ), _onlineMessageFetch );
                 _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_MESSAGE_METADATA, item );
+                cache()->startBatch();
                 emit activityHappening( true );
             }
             break;
@@ -1202,6 +1204,7 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
                 Parser* parser = _getParser( mailboxPtr, ReadOnly );
                 CommandHandle cmd = parser->fetch( seq, _onlineMessageFetch );
                 _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_MESSAGE_METADATA, item );
+                cache()->startBatch();
                 emit activityHappening( true );
             }
             break;
