@@ -152,7 +152,7 @@ QStringList MemoryCache::msgFlags( const QString& mailbox, uint uid ) const
     return _flags[ mailbox ][ uid ];
 }
 
-QList<uint> MemoryCache::uidMapping( const QString& mailbox )
+QList<uint> MemoryCache::uidMapping( const QString& mailbox ) const
 {
     return _seqToUid[ mailbox ];
 }
@@ -164,7 +164,7 @@ void MemoryCache::setMessageMetadata( const QString& mailbox, uint uid, const Me
     _envelopes[ mailbox ][ uid ] = metadata.envelope;
 }
 
-MemoryCache::MessageDataBundle MemoryCache::messageMetadata( const QString& mailbox, uint uid )
+MemoryCache::MessageDataBundle MemoryCache::messageMetadata( const QString& mailbox, uint uid ) const
 {
     MessageDataBundle buf;
     if ( ! _envelopes.contains( mailbox ) ) {
@@ -199,7 +199,7 @@ MemoryCache::MessageDataBundle MemoryCache::messageMetadata( const QString& mail
     return buf;
 }
 
-QByteArray MemoryCache::messagePart( const QString& mailbox, uint uid, const QString& partId )
+QByteArray MemoryCache::messagePart( const QString& mailbox, uint uid, const QString& partId ) const
 {
     if ( ! _parts.contains( mailbox ) )
         return QByteArray();

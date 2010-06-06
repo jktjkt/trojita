@@ -52,18 +52,18 @@ public:
 
     virtual void setUidMapping( const QString& mailbox, const QList<uint>& seqToUid );
     virtual void clearUidMapping( const QString& mailbox );
-    virtual QList<uint> uidMapping( const QString& mailbox );
+    virtual QList<uint> uidMapping( const QString& mailbox ) const;
 
     virtual void clearAllMessages( const QString& mailbox );
     virtual void clearMessage( const QString mailbox, uint uid );
 
-    virtual MessageDataBundle messageMetadata( const QString& mailbox, uint uid );
+    virtual MessageDataBundle messageMetadata( const QString& mailbox, uint uid ) const;
     virtual void setMessageMetadata( const QString& mailbox, uint uid, const MessageDataBundle& metadata );
 
     virtual QStringList msgFlags( const QString& mailbox, uint uid ) const;
     virtual void setMsgFlags( const QString& mailbox, uint uid, const QStringList& flags );
 
-    virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId );
+    virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId ) const;
     virtual void setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data );
 
     /** @short Open a connection to the cache */

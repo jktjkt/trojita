@@ -416,7 +416,7 @@ void SQLCache::setMailboxSyncState( const QString& mailbox, const SyncState& sta
     }
 }
 
-QList<uint> SQLCache::uidMapping( const QString& mailbox )
+QList<uint> SQLCache::uidMapping( const QString& mailbox ) const
 {
     QList<uint> res;
     queryUidMapping.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
@@ -492,7 +492,7 @@ void SQLCache::setMsgFlags( const QString& mailbox, uint uid, const QStringList&
     }
 }
 
-AbstractCache::MessageDataBundle SQLCache::messageMetadata( const QString& mailbox, uint uid )
+AbstractCache::MessageDataBundle SQLCache::messageMetadata( const QString& mailbox, uint uid ) const
 {
     AbstractCache::MessageDataBundle res;
     queryMessageMetadata.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
@@ -533,7 +533,7 @@ void SQLCache::setMessageMetadata( const QString& mailbox, uint uid, const Messa
     }
 }
 
-QByteArray SQLCache::messagePart( const QString& mailbox, uint uid, const QString& partId )
+QByteArray SQLCache::messagePart( const QString& mailbox, uint uid, const QString& partId ) const
 {
     // FIXME
     return QByteArray();

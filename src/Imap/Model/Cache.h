@@ -74,7 +74,7 @@ public:
     /** @short Forget the cached seq->UID mapping for given mailbox */
     virtual void clearUidMapping( const QString& mailbox ) = 0;
     /** @short Retrieve sequence to UID mapping */
-    virtual QList<uint> uidMapping( const QString& mailbox ) = 0;
+    virtual QList<uint> uidMapping( const QString& mailbox ) const = 0;
 
     /** @short Remove all messages in given mailbox from the cache */
     virtual void clearAllMessages( const QString& mailbox ) = 0;
@@ -82,7 +82,7 @@ public:
     virtual void clearMessage( const QString mailbox, uint uid ) = 0;
 
     /** @short Returns all known data for a message in the given mailbox (except real parts data) */
-    virtual MessageDataBundle messageMetadata( const QString& mailbox, uint uid ) = 0;
+    virtual MessageDataBundle messageMetadata( const QString& mailbox, uint uid ) const = 0;
     virtual void setMessageMetadata( const QString& mailbox, uint uid, const MessageDataBundle& metadata ) = 0;
 
     /** @short Retrieve flags for one message in a mailbox */
@@ -91,7 +91,7 @@ public:
     virtual void setMsgFlags( const QString& mailbox, uint uid, const QStringList& flags ) = 0;
 
     /** @short Return part data or a null QByteArray if none available */
-    virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId ) = 0;
+    virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId ) const = 0;
     /** @short Save data for one message part */
     virtual void setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data ) = 0;
 
