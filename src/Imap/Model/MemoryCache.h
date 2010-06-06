@@ -62,9 +62,6 @@ public:
     virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId ) const;
     virtual void setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data );
 
-    virtual void startBatch();
-    virtual void commitBatch();
-
 private:
     bool loadData();
     bool saveData() const;

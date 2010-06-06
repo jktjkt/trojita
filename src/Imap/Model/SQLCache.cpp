@@ -19,6 +19,7 @@
 #include "SQLCache.h"
 #include <QSqlError>
 #include <QSqlRecord>
+#include <QTimer>
 
 //#define CACHE_DEBUG
 
@@ -54,15 +55,19 @@ namespace Imap {
 namespace Mailbox {
 
 SQLCache::SQLCache( const QString& name, const QString& fileName ):
-        QObject(0), inflightTransactions(0)
+        QObject(0), inTransaction(false)
 {
     db = QSqlDatabase::addDatabase( QLatin1String("QSQLITE"), name );
     db.setDatabaseName( fileName );
     open();
+    delayedCommit = new QTimer( this );
+    delayedCommit->setInterval( 10000 );
+    connect( delayedCommit, SIGNAL(timeout()), this, SLOT(timeToCommit()) );
 }
 
 SQLCache::~SQLCache()
 {
+    timeToCommit();
     db.close();
 }
 
@@ -389,6 +394,7 @@ void SQLCache::setChildMailboxes( const QString& mailbox, const QList<MailboxMet
 #ifdef CACHE_DEBUG
     qDebug() << "Setting child mailboxes for" << mailbox;
 #endif
+    touchingDB();
     QString myMailbox = mailbox.isEmpty() ? QString::fromAscii("") : mailbox;
     QVariantList mailboxFields, parentFields, separatorFields, flagsFelds;
     Q_FOREACH( const MailboxMetadata& item, data ) {
@@ -420,6 +426,7 @@ void SQLCache::forgetChildMailboxes( const QString& mailbox )
 #ifdef CACHE_DEBUG
     qDebug() << "Forgetting child mailboxes for" << mailbox;
 #endif
+    touchingDB();
     QString myMailbox = mailbox.isEmpty() ? QString::fromAscii("") : mailbox;
     queryForgetChildMailboxes1.bindValue( 0, myMailbox );
     if ( ! queryForgetChildMailboxes1.exec() ) {
@@ -464,6 +471,7 @@ void SQLCache::setMailboxSyncState( const QString& mailbox, const SyncState& sta
 #ifdef CACHE_DEBUG
     qDebug() << "Setting sync state for" << mailbox;
 #endif
+    touchingDB();
     // Order of arguments: mailbox, exists, recent, uidnext, uidvalidity, unseen, flags, permanentflags
     querySetMailboxSyncState.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     querySetMailboxSyncState.bindValue( 1, state.exists() );
@@ -506,6 +514,7 @@ void SQLCache::setUidMapping( const QString& mailbox, const QList<uint>& seqToUi
 #ifdef CACHE_DEBUG
     qDebug() << "Setting UID mapping for" << mailbox;
 #endif
+    touchingDB();
     querySetUidMapping.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     QByteArray buf;
     QDataStream stream( &buf, QIODevice::ReadWrite );
@@ -521,6 +530,7 @@ void SQLCache::clearUidMapping( const QString& mailbox )
 #ifdef CACHE_DEBUG
     qDebug() << "Clearing UID mapping for" << mailbox;
 #endif
+    touchingDB();
     queryClearUidMapping.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     if ( ! queryClearUidMapping.exec() ) {
         emitError( tr("Query queryClearUidMapping failed"), queryClearUidMapping );
@@ -532,7 +542,7 @@ void SQLCache::clearAllMessages( const QString& mailbox )
 #ifdef CACHE_DEBUG
     qDebug() << "Clearing all messages from" << mailbox;
 #endif
-    startBatch();
+    touchingDB();
     queryClearAllMessages1.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     queryClearAllMessages2.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     queryClearAllMessages3.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
@@ -545,7 +555,6 @@ void SQLCache::clearAllMessages( const QString& mailbox )
     if ( ! queryClearAllMessages3.exec() ) {
         emitError( tr("Query queryClearAllMessages3 failed"), queryClearAllMessages3 );
     }
-    commitBatch();
 }
 
 void SQLCache::clearMessage( const QString mailbox, uint uid )
@@ -553,7 +562,7 @@ void SQLCache::clearMessage( const QString mailbox, uint uid )
 #ifdef CACHE_DEBUG
     qDebug() << "Clearing message" << uid << "from" << mailbox;
 #endif
-    startBatch();
+    touchingDB();
     queryClearMessage1.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     queryClearMessage1.bindValue( 1, uid );
     queryClearMessage2.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
@@ -569,7 +578,6 @@ void SQLCache::clearMessage( const QString mailbox, uint uid )
     if ( ! queryClearMessage3.exec() ) {
         emitError( tr("Query queryClearMessage3 failed"), queryClearMessage3 );
     }
-    commitBatch();
 }
 
 QStringList SQLCache::msgFlags( const QString& mailbox, uint uid ) const
@@ -594,6 +602,7 @@ void SQLCache::setMsgFlags( const QString& mailbox, uint uid, const QStringList&
 #ifdef CACHE_DEBUG
     qDebug() << "Updating flags for" << mailbox << uid;
 #endif
+    touchingDB();
     querySetMessageFlags.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     querySetMessageFlags.bindValue( 1, uid );
     QByteArray buf;
@@ -632,6 +641,7 @@ void SQLCache::setMessageMetadata( const QString& mailbox, uint uid, const Messa
 #ifdef CACHE_DEBUG
     qDebug() << "Setting message metadata for" << uid << mailbox;
 #endif
+    touchingDB();
     // Order of values: mailbox, uid, envelope, bodystructure, size
     querySetMessageMetadata.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     querySetMessageMetadata.bindValue( 1, uid );
@@ -671,6 +681,7 @@ void SQLCache::setMsgPart( const QString& mailbox, uint uid, const QString& part
 #ifdef CACHE_DEBUG
     qDebug() << "Saving message part" << partId << uid << mailbox;
 #endif
+    touchingDB();
     querySetMessagePart.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     querySetMessagePart.bindValue( 1, uid );
     querySetMessagePart.bindValue( 2, partId );
@@ -680,27 +691,29 @@ void SQLCache::setMsgPart( const QString& mailbox, uint uid, const QString& part
     }
 }
 
-void SQLCache::startBatch()
+void SQLCache::touchingDB()
 {
-    ++inflightTransactions;
-    if ( inflightTransactions == 1 ) {
+    delayedCommit->start();
+    if ( ! inTransaction ) {
 #ifdef CACHE_DEBUG
-    qDebug() << "Starting transaction";
+        qDebug() << "Starting transaction";
 #endif
+        inTransaction = true;
         db.transaction();
     }
 }
 
-void SQLCache::commitBatch()
+void SQLCache::timeToCommit()
 {
-    --inflightTransactions;
-    if ( inflightTransactions == 0 ) {
+    if ( inTransaction ) {
 #ifdef CACHE_DEBUG
-    qDebug() << "Real commit";
+        qDebug() << "Commit";
 #endif
+        inTransaction = false;
         db.commit();
     }
 }
+
 
 }
 }

@@ -446,7 +446,6 @@ void MainWindow::showContextMenuMsgListTree( const QPoint& position )
 void MainWindow::slotReloadMboxList()
 {
     QModelIndexList indices = mboxTree->selectionModel()->selectedIndexes();
-    model->cache()->startBatch();
     for ( QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it ) {
         Q_ASSERT( it->isValid() );
         if ( it->column() != 0 )
@@ -457,7 +456,6 @@ void MainWindow::slotReloadMboxList()
         Q_ASSERT( mbox );
         mbox->rescanForChildMailboxes( model );
     }
-    model->cache()->commitBatch();
 }
 
 /** @short Request a check for new messages in selected mailbox */

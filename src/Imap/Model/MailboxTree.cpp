@@ -301,7 +301,6 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
         }
     }
     if ( message->uid() ) {
-        model->cache()->startBatch();
         if ( gotEnvelope && gotSize && savedBodyStructure ) {
             Imap::Mailbox::AbstractCache::MessageDataBundle dataForCache;
             dataForCache.envelope = message->_envelope;
@@ -313,7 +312,6 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
         if ( gotFlags ) {
             model->cache()->setMsgFlags( mailbox(), message->uid(), message->_flags );
         }
-        model->cache()->commitBatch();
     }
 }
 
@@ -406,7 +404,6 @@ void TreeItemMailbox::handleExistsSynced( Model* const model, Parser* ptr, const
     QStringList items = willLoad ? model->_onlineMessageFetch : QStringList() << "UID" << "FLAGS" ;
     CommandHandle cmd = ptr->fetch( Sequence( firstNew + 1, list->_totalMessageCount ), items );
     model->_parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::FETCH_MESSAGE_METADATA, this );
-    model->cache()->startBatch();
 }
 
 void TreeItemMailbox::finalizeFetch( Model* const model, const Responses::Status& response )

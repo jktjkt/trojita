@@ -94,11 +94,6 @@ public:
     virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId ) const = 0;
     /** @short Save data for one message part */
     virtual void setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data ) = 0;
-
-    /** @short Suggest that we're doing a batched update */
-    virtual void startBatch() = 0;
-    /** @short Indicate an end of a batched update */
-    virtual void commitBatch() = 0;
 };
 
 /** @short A convenience typedef */

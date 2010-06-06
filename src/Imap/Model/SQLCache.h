@@ -23,6 +23,8 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 
+class QTimer;
+
 /** @short Namespace for IMAP interaction */
 namespace Imap {
 
@@ -69,9 +71,6 @@ public:
     /** @short Open a connection to the cache */
     bool open();
 
-    virtual void startBatch();
-    virtual void commitBatch();
-
 private:
     void emitError( const QString& message, const QSqlQuery& query ) const;
     void emitError( const QString& message, const QSqlDatabase& database ) const;
@@ -79,6 +78,13 @@ private:
 
     bool _createTables();
     bool _prepareQueries();
+
+    /** @short We're about to touch the DB, so it might be a good time to start a transaction */
+    void touchingDB();
+
+private slots:
+    /** @short We haven't commited for a while */
+    void timeToCommit();
 
 signals:
     void databaseError( const QString& error ) const;
@@ -110,7 +116,8 @@ private:
     mutable QSqlQuery queryMessagePart;
     mutable QSqlQuery querySetMessagePart;
 
-    uint inflightTransactions;
+    QTimer* delayedCommit;
+    bool inTransaction;
 };
 
 }
