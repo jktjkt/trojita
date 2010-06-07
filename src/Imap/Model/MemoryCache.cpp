@@ -158,10 +158,15 @@ void MemoryCache::setMessageMetadata( const QString& mailbox, uint uid, const Me
 MemoryCache::MessageDataBundle MemoryCache::messageMetadata( const QString& mailbox, uint uid ) const
 {
     MessageDataBundle res;
-    const LightMessageDataBundle& tmp = _msgMetadata[ mailbox ][ uid ];
-    res.envelope = tmp.envelope;
-    res.serializedBodyStructure = tmp.serializedBodyStructure;
-    res.size = tmp.size;
+    const QMap<uint, LightMessageDataBundle>& firstLevel = _msgMetadata[ mailbox ];
+    QMap<uint, LightMessageDataBundle>::const_iterator it = firstLevel.find( uid );
+    if ( it == firstLevel.end() ) {
+        res.uid = 0;
+        return res;
+    }
+    res.envelope = it->envelope;
+    res.serializedBodyStructure = it->serializedBodyStructure;
+    res.size = it->size;
     res.uid = uid;
     return res;
 }
