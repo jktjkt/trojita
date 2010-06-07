@@ -639,7 +639,7 @@ QByteArray SQLCache::messagePart( const QString& mailbox, uint uid, const QStrin
         return res;
     }
     if ( queryMessagePart.first() ) {
-        res = queryMessagePart.value(0).toByteArray();
+        res = qUncompress( queryMessagePart.value(0).toByteArray() );
         queryMessagePart.finish();
     }
     return res;
@@ -654,7 +654,7 @@ void SQLCache::setMsgPart( const QString& mailbox, uint uid, const QString& part
     querySetMessagePart.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     querySetMessagePart.bindValue( 1, uid );
     querySetMessagePart.bindValue( 2, partId );
-    querySetMessagePart.bindValue( 3, data );
+    querySetMessagePart.bindValue( 3, qCompress( data ) );
     if ( ! querySetMessagePart.exec() ) {
         emitError( tr("Query querySetMessagePart failed"), querySetMessagePart );
     }
