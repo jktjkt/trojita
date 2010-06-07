@@ -35,6 +35,12 @@ namespace Mailbox {
  */
 class MemoryCache : public AbstractCache {
 public:
+    struct LightMessageDataBundle {
+        Imap::Message::Envelope envelope;
+        uint size;
+        QByteArray serializedBodyStructure;
+    };
+
     MemoryCache( const QString& fileName );
     ~MemoryCache();
 
@@ -65,15 +71,12 @@ public:
 private:
     bool loadData();
     bool saveData() const;
-    void dump() const;
 
     QMap<QString, QList<MailboxMetadata> > _mailboxes;
     QMap<QString, SyncState> _syncState;
     QMap<QString, QList<uint> > _seqToUid;
     QMap<QString, QMap<uint,QStringList> > _flags;
-    QMap<QString, QMap<uint,uint> > _sizes;
-    QMap<QString, QMap<uint,QByteArray> > _bodyStructure;
-    QMap<QString, QMap<uint, Imap::Message::Envelope> > _envelopes;
+    QMap<QString, QMap<uint, LightMessageDataBundle> > _msgMetadata;
     QMap<QString, QMap<uint, QMap<QString, QByteArray> > > _parts;
 
     QString _fileName;
@@ -82,5 +85,8 @@ private:
 }
 
 }
+
+QDataStream& operator>>( QDataStream& stream, Imap::Mailbox::MemoryCache::LightMessageDataBundle& x );
+QDataStream& operator<<( QDataStream& stream, const Imap::Mailbox::MemoryCache::LightMessageDataBundle& x );
 
 #endif /* IMAP_MODEL_MEMORYCACHE_H */

@@ -21,11 +21,6 @@
 #include <QFile>
 
 //#define CACHE_DEBUG
-//#define CACHE_STATS
-
-#ifdef CACHE_DEBUG
-#define CACHE_STATS
-#endif
 
 namespace Imap {
 namespace Mailbox {
@@ -108,10 +103,8 @@ void MemoryCache::clearAllMessages( const QString& mailbox )
     qDebug() << "pruging all info for mailbox" << mailbox;
 #endif
     _flags.remove( mailbox );
-    _sizes.remove( mailbox );
-    _envelopes.remove( mailbox );
+    _msgMetadata.remove( mailbox );
     _parts.remove( mailbox );
-    _bodyStructure.remove( mailbox );
 }
 
 void MemoryCache::clearMessage( const QString mailbox, uint uid )
@@ -121,14 +114,10 @@ void MemoryCache::clearMessage( const QString mailbox, uint uid )
 #endif
     if ( _flags.contains( mailbox ) )
         _flags[ mailbox ].remove( uid );
-    if ( _sizes.contains( mailbox ) )
-        _sizes[ mailbox ].remove( uid );
-    if ( _envelopes.contains( mailbox ) )
-        _envelopes[ mailbox ].remove( uid );
+    if ( _msgMetadata.contains( mailbox ) )
+        _msgMetadata[ mailbox ].remove( uid );
     if ( _parts.contains( mailbox ) )
         _parts[ mailbox ].remove( uid );
-    if ( _bodyStructure.contains( mailbox ) )
-        _bodyStructure[ mailbox ].remove( uid );
 }
 
 void MemoryCache::setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data )
@@ -159,44 +148,22 @@ QList<uint> MemoryCache::uidMapping( const QString& mailbox ) const
 
 void MemoryCache::setMessageMetadata( const QString& mailbox, uint uid, const MessageDataBundle& metadata )
 {
-    _bodyStructure[ mailbox ][ uid ] = metadata.serializedBodyStructure;
-    _sizes[ mailbox ][ uid ] = metadata.size;
-    _envelopes[ mailbox ][ uid ] = metadata.envelope;
+    LightMessageDataBundle tmp;
+    tmp.envelope = metadata.envelope;
+    tmp.serializedBodyStructure = metadata.serializedBodyStructure;
+    tmp.size = metadata.size;
+    _msgMetadata[ mailbox ][ uid ] = tmp;
 }
 
 MemoryCache::MessageDataBundle MemoryCache::messageMetadata( const QString& mailbox, uint uid ) const
 {
-    MessageDataBundle buf;
-    if ( ! _envelopes.contains( mailbox ) ) {
-#ifdef CACHE_DEBUG
-        qDebug() << "No ENVELOPEs for" << mailbox;
-#endif
-        return buf;
-    }
-    if ( ! _envelopes[ mailbox ].contains( uid ) ) {
-#ifdef CACHE_DEBUG
-        qDebug() << "No ENVELOPE for" << mailbox << uid;
-#endif
-        return buf;
-    }
-    if ( ! _bodyStructure.contains( mailbox ) ) {
-#ifdef CACHE_DEBUG
-        qDebug() << "No BODYSTRUCTUREs for" << mailbox;
-#endif
-        return buf;
-    }
-    if ( ! _bodyStructure[ mailbox ].contains( uid ) ) {
-#ifdef CACHE_DEBUG
-        qDebug() << "No BODYSTRUCTURE for" << mailbox << uid;
-#endif
-        return buf;
-    }
-    buf.serializedBodyStructure = _bodyStructure[ mailbox ][ uid ];
-    buf.envelope = _envelopes[ mailbox ][ uid ];
-    buf.uid = uid;
-    // These fields are not critical, so nothing happens if they aren't filed correctly:
-    buf.size = _sizes[ mailbox ][ uid ];
-    return buf;
+    MessageDataBundle res;
+    const LightMessageDataBundle& tmp = _msgMetadata[ mailbox ][ uid ];
+    res.envelope = tmp.envelope;
+    res.serializedBodyStructure = tmp.serializedBodyStructure;
+    res.size = tmp.size;
+    res.uid = uid;
+    return res;
 }
 
 QByteArray MemoryCache::messagePart( const QString& mailbox, uint uid, const QString& partId ) const
@@ -219,8 +186,7 @@ bool MemoryCache::loadData()
         if ( ! file.open( QIODevice::ReadOnly ) )
             return false;
         QDataStream stream( &file );
-        stream >> _mailboxes >> _syncState >> _seqToUid >> _flags >> _sizes >>
-                _bodyStructure >> _envelopes >> _parts;
+        stream >> _mailboxes >> _syncState >> _seqToUid >> _flags >> _msgMetadata >> _parts;
         file.close();
         return true;
     }
@@ -229,48 +195,28 @@ bool MemoryCache::loadData()
 
 bool MemoryCache::saveData() const
 {
-#ifdef CACHE_STATS
-    dump();
-#endif
     if ( ! _fileName.isEmpty() ) {
         QFile file( _fileName );
         if ( ! file.open( QIODevice::WriteOnly ) )
             return false;
         QDataStream stream( &file );
-        stream << _mailboxes << _syncState << _seqToUid << _flags << _sizes <<
-                _bodyStructure << _envelopes << _parts;
+        stream << _mailboxes << _syncState << _seqToUid << _flags << _msgMetadata << _parts;
         file.close();
         return true;
     }
     return false;
 }
 
-void MemoryCache::dump() const
+}
+}
+
+QDataStream& operator>>( QDataStream& stream, Imap::Mailbox::MemoryCache::LightMessageDataBundle& x )
 {
-    qDebug() << "--------------------\nStatistics\n--------------------";
-    qDebug() << "Sequences:";
-    qDebug();
-    QStringList mailboxes;
-    mailboxes = _seqToUid.keys();
-    Q_FOREACH( const QString& mbox, mailboxes ) {
-        qDebug() << " " << mbox << _seqToUid[ mbox ];
-    }
-    qDebug();
-    qDebug() << "Envelopes:";
-    qDebug();
-    mailboxes = _envelopes.keys();
-    Q_FOREACH( const QString& mbox, mailboxes ) {
-        qDebug() << " " << mbox << _envelopes[ mbox ].keys();
-    }
-    qDebug();
-    qDebug() << "Body structures:";
-    qDebug();
-    mailboxes = _bodyStructure.keys();
-    Q_FOREACH( const QString& mbox, mailboxes ) {
-        qDebug() << " " << mbox << _bodyStructure[ mbox ].keys();
-    }
+    stream >> x.envelope >> x.serializedBodyStructure >> x.size;
+    return stream;
 }
 
-
-}
+QDataStream& operator<<( QDataStream& stream, const Imap::Mailbox::MemoryCache::LightMessageDataBundle& x )
+{
+    return stream << x.envelope << x.serializedBodyStructure << x.size;
 }
