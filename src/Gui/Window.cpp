@@ -501,6 +501,7 @@ void MainWindow::networkPolicyOffline()
     netOnline->setChecked( false );
     updateActionsOnlineOffline( false );
     networkIndicator->setDefaultAction( netOffline );
+    statusBar()->showMessage( tr("Offline"), 0 );
 }
 
 void MainWindow::networkPolicyExpensive()
