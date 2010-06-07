@@ -67,7 +67,7 @@ private:
     bool saveData() const;
     void dump() const;
 
-    QMap<QString, QList<MailboxMetadata> > _cache;
+    QMap<QString, QList<MailboxMetadata> > _mailboxes;
     QMap<QString, SyncState> _syncState;
     QMap<QString, QList<uint> > _seqToUid;
     QMap<QString, QMap<uint,QStringList> > _flags;

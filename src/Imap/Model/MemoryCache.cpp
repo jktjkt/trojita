@@ -42,12 +42,12 @@ MemoryCache::~MemoryCache()
 
 QList<MailboxMetadata> MemoryCache::childMailboxes( const QString& mailbox ) const
 {
-    return _cache[ mailbox ];
+    return _mailboxes[ mailbox ];
 }
 
 bool MemoryCache::childMailboxesFresh( const QString& mailbox ) const
 {
-    return _cache.contains( mailbox );
+    return _mailboxes.contains( mailbox );
 }
 
 void MemoryCache::setChildMailboxes( const QString& mailbox, const QList<MailboxMetadata>& data )
@@ -55,18 +55,18 @@ void MemoryCache::setChildMailboxes( const QString& mailbox, const QList<Mailbox
 #ifdef CACHE_DEBUG
     qDebug() << "setting child mailboxes for" << mailbox << "to" << data;
 #endif
-    _cache[ mailbox ] = data;
+    _mailboxes[ mailbox ] = data;
 }
 
 void MemoryCache::forgetChildMailboxes( const QString& mailbox )
 {
-    for ( QMap<QString,QList<MailboxMetadata> >::iterator it = _cache.begin();
-          it != _cache.end(); /* do nothing */ ) {
+    for ( QMap<QString,QList<MailboxMetadata> >::iterator it = _mailboxes.begin();
+          it != _mailboxes.end(); /* do nothing */ ) {
         if ( it.key().startsWith( mailbox ) ) {
 #ifdef CACHE_DEBUG
                 qDebug() << "forgetting about mailbox" << it.key();
 #endif
-            it = _cache.erase( it );
+            it = _mailboxes.erase( it );
         } else {
             ++it;
         }
@@ -219,7 +219,7 @@ bool MemoryCache::loadData()
         if ( ! file.open( QIODevice::ReadOnly ) )
             return false;
         QDataStream stream( &file );
-        stream >> _cache >> _syncState >> _seqToUid >> _flags >> _sizes >>
+        stream >> _mailboxes >> _syncState >> _seqToUid >> _flags >> _sizes >>
                 _bodyStructure >> _envelopes >> _parts;
         file.close();
         return true;
@@ -237,7 +237,7 @@ bool MemoryCache::saveData() const
         if ( ! file.open( QIODevice::WriteOnly ) )
             return false;
         QDataStream stream( &file );
-        stream << _cache << _syncState << _seqToUid << _flags << _sizes <<
+        stream << _mailboxes << _syncState << _seqToUid << _flags << _sizes <<
                 _bodyStructure << _envelopes << _parts;
         file.close();
         return true;
