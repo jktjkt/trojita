@@ -139,10 +139,6 @@ bool SQLCache::_createTables()
         emitError( tr("Can't create table child_mailboxes") );
         return false;
     }
-    if ( ! q.exec( QLatin1String("CREATE TABLE child_mailboxes_fresh ( mailbox STRING NOT NULL PRIMARY KEY )") ) ) {
-        emitError( tr("Can't create table child_mailboxes_fresh") );
-        return false;
-    }
 
     if ( ! q.exec( QLatin1String("CREATE TABLE mailbox_sync_state ( "
                                  "mailbox STRING NOT NULL PRIMARY KEY, "
@@ -208,7 +204,7 @@ bool SQLCache::_prepareQueries()
     }
 
     queryChildMailboxesFresh = QSqlQuery(db);
-    if ( ! queryChildMailboxesFresh.prepare( QLatin1String("SELECT mailbox FROM child_mailboxes_fresh WHERE mailbox = ?") ) ) {
+    if ( ! queryChildMailboxesFresh.prepare( QLatin1String("SELECT mailbox FROM child_mailboxes WHERE parent = ? LIMIT 1") ) ) {
         emitError( tr("Failed to prepare queryChildMailboxesFresh"), queryChildMailboxesFresh );
         return false;
     }
@@ -219,21 +215,9 @@ bool SQLCache::_prepareQueries()
         return false;
     }
 
-    querySetChildMailboxesFresh = QSqlQuery(db);
-    if ( ! querySetChildMailboxesFresh.prepare( QLatin1String("INSERT OR REPLACE INTO child_mailboxes_fresh ( mailbox ) VALUES (?)") ) ) {
-        emitError( tr("Failed to prepare querySetChildMailboxesFresh"), querySetChildMailboxesFresh );
-        return false;
-    }
-
     queryForgetChildMailboxes1 = QSqlQuery(db);
     if ( ! queryForgetChildMailboxes1.prepare( QLatin1String("DELETE FROM child_mailboxes WHERE parent = ?") ) ) {
         emitError( tr("Failed to prepare queryForgetChildMailboxes1"), queryForgetChildMailboxes1 );
-        return false;
-    }
-
-    queryForgetChildMailboxes2 = QSqlQuery(db);
-    if ( ! queryForgetChildMailboxes2.prepare( QLatin1String("DELETE FROM child_mailboxes_fresh WHERE mailbox = ?") ) ) {
-        emitError( tr("Failed to prepare queryForgetChildMailboxes2"), queryForgetChildMailboxes2 );
         return false;
     }
 
@@ -419,11 +403,6 @@ void SQLCache::setChildMailboxes( const QString& mailbox, const QList<MailboxMet
         emitError( tr("Query querySetChildMailboxes failed"), querySetChildMailboxes );
         return;
     }
-    querySetChildMailboxesFresh.bindValue(0, myMailbox);
-    if ( ! querySetChildMailboxesFresh.exec() ) {
-        emitError( tr("Query querySetChildMailboxesFresh failed"), querySetChildMailboxesFresh );
-        return;
-    }
 }
 
 void SQLCache::forgetChildMailboxes( const QString& mailbox )
@@ -436,10 +415,6 @@ void SQLCache::forgetChildMailboxes( const QString& mailbox )
     queryForgetChildMailboxes1.bindValue( 0, myMailbox );
     if ( ! queryForgetChildMailboxes1.exec() ) {
         emitError( tr("Query queryForgetChildMailboxes1 failed"), queryForgetChildMailboxes1 );
-    }
-    queryForgetChildMailboxes2.bindValue( 0, myMailbox );
-    if ( ! queryForgetChildMailboxes2.exec() ) {
-        emitError( tr("Query queryForgetChildMailboxes2 failed"), queryForgetChildMailboxes2 );
     }
 }
 
