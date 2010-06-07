@@ -482,7 +482,7 @@ QList<uint> SQLCache::uidMapping( const QString& mailbox ) const
         return res;
     }
     if ( queryUidMapping.first() ) {
-        QDataStream stream( queryUidMapping.value(0).toByteArray() );
+        QDataStream stream( qUncompress( queryUidMapping.value(0).toByteArray() ) );
         stream >> res;
     }
     // "No data present" doesn't necessarily imply a problem -- it simply might not be there yet :)
@@ -499,7 +499,7 @@ void SQLCache::setUidMapping( const QString& mailbox, const QList<uint>& seqToUi
     QByteArray buf;
     QDataStream stream( &buf, QIODevice::ReadWrite );
     stream << seqToUid;
-    querySetUidMapping.bindValue( 1, buf );
+    querySetUidMapping.bindValue( 1, qCompress( buf ) );
     if ( ! querySetUidMapping.exec() ) {
         emitError( tr("Query querySetUidMapping failed"), querySetUidMapping );
     }
