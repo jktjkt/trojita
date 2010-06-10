@@ -82,6 +82,18 @@ public:
     virtual Socket* create();
 };
 
+/** @short A fake factory suitable for unit tests */
+class FakeSocketFactory: public Imap::Mailbox::SocketFactory {
+    Q_OBJECT
+public:
+    FakeSocketFactory();
+    virtual Imap::Socket* create();
+    /** @short Return the last created socket */
+    Imap::Socket* lastSocket();
+private:
+    Imap::Socket* _last;
+};
+
 
 }
 

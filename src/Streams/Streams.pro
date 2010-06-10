@@ -7,8 +7,10 @@ TARGET = Streams
 TEMPLATE = lib
 SOURCES += SocketFactory.cpp \
     IODeviceSocket.cpp \
-    DeletionWatcher.cpp
+    DeletionWatcher.cpp \
+    FakeSocket.cpp
 HEADERS += Socket.h \
     SocketFactory.h \
     IODeviceSocket.h \
-    DeletionWatcher.h
+    DeletionWatcher.h \
+    FakeSocket.h

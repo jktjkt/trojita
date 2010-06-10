@@ -20,6 +20,7 @@
 #include <QSslSocket>
 #include "SocketFactory.h"
 #include "IODeviceSocket.h"
+#include "FakeSocket.h"
 
 namespace Imap {
 namespace Mailbox {
@@ -84,6 +85,21 @@ Socket* TlsAbleSocketFactory::create()
     sslSock->connectToHost( _host, _port );
     return new IODeviceSocket( sslSock );
 }
+
+FakeSocketFactory::FakeSocketFactory(): SocketFactory()
+{
+}
+
+Socket* FakeSocketFactory::create()
+{
+    return _last = new FakeSocket();
+}
+
+Socket* FakeSocketFactory::lastSocket()
+{
+    return _last;
+}
+
 
 
 }
