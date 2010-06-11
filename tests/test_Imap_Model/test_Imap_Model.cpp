@@ -21,7 +21,11 @@
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/MemoryCache.h"
 
-//#include <QTreeView>
+//#define WITH_GUI
+
+#ifdef WITH_GUI
+#include <QTreeView>
+#endif
 
 void ImapModelTest::initTestCase()
 {
@@ -58,10 +62,12 @@ void ImapModelTest::testSyncMailbox()
     QCOMPARE( model->data( inbox, Qt::DisplayRole ), QVariant("INBOX") );
     QTest::qWait( 100 );
 
-    /*QTreeView* w = new QTreeView();
+#ifdef WITH_GUI
+    QTreeView* w = new QTreeView();
     w->setModel( model );
     w->show();
-    QTest::qWait( 5000 );*/
+    QTest::qWait( 5000 );
+#endif
 }
 
 QTEST_MAIN( ImapModelTest )
