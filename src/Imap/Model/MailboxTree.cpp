@@ -94,6 +94,11 @@ void TreeItemMailbox::fetch( Model* const model )
     if ( fetched() || isUnavailable( model ) )
         return;
 
+    if ( hasNoChildMaliboxesAlreadyKnown() ) {
+        _fetchStatus = DONE;
+        return;
+    }
+
     if ( ! loading() ) {
         _fetchStatus = LOADING;
         model->_askForChildrenOfMailbox( this );
