@@ -202,6 +202,15 @@ void ImapParserParseTest::testParseUntagged_data()
         << QByteArray("* LIST () \".\" \"some\\\"Name\"\r\n")
         << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), ".", "some\"Name" ) );
 #include "test_Imap_Parser_parse-Chinese.include"
+    QTest::newRow("untagged-list-inbox-atom")
+        << QByteArray("* LIST () \"/\" inBox\r\n")
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), "/", "INBOX") );
+    QTest::newRow("untagged-list-inbox-quoted")
+        << QByteArray("* LIST () \"/\" \"inBox\"\r\n")
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), "/", "INBOX") );
+    QTest::newRow("untagged-list-inbox-literal")
+            << QByteArray("* LIST () \"/\" {5}\r\ninBox\r\n")
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), "/", "INBOX") );
 
     QTest::newRow("untagged-flags")
         << QByteArray("* FLAGS (\\Answered \\Flagged \\Deleted \\Seen \\Draft)\r\n")

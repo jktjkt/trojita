@@ -159,7 +159,7 @@ QPair<QByteArray,ParsedAs> getNString( const QByteArray& line, int& start )
 QString getMailbox( const QByteArray& line, int& start )
 {
     QPair<QByteArray,ParsedAs> r = getAString( line, start );
-    if ( r.second == ATOM && r.first.toUpper() == "INBOX" )
+    if ( r.first.toUpper() == "INBOX" )
         return "INBOX";
     else
         return decodeImapFolderName( r.first );
