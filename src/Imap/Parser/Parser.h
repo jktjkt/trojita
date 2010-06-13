@@ -289,6 +289,9 @@ namespace Imap {
             return queueCommand( Commands::Command() << Commands::PartOfCommand( kind, text ) );
         };
 
+        /** @short Helper for handleReadyRead() -- actually read & parse the data */
+        void reallyReadLine();
+
         /** @short Helper for search() and uidSearch() */
         CommandHandle _searchHelper( const QString& command, const QStringList& criteria,
                 const QString& charset = QString::null );
