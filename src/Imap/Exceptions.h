@@ -118,12 +118,6 @@ namespace Responses {
         ECBODY(ContinuationRequest, ParserException);
     };
 
-    /** @short Unknown command result (ie. anything else than OK, NO or BAD */
-    class UnknownCommandResult : public ParseError {
-    public:
-        ECBODY(UnknownCommandResult, ParseError);
-    };
-
     /** @short Invalid Response Code */
     class InvalidResponseCode : public ParseError {
     public:
@@ -160,15 +154,6 @@ namespace Responses {
         virtual ~CantHappen() throw () {};
     };
 
-    /** @short Server is broken */
-    class ServerError : public MailboxException {
-    public:
-        ServerError( const char* const msg, const Imap::Responses::AbstractResponse& response ):
-            MailboxException( msg, response ) {};
-        ServerError( const char* const msg ): MailboxException( msg ) {};
-        virtual ~ServerError() throw () {};
-    };
-
     /** @short Server sent us information about message we don't know */
     class UnknownMessageIndex : public MailboxException {
     public:
@@ -176,14 +161,6 @@ namespace Responses {
             MailboxException( msg, response ) {};
         UnknownMessageIndex( const char* const msg ): MailboxException( msg ) {};
         virtual ~UnknownMessageIndex() throw () {};
-    };
-
-    /** @short Can't fulfil a request */
-    class WontPerform : public MailboxException {
-    public:
-        WontPerform( const char* const msg, const Imap::Responses::AbstractResponse& response ):
-            MailboxException( msg, response ) {};
-        virtual ~WontPerform() throw () {};
     };
 
 }
