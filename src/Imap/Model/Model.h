@@ -103,7 +103,7 @@ class Model: public QAbstractItemModel {
         enum Kind { NONE, STARTTLS, LOGIN, LIST, STATUS, SELECT, FETCH_MESSAGE_METADATA, NOOP,
                     CAPABILITY, STORE, NAMESPACE, EXPUNGE, FETCH_WITH_FLAGS,
                     COPY, CREATE, DELETE, LOGOUT, LIST_AFTER_CREATE,
-                    FETCH_PART };
+                    FETCH_PART, IDLE };
         Kind kind;
         TreeItem* what;
         QString str;

@@ -244,6 +244,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 _finalizeFetchPart( ptr, command );
                 break;
             case Task::NOOP:
+            case Task::IDLE:
                 // We don't have to do anything here
                 break;
             case Task::CAPABILITY:
@@ -1435,7 +1436,7 @@ void Model::enterIdle( Parser* parser )
 {
     noopTimer->stop();
     CommandHandle cmd = parser->idle();
-    _parsers[ parser ].commandMap[ cmd ] = Task( Task::NOOP, 0 );
+    _parsers[ parser ].commandMap[ cmd ] = Task( Task::IDLE, 0 );
 }
 
 void Model::updateCapabilities( Parser* parser, const QStringList capabilities )
@@ -1674,6 +1675,10 @@ void Model::parserIsSendingCommand( const QString& tag)
         case Task::FETCH_MESSAGE_METADATA:
             changeConnectionState( ptr, CONN_STATE_FETCHING_MSG_METADATA );
             break;
+        case Task::NOOP:
+        case Task::IDLE:
+            // do nothing
+            break;
     }
 }
 
@@ -1684,7 +1689,7 @@ void Model::parsersMightBeIdling()
         if ( p.commandMap.isEmpty() )
             continue;
         Q_FOREACH( const Task& t, p.commandMap ) {
-            if ( t.kind != Task::NOOP ) {
+            if ( t.kind != Task::IDLE ) {
                 someParserBusy = true;
                 break;
             }
