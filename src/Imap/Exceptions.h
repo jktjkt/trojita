@@ -38,8 +38,11 @@ namespace Responses {
     class AbstractResponse;
 }
 
+class Parser;
+
     /** @short General exception class */
     class ParserException : public std::exception {
+        friend class Parser;
         /** The error message */
         std::string _msg;
         /** Line with data that caused this error */

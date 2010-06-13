@@ -1328,6 +1328,7 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
         connect( parser, SIGNAL( disconnected( const QString ) ), this, SLOT( slotParserDisconnected( const QString ) ) );
         connect( parser, SIGNAL(connectionStateChanged(Imap::ConnectionState)), this, SLOT(handleSocketStateChanged(Imap::ConnectionState)) );
         connect( parser, SIGNAL(sendingCommand(QString)), this, SLOT(parserIsSendingCommand(QString)) );
+        connect( parser, SIGNAL(parseError(QString,QByteArray,uint)), this, SLOT(slotParseError(QString,QByteArray,uint)) );
         CommandHandle cmd;
         if ( _startTls ) {
             cmd = parser->startTls();
@@ -1386,6 +1387,27 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
 void Model::slotParserDisconnected( const QString msg )
 {
     emit connectionError( msg );
+
+    Parser* which = qobject_cast<Parser*>( sender() );
+    if ( ! which )
+        return;
+
+    // This function is *not* called from inside the responseReceived(), so we have to remove the parser from the list, too
+    killParser( which );
+    _parsers.remove( which );
+    parsersMightBeIdling();
+}
+
+void Model::slotParseError( const QString& errorMessage, const QByteArray& line, uint position )
+{
+    QByteArray details = ( position == -1 ) ? QByteArray() : QByteArray( position, ' ' ) + QByteArray("^ here");
+    emit connectionError( trUtf8( "<p>The IMAP server sent us a reply which we could not parse. "
+                                  "This might either mean that there's a bug in Trojiá's code, or "
+                                  "that the IMAP server you are connected to is broken. Please "
+                                  "report this as a bug anyway. Here are the details:</p>"
+                                  "<p><b>%1</b></p>"
+                                  "<pre>%2\n%3</pre>"
+                                  ).arg( errorMessage, line, details ) );
 
     Parser* which = qobject_cast<Parser*>( sender() );
     if ( ! which )

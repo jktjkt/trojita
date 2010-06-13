@@ -295,6 +295,10 @@ public slots:
 private slots:
     /** @short Handler for the "parser got disconnected" event */
     void slotParserDisconnected( const QString );
+
+    /** @short Parser throwed out an exception */
+    void slotParseError( const QString& errorMessage, const QByteArray& line, uint position );
+
     /** @short Send a NOOP over all connections
 
       The main reason for such an action is to ask for updated data for all mailboxes

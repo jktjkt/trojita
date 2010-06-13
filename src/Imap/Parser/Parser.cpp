@@ -406,35 +406,39 @@ void Parser::handleReadyRead()
 
 void Parser::reallyReadLine()
 {
-    _currentLine += _socket->readLine();
-    if ( _currentLine.endsWith( "}\r\n" ) ) {
-        int offset = _currentLine.lastIndexOf( '{' );
-        if ( offset < _oldLiteralPosition )
-            throw ParseError( "Got unmatched '}'", _currentLine, _currentLine.size() - 3 );
-        bool ok;
-        int number = _currentLine.mid( offset + 1, _currentLine.size() - offset - 4 ).toInt( &ok );
-        if ( !ok )
-            throw ParseError( "Can't parse numeric literal size", _currentLine, offset );
-        if ( number < 0 )
-            throw ParseError( "Negative literal size", _currentLine, offset );
-        _oldLiteralPosition = offset;
-        _readingMode = ReadingNumberOfBytes;
-        _readingBytes = number;
-    } else if ( _currentLine.endsWith( "\r\n" ) ) {
-        // it's complete
-        if ( _startTlsInProgress && _currentLine.startsWith( _startTlsCommand ) ) {
-            _startTlsCommand.clear();
-            _startTlsReply = _currentLine;
+    try {
+        _currentLine += _socket->readLine();
+        if ( _currentLine.endsWith( "}\r\n" ) ) {
+            int offset = _currentLine.lastIndexOf( '{' );
+            if ( offset < _oldLiteralPosition )
+                throw ParseError( "Got unmatched '}'", _currentLine, _currentLine.size() - 3 );
+            bool ok;
+            int number = _currentLine.mid( offset + 1, _currentLine.size() - offset - 4 ).toInt( &ok );
+            if ( !ok )
+                throw ParseError( "Can't parse numeric literal size", _currentLine, offset );
+            if ( number < 0 )
+                throw ParseError( "Negative literal size", _currentLine, offset );
+            _oldLiteralPosition = offset;
+            _readingMode = ReadingNumberOfBytes;
+            _readingBytes = number;
+        } else if ( _currentLine.endsWith( "\r\n" ) ) {
+            // it's complete
+            if ( _startTlsInProgress && _currentLine.startsWith( _startTlsCommand ) ) {
+                _startTlsCommand.clear();
+                _startTlsReply = _currentLine;
+                _currentLine.clear();
+                _oldLiteralPosition = 0;
+                QTimer::singleShot( 0, this, SLOT(finishStartTls()) );
+                return;
+            }
+            processLine( _currentLine );
             _currentLine.clear();
             _oldLiteralPosition = 0;
-            QTimer::singleShot( 0, this, SLOT(finishStartTls()) );
-            return;
+        } else {
+            throw CantHappen( "canReadLine() returned true, but following readLine() failed" );
         }
-        processLine( _currentLine );
-        _currentLine.clear();
-        _oldLiteralPosition = 0;
-    } else {
-        throw CantHappen( "canReadLine() returned true, but following readLine() failed" );
+    } catch ( ParserException& e ) {
+        emit parseError( QString::fromStdString( e._msg ), e._line, e._offset );
     }
 }
 

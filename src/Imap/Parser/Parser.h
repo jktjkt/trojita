@@ -247,6 +247,12 @@ namespace Imap {
         /** @short Socket got disconnected */
         void disconnected( const QString );
 
+        /** @short Parse error when dealing with the server's response
+
+The receiver connected to this signal is expected to kill this parser ASAP.
+*/
+        void parseError( const QString& errorMessage, const QByteArray& line, uint position );
+
         /** @short New response received */
         void responseReceived();
 
