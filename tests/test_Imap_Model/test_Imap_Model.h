@@ -37,11 +37,13 @@ private slots:
     void initTestCase();
 
     void testSyncMailbox();
+
+    void testInboxCaseSensitivity();
 private:
     Imap::Mailbox::Model* model;
     Imap::Mailbox::CachePtr cache;
     Imap::Mailbox::FakeSocketFactory* factory;
-
+    Imap::Mailbox::MailboxModel* mboxModel;
 };
 
 #endif

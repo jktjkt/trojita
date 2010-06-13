@@ -7,7 +7,7 @@ TEMPLATE = app
 HEADERS += ../qtest_kde.h
 
 
-trojita_libs = Imap Streams
+trojita_libs = Imap Streams iconloader
 myprefix = ../../src/
 include(../src/linking.pri)
 

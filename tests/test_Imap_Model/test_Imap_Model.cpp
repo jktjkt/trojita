@@ -20,6 +20,7 @@
 #include "test_Imap_Model.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/MemoryCache.h"
+#include "Imap/Model/MailboxModel.h"
 
 //#define WITH_GUI
 
@@ -30,6 +31,7 @@
 void ImapModelTest::initTestCase()
 {
     model = 0;
+    mboxModel = 0;
 }
 
 void ImapModelTest::init()
@@ -68,6 +70,23 @@ void ImapModelTest::testSyncMailbox()
     w->show();
     QTest::qWait( 5000 );
 #endif
+}
+
+void ImapModelTest::testInboxCaseSensitivity()
+{
+    mboxModel = new Imap::Mailbox::MailboxModel( this, model );
+    mboxModel->rowCount( QModelIndex() );
+    SOCK->fakeReading( "* PREAUTH foo\r\n" );
+    QTest::qWait( 100 );
+    QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 CAPABILITY\r\ny0 LIST \"\" \"%\"\r\n") );
+    SOCK->fakeReading( "* LIST (\\Noinferiors) \".\" \"Inbox\"\r\n"
+                       "* CAPABILITY IMAP4rev1\r\n"
+                       "y1 OK capability completed\r\n"
+                       "y0 ok list completed\r\n" );
+    QTest::qWait( 100 );
+    QCOMPARE( mboxModel->data( mboxModel->index( 0, 0, QModelIndex() ), Qt::DisplayRole ), QVariant("INBOX") );
+    mboxModel->deleteLater();
+    mboxModel = 0;
 }
 
 QTEST_MAIN( ImapModelTest )
