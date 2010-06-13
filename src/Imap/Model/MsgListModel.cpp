@@ -159,11 +159,11 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
     if ( ! msgList )
         return QVariant();
 
-    if ( ! proxyIndex.isValid() )
+    if ( ! proxyIndex.isValid() || proxyIndex.model() != this )
         return QVariant();
 
     TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( Model::realTreeItem( proxyIndex ) );
-                        Q_ASSERT( message );
+    Q_ASSERT( message );
 
     switch ( role ) {
         case Qt::DisplayRole:

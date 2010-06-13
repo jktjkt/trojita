@@ -20,7 +20,7 @@ QVariant PrettyMailboxModel::data( const QModelIndex& index, int role ) const
     if ( index.column() != 0 )
         return QVariant();
 
-    if ( index.row() < 0 || index.row() >= rowCount( index.parent() ) )
+    if ( index.row() < 0 || index.row() >= rowCount( index.parent() ) || index.model() != this )
         return QVariant();
 
     switch ( role ) {

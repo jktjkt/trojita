@@ -159,7 +159,7 @@ QModelIndex MailboxModel::mapFromSource( const QModelIndex& sourceIndex ) const
 
 QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
 {
-    if ( ! proxyIndex.isValid() )
+    if ( ! proxyIndex.isValid() || proxyIndex.model() != this )
         return QVariant();
 
     TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>(
