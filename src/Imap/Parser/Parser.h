@@ -116,6 +116,8 @@ namespace Imap {
         /** @short Enable/Disable sending literals using the LITERAL+ extension */
         void enableLiteralPlus( const bool enabled=true );
 
+        uint parserId() const;
+
     public slots:
 
         /** @short CAPABILITY, RFC 3501 section 6.1.1 */
@@ -255,6 +257,24 @@ The receiver connected to this signal is expected to kill this parser ASAP.
 
         /** @short New response received */
         void responseReceived();
+
+        /** @short A full line was received from the remote IMAP server
+
+This signal is emited when a full line, including all embedded literals, have
+been received from the remote IMAP server, but before it was attempted to parse
+it. However,
+ */
+        void lineReceived( const QByteArray& line );
+
+        /** @short A full line has been sent to the remote IMAP server */
+        void lineSent( const QByteArray& line );
+
+        /** @short There's been a non-fatal error when parsing given line
+
+Detailed information is available in the @arg message with @arg line and @arg position
+containing the original line and indicating the troublesome position, or -1 if not applciable.
+*/
+        void parserWarning( const QString& message, const QByteArray* line, uint position );
 
         void commandQueued();
 

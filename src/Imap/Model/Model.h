@@ -313,6 +313,12 @@ private slots:
     /** @short Handler for the Parser::sendingCommand() signal */
     void parserIsSendingCommand( const QString& tag );
 
+    /** @short The parser has received a full line */
+    void slotParserLineReceived( const QByteArray& line );
+
+    /** @short The parser has sent a block of data */
+    void slotParserLineSent( const QByteArray& line );
+
 signals:
     /** @short This signal is emitted then the server sent us an ALERT response code */
     void alertReceived( const QString& message );
@@ -351,6 +357,12 @@ signals:
 
     /** @short An interaction with the remote server is taking place */
     void activityHappening( bool isHappening );
+
+    /** @short The parser has received a full line */
+    void parserLineReceived( uint parser, const QByteArray& line );
+
+    /** @short The parser has sent a block of data */
+    void parserLineSent( uint parser, const QByteArray& line );
 
 private:
     Model& operator=( const Model& ); // don't implement

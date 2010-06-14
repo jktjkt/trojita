@@ -35,6 +35,7 @@
 
 #include "Window.h"
 #include "ComposeWidget.h"
+#include "ProtocolLoggerWidget.h"
 #include "MessageView.h"
 #include "MsgListView.h"
 #include "SettingsDialog.h"
@@ -108,6 +109,11 @@ void MainWindow::createActions()
     showFullView->setCheckable( true );
     connect( showFullView, SIGNAL( triggered(bool) ), this, SLOT( fullViewToggled(bool) ) );
     connect( allDock, SIGNAL( visibilityChanged(bool) ), showFullView, SLOT( setChecked(bool) ) );
+
+    showImapLogger = new QAction( tr("Show IMAP protocol log"), this );
+    showImapLogger->setCheckable( true );
+    connect( showImapLogger, SIGNAL(triggered(bool)), imapLoggerDock, SLOT(setShown(bool)) );
+    connect( imapLoggerDock, SIGNAL(visibilityChanged(bool)), showImapLogger, SLOT(setChecked(bool)) );
 
     showMenuBar = new QAction( QtIconLoader::icon( QLatin1String("view-list-text") ),  tr("Show Main Menu Bar"), this );
     showMenuBar->setCheckable( true );
@@ -194,6 +200,7 @@ void MainWindow::createMenus()
     netPolicyMenu->addAction( netOnline );
     imapMenu->addSeparator();
     imapMenu->addAction( showFullView );
+    imapMenu->addAction( showImapLogger );
     imapMenu->addSeparator();
     imapMenu->addAction( configSettings );
     imapMenu->addAction( showMenuBar );
@@ -256,6 +263,12 @@ void MainWindow::createWidgets()
     allTree->setUniformRowHeights( true );
     allTree->setHeaderHidden( true );
     allDock->setWidget( allTree );
+
+    imapLoggerDock = new QDockWidget( tr("IMAP Protocol"), this );
+    imapLogger = new ProtocolLoggerWidget( imapLoggerDock );
+    imapLoggerDock->hide();
+    imapLoggerDock->setWidget( imapLogger );
+    addDockWidget( Qt::BottomDockWidgetArea, imapLoggerDock );
 
     busyParsersIndicator = new QProgressBar( this );
     statusBar()->addPermanentWidget( busyParsersIndicator );
@@ -333,6 +346,9 @@ void MainWindow::setupModels()
              this, SLOT(showConnectionStatus(QObject*,Imap::ConnectionState)) );
 
     connect( model, SIGNAL(activityHappening(bool)), this, SLOT(updateBusyParsers(bool)) );
+
+    connect( model, SIGNAL(parserLineReceived(uint,QByteArray)), imapLogger, SLOT(parserLineReceived(uint,QByteArray)) );
+    connect( model, SIGNAL(parserLineSent(uint,QByteArray)), imapLogger, SLOT(parserLineSent(uint,QByteArray)) );
 
     //Imap::Mailbox::ModelWatcher* w = new Imap::Mailbox::ModelWatcher( this );
     //w->setModel( model );

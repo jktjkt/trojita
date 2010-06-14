@@ -1343,6 +1343,8 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
         connect( parser, SIGNAL(connectionStateChanged(Imap::ConnectionState)), this, SLOT(handleSocketStateChanged(Imap::ConnectionState)) );
         connect( parser, SIGNAL(sendingCommand(QString)), this, SLOT(parserIsSendingCommand(QString)) );
         connect( parser, SIGNAL(parseError(QString,QByteArray,uint)), this, SLOT(slotParseError(QString,QByteArray,uint)) );
+        connect( parser, SIGNAL(lineReceived(QByteArray)), this, SLOT(slotParserLineReceived(QByteArray)) );
+        connect( parser, SIGNAL(lineSent(QByteArray)), this, SLOT(slotParserLineSent(QByteArray)) );
         CommandHandle cmd;
         if ( _startTls ) {
             cmd = parser->startTls();
@@ -1752,6 +1754,22 @@ void Model::killParser(Parser *parser)
     parser->disconnect();
     parser->deleteLater();
     _parsers[ parser ].parser = 0;
+}
+
+void Model::slotParserLineReceived( const QByteArray& line )
+{
+    Parser* parser = qobject_cast<Parser*>( sender() );
+    Q_ASSERT( parser );
+    Q_ASSERT( _parsers.contains( parser ) );
+    emit parserLineReceived( parser->parserId(), line );
+}
+
+void Model::slotParserLineSent( const QByteArray& line )
+{
+    Parser* parser = qobject_cast<Parser*>( sender() );
+    Q_ASSERT( parser );
+    Q_ASSERT( _parsers.contains( parser ) );
+    emit parserLineSent( parser->parserId(), line );
 }
 
 }

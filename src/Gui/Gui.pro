@@ -28,7 +28,8 @@ SOURCES += \
     SettingsNames.cpp \
     ComposeWidget.cpp \
     MsgListView.cpp \
-    ExternalElementsWidget.cpp
+    ExternalElementsWidget.cpp \
+    ProtocolLoggerWidget.cpp
 HEADERS += ComposeWidget.h \
     MessageView.h \
     SimplePartWidget.h \
@@ -43,7 +44,8 @@ HEADERS += ComposeWidget.h \
     PartWidgetFactory.h \
     MsgListView.h \
     AttachmentView.h \
-    ExternalElementsWidget.h
+    ExternalElementsWidget.h \
+    ProtocolLoggerWidget.h
 FORMS += CreateMailboxDialog.ui \
     ComposeWidget.ui
 RESOURCES += ../icons.qrc

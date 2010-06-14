@@ -47,6 +47,7 @@ namespace Gui {
 
 class MessageView;
 class MsgListView;
+class ProtocolLoggerWidget;
 
 class MainWindow: public QMainWindow {
     Q_OBJECT
@@ -120,6 +121,9 @@ private:
 
     QScrollArea* area;
 
+    ProtocolLoggerWidget* imapLogger;
+    QDockWidget* imapLoggerDock;
+
     QAction* reloadMboxList;
     QAction* reloadAllMailboxes;
     QAction* resyncMbox;
@@ -128,6 +132,7 @@ private:
     QAction* netOnline;
     QAction* exitAction;
     QAction* showFullView;
+    QAction* showImapLogger;
     QAction* showMenuBar;
     QAction* configSettings;
     QAction* composeMail;

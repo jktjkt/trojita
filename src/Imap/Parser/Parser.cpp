@@ -452,6 +452,7 @@ void Parser::executeCommands()
 
 void Parser::finishStartTls()
 {
+    emit lineSent( "*** STARTTLS" );
 #ifdef PRINT_TRAFFIC
     qDebug() << _parserId << "*** STARTTLS";
 #endif
@@ -477,6 +478,7 @@ void Parser::executeACommand()
         buf.clear();
         _idling = false;
         emit idleTerminated();
+        emit lineSent( buf.trimmed() );
     }
 
     if ( cmd._cmds[ cmd._currentPart ]._kind == Commands::ATOM )
@@ -511,6 +513,7 @@ void Parser::executeACommand()
                     _socket->write( buf );
                     part._numberSent = true;
                     _waitingForContinuation = true;
+                    emit lineSent( buf.trimmed() );
                     return; // and wait for continuation request
                 }
                 break;
@@ -523,6 +526,7 @@ void Parser::executeACommand()
                 _idling = true;
                 _waitForInitialIdle = true;
                 _cmdQueue.pop_front();
+                emit lineSent( buf );
                 return;
                 break;
             case Commands::STARTTLS:
@@ -533,6 +537,7 @@ void Parser::executeACommand()
 #endif
                 _socket->write( buf );
                 _startTlsInProgress = true;
+                emit lineSent( buf );
                 return;
                 break;
             case Commands::WAIT_FOR_AUTH:
@@ -553,6 +558,7 @@ void Parser::executeACommand()
 #endif
             _socket->write( buf );
             _cmdQueue.pop_front();
+            emit lineSent( buf );
             break;
         } else {
             buf.append( ' ' );
@@ -571,6 +577,7 @@ void Parser::processLine( QByteArray line )
     else
         qDebug() << _parserId << "<<<" << debugLine;
 #endif
+    emit lineReceived( line.trimmed() );
     if ( line.startsWith( "* " ) ) {
         queueResponse( parseUntagged( line ) );
     } else if ( line.startsWith( "+ " ) ) {
@@ -775,6 +782,11 @@ Parser::~Parser()
     // been already destroyed!
     _socket->disconnect( this );
     _socket->deleteLater();
+}
+
+uint Parser::parserId() const
+{
+    return _parserId;
 }
 
 Sequence::Sequence( const uint num ): _kind(DISTINCT)
