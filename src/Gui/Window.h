@@ -68,7 +68,6 @@ private slots:
     void networkPolicyOffline();
     void networkPolicyExpensive();
     void networkPolicyOnline();
-    void fullViewToggled( bool show );
     void slotShowSettings();
     void slotExpunge();
     void connectionError( const QString& message );

@@ -107,7 +107,7 @@ void MainWindow::createActions()
 
     showFullView = new QAction( QtIconLoader::icon( QLatin1String("edit-find-mail") ), tr("Show Full Tree Window"), this );
     showFullView->setCheckable( true );
-    connect( showFullView, SIGNAL( triggered(bool) ), this, SLOT( fullViewToggled(bool) ) );
+    connect( showFullView, SIGNAL( triggered(bool) ), allDock, SLOT(setShown(bool)) );
     connect( allDock, SIGNAL( visibilityChanged(bool) ), showFullView, SLOT( setChecked(bool) ) );
 
     showImapLogger = new QAction( tr("Show IMAP protocol log"), this );
@@ -263,6 +263,7 @@ void MainWindow::createWidgets()
     allTree->setUniformRowHeights( true );
     allTree->setHeaderHidden( true );
     allDock->setWidget( allTree );
+    addDockWidget( Qt::LeftDockWidgetArea, allDock );
 
     imapLoggerDock = new QDockWidget( tr("IMAP Protocol"), this );
     imapLogger = new ProtocolLoggerWidget( imapLoggerDock );
@@ -359,6 +360,8 @@ void MainWindow::setupModels()
     msgListTree->setModel( msgListModel );
     connect( msgListTree->selectionModel(), SIGNAL( selectionChanged( const QItemSelection&, const QItemSelection& ) ),
              this, SLOT( msgListSelectionChanged( const QItemSelection&, const QItemSelection& ) ) );
+
+    allTree->setModel( model );
 }
 
 void MainWindow::msgListSelectionChanged( const QItemSelection& selected, const QItemSelection& deselected )
@@ -536,17 +539,6 @@ void MainWindow::networkPolicyOnline()
     netOnline->setChecked( true );
     updateActionsOnlineOffline( true );
     networkIndicator->setDefaultAction( netOnline );
-}
-
-void MainWindow::fullViewToggled( bool showIt )
-{
-    if ( showIt ) {
-        allDock->show();
-        allTree->setModel( model );
-        addDockWidget(Qt::LeftDockWidgetArea, allDock);
-    } else {
-        removeDockWidget( allDock );
-    }
 }
 
 void MainWindow::slotShowSettings()
