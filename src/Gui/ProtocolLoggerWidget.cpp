@@ -16,7 +16,7 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include <QDebug>
+#include <QTextEdit>
 #include <QVBoxLayout>
 #include "ProtocolLoggerWidget.h"
 

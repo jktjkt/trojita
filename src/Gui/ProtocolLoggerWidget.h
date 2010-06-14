@@ -20,8 +20,9 @@
 #ifndef GUI_PROTOCOLLOGGERWIDGET_H
 #define GUI_PROTOCOLLOGGERWIDGET_H
 
-#include <QTextEdit>
 #include <QWidget>
+
+class QTextEdit;
 
 namespace Gui {
 
