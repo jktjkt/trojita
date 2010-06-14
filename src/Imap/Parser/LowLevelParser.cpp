@@ -170,13 +170,13 @@ QVariantList parseList( const char open, const char close,
         const QByteArray& line, int& start )
 {
     if ( start >= line.size() )
-        throw NoData( line, start );
+        throw NoData( "Could not parse list: no more data", line, start );
 
     if ( line[start] == open ) {
         // found the opening parenthesis
         ++start;
         if ( start >= line.size() )
-            throw ParseError( line, start );
+            throw NoData( "Could not parse list: just the opening bracket", line, start );
 
         QVariantList res;
         if ( line[start] == close ) {
@@ -186,7 +186,7 @@ QVariantList parseList( const char open, const char close,
         while ( line[start] != close ) {
             res.append( getAnything( line, start ) );
             if ( start >= line.size() )
-                throw NoData( line, start ); // truncated list
+                throw NoData( "Could not parse list: truncated data", line, start );
             if ( line[start] == close ) {
                 ++start;
                 return res;
@@ -194,8 +194,10 @@ QVariantList parseList( const char open, const char close,
             eatSpaces( line, start );
         }
         return res;
-    } else
-        throw UnexpectedHere( line, start );
+    } else {
+        throw UnexpectedHere( std::string("Could not parse list: expected a list enclosed in ")
+                              + open + close + ", but got something else instead", line, start );
+    }
 }
 
 QVariant getAnything( const QByteArray& line, int& start )
