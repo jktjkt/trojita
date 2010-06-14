@@ -29,6 +29,7 @@ ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
     QVBoxLayout* layout = new QVBoxLayout( this );
     tabs = new QTabWidget( this );
     tabs->setTabsClosable( true );
+    tabs->setTabPosition( QTabWidget::South );
     layout->addWidget( tabs );
     connect( tabs, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)) );
 }
