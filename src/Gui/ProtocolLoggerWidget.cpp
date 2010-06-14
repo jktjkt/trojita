@@ -16,6 +16,7 @@
    Boston, MA 02110-1301, USA.
 */
 
+#include <QTabWidget>
 #include <QTextEdit>
 #include <QVBoxLayout>
 #include "ProtocolLoggerWidget.h"
@@ -26,19 +27,42 @@ ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
     QWidget(parent)
 {
     QVBoxLayout* layout = new QVBoxLayout( this );
-    w = new QTextEdit( this );
-    layout->addWidget( w );
+    tabs = new QTabWidget( this );
+    tabs->setTabsClosable( true );
+    layout->addWidget( tabs );
+    connect( tabs, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)) );
 }
 
 void ProtocolLoggerWidget::parserLineReceived( uint parser, const QByteArray& line )
 {
-    w->setPlainText( w->toPlainText() + QString::fromAscii("<<< %1: %2\n").arg( QString::number( parser ), QString::fromLocal8Bit( line ) ) );
+    QTextEdit* e = getLogger( parser );
+    e->setPlainText( e->toPlainText() + QString::fromAscii("<<< %1: %2\n").arg( QString::number( parser ), QString::fromLocal8Bit( line ) ) );
 }
 
 void ProtocolLoggerWidget::parserLineSent( uint parser, const QByteArray& line )
 {
-    w->setPlainText( w->toPlainText() + QString::fromAscii(">>> %1: %2\n").arg( QString::number( parser ), QString::fromLocal8Bit( line ) ) );
+    QTextEdit* e = getLogger( parser );
+    e->setPlainText( e->toPlainText() + QString::fromAscii(">>> %1: %2\n").arg( QString::number( parser ), QString::fromLocal8Bit( line ) ) );
 }
 
+QTextEdit* ProtocolLoggerWidget::getLogger( const uint parser )
+{
+    QTextEdit* res = widgets[ parser ];
+    if ( ! res ) {
+        res = new QTextEdit();
+        tabs->addTab( res, tr("Parser %1").arg( parser ) );
+        widgets[ parser ] = res;
+    }
+    return res;
+}
+
+void ProtocolLoggerWidget::closeTab( int index )
+{
+    QTextEdit* w = qobject_cast<QTextEdit*>( tabs->widget( index ) );
+    Q_ASSERT( w );
+    uint parser = widgets.key( w );
+    widgets.remove( parser );
+    tabs->removeTab( index );
+}
 
 }

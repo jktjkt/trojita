@@ -20,8 +20,10 @@
 #ifndef GUI_PROTOCOLLOGGERWIDGET_H
 #define GUI_PROTOCOLLOGGERWIDGET_H
 
+#include <QMap>
 #include <QWidget>
 
+class QTabWidget;
 class QTextEdit;
 
 namespace Gui {
@@ -43,8 +45,17 @@ public slots:
     /** @short Parser just sent a piece of data */
     void parserLineSent( uint parser, const QByteArray& line );
 
+private slots:
+
+    /** @short A tab is requested to close */
+    void closeTab( int index );
+
 private:
-    QTextEdit* w;
+    QTabWidget* tabs;
+    QMap<uint, QTextEdit*> widgets;
+
+    /** @short Return (possibly newly created) logger for a given parser */
+    QTextEdit* getLogger( const uint parser );
 };
 
 }
