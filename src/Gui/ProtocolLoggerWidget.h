@@ -23,6 +23,7 @@
 #include <QMap>
 #include <QWidget>
 
+class QPushButton;
 class QTabWidget;
 class QTextEdit;
 
@@ -46,13 +47,15 @@ public slots:
     void parserLineSent( uint parser, const QByteArray& line );
 
 private slots:
-
     /** @short A tab is requested to close */
     void closeTab( int index );
+    /** @short Clear all logs */
+    void clearLogs();
 
 private:
     QTabWidget* tabs;
     QMap<uint, QTextEdit*> widgets;
+    QPushButton* clearAll;
 
     /** @short Return (possibly newly created) logger for a given parser */
     QTextEdit* getLogger( const uint parser );
