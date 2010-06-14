@@ -141,7 +141,21 @@ void Model::responseReceived()
     while ( it.value().parser->hasResponse() ) {
         QSharedPointer<Imap::Responses::AbstractResponse> resp = it.value().parser->getResponse();
         Q_ASSERT( resp );
-        resp->plug( it.value().parser, this );
+        try {
+            resp->plug( it.value().parser, this );
+        } catch ( Imap::ParseError& e ) {
+            killParser( it->parser );
+            _parsers.erase( it );
+            broadcastParseError( e.what(), e.line(), e.offset() );
+            parsersMightBeIdling();
+            return;
+        } catch ( Imap::MailboxException& e ) {
+            killParser( it->parser );
+            _parsers.erase( it );
+            broadcastParseError( e.what(), QByteArray(), -1 );
+            parsersMightBeIdling();
+            return;
+        }
         if ( ! it.value().parser ) {
             // it got deleted
             _parsers.erase( it );
@@ -1398,7 +1412,7 @@ void Model::slotParserDisconnected( const QString msg )
     parsersMightBeIdling();
 }
 
-void Model::slotParseError( const QString& errorMessage, const QByteArray& line, uint position )
+void Model::broadcastParseError( const QString& errorMessage, const QByteArray& line, uint position )
 {
     QByteArray details = ( position == -1 ) ? QByteArray() : QByteArray( position, ' ' ) + QByteArray("^ here");
     emit connectionError( trUtf8( "<p>The IMAP server sent us a reply which we could not parse. "
@@ -1408,6 +1422,11 @@ void Model::slotParseError( const QString& errorMessage, const QByteArray& line,
                                   "<p><b>%1</b></p>"
                                   "<pre>%2\n%3</pre>"
                                   ).arg( errorMessage, line, details ) );
+}
+
+void Model::slotParseError( const QString& errorMessage, const QByteArray& line, uint position )
+{
+    broadcastParseError( errorMessage, line, position );
 
     Parser* which = qobject_cast<Parser*>( sender() );
     if ( ! which )
@@ -1418,6 +1437,8 @@ void Model::slotParseError( const QString& errorMessage, const QByteArray& line,
     _parsers.remove( which );
     parsersMightBeIdling();
 }
+
+void slotParseErrorAndRemoveParser( const QString& errorMessage, const QByteArray& line, uint position, Parser* parser );
 
 void Model::idleTerminated()
 {

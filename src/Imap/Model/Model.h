@@ -428,6 +428,9 @@ private:
     /** @short Dispose of the parser in a C++-safe way */
     void killParser( Parser* parser );
 
+    /** @short Helper for the slotParseError() */
+    void broadcastParseError( const QString& errorMessage, const QByteArray& line, uint position );
+
     ModelStateHandler* unauthHandler;
     ModelStateHandler* authenticatedHandler;
     ModelStateHandler* selectedHandler;
