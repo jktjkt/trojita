@@ -38,11 +38,8 @@ namespace Responses {
     class AbstractResponse;
 }
 
-class Parser;
-
     /** @short General exception class */
     class ParserException : public std::exception {
-        friend class Parser;
         /** The error message */
         std::string _msg;
         /** Line with data that caused this error */
@@ -55,6 +52,9 @@ class Parser;
             _msg(msg), _line(line), _offset(offset) {};
         virtual const char* what() const throw();
         virtual ~ParserException() throw() {};
+        std::string msg() const { return _msg; }
+        QByteArray line() const { return _line; }
+        int offset() const { return _offset; }
     };
 
 #define ECBODY(CLASSNAME, PARENT) public: CLASSNAME( const std::string& msg ): PARENT(msg ) {};\
