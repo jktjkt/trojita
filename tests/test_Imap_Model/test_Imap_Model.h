@@ -39,6 +39,10 @@ private slots:
     void testSyncMailbox();
 
     void testInboxCaseSensitivity();
+
+    /** @short Test that we detect failures to CREATE/DELETE a mailbox */
+    void testCreationDeletionHandling();
+
 private:
     Imap::Mailbox::Model* model;
     Imap::Mailbox::CachePtr cache;
