@@ -91,6 +91,7 @@ QByteArray FakeSocket::writtenStuff()
 {
     QByteArray res = w;
     w.clear();
+    writeChannel->seek( 0 );
     return res;
 }
 
