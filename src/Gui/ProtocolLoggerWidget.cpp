@@ -42,13 +42,13 @@ ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
 void ProtocolLoggerWidget::parserLineReceived( uint parser, const QByteArray& line )
 {
     QTextEdit* e = getLogger( parser );
-    e->setPlainText( e->toPlainText() + QString::fromAscii("<<< %1: %2\n").arg( QString::number( parser ), QString::fromLocal8Bit( line ) ) );
+    e->setPlainText( e->toPlainText() + QString::fromAscii("<<< %1\n").arg( QString::fromLocal8Bit( line.trimmed() ) ) );
 }
 
 void ProtocolLoggerWidget::parserLineSent( uint parser, const QByteArray& line )
 {
     QTextEdit* e = getLogger( parser );
-    e->setPlainText( e->toPlainText() + QString::fromAscii(">>> %1: %2\n").arg( QString::number( parser ), QString::fromLocal8Bit( line ) ) );
+    e->setPlainText( e->toPlainText() + QString::fromAscii(">>> %1\n").arg( QString::fromLocal8Bit( line.trimmed() ) ) );
 }
 
 QTextEdit* ProtocolLoggerWidget::getLogger( const uint parser )

@@ -478,7 +478,7 @@ void Parser::executeACommand()
         buf.clear();
         _idling = false;
         emit idleTerminated();
-        emit lineSent( buf.trimmed() );
+        emit lineSent( buf );
     }
 
     if ( cmd._cmds[ cmd._currentPart ]._kind == Commands::ATOM )
@@ -513,7 +513,7 @@ void Parser::executeACommand()
                     _socket->write( buf );
                     part._numberSent = true;
                     _waitingForContinuation = true;
-                    emit lineSent( buf.trimmed() );
+                    emit lineSent( buf );
                     return; // and wait for continuation request
                 }
                 break;
@@ -577,7 +577,7 @@ void Parser::processLine( QByteArray line )
     else
         qDebug() << _parserId << "<<<" << debugLine;
 #endif
-    emit lineReceived( line.trimmed() );
+    emit lineReceived( line );
     if ( line.startsWith( "* " ) ) {
         queueResponse( parseUntagged( line ) );
     } else if ( line.startsWith( "+ " ) ) {
@@ -739,6 +739,7 @@ void Parser::enableLiteralPlus( const bool enabled )
 
 void Parser::handleDisconnected( const QString& reason )
 {
+    emit lineReceived( "*** Socket disconnected" );
 #ifdef PRINT_TRAFFIC
     qDebug() << _parserId << "*** Socket disconnected";
 #endif
@@ -771,6 +772,7 @@ void Parser::handleConnectionEstablished()
 #ifdef PRINT_TRAFFIC
     qDebug() << _parserId << "*** Connection established";
 #endif
+    emit lineReceived( "*** Connection established" );
     _waitingForConnection = false;
     QTimer::singleShot( 0, this, SLOT(executeCommands()));
 }
