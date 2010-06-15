@@ -16,16 +16,16 @@
    Boston, MA 02110-1301, USA.
 */
 
+#include <QPlainTextEdit>
 #include <QPushButton>
 #include <QTabWidget>
-#include <QTextEdit>
 #include <QVBoxLayout>
 #include "ProtocolLoggerWidget.h"
 
 namespace Gui {
 
 ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
-    QWidget(parent)
+    QWidget(parent), lastMessageType(MSG_NONE)
 {
     QVBoxLayout* layout = new QVBoxLayout( this );
     tabs = new QTabWidget( this );
@@ -41,48 +41,51 @@ ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
 
 void ProtocolLoggerWidget::parserLineReceived( uint parser, const QByteArray& line )
 {
-    QTextEdit* e = getLogger( parser );
+    QPlainTextEdit* e = getLogger( parser );
 
-    QTextCursor cursor( e->textCursor() );
-    cursor.movePosition( QTextCursor::End );
-    QTextCharFormat format( cursor.charFormat() );
-    format.setFontFamily("Courier");
+    if ( lastMessageType != MSG_RECEIVED ) {
+        lastMessageType = MSG_RECEIVED;
+        QTextCharFormat f = e->currentCharFormat();
+        f.setForeground( QBrush( Qt::blue ) );
+        e->mergeCurrentCharFormat( f );
+    }
 
-    cursor.insertText( QString::fromAscii("<<< %1\n").arg( QString::fromLocal8Bit( line.trimmed() ) ), format );
-    e->ensureCursorVisible();
+    e->appendPlainText( QString::fromLocal8Bit( line.trimmed() ) );
 }
 
 void ProtocolLoggerWidget::parserLineSent( uint parser, const QByteArray& line )
 {
-    QTextEdit* e = getLogger( parser );
+    QPlainTextEdit* e = getLogger( parser );
 
-    QTextCursor cursor( e->textCursor() );
-    cursor.movePosition( QTextCursor::End );
-    QTextCharFormat format( cursor.charFormat() );
-    format.setFontFamily("Courier");
+    if ( lastMessageType != MSG_SENT ) {
+        lastMessageType = MSG_SENT;
+        QTextCharFormat f = e->currentCharFormat();
+        f.setForeground( QBrush( Qt::green ) );
+        e->mergeCurrentCharFormat( f );
+    }
 
-    cursor.insertText( QString::fromAscii(">>> %1\n").arg( QString::fromLocal8Bit( line.trimmed() ) ), format );
-    e->ensureCursorVisible();
+    e->appendPlainText( QString::fromLocal8Bit( line.trimmed() ) );
 }
 
-QTextEdit* ProtocolLoggerWidget::getLogger( const uint parser )
+QPlainTextEdit* ProtocolLoggerWidget::getLogger( const uint parser )
 {
-    QTextEdit* res = widgets[ parser ];
+    QPlainTextEdit* res = widgets[ parser ];
     if ( ! res ) {
-        res = new QTextEdit();
+        res = new QPlainTextEdit();
+        res->setLineWrapMode( QPlainTextEdit::NoWrap );
+        res->setCenterOnScroll( true );
+        res->setMaximumBlockCount( 200 );
+        res->setReadOnly( true );
+        res->setUndoRedoEnabled( false );
         tabs->addTab( res, tr("Parser %1").arg( parser ) );
         widgets[ parser ] = res;
-        res->document()->setMaximumBlockCount( 200 );
-        res->setReadOnly( true );
-        res->setLineWrapMode( QTextEdit::NoWrap );
-        res->document()->setUndoRedoEnabled( false );
     }
     return res;
 }
 
 void ProtocolLoggerWidget::closeTab( int index )
 {
-    QTextEdit* w = qobject_cast<QTextEdit*>( tabs->widget( index ) );
+    QPlainTextEdit* w = qobject_cast<QPlainTextEdit*>( tabs->widget( index ) );
     Q_ASSERT( w );
     uint parser = widgets.key( w );
     widgets.remove( parser );
@@ -91,7 +94,7 @@ void ProtocolLoggerWidget::closeTab( int index )
 
 void ProtocolLoggerWidget::clearLogs()
 {
-    for ( QMap<uint, QTextEdit*>::iterator it = widgets.begin(); it != widgets.end(); ++it ) {
+    for ( QMap<uint, QPlainTextEdit*>::iterator it = widgets.begin(); it != widgets.end(); ++it ) {
         (*it)->document()->clear();
     }
 }

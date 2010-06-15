@@ -25,7 +25,7 @@
 
 class QPushButton;
 class QTabWidget;
-class QTextEdit;
+class QPlainTextEdit;
 
 namespace Gui {
 
@@ -54,11 +54,13 @@ private slots:
 
 private:
     QTabWidget* tabs;
-    QMap<uint, QTextEdit*> widgets;
+    QMap<uint, QPlainTextEdit*> widgets;
     QPushButton* clearAll;
 
     /** @short Return (possibly newly created) logger for a given parser */
-    QTextEdit* getLogger( const uint parser );
+    QPlainTextEdit* getLogger( const uint parser );
+
+    enum { MSG_NONE, MSG_SENT, MSG_RECEIVED, MSG_INFO } lastMessageType;
 };
 
 }
