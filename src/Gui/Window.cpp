@@ -755,6 +755,7 @@ void MainWindow::slotMailboxCreateFailed( const QString& mailbox, const QString&
 
 void MainWindow::showConnectionStatus( QObject* parser, Imap::ConnectionState state )
 {
+    Q_UNUSED( parser );
     using namespace Imap;
     QString message;
     enum { DURATION = 10000 };
@@ -806,7 +807,6 @@ void MainWindow::showConnectionStatus( QObject* parser, Imap::ConnectionState st
         message = tr("Logged out.");
         break;
     }
-    qDebug() << parser << message;
     statusBar()->showMessage( message, transient ? DURATION : 0 );
 }
 
