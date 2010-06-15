@@ -351,6 +351,9 @@ void MainWindow::setupModels()
     connect( model, SIGNAL(parserLineReceived(uint,QByteArray)), imapLogger, SLOT(parserLineReceived(uint,QByteArray)) );
     connect( model, SIGNAL(parserLineSent(uint,QByteArray)), imapLogger, SLOT(parserLineSent(uint,QByteArray)) );
 
+    connect( model, SIGNAL(mailboxDeletionFailed(QString,QString)), this, SLOT(slotMailboxDeleteFailed(QString,QString)) );
+    connect( model, SIGNAL(mailboxCreationFailed(QString,QString)), this, SLOT(slotMailboxCreateFailed(QString,QString)) );
+
     //Imap::Mailbox::ModelWatcher* w = new Imap::Mailbox::ModelWatcher( this );
     //w->setModel( model );
 
@@ -740,8 +743,14 @@ void MainWindow::invokeComposeDialog( const QString& subject, const QString& bod
 
 void MainWindow::slotMailboxDeleteFailed( const QString& mailbox, const QString& msg )
 {
-    QMessageBox::warning( this, tr("Can't delete mailbox $1").arg( mailbox ),
-                          tr("Mailbox deletion failed with the following message:\n$1").arg( msg ) );
+    QMessageBox::warning( this, tr("Can't delete mailbox"),
+                          tr("Deleting mailbox \"%1\" failed with the following message:\n%2").arg( mailbox, msg ) );
+}
+
+void MainWindow::slotMailboxCreateFailed( const QString& mailbox, const QString& msg )
+{
+    QMessageBox::warning( this, tr("Can't create mailbox"),
+                          tr("Creating mailbox \"%1\" failed with the following message:\n%2").arg( mailbox, msg ) );
 }
 
 void MainWindow::showConnectionStatus( QObject* parser, Imap::ConnectionState state )

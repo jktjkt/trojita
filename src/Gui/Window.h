@@ -91,6 +91,7 @@ private slots:
     void slotShowAboutTrojita();
 
     void slotMailboxDeleteFailed( const QString& mailbox, const QString& msg );
+    void slotMailboxCreateFailed( const QString& mailbox, const QString& msg );
 
 private:
     void createMenus();
