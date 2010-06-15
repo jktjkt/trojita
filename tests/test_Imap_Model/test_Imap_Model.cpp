@@ -53,16 +53,18 @@ void ImapModelTest::testSyncMailbox()
 {
     model->rowCount( QModelIndex() );
     SOCK->fakeReading( "* PREAUTH foo\r\n" );
-    QTest::qWait( 100 );
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 CAPABILITY\r\ny0 LIST \"\" \"%\"\r\n") );
     SOCK->fakeReading( "* LIST (\\HasNoChildren) \".\" \"INBOX\"\r\n"
                        "* CAPABILITY IMAP4rev1\r\n"
                        "y1 OK capability completed\r\n"
                        "y0 ok list completed\r\n" );
-    QTest::qWait( 100 );
+    QCoreApplication::processEvents();
     QModelIndex inbox = model->index( 1, 0, QModelIndex() );
     QCOMPARE( model->data( inbox, Qt::DisplayRole ), QVariant("INBOX") );
-    QTest::qWait( 100 );
+    QCoreApplication::processEvents();
+
+    // FIXME: more stuff
 
 #ifdef WITH_GUI
     QTreeView* w = new QTreeView();
@@ -77,13 +79,13 @@ void ImapModelTest::testInboxCaseSensitivity()
     mboxModel = new Imap::Mailbox::MailboxModel( this, model );
     mboxModel->rowCount( QModelIndex() );
     SOCK->fakeReading( "* PREAUTH foo\r\n" );
-    QTest::qWait( 100 );
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 CAPABILITY\r\ny0 LIST \"\" \"%\"\r\n") );
     SOCK->fakeReading( "* LIST (\\Noinferiors) \".\" \"Inbox\"\r\n"
                        "* CAPABILITY IMAP4rev1\r\n"
                        "y1 OK capability completed\r\n"
                        "y0 ok list completed\r\n" );
-    QTest::qWait( 100 );
+    QCoreApplication::processEvents();
     QCOMPARE( mboxModel->data( mboxModel->index( 0, 0, QModelIndex() ), Qt::DisplayRole ), QVariant("INBOX") );
     mboxModel->deleteLater();
     mboxModel = 0;
@@ -96,7 +98,8 @@ void ImapModelTest::testCreationDeletionHandling()
     // Start the conversation
     model->rowCount( QModelIndex() );
     SOCK->fakeReading( "* PREAUTH foo\r\n" );
-    QTest::qWait( 100 );
+    QCoreApplication::processEvents();
+
     // Ask for capabilities and list top-level mailboxes
     // These commands are interleaved with each other
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 CAPABILITY\r\ny0 LIST \"\" \"%\"\r\n") );
@@ -107,7 +110,8 @@ void ImapModelTest::testCreationDeletionHandling()
                        "* LIST (\\HasNoChildren) \".\" two\r\n"
                        "y1 OK capability completed\r\n"
                        "y0 ok list completed\r\n" );
-    QTest::qWait( 0 );
+    QCoreApplication::processEvents();
+
     // Note that the ordering is case-insensitive
     QModelIndex mbox_inbox = model->index( 1, 0, QModelIndex() );
     QModelIndex mbox_one = model->index( 2, 0, QModelIndex() );
@@ -119,10 +123,12 @@ void ImapModelTest::testCreationDeletionHandling()
     QCOMPARE( model->data( mbox_SomeParent, Qt::DisplayRole ), QVariant("SomeParent") );
     QVERIFY( noParseError.isEmpty() );
 
+    // Try to create mailbox
     model->createMailbox( QString::fromAscii("zzz_newlyCreated") );
-    QTest::qWait( 0 );
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y2 CREATE \"zzz_newlyCreated\"\r\n") );
 
+    // Sane invariants
     QSignalSpy creationFailed( model, SIGNAL(mailboxCreationFailed(QString,QString)) );
     QVERIFY( creationFailed.isValid() );
     QSignalSpy creationSucceded( model, SIGNAL(mailboxCreationSucceded(QString)) );
@@ -132,8 +138,9 @@ void ImapModelTest::testCreationDeletionHandling()
     QSignalSpy deletionSucceded( model, SIGNAL(mailboxDeletionSucceded(QString)) );
     QVERIFY( deletionSucceded.isValid() );
 
+    // Test that we handle failure of the CREATE command
     SOCK->fakeReading( "y2 NO go away\r\n" );
-    QTest::qWait( 0 );
+    QCoreApplication::processEvents();
     QCOMPARE( creationFailed.count(), 1 );
     QList<QVariant> args = creationFailed.takeFirst();
     QCOMPARE( args.size(), 2 );
@@ -144,11 +151,14 @@ void ImapModelTest::testCreationDeletionHandling()
     QCOMPARE( deletionSucceded.count(), 0 );
     QVERIFY( noParseError.isEmpty() );
 
+    // Now test its succesfull completion
     model->createMailbox( QString::fromAscii("zzz_newlyCreated2") );
-    QTest::qWait( 0 );
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y3 CREATE \"zzz_newlyCreated2\"\r\n") );
     SOCK->fakeReading( "y3 OK mailbox created\r\n" );
-    QTest::qWait( 0 );
+    // This one results in issuing another command -> got to make two passes through the event loop
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y4 LIST \"\" \"zzz_newlyCreated2\"\r\n") );
     SOCK->fakeReading( "* LIST (\\HasNoChildren) \".\" zzz_newlyCreated2\r\ny4 OK x\r\n");
     QCOMPARE( creationFailed.count(), 0 );
@@ -158,7 +168,7 @@ void ImapModelTest::testCreationDeletionHandling()
     QCOMPARE( args[0], QVariant("zzz_newlyCreated2") );
     QCOMPARE( deletionFailed.count(), 0 );
     QCOMPARE( deletionSucceded.count(), 0 );
-    QTest::qWait( 0 );
+    QCoreApplication::processEvents();
     QModelIndex mbox_zzz = model->index( 5, 0, QModelIndex() );
     QCOMPARE( model->data( mbox_zzz, Qt::DisplayRole ), QVariant("zzz_newlyCreated2") );
     QVERIFY( noParseError.isEmpty() );
