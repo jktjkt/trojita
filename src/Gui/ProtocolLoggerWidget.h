@@ -60,7 +60,7 @@ private:
     /** @short Return (possibly newly created) logger for a given parser */
     QPlainTextEdit* getLogger( const uint parser );
 
-    typedef enum { MSG_NONE, MSG_SENT, MSG_RECEIVED, MSG_INFO } LastMessageType;
+    typedef enum { MSG_NONE, MSG_SENT, MSG_RECEIVED, MSG_INFO_SENT, MSG_INFO_RECEIVED } LastMessageType;
 
     void logMessage( const uint parser, const LastMessageType kind, const QByteArray& line );
 

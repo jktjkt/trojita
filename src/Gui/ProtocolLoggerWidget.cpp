@@ -48,13 +48,24 @@ void ProtocolLoggerWidget::logMessage( const uint parser, const LastMessageType 
         QTextCharFormat f = e->currentCharFormat();
         switch ( kind ) {
         case MSG_SENT:
-            f.setForeground( QBrush( Qt::blue ) );
+            f.setFontItalic( false );
+            f.setForeground( QBrush( Qt::darkRed ) );
             break;
         case MSG_RECEIVED:
-            f.setForeground( QBrush( Qt::green ) );
+            f.setFontItalic( false );
+            f.setForeground( QBrush( Qt::darkGreen ) );
             break;
-        default:
-            Q_ASSERT( false );
+        case MSG_INFO_SENT:
+            f.setFontItalic( true );
+            f.setForeground( QBrush( Qt::darkMagenta ) );
+            break;
+        case MSG_INFO_RECEIVED:
+            f.setFontItalic( true );
+            f.setForeground( QBrush( Qt::darkYellow ) );
+            break;
+        case MSG_NONE:
+            // what the hell?
+            break;
         }
         e->mergeCurrentCharFormat( f );
     }
@@ -64,12 +75,12 @@ void ProtocolLoggerWidget::logMessage( const uint parser, const LastMessageType 
 
 void ProtocolLoggerWidget::parserLineReceived( uint parser, const QByteArray& line )
 {
-    logMessage( parser, MSG_RECEIVED, line.trimmed() );
+    logMessage( parser, line.startsWith( "*** " ) ? MSG_INFO_RECEIVED : MSG_RECEIVED, line.trimmed() );
 }
 
 void ProtocolLoggerWidget::parserLineSent( uint parser, const QByteArray& line )
 {
-    logMessage( parser, MSG_SENT, line.trimmed() );
+    logMessage( parser, line.startsWith( "*** " ) ? MSG_INFO_SENT : MSG_SENT, line.trimmed() );
 }
 
 QPlainTextEdit* ProtocolLoggerWidget::getLogger( const uint parser )
@@ -82,6 +93,9 @@ QPlainTextEdit* ProtocolLoggerWidget::getLogger( const uint parser )
         res->setMaximumBlockCount( 200 );
         res->setReadOnly( true );
         res->setUndoRedoEnabled( false );
+        QTextCharFormat f = res->currentCharFormat();
+        f.setFontFamily( QString::fromAscii("Courier") );
+        res->mergeCurrentCharFormat( f );
         tabs->addTab( res, tr("Parser %1").arg( parser ) );
         widgets[ parser ] = res;
     }
