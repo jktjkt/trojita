@@ -1435,8 +1435,6 @@ void Model::slotParseError( const QString& errorMessage, const QByteArray& line,
     parsersMightBeIdling();
 }
 
-void slotParseErrorAndRemoveParser( const QString& errorMessage, const QByteArray& line, uint position, Parser* parser );
-
 void Model::idleTerminated()
 {
     QMap<Parser*,ParserState>::iterator it = _parsers.find( qobject_cast<Imap::Parser*>( sender() ));
