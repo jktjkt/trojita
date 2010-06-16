@@ -253,7 +253,7 @@ namespace Imap {
 
 The receiver connected to this signal is expected to kill this parser ASAP.
 */
-        void parseError( const QString& errorMessage, const QByteArray& line, int position );
+        void parseError( const QString& exceptionClass, const QString& errorMessage, const QByteArray& line, int position );
 
         /** @short New response received */
         void responseReceived();

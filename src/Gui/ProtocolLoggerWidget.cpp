@@ -95,7 +95,7 @@ void ProtocolLoggerWidget::logMessage( const uint parser, const MessageType kind
                                          niceLine, trimmedInfo ) );
 }
 
-void ProtocolLoggerWidget::parserFatalError( uint parser, const QString& message, const QByteArray& line, int position )
+void ProtocolLoggerWidget::parserFatalError( uint parser, const QString& exceptionClass, const QString& message, const QByteArray& line, int position )
 {
     QString buf = QString::fromAscii( "<pre><span style='color: #808080'>%1</span> "
                                           "<span style='color: #ff0000'>!!!</span> "
@@ -118,7 +118,7 @@ void ProtocolLoggerWidget::parserFatalError( uint parser, const QString& message
         log.skippedItems = 0;
     }
     log.widget->appendHtml( buf.arg( QTime::currentTime().toString( QString::fromAscii("hh:mm:ss.zzz") ),
-                                     tr("Encountered fatal exception: %1").arg( message ) ) );
+                                     tr("Encountered fatal exception %1: %2").arg( exceptionClass, message ) ) );
     log.widget->appendHtml( buf.arg( QTime::currentTime().toString( QString::fromAscii("hh:mm:ss.zzz") ),
                                      niceLine ) );
 }

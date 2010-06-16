@@ -46,7 +46,7 @@ public slots:
     /** @short Parser just sent a piece of data */
     void parserLineSent( uint parser, const QByteArray& line );
     /** @short Parser reported a fatal error */
-    void parserFatalError( uint parser, const QString& message, const QByteArray& line, int position );
+    void parserFatalError( uint parser, const QString& exceptionClass, const QString& message, const QByteArray& line, int position );
 
 private slots:
     /** @short A tab is requested to close */

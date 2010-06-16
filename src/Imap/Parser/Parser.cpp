@@ -438,7 +438,7 @@ void Parser::reallyReadLine()
             throw CantHappen( "canReadLine() returned true, but following readLine() failed" );
         }
     } catch ( ParserException& e ) {
-        emit parseError( QString::fromStdString( e.msg() ), e.line(), e.offset() );
+        emit parseError( QString::fromStdString( e.exceptionClass() ), QString::fromStdString( e.msg() ), e.line(), e.offset() );
     }
 }
 

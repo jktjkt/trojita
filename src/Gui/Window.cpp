@@ -350,7 +350,8 @@ void MainWindow::setupModels()
 
     connect( model, SIGNAL(logParserLineReceived(uint,QByteArray)), imapLogger, SLOT(parserLineReceived(uint,QByteArray)) );
     connect( model, SIGNAL(logParserLineSent(uint,QByteArray)), imapLogger, SLOT(parserLineSent(uint,QByteArray)) );
-    connect( model, SIGNAL(logParserFatalError(uint,QString,QByteArray,int)), imapLogger, SLOT(parserFatalError(uint,QString,QByteArray,int)) );
+    connect( model, SIGNAL(logParserFatalError(uint,QString,QString,QByteArray,int)),
+             imapLogger, SLOT(parserFatalError(uint,QString,QString,QByteArray,int)) );
 
     connect( model, SIGNAL(mailboxDeletionFailed(QString,QString)), this, SLOT(slotMailboxDeleteFailed(QString,QString)) );
     connect( model, SIGNAL(mailboxCreationFailed(QString,QString)), this, SLOT(slotMailboxCreateFailed(QString,QString)) );
