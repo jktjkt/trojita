@@ -25,7 +25,7 @@
 namespace Gui {
 
 ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
-    QWidget(parent), lastOne(MSG_NONE)
+    QWidget(parent)
 {
     QVBoxLayout* layout = new QVBoxLayout( this );
     tabs = new QTabWidget( this );
@@ -41,11 +41,11 @@ ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
 
 void ProtocolLoggerWidget::logMessage( const uint parser, const MessageType kind, const QByteArray& line )
 {
-    QPlainTextEdit* e = getLogger( parser );
+    ParserLog& log = getLogger( parser );
 
-    if ( lastOne != kind ) {
-        lastOne = kind;
-        QTextCharFormat f = e->currentCharFormat();
+    if ( log.lastInserted != kind ) {
+        log.lastInserted = kind;
+        QTextCharFormat f = log.widget->currentCharFormat();
         switch ( kind ) {
         case MSG_SENT:
             f.setFontItalic( false );
@@ -67,10 +67,10 @@ void ProtocolLoggerWidget::logMessage( const uint parser, const MessageType kind
             // what the hell?
             break;
         }
-        e->mergeCurrentCharFormat( f );
+        log.widget->mergeCurrentCharFormat( f );
     }
 
-    e->appendPlainText( QString::fromLocal8Bit( line ) );
+    log.widget->appendPlainText( QString::fromLocal8Bit( line ) );
 }
 
 void ProtocolLoggerWidget::parserLineReceived( uint parser, const QByteArray& line )
@@ -83,21 +83,20 @@ void ProtocolLoggerWidget::parserLineSent( uint parser, const QByteArray& line )
     logMessage( parser, line.startsWith( "*** " ) ? MSG_INFO_SENT : MSG_SENT, line.trimmed() );
 }
 
-QPlainTextEdit* ProtocolLoggerWidget::getLogger( const uint parser )
+ProtocolLoggerWidget::ParserLog& ProtocolLoggerWidget::getLogger( const uint parser )
 {
-    QPlainTextEdit* res = widgets[ parser ];
-    if ( ! res ) {
-        res = new QPlainTextEdit();
-        res->setLineWrapMode( QPlainTextEdit::NoWrap );
-        res->setCenterOnScroll( true );
-        res->setMaximumBlockCount( 200 );
-        res->setReadOnly( true );
-        res->setUndoRedoEnabled( false );
-        QTextCharFormat f = res->currentCharFormat();
+    ParserLog& res = buffers[ parser ];
+    if ( ! res.widget ) {
+        res.widget = new QPlainTextEdit();
+        res.widget->setLineWrapMode( QPlainTextEdit::NoWrap );
+        res.widget->setCenterOnScroll( true );
+        res.widget->setMaximumBlockCount( BUFFER_SIZE );
+        res.widget->setReadOnly( true );
+        res.widget->setUndoRedoEnabled( false );
+        QTextCharFormat f = res.widget->currentCharFormat();
         f.setFontFamily( QString::fromAscii("Courier") );
-        res->mergeCurrentCharFormat( f );
-        tabs->addTab( res, tr("Parser %1").arg( parser ) );
-        widgets[ parser ] = res;
+        res.widget->mergeCurrentCharFormat( f );
+        tabs->addTab( res.widget, tr("Parser %1").arg( parser ) );
     }
     return res;
 }
@@ -106,15 +105,20 @@ void ProtocolLoggerWidget::closeTab( int index )
 {
     QPlainTextEdit* w = qobject_cast<QPlainTextEdit*>( tabs->widget( index ) );
     Q_ASSERT( w );
-    uint parser = widgets.key( w );
-    widgets.remove( parser );
-    tabs->removeTab( index );
+    for ( QMap<uint, ParserLog>::iterator it = buffers.begin(); it != buffers.end(); ++it ) {
+        if ( it->widget != w )
+            continue;
+        buffers.erase( it );
+        tabs->removeTab( index );
+        w->deleteLater();
+        return;
+    }
 }
 
 void ProtocolLoggerWidget::clearLogs()
 {
-    for ( QMap<uint, QPlainTextEdit*>::iterator it = widgets.begin(); it != widgets.end(); ++it ) {
-        (*it)->document()->clear();
+    for ( QMap<uint, ParserLog>::iterator it = buffers.begin(); it != buffers.end(); ++it ) {
+        it->widget->document()->clear();
     }
 }
 
