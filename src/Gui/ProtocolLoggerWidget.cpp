@@ -43,34 +43,52 @@ void ProtocolLoggerWidget::logMessage( const uint parser, const MessageType kind
 {
     ParserLog& log = getLogger( parser );
 
-    if ( log.lastInserted != kind ) {
-        log.lastInserted = kind;
-        QTextCharFormat f = log.widget->currentCharFormat();
-        switch ( kind ) {
-        case MSG_SENT:
-            f.setFontItalic( false );
-            f.setForeground( QBrush( Qt::darkRed ) );
-            break;
-        case MSG_RECEIVED:
-            f.setFontItalic( false );
-            f.setForeground( QBrush( Qt::darkGreen ) );
-            break;
-        case MSG_INFO_SENT:
-            f.setFontItalic( true );
-            f.setForeground( QBrush( Qt::darkMagenta ) );
-            break;
-        case MSG_INFO_RECEIVED:
-            f.setFontItalic( true );
-            f.setForeground( QBrush( Qt::darkYellow ) );
-            break;
-        case MSG_NONE:
-            // what the hell?
-            break;
-        }
-        log.widget->mergeCurrentCharFormat( f );
-    }
+    log.kinds[ log.currentOffset ] = MSG_NONE;
+    ++log.currentOffset;
+    if ( log.currentOffset == BUFFER_SIZE )
+        log.currentOffset = 0;
+    log.kinds[ log.currentOffset ] = kind;
+    log.lines[ log.currentOffset ] = line;
+}
 
-    log.widget->appendPlainText( QString::fromLocal8Bit( line ) );
+void ProtocolLoggerWidget::flushLog( uint parser )
+{
+    ParserLog& log = getLogger( parser );
+
+    while ( log.kinds[ log.currentOffset ] != MSG_NONE ) {
+        const MessageType& kind = log.kinds[ log.currentOffset ];
+        const QByteArray& line = log.lines[ log.currentOffset ];
+        if ( log.lastInserted != kind ) {
+            log.lastInserted = kind;
+            QTextCharFormat f = log.widget->currentCharFormat();
+            switch ( kind ) {
+            case MSG_SENT:
+                f.setFontItalic( false );
+                f.setForeground( QBrush( Qt::darkRed ) );
+                break;
+            case MSG_RECEIVED:
+                f.setFontItalic( false );
+                f.setForeground( QBrush( Qt::darkGreen ) );
+                break;
+            case MSG_INFO_SENT:
+                f.setFontItalic( true );
+                f.setForeground( QBrush( Qt::darkMagenta ) );
+                break;
+            case MSG_INFO_RECEIVED:
+                f.setFontItalic( true );
+                f.setForeground( QBrush( Qt::darkYellow ) );
+                break;
+            case MSG_NONE:
+                // what the hell?
+                break;
+            }
+            log.widget->mergeCurrentCharFormat( f );
+        }
+        log.widget->appendPlainText( QString::fromLocal8Bit( line ) );
+        ++log.currentOffset;
+        if ( log.currentOffset == BUFFER_SIZE )
+            log.currentOffset = 0;
+    }
 }
 
 void ProtocolLoggerWidget::parserLineReceived( uint parser, const QByteArray& line )
@@ -88,6 +106,8 @@ ProtocolLoggerWidget::ParserLog& ProtocolLoggerWidget::getLogger( const uint par
     ParserLog& res = buffers[ parser ];
     if ( ! res.widget ) {
         res.widget = new QPlainTextEdit();
+        res.kinds.fill( MSG_NONE, BUFFER_SIZE );
+        res.lines.fill( QByteArray(), BUFFER_SIZE );
         res.widget->setLineWrapMode( QPlainTextEdit::NoWrap );
         res.widget->setCenterOnScroll( true );
         res.widget->setMaximumBlockCount( BUFFER_SIZE );

@@ -61,8 +61,8 @@ private:
     public:
         ParserLog(): currentOffset(0), widget(0), lastInserted(MSG_NONE) {}
         uint currentOffset; /**< @short Current offset for both the kinds and lines members */
-        QList<MessageType> kinds; /**< @short Message types */
-        QList<QByteArray> lines; /**< @short Actual messages queued for processing */
+        QVector<MessageType> kinds; /**< @short Message types */
+        QVector<QByteArray> lines; /**< @short Actual messages queued for processing */
         QPlainTextEdit* widget; /**< @short Widget displaying the log */
         MessageType lastInserted; /**< @short Kind of the message which was last pushed into the widget */
     };
