@@ -153,7 +153,7 @@ void ProtocolLoggerWidget::enableLogging( bool enabled )
             if ( it->skippedItems ) {
                 it->widget->appendHtml(
                         tr("<p style='color: #bb0000'><i>Logging resumed. "
-                           "<b>%n message(s)</b> got skipped when the logger widget was hidden.</i></p>",
+                           "<b>%n message(s)</b> got skipped while the logger widget was hidden.</i></p>",
                            "", it->skippedItems ) );
                 it->skippedItems = 0;
             } else {
