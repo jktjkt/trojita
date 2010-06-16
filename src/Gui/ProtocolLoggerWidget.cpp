@@ -16,7 +16,7 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include <QDebug>
+#include <QDateTime>
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QTabWidget>
@@ -50,33 +50,49 @@ void ProtocolLoggerWidget::logMessage( const uint parser, const MessageType kind
         return;
     }
 
-    if ( log.lastInserted != kind ) {
-        log.lastInserted = kind;
-        QTextCharFormat f = log.widget->currentCharFormat();
-        switch ( kind ) {
-        case MSG_SENT:
-            f.setFontItalic( false );
-            f.setForeground( QBrush( Qt::darkRed ) );
-            break;
-        case MSG_RECEIVED:
-            f.setFontItalic( false );
-            f.setForeground( QBrush( Qt::darkGreen ) );
-            break;
-        case MSG_INFO_SENT:
-            f.setFontItalic( true );
-            f.setForeground( QBrush( Qt::darkMagenta ) );
-            break;
-        case MSG_INFO_RECEIVED:
-            f.setFontItalic( true );
-            f.setForeground( QBrush( Qt::darkYellow ) );
-            break;
-        case MSG_NONE:
-            Q_ASSERT( false );
-            break;
-        }
-        log.widget->mergeCurrentCharFormat( f );
+    QString message = QString::fromAscii( "<pre><span style='color: #808080'>%1</span> %2<span style='color: %3;%4'>%5</span>%6</pre>" );
+    QString direction;
+    QString textColor;
+    QString bgColor;
+    QString niceLine;
+    QString trimmedInfo;
+
+    switch ( kind ) {
+    case MSG_SENT:
+        textColor = "#800000";
+        direction = "<span style='color: #c0c0c0;'>&gt;&gt;&gt;&nbsp;</span>";
+        break;
+    case MSG_RECEIVED:
+        textColor = "#008000";
+        direction = "<span style='color: #c0c0c0;'>&lt;&lt;&lt;&nbsp;</span>";
+        break;
+    case MSG_INFO_SENT:
+        textColor = "#800080";
+        bgColor = "#d0d0d0";
+        break;
+    case MSG_INFO_RECEIVED:
+        textColor = "#808000";
+        bgColor = "#d0d0d0";
+        break;
+    case MSG_NONE:
+        Q_ASSERT( false );
     }
-    log.widget->appendPlainText( QString::fromLocal8Bit( line.left( 100 ).replace( '\r', ' ').replace('\n', ' ') ) );
+
+    if ( line.size() > 120 ) {
+        enum { SIZE = 100 };
+        niceLine = Qt::escape( QString::fromAscii( line.left( SIZE ) ) );
+        trimmedInfo = tr( "<br/><span style='color: #808080; font-style: italic;'>(%n bytes trimmed)</span>", "",  line.size() - SIZE );
+    } else {
+        niceLine = Qt::escape( QString::fromAscii( line ) );
+    }
+
+    niceLine.replace( QChar('\r'), 0x240d /* SYMBOL FOR CARRIAGE RETURN */ )
+            .replace( QChar('\n'), 0x240a /* SYMBOL FOR LINE FEED */ );
+
+    log.widget->appendHtml( message.arg( QTime::currentTime().toString( QString::fromAscii("hh:mm:ss.zzz") ),
+                                         direction, textColor,
+                                         bgColor.isEmpty() ? QString() : QString::fromAscii("background-color: %1").arg(bgColor),
+                                         niceLine, trimmedInfo ) );
 }
 
 void ProtocolLoggerWidget::parserLineReceived( uint parser, const QByteArray& line )
@@ -99,9 +115,11 @@ ProtocolLoggerWidget::ParserLog& ProtocolLoggerWidget::getLogger( const uint par
         res.widget->setMaximumBlockCount( BUFFER_SIZE );
         res.widget->setReadOnly( true );
         res.widget->setUndoRedoEnabled( false );
-        QTextCharFormat f = res.widget->currentCharFormat();
-        f.setFontFamily( QString::fromAscii("Courier") );
-        res.widget->mergeCurrentCharFormat( f );
+        // Got to output something here using the default background,
+        // otherwise the QPlainTextEdit would default its background
+        // to the very first value we throw at it, which might be a
+        // grey one.
+        res.widget->appendHtml( QString::fromAscii("<p>&nbsp;</p>") );
         tabs->addTab( res.widget, tr("Parser %1").arg( parser ) );
     }
     return res;
@@ -131,25 +149,19 @@ void ProtocolLoggerWidget::clearLogDisplay()
 void ProtocolLoggerWidget::enableLogging( bool enabled )
 {
     for ( QMap<uint, ParserLog>::iterator it = buffers.begin(); it != buffers.end(); ++it ) {
-        QTextCharFormat originalFormat = it->widget->currentCharFormat();
-        QTextCharFormat f = it->widget->currentCharFormat();
-        f.setFontItalic( true );
-        f.setForeground( QBrush( Qt::red ) );
-        f.setFontWeight( QFont::Bold );
-        it->widget->mergeCurrentCharFormat( f );
         if ( ! loggingActive && enabled ) {
             if ( it->skippedItems ) {
-                it->widget->appendPlainText(
-                        tr("Logging resumed. %1 message(s) got skipped when the logger widget was hidden.",
+                it->widget->appendHtml(
+                        tr("<p style='color: #bb0000'><i>Logging resumed. "
+                           "<b>%n message(s)</b> got skipped when the logger widget was hidden.</i></p>",
                            "", it->skippedItems ) );
                 it->skippedItems = 0;
             } else {
-                it->widget->appendPlainText( tr("Logging resumed") );
+                it->widget->appendHtml( tr("<p style='color: #bb0000'><i>Logging resumed</i></p>") );
             }
         } else if ( loggingActive && ! enabled ) {
-            it->widget->appendPlainText( tr("Logging suspended") );
+            it->widget->appendHtml( tr("<p style='color: #bb0000'><i>Logging suspended</i></p>") );
         }
-        it->widget->setCurrentCharFormat( originalFormat );
     }
     loggingActive = enabled;
 }

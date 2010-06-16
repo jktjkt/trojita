@@ -61,9 +61,8 @@ private:
 
     class ParserLog {
     public:
-        ParserLog(): widget(0), lastInserted(MSG_NONE), skippedItems(0) {}
+        ParserLog(): widget(0), skippedItems(0) {}
         QPlainTextEdit* widget; /**< @short Widget displaying the log */
-        MessageType lastInserted; /**< @short Kind of the message which was last pushed into the widget */
         uint skippedItems;
     };
 
