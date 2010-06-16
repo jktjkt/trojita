@@ -142,15 +142,17 @@ void Model::responseReceived()
         try {
             resp->plug( it.value().parser, this );
         } catch ( Imap::ParseError& e ) {
+            uint parserId = it->parser->parserId();
             killParser( it->parser );
             _parsers.erase( it );
-            broadcastParseError( e.what(), e.line(), e.offset() );
+            broadcastParseError( parserId, e.what(), e.line(), e.offset() );
             parsersMightBeIdling();
             return;
         } catch ( Imap::MailboxException& e ) {
+            uint parserId = it->parser->parserId();
             killParser( it->parser );
             _parsers.erase( it );
-            broadcastParseError( e.what(), QByteArray(), -1 );
+            broadcastParseError( parserId, e.what(), QByteArray(), -1 );
             parsersMightBeIdling();
             return;
         }
@@ -1335,7 +1337,7 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
         connect( parser, SIGNAL( disconnected( const QString ) ), this, SLOT( slotParserDisconnected( const QString ) ) );
         connect( parser, SIGNAL(connectionStateChanged(Imap::ConnectionState)), this, SLOT(handleSocketStateChanged(Imap::ConnectionState)) );
         connect( parser, SIGNAL(sendingCommand(QString)), this, SLOT(parserIsSendingCommand(QString)) );
-        connect( parser, SIGNAL(parseError(QString,QByteArray,uint)), this, SLOT(slotParseError(QString,QByteArray,uint)) );
+        connect( parser, SIGNAL(parseError(QString,QByteArray,int)), this, SLOT(slotParseError(QString,QByteArray,int)) );
         connect( parser, SIGNAL(lineReceived(QByteArray)), this, SLOT(slotParserLineReceived(QByteArray)) );
         connect( parser, SIGNAL(lineSent(QByteArray)), this, SLOT(slotParserLineSent(QByteArray)) );
         CommandHandle cmd;
@@ -1407,8 +1409,9 @@ void Model::slotParserDisconnected( const QString msg )
     parsersMightBeIdling();
 }
 
-void Model::broadcastParseError( const QString& errorMessage, const QByteArray& line, uint position )
+void Model::broadcastParseError( const uint parser, const QString& errorMessage, const QByteArray& line, int position )
 {
+    emit logParserFatalError( parser, errorMessage, line, position );
     QByteArray details = ( position == -1 ) ? QByteArray() : QByteArray( position, ' ' ) + QByteArray("^ here");
     emit connectionError( trUtf8( "<p>The IMAP server sent us a reply which we could not parse. "
                                   "This might either mean that there's a bug in Trojiá's code, or "
@@ -1419,13 +1422,12 @@ void Model::broadcastParseError( const QString& errorMessage, const QByteArray& 
                                   ).arg( errorMessage, line, details ) );
 }
 
-void Model::slotParseError( const QString& errorMessage, const QByteArray& line, uint position )
+void Model::slotParseError( const QString& errorMessage, const QByteArray& line, int position )
 {
-    broadcastParseError( errorMessage, line, position );
-
     Parser* which = qobject_cast<Parser*>( sender() );
-    if ( ! which )
-        return;
+    Q_ASSERT( which );
+
+    broadcastParseError( which->parserId(), errorMessage, line, position );
 
     // This function is *not* called from inside the responseReceived(), so we have to remove the parser from the list, too
     killParser( which );
@@ -1754,7 +1756,7 @@ void Model::slotParserLineReceived( const QByteArray& line )
     Parser* parser = qobject_cast<Parser*>( sender() );
     Q_ASSERT( parser );
     Q_ASSERT( _parsers.contains( parser ) );
-    emit parserLineReceived( parser->parserId(), line );
+    emit logParserLineReceived( parser->parserId(), line );
 }
 
 void Model::slotParserLineSent( const QByteArray& line )
@@ -1762,7 +1764,7 @@ void Model::slotParserLineSent( const QByteArray& line )
     Parser* parser = qobject_cast<Parser*>( sender() );
     Q_ASSERT( parser );
     Q_ASSERT( _parsers.contains( parser ) );
-    emit parserLineSent( parser->parserId(), line );
+    emit logParserLineSent( parser->parserId(), line );
 }
 
 }

@@ -297,7 +297,7 @@ private slots:
     void slotParserDisconnected( const QString );
 
     /** @short Parser throwed out an exception */
-    void slotParseError( const QString& errorMessage, const QByteArray& line, uint position );
+    void slotParseError( const QString& errorMessage, const QByteArray& line, int position );
 
     /** @short Send a NOOP over all connections
 
@@ -359,10 +359,13 @@ signals:
     void activityHappening( bool isHappening );
 
     /** @short The parser has received a full line */
-    void parserLineReceived( uint parser, const QByteArray& line );
+    void logParserLineReceived( uint parser, const QByteArray& line );
 
     /** @short The parser has sent a block of data */
-    void parserLineSent( uint parser, const QByteArray& line );
+    void logParserLineSent( uint parser, const QByteArray& line );
+
+    /** @short The parser has encountered a fatal error */
+    void logParserFatalError( uint parser, const QString& message, const QByteArray& line, int position );
 
 private:
     Model& operator=( const Model& ); // don't implement
@@ -441,7 +444,7 @@ private:
     void killParser( Parser* parser );
 
     /** @short Helper for the slotParseError() */
-    void broadcastParseError( const QString& errorMessage, const QByteArray& line, uint position );
+    void broadcastParseError( const uint parser, const QString& errorMessage, const QByteArray& line, int position );
 
     ModelStateHandler* unauthHandler;
     ModelStateHandler* authenticatedHandler;

@@ -95,6 +95,34 @@ void ProtocolLoggerWidget::logMessage( const uint parser, const MessageType kind
                                          niceLine, trimmedInfo ) );
 }
 
+void ProtocolLoggerWidget::parserFatalError( uint parser, const QString& message, const QByteArray& line, int position )
+{
+    QString buf = QString::fromAscii( "<pre><span style='color: #808080'>%1</span> "
+                                          "<span style='color: #ff0000'>!!!</span> "
+                                          "<span>%2</span></pre>" );
+    QString niceLine = QString::fromLocal8Bit( line )
+                       .replace( QChar('\r'), 0x240d /* SYMBOL FOR CARRIAGE RETURN */ )
+                       .replace( QChar('\n'), 0x240a /* SYMBOL FOR LINE FEED */ );
+    if ( position >= 0 && position < line.size() ) {
+        niceLine = QString::fromAscii("%1<span style='background-color: #d08080;'>%2</span>")
+                   .arg( Qt::escape( niceLine.left( position ) ), Qt::escape( niceLine.mid( position ) ) );
+    } else {
+        niceLine = Qt::escape( niceLine );
+    }
+    ParserLog& log = getLogger( parser );
+    if ( log.skippedItems ) {
+        log.widget->appendHtml(
+                tr("<p style='color: #bb0000'><i>"
+                   "<b>%n message(s)</b> were skipped because this widget was hidden.</i></p>",
+                   "", log.skippedItems ) );
+        log.skippedItems = 0;
+    }
+    log.widget->appendHtml( buf.arg( QTime::currentTime().toString( QString::fromAscii("hh:mm:ss.zzz") ),
+                                     tr("Encountered fatal exception: %1").arg( message ) ) );
+    log.widget->appendHtml( buf.arg( QTime::currentTime().toString( QString::fromAscii("hh:mm:ss.zzz") ),
+                                     niceLine ) );
+}
+
 void ProtocolLoggerWidget::parserLineReceived( uint parser, const QByteArray& line )
 {
     logMessage( parser, line.startsWith( "*** " ) ? MSG_INFO_RECEIVED : MSG_RECEIVED, line.trimmed() );
