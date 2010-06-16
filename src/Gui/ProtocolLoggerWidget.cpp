@@ -25,7 +25,7 @@
 namespace Gui {
 
 ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
-    QWidget(parent), lastMessageType(MSG_NONE)
+    QWidget(parent), lastOne(MSG_NONE)
 {
     QVBoxLayout* layout = new QVBoxLayout( this );
     tabs = new QTabWidget( this );
@@ -39,32 +39,37 @@ ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
     tabs->setCornerWidget( clearAll, Qt::BottomRightCorner );
 }
 
-void ProtocolLoggerWidget::parserLineReceived( uint parser, const QByteArray& line )
+void ProtocolLoggerWidget::logMessage( const uint parser, const LastMessageType kind, const QByteArray& line )
 {
     QPlainTextEdit* e = getLogger( parser );
 
-    if ( lastMessageType != MSG_RECEIVED ) {
-        lastMessageType = MSG_RECEIVED;
+    if ( lastOne != kind ) {
+        lastOne = kind;
         QTextCharFormat f = e->currentCharFormat();
-        f.setForeground( QBrush( Qt::blue ) );
+        switch ( kind ) {
+        case MSG_SENT:
+            f.setForeground( QBrush( Qt::blue ) );
+            break;
+        case MSG_RECEIVED:
+            f.setForeground( QBrush( Qt::green ) );
+            break;
+        default:
+            Q_ASSERT( false );
+        }
         e->mergeCurrentCharFormat( f );
     }
 
-    e->appendPlainText( QString::fromLocal8Bit( line.trimmed() ) );
+    e->appendPlainText( QString::fromLocal8Bit( line ) );
+}
+
+void ProtocolLoggerWidget::parserLineReceived( uint parser, const QByteArray& line )
+{
+    logMessage( parser, MSG_RECEIVED, line.trimmed() );
 }
 
 void ProtocolLoggerWidget::parserLineSent( uint parser, const QByteArray& line )
 {
-    QPlainTextEdit* e = getLogger( parser );
-
-    if ( lastMessageType != MSG_SENT ) {
-        lastMessageType = MSG_SENT;
-        QTextCharFormat f = e->currentCharFormat();
-        f.setForeground( QBrush( Qt::green ) );
-        e->mergeCurrentCharFormat( f );
-    }
-
-    e->appendPlainText( QString::fromLocal8Bit( line.trimmed() ) );
+    logMessage( parser, MSG_SENT, line.trimmed() );
 }
 
 QPlainTextEdit* ProtocolLoggerWidget::getLogger( const uint parser )
