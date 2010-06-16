@@ -53,7 +53,7 @@ private slots:
     void clearLogs();
 
 private:
-    typedef enum { MSG_NONE, MSG_SENT, MSG_RECEIVED, MSG_INFO_SENT, MSG_INFO_RECEIVED } MessageType;
+    typedef enum { MSG_NONE, MSG_WRAPPED, MSG_SENT, MSG_RECEIVED, MSG_INFO_SENT, MSG_INFO_RECEIVED } MessageType;
 
     enum { BUFFER_SIZE = 200 };
 

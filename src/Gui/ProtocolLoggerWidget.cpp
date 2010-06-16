@@ -43,10 +43,12 @@ void ProtocolLoggerWidget::logMessage( const uint parser, const MessageType kind
 {
     ParserLog& log = getLogger( parser );
 
-    log.kinds[ log.currentOffset ] = MSG_NONE;
-    ++log.currentOffset;
-    if ( log.currentOffset == BUFFER_SIZE )
-        log.currentOffset = 0;
+    if ( log.kinds[ log.currentOffset ] != MSG_NONE ) {
+        log.kinds[ log.currentOffset ] = MSG_WRAPPED;
+        ++log.currentOffset;
+        if ( log.currentOffset == BUFFER_SIZE )
+            log.currentOffset = 0;
+    }
     log.kinds[ log.currentOffset ] = kind;
     log.lines[ log.currentOffset ] = line;
 }
@@ -78,17 +80,25 @@ void ProtocolLoggerWidget::flushLog( uint parser )
                 f.setFontItalic( true );
                 f.setForeground( QBrush( Qt::darkYellow ) );
                 break;
+            case MSG_WRAPPED:
+                f.setFontItalic( true );
+                f.setForeground( QBrush( Qt::red ) );
             case MSG_NONE:
                 // what the hell?
                 break;
             }
             log.widget->mergeCurrentCharFormat( f );
         }
-        log.widget->appendPlainText( QString::fromLocal8Bit( line ) );
+        if ( log.kinds[ log.currentOffset ] != MSG_WRAPPED )
+            log.widget->appendPlainText( QString::fromLocal8Bit( line ) );
+        else
+            log.widget->appendPlainText( tr("Log wrapped") );
         ++log.currentOffset;
         if ( log.currentOffset == BUFFER_SIZE )
             log.currentOffset = 0;
     }
+    log.currentOffset = 0;
+    log.kinds[ 0 ] = MSG_NONE;
 }
 
 void ProtocolLoggerWidget::parserLineReceived( uint parser, const QByteArray& line )
