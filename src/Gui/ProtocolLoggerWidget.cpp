@@ -39,7 +39,7 @@ ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
     tabs->setCornerWidget( clearAll, Qt::BottomRightCorner );
 }
 
-void ProtocolLoggerWidget::logMessage( const uint parser, const LastMessageType kind, const QByteArray& line )
+void ProtocolLoggerWidget::logMessage( const uint parser, const MessageType kind, const QByteArray& line )
 {
     QPlainTextEdit* e = getLogger( parser );
 
