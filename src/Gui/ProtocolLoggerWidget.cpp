@@ -37,7 +37,7 @@ ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
     connect( tabs, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)) );
 
     clearAll = new QPushButton( tr("Clear all"), this );
-    connect( clearAll, SIGNAL(clicked()), this, SLOT(clearLogs()) );
+    connect( clearAll, SIGNAL(clicked()), this, SLOT(clearLogDisplay()) );
     tabs->setCornerWidget( clearAll, Qt::BottomRightCorner );
 
     dumper = new QTimer( this );
@@ -189,7 +189,7 @@ void ProtocolLoggerWidget::closeTab( int index )
     }
 }
 
-void ProtocolLoggerWidget::clearLogs()
+void ProtocolLoggerWidget::clearLogDisplay()
 {
     for ( QMap<uint, ParserLog>::iterator it = buffers.begin(); it != buffers.end(); ++it ) {
         it->widget->document()->clear();

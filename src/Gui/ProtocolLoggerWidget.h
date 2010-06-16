@@ -50,7 +50,7 @@ private slots:
     /** @short A tab is requested to close */
     void closeTab( int index );
     /** @short Clear all logs */
-    void clearLogs();
+    void clearLogDisplay();
     /** @short Flush all buffers to the GUI */
     void flushAllLogs();
 
