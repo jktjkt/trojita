@@ -51,6 +51,8 @@ private slots:
     void closeTab( int index );
     /** @short Clear all logs */
     void clearLogDisplay();
+    /** @short Enable/disable active logging */
+    void enableLogging( bool enabled );
 
 private:
     typedef enum { MSG_NONE, MSG_SENT, MSG_RECEIVED, MSG_INFO_SENT, MSG_INFO_RECEIVED } MessageType;
@@ -68,12 +70,16 @@ private:
     QTabWidget* tabs;
     QMap<uint, ParserLog> buffers;
     QPushButton* clearAll;
+    bool loggingActive;
 
     /** @short Return (possibly newly created) ParserLog struct for a given parser */
     ParserLog& getLogger( const uint parser );
 
     /** @short Log the message into the GUI */
     void logMessage( const uint parser, const MessageType kind, const QByteArray& line );
+
+    virtual void showEvent( QShowEvent* e );
+    virtual void hideEvent( QHideEvent* e );
 };
 
 }

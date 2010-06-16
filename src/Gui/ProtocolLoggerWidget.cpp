@@ -27,7 +27,7 @@
 namespace Gui {
 
 ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
-    QWidget(parent)
+    QWidget(parent), loggingActive(false)
 {
     QVBoxLayout* layout = new QVBoxLayout( this );
     tabs = new QTabWidget( this );
@@ -44,6 +44,11 @@ ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
 void ProtocolLoggerWidget::logMessage( const uint parser, const MessageType kind, const QByteArray& line )
 {
     ParserLog& log = getLogger( parser );
+
+    if ( ! loggingActive ) {
+        ++log.skippedItems;
+        return;
+    }
 
 
         if ( log.lastInserted != kind ) {
@@ -122,6 +127,42 @@ void ProtocolLoggerWidget::clearLogDisplay()
     for ( QMap<uint, ParserLog>::iterator it = buffers.begin(); it != buffers.end(); ++it ) {
         it->widget->document()->clear();
     }
+}
+
+void ProtocolLoggerWidget::enableLogging( bool enabled )
+{
+    for ( QMap<uint, ParserLog>::iterator it = buffers.begin(); it != buffers.end(); ++it ) {
+        QTextCharFormat originalFormat = it->widget->currentCharFormat();
+        QTextCharFormat f = it->widget->currentCharFormat();
+        f.setFontItalic( true );
+        f.setForeground( QBrush( Qt::red ) );
+        f.setFontWeight( QFont::Bold );
+        it->widget->mergeCurrentCharFormat( f );
+        if ( ! loggingActive && enabled ) {
+            if ( it->skippedItems ) {
+                it->widget->appendPlainText( tr("Logging resumed. %1 messages got skipped when the logger widget was hidden.").arg( it->skippedItems ) );
+                it->skippedItems = 0;
+            } else {
+                it->widget->appendPlainText( tr("Logging resumed") );
+            }
+        } else if ( loggingActive && ! enabled ) {
+            it->widget->appendPlainText( tr("Logging suspended") );
+        }
+        it->widget->setCurrentCharFormat( originalFormat );
+    }
+    loggingActive = enabled;
+}
+
+void ProtocolLoggerWidget::showEvent( QShowEvent* e )
+{
+    enableLogging( true );
+    QWidget::showEvent( e );
+}
+
+void ProtocolLoggerWidget::hideEvent( QHideEvent* e )
+{
+    enableLogging( false );
+    QWidget::hideEvent( e );
 }
 
 }
