@@ -22,7 +22,7 @@
 
 namespace Imap {
 
-const char* ParserException::what() const throw()
+const char* ImapException::what() const throw()
 {
     if ( _offset == -1 )
         return _msg.c_str();
@@ -45,10 +45,13 @@ MailboxException::MailboxException( const char* const msg,
     s << msg << "\r\n" << response;
     s.flush();
     _msg = buf.constData();
+    _exceptionClass = "MailboxException";
 }
 
-MailboxException::MailboxException( const char* const msg ): _msg(msg)
+MailboxException::MailboxException( const char* const msg )
 {
+    _msg = msg;
+    _exceptionClass = "MailboxException";
 }
 
 }
