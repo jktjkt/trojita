@@ -50,34 +50,33 @@ void ProtocolLoggerWidget::logMessage( const uint parser, const MessageType kind
         return;
     }
 
-
-        if ( log.lastInserted != kind ) {
-            log.lastInserted = kind;
-            QTextCharFormat f = log.widget->currentCharFormat();
-            switch ( kind ) {
-            case MSG_SENT:
-                f.setFontItalic( false );
-                f.setForeground( QBrush( Qt::darkRed ) );
-                break;
-            case MSG_RECEIVED:
-                f.setFontItalic( false );
-                f.setForeground( QBrush( Qt::darkGreen ) );
-                break;
-            case MSG_INFO_SENT:
-                f.setFontItalic( true );
-                f.setForeground( QBrush( Qt::darkMagenta ) );
-                break;
-            case MSG_INFO_RECEIVED:
-                f.setFontItalic( true );
-                f.setForeground( QBrush( Qt::darkYellow ) );
-                break;
-            case MSG_NONE:
-                Q_ASSERT( false );
-                break;
-            }
-            log.widget->mergeCurrentCharFormat( f );
+    if ( log.lastInserted != kind ) {
+        log.lastInserted = kind;
+        QTextCharFormat f = log.widget->currentCharFormat();
+        switch ( kind ) {
+        case MSG_SENT:
+            f.setFontItalic( false );
+            f.setForeground( QBrush( Qt::darkRed ) );
+            break;
+        case MSG_RECEIVED:
+            f.setFontItalic( false );
+            f.setForeground( QBrush( Qt::darkGreen ) );
+            break;
+        case MSG_INFO_SENT:
+            f.setFontItalic( true );
+            f.setForeground( QBrush( Qt::darkMagenta ) );
+            break;
+        case MSG_INFO_RECEIVED:
+            f.setFontItalic( true );
+            f.setForeground( QBrush( Qt::darkYellow ) );
+            break;
+        case MSG_NONE:
+            Q_ASSERT( false );
+            break;
         }
-        log.widget->appendPlainText( QString::fromLocal8Bit( line.left( 100 ).replace( '\r', ' ').replace('\n', ' ') ) );
+        log.widget->mergeCurrentCharFormat( f );
+    }
+    log.widget->appendPlainText( QString::fromLocal8Bit( line.left( 100 ).replace( '\r', ' ').replace('\n', ' ') ) );
 }
 
 void ProtocolLoggerWidget::parserLineReceived( uint parser, const QByteArray& line )
@@ -97,7 +96,7 @@ ProtocolLoggerWidget::ParserLog& ProtocolLoggerWidget::getLogger( const uint par
         res.widget = new QPlainTextEdit();
         res.widget->setLineWrapMode( QPlainTextEdit::NoWrap );
         res.widget->setCenterOnScroll( true );
-        res.widget->setMaximumBlockCount( BUFFER_SIZE * 10 );
+        res.widget->setMaximumBlockCount( BUFFER_SIZE );
         res.widget->setReadOnly( true );
         res.widget->setUndoRedoEnabled( false );
         QTextCharFormat f = res.widget->currentCharFormat();
@@ -140,7 +139,9 @@ void ProtocolLoggerWidget::enableLogging( bool enabled )
         it->widget->mergeCurrentCharFormat( f );
         if ( ! loggingActive && enabled ) {
             if ( it->skippedItems ) {
-                it->widget->appendPlainText( tr("Logging resumed. %1 messages got skipped when the logger widget was hidden.").arg( it->skippedItems ) );
+                it->widget->appendPlainText(
+                        tr("Logging resumed. %1 message(s) got skipped when the logger widget was hidden.",
+                           "", it->skippedItems ) );
                 it->skippedItems = 0;
             } else {
                 it->widget->appendPlainText( tr("Logging resumed") );
