@@ -39,73 +39,13 @@ ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
     clearAll = new QPushButton( tr("Clear all"), this );
     connect( clearAll, SIGNAL(clicked()), this, SLOT(clearLogDisplay()) );
     tabs->setCornerWidget( clearAll, Qt::BottomRightCorner );
-
-    dumper = new QTimer( this );
-    dumper->setInterval( 10 );
-    dumper->start();
-    connect( dumper, SIGNAL(timeout()), this, SLOT(flushAllLogs()) );
 }
 
 void ProtocolLoggerWidget::logMessage( const uint parser, const MessageType kind, const QByteArray& line )
 {
     ParserLog& log = getLogger( parser );
 
-    log.kinds[ log.currentOffset ] = kind;
-    log.lines[ log.currentOffset ] = line;
 
-    ++log.currentOffset;
-    if ( log.currentOffset == BUFFER_SIZE ) {
-        log.currentOffset = 0;
-        ++log.skippedItems;
-    } else if ( log.skippedItems ) {
-        ++log.skippedItems;
-    }
-
-    if ( ! dumper->isActive() )
-        dumper->start();
-}
-
-void ProtocolLoggerWidget::flushLog( uint parser )
-{
-    ParserLog& log = getLogger( parser );
-
-    /* Find out where to start the iteration and where to stop */
-    int i;
-    int stopAt;
-    if ( log.kinds[ log.currentOffset ] == MSG_NONE ) {
-        // The "next to be written to" is empty -> the log did not wrap around
-        i = 0;
-        stopAt = log.currentOffset;
-        if ( log.skippedItems != 0 ) {
-            qDebug() << "WTF???" << log.currentOffset << log.skippedItems;
-            Q_ASSERT( 0 );
-        }
-    } else {
-        // The log surely did wrap around, so we want to start at the
-        // current position and go forward, possibly wrapping on crossing the boundary
-        stopAt = log.currentOffset;
-        i = log.currentOffset + 1;
-        if ( i == BUFFER_SIZE )
-            i = 0;
-
-        // Now let's inform the user that we indeed wrapped around
-        QTextCharFormat originalFormat = log.widget->currentCharFormat();
-        QTextCharFormat f = log.widget->currentCharFormat();
-        f.setFontItalic( true );
-        f.setForeground( QBrush( Qt::red ) );
-        f.setFontWeight( QFont::Bold );
-        log.widget->mergeCurrentCharFormat( f );
-        log.widget->appendPlainText(
-                tr("\nThe logging GUI could not keep up with the protocol flow.\n %1 messages were not logged here.\n").arg(
-                        log.skippedItems) );
-        qDebug() << "wrapped; current position was" << log.currentOffset << "skipped" << log.skippedItems;
-        log.widget->setCurrentCharFormat( originalFormat );
-    }
-
-    while ( i != stopAt ) {
-        // Process current item
-        MessageType& kind = log.kinds[ i ];
-        const QByteArray& line = log.lines[ i ];
         if ( log.lastInserted != kind ) {
             log.lastInserted = kind;
             QTextCharFormat f = log.widget->currentCharFormat();
@@ -132,17 +72,7 @@ void ProtocolLoggerWidget::flushLog( uint parser )
             }
             log.widget->mergeCurrentCharFormat( f );
         }
-        kind = MSG_NONE;
         log.widget->appendPlainText( QString::fromLocal8Bit( line.left( 100 ).replace( '\r', ' ').replace('\n', ' ') ) );
-
-        // Increment the "current item" counter
-        ++i;
-        if ( i == BUFFER_SIZE ) {
-            i = 0;
-        }
-    };
-    log.currentOffset = 0;
-    log.skippedItems = 0;
 }
 
 void ProtocolLoggerWidget::parserLineReceived( uint parser, const QByteArray& line )
@@ -160,8 +90,6 @@ ProtocolLoggerWidget::ParserLog& ProtocolLoggerWidget::getLogger( const uint par
     ParserLog& res = buffers[ parser ];
     if ( ! res.widget ) {
         res.widget = new QPlainTextEdit();
-        res.kinds.fill( MSG_NONE, BUFFER_SIZE );
-        res.lines.fill( QByteArray(), BUFFER_SIZE );
         res.widget->setLineWrapMode( QPlainTextEdit::NoWrap );
         res.widget->setCenterOnScroll( true );
         res.widget->setMaximumBlockCount( BUFFER_SIZE * 10 );
@@ -194,15 +122,6 @@ void ProtocolLoggerWidget::clearLogDisplay()
     for ( QMap<uint, ParserLog>::iterator it = buffers.begin(); it != buffers.end(); ++it ) {
         it->widget->document()->clear();
     }
-}
-
-void ProtocolLoggerWidget::flushAllLogs()
-{
-    Q_FOREACH( const uint& parser, buffers.keys() ) {
-        flushLog( parser );
-    }
-
-    dumper->stop();
 }
 
 }
