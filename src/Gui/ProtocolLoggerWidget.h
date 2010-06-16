@@ -51,25 +51,29 @@ private slots:
     void closeTab( int index );
     /** @short Clear all logs */
     void clearLogs();
+    /** @short Flush all buffers to the GUI */
+    void flushAllLogs();
 
 private:
-    typedef enum { MSG_NONE, MSG_WRAPPED, MSG_SENT, MSG_RECEIVED, MSG_INFO_SENT, MSG_INFO_RECEIVED } MessageType;
+    typedef enum { MSG_NONE, MSG_SENT, MSG_RECEIVED, MSG_INFO_SENT, MSG_INFO_RECEIVED } MessageType;
 
     enum { BUFFER_SIZE = 200 };
 
     class ParserLog {
     public:
-        ParserLog(): currentOffset(0), widget(0), lastInserted(MSG_NONE) {}
-        uint currentOffset; /**< @short Current offset for both the kinds and lines members */
+        ParserLog(): currentOffset(0), widget(0), lastInserted(MSG_NONE), skippedItems(0) {}
+        uint currentOffset; /**< @short Position in the vectors where the current message should be inserted */
         QVector<MessageType> kinds; /**< @short Message types */
         QVector<QByteArray> lines; /**< @short Actual messages queued for processing */
         QPlainTextEdit* widget; /**< @short Widget displaying the log */
         MessageType lastInserted; /**< @short Kind of the message which was last pushed into the widget */
+        uint skippedItems;
     };
 
     QTabWidget* tabs;
     QMap<uint, ParserLog> buffers;
     QPushButton* clearAll;
+    QTimer* dumper;
 
     /** @short Return (possibly newly created) ParserLog struct for a given parser */
     ParserLog& getLogger( const uint parser );
