@@ -18,11 +18,7 @@
 #ifndef IMAP_PARSER_H
 #define IMAP_PARSER_H
 #include <QLinkedList>
-#include <QMutex>
-#include <QObject>
-#include <QSemaphore>
 #include <QSharedPointer>
-#include <QThread>
 #include "Command.h"
 #include "Response.h"
 #include "../Exceptions.h"
@@ -36,8 +32,6 @@
  */
 
 class ImapParserParseTest;
-class QDateTime;
-template<class T> class QList;
 
 /** @short Namespace for IMAP interaction */
 namespace Imap {

@@ -17,9 +17,10 @@
 */
 #ifndef IMAP_COMMAND_H
 #define IMAP_COMMAND_H
-#include <QTextStream>
-#include <QList>
+
 #include <QDateTime>
+#include <QList>
+#include <QTextStream>
 
 /** @short Namespace for IMAP interaction */
 namespace Imap {

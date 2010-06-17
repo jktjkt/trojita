@@ -18,15 +18,12 @@
 #ifndef IMAP_RESPONSE_H
 #define IMAP_RESPONSE_H
 
-#include <QSharedPointer>
-#include <QTextStream>
-#include <QString>
-#include <QByteArray>
-#include <QList>
 #include <QMap>
-#include <QStringList>
-#include <QVariantList>
 #include <QPair>
+#include <QSharedPointer>
+#include <QStringList>
+#include <QTextStream>
+#include <QVariantList>
 #include "Command.h"
 #include "../Exceptions.h"
 #include "Data.h"
