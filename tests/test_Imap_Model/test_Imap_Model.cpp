@@ -1,4 +1,7 @@
-/* Copyright (C) 2010 Jan Kundrát <jkt@gentoo.org>
+/* Copyright (C) 2006 - 2010 Jan Kundrát <jkt@gentoo.org>
+
+   This file is part of the Trojita Qt IMAP e-mail client,
+   http://trojita.flaska.net/
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public
