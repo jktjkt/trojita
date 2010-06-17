@@ -97,7 +97,7 @@ bool IdleLauncher::idling()
     return _idling;
 }
 
-Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory, bool offline ):
+Model::Model( QObject* parent, AbstractCache* cache, SocketFactoryPtr socketFactory, bool offline ):
     // parent
     QAbstractItemModel( parent ),
     // our tools
@@ -105,6 +105,7 @@ Model::Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory, b
     _maxParsers(4), _mailboxes(0), _netPolicy( NETWORK_ONLINE ),
     _authenticator(0)
 {
+    _cache->setParent(this);
     _startTls = _socketFactory->startTlsRequired();
 
     unauthHandler = new UnauthenticatedHandler( this );

@@ -32,13 +32,13 @@ namespace {
       A utility class using the RAII idiom -- when its instance goes out of scope,
       it aborts the current transaction
 */
-    class TransactionHelper {
+    class TransactionAutoAborter {
     public:
-        TransactionHelper( QSqlDatabase* db ): _db(db), _commited(false)
+        TransactionAutoAborter( QSqlDatabase* db ): _db(db), _commited(false)
         {
             _db->transaction();
         }
-        ~TransactionHelper()
+        ~TransactionAutoAborter()
         {
             if ( ! _commited )
                 _db->rollback();
@@ -57,16 +57,19 @@ namespace {
 namespace Imap {
 namespace Mailbox {
 
-SQLCache::SQLCache( const QString& name, const QString& fileName ):
-        QObject(0), inTransaction(false)
+SQLCache::SQLCache( QObject* parent ):
+        AbstractCache(parent), delayedCommit(0), tooMuchTimeWithoutCommit(0), inTransaction(false)
 {
-    db = QSqlDatabase::addDatabase( QLatin1String("QSQLITE"), name );
-    db.setDatabaseName( fileName );
-    open();
+}
+
+void SQLCache::init()
+{
+    delayedCommit->deleteLater();
     delayedCommit = new QTimer( this );
     delayedCommit->setInterval( 10000 );
     delayedCommit->setObjectName( QString::fromAscii("delayedCommit-%1").arg( objectName() ) );
     connect( delayedCommit, SIGNAL(timeout()), this, SLOT(timeToCommit()) );
+    tooMuchTimeWithoutCommit->deleteLater();
     tooMuchTimeWithoutCommit = new QTimer( this );
     tooMuchTimeWithoutCommit->setInterval( 60000 );
     tooMuchTimeWithoutCommit->setObjectName( QString::fromAscii("tooMuchTimeWithoutCommit-%1").arg( objectName() ) );
@@ -79,15 +82,18 @@ SQLCache::~SQLCache()
     db.close();
 }
 
-bool SQLCache::open()
+bool SQLCache::open( const QString& name, const QString& fileName )
 {
+    db = QSqlDatabase::addDatabase( QLatin1String("QSQLITE"), name );
+    db.setDatabaseName( fileName );
+
     bool ok = db.open();
     if ( ! ok ) {
         emitError( tr("Can't open database"), db );
         return false;
     }
 
-    TransactionHelper txn( &db );
+    TransactionAutoAborter txn( &db );
 
     QSqlRecord trojitaNames = db.record( QLatin1String("trojita") );
     if ( ! trojitaNames.contains( QLatin1String("version") ) ) {
@@ -116,7 +122,11 @@ bool SQLCache::open()
 
     txn.commit();
 
-    return _prepareQueries();
+    if ( ! _prepareQueries() ) {
+        return false;
+    }
+    init();
+    return true;
 }
 
 bool SQLCache::_createTables()
@@ -342,7 +352,7 @@ void SQLCache::emitError( const QString& message, const QSqlDatabase& database )
 void SQLCache::emitError( const QString& message ) const
 {
     qDebug() << message;
-    emit databaseError( message );
+    emit error( message );
 }
 
 QList<MailboxMetadata> SQLCache::childMailboxes( const QString& mailbox ) const

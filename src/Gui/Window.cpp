@@ -316,8 +316,10 @@ void MainWindow::setupModels()
         //cacheDir += QLatin1String("/imap.cache");
         cacheDir += QLatin1String("/imap.cache.sqlite");
     }
-    //cache = Imap::Mailbox::CachePtr( new Imap::Mailbox::MemoryCache( cacheDir ) );
-    cache = Imap::Mailbox::CachePtr( new Imap::Mailbox::SQLCache( QLatin1String("trojita-imap-cache"), cacheDir ) );
+    //Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache( this, cacheDir );
+    Imap::Mailbox::SQLCache* cache = new Imap::Mailbox::SQLCache(this);
+    connect( cache, SIGNAL(error(QString)), this, SLOT(cacheError(QString)) );
+    cache->open( QLatin1String("trojita-imap-cache"), cacheDir );
     model = new Imap::Mailbox::Model( this, cache, factory, s.value( SettingsNames::imapStartOffline ).toBool() );
     model->setObjectName( QLatin1String("model") );
     mboxModel = new Imap::Mailbox::MailboxModel( this, model );
@@ -521,6 +523,13 @@ void MainWindow::connectionError( const QString& message )
     netOffline->trigger();
 }
 
+void MainWindow::cacheError( const QString& message )
+{
+    QMessageBox::critical( this, tr("IMAP Cache Error"),
+                           tr("The caching subsystem managing a cache of the data already "
+                              "downloaded from the IMAP server is having troubles:\n\n%1").arg( message ) );
+}
+
 void MainWindow::networkPolicyOffline()
 {
     netOffline->setChecked( true );
@@ -594,7 +603,6 @@ void MainWindow::nukeModels()
     prettyMboxModel = 0;
     model->deleteLater();
     model = 0;
-    cache.clear();
 }
 
 void MainWindow::slotComposeMail()

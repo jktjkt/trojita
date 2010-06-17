@@ -37,6 +37,7 @@ namespace Mailbox {
     it back in. Is isn't suitable for real production use, but it's a good start.
  */
 class MemoryCache : public AbstractCache {
+    Q_OBJECT
 public:
     struct LightMessageDataBundle {
         Imap::Message::Envelope envelope;
@@ -44,7 +45,7 @@ public:
         QByteArray serializedBodyStructure;
     };
 
-    MemoryCache( const QString& fileName );
+    MemoryCache( QObject* parent, const QString& fileName );
     ~MemoryCache();
 
     virtual QList<MailboxMetadata> childMailboxes( const QString& mailbox ) const;

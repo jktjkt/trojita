@@ -39,7 +39,7 @@ void ImapModelTest::initTestCase()
 
 void ImapModelTest::init()
 {
-    cache = Imap::Mailbox::CachePtr( new Imap::Mailbox::MemoryCache( QString() ) );
+    Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache( this, QString() );
     factory = new Imap::Mailbox::FakeSocketFactory();
     model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), false );
 }

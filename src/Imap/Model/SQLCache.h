@@ -55,11 +55,11 @@ Some ideas for improvements:
   or using on-the-fly compression via sqlite's VFS subsystem
 
  */
-class SQLCache : public QObject, public AbstractCache {
+class SQLCache : public AbstractCache {
     Q_OBJECT
 public:
-    SQLCache( const QString& name, const QString& fileName );
-    ~SQLCache();
+    SQLCache( QObject* parent );
+    virtual ~SQLCache();
 
     virtual QList<MailboxMetadata> childMailboxes( const QString& mailbox ) const;
     virtual bool childMailboxesFresh( const QString& mailbox ) const;
@@ -86,7 +86,7 @@ public:
     virtual void setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data );
 
     /** @short Open a connection to the cache */
-    bool open();
+    bool open( const QString& name, const QString& fileName  );
 
 private:
     /** @short Broadcast an error from the SQL query */
@@ -104,13 +104,12 @@ private:
     /** @short We're about to touch the DB, so it might be a good time to start a transaction */
     void touchingDB();
 
+    /** @short Initialize the database */
+    void init();
+
 private slots:
     /** @short We haven't commited for a while */
     void timeToCommit();
-
-signals:
-    /** @short An error has occured when communicating with the database */
-    void databaseError( const QString& error ) const;
 
 private:
     QSqlDatabase db;

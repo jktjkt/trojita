@@ -28,7 +28,7 @@
 namespace Imap {
 namespace Mailbox {
 
-MemoryCache::MemoryCache( const QString& fileName ): _fileName(fileName)
+MemoryCache::MemoryCache( QObject* parent, const QString& fileName ): AbstractCache(parent), _fileName(fileName)
 {
     loadData();
 }

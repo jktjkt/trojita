@@ -48,7 +48,6 @@ private slots:
 
 private:
     Imap::Mailbox::Model* model;
-    Imap::Mailbox::CachePtr cache;
     Imap::Mailbox::FakeSocketFactory* factory;
     Imap::Mailbox::MailboxModel* mboxModel;
 };

@@ -74,6 +74,7 @@ private slots:
     void slotShowSettings();
     void slotExpunge();
     void connectionError( const QString& message );
+    void cacheError( const QString& message );
     void authenticationRequested( QAuthenticator* auth );
     void slotComposeMailUrl( const QUrl& url );
     void slotComposeMail();
@@ -108,8 +109,6 @@ private:
     void createMailboxBelow( const QModelIndex& index );
 
     void updateActionsOnlineOffline( bool online );
-
-    Imap::Mailbox::CachePtr cache;
 
     Imap::Mailbox::Model* model;
     Imap::Mailbox::MailboxModel* mboxModel;

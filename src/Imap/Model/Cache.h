@@ -22,7 +22,6 @@
 #ifndef IMAP_MODEL_CACHE_H
 #define IMAP_MODEL_CACHE_H
 
-#include <QSharedPointer>
 #include "MailboxMetadata.h"
 #include "../Parser/Message.h"
 
@@ -33,7 +32,8 @@ namespace Imap {
 namespace Mailbox {
 
 /** @short An abstract parent for all IMAP cache implementations */
-class AbstractCache {
+class AbstractCache: public QObject {
+    Q_OBJECT
 public:
 
     /** @short Helper for retrieving all data about a particular message from the cache */
@@ -56,7 +56,7 @@ public:
         MessageDataBundle(): uid(0) {}
     };
 
-    virtual ~AbstractCache() {}
+    AbstractCache(QObject* parent): QObject(parent) {}
 
     /** @short Return a list of all known child mailboxes */
     virtual QList<MailboxMetadata> childMailboxes( const QString& mailbox ) const = 0;
@@ -97,10 +97,11 @@ public:
     virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId ) const = 0;
     /** @short Save data for one message part */
     virtual void setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data ) = 0;
-};
 
-/** @short A convenience typedef */
-typedef QSharedPointer<AbstractCache> CachePtr;
+signals:
+    /** @short Some cache error has occured */
+    void error( const QString& error ) const;
+};
 
 }
 

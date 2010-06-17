@@ -188,7 +188,7 @@ class Model: public QAbstractItemModel {
 
     enum { PollingPeriod = 60000 };
 
-    mutable CachePtr _cache;
+    mutable AbstractCache* _cache;
     mutable SocketFactoryPtr _socketFactory;
     mutable QMap<Parser*,ParserState> _parsers;
     int _maxParsers;
@@ -201,7 +201,7 @@ class Model: public QAbstractItemModel {
 
 
 public:
-    Model( QObject* parent, CachePtr cache, SocketFactoryPtr socketFactory, bool offline );
+    Model( QObject* parent, AbstractCache* cache, SocketFactoryPtr socketFactory, bool offline );
     ~Model();
 
     virtual QModelIndex index(int row, int column, const QModelIndex& parent ) const;
@@ -223,7 +223,7 @@ public:
     void handleSort( Imap::Parser* ptr, const Imap::Responses::Sort* const resp );
     void handleThread( Imap::Parser* ptr, const Imap::Responses::Thread* const resp );
 
-    CachePtr cache() const { return _cache; }
+    AbstractCache* cache() const { return _cache; }
 
     /** @short Force a SELECT / EXAMINE of a mailbox
 
