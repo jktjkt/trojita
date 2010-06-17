@@ -40,6 +40,20 @@ namespace Mailbox {
 This is clearly a suboptimal way to store large binary data, like e-mail attachments. The
 purpose of this class is therefore to serve as one of a few caching backends, which are
 subsequently used by an intelligent cache manager.
+
+The database layout is aimed at a regular desktop or an embedded device. It certainly is
+not meant as a proper database design -- we bundle several columns together when we know
+that the API will only access them as a tuple, we use a proprietary compression on them
+et cetera. In short, the layout of the database is supposed to act as a quick and dumb
+cache and is certainly *not* meant to be accessed by third-party applications. Please, do
+consider it an opaque format.
+
+Some ideas for improvements:
+- Don't store full string mailbox names in each table, use another table for it
+- Merge uid_mapping with mailbox_sync_state, and also msg_metadata with flags
+- Serious embedded users might consider putting the database into a compressed filesystem,
+  or using on-the-fly compression via sqlite's VFS subsystem
+
  */
 class SQLCache : public QObject, public AbstractCache {
     Q_OBJECT
@@ -75,11 +89,16 @@ public:
     bool open();
 
 private:
+    /** @short Broadcast an error from the SQL query */
     void emitError( const QString& message, const QSqlQuery& query ) const;
+    /** @short Broadcast an error from the SQL "database" */
     void emitError( const QString& message, const QSqlDatabase& database ) const;
+    /** @short Broadcast a generic error */
     void emitError( const QString& message ) const;
 
+    /** @short Blindly create all tables */
     bool _createTables();
+    /** @short Initialize the prepared queries */
     bool _prepareQueries();
 
     /** @short We're about to touch the DB, so it might be a good time to start a transaction */
@@ -90,6 +109,7 @@ private slots:
     void timeToCommit();
 
 signals:
+    /** @short An error has occured when communicating with the database */
     void databaseError( const QString& error ) const;
 
 private:
