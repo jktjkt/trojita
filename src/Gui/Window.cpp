@@ -62,7 +62,7 @@
 /** @short All user-facing widgets and related classes */
 namespace Gui {
 
-MainWindow::MainWindow(): QMainWindow()
+MainWindow::MainWindow(): QMainWindow(), model(0)
 {
     setWindowTitle( trUtf8("Trojitá") );
     createWidgets();
@@ -317,9 +317,13 @@ void MainWindow::setupModels()
         cacheDir += QLatin1String("/imap.cache.sqlite");
     }
     //Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache( this, cacheDir );
-    Imap::Mailbox::SQLCache* cache = new Imap::Mailbox::SQLCache(this);
+    Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::SQLCache(this);
     connect( cache, SIGNAL(error(QString)), this, SLOT(cacheError(QString)) );
-    cache->open( QLatin1String("trojita-imap-cache"), cacheDir );
+    if ( ! static_cast<Imap::Mailbox::SQLCache*>( cache )->open( QLatin1String("trojita-imap-cache"), cacheDir ) ) {
+        // Error message was already shown by the cacheError() slot
+        cache->deleteLater();
+        cache = new Imap::Mailbox::MemoryCache( this, QString() );
+    }
     model = new Imap::Mailbox::Model( this, cache, factory, s.value( SettingsNames::imapStartOffline ).toBool() );
     model->setObjectName( QLatin1String("model") );
     mboxModel = new Imap::Mailbox::MailboxModel( this, model );
@@ -527,7 +531,10 @@ void MainWindow::cacheError( const QString& message )
 {
     QMessageBox::critical( this, tr("IMAP Cache Error"),
                            tr("The caching subsystem managing a cache of the data already "
-                              "downloaded from the IMAP server is having troubles:\n\n%1").arg( message ) );
+                              "downloaded from the IMAP server is having troubles. "
+                              "All caching will be disabled.\n\n%1").arg( message ) );
+    if ( model )
+        model->setCache( new Imap::Mailbox::MemoryCache( model, QString() ) );
 }
 
 void MainWindow::networkPolicyOffline()

@@ -1762,5 +1762,13 @@ void Model::slotParserLineSent( const QByteArray& line )
     emit logParserLineSent( parser->parserId(), line );
 }
 
+void Model::setCache( AbstractCache* cache )
+{
+    if ( _cache )
+        _cache->deleteLater();
+    _cache = cache;
+    _cache->setParent( this );
+}
+
 }
 }

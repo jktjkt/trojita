@@ -224,6 +224,11 @@ public:
     void handleThread( Imap::Parser* ptr, const Imap::Responses::Thread* const resp );
 
     AbstractCache* cache() const { return _cache; }
+    /** Throw away current cache implementation, replace it with the new one
+
+The old cache is automatically deleted.
+*/
+    void setCache( AbstractCache* cache );
 
     /** @short Force a SELECT / EXAMINE of a mailbox
 
