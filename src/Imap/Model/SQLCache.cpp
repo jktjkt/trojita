@@ -64,12 +64,14 @@ SQLCache::SQLCache( QObject* parent ):
 
 void SQLCache::init()
 {
-    delayedCommit->deleteLater();
+    if ( delayedCommit )
+        delayedCommit->deleteLater();
     delayedCommit = new QTimer( this );
     delayedCommit->setInterval( 10000 );
     delayedCommit->setObjectName( QString::fromAscii("delayedCommit-%1").arg( objectName() ) );
     connect( delayedCommit, SIGNAL(timeout()), this, SLOT(timeToCommit()) );
-    tooMuchTimeWithoutCommit->deleteLater();
+    if ( tooMuchTimeWithoutCommit )
+        tooMuchTimeWithoutCommit->deleteLater();
     tooMuchTimeWithoutCommit = new QTimer( this );
     tooMuchTimeWithoutCommit->setInterval( 60000 );
     tooMuchTimeWithoutCommit->setObjectName( QString::fromAscii("tooMuchTimeWithoutCommit-%1").arg( objectName() ) );
