@@ -32,7 +32,7 @@ IdleLauncher::IdleLauncher( Model* model, Parser* ptr ):
     delayedEnter = new QTimer( this );
     delayedEnter->setObjectName( QString::fromAscii("%1-IdleLauncher-delayedEnter").arg( model->objectName() ) );
     delayedEnter->setSingleShot( true );
-    delayedEnter->setInterval( 5000 );
+    delayedEnter->setInterval( 3000 );
     connect( delayedEnter, SIGNAL(timeout()), this, SLOT(slotEnterIdleNow()) );
     renewal = new QTimer( this );
     renewal->setObjectName( QString::fromAscii("%1-IdleLauncher-renewal").arg( model->objectName() ) );
@@ -73,6 +73,12 @@ void IdleLauncher::idlingTerminated()
 void IdleLauncher::enterIdleLater()
 {
     if ( ! _idling )
+        delayedEnter->start();
+}
+
+void IdleLauncher::postponeIdleIfActive()
+{
+    if ( delayedEnter->isActive() )
         delayedEnter->start();
 }
 

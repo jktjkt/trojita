@@ -43,6 +43,12 @@ public:
 
     /** @short Register the interest in launching the IDLE command after a delay */
     void enterIdleLater();
+    /** @short Delay the IDLE invocation for a while
+
+This function should be called when further communication via the socket suggests
+that the IDLE command should be postponed
+*/
+    void postponeIdleIfActive();
 public slots:
     /** @short Immediately send the IDLE command to the parser */
     void slotEnterIdleNow();

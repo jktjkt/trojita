@@ -125,6 +125,7 @@ void Model::responseReceived()
             break;
         }
     }
+    it->idleLauncher->postponeIdleIfActive();
 }
 
 void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const resp )
