@@ -26,6 +26,7 @@
 #include "SelectedHandler.h"
 #include "SelectingHandler.h"
 #include "ModelUpdaters.h"
+#include "IdleLauncher.h"
 #include <QAbstractProxyModel>
 #include <QAuthenticator>
 #include <QCoreApplication>
@@ -60,41 +61,6 @@ bool MailboxNameComparator( const TreeItem* const a, const TreeItem* const b )
 
 ModelStateHandler::ModelStateHandler( Model* _m ): QObject(_m), m(_m)
 {
-}
-
-IdleLauncher::IdleLauncher( Model* model, Parser* ptr ):
-        QObject(model), m(model), parser(ptr), _idling(false)
-{
-    delayedEnter = new QTimer( this );
-    delayedEnter->setObjectName( QString::fromAscii("IdleLauncher-%1").arg( model->objectName() ) );
-    delayedEnter->setSingleShot( true );
-    delayedEnter->setInterval( 5000 );
-    connect( delayedEnter, SIGNAL(timeout()), this, SLOT(slotEnterIdleNow()) );
-}
-
-void IdleLauncher::slotEnterIdleNow()
-{
-    if ( ! parser ) {
-        delayedEnter->stop();
-        return;
-    }
-    m->enterIdle( parser );
-    _idling = true;
-}
-
-void IdleLauncher::slotIdlingTerminated()
-{
-    _idling = false;
-}
-
-void IdleLauncher::enterIdleLater()
-{
-    delayedEnter->start();
-}
-
-bool IdleLauncher::idling()
-{
-    return _idling;
 }
 
 Model::Model( QObject* parent, AbstractCache* cache, SocketFactoryPtr socketFactory, bool offline ):

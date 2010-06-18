@@ -33,6 +33,7 @@ SOURCES += Parser/Parser.cpp \
     Model/MemoryCache.cpp \
     Model/SQLCache.cpp \
     Model/Utils.cpp \
+    Model/IdleLauncher.cpp \
     Model/ModelWatcher.cpp \
     Network/MsgPartNetworkReply.cpp \
     Network/ForbiddenReply.cpp \
@@ -66,6 +67,7 @@ HEADERS += Parser/Parser.h \
     Model/SQLCache.h \
     Model/Cache.h \
     Model/Utils.h \
+    Model/IdleLauncher.h \
     Model/ModelWatcher.h \
     Network/ForbiddenReply.h \
     Network/AuxiliaryReply.h \

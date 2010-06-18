@@ -75,24 +75,7 @@ class TreeItemPart;
 class MsgListModel;
 class MailboxModel;
 
-class IdleLauncher: public QObject {
-    Q_OBJECT
-public:
-    IdleLauncher( Model* model, Parser* ptr );
-    void enterIdleLater();
-    bool idling();
-public slots:
-    void slotEnterIdleNow();
-    void slotIdlingTerminated();
-private:
-    Model* m;
-    QPointer<Parser> parser;
-    QTimer* delayedEnter;
-    bool _idling;
-
-    IdleLauncher(const Imap::Mailbox::IdleLauncher&); // don't implement
-    IdleLauncher& operator=(const Imap::Mailbox::IdleLauncher&); // don't implement
-};
+class IdleLauncher;
 
 class _MailboxListUpdater;
 class _NumberOfMessagesUpdater;
