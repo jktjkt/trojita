@@ -1137,11 +1137,16 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
         }
     }
 
+    if ( item->fetched() ) {
+        // Nothing to do here
+        return;
+    }
+
     switch ( networkPolicy() ) {
         case NETWORK_OFFLINE:
             break;
         case NETWORK_EXPENSIVE:
-            if ( ! item->fetched() ) {
+            {
                 item->_fetchStatus = TreeItem::LOADING;
                 Parser* parser = _getParser( mailboxPtr, ReadOnly );
                 CommandHandle cmd = parser->fetch( Sequence( order + 1 ), _onlineMessageFetch );
@@ -1150,7 +1155,7 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
             }
             break;
         case NETWORK_ONLINE:
-            if ( ! item->fetched() ) {
+            {
                 item->_fetchStatus = TreeItem::LOADING;
                 // preload
                 Sequence seq( order + 1 );
