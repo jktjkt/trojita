@@ -143,7 +143,7 @@ ProtocolLoggerWidget::ParserLog& ProtocolLoggerWidget::getLogger( const uint par
         res.widget = new QPlainTextEdit();
         res.widget->setLineWrapMode( QPlainTextEdit::NoWrap );
         res.widget->setCenterOnScroll( true );
-        res.widget->setMaximumBlockCount( BUFFER_SIZE );
+        res.widget->setMaximumBlockCount( 1000 );
         res.widget->setReadOnly( true );
         res.widget->setUndoRedoEnabled( false );
         // Got to output something here using the default background,
