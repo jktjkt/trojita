@@ -68,7 +68,7 @@ IdleLauncher::IdleLauncher( Model* model, Parser* ptr ):
     timer = new QTimer( this );
     timer->setObjectName( QString::fromAscii("IdleLauncher-%1").arg( model->objectName() ) );
     timer->setSingleShot( true );
-    timer->setInterval( 1000 );
+    timer->setInterval( 5000 );
     connect( timer, SIGNAL(timeout()), this, SLOT(perform()) );
 }
 
