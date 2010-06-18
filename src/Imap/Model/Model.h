@@ -417,7 +417,7 @@ private:
      *
      * If allowed by policy, new parser might be created in the background.
      * */
-    Parser* _getParser( TreeItemMailbox* mailbox, const RWMode rw, const bool reSync=false ) const;
+    Parser* _getParser( TreeItemMailbox* mailbox, const RWMode rw, const bool reSync=false );
 
     NetworkPolicy networkPolicy() const { return _netPolicy; }
     void setNetworkPolicy( const NetworkPolicy policy );

@@ -1225,7 +1225,7 @@ void Model::performNoop()
     }
 }
 
-Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bool reSync ) const
+Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bool reSync )
 {
     static uint lastParserId = 0;
 
@@ -1301,6 +1301,7 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
 
         Parser* parser( new Parser( const_cast<Model*>( this ), _socketFactory->create(), ++lastParserId ) );
         _parsers[ parser ] = ParserState( parser, mailbox, mode, CONN_STATE_NONE, unauthHandler );
+        _parsers[ parser ].idleLauncher = new IdleLauncher( this, parser );
         connect( parser, SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
         connect( parser, SIGNAL( disconnected( const QString ) ), this, SLOT( slotParserDisconnected( const QString ) ) );
         connect( parser, SIGNAL(connectionStateChanged(Imap::ConnectionState)), this, SLOT(handleSocketStateChanged(Imap::ConnectionState)) );
@@ -1308,6 +1309,7 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
         connect( parser, SIGNAL(parseError(QString,QString,QByteArray,int)), this, SLOT(slotParseError(QString,QString,QByteArray,int)) );
         connect( parser, SIGNAL(lineReceived(QByteArray)), this, SLOT(slotParserLineReceived(QByteArray)) );
         connect( parser, SIGNAL(lineSent(QByteArray)), this, SLOT(slotParserLineSent(QByteArray)) );
+        connect( parser, SIGNAL( idleTerminated() ), this, SLOT( idleTerminated() ) );
         CommandHandle cmd;
         if ( _startTls ) {
             cmd = parser->startTls();
@@ -1427,10 +1429,6 @@ void Model::switchToMailbox( const QModelIndex& mbox, const RWMode mode )
         Parser* ptr = _getParser( mailbox, mode );
         if ( _parsers[ ptr ].capabilitiesFresh &&
              _parsers[ ptr ].capabilities.contains( QLatin1String( "IDLE" ) ) ) {
-            if ( ! _parsers[ ptr ].idleLauncher ) {
-                _parsers[ ptr ].idleLauncher = new IdleLauncher( this, ptr );
-                connect( ptr, SIGNAL( idleTerminated() ), this, SLOT( idleTerminated() ) );
-            }
             _parsers[ ptr ].idleLauncher->enterIdleLater();
         }
     }
