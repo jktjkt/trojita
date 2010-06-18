@@ -187,11 +187,7 @@ void ProtocolLoggerWidget::enableLogging( bool enabled )
                            "<b>%n message(s)</b> got skipped while the logger widget was hidden.</i></p>",
                            "", it->skippedItems ) );
                 it->skippedItems = 0;
-            } else {
-                it->widget->appendHtml( tr("<p style='color: #bb0000'><i>Logging resumed</i></p>") );
             }
-        } else if ( loggingActive && ! enabled ) {
-            it->widget->appendHtml( tr("<p style='color: #bb0000'><i>Logging suspended</i></p>") );
         }
     }
     loggingActive = enabled;
