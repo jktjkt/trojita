@@ -84,7 +84,7 @@ void ProtocolLoggerWidget::logMessage( const uint parser, const MessageType kind
     if ( line.size() > 120 ) {
         enum { SIZE = 100 };
         niceLine = Qt::escape( QString::fromAscii( line.left( SIZE ) ) );
-        trimmedInfo = tr( "<br/><span style='color: #808080; font-style: italic;'>(%n bytes trimmed)</span>", "",  line.size() - SIZE );
+        trimmedInfo = tr( "<br/><span style='color: #808080; font-style: italic;'>(+ %n more bytes)</span>", "",  line.size() - SIZE );
     } else {
         niceLine = Qt::escape( QString::fromAscii( line ) );
     }
