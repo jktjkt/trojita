@@ -82,6 +82,7 @@ private slots:
     void slotReplyAll();
     void handleMarkAsRead( bool );
     void handleMarkAsDeleted( bool );
+    void msgListActivated( const QModelIndex& );
     void msgListClicked( const QModelIndex& );
     void msgListDoubleClicked( const QModelIndex& );
     void msgListSelectionChanged( const QItemSelection& selected, const QItemSelection& deselected );

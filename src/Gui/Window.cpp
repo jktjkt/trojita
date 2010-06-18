@@ -338,7 +338,7 @@ void MainWindow::setupModels()
     connect( msgListModel, SIGNAL( mailboxChanged() ), this, SLOT( slotResizeMsgListColumns() ) );
     connect( msgListModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ), this, SLOT( updateMessageFlags() ) );
 
-    connect( msgListTree, SIGNAL( activated(const QModelIndex&) ), this, SLOT( msgListClicked(const QModelIndex&) ) );
+    connect( msgListTree, SIGNAL( activated(const QModelIndex&) ), this, SLOT( msgListActivated(const QModelIndex&) ) );
     connect( msgListTree, SIGNAL( clicked(const QModelIndex&) ), this, SLOT( msgListClicked(const QModelIndex&) ) );
     connect( msgListTree, SIGNAL( doubleClicked( const QModelIndex& ) ), this, SLOT( msgListDoubleClicked( const QModelIndex& ) ) );
     connect( msgListModel, SIGNAL( modelAboutToBeReset() ), msgView, SLOT( setEmpty() ) );
@@ -390,6 +390,17 @@ void MainWindow::msgListSelectionChanged( const QItemSelection& selected, const 
     msgView->setMessage( index );
 }
 
+void MainWindow::msgListActivated( const QModelIndex& index )
+{
+    Q_ASSERT( index.isValid() );
+    Q_ASSERT( index.model() == msgListModel );
+
+    if ( index.column() != Imap::Mailbox::MsgListModel::SEEN ) {
+        msgView->setMessage( index );
+        msgListTree->setCurrentIndex( index );
+    }
+}
+
 void MainWindow::msgListClicked( const QModelIndex& index )
 {
     Q_ASSERT( index.isValid() );
@@ -403,9 +414,6 @@ void MainWindow::msgListClicked( const QModelIndex& index )
         if ( ! message->fetched() )
             return;
         model->markMessageRead( message, ! message->isMarkedAsRead() );
-    } else {
-        msgView->setMessage( index );
-        msgListTree->setCurrentIndex( index );
     }
 }
 
