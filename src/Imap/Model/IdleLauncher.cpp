@@ -27,38 +27,53 @@ namespace Imap {
 namespace Mailbox {
 
 IdleLauncher::IdleLauncher( Model* model, Parser* ptr ):
-        QObject(model), m(model), parser(ptr), _idling(false)
+        QObject(model), m(model), parser(ptr), _idling(false), _restartInProgress(false)
 {
     delayedEnter = new QTimer( this );
-    delayedEnter->setObjectName( QString::fromAscii("IdleLauncher-%1").arg( model->objectName() ) );
+    delayedEnter->setObjectName( QString::fromAscii("%1-IdleLauncher-delayedEnter").arg( model->objectName() ) );
     delayedEnter->setSingleShot( true );
     delayedEnter->setInterval( 5000 );
     connect( delayedEnter, SIGNAL(timeout()), this, SLOT(slotEnterIdleNow()) );
+    renewal = new QTimer( this );
+    renewal->setObjectName( QString::fromAscii("%1-IdleLauncher-renewal").arg( model->objectName() ) );
+    renewal->setSingleShot( true );
+    renewal->setInterval( 1000 * 29 * 60 ); // 29 minutes
+    connect( renewal, SIGNAL(timeout()), this, SLOT(resumeIdlingAfterTimeout()) );
 }
 
 void IdleLauncher::slotEnterIdleNow()
 {
+    delayedEnter->stop();
+    renewal->stop();
+
     if ( ! parser ) {
-        delayedEnter->stop();
         return;
     }
     m->enterIdle( parser );
+    renewal->start();
     _idling = true;
 }
 
-void IdleLauncher::slotIdlingTerminated()
+void IdleLauncher::resumeIdlingAfterTimeout()
 {
-    _idling = false;
+    _restartInProgress = true;
+    slotEnterIdleNow();
+}
+
+void IdleLauncher::idlingTerminated()
+{
+    if ( ! _restartInProgress ) {
+        renewal->stop();
+        delayedEnter->start();
+        _idling = false;
+    }
+    _restartInProgress = false;
 }
 
 void IdleLauncher::enterIdleLater()
 {
-    delayedEnter->start();
-}
-
-bool IdleLauncher::idling()
-{
-    return _idling;
+    if ( ! _idling )
+        delayedEnter->start();
 }
 
 }

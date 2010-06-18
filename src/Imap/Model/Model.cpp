@@ -1410,7 +1410,7 @@ void Model::idleTerminated()
         return;
     } else {
         Q_ASSERT( it->idleLauncher );
-        it->idleLauncher->enterIdleLater();
+        it->idleLauncher->idlingTerminated();
     }
 }
 
@@ -1431,9 +1431,7 @@ void Model::switchToMailbox( const QModelIndex& mbox, const RWMode mode )
                 _parsers[ ptr ].idleLauncher = new IdleLauncher( this, ptr );
                 connect( ptr, SIGNAL( idleTerminated() ), this, SLOT( idleTerminated() ) );
             }
-            if ( ! _parsers[ ptr ].idleLauncher->idling() ) {
-                _parsers[ ptr ].idleLauncher->enterIdleLater();
-            }
+            _parsers[ ptr ].idleLauncher->enterIdleLater();
         }
     }
 }

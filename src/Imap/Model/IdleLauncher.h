@@ -40,16 +40,23 @@ class IdleLauncher: public QObject {
     Q_OBJECT
 public:
     IdleLauncher( Model* model, Parser* ptr );
+
+    /** @short Register the interest in launching the IDLE command after a delay */
     void enterIdleLater();
-    bool idling();
 public slots:
+    /** @short Immediately send the IDLE command to the parser */
     void slotEnterIdleNow();
-    void slotIdlingTerminated();
+    /** @short Inform the IDLE launcher that the IDLE command got terminated */
+    void idlingTerminated();
+    /** @short Re-start the IDLE command which we had to abort because of a timeout */
+    void resumeIdlingAfterTimeout();
 private:
     Model* m;
     QPointer<Parser> parser;
     QTimer* delayedEnter;
+    QTimer* renewal;
     bool _idling;
+    bool _restartInProgress;
 
     IdleLauncher(const Imap::Mailbox::IdleLauncher&); // don't implement
     IdleLauncher& operator=(const Imap::Mailbox::IdleLauncher&); // don't implement
