@@ -65,31 +65,31 @@ ModelStateHandler::ModelStateHandler( Model* _m ): QObject(_m), m(_m)
 IdleLauncher::IdleLauncher( Model* model, Parser* ptr ):
         QObject(model), m(model), parser(ptr), _idling(false)
 {
-    timer = new QTimer( this );
-    timer->setObjectName( QString::fromAscii("IdleLauncher-%1").arg( model->objectName() ) );
-    timer->setSingleShot( true );
-    timer->setInterval( 5000 );
-    connect( timer, SIGNAL(timeout()), this, SLOT(perform()) );
+    delayedEnter = new QTimer( this );
+    delayedEnter->setObjectName( QString::fromAscii("IdleLauncher-%1").arg( model->objectName() ) );
+    delayedEnter->setSingleShot( true );
+    delayedEnter->setInterval( 5000 );
+    connect( delayedEnter, SIGNAL(timeout()), this, SLOT(slotEnterIdleNow()) );
 }
 
-void IdleLauncher::perform()
+void IdleLauncher::slotEnterIdleNow()
 {
     if ( ! parser ) {
-        timer->stop();
+        delayedEnter->stop();
         return;
     }
     m->enterIdle( parser );
     _idling = true;
 }
 
-void IdleLauncher::idlingTerminated()
+void IdleLauncher::slotIdlingTerminated()
 {
     _idling = false;
 }
 
-void IdleLauncher::restart()
+void IdleLauncher::enterIdleLater()
 {
-    timer->start();
+    delayedEnter->start();
 }
 
 bool IdleLauncher::idling()
@@ -1439,7 +1439,7 @@ void Model::idleTerminated()
         return;
     } else {
         Q_ASSERT( it->idleLauncher );
-        it->idleLauncher->restart();
+        it->idleLauncher->enterIdleLater();
     }
 }
 
@@ -1461,7 +1461,7 @@ void Model::switchToMailbox( const QModelIndex& mbox, const RWMode mode )
                 connect( ptr, SIGNAL( idleTerminated() ), this, SLOT( idleTerminated() ) );
             }
             if ( ! _parsers[ ptr ].idleLauncher->idling() ) {
-                _parsers[ ptr ].idleLauncher->restart();
+                _parsers[ ptr ].idleLauncher->enterIdleLater();
             }
         }
     }

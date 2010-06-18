@@ -79,15 +79,15 @@ class IdleLauncher: public QObject {
     Q_OBJECT
 public:
     IdleLauncher( Model* model, Parser* ptr );
-    void restart();
+    void enterIdleLater();
     bool idling();
 public slots:
-    void perform();
-    void idlingTerminated();
+    void slotEnterIdleNow();
+    void slotIdlingTerminated();
 private:
     Model* m;
     QPointer<Parser> parser;
-    QTimer* timer;
+    QTimer* delayedEnter;
     bool _idling;
 
     IdleLauncher(const Imap::Mailbox::IdleLauncher&); // don't implement
