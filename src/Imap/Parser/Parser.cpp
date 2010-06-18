@@ -478,10 +478,10 @@ void Parser::executeACommand()
         qDebug() << _parserId << ">>>" << buf.left( PRINT_TRAFFIC ).trimmed();
 #endif
         _socket->write( buf );
-        buf.clear();
         _idling = false;
         emit idleTerminated();
         emit lineSent( buf );
+        buf.clear();
     }
 
     if ( cmd._cmds[ cmd._currentPart ]._kind == Commands::ATOM )
