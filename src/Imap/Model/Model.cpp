@@ -1109,8 +1109,6 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
     TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( list->parent() );
     Q_ASSERT( mailboxPtr );
 
-    int order = item->row();
-
     if ( item->uid() ) {
         AbstractCache::MessageDataBundle data = cache()->messageMetadata( mailboxPtr->mailbox(), item->uid() );
         if ( data.uid == item->uid() ) {
@@ -1141,6 +1139,8 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
         // Nothing to do here
         return;
     }
+
+    int order = item->row();
 
     switch ( networkPolicy() ) {
         case NETWORK_OFFLINE:
