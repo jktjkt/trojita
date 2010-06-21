@@ -494,9 +494,13 @@ void Parser::executeACommand()
                 buf.append( part._text );
                 break;
             case Commands::QUOTED_STRING:
+                {
+                QString item = part._text;
+                item.replace( QChar('\\'), QString::fromAscii("\\\\") );
                 buf.append( '"' );
-                buf.append( part._text );
+                buf.append( item );
                 buf.append( '"' );
+                }
                 break;
             case Commands::LITERAL:
                 if ( _literalPlus ) {

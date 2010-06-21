@@ -66,7 +66,11 @@ namespace Commands {
                 stream << part._text;
                 break;
             case QUOTED_STRING:
-                stream << '"' << part._text << '"';
+                {
+                QString item = part._text;
+                item.replace( QChar('\\'), QString::fromAscii("\\\\") );
+                stream << '"' << item << '"';
+                }
                 break;
             case LITERAL:
                 stream << "{" << part._text.length() << "}" << endl << part._text;
