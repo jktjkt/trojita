@@ -48,9 +48,9 @@
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/ModelWatcher.h"
 #include "Imap/Model/MsgListModel.h"
+#include "Imap/Model/CombinedCache.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/PrettyMailboxModel.h"
-#include "Imap/Model/SQLCache.h"
 #include "Streams/SocketFactory.h"
 
 #include "ui_CreateMailboxDialog.h"
@@ -309,20 +309,18 @@ void MainWindow::setupModels()
     QString cacheDir = QDesktopServices::storageLocation( QDesktopServices::CacheLocation );
     if ( cacheDir.isEmpty() )
         cacheDir = QDir::homePath() + QLatin1String("/.") + QCoreApplication::applicationName();
+    Imap::Mailbox::AbstractCache* cache = 0;
     if ( ! QDir().mkpath( cacheDir ) ) {
         QMessageBox::critical( this, tr("Cache Error"), tr("Failed to create directory %1").arg( cacheDir ) );
-        cacheDir = QString();
-    } else {
-        //cacheDir += QLatin1String("/imap.cache");
-        cacheDir += QLatin1String("/imap.cache.sqlite");
-    }
-    //Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache( this, cacheDir );
-    Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::SQLCache(this);
-    connect( cache, SIGNAL(error(QString)), this, SLOT(cacheError(QString)) );
-    if ( ! static_cast<Imap::Mailbox::SQLCache*>( cache )->open( QLatin1String("trojita-imap-cache"), cacheDir ) ) {
-        // Error message was already shown by the cacheError() slot
-        cache->deleteLater();
         cache = new Imap::Mailbox::MemoryCache( this, QString() );
+    } else {
+        cache = new Imap::Mailbox::CombinedCache( this, QLatin1String("trojita-imap-cache"), cacheDir );
+        connect( cache, SIGNAL(error(QString)), this, SLOT(cacheError(QString)) );
+        if ( ! static_cast<Imap::Mailbox::CombinedCache*>( cache )->open() ) {
+            // Error message was already shown by the cacheError() slot
+            cache->deleteLater();
+            cache = new Imap::Mailbox::MemoryCache( this, QString() );
+        }
     }
     model = new Imap::Mailbox::Model( this, cache, factory, s.value( SettingsNames::imapStartOffline ).toBool() );
     model->setObjectName( QLatin1String("model") );

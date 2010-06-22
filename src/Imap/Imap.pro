@@ -32,6 +32,8 @@ SOURCES += Parser/Parser.cpp \
     Model/MailboxTree.cpp \
     Model/MemoryCache.cpp \
     Model/SQLCache.cpp \
+    Model/DiskPartCache.cpp \
+    Model/CombinedCache.cpp \
     Model/Utils.cpp \
     Model/IdleLauncher.cpp \
     Model/ModelWatcher.cpp \
@@ -65,6 +67,8 @@ HEADERS += Parser/Parser.h \
     Model/MailboxTree.h \
     Model/MemoryCache.h \
     Model/SQLCache.h \
+    Model/DiskPartCache.h \
+    Model/CombinedCache.h \
     Model/Cache.h \
     Model/Utils.h \
     Model/IdleLauncher.h \
