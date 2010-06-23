@@ -31,10 +31,29 @@ namespace Mailbox {
 class SQLCache;
 class DiskPartCache;
 
+
+/** @short A hybrid cache, using both SQLite and on-disk format
+
+This cache servers as a thin wrapper around the SQLCache. It uses
+the SQL facilities for most of the actual caching, but changes to
+a file-based cache when items are bigger than a certain threshold.
+
+In future, this should be extended with an in-memory cache (but
+only after the MemoryCache rework) which should only speed-up certain
+operations. This will likely be implemented when we will switch from
+storing the actual data in the various TreeItem* instances.
+*/
 class CombinedCache : public AbstractCache {
     Q_OBJECT
 public:
+    /** @short Constructor
+
+      Create new instance, using the @arg name as the name for the database connnection.
+      Store all data into the @arg cacheDir directory. Actual opening of the DB connection
+      is deferred till a call to the load() method.
+*/
     CombinedCache( QObject* parent, const QString& name, const QString& cacheDir );
+
     virtual ~CombinedCache();
 
     virtual QList<MailboxMetadata> childMailboxes( const QString& mailbox ) const;
@@ -65,9 +84,13 @@ public:
     bool open();
 
 private:
+    /** @short The SQL-based cache */
     SQLCache* _sqlCache;
+    /** @short Cache for bigger message parts */
     DiskPartCache* _diskPartCache;
+    /** @short Name of the DB connection */
     QString _name;
+    /** @short Directory to serve as a cache root */
     QString _cacheDir;
 };
 

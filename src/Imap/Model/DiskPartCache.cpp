@@ -24,39 +24,40 @@
 #include <QDir>
 
 namespace {
+    /** @short Convert the QFile::FileError to a string representation */
     QString fileErrorToString( const QFile::FileError e )
     {
         switch ( e ) {
         case QFile::NoError:
-            return QObject::tr("QFile::NoError");
+            return QLatin1String("QFile::NoError");
         case QFile::ReadError:
-            return QObject::tr("QFile::ReadError");
+            return QLatin1String("QFile::ReadError");
         case QFile::WriteError:
-            return QObject::tr("QFile::WriteError");
+            return QLatin1String("QFile::WriteError");
         case QFile::FatalError:
-            return QObject::tr("QFile::FatalError");
+            return QLatin1String("QFile::FatalError");
         case QFile::ResourceError:
-            return QObject::tr("QFile::ResourceError");
+            return QLatin1String("QFile::ResourceError");
         case QFile::OpenError:
-            return QObject::tr("QFile::OpenError");
+            return QLatin1String("QFile::OpenError");
         case QFile::AbortError:
-            return QObject::tr("QFile::AbortError");
+            return QLatin1String("QFile::AbortError");
         case QFile::TimeOutError:
-            return QObject::tr("QFile::TimeOutError");
+            return QLatin1String("QFile::TimeOutError");
         case QFile::UnspecifiedError:
-            return QObject::tr("QFile::UnspecifiedError");
+            return QLatin1String("QFile::UnspecifiedError");
         case QFile::RemoveError:
-            return QObject::tr("QFile::RemoveError");
+            return QLatin1String("QFile::RemoveError");
         case QFile::RenameError:
-            return QObject::tr("QFile::RenameError");
+            return QLatin1String("QFile::RenameError");
         case QFile::PositionError:
-            return QObject::tr("QFile::PositionError");
+            return QLatin1String("QFile::PositionError");
         case QFile::ResizeError:
-            return QObject::tr("QFile::ResizeError");
+            return QLatin1String("QFile::ResizeError");
         case QFile::PermissionsError:
-            return QObject::tr("QFile::PermissionsError");
+            return QLatin1String("QFile::PermissionsError");
         case QFile::CopyError:
-            return QObject::tr("QFile::CopyError");
+            return QLatin1String("QFile::CopyError");
         }
         return QObject::tr("Unrecognized QFile error");
     }
