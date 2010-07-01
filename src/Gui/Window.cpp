@@ -310,8 +310,17 @@ void MainWindow::setupModels()
     if ( cacheDir.isEmpty() )
         cacheDir = QDir::homePath() + QLatin1String("/.") + QCoreApplication::applicationName();
     Imap::Mailbox::AbstractCache* cache = 0;
-    if ( ! QDir().mkpath( cacheDir ) ) {
-        QMessageBox::critical( this, tr("Cache Error"), tr("Failed to create directory %1").arg( cacheDir ) );
+
+    bool shouldUsePersistentCache = s.value( SettingsNames::cacheMetadataKey).toString() == SettingsNames::cacheMetadataPersistent;
+
+    if ( shouldUsePersistentCache ) {
+        if ( ! QDir().mkpath( cacheDir ) ) {
+            QMessageBox::critical( this, tr("Cache Error"), tr("Failed to create directory %1").arg( cacheDir ) );
+            shouldUsePersistentCache = false;
+        }
+    }
+
+    if ( ! shouldUsePersistentCache ) {
         cache = new Imap::Mailbox::MemoryCache( this, QString() );
     } else {
         cache = new Imap::Mailbox::CombinedCache( this, QLatin1String("trojita-imap-cache"), cacheDir );
