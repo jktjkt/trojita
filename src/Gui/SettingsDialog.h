@@ -27,6 +27,8 @@
 class QCheckBox;
 class QComboBox;
 class QLineEdit;
+class QRadioButton;
+class QSpinBox;
 class QTabWidget;
 
 namespace Gui {
@@ -97,6 +99,32 @@ private:
     ImapPage& operator=(const ImapPage&); // don't implement
 };
 
+class CachePage : public QWidget
+{
+    Q_OBJECT
+public:
+    CachePage( QWidget* parent, QSettings& s );
+    void save( QSettings& s );
+private:
+    QCheckBox* startOffline;
+private slots:
+    void updateWidgets();
+
+private:
+    QRadioButton* metadataPersistentCache;
+    QRadioButton* metadataMemoryCache;
+
+    QRadioButton* offlineNope;
+    QRadioButton* offlineXDays;
+    QRadioButton* offlineXMessages;
+    QRadioButton* offlineEverything;
+    QSpinBox* offlineNumberOfMessages;
+    QSpinBox* offlineNumberOfDays;
+
+    CachePage(const CachePage&); // don't implement
+    CachePage& operator=(const CachePage&); // don't implement
+};
+
 
 class SettingsDialog : public QDialog
 {
@@ -109,6 +137,7 @@ private:
     QTabWidget* stack;
     IdentityPage* identity;
     ImapPage* imap;
+    CachePage* cache;
     OutgoingPage* outgoing;
 
     SettingsDialog(const SettingsDialog&); // don't implement

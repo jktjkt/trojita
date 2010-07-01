@@ -22,7 +22,10 @@
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QFormLayout>
+#include <QGroupBox>
 #include <QLineEdit>
+#include <QRadioButton>
+#include <QSpinBox>
 #include <QTabWidget>
 #include <QVBoxLayout>
 #include "SettingsDialog.h"
@@ -43,6 +46,8 @@ SettingsDialog::SettingsDialog(): QDialog()
     stack->addTab( identity, tr("Identity") );
     imap = new ImapPage( this, s );
     stack->addTab( imap, tr("IMAP") );
+    cache = new CachePage( this, s );
+    stack->addTab( cache, tr("Offline") );
     outgoing = new OutgoingPage( this, s );
     stack->addTab( outgoing, tr("SMTP") );
 
@@ -57,6 +62,7 @@ void SettingsDialog::accept()
     QSettings s;
     identity->save( s );
     imap->save( s );
+    cache->save( s );
     outgoing->save( s );
     QDialog::accept();
 }
@@ -196,6 +202,98 @@ void ImapPage::save( QSettings& s )
             s.setValue( SettingsNames::imapProcessKey, processPath->text() );
     }
     s.setValue( SettingsNames::imapStartOffline, startOffline->isChecked() );
+}
+
+CachePage::CachePage( QWidget* parent, QSettings& s ): QWidget(parent)
+{
+    QVBoxLayout* layout = new QVBoxLayout( this );
+    QGroupBox* box = new QGroupBox( tr("Caching"), this );
+    QVBoxLayout* boxLayout = new QVBoxLayout( box );
+    metadataPersistentCache = new QRadioButton( tr("Use persistent cache"), box );
+    boxLayout->addWidget( metadataPersistentCache );
+    metadataMemoryCache = new QRadioButton( tr("Cache metadata only for session duration"), box );
+    boxLayout->addWidget( metadataMemoryCache );
+    layout->addWidget( box );
+    box = new QGroupBox( tr("Offline mode"), this );
+    boxLayout = new QVBoxLayout( box );
+    offlineNope = new QRadioButton( tr("Don't store messages for offline access"), box );
+    boxLayout->addWidget( offlineNope );
+    offlineXDays = new QRadioButton( tr("Remember messages from X recent days"), box );
+    boxLayout->addWidget( offlineXDays );
+    offlineNumberOfDays = new QSpinBox( box );
+    offlineNumberOfDays->setRange( 1, 365 * 1000 ); // more than 1000 years -> unlimited
+    boxLayout->addWidget( offlineNumberOfDays );
+    offlineXMessages = new QRadioButton( tr("Remember X recent messages"), box );
+    boxLayout->addWidget( offlineXMessages );
+    offlineNumberOfMessages = new QSpinBox( box );
+    boxLayout->addWidget( offlineNumberOfMessages );
+    offlineNumberOfMessages->setRange( 1, 100 * 1000 ); // more than 100k messages -> unlimited
+    offlineEverything = new QRadioButton( tr("Remember all messages"), box );
+    boxLayout->addWidget( offlineEverything );
+    layout->addWidget( box );
+
+    QString val = s.value( SettingsNames::cacheMetadataKey ).toString();
+    if ( val == SettingsNames::cacheMetadataPersistent )
+        metadataPersistentCache->setChecked( true );
+    else
+        metadataMemoryCache->setChecked( true );
+
+    val = s.value( SettingsNames::cacheOfflineKey ).toString();
+    if ( val == SettingsNames::cacheOfflineAll )
+        offlineEverything->setChecked( true );
+    else if ( val == SettingsNames::cacheOfflineXDays )
+        offlineXDays->setChecked( true );
+    else if ( val == SettingsNames::cacheOfflineXMessages )
+        offlineXMessages->setChecked( true );
+    else
+        offlineNope->setChecked( true );
+
+    offlineNumberOfDays->setValue( s.value( SettingsNames::cacheOfflineNumberDaysKey, QVariant( 30 ) ).toInt() );
+    offlineNumberOfDays->setValue( s.value( SettingsNames::cacheOfflineNumberMessagesKey, QVariant( 100 ) ).toInt() );
+
+    updateWidgets();
+    connect( offlineNope, SIGNAL(clicked()), this, SLOT(updateWidgets()) );
+    connect( offlineXDays, SIGNAL(clicked()), this, SLOT(updateWidgets()) );
+    connect( offlineXMessages, SIGNAL(clicked()), this, SLOT(updateWidgets()) );
+    connect( offlineEverything, SIGNAL(clicked()), this, SLOT(updateWidgets()) );
+    connect( metadataMemoryCache, SIGNAL(clicked()), this, SLOT(updateWidgets()) );
+    connect( metadataPersistentCache, SIGNAL(clicked()), this, SLOT(updateWidgets()) );
+}
+
+void CachePage::updateWidgets()
+{
+    if ( metadataMemoryCache->isChecked() ) {
+        offlineNope->setChecked( true );
+        offlineXDays->setEnabled( false );
+        offlineXMessages->setEnabled( false );
+        offlineEverything->setEnabled( false );
+    } else {
+        offlineXDays->setEnabled( true );
+        offlineXMessages->setEnabled( true );
+        offlineEverything->setEnabled( true );
+    }
+    offlineNumberOfDays->setEnabled( offlineXDays->isChecked() );
+    offlineNumberOfMessages->setEnabled( offlineXMessages->isChecked() );
+}
+
+void CachePage::save( QSettings& s )
+{
+    if ( metadataPersistentCache->isChecked() )
+        s.setValue( SettingsNames::cacheMetadataKey, SettingsNames::cacheMetadataPersistent );
+    else
+        s.setValue( SettingsNames::cacheMetadataKey, SettingsNames::cacheMetadataMemory );
+
+    if ( offlineEverything->isChecked() )
+        s.setValue( SettingsNames::cacheOfflineKey, SettingsNames::cacheOfflineAll );
+    else if ( offlineXDays->isChecked() )
+        s.setValue( SettingsNames::cacheOfflineKey, SettingsNames::cacheOfflineXDays );
+    else if ( offlineXMessages->isChecked() )
+        s.setValue( SettingsNames::cacheOfflineKey, SettingsNames::cacheOfflineXMessages );
+    else
+        s.setValue( SettingsNames::cacheOfflineKey, SettingsNames::cacheOfflineNone );
+
+    s.setValue( SettingsNames::cacheOfflineNumberDaysKey, offlineNumberOfDays->value() );
+    s.setValue( SettingsNames::cacheOfflineNumberMessagesKey, offlineNumberOfMessages->value() );
 }
 
 OutgoingPage::OutgoingPage( QWidget* parent, QSettings& s ): QWidget(parent)

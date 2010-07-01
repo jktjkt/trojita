@@ -45,5 +45,15 @@ QString SettingsNames::imapUserKey = QLatin1String("imap.auth.user");
 QString SettingsNames::imapPassKey = QLatin1String("imap.auth.pass");
 QString SettingsNames::imapProcessKey = QLatin1String("imap.process");
 QString SettingsNames::imapStartOffline = QLatin1String("imap.offline");
+QString SettingsNames::cacheMetadataKey = QLatin1String("offline.metadataCache");
+QString SettingsNames::cacheMetadataMemory = QLatin1String("memory");
+QString SettingsNames::cacheMetadataPersistent = QLatin1String("persistent");
+QString SettingsNames::cacheOfflineKey = QLatin1String("offline.sync");
+QString SettingsNames::cacheOfflineNone = QLatin1String("none");
+QString SettingsNames::cacheOfflineXDays = QLatin1String("xDays");
+QString SettingsNames::cacheOfflineXMessages = QLatin1String("xMessages");
+QString SettingsNames::cacheOfflineAll = QLatin1String("all");
+QString SettingsNames::cacheOfflineNumberDaysKey = QLatin1String("offline.sync.days");
+QString SettingsNames::cacheOfflineNumberMessagesKey = QLatin1String("offline.sync.messages");
 
 }
