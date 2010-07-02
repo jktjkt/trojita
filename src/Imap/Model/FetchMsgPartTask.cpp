@@ -29,11 +29,8 @@ FetchMsgPartTask::FetchMsgPartTask( Model* _model, Imap::Parser* _parser, TreeIt
     ImapTask( _model, _parser ), item(_item)
 {
     CreateConnectionTask* conn = new CreateConnectionTask( _model, _parser );
-    // This is a special case, because we do not depend on any other job.
-    // Therefore, we want to call perform() immediately.
-    conn->perform();
+    conn->addDependentTask( this );
 }
-
 
 void FetchMsgPartTask::perform()
 {
