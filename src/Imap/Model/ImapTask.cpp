@@ -22,21 +22,27 @@
 namespace Imap {
 namespace Mailbox {
 
-ImapTask::ImapTask( Model* _model, Imap::Parser* _parser, ImapTask* parentTask ) :
-    QObject(_model), model(_model), parser(_parser)
+ImapTask::ImapTask( Model* _model, Imap::Parser* _parser ) :
+    QObject(_model), model(_model), parser(_parser), _finished(false)
 {
-    if ( parentTask )
-        parentTask->addDependentTask( this );
 }
 
 ImapTask::~ImapTask()
 {
-    Q_FOREACH( ImapTask* task, dependentTasks ) {
-        task->deleteLater();
-    }
+}
+
+void ImapTask::addDependentTask( ImapTask *task )
+{
+    dependentTasks.append( task );
 }
 
 bool ImapTask::handleState( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+{
+    handleResponseCode( ptr, resp );
+    return handleStateHelper( ptr, resp );
+}
+
+bool ImapTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
     Q_UNUSED(ptr);
     Q_UNUSED(resp);
@@ -113,5 +119,44 @@ bool ImapTask::handleThread( Imap::Parser* ptr, const Imap::Responses::Thread* c
     return false;
 }
 
+void ImapTask::_completed()
+{
+    Q_FOREACH( ImapTask* task, dependentTasks )
+            task->perform();
+    emit completed();
 }
+
+void ImapTask::handleResponseCode( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+{
+    using namespace Imap::Responses;
+    // Check for common stuff like ALERT and CAPABILITIES update
+    switch ( resp->respCode ) {
+        case ALERT:
+            {
+                emit model->alertReceived( tr("The server sent the following ALERT:\n%1").arg( resp->message ) );
+            }
+            break;
+        case CAPABILITIES:
+            {
+                const RespData<QStringList>* const caps = dynamic_cast<const RespData<QStringList>* const>(
+                        resp->respCodeData.data() );
+                if ( caps ) {
+                    model->_parsers[ ptr ].capabilities = caps->data;
+                    model->_parsers[ ptr ].capabilitiesFresh = true;
+                    model->updateCapabilities( ptr, caps->data );
+                }
+            }
+            break;
+        case BADCHARSET:
+        case PARSE:
+            qDebug() << "The server was having troubles with parsing message data:" << resp->message;
+            break;
+        default:
+            // do nothing here, it must be handled later
+            break;
+    }
+}
+
+}
+
 }

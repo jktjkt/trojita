@@ -48,11 +48,12 @@ class ImapTask : public QObject
 {
 Q_OBJECT
 public:
-    ImapTask( Model* _model, Imap::Parser* _parser, ImapTask* parentTask );
+    ImapTask( Model* _model, Imap::Parser* _parser );
     virtual void perform() = 0;
     virtual ~ImapTask();
 
-    virtual bool handleState( Imap::Parser* ptr, const Imap::Responses::State* const resp );
+    bool handleState( Imap::Parser* ptr, const Imap::Responses::State* const resp );
+    virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
     virtual bool handleCapability( Imap::Parser* ptr, const Imap::Responses::Capability* const resp );
     virtual bool handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp );
     virtual bool handleList( Imap::Parser* ptr, const Imap::Responses::List* const resp );
@@ -64,8 +65,14 @@ public:
     virtual bool handleSort( Imap::Parser* ptr, const Imap::Responses::Sort* const resp );
     virtual bool handleThread( Imap::Parser* ptr, const Imap::Responses::Thread* const resp );
 
+    bool isFinished() { return _finished; }
+
 protected:
     void addDependentTask( ImapTask* task );
+    void _completed();
+
+private:
+    void handleResponseCode( Imap::Parser* ptr, const Imap::Responses::State* const resp );
 
 signals:
     /** @short This signal is emitted if the job failed in some way */
@@ -77,6 +84,7 @@ protected:
     Model* model;
     Parser* parser;
     QList<ImapTask*> dependentTasks;
+    bool _finished;
 };
 
 }

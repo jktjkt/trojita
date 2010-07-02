@@ -112,8 +112,17 @@ void Model::responseReceived()
         Q_ASSERT( resp );
         try {
             bool handled = false;
-            Q_FOREACH( ImapTask* task, it->activeTasks ) {
-                bool handledNow = resp->plug( it->parser, task );
+            for ( QList<ImapTask*>::iterator taskIt = it->activeTasks.begin();
+                    taskIt != it->activeTasks.end(); /*nothing*/ ) {
+                bool handledNow = resp->plug( it->parser, *taskIt );
+
+                if ( (*taskIt)->isFinished() ) {
+                    (*taskIt)->deleteLater();
+                    it->activeTasks.erase( taskIt );
+                } else {
+                    ++taskIt;
+                }
+
                 handled |= handledNow;
                 if ( handled )
                     break;
