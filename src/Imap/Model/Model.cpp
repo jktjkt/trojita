@@ -891,38 +891,6 @@ void Model::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const 
 void Model::handleNamespace( Imap::Parser* ptr, const Imap::Responses::Namespace* const resp )
 {
     return; // because it's broken and won't fly
-
-    Q_UNUSED(ptr);
-
-    if ( _netPolicy == NETWORK_OFFLINE )
-        return;
-
-    Parser* parser = _getParser( 0, ReadOnly );
-    QList<Responses::NamespaceData>::const_iterator it;
-    for ( it = resp->personal.begin(); it != resp->personal.end(); ++it )
-        parser->list( QLatin1String(""),
-                      ( it->prefix.isEmpty() ?
-                            QLatin1String("") :
-                            ( it->prefix + it->separator ) )
-                      + QLatin1Char('%') );
-    for ( it = resp->users.begin(); it != resp->users.end(); ++it )
-        parser->list( QLatin1String(""),
-                      ( it->prefix.isEmpty() ?
-                            QLatin1String("") :
-                            ( it->prefix + it->separator ) )
-                      + QLatin1Char('%') );
-    for ( it = resp->other.begin(); it != resp->other.end(); ++it )
-        parser->list( QLatin1String(""),
-                      ( it->prefix.isEmpty() ?
-                            QLatin1String("") :
-                            ( it->prefix + it->separator ) )
-                      + QLatin1Char('%') );
-
-    // FIXME: this will work only on servers that don't re-order commands
-    CommandHandle cmd;
-    cmd = parser->list( QLatin1String(""), QLatin1String("INBOX") );
-    _parsers[ parser ].commandMap[ cmd ] = Task( Task::LIST, _mailboxes );
-    emit activityHappening( true );
 }
 
 void Model::handleSort(Imap::Parser *ptr, const Imap::Responses::Sort *const resp)
