@@ -81,6 +81,7 @@ bool FetchMsgPartTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respons
 
         Q_ASSERT( command->kind == Model::Task::FETCH_PART );
         model->_finalizeFetchPart( ptr, command );
+        model->_parsers[ ptr ].commandMap.erase( command );
         model->parsersMightBeIdling();
         _completed();
         return true;
