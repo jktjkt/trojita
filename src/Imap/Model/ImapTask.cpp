@@ -25,12 +25,10 @@ namespace Mailbox {
 ImapTask::ImapTask( Model* _model, Imap::Parser* _parser ) :
     QObject(_model), model(_model), parser(_parser), _finished(false)
 {
-    qDebug() << Q_FUNC_INFO;
 }
 
 ImapTask::~ImapTask()
 {
-    qDebug() << Q_FUNC_INFO;
 }
 
 void ImapTask::addDependentTask( ImapTask *task )

@@ -51,6 +51,7 @@ public:
     ImapTask( Model* _model, Imap::Parser* _parser );
     virtual void perform() = 0;
     virtual ~ImapTask();
+    void addDependentTask( ImapTask* task );
 
     bool handleState( Imap::Parser* ptr, const Imap::Responses::State* const resp );
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
@@ -68,7 +69,6 @@ public:
     bool isFinished() { return _finished; }
 
 protected:
-    void addDependentTask( ImapTask* task );
     void _completed();
 
 private:
