@@ -23,9 +23,10 @@
 namespace Imap {
 namespace Mailbox {
 
-CreateConnectionTask::CreateConnectionTask( Model* _model, Imap::Parser* _parser ) :
-    ImapTask( _model, _parser )
+CreateConnectionTask::CreateConnectionTask( Model* _model, TreeItemMailbox* mailbox ) :
+    ImapTask( _model )
 {
+    parser = model->_getParser( mailbox, Model::ReadWrite );
     // This is a special case, because we do not depend on any other job.
     // Therefore, we want to call perform() immediately.
     perform();

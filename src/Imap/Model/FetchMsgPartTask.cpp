@@ -25,15 +25,17 @@
 namespace Imap {
 namespace Mailbox {
 
-FetchMsgPartTask::FetchMsgPartTask( Model* _model, Imap::Parser* _parser, TreeItemPart* _item ) :
-    ImapTask( _model, _parser ), item(_item)
+FetchMsgPartTask::FetchMsgPartTask( Model* _model,
+                                    TreeItemMailbox* mailbox, TreeItemPart* _item ) :
+    ImapTask( _model ), item(_item)
 {
-    CreateConnectionTask* conn = new CreateConnectionTask( _model, _parser );
+    conn = new CreateConnectionTask( _model, mailbox );
     conn->addDependentTask( this );
 }
 
 void FetchMsgPartTask::perform()
 {
+    parser = conn->parser;
     model->_parsers[ parser ].activeTasks.append( this );
     tag = parser->fetch( Sequence( item->message()->row() + 1 ),
             QStringList() << QString::fromAscii("BODY.PEEK[%1]").arg(

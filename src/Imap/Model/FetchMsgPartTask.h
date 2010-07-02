@@ -25,14 +25,17 @@
 namespace Imap {
 namespace Mailbox {
 
+class TreeItemMailbox;
 class TreeItemPart;
+
+class CreateConnectionTask;
 
 /** @short Fetch a message part */
 class FetchMsgPartTask : public ImapTask
 {
 Q_OBJECT
 public:
-    FetchMsgPartTask( Model* _model, Imap::Parser* _parser, TreeItemPart* _item );
+    FetchMsgPartTask( Model* _model, TreeItemMailbox* mailbox, TreeItemPart* _item );
     virtual void perform();
 
     virtual bool handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );
@@ -40,6 +43,8 @@ public:
 private:
     TreeItemPart* item;
     CommandHandle tag;
+    CreateConnectionTask* conn;
+    Parser* parser;
 };
 
 }

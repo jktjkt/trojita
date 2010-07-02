@@ -24,18 +24,31 @@
 namespace Imap {
 namespace Mailbox {
 
-/** @short Establish an authenticated connection to the IMAP server */
+class TreeItemMailbox;
+
+/** @short Establish an authenticated connection to the IMAP server
+
+Upon its construction, this class will obtain a connection to the specified
+mailbox. If it subsequently emits the completed() slide, you can use its parser
+argument as a handle to a parser pointing to a fully synchronized mailbox.
+
+FIXME: this is actually still not true ATM, the mailbox might be left in a
+semi-synchronized state. Will be fixed later.
+*/
 class CreateConnectionTask : public ImapTask
 {
 Q_OBJECT
 public:
-    CreateConnectionTask( Model* _model, Imap::Parser* _parser );
+    CreateConnectionTask( Model* _model, TreeItemMailbox* mailbox );
     virtual void perform();
 
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
 
 private slots:
     void _hackSignalCompletion();
+
+public:
+    Parser* parser;
 };
 
 }

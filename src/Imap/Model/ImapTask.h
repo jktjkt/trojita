@@ -48,7 +48,7 @@ class ImapTask : public QObject
 {
 Q_OBJECT
 public:
-    ImapTask( Model* _model, Imap::Parser* _parser );
+    ImapTask( Model* _model );
     virtual void perform() = 0;
     virtual ~ImapTask();
     void addDependentTask( ImapTask* task );
@@ -82,7 +82,6 @@ signals:
 
 protected:
     Model* model;
-    Parser* parser;
     QList<ImapTask*> dependentTasks;
     bool _finished;
 };

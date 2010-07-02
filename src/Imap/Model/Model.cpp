@@ -1188,8 +1188,7 @@ void Model::_askForMsgPart( TreeItemPart* item, bool onlyFromCache )
         if ( item->_fetchStatus != TreeItem::DONE )
             item->_fetchStatus = TreeItem::UNAVAILABLE;
     } else if ( ! onlyFromCache ) {
-        Parser* parser = _getParser( mailboxPtr, ReadOnly );
-        FetchMsgPartTask* job = new FetchMsgPartTask( this, parser, item );
+        FetchMsgPartTask* job = new FetchMsgPartTask( this, mailboxPtr, item );
     }
 }
 

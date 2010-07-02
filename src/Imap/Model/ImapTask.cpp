@@ -22,8 +22,8 @@
 namespace Imap {
 namespace Mailbox {
 
-ImapTask::ImapTask( Model* _model, Imap::Parser* _parser ) :
-    QObject(_model), model(_model), parser(_parser), _finished(false)
+ImapTask::ImapTask( Model* _model ) :
+    QObject(_model), model(_model), _finished(false)
 {
 }
 
