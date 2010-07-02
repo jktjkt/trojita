@@ -28,6 +28,7 @@
 #include "ModelUpdaters.h"
 #include "IdleLauncher.h"
 #include "ImapTask.h"
+#include "FetchMsgPartTask.h"
 #include <QAbstractProxyModel>
 #include <QAuthenticator>
 #include <QCoreApplication>
@@ -118,7 +119,7 @@ void Model::responseReceived()
 
                 if ( (*taskIt)->isFinished() ) {
                     (*taskIt)->deleteLater();
-                    it->activeTasks.erase( taskIt );
+                    taskIt = it->activeTasks.erase( taskIt );
                 } else {
                     ++taskIt;
                 }
@@ -1188,14 +1189,7 @@ void Model::_askForMsgPart( TreeItemPart* item, bool onlyFromCache )
             item->_fetchStatus = TreeItem::UNAVAILABLE;
     } else if ( ! onlyFromCache ) {
         Parser* parser = _getParser( mailboxPtr, ReadOnly );
-        CommandHandle cmd = parser->fetch( Sequence( item->message()->row() + 1 ),
-                QStringList() << QString::fromAscii("BODY.PEEK[%1]").arg(
-                        item->mimeType() == QLatin1String("message/rfc822") ?
-                            QString::fromAscii("%1.HEADER").arg( item->partId() ) :
-                            item->partId()
-                        ) );
-        _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_PART, item );
-        emit activityHappening( true );
+        FetchMsgPartTask* job = new FetchMsgPartTask( this, parser, item );
     }
 }
 

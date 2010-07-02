@@ -385,6 +385,8 @@ private:
     friend class _NumberOfMessagesUpdater;
 
     friend class ImapTask;
+    friend class CreateConnectionTask;
+    friend class FetchMsgPartTask;
 
     void _askForChildrenOfMailbox( TreeItemMailbox* item );
     void _askForMessagesInMailbox( TreeItemMsgList* item );

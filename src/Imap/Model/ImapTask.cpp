@@ -25,10 +25,12 @@ namespace Mailbox {
 ImapTask::ImapTask( Model* _model, Imap::Parser* _parser ) :
     QObject(_model), model(_model), parser(_parser), _finished(false)
 {
+    qDebug() << Q_FUNC_INFO;
 }
 
 ImapTask::~ImapTask()
 {
+    qDebug() << Q_FUNC_INFO;
 }
 
 void ImapTask::addDependentTask( ImapTask *task )
@@ -121,9 +123,11 @@ bool ImapTask::handleThread( Imap::Parser* ptr, const Imap::Responses::Thread* c
 
 void ImapTask::_completed()
 {
-    Q_FOREACH( ImapTask* task, dependentTasks )
-            task->perform();
+    Q_FOREACH( ImapTask* task, dependentTasks ) {
+        task->perform();
+    }
     emit completed();
+    _finished = true;
 }
 
 void ImapTask::handleResponseCode( Imap::Parser* ptr, const Imap::Responses::State* const resp )

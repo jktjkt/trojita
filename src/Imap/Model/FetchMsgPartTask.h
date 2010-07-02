@@ -16,29 +16,33 @@
    Boston, MA 02110-1301, USA.
 */
 
-#ifndef IMAP_CREATECONNECTIONTASK_H
-#define IMAP_CREATECONNECTIONTASK_H
+#ifndef IMAP_FETCHMSGPARTTASK_H
+#define IMAP_FETCHMSGPARTTASK_H
 
 #include "ImapTask.h"
+#include "Parser/Parser.h"
 
 namespace Imap {
 namespace Mailbox {
 
-/** @short Establish an authenticated connection to the IMAP server */
-class CreateConnectionTask : public ImapTask
+class TreeItemPart;
+
+/** @short Fetch a message part */
+class FetchMsgPartTask : public ImapTask
 {
 Q_OBJECT
 public:
-    CreateConnectionTask( Model* _model, Imap::Parser* _parser );
+    FetchMsgPartTask( Model* _model, Imap::Parser* _parser, TreeItemPart* _item );
     virtual void perform();
 
+    virtual bool handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
-
-private slots:
-    void _hackSignalCompletion();
+private:
+    TreeItemPart* item;
+    CommandHandle tag;
 };
 
 }
 }
 
-#endif // IMAP_CREATECONNECTIONTASK_H
+#endif // IMAP_FETCHMSGPARTTASK_H

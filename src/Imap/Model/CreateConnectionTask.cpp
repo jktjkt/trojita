@@ -18,6 +18,7 @@
 
 #include "CreateConnectionTask.h"
 #include "Model.h"
+#include <QTimer>
 
 namespace Imap {
 namespace Mailbox {
@@ -27,8 +28,22 @@ CreateConnectionTask::CreateConnectionTask( Model* _model, Imap::Parser* _parser
 {
 }
 
-bool ImapTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+void CreateConnectionTask::perform()
 {
+    model->_parsers[ parser ].activeTasks.append( this );
+    // FIXME: In future, this should be replaced by proper SELECTs etc
+    QTimer::singleShot( 150, this, SLOT(_hackSignalCompletion()) );
+}
+
+void CreateConnectionTask::_hackSignalCompletion()
+{
+    _completed();
+}
+
+bool CreateConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+{
+    return false;
+#if 0
     if ( ! resp->tag.isEmpty() ) {
         throw Imap::UnexpectedResponseReceived(
                 "Waiting for initial OK/BYE/PREAUTH, but got tagged response instead",
@@ -88,11 +103,7 @@ bool ImapTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::Stat
                 *resp );
     }
     return true;
-}
-
-bool ImapTask::handleCapability( Imap::Parser* ptr, const Imap::Responses::Capability* const resp )
-{
-    return true;
+#endif
 }
 
 }
