@@ -125,20 +125,16 @@ QByteArray CombinedCache::messagePart( const QString& mailbox, uint uid, const Q
 {
     QByteArray res = _sqlCache->messagePart( mailbox, uid, partId );
     if ( res.isEmpty() ) {
-        qDebug() << mailbox << uid << partId << "not in SQL, fallback";
         res = _diskPartCache->messagePart( mailbox, uid, partId );
     }
-    qDebug() << res.size();
     return res;
 }
 
 void CombinedCache::setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data )
 {
     if ( data.size() < 1000 ) {
-        qDebug() << mailbox << uid << partId << "saving to SQL";
         _sqlCache->setMsgPart( mailbox, uid, partId, data );
     } else {
-        qDebug() << mailbox << uid << partId << "saving to disk";
         _diskPartCache->setMsgPart( mailbox, uid, partId, data );
     }
 }
