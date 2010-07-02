@@ -89,4 +89,21 @@ protected:
 }
 }
 
+/** @short Perform safety check that we are indeed dealing with a command that is still valid
+
+FIXME: this is ugly; a nice OO way for doing that stuff should be much much better
+*/
+#define IMAP_TASK_ENSURE_VALID_COMMAND(kind) \
+QMap<CommandHandle, Model::Task>::iterator command = model->_parsers[ ptr ].commandMap.find( tag ); \
+if ( command == model->_parsers[ ptr ].commandMap.end() ) { \
+    qDebug() << "This command is not valid anymore" << tag; \
+    return false; \
+} \
+Q_ASSERT( command->kind == kind );
+
+/** @short Remove command/task from the registry */
+#define IMAP_TASK_CLEANUP_COMMAND \
+model->_parsers[ ptr ].commandMap.erase( command ); \
+model->parsersMightBeIdling();
+
 #endif // IMAP_IMAPTASK_H

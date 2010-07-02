@@ -69,17 +69,8 @@ bool FetchMsgPartTask::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fe
 
 bool FetchMsgPartTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
-    // OK/NO/BAD/PREAUTH/BYE
-    using namespace Imap::Responses;
-
     if ( resp->tag == tag ) {
-        QMap<CommandHandle, Model::Task>::iterator command = model->_parsers[ ptr ].commandMap.find( tag );
-        if ( command == model->_parsers[ ptr ].commandMap.end() ) {
-            qDebug() << "This command is not valid anymore" << tag;
-            return false;
-        }
-
-        Q_ASSERT( command->kind == Model::Task::FETCH_PART );
+        IMAP_TASK_ENSURE_VALID_COMMAND( Model::Task::FETCH_PART );
 
         if ( resp->kind == Responses::OK ) {
             model->_finalizeFetchPart( ptr, command );
@@ -87,8 +78,7 @@ bool FetchMsgPartTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respons
             // FIXME: error handling
         }
         _completed();
-        model->_parsers[ ptr ].commandMap.erase( command );
-        model->parsersMightBeIdling();
+        IMAP_TASK_CLEANUP_COMMAND;
         return true;
     } else {
         return false;
