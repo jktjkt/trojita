@@ -80,6 +80,8 @@ class IdleLauncher;
 class _MailboxListUpdater;
 class _NumberOfMessagesUpdater;
 
+class ImapTask;
+
 /** @short A model implementing view of the whole IMAP server */
 class Model: public QAbstractItemModel {
     Q_OBJECT
@@ -126,6 +128,8 @@ class Model: public QAbstractItemModel {
         uint selectingAnother;
         /** @short Mapping of IMAP tag to the helper structure */
         QMap<CommandHandle, Task> commandMap;
+        /** @short List of tasks which are active already, and should therefore receive events */
+        QList<ImapTask*> activeTasks;
         /** @short A list of cepabilities, as advertised by the server */
         QStringList capabilities;
         /** @short Is the @arg capabilities usable? */
@@ -379,6 +383,9 @@ private:
     friend class IdleLauncher;
     friend class _MailboxListUpdater;
     friend class _NumberOfMessagesUpdater;
+
+    friend class GetConnectionTask;
+    friend class OpenMailboxTask;
 
     void _askForChildrenOfMailbox( TreeItemMailbox* item );
     void _askForMessagesInMailbox( TreeItemMsgList* item );

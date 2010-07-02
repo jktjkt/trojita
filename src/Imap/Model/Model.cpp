@@ -27,6 +27,7 @@
 #include "SelectingHandler.h"
 #include "ModelUpdaters.h"
 #include "IdleLauncher.h"
+#include "ImapTask.h"
 #include <QAbstractProxyModel>
 #include <QAuthenticator>
 #include <QCoreApplication>
@@ -110,7 +111,15 @@ void Model::responseReceived()
         QSharedPointer<Imap::Responses::AbstractResponse> resp = it.value().parser->getResponse();
         Q_ASSERT( resp );
         try {
-            resp->plug( it.value().parser, this );
+            bool handled = false;
+            Q_FOREACH( ImapTask* task, it->activeTasks ) {
+                bool handledNow = resp->plug( it->parser, task );
+                handled |= handledNow;
+                if ( handled )
+                    break;
+            }
+            if ( ! handled )
+                resp->plug( it.value().parser, this );
         } catch ( Imap::ImapException& e ) {
             uint parserId = it->parser->parserId();
             killParser( it->parser );

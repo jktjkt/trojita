@@ -23,6 +23,7 @@
 #include "Message.h"
 #include "LowLevelParser.h"
 #include "../Model/Model.h"
+#include "../Model/ImapTask.h"
 
 namespace Imap {
 namespace Responses {
@@ -895,7 +896,9 @@ bool NamespaceData::operator!=( const NamespaceData& other ) const
 }
 
 #define PLUG(X) void X::plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const \
-{ model->handle##X( parser, this ); }
+{ model->handle##X( parser, this ); } \
+bool X::plug( Imap::Parser* parser, Imap::Mailbox::ImapTask* task ) const \
+{ return task->handle##X( parser, this ); }
 
 PLUG( State )
 PLUG( Capability )

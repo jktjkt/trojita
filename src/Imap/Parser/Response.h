@@ -43,6 +43,7 @@ namespace Imap {
 
 namespace Mailbox {
     class Model;
+    class ImapTask;
 }
 
 class Parser;
@@ -115,6 +116,7 @@ namespace Responses {
         /** @short Helper for Imap::Mailbox::MailboxModel to prevent ugly
          * dynamic_cast<>s */
         virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const = 0;
+        virtual bool plug( Imap::Parser* parser, Imap::Mailbox::ImapTask* task ) const = 0;
     };
 
     /** @short Structure storing OK/NO/BAD/PREAUTH/BYE responses */
@@ -189,6 +191,7 @@ namespace Responses {
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
         virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const;
+        virtual bool plug( Imap::Parser* parser, Imap::Mailbox::ImapTask* task ) const;
     };
 
     /** @short Structure storing a CAPABILITY untagged response */
@@ -200,6 +203,7 @@ namespace Responses {
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
         virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const;
+        virtual bool plug( Imap::Parser* parser, Imap::Mailbox::ImapTask* task ) const;
     };
 
     /** @short Structure for EXISTS/EXPUNGE/RECENT responses */
@@ -211,6 +215,7 @@ namespace Responses {
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
         virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const;
+        virtual bool plug( Imap::Parser* parser, Imap::Mailbox::ImapTask* task ) const;
     };
 
     /** @short Structure storing a LIST untagged response */
@@ -235,6 +240,7 @@ namespace Responses {
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
         virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const;
+        virtual bool plug( Imap::Parser* parser, Imap::Mailbox::ImapTask* task ) const;
     };
 
     struct NamespaceData {
@@ -257,6 +263,7 @@ namespace Responses {
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
         virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const;
+        virtual bool plug( Imap::Parser* parser, Imap::Mailbox::ImapTask* task ) const;
     };
 
 
@@ -270,6 +277,7 @@ namespace Responses {
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
         virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const;
+        virtual bool plug( Imap::Parser* parser, Imap::Mailbox::ImapTask* task ) const;
     };
 
     /** @short Structure storing a SEARCH untagged response */
@@ -282,6 +290,7 @@ namespace Responses {
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
         virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const;
+        virtual bool plug( Imap::Parser* parser, Imap::Mailbox::ImapTask* task ) const;
     };
 
     /** @short Structure storing a STATUS untagged response */
@@ -310,6 +319,7 @@ namespace Responses {
         virtual bool eq( const AbstractResponse& other ) const;
         static StateKind stateKindFromStr( QString s );
         virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const;
+        virtual bool plug( Imap::Parser* parser, Imap::Mailbox::ImapTask* task ) const;
     };
 
     /** @short FETCH response */
@@ -328,6 +338,7 @@ namespace Responses {
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
         virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const;
+        virtual bool plug( Imap::Parser* parser, Imap::Mailbox::ImapTask* task ) const;
     private:
         static QDateTime dateify( QByteArray str, const QByteArray& line, const int start );
     };
@@ -342,6 +353,7 @@ namespace Responses {
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
         virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const;
+        virtual bool plug( Imap::Parser* parser, Imap::Mailbox::ImapTask* task ) const;
     };
 
     /** @short Structure storing a THREAD untagged response */
@@ -372,6 +384,7 @@ namespace Responses {
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
         virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const;
+        virtual bool plug( Imap::Parser* parser, Imap::Mailbox::ImapTask* task ) const;
     private:
         void insertHere( Node* where, const QVariantList& what );
         static QString dumpHelper( const Node& node );
