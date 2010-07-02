@@ -233,7 +233,8 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 _finalizeFetch( ptr, command );
                 break;
             case Task::FETCH_PART:
-                _finalizeFetchPart( ptr, command );
+                Q_ASSERT( false );
+                // should be handled elsewhere
                 break;
             case Task::NOOP:
             case Task::IDLE:
