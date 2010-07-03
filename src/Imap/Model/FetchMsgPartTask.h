@@ -19,6 +19,7 @@
 #ifndef IMAP_FETCHMSGPARTTASK_H
 #define IMAP_FETCHMSGPARTTASK_H
 
+#include <QPersistentModelIndex>
 #include "ImapTask.h"
 #include "Parser/Parser.h"
 
@@ -45,6 +46,7 @@ private:
     CommandHandle tag;
     CreateConnectionTask* conn;
     Parser* parser;
+    QPersistentModelIndex index;
 };
 
 }

@@ -31,10 +31,17 @@ FetchMsgPartTask::FetchMsgPartTask( Model* _model,
 {
     conn = new CreateConnectionTask( _model, mailbox );
     conn->addDependentTask( this );
+    index = model->createIndex( item->row(), 0, item );
 }
 
 void FetchMsgPartTask::perform()
 {
+    if ( ! index.isValid() ) {
+        // FIXME: add proper fix
+        qDebug() << "Message got removed before we could have fetched it";
+        _completed();
+        return;
+    }
     parser = conn->parser;
     model->_parsers[ parser ].activeTasks.append( this );
     tag = parser->fetch( Sequence( item->message()->row() + 1 ),
