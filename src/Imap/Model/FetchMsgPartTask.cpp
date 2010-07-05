@@ -81,14 +81,18 @@ bool FetchMsgPartTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respons
     if ( resp->tag == tag ) {
         IMAP_TASK_ENSURE_VALID_COMMAND( Model::Task::FETCH_PART );
 
-        Q_ASSERT( index.isValid() );
-        TreeItemPart* part = dynamic_cast<TreeItemPart*>( static_cast<TreeItem*>( index.internalPointer() ) );
-        Q_ASSERT( part );
+        if ( index.isValid() ) {
+            TreeItemPart* part = dynamic_cast<TreeItemPart*>( static_cast<TreeItem*>( index.internalPointer() ) );
+            Q_ASSERT( part );
 
-        if ( resp->kind == Responses::OK ) {
-            model->_finalizeFetchPart( ptr, part );
+            if ( resp->kind == Responses::OK ) {
+                model->_finalizeFetchPart( ptr, part );
+            } else {
+                // FIXME: error handling
+            }
         } else {
             // FIXME: error handling
+            qDebug() << Q_FUNC_INFO << "Message part no longer available -- weird timing?";
         }
         _completed();
         IMAP_TASK_CLEANUP_COMMAND;
