@@ -36,13 +36,12 @@ class FetchMsgPartTask : public ImapTask
 {
 Q_OBJECT
 public:
-    FetchMsgPartTask( Model* _model, TreeItemMailbox* mailbox, TreeItemPart* _item );
+    FetchMsgPartTask( Model* _model, TreeItemMailbox* mailbox, TreeItemPart* part );
     virtual void perform();
 
     virtual bool handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
 private:
-    TreeItemPart* item;
     CommandHandle tag;
     CreateConnectionTask* conn;
     Parser* parser;

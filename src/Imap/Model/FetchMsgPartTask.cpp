@@ -26,12 +26,12 @@ namespace Imap {
 namespace Mailbox {
 
 FetchMsgPartTask::FetchMsgPartTask( Model* _model,
-                                    TreeItemMailbox* mailbox, TreeItemPart* _item ) :
-    ImapTask( _model ), item(_item)
+                                    TreeItemMailbox* mailbox, TreeItemPart* part ) :
+    ImapTask( _model )
 {
     conn = new CreateConnectionTask( _model, mailbox );
     conn->addDependentTask( this );
-    index = model->createIndex( item->row(), 0, item );
+    index = model->createIndex( part->row(), 0, part );
 }
 
 void FetchMsgPartTask::perform()
@@ -44,11 +44,13 @@ void FetchMsgPartTask::perform()
     }
     parser = conn->parser;
     model->_parsers[ parser ].activeTasks.append( this );
-    tag = parser->fetch( Sequence( item->message()->row() + 1 ),
+    TreeItemPart* part = dynamic_cast<TreeItemPart*>( static_cast<TreeItem*>( index.internalPointer() ) );
+    Q_ASSERT( part );
+    tag = parser->fetch( Sequence( part->message()->row() + 1 ),
             QStringList() << QString::fromAscii("BODY.PEEK[%1]").arg(
-                    item->mimeType() == QLatin1String("message/rfc822") ?
-                        QString::fromAscii("%1.HEADER").arg( item->partId() ) :
-                        item->partId()
+                    part->mimeType() == QLatin1String("message/rfc822") ?
+                        QString::fromAscii("%1.HEADER").arg( part->partId() ) :
+                        part->partId()
                     ) );
     model->_parsers[ parser ].commandMap[ tag ] = Model::Task( Model::Task::FETCH_PART, 0 );
     emit model->activityHappening( true );
@@ -79,8 +81,12 @@ bool FetchMsgPartTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respons
     if ( resp->tag == tag ) {
         IMAP_TASK_ENSURE_VALID_COMMAND( Model::Task::FETCH_PART );
 
+        Q_ASSERT( index.isValid() );
+        TreeItemPart* part = dynamic_cast<TreeItemPart*>( static_cast<TreeItem*>( index.internalPointer() ) );
+        Q_ASSERT( part );
+
         if ( resp->kind == Responses::OK ) {
-            model->_finalizeFetchPart( ptr, item );
+            model->_finalizeFetchPart( ptr, part );
         } else {
             // FIXME: error handling
         }
