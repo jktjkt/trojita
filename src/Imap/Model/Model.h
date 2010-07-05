@@ -399,7 +399,7 @@ private:
     void _finalizeIncrementalList( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
-    void _finalizeFetchPart( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
+    void _finalizeFetchPart( Parser* parser, TreeItemPart* const part );
     void _finalizeCreate( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command,  const Imap::Responses::State* const resp );
     void _finalizeDelete( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command,  const Imap::Responses::State* const resp );
 

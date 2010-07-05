@@ -671,11 +671,8 @@ void Model::_fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, Pars
 }
 
 /** @short Retrieval of a message part has completed */
-void Model::_finalizeFetchPart( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command )
+void Model::_finalizeFetchPart( Parser* parser, TreeItemPart* const part )
 {
-    TreeItemPart* part = dynamic_cast<TreeItemPart*>( command.value().what );
-    Q_ASSERT(part);
-
     if ( part->loading() ) {
         // basically, there's nothing to do if the FETCH targetted a message part and not the message as a whole
         qDebug() << "Imap::Model::_finalizeFetch(): didn't receive anything about message" <<

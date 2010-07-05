@@ -50,7 +50,7 @@ void FetchMsgPartTask::perform()
                         QString::fromAscii("%1.HEADER").arg( item->partId() ) :
                         item->partId()
                     ) );
-    model->_parsers[ parser ].commandMap[ tag ] = Model::Task( Model::Task::FETCH_PART, item );
+    model->_parsers[ parser ].commandMap[ tag ] = Model::Task( Model::Task::FETCH_PART, 0 );
     emit model->activityHappening( true );
 }
 
@@ -80,7 +80,7 @@ bool FetchMsgPartTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respons
         IMAP_TASK_ENSURE_VALID_COMMAND( Model::Task::FETCH_PART );
 
         if ( resp->kind == Responses::OK ) {
-            model->_finalizeFetchPart( ptr, command );
+            model->_finalizeFetchPart( ptr, item );
         } else {
             // FIXME: error handling
         }
