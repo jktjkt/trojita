@@ -36,7 +36,7 @@ void CreateConnectionTask::perform()
 {
     model->_parsers[ parser ].activeTasks.append( this );
     // FIXME: In future, this should be replaced by proper SELECTs etc
-    QTimer::singleShot( 150, this, SLOT(_hackSignalCompletion()) );
+    QTimer::singleShot( 0, this, SLOT(_hackSignalCompletion()) );
 }
 
 void CreateConnectionTask::_hackSignalCompletion()
@@ -47,6 +47,7 @@ void CreateConnectionTask::_hackSignalCompletion()
 bool CreateConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
     return false;
+    // FIXME: the code below should be moved from Model's implementation here
 #if 0
     if ( ! resp->tag.isEmpty() ) {
         throw Imap::UnexpectedResponseReceived(
