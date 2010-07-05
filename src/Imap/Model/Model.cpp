@@ -31,6 +31,7 @@
 #include "ImapTask.h"
 #include "FetchMsgPartTask.h"
 #include "UpdateFlagsTask.h"
+#include "ListChildMailboxesTask.h"
 #include <QAbstractProxyModel>
 #include <QAuthenticator>
 #include <QCoreApplication>
@@ -199,11 +200,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 throw CantHappen( "Internal Error: command that is supposed to do nothing?", *resp );
                 break;
             case Task::LIST:
-                if ( resp->kind == Responses::OK ) {
-                    _finalizeList( ptr, command );
-                } else {
-                    // FIXME
-                }
+                throw CantHappen( "The Task::LIST should've been handled by the ListChildMailboxesTask", *resp );
                 break;
             case Task::LIST_AFTER_CREATE:
                 if ( resp->kind == Responses::OK ) {
@@ -299,9 +296,8 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
     }
 }
 
-void Model::_finalizeList( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command )
+void Model::_finalizeList( Parser* parser, TreeItemMailbox* mailboxPtr )
 {
-    TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( command->what );
     QList<TreeItem*> mailboxes;
 
     QList<Responses::List>& listResponses = _parsers[ parser ].listResponses;
@@ -312,7 +308,7 @@ void Model::_finalizeList( Parser* parser, const QMap<CommandHandle, Task>::cons
             // rubbish, ignore
             it = listResponses.erase( it );
         } else if ( it->mailbox.startsWith( prefix ) ) {
-            mailboxes << new TreeItemMailbox( command->what, *it );
+            mailboxes << new TreeItemMailbox( mailboxPtr, *it );
             it = listResponses.erase( it );
         } else {
             // it clearly is someone else's LIST response
@@ -989,13 +985,6 @@ bool Model::hasChildren( const QModelIndex& parent ) const
 
 void Model::_askForChildrenOfMailbox( TreeItemMailbox* item )
 {
-    QString mailbox = item->mailbox();
-
-    if ( mailbox.isNull() )
-        mailbox = "%";
-    else
-        mailbox = mailbox + item->separator() + QChar( '%' );
-
     if ( networkPolicy() != NETWORK_ONLINE && cache()->childMailboxesFresh( item->mailbox() ) ) {
         // We aren't online and the permanent cache contains relevant data
         QList<MailboxMetadata> metadata = cache()->childMailboxes( item->mailbox() );
@@ -1013,10 +1002,7 @@ void Model::_askForChildrenOfMailbox( TreeItemMailbox* item )
         item->_fetchStatus = TreeItem::UNAVAILABLE;
     } else {
         // We have to go to the network
-        Parser* parser = _getParser( 0, ReadOnly );
-        CommandHandle cmd = parser->list( "", mailbox );
-        _parsers[ parser ].commandMap[ cmd ] = Task( Task::LIST, item );
-        emit activityHappening( true );
+        new ListChildMailboxesTask( this, createIndex( item->row(), 0, item) );
     }
     QModelIndex idx = createIndex( item->row(), 0, item );
     emit dataChanged( idx, idx );
