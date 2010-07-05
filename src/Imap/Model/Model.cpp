@@ -913,6 +913,7 @@ void Model::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const 
 void Model::handleNamespace( Imap::Parser* ptr, const Imap::Responses::Namespace* const resp )
 {
     return; // because it's broken and won't fly
+    Q_UNUSED(ptr); Q_UNUSED(resp);
 }
 
 void Model::handleSort(Imap::Parser *ptr, const Imap::Responses::Sort *const resp)
@@ -1191,7 +1192,7 @@ void Model::_askForMsgPart( TreeItemPart* item, bool onlyFromCache )
         if ( item->_fetchStatus != TreeItem::DONE )
             item->_fetchStatus = TreeItem::UNAVAILABLE;
     } else if ( ! onlyFromCache ) {
-        FetchMsgPartTask* job = new FetchMsgPartTask( this, mailboxPtr, item );
+        new FetchMsgPartTask( this, mailboxPtr, item );
     }
 }
 
@@ -1431,16 +1432,16 @@ void Model::updateCapabilities( Parser* parser, const QStringList capabilities )
 
 void Model::markMessageDeleted( TreeItemMessage* msg, bool marked )
 {
-    UpdateFlagsTask* task = new UpdateFlagsTask( this, QModelIndexList() << createIndex( msg->row(), 0, msg ),
-                                                 marked ? QLatin1String("+FLAGS") : QLatin1String("-FLAGS"),
-                                                 QLatin1String("(\\Deleted)") );
+    new UpdateFlagsTask( this, QModelIndexList() << createIndex( msg->row(), 0, msg ),
+                         marked ? QLatin1String("+FLAGS") : QLatin1String("-FLAGS"),
+                         QLatin1String("(\\Deleted)") );
 }
 
 void Model::markMessageRead( TreeItemMessage* msg, bool marked )
 {
-    UpdateFlagsTask* task = new UpdateFlagsTask( this, QModelIndexList() << createIndex( msg->row(), 0, msg ),
-                                                 marked ? QLatin1String("+FLAGS") : QLatin1String("-FLAGS"),
-                                                 QLatin1String("(\\Seen)") );
+    new UpdateFlagsTask( this, QModelIndexList() << createIndex( msg->row(), 0, msg ),
+                         marked ? QLatin1String("+FLAGS") : QLatin1String("-FLAGS"),
+                         QLatin1String("(\\Seen)") );
 }
 
 void Model::copyMessages( TreeItemMailbox* sourceMbox, const QString& destMailboxName, const Sequence& seq )
