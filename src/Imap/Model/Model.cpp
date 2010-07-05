@@ -23,6 +23,7 @@
 #include "MailboxTree.h"
 #include "UnauthenticatedHandler.h"
 #include "AuthenticatedHandler.h"
+#include "CreateConnectionTask.h"
 #include "SelectedHandler.h"
 #include "SelectingHandler.h"
 #include "ModelUpdaters.h"
@@ -1060,7 +1061,7 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
     }
 
     if ( networkPolicy() != NETWORK_OFFLINE ) {
-        _getParser( mailboxPtr, ReadOnly );
+        new CreateConnectionTask( this, mailboxPtr );
         // and that's all -- we will detect following replies and sync automatically
     }
 }
