@@ -39,6 +39,7 @@ SOURCES += Parser/Parser.cpp \
     Model/ImapTask.cpp \
     Model/CreateConnectionTask.cpp \
     Model/FetchMsgPartTask.cpp \
+    Model/UpdateFlagsTask.cpp \
     Model/ModelWatcher.cpp \
     Network/MsgPartNetworkReply.cpp \
     Network/ForbiddenReply.cpp \
@@ -78,6 +79,7 @@ HEADERS += Parser/Parser.h \
     Model/ImapTask.h \
     Model/CreateConnectionTask.h \
     Model/FetchMsgPartTask.h \
+    Model/UpdateFlagsTask.h \
     Model/ModelWatcher.h \
     Network/ForbiddenReply.h \
     Network/AuxiliaryReply.h \

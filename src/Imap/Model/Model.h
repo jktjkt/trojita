@@ -387,6 +387,7 @@ private:
     friend class ImapTask;
     friend class CreateConnectionTask;
     friend class FetchMsgPartTask;
+    friend class UpdateFlagsTask;
 
     void _askForChildrenOfMailbox( TreeItemMailbox* item );
     void _askForMessagesInMailbox( TreeItemMsgList* item );
@@ -405,7 +406,6 @@ private:
     void replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<TreeItem*> mailboxes );
     void enterIdle( Parser* parser );
     void updateCapabilities( Parser* parser, const QStringList capabilities );
-    void updateFlags( TreeItemMessage* message, const QString& flagOperation, const QString& flags );
 
     TreeItem* translatePtr( const QModelIndex& index ) const;
 

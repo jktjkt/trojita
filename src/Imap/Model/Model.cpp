@@ -29,6 +29,7 @@
 #include "IdleLauncher.h"
 #include "ImapTask.h"
 #include "FetchMsgPartTask.h"
+#include "UpdateFlagsTask.h"
 #include <QAbstractProxyModel>
 #include <QAuthenticator>
 #include <QCoreApplication>
@@ -1427,33 +1428,18 @@ void Model::updateCapabilities( Parser* parser, const QStringList capabilities )
     parser->enableLiteralPlus( capabilities.contains( QLatin1String( "LITERAL+" ) ) );
 }
 
-void Model::updateFlags( TreeItemMessage* message, const QString& flagOperation, const QString& flags )
-{
-    if ( _netPolicy == NETWORK_OFFLINE ) {
-        qDebug() << "Ignoring requests to modify message flags when OFFLINE";
-        return;
-    }
-    Parser* parser = _getParser( dynamic_cast<TreeItemMailbox*>(
-            static_cast<TreeItem*>( message->parent()->parent() ) ), ReadWrite );
-    if ( message->_uid == 0 ) {
-        qDebug() << "Error: attempted to work with message with UID 0";
-        return;
-    }
-    CommandHandle cmd = parser->uidStore( Sequence( message->_uid ), flagOperation, flags );
-    _parsers[ parser ].commandMap[ cmd ] = Task( Task::STORE, message );
-    emit activityHappening( true );
-}
-
 void Model::markMessageDeleted( TreeItemMessage* msg, bool marked )
 {
-    updateFlags( msg, marked ? QLatin1String("+FLAGS") : QLatin1String("-FLAGS"),
-                 QLatin1String("(\\Deleted)") );
+    UpdateFlagsTask* task = new UpdateFlagsTask( this, QModelIndexList() << createIndex( msg->row(), 0, msg ),
+                                                 marked ? QLatin1String("+FLAGS") : QLatin1String("-FLAGS"),
+                                                 QLatin1String("(\\Deleted)") );
 }
 
 void Model::markMessageRead( TreeItemMessage* msg, bool marked )
 {
-    updateFlags( msg, marked ? QLatin1String("+FLAGS") : QLatin1String("-FLAGS"),
-                 QLatin1String("(\\Seen)") );
+    UpdateFlagsTask* task = new UpdateFlagsTask( this, QModelIndexList() << createIndex( msg->row(), 0, msg ),
+                                                 marked ? QLatin1String("+FLAGS") : QLatin1String("-FLAGS"),
+                                                 QLatin1String("(\\Seen)") );
 }
 
 void Model::copyMessages( TreeItemMailbox* sourceMbox, const QString& destMailboxName, const Sequence& seq )
