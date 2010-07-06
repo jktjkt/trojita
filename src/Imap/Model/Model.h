@@ -389,6 +389,7 @@ private:
     friend class FetchMsgPartTask;
     friend class UpdateFlagsTask;
     friend class ListChildMailboxesTask;
+    friend class NumberOfMessagesTask;
 
     void _askForChildrenOfMailbox( TreeItemMailbox* item );
     void _askForMessagesInMailbox( TreeItemMsgList* item );

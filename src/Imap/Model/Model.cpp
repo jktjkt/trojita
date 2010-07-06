@@ -32,6 +32,7 @@
 #include "FetchMsgPartTask.h"
 #include "UpdateFlagsTask.h"
 #include "ListChildMailboxesTask.h"
+#include "NumberOfMessagesTask.h"
 #include <QAbstractProxyModel>
 #include <QAuthenticator>
 #include <QCoreApplication>
@@ -1092,11 +1093,7 @@ void Model::_askForNumberOfMessages( TreeItemMsgList* item )
             item->_numberFetchingStatus = TreeItem::UNAVAILABLE;
         }
     } else {
-        Parser* parser = _getParser( 0, ReadOnly );
-        CommandHandle cmd = parser->status( mailboxPtr->mailbox(),
-                                            QStringList() << QLatin1String("MESSAGES") << QLatin1String("UNSEEN") );
-        _parsers[ parser ].commandMap[ cmd ] = Task( Task::STATUS, item );
-        emit activityHappening( true );
+        new NumberOfMessagesTask( this, createIndex( mailboxPtr->row(), 0, mailboxPtr ) );
     }
 }
 

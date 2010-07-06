@@ -1,0 +1,72 @@
+/* Copyright (C) 2007 - 2010 Jan Kundrát <jkt@flaska.net>
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public
+   License as published by the Free Software Foundation; either
+   version 2 of the License, or version 3 of the License.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; see the file COPYING.  If not, write to
+   the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+   Boston, MA 02110-1301, USA.
+*/
+
+
+#include "NumberOfMessagesTask.h"
+#include "CreateConnectionTask.h"
+#include "Model.h"
+#include "MailboxTree.h"
+
+namespace Imap {
+namespace Mailbox {
+
+
+NumberOfMessagesTask::NumberOfMessagesTask( Model* _model, const QModelIndex& mailbox ):
+    ImapTask( _model ), mailboxIndex(mailbox)
+{
+    TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailbox.internalPointer() ) );
+    Q_ASSERT( mailboxPtr );
+    conn = new CreateConnectionTask( _model, 0 );
+    conn->addDependentTask( this );
+}
+
+void NumberOfMessagesTask::perform()
+{
+    if ( ! mailboxIndex.isValid() ) {
+        // FIXME: add proper fix
+        qDebug() << "Mailbox vanished before we could ask for number of messages inside";
+        _completed();
+        return;
+    }
+    TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
+    Q_ASSERT( mailbox );
+    parser = conn->parser;
+    model->_parsers[ parser ].activeTasks.append( this );
+
+    tag = parser->status( mailbox->mailbox(),
+                          QStringList() << QLatin1String("MESSAGES") << QLatin1String("UNSEEN") );
+    model->_parsers[ parser ].commandMap[ tag ] = Model::Task( Model::Task::STATUS, 0 );
+    emit model->activityHappening( true );
+}
+
+bool NumberOfMessagesTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+{
+    if ( resp->tag == tag ) {
+        IMAP_TASK_ENSURE_VALID_COMMAND( Model::Task::LIST );
+        // FIXME: we should probably care about how the command ended here...
+        _completed();
+        IMAP_TASK_CLEANUP_COMMAND;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
+}
+}
