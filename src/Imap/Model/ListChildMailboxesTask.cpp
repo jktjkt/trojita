@@ -31,7 +31,7 @@ ListChildMailboxesTask::ListChildMailboxesTask( Model* _model, const QModelIndex
 {
     TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailbox.internalPointer() ) );
     Q_ASSERT( mailboxPtr );
-    conn = new CreateConnectionTask( _model, mailboxPtr );
+    conn = new CreateConnectionTask( _model, 0 );
     conn->addDependentTask( this );
 }
 
