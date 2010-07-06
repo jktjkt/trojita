@@ -234,7 +234,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 }
                 break;
             case Task::STATUS:
-                // FIXME
+                throw CantHappen( "The Task::STATUS should've been handled by the NumberOfMessagesTask", *resp );
                 break;
             case Task::SELECT:
                 --_parsers[ ptr ].selectingAnother;
@@ -256,8 +256,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 _finalizeFetch( ptr, command );
                 break;
             case Task::FETCH_PART:
-                Q_ASSERT( false );
-                // should be handled elsewhere
+                throw CantHappen( "The Task::FETCH_PART should've been handled by the FetchMsgPartTask", *resp );
                 break;
             case Task::NOOP:
             case Task::IDLE:
