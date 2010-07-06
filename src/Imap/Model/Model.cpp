@@ -115,21 +115,44 @@ void Model::responseReceived()
         QSharedPointer<Imap::Responses::AbstractResponse> resp = it.value().parser->getResponse();
         Q_ASSERT( resp );
         try {
+            /* At this point, we want to iterate over all active tasks and try them
+            for processing the server's responses (the plug() method). However, this
+            is rather complex -- this call to plug() could result in signals being
+            emited, and certain slots connected to those signals might in turn want
+            to queue more Tasks. Therefore, it->activeTasks could be modified, some
+            items could be appended to it uwing the QList::append, which in turn could
+            cause a realloc to happen, happily invalidating our iterators, and that
+            kind of sucks.
+
+            So, we have to iterate over a copy of the original list and istead of
+            deleting Tasks, we store them into a temporary list. When we're done with
+            processing, we walk the original list once again and simply remove all
+            "deleted" items for real.
+
+            This took me 3+ hours to track it down to what the hell was happening here,
+            even though the underlying reason is simple -- QList::append() could invalidate
+            existing iterators.
+            */
+
             bool handled = false;
-            for ( QList<ImapTask*>::iterator taskIt = it->activeTasks.begin();
-                    taskIt != it->activeTasks.end(); /*nothing*/ ) {
+            QList<ImapTask*> taskSnapshot = it->activeTasks;
+            QList<ImapTask*> deletedTasks;
+
+            // Try various tasks, perhaps it's their response
+            for ( QList<ImapTask*>::iterator taskIt = taskSnapshot.begin(); taskIt != taskSnapshot.end(); ++taskIt ) {
                 bool handledNow = resp->plug( it->parser, *taskIt );
 
-                if ( (*taskIt)->isFinished() ) {
-                    (*taskIt)->deleteLater();
-                    taskIt = it->activeTasks.erase( taskIt );
-                } else {
-                    ++taskIt;
-                }
+                if ( (*taskIt)->isFinished() )
+                    deletedTasks << *taskIt;
 
                 handled |= handledNow;
                 if ( handled )
                     break;
+            }
+            // And now remove the finished commands
+            for ( QList<ImapTask*>::iterator deletedIt = deletedTasks.begin(); deletedIt != deletedTasks.end(); ++deletedIt ) {
+                (*deletedIt)->deleteLater();
+                it->activeTasks.removeOne( *deletedIt );
             }
             if ( ! handled )
                 resp->plug( it.value().parser, this );
