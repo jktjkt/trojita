@@ -24,7 +24,7 @@ namespace Imap {
 namespace Mailbox {
 
 CreateConnectionTask::CreateConnectionTask( Model* _model, TreeItemMailbox* mailbox ) :
-    ImapTask( _model )
+    ImapTask( _model ), immediately( ! mailbox )
 {
     parser = model->_getParser( mailbox, Model::ReadWrite );
     // This is a special case, because we do not depend on any other job.
@@ -36,7 +36,8 @@ void CreateConnectionTask::perform()
 {
     model->_parsers[ parser ].activeTasks.append( this );
     // FIXME: In future, this should be replaced by proper SELECTs etc
-    QTimer::singleShot( 0, this, SLOT(_hackSignalCompletion()) );
+    if ( immediately )
+        QTimer::singleShot( 0, this, SLOT(_hackSignalCompletion()) );
 }
 
 void CreateConnectionTask::_hackSignalCompletion()

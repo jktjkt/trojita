@@ -33,6 +33,7 @@
 #include "UpdateFlagsTask.h"
 #include "ListChildMailboxesTask.h"
 #include "NumberOfMessagesTask.h"
+#include "FetchMsgMetadataTask.h"
 #include <QAbstractProxyModel>
 #include <QAuthenticator>
 #include <QCoreApplication>
@@ -254,6 +255,12 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 break;
             case Task::FETCH_WITH_FLAGS:
                 _finalizeFetch( ptr, command );
+                Q_FOREACH( ImapTask* task, _parsers[ ptr ].activeTasks ) {
+                    CreateConnectionTask* conn = dynamic_cast<CreateConnectionTask*>( task );
+                    if ( ! task )
+                        continue;
+                    conn->_completed();
+                }
                 break;
             case Task::FETCH_PART:
                 throw CantHappen( "The Task::FETCH_PART should've been handled by the FetchMsgPartTask", *resp );
@@ -477,6 +484,7 @@ void Model::replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<Tree
 
 void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command )
 {
+    bool tasksNeedMoreWork = false;
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( command->what );
     Q_ASSERT( mailbox );
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[ 0 ] );
@@ -496,6 +504,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
         // We have already queued a command that switches to another mailbox
         // Asking the parser to switch back would only make the situation worse,
         // so we can't do anything better than exit right now
+        qDebug() << "FIXME FIXME: too many mailboxes in the queue; this breaks the Tasks API!!!";
         return;
     }
 
@@ -535,6 +544,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                     CommandHandle cmd = parser->fetch( Sequence( 1, syncState.exists() ),
                                                        items );
                     _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
+                    tasksNeedMoreWork = true;
                     emit activityHappening( true );
                     list->_numberFetchingStatus = TreeItem::LOADING;
                     list->_unreadMessageCount = 0;
@@ -572,6 +582,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                 CommandHandle cmd = parser->fetch( Sequence( 1, syncState.exists() ),
                                                    QStringList() << "UID" << "FLAGS" );
                 _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
+                tasksNeedMoreWork = true;
                 emit activityHappening( true );
                 list->_numberFetchingStatus = TreeItem::LOADING;
                 list->_unreadMessageCount = 0;
@@ -604,6 +615,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                 CommandHandle cmd = parser->fetch( Sequence( oldState.exists() + 1, syncState.exists() ),
                                                    items );
                 _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
+                tasksNeedMoreWork = true;
                 emit activityHappening( true );
                 list->_numberFetchingStatus = TreeItem::LOADING;
                 list->_fetchStatus = TreeItem::DONE;
@@ -618,6 +630,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                 CommandHandle cmd = parser->fetch( Sequence( 1, syncState.exists() ),
                                                    QStringList() << "UID" << "FLAGS" );
                 _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
+                tasksNeedMoreWork = true;
                 emit activityHappening( true );
                 _parsers[ parser ].responseHandler = selectingHandler;
                 list->_numberFetchingStatus = TreeItem::LOADING;
@@ -634,8 +647,17 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
         // Forget everything, do a dumb sync
         cache()->clearAllMessages( mailbox->mailbox() );
         _fullMboxSync( mailbox, list, parser, syncState );
+        tasksNeedMoreWork = true;
     }
     emitMessageCountChanged( mailbox );
+    if ( ! tasksNeedMoreWork ) {
+        Q_FOREACH( ImapTask* task, _parsers[ parser ].activeTasks ) {
+            CreateConnectionTask* conn = dynamic_cast<CreateConnectionTask*>( task );
+            if ( ! task )
+                continue;
+            conn->_completed();
+        }
+    }
 }
 
 void Model::emitMessageCountChanged( TreeItemMailbox* const mailbox )
@@ -648,6 +670,7 @@ void Model::emitMessageCountChanged( TreeItemMailbox* const mailbox )
 
 void Model::_fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, Parser* parser, const SyncState& syncState )
 {
+    bool tasksNeedMoreWork = false;
     cache()->clearUidMapping( mailbox->mailbox() );
 
     QModelIndex parent = createIndex( 0, 0, list );
@@ -675,6 +698,7 @@ void Model::_fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, Pars
         QStringList items = willLoad ? _onlineMessageFetch : QStringList() << "UID" << "FLAGS";
         CommandHandle cmd = parser->fetch( Sequence( 1, syncState.exists() ), items );
         _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
+        tasksNeedMoreWork = true;
         emit activityHappening( true );
         list->_numberFetchingStatus = TreeItem::LOADING;
         list->_unreadMessageCount = 0;
@@ -687,6 +711,14 @@ void Model::_fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, Pars
         saveUidMap( list );
     }
     emitMessageCountChanged( mailbox );
+    if ( ! tasksNeedMoreWork ) {
+        Q_FOREACH( ImapTask* task, _parsers[ parser ].activeTasks ) {
+            CreateConnectionTask* conn = dynamic_cast<CreateConnectionTask*>( task );
+            if ( ! task )
+                continue;
+            conn->_completed();
+        }
+    }
 }
 
 /** @short Retrieval of a message part has completed */

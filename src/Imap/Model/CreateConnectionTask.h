@@ -49,6 +49,10 @@ private slots:
 
 public:
     Parser* parser;
+
+private:
+    bool immediately;
+    friend class Model; // temporary hack: for access to _completed();
 };
 
 }
