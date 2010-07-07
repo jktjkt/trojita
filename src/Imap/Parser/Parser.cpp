@@ -293,7 +293,7 @@ CommandHandle Parser::uidFetch( const Sequence& seq, const QStringList& items )
 {
     return queueCommand( Commands::Command( "UID FETCH" ) <<
             Commands::PartOfCommand( Commands::ATOM, seq.toString() ) <<
-            Commands::PartOfCommand( Commands::ATOM, items.join(" ") ) );
+            Commands::PartOfCommand( Commands::ATOM, '(' + items.join(" ") + ')' ) );
 }
 
 CommandHandle Parser::uidStore( const Sequence& seq, const QString& item, const QString& value )
