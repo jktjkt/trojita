@@ -251,6 +251,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
             case Task::FETCH_MESSAGE_METADATA:
                 // Either we were fetching just UID & FLAGS, or that and stuff like BODYSTRUCTURE.
                 // In any case, we don't have to do anything here, besides updating message status
+                // FIXME: this should probably go when the Task migration's done, as Tasks themselves could be made responsible for state updates
                 changeConnectionState( ptr, CONN_STATE_SELECTED );
                 break;
             case Task::FETCH_WITH_FLAGS:
@@ -609,7 +610,8 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
                     list->_children << msg;
                 }
 
-                QStringList items = ( networkPolicy() == NETWORK_ONLINE &&
+                // FIXME: re-enable the optimization when Task migration is done
+                QStringList items = ( false && networkPolicy() == NETWORK_ONLINE &&
                                       syncState.uidNext() - oldState.uidNext() <= StructureFetchLimit ) ?
                                     _onlineMessageFetch : QStringList() << "UID" << "FLAGS";
                 CommandHandle cmd = parser->fetch( Sequence( oldState.exists() + 1, syncState.exists() ),
@@ -687,15 +689,17 @@ void Model::_fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, Pars
             TreeItemMessage* message = new TreeItemMessage( list );
             message->_offset = i;
             list->_children << message;
-            if ( willLoad )
-                message->_fetchStatus = TreeItem::LOADING;
+            // FIXME: re-evaluate this one when Task migration's done
+            //if ( willLoad )
+            //    message->_fetchStatus = TreeItem::LOADING;
         }
         endInsertRows();
         list->_fetchStatus = TreeItem::DONE;
 
         Q_ASSERT( ! _parsers[ parser ].selectingAnother );
 
-        QStringList items = willLoad ? _onlineMessageFetch : QStringList() << "UID" << "FLAGS";
+        // FIXME: re-enable optimization when Task migration's done
+        QStringList items = false && willLoad ? _onlineMessageFetch : QStringList() << "UID" << "FLAGS";
         CommandHandle cmd = parser->fetch( Sequence( 1, syncState.exists() ), items );
         _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_WITH_FLAGS, mailbox );
         tasksNeedMoreWork = true;
@@ -1174,31 +1178,24 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
         case NETWORK_EXPENSIVE:
             {
                 item->_fetchStatus = TreeItem::LOADING;
-                Parser* parser = _getParser( mailboxPtr, ReadOnly );
-                CommandHandle cmd = parser->fetch( Sequence( order + 1 ), _onlineMessageFetch );
-                _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_MESSAGE_METADATA, item );
-                emit activityHappening( true );
+                new FetchMsgMetadataTask( this, QModelIndexList() << createIndex( item->row(), 0, item ) );
             }
             break;
         case NETWORK_ONLINE:
             {
-                item->_fetchStatus = TreeItem::LOADING;
                 // preload
-                Sequence seq( order + 1 );
+                QModelIndexList items;
                 for ( int i = qMax( 0, order - StructurePreload );
                       i < qMin( list->_children.size(), order + StructurePreload );
                       ++i ) {
                     TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->_children[i] );
                     Q_ASSERT( message );
-                    if ( item != message && ! message->fetched() && ! message->loading() ) {
+                    if ( item == message || ( ! message->fetched() && ! message->loading() ) ) {
                         message->_fetchStatus = TreeItem::LOADING;
-                        seq.add( message->row() + 1 );
+                        items << createIndex( message->row(), 0, message );
                     }
                 }
-                Parser* parser = _getParser( mailboxPtr, ReadOnly );
-                CommandHandle cmd = parser->fetch( seq, _onlineMessageFetch );
-                _parsers[ parser ].commandMap[ cmd ] = Task( Task::FETCH_MESSAGE_METADATA, item );
-                emit activityHappening( true );
+                new FetchMsgMetadataTask( this, items );
             }
             break;
     }

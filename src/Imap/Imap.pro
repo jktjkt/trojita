@@ -39,6 +39,7 @@ SOURCES += Parser/Parser.cpp \
     Model/ImapTask.cpp \
     Model/CreateConnectionTask.cpp \
     Model/FetchMsgPartTask.cpp \
+    Model/FetchMsgMetadataTask.cpp \
     Model/UpdateFlagsTask.cpp \
     Model/ListChildMailboxesTask.cpp \
     Model/NumberOfMessagesTask.cpp \
@@ -81,6 +82,7 @@ HEADERS += Parser/Parser.h \
     Model/ImapTask.h \
     Model/CreateConnectionTask.h \
     Model/FetchMsgPartTask.h \
+    Model/FetchMsgMetadataTask.h \
     Model/UpdateFlagsTask.h \
     Model/ListChildMailboxesTask.h \
     Model/NumberOfMessagesTask.h \
