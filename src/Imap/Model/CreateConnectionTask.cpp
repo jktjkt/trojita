@@ -38,6 +38,14 @@ void CreateConnectionTask::perform()
     // FIXME: In future, this should be replaced by proper SELECTs etc
     if ( immediately )
         QTimer::singleShot( 0, this, SLOT(_hackSignalCompletion()) );
+    else
+        QTimer::singleShot( 500, this, SLOT(_hackSignalCompletion()) );
+    // The reason for the second call is that we do really want not
+    // to postpone the execution of various dependant tasks "too much".
+    // An unfortunate side effect of the tasks still not being fully
+    // implemented is that Trojita might seem a bit slow, some tasks
+    // will have a 500ms delay associated with them. This should be
+    // fixed when we switch to proper dependency tracking.
 }
 
 void CreateConnectionTask::_hackSignalCompletion()
