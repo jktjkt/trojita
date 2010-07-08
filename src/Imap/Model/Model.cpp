@@ -1366,12 +1366,10 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
         case NETWORK_EXPENSIVE:
             _netPolicy = NETWORK_EXPENSIVE;
             noopTimer->stop();
-            _getParser( 0, ReadOnly );
             emit networkPolicyExpensive();
             break;
         case NETWORK_ONLINE:
             _netPolicy = NETWORK_ONLINE;
-            _getParser( 0, ReadOnly );
             noopTimer->start( PollingPeriod );
             emit networkPolicyOnline();
             break;
