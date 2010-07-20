@@ -344,6 +344,7 @@ void MainWindow::setupModels()
     connect( mboxTree, SIGNAL( activated(const QModelIndex&) ), msgListModel, SLOT( setMailbox(const QModelIndex&) ) );
     connect( msgListModel, SIGNAL( mailboxChanged() ), this, SLOT( slotResizeMsgListColumns() ) );
     connect( msgListModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ), this, SLOT( updateMessageFlags() ) );
+    connect( msgListModel, SIGNAL(messagesAvailable()), msgListTree, SLOT(scrollToBottom()) );
 
     connect( msgListTree, SIGNAL( activated(const QModelIndex&) ), this, SLOT( msgListActivated(const QModelIndex&) ) );
     connect( msgListTree, SIGNAL( clicked(const QModelIndex&) ), this, SLOT( msgListClicked(const QModelIndex&) ) );

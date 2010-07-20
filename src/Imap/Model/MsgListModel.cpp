@@ -34,7 +34,7 @@
 namespace Imap {
 namespace Mailbox {
 
-MsgListModel::MsgListModel( QObject* parent, Model* model ): QAbstractProxyModel(parent), msgList(0)
+MsgListModel::MsgListModel( QObject* parent, Model* model ): QAbstractProxyModel(parent), msgList(0), waitingForMessages(false)
 {
     setSourceModel( model );
 
@@ -430,10 +430,16 @@ void MsgListModel::handleRowsInserted( const QModelIndex& parent, int start, int
     if ( msgList && msgList == newList ) {
         endInsertRows();
     }
+
+    if ( waitingForMessages ) {
+        waitingForMessages = false;
+        emit messagesAvailable();
+    }
 }
 
 void MsgListModel::setMailbox( const QModelIndex& index )
 {
+    waitingForMessages = true;
     if ( ! index.isValid() ) {
         msgList = 0;
         reset();

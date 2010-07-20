@@ -70,11 +70,15 @@ signals:
     void messageRemoved( void* );
     void mailboxChanged();
 
+    /** @short Messages are available for the first time after selecting new mailbox */
+    void messagesAvailable();
+
 private:
     MsgListModel& operator=( const MsgListModel& ); // don't implement
     MsgListModel( const MsgListModel& ); // don't implement
 
     TreeItemMsgList* msgList;
+    bool waitingForMessages;
 };
 
 }
