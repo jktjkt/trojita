@@ -1355,7 +1355,7 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
         case NETWORK_OFFLINE:
             noopTimer->stop();
             for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
-                CommandHandle cmd = _parsers[ it.key() ].parser->logout();
+                CommandHandle cmd = it->parser->logout();
                 _parsers[ it.key() ].commandMap[ cmd ] = Task( Task::LOGOUT, 0 );
                 emit activityHappening( true );
             }
