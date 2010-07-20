@@ -1705,6 +1705,9 @@ void Model::killParser(Parser *parser)
         // FIXME: fail the command, perform cleanup,...
     }
     _parsers[ parser ].commandMap.clear();
+    _parsers[ parser ].idleLauncher->die();
+    _parsers[ parser ].idleLauncher->deleteLater();
+    _parsers[ parser ].idleLauncher = 0;
     noopTimer->stop();
     parser->disconnect();
     parser->deleteLater();

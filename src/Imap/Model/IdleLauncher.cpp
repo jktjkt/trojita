@@ -82,5 +82,13 @@ void IdleLauncher::postponeIdleIfActive()
         delayedEnter->start();
 }
 
+void IdleLauncher::die()
+{
+    delayedEnter->stop();
+    delayedEnter->disconnect();
+    renewal->stop();
+    renewal->disconnect();
+}
+
 }
 }

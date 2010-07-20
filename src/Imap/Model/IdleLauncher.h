@@ -49,6 +49,9 @@ This function should be called when further communication via the socket suggest
 that the IDLE command should be postponed
 */
     void postponeIdleIfActive();
+
+    /** @short Prevent any further idling */
+    void die();
 public slots:
     /** @short Immediately send the IDLE command to the parser */
     void slotEnterIdleNow();
