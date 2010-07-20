@@ -34,6 +34,7 @@
 #include "ListChildMailboxesTask.h"
 #include "NumberOfMessagesTask.h"
 #include "FetchMsgMetadataTask.h"
+#include "ExpungeMailboxTask.h"
 #include <QAbstractProxyModel>
 #include <QAuthenticator>
 #include <QCoreApplication>
@@ -292,7 +293,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 // FIXME: what to do
                 break;
             case Task::EXPUNGE:
-                // FIXME
+                throw CantHappen( "The Task::EXPUNGE should've been handled by the ExpungeMailboxTask", *resp );
                 break;
             case Task::COPY:
                 // FIXME
@@ -1545,15 +1546,7 @@ void Model::expungeMailbox( TreeItemMailbox* mbox )
     if ( ! mbox )
         return;
 
-    if ( _netPolicy == NETWORK_OFFLINE ) {
-        qDebug() << "Can't expunge while offline";
-        return;
-    }
-
-    Parser* parser = _getParser( mbox, ReadWrite );
-    CommandHandle cmd = parser->expunge(); // BIG FAT WARNING: what happens if the SELECT fails???
-    _parsers[ parser ].commandMap[ cmd ] = Task( Task::EXPUNGE, mbox );
-    emit activityHappening( true );
+    new ExpungeMailboxTask( this, createIndex( mbox->row(), 0, mbox ) );
 }
 
 void Model::createMailbox( const QString& name )

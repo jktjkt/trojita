@@ -43,6 +43,7 @@ SOURCES += Parser/Parser.cpp \
     Model/UpdateFlagsTask.cpp \
     Model/ListChildMailboxesTask.cpp \
     Model/NumberOfMessagesTask.cpp \
+    Model/ExpungeMailboxTask.cpp \
     Model/ModelWatcher.cpp \
     Network/MsgPartNetworkReply.cpp \
     Network/ForbiddenReply.cpp \
@@ -86,6 +87,7 @@ HEADERS += Parser/Parser.h \
     Model/UpdateFlagsTask.h \
     Model/ListChildMailboxesTask.h \
     Model/NumberOfMessagesTask.h \
+    Model/ExpungeMailboxTask.h \
     Model/ModelWatcher.h \
     Network/ForbiddenReply.h \
     Network/AuxiliaryReply.h \

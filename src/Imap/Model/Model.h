@@ -391,6 +391,7 @@ private:
     friend class ListChildMailboxesTask;
     friend class NumberOfMessagesTask;
     friend class FetchMsgMetadataTask;
+    friend class ExpungeMailboxTask;
 
     void _askForChildrenOfMailbox( TreeItemMailbox* item );
     void _askForMessagesInMailbox( TreeItemMsgList* item );
