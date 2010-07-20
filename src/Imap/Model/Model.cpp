@@ -258,7 +258,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 _finalizeFetch( ptr, command );
                 Q_FOREACH( ImapTask* task, _parsers[ ptr ].activeTasks ) {
                     CreateConnectionTask* conn = dynamic_cast<CreateConnectionTask*>( task );
-                    if ( ! task )
+                    if ( ! conn )
                         continue;
                     conn->_completed();
                 }
@@ -655,7 +655,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
     if ( ! tasksNeedMoreWork ) {
         Q_FOREACH( ImapTask* task, _parsers[ parser ].activeTasks ) {
             CreateConnectionTask* conn = dynamic_cast<CreateConnectionTask*>( task );
-            if ( ! task )
+            if ( ! conn )
                 continue;
             conn->_completed();
         }
@@ -718,7 +718,7 @@ void Model::_fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, Pars
     if ( ! tasksNeedMoreWork ) {
         Q_FOREACH( ImapTask* task, _parsers[ parser ].activeTasks ) {
             CreateConnectionTask* conn = dynamic_cast<CreateConnectionTask*>( task );
-            if ( ! task )
+            if ( ! conn )
                 continue;
             conn->_completed();
         }
