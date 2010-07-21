@@ -136,7 +136,6 @@ class Model: public QAbstractItemModel {
         bool capabilitiesFresh;
         /** @short LIST responses which were not processed yet */
         QList<Responses::List> listResponses;
-        SyncState syncState;
         ModelStateHandler* responseHandler;
         QList<uint> uidMap;
         QMap<uint, QStringList> syncingFlags;

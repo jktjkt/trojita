@@ -20,6 +20,7 @@
 */
 #include "AuthenticatedHandler.h"
 #include "UnauthenticatedHandler.h"
+#include "MailboxTree.h"
 
 namespace Imap {
 namespace Mailbox {
@@ -38,7 +39,7 @@ void AuthenticatedHandler::handleState( Imap::Parser* ptr, const Imap::Responses
         {
             const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.data() );
             if ( num )
-                m->_parsers[ ptr ].syncState.setUnSeen( num->data );
+                m->_parsers[ ptr ].currentMbox->syncState.setUnSeen( num->data );
             else
                 throw CantHappen( "State response has invalid UNSEEN respCodeData", *resp );
             break;
@@ -47,7 +48,7 @@ void AuthenticatedHandler::handleState( Imap::Parser* ptr, const Imap::Responses
         {
             const Responses::RespData<QStringList>* const num = dynamic_cast<const Responses::RespData<QStringList>* const>( resp->respCodeData.data() );
             if ( num )
-                m->_parsers[ ptr ].syncState.setPermanentFlags( num->data );
+                m->_parsers[ ptr ].currentMbox->syncState.setPermanentFlags( num->data );
             else
                 throw CantHappen( "State response has invalid PERMANENTFLAGS respCodeData", *resp );
             break;
@@ -56,7 +57,7 @@ void AuthenticatedHandler::handleState( Imap::Parser* ptr, const Imap::Responses
         {
             const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.data() );
             if ( num )
-                m->_parsers[ ptr ].syncState.setUidNext( num->data );
+                m->_parsers[ ptr ].currentMbox->syncState.setUidNext( num->data );
             else
                 throw CantHappen( "State response has invalid UIDNEXT respCodeData", *resp );
             break;
@@ -65,7 +66,7 @@ void AuthenticatedHandler::handleState( Imap::Parser* ptr, const Imap::Responses
         {
             const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.data() );
             if ( num )
-                m->_parsers[ ptr ].syncState.setUidValidity( num->data );
+                m->_parsers[ ptr ].currentMbox->syncState.setUidValidity( num->data );
             else
                 throw CantHappen( "State response has invalid UIDVALIDITY respCodeData", *resp );
             break;
@@ -80,13 +81,13 @@ void AuthenticatedHandler::handleNumberResponse( Imap::Parser* ptr, const Imap::
 {
     switch ( resp->kind ) {
         case Imap::Responses::EXISTS:
-            m->_parsers[ ptr ].syncState.setExists( resp->number );
+            m->_parsers[ ptr ].currentMbox->syncState.setExists( resp->number );
             break;
         case Imap::Responses::EXPUNGE:
             // must be handled elsewhere
             break;
         case Imap::Responses::RECENT:
-            m->_parsers[ ptr ].syncState.setRecent( resp->number );
+            m->_parsers[ ptr ].currentMbox->syncState.setRecent( resp->number );
             break;
         default:
             throw CantHappen( "Got a NumberResponse of invalid kind. This is supposed to be handled in its constructor!", *resp );
@@ -100,7 +101,7 @@ void AuthenticatedHandler::handleList( Imap::Parser* ptr, const Imap::Responses:
 
 void AuthenticatedHandler::handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp )
 {
-    m->_parsers[ ptr ].syncState.setFlags( resp->flags );
+    m->_parsers[ ptr ].currentMbox->syncState.setFlags( resp->flags );
 }
 
 void AuthenticatedHandler::handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp )

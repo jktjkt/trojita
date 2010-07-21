@@ -493,7 +493,7 @@ void Model::_finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::co
     _parsers[ parser ].responseHandler = selectedHandler;
     changeConnectionState( parser, CONN_STATE_SELECTED );
 
-    const SyncState& syncState = _parsers[ parser ].syncState;
+    const SyncState& syncState = _parsers[ parser ].currentMbox->syncState;
     const SyncState& oldState = cache()->mailboxSyncState( mailbox->mailbox() );
 
     list->_totalMessageCount = syncState.exists();
@@ -749,7 +749,7 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
     if ( mailbox && _parsers[ parser ].responseHandler == selectedHandler ) {
         // the mailbox was already synced (?)
         mailbox->_children[0]->_fetchStatus = TreeItem::DONE;
-        cache()->setMailboxSyncState( mailbox->mailbox(), _parsers[ parser ].syncState );
+        cache()->setMailboxSyncState( mailbox->mailbox(), _parsers[ parser ].currentMbox->syncState );
         TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[0] );
         Q_ASSERT( list );
         saveUidMap( list );
@@ -763,7 +763,7 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
         // the synchronization was still in progress
         _parsers[ parser ].responseHandler = selectedHandler;
         changeConnectionState( parser, CONN_STATE_SELECTED );
-        cache()->setMailboxSyncState( mailbox->mailbox(), _parsers[ parser ].syncState );
+        cache()->setMailboxSyncState( mailbox->mailbox(), _parsers[ parser ].currentMbox->syncState );
 
         QList<uint>& uidMap = _parsers[ parser ].uidMap;
         TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[0] );
@@ -1226,6 +1226,7 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
                         it->commandMap[ cmd ] = Task( Task::SELECT, mailbox );
                         it->mailbox = mailbox;
                         ++it->selectingAnother;
+                        it->currentMbox = mailbox;
                     }
                     return it->parser;
                 } else {
@@ -1235,6 +1236,7 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
                     it->commandMap[ cmd ] = Task( Task::SELECT, mailbox );
                     it->mailbox = mailbox;
                     ++it->selectingAnother;
+                    it->currentMbox = mailbox;
                     return it->parser;
                 }
             }
@@ -1254,6 +1256,7 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
         parser.commandMap[ cmd ] = Task( Task::SELECT, mailbox );
         emit const_cast<Model*>(this)->activityHappening( true );
         ++parser.selectingAnother;
+        parser.currentMbox = mailbox;
         return parser.parser;
     } else {
         // We can create one more, but we should try to find one which already exists,
@@ -1271,6 +1274,7 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
                 it->mailbox = mailbox;
                 it->mode = mode;
                 ++it->selectingAnother;
+                it->currentMbox = mailbox;
                 return it->parser;
             }
         }
@@ -1305,6 +1309,7 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
             _parsers[ parser ].mailbox = mailbox;
             _parsers[ parser ].mode = mode;
             ++_parsers[ parser ].selectingAnother;
+            _parsers[ parser ].currentMbox = mailbox;
         }
         return parser;
     }

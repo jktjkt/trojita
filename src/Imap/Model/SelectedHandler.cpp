@@ -42,8 +42,8 @@ void SelectedHandler::handleNumberResponse( Imap::Parser* ptr, const Imap::Respo
         Model::ParserState& parser = m->_parsers[ ptr ];
         Q_ASSERT( parser.currentMbox );
         parser.currentMbox->handleExpunge( m, *resp );
-        parser.syncState.setExists( parser.syncState.exists() - 1 );
-        m->cache()->setMailboxSyncState( parser.currentMbox->mailbox(), parser.syncState );
+        parser.currentMbox->syncState.setExists( parser.currentMbox->syncState.exists() - 1 );
+        m->cache()->setMailboxSyncState( parser.currentMbox->mailbox(), parser.currentMbox->syncState );
     } else if ( resp->kind == Imap::Responses::EXISTS ) {
         // EXISTS is already updated by AuthenticatedHandler
         Model::ParserState& parser = m->_parsers[ ptr ];

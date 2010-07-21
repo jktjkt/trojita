@@ -93,6 +93,8 @@ public:
     virtual bool hasChildren( Model* const model );
     virtual TreeItem* child( const int offset, Model* const model );
 
+    SyncState syncState;
+
     /** @short Returns true if this mailbox has child mailboxes
 
 This function might access the network if the answer can't be decided, for example on basis of mailbox flags.
