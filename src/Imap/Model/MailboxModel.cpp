@@ -318,6 +318,13 @@ bool MailboxModel::dropMimeData( const QMimeData* data, Qt::DropAction action,
         return false;
     }
 
+    uint uidValidity;
+    stream >> uidValidity;
+    if ( uidValidity != origMbox->syncState.uidValidity() ) {
+        qDebug() << "UID validity for original mailbox got changed, can't copy messages";
+        return false;
+    }
+
     Imap::Sequence seq;
     while ( ! stream.atEnd() ) {
         uint uid;

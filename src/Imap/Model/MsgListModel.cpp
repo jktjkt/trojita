@@ -321,7 +321,7 @@ QMimeData* MsgListModel::mimeData( const QModelIndexList& indexes ) const
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( Model::realTreeItem(
             indexes.front() )->parent()->parent() );
     Q_ASSERT( mailbox );
-    stream << mailbox->mailbox();
+    stream << mailbox->mailbox() << mailbox->syncState.uidValidity();
 
     for ( QModelIndexList::const_iterator it = indexes.begin(); it != indexes.end(); ++it ) {
         TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( Model::realTreeItem( *it ) );
