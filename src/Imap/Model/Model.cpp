@@ -35,6 +35,7 @@
 #include "NumberOfMessagesTask.h"
 #include "FetchMsgMetadataTask.h"
 #include "ExpungeMailboxTask.h"
+#include "CreateMailboxTask.h"
 #include <QAbstractProxyModel>
 #include <QAuthenticator>
 #include <QCoreApplication>
@@ -229,11 +230,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 throw CantHappen( "The Task::LIST should've been handled by the ListChildMailboxesTask", *resp );
                 break;
             case Task::LIST_AFTER_CREATE:
-                if ( resp->kind == Responses::OK ) {
-                    _finalizeIncrementalList( ptr, command );
-                } else {
-                    // FIXME
-                }
+                throw CantHappen( "The Task::LIST_AFTER_CREATE should've been handled by the CreateMailboxTask", *resp );
                 break;
             case Task::STATUS:
                 throw CantHappen( "The Task::STATUS should've been handled by the NumberOfMessagesTask", *resp );
@@ -299,7 +296,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 // FIXME
                 break;
             case Task::CREATE:
-                _finalizeCreate( ptr, command, resp );
+                throw CantHappen( "The Task::CREATE should've been handled by the CreateMailboxTask", *resp );
                 break;
             case Task::DELETE:
                 _finalizeDelete( ptr, command, resp );
@@ -381,11 +378,11 @@ void Model::_finalizeList( Parser* parser, TreeItemMailbox* mailboxPtr )
     replaceChildMailboxes( mailboxPtr, mailboxes );
 }
 
-void Model::_finalizeIncrementalList( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command )
+void Model::_finalizeIncrementalList( Parser* parser, const QString& parentMailboxName )
 {
-    TreeItemMailbox* parentMbox = findParentMailboxByName( command->str );
+    TreeItemMailbox* parentMbox = findParentMailboxByName( parentMailboxName );
     if ( ! parentMbox ) {
-        qDebug() << "Weird, no idea where to put the newly created mailbox" << command->str;
+        qDebug() << "Weird, no idea where to put the newly created mailbox" << parentMailboxName;
         return;
     }
 
@@ -394,7 +391,7 @@ void Model::_finalizeIncrementalList( Parser* parser, const QMap<CommandHandle, 
     QList<Responses::List>& listResponses = _parsers[ parser ].listResponses;
     for ( QList<Responses::List>::iterator it = listResponses.begin();
             it != listResponses.end(); /* nothing */ ) {
-        if ( it->mailbox == command->str ) {
+        if ( it->mailbox == parentMailboxName ) {
             mailboxes << new TreeItemMailbox( parentMbox, *it );
             it = listResponses.erase( it );
         } else {
@@ -870,18 +867,6 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
         saveUidMap( list );
         _parsers[ parser ].syncingFlags.clear();
         emitMessageCountChanged( mailbox );
-    }
-}
-
-void Model::_finalizeCreate( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command,  const Imap::Responses::State* const resp )
-{
-    if ( resp->kind == Responses::OK ) {
-        emit mailboxCreationSucceded( command->str );
-        CommandHandle cmd = parser->list( QLatin1String(""), command->str );
-        _parsers[ parser ].commandMap[ cmd ] = Task( Task::LIST_AFTER_CREATE, command->str );
-        emit activityHappening( true );
-    } else {
-        emit mailboxCreationFailed( command->str, resp->message );
     }
 }
 
@@ -1561,10 +1546,7 @@ void Model::createMailbox( const QString& name )
         return;
     }
 
-    Parser* parser = _getParser( 0, ReadOnly );
-    CommandHandle cmd = parser->create( name );
-    _parsers[ parser ].commandMap[ cmd ] = Task( Task::CREATE, name );
-    emit activityHappening( true );
+    new CreateMailboxTask( this, name );
 }
 
 void Model::deleteMailbox( const QString& name )
