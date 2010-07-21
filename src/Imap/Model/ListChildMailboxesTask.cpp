@@ -61,7 +61,7 @@ void ListChildMailboxesTask::perform()
 bool ListChildMailboxesTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
     if ( resp->tag == tag ) {
-        IMAP_TASK_ENSURE_VALID_COMMAND( Model::Task::LIST );
+        IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::Task::LIST );
 
         if ( mailboxIndex.isValid() ) {
             TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );

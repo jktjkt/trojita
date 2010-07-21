@@ -93,7 +93,7 @@ protected:
 
 FIXME: this is ugly; a nice OO way for doing that stuff should be much much better
 */
-#define IMAP_TASK_ENSURE_VALID_COMMAND(kind) \
+#define IMAP_TASK_ENSURE_VALID_COMMAND(tag, kind) \
 QMap<CommandHandle, Model::Task>::iterator command = model->_parsers[ ptr ].commandMap.find( tag ); \
 if ( command == model->_parsers[ ptr ].commandMap.end() ) { \
     qDebug() << "This command is not valid anymore" << tag; \

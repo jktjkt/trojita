@@ -92,7 +92,7 @@ void UpdateFlagsTask::perform()
 bool UpdateFlagsTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
     if ( resp->tag == tag ) {
-        IMAP_TASK_ENSURE_VALID_COMMAND( Model::Task::STORE );
+        IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::Task::STORE );
 
         if ( resp->kind == Responses::OK ) {
             // nothing should be needed here
