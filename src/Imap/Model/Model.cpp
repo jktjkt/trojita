@@ -1546,6 +1546,11 @@ void Model::expungeMailbox( TreeItemMailbox* mbox )
     if ( ! mbox )
         return;
 
+    if ( _netPolicy == NETWORK_OFFLINE ) {
+        qDebug() << "Can't expunge while offline";
+        return;
+    }
+
     new ExpungeMailboxTask( this, createIndex( mbox->row(), 0, mbox ) );
 }
 
