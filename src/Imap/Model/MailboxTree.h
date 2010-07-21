@@ -39,6 +39,7 @@ class TreeItem {
     friend class Model; // for _loading and _fetched
     TreeItem(const TreeItem&); // don't implement
     void operator=( const TreeItem& ); // don't implement
+    friend class DeleteMailboxTask; // for direct access to _children
 
 protected:
     /** @short Availability of an item */

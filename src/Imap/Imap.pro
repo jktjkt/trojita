@@ -45,6 +45,7 @@ SOURCES += Parser/Parser.cpp \
     Model/NumberOfMessagesTask.cpp \
     Model/ExpungeMailboxTask.cpp \
     Model/CreateMailboxTask.cpp \
+    Model/DeleteMailboxTask.cpp \
     Model/ModelWatcher.cpp \
     Network/MsgPartNetworkReply.cpp \
     Network/ForbiddenReply.cpp \
@@ -90,6 +91,7 @@ HEADERS += Parser/Parser.h \
     Model/NumberOfMessagesTask.h \
     Model/ExpungeMailboxTask.h \
     Model/CreateMailboxTask.h \
+    Model/DeleteMailboxTask.h \
     Model/ModelWatcher.h \
     Network/ForbiddenReply.h \
     Network/AuxiliaryReply.h \

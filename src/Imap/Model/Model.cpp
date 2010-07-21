@@ -36,6 +36,7 @@
 #include "FetchMsgMetadataTask.h"
 #include "ExpungeMailboxTask.h"
 #include "CreateMailboxTask.h"
+#include "DeleteMailboxTask.h"
 #include <QAbstractProxyModel>
 #include <QAuthenticator>
 #include <QCoreApplication>
@@ -299,7 +300,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 throw CantHappen( "The Task::CREATE should've been handled by the CreateMailboxTask", *resp );
                 break;
             case Task::DELETE:
-                _finalizeDelete( ptr, command, resp );
+                throw CantHappen( "The Task::DELETE should've been handled by the DeleteMailboxTask", *resp );
                 break;
             case Task::LOGOUT:
                 // we are inside while loop in responseReceived(), so we can't delete current parser just yet
@@ -867,29 +868,6 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
         saveUidMap( list );
         _parsers[ parser ].syncingFlags.clear();
         emitMessageCountChanged( mailbox );
-    }
-}
-
-void Model::_finalizeDelete( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command,  const Imap::Responses::State* const resp )
-{
-    Q_UNUSED(parser);
-    if ( resp->kind == Responses::OK ) {
-        TreeItemMailbox* mailboxPtr = findMailboxByName( command->str );
-        if ( mailboxPtr ) {
-            TreeItem* parentPtr = mailboxPtr->parent();
-            QModelIndex parentIndex = parentPtr == _mailboxes ? QModelIndex() : QAbstractItemModel::createIndex( parentPtr->row(), 0, parentPtr );
-            beginRemoveRows( parentIndex, mailboxPtr->row(), mailboxPtr->row() );
-            mailboxPtr->parent()->_children.removeAt( mailboxPtr->row() );
-            endRemoveRows();
-            delete mailboxPtr;
-        } else {
-            qDebug() << "The IMAP server just told us that it succeded to delete mailbox named" <<
-                    command->str << ", yet wo don't know of any such mailbox. Message from the server:" <<
-                    resp->message;
-        }
-        emit mailboxDeletionSucceded( command->str );
-    } else {
-        emit mailboxDeletionFailed( command->str, resp->message );
     }
 }
 
@@ -1556,10 +1534,7 @@ void Model::deleteMailbox( const QString& name )
         return;
     }
 
-    Parser* parser = _getParser( 0, ReadOnly );
-    CommandHandle cmd = parser->deleteMailbox( name );
-    _parsers[ parser ].commandMap[ cmd ] = Task( Task::DELETE, name );
-    emit activityHappening( true );
+    new DeleteMailboxTask( this, name );
 }
 
 void Model::saveUidMap( TreeItemMsgList* list )

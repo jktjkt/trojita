@@ -393,6 +393,7 @@ private:
     friend class FetchMsgMetadataTask;
     friend class ExpungeMailboxTask;
     friend class CreateMailboxTask;
+    friend class DeleteMailboxTask;
 
     void _askForChildrenOfMailbox( TreeItemMailbox* item );
     void _askForMessagesInMailbox( TreeItemMsgList* item );
@@ -405,7 +406,6 @@ private:
     void _finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeFetchPart( Parser* parser, TreeItemPart* const part );
-    void _finalizeDelete( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command,  const Imap::Responses::State* const resp );
 
     void replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<TreeItem*> mailboxes );
     void enterIdle( Parser* parser );
