@@ -232,14 +232,10 @@ the list of messages, which is why this function exists in the first place.
     /** @short Run the EXPUNGE command in the specified mailbox */
     void expungeMailbox( TreeItemMailbox* mbox );
 
-    /** @short Mark multiple messages \\Deleted at once
+    typedef enum { COPY, MOVE } CopyMoveOperation;
 
-      This is useful mainly for drag & drop operations
-*/
-    void markUidsDeleted( TreeItemMailbox* mbox, const Sequence& messages );
-
-    /** @short Copy a sequence of messages between two mailboxes */
-    void copyMessages( TreeItemMailbox* sourceMbox, const QString& destMboxName, const Sequence& seq );
+    /** @short Copy or move a sequence of messages between two mailboxes */
+    void copyMoveMessages( TreeItemMailbox* sourceMbox, const QString& destMboxName, const Sequence& seq, const CopyMoveOperation op );
 
     /** @short Create a new mailbox */
     void createMailbox( const QString& name );

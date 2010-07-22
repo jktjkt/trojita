@@ -1442,7 +1442,7 @@ void Model::markMessageRead( TreeItemMessage* msg, bool marked )
                          QLatin1String("(\\Seen)") );
 }
 
-void Model::copyMessages( TreeItemMailbox* sourceMbox, const QString& destMailboxName, const Sequence& seq )
+void Model::copyMoveMessages( TreeItemMailbox* sourceMbox, const QString& destMailboxName, const Sequence& seq, const CopyMoveOperation op )
 {
     if ( _netPolicy == NETWORK_OFFLINE ) {
         // FIXME: error signalling
@@ -1450,18 +1450,15 @@ void Model::copyMessages( TreeItemMailbox* sourceMbox, const QString& destMailbo
     }
 
     Q_ASSERT( sourceMbox );
-    Parser* parser = _getParser( sourceMbox, ReadOnly );
+    Parser* parser = _getParser( sourceMbox, ReadWrite );
     CommandHandle cmd = parser->uidCopy( seq, destMailboxName );
     _parsers[ parser ].commandMap[ cmd ] = Task( Task::COPY, sourceMbox );
-    emit activityHappening( true );
-}
 
-void Model::markUidsDeleted( TreeItemMailbox* mbox, const Sequence& messages )
-{
-    Q_ASSERT( mbox );
-    Parser* parser = _getParser( mbox, ReadWrite );
-    CommandHandle cmd = parser->uidStore( messages, QLatin1String("+FLAGS"), QLatin1String("\\Deleted") );
-    _parsers[ parser ].commandMap[ cmd ] = Task( Task::STORE, mbox );
+    if ( op == MOVE ) {
+        cmd = parser->uidStore( seq, QLatin1String("+FLAGS"), QLatin1String("\\Deleted") );
+        _parsers[ parser ].commandMap[ cmd ] = Task( Task::STORE, 0 );
+    }
+
     emit activityHappening( true );
 }
 

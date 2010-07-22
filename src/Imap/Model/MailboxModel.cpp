@@ -332,9 +332,8 @@ bool MailboxModel::dropMimeData( const QMimeData* data, Qt::DropAction action,
         seq.add( uid );
     }
 
-    static_cast<Model*>( sourceModel() )->copyMessages( origMbox, target->mailbox(), seq );
-    if ( action == Qt::MoveAction )
-        static_cast<Model*>( sourceModel() )->markUidsDeleted( origMbox, seq );
+    static_cast<Model*>( sourceModel() )->copyMoveMessages( origMbox, target->mailbox(), seq,
+                                                            ( action == Qt::MoveAction ) ? Model::MOVE : Model::COPY );
     return true;
 }
 
