@@ -41,6 +41,7 @@
 #include <QAuthenticator>
 #include <QCoreApplication>
 #include <QDebug>
+#include <QtAlgorithms>
 
 namespace Imap {
 namespace Mailbox {
@@ -65,6 +66,13 @@ bool MailboxNameComparator( const TreeItem* const a, const TreeItem* const b )
     if ( mailboxB->mailbox() == QLatin1String( "INBOX" ) )
         return false;
     return mailboxA->mailbox().compare( mailboxB->mailbox(), Qt::CaseInsensitive ) < 1;
+}
+
+bool uidComparator( const TreeItem* const a, const TreeItem* const b )
+{
+    const TreeItemMessage* const messageA = dynamic_cast<const TreeItemMessage* const>( a );
+    const TreeItemMessage* const messageB = dynamic_cast<const TreeItemMessage* const>( b );
+    return messageA->uid() < messageB->uid();
 }
 
 }
@@ -1442,7 +1450,7 @@ void Model::markMessageRead( TreeItemMessage* msg, bool marked )
                          QLatin1String("(\\Seen)") );
 }
 
-void Model::copyMoveMessages( TreeItemMailbox* sourceMbox, const QString& destMailboxName, const Sequence& seq, const CopyMoveOperation op )
+void Model::copyMoveMessages( TreeItemMailbox* sourceMbox, const QString& destMailboxName, QList<uint> uids, const CopyMoveOperation op )
 {
     if ( _netPolicy == NETWORK_OFFLINE ) {
         // FIXME: error signalling
@@ -1450,6 +1458,35 @@ void Model::copyMoveMessages( TreeItemMailbox* sourceMbox, const QString& destMa
     }
 
     Q_ASSERT( sourceMbox );
+    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( sourceMbox->child( 0, 0 ) );
+    Q_ASSERT( list );
+
+    qSort( uids );
+
+    QModelIndexList messages;
+    Sequence seq;
+    QList<TreeItem*>::const_iterator it = list->_children.begin();
+    // qBinaryFind is not designed to operate on a value of a different kind than stored in the container
+    // so we can't really compare TreeItem* with uint, even though our LessThan supports that
+    // (it keeps calling it both via LowerThan(*it, value) and LowerThan(value, *it).
+    TreeItemMessage fakeMessage(0);
+    uint lastUid = 0;
+    Q_FOREACH( const uint& uid, uids ) {
+        if ( lastUid == uid ) {
+            // we have to filter out duplicates
+            continue;
+        }
+        lastUid = uid;
+        fakeMessage._uid = uid;
+        it = qBinaryFind( it, list->_children.constEnd(), &fakeMessage, uidComparator );
+        if ( it != list->_children.end() ) {
+            messages << createIndex( (*it)->row(), 0, *it );
+            seq.add( uid );
+        } else {
+            qDebug() << "Can't find UID" << uid << "when copying messages";
+        }
+    }
+
     Parser* parser = _getParser( sourceMbox, ReadWrite );
     CommandHandle cmd = parser->uidCopy( seq, destMailboxName );
     _parsers[ parser ].commandMap[ cmd ] = Task( Task::COPY, sourceMbox );

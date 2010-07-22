@@ -235,7 +235,7 @@ the list of messages, which is why this function exists in the first place.
     typedef enum { COPY, MOVE } CopyMoveOperation;
 
     /** @short Copy or move a sequence of messages between two mailboxes */
-    void copyMoveMessages( TreeItemMailbox* sourceMbox, const QString& destMboxName, const Sequence& seq, const CopyMoveOperation op );
+    void copyMoveMessages( TreeItemMailbox* sourceMbox, const QString& destMboxName, QList<uint> uids, const CopyMoveOperation op );
 
     /** @short Create a new mailbox */
     void createMailbox( const QString& name );

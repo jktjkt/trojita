@@ -323,14 +323,16 @@ QMimeData* MsgListModel::mimeData( const QModelIndexList& indexes ) const
     Q_ASSERT( mailbox );
     stream << mailbox->mailbox() << mailbox->syncState.uidValidity();
 
+    QList<uint> uids;;
     for ( QModelIndexList::const_iterator it = indexes.begin(); it != indexes.end(); ++it ) {
         TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( Model::realTreeItem( *it ) );
         Q_ASSERT( message );
         Q_ASSERT( message->fetched() ); // should've been handled by flags()
         Q_ASSERT( message->parent()->parent() == mailbox );
         Q_ASSERT( message->uid() > 0 );
-        stream << message->uid();
+        uids << message->uid();
     }
+    stream << uids;
     res->setData( QLatin1String("application/x-trojita-message-list"), encodedData );
     return res;
 }

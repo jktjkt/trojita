@@ -325,14 +325,10 @@ bool MailboxModel::dropMimeData( const QMimeData* data, Qt::DropAction action,
         return false;
     }
 
-    Imap::Sequence seq;
-    while ( ! stream.atEnd() ) {
-        uint uid;
-        stream >> uid;
-        seq.add( uid );
-    }
+    QList<uint> uids;
+    stream >> uids;
 
-    static_cast<Model*>( sourceModel() )->copyMoveMessages( origMbox, target->mailbox(), seq,
+    static_cast<Model*>( sourceModel() )->copyMoveMessages( origMbox, target->mailbox(), uids,
                                                             ( action == Qt::MoveAction ) ? Model::MOVE : Model::COPY );
     return true;
 }
