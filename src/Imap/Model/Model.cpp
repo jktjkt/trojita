@@ -183,7 +183,11 @@ void Model::responseReceived()
             break;
         }
     }
-    it->idleLauncher->postponeIdleIfActive();
+
+    if ( it->idleLauncher ) {
+        // The parser might be already dying, and killParser() tries hard to kill IdleLauncher, too
+        it->idleLauncher->postponeIdleIfActive();
+    }
 }
 
 void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const resp )
