@@ -23,6 +23,9 @@
 
 #include <QDialog>
 #include <QSettings>
+#include "ui_SettingsImapPage.h"
+#include "ui_SettingsCachePage.h"
+#include "ui_SettingsOutgoingPage.h"
 
 class QCheckBox;
 class QComboBox;
@@ -47,7 +50,7 @@ private:
     IdentityPage& operator=(const IdentityPage&); // don't implement
 };
 
-class OutgoingPage : public QWidget
+class OutgoingPage : public QScrollArea, Ui_OutgoingPage
 {
     Q_OBJECT
 public:
@@ -55,15 +58,7 @@ public:
     void save( QSettings& s );
 private:
     enum { SMTP, SENDMAIL };
-    QComboBox* method;
 
-    QLineEdit* smtpHost;
-    QLineEdit* smtpPort;
-    QCheckBox* smtpAuth;
-    QLineEdit* smtpUser;
-    QLineEdit* smtpPass;
-
-    QLineEdit* sendmail;
 private slots:
     void updateWidgets();
 
@@ -72,7 +67,7 @@ private:
     OutgoingPage& operator=(const OutgoingPage&); // don't implement
 };
 
-class ImapPage : public QWidget
+class ImapPage : public QScrollArea, Ui_ImapPage
 {
     Q_OBJECT
 public:
@@ -80,17 +75,7 @@ public:
     void save( QSettings& s );
 private:
     enum { TCP, SSL, PROCESS };
-    QComboBox* method;
 
-    QLineEdit* imapHost;
-    QLineEdit* imapPort;
-    QCheckBox* startTls;
-    QLineEdit* imapUser;
-    QLineEdit* imapPass;
-
-    QLineEdit* processPath;
-
-    QCheckBox* startOffline;
 private slots:
     void updateWidgets();
 
@@ -99,7 +84,7 @@ private:
     ImapPage& operator=(const ImapPage&); // don't implement
 };
 
-class CachePage : public QWidget
+class CachePage : public QScrollArea, Ui_CachePage
 {
     Q_OBJECT
 public:
@@ -111,16 +96,6 @@ private slots:
     void updateWidgets();
 
 private:
-    QRadioButton* metadataPersistentCache;
-    QRadioButton* metadataMemoryCache;
-
-    QRadioButton* offlineNope;
-    QRadioButton* offlineXDays;
-    QRadioButton* offlineXMessages;
-    QRadioButton* offlineEverything;
-    QSpinBox* offlineNumberOfMessages;
-    QSpinBox* offlineNumberOfDays;
-
     CachePage(const CachePage&); // don't implement
     CachePage& operator=(const CachePage&); // don't implement
 };

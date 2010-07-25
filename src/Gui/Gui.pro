@@ -13,6 +13,7 @@ DEFINES -= QT3_SUPPORT
 TARGET = trojita
 TEMPLATE = app
 SOURCES += \
+#    ../Imap/Model/ModelTest/modeltest.cpp \
     main.cpp \
     MessageView.cpp \
     EmbeddedWebView.cpp \
@@ -28,8 +29,7 @@ SOURCES += \
     ComposeWidget.cpp \
     MsgListView.cpp \
     ExternalElementsWidget.cpp \
-    ProtocolLoggerWidget.cpp \
-    ../Imap/Model/ModelTest/modeltest.cpp
+    ProtocolLoggerWidget.cpp
 HEADERS += ComposeWidget.h \
     MessageView.h \
     SimplePartWidget.h \
@@ -45,10 +45,13 @@ HEADERS += ComposeWidget.h \
     MsgListView.h \
     AttachmentView.h \
     ExternalElementsWidget.h \
-    ProtocolLoggerWidget.h \
-    ../Imap/Model/ModelTest/modeltest.h
+    ProtocolLoggerWidget.h
 FORMS += CreateMailboxDialog.ui \
-    ComposeWidget.ui
+    ComposeWidget.ui \
+    SettingsImapPage.ui \
+    SettingsCachePage.ui \
+    SettingsOutgoingPage.ui \
+
 RESOURCES += ../icons.qrc
 
 trojita_libs = Imap MSA Streams iconloader qwwsmtpclient
