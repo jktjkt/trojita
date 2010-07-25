@@ -13,7 +13,7 @@ DEFINES -= QT3_SUPPORT
 TARGET = trojita
 TEMPLATE = app
 SOURCES += \
-    ../main.cpp \
+    main.cpp \
     MessageView.cpp \
     EmbeddedWebView.cpp \
     PartWidgetFactory.cpp \
