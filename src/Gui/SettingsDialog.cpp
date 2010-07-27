@@ -43,7 +43,7 @@ SettingsDialog::SettingsDialog(): QDialog()
     QVBoxLayout* layout = new QVBoxLayout( this );
     stack = new QTabWidget( this );
     layout->addWidget( stack );
-	stack->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    stack->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
     identity = new IdentityPage( this, s );
     stack->addTab( identity, tr("Identity") );
@@ -77,7 +77,7 @@ IdentityPage::IdentityPage( QWidget* parent, QSettings& s ): QWidget(parent)
     layout->addRow( tr("Real Name"), realName );
     address = new QLineEdit( s.value( SettingsNames::addressKey ).toString(), this );
     layout->addRow( tr("E-mail"), address );
-    this->setFixedSize(550, 400);
+    setFixedSize(550, 350);
 }
 
 void IdentityPage::save( QSettings& s )
@@ -88,7 +88,7 @@ void IdentityPage::save( QSettings& s )
 
 ImapPage::ImapPage( QWidget* parent, QSettings& s ): QScrollArea(parent), Ui_ImapPage()
 {
-	Ui_ImapPage::setupUi(this);
+    Ui_ImapPage::setupUi(this);
     method->insertItem( 0, tr("TCP"), QVariant( TCP ) );
     method->insertItem( 1, tr("SSL"), QVariant( SSL ) );
     method->insertItem( 2, tr("Local Process"), QVariant( PROCESS ) );
@@ -100,7 +100,7 @@ ImapPage::ImapPage( QWidget* parent, QSettings& s ): QScrollArea(parent), Ui_Ima
         method->setCurrentIndex( 2 );
     }
 
-	imapHost->setText(s.value( SettingsNames::imapHostKey ).toString());
+    imapHost->setText(s.value( SettingsNames::imapHostKey ).toString());
     imapPort->setText(s.value( SettingsNames::imapPortKey, 143 ).toString());
     imapPort->setValidator( new QIntValidator( 1, 65535, this ) );
     startTls->setChecked( s.value( SettingsNames::imapStartTlsKey, true ).toBool() );
@@ -116,8 +116,8 @@ ImapPage::ImapPage( QWidget* parent, QSettings& s ): QScrollArea(parent), Ui_Ima
 void ImapPage::resizeEvent ( QResizeEvent * event )
 {
     QScrollArea::resizeEvent(event);
-    this->scrollAreaWidgetContents->setMinimumSize(event->size());
-    this->scrollAreaWidgetContents->adjustSize();
+    scrollAreaWidgetContents->setMinimumSize(event->size());
+    scrollAreaWidgetContents->adjustSize();
 }
 
 void ImapPage::updateWidgets()
@@ -202,7 +202,7 @@ void ImapPage::save( QSettings& s )
 
 CachePage::CachePage( QWidget* parent, QSettings& s ): QScrollArea(parent), Ui_CachePage()
 {
-	Ui_CachePage::setupUi(this);
+    Ui_CachePage::setupUi(this);
 
     QString val = s.value( SettingsNames::cacheMetadataKey ).toString();
     if ( val == SettingsNames::cacheMetadataPersistent )
@@ -235,8 +235,8 @@ CachePage::CachePage( QWidget* parent, QSettings& s ): QScrollArea(parent), Ui_C
 void CachePage::resizeEvent ( QResizeEvent * event )
 {
     QScrollArea::resizeEvent(event);
-    this->scrollAreaWidgetContents->setMinimumSize(event->size());
-    this->scrollAreaWidgetContents->adjustSize();
+    scrollAreaWidgetContents->setMinimumSize(event->size());
+    scrollAreaWidgetContents->adjustSize();
 }
 
 void CachePage::updateWidgets()
@@ -277,7 +277,7 @@ void CachePage::save( QSettings& s )
 
 OutgoingPage::OutgoingPage( QWidget* parent, QSettings& s ): QScrollArea(parent), Ui_OutgoingPage()
 {
-	Ui_OutgoingPage::setupUi(this);
+    Ui_OutgoingPage::setupUi(this);
     method->insertItem( 0, tr("SMTP"), QVariant( SMTP ) );
     method->insertItem( 1, tr("Local sendmail-compatible"), QVariant( SENDMAIL ) );
     if ( QSettings().value( SettingsNames::msaMethodKey ).toString() == SettingsNames::methodSMTP ) {
@@ -302,8 +302,8 @@ OutgoingPage::OutgoingPage( QWidget* parent, QSettings& s ): QScrollArea(parent)
 void OutgoingPage::resizeEvent ( QResizeEvent * event )
 {
     QScrollArea::resizeEvent(event);
-    this->scrollAreaWidgetContents->setMinimumSize(event->size());
-    this->scrollAreaWidgetContents->adjustSize();
+    scrollAreaWidgetContents->setMinimumSize(event->size());
+    scrollAreaWidgetContents->adjustSize();
 }
 
 void OutgoingPage::updateWidgets()
@@ -362,5 +362,3 @@ void OutgoingPage::save( QSettings& s )
 }
 
 }
-
-
