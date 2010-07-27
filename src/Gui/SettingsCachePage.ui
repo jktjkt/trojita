@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>CachePage</class>
  <widget class="QScrollArea" name="CachePage">
+  <property name="frameShadow">
+   <enum>QFrame::Plain</enum>
+  </property>
   <property name="widgetResizable">
    <bool>true</bool>
   </property>

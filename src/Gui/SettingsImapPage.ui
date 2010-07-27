@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>ImapPage</class>
  <widget class="QScrollArea" name="ImapPage">
+  <property name="frameShadow">
+   <enum>QFrame::Plain</enum>
+  </property>
   <property name="widgetResizable">
    <bool>true</bool>
   </property>
