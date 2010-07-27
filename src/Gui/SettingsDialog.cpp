@@ -77,7 +77,6 @@ IdentityPage::IdentityPage( QWidget* parent, QSettings& s ): QWidget(parent)
     layout->addRow( tr("Real Name"), realName );
     address = new QLineEdit( s.value( SettingsNames::addressKey ).toString(), this );
     layout->addRow( tr("E-mail"), address );
-    setFixedSize(550, 350);
 }
 
 void IdentityPage::save( QSettings& s )
