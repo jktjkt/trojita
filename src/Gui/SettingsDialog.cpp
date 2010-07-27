@@ -28,6 +28,8 @@
 #include <QSpinBox>
 #include <QTabWidget>
 #include <QVBoxLayout>
+#include <QResizeEvent>
+#include <QDebug>
 #include "SettingsDialog.h"
 #include "SettingsNames.h"
 
@@ -75,6 +77,7 @@ IdentityPage::IdentityPage( QWidget* parent, QSettings& s ): QWidget(parent)
     layout->addRow( tr("Real Name"), realName );
     address = new QLineEdit( s.value( SettingsNames::addressKey ).toString(), this );
     layout->addRow( tr("E-mail"), address );
+    this->setFixedSize(550, 400);
 }
 
 void IdentityPage::save( QSettings& s )
@@ -108,6 +111,13 @@ ImapPage::ImapPage( QWidget* parent, QSettings& s ): QScrollArea(parent), Ui_Ima
 
     connect( method, SIGNAL( currentIndexChanged( int ) ), this, SLOT( updateWidgets() ) );
     updateWidgets();
+}
+
+void ImapPage::resizeEvent ( QResizeEvent * event )
+{
+    QScrollArea::resizeEvent(event);
+    this->scrollAreaWidgetContents->setMinimumSize(event->size());
+    this->scrollAreaWidgetContents->adjustSize();
 }
 
 void ImapPage::updateWidgets()
@@ -222,6 +232,13 @@ CachePage::CachePage( QWidget* parent, QSettings& s ): QScrollArea(parent), Ui_C
     connect( metadataPersistentCache, SIGNAL(clicked()), this, SLOT(updateWidgets()) );
 }
 
+void CachePage::resizeEvent ( QResizeEvent * event )
+{
+    QScrollArea::resizeEvent(event);
+    this->scrollAreaWidgetContents->setMinimumSize(event->size());
+    this->scrollAreaWidgetContents->adjustSize();
+}
+
 void CachePage::updateWidgets()
 {
     if ( metadataMemoryCache->isChecked() ) {
@@ -280,6 +297,13 @@ OutgoingPage::OutgoingPage( QWidget* parent, QSettings& s ): QScrollArea(parent)
     connect( method, SIGNAL( currentIndexChanged( int ) ), this, SLOT( updateWidgets() ) );
     connect( smtpAuth, SIGNAL( toggled(bool) ), this, SLOT( updateWidgets() ) );
     updateWidgets();
+}
+
+void OutgoingPage::resizeEvent ( QResizeEvent * event )
+{
+    QScrollArea::resizeEvent(event);
+    this->scrollAreaWidgetContents->setMinimumSize(event->size());
+    this->scrollAreaWidgetContents->adjustSize();
 }
 
 void OutgoingPage::updateWidgets()

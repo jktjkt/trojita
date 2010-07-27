@@ -2,30 +2,7 @@
 <ui version="4.0">
  <class>ImapPage</class>
  <widget class="QScrollArea" name="ImapPage">
-  <property name="sizePolicy">
-   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-    <horstretch>0</horstretch>
-    <verstretch>0</verstretch>
-   </sizepolicy>
-  </property>
   <widget class="QWidget" name="scrollAreaWidgetContents">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>602</width>
-     <height>637</height>
-    </rect>
-   </property>
-   <widget class="QWidget" name="formLayoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>0</y>
-      <width>591</width>
-      <height>641</height>
-     </rect>
-    </property>
     <layout class="QFormLayout" name="formLayout">
      <property name="fieldGrowthPolicy">
       <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
@@ -142,7 +119,6 @@
       </widget>
      </item>
     </layout>
-   </widget>
   </widget>
  </widget>
  <resources/>

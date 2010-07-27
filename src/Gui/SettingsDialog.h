@@ -56,6 +56,10 @@ class OutgoingPage : public QScrollArea, Ui_OutgoingPage
 public:
     OutgoingPage( QWidget* parent, QSettings& s );
     void save( QSettings& s );
+
+protected:
+    virtual void resizeEvent ( QResizeEvent * event );
+
 private:
     enum { SMTP, SENDMAIL };
 
@@ -73,6 +77,10 @@ class ImapPage : public QScrollArea, Ui_ImapPage
 public:
     ImapPage( QWidget* parent, QSettings& s );
     void save( QSettings& s );
+
+protected:
+    virtual void resizeEvent ( QResizeEvent * event );
+
 private:
     enum { TCP, SSL, PROCESS };
 
@@ -90,8 +98,13 @@ class CachePage : public QScrollArea, Ui_CachePage
 public:
     CachePage( QWidget* parent, QSettings& s );
     void save( QSettings& s );
+
+protected:
+    virtual void resizeEvent ( QResizeEvent * event );
+
 private:
     QCheckBox* startOffline;
+
 private slots:
     void updateWidgets();
 
