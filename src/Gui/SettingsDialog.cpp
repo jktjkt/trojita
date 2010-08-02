@@ -28,6 +28,8 @@
 #include <QSpinBox>
 #include <QTabWidget>
 #include <QVBoxLayout>
+#include <QResizeEvent>
+#include <QDebug>
 #include "SettingsDialog.h"
 #include "SettingsNames.h"
 
@@ -41,10 +43,11 @@ SettingsDialog::SettingsDialog(): QDialog()
     QVBoxLayout* layout = new QVBoxLayout( this );
     stack = new QTabWidget( this );
     layout->addWidget( stack );
+    stack->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
     identity = new IdentityPage( this, s );
     stack->addTab( identity, tr("Identity") );
-    imap = new ImapPage( this, s );
+    imap = new ImapPage( stack, s );
     stack->addTab( imap, tr("IMAP") );
     cache = new CachePage( this, s );
     stack->addTab( cache, tr("Offline") );
@@ -82,10 +85,9 @@ void IdentityPage::save( QSettings& s )
     s.setValue( SettingsNames::addressKey, address->text() );
 }
 
-ImapPage::ImapPage( QWidget* parent, QSettings& s ): QWidget(parent)
+ImapPage::ImapPage( QWidget* parent, QSettings& s ): QScrollArea(parent), Ui_ImapPage()
 {
-    QFormLayout* layout = new QFormLayout( this );
-    method = new QComboBox( this );
+    Ui_ImapPage::setupUi(this);
     method->insertItem( 0, tr("TCP"), QVariant( TCP ) );
     method->insertItem( 1, tr("SSL"), QVariant( SSL ) );
     method->insertItem( 2, tr("Local Process"), QVariant( PROCESS ) );
@@ -96,37 +98,30 @@ ImapPage::ImapPage( QWidget* parent, QSettings& s ): QWidget(parent)
     } else {
         method->setCurrentIndex( 2 );
     }
-    layout->addRow( tr("Method"), method );
 
-    imapHost = new QLineEdit( s.value( SettingsNames::imapHostKey ).toString(), this );
-    layout->addRow( tr("IMAP Server"), imapHost );
-    imapPort = new QLineEdit(s.value( SettingsNames::imapPortKey, 143 ).toString(), this );
-    QValidator* validator = new QIntValidator( 1, 65535, this );
-    imapPort->setValidator( validator );
-    layout->addRow( tr("Port"), imapPort );
-    startTls = new QCheckBox( this );
+    imapHost->setText(s.value( SettingsNames::imapHostKey ).toString());
+    imapPort->setText(s.value( SettingsNames::imapPortKey, 143 ).toString());
+    imapPort->setValidator( new QIntValidator( 1, 65535, this ) );
     startTls->setChecked( s.value( SettingsNames::imapStartTlsKey, true ).toBool() );
-    layout->addRow( tr("Perform STARTTLS"), startTls );
-    imapUser = new QLineEdit( s.value( SettingsNames::imapUserKey ).toString(), this );
-    layout->addRow( tr("User"), imapUser );
-    imapPass = new QLineEdit( s.value( SettingsNames::imapPassKey ).toString(), this );
-    imapPass->setEchoMode( QLineEdit::Password );
-    layout->addRow( tr("Password"), imapPass );
-
-    processPath = new QLineEdit( s.value( SettingsNames::imapProcessKey ).toString(), this );
-    layout->addRow( tr("Path to Server Binary"), processPath );
-
-    startOffline = new QCheckBox( this );
+    imapUser->setText(s.value( SettingsNames::imapUserKey ).toString());
+    imapPass->setText(s.value( SettingsNames::imapPassKey ).toString());
+    processPath->setText(s.value( SettingsNames::imapProcessKey ).toString());
     startOffline->setChecked( s.value( SettingsNames::imapStartOffline ).toBool() );
-    layout->addRow( tr("Start in Offline Mode"), startOffline );
 
     connect( method, SIGNAL( currentIndexChanged( int ) ), this, SLOT( updateWidgets() ) );
     updateWidgets();
 }
 
+void ImapPage::resizeEvent ( QResizeEvent * event )
+{
+    QScrollArea::resizeEvent(event);
+    scrollAreaWidgetContents->setMinimumSize(event->size());
+    scrollAreaWidgetContents->adjustSize();
+}
+
 void ImapPage::updateWidgets()
 {
-    QFormLayout* lay = qobject_cast<QFormLayout*>( layout() );
+    QFormLayout* lay = formLayout;
     Q_ASSERT( lay );
 
     switch ( method->itemData( method->currentIndex() ).toInt() ) {
@@ -204,33 +199,9 @@ void ImapPage::save( QSettings& s )
     s.setValue( SettingsNames::imapStartOffline, startOffline->isChecked() );
 }
 
-CachePage::CachePage( QWidget* parent, QSettings& s ): QWidget(parent)
+CachePage::CachePage( QWidget* parent, QSettings& s ): QScrollArea(parent), Ui_CachePage()
 {
-    QVBoxLayout* layout = new QVBoxLayout( this );
-    QGroupBox* box = new QGroupBox( tr("Caching"), this );
-    QVBoxLayout* boxLayout = new QVBoxLayout( box );
-    metadataPersistentCache = new QRadioButton( tr("Use persistent cache"), box );
-    boxLayout->addWidget( metadataPersistentCache );
-    metadataMemoryCache = new QRadioButton( tr("Cache metadata only for session duration"), box );
-    boxLayout->addWidget( metadataMemoryCache );
-    layout->addWidget( box );
-    box = new QGroupBox( tr("Offline mode"), this );
-    boxLayout = new QVBoxLayout( box );
-    offlineNope = new QRadioButton( tr("Don't store messages for offline access"), box );
-    boxLayout->addWidget( offlineNope );
-    offlineXDays = new QRadioButton( tr("Remember messages from X recent days"), box );
-    boxLayout->addWidget( offlineXDays );
-    offlineNumberOfDays = new QSpinBox( box );
-    offlineNumberOfDays->setRange( 1, 365 * 1000 ); // more than 1000 years -> unlimited
-    boxLayout->addWidget( offlineNumberOfDays );
-    offlineXMessages = new QRadioButton( tr("Remember X recent messages"), box );
-    boxLayout->addWidget( offlineXMessages );
-    offlineNumberOfMessages = new QSpinBox( box );
-    boxLayout->addWidget( offlineNumberOfMessages );
-    offlineNumberOfMessages->setRange( 1, 100 * 1000 ); // more than 100k messages -> unlimited
-    offlineEverything = new QRadioButton( tr("Remember all messages"), box );
-    boxLayout->addWidget( offlineEverything );
-    layout->addWidget( box );
+    Ui_CachePage::setupUi(this);
 
     QString val = s.value( SettingsNames::cacheMetadataKey ).toString();
     if ( val == SettingsNames::cacheMetadataPersistent )
@@ -258,6 +229,13 @@ CachePage::CachePage( QWidget* parent, QSettings& s ): QWidget(parent)
     connect( offlineEverything, SIGNAL(clicked()), this, SLOT(updateWidgets()) );
     connect( metadataMemoryCache, SIGNAL(clicked()), this, SLOT(updateWidgets()) );
     connect( metadataPersistentCache, SIGNAL(clicked()), this, SLOT(updateWidgets()) );
+}
+
+void CachePage::resizeEvent ( QResizeEvent * event )
+{
+    QScrollArea::resizeEvent(event);
+    scrollAreaWidgetContents->setMinimumSize(event->size());
+    scrollAreaWidgetContents->adjustSize();
 }
 
 void CachePage::updateWidgets()
@@ -296,10 +274,9 @@ void CachePage::save( QSettings& s )
     s.setValue( SettingsNames::cacheOfflineNumberMessagesKey, offlineNumberOfMessages->value() );
 }
 
-OutgoingPage::OutgoingPage( QWidget* parent, QSettings& s ): QWidget(parent)
+OutgoingPage::OutgoingPage( QWidget* parent, QSettings& s ): QScrollArea(parent), Ui_OutgoingPage()
 {
-    QFormLayout* layout = new QFormLayout( this );
-    method = new QComboBox( this );
+    Ui_OutgoingPage::setupUi(this);
     method->insertItem( 0, tr("SMTP"), QVariant( SMTP ) );
     method->insertItem( 1, tr("Local sendmail-compatible"), QVariant( SENDMAIL ) );
     if ( QSettings().value( SettingsNames::msaMethodKey ).toString() == SettingsNames::methodSMTP ) {
@@ -307,34 +284,30 @@ OutgoingPage::OutgoingPage( QWidget* parent, QSettings& s ): QWidget(parent)
     } else {
         method->setCurrentIndex( 1 );
     }
-    layout->addRow( tr("Method"), method );
 
-    smtpHost = new QLineEdit( s.value( SettingsNames::smtpHostKey ).toString(), this );
-    layout->addRow( tr("SMTP Server"), smtpHost );
-    smtpPort = new QLineEdit(s.value( SettingsNames::smtpPortKey, 25 ).toString(), this );
-    QValidator* validator = new QIntValidator( 1, 65535, this );
-    smtpPort->setValidator( validator );
-    layout->addRow( tr("Port"), smtpPort );
-    smtpAuth = new QCheckBox( this );
+    smtpHost->setText( s.value( SettingsNames::smtpHostKey ).toString() );
+    smtpPort->setText( s.value( SettingsNames::smtpPortKey, 25 ).toString() );
+    smtpPort->setValidator( new QIntValidator( 1, 65535, this ) );
     smtpAuth->setChecked( s.value( SettingsNames::smtpAuthKey, false ).toBool() );
-    layout->addRow( tr("SMTP Auth"), smtpAuth );
-    smtpUser = new QLineEdit( s.value( SettingsNames::smtpUserKey ).toString(), this );
-    layout->addRow( tr("User"), smtpUser );
-    smtpPass = new QLineEdit( s.value( SettingsNames::smtpPassKey ).toString(), this );
-    smtpPass->setEchoMode( QLineEdit::Password );
-    layout->addRow( tr("Password"), smtpPass );
-
-    sendmail = new QLineEdit( s.value( SettingsNames::sendmailKey, SettingsNames::sendmailDefaultCmd ).toString(), this );
-    layout->addRow( tr("Sendmail-compatible Executable"), sendmail );
+    smtpUser->setText( s.value( SettingsNames::smtpUserKey ).toString() );
+    smtpPass->setText( s.value( SettingsNames::smtpPassKey ).toString() );
+    sendmail->setText( s.value( SettingsNames::sendmailKey, SettingsNames::sendmailDefaultCmd ).toString() );
 
     connect( method, SIGNAL( currentIndexChanged( int ) ), this, SLOT( updateWidgets() ) );
     connect( smtpAuth, SIGNAL( toggled(bool) ), this, SLOT( updateWidgets() ) );
     updateWidgets();
 }
 
+void OutgoingPage::resizeEvent ( QResizeEvent * event )
+{
+    QScrollArea::resizeEvent(event);
+    scrollAreaWidgetContents->setMinimumSize(event->size());
+    scrollAreaWidgetContents->adjustSize();
+}
+
 void OutgoingPage::updateWidgets()
 {
-    QFormLayout* lay = qobject_cast<QFormLayout*>( layout() );
+    QFormLayout* lay = formLayout;
     Q_ASSERT( lay );
     switch ( method->itemData( method->currentIndex() ).toInt() ) {
         case SMTP:
@@ -388,5 +361,3 @@ void OutgoingPage::save( QSettings& s )
 }
 
 }
-
-

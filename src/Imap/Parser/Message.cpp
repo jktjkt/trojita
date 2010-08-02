@@ -397,17 +397,17 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList( const QVariantList& i
         ++i;
 
         if ( items[i].type() != QVariant::ByteArray )
-            throw UnexpectedHere( line, start ); // body-fld-id not recognized
+            throw UnexpectedHere( "body-fld-id not recognized as a ByteArray", line, start );
         QByteArray bodyFldId = items[i].toByteArray();
         ++i;
 
         if ( items[i].type() != QVariant::ByteArray )
-            throw UnexpectedHere( line, start ); // body-fld-desc not recognized
+            throw UnexpectedHere( "body-fld-desc not recognized as a ByteArray", line, start );
         QByteArray bodyFldDesc = items[i].toByteArray();
         ++i;
 
         if ( items[i].type() != QVariant::ByteArray )
-            throw UnexpectedHere( line, start ); // body-fld-enc not recognized
+            throw UnexpectedHere( "body-fld-enc not recognized as a ByteArray", line, start );
         QByteArray bodyFldEnc = items[i].toByteArray();
         ++i;
 
@@ -424,16 +424,16 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList( const QVariantList& i
             // extract envelope, body, body-fld-lines
 
             if ( items.size() < 10 )
-                throw NoData( line, start ); // too few fields for a Message-message
+                throw NoData( "too few fields for a Message-message", line, start );
 
             kind = MESSAGE;
             if ( items[i].type() != QVariant::List )
-                throw UnexpectedHere( line, start ); // envelope not recognized
+                throw UnexpectedHere( "envelope not a list", line, start );
             envelope = Envelope::fromList( items[i].toList(), line, start );
             ++i;
 
             if ( items[i].type() != QVariant::List )
-                throw UnexpectedHere( line, start ); // body not recognized
+                throw UnexpectedHere( "body not recognized as a list", line, start );
             body = AbstractMessage::fromList( items[i].toList(), line, start );
             ++i;
 
@@ -458,7 +458,7 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList( const QVariantList& i
         QByteArray bodyFldMd5;
         if ( i < items.size() ) {
             if ( items[i].type() != QVariant::ByteArray )
-                throw UnexpectedHere( line, start ); // body-fld-md5 not found
+                throw UnexpectedHere( "body-fld-md5 not a ByteArray", line, start );
             bodyFldMd5 = items[i].toByteArray();
             ++i;
         }
@@ -481,7 +481,7 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList( const QVariantList& i
         QByteArray bodyFldLoc;
         if ( i < items.size() ) {
             if ( items[i].type() != QVariant::ByteArray )
-                throw UnexpectedHere( line, start ); // body-fld-loc not found
+                throw UnexpectedHere( "body-fld-loc not found", line, start );
             bodyFldLoc = items[i].toByteArray();
             ++i;
         }
@@ -528,7 +528,7 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList( const QVariantList& i
     } else if ( items[0].type() == QVariant::List ) {
 
         if ( items.size() < 2 )
-            throw ParseError( line, start ); // body-type-mpart: structure should be "body* string"
+            throw ParseError( "body-type-mpart: structure should be \"body* string\"", line, start );
 
         int i = 0;
 
@@ -539,7 +539,7 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList( const QVariantList& i
         }
 
         if ( items[i].type() != QVariant::ByteArray )
-            throw UnexpectedHere( line, start ); // body-type-mpart: media-subtype not recognized
+            throw UnexpectedHere( "body-type-mpart: media-subtype not recognized", line, start );
         QString mediaSubType = items[i].toString();
         ++i;
 
@@ -570,7 +570,7 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList( const QVariantList& i
         QByteArray bodyFldLoc;
         if ( i < items.size() ) {
             if ( items[i].type() != QVariant::ByteArray )
-                throw UnexpectedHere( line, start ); // body-fld-loc not found
+                throw UnexpectedHere( "body-fld-loc not found", line, start );
             bodyFldLoc = items[i].toByteArray();
             ++i;
         }

@@ -14,7 +14,7 @@ TARGET = trojita
 TEMPLATE = app
 SOURCES += \
 #    ../Imap/Model/ModelTest/modeltest.cpp \
-    ../main.cpp \
+    main.cpp \
     MessageView.cpp \
     EmbeddedWebView.cpp \
     PartWidgetFactory.cpp \
@@ -47,7 +47,11 @@ HEADERS += ComposeWidget.h \
     ExternalElementsWidget.h \
     ProtocolLoggerWidget.h
 FORMS += CreateMailboxDialog.ui \
-    ComposeWidget.ui
+    ComposeWidget.ui \
+    SettingsImapPage.ui \
+    SettingsCachePage.ui \
+    SettingsOutgoingPage.ui \
+
 RESOURCES += ../icons.qrc
 
 trojita_libs = Imap MSA Streams iconloader qwwsmtpclient
