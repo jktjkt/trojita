@@ -1206,7 +1206,7 @@ void Model::_askForMsgPart( TreeItemPart* item, bool onlyFromCache )
 
 void Model::resyncMailbox( TreeItemMailbox* mbox )
 {
-    _getParser( mbox, ReadOnly, true );
+    new CreateConnectionTask( this, mbox, true );
 }
 
 void Model::performNoop()

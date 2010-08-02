@@ -23,10 +23,10 @@
 namespace Imap {
 namespace Mailbox {
 
-CreateConnectionTask::CreateConnectionTask( Model* _model, TreeItemMailbox* mailbox ) :
+CreateConnectionTask::CreateConnectionTask( Model* _model, TreeItemMailbox* mailbox, bool forceResync ) :
     ImapTask( _model ), immediately( ! mailbox )
 {
-    parser = model->_getParser( mailbox, Model::ReadWrite );
+    parser = model->_getParser( mailbox, Model::ReadWrite, forceResync );
     // This is a special case, because we do not depend on any other job.
     // Therefore, we want to call perform() immediately.
     perform();

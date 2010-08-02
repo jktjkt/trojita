@@ -39,7 +39,7 @@ class CreateConnectionTask : public ImapTask
 {
 Q_OBJECT
 public:
-    CreateConnectionTask( Model* _model, TreeItemMailbox* mailbox );
+    CreateConnectionTask( Model* _model, TreeItemMailbox* mailbox, bool forceResync=false );
     virtual void perform();
 
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
