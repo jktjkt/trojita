@@ -37,6 +37,7 @@
 #include "ExpungeMailboxTask.h"
 #include "CreateMailboxTask.h"
 #include "DeleteMailboxTask.h"
+#include "CopyMoveMessagesTask.h"
 #include <QAbstractProxyModel>
 #include <QAuthenticator>
 #include <QCoreApplication>
@@ -306,7 +307,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 throw CantHappen( "The Task::EXPUNGE should've been handled by the ExpungeMailboxTask", *resp );
                 break;
             case Task::COPY:
-                // FIXME
+                throw CantHappen( "The Task::COPY should've been handled by the CopyMoveMessagesTask", *resp );
                 break;
             case Task::CREATE:
                 throw CantHappen( "The Task::CREATE should've been handled by the CreateMailboxTask", *resp );
@@ -1491,16 +1492,7 @@ void Model::copyMoveMessages( TreeItemMailbox* sourceMbox, const QString& destMa
         }
     }
 
-    Parser* parser = _getParser( sourceMbox, ReadWrite );
-    CommandHandle cmd = parser->uidCopy( seq, destMailboxName );
-    _parsers[ parser ].commandMap[ cmd ] = Task( Task::COPY, sourceMbox );
-
-    if ( op == MOVE ) {
-        cmd = parser->uidStore( seq, QLatin1String("+FLAGS"), QLatin1String("\\Deleted") );
-        _parsers[ parser ].commandMap[ cmd ] = Task( Task::STORE, 0 );
-    }
-
-    emit activityHappening( true );
+    new CopyMoveMessagesTask( this, messages, destMailboxName, op );
 }
 
 TreeItemMailbox* Model::findMailboxByName( const QString& name ) const

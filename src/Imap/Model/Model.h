@@ -389,6 +389,7 @@ private:
     friend class ExpungeMailboxTask;
     friend class CreateMailboxTask;
     friend class DeleteMailboxTask;
+    friend class CopyMoveMessagesTask;
 
     void _askForChildrenOfMailbox( TreeItemMailbox* item );
     void _askForMessagesInMailbox( TreeItemMsgList* item );

@@ -17,20 +17,22 @@
 */
 
 
-#include "UpdateFlagsTask.h"
-#include "CreateConnectionTask.h"
 #include "CopyMoveMessagesTask.h"
+#include "CreateConnectionTask.h"
+#include "UpdateFlagsTask.h"
 #include "Model.h"
 #include "MailboxTree.h"
 
 namespace Imap {
 namespace Mailbox {
 
-UpdateFlagsTask::UpdateFlagsTask( Model* _model, const QModelIndexList& _messages, const QString& _flagOperation, const QString& _flags ):
-    ImapTask( _model ), copyMove(0), flagOperation(_flagOperation), flags(_flags)
+
+CopyMoveMessagesTask::CopyMoveMessagesTask( Model* _model, const QModelIndexList& _messages,
+                                            const QString& _targetMailbox, const Model::CopyMoveOperation _op ):
+    ImapTask( _model ), targetMailbox(_targetMailbox), shouldDelete( _op == Model::MOVE)
 {
     if ( _messages.isEmpty() ) {
-        throw CantHappen( "UpdateFlagsTask called with empty message set");
+        throw CantHappen( "CopyMoveMessagesTask called with empty message set");
     }
     TreeItemMailbox* mailbox = 0;
     Q_FOREACH( const QModelIndex& index, _messages ) {
@@ -43,7 +45,7 @@ UpdateFlagsTask::UpdateFlagsTask( Model* _model, const QModelIndexList& _message
         if ( ! mailbox ) {
             mailbox = currentMailbox;
         } else if ( mailbox != currentMailbox ) {
-            throw CantHappen( "UpdateFlagsTask called with messages from several mailboxes");
+            throw CantHappen( "CopyMoveMessagesTask called with messages from several mailboxes");
         }
         messages << index;
     }
@@ -51,13 +53,7 @@ UpdateFlagsTask::UpdateFlagsTask( Model* _model, const QModelIndexList& _message
     conn->addDependentTask( this );
 }
 
-UpdateFlagsTask::UpdateFlagsTask( Model* _model, CopyMoveMessagesTask* parentTask, const QList<QPersistentModelIndex>& _messages, const QString& _flagOperation, const QString& _flags ):
-    ImapTask( _model ), conn(0), copyMove(parentTask), messages(_messages), flagOperation(_flagOperation), flags(_flags)
-{
-    parentTask->addDependentTask( this );
-}
-
-void UpdateFlagsTask::perform()
+void CopyMoveMessagesTask::perform()
 {
     Sequence seq;
     bool first = true;
@@ -65,7 +61,7 @@ void UpdateFlagsTask::perform()
     Q_FOREACH( const QPersistentModelIndex& index, messages ) {
         if ( ! index.isValid() ) {
             // FIXME: add proper fix
-            qDebug() << "Some message got removed before we could update its flags";
+            qDebug() << "Some message got removed before we could copy them";
         } else {
             TreeItem* item = static_cast<TreeItem*>( index.internalPointer() );
             Q_ASSERT(item);
@@ -82,35 +78,34 @@ void UpdateFlagsTask::perform()
 
     if ( first ) {
         // No valid messages
-        qDebug() << "All messages got removed before we could've updated their flags";
+        qDebug() << "All messages got removed before we could've copied them";
         _completed();
         return;
     }
 
-    Q_ASSERT( conn || copyMove );
-    if ( conn )
-        parser = conn->parser;
-    else if ( copyMove )
-        parser = copyMove->parser;
-
+    parser = conn->parser;
     model->_parsers[ parser ].activeTasks.append( this );
 
-    tag = parser->uidStore( seq, flagOperation, flags );
-    model->_parsers[ parser ].commandMap[ tag ] = Model::Task( Model::Task::STORE, 0 );
+    copyTag = parser->uidCopy( seq, targetMailbox );
+    model->_parsers[ parser ].commandMap[ copyTag ] = Model::Task( Model::Task::COPY, 0 );
     emit model->activityHappening( true );
 }
 
-bool UpdateFlagsTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+bool CopyMoveMessagesTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
-    if ( resp->tag == tag ) {
-        IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::Task::STORE );
+    if ( resp->tag == copyTag ) {
+        IMAP_TASK_ENSURE_VALID_COMMAND( copyTag, Model::Task::COPY );
 
         if ( resp->kind == Responses::OK ) {
-            // nothing should be needed here
+            if ( shouldDelete ) {
+                new UpdateFlagsTask( model, this, messages, QLatin1String("+FLAGS"), QLatin1String("\\Deleted") );
+            }
+            _completed();
         } else {
             // FIXME: error handling
+            qDebug() << "COPY failed:" << resp->message;
+            _completed();
         }
-        _completed();
         IMAP_TASK_CLEANUP_COMMAND;
         return true;
     } else {

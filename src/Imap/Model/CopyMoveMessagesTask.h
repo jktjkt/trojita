@@ -16,12 +16,12 @@
    Boston, MA 02110-1301, USA.
 */
 
-#ifndef IMAP_UPDATEFLAGS_TASK_H
-#define IMAP_UPDATEFLAGS_TASK_H
+#ifndef IMAP_COPYMOVEMESSAGES_TASK_H
+#define IMAP_COPYMOVEMESSAGES_TASK_H
 
 #include <QPersistentModelIndex>
 #include "ImapTask.h"
-#include "Parser/Parser.h"
+#include "Model/Model.h"
 
 namespace Imap {
 namespace Mailbox {
@@ -30,39 +30,27 @@ class TreeItemMailbox;
 class TreeItemMessage;
 
 class CreateConnectionTask;
-class CopyMoveMessagesTask;
 
-/** @short Update message flags for a particular message set
-
-The purpose of this task is to make sure the IMAP flags for a set of messages from
-a given mailbox are changed.
-*/
-class UpdateFlagsTask : public ImapTask
+/** @short Copy or move messages to a different mailbox */
+class CopyMoveMessagesTask : public ImapTask
 {
 Q_OBJECT
 public:
-    /** @short Change flags for a message set
-
-IMAP flags for the @arg _messages message set are changed -- the @arg _flagOperation
-should be FLAGS, +FLAGS or -FLAGS (all of them optionally with the ".silent" modifier),
-and the desired change (actual flags) is passed in the @arg _flags argument.
-*/
-    UpdateFlagsTask( Model* _model, const QModelIndexList& _messages, const QString& _flagOperation, const QString& _flags );
-    UpdateFlagsTask( Model* _model, CopyMoveMessagesTask* parentTask, const QList<QPersistentModelIndex>& _messages, const QString& _flagOperation, const QString& _flags );
+    CopyMoveMessagesTask( Model* _model, const QModelIndexList& _messages, const QString& _targetMailbox, const Model::CopyMoveOperation _op );
     virtual void perform();
 
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
 private:
-    CommandHandle tag;
+    CommandHandle copyTag;
     CreateConnectionTask* conn;
-    CopyMoveMessagesTask* copyMove;
-    Parser* parser;
     QList<QPersistentModelIndex> messages;
-    QString flagOperation;
-    QString flags;
+    QString targetMailbox;
+    bool shouldDelete;
+public:
+    Parser* parser;
 };
 
 }
 }
 
-#endif // IMAP_UPDATEFLAGS_TASK_H
+#endif // IMAP_COPYMOVEMESSAGES_TASK_H
