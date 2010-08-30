@@ -26,7 +26,7 @@ namespace Imap {
 namespace Mailbox {
 
 ObtainSynchronizedMailboxTask::ObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex ) :
-    ImapTask( _model ), parser(0), createConn(0), mailboxIndex(_mailboxIndex)
+    ImapTask( _model ), parser(0), createConn(0), mailboxIndex(_mailboxIndex), status(STATE_WAIT_FOR_CONN)
 {
     // FIXME: find out if the mailbox is already selected
     bool alreadySynced = false;
@@ -69,6 +69,7 @@ void ObtainSynchronizedMailboxTask::perform()
     it->mailbox = mailbox;
     ++it->selectingAnother;
     it->currentMbox = mailbox;
+    status = STATE_SELECTING;
 }
 
 bool ObtainSynchronizedMailboxTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
@@ -77,9 +78,24 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( Imap::Parser* ptr, const 
         IMAP_TASK_ENSURE_VALID_COMMAND( selectCmd, Model::Task::SELECT );
 
         if ( resp->kind == Responses::OK ) {
+            Q_ASSERT( status == STATE_SELECTING );
             _finalizeSelect();
         } else {
             // FIXME: Tasks API error handling
+        }
+        IMAP_TASK_CLEANUP_COMMAND;
+        return true;
+    } else if ( resp->tag == uidSyncingCmd ) {
+        IMAP_TASK_ENSURE_VALID_COMMAND( uidSyncingCmd, Model::Task::SEARCH_UIDS );
+
+        if ( resp->kind == Responses::OK ) {
+            Q_ASSERT( status == STATE_SYNCING_UIDS );
+            Q_ASSERT( mailboxIndex.isValid() ); // FIXME
+            TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ));
+            Q_ASSERT( mailbox );
+            syncFlags( mailbox );
+        } else {
+            // FIXME: error handling
         }
         IMAP_TASK_CLEANUP_COMMAND;
         return true;
@@ -174,11 +190,9 @@ void ObtainSynchronizedMailboxTask::_fullMboxSync( TreeItemMailbox* mailbox, Tre
 
         Q_ASSERT( ! model->_parsers[ parser ].selectingAnother );
 
-        // FIXME: re-enable optimization when Task migration's done
-        QStringList items = false && willLoad ? model->_onlineMessageFetch : QStringList() << "UID" << "FLAGS";
-        uidSyncingCmd = parser->fetch( Sequence( 1, syncState.exists() ), items );
-        model->_parsers[ parser ].commandMap[ uidSyncingCmd ] = Model::Task( Model::Task::FETCH_WITH_FLAGS, mailbox );
-        emit model->activityHappening( true );
+        syncUids( mailbox );
+
+        // FIXME: re-enable optimization (merge UID and FLAGS syncing) when Task migration's done
         list->_numberFetchingStatus = TreeItem::LOADING;
         list->_unreadMessageCount = 0;
     } else {
@@ -188,6 +202,10 @@ void ObtainSynchronizedMailboxTask::_fullMboxSync( TreeItemMailbox* mailbox, Tre
         list->_fetchStatus = TreeItem::DONE;
         model->cache()->setMailboxSyncState( mailbox->mailbox(), syncState );
         model->saveUidMap( list );
+
+        // The remote mailbox is empty -> we're done now
+        status = STATE_DONE;
+        _completed();
     }
     model->emitMessageCountChanged( mailbox );
 }
@@ -203,15 +221,7 @@ void ObtainSynchronizedMailboxTask::_syncNoNewNoDeletions( TreeItemMailbox* mail
                 break;
             }
         }
-        QStringList items = QStringList( "FLAGS" );
-        if ( ! uidsOk )
-            items << "UID";
-        CommandHandle cmd = parser->fetch( Sequence( 1, syncState.exists() ),
-                                           items );
-        model->_parsers[ parser ].commandMap[ cmd ] = Model::Task( Model::Task::FETCH_WITH_FLAGS, mailbox );
-        emit model->activityHappening( true );
-        list->_numberFetchingStatus = TreeItem::LOADING;
-        list->_unreadMessageCount = 0;
+        Q_ASSERT( uidsOk );
     } else {
         list->_unreadMessageCount = 0;
         list->_totalMessageCount = 0;
@@ -239,24 +249,26 @@ void ObtainSynchronizedMailboxTask::_syncNoNewNoDeletions( TreeItemMailbox* mail
     list->_fetchStatus = TreeItem::DONE;
     model->cache()->setMailboxSyncState( mailbox->mailbox(), syncState );
     model->saveUidMap( list );
+
+    if ( syncState.exists() ) {
+        syncFlags( mailbox );
+    } else {
+        status = STATE_DONE;
+        _completed();
+    }
 }
 
 void ObtainSynchronizedMailboxTask::_syncOnlyDeletions( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState )
 {
-    CommandHandle cmd = parser->fetch( Sequence( 1, syncState.exists() ),
-                                       QStringList() << "UID" << "FLAGS" );
-    model->_parsers[ parser ].commandMap[ cmd ] = Model::Task( Model::Task::FETCH_WITH_FLAGS, mailbox );
-    emit model->activityHappening( true );
     list->_numberFetchingStatus = TreeItem::LOADING;
     list->_unreadMessageCount = 0;
-    // selecting handler should do the rest
-    model->_parsers[ parser ].responseHandler = model->selectingHandler;
     QList<uint>& uidMap = model->_parsers[ parser ].uidMap;
     uidMap.clear();
     model->_parsers[ parser ].syncingFlags.clear();
     for ( uint i = 0; i < syncState.exists(); ++i )
         uidMap << 0;
     model->cache()->clearUidMapping( mailbox->mailbox() );
+    syncUids( mailbox );
 }
 
 void ObtainSynchronizedMailboxTask::_syncOnlyAdditions( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState, const SyncState& oldState )
@@ -267,30 +279,31 @@ void ObtainSynchronizedMailboxTask::_syncOnlyAdditions( TreeItemMailbox* mailbox
         list->_children << msg;
     }
 
-    // FIXME: re-enable the optimization when Task migration is done
+    /*// FIXME: re-enable the optimization when Task migration is done
     QStringList items = ( false && model->networkPolicy() == Model::NETWORK_ONLINE &&
                           syncState.uidNext() - oldState.uidNext() <= model->StructureFetchLimit ) ?
                         model->_onlineMessageFetch : QStringList() << "UID" << "FLAGS";
     CommandHandle cmd = parser->fetch( Sequence( oldState.exists() + 1, syncState.exists() ),
                                        items );
     model->_parsers[ parser ].commandMap[ cmd ] = Model::Task( Model::Task::FETCH_WITH_FLAGS, mailbox );
-    emit model->activityHappening( true );
+    emit model->activityHappening( true );*/
     list->_numberFetchingStatus = TreeItem::LOADING;
     list->_fetchStatus = TreeItem::DONE;
     list->_unreadMessageCount = 0;
     model->cache()->clearUidMapping( mailbox->mailbox() );
+    syncUids( mailbox );
 }
 
 void ObtainSynchronizedMailboxTask::_syncGeneric( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState )
 {
     // FIXME: might be possible to optimize here...
 
-    // At first, let's ask for UID numbers and FLAGS for all messages
+    /*// At first, let's ask for UID numbers and FLAGS for all messages
     CommandHandle cmd = parser->fetch( Sequence( 1, syncState.exists() ),
                                        QStringList() << "UID" << "FLAGS" );
     model->_parsers[ parser ].commandMap[ cmd ] = Model::Task( Model::Task::FETCH_WITH_FLAGS, mailbox );
     emit model->activityHappening( true );
-    model->_parsers[ parser ].responseHandler = model->selectingHandler;
+    model->_parsers[ parser ].responseHandler = model->selectingHandler;*/
     list->_numberFetchingStatus = TreeItem::LOADING;
     list->_unreadMessageCount = 0;
     QList<uint>& uidMap = model->_parsers[ parser ].uidMap;
@@ -299,9 +312,36 @@ void ObtainSynchronizedMailboxTask::_syncGeneric( TreeItemMailbox* mailbox, Tree
     for ( uint i = 0; i < syncState.exists(); ++i )
         uidMap << 0;
     model->cache()->clearUidMapping( mailbox->mailbox() );
+    syncUids( mailbox );
 }
 
+void ObtainSynchronizedMailboxTask::syncUids( TreeItemMailbox* mailbox, const uint lastKnownUid )
+{
+    QStringList criteria;
+    if ( lastKnownUid == 0 ) {
+        criteria << QLatin1String("ALL");
+    } else {
+        criteria << QString::fromAscii("UID %1:*").arg( lastKnownUid );
+    }
+    uidSyncingCmd = parser->uidSearch( criteria );
+    model->_parsers[ parser ].commandMap[ uidSyncingCmd ] = Model::Task( Model::Task::SEARCH_UIDS, 0 );
+    emit model->activityHappening( true );
+    model->cache()->clearUidMapping( mailbox->mailbox() );
+    status = STATE_SYNCING_UIDS;
+}
 
+void ObtainSynchronizedMailboxTask::syncFlags( TreeItemMailbox *mailbox )
+{
+    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[ 0 ] );
+    Q_ASSERT( list );
+
+    flagsCmd = parser->fetch( Sequence( 1, mailbox->syncState.exists() ), QStringList() << QLatin1String("FLAGS") );
+    model->_parsers[ parser ].commandMap[ flagsCmd ] = Model::Task( Model::Task::FETCH_FLAGS, 0 );
+    emit model->activityHappening( true );
+    list->_numberFetchingStatus = TreeItem::LOADING;
+    list->_unreadMessageCount = 0;
+    status = STATE_SYNCING_FLAGS;
+}
 
 }
 }

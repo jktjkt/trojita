@@ -45,6 +45,8 @@ public:
     virtual void perform();
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
 
+    typedef enum { STATE_WAIT_FOR_CONN, STATE_SELECTING, STATE_SYNCING_UIDS, STATE_SYNCING_FLAGS, STATE_DONE } State;
+
 private slots:
     void slotPerform();
 
@@ -56,12 +58,17 @@ private:
     void _syncOnlyAdditions( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState, const SyncState& oldState );
     void _syncGeneric( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState );
 
+    void syncUids( TreeItemMailbox* mailbox, const uint lastKnownUid=0 );
+    void syncFlags( TreeItemMailbox* mailbox );
+
 private:
     Parser* parser;
     CreateConnectionTask* createConn;
     QPersistentModelIndex mailboxIndex;
     CommandHandle selectCmd;
     CommandHandle uidSyncingCmd;
+    CommandHandle flagsCmd;
+    State status;
 };
 
 }

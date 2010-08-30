@@ -207,9 +207,9 @@ namespace Imap {
         CommandHandle uidCopy( const Sequence& seq, const QString& mailbox );
 
         /** @short UID command (SEARCH), RFC3501 sect 6.4.8 */
-        CommandHandle uidSearch( const QStringList& criteria, const QString& charset ) {
+        CommandHandle uidSearch( const QStringList& criteria, const QString& charset=QString::null ) {
             return _searchHelper( "UID SEARCH", criteria, charset );
-        };
+        }
 
 
         /** @short X<atom>, RFC3501 sect 6.5.1 */
