@@ -20,6 +20,7 @@
 */
 
 #include <QtTest>
+#include <QAuthenticator>
 #include "test_Imap_Model_OpenConnectionTask.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/MemoryCache.h"
@@ -29,7 +30,8 @@
 void ImapModelOpenConnectionTaskTest::initTestCase()
 {
     model = 0;
-    spy = 0;
+    completedSpy = 0;
+    qRegisterMetaType<QAuthenticator*>("QAuthenticator*");
 }
 
 void ImapModelOpenConnectionTaskTest::init()
@@ -37,8 +39,10 @@ void ImapModelOpenConnectionTaskTest::init()
     Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache( this, QString() );
     factory = new Imap::Mailbox::FakeSocketFactory();
     model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), false );
+    connect(model, SIGNAL(authRequested(QAuthenticator*)), this, SLOT(provideAuthDetails(QAuthenticator*)) );
     task = new Imap::Mailbox::OpenConnectionTask( model );
-    spy = new QSignalSpy( task, SIGNAL(completed()) );
+    completedSpy = new QSignalSpy( task, SIGNAL(completed()) );
+    authSpy = new QSignalSpy( model, SIGNAL(authRequested(QAuthenticator*)) );
 }
 
 void ImapModelOpenConnectionTaskTest::cleanup()
@@ -46,9 +50,13 @@ void ImapModelOpenConnectionTaskTest::cleanup()
     delete model;
     model = 0;
     task = 0;
-    if ( spy ) {
-        spy->deleteLater();
-        spy = 0;
+    if ( completedSpy ) {
+        completedSpy->deleteLater();
+        completedSpy = 0;
+    }
+    if ( authSpy ) {
+        authSpy->deleteLater();
+        authSpy = 0;
     }
 }
 
@@ -57,34 +65,64 @@ void ImapModelOpenConnectionTaskTest::cleanup()
 void ImapModelOpenConnectionTaskTest::testPreauth()
 {
     SOCK->fakeReading( "* PREAUTH foo\r\n" );
-    QVERIFY( spy->isEmpty() );
+    QVERIFY( completedSpy->isEmpty() );
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 CAPABILITY\r\n") );
-    QVERIFY( spy->isEmpty() );
+    QVERIFY( completedSpy->isEmpty() );
     SOCK->fakeReading( "* CAPABILITY IMAP4rev1\r\ny0 OK capability completed\r\n" );
     QCoreApplication::processEvents();
-    QCOMPARE( spy->size(), 1 );
+    QCOMPARE( completedSpy->size(), 1 );
+    QVERIFY( authSpy->isEmpty() );
 }
 
 void ImapModelOpenConnectionTaskTest::testPreauthWithCapability()
 {
     SOCK->fakeReading( "* PREAUTH [CAPABILITY IMAP4rev1] foo\r\n" );
-    QVERIFY( spy->isEmpty() );
+    QVERIFY( completedSpy->isEmpty() );
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray() );
-    QCOMPARE( spy->size(), 1 );
+    QCOMPARE( completedSpy->size(), 1 );
+    QVERIFY( authSpy->isEmpty() );
 }
 
 void ImapModelOpenConnectionTaskTest::testOk()
 {
     SOCK->fakeReading( "* OK foo\r\n" );
-    QVERIFY( spy->isEmpty() );
+    QVERIFY( completedSpy->isEmpty() );
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 CAPABILITY\r\n") );
-    QVERIFY( spy->isEmpty() );
+    QVERIFY( completedSpy->isEmpty() );
     SOCK->fakeReading( "* CAPABILITY IMAP4rev1\r\ny0 OK capability completed\r\n" );
     QCoreApplication::processEvents();
-    QCOMPARE( spy->size(), 1 );
+    QCOMPARE( authSpy->size(), 1 );
+    QCoreApplication::processEvents();
+    QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 LOGIN luzr sikrit\r\n") );
+    SOCK->fakeReading( "y1 OK logged in\r\n");
+    QCoreApplication::processEvents();
+    QCOMPARE( completedSpy->size(), 1 );
+    QCOMPARE( authSpy->size(), 1 );
+}
+
+void ImapModelOpenConnectionTaskTest::testOkWithCapability()
+{
+    SOCK->fakeReading( "* OK [CAPABILITY IMAP4rev1] foo\r\n" );
+    QVERIFY( completedSpy->isEmpty() );
+    QCoreApplication::processEvents();
+    QCOMPARE( authSpy->size(), 1 );
+    QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 LOGIN luzr sikrit\r\n") );
+    SOCK->fakeReading( "y0 OK logged in\r\n");
+    QCoreApplication::processEvents();
+    QCOMPARE( completedSpy->size(), 1 );
+    QCOMPARE( authSpy->size(), 1 );
+}
+
+
+void ImapModelOpenConnectionTaskTest::provideAuthDetails( QAuthenticator* auth )
+{
+    if ( auth ) {
+        auth->setUser( QLatin1String("luzr") );
+        auth->setPassword( QLatin1String("sikrit") );
+    }
 }
 
 

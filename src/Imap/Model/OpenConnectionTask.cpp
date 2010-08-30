@@ -54,67 +54,7 @@ void OpenConnectionTask::perform()
 bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
     if ( waitingForGreetings ) {
-        waitingForGreetings = false;
-        if ( ! resp->tag.isEmpty() ) {
-            throw Imap::UnexpectedResponseReceived(
-                    "Waiting for initial OK/BYE/PREAUTH, but got tagged response instead",
-                    *resp );
-        }
-
-        using namespace Imap::Responses;
-        switch ( resp->kind ) {
-        case PREAUTH:
-            {
-                gotPreauth = true;
-                model->changeConnectionState( ptr, CONN_STATE_AUTHENTICATED);
-                if ( ! model->_parsers[ ptr ].capabilitiesFresh ) {
-                    capabilityCmd = ptr->capability();
-                    model->_parsers[ ptr ].commandMap[ capabilityCmd ] = Model::Task( Model::Task::CAPABILITY, 0 );
-                    emit model->activityHappening( true );
-                } else {
-                    _completed();
-                }
-                //CommandHandle cmd = ptr->namespaceCommand();
-                //m->_parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::NAMESPACE, 0 );
-                ptr->authStateReached();
-                break;
-            }
-        case OK:
-            if ( model->_startTls ) {
-                // The STARTTLS command is already queued -> no need to issue it once again
-            } else {
-                // The STARTTLS surely has not been issued yet
-                if ( ! model->_parsers[ ptr ].capabilitiesFresh ) {
-                    capabilityCmd = ptr->capability();
-                    model->_parsers[ ptr ].commandMap[ capabilityCmd ] = Model::Task( Model::Task::CAPABILITY, 0 );
-                    emit model->activityHappening( true );
-                } else if ( model->_parsers[ ptr ].capabilities.contains( QLatin1String("LOGINDISABLED") ) ) {
-                    qDebug() << "Can't login yet, trying STARTTLS";
-                    // ... and we are forbidden from logging in, so we have to try the STARTTLS
-                    startTlsCmd = ptr->startTls();
-                    model->_parsers[ ptr ].commandMap[ startTlsCmd ] = Model::Task( Model::Task::STARTTLS, 0 );
-                    emit model->activityHappening( true );
-                } else {
-                    // Apparently no need for STARTTLS and we are free to login
-                    loginCmd = model->performAuthentication( ptr );
-                }
-            }
-            break;
-        case BYE:
-            model->changeConnectionState( ptr, CONN_STATE_LOGOUT );
-            model->_parsers[ ptr ].responseHandler = 0;
-            break;
-        case BAD:
-            // If it was an ALERT, we've already warned the user
-            if ( resp->respCode != ALERT ) {
-                emit model->alertReceived( tr("The server replied with the following BAD response:\n%1").arg( resp->message ) );
-            }
-            break;
-        default:
-            throw Imap::UnexpectedResponseReceived(
-                    "Waiting for initial OK/BYE/BAD/PREAUTH, but got this instead",
-                    *resp );
-        }
+        handleInitialResponse( ptr, resp );
         return true;
     } else if ( resp->tag == capabilityCmd ) {
         IMAP_TASK_ENSURE_VALID_COMMAND( capabilityCmd, Model::Task::CAPABILITY );
@@ -138,8 +78,81 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
         }
         IMAP_TASK_CLEANUP_COMMAND;
         return true;
+    } else if ( resp->tag == loginCmd ) {
+        IMAP_TASK_ENSURE_VALID_COMMAND( loginCmd, Model::Task::LOGIN );
+        if ( resp->kind == Responses::OK ) {
+            _completed();
+        } else {
+            // FIXME: error handling
+        }
+        return true;
     } else {
         return false;
+    }
+}
+
+void OpenConnectionTask::handleInitialResponse( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+{
+    waitingForGreetings = false;
+    if ( ! resp->tag.isEmpty() ) {
+        throw Imap::UnexpectedResponseReceived(
+                "Waiting for initial OK/BYE/PREAUTH, but got tagged response instead",
+                *resp );
+    }
+
+    using namespace Imap::Responses;
+    switch ( resp->kind ) {
+    case PREAUTH:
+        {
+            gotPreauth = true;
+            model->changeConnectionState( ptr, CONN_STATE_AUTHENTICATED);
+            if ( ! model->_parsers[ ptr ].capabilitiesFresh ) {
+                capabilityCmd = ptr->capability();
+                model->_parsers[ ptr ].commandMap[ capabilityCmd ] = Model::Task( Model::Task::CAPABILITY, 0 );
+                emit model->activityHappening( true );
+            } else {
+                _completed();
+            }
+            //CommandHandle cmd = ptr->namespaceCommand();
+            //m->_parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::NAMESPACE, 0 );
+            ptr->authStateReached();
+            break;
+        }
+    case OK:
+        if ( model->_startTls ) {
+            // The STARTTLS command is already queued -> no need to issue it once again
+        } else {
+            // The STARTTLS surely has not been issued yet
+            if ( ! model->_parsers[ ptr ].capabilitiesFresh ) {
+                capabilityCmd = ptr->capability();
+                model->_parsers[ ptr ].commandMap[ capabilityCmd ] = Model::Task( Model::Task::CAPABILITY, 0 );
+                emit model->activityHappening( true );
+            } else if ( model->_parsers[ ptr ].capabilities.contains( QLatin1String("LOGINDISABLED") ) ) {
+                qDebug() << "Can't login yet, trying STARTTLS";
+                // ... and we are forbidden from logging in, so we have to try the STARTTLS
+                startTlsCmd = ptr->startTls();
+                model->_parsers[ ptr ].commandMap[ startTlsCmd ] = Model::Task( Model::Task::STARTTLS, 0 );
+                emit model->activityHappening( true );
+            } else {
+                // Apparently no need for STARTTLS and we are free to login
+                loginCmd = model->performAuthentication( ptr );
+            }
+        }
+        break;
+    case BYE:
+        model->changeConnectionState( ptr, CONN_STATE_LOGOUT );
+        model->_parsers[ ptr ].responseHandler = 0;
+        break;
+    case BAD:
+        // If it was an ALERT, we've already warned the user
+        if ( resp->respCode != ALERT ) {
+            emit model->alertReceived( tr("The server replied with the following BAD response:\n%1").arg( resp->message ) );
+        }
+        break;
+    default:
+        throw Imap::UnexpectedResponseReceived(
+                "Waiting for initial OK/BYE/BAD/PREAUTH, but got this instead",
+                *resp );
     }
 }
 

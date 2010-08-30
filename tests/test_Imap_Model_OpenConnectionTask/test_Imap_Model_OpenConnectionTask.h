@@ -39,12 +39,16 @@ private slots:
     void testPreauthWithCapability();
 
     void testOk();
+    void testOkWithCapability();
+
+    void provideAuthDetails( QAuthenticator* auth );
 
 private:
     Imap::Mailbox::Model* model;
     Imap::Mailbox::FakeSocketFactory* factory;
     Imap::Mailbox::OpenConnectionTask* task;
-    QSignalSpy* spy;
+    QSignalSpy* completedSpy;
+    QSignalSpy* authSpy;
 };
 
 #endif

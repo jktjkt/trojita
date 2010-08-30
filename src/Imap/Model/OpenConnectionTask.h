@@ -45,6 +45,9 @@ public:
     // FIXME: reimplement handleCapability(), add some guards against "unexpected changes" to Model's implementation
 
 private:
+    void handleInitialResponse( Imap::Parser* ptr, const Imap::Responses::State* const resp );
+
+private:
     Parser* parser;
     bool waitingForGreetings;
     bool gotPreauth;
