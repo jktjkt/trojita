@@ -77,62 +77,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( Imap::Parser* ptr, const 
         IMAP_TASK_ENSURE_VALID_COMMAND( selectCmd, Model::Task::SELECT );
 
         if ( resp->kind == Responses::OK ) {
-            TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ));
-            Q_ASSERT(mailbox);
-            TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[ 0 ] );
-            Q_ASSERT( list );
-
-            model->_parsers[ parser ].currentMbox = mailbox;
-            model->_parsers[ parser ].responseHandler = model->selectedHandler;
-            model->changeConnectionState( parser, CONN_STATE_SELECTED );
-            const SyncState& syncState = model->_parsers[ parser ].currentMbox->syncState;
-            const SyncState& oldState = model->cache()->mailboxSyncState( mailbox->mailbox() );
-            list->_totalMessageCount = syncState.exists();
-            // Note: syncState.unSeen() is the NUMBER of the first unseen message, not their count!
-
-            const QList<uint>& seqToUid = model->cache()->uidMapping( mailbox->mailbox() );
-
-            if ( static_cast<uint>( seqToUid.size() ) != oldState.exists() ||
-                 oldState.exists() != static_cast<uint>( list->_children.size() ) ) {
-
-                qDebug() << "Inconsistent cache data, falling back to full sync (" <<
-                        seqToUid.size() << "in UID map," << oldState.exists() <<
-                        "EXIST before," << list->_children.size() << "nodes)";
-                _fullMboxSync( mailbox, list, syncState );
-            } else {
-                if ( syncState.isUsableForSyncing() && oldState.isUsableForSyncing() && syncState.uidValidity() == oldState.uidValidity() ) {
-                    // Perform a nice re-sync
-
-                    if ( syncState.uidNext() == oldState.uidNext() ) {
-                        // No new messages
-
-                        if ( syncState.exists() == oldState.exists() ) {
-                            // No deletions, either, so we resync only flag changes
-                            _syncNoNewNoDeletions( mailbox, list, syncState, seqToUid );
-                        } else {
-                            // Some messages got deleted, but there have been no additions
-                            _syncOnlyDeletions( mailbox, list, syncState );
-                        }
-
-                    } else {
-                        // Some new messages were delivered since we checked the last time.
-                        // There's no guarantee they are still present, though.
-
-                        if ( syncState.uidNext() - oldState.uidNext() == syncState.exists() - oldState.exists() ) {
-                            // Only some new arrivals, no deletions
-                            _syncOnlyAdditions( mailbox, list, syncState, oldState );
-                        } else {
-                            // Generic case; we don't know anything about which messages were deleted and which added
-                            _syncGeneric( mailbox, list, syncState );
-                        }
-                    }
-                } else {
-                    // Forget everything, do a dumb sync
-                    model->cache()->clearAllMessages( mailbox->mailbox() );
-                    _fullMboxSync( mailbox, list, syncState );
-                }
-            }
-
+            _finalizeSelect();
         } else {
             // FIXME: Tasks API error handling
         }
@@ -140,6 +85,65 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( Imap::Parser* ptr, const 
         return true;
     } else {
         return false;
+    }
+}
+
+void ObtainSynchronizedMailboxTask::_finalizeSelect()
+{
+    TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ));
+    Q_ASSERT(mailbox);
+    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[ 0 ] );
+    Q_ASSERT( list );
+
+    model->_parsers[ parser ].currentMbox = mailbox;
+    model->_parsers[ parser ].responseHandler = model->selectedHandler;
+    model->changeConnectionState( parser, CONN_STATE_SELECTED );
+    const SyncState& syncState = model->_parsers[ parser ].currentMbox->syncState;
+    const SyncState& oldState = model->cache()->mailboxSyncState( mailbox->mailbox() );
+    list->_totalMessageCount = syncState.exists();
+    // Note: syncState.unSeen() is the NUMBER of the first unseen message, not their count!
+
+    const QList<uint>& seqToUid = model->cache()->uidMapping( mailbox->mailbox() );
+
+    if ( static_cast<uint>( seqToUid.size() ) != oldState.exists() ||
+         oldState.exists() != static_cast<uint>( list->_children.size() ) ) {
+
+        qDebug() << "Inconsistent cache data, falling back to full sync (" <<
+                seqToUid.size() << "in UID map," << oldState.exists() <<
+                "EXIST before," << list->_children.size() << "nodes)";
+        _fullMboxSync( mailbox, list, syncState );
+    } else {
+        if ( syncState.isUsableForSyncing() && oldState.isUsableForSyncing() && syncState.uidValidity() == oldState.uidValidity() ) {
+            // Perform a nice re-sync
+
+            if ( syncState.uidNext() == oldState.uidNext() ) {
+                // No new messages
+
+                if ( syncState.exists() == oldState.exists() ) {
+                    // No deletions, either, so we resync only flag changes
+                    _syncNoNewNoDeletions( mailbox, list, syncState, seqToUid );
+                } else {
+                    // Some messages got deleted, but there have been no additions
+                    _syncOnlyDeletions( mailbox, list, syncState );
+                }
+
+            } else {
+                // Some new messages were delivered since we checked the last time.
+                // There's no guarantee they are still present, though.
+
+                if ( syncState.uidNext() - oldState.uidNext() == syncState.exists() - oldState.exists() ) {
+                    // Only some new arrivals, no deletions
+                    _syncOnlyAdditions( mailbox, list, syncState, oldState );
+                } else {
+                    // Generic case; we don't know anything about which messages were deleted and which added
+                    _syncGeneric( mailbox, list, syncState );
+                }
+            }
+        } else {
+            // Forget everything, do a dumb sync
+            model->cache()->clearAllMessages( mailbox->mailbox() );
+            _fullMboxSync( mailbox, list, syncState );
+        }
     }
 }
 
