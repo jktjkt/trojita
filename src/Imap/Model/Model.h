@@ -392,6 +392,7 @@ private:
     friend class CopyMoveMessagesTask;
     friend class ObtainSynchronizedMailboxTask;
     friend class KeepMailboxOpenTask;
+    friend class OpenConnectionTask;
 
     void _askForChildrenOfMailbox( TreeItemMailbox* item );
     void _askForMessagesInMailbox( TreeItemMsgList* item );
@@ -459,6 +460,8 @@ private:
     trying the operator=(). Oh well...
     */
     QAuthenticator* _authenticator;
+
+    uint lastParserId;
 
 protected slots:
     void responseReceived();
