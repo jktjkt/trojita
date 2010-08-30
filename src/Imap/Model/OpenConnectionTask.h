@@ -42,9 +42,11 @@ public:
     virtual void perform();
 
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
+    // FIXME: reimplement handleCapability(), add some guards against "unexpected changes" to Model's implementation
 
 public:
     Parser* parser;
+    bool waitingForGreetings;
     CommandHandle startTlsCmd;
     CommandHandle capabilityCmd;
 };

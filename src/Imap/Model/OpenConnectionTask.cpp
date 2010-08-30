@@ -24,7 +24,7 @@ namespace Imap {
 namespace Mailbox {
 
 OpenConnectionTask::OpenConnectionTask( Model* _model ) :
-    ImapTask( _model )
+    ImapTask( _model ), waitingForGreetings(true)
 {    
     parser = new Parser( model, model->_socketFactory->create(), ++model->lastParserId );
     Model::ParserState parserState = Model::ParserState( parser, 0, Model::ReadOnly, CONN_STATE_NONE, 0 );
@@ -53,27 +53,31 @@ void OpenConnectionTask::perform()
 
 bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
-    if ( ! resp->tag.isEmpty() ) {
-        throw Imap::UnexpectedResponseReceived(
-                "Waiting for initial OK/BYE/PREAUTH, but got tagged response instead",
-                *resp );
-    }
-
-    using namespace Imap::Responses;
-    switch ( resp->kind ) {
-        case PREAUTH:
-        {
-            model->changeConnectionState( ptr, CONN_STATE_AUTHENTICATED);
-            if ( ! model->_parsers[ ptr ].capabilitiesFresh ) {
-                capabilityCmd = ptr->capability();
-                model->_parsers[ ptr ].commandMap[ capabilityCmd ] = Model::Task( Model::Task::CAPABILITY, 0 );
-                emit model->activityHappening( true );
-            }
-            //CommandHandle cmd = ptr->namespaceCommand();
-            //m->_parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::NAMESPACE, 0 );
-            ptr->authStateReached();
-            break;
+    if ( waitingForGreetings ) {
+        waitingForGreetings = false;
+        if ( ! resp->tag.isEmpty() ) {
+            throw Imap::UnexpectedResponseReceived(
+                    "Waiting for initial OK/BYE/PREAUTH, but got tagged response instead",
+                    *resp );
         }
+
+        using namespace Imap::Responses;
+        switch ( resp->kind ) {
+        case PREAUTH:
+            {
+                model->changeConnectionState( ptr, CONN_STATE_AUTHENTICATED);
+                if ( ! model->_parsers[ ptr ].capabilitiesFresh ) {
+                    capabilityCmd = ptr->capability();
+                    model->_parsers[ ptr ].commandMap[ capabilityCmd ] = Model::Task( Model::Task::CAPABILITY, 0 );
+                    emit model->activityHappening( true );
+                } else {
+                    _completed();
+                }
+                //CommandHandle cmd = ptr->namespaceCommand();
+                //m->_parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::NAMESPACE, 0 );
+                ptr->authStateReached();
+                break;
+            }
         case OK:
             if ( model->_startTls ) {
                 // The STARTTLS command is already queued -> no need to issue it once again
@@ -107,10 +111,22 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
             break;
         default:
             throw Imap::UnexpectedResponseReceived(
-                "Waiting for initial OK/BYE/BAD/PREAUTH, but got this instead",
-                *resp );
+                    "Waiting for initial OK/BYE/BAD/PREAUTH, but got this instead",
+                    *resp );
+        }
+        return true;
+    } else if ( resp->tag == capabilityCmd ) {
+        IMAP_TASK_ENSURE_VALID_COMMAND( capabilityCmd, Model::Task::CAPABILITY );
+        if ( resp->kind == Responses::OK ) {
+            _completed();
+        } else {
+            // FIXME: Tasks API error handling
+        }
+        IMAP_TASK_CLEANUP_COMMAND;
+        return true;
+    } else {
+        return false;
     }
-    return true;
 }
 
 }
