@@ -42,8 +42,6 @@ void UnauthenticatedHandler::handleResponseCode( Imap::Parser* ptr, const Imap::
                 const RespData<QStringList>* const caps = dynamic_cast<const RespData<QStringList>* const>(
                         resp->respCodeData.data() );
                 if ( caps ) {
-                    m->_parsers[ ptr ].capabilities = caps->data;
-                    m->_parsers[ ptr ].capabilitiesFresh = true;
                     m->updateCapabilities( ptr, caps->data );
                 }
             }

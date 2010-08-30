@@ -653,8 +653,6 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
 
 void Model::handleCapability( Imap::Parser* ptr, const Imap::Responses::Capability* const resp )
 {
-    _parsers[ ptr ].capabilities = resp->capabilities;
-    _parsers[ ptr ].capabilitiesFresh = true;
     updateCapabilities( ptr, resp->capabilities );
 }
 
@@ -1205,7 +1203,12 @@ void Model::enterIdle( Parser* parser )
 
 void Model::updateCapabilities( Parser* parser, const QStringList capabilities )
 {
-    parser->enableLiteralPlus( capabilities.contains( QLatin1String( "LITERAL+" ) ) );
+    QStringList uppercaseCaps;
+    Q_FOREACH( const QString& str, capabilities )
+            uppercaseCaps << str.toUpper();
+    _parsers[ parser ].capabilities = uppercaseCaps;
+    _parsers[ parser ].capabilitiesFresh = true;
+    parser->enableLiteralPlus( uppercaseCaps.contains( QLatin1String( "LITERAL+" ) ) );
 }
 
 void Model::markMessageDeleted( TreeItemMessage* msg, bool marked )

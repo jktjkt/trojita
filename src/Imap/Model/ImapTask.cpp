@@ -143,8 +143,6 @@ void ImapTask::handleResponseCode( Imap::Parser* ptr, const Imap::Responses::Sta
                 const RespData<QStringList>* const caps = dynamic_cast<const RespData<QStringList>* const>(
                         resp->respCodeData.data() );
                 if ( caps ) {
-                    model->_parsers[ ptr ].capabilities = caps->data;
-                    model->_parsers[ ptr ].capabilitiesFresh = true;
                     model->updateCapabilities( ptr, caps->data );
                 }
             }
