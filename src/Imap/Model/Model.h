@@ -390,6 +390,8 @@ private:
     friend class CreateMailboxTask;
     friend class DeleteMailboxTask;
     friend class CopyMoveMessagesTask;
+    friend class ObtainSynchronizedMailboxTask;
+    friend class KeepMailboxOpenTask;
 
     void _askForChildrenOfMailbox( TreeItemMailbox* item );
     void _askForMessagesInMailbox( TreeItemMsgList* item );
@@ -399,7 +401,6 @@ private:
 
     void _finalizeList( Parser* parser, TreeItemMailbox* const mailboxPtr );
     void _finalizeIncrementalList( Parser* parser, const QString& parentMailboxName );
-    void _finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeFetchPart( Parser* parser, TreeItemPart* const part );
 
@@ -416,7 +417,6 @@ private:
     TreeItemMailbox* findParentMailboxByName( const QString& name ) const;
 
     void saveUidMap( TreeItemMsgList* list );
-    void _fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, Parser* parser, const SyncState& syncState );
 
     /** @short Returns parser suitable for dealing with some mailbox.
      *

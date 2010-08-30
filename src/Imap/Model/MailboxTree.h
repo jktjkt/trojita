@@ -40,6 +40,7 @@ class TreeItem {
     TreeItem(const TreeItem&); // don't implement
     void operator=( const TreeItem& ); // don't implement
     friend class DeleteMailboxTask; // for direct access to _children
+    friend class ObtainSynchronizedMailboxTask; // for direct access to _children
 
 protected:
     /** @short Availability of an item */
@@ -132,6 +133,7 @@ class TreeItemMsgList: public TreeItem {
     void operator=( const TreeItem& ); // don't implement
     friend class TreeItemMailbox;
     friend class Model;
+    friend class ObtainSynchronizedMailboxTask;
     FetchingState _numberFetchingStatus;
     int _totalMessageCount;
     int _unreadMessageCount;
@@ -155,6 +157,7 @@ class TreeItemMessage: public TreeItem {
     friend class TreeItemMailbox;
     friend class TreeItemMsgList;
     friend class Model;
+    friend class ObtainSynchronizedMailboxTask; // needs access to _offset
     Message::Envelope _envelope;
     uint _size;
     uint _uid;
