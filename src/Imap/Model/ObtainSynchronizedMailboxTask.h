@@ -41,7 +41,7 @@ class ObtainSynchronizedMailboxTask : public ImapTask
 {
 Q_OBJECT
 public:
-    ObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& mailboxIndex );
+    ObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex );
     virtual void perform();
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
 
@@ -58,7 +58,7 @@ private:
 private:
     Parser* parser;
     CreateConnectionTask* createConn;
-    QPersistentModelIndex mailbox;
+    QPersistentModelIndex mailboxIndex;
     CommandHandle selectCmd;
     CommandHandle uidSyncingCmd;
 };
