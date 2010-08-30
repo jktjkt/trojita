@@ -24,7 +24,7 @@ namespace Imap {
 namespace Mailbox {
 
 OpenConnectionTask::OpenConnectionTask( Model* _model ) :
-    ImapTask( _model ), waitingForGreetings(true)
+    ImapTask( _model ), waitingForGreetings(true), gotPreauth(false)
 {    
     parser = new Parser( model, model->_socketFactory->create(), ++model->lastParserId );
     Model::ParserState parserState = Model::ParserState( parser, 0, Model::ReadOnly, CONN_STATE_NONE, 0 );
@@ -65,6 +65,7 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
         switch ( resp->kind ) {
         case PREAUTH:
             {
+                gotPreauth = true;
                 model->changeConnectionState( ptr, CONN_STATE_AUTHENTICATED);
                 if ( ! model->_parsers[ ptr ].capabilitiesFresh ) {
                     capabilityCmd = ptr->capability();
@@ -95,7 +96,7 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
                     emit model->activityHappening( true );
                 } else {
                     // Apparently no need for STARTTLS and we are free to login
-                    model->performAuthentication( ptr );
+                    loginCmd = model->performAuthentication( ptr );
                 }
             }
             break;
@@ -118,7 +119,20 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
     } else if ( resp->tag == capabilityCmd ) {
         IMAP_TASK_ENSURE_VALID_COMMAND( capabilityCmd, Model::Task::CAPABILITY );
         if ( resp->kind == Responses::OK ) {
-            _completed();
+            if ( gotPreauth ) {
+                _completed();
+            } else {
+                if ( model->_parsers[ ptr ].capabilities.contains( QLatin1String("LOGINDISABLED") ) ) {
+                    qDebug() << "Can't login yet, trying STARTTLS";
+                    // ... and we are forbidden from logging in, so we have to try the STARTTLS
+                    startTlsCmd = ptr->startTls();
+                    model->_parsers[ ptr ].commandMap[ startTlsCmd ] = Model::Task( Model::Task::STARTTLS, 0 );
+                    emit model->activityHappening( true );
+                } else {
+                    // Apparently no need for STARTTLS and we are free to login
+                    loginCmd = model->performAuthentication( ptr );
+                }
+            }
         } else {
             // FIXME: Tasks API error handling
         }

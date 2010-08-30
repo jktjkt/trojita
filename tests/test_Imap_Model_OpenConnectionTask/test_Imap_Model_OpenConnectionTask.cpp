@@ -75,4 +75,17 @@ void ImapModelOpenConnectionTaskTest::testPreauthWithCapability()
     QCOMPARE( spy->size(), 1 );
 }
 
+void ImapModelOpenConnectionTaskTest::testOk()
+{
+    SOCK->fakeReading( "* OK foo\r\n" );
+    QVERIFY( spy->isEmpty() );
+    QCoreApplication::processEvents();
+    QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 CAPABILITY\r\n") );
+    QVERIFY( spy->isEmpty() );
+    SOCK->fakeReading( "* CAPABILITY IMAP4rev1\r\ny0 OK capability completed\r\n" );
+    QCoreApplication::processEvents();
+    QCOMPARE( spy->size(), 1 );
+}
+
+
 QTEST_MAIN( ImapModelOpenConnectionTaskTest )

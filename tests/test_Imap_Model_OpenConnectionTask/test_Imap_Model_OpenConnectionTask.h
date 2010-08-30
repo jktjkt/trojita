@@ -38,6 +38,8 @@ private slots:
     void testPreauth();
     void testPreauthWithCapability();
 
+    void testOk();
+
 private:
     Imap::Mailbox::Model* model;
     Imap::Mailbox::FakeSocketFactory* factory;

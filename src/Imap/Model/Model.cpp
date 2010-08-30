@@ -1367,7 +1367,7 @@ TreeItem* Model::realTreeItem( QModelIndex index, const Model** whichModel, QMod
     return static_cast<TreeItem*>( index.internalPointer() );
 }
 
-void Model::performAuthentication( Imap::Parser* ptr )
+CommandHandle Model::performAuthentication( Imap::Parser* ptr )
 {
     // The LOGINDISABLED capability is checked elsewhere
     if ( ! _authenticator ) {
@@ -1379,10 +1379,12 @@ void Model::performAuthentication( Imap::Parser* ptr )
         delete _authenticator;
         _authenticator = 0;
         emit connectionError( tr("Can't login without user/password data") );
+        return CommandHandle();
     } else {
         CommandHandle cmd = ptr->login( _authenticator->user(), _authenticator->password() );
         _parsers[ ptr ].commandMap[ cmd ] = Task( Task::LOGIN, 0 );
         emit activityHappening( true );
+        return cmd;
     }
 }
 

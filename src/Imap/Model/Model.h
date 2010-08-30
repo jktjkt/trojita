@@ -435,7 +435,7 @@ private:
     void changeConnectionState( Parser* parser, ConnectionState state );
 
     /** @short Try to authenticate the user to the IMAP server */
-    void performAuthentication( Imap::Parser* ptr );
+    CommandHandle performAuthentication( Imap::Parser* ptr );
 
     /** @short Check if all the parsers are indeed idling, and update the GUI if so */
     void parsersMightBeIdling();
