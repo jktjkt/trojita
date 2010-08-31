@@ -29,6 +29,7 @@
 #include "../ConnectionState.h"
 #include "../Parser/Parser.h"
 #include "Streams/SocketFactory.h"
+#include "TaskFactory.h"
 
 class QAuthenticator;
 
@@ -176,6 +177,7 @@ class Model: public QAbstractItemModel {
 
     mutable AbstractCache* _cache;
     mutable SocketFactoryPtr _socketFactory;
+    TaskFactoryPtr _taskFactory;
     mutable QMap<Parser*,ParserState> _parsers;
     int _maxParsers;
     mutable TreeItemMailbox* _mailboxes;
@@ -187,7 +189,7 @@ class Model: public QAbstractItemModel {
 
 
 public:
-    Model( QObject* parent, AbstractCache* cache, SocketFactoryPtr socketFactory, bool offline );
+    Model( QObject* parent, AbstractCache* cache, SocketFactoryPtr socketFactory, TaskFactoryPtr taskFactory, bool offline );
     ~Model();
 
     virtual QModelIndex index(int row, int column, const QModelIndex& parent ) const;

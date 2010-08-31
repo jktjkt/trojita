@@ -44,7 +44,8 @@ void ImapModelOpenConnectionTaskTest::init( bool startTlsRequired )
     Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache( this, QString() );
     factory = new Imap::Mailbox::FakeSocketFactory();
     factory->setStartTlsRequired( startTlsRequired );
-    model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), false );
+    Imap::Mailbox::TaskFactoryPtr taskFactory( new Imap::Mailbox::TaskFactory() ); // yes, the real one
+    model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), taskFactory, false );
     connect(model, SIGNAL(authRequested(QAuthenticator*)), this, SLOT(provideAuthDetails(QAuthenticator*)) );
     task = new Imap::Mailbox::OpenConnectionTask( model );
     completedSpy = new QSignalSpy( task, SIGNAL(completed()) );

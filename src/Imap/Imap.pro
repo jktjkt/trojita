@@ -38,6 +38,7 @@ SOURCES += Parser/Parser.cpp \
     Model/CombinedCache.cpp \
     Model/Utils.cpp \
     Model/IdleLauncher.cpp \
+    Model/TaskFactory.cpp \
     Tasks/ImapTask.cpp \
     Tasks/CreateConnectionTask.cpp \
     Tasks/FetchMsgPartTask.cpp \
@@ -88,6 +89,7 @@ HEADERS += Parser/Parser.h \
     Model/Cache.h \
     Model/Utils.h \
     Model/IdleLauncher.h \
+    Model/TaskFactory.h \
     Tasks/ImapTask.h \
     Tasks/CreateConnectionTask.h \
     Tasks/FetchMsgPartTask.h \

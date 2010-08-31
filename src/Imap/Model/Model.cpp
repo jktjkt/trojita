@@ -82,11 +82,11 @@ ModelStateHandler::ModelStateHandler( Model* _m ): QObject(_m), m(_m)
 {
 }
 
-Model::Model( QObject* parent, AbstractCache* cache, SocketFactoryPtr socketFactory, bool offline ):
+Model::Model( QObject* parent, AbstractCache* cache, SocketFactoryPtr socketFactory, TaskFactoryPtr taskFactory, bool offline ):
     // parent
     QAbstractItemModel( parent ),
     // our tools
-    _cache(cache), _socketFactory(socketFactory),
+    _cache(cache), _socketFactory(socketFactory), _taskFactory(taskFactory),
     _maxParsers(4), _mailboxes(0), _netPolicy( NETWORK_ONLINE ),
     _authenticator(0), lastParserId(0)
 {
