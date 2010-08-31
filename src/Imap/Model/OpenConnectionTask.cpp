@@ -51,6 +51,7 @@ void OpenConnectionTask::perform()
     // nothing should happen here
 }
 
+/** @short Process the "state" response originating from the IMAP server */
 bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
     if ( waitingForGreetings ) {
@@ -110,6 +111,7 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
     }
 }
 
+/** @short Helper for dealing with the very first response from the server */
 void OpenConnectionTask::handleInitialResponse( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
     waitingForGreetings = false;
@@ -132,8 +134,6 @@ void OpenConnectionTask::handleInitialResponse( Imap::Parser* ptr, const Imap::R
             } else {
                 _completed();
             }
-            //CommandHandle cmd = ptr->namespaceCommand();
-            //m->_parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::NAMESPACE, 0 );
             break;
         }
     case OK:
@@ -160,12 +160,14 @@ void OpenConnectionTask::handleInitialResponse( Imap::Parser* ptr, const Imap::R
     case BYE:
         model->changeConnectionState( ptr, CONN_STATE_LOGOUT );
         model->_parsers[ ptr ].responseHandler = 0;
+        // FIXME: Tasks error handling
         break;
     case BAD:
         // If it was an ALERT, we've already warned the user
         if ( resp->respCode != ALERT ) {
             emit model->alertReceived( tr("The server replied with the following BAD response:\n%1").arg( resp->message ) );
         }
+        // FIXME: Tasks error handling
         break;
     default:
         throw Imap::UnexpectedResponseReceived(

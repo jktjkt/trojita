@@ -27,12 +27,13 @@ namespace Mailbox {
 
 class TreeItemMailbox;
 
-/** @short Open new connection to the IMAP server, determine capabilities and login
+/** @short Create new connection and make sure it reaches authenticated state
 
-This Task is responsible for creating new connection to the remote server, optionally
-establishing encryption if requested or needed, "determining capabilities" (using what
-the server tells us, or asking for an update if we aren't satisfied) and finally taking
-care of proper authentication.
+Use this task if you want to obtain a new connection which ends up in the authenticated
+state. It will establish a new connection and baby-sit it until it reaches the request
+authenticated state.
+
+Obtaining capabilities, issuing STARTTLS and logging in are all handled here.
 */
 class OpenConnectionTask : public ImapTask
 {
