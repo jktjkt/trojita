@@ -21,7 +21,7 @@
 
 #include <QPersistentModelIndex>
 #include "ImapTask.h"
-#include "Parser/Parser.h"
+#include "../Parser/Parser.h"
 
 namespace Imap {
 namespace Mailbox {
