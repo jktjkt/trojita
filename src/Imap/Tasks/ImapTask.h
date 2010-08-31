@@ -82,6 +82,7 @@ signals:
 
 protected slots:
     void slotSucceed() { _completed(); }
+    void slotPerform() { perform(); }
 
 public:
     Imap::Parser* parser;

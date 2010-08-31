@@ -18,7 +18,7 @@
 
 #include "ObtainSynchronizedMailboxTask.h"
 #include <QTimer>
-#include "CreateConnectionTask.h"
+#include "OpenConnectionTask.h"
 #include "MailboxTree.h"
 #include "Model.h"
 
@@ -26,7 +26,7 @@ namespace Imap {
 namespace Mailbox {
 
 ObtainSynchronizedMailboxTask::ObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex ) :
-    ImapTask( _model ), createConn(0), mailboxIndex(_mailboxIndex), status(STATE_WAIT_FOR_CONN)
+    ImapTask( _model ), conn(0), mailboxIndex(_mailboxIndex), status(STATE_WAIT_FOR_CONN)
 {
     // FIXME: find out if the mailbox is already selected
     bool alreadySynced = false;
@@ -35,14 +35,9 @@ ObtainSynchronizedMailboxTask::ObtainSynchronizedMailboxTask( Model* _model, con
         //parser = something;
         // FIXME: somehow pass the Parser*
     } else {
-        createConn = new CreateConnectionTask( _model, 0 );
-        createConn->addDependentTask( this );
+        conn = model->_taskFactory->createOpenConnectionTask( model );
+        conn->addDependentTask( this );
     }
-}
-
-void ObtainSynchronizedMailboxTask::slotPerform()
-{
-    perform();
 }
 
 void ObtainSynchronizedMailboxTask::perform()
@@ -58,8 +53,8 @@ void ObtainSynchronizedMailboxTask::perform()
     Q_ASSERT(mailbox);
 
     if ( ! parser ) {
-        Q_ASSERT(createConn);
-        parser = createConn->parser;
+        Q_ASSERT(conn);
+        parser = conn->parser;
     }
 
     QMap<Parser*,Model::ParserState>::iterator it = model->_parsers.find( parser );

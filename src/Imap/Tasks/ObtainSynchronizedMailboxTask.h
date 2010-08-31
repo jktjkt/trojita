@@ -21,7 +21,7 @@
 
 #include "ImapTask.h"
 #include <QModelIndex>
-#include "Model.h"
+#include "../Model/Model.h"
 
 namespace Imap {
 namespace Mailbox {
@@ -47,9 +47,6 @@ public:
 
     typedef enum { STATE_WAIT_FOR_CONN, STATE_SELECTING, STATE_SYNCING_UIDS, STATE_SYNCING_FLAGS, STATE_DONE } State;
 
-private slots:
-    void slotPerform();
-
 private:
     void _finalizeSelect();
     void _fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState );
@@ -62,7 +59,7 @@ private:
     void syncFlags( TreeItemMailbox* mailbox );
 
 private:
-    CreateConnectionTask* createConn;
+    ImapTask* conn;
     QPersistentModelIndex mailboxIndex;
     CommandHandle selectCmd;
     CommandHandle uidSyncingCmd;

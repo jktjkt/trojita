@@ -45,6 +45,9 @@ public:
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
     // FIXME: reimplement handleCapability(), add some guards against "unexpected changes" to Model's implementation
 
+protected:
+    OpenConnectionTask(): ImapTask(0) {}
+
 private:
     void handleInitialResponse( Imap::Parser* ptr, const Imap::Responses::State* const resp );
 
