@@ -18,7 +18,7 @@
 
 
 #include "ListChildMailboxesTask.h"
-#include "CreateConnectionTask.h"
+#include "GetAnyConnectionTask.h"
 #include "Model.h"
 #include "MailboxTree.h"
 
@@ -29,14 +29,16 @@ namespace Mailbox {
 ListChildMailboxesTask::ListChildMailboxesTask( Model* _model, const QModelIndex& mailbox ):
     ImapTask( _model ), mailboxIndex(mailbox)
 {
+    qDebug() << Q_FUNC_INFO << this;
     TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailbox.internalPointer() ) );
     Q_ASSERT( mailboxPtr );
-    conn = new CreateConnectionTask( _model, 0 );
+    conn = model->_taskFactory->createGetAnyConnectionTask( model );
     conn->addDependentTask( this );
 }
 
 void ListChildMailboxesTask::perform()
 {
+    qDebug() << Q_FUNC_INFO << this;
     if ( ! mailboxIndex.isValid() ) {
         // FIXME: add proper fix
         qDebug() << "Mailbox vanished before we could ask for its children";
@@ -60,6 +62,7 @@ void ListChildMailboxesTask::perform()
 
 bool ListChildMailboxesTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
+    qDebug() << Q_FUNC_INFO << this << tag << resp->tag;
     if ( resp->tag == tag ) {
         IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::Task::LIST );
 

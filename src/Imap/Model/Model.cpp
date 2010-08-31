@@ -675,8 +675,7 @@ void Model::handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::Numb
 
 void Model::handleList( Imap::Parser* ptr, const Imap::Responses::List* const resp )
 {
-    if ( _parsers[ ptr ].responseHandler )
-        _parsers[ ptr ].responseHandler->handleList( ptr, resp );
+    _parsers[ ptr ].listResponses << *resp;
 }
 
 void Model::handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp )

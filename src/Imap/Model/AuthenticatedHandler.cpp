@@ -96,7 +96,7 @@ void AuthenticatedHandler::handleNumberResponse( Imap::Parser* ptr, const Imap::
 
 void AuthenticatedHandler::handleList( Imap::Parser* ptr, const Imap::Responses::List* const resp )
 {
-    m->_parsers[ ptr ].listResponses << *resp;
+    throw CantHappen("AuthenticatedHandler::handleList: porting in progress...");
 }
 
 void AuthenticatedHandler::handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp )

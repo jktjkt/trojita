@@ -41,7 +41,7 @@ public:
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
 private:
     CommandHandle tag;
-    CreateConnectionTask* conn;
+    ImapTask* conn;
     QPersistentModelIndex mailboxIndex;
 };
 
