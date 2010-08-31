@@ -397,6 +397,8 @@ private:
     friend class OpenConnectionTask;
     friend class GetAnyConnectionTask;
 
+    friend class TestingTaskFactory; // needs access to _socketFactory
+
     void _askForChildrenOfMailbox( TreeItemMailbox* item );
     void _askForMessagesInMailbox( TreeItemMsgList* item );
     void _askForNumberOfMessages( TreeItemMsgList* item );

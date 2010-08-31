@@ -22,15 +22,18 @@
 #include <memory>
 
 namespace Imap {
+class Parser;
 namespace Mailbox {
 
 class OpenConnectionTask;
+class GetAnyConnectionTask;
 class Model;
 
 class TaskFactory
 {
 public:
     virtual OpenConnectionTask* createOpenConnectionTask( Model* _model );
+    virtual GetAnyConnectionTask* createGetAnyConnectionTask( Model* _model );
     virtual ~TaskFactory();
 };
 
@@ -40,6 +43,8 @@ public:
     TestingTaskFactory();
     virtual OpenConnectionTask* createOpenConnectionTask( Model* _model );
     bool fakeOpenConnectionTask;
+private:
+    Parser* newParser( Model* model );
 };
 
 typedef std::auto_ptr<TaskFactory> TaskFactoryPtr;
