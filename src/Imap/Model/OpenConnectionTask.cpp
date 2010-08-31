@@ -85,15 +85,28 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
         } else {
             // FIXME: error handling
         }
+        IMAP_TASK_CLEANUP_COMMAND;
         return true;
     } else if ( resp->tag == startTlsCmd ) {
-        IMAP_TASK_ENSURE_VALID_COMMAND( startTlsCmd, Model::Task::STARTTLS );
+        // FIXME: why do I have to comment that out?
+        //IMAP_TASK_ENSURE_VALID_COMMAND( startTlsCmd, Model::Task::STARTTLS );
+        QMap<CommandHandle, Model::Task>::iterator command = model->_parsers[ ptr ].commandMap.find( startTlsCmd );
         if ( resp->kind == Responses::OK ) {
-            loginCmd = model->performAuthentication( ptr );
+            if ( ! model->_parsers[ ptr ].capabilitiesFresh ) {
+                capabilityCmd = ptr->capability();
+                model->_parsers[ ptr ].commandMap[ capabilityCmd ] = Model::Task( Model::Task::CAPABILITY, 0 );
+                emit model->activityHappening( true );
+            } else {
+                loginCmd = model->performAuthentication( ptr );
+            }
         } else {
             emit model->connectionError( tr("Can't establish a secure connection to the server (STARTTLS failed). Refusing to proceed.") );
             // FIXME: error handling
         }
+        //IMAP_TASK_CLEANUP_COMMAND;
+        if ( command != model->_parsers[ ptr ].commandMap.end() )
+            model->_parsers[ ptr ].commandMap.erase( command );
+        model->parsersMightBeIdling();
         return true;
     } else {
         return false;
@@ -124,7 +137,6 @@ void OpenConnectionTask::handleInitialResponse( Imap::Parser* ptr, const Imap::R
             }
             //CommandHandle cmd = ptr->namespaceCommand();
             //m->_parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::NAMESPACE, 0 );
-            ptr->authStateReached();
             break;
         }
     case OK:

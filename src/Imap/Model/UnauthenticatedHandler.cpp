@@ -79,7 +79,6 @@ void UnauthenticatedHandler::handleState( Imap::Parser* ptr, const Imap::Respons
             }
             //CommandHandle cmd = ptr->namespaceCommand();
             //m->_parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::NAMESPACE, 0 );
-            ptr->authStateReached();
             break;
         }
         case OK:

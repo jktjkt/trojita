@@ -227,7 +227,6 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                     }
                     //CommandHandle cmd = ptr->namespaceCommand();
                     //_parsers[ ptr ].commandMap[ cmd ] = Task( Task::NAMESPACE, 0 );
-                    ptr->authStateReached();
                 } else {
                     if ( _authenticator )
                         delete _authenticator;

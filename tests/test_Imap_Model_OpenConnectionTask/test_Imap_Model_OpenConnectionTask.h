@@ -32,6 +32,7 @@ class ImapModelOpenConnectionTaskTest : public QObject
     Q_OBJECT
 private slots:
     void init();
+    void init( bool startTlsRequired );
     void cleanup();
     void initTestCase();
 
@@ -43,6 +44,8 @@ private slots:
 
     void testOkLogindisabled();
     void testOkLogindisabledLater();
+
+    void testOkStartTls();
 
     void provideAuthDetails( QAuthenticator* auth );
 

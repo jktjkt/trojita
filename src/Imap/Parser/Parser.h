@@ -239,9 +239,6 @@ namespace Imap {
         CommandHandle uidThread( const QString& algo, const QString& charset, const QStringList& searchCriteria );
 
 
-        /** @short Tell the parser that it is now authenticated and can therefore proceed with commands */
-        void authStateReached();
-
     signals:
         /** @short Socket got disconnected */
         void disconnected( const QString );
@@ -304,9 +301,6 @@ containing the original line and indicating the troublesome position, or -1 if n
         /** @short Queue command for execution.*/
         CommandHandle queueCommand( Commands::Command command );
 
-        /** @short Schedule a command for execution immediately before the existing "wait for..." command */
-        CommandHandle queueCommandBeforeWaitForAuth( Commands::Command command );
-
         /** @short Shortcut function; works exactly same as above mentioned queueCommand() */
         CommandHandle queueCommand( const Commands::TokenType kind, const QString& text ) {
             return queueCommand( Commands::Command() << Commands::PartOfCommand( kind, text ) );
@@ -344,9 +338,6 @@ containing the original line and indicating the troublesome position, or -1 if n
         /** @short Add parsed response to the internal queue, emit notification signal */
         void queueResponse( const QSharedPointer<Responses::AbstractResponse>& resp );
 
-        /** @short Postpone execution of other commands until the authStateReached() gets called */
-        void waitForAuth();
-
         /** @short Connection to the IMAP server */
         Socket* _socket;
 
@@ -365,7 +356,6 @@ containing the original line and indicating the troublesome position, or -1 if n
         bool _literalPlus;
         bool _waitingForContinuation;
         bool _startTlsInProgress;
-        bool _waitingForAuth;
         bool _waitingForConnection;
 
         enum { ReadingLine, ReadingNumberOfBytes } _readingMode;

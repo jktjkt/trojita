@@ -36,8 +36,14 @@ void ImapModelOpenConnectionTaskTest::initTestCase()
 
 void ImapModelOpenConnectionTaskTest::init()
 {
+    init( false );
+}
+
+void ImapModelOpenConnectionTaskTest::init( bool startTlsRequired )
+{
     Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache( this, QString() );
     factory = new Imap::Mailbox::FakeSocketFactory();
+    factory->setStartTlsRequired( startTlsRequired );
     model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), false );
     connect(model, SIGNAL(authRequested(QAuthenticator*)), this, SLOT(provideAuthDetails(QAuthenticator*)) );
     task = new Imap::Mailbox::OpenConnectionTask( model );
@@ -158,6 +164,36 @@ void ImapModelOpenConnectionTaskTest::testOkLogindisabledLater()
     QCOMPARE( completedSpy->size(), 1 );
     QCOMPARE( authSpy->size(), 1 );
 }
+
+void ImapModelOpenConnectionTaskTest::testOkStartTls()
+{
+    cleanup(); init(true); // yuck, but I can't come up with anything better...
+
+    SOCK->fakeReading( "* OK foo\r\n" );
+    QVERIFY( completedSpy->isEmpty() );
+    QCoreApplication::processEvents();
+    QVERIFY( authSpy->isEmpty() );
+    QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 STARTTLS\r\n") );
+    SOCK->fakeReading( "y0 OK will establish secure layer immediately\r\n");
+    QCoreApplication::processEvents();
+    QVERIFY( authSpy->isEmpty() );
+    QCoreApplication::processEvents();
+    QCOMPARE( SOCK->writtenStuff(), QByteArray("[*** STARTTLS ***]y1 CAPABILITY\r\n") );
+    QVERIFY( completedSpy->isEmpty() );
+    QVERIFY( authSpy->isEmpty() );
+    SOCK->fakeReading( "* CAPABILITY IMAP4rev1\r\ny1 OK capability completed\r\n" );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE( SOCK->writtenStuff(), QByteArray("y2 LOGIN luzr sikrit\r\n") );
+    QCOMPARE( authSpy->size(), 1 );
+    SOCK->fakeReading( "y2 OK logged in\r\n");
+    QCoreApplication::processEvents();
+    QCOMPARE( completedSpy->size(), 1 );
+    QCOMPARE( authSpy->size(), 1 );
+}
+
+// FIXME: check for CAPABILITY invalidation upon STARTTLS completion :)
+// FIXME: verify how LOGINDISABLED even after STARTLS ends up
 
 void ImapModelOpenConnectionTaskTest::provideAuthDetails( QAuthenticator* auth )
 {
