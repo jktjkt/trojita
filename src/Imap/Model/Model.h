@@ -471,6 +471,8 @@ private:
 protected slots:
     void responseReceived();
 
+    void maybeRunTasks();
+
 };
 
 }

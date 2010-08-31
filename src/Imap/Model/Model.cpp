@@ -170,15 +170,7 @@ void Model::responseReceived()
                 it->activeTasks.removeOne( *deletedIt );
             }
 
-            while ( ! it->activeTasks.isEmpty() ) {
-                if ( GetAnyConnectionTask* getAny = qobject_cast<GetAnyConnectionTask*>( it->activeTasks.first() ) ) {
-                    getAny->perform();
-                    getAny->deleteLater();
-                    it->activeTasks.removeFirst();
-                } else {
-                    break;
-                }
-            }
+            maybeRunTasks();
 
             if ( ! handled )
                 resp->plug( it.value().parser, this );
@@ -1508,6 +1500,21 @@ void Model::setCache( AbstractCache* cache )
         _cache->deleteLater();
     _cache = cache;
     _cache->setParent( this );
+}
+
+void Model::maybeRunTasks()
+{
+    for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
+        while ( ! it->activeTasks.isEmpty() ) {
+            if ( GetAnyConnectionTask* getAny = qobject_cast<GetAnyConnectionTask*>( it->activeTasks.first() ) ) {
+                getAny->perform();
+                getAny->deleteLater();
+                it->activeTasks.removeFirst();
+            } else {
+                break;
+            }
+        }
+    }
 }
 
 }

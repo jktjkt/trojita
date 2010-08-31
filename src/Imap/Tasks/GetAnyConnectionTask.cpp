@@ -26,21 +26,18 @@ namespace Mailbox {
 GetAnyConnectionTask::GetAnyConnectionTask( Model* _model ) :
     ImapTask( _model ), newConn(0)
 {
-qDebug() << Q_FUNC_INFO << this;
     if ( model->_parsers.isEmpty() ) {
-qDebug() << "Creating new connection.";
         newConn = model->_taskFactory->createOpenConnectionTask( model );
         connect( newConn, SIGNAL(completed()), this, SLOT(slotPerform()) );
     } else {
-qDebug() << "Just appending to the list of tasks.";
         model->_parsers.begin()->activeTasks.append( this );
         parser = model->_parsers.begin().key();
+        QTimer::singleShot( 0, model, SLOT(maybeRunTasks()) );
     }
 }
 
 void GetAnyConnectionTask::perform()
 {
-qDebug() << Q_FUNC_INFO << this;
     if ( newConn )
         parser = newConn->parser;
     _completed();

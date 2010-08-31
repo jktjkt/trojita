@@ -76,6 +76,19 @@ void ImapModelListChildMailboxesTest::testSimpleListing()
     QCOMPARE( model->rowCount( idxB ), 1 ); // just the "list of messages"
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray() );
+    model->rowCount( idxA );
+    model->rowCount( idxXyz );
+    QCoreApplication::processEvents();
+    QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 LIST \"\" \"a.%\"\r\n" "y2 LIST \"\" \"xyz.%\"\r\n") );
+    SOCK->fakeReading( "* LIST (\\HasNoChildren) \".\" \"a.aa\"\r\n"
+                       "* LIST (\\HasNoChildren) \".\" \"a.ab\"\r\n"
+                       "y1 OK List completed.\r\n"
+                       "* LIST (\\HasNoChildren) \".\" \"xyz.a\"\r\n"
+                       "* LIST (\\HasNoChildren) \".\" \"xyz.c\"\r\n"
+                       "y2 OK List completed.\r\n" );
+    QCoreApplication::processEvents();
+    QCOMPARE( model->rowCount( idxA ), 3 );
+    QCOMPARE( model->rowCount( idxXyz ), 3 );
 }
 
 QTEST_MAIN( ImapModelListChildMailboxesTest )
