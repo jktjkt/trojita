@@ -395,6 +395,7 @@ private:
     friend class ObtainSynchronizedMailboxTask;
     friend class KeepMailboxOpenTask;
     friend class OpenConnectionTask;
+    friend class GetAnyConnectionTask;
 
     void _askForChildrenOfMailbox( TreeItemMailbox* item );
     void _askForMessagesInMailbox( TreeItemMsgList* item );

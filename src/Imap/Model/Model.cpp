@@ -38,6 +38,7 @@
 #include "CreateMailboxTask.h"
 #include "DeleteMailboxTask.h"
 #include "CopyMoveMessagesTask.h"
+#include "GetAnyConnectionTask.h"
 #include <QAbstractProxyModel>
 #include <QAuthenticator>
 #include <QCoreApplication>
@@ -168,6 +169,17 @@ void Model::responseReceived()
                 (*deletedIt)->deleteLater();
                 it->activeTasks.removeOne( *deletedIt );
             }
+
+            while ( ! it->activeTasks.isEmpty() ) {
+                if ( GetAnyConnectionTask* getAny = qobject_cast<GetAnyConnectionTask*>( it->activeTasks.first() ) ) {
+                    getAny->perform();
+                    getAny->deleteLater();
+                    it->activeTasks.removeFirst();
+                } else {
+                    break;
+                }
+            }
+
             if ( ! handled )
                 resp->plug( it.value().parser, this );
         } catch ( Imap::ImapException& e ) {
