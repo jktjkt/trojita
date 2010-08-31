@@ -61,8 +61,11 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
         IMAP_TASK_ENSURE_VALID_COMMAND( capabilityCmd, Model::Task::CAPABILITY );
         if ( resp->kind == Responses::OK ) {
             if ( gotPreauth ) {
+                // The greetings indicated that we're already in the auth state, and now we
+                // know capabilities, too, so we're done here
                 _completed();
             } else {
+                // We want to log in, but we might have to STARTTLS before
                 if ( model->_parsers[ ptr ].capabilities.contains( QLatin1String("LOGINDISABLED") ) ) {
                     qDebug() << "Can't login yet, trying STARTTLS";
                     // ... and we are forbidden from logging in, so we have to try the STARTTLS
@@ -80,6 +83,8 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
         IMAP_TASK_CLEANUP_COMMAND;
         return true;
     } else if ( resp->tag == loginCmd ) {
+        // The LOGIN command is finished, and we know capabilities already
+        Q_ASSERT( model->_parsers[ ptr ].capabilitiesFresh );
         IMAP_TASK_ENSURE_VALID_COMMAND( loginCmd, Model::Task::LOGIN );
         if ( resp->kind == Responses::OK ) {
             _completed();
@@ -89,6 +94,8 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
         IMAP_TASK_CLEANUP_COMMAND;
         return true;
     } else if ( resp->tag == startTlsCmd ) {
+        // So now we've got a secure connection, but we will have to login. Additionally,
+        // we are obliged to forget any capabilities.
         model->_parsers[ ptr ].capabilitiesFresh = false;
         // FIXME: why do I have to comment that out?
         //IMAP_TASK_ENSURE_VALID_COMMAND( startTlsCmd, Model::Task::STARTTLS );
@@ -125,6 +132,7 @@ void OpenConnectionTask::handleInitialResponse( Imap::Parser* ptr, const Imap::R
     switch ( resp->kind ) {
     case PREAUTH:
         {
+            // Cool, we're already authenticated. Now, let's see if we have to issue CAPABILITY or if we already know that
             gotPreauth = true;
             model->changeConnectionState( ptr, CONN_STATE_AUTHENTICATED);
             if ( ! model->_parsers[ ptr ].capabilitiesFresh ) {
