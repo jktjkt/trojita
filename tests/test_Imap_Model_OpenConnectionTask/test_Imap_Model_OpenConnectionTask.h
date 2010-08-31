@@ -41,6 +41,8 @@ private slots:
     void testOk();
     void testOkWithCapability();
 
+    void testOkLogindisabled();
+
     void provideAuthDetails( QAuthenticator* auth );
 
 private:

@@ -86,6 +86,15 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
             // FIXME: error handling
         }
         return true;
+    } else if ( resp->tag == startTlsCmd ) {
+        IMAP_TASK_ENSURE_VALID_COMMAND( startTlsCmd, Model::Task::STARTTLS );
+        if ( resp->kind == Responses::OK ) {
+            loginCmd = model->performAuthentication( ptr );
+        } else {
+            emit model->connectionError( tr("Can't establish a secure connection to the server (STARTTLS failed). Refusing to proceed.") );
+            // FIXME: error handling
+        }
+        return true;
     } else {
         return false;
     }
