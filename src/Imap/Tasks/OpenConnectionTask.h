@@ -20,7 +20,7 @@
 #define IMAP_OPENCONNECTIONTASK_H
 
 #include "ImapTask.h"
-#include "Model.h"
+#include "../Model/Model.h"
 
 namespace Imap {
 namespace Mailbox {

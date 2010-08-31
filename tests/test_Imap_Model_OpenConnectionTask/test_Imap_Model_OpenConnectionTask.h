@@ -22,7 +22,7 @@
 #ifndef TEST_IMAP_MODEL_OPENCONNECTIONTASK
 #define TEST_IMAP_MODEL_OPENCONNECTIONTASK
 
-#include "Imap/Model/OpenConnectionTask.h"
+#include "Imap/Tasks/OpenConnectionTask.h"
 #include "Streams/SocketFactory.h"
 
 class QSignalSpy;

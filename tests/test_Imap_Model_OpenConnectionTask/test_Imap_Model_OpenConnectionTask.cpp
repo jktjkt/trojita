@@ -25,7 +25,7 @@
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/MailboxModel.h"
-#include "Imap/Model/OpenConnectionTask.h"
+#include "Imap/Tasks/OpenConnectionTask.h"
 
 void ImapModelOpenConnectionTaskTest::initTestCase()
 {

@@ -23,7 +23,7 @@
 #include "Message.h"
 #include "LowLevelParser.h"
 #include "../Model/Model.h"
-#include "../Model/ImapTask.h"
+#include "../Tasks/ImapTask.h"
 
 namespace Imap {
 namespace Responses {
