@@ -31,12 +31,15 @@ class TaskFactory
 {
 public:
     virtual OpenConnectionTask* createOpenConnectionTask( Model* _model );
+    virtual ~TaskFactory();
 };
 
 class TestingTaskFactory: public TaskFactory
 {
 public:
+    TestingTaskFactory();
     virtual OpenConnectionTask* createOpenConnectionTask( Model* _model );
+    bool fakeOpenConnectionTask;
 };
 
 typedef std::auto_ptr<TaskFactory> TaskFactoryPtr;

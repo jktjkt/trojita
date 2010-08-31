@@ -30,15 +30,25 @@ CREATE_FAKE_TASK(OpenConnectionTask)
 
 #undef CREATE_FAKE_TASK
 
+TaskFactory::~TaskFactory()
+{
+}
+
 OpenConnectionTask* TaskFactory::createOpenConnectionTask( Model* _model )
 {
     return new OpenConnectionTask( _model );
 }
 
+TestingTaskFactory::TestingTaskFactory(): TaskFactory(), fakeOpenConnectionTask(false)
+{
+}
+
 OpenConnectionTask* TestingTaskFactory::createOpenConnectionTask( Model *_model )
 {
-    Q_UNUSED( _model );
-    return new Fake_OpenConnectionTask();
+    if ( fakeOpenConnectionTask )
+        return new Fake_OpenConnectionTask();
+    else
+        TaskFactory::createOpenConnectionTask( _model );
 }
 
 }
