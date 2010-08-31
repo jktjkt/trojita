@@ -22,9 +22,23 @@
 namespace Imap {
 namespace Mailbox {
 
-OpenConnectionTask* TaskFactory:: createOpenConnectionTask( Model* _model )
+#define CREATE_FAKE_TASK(X) class Fake_##X: public X { \
+public: virtual void perform() {} Fake_##X() { QTimer::singleShot( 0, this, SLOT(slotSucceed()) ); } \
+};
+
+CREATE_FAKE_TASK(OpenConnectionTask)
+
+#undef CREATE_FAKE_TASK
+
+OpenConnectionTask* TaskFactory::createOpenConnectionTask( Model* _model )
 {
     return new OpenConnectionTask( _model );
+}
+
+OpenConnectionTask* TestingTaskFactory::createOpenConnectionTask( Model *_model )
+{
+    Q_UNUSED( _model );
+    return new Fake_OpenConnectionTask();
 }
 
 }
