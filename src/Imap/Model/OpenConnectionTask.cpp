@@ -88,17 +88,14 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
         IMAP_TASK_CLEANUP_COMMAND;
         return true;
     } else if ( resp->tag == startTlsCmd ) {
+        model->_parsers[ ptr ].capabilitiesFresh = false;
         // FIXME: why do I have to comment that out?
         //IMAP_TASK_ENSURE_VALID_COMMAND( startTlsCmd, Model::Task::STARTTLS );
         QMap<CommandHandle, Model::Task>::iterator command = model->_parsers[ ptr ].commandMap.find( startTlsCmd );
         if ( resp->kind == Responses::OK ) {
-            if ( ! model->_parsers[ ptr ].capabilitiesFresh ) {
-                capabilityCmd = ptr->capability();
-                model->_parsers[ ptr ].commandMap[ capabilityCmd ] = Model::Task( Model::Task::CAPABILITY, 0 );
-                emit model->activityHappening( true );
-            } else {
-                loginCmd = model->performAuthentication( ptr );
-            }
+            capabilityCmd = ptr->capability();
+            model->_parsers[ ptr ].commandMap[ capabilityCmd ] = Model::Task( Model::Task::CAPABILITY, 0 );
+            emit model->activityHappening( true );
         } else {
             emit model->connectionError( tr("Can't establish a secure connection to the server (STARTTLS failed). Refusing to proceed.") );
             // FIXME: error handling
