@@ -43,6 +43,8 @@ Q_OBJECT
 public:
     GetAnyConnectionTask( Model* _model );
     virtual void perform();
+private:
+    ImapTask* newConn;
 };
 
 }
