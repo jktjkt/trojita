@@ -58,7 +58,7 @@ namespace Imap {
         /** @short Return true if the socket is no longer usable */
         virtual bool isDead() = 0;
 
-        virtual ~Socket() {};
+        virtual ~Socket() {}
     signals:
         /** @short The socket is ready for use, including encryption, if requested */
         void connected();
