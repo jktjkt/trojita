@@ -41,7 +41,6 @@ public:
 private:
     CommandHandle tagCreate, tagList;
     CreateConnectionTask* conn;
-    Parser* parser;
     QString mailbox;
 };
 

@@ -49,7 +49,6 @@ private:
     void handleInitialResponse( Imap::Parser* ptr, const Imap::Responses::State* const resp );
 
 private:
-    Parser* parser;
     bool waitingForGreetings;
     bool gotPreauth;
     CommandHandle startTlsCmd;

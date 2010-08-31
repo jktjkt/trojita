@@ -80,6 +80,9 @@ signals:
     /** @short This signal is emitted upon succesfull completion of a job */
     void completed();
 
+public:
+    Imap::Parser* parser;
+
 protected:
     Model* model;
     QList<ImapTask*> dependentTasks;

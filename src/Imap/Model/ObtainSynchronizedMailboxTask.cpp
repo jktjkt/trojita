@@ -26,7 +26,7 @@ namespace Imap {
 namespace Mailbox {
 
 ObtainSynchronizedMailboxTask::ObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex ) :
-    ImapTask( _model ), parser(0), createConn(0), mailboxIndex(_mailboxIndex), status(STATE_WAIT_FOR_CONN)
+    ImapTask( _model ), createConn(0), mailboxIndex(_mailboxIndex), status(STATE_WAIT_FOR_CONN)
 {
     // FIXME: find out if the mailbox is already selected
     bool alreadySynced = false;

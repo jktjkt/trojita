@@ -62,7 +62,6 @@ private:
     void syncFlags( TreeItemMailbox* mailbox );
 
 private:
-    Parser* parser;
     CreateConnectionTask* createConn;
     QPersistentModelIndex mailboxIndex;
     CommandHandle selectCmd;

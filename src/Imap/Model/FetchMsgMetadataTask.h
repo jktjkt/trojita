@@ -44,7 +44,6 @@ public:
 private:
     CommandHandle tag;
     CreateConnectionTask* conn;
-    Parser* parser;
     QList<QPersistentModelIndex> messages;
 };
 

@@ -46,7 +46,6 @@ public:
 private:
     CommandHandle tag;
     CreateConnectionTask* conn;
-    Parser* parser;
     QPersistentModelIndex mailboxIndex;
 };
 

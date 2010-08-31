@@ -56,7 +56,6 @@ private:
     CommandHandle tag;
     CreateConnectionTask* conn;
     CopyMoveMessagesTask* copyMove;
-    Parser* parser;
     QList<QPersistentModelIndex> messages;
     QString flagOperation;
     QString flags;

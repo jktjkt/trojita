@@ -46,8 +46,6 @@ private:
     QList<QPersistentModelIndex> messages;
     QString targetMailbox;
     bool shouldDelete;
-public:
-    Parser* parser;
 };
 
 }
