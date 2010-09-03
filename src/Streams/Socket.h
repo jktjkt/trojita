@@ -35,6 +35,8 @@ namespace Imap {
     class Socket: public QObject {
         Q_OBJECT
     public:
+        virtual ~Socket();
+
         /** @short Returns true if there's enough data to read, including the CR-LF pair */
         virtual bool canReadLine() = 0;
 
@@ -57,8 +59,6 @@ namespace Imap {
 
         /** @short Return true if the socket is no longer usable */
         virtual bool isDead() = 0;
-
-        virtual ~Socket() {}
     signals:
         /** @short The socket is ready for use, including encryption, if requested */
         void connected();
