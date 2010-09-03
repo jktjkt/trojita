@@ -49,6 +49,7 @@ void ImapModelTest::cleanup()
 {
     delete model;
     model = 0;
+    QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
 }
 
 #define SOCK static_cast<Imap::FakeSocket*>( factory->lastSocket() )

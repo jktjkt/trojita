@@ -61,6 +61,7 @@ void ImapModelOpenConnectionTaskTest::cleanup()
     completedSpy = 0;
     delete authSpy;
     authSpy = 0;
+    QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
 }
 
 #define SOCK static_cast<Imap::FakeSocket*>( factory->lastSocket() )
@@ -248,14 +249,3 @@ void ImapModelOpenConnectionTaskTest::provideAuthDetails( QAuthenticator* auth )
 
 
 QTEST_MAIN( ImapModelOpenConnectionTaskTest )
-
-// If run under Valgrind, it's much better to use the following because otherwise you won't get your DeferredDelete delivered :(
-/*int main(int argc, char *argv[])
-{
-    QCoreApplication app(argc, argv);
-    ImapModelOpenConnectionTaskTest tc;
-    int res = QTest::qExec(&tc, argc, argv);
-    QTimer::singleShot( 0, &app, SLOT(quit()) );
-    app.exec();
-    return res;
-}*/

@@ -47,6 +47,7 @@ void ImapModelCreateMailboxTest::cleanup()
     createdSpy = 0;
     delete failedSpy;
     failedSpy = 0;
+    QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
 }
 
 void ImapModelCreateMailboxTest::initTestCase()

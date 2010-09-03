@@ -42,6 +42,7 @@ void ImapModelListChildMailboxesTest::cleanup()
     delete model;
     model = 0;
     taskFactoryUnsafe = 0;
+    QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
 }
 
 void ImapModelListChildMailboxesTest::initTestCase()

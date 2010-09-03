@@ -38,6 +38,13 @@ void ImapParserParseTest::initTestCase()
     parser = new Imap::Parser( this, sock, 666 );
 }
 
+void ImapParserParseTest::cleanupTestCase()
+{
+    delete parser;
+    parser = 0;
+    QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
+}
+
 /** @short Test tagged response parsing */
 void ImapParserParseTest::testParseTagged()
 {
