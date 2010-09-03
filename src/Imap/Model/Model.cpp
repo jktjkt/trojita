@@ -109,6 +109,7 @@ Model::Model( QObject* parent, AbstractCache* cache, SocketFactoryPtr socketFact
 Model::~Model()
 {
     delete _mailboxes;
+    delete _authenticator;
 }
 
 void Model::responseReceived()
