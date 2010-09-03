@@ -19,7 +19,7 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include <qtest_kde.h>
+#include <QTest>
 
 #include "test_Imap_Responses.h"
 
@@ -256,7 +256,7 @@ void ImapResponsesTest::testCompareNe_data()
         respPtr( new Thread( QList<Thread::Node>() << node << node3 ) );
 }
 
-QTEST_KDEMAIN_CORE( ImapResponsesTest )
+QTEST_MAIN( ImapResponsesTest )
 
 namespace QTest {
 

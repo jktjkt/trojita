@@ -19,7 +19,7 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include <qtest_kde.h>
+#include <QTest>
 
 #include "test_Imap_Message.h"
 
@@ -126,7 +126,7 @@ void ImapMessageTest::testMessage_data()
 }
 
 
-QTEST_KDEMAIN_CORE( ImapMessageTest )
+QTEST_MAIN( ImapMessageTest )
 
 namespace QTest {
 

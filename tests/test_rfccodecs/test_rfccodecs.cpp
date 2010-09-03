@@ -17,14 +17,13 @@
    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#include <qtest_kde.h>
 
+#include <QDebug>
+#include <QTest>
 #include "test_rfccodecs.h"
-
-QTEST_KDEMAIN_CORE( RFCCodecsTest )
-
 #include "Imap/Parser/3rdparty/rfccodecs.h"
 #include "Imap/Encoders.h"
+
 using namespace KIMAP;
 
 void RFCCodecsTest::testIMAPEncoding()
@@ -104,3 +103,5 @@ void RFCCodecsTest::testDecodeRFC2047String_data()
         << QByteArray("=?utf-8?Q?HOLIDAYS Czech Airlines?=")
         << QString::fromUtf8("HOLIDAYS Czech Airlines");
 }
+
+QTEST_MAIN( RFCCodecsTest )

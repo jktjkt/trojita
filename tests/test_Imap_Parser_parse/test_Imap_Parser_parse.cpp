@@ -19,8 +19,9 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include <qtest_kde.h>
+#include <QBuffer>
 #include <QFile>
+#include <QTest>
 #include "Imap/Parser/Message.h"
 #include "Streams/IODeviceSocket.h"
 
@@ -594,7 +595,7 @@ void ImapParserParseTest::testSequences_data()
             "1:4,6:7,99:102,333,666";
 }
 
-QTEST_KDEMAIN_CORE( ImapParserParseTest )
+QTEST_MAIN( ImapParserParseTest )
 
 namespace QTest {
 

@@ -19,7 +19,8 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include "qtest_kde.h"
+#include <QDebug>
+#include <QTest>
 
 #include "test_Imap_LowLevelParser.h"
 
@@ -428,7 +429,7 @@ void ImapLowLevelParserTest::testGetRFC2822DateTime_data()
     
 }
 
-QTEST_KDEMAIN_CORE( ImapLowLevelParserTest )
+QTEST_MAIN( ImapLowLevelParserTest )
 
 namespace QTest {
 
