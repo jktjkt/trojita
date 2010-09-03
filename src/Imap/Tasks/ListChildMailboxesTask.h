@@ -28,8 +28,6 @@ namespace Mailbox {
 
 class TreeItemMailbox;
 
-class CreateConnectionTask;
-
 /** @short Ask for child mailboxes below a certain mailbox */
 class ListChildMailboxesTask : public ImapTask
 {
