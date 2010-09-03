@@ -57,14 +57,10 @@ void ImapModelOpenConnectionTaskTest::cleanup()
     delete model;
     model = 0;
     task = 0;
-    if ( completedSpy ) {
-        completedSpy->deleteLater();
-        completedSpy = 0;
-    }
-    if ( authSpy ) {
-        authSpy->deleteLater();
-        authSpy = 0;
-    }
+    delete completedSpy;
+    completedSpy = 0;
+    delete authSpy;
+    authSpy = 0;
 }
 
 #define SOCK static_cast<Imap::FakeSocket*>( factory->lastSocket() )
