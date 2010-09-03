@@ -45,7 +45,6 @@ void Fake_ListChildMailboxesTask::perform()
     Q_ASSERT( listResponses.isEmpty() );
     TestingTaskFactory* factory = dynamic_cast<TestingTaskFactory*>( model->_taskFactory.get() );
     Q_ASSERT( factory );
-    qDebug() << Q_FUNC_INFO;
     for ( QMap<QString, QStringList>::const_iterator it = factory->fakeListChildMailboxesMap.begin();
             it != factory->fakeListChildMailboxesMap.end(); ++it ) {
         if ( it.key() != mailbox->mailbox() )

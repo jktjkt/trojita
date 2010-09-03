@@ -98,9 +98,20 @@ void ImapModelListChildMailboxesTest::testFakeListing()
 {
     taskFactoryUnsafe->fakeListChildMailboxes = true;
     taskFactoryUnsafe->fakeListChildMailboxesMap[ QString::fromAscii("") ] = QStringList() << QString::fromAscii("a") << QString::fromAscii("b");
+    taskFactoryUnsafe->fakeListChildMailboxesMap[ QString::fromAscii("a") ] = QStringList() << QString::fromAscii("aa") << QString::fromAscii("ab");
     model->rowCount( QModelIndex() );
     QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( QModelIndex() ), 3 );
+    QModelIndex idxA = model->index( 1, 0, QModelIndex() );
+    QModelIndex idxB = model->index( 2, 0, QModelIndex() );
+    QCOMPARE( model->data( idxA, Qt::DisplayRole ), QVariant(QString::fromAscii("a")) );
+    QCOMPARE( model->data( idxB, Qt::DisplayRole ), QVariant(QString::fromAscii("b")) );
+    model->rowCount( idxA );
+    model->rowCount( idxB );
+    QCoreApplication::processEvents();
+    QCOMPARE( model->rowCount( idxA ), 3 );
+    QCOMPARE( model->rowCount( idxB ), 1 );
+    QCOMPARE( SOCK->writtenStuff(), QByteArray() );
 }
 
 QTEST_MAIN( ImapModelListChildMailboxesTest )
