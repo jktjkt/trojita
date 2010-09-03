@@ -92,6 +92,7 @@ HEADERS += Parser/Parser.h \
     Model/Utils.h \
     Model/IdleLauncher.h \
     Model/TaskFactory.h \
+    Model/CopyMoveOperation.h \
     Tasks/ImapTask.h \
     Tasks/CreateConnectionTask.h \
     Tasks/FetchMsgPartTask.h \

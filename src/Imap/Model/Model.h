@@ -29,6 +29,7 @@
 #include "../ConnectionState.h"
 #include "../Parser/Parser.h"
 #include "Streams/SocketFactory.h"
+#include "CopyMoveOperation.h"
 #include "TaskFactory.h"
 
 class QAuthenticator;
@@ -233,8 +234,6 @@ the list of messages, which is why this function exists in the first place.
 
     /** @short Run the EXPUNGE command in the specified mailbox */
     void expungeMailbox( TreeItemMailbox* mbox );
-
-    typedef enum { COPY, MOVE } CopyMoveOperation;
 
     /** @short Copy or move a sequence of messages between two mailboxes */
     void copyMoveMessages( TreeItemMailbox* sourceMbox, const QString& destMboxName, QList<uint> uids, const CopyMoveOperation op );

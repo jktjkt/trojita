@@ -22,23 +22,50 @@
 #include <memory>
 #include <QMap>
 #include <QModelIndex>
+#include "CopyMoveOperation.h"
 
 namespace Imap {
 class Parser;
 namespace Mailbox {
 
-class OpenConnectionTask;
+class CopyMoveMessagesTask;
+class CreateMailboxTask;
+class DeleteMailboxTask;
+class ExpungeMailboxTask;
+class FetchMsgMetadataTask;
+class FetchMsgPartTask;
 class GetAnyConnectionTask;
+class KeepMailboxOpenTask;
 class ListChildMailboxesTask;
+class NumberOfMessagesTask;
+class ObtainSynchronizedMailboxTask;
+class OpenConnectionTask;
+class UpdateFlagsTask;
+
 class Model;
+class TreeItemMailbox;
+class TreeItemPart;
 
 class TaskFactory
 {
 public:
-    virtual OpenConnectionTask* createOpenConnectionTask( Model* _model );
-    virtual GetAnyConnectionTask* createGetAnyConnectionTask( Model* _model );
-    virtual ListChildMailboxesTask* createListChildMailboxesTask( Model* _model, const QModelIndex& mailbox );
     virtual ~TaskFactory();
+
+    virtual CopyMoveMessagesTask* createCopyMoveMessagesTask( Model* _model, const QModelIndexList& _messages,
+                                                              const QString& _targetMailbox, const CopyMoveOperation _op );
+    virtual CreateMailboxTask* createCreateMailboxTask( Model* _model, const QString& _mailbox );
+    virtual DeleteMailboxTask* createDeleteMailboxTask( Model* _model, const QString& _mailbox );
+    virtual ExpungeMailboxTask* createExpungeMailboxTask( Model* _model, const QModelIndex& mailbox );
+    virtual FetchMsgMetadataTask* createFetchMsgMetadataTask( Model* _model, const QModelIndexList& messages );
+    virtual FetchMsgPartTask* createFetchMsgPartTask( Model* _model, TreeItemMailbox* mailbox, TreeItemPart* part );
+    virtual GetAnyConnectionTask* createGetAnyConnectionTask( Model* _model );
+    virtual KeepMailboxOpenTask* createKeepMailboxOpenTask( Model* _model, const QModelIndex& mailbox );
+    virtual ListChildMailboxesTask* createListChildMailboxesTask( Model* _model, const QModelIndex& mailbox );
+    virtual NumberOfMessagesTask* createNumberOfMessagesTask( Model* _model, const QModelIndex& mailbox );
+    virtual ObtainSynchronizedMailboxTask* createObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex );
+    virtual OpenConnectionTask* createOpenConnectionTask( Model* _model );
+    virtual UpdateFlagsTask* createUpdateFlagsTask( Model* _model, const QModelIndexList& _messages, const QString& _flagOperation, const QString& _flags );
+    virtual UpdateFlagsTask* createUpdateFlagsTask( Model* _model, CopyMoveMessagesTask* copyTask, const QList<QPersistentModelIndex>& _messages, const QString& _flagOperation, const QString& _flags );
 };
 
 class TestingTaskFactory: public TaskFactory

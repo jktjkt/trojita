@@ -28,8 +28,8 @@ namespace Mailbox {
 
 
 CopyMoveMessagesTask::CopyMoveMessagesTask( Model* _model, const QModelIndexList& _messages,
-                                            const QString& _targetMailbox, const Model::CopyMoveOperation _op ):
-    ImapTask( _model ), targetMailbox(_targetMailbox), shouldDelete( _op == Model::MOVE)
+                                            const QString& _targetMailbox, const CopyMoveOperation _op ):
+    ImapTask( _model ), targetMailbox(_targetMailbox), shouldDelete( _op == MOVE)
 {
     if ( _messages.isEmpty() ) {
         throw CantHappen( "CopyMoveMessagesTask called with empty message set");

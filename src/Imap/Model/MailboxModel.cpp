@@ -329,7 +329,7 @@ bool MailboxModel::dropMimeData( const QMimeData* data, Qt::DropAction action,
     stream >> uids;
 
     static_cast<Model*>( sourceModel() )->copyMoveMessages( origMbox, target->mailbox(), uids,
-                                                            ( action == Qt::MoveAction ) ? Model::MOVE : Model::COPY );
+                                                            ( action == Qt::MoveAction ) ? MOVE : COPY );
     return true;
 }
 

@@ -62,6 +62,11 @@ void KeepMailboxOpenTask::terminate()
         _completed();
 }
 
+void KeepMailboxOpenTask::perform()
+{
+    // FIXME
+}
+
 
 }
 }

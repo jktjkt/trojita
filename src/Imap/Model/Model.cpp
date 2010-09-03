@@ -28,16 +28,6 @@
 #include "SelectingHandler.h"
 #include "ModelUpdaters.h"
 #include "IdleLauncher.h"
-#include "ImapTask.h"
-#include "FetchMsgPartTask.h"
-#include "UpdateFlagsTask.h"
-#include "ListChildMailboxesTask.h"
-#include "NumberOfMessagesTask.h"
-#include "FetchMsgMetadataTask.h"
-#include "ExpungeMailboxTask.h"
-#include "CreateMailboxTask.h"
-#include "DeleteMailboxTask.h"
-#include "CopyMoveMessagesTask.h"
 #include "GetAnyConnectionTask.h"
 #include <QAbstractProxyModel>
 #include <QAuthenticator>
@@ -872,7 +862,7 @@ void Model::_askForNumberOfMessages( TreeItemMsgList* item )
             item->_numberFetchingStatus = TreeItem::UNAVAILABLE;
         }
     } else {
-        new NumberOfMessagesTask( this, createIndex( mailboxPtr->row(), 0, mailboxPtr ) );
+        _taskFactory->createNumberOfMessagesTask( this, createIndex( mailboxPtr->row(), 0, mailboxPtr ) );
     }
 }
 
@@ -920,10 +910,8 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
         case NETWORK_OFFLINE:
             break;
         case NETWORK_EXPENSIVE:
-            {
-                item->_fetchStatus = TreeItem::LOADING;
-                new FetchMsgMetadataTask( this, QModelIndexList() << createIndex( item->row(), 0, item ) );
-            }
+            item->_fetchStatus = TreeItem::LOADING;
+            _taskFactory->createFetchMsgMetadataTask( this, QModelIndexList() << createIndex( item->row(), 0, item ) );
             break;
         case NETWORK_ONLINE:
             {
@@ -939,7 +927,7 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
                         items << createIndex( message->row(), 0, message );
                     }
                 }
-                new FetchMsgMetadataTask( this, items );
+                _taskFactory->createFetchMsgMetadataTask( this, items );
             }
             break;
     }
@@ -967,7 +955,7 @@ void Model::_askForMsgPart( TreeItemPart* item, bool onlyFromCache )
         if ( item->_fetchStatus != TreeItem::DONE )
             item->_fetchStatus = TreeItem::UNAVAILABLE;
     } else if ( ! onlyFromCache ) {
-        new FetchMsgPartTask( this, mailboxPtr, item );
+        _taskFactory->createFetchMsgPartTask( this, mailboxPtr, item );
     }
 }
 
@@ -1215,14 +1203,14 @@ void Model::updateCapabilities( Parser* parser, const QStringList capabilities )
 
 void Model::markMessageDeleted( TreeItemMessage* msg, bool marked )
 {
-    new UpdateFlagsTask( this, QModelIndexList() << createIndex( msg->row(), 0, msg ),
+    _taskFactory->createUpdateFlagsTask( this, QModelIndexList() << createIndex( msg->row(), 0, msg ),
                          marked ? QLatin1String("+FLAGS") : QLatin1String("-FLAGS"),
                          QLatin1String("(\\Deleted)") );
 }
 
 void Model::markMessageRead( TreeItemMessage* msg, bool marked )
 {
-    new UpdateFlagsTask( this, QModelIndexList() << createIndex( msg->row(), 0, msg ),
+    _taskFactory->createUpdateFlagsTask( this, QModelIndexList() << createIndex( msg->row(), 0, msg ),
                          marked ? QLatin1String("+FLAGS") : QLatin1String("-FLAGS"),
                          QLatin1String("(\\Seen)") );
 }
@@ -1264,7 +1252,7 @@ void Model::copyMoveMessages( TreeItemMailbox* sourceMbox, const QString& destMa
         }
     }
 
-    new CopyMoveMessagesTask( this, messages, destMailboxName, op );
+    _taskFactory->createCopyMoveMessagesTask( this, messages, destMailboxName, op );
 }
 
 TreeItemMailbox* Model::findMailboxByName( const QString& name ) const
@@ -1321,7 +1309,7 @@ void Model::expungeMailbox( TreeItemMailbox* mbox )
         return;
     }
 
-    new ExpungeMailboxTask( this, createIndex( mbox->row(), 0, mbox ) );
+    _taskFactory->createExpungeMailboxTask( this, createIndex( mbox->row(), 0, mbox ) );
 }
 
 void Model::createMailbox( const QString& name )
@@ -1331,7 +1319,7 @@ void Model::createMailbox( const QString& name )
         return;
     }
 
-    new CreateMailboxTask( this, name );
+    _taskFactory->createCreateMailboxTask( this, name );
 }
 
 void Model::deleteMailbox( const QString& name )
@@ -1341,7 +1329,7 @@ void Model::deleteMailbox( const QString& name )
         return;
     }
 
-    new DeleteMailboxTask( this, name );
+    _taskFactory->createDeleteMailboxTask( this, name );
 }
 
 void Model::saveUidMap( TreeItemMsgList* list )

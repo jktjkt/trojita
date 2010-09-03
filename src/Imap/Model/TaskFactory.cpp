@@ -17,9 +17,19 @@
 */
 
 #include "TaskFactory.h"
-#include "OpenConnectionTask.h"
+#include "CopyMoveMessagesTask.h"
+#include "CreateMailboxTask.h"
+#include "DeleteMailboxTask.h"
+#include "ExpungeMailboxTask.h"
+#include "FetchMsgMetadataTask.h"
+#include "FetchMsgPartTask.h"
 #include "GetAnyConnectionTask.h"
+#include "KeepMailboxOpenTask.h"
 #include "Fake_ListChildMailboxesTask.h"
+#include "NumberOfMessagesTask.h"
+#include "ObtainSynchronizedMailboxTask.h"
+#include "OpenConnectionTask.h"
+#include "UpdateFlagsTask.h"
 #include "Imap/Model/IdleLauncher.h"
 #include "Imap/Parser/Parser.h"
 
@@ -43,6 +53,17 @@ OpenConnectionTask* TaskFactory::createOpenConnectionTask( Model* _model )
     return new OpenConnectionTask( _model );
 }
 
+CopyMoveMessagesTask* TaskFactory::createCopyMoveMessagesTask( Model* _model, const QModelIndexList& _messages,
+                                                               const QString& _targetMailbox, const CopyMoveOperation _op )
+{
+    return new CopyMoveMessagesTask( _model, _messages, _targetMailbox, _op );
+}
+
+CreateMailboxTask* TaskFactory::createCreateMailboxTask( Model* _model, const QString& _mailbox )
+{
+    return new CreateMailboxTask( _model, _mailbox );
+}
+
 GetAnyConnectionTask* TaskFactory::createGetAnyConnectionTask( Model* _model )
 {
     return new GetAnyConnectionTask( _model );
@@ -51,6 +72,51 @@ GetAnyConnectionTask* TaskFactory::createGetAnyConnectionTask( Model* _model )
 ListChildMailboxesTask* TaskFactory::createListChildMailboxesTask( Model* _model, const QModelIndex& mailbox )
 {
     return new ListChildMailboxesTask( _model, mailbox );
+}
+
+DeleteMailboxTask* TaskFactory::createDeleteMailboxTask( Model* _model, const QString& _mailbox )
+{
+    return new DeleteMailboxTask( _model, _mailbox );
+}
+
+ExpungeMailboxTask* TaskFactory::createExpungeMailboxTask( Model* _model, const QModelIndex& mailbox )
+{
+    return new ExpungeMailboxTask( _model, mailbox );
+}
+
+FetchMsgMetadataTask* TaskFactory::createFetchMsgMetadataTask( Model* _model, const QModelIndexList& messages )
+{
+    return new FetchMsgMetadataTask( _model, messages );
+}
+
+FetchMsgPartTask* TaskFactory::createFetchMsgPartTask( Model* _model, TreeItemMailbox* mailbox, TreeItemPart* part )
+{
+    return new FetchMsgPartTask( _model, mailbox, part );
+}
+
+KeepMailboxOpenTask* TaskFactory::createKeepMailboxOpenTask( Model* _model, const QModelIndex& mailbox )
+{
+    return new KeepMailboxOpenTask( _model, mailbox );
+}
+
+NumberOfMessagesTask* TaskFactory::createNumberOfMessagesTask( Model* _model, const QModelIndex& mailbox )
+{
+    return new NumberOfMessagesTask( _model, mailbox );
+}
+
+ObtainSynchronizedMailboxTask* TaskFactory::createObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex )
+{
+    return new ObtainSynchronizedMailboxTask( _model, _mailboxIndex );
+}
+
+UpdateFlagsTask* TaskFactory::createUpdateFlagsTask( Model* _model, const QModelIndexList& _messages, const QString& _flagOperation, const QString& _flags )
+{
+    return new UpdateFlagsTask( _model, _messages, _flagOperation, _flags );
+}
+
+UpdateFlagsTask* TaskFactory::createUpdateFlagsTask( Model* _model, CopyMoveMessagesTask* copyTask, const QList<QPersistentModelIndex>& _messages, const QString& _flagOperation, const QString& _flags )
+{
+    return new UpdateFlagsTask( _model, copyTask, _messages, _flagOperation, _flags );
 }
 
 
