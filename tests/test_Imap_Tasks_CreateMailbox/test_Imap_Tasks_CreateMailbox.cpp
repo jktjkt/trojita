@@ -43,14 +43,10 @@ void ImapModelCreateMailboxTest::cleanup()
     delete model;
     model = 0;
     taskFactoryUnsafe = 0;
-    if ( createdSpy ) {
-        createdSpy->deleteLater();
-        createdSpy = 0;
-    }
-    if ( failedSpy ) {
-        failedSpy->deleteLater();
-        failedSpy = 0;
-    }
+    delete createdSpy;
+    createdSpy = 0;
+    delete failedSpy;
+    failedSpy = 0;
 }
 
 void ImapModelCreateMailboxTest::initTestCase()
