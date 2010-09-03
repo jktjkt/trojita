@@ -24,6 +24,7 @@
 
 #include "Imap/Tasks/ListChildMailboxesTask.h"
 #include "Streams/SocketFactory.h"
+#include "Imap/Model/TaskFactory.h"
 
 class QSignalSpy;
 
@@ -36,10 +37,12 @@ private slots:
     void initTestCase();
 
     void testSimpleListing();
+    void testFakeListing();
 
 private:
     Imap::Mailbox::Model* model;
     Imap::Mailbox::FakeSocketFactory* factory;
+    Imap::Mailbox::TestingTaskFactory* taskFactoryUnsafe;
     Imap::Mailbox::ListChildMailboxesTask* task;
 };
 

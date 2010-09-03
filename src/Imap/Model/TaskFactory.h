@@ -20,6 +20,8 @@
 #define IMAP_MODEL_TASKFACTORY_H
 
 #include <memory>
+#include <QMap>
+#include <QModelIndex>
 
 namespace Imap {
 class Parser;
@@ -27,6 +29,7 @@ namespace Mailbox {
 
 class OpenConnectionTask;
 class GetAnyConnectionTask;
+class ListChildMailboxesTask;
 class Model;
 
 class TaskFactory
@@ -34,6 +37,7 @@ class TaskFactory
 public:
     virtual OpenConnectionTask* createOpenConnectionTask( Model* _model );
     virtual GetAnyConnectionTask* createGetAnyConnectionTask( Model* _model );
+    virtual ListChildMailboxesTask* createListChildMailboxesTask( Model* _model, const QModelIndex& mailbox );
     virtual ~TaskFactory();
 };
 
@@ -42,7 +46,10 @@ class TestingTaskFactory: public TaskFactory
 public:
     TestingTaskFactory();
     virtual OpenConnectionTask* createOpenConnectionTask( Model* _model );
+    virtual ListChildMailboxesTask* createListChildMailboxesTask( Model* _model, const QModelIndex& mailbox );
     bool fakeOpenConnectionTask;
+    bool fakeListChildMailboxes;
+    QMap<QString,QStringList> fakeListChildMailboxesMap;
 private:
     Parser* newParser( Model* model );
 };

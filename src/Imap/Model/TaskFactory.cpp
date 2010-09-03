@@ -19,6 +19,7 @@
 #include "TaskFactory.h"
 #include "OpenConnectionTask.h"
 #include "GetAnyConnectionTask.h"
+#include "Fake_ListChildMailboxesTask.h"
 #include "Imap/Model/IdleLauncher.h"
 #include "Imap/Parser/Parser.h"
 
@@ -47,9 +48,14 @@ GetAnyConnectionTask* TaskFactory::createGetAnyConnectionTask( Model* _model )
     return new GetAnyConnectionTask( _model );
 }
 
+ListChildMailboxesTask* TaskFactory::createListChildMailboxesTask( Model* _model, const QModelIndex& mailbox )
+{
+    return new ListChildMailboxesTask( _model, mailbox );
+}
 
 
-TestingTaskFactory::TestingTaskFactory(): TaskFactory(), fakeOpenConnectionTask(false)
+
+TestingTaskFactory::TestingTaskFactory(): TaskFactory(), fakeOpenConnectionTask(false), fakeListChildMailboxes(false)
 {
 }
 
@@ -76,6 +82,15 @@ OpenConnectionTask* TestingTaskFactory::createOpenConnectionTask( Model *_model 
         return new Fake_OpenConnectionTask( newParser( _model ) );
     } else {
         return TaskFactory::createOpenConnectionTask( _model );
+    }
+}
+
+ListChildMailboxesTask* TestingTaskFactory::createListChildMailboxesTask( Model* _model, const QModelIndex& mailbox )
+{
+    if ( fakeListChildMailboxes ) {
+        return new Fake_ListChildMailboxesTask( _model, mailbox );
+    } else {
+        return TaskFactory::createListChildMailboxesTask( _model, mailbox );
     }
 }
 

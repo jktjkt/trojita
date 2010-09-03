@@ -16,11 +16,11 @@
    Boston, MA 02110-1301, USA.
 */
 
-#ifndef IMAP_LISTCHILDMAILBOXES_TASK_H
-#define IMAP_LISTCHILDMAILBOXES_TASK_H
+#ifndef IMAP_FAKELISTCHILDMAILBOXES_TASK_H
+#define IMAP_FAKELISTCHILDMAILBOXES_TASK_H
 
 #include <QPersistentModelIndex>
-#include "ImapTask.h"
+#include "ListChildMailboxesTask.h"
 #include "../Parser/Parser.h"
 
 namespace Imap {
@@ -28,23 +28,23 @@ namespace Mailbox {
 
 class TreeItemMailbox;
 
-/** @short Ask for child mailboxes below a certain mailbox */
-class ListChildMailboxesTask : public ImapTask
+class CreateConnectionTask;
+
+/** @short Fake test version of the ListChildMailboxesTask */
+class Fake_ListChildMailboxesTask : public ListChildMailboxesTask
 {
 Q_OBJECT
 public:
-    ListChildMailboxesTask( Model* _model, const QModelIndex& mailbox );
+    Fake_ListChildMailboxesTask( Model* _model, const QModelIndex& mailbox );
     virtual void perform();
 
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
 private:
     CommandHandle tag;
     ImapTask* conn;
-protected:
-    QPersistentModelIndex mailboxIndex;
 };
 
 }
 }
 
-#endif // IMAP_LISTCHILDMAILBOXES_TASK_H
+#endif // IMAP_FAKELISTCHILDMAILBOXES_TASK_H

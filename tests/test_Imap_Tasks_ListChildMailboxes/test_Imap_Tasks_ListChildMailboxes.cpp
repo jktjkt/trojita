@@ -24,13 +24,15 @@
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/Model.h"
+#include "Imap/Tasks/Fake_ListChildMailboxesTask.h"
 
 void ImapModelListChildMailboxesTest::init()
 {
     Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache( this, QString() );
     factory = new Imap::Mailbox::FakeSocketFactory();
     Imap::Mailbox::TaskFactoryPtr taskFactory( new Imap::Mailbox::TestingTaskFactory() );
-    static_cast<Imap::Mailbox::TestingTaskFactory*>( taskFactory.get() )->fakeOpenConnectionTask = true;
+    taskFactoryUnsafe = static_cast<Imap::Mailbox::TestingTaskFactory*>( taskFactory.get() );
+    taskFactoryUnsafe->fakeOpenConnectionTask = true;
     model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), taskFactory, false );
     task = 0;
 }
@@ -39,6 +41,7 @@ void ImapModelListChildMailboxesTest::cleanup()
 {
     delete model;
     model = 0;
+    taskFactoryUnsafe = 0;
 }
 
 void ImapModelListChildMailboxesTest::initTestCase()
@@ -89,6 +92,15 @@ void ImapModelListChildMailboxesTest::testSimpleListing()
     QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( idxA ), 3 );
     QCOMPARE( model->rowCount( idxXyz ), 3 );
+}
+
+void ImapModelListChildMailboxesTest::testFakeListing()
+{
+    taskFactoryUnsafe->fakeListChildMailboxes = true;
+    taskFactoryUnsafe->fakeListChildMailboxesMap[ QString::fromAscii("") ] = QStringList() << QString::fromAscii("a") << QString::fromAscii("b");
+    model->rowCount( QModelIndex() );
+    QCoreApplication::processEvents();
+    QCOMPARE( model->rowCount( QModelIndex() ), 3 );
 }
 
 QTEST_MAIN( ImapModelListChildMailboxesTest )

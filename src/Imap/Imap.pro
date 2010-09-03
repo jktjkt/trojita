@@ -54,6 +54,7 @@ SOURCES += Parser/Parser.cpp \
     Tasks/KeepMailboxOpenTask.cpp \
     Tasks/OpenConnectionTask.cpp \
     Tasks/GetAnyConnectionTask.cpp \
+    Tasks/Fake_ListChildMailboxesTask.cpp \
     Model/ModelWatcher.cpp \
     Network/MsgPartNetworkReply.cpp \
     Network/ForbiddenReply.cpp \
@@ -106,6 +107,7 @@ HEADERS += Parser/Parser.h \
     Tasks/KeepMailboxOpenTask.h \
     Tasks/OpenConnectionTask.h \
     Tasks/GetAnyConnectionTask.h \
+    Tasks/Fake_ListChildMailboxesTask.h \
     Model/ModelWatcher.h \
     Network/ForbiddenReply.h \
     Network/AuxiliaryReply.h \

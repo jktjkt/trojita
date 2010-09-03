@@ -805,7 +805,7 @@ void Model::_askForChildrenOfMailbox( TreeItemMailbox* item )
         item->_fetchStatus = TreeItem::UNAVAILABLE;
     } else {
         // We have to go to the network
-        new ListChildMailboxesTask( this, createIndex( item->row(), 0, item) );
+        _taskFactory->createListChildMailboxesTask( this, createIndex( item->row(), 0, item) );
     }
     QModelIndex idx = createIndex( item->row(), 0, item );
     emit dataChanged( idx, idx );

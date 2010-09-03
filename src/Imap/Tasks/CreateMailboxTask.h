@@ -20,14 +20,14 @@
 #define IMAP_CREATEMAILBOX_TASK_H
 
 #include "ImapTask.h"
-#include "Parser/Parser.h"
+#include "../Parser/Parser.h"
 
 namespace Imap {
 namespace Mailbox {
 
 class TreeItemMailbox;
 
-class CreateConnectionTask;
+class ImapTask;
 
 /** @short Create a new mailbox */
 class CreateMailboxTask : public ImapTask
@@ -40,7 +40,7 @@ public:
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
 private:
     CommandHandle tagCreate, tagList;
-    CreateConnectionTask* conn;
+    ImapTask* conn;
     QString mailbox;
 };
 

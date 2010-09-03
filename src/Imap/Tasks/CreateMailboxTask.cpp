@@ -18,7 +18,7 @@
 
 
 #include "CreateMailboxTask.h"
-#include "CreateConnectionTask.h"
+#include "GetAnyConnectionTask.h"
 #include "Model.h"
 #include "MailboxTree.h"
 
@@ -29,7 +29,7 @@ namespace Mailbox {
 CreateMailboxTask::CreateMailboxTask( Model* _model, const QString& _mailbox ):
     ImapTask( _model ), mailbox(_mailbox)
 {
-    conn = new CreateConnectionTask( _model, 0 );
+    conn = new GetAnyConnectionTask( model );
     conn->addDependentTask( this );
 }
 
