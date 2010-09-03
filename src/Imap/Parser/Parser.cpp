@@ -811,7 +811,7 @@ Sequence& Sequence::add( uint num )
 {
     Q_ASSERT( _kind == DISTINCT );
     QList<uint>::iterator it = qLowerBound( _list.begin(), _list.end(), num );
-    if ( *it != num )
+    if ( it == _list.end() || *it != num )
         _list.insert( it, num );
     return *this;
 }
