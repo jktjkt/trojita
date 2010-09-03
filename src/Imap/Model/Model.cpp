@@ -1343,8 +1343,7 @@ void Model::saveUidMap( TreeItemMsgList* list )
 
 TreeItem* Model::realTreeItem( QModelIndex index, const Model** whichModel, QModelIndex* translatedIndex )
 {
-    const QAbstractProxyModel* proxy = qobject_cast<const QAbstractProxyModel*>( index.model() );
-    while ( proxy ) {
+    while ( const QAbstractProxyModel* proxy = qobject_cast<const QAbstractProxyModel*>( index.model() ) ) {
         index = proxy->mapToSource( index );
         proxy = qobject_cast<const QAbstractProxyModel*>( index.model() );
     }
