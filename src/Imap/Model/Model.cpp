@@ -256,13 +256,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 changeConnectionState( ptr, CONN_STATE_SELECTED );
                 break;
             case Task::FETCH_WITH_FLAGS:
-                _finalizeFetch( ptr, command );
-                Q_FOREACH( ImapTask* task, _parsers[ ptr ].activeTasks ) {
-                    CreateConnectionTask* conn = dynamic_cast<CreateConnectionTask*>( task );
-                    if ( ! conn )
-                        continue;
-                    conn->_completed();
-                }
+                throw CantHappen( "[Port in progress] encountered an old FETCH_WITH_FLAGS, sorry");
                 break;
             case Task::FETCH_PART:
                 throw CantHappen( "The Task::FETCH_PART should've been handled by the FetchMsgPartTask", *resp );

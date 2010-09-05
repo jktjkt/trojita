@@ -44,6 +44,8 @@ public:
     ObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex, bool forceResync );
     virtual void perform();
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
+    virtual bool handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp );
+    virtual bool handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp );
 
     typedef enum { STATE_WAIT_FOR_CONN, STATE_SELECTING, STATE_SYNCING_UIDS, STATE_SYNCING_FLAGS, STATE_DONE } State;
 
@@ -57,6 +59,8 @@ private:
 
     void syncUids( TreeItemMailbox* mailbox, const uint lastKnownUid=0 );
     void syncFlags( TreeItemMailbox* mailbox );
+
+    bool handleResponseCodeInsideState( const Imap::Responses::State* const resp );
 
 private:
     ImapTask* conn;

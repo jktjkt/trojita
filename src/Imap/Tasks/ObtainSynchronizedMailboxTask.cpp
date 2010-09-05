@@ -69,12 +69,16 @@ void ObtainSynchronizedMailboxTask::perform()
     it->mailbox = mailbox;
     ++it->selectingAnother;
     it->currentMbox = mailbox;
+    model->_parsers[ parser ].currentMbox->syncState = SyncState();
     status = STATE_SELECTING;
     qDebug() << "STATE_SELECTING";
 }
 
 bool ObtainSynchronizedMailboxTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
+    if ( handleResponseCodeInsideState( resp ) )
+        return true;
+
     if ( resp->tag.isEmpty() )
         return false;
 
@@ -182,6 +186,7 @@ void ObtainSynchronizedMailboxTask::_finalizeSelect()
             _fullMboxSync( mailbox, list, syncState );
         }
     }
+    model->cache()->setMailboxSyncState( mailbox->mailbox(), syncState );
 }
 
 void ObtainSynchronizedMailboxTask::_fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState )
@@ -367,6 +372,90 @@ void ObtainSynchronizedMailboxTask::syncFlags( TreeItemMailbox *mailbox )
     status = STATE_SYNCING_FLAGS;
     qDebug() << "STATE_SYNCING_FLAGS";
 }
+
+bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState( const Imap::Responses::State* const resp )
+{
+    bool res = false;
+    switch ( resp->respCode ) {
+        case Responses::UNSEEN:
+        {
+            const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.data() );
+            if ( num ) {
+                model->_parsers[ parser ].currentMbox->syncState.setUnSeen( num->data );
+                res = true;
+            } else {
+                throw CantHappen( "State response has invalid UNSEEN respCodeData", *resp );
+            }
+            break;
+        }
+        case Responses::PERMANENTFLAGS:
+        {
+            const Responses::RespData<QStringList>* const num = dynamic_cast<const Responses::RespData<QStringList>* const>( resp->respCodeData.data() );
+            if ( num ) {
+                model->_parsers[ parser ].currentMbox->syncState.setPermanentFlags( num->data );
+                res = true;
+            } else {
+                throw CantHappen( "State response has invalid PERMANENTFLAGS respCodeData", *resp );
+            }
+            break;
+        }
+        case Responses::UIDNEXT:
+        {
+            const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.data() );
+            if ( num ) {
+                model->_parsers[ parser ].currentMbox->syncState.setUidNext( num->data );
+                res = true;
+            } else {
+                throw CantHappen( "State response has invalid UIDNEXT respCodeData", *resp );
+            }
+            break;
+        }
+        case Responses::UIDVALIDITY:
+        {
+            const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.data() );
+            if ( num ) {
+                model->_parsers[ parser ].currentMbox->syncState.setUidValidity( num->data );
+                res = true;
+            } else {
+                throw CantHappen( "State response has invalid UIDVALIDITY respCodeData", *resp );
+            }
+            break;
+        }
+            break;
+        default:
+            break;
+    }
+    return res;
+}
+
+bool ObtainSynchronizedMailboxTask::handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp )
+{
+    Q_ASSERT( ptr == parser );
+    switch ( resp->kind ) {
+        case Imap::Responses::EXISTS:
+            model->_parsers[ ptr ].currentMbox->syncState.setExists( resp->number );
+            return true;
+            break;
+        case Imap::Responses::EXPUNGE:
+            // must be handled elsewhere
+            break;
+        case Imap::Responses::RECENT:
+            model->_parsers[ ptr ].currentMbox->syncState.setRecent( resp->number );
+            return true;
+            break;
+        default:
+            throw CantHappen( "Got a NumberResponse of invalid kind. This is supposed to be handled in its constructor!", *resp );
+    }
+    return false;
+}
+
+bool ObtainSynchronizedMailboxTask::handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp )
+{
+    Q_ASSERT( ptr == parser );
+    model->_parsers[ ptr ].currentMbox->syncState.setFlags( resp->flags );
+    return true;
+}
+
 
 }
 }

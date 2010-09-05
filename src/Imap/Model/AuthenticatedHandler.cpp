@@ -32,66 +32,12 @@ AuthenticatedHandler::AuthenticatedHandler( Model* _m ): ModelStateHandler(_m)
 
 void AuthenticatedHandler::handleState( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
-    static_cast<UnauthenticatedHandler*>( m->unauthHandler )->handleResponseCode( ptr, resp );
-
-    switch ( resp->respCode ) {
-        case Responses::UNSEEN:
-        {
-            const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.data() );
-            if ( num )
-                m->_parsers[ ptr ].currentMbox->syncState.setUnSeen( num->data );
-            else
-                throw CantHappen( "State response has invalid UNSEEN respCodeData", *resp );
-            break;
-        }
-        case Responses::PERMANENTFLAGS:
-        {
-            const Responses::RespData<QStringList>* const num = dynamic_cast<const Responses::RespData<QStringList>* const>( resp->respCodeData.data() );
-            if ( num )
-                m->_parsers[ ptr ].currentMbox->syncState.setPermanentFlags( num->data );
-            else
-                throw CantHappen( "State response has invalid PERMANENTFLAGS respCodeData", *resp );
-            break;
-        }
-        case Responses::UIDNEXT:
-        {
-            const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.data() );
-            if ( num )
-                m->_parsers[ ptr ].currentMbox->syncState.setUidNext( num->data );
-            else
-                throw CantHappen( "State response has invalid UIDNEXT respCodeData", *resp );
-            break;
-        }
-        case Responses::UIDVALIDITY:
-        {
-            const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.data() );
-            if ( num )
-                m->_parsers[ ptr ].currentMbox->syncState.setUidValidity( num->data );
-            else
-                throw CantHappen( "State response has invalid UIDVALIDITY respCodeData", *resp );
-            break;
-        }
-            break;
-        default:
-            break;
-    }
+    throw CantHappen( "[Port-in-progress] shouldn't have reached AuthenticatedHandler::handleState");
 }
 
 void AuthenticatedHandler::handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp )
 {
-    switch ( resp->kind ) {
-        case Imap::Responses::EXISTS:
-            m->_parsers[ ptr ].currentMbox->syncState.setExists( resp->number );
-            break;
-        case Imap::Responses::EXPUNGE:
-            // must be handled elsewhere
-            break;
-        case Imap::Responses::RECENT:
-            m->_parsers[ ptr ].currentMbox->syncState.setRecent( resp->number );
-            break;
-        default:
-            throw CantHappen( "Got a NumberResponse of invalid kind. This is supposed to be handled in its constructor!", *resp );
-    }
+    throw CantHappen( "[Port-in-progress] shouldn't have reached AuthenticatedHandler::handleNumberResponse");
 }
 
 void AuthenticatedHandler::handleList( Imap::Parser* ptr, const Imap::Responses::List* const resp )
@@ -101,7 +47,7 @@ void AuthenticatedHandler::handleList( Imap::Parser* ptr, const Imap::Responses:
 
 void AuthenticatedHandler::handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp )
 {
-    m->_parsers[ ptr ].currentMbox->syncState.setFlags( resp->flags );
+    throw CantHappen( "[Port-in-progress] shouldn't have reached AuthenticatedHandler::handleFlags");
 }
 
 void AuthenticatedHandler::handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp )

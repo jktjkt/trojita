@@ -22,7 +22,7 @@
 #ifndef TEST_IMAP_TASKS_OBTAINSYNCHRONIZEDMAILBOXTASK
 #define TEST_IMAP_TASKS_OBTAINSYNCHRONIZEDMAILBOXTASK
 
-#include "Imap/Tasks/ObtainSynchronizedMailboxTask.h"
+#include "Imap/Model/Model.h"
 #include "Streams/SocketFactory.h"
 
 class QSignalSpy;
@@ -36,13 +36,14 @@ private slots:
     void cleanupTestCase();
     void initTestCase();
 
-    void testSyncEmpty();
+    void testSyncEmptyMinimal();
+    void testSyncEmptyNormal();
 
 private:
     Imap::Mailbox::Model* model;
     Imap::Mailbox::FakeSocketFactory* factory;
     Imap::Mailbox::TestingTaskFactory* taskFactoryUnsafe;
-    Imap::Mailbox::ObtainSynchronizedMailboxTask* task;
+    QSignalSpy* errorSpy;
 };
 
 #endif
