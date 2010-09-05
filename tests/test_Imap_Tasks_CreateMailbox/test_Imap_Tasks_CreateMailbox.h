@@ -47,6 +47,7 @@ private:
 
     QSignalSpy* createdSpy;
     QSignalSpy* failedSpy;
+    QSignalSpy* errorSpy;
 
     void _initWithOne();
     void _initWithEmpty();

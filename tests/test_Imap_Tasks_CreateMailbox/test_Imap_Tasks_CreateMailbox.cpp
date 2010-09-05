@@ -36,6 +36,7 @@ void ImapModelCreateMailboxTest::init()
     model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), taskFactory, false );
     createdSpy = new QSignalSpy( model, SIGNAL(mailboxCreationSucceded(QString)) );
     failedSpy = new QSignalSpy( model, SIGNAL(mailboxCreationFailed(QString,QString)) );
+    errorSpy = new QSignalSpy( model, SIGNAL(connectionError(QString)) );
 }
 
 void ImapModelCreateMailboxTest::cleanup()
@@ -47,6 +48,8 @@ void ImapModelCreateMailboxTest::cleanup()
     createdSpy = 0;
     delete failedSpy;
     failedSpy = 0;
+    delete errorSpy;
+    errorSpy = 0;
     QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
 }
 
@@ -55,6 +58,7 @@ void ImapModelCreateMailboxTest::initTestCase()
     model = 0;
     createdSpy = 0;
     failedSpy = 0;
+    errorSpy = 0;
 }
 
 #define SOCK static_cast<Imap::FakeSocket*>( factory->lastSocket() )
@@ -70,6 +74,7 @@ void ImapModelCreateMailboxTest::_initWithOne()
     QCOMPARE( model->data( idxA, Qt::DisplayRole ), QVariant(QString::fromAscii("a")) );
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray() );
+    QVERIFY( errorSpy->isEmpty() );
 }
 
 void ImapModelCreateMailboxTest::_initWithEmpty()
@@ -80,6 +85,7 @@ void ImapModelCreateMailboxTest::_initWithEmpty()
     QCOMPARE( model->rowCount( QModelIndex() ), 1 );
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray() );
+    QVERIFY( errorSpy->isEmpty() );
 }
 
 void ImapModelCreateMailboxTest::testCreateOneMore()
@@ -101,6 +107,7 @@ void ImapModelCreateMailboxTest::testCreateOneMore()
     QCOMPARE( SOCK->writtenStuff(), QByteArray() );
     QCOMPARE( createdSpy->size(), 1 );
     QVERIFY( failedSpy->isEmpty() );
+    QVERIFY( errorSpy->isEmpty() );
 }
 
 void ImapModelCreateMailboxTest::testCreateEmpty()
@@ -122,6 +129,7 @@ void ImapModelCreateMailboxTest::testCreateEmpty()
     QCOMPARE( SOCK->writtenStuff(), QByteArray() );
     QCOMPARE( createdSpy->size(), 1 );
     QVERIFY( failedSpy->isEmpty() );
+    QVERIFY( errorSpy->isEmpty() );
 }
 
 void ImapModelCreateMailboxTest::testCreateFail()
@@ -139,6 +147,7 @@ void ImapModelCreateMailboxTest::testCreateFail()
     QCOMPARE( SOCK->writtenStuff(), QByteArray() );
     QCOMPARE( failedSpy->size(), 1 );
     QVERIFY( createdSpy->isEmpty() );
+    QVERIFY( errorSpy->isEmpty() );
 }
 
 QTEST_MAIN( ImapModelCreateMailboxTest )
