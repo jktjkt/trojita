@@ -22,6 +22,7 @@
 #include <QtTest>
 #include "test_Imap_Tasks_ObtainSynchronizedMailbox.h"
 #include "Streams/FakeSocket.h"
+#include "Imap/Model/Cache.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Tasks/ObtainSynchronizedMailboxTask.h"
@@ -87,10 +88,31 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmpty()
     QCOMPARE( model->rowCount( msgList ), 0 );
     Imap::Mailbox::TreeItemMsgList* list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( static_cast<Imap::Mailbox::TreeItem*>( msgList.internalPointer() ) );
     Q_ASSERT( list );
-    Q_ASSERT( list->fetched() );
+    QVERIFY( list->fetched() );
     QVERIFY( SOCK->writtenStuff().isEmpty() );
 
+    // Now, let's try to re-sync it once again; the difference is that our cache now has "something"
+    model->resyncMailbox( idxA );
+    QCoreApplication::processEvents();
 
+    // Verify that it indeed caused a re-synchronization
+    list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( static_cast<Imap::Mailbox::TreeItem*>( msgList.internalPointer() ) );
+    Q_ASSERT( list );
+    QVERIFY( list->loading() );
+    QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 SELECT a\r\n") );
+    SOCK->fakeReading( QByteArray("* 0 exists\r\n"
+                                  "y1 OK done\r\n") );
+    QCoreApplication::processEvents();
+    QVERIFY( SOCK->writtenStuff().isEmpty() );
+
+    // Check the cache
+    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QString::fromAscii("a") );
+    QCOMPARE( syncState.exists(), 0u );
+    QCOMPARE( syncState.flags(), QStringList() );
+    QCOMPARE( syncState.isComplete(), false );
+    QCOMPARE( syncState.isUsableForSyncing(), false );
+    QCOMPARE( syncState.permanentFlags(), QStringList() );
+    QCOMPARE( syncState.recent(), 0u );
 }
 
 QTEST_MAIN( ImapModelObtainSynchronizedMailboxTest )

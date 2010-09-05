@@ -57,11 +57,10 @@ void ObtainSynchronizedMailboxTask::perform()
 
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ));
     Q_ASSERT(mailbox);
+    TreeItemMsgList* msgList = dynamic_cast<TreeItemMsgList*>( mailbox->_children[0] );
+    Q_ASSERT( msgList );
 
-    if ( ! parser ) {
-        Q_ASSERT(conn);
-        parser = conn->parser;
-    }
+    msgList->_fetchStatus = TreeItem::LOADING;
 
     QMap<Parser*,Model::ParserState>::iterator it = model->_parsers.find( parser );
 
