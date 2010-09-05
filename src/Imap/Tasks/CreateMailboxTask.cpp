@@ -29,7 +29,7 @@ namespace Mailbox {
 CreateMailboxTask::CreateMailboxTask( Model* _model, const QString& _mailbox ):
     ImapTask( _model ), mailbox(_mailbox)
 {
-    conn = new GetAnyConnectionTask( model );
+    conn = model->_taskFactory->createGetAnyConnectionTask( _model );
     conn->addDependentTask( this );
 }
 
