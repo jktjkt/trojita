@@ -75,7 +75,7 @@ void ImapModelListChildMailboxesTest::testSimpleListing()
     QCOMPARE( model->data( idxB, Qt::DisplayRole ), QVariant(QString::fromAscii("b")) );
     QCOMPARE( model->data( idxXyz, Qt::DisplayRole ), QVariant(QString::fromAscii("xyz")) );
     QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray() );
+    QVERIFY( SOCK->writtenStuff().isEmpty() );
     QCOMPARE( model->rowCount( idxInbox ), 1 ); // just the "list of messages"
     QCOMPARE( model->rowCount( idxB ), 1 ); // just the "list of messages"
     QCoreApplication::processEvents();
@@ -93,6 +93,7 @@ void ImapModelListChildMailboxesTest::testSimpleListing()
     QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( idxA ), 3 );
     QCOMPARE( model->rowCount( idxXyz ), 3 );
+    QVERIFY( SOCK->writtenStuff().isEmpty() );
 }
 
 void ImapModelListChildMailboxesTest::testFakeListing()
@@ -112,7 +113,7 @@ void ImapModelListChildMailboxesTest::testFakeListing()
     QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( idxA ), 3 );
     QCOMPARE( model->rowCount( idxB ), 1 );
-    QCOMPARE( SOCK->writtenStuff(), QByteArray() );
+    QVERIFY( SOCK->writtenStuff().isEmpty() );
 }
 
 QTEST_MAIN( ImapModelListChildMailboxesTest )
