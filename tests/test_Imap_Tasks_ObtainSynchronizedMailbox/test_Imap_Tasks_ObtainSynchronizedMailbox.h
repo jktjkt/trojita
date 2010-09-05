@@ -32,7 +32,7 @@ class ImapModelObtainSynchronizedMailboxTest : public QObject
     Q_OBJECT
 private slots:
     void init();
-    void clenaup();
+    void cleanup();
     void cleanupTestCase();
     void initTestCase();
 

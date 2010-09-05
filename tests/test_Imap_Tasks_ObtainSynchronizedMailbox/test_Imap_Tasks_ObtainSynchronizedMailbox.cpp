@@ -48,7 +48,7 @@ void ImapModelObtainSynchronizedMailboxTest::init()
     QVERIFY( SOCK->writtenStuff().isEmpty() );
 }
 
-void ImapModelObtainSynchronizedMailboxTest::clenaup()
+void ImapModelObtainSynchronizedMailboxTest::cleanup()
 {
     delete model;
     model = 0;
