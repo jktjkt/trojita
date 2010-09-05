@@ -57,7 +57,12 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
     if ( waitingForGreetings ) {
         handleInitialResponse( ptr, resp );
         return true;
-    } else if ( resp->tag == capabilityCmd ) {
+    }
+
+    if ( resp->tag.isEmpty() )
+        return false;
+
+    if ( resp->tag == capabilityCmd ) {
         IMAP_TASK_ENSURE_VALID_COMMAND( capabilityCmd, Model::Task::CAPABILITY );
         if ( resp->kind == Responses::OK ) {
             if ( gotPreauth ) {

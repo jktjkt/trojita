@@ -102,6 +102,9 @@ void UpdateFlagsTask::perform()
 
 bool UpdateFlagsTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
+    if ( resp->tag.isEmpty() )
+        return false;
+
     if ( resp->tag == tag ) {
         IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::Task::STORE );
 

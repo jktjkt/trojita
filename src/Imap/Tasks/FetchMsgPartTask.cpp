@@ -78,6 +78,9 @@ bool FetchMsgPartTask::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fe
 
 bool FetchMsgPartTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
+    if ( resp->tag.isEmpty() )
+        return false;
+
     if ( resp->tag == tag ) {
         IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::Task::FETCH_PART );
 

@@ -53,6 +53,9 @@ void ExpungeMailboxTask::perform()
 
 bool ExpungeMailboxTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
+    if ( resp->tag.isEmpty() )
+        return false;
+
     if ( resp->tag == tag ) {
         IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::Task::EXPUNGE );
         // FIXME: we should probably care about how the command ended here...
