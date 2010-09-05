@@ -38,6 +38,7 @@ private slots:
 
     void testSyncEmptyMinimal();
     void testSyncEmptyNormal();
+    void testSyncWithMessages();
 
 private:
     Imap::Mailbox::Model* model;

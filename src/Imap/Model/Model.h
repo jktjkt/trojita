@@ -136,7 +136,6 @@ class Model: public QAbstractItemModel {
         QList<Responses::List> listResponses;
         ModelStateHandler* responseHandler;
         QList<uint> uidMap;
-        QMap<uint, QStringList> syncingFlags;
         IdleLauncher* idleLauncher;
 
         ParserState( Parser* _parser, TreeItemMailbox* _mailbox, const RWMode _mode,

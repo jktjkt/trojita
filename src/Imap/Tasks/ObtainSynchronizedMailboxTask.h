@@ -46,6 +46,8 @@ public:
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
     virtual bool handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp );
     virtual bool handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp );
+    virtual bool handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp );
+    virtual bool handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );
 
     typedef enum { STATE_WAIT_FOR_CONN, STATE_SELECTING, STATE_SYNCING_UIDS, STATE_SYNCING_FLAGS, STATE_DONE } State;
 

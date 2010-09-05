@@ -73,12 +73,6 @@ void SelectingHandler::handleThread(Imap::Parser *ptr, const Imap::Responses::Th
 void SelectingHandler::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
 {
     throw CantHappen( "[Port in progress] SelectingHandler::handleFetch shouldn't be triggered");
-
-    /*TreeItemMailbox* mailbox = m->_parsers[ ptr ].currentMbox;
-    if ( ! mailbox )
-        throw UnexpectedResponseReceived( "Received FETCH reply, but we don't know what mailbox are we syncing", *resp );
-
-    mailbox->handleFetchWhileSyncing( m, ptr, *resp );*/
 }
 
 }

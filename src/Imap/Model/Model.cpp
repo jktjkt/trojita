@@ -604,7 +604,8 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
             if ( message->_uid == 0 ) {
                 qDebug() << "Message with unknown UID";
             } else {
-                message->_flags = _parsers[ parser ].syncingFlags[ message->_uid ];
+                throw CantHappen("Port in progress: we shouldn't have to deal with syncingFlags here, sorry.");
+                //message->_flags = _parsers[ parser ].syncingFlags[ message->_uid ];
                 if ( message->uid() )
                     cache()->setMsgFlags( mailbox->mailbox(), message->uid(), message->_flags );
                 if ( ! message->isMarkedAsRead() )
@@ -618,7 +619,6 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
         list->_unreadMessageCount = unSeenCount;
         list->_numberFetchingStatus = TreeItem::DONE;
         saveUidMap( list );
-        _parsers[ parser ].syncingFlags.clear();
         emitMessageCountChanged( mailbox );
     }
 }

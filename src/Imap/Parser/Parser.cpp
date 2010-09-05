@@ -204,9 +204,6 @@ CommandHandle Parser::expunge()
 
 CommandHandle Parser::_searchHelper( const QString& command, const QStringList& criteria, const QString& charset )
 {
-    if ( !criteria.count() || criteria.count() % 2 )
-        throw InvalidArgument("Function called with invalid search criteria");
-
     Commands::Command cmd( command );
 
     if ( !charset.isEmpty() )
