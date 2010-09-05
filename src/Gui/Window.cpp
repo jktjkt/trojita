@@ -523,7 +523,7 @@ void MainWindow::slotResyncMbox()
                     Imap::Mailbox::Model::realTreeItem( *it )
                 );
         Q_ASSERT( mbox );
-        model->resyncMailbox( mbox );
+        model->resyncMailbox( *it );
     }
 }
 

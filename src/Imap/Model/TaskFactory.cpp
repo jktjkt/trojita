@@ -97,9 +97,9 @@ NumberOfMessagesTask* TaskFactory::createNumberOfMessagesTask( Model* _model, co
     return new NumberOfMessagesTask( _model, mailbox );
 }
 
-ObtainSynchronizedMailboxTask* TaskFactory::createObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex )
+ObtainSynchronizedMailboxTask* TaskFactory::createObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex, bool forceResync )
 {
-    return new ObtainSynchronizedMailboxTask( _model, _mailboxIndex );
+    return new ObtainSynchronizedMailboxTask( _model, _mailboxIndex, forceResync );
 }
 
 UpdateFlagsTask* TaskFactory::createUpdateFlagsTask( Model* _model, const QModelIndexList& _messages, const QString& _flagOperation, const QString& _flags )

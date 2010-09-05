@@ -954,9 +954,9 @@ void Model::_askForMsgPart( TreeItemPart* item, bool onlyFromCache )
     }
 }
 
-void Model::resyncMailbox( TreeItemMailbox* mbox )
+void Model::resyncMailbox( const QModelIndex& mbox )
 {
-    new CreateConnectionTask( this, mbox, true );
+    _taskFactory->createObtainSynchronizedMailboxTask( this, mbox, true );
 }
 
 void Model::performNoop()

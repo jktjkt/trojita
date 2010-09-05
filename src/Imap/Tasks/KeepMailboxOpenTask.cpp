@@ -26,7 +26,7 @@ namespace Mailbox {
 KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& mailbox ) :
     ImapTask( _model ), shouldExit(false)
 {
-    obtainTask = new ObtainSynchronizedMailboxTask( _model, mailbox );
+    obtainTask = new ObtainSynchronizedMailboxTask( _model, mailbox, false );
     connect( obtainTask, SIGNAL(completed()), this, SLOT(slotMailboxObtained()));
 }
 

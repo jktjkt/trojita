@@ -41,7 +41,7 @@ class ObtainSynchronizedMailboxTask : public ImapTask
 {
 Q_OBJECT
 public:
-    ObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex );
+    ObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex, bool forceResync );
     virtual void perform();
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
 

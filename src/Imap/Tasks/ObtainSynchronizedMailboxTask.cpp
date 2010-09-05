@@ -18,6 +18,7 @@
 
 #include "ObtainSynchronizedMailboxTask.h"
 #include <QTimer>
+#include "GetAnyConnectionTask.h"
 #include "OpenConnectionTask.h"
 #include "MailboxTree.h"
 #include "Model.h"
@@ -25,15 +26,16 @@
 namespace Imap {
 namespace Mailbox {
 
-ObtainSynchronizedMailboxTask::ObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex ) :
+ObtainSynchronizedMailboxTask::ObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex, bool forceResync ) :
     ImapTask( _model ), conn(0), mailboxIndex(_mailboxIndex), status(STATE_WAIT_FOR_CONN)
 {
-    // FIXME: find out if the mailbox is already selected
-    bool alreadySynced = false;
+    // FIXME: find out if the mailbox is already selected; this crude hack is just a temporary placeholder
+    // FIXME: this *WILL* break once we use more than one mailbox
+    bool alreadySynced = ! model->_parsers.isEmpty();
     if ( alreadySynced ) {
-        QTimer::singleShot( 0, this, SLOT(slotPerform()) );
-        //parser = something;
-        // FIXME: somehow pass the Parser*
+        conn = model->_taskFactory->createGetAnyConnectionTask( model );
+        conn->addDependentTask( this );
+        // FIXME: here should go the code for honoring the forceResync flag
     } else {
         conn = model->_taskFactory->createOpenConnectionTask( model );
         conn->addDependentTask( this );

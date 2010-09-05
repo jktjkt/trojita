@@ -62,7 +62,7 @@ public:
     virtual KeepMailboxOpenTask* createKeepMailboxOpenTask( Model* _model, const QModelIndex& mailbox );
     virtual ListChildMailboxesTask* createListChildMailboxesTask( Model* _model, const QModelIndex& mailbox );
     virtual NumberOfMessagesTask* createNumberOfMessagesTask( Model* _model, const QModelIndex& mailbox );
-    virtual ObtainSynchronizedMailboxTask* createObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex );
+    virtual ObtainSynchronizedMailboxTask* createObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex, bool forceResync=false );
     virtual OpenConnectionTask* createOpenConnectionTask( Model* _model );
     virtual UpdateFlagsTask* createUpdateFlagsTask( Model* _model, const QModelIndexList& _messages, const QString& _flagOperation, const QString& _flags );
     virtual UpdateFlagsTask* createUpdateFlagsTask( Model* _model, CopyMoveMessagesTask* copyTask, const QList<QPersistentModelIndex>& _messages, const QString& _flagOperation, const QString& _flags );
