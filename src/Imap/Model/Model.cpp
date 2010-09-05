@@ -833,7 +833,7 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
     }
 
     if ( networkPolicy() != NETWORK_OFFLINE ) {
-        new CreateConnectionTask( this, mailboxPtr );
+        _taskFactory->createObtainSynchronizedMailboxTask( this, createIndex( mailboxPtr->row(), 0, mailboxPtr ) );
         // and that's all -- we will detect following replies and sync automatically
     }
 }

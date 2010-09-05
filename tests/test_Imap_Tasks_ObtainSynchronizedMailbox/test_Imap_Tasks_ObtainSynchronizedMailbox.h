@@ -36,7 +36,7 @@ private slots:
     void cleanupTestCase();
     void initTestCase();
 
-    void testSyncEmptyFirstTime();
+    void testSyncEmpty();
 
 private:
     Imap::Mailbox::Model* model;

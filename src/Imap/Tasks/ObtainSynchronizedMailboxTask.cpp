@@ -42,6 +42,10 @@ ObtainSynchronizedMailboxTask::ObtainSynchronizedMailboxTask( Model* _model, con
 
 void ObtainSynchronizedMailboxTask::perform()
 {
+    parser = conn->parser;
+    Q_ASSERT( parser );
+    model->_parsers[ parser ].activeTasks.append( this );
+
     if ( ! mailboxIndex.isValid() ) {
         // FIXME: proper error handling
         qDebug() << "The mailbox went missing, sorry";
@@ -65,6 +69,7 @@ void ObtainSynchronizedMailboxTask::perform()
     ++it->selectingAnother;
     it->currentMbox = mailbox;
     status = STATE_SELECTING;
+    qDebug() << "STATE_SELECTING";
 }
 
 bool ObtainSynchronizedMailboxTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
@@ -73,6 +78,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( Imap::Parser* ptr, const 
         IMAP_TASK_ENSURE_VALID_COMMAND( selectCmd, Model::Task::SELECT );
 
         if ( resp->kind == Responses::OK ) {
+            qDebug() << "received OK for selectCmd";
             Q_ASSERT( status == STATE_SELECTING );
             _finalizeSelect();
         } else {
@@ -84,6 +90,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( Imap::Parser* ptr, const 
         IMAP_TASK_ENSURE_VALID_COMMAND( uidSyncingCmd, Model::Task::SEARCH_UIDS );
 
         if ( resp->kind == Responses::OK ) {
+            qDebug() << "received OK for uidSyncingCmd";
             Q_ASSERT( status == STATE_SYNCING_UIDS );
             Q_ASSERT( mailboxIndex.isValid() ); // FIXME
             TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ));
@@ -92,6 +99,21 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( Imap::Parser* ptr, const 
         } else {
             // FIXME: error handling
         }
+        IMAP_TASK_CLEANUP_COMMAND;
+        return true;
+    } else if ( resp->tag == flagsCmd ) {
+        IMAP_TASK_ENSURE_VALID_COMMAND( flagsCmd, Model::Task::FETCH_FLAGS );
+
+        if ( resp->kind == Responses::OK ) {
+            qDebug() << "received OK for flagsCmd";
+            Q_ASSERT( status == STATE_SYNCING_FLAGS );
+            Q_ASSERT( mailboxIndex.isValid() ); // FIXME
+            TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ));
+            Q_ASSERT( mailbox );
+        } else {
+            // FIXME: error handling
+        }
+        _completed();
         IMAP_TASK_CLEANUP_COMMAND;
         return true;
     } else {
@@ -200,6 +222,7 @@ void ObtainSynchronizedMailboxTask::_fullMboxSync( TreeItemMailbox* mailbox, Tre
 
         // The remote mailbox is empty -> we're done now
         status = STATE_DONE;
+        qDebug() << "STATE_DONE";
         _completed();
     }
     model->emitMessageCountChanged( mailbox );
@@ -249,6 +272,7 @@ void ObtainSynchronizedMailboxTask::_syncNoNewNoDeletions( TreeItemMailbox* mail
         syncFlags( mailbox );
     } else {
         status = STATE_DONE;
+        qDebug() << "STATE_DONE";
         _completed();
     }
 }
@@ -323,6 +347,7 @@ void ObtainSynchronizedMailboxTask::syncUids( TreeItemMailbox* mailbox, const ui
     emit model->activityHappening( true );
     model->cache()->clearUidMapping( mailbox->mailbox() );
     status = STATE_SYNCING_UIDS;
+    qDebug() << "STATE_SYNCING_UIDS";
 }
 
 void ObtainSynchronizedMailboxTask::syncFlags( TreeItemMailbox *mailbox )
@@ -336,6 +361,7 @@ void ObtainSynchronizedMailboxTask::syncFlags( TreeItemMailbox *mailbox )
     list->_numberFetchingStatus = TreeItem::LOADING;
     list->_unreadMessageCount = 0;
     status = STATE_SYNCING_FLAGS;
+    qDebug() << "STATE_SYNCING_FLAGS";
 }
 
 }

@@ -23,6 +23,7 @@
 #include "test_Imap_Tasks_ObtainSynchronizedMailbox.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/MemoryCache.h"
+#include "Imap/Model/MailboxTree.h"
 #include "Imap/Tasks/ObtainSynchronizedMailboxTask.h"
 
 #define SOCK static_cast<Imap::FakeSocket*>( factory->lastSocket() )
@@ -66,9 +67,30 @@ void ImapModelObtainSynchronizedMailboxTest::initTestCase()
     task = 0;
 }
 
-void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyFirstTime()
+void ImapModelObtainSynchronizedMailboxTest::testSyncEmpty()
 {
-    // FIXME: real test go here...
+    // Boring stuff
+    QModelIndex idxA = model->index( 1, 0, QModelIndex() );
+    QModelIndex msgList = model->index( 0, 0, idxA );
+
+    // Ask the model to sync stuff
+    QCOMPARE( model->rowCount( msgList ), 0 );
+    QCoreApplication::processEvents();
+    QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 SELECT a\r\n") );
+
+    // Try to feed it with absolute minimum data
+    SOCK->fakeReading( QByteArray("* 0 exists\r\n"
+                                  "y0 OK done\r\n") );
+    QCoreApplication::processEvents();
+
+    // Verify that we indeed received what we wanted
+    QCOMPARE( model->rowCount( msgList ), 0 );
+    Imap::Mailbox::TreeItemMsgList* list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( static_cast<Imap::Mailbox::TreeItem*>( msgList.internalPointer() ) );
+    Q_ASSERT( list );
+    Q_ASSERT( list->fetched() );
+    QVERIFY( SOCK->writtenStuff().isEmpty() );
+
+
 }
 
 QTEST_MAIN( ImapModelObtainSynchronizedMailboxTest )
