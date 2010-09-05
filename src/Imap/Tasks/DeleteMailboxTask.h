@@ -20,14 +20,10 @@
 #define IMAP_DELETEMAILBOX_TASK_H
 
 #include "ImapTask.h"
-#include "Parser/Parser.h"
+#include "../Parser/Parser.h"
 
 namespace Imap {
 namespace Mailbox {
-
-class TreeItemMailbox;
-
-class CreateConnectionTask;
 
 /** @short Delete an existing mailbox */
 class DeleteMailboxTask : public ImapTask
@@ -40,7 +36,7 @@ public:
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
 private:
     CommandHandle tag;
-    CreateConnectionTask* conn;
+    ImapTask* conn;
     QString mailbox;
 };
 
