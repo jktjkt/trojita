@@ -58,7 +58,6 @@ void Fake_ListChildMailboxesTask::perform()
     }
     model->_finalizeList( parser, mailbox );
     _completed();
-    QTimer::singleShot( 0, model, SLOT(runReadyTasks()) );
 }
 
 bool Fake_ListChildMailboxesTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
