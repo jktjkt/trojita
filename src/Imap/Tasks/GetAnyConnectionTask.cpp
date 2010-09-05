@@ -28,7 +28,7 @@ GetAnyConnectionTask::GetAnyConnectionTask( Model* _model ) :
 {
     if ( model->_parsers.isEmpty() ) {
         newConn = model->_taskFactory->createOpenConnectionTask( model );
-        connect( newConn, SIGNAL(completed()), this, SLOT(slotPerform()) );
+        newConn->addDependentTask( this );
     } else {
         model->_parsers.begin()->activeTasks.append( this );
         parser = model->_parsers.begin().key();
