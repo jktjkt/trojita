@@ -144,16 +144,13 @@ void Model::responseReceived()
             QList<ImapTask*> taskSnapshot = it->activeTasks;
             QList<ImapTask*> deletedTasks;
 
-            // Try various tasks, perhaps it's their response
+            // Try various tasks, perhaps it's their response. Also check if they're already finished and remove them.
             for ( QList<ImapTask*>::iterator taskIt = taskSnapshot.begin(); taskIt != taskSnapshot.end(); ++taskIt ) {
-                bool handledNow = resp->plug( it->parser, *taskIt );
+                if ( ! handled )
+                    handled = resp->plug( it->parser, *taskIt );
 
                 if ( (*taskIt)->isFinished() )
                     deletedTasks << *taskIt;
-
-                handled |= handledNow;
-                if ( handled )
-                    break;
             }
             // And now remove the finished commands
             for ( QList<ImapTask*>::iterator deletedIt = deletedTasks.begin(); deletedIt != deletedTasks.end(); ++deletedIt ) {

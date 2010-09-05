@@ -16,33 +16,32 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include "GetAnyConnectionTask.h"
-#include <QTimer>
-#include "OpenConnectionTask.h"
+#include "Fake_OpenConnectionTask.h"
 
 namespace Imap {
 namespace Mailbox {
 
-GetAnyConnectionTask::GetAnyConnectionTask( Model* _model ) :
-    ImapTask( _model ), newConn(0)
+Fake_OpenConnectionTask::Fake_OpenConnectionTask( Imap::Mailbox::Model* _model, Imap::Parser* _parser ): OpenConnectionTask()
 {
-    if ( model->_parsers.isEmpty() ) {
-        newConn = model->_taskFactory->createOpenConnectionTask( model );
-        newConn->addDependentTask( this );
-    } else {
-        model->_parsers.begin()->activeTasks.append( this );
-        parser = model->_parsers.begin().key();
-        QTimer::singleShot( 0, model, SLOT(maybeRunTasks()) );
-    }
+    // We really want to call the protected constructor, otherwise the OpenConnectionTask
+    // would create a socket itself, and we don't want to end up there
+    model = _model;
+    parser = _parser;
+    QTimer::singleShot( 0, this, SLOT(slotPerform()) );
 }
 
-void GetAnyConnectionTask::perform()
+void Fake_OpenConnectionTask::perform()
 {
-    if ( newConn ) {
-        parser = newConn->parser;
-        model->_parsers[ parser ].activeTasks.append( this );
-    }
+    model->_parsers[ parser ].activeTasks.append( this );
     _completed();
+}
+
+bool Fake_OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+{
+    // This is a fake task, and therefore we aren't interested in any responses.
+    // We have to override OpenConnectionTask's implementation.
+    Q_UNUSED(ptr); Q_UNUSED(resp);
+    return false;
 }
 
 

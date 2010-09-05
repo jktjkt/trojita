@@ -81,7 +81,6 @@ signals:
     void completed();
 
 protected slots:
-    void slotSucceed() { _completed(); }
     void slotPerform() { perform(); }
 
 public:

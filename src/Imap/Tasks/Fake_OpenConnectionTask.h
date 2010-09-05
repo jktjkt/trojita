@@ -16,35 +16,31 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include "GetAnyConnectionTask.h"
-#include <QTimer>
+#ifndef IMAP_FAKEOPENCONNECTION_TASK_H
+#define IMAP_FAKEOPENCONNECTION_TASK_H
+
 #include "OpenConnectionTask.h"
+#include "../Parser/Parser.h"
 
 namespace Imap {
 namespace Mailbox {
 
-GetAnyConnectionTask::GetAnyConnectionTask( Model* _model ) :
-    ImapTask( _model ), newConn(0)
-{
-    if ( model->_parsers.isEmpty() ) {
-        newConn = model->_taskFactory->createOpenConnectionTask( model );
-        newConn->addDependentTask( this );
-    } else {
-        model->_parsers.begin()->activeTasks.append( this );
-        parser = model->_parsers.begin().key();
-        QTimer::singleShot( 0, model, SLOT(maybeRunTasks()) );
-    }
-}
+class TreeItemMailbox;
 
-void GetAnyConnectionTask::perform()
-{
-    if ( newConn ) {
-        parser = newConn->parser;
-        model->_parsers[ parser ].activeTasks.append( this );
-    }
-    _completed();
-}
+/** @short A fake version of the OpenConnectionTask
 
+This version is used for testing of various other tasks. Its purpose is to prevent
+cluttering up of the socket/connection with irrelevant data when testing other tasks.
+*/
+class Fake_OpenConnectionTask: public OpenConnectionTask {
+public:
+    Fake_OpenConnectionTask( Imap::Mailbox::Model* _model, Imap::Parser* _parser );
+    virtual void perform();
+private:
+    bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
+};
 
 }
 }
+
+#endif // IMAP_FAKEOPENCONNECTION_TASK_H

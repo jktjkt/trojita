@@ -26,6 +26,7 @@
 #include "GetAnyConnectionTask.h"
 #include "KeepMailboxOpenTask.h"
 #include "Fake_ListChildMailboxesTask.h"
+#include "Fake_OpenConnectionTask.h"
 #include "NumberOfMessagesTask.h"
 #include "ObtainSynchronizedMailboxTask.h"
 #include "OpenConnectionTask.h"
@@ -35,14 +36,6 @@
 
 namespace Imap {
 namespace Mailbox {
-
-#define CREATE_FAKE_TASK(X) class Fake_##X: public X { \
-public: virtual void perform() {} Fake_##X( Imap::Parser* _parser ) { parser = _parser; QTimer::singleShot( 0, this, SLOT(slotSucceed()) ); } \
-};
-
-CREATE_FAKE_TASK(OpenConnectionTask)
-
-#undef CREATE_FAKE_TASK
 
 TaskFactory::~TaskFactory()
 {
@@ -145,7 +138,7 @@ Parser* TestingTaskFactory::newParser( Model* model )
 OpenConnectionTask* TestingTaskFactory::createOpenConnectionTask( Model *_model )
 {
     if ( fakeOpenConnectionTask ) {
-        return new Fake_OpenConnectionTask( newParser( _model ) );
+        return new Fake_OpenConnectionTask( _model, newParser( _model ) );
     } else {
         return TaskFactory::createOpenConnectionTask( _model );
     }

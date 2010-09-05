@@ -396,6 +396,7 @@ private:
     friend class OpenConnectionTask;
     friend class GetAnyConnectionTask;
     friend class Fake_ListChildMailboxesTask;
+    friend class Fake_OpenConnectionTask;
 
     friend class TestingTaskFactory; // needs access to _socketFactory
 
