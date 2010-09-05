@@ -124,10 +124,6 @@ class Model: public QAbstractItemModel {
         TreeItemMailbox* mailbox;
         RWMode mode;
         ConnectionState connState;
-        /** @short The mailbox in which we're right now, as per IMAP server's opinion */
-        TreeItemMailbox* currentMbox;
-        /** @short Number of mailboxes which we've already requested to be SELECT/EXAMINEd */
-        uint selectingAnother;
         /** @short Mapping of IMAP tag to the helper structure */
         QMap<CommandHandle, Task> commandMap;
         /** @short List of tasks which are active already, and should therefore receive events */
@@ -145,12 +141,10 @@ class Model: public QAbstractItemModel {
 
         ParserState( Parser* _parser, TreeItemMailbox* _mailbox, const RWMode _mode,
                 const ConnectionState _connState, ModelStateHandler* _respHandler ):
-            parser(_parser), mailbox(_mailbox), mode(_mode),
-            connState(_connState), currentMbox(0), selectingAnother(0),
+            parser(_parser), mailbox(_mailbox), mode(_mode), connState(_connState),
             capabilitiesFresh(false), responseHandler(_respHandler), idleLauncher(0) {}
         ParserState(): mailbox(0), mode(ReadOnly), connState(CONN_STATE_NONE),
-            currentMbox(0), selectingAnother(0), capabilitiesFresh(false),
-            responseHandler(0), idleLauncher(0) {}
+            capabilitiesFresh(false), responseHandler(0), idleLauncher(0) {}
     };
 
     /** @short Policy for accessing network */

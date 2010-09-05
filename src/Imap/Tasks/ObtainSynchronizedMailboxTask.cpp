@@ -67,15 +67,14 @@ void ObtainSynchronizedMailboxTask::perform()
     selectCmd = parser->select( mailbox->mailbox() );
     it->commandMap[ selectCmd ] = Model::Task( Model::Task::SELECT, 0 );
     it->mailbox = mailbox;
-    ++it->selectingAnother;
-    it->currentMbox = mailbox;
-    model->_parsers[ parser ].currentMbox->syncState = SyncState();
+    mailbox->syncState = SyncState();
     status = STATE_SELECTING;
     qDebug() << "STATE_SELECTING";
 }
 
 bool ObtainSynchronizedMailboxTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
+    Q_ASSERT( parser == ptr );
     if ( handleResponseCodeInsideState( resp ) )
         return true;
 
@@ -91,6 +90,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( Imap::Parser* ptr, const 
             _finalizeSelect();
         } else {
             // FIXME: Tasks API error handling
+            model->changeConnectionState( ptr, CONN_STATE_AUTHENTICATED);
         }
         IMAP_TASK_CLEANUP_COMMAND;
         return true;
@@ -136,10 +136,10 @@ void ObtainSynchronizedMailboxTask::_finalizeSelect()
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[ 0 ] );
     Q_ASSERT( list );
 
-    model->_parsers[ parser ].currentMbox = mailbox;
+    model->_parsers[ parser ].mailbox = mailbox;
     model->_parsers[ parser ].responseHandler = model->selectedHandler;
     model->changeConnectionState( parser, CONN_STATE_SELECTED );
-    const SyncState& syncState = model->_parsers[ parser ].currentMbox->syncState;
+    const SyncState& syncState = mailbox->syncState;
     const SyncState& oldState = model->cache()->mailboxSyncState( mailbox->mailbox() );
     list->_totalMessageCount = syncState.exists();
     // Note: syncState.unSeen() is the NUMBER of the first unseen message, not their count!
@@ -213,8 +213,6 @@ void ObtainSynchronizedMailboxTask::_fullMboxSync( TreeItemMailbox* mailbox, Tre
         }
         model->endInsertRows();
         list->_fetchStatus = TreeItem::DONE;
-
-        Q_ASSERT( ! model->_parsers[ parser ].selectingAnother );
 
         syncUids( mailbox );
 
@@ -381,7 +379,7 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState( const Imap::R
         {
             const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.data() );
             if ( num ) {
-                model->_parsers[ parser ].currentMbox->syncState.setUnSeen( num->data );
+                model->_parsers[ parser ].mailbox->syncState.setUnSeen( num->data );
                 res = true;
             } else {
                 throw CantHappen( "State response has invalid UNSEEN respCodeData", *resp );
@@ -392,7 +390,7 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState( const Imap::R
         {
             const Responses::RespData<QStringList>* const num = dynamic_cast<const Responses::RespData<QStringList>* const>( resp->respCodeData.data() );
             if ( num ) {
-                model->_parsers[ parser ].currentMbox->syncState.setPermanentFlags( num->data );
+                model->_parsers[ parser ].mailbox->syncState.setPermanentFlags( num->data );
                 res = true;
             } else {
                 throw CantHappen( "State response has invalid PERMANENTFLAGS respCodeData", *resp );
@@ -403,7 +401,7 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState( const Imap::R
         {
             const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.data() );
             if ( num ) {
-                model->_parsers[ parser ].currentMbox->syncState.setUidNext( num->data );
+                model->_parsers[ parser ].mailbox->syncState.setUidNext( num->data );
                 res = true;
             } else {
                 throw CantHappen( "State response has invalid UIDNEXT respCodeData", *resp );
@@ -414,7 +412,7 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState( const Imap::R
         {
             const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.data() );
             if ( num ) {
-                model->_parsers[ parser ].currentMbox->syncState.setUidValidity( num->data );
+                model->_parsers[ parser ].mailbox->syncState.setUidValidity( num->data );
                 res = true;
             } else {
                 throw CantHappen( "State response has invalid UIDVALIDITY respCodeData", *resp );
@@ -433,14 +431,14 @@ bool ObtainSynchronizedMailboxTask::handleNumberResponse( Imap::Parser* ptr, con
     Q_ASSERT( ptr == parser );
     switch ( resp->kind ) {
         case Imap::Responses::EXISTS:
-            model->_parsers[ ptr ].currentMbox->syncState.setExists( resp->number );
+            model->_parsers[ ptr ].mailbox->syncState.setExists( resp->number );
             return true;
             break;
         case Imap::Responses::EXPUNGE:
             // must be handled elsewhere
             break;
         case Imap::Responses::RECENT:
-            model->_parsers[ ptr ].currentMbox->syncState.setRecent( resp->number );
+            model->_parsers[ ptr ].mailbox->syncState.setRecent( resp->number );
             return true;
             break;
         default:
@@ -452,7 +450,7 @@ bool ObtainSynchronizedMailboxTask::handleNumberResponse( Imap::Parser* ptr, con
 bool ObtainSynchronizedMailboxTask::handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp )
 {
     Q_ASSERT( ptr == parser );
-    model->_parsers[ ptr ].currentMbox->syncState.setFlags( resp->flags );
+    model->_parsers[ ptr ].mailbox->syncState.setFlags( resp->flags );
     return true;
 }
 

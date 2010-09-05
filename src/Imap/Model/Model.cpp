@@ -238,16 +238,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 throw CantHappen( "The Task::STATUS should've been handled by the NumberOfMessagesTask", *resp );
                 break;
             case Task::SELECT:
-                --_parsers[ ptr ].selectingAnother;
-                if ( resp->kind == Responses::OK ) {
-                    // FIXME
-                    throw CantHappen( "[Port in progress] encountered an old SELECT, sorry");
-                } else {
-                    if ( _parsers[ ptr ].connState == CONN_STATE_SELECTED )
-                        changeConnectionState( ptr, CONN_STATE_AUTHENTICATED);
-                    _parsers[ ptr ].currentMbox = 0;
-                    // FIXME: error handling
-                }
+                throw CantHappen( "[Port in progress] encountered an old SELECT, sorry");
                 break;
             case Task::FETCH_MESSAGE_METADATA:
                 // Either we were fetching just UID & FLAGS, or that and stuff like BODYSTRUCTURE.
@@ -458,7 +449,6 @@ void Model::replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<Tree
         for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
             it->commandMap.clear();
             it->mailbox = 0;
-            it->currentMbox = 0;
             it->responseHandler = authenticatedHandler;
         }
         qDeleteAll( oldItems );
@@ -493,7 +483,7 @@ void Model::_finalizeFetchPart( Parser* parser, TreeItemPart* const part )
         // basically, there's nothing to do if the FETCH targetted a message part and not the message as a whole
         qDebug() << "Imap::Model::_finalizeFetch(): didn't receive anything about message" <<
             part->message()->row() << "part" << part->partId() << "in mailbox" <<
-            _parsers[ parser ].currentMbox->mailbox();
+            _parsers[ parser ].mailbox->mailbox();
         part->_fetchStatus = TreeItem::DONE;
     }
     changeConnectionState( parser, CONN_STATE_SELECTED );
@@ -511,7 +501,7 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
     if ( mailbox && _parsers[ parser ].responseHandler == selectedHandler ) {
         // the mailbox was already synced (?)
         mailbox->_children[0]->_fetchStatus = TreeItem::DONE;
-        cache()->setMailboxSyncState( mailbox->mailbox(), _parsers[ parser ].currentMbox->syncState );
+        cache()->setMailboxSyncState( mailbox->mailbox(), _parsers[ parser ].mailbox->syncState );
         TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[0] );
         Q_ASSERT( list );
         saveUidMap( list );
@@ -525,7 +515,7 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
         // the synchronization was still in progress
         _parsers[ parser ].responseHandler = selectedHandler;
         changeConnectionState( parser, CONN_STATE_SELECTED );
-        cache()->setMailboxSyncState( mailbox->mailbox(), _parsers[ parser ].currentMbox->syncState );
+        cache()->setMailboxSyncState( mailbox->mailbox(), _parsers[ parser ].mailbox->syncState );
 
         QList<uint>& uidMap = _parsers[ parser ].uidMap;
         TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[0] );
@@ -982,8 +972,6 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
                                             it->parser->examine( mailbox->mailbox() );
                         it->commandMap[ cmd ] = Task( Task::SELECT, mailbox );
                         it->mailbox = mailbox;
-                        ++it->selectingAnother;
-                        it->currentMbox = mailbox;
                     }
                     return it->parser;
                 } else {
@@ -992,8 +980,6 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
                     CommandHandle cmd = it->parser->select( mailbox->mailbox() );
                     it->commandMap[ cmd ] = Task( Task::SELECT, mailbox );
                     it->mailbox = mailbox;
-                    ++it->selectingAnother;
-                    it->currentMbox = mailbox;
                     return it->parser;
                 }
             }
@@ -1012,8 +998,7 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
             cmd = parser.parser->examine( mailbox->mailbox() );
         parser.commandMap[ cmd ] = Task( Task::SELECT, mailbox );
         emit const_cast<Model*>(this)->activityHappening( true );
-        ++parser.selectingAnother;
-        parser.currentMbox = mailbox;
+        parser.mailbox = mailbox;
         return parser.parser;
     } else {
         // We can create one more, but we should try to find one which already exists,
@@ -1030,8 +1015,6 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
                 it->commandMap[ cmd ] = Task( Task::SELECT, mailbox );
                 it->mailbox = mailbox;
                 it->mode = mode;
-                ++it->selectingAnother;
-                it->currentMbox = mailbox;
                 return it->parser;
             }
         }
@@ -1065,8 +1048,6 @@ Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bo
             emit const_cast<Model*>(this)->activityHappening( true );
             _parsers[ parser ].mailbox = mailbox;
             _parsers[ parser ].mode = mode;
-            ++_parsers[ parser ].selectingAnother;
-            _parsers[ parser ].currentMbox = mailbox;
         }
         return parser;
     }
