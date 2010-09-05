@@ -38,6 +38,8 @@ Fake_ListChildMailboxesTask::Fake_ListChildMailboxesTask( Model* _model, const Q
 
 void Fake_ListChildMailboxesTask::perform()
 {
+    parser = conn->parser;
+    model->_parsers[ parser ].activeTasks.append( this );
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
     Q_ASSERT( mailbox );
     parser = conn->parser;
@@ -56,6 +58,7 @@ void Fake_ListChildMailboxesTask::perform()
     }
     model->_finalizeList( parser, mailbox );
     _completed();
+    QTimer::singleShot( 0, model, SLOT(runReadyTasks()) );
 }
 
 bool Fake_ListChildMailboxesTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
