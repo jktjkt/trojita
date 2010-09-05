@@ -21,25 +21,25 @@
 
 #include <QtTest>
 #include <QAuthenticator>
-#include "test_Imap_Model_OpenConnectionTask.h"
+#include "test_Imap_Tasks_OpenConnection.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/MailboxModel.h"
 #include "Imap/Tasks/OpenConnectionTask.h"
 
-void ImapModelOpenConnectionTaskTest::initTestCase()
+void ImapModelOpenConnectionTest::initTestCase()
 {
     model = 0;
     completedSpy = 0;
     qRegisterMetaType<QAuthenticator*>("QAuthenticator*");
 }
 
-void ImapModelOpenConnectionTaskTest::init()
+void ImapModelOpenConnectionTest::init()
 {
     init( false );
 }
 
-void ImapModelOpenConnectionTaskTest::init( bool startTlsRequired )
+void ImapModelOpenConnectionTest::init( bool startTlsRequired )
 {
     Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache( this, QString() );
     factory = new Imap::Mailbox::FakeSocketFactory();
@@ -52,7 +52,7 @@ void ImapModelOpenConnectionTaskTest::init( bool startTlsRequired )
     authSpy = new QSignalSpy( model, SIGNAL(authRequested(QAuthenticator*)) );
 }
 
-void ImapModelOpenConnectionTaskTest::cleanup()
+void ImapModelOpenConnectionTest::cleanup()
 {
     delete model;
     model = 0;
@@ -67,7 +67,7 @@ void ImapModelOpenConnectionTaskTest::cleanup()
 #define SOCK static_cast<Imap::FakeSocket*>( factory->lastSocket() )
 
 /** @short Test for explicitly obtaining capability when greeted by PREAUTH */
-void ImapModelOpenConnectionTaskTest::testPreauth()
+void ImapModelOpenConnectionTest::testPreauth()
 {
     SOCK->fakeReading( "* PREAUTH foo\r\n" );
     QVERIFY( completedSpy->isEmpty() );
@@ -81,7 +81,7 @@ void ImapModelOpenConnectionTaskTest::testPreauth()
 }
 
 /** @short Test that we can obtain capability when embedded in PREAUTH */
-void ImapModelOpenConnectionTaskTest::testPreauthWithCapability()
+void ImapModelOpenConnectionTest::testPreauthWithCapability()
 {
     SOCK->fakeReading( "* PREAUTH [CAPABILITY IMAP4rev1] foo\r\n" );
     QVERIFY( completedSpy->isEmpty() );
@@ -92,7 +92,7 @@ void ImapModelOpenConnectionTaskTest::testPreauthWithCapability()
 }
 
 /** @short Test for obtaining capability and logging in without any STARTTLS */
-void ImapModelOpenConnectionTaskTest::testOk()
+void ImapModelOpenConnectionTest::testOk()
 {
     SOCK->fakeReading( "* OK foo\r\n" );
     QVERIFY( completedSpy->isEmpty() );
@@ -111,7 +111,7 @@ void ImapModelOpenConnectionTaskTest::testOk()
 }
 
 /** @short Test with capability inside the OK greetings, no STARTTLS */
-void ImapModelOpenConnectionTaskTest::testOkWithCapability()
+void ImapModelOpenConnectionTest::testOkWithCapability()
 {
     SOCK->fakeReading( "* OK [CAPABILITY IMAP4rev1] foo\r\n" );
     QVERIFY( completedSpy->isEmpty() );
@@ -125,7 +125,7 @@ void ImapModelOpenConnectionTaskTest::testOkWithCapability()
 }
 
 /** @short Test to honor embedded LOGINDISABLED */
-void ImapModelOpenConnectionTaskTest::testOkLogindisabled()
+void ImapModelOpenConnectionTest::testOkLogindisabled()
 {
     SOCK->fakeReading( "* OK [CAPABILITY IMAP4rev1 LoginDisabled] foo\r\n" );
     QVERIFY( completedSpy->isEmpty() );
@@ -151,7 +151,7 @@ void ImapModelOpenConnectionTaskTest::testOkLogindisabled()
 }
 
 /** @short Test for an explicit CAPABILITY retrieval and automatic STARTTLS when LOGINDISABLED */
-void ImapModelOpenConnectionTaskTest::testOkLogindisabledLater()
+void ImapModelOpenConnectionTest::testOkLogindisabledLater()
 {
     SOCK->fakeReading( "* OK foo\r\n" );
     QVERIFY( completedSpy->isEmpty() );
@@ -182,7 +182,7 @@ void ImapModelOpenConnectionTaskTest::testOkLogindisabledLater()
 }
 
 /** @short Test conf-requested STARTTLS when not faced with embedded capabilities in OK greetings */
-void ImapModelOpenConnectionTaskTest::testOkStartTls()
+void ImapModelOpenConnectionTest::testOkStartTls()
 {
     cleanup(); init(true); // yuck, but I can't come up with anything better...
 
@@ -210,7 +210,7 @@ void ImapModelOpenConnectionTaskTest::testOkStartTls()
 }
 
 /** @short Test to re-request formerly embedded capabilities when launching STARTTLS */
-void ImapModelOpenConnectionTaskTest::testOkStartTlsDiscardCaps()
+void ImapModelOpenConnectionTest::testOkStartTlsDiscardCaps()
 {
     cleanup(); init(true); // yuck, but I can't come up with anything better...
 
@@ -239,7 +239,7 @@ void ImapModelOpenConnectionTaskTest::testOkStartTlsDiscardCaps()
 
 // FIXME: verify how LOGINDISABLED even after STARTLS ends up
 
-void ImapModelOpenConnectionTaskTest::provideAuthDetails( QAuthenticator* auth )
+void ImapModelOpenConnectionTest::provideAuthDetails( QAuthenticator* auth )
 {
     if ( auth ) {
         auth->setUser( QLatin1String("luzr") );
@@ -248,4 +248,4 @@ void ImapModelOpenConnectionTaskTest::provideAuthDetails( QAuthenticator* auth )
 }
 
 
-QTEST_MAIN( ImapModelOpenConnectionTaskTest )
+QTEST_MAIN( ImapModelOpenConnectionTest )

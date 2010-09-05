@@ -27,7 +27,7 @@
 
 class QSignalSpy;
 
-class ImapModelOpenConnectionTaskTest : public QObject
+class ImapModelOpenConnectionTest : public QObject
 {
     Q_OBJECT
 private slots:
