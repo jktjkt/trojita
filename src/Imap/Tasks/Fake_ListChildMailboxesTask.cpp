@@ -60,6 +60,8 @@ void Fake_ListChildMailboxesTask::perform()
 
 bool Fake_ListChildMailboxesTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
+    // This is a fake task inheriting from the "real one", so we have to reimplement functions which do real work with stubs
+    Q_UNUSED(ptr); Q_UNUSED(resp);
     return false;
 }
 
