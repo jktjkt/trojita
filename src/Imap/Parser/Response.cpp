@@ -225,8 +225,10 @@ State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int
     }
 
     QStringList _list;
+    QVariantList originalList;
     try {
-        _list = QVariant( LowLevelParser::parseList( '[', ']', line, start ) ).toStringList();
+        originalList = LowLevelParser::parseList( '[', ']', line, start );
+        _list = QVariant( originalList ).toStringList();
         ++start;
     } catch ( UnexpectedHere& ) {
         // this is perfectly possible
@@ -292,6 +294,16 @@ State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int
                 break;
             case Responses::BADCHARSET:
             case Responses::PERMANENTFLAGS:
+                // The following text should be a parenthesized list of atoms
+                if ( originalList.size() == 2 && originalList[1].type() == QVariant::List ) {
+                    respCodeData = QSharedPointer<AbstractData>( new RespData<QStringList>( originalList[1].toStringList() ) );
+                } else {
+                    // Well, we used to accept "* OK [PERMANENTFLAGS foo bar] xyz" for quite long time,
+                    // so no need to break backwards compatibility here
+                    respCodeData = QSharedPointer<AbstractData>( new RespData<QStringList>( _list ) );
+                    qDebug() << "Parser warning: obsolete format of BADCAHRSET/PERMANENTFLAGS";
+                }
+                break;
             case Responses::CAPABILITIES:
                 // no check here
                 respCodeData = QSharedPointer<AbstractData>( new RespData<QStringList>( _list ) );

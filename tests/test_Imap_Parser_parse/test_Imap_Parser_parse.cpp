@@ -99,6 +99,11 @@ void ImapParserParseTest::testParseTagged_data()
         << QByteArray("y01 OK [PERMANENTfLAGS] Behold, the flags!\r\n")
         << QSharedPointer<AbstractResponse>( new State("y01", OK, "Behold, the flags!", PERMANENTFLAGS, emptyList) );
     QTest::newRow("tagged-ok-permanentflags-flags")
+        << QByteArray("y01 OK [PErMANENTFLAGS (\\Foo \\Bar SmrT)] Behold, the flags!\r\n")
+        << QSharedPointer<AbstractResponse>( new State("y01", OK, "Behold, the flags!", PERMANENTFLAGS,
+                    QSharedPointer<AbstractData>( new RespData<QStringList>(
+                            QStringList() << "\\Foo" << "\\Bar" << "SmrT" ))) );
+    QTest::newRow("tagged-ok-permanentflags-flags-not-enclosed")
         << QByteArray("y01 OK [PErMANENTFLAGS \\Foo \\Bar SmrT] Behold, the flags!\r\n")
         << QSharedPointer<AbstractResponse>( new State("y01", OK, "Behold, the flags!", PERMANENTFLAGS,
                     QSharedPointer<AbstractData>( new RespData<QStringList>(
