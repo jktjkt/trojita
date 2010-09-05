@@ -179,6 +179,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
     QCOMPARE( syncState.unSeen(), 0u );
 
     // Now, let's try to re-sync it once again; the difference is that our cache now has "something"
+    // and that we feed it with a rather limited set of responses
     model->resyncMailbox( idxA );
     QCoreApplication::processEvents();
 
@@ -192,7 +193,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
     QCoreApplication::processEvents();
     QVERIFY( SOCK->writtenStuff().isEmpty() );
 
-    // Check the cache
+    // Check the cache; now it should be almost empty
     syncState = model->cache()->mailboxSyncState( QString::fromAscii("a") );
     QCOMPARE( syncState.exists(), 0u );
     QCOMPARE( syncState.flags(), QStringList() );
