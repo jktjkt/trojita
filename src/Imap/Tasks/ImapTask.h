@@ -66,7 +66,11 @@ public:
     virtual bool handleSort( Imap::Parser* ptr, const Imap::Responses::Sort* const resp );
     virtual bool handleThread( Imap::Parser* ptr, const Imap::Responses::Thread* const resp );
 
-    bool isFinished() { return _finished; }
+    /** @short Return true if this task has already finished and can be safely deleted */
+    bool isFinished() const { return _finished; }
+
+    /** @short Return true if this task doesn't depend on anything can be run immediately */
+    virtual bool isReadyToRun() const;
 
 protected:
     void _completed();

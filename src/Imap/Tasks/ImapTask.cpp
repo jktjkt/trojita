@@ -122,7 +122,8 @@ bool ImapTask::handleThread( Imap::Parser* ptr, const Imap::Responses::Thread* c
 void ImapTask::_completed()
 {
     Q_FOREACH( ImapTask* task, dependentTasks ) {
-        task->perform();
+        if ( ! task->isFinished() )
+            task->perform();
     }
     emit completed();
     _finished = true;
@@ -155,6 +156,11 @@ void ImapTask::handleResponseCode( Imap::Parser* ptr, const Imap::Responses::Sta
             // do nothing here, it must be handled later
             break;
     }
+}
+
+bool ImapTask::isReadyToRun() const
+{
+    return false;
 }
 
 }

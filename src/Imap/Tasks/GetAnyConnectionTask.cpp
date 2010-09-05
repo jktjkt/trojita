@@ -32,7 +32,7 @@ GetAnyConnectionTask::GetAnyConnectionTask( Model* _model ) :
     } else {
         model->_parsers.begin()->activeTasks.append( this );
         parser = model->_parsers.begin().key();
-        QTimer::singleShot( 0, model, SLOT(maybeRunTasks()) );
+        QTimer::singleShot( 0, model, SLOT(runReadyTasks()) );
     }
 }
 
@@ -43,6 +43,11 @@ void GetAnyConnectionTask::perform()
         model->_parsers[ parser ].activeTasks.append( this );
     }
     _completed();
+}
+
+bool GetAnyConnectionTask::isReadyToRun() const
+{
+    return ! isFinished() && ! newConn;
 }
 
 

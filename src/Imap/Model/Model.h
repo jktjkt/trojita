@@ -452,6 +452,9 @@ private:
     /** @short Helper for the slotParseError() */
     void broadcastParseError( const uint parser, const QString& exceptionClass, const QString& errorMessage, const QByteArray& line, int position );
 
+    /** @short Remove deleted Tasks from the activeTasks list */
+    void removeDeletedTasks( const QList<ImapTask*>& deletedTasks, QList<ImapTask*>& activeTasks );
+
     ModelStateHandler* unauthHandler;
     ModelStateHandler* authenticatedHandler;
     ModelStateHandler* selectedHandler;
@@ -472,7 +475,7 @@ private:
 protected slots:
     void responseReceived();
 
-    void maybeRunTasks();
+    void runReadyTasks();
 
 };
 

@@ -152,13 +152,10 @@ void Model::responseReceived()
                 if ( (*taskIt)->isFinished() )
                     deletedTasks << *taskIt;
             }
-            // And now remove the finished commands
-            for ( QList<ImapTask*>::iterator deletedIt = deletedTasks.begin(); deletedIt != deletedTasks.end(); ++deletedIt ) {
-                (*deletedIt)->deleteLater();
-                it->activeTasks.removeOne( *deletedIt );
-            }
 
-            maybeRunTasks();
+            removeDeletedTasks( deletedTasks, it->activeTasks );
+
+            runReadyTasks();
 
             if ( ! handled )
                 resp->plug( it.value().parser, this );
@@ -1487,18 +1484,36 @@ void Model::setCache( AbstractCache* cache )
     _cache->setParent( this );
 }
 
-void Model::maybeRunTasks()
+void Model::runReadyTasks()
 {
-    for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
-        while ( ! it->activeTasks.isEmpty() ) {
-            if ( GetAnyConnectionTask* getAny = qobject_cast<GetAnyConnectionTask*>( it->activeTasks.first() ) ) {
-                getAny->perform();
-                getAny->deleteLater();
-                it->activeTasks.removeFirst();
-            } else {
-                break;
+    for ( QMap<Parser*,ParserState>::iterator parserIt = _parsers.begin(); parserIt != _parsers.end(); ++parserIt ) {
+        bool runSomething = false;
+        do {
+            runSomething = false;
+            // See responseReceived() for more details about why we do need to iterate over a copy here.
+            // Basically, calls to ImapTask::perform could invalidate our precious iterators.
+            QList<ImapTask*> origList = parserIt->activeTasks;
+            QList<ImapTask*> deletedList;
+            for ( QList<ImapTask*>::iterator taskIt = origList.begin(); taskIt != origList.end(); ++taskIt ) {
+                if ( (*taskIt)->isReadyToRun() ) {
+                    (*taskIt)->perform();
+                    runSomething = true;
+                }
+                if ( (*taskIt)->isFinished() ) {
+                    deletedList << *taskIt;
+                }
             }
-        }
+            removeDeletedTasks( deletedList, parserIt->activeTasks );
+        } while ( runSomething );
+    }
+}
+
+void Model::removeDeletedTasks( const QList<ImapTask*>& deletedTasks, QList<ImapTask*>& activeTasks )
+{
+    // Remove the finished commands
+    for ( QList<ImapTask*>::const_iterator deletedIt = deletedTasks.begin(); deletedIt != deletedTasks.end(); ++deletedIt ) {
+        (*deletedIt)->deleteLater();
+        activeTasks.removeOne( *deletedIt );
     }
 }
 
