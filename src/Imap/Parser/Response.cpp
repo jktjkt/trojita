@@ -295,7 +295,13 @@ State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int
             case Responses::BADCHARSET:
             case Responses::PERMANENTFLAGS:
                 // The following text should be a parenthesized list of atoms
-                if ( originalList.size() == 2 && originalList[1].type() == QVariant::List ) {
+                if ( originalList.size() == 1 ) {
+                    if ( respCode != Responses::BADCHARSET ) {
+                        // BADCHARSET can be empty without any problem, but PERMANENTFLAGS shouldn't
+                        qDebug() << "Parser warning: empty PERMANENTFLAGS";
+                    }
+                    respCodeData = QSharedPointer<AbstractData>( new RespData<QStringList>( QStringList() ) );
+                } else if ( originalList.size() == 2 && originalList[1].type() == QVariant::List ) {
                     respCodeData = QSharedPointer<AbstractData>( new RespData<QStringList>( originalList[1].toStringList() ) );
                 } else {
                     // Well, we used to accept "* OK [PERMANENTFLAGS foo bar] xyz" for quite long time,

@@ -108,6 +108,18 @@ void ImapParserParseTest::testParseTagged_data()
         << QSharedPointer<AbstractResponse>( new State("y01", OK, "Behold, the flags!", PERMANENTFLAGS,
                     QSharedPointer<AbstractData>( new RespData<QStringList>(
                             QStringList() << "\\Foo" << "\\Bar" << "SmrT" ))) );
+    QTest::newRow("tagged-ok-badcharset-empty")
+        << QByteArray("y01 OK [BadCharset] foo\r\n")
+        << QSharedPointer<AbstractResponse>( new State("y01", OK, "foo", BADCHARSET, emptyList) );
+    QTest::newRow("tagged-ok-badcharset-something")
+        << QByteArray("y01 OK [BADCHARSET (utf8)] wrong charset\r\n")
+        << QSharedPointer<AbstractResponse>( new State("y01", OK, "wrong charset", BADCHARSET,
+                    QSharedPointer<AbstractData>( new RespData<QStringList>( QStringList() << "utf8" ))) );
+    QTest::newRow("tagged-ok-badcharset-not-enclosed")
+        << QByteArray("y01 OK [badcharset a ba cc] Behold, the charset!\r\n")
+        << QSharedPointer<AbstractResponse>( new State("y01", OK, "Behold, the charset!", BADCHARSET,
+                    QSharedPointer<AbstractData>( new RespData<QStringList>(
+                            QStringList() << "a" << "ba" << "cc" ))) );
     QTest::newRow("tagged-ok-readonly")
         << QByteArray("333 OK [ReAD-ONLY] No writing for you\r\n")
         << QSharedPointer<AbstractResponse>( new State("333", OK, "No writing for you", READ_ONLY, voidData));
