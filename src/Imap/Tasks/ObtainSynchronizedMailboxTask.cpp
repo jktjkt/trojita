@@ -103,7 +103,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( Imap::Parser* ptr, const 
             Q_ASSERT( mailboxIndex.isValid() ); // FIXME
             TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ));
             Q_ASSERT( mailbox );
-            Q_ASSERT( static_cast<uint>( model->_parsers[ parser ].uidMap.size() ) == mailbox->syncState.exists() );
+            _finalizeUidSync( mailbox );
             syncFlags( mailbox );
         } else {
             // FIXME: error handling
@@ -479,6 +479,115 @@ bool ObtainSynchronizedMailboxTask::handleFetch( Imap::Parser* ptr, const Imap::
     Q_ASSERT ( ptr == parser );
     model->_parsers[ ptr ].mailbox->handleFetchWhileSyncing( model, ptr, *resp );
     return true;
+}
+
+void ObtainSynchronizedMailboxTask::_finalizeUidSync( TreeItemMailbox* mailbox )
+{
+    Q_ASSERT( static_cast<uint>( model->_parsers[ parser ].uidMap.size() ) == mailbox->syncState.exists() );
+    model->cache()->setMailboxSyncState( mailbox->mailbox(), mailbox->syncState );
+
+    QList<uint>& uidMap = model->_parsers[ parser ].uidMap;
+    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[0] );
+    Q_ASSERT( list );
+    list->_fetchStatus = TreeItem::DONE;
+
+    QModelIndex parent = model->createIndex( 0, 0, list );
+
+    if ( uidMap.isEmpty() ) {
+        // the mailbox is empty
+        if ( list->_children.size() > 0 ) {
+            model->beginRemoveRows( parent, 0, list->_children.size() - 1 );
+            qDeleteAll( list->setChildren( QList<TreeItem*>() ) );
+            model->endRemoveRows();
+            model->cache()->clearAllMessages( mailbox->mailbox() );
+        }
+    } else {
+        // some messages are present *now*; they might or might not have been there before
+        int pos = 0;
+        for ( int i = 0; i < uidMap.size(); ++i ) {
+            if ( i >= list->_children.size() ) {
+                // now we're just adding new messages to the end of the list
+                model->beginInsertRows( parent, i, i );
+                TreeItemMessage * msg = new TreeItemMessage( list );
+                msg->_offset = i;
+                msg->_uid = uidMap[ i ];
+                list->_children << msg;
+                model->endInsertRows();
+            } else if ( dynamic_cast<TreeItemMessage*>( list->_children[pos] )->_uid == uidMap[ i ] ) {
+                // current message has correct UID
+                dynamic_cast<TreeItemMessage*>( list->_children[pos] )->_offset = i;
+                continue;
+            } else {
+                // Traverse the messages we have in the cache, checking their UIDs. The idea here
+                // is that we should be deleting all messages with UIDs different from the current
+                // "supposed UID" (ie. uidMap[i]); this is a valid behavior per the IMAP standard.
+                int pos = i;
+                bool found = false;
+                while ( pos < list->_children.size() ) {
+                    TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->_children[pos] );
+                    if ( message->_uid != uidMap[ i ] ) {
+                        // this message is free to go
+                        model->cache()->clearMessage( mailbox->mailbox(), message->uid() );
+                        model->beginRemoveRows( parent, pos, pos );
+                        delete list->_children.takeAt( pos );
+                        // the _offset of all subsequent messages will be updated later
+                        model->endRemoveRows();
+                    } else {
+                        // this message is the correct one -> keep it, go to the next UID
+                        found = true;
+                        message->_offset = i;
+                        break;
+                    }
+                }
+                if ( ! found ) {
+                    // Add one message, continue the loop
+                    Q_ASSERT( pos == list->_children.size() ); // we're at the end of the list
+                    model->beginInsertRows( parent, i, i );
+                    TreeItemMessage * msg = new TreeItemMessage( list );
+                    msg->_uid = uidMap[ i ];
+                    msg->_offset = i;
+                    list->_children << msg;
+                    model->endInsertRows();
+                }
+            }
+        }
+        if ( uidMap.size() != list->_children.size() ) {
+            // remove items at the end
+            model->beginRemoveRows( parent, uidMap.size(), list->_children.size() - 1 );
+            for ( int i = uidMap.size(); i < list->_children.size(); ++i ) {
+                TreeItemMessage* message = static_cast<TreeItemMessage*>( list->_children.takeAt( i ) );
+                model->cache()->clearMessage( mailbox->mailbox(), message->uid() );
+                delete message;
+            }
+            model->endRemoveRows();
+        }
+    }
+
+    uidMap.clear();
+
+    int unSeenCount = 0;
+    for ( QList<TreeItem*>::const_iterator it = list->_children.begin();
+          it != list->_children.end(); ++it ) {
+        TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( *it );
+        Q_ASSERT( message );
+        if ( message->_uid != 0 ) {
+            /*throw CantHappen("Port in progress: we shouldn't have to deal with syncingFlags here, sorry.");
+            message->_flags = _parsers[ parser ].syncingFlags[ message->_uid ];
+            if ( message->uid() )
+                cache()->setMsgFlags( mailbox->mailbox(), message->uid(), message->_flags );
+            if ( ! message->isMarkedAsRead() )
+                ++unSeenCount;
+            message->_flagsHandled = true;
+            QModelIndex index = createIndex( message->row(), 0, message );
+            emit dataChanged( index, index );*/
+        }
+    }
+    list->_totalMessageCount = list->_children.size();
+    list->_unreadMessageCount = unSeenCount;
+    list->_numberFetchingStatus = TreeItem::DONE;
+    model->saveUidMap( list );
+    model->emitMessageCountChanged( mailbox );
+    model->changeConnectionState( parser, CONN_STATE_SELECTED );
 }
 
 }

@@ -328,20 +328,14 @@ void TreeItemMailbox::handleFetchWhileSyncing( Model* const model, Parser* ptr, 
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[0] );
     Q_ASSERT( list );
 
-    QList<uint>& uidMap = model->_parsers[ ptr ].uidMap;
-
     int number = response.number - 1;
-    if ( number < 0 || number >= uidMap.size() )
+    if ( number < 0 || number >= list->_children.size() )
         throw UnknownMessageIndex( "FECTH response during mailbox sync referrs "
                                    "to a message that is out-of-bounds", response );
 
-    Q_ASSERT( number < list->_children.size() );
-
-    uint uid = 0;
     for ( Responses::Fetch::dataType::const_iterator it = response.data.begin(); it != response.data.end(); ++ it ) {
         if ( it.key() == "UID" ) {
             qDebug() << "Specifying UID while syncing flags in a mailbox is not too useful";
-            uid = dynamic_cast<const Responses::RespData<uint>&>( *(it.value()) ).data;
         } else if ( it.key() == "FLAGS" ) {
             TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->_children[ number ] );
             Q_ASSERT( message );
