@@ -211,6 +211,9 @@ namespace Imap {
             return _searchHelper( "UID SEARCH", criteria, charset );
         }
 
+        /** @short A special case of the "UID SEARCH UID" command */
+        CommandHandle uidSearchUid( const QString& sequence );
+
 
         /** @short X<atom>, RFC3501 sect 6.5.1 */
         CommandHandle xAtom( const Commands::Command& commands );

@@ -215,6 +215,13 @@ CommandHandle Parser::_searchHelper( const QString& command, const QStringList& 
     return queueCommand( cmd );
 }
 
+CommandHandle Parser::uidSearchUid( const QString& sequence )
+{
+    Commands::Command command( "UID SEARCH" );
+    command << Commands::PartOfCommand( Commands::ATOM, sequence );
+    return queueCommand( command );
+}
+
 CommandHandle Parser::_sortHelper(const QString &command, const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria)
 {
     Q_ASSERT( ! sortCriteria.isEmpty() );
