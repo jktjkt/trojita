@@ -91,7 +91,7 @@ void FetchMsgMetadataTask::perform()
 
 bool FetchMsgMetadataTask::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
 {
-    TreeItemMailbox* mailbox = model->_parsers[ ptr ].currentMbox;
+    TreeItemMailbox* mailbox = model->_parsers[ ptr ].mailbox;
     if ( ! mailbox )
         throw UnexpectedResponseReceived( "Received FETCH reply, but AFAIK we haven't selected any mailbox yet", *resp );
 
