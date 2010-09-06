@@ -122,6 +122,8 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( Imap::Parser* ptr, const 
         } else {
             // FIXME: error handling
         }
+        status = STATE_DONE;
+        qDebug() << "STATE_DONE";
         _completed();
         IMAP_TASK_CLEANUP_COMMAND;
         return true;
