@@ -50,6 +50,7 @@ public:
     virtual bool handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );
 
     typedef enum { STATE_WAIT_FOR_CONN, STATE_SELECTING, STATE_SYNCING_UIDS, STATE_SYNCING_FLAGS, STATE_DONE } State;
+    typedef enum { UID_SYNC_ALL, UID_SYNC_ONLY_NEW } UidSyncingMode;
 
 private:
     void _finalizeSelect();
@@ -59,7 +60,8 @@ private:
     void _syncOnlyAdditions( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState, const SyncState& oldState );
     void _syncGeneric( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState );
 
-    void _finalizeUidSync( TreeItemMailbox* mailbox );
+    void _finalizeUidSyncAll( TreeItemMailbox* mailbox );
+    void _finalizeUidSyncOnlyNew( TreeItemMailbox* mailbox );
 
     void syncUids( TreeItemMailbox* mailbox, const uint lowestUidToQuery=0 );
     void syncFlags( TreeItemMailbox* mailbox );
@@ -73,6 +75,7 @@ private:
     CommandHandle uidSyncingCmd;
     CommandHandle flagsCmd;
     State status;
+    UidSyncingMode uidSyncingMode;
 };
 
 }
