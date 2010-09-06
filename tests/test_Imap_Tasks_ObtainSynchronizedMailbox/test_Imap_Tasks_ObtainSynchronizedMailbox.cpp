@@ -284,9 +284,9 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
     list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( static_cast<Imap::Mailbox::TreeItem*>( msgList.internalPointer() ) );
     Q_ASSERT( list );
     QVERIFY( list->loading() );
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 SELECT a\r\n") );
+    QCOMPARE( SOCK->writtenStuff(), QByteArray("y3 SELECT a\r\n") );
     SOCK->fakeReading( QByteArray("* 0 exists\r\n"
-                                  "y1 OK done\r\n") );
+                                  "y3 OK done\r\n") );
     QCoreApplication::processEvents();
     QVERIFY( SOCK->writtenStuff().isEmpty() );
 
