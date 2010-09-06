@@ -349,15 +349,15 @@ void ObtainSynchronizedMailboxTask::_syncGeneric( TreeItemMailbox* mailbox, Tree
     syncUids( mailbox );
 }
 
-void ObtainSynchronizedMailboxTask::syncUids( TreeItemMailbox* mailbox, const uint lastKnownUid )
+void ObtainSynchronizedMailboxTask::syncUids( TreeItemMailbox* mailbox, const uint lowestUidToQuery )
 {
     qDebug() << Q_FUNC_INFO;
 
     QStringList criteria;
-    if ( lastKnownUid == 0 ) {
+    if ( lowestUidToQuery == 0 ) {
         criteria << QLatin1String("ALL");
     } else {
-        criteria << QString::fromAscii("UID %1:*").arg( lastKnownUid );
+        criteria << QString::fromAscii("UID %1:*").arg( lowestUidToQuery );
     }
     uidSyncingCmd = parser->uidSearch( criteria );
     model->_parsers[ parser ].commandMap[ uidSyncingCmd ] = Model::Task( Model::Task::SEARCH_UIDS, 0 );
