@@ -26,6 +26,7 @@ namespace Imap {
 namespace Mailbox {
 
 class TreeItemMailbox;
+class ObtainSynchronizedMailboxTask;
 
 /** @short Maintain a connection to a mailbox
 
@@ -85,7 +86,8 @@ private:
 protected:
     QPersistentModelIndex mailboxIndex;
     QList<KeepMailboxOpenTask*> waitingTasks;
-    ImapTask* synchronizeConn;
+    /** @short An ImapTask that will be started to actually sync to a mailbox once the connection is free */
+    ObtainSynchronizedMailboxTask* synchronizeConn;
 
     bool shouldExit;
     bool isRunning;

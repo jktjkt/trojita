@@ -29,44 +29,63 @@ namespace Mailbox {
 KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mailboxIndex, TreeItemMailbox* formerMailbox ) :
     ImapTask( _model ), mailboxIndex(_mailboxIndex), synchronizeConn(0), shouldExit(false), isRunning(false)
 {
+    qDebug() << "+++" << this;
     Q_ASSERT( mailboxIndex.isValid() );
     Q_ASSERT( mailboxIndex.model() == model );
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*> ( _mailboxIndex.internalPointer() ) );
     Q_ASSERT( mailbox );
     if ( formerMailbox ) {
+        qDebug() << "stealing from mailbox" << formerMailbox->mailbox() << formerMailbox;
         Q_ASSERT( formerMailbox->maintainingTask );
+        // Got to copy the parser information
+        parser = formerMailbox->maintainingTask->parser;
+        // Note that the following will set the maintainigTask's parser to nullptr
         formerMailbox->maintainingTask->addDependentTask( this );
         synchronizeConn = model->_taskFactory->createObtainSynchronizedMailboxTask( _model, mailboxIndex, this );
     } else {
-        ImapTask* newConn = model->_taskFactory->createOpenConnectionTask( model );
-        connect( newConn, SIGNAL(completed()), this, SLOT(slotPerformConnection()) );
-        synchronizeConn = model->_taskFactory->createObtainSynchronizedMailboxTask( _model, mailboxIndex, newConn );
+        ImapTask* conn = model->_taskFactory->createOpenConnectionTask( model );
+        // we don't register ourselves as a "dependant task", as we don't want connHavingParser to call perform() on us
+        qDebug() << "created new conn" << conn;
+        connect( conn, SIGNAL(completed()), this, SLOT(slotPerformConnection()) );
+        synchronizeConn = model->_taskFactory->createObtainSynchronizedMailboxTask( _model, mailboxIndex, conn );
     }
+    qDebug() << "synchro: " << synchronizeConn;
     synchronizeConn->addDependentTask( this );
     mailbox->maintainingTask = this;
 }
 
 void KeepMailboxOpenTask::slotPerformConnection()
 {
+    qDebug() << this << "slotPerformConnection" << synchronizeConn;
     Q_ASSERT( synchronizeConn );
     Q_ASSERT( ! synchronizeConn->isFinished() );
+    if ( ! parser ) {
+        // Well, this happens iff we created a new connection. We have to steal its parser here.
+        parser = synchronizeConn->conn->parser;
+    }
+    Q_ASSERT( parser );
     synchronizeConn->perform();
 }
 
 void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
 {
+    qDebug() << this << "addDependentTask" << task;
     Q_ASSERT( task );
     KeepMailboxOpenTask* keepTask = qobject_cast<KeepMailboxOpenTask*>( task );
     if ( keepTask ) {
+        qDebug() << "! registered our replacement";
         waitingTasks.append( keepTask );
         shouldExit = true;
-        if ( dependentTasks.isEmpty() )
+        if ( dependentTasks.isEmpty() ) {
+            qDebug() << "will die now";
             terminate();
+        }
     } else {
         connect( task, SIGNAL(destroyed(QObject*)), this, SLOT(slotTaskDeleted(QObject*)) );
         ImapTask::addDependentTask( task );
 
         if ( isRunning ) {
+            qDebug() << "will wake immediately" << task;
             // this function is typically called from task's constructor -> got to call that later
             QTimer::singleShot( 0, task, SLOT(slotPerform()) );
         }
@@ -77,6 +96,7 @@ void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )
 {
     ImapTask* task = qobject_cast<ImapTask*>( object );
     Q_ASSERT( task );
+    qDebug() << this << "slotTaskDeleted" << task;
     dependentTasks.removeOne( task );
 
     if ( shouldExit && dependentTasks.isEmpty() )
@@ -85,9 +105,17 @@ void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )
 
 void KeepMailboxOpenTask::terminate()
 {
+    qDebug() << this << "terminate();";
     Q_ASSERT( shouldExit );
     Q_ASSERT( dependentTasks.isEmpty() );
 
+    // Mark current mailbox as "orphaned by the housekeeping task"
+    Q_ASSERT( mailboxIndex.isValid() );
+    TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
+    Q_ASSERT( mailbox );
+    mailbox->maintainingTask = 0;
+
+    // Merge the lists of waiting tasks
     if ( ! waitingTasks.isEmpty() ) {
         KeepMailboxOpenTask* first = waitingTasks.takeFirst();
         first->waitingTasks = waitingTasks + first->waitingTasks;
@@ -99,6 +127,7 @@ void KeepMailboxOpenTask::terminate()
 
 void KeepMailboxOpenTask::perform()
 {
+    qDebug() << this << "perform();";
     Q_ASSERT( synchronizeConn );
     parser = synchronizeConn->parser;
     synchronizeConn = 0; // will get deleted by Model
@@ -110,10 +139,13 @@ void KeepMailboxOpenTask::perform()
         if ( ! task->isFinished() )
             task->perform();
     }
+
+    // FIXME: we should move the activation of IDLE here, too
 }
 
 void KeepMailboxOpenTask::resynchronizeMailbox()
 {
+    qDebug() << this << "resynchronizeMailbox();";
     if ( isRunning ) {
         // FIXME: would be cool to wait for completion of current tasks...
         Q_ASSERT ( ! synchronizeConn );

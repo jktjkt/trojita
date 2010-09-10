@@ -462,11 +462,7 @@ void MsgListModel::setMailbox( const QModelIndex& index )
         reset();
         emit mailboxChanged();
         // We want to tell the Model that it should consider starting the IDLE command.
-        // We do not strictly need the RW access here, but given that we're probably
-        // going to upgrade to RW anyway (at least when marking the message as "Seen")
-        // and that re-syncing FLAGS is rather expensive, it probably makes much sense
-        // to just open the mailbox RW right now.
-        const_cast<Model*>( model )->switchToMailbox( index, Imap::Mailbox::Model::ReadWrite );
+        const_cast<Model*>( model )->switchToMailbox( index );
     }
 }
 
