@@ -49,9 +49,11 @@ class ImapTask : public QObject
 Q_OBJECT
 public:
     ImapTask( Model* _model );
-    virtual void perform() = 0;
     virtual ~ImapTask();
-    void addDependentTask( ImapTask* task );
+
+    virtual void perform() = 0;
+
+    virtual void addDependentTask( ImapTask* task );
 
     bool handleState( Imap::Parser* ptr, const Imap::Responses::State* const resp );
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
