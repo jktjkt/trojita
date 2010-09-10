@@ -29,6 +29,7 @@
 #include "ModelUpdaters.h"
 #include "IdleLauncher.h"
 #include "GetAnyConnectionTask.h"
+#include "KeepMailboxOpenTask.h"
 #include <QAbstractProxyModel>
 #include <QAuthenticator>
 #include <QCoreApplication>
@@ -711,8 +712,8 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
     }
 
     if ( networkPolicy() != NETWORK_OFFLINE ) {
-        _taskFactory->createObtainSynchronizedMailboxTask( this, createIndex( mailboxPtr->row(), 0, mailboxPtr ) );
-        // and that's all -- we will detect following replies and sync automatically
+        findTaskResponsibleFor( createIndex( mailboxPtr->row(), 0, mailboxPtr ) );
+        // and that's all -- the task will detect following replies and sync automatically
     }
 }
 
@@ -834,7 +835,7 @@ void Model::_askForMsgPart( TreeItemPart* item, bool onlyFromCache )
 
 void Model::resyncMailbox( const QModelIndex& mbox )
 {
-    _taskFactory->createObtainSynchronizedMailboxTask( this, mbox, true );
+    findTaskResponsibleFor( mbox )->resynchronizeMailbox();
 }
 
 void Model::performNoop()
@@ -1383,6 +1384,27 @@ void Model::removeDeletedTasks( const QList<ImapTask*>& deletedTasks, QList<Imap
     for ( QList<ImapTask*>::const_iterator deletedIt = deletedTasks.begin(); deletedIt != deletedTasks.end(); ++deletedIt ) {
         (*deletedIt)->deleteLater();
         activeTasks.removeOne( *deletedIt );
+    }
+}
+
+KeepMailboxOpenTask* Model::findTaskResponsibleFor( const QModelIndex& mailbox )
+{
+    TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailbox.internalPointer() ) );
+    Q_ASSERT( mailboxPtr );
+
+    bool canCreateConn = _parsers.isEmpty(); // FIXME: multiple connections
+
+    if ( mailboxPtr->maintainingTask ) {
+        // The requested mailbox already has the maintaining task associated
+        return mailboxPtr->maintainingTask;
+    } else if ( canCreateConn ) {
+        // The mailbox is not being maintained, but we can create a new connection
+        return _taskFactory->createKeepMailboxOpenTask( this, mailbox, 0 );
+    } else {
+        // Too bad, we have to re-use an existing parser. That will probably lead to
+        // stealing it from some mailbox, but there's no other way.
+        Q_ASSERT( ! _parsers.isEmpty() );
+        return _taskFactory->createKeepMailboxOpenTask( this, mailbox, _parsers.begin()->mailbox );
     }
 }
 

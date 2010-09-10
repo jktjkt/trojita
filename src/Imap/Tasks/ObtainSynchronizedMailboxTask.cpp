@@ -18,29 +18,18 @@
 
 #include "ObtainSynchronizedMailboxTask.h"
 #include <QTimer>
-#include "GetAnyConnectionTask.h"
-#include "OpenConnectionTask.h"
 #include "MailboxTree.h"
 #include "Model.h"
 
 namespace Imap {
 namespace Mailbox {
 
-ObtainSynchronizedMailboxTask::ObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex, bool forceResync ) :
-    ImapTask( _model ), conn(0), mailboxIndex(_mailboxIndex),
+ObtainSynchronizedMailboxTask::ObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex, ImapTask* parentTask ) :
+    ImapTask( _model ), conn(parentTask), mailboxIndex(_mailboxIndex),
     status(STATE_WAIT_FOR_CONN), uidSyncingMode(UID_SYNC_ALL)
 {
-    // FIXME: find out if the mailbox is already selected; this crude hack is just a temporary placeholder
-    // FIXME: this *WILL* break once we use more than one mailbox
-    bool alreadySynced = ! model->_parsers.isEmpty();
-    if ( alreadySynced ) {
-        conn = model->_taskFactory->createGetAnyConnectionTask( model );
-        conn->addDependentTask( this );
-        // FIXME: here should go the code for honoring the forceResync flag
-    } else {
-        conn = model->_taskFactory->createOpenConnectionTask( model );
-        conn->addDependentTask( this );
-    }
+    // We do *not* want to add ourselves to the list of dependant tasks here;
+    // this is a special case, our perform() will be called by hand later on
 }
 
 void ObtainSynchronizedMailboxTask::perform()

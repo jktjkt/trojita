@@ -34,6 +34,7 @@ namespace Mailbox {
 
 class Model;
 class MailboxModel;
+class KeepMailboxOpenTask;
 
 class TreeItem {
     friend class Model; // for _loading and _fetched
@@ -78,7 +79,9 @@ class TreeItemMessage;
 class TreeItemMailbox: public TreeItem {
     void operator=( const TreeItem& ); // don't implement
     MailboxMetadata _metadata;
+    friend class Model; // needs access to maintianingTask
     friend class MailboxModel;
+    friend class KeepMailboxOpenTask; // needs access to maintianingTask
     static QLatin1String _noInferiors;
     static QLatin1String _hasNoChildren;
     static QLatin1String _hasChildren;
@@ -127,6 +130,9 @@ No network activity will be caused. If the answer is not known for sure, we retu
     bool isSelectable() const;
 private:
     TreeItemPart* partIdToPtr( Model* model, const int msgNumber, const QString& msgId );
+
+    /** @short ImapTask which is currently responsible for well-being of this mailbox */
+    KeepMailboxOpenTask* maintainingTask;
 };
 
 class TreeItemMsgList: public TreeItem {

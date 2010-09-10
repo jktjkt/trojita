@@ -28,8 +28,6 @@ namespace Mailbox {
 
 class TreeItemMailbox;
 
-class CreateConnectionTask;
-
 /** @short Create a synchronized connection to the IMAP server
 
 Upon creation, this class will obtain a connection to the IMAP
@@ -41,7 +39,7 @@ class ObtainSynchronizedMailboxTask : public ImapTask
 {
 Q_OBJECT
 public:
-    ObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex, bool forceResync );
+    ObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex, ImapTask* parentTask );
     virtual void perform();
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
     virtual bool handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp );

@@ -87,9 +87,9 @@ FetchMsgPartTask* TaskFactory::createFetchMsgPartTask( Model* _model, TreeItemMa
     return new FetchMsgPartTask( _model, mailbox, part );
 }
 
-KeepMailboxOpenTask* TaskFactory::createKeepMailboxOpenTask( Model* _model, const QModelIndex& mailbox )
+KeepMailboxOpenTask* TaskFactory::createKeepMailboxOpenTask( Model* _model, const QModelIndex& mailbox, TreeItemMailbox* formerMailbox )
 {
-    return new KeepMailboxOpenTask( _model, mailbox );
+    return new KeepMailboxOpenTask( _model, mailbox, formerMailbox );
 }
 
 NumberOfMessagesTask* TaskFactory::createNumberOfMessagesTask( Model* _model, const QModelIndex& mailbox )
@@ -97,9 +97,9 @@ NumberOfMessagesTask* TaskFactory::createNumberOfMessagesTask( Model* _model, co
     return new NumberOfMessagesTask( _model, mailbox );
 }
 
-ObtainSynchronizedMailboxTask* TaskFactory::createObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex, bool forceResync )
+ObtainSynchronizedMailboxTask* TaskFactory::createObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex, ImapTask* parentTask )
 {
-    return new ObtainSynchronizedMailboxTask( _model, _mailboxIndex, forceResync );
+    return new ObtainSynchronizedMailboxTask( _model, _mailboxIndex, parentTask );
 }
 
 UpdateFlagsTask* TaskFactory::createUpdateFlagsTask( Model* _model, const QModelIndexList& _messages, const QString& _flagOperation, const QString& _flags )

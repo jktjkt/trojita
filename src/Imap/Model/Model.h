@@ -83,6 +83,7 @@ class _MailboxListUpdater;
 class _NumberOfMessagesUpdater;
 
 class ImapTask;
+class KeepMailboxOpenTask;
 
 /** @short A model implementing view of the whole IMAP server */
 class Model: public QAbstractItemModel {
@@ -426,6 +427,9 @@ private:
      * If allowed by policy, new parser might be created in the background.
      * */
     Parser* _getParser( TreeItemMailbox* mailbox, const RWMode rw, const bool reSync=false );
+
+    /** @short Return a corresponding KeepMailboxOpenTask for a given mailbox */
+    KeepMailboxOpenTask* findTaskResponsibleFor( const QModelIndex& mailbox );
 
     NetworkPolicy networkPolicy() const { return _netPolicy; }
     void setNetworkPolicy( const NetworkPolicy policy );

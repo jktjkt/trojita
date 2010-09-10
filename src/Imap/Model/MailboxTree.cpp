@@ -72,13 +72,13 @@ QList<TreeItem*> TreeItem::setChildren( const QList<TreeItem*> items )
 
 
 
-TreeItemMailbox::TreeItemMailbox( TreeItem* parent ): TreeItem(parent)
+TreeItemMailbox::TreeItemMailbox( TreeItem* parent ): TreeItem(parent), maintainingTask(0)
 {
     _children.prepend( new TreeItemMsgList( this ) );
 }
 
 TreeItemMailbox::TreeItemMailbox( TreeItem* parent, Responses::List response ):
-    TreeItem(parent), _metadata( response.mailbox, response.separator, QStringList() )
+    TreeItem(parent), _metadata( response.mailbox, response.separator, QStringList() ), maintainingTask(0)
 {
     for ( QStringList::const_iterator it = response.flags.begin(); it != response.flags.end(); ++it )
         _metadata.flags.append( it->toUpper() );

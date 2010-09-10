@@ -21,14 +21,11 @@
 
 #include "ImapTask.h"
 #include <QModelIndex>
-#include <QSet>
 
 namespace Imap {
 namespace Mailbox {
 
 class TreeItemMailbox;
-
-class ObtainSynchronizedMailboxTask;
 
 /** @short Maintain a connection to a mailbox
 
@@ -43,27 +40,55 @@ class KeepMailboxOpenTask : public ImapTask
 {
 Q_OBJECT
 public:
-    KeepMailboxOpenTask( Model* _model, const QModelIndex& mailbox );
+    /** @short Create new task for maintaining a mailbox
+
+@arg mailboxIndex the new mailbox to open and keep open
+
+@arg formerMailbox the mailbox which was kept open by the previous KeepMailboxOpenTask;
+that mailbox now loses its KeepMailboxOpenTask and the underlying parser is reused for this task
+*/
+    KeepMailboxOpenTask( Model* _model, const QModelIndex& _mailboxIndex, TreeItemMailbox* formerMailbox );
+
+    /** @short Start child processes
+
+This function is called when the synchronizing task finished succesfully.
+*/
     virtual void perform();
 
-    /** @short Mark an ImapTask as a user of this task */
-    void registerUsingTask( ImapTask* user );
+    /** @short Add any other task which somehow needs our current mailbox
 
-    /** @short Queue a request for replacement of this task
-
-      Upon receiving this request, the KeepMailboxOpenTask will _complete() itself
-as soon as all the "using" tasks get completed.
+This function also automatically registers the depending task in a special list which will make
+sure that we won't emit finished() until all the dependant tasks have finished. This essnetially
+prevents replacing an "alive" KeepMailboxOpenTask with a different one.
 */
-    void terminate();
+    virtual void addDependentTask( ImapTask* task);
+
+    /** @short Make sure to re-open the mailbox, even if it is already open */
+    void resynchronizeMailbox();
 
 private slots:
-    void slotMailboxObtained();
     void slotTaskDeleted( QObject* object );
 
+    /** @short Start mailbox synchronization process
+
+This function is called when we know that the underlying Parser is no longer in active use
+in any mailbox and that it is ready to be used for our purposes. It doesn't matter if that
+happened because the older KeepMailboxOpenTask got finished or because new connection got
+established and entered the authenticated state; the important part is that we should
+initialize synchronization now.
+*/
+    void slotPerformConnection();
+
 private:
-    ObtainSynchronizedMailboxTask* obtainTask;
-    QSet<ImapTask*> users;
+    void terminate();
+
+protected:
+    QPersistentModelIndex mailboxIndex;
+    QList<KeepMailboxOpenTask*> waitingTasks;
+    ImapTask* synchronizeConn;
+
     bool shouldExit;
+    bool isRunning;
 };
 
 }
