@@ -31,6 +31,8 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
 {
     Q_ASSERT( mailboxIndex.isValid() );
     Q_ASSERT( mailboxIndex.model() == model );
+    TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*> ( _mailboxIndex.internalPointer() ) );
+    Q_ASSERT( mailbox );
     if ( formerMailbox ) {
         Q_ASSERT( formerMailbox->maintainingTask );
         formerMailbox->maintainingTask->addDependentTask( this );
@@ -41,6 +43,7 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
         synchronizeConn = model->_taskFactory->createObtainSynchronizedMailboxTask( _model, mailboxIndex, newConn );
     }
     synchronizeConn->addDependentTask( this );
+    mailbox->maintainingTask = this;
 }
 
 void KeepMailboxOpenTask::slotPerformConnection()
