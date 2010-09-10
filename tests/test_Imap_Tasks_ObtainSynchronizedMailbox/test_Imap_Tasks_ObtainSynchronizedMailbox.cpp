@@ -37,15 +37,17 @@ void ImapModelObtainSynchronizedMailboxTest::init()
     taskFactoryUnsafe = static_cast<Imap::Mailbox::TestingTaskFactory*>( taskFactory.get() );
     taskFactoryUnsafe->fakeOpenConnectionTask = true;
     taskFactoryUnsafe->fakeListChildMailboxes = true;
-    taskFactoryUnsafe->fakeListChildMailboxesMap[ QString::fromAscii("") ] = QStringList() << QString::fromAscii("a");
+    taskFactoryUnsafe->fakeListChildMailboxesMap[ QString::fromAscii("") ] = QStringList() << QString::fromAscii("a") << QString::fromAscii("b");
     model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), taskFactory, false );
     errorSpy = new QSignalSpy( model, SIGNAL(connectionError(QString)) );
 
     model->rowCount( QModelIndex() );
     QCoreApplication::processEvents();
-    QCOMPARE( model->rowCount( QModelIndex() ), 2 );
+    QCOMPARE( model->rowCount( QModelIndex() ), 3 );
     QModelIndex idxA = model->index( 1, 0, QModelIndex() );
+    QModelIndex idxB = model->index( 2, 0, QModelIndex() );
     QCOMPARE( model->data( idxA, Qt::DisplayRole ), QVariant(QString::fromAscii("a")) );
+    QCOMPARE( model->data( idxB, Qt::DisplayRole ), QVariant(QString::fromAscii("b")) );
     QCoreApplication::processEvents();
     QVERIFY( SOCK->writtenStuff().isEmpty() );
 }
@@ -273,6 +275,23 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
     QCOMPARE( syncState.uidValidity(), 1226524607u );
 
     QVERIFY( list->fetched() );
+
+    // Try to go to second mailbox
+    QModelIndex idxB = model->index( 2, 0, QModelIndex() );
+    QModelIndex msgListB = model->index( 0, 0, idxB );
+
+    QCOMPARE( model->rowCount( msgListB ), 0 );
+    QCoreApplication::processEvents();
+    QCOMPARE( SOCK->writtenStuff(), QByteArray("y3 SELECT b\r\n") );
+    SOCK->fakeReading( QByteArray("* 0 exists\r\n"
+                                  "y3 ok completed\r\n") );
+    QCoreApplication::processEvents();
+
+    // And then go back to the first one
+    model->switchToMailbox( idxA );
+    QCoreApplication::processEvents();
+    QCOMPARE( SOCK->writtenStuff(), QByteArray("y4 SELECT a\r\n") );
+
 
     /*
     // First re-sync: one message added, nothing else changed
