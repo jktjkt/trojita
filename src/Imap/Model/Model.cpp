@@ -1382,7 +1382,8 @@ void Model::removeDeletedTasks( const QList<ImapTask*>& deletedTasks, QList<Imap
 
 KeepMailboxOpenTask* Model::findTaskResponsibleFor( const QModelIndex& mailbox )
 {
-    TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailbox.internalPointer() ) );
+    QModelIndex translatedIndex;
+    TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( realTreeItem( mailbox, 0, &translatedIndex ) );
     Q_ASSERT( mailboxPtr );
 
     bool canCreateConn = _parsers.isEmpty(); // FIXME: multiple connections
