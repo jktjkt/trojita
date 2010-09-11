@@ -28,8 +28,6 @@ namespace Mailbox {
 
 class TreeItemMailbox;
 
-class CreateConnectionTask;
-
 /** @short Ask for number of messages in a certain mailbox */
 class NumberOfMessagesTask : public ImapTask
 {
@@ -41,7 +39,7 @@ public:
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
 private:
     CommandHandle tag;
-    CreateConnectionTask* conn;
+    ImapTask* conn;
     QPersistentModelIndex mailboxIndex;
 };
 

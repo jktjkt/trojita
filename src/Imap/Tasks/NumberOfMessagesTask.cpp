@@ -18,7 +18,7 @@
 
 
 #include "NumberOfMessagesTask.h"
-#include "CreateConnectionTask.h"
+#include "GetAnyConnectionTask.h"
 #include "Model.h"
 #include "MailboxTree.h"
 
@@ -31,7 +31,7 @@ NumberOfMessagesTask::NumberOfMessagesTask( Model* _model, const QModelIndex& ma
 {
     TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailbox.internalPointer() ) );
     Q_ASSERT( mailboxPtr );
-    conn = new CreateConnectionTask( _model, 0 );
+    conn = model->_taskFactory->createGetAnyConnectionTask( model );
     conn->addDependentTask( this );
 }
 
