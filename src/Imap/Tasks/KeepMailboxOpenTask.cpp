@@ -26,6 +26,12 @@
 namespace Imap {
 namespace Mailbox {
 
+/*
+FIXME: we should eat "* OK [CLOSED] former mailbox closed", or somehow let it fall down to the model, which shouldn't delegate it to AuthenticatedHandler
+
+FIXME: the constructor needs fixing, as right now the first conn would not be used for selecting mailboxes, ever, because it doesn't have any associated mailbox
+*/
+
 KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mailboxIndex, TreeItemMailbox* formerMailbox ) :
     ImapTask( _model ), mailboxIndex(_mailboxIndex), synchronizeConn(0), shouldExit(false), isRunning(false)
 {
