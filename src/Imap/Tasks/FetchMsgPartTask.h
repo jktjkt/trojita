@@ -29,8 +29,6 @@ namespace Mailbox {
 class TreeItemMailbox;
 class TreeItemPart;
 
-class CreateConnectionTask;
-
 /** @short Fetch a message part */
 class FetchMsgPartTask : public ImapTask
 {
@@ -43,7 +41,7 @@ public:
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
 private:
     CommandHandle tag;
-    CreateConnectionTask* conn;
+    ImapTask* conn;
     QPersistentModelIndex index;
 };
 

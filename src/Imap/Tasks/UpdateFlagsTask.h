@@ -29,7 +29,6 @@ namespace Mailbox {
 class TreeItemMailbox;
 class TreeItemMessage;
 
-class CreateConnectionTask;
 class CopyMoveMessagesTask;
 
 /** @short Update message flags for a particular message set
@@ -54,7 +53,7 @@ and the desired change (actual flags) is passed in the @arg _flags argument.
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
 private:
     CommandHandle tag;
-    CreateConnectionTask* conn;
+    ImapTask* conn;
     CopyMoveMessagesTask* copyMove;
     QList<QPersistentModelIndex> messages;
     QString flagOperation;

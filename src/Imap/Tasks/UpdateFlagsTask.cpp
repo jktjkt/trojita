@@ -18,7 +18,7 @@
 
 
 #include "UpdateFlagsTask.h"
-#include "CreateConnectionTask.h"
+#include "KeepMailboxOpenTask.h"
 #include "CopyMoveMessagesTask.h"
 #include "Model.h"
 #include "MailboxTree.h"
@@ -47,7 +47,8 @@ UpdateFlagsTask::UpdateFlagsTask( Model* _model, const QModelIndexList& _message
         }
         messages << index;
     }
-    conn = new CreateConnectionTask( _model, mailbox );
+    QModelIndex mailboxIndex = model->createIndex( mailbox->row(), 0, mailbox );
+    conn = model->findTaskResponsibleFor( mailboxIndex );
     conn->addDependentTask( this );
 }
 

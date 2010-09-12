@@ -18,7 +18,7 @@
 
 
 #include "ExpungeMailboxTask.h"
-#include "CreateConnectionTask.h"
+#include "KeepMailboxOpenTask.h"
 #include "Model.h"
 #include "MailboxTree.h"
 
@@ -31,7 +31,7 @@ ExpungeMailboxTask::ExpungeMailboxTask( Model* _model, const QModelIndex& mailbo
 {
     TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailbox.internalPointer() ) );
     Q_ASSERT( mailboxPtr );
-    conn = new CreateConnectionTask( _model, mailboxPtr );
+    conn = model->findTaskResponsibleFor( mailbox );
     conn->addDependentTask( this );
 }
 

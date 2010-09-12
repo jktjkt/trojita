@@ -375,7 +375,6 @@ private:
     friend class _NumberOfMessagesUpdater;
 
     friend class ImapTask;
-    friend class CreateConnectionTask;
     friend class FetchMsgPartTask;
     friend class UpdateFlagsTask;
     friend class ListChildMailboxesTask;
@@ -418,15 +417,6 @@ private:
     TreeItemMailbox* findParentMailboxByName( const QString& name ) const;
 
     void saveUidMap( TreeItemMsgList* list );
-
-    /** @short Returns parser suitable for dealing with some mailbox.
-     *
-     * This parser might be already working hard in another mailbox; if that is
-     * the case, it is asked to switch to the correct one.
-     *
-     * If allowed by policy, new parser might be created in the background.
-     * */
-    Parser* _getParser( TreeItemMailbox* mailbox, const RWMode rw, const bool reSync=false );
 
     /** @short Return a corresponding KeepMailboxOpenTask for a given mailbox */
     KeepMailboxOpenTask* findTaskResponsibleFor( const QModelIndex& mailbox );

@@ -28,8 +28,6 @@ namespace Mailbox {
 
 class TreeItemMailbox;
 
-class CreateConnectionTask;
-
 /** @short Fake test version of the ListChildMailboxesTask */
 class Fake_ListChildMailboxesTask : public ListChildMailboxesTask
 {

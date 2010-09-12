@@ -23,7 +23,6 @@
 #include "MailboxTree.h"
 #include "UnauthenticatedHandler.h"
 #include "AuthenticatedHandler.h"
-#include "CreateConnectionTask.h"
 #include "SelectedHandler.h"
 #include "SelectingHandler.h"
 #include "ModelUpdaters.h"
@@ -846,108 +845,6 @@ void Model::performNoop()
     }
 }
 
-Parser* Model::_getParser( TreeItemMailbox* mailbox, const RWMode mode, const bool reSync )
-{
-    static uint lastParserId = 0;
-
-    Q_ASSERT( _netPolicy != NETWORK_OFFLINE );
-
-    if ( ! mailbox && ! _parsers.isEmpty() ) {
-        // Request does not specify a target mailbox
-        return _parsers.begin().value().parser;
-    } else {
-        // Got to make sure we already have a mailbox selected
-        for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
-            if ( it->mailbox == mailbox ) {
-                if ( mode == ReadOnly || it->mode == mode ) {
-                    // The mailbox is already opened in a correct mode
-                    if ( reSync ) {
-                        CommandHandle cmd = ( it->mode == ReadWrite ) ?
-                                            it->parser->select( mailbox->mailbox() ) :
-                                            it->parser->examine( mailbox->mailbox() );
-                        it->commandMap[ cmd ] = Task( Task::SELECT, mailbox );
-                        it->mailbox = mailbox;
-                    }
-                    return it->parser;
-                } else {
-                    // Got to upgrade to R/W mode
-                    it->mode = ReadWrite;
-                    CommandHandle cmd = it->parser->select( mailbox->mailbox() );
-                    it->commandMap[ cmd ] = Task( Task::SELECT, mailbox );
-                    it->mailbox = mailbox;
-                    return it->parser;
-                }
-            }
-        }
-    }
-    // At this point, we're sure that there was no parser which already had opened the correct mailbox
-    if ( _parsers.size() >= _maxParsers ) {
-        // We can't create more parsers
-        ParserState& parser = _parsers.begin().value();
-        parser.mode = mode;
-        parser.mailbox = mailbox;
-        CommandHandle cmd;
-        if ( mode == ReadWrite )
-            cmd = parser.parser->select( mailbox->mailbox() );
-        else
-            cmd = parser.parser->examine( mailbox->mailbox() );
-        parser.commandMap[ cmd ] = Task( Task::SELECT, mailbox );
-        emit const_cast<Model*>(this)->activityHappening( true );
-        parser.mailbox = mailbox;
-        return parser.parser;
-    } else {
-        // We can create one more, but we should try to find one which already exists,
-        // but doesn't have an opened mailbox yet
-
-        for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
-            if ( ! it->mailbox ) {
-                // ... and that's the one!
-                CommandHandle cmd;
-                if ( mode == ReadWrite )
-                    cmd = it->parser->select( mailbox->mailbox() );
-                else
-                    cmd = it->parser->examine( mailbox->mailbox() );
-                it->commandMap[ cmd ] = Task( Task::SELECT, mailbox );
-                it->mailbox = mailbox;
-                it->mode = mode;
-                return it->parser;
-            }
-        }
-
-        // Now we can be sure that all the already-existing parsers are occupied and we can create one more
-        // -> go for it.
-
-        Parser* parser( new Parser( const_cast<Model*>( this ), _socketFactory->create(), ++lastParserId ) );
-        _parsers[ parser ] = ParserState( parser, mailbox, mode, CONN_STATE_NONE, unauthHandler );
-        _parsers[ parser ].idleLauncher = new IdleLauncher( this, parser );
-        connect( parser, SIGNAL( responseReceived() ), this, SLOT( responseReceived() ) );
-        connect( parser, SIGNAL( disconnected( const QString ) ), this, SLOT( slotParserDisconnected( const QString ) ) );
-        connect( parser, SIGNAL(connectionStateChanged(Imap::ConnectionState)), this, SLOT(handleSocketStateChanged(Imap::ConnectionState)) );
-        connect( parser, SIGNAL(sendingCommand(QString)), this, SLOT(parserIsSendingCommand(QString)) );
-        connect( parser, SIGNAL(parseError(QString,QString,QByteArray,int)), this, SLOT(slotParseError(QString,QString,QByteArray,int)) );
-        connect( parser, SIGNAL(lineReceived(QByteArray)), this, SLOT(slotParserLineReceived(QByteArray)) );
-        connect( parser, SIGNAL(lineSent(QByteArray)), this, SLOT(slotParserLineSent(QByteArray)) );
-        connect( parser, SIGNAL( idleTerminated() ), this, SLOT( idleTerminated() ) );
-        CommandHandle cmd;
-        if ( _startTls ) {
-            cmd = parser->startTls();
-            _parsers[ parser ].commandMap[ cmd ] = Task( Task::STARTTLS, 0 );
-            emit const_cast<Model*>(this)->activityHappening( true );
-        }
-        if ( mailbox ) {
-            if ( mode == ReadWrite )
-                cmd = parser->select( mailbox->mailbox() );
-            else
-                cmd = parser->examine( mailbox->mailbox() );
-            _parsers[ parser ].commandMap[ cmd ] = Task( Task::SELECT, mailbox );
-            emit const_cast<Model*>(this)->activityHappening( true );
-            _parsers[ parser ].mailbox = mailbox;
-            _parsers[ parser ].mode = mode;
-        }
-        return parser;
-    }
-}
-
 void Model::setNetworkPolicy( const NetworkPolicy policy )
 {
     // If we're connecting after being offline, we should ask for an updated list of mailboxes
@@ -1382,6 +1279,7 @@ void Model::removeDeletedTasks( const QList<ImapTask*>& deletedTasks, QList<Imap
 
 KeepMailboxOpenTask* Model::findTaskResponsibleFor( const QModelIndex& mailbox )
 {
+    Q_ASSERT( mailbox.isValid() );
     QModelIndex translatedIndex;
     TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( realTreeItem( mailbox, 0, &translatedIndex ) );
     Q_ASSERT( mailboxPtr );

@@ -28,8 +28,6 @@ namespace Mailbox {
 
 class TreeItemMailbox;
 
-class CreateConnectionTask;
-
 /** @short Expunge all messages marked as \\Deleted in the mailbox
 
 Please note that this task simply sends the EXPUNGE command; no careful flag
@@ -45,7 +43,7 @@ public:
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
 private:
     CommandHandle tag;
-    CreateConnectionTask* conn;
+    ImapTask* conn;
     QPersistentModelIndex mailboxIndex;
 };
 

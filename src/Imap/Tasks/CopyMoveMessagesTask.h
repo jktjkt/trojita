@@ -29,8 +29,6 @@ namespace Mailbox {
 class TreeItemMailbox;
 class TreeItemMessage;
 
-class CreateConnectionTask;
-
 /** @short Copy or move messages to a different mailbox */
 class CopyMoveMessagesTask : public ImapTask
 {
@@ -42,7 +40,7 @@ public:
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
 private:
     CommandHandle copyTag;
-    CreateConnectionTask* conn;
+    ImapTask* conn;
     QList<QPersistentModelIndex> messages;
     QString targetMailbox;
     bool shouldDelete;

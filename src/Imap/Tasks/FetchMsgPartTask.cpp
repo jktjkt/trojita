@@ -18,7 +18,7 @@
 
 
 #include "FetchMsgPartTask.h"
-#include "CreateConnectionTask.h"
+#include "KeepMailboxOpenTask.h"
 #include "Model.h"
 #include "MailboxTree.h"
 
@@ -29,7 +29,8 @@ FetchMsgPartTask::FetchMsgPartTask( Model* _model,
                                     TreeItemMailbox* mailbox, TreeItemPart* part ) :
     ImapTask( _model )
 {
-    conn = new CreateConnectionTask( _model, mailbox );
+    QModelIndex mailboxIndex = model->createIndex( mailbox->row(), 0, mailbox );
+    conn = model->findTaskResponsibleFor( mailboxIndex );
     conn->addDependentTask( this );
     index = model->createIndex( part->row(), 0, part );
 }

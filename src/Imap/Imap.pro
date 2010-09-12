@@ -40,7 +40,6 @@ SOURCES += Parser/Parser.cpp \
     Model/IdleLauncher.cpp \
     Model/TaskFactory.cpp \
     Tasks/ImapTask.cpp \
-    Tasks/CreateConnectionTask.cpp \
     Tasks/FetchMsgPartTask.cpp \
     Tasks/FetchMsgMetadataTask.cpp \
     Tasks/UpdateFlagsTask.cpp \
@@ -95,7 +94,6 @@ HEADERS += Parser/Parser.h \
     Model/TaskFactory.h \
     Model/CopyMoveOperation.h \
     Tasks/ImapTask.h \
-    Tasks/CreateConnectionTask.h \
     Tasks/FetchMsgPartTask.h \
     Tasks/FetchMsgMetadataTask.h \
     Tasks/UpdateFlagsTask.h \
