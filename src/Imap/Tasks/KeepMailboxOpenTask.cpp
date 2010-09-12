@@ -100,10 +100,11 @@ void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
 
 void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )
 {
-    ImapTask* task = qobject_cast<ImapTask*>( object );
-    Q_ASSERT( task );
-    qDebug() << this << "slotTaskDeleted" << task;
-    dependentTasks.removeOne( task );
+    qDebug() << this << "slotTaskDeleted" << object;
+    // Now, object is no longer an ImapTask*, as this gets emitted from inside QObject's destructor. However,
+    // we can't use the passed pointer directly, and therefore we have to perform the cast here. It is safe
+    // to do that here, as we're only interested in raw pointer value.
+    dependentTasks.removeOne( static_cast<ImapTask*>( object ) );
 
     if ( shouldExit && dependentTasks.isEmpty() )
         terminate();
