@@ -7,7 +7,9 @@ INCLUDEPATH += ../ \
     Model \
     Tasks
 DEPENDPATH += ../ \
-    ../..
+    ../.. \
+    Model \
+    Tasks
 TARGET = Imap
 TEMPLATE = lib
 SOURCES += Parser/Parser.cpp \
