@@ -146,10 +146,6 @@ void ObtainSynchronizedMailboxTask::_finalizeSelect()
 
     const QList<uint>& seqToUid = model->cache()->uidMapping( mailbox->mailbox() );
 
-    // FIXME: in the meanwhile, always perform a full sync
-    _fullMboxSync( mailbox, list, syncState );
-    return;
-
     if ( static_cast<uint>( seqToUid.size() ) != oldState.exists() ||
          oldState.exists() != static_cast<uint>( list->_children.size() ) ) {
 
@@ -169,7 +165,8 @@ void ObtainSynchronizedMailboxTask::_finalizeSelect()
                     _syncNoNewNoDeletions( mailbox, list, syncState, seqToUid );
                 } else {
                     // Some messages got deleted, but there have been no additions
-                    _syncOnlyDeletions( mailbox, list, syncState );
+                    //_syncOnlyDeletions( mailbox, list, syncState );
+                    _fullMboxSync( mailbox, list, syncState ); return; // FIXME: change later
                 }
 
             } else {
@@ -178,10 +175,12 @@ void ObtainSynchronizedMailboxTask::_finalizeSelect()
 
                 if ( syncState.uidNext() - oldState.uidNext() == syncState.exists() - oldState.exists() ) {
                     // Only some new arrivals, no deletions
-                    _syncOnlyAdditions( mailbox, list, syncState, oldState );
+                    //_syncOnlyAdditions( mailbox, list, syncState, oldState );
+                    _fullMboxSync( mailbox, list, syncState ); return; // FIXME: change later
                 } else {
                     // Generic case; we don't know anything about which messages were deleted and which added
-                    _syncGeneric( mailbox, list, syncState );
+                    //_syncGeneric( mailbox, list, syncState );
+                    _fullMboxSync( mailbox, list, syncState ); return; // FIXME: change later
                 }
             }
         } else {
