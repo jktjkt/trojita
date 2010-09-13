@@ -80,6 +80,9 @@ initialize synchronization now.
 */
     void slotPerformConnection();
 
+    virtual bool handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp );
+    virtual bool handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );
+
 private:
     void terminate();
 

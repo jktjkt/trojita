@@ -21,10 +21,6 @@
 
 #include "Model.h"
 #include "MailboxTree.h"
-#include "UnauthenticatedHandler.h"
-#include "AuthenticatedHandler.h"
-#include "SelectedHandler.h"
-#include "SelectingHandler.h"
 #include "ModelUpdaters.h"
 #include "IdleLauncher.h"
 #include "GetAnyConnectionTask.h"
@@ -69,10 +65,6 @@ bool uidComparator( const TreeItem* const a, const TreeItem* const b )
 
 }
 
-ModelStateHandler::ModelStateHandler( Model* _m ): QObject(_m), m(_m)
-{
-}
-
 Model::Model( QObject* parent, AbstractCache* cache, SocketFactoryPtr socketFactory, TaskFactoryPtr taskFactory, bool offline ):
     // parent
     QAbstractItemModel( parent ),
@@ -83,11 +75,6 @@ Model::Model( QObject* parent, AbstractCache* cache, SocketFactoryPtr socketFact
 {
     _cache->setParent(this);
     _startTls = _socketFactory->startTlsRequired();
-
-    unauthHandler = new UnauthenticatedHandler( this );
-    authenticatedHandler = new AuthenticatedHandler( this );
-    selectedHandler = new SelectedHandler( this );
-    selectingHandler = new SelectingHandler( this );
 
     _mailboxes = new TreeItemMailbox( 0 );
 
@@ -208,7 +195,6 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
             case Task::LOGIN:
                 if ( resp->kind == Responses::OK ) {
                     changeConnectionState( ptr, CONN_STATE_AUTHENTICATED );
-                    _parsers[ ptr ].responseHandler = authenticatedHandler;
                     if ( ! _parsers[ ptr ].capabilitiesFresh ) {
                         CommandHandle cmd = ptr->capability();
                         _parsers[ ptr ].commandMap[ cmd ] = Task( Task::CAPABILITY, 0 );
@@ -308,8 +294,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
 
     } else {
         // untagged response
-        if ( _parsers[ ptr ].responseHandler )
-            _parsers[ ptr ].responseHandler->handleState( ptr, resp );
+        throw UnexpectedResponseReceived( "[Port-in-progress] Unhhandled untagged response, sorry", *resp );
     }
 }
 
@@ -449,7 +434,6 @@ void Model::replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<Tree
         for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
             it->commandMap.clear();
             it->mailbox = 0;
-            it->responseHandler = authenticatedHandler;
         }
         qDeleteAll( oldItems );
     }
@@ -498,7 +482,7 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
 {
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( command.value().what );
 
-    if ( mailbox && _parsers[ parser ].responseHandler == selectedHandler ) {
+    if ( mailbox /* FIXME: Tasks API port && _parsers[ parser ].responseHandler == selectedHandler */ ) {
         // the mailbox was already synced (?)
         mailbox->_children[0]->_fetchStatus = TreeItem::DONE;
         cache()->setMailboxSyncState( mailbox->mailbox(), _parsers[ parser ].mailbox->syncState );
@@ -511,9 +495,6 @@ void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::con
             changeConnectionState( parser, CONN_STATE_SELECTED );
         }
         emitMessageCountChanged( mailbox );
-    } else if ( mailbox && _parsers[ parser ].responseHandler == selectingHandler ) {
-        // the synchronization was still in progress
-        throw CantHappen("Port in progress: _finalizeFetch is no longer responsible for uid syncing, sorry");
     }
 }
 
@@ -524,8 +505,7 @@ void Model::handleCapability( Imap::Parser* ptr, const Imap::Responses::Capabili
 
 void Model::handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp )
 {
-    if ( _parsers[ ptr ].responseHandler )
-        _parsers[ ptr ].responseHandler->handleNumberResponse( ptr, resp );
+    throw UnexpectedResponseReceived( "[Tasks API Port] Unhandled NumberResponse", *resp );
 }
 
 void Model::handleList( Imap::Parser* ptr, const Imap::Responses::List* const resp )
@@ -535,14 +515,12 @@ void Model::handleList( Imap::Parser* ptr, const Imap::Responses::List* const re
 
 void Model::handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp )
 {
-    if ( _parsers[ ptr ].responseHandler )
-        _parsers[ ptr ].responseHandler->handleFlags( ptr, resp );
+    throw UnexpectedResponseReceived( "[Tasks API Port] Unhandled Flags", *resp );
 }
 
 void Model::handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp )
 {
-    if ( _parsers[ ptr ].responseHandler )
-        _parsers[ ptr ].responseHandler->handleSearch( ptr, resp );
+    throw UnexpectedResponseReceived( "[Tasks API Port] Unhandled Search", *resp );
 }
 
 void Model::handleStatus( Imap::Parser* ptr, const Imap::Responses::Status* const resp )
@@ -565,8 +543,7 @@ void Model::handleStatus( Imap::Parser* ptr, const Imap::Responses::Status* cons
 
 void Model::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
 {
-    if ( _parsers[ ptr ].responseHandler )
-        _parsers[ ptr ].responseHandler->handleFetch( ptr, resp );
+    throw UnexpectedResponseReceived( "[Tasks API Port] Unhandled Fetch", *resp );
 }
 
 void Model::handleNamespace( Imap::Parser* ptr, const Imap::Responses::Namespace* const resp )
@@ -577,14 +554,12 @@ void Model::handleNamespace( Imap::Parser* ptr, const Imap::Responses::Namespace
 
 void Model::handleSort(Imap::Parser *ptr, const Imap::Responses::Sort *const resp)
 {
-    if ( _parsers[ ptr ].responseHandler )
-        _parsers[ ptr ].responseHandler->handleSort( ptr, resp );
+    throw UnexpectedResponseReceived( "[Tasks API Port] Unhandled Sort", *resp );
 }
 
 void Model::handleThread(Imap::Parser *ptr, const Imap::Responses::Thread *const resp)
 {
-    if ( _parsers[ ptr ].responseHandler )
-        _parsers[ ptr ].responseHandler->handleThread( ptr, resp );
+    throw UnexpectedResponseReceived( "[Tasks API Port] Unhandled Thread", *resp );
 }
 
 TreeItem* Model::translatePtr( const QModelIndex& index ) const

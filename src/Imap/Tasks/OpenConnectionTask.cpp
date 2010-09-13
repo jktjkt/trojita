@@ -27,7 +27,7 @@ OpenConnectionTask::OpenConnectionTask( Model* _model ) :
     ImapTask( _model ), waitingForGreetings(true), gotPreauth(false)
 {    
     parser = new Parser( model, model->_socketFactory->create(), ++model->lastParserId );
-    Model::ParserState parserState = Model::ParserState( parser, 0, Model::ReadOnly, CONN_STATE_NONE, 0 );
+    Model::ParserState parserState = Model::ParserState( parser, 0, Model::ReadOnly, CONN_STATE_NONE );
     parserState.idleLauncher = new IdleLauncher( model, parser );
     connect( parser, SIGNAL(responseReceived()), model, SLOT(responseReceived()) );
     connect( parser, SIGNAL(disconnected(const QString)), model, SLOT(slotParserDisconnected(const QString)) );
@@ -172,7 +172,6 @@ void OpenConnectionTask::handleInitialResponse( Imap::Parser* ptr, const Imap::R
         break;
     case BYE:
         model->changeConnectionState( ptr, CONN_STATE_LOGOUT );
-        model->_parsers[ ptr ].responseHandler = 0;
         // FIXME: Tasks error handling
         break;
     case BAD:

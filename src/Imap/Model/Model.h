@@ -42,33 +42,6 @@ namespace Mailbox {
 
 class Model;
 
-/** @short Response handler for implementing the State Pattern */
-class ModelStateHandler: public QObject {
-    Q_OBJECT
-public:
-    ModelStateHandler( Model* _m );
-
-    virtual void handleState( Imap::Parser* ptr, const Imap::Responses::State* const resp ) = 0;
-    virtual void handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp ) = 0;
-    virtual void handleList( Imap::Parser* ptr, const Imap::Responses::List* const resp ) = 0;
-    virtual void handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp ) = 0;
-    virtual void handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp ) = 0;
-    virtual void handleSort( Imap::Parser* ptr, const Imap::Responses::Sort* const resp ) = 0;
-    virtual void handleThread( Imap::Parser* ptr, const Imap::Responses::Thread* const resp ) = 0;
-    virtual void handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp ) = 0;
-
-protected:
-    Model* m;
-private:
-    ModelStateHandler(const ModelStateHandler&); // don't implement
-    ModelStateHandler& operator=(const ModelStateHandler&); // don't implement
-};
-
-class UnauthenticatedHandler;
-class AuthenticatedHandler;
-class SyncingHandler;
-class SelectedHandler;
-
 class TreeItem;
 class TreeItemMailbox;
 class TreeItemMsgList;
@@ -135,16 +108,15 @@ class Model: public QAbstractItemModel {
         bool capabilitiesFresh;
         /** @short LIST responses which were not processed yet */
         QList<Responses::List> listResponses;
-        ModelStateHandler* responseHandler;
         QList<uint> uidMap;
         IdleLauncher* idleLauncher;
 
         ParserState( Parser* _parser, TreeItemMailbox* _mailbox, const RWMode _mode,
-                const ConnectionState _connState, ModelStateHandler* _respHandler ):
+                const ConnectionState _connState ):
             parser(_parser), mailbox(_mailbox), mode(_mode), connState(_connState),
-            capabilitiesFresh(false), responseHandler(_respHandler), idleLauncher(0) {}
+            capabilitiesFresh(false), idleLauncher(0) {}
         ParserState(): mailbox(0), mode(ReadOnly), connState(CONN_STATE_NONE),
-            capabilitiesFresh(false), responseHandler(0), idleLauncher(0) {}
+            capabilitiesFresh(false), idleLauncher(0) {}
     };
 
     /** @short Policy for accessing network */
@@ -365,11 +337,6 @@ private:
     friend class MsgListModel; // needs access to createIndex()
     friend class MailboxModel; // needs access to createIndex()
 
-    friend class UnauthenticatedHandler;
-    friend class AuthenticatedHandler;
-    friend class SelectedHandler;
-    friend class SelectingHandler;
-
     friend class IdleLauncher;
     friend class _MailboxListUpdater;
     friend class _NumberOfMessagesUpdater;
@@ -441,11 +408,6 @@ private:
 
     /** @short Remove deleted Tasks from the activeTasks list */
     void removeDeletedTasks( const QList<ImapTask*>& deletedTasks, QList<ImapTask*>& activeTasks );
-
-    ModelStateHandler* unauthHandler;
-    ModelStateHandler* authenticatedHandler;
-    ModelStateHandler* selectedHandler;
-    ModelStateHandler* selectingHandler;
 
     QStringList _onlineMessageFetch;
 

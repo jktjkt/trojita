@@ -25,10 +25,6 @@ SOURCES += Parser/Parser.cpp \
     Exceptions.cpp \
     Model/Model.cpp \
     Model/MailboxMetadata.cpp \
-    Model/UnauthenticatedHandler.cpp \
-    Model/AuthenticatedHandler.cpp \
-    Model/SelectedHandler.cpp \
-    Model/SelectingHandler.cpp \
     Model/ModelUpdaters.cpp \
     Model/MailboxModel.cpp \
     Model/PrettyMailboxModel.cpp \
@@ -77,10 +73,6 @@ HEADERS += Parser/Parser.h \
     ConnectionState.h \
     Model/Model.h \
     Model/MailboxMetadata.h \
-    Model/UnauthenticatedHandler.h \
-    Model/AuthenticatedHandler.h \
-    Model/SelectedHandler.h \
-    Model/SelectingHandler.h \
     Model/ModelUpdaters.h \
     Model/MailboxModel.h \
     Model/PrettyMailboxModel.h \

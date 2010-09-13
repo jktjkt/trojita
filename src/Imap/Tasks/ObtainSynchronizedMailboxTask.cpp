@@ -137,7 +137,6 @@ void ObtainSynchronizedMailboxTask::_finalizeSelect()
     Q_ASSERT( list );
 
     model->_parsers[ parser ].mailbox = mailbox;
-    model->_parsers[ parser ].responseHandler = model->selectedHandler;
     model->changeConnectionState( parser, CONN_STATE_SELECTED );
     const SyncState& syncState = mailbox->syncState;
     const SyncState& oldState = model->cache()->mailboxSyncState( mailbox->mailbox() );

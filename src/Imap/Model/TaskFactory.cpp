@@ -121,7 +121,7 @@ TestingTaskFactory::TestingTaskFactory(): TaskFactory(), fakeOpenConnectionTask(
 Parser* TestingTaskFactory::newParser( Model* model )
 {
     Parser* parser = new Parser( model, model->_socketFactory->create(), ++model->lastParserId );
-    Model::ParserState parserState = Model::ParserState( parser, 0, Model::ReadOnly, CONN_STATE_NONE, 0 );
+    Model::ParserState parserState = Model::ParserState( parser, 0, Model::ReadOnly, CONN_STATE_NONE );
     parserState.idleLauncher = new IdleLauncher( model, parser );
     QObject::connect( parser, SIGNAL(responseReceived()), model, SLOT(responseReceived()) );
     QObject::connect( parser, SIGNAL(disconnected(const QString)), model, SLOT(slotParserDisconnected(const QString)) );
