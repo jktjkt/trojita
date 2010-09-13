@@ -35,13 +35,11 @@ FIXME: the constructor needs fixing, as right now the first conn would not be us
 KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mailboxIndex, TreeItemMailbox* formerMailbox ) :
     ImapTask( _model ), mailboxIndex(_mailboxIndex), synchronizeConn(0), shouldExit(false), isRunning(false)
 {
-    qDebug() << "+++" << this;
     Q_ASSERT( mailboxIndex.isValid() );
     Q_ASSERT( mailboxIndex.model() == model );
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*> ( _mailboxIndex.internalPointer() ) );
     Q_ASSERT( mailbox );
     if ( formerMailbox ) {
-        qDebug() << "stealing from mailbox" << formerMailbox->mailbox() << formerMailbox;
         Q_ASSERT( formerMailbox->maintainingTask );
         // Got to copy the parser information
         parser = formerMailbox->maintainingTask->parser;
@@ -51,18 +49,15 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
     } else {
         ImapTask* conn = model->_taskFactory->createOpenConnectionTask( model );
         // we don't register ourselves as a "dependant task", as we don't want connHavingParser to call perform() on us
-        qDebug() << "created new conn" << conn;
         connect( conn, SIGNAL(completed()), this, SLOT(slotPerformConnection()) );
         synchronizeConn = model->_taskFactory->createObtainSynchronizedMailboxTask( _model, mailboxIndex, conn );
     }
-    qDebug() << "synchro: " << synchronizeConn;
     synchronizeConn->addDependentTask( this );
     mailbox->maintainingTask = this;
 }
 
 void KeepMailboxOpenTask::slotPerformConnection()
 {
-    qDebug() << this << "slotPerformConnection" << synchronizeConn;
     Q_ASSERT( synchronizeConn );
     Q_ASSERT( ! synchronizeConn->isFinished() );
     if ( ! parser ) {
@@ -75,15 +70,12 @@ void KeepMailboxOpenTask::slotPerformConnection()
 
 void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
 {
-    qDebug() << this << "addDependentTask" << task;
     Q_ASSERT( task );
     KeepMailboxOpenTask* keepTask = qobject_cast<KeepMailboxOpenTask*>( task );
     if ( keepTask ) {
-        qDebug() << "! registered our replacement";
         waitingTasks.append( keepTask );
         shouldExit = true;
         if ( dependentTasks.isEmpty() ) {
-            qDebug() << "will die now";
             terminate();
         }
     } else {
@@ -91,7 +83,6 @@ void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
         ImapTask::addDependentTask( task );
 
         if ( isRunning ) {
-            qDebug() << "will wake immediately" << task;
             // this function is typically called from task's constructor -> got to call that later
             QTimer::singleShot( 0, task, SLOT(slotPerform()) );
         }
@@ -100,7 +91,6 @@ void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
 
 void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )
 {
-    qDebug() << this << "slotTaskDeleted" << object;
     // Now, object is no longer an ImapTask*, as this gets emitted from inside QObject's destructor. However,
     // we can't use the passed pointer directly, and therefore we have to perform the cast here. It is safe
     // to do that here, as we're only interested in raw pointer value.
@@ -112,7 +102,6 @@ void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )
 
 void KeepMailboxOpenTask::terminate()
 {
-    qDebug() << this << "terminate();";
     Q_ASSERT( shouldExit );
     Q_ASSERT( dependentTasks.isEmpty() );
 
@@ -134,7 +123,6 @@ void KeepMailboxOpenTask::terminate()
 
 void KeepMailboxOpenTask::perform()
 {
-    qDebug() << this << "perform();";
     Q_ASSERT( synchronizeConn );
     parser = synchronizeConn->parser;
     synchronizeConn = 0; // will get deleted by Model
@@ -152,7 +140,6 @@ void KeepMailboxOpenTask::perform()
 
 void KeepMailboxOpenTask::resynchronizeMailbox()
 {
-    qDebug() << this << "resynchronizeMailbox();";
     if ( isRunning ) {
         // FIXME: would be cool to wait for completion of current tasks...
         Q_ASSERT ( ! synchronizeConn );
