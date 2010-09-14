@@ -60,7 +60,7 @@ public:
     virtual FetchMsgMetadataTask* createFetchMsgMetadataTask( Model* _model, const QModelIndexList& messages );
     virtual FetchMsgPartTask* createFetchMsgPartTask( Model* _model, TreeItemMailbox* mailbox, TreeItemPart* part );
     virtual GetAnyConnectionTask* createGetAnyConnectionTask( Model* _model );
-    virtual KeepMailboxOpenTask* createKeepMailboxOpenTask( Model* _model, const QModelIndex& mailbox, TreeItemMailbox* formerMailbox );
+    virtual KeepMailboxOpenTask* createKeepMailboxOpenTask( Model* _model, const QModelIndex& mailbox, Parser* oldParser );
     virtual ListChildMailboxesTask* createListChildMailboxesTask( Model* _model, const QModelIndex& mailbox );
     virtual NumberOfMessagesTask* createNumberOfMessagesTask( Model* _model, const QModelIndex& mailbox );
     virtual ObtainSynchronizedMailboxTask* createObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex, ImapTask* parentTask );

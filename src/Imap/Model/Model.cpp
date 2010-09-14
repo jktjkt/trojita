@@ -1271,7 +1271,7 @@ KeepMailboxOpenTask* Model::findTaskResponsibleFor( const QModelIndex& mailbox )
         // Too bad, we have to re-use an existing parser. That will probably lead to
         // stealing it from some mailbox, but there's no other way.
         Q_ASSERT( ! _parsers.isEmpty() );
-        return _taskFactory->createKeepMailboxOpenTask( this, mailbox, _parsers.begin()->mailbox );
+        return _taskFactory->createKeepMailboxOpenTask( this, mailbox, _parsers.begin().key() );
     }
 }
 

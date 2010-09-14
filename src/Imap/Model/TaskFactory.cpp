@@ -87,9 +87,9 @@ FetchMsgPartTask* TaskFactory::createFetchMsgPartTask( Model* _model, TreeItemMa
     return new FetchMsgPartTask( _model, mailbox, part );
 }
 
-KeepMailboxOpenTask* TaskFactory::createKeepMailboxOpenTask( Model* _model, const QModelIndex& mailbox, TreeItemMailbox* formerMailbox )
+KeepMailboxOpenTask* TaskFactory::createKeepMailboxOpenTask( Model* _model, const QModelIndex& mailbox, Parser* oldParser )
 {
-    return new KeepMailboxOpenTask( _model, mailbox, formerMailbox );
+    return new KeepMailboxOpenTask( _model, mailbox, oldParser );
 }
 
 NumberOfMessagesTask* TaskFactory::createNumberOfMessagesTask( Model* _model, const QModelIndex& mailbox )

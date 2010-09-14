@@ -23,6 +23,9 @@
 #include <QModelIndex>
 
 namespace Imap {
+
+class Parser;
+
 namespace Mailbox {
 
 class TreeItemMailbox;
@@ -48,7 +51,7 @@ public:
 @arg formerMailbox the mailbox which was kept open by the previous KeepMailboxOpenTask;
 that mailbox now loses its KeepMailboxOpenTask and the underlying parser is reused for this task
 */
-    KeepMailboxOpenTask( Model* _model, const QModelIndex& _mailboxIndex, TreeItemMailbox* formerMailbox );
+    KeepMailboxOpenTask( Model* _model, const QModelIndex& _mailboxIndex, Parser* oldParser );
 
     /** @short Start child processes
 

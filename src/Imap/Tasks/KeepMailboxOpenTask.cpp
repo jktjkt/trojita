@@ -28,25 +28,35 @@ namespace Mailbox {
 
 /*
 FIXME: we should eat "* OK [CLOSED] former mailbox closed", or somehow let it fall down to the model, which shouldn't delegate it to AuthenticatedHandler
-
-FIXME: the constructor needs fixing, as right now the first conn would not be used for selecting mailboxes, ever, because it doesn't have any associated mailbox
 */
 
-KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mailboxIndex, TreeItemMailbox* formerMailbox ) :
+KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mailboxIndex, Parser* oldParser ) :
     ImapTask( _model ), mailboxIndex(_mailboxIndex), synchronizeConn(0), shouldExit(false), isRunning(false)
 {
     Q_ASSERT( mailboxIndex.isValid() );
     Q_ASSERT( mailboxIndex.model() == model );
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*> ( _mailboxIndex.internalPointer() ) );
     Q_ASSERT( mailbox );
-    if ( formerMailbox ) {
-        Q_ASSERT( formerMailbox->maintainingTask );
-        // Got to copy the parser information
-        parser = formerMailbox->maintainingTask->parser;
-        // Note that the following will set the maintainigTask's parser to nullptr
-        formerMailbox->maintainingTask->addDependentTask( this );
-        synchronizeConn = model->_taskFactory->createObtainSynchronizedMailboxTask( _model, mailboxIndex, this );
+
+    if ( oldParser ) {
+        // We're asked to re-use an existing connection. Let's see if there's something associated with it
+        if ( TreeItemMailbox* formerMailbox = model->_parsers[ oldParser ].mailbox ) {
+            // there's some mailbox associated here
+            Q_ASSERT( formerMailbox->maintainingTask );
+            // Got to copy the parser information
+            parser = formerMailbox->maintainingTask->parser;
+            Q_ASSERT( parser == oldParser );
+            // Note that the following will set the maintainigTask's parser to nullptr
+            formerMailbox->maintainingTask->addDependentTask( this );
+            synchronizeConn = model->_taskFactory->createObtainSynchronizedMailboxTask( _model, mailboxIndex, this );
+        } else {
+            // and existing parser, but no associated handler yet
+            parser = oldParser;
+            synchronizeConn = model->_taskFactory->createObtainSynchronizedMailboxTask( _model, mailboxIndex, this );
+            QTimer::singleShot( 0, this, SLOT(slotPerformConnection()) );
+        }
     } else {
+        // create new connection
         ImapTask* conn = model->_taskFactory->createOpenConnectionTask( model );
         // we don't register ourselves as a "dependant task", as we don't want connHavingParser to call perform() on us
         connect( conn, SIGNAL(completed()), this, SLOT(slotPerformConnection()) );
