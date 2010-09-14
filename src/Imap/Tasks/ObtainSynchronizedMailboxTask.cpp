@@ -420,7 +420,6 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState( const Imap::R
             }
             break;
         }
-            break;
         default:
             break;
     }
