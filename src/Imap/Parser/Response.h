@@ -98,7 +98,87 @@ namespace Responses {
         TRYCREATE /**< @short TRYCREATE */,
         UIDNEXT /**< @short UIDNEXT */,
         UIDVALIDITY /**< @short UIDVALIDITY */,
-        UNSEEN /**< @short UNSEEN */
+        UNSEEN /**< @short UNSEEN */,
+
+        // obsolete from RFC 2060
+        NEWNAME /**< Obsolete NEWNAME from RFC 2060 */,
+
+        // RFC 2221
+        REFERRAL /**< REFERRAL from RFC 2221 */,
+
+        // RFC 3516
+        UNKNOWN_CTE /**< UNKNOWN-CTE from RFC 3516 */,
+
+        // RFC 4315
+        UIDNOTSTICKY /**< UIDNOTSTICKY from RFC 4315 */,
+        APPENDUID /**< APPENDUID from RFC 4315 */,
+        COPYUID /**< COPYUID from RFC 4315 */,
+
+        // RFC 4467
+        URLMECH /**< URLMECH from RFC 4467 */,
+
+        // RFC 4469
+        TOOBIG /**< RFC 4469's TOOBIG */,
+        BADURL /**< BADURL from RFC 4469 */,
+
+        // RFC 4551
+        HIGHESTMODSEQ /**< HIGHESTMODSEQ from RFC 4451 */,
+        NOMODSEQ /**< NOMODSEQ from RFC 4551 */,
+        MODIFIED /**< MODIFIED from RFC 4551 */,
+
+        // RFC 4978
+        COMPRESSIONACTIVE /**< COMPRESSIONACTIVE from RFC 4978 */,
+
+        // RFC 5162
+        CLOSED /**< CLOSED from the QRESYNC RFC 5162 */,
+
+        // RFC 5182
+        NOTSAVED /**< NOTSAVED from RFC 5182 */,
+
+        // RFC 5255
+        BADCOMPARATOR /**< BADCOMPARATOR from RFC 5255 */,
+
+        // RFC 5257
+        ANNOTATE /**< ANNOTATE from RFC 5257 */,
+        ANNOTATIONS /**< ANNOTATIONS from RFC 5257 */,
+
+        // RFC 5259
+        TEMPFAIL /**< TEMPFAIL from RFC 5259 */,
+        MAXCONVERTMESSAGES /**< MAXCONVERTMESSAGES from RFC 5259 */,
+        MAXCONVERTPARTS /**< MAXCONVERTPARTS from RFC 5259 */,
+
+        // RFC 5267
+        NOUPDATE /**< NOUPDATE from RFC 5267 */,
+
+        // RFC 5464
+        METADATA /**< METADATA from RFC 5464 */,
+
+        // RFC 5465
+        NOTIFICATIONOVERFLOW /**< NOTIFICATIONOVERFLOW from RFC 5465 */,
+        BADEVENT /**< BADEVENT from RFC 5465 */,
+
+        // RFC 5466
+        UNDEFINED_FILTER /**< UNDEFINED-FILTER from RFC 5466 */,
+
+        // RFC5530
+        UNAVAILABLE /**< UNAVAILABLE from RFC 5530 */,
+        AUTHENTICATIONFAILED /**< AUTHENTICATIONFAILED from RFC 5530 */,
+        AUTHORIZATIONFAILED /**< AUTHORIZATIONFAILED from RFC 5530 */,
+        EXPIRED /**< EXPIRED from RFC 5530 */,
+        PRIVACYREQUIRED /**< PRIVACYREQUIRED from RFC 5530 */,
+        CONTACTADMIN /**< CONTACTADMIN from RFC 5530 */,
+        NOPERM /**< NOPERM from RFC 5530 */,
+        INUSE /**< INUSE from RFC 5530 */,
+        EXPUNGEISSUED /**< EXPUNGEISSUED from RFC 5530 */,
+        CORRUPTION /**< CORRUPTION from RFC 5530 */,
+        SERVERBUG /**< SERVERBUG from RFC 5530 */,
+        CLIENTBUG /**< CLIENTBUG from RFC 5530 */,
+        CANNOT /**< CANNOT from RFC 5530 */,
+        LIMIT /**< LIMIT from RFC 5530 */,
+        OVERQUOTA /**< OVERQUOTA from RFC 5530 */,
+        ALREADYEXISTS /**< ALREADYEXISTS from RFC 5530 */,
+        NONEXISTENT /**< NONEXISTENT from RFC 5530 */
+
     }; // luvly comments, huh? :)
 
     /** @short Parent class for all server responses */

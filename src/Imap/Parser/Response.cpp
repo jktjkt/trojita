@@ -30,35 +30,73 @@ namespace Responses {
 
 QTextStream& operator<<( QTextStream& stream, const Code& r )
 {
+#define CASE(X) case X: stream << #X; break;
     switch (r) {
         case ATOM:
             stream << "<<ATOM>>'"; break;
-        case ALERT:
-            stream << "ALERT"; break;
-        case BADCHARSET:
-            stream << "BADCHARSET"; break;
-        case CAPABILITIES:
-            stream << "CAPABILITY"; break;
-        case PARSE:
-            stream << "PARSE"; break;
-        case PERMANENTFLAGS:
-            stream << "PERMANENTFLAGS"; break;
+        CASE(ALERT);
+        CASE(BADCHARSET);
+        CASE(CAPABILITIES);
+        CASE(PARSE);
+        CASE(PERMANENTFLAGS);
         case READ_ONLY:
             stream << "READ-ONLY"; break;
         case READ_WRITE:
             stream << "READ-WRITE"; break;
-        case TRYCREATE:
-            stream << "TRYCREATE"; break;
-        case UIDNEXT:
-            stream << "UIDNEXT"; break;
-        case UIDVALIDITY:
-            stream << "UIDVALIDITY"; break;
-        case UNSEEN:
-            stream << "UNSEEN"; break;
+        CASE(TRYCREATE);
+        CASE(UIDNEXT);
+        CASE(UIDVALIDITY);
+        CASE(UNSEEN);
         case NONE:
             stream << "<<NONE>>"; break;
+        CASE(NEWNAME);
+        CASE(REFERRAL);
+        case UNKNOWN_CTE:
+            stream << "UINKNOWN-CTE"; break;
+        CASE(UIDNOTSTICKY);
+        CASE(APPENDUID);
+        CASE(COPYUID);
+        CASE(URLMECH);
+        CASE(TOOBIG);
+        CASE(BADURL);
+        CASE(HIGHESTMODSEQ);
+        CASE(NOMODSEQ);
+        CASE(MODIFIED);
+        CASE(COMPRESSIONACTIVE);
+        CASE(CLOSED);
+        CASE(NOTSAVED);
+        CASE(BADCOMPARATOR);
+        CASE(ANNOTATE);
+        CASE(ANNOTATIONS);
+        CASE(TEMPFAIL);
+        CASE(MAXCONVERTMESSAGES);
+        CASE(MAXCONVERTPARTS);
+        CASE(NOUPDATE);
+        CASE(METADATA);
+        CASE(NOTIFICATIONOVERFLOW);
+        CASE(BADEVENT);
+        case UNDEFINED_FILTER:
+            stream << "UNDEFINED-FILTER"; break;
+        CASE(UNAVAILABLE);
+        CASE(AUTHENTICATIONFAILED);
+        CASE(AUTHORIZATIONFAILED);
+        CASE(EXPIRED);
+        CASE(PRIVACYREQUIRED);
+        CASE(CONTACTADMIN);
+        CASE(NOPERM);
+        CASE(INUSE);
+        CASE(EXPUNGEISSUED);
+        CASE(CORRUPTION);
+        CASE(SERVERBUG);
+        CASE(CLIENTBUG);
+        CASE(CANNOT);
+        CASE(LIMIT);
+        CASE(OVERQUOTA);
+        CASE(ALREADYEXISTS);
+        CASE(NONEXISTENT);
     }
     return stream;
+#undef CASE
 }
 
 QTextStream& operator<<( QTextStream& stream, const Kind& res )
@@ -236,28 +274,66 @@ State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int
 
     if ( !_list.empty() ) {
         const QString r = _list.first().toUpper();
+    #define CASE(X) else if ( r == #X ) respCode = Responses::X;
         if ( r == "ALERT" )
             respCode = Responses::ALERT;
-        else if ( r == "BADCHARSET" )
-            respCode = Responses::BADCHARSET;
-        else if ( r == "CAPABILITY" )
-            respCode = Responses::CAPABILITIES;
-        else if ( r == "PARSE" )
-            respCode = Responses::PARSE;
-        else if ( r == "PERMANENTFLAGS" )
-            respCode = Responses::PERMANENTFLAGS;
+        CASE(BADCHARSET)
+        CASE(CAPABILITIES)
+        CASE(PARSE)
+        CASE(PERMANENTFLAGS)
         else if ( r == "READ-ONLY" )
             respCode = Responses::READ_ONLY;
         else if ( r == "READ-WRITE" )
             respCode = Responses::READ_WRITE;
-        else if ( r == "TRYCREATE" )
-            respCode = Responses::TRYCREATE;
-        else if ( r == "UIDNEXT" )
-            respCode = Responses::UIDNEXT;
-        else if ( r == "UIDVALIDITY" )
-            respCode = Responses::UIDVALIDITY;
-        else if ( r == "UNSEEN" )
-            respCode = Responses::UNSEEN;
+        CASE(TRYCREATE)
+        CASE(UIDNEXT)
+        CASE(UIDVALIDITY)
+        CASE(UNSEEN)
+        CASE(NEWNAME)
+        CASE(REFERRAL)
+        else if ( r == "UNKNOWN-CTE" )
+            respCode = Responses::UNKNOWN_CTE;
+        CASE(UIDNOTSTICKY)
+        // FIXME: not implemented CASE(APPENDUID)
+        // FIXME: not implemented CASE(COPYUID)
+        // FIXME: not implemented CASE(URLMECH)
+        CASE(TOOBIG)
+        CASE(BADURL)
+        CASE(HIGHESTMODSEQ)
+        CASE(NOMODSEQ)
+        // FIXME: not implemented CASE(MODIFIED)
+        CASE(COMPRESSIONACTIVE)
+        CASE(CLOSED)
+        CASE(NOTSAVED)
+        CASE(BADCOMPARATOR)
+        CASE(ANNOTATE)
+        // FIXME: not implemented CASE(ANNOTATIONS)
+        CASE(TEMPFAIL)
+        CASE(MAXCONVERTMESSAGES)
+        CASE(MAXCONVERTPARTS)
+        CASE(NOUPDATE)
+        // FIXME: not implemented CASE(METADATA)
+        CASE(NOTIFICATIONOVERFLOW)
+        CASE(BADEVENT)
+        else if ( r == "UNDEFINED-FILTER" )
+            respCode = Responses::UNDEFINED_FILTER;
+        CASE(UNAVAILABLE)
+        CASE(AUTHENTICATIONFAILED)
+        CASE(AUTHORIZATIONFAILED)
+        CASE(EXPIRED)
+        CASE(PRIVACYREQUIRED)
+        CASE(CONTACTADMIN)
+        CASE(NOPERM)
+        CASE(INUSE)
+        CASE(EXPUNGEISSUED)
+        CASE(CORRUPTION)
+        CASE(SERVERBUG)
+        CASE(CLIENTBUG)
+        CASE(CANNOT)
+        CASE(LIMIT)
+        CASE(OVERQUOTA)
+        CASE(ALREADYEXISTS)
+        CASE(NONEXISTENT)
         else
             respCode = Responses::ATOM;
 
@@ -271,16 +347,44 @@ State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int
             case Responses::READ_ONLY:
             case Responses::READ_WRITE:
             case Responses::TRYCREATE:
+            case Responses::UNAVAILABLE:
+            case Responses::AUTHENTICATIONFAILED:
+            case Responses::AUTHORIZATIONFAILED:
+            case Responses::EXPIRED:
+            case Responses::PRIVACYREQUIRED:
+            case Responses::CONTACTADMIN:
+            case Responses::NOPERM:
+            case Responses::INUSE:
+            case Responses::EXPUNGEISSUED:
+            case Responses::CORRUPTION:
+            case Responses::SERVERBUG:
+            case Responses::CLIENTBUG:
+            case Responses::CANNOT:
+            case Responses::LIMIT:
+            case Responses::OVERQUOTA:
+            case Responses::ALREADYEXISTS:
+            case Responses::NONEXISTENT:
+            case Responses::UNKNOWN_CTE:
+            case Responses::UIDNOTSTICKY:
+            case Responses::TOOBIG:
+            case Responses::NOMODSEQ:
+            case Responses::COMPRESSIONACTIVE:
+            case Responses::CLOSED:
+            case Responses::NOTSAVED:
+            case Responses::BADCOMPARATOR:
+            case Responses::TEMPFAIL:
+            case Responses::NOTIFICATIONOVERFLOW:
                 // check for "no more stuff"
                 if ( _list.count() )
-                    throw InvalidResponseCode( "Got ALERT/PARSE/READ_ONLY/READ_WRITE/TRYCREATE"
-                                               " response code with extra data inside the brackets",
+                    throw InvalidResponseCode( "Got a response code with extra data inside the brackets",
                                                line, start );
                 respCodeData = QSharedPointer<AbstractData>( new RespData<void>() );
                 break;
             case Responses::UIDNEXT:
             case Responses::UIDVALIDITY:
             case Responses::UNSEEN:
+            case Responses::MAXCONVERTMESSAGES:
+            case Responses::MAXCONVERTPARTS:
                 // check for "number only"
                 {
                 if ( _list.count() != 1 )
@@ -292,13 +396,26 @@ State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int
                 respCodeData = QSharedPointer<AbstractData>( new RespData<uint>( number ) );
                 }
                 break;
+            case Responses::HIGHESTMODSEQ:
+                // similar to the above, but an unsigned 64bit int
+                {
+                if ( _list.count() != 1 )
+                    throw InvalidResponseCode( line, start );
+                bool ok;
+                quint64 number = _list.first().toULongLong( &ok );
+                if ( !ok )
+                    throw InvalidResponseCode( line, start );
+                respCodeData = QSharedPointer<AbstractData>( new RespData<quint64>( number ) );
+                }
+                break;
             case Responses::BADCHARSET:
             case Responses::PERMANENTFLAGS:
+            case Responses::BADEVENT:
                 // The following text should be a parenthesized list of atoms
                 if ( originalList.size() == 1 ) {
                     if ( respCode != Responses::BADCHARSET ) {
-                        // BADCHARSET can be empty without any problem, but PERMANENTFLAGS shouldn't
-                        qDebug() << "Parser warning: empty PERMANENTFLAGS";
+                        // BADCHARSET can be empty without any problem, but PERMANENTFLAGS or BADEVENT shouldn't
+                        qDebug() << "Parser warning: empty PERMANENTFLAGS or BADEVENT";
                     }
                     respCodeData = QSharedPointer<AbstractData>( new RespData<QStringList>( QStringList() ) );
                 } else if ( originalList.size() == 2 && originalList[1].type() == QVariant::List ) {
@@ -307,7 +424,7 @@ State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int
                     // Well, we used to accept "* OK [PERMANENTFLAGS foo bar] xyz" for quite long time,
                     // so no need to break backwards compatibility here
                     respCodeData = QSharedPointer<AbstractData>( new RespData<QStringList>( _list ) );
-                    qDebug() << "Parser warning: obsolete format of BADCAHRSET/PERMANENTFLAGS";
+                    qDebug() << "Parser warning: obsolete format of BADCAHRSET/PERMANENTFLAGS/BADEVENT";
                 }
                 break;
             case Responses::CAPABILITIES:
@@ -317,6 +434,49 @@ State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int
             case Responses::ATOM: // no sanity check here, just make a string
             case Responses::NONE: // this won't happen, but if we ommit it, gcc warns us about that
                 respCodeData = QSharedPointer<AbstractData>( new RespData<QString>( _list.join(" ") ) );
+                break;
+            case Responses::NEWNAME:
+            case Responses::REFERRAL:
+            case Responses::BADURL:
+                // FIXME: check if indeed won't eat the spaces
+                respCodeData = QSharedPointer<AbstractData>( new RespData<QString>( _list.join(" ") ) );
+                break;
+            case Responses::NOUPDATE:
+                // FIXME: check if indeed won't eat the spaces, and optionally verify that it came as a quoted string
+                respCodeData = QSharedPointer<AbstractData>( new RespData<QString>( _list.join(" ") ) );
+                break;
+            case Responses::UNDEFINED_FILTER:
+                // FIXME: check if indeed won't eat the spaces, and optionally verify that it came as an atom
+                respCodeData = QSharedPointer<AbstractData>( new RespData<QString>( _list.join(" ") ) );
+                break;
+            case Responses::COPYUID:
+            case Responses::APPENDUID:
+                // FIXME: implement me
+                Q_ASSERT( false );
+                break;
+            case Responses::URLMECH:
+                // FIXME: implement me
+                Q_ASSERT( false );
+                break;
+            case Responses::MODIFIED:
+                // FIXME: clarify what "set" in the RFC 4551 means and implement it
+                Q_ASSERT( false );
+                break;
+            case Responses::ANNOTATE:
+                {
+                if ( _list.count() != 1 )
+                    throw InvalidResponseCode( "ANNOTATE response code got weird number of elements", line, start );
+                QString token = _list.first().toUpper();
+                if ( token == QString::fromAscii("TOOBIG") || token == QString::fromAscii("TOOMANY") )
+                    respCodeData = QSharedPointer<AbstractData>( new RespData<QString>( token ) );
+                else
+                    throw InvalidResponseCode( "ANNOTATE response code with invalid value", line, start );
+                }
+                break;
+            case Responses::ANNOTATIONS:
+            case Responses::METADATA:
+                // FIXME: implement me
+                Q_ASSERT( false );
                 break;
         }
     }
