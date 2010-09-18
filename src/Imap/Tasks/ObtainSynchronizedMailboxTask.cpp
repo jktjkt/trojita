@@ -420,6 +420,11 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState( const Imap::R
             }
             break;
         }
+        case Responses::CLOSED:
+        case Responses::HIGHESTMODSEQ:
+            // FIXME: handle when supporting the qresync
+            res = true;
+            break;
         default:
             break;
     }
