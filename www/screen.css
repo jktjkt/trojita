@@ -144,3 +144,8 @@ div#footer{
     padding:0 2em 0 2em;
     font-size:9px;
     }
+
+div#sf-donate-button{
+    float: right;
+    padding: 0 5em 0 0;
+    }
