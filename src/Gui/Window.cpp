@@ -166,6 +166,9 @@ void MainWindow::createActions()
     aboutTrojita = new QAction( trUtf8("About Trojitá..."), this );
     connect( aboutTrojita, SIGNAL(triggered()), this, SLOT(slotShowAboutTrojita()) );
 
+    donateToTrojita = new QAction( tr("Donate to the project"), this );
+    connect( donateToTrojita, SIGNAL(triggered()), this, SLOT(slotDonateToTrojita()) );
+
     connectModelActions();
 
     QToolBar *toolBar = addToolBar(tr("Navigation"));
@@ -216,6 +219,8 @@ void MainWindow::createMenus()
     mailboxMenu->addAction( reloadAllMailboxes );
 
     QMenu* helpMenu = menuBar()->addMenu( tr("Help") );
+    helpMenu->addAction( donateToTrojita );
+    helpMenu->addSeparator();
     helpMenu->addAction( aboutTrojita );
 
     networkIndicator->setMenu( netPolicyMenu );
@@ -868,6 +873,11 @@ void MainWindow::slotShowAboutTrojita()
                                "<p>More information at http://trojita.flaska.net/</p>"
                                "<p>You are using version %1.</p>").arg(
                                        QApplication::applicationVersion() ) );
+}
+
+void MainWindow::slotDonateToTrojita()
+{
+    QDesktopServices::openUrl( QString::fromAscii("http://sourceforge.net/donate/index.php?group_id=339456") );
 }
 
 }
