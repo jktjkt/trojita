@@ -318,16 +318,18 @@ bool MailboxModel::dropMimeData( const QMimeData* data, Qt::DropAction action,
         return false;
     }
 
-    Imap::Sequence seq;
-    while ( ! stream.atEnd() ) {
-        uint uid;
-        stream >> uid;
-        seq.add( uid );
+    uint uidValidity;
+    stream >> uidValidity;
+    if ( uidValidity != origMbox->syncState.uidValidity() ) {
+        qDebug() << "UID validity for original mailbox got changed, can't copy messages";
+        return false;
     }
 
-    static_cast<Model*>( sourceModel() )->copyMessages( origMbox, target->mailbox(), seq );
-    if ( action == Qt::MoveAction )
-        static_cast<Model*>( sourceModel() )->markUidsDeleted( origMbox, seq );
+    QList<uint> uids;
+    stream >> uids;
+
+    static_cast<Model*>( sourceModel() )->copyMoveMessages( origMbox, target->mailbox(), uids,
+                                                            ( action == Qt::MoveAction ) ? MOVE : COPY );
     return true;
 }
 

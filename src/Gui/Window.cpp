@@ -288,6 +288,7 @@ void MainWindow::createWidgets()
 void MainWindow::setupModels()
 {
     Imap::Mailbox::SocketFactoryPtr factory;
+    Imap::Mailbox::TaskFactoryPtr taskFactory( new Imap::Mailbox::TaskFactory() );
     QSettings s;
 
     if ( s.value( SettingsNames::imapMethodKey ).toString() == SettingsNames::methodTCP ) {
@@ -331,7 +332,7 @@ void MainWindow::setupModels()
             cache = new Imap::Mailbox::MemoryCache( this, QString() );
         }
     }
-    model = new Imap::Mailbox::Model( this, cache, factory, s.value( SettingsNames::imapStartOffline ).toBool() );
+    model = new Imap::Mailbox::Model( this, cache, factory, taskFactory, s.value( SettingsNames::imapStartOffline ).toBool() );
     model->setObjectName( QLatin1String("model") );
     mboxModel = new Imap::Mailbox::MailboxModel( this, model );
     mboxModel->setObjectName( QLatin1String("mboxModel") );
@@ -522,7 +523,7 @@ void MainWindow::slotResyncMbox()
                     Imap::Mailbox::Model::realTreeItem( *it )
                 );
         Q_ASSERT( mbox );
-        model->resyncMailbox( mbox );
+        model->resyncMailbox( *it );
     }
 }
 

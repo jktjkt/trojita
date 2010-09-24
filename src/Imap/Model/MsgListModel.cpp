@@ -321,16 +321,18 @@ QMimeData* MsgListModel::mimeData( const QModelIndexList& indexes ) const
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( Model::realTreeItem(
             indexes.front() )->parent()->parent() );
     Q_ASSERT( mailbox );
-    stream << mailbox->mailbox();
+    stream << mailbox->mailbox() << mailbox->syncState.uidValidity();
 
+    QList<uint> uids;;
     for ( QModelIndexList::const_iterator it = indexes.begin(); it != indexes.end(); ++it ) {
         TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( Model::realTreeItem( *it ) );
         Q_ASSERT( message );
         Q_ASSERT( message->fetched() ); // should've been handled by flags()
         Q_ASSERT( message->parent()->parent() == mailbox );
         Q_ASSERT( message->uid() > 0 );
-        stream << message->uid();
+        uids << message->uid();
     }
+    stream << uids;
     res->setData( QLatin1String("application/x-trojita-message-list"), encodedData );
     return res;
 }
@@ -460,11 +462,7 @@ void MsgListModel::setMailbox( const QModelIndex& index )
         reset();
         emit mailboxChanged();
         // We want to tell the Model that it should consider starting the IDLE command.
-        // We do not strictly need the RW access here, but given that we're probably
-        // going to upgrade to RW anyway (at least when marking the message as "Seen")
-        // and that re-syncing FLAGS is rather expensive, it probably makes much sense
-        // to just open the mailbox RW right now.
-        const_cast<Model*>( model )->switchToMailbox( index, Imap::Mailbox::Model::ReadWrite );
+        const_cast<Model*>( model )->switchToMailbox( index );
     }
 }
 

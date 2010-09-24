@@ -3,9 +3,13 @@ QT += network \
 CONFIG += staticlib
 DEFINES -= QT3_SUPPORT
 INCLUDEPATH += ../ \
-    ../..
+    ../.. \
+    Model \
+    Tasks
 DEPENDPATH += ../ \
-    ../..
+    ../.. \
+    Model \
+    Tasks
 TARGET = Imap
 TEMPLATE = lib
 SOURCES += Parser/Parser.cpp \
@@ -21,10 +25,6 @@ SOURCES += Parser/Parser.cpp \
     Exceptions.cpp \
     Model/Model.cpp \
     Model/MailboxMetadata.cpp \
-    Model/UnauthenticatedHandler.cpp \
-    Model/AuthenticatedHandler.cpp \
-    Model/SelectedHandler.cpp \
-    Model/SelectingHandler.cpp \
     Model/ModelUpdaters.cpp \
     Model/MailboxModel.cpp \
     Model/PrettyMailboxModel.cpp \
@@ -36,6 +36,23 @@ SOURCES += Parser/Parser.cpp \
     Model/CombinedCache.cpp \
     Model/Utils.cpp \
     Model/IdleLauncher.cpp \
+    Model/TaskFactory.cpp \
+    Tasks/ImapTask.cpp \
+    Tasks/FetchMsgPartTask.cpp \
+    Tasks/FetchMsgMetadataTask.cpp \
+    Tasks/UpdateFlagsTask.cpp \
+    Tasks/ListChildMailboxesTask.cpp \
+    Tasks/NumberOfMessagesTask.cpp \
+    Tasks/ExpungeMailboxTask.cpp \
+    Tasks/CreateMailboxTask.cpp \
+    Tasks/DeleteMailboxTask.cpp \
+    Tasks/CopyMoveMessagesTask.cpp \
+    Tasks/ObtainSynchronizedMailboxTask.cpp \
+    Tasks/KeepMailboxOpenTask.cpp \
+    Tasks/OpenConnectionTask.cpp \
+    Tasks/GetAnyConnectionTask.cpp \
+    Tasks/Fake_ListChildMailboxesTask.cpp \
+    Tasks/Fake_OpenConnectionTask.cpp \
     Model/ModelWatcher.cpp \
     Network/MsgPartNetworkReply.cpp \
     Network/ForbiddenReply.cpp \
@@ -56,10 +73,6 @@ HEADERS += Parser/Parser.h \
     ConnectionState.h \
     Model/Model.h \
     Model/MailboxMetadata.h \
-    Model/UnauthenticatedHandler.h \
-    Model/AuthenticatedHandler.h \
-    Model/SelectedHandler.h \
-    Model/SelectingHandler.h \
     Model/ModelUpdaters.h \
     Model/MailboxModel.h \
     Model/PrettyMailboxModel.h \
@@ -72,6 +85,24 @@ HEADERS += Parser/Parser.h \
     Model/Cache.h \
     Model/Utils.h \
     Model/IdleLauncher.h \
+    Model/TaskFactory.h \
+    Model/CopyMoveOperation.h \
+    Tasks/ImapTask.h \
+    Tasks/FetchMsgPartTask.h \
+    Tasks/FetchMsgMetadataTask.h \
+    Tasks/UpdateFlagsTask.h \
+    Tasks/ListChildMailboxesTask.h \
+    Tasks/NumberOfMessagesTask.h \
+    Tasks/ExpungeMailboxTask.h \
+    Tasks/CreateMailboxTask.h \
+    Tasks/DeleteMailboxTask.h \
+    Tasks/CopyMoveMessagesTask.h \
+    Tasks/ObtainSynchronizedMailboxTask.h \
+    Tasks/KeepMailboxOpenTask.h \
+    Tasks/OpenConnectionTask.h \
+    Tasks/GetAnyConnectionTask.h \
+    Tasks/Fake_ListChildMailboxesTask.h \
+    Tasks/Fake_OpenConnectionTask.h \
     Model/ModelWatcher.h \
     Network/ForbiddenReply.h \
     Network/AuxiliaryReply.h \

@@ -72,13 +72,13 @@ QList<TreeItem*> TreeItem::setChildren( const QList<TreeItem*> items )
 
 
 
-TreeItemMailbox::TreeItemMailbox( TreeItem* parent ): TreeItem(parent)
+TreeItemMailbox::TreeItemMailbox( TreeItem* parent ): TreeItem(parent), maintainingTask(0)
 {
     _children.prepend( new TreeItemMsgList( this ) );
 }
 
 TreeItemMailbox::TreeItemMailbox( TreeItem* parent, Responses::List response ):
-    TreeItem(parent), _metadata( response.mailbox, response.separator, QStringList() )
+    TreeItem(parent), _metadata( response.mailbox, response.separator, QStringList() ), maintainingTask(0)
 {
     for ( QStringList::const_iterator it = response.flags.begin(); it != response.flags.end(); ++it )
         _metadata.flags.append( it->toUpper() );
@@ -328,30 +328,25 @@ void TreeItemMailbox::handleFetchWhileSyncing( Model* const model, Parser* ptr, 
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[0] );
     Q_ASSERT( list );
 
-    QList<uint>& uidMap = model->_parsers[ ptr ].uidMap;
-    QMap<uint,QStringList>& flagMap = model->_parsers[ ptr ].syncingFlags;
-
     int number = response.number - 1;
-    if ( number < 0 || number >= uidMap.size() )
+    if ( number < 0 || number >= list->_children.size() )
         throw UnknownMessageIndex( "FECTH response during mailbox sync referrs "
                                    "to a message that is out-of-bounds", response );
 
-    uint uid = 0;
-    QStringList flags;
     for ( Responses::Fetch::dataType::const_iterator it = response.data.begin(); it != response.data.end(); ++ it ) {
         if ( it.key() == "UID" ) {
-            uid = dynamic_cast<const Responses::RespData<uint>&>( *(it.value()) ).data;
+            qDebug() << "Specifying UID while syncing flags in a mailbox is not too useful";
         } else if ( it.key() == "FLAGS" ) {
-            flags = dynamic_cast<const Responses::RespData<QStringList>&>( *(it.value()) ).data;
+            TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->_children[ number ] );
+            Q_ASSERT( message );
+            Q_ASSERT( message->uid() );
+            TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( list->parent() );
+            Q_ASSERT( mailbox );
+            message->_flags = dynamic_cast<const Responses::RespData<QStringList>&>( *(it.value()) ).data;
+            model->cache()->setMsgFlags( mailbox->mailbox(), message->uid(), message->_flags );
         } else {
             qDebug() << "Ignoring FETCH field" << it.key() << "while syncing mailbox";
         }
-    }
-    if ( uid ) {
-        uidMap[ number ] = uid;
-        flagMap[ uid ] = flags;
-    } else {
-        qWarning() << "Warning: Got useless FETCH reply (didn't specify UID)";
     }
 }
 

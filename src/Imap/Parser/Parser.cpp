@@ -73,7 +73,7 @@ namespace Imap {
 Parser::Parser( QObject* parent, Socket* socket, const uint myId ):
         QObject(parent), _socket(socket), _lastTagUsed(0), _idling(false), _waitForInitialIdle(false),
         _literalPlus(false), _waitingForContinuation(false), _startTlsInProgress(false),
-        _waitingForAuth(false), _waitingForConnection(true), _readingMode(ReadingLine),
+        _waitingForConnection(true), _readingMode(ReadingLine),
         _oldLiteralPosition(0), _parserId(myId)
 {
     connect( _socket, SIGNAL( disconnected( const QString& ) ),
@@ -81,7 +81,6 @@ Parser::Parser( QObject* parent, Socket* socket, const uint myId ):
     connect( _socket, SIGNAL( readyRead() ), this, SLOT( handleReadyRead() ) );
     connect( _socket, SIGNAL(connected()), this, SLOT(handleConnectionEstablished()) );
     connect( _socket, SIGNAL(stateChanged(Imap::ConnectionState)), this, SIGNAL(connectionStateChanged(Imap::ConnectionState)) );
-    waitForAuth();
 }
 
 CommandHandle Parser::noop()
@@ -91,19 +90,19 @@ CommandHandle Parser::noop()
 
 CommandHandle Parser::logout()
 {
-    return queueCommandBeforeWaitForAuth( Commands::Command( "LOGOUT") );
+    return queueCommand( Commands::Command( "LOGOUT") );
 }
 
 CommandHandle Parser::capability()
 {
     // CAPABILITY should take precedence over LOGIN, because we have to check for LOGINDISABLED
-    return queueCommandBeforeWaitForAuth( Commands::Command() <<
+    return queueCommand( Commands::Command() <<
                                           Commands::PartOfCommand( Commands::ATOM, "CAPABILITY" ) );
 }
 
 CommandHandle Parser::startTls()
 {
-    return queueCommandBeforeWaitForAuth( Commands::Command() <<
+    return queueCommand( Commands::Command() <<
                                           Commands::PartOfCommand( Commands::STARTTLS, "STARTTLS" ) );
 }
 
@@ -117,7 +116,7 @@ CommandHandle Parser::authenticate( /*Authenticator FIXME*/)
 
 CommandHandle Parser::login( const QString& username, const QString& password )
 {
-    return queueCommandBeforeWaitForAuth( Commands::Command( "LOGIN" ) <<
+    return queueCommand( Commands::Command( "LOGIN" ) <<
             Commands::PartOfCommand( username ) << Commands::PartOfCommand( password ) );
 }
 
@@ -205,9 +204,6 @@ CommandHandle Parser::expunge()
 
 CommandHandle Parser::_searchHelper( const QString& command, const QStringList& criteria, const QString& charset )
 {
-    if ( !criteria.count() || criteria.count() % 2 )
-        throw InvalidArgument("Function called with invalid search criteria");
-
     Commands::Command cmd( command );
 
     if ( !charset.isEmpty() )
@@ -217,6 +213,13 @@ CommandHandle Parser::_searchHelper( const QString& command, const QStringList& 
         cmd << *it;
 
     return queueCommand( cmd );
+}
+
+CommandHandle Parser::uidSearchUid( const QString& sequence )
+{
+    Commands::Command command( "UID SEARCH" );
+    command << Commands::PartOfCommand( Commands::ATOM, sequence );
+    return queueCommand( command );
 }
 
 CommandHandle Parser::_sortHelper(const QString &command, const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria)
@@ -293,7 +296,7 @@ CommandHandle Parser::uidFetch( const Sequence& seq, const QStringList& items )
 {
     return queueCommand( Commands::Command( "UID FETCH" ) <<
             Commands::PartOfCommand( Commands::ATOM, seq.toString() ) <<
-            Commands::PartOfCommand( Commands::ATOM, items.join(" ") ) );
+            Commands::PartOfCommand( Commands::ATOM, '(' + items.join(" ") + ')' ) );
 }
 
 CommandHandle Parser::uidStore( const Sequence& seq, const QString& item, const QString& value )
@@ -336,18 +339,6 @@ CommandHandle Parser::queueCommand( Commands::Command command )
     QString tag = generateTag();
     command.addTag( tag );
     _cmdQueue.append( command );
-    QTimer::singleShot( 0, this, SLOT(executeCommands()) );
-    return tag;
-}
-
-CommandHandle Parser::queueCommandBeforeWaitForAuth( Commands::Command command )
-{
-    QLinkedList<Commands::Command>::iterator it = std::find_if(
-            _cmdQueue.begin(), _cmdQueue.end(), std::mem_fun_ref(&Commands::Command::isWaitForAuth) );
-    QString tag = generateTag();
-    command.addTag( tag );
-    _cmdQueue.insert( it, command );
-    _waitingForAuth = false; // will be set again when this command gets sent -- the WAIT_FOR_AUTH is still queued
     QTimer::singleShot( 0, this, SLOT(executeCommands()) );
     return tag;
 }
@@ -448,7 +439,7 @@ void Parser::reallyReadLine()
 void Parser::executeCommands()
 {
     while ( ! _waitingForContinuation && ! _waitForInitialIdle &&
-            ! _waitingForAuth && ! _waitingForConnection &&
+            ! _waitingForConnection &&
             ! _cmdQueue.isEmpty() && ! _startTlsInProgress )
         executeACommand();
 }
@@ -545,15 +536,6 @@ void Parser::executeACommand()
                 _socket->write( buf );
                 _startTlsInProgress = true;
                 emit lineSent( buf );
-                return;
-                break;
-            case Commands::WAIT_FOR_AUTH:
-#ifdef PRINT_TRAFFIC
-                qDebug() << _parserId << "*** Waiting for authentication";
-#endif
-                _waitingForAuth = true;
-                // No call to pop_front yet; the reason is that we have to allow queuing of
-                // commands like LOGIN, AUTHENTICATE or CAPABILITY
                 return;
                 break;
         }
@@ -753,27 +735,6 @@ void Parser::handleDisconnected( const QString& reason )
     emit disconnected( reason );
 }
 
-void Parser::authStateReached()
-{
-    QLinkedList<Commands::Command>::iterator it = std::find_if(
-            _cmdQueue.begin(), _cmdQueue.end(), std::mem_fun_ref(&Commands::Command::isWaitForAuth) );
-    Q_ASSERT( it != _cmdQueue.end() );
-    _cmdQueue.erase( it );
-    _waitingForAuth = false;
-#ifdef PRINT_TRAFFIC
-    qDebug() << _parserId << "*** Auth state reached, enabling commands (if already connected)";
-#endif
-    QTimer::singleShot( 0, this, SLOT(executeCommands()));
-}
-
-void Parser::waitForAuth()
-{
-    Commands::Command cmd;
-    cmd << Commands::PartOfCommand( Commands::WAIT_FOR_AUTH, QString() );
-    _cmdQueue.append( cmd );
-    QTimer::singleShot( 0, this, SLOT(executeCommands()) );
-}
-
 void Parser::handleConnectionEstablished()
 {
 #ifdef PRINT_TRAFFIC
@@ -854,7 +815,7 @@ Sequence& Sequence::add( uint num )
 {
     Q_ASSERT( _kind == DISTINCT );
     QList<uint>::iterator it = qLowerBound( _list.begin(), _list.end(), num );
-    if ( *it != num )
+    if ( it == _list.end() || *it != num )
         _list.insert( it, num );
     return *this;
 }

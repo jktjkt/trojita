@@ -43,8 +43,7 @@ namespace Commands {
         QUOTED_STRING /**< Transmit using double-quotes */,
         LITERAL /**< Don't bother with checking this data, always use literal form */,
         IDLE, /**< Special case: IDLE command */
-        STARTTLS, /**< Special case: STARTTLS */
-        WAIT_FOR_AUTH /**< Special case: stop queue processing until we are authenticated */
+        STARTTLS /**< Special case: STARTTLS */
     };
 
     /** @short Checks if we can use a quoted-string form for transmitting this string.
@@ -73,8 +72,6 @@ namespace Commands {
         PartOfCommand( const TokenType kind, const QString& text): _kind(kind), _text(text), _numberSent(false) {}
         /** Constructor that guesses correct type for passed string */
         PartOfCommand( const QString& text): _kind( howToTransmit(text) ), _text(text), _numberSent(false) {}
-        /** @short Return true if this part of command is the special WAIT_FOR_AUTH one */
-        bool isWaitForAuth() const { return _kind == WAIT_FOR_AUTH; }
     };
 
     /** @short Abstract class for specifying what command to execute */
@@ -89,8 +86,6 @@ namespace Commands {
         Command(): _currentPart(0) {}
         Command( const QString& name ): _currentPart(0) { _cmds << PartOfCommand( ATOM, name ); }
         void addTag( const QString& tag ) { _cmds.insert( 0, PartOfCommand( ATOM, tag ) ); }
-        /** @short Return true if this command is the special WAIT_FOR_AUTH one */
-        bool isWaitForAuth() const { return _cmds.front().isWaitForAuth(); }
     };
 
     /** @short Used for dumping a command to debug stream */

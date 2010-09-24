@@ -80,8 +80,8 @@ qint64 FakeSocket::write( const QByteArray& byteArray )
 
 void FakeSocket::startTls()
 {
-    // Doesn't make sense to require it here
-    Q_ASSERT( false );
+    // fake it
+    writeChannel->write( QByteArray("[*** STARTTLS ***]") );
 }
 
 bool FakeSocket::isDead()

@@ -29,6 +29,8 @@
 #include "../ConnectionState.h"
 #include "../Parser/Parser.h"
 #include "Streams/SocketFactory.h"
+#include "CopyMoveOperation.h"
+#include "TaskFactory.h"
 
 class QAuthenticator;
 
@@ -39,33 +41,6 @@ namespace Imap {
 namespace Mailbox {
 
 class Model;
-
-/** @short Response handler for implementing the State Pattern */
-class ModelStateHandler: public QObject {
-    Q_OBJECT
-public:
-    ModelStateHandler( Model* _m );
-
-    virtual void handleState( Imap::Parser* ptr, const Imap::Responses::State* const resp ) = 0;
-    virtual void handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp ) = 0;
-    virtual void handleList( Imap::Parser* ptr, const Imap::Responses::List* const resp ) = 0;
-    virtual void handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp ) = 0;
-    virtual void handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp ) = 0;
-    virtual void handleSort( Imap::Parser* ptr, const Imap::Responses::Sort* const resp ) = 0;
-    virtual void handleThread( Imap::Parser* ptr, const Imap::Responses::Thread* const resp ) = 0;
-    virtual void handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp ) = 0;
-
-protected:
-    Model* m;
-private:
-    ModelStateHandler(const ModelStateHandler&); // don't implement
-    ModelStateHandler& operator=(const ModelStateHandler&); // don't implement
-};
-
-class UnauthenticatedHandler;
-class AuthenticatedHandler;
-class SyncingHandler;
-class SelectedHandler;
 
 class TreeItem;
 class TreeItemMailbox;
@@ -80,6 +55,9 @@ class IdleLauncher;
 class _MailboxListUpdater;
 class _NumberOfMessagesUpdater;
 
+class ImapTask;
+class KeepMailboxOpenTask;
+
 /** @short A model implementing view of the whole IMAP server */
 class Model: public QAbstractItemModel {
     Q_OBJECT
@@ -89,7 +67,7 @@ class Model: public QAbstractItemModel {
         enum Kind { NONE, STARTTLS, LOGIN, LIST, STATUS, SELECT, FETCH_MESSAGE_METADATA, NOOP,
                     CAPABILITY, STORE, NAMESPACE, EXPUNGE, FETCH_WITH_FLAGS,
                     COPY, CREATE, DELETE, LOGOUT, LIST_AFTER_CREATE,
-                    FETCH_PART, IDLE };
+                    FETCH_PART, IDLE, SEARCH_UIDS, FETCH_FLAGS };
         Kind kind;
         TreeItem* what;
         QString str;
@@ -120,32 +98,25 @@ class Model: public QAbstractItemModel {
         TreeItemMailbox* mailbox;
         RWMode mode;
         ConnectionState connState;
-        /** @short The mailbox in which we're right now, as per IMAP server's opinion */
-        TreeItemMailbox* currentMbox;
-        /** @short Number of mailboxes which we've already requested to be SELECT/EXAMINEd */
-        uint selectingAnother;
         /** @short Mapping of IMAP tag to the helper structure */
         QMap<CommandHandle, Task> commandMap;
+        /** @short List of tasks which are active already, and should therefore receive events */
+        QList<ImapTask*> activeTasks;
         /** @short A list of cepabilities, as advertised by the server */
         QStringList capabilities;
         /** @short Is the @arg capabilities usable? */
         bool capabilitiesFresh;
         /** @short LIST responses which were not processed yet */
         QList<Responses::List> listResponses;
-        SyncState syncState;
-        ModelStateHandler* responseHandler;
         QList<uint> uidMap;
-        QMap<uint, QStringList> syncingFlags;
         IdleLauncher* idleLauncher;
 
         ParserState( Parser* _parser, TreeItemMailbox* _mailbox, const RWMode _mode,
-                const ConnectionState _connState, ModelStateHandler* _respHandler ):
-            parser(_parser), mailbox(_mailbox), mode(_mode),
-            connState(_connState), currentMbox(0), selectingAnother(0),
-            capabilitiesFresh(false), responseHandler(_respHandler), idleLauncher(0) {}
+                const ConnectionState _connState ):
+            parser(_parser), mailbox(_mailbox), mode(_mode), connState(_connState),
+            capabilitiesFresh(false), idleLauncher(0) {}
         ParserState(): mailbox(0), mode(ReadOnly), connState(CONN_STATE_NONE),
-            currentMbox(0), selectingAnother(0), capabilitiesFresh(false),
-            responseHandler(0), idleLauncher(0) {}
+            capabilitiesFresh(false), idleLauncher(0) {}
     };
 
     /** @short Policy for accessing network */
@@ -173,6 +144,7 @@ class Model: public QAbstractItemModel {
 
     mutable AbstractCache* _cache;
     mutable SocketFactoryPtr _socketFactory;
+    TaskFactoryPtr _taskFactory;
     mutable QMap<Parser*,ParserState> _parsers;
     int _maxParsers;
     mutable TreeItemMailbox* _mailboxes;
@@ -184,7 +156,7 @@ class Model: public QAbstractItemModel {
 
 
 public:
-    Model( QObject* parent, AbstractCache* cache, SocketFactoryPtr socketFactory, bool offline );
+    Model( QObject* parent, AbstractCache* cache, SocketFactoryPtr socketFactory, TaskFactoryPtr taskFactory, bool offline );
     ~Model();
 
     virtual QModelIndex index(int row, int column, const QModelIndex& parent ) const;
@@ -219,7 +191,7 @@ This command sends a SELECT or EXAMINE command to the remote server, even if the
 requested mailbox is currently selected. This has a side effect that we synchronize
 the list of messages, which is why this function exists in the first place.
 */
-    void resyncMailbox( TreeItemMailbox* mbox );
+    void resyncMailbox( const QModelIndex& mbox );
 
     /** @short Ask the server to set/unset the \\Deleted flag for a particular message */
     void markMessageDeleted( TreeItemMessage* msg, bool marked );
@@ -229,14 +201,8 @@ the list of messages, which is why this function exists in the first place.
     /** @short Run the EXPUNGE command in the specified mailbox */
     void expungeMailbox( TreeItemMailbox* mbox );
 
-    /** @short Mark multiple messages \\Deleted at once
-
-      This is useful mainly for drag & drop operations
-*/
-    void markUidsDeleted( TreeItemMailbox* mbox, const Sequence& messages );
-
-    /** @short Copy a sequence of messages between two mailboxes */
-    void copyMessages( TreeItemMailbox* sourceMbox, const QString& destMboxName, const Sequence& seq );
+    /** @short Copy or move a sequence of messages between two mailboxes */
+    void copyMoveMessages( TreeItemMailbox* sourceMbox, const QString& destMboxName, QList<uint> uids, const CopyMoveOperation op );
 
     /** @short Create a new mailbox */
     void createMailbox( const QString& name );
@@ -281,7 +247,7 @@ public slots:
       updates about the mailbox state, such as about the arrival of new messages.
       The usual response to such a hint is launching the IDLE command.
     */
-    void switchToMailbox( const QModelIndex& mbox, const RWMode mode );
+    void switchToMailbox( const QModelIndex& mbox );
 
 private slots:
     /** @short Handler for the "parser got disconnected" event */
@@ -371,14 +337,28 @@ private:
     friend class MsgListModel; // needs access to createIndex()
     friend class MailboxModel; // needs access to createIndex()
 
-    friend class UnauthenticatedHandler;
-    friend class AuthenticatedHandler;
-    friend class SelectedHandler;
-    friend class SelectingHandler;
-
     friend class IdleLauncher;
     friend class _MailboxListUpdater;
     friend class _NumberOfMessagesUpdater;
+
+    friend class ImapTask;
+    friend class FetchMsgPartTask;
+    friend class UpdateFlagsTask;
+    friend class ListChildMailboxesTask;
+    friend class NumberOfMessagesTask;
+    friend class FetchMsgMetadataTask;
+    friend class ExpungeMailboxTask;
+    friend class CreateMailboxTask;
+    friend class DeleteMailboxTask;
+    friend class CopyMoveMessagesTask;
+    friend class ObtainSynchronizedMailboxTask;
+    friend class KeepMailboxOpenTask;
+    friend class OpenConnectionTask;
+    friend class GetAnyConnectionTask;
+    friend class Fake_ListChildMailboxesTask;
+    friend class Fake_OpenConnectionTask;
+
+    friend class TestingTaskFactory; // needs access to _socketFactory
 
     void _askForChildrenOfMailbox( TreeItemMailbox* item );
     void _askForMessagesInMailbox( TreeItemMsgList* item );
@@ -386,18 +366,14 @@ private:
     void _askForMsgMetadata( TreeItemMessage* item );
     void _askForMsgPart( TreeItemPart* item, bool onlyFromCache=false );
 
-    void _finalizeList( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
-    void _finalizeIncrementalList( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
-    void _finalizeSelect( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
+    void _finalizeList( Parser* parser, TreeItemMailbox* const mailboxPtr );
+    void _finalizeIncrementalList( Parser* parser, const QString& parentMailboxName );
     void _finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
-    void _finalizeFetchPart( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
-    void _finalizeCreate( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command,  const Imap::Responses::State* const resp );
-    void _finalizeDelete( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command,  const Imap::Responses::State* const resp );
+    void _finalizeFetchPart( Parser* parser, TreeItemPart* const part );
 
     void replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<TreeItem*> mailboxes );
     void enterIdle( Parser* parser );
     void updateCapabilities( Parser* parser, const QStringList capabilities );
-    void updateFlags( TreeItemMessage* message, const QString& flagOperation, const QString& flags );
 
     TreeItem* translatePtr( const QModelIndex& index ) const;
 
@@ -408,16 +384,9 @@ private:
     TreeItemMailbox* findParentMailboxByName( const QString& name ) const;
 
     void saveUidMap( TreeItemMsgList* list );
-    void _fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, Parser* parser, const SyncState& syncState );
 
-    /** @short Returns parser suitable for dealing with some mailbox.
-     *
-     * This parser might be already working hard in another mailbox; if that is
-     * the case, it is asked to switch to the correct one.
-     *
-     * If allowed by policy, new parser might be created in the background.
-     * */
-    Parser* _getParser( TreeItemMailbox* mailbox, const RWMode rw, const bool reSync=false );
+    /** @short Return a corresponding KeepMailboxOpenTask for a given mailbox */
+    KeepMailboxOpenTask* findTaskResponsibleFor( const QModelIndex& mailbox );
 
     NetworkPolicy networkPolicy() const { return _netPolicy; }
     void setNetworkPolicy( const NetworkPolicy policy );
@@ -426,7 +395,7 @@ private:
     void changeConnectionState( Parser* parser, ConnectionState state );
 
     /** @short Try to authenticate the user to the IMAP server */
-    void performAuthentication( Imap::Parser* ptr );
+    CommandHandle performAuthentication( Imap::Parser* ptr );
 
     /** @short Check if all the parsers are indeed idling, and update the GUI if so */
     void parsersMightBeIdling();
@@ -437,10 +406,8 @@ private:
     /** @short Helper for the slotParseError() */
     void broadcastParseError( const uint parser, const QString& exceptionClass, const QString& errorMessage, const QByteArray& line, int position );
 
-    ModelStateHandler* unauthHandler;
-    ModelStateHandler* authenticatedHandler;
-    ModelStateHandler* selectedHandler;
-    ModelStateHandler* selectingHandler;
+    /** @short Remove deleted Tasks from the activeTasks list */
+    void removeDeletedTasks( const QList<ImapTask*>& deletedTasks, QList<ImapTask*>& activeTasks );
 
     QStringList _onlineMessageFetch;
 
@@ -452,8 +419,12 @@ private:
     */
     QAuthenticator* _authenticator;
 
+    uint lastParserId;
+
 protected slots:
     void responseReceived();
+
+    void runReadyTasks();
 
 };
 

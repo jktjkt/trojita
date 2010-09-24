@@ -44,6 +44,7 @@ private Q_SLOTS:
     void testSequences();
     void testSequences_data();
     void initTestCase();
+    void cleanupTestCase();
 
     void benchmark();
 };

@@ -5,7 +5,8 @@ INCLUDEPATH += ../
 DEPENDPATH += ../
 TARGET = Streams
 TEMPLATE = lib
-SOURCES += SocketFactory.cpp \
+SOURCES += Socket.cpp \
+    SocketFactory.cpp \
     IODeviceSocket.cpp \
     DeletionWatcher.cpp \
     FakeSocket.cpp
