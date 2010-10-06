@@ -90,6 +90,7 @@ private slots:
     void slotCreateTopMailbox();
     void slotDeleteCurrentMailbox();
     void updateMessageFlags();
+    void updateMessageFlags( const QModelIndex& index );
     void scrollMessageUp();
     void showConnectionStatus( QObject* parser, Imap::ConnectionState state );
     void updateBusyParsers( bool busy );

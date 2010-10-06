@@ -399,8 +399,7 @@ void MainWindow::msgListSelectionChanged( const QItemSelection& selected, const 
         return;
 
     QModelIndex index = selected.indexes().front();
-    markAsRead->setChecked( msgListModel->data( index, Imap::Mailbox::RoleMessageIsMarkedRead ).toBool() );
-    markAsDeleted->setChecked( msgListModel->data( index, Imap::Mailbox::RoleMessageIsMarkedDeleted ).toBool() );
+    updateMessageFlags( index );
     msgView->setMessage( index );
 }
 
@@ -486,9 +485,8 @@ void MainWindow::showContextMenuMsgListTree( const QPoint& position )
     QList<QAction*> actionList;
     QModelIndex index = msgListTree->indexAt( position );
     if ( index.isValid() ) {
-        markAsRead->setChecked( msgListModel->data( index, Imap::Mailbox::RoleMessageIsMarkedRead ).toBool() );
+        updateMessageFlags( index );
         actionList.append( markAsRead );
-        markAsDeleted->setChecked( msgListModel->data( index, Imap::Mailbox::RoleMessageIsMarkedDeleted ).toBool() );
         actionList.append( markAsDeleted );
     }
     if ( ! actionList.isEmpty() )
@@ -731,8 +729,13 @@ void MainWindow::slotDeleteCurrentMailbox()
 
 void MainWindow::updateMessageFlags()
 {
-    markAsRead->setChecked( msgListModel->data( msgListTree->currentIndex(), Imap::Mailbox::RoleMessageIsMarkedRead ).toBool() );
-    markAsDeleted->setChecked( msgListModel->data( msgListTree->currentIndex(), Imap::Mailbox::RoleMessageIsMarkedDeleted ).toBool() );
+    updateMessageFlags( msgListTree->currentIndex() );
+}
+
+void MainWindow::updateMessageFlags(const QModelIndex &index)
+{
+    markAsRead->setChecked( msgListModel->data( index, Imap::Mailbox::RoleMessageIsMarkedRead ).toBool() );
+    markAsDeleted->setChecked( msgListModel->data( index, Imap::Mailbox::RoleMessageIsMarkedDeleted ).toBool() );
 }
 
 void MainWindow::updateActionsOnlineOffline( bool online )
