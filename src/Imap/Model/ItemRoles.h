@@ -33,9 +33,6 @@ enum {
     /** @short A "random" offset */
     RoleBase = Qt::UserRole + 666,
 
-    /** @short Query if an item got already fetched */
-    RoleLoadingStatus,
-
     /** @short Total number of messages in a mailbox */
     RoleTotalMessageCount,
     /** @short Number of unread messages in a mailbox */
@@ -55,6 +52,18 @@ enum {
     RoleMessageFrom,
     /** @short The To addresses */
     RoleMessageTo,
+    /** @short The Cc addresses */
+    RoleMessageCc,
+    /** @short The Bcc: addresses */
+    RoleMessageBcc,
+    /** @short The Sender: header */
+    RoleMessageSender,
+    /** @short The Reply-To: header */
+    RoleMessageReplyTo,
+    /** @short The Message-Id: header */
+    RoleMessageMessageId,
+    /** @short The In-Reply-To: header */
+    RoleMessageInReplyTo,
     /** @short The message timestamp */
     RoleMessageDate,
     /** @short Size of the message */
