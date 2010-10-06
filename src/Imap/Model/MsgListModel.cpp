@@ -249,10 +249,10 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
                     font.setBold( true );
                 return font;
             }
-        case RoleIsMarkedAsDeleted:
+        case RoleMessageIsMarkedDeleted:
             return dynamic_cast<TreeItemMessage*>( Model::realTreeItem(
                                 proxyIndex ) )->isMarkedAsDeleted();
-        case RoleIsMarkedAsRead:
+        case RoleMessageIsMarkedRead:
             return dynamic_cast<TreeItemMessage*>( Model::realTreeItem(
                                 proxyIndex ) )->isMarkedAsRead();
         default:

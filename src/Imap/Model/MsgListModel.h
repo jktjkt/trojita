@@ -24,6 +24,7 @@
 
 #include <QAbstractProxyModel>
 #include "Model.h"
+#include "ItemRoles.h"
 
 /** @short Namespace for IMAP interaction */
 namespace Imap {
@@ -54,7 +55,6 @@ public:
 
     TreeItemMailbox* currentMailbox() const;
 
-    enum { RoleIsMarkedAsRead = Qt::UserRole + 1, RoleIsMarkedAsDeleted };
     enum { SUBJECT, SEEN, FROM, TO, DATE, SIZE, COLUMN_COUNT };
 
 public slots:

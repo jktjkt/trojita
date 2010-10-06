@@ -399,8 +399,8 @@ void MainWindow::msgListSelectionChanged( const QItemSelection& selected, const 
         return;
 
     QModelIndex index = selected.indexes().front();
-    markAsRead->setChecked( msgListModel->data( index, Imap::Mailbox::MsgListModel::RoleIsMarkedAsRead ).toBool() );
-    markAsDeleted->setChecked( msgListModel->data( index, Imap::Mailbox::MsgListModel::RoleIsMarkedAsDeleted ).toBool() );
+    markAsRead->setChecked( msgListModel->data( index, Imap::Mailbox::RoleMessageIsMarkedRead ).toBool() );
+    markAsDeleted->setChecked( msgListModel->data( index, Imap::Mailbox::RoleMessageIsMarkedDeleted ).toBool() );
     msgView->setMessage( index );
 }
 
@@ -486,9 +486,9 @@ void MainWindow::showContextMenuMsgListTree( const QPoint& position )
     QList<QAction*> actionList;
     QModelIndex index = msgListTree->indexAt( position );
     if ( index.isValid() ) {
-        markAsRead->setChecked( msgListModel->data( index, Imap::Mailbox::MsgListModel::RoleIsMarkedAsRead ).toBool() );
+        markAsRead->setChecked( msgListModel->data( index, Imap::Mailbox::RoleMessageIsMarkedRead ).toBool() );
         actionList.append( markAsRead );
-        markAsDeleted->setChecked( msgListModel->data( index, Imap::Mailbox::MsgListModel::RoleIsMarkedAsDeleted ).toBool() );
+        markAsDeleted->setChecked( msgListModel->data( index, Imap::Mailbox::RoleMessageIsMarkedDeleted ).toBool() );
         actionList.append( markAsDeleted );
     }
     if ( ! actionList.isEmpty() )
@@ -731,8 +731,8 @@ void MainWindow::slotDeleteCurrentMailbox()
 
 void MainWindow::updateMessageFlags()
 {
-    markAsRead->setChecked( msgListModel->data( msgListTree->currentIndex(), Imap::Mailbox::MsgListModel::RoleIsMarkedAsRead ).toBool() );
-    markAsDeleted->setChecked( msgListModel->data( msgListTree->currentIndex(), Imap::Mailbox::MsgListModel::RoleIsMarkedAsDeleted ).toBool() );
+    markAsRead->setChecked( msgListModel->data( msgListTree->currentIndex(), Imap::Mailbox::RoleMessageIsMarkedRead ).toBool() );
+    markAsDeleted->setChecked( msgListModel->data( msgListTree->currentIndex(), Imap::Mailbox::RoleMessageIsMarkedDeleted ).toBool() );
 }
 
 void MainWindow::updateActionsOnlineOffline( bool online )
