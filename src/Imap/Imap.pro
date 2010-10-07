@@ -56,8 +56,7 @@ SOURCES += Parser/Parser.cpp \
     Model/ModelWatcher.cpp \
     Network/MsgPartNetworkReply.cpp \
     Network/ForbiddenReply.cpp \
-    Network/MsgPartNetAccessManager.cpp \
-    Network/AuxiliaryReply.cpp
+    Network/MsgPartNetAccessManager.cpp
 HEADERS += Parser/Parser.h \
     Parser/Command.h \
     Parser/Response.h \
@@ -105,6 +104,5 @@ HEADERS += Parser/Parser.h \
     Tasks/Fake_OpenConnectionTask.h \
     Model/ModelWatcher.h \
     Network/ForbiddenReply.h \
-    Network/AuxiliaryReply.h \
     Network/MsgPartNetAccessManager.h \
     Network/MsgPartNetworkReply.h \
