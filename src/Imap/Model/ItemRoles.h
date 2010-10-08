@@ -33,6 +33,8 @@ enum {
     /** @short A "random" offset */
     RoleBase = Qt::UserRole + 666,
 
+    /** @short Name of the mailbox */
+    RoleMailboxName,
     /** @short Total number of messages in a mailbox */
     RoleTotalMessageCount,
     /** @short Number of unread messages in a mailbox */
@@ -43,8 +45,8 @@ enum {
     RoleMailboxIsSelectable,
     /** @short The mailbox has child mailboxes */
     RoleMailboxHasChildmailboxes,
-    /** @short Informaiton about number of messages in the mailbox is being loaded */
-    RoleMailboxNumbersAreFetching,
+    /** @short Informaiton about whether the number of messages in the mailbox has already been loaded */
+    RoleMailboxNumbersFetched,
 
     /** @short Subject of the message */
     RoleMessageSubject,

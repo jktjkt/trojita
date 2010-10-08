@@ -21,6 +21,7 @@
 
 #include "MailboxModel.h"
 #include "MailboxTree.h"
+#include "ItemRoles.h"
 
 #include "iconloader/qticonloader.h"
 
@@ -231,6 +232,20 @@ QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
                 default:
                     return QVariant();
             }
+        case RoleMailboxName:
+            return mbox->mailbox();
+        case RoleMailboxHasChildmailboxes:
+            return list->hasChildren( 0 );
+        case RoleMailboxIsINBOX:
+            return mbox->mailbox().toUpper() == QLatin1String("INBOX");
+        case RoleMailboxIsSelectable:
+            return mbox->isSelectable();
+        case RoleMailboxNumbersFetched:
+            return list->numbersFetched();
+        case RoleTotalMessageCount:
+            return list->totalMessageCount( static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
+        case RoleUnreadMessageCount:
+            return list->unreadMessageCount( static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
         default:
             return QAbstractProxyModel::data( createIndex( proxyIndex.row(), 0, proxyIndex.internalPointer() ), role );
     }
