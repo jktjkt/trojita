@@ -47,15 +47,12 @@ public:
     virtual bool hasChildren( const QModelIndex& parent = QModelIndex() ) const;
 
     virtual QVariant data(const QModelIndex &proxyIndex, int role = Qt::DisplayRole) const;
-    virtual QVariant headerData ( int section, Qt::Orientation orientation, int role=Qt::DisplayRole ) const;
 
     virtual Qt::ItemFlags flags( const QModelIndex& index ) const;
     virtual Qt::DropActions supportedDropActions() const;
     virtual QStringList mimeTypes() const;
     virtual bool dropMimeData( const QMimeData* data, Qt::DropAction action,
                                int row, int column, const QModelIndex& parent );
-
-    enum { NAME, TOTAL_MESSAGE_COUNT, UNREAD_MESSAGE_COUNT, COLUMN_COUNT = 3 };
 
 protected slots:
     void handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight );

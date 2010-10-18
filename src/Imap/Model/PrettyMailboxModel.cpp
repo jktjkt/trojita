@@ -20,6 +20,10 @@
 */
 #include "PrettyMailboxModel.h"
 #include "MailboxModel.h"
+#include "ItemRoles.h"
+#include "iconloader/qticonloader.h"
+
+#include <QFont>
 
 namespace Imap {
 
@@ -47,14 +51,41 @@ QVariant PrettyMailboxModel::data( const QModelIndex& index, int role ) const
         case Qt::DisplayRole:
             {
             QModelIndex translated = mapToSource( index );
-            QModelIndex unreadIndex = translated.sibling( translated.row(), MailboxModel::UNREAD_MESSAGE_COUNT );
-            qlonglong unreadCount = sourceModel()->data( unreadIndex, Qt::DisplayRole ).toLongLong();
+            qlonglong unreadCount = translated.data( RoleUnreadMessageCount ).toLongLong();
             if ( unreadCount )
                 return tr("%1 (%2)").arg(
-                        QSortFilterProxyModel::data( index, Qt::DisplayRole ).toString() ).arg(
+                        QSortFilterProxyModel::data( index, RoleMailboxName ).toString() ).arg(
                         unreadCount );
             else
-                return QSortFilterProxyModel::data( index, Qt::DisplayRole );
+                return QSortFilterProxyModel::data( index, RoleMailboxName );
+            }
+        case Qt::FontRole:
+            {
+            QModelIndex translated = mapToSource( index );
+            if ( translated.data( RoleMailboxNumbersFetched ).toBool() &&
+                 translated.data( RoleUnreadMessageCount ).toULongLong() > 0 ) {
+                QFont font;
+                font.setBold( true );
+                return font;
+            } else {
+                return QVariant();
+            }
+            }
+        case Qt::DecorationRole:
+            {
+            QModelIndex translated = mapToSource( index );
+            if ( translated.data( RoleMailboxItemsAreLoading ).toBool() )
+                return QtIconLoader::icon( QLatin1String("folder-grey"),
+                                           QIcon( QLatin1String(":/icons/folder-grey.png") ) );
+            else if ( translated.data( RoleMailboxIsINBOX ).toBool() )
+                return QtIconLoader::icon( QLatin1String("mail-folder-inbox"),
+                                           QIcon( QLatin1String(":/icons/mail-folder-inbox") ) );
+            else if ( translated.data( RoleMailboxIsSelectable ).toBool() )
+                return QtIconLoader::icon( QLatin1String("folder"),
+                                           QIcon( QLatin1String(":/icons/folder.png") ) );
+            else
+                return QtIconLoader::icon( QLatin1String("folder-open"),
+                                           QIcon( QLatin1String(":/icons/folder-open.png") ) );
             }
         default:
             return QSortFilterProxyModel::data( index, role );

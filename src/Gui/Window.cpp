@@ -236,6 +236,7 @@ void MainWindow::createWidgets()
     mboxTree->setAllColumnsShowFocus( true );
     mboxTree->setAcceptDrops( true );
     mboxTree->setDropIndicatorShown( true );
+    mboxTree->setHeaderHidden( true );
     connect( mboxTree, SIGNAL( customContextMenuRequested( const QPoint & ) ),
             this, SLOT( showContextMenuMboxTree( const QPoint& ) ) );
 

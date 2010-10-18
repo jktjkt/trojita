@@ -23,10 +23,7 @@
 #include "MailboxTree.h"
 #include "ItemRoles.h"
 
-#include "iconloader/qticonloader.h"
-
 #include <QDebug>
-#include <QFont>
 #include <QMimeData>
 
 namespace Imap {
@@ -96,7 +93,7 @@ void MailboxModel::handleDataChanged( const QModelIndex& topLeft, const QModelIn
 
 QModelIndex MailboxModel::index( int row, int column, const QModelIndex& parent ) const
 {
-    if ( row < 0 || column < 0 )
+    if ( row < 0 || column != 0 )
         return QModelIndex();
 
     if ( parent.column() != 0 && parent.column() != -1 )
@@ -104,8 +101,7 @@ QModelIndex MailboxModel::index( int row, int column, const QModelIndex& parent 
 
     QModelIndex translatedParent = mapToSource( parent );
 
-    if ( column < COLUMN_COUNT &&
-         row < sourceModel()->rowCount( translatedParent ) - 1 ) {
+    if ( row < sourceModel()->rowCount( translatedParent ) - 1 ) {
         void* ptr = sourceModel()->index( row + 1, 0, translatedParent ).internalPointer();
         Q_ASSERT( ptr );
         return createIndex( row, column, ptr );
@@ -131,7 +127,7 @@ int MailboxModel::rowCount( const QModelIndex& parent ) const
 
 int MailboxModel::columnCount( const QModelIndex& parent ) const
 {
-    return parent.column() == 0 || parent.column() == -1 ? COLUMN_COUNT : 0;
+    return parent.column() == 0 || parent.column() == -1 ? 1 : 0;
 }
 
 QModelIndex MailboxModel::mapToSource( const QModelIndex& proxyIndex ) const
@@ -166,6 +162,9 @@ QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
     if ( ! proxyIndex.isValid() || proxyIndex.model() != this )
         return QVariant();
 
+    if ( proxyIndex.column() != 0 )
+        return QVariant();
+
     TreeItemMailbox* mbox = dynamic_cast<TreeItemMailbox*>(
             static_cast<TreeItem*>( proxyIndex.internalPointer() )
             );
@@ -173,65 +172,6 @@ QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mbox->_children[0] );
     Q_ASSERT( list );
     switch ( role ) {
-        case Qt::DisplayRole:
-            switch ( proxyIndex.column() ) {
-                case NAME:
-                    return QAbstractProxyModel::data( proxyIndex, role );
-                case TOTAL_MESSAGE_COUNT:
-                {
-                    if ( ! mbox->isSelectable() )
-                        return QVariant();
-
-                    int num = list->totalMessageCount(
-                                    static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
-                    return list->numbersFetched() ? QString::number( num ) : tr("?");
-                }
-                case UNREAD_MESSAGE_COUNT:
-                {
-                    if ( ! mbox->isSelectable() )
-                        return QVariant();
-
-                    int num = list->unreadMessageCount(
-                                    static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
-                    return list->numbersFetched() ? QString::number( num ) : tr("?");
-                }
-                default:
-                    return QVariant();
-            }
-        case Qt::FontRole:
-            if ( list->numbersFetched() && list->unreadMessageCount(
-                                    static_cast<Imap::Mailbox::Model*>( sourceModel() ) ) > 0 ) {
-                QFont font;
-                font.setBold( true );
-                return font;
-            } else
-                return QVariant();
-        case Qt::TextAlignmentRole:
-            switch ( proxyIndex.column() ) {
-                case TOTAL_MESSAGE_COUNT:
-                case UNREAD_MESSAGE_COUNT:
-                    return Qt::AlignRight;
-                default:
-                    return QVariant();
-            }
-        case Qt::DecorationRole:
-            switch ( proxyIndex.column() ) {
-                case NAME:
-                    if ( list->loading() || ! list->numbersFetched() )
-                        return QtIconLoader::icon( QLatin1String("folder-grey"),
-                                                   QIcon( QLatin1String(":/icons/folder-grey.png") ) );
-                    else if ( mbox->mailbox().toUpper() == QLatin1String("INBOX") )
-                        return QtIconLoader::icon( QLatin1String("mail-folder-inbox"),
-                                                   QIcon( QLatin1String(":/icons/mail-folder-inbox") ) );
-                    else if ( mbox->isSelectable() )
-                        return QtIconLoader::icon( QLatin1String("folder"),
-                                                   QIcon( QLatin1String(":/icons/folder.png") ) );
-                    else
-                        return QtIconLoader::icon( QLatin1String("folder-open"),
-                                                   QIcon( QLatin1String(":/icons/folder-open.png") ) );
-                default:
-                    return QVariant();
-            }
         case RoleMailboxName:
             return mbox->mailbox();
         case RoleMailboxHasChildmailboxes:
@@ -246,6 +186,8 @@ QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
             return list->totalMessageCount( static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
         case RoleUnreadMessageCount:
             return list->unreadMessageCount( static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
+        case RoleMailboxItemsAreLoading:
+            return list->loading() || ! list->numbersFetched();
         default:
             return QAbstractProxyModel::data( createIndex( proxyIndex.row(), 0, proxyIndex.internalPointer() ), role );
     }
@@ -253,28 +195,11 @@ QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
 
 void MailboxModel::handleMessageCountPossiblyChanged( const QModelIndex& mailbox )
 {
+    qDebug() << Q_FUNC_INFO;
     QModelIndex translated = mapFromSource( mailbox );
     if ( translated.isValid() ) {
-        QModelIndex topLeft = createIndex( translated.row(), TOTAL_MESSAGE_COUNT, translated.internalPointer() );
-        QModelIndex bottomRight = createIndex( translated.row(), UNREAD_MESSAGE_COUNT, translated.internalPointer() );
-        emit dataChanged( topLeft, bottomRight );
-    }
-}
-
-QVariant MailboxModel::headerData ( int section, Qt::Orientation orientation, int role ) const
-{
-    if ( orientation != Qt::Horizontal || role != Qt::DisplayRole )
-        return QAbstractItemModel::headerData( section, orientation, role );
-
-    switch ( section ) {
-        case NAME:
-            return tr( "Mailbox" );
-        case TOTAL_MESSAGE_COUNT:
-            return tr( "Total" );
-        case UNREAD_MESSAGE_COUNT:
-            return tr( "Unread" );
-        default:
-            return QVariant();
+        qDebug() << "...and signalling it";
+        emit dataChanged( translated, translated );
     }
 }
 

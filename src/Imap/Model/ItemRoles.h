@@ -45,8 +45,10 @@ enum {
     RoleMailboxIsSelectable,
     /** @short The mailbox has child mailboxes */
     RoleMailboxHasChildmailboxes,
-    /** @short Informaiton about whether the number of messages in the mailbox has already been loaded */
+    /** @short Information about whether the number of messages in the mailbox has already been loaded */
     RoleMailboxNumbersFetched,
+    /** @short Is anything still loading for tihs mailbox? */
+    RoleMailboxItemsAreLoading,
 
     /** @short Subject of the message */
     RoleMessageSubject,
