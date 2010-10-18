@@ -1266,12 +1266,12 @@ KeepMailboxOpenTask* Model::findTaskResponsibleFor( const QModelIndex& mailbox )
         return mailboxPtr->maintainingTask;
     } else if ( canCreateConn ) {
         // The mailbox is not being maintained, but we can create a new connection
-        return _taskFactory->createKeepMailboxOpenTask( this, mailbox, 0 );
+        return _taskFactory->createKeepMailboxOpenTask( this, translatedIndex, 0 );
     } else {
         // Too bad, we have to re-use an existing parser. That will probably lead to
         // stealing it from some mailbox, but there's no other way.
         Q_ASSERT( ! _parsers.isEmpty() );
-        return _taskFactory->createKeepMailboxOpenTask( this, mailbox, _parsers.begin().key() );
+        return _taskFactory->createKeepMailboxOpenTask( this, translatedIndex, _parsers.begin().key() );
     }
 }
 
