@@ -26,13 +26,13 @@ namespace Imap {
 namespace Mailbox {
 
 FetchMsgPartTask::FetchMsgPartTask( Model* _model,
-                                    TreeItemMailbox* mailbox, TreeItemPart* part ) :
+                                    TreeItemMailbox* mailbox, TreeItem* item ) :
     ImapTask( _model )
 {
     QModelIndex mailboxIndex = model->createIndex( mailbox->row(), 0, mailbox );
     conn = model->findTaskResponsibleFor( mailboxIndex );
     conn->addDependentTask( this );
-    index = model->createIndex( part->row(), 0, part );
+    index = model->createIndex( item->row(), 0, item );
 }
 
 void FetchMsgPartTask::perform()
@@ -46,14 +46,23 @@ void FetchMsgPartTask::perform()
     parser = conn->parser;
     model->_parsers[ parser ].activeTasks.append( this );
     TreeItemPart* part = dynamic_cast<TreeItemPart*>( static_cast<TreeItem*>( index.internalPointer() ) );
-    Q_ASSERT( part );
-    tag = parser->fetch( Sequence( part->message()->row() + 1 ),
-            QStringList() << QString::fromAscii("BODY.PEEK[%1]").arg(
-                    part->mimeType() == QLatin1String("message/rfc822") ?
-                        QString::fromAscii("%1.HEADER").arg( part->partId() ) :
-                        part->partId()
-                    ) );
-    model->_parsers[ parser ].commandMap[ tag ] = Model::Task( Model::Task::FETCH_PART, 0 );
+    TreeItemMessage* wholeMessage = dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>( index.internalPointer() ) );
+    Q_ASSERT( part || wholeMessage );
+    if ( part ) {
+        tag = parser->fetch( Sequence( part->message()->row() + 1 ),
+                QStringList() << QString::fromAscii("BODY.PEEK[%1]").arg(
+                        part->mimeType() == QLatin1String("message/rfc822") ?
+                            QString::fromAscii("%1.HEADER").arg( part->partId() ) :
+                            part->partId()
+                        ) );
+        model->_parsers[ parser ].commandMap[ tag ] = Model::Task( Model::Task::FETCH_PART, 0 );
+    } else if ( wholeMessage ) {
+        tag = parser->fetch( Sequence( part->message()->row() + 1 ),
+                QStringList() << QString::fromAscii("BODY.PEEK[]") );
+        model->_parsers[ parser ].commandMap[ tag ] = Model::Task( Model::Task::FETCH_PART, 0 );
+    } else {
+        Q_ASSERT( false );
+    }
     emit model->activityHappening( true );
 }
 

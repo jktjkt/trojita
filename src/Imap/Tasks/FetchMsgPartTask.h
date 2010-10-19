@@ -27,14 +27,14 @@ namespace Imap {
 namespace Mailbox {
 
 class TreeItemMailbox;
-class TreeItemPart;
+class TreeItem;
 
 /** @short Fetch a message part */
 class FetchMsgPartTask : public ImapTask
 {
 Q_OBJECT
 public:
-    FetchMsgPartTask( Model* _model, TreeItemMailbox* mailbox, TreeItemPart* part );
+    FetchMsgPartTask( Model* _model, TreeItemMailbox* mailbox, TreeItem* item );
     virtual void perform();
 
     virtual bool handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );

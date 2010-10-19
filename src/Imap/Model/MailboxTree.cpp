@@ -280,16 +280,28 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
             QString partIdentification = it.key().mid( 5, it.key().size() - 6 );
             if ( partIdentification.endsWith( QLatin1String(".HEADER") ) )
                 partIdentification = partIdentification.left( partIdentification.size() - QString::fromAscii(".HEADER").size() );
-            TreeItemPart* part = partIdToPtr( model, response.number, partIdentification );
-            if ( ! part )
-                throw UnknownMessageIndex( "Got BODY[] fetch that is out of bounds", response );
-            const QByteArray& data = dynamic_cast<const Responses::RespData<QByteArray>&>( *(it.value()) ).data;
-            decodeMessagePartTransportEncoding( data, part->encoding(), part->dataPtr() );
-            part->_fetchStatus = DONE;
-            if ( message->uid() )
-                model->cache()->setMsgPart( mailbox(), message->uid(), partIdentification, part->_data );
-            if ( changedPart ) {
-                *changedPart = part;
+            if ( partIdentification.isEmpty() ) {
+                const QByteArray& data = dynamic_cast<const Responses::RespData<QByteArray>&>( *(it.value()) ).data;
+                decodeMessagePartTransportEncoding( data, QByteArray("binary"), &message->_fullBodyData );
+                message->_fullBodyFetchStatus = DONE;
+                if ( message->uid() )
+                    model->cache()->setMsgPart( mailbox(), message->uid(), QString(), message->_fullBodyData );
+                if ( changedMessage ) {
+                    *changedMessage = message;
+                }
+            } else {
+                TreeItemPart* part = partIdToPtr( model, response.number, partIdentification );
+                if ( ! part )
+                    throw UnknownMessageIndex( "Got BODY[] fetch that is out of bounds", response );
+                const QByteArray& data = dynamic_cast<const Responses::RespData<QByteArray>&>( *(it.value()) ).data;
+                decodeMessagePartTransportEncoding( data, part->encoding(), part->dataPtr() );
+                part->_fetchStatus = DONE;
+                if ( message->uid() )
+                    model->cache()->setMsgPart( mailbox(), message->uid(), partIdentification, part->_data );
+                if ( changedPart ) {
+                    *changedPart = part;
+                }
+                emit model->fullMessageBodyReceived( model->createIndex( message->row(), 0, message ) );
             }
         } else if ( it.key() == "UID" ) {
             message->_uid = dynamic_cast<const Responses::RespData<uint>&>( *(it.value()) ).data;
@@ -553,7 +565,7 @@ bool TreeItemMsgList::numbersFetched() const
 
 
 TreeItemMessage::TreeItemMessage( TreeItem* parent ):
-        TreeItem(parent), _size(0), _uid(0), _flagsHandled(false), _offset(-1)
+        TreeItem(parent), _size(0), _uid(0), _flagsHandled(false), _offset(-1), _fullBodyFetchStatus(NONE)
 {}
 
 void TreeItemMessage::fetch( Model* const model )
@@ -563,6 +575,15 @@ void TreeItemMessage::fetch( Model* const model )
 
     _fetchStatus = LOADING;
     model->_askForMsgMetadata( this );
+}
+
+void TreeItemMessage::fetchFullBody( Model* const model )
+{
+    if ( _fullBodyFetchStatus != NONE )
+        return;
+
+    _fullBodyFetchStatus = LOADING;
+    model->_askForMsgFullBody( this ); // FIXME: verify honoring of the offline mode
 }
 
 unsigned int TreeItemMessage::rowCount( Model* const model )

@@ -170,6 +170,8 @@ class TreeItemMessage: public TreeItem {
     QStringList _flags;
     bool _flagsHandled;
     int _offset;
+    FetchingState _fullBodyFetchStatus;
+    QByteArray _fullBodyData;
 public:
     TreeItemMessage( TreeItem* parent );
 
@@ -186,6 +188,7 @@ public:
     bool isMarkedAsForwarded() const;
     bool isMarkedAsRecent() const;
     uint uid() const;
+    void fetchFullBody( Model* const model );
 };
 
 class TreeItemPart: public TreeItem {
