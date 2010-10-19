@@ -21,12 +21,22 @@
 #ifndef SIMPLEPARTWIDGET_H
 #define SIMPLEPARTWIDGET_H
 
+#include "AbstractPartWidget.h"
+#include "EmbeddedWebView.h"
 #include <QAction>
 #include <QFile>
 
-#include "AbstractPartWidget.h"
-#include "EmbeddedWebView.h"
-#include "Imap/Network/MsgPartNetAccessManager.h"
+class QNetworkReply;
+
+namespace Imap {
+namespace Network {
+    class DownloadManager;
+    class MsgPartNetAccessManager;
+}
+namespace Mailbox {
+    class TreeItemPart;
+}
+}
 
 namespace Gui {
 
@@ -46,16 +56,11 @@ public:
     virtual QString quoteMe() const;
     virtual void reloadContents();
 private slots:
-    void slotSaveContents();
-    void slotDataTransfered();
-    void slotTransferError();
-    void slotDeleteReply(QNetworkReply* reply);
+    void slotTransferError( const QString& errorString );
+    void slotFileNameRequested( QString* fileName );
 private:
-    Imap::Mailbox::TreeItemPart* part;
-    QNetworkReply* reply;
-    QFile saving;
     QAction* saveAction;
-    bool saved;
+    Imap::Network::DownloadManager* _downloadManager;
 
     SimplePartWidget(const SimplePartWidget&); // don't implement
     SimplePartWidget& operator=(const SimplePartWidget&); // don't implement

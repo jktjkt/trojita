@@ -23,83 +23,45 @@
 #include <QNetworkReply>
 #include <QWebFrame>
 
-#include "AttachmentView.h"
 #include "SimplePartWidget.h"
 #include "Imap/Model/MailboxTree.h"
+#include "Imap/Network/DownloadManager.h"
 
 namespace Gui {
 
 SimplePartWidget::SimplePartWidget( QWidget* parent,
                                     Imap::Network::MsgPartNetAccessManager* manager,
                                     Imap::Mailbox::TreeItemPart* _part ):
-        EmbeddedWebView( parent, manager ), part(_part), reply(0)
+        EmbeddedWebView( parent, manager )
 {
     QUrl url;
     url.setScheme( QLatin1String("trojita-imap") );
     url.setHost( QLatin1String("msg") );
-    url.setPath( part->pathToPart() );
+    url.setPath( _part->pathToPart() );
     load( url );
 
-    saveAction = new QAction( tr("Save..."), this );
-    connect( saveAction, SIGNAL(triggered()), this, SLOT(slotSaveContents()) );
-    this->addAction( saveAction );
+    _downloadManager = new Imap::Network::DownloadManager( this, manager, _part );
+    connect( _downloadManager, SIGNAL(fileNameRequested(QString*)), this, SLOT(slotFileNameRequested(QString*)) );
 
-    connect( page()->networkAccessManager(), SIGNAL(finished(QNetworkReply*)),
-             this, SLOT(slotDeleteReply(QNetworkReply*)) );
+    saveAction = new QAction( tr("Save..."), this );
+    connect( saveAction, SIGNAL(triggered()), _downloadManager, SLOT(slotDownloadNow()) );
+    this->addAction( saveAction );
 
     setContextMenuPolicy( Qt::ActionsContextMenu );
 }
 
-void SimplePartWidget::slotSaveContents()
+void SimplePartWidget::slotFileNameRequested(QString *fileName)
 {
-    QString saveFileName = QFileDialog::getSaveFileName( this, tr("Save Attachment"),
-                                                         AttachmentView::toRealFileName( part ), QString(),
-                                                         0, QFileDialog::HideNameFilterDetails
-                                                       );
-    if ( saveFileName.isEmpty() )
-        return;
-
-    saving.setFileName( saveFileName );
-
-    QNetworkRequest request;
-    QUrl url;
-    url.setScheme( QLatin1String("trojita-imap") );
-    url.setHost( QLatin1String("msg") );
-    url.setPath( part->pathToPart() );
-    request.setUrl( url );
-    reply = page()->networkAccessManager()->get( request );
-    connect( reply, SIGNAL(finished()), this, SLOT(slotDataTransfered()) );
-    connect( reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(slotTransferError()) );
-    saved = false;
+    *fileName = QFileDialog::getSaveFileName( this, tr("Save Attachment"),
+                                  *fileName, QString(),
+                                  0, QFileDialog::HideNameFilterDetails
+                                  );
 }
 
-void SimplePartWidget::slotDataTransfered()
+void SimplePartWidget::slotTransferError( const QString& errorString )
 {
-    Q_ASSERT( reply );
-    if ( reply->error() == QNetworkReply::NoError ) {
-        saving.open( QIODevice::WriteOnly );
-        saving.write( reply->readAll() );
-        saving.close();
-        saved = true;
-    }
-}
-
-void SimplePartWidget::slotTransferError()
-{
-    Q_ASSERT( reply );
     QMessageBox::critical( this, tr("Can't save attachment"),
-                           tr("Unable to save the attachment. Error:\n%1").arg( reply->errorString() ) );
-}
-
-void SimplePartWidget::slotDeleteReply(QNetworkReply* reply)
-{
-    if ( reply == this->reply ) {
-        if ( ! saved ) {
-            slotDataTransfered();
-        }
-        delete reply;
-        this->reply = 0;
-    }
+                           tr("Unable to save the attachment. Error:\n%1").arg( errorString ) );
 }
 
 QString SimplePartWidget::quoteMe() const

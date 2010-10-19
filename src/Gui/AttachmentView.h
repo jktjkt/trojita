@@ -21,10 +21,19 @@
 #ifndef ATTACHMENTVIEW_H
 #define ATTACHMENTVIEW_H
 
-#include <QFile>
-#include <QNetworkReply>
 #include <QWidget>
-#include "Imap/Network/MsgPartNetAccessManager.h"
+
+class QNetworkReply;
+
+namespace Imap {
+namespace Network {
+    class DownloadManager;
+    class MsgPartNetAccessManager;
+}
+namespace Mailbox {
+    class TreeItemPart;
+}
+}
 
 namespace Gui {
 
@@ -42,19 +51,11 @@ public:
     AttachmentView( QWidget* parent,
                     Imap::Network::MsgPartNetAccessManager* _manager,
                     Imap::Mailbox::TreeItemPart* _part );
-
-    static QString toRealFileName( Imap::Mailbox::TreeItemPart* part );
 private slots:
-    void slotDownloadClicked();
-    void slotDataTransfered();
-    void slotTransferError();
-    void slotDeleteReply(QNetworkReply* reply);
+    void slotTransferError( const QString& errorString );
+    void slotFileNameRequested( QString* fileName );
 private:
-    Imap::Network::MsgPartNetAccessManager* manager;
-    Imap::Mailbox::TreeItemPart* part;
-    QNetworkReply* reply;
-    QFile saving;
-    bool saved;
+    Imap::Network::DownloadManager* _downloadManager;
 
     AttachmentView(const AttachmentView&); // don't implement
     AttachmentView& operator=(const AttachmentView&); // don't implement
