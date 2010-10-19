@@ -440,10 +440,6 @@ TreeItemPart* TreeItemMailbox::partIdToPtr( Model* const model, const int msgNum
                         + QString::number( number ) + QString::fromAscii(" of ") + msgId ).toAscii().constData() );}
     }
     TreeItemPart* part = dynamic_cast<TreeItemPart*>( item );
-    if ( ! part )
-        throw UnknownMessageIndex( ( QString::fromAscii(
-                        "Offset of the message part doesn't point anywhere: " )
-                    + msgId ).toAscii().constData() );
     return part;
 }
 
