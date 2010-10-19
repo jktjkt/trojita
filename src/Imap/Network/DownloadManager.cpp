@@ -30,24 +30,32 @@ namespace Network {
 
 DownloadManager::DownloadManager( QObject* parent,
                                 Imap::Network::MsgPartNetAccessManager* _manager,
-                                Imap::Mailbox::TreeItemPart* _part):
-    QObject( parent ), manager(_manager), part(_part), reply(0), saved(false)
+                                Imap::Mailbox::TreeItem* _item):
+    QObject( parent ), manager(_manager), item(_item), reply(0), saved(false)
 {
 }
 
-QString DownloadManager::toRealFileName( Imap::Mailbox::TreeItemPart* part )
+QString DownloadManager::toRealFileName( Imap::Mailbox::TreeItem* item )
 {
-    QString name = part->fileName().isEmpty() ?
-                   tr("msg_%1_%2").arg( part->message()->uid() ).arg( part->partId() )
+    Imap::Mailbox::TreeItemPart* part = dynamic_cast<Imap::Mailbox::TreeItemPart*>( item );
+    Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>( item );
+    Q_ASSERT( part || message );
+    QString name;
+    if ( part ) {
+        name = part->fileName().isEmpty() ?
+               tr("msg_%1_%2").arg( part->message()->uid() ).arg( part->partId() )
                    : part->fileName();
+    } else if ( message ) {
+        name = tr("msg_%1.eml").arg( message->uid() );
+    }
     return QDir( QDesktopServices::storageLocation( QDesktopServices::DocumentsLocation )
                  ).filePath( name );
 }
 
 void DownloadManager::slotDownloadNow()
 {
-    Q_ASSERT( part );
-    QString saveFileName = toRealFileName( part );
+    Q_ASSERT( item );
+    QString saveFileName = toRealFileName( item );
     emit fileNameRequested( &saveFileName );
     if ( saveFileName.isEmpty() )
         return;
@@ -58,7 +66,13 @@ void DownloadManager::slotDownloadNow()
     QUrl url;
     url.setScheme( QLatin1String("trojita-imap") );
     url.setHost( QLatin1String("msg") );
-    url.setPath( part->pathToPart() );
+    if ( Imap::Mailbox::TreeItemPart* part = dynamic_cast<Imap::Mailbox::TreeItemPart*>( item ) ) {
+        url.setPath( part->pathToPart() );
+    } else if ( Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>( item ) ) {
+        url.setPath( QLatin1String("whole-body") );
+    } else {
+        Q_ASSERT( false );
+    }
     request.setUrl( url );
     reply = manager->get( request );
     connect( reply, SIGNAL(finished()), this, SLOT(slotDataTransfered()) );

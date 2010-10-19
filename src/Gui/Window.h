@@ -96,9 +96,13 @@ private slots:
     void updateBusyParsers( bool busy );
     void slotShowAboutTrojita();
     void slotDonateToTrojita();
+    void slotSaveCurrentMessageBody();
 
     void slotMailboxDeleteFailed( const QString& mailbox, const QString& msg );
     void slotMailboxCreateFailed( const QString& mailbox, const QString& msg );
+
+    void slotDownloadMessageTransferError( const QString& errorString );
+    void slotDownloadMessageFileNameRequested( QString* fileName );
 
 private:
     void createMenus();
@@ -152,6 +156,7 @@ private:
 
     QAction* markAsRead;
     QAction* markAsDeleted;
+    QAction* saveWholeMessage;
 
     QProgressBar* busyParsersIndicator;
     QToolButton* networkIndicator;

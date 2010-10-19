@@ -34,7 +34,7 @@ namespace Imap {
 namespace Network {
 
 MsgPartNetAccessManager::MsgPartNetAccessManager( QObject* parent ):
-    QNetworkAccessManager( parent ), _externalsEnabled(false)
+    QNetworkAccessManager( parent ), model(0), message(0), _externalsEnabled(false)
 {
 }
 
@@ -50,11 +50,22 @@ QNetworkReply* MsgPartNetAccessManager::createRequest( Operation op,
 {
     Q_UNUSED( op );
     Q_UNUSED( outgoingData );
+    Q_ASSERT( model );
+    Q_ASSERT( message );
     Imap::Mailbox::TreeItemPart* part = pathToPart( req.url().path() );
     if ( req.url().scheme() == QLatin1String( "trojita-imap" ) &&
-         req.url().host() == QLatin1String("msg") && part ) {
-        return new Imap::Network::MsgPartNetworkReply( this, model, message,
-                                                       part );
+         req.url().host() == QLatin1String("msg") ) {
+        if ( part ) {
+            return new Imap::Network::MsgPartNetworkReply( this, model, message,
+                                                           part );
+        } else if ( req.url().path() == QLatin1String("whole-body") ) {
+            // FIXME: we shold really create a fake TreeItemMsgPart for the full body -- it's a part after all...
+            qDebug() << "Sorry, the support for whole message bodies is still missing:" << req.url();
+            return new Imap::Network::ForbiddenReply( this );
+        } else {
+            qDebug() << "No such part:" << req.url();
+            return new Imap::Network::ForbiddenReply( this );
+        }
     } else if ( req.url().scheme() == QLatin1String("cid") ) {
         QByteArray cid = req.url().path().toUtf8();
         if ( ! cid.startsWith("<") )

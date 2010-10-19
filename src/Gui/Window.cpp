@@ -23,6 +23,7 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QDockWidget>
+#include <QFileDialog>
 #include <QHeaderView>
 #include <QInputDialog>
 #include <QItemSelectionModel>
@@ -51,6 +52,7 @@
 #include "Imap/Model/CombinedCache.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/PrettyMailboxModel.h"
+#include "Imap/Network/DownloadManager.h"
 #include "Streams/SocketFactory.h"
 
 #include "ui_CreateMailboxDialog.h"
@@ -145,6 +147,10 @@ void MainWindow::createActions()
     markAsDeleted->setShortcut( Qt::Key_Delete );
     msgListTree->addAction( markAsDeleted );
     connect( markAsDeleted, SIGNAL(triggered(bool)), this, SLOT(handleMarkAsDeleted(bool)) );
+
+    saveWholeMessage = new QAction( QtIconLoader::icon( QLatin1String("file-save") ), tr("Save Message..."), this );
+    msgListTree->addAction( saveWholeMessage );
+    connect( saveWholeMessage, SIGNAL(triggered()), this, SLOT(slotSaveCurrentMessageBody()) );
 
     createChildMailbox = new QAction( tr("Create Child Mailbox..."), this );
     connect( createChildMailbox, SIGNAL(triggered()), this, SLOT(slotCreateMailboxBelowCurrent()) );
@@ -489,6 +495,7 @@ void MainWindow::showContextMenuMsgListTree( const QPoint& position )
         updateMessageFlags( index );
         actionList.append( markAsRead );
         actionList.append( markAsDeleted );
+        actionList.append( saveWholeMessage );
     }
     if ( ! actionList.isEmpty() )
         QMenu::exec( actionList, msgListTree->mapToGlobal( position ) );
@@ -882,6 +889,48 @@ void MainWindow::slotShowAboutTrojita()
 void MainWindow::slotDonateToTrojita()
 {
     QDesktopServices::openUrl( QString::fromAscii("http://sourceforge.net/donate/index.php?group_id=339456") );
+}
+
+void MainWindow::slotSaveCurrentMessageBody()
+{
+    QModelIndexList indices = msgListTree->selectionModel()->selectedIndexes();
+    for ( QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it ) {
+        Q_ASSERT( it->isValid() );
+        Q_ASSERT( it->model() == msgListModel );
+        if ( it->column() != 0 )
+            continue;
+        Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
+                Imap::Mailbox::Model::realTreeItem( *it )
+                );
+        Q_ASSERT( message );
+
+        Imap::Network::MsgPartNetAccessManager* netAccess = new Imap::Network::MsgPartNetAccessManager( this );
+        netAccess->setModelMessage( model, message );
+        Imap::Network::DownloadManager* downloadManager =
+                new Imap::Network::DownloadManager( this, netAccess, message );
+        connect( downloadManager, SIGNAL(succeeded()), downloadManager, SLOT(deleteLater()) );
+        connect( downloadManager, SIGNAL(transferError(QString)), downloadManager, SLOT(deleteLater()) );
+        connect( downloadManager, SIGNAL(fileNameRequested(QString*)),
+                 this, SLOT(slotDownloadMessageFileNameRequested(QString*)) );
+        connect( downloadManager, SIGNAL(transferError(QString)),
+                 this, SLOT(slotDownloadMessageTransferError(QString)) );
+        connect( downloadManager, SIGNAL(destroyed()), netAccess, SLOT(deleteLater()) );
+        downloadManager->slotDownloadNow();
+    }
+}
+
+void MainWindow::slotDownloadMessageTransferError( const QString& errorString )
+{
+    QMessageBox::critical( this, tr("Can't save message"),
+                           tr("Unable to save the attachment. Error:\n%1").arg( errorString ) );
+}
+
+void MainWindow::slotDownloadMessageFileNameRequested( QString* fileName )
+{
+    *fileName = QFileDialog::getSaveFileName( this, tr("Save Message"),
+                                  *fileName, QString(),
+                                  0, QFileDialog::HideNameFilterDetails
+                                  );
 }
 
 }

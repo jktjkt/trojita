@@ -40,21 +40,22 @@ class DownloadManager : public QObject
 public:
     DownloadManager( QObject* parent,
                     Imap::Network::MsgPartNetAccessManager* _manager,
-                    Imap::Mailbox::TreeItemPart* _part );
+                    Imap::Mailbox::TreeItem* _item );
 
-    static QString toRealFileName( Imap::Mailbox::TreeItemPart* part );
+    static QString toRealFileName( Imap::Mailbox::TreeItem* item );
 private slots:
-    void slotDownloadNow();
     void slotDataTransfered();
     void slotTransferError();
     void slotDeleteReply(QNetworkReply* reply);
+public slots:
+    void slotDownloadNow();
 signals:
     void transferError( const QString& errorMessage );
     void fileNameRequested( QString* fileName );
     void succeeded();
 private:
     Imap::Network::MsgPartNetAccessManager* manager;
-    Imap::Mailbox::TreeItemPart* part;
+    Imap::Mailbox::TreeItem* item;
     QNetworkReply* reply;
     QFile saving;
     bool saved;
