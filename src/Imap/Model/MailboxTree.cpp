@@ -265,13 +265,13 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
             if ( ! part )
                 throw UnknownMessageIndex( "Got BODY[] fetch that is out of bounds", response );
             const QByteArray& data = dynamic_cast<const Responses::RespData<QByteArray>&>( *(it.value()) ).data;
-            if ( part->encoding() == "quoted-printable" )
+            if ( part->encoding() == "quoted-printable" ) {
                 part->_data = Imap::quotedPrintableDecode( data );
-            else if ( part->encoding() == "base64" )
+            } else if ( part->encoding() == "base64" ) {
                 part->_data = QByteArray::fromBase64( data );
-            else if ( part->encoding() == "7bit" || part->encoding() == "8bit" || part->encoding() == "binary" )
+            } else if ( part->encoding() == "7bit" || part->encoding() == "8bit" || part->encoding() == "binary" ) {
                 part->_data = data;
-            else {
+            } else {
                 qDebug() << "Warning: unknown encoding" << part->encoding();
                 part->_data = data;
             }
