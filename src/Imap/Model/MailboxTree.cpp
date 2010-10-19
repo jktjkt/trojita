@@ -25,6 +25,25 @@
 #include "Imap/Encoders.h"
 #include <QtDebug>
 
+namespace {
+
+void decodeMessagePartTransportEncoding( const QByteArray& rawData, const QByteArray& encoding, QByteArray* outputData )
+{
+    Q_ASSERT( outputData );
+    if ( encoding == "quoted-printable" ) {
+        *outputData = Imap::quotedPrintableDecode( rawData );
+    } else if ( encoding == "base64" ) {
+        *outputData = QByteArray::fromBase64( rawData );
+    } else if ( encoding == "7bit" || encoding == "8bit" || encoding == "binary" ) {
+        *outputData = rawData;
+    } else {
+        qDebug() << "Warning: unknown encoding" << encoding;
+        *outputData = rawData;
+    }
+}
+
+}
+
 namespace Imap {
 namespace Mailbox {
 
@@ -265,16 +284,7 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
             if ( ! part )
                 throw UnknownMessageIndex( "Got BODY[] fetch that is out of bounds", response );
             const QByteArray& data = dynamic_cast<const Responses::RespData<QByteArray>&>( *(it.value()) ).data;
-            if ( part->encoding() == "quoted-printable" ) {
-                part->_data = Imap::quotedPrintableDecode( data );
-            } else if ( part->encoding() == "base64" ) {
-                part->_data = QByteArray::fromBase64( data );
-            } else if ( part->encoding() == "7bit" || part->encoding() == "8bit" || part->encoding() == "binary" ) {
-                part->_data = data;
-            } else {
-                qDebug() << "Warning: unknown encoding" << part->encoding();
-                part->_data = data;
-            }
+            decodeMessagePartTransportEncoding( data, part->encoding(), part->dataPtr() );
             part->_fetchStatus = DONE;
             if ( message->uid() )
                 model->cache()->setMsgPart( mailbox(), message->uid(), partIdentification, part->_data );
