@@ -1274,6 +1274,24 @@ KeepMailboxOpenTask* Model::findTaskResponsibleFor( const QModelIndex& mailbox )
         return _taskFactory->createKeepMailboxOpenTask( this, translatedIndex, _parsers.begin().key() );
     }
 }
+void Model::_genericHandleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
+{
+    TreeItemMailbox* mailbox = _parsers[ ptr ].mailbox;
+    if ( ! mailbox )
+        throw UnexpectedResponseReceived( "Received FETCH reply, but AFAIK we haven't selected any mailbox yet", *resp );
+
+    TreeItemPart* changedPart = 0;
+    TreeItemMessage* changedMessage = 0;
+    mailbox->handleFetchResponse( this, *resp, &changedPart, &changedMessage );
+    if ( changedPart ) {
+        QModelIndex index = createIndex( changedPart->row(), 0, changedPart );
+        emit dataChanged( index, index );
+    }
+    if ( changedMessage ) {
+        QModelIndex index = createIndex( changedMessage->row(), 0, changedMessage );
+        emit dataChanged( index, index );
+    }
+}
 
 }
 }

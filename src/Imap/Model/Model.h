@@ -370,6 +370,7 @@ private:
     void _finalizeIncrementalList( Parser* parser, const QString& parentMailboxName );
     void _finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeFetchPart( Parser* parser, TreeItemPart* const part );
+    void _genericHandleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );
 
     void replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<TreeItem*> mailboxes );
     void enterIdle( Parser* parser );

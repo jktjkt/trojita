@@ -184,22 +184,7 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
 
 bool KeepMailboxOpenTask::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
 {
-    // FIXME: tests!
-    TreeItemMailbox* mailbox = model->_parsers[ ptr ].mailbox;
-    if ( ! mailbox )
-        throw UnexpectedResponseReceived( "Received FETCH reply, but AFAIK we haven't selected any mailbox yet", *resp );
-
-    TreeItemPart* changedPart = 0;
-    TreeItemMessage* changedMessage = 0;
-    mailbox->handleFetchResponse( model, *resp, &changedPart, &changedMessage );
-    if ( changedPart ) {
-        QModelIndex index = model->createIndex( changedPart->row(), 0, changedPart );
-        emit model->dataChanged( index, index );
-    }
-    if ( changedMessage ) {
-        QModelIndex index = model->createIndex( changedMessage->row(), 0, changedMessage );
-        emit model->dataChanged( index, index );
-    }
+    model->_genericHandleFetch( ptr, resp );
     return true;
 }
 
