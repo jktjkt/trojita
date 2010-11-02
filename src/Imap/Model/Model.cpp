@@ -228,7 +228,15 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
 
     } else {
         // untagged response
-        throw UnexpectedResponseReceived( "[Port-in-progress] Unhhandled untagged response, sorry", *resp );
+        // FIXME: we should probably just eat them and don't bother, as untagged OK/NO could be rather common...
+        switch ( resp->kind ) {
+        case BYE:
+            killParser( ptr );
+            parsersMightBeIdling();
+            break;
+        default:
+            throw UnexpectedResponseReceived( "[Port-in-progress] Unhhandled untagged response, sorry", *resp );
+        }
     }
 }
 
