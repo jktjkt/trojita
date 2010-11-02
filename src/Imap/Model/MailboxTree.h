@@ -52,6 +52,25 @@ protected:
         DONE /**< @short Item is available right now */
     };
 
+    typedef enum {
+        /** @short Full body of an e-mail stored on the IMAP server
+
+          This one really makes sense on a TreeItemMessage and TreeItemPart, and
+          are used
+*/
+        /** @short The HEADER fetch modifier for the current item */
+        OFFSET_HEADER=1,
+        /** @short The TEXT fetch modifier for the current item */
+        OFFSET_TEXT=2,
+        /** @short The MIME fetch modifier for individual message parts
+
+          In constrast to OFFSET_HEADER and OFFSET_TEXT, this one applies
+          only to TreeItemPart, simply because using the MIME modiifer on
+          a top-level message is not allowed as per RFC 3501.
+*/
+        OFFSET_MIME=3
+    } PartModifier;
+
     TreeItem* _parent;
     QList<TreeItem*> _children;
     FetchingState _fetchStatus;
@@ -66,11 +85,13 @@ public:
     virtual QList<TreeItem*> setChildren( const QList<TreeItem*> items );
     virtual void fetch( Model* const model ) = 0;
     virtual unsigned int rowCount( Model* const model ) = 0;
+    virtual unsigned int columnCount();
     virtual QVariant data( Model* const model, int role ) = 0;
     virtual bool hasChildren( Model* const model ) = 0;
     virtual bool fetched() const { return _fetchStatus == DONE; }
     virtual bool loading() const { return _fetchStatus == LOADING; }
     virtual bool isUnavailable( Model* const model ) const;
+    virtual TreeItem* specialColumnPtr( int row, int column ) const;
 };
 
 class TreeItemPart;
@@ -172,12 +193,16 @@ class TreeItemMessage: public TreeItem {
     int _offset;
     FetchingState _fullBodyFetchStatus;
     QByteArray _fullBodyData;
+    TreeItemPart* _partHeader;
+    TreeItemPart* _partText;
 public:
     TreeItemMessage( TreeItem* parent );
+    ~TreeItemMessage();
 
     virtual int row() const;
     virtual void fetch( Model* const model );
     virtual unsigned int rowCount( Model* const model );
+    virtual unsigned int columnCount();
     virtual QVariant data( Model* const model, int role );
     virtual bool hasChildren( Model* const model ) { Q_UNUSED( model ); return true; }
     Message::Envelope envelope( Model* const model );
@@ -189,6 +214,7 @@ public:
     bool isMarkedAsRecent() const;
     uint uid() const;
     void fetchFullBody( Model* const model );
+    virtual TreeItem* specialColumnPtr( int row, int column ) const;
 };
 
 class TreeItemPart: public TreeItem {
@@ -203,20 +229,25 @@ class TreeItemPart: public TreeItem {
     QByteArray _bodyDisposition;
     QString _fileName;
     uint _octets;
+    TreeItemPart* _partHeader;
+    TreeItemPart* _partText;
+    TreeItemPart* _partMime;
 public:
     TreeItemPart( TreeItem* parent, const QString& mimeType );
+    ~TreeItemPart();
 
     virtual unsigned int childrenCount( Model* const model );
     virtual TreeItem* child( const int offset, Model* const model );
     virtual QList<TreeItem*> setChildren( const QList<TreeItem*> items );
 
-    void fetchFromCache( Model* const model );
+    virtual void fetchFromCache( Model* const model );
     virtual void fetch( Model* const model );
     virtual unsigned int rowCount( Model* const model );
+    virtual unsigned int columnCount();
     virtual QVariant data( Model* const model, int role );
     virtual bool hasChildren( Model* const model );
 
-    QString partId() const;
+    virtual QString partId() const;
     QString pathToPart() const;
     TreeItemMessage* message() const;
 
@@ -242,8 +273,25 @@ public:
     void setOctets( const uint size ) { _octets = size; }
     /** @short Return the downloadable size of the message part */
     uint octets() const { return _octets; }
-private:
-    bool isTopLevelMultiPart() const;
+    virtual TreeItem* specialColumnPtr( int row, int column ) const;
+protected:
+    virtual bool isTopLevelMultiPart() const;
+    TreeItemPart(TreeItem *parent);
+};
+
+/** @short A message part with a modifier
+
+This item hanldes fetching of message parts with an attached modifier (like TEXT, HEADER or MIME).
+*/
+class TreeItemModifiedPart: public TreeItemPart {
+    TreeItem::PartModifier _modifier;
+public:
+    TreeItemModifiedPart( TreeItem* parent, const QString& mimeType, const PartModifier kind );
+    virtual unsigned int columnCount();
+    virtual QString partId() const;
+    virtual TreeItem* specialColumnPtr( int row, int column ) const;
+protected:
+    virtual bool isTopLevelMultiPart() const;
 };
 
 }

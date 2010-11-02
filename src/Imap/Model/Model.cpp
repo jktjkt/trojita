@@ -576,8 +576,16 @@ QModelIndex Model::index(int row, int column, const QModelIndex& parent ) const
 {
     TreeItem* parentItem = translatePtr( parent );
 
-    if ( column != 0 )
-        return QModelIndex();
+    // Deal with the possibility of an "irregular shape" of our model here.
+    // The issue is that some items have child items not only in column #0
+    // and in specified number of rows, but also in row #0 and various columns.
+    if ( column != 0 ) {
+        TreeItem* item = parentItem->specialColumnPtr( row, column );
+        if ( item )
+            return QAbstractItemModel::createIndex( row, column, item );
+        else
+            return QModelIndex();
+    }
 
     TreeItem* child = parentItem->child( row, const_cast<Model*>( this ) );
 
@@ -610,8 +618,12 @@ int Model::rowCount(const QModelIndex& index ) const
 
 int Model::columnCount(const QModelIndex& index ) const
 {
-    Q_UNUSED( index );
-    return 1;
+    TreeItem* node = static_cast<TreeItem*>( index.internalPointer() );
+    if ( !node ) {
+        node = _mailboxes;
+    }
+    Q_ASSERT(node);
+    return node->columnCount();
 }
 
 bool Model::hasChildren( const QModelIndex& parent ) const

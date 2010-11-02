@@ -89,6 +89,15 @@ QList<TreeItem*> TreeItem::setChildren( const QList<TreeItem*> items )
      return _fetchStatus == UNAVAILABLE && model->networkPolicy() == Model::NETWORK_OFFLINE;
  }
 
+unsigned int TreeItem::columnCount()
+{
+    return 1;
+}
+
+TreeItem* TreeItem::specialColumnPtr( int row, int column ) const
+{
+    return 0;
+}
 
 
 TreeItemMailbox::TreeItemMailbox( TreeItem* parent ): TreeItem(parent), maintainingTask(0)
@@ -566,7 +575,16 @@ bool TreeItemMsgList::numbersFetched() const
 
 TreeItemMessage::TreeItemMessage( TreeItem* parent ):
         TreeItem(parent), _size(0), _uid(0), _flagsHandled(false), _offset(-1), _fullBodyFetchStatus(NONE)
-{}
+{
+    _partHeader = new TreeItemModifiedPart( this, QString(), OFFSET_HEADER );
+    _partText = new TreeItemModifiedPart( this, QString(), OFFSET_TEXT );
+}
+
+TreeItemMessage::~TreeItemMessage()
+{
+    delete _partHeader;
+    delete _partText;
+}
 
 void TreeItemMessage::fetch( Model* const model )
 {
@@ -590,6 +608,29 @@ unsigned int TreeItemMessage::rowCount( Model* const model )
 {
     fetch( model );
     return _children.size();
+}
+
+unsigned int TreeItemMessage::columnCount()
+{
+    return 3;
+}
+
+TreeItem* TreeItemMessage::specialColumnPtr( int row, int column ) const
+{
+    // This is a nasty one -- we have an irregular shape...
+
+    // No extra columns on other rows
+    if ( row != 0 )
+        return 0;
+
+    switch ( column ) {
+    case OFFSET_TEXT:
+        return _partText;
+    case OFFSET_HEADER:
+        return _partHeader;
+    default:
+        return 0;
+    }
 }
 
 int TreeItemMessage::row() const
@@ -677,6 +718,21 @@ TreeItemPart::TreeItemPart( TreeItem* parent, const QString& mimeType ): TreeIte
         // can't be fetched. That's why we have to update the status here.
         _fetchStatus = DONE;
     }
+    _partHeader = new TreeItemModifiedPart( this, QString(), OFFSET_HEADER );
+    _partMime = new TreeItemModifiedPart( this, QString(), OFFSET_MIME );
+    _partText = new TreeItemModifiedPart( this, QString(), OFFSET_TEXT );
+}
+
+TreeItemPart::TreeItemPart(TreeItem *parent):
+        TreeItem(parent), _partHeader(0), _partText(0), _partMime(0)
+{
+}
+
+TreeItemPart::~TreeItemPart()
+{
+    delete _partHeader;
+    delete _partMime;
+    delete _partText;
 }
 
 unsigned int TreeItemPart::childrenCount( Model* const model )
@@ -818,6 +874,71 @@ TreeItemMessage* TreeItemPart::message() const
 QByteArray* TreeItemPart::dataPtr()
 {
     return &_data;
+}
+
+unsigned int TreeItemPart::columnCount()
+{
+    return 4; // This one includes the OFFSET_MIME
+}
+
+TreeItem* TreeItemPart::specialColumnPtr( int row, int column ) const
+{
+    // No extra columns on other rows
+    if ( row != 0 )
+        return 0;
+
+    switch ( column ) {
+    case OFFSET_HEADER:
+        return _partHeader;
+    case OFFSET_TEXT:
+        return _partText;
+    case OFFSET_MIME:
+        return _partMime;
+    default:
+        return 0;
+    }
+}
+
+
+
+TreeItemModifiedPart::TreeItemModifiedPart(TreeItem *parent, const QString &mimeType, const PartModifier kind):
+        TreeItemPart( parent ), _modifier(kind)
+{
+}
+
+TreeItem* TreeItemModifiedPart::specialColumnPtr(int row, int column) const
+{
+    return 0;
+}
+
+bool TreeItemModifiedPart::isTopLevelMultiPart() const
+{
+    return false;
+}
+
+unsigned int TreeItemModifiedPart::columnCount()
+{
+    return 0;
+}
+
+QString TreeItemModifiedPart::partId() const
+{
+    QString parentId;
+
+    if ( TreeItemPart* part = dynamic_cast<TreeItemPart*>( parent() ) )
+        parentId = part->partId() + QChar::fromAscii('.');
+
+    switch ( _modifier ) {
+    case OFFSET_HEADER:
+        return parentId + QString::fromAscii("HEADER");
+    case OFFSET_TEXT:
+        return parentId + QString::fromAscii("TEXT");
+    case OFFSET_MIME:
+        return parentId + QString::fromAscii("MIME");
+    default:
+        Q_ASSERT(false);
+        return QString();
+    }
 }
 
 }
