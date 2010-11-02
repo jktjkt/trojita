@@ -324,9 +324,6 @@ signals:
     /** @short The parser has encountered a fatal error */
     void logParserFatalError( uint parser, const QString& exceptionClass, const QString& message, const QByteArray& line, int position );
 
-    /** @short We've received full body data for a given message */
-    void fullMessageBodyReceived( const QModelIndex& message );
-
 private:
     Model& operator=( const Model& ); // don't implement
     Model( const Model& ); // don't implement
@@ -368,7 +365,6 @@ private:
     void _askForNumberOfMessages( TreeItemMsgList* item );
     void _askForMsgMetadata( TreeItemMessage* item );
     void _askForMsgPart( TreeItemPart* item, bool onlyFromCache=false );
-    void _askForMsgFullBody( TreeItemMessage* item, bool onlyFromCache=false );
 
     void _finalizeList( Parser* parser, TreeItemMailbox* const mailboxPtr );
     void _finalizeIncrementalList( Parser* parser, const QString& parentMailboxName );

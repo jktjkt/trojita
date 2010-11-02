@@ -45,7 +45,7 @@ class UpdateFlagsTask;
 
 class Model;
 class TreeItemMailbox;
-class TreeItem;
+class TreeItemPart;
 
 class TaskFactory
 {
@@ -58,7 +58,7 @@ public:
     virtual DeleteMailboxTask* createDeleteMailboxTask( Model* _model, const QString& _mailbox );
     virtual ExpungeMailboxTask* createExpungeMailboxTask( Model* _model, const QModelIndex& mailbox );
     virtual FetchMsgMetadataTask* createFetchMsgMetadataTask( Model* _model, const QModelIndexList& messages );
-    virtual FetchMsgPartTask* createFetchMsgPartTask( Model* _model, TreeItemMailbox* mailbox, TreeItem* item );
+    virtual FetchMsgPartTask* createFetchMsgPartTask( Model* _model, TreeItemMailbox* mailbox, TreeItemPart* part );
     virtual GetAnyConnectionTask* createGetAnyConnectionTask( Model* _model );
     virtual KeepMailboxOpenTask* createKeepMailboxOpenTask( Model* _model, const QModelIndex& mailbox, Parser* oldParser );
     virtual ListChildMailboxesTask* createListChildMailboxesTask( Model* _model, const QModelIndex& mailbox );

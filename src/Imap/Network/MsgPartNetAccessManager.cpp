@@ -58,10 +58,6 @@ QNetworkReply* MsgPartNetAccessManager::createRequest( Operation op,
         if ( part ) {
             return new Imap::Network::MsgPartNetworkReply( this, model, message,
                                                            part );
-        } else if ( req.url().path() == QLatin1String("whole-body") ) {
-            // FIXME: we shold really create a fake TreeItemMsgPart for the full body -- it's a part after all...
-            qDebug() << "Sorry, the support for whole message bodies is still missing:" << req.url();
-            return new Imap::Network::ForbiddenReply( this );
         } else {
             qDebug() << "No such part:" << req.url();
             return new Imap::Network::ForbiddenReply( this );
@@ -105,8 +101,16 @@ Imap::Mailbox::TreeItemPart* MsgPartNetAccessManager::pathToPart( const QString&
 
     for( QStringList::const_iterator it = items.begin(); it != items.end(); ++it ) {
         uint offset = it->toUInt( &ok );
-        if ( !ok )
+        if ( !ok ) {
+            // special case, we have to dive into that funny, irregular special parts now
+            if ( *it == QString::fromAscii("HEADER") )
+                target = target->specialColumnPtr( 0, Imap::Mailbox::TreeItem::OFFSET_HEADER );
+            else if ( *it == QString::fromAscii("TEXT") )
+                target = target->specialColumnPtr( 0, Imap::Mailbox::TreeItem::OFFSET_TEXT );
+            else if ( *it == QString::fromAscii("MIME") )
+                target = target->specialColumnPtr( 0, Imap::Mailbox::TreeItem::OFFSET_MIME );
             break;
+        }
         if ( offset >= target->childrenCount( model ) ) {
             ok = false;
             break;

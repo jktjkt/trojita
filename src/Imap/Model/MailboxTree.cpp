@@ -287,30 +287,16 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
             if ( it.key()[ it.key().size() - 1 ] != ']' )
                 throw UnknownMessageIndex( "Can't parse such BODY[]", response );
             QString partIdentification = it.key().mid( 5, it.key().size() - 6 );
-            if ( partIdentification.endsWith( QLatin1String(".HEADER") ) )
-                partIdentification = partIdentification.left( partIdentification.size() - QString::fromAscii(".HEADER").size() );
-            if ( partIdentification.isEmpty() ) {
-                const QByteArray& data = dynamic_cast<const Responses::RespData<QByteArray>&>( *(it.value()) ).data;
-                decodeMessagePartTransportEncoding( data, QByteArray("binary"), &message->_fullBodyData );
-                message->_fullBodyFetchStatus = DONE;
-                if ( message->uid() )
-                    model->cache()->setMsgPart( mailbox(), message->uid(), QString(), message->_fullBodyData );
-                if ( changedMessage ) {
-                    *changedMessage = message;
-                }
-            } else {
-                TreeItemPart* part = partIdToPtr( model, response.number, partIdentification );
-                if ( ! part )
-                    throw UnknownMessageIndex( "Got BODY[] fetch that is out of bounds", response );
-                const QByteArray& data = dynamic_cast<const Responses::RespData<QByteArray>&>( *(it.value()) ).data;
-                decodeMessagePartTransportEncoding( data, part->encoding(), part->dataPtr() );
-                part->_fetchStatus = DONE;
-                if ( message->uid() )
-                    model->cache()->setMsgPart( mailbox(), message->uid(), partIdentification, part->_data );
-                if ( changedPart ) {
-                    *changedPart = part;
-                }
-                emit model->fullMessageBodyReceived( model->createIndex( message->row(), 0, message ) );
+            TreeItemPart* part = partIdToPtr( model, response.number, partIdentification );
+            if ( ! part )
+                throw UnknownMessageIndex( "Got BODY[] fetch that did not resolve to any known part", response );
+            const QByteArray& data = dynamic_cast<const Responses::RespData<QByteArray>&>( *(it.value()) ).data;
+            decodeMessagePartTransportEncoding( data, part->encoding(), part->dataPtr() );
+            part->_fetchStatus = DONE;
+            if ( message->uid() )
+                model->cache()->setMsgPart( mailbox(), message->uid(), partIdentification, part->_data );
+            if ( changedPart ) {
+                *changedPart = part;
             }
         } else if ( it.key() == "UID" ) {
             message->_uid = dynamic_cast<const Responses::RespData<uint>&>( *(it.value()) ).data;
@@ -456,11 +442,29 @@ TreeItemPart* TreeItemMailbox::partIdToPtr( Model* const model, const int msgNum
     for ( QStringList::const_iterator it = separated.begin(); it != separated.end(); ++it ) {
         bool ok;
         uint number = it->toUInt( &ok );
-        if ( !ok )
-            throw UnknownMessageIndex( ( QString::fromAscii(
-                            "Can't translate received offset of the message part to a number: " )
-                        + msgId ).toAscii().constData() );
+        if ( !ok ) {
+            // It isn't a number, so let's check for that special modifiers
+            if ( it + 1 != separated.end() ) {
+                // If it isn't at the very end, it's an error
+                throw UnknownMessageIndex(
+                        QString::fromAscii("Part offset contains non-numeric identifiers in the middle: %1" )
+                        .arg( msgId ).toAscii().constData() );
+            }
+            // Recognize the valid modifiers
+            if ( *it == QString::fromAscii("HEADER") )
+                item = item->specialColumnPtr( 0, OFFSET_HEADER );
+            else if ( *it == QString::fromAscii("TEXT") )
+                item = item->specialColumnPtr( 0, OFFSET_TEXT );
+            else if ( *it == QString::fromAscii("MIME") )
+                item = item->specialColumnPtr( 0, OFFSET_MIME );
+            else
+                throw UnknownMessageIndex( QString::fromAscii(
+                            "Can't translate received offset of the message part to a number: %1" )
+                            .arg( msgId ).toAscii().constData() );
+            break;
+        }
 
+        // Normal path: descending down and finding the correct part
         TreeItemPart* part = dynamic_cast<TreeItemPart*>( item->child( 0, model ) );
         if ( part && part->isTopLevelMultiPart() )
             item = part;
@@ -574,10 +578,10 @@ bool TreeItemMsgList::numbersFetched() const
 
 
 TreeItemMessage::TreeItemMessage( TreeItem* parent ):
-        TreeItem(parent), _size(0), _uid(0), _flagsHandled(false), _offset(-1), _fullBodyFetchStatus(NONE)
+        TreeItem(parent), _size(0), _uid(0), _flagsHandled(false), _offset(-1)
 {
-    _partHeader = new TreeItemModifiedPart( this, QString(), OFFSET_HEADER );
-    _partText = new TreeItemModifiedPart( this, QString(), OFFSET_TEXT );
+    _partHeader = new TreeItemModifiedPart( this, OFFSET_HEADER );
+    _partText = new TreeItemModifiedPart( this, OFFSET_TEXT );
 }
 
 TreeItemMessage::~TreeItemMessage()
@@ -593,15 +597,6 @@ void TreeItemMessage::fetch( Model* const model )
 
     _fetchStatus = LOADING;
     model->_askForMsgMetadata( this );
-}
-
-void TreeItemMessage::fetchFullBody( Model* const model )
-{
-    if ( _fullBodyFetchStatus != NONE )
-        return;
-
-    _fullBodyFetchStatus = LOADING;
-    model->_askForMsgFullBody( this ); // FIXME: verify honoring of the offline mode
 }
 
 unsigned int TreeItemMessage::rowCount( Model* const model )
@@ -718,9 +713,9 @@ TreeItemPart::TreeItemPart( TreeItem* parent, const QString& mimeType ): TreeIte
         // can't be fetched. That's why we have to update the status here.
         _fetchStatus = DONE;
     }
-    _partHeader = new TreeItemModifiedPart( this, QString(), OFFSET_HEADER );
-    _partMime = new TreeItemModifiedPart( this, QString(), OFFSET_MIME );
-    _partText = new TreeItemModifiedPart( this, QString(), OFFSET_TEXT );
+    _partHeader = new TreeItemModifiedPart( this, OFFSET_HEADER );
+    _partMime = new TreeItemModifiedPart( this, OFFSET_MIME );
+    _partText = new TreeItemModifiedPart( this, OFFSET_TEXT );
 }
 
 TreeItemPart::TreeItemPart(TreeItem *parent):
@@ -901,23 +896,34 @@ TreeItem* TreeItemPart::specialColumnPtr( int row, int column ) const
 
 
 
-TreeItemModifiedPart::TreeItemModifiedPart(TreeItem *parent, const QString &mimeType, const PartModifier kind):
+TreeItemModifiedPart::TreeItemModifiedPart(TreeItem *parent, const PartModifier kind):
         TreeItemPart( parent ), _modifier(kind)
 {
 }
 
+int TreeItemModifiedPart::row() const
+{
+    // we're always at the very top
+    return 0;
+}
+
 TreeItem* TreeItemModifiedPart::specialColumnPtr(int row, int column) const
 {
+    Q_UNUSED( row );
+    Q_UNUSED( column );
+    // no special children below the current special one
     return 0;
 }
 
 bool TreeItemModifiedPart::isTopLevelMultiPart() const
 {
+    // we're special enough not to ever act like a "top-level multipart"
     return false;
 }
 
 unsigned int TreeItemModifiedPart::columnCount()
 {
+    // no child items, either
     return 0;
 }
 
@@ -928,16 +934,39 @@ QString TreeItemModifiedPart::partId() const
     if ( TreeItemPart* part = dynamic_cast<TreeItemPart*>( parent() ) )
         parentId = part->partId() + QChar::fromAscii('.');
 
+    return parentId + modifierToString();
+}
+
+TreeItem::PartModifier TreeItemModifiedPart::kind() const
+{
+    return _modifier;
+}
+
+QString TreeItemModifiedPart::modifierToString() const
+{
     switch ( _modifier ) {
     case OFFSET_HEADER:
-        return parentId + QString::fromAscii("HEADER");
+        return QString::fromAscii("HEADER");
     case OFFSET_TEXT:
-        return parentId + QString::fromAscii("TEXT");
+        return QString::fromAscii("TEXT");
     case OFFSET_MIME:
-        return parentId + QString::fromAscii("MIME");
+        return QString::fromAscii("MIME");
     default:
         Q_ASSERT(false);
         return QString();
+    }
+}
+
+QString TreeItemModifiedPart::pathToPart() const
+{
+    TreeItemPart* parentPart = dynamic_cast<TreeItemPart*>( parent() );
+    TreeItemMessage* parentMessage = dynamic_cast<TreeItemMessage*>( parent() );
+    Q_ASSERT( parentPart || parentMessage );
+    if ( parentPart ) {
+        return QString::fromAscii( "%1/%2" ).arg( parentPart->pathToPart(), modifierToString() );
+    } else {
+        Q_ASSERT( parentMessage );
+        return QString::fromAscii( "/%1" ).arg( modifierToString() );
     }
 }
 

@@ -52,6 +52,7 @@ protected:
         DONE /**< @short Item is available right now */
     };
 
+public:
     typedef enum {
         /** @short Full body of an e-mail stored on the IMAP server
 
@@ -71,6 +72,7 @@ protected:
         OFFSET_MIME=3
     } PartModifier;
 
+protected:
     TreeItem* _parent;
     QList<TreeItem*> _children;
     FetchingState _fetchStatus;
@@ -191,8 +193,6 @@ class TreeItemMessage: public TreeItem {
     QStringList _flags;
     bool _flagsHandled;
     int _offset;
-    FetchingState _fullBodyFetchStatus;
-    QByteArray _fullBodyData;
     TreeItemPart* _partHeader;
     TreeItemPart* _partText;
 public:
@@ -213,7 +213,6 @@ public:
     bool isMarkedAsForwarded() const;
     bool isMarkedAsRecent() const;
     uint uid() const;
-    void fetchFullBody( Model* const model );
     virtual TreeItem* specialColumnPtr( int row, int column ) const;
 };
 
@@ -248,7 +247,7 @@ public:
     virtual bool hasChildren( Model* const model );
 
     virtual QString partId() const;
-    QString pathToPart() const;
+    virtual QString pathToPart() const;
     TreeItemMessage* message() const;
 
     /** @short Provide access to the internal buffer holding data
@@ -284,14 +283,19 @@ protected:
 This item hanldes fetching of message parts with an attached modifier (like TEXT, HEADER or MIME).
 */
 class TreeItemModifiedPart: public TreeItemPart {
-    TreeItem::PartModifier _modifier;
+    PartModifier _modifier;
 public:
-    TreeItemModifiedPart( TreeItem* parent, const QString& mimeType, const PartModifier kind );
+    TreeItemModifiedPart( TreeItem* parent, const PartModifier kind );
+    virtual int row() const;
     virtual unsigned int columnCount();
     virtual QString partId() const;
+    virtual QString pathToPart() const;
     virtual TreeItem* specialColumnPtr( int row, int column ) const;
+    PartModifier kind() const;
 protected:
     virtual bool isTopLevelMultiPart() const;
+private:
+    QString modifierToString() const;
 };
 
 }

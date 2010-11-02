@@ -819,31 +819,6 @@ void Model::_askForMsgPart( TreeItemPart* item, bool onlyFromCache )
     }
 }
 
-void Model::_askForMsgFullBody( TreeItemMessage* item, bool onlyFromCache )
-{
-    Q_ASSERT( item );
-    Q_ASSERT( item->parent() ); // TreeItemMsgList
-    Q_ASSERT( item->parent()->parent() ); // TreeItemMailbox
-    TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( item->parent()->parent() );
-    Q_ASSERT( mailboxPtr );
-
-    uint uid = item->uid();
-    if ( uid ) {
-        const QByteArray& data = cache()->messagePart( mailboxPtr->mailbox(), uid, QLatin1String("") );
-        if ( ! data.isNull() ) {
-            item->_fullBodyData = data;
-            item->_fullBodyFetchStatus = TreeItem::DONE;
-        }
-    }
-
-    if ( networkPolicy() == NETWORK_OFFLINE ) {
-        if ( item->_fullBodyFetchStatus != TreeItem::DONE )
-            item->_fullBodyFetchStatus = TreeItem::UNAVAILABLE;
-    } else if ( ! onlyFromCache ) {
-        _taskFactory->createFetchMsgPartTask( this, mailboxPtr, item );
-    }
-}
-
 void Model::resyncMailbox( const QModelIndex& mbox )
 {
     findTaskResponsibleFor( mbox )->resynchronizeMailbox();

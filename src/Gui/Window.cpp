@@ -907,7 +907,10 @@ void MainWindow::slotSaveCurrentMessageBody()
         Imap::Network::MsgPartNetAccessManager* netAccess = new Imap::Network::MsgPartNetAccessManager( this );
         netAccess->setModelMessage( model, message );
         Imap::Network::DownloadManager* downloadManager =
-                new Imap::Network::DownloadManager( this, netAccess, message );
+                new Imap::Network::DownloadManager( this, netAccess,
+                    dynamic_cast<Imap::Mailbox::TreeItemPart*>(
+                            message->specialColumnPtr( 0, Imap::Mailbox::TreeItem::OFFSET_HEADER ) ) );
+        // FIXME: change from "header" into "whole message"
         connect( downloadManager, SIGNAL(succeeded()), downloadManager, SLOT(deleteLater()) );
         connect( downloadManager, SIGNAL(transferError(QString)), downloadManager, SLOT(deleteLater()) );
         connect( downloadManager, SIGNAL(fileNameRequested(QString*)),
