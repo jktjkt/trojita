@@ -184,73 +184,30 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
         // FIXME: distinguish among OK/NO/BAD here
         switch ( command->kind ) {
             case Task::STARTTLS:
-                throw CantHappen( "[port-in-progress]: STARTTLS not handled", *resp );
             case Task::LOGIN:
-                throw CantHappen( "[port-in-progress]: LOGIN not handled", *resp );
-                break;
             case Task::NONE:
-                throw CantHappen( "Internal Error: command that is supposed to do nothing?", *resp );
-                break;
             case Task::LIST:
-                throw CantHappen( "The Task::LIST should've been handled by the ListChildMailboxesTask", *resp );
-                break;
             case Task::LIST_AFTER_CREATE:
-                throw CantHappen( "The Task::LIST_AFTER_CREATE should've been handled by the CreateMailboxTask", *resp );
-                break;
             case Task::STATUS:
-                throw CantHappen( "The Task::STATUS should've been handled by the NumberOfMessagesTask", *resp );
-                break;
             case Task::SELECT:
-                throw CantHappen( "[Port in progress] encountered an old SELECT, sorry");
+            case Task::FETCH_WITH_FLAGS:
+            case Task::FETCH_PART:
+            case Task::NOOP:
+            case Task::IDLE:
+            case Task::CAPABILITY:
+            case Task::STORE:
+            case Task::NAMESPACE:
+            case Task::EXPUNGE:
+            case Task::COPY:
+            case Task::CREATE:
+            case Task::DELETE:
+                throw CantHappen( "[port-in-progress]: should be handled elsewhere", *resp );
                 break;
             case Task::FETCH_MESSAGE_METADATA:
                 // Either we were fetching just UID & FLAGS, or that and stuff like BODYSTRUCTURE.
                 // In any case, we don't have to do anything here, besides updating message status
                 // FIXME: this should probably go when the Task migration's done, as Tasks themselves could be made responsible for state updates
                 changeConnectionState( ptr, CONN_STATE_SELECTED );
-                break;
-            case Task::FETCH_WITH_FLAGS:
-                throw CantHappen( "[Port in progress] encountered an old FETCH_WITH_FLAGS, sorry");
-                break;
-            case Task::FETCH_PART:
-                throw CantHappen( "The Task::FETCH_PART should've been handled by the FetchMsgPartTask", *resp );
-                break;
-            case Task::NOOP:
-            case Task::IDLE:
-                // We don't have to do anything here
-                break;
-            case Task::CAPABILITY:
-                if ( _parsers[ ptr ].connState < CONN_STATE_AUTHENTICATED ) {
-                    // This CAPABILITY is crucial for LOGIN
-                    if ( _parsers[ ptr ].capabilities.contains( QLatin1String("LOGINDISABLED") ) ) {
-                        qDebug() << "Can't login yet, trying STARTTLS";
-                        // ... and we are forbidden from logging in, so we have to try the STARTTLS
-                        CommandHandle cmd = ptr->startTls();
-                        _parsers[ ptr ].commandMap[ cmd ] = Model::Task( Model::Task::STARTTLS, 0 );
-                        emit activityHappening( true );
-                    } else {
-                        // Apparently no need for STARTTLS and we are free to login
-                        performAuthentication( ptr );
-                    }
-                }
-                break;
-            case Task::STORE:
-                // FIXME: check for errors
-                break;
-            case Task::NAMESPACE:
-                // FIXME: what to do
-                break;
-            case Task::EXPUNGE:
-                throw CantHappen( "The Task::EXPUNGE should've been handled by the ExpungeMailboxTask", *resp );
-                break;
-            case Task::COPY:
-                throw CantHappen( "The Task::COPY should've been handled by the CopyMoveMessagesTask", *resp );
-                break;
-            case Task::CREATE:
-                throw CantHappen( "The Task::CREATE should've been handled by the CreateMailboxTask", *resp );
-                break;
-            case Task::DELETE:
-                throw CantHappen( "The Task::DELETE should've been handled by the DeleteMailboxTask", *resp );
                 break;
             case Task::LOGOUT:
                 // we are inside while loop in responseReceived(), so we can't delete current parser just yet
