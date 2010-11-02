@@ -184,32 +184,9 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
         // FIXME: distinguish among OK/NO/BAD here
         switch ( command->kind ) {
             case Task::STARTTLS:
-                _parsers[ ptr ].capabilitiesFresh = false;
-                if ( resp->kind == Responses::OK ) {
-                    // The connection is secured -> we can login
-                    performAuthentication( ptr );
-                } else {
-                    emit connectionError( tr("Can't establish a secure connection to the server (STARTTLS failed). Refusing to proceed.") );
-                }
-                break;
+                throw CantHappen( "[port-in-progress]: STARTTLS not handled", *resp );
             case Task::LOGIN:
-                if ( resp->kind == Responses::OK ) {
-                    changeConnectionState( ptr, CONN_STATE_AUTHENTICATED );
-                    if ( ! _parsers[ ptr ].capabilitiesFresh ) {
-                        CommandHandle cmd = ptr->capability();
-                        _parsers[ ptr ].commandMap[ cmd ] = Task( Task::CAPABILITY, 0 );
-                        emit activityHappening( true );
-                    }
-                    //CommandHandle cmd = ptr->namespaceCommand();
-                    //_parsers[ ptr ].commandMap[ cmd ] = Task( Task::NAMESPACE, 0 );
-                } else {
-                    if ( _authenticator )
-                        delete _authenticator;
-                    _authenticator = 0;
-                    // FIXME: handle this in a sane way
-                    changeConnectionState( ptr, CONN_STATE_LOGIN_FAILED );
-                    emit connectionError( tr("Login Failed: %1").arg( resp->message ) );
-                }
+                throw CantHappen( "[port-in-progress]: LOGIN not handled", *resp );
                 break;
             case Task::NONE:
                 throw CantHappen( "Internal Error: command that is supposed to do nothing?", *resp );
