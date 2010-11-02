@@ -34,7 +34,7 @@ void decodeMessagePartTransportEncoding( const QByteArray& rawData, const QByteA
         *outputData = Imap::quotedPrintableDecode( rawData );
     } else if ( encoding == "base64" ) {
         *outputData = QByteArray::fromBase64( rawData );
-    } else if ( encoding == "7bit" || encoding == "8bit" || encoding == "binary" ) {
+    } else if ( encoding.isEmpty() || encoding == "7bit" || encoding == "8bit" || encoding == "binary" ) {
         *outputData = rawData;
     } else {
         qDebug() << "Warning: unknown encoding" << encoding;
