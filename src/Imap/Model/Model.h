@@ -389,6 +389,13 @@ private:
     /** @short Return a corresponding KeepMailboxOpenTask for a given mailbox */
     KeepMailboxOpenTask* findTaskResponsibleFor( const QModelIndex& mailbox );
 
+    /** @short Find a mailbox which is expected to be common for all passed items
+
+    The @arg items is expected to consists of message parts or messages themselves.
+    If they belong to different mailboxes, an exception is thrown.
+*/
+    QModelIndex findMailboxForItems( const QModelIndexList& items );
+
     NetworkPolicy networkPolicy() const { return _netPolicy; }
     void setNetworkPolicy( const NetworkPolicy policy );
 

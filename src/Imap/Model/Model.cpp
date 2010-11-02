@@ -1305,5 +1305,36 @@ void Model::_genericHandleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch
     }
 }
 
+QModelIndex Model::findMailboxForItems( const QModelIndexList& items )
+{
+    TreeItemMailbox* mailbox = 0;
+    Q_FOREACH( const QModelIndex& index, items ) {
+        TreeItemMailbox* currentMailbox = 0;
+
+        TreeItem* item = static_cast<TreeItem*>( index.internalPointer() );
+        Q_ASSERT(item);
+
+        TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( item );
+        if ( ! message ) {
+            if ( TreeItemPart* part = dynamic_cast<TreeItemPart*>( item ) ) {
+                message = part->message();
+            } else {
+                throw CantHappen( "findMailboxForItems() called on strange items");
+            }
+        }
+        Q_ASSERT(message);
+        TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( message->parent() );
+        Q_ASSERT(list);
+        currentMailbox = dynamic_cast<TreeItemMailbox*>( list->parent() );
+        Q_ASSERT(currentMailbox);
+        if ( ! mailbox ) {
+            mailbox = currentMailbox;
+        } else if ( mailbox != currentMailbox ) {
+            throw CantHappen( "Messages from several mailboxes");
+        }
+    }
+    return createIndex( mailbox->row(), 0, mailbox );
+}
+
 }
 }

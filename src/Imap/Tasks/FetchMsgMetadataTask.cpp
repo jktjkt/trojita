@@ -31,22 +31,10 @@ FetchMsgMetadataTask::FetchMsgMetadataTask( Model* _model, const QModelIndexList
     if ( _messages.isEmpty() ) {
         throw CantHappen( "FetchMsgMetadataTask called with empty message set");
     }
-    TreeItemMailbox* mailbox = 0;
     Q_FOREACH( const QModelIndex& index, _messages ) {
-        TreeItem* item = static_cast<TreeItem*>( index.internalPointer() );
-        Q_ASSERT(item);
-        TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( item->parent() );
-        Q_ASSERT(list);
-        TreeItemMailbox* currentMailbox = dynamic_cast<TreeItemMailbox*>( list->parent() );
-        Q_ASSERT(currentMailbox);
-        if ( ! mailbox ) {
-            mailbox = currentMailbox;
-        } else if ( mailbox != currentMailbox ) {
-            throw CantHappen( "FetchMsgMetadataTask called with messages from several mailboxes");
-        }
         messages << index;
     }
-    QModelIndex mailboxIndex = model->createIndex( mailbox->row(), 0, mailbox );
+    QModelIndex mailboxIndex = model->findMailboxForItems( _messages );
     conn = model->findTaskResponsibleFor( mailboxIndex );
     conn->addDependentTask( this );
 }
