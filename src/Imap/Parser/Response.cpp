@@ -278,7 +278,8 @@ State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int
         if ( r == "ALERT" )
             respCode = Responses::ALERT;
         CASE(BADCHARSET)
-        CASE(CAPABILITIES)
+        else if ( r == "CAPABILITY" )
+            respCode = Responses::CAPABILITIES;
         CASE(PARSE)
         CASE(PERMANENTFLAGS)
         else if ( r == "READ-ONLY" )
