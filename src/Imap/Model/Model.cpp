@@ -1101,6 +1101,10 @@ void Model::parsersMightBeIdling()
 
 void Model::killParser(Parser *parser)
 {
+    Q_FOREACH( ImapTask* task, _parsers[ parser ].activeTasks ) {
+        task->deleteLater();
+    }
+
     for ( QMap<CommandHandle, Task>::const_iterator it = _parsers[ parser ].commandMap.begin();
             it != _parsers[ parser ].commandMap.end(); ++it ) {
         // FIXME: fail the command, perform cleanup,...
