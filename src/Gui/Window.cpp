@@ -44,6 +44,7 @@
 #include "MsgListView.h"
 #include "SettingsDialog.h"
 #include "SettingsNames.h"
+#include "SimplePartWidget.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/MailboxModel.h"
 #include "Imap/Model/MailboxTree.h"
@@ -151,6 +152,10 @@ void MainWindow::createActions()
     saveWholeMessage = new QAction( QtIconLoader::icon( QLatin1String("file-save") ), tr("Save Message..."), this );
     msgListTree->addAction( saveWholeMessage );
     connect( saveWholeMessage, SIGNAL(triggered()), this, SLOT(slotSaveCurrentMessageBody()) );
+
+    viewMsgHeaders = new QAction( tr("View Message Headers..."), this );
+    msgListTree->addAction( viewMsgHeaders );
+    connect( viewMsgHeaders, SIGNAL(triggered()), this, SLOT(slotViewMsgHeaders()) );
 
     createChildMailbox = new QAction( tr("Create Child Mailbox..."), this );
     connect( createChildMailbox, SIGNAL(triggered()), this, SLOT(slotCreateMailboxBelowCurrent()) );
@@ -496,6 +501,7 @@ void MainWindow::showContextMenuMsgListTree( const QPoint& position )
         actionList.append( markAsRead );
         actionList.append( markAsDeleted );
         actionList.append( saveWholeMessage );
+        actionList.append( viewMsgHeaders );
     }
     if ( ! actionList.isEmpty() )
         QMenu::exec( actionList, msgListTree->mapToGlobal( position ) );
@@ -934,6 +940,36 @@ void MainWindow::slotDownloadMessageFileNameRequested( QString* fileName )
                                   *fileName, QString(),
                                   0, QFileDialog::HideNameFilterDetails
                                   );
+}
+
+void MainWindow::slotViewMsgHeaders()
+{
+    QModelIndexList indices = msgListTree->selectionModel()->selectedIndexes();
+    for ( QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it ) {
+        Q_ASSERT( it->isValid() );
+        Q_ASSERT( it->model() == msgListModel );
+        if ( it->column() != 0 )
+            continue;
+        Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
+                Imap::Mailbox::Model::realTreeItem( *it )
+                );
+        Q_ASSERT( message );
+
+        Imap::Network::MsgPartNetAccessManager* netAccess = new Imap::Network::MsgPartNetAccessManager( this );
+        netAccess->setModelMessage( model, message );
+
+        QScrollArea* area = new QScrollArea();
+        area->setWidgetResizable(true);
+        SimplePartWidget* headers = new SimplePartWidget( 0, netAccess,
+            dynamic_cast<Imap::Mailbox::TreeItemPart*>(
+                    message->specialColumnPtr( 0, Imap::Mailbox::TreeItem::OFFSET_HEADER ) ) );
+        area->setWidget( headers );
+        area->setAttribute( Qt::WA_DeleteOnClose );
+        connect( area, SIGNAL(destroyed()), headers, SLOT(deleteLater()) );
+        connect( area, SIGNAL(destroyed()), netAccess, SLOT(deleteLater()) );
+        area->show();
+        // FIXME: add an event filter for scrolling...
+    }
 }
 
 }

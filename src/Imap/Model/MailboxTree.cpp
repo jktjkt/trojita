@@ -719,7 +719,7 @@ TreeItemPart::TreeItemPart( TreeItem* parent, const QString& mimeType ): TreeIte
 }
 
 TreeItemPart::TreeItemPart(TreeItem *parent):
-        TreeItem(parent), _partHeader(0), _partText(0), _partMime(0)
+        TreeItem(parent), _mimeType(QString::fromAscii("text/plain")), _partHeader(0), _partText(0), _partMime(0)
 {
 }
 
