@@ -22,6 +22,8 @@
 #include "ImapTask.h"
 #include <QModelIndex>
 
+class QTimer;
+
 namespace Imap {
 
 class Parser;
@@ -86,6 +88,8 @@ initialize synchronization now.
     virtual bool handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp );
     virtual bool handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );
 
+    void slotPerformNoop();
+
 private:
     void terminate();
 
@@ -97,6 +101,9 @@ protected:
 
     bool shouldExit;
     bool isRunning;
+
+    QTimer* noopTimer;
+    bool shouldRunNoop;
 };
 
 }

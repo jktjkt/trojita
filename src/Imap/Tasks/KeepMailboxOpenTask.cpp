@@ -22,6 +22,7 @@
 #include "MailboxTree.h"
 #include "Model.h"
 #include "TaskFactory.h"
+#include "NoopTask.h"
 
 namespace Imap {
 namespace Mailbox {
@@ -64,6 +65,12 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
     }
     synchronizeConn->addDependentTask( this );
     mailbox->maintainingTask = this;
+
+    noopTimer = new QTimer(this);
+    connect( noopTimer, SIGNAL(timeout()), this, SLOT(slotPerformNoop()) );
+    noopTimer->setInterval( 2 * 60 * 1000 );
+    noopTimer->setSingleShot( true );
+    shouldRunNoop = true; // FIXME: should be replaced by proper IDLE support, if enabled
 }
 
 void KeepMailboxOpenTask::slotPerformConnection()
@@ -106,8 +113,12 @@ void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )
     // to do that here, as we're only interested in raw pointer value.
     dependentTasks.removeOne( static_cast<ImapTask*>( object ) );
 
-    if ( shouldExit && dependentTasks.isEmpty() )
+    if ( shouldExit && dependentTasks.isEmpty() ) {
         terminate();
+    } else if ( shouldRunNoop ) {
+        // A command just completed, and NOOPing is active, so let's schedule it again
+        noopTimer->start();
+    }
 }
 
 void KeepMailboxOpenTask::terminate()
@@ -120,6 +131,9 @@ void KeepMailboxOpenTask::terminate()
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
     Q_ASSERT( mailbox );
     mailbox->maintainingTask = 0;
+
+    // Don't forget to disable NOOPing
+    noopTimer->stop();
 
     // Merge the lists of waiting tasks
     if ( ! waitingTasks.isEmpty() ) {
@@ -146,6 +160,8 @@ void KeepMailboxOpenTask::perform()
     }
 
     // FIXME: we should move the activation of IDLE here, too
+    if ( shouldRunNoop )
+        noopTimer->start();
 }
 
 void KeepMailboxOpenTask::resynchronizeMailbox()
@@ -186,6 +202,11 @@ bool KeepMailboxOpenTask::handleFetch( Imap::Parser* ptr, const Imap::Responses:
 {
     model->_genericHandleFetch( ptr, resp );
     return true;
+}
+
+void KeepMailboxOpenTask::slotPerformNoop()
+{
+    new NoopTask( model, this );
 }
 
 }
