@@ -52,7 +52,7 @@
 #include "Imap/Model/CombinedCache.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/PrettyMailboxModel.h"
-#include "Imap/Network/DownloadManager.h"
+#include "Imap/Network/FileDownloadManager.h"
 #include "Streams/SocketFactory.h"
 
 #include "ui_CreateMailboxDialog.h"
@@ -906,19 +906,19 @@ void MainWindow::slotSaveCurrentMessageBody()
 
         Imap::Network::MsgPartNetAccessManager* netAccess = new Imap::Network::MsgPartNetAccessManager( this );
         netAccess->setModelMessage( model, message );
-        Imap::Network::DownloadManager* downloadManager =
-                new Imap::Network::DownloadManager( this, netAccess,
+        Imap::Network::FileDownloadManager* fileDownloadManager =
+                new Imap::Network::FileDownloadManager( this, netAccess,
                     dynamic_cast<Imap::Mailbox::TreeItemPart*>(
                             message->specialColumnPtr( 0, Imap::Mailbox::TreeItem::OFFSET_HEADER ) ) );
         // FIXME: change from "header" into "whole message"
-        connect( downloadManager, SIGNAL(succeeded()), downloadManager, SLOT(deleteLater()) );
-        connect( downloadManager, SIGNAL(transferError(QString)), downloadManager, SLOT(deleteLater()) );
-        connect( downloadManager, SIGNAL(fileNameRequested(QString*)),
+        connect( fileDownloadManager, SIGNAL(succeeded()), fileDownloadManager, SLOT(deleteLater()) );
+        connect( fileDownloadManager, SIGNAL(transferError(QString)), fileDownloadManager, SLOT(deleteLater()) );
+        connect( fileDownloadManager, SIGNAL(fileNameRequested(QString*)),
                  this, SLOT(slotDownloadMessageFileNameRequested(QString*)) );
-        connect( downloadManager, SIGNAL(transferError(QString)),
+        connect( fileDownloadManager, SIGNAL(transferError(QString)),
                  this, SLOT(slotDownloadMessageTransferError(QString)) );
-        connect( downloadManager, SIGNAL(destroyed()), netAccess, SLOT(deleteLater()) );
-        downloadManager->slotDownloadNow();
+        connect( fileDownloadManager, SIGNAL(destroyed()), netAccess, SLOT(deleteLater()) );
+        fileDownloadManager->slotDownloadNow();
     }
 }
 

@@ -18,7 +18,7 @@
    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#include "DownloadManager.h"
+#include "FileDownloadManager.h"
 #include "Imap/Model/MailboxTree.h"
 
 #include <QDesktopServices>
@@ -28,14 +28,14 @@ namespace Imap {
 
 namespace Network {
 
-DownloadManager::DownloadManager( QObject* parent,
+FileDownloadManager::FileDownloadManager( QObject* parent,
                                 Imap::Network::MsgPartNetAccessManager* _manager,
                                 Imap::Mailbox::TreeItemPart* _part):
     QObject( parent ), manager(_manager), part(_part), reply(0), saved(false)
 {
 }
 
-QString DownloadManager::toRealFileName( Imap::Mailbox::TreeItemPart* part )
+QString FileDownloadManager::toRealFileName( Imap::Mailbox::TreeItemPart* part )
 {
     QString name = part->fileName().isEmpty() ?
                    tr("msg_%1_%2").arg( part->message()->uid() ).arg( part->partId() )
@@ -44,7 +44,7 @@ QString DownloadManager::toRealFileName( Imap::Mailbox::TreeItemPart* part )
                  ).filePath( name );
 }
 
-void DownloadManager::slotDownloadNow()
+void FileDownloadManager::slotDownloadNow()
 {
     Q_ASSERT( part );
     QString saveFileName = toRealFileName( part );
@@ -66,7 +66,7 @@ void DownloadManager::slotDownloadNow()
     connect( manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(slotDeleteReply(QNetworkReply*)) );
 }
 
-void DownloadManager::slotDataTransfered()
+void FileDownloadManager::slotDataTransfered()
 {
     Q_ASSERT( reply );
     if ( reply->error() == QNetworkReply::NoError ) {
@@ -78,13 +78,13 @@ void DownloadManager::slotDataTransfered()
     }
 }
 
-void DownloadManager::slotTransferError()
+void FileDownloadManager::slotTransferError()
 {
     Q_ASSERT( reply );
     emit transferError( reply->errorString() );
 }
 
-void DownloadManager::slotDeleteReply(QNetworkReply* reply)
+void FileDownloadManager::slotDeleteReply(QNetworkReply* reply)
 {
     if ( reply == this->reply ) {
         if ( ! saved )

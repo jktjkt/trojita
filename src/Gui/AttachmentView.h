@@ -27,7 +27,7 @@ class QNetworkReply;
 
 namespace Imap {
 namespace Network {
-    class DownloadManager;
+    class FileDownloadManager;
     class MsgPartNetAccessManager;
 }
 namespace Mailbox {
@@ -55,7 +55,7 @@ private slots:
     void slotTransferError( const QString& errorString );
     void slotFileNameRequested( QString* fileName );
 private:
-    Imap::Network::DownloadManager* _downloadManager;
+    Imap::Network::FileDownloadManager* _fileDownloadManager;
 
     AttachmentView(const AttachmentView&); // don't implement
     AttachmentView& operator=(const AttachmentView&); // don't implement

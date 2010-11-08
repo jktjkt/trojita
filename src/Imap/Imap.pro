@@ -57,7 +57,7 @@ SOURCES += Parser/Parser.cpp \
     Network/MsgPartNetworkReply.cpp \
     Network/ForbiddenReply.cpp \
     Network/MsgPartNetAccessManager.cpp \
-    Network/DownloadManager.cpp
+    Network/FileDownloadManager.cpp
 HEADERS += Parser/Parser.h \
     Parser/Command.h \
     Parser/Response.h \
@@ -107,4 +107,4 @@ HEADERS += Parser/Parser.h \
     Network/ForbiddenReply.h \
     Network/MsgPartNetAccessManager.h \
     Network/MsgPartNetworkReply.h \
-    Network/DownloadManager.h
+    Network/FileDownloadManager.h

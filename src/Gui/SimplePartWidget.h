@@ -30,7 +30,7 @@ class QNetworkReply;
 
 namespace Imap {
 namespace Network {
-    class DownloadManager;
+    class FileDownloadManager;
     class MsgPartNetAccessManager;
 }
 namespace Mailbox {
@@ -60,7 +60,7 @@ private slots:
     void slotFileNameRequested( QString* fileName );
 private:
     QAction* saveAction;
-    Imap::Network::DownloadManager* _downloadManager;
+    Imap::Network::FileDownloadManager* _fileDownloadManager;
 
     SimplePartWidget(const SimplePartWidget&); // don't implement
     SimplePartWidget& operator=(const SimplePartWidget&); // don't implement

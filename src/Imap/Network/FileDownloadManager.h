@@ -34,11 +34,11 @@ This class uses the existing infrastructure provided by the
 MsgPartNetAccessmanager to faciliate downloading of individual
 message parts into real files.
 */
-class DownloadManager : public QObject
+class FileDownloadManager : public QObject
 {
     Q_OBJECT
 public:
-    DownloadManager( QObject* parent,
+    FileDownloadManager( QObject* parent,
                     Imap::Network::MsgPartNetAccessManager* _manager,
                     Imap::Mailbox::TreeItemPart* _part );
 
@@ -60,8 +60,8 @@ private:
     QFile saving;
     bool saved;
 
-    DownloadManager(const DownloadManager&); // don't implement
-    DownloadManager& operator=(const DownloadManager&); // don't implement
+    FileDownloadManager(const FileDownloadManager&); // don't implement
+    FileDownloadManager& operator=(const FileDownloadManager&); // don't implement
 };
 
 }

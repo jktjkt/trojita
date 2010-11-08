@@ -19,7 +19,7 @@
    Boston, MA 02110-1301, USA.
 */
 #include "AttachmentView.h"
-#include "Imap/Network/DownloadManager.h"
+#include "Imap/Network/FileDownloadManager.h"
 #include "Imap/Model/MailboxTree.h"
 
 #include <QDesktopServices>
@@ -34,17 +34,17 @@ namespace Gui {
 AttachmentView::AttachmentView( QWidget* parent,
                                 Imap::Network::MsgPartNetAccessManager* _manager,
                                 Imap::Mailbox::TreeItemPart* _part):
-    QWidget( parent ), _downloadManager(0)
+    QWidget( parent ), _fileDownloadManager(0)
 {
-    _downloadManager = new Imap::Network::DownloadManager( this, _manager, _part );
+    _fileDownloadManager = new Imap::Network::FileDownloadManager( this, _manager, _part );
     QHBoxLayout* layout = new QHBoxLayout( this );
     QLabel* lbl = new QLabel( tr("Attachment %1 (%2)").arg( _part->fileName(), _part->mimeType() ) );
     layout->addWidget( lbl );
     QPushButton* downloadButton = new QPushButton( tr("Download") );
     downloadButton->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
     layout->addWidget( downloadButton );
-    connect( downloadButton, SIGNAL(clicked()), _downloadManager, SLOT(slotDownloadNow()) );
-    connect( _downloadManager, SIGNAL(fileNameRequested(QString*)), this, SLOT(slotFileNameRequested(QString*)) );
+    connect( downloadButton, SIGNAL(clicked()), _fileDownloadManager, SLOT(slotDownloadNow()) );
+    connect( _fileDownloadManager, SIGNAL(fileNameRequested(QString*)), this, SLOT(slotFileNameRequested(QString*)) );
     setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
 }
 

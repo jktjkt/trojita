@@ -25,7 +25,7 @@
 
 #include "SimplePartWidget.h"
 #include "Imap/Model/MailboxTree.h"
-#include "Imap/Network/DownloadManager.h"
+#include "Imap/Network/FileDownloadManager.h"
 
 namespace Gui {
 
@@ -40,11 +40,11 @@ SimplePartWidget::SimplePartWidget( QWidget* parent,
     url.setPath( _part->pathToPart() );
     load( url );
 
-    _downloadManager = new Imap::Network::DownloadManager( this, manager, _part );
-    connect( _downloadManager, SIGNAL(fileNameRequested(QString*)), this, SLOT(slotFileNameRequested(QString*)) );
+    _fileDownloadManager = new Imap::Network::FileDownloadManager( this, manager, _part );
+    connect( _fileDownloadManager, SIGNAL(fileNameRequested(QString*)), this, SLOT(slotFileNameRequested(QString*)) );
 
     saveAction = new QAction( tr("Save..."), this );
-    connect( saveAction, SIGNAL(triggered()), _downloadManager, SLOT(slotDownloadNow()) );
+    connect( saveAction, SIGNAL(triggered()), _fileDownloadManager, SLOT(slotDownloadNow()) );
     this->addAction( saveAction );
 
     setContextMenuPolicy( Qt::ActionsContextMenu );
