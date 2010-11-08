@@ -31,7 +31,6 @@
 #include "ObtainSynchronizedMailboxTask.h"
 #include "OpenConnectionTask.h"
 #include "UpdateFlagsTask.h"
-#include "Imap/Model/IdleLauncher.h"
 #include "Imap/Parser/Parser.h"
 
 namespace Imap {
@@ -122,7 +121,6 @@ Parser* TestingTaskFactory::newParser( Model* model )
 {
     Parser* parser = new Parser( model, model->_socketFactory->create(), ++model->lastParserId );
     Model::ParserState parserState = Model::ParserState( parser, 0, Model::ReadOnly, CONN_STATE_NONE );
-    parserState.idleLauncher = new IdleLauncher( model, parser );
     QObject::connect( parser, SIGNAL(responseReceived()), model, SLOT(responseReceived()) );
     QObject::connect( parser, SIGNAL(disconnected(const QString)), model, SLOT(slotParserDisconnected(const QString)) );
     QObject::connect( parser, SIGNAL(connectionStateChanged(Imap::ConnectionState)), model, SLOT(handleSocketStateChanged(Imap::ConnectionState)) );

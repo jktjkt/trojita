@@ -18,7 +18,6 @@
 
 #include "OpenConnectionTask.h"
 #include <QTimer>
-#include "IdleLauncher.h"
 
 namespace Imap {
 namespace Mailbox {
@@ -28,7 +27,6 @@ OpenConnectionTask::OpenConnectionTask( Model* _model ) :
 {    
     parser = new Parser( model, model->_socketFactory->create(), ++model->lastParserId );
     Model::ParserState parserState = Model::ParserState( parser, 0, Model::ReadOnly, CONN_STATE_NONE );
-    parserState.idleLauncher = new IdleLauncher( model, parser );
     connect( parser, SIGNAL(responseReceived()), model, SLOT(responseReceived()) );
     connect( parser, SIGNAL(disconnected(const QString)), model, SLOT(slotParserDisconnected(const QString)) );
     connect( parser, SIGNAL(connectionStateChanged(Imap::ConnectionState)), model, SLOT(handleSocketStateChanged(Imap::ConnectionState)) );
@@ -36,7 +34,6 @@ OpenConnectionTask::OpenConnectionTask( Model* _model ) :
     connect( parser, SIGNAL(parseError(QString,QString,QByteArray,int)), model, SLOT(slotParseError(QString,QString,QByteArray,int)) );
     connect( parser, SIGNAL(lineReceived(QByteArray)), model, SLOT(slotParserLineReceived(QByteArray)) );
     connect( parser, SIGNAL(lineSent(QByteArray)), model, SLOT(slotParserLineSent(QByteArray)) );
-    connect( parser, SIGNAL(idleTerminated()), model, SLOT(idleTerminated()) );
     if ( model->_startTls ) {
         startTlsCmd = parser->startTls();
         model->_parsers[ parser ].commandMap[ startTlsCmd ] = Model::Task( Model::Task::STARTTLS, 0 );

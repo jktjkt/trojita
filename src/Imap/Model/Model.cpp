@@ -22,7 +22,6 @@
 #include "Model.h"
 #include "MailboxTree.h"
 #include "ModelUpdaters.h"
-#include "IdleLauncher.h"
 #include "GetAnyConnectionTask.h"
 #include "KeepMailboxOpenTask.h"
 #include <QAbstractProxyModel>
@@ -80,16 +79,11 @@ Model::Model( QObject* parent, AbstractCache* cache, SocketFactoryPtr socketFact
 
     _onlineMessageFetch << "ENVELOPE" << "BODYSTRUCTURE" << "RFC822.SIZE" << "UID" << "FLAGS";
 
-    noopTimer = new QTimer( this );
-    noopTimer->setObjectName( QString::fromAscii("noopTimer-%1").arg( objectName() ) );
-    connect( noopTimer, SIGNAL(timeout()), this, SLOT(performNoop()) );
-
     if ( offline ) {
         _netPolicy = NETWORK_OFFLINE;
         QTimer::singleShot( 0, this, SLOT(setNetworkOffline()) );
     } else {
         QTimer::singleShot( 0, this, SLOT( setNetworkOnline() ) );
-        noopTimer->start( PollingPeriod );
     }
 }
 
@@ -159,11 +153,6 @@ void Model::responseReceived()
             _parsers.erase( it );
             break;
         }
-    }
-
-    if ( it->idleLauncher ) {
-        // The parser might be already dying, and killParser() tries hard to kill IdleLauncher, too
-        it->idleLauncher->postponeIdleIfActive();
     }
 }
 
@@ -766,14 +755,6 @@ void Model::resyncMailbox( const QModelIndex& mbox )
     findTaskResponsibleFor( mbox )->resynchronizeMailbox();
 }
 
-void Model::performNoop()
-{
-    for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
-        CommandHandle cmd = it->parser->noop();
-        it->commandMap[ cmd ] = Task( Task::NOOP, 0 );
-    }
-}
-
 void Model::setNetworkPolicy( const NetworkPolicy policy )
 {
     // If we're connecting after being offline, we should ask for an updated list of mailboxes
@@ -781,7 +762,6 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
     bool shouldReloadMailboxes = _netPolicy == NETWORK_OFFLINE && policy != NETWORK_OFFLINE;
     switch ( policy ) {
         case NETWORK_OFFLINE:
-            noopTimer->stop();
             for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
                 CommandHandle cmd = it->parser->logout();
                 _parsers[ it.key() ].commandMap[ cmd ] = Task( Task::LOGOUT, 0 );
@@ -793,12 +773,10 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
             break;
         case NETWORK_EXPENSIVE:
             _netPolicy = NETWORK_EXPENSIVE;
-            noopTimer->stop();
             emit networkPolicyExpensive();
             break;
         case NETWORK_ONLINE:
             _netPolicy = NETWORK_ONLINE;
-            noopTimer->start( PollingPeriod );
             emit networkPolicyOnline();
             break;
     }
@@ -846,17 +824,6 @@ void Model::slotParseError( const QString& exceptionClass, const QString& errorM
     parsersMightBeIdling();
 }
 
-void Model::idleTerminated()
-{
-    QMap<Parser*,ParserState>::iterator it = _parsers.find( qobject_cast<Imap::Parser*>( sender() ));
-    if ( it == _parsers.end() ) {
-        return;
-    } else {
-        Q_ASSERT( it->idleLauncher );
-        it->idleLauncher->idlingTerminated();
-    }
-}
-
 void Model::switchToMailbox( const QModelIndex& mbox )
 {
     if ( ! mbox.isValid() )
@@ -870,7 +837,6 @@ void Model::switchToMailbox( const QModelIndex& mbox )
 
 void Model::enterIdle( Parser* parser )
 {
-    noopTimer->stop();
     CommandHandle cmd = parser->idle();
     _parsers[ parser ].commandMap[ cmd ] = Task( Task::IDLE, 0 );
 }
@@ -1140,10 +1106,6 @@ void Model::killParser(Parser *parser)
         // FIXME: fail the command, perform cleanup,...
     }
     _parsers[ parser ].commandMap.clear();
-    _parsers[ parser ].idleLauncher->die();
-    _parsers[ parser ].idleLauncher->deleteLater();
-    _parsers[ parser ].idleLauncher = 0;
-    noopTimer->stop();
     parser->disconnect();
     parser->deleteLater();
     _parsers[ parser ].parser = 0;

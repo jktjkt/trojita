@@ -109,14 +109,13 @@ class Model: public QAbstractItemModel {
         /** @short LIST responses which were not processed yet */
         QList<Responses::List> listResponses;
         QList<uint> uidMap;
-        IdleLauncher* idleLauncher;
 
         ParserState( Parser* _parser, TreeItemMailbox* _mailbox, const RWMode _mode,
                 const ConnectionState _connState ):
             parser(_parser), mailbox(_mailbox), mode(_mode), connState(_connState),
-            capabilitiesFresh(false), idleLauncher(0) {}
+            capabilitiesFresh(false) {}
         ParserState(): mailbox(0), mode(ReadOnly), connState(CONN_STATE_NONE),
-            capabilitiesFresh(false), idleLauncher(0) {}
+            capabilitiesFresh(false) {}
     };
 
     /** @short Policy for accessing network */
@@ -140,8 +139,6 @@ class Model: public QAbstractItemModel {
         NETWORK_ONLINE
     };
 
-    enum { PollingPeriod = 60000 };
-
     mutable AbstractCache* _cache;
     mutable SocketFactoryPtr _socketFactory;
     TaskFactoryPtr _taskFactory;
@@ -150,7 +147,6 @@ class Model: public QAbstractItemModel {
     mutable TreeItemMailbox* _mailboxes;
     mutable NetworkPolicy _netPolicy;
     bool _startTls;
-    QTimer* noopTimer;
 
     mutable QList<Imap::Responses::NamespaceData> _personalNamespace, _otherUsersNamespace, _sharedNamespace;
 
@@ -255,14 +251,6 @@ private slots:
 
     /** @short Parser throwed out an exception */
     void slotParseError( const QString& exceptionClass, const QString& errorMessage, const QByteArray& line, int position );
-
-    /** @short Send a NOOP over all connections
-
-      The main reason for such an action is to ask for updated data for all mailboxes
-*/
-    void performNoop();
-    /** @short An event handler which tries to restart the IDLE command, if possible */
-    void idleTerminated();
 
     /** @short Helper for low-level state change propagation */
     void handleSocketStateChanged(Imap::ConnectionState state);
