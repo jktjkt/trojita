@@ -600,7 +600,7 @@ QDateTime Fetch::dateify( QByteArray str, const QByteArray& line, const int star
     if ( str.size() != 26 )
         throw ParseError( line, start );
 
-    QDateTime date = QDateTime::fromString( str.left(20), "d-MMM-yyyy HH:mm:ss");
+    QDateTime date = QLocale( QString::fromAscii("C") ).toDateTime( str.left(20), QString::fromAscii( "d-MMM-yyyy HH:mm:ss" ) );
     const char sign = str[21];
     bool ok;
     uint hours = str.mid(22, 2).toUInt( &ok );
