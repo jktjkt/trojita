@@ -5,3 +5,8 @@ lessThan(QT_VERSION, 4.6) {
 TEMPLATE = subdirs
 SUBDIRS  = src tests
 CONFIG += ordered
+
+unix {
+    test.commands = cd tests && TESTARGS=-silent $(MAKE) -s check
+    QMAKE_EXTRA_TARGETS += test
+}
