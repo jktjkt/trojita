@@ -167,7 +167,9 @@ void ImapModelOpenConnectionTest::testOkLogindisabledLater()
     QCoreApplication::processEvents();
     QVERIFY( authSpy->isEmpty() );
     QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("[*** STARTTLS ***]y2 CAPABILITY\r\n") );
+    QCOMPARE( SOCK->writtenStuff(), QByteArray("[*** STARTTLS ***]") );
+    QCoreApplication::processEvents();
+    QCOMPARE( SOCK->writtenStuff(), QByteArray("y2 CAPABILITY\r\n") );
     QVERIFY( completedSpy->isEmpty() );
     QVERIFY( authSpy->isEmpty() );
     SOCK->fakeReading( "* CAPABILITY IMAP4rev1\r\ny2 OK capability completed\r\n" );
