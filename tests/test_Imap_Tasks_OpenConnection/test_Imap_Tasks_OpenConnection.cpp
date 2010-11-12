@@ -72,6 +72,7 @@ void ImapModelOpenConnectionTest::testPreauth()
     SOCK->fakeReading( "* PREAUTH foo\r\n" );
     QVERIFY( completedSpy->isEmpty() );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 CAPABILITY\r\n") );
     QVERIFY( completedSpy->isEmpty() );
     SOCK->fakeReading( "* CAPABILITY IMAP4rev1\r\ny0 OK capability completed\r\n" );
@@ -97,6 +98,7 @@ void ImapModelOpenConnectionTest::testOk()
     SOCK->fakeReading( "* OK foo\r\n" );
     QVERIFY( completedSpy->isEmpty() );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 CAPABILITY\r\n") );
     QVERIFY( completedSpy->isEmpty() );
     SOCK->fakeReading( "* CAPABILITY IMAP4rev1\r\ny0 OK capability completed\r\n" );
@@ -116,6 +118,7 @@ void ImapModelOpenConnectionTest::testOkWithCapability()
     SOCK->fakeReading( "* OK [CAPABILITY IMAP4rev1] foo\r\n" );
     QVERIFY( completedSpy->isEmpty() );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( authSpy->size(), 1 );
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 LOGIN luzr sikrit\r\n") );
     SOCK->fakeReading( "y0 OK logged in\r\n");
@@ -130,11 +133,13 @@ void ImapModelOpenConnectionTest::testOkLogindisabled()
     SOCK->fakeReading( "* OK [CAPABILITY IMAP4rev1 LoginDisabled] foo\r\n" );
     QVERIFY( completedSpy->isEmpty() );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QVERIFY( authSpy->isEmpty() );
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 STARTTLS\r\n") );
     SOCK->fakeReading( "y0 OK will establish secure layer immediately\r\n");
     QCoreApplication::processEvents();
     QVERIFY( authSpy->isEmpty() );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("[*** STARTTLS ***]y1 CAPABILITY\r\n") );
     QVERIFY( completedSpy->isEmpty() );
@@ -156,6 +161,7 @@ void ImapModelOpenConnectionTest::testOkLogindisabledLater()
     SOCK->fakeReading( "* OK foo\r\n" );
     QVERIFY( completedSpy->isEmpty() );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 CAPABILITY\r\n") );
     QVERIFY( completedSpy->isEmpty() );
     SOCK->fakeReading( "* CAPABILITY IMAP4rev1 LoGINDISABLED\r\ny0 OK capability completed\r\n" );
@@ -167,9 +173,8 @@ void ImapModelOpenConnectionTest::testOkLogindisabledLater()
     QCoreApplication::processEvents();
     QVERIFY( authSpy->isEmpty() );
     QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("[*** STARTTLS ***]") );
     QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y2 CAPABILITY\r\n") );
+    QCOMPARE( SOCK->writtenStuff(), QByteArray("[*** STARTTLS ***]y2 CAPABILITY\r\n") );
     QVERIFY( completedSpy->isEmpty() );
     QVERIFY( authSpy->isEmpty() );
     SOCK->fakeReading( "* CAPABILITY IMAP4rev1\r\ny2 OK capability completed\r\n" );
@@ -196,6 +201,7 @@ void ImapModelOpenConnectionTest::testOkStartTls()
     SOCK->fakeReading( "y0 OK will establish secure layer immediately\r\n");
     QCoreApplication::processEvents();
     QVERIFY( authSpy->isEmpty() );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("[*** STARTTLS ***]y1 CAPABILITY\r\n") );
     QVERIFY( completedSpy->isEmpty() );
@@ -224,6 +230,7 @@ void ImapModelOpenConnectionTest::testOkStartTlsDiscardCaps()
     SOCK->fakeReading( "y0 OK will establish secure layer immediately\r\n");
     QCoreApplication::processEvents();
     QVERIFY( authSpy->isEmpty() );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("[*** STARTTLS ***]y1 CAPABILITY\r\n") );
     QVERIFY( completedSpy->isEmpty() );

@@ -59,6 +59,7 @@ void ImapModelTest::testSyncMailbox()
     model->rowCount( QModelIndex() );
     SOCK->fakeReading( "* PREAUTH [CAPABILITY Imap4Rev1] foo\r\n" );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 LIST \"\" \"%\"\r\n") );
     SOCK->fakeReading( "* LIST (\\HasNoChildren) \".\" \"INBOX\"\r\n"
                        "* CAPABILITY IMAP4rev1\r\n"
@@ -84,6 +85,7 @@ void ImapModelTest::testInboxCaseSensitivity()
     mboxModel->rowCount( QModelIndex() );
     SOCK->fakeReading( "* PREAUTH [Capability imap4rev1] foo\r\n" );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 LIST \"\" \"%\"\r\n") );
     SOCK->fakeReading( "* LIST (\\Noinferiors) \".\" \"Inbox\"\r\n"
                        "y0 ok list completed\r\n" );
@@ -100,6 +102,7 @@ void ImapModelTest::testCreationDeletionHandling()
     // Start the conversation
     model->rowCount( QModelIndex() );
     SOCK->fakeReading( "* PREAUTH [CAPABILITY imap4rev1] foo\r\n" );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 
     // Ask for capabilities and list top-level mailboxes

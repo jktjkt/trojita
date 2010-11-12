@@ -110,6 +110,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyMinimal()
     list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( static_cast<Imap::Mailbox::TreeItem*>( msgList.internalPointer() ) );
     Q_ASSERT( list );
     QVERIFY( list->loading() );
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 SELECT a\r\n") );
     SOCK->fakeReading( QByteArray("* 0 exists\r\n"
                                   "y1 OK done\r\n") );
@@ -191,6 +192,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
     list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( static_cast<Imap::Mailbox::TreeItem*>( msgList.internalPointer() ) );
     Q_ASSERT( list );
     QVERIFY( list->loading() );
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 SELECT a\r\n") );
     SOCK->fakeReading( QByteArray("* 0 exists\r\n"
                                   "y1 OK done\r\n") );
