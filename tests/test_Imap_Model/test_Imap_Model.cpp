@@ -126,6 +126,7 @@ void ImapModelTest::testCreationDeletionHandling()
     // Try to create mailbox
     model->createMailbox( QString::fromAscii("zzz_newlyCreated") );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 CREATE \"zzz_newlyCreated\"\r\n") );
 
     // Sane invariants
@@ -153,6 +154,7 @@ void ImapModelTest::testCreationDeletionHandling()
 
     // Now test its succesfull completion
     model->createMailbox( QString::fromAscii("zzz_newlyCreated2") );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y2 CREATE \"zzz_newlyCreated2\"\r\n") );
     SOCK->fakeReading( "y2 OK mailbox created\r\n" );

@@ -79,6 +79,7 @@ void ImapModelDeleteMailboxTest::testDeleteOne()
     // Now test the actual creating process
     model->deleteMailbox( "a" );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 DELETE a\r\n") );
     SOCK->fakeReading( QByteArray("y0 OK deleted\r\n") );
     QCoreApplication::processEvents();
@@ -95,6 +96,7 @@ void ImapModelDeleteMailboxTest::testDeleteFail()
 
     // Test failure of the DELETE command
     model->deleteMailbox( "a" );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 DELETE a\r\n") );
     SOCK->fakeReading( QByteArray("y0 NO muhehe\r\n") );
