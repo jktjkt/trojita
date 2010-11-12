@@ -21,6 +21,7 @@
 
 #include <QtTest>
 #include "test_Imap_Model.h"
+#include "../headless_test.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/MailboxModel.h"
@@ -180,4 +181,4 @@ void ImapModelTest::testCreationDeletionHandling()
 
 }
 
-QTEST_MAIN( ImapModelTest )
+TROJITA_HEADLESS_TEST( ImapModelTest )

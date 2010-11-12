@@ -21,6 +21,7 @@
 
 #include <QtTest>
 #include "test_Imap_Tasks_DeleteMailbox.h"
+#include "../headless_test.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/Model.h"
@@ -108,4 +109,4 @@ void ImapModelDeleteMailboxTest::testDeleteFail()
     QVERIFY( deletedSpy->isEmpty() );
 }
 
-QTEST_MAIN( ImapModelDeleteMailboxTest )
+TROJITA_HEADLESS_TEST( ImapModelDeleteMailboxTest )

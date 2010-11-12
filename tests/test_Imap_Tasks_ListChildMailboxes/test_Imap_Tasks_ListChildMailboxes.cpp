@@ -21,6 +21,7 @@
 
 #include <QtTest>
 #include "test_Imap_Tasks_ListChildMailboxes.h"
+#include "../headless_test.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/Model.h"
@@ -118,4 +119,4 @@ void ImapModelListChildMailboxesTest::testFakeListing()
     QVERIFY( SOCK->writtenStuff().isEmpty() );
 }
 
-QTEST_MAIN( ImapModelListChildMailboxesTest )
+TROJITA_HEADLESS_TEST( ImapModelListChildMailboxesTest )

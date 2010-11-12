@@ -21,6 +21,7 @@
 
 #include <QtTest>
 #include "test_Imap_Tasks_CreateMailbox.h"
+#include "../headless_test.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/Model.h"
@@ -153,4 +154,4 @@ void ImapModelCreateMailboxTest::testCreateFail()
     QVERIFY( errorSpy->isEmpty() );
 }
 
-QTEST_MAIN( ImapModelCreateMailboxTest )
+TROJITA_HEADLESS_TEST( ImapModelCreateMailboxTest )

@@ -22,6 +22,7 @@
 #include <QTest>
 
 #include "test_Imap_Message.h"
+#include "../headless_test.h"
 
 Q_DECLARE_METATYPE(Imap::Message::MailAddress)
 Q_DECLARE_METATYPE(Imap::Message::Envelope)
@@ -126,7 +127,7 @@ void ImapMessageTest::testMessage_data()
 }
 
 
-QTEST_MAIN( ImapMessageTest )
+TROJITA_HEADLESS_TEST( ImapMessageTest )
 
 namespace QTest {
 

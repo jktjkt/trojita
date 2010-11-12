@@ -26,6 +26,7 @@
 #include "Streams/IODeviceSocket.h"
 
 #include "test_Imap_Parser_parse.h"
+#include "../headless_test.h"
 
 Q_DECLARE_METATYPE(QSharedPointer<Imap::Responses::AbstractResponse>)
 Q_DECLARE_METATYPE(Imap::Responses::State)
@@ -619,7 +620,7 @@ void ImapParserParseTest::testSequences_data()
             "1:4,6:7,99:102,333,666";
 }
 
-QTEST_MAIN( ImapParserParseTest )
+TROJITA_HEADLESS_TEST( ImapParserParseTest )
 
 namespace QTest {
 

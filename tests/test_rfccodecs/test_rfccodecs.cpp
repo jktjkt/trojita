@@ -21,6 +21,7 @@
 #include <QDebug>
 #include <QTest>
 #include "test_rfccodecs.h"
+#include "../headless_test.h"
 #include "Imap/Parser/3rdparty/rfccodecs.h"
 #include "Imap/Encoders.h"
 
@@ -105,4 +106,4 @@ void RFCCodecsTest::testDecodeRFC2047String_data()
         << QString::fromUtf8("HOLIDAYS Czech Airlines");*/
 }
 
-QTEST_MAIN( RFCCodecsTest )
+TROJITA_HEADLESS_TEST( RFCCodecsTest )

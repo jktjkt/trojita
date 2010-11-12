@@ -21,6 +21,7 @@
 
 #include <QtTest>
 #include "test_Imap_Tasks_ObtainSynchronizedMailbox.h"
+#include "../headless_test.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/Cache.h"
 #include "Imap/Model/MemoryCache.h"
@@ -361,4 +362,4 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
     QVERIFY( errorSpy->isEmpty() );
 }
 
-QTEST_MAIN( ImapModelObtainSynchronizedMailboxTest )
+TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )

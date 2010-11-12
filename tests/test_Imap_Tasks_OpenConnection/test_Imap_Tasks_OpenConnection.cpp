@@ -22,6 +22,7 @@
 #include <QtTest>
 #include <QAuthenticator>
 #include "test_Imap_Tasks_OpenConnection.h"
+#include "../headless_test.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/MailboxModel.h"
@@ -257,4 +258,4 @@ void ImapModelOpenConnectionTest::provideAuthDetails( QAuthenticator* auth )
 }
 
 
-QTEST_MAIN( ImapModelOpenConnectionTest )
+TROJITA_HEADLESS_TEST( ImapModelOpenConnectionTest )
