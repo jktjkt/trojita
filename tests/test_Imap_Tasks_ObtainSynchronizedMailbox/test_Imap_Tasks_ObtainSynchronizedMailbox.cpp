@@ -87,6 +87,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyMinimal()
     // Ask the model to sync stuff
     QCOMPARE( model->rowCount( msgList ), 0 );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 SELECT a\r\n") );
 
     // Try to feed it with absolute minimum data
@@ -144,6 +145,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
 
     // Ask the model to sync stuff
     QCOMPARE( model->rowCount( msgList ), 0 );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 SELECT a\r\n") );
 
@@ -217,6 +219,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
     // Ask the model to sync stuff
     QCOMPARE( model->rowCount( msgList ), 0 );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 SELECT a\r\n") );
 
     // Try to feed it with absolute minimum data
@@ -282,6 +285,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
 
     QCOMPARE( model->rowCount( msgListB ), 0 );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y3 SELECT b\r\n") );
     SOCK->fakeReading( QByteArray("* 0 exists\r\n"
                                   "y3 ok completed\r\n") );
@@ -289,6 +293,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
 
     // And then go back to the first one
     model->switchToMailbox( idxA );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y4 SELECT a\r\n") );
 
