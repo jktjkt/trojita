@@ -195,10 +195,8 @@ QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
 
 void MailboxModel::handleMessageCountPossiblyChanged( const QModelIndex& mailbox )
 {
-    qDebug() << Q_FUNC_INFO;
     QModelIndex translated = mapFromSource( mailbox );
     if ( translated.isValid() ) {
-        qDebug() << "...and signalling it";
         emit dataChanged( translated, translated );
     }
 }
