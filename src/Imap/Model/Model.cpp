@@ -835,12 +835,6 @@ void Model::switchToMailbox( const QModelIndex& mbox )
     findTaskResponsibleFor( mbox );
 }
 
-void Model::enterIdle( Parser* parser )
-{
-    CommandHandle cmd = parser->idle();
-    _parsers[ parser ].commandMap[ cmd ] = Task( Task::IDLE, 0 );
-}
-
 void Model::updateCapabilities( Parser* parser, const QStringList capabilities )
 {
     QStringList uppercaseCaps;

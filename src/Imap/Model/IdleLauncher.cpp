@@ -49,7 +49,8 @@ void IdleLauncher::slotEnterIdleNow()
     if ( ! parser ) {
         return;
     }
-    m->enterIdle( parser );
+    CommandHandle cmd = parser->idle();
+    m->_parsers[ parser ].commandMap[ cmd ] = Model::Task( Model::Task::IDLE, 0 );
     renewal->start();
     _idling = true;
 }

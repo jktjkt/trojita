@@ -362,7 +362,6 @@ private:
     void _genericHandleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );
 
     void replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<TreeItem*> mailboxes );
-    void enterIdle( Parser* parser );
     void updateCapabilities( Parser* parser, const QStringList capabilities );
 
     TreeItem* translatePtr( const QModelIndex& index ) const;
