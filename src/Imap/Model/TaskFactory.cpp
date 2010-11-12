@@ -128,7 +128,6 @@ Parser* TestingTaskFactory::newParser( Model* model )
     QObject::connect( parser, SIGNAL(parseError(QString,QString,QByteArray,int)), model, SLOT(slotParseError(QString,QString,QByteArray,int)) );
     QObject::connect( parser, SIGNAL(lineReceived(QByteArray)), model, SLOT(slotParserLineReceived(QByteArray)) );
     QObject::connect( parser, SIGNAL(lineSent(QByteArray)), model, SLOT(slotParserLineSent(QByteArray)) );
-    QObject::connect( parser, SIGNAL(idleTerminated()), model, SLOT(idleTerminated()) );
     model->_parsers[ parser ] = parserState;
     return parser;
 }
