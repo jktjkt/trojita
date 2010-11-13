@@ -34,7 +34,7 @@ FIXME: we should eat "* OK [CLOSED] former mailbox closed", or somehow let it fa
 
 KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mailboxIndex, Parser* oldParser ) :
     ImapTask( _model ), mailboxIndex(_mailboxIndex), synchronizeConn(0), shouldExit(false), isRunning(false),
-    idleLauncher(0)
+    shouldRunNoop(false), shouldRunIdle(false), idleLauncher(0)
 {
     Q_ASSERT( mailboxIndex.isValid() );
     Q_ASSERT( mailboxIndex.model() == model );
@@ -70,10 +70,8 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
 
     noopTimer = new QTimer(this);
     connect( noopTimer, SIGNAL(timeout()), this, SLOT(slotPerformNoop()) );
-    noopTimer->setInterval( 2 * 60 * 1000 );
+    noopTimer->setInterval( 2 * 60 * 1000 ); // once every two minutes
     noopTimer->setSingleShot( true );
-    shouldRunNoop = false; // FIXME: should be replaced by proper IDLE support, if enabled
-    shouldRunIdle = true;
 }
 
 void KeepMailboxOpenTask::slotPerformConnection()
@@ -179,6 +177,11 @@ void KeepMailboxOpenTask::perform()
         if ( ! task->isFinished() )
             task->perform();
     }
+
+    if ( model->_parsers[ parser ].capabilitiesFresh && model->_parsers[ parser ].capabilities.contains( "IDLE" ) )
+        shouldRunIdle = true;
+    else
+        shouldRunNoop = true;
 
     if ( shouldRunNoop ) {
         noopTimer->start();
