@@ -763,6 +763,7 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
     switch ( policy ) {
         case NETWORK_OFFLINE:
             for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
+                Q_ASSERT( it->parser );
                 CommandHandle cmd = it->parser->logout();
                 _parsers[ it.key() ].commandMap[ cmd ] = Task( Task::LOGOUT, 0 );
                 emit activityHappening( true );
@@ -1096,6 +1097,7 @@ void Model::parsersMightBeIdling()
 void Model::killParser(Parser *parser)
 {
     Q_FOREACH( ImapTask* task, _parsers[ parser ].activeTasks ) {
+        task->die();
         task->deleteLater();
     }
 

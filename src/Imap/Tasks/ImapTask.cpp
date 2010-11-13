@@ -163,6 +163,10 @@ bool ImapTask::isReadyToRun() const
     return false;
 }
 
+void ImapTask::die()
+{
+}
+
 }
 
 }

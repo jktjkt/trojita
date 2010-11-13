@@ -53,6 +53,13 @@ public:
 
     virtual void perform() = 0;
 
+    /** @short Used for informing the task that it should cease from performing *any* activities immediately
+
+This is crucial for any tasks which could perform some periodical activities involving Parser*, but
+doesn't have to be implemented for most of them.
+*/
+    virtual void die();
+
     virtual void addDependentTask( ImapTask* task );
 
     bool handleState( Imap::Parser* ptr, const Imap::Responses::State* const resp );

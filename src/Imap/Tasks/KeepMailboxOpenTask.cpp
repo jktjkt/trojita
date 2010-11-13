@@ -260,5 +260,13 @@ bool KeepMailboxOpenTask::handleStateHelper( Imap::Parser* ptr, const Imap::Resp
     }
 }
 
+void KeepMailboxOpenTask::die()
+{
+    if ( noopTimer )
+        noopTimer->stop();
+    if ( idleLauncher )
+        idleLauncher->die();
+}
+
 }
 }

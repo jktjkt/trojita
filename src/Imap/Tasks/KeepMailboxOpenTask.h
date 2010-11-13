@@ -57,6 +57,9 @@ that mailbox now loses its KeepMailboxOpenTask and the underlying parser is reus
 */
     KeepMailboxOpenTask( Model* _model, const QModelIndex& _mailboxIndex, Parser* oldParser );
 
+
+    virtual void die();
+
     /** @short Start child processes
 
 This function is called when the synchronizing task finished succesfully.
