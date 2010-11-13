@@ -28,7 +28,7 @@ namespace Imap {
 namespace Mailbox {
 
 IdleLauncher::IdleLauncher( KeepMailboxOpenTask* parent ):
-        QObject(parent), task(parent), _idling(false), _restartInProgress(false)
+        QObject(parent), task(parent), _idling(false)
 {
     delayedEnter = new QTimer( this );
     delayedEnter->setObjectName( QString::fromAscii("%1-IdleLauncher-delayedEnter").arg( task->objectName() ) );
@@ -41,7 +41,7 @@ IdleLauncher::IdleLauncher( KeepMailboxOpenTask* parent ):
     renewal->setSingleShot( true );
     renewal->setInterval( 1000 * 29 * 60 ); // 29 minutes
     renewal->setInterval( 3600 );
-    connect( renewal, SIGNAL(timeout()), this, SLOT(resumeIdlingAfterTimeout()) );
+    connect( renewal, SIGNAL(timeout()), this, SLOT(slotTerminateLongIdle()) );
 }
 
 void IdleLauncher::slotEnterIdleNow()
@@ -49,29 +49,22 @@ void IdleLauncher::slotEnterIdleNow()
     delayedEnter->stop();
     renewal->stop();
 
-    if ( ! task->parser ) {
-        return;
-    }
+    Q_ASSERT( task->parser );
     task->tagIdle = task->parser->idle();
     task->model->_parsers[ task->parser ].commandMap[ task->tagIdle ] = Model::Task( Model::Task::IDLE, 0 );
     renewal->start();
     _idling = true;
 }
 
-void IdleLauncher::resumeIdlingAfterTimeout()
+void IdleLauncher::finishIdle()
 {
-    _restartInProgress = true;
-    slotEnterIdleNow();
+    Q_ASSERT( task->parser );
+    task->parser->idleDone();
 }
 
-void IdleLauncher::idlingTerminated()
+void IdleLauncher::slotTerminateLongIdle()
 {
-    if ( ! _restartInProgress ) {
-        renewal->stop();
-        delayedEnter->start();
-        _idling = false;
-    }
-    _restartInProgress = false;
+    finishIdle();
 }
 
 void IdleLauncher::enterIdleLater()
@@ -86,6 +79,12 @@ void IdleLauncher::die()
     delayedEnter->disconnect();
     renewal->stop();
     renewal->disconnect();
+}
+
+void IdleLauncher::idleTerminated()
+{
+    Q_ASSERT( _idling );
+    _idling = false;
 }
 
 }

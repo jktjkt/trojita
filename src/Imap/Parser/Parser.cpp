@@ -476,7 +476,6 @@ void Parser::executeACommand()
     if ( cmd._cmds[ cmd._currentPart ]._kind == Commands::ATOM )
         emit sendingCommand( cmd._cmds[ cmd._currentPart ]._text );
 
-
     if ( cmd._cmds[ cmd._currentPart ]._kind == Commands::IDLE_DONE ) {
         // Handling of the IDLE_DONE is a bit special, as we have to check and update the _idling flag...
         Q_ASSERT( _idling );

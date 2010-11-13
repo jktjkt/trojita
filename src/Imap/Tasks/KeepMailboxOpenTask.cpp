@@ -93,14 +93,17 @@ void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
     Q_ASSERT( task );
 
     if ( idleLauncher && ! tagIdle.isEmpty() ) {
-        parser->idleDone();
+        // If we're idling right now, we should immediately abort
+        idleLauncher->finishIdle();
     }
 
     KeepMailboxOpenTask* keepTask = qobject_cast<KeepMailboxOpenTask*>( task );
     if ( keepTask ) {
+        // We're asked to terminate
         waitingTasks.append( keepTask );
         shouldExit = true;
         if ( idleLauncher ) {
+            // got to break the IDLE cycle and especially make sure it won't restart
             idleLauncher->die();
         }
         if ( dependentTasks.isEmpty() ) {
@@ -182,6 +185,7 @@ void KeepMailboxOpenTask::perform()
     } else if ( shouldRunIdle ) {
         idleLauncher = new IdleLauncher( this );
         if ( dependentTasks.isEmpty() ) {
+            // There's no task yet, so we have to start IDLE now
             idleLauncher->enterIdleLater();
         }
     }
@@ -240,11 +244,13 @@ bool KeepMailboxOpenTask::handleStateHelper( Imap::Parser* ptr, const Imap::Resp
     if ( resp->tag == tagIdle ) {
         IMAP_TASK_ENSURE_VALID_COMMAND( tagIdle, Model::Task::IDLE );
 
+        Q_ASSERT( idleLauncher );
+        idleLauncher->idleTerminated();
         if ( resp->kind == Responses::OK ) {
-            Q_ASSERT(idleLauncher);
-            idleLauncher->idlingTerminated();
+            // The IDLE got terminated for whatever reason, so we should schedule its restart
+            idleLauncher->enterIdleLater();
         } else {
-            // FIXME: maybe we should get nervous because it failed...
+            // FIXME: we should get nervous because it failed -- we won't restart it anyway...
         }
         tagIdle.clear();
         IMAP_TASK_CLEANUP_COMMAND;

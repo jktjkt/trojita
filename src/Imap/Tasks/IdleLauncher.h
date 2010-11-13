@@ -56,19 +56,22 @@ target mailbox and all member variables are set up.
 
     /** @short Prevent any further idling */
     void die();
+
+    /** @short Break the IDLE command */
+    void finishIdle();
+
+    /** @short Inform the launcher that IDLE got terminated. It won't be restarted yet. */
+    void idleTerminated();
 public slots:
     /** @short Immediately send the IDLE command to the parser */
     void slotEnterIdleNow();
-    /** @short Inform the IDLE launcher that the IDLE command got terminated */
-    void idlingTerminated();
-    /** @short Restart the IDLE command which we had to abort because of a timeout */
-    void resumeIdlingAfterTimeout();
+    /** @short Abort the IDLE command because it's been running for too long */
+    void slotTerminateLongIdle();
 private:
     KeepMailboxOpenTask* task;
     QTimer* delayedEnter;
     QTimer* renewal;
     bool _idling;
-    bool _restartInProgress;
 
     IdleLauncher(const Imap::Mailbox::IdleLauncher&); // don't implement
     IdleLauncher& operator=(const Imap::Mailbox::IdleLauncher&); // don't implement
