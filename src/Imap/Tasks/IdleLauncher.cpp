@@ -33,14 +33,16 @@ IdleLauncher::IdleLauncher( KeepMailboxOpenTask* parent ):
     delayedEnter = new QTimer( this );
     delayedEnter->setObjectName( QString::fromAscii("%1-IdleLauncher-delayedEnter").arg( task->objectName() ) );
     delayedEnter->setSingleShot( true );
-    delayedEnter->setInterval( 3000 );
-    delayedEnter->setInterval( 1300 );
+    // It's a question about what timeout to set here -- if it's too long, we enter IDLE too soon, before the
+    // user has a chance to click on a message, but if we set it too long, we needlessly wait too long between
+    // we receive updates, and also between terminating one IDLE and starting another.
+    // 6 seconds is a compromise here.
+    delayedEnter->setInterval( 6 * 1000 );
     connect( delayedEnter, SIGNAL(timeout()), this, SLOT(slotEnterIdleNow()) );
     renewal = new QTimer( this );
     renewal->setObjectName( QString::fromAscii("%1-IdleLauncher-renewal").arg( task->objectName() ) );
     renewal->setSingleShot( true );
-    renewal->setInterval( 1000 * 29 * 60 ); // 29 minutes
-    renewal->setInterval( 3600 );
+    renewal->setInterval( 1000 * 29 * 60 ); // 29 minutes -- that's the longest allowed time to IDLE
     connect( renewal, SIGNAL(timeout()), this, SLOT(slotTerminateLongIdle()) );
 }
 
