@@ -78,6 +78,9 @@ namespace Commands {
             case IDLE:
                 stream << "IDLE" << endl << "[Entering IDLE mode...]";
                 break;
+            case IDLE_DONE:
+                stream << "DONE" << endl << "[Leaving IDLE mode...]";
+                break;
             case STARTTLS:
                 stream << "STARTTLS" << endl << "[Starting TLS...]";
                 break;

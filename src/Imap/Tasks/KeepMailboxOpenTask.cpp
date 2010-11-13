@@ -91,10 +91,18 @@ void KeepMailboxOpenTask::slotPerformConnection()
 void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
 {
     Q_ASSERT( task );
+
+    if ( idleLauncher && ! tagIdle.isEmpty() ) {
+        parser->idleDone();
+    }
+
     KeepMailboxOpenTask* keepTask = qobject_cast<KeepMailboxOpenTask*>( task );
     if ( keepTask ) {
         waitingTasks.append( keepTask );
         shouldExit = true;
+        if ( idleLauncher ) {
+            idleLauncher->die();
+        }
         if ( dependentTasks.isEmpty() ) {
             terminate();
         }
@@ -121,6 +129,9 @@ void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )
     } else if ( shouldRunNoop ) {
         // A command just completed, and NOOPing is active, so let's schedule it again
         noopTimer->start();
+    } else if ( shouldRunIdle ) {
+        // A command just completed and IDLE is supported, so let's queue it
+        idleLauncher->enterIdleLater();
     }
 }
 
@@ -170,7 +181,9 @@ void KeepMailboxOpenTask::perform()
         noopTimer->start();
     } else if ( shouldRunIdle ) {
         idleLauncher = new IdleLauncher( this );
-        idleLauncher->enterIdleLater();
+        if ( dependentTasks.isEmpty() ) {
+            idleLauncher->enterIdleLater();
+        }
     }
 }
 
@@ -233,6 +246,7 @@ bool KeepMailboxOpenTask::handleStateHelper( Imap::Parser* ptr, const Imap::Resp
         } else {
             // FIXME: maybe we should get nervous because it failed...
         }
+        tagIdle.clear();
         IMAP_TASK_CLEANUP_COMMAND;
         return true;
     } else {

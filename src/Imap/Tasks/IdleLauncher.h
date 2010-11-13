@@ -63,12 +63,6 @@ public slots:
     void idlingTerminated();
     /** @short Restart the IDLE command which we had to abort because of a timeout */
     void resumeIdlingAfterTimeout();
-    /** @short Delay the IDLE invocation for a while
-
-This function should be called when further communication via the socket suggests
-that the IDLE command should be postponed
-*/
-    void postponeIdleIfActive();
 private:
     KeepMailboxOpenTask* task;
     QTimer* delayedEnter;

@@ -42,9 +42,6 @@ IdleLauncher::IdleLauncher( KeepMailboxOpenTask* parent ):
     renewal->setInterval( 1000 * 29 * 60 ); // 29 minutes
     renewal->setInterval( 3600 );
     connect( renewal, SIGNAL(timeout()), this, SLOT(resumeIdlingAfterTimeout()) );
-
-    connect( task->parser, SIGNAL(commandQueued()), this, SLOT(postponeIdleIfActive()) );
-    connect( task->parser, SIGNAL(lineSent(QByteArray)), this, SLOT(postponeIdleIfActive()) );
 }
 
 void IdleLauncher::slotEnterIdleNow()
@@ -80,12 +77,6 @@ void IdleLauncher::idlingTerminated()
 void IdleLauncher::enterIdleLater()
 {
     if ( ! _idling )
-        delayedEnter->start();
-}
-
-void IdleLauncher::postponeIdleIfActive()
-{
-    if ( delayedEnter->isActive() )
         delayedEnter->start();
 }
 

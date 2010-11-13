@@ -224,9 +224,12 @@ namespace Imap {
 
         /** @short IDLE, RFC2177
 
-          The IDLE command will be automatically terminated by queueing of any command.
+          The IDLE command has to be explicitly terminated by calling idleDone().
          */
         CommandHandle idle();
+
+        /** @short The DONE for terminating the IDLE state, RFC2177 */
+        void idleDone();
 
 
         /** @short NAMESPACE, RFC 2342 */
@@ -274,8 +277,6 @@ containing the original line and indicating the troublesome position, or -1 if n
         void parserWarning( const QString& message, const QByteArray* line, uint position );
 
         void commandQueued();
-
-        void idleTerminated();
 
         /** @short The socket's state has changed */
         void connectionStateChanged(Imap::ConnectionState);

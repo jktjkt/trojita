@@ -329,6 +329,16 @@ CommandHandle Parser::idle()
     return queueCommand( Commands::IDLE, "IDLE" );
 }
 
+void Parser::idleDone()
+{
+    // This is not a new "command", so we don't go via queueCommand()
+    // which would allocate a new tag for us, but submit directly
+    Commands::Command cmd;
+    cmd << Commands::PartOfCommand( Commands::IDLE_DONE, "DONE" );
+    _cmdQueue.append( cmd );
+    QTimer::singleShot( 0, this, SLOT(executeCommands()) );
+}
+
 CommandHandle Parser::namespaceCommand()
 {
     return queueCommand( Commands::ATOM, "NAMESPACE" );
@@ -463,20 +473,26 @@ void Parser::executeACommand()
 
     QByteArray buf;
 
-    if ( _idling ) {
+    if ( cmd._cmds[ cmd._currentPart ]._kind == Commands::ATOM )
+        emit sendingCommand( cmd._cmds[ cmd._currentPart ]._text );
+
+
+    if ( cmd._cmds[ cmd._currentPart ]._kind == Commands::IDLE_DONE ) {
+        // Handling of the IDLE_DONE is a bit special, as we have to check and update the _idling flag...
+        Q_ASSERT( _idling );
         buf.append( "DONE\r\n" );
 #ifdef PRINT_TRAFFIC
         qDebug() << _parserId << ">>>" << buf.left( PRINT_TRAFFIC ).trimmed();
 #endif
         _socket->write( buf );
         _idling = false;
-        emit idleTerminated();
+        _cmdQueue.pop_front();
         emit lineSent( buf );
         buf.clear();
+        return;
     }
 
-    if ( cmd._cmds[ cmd._currentPart ]._kind == Commands::ATOM )
-        emit sendingCommand( cmd._cmds[ cmd._currentPart ]._text );
+    Q_ASSERT( ! _idling );
 
     while ( 1 ) {
         Commands::PartOfCommand& part = cmd._cmds[ cmd._currentPart ];
@@ -514,6 +530,9 @@ void Parser::executeACommand()
                     emit lineSent( buf );
                     return; // and wait for continuation request
                 }
+                break;
+            case Commands::IDLE_DONE:
+                Q_ASSERT(false); // is handled above
                 break;
             case Commands::IDLE:
                 buf.append( "IDLE\r\n" );

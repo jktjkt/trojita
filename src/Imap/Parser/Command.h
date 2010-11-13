@@ -43,6 +43,7 @@ namespace Commands {
         QUOTED_STRING /**< Transmit using double-quotes */,
         LITERAL /**< Don't bother with checking this data, always use literal form */,
         IDLE, /**< Special case: IDLE command */
+        IDLE_DONE, /**< Special case: the DONE for finalizing the IDLE command */
         STARTTLS /**< Special case: STARTTLS */
     };
 
