@@ -35,7 +35,6 @@ SOURCES += Parser/Parser.cpp \
     Model/DiskPartCache.cpp \
     Model/CombinedCache.cpp \
     Model/Utils.cpp \
-    Model/IdleLauncher.cpp \
     Model/TaskFactory.cpp \
     Tasks/ImapTask.cpp \
     Tasks/FetchMsgPartTask.cpp \
@@ -54,6 +53,7 @@ SOURCES += Parser/Parser.cpp \
     Tasks/Fake_ListChildMailboxesTask.cpp \
     Tasks/Fake_OpenConnectionTask.cpp \
     Tasks/NoopTask.cpp \
+    Tasks/IdleLauncher.cpp \
     Model/ModelWatcher.cpp \
     Network/MsgPartNetworkReply.cpp \
     Network/ForbiddenReply.cpp \
@@ -84,7 +84,6 @@ HEADERS += Parser/Parser.h \
     Model/CombinedCache.h \
     Model/Cache.h \
     Model/Utils.h \
-    Model/IdleLauncher.h \
     Model/TaskFactory.h \
     Model/CopyMoveOperation.h \
     Model/ItemRoles.h \
@@ -105,6 +104,7 @@ HEADERS += Parser/Parser.h \
     Tasks/Fake_ListChildMailboxesTask.h \
     Tasks/Fake_OpenConnectionTask.h \
     Tasks/NoopTask.h \
+    Tasks/IdleLauncher.h \
     Model/ModelWatcher.h \
     Network/ForbiddenReply.h \
     Network/MsgPartNetAccessManager.h \

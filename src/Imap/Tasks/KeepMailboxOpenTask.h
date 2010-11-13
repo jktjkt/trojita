@@ -21,6 +21,7 @@
 
 #include "ImapTask.h"
 #include <QModelIndex>
+#include "Parser/Parser.h"
 
 class QTimer;
 
@@ -32,6 +33,7 @@ namespace Mailbox {
 
 class TreeItemMailbox;
 class ObtainSynchronizedMailboxTask;
+class IdleLauncher;
 
 /** @short Maintain a connection to a mailbox
 
@@ -87,6 +89,7 @@ initialize synchronization now.
 
     virtual bool handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp );
     virtual bool handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );
+    virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
 
     void slotPerformNoop();
 
@@ -104,6 +107,10 @@ protected:
 
     QTimer* noopTimer;
     bool shouldRunNoop;
+    bool shouldRunIdle;
+    IdleLauncher* idleLauncher;
+    CommandHandle tagIdle;
+    friend class IdleLauncher;
 };
 
 }

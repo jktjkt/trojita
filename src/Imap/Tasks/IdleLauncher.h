@@ -19,36 +19,40 @@
    Boston, MA 02110-1301, USA.
 */
 
-#ifndef IMAP_MODEL_IDLELAUNCHER_H
-#define IMAP_MODEL_IDLELAUNCHER_H
+#ifndef IMAP_TASK_IDLELAUNCHER_H
+#define IMAP_TASK_IDLELAUNCHER_H
 
 #include <QPointer>
 
 class QTimer;
 
-/** @short Namespace for IMAP interaction */
 namespace Imap {
 
 class Parser;
 
-/** @short Classes for handling of mailboxes and connections */
 namespace Mailbox {
 
-class Model;
+class KeepMailboxOpenTask;
 
+/** @short Automatically launch and maintain the IDLE command
+
+This class servers as a helper for the KeepMailboxOpenTask task. Its responsibility
+is to watch the parser for being "idle" (ie. no commands flowing from upper layers)
+and automatically launching the IDLE command, watching for its interruption (perhaps
+by other commands) and restarting it when the parser is idling again.
+*/
 class IdleLauncher: public QObject {
     Q_OBJECT
 public:
-    IdleLauncher( Model* model, Parser* ptr );
+    /** @short Create the IdleLauncher
+
+This function should only be called when the KeepMailboxOpenTask has selected the
+target mailbox and all member variables are set up.
+*/
+    IdleLauncher( KeepMailboxOpenTask* parent );
 
     /** @short Register the interest in launching the IDLE command after a delay */
     void enterIdleLater();
-    /** @short Delay the IDLE invocation for a while
-
-This function should be called when further communication via the socket suggests
-that the IDLE command should be postponed
-*/
-    void postponeIdleIfActive();
 
     /** @short Prevent any further idling */
     void die();
@@ -57,11 +61,16 @@ public slots:
     void slotEnterIdleNow();
     /** @short Inform the IDLE launcher that the IDLE command got terminated */
     void idlingTerminated();
-    /** @short Re-start the IDLE command which we had to abort because of a timeout */
+    /** @short Restart the IDLE command which we had to abort because of a timeout */
     void resumeIdlingAfterTimeout();
+    /** @short Delay the IDLE invocation for a while
+
+This function should be called when further communication via the socket suggests
+that the IDLE command should be postponed
+*/
+    void postponeIdleIfActive();
 private:
-    Model* m;
-    QPointer<Parser> parser;
+    KeepMailboxOpenTask* task;
     QTimer* delayedEnter;
     QTimer* renewal;
     bool _idling;
@@ -75,4 +84,4 @@ private:
 
 }
 
-#endif /* IMAP_MODEL_IDLELAUNCHER_H */
+#endif /* IMAP_TASK_IDLELAUNCHER_H */

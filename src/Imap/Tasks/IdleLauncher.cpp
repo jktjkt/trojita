@@ -21,24 +21,30 @@
 
 #include <QTimer>
 #include "IdleLauncher.h"
+#include "KeepMailboxOpenTask.h"
 #include "Model.h"
 
 namespace Imap {
 namespace Mailbox {
 
-IdleLauncher::IdleLauncher( Model* model, Parser* ptr ):
-        QObject(model), m(model), parser(ptr), _idling(false), _restartInProgress(false)
+IdleLauncher::IdleLauncher( KeepMailboxOpenTask* parent ):
+        QObject(parent), task(parent), _idling(false), _restartInProgress(false)
 {
     delayedEnter = new QTimer( this );
-    delayedEnter->setObjectName( QString::fromAscii("%1-IdleLauncher-delayedEnter").arg( model->objectName() ) );
+    delayedEnter->setObjectName( QString::fromAscii("%1-IdleLauncher-delayedEnter").arg( task->objectName() ) );
     delayedEnter->setSingleShot( true );
     delayedEnter->setInterval( 3000 );
+    delayedEnter->setInterval( 1300 );
     connect( delayedEnter, SIGNAL(timeout()), this, SLOT(slotEnterIdleNow()) );
     renewal = new QTimer( this );
-    renewal->setObjectName( QString::fromAscii("%1-IdleLauncher-renewal").arg( model->objectName() ) );
+    renewal->setObjectName( QString::fromAscii("%1-IdleLauncher-renewal").arg( task->objectName() ) );
     renewal->setSingleShot( true );
     renewal->setInterval( 1000 * 29 * 60 ); // 29 minutes
+    renewal->setInterval( 3600 );
     connect( renewal, SIGNAL(timeout()), this, SLOT(resumeIdlingAfterTimeout()) );
+
+    connect( task->parser, SIGNAL(commandQueued()), this, SLOT(postponeIdleIfActive()) );
+    connect( task->parser, SIGNAL(lineSent(QByteArray)), this, SLOT(postponeIdleIfActive()) );
 }
 
 void IdleLauncher::slotEnterIdleNow()
@@ -46,11 +52,11 @@ void IdleLauncher::slotEnterIdleNow()
     delayedEnter->stop();
     renewal->stop();
 
-    if ( ! parser ) {
+    if ( ! task->parser ) {
         return;
     }
-    CommandHandle cmd = parser->idle();
-    m->_parsers[ parser ].commandMap[ cmd ] = Model::Task( Model::Task::IDLE, 0 );
+    task->tagIdle = task->parser->idle();
+    task->model->_parsers[ task->parser ].commandMap[ task->tagIdle ] = Model::Task( Model::Task::IDLE, 0 );
     renewal->start();
     _idling = true;
 }

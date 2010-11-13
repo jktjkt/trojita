@@ -50,8 +50,6 @@ class TreeItemPart;
 class MsgListModel;
 class MailboxModel;
 
-class IdleLauncher;
-
 class _MailboxListUpdater;
 class _NumberOfMessagesUpdater;
 

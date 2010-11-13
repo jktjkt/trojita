@@ -19,6 +19,7 @@
 #include "KeepMailboxOpenTask.h"
 #include "OpenConnectionTask.h"
 #include "ObtainSynchronizedMailboxTask.h"
+#include "IdleLauncher.h"
 #include "MailboxTree.h"
 #include "Model.h"
 #include "TaskFactory.h"
@@ -32,7 +33,8 @@ FIXME: we should eat "* OK [CLOSED] former mailbox closed", or somehow let it fa
 */
 
 KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mailboxIndex, Parser* oldParser ) :
-    ImapTask( _model ), mailboxIndex(_mailboxIndex), synchronizeConn(0), shouldExit(false), isRunning(false)
+    ImapTask( _model ), mailboxIndex(_mailboxIndex), synchronizeConn(0), shouldExit(false), isRunning(false),
+    idleLauncher(0)
 {
     Q_ASSERT( mailboxIndex.isValid() );
     Q_ASSERT( mailboxIndex.model() == model );
@@ -70,7 +72,8 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
     connect( noopTimer, SIGNAL(timeout()), this, SLOT(slotPerformNoop()) );
     noopTimer->setInterval( 2 * 60 * 1000 );
     noopTimer->setSingleShot( true );
-    shouldRunNoop = true; // FIXME: should be replaced by proper IDLE support, if enabled
+    shouldRunNoop = false; // FIXME: should be replaced by proper IDLE support, if enabled
+    shouldRunIdle = true;
 }
 
 void KeepMailboxOpenTask::slotPerformConnection()
@@ -135,6 +138,10 @@ void KeepMailboxOpenTask::terminate()
     // Don't forget to disable NOOPing
     noopTimer->stop();
 
+    // ...and idling, too
+    if ( idleLauncher )
+        idleLauncher->die();
+
     // Merge the lists of waiting tasks
     if ( ! waitingTasks.isEmpty() ) {
         KeepMailboxOpenTask* first = waitingTasks.takeFirst();
@@ -159,9 +166,12 @@ void KeepMailboxOpenTask::perform()
             task->perform();
     }
 
-    // FIXME: we should move the activation of IDLE here, too
-    if ( shouldRunNoop )
+    if ( shouldRunNoop ) {
         noopTimer->start();
+    } else if ( shouldRunIdle ) {
+        idleLauncher = new IdleLauncher( this );
+        idleLauncher->enterIdleLater();
+    }
 }
 
 void KeepMailboxOpenTask::resynchronizeMailbox()
@@ -207,6 +217,27 @@ bool KeepMailboxOpenTask::handleFetch( Imap::Parser* ptr, const Imap::Responses:
 void KeepMailboxOpenTask::slotPerformNoop()
 {
     new NoopTask( model, this );
+}
+
+bool KeepMailboxOpenTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+{
+    if ( resp->tag.isEmpty() )
+        return false;
+
+    if ( resp->tag == tagIdle ) {
+        IMAP_TASK_ENSURE_VALID_COMMAND( tagIdle, Model::Task::IDLE );
+
+        if ( resp->kind == Responses::OK ) {
+            Q_ASSERT(idleLauncher);
+            idleLauncher->idlingTerminated();
+        } else {
+            // FIXME: maybe we should get nervous because it failed...
+        }
+        IMAP_TASK_CLEANUP_COMMAND;
+        return true;
+    } else {
+        return false;
+    }
 }
 
 }
