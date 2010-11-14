@@ -230,6 +230,14 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
             killParser( ptr );
             parsersMightBeIdling();
             break;
+        case OK:
+            if ( resp->respCode == NONE ) {
+                break;
+            } else {
+                qDebug() << "Warning: unhandled untagged OK with a response code";
+                // FIXME: would be cool to have that logged somehow
+                break;
+            }
         default:
             throw UnexpectedResponseReceived( "[Port-in-progress] Unhhandled untagged response, sorry", *resp );
         }
