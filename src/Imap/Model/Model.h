@@ -262,6 +262,9 @@ private slots:
     /** @short The parser has sent a block of data */
     void slotParserLineSent( const QByteArray& line );
 
+    /** @short There's been a change in the state of various tasks */
+    void slotTasksChanged();
+
 signals:
     /** @short This signal is emitted then the server sent us an ALERT response code */
     void alertReceived( const QString& message );

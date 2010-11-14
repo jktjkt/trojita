@@ -85,6 +85,13 @@ Model::Model( QObject* parent, AbstractCache* cache, SocketFactoryPtr socketFact
     } else {
         QTimer::singleShot( 0, this, SLOT( setNetworkOnline() ) );
     }
+
+#ifdef PERIODICALLY_DUMP_TASKS
+    QTimer* periodicTaskDumper = new QTimer(this);
+    periodicTaskDumper->setInterval( 1000 );
+    connect( periodicTaskDumper, SIGNAL(timeout()), this, SLOT(slotTasksChanged()) );
+    periodicTaskDumper->start();
+#endif
 }
 
 Model::~Model()
@@ -1238,6 +1245,25 @@ QModelIndex Model::findMailboxForItems( const QModelIndexList& items )
         }
     }
     return createIndex( mailbox->row(), 0, mailbox );
+}
+
+void Model::slotTasksChanged()
+{
+    QList<ImapTask*> tasks = findChildren<ImapTask*>();
+    qDebug() << "-------------";
+    Q_FOREACH( ImapTask* task, tasks ) {
+        QString finished = ( task->isFinished() ? "[finished] " : "" );
+        QString isReadyToRun = ( task->isReadyToRun() ? "[ready-to-run] " : "" );
+        QString isActive;
+        Q_FOREACH( ParserState parserState, _parsers ) {
+            if ( parserState.activeTasks.contains( task ) ) {
+                isActive = "[active] ";
+                break;
+            }
+        }
+        qDebug() << task << finished << isReadyToRun << isActive; // << task->dependentTasks;
+    }
+    qDebug() << "-------------";
 }
 
 }
