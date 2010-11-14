@@ -48,6 +48,14 @@ UpdateFlagsTask::UpdateFlagsTask( Model* _model, CopyMoveMessagesTask* copyTask,
 
 void UpdateFlagsTask::perform()
 {
+    Q_ASSERT( conn || copyMove );
+    if ( conn )
+        parser = conn->parser;
+    else if ( copyMove )
+        parser = copyMove->parser;
+    Q_ASSERT( parser );
+    model->_parsers[ parser ].activeTasks.append( this );
+
     Sequence seq;
     bool first = true;
 
@@ -75,14 +83,6 @@ void UpdateFlagsTask::perform()
         _completed();
         return;
     }
-
-    Q_ASSERT( conn || copyMove );
-    if ( conn )
-        parser = conn->parser;
-    else if ( copyMove )
-        parser = copyMove->parser;
-
-    model->_parsers[ parser ].activeTasks.append( this );
 
     tag = parser->uidStore( seq, flagOperation, flags );
     model->_parsers[ parser ].commandMap[ tag ] = Model::Task( Model::Task::STORE, 0 );

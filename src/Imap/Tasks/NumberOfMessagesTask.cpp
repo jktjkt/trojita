@@ -37,6 +37,10 @@ NumberOfMessagesTask::NumberOfMessagesTask( Model* _model, const QModelIndex& ma
 
 void NumberOfMessagesTask::perform()
 {
+    parser = conn->parser;
+    Q_ASSERT( parser );
+    model->_parsers[ parser ].activeTasks.append( this );
+
     if ( ! mailboxIndex.isValid() ) {
         // FIXME: add proper fix
         qDebug() << "Mailbox vanished before we could ask for number of messages inside";
@@ -45,8 +49,6 @@ void NumberOfMessagesTask::perform()
     }
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
     Q_ASSERT( mailbox );
-    parser = conn->parser;
-    model->_parsers[ parser ].activeTasks.append( this );
 
     tag = parser->status( mailbox->mailbox(),
                           QStringList() << QLatin1String("MESSAGES") << QLatin1String("UNSEEN") );

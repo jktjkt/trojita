@@ -170,6 +170,7 @@ void KeepMailboxOpenTask::perform()
     parser = synchronizeConn->parser;
     synchronizeConn = 0; // will get deleted by Model
 
+    Q_ASSERT( parser );
     model->_parsers[ parser ].activeTasks.append( this );
 
     isRunning = true;

@@ -44,6 +44,10 @@ CopyMoveMessagesTask::CopyMoveMessagesTask( Model* _model, const QModelIndexList
 
 void CopyMoveMessagesTask::perform()
 {
+    parser = conn->parser;
+    Q_ASSERT( parser );
+    model->_parsers[ parser ].activeTasks.append( this );
+
     Sequence seq;
     bool first = true;
 
@@ -71,9 +75,6 @@ void CopyMoveMessagesTask::perform()
         _completed();
         return;
     }
-
-    parser = conn->parser;
-    model->_parsers[ parser ].activeTasks.append( this );
 
     copyTag = parser->uidCopy( seq, targetMailbox );
     model->_parsers[ parser ].commandMap[ copyTag ] = Model::Task( Model::Task::COPY, 0 );

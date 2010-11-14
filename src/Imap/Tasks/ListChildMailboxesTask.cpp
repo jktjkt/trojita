@@ -37,6 +37,10 @@ ListChildMailboxesTask::ListChildMailboxesTask( Model* _model, const QModelIndex
 
 void ListChildMailboxesTask::perform()
 {
+    parser = conn->parser;
+    Q_ASSERT( parser );
+    model->_parsers[ parser ].activeTasks.append( this );
+
     if ( ! mailboxIndex.isValid() ) {
         // FIXME: add proper fix
         qDebug() << "Mailbox vanished before we could ask for its children";
@@ -45,8 +49,6 @@ void ListChildMailboxesTask::perform()
     }
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
     Q_ASSERT( mailbox );
-    parser = conn->parser;
-    model->_parsers[ parser ].activeTasks.append( this );
 
     QString mailboxName = mailbox->mailbox();
     if ( mailboxName.isNull() )

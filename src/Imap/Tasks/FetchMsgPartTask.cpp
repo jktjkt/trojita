@@ -44,14 +44,17 @@ FetchMsgPartTask::FetchMsgPartTask( Model* _model,
 
 void FetchMsgPartTask::perform()
 {
+    parser = conn->parser;
+    Q_ASSERT( parser );
+    model->_parsers[ parser ].activeTasks.append( this );
+
     if ( ! index.isValid() ) {
         // FIXME: add proper fix
         qDebug() << "Message got removed before we could have fetched it";
         _completed();
         return;
     }
-    parser = conn->parser;
-    model->_parsers[ parser ].activeTasks.append( this );
+
     TreeItemPart* part = dynamic_cast<TreeItemPart*>( static_cast<TreeItem*>( index.internalPointer() ) );
     Q_ASSERT( part );
     tag = parser->fetch( Sequence( part->message()->row() + 1 ),

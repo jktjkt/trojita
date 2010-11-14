@@ -37,14 +37,16 @@ ExpungeMailboxTask::ExpungeMailboxTask( Model* _model, const QModelIndex& mailbo
 
 void ExpungeMailboxTask::perform()
 {
+    parser = conn->parser;
+    Q_ASSERT( parser );
+    model->_parsers[ parser ].activeTasks.append( this );
+
     if ( ! mailboxIndex.isValid() ) {
         // FIXME: add proper fix
         qDebug() << "Mailbox vanished before we could expunge it";
         _completed();
         return;
     }
-    parser = conn->parser;
-    model->_parsers[ parser ].activeTasks.append( this );
 
     tag = parser->expunge();
     model->_parsers[ parser ].commandMap[ tag ] = Model::Task( Model::Task::EXPUNGE, 0 );

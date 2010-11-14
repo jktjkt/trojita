@@ -35,6 +35,7 @@ NoopTask::NoopTask( Model* _model, ImapTask* parentTask ) :
 void NoopTask::perform()
 {
     parser = conn->parser;
+    Q_ASSERT( parser );
     model->_parsers[ parser ].activeTasks.append( this );
 
     // we do not want to use _onlineMessageFetch because it contains UID and FLAGS

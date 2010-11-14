@@ -30,16 +30,19 @@ GetAnyConnectionTask::GetAnyConnectionTask( Model* _model ) :
         newConn = model->_taskFactory->createOpenConnectionTask( model );
         newConn->addDependentTask( this );
     } else {
-        model->_parsers.begin()->activeTasks.append( this );
         parser = model->_parsers.begin().key();
+        Q_ASSERT( parser );
+        model->_parsers[ parser ].activeTasks.append( this );
         QTimer::singleShot( 0, model, SLOT(runReadyTasks()) );
     }
 }
 
 void GetAnyConnectionTask::perform()
 {
+    // This is special from most ImapTasks' perform(), because the activeTasks could have already been updated
     if ( newConn ) {
         parser = newConn->parser;
+        Q_ASSERT( parser );
         model->_parsers[ parser ].activeTasks.append( this );
     }
     _completed();

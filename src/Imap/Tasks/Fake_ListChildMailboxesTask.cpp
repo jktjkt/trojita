@@ -39,7 +39,9 @@ Fake_ListChildMailboxesTask::Fake_ListChildMailboxesTask( Model* _model, const Q
 void Fake_ListChildMailboxesTask::perform()
 {
     parser = conn->parser;
+    Q_ASSERT( parser );
     model->_parsers[ parser ].activeTasks.append( this );
+
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
     Q_ASSERT( mailbox );
     parser = conn->parser;

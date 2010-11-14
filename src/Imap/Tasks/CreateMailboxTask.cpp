@@ -36,6 +36,7 @@ CreateMailboxTask::CreateMailboxTask( Model* _model, const QString& _mailbox ):
 void CreateMailboxTask::perform()
 {
     parser = conn->parser;
+    Q_ASSERT( parser );
     model->_parsers[ parser ].activeTasks.append( this );
 
     tagCreate = parser->create( mailbox );
