@@ -18,6 +18,8 @@
 
 #include "GetAnyConnectionTask.h"
 #include <QTimer>
+#include "KeepMailboxOpenTask.h"
+#include "MailboxTree.h"
 #include "OpenConnectionTask.h"
 
 namespace Imap {
@@ -27,13 +29,29 @@ GetAnyConnectionTask::GetAnyConnectionTask( Model* _model ) :
     ImapTask( _model ), newConn(0)
 {
     if ( model->_parsers.isEmpty() ) {
+        // We're creating a completely new connection
         newConn = model->_taskFactory->createOpenConnectionTask( model );
         newConn->addDependentTask( this );
     } else {
-        parser = model->_parsers.begin().key();
+        // There's an existing parser, so let's reuse it
+        QMap<Parser*,Model::ParserState>::iterator it = model->_parsers.begin();
+        parser = it.key();
         Q_ASSERT( parser );
-        model->_parsers[ parser ].activeTasks.append( this );
-        QTimer::singleShot( 0, model, SLOT(runReadyTasks()) );
+
+        if ( it->mailbox && it->mailbox->maintainingTask ) {
+            // It has already some mailbox and KeepMailboxOpenTask associated, so we have
+            // to be nice and inform the maintainingTask about our presence, otherwise we'd
+            // risk breaking an existing IDLE, which is fatal.
+            qDebug() << this << "Registering as dependent stuff";
+            newConn = it->mailbox->maintainingTask;
+            it->mailbox->maintainingTask->addDependentTask( this );
+        } else {
+            // The parser doesn't have anything associated with it, so we can go ahead and
+            // register ourselves
+            qDebug() << this << "Being bold, going ahead.";
+            it->activeTasks.append( this );
+            QTimer::singleShot( 0, model, SLOT(runReadyTasks()) );
+        }
     }
 }
 
@@ -41,10 +59,13 @@ void GetAnyConnectionTask::perform()
 {
     // This is special from most ImapTasks' perform(), because the activeTasks could have already been updated
     if ( newConn ) {
+        // We're "dependent" on some connection, so we should update our parser (even though
+        // it could be already set), and also register ourselves with the Model
         parser = newConn->parser;
         Q_ASSERT( parser );
         model->_parsers[ parser ].activeTasks.append( this );
     }
+    // ... we don't really have to do any work here, just declare ourselves completed
     _completed();
 }
 
