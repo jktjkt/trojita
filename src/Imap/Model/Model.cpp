@@ -86,6 +86,7 @@ Model::Model( QObject* parent, AbstractCache* cache, SocketFactoryPtr socketFact
         QTimer::singleShot( 0, this, SLOT( setNetworkOnline() ) );
     }
 
+//#define PERIODICALLY_DUMP_TASKS
 #ifdef PERIODICALLY_DUMP_TASKS
     QTimer* periodicTaskDumper = new QTimer(this);
     periodicTaskDumper->setInterval( 1000 );
