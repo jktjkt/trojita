@@ -198,6 +198,11 @@ void KeepMailboxOpenTask::perform()
 void KeepMailboxOpenTask::resynchronizeMailbox()
 {
     if ( isRunning ) {
+        if ( idleLauncher && ! tagIdle.isEmpty() ) {
+            // If we're idling right now, we should immediately abort
+            idleLauncher->finishIdle();
+        }
+
         // FIXME: would be cool to wait for completion of current tasks...
         Q_ASSERT ( ! synchronizeConn );
         synchronizeConn = model->_taskFactory->createObtainSynchronizedMailboxTask( model, mailboxIndex, this );
