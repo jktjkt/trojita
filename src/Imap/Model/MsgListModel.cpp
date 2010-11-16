@@ -24,11 +24,10 @@
 #include "MailboxModel.h"
 #include "Utils.h"
 
-#include "iconloader/qticonloader.h"
-
 #include <QApplication>
 #include <QDebug>
 #include <QFontMetrics>
+#include <QIcon>
 #include <QMimeData>
 
 namespace {
@@ -221,20 +220,20 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
                     if ( ! message->fetched() )
                         return QVariant();
                     if ( message->isMarkedAsDeleted() )
-                        return QtIconLoader::icon( QLatin1String("mail-deleted"),
-                                                   QIcon( QLatin1String(":/icons/mail-deleted.png") ) );
+                        return QIcon::fromTheme( QLatin1String("mail-deleted"),
+                                                 QIcon( QLatin1String(":/icons/mail-deleted.png") ) );
                     else if ( message->isMarkedAsForwarded() && message->isMarkedAsReplied() )
-                        return QtIconLoader::icon( QLatin1String("mail-replied-forw"),
-                                                   QIcon( QLatin1String(":/icons/mail-replied-forw.png") ) );
+                        return QIcon::fromTheme( QLatin1String("mail-replied-forw"),
+                                                 QIcon( QLatin1String(":/icons/mail-replied-forw.png") ) );
                     else if ( message->isMarkedAsReplied() )
-                        return QtIconLoader::icon( QLatin1String("mail-replied"),
-                                                   QIcon( QLatin1String(":/icons/mail-replied.png") ) );
+                        return QIcon::fromTheme( QLatin1String("mail-replied"),
+                                                 QIcon( QLatin1String(":/icons/mail-replied.png") ) );
                     else if ( message->isMarkedAsForwarded() )
-                        return QtIconLoader::icon( QLatin1String("mail-forwarded"),
-                                                   QIcon( QLatin1String(":/icons/mail-forwarded.png") ) );
+                        return QIcon::fromTheme( QLatin1String("mail-forwarded"),
+                                                 QIcon( QLatin1String(":/icons/mail-forwarded.png") ) );
                     else if ( message->isMarkedAsRecent() )
-                        return QtIconLoader::icon( QLatin1String("mail-recent"),
-                                                   QIcon( QLatin1String(":/icons/mail-recent.png") ) );
+                        return QIcon::fromTheme( QLatin1String("mail-recent"),
+                                                 QIcon( QLatin1String(":/icons/mail-recent.png") ) );
                     else
                         return QIcon( QLatin1String(":/icons/transparent.png") );
                 case SEEN:

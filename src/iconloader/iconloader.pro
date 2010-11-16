@@ -1,9 +1,0 @@
-QT += core network
-CONFIG += staticlib
-DEFINES -= QT3_SUPPORT
-INCLUDEPATH += ../
-DEPENDPATH += ../
-TARGET = iconloader
-TEMPLATE = lib
-SOURCES += qticonloader.cpp
-HEADERS += qticonloader.h

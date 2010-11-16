@@ -21,9 +21,9 @@
 #include "PrettyMailboxModel.h"
 #include "MailboxModel.h"
 #include "ItemRoles.h"
-#include "iconloader/qticonloader.h"
 
 #include <QFont>
+#include <QIcon>
 
 namespace Imap {
 
@@ -75,17 +75,17 @@ QVariant PrettyMailboxModel::data( const QModelIndex& index, int role ) const
             {
             QModelIndex translated = mapToSource( index );
             if ( translated.data( RoleMailboxItemsAreLoading ).toBool() )
-                return QtIconLoader::icon( QLatin1String("folder-grey"),
-                                           QIcon( QLatin1String(":/icons/folder-grey.png") ) );
+                return QIcon::fromTheme( QLatin1String("folder-grey"),
+                                         QIcon( QLatin1String(":/icons/folder-grey.png") ) );
             else if ( translated.data( RoleMailboxIsINBOX ).toBool() )
-                return QtIconLoader::icon( QLatin1String("mail-folder-inbox"),
-                                           QIcon( QLatin1String(":/icons/mail-folder-inbox") ) );
+                return QIcon::fromTheme( QLatin1String("mail-folder-inbox"),
+                                         QIcon( QLatin1String(":/icons/mail-folder-inbox") ) );
             else if ( translated.data( RoleMailboxIsSelectable ).toBool() )
-                return QtIconLoader::icon( QLatin1String("folder"),
-                                           QIcon( QLatin1String(":/icons/folder.png") ) );
+                return QIcon::fromTheme( QLatin1String("folder"),
+                                         QIcon( QLatin1String(":/icons/folder.png") ) );
             else
-                return QtIconLoader::icon( QLatin1String("folder-open"),
-                                           QIcon( QLatin1String(":/icons/folder-open.png") ) );
+                return QIcon::fromTheme( QLatin1String("folder-open"),
+                                         QIcon( QLatin1String(":/icons/folder-open.png") ) );
             }
         default:
             return QSortFilterProxyModel::data( index, role );

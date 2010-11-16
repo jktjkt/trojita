@@ -6,7 +6,7 @@ INCLUDEPATH += ../../src/ ../
 TEMPLATE = app
 
 
-trojita_libs = Imap Streams iconloader
+trojita_libs = Imap Streams
 myprefix = ../../src/
 include(../src/linking.pri)
 
