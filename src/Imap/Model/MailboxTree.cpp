@@ -23,6 +23,7 @@
 #include "MailboxTree.h"
 #include "Model.h"
 #include "Imap/Encoders.h"
+#include "KeepMailboxOpenTask.h"
 #include <QtDebug>
 
 namespace {
@@ -111,6 +112,15 @@ TreeItemMailbox::TreeItemMailbox( TreeItem* parent, Responses::List response ):
     for ( QStringList::const_iterator it = response.flags.begin(); it != response.flags.end(); ++it )
         _metadata.flags.append( it->toUpper() );
     _children.prepend( new TreeItemMsgList( this ) );
+}
+
+TreeItemMailbox::~TreeItemMailbox()
+{
+    if ( maintainingTask ) {
+        // This mailbox is going away, and it should take its maintaining task with it
+        maintainingTask->die();
+        maintainingTask->deleteLater();
+    }
 }
 
 TreeItemMailbox* TreeItemMailbox::fromMetadata( TreeItem* parent, const MailboxMetadata& metadata )

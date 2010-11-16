@@ -104,13 +104,16 @@ class TreeItemMailbox: public TreeItem {
     MailboxMetadata _metadata;
     friend class Model; // needs access to maintianingTask
     friend class MailboxModel;
-    friend class KeepMailboxOpenTask; // needs access to maintianingTask
+    friend class KeepMailboxOpenTask; // needs access to maintainingTask
+    friend class GetAnyConnectionTask; // needs access to maintainingTask
     static QLatin1String _noInferiors;
     static QLatin1String _hasNoChildren;
     static QLatin1String _hasChildren;
 public:
     TreeItemMailbox( TreeItem* parent );
     TreeItemMailbox( TreeItem* parent, Responses::List );
+    ~TreeItemMailbox();
+
     static TreeItemMailbox* fromMetadata( TreeItem* parent, const MailboxMetadata& metadata );
 
     virtual QList<TreeItem*> setChildren( const QList<TreeItem*> items );
