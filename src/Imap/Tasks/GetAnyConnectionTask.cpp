@@ -42,13 +42,11 @@ GetAnyConnectionTask::GetAnyConnectionTask( Model* _model ) :
             // It has already some mailbox and KeepMailboxOpenTask associated, so we have
             // to be nice and inform the maintainingTask about our presence, otherwise we'd
             // risk breaking an existing IDLE, which is fatal.
-            qDebug() << this << "Registering as dependent stuff";
             newConn = it->mailbox->maintainingTask;
             it->mailbox->maintainingTask->addDependentTask( this );
         } else {
             // The parser doesn't have anything associated with it, so we can go ahead and
             // register ourselves
-            qDebug() << this << "Being bold, going ahead.";
             it->activeTasks.append( this );
             QTimer::singleShot( 0, model, SLOT(runReadyTasks()) );
         }
