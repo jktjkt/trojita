@@ -479,6 +479,7 @@ void ObtainSynchronizedMailboxTask::_finalizeUidSyncAll( TreeItemMailbox* mailbo
 
     // Verify that we indeed received UIDs for all messages
     if ( static_cast<uint>( uidMap.size() ) != mailbox->syncState.exists() ) {
+        // FIXME: this needs to be checked for what happens when the number of messages changes between SELECT and UID SEARCH ALL
         throw MailboxException( "We received a weird number of UIDs for messages in the mailbox.");
     }
 
