@@ -198,16 +198,10 @@ void KeepMailboxOpenTask::perform()
 void KeepMailboxOpenTask::resynchronizeMailbox()
 {
     if ( isRunning ) {
-        if ( idleLauncher && ! tagIdle.isEmpty() ) {
-            // If we're idling right now, we should immediately abort
-            idleLauncher->finishIdle();
-        }
-
         // FIXME: would be cool to wait for completion of current tasks...
-        Q_ASSERT ( ! synchronizeConn );
-        synchronizeConn = model->_taskFactory->createObtainSynchronizedMailboxTask( model, mailboxIndex, this );
-        QTimer::singleShot( 0, this, SLOT(slotPerformConnection()) );
-        isRunning = false;
+        // Instead of wild magic with re-creating synchronizeConn, it's way easier to
+        // just have us replaced by another KeepMailboxOpenTask
+        model->_taskFactory->createKeepMailboxOpenTask( model, mailboxIndex, parser );
     } else {
         // We aren't running yet, which means that the sync hadn't happened yet, and therefore
         // we don't have to do it "once again" -- it will happen automatically later on.
