@@ -201,21 +201,11 @@ void ObtainSynchronizedMailboxTask::_fullMboxSync( TreeItemMailbox* mailbox, Tre
         model->endRemoveRows();
     }
     if ( syncState.exists() ) {
-        bool willLoad = model->networkPolicy() == Model::NETWORK_ONLINE && syncState.exists() <= Model::StructureFetchLimit;
-        model->beginInsertRows( parent, 0, syncState.exists() - 1 );
-        for ( uint i = 0; i < syncState.exists(); ++i ) {
-            TreeItemMessage* message = new TreeItemMessage( list );
-            message->_offset = i;
-            list->_children << message;
-            // FIXME: re-evaluate this one when Task migration's done
-            //if ( willLoad )
-            //    message->_fetchStatus = TreeItem::LOADING;
-        }
-        model->endInsertRows();
-
+        // FIXME: Previously we'd create TreeItemMessages here, and then delete them in _finalizeUidSyncAll().
+        // We should consider preloading messages immediately, along with their flags etc, in order to
+        // minimize roundtrips.
         syncUids( mailbox );
 
-        // FIXME: re-enable optimization (merge UID and FLAGS syncing) when Task migration's done
         list->_numberFetchingStatus = TreeItem::LOADING;
         list->_unreadMessageCount = 0;
     } else {

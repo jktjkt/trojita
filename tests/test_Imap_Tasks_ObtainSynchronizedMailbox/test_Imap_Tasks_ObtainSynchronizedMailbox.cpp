@@ -234,7 +234,6 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
     QCoreApplication::processEvents();
 
     // Verify that we indeed received what we wanted
-    QCOMPARE( model->rowCount( msgList ), 17 );
     Imap::Mailbox::TreeItemMsgList* list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( static_cast<Imap::Mailbox::TreeItem*>( msgList.internalPointer() ) );
     Q_ASSERT( list );
     QVERIFY( ! list->fetched() );
@@ -243,6 +242,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
     SOCK->fakeReading( QByteArray("* SEARCH 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17\r\n"
                                   "y1 OK search\r\n") );
     QCoreApplication::processEvents();
+    QCOMPARE( model->rowCount( msgList ), 17 );
     QVERIFY( SOCK->writtenStuff().isEmpty() );
     QVERIFY( errorSpy->isEmpty() );
 
