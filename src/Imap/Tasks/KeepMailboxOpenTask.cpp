@@ -74,13 +74,6 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
     noopTimer->setSingleShot( true );
 }
 
-KeepMailboxOpenTask::~KeepMailboxOpenTask()
-{
-    if ( parser ) {
-        model->_parsers[ parser ].activeTasks.removeOne( this );
-    }
-}
-
 void KeepMailboxOpenTask::slotPerformConnection()
 {
     Q_ASSERT( synchronizeConn );

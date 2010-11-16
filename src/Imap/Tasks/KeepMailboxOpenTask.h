@@ -57,8 +57,6 @@ that mailbox now loses its KeepMailboxOpenTask and the underlying parser is reus
 */
     KeepMailboxOpenTask( Model* _model, const QModelIndex& _mailboxIndex, Parser* oldParser );
 
-    ~KeepMailboxOpenTask();
-
     virtual void die();
 
     /** @short Start child processes

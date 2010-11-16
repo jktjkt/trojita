@@ -265,6 +265,9 @@ private slots:
     /** @short There's been a change in the state of various tasks */
     void slotTasksChanged();
 
+    /** @short A maintaining task is about to die */
+    void slotTaskDying();
+
 signals:
     /** @short This signal is emitted then the server sent us an ALERT response code */
     void alertReceived( const QString& message );
