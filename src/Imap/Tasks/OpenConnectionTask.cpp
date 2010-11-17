@@ -43,6 +43,11 @@ OpenConnectionTask::OpenConnectionTask( Model* _model ) :
     model->_parsers[ parser ] = parserState;
 }
 
+OpenConnectionTask::OpenConnectionTask( Model* _model, void* dummy): ImapTask( _model )
+{
+    Q_UNUSED( dummy );
+}
+
 void OpenConnectionTask::perform()
 {
     // nothing should happen here

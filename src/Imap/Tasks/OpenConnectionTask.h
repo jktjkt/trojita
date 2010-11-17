@@ -46,7 +46,8 @@ public:
     // FIXME: reimplement handleCapability(), add some guards against "unexpected changes" to Model's implementation
 
 protected:
-    OpenConnectionTask(): ImapTask(0) {}
+    /** @short A special, internal constructor used only by Fake_OpenConnectionTask */
+    OpenConnectionTask( Model* _model, void* dummy);
 
 private:
     void handleInitialResponse( Imap::Parser* ptr, const Imap::Responses::State* const resp );
