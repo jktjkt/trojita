@@ -37,12 +37,19 @@ IdleLauncher::IdleLauncher( KeepMailboxOpenTask* parent ):
     // user has a chance to click on a message, but if we set it too long, we needlessly wait too long between
     // we receive updates, and also between terminating one IDLE and starting another.
     // 6 seconds is a compromise here.
-    delayedEnter->setInterval( 6 * 1000 );
+    bool ok;
+    int timeout = parent->model->property( "trojita-imap-idle-delayedEnter" ).toUInt( &ok );
+    if ( ! ok )
+        timeout = 6 * 1000;
+    delayedEnter->setInterval( timeout );
     connect( delayedEnter, SIGNAL(timeout()), this, SLOT(slotEnterIdleNow()) );
     renewal = new QTimer( this );
     renewal->setObjectName( QString::fromAscii("%1-IdleLauncher-renewal").arg( task->objectName() ) );
     renewal->setSingleShot( true );
-    renewal->setInterval( 1000 * 29 * 60 ); // 29 minutes -- that's the longest allowed time to IDLE
+    timeout = parent->model->property( "trojita-imap-idle-renewal" ).toUInt( &ok );
+    if ( ! ok )
+        timeout = 1000 * 29 * 60; // 29 minutes -- that's the longest allowed time to IDLE
+    renewal->setInterval( timeout );
     connect( renewal, SIGNAL(timeout()), this, SLOT(slotTerminateLongIdle()) );
 }
 

@@ -70,7 +70,11 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
 
     noopTimer = new QTimer(this);
     connect( noopTimer, SIGNAL(timeout()), this, SLOT(slotPerformNoop()) );
-    noopTimer->setInterval( 2 * 60 * 1000 ); // once every two minutes
+    bool ok;
+    int timeout = model->property( "trojita-imap-noop-period" ).toUInt( &ok );
+    if ( ! ok )
+        timeout = 2 * 60 * 1000; // once every two minutes
+    noopTimer->setInterval( timeout );
     noopTimer->setSingleShot( true );
 }
 
