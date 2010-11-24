@@ -94,7 +94,7 @@ void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
 {
     Q_ASSERT( task );
 
-    if ( idleLauncher && ! tagIdle.isEmpty() ) {
+    if ( idleLauncher && idleLauncher->idling() ) {
         // If we're idling right now, we should immediately abort
         idleLauncher->finishIdle();
     }
@@ -252,7 +252,6 @@ bool KeepMailboxOpenTask::handleStateHelper( Imap::Parser* ptr, const Imap::Resp
         IMAP_TASK_ENSURE_VALID_COMMAND( tagIdle, Model::Task::IDLE );
 
         Q_ASSERT( idleLauncher );
-        idleLauncher->idleTerminated();
         if ( resp->kind == Responses::OK ) {
             // The IDLE got terminated for whatever reason, so we should schedule its restart
             idleLauncher->enterIdleLater();

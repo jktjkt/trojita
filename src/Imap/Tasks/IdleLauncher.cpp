@@ -59,6 +59,7 @@ void IdleLauncher::slotEnterIdleNow()
     renewal->stop();
 
     Q_ASSERT( task->parser );
+    Q_ASSERT( ! _idling );
     task->tagIdle = task->parser->idle();
     task->model->_parsers[ task->parser ].commandMap[ task->tagIdle ] = Model::Task( Model::Task::IDLE, 0 );
     renewal->start();
@@ -68,7 +69,9 @@ void IdleLauncher::slotEnterIdleNow()
 void IdleLauncher::finishIdle()
 {
     Q_ASSERT( task->parser );
+    Q_ASSERT( idling() );
     task->parser->idleDone();
+    _idling = false;
 }
 
 void IdleLauncher::slotTerminateLongIdle()
@@ -78,7 +81,7 @@ void IdleLauncher::slotTerminateLongIdle()
 
 void IdleLauncher::enterIdleLater()
 {
-    if ( ! _idling )
+    if ( ! idling() )
         delayedEnter->start();
 }
 
@@ -90,10 +93,9 @@ void IdleLauncher::die()
     renewal->disconnect();
 }
 
-void IdleLauncher::idleTerminated()
+bool IdleLauncher::idling() const
 {
-    Q_ASSERT( _idling );
-    _idling = false;
+    return _idling;
 }
 
 }

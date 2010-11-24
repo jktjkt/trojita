@@ -60,8 +60,13 @@ target mailbox and all member variables are set up.
     /** @short Break the IDLE command */
     void finishIdle();
 
-    /** @short Inform the launcher that IDLE got terminated. It won't be restarted yet. */
-    void idleTerminated();
+    /** @short Are we in the middle of an IDLE now?
+
+    This function returns true iff slotEnterIdleNow() has been called and finishIdle()
+    hasn't been called yet.  It doesn't depend on command completion tracking on upper layers,
+    though.
+*/
+    bool idling() const;
 public slots:
     /** @short Immediately send the IDLE command to the parser */
     void slotEnterIdleNow();
