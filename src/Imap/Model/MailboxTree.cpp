@@ -97,6 +97,8 @@ unsigned int TreeItem::columnCount()
 
 TreeItem* TreeItem::specialColumnPtr( int row, int column ) const
 {
+    Q_UNUSED(row);
+    Q_UNUSED(column);
     return 0;
 }
 
