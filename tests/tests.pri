@@ -17,5 +17,7 @@ lessThan(QT_VERSION, 4.7) {
     CONFIG += testcase
 }
 
+HEADERS += TagGenerator.h
+
 SOURCES += $$join(TARGET,,,.cpp)
 HEADERS += $$join(TARGET,,,.h)

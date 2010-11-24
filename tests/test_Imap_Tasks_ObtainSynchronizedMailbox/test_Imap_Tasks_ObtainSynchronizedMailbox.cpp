@@ -27,6 +27,7 @@
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Tasks/ObtainSynchronizedMailboxTask.h"
+#include "TagGenerator.h"
 
 #define SOCK static_cast<Imap::FakeSocket*>( factory->lastSocket() )
 
@@ -81,6 +82,8 @@ check the cache for valid state.
 */
 void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyMinimal()
 {
+    TagGenerator t;
+    model->setProperty( "trojita-imap-noop-period", 10 );
     // Boring stuff
     QModelIndex idxA = model->index( 1, 0, QModelIndex() );
     QModelIndex msgList = model->index( 0, 0, idxA );
@@ -89,11 +92,11 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyMinimal()
     QCOMPARE( model->rowCount( msgList ), 0 );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 SELECT a\r\n") );
+    QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
 
     // Try to feed it with absolute minimum data
-    SOCK->fakeReading( QByteArray("* 0 exists\r\n"
-                                  "y0 OK done\r\n") );
+    SOCK->fakeReading( QByteArray("* 0 exists\r\n")
+                                  + t.last("OK done\r\n") );
     QCoreApplication::processEvents();
 
     // Verify that we indeed received what we wanted
@@ -101,6 +104,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyMinimal()
     Imap::Mailbox::TreeItemMsgList* list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( static_cast<Imap::Mailbox::TreeItem*>( msgList.internalPointer() ) );
     Q_ASSERT( list );
     QVERIFY( list->fetched() );
+    //QTest::qWait( 100 );
     QVERIFY( SOCK->writtenStuff().isEmpty() );
 
     // Now, let's try to re-sync it once again; the difference is that our cache now has "something"
@@ -112,9 +116,9 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyMinimal()
     Q_ASSERT( list );
     QVERIFY( list->loading() );
     QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 SELECT a\r\n") );
-    SOCK->fakeReading( QByteArray("* 0 exists\r\n"
-                                  "y1 OK done\r\n") );
+    QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
+    SOCK->fakeReading( QByteArray("* 0 exists\r\n")
+                                  + t.last("OK done\r\n") );
     QCoreApplication::processEvents();
     QVERIFY( SOCK->writtenStuff().isEmpty() );
 
@@ -141,6 +145,7 @@ A check of the state of the cache after is completed, too.
 */
 void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
 {
+    TagGenerator t;
     // Boring stuff
     QModelIndex idxA = model->index( 1, 0, QModelIndex() );
     QModelIndex msgList = model->index( 0, 0, idxA );
@@ -149,7 +154,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
     QCOMPARE( model->rowCount( msgList ), 0 );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 SELECT a\r\n") );
+    QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
 
     // Try to feed it with absolute minimum data
     SOCK->fakeReading( QByteArray("* FLAGS (\\Answered \\Flagged \\Deleted \\Seen \\Draft)\r\n"
@@ -157,8 +162,8 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
                                   "* 0 EXISTS\r\n"
                                   "* 0 RECENT\r\n"
                                   "* OK [UIDVALIDITY 666] UIDs valid\r\n"
-                                  "* OK [UIDNEXT 3] Predicted next UID\r\n"
-                                  "y0 OK [READ-WRITE] Select completed.\r\n") );
+                                  "* OK [UIDNEXT 3] Predicted next UID\r\n")
+                                  + t.last("OK [READ-WRITE] Select completed.\r\n") );
     QCoreApplication::processEvents();
 
     // Verify that we indeed received what we wanted
@@ -194,9 +199,9 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
     Q_ASSERT( list );
     QVERIFY( list->loading() );
     QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 SELECT a\r\n") );
-    SOCK->fakeReading( QByteArray("* 0 exists\r\n"
-                                  "y1 OK done\r\n") );
+    QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
+    SOCK->fakeReading( QByteArray("* 0 exists\r\n")
+                                  + t.last("OK done\r\n") );
     QCoreApplication::processEvents();
     QVERIFY( SOCK->writtenStuff().isEmpty() );
 
@@ -215,6 +220,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
 
 void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
 {
+    TagGenerator t;
     // Boring stuff
     QModelIndex idxA = model->index( 1, 0, QModelIndex() );
     QModelIndex msgList = model->index( 0, 0, idxA );
@@ -223,13 +229,13 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
     QCOMPARE( model->rowCount( msgList ), 0 );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 SELECT a\r\n") );
+    QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
 
     // Try to feed it with absolute minimum data
     SOCK->fakeReading( QByteArray("* 17 EXISTS\r\n"
                                   "* OK [UIDVALIDITY 1226524607] UIDs valid\r\n"
-                                  "* OK [UIDNEXT 18] Predicted next UID\r\n"
-                                  "y0 OK [READ-WRITE] Select completed.\r\n") );
+                                  "* OK [UIDNEXT 18] Predicted next UID\r\n")
+                                  + t.last("OK [READ-WRITE] Select completed.\r\n") );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 
@@ -237,17 +243,17 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
     Imap::Mailbox::TreeItemMsgList* list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( static_cast<Imap::Mailbox::TreeItem*>( msgList.internalPointer() ) );
     Q_ASSERT( list );
     QVERIFY( ! list->fetched() );
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 UID SEARCH ALL\r\n") );
+    QCOMPARE( SOCK->writtenStuff(), t.mk("UID SEARCH ALL\r\n") );
 
-    SOCK->fakeReading( QByteArray("* SEARCH 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17\r\n"
-                                  "y1 OK search\r\n") );
+    SOCK->fakeReading( QByteArray("* SEARCH 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17\r\n")
+                                  + t.last("OK search\r\n") );
     QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( msgList ), 17 );
     QVERIFY( SOCK->writtenStuff().isEmpty() );
     QVERIFY( errorSpy->isEmpty() );
 
     QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y2 FETCH 1:17 (FLAGS)\r\n") );
+    QCOMPARE( SOCK->writtenStuff(), t.mk("FETCH 1:17 (FLAGS)\r\n") );
     SOCK->fakeReading( QByteArray("* 1 FETCH (FLAGS (\\Seen))\r\n"
                                   "* 2 FETCH (FLAGS (\\Seen))\r\n"
                                   "* 3 FETCH (FLAGS (\\Seen))\r\n"
@@ -264,8 +270,8 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
                                   "* 14 FETCH (FLAGS (\\Seen))\r\n"
                                   "* 15 FETCH (FLAGS (\\Seen))\r\n"
                                   "* 16 FETCH (FLAGS (\\Seen))\r\n"
-                                  "* 17 FETCH (FLAGS (\\Seen))\r\n"
-                                  "y2 OK yay\r\n"));
+                                  "* 17 FETCH (FLAGS (\\Seen))\r\n")
+                                  + t.last("OK yay\r\n"));
     QCoreApplication::processEvents();
 
     // No errors
@@ -289,16 +295,16 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
     QCOMPARE( model->rowCount( msgListB ), 0 );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y3 SELECT b\r\n") );
-    SOCK->fakeReading( QByteArray("* 0 exists\r\n"
-                                  "y3 ok completed\r\n") );
+    QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT b\r\n") );
+    SOCK->fakeReading( QByteArray("* 0 exists\r\n")
+                                  + t.last("ok completed\r\n") );
     QCoreApplication::processEvents();
 
     // And then go back to the first one
     model->switchToMailbox( idxA );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y4 SELECT a\r\n") );
+    QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
 
 
     /*
@@ -343,9 +349,9 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
     list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( static_cast<Imap::Mailbox::TreeItem*>( msgList.internalPointer() ) );
     Q_ASSERT( list );
     QVERIFY( list->loading() );
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y3 SELECT a\r\n") );
-    SOCK->fakeReading( QByteArray("* 0 exists\r\n"
-                                  "y3 OK done\r\n") );
+    QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
+    SOCK->fakeReading( QByteArray("* 0 exists\r\n")
+                                  +t.last("OK done\r\n") );
     QCoreApplication::processEvents();
     QVERIFY( SOCK->writtenStuff().isEmpty() );
 
