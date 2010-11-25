@@ -50,9 +50,6 @@ class TreeItemPart;
 class MsgListModel;
 class MailboxModel;
 
-class _MailboxListUpdater;
-class _NumberOfMessagesUpdater;
-
 class ImapTask;
 class KeepMailboxOpenTask;
 
