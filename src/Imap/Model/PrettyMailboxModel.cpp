@@ -54,10 +54,10 @@ QVariant PrettyMailboxModel::data( const QModelIndex& index, int role ) const
             qlonglong unreadCount = translated.data( RoleUnreadMessageCount ).toLongLong();
             if ( unreadCount )
                 return tr("%1 (%2)").arg(
-                        QSortFilterProxyModel::data( index, RoleMailboxName ).toString() ).arg(
+                        QSortFilterProxyModel::data( index, RoleShortMailboxName ).toString() ).arg(
                         unreadCount );
             else
-                return QSortFilterProxyModel::data( index, RoleMailboxName );
+                return QSortFilterProxyModel::data( index, RoleShortMailboxName );
             }
         case Qt::FontRole:
             {

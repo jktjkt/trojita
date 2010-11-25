@@ -172,6 +172,8 @@ QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mbox->_children[0] );
     Q_ASSERT( list );
     switch ( role ) {
+        case RoleShortMailboxName:
+            return mbox->separator().isEmpty() ? mbox->mailbox() : mbox->mailbox().split( mbox->separator(), QString::SkipEmptyParts ).last();
         case RoleMailboxName:
             return mbox->mailbox();
         case RoleMailboxHasChildmailboxes:

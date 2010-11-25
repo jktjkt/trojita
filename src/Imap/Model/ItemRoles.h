@@ -35,6 +35,8 @@ enum {
 
     /** @short Name of the mailbox */
     RoleMailboxName,
+    /** @short Short name of the mailbox */
+    RoleShortMailboxName,
     /** @short Total number of messages in a mailbox */
     RoleTotalMessageCount,
     /** @short Number of unread messages in a mailbox */
