@@ -23,6 +23,7 @@
 #define IMAP_MAILBOXTREE_H
 
 #include <QList>
+#include <QPointer>
 #include <QString>
 #include "../Parser/Response.h"
 #include "../Parser/Message.h"
@@ -158,7 +159,7 @@ private:
     TreeItemPart* partIdToPtr( Model* model, const int msgNumber, const QString& msgId );
 
     /** @short ImapTask which is currently responsible for well-being of this mailbox */
-    KeepMailboxOpenTask* maintainingTask;
+    QPointer<KeepMailboxOpenTask> maintainingTask;
 };
 
 class TreeItemMsgList: public TreeItem {
