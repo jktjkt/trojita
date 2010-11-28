@@ -37,6 +37,8 @@ public:
     virtual void perform();
 
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
+
+    virtual QString debugIdentification() const;
 private:
     CommandHandle tag;
     ImapTask* conn;

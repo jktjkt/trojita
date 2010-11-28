@@ -76,6 +76,8 @@ prevents replacing an "alive" KeepMailboxOpenTask with a different one.
     /** @short Make sure to re-open the mailbox, even if it is already open */
     void resynchronizeMailbox();
 
+    QString debugIdentification() const;
+
 private slots:
     void slotTaskDeleted( QObject* object );
 

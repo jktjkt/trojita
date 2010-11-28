@@ -632,5 +632,34 @@ void ObtainSynchronizedMailboxTask::_finalizeUidSyncOnlyNew( TreeItemMailbox* ma
     model->changeConnectionState( parser, CONN_STATE_SELECTED );
 }
 
+QString ObtainSynchronizedMailboxTask::debugIdentification() const
+{
+    if ( ! mailboxIndex.isValid() )
+        return QString::fromAscii("[invalid mailboxIndex]");
+
+    TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
+    Q_ASSERT(mailbox);
+
+    QString statusStr;
+    switch (status) {
+    case STATE_WAIT_FOR_CONN:
+        statusStr = "STATE_WAIT_FOR_CONN";
+        break;
+    case STATE_SELECTING:
+        statusStr = "STATE_SELECTING";
+        break;
+    case STATE_SYNCING_UIDS:
+        statusStr = "STATE_SYNCING_UIDS";
+        break;
+    case STATE_SYNCING_FLAGS:
+        statusStr = "STATE_SYNCING_FLAGS";
+        break;
+    case STATE_DONE:
+        statusStr = "STATE_DONE";
+        break;
+    }
+    return QString::fromAscii("%1 %2").arg( statusStr, mailbox->mailbox() );
+}
+
 }
 }

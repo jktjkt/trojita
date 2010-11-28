@@ -30,6 +30,9 @@
 #include <QDebug>
 #include <QtAlgorithms>
 
+//#define DEBUG_PERIODICALLY_DUMP_TASKS
+//#define DEBUG_TASK_ROUTING
+
 namespace Imap {
 namespace Mailbox {
 
@@ -86,8 +89,7 @@ Model::Model( QObject* parent, AbstractCache* cache, SocketFactoryPtr socketFact
         QTimer::singleShot( 0, this, SLOT( setNetworkOnline() ) );
     }
 
-//#define PERIODICALLY_DUMP_TASKS
-#ifdef PERIODICALLY_DUMP_TASKS
+#ifdef DEBUG_PERIODICALLY_DUMP_TASKS
     QTimer* periodicTaskDumper = new QTimer(this);
     periodicTaskDumper->setInterval( 1000 );
     connect( periodicTaskDumper, SIGNAL(timeout()), this, SLOT(slotTasksChanged()) );
@@ -135,8 +137,14 @@ void Model::responseReceived()
 
             // Try various tasks, perhaps it's their response. Also check if they're already finished and remove them.
             for ( QList<ImapTask*>::iterator taskIt = taskSnapshot.begin(); taskIt != taskSnapshot.end(); ++taskIt ) {
-                if ( ! handled )
+                if ( ! handled ) {
                     handled = resp->plug( it->parser, *taskIt );
+
+#ifdef DEBUG_TASK_ROUTING
+                    if ( handled )
+                        qDebug() << "Handled by" << *taskIt << (*taskIt)->debugIdentification();
+#endif
+                }
 
                 if ( (*taskIt)->isFinished() )
                     deletedTasks << *taskIt;
@@ -146,8 +154,12 @@ void Model::responseReceived()
 
             runReadyTasks();
 
-            if ( ! handled )
+            if ( ! handled ) {
+#ifdef DEBUG_TASK_ROUTING
+                qDebug() << "Handling by the Model itself";
+#endif
                 resp->plug( it.value().parser, this );
+            }
         } catch ( Imap::ImapException& e ) {
             uint parserId = it->parser->parserId();
             killParser( it->parser );
@@ -1270,7 +1282,7 @@ void Model::slotTasksChanged()
                 break;
             }
         }
-        qDebug() << task << finished << isReadyToRun << isActive; // << task->dependentTasks;
+        qDebug() << task << task->debugIdentification() << finished << isReadyToRun << isActive; // << task->dependentTasks;
     }
     qDebug() << "-------------";
 }

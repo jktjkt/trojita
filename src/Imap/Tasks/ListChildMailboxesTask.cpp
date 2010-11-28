@@ -89,6 +89,16 @@ bool ListChildMailboxesTask::handleStateHelper( Imap::Parser* ptr, const Imap::R
     }
 }
 
+QString ListChildMailboxesTask::debugIdentification() const
+{
+    if ( ! mailboxIndex.isValid() )
+        return QString::fromAscii("[invalid mailboxIndex]");
+
+    TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
+    Q_ASSERT(mailbox);
+    return QString::fromAscii("Listing stuff below mailbox %1").arg( mailbox->mailbox() );
+}
+
 
 }
 }

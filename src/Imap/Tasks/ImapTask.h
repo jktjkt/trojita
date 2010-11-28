@@ -81,6 +81,13 @@ doesn't have to be implemented for most of them.
     /** @short Return true if this task doesn't depend on anything can be run immediately */
     virtual bool isReadyToRun() const;
 
+    /** @short Obtain some additional information for the purpose of this task for debugging purposes
+
+The meaning of this function is to be able to tell what any given Task is supposed to do. It's useful
+especially when the Model is compiled with DEBUG_TASK_ROUTING.
+*/
+    virtual QString debugIdentification() const;
+
 protected:
     void _completed();
 

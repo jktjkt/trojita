@@ -168,6 +168,11 @@ void ImapTask::die()
 {
 }
 
+QString ImapTask::debugIdentification() const
+{
+    return QString();
+}
+
 }
 
 }

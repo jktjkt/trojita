@@ -50,6 +50,8 @@ public:
     typedef enum { STATE_WAIT_FOR_CONN, STATE_SELECTING, STATE_SYNCING_UIDS, STATE_SYNCING_FLAGS, STATE_DONE } State;
     typedef enum { UID_SYNC_ALL, UID_SYNC_ONLY_NEW } UidSyncingMode;
 
+    virtual QString debugIdentification() const;
+
 private:
     void _finalizeSelect();
     void _fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState );
