@@ -39,6 +39,7 @@ private slots:
     void testSyncEmptyMinimal();
     void testSyncEmptyNormal();
     void testSyncWithMessages();
+    void testSyncTwoLikeCyrus();
 
 private:
     Imap::Mailbox::Model* model;

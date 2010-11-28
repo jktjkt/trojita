@@ -368,4 +368,74 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
     QVERIFY( errorSpy->isEmpty() );
 }
 
+/**
+Test that going from an empty mailbox to a bigger one works correctly, especially that the untagged
+EXISTS response which belongs to the SELECT gets picked up by the new mailbox and not the old one
+*/
+void ImapModelObtainSynchronizedMailboxTest::testSyncTwoLikeCyrus()
+{
+    TagGenerator t;
+    // Boring stuff
+    QModelIndex idxA = model->index( 1, 0, QModelIndex() );
+    QModelIndex idxB = model->index( 2, 0, QModelIndex() );
+    QModelIndex msgListA = model->index( 0, 0, idxA );
+    QModelIndex msgListB = model->index( 0, 0, idxB );
+
+    // Ask the model to sync stuff
+    QCOMPARE( model->rowCount( msgListB ), 0 );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT b\r\n") );
+
+    SOCK->fakeReading( QByteArray("* 0 EXISTS\r\n"
+                                  "* 0 RECENT\r\n"
+                                  "* FLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen)\r\n"
+                                  "* OK [PERMANENTFLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen \\*)] Ok\r\n"
+                                  "* OK [UIDVALIDITY 1290594339] Ok\r\n"
+                                  "* OK [UIDNEXT 1] Ok\r\n"
+                                  "* OK [HIGHESTMODSEQ 1] Ok\r\n"
+                                  "* OK [URLMECH INTERNAL] Ok\r\n")
+                       + t.last("OK [READ-WRITE] Completed\r\n") );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+
+    // Verify that we indeed received what we wanted
+    Imap::Mailbox::TreeItemMsgList* listB = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( static_cast<Imap::Mailbox::TreeItem*>( msgListB.internalPointer() ) );
+    Q_ASSERT( listB );
+    QVERIFY( listB->fetched() );
+
+    QCOMPARE( model->rowCount( msgListB ), 0 );
+    QCoreApplication::processEvents();
+    QVERIFY( SOCK->writtenStuff().isEmpty() );
+    QVERIFY( errorSpy->isEmpty() );
+
+    QCOMPARE( model->rowCount( msgListA ), 0 );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
+
+    SOCK->fakeReading( QByteArray("* 1 EXISTS\r\n"
+                                  "* 0 RECENT\r\n"
+                                  "* FLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen hasatt hasnotd)\r\n"
+                                  "* OK [PERMANENTFLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen hasatt hasnotd \\*)] Ok\r\n"
+                                  "* OK [UIDVALIDITY 1290593745] Ok\r\n"
+                                  "* OK [UIDNEXT 2] Ok\r\n"
+                                  "* OK [HIGHESTMODSEQ 9] Ok\r\n"
+                                  "* OK [URLMECH INTERNAL] Ok\r\n")
+                       + t.last("OK [READ-WRITE] Completed") );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    Imap::Mailbox::TreeItemMsgList* listA = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( static_cast<Imap::Mailbox::TreeItem*>( msgListA.internalPointer() ) );
+    Q_ASSERT( listA );
+    QVERIFY( ! listA->fetched() );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    //SOCK->fakeReading( QByteArray("* 1 FETCH (FLAGS (\\Seen hasatt hasnotd) UID 1 RFC822.SIZE 13021)\r\n")
+    //                   + t.last("OK fetch completed\r\n") );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QVERIFY( SOCK->writtenStuff().isEmpty() );
+    QVERIFY( errorSpy->isEmpty() );
+}
+
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )
