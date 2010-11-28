@@ -214,6 +214,10 @@ void KeepMailboxOpenTask::resynchronizeMailbox()
 
 bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp )
 {
+    // FIXME: add proper boundaries
+    if ( shouldExit )
+        return false;
+
     // FIXME: tests!
     if ( resp->kind == Imap::Responses::EXPUNGE ) {
         Model::ParserState& parser = model->_parsers[ ptr ];
@@ -234,6 +238,10 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
 
 bool KeepMailboxOpenTask::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
 {
+    // FIXME: add proper boundaries
+    if ( shouldExit )
+        return false;
+
     model->_genericHandleFetch( ptr, resp );
     return true;
 }
@@ -245,6 +253,8 @@ void KeepMailboxOpenTask::slotPerformNoop()
 
 bool KeepMailboxOpenTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
+    // FIXME: checks for shouldExit and proper boundaries?
+
     if ( resp->tag.isEmpty() )
         return false;
 
