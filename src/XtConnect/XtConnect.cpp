@@ -101,6 +101,7 @@ void XtConnect::setupModels()
     connect( m_model, SIGNAL( connectionError( const QString& ) ), this, SLOT( connectionError( const QString& ) ) );
     connect( m_model, SIGNAL( authRequested( QAuthenticator* ) ), this, SLOT( authenticationRequested( QAuthenticator* ) ) );
 
+    // Actually bring us online
     m_model->rowCount( QModelIndex() );
 }
 
