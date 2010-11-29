@@ -31,7 +31,7 @@
 #include <QResizeEvent>
 #include <QDebug>
 #include "SettingsDialog.h"
-#include "SettingsNames.h"
+#include "Common/SettingsNames.h"
 
 namespace Gui {
 
@@ -73,16 +73,16 @@ void SettingsDialog::accept()
 IdentityPage::IdentityPage( QWidget* parent, QSettings& s ): QWidget(parent)
 {
     QFormLayout* layout = new QFormLayout( this );
-    realName = new QLineEdit( s.value( SettingsNames::realNameKey ).toString(), this );
+    realName = new QLineEdit( s.value( Common::SettingsNames::realNameKey ).toString(), this );
     layout->addRow( tr("Real Name"), realName );
-    address = new QLineEdit( s.value( SettingsNames::addressKey ).toString(), this );
+    address = new QLineEdit( s.value( Common::SettingsNames::addressKey ).toString(), this );
     layout->addRow( tr("E-mail"), address );
 }
 
 void IdentityPage::save( QSettings& s )
 {
-    s.setValue( SettingsNames::realNameKey, realName->text() );
-    s.setValue( SettingsNames::addressKey, address->text() );
+    s.setValue( Common::SettingsNames::realNameKey, realName->text() );
+    s.setValue( Common::SettingsNames::addressKey, address->text() );
 }
 
 ImapPage::ImapPage( QWidget* parent, QSettings& s ): QScrollArea(parent), Ui_ImapPage()
@@ -91,6 +91,7 @@ ImapPage::ImapPage( QWidget* parent, QSettings& s ): QScrollArea(parent), Ui_Ima
     method->insertItem( 0, tr("TCP"), QVariant( TCP ) );
     method->insertItem( 1, tr("SSL"), QVariant( SSL ) );
     method->insertItem( 2, tr("Local Process"), QVariant( PROCESS ) );
+    using Common::SettingsNames;
     if ( QSettings().value( SettingsNames::imapMethodKey ).toString() == SettingsNames::methodTCP ) {
         method->setCurrentIndex( 0 );
     } else if ( QSettings().value( SettingsNames::imapMethodKey ).toString() == SettingsNames::methodSSL ) {
@@ -132,7 +133,7 @@ void ImapPage::updateWidgets()
             imapPort->setText( QString::number( 143 ) );
             lay->labelForField( imapPort )->setEnabled( true );
             startTls->setEnabled( true );
-            startTls->setChecked( QSettings().value( SettingsNames::imapStartTlsKey, true ).toBool() );
+            startTls->setChecked( QSettings().value( Common::SettingsNames::imapStartTlsKey, true ).toBool() );
             lay->labelForField( startTls )->setEnabled( true );
             imapUser->setEnabled( true );
             lay->labelForField( imapUser )->setEnabled( true );
@@ -175,6 +176,7 @@ void ImapPage::updateWidgets()
 
 void ImapPage::save( QSettings& s )
 {
+    using Common::SettingsNames;
     switch ( method->currentIndex() ) {
         case TCP:
             s.setValue( SettingsNames::imapMethodKey, SettingsNames::methodTCP );
@@ -203,6 +205,7 @@ CachePage::CachePage( QWidget* parent, QSettings& s ): QScrollArea(parent), Ui_C
 {
     Ui_CachePage::setupUi(this);
 
+    using Common::SettingsNames;
     QString val = s.value( SettingsNames::cacheMetadataKey ).toString();
     if ( val == SettingsNames::cacheMetadataPersistent )
         metadataPersistentCache->setChecked( true );
@@ -256,6 +259,7 @@ void CachePage::updateWidgets()
 
 void CachePage::save( QSettings& s )
 {
+    using Common::SettingsNames;
     if ( metadataPersistentCache->isChecked() )
         s.setValue( SettingsNames::cacheMetadataKey, SettingsNames::cacheMetadataPersistent );
     else
@@ -276,6 +280,7 @@ void CachePage::save( QSettings& s )
 
 OutgoingPage::OutgoingPage( QWidget* parent, QSettings& s ): QScrollArea(parent), Ui_OutgoingPage()
 {
+    using Common::SettingsNames;
     Ui_OutgoingPage::setupUi(this);
     method->insertItem( 0, tr("SMTP"), QVariant( SMTP ) );
     method->insertItem( 1, tr("Local sendmail-compatible"), QVariant( SENDMAIL ) );
@@ -341,12 +346,13 @@ void OutgoingPage::updateWidgets()
             sendmail->setEnabled( true );
             lay->labelForField( sendmail )->setEnabled( true );
             if ( sendmail->text().isEmpty() )
-                sendmail->setText( SettingsNames::sendmailDefaultCmd );
+                sendmail->setText( Common::SettingsNames::sendmailDefaultCmd );
     }
 }
 
 void OutgoingPage::save( QSettings& s )
 {
+    using Common::SettingsNames;
     if ( method->currentIndex() == SMTP ) {
         s.setValue( SettingsNames::msaMethodKey, SettingsNames::methodSMTP );
         s.setValue( SettingsNames::smtpHostKey, smtpHost->text() );

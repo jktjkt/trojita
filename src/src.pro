@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
-SUBDIRS  = Imap MSA Streams qwwsmtpclient Gui XtConnect
+SUBDIRS  = Imap MSA Streams qwwsmtpclient Common Gui XtConnect
 CONFIG += ordered

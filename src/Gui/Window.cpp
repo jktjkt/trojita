@@ -43,7 +43,7 @@
 #include "MessageView.h"
 #include "MsgListView.h"
 #include "SettingsDialog.h"
-#include "SettingsNames.h"
+#include "Common/SettingsNames.h"
 #include "SimplePartWidget.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/MailboxModel.h"
@@ -69,7 +69,7 @@ MainWindow::MainWindow(): QMainWindow(), model(0)
     createWidgets();
 
     QSettings s;
-    if ( ! s.contains( SettingsNames::imapMethodKey ) ) {
+    if ( ! s.contains( Common::SettingsNames::imapMethodKey ) ) {
         QTimer::singleShot( 0, this, SLOT(slotShowSettings()) );
     }
 
@@ -306,6 +306,7 @@ void MainWindow::setupModels()
     Imap::Mailbox::TaskFactoryPtr taskFactory( new Imap::Mailbox::TaskFactory() );
     QSettings s;
 
+    using Common::SettingsNames;
     if ( s.value( SettingsNames::imapMethodKey ).toString() == SettingsNames::methodTCP ) {
         factory.reset( new Imap::Mailbox::TlsAbleSocketFactory(
                 s.value( SettingsNames::imapHostKey ).toString(),
@@ -549,7 +550,7 @@ void MainWindow::alertReceived( const QString& message )
 
 void MainWindow::connectionError( const QString& message )
 {
-    if ( QSettings().contains( SettingsNames::imapMethodKey ) ) {
+    if ( QSettings().contains( Common::SettingsNames::imapMethodKey ) ) {
         QMessageBox::critical( this, tr("Connection Error"), message );
     } else {
         // hack: this slot is called even on the first run with no configuration
@@ -611,8 +612,8 @@ void MainWindow::slotShowSettings()
 void MainWindow::authenticationRequested( QAuthenticator* auth )
 {
     QSettings s;
-    QString user = s.value( SettingsNames::imapUserKey ).toString();
-    QString pass = s.value( SettingsNames::imapPassKey ).toString();
+    QString user = s.value( Common::SettingsNames::imapUserKey ).toString();
+    QString pass = s.value( Common::SettingsNames::imapPassKey ).toString();
     if ( pass.isEmpty() ) {
         bool ok;
         pass = QInputDialog::getText( this, tr("Password"),
@@ -791,8 +792,8 @@ void MainWindow::invokeComposeDialog( const QString& subject, const QString& bod
     QSettings s;
     ComposeWidget* w = new ComposeWidget( this );
     w->setData( QString::fromAscii("%1 <%2>").arg(
-                s.value( SettingsNames::realNameKey ).toString(),
-                s.value( SettingsNames::addressKey ).toString() ),
+            s.value( Common::SettingsNames::realNameKey ).toString(),
+            s.value( Common::SettingsNames::addressKey ).toString() ),
         recipients, subject, body );
     w->setAttribute( Qt::WA_DeleteOnClose, true );
     w->show();

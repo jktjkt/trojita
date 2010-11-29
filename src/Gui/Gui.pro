@@ -25,7 +25,6 @@ SOURCES += \
     LoadablePartWidget.cpp \
     Window.cpp \
     SettingsDialog.cpp \
-    SettingsNames.cpp \
     ComposeWidget.cpp \
     MsgListView.cpp \
     ExternalElementsWidget.cpp \
@@ -39,7 +38,6 @@ HEADERS += ComposeWidget.h \
     Rfc822HeaderView.h \
     LoadablePartWidget.h \
     PartWidget.h \
-    SettingsNames.h \
     SettingsDialog.h \
     PartWidgetFactory.h \
     MsgListView.h \
@@ -54,7 +52,7 @@ FORMS += CreateMailboxDialog.ui \
 
 RESOURCES += ../icons.qrc
 
-trojita_libs = Imap MSA Streams qwwsmtpclient
+trojita_libs = Imap MSA Streams qwwsmtpclient Common
 
 myprefix = ../
 include(../linking.pri)
