@@ -272,7 +272,7 @@ State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int
         // this is perfectly possible
     }
 
-    if ( !_list.empty() ) {
+    if ( !_list.isEmpty() ) {
         const QString r = _list.first().toUpper();
     #define CASE(X) else if ( r == #X ) respCode = Responses::X;
         if ( r == "ALERT" )
@@ -483,8 +483,8 @@ State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int
     }
 
     if ( start >= line.size() - 2 ) {
-        if ( _list.empty() ) {
-            throw NoData( "Response doesn't contain any data at all", line, start );
+        if ( originalList.isEmpty() ) {
+            qDebug() << "Response with no data at all, yuck" << line;
         } else {
             qDebug() << "Response with no data besides the response code, yuck" << line;
         }

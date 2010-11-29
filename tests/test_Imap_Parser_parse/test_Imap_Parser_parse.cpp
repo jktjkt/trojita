@@ -194,6 +194,12 @@ void ImapParserParseTest::testParseUntagged_data()
     QTest::newRow("untagged-bye")
         << QByteArray("* BYE go away\r\n")
         << QSharedPointer<AbstractResponse>( new State(QString::null, BYE, "go away", NONE, voidData ) );
+    QTest::newRow("untagged-bye-empty")
+        << QByteArray("* BYE\r\n")
+        << QSharedPointer<AbstractResponse>( new State(QString::null, BYE, QString(), NONE, voidData ) );
+    QTest::newRow("untagged-no-somerespcode-empty")
+        << QByteArray("* NO [ALERT]\r\n")
+        << QSharedPointer<AbstractResponse>( new State(QString::null, NO, QString(), ALERT, voidData ) );
 
     QTest::newRow("untagged-expunge")
         << QByteArray("* 1337 Expunge\r\n")
