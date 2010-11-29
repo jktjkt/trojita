@@ -31,6 +31,8 @@
 #include "MailSynchronizer.h"
 #include "Imap/Model/Model.h"
 
+namespace XtConnect {
+
 MailSynchronizer::MailSynchronizer(QObject *parent, Imap::Mailbox::Model *model) :
     QObject(parent), m_model(model)
 {
@@ -41,4 +43,6 @@ MailSynchronizer::MailSynchronizer(QObject *parent, Imap::Mailbox::Model *model)
 void MailSynchronizer::slotRowsInserted(const QModelIndex &parent, int start, int end)
 {
     qDebug() << Q_FUNC_INFO << parent << start << end;
+}
+
 }

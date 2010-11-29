@@ -26,25 +26,41 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
-#include <QCoreApplication>
-#include <QSettings>
-#include "XtConnect.h"
 
-#ifdef HAS_GITVERSION
-extern const char* gitVersion;
-#endif
+#ifndef XTCONNECT_H
+#define XTCONNECT_H
 
-int main( int argc, char** argv) {
-    QCoreApplication app( argc, argv );
-    QCoreApplication::setApplicationName( QString::fromAscii("xtconnect-trojita") );
-#ifdef HAS_GITVERSION
-    QCoreApplication::setApplicationVersion( QString::fromAscii( gitVersion ) );
-#else
-    QCoreApplication::setApplicationVersion( QString::fromAscii("0.2") );
-#endif
-    QCoreApplication::setOrganizationDomain( QString::fromAscii("flaska.net") );
-    QCoreApplication::setOrganizationName( QString::fromAscii("flaska.net") );
-    QSettings s;
-    XtConnect::XtConnect conn(0, &s);
-    return app.exec();
+#include <QObject>
+
+namespace Imap {
+namespace Mailbox {
+    class Model;
 }
+}
+
+class QAuthenticator;
+class QSettings;
+
+namespace XtConnect {
+
+class XtConnect : public QObject
+{
+    Q_OBJECT
+public:
+    explicit XtConnect(QObject *parent, QSettings *s);
+
+public slots:
+    void alertReceived( const QString &alert );
+    void connectionError( const QString &error );
+    void authenticationRequested( QAuthenticator *auth );
+
+private:
+    void setupModels();
+
+    Imap::Mailbox::Model *m_model;
+    QSettings* m_settings;
+};
+
+}
+
+#endif // XTCONNECT_H

@@ -1,7 +1,5 @@
-QT += core \
-    network \
-    sql
-QT -= gui
+# needs GUI because of the item models...
+QT += core gui network sql
 include(../../install.pri)
 INCLUDEPATH += ../
 DEPENDPATH += ../
@@ -10,11 +8,13 @@ TARGET = xtconnect-trojita
 TEMPLATE = app
 SOURCES += \
     main.cpp \
-    MailSynchronizer.cpp
+    MailSynchronizer.cpp \
+    XtConnect.cpp
 HEADERS += ComposeWidget.h \
-    MailSynchronizer.h
+    MailSynchronizer.h \
+    XtConnect.h
 
-xtconnect-trojita_libs = Imap MSA Streams
+trojita_libs = Imap MSA Streams Common
 
 myprefix = ../
 include(../linking.pri)

@@ -39,6 +39,8 @@ class Model;
 }
 }
 
+namespace XtConnect {
+
 class MailSynchronizer : public QObject
 {
     Q_OBJECT
@@ -49,5 +51,7 @@ public slots:
 private:
     Imap::Mailbox::Model* m_model;
 };
+
+}
 
 #endif // MAILSYNCHRONIZER_H
