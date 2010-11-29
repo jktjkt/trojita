@@ -26,7 +26,7 @@
 #include "ComposeWidget.h"
 #include "ui_ComposeWidget.h"
 
-#include "SettingsNames.h"
+#include "Common/SettingsNames.h"
 #include "MSA/Sendmail.h"
 #include "MSA/SMTP.h"
 #include "Imap/Encoders.h"
@@ -64,6 +64,7 @@ void ComposeWidget::changeEvent(QEvent *e)
 
 void ComposeWidget::send()
 {
+    using Common::SettingsNames;
     QSettings s;
     MSA::AbstractMSA* msa = 0;
     if ( s.value( SettingsNames::msaMethodKey ).toString() == SettingsNames::methodSMTP ) {

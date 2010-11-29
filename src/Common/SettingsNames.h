@@ -23,7 +23,7 @@
 
 #include <QString>
 
-namespace Gui {
+namespace Common {
 
 struct SettingsNames
 {
