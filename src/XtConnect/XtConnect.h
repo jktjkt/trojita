@@ -50,9 +50,10 @@ public:
     explicit XtConnect(QObject *parent, QSettings *s);
 
 public slots:
-    void alertReceived( const QString &alert );
-    void connectionError( const QString &error );
-    void authenticationRequested( QAuthenticator *auth );
+    void alertReceived(const QString &alert);
+    void connectionError(const QString &error);
+    void authenticationRequested(QAuthenticator *auth);
+    void cacheError(const QString &error);
 
 private:
     void setupModels();

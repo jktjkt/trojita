@@ -36,14 +36,15 @@ extern const char* gitVersion;
 
 int main( int argc, char** argv) {
     QCoreApplication app( argc, argv );
+    // Don't forget to update src/Gui/SettingsDialog.cpp if these names/domains/organizations change!
     QCoreApplication::setApplicationName( QString::fromAscii("xtconnect-trojita") );
 #ifdef HAS_GITVERSION
     QCoreApplication::setApplicationVersion( QString::fromAscii( gitVersion ) );
 #else
     QCoreApplication::setApplicationVersion( QString::fromAscii("0.2") );
 #endif
-    QCoreApplication::setOrganizationDomain( QString::fromAscii("flaska.net") );
-    QCoreApplication::setOrganizationName( QString::fromAscii("flaska.net") );
+    QCoreApplication::setOrganizationDomain( QString::fromAscii("xtuple.com") );
+    QCoreApplication::setOrganizationName( QString::fromAscii("xtuple.com") );
     QSettings s;
     XtConnect::XtConnect conn(0, &s);
     return app.exec();

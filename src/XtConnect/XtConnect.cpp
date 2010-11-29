@@ -43,7 +43,7 @@ XtConnect::XtConnect(QObject *parent, QSettings *s) :
 {
     Q_ASSERT(m_settings);
     m_settings->setParent(this);
-    if ( ! m_settings->contains( Common::SettingsNames::imapMethodKey ) ) {
+    if ( ! m_settings->contains( Common::SettingsNames::xtConnectCacheDirectory ) ) {
         qFatal("The service is not configured yet. Please use the Trojita GUI for configuration.");
     }
     setupModels();
@@ -66,21 +66,21 @@ void XtConnect::setupModels()
                 m_settings->value( SettingsNames::imapPortKey ).toUInt() ) );
     } else {
         QStringList args = m_settings->value( SettingsNames::imapProcessKey ).toString().split( QLatin1Char(' ') );
-        Q_ASSERT( ! args.isEmpty() ); // FIXME
+        if ( args.isEmpty() ) {
+            qFatal("Invalid value found in the settings of imapProcessKey");
+        }
         QString appName = args.takeFirst();
         factory.reset( new Imap::Mailbox::ProcessSocketFactory( appName, args ) );
     }
 
-    QString cacheDir = QDir::homePath() + QLatin1String("/.trojita-xtconnect");
+    QString cacheDir = m_settings->value( Common::SettingsNames::xtConnectCacheDirectory).toString();
     Imap::Mailbox::AbstractCache* cache = 0;
 
-    bool shouldUsePersistentCache = m_settings->value( SettingsNames::cacheMetadataKey).toString() == SettingsNames::cacheMetadataPersistent;
+    bool shouldUsePersistentCache = true;
 
-    if ( shouldUsePersistentCache ) {
-        if ( ! QDir().mkpath( cacheDir ) ) {
-            qCritical() << "Failed to create directory" << cacheDir;
-            shouldUsePersistentCache = false;
-        }
+    if ( ! QDir().mkpath( cacheDir ) ) {
+        qCritical() << "Failed to create directory" << cacheDir << " -- will not remember anything on restart!";
+        shouldUsePersistentCache = false;
     }
 
     if ( ! shouldUsePersistentCache ) {
@@ -116,6 +116,15 @@ void XtConnect::authenticationRequested(QAuthenticator *auth)
 void XtConnect::connectionError(const QString &error)
 {
     qCritical() << "Connection error: " << error;
+    m_model->setNetworkOffline();
+}
+
+void XtConnect::cacheError(const QString &error)
+{
+    qCritical() << "Cache error: " << error;
+    if ( m_model ) {
+        m_model->setCache( new Imap::Mailbox::MemoryCache( m_model, QString() ) );
+    }
 }
 
 }
