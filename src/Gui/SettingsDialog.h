@@ -22,10 +22,13 @@
 #define SETTINGSDIALOG_H
 
 #include <QDialog>
+#include <QPointer>
 #include <QSettings>
 #include "ui_SettingsImapPage.h"
 #include "ui_SettingsCachePage.h"
 #include "ui_SettingsOutgoingPage.h"
+
+#define XTUPLE_CONNECT
 
 class QCheckBox;
 class QComboBox;
@@ -113,6 +116,25 @@ private:
     CachePage& operator=(const CachePage&); // don't implement
 };
 
+#ifdef XTUPLE_CONNECT
+class SettingsDialog;
+class XtConnectPage : public QWidget
+{
+    Q_OBJECT
+public:
+    XtConnectPage( QWidget* parent, QSettings&s, ImapPage* imapPage );
+    void save( QSettings& s );
+public slots:
+    void saveXtConfig();
+private:
+    QLineEdit* cacheDir;
+    QPointer<ImapPage> imap;
+
+    XtConnectPage(const XtConnectPage&); // don't implement
+    XtConnectPage& operator=(const XtConnectPage&); // don't implement
+};
+#endif
+
 
 class SettingsDialog : public QDialog
 {
@@ -127,6 +149,9 @@ private:
     ImapPage* imap;
     CachePage* cache;
     OutgoingPage* outgoing;
+#ifdef XTUPLE_CONNECT
+    XtConnectPage* xtConnect;
+#endif
 
     SettingsDialog(const SettingsDialog&); // don't implement
     SettingsDialog& operator=(const SettingsDialog&); // don't implement

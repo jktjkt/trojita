@@ -36,6 +36,7 @@ struct SettingsNames
     static QString cacheMetadataKey, cacheMetadataMemory, cacheMetadataPersistent,
             cacheOfflineKey, cacheOfflineNone, cacheOfflineXDays, cacheOfflineXMessages,
             cacheOfflineAll, cacheOfflineNumberDaysKey, cacheOfflineNumberMessagesKey;
+    static QString xtConnectCacheDirectory;
 };
 
 }
