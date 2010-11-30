@@ -21,6 +21,8 @@
 #ifndef IMAP_CONNECTIONSTATE_H
 #define IMAP_CONNECTIONSTATE_H
 
+#include <QString>
+
 namespace Imap {
 
     /** @short A human-readable state of the connection to the IMAP server */
@@ -41,6 +43,7 @@ namespace Imap {
         CONN_STATE_LOGOUT, /**< @short Logging out */
     } ConnectionState;
 
+    QString connectionStateToString( const ConnectionState state );
 
 }
 
