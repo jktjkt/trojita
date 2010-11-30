@@ -31,14 +31,8 @@
 #define XTCONNECT_H
 
 #include <QObject>
+#include "Imap/Model/Model.h"
 
-namespace Imap {
-namespace Mailbox {
-    class Model;
-}
-}
-
-class QAuthenticator;
 class QSettings;
 
 namespace XtConnect {
@@ -54,6 +48,7 @@ public slots:
     void connectionError(const QString &error);
     void authenticationRequested(QAuthenticator *auth);
     void cacheError(const QString &error);
+    void showConnectionStatus(QObject* parser, Imap::ConnectionState state);
 
 private:
     void setupModels();

@@ -28,12 +28,12 @@
 */
 
 #include "XtConnect.h"
+#include <QAuthenticator>
 #include <QDir>
 #include <QDebug>
 #include <QSettings>
 #include "Common/SettingsNames.h"
 #include "Imap/Model/CombinedCache.h"
-#include "Imap/Model/Model.h"
 #include "Imap/Model/MemoryCache.h"
 
 namespace XtConnect {
@@ -100,6 +100,7 @@ void XtConnect::setupModels()
     connect( m_model, SIGNAL( alertReceived( const QString& ) ), this, SLOT( alertReceived( const QString& ) ) );
     connect( m_model, SIGNAL( connectionError( const QString& ) ), this, SLOT( connectionError( const QString& ) ) );
     connect( m_model, SIGNAL( authRequested( QAuthenticator* ) ), this, SLOT( authenticationRequested( QAuthenticator* ) ) );
+    connect( m_model, SIGNAL(connectionStateChanged(QObject*,Imap::ConnectionState)), this, SLOT(showConnectionStatus(QObject*,Imap::ConnectionState)) );
 
     // Actually bring us online
     m_model->rowCount( QModelIndex() );
@@ -112,6 +113,10 @@ void XtConnect::alertReceived(const QString &alert)
 
 void XtConnect::authenticationRequested(QAuthenticator *auth)
 {
+    QString user = m_settings->value( Common::SettingsNames::imapUserKey ).toString();
+    QString pass = m_settings->value( Common::SettingsNames::imapPassKey ).toString();
+    auth->setUser( user );
+    auth->setPassword( pass );
 }
 
 void XtConnect::connectionError(const QString &error)
@@ -126,6 +131,14 @@ void XtConnect::cacheError(const QString &error)
     if ( m_model ) {
         m_model->setCache( new Imap::Mailbox::MemoryCache( m_model, QString() ) );
     }
+}
+
+void XtConnect::showConnectionStatus( QObject* parser, Imap::ConnectionState state )
+{
+    Q_UNUSED( parser );
+    using namespace Imap;
+
+    qDebug() << "Connection status:" << message;
 }
 
 }
