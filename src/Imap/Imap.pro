@@ -23,6 +23,7 @@ SOURCES += Parser/Parser.cpp \
     Parser/3rdparty/qmailcodec.cpp \
     Encoders.cpp \
     Exceptions.cpp \
+    ConnectionState.cpp \
     Model/Model.cpp \
     Model/MailboxMetadata.cpp \
     Model/ModelUpdaters.cpp \

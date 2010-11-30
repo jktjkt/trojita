@@ -815,54 +815,19 @@ void MainWindow::showConnectionStatus( QObject* parser, Imap::ConnectionState st
 {
     Q_UNUSED( parser );
     using namespace Imap;
-    QString message;
+    QString message = connectionStateToString( state );
     enum { DURATION = 10000 };
     bool transient = false;
+
     switch ( state ) {
-    case CONN_STATE_NONE:
-        return;
-    case CONN_STATE_HOST_LOOKUP:
-        message = tr("Resolving hostname...");
-        break;
-    case CONN_STATE_CONNECTING:
-        message = tr("Connecting to the IMAP server...");
-        break;
-    case CONN_STATE_STARTTLS:
-        message = tr("Negotiating encryption...");
-        break;
     case CONN_STATE_ESTABLISHED:
-        message = tr("Connection established.");
-        transient = true;
-        break;
-    case CONN_STATE_LOGIN:
-        message = tr("Logging in...");
-        break;
     case CONN_STATE_LOGIN_FAILED:
-        message = tr("Login failed.");
-        transient = true;
-        break;
     case CONN_STATE_AUTHENTICATED:
-        message = tr("Logged in.");
-        transient = true;
-        break;
-    case CONN_STATE_SELECTING:
-        message = tr("Opening mailbox...");
-        break;
-    case CONN_STATE_SYNCING:
-        message = tr("Synchronizing mailbox...");
-        break;
     case CONN_STATE_SELECTED:
-        message = tr("Mailbox opened.");
         transient = true;
         break;
-    case CONN_STATE_FETCHING_PART:
-        message = tr("Downloading message...");
-        break;
-    case CONN_STATE_FETCHING_MSG_METADATA:
-        message = tr("Downloading message structure...");
-        break;
-    case CONN_STATE_LOGOUT:
-        message = tr("Logged out.");
+    default:
+        // only the stuff above is transient
         break;
     }
     statusBar()->showMessage( message, transient ? DURATION : 0 );
