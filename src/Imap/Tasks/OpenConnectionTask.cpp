@@ -94,6 +94,7 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
         Q_ASSERT( model->_parsers[ ptr ].capabilitiesFresh );
         IMAP_TASK_ENSURE_VALID_COMMAND( loginCmd, Model::Task::LOGIN );
         if ( resp->kind == Responses::OK ) {
+            model->changeConnectionState( ptr, CONN_STATE_AUTHENTICATED);
             _completed();
         } else {
             // FIXME: error handling
