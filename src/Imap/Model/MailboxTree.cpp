@@ -24,6 +24,7 @@
 #include "Model.h"
 #include "Imap/Encoders.h"
 #include "KeepMailboxOpenTask.h"
+#include "ItemRoles.h"
 #include <QtDebug>
 
 namespace {
@@ -43,7 +44,18 @@ void decodeMessagePartTransportEncoding( const QByteArray& rawData, const QByteA
     }
 }
 
+QVariantList addresListToQVariant( const QList<Imap::Message::MailAddress>& addressList )
+{
+    QVariantList res;
+    foreach( const Imap::Message::MailAddress& address, addressList ) {
+        res.append( QVariant( QStringList() << address.name << address.adl << address.mailbox << address.host ) );
+    }
+    return res;
 }
+
+}
+
+
 
 namespace Imap {
 namespace Mailbox {
@@ -165,16 +177,42 @@ unsigned int TreeItemMailbox::rowCount( Model* const model )
 
 QVariant TreeItemMailbox::data( Model* const model, int role )
 {
-    Q_UNUSED( model );
-    if ( role != Qt::DisplayRole )
-        return QVariant();
-
     if ( ! _parent )
         return QVariant();
 
-    QString res = separator().isEmpty() ? mailbox() : mailbox().split( separator(), QString::SkipEmptyParts ).last();
+    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[0] );
+    Q_ASSERT( list );
 
-    return loading() ? res + " [loading]" : res;
+    switch ( role ) {
+    case Qt::DisplayRole:
+        {
+            // this one is used only for a dumb view attached to the Model
+            QString res = separator().isEmpty() ? mailbox() : mailbox().split( separator(), QString::SkipEmptyParts ).last();
+            return loading() ? res + " [loading]" : res;
+        }
+    case RoleShortMailboxName:
+        return separator().isEmpty() ? mailbox() : mailbox().split( separator(), QString::SkipEmptyParts ).last();
+    case RoleMailboxName:
+        return mailbox();
+    case RoleMailboxSeparator:
+        return separator();
+    case RoleMailboxHasChildmailboxes:
+        return list->hasChildren( 0 );
+    case RoleMailboxIsINBOX:
+        return mailbox().toUpper() == QLatin1String("INBOX");
+    case RoleMailboxIsSelectable:
+        return isSelectable();
+    case RoleMailboxNumbersFetched:
+        return list->numbersFetched();
+    case RoleTotalMessageCount:
+        return list->totalMessageCount( model );
+    case RoleUnreadMessageCount:
+        return list->unreadMessageCount( model );
+    case RoleMailboxItemsAreLoading:
+        return list->loading() || ! list->numbersFetched();
+    default:
+        return QVariant();
+    }
 }
 
 bool TreeItemMailbox::hasChildren( Model* const model )
@@ -669,6 +707,34 @@ QVariant TreeItemMessage::data( Model* const model, int role )
                 return buf;
             } else
                 return QVariant();
+        case RoleMessageIsMarkedDeleted:
+            return isMarkedAsDeleted();
+        case RoleMessageIsMarkedRead:
+            return isMarkedAsRead();
+        case RoleMessageIsMarkedForwarded:
+            return isMarkedAsForwarded();
+        case RoleMessageIsMarkedReplied:
+            return isMarkedAsReplied();
+        case RoleMessageIsMarkedRecent:
+            return isMarkedAsRecent();
+        case RoleMessageDate:
+            return envelope( model ).date;
+        case RoleMessageFrom:
+            return addresListToQVariant( envelope( model ).from );
+        case RoleMessageTo:
+            return addresListToQVariant( envelope( model ).to );
+        case RoleMessageCc:
+            return addresListToQVariant( envelope( model ).cc );
+        case RoleMessageBcc:
+            return addresListToQVariant( envelope( model ).bcc );
+        case RoleMessageSender:
+            return addresListToQVariant( envelope( model ).sender );
+        case RoleMessageReplyTo:
+            return addresListToQVariant( envelope( model ).replyTo );
+        case RoleMessageInReplyTo:
+            return envelope( model ).inReplyTo;
+        case RoleMessageMessageId:
+            return envelope( model ).messageId;
         default:
             return QVariant();
     }

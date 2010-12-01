@@ -30,19 +30,6 @@
 #include <QIcon>
 #include <QMimeData>
 
-namespace {
-
-QVariantList addresListToQVariant( const QList<Imap::Message::MailAddress>& addressList )
-{
-    QVariantList res;
-    foreach( const Imap::Message::MailAddress& address, addressList ) {
-        res.append( QVariant( QStringList() << address.name << address.adl << address.mailbox << address.host ) );
-    }
-    return res;
-}
-
-}
-
 namespace Imap {
 namespace Mailbox {
 
@@ -262,52 +249,23 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
                 return font;
             }
         case RoleMessageIsMarkedDeleted:
-            return dynamic_cast<TreeItemMessage*>( Model::realTreeItem(
-                                proxyIndex ) )->isMarkedAsDeleted();
         case RoleMessageIsMarkedRead:
-            return dynamic_cast<TreeItemMessage*>( Model::realTreeItem(
-                                proxyIndex ) )->isMarkedAsRead();
         case RoleMessageIsMarkedForwarded:
-            return dynamic_cast<TreeItemMessage*>( Model::realTreeItem(
-                                proxyIndex ) )->isMarkedAsForwarded();
         case RoleMessageIsMarkedReplied:
-            return dynamic_cast<TreeItemMessage*>( Model::realTreeItem(
-                                proxyIndex ) )->isMarkedAsReplied();
         case RoleMessageIsMarkedRecent:
-            return dynamic_cast<TreeItemMessage*>( Model::realTreeItem(
-                                proxyIndex ) )->isMarkedAsRecent();
         case RoleMessageDate:
-            return dynamic_cast<TreeItemMessage*>( Model::realTreeItem(
-                    proxyIndex ) )->envelope( static_cast<Model*>( sourceModel() ) ).date;
         case RoleMessageFrom:
-            return addresListToQVariant( dynamic_cast<TreeItemMessage*>( Model::realTreeItem(
-                    proxyIndex ) )->envelope( static_cast<Model*>( sourceModel() ) ).from );
         case RoleMessageTo:
-            return addresListToQVariant( dynamic_cast<TreeItemMessage*>( Model::realTreeItem(
-                    proxyIndex ) )->envelope( static_cast<Model*>( sourceModel() ) ).to );
         case RoleMessageCc:
-            return addresListToQVariant( dynamic_cast<TreeItemMessage*>( Model::realTreeItem(
-                    proxyIndex ) )->envelope( static_cast<Model*>( sourceModel() ) ).cc );
         case RoleMessageBcc:
-            return addresListToQVariant( dynamic_cast<TreeItemMessage*>( Model::realTreeItem(
-                    proxyIndex ) )->envelope( static_cast<Model*>( sourceModel() ) ).bcc );
         case RoleMessageSender:
-            return addresListToQVariant( dynamic_cast<TreeItemMessage*>( Model::realTreeItem(
-                    proxyIndex ) )->envelope( static_cast<Model*>( sourceModel() ) ).sender );
         case RoleMessageReplyTo:
-            return addresListToQVariant( dynamic_cast<TreeItemMessage*>( Model::realTreeItem(
-                    proxyIndex ) )->envelope( static_cast<Model*>( sourceModel() ) ).replyTo );
         case RoleMessageInReplyTo:
-            return dynamic_cast<TreeItemMessage*>( Model::realTreeItem(
-                    proxyIndex ) )->envelope( static_cast<Model*>( sourceModel() ) ).inReplyTo;
         case RoleMessageMessageId:
             return dynamic_cast<TreeItemMessage*>( Model::realTreeItem(
-                    proxyIndex ) )->envelope( static_cast<Model*>( sourceModel() ) ).messageId;
+                    proxyIndex ) )->data( static_cast<Model*>( sourceModel() ), role );
         default:
-            {
-            QModelIndex translated = createIndex( proxyIndex.row(), 0, Model::realTreeItem( proxyIndex ) );
-            return QAbstractProxyModel::data( translated, role );
-            }
+            return QAbstractProxyModel::data( createIndex( proxyIndex.row(), 0, proxyIndex.internalPointer() ), role );
     }
 }
 

@@ -169,30 +169,10 @@ QVariant MailboxModel::data( const QModelIndex& proxyIndex, int role ) const
             static_cast<TreeItem*>( proxyIndex.internalPointer() )
             );
     Q_ASSERT( mbox );
-    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mbox->_children[0] );
-    Q_ASSERT( list );
-    switch ( role ) {
-        case RoleShortMailboxName:
-            return mbox->separator().isEmpty() ? mbox->mailbox() : mbox->mailbox().split( mbox->separator(), QString::SkipEmptyParts ).last();
-        case RoleMailboxName:
-            return mbox->mailbox();
-        case RoleMailboxHasChildmailboxes:
-            return list->hasChildren( 0 );
-        case RoleMailboxIsINBOX:
-            return mbox->mailbox().toUpper() == QLatin1String("INBOX");
-        case RoleMailboxIsSelectable:
-            return mbox->isSelectable();
-        case RoleMailboxNumbersFetched:
-            return list->numbersFetched();
-        case RoleTotalMessageCount:
-            return list->totalMessageCount( static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
-        case RoleUnreadMessageCount:
-            return list->unreadMessageCount( static_cast<Imap::Mailbox::Model*>( sourceModel() ) );
-        case RoleMailboxItemsAreLoading:
-            return list->loading() || ! list->numbersFetched();
-        default:
-            return QAbstractProxyModel::data( createIndex( proxyIndex.row(), 0, proxyIndex.internalPointer() ), role );
-    }
+    if ( role > RoleBase && role < RoleInvalidLastOne )
+        return mbox->data( static_cast<Imap::Mailbox::Model*>( sourceModel() ), role );
+    else
+        return QAbstractProxyModel::data( createIndex( proxyIndex.row(), 0, proxyIndex.internalPointer() ), role );
 }
 
 void MailboxModel::handleMessageCountPossiblyChanged( const QModelIndex& mailbox )
