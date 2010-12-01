@@ -138,7 +138,7 @@ void XtConnect::showConnectionStatus( QObject* parser, Imap::ConnectionState sta
     Q_UNUSED( parser );
     using namespace Imap;
 
-    qDebug() << "Connection status:" << message;
+    qDebug() << "Connection status:" <<  Imap::connectionStateToString( state );
 }
 
 }
