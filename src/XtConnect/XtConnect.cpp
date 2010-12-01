@@ -132,6 +132,8 @@ void XtConnect::connectionError(const QString &error)
 {
     qCritical() << "Connection error: " << error;
     m_model->setNetworkOffline();
+    // FIXME: add some nice behavior for reconnecting. Also handle failed logins...
+    qFatal("Reconnects not supported yet -> see you.");
 }
 
 void XtConnect::cacheError(const QString &error)
