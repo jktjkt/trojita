@@ -210,6 +210,8 @@ QVariant TreeItemMailbox::data( Model* const model, int role )
         return list->unreadMessageCount( model );
     case RoleMailboxItemsAreLoading:
         return list->loading() || ! list->numbersFetched();
+    case RoleMailboxUidValidity:
+        return syncState.uidValidity();
     default:
         return QVariant();
     }
@@ -707,6 +709,8 @@ QVariant TreeItemMessage::data( Model* const model, int role )
                 return buf;
             } else
                 return QVariant();
+        case RoleMessageUid:
+            return uid();
         case RoleMessageIsMarkedDeleted:
             return isMarkedAsDeleted();
         case RoleMessageIsMarkedRead:

@@ -248,6 +248,7 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
                     font.setBold( true );
                 return font;
             }
+        case RoleMessageUid:
         case RoleMessageIsMarkedDeleted:
         case RoleMessageIsMarkedRead:
         case RoleMessageIsMarkedForwarded:
