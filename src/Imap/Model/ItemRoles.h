@@ -37,6 +37,8 @@ enum {
     RoleMailboxName,
     /** @short Short name of the mailbox */
     RoleShortMailboxName,
+    /** @short Separator for mailboxes at the current level */
+    RoleMailboxSeparator,
     /** @short Total number of messages in a mailbox */
     RoleTotalMessageCount,
     /** @short Number of unread messages in a mailbox */
@@ -83,7 +85,11 @@ enum {
     /** @short Was the message replied to? */
     RoleMessageIsMarkedReplied,
     /** @short Is the message marked as a recent one? */
-    RoleMessageIsMarkedRecent };
+    RoleMessageIsMarkedRecent,
+
+    /** @short The very last role */
+    RoleInvalidLastOne
+};
 }
 
 }
