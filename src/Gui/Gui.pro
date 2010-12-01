@@ -59,3 +59,5 @@ include(../linking.pri)
 
 GITVERSION_PREFIX = $$join(PWD,,,/../..)
 include(../gitversion.pri)
+
+XtConnect:DEFINES += XTUPLE_CONNECT

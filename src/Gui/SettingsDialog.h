@@ -28,8 +28,6 @@
 #include "ui_SettingsCachePage.h"
 #include "ui_SettingsOutgoingPage.h"
 
-#define XTUPLE_CONNECT
-
 class QCheckBox;
 class QComboBox;
 class QLineEdit;
