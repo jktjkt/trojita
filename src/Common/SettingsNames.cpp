@@ -56,5 +56,6 @@ QString SettingsNames::cacheOfflineAll = QLatin1String("all");
 QString SettingsNames::cacheOfflineNumberDaysKey = QLatin1String("offline.sync.days");
 QString SettingsNames::cacheOfflineNumberMessagesKey = QLatin1String("offline.sync.messages");
 QString SettingsNames::xtConnectCacheDirectory = QLatin1String("xtconnect.cachedir");
+QString SettingsNames::xtSyncMailboxList = QLatin1String("xtconnect.listOfMailboxes");
 
 }

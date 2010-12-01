@@ -164,6 +164,12 @@ void MainWindow::createActions()
     deleteCurrentMailbox = new QAction( tr("Delete Mailbox"), this );
     connect( deleteCurrentMailbox, SIGNAL(triggered()), this, SLOT(slotDeleteCurrentMailbox()) );
 
+#ifdef XTUPLE_CONNECT
+    xtIncludeMailboxInSync = new QAction( tr("Synchronize with XTuple Connect"), this );
+    xtIncludeMailboxInSync->setCheckable( true );
+    connect( xtIncludeMailboxInSync, SIGNAL(triggered()), this, SLOT(slotXtSyncCurrentMailbox()) );
+#endif
+
     replyTo = new QAction( tr("Reply..."), this );
     replyTo->setShortcut( tr("Ctrl+R") );
     connect( replyTo, SIGNAL(triggered()), this, SLOT(slotReplyTo()) );
@@ -484,6 +490,13 @@ void MainWindow::showContextMenuMboxTree( const QPoint& position )
         actionList.append( deleteCurrentMailbox );
         actionList.append( resyncMbox );
         actionList.append( reloadMboxList );
+
+#ifdef XTUPLE_CONNECT
+        actionList.append( xtIncludeMailboxInSync );
+        xtIncludeMailboxInSync->setChecked(
+                QSettings().value( Common::SettingsNames::xtSyncMailboxList ).toStringList().contains(
+                        mboxTree->indexAt( position ).data( Imap::Mailbox::RoleMailboxName ).toString() ) );
+#endif
     } else {
         actionList.append( createTopMailbox );
     }
@@ -935,6 +948,27 @@ void MainWindow::slotViewMsgHeaders()
         // FIXME: add an event filter for scrolling...
     }
 }
+
+#ifdef XTUPLE_CONNECT
+void MainWindow::slotXtSyncCurrentMailbox()
+{
+    QModelIndex index = mboxTree->currentIndex();
+    if ( ! index.isValid() )
+        return;
+
+    QString mailbox = index.data( Imap::Mailbox::RoleMailboxName ).toString();
+    QSettings s;
+    QStringList mailboxes = s.value( Common::SettingsNames::xtSyncMailboxList ).toStringList();
+    if ( xtIncludeMailboxInSync->isChecked() ) {
+        if ( ! mailboxes.contains( mailbox ) ) {
+            mailboxes.append( mailbox );
+        }
+    } else {
+        mailboxes.removeAll( mailbox );
+    }
+    s.setValue( Common::SettingsNames::xtSyncMailboxList, mailboxes );
+}
+#endif
 
 }
 

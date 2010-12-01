@@ -394,6 +394,7 @@ void XtConnectPage::saveXtConfig()
 {
     QSettings s( QString::fromAscii("xtuple.com"), QString::fromAscii("xtconnect-trojita") );
     s.setValue( Common::SettingsNames::xtConnectCacheDirectory, cacheDir->text() );
+    s.setValue( Common::SettingsNames::xtSyncMailboxList, QSettings().value( Common::SettingsNames::xtSyncMailboxList ) );
     Q_ASSERT(imap);
     imap->save( s );
 }

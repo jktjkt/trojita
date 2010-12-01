@@ -89,6 +89,9 @@ private slots:
     void slotCreateMailboxBelowCurrent();
     void slotCreateTopMailbox();
     void slotDeleteCurrentMailbox();
+#ifdef XTUPLE_CONNECT
+    void slotXtSyncCurrentMailbox();
+#endif
     void updateMessageFlags();
     void updateMessageFlags( const QModelIndex& index );
     void scrollMessageUp();
@@ -152,6 +155,9 @@ private:
     QAction* createChildMailbox;
     QAction* createTopMailbox;
     QAction* deleteCurrentMailbox;
+#ifdef XTUPLE_CONNECT
+    QAction* xtIncludeMailboxInSync;
+#endif
     QAction* aboutTrojita;
     QAction* donateToTrojita;
 
