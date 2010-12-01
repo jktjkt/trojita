@@ -30,13 +30,16 @@
 #ifndef XTCONNECT_H
 #define XTCONNECT_H
 
-#include <QObject>
+#include <QModelIndex>
 #include "Imap/Model/Model.h"
 
 class QSettings;
 
 namespace XtConnect {
 
+class MailboxFinder;
+
+/** @short Handle storing the mails into the XTuple Connect database */
 class XtConnect : public QObject
 {
     Q_OBJECT
@@ -44,17 +47,23 @@ public:
     explicit XtConnect(QObject *parent, QSettings *s);
 
 public slots:
+    /** @short IMAP alerts */
     void alertReceived(const QString &alert);
+    /** @short Error in connecting */
     void connectionError(const QString &error);
+    /** @short Feed the auth data back to the Model */
     void authenticationRequested(QAuthenticator *auth);
+    /** @short Cache has encountered some error */
     void cacheError(const QString &error);
+    /** @short Updating progress */
     void showConnectionStatus(QObject* parser, Imap::ConnectionState state);
 
 private:
     void setupModels();
 
     Imap::Mailbox::Model *m_model;
-    QSettings* m_settings;
+    QSettings *m_settings;
+    MailboxFinder *m_finder;
 };
 
 }

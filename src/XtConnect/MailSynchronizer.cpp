@@ -30,18 +30,42 @@
 #include <QDebug>
 #include "MailSynchronizer.h"
 #include "Imap/Model/Model.h"
+#include "MailboxFinder.h"
 
 namespace XtConnect {
 
-MailSynchronizer::MailSynchronizer(QObject *parent, Imap::Mailbox::Model *model) :
-    QObject(parent), m_model(model)
+MailSynchronizer::MailSynchronizer( QObject *parent, Imap::Mailbox::Model *model, MailboxFinder *finder ) :
+    QObject(parent), m_model(model), m_finder(finder)
 {
-    Q_ASSERT(model);
-    connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(slotRowsInserted(QModelIndex,int,int)));
+    Q_ASSERT(m_model);
+    connect( m_model, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(slotRowsInserted(QModelIndex,int,int)) );
+    connect( m_finder, SIGNAL(mailboxFound(QString,QModelIndex)), this, SLOT(slotMailboxFound(QString,QModelIndex)) );
 }
+
+void MailSynchronizer::setMailbox( const QString &mailbox )
+{
+    Q_ASSERT(m_finder);
+    m_mailbox = mailbox;
+    qDebug() << "Will watch mailbox" << mailbox;
+    m_finder->addMailbox( mailbox );
+}
+
+void MailSynchronizer::slotMailboxFound( const QString &mailbox, const QModelIndex &index )
+{
+    if ( mailbox != m_mailbox )
+        return;
+
+    m_index = index;
+    // FIXME: request list of messages, go through them
+}
+
 
 void MailSynchronizer::slotRowsInserted(const QModelIndex &parent, int start, int end)
 {
+    // check the mailbox's list, if it's the same index as the "parent" we just got passed
+    if ( parent.parent() != m_index )
+        return;
+
     qDebug() << Q_FUNC_INFO << parent << start << end;
 }
 

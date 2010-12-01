@@ -35,6 +35,8 @@
 #include "Common/SettingsNames.h"
 #include "Imap/Model/CombinedCache.h"
 #include "Imap/Model/MemoryCache.h"
+#include "MailSynchronizer.h"
+#include "MailboxFinder.h"
 
 namespace XtConnect {
 
@@ -47,6 +49,13 @@ XtConnect::XtConnect(QObject *parent, QSettings *s) :
         qFatal("The service is not configured yet. Please use the Trojita GUI for configuration.");
     }
     setupModels();
+
+    // Prepare the mailboxes
+    m_finder = new MailboxFinder( this, m_model );
+    Q_FOREACH( const QString &mailbox, s->value( Common::SettingsNames::xtSyncMailboxList ).toStringList() ) {
+        MailSynchronizer *sync = new MailSynchronizer( this, m_model, m_finder );
+        sync->setMailbox( mailbox );
+    }
 }
 
 void XtConnect::setupModels()

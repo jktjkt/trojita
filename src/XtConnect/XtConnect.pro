@@ -9,9 +9,11 @@ TEMPLATE = app
 SOURCES += \
     main.cpp \
     MailSynchronizer.cpp \
+    MailboxFinder.cpp \
     XtConnect.cpp
 HEADERS += ComposeWidget.h \
     MailSynchronizer.h \
+    MailboxFinder.h \
     XtConnect.h
 
 trojita_libs = Imap MSA Streams Common
