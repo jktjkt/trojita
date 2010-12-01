@@ -54,6 +54,9 @@ public slots:
     void slotRowsInserted( const QModelIndex &parent, int start, int end );
     void slotMailboxFound( const QString &mailbox, const QModelIndex &index );
 private:
+    /** @short Walk through the cached messages and store the new ones */
+    void walkThroughMessages();
+
     Imap::Mailbox::Model* m_model;
     MailboxFinder *m_finder;
     QString m_mailbox;

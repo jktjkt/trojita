@@ -29,6 +29,7 @@
 
 #include <QDebug>
 #include "MailSynchronizer.h"
+#include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
 #include "MailboxFinder.h"
 
@@ -56,7 +57,12 @@ void MailSynchronizer::slotMailboxFound( const QString &mailbox, const QModelInd
         return;
 
     m_index = index;
-    // FIXME: request list of messages, go through them
+    QModelIndex list = m_index.child( 0, 0 );
+    Q_ASSERT( list.isValid() );
+    m_model->rowCount( list );
+    // Schedule walking through the list of messages -- that's right, we invoke that right now,
+    // as the messages could already be present in the model
+    walkThroughMessages();
 }
 
 
@@ -66,7 +72,28 @@ void MailSynchronizer::slotRowsInserted(const QModelIndex &parent, int start, in
     if ( parent.parent() != m_index )
         return;
 
-    qDebug() << Q_FUNC_INFO << parent << start << end;
+    // FIXME: optimize to check only for new arrivals?
+    walkThroughMessages();
+}
+
+void MailSynchronizer::walkThroughMessages()
+{
+    if ( ! m_index.isValid() ) {
+        // FIXME: support some nice reconnect...
+        qDebug() << "Oops, we've lost the mailbox";
+        return;
+    }
+
+    QModelIndex list = m_index.child( 0, 0 );
+    Q_ASSERT( list.isValid() );
+
+    for ( int i = 0; i < m_model->rowCount( list ); ++i ) {
+        QModelIndex message = m_model->index( i, 0, list );
+        Q_ASSERT( message.isValid() );
+        Imap::Mailbox::TreeItemMessage *msg = dynamic_cast<Imap::Mailbox::TreeItemMessage*>( static_cast<Imap::Mailbox::TreeItem*>( message.internalPointer() ) );
+        Q_ASSERT( msg );
+        qDebug() << m_mailbox << i << msg->uid();
+    }
 }
 
 }
