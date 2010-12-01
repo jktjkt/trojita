@@ -29,7 +29,7 @@
 
 #include <QDebug>
 #include "MailSynchronizer.h"
-#include "Imap/Model/MailboxTree.h"
+#include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/Model.h"
 #include "MailboxFinder.h"
 
@@ -90,9 +90,7 @@ void MailSynchronizer::walkThroughMessages()
     for ( int i = 0; i < m_model->rowCount( list ); ++i ) {
         QModelIndex message = m_model->index( i, 0, list );
         Q_ASSERT( message.isValid() );
-        Imap::Mailbox::TreeItemMessage *msg = dynamic_cast<Imap::Mailbox::TreeItemMessage*>( static_cast<Imap::Mailbox::TreeItem*>( message.internalPointer() ) );
-        Q_ASSERT( msg );
-        qDebug() << m_mailbox << i << msg->uid();
+        qDebug() << m_mailbox << i << m_model->data( message, Imap::Mailbox::RoleMessageUid ).toUInt();
     }
 }
 
