@@ -53,7 +53,11 @@ enum {
     RoleMailboxNumbersFetched,
     /** @short Is anything still loading for tihs mailbox? */
     RoleMailboxItemsAreLoading,
+    /** @short Current UIDVALIDITY of a mailbox */
+    RoleMailboxUidValidity,
 
+    /** @short UID of the message */
+    RoleMessageUid,
     /** @short Subject of the message */
     RoleMessageSubject,
     /** @short The From addresses */
