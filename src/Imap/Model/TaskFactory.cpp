@@ -120,7 +120,7 @@ TestingTaskFactory::TestingTaskFactory(): TaskFactory(), fakeOpenConnectionTask(
 Parser* TestingTaskFactory::newParser( Model* model )
 {
     Parser* parser = new Parser( model, model->_socketFactory->create(), ++model->lastParserId );
-    Model::ParserState parserState = Model::ParserState( parser, 0, Model::ReadOnly, CONN_STATE_NONE );
+    Model::ParserState parserState = Model::ParserState( parser );
     QObject::connect( parser, SIGNAL(responseReceived()), model, SLOT(responseReceived()) );
     QObject::connect( parser, SIGNAL(disconnected(const QString)), model, SLOT(slotParserDisconnected(const QString)) );
     QObject::connect( parser, SIGNAL(connectionStateChanged(Imap::ConnectionState)), model, SLOT(handleSocketStateChanged(Imap::ConnectionState)) );
@@ -135,6 +135,7 @@ Parser* TestingTaskFactory::newParser( Model* model )
 OpenConnectionTask* TestingTaskFactory::createOpenConnectionTask( Model *_model )
 {
     if ( fakeOpenConnectionTask ) {
+        qDebug() << Q_FUNC_INFO;
         return new Fake_OpenConnectionTask( _model, newParser( _model ) );
     } else {
         return TaskFactory::createOpenConnectionTask( _model );

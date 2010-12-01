@@ -43,14 +43,25 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
 
     if ( oldParser ) {
         // We're asked to re-use an existing connection. Let's see if there's something associated with it
-        if ( TreeItemMailbox* formerMailbox = model->_parsers[ oldParser ].mailbox ) {
+
+        // Find if there's a KeepMailboxOpenTask already associated; if it is, we have to register with it
+        KeepMailboxOpenTask *maintainingTask = 0;
+        if ( ! model->_parsers[ parser ].activeTasks.isEmpty() ) {
+            Q_FOREACH( ImapTask *t, model->_parsers[ parser ].activeTasks ) {
+                if ( ( maintainingTask = dynamic_cast<KeepMailboxOpenTask*>(t) ) ) {
+                    // yes, this is an assignment
+                    break;
+                }
+            }
+        }
+
+        if ( maintainingTask ) {
             // there's some mailbox associated here
-            Q_ASSERT( formerMailbox->maintainingTask );
             // Got to copy the parser information
-            parser = formerMailbox->maintainingTask->parser;
+            parser = maintainingTask->parser;
             Q_ASSERT( parser == oldParser );
             // Note that the following will set the maintainigTask's parser to nullptr
-            formerMailbox->maintainingTask->addDependentTask( this );
+            maintainingTask->addDependentTask( this );
             synchronizeConn = model->_taskFactory->createObtainSynchronizedMailboxTask( _model, mailboxIndex, this );
         } else {
             // and existing parser, but no associated handler yet
@@ -218,18 +229,17 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
     if ( shouldExit )
         return false;
 
+    TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
+    Q_ASSERT(mailbox);
     // FIXME: tests!
     if ( resp->kind == Imap::Responses::EXPUNGE ) {
-        Model::ParserState& parser = model->_parsers[ ptr ];
-        Q_ASSERT( parser.mailbox );
-        parser.mailbox->handleExpunge( model, *resp );
-        parser.mailbox->syncState.setExists( parser.mailbox->syncState.exists() - 1 );
-        model->cache()->setMailboxSyncState( parser.mailbox->mailbox(), parser.mailbox->syncState );
+        mailbox->handleExpunge( model, *resp );
+        mailbox->syncState.setExists( mailbox->syncState.exists() - 1 );
+        model->cache()->setMailboxSyncState( mailbox->mailbox(), mailbox->syncState );
         return true;
     } else if ( resp->kind == Imap::Responses::EXISTS ) {
         // EXISTS is already updated by AuthenticatedHandler
-        Model::ParserState& parser = model->_parsers[ ptr ];
-        parser.mailbox->handleExistsSynced( model, ptr, *resp );
+        mailbox->handleExistsSynced( model, ptr, *resp );
         return true;
     } else {
         return false;
@@ -242,7 +252,9 @@ bool KeepMailboxOpenTask::handleFetch( Imap::Parser* ptr, const Imap::Responses:
     if ( shouldExit )
         return false;
 
-    model->_genericHandleFetch( ptr, resp );
+    TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
+    Q_ASSERT(mailbox);
+    model->_genericHandleFetch( mailbox, resp );
     return true;
 }
 

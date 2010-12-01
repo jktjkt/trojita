@@ -76,6 +76,7 @@ private:
     CommandHandle flagsCmd;
     State status;
     UidSyncingMode uidSyncingMode;
+    QList<uint> uidMap;
 
     friend class KeepMailboxOpenTask; // needs access to conn because it wants to re-use its parser, yay
 };

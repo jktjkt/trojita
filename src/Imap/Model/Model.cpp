@@ -392,7 +392,6 @@ void Model::replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<Tree
         // FIXME: this should be less drastical (ie cancel only what is reqlly really required to be cancelled
         for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
             it->commandMap.clear();
-            it->mailbox = 0;
         }
         qDeleteAll( oldItems );
     }
@@ -425,36 +424,10 @@ void Model::_finalizeFetchPart( Parser* parser, TreeItemPart* const part )
     if ( part->loading() ) {
         // basically, there's nothing to do if the FETCH targetted a message part and not the message as a whole
         qDebug() << "Imap::Model::_finalizeFetch(): didn't receive anything about message" <<
-            part->message()->row() << "part" << part->partId() << "in mailbox" <<
-            _parsers[ parser ].mailbox->mailbox();
+            part->message()->row() << "part" << part->partId();
         part->_fetchStatus = TreeItem::DONE;
     }
     changeConnectionState( parser, CONN_STATE_SELECTED );
-}
-
-/** @short A FETCH command has completed
-
-This function is triggered when the remote server indicates that the FETCH command has been completed
-and that it already sent all the data for the FETCH command.
-*/
-void Model::_finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command )
-{
-    TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( command.value().what );
-
-    if ( mailbox /* FIXME: Tasks API port && _parsers[ parser ].responseHandler == selectedHandler */ ) {
-        // the mailbox was already synced (?)
-        mailbox->_children[0]->_fetchStatus = TreeItem::DONE;
-        cache()->setMailboxSyncState( mailbox->mailbox(), _parsers[ parser ].mailbox->syncState );
-        TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[0] );
-        Q_ASSERT( list );
-        saveUidMap( list );
-        if ( command->kind == Task::FETCH_WITH_FLAGS ) {
-            list->recalcUnreadMessageCount();
-            list->_numberFetchingStatus = TreeItem::DONE;
-            changeConnectionState( parser, CONN_STATE_SELECTED );
-        }
-        emitMessageCountChanged( mailbox );
-    }
 }
 
 void Model::handleCapability( Imap::Parser* ptr, const Imap::Responses::Capability* const resp )
@@ -1215,15 +1188,13 @@ KeepMailboxOpenTask* Model::findTaskResponsibleFor( const QModelIndex& mailbox )
         // Too bad, we have to re-use an existing parser. That will probably lead to
         // stealing it from some mailbox, but there's no other way.
         Q_ASSERT( ! _parsers.isEmpty() );
+        Q_ASSERT( ! _parsers.begin().key() );
         return _taskFactory->createKeepMailboxOpenTask( this, translatedIndex, _parsers.begin().key() );
     }
 }
-void Model::_genericHandleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
+void Model::_genericHandleFetch( TreeItemMailbox* mailbox, const Imap::Responses::Fetch* const resp )
 {
-    TreeItemMailbox* mailbox = _parsers[ ptr ].mailbox;
-    if ( ! mailbox )
-        throw UnexpectedResponseReceived( "Received FETCH reply, but AFAIK we haven't selected any mailbox yet", *resp );
-
+    Q_ASSERT(mailbox);
     TreeItemPart* changedPart = 0;
     TreeItemMessage* changedMessage = 0;
     mailbox->handleFetchResponse( this, *resp, &changedPart, &changedMessage );
@@ -1293,6 +1264,16 @@ void Model::slotTaskDying()
     for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
         it->activeTasks.removeOne( task );
     }
+}
+
+TreeItemMailbox* Model::mailboxForSomeItem( QModelIndex index )
+{
+    TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( index.internalPointer() ) );
+    while ( index.isValid() && ! mailbox ) {
+        index = index.parent();
+        mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( index.internalPointer() ) );
+    }
+    return mailbox;
 }
 
 }

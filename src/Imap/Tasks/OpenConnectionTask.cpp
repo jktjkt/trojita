@@ -24,9 +24,9 @@ namespace Mailbox {
 
 OpenConnectionTask::OpenConnectionTask( Model* _model ) :
     ImapTask( _model ), waitingForGreetings(true), gotPreauth(false)
-{    
+{
     parser = new Parser( model, model->_socketFactory->create(), ++model->lastParserId );
-    Model::ParserState parserState = Model::ParserState( parser, 0, Model::ReadOnly, CONN_STATE_NONE );
+    Model::ParserState parserState = Model::ParserState( parser );
     connect( parser, SIGNAL(responseReceived()), model, SLOT(responseReceived()) );
     connect( parser, SIGNAL(disconnected(const QString)), model, SLOT(slotParserDisconnected(const QString)) );
     connect( parser, SIGNAL(connectionStateChanged(Imap::ConnectionState)), model, SLOT(handleSocketStateChanged(Imap::ConnectionState)) );

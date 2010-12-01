@@ -90,8 +90,6 @@ class Model: public QAbstractItemModel {
         /** @short Which parser are we talking about here */
         QPointer<Parser> parser;
         /** @short The mailbox which we'd like to have selected */
-        TreeItemMailbox* mailbox;
-        RWMode mode;
         ConnectionState connState;
         /** @short Mapping of IMAP tag to the helper structure */
         QMap<CommandHandle, Task> commandMap;
@@ -103,14 +101,9 @@ class Model: public QAbstractItemModel {
         bool capabilitiesFresh;
         /** @short LIST responses which were not processed yet */
         QList<Responses::List> listResponses;
-        QList<uint> uidMap;
 
-        ParserState( Parser* _parser, TreeItemMailbox* _mailbox, const RWMode _mode,
-                const ConnectionState _connState ):
-            parser(_parser), mailbox(_mailbox), mode(_mode), connState(_connState),
-            capabilitiesFresh(false) {}
-        ParserState(): mailbox(0), mode(ReadOnly), connState(CONN_STATE_NONE),
-            capabilitiesFresh(false) {}
+        ParserState( Parser* _parser ): parser(_parser), capabilitiesFresh(false) {}
+        ParserState(): connState(CONN_STATE_NONE), capabilitiesFresh(false) {}
     };
 
     /** @short Policy for accessing network */
@@ -358,9 +351,8 @@ private:
 
     void _finalizeList( Parser* parser, TreeItemMailbox* const mailboxPtr );
     void _finalizeIncrementalList( Parser* parser, const QString& parentMailboxName );
-    void _finalizeFetch( Parser* parser, const QMap<CommandHandle, Task>::const_iterator command );
     void _finalizeFetchPart( Parser* parser, TreeItemPart* const part );
-    void _genericHandleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );
+    void _genericHandleFetch( TreeItemMailbox* mailbox, const Imap::Responses::Fetch* const resp );
 
     void replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<TreeItem*> mailboxes );
     void updateCapabilities( Parser* parser, const QStringList capabilities );
@@ -372,6 +364,8 @@ private:
     TreeItemMailbox* findMailboxByName( const QString& name ) const;
     TreeItemMailbox* findMailboxByName( const QString& name, const TreeItemMailbox* const root ) const;
     TreeItemMailbox* findParentMailboxByName( const QString& name ) const;
+
+    static TreeItemMailbox* mailboxForSomeItem( QModelIndex index );
 
     void saveUidMap( TreeItemMsgList* list );
 

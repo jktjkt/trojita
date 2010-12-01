@@ -69,7 +69,8 @@ void FetchMsgPartTask::perform()
 
 bool FetchMsgPartTask::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
 {
-    model->_genericHandleFetch( ptr, resp );
+    TreeItemMailbox* mailbox = Model::mailboxForSomeItem( index );
+    model->_genericHandleFetch( mailbox, resp );
     return true;
 }
 

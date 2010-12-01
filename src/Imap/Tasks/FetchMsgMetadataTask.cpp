@@ -81,7 +81,9 @@ void FetchMsgMetadataTask::perform()
 
 bool FetchMsgMetadataTask::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
 {
-    model->_genericHandleFetch( ptr, resp );
+    Q_ASSERT( ! messages.isEmpty() );
+    TreeItemMailbox* mailbox = Model::mailboxForSomeItem( messages.first() );
+    model->_genericHandleFetch( mailbox, resp );
     return true;
 }
 
