@@ -53,10 +53,12 @@ QString connectionStateToString( const ConnectionState state )
     case CONN_STATE_FETCHING_PART:
         return Imap::Mailbox::Model::tr("Downloading message...");
     case CONN_STATE_FETCHING_MSG_METADATA:
-        return Imap::Mailbox::Model::tr("Downloading message sImap::Mailbox::Model::tructure...");
+        return Imap::Mailbox::Model::tr("Downloading message structure...");
     case CONN_STATE_LOGOUT:
         return Imap::Mailbox::Model::tr("Logged out.");
     }
+    Q_ASSERT(false);
+    return QString();
 }
 
 }
