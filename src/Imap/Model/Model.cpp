@@ -184,8 +184,8 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
     const QString& tag = resp->tag;
 
     if ( ! tag.isEmpty() ) {
-        QMap<CommandHandle, Task>::iterator command = _parsers[ ptr ].commandMap.find( tag );
-        if ( command == _parsers[ ptr ].commandMap.end() ) {
+        QMap<CommandHandle, Task>::iterator command = accessParser( ptr ).commandMap.find( tag );
+        if ( command == accessParser( ptr ).commandMap.end() ) {
             qDebug() << "This command is not valid anymore" << tag;
             return;
         }
@@ -228,8 +228,8 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
         // We have to verify that the command is still registered in the
         // commandMap, as it might have been removed in the meanwhile, for
         // example by the replaceChildMailboxes()
-        if ( _parsers[ ptr ].commandMap.find( tag ) != _parsers[ ptr ].commandMap.end() )
-            _parsers[ ptr ].commandMap.erase( command );
+        if ( accessParser( ptr ).commandMap.find( tag ) != accessParser( ptr ).commandMap.end() )
+            accessParser( ptr ).commandMap.erase( command );
         else
             qDebug() << "This command is not valid anymore at the end of the loop" << tag;
 
@@ -261,7 +261,7 @@ void Model::_finalizeList( Parser* parser, TreeItemMailbox* mailboxPtr )
 {
     QList<TreeItem*> mailboxes;
 
-    QList<Responses::List>& listResponses = _parsers[ parser ].listResponses;
+    QList<Responses::List>& listResponses = accessParser( parser ).listResponses;
     const QString prefix = mailboxPtr->mailbox() + mailboxPtr->separator();
     for ( QList<Responses::List>::iterator it = listResponses.begin();
             it != listResponses.end(); /* nothing */ ) {
@@ -320,7 +320,7 @@ void Model::_finalizeIncrementalList( Parser* parser, const QString& parentMailb
 
     QList<TreeItem*> mailboxes;
 
-    QList<Responses::List>& listResponses = _parsers[ parser ].listResponses;
+    QList<Responses::List>& listResponses = accessParser( parser ).listResponses;
     for ( QList<Responses::List>::iterator it = listResponses.begin();
             it != listResponses.end(); /* nothing */ ) {
         if ( it->mailbox == parentMailboxName ) {
@@ -442,7 +442,7 @@ void Model::handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::Numb
 
 void Model::handleList( Imap::Parser* ptr, const Imap::Responses::List* const resp )
 {
-    _parsers[ ptr ].listResponses << *resp;
+    accessParser( ptr ).listResponses << *resp;
 }
 
 void Model::handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp )
@@ -766,7 +766,7 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
             for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
                 Q_ASSERT( it->parser );
                 CommandHandle cmd = it->parser->logout();
-                _parsers[ it.key() ].commandMap[ cmd ] = Task( Task::LOGOUT, 0 );
+                accessParser( it.key() ).commandMap[ cmd ] = Task( Task::LOGOUT, 0 );
                 emit activityHappening( true );
             }
             emit networkPolicyOffline();
@@ -842,8 +842,8 @@ void Model::updateCapabilities( Parser* parser, const QStringList capabilities )
     QStringList uppercaseCaps;
     Q_FOREACH( const QString& str, capabilities )
             uppercaseCaps << str.toUpper();
-    _parsers[ parser ].capabilities = uppercaseCaps;
-    _parsers[ parser ].capabilitiesFresh = true;
+    accessParser( parser ).capabilities = uppercaseCaps;
+    accessParser( parser ).capabilitiesFresh = true;
     parser->enableLiteralPlus( uppercaseCaps.contains( QLatin1String( "LITERAL+" ) ) );
 }
 
@@ -1020,7 +1020,7 @@ CommandHandle Model::performAuthentication( Imap::Parser* ptr )
         return CommandHandle();
     } else {
         CommandHandle cmd = ptr->login( _authenticator->user(), _authenticator->password() );
-        _parsers[ ptr ].commandMap[ cmd ] = Task( Task::LOGIN, 0 );
+        accessParser( ptr ).commandMap[ cmd ] = Task( Task::LOGIN, 0 );
         emit activityHappening( true );
         return cmd;
     }
@@ -1028,7 +1028,7 @@ CommandHandle Model::performAuthentication( Imap::Parser* ptr )
 
 void Model::changeConnectionState(Parser *parser, ConnectionState state)
 {
-    _parsers[ parser ].connState = state;
+    accessParser( parser ).connState = state;
     emit connectionStateChanged( parser, state );
 }
 
@@ -1036,7 +1036,7 @@ void Model::handleSocketStateChanged(Imap::ConnectionState state)
 {
     Parser* ptr = qobject_cast<Parser*>( sender() );
     Q_ASSERT(ptr);
-    if ( _parsers[ ptr ].connState < state ) {
+    if ( accessParser( ptr ).connState < state ) {
         changeConnectionState( ptr, state );
     }
 }
@@ -1045,8 +1045,8 @@ void Model::parserIsSendingCommand( const QString& tag)
 {
     Parser* ptr = qobject_cast<Parser*>( sender() );
     Q_ASSERT(ptr);
-    QMap<CommandHandle, Task>::const_iterator it = _parsers[ ptr ].commandMap.find( tag );
-    if ( it == _parsers[ ptr ].commandMap.end() ) {
+    QMap<CommandHandle, Task>::const_iterator it = accessParser( ptr ).commandMap.find( tag );
+    if ( it == accessParser( ptr ).commandMap.end() ) {
         qDebug() << "Dunno anything about command" << tag;
         return;
     }
@@ -1097,19 +1097,19 @@ void Model::parsersMightBeIdling()
 
 void Model::killParser(Parser *parser)
 {
-    Q_FOREACH( ImapTask* task, _parsers[ parser ].activeTasks ) {
+    Q_FOREACH( ImapTask* task, accessParser( parser ).activeTasks ) {
         task->die();
         task->deleteLater();
     }
 
-    for ( QMap<CommandHandle, Task>::const_iterator it = _parsers[ parser ].commandMap.begin();
-            it != _parsers[ parser ].commandMap.end(); ++it ) {
+    for ( QMap<CommandHandle, Task>::const_iterator it = accessParser( parser ).commandMap.begin();
+            it != accessParser( parser ).commandMap.end(); ++it ) {
         // FIXME: fail the command, perform cleanup,...
     }
-    _parsers[ parser ].commandMap.clear();
+    accessParser( parser ).commandMap.clear();
     parser->disconnect();
     parser->deleteLater();
-    _parsers[ parser ].parser = 0;
+    accessParser( parser ).parser = 0;
 }
 
 void Model::slotParserLineReceived( const QByteArray& line )
@@ -1188,7 +1188,6 @@ KeepMailboxOpenTask* Model::findTaskResponsibleFor( const QModelIndex& mailbox )
         // Too bad, we have to re-use an existing parser. That will probably lead to
         // stealing it from some mailbox, but there's no other way.
         Q_ASSERT( ! _parsers.isEmpty() );
-        Q_ASSERT( ! _parsers.begin().key() );
         return _taskFactory->createKeepMailboxOpenTask( this, translatedIndex, _parsers.begin().key() );
     }
 }
@@ -1274,6 +1273,12 @@ TreeItemMailbox* Model::mailboxForSomeItem( QModelIndex index )
         mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( index.internalPointer() ) );
     }
     return mailbox;
+}
+
+Model::ParserState& Model::accessParser( Parser *parser )
+{
+    Q_ASSERT( _parsers.contains( parser ) );
+    return _parsers[ parser ];
 }
 
 }

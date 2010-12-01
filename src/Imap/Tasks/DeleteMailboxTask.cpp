@@ -37,10 +37,10 @@ void DeleteMailboxTask::perform()
 {
     parser = conn->parser;
     Q_ASSERT( parser );
-    model->_parsers[ parser ].activeTasks.append( this );
+    model->accessParser( parser ).activeTasks.append( this );
 
     tag = parser->deleteMailbox( mailbox );
-    model->_parsers[ parser ].commandMap[ tag ] = Model::Task( Model::Task::DELETE, 0 );
+    model->accessParser( parser ).commandMap[ tag ] = Model::Task( Model::Task::DELETE, 0 );
     emit model->activityHappening( true );
 }
 

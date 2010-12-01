@@ -40,12 +40,12 @@ void Fake_ListChildMailboxesTask::perform()
 {
     parser = conn->parser;
     Q_ASSERT( parser );
-    model->_parsers[ parser ].activeTasks.append( this );
+    model->accessParser( parser ).activeTasks.append( this );
 
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
     Q_ASSERT( mailbox );
     parser = conn->parser;
-    QList<Responses::List>& listResponses = model->_parsers[ parser ].listResponses;
+    QList<Responses::List>& listResponses = model->accessParser( parser ).listResponses;
     Q_ASSERT( listResponses.isEmpty() );
     TestingTaskFactory* factory = dynamic_cast<TestingTaskFactory*>( model->_taskFactory.get() );
     Q_ASSERT( factory );

@@ -39,7 +39,7 @@ void ListChildMailboxesTask::perform()
 {
     parser = conn->parser;
     Q_ASSERT( parser );
-    model->_parsers[ parser ].activeTasks.append( this );
+    model->accessParser( parser ).activeTasks.append( this );
 
     if ( ! mailboxIndex.isValid() ) {
         // FIXME: add proper fix
@@ -56,7 +56,7 @@ void ListChildMailboxesTask::perform()
     else
         mailboxName += mailbox->separator() + QChar( '%' );
     tag = parser->list( "", mailboxName );
-    model->_parsers[ parser ].commandMap[ tag ] = Model::Task( Model::Task::LIST, 0 );
+    model->accessParser( parser ).commandMap[ tag ] = Model::Task( Model::Task::LIST, 0 );
     emit model->activityHappening( true );
 }
 

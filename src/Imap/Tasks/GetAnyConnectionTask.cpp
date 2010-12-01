@@ -40,8 +40,8 @@ GetAnyConnectionTask::GetAnyConnectionTask( Model* _model ) :
 
         // Find if there's a KeepMailboxOpenTask already associated; if it is, we have to register with it
         KeepMailboxOpenTask *maintainingTask = 0;
-        if ( ! model->_parsers[ parser ].activeTasks.isEmpty() ) {
-            Q_FOREACH( ImapTask *t, model->_parsers[ parser ].activeTasks ) {
+        if ( ! model->accessParser( parser ).activeTasks.isEmpty() ) {
+            Q_FOREACH( ImapTask *t, model->accessParser( parser ).activeTasks ) {
                 if ( ( maintainingTask = dynamic_cast<KeepMailboxOpenTask*>(t) ) ) {
                     // yes, this is an assignment
                     break;
@@ -70,7 +70,7 @@ void GetAnyConnectionTask::perform()
         // it could be already set), and also register ourselves with the Model
         parser = newConn->parser;
         Q_ASSERT( parser );
-        model->_parsers[ parser ].activeTasks.append( this );
+        model->accessParser( parser ).activeTasks.append( this );
     }
     // ... we don't really have to do any work here, just declare ourselves completed
     _completed();

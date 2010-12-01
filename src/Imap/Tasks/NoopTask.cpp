@@ -36,11 +36,11 @@ void NoopTask::perform()
 {
     parser = conn->parser;
     Q_ASSERT( parser );
-    model->_parsers[ parser ].activeTasks.append( this );
+    model->accessParser( parser ).activeTasks.append( this );
 
     // we do not want to use _onlineMessageFetch because it contains UID and FLAGS
     tag = parser->noop();
-    model->_parsers[ parser ].commandMap[ tag ] = Model::Task( Model::Task::NOOP, 0 );
+    model->accessParser( parser ).commandMap[ tag ] = Model::Task( Model::Task::NOOP, 0 );
     emit model->activityHappening( true );
 }
 

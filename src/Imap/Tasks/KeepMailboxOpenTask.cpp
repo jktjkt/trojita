@@ -46,8 +46,8 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
 
         // Find if there's a KeepMailboxOpenTask already associated; if it is, we have to register with it
         KeepMailboxOpenTask *maintainingTask = 0;
-        if ( ! model->_parsers[ parser ].activeTasks.isEmpty() ) {
-            Q_FOREACH( ImapTask *t, model->_parsers[ parser ].activeTasks ) {
+        if ( ! model->accessParser( oldParser ).activeTasks.isEmpty() ) {
+            Q_FOREACH( ImapTask *t, model->accessParser( oldParser ).activeTasks ) {
                 if ( ( maintainingTask = dynamic_cast<KeepMailboxOpenTask*>(t) ) ) {
                     // yes, this is an assignment
                     break;
@@ -186,7 +186,7 @@ void KeepMailboxOpenTask::perform()
     synchronizeConn = 0; // will get deleted by Model
 
     Q_ASSERT( parser );
-    model->_parsers[ parser ].activeTasks.append( this );
+    model->accessParser( parser ).activeTasks.append( this );
 
     isRunning = true;
     Q_FOREACH( ImapTask* task, dependentTasks ) {
@@ -194,7 +194,7 @@ void KeepMailboxOpenTask::perform()
             task->perform();
     }
 
-    if ( model->_parsers[ parser ].capabilitiesFresh && model->_parsers[ parser ].capabilities.contains( "IDLE" ) )
+    if ( model->accessParser( parser ).capabilitiesFresh && model->accessParser( parser ).capabilities.contains( "IDLE" ) )
         shouldRunIdle = true;
     else
         shouldRunNoop = true;

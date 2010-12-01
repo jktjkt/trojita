@@ -46,7 +46,7 @@ void FetchMsgPartTask::perform()
 {
     parser = conn->parser;
     Q_ASSERT( parser );
-    model->_parsers[ parser ].activeTasks.append( this );
+    model->accessParser( parser ).activeTasks.append( this );
 
     if ( ! index.isValid() ) {
         // FIXME: add proper fix
@@ -63,7 +63,7 @@ void FetchMsgPartTask::perform()
                                  QString::fromAscii("%1.HEADER").arg( part->partId() ) :
                                  part->partId()
                                  ) );
-    model->_parsers[ parser ].commandMap[ tag ] = Model::Task( Model::Task::FETCH_PART, 0 );
+    model->accessParser( parser ).commandMap[ tag ] = Model::Task( Model::Task::FETCH_PART, 0 );
     emit model->activityHappening( true );
 }
 

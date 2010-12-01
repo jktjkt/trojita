@@ -33,7 +33,7 @@ Fake_OpenConnectionTask::Fake_OpenConnectionTask( Imap::Mailbox::Model* _model, 
 void Fake_OpenConnectionTask::perform()
 {
     Q_ASSERT( parser );
-    model->_parsers[ parser ].activeTasks.append( this );
+    model->accessParser( parser ).activeTasks.append( this );
     _completed();
 }
 

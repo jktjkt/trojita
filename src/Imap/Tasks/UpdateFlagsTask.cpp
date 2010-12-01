@@ -54,7 +54,7 @@ void UpdateFlagsTask::perform()
     else if ( copyMove )
         parser = copyMove->parser;
     Q_ASSERT( parser );
-    model->_parsers[ parser ].activeTasks.append( this );
+    model->accessParser( parser ).activeTasks.append( this );
 
     Sequence seq;
     bool first = true;
@@ -85,7 +85,7 @@ void UpdateFlagsTask::perform()
     }
 
     tag = parser->uidStore( seq, flagOperation, flags );
-    model->_parsers[ parser ].commandMap[ tag ] = Model::Task( Model::Task::STORE, 0 );
+    model->accessParser( parser ).commandMap[ tag ] = Model::Task( Model::Task::STORE, 0 );
     emit model->activityHappening( true );
 }
 

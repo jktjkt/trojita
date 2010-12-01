@@ -135,7 +135,6 @@ Parser* TestingTaskFactory::newParser( Model* model )
 OpenConnectionTask* TestingTaskFactory::createOpenConnectionTask( Model *_model )
 {
     if ( fakeOpenConnectionTask ) {
-        qDebug() << Q_FUNC_INFO;
         return new Fake_OpenConnectionTask( _model, newParser( _model ) );
     } else {
         return TaskFactory::createOpenConnectionTask( _model );

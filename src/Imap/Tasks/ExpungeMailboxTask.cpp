@@ -39,7 +39,7 @@ void ExpungeMailboxTask::perform()
 {
     parser = conn->parser;
     Q_ASSERT( parser );
-    model->_parsers[ parser ].activeTasks.append( this );
+    model->accessParser( parser ).activeTasks.append( this );
 
     if ( ! mailboxIndex.isValid() ) {
         // FIXME: add proper fix
@@ -49,7 +49,7 @@ void ExpungeMailboxTask::perform()
     }
 
     tag = parser->expunge();
-    model->_parsers[ parser ].commandMap[ tag ] = Model::Task( Model::Task::EXPUNGE, 0 );
+    model->accessParser( parser ).commandMap[ tag ] = Model::Task( Model::Task::EXPUNGE, 0 );
     emit model->activityHappening( true );
 }
 

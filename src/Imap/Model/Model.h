@@ -394,6 +394,8 @@ private:
     /** @short Dispose of the parser in a C++-safe way */
     void killParser( Parser* parser );
 
+    ParserState& accessParser( Parser *parser );
+
     /** @short Helper for the slotParseError() */
     void broadcastParseError( const uint parser, const QString& exceptionClass, const QString& errorMessage, const QByteArray& line, int position );
 

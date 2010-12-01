@@ -37,10 +37,10 @@ void CreateMailboxTask::perform()
 {
     parser = conn->parser;
     Q_ASSERT( parser );
-    model->_parsers[ parser ].activeTasks.append( this );
+    model->accessParser( parser ).activeTasks.append( this );
 
     tagCreate = parser->create( mailbox );
-    model->_parsers[ parser ].commandMap[ tagCreate ] = Model::Task( Model::Task::CREATE, 0 );
+    model->accessParser( parser ).commandMap[ tagCreate ] = Model::Task( Model::Task::CREATE, 0 );
     emit model->activityHappening( true );
 }
 
@@ -55,7 +55,7 @@ bool CreateMailboxTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respon
         if ( resp->kind == Responses::OK ) {
             emit model->mailboxCreationSucceded( mailbox );
             tagList = parser->list( QLatin1String(""), mailbox );
-            model->_parsers[ parser ].commandMap[ tagList ] = Model::Task( Model::Task::LIST_AFTER_CREATE, command->str );
+            model->accessParser( parser ).commandMap[ tagList ] = Model::Task( Model::Task::LIST_AFTER_CREATE, command->str );
             emit model->activityHappening( true );
         } else {
             emit model->mailboxCreationFailed( mailbox, resp->message );

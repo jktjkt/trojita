@@ -39,7 +39,7 @@ void NumberOfMessagesTask::perform()
 {
     parser = conn->parser;
     Q_ASSERT( parser );
-    model->_parsers[ parser ].activeTasks.append( this );
+    model->accessParser( parser ).activeTasks.append( this );
 
     if ( ! mailboxIndex.isValid() ) {
         // FIXME: add proper fix
@@ -52,7 +52,7 @@ void NumberOfMessagesTask::perform()
 
     tag = parser->status( mailbox->mailbox(),
                           QStringList() << QLatin1String("MESSAGES") << QLatin1String("UNSEEN") );
-    model->_parsers[ parser ].commandMap[ tag ] = Model::Task( Model::Task::STATUS, 0 );
+    model->accessParser( parser ).commandMap[ tag ] = Model::Task( Model::Task::STATUS, 0 );
     emit model->activityHappening( true );
 }
 

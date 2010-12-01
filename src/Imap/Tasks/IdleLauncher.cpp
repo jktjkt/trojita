@@ -61,7 +61,7 @@ void IdleLauncher::slotEnterIdleNow()
     Q_ASSERT( task->parser );
     Q_ASSERT( ! _idling );
     task->tagIdle = task->parser->idle();
-    task->model->_parsers[ task->parser ].commandMap[ task->tagIdle ] = Model::Task( Model::Task::IDLE, 0 );
+    task->model->accessParser( task->parser ).commandMap[ task->tagIdle ] = Model::Task( Model::Task::IDLE, 0 );
     renewal->start();
     _idling = true;
 }
