@@ -174,13 +174,13 @@ QVariant TreeItemMailbox::data( Model* const model, int role )
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[0] );
     Q_ASSERT( list );
 
-    if ( role == Qt::DisplayRole ) {
+    switch ( role ) {
+    case Qt::DisplayRole:
+    {
         // this one is used only for a dumb view attached to the Model
         QString res = separator().isEmpty() ? mailbox() : mailbox().split( separator(), QString::SkipEmptyParts ).last();
         return loading() ? res + " [loading]" : res;
     }
-
-    switch ( role ) {
     case RoleShortMailboxName:
         return separator().isEmpty() ? mailbox() : mailbox().split( separator(), QString::SkipEmptyParts ).last();
     case RoleMailboxName:
