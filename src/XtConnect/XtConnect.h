@@ -32,12 +32,11 @@
 
 #include <QModelIndex>
 #include "Imap/Model/Model.h"
+#include "MailSynchronizer.h"
 
 class QSettings;
 
 namespace XtConnect {
-
-class MailboxFinder;
 
 /** @short Handle storing the mails into the XTuple Connect database */
 class XtConnect : public QObject
@@ -57,6 +56,8 @@ public slots:
     void cacheError(const QString &error);
     /** @short Updating progress */
     void showConnectionStatus(QObject* parser, Imap::ConnectionState state);
+    /** @short Go through all mailboxes and check for new stuff */
+    void goTroughMailboxes();
 
 private:
     void setupModels();
@@ -64,6 +65,8 @@ private:
     Imap::Mailbox::Model *m_model;
     QSettings *m_settings;
     MailboxFinder *m_finder;
+    QMap<QString, QPointer<MailSynchronizer> > m_syncers;
+    QTimer *m_rotateMailboxes;
 };
 
 }

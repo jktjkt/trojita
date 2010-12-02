@@ -36,7 +36,7 @@
 namespace XtConnect {
 
 MailSynchronizer::MailSynchronizer( QObject *parent, Imap::Mailbox::Model *model, MailboxFinder *finder ) :
-    QObject(parent), m_model(model), m_finder(finder)
+    QObject(parent), m_model(model), m_finder(finder), ignoreArrivals(true)
 {
     Q_ASSERT(m_model);
     connect( m_model, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(slotRowsInserted(QModelIndex,int,int)) );
@@ -45,10 +45,15 @@ MailSynchronizer::MailSynchronizer( QObject *parent, Imap::Mailbox::Model *model
 
 void MailSynchronizer::setMailbox( const QString &mailbox )
 {
-    Q_ASSERT(m_finder);
     m_mailbox = mailbox;
     qDebug() << "Will watch mailbox" << mailbox;
-    m_finder->addMailbox( mailbox );
+    slotGetMailboxIndexAgain();
+}
+
+void MailSynchronizer::slotGetMailboxIndexAgain()
+{
+    Q_ASSERT(m_finder);
+    m_finder->addMailbox( m_mailbox );
 }
 
 void MailSynchronizer::slotMailboxFound( const QString &mailbox, const QModelIndex &index )
@@ -60,6 +65,8 @@ void MailSynchronizer::slotMailboxFound( const QString &mailbox, const QModelInd
     QModelIndex list = m_index.child( 0, 0 );
     Q_ASSERT( list.isValid() );
     m_model->rowCount( list );
+    qDebug() << "Checking mailbox" << m_mailbox;
+    ignoreArrivals = false;
     // Schedule walking through the list of messages -- that's right, we invoke that right now,
     // as the messages could already be present in the model
     walkThroughMessages();
@@ -78,20 +85,46 @@ void MailSynchronizer::slotRowsInserted(const QModelIndex &parent, int start, in
 
 void MailSynchronizer::walkThroughMessages()
 {
-    if ( ! m_index.isValid() ) {
-        // FIXME: support some nice reconnect...
-        qDebug() << "Oops, we've lost the mailbox";
+    if ( ignoreArrivals )
         return;
-    }
+
+    if ( renewMailboxIndex() )
+        return;
 
     QModelIndex list = m_index.child( 0, 0 );
     Q_ASSERT( list.isValid() );
 
+    qDebug() << "walking through messages for" << m_mailbox;
     for ( int i = 0; i < m_model->rowCount( list ); ++i ) {
         QModelIndex message = m_model->index( i, 0, list );
         Q_ASSERT( message.isValid() );
-        qDebug() << m_mailbox << i << m_model->data( message, Imap::Mailbox::RoleMessageUid ).toUInt();
+        QVariant uid = m_model->data( message, Imap::Mailbox::RoleMessageUid );
+        if ( uid.isValid() && uid.toUInt() != 0 )
+            qDebug() << m_mailbox << i << uid.toUInt();
+        else
+            qDebug() << m_mailbox << i << "[unsynced message]";
     }
+}
+
+bool MailSynchronizer::renewMailboxIndex()
+{
+    if ( ! m_index.isValid() ) {
+        qDebug() << "Oops, we've lost the mailbox" << m_mailbox <<", will ask for it again in a while.";
+        ignoreArrivals = true;
+        QTimer::singleShot( 14*1000 /*1000 * 60 * 2*/, this, SLOT(slotGetMailboxIndexAgain()) );
+        return true;
+    } else {
+        return false;
+    }
+}
+
+void MailSynchronizer::switchHere()
+{
+    if ( renewMailboxIndex() )
+        return;
+
+    qDebug() << "Switching to" << m_mailbox;
+    m_model->switchToMailbox( m_index );
 }
 
 }

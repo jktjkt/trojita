@@ -35,7 +35,6 @@
 #include "Common/SettingsNames.h"
 #include "Imap/Model/CombinedCache.h"
 #include "Imap/Model/MemoryCache.h"
-#include "MailSynchronizer.h"
 #include "MailboxFinder.h"
 
 namespace XtConnect {
@@ -54,8 +53,14 @@ XtConnect::XtConnect(QObject *parent, QSettings *s) :
     m_finder = new MailboxFinder( this, m_model );
     Q_FOREACH( const QString &mailbox, s->value( Common::SettingsNames::xtSyncMailboxList ).toStringList() ) {
         MailSynchronizer *sync = new MailSynchronizer( this, m_model, m_finder );
+        m_syncers[ mailbox ] = sync;
         sync->setMailbox( mailbox );
     }
+
+    m_rotateMailboxes = new QTimer(this);
+    m_rotateMailboxes->setInterval( /*1000 * 60 * 1*/ 3000 ); // every minute
+    connect( m_rotateMailboxes, SIGNAL(timeout()), this, SLOT(goTroughMailboxes()) );
+    m_rotateMailboxes->start();
 }
 
 void XtConnect::setupModels()
@@ -149,7 +154,14 @@ void XtConnect::showConnectionStatus( QObject* parser, Imap::ConnectionState sta
     Q_UNUSED( parser );
     using namespace Imap;
 
-    qDebug() << "Connection status:" <<  Imap::connectionStateToString( state );
+    //qDebug() << "Connection status:" <<  Imap::connectionStateToString( state );
+}
+
+void XtConnect::goTroughMailboxes()
+{
+    Q_FOREACH( MailSynchronizer *sync, m_syncers ) {
+        sync->switchHere();
+    }
 }
 
 }

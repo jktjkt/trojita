@@ -50,17 +50,29 @@ class MailSynchronizer : public QObject
 public:
     explicit MailSynchronizer( QObject *parent, Imap::Mailbox::Model *model, MailboxFinder *finder );
     void setMailbox( const QString &mailbox );
-public slots:
+    /** @short Ask the Model that we're still here and need updates
+
+This is required if the total number of mailboxes exceeds the configured limit of parallel connections
+*/
+    void switchHere();
+private slots:
     void slotRowsInserted( const QModelIndex &parent, int start, int end );
     void slotMailboxFound( const QString &mailbox, const QModelIndex &index );
+    void slotGetMailboxIndexAgain();
 private:
     /** @short Walk through the cached messages and store the new ones */
     void walkThroughMessages();
+    /** @short Returns true if the m_index got invalidated
+
+This function will queue renewal automatically.
+*/
+    bool renewMailboxIndex();
 
     Imap::Mailbox::Model* m_model;
     MailboxFinder *m_finder;
     QString m_mailbox;
     QPersistentModelIndex m_index;
+    bool ignoreArrivals;
 };
 
 }
