@@ -41,6 +41,10 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*> ( _mailboxIndex.internalPointer() ) );
     Q_ASSERT( mailbox );
 
+    // We're the latest KeepMailboxOpenTask, so it makes a lot of sense to add us as the active
+    // maintainingTask to the target mailbox
+    mailbox->maintainingTask = this;
+
     if ( oldParser ) {
         // We're asked to re-use an existing connection. Let's see if there's something associated with it
 
@@ -118,6 +122,7 @@ void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
             terminate();
         }
     } else {
+        Q_ASSERT( ! shouldExit ); // if this was true, the task should've chosen something else...
         connect( task, SIGNAL(destroyed(QObject*)), this, SLOT(slotTaskDeleted(QObject*)) );
         ImapTask::addDependentTask( task );
 
@@ -162,7 +167,10 @@ void KeepMailboxOpenTask::terminate()
     Q_ASSERT( mailboxIndex.isValid() );
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
     Q_ASSERT( mailbox );
-    mailbox->maintainingTask = 0;
+
+    // Don't leave dangling pointers
+    if ( mailbox->maintainingTask == this )
+        mailbox->maintainingTask = 0;
 
     // Don't forget to disable NOOPing
     noopTimer->stop();

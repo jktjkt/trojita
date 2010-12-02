@@ -128,15 +128,6 @@ TreeItemMailbox::TreeItemMailbox( TreeItem* parent, Responses::List response ):
     _children.prepend( new TreeItemMsgList( this ) );
 }
 
-TreeItemMailbox::~TreeItemMailbox()
-{
-    if ( maintainingTask ) {
-        // This mailbox is going away, and it should take its maintaining task with it
-        maintainingTask->die();
-        maintainingTask->deleteLater();
-    }
-}
-
 TreeItemMailbox* TreeItemMailbox::fromMetadata( TreeItem* parent, const MailboxMetadata& metadata )
 {
     TreeItemMailbox* res = new TreeItemMailbox( parent );
