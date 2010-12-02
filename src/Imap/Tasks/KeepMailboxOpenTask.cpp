@@ -118,19 +118,10 @@ void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
         waitingTasks.append( keepTask );
         shouldExit = true;
 
-        if ( mailboxIndex.isValid() ) {
-            // we have to stop boasting as the task which is responsible for some mailbox, as we no longer are
-            TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
-            Q_ASSERT( mailbox );
-
-            detachFromMailbox( mailbox );
-        }
-
         if ( dependentTasks.isEmpty() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
             terminate();
         }
     } else {
-        Q_ASSERT( ! shouldExit ); // if this was true, the task should've chosen something else...
         connect( task, SIGNAL(destroyed(QObject*)), this, SLOT(slotTaskDeleted(QObject*)) );
         ImapTask::addDependentTask( task );
 
@@ -170,6 +161,7 @@ void KeepMailboxOpenTask::terminate()
     }
     shouldRunIdle = false;
     shouldRunNoop = false;
+    isRunning = false;
 
     // Mark current mailbox as "orphaned by the housekeeping task"
     Q_ASSERT( mailboxIndex.isValid() );
@@ -251,7 +243,7 @@ void KeepMailboxOpenTask::resynchronizeMailbox()
 bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp )
 {
     // FIXME: add proper boundaries
-    if ( shouldExit || ! isRunning )
+    if ( ! isRunning )
         return false;
 
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
@@ -274,7 +266,7 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
 bool KeepMailboxOpenTask::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
 {
     // FIXME: add proper boundaries
-    if ( shouldExit || ! isRunning )
+    if ( ! isRunning )
         return false;
 
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
