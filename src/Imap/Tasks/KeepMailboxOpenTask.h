@@ -101,6 +101,9 @@ initialize synchronization now.
 private:
     void terminate();
 
+    /** @short Detach from the TreeItemMailbox, preventing new tasks from hitting us */
+    void detachFromMailbox( TreeItemMailbox *mailbox );
+
 protected:
     QPersistentModelIndex mailboxIndex;
     QList<KeepMailboxOpenTask*> waitingTasks;

@@ -118,6 +118,14 @@ void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
         waitingTasks.append( keepTask );
         shouldExit = true;
 
+        if ( mailboxIndex.isValid() ) {
+            // we have to stop boasting as the task which is responsible for some mailbox, as we no longer are
+            TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
+            Q_ASSERT( mailbox );
+
+            detachFromMailbox( mailbox );
+        }
+
         if ( dependentTasks.isEmpty() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
             terminate();
         }
@@ -168,9 +176,7 @@ void KeepMailboxOpenTask::terminate()
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
     Q_ASSERT( mailbox );
 
-    // Don't leave dangling pointers
-    if ( mailbox->maintainingTask == this )
-        mailbox->maintainingTask = 0;
+    detachFromMailbox( mailbox );
 
     // Don't forget to disable NOOPing
     noopTimer->stop();
@@ -326,6 +332,13 @@ QString KeepMailboxOpenTask::debugIdentification() const
                                                        ( synchronizeConn && ! synchronizeConn->isFinished() ) ? " [syncConn unfinished]" : "",
                                                        shouldExit ? " [shouldExit]" : ""
                                                        );
+}
+
+void KeepMailboxOpenTask::detachFromMailbox( TreeItemMailbox *mailbox )
+{
+    // We're already obsolete -> don't pretend to accept new tasks
+    if ( mailbox->maintainingTask == this )
+        mailbox->maintainingTask = 0;
 }
 
 }
