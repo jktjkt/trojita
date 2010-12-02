@@ -135,7 +135,7 @@ void ObtainSynchronizedMailboxTask::_finalizeSelect()
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[ 0 ] );
     Q_ASSERT( list );
 
-    model->changeConnectionState( parser, CONN_STATE_SELECTED );
+    model->changeConnectionState( parser, CONN_STATE_SYNCING );
     const SyncState& syncState = mailbox->syncState;
     const SyncState& oldState = model->cache()->mailboxSyncState( mailbox->mailbox() );
     list->_totalMessageCount = syncState.exists();
@@ -216,6 +216,7 @@ void ObtainSynchronizedMailboxTask::_fullMboxSync( TreeItemMailbox* mailbox, Tre
         model->saveUidMap( list );
 
         // The remote mailbox is empty -> we're done now
+        model->changeConnectionState( parser, CONN_STATE_SELECTED );
         status = STATE_DONE;
         //qDebug() << "STATE_DONE";
         _completed();
