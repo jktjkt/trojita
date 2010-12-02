@@ -438,4 +438,23 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncTwoLikeCyrus()
     QVERIFY( errorSpy->isEmpty() );
 }
 
+void ImapModelObtainSynchronizedMailboxTest::testSyncTwoInParallel()
+{
+    TagGenerator t;
+    QModelIndex idxA = model->index( 1, 0, QModelIndex() );
+    QModelIndex idxB = model->index( 2, 0, QModelIndex() );
+    QModelIndex msgListA = model->index( 0, 0, idxA );
+    QModelIndex msgListB = model->index( 0, 0, idxB );
+
+    // Ask the model to sync stuff
+    QCOMPARE( model->rowCount( msgListA ), 0 );
+    QTest::qWait(100);
+    QCOMPARE( model->rowCount( msgListB ), 0 );
+    QTest::qWait(100);
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
+
+}
+
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )
