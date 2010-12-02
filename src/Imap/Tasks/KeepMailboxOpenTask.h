@@ -61,7 +61,8 @@ that mailbox now loses its KeepMailboxOpenTask and the underlying parser is reus
 
     /** @short Start child processes
 
-This function is called when the synchronizing task finished succesfully.
+This function is called when the synchronizing task finished succesfully, that is, when we are ready
+to execute regular tasks which depend on us.
 */
     virtual void perform();
 
