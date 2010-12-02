@@ -447,7 +447,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncTwoInParallel()
     QModelIndex msgListA = model->index( 0, 0, idxA );
     QModelIndex msgListB = model->index( 0, 0, idxB );
 
-    // Ask the model to sync stuff
+    // This will select both mailboxes, one after another
     QCOMPARE( model->rowCount( msgListA ), 0 );
     QCOMPARE( model->rowCount( msgListB ), 0 );
     QCoreApplication::processEvents();
@@ -471,20 +471,38 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncTwoInParallel()
     QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( msgListA ), 0 );
     QCOMPARE( model->rowCount( msgListB ), 0 );
+    // ...none of them are synced yet
+
     SOCK->fakeReading( QByteArray("* SEARCH 1\r\n")
                        + t.last("OK Completed (1 msgs in 0.000 secs)\r\n") );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( msgListA ), 1 );
+    // the first one should contain a message now
+
     QCOMPARE( SOCK->writtenStuff(), QByteArray(t.mk("FETCH 1 (FLAGS)\r\n")) );
     SOCK->fakeReading( QByteArray("* 1 FETCH (FLAGS (\\Seen hasatt hasnotd))\r\n")
                        + t.last("OK Completed (0.000 sec)\r\n"));
     QModelIndex msg1A = model->index( 0, 0, msgListA );
+
+    // Requesting message data should delay entering the second mailbox
     QCOMPARE( model->data( msg1A, Imap::Mailbox::RoleMessageMessageId ), QVariant() );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( msgListA ), 1 );
     QCoreApplication::processEvents();
+
+    QCOMPARE( SOCK->writtenStuff(), t.mk(QByteArray("UID FETCH 1 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n")) );
+    // let's try to get around without specifying ENVELOPE and BODYSTRUCTURE
+    SOCK->fakeReading( QByteArray("* 1 FETCH (UID 1 RFC822.SIZE 13021)\r\n")
+                       + t.last("OK Completed\r\n") );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+
+    QCOMPARE( SOCK->writtenStuff(), t.mk(QByteArray("SEKECT b\r\n")));
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+
     QVERIFY( SOCK->writtenStuff().isEmpty() );
     QVERIFY( errorSpy->isEmpty() );
 }
