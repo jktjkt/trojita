@@ -174,13 +174,16 @@ QVariant TreeItemMailbox::data( Model* const model, int role )
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[0] );
     Q_ASSERT( list );
 
+    if ( role == Qt::DisplayRole ) {
+        // this one is used only for a dumb view attached to the Model
+        QString res = separator().isEmpty() ? mailbox() : mailbox().split( separator(), QString::SkipEmptyParts ).last();
+        return loading() ? res + " [loading]" : res;
+    }
+
+    if ( ! fetched() )
+        return QVariant();
+
     switch ( role ) {
-    case Qt::DisplayRole:
-        {
-            // this one is used only for a dumb view attached to the Model
-            QString res = separator().isEmpty() ? mailbox() : mailbox().split( separator(), QString::SkipEmptyParts ).last();
-            return loading() ? res + " [loading]" : res;
-        }
     case RoleShortMailboxName:
         return separator().isEmpty() ? mailbox() : mailbox().split( separator(), QString::SkipEmptyParts ).last();
     case RoleMailboxName:
@@ -698,8 +701,18 @@ QVariant TreeItemMessage::data( Model* const model, int role )
                 QTextStream stream( &buf );
                 stream << _envelope;
                 return buf;
-            } else
+            } else {
                 return QVariant();
+            }
+        default:
+            // fall through
+            ;
+    }
+
+    if ( ! fetched() )
+        return QVariant();
+
+    switch ( role ) {
         case RoleMessageUid:
             return uid();
         case RoleMessageIsMarkedDeleted:
