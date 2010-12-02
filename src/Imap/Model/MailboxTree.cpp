@@ -180,9 +180,6 @@ QVariant TreeItemMailbox::data( Model* const model, int role )
         return loading() ? res + " [loading]" : res;
     }
 
-    if ( ! fetched() )
-        return QVariant();
-
     switch ( role ) {
     case RoleShortMailboxName:
         return separator().isEmpty() ? mailbox() : mailbox().split( separator(), QString::SkipEmptyParts ).last();
@@ -199,13 +196,13 @@ QVariant TreeItemMailbox::data( Model* const model, int role )
     case RoleMailboxNumbersFetched:
         return list->numbersFetched();
     case RoleTotalMessageCount:
-        return list->totalMessageCount( model );
+        return list->numbersFetched() ? QVariant(list->totalMessageCount( model )) : QVariant();
     case RoleUnreadMessageCount:
-        return list->unreadMessageCount( model );
+        return list->numbersFetched() ? QVariant(list->unreadMessageCount( model )): QVariant();
     case RoleMailboxItemsAreLoading:
         return list->loading() || ! list->numbersFetched();
     case RoleMailboxUidValidity:
-        return syncState.uidValidity();
+        return list->fetched() ? QVariant(syncState.uidValidity()) : QVariant();
     default:
         return QVariant();
     }
