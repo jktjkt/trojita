@@ -303,9 +303,9 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
     TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->child( number, model ) );
     Q_ASSERT( message ); // FIXME: this should be relaxed for allowing null pointers instead of "unfetched" TreeItemMessage
 
-    // we got to store UID before we process the rest of the data (UID is the key)
-    if ( response.data.find( "UID" ) != response.data.end() )
-        message->_uid = dynamic_cast<const Responses::RespData<uint>&>( *(response.data[ "UID" ]) ).data;
+    // This should stay, unless we ever abandon the UID SEARCH ALL for UID discovery.
+    // I believe it's guaranteed by the check for list->fetched() above.
+    Q_ASSERT(message->_uid);
 
     bool savedBodyStructure = false;
     bool gotEnvelope = false;
@@ -350,8 +350,6 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
             if ( changedPart ) {
                 *changedPart = part;
             }
-        } else if ( it.key() == "UID" ) {
-            message->_uid = dynamic_cast<const Responses::RespData<uint>&>( *(it.value()) ).data;
         } else if ( it.key() == "FLAGS" ) {
             bool wasSeen = message->isMarkedAsRead();
             message->_flags = dynamic_cast<const Responses::RespData<QStringList>&>( *(it.value()) ).data;
@@ -691,6 +689,10 @@ QVariant TreeItemMessage::data( Model* const model, int role )
     if ( ! _parent )
         return QVariant();
 
+    // This one is special, UID doesn't depend on fetch() and should not trigger it, either
+    if ( role == RoleMessageUid )
+        return _uid ? QVariant(_uid) : QVariant();
+
     fetch( model );
 
     switch ( role ) {
@@ -719,8 +721,6 @@ QVariant TreeItemMessage::data( Model* const model, int role )
         return QVariant();
 
     switch ( role ) {
-        case RoleMessageUid:
-            return uid();
         case RoleMessageIsMarkedDeleted:
             return isMarkedAsDeleted();
         case RoleMessageIsMarkedRead:
