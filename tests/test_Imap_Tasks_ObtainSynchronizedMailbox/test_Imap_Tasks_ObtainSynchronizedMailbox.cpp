@@ -498,8 +498,10 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncTwoInParallel()
                        + t.last("OK Completed\r\n") );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
 
-    QCOMPARE( SOCK->writtenStuff(), t.mk(QByteArray("SEKECT b\r\n")));
+    QCOMPARE( SOCK->writtenStuff(), t.mk(QByteArray("SELECT b\r\n")));
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 
