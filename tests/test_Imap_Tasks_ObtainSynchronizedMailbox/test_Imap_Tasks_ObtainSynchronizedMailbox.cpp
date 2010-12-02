@@ -24,6 +24,7 @@
 #include "../headless_test.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/Cache.h"
+#include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Tasks/ObtainSynchronizedMailboxTask.h"
@@ -448,13 +449,44 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncTwoInParallel()
 
     // Ask the model to sync stuff
     QCOMPARE( model->rowCount( msgListA ), 0 );
-    QTest::qWait(100);
     QCOMPARE( model->rowCount( msgListB ), 0 );
-    QTest::qWait(100);
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
-
+    SOCK->fakeReading( QByteArray("* 1 EXISTS\r\n"
+                                  "* 0 RECENT\r\n"
+                                  "* FLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen hasatt hasnotd)\r\n"
+                                  "* OK [PERMANENTFLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen hasatt hasnotd \\*)] Ok\r\n"
+                                  "* OK [UIDVALIDITY 1290593745] Ok\r\n"
+                                  "* OK [UIDNEXT 2] Ok\r\n"
+                                  "* OK [HIGHESTMODSEQ 9] Ok\r\n"
+                                  "* OK [URLMECH INTERNAL] Ok\r\n")
+                       + t.last("OK [READ-WRITE] Completed\r\n"));
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE( SOCK->writtenStuff(), t.mk("UID SEARCH ALL\r\n") );
+    QCOMPARE( model->rowCount( msgListA ), 0 );
+    QCOMPARE( model->rowCount( msgListB ), 0 );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE( model->rowCount( msgListA ), 0 );
+    QCOMPARE( model->rowCount( msgListB ), 0 );
+    SOCK->fakeReading( QByteArray("* SEARCH 1\r\n")
+                       + t.last("OK Completed (1 msgs in 0.000 secs)\r\n") );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE( model->rowCount( msgListA ), 1 );
+    QCOMPARE( SOCK->writtenStuff(), QByteArray(t.mk("FETCH 1 (FLAGS)\r\n")) );
+    SOCK->fakeReading( QByteArray("* 1 FETCH (FLAGS (\\Seen hasatt hasnotd))\r\n")
+                       + t.last("OK Completed (0.000 sec)\r\n"));
+    QModelIndex msg1A = model->index( 0, 0, msgListA );
+    QCOMPARE( model->data( msg1A, Imap::Mailbox::RoleMessageMessageId ), QVariant() );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE( model->rowCount( msgListA ), 1 );
+    QCoreApplication::processEvents();
+    QVERIFY( SOCK->writtenStuff().isEmpty() );
+    QVERIFY( errorSpy->isEmpty() );
 }
 
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )
