@@ -196,13 +196,22 @@ QVariant TreeItemMailbox::data( Model* const model, int role )
     case RoleMailboxNumbersFetched:
         return list->numbersFetched();
     case RoleTotalMessageCount:
-        return list->numbersFetched() ? QVariant(list->totalMessageCount( model )) : QVariant();
+    {
+        uint res = list->totalMessageCount( model );
+        return list->numbersFetched() ? QVariant(res) : QVariant();
+    }
     case RoleUnreadMessageCount:
-        return list->numbersFetched() ? QVariant(list->unreadMessageCount( model )): QVariant();
+    {
+        uint res = list->unreadMessageCount( model );
+        return list->numbersFetched() ? QVariant(res): QVariant();
+    }
     case RoleMailboxItemsAreLoading:
         return list->loading() || ! list->numbersFetched();
     case RoleMailboxUidValidity:
+    {
+        list->fetch( model );
         return list->fetched() ? QVariant(syncState.uidValidity()) : QVariant();
+    }
     default:
         return QVariant();
     }
