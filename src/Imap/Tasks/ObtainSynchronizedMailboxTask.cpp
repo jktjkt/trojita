@@ -29,7 +29,7 @@ ObtainSynchronizedMailboxTask::ObtainSynchronizedMailboxTask( Model* _model, con
     status(STATE_WAIT_FOR_CONN), uidSyncingMode(UID_SYNC_ALL)
 {
     // We do *not* want to add ourselves to the list of dependant tasks here;
-    // this is a special case, our perform() will be called by hand later on
+    // this is a special case, our perform() is called explicitly by KeepMailboxOpenTask
 }
 
 void ObtainSynchronizedMailboxTask::perform()

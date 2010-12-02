@@ -95,6 +95,8 @@ class Model: public QAbstractItemModel {
         QMap<CommandHandle, Task> commandMap;
         /** @short List of tasks which are active already, and should therefore receive events */
         QList<ImapTask*> activeTasks;
+        /** @short An active KeepMailboxOpenTask, if one exists */
+        KeepMailboxOpenTask* maintainingTask;
         /** @short A list of cepabilities, as advertised by the server */
         QStringList capabilities;
         /** @short Is the @arg capabilities usable? */
@@ -102,8 +104,8 @@ class Model: public QAbstractItemModel {
         /** @short LIST responses which were not processed yet */
         QList<Responses::List> listResponses;
 
-        ParserState( Parser* _parser ): parser(_parser), capabilitiesFresh(false) {}
-        ParserState(): connState(CONN_STATE_NONE), capabilitiesFresh(false) {}
+        ParserState( Parser* _parser ): parser(_parser), maintainingTask(0), capabilitiesFresh(false) {}
+        ParserState(): connState(CONN_STATE_NONE), maintainingTask(0), capabilitiesFresh(false) {}
     };
 
     /** @short Policy for accessing network */

@@ -38,20 +38,9 @@ GetAnyConnectionTask::GetAnyConnectionTask( Model* _model ) :
         parser = it.key();
         Q_ASSERT( parser );
 
-        // Find if there's a KeepMailboxOpenTask already associated; if it is, we have to register with it
-        KeepMailboxOpenTask *maintainingTask = 0;
-        if ( ! model->accessParser( parser ).activeTasks.isEmpty() ) {
-            Q_FOREACH( ImapTask *t, model->accessParser( parser ).activeTasks ) {
-                if ( ( maintainingTask = dynamic_cast<KeepMailboxOpenTask*>(t) ) ) {
-                    // yes, this is an assignment
-                    break;
-                }
-            }
-        }
-
-        if ( maintainingTask ) {
+        if ( it->maintainingTask ) {
             // The parser already has some maintaining task associated with it
-            newConn = maintainingTask;
+            newConn = it->maintainingTask;
             newConn->addDependentTask( this );
         } else {
             // The parser doesn't have anything associated with it, so we can go ahead and
