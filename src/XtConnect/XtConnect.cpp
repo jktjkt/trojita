@@ -85,7 +85,7 @@ void XtConnect::setupModels()
     QString cacheDir = m_settings->value( Common::SettingsNames::xtConnectCacheDirectory).toString();
     Imap::Mailbox::AbstractCache* cache = 0;
 
-    bool shouldUsePersistentCache = true;
+    bool shouldUsePersistentCache = false; // FIXME: enable later
 
     if ( ! QDir().mkpath( cacheDir ) ) {
         qCritical() << "Failed to create directory" << cacheDir << " -- will not remember anything on restart!";
