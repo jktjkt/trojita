@@ -33,11 +33,7 @@
 #include <QObject>
 #include <QModelIndex>
 
-namespace Imap {
-namespace Mailbox {
-class Model;
-}
-}
+#include "Imap/Model/Model.h"
 
 namespace XtConnect {
 
@@ -58,6 +54,7 @@ This is required if the total number of mailboxes exceeds the configured limit o
 private slots:
     void slotRowsInserted( const QModelIndex &parent, int start, int end );
     void slotMailboxFound( const QString &mailbox, const QModelIndex &index );
+    void slotMailboxSyncStateProgress( const QModelIndex &mailbox, Imap::Mailbox::MailboxSyncingProgress state );
     void slotGetMailboxIndexAgain();
 private:
     /** @short Walk through the cached messages and store the new ones */
