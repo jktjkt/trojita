@@ -53,6 +53,14 @@ class MailboxModel;
 class ImapTask;
 class KeepMailboxOpenTask;
 
+/** @short Progress of mailbox synchronization with the IMAP server */
+typedef enum { STATE_WAIT_FOR_CONN, /**< Waiting for connection to become active */
+               STATE_SELECTING, /**< SELECT command in progress */
+               STATE_SYNCING_UIDS, /**< UID syncing in progress */
+               STATE_SYNCING_FLAGS, /**< Flag syncing in progress */
+               STATE_DONE /**< Mailbox is fully synchronized, both UIDs and flags are up to date */
+           } MailboxSyncingProgress;
+
 /** @short A model implementing view of the whole IMAP server */
 class Model: public QAbstractItemModel {
     Q_OBJECT
@@ -307,6 +315,8 @@ signals:
 
     /** @short The parser has encountered a fatal error */
     void logParserFatalError( uint parser, const QString& exceptionClass, const QString& message, const QByteArray& line, int position );
+
+    void mailboxSyncingProgress( const QModelIndex &mailbox, Imap::Mailbox::MailboxSyncingProgress state );
 
 private:
     Model& operator=( const Model& ); // don't implement

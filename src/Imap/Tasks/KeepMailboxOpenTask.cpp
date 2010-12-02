@@ -93,6 +93,8 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
         timeout = 2 * 60 * 1000; // once every two minutes
     noopTimer->setInterval( timeout );
     noopTimer->setSingleShot( true );
+
+    emit model->mailboxSyncingProgress( mailboxIndex, STATE_WAIT_FOR_CONN );
 }
 
 void KeepMailboxOpenTask::slotPerformConnection()

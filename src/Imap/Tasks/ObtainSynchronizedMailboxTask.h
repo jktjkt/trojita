@@ -47,7 +47,6 @@ public:
     virtual bool handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp );
     virtual bool handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );
 
-    typedef enum { STATE_WAIT_FOR_CONN, STATE_SELECTING, STATE_SYNCING_UIDS, STATE_SYNCING_FLAGS, STATE_DONE } State;
     typedef enum { UID_SYNC_ALL, UID_SYNC_ONLY_NEW } UidSyncingMode;
 
     virtual QString debugIdentification() const;
@@ -74,7 +73,7 @@ private:
     CommandHandle selectCmd;
     CommandHandle uidSyncingCmd;
     CommandHandle flagsCmd;
-    State status;
+    Imap::Mailbox::MailboxSyncingProgress status;
     UidSyncingMode uidSyncingMode;
     QList<uint> uidMap;
 

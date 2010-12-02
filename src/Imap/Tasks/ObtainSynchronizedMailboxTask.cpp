@@ -59,7 +59,7 @@ void ObtainSynchronizedMailboxTask::perform()
     it->commandMap[ selectCmd ] = Model::Task( Model::Task::SELECT, 0 );
     mailbox->syncState = SyncState();
     status = STATE_SELECTING;
-    //qDebug() << "STATE_SELECTING";
+    emit model->mailboxSyncingProgress( mailboxIndex, status );
 }
 
 bool ObtainSynchronizedMailboxTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
@@ -119,7 +119,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( Imap::Parser* ptr, const 
             // FIXME: error handling
         }
         status = STATE_DONE;
-        //qDebug() << "STATE_DONE";
+        emit model->mailboxSyncingProgress( mailboxIndex, status );
         _completed();
         IMAP_TASK_CLEANUP_COMMAND;
         return true;
@@ -218,7 +218,7 @@ void ObtainSynchronizedMailboxTask::_fullMboxSync( TreeItemMailbox* mailbox, Tre
         // The remote mailbox is empty -> we're done now
         model->changeConnectionState( parser, CONN_STATE_SELECTED );
         status = STATE_DONE;
-        //qDebug() << "STATE_DONE";
+        emit model->mailboxSyncingProgress( mailboxIndex, status );
         _completed();
     }
     model->emitMessageCountChanged( mailbox );
@@ -268,7 +268,7 @@ void ObtainSynchronizedMailboxTask::_syncNoNewNoDeletions( TreeItemMailbox* mail
         syncFlags( mailbox );
     } else {
         status = STATE_DONE;
-        //qDebug() << "STATE_DONE";
+        emit model->mailboxSyncingProgress( mailboxIndex, status );
         _completed();
     }
 }
@@ -330,7 +330,7 @@ void ObtainSynchronizedMailboxTask::syncUids( TreeItemMailbox* mailbox, const ui
     emit model->activityHappening( true );
     model->cache()->clearUidMapping( mailbox->mailbox() );
     status = STATE_SYNCING_UIDS;
-    //qDebug() << "STATE_SYNCING_UIDS";
+    emit model->mailboxSyncingProgress( mailboxIndex, status );
 }
 
 void ObtainSynchronizedMailboxTask::syncFlags( TreeItemMailbox *mailbox )
@@ -344,7 +344,7 @@ void ObtainSynchronizedMailboxTask::syncFlags( TreeItemMailbox *mailbox )
     list->_numberFetchingStatus = TreeItem::LOADING;
     list->_unreadMessageCount = 0;
     status = STATE_SYNCING_FLAGS;
-    //qDebug() << "STATE_SYNCING_FLAGS";
+    emit model->mailboxSyncingProgress( mailboxIndex, status );
 }
 
 bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState( const Imap::Responses::State* const resp )
