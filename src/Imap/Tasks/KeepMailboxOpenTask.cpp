@@ -333,5 +333,12 @@ void KeepMailboxOpenTask::detachFromMailbox( TreeItemMailbox *mailbox )
         mailbox->maintainingTask = 0;
 }
 
+void KeepMailboxOpenTask::stopForLogout()
+{
+    die();
+    if ( idleLauncher && idleLauncher->idling() )
+        idleLauncher->finishIdle();
+}
+
 }
 }

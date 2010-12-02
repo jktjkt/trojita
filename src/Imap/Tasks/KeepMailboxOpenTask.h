@@ -59,6 +59,9 @@ that mailbox now loses its KeepMailboxOpenTask and the underlying parser is reus
 
     virtual void die();
 
+    /** @short Similar to die(), but allow for correct abort of a possible IDLE command */
+    void stopForLogout();
+
     /** @short Start child processes
 
 This function is called when the synchronizing task finished succesfully, that is, when we are ready
