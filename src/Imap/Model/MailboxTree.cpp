@@ -313,7 +313,9 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
     bool gotFlags = false;
 
     for ( Responses::Fetch::dataType::const_iterator it = response.data.begin(); it != response.data.end(); ++ it ) {
-        if ( it.key() == "ENVELOPE" ) {
+        if (  it.key() == "UID" ) {
+            Q_ASSERT( dynamic_cast<const Responses::RespData<uint>&>( *(it.value()) ).data == message->uid() );
+        } else if ( it.key() == "ENVELOPE" ) {
             message->_envelope = dynamic_cast<const Responses::RespData<Message::Envelope>&>( *(it.value()) ).data;
             message->_fetchStatus = DONE;
             gotEnvelope = true;
