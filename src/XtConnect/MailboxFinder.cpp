@@ -82,6 +82,7 @@ void MailboxFinder::checkArrivals()
                     // we know where to go
                     root = index;
                     cont = true;
+                    break;
                 }
             }
         } while ( cont );
