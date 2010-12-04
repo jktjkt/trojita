@@ -36,15 +36,13 @@
 namespace XtConnect {
 
 MailSynchronizer::MailSynchronizer( QObject *parent, Imap::Mailbox::Model *model, MailboxFinder *finder, MessageDownloader *downloader ) :
-    QObject(parent), m_model(model), m_finder(finder), m_downloader(downloader), ignoreArrivals(true)
+    QObject(parent), m_model(model), m_finder(finder), m_downloader(downloader)
 {
     Q_ASSERT(m_model);
     Q_ASSERT(m_finder);
     Q_ASSERT(m_downloader);
     connect( m_model, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(slotRowsInserted(QModelIndex,int,int)) );
     connect( m_finder, SIGNAL(mailboxFound(QString,QModelIndex)), this, SLOT(slotMailboxFound(QString,QModelIndex)) );
-    connect( m_model, SIGNAL(mailboxSyncingProgress(QModelIndex,Imap::Mailbox::MailboxSyncingProgress)),
-             this, SLOT(slotMailboxSyncStateProgress(QModelIndex,Imap::Mailbox::MailboxSyncingProgress)) );
     connect( m_downloader, SIGNAL(messageDownloaded(QModelIndex,QByteArray)), this, SLOT(slotMessageDataReady(QModelIndex,QByteArray)) );
 }
 
@@ -67,15 +65,8 @@ void MailSynchronizer::slotMailboxFound( const QString &mailbox, const QModelInd
         return;
 
     m_index = index;
-    QModelIndex list = m_index.child( 0, 0 );
-    Q_ASSERT( list.isValid() );
-    // Check if something is already there, and if it is, enable rowsInserted() tracking
-    if ( m_model->rowCount( list ) > 0 ) {
-        ignoreArrivals = false;
-        walkThroughMessages( -1, -1 );
-    }
-
     switchHere();
+    walkThroughMessages( -1, -1 );
 }
 
 
@@ -85,14 +76,12 @@ void MailSynchronizer::slotRowsInserted(const QModelIndex &parent, int start, in
     if ( parent.parent() != m_index )
         return;
 
-    if ( ignoreArrivals )
-        return;
-
     walkThroughMessages( start, end );
 }
 
 void MailSynchronizer::walkThroughMessages( int start, int end )
 {
+    // FIXME: relax this check?
     if ( renewMailboxIndex() )
         return;
 
@@ -101,13 +90,13 @@ void MailSynchronizer::walkThroughMessages( int start, int end )
 
     if ( start == -1 && end == -1 ) {
         start = 0;
-        end = m_model->rowCount( list );
+        end = m_model->rowCount( list ) - 1;
     } else {
         start = qMax( start, 0 );
-        end = qMin( end, m_model->rowCount( list ) );
+        end = qMin( end, m_model->rowCount( list ) - 1 );
     }
 
-    for ( int i = start; i < end; ++i ) {
+    for ( int i = start; i <= end; ++i ) {
         QModelIndex message = m_model->index( i, 0, list );
         Q_ASSERT( message.isValid() );
         QVariant uid = m_model->data( message, Imap::Mailbox::RoleMessageUid );
@@ -123,7 +112,6 @@ bool MailSynchronizer::renewMailboxIndex()
 {
     if ( ! m_index.isValid() ) {
         qDebug() << "Oops, we've lost the mailbox" << m_mailbox <<", will ask for it again in a while.";
-        ignoreArrivals = true;
         QTimer::singleShot( 14*1000 /*1000 * 60 * 2*/, this, SLOT(slotGetMailboxIndexAgain()) );
         return true;
     } else {
@@ -138,26 +126,6 @@ void MailSynchronizer::switchHere()
 
     qDebug() << "Switching to" << m_mailbox;
     m_model->switchToMailbox( m_index );
-}
-
-void MailSynchronizer::slotMailboxSyncStateProgress( const QModelIndex &mailbox, Imap::Mailbox::MailboxSyncingProgress state )
-{
-    if ( mailbox != m_index )
-        return;
-
-    // FIXME: this is still suboptimal, as even one more message would cause STATE_SYNCING_UIDS
-    // when the mailbox wasn't selected at the time of new arrival...
-    if ( state == Imap::Mailbox::STATE_DONE ) {
-        if ( ignoreArrivals ) {
-            // We used to ignore the rowsInserted() signal, so it's time to go through all messages
-            ignoreArrivals = false;
-            walkThroughMessages( -1, -1 );
-        }
-    } else if ( state == Imap::Mailbox::STATE_SYNCING_UIDS ) {
-        ignoreArrivals = true;
-    } else {
-        // everything else should be safe to ignore
-    }
 }
 
 void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const QByteArray &data )

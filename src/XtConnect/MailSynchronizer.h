@@ -55,7 +55,6 @@ This is required if the total number of mailboxes exceeds the configured limit o
 private slots:
     void slotRowsInserted( const QModelIndex &parent, int start, int end );
     void slotMailboxFound( const QString &mailbox, const QModelIndex &index );
-    void slotMailboxSyncStateProgress( const QModelIndex &mailbox, Imap::Mailbox::MailboxSyncingProgress state );
     void slotGetMailboxIndexAgain();
     void slotMessageDataReady( const QModelIndex &message, const QByteArray &data );
 private:
@@ -72,7 +71,6 @@ This function will queue renewal automatically.
     MessageDownloader *m_downloader;
     QString m_mailbox;
     QPersistentModelIndex m_index;
-    bool ignoreArrivals;
 };
 
 }
