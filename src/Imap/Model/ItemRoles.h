@@ -91,6 +91,9 @@ enum {
     /** @short Is the message marked as a recent one? */
     RoleMessageIsMarkedRecent,
 
+    /** @short Contents of a message part */
+    RolePartData,
+
     /** @short The very last role */
     RoleInvalidLastOne
 };

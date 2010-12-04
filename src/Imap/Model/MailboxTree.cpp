@@ -893,6 +893,8 @@ QVariant TreeItemPart::data( Model* const model, int role )
                 QString("%1: %2").arg( partId() ).arg( _mimeType );
         case Qt::ToolTipRole:
             return _data.size() > 10000 ? model->tr("%1 bytes of data").arg( _data.size() ) : _data;
+        case RolePartData:
+            return _data;
         default:
             return QVariant();
     }
