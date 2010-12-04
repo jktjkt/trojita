@@ -145,6 +145,8 @@ void MailSynchronizer::slotMailboxSyncStateProgress( const QModelIndex &mailbox,
     if ( mailbox != m_index )
         return;
 
+    // FIXME: this is still suboptimal, as even one more message would cause STATE_SYNCING_UIDS
+    // when the mailbox wasn't selected at the time of new arrival...
     if ( state == Imap::Mailbox::STATE_DONE ) {
         if ( ignoreArrivals ) {
             // We used to ignore the rowsInserted() signal, so it's time to go through all messages
