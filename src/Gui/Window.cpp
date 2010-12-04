@@ -111,12 +111,12 @@ void MainWindow::createActions()
 
     showFullView = new QAction( QIcon::fromTheme( QLatin1String("edit-find-mail") ), tr("Show Full Tree Window"), this );
     showFullView->setCheckable( true );
-    connect( showFullView, SIGNAL( triggered(bool) ), allDock, SLOT(setShown(bool)) );
+    connect( showFullView, SIGNAL( triggered(bool) ), allDock, SLOT(setVisible(bool)) );
     connect( allDock, SIGNAL( visibilityChanged(bool) ), showFullView, SLOT( setChecked(bool) ) );
 
     showImapLogger = new QAction( tr("Show IMAP protocol log"), this );
     showImapLogger->setCheckable( true );
-    connect( showImapLogger, SIGNAL(triggered(bool)), imapLoggerDock, SLOT(setShown(bool)) );
+    connect( showImapLogger, SIGNAL(triggered(bool)), imapLoggerDock, SLOT(setVisible(bool)) );
     connect( imapLoggerDock, SIGNAL(visibilityChanged(bool)), showImapLogger, SLOT(setChecked(bool)) );
 
     showMenuBar = new QAction( QIcon::fromTheme( QLatin1String("view-list-text") ),  tr("Show Main Menu Bar"), this );
@@ -124,7 +124,7 @@ void MainWindow::createActions()
     showMenuBar->setChecked( true );
     showMenuBar->setShortcut( tr("Ctrl+M") );
     addAction( showMenuBar ); // otherwise it won't work with hidden menu bar
-    connect( showMenuBar, SIGNAL( triggered(bool) ), menuBar(), SLOT(setShown(bool)) );
+    connect( showMenuBar, SIGNAL( triggered(bool) ), menuBar(), SLOT(setVisible(bool)) );
 
     configSettings = new QAction( QIcon::fromTheme( QLatin1String("configure") ),  tr("Settings..."), this );
     connect( configSettings, SIGNAL( triggered() ), this, SLOT( slotShowSettings() ) );
