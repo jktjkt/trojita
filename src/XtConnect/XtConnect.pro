@@ -10,11 +10,13 @@ SOURCES += \
     main.cpp \
     MailSynchronizer.cpp \
     MailboxFinder.cpp \
-    XtConnect.cpp
+    XtConnect.cpp \
+    MessageDownloader.cpp
 HEADERS += ComposeWidget.h \
     MailSynchronizer.h \
     MailboxFinder.h \
-    XtConnect.h
+    XtConnect.h \
+    MessageDownloader.h
 
 trojita_libs = Imap MSA Streams Common
 

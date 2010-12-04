@@ -31,17 +31,21 @@
 #include "MailSynchronizer.h"
 #include "Imap/Model/ItemRoles.h"
 #include "MailboxFinder.h"
+#include "MessageDownloader.h"
 
 namespace XtConnect {
 
-MailSynchronizer::MailSynchronizer( QObject *parent, Imap::Mailbox::Model *model, MailboxFinder *finder ) :
-    QObject(parent), m_model(model), m_finder(finder), ignoreArrivals(true)
+MailSynchronizer::MailSynchronizer( QObject *parent, Imap::Mailbox::Model *model, MailboxFinder *finder, MessageDownloader *downloader ) :
+    QObject(parent), m_model(model), m_finder(finder), m_downloader(downloader), ignoreArrivals(true)
 {
     Q_ASSERT(m_model);
+    Q_ASSERT(m_finder);
+    Q_ASSERT(m_downloader);
     connect( m_model, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(slotRowsInserted(QModelIndex,int,int)) );
     connect( m_finder, SIGNAL(mailboxFound(QString,QModelIndex)), this, SLOT(slotMailboxFound(QString,QModelIndex)) );
     connect( m_model, SIGNAL(mailboxSyncingProgress(QModelIndex,Imap::Mailbox::MailboxSyncingProgress)),
              this, SLOT(slotMailboxSyncStateProgress(QModelIndex,Imap::Mailbox::MailboxSyncingProgress)) );
+    connect( m_downloader, SIGNAL(messageDownloaded(QModelIndex,QByteArray)), this, SLOT(slotMessageDataReady(QModelIndex,QByteArray)) );
 }
 
 void MailSynchronizer::setMailbox( const QString &mailbox )
@@ -82,30 +86,34 @@ void MailSynchronizer::slotRowsInserted(const QModelIndex &parent, int start, in
     if ( ignoreArrivals )
         return;
 
-    // FIXME: optimize to check only for new arrivals?
-    walkThroughMessages();
+    walkThroughMessages( start, end );
 }
 
-void MailSynchronizer::walkThroughMessages()
+void MailSynchronizer::walkThroughMessages( int start, int end )
 {
-    if ( ignoreArrivals )
-        return;
-
     if ( renewMailboxIndex() )
         return;
 
     QModelIndex list = m_index.child( 0, 0 );
     Q_ASSERT( list.isValid() );
 
-    qDebug() << "walking through messages for" << m_mailbox;
-    for ( int i = 0; i < m_model->rowCount( list ); ++i ) {
+    if ( start == -1 && end == -1 ) {
+        start = 0;
+        end = m_model->rowCount( list );
+    } else {
+        start = qMax( start, 0 );
+        end = qMin( end, m_model->rowCount( list ) );
+    }
+
+    for ( int i = start; i < end; ++i ) {
         QModelIndex message = m_model->index( i, 0, list );
         Q_ASSERT( message.isValid() );
         QVariant uid = m_model->data( message, Imap::Mailbox::RoleMessageUid );
-        if ( uid.isValid() && uid.toUInt() != 0 )
-            qDebug() << m_mailbox << uid.toUInt();
-        else
+        if ( uid.isValid() && uid.toUInt() != 0 ) {
+            m_downloader->requestDownload( message );
+        } else {
             qDebug() << m_mailbox << i << "[unsynced message, huh?]";
+        }
     }
 }
 
@@ -137,10 +145,15 @@ void MailSynchronizer::slotMailboxSyncStateProgress( const QModelIndex &mailbox,
 
     if ( state == Imap::Mailbox::STATE_DONE ) {
         ignoreArrivals = false;
-        walkThroughMessages();
+        walkThroughMessages( -1, -1 );
     } else {;
         ignoreArrivals = true;
     }
+}
+
+void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const QByteArray &data )
+{
+    qDebug() << "Received data for" << m_mailbox << message.data( Imap::Mailbox::RoleMessageUid ).toUInt() << data.size();
 }
 
 }

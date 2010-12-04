@@ -27,54 +27,38 @@
 
 */
 
-#ifndef MAILSYNCHRONIZER_H
-#define MAILSYNCHRONIZER_H
+#ifndef MESSAGEDOWNLOADER_H
+#define MESSAGEDOWNLOADER_H
 
-#include <QObject>
 #include <QModelIndex>
-
-#include "Imap/Model/Model.h"
 
 namespace XtConnect {
 
-class MailboxFinder;
-class MessageDownloader;
-
-/** @short Download messages into the DB */
-class MailSynchronizer : public QObject
+class MessageDownloader : public QObject
 {
     Q_OBJECT
 public:
-    explicit MailSynchronizer( QObject *parent, Imap::Mailbox::Model *model, MailboxFinder *finder, MessageDownloader *downloader );
-    void setMailbox( const QString &mailbox );
-    /** @short Ask the Model that we're still here and need updates
-
-This is required if the total number of mailboxes exceeds the configured limit of parallel connections
-*/
-    void switchHere();
+    explicit MessageDownloader( QObject *parent );
+    void requestDownload( const QModelIndex &message );
 private slots:
-    void slotRowsInserted( const QModelIndex &parent, int start, int end );
-    void slotMailboxFound( const QString &mailbox, const QModelIndex &index );
-    void slotMailboxSyncStateProgress( const QModelIndex &mailbox, Imap::Mailbox::MailboxSyncingProgress state );
-    void slotGetMailboxIndexAgain();
-    void slotMessageDataReady( const QModelIndex &message, const QByteArray &data );
+    void slotDataChanged( const QModelIndex &a, const QModelIndex &b );
+
+signals:
+    void messageDownloaded( const QModelIndex &message, const QByteArray &data );
+
 private:
-    /** @short Walk through the cached messages and store the new ones */
-    void walkThroughMessages( int start, int end );
-    /** @short Returns true if the m_index got invalidated
+    struct MessageMetadata {
+        QPersistentModelIndex header;
+        QPersistentModelIndex body;
+        bool hasHeader;
+        bool hasBody;
+        MessageMetadata(): hasHeader(false), hasBody(false) {}
+    };
 
-This function will queue renewal automatically.
-*/
-    bool renewMailboxIndex();
+    QMap<QPersistentModelIndex, MessageMetadata> m_parts;
 
-    Imap::Mailbox::Model* m_model;
-    MailboxFinder *m_finder;
-    MessageDownloader *m_downloader;
-    QString m_mailbox;
-    QPersistentModelIndex m_index;
-    bool ignoreArrivals;
 };
 
 }
 
-#endif // MAILSYNCHRONIZER_H
+#endif // MESSAGEDOWNLOADER_H
