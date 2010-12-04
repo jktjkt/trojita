@@ -70,8 +70,10 @@ void MailSynchronizer::slotMailboxFound( const QString &mailbox, const QModelInd
     QModelIndex list = m_index.child( 0, 0 );
     Q_ASSERT( list.isValid() );
     // Check if something is already there, and if it is, enable rowsInserted() tracking
-    if ( m_model->rowCount( list ) > 0 )
+    if ( m_model->rowCount( list ) > 0 ) {
         ignoreArrivals = false;
+        walkThroughMessages( -1, -1 );
+    }
 
     switchHere();
 }
@@ -144,10 +146,15 @@ void MailSynchronizer::slotMailboxSyncStateProgress( const QModelIndex &mailbox,
         return;
 
     if ( state == Imap::Mailbox::STATE_DONE ) {
-        ignoreArrivals = false;
-        walkThroughMessages( -1, -1 );
-    } else {;
+        if ( ignoreArrivals ) {
+            // We used to ignore the rowsInserted() signal, so it's time to go through all messages
+            ignoreArrivals = false;
+            walkThroughMessages( -1, -1 );
+        }
+    } else if ( state == Imap::Mailbox::STATE_SYNCING_UIDS ) {
         ignoreArrivals = true;
+    } else {
+        // everything else should be safe to ignore
     }
 }
 
