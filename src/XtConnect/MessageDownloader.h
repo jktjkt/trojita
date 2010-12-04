@@ -56,6 +56,7 @@ private:
     };
 
     QMap<QPersistentModelIndex, MessageMetadata> m_parts;
+    const QAbstractItemModel *lastModel;
 
 };
 

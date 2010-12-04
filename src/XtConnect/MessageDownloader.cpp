@@ -34,13 +34,12 @@
 namespace XtConnect {
 
 MessageDownloader::MessageDownloader(QObject *parent) :
-    QObject(parent)
+    QObject(parent), lastModel(0)
 {
 }
 
 void MessageDownloader::requestDownload( const QModelIndex &message )
 {
-    static const QAbstractItemModel *lastModel = 0;
     if ( ! lastModel ) {
         lastModel = message.model();
         connect( lastModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(slotDataChanged(QModelIndex,QModelIndex)) );
