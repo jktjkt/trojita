@@ -50,7 +50,7 @@ private:
     void helperSyncBNoMessages();
     void helperSyncAWithMessagesNoArrivals();
     void helperSyncFlags();
-    void helperSyncAOneNew();
+    void helperSyncASomeNew( int number );
 
     void helperFakeExistsUidValidityUidNext();
     void helperFakeUidSearch( uint start=0 );

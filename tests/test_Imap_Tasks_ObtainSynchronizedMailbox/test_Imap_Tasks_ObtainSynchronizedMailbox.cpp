@@ -254,7 +254,10 @@ void ImapModelObtainSynchronizedMailboxTest::testResyncOneNew()
     uidNextA = qMax( 666u, uidMapA.last() );
     helperSyncAWithMessagesEmptyState();
     helperSyncBNoMessages();
-    helperSyncAOneNew();
+    helperSyncASomeNew( 1 );
+    helperVerifyUidMapA();
+    helperSyncBNoMessages();
+    helperSyncASomeNew( 3 );
     helperVerifyUidMapA();
 }
 
@@ -411,7 +414,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncFlags()
     QCoreApplication::processEvents();
 }
 
-void ImapModelObtainSynchronizedMailboxTest::helperSyncAOneNew()
+void ImapModelObtainSynchronizedMailboxTest::helperSyncASomeNew( int number )
 {
     QCOMPARE( model->rowCount( msgListA ), static_cast<int>(existsA) );
     model->switchToMailbox( idxA );
@@ -419,9 +422,12 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncAOneNew()
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
 
-    ++existsA;
-    uidMapA.append( uidNextA );
-    ++uidNextA;
+    uint oldExistsA = existsA;
+    for ( int i = 0; i < number; ++i ) {
+        ++existsA;
+        uidMapA.append( uidNextA );
+        ++uidNextA;
+    }
     helperFakeExistsUidValidityUidNext();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
@@ -431,7 +437,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncAOneNew()
     Q_ASSERT( list );
     QVERIFY( ! list->fetched() );
 
-    helperFakeUidSearch( existsA - 1 );
+    helperFakeUidSearch( oldExistsA );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QVERIFY( list->fetched() );
