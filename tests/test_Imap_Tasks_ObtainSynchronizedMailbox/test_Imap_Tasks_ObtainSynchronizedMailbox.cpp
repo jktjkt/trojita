@@ -411,6 +411,46 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncFlags()
     QCoreApplication::processEvents();
 }
 
+void ImapModelObtainSynchronizedMailboxTest::helperSyncAOneNew()
+{
+    QCOMPARE( model->rowCount( msgListA ), static_cast<int>(existsA) );
+    model->switchToMailbox( idxA );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
+
+    ++existsA;
+    uidMapA.append( uidNextA );
+    ++uidNextA;
+    helperFakeExistsUidValidityUidNext();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+
+    // Verify that we indeed received what we wanted
+    Imap::Mailbox::TreeItemMsgList* list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( static_cast<Imap::Mailbox::TreeItem*>( msgListA.internalPointer() ) );
+    Q_ASSERT( list );
+    QVERIFY( ! list->fetched() );
+
+    helperFakeUidSearch( existsA - 1 );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QVERIFY( list->fetched() );
+
+    QCOMPARE( model->rowCount( msgListA ), static_cast<int>( existsA ) );
+    QVERIFY( errorSpy->isEmpty() );
+
+    helperSyncFlags();
+
+    // No errors
+    if ( ! errorSpy->isEmpty() )
+        qDebug() << errorSpy->first();
+    QVERIFY( errorSpy->isEmpty() );
+
+    helperCheckCache();
+
+    QVERIFY( list->fetched() );
+}
+
 #if 0
 {
     // First re-sync: one message added, nothing else changed
