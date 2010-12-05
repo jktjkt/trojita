@@ -277,19 +277,9 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesEmptyState()
     Imap::Mailbox::TreeItemMsgList* list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( static_cast<Imap::Mailbox::TreeItem*>( msgListA.internalPointer() ) );
     Q_ASSERT( list );
     QVERIFY( ! list->fetched() );
-    QCOMPARE( SOCK->writtenStuff(), t.mk("UID SEARCH ALL\r\n") );
 
-    {
-        QByteArray buf;
-        QTextStream ss( &buf );
-        ss << "* SEARCH";
-        for ( uint i = 0; i < existsA; ++i ) {
-            ss << " " << uidMapA[i];
-        }
-        ss << "\r\n";
-        ss.flush();
-        SOCK->fakeReading( buf + t.last("OK search\r\n") );
-    }
+    helperFakeUidSearch();
+
     QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( msgListA ), static_cast<int>( existsA ) );
     QVERIFY( SOCK->writtenStuff().isEmpty() );
@@ -302,21 +292,9 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesEmptyState()
         qDebug() << errorSpy->first();
     QVERIFY( errorSpy->isEmpty() );
 
-    // Check the cache
-    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QString::fromAscii("a") );
-    QCOMPARE( syncState.exists(), existsA );
-    QCOMPARE( syncState.isUsableForSyncing(), true );
-    QCOMPARE( syncState.uidNext(), uidNextA );
-    QCOMPARE( syncState.uidValidity(), uidValidityA );
+    helperCheckCache();
 
     QVERIFY( list->fetched() );
-
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-
-    QVERIFY( errorSpy->isEmpty() );
-    QVERIFY( SOCK->writtenStuff().isEmpty() );
 
     // and the first mailbox is fully synced now.
 }
@@ -331,6 +309,26 @@ void ImapModelObtainSynchronizedMailboxTest::helperFakeExistsUidValidityUidNext(
     ss << "* OK [UIDNEXT " << uidNextA << "] Predicted next UID\r\n";
     ss.flush();
     SOCK->fakeReading( buf + t.last("OK [READ-WRITE] Select completed.\r\n") );
+}
+
+void ImapModelObtainSynchronizedMailboxTest::helperFakeUidSearch( uint start )
+{
+    Q_ASSERT( start < existsA );
+    if ( start == 0  ) {
+        QCOMPARE( SOCK->writtenStuff(), t.mk("UID SEARCH ALL\r\n") );
+    } else {
+        QCOMPARE( SOCK->writtenStuff(), t.mk("UID SEARCH UID ") + QString::number( uidMapA[ start ] ).toAscii() + QByteArray(":*\r\n") );
+    }
+
+    QByteArray buf;
+    QTextStream ss( &buf );
+    ss << "* SEARCH";
+    for ( uint i = start; i < existsA; ++i ) {
+        ss << " " << uidMapA[i];
+    }
+    ss << "\r\n";
+    ss.flush();
+    SOCK->fakeReading( buf + t.last("OK search\r\n") );
 }
 
 void ImapModelObtainSynchronizedMailboxTest::helperSyncBNoMessages()
@@ -393,21 +391,9 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesNoArrivals()
         qDebug() << errorSpy->first();
     QVERIFY( errorSpy->isEmpty() );
 
-    // Check the cache
-    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QString::fromAscii("a") );
-    QCOMPARE( syncState.exists(), existsA );
-    QCOMPARE( syncState.isUsableForSyncing(), true );
-    QCOMPARE( syncState.uidNext(), uidNextA );
-    QCOMPARE( syncState.uidValidity(), uidValidityA );
+    helperCheckCache();
 
     QVERIFY( list->fetched() );
-
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-
-    QVERIFY( errorSpy->isEmpty() );
-    QVERIFY( SOCK->writtenStuff().isEmpty() );
 }
 
 /** @short Simulates fetching flags for messages 1:$exists */
@@ -423,11 +409,6 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncFlags()
     }
     SOCK->fakeReading( t.last("OK yay\r\n") );
     QCoreApplication::processEvents();
-}
-
-void ImapModelObtainSynchronizedMailboxTest::helperSyncAOneNew()
-{
-    // FIXME
 }
 
 #if 0
@@ -629,6 +610,24 @@ void ImapModelObtainSynchronizedMailboxTest::helperVerifyUidMapA()
         Q_ASSERT( message.isValid() );
         QCOMPARE( message.data( Imap::Mailbox::RoleMessageUid ).toUInt(), uidMapA[i] );
     }
+}
+
+void ImapModelObtainSynchronizedMailboxTest::helperCheckCache()
+{
+    // Check the cache
+    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QString::fromAscii("a") );
+    QCOMPARE( syncState.exists(), existsA );
+    QCOMPARE( syncState.isUsableForSyncing(), true );
+    QCOMPARE( syncState.uidNext(), uidNextA );
+    QCOMPARE( syncState.uidValidity(), uidValidityA );
+
+
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+
+    QVERIFY( errorSpy->isEmpty() );
+    QVERIFY( SOCK->writtenStuff().isEmpty() );
 }
 
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )
