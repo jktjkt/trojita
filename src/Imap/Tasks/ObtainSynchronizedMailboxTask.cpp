@@ -300,20 +300,11 @@ void ObtainSynchronizedMailboxTask::_syncOnlyAdditions( TreeItemMailbox* mailbox
 
 void ObtainSynchronizedMailboxTask::_syncGeneric( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState )
 {
-    // FIXME: might be possible to optimize here...
+    Q_UNUSED(syncState);
 
-    /*// At first, let's ask for UID numbers and FLAGS for all messages
-    CommandHandle cmd = parser->fetch( Sequence( 1, syncState.exists() ),
-                                       QStringList() << "UID" << "FLAGS" );
-    model->accessParser( parser ].commandMap[ cmd ) = Model::Task( Model::Task::FETCH_WITH_FLAGS, mailbox );
-    emit model->activityHappening( true );
-    model->accessParser( parser ).responseHandler = model->selectingHandler;*/
     list->_numberFetchingStatus = TreeItem::LOADING;
     list->_unreadMessageCount = 0;
-    uidMap.clear();
-    for ( uint i = 0; i < syncState.exists(); ++i )
-        uidMap << 0;
-    model->cache()->clearUidMapping( mailbox->mailbox() );
+    uidSyncingMode = UID_SYNC_ALL;
     syncUids( mailbox );
 }
 
