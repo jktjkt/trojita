@@ -52,6 +52,8 @@ private:
     Imap::Mailbox::FakeSocketFactory* factory;
     Imap::Mailbox::TestingTaskFactory* taskFactoryUnsafe;
     QSignalSpy* errorSpy;
+
+    QModelIndex idxA, idxB, msgListA, msgListB;
 };
 
 #endif
