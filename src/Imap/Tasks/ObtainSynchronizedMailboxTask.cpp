@@ -17,6 +17,7 @@
 */
 
 #include "ObtainSynchronizedMailboxTask.h"
+#include <sstream>
 #include <QTimer>
 #include "MailboxTree.h"
 #include "Model.h"
@@ -447,7 +448,12 @@ bool ObtainSynchronizedMailboxTask::handleSearch( Imap::Parser* ptr, const Imap:
     switch ( uidSyncingMode ) {
     case UID_SYNC_ALL:
         if ( static_cast<uint>( resp->items.size() ) != mailbox->syncState.exists() ) {
-            throw MailboxException( "UID SEARCH ALL returned unexpected number of entries", *resp );
+            std::string msg;
+            std::ostringstream ss(msg);
+            ss << "UID SEARCH ALL returned unexpected number of entries when syncing UID_SYNC_ALL: "
+                    << mailbox->syncState.exists() << "expected, got " << resp->items.size();
+            ss.flush();
+            throw MailboxException( msg.c_str(), *resp );
         }
         Q_ASSERT( mailbox->syncState.isUsableForSyncing() );
         break;
@@ -459,11 +465,12 @@ bool ObtainSynchronizedMailboxTask::handleSearch( Imap::Parser* ptr, const Imap:
         Q_ASSERT( newArrivals > 0 );
 
         if ( newArrivals != resp->items.size() ) {
-            QString msg = QString::fromAscii("UID SEARCH ALL returned unexpected number of "
-                                             "entries: %1 expected, got %2").arg(
-                                                     QString::number( newArrivals ),
-                                                     QString::number( resp->items.size() ) );
-            throw MailboxException( msg.toAscii().constData(), *resp );
+            std::string msg;
+            std::ostringstream ss(msg);
+            ss << "UID SEARCH ALL returned unexpected number of entries when syncing UID_SYNC_ONLY_NEW: "
+                    << newArrivals << "expected, got " << resp->items.size();
+            ss.flush();
+            throw MailboxException( msg.c_str(), *resp );
         }
     }
         break;
