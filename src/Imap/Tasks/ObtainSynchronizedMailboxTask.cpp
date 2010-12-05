@@ -172,8 +172,7 @@ void ObtainSynchronizedMailboxTask::_finalizeSelect()
 
                 if ( syncState.uidNext() - oldState.uidNext() == syncState.exists() - oldState.exists() ) {
                     // Only some new arrivals, no deletions
-                    //_syncOnlyAdditions( mailbox, list, syncState, oldState );
-                    _fullMboxSync( mailbox, list, syncState ); return; // FIXME: change later
+                    _syncOnlyAdditions( mailbox, list, syncState, oldState );
                 } else {
                     // Generic case; we don't know anything about which messages were deleted and which added
                     //_syncGeneric( mailbox, list, syncState );
@@ -445,9 +444,29 @@ bool ObtainSynchronizedMailboxTask::handleSearch( Imap::Parser* ptr, const Imap:
     Q_ASSERT( ptr == parser );
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
     Q_ASSERT(mailbox);
-    if ( static_cast<uint>( resp->items.size() ) != mailbox->syncState.exists() ) {
+    switch ( uidSyncingMode ) {
+    case UID_SYNC_ALL:
+        if ( static_cast<uint>( resp->items.size() ) != mailbox->syncState.exists() ) {
+            throw MailboxException( "UID SEARCH ALL returned unexpected number of entries", *resp );
+        }
         Q_ASSERT( mailbox->syncState.isUsableForSyncing() );
-        throw MailboxException( "UID SEARCH ALL returned unexpected number of entries", *resp );
+        break;
+    case UID_SYNC_ONLY_NEW:
+    {
+        // Be sure there really are some new messages
+        const SyncState& oldState = model->cache()->mailboxSyncState( mailbox->mailbox() );
+        const int newArrivals = mailbox->syncState.exists() - oldState.exists();
+        Q_ASSERT( newArrivals > 0 );
+
+        if ( newArrivals != resp->items.size() ) {
+            QString msg = QString::fromAscii("UID SEARCH ALL returned unexpected number of "
+                                             "entries: %1 expected, got %2").arg(
+                                                     QString::number( newArrivals ),
+                                                     QString::number( resp->items.size() ) );
+            throw MailboxException( msg.toAscii().constData(), *resp );
+        }
+    }
+        break;
     }
     uidMap = resp->items;
     return true;
@@ -602,12 +621,13 @@ void ObtainSynchronizedMailboxTask::_finalizeUidSyncOnlyNew( TreeItemMailbox* ma
     // This invariant is set up in Model::_askForMessagesInMailbox
     Q_ASSERT( oldState.exists() == static_cast<uint>( list->_children.size() ) );
 
-    // Be sure there really are some new messages
+    // Be sure there really are some new messages -- verified in handleSearch()
     Q_ASSERT( mailbox->syncState.exists() > oldState.exists() );
+    Q_ASSERT( static_cast<uint>(uidMap.size()) == mailbox->syncState.exists() - oldState.exists() );
 
     QModelIndex parent = model->createIndex( 0, 0, list );
     int offset = list->_children.size();
-    qDebug() << "beginRemoveRows( ..." << offset << mailbox->syncState.exists() - 1;
+    qDebug() << "beginInsertRows( ..." << offset << mailbox->syncState.exists() - 1;
     model->beginInsertRows( parent, offset, mailbox->syncState.exists() - 1 );
     for ( int i = 0; i < uidMap.size(); ++i ) {
         TreeItemMessage * msg = new TreeItemMessage( list );
@@ -631,6 +651,7 @@ void ObtainSynchronizedMailboxTask::_finalizeUidSyncOnlyNew( TreeItemMailbox* ma
     list->_numberFetchingStatus = TreeItem::DONE; // FIXME: they aren't done yet
     model->saveUidMap( list );
     model->cache()->setUidMapping( mailbox->mailbox(), uidMap );
+    model->cache()->setMailboxSyncState( mailbox->mailbox(), mailbox->syncState );
     uidMap.clear();
     model->emitMessageCountChanged( mailbox );
     model->changeConnectionState( parser, CONN_STATE_SELECTED );
