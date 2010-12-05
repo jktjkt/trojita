@@ -219,40 +219,43 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
 void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
 {
     existsA = 33;
-    uidNextA = 666;
     uidValidityA = 333666;
     for ( uint i = 1; i <= existsA; ++i ) {
-        uidMapA.append( i );
+        uidMapA.append( i * 1.3 );
     }
+    uidNextA = qMax( 666u, uidMapA.last() );
     helperSyncAWithMessagesEmptyState();
+    helperVerifyUidMapA();
 }
 
 void ImapModelObtainSynchronizedMailboxTest::testResyncNoArrivals()
 {
     existsA = 42;
-    uidNextA = 333;
     uidValidityA = 1337;
     for ( uint i = 1; i <= existsA; ++i ) {
-        uidMapA.append( i );
+        uidMapA.append( 6 + i * 3.6 );
     }
+    uidNextA = qMax( 666u, uidMapA.last() );
     helperSyncAWithMessagesEmptyState();
     helperSyncBNoMessages();
     helperSyncAWithMessagesNoArrivals();
     helperSyncBNoMessages();
     helperSyncAWithMessagesNoArrivals();
+    helperVerifyUidMapA();
 }
 
 void ImapModelObtainSynchronizedMailboxTest::testResyncOneNew()
 {
     existsA = 17;
-    uidNextA = 18;
     uidValidityA = 800500;
     for ( uint i = 1; i <= existsA; ++i ) {
-        uidMapA.append( i );
+        uidMapA.append( 3 + i * 1.3 );
     }
+    uidNextA = qMax( 666u, uidMapA.last() );
     helperSyncAWithMessagesEmptyState();
     helperSyncBNoMessages();
     helperSyncAOneNew();
+    helperVerifyUidMapA();
 }
 
 
@@ -615,6 +618,17 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncTwoInParallel()
 
     QVERIFY( SOCK->writtenStuff().isEmpty() );
     QVERIFY( errorSpy->isEmpty() );
+}
+
+void ImapModelObtainSynchronizedMailboxTest::helperVerifyUidMapA()
+{
+    QCOMPARE( model->rowCount( msgListA ), static_cast<int>(existsA) );
+    Q_ASSERT( static_cast<int>(existsA) == uidMapA.size() );
+    for ( int i = 0; i < uidMapA.size(); ++i ) {
+        QModelIndex message = model->index( i, 0, msgListA );
+        Q_ASSERT( message.isValid() );
+        QCOMPARE( message.data( Imap::Mailbox::RoleMessageUid ).toUInt(), uidMapA[i] );
+    }
 }
 
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )

@@ -53,6 +53,7 @@ private:
     void helperSyncAOneNew();
 
     void helperFakeExistsUidValidityUidNext();
+    void helperVerifyUidMapA();
 
 
     Imap::Mailbox::Model* model;
