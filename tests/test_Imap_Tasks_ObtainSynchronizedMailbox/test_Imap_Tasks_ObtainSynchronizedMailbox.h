@@ -44,11 +44,10 @@ private slots:
     void testSyncTwoInParallel();
 
 private:
-    void helperSyncAWithMessagesEmptyState( TagGenerator &t );
-    void helperSyncBNoMessages( TagGenerator &t );
-    void helperSyncAWithMessagesNoArrivals( TagGenerator &t );
-
-    void helperSync17Flags( TagGenerator &t );
+    void helperSyncAWithMessagesEmptyState();
+    void helperSyncBNoMessages();
+    void helperSyncAWithMessagesNoArrivals();
+    void helperSync17Flags();
 
 
     Imap::Mailbox::Model* model;
@@ -57,6 +56,7 @@ private:
     QSignalSpy* errorSpy;
 
     QModelIndex idxA, idxB, msgListA, msgListB;
+    TagGenerator t;
 };
 
 #endif

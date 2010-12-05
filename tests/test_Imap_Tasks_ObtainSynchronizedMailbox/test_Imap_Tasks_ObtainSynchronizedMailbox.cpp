@@ -54,7 +54,7 @@ void ImapModelObtainSynchronizedMailboxTest::init()
     msgListB = model->index( 0, 0, idxB );
     QCoreApplication::processEvents();
     QVERIFY( SOCK->writtenStuff().isEmpty() );
-
+    t.reset();
 }
 
 void ImapModelObtainSynchronizedMailboxTest::cleanup()
@@ -85,7 +85,6 @@ check the cache for valid state.
 */
 void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyMinimal()
 {
-    TagGenerator t;
     model->setProperty( "trojita-imap-noop-period", 10 );
 
     // Ask the model to sync stuff
@@ -145,8 +144,6 @@ A check of the state of the cache after is completed, too.
 */
 void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
 {
-    TagGenerator t;
-
     // Ask the model to sync stuff
     QCOMPARE( model->rowCount( msgListA ), 0 );
     QCoreApplication::processEvents();
@@ -217,15 +214,13 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
 
 void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
 {
-    TagGenerator t;
-
-    helperSyncAWithMessagesEmptyState( t );
-    helperSyncBNoMessages( t );
-    helperSyncAWithMessagesNoArrivals( t );
+    helperSyncAWithMessagesEmptyState();
+    helperSyncBNoMessages();
+    helperSyncAWithMessagesNoArrivals();
 }
 
 
-void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesEmptyState( TagGenerator &t )
+void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesEmptyState()
 {
     // Ask the model to sync stuff
     QCOMPARE( model->rowCount( msgListA ), 0 );
@@ -254,7 +249,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesEmptyState( 
     QVERIFY( SOCK->writtenStuff().isEmpty() );
     QVERIFY( errorSpy->isEmpty() );
 
-    helperSync17Flags( t );
+    helperSync17Flags();
 
     // No errors
     if ( ! errorSpy->isEmpty() )
@@ -280,7 +275,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesEmptyState( 
     // and the first mailbox is fully synced now.
 }
 
-void ImapModelObtainSynchronizedMailboxTest::helperSyncBNoMessages( TagGenerator &t )
+void ImapModelObtainSynchronizedMailboxTest::helperSyncBNoMessages()
 {
     // Try to go to second mailbox
     QCOMPARE( model->rowCount( msgListB ), 0 );
@@ -311,7 +306,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncBNoMessages( TagGenerator
 }
 
 /** @short SImulates what happens when mailbox A gets opened again, assuming that nothing has changed since the last time with 17 messages etc */
-void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesNoArrivals(TagGenerator &t)
+void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesNoArrivals()
 {
     // assume we've got 17 messages since the last case
     QCOMPARE( model->rowCount( msgListA ), 17 );
@@ -336,7 +331,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesNoArrivals(T
     QCOMPARE( model->rowCount( msgListA ), 17 );
     QVERIFY( errorSpy->isEmpty() );
 
-    helperSync17Flags( t );
+    helperSync17Flags();
 
     // No errors
     if ( ! errorSpy->isEmpty() )
@@ -361,7 +356,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesNoArrivals(T
 }
 
 /** @short Simulates fetching flags for messages 1:17 */
-void ImapModelObtainSynchronizedMailboxTest::helperSync17Flags( TagGenerator &t )
+void ImapModelObtainSynchronizedMailboxTest::helperSync17Flags()
 {
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), t.mk("FETCH 1:17 (FLAGS)\r\n") );
@@ -388,14 +383,6 @@ void ImapModelObtainSynchronizedMailboxTest::helperSync17Flags( TagGenerator &t 
 
 #if 0
 {
-    // And then go back to the first one
-    model->switchToMailbox( idxA );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
-
-
-    /*
     // First re-sync: one message added, nothing else changed
     model->resyncMailbox( idxA );
     QCoreApplication::processEvents();
@@ -463,8 +450,6 @@ EXISTS response which belongs to the SELECT gets picked up by the new mailbox an
 */
 void ImapModelObtainSynchronizedMailboxTest::testSyncTwoLikeCyrus()
 {
-    TagGenerator t;
-
     // Ask the model to sync stuff
     QCOMPARE( model->rowCount( msgListB ), 0 );
     QCoreApplication::processEvents();
@@ -524,8 +509,6 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncTwoLikeCyrus()
 
 void ImapModelObtainSynchronizedMailboxTest::testSyncTwoInParallel()
 {
-    TagGenerator t;
-
     // This will select both mailboxes, one after another
     QCOMPARE( model->rowCount( msgListA ), 0 );
     QCOMPARE( model->rowCount( msgListB ), 0 );

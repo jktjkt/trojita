@@ -16,6 +16,10 @@ public:
     {
         return QString::fromAscii("y%1 ").arg( number ).toAscii() + QByteArray(what);
     }
+    void reset()
+    {
+        number = -1;
+    }
 };
 
 #endif // TAGGENERATOR_H
