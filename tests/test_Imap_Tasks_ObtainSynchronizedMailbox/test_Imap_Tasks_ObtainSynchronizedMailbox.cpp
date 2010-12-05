@@ -55,6 +55,10 @@ void ImapModelObtainSynchronizedMailboxTest::init()
     QCoreApplication::processEvents();
     QVERIFY( SOCK->writtenStuff().isEmpty() );
     t.reset();
+    existsA = 0;
+    uidNextA = 0;
+    uidValidityA = 0;
+    uidMapA.clear();
 }
 
 void ImapModelObtainSynchronizedMailboxTest::cleanup()
@@ -214,17 +218,44 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
 
 void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
 {
+    existsA = 33;
+    uidNextA = 666;
+    uidValidityA = 333666;
+    for ( uint i = 1; i <= existsA; ++i ) {
+        uidMapA.append( i );
+    }
     helperSyncAWithMessagesEmptyState();
 }
 
 void ImapModelObtainSynchronizedMailboxTest::testResyncNoArrivals()
 {
+    existsA = 42;
+    uidNextA = 333;
+    uidValidityA = 1337;
+    for ( uint i = 1; i <= existsA; ++i ) {
+        uidMapA.append( i );
+    }
     helperSyncAWithMessagesEmptyState();
     helperSyncBNoMessages();
     helperSyncAWithMessagesNoArrivals();
     helperSyncBNoMessages();
     helperSyncAWithMessagesNoArrivals();
 }
+
+void ImapModelObtainSynchronizedMailboxTest::testResyncOneNew()
+{
+    existsA = 17;
+    uidNextA = 18;
+    uidValidityA = 800500;
+    for ( uint i = 1; i <= existsA; ++i ) {
+        uidMapA.append( i );
+    }
+    helperSyncAWithMessagesEmptyState();
+    helperSyncBNoMessages();
+    helperSyncAOneNew();
+}
+
+
 
 
 void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesEmptyState()
@@ -235,11 +266,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesEmptyState()
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
 
-    // Try to feed it with absolute minimum data
-    SOCK->fakeReading( QByteArray("* 17 EXISTS\r\n"
-                                  "* OK [UIDVALIDITY 1226524607] UIDs valid\r\n"
-                                  "* OK [UIDNEXT 18] Predicted next UID\r\n")
-                                  + t.last("OK [READ-WRITE] Select completed.\r\n") );
+    helperFakeExistsUidValidityUidNext();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 
@@ -249,14 +276,23 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesEmptyState()
     QVERIFY( ! list->fetched() );
     QCOMPARE( SOCK->writtenStuff(), t.mk("UID SEARCH ALL\r\n") );
 
-    SOCK->fakeReading( QByteArray("* SEARCH 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17\r\n")
-                                  + t.last("OK search\r\n") );
+    {
+        QByteArray buf;
+        QTextStream ss( &buf );
+        ss << "* SEARCH";
+        for ( uint i = 0; i < existsA; ++i ) {
+            ss << " " << uidMapA[i];
+        }
+        ss << "\r\n";
+        ss.flush();
+        SOCK->fakeReading( buf + t.last("OK search\r\n") );
+    }
     QCoreApplication::processEvents();
-    QCOMPARE( model->rowCount( msgListA ), 17 );
+    QCOMPARE( model->rowCount( msgListA ), static_cast<int>( existsA ) );
     QVERIFY( SOCK->writtenStuff().isEmpty() );
     QVERIFY( errorSpy->isEmpty() );
 
-    helperSync17Flags();
+    helperSyncFlags();
 
     // No errors
     if ( ! errorSpy->isEmpty() )
@@ -265,10 +301,10 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesEmptyState()
 
     // Check the cache
     Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QString::fromAscii("a") );
-    QCOMPARE( syncState.exists(), 17u );
+    QCOMPARE( syncState.exists(), existsA );
     QCOMPARE( syncState.isUsableForSyncing(), true );
-    QCOMPARE( syncState.uidNext(), 18u );
-    QCOMPARE( syncState.uidValidity(), 1226524607u );
+    QCOMPARE( syncState.uidNext(), uidNextA );
+    QCOMPARE( syncState.uidValidity(), uidValidityA );
 
     QVERIFY( list->fetched() );
 
@@ -280,6 +316,18 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesEmptyState()
     QVERIFY( SOCK->writtenStuff().isEmpty() );
 
     // and the first mailbox is fully synced now.
+}
+
+void ImapModelObtainSynchronizedMailboxTest::helperFakeExistsUidValidityUidNext()
+{
+    // Try to feed it with absolute minimum data
+    QByteArray buf;
+    QTextStream ss( &buf );
+    ss << "* " << existsA << " EXISTS\r\n";
+    ss << "* OK [UIDVALIDITY " << uidValidityA << "] UIDs valid\r\n";
+    ss << "* OK [UIDNEXT " << uidNextA << "] Predicted next UID\r\n";
+    ss.flush();
+    SOCK->fakeReading( buf + t.last("OK [READ-WRITE] Select completed.\r\n") );
 }
 
 void ImapModelObtainSynchronizedMailboxTest::helperSyncBNoMessages()
@@ -317,17 +365,13 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncBNoMessages()
 void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesNoArrivals()
 {
     // assume we've got 17 messages since the last case
-    QCOMPARE( model->rowCount( msgListA ), 17 );
+    QCOMPARE( model->rowCount( msgListA ), static_cast<int>(existsA) );
     model->switchToMailbox( idxA );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
 
-    // Try to feed it with absolute minimum data
-    SOCK->fakeReading( QByteArray("* 17 EXISTS\r\n"
-                                  "* OK [UIDVALIDITY 1226524607] UIDs valid\r\n"
-                                  "* OK [UIDNEXT 18] Predicted next UID\r\n")
-                                  + t.last("OK [READ-WRITE] Select completed.\r\n") );
+    helperFakeExistsUidValidityUidNext();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 
@@ -336,10 +380,10 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesNoArrivals()
     Q_ASSERT( list );
     QVERIFY( list->fetched() );
 
-    QCOMPARE( model->rowCount( msgListA ), 17 );
+    QCOMPARE( model->rowCount( msgListA ), static_cast<int>(existsA) );
     QVERIFY( errorSpy->isEmpty() );
 
-    helperSync17Flags();
+    helperSyncFlags();
 
     // No errors
     if ( ! errorSpy->isEmpty() )
@@ -348,10 +392,10 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesNoArrivals()
 
     // Check the cache
     Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QString::fromAscii("a") );
-    QCOMPARE( syncState.exists(), 17u );
+    QCOMPARE( syncState.exists(), existsA );
     QCOMPARE( syncState.isUsableForSyncing(), true );
-    QCOMPARE( syncState.uidNext(), 18u );
-    QCOMPARE( syncState.uidValidity(), 1226524607u );
+    QCOMPARE( syncState.uidNext(), uidNextA );
+    QCOMPARE( syncState.uidValidity(), uidValidityA );
 
     QVERIFY( list->fetched() );
 
@@ -363,30 +407,24 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesNoArrivals()
     QVERIFY( SOCK->writtenStuff().isEmpty() );
 }
 
-/** @short Simulates fetching flags for messages 1:17 */
-void ImapModelObtainSynchronizedMailboxTest::helperSync17Flags()
+/** @short Simulates fetching flags for messages 1:$exists */
+void ImapModelObtainSynchronizedMailboxTest::helperSyncFlags()
 {
     QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), t.mk("FETCH 1:17 (FLAGS)\r\n") );
-    SOCK->fakeReading( QByteArray("* 1 FETCH (FLAGS (\\Seen))\r\n"
-                                  "* 2 FETCH (FLAGS (\\Seen))\r\n"
-                                  "* 3 FETCH (FLAGS (\\Seen))\r\n"
-                                  "* 4 FETCH (FLAGS (\\Seen))\r\n"
-                                  "* 5 FETCH (FLAGS (\\Seen))\r\n"
-                                  "* 6 FETCH (FLAGS (\\Seen))\r\n"
-                                  "* 7 FETCH (FLAGS ())\r\n"
-                                  "* 8 FETCH (FLAGS (\\Seen))\r\n"
-                                  "* 9 FETCH (FLAGS (\\Seen))\r\n"
-                                  "* 10 FETCH (FLAGS ())\r\n"
-                                  "* 11 FETCH (FLAGS ())\r\n"
-                                  "* 12 FETCH (FLAGS ())\r\n"
-                                  "* 13 FETCH (FLAGS ())\r\n"
-                                  "* 14 FETCH (FLAGS (\\Seen))\r\n"
-                                  "* 15 FETCH (FLAGS (\\Seen))\r\n"
-                                  "* 16 FETCH (FLAGS (\\Seen))\r\n"
-                                  "* 17 FETCH (FLAGS (\\Seen))\r\n")
-                                  + t.last("OK yay\r\n"));
+    QCOMPARE( SOCK->writtenStuff(), t.mk("FETCH 1:") + QString::number(existsA).toAscii() + QByteArray(" (FLAGS)\r\n") );
+    for ( uint i = 1; i <= existsA; ++i ) {
+        if ( i % 2 )
+            SOCK->fakeReading( QString::fromAscii("* %1 FETCH (FLAGS (\\Seen))\r\n").number(i).toAscii() );
+        else
+            SOCK->fakeReading( QString::fromAscii("* %1 FETCH (FLAGS ()\r\n").number(i).toAscii() );
+    }
+    SOCK->fakeReading( t.last("OK yay\r\n") );
     QCoreApplication::processEvents();
+}
+
+void ImapModelObtainSynchronizedMailboxTest::helperSyncAOneNew()
+{
+    // FIXME
 }
 
 #if 0

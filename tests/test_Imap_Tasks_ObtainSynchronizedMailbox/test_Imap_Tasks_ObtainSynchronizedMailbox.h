@@ -43,12 +43,16 @@ private slots:
     void testSyncTwoLikeCyrus();
     void testSyncTwoInParallel();
     void testResyncNoArrivals();
+    void testResyncOneNew();
 
 private:
     void helperSyncAWithMessagesEmptyState();
     void helperSyncBNoMessages();
     void helperSyncAWithMessagesNoArrivals();
-    void helperSync17Flags();
+    void helperSyncFlags();
+    void helperSyncAOneNew();
+
+    void helperFakeExistsUidValidityUidNext();
 
 
     Imap::Mailbox::Model* model;
@@ -58,6 +62,8 @@ private:
 
     QModelIndex idxA, idxB, msgListA, msgListB;
     TagGenerator t;
+    uint existsA, uidValidityA, uidNextA;
+    QList<uint> uidMapA;
 };
 
 #endif
