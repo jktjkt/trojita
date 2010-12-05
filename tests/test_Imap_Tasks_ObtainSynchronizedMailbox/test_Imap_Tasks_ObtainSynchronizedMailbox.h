@@ -42,6 +42,7 @@ private slots:
     void testSyncWithMessages();
     void testSyncTwoLikeCyrus();
     void testSyncTwoInParallel();
+    void testResyncNoArrivals();
 
 private:
     void helperSyncAWithMessagesEmptyState();

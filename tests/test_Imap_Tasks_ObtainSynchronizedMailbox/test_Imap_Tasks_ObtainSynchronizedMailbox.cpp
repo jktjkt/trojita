@@ -215,6 +215,13 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
 void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
 {
     helperSyncAWithMessagesEmptyState();
+}
+
+void ImapModelObtainSynchronizedMailboxTest::testResyncNoArrivals()
+{
+    helperSyncAWithMessagesEmptyState();
+    helperSyncBNoMessages();
+    helperSyncAWithMessagesNoArrivals();
     helperSyncBNoMessages();
     helperSyncAWithMessagesNoArrivals();
 }
@@ -279,6 +286,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncBNoMessages()
 {
     // Try to go to second mailbox
     QCOMPARE( model->rowCount( msgListB ), 0 );
+    model->switchToMailbox( idxB );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT b\r\n") );
