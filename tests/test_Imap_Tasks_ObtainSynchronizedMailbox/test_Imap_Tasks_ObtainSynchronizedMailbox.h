@@ -24,6 +24,7 @@
 
 #include "Imap/Model/Model.h"
 #include "Streams/SocketFactory.h"
+#include "TagGenerator.h"
 
 class QSignalSpy;
 
@@ -43,6 +44,10 @@ private slots:
     void testSyncTwoInParallel();
 
 private:
+    void helperSyncAWithMessagesEmptyState( TagGenerator &t );
+    void helperSyncBNoMessages( TagGenerator &t );
+
+
     Imap::Mailbox::Model* model;
     Imap::Mailbox::FakeSocketFactory* factory;
     Imap::Mailbox::TestingTaskFactory* taskFactoryUnsafe;

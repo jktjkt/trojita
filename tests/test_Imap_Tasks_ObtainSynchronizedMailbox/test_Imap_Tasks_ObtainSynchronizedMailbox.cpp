@@ -28,7 +28,6 @@
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Tasks/ObtainSynchronizedMailboxTask.h"
-#include "TagGenerator.h"
 
 #define SOCK static_cast<Imap::FakeSocket*>( factory->lastSocket() )
 
@@ -222,6 +221,14 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
 void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
 {
     TagGenerator t;
+
+    helperSyncAWithMessagesEmptyState( t );
+    helperSyncBNoMessages( t );
+}
+
+
+void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesEmptyState( TagGenerator &t )
+{
     // Boring stuff
     QModelIndex idxA = model->index( 1, 0, QModelIndex() );
     QModelIndex msgList = model->index( 0, 0, idxA );
@@ -289,6 +296,19 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
 
     QVERIFY( list->fetched() );
 
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+
+    QVERIFY( errorSpy->isEmpty() );
+    QVERIFY( SOCK->writtenStuff().isEmpty() );
+
+
+    // and the first mailbox is fully synced now.
+}
+
+void ImapModelObtainSynchronizedMailboxTest::helperSyncBNoMessages( TagGenerator &t )
+{
     // Try to go to second mailbox
     QModelIndex idxB = model->index( 2, 0, QModelIndex() );
     QModelIndex msgListB = model->index( 0, 0, idxB );
@@ -300,7 +320,28 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
     SOCK->fakeReading( QByteArray("* 0 exists\r\n")
                                   + t.last("ok completed\r\n") );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
 
+    // Check the cache
+    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QString::fromAscii("b") );
+    QCOMPARE( syncState.exists(), 0u );
+    QCOMPARE( syncState.isUsableForSyncing(), false );
+    QCOMPARE( syncState.uidNext(), 0u );
+    QCOMPARE( syncState.uidValidity(), 0u );
+
+    // Verify that we indeed received what we wanted
+    Imap::Mailbox::TreeItemMsgList* list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( static_cast<Imap::Mailbox::TreeItem*>( msgListB.internalPointer() ) );
+    Q_ASSERT( list );
+    QVERIFY( list->fetched() );
+
+    QVERIFY( errorSpy->isEmpty() );
+    QVERIFY( SOCK->writtenStuff().isEmpty() );
+}
+
+#if 0
+{
     // And then go back to the first one
     model->switchToMailbox( idxA );
     QCoreApplication::processEvents();
@@ -368,6 +409,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
     // No errors
     QVERIFY( errorSpy->isEmpty() );
 }
+#endif
 
 /**
 Test that going from an empty mailbox to a bigger one works correctly, especially that the untagged
