@@ -46,6 +46,9 @@ private slots:
 private:
     void helperSyncAWithMessagesEmptyState( TagGenerator &t );
     void helperSyncBNoMessages( TagGenerator &t );
+    void helperSyncAWithMessagesNoArrivals( TagGenerator &t );
+
+    void helperSync17Flags( TagGenerator &t );
 
 
     Imap::Mailbox::Model* model;

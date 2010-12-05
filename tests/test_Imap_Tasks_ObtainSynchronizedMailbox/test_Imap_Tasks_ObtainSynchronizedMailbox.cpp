@@ -221,6 +221,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
 
     helperSyncAWithMessagesEmptyState( t );
     helperSyncBNoMessages( t );
+    helperSyncAWithMessagesNoArrivals( t );
 }
 
 
@@ -253,27 +254,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesEmptyState( 
     QVERIFY( SOCK->writtenStuff().isEmpty() );
     QVERIFY( errorSpy->isEmpty() );
 
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), t.mk("FETCH 1:17 (FLAGS)\r\n") );
-    SOCK->fakeReading( QByteArray("* 1 FETCH (FLAGS (\\Seen))\r\n"
-                                  "* 2 FETCH (FLAGS (\\Seen))\r\n"
-                                  "* 3 FETCH (FLAGS (\\Seen))\r\n"
-                                  "* 4 FETCH (FLAGS (\\Seen))\r\n"
-                                  "* 5 FETCH (FLAGS (\\Seen))\r\n"
-                                  "* 6 FETCH (FLAGS (\\Seen))\r\n"
-                                  "* 7 FETCH (FLAGS ())\r\n"
-                                  "* 8 FETCH (FLAGS (\\Seen))\r\n"
-                                  "* 9 FETCH (FLAGS (\\Seen))\r\n"
-                                  "* 10 FETCH (FLAGS ())\r\n"
-                                  "* 11 FETCH (FLAGS ())\r\n"
-                                  "* 12 FETCH (FLAGS ())\r\n"
-                                  "* 13 FETCH (FLAGS ())\r\n"
-                                  "* 14 FETCH (FLAGS (\\Seen))\r\n"
-                                  "* 15 FETCH (FLAGS (\\Seen))\r\n"
-                                  "* 16 FETCH (FLAGS (\\Seen))\r\n"
-                                  "* 17 FETCH (FLAGS (\\Seen))\r\n")
-                                  + t.last("OK yay\r\n"));
-    QCoreApplication::processEvents();
+    helperSync17Flags( t );
 
     // No errors
     if ( ! errorSpy->isEmpty() )
@@ -295,7 +276,6 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesEmptyState( 
 
     QVERIFY( errorSpy->isEmpty() );
     QVERIFY( SOCK->writtenStuff().isEmpty() );
-
 
     // and the first mailbox is fully synced now.
 }
@@ -328,6 +308,82 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncBNoMessages( TagGenerator
 
     QVERIFY( errorSpy->isEmpty() );
     QVERIFY( SOCK->writtenStuff().isEmpty() );
+}
+
+/** @short SImulates what happens when mailbox A gets opened again, assuming that nothing has changed since the last time with 17 messages etc */
+void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesNoArrivals(TagGenerator &t)
+{
+    // assume we've got 17 messages since the last case
+    QCOMPARE( model->rowCount( msgListA ), 17 );
+    model->switchToMailbox( idxA );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
+
+    // Try to feed it with absolute minimum data
+    SOCK->fakeReading( QByteArray("* 17 EXISTS\r\n"
+                                  "* OK [UIDVALIDITY 1226524607] UIDs valid\r\n"
+                                  "* OK [UIDNEXT 18] Predicted next UID\r\n")
+                                  + t.last("OK [READ-WRITE] Select completed.\r\n") );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+
+    // Verify that we indeed received what we wanted
+    Imap::Mailbox::TreeItemMsgList* list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( static_cast<Imap::Mailbox::TreeItem*>( msgListA.internalPointer() ) );
+    Q_ASSERT( list );
+    QVERIFY( list->fetched() );
+
+    QCOMPARE( model->rowCount( msgListA ), 17 );
+    QVERIFY( errorSpy->isEmpty() );
+
+    helperSync17Flags( t );
+
+    // No errors
+    if ( ! errorSpy->isEmpty() )
+        qDebug() << errorSpy->first();
+    QVERIFY( errorSpy->isEmpty() );
+
+    // Check the cache
+    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QString::fromAscii("a") );
+    QCOMPARE( syncState.exists(), 17u );
+    QCOMPARE( syncState.isUsableForSyncing(), true );
+    QCOMPARE( syncState.uidNext(), 18u );
+    QCOMPARE( syncState.uidValidity(), 1226524607u );
+
+    QVERIFY( list->fetched() );
+
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+
+    QVERIFY( errorSpy->isEmpty() );
+    QVERIFY( SOCK->writtenStuff().isEmpty() );
+}
+
+/** @short Simulates fetching flags for messages 1:17 */
+void ImapModelObtainSynchronizedMailboxTest::helperSync17Flags( TagGenerator &t )
+{
+    QCoreApplication::processEvents();
+    QCOMPARE( SOCK->writtenStuff(), t.mk("FETCH 1:17 (FLAGS)\r\n") );
+    SOCK->fakeReading( QByteArray("* 1 FETCH (FLAGS (\\Seen))\r\n"
+                                  "* 2 FETCH (FLAGS (\\Seen))\r\n"
+                                  "* 3 FETCH (FLAGS (\\Seen))\r\n"
+                                  "* 4 FETCH (FLAGS (\\Seen))\r\n"
+                                  "* 5 FETCH (FLAGS (\\Seen))\r\n"
+                                  "* 6 FETCH (FLAGS (\\Seen))\r\n"
+                                  "* 7 FETCH (FLAGS ())\r\n"
+                                  "* 8 FETCH (FLAGS (\\Seen))\r\n"
+                                  "* 9 FETCH (FLAGS (\\Seen))\r\n"
+                                  "* 10 FETCH (FLAGS ())\r\n"
+                                  "* 11 FETCH (FLAGS ())\r\n"
+                                  "* 12 FETCH (FLAGS ())\r\n"
+                                  "* 13 FETCH (FLAGS ())\r\n"
+                                  "* 14 FETCH (FLAGS (\\Seen))\r\n"
+                                  "* 15 FETCH (FLAGS (\\Seen))\r\n"
+                                  "* 16 FETCH (FLAGS (\\Seen))\r\n"
+                                  "* 17 FETCH (FLAGS (\\Seen))\r\n")
+                                  + t.last("OK yay\r\n"));
+    QCoreApplication::processEvents();
 }
 
 #if 0
