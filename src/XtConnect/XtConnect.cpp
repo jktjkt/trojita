@@ -117,9 +117,6 @@ void XtConnect::setupModels()
     connect( m_model, SIGNAL( connectionError( const QString& ) ), this, SLOT( connectionError( const QString& ) ) );
     connect( m_model, SIGNAL( authRequested( QAuthenticator* ) ), this, SLOT( authenticationRequested( QAuthenticator* ) ) );
     connect( m_model, SIGNAL(connectionStateChanged(QObject*,Imap::ConnectionState)), this, SLOT(showConnectionStatus(QObject*,Imap::ConnectionState)) );
-
-    // Actually bring us online
-    m_model->rowCount( QModelIndex() );
 }
 
 void XtConnect::alertReceived(const QString &alert)
