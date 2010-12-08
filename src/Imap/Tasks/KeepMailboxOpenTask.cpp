@@ -266,7 +266,6 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
             // remains unchanged...
             return true;
         }
-        // FIXME: the syncState should be saved along with the UID map...
         mailbox->syncState.setExists( resp->number );
 
         if ( idleLauncher && idleLauncher->idling() ) {
@@ -278,6 +277,7 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
         uidSyncingCmd = parser->uidSearchUid( uidSpecification );
         model->accessParser( parser ).commandMap[ uidSyncingCmd ] = Model::Task( Model::Task::SEARCH_UIDS, 0 );
         emit model->activityHappening( true );
+        mailbox->syncState.setUidNext( mailbox->syncState.uidNext() + resp->number - list->_children.size() );
         model->cache()->clearUidMapping( mailbox->mailbox() );
 
         return true;
