@@ -267,6 +267,7 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
         }
         uint firstNew = static_cast<uint>( list->_children.size() );
         uint diff = resp->number - firstNew;
+        // FIXME: the syncState should be saved along with the UID map...
         mailbox->syncState.setExists( resp->number );
 
         bool willLoad = diff <= Model::StructureFetchLimit && model->networkPolicy() == Model::NETWORK_ONLINE;
@@ -286,6 +287,10 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
         QStringList items = willLoad ? model->_onlineMessageFetch : QStringList() << "UID" << "FLAGS" ;
         CommandHandle cmd = ptr->fetch( Sequence( firstNew + 1, list->_totalMessageCount ), items );
         model->accessParser( ptr ).commandMap[ cmd ] = Model::Task( Model::Task::FETCH_MESSAGE_METADATA, 0 );
+        return true;
+    } else if ( resp->kind == Imap::Responses::RECENT ) {
+        // FIXME: save it later?
+        mailbox->syncState.setRecent( resp->number );
         return true;
     } else {
         return false;
