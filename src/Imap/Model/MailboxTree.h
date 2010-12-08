@@ -42,7 +42,8 @@ class TreeItem {
     TreeItem(const TreeItem&); // don't implement
     void operator=( const TreeItem& ); // don't implement
     friend class DeleteMailboxTask; // for direct access to _children
-    friend class ObtainSynchronizedMailboxTask; // for direct access to _children
+    friend class ObtainSynchronizedMailboxTask;
+    friend class KeepMailboxOpenTask; // for direct access to _children
 
 protected:
     /** @short Availability of an item */
@@ -151,7 +152,6 @@ No network activity will be caused. If the answer is not known for sure, we retu
     void finalizeFetch( Model* const model, const Responses::Status& response );
     void rescanForChildMailboxes( Model* const model );
     void handleExpunge( Model* const model, const Responses::NumberResponse& resp );
-    void handleExistsSynced( Model* const model, Parser* ptr, const Responses::NumberResponse& resp );
     bool isSelectable() const;
 private:
     TreeItemPart* partIdToPtr( Model* model, const int msgNumber, const QString& msgId );
@@ -165,6 +165,7 @@ class TreeItemMsgList: public TreeItem {
     friend class TreeItemMailbox;
     friend class Model;
     friend class ObtainSynchronizedMailboxTask;
+    friend class KeepMailboxOpenTask;
     FetchingState _numberFetchingStatus;
     int _totalMessageCount;
     int _unreadMessageCount;
@@ -189,6 +190,7 @@ class TreeItemMessage: public TreeItem {
     friend class TreeItemMsgList;
     friend class Model;
     friend class ObtainSynchronizedMailboxTask; // needs access to _offset
+    friend class KeepMailboxOpenTask; // needs access to _offset
     Message::Envelope _envelope;
     uint _size;
     uint _uid;

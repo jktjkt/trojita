@@ -446,38 +446,6 @@ void TreeItemMailbox::handleExpunge( Model* const model, const Responses::Number
     model->emitMessageCountChanged( this );
 }
 
-void TreeItemMailbox::handleExistsSynced( Model* const model, Parser* ptr, const Responses::NumberResponse& resp )
-{
-    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[ 0 ] );
-    Q_ASSERT( list );
-    if ( resp.number < static_cast<uint>( list->_children.size() ) ) {
-        throw UnexpectedResponseReceived( "EXISTS response attempted to decrease number of messages", resp );
-    } else if ( resp.number == static_cast<uint>( list->_children.size() ) ) {
-        // remains unchanged...
-        return;
-    }
-    uint firstNew = static_cast<uint>( list->_children.size() );
-    uint diff = resp.number - firstNew;
-
-    bool willLoad = diff <= Model::StructureFetchLimit && model->networkPolicy() == Model::NETWORK_ONLINE;
-
-    model->beginInsertRows( model->createIndex( 0, 0, list ), list->_children.size(), resp.number - 1 );
-    for ( uint i = 0; i < diff; ++i ) {
-        TreeItemMessage* message = new TreeItemMessage( list );
-        message->_offset = firstNew + i;
-        list->_children.append( message );
-        if ( willLoad )
-            message->_fetchStatus = TreeItem::LOADING;
-    }
-    model->endInsertRows();
-    list->_totalMessageCount = list->_children.size();
-    // we don't know the flags yet, so we can't update \seen count
-    model->emitMessageCountChanged( this );
-    QStringList items = willLoad ? model->_onlineMessageFetch : QStringList() << "UID" << "FLAGS" ;
-    CommandHandle cmd = ptr->fetch( Sequence( firstNew + 1, list->_totalMessageCount ), items );
-    model->accessParser( ptr ).commandMap[ cmd ] = Model::Task( Model::Task::FETCH_MESSAGE_METADATA, this );
-}
-
 void TreeItemMailbox::finalizeFetch( Model* const model, const Responses::Status& response )
 {
     Q_UNUSED(model); Q_UNUSED(response);

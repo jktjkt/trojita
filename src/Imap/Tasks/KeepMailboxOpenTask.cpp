@@ -257,8 +257,35 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
         model->cache()->setMailboxSyncState( mailbox->mailbox(), mailbox->syncState );
         return true;
     } else if ( resp->kind == Imap::Responses::EXISTS ) {
-        // EXISTS is already updated by AuthenticatedHandler
-        mailbox->handleExistsSynced( model, ptr, *resp );
+        TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[ 0 ] );
+        Q_ASSERT( list );
+        if ( resp->number < static_cast<uint>( list->_children.size() ) ) {
+            throw UnexpectedResponseReceived( "EXISTS response attempted to decrease number of messages", *resp );
+        } else if ( resp->number == static_cast<uint>( list->_children.size() ) ) {
+            // remains unchanged...
+            return true;
+        }
+        uint firstNew = static_cast<uint>( list->_children.size() );
+        uint diff = resp->number - firstNew;
+        mailbox->syncState.setExists( resp->number );
+
+        bool willLoad = diff <= Model::StructureFetchLimit && model->networkPolicy() == Model::NETWORK_ONLINE;
+
+        model->beginInsertRows( model->createIndex( 0, 0, list ), list->_children.size(), resp->number - 1 );
+        for ( uint i = 0; i < diff; ++i ) {
+            TreeItemMessage* message = new TreeItemMessage( list );
+            message->_offset = firstNew + i;
+            list->_children.append( message );
+            if ( willLoad )
+                message->_fetchStatus = TreeItem::LOADING;
+        }
+        model->endInsertRows();
+        list->_totalMessageCount = list->_children.size();
+        // we don't know the flags yet, so we can't update \seen count
+        model->emitMessageCountChanged( mailbox );
+        QStringList items = willLoad ? model->_onlineMessageFetch : QStringList() << "UID" << "FLAGS" ;
+        CommandHandle cmd = ptr->fetch( Sequence( firstNew + 1, list->_totalMessageCount ), items );
+        model->accessParser( ptr ).commandMap[ cmd ] = Model::Task( Model::Task::FETCH_MESSAGE_METADATA, 0 );
         return true;
     } else {
         return false;
