@@ -24,6 +24,7 @@
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QLineEdit>
+#include <QListWidget>
 #include <QRadioButton>
 #include <QSpinBox>
 #include <QTabWidget>
@@ -383,6 +384,17 @@ XtConnectPage::XtConnectPage( QWidget* parent, QSettings& s, ImapPage* imapPage 
     QPushButton* btn = new QPushButton("Save XTuple Connect Configuration");
     connect( btn, SIGNAL(clicked()), this, SLOT(saveXtConfig()) );
     layout->addRow( btn );
+
+    QGroupBox *box = new QGroupBox( tr("Mailboxes to synchronize"), this );
+    QVBoxLayout *boxLayout = new QVBoxLayout( box );
+    QListWidget *mailboxes = new QListWidget( box );
+    mailboxes->addItems( QSettings().value( Common::SettingsNames::xtSyncMailboxList ).toStringList() );
+    for ( int i = 0; i < mailboxes->count(); ++i ) {
+        mailboxes->item( i )->setFlags( Qt::ItemIsEnabled );
+    }
+    mailboxes->setToolTip( tr("Please use context menu inside the main application to select mailboxes to synchronize") );
+    boxLayout->addWidget( mailboxes );
+    layout->addRow( box );
 }
 
 void XtConnectPage::save( QSettings& s )
