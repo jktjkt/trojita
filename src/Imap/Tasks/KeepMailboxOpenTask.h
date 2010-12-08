@@ -98,6 +98,7 @@ initialize synchronization now.
     virtual bool handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp );
     virtual bool handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
+    virtual bool handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp );
 
     void slotPerformNoop();
 
@@ -121,7 +122,10 @@ protected:
     bool shouldRunIdle;
     IdleLauncher* idleLauncher;
     CommandHandle tagIdle;
+    CommandHandle uidSyncingCmd;
     friend class IdleLauncher;
+
+    QList<uint> uidMap;
 };
 
 }

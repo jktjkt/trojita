@@ -16,6 +16,7 @@
    Boston, MA 02110-1301, USA.
 */
 
+#include<sstream>
 #include "KeepMailboxOpenTask.h"
 #include "OpenConnectionTask.h"
 #include "ObtainSynchronizedMailboxTask.h"
@@ -265,8 +266,6 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
             // remains unchanged...
             return true;
         }
-        uint firstNew = static_cast<uint>( list->_children.size() );
-        uint diff = resp->number - firstNew;
         // FIXME: the syncState should be saved along with the UID map...
         mailbox->syncState.setExists( resp->number );
 
@@ -275,23 +274,12 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
             idleLauncher->finishIdle();
         }
 
-        bool willLoad = diff <= Model::StructureFetchLimit && model->networkPolicy() == Model::NETWORK_ONLINE;
+        QString uidSpecification = QString::fromAscii("UID %1:*").arg( mailbox->syncState.uidNext() );
+        uidSyncingCmd = parser->uidSearchUid( uidSpecification );
+        model->accessParser( parser ).commandMap[ uidSyncingCmd ] = Model::Task( Model::Task::SEARCH_UIDS, 0 );
+        emit model->activityHappening( true );
+        model->cache()->clearUidMapping( mailbox->mailbox() );
 
-        model->beginInsertRows( model->createIndex( 0, 0, list ), list->_children.size(), resp->number - 1 );
-        for ( uint i = 0; i < diff; ++i ) {
-            TreeItemMessage* message = new TreeItemMessage( list );
-            message->_offset = firstNew + i;
-            list->_children.append( message );
-            if ( willLoad )
-                message->_fetchStatus = TreeItem::LOADING;
-        }
-        model->endInsertRows();
-        list->_totalMessageCount = list->_children.size();
-        // we don't know the flags yet, so we can't update \seen count
-        model->emitMessageCountChanged( mailbox );
-        QStringList items = willLoad ? model->_onlineMessageFetch : QStringList() << "UID" << "FLAGS" ;
-        CommandHandle cmd = ptr->fetch( Sequence( firstNew + 1, list->_totalMessageCount ), items );
-        model->accessParser( ptr ).commandMap[ cmd ] = Model::Task( Model::Task::FETCH_MESSAGE_METADATA, 0 );
         return true;
     } else if ( resp->kind == Imap::Responses::RECENT ) {
         // FIXME: save it later?
@@ -339,6 +327,20 @@ bool KeepMailboxOpenTask::handleStateHelper( Imap::Parser* ptr, const Imap::Resp
         tagIdle.clear();
         IMAP_TASK_CLEANUP_COMMAND;
         return true;
+    } else if ( resp->tag == uidSyncingCmd ) {
+        IMAP_TASK_ENSURE_VALID_COMMAND( uidSyncingCmd, Model::Task::SEARCH_UIDS );
+
+        if ( resp->kind == Responses::OK ) {
+            Q_ASSERT( mailboxIndex.isValid() );
+            TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
+            Q_ASSERT( mailbox );
+            // FIXME: fix behavior when we received "* exists 10\r\n* exists 11\r\n"...
+            ObtainSynchronizedMailboxTask::_finalizeUidSyncOnlyNew( model, mailbox, model->cache()->mailboxSyncState( mailbox->mailbox() ).exists(), uidMap );
+        } else {
+            // FIXME: handling of failure...
+        }
+        IMAP_TASK_CLEANUP_COMMAND;
+        return true;
     } else {
         return false;
     }
@@ -378,6 +380,29 @@ void KeepMailboxOpenTask::stopForLogout()
     if ( idleLauncher && idleLauncher->idling() )
         idleLauncher->finishIdle();
 }
+
+bool KeepMailboxOpenTask::handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp )
+{
+    Q_ASSERT( ptr == parser );
+    TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
+    Q_ASSERT(mailbox);
+    // Be sure there really are some new messages
+    const SyncState& oldState = model->cache()->mailboxSyncState( mailbox->mailbox() );
+    const int newArrivals = mailbox->syncState.exists() - oldState.exists();
+    Q_ASSERT( newArrivals > 0 );
+
+    if ( newArrivals != resp->items.size() ) {
+        std::string msg;
+        std::ostringstream ss(msg);
+        ss << "UID SEARCH ALL returned unexpected number of entries when syncing new arrivals into already synced mailbox: "
+                << newArrivals << "expected, got " << resp->items.size();
+        ss.flush();
+        throw MailboxException( msg.c_str(), *resp );
+    }
+    uidMap = resp->items;
+    return true;
+}
+
 
 }
 }
