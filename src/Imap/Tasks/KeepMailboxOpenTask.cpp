@@ -270,6 +270,11 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
         // FIXME: the syncState should be saved along with the UID map...
         mailbox->syncState.setExists( resp->number );
 
+        if ( idleLauncher && idleLauncher->idling() ) {
+            // If we're idling right now, we should immediately abort
+            idleLauncher->finishIdle();
+        }
+
         bool willLoad = diff <= Model::StructureFetchLimit && model->networkPolicy() == Model::NETWORK_ONLINE;
 
         model->beginInsertRows( model->createIndex( 0, 0, list ), list->_children.size(), resp->number - 1 );
