@@ -96,7 +96,8 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( Imap::Parser* ptr, const 
             Q_ASSERT( mailbox );
             switch ( uidSyncingMode ) {
             case UID_SYNC_ONLY_NEW:
-                _finalizeUidSyncOnlyNew( mailbox );
+                _finalizeUidSyncOnlyNew( model, mailbox, model->cache()->mailboxSyncState( mailbox->mailbox() ).exists(), uidMap );
+                model->changeConnectionState( parser, CONN_STATE_SELECTED );
                 break;
             default:
                 _finalizeUidSyncAll( mailbox );
@@ -608,20 +609,22 @@ void ObtainSynchronizedMailboxTask::_finalizeUidSyncAll( TreeItemMailbox* mailbo
 
 This function is similar to _finalizeUidSyncAll, except that it operates on
 a smaller set of messages.
+
+It is also inteded to be used from both ObtainSynchronizedMailboxTask and KeepMailboxOpenTask,
+so it's a static function with many arguments.
 */
-void ObtainSynchronizedMailboxTask::_finalizeUidSyncOnlyNew( TreeItemMailbox* mailbox )
+void ObtainSynchronizedMailboxTask::_finalizeUidSyncOnlyNew( Model *model, TreeItemMailbox* mailbox, const uint oldExists, QList<uint> &uidMap )
 {
-    const SyncState& oldState = model->cache()->mailboxSyncState( mailbox->mailbox() );
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[0] );
     Q_ASSERT( list );
     list->_fetchStatus = TreeItem::DONE;
 
     // This invariant is set up in Model::_askForMessagesInMailbox
-    Q_ASSERT( oldState.exists() == static_cast<uint>( list->_children.size() ) );
+    Q_ASSERT( oldExists == static_cast<uint>( list->_children.size() ) );
 
     // Be sure there really are some new messages -- verified in handleSearch()
-    Q_ASSERT( mailbox->syncState.exists() > oldState.exists() );
-    Q_ASSERT( static_cast<uint>(uidMap.size()) == mailbox->syncState.exists() - oldState.exists() );
+    Q_ASSERT( mailbox->syncState.exists() > oldExists );
+    Q_ASSERT( static_cast<uint>(uidMap.size()) == mailbox->syncState.exists() - oldExists );
 
     QModelIndex parent = model->createIndex( 0, 0, list );
     int offset = list->_children.size();
@@ -642,7 +645,6 @@ void ObtainSynchronizedMailboxTask::_finalizeUidSyncOnlyNew( TreeItemMailbox* ma
     model->saveUidMap( list );
     uidMap.clear();
     model->emitMessageCountChanged( mailbox );
-    model->changeConnectionState( parser, CONN_STATE_SELECTED );
 }
 
 QString ObtainSynchronizedMailboxTask::debugIdentification() const
