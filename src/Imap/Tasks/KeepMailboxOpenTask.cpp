@@ -394,7 +394,7 @@ bool KeepMailboxOpenTask::handleSearch( Imap::Parser* ptr, const Imap::Responses
     if ( newArrivals != resp->items.size() ) {
         std::ostringstream ss;
         ss << "UID SEARCH ALL returned unexpected number of entries when syncing new arrivals into already synced mailbox: "
-                << newArrivals << "expected, got " << resp->items.size();
+                << newArrivals << " expected, got " << resp->items.size() << std::endl;
         ss.flush();
         throw MailboxException( ss.str().c_str(), *resp );
     }

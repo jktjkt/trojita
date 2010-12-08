@@ -442,7 +442,7 @@ bool ObtainSynchronizedMailboxTask::handleSearch( Imap::Parser* ptr, const Imap:
         if ( static_cast<uint>( resp->items.size() ) != mailbox->syncState.exists() ) {
             std::ostringstream ss;
             ss << "UID SEARCH ALL returned unexpected number of entries when syncing UID_SYNC_ALL: "
-                    << mailbox->syncState.exists() << "expected, got " << resp->items.size();
+                    << mailbox->syncState.exists() << " expected, got " << resp->items.size() << std::endl;
             ss.flush();
             throw MailboxException( ss.str().c_str(), *resp );
         }
@@ -458,7 +458,7 @@ bool ObtainSynchronizedMailboxTask::handleSearch( Imap::Parser* ptr, const Imap:
         if ( newArrivals != resp->items.size() ) {
             std::ostringstream ss;
             ss << "UID SEARCH ALL returned unexpected number of entries when syncing UID_SYNC_ONLY_NEW: "
-                    << newArrivals << "expected, got " << resp->items.size();
+                    << newArrivals << " expected, got " << resp->items.size() << std::endl;
             ss.flush();
             throw MailboxException( ss.str().c_str(), *resp );
         }
