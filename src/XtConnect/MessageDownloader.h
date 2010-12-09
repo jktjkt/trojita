@@ -52,7 +52,8 @@ private:
         QPersistentModelIndex body;
         bool hasHeader;
         bool hasBody;
-        MessageMetadata(): hasHeader(false), hasBody(false) {}
+        bool hasMessage;
+        MessageMetadata(): hasHeader(false), hasBody(false), hasMessage(false) {}
     };
 
     QMap<QPersistentModelIndex, MessageMetadata> m_parts;

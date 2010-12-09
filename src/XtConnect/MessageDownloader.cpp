@@ -51,7 +51,8 @@ void MessageDownloader::requestDownload( const QModelIndex &message )
 
     QVariant headerData = indexHeader.data( Imap::Mailbox::RolePartData );
     QVariant textData = indexText.data( Imap::Mailbox::RolePartData );
-    if ( headerData.isValid() && textData.isValid() ) {
+    QVariant messageData = message.data( Imap::Mailbox::RoleMessageMessageId ); // just to find out if it's loaded already
+    if ( headerData.isValid() && textData.isValid() && messageData.isValid() ) {
         QByteArray data = headerData.toByteArray() + textData.toByteArray();
         emit messageDownloaded( message, data );
     } else {
@@ -76,6 +77,10 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
         return;
 
     QMap<QPersistentModelIndex,MessageMetadata>::iterator it = m_parts.find( message );
+
+    if ( it == m_parts.end() )
+        it = m_parts.find( a );
+
     if ( it == m_parts.end() )
         return;
 
@@ -83,15 +88,18 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
         it->hasHeader = true;
     } else if ( a == it->body ) {
         it->hasBody = true;
+    } else if ( a == it.key() ) {
+        it->hasMessage = true;
     } else {
         return;
     }
 
-    if ( it->hasHeader && it->hasBody ) {
+    if ( it->hasHeader && it->hasBody && it->hasMessage ) {
         QVariant headerData = it->header.data( Imap::Mailbox::RolePartData );
         QVariant textData = it->body.data( Imap::Mailbox::RolePartData );
         Q_ASSERT(headerData.isValid());
         Q_ASSERT(textData.isValid());
+        Q_ASSERT(it.key().data( Imap::Mailbox::RoleMessageMessageId ).isValid());
         QByteArray data = headerData.toByteArray() + textData.toByteArray();
         emit messageDownloaded( message, data );
         m_parts.erase( it );
