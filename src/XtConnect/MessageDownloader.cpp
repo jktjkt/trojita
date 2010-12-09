@@ -78,8 +78,10 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
 
     QMap<QPersistentModelIndex,MessageMetadata>::iterator it = m_parts.find( message );
 
-    if ( it == m_parts.end() )
-        it = m_parts.find( a );
+    if ( it == m_parts.end() ) {
+        message = a;
+        it = m_parts.find( message );
+    }
 
     if ( it == m_parts.end() )
         return;
@@ -100,6 +102,8 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
         Q_ASSERT(headerData.isValid());
         Q_ASSERT(textData.isValid());
         Q_ASSERT(it.key().data( Imap::Mailbox::RoleMessageMessageId ).isValid());
+        Q_ASSERT(it.key().data( Imap::Mailbox::RoleMessageSubject ).isValid());
+        Q_ASSERT(it.key().data( Imap::Mailbox::RoleMessageDate ).isValid());
         QByteArray data = headerData.toByteArray() + textData.toByteArray();
         emit messageDownloaded( message, data );
         m_parts.erase( it );
