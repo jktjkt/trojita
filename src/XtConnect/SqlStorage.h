@@ -27,54 +27,36 @@
 
 */
 
-#ifndef MAILSYNCHRONIZER_H
-#define MAILSYNCHRONIZER_H
 
+#ifndef SQLSTORAGE_H
+#define SQLSTORAGE_H
+
+#include <QDateTime>
 #include <QObject>
-#include <QModelIndex>
-
-#include "Imap/Model/Model.h"
+#include <QSqlDatabase>
+#include <QSqlQuery>
 
 namespace XtConnect {
 
-class MailboxFinder;
-class MessageDownloader;
-class SqlStorage;
-
-/** @short Download messages into the DB */
-class MailSynchronizer : public QObject
+class SqlStorage : public QObject
 {
     Q_OBJECT
 public:
-    explicit MailSynchronizer( QObject *parent, Imap::Mailbox::Model *model, MailboxFinder *finder, MessageDownloader *downloader, SqlStorage *storage );
-    void setMailbox( const QString &mailbox );
-    /** @short Ask the Model that we're still here and need updates
+    explicit SqlStorage(QObject *parent = 0);
+    void open();
 
-This is required if the total number of mailboxes exceeds the configured limit of parallel connections
-*/
-    void switchHere();
-private slots:
-    void slotRowsInserted( const QModelIndex &parent, int start, int end );
-    void slotMailboxFound( const QString &mailbox, const QModelIndex &index );
-    void slotGetMailboxIndexAgain();
-    void slotMessageDataReady( const QModelIndex &message, const QByteArray &data );
+    QVariant insertMail( const QDateTime &dateTime, const QString &subject, const QString &plainBody, const QByteArray &data );
+
+
 private:
-    /** @short Walk through the cached messages and store the new ones */
-    void walkThroughMessages( int start, int end );
-    /** @short Returns true if the m_index got invalidated
+    void _prepareStatements();
+    void _fail( const QString &message, const QSqlQuery &query );
+    void _fail( const QString &message, const QSqlDatabase &database );
 
-This function will queue renewal automatically.
-*/
-    bool renewMailboxIndex();
-
-    Imap::Mailbox::Model* m_model;
-    MailboxFinder *m_finder;
-    MessageDownloader *m_downloader;
-    SqlStorage *m_storage;
-    QString m_mailbox;
-    QPersistentModelIndex m_index;
+    QSqlDatabase db;
+    QSqlQuery _queryInsertMail;
 };
 
 }
 
-#endif // MAILSYNCHRONIZER_H
+#endif // SQLSTORAGE_H

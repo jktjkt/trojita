@@ -32,15 +32,17 @@
 #include "Imap/Model/ItemRoles.h"
 #include "MailboxFinder.h"
 #include "MessageDownloader.h"
+#include "SqlStorage.h"
 
 namespace XtConnect {
 
-MailSynchronizer::MailSynchronizer( QObject *parent, Imap::Mailbox::Model *model, MailboxFinder *finder, MessageDownloader *downloader ) :
-    QObject(parent), m_model(model), m_finder(finder), m_downloader(downloader)
+MailSynchronizer::MailSynchronizer( QObject *parent, Imap::Mailbox::Model *model, MailboxFinder *finder, MessageDownloader *downloader, SqlStorage *storage ) :
+    QObject(parent), m_model(model), m_finder(finder), m_downloader(downloader), m_storage(storage)
 {
     Q_ASSERT(m_model);
     Q_ASSERT(m_finder);
     Q_ASSERT(m_downloader);
+    Q_ASSERT(m_storage);
     connect( m_model, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(slotRowsInserted(QModelIndex,int,int)) );
     connect( m_finder, SIGNAL(mailboxFound(QString,QModelIndex)), this, SLOT(slotMailboxFound(QString,QModelIndex)) );
     connect( m_downloader, SIGNAL(messageDownloaded(QModelIndex,QByteArray)), this, SLOT(slotMessageDataReady(QModelIndex,QByteArray)) );
@@ -131,6 +133,14 @@ void MailSynchronizer::switchHere()
 void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const QByteArray &data )
 {
     qDebug() << "Received data for" << m_mailbox << message.data( Imap::Mailbox::RoleMessageUid ).toUInt() << data.size();
+
+    QVariant dateTime = message.data( Imap::Mailbox::RoleMessageDate );
+    QVariant subject = message.data( Imap::Mailbox::RoleMessageSubject );
+    Q_ASSERT(dateTime.isValid());
+    Q_ASSERT(subject.isValid());
+    QVariant res = m_storage->insertMail( dateTime.toDateTime(), subject.toString(),
+                                          QString("foobar"), data );
+    qDebug() << res;
 }
 
 }

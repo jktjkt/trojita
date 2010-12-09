@@ -37,6 +37,7 @@
 #include "Imap/Model/MemoryCache.h"
 #include "MailboxFinder.h"
 #include "MessageDownloader.h"
+#include "SqlStorage.h"
 
 namespace XtConnect {
 
@@ -52,9 +53,11 @@ XtConnect::XtConnect(QObject *parent, QSettings *s) :
 
     // Prepare the mailboxes
     m_finder = new MailboxFinder( this, m_model );
+    SqlStorage *storage = new SqlStorage(this);
+    storage->open();
     Q_FOREACH( const QString &mailbox, s->value( Common::SettingsNames::xtSyncMailboxList ).toStringList() ) {
         MessageDownloader *downloader = new MessageDownloader( this );
-        MailSynchronizer *sync = new MailSynchronizer( this, m_model, m_finder, downloader );
+        MailSynchronizer *sync = new MailSynchronizer( this, m_model, m_finder, downloader, storage );
         m_syncers[ mailbox ] = sync;
         sync->setMailbox( mailbox );
     }
