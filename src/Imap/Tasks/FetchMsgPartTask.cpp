@@ -57,7 +57,7 @@ void FetchMsgPartTask::perform()
 
     TreeItemPart* part = dynamic_cast<TreeItemPart*>( static_cast<TreeItem*>( index.internalPointer() ) );
     Q_ASSERT( part );
-    tag = parser->fetch( Sequence( part->message()->row() + 1 ),
+    tag = parser->uidFetch( Sequence( part->message()->uid() ),
                          QStringList() << QString::fromAscii("BODY.PEEK[%1]").arg(
                                  part->mimeType() == QLatin1String("message/rfc822") ?
                                  QString::fromAscii("%1.HEADER").arg( part->partId() ) :
