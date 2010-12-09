@@ -319,6 +319,8 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
             message->_envelope = dynamic_cast<const Responses::RespData<Message::Envelope>&>( *(it.value()) ).data;
             message->_fetchStatus = DONE;
             gotEnvelope = true;
+            if ( changedMessage )
+                *changedMessage = message;
         } else if ( it.key() == "BODYSTRUCTURE" ) {
             if ( message->fetched() ) {
                 // The message structure is already known, so we are free to ignore it
