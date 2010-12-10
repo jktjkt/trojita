@@ -188,6 +188,7 @@ void MailSynchronizer::_saveAddrList( const quint64 emlId, const QVariant &addre
 
         QString address;
         if ( expanded[2].isEmpty() && expanded[3].isEmpty() ) {
+            address = QLatin1String("undisclosed-recipients;");
         } else if ( expanded[2].isEmpty() ) {
             address = expanded[3];
         } else if ( expanded[3].isEmpty() ) {
