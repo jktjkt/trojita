@@ -134,6 +134,8 @@ void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const Q
 {
     qDebug() << "Received data for" << m_mailbox << message.data( Imap::Mailbox::RoleMessageUid ).toUInt() << data.size();
 
+    Common::SqlTransactionAutoAborter guard = m_storage->transactionGuard();
+
     QVariant dateTimeVariant = message.data( Imap::Mailbox::RoleMessageDate );
     QVariant subject = message.data( Imap::Mailbox::RoleMessageSubject );
     Q_ASSERT(dateTimeVariant.isValid());
@@ -145,9 +147,9 @@ void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const Q
     }
 
     SqlStorage::ResultType code;
-
     QVariant res = m_storage->insertMail( dateTime, subject.toString(),
                                           QString("foobar"), data, &code );
+    // FIXME: the main part...
 
     if ( code == SqlStorage::RESULT_DUPLICATE ) {
         qDebug() << "Duplicate message, skipping";
@@ -159,7 +161,13 @@ void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const Q
         return;
     }
 
-    qDebug() << res;
+    quint64 emlId = res.toULongLong();
+
+    // FIXME: fill in addresses
+
+    if ( ! guard.commit() ) {
+        m_storage->fail( QLatin1String("Failed to commit current transaction") );
+    }
 }
 
 }

@@ -35,6 +35,7 @@
 #include <QObject>
 #include <QSqlDatabase>
 #include <QSqlQuery>
+#include "Common/SqlTransactionAutoAborter.h"
 
 namespace XtConnect {
 
@@ -49,6 +50,9 @@ public:
     void open();
 
     QVariant insertMail( const QDateTime &dateTime, const QString &subject, const QString &plainBody, const QByteArray &data, ResultType *result );
+
+    Common::SqlTransactionAutoAborter transactionGuard();
+    void fail( const QString &message );
 
 private:
     void _prepareStatements();

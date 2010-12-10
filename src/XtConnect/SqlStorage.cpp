@@ -108,4 +108,14 @@ void SqlStorage::_fail( const QString &message, const QSqlDatabase &database )
     qWarning() << QString::fromAscii("SqlStorage: Query Error: %1: %2").arg( message, database.lastError().text() );
 }
 
+void SqlStorage::fail( const QString &message )
+{
+    _fail( message, db );
+}
+
+Common::SqlTransactionAutoAborter SqlStorage::transactionGuard()
+{
+    return Common::SqlTransactionAutoAborter( &db );
+}
+
 }
