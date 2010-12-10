@@ -23,36 +23,9 @@
 #include <QSqlError>
 #include <QSqlRecord>
 #include <QTimer>
+#include "Common/SqlTransactionAutoAborter.h"
 
 //#define CACHE_DEBUG
-
-namespace {
-    /** @short An auto-commiter
-
-      A utility class using the RAII idiom -- when its instance goes out of scope,
-      it aborts the current transaction
-*/
-    class TransactionAutoAborter {
-    public:
-        TransactionAutoAborter( QSqlDatabase* db ): _db(db), _commited(false)
-        {
-            _db->transaction();
-        }
-        ~TransactionAutoAborter()
-        {
-            if ( ! _commited )
-                _db->rollback();
-        }
-        void commit()
-        {
-            _db->commit();
-            _commited = true;
-        }
-    private:
-        QSqlDatabase* _db;
-        bool _commited;
-    };
-}
 
 namespace Imap {
 namespace Mailbox {
@@ -95,7 +68,7 @@ bool SQLCache::open( const QString& name, const QString& fileName )
         return false;
     }
 
-    TransactionAutoAborter txn( &db );
+    Common::SqlTransactionAutoAborter txn( &db );
 
     QSqlRecord trojitaNames = db.record( QLatin1String("trojita") );
     if ( ! trojitaNames.contains( QLatin1String("version") ) ) {

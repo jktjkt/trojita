@@ -2,5 +2,6 @@ CONFIG += staticlib
 TEMPLATE = lib
 TARGET = Common
 SOURCES += SettingsNames.cpp
-HEADERS += SettingsNames.h
+HEADERS += SettingsNames.h \
+    SqlTransactionAutoAborter.h
 
