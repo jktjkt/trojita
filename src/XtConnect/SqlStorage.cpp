@@ -60,9 +60,15 @@ void SqlStorage::_prepareStatements()
                                                    "(eml_hash, eml_date, eml_subj, eml_body, eml_msg, eml_status) "
                                                    "VALUES (?, ?, ?, ?, ?, 'I') RETURNING eml_id") ) )
         _fail( "Failed to prepare query _queryInsertMail", _queryInsertMail );
+
+    _queryInsertAddress = QSqlQuery(db);
+    if ( ! _queryInsertAddress.prepare( QLatin1String("INSERT INTO xtbatch.emladdr "
+                                                      "(emladdr_eml_id, emladdr_type, emladdr_addr, emladdr_name) "
+                                                      "VALUES (?, ?, ?, ?)") ) )
+        _fail( "Failed to prepare query _queryInsertAddress", _queryInsertAddress );
 }
 
-QVariant SqlStorage::insertMail( const QDateTime &dateTime, const QString &subject, const QString &plainBody, const QByteArray &data, ResultType *result )
+QVariant SqlStorage::insertMail( const QDateTime &dateTime, const QString &subject, const QString &plainBody, const QByteArray &data, ResultType &result )
 {
     QCryptographicHash hash( QCryptographicHash::Sha1 );
     hash.addData( data );
@@ -75,24 +81,20 @@ QVariant SqlStorage::insertMail( const QDateTime &dateTime, const QString &subje
     if ( ! _queryInsertMail.exec() ) {
         QString errorMessage = _queryInsertMail.lastError().databaseText();
         if ( errorMessage.contains( QLatin1String("duplicate") ) && errorMessage.contains( QLatin1String("eml_eml_hash_key") )) {
-            if ( result )
-                *result = RESULT_DUPLICATE;
+            result = RESULT_DUPLICATE;
             return QVariant();
         } else {
-            if ( result )
-                *result = RESULT_ERROR;
+            result = RESULT_ERROR;
             _fail( "Query _queryInsertMail failed", _queryInsertMail );
             return QVariant();
         }
     }
 
     if ( _queryInsertMail.first() ) {
-        if ( result )
-            *result = RESULT_OK;
+        result = RESULT_OK;
         return _queryInsertMail.value( 0 );
     } else {
-        if ( result )
-            *result = RESULT_ERROR;
+        result = RESULT_ERROR;
         qWarning() << "Query returned no data...";
         return QVariant();
     }
@@ -116,6 +118,19 @@ void SqlStorage::fail( const QString &message )
 Common::SqlTransactionAutoAborter SqlStorage::transactionGuard()
 {
     return Common::SqlTransactionAutoAborter( &db );
+}
+
+void SqlStorage::insertAddress( const quint64 emlId, const QString &name, const QString &address, const QLatin1String kind, ResultType &result )
+{
+    _queryInsertAddress.bindValue( 0, emlId );
+    _queryInsertAddress.bindValue( 1, kind );
+    _queryInsertAddress.bindValue( 2, address );
+    _queryInsertAddress.bindValue( 3, name );
+
+    if ( ! _queryInsertAddress.exec() ) {
+        result = SqlStorage::RESULT_ERROR;
+        _fail( "Query _queryInsertAddress failed", _queryInsertAddress );
+    }
 }
 
 }

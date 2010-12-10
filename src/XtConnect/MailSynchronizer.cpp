@@ -148,8 +148,8 @@ void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const Q
 
     SqlStorage::ResultType code;
     QVariant res = m_storage->insertMail( dateTime, subject.toString(),
-                                          QString("foobar"), data, &code );
-    // FIXME: the main part...
+                                          QString("foobar"), data, code );
+    // FIXME: find the main part...
 
     if ( code == SqlStorage::RESULT_DUPLICATE ) {
         qDebug() << "Duplicate message, skipping";
@@ -163,10 +163,44 @@ void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const Q
 
     quint64 emlId = res.toULongLong();
 
-    // FIXME: fill in addresses
+    _saveAddrList( emlId, message.data( Imap::Mailbox::RoleMessageFrom ), QLatin1String("FROM") );
+    _saveAddrList( emlId, message.data( Imap::Mailbox::RoleMessageTo ), QLatin1String("TO") );
+    _saveAddrList( emlId, message.data( Imap::Mailbox::RoleMessageCc ), QLatin1String("CC") );
+    _saveAddrList( emlId, message.data( Imap::Mailbox::RoleMessageBcc ), QLatin1String("BCC") );
+
+    // FIXME: mark as ready for processing
 
     if ( ! guard.commit() ) {
         m_storage->fail( QLatin1String("Failed to commit current transaction") );
+    }
+}
+
+void MailSynchronizer::_saveAddrList( const quint64 emlId, const QVariant &addresses, const QLatin1String kind )
+{
+    // FIXME: batched updates would be great...
+    Q_ASSERT( addresses.type() == QVariant::List );
+    Q_FOREACH( const QVariant &item, addresses.toList() ) {
+        Q_ASSERT( item.isValid() );
+        Q_ASSERT( item.type() == QVariant::StringList );
+        QStringList expanded = item.toStringList();
+        Q_ASSERT( expanded.size() == 4 );
+        QString name = expanded[0];
+
+        QString address;
+        if ( expanded[2].isEmpty() && expanded[3].isEmpty() ) {
+        } else if ( expanded[2].isEmpty() ) {
+            address = expanded[3];
+        } else if ( expanded[3].isEmpty() ) {
+            address = expanded[2];
+        } else {
+            address = expanded[2] + QLatin1Char('@') + expanded[3];
+        }
+
+        SqlStorage::ResultType code;
+        m_storage->insertAddress( emlId, name, address, kind, code );
+        if ( code == SqlStorage::RESULT_ERROR ) {
+            qWarning() << "Failed to insert address";
+        }
     }
 }
 

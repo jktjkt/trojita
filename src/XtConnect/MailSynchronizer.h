@@ -67,6 +67,8 @@ This function will queue renewal automatically.
 */
     bool renewMailboxIndex();
 
+    void _saveAddrList( const quint64 emlId, const QVariant &addresses, const QLatin1String kind );
+
     Imap::Mailbox::Model* m_model;
     MailboxFinder *m_finder;
     MessageDownloader *m_downloader;
