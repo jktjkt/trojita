@@ -19,8 +19,10 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include <QSqlDatabase>
+#ifndef COMMON_SQLTRANSACTIONAUTOABORTER_H
+#define COMMON_SQLTRANSACTIONAUTOABORTER_H
 
+#include <QSqlDatabase>
 
 namespace Common {
     /** @short An auto-commiter
@@ -39,13 +41,15 @@ namespace Common {
             if ( ! _commited )
                 _db->rollback();
         }
-        void commit()
+        bool commit()
         {
-            _db->commit();
-            _commited = true;
+            _commited = _db->commit();
+            return _commited;
         }
     private:
         QSqlDatabase* _db;
         bool _commited;
     };
 }
+
+#endif // COMMON_SQLTRANSACTIONAUTOABORTER_H
