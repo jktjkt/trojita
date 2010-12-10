@@ -42,11 +42,13 @@ class SqlStorage : public QObject
 {
     Q_OBJECT
 public:
+
+    typedef enum { RESULT_OK, RESULT_DUPLICATE, RESULT_ERROR } ResultType;
+
     explicit SqlStorage(QObject *parent = 0);
     void open();
 
-    QVariant insertMail( const QDateTime &dateTime, const QString &subject, const QString &plainBody, const QByteArray &data );
-
+    QVariant insertMail( const QDateTime &dateTime, const QString &subject, const QString &plainBody, const QByteArray &data, ResultType *result );
 
 private:
     void _prepareStatements();

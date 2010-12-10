@@ -134,12 +134,31 @@ void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const Q
 {
     qDebug() << "Received data for" << m_mailbox << message.data( Imap::Mailbox::RoleMessageUid ).toUInt() << data.size();
 
-    QVariant dateTime = message.data( Imap::Mailbox::RoleMessageDate );
+    QVariant dateTimeVariant = message.data( Imap::Mailbox::RoleMessageDate );
     QVariant subject = message.data( Imap::Mailbox::RoleMessageSubject );
-    Q_ASSERT(dateTime.isValid());
+    Q_ASSERT(dateTimeVariant.isValid());
     Q_ASSERT(subject.isValid());
-    QVariant res = m_storage->insertMail( dateTime.toDateTime(), subject.toString(),
-                                          QString("foobar"), data );
+    QDateTime dateTime = dateTimeVariant.toDateTime();
+    if ( dateTime.isNull() ) {
+        qDebug() << "Warning: unknown timestamp for this message, using current one";
+        dateTime = QDateTime::currentDateTime();
+    }
+
+    SqlStorage::ResultType code;
+
+    QVariant res = m_storage->insertMail( dateTime, subject.toString(),
+                                          QString("foobar"), data, &code );
+
+    if ( code == SqlStorage::RESULT_DUPLICATE ) {
+        qDebug() << "Duplicate message, skipping";
+        return;
+    }
+
+    if ( code == SqlStorage::RESULT_ERROR ) {
+        qWarning() << "Inserting failed";
+        return;
+    }
+
     qDebug() << res;
 }
 

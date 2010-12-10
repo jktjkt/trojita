@@ -62,7 +62,7 @@ void SqlStorage::_prepareStatements()
         _fail( "Failed to prepare query _queryInsertMail", _queryInsertMail );
 }
 
-QVariant SqlStorage::insertMail( const QDateTime &dateTime, const QString &subject, const QString &plainBody, const QByteArray &data )
+QVariant SqlStorage::insertMail( const QDateTime &dateTime, const QString &subject, const QString &plainBody, const QByteArray &data, ResultType *result )
 {
     QCryptographicHash hash( QCryptographicHash::Sha1 );
     hash.addData( data );
@@ -73,13 +73,26 @@ QVariant SqlStorage::insertMail( const QDateTime &dateTime, const QString &subje
     _queryInsertMail.bindValue( 4, data );
 
     if ( ! _queryInsertMail.exec() ) {
-        _fail( "Query _queryInsertMail failed", _queryInsertMail );
-        return QVariant();
+        QString errorMessage = _queryInsertMail.lastError().databaseText();
+        if ( errorMessage.contains( QLatin1String("duplicate") ) && errorMessage.contains( QLatin1String("eml_eml_hash_key") )) {
+            if ( result )
+                *result = RESULT_DUPLICATE;
+            return QVariant();
+        } else {
+            if ( result )
+                *result = RESULT_ERROR;
+            _fail( "Query _queryInsertMail failed", _queryInsertMail );
+            return QVariant();
+        }
     }
 
     if ( _queryInsertMail.first() ) {
+        if ( result )
+            *result = RESULT_OK;
         return _queryInsertMail.value( 0 );
     } else {
+        if ( result )
+            *result = RESULT_ERROR;
         qWarning() << "Query returned no data...";
         return QVariant();
     }
@@ -87,14 +100,12 @@ QVariant SqlStorage::insertMail( const QDateTime &dateTime, const QString &subje
 
 void SqlStorage::_fail( const QString &message, const QSqlQuery &query )
 {
-    qWarning() << QString::fromAscii("SQLCache: Query Error: %1: %2").arg( message, query.lastError().text() );
-    qFatal( "Query failed" );
+    qWarning() << QString::fromAscii("SqlStorage: Query Error: %1: %2").arg( message, query.lastError().text() );
 }
 
 void SqlStorage::_fail( const QString &message, const QSqlDatabase &database )
 {
-    qWarning() << QString::fromAscii("SQLCache: Query Error: %1: %2").arg( message, database.lastError().text() );
-    qFatal("Database error");
+    qWarning() << QString::fromAscii("SqlStorage: Query Error: %1: %2").arg( message, database.lastError().text() );
 }
 
 }
