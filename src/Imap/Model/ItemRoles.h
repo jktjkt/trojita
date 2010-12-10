@@ -93,6 +93,20 @@ enum {
 
     /** @short Contents of a message part */
     RolePartData,
+    /** @short MIME type of a message part */
+    RolePartMimeType,
+    /** @short Charset of a message part */
+    RolePartCharset,
+    /** @short Encoding of a message part */
+    RolePartEncoding,
+    /** @short The body-fld-id field from BODYSTRUCTURE */
+    RolePartBodyFldId,
+    /** @short The Content-Disposition of a message part */
+    RolePartBodyDisposition,
+    /** @short The file name for a message part */
+    RolePartFileName,
+    /** @short The size of this part, as determined from BODYSTRUCTURE */
+    RolePartOctets,
 
     /** @short The very last role */
     RoleInvalidLastOne

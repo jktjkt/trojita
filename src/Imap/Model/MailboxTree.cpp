@@ -848,6 +848,25 @@ QVariant TreeItemPart::data( Model* const model, int role )
     if ( ! _parent )
         return QVariant();
 
+    // these data are available immediately
+    switch ( role ) {
+    case RolePartMimeType:
+        return _mimeType;
+    case RolePartCharset:
+        return _charset;
+    case RolePartEncoding:
+        return _encoding;
+    case RolePartBodyFldId:
+        return _bodyFldId;
+    case RolePartBodyDisposition:
+        return _bodyDisposition;
+    case RolePartFileName:
+        return _fileName;
+    case RolePartOctets:
+        return _octets;
+    }
+
+
     fetch( model );
 
     if ( loading() ) {
