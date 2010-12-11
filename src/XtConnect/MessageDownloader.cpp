@@ -157,7 +157,7 @@ QString MessageDownloader::findMainPart( QModelIndex &part )
     if ( mimeType == QLatin1String("text/html") ) {
         // HTML without a text/plain counterpart is not supported
         part = QModelIndex();
-        return QString::fromAscii("HTML");
+        return QString::fromAscii("A HTML message without a plaintext counterpart");
     }
 
     if ( mimeType == QLatin1String("message/rfc822") ) {
@@ -183,10 +183,11 @@ QString MessageDownloader::findMainPart( QModelIndex &part )
             }
 
         }
-        part = target;
-        return str;
+        part = QModelIndex();
+        return QString::fromAscii("This is a %1 formatted message whose parts are not suitable for diplaying here").arg(mimeType);
     }
 
+    part = QModelIndex();
     return QString::fromAscii("MIME type %1 is not supported").arg(mimeType);
 }
 
