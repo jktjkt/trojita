@@ -80,18 +80,11 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
     if ( a != b )
         return;
 
-    QModelIndex message = a.parent();
-
+    QModelIndex message = Imap::Mailbox::Model::findMessageForItem( a );
     if ( ! message.isValid() )
         return;
 
     QMap<QPersistentModelIndex,MessageMetadata>::iterator it = m_parts.find( message );
-
-    if ( it == m_parts.end() ) {
-        message = Imap::Mailbox::Model::findMessageForItem( a );
-        it = m_parts.find( message );
-    }
-
     if ( it == m_parts.end() )
         return;
 
