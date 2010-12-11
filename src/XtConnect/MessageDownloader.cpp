@@ -47,54 +47,25 @@ void MessageDownloader::requestDownload( const QModelIndex &message )
     }
     Q_ASSERT(lastModel == message.model());
 
-    QModelIndex indexHeader = lastModel->index( 0, Imap::Mailbox::TreeItem::OFFSET_HEADER, message );
-    QModelIndex indexText = lastModel->index( 0, Imap::Mailbox::TreeItem::OFFSET_TEXT, message );
-
-
-    QModelIndex mainPartIndex;
-    QString partMessage;
-    QString partData;
-    MainPartReturnCode mainPartStatus = findMainPartOfMessage( message, mainPartIndex, partMessage, partData );
-
-
-    /*QModelIndex rootPart = message.child( 0, 0 );
-    QModelIndex mainPart = rootPart;
-    QString partMessage = findMainPart( mainPart );
-
-    QString realMain;
-    bool hasMainPartNow = false;
-
-    if ( rootPart.isValid() ) {
-        QVariant mainData = mainPart.data( Imap::Mailbox::RolePartData );
-        if ( mainPart.isValid() && mainData.isValid() ) {
-            // The main part data is already available
-            realMain = mainData.toString();
-            hasMainPartNow = true;
-        } else if ( ! mainPart.isValid() ) {
-            // The body structure is already fetched, but main part wasn't identified
-            realMain = partMessage;
-            hasMainPartNow = true;
-        }
-    }*/
-
-    QVariant headerData = indexHeader.data( Imap::Mailbox::RolePartData );
-    QVariant textData = indexText.data( Imap::Mailbox::RolePartData );
-    QVariant messageData = message.data( Imap::Mailbox::RoleMessageMessageId ); // just to find out if it's loaded already
-
     MessageMetadata metaData;
-    metaData.header = indexHeader;
+    metaData.header = lastModel->index( 0, Imap::Mailbox::TreeItem::OFFSET_HEADER, message );
+    QVariant headerData = metaData.header.data( Imap::Mailbox::RolePartData );
     metaData.hasHeader = headerData.isValid();
-    metaData.body = indexText;
+    metaData.body = lastModel->index( 0, Imap::Mailbox::TreeItem::OFFSET_TEXT, message );
+    QVariant textData = metaData.body.data( Imap::Mailbox::RolePartData );
     metaData.hasBody = textData.isValid();
-    metaData.mainPart = mainPartIndex;
-    metaData.partMessage = partMessage;
+    metaData.hasMessage = message.data( Imap::Mailbox::RoleMessageMessageId ).isValid();
+
+    QModelIndex mainPart;
+    QString partData;
+    MainPartReturnCode mainPartStatus = findMainPartOfMessage( message, mainPart, metaData.partMessage, partData );
+    metaData.mainPart = mainPart;
     metaData.hasMainPart = ( mainPartStatus == MAINPART_FOUND || mainPartStatus == MAINPART_PART_CANNOT_DETERMINE );
-    metaData.hasMessage = messageData.isValid();
 
     if ( metaData.hasHeader && metaData.hasBody && metaData.hasMessage && metaData.hasMainPart ) {
         QByteArray data = headerData.toByteArray() + textData.toByteArray();
         emit messageDownloaded( message, data,
-                                mainPartStatus == MAINPART_FOUND ? partData : partMessage );
+                                mainPartStatus == MAINPART_FOUND ? partData : metaData.partMessage );
         return;
     }
 
@@ -131,28 +102,8 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
     } else if ( a == it.key() && ! it->hasMessage ) {
         it->hasMessage = true;
 
-        /*
-        // Now try to find what the "main part" is
-        QModelIndex part = message.child( 0, 0 );
-        Q_ASSERT(part.isValid()); // make sure the message bodystructure is loaded already
-        it->partMessage = findMainPart( part );
-        it->mainPart = part;
-
-        if ( it->mainPart.isValid() ) {
-            // We managed to identify the main part
-            it->mainPartFailed = false;
-            QVariant data = it->mainPart.data( Imap::Mailbox::RolePartData );
-            if ( data.isValid() ) {
-                it->hasMainPart = true;
-            }
-        } else {
-            // Too bad, the main part is unknown
-            it->mainPartFailed = true;
-            it->hasMainPart = true;
-        }*/
-
-        QString partData;
         QModelIndex mainPart;
+        QString partData;
         MainPartReturnCode mainPartStatus = findMainPartOfMessage( message, mainPart, it->partMessage, partData );
         it->mainPart = mainPart;
         switch( mainPartStatus ) {
