@@ -58,7 +58,9 @@ void SqlStorage::_prepareStatements()
     _queryInsertMail = QSqlQuery(db);
     if ( ! _queryInsertMail.prepare( QLatin1String("INSERT INTO xtbatch.eml "
                                                    "(eml_hash, eml_date, eml_subj, eml_body, eml_msg, eml_status) "
-                                                   "VALUES (?, ?, ?, ?, ?, 'I') RETURNING eml_id") ) )
+                                                   "SELECT ?, ?, ?, ?, ?, 'I' WHERE NOT EXISTS "
+                                                   " ( SELECT eml_id FROM xtbatch.eml WHERE eml_hash = ? ) "
+                                                   "RETURNING eml_id") ) )
         _fail( "Failed to prepare query _queryInsertMail", _queryInsertMail );
 
     _queryInsertAddress = QSqlQuery(db);
@@ -76,28 +78,24 @@ SqlStorage::ResultType SqlStorage::insertMail( const QDateTime &dateTime, const 
 {
     QCryptographicHash hash( QCryptographicHash::Sha1 );
     hash.addData( body );
-    _queryInsertMail.bindValue( 0, hash.result() );
+    QByteArray hashValue = hash.result();
+    _queryInsertMail.bindValue( 0, hashValue );
     _queryInsertMail.bindValue( 1, dateTime );
     _queryInsertMail.bindValue( 2, subject );
     _queryInsertMail.bindValue( 3, readableText );
     _queryInsertMail.bindValue( 4, headers + body );
+    _queryInsertMail.bindValue( 5, hashValue );
 
     if ( ! _queryInsertMail.exec() ) {
-        QString errorMessage = _queryInsertMail.lastError().databaseText();
-        if ( errorMessage.contains( QLatin1String("duplicate") ) && errorMessage.contains( QLatin1String("eml_eml_hash_key") )) {
-            return RESULT_DUPLICATE;
-        } else {
-            _fail( "Query _queryInsertMail failed", _queryInsertMail );
-            return RESULT_ERROR;
-        }
+        _fail( "Query _queryInsertMail failed", _queryInsertMail );
+        return RESULT_ERROR;
     }
 
     if ( _queryInsertMail.first() ) {
         emlId = _queryInsertMail.value( 0 ).toULongLong();
         return RESULT_OK;
     } else {
-        qWarning() << "Query returned no data...";
-        return RESULT_ERROR;
+        return RESULT_DUPLICATE;
     }
 }
 
