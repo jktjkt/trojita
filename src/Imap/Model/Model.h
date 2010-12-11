@@ -224,6 +224,9 @@ and @arg translatedIndex.
 */
     static TreeItem* realTreeItem( QModelIndex index, const Model** whichModel = 0, QModelIndex* translatedIndex = 0 );
 
+
+    static QModelIndex findMessageForItem( QModelIndex index );
+
 public slots:
     /** @short Ask for an updated list of mailboxes on the server */
     void reloadMailboxList();
