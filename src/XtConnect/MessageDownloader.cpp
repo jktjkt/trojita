@@ -63,8 +63,7 @@ void MessageDownloader::requestDownload( const QModelIndex &message )
     metaData.hasMainPart = ( mainPartStatus == MAINPART_FOUND || mainPartStatus == MAINPART_PART_CANNOT_DETERMINE );
 
     if ( metaData.hasHeader && metaData.hasBody && metaData.hasMessage && metaData.hasMainPart ) {
-        QByteArray data = headerData.toByteArray() + textData.toByteArray();
-        emit messageDownloaded( message, data,
+        emit messageDownloaded( message, headerData.toByteArray(), textData.toByteArray(),
                                 mainPartStatus == MAINPART_FOUND ? partData : metaData.partMessage );
         return;
     }
@@ -136,8 +135,7 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
         Q_ASSERT(it.key().data( Imap::Mailbox::RoleMessageMessageId ).isValid());
         Q_ASSERT(it.key().data( Imap::Mailbox::RoleMessageSubject ).isValid());
         Q_ASSERT(it.key().data( Imap::Mailbox::RoleMessageDate ).isValid());
-        QByteArray data = headerData.toByteArray() + textData.toByteArray();
-        emit messageDownloaded( message, data, mainPart );
+        emit messageDownloaded( message, headerData.toByteArray(), textData.toByteArray(), mainPart );
         m_parts.erase( it );
     }
 }

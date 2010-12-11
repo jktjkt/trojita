@@ -44,7 +44,7 @@ private slots:
     void slotDataChanged( const QModelIndex &a, const QModelIndex &b );
 
 signals:
-    void messageDownloaded( const QModelIndex &message, const QByteArray &data, const QString &mainPart );
+    void messageDownloaded( const QModelIndex &message, const QByteArray &headers, const QByteArray &body, const QString &mainPart );
 
 private:
     struct MessageMetadata {

@@ -68,15 +68,15 @@ void SqlStorage::_prepareStatements()
         _fail( "Failed to prepare query _queryInsertAddress", _queryInsertAddress );
 }
 
-QVariant SqlStorage::insertMail( const QDateTime &dateTime, const QString &subject, const QString &plainBody, const QByteArray &data, ResultType &result )
+QVariant SqlStorage::insertMail( const QDateTime &dateTime, const QString &subject, const QString &readableText, const QByteArray &headers, const QByteArray &body, ResultType &result )
 {
     QCryptographicHash hash( QCryptographicHash::Sha1 );
-    hash.addData( data );
+    hash.addData( body );
     _queryInsertMail.bindValue( 0, hash.result() );
     _queryInsertMail.bindValue( 1, dateTime );
     _queryInsertMail.bindValue( 2, subject );
-    _queryInsertMail.bindValue( 3, plainBody );
-    _queryInsertMail.bindValue( 4, data );
+    _queryInsertMail.bindValue( 3, readableText );
+    _queryInsertMail.bindValue( 4, headers + body );
 
     if ( ! _queryInsertMail.exec() ) {
         QString errorMessage = _queryInsertMail.lastError().databaseText();

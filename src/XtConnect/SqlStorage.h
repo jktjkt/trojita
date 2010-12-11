@@ -49,7 +49,7 @@ public:
     explicit SqlStorage(QObject *parent = 0);
     void open();
 
-    QVariant insertMail( const QDateTime &dateTime, const QString &subject, const QString &plainBody, const QByteArray &data, ResultType &result );
+    QVariant insertMail( const QDateTime &dateTime, const QString &subject, const QString &readableText, const QByteArray &headers, const QByteArray &body, ResultType &result );
     void insertAddress( const quint64 emlId, const QString &name, const QString &address, const QLatin1String kind, ResultType &result );
 
     Common::SqlTransactionAutoAborter transactionGuard();
