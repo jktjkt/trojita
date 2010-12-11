@@ -147,28 +147,28 @@ void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const Q
         dateTime = QDateTime::currentDateTime();
     }
 
-    SqlStorage::ResultType code;
-    QVariant res = m_storage->insertMail( dateTime, subject.toString(),
-                                          mainPart, headers, body, code );
+    quint64 emlId;
+    SqlStorage::ResultType res = m_storage->insertMail( dateTime, subject.toString(),
+                                                        mainPart, headers, body, emlId );
 
-    if ( code == SqlStorage::RESULT_DUPLICATE ) {
+    if ( res == SqlStorage::RESULT_DUPLICATE ) {
         qDebug() << "Duplicate message, skipping";
         return;
     }
 
-    if ( code == SqlStorage::RESULT_ERROR ) {
+    if ( res == SqlStorage::RESULT_ERROR ) {
         qWarning() << "Inserting failed";
         return;
     }
-
-    quint64 emlId = res.toULongLong();
 
     _saveAddrList( emlId, message.data( Imap::Mailbox::RoleMessageFrom ), QLatin1String("FROM") );
     _saveAddrList( emlId, message.data( Imap::Mailbox::RoleMessageTo ), QLatin1String("TO") );
     _saveAddrList( emlId, message.data( Imap::Mailbox::RoleMessageCc ), QLatin1String("CC") );
     _saveAddrList( emlId, message.data( Imap::Mailbox::RoleMessageBcc ), QLatin1String("BCC") );
 
-    m_storage->markMailReady( emlId );
+    if ( m_storage->markMailReady( emlId ) != SqlStorage::RESULT_OK ) {
+        qWarning() << "Failed to mark mail ready";
+    }
 
     if ( ! guard.commit() ) {
         m_storage->fail( QLatin1String("Failed to commit current transaction") );
@@ -197,9 +197,7 @@ void MailSynchronizer::_saveAddrList( const quint64 emlId, const QVariant &addre
             address = expanded[2] + QLatin1Char('@') + expanded[3];
         }
 
-        SqlStorage::ResultType code;
-        m_storage->insertAddress( emlId, name, address, kind, code );
-        if ( code == SqlStorage::RESULT_ERROR ) {
+        if ( m_storage->insertAddress( emlId, name, address, kind ) != SqlStorage::RESULT_OK ) {
             qWarning() << "Failed to insert address";
         }
     }

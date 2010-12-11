@@ -49,9 +49,9 @@ public:
     explicit SqlStorage(QObject *parent = 0);
     void open();
 
-    QVariant insertMail( const QDateTime &dateTime, const QString &subject, const QString &readableText, const QByteArray &headers, const QByteArray &body, ResultType &result );
-    void insertAddress( const quint64 emlId, const QString &name, const QString &address, const QLatin1String kind, ResultType &result );
-    void markMailReady( const quint64 emlId );
+    ResultType insertMail( const QDateTime &dateTime, const QString &subject, const QString &readableText, const QByteArray &headers, const QByteArray &body, quint64 &emlId );
+    ResultType insertAddress( const quint64 emlId, const QString &name, const QString &address, const QLatin1String kind );
+    ResultType markMailReady( const quint64 emlId );
 
     Common::SqlTransactionAutoAborter transactionGuard();
     void fail( const QString &message );

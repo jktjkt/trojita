@@ -72,7 +72,7 @@ void SqlStorage::_prepareStatements()
         _fail( "Failed to prepare query _queryMarkMailReady", _queryMarkMailReady );
 }
 
-QVariant SqlStorage::insertMail( const QDateTime &dateTime, const QString &subject, const QString &readableText, const QByteArray &headers, const QByteArray &body, ResultType &result )
+SqlStorage::ResultType SqlStorage::insertMail( const QDateTime &dateTime, const QString &subject, const QString &readableText, const QByteArray &headers, const QByteArray &body, quint64 &emlId )
 {
     QCryptographicHash hash( QCryptographicHash::Sha1 );
     hash.addData( body );
@@ -85,22 +85,19 @@ QVariant SqlStorage::insertMail( const QDateTime &dateTime, const QString &subje
     if ( ! _queryInsertMail.exec() ) {
         QString errorMessage = _queryInsertMail.lastError().databaseText();
         if ( errorMessage.contains( QLatin1String("duplicate") ) && errorMessage.contains( QLatin1String("eml_eml_hash_key") )) {
-            result = RESULT_DUPLICATE;
-            return QVariant();
+            return RESULT_DUPLICATE;
         } else {
-            result = RESULT_ERROR;
             _fail( "Query _queryInsertMail failed", _queryInsertMail );
-            return QVariant();
+            return RESULT_ERROR;
         }
     }
 
     if ( _queryInsertMail.first() ) {
-        result = RESULT_OK;
-        return _queryInsertMail.value( 0 );
+        emlId = _queryInsertMail.value( 0 ).toULongLong();
+        return RESULT_OK;
     } else {
-        result = RESULT_ERROR;
         qWarning() << "Query returned no data...";
-        return QVariant();
+        return RESULT_ERROR;
     }
 }
 
@@ -124,7 +121,7 @@ Common::SqlTransactionAutoAborter SqlStorage::transactionGuard()
     return Common::SqlTransactionAutoAborter( &db );
 }
 
-void SqlStorage::insertAddress( const quint64 emlId, const QString &name, const QString &address, const QLatin1String kind, ResultType &result )
+SqlStorage::ResultType SqlStorage::insertAddress( const quint64 emlId, const QString &name, const QString &address, const QLatin1String kind )
 {
     _queryInsertAddress.bindValue( 0, emlId );
     _queryInsertAddress.bindValue( 1, kind );
@@ -132,18 +129,23 @@ void SqlStorage::insertAddress( const quint64 emlId, const QString &name, const 
     _queryInsertAddress.bindValue( 3, name );
 
     if ( ! _queryInsertAddress.exec() ) {
-        result = SqlStorage::RESULT_ERROR;
         _fail( "Query _queryInsertAddress failed", _queryInsertAddress );
+        return RESULT_ERROR;
     }
+
+    return RESULT_OK;
 }
 
-void SqlStorage::markMailReady( const quint64 emlId )
+SqlStorage::ResultType SqlStorage::markMailReady( const quint64 emlId )
 {
     _queryMarkMailReady.bindValue( 0, emlId );
 
     if ( ! _queryMarkMailReady.exec() ) {
         _fail( "Query _queryMarkMailReady failed", _queryMarkMailReady );
+        return RESULT_ERROR;
     }
+
+    return RESULT_OK;
 }
 
 }
