@@ -57,7 +57,7 @@ private slots:
     void slotRowsInserted( const QModelIndex &parent, int start, int end );
     void slotMailboxFound( const QString &mailbox, const QModelIndex &index );
     void slotGetMailboxIndexAgain();
-    void slotMessageDataReady( const QModelIndex &message, const QByteArray &data );
+    void slotMessageDataReady( const QModelIndex &message, const QByteArray &data, const QString &mainPart );
 private:
     /** @short Walk through the cached messages and store the new ones */
     void walkThroughMessages( int start, int end );

@@ -45,7 +45,7 @@ MailSynchronizer::MailSynchronizer( QObject *parent, Imap::Mailbox::Model *model
     Q_ASSERT(m_storage);
     connect( m_model, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(slotRowsInserted(QModelIndex,int,int)) );
     connect( m_finder, SIGNAL(mailboxFound(QString,QModelIndex)), this, SLOT(slotMailboxFound(QString,QModelIndex)) );
-    connect( m_downloader, SIGNAL(messageDownloaded(QModelIndex,QByteArray)), this, SLOT(slotMessageDataReady(QModelIndex,QByteArray)) );
+    connect( m_downloader, SIGNAL(messageDownloaded(QModelIndex,QByteArray,QString)), this, SLOT(slotMessageDataReady(QModelIndex,QByteArray,QString)) );
 }
 
 void MailSynchronizer::setMailbox( const QString &mailbox )
@@ -130,7 +130,7 @@ void MailSynchronizer::switchHere()
     m_model->switchToMailbox( m_index );
 }
 
-void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const QByteArray &data )
+void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const QByteArray &data, const QString &mainPart )
 {
     qDebug() << "Received data for" << m_mailbox << message.data( Imap::Mailbox::RoleMessageUid ).toUInt() << data.size();
 
@@ -148,8 +148,7 @@ void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const Q
 
     SqlStorage::ResultType code;
     QVariant res = m_storage->insertMail( dateTime, subject.toString(),
-                                          QString("foobar"), data, code );
-    // FIXME: find the main part...
+                                          mainPart, data, code );
 
     if ( code == SqlStorage::RESULT_DUPLICATE ) {
         qDebug() << "Duplicate message, skipping";

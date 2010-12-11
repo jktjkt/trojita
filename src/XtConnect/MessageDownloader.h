@@ -44,17 +44,27 @@ private slots:
     void slotDataChanged( const QModelIndex &a, const QModelIndex &b );
 
 signals:
-    void messageDownloaded( const QModelIndex &message, const QByteArray &data );
+    void messageDownloaded( const QModelIndex &message, const QByteArray &data, const QString &mainPart );
 
 private:
     struct MessageMetadata {
         QPersistentModelIndex header;
         QPersistentModelIndex body;
+        QPersistentModelIndex mainPart;
         bool hasHeader;
         bool hasBody;
         bool hasMessage;
-        MessageMetadata(): hasHeader(false), hasBody(false), hasMessage(false) {}
+        bool hasMainPart;
+        bool mainPartFailed;
+        QString partMessage;
+        MessageMetadata(): hasHeader(false), hasBody(false), hasMessage(false), hasMainPart(false), mainPartFailed(false) {}
     };
+
+    QString findMainPart( QModelIndex &part );
+
+    enum MainPartReturnCode { MAINPART_FOUND, MAINPART_MESSAGE_NOT_LOADED, MAINPART_PART_LOADING, MAINPART_PART_CANNOT_DETERMINE };
+
+    MainPartReturnCode findMainPartOfMessage( const QModelIndex &message, QModelIndex &mainPartIndex, QString &partMessage, QString &partData );
 
     QMap<QPersistentModelIndex, MessageMetadata> m_parts;
     const QAbstractItemModel *lastModel;
