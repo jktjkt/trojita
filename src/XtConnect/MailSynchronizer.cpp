@@ -168,7 +168,7 @@ void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const Q
     _saveAddrList( emlId, message.data( Imap::Mailbox::RoleMessageCc ), QLatin1String("CC") );
     _saveAddrList( emlId, message.data( Imap::Mailbox::RoleMessageBcc ), QLatin1String("BCC") );
 
-    // FIXME: mark as ready for processing
+    m_storage->markMailReady( emlId );
 
     if ( ! guard.commit() ) {
         m_storage->fail( QLatin1String("Failed to commit current transaction") );
