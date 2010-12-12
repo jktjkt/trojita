@@ -396,6 +396,8 @@ void MainWindow::setupModels()
     connect( model, SIGNAL(mailboxDeletionFailed(QString,QString)), this, SLOT(slotMailboxDeleteFailed(QString,QString)) );
     connect( model, SIGNAL(mailboxCreationFailed(QString,QString)), this, SLOT(slotMailboxCreateFailed(QString,QString)) );
 
+    connect( model, SIGNAL(mailboxFirstUnseenMessage(QModelIndex,QModelIndex)), this, SLOT(slotScrollToUnseenMessage(QModelIndex,QModelIndex)) );
+
     //Imap::Mailbox::ModelWatcher* w = new Imap::Mailbox::ModelWatcher( this );
     //w->setModel( model );
 
@@ -969,6 +971,29 @@ void MainWindow::slotXtSyncCurrentMailbox()
     s.setValue( Common::SettingsNames::xtSyncMailboxList, mailboxes );
 }
 #endif
+
+void MainWindow::slotScrollToUnseenMessage( const QModelIndex &mailbox, const QModelIndex &message )
+{
+    Q_ASSERT(msgListModel);
+    Q_ASSERT(msgListTree);
+    if ( model->realTreeItem( mailbox ) != msgListModel->currentMailbox() )
+        return;
+
+    // So, we have an index from Model, and have to map it through unspecified number of proxies here...
+    QList<QAbstractProxyModel*> stack;
+    QAbstractItemModel *tempModel = msgListModel;
+    while ( QAbstractProxyModel *proxy = qobject_cast<QAbstractProxyModel*>( tempModel ) ) {
+        stack.insert( 0, proxy );
+        tempModel = proxy->sourceModel();
+    }
+    QModelIndex targetIndex = message;
+    Q_FOREACH( QAbstractProxyModel *proxy, stack ) {
+        targetIndex = proxy->mapFromSource( targetIndex );
+    }
+
+    // ...now, we can scroll, using the translated index
+    msgListTree->scrollTo( targetIndex );
+}
 
 }
 

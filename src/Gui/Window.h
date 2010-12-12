@@ -107,6 +107,7 @@ private slots:
 
     void slotDownloadMessageTransferError( const QString& errorString );
     void slotDownloadMessageFileNameRequested( QString* fileName );
+    void slotScrollToUnseenMessage( const QModelIndex &mailbox, const QModelIndex &message );
 
 private:
     void createMenus();

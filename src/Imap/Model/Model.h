@@ -321,6 +321,8 @@ signals:
 
     void mailboxSyncingProgress( const QModelIndex &mailbox, Imap::Mailbox::MailboxSyncingProgress state );
 
+    void mailboxFirstUnseenMessage( const QModelIndex &maillbox, const QModelIndex &message );
+
 private:
     Model& operator=( const Model& ); // don't implement
     Model( const Model& ); // don't implement

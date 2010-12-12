@@ -117,6 +117,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( Imap::Parser* ptr, const 
             Q_ASSERT( mailboxIndex.isValid() ); // FIXME
             TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ));
             Q_ASSERT( mailbox );
+            notifyInterestingMessages( mailbox );
         } else {
             // FIXME: error handling
         }
@@ -220,6 +221,7 @@ void ObtainSynchronizedMailboxTask::_fullMboxSync( TreeItemMailbox* mailbox, Tre
         model->changeConnectionState( parser, CONN_STATE_SELECTED );
         status = STATE_DONE;
         emit model->mailboxSyncingProgress( mailboxIndex, status );
+        notifyInterestingMessages( mailbox );
         _completed();
     }
     model->emitMessageCountChanged( mailbox );
@@ -270,6 +272,7 @@ void ObtainSynchronizedMailboxTask::_syncNoNewNoDeletions( TreeItemMailbox* mail
     } else {
         status = STATE_DONE;
         emit model->mailboxSyncingProgress( mailboxIndex, status );
+        notifyInterestingMessages( mailbox );
         _completed();
     }
 }
@@ -672,6 +675,17 @@ QString ObtainSynchronizedMailboxTask::debugIdentification() const
         break;
     }
     return QString::fromAscii("%1 %2").arg( statusStr, mailbox->mailbox() );
+}
+
+void ObtainSynchronizedMailboxTask::notifyInterestingMessages( TreeItemMailbox *mailbox )
+{
+    Q_ASSERT(mailbox);
+    TreeItemMsgList *list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( mailbox->_children[0] );
+    Q_ASSERT(list);
+    QModelIndex listIndex = model->createIndex( 0, 0, list );
+    Q_ASSERT(listIndex.isValid());
+    QModelIndex firstInterestingMessage = model->index( mailbox->syncState.unSeen(), 0, listIndex );
+    emit model->mailboxFirstUnseenMessage( model->createIndex( mailbox->row(), 0, mailbox ), firstInterestingMessage );
 }
 
 }

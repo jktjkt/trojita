@@ -65,6 +65,8 @@ private:
     void syncUids( TreeItemMailbox* mailbox, const uint lowestUidToQuery=0 );
     void syncFlags( TreeItemMailbox* mailbox );
 
+    void notifyInterestingMessages( TreeItemMailbox *mailbox );
+
     bool handleResponseCodeInsideState( const Imap::Responses::State* const resp );
 
 private:
