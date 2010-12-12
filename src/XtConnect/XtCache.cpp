@@ -102,6 +102,7 @@ QStringList XtCache::msgFlags( const QString& mailbox, uint uid ) const
 {
     Q_UNUSED(mailbox);
     Q_UNUSED(uid);
+    return QStringList();
 }
 
 void XtCache::setMsgFlags( const QString& mailbox, uint uid, const QStringList& flags )
