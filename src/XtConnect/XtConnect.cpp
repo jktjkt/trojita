@@ -33,7 +33,7 @@
 #include <QDebug>
 #include <QSettings>
 #include "Common/SettingsNames.h"
-#include "Imap/Model/CombinedCache.h"
+#include "XtCache.h"
 #include "Imap/Model/MemoryCache.h"
 #include "MailboxFinder.h"
 #include "MessageDownloader.h"
@@ -105,9 +105,9 @@ void XtConnect::setupModels()
     if ( ! shouldUsePersistentCache ) {
         cache = new Imap::Mailbox::MemoryCache( this, QString() );
     } else {
-        cache = new Imap::Mailbox::CombinedCache( this, QLatin1String("trojita-imap-cache"), cacheDir );
+        cache = new XtCache( this, QLatin1String("trojita-imap-cache"), cacheDir );
         connect( cache, SIGNAL(error(QString)), this, SLOT(cacheError(QString)) );
-        if ( ! static_cast<Imap::Mailbox::CombinedCache*>( cache )->open() ) {
+        if ( ! static_cast<XtCache*>( cache )->open() ) {
             // Error message was already shown by the cacheError() slot
             cache->deleteLater();
             cache = new Imap::Mailbox::MemoryCache( this, QString() );
