@@ -61,6 +61,7 @@ void MessageDownloader::requestDownload( const QModelIndex &message )
     MainPartReturnCode mainPartStatus = findMainPartOfMessage( message, mainPart, metaData.partMessage, partData );
     metaData.mainPart = mainPart;
     metaData.hasMainPart = ( mainPartStatus == MAINPART_FOUND || mainPartStatus == MAINPART_PART_CANNOT_DETERMINE );
+    metaData.mainPartFailed = mainPartStatus == MAINPART_PART_CANNOT_DETERMINE;
 
     if ( metaData.hasHeader && metaData.hasBody && metaData.hasMessage && metaData.hasMainPart ) {
         emit messageDownloaded( message, headerData.toByteArray(), textData.toByteArray(),
