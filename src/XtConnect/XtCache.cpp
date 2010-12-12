@@ -137,4 +137,18 @@ void XtCache::setMsgPart( const QString& mailbox, uint uid, const QString& partI
     Q_UNUSED(data);
 }
 
+bool XtCache::isMessageSaved( const QString &mailbox, const uint uid ) const
+{
+    QStringList flags = _sqlCache->msgFlags( mailbox, uid );
+    return ! flags.isEmpty() && flags.first() == QLatin1String("S");
+}
+
+void XtCache::setMessageSaved( const QString &mailbox, const uint uid, const bool isSaved )
+{
+    QStringList flags;
+    if ( isSaved )
+        flags << QLatin1String("S");
+    _sqlCache->setMsgFlags( mailbox, uid, flags );
+}
+
 }

@@ -92,6 +92,11 @@ public:
     /** @short Open a connection to the cache */
     bool open();
 
+    /** @short Has it been stored in the DB already? */
+    bool isMessageSaved( const QString &mailbox, const uint uid ) const;
+    /** @short Set message saving status */
+    void setMessageSaved( const QString &mailbox, const uint uid, const bool isSaved );
+
 private:
     /** @short The SQL-based cache */
     Imap::Mailbox::SQLCache* _sqlCache;
