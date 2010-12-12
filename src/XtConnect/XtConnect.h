@@ -38,6 +38,8 @@ class QSettings;
 
 namespace XtConnect {
 
+class XtCache;
+
 /** @short Handle storing the mails into the XTuple Connect database */
 class XtConnect : public QObject
 {
@@ -59,6 +61,11 @@ public slots:
     /** @short Go through all mailboxes and check for new stuff */
     void goTroughMailboxes();
 
+    /** @short A decision is needed whether to download a message */
+    void slotAboutToRequestMessage( const QString &mailbox, const QModelIndex &message, bool *shouldLoad );
+    /** @short A message has been stored into the database */
+    void slotMessageStored( const QString &mailbox, const QModelIndex &message );
+
 private:
     void setupModels();
 
@@ -67,6 +74,7 @@ private:
     MailboxFinder *m_finder;
     QMap<QString, QPointer<MailSynchronizer> > m_syncers;
     QTimer *m_rotateMailboxes;
+    XtCache *m_cache;
 };
 
 }

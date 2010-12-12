@@ -35,6 +35,7 @@
 #include "Common/SettingsNames.h"
 #include "XtCache.h"
 #include "Imap/Model/MemoryCache.h"
+#include "Imap/Model/ItemRoles.h"
 #include "MailboxFinder.h"
 #include "MessageDownloader.h"
 #include "SqlStorage.h"
@@ -42,7 +43,7 @@
 namespace XtConnect {
 
 XtConnect::XtConnect(QObject *parent, QSettings *s) :
-    QObject(parent), m_model(0), m_settings(s)
+    QObject(parent), m_model(0), m_settings(s), m_cache(0)
 {
     Q_ASSERT(m_settings);
     m_settings->setParent(this);
@@ -58,6 +59,8 @@ XtConnect::XtConnect(QObject *parent, QSettings *s) :
     Q_FOREACH( const QString &mailbox, s->value( Common::SettingsNames::xtSyncMailboxList ).toStringList() ) {
         MessageDownloader *downloader = new MessageDownloader( this );
         MailSynchronizer *sync = new MailSynchronizer( this, m_model, m_finder, downloader, storage );
+        connect( sync, SIGNAL(aboutToRequestMessage(QString,QModelIndex,bool*)), this, SLOT(slotAboutToRequestMessage(QString,QModelIndex,bool*)) );
+        connect( sync, SIGNAL(messageSaved(QString,QModelIndex)), this, SLOT(slotMessageStored(QString,QModelIndex)) );
         m_syncers[ mailbox ] = sync;
         sync->setMailbox( mailbox );
     }
@@ -92,28 +95,27 @@ void XtConnect::setupModels()
         factory.reset( new Imap::Mailbox::ProcessSocketFactory( appName, args ) );
     }
 
+    bool shouldUsePersistentCache = true;
     QString cacheDir = m_settings->value( Common::SettingsNames::xtConnectCacheDirectory).toString();
-    Imap::Mailbox::AbstractCache* cache = 0;
-
-    bool shouldUsePersistentCache = false; // FIXME: enable later
 
     if ( ! QDir().mkpath( cacheDir ) ) {
         qCritical() << "Failed to create directory" << cacheDir << " -- will not remember anything on restart!";
         shouldUsePersistentCache = false;
     }
 
-    if ( ! shouldUsePersistentCache ) {
-        cache = new Imap::Mailbox::MemoryCache( this, QString() );
-    } else {
-        cache = new XtCache( this, QLatin1String("trojita-imap-cache"), cacheDir );
-        connect( cache, SIGNAL(error(QString)), this, SLOT(cacheError(QString)) );
-        if ( ! static_cast<XtCache*>( cache )->open() ) {
+    if ( shouldUsePersistentCache ) {
+        m_cache = new XtCache( this, QLatin1String("trojita-imap-cache"), cacheDir );
+        connect( m_cache, SIGNAL(error(QString)), this, SLOT(cacheError(QString)) );
+        if ( ! m_cache->open() ) {
             // Error message was already shown by the cacheError() slot
-            cache->deleteLater();
-            cache = new Imap::Mailbox::MemoryCache( this, QString() );
+            m_cache->deleteLater();
+            m_cache = 0;
         }
     }
-    m_model = new Imap::Mailbox::Model( this, cache, factory, taskFactory, m_settings->value( SettingsNames::imapStartOffline ).toBool() );
+
+    m_model = new Imap::Mailbox::Model( this, m_cache ? static_cast<Imap::Mailbox::AbstractCache*>( m_cache ) :
+                                                        static_cast<Imap::Mailbox::AbstractCache*>( new Imap::Mailbox::MemoryCache( this, QString() ) ),
+                                        factory, taskFactory, m_settings->value( SettingsNames::imapStartOffline ).toBool() );
     m_model->setObjectName( QLatin1String("model") );
 
     connect( m_model, SIGNAL( alertReceived( const QString& ) ), this, SLOT( alertReceived( const QString& ) ) );
@@ -147,6 +149,7 @@ void XtConnect::cacheError(const QString &error)
 {
     qCritical() << "Cache error: " << error;
     if ( m_model ) {
+        m_cache = 0;
         m_model->setCache( new Imap::Mailbox::MemoryCache( m_model, QString() ) );
     }
 }
@@ -163,6 +166,21 @@ void XtConnect::goTroughMailboxes()
 {
     Q_FOREACH( MailSynchronizer *sync, m_syncers ) {
         sync->switchHere();
+    }
+}
+
+void XtConnect::slotAboutToRequestMessage( const QString &mailbox, const QModelIndex &message, bool *shouldLoad )
+{
+    Q_ASSERT( shouldLoad );
+    if ( m_cache && m_cache->isMessageSaved( mailbox, message.data( Imap::Mailbox::RoleMessageUid ).toUInt() ) ) {
+        *shouldLoad = false;
+    }
+}
+
+void XtConnect::slotMessageStored( const QString &mailbox, const QModelIndex &message )
+{
+    if ( m_cache ) {
+        m_cache->setMessageSaved( mailbox,  message.data( Imap::Mailbox::RoleMessageUid ).toUInt(), true );
     }
 }
 

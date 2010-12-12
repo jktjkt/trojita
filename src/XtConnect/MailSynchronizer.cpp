@@ -103,8 +103,15 @@ void MailSynchronizer::walkThroughMessages( int start, int end )
         QModelIndex message = m_model->index( i, 0, list );
         Q_ASSERT( message.isValid() );
         QVariant uid = m_model->data( message, Imap::Mailbox::RoleMessageUid );
+
         if ( uid.isValid() && uid.toUInt() != 0 ) {
-            m_downloader->requestDownload( message );
+            bool shouldLoad = true;
+            emit aboutToRequestMessage( m_mailbox, message, &shouldLoad );
+            if ( shouldLoad ) {
+                m_downloader->requestDownload( message );
+            } else {
+                qDebug() << m_mailbox << uid.toUInt() << "skipped by upper layer's decision";
+            }
         } else {
             qDebug() << m_mailbox << i << "[unsynced message, huh?]";
         }
@@ -168,11 +175,15 @@ void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const Q
 
     if ( m_storage->markMailReady( emlId ) != SqlStorage::RESULT_OK ) {
         qWarning() << "Failed to mark mail ready";
+        return;
     }
 
     if ( ! guard.commit() ) {
         m_storage->fail( QLatin1String("Failed to commit current transaction") );
+        return;
     }
+
+    emit messageSaved( m_mailbox, message );
 }
 
 void MailSynchronizer::_saveAddrList( const quint64 emlId, const QVariant &addresses, const QLatin1String kind )
