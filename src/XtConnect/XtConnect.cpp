@@ -61,6 +61,7 @@ XtConnect::XtConnect(QObject *parent, QSettings *s) :
         MailSynchronizer *sync = new MailSynchronizer( this, m_model, m_finder, downloader, storage );
         connect( sync, SIGNAL(aboutToRequestMessage(QString,QModelIndex,bool*)), this, SLOT(slotAboutToRequestMessage(QString,QModelIndex,bool*)) );
         connect( sync, SIGNAL(messageSaved(QString,QModelIndex)), this, SLOT(slotMessageStored(QString,QModelIndex)) );
+        connect( sync, SIGNAL(messageIsDuplicate(QString,QModelIndex)), this, SLOT(slotMessageIsDuplicate(QString,QModelIndex)) );
         m_syncers[ mailbox ] = sync;
         sync->setMailbox( mailbox );
     }
@@ -172,15 +173,30 @@ void XtConnect::goTroughMailboxes()
 void XtConnect::slotAboutToRequestMessage( const QString &mailbox, const QModelIndex &message, bool *shouldLoad )
 {
     Q_ASSERT( shouldLoad );
-    if ( m_cache && m_cache->isMessageSaved( mailbox, message.data( Imap::Mailbox::RoleMessageUid ).toUInt() ) ) {
-        *shouldLoad = false;
+    if ( m_cache ) {
+        XtCache::SavingState status = m_cache->messageSavingStatus( mailbox, message.data( Imap::Mailbox::RoleMessageUid ).toUInt() );
+        switch ( status ) {
+        case XtCache::STATE_DUPLICATE:
+        case XtCache::STATE_SAVED:
+            *shouldLoad = false;
+            break;
+        case XtCache::STATE_UNKNOWN:
+            break;
+        }
     }
 }
 
 void XtConnect::slotMessageStored( const QString &mailbox, const QModelIndex &message )
 {
     if ( m_cache ) {
-        m_cache->setMessageSaved( mailbox,  message.data( Imap::Mailbox::RoleMessageUid ).toUInt(), true );
+        m_cache->setMessageSavingStatus( mailbox,  message.data( Imap::Mailbox::RoleMessageUid ).toUInt(), XtCache::STATE_SAVED );
+    }
+}
+
+void XtConnect::slotMessageIsDuplicate( const QString &mailbox, const QModelIndex &message )
+{
+    if ( m_cache ) {
+        m_cache->setMessageSavingStatus( mailbox,  message.data( Imap::Mailbox::RoleMessageUid ).toUInt(), XtCache::STATE_DUPLICATE );
     }
 }
 

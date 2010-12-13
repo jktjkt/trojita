@@ -160,6 +160,7 @@ void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const Q
 
     if ( res == SqlStorage::RESULT_DUPLICATE ) {
         qDebug() << "Duplicate message, skipping";
+        emit messageIsDuplicate( m_mailbox, message );
         return;
     }
 

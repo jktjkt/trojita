@@ -138,17 +138,31 @@ void XtCache::setMsgPart( const QString& mailbox, uint uid, const QString& partI
     Q_UNUSED(data);
 }
 
-bool XtCache::isMessageSaved( const QString &mailbox, const uint uid ) const
+XtCache::SavingState XtCache::messageSavingStatus( const QString &mailbox, const uint uid ) const
 {
     QStringList flags = _sqlCache->msgFlags( mailbox, uid );
-    return ! flags.isEmpty() && flags.first() == QLatin1String("S");
+    if ( flags.size() != 1 )
+        return STATE_UNKNOWN;
+    if ( flags.first() == QLatin1String("S") )
+        return STATE_SAVED;
+    if ( flags.first() == QLatin1String("D") )
+        return STATE_DUPLICATE;
+    return STATE_UNKNOWN;
 }
 
-void XtCache::setMessageSaved( const QString &mailbox, const uint uid, const bool isSaved )
+void XtCache::setMessageSavingStatus( const QString &mailbox, const uint uid, const SavingState status )
 {
     QStringList flags;
-    if ( isSaved )
+    switch ( status ) {
+    case STATE_DUPLICATE:
+        flags << QLatin1String("D");
+        break;
+    case STATE_SAVED:
         flags << QLatin1String("S");
+        break;
+    case STATE_UNKNOWN:
+        break;
+    }
     _sqlCache->setMsgFlags( mailbox, uid, flags );
 }
 

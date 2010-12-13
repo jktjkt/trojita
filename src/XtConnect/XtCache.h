@@ -92,10 +92,17 @@ public:
     /** @short Open a connection to the cache */
     bool open();
 
+    /** @short Saving status of a message */
+    typedef enum {
+        STATE_SAVED, /**< Message has been already saved into the DB */
+        STATE_DUPLICATE, /**< A duplicate message is already in the DB */
+        STATE_UNKNOWN /**< The DB doesn't know anything about this message */
+    } SavingState;
+
     /** @short Has it been stored in the DB already? */
-    bool isMessageSaved( const QString &mailbox, const uint uid ) const;
+    SavingState messageSavingStatus( const QString &mailbox, const uint uid ) const;
     /** @short Set message saving status */
-    void setMessageSaved( const QString &mailbox, const uint uid, const bool isSaved );
+    void setMessageSavingStatus( const QString &mailbox, const uint uid, const SavingState status );
 
 private:
     /** @short The SQL-based cache */

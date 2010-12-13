@@ -65,6 +65,8 @@ public slots:
     void slotAboutToRequestMessage( const QString &mailbox, const QModelIndex &message, bool *shouldLoad );
     /** @short A message has been stored into the database */
     void slotMessageStored( const QString &mailbox, const QModelIndex &message );
+    /** @short A message is already present in the database */
+    void slotMessageIsDuplicate( const QString &mailbox, const QModelIndex &message );
 
 private:
     void setupModels();

@@ -56,6 +56,7 @@ This is required if the total number of mailboxes exceeds the configured limit o
 signals:
     void aboutToRequestMessage( const QString &mailbox, const QModelIndex &message, bool *shouldLoad );
     void messageSaved( const QString &mailbox, const QModelIndex &message );
+    void messageIsDuplicate( const QString &mailbox, const QModelIndex &message );
 private slots:
     void slotRowsInserted( const QModelIndex &parent, int start, int end );
     void slotMailboxFound( const QString &mailbox, const QModelIndex &index );
