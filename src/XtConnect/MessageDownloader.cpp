@@ -212,4 +212,9 @@ MessageDownloader::MainPartReturnCode MessageDownloader::findMainPartOfMessage(
     return MAINPART_FOUND;
 }
 
+int MessageDownloader::pendingMessages() const
+{
+    return m_parts.size();
+}
+
 }

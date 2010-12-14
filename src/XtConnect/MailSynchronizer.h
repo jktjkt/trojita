@@ -53,6 +53,8 @@ public:
 This is required if the total number of mailboxes exceeds the configured limit of parallel connections
 */
     void switchHere();
+    /** @short Dump some statistics about how many messages are we waiting for */
+    void debugStats() const;
 signals:
     void aboutToRequestMessage( const QString &mailbox, const QModelIndex &message, bool *shouldLoad );
     void messageSaved( const QString &mailbox, const QModelIndex &message );

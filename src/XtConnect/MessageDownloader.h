@@ -40,6 +40,7 @@ class MessageDownloader : public QObject
 public:
     explicit MessageDownloader( QObject *parent );
     void requestDownload( const QModelIndex &message );
+    int pendingMessages() const;
 private slots:
     void slotDataChanged( const QModelIndex &a, const QModelIndex &b );
 

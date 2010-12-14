@@ -68,6 +68,9 @@ public slots:
     /** @short A message is already present in the database */
     void slotMessageIsDuplicate( const QString &mailbox, const QModelIndex &message );
 
+    /** @short Dump some statistics about how is it going */
+    void slotDumpStats();
+
 private:
     void setupModels();
 

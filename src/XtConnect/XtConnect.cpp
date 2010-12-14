@@ -56,6 +56,12 @@ XtConnect::XtConnect(QObject *parent, QSettings *s) :
     m_finder = new MailboxFinder( this, m_model );
     SqlStorage *storage = new SqlStorage(this);
     storage->open();
+
+    QTimer *statsDumper = new QTimer(this);
+    connect( statsDumper, SIGNAL(timeout()), this, SLOT(slotDumpStats()) );
+    statsDumper->setInterval( 5000 );
+    statsDumper->start();
+
     Q_FOREACH( const QString &mailbox, s->value( Common::SettingsNames::xtSyncMailboxList ).toStringList() ) {
         MessageDownloader *downloader = new MessageDownloader( this );
         MailSynchronizer *sync = new MailSynchronizer( this, m_model, m_finder, downloader, storage );
@@ -197,6 +203,13 @@ void XtConnect::slotMessageIsDuplicate( const QString &mailbox, const QModelInde
 {
     if ( m_cache ) {
         m_cache->setMessageSavingStatus( mailbox,  message.data( Imap::Mailbox::RoleMessageUid ).toUInt(), XtCache::STATE_DUPLICATE );
+    }
+}
+
+void XtConnect::slotDumpStats()
+{
+    Q_FOREACH( const QPointer<MailSynchronizer> item, m_syncers ) {
+        item->debugStats();
     }
 }
 

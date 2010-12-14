@@ -215,4 +215,9 @@ void MailSynchronizer::_saveAddrList( const quint64 emlId, const QVariant &addre
     }
 }
 
+void MailSynchronizer::debugStats() const
+{
+    qDebug() << QString::fromAscii("Mailbox %1: pending %2").arg( m_mailbox, QString::number( m_downloader->pendingMessages() ) );
+}
+
 }
