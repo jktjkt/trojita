@@ -1146,12 +1146,13 @@ void Model::runReadyTasks()
             QList<ImapTask*> deletedList;
             QList<ImapTask*>::const_iterator taskEnd = origList.constEnd();
             for ( QList<ImapTask*>::const_iterator taskIt = origList.constBegin(); taskIt != taskEnd; ++taskIt ) {
-                if ( (*taskIt)->isReadyToRun() ) {
-                    (*taskIt)->perform();
+                ImapTask *task = *taskIt;
+                if ( task->isReadyToRun() ) {
+                    task->perform();
                     runSomething = true;
                 }
-                if ( (*taskIt)->isFinished() ) {
-                    deletedList << *taskIt;
+                if ( task->isFinished() ) {
+                    deletedList << task;
                 }
             }
             removeDeletedTasks( deletedList, parserIt->activeTasks );
