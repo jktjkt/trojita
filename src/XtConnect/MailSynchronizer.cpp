@@ -217,7 +217,13 @@ void MailSynchronizer::_saveAddrList( const quint64 emlId, const QVariant &addre
 
 void MailSynchronizer::debugStats() const
 {
-    qDebug() << QString::fromAscii("Mailbox %1: pending %2").arg( m_mailbox, QString::number( m_downloader->pendingMessages() ) );
+    if ( m_index.isValid() ) {
+        qDebug() << "Mailbox" << m_mailbox <<
+                ( m_index.data(Imap::Mailbox::RoleMailboxItemsAreLoading).toBool() ? "[loading]" : "" ) <<
+                "total" << m_index.data( Imap::Mailbox::RoleTotalMessageCount ).toUInt() << ", pending" << m_downloader->pendingMessages();
+    } else {
+        qDebug() << "Mailbox" << m_mailbox << ": waiting for sync.";
+    }
 }
 
 }
