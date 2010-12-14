@@ -134,9 +134,10 @@ void Model::responseReceived( Parser *parser )
             bool handled = false;
             QList<ImapTask*> taskSnapshot = it->activeTasks;
             QList<ImapTask*> deletedTasks;
+            QList<ImapTask*>::const_iterator taskEnd = taskSnapshot.constEnd();
 
             // Try various tasks, perhaps it's their response. Also check if they're already finished and remove them.
-            for ( QList<ImapTask*>::iterator taskIt = taskSnapshot.begin(); taskIt != taskSnapshot.end(); ++taskIt ) {
+            for ( QList<ImapTask*>::const_iterator taskIt = taskSnapshot.constBegin(); taskIt != taskEnd; ++taskIt ) {
                 if ( ! handled ) {
                     handled = resp->plug( it->parser, *taskIt );
 
@@ -877,7 +878,7 @@ void Model::copyMoveMessages( TreeItemMailbox* sourceMbox, const QString& destMa
 
     QModelIndexList messages;
     Sequence seq;
-    QList<TreeItem*>::const_iterator it = list->_children.begin();
+    QList<TreeItem*>::const_iterator it = list->_children.constBegin();
     // qBinaryFind is not designed to operate on a value of a different kind than stored in the container
     // so we can't really compare TreeItem* with uint, even though our LessThan supports that
     // (it keeps calling it both via LowerThan(*it, value) and LowerThan(value, *it).
@@ -1143,7 +1144,8 @@ void Model::runReadyTasks()
             // Basically, calls to ImapTask::perform could invalidate our precious iterators.
             QList<ImapTask*> origList = parserIt->activeTasks;
             QList<ImapTask*> deletedList;
-            for ( QList<ImapTask*>::iterator taskIt = origList.begin(); taskIt != origList.end(); ++taskIt ) {
+            QList<ImapTask*>::const_iterator taskEnd = origList.constEnd();
+            for ( QList<ImapTask*>::const_iterator taskIt = origList.constBegin(); taskIt != taskEnd; ++taskIt ) {
                 if ( (*taskIt)->isReadyToRun() ) {
                     (*taskIt)->perform();
                     runSomething = true;
