@@ -67,6 +67,15 @@ private:
     TagGenerator t;
     uint existsA, uidValidityA, uidNextA;
     QList<uint> uidMapA;
+
+#if 0
+    uint x;
+    QTime ttt;
+private slots:
+    void testBenchmarkParserModelInteraction();
+    void gotLine();
+#endif
+
 };
 
 #endif

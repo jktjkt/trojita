@@ -103,9 +103,9 @@ Model::~Model()
     delete _authenticator;
 }
 
-void Model::responseReceived()
+void Model::responseReceived( Parser *parser )
 {
-    QMap<Parser*,ParserState>::iterator it = _parsers.find( qobject_cast<Imap::Parser*>( sender() ));
+    QMap<Parser*,ParserState>::iterator it = _parsers.find( parser );
     Q_ASSERT( it != _parsers.end() );
 
     while ( it.value().parser->hasResponse() ) {
@@ -789,17 +789,16 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
         reloadMailboxList();
 }
 
-void Model::slotParserDisconnected( const QString msg )
+void Model::slotParserDisconnected( Imap::Parser *parser, const QString msg )
 {
     emit connectionError( msg );
 
-    Parser* which = qobject_cast<Parser*>( sender() );
-    if ( ! which )
+    if ( ! parser )
         return;
 
     // This function is *not* called from inside the responseReceived(), so we have to remove the parser from the list, too
-    killParser( which );
-    _parsers.remove( which );
+    killParser( parser );
+    _parsers.remove( parser );
     parsersMightBeIdling();
 }
 
@@ -816,16 +815,15 @@ void Model::broadcastParseError( const uint parser, const QString& exceptionClas
                                   ).arg( exceptionClass, errorMessage, line, details ) );
 }
 
-void Model::slotParseError( const QString& exceptionClass, const QString& errorMessage, const QByteArray& line, int position )
+void Model::slotParseError( Parser *parser, const QString& exceptionClass, const QString& errorMessage, const QByteArray& line, int position )
 {
-    Parser* which = qobject_cast<Parser*>( sender() );
-    Q_ASSERT( which );
+    Q_ASSERT( parser );
 
-    broadcastParseError( which->parserId(), exceptionClass, errorMessage, line, position );
+    broadcastParseError( parser->parserId(), exceptionClass, errorMessage, line, position );
 
     // This function is *not* called from inside the responseReceived(), so we have to remove the parser from the list, too
-    killParser( which );
-    _parsers.remove( which );
+    killParser( parser );
+    _parsers.remove( parser );
     parsersMightBeIdling();
 }
 
@@ -1035,21 +1033,19 @@ void Model::changeConnectionState(Parser *parser, ConnectionState state)
     emit connectionStateChanged( parser, state );
 }
 
-void Model::handleSocketStateChanged(Imap::ConnectionState state)
+void Model::handleSocketStateChanged( Parser *parser, Imap::ConnectionState state)
 {
-    Parser* ptr = qobject_cast<Parser*>( sender() );
-    Q_ASSERT(ptr);
-    if ( accessParser( ptr ).connState < state ) {
-        changeConnectionState( ptr, state );
+    Q_ASSERT(parser);
+    if ( accessParser( parser ).connState < state ) {
+        changeConnectionState( parser, state );
     }
 }
 
-void Model::parserIsSendingCommand( const QString& tag)
+void Model::parserIsSendingCommand( Parser *parser, const QString& tag)
 {
-    Parser* ptr = qobject_cast<Parser*>( sender() );
-    Q_ASSERT(ptr);
-    QMap<CommandHandle, Task>::const_iterator it = accessParser( ptr ).commandMap.find( tag );
-    if ( it == accessParser( ptr ).commandMap.end() ) {
+    Q_ASSERT(parser);
+    QMap<CommandHandle, Task>::const_iterator it = accessParser( parser ).commandMap.find( tag );
+    if ( it == accessParser( parser ).commandMap.end() ) {
         qDebug() << "Dunno anything about command" << tag;
         return;
     }
@@ -1061,19 +1057,19 @@ void Model::parserIsSendingCommand( const QString& tag)
         case Task::LOGOUT: // not worth the effort
             break;
         case Task::LOGIN:
-            changeConnectionState( ptr, CONN_STATE_LOGIN );
+            changeConnectionState( parser, CONN_STATE_LOGIN );
             break;
         case Task::SELECT:
-            changeConnectionState( ptr, CONN_STATE_SELECTING );
+            changeConnectionState( parser, CONN_STATE_SELECTING );
             break;
         case Task::FETCH_WITH_FLAGS:
-            changeConnectionState( ptr, CONN_STATE_SYNCING );
+            changeConnectionState( parser, CONN_STATE_SYNCING );
             break;
         case Task::FETCH_PART:
-            changeConnectionState( ptr, CONN_STATE_FETCHING_PART );
+            changeConnectionState( parser, CONN_STATE_FETCHING_PART );
             break;
         case Task::FETCH_MESSAGE_METADATA:
-            changeConnectionState( ptr, CONN_STATE_FETCHING_MSG_METADATA );
+            changeConnectionState( parser, CONN_STATE_FETCHING_MSG_METADATA );
             break;
         case Task::NOOP:
         case Task::IDLE:
@@ -1115,17 +1111,15 @@ void Model::killParser(Parser *parser)
     accessParser( parser ).parser = 0;
 }
 
-void Model::slotParserLineReceived( const QByteArray& line )
+void Model::slotParserLineReceived( Parser *parser, const QByteArray& line )
 {
-    Parser* parser = qobject_cast<Parser*>( sender() );
     Q_ASSERT( parser );
     Q_ASSERT( _parsers.contains( parser ) );
     emit logParserLineReceived( parser->parserId(), line );
 }
 
-void Model::slotParserLineSent( const QByteArray& line )
+void Model::slotParserLineSent( Parser *parser, const QByteArray& line )
 {
-    Parser* parser = qobject_cast<Parser*>( sender() );
     Q_ASSERT( parser );
     Q_ASSERT( _parsers.contains( parser ) );
     emit logParserLineSent( parser->parserId(), line );

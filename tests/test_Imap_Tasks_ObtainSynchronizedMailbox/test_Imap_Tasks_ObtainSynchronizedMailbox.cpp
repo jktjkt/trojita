@@ -262,8 +262,6 @@ void ImapModelObtainSynchronizedMailboxTest::testResyncOneNew()
 }
 
 
-
-
 void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesEmptyState()
 {
     // Ask the model to sync stuff
@@ -675,5 +673,53 @@ void ImapModelObtainSynchronizedMailboxTest::helperCheckCache()
     QVERIFY( errorSpy->isEmpty() );
     QVERIFY( SOCK->writtenStuff().isEmpty() );
 }
+
+
+#if 0
+void ImapModelObtainSynchronizedMailboxTest::testBenchmarkParserModelInteraction()
+{
+    existsA = 100;
+    uidValidityA = 1;
+    for ( uint i = 1; i <= existsA; ++i ) {
+        uidMapA.append( i );
+    }
+    uidNextA = qMax( 666u, uidMapA.last() );
+    helperSyncAWithMessagesEmptyState();
+
+    x = 0;
+    connect(model, SIGNAL(logParserLineReceived(uint,QByteArray)), this, SLOT(gotLine()) );
+    QByteArray foo;
+    /* This is really interesting -- if we create just 10 objects here and Model::respnseReceived() and
+    Model::slotParserLineReceived() use sender() to find out which object sent the corresponding signal,
+    processing 100k responses takes roughly five seconds. Increasing the object count to 1000 and the
+    loop runs 6 seconds, and when we work with 10k objects, the loop for processing responses takes 40
+    seconds to complete.
+    Switching the corresponding functions in Model not to call sender() improves performance in an
+    extremely significant way, bringing the time back to roughly 5 seconds.
+*/
+    for ( int i = 0; i < 10000; ++i ) {
+        QObject *foo = new QObject(model);
+        connect(foo, SIGNAL(destroyed()), model, SLOT(slotTaskDying()));
+    }
+    for ( int i = 0; i < 100 * 1000 + 10; ++i ) {
+        foo += "* OK ping pong\r\n";
+    }
+    qDebug() << "...starting...";
+    ttt.restart();
+    SOCK->fakeReading(foo);
+    QCoreApplication::processEvents();
+    qDebug() << "....and processed" << x << "items.";
+}
+
+void ImapModelObtainSynchronizedMailboxTest::gotLine()
+{
+    ++x;
+    uint num = 100 * 1000;
+    if ( x == num ) {
+        qDebug() << "Time for" << num << "iterations:" << ttt.elapsed();
+    }
+}
+
+#endif
 
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )

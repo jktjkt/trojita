@@ -244,19 +244,21 @@ namespace Imap {
         /** UID THREAD, RFC5256 */
         CommandHandle uidThread( const QString& algo, const QString& charset, const QStringList& searchCriteria );
 
+        void slotSocketStateChanged( const Imap::ConnectionState connState );
+
 
     signals:
         /** @short Socket got disconnected */
-        void disconnected( const QString );
+        void disconnected( Imap::Parser*, const QString );
 
         /** @short Parse error when dealing with the server's response
 
 The receiver connected to this signal is expected to kill this parser ASAP.
 */
-        void parseError( const QString& exceptionClass, const QString& errorMessage, const QByteArray& line, int position );
+        void parseError( Imap::Parser* parser, const QString& exceptionClass, const QString& errorMessage, const QByteArray& line, int position );
 
         /** @short New response received */
-        void responseReceived();
+        void responseReceived( Imap::Parser *parser );
 
         /** @short A full line was received from the remote IMAP server
 
@@ -264,29 +266,29 @@ This signal is emited when a full line, including all embedded literals, have
 been received from the remote IMAP server, but before it was attempted to parse
 it. However,
  */
-        void lineReceived( const QByteArray& line );
+        void lineReceived( Imap::Parser* parser, const QByteArray& line );
 
         /** @short A full line has been sent to the remote IMAP server */
-        void lineSent( const QByteArray& line );
+        void lineSent( Imap::Parser* parser, const QByteArray& line );
 
         /** @short There's been a non-fatal error when parsing given line
 
 Detailed information is available in the @arg message with @arg line and @arg position
 containing the original line and indicating the troublesome position, or -1 if not applciable.
 */
-        void parserWarning( const QString& message, const QByteArray* line, uint position );
+        void parserWarning( Imap::Parser* parser, const QString& message, const QByteArray* line, uint position );
 
         void commandQueued();
 
         /** @short The socket's state has changed */
-        void connectionStateChanged(Imap::ConnectionState);
+        void connectionStateChanged(Imap::Parser* parser, Imap::ConnectionState);
 
         /** @short A command with the specified tag is being sent
 
         This signal is being emitted when the parser is just about to send the command
         identified by the @arg tag to the remote server.
 */
-        void sendingCommand( const QString& tag );
+        void sendingCommand( Imap::Parser* parser, const QString& tag );
 
     private slots:
         void handleReadyRead();

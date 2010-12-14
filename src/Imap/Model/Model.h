@@ -248,22 +248,22 @@ public slots:
 
 private slots:
     /** @short Handler for the "parser got disconnected" event */
-    void slotParserDisconnected( const QString );
+    void slotParserDisconnected( Imap::Parser *parser, const QString );
 
     /** @short Parser throwed out an exception */
-    void slotParseError( const QString& exceptionClass, const QString& errorMessage, const QByteArray& line, int position );
+    void slotParseError( Imap::Parser *parser, const QString& exceptionClass, const QString& errorMessage, const QByteArray& line, int position );
 
     /** @short Helper for low-level state change propagation */
-    void handleSocketStateChanged(Imap::ConnectionState state);
+    void handleSocketStateChanged( Imap::Parser *parser, Imap::ConnectionState state );
 
     /** @short Handler for the Parser::sendingCommand() signal */
-    void parserIsSendingCommand( const QString& tag );
+    void parserIsSendingCommand( Imap::Parser *parser, const QString& tag );
 
     /** @short The parser has received a full line */
-    void slotParserLineReceived( const QByteArray& line );
+    void slotParserLineReceived( Imap::Parser *parser, const QByteArray& line );
 
     /** @short The parser has sent a block of data */
-    void slotParserLineSent( const QByteArray& line );
+    void slotParserLineSent( Imap::Parser *parser, const QByteArray& line );
 
     /** @short There's been a change in the state of various tasks */
     void slotTasksChanged();
@@ -432,7 +432,7 @@ private:
     uint lastParserId;
 
 protected slots:
-    void responseReceived();
+    void responseReceived( Imap::Parser *parser );
 
     void runReadyTasks();
 

@@ -80,7 +80,7 @@ Parser::Parser( QObject* parent, Socket* socket, const uint myId ):
              this, SLOT( handleDisconnected( const QString& ) ) );
     connect( _socket, SIGNAL( readyRead() ), this, SLOT( handleReadyRead() ) );
     connect( _socket, SIGNAL(connected()), this, SLOT(handleConnectionEstablished()) );
-    connect( _socket, SIGNAL(stateChanged(Imap::ConnectionState)), this, SIGNAL(connectionStateChanged(Imap::ConnectionState)) );
+    connect( _socket, SIGNAL(stateChanged(Imap::ConnectionState)), this, SLOT(slotSocketStateChanged(Imap::ConnectionState)) );
 }
 
 CommandHandle Parser::noop()
@@ -356,7 +356,7 @@ CommandHandle Parser::queueCommand( Commands::Command command )
 void Parser::queueResponse( const QSharedPointer<Responses::AbstractResponse>& resp )
 {
     _respQueue.push_back( resp );
-    emit responseReceived();
+    emit responseReceived( this );
 }
 
 bool Parser::hasResponse() const
@@ -442,7 +442,7 @@ void Parser::reallyReadLine()
             throw CantHappen( "canReadLine() returned true, but following readLine() failed" );
         }
     } catch ( ParserException& e ) {
-        emit parseError( QString::fromStdString( e.exceptionClass() ), QString::fromStdString( e.msg() ), e.line(), e.offset() );
+        emit parseError( this, QString::fromStdString( e.exceptionClass() ), QString::fromStdString( e.msg() ), e.line(), e.offset() );
     }
 }
 
@@ -456,7 +456,7 @@ void Parser::executeCommands()
 
 void Parser::finishStartTls()
 {
-    emit lineSent( "*** STARTTLS" );
+    emit lineSent( this, "*** STARTTLS" );
 #ifdef PRINT_TRAFFIC
     qDebug() << _parserId << "*** STARTTLS";
 #endif
@@ -474,7 +474,7 @@ void Parser::executeACommand()
     QByteArray buf;
 
     if ( cmd._cmds[ cmd._currentPart ]._kind == Commands::ATOM )
-        emit sendingCommand( cmd._cmds[ cmd._currentPart ]._text );
+        emit sendingCommand( this, cmd._cmds[ cmd._currentPart ]._text );
 
     if ( cmd._cmds[ cmd._currentPart ]._kind == Commands::IDLE_DONE ) {
         // Handling of the IDLE_DONE is a bit special, as we have to check and update the _idling flag...
@@ -486,7 +486,7 @@ void Parser::executeACommand()
         _socket->write( buf );
         _idling = false;
         _cmdQueue.pop_front();
-        emit lineSent( buf );
+        emit lineSent( this, buf );
         buf.clear();
         return;
     }
@@ -526,7 +526,7 @@ void Parser::executeACommand()
                     _socket->write( buf );
                     part._numberSent = true;
                     _waitingForContinuation = true;
-                    emit lineSent( buf );
+                    emit lineSent( this, buf );
                     return; // and wait for continuation request
                 }
                 break;
@@ -542,7 +542,7 @@ void Parser::executeACommand()
                 _idling = true;
                 _waitForInitialIdle = true;
                 _cmdQueue.pop_front();
-                emit lineSent( buf );
+                emit lineSent( this, buf );
                 return;
                 break;
             case Commands::STARTTLS:
@@ -553,7 +553,7 @@ void Parser::executeACommand()
 #endif
                 _socket->write( buf );
                 _startTlsInProgress = true;
-                emit lineSent( buf );
+                emit lineSent( this, buf );
                 return;
                 break;
         }
@@ -565,7 +565,7 @@ void Parser::executeACommand()
 #endif
             _socket->write( buf );
             _cmdQueue.pop_front();
-            emit lineSent( buf );
+            emit lineSent( this, buf );
             break;
         } else {
             buf.append( ' ' );
@@ -584,7 +584,7 @@ void Parser::processLine( QByteArray line )
     else
         qDebug() << _parserId << "<<<" << debugLine;
 #endif
-    emit lineReceived( line );
+    emit lineReceived( this, line );
     if ( line.startsWith( "* " ) ) {
         queueResponse( parseUntagged( line ) );
     } else if ( line.startsWith( "+ " ) ) {
@@ -746,11 +746,11 @@ void Parser::enableLiteralPlus( const bool enabled )
 
 void Parser::handleDisconnected( const QString& reason )
 {
-    emit lineReceived( "*** Socket disconnected" );
+    emit lineReceived( this, "*** Socket disconnected" );
 #ifdef PRINT_TRAFFIC
     qDebug() << _parserId << "*** Socket disconnected";
 #endif
-    emit disconnected( reason );
+    emit disconnected( this, reason );
 }
 
 void Parser::handleConnectionEstablished()
@@ -758,7 +758,7 @@ void Parser::handleConnectionEstablished()
 #ifdef PRINT_TRAFFIC
     qDebug() << _parserId << "*** Connection established";
 #endif
-    emit lineReceived( "*** Connection established" );
+    emit lineReceived( this, "*** Connection established" );
     _waitingForConnection = false;
     QTimer::singleShot( 0, this, SLOT(executeCommands()));
 }
@@ -775,6 +775,11 @@ Parser::~Parser()
 uint Parser::parserId() const
 {
     return _parserId;
+}
+
+void Parser::slotSocketStateChanged( const Imap::ConnectionState connState )
+{
+    emit connectionStateChanged( this, connState );
 }
 
 Sequence::Sequence( const uint num ): _kind(DISTINCT)
