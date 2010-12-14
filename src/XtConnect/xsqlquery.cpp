@@ -25,7 +25,6 @@
 #include <QSqlDriver>
 #include <QSqlResult>
 #include <QCursor>
-#include <QApplication>
 #include <QMap>
 
 #include "xsqlquery.h"
@@ -136,9 +135,7 @@ XSqlQuery::XSqlQuery(const QString &pSql, QSqlDatabase db) :
   QSqlQuery(QString::null, db)
 {
   _data = new XSqlQueryPrivate(this);
-  qApp->setOverrideCursor(Qt::WaitCursor);
   exec(pSql.toAscii().data());
-  qApp->restoreOverrideCursor();
 }
 
 XSqlQuery::XSqlQuery(const QSqlQuery & other) :
@@ -219,7 +216,6 @@ int XSqlQuery::count()
 
 bool XSqlQuery::exec()
 {
-  qApp->setOverrideCursor(Qt::WaitCursor);
   bool returnValue = false;
 
   if(_data && _data->_emulatePrepare)
@@ -235,7 +231,6 @@ bool XSqlQuery::exec()
   }
   else
     returnValue = QSqlQuery::exec();
-  qApp->restoreOverrideCursor();
 
   if (_data)
     _data->_currRecord = record();
@@ -248,9 +243,7 @@ bool XSqlQuery::exec()
 
 bool XSqlQuery::exec(const QString &pSql)
 {
-  qApp->setOverrideCursor(Qt::WaitCursor);
   bool returnValue = QSqlQuery::exec(pSql);
-  qApp->restoreOverrideCursor();
 
   if (_data)
     _data->_currRecord = record();
