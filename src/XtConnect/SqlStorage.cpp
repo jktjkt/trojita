@@ -55,7 +55,7 @@ void SqlStorage::open()
 
 void SqlStorage::_prepareStatements()
 {
-    _queryInsertMail = QSqlQuery(db);
+    _queryInsertMail = XSqlQuery(db);
     if ( ! _queryInsertMail.prepare( QLatin1String("INSERT INTO xtbatch.eml "
                                                    "(eml_hash, eml_date, eml_subj, eml_body, eml_msg, eml_status) "
                                                    "SELECT ?, ?, ?, ?, ?, 'I' WHERE NOT EXISTS "
@@ -63,13 +63,13 @@ void SqlStorage::_prepareStatements()
                                                    "RETURNING eml_id") ) )
         _fail( "Failed to prepare query _queryInsertMail", _queryInsertMail );
 
-    _queryInsertAddress = QSqlQuery(db);
+    _queryInsertAddress = XSqlQuery(db);
     if ( ! _queryInsertAddress.prepare( QLatin1String("INSERT INTO xtbatch.emladdr "
                                                       "(emladdr_eml_id, emladdr_type, emladdr_addr, emladdr_name) "
                                                       "VALUES (?, ?, ?, ?)") ) )
         _fail( "Failed to prepare query _queryInsertAddress", _queryInsertAddress );
 
-    _queryMarkMailReady = QSqlQuery(db);
+    _queryMarkMailReady = XSqlQuery(db);
     if ( ! _queryMarkMailReady.prepare( QLatin1String("UPDATE xtbatch.eml SET eml_status = 'O' WHERE eml_id = ?") ) )
         _fail( "Failed to prepare query _queryMarkMailReady", _queryMarkMailReady );
 }
