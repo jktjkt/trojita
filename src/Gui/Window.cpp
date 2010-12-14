@@ -974,6 +974,7 @@ void MainWindow::slotXtSyncCurrentMailbox()
 
 void MainWindow::slotScrollToUnseenMessage( const QModelIndex &mailbox, const QModelIndex &message )
 {
+    // FIXME: unit tests
     Q_ASSERT(msgListModel);
     Q_ASSERT(msgListTree);
     if ( model->realTreeItem( mailbox ) != msgListModel->currentMailbox() )
