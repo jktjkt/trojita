@@ -106,7 +106,6 @@ initialize synchronization now.
     void slotPerformNoop();
     void slotActivateTasks() { activateTasks(); }
     void slotFetchRequestedParts();
-    void slotFetchTaskFinished();
 
 private:
     void terminate();
@@ -134,7 +133,7 @@ protected:
     bool shouldRunNoop;
     bool shouldRunIdle;
     IdleLauncher* idleLauncher;
-    FetchMsgPartTask *fetchPartTask;
+    QList<FetchMsgPartTask*> fetchPartTasks;
     CommandHandle tagIdle;
     CommandHandle uidSyncingCmd;
     friend class IdleLauncher;

@@ -36,7 +36,7 @@ FIXME: we should eat "* OK [CLOSED] former mailbox closed", or somehow let it fa
 
 KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mailboxIndex, Parser* oldParser ) :
     ImapTask( _model ), mailboxIndex(_mailboxIndex), synchronizeConn(0), shouldExit(false), isRunning(false),
-    shouldRunNoop(false), shouldRunIdle(false), idleLauncher(0), fetchPartTask(0)
+    shouldRunNoop(false), shouldRunIdle(false), idleLauncher(0)
 {
     Q_ASSERT( mailboxIndex.isValid() );
     Q_ASSERT( mailboxIndex.model() == model );
@@ -100,7 +100,7 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
     connect( fetchTimer, SIGNAL(timeout()), this, SLOT(slotFetchRequestedParts()) );
     timeout = model->property( "trojita-imap-delayed-fetch-part" ).toUInt( &ok );
     if ( ! ok )
-        timeout = 500; // FIXME: twek for GUI...
+        timeout = 50;
     fetchTimer->setInterval( timeout );
     fetchTimer->setSingleShot( true );
 
@@ -150,6 +150,12 @@ void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )
     // we can't use the passed pointer directly, and therefore we have to perform the cast here. It is safe
     // to do that here, as we're only interested in raw pointer value.
     dependentTasks.removeOne( static_cast<ImapTask*>( object ) );
+
+    QList<FetchMsgPartTask*>::iterator it = qFind( fetchPartTasks.begin(), fetchPartTasks.end(), static_cast<FetchMsgPartTask*>( object ) );
+    if ( it != fetchPartTasks.end() ) {
+        fetchPartTasks.erase( it );
+        slotFetchRequestedParts();
+    }
 
     if ( shouldExit && dependentTasks.isEmpty() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
         terminate();
@@ -427,7 +433,7 @@ void KeepMailboxOpenTask::activateTasks()
 void KeepMailboxOpenTask::requestPartDownload( const uint uid, const QString &partId )
 {
     requestedParts[uid].insert( partId );
-    if ( ! fetchTimer->isActive() && ! fetchPartTask )
+    if ( ! fetchTimer->isActive() && fetchPartTasks.size() < 50 )
         fetchTimer->start();
 }
 
@@ -438,28 +444,21 @@ void KeepMailboxOpenTask::slotFetchRequestedParts()
 
     QMap<uint, QSet<QString> >::iterator it = requestedParts.begin();
     QSet<QString> parts = *it;
-    QList<uint> uids;
-    while ( uids.size() < 100 && it != requestedParts.end() ) {
-        if ( parts != *it )
-            break;
-        parts = *it;
-        uids << it.key();
-        it = requestedParts.erase( it );
+
+    while ( fetchPartTasks.size() < 50 ) {
+        QList<uint> uids;
+        while ( uids.size() < 100 && it != requestedParts.end() ) {
+            if ( parts != *it )
+                break;
+            parts = *it;
+            uids << it.key();
+            it = requestedParts.erase( it );
+        }
+        qDebug() << "About to request" << uids.size() << "items;" << requestedParts.size() << "remaining";
+        FetchMsgPartTask *task = model->_taskFactory->createFetchMsgPartTask( model, mailboxIndex, uids, parts.toList() );
+        fetchPartTasks << task;
     }
-    qDebug() << "About to request" << uids.size() << "items;" << requestedParts.size() << "remaining";
-    fetchPartTask = model->_taskFactory->createFetchMsgPartTask( model, mailboxIndex, uids, parts.toList() );
-    connect( fetchPartTask, SIGNAL(completed()), this, SLOT(slotFetchTaskFinished()) );
 }
-
-void KeepMailboxOpenTask::slotFetchTaskFinished()
-{
-    fetchPartTask = 0;
-    if ( ! fetchTimer->isActive() )
-        fetchTimer->start();
-    // FIXME: without that delay
-    // slotFetchRequestedParts();
-}
-
 
 }
 }
