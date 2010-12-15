@@ -455,8 +455,15 @@ void TreeItemMailbox::finalizeFetch( Model* const model, const Responses::Status
 
 TreeItemPart* TreeItemMailbox::partIdToPtr( Model* const model, const int msgNumber, const QString& msgId )
 {
-    Q_ASSERT( msgId.startsWith( QLatin1String("BODY[") ) && msgId.endsWith( QLatin1String("]") ) );
-    QString partIdentification = msgId.mid( 5, msgId.size() - 6 );
+    QString partIdentification;
+    if ( msgId.startsWith(QLatin1String("BODY[")) ) {
+        partIdentification = msgId.mid( 5, msgId.size() - 6 );
+    } else if ( msgId.startsWith(QLatin1String("BODY.PEEK[")) ) {
+        partIdentification = msgId.mid( 10, msgId.size() - 11 );
+    } else {
+        throw UnknownMessageIndex( QString::fromAscii("Fetch identifier doesn't start with reasonable prefix: %1" ).arg(msgId).toAscii().constData() );
+    }
+
     TreeItem* item = _children[0]; // TreeItemMsgList
     Q_ASSERT( static_cast<TreeItemMsgList*>( item )->fetched() );
     item = item->child( msgNumber - 1, model ); // TreeItemMessage
