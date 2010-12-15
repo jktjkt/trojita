@@ -256,7 +256,9 @@ void MailSynchronizer::slotCheckWatchdog()
     QMap<QPersistentModelIndex, QTime>::iterator it = m_watchdog.begin();
     while ( it != m_watchdog.end() ) {
         if ( it->elapsed() > 30000 ) {
-            qDebug() << "Timed out waiting for message" << it.key().data( Imap::Mailbox::RoleMessageUid ).toUInt();
+            qDebug() << "Timed out waiting for message" << it.key().data( Imap::Mailbox::RoleMessageUid ).toUInt() << m_mailbox << " -- queueing again";
+            // Let's request it again...
+            m_queuedMessages << it.key();
             it = m_watchdog.erase( it );
             continue;
         }
