@@ -33,9 +33,12 @@ This version is used for testing of various other tasks. Its purpose is to preve
 cluttering up of the socket/connection with irrelevant data when testing other tasks.
 */
 class Fake_OpenConnectionTask: public OpenConnectionTask {
+    Q_OBJECT
 public:
     Fake_OpenConnectionTask( Imap::Mailbox::Model* _model, Imap::Parser* _parser );
     virtual void perform();
+protected slots:
+    void slotPerform() { perform(); }
 private:
     bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
 };

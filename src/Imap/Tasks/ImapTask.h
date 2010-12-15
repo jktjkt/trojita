@@ -100,9 +100,6 @@ signals:
     /** @short This signal is emitted upon succesfull completion of a job */
     void completed();
 
-protected slots:
-    void slotPerform() { perform(); }
-
 public:
     Imap::Parser* parser;
 
