@@ -282,7 +282,7 @@ QList<TreeItem*> TreeItemMailbox::setChildren( const QList<TreeItem*> items )
 
 void TreeItemMailbox::handleFetchResponse( Model* const model,
                                            const Responses::Fetch& response,
-                                           TreeItemPart** changedPart,
+                                           QList<TreeItemPart*>* changedParts,
                                            TreeItemMessage** changedMessage )
 {
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[0] );
@@ -350,8 +350,8 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
             part->_fetchStatus = DONE;
             if ( message->uid() )
                 model->cache()->setMsgPart( mailbox(), message->uid(), it.key(), part->_data );
-            if ( changedPart ) {
-                *changedPart = part;
+            if ( changedParts ) {
+                changedParts->append( part );
             }
         } else if ( it.key() == "FLAGS" ) {
             bool wasSeen = message->isMarkedAsRead();

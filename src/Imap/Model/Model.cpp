@@ -1212,19 +1212,21 @@ KeepMailboxOpenTask* Model::findTaskResponsibleFor( TreeItemMailbox *mailboxPtr 
 void Model::_genericHandleFetch( TreeItemMailbox* mailbox, const Imap::Responses::Fetch* const resp )
 {
     Q_ASSERT(mailbox);
-    TreeItemPart* changedPart = 0;
+    QList<TreeItemPart*> changedParts;
     TreeItemMessage* changedMessage = 0;
-    mailbox->handleFetchResponse( this, *resp, &changedPart, &changedMessage );
-    if ( changedPart ) {
-        QModelIndex index;
-        if ( TreeItemModifiedPart* modifiedPart = dynamic_cast<TreeItemModifiedPart*>( changedPart ) ) {
-            // A special case, we're dealing with irregular layout
-            index = createIndex( changedPart->row(), static_cast<int>( modifiedPart->kind() ), changedPart );
-        } else {
-            // Normal parts without fancy modifiers
-            index = createIndex( changedPart->row(), 0, changedPart );
+    mailbox->handleFetchResponse( this, *resp, &changedParts, &changedMessage );
+    if ( ! changedParts.isEmpty() ) {
+        Q_FOREACH( TreeItemPart* part, changedParts ) {
+            QModelIndex index;
+            if ( TreeItemModifiedPart* modifiedPart = dynamic_cast<TreeItemModifiedPart*>( part ) ) {
+                // A special case, we're dealing with irregular layout
+                index = createIndex( part->row(), static_cast<int>( modifiedPart->kind() ), part );
+            } else {
+                // Normal parts without fancy modifiers
+                index = createIndex( part->row(), 0, part );
+            }
+            emit dataChanged( index, index );
         }
-        emit dataChanged( index, index );
     }
     if ( changedMessage ) {
         QModelIndex index = createIndex( changedMessage->row(), 0, changedMessage );
