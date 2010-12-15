@@ -637,7 +637,7 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
     }
 
     if ( networkPolicy() != NETWORK_OFFLINE ) {
-        findTaskResponsibleFor( createIndex( mailboxPtr->row(), 0, mailboxPtr ) );
+        findTaskResponsibleFor( mailboxPtr );
         // and that's all -- the task will detect following replies and sync automatically
     }
 }
@@ -1189,8 +1189,12 @@ KeepMailboxOpenTask* Model::findTaskResponsibleFor( const QModelIndex& mailbox )
     Q_ASSERT( mailbox.isValid() );
     QModelIndex translatedIndex;
     TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( realTreeItem( mailbox, 0, &translatedIndex ) );
-    Q_ASSERT( mailboxPtr );
+    return findTaskResponsibleFor( mailboxPtr );
+}
 
+KeepMailboxOpenTask* Model::findTaskResponsibleFor( TreeItemMailbox *mailboxPtr )
+{
+    Q_ASSERT( mailboxPtr );
     bool canCreateConn = _parsers.isEmpty(); // FIXME: multiple connections
 
     if ( mailboxPtr->maintainingTask ) {
@@ -1198,12 +1202,12 @@ KeepMailboxOpenTask* Model::findTaskResponsibleFor( const QModelIndex& mailbox )
         return mailboxPtr->maintainingTask;
     } else if ( canCreateConn ) {
         // The mailbox is not being maintained, but we can create a new connection
-        return _taskFactory->createKeepMailboxOpenTask( this, translatedIndex, 0 );
+        return _taskFactory->createKeepMailboxOpenTask( this, createIndex( mailboxPtr->row(), 0, mailboxPtr ), 0 );
     } else {
         // Too bad, we have to re-use an existing parser. That will probably lead to
         // stealing it from some mailbox, but there's no other way.
         Q_ASSERT( ! _parsers.isEmpty() );
-        return _taskFactory->createKeepMailboxOpenTask( this, translatedIndex, _parsers.begin().key() );
+        return _taskFactory->createKeepMailboxOpenTask( this, createIndex( mailboxPtr->row(), 0, mailboxPtr ), _parsers.begin().key() );
     }
 }
 void Model::_genericHandleFetch( TreeItemMailbox* mailbox, const Imap::Responses::Fetch* const resp )

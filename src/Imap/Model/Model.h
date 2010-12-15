@@ -395,6 +395,7 @@ private:
 
     /** @short Return a corresponding KeepMailboxOpenTask for a given mailbox */
     KeepMailboxOpenTask* findTaskResponsibleFor( const QModelIndex& mailbox );
+    KeepMailboxOpenTask* findTaskResponsibleFor( TreeItemMailbox *mailboxPtr );
 
     /** @short Find a mailbox which is expected to be common for all passed items
 
