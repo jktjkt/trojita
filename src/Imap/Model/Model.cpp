@@ -422,15 +422,19 @@ void Model::emitMessageCountChanged( TreeItemMailbox* const mailbox )
 }
 
 /** @short Retrieval of a message part has completed */
-void Model::_finalizeFetchPart( Parser* parser, TreeItemPart* const part )
+void Model::_finalizeFetchPart( Parser* parser, TreeItemMailbox* const mailbox, const uint sequenceNo, const QString &partId )
 {
+    TreeItemPart* part = mailbox->partIdToPtr( this, sequenceNo, partId );
+    if ( ! part ) {
+        qDebug() << "Can't verify part fetching status: part is not here!";
+        return;
+    }
     if ( part->loading() ) {
         // basically, there's nothing to do if the FETCH targetted a message part and not the message as a whole
         qDebug() << "Imap::Model::_finalizeFetch(): didn't receive anything about message" <<
             part->message()->row() << "part" << part->partId();
         part->_fetchStatus = TreeItem::DONE;
     }
-    changeConnectionState( parser, CONN_STATE_SELECTED );
 }
 
 void Model::handleCapability( Imap::Parser* ptr, const Imap::Responses::Capability* const resp )
@@ -750,7 +754,8 @@ void Model::_askForMsgPart( TreeItemPart* item, bool onlyFromCache )
         if ( item->_fetchStatus != TreeItem::DONE )
             item->_fetchStatus = TreeItem::UNAVAILABLE;
     } else if ( ! onlyFromCache ) {
-        _taskFactory->createFetchMsgPartTask( this, mailboxPtr, item );
+        QModelIndex mailboxIndex = createIndex( mailboxPtr->row(), 0, mailboxPtr );
+        _taskFactory->createFetchMsgPartTask( this, mailboxIndex, QList<uint>() << item->message()->_uid, QStringList() << item->partIdForFetch() );
     }
 }
 

@@ -26,23 +26,24 @@
 namespace Imap {
 namespace Mailbox {
 
-class TreeItemMailbox;
-class TreeItemPart;
-
 /** @short Fetch a message part */
 class FetchMsgPartTask : public ImapTask
 {
 Q_OBJECT
 public:
-    FetchMsgPartTask( Model* _model, TreeItemMailbox* mailbox, TreeItemPart* part );
+    FetchMsgPartTask( Model* _model, const QModelIndex &_mailbox, const QList<uint> &_uids, const QStringList &_parts );
     virtual void perform();
 
     virtual bool handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
 private:
+    void verifyFetchingState();
+
     CommandHandle tag;
     ImapTask* conn;
-    QPersistentModelIndex index;
+    QList<uint> uids;
+    QStringList parts;
+    QPersistentModelIndex mailboxIndex;
 };
 
 }

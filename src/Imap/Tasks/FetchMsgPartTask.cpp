@@ -25,21 +25,12 @@
 namespace Imap {
 namespace Mailbox {
 
-FetchMsgPartTask::FetchMsgPartTask( Model* _model,
-                                    TreeItemMailbox* mailbox, TreeItemPart* part ) :
-    ImapTask( _model )
+FetchMsgPartTask::FetchMsgPartTask( Model *_model, const QModelIndex &mailbox, const QList<uint> &_uids, const QStringList &_parts ):
+    ImapTask( _model ), uids(_uids), parts(_parts), mailboxIndex(mailbox)
 {
-    QModelIndex mailboxIndex = model->createIndex( mailbox->row(), 0, mailbox );
     conn = model->findTaskResponsibleFor( mailboxIndex );
     conn->addDependentTask( this );
-    if ( TreeItemModifiedPart* modifiedPart = dynamic_cast<TreeItemModifiedPart*>( part ) ) {
-        // A special case, we're dealing with irregular layout
-        index = model->createIndex( part->row(), static_cast<int>( modifiedPart->kind() ), part );
-    } else {
-        // Normal parts without fancy modifiers
-        index = model->createIndex( part->row(), 0, part );
-    }
-    Q_ASSERT( index.isValid() );
+    Q_ASSERT( ! uids.isEmpty() );
 }
 
 void FetchMsgPartTask::perform()
@@ -48,25 +39,27 @@ void FetchMsgPartTask::perform()
     Q_ASSERT( parser );
     model->accessParser( parser ).activeTasks.append( this );
 
-    if ( ! index.isValid() ) {
-        // FIXME: add proper fix
-        qDebug() << "Message got removed before we could have fetched it";
-        _completed();
-        return;
+    Q_ASSERT( ! uids.isEmpty() );
+    qSort( uids );
+    Sequence seq( uids.takeFirst() );
+    Q_FOREACH( const uint uid, uids ) {
+        seq.add( uid );
     }
 
-    TreeItemPart* part = dynamic_cast<TreeItemPart*>( static_cast<TreeItem*>( index.internalPointer() ) );
-    Q_ASSERT( part );
-    tag = parser->uidFetch( Sequence( part->message()->uid() ), QStringList() << part->partIdForFetch() );
+    tag = parser->uidFetch( seq, parts );
     model->accessParser( parser ).commandMap[ tag ] = Model::Task( Model::Task::FETCH_PART, 0 );
     emit model->activityHappening( true );
 }
 
 bool FetchMsgPartTask::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
 {
-    TreeItemMailbox* mailbox = Model::mailboxForSomeItem( index );
+    if ( ! mailboxIndex.isValid() )
+        return false;
+
+    TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
+    Q_ASSERT(mailbox);
     model->_genericHandleFetch( mailbox, resp );
-    return true;
+    return true;;
 }
 
 bool FetchMsgPartTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
@@ -77,24 +70,34 @@ bool FetchMsgPartTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respons
     if ( resp->tag == tag ) {
         IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::Task::FETCH_PART );
 
-        if ( index.isValid() ) {
-            TreeItemPart* part = dynamic_cast<TreeItemPart*>( static_cast<TreeItem*>( index.internalPointer() ) );
-            Q_ASSERT( part );
-
-            if ( resp->kind == Responses::OK ) {
-                model->_finalizeFetchPart( ptr, part );
-            } else {
-                // FIXME: error handling
-            }
+        if ( resp->kind == Responses::OK ) {
+            verifyFetchingState();
+            model->changeConnectionState( parser, CONN_STATE_SELECTED );
         } else {
             // FIXME: error handling
-            qDebug() << Q_FUNC_INFO << "Message part no longer available -- weird timing?";
         }
         _completed();
         IMAP_TASK_CLEANUP_COMMAND;
         return true;
     } else {
         return false;
+    }
+}
+
+void FetchMsgPartTask::verifyFetchingState()
+{
+    if ( ! mailboxIndex.isValid() ) {
+        qDebug() << "Mailbox has disappeared, huh?";
+        return;
+    }
+
+    TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
+    Q_ASSERT(mailbox);
+    QList<TreeItemMessage*> messages = model->findMessagesByUids( mailbox, uids );
+    Q_FOREACH( TreeItemMessage *message, messages ) {
+        Q_FOREACH( const QString &partId, parts ) {
+            model->_finalizeFetchPart( parser, mailbox, message->row(), partId );
+        }
     }
 }
 
