@@ -41,7 +41,12 @@ class MailboxFinder;
 class MessageDownloader;
 class SqlStorage;
 
-/** @short Download messages into the DB */
+/** @short Make sure that everything from a mailbox is eventually saved into the DB
+
+This class is responsible for checking all messages in a given mailbox, verifying if they were
+processed already, and if required, downloading them from the IMAP server and storing the data
+into the database.
+*/
 class MailSynchronizer : public QObject
 {
     Q_OBJECT
@@ -56,8 +61,14 @@ This is required if the total number of mailboxes exceeds the configured limit o
     /** @short Dump some statistics about how many messages are we waiting for */
     void debugStats() const;
 signals:
+    /** @short The synchronizer is about to ask for a message
+
+It's possibly to make it not request the message by setting the *shouldLoad to false.
+ */
     void aboutToRequestMessage( const QString &mailbox, const QModelIndex &message, bool *shouldLoad );
+    /** @short The message has been saved to the database as a unique one */
     void messageSaved( const QString &mailbox, const QModelIndex &message );
+    /** @short The database has detected that a message with the same body has been saved before */
     void messageIsDuplicate( const QString &mailbox, const QModelIndex &message );
 private slots:
     void slotRowsInserted( const QModelIndex &parent, int start, int end );

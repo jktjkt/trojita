@@ -39,6 +39,7 @@
 
 namespace XtConnect {
 
+/** @short Access to the XtConnect database for e-mails */
 class SqlStorage : public QObject
 {
     Q_OBJECT
@@ -49,11 +50,16 @@ public:
     explicit SqlStorage(QObject *parent = 0);
     void open();
 
+    /** @short Save mail data to the "eml" table */
     ResultType insertMail( const QDateTime &dateTime, const QString &subject, const QString &readableText, const QByteArray &headers, const QByteArray &body, quint64 &emlId );
+    /** @short Insert an e-mail address into the eml_emladdr table */
     ResultType insertAddress( const quint64 emlId, const QString &name, const QString &address, const QLatin1String kind );
+    /** @short Mark the row in the eml table as "ready for processing" */
     ResultType markMailReady( const quint64 emlId );
 
+    /** @short Return an object which aborts the transaction upon its destruction (RIAA-like approach to transactions) */
     Common::SqlTransactionAutoAborter transactionGuard();
+    /** @short Log a message saying that something talking to the DB failed */
     void fail( const QString &message );
 
 private:

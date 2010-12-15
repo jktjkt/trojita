@@ -34,7 +34,6 @@ namespace XtConnect {
 
 /** @short A special-purpose cache for XtConnect
 
-
 This cache is pretty similar to Imap::Mailbox::CombinedCache in that it leverages existing
 features SQLCache for most of its tasks.  However, features which are not important in the
 context of XtConnect (remembering mailboxes, storing message parts etc) are not implemented
