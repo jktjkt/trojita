@@ -1264,9 +1264,9 @@ void Model::slotTasksChanged()
     qDebug() << "-------------";
 }
 
-void Model::slotTaskDying()
+void Model::slotTaskDying( QObject *obj )
 {
-    ImapTask* task = static_cast<ImapTask*>( sender() );
+    ImapTask *task = static_cast<ImapTask*>( obj );
     for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
         it->activeTasks.removeOne( task );
     }

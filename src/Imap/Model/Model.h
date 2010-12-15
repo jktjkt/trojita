@@ -275,7 +275,7 @@ private slots:
     void slotTasksChanged();
 
     /** @short A maintaining task is about to die */
-    void slotTaskDying();
+    void slotTaskDying( QObject *obj );
 
 signals:
     /** @short This signal is emitted then the server sent us an ALERT response code */

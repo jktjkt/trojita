@@ -25,7 +25,7 @@ namespace Mailbox {
 ImapTask::ImapTask( Model* _model ) :
     QObject(_model), parser(0), model(_model), _finished(false)
 {
-    connect( this, SIGNAL(destroyed()), model, SLOT(slotTaskDying()) );
+    connect( this, SIGNAL(destroyed(QObject*)), model, SLOT(slotTaskDying(QObject*)) );
 }
 
 ImapTask::~ImapTask()
