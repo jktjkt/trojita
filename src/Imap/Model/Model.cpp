@@ -33,10 +33,9 @@
 //#define DEBUG_PERIODICALLY_DUMP_TASKS
 //#define DEBUG_TASK_ROUTING
 
-namespace Imap {
-namespace Mailbox {
-
 namespace {
+
+using namespace Imap::Mailbox;
 
 bool MailboxNamesEqual( const TreeItem* const a, const TreeItem* const b )
 {
@@ -66,6 +65,9 @@ bool uidComparator( const TreeItem* const a, const TreeItem* const b )
 }
 
 }
+
+namespace Imap {
+namespace Mailbox {
 
 Model::Model( QObject* parent, AbstractCache* cache, SocketFactoryPtr socketFactory, TaskFactoryPtr taskFactory, bool offline ):
     // parent
