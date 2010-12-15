@@ -41,9 +41,9 @@ void FetchMsgPartTask::perform()
 
     Q_ASSERT( ! uids.isEmpty() );
     qSort( uids );
-    Sequence seq( uids.takeFirst() );
-    Q_FOREACH( const uint uid, uids ) {
-        seq.add( uid );
+    Sequence seq( uids.first() );
+    for ( int i = 1; i < uids.size(); ++i ) {
+        seq.add( uids[i] );
     }
 
     tag = parser->uidFetch( seq, parts );
@@ -96,7 +96,7 @@ void FetchMsgPartTask::verifyFetchingState()
     QList<TreeItemMessage*> messages = model->findMessagesByUids( mailbox, uids );
     Q_FOREACH( TreeItemMessage *message, messages ) {
         Q_FOREACH( const QString &partId, parts ) {
-            model->_finalizeFetchPart( parser, mailbox, message->row(), partId );
+            model->_finalizeFetchPart( parser, mailbox, message->row() + 1, partId );
         }
     }
 }
