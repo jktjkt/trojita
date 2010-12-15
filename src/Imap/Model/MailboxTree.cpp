@@ -349,7 +349,7 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
             decodeMessagePartTransportEncoding( data, part->encoding(), part->dataPtr() );
             part->_fetchStatus = DONE;
             if ( message->uid() )
-                model->cache()->setMsgPart( mailbox(), message->uid(), partIdentification, part->_data );
+                model->cache()->setMsgPart( mailbox(), message->uid(), it.key(), part->_data );
             if ( changedPart ) {
                 *changedPart = part;
             }
@@ -456,7 +456,7 @@ void TreeItemMailbox::finalizeFetch( Model* const model, const Responses::Status
 TreeItemPart* TreeItemMailbox::partIdToPtr( Model* const model, const int msgNumber, const QString& msgId )
 {
     Q_ASSERT( msgId.startsWith( QLatin1String("BODY[") ) && msgId.endsWith( QLatin1String("]") ) );
-    QString partIdentification = it.key().mid( 5, it.key().size() - 6 );
+    QString partIdentification = msgId.mid( 5, msgId.size() - 6 );
     TreeItem* item = _children[0]; // TreeItemMsgList
     Q_ASSERT( static_cast<TreeItemMsgList*>( item )->fetched() );
     item = item->child( msgNumber - 1, model ); // TreeItemMessage
