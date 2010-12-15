@@ -77,7 +77,6 @@ void MailSynchronizer::slotMailboxFound( const QString &mailbox, const QModelInd
     walkThroughMessages( -1, -1 );
 }
 
-
 void MailSynchronizer::slotRowsInserted(const QModelIndex &parent, int start, int end)
 {
     // check the mailbox's list, if it's the same index as the "parent" we just got passed
@@ -89,7 +88,6 @@ void MailSynchronizer::slotRowsInserted(const QModelIndex &parent, int start, in
 
 void MailSynchronizer::walkThroughMessages( int start, int end )
 {
-    // FIXME: relax this check?
     if ( renewMailboxIndex() )
         return;
 
@@ -140,7 +138,6 @@ void MailSynchronizer::switchHere()
     if ( renewMailboxIndex() )
         return;
 
-    qDebug() << "Switching to" << m_mailbox;
     m_model->switchToMailbox( m_index );
 }
 

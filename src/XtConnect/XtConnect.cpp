@@ -208,6 +208,7 @@ void XtConnect::slotMessageIsDuplicate( const QString &mailbox, const QModelInde
 
 void XtConnect::slotDumpStats()
 {
+    qDebug() << QDateTime::currentDateTime();
     Q_FOREACH( const QPointer<MailSynchronizer> item, m_syncers ) {
         item->debugStats();
     }
