@@ -251,6 +251,7 @@ public:
     virtual bool hasChildren( Model* const model );
 
     virtual QString partId() const;
+    virtual QString partIdForFetch() const;
     virtual QString pathToPart() const;
     TreeItemMessage* message() const;
 

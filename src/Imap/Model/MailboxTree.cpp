@@ -927,6 +927,14 @@ QString TreeItemPart::partId() const
     }
 }
 
+QString TreeItemPart::partIdForFetch() const
+{
+    if ( mimeType() == QLatin1String("message/rfc822") )
+        return QString::fromAscii("BODY.PEEK[%1.HEADER]").arg( partId() );
+    else
+        return QString::fromAscii("BODY.PEEK[%1]").arg( partId() );
+}
+
 QString TreeItemPart::pathToPart() const
 {
     TreeItemPart* part = dynamic_cast<TreeItemPart*>( parent() );
