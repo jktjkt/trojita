@@ -342,8 +342,7 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
         } else if ( it.key().startsWith( "BODY[" ) ) {
             if ( it.key()[ it.key().size() - 1 ] != ']' )
                 throw UnknownMessageIndex( "Can't parse such BODY[]", response );
-            QString partIdentification = it.key().mid( 5, it.key().size() - 6 );
-            TreeItemPart* part = partIdToPtr( model, response.number, partIdentification );
+            TreeItemPart* part = partIdToPtr( model, response.number, it.key() );
             if ( ! part )
                 throw UnknownMessageIndex( "Got BODY[] fetch that did not resolve to any known part", response );
             const QByteArray& data = dynamic_cast<const Responses::RespData<QByteArray>&>( *(it.value()) ).data;
@@ -456,11 +455,13 @@ void TreeItemMailbox::finalizeFetch( Model* const model, const Responses::Status
 
 TreeItemPart* TreeItemMailbox::partIdToPtr( Model* const model, const int msgNumber, const QString& msgId )
 {
+    Q_ASSERT( msgId.startsWith( QLatin1String("BODY[") ) && msgId.endsWith( QLatin1String("]") ) );
+    QString partIdentification = it.key().mid( 5, it.key().size() - 6 );
     TreeItem* item = _children[0]; // TreeItemMsgList
     Q_ASSERT( static_cast<TreeItemMsgList*>( item )->fetched() );
     item = item->child( msgNumber - 1, model ); // TreeItemMessage
     Q_ASSERT( item );
-    QStringList separated = msgId.split( '.' );
+    QStringList separated = partIdentification.split( '.' );
     for ( QStringList::const_iterator it = separated.begin(); it != separated.end(); ++it ) {
         bool ok;
         uint number = it->toUInt( &ok );
