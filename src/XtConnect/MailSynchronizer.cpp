@@ -47,11 +47,6 @@ MailSynchronizer::MailSynchronizer( QObject *parent, Imap::Mailbox::Model *model
     connect( m_finder, SIGNAL(mailboxFound(QString,QModelIndex)), this, SLOT(slotMailboxFound(QString,QModelIndex)) );
     connect( m_downloader, SIGNAL(messageDownloaded(QModelIndex,QByteArray,QByteArray,QString)),
              this, SLOT(slotMessageDataReady(QModelIndex,QByteArray,QByteArray,QString)) );
-
-    QTimer *watchdog = new QTimer(this);
-    watchdog->setInterval( 10 * 1000 );
-    watchdog->start();
-    connect( watchdog, SIGNAL(timeout()), this, SLOT(slotCheckWatchdog()) );
 }
 
 void MailSynchronizer::setMailbox( const QString &mailbox )
@@ -105,21 +100,18 @@ void MailSynchronizer::walkThroughMessages( int start, int end )
     for ( int i = start; i <= end; ++i ) {
         QModelIndex message = m_model->index( i, 0, list );
         Q_ASSERT( message.isValid() );
-
         QVariant uid = m_model->data( message, Imap::Mailbox::RoleMessageUid );
 
         if ( uid.isValid() && uid.toUInt() != 0 ) {
             bool shouldLoad = true;
             emit aboutToRequestMessage( m_mailbox, message, &shouldLoad );
             if ( shouldLoad ) {
-                m_queuedMessages << message;
+                m_downloader->requestDownload( message );
             }
         } else {
             qDebug() << m_mailbox << i << "[unsynced message, huh?]";
         }
     }
-
-    requestNextBatch();
 }
 
 bool MailSynchronizer::renewMailboxIndex()
@@ -143,9 +135,6 @@ void MailSynchronizer::switchHere()
 
 void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const QByteArray &headers, const QByteArray &body, const QString &mainPart )
 {
-    m_watchdog.remove( message );
-    requestNextBatch();
-
     Common::SqlTransactionAutoAborter guard = m_storage->transactionGuard();
 
     QVariant dateTimeVariant = message.data( Imap::Mailbox::RoleMessageDate );
@@ -223,48 +212,10 @@ void MailSynchronizer::debugStats() const
     if ( m_index.isValid() ) {
         qDebug() << "Mailbox" << m_mailbox <<
                 ( m_index.data(Imap::Mailbox::RoleMailboxItemsAreLoading).toBool() ? "[loading]" : "" ) <<
-                "total" << m_index.data( Imap::Mailbox::RoleTotalMessageCount ).toUInt() <<
-                ", downloading" << m_downloader->pendingMessages() << ", active" << m_watchdog.size() <<
-                ", pending" << m_queuedMessages.size();
+                "total" << m_index.data( Imap::Mailbox::RoleTotalMessageCount ).toUInt() << ", pending" << m_downloader->pendingMessages();
     } else {
         qDebug() << "Mailbox" << m_mailbox << ": waiting for sync.";
     }
-}
-
-void MailSynchronizer::requestNextBatch()
-{
-    if ( m_watchdog.size() > 10 )
-        return;
-
-    while ( ! m_queuedMessages.isEmpty() ) {
-        QPersistentModelIndex message = m_queuedMessages.takeFirst();
-        if ( ! message.isValid() ) {
-            qDebug() << "Message disappeared, why?";
-            continue;
-        }
-        m_downloader->requestDownload( message );
-        QTime t = QTime::currentTime();
-        m_watchdog[ message ] = t;
-
-        if ( m_watchdog.size() > 100 )
-            break;
-    }
-}
-
-void MailSynchronizer::slotCheckWatchdog()
-{
-    QMap<QPersistentModelIndex, QTime>::iterator it = m_watchdog.begin();
-    while ( it != m_watchdog.end() ) {
-        if ( it->elapsed() > 30000 ) {
-            qDebug() << "Timed out waiting for message" << it.key().data( Imap::Mailbox::RoleMessageUid ).toUInt() << m_mailbox << " -- queueing again";
-            // Let's request it again...
-            m_queuedMessages << it.key();
-            it = m_watchdog.erase( it );
-            continue;
-        }
-        ++it;
-    }
-    requestNextBatch();
 }
 
 }

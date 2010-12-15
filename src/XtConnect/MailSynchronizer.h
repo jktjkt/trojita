@@ -75,8 +75,6 @@ private slots:
     void slotMailboxFound( const QString &mailbox, const QModelIndex &index );
     void slotGetMailboxIndexAgain();
     void slotMessageDataReady( const QModelIndex &message, const QByteArray &headers, const QByteArray &body, const QString &mainPart );
-    void requestNextBatch();
-    void slotCheckWatchdog();
 private:
     /** @short Walk through the cached messages and store the new ones */
     void walkThroughMessages( int start, int end );
@@ -94,8 +92,6 @@ This function will queue renewal automatically.
     SqlStorage *m_storage;
     QString m_mailbox;
     QPersistentModelIndex m_index;
-    QList<QPersistentModelIndex> m_queuedMessages;
-    QMap<QPersistentModelIndex, QTime> m_watchdog;
 };
 
 }
