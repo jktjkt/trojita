@@ -224,8 +224,14 @@ and @arg translatedIndex.
 */
     static TreeItem* realTreeItem( QModelIndex index, const Model** whichModel = 0, QModelIndex* translatedIndex = 0 );
 
-
+    /** @short Walks the index hierarchy up until it finds a message which owns this part/message */
     static QModelIndex findMessageForItem( QModelIndex index );
+
+    /** @short Inform the model that the downloaded data for this part are not needed anymore
+
+This is mainly a short-term fix before the data is kept just in the cache and not in the TreeItemParts themselves.
+*/
+    void partDataNotNeeded( const QModelIndex &part );
 
 public slots:
     /** @short Ask for an updated list of mailboxes on the server */

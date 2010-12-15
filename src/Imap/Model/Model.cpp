@@ -1314,5 +1314,19 @@ QModelIndex Model::findMessageForItem( QModelIndex index )
     return QModelIndex();
 }
 
+void Model::partDataNotNeeded( const QModelIndex &part )
+{
+    if ( ! part.isValid() )
+        return;
+    Q_ASSERT( part.model() == this );
+
+    TreeItemPart *partPtr = dynamic_cast<TreeItemPart*>( static_cast<TreeItem*>( part.internalPointer() ) );
+    if ( ! partPtr )
+        return;
+
+    partPtr->_fetchStatus = TreeItem::NONE;
+    partPtr->_data.clear();
+}
+
 }
 }
