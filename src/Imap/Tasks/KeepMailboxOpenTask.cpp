@@ -141,7 +141,6 @@ void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )
     // we can't use the passed pointer directly, and therefore we have to perform the cast here. It is safe
     // to do that here, as we're only interested in raw pointer value.
     dependentTasks.removeOne( static_cast<ImapTask*>( object ) );
-    delayedTasks.removeOne( static_cast<ImapTask*>( object ) );
 
     if ( shouldExit && dependentTasks.isEmpty() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
         terminate();
