@@ -454,6 +454,9 @@ void KeepMailboxOpenTask::slotFetchRequestedParts()
             uids << it.key();
             it = requestedParts.erase( it );
         }
+        if ( uids.isEmpty() )
+            return;
+
         qDebug() << "About to request" << uids.size() << "items;" << requestedParts.size() << "remaining";
         FetchMsgPartTask *task = model->_taskFactory->createFetchMsgPartTask( model, mailboxIndex, uids, parts.toList() );
         fetchPartTasks << task;
