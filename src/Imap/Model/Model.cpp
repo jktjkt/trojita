@@ -915,6 +915,7 @@ QList<TreeItemMessage*> Model::findMessagesByUids( const TreeItemMailbox* const 
             qDebug() << "Can't find UID" << uid;
         }
     }
+    return res;
 }
 
 TreeItemMailbox* Model::findMailboxByName( const QString& name ) const
