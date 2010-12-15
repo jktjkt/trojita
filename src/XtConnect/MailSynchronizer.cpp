@@ -115,8 +115,6 @@ void MailSynchronizer::walkThroughMessages( int start, int end )
             emit aboutToRequestMessage( m_mailbox, message, &shouldLoad );
             if ( shouldLoad ) {
                 m_queuedMessages << message;
-            } else {
-                qDebug() << m_mailbox << uid.toUInt() << "skipped by upper layer's decision";
             }
         } else {
             qDebug() << m_mailbox << i << "[unsynced message, huh?]";
@@ -148,7 +146,6 @@ void MailSynchronizer::switchHere()
 
 void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const QByteArray &headers, const QByteArray &body, const QString &mainPart )
 {
-    //qDebug() << "Received data for" << m_mailbox << message.data( Imap::Mailbox::RoleMessageUid ).toUInt();
     m_watchdog.remove( message );
     requestNextBatch();
 
@@ -169,7 +166,6 @@ void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const Q
                                                         mainPart, headers, body, emlId );
 
     if ( res == SqlStorage::RESULT_DUPLICATE ) {
-        qDebug() << "Duplicate message, skipping";
         emit messageIsDuplicate( m_mailbox, message );
         return;
     }
