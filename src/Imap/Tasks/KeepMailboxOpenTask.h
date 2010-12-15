@@ -82,6 +82,8 @@ prevents replacing an "alive" KeepMailboxOpenTask with a different one.
 
     QString debugIdentification() const;
 
+    void requestPartDownload( const uint uid, const QString &partId );
+
 private slots:
     void slotTaskDeleted( QObject* object );
 
@@ -102,6 +104,7 @@ initialize synchronization now.
 
     void slotPerformNoop();
     void slotActivateTasks() { activateTasks(); }
+    void slotFetchRequestedParts();
 
 private:
     void terminate();
@@ -125,6 +128,7 @@ protected:
     bool isRunning;
 
     QTimer* noopTimer;
+    QTimer* fetchTimer;
     bool shouldRunNoop;
     bool shouldRunIdle;
     IdleLauncher* idleLauncher;
@@ -133,6 +137,7 @@ protected:
     friend class IdleLauncher;
 
     QList<uint> uidMap;
+    QMap<uint, QSet<QString> > requestedParts;
 };
 
 }

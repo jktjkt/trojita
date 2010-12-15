@@ -754,8 +754,7 @@ void Model::_askForMsgPart( TreeItemPart* item, bool onlyFromCache )
         if ( item->_fetchStatus != TreeItem::DONE )
             item->_fetchStatus = TreeItem::UNAVAILABLE;
     } else if ( ! onlyFromCache ) {
-        QModelIndex mailboxIndex = createIndex( mailboxPtr->row(), 0, mailboxPtr );
-        _taskFactory->createFetchMsgPartTask( this, mailboxIndex, QList<uint>() << item->message()->_uid, QStringList() << item->partIdForFetch() );
+        findTaskResponsibleFor( mailboxPtr )->requestPartDownload( item->message()->_uid, item->partIdForFetch() );
     }
 }
 

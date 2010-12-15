@@ -95,6 +95,14 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
     noopTimer->setInterval( timeout );
     noopTimer->setSingleShot( true );
 
+    fetchTimer = new QTimer(this);
+    connect( fetchTimer, SIGNAL(timeout()), this, SLOT(slotFetchRequestedParts()) );
+    timeout = model->property( "trojita-imap-delayed-fetch-part" ).toUInt( &ok );
+    if ( ! ok )
+        timeout = 500; // FIXME: twek for GUI...
+    fetchTimer->setInterval( timeout );
+    fetchTimer->setSingleShot( true );
+
     emit model->mailboxSyncingProgress( mailboxIndex, STATE_WAIT_FOR_CONN );
 }
 
@@ -211,6 +219,7 @@ void KeepMailboxOpenTask::perform()
     }
 
     isRunning = true;
+    fetchTimer->start();
 
     activateTasks();
 
@@ -412,6 +421,34 @@ void KeepMailboxOpenTask::activateTasks()
         if ( ! task->isFinished() )
             task->perform();
     }
+}
+
+void KeepMailboxOpenTask::requestPartDownload( const uint uid, const QString &partId )
+{
+    requestedParts[uid].insert( partId );
+    if ( ! fetchTimer->isActive() )
+        fetchTimer->start();
+}
+
+void KeepMailboxOpenTask::slotFetchRequestedParts()
+{
+    if ( requestedParts.isEmpty() )
+        return;
+
+    QMap<uint, QSet<QString> >::iterator it = requestedParts.begin();
+    QSet<QString> parts = *it;
+    int i = 0;
+    QList<uint> uids;
+    while ( i < 100 && it != requestedParts.end() ) {
+        if ( parts != *it )
+            break;
+        parts = *it;
+        uids << it.key();
+        it = requestedParts.erase( it );
+    }
+    model->_taskFactory->createFetchMsgPartTask( model, mailboxIndex, uids , parts.toList() );
+    if ( ! requestedParts.isEmpty() )
+        fetchTimer->start();
 }
 
 
