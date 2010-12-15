@@ -62,6 +62,7 @@ and are passed through the parameters here.
 
 private:
     struct MessageMetadata {
+        QPersistentModelIndex message;
         QPersistentModelIndex header;
         QPersistentModelIndex body;
         QPersistentModelIndex mainPart;
@@ -96,7 +97,7 @@ main part can't be found, this function will return a string message mentioning 
 */
     MainPartReturnCode findMainPartOfMessage( const QModelIndex &message, QModelIndex &mainPartIndex, QString &partMessage, QString &partData );
 
-    QMap<QPersistentModelIndex, MessageMetadata> m_parts;
+    QMap<uint, MessageMetadata> m_parts;
     const QAbstractItemModel *lastModel;
 
 };

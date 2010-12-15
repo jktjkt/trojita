@@ -48,6 +48,7 @@ void MessageDownloader::requestDownload( const QModelIndex &message )
     Q_ASSERT(lastModel == message.model());
 
     MessageMetadata metaData;
+    metaData.message = message;
     metaData.header = lastModel->index( 0, Imap::Mailbox::TreeItem::OFFSET_HEADER, message );
     QVariant headerData = metaData.header.data( Imap::Mailbox::RolePartData );
     metaData.hasHeader = headerData.isValid();
@@ -69,7 +70,9 @@ void MessageDownloader::requestDownload( const QModelIndex &message )
         return;
     }
 
-    m_parts[ message ] = metaData;
+    const uint uid = message.data( Imap::Mailbox::RoleMessageUid ).toUInt();
+    Q_ASSERT(uid);
+    m_parts[ uid ] = metaData;
 }
 
 void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex &b )
@@ -84,7 +87,10 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
     if ( ! message.isValid() )
         return;
 
-    QMap<QPersistentModelIndex,MessageMetadata>::iterator it = m_parts.find( message );
+    const uint uid = message.data( Imap::Mailbox::RoleMessageUid ).toUInt();
+    Q_ASSERT(uid);
+
+    QMap<uint,MessageMetadata>::iterator it = m_parts.find( uid );
     if ( it == m_parts.end() )
         return;
 
@@ -92,7 +98,7 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
         it->hasHeader = true;
     } else if ( a == it->body ) {
         it->hasBody = true;
-    } else if ( a == it.key() && ! it->hasMessage ) {
+    } else if ( a == it->message && ! it->hasMessage ) {
         it->hasMessage = true;
 
         QModelIndex mainPart;
@@ -133,9 +139,9 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
             Q_ASSERT(mainPartData.isValid());
             mainPart = mainPartData.toString();
         }
-        Q_ASSERT(it.key().data( Imap::Mailbox::RoleMessageMessageId ).isValid());
-        Q_ASSERT(it.key().data( Imap::Mailbox::RoleMessageSubject ).isValid());
-        Q_ASSERT(it.key().data( Imap::Mailbox::RoleMessageDate ).isValid());
+        Q_ASSERT(it->message.data( Imap::Mailbox::RoleMessageMessageId ).isValid());
+        Q_ASSERT(it->message.data( Imap::Mailbox::RoleMessageSubject ).isValid());
+        Q_ASSERT(it->message.data( Imap::Mailbox::RoleMessageDate ).isValid());
         emit messageDownloaded( message, headerData.toByteArray(), textData.toByteArray(), mainPart );
 
         // The const_cast should be safe here -- this action is certainly not going to invalidate the index,
