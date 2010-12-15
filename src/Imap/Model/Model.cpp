@@ -873,22 +873,22 @@ void Model::copyMoveMessages( TreeItemMailbox* sourceMbox, const QString& destMa
     }
 
     Q_ASSERT( sourceMbox );
-    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( sourceMbox->child( 0, 0 ) );
-    Q_ASSERT( list );
 
     qSort( uids );
 
     QModelIndexList messages;
     Sequence seq;
-    Q_FOREACH( TreeItemMessage* m, findMessagesByUids( list, uids ) ) {
+    Q_FOREACH( TreeItemMessage* m, findMessagesByUids( sourceMbox, uids ) ) {
         messages << createIndex( m->row(), 0, m );
         seq.add( m->uid() );
     }
     _taskFactory->createCopyMoveMessagesTask( this, messages, destMailboxName, op );
 }
 
-QList<TreeItemMessage*> Model::findMessagesByUids( const TreeItemMsgList *list, const QList<uint> &uids )
+QList<TreeItemMessage*> Model::findMessagesByUids( const TreeItemMailbox* const mailbox, const QList<uint> &uids )
 {
+    const TreeItemMsgList* const list = dynamic_cast<const TreeItemMsgList* const>( mailbox->_children[0] );
+    Q_ASSERT( list );
     QList<TreeItemMessage*> res;
     QList<TreeItem*>::const_iterator it = list->_children.constBegin();
     // qBinaryFind is not designed to operate on a value of a different kind than stored in the container
