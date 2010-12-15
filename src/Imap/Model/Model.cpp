@@ -1305,8 +1305,6 @@ QModelIndex Model::findMessageForItem( QModelIndex index )
         Q_ASSERT( index.internalPointer() == item );
         if ( dynamic_cast<TreeItemMessage*>(item) ) {
             return index;
-        } else if ( dynamic_cast<TreeItemMsgList*>(item) ) {
-            return index.parent();
         } else if ( dynamic_cast<TreeItemPart*>(item) ) {
             index = index.parent();
             item = item->parent();
