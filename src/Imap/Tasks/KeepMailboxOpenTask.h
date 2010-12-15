@@ -34,6 +34,7 @@ namespace Mailbox {
 class TreeItemMailbox;
 class ObtainSynchronizedMailboxTask;
 class IdleLauncher;
+class FetchMsgPartTask;
 
 /** @short Maintain a connection to a mailbox
 
@@ -105,6 +106,7 @@ initialize synchronization now.
     void slotPerformNoop();
     void slotActivateTasks() { activateTasks(); }
     void slotFetchRequestedParts();
+    void slotFetchTaskFinished();
 
 private:
     void terminate();
@@ -132,6 +134,7 @@ protected:
     bool shouldRunNoop;
     bool shouldRunIdle;
     IdleLauncher* idleLauncher;
+    FetchMsgPartTask *fetchPartTask;
     CommandHandle tagIdle;
     CommandHandle uidSyncingCmd;
     friend class IdleLauncher;

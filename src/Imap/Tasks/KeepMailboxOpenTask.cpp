@@ -18,6 +18,7 @@
 
 #include<sstream>
 #include "KeepMailboxOpenTask.h"
+#include "FetchMsgPartTask.h"
 #include "OpenConnectionTask.h"
 #include "ObtainSynchronizedMailboxTask.h"
 #include "IdleLauncher.h"
@@ -35,7 +36,7 @@ FIXME: we should eat "* OK [CLOSED] former mailbox closed", or somehow let it fa
 
 KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mailboxIndex, Parser* oldParser ) :
     ImapTask( _model ), mailboxIndex(_mailboxIndex), synchronizeConn(0), shouldExit(false), isRunning(false),
-    shouldRunNoop(false), shouldRunIdle(false), idleLauncher(0)
+    shouldRunNoop(false), shouldRunIdle(false), idleLauncher(0), fetchPartTask(0)
 {
     Q_ASSERT( mailboxIndex.isValid() );
     Q_ASSERT( mailboxIndex.model() == model );
@@ -426,7 +427,7 @@ void KeepMailboxOpenTask::activateTasks()
 void KeepMailboxOpenTask::requestPartDownload( const uint uid, const QString &partId )
 {
     requestedParts[uid].insert( partId );
-    if ( ! fetchTimer->isActive() )
+    if ( ! fetchTimer->isActive() && ! fetchPartTask )
         fetchTimer->start();
 }
 
@@ -437,18 +438,26 @@ void KeepMailboxOpenTask::slotFetchRequestedParts()
 
     QMap<uint, QSet<QString> >::iterator it = requestedParts.begin();
     QSet<QString> parts = *it;
-    int i = 0;
     QList<uint> uids;
-    while ( i < 100 && it != requestedParts.end() ) {
+    while ( uids.size() < 100 && it != requestedParts.end() ) {
         if ( parts != *it )
             break;
         parts = *it;
         uids << it.key();
         it = requestedParts.erase( it );
     }
-    model->_taskFactory->createFetchMsgPartTask( model, mailboxIndex, uids , parts.toList() );
-    if ( ! requestedParts.isEmpty() )
+    qDebug() << "About to request" << uids.size() << "items;" << requestedParts.size() << "remaining";
+    fetchPartTask = model->_taskFactory->createFetchMsgPartTask( model, mailboxIndex, uids, parts.toList() );
+    connect( fetchPartTask, SIGNAL(completed()), this, SLOT(slotFetchTaskFinished()) );
+}
+
+void KeepMailboxOpenTask::slotFetchTaskFinished()
+{
+    fetchPartTask = 0;
+    if ( ! fetchTimer->isActive() )
         fetchTimer->start();
+    // FIXME: without that delay
+    // slotFetchRequestedParts();
 }
 
 
