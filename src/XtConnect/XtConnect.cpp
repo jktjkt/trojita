@@ -166,7 +166,18 @@ void XtConnect::showConnectionStatus( QObject* parser, Imap::ConnectionState sta
     Q_UNUSED( parser );
     using namespace Imap;
 
-    //qDebug() << "Connection status:" <<  Imap::connectionStateToString( state );
+    switch ( state ) {
+    case CONN_STATE_FETCHING_MSG_METADATA:
+    case CONN_STATE_FETCHING_PART:
+    case CONN_STATE_SELECTED:
+    case CONN_STATE_SELECTING:
+        return;
+    default:
+        // well, we're interested in the rest
+        break;
+    }
+
+    qDebug() << "Connection status:" <<  Imap::connectionStateToString( state );
 }
 
 void XtConnect::goTroughMailboxes()
