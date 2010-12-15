@@ -500,9 +500,10 @@ TreeItemPart* TreeItemMailbox::partIdToPtr( Model* const model, const int msgNum
             item = part;
         item = item->child( number - 1, model );
         if ( ! item ) {
-            throw UnknownMessageIndex( ( QString::fromAscii(
-                            "Offset of the message part not found: " )
-                        + QString::number( number ) + QString::fromAscii(" of ") + msgId ).toAscii().constData() );}
+            throw UnknownMessageIndex( QString::fromAscii(
+                    "Offset of the message part not found: message %1, current number %2, full identification %3" )
+                                       .arg( QString::number(msgNumber), QString::number(number), msgId ).toAscii().constData() );
+        }
     }
     TreeItemPart* part = dynamic_cast<TreeItemPart*>( item );
     return part;
