@@ -31,6 +31,11 @@
 #include "../../Streams/IODeviceSocket.h"
 
 //#define PRINT_TRAFFIC 100
+//#define PRINT_TRAFFIC_TX 500
+#ifdef PRINT_TRAFFIC
+#define PRINT_TRAFFIC_TX(PRINT_TRAFFIC)
+#define PRINT_TRAFFIC_RX(PRINT_TRAFFIC)
+#endif
 
 /*
  * Parser interface considerations:
@@ -457,7 +462,7 @@ void Parser::executeCommands()
 void Parser::finishStartTls()
 {
     emit lineSent( this, "*** STARTTLS" );
-#ifdef PRINT_TRAFFIC
+#ifdef PRINT_TRAFFIC_TX
     qDebug() << _parserId << "*** STARTTLS";
 #endif
     _cmdQueue.pop_front();
@@ -480,8 +485,8 @@ void Parser::executeACommand()
         // Handling of the IDLE_DONE is a bit special, as we have to check and update the _idling flag...
         Q_ASSERT( _idling );
         buf.append( "DONE\r\n" );
-#ifdef PRINT_TRAFFIC
-        qDebug() << _parserId << ">>>" << buf.left( PRINT_TRAFFIC ).trimmed();
+#ifdef PRINT_TRAFFIC_TX
+        qDebug() << _parserId << ">>>" << buf.left( PRINT_TRAFFIC_TX ).trimmed();
 #endif
         _socket->write( buf );
         _idling = false;
@@ -520,8 +525,8 @@ void Parser::executeACommand()
                     buf.append( '{' );
                     buf.append( QByteArray::number( part._text.size() ) );
                     buf.append( "}\r\n" );
-#ifdef PRINT_TRAFFIC
-                    qDebug() << _parserId << ">>>" << buf.left( PRINT_TRAFFIC ).trimmed();
+#ifdef PRINT_TRAFFIC_TX
+                    qDebug() << _parserId << ">>>" << buf.left( PRINT_TRAFFIC_TX ).trimmed();
 #endif
                     _socket->write( buf );
                     part._numberSent = true;
@@ -535,8 +540,8 @@ void Parser::executeACommand()
                 break;
             case Commands::IDLE:
                 buf.append( "IDLE\r\n" );
-#ifdef PRINT_TRAFFIC
-                qDebug() << _parserId << ">>>" << buf.left( PRINT_TRAFFIC ).trimmed();
+#ifdef PRINT_TRAFFIC_TX
+                qDebug() << _parserId << ">>>" << buf.left( PRINT_TRAFFIC_TX ).trimmed();
 #endif
                 _socket->write( buf );
                 _idling = true;
@@ -548,8 +553,8 @@ void Parser::executeACommand()
             case Commands::STARTTLS:
                 _startTlsCommand = buf;
                 buf.append( "STARTTLS\r\n" );
-#ifdef PRINT_TRAFFIC
-                qDebug() << _parserId << ">>>" << buf.left( PRINT_TRAFFIC ).trimmed();
+#ifdef PRINT_TRAFFIC_TX
+                qDebug() << _parserId << ">>>" << buf.left( PRINT_TRAFFIC_TX ).trimmed();
 #endif
                 _socket->write( buf );
                 _startTlsInProgress = true;
@@ -560,8 +565,8 @@ void Parser::executeACommand()
         if ( cmd._currentPart == cmd._cmds.size() - 1 ) {
             // finalize
             buf.append( "\r\n" );
-#ifdef PRINT_TRAFFIC
-            qDebug() << _parserId << ">>>" << buf.left( PRINT_TRAFFIC ).trimmed();
+#ifdef PRINT_TRAFFIC_TX
+            qDebug() << _parserId << ">>>" << buf.left( PRINT_TRAFFIC_TX ).trimmed();
 #endif
             _socket->write( buf );
             _cmdQueue.pop_front();
@@ -577,10 +582,10 @@ void Parser::executeACommand()
 /** @short Process a line from IMAP server */
 void Parser::processLine( QByteArray line )
 {
-#ifdef PRINT_TRAFFIC
+#ifdef PRINT_TRAFFIC_RX
     QByteArray debugLine = line.trimmed();
-    if ( debugLine.size() > PRINT_TRAFFIC )
-        qDebug() << _parserId << "<<<" << debugLine.left( PRINT_TRAFFIC ) << "...";
+    if ( debugLine.size() > PRINT_TRAFFIC_RX )
+        qDebug() << _parserId << "<<<" << debugLine.left( PRINT_TRAFFIC_RX ) << "...";
     else
         qDebug() << _parserId << "<<<" << debugLine;
 #endif
@@ -747,7 +752,7 @@ void Parser::enableLiteralPlus( const bool enabled )
 void Parser::handleDisconnected( const QString& reason )
 {
     emit lineReceived( this, "*** Socket disconnected" );
-#ifdef PRINT_TRAFFIC
+#ifdef PRINT_TRAFFIC_TX
     qDebug() << _parserId << "*** Socket disconnected";
 #endif
     emit disconnected( this, reason );
@@ -755,7 +760,7 @@ void Parser::handleDisconnected( const QString& reason )
 
 void Parser::handleConnectionEstablished()
 {
-#ifdef PRINT_TRAFFIC
+#ifdef PRINT_TRAFFIC_TX
     qDebug() << _parserId << "*** Connection established";
 #endif
     emit lineReceived( this, "*** Connection established" );
