@@ -101,6 +101,7 @@ initialize synchronization now.
     virtual bool handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp );
 
     void slotPerformNoop();
+    void slotActivateTasks() { activateTasks(); }
 
 private:
     void terminate();
@@ -108,9 +109,15 @@ private:
     /** @short Detach from the TreeItemMailbox, preventing new tasks from hitting us */
     void detachFromMailbox( TreeItemMailbox *mailbox );
 
+    /** @short Activate the dependent tasks while also limiting the rate */
+    void activateTasks();
+
 protected:
     QPersistentModelIndex mailboxIndex;
+    /** @short Future maintaining takss which are waiting for their opportunity to run */
     QList<KeepMailboxOpenTask*> waitingTasks;
+    /** @short Regular tasks which weren't started yet */
+    QList<ImapTask*> delayedTasks;
     /** @short An ImapTask that will be started to actually sync to a mailbox once the connection is free */
     ObtainSynchronizedMailboxTask* synchronizeConn;
 

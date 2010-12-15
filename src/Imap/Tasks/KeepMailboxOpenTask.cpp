@@ -128,10 +128,10 @@ void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
         connect( task, SIGNAL(destroyed(QObject*)), this, SLOT(slotTaskDeleted(QObject*)) );
         ImapTask::addDependentTask( task );
 
-        if ( isRunning ) {
-            // this function is typically called from task's constructor -> got to call that later
-            QTimer::singleShot( 0, task, SLOT(slotPerform()) );
-        }
+        // If this is the first task to be queued, let's make sure it'll get run
+        if ( delayedTasks.isEmpty() )
+            QTimer::singleShot( 0, this, SLOT(slotActivateTasks()) );
+        delayedTasks.append( task );
     }
 }
 
@@ -141,6 +141,7 @@ void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )
     // we can't use the passed pointer directly, and therefore we have to perform the cast here. It is safe
     // to do that here, as we're only interested in raw pointer value.
     dependentTasks.removeOne( static_cast<ImapTask*>( object ) );
+    delayedTasks.removeOne( static_cast<ImapTask*>( object ) );
 
     if ( shouldExit && dependentTasks.isEmpty() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
         terminate();
@@ -151,6 +152,8 @@ void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )
         // A command just completed and IDLE is supported, so let's queue it
         idleLauncher->enterIdleLater();
     }
+    // It's possible that we can start more tasks at this time...
+    activateTasks();
 }
 
 void KeepMailboxOpenTask::terminate()
@@ -209,10 +212,8 @@ void KeepMailboxOpenTask::perform()
     }
 
     isRunning = true;
-    Q_FOREACH( ImapTask* task, dependentTasks ) {
-        if ( ! task->isFinished() )
-            task->perform();
-    }
+
+    activateTasks();
 
     if ( model->accessParser( parser ).capabilitiesFresh && model->accessParser( parser ).capabilities.contains( "IDLE" ) )
         shouldRunIdle = true;
@@ -400,6 +401,18 @@ bool KeepMailboxOpenTask::handleSearch( Imap::Parser* ptr, const Imap::Responses
     }
     uidMap = resp->items;
     return true;
+}
+
+void KeepMailboxOpenTask::activateTasks()
+{
+    if ( ! isRunning )
+        return;
+
+    while ( ! delayedTasks.isEmpty() && model->accessParser( parser ).activeTasks.size() < 100 ) {
+        ImapTask *task = delayedTasks.takeFirst();
+        if ( ! task->isFinished() )
+            task->perform();
+    }
 }
 
 
