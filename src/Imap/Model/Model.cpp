@@ -880,6 +880,16 @@ void Model::copyMoveMessages( TreeItemMailbox* sourceMbox, const QString& destMa
 
     QModelIndexList messages;
     Sequence seq;
+    Q_FOREACH( TreeItemMessage* m, findMessagesByUids( list, uids ) ) {
+        messages << createIndex( m->row(), 0, m );
+        seq.add( m->uid() );
+    }
+    _taskFactory->createCopyMoveMessagesTask( this, messages, destMailboxName, op );
+}
+
+QList<TreeItemMessage*> Model::findMessagesByUids( const TreeItemMsgList *list, const QList<uint> &uids )
+{
+    QList<TreeItemMessage*> res;
     QList<TreeItem*>::const_iterator it = list->_children.constBegin();
     // qBinaryFind is not designed to operate on a value of a different kind than stored in the container
     // so we can't really compare TreeItem* with uint, even though our LessThan supports that
@@ -895,14 +905,11 @@ void Model::copyMoveMessages( TreeItemMailbox* sourceMbox, const QString& destMa
         fakeMessage._uid = uid;
         it = qBinaryFind( it, list->_children.constEnd(), &fakeMessage, uidComparator );
         if ( it != list->_children.end() ) {
-            messages << createIndex( (*it)->row(), 0, *it );
-            seq.add( uid );
+            res << static_cast<TreeItemMessage*>( *it );
         } else {
-            qDebug() << "Can't find UID" << uid << "when copying messages";
+            qDebug() << "Can't find UID" << uid;
         }
     }
-
-    _taskFactory->createCopyMoveMessagesTask( this, messages, destMailboxName, op );
 }
 
 TreeItemMailbox* Model::findMailboxByName( const QString& name ) const

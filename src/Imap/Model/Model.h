@@ -387,6 +387,7 @@ private:
     TreeItemMailbox* findMailboxByName( const QString& name ) const;
     TreeItemMailbox* findMailboxByName( const QString& name, const TreeItemMailbox* const root ) const;
     TreeItemMailbox* findParentMailboxByName( const QString& name ) const;
+    QList<TreeItemMessage*> findMessagesByUids( const TreeItemMsgList *list, const QList<uint> &uids );
 
     static TreeItemMailbox* mailboxForSomeItem( QModelIndex index );
 
