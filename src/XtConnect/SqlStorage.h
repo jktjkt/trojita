@@ -34,8 +34,8 @@
 #include <QDateTime>
 #include <QObject>
 #include <QSqlDatabase>
+#include <QSqlQuery>
 #include "Common/SqlTransactionAutoAborter.h"
-#include "xsqlquery.h"
 
 namespace XtConnect {
 
@@ -62,9 +62,9 @@ private:
     void _fail( const QString &message, const QSqlDatabase &database );
 
     QSqlDatabase db;
-    XSqlQuery _queryInsertMail;
-    XSqlQuery _queryInsertAddress;
-    XSqlQuery _queryMarkMailReady;
+    QSqlQuery _queryInsertMail;
+    QSqlQuery _queryInsertAddress;
+    QSqlQuery _queryMarkMailReady;
 };
 
 }
