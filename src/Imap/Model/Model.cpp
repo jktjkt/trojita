@@ -1249,6 +1249,9 @@ void Model::slotTasksChanged()
 {
     QList<ImapTask*> tasks = findChildren<ImapTask*>();
     qDebug() << "-------------";
+    Q_FOREACH( ParserState parserState, _parsers ) {
+        qDebug() << "Parser" << parserState.parser->parserId() << parserState.activeTasks.size() << "active tasks";
+    }
     Q_FOREACH( ImapTask* task, tasks ) {
         QString finished = ( task->isFinished() ? "[finished] " : "" );
         QString isReadyToRun = ( task->isReadyToRun() ? "[ready-to-run] " : "" );
