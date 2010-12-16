@@ -114,12 +114,16 @@ void XtCache::setMsgFlags( const QString& mailbox, uint uid, const QStringList& 
 
 XtCache::MessageDataBundle XtCache::messageMetadata( const QString& mailbox, uint uid ) const
 {
-    return _sqlCache->messageMetadata( mailbox, uid );
+    Q_UNUSED(mailbox);
+    Q_UNUSED(uid);
+    return MessageDataBundle();
 }
 
 void XtCache::setMessageMetadata( const QString& mailbox, uint uid, const MessageDataBundle& metadata )
 {
-    _sqlCache->setMessageMetadata( mailbox, uid, metadata );
+    Q_UNUSED(mailbox);
+    Q_UNUSED(uid);
+    Q_UNUSED(metadata);
 }
 
 QByteArray XtCache::messagePart( const QString& mailbox, uint uid, const QString& partId ) const
