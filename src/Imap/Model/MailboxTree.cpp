@@ -342,7 +342,7 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
         } else if ( it.key().startsWith( "BODY[" ) ) {
             if ( it.key()[ it.key().size() - 1 ] != ']' )
                 throw UnknownMessageIndex( "Can't parse such BODY[]", response );
-            TreeItemPart* part = partIdToPtr( model, response.number, it.key() );
+            TreeItemPart* part = partIdToPtr( model, message, it.key() );
             if ( ! part )
                 throw UnknownMessageIndex( "Got BODY[] fetch that did not resolve to any known part", response );
             const QByteArray& data = dynamic_cast<const Responses::RespData<QByteArray>&>( *(it.value()) ).data;
@@ -453,7 +453,7 @@ void TreeItemMailbox::finalizeFetch( Model* const model, const Responses::Status
     // FIXME: implement me?
 }
 
-TreeItemPart* TreeItemMailbox::partIdToPtr( Model* const model, const int msgNumber, const QString& msgId )
+TreeItemPart* TreeItemMailbox::partIdToPtr( Model* const model, TreeItemMessage* message, const QString& msgId )
 {
     QString partIdentification;
     if ( msgId.startsWith(QLatin1String("BODY[")) ) {
@@ -464,10 +464,9 @@ TreeItemPart* TreeItemMailbox::partIdToPtr( Model* const model, const int msgNum
         throw UnknownMessageIndex( QString::fromAscii("Fetch identifier doesn't start with reasonable prefix: %1" ).arg(msgId).toAscii().constData() );
     }
 
-    TreeItem* item = _children[0]; // TreeItemMsgList
-    Q_ASSERT( static_cast<TreeItemMsgList*>( item )->fetched() );
-    item = item->child( msgNumber - 1, model ); // TreeItemMessage
+    TreeItem* item = message;
     Q_ASSERT( item );
+    Q_ASSERT( item->parent()->fetched() ); // TreeItemMsgList
     QStringList separated = partIdentification.split( '.' );
     for ( QStringList::const_iterator it = separated.begin(); it != separated.end(); ++it ) {
         bool ok;
@@ -501,8 +500,9 @@ TreeItemPart* TreeItemMailbox::partIdToPtr( Model* const model, const int msgNum
         item = item->child( number - 1, model );
         if ( ! item ) {
             throw UnknownMessageIndex( QString::fromAscii(
-                    "Offset of the message part not found: message %1, current number %2, full identification %3" )
-                                       .arg( QString::number(msgNumber), QString::number(number), msgId ).toAscii().constData() );
+                    "Offset of the message part not found: message %1 (UID %2), current number %3, full identification %4" )
+                                       .arg( QString::number(message->row()), QString::number( message->uid() ),
+                                             QString::number(number), msgId ).toAscii().constData() );
         }
     }
     TreeItemPart* part = dynamic_cast<TreeItemPart*>( item );

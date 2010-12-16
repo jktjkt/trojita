@@ -154,7 +154,7 @@ No network activity will be caused. If the answer is not known for sure, we retu
     void handleExpunge( Model* const model, const Responses::NumberResponse& resp );
     bool isSelectable() const;
 private:
-    TreeItemPart* partIdToPtr( Model* model, const int msgNumber, const QString& msgId );
+    TreeItemPart* partIdToPtr( Model* model, TreeItemMessage* message, const QString& msgId );
 
     /** @short ImapTask which is currently responsible for well-being of this mailbox */
     QPointer<KeepMailboxOpenTask> maintainingTask;

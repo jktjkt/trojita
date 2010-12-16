@@ -424,7 +424,18 @@ void Model::emitMessageCountChanged( TreeItemMailbox* const mailbox )
 /** @short Retrieval of a message part has completed */
 void Model::_finalizeFetchPart( Parser* parser, TreeItemMailbox* const mailbox, const uint sequenceNo, const QString &partId )
 {
-    TreeItemPart* part = mailbox->partIdToPtr( this, sequenceNo, partId );
+    // At first, verify that the message itself is marked as loaded.
+    // If it isn't, it's probably because of Model::releaseMessageData().
+    TreeItem* item = mailbox->_children[0]; // TreeItemMsgList
+    Q_ASSERT( static_cast<TreeItemMsgList*>( item )->fetched() );
+    item = item->child( sequenceNo - 1, this ); // TreeItemMessage
+    Q_ASSERT( item ); // FIXME: or rather throw an exception?
+    if ( item->_fetchStatus == TreeItem::NONE ) {
+        // ...and it indeed got released, so let's just return and don't try to check anything
+        return;
+    }
+
+    TreeItemPart* part = mailbox->partIdToPtr( this, static_cast<TreeItemMessage*>(item), partId );
     if ( ! part ) {
         qDebug() << "Can't verify part fetching status: part is not here!";
         return;
