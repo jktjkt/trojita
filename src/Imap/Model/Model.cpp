@@ -754,7 +754,7 @@ void Model::_askForMsgPart( TreeItemPart* item, bool onlyFromCache )
         if ( item->_fetchStatus != TreeItem::DONE )
             item->_fetchStatus = TreeItem::UNAVAILABLE;
     } else if ( ! onlyFromCache ) {
-        findTaskResponsibleFor( mailboxPtr )->requestPartDownload( item->message()->_uid, item->partIdForFetch() );
+        findTaskResponsibleFor( mailboxPtr )->requestPartDownload( item->message()->_uid, item->partIdForFetch(), item->octets() );
     }
 }
 

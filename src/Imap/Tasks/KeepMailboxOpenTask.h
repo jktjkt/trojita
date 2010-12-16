@@ -83,7 +83,7 @@ prevents replacing an "alive" KeepMailboxOpenTask with a different one.
 
     QString debugIdentification() const;
 
-    void requestPartDownload( const uint uid, const QString &partId );
+    void requestPartDownload( const uint uid, const QString &partId, const uint estimatedSize );
 
 private slots:
     void slotTaskDeleted( QObject* object );
@@ -140,6 +140,12 @@ protected:
 
     QList<uint> uidMap;
     QMap<uint, QSet<QString> > requestedParts;
+    QMap<uint, uint> requestedPartSizes;
+
+    uint limitBytesAtOnce;
+    int limitMessagesAtOnce;
+    int limitParallelFetchTasks;
+    int limitActiveTasks;
 };
 
 }

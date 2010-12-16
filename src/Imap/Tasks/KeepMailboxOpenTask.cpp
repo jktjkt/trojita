@@ -104,6 +104,22 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
     fetchTimer->setInterval( timeout );
     fetchTimer->setSingleShot( true );
 
+    limitBytesAtOnce = model->property( "trojita-imap-limit-fetch-bytes-per-group" ).toUInt( &ok );
+    if ( ! ok )
+        limitBytesAtOnce = 1024 * 1024;
+
+    limitMessagesAtOnce = model->property( "trojita-imap-limit-fetch-messages-per-group" ).toInt( &ok );
+    if ( ! ok )
+        limitMessagesAtOnce = 100;
+
+    limitParallelFetchTasks = model->property( "trojita-imap-limit-parallel-fetch-tasks" ).toInt( &ok );
+    if ( ! ok )
+        limitParallelFetchTasks = 5;
+
+    limitActiveTasks = model->property( "trojita-imap-limit-active-tasks" ).toInt( &ok );
+    if ( ! ok )
+        limitActiveTasks = 100;
+
     emit model->mailboxSyncingProgress( mailboxIndex, STATE_WAIT_FOR_CONN );
 }
 
@@ -423,17 +439,18 @@ void KeepMailboxOpenTask::activateTasks()
     if ( ! isRunning )
         return;
 
-    while ( ! delayedTasks.isEmpty() && model->accessParser( parser ).activeTasks.size() < 100 ) {
+    while ( ! delayedTasks.isEmpty() && model->accessParser( parser ).activeTasks.size() < limitActiveTasks ) {
         ImapTask *task = delayedTasks.takeFirst();
         if ( ! task->isFinished() )
             task->perform();
     }
 }
 
-void KeepMailboxOpenTask::requestPartDownload( const uint uid, const QString &partId )
+void KeepMailboxOpenTask::requestPartDownload( const uint uid, const QString &partId, const uint estimatedSize )
 {
     requestedParts[uid].insert( partId );
-    if ( ! fetchTimer->isActive() && fetchPartTasks.size() < 50 )
+    requestedPartSizes[uid] += estimatedSize;
+    if ( ! fetchTimer->isActive() )
         fetchTimer->start();
 }
 
@@ -445,20 +462,21 @@ void KeepMailboxOpenTask::slotFetchRequestedParts()
     QMap<uint, QSet<QString> >::iterator it = requestedParts.begin();
     QSet<QString> parts = *it;
 
-    while ( fetchPartTasks.size() < 50 ) {
+    while ( fetchPartTasks.size() < limitParallelFetchTasks ) {
         QList<uint> uids;
-        while ( uids.size() < 100 && it != requestedParts.end() ) {
+        uint totalSize = 0;
+        while ( uids.size() < limitMessagesAtOnce && it != requestedParts.end() && totalSize < limitBytesAtOnce ) {
             if ( parts != *it )
                 break;
             parts = *it;
             uids << it.key();
             it = requestedParts.erase( it );
+            totalSize += requestedPartSizes.take( it.key() );
         }
         if ( uids.isEmpty() )
             return;
 
-        FetchMsgPartTask *task = model->_taskFactory->createFetchMsgPartTask( model, mailboxIndex, uids, parts.toList() );
-        fetchPartTasks << task;
+        fetchPartTasks << model->_taskFactory->createFetchMsgPartTask( model, mailboxIndex, uids, parts.toList() );
     }
 }
 
