@@ -227,11 +227,18 @@ and @arg translatedIndex.
     /** @short Walks the index hierarchy up until it finds a message which owns this part/message */
     static QModelIndex findMessageForItem( QModelIndex index );
 
-    /** @short Inform the model that the downloaded data for this part are not needed anymore
+    /** @short Inform the model that data for this message won't likely be requested in near future
 
-This is mainly a short-term fix before the data is kept just in the cache and not in the TreeItemParts themselves.
+Model will transform the corresponding TreeItemMessage into the state similar to how it would look
+right after a fresh mailbox synchronization. All TreeItemParts will be freed, envelope and body
+structure forgotten. This will substantially reduce Model's memory usage.
+
+The UID and flags are not affected by this operation. The cache and any data stored in there will
+also be left intact (and would indeed be consulted instead of the network when future requests for
+this message happen again.
+
 */
-    void partDataNotNeeded( const QModelIndex &part );
+    void releaseMessageData( const QModelIndex &message );
 
 public slots:
     /** @short Ask for an updated list of mailboxes on the server */

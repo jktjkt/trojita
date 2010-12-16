@@ -151,6 +151,20 @@ Envelope Envelope::fromList( const QVariantList& items, const QByteArray& line, 
     return Envelope( date, subject, from, sender, replyTo, to, cc, bcc, inReplyTo, messageId );
 }
 
+void Envelope::clear()
+{
+    date = QDateTime();
+    subject.clear();
+    from.clear();
+    sender.clear();
+    replyTo.clear();
+    to.clear();
+    cc.clear();
+    bcc.clear();
+    inReplyTo.clear();
+    messageId.clear();
+}
+
 bool OneMessage::eq( const AbstractData& other ) const
 {
     try {

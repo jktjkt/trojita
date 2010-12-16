@@ -148,10 +148,7 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
         // and even the partDataNotNeeded() won't (directly) touch its members anyway...
         Imap::Mailbox::Model *model = qobject_cast<Imap::Mailbox::Model*>( const_cast<QAbstractItemModel*>( message.model() ) );
         Q_ASSERT(model);
-        model->partDataNotNeeded( it->header );
-        model->partDataNotNeeded( it->body );
-        model->partDataNotNeeded( it->mainPart );
-
+        model->releaseMessageData( it->message );
         m_parts.erase( it );
     }
 }

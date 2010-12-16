@@ -100,6 +100,8 @@ namespace Message {
         static Envelope fromList( const QVariantList& items, const QByteArray& line, const int start );
         QTextStream& dump( QTextStream& s, const int indent ) const;
 
+        void clear();
+
     private:
         static QList<MailAddress> getListOfAddresses( const QVariant& in,
                 const QByteArray& line, const int start );

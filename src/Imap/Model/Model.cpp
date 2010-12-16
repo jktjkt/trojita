@@ -1341,18 +1341,26 @@ QModelIndex Model::findMessageForItem( QModelIndex index )
     return QModelIndex();
 }
 
-void Model::partDataNotNeeded( const QModelIndex &part )
+void Model::releaseMessageData( const QModelIndex &message )
 {
-    if ( ! part.isValid() )
+    if ( ! message.isValid() )
         return;
-    Q_ASSERT( part.model() == this );
+    Q_ASSERT( message.model() == this );
 
-    TreeItemPart *partPtr = dynamic_cast<TreeItemPart*>( static_cast<TreeItem*>( part.internalPointer() ) );
-    if ( ! partPtr )
+    TreeItemMessage *msg = dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>( message.internalPointer() ) );
+    if ( ! msg )
         return;
 
-    partPtr->_fetchStatus = TreeItem::NONE;
-    partPtr->_data.clear();
+    beginRemoveRows( message, 0, msg->_children.size() - 1 );
+    qDeleteAll( msg->_children );
+    msg->_children.clear();
+    endRemoveRows();
+    msg->_fetchStatus = TreeItem::NONE;
+    msg->_envelope.clear();
+    msg->_partHeader->_data.clear();
+    msg->_partHeader->_fetchStatus = TreeItem::NONE;
+    msg->_partText->_data.clear();
+    msg->_partText->_fetchStatus = TreeItem::NONE;
 }
 
 }
