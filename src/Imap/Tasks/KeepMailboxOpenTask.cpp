@@ -450,7 +450,7 @@ void KeepMailboxOpenTask::requestPartDownload( const uint uid, const QString &pa
 {
     requestedParts[uid].insert( partId );
     requestedPartSizes[uid] += estimatedSize;
-    if ( ! fetchTimer->isActive() )
+    if ( isRunning && ! fetchTimer->isActive() )
         fetchTimer->start();
 }
 
