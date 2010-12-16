@@ -73,7 +73,7 @@ XtConnect::XtConnect(QObject *parent, QSettings *s) :
     }
 
     m_rotateMailboxes = new QTimer(this);
-    m_rotateMailboxes->setInterval( /*1000 * 60 * 1*/ 15000 ); // every minute
+    m_rotateMailboxes->setInterval( 1000 * 60 * 3 ); // every three minutes
     connect( m_rotateMailboxes, SIGNAL(timeout()), this, SLOT(goTroughMailboxes()) );
     m_rotateMailboxes->start();
 }
