@@ -24,6 +24,10 @@
 namespace Imap {
 namespace Responses {
 
+AbstractData::~AbstractData()
+{
+}
+
 QTextStream& operator<<( QTextStream& stream, const AbstractData& resp )
 {
     return resp.dump( stream );

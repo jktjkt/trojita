@@ -28,6 +28,10 @@
 namespace Imap {
 namespace Responses {
 
+AbstractResponse::~AbstractResponse()
+{
+}
+
 QTextStream& operator<<( QTextStream& stream, const Code& r )
 {
 #define CASE(X) case X: stream << #X; break;

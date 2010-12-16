@@ -35,7 +35,7 @@ namespace Responses {
      * */
     class AbstractData {
     public:
-        virtual ~AbstractData() {};
+        virtual ~AbstractData();
         virtual QTextStream& dump( QTextStream& ) const = 0;
         virtual bool eq( const AbstractData& other ) const = 0;
     };

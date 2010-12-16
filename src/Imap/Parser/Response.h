@@ -188,7 +188,7 @@ namespace Responses {
         Kind kind;
         AbstractResponse(): kind(BAD) {};
         AbstractResponse( const Kind _kind ): kind(_kind) {};
-        virtual ~AbstractResponse() {};
+        virtual ~AbstractResponse();
         /** @short Helper for operator<<() */
         virtual QTextStream& dump( QTextStream& ) const = 0;
         /** @short Helper for operator==() */
