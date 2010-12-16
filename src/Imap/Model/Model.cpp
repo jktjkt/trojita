@@ -1272,6 +1272,7 @@ void Model::slotTasksChanged()
     Q_FOREACH( ParserState parserState, _parsers ) {
         qDebug() << "Parser" << parserState.parser->parserId() << parserState.activeTasks.size() << "active tasks";
     }
+    int i = 0;
     Q_FOREACH( ImapTask* task, tasks ) {
         QString finished = ( task->isFinished() ? "[finished] " : "" );
         QString isReadyToRun = ( task->isReadyToRun() ? "[ready-to-run] " : "" );
@@ -1283,6 +1284,11 @@ void Model::slotTasksChanged()
             }
         }
         qDebug() << task << task->debugIdentification() << finished << isReadyToRun << isActive; // << task->dependentTasks;
+        ++i;
+        if ( i > 50 ) {
+            qDebug() << "...and" << tasks.size() - i << "more tasks.";
+            break;
+        }
     }
     qDebug() << "-------------";
 }
