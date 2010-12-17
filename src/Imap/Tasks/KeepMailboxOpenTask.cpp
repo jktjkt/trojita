@@ -110,11 +110,11 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
 
     limitMessagesAtOnce = model->property( "trojita-imap-limit-fetch-messages-per-group" ).toInt( &ok );
     if ( ! ok )
-        limitMessagesAtOnce = 100;
+        limitMessagesAtOnce = 300;
 
     limitParallelFetchTasks = model->property( "trojita-imap-limit-parallel-fetch-tasks" ).toInt( &ok );
     if ( ! ok )
-        limitParallelFetchTasks = 5;
+        limitParallelFetchTasks = 10;
 
     limitActiveTasks = model->property( "trojita-imap-limit-active-tasks" ).toInt( &ok );
     if ( ! ok )
