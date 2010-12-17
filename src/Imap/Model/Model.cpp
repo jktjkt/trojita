@@ -729,9 +729,11 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
             {
                 // preload
                 QModelIndexList items;
-                for ( int i = qMax( 0, order - StructurePreload );
-                      i < qMin( list->_children.size(), order + StructurePreload );
-                      ++i ) {
+                bool ok;
+                int preload = property( "trojita-imap-preload-msg-metadata" ).toInt( &ok );
+                if ( ! ok )
+                    preload = 50;
+                for ( int i = qMax( 0, order - preload ); i < qMin( list->_children.size(), order + preload ); ++i ) {
                     TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->_children[i] );
                     Q_ASSERT( message );
                     if ( item == message || ( ! message->fetched() && ! message->loading() ) ) {

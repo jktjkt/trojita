@@ -85,14 +85,6 @@ class Model: public QAbstractItemModel {
         ReadWrite /**< @short Invoke SELECT if necessarry */
     };
 
-    enum {
-        /** @short Don't request message structures etc when the number of messages we'd ask for is greater than this */
-        StructureFetchLimit = 100 };
-
-    enum {
-        /** @short How many messages before and after to preload when structure of one is being requested */
-        StructurePreload = 50 };
-
     /** @short Helper structure for keeping track of each parser's state */
     struct ParserState {
         /** @short Which parser are we talking about here */
