@@ -718,6 +718,8 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
 
     switch ( networkPolicy() ) {
         case NETWORK_OFFLINE:
+            if ( item->_fetchStatus != TreeItem::DONE )
+                item->_fetchStatus = TreeItem::UNAVAILABLE;
             break;
         case NETWORK_EXPENSIVE:
             item->_fetchStatus = TreeItem::LOADING;

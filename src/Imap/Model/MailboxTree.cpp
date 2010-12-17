@@ -626,7 +626,6 @@ void TreeItemMessage::fetch( Model* const model )
     if ( fetched() || loading() || isUnavailable( model ) )
         return;
 
-    _fetchStatus = LOADING;
     model->_askForMsgMetadata( this );
 }
 
