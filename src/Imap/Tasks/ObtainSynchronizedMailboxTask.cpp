@@ -205,6 +205,9 @@ void ObtainSynchronizedMailboxTask::_fullMboxSync( TreeItemMailbox* mailbox, Tre
         // FIXME: Previously we'd create TreeItemMessages here, and then delete them in _finalizeUidSyncAll().
         // We should consider preloading messages immediately, along with their flags etc, in order to
         // minimize roundtrips.
+
+        // We're empty by now, so we sync just the additions.
+        uidSyncingMode = UID_SYNC_ONLY_NEW;
         syncUids( mailbox );
 
         list->_numberFetchingStatus = TreeItem::LOADING;
