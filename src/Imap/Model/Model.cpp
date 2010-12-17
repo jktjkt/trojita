@@ -702,8 +702,16 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
                 item->_fetchStatus = TreeItem::UNAVAILABLE;
             } else {
                 QList<TreeItem*> newChildren = abstractMessage->createTreeItems( item );
-                QList<TreeItem*> oldChildren = item->setChildren( newChildren );
-                Q_ASSERT( oldChildren.size() == 0 );
+                if ( item->_children.isEmpty() ) {
+                    QList<TreeItem*> oldChildren = item->setChildren( newChildren );
+                    Q_ASSERT( oldChildren.size() == 0 );
+                } else {
+                    QModelIndex messageIdx = createIndex( item->row(), 0, item );
+                    beginRemoveRows( messageIdx, 0, item->_children.size() - 1 );
+                    QList<TreeItem*> oldChildren = item->setChildren( newChildren );
+                    endRemoveRows();
+                    qDeleteAll( oldChildren );
+                }
                 item->_fetchStatus = TreeItem::DONE;
             }
         }
@@ -1360,23 +1368,26 @@ void Model::releaseMessageData( const QModelIndex &message )
 {
     if ( ! message.isValid() )
         return;
-    Q_ASSERT( message.model() == this );
 
-    TreeItemMessage *msg = dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>( message.internalPointer() ) );
+    const Model *whichModel = 0;
+    QModelIndex realMessage;
+    realTreeItem( message, &whichModel, &realMessage );
+    Q_ASSERT( whichModel == this );
+
+    TreeItemMessage *msg = dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>( realMessage.internalPointer() ) );
     if ( ! msg )
         return;
 
-    // FIXME: beginRemoveRows() is *veeeeeeeeeeeery* slow...
-    beginRemoveRows( message, 0, msg->_children.size() - 1 );
-    qDeleteAll( msg->_children );
-    msg->_children.clear();
-    endRemoveRows();
     msg->_fetchStatus = TreeItem::NONE;
     msg->_envelope.clear();
-    msg->_partHeader->_data.clear();
-    msg->_partHeader->_fetchStatus = TreeItem::NONE;
-    msg->_partText->_data.clear();
-    msg->_partText->_fetchStatus = TreeItem::NONE;
+    msg->_partHeader->silentlyReleaseMemoryRecursive();
+    msg->_partText->silentlyReleaseMemoryRecursive();
+    Q_FOREACH( TreeItem *item, msg->_children ) {
+        TreeItemPart *part = dynamic_cast<TreeItemPart*>( item );
+        Q_ASSERT(part);
+        part->silentlyReleaseMemoryRecursive();
+    }
+    emit dataChanged( realMessage, realMessage );
 }
 
 }

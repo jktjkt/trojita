@@ -278,6 +278,8 @@ public:
     /** @short Return the downloadable size of the message part */
     uint octets() const { return _octets; }
     virtual TreeItem* specialColumnPtr( int row, int column ) const;
+
+    void silentlyReleaseMemoryRecursive();
 protected:
     virtual bool isTopLevelMultiPart() const;
     TreeItemPart(TreeItem *parent);

@@ -329,8 +329,16 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
                 QList<TreeItem*> newChildren = dynamic_cast<const Message::AbstractMessage&>( *(it.value()) ).createTreeItems( message );
                 // FIXME: it would be nice to use more fine-grained signals here
                 emit model->layoutAboutToBeChanged();
-                QList<TreeItem*> oldChildren = message->setChildren( newChildren );
-                Q_ASSERT( oldChildren.size() == 0 );
+                if ( ! message->_children.isEmpty() ) {
+                    QModelIndex messageIdx = model->createIndex( message->row(), 0, message );
+                    model->beginRemoveRows( messageIdx, 0, message->_children.size() - 1 );
+                    QList<TreeItem*> oldChildren = message->setChildren( newChildren );
+                    model->endRemoveRows();
+                    qDeleteAll( oldChildren );
+                } else {
+                    QList<TreeItem*> oldChildren = message->setChildren( newChildren );
+                    Q_ASSERT( oldChildren.size() == 0 );
+                }
                 emit model->layoutChanged();
                 savedBodyStructure = true;
             }
@@ -995,6 +1003,17 @@ TreeItem* TreeItemPart::specialColumnPtr( int row, int column ) const
     default:
         return 0;
     }
+}
+
+void TreeItemPart::silentlyReleaseMemoryRecursive()
+{
+    Q_FOREACH( TreeItem *item, _children ) {
+        TreeItemPart *part = dynamic_cast<TreeItemPart*>( item );
+        Q_ASSERT(part);
+        part->silentlyReleaseMemoryRecursive();
+    }
+    _data.clear();
+    _fetchStatus = NONE;
 }
 
 
