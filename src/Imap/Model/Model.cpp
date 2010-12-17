@@ -723,25 +723,25 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
             break;
         case NETWORK_EXPENSIVE:
             item->_fetchStatus = TreeItem::LOADING;
-            _taskFactory->createFetchMsgMetadataTask( this, QModelIndexList() << createIndex( item->row(), 0, item ) );
+            _taskFactory->createFetchMsgMetadataTask( this, createIndex( mailboxPtr->row(), 0, mailboxPtr ), QList<uint>() << item->uid() );
             break;
         case NETWORK_ONLINE:
             {
                 // preload
-                QModelIndexList items;
                 bool ok;
                 int preload = property( "trojita-imap-preload-msg-metadata" ).toInt( &ok );
                 if ( ! ok )
                     preload = 50;
+                QList<uint> uids;
                 for ( int i = qMax( 0, order - preload ); i < qMin( list->_children.size(), order + preload ); ++i ) {
                     TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->_children[i] );
                     Q_ASSERT( message );
                     if ( item == message || ( ! message->fetched() && ! message->loading() ) ) {
                         message->_fetchStatus = TreeItem::LOADING;
-                        items << createIndex( message->row(), 0, message );
+                        uids << message->uid();
                     }
                 }
-                _taskFactory->createFetchMsgMetadataTask( this, items );
+                _taskFactory->createFetchMsgMetadataTask( this, createIndex( mailboxPtr->row(), 0, mailboxPtr ), uids );
             }
             break;
     }

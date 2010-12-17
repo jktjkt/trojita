@@ -76,9 +76,9 @@ ExpungeMailboxTask* TaskFactory::createExpungeMailboxTask( Model* _model, const 
     return new ExpungeMailboxTask( _model, mailbox );
 }
 
-FetchMsgMetadataTask* TaskFactory::createFetchMsgMetadataTask( Model* _model, const QModelIndexList& messages )
+FetchMsgMetadataTask* TaskFactory::createFetchMsgMetadataTask( Model *_model, const QModelIndex &_mailbox, const QList<uint> &_uids )
 {
-    return new FetchMsgMetadataTask( _model, messages );
+    return new FetchMsgMetadataTask( _model, _mailbox, _uids );
 }
 
 FetchMsgPartTask* TaskFactory::createFetchMsgPartTask( Model* _model, const QModelIndex &mailbox, const QList<uint> &uids, const QStringList &parts )

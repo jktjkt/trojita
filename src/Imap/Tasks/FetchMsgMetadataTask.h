@@ -34,7 +34,7 @@ class FetchMsgMetadataTask : public ImapTask
 {
 Q_OBJECT
 public:
-    FetchMsgMetadataTask( Model* _model, const QModelIndexList& messages );
+    FetchMsgMetadataTask( Model *_model, const QModelIndex &_mailbox, const QList<uint> &_uids );
     virtual void perform();
 
     virtual bool handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );
@@ -42,7 +42,8 @@ public:
 private:
     CommandHandle tag;
     ImapTask* conn;
-    QList<QPersistentModelIndex> messages;
+    QPersistentModelIndex mailbox;
+    QList<uint> uids;
 };
 
 }

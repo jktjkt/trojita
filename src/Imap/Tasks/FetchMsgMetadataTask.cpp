@@ -25,17 +25,13 @@
 namespace Imap {
 namespace Mailbox {
 
-FetchMsgMetadataTask::FetchMsgMetadataTask( Model* _model, const QModelIndexList& _messages ) :
-    ImapTask( _model )
+FetchMsgMetadataTask::FetchMsgMetadataTask( Model *_model, const QModelIndex &_mailbox, const QList<uint> &_uids ) :
+    ImapTask( _model ), mailbox(_mailbox), uids(_uids)
 {
-    if ( _messages.isEmpty() ) {
+    if ( uids.isEmpty() ) {
         throw CantHappen( "FetchMsgMetadataTask called with empty message set");
     }
-    Q_FOREACH( const QModelIndex& index, _messages ) {
-        messages << index;
-    }
-    QModelIndex mailboxIndex = model->findMailboxForItems( _messages );
-    conn = model->findTaskResponsibleFor( mailboxIndex );
+    conn = model->findTaskResponsibleFor( mailbox );
     conn->addDependentTask( this );
 }
 
@@ -45,32 +41,11 @@ void FetchMsgMetadataTask::perform()
     Q_ASSERT( parser );
     model->accessParser( parser ).activeTasks.append( this );
 
-    Sequence seq;
-    bool first = true;
-
-    Q_FOREACH( const QPersistentModelIndex& index, messages ) {
-        if ( ! index.isValid() ) {
-            // FIXME: add proper fix
-            qDebug() << "Some message got removed before we could ask for their metadata";
-        } else {
-            TreeItem* item = static_cast<TreeItem*>( index.internalPointer() );
-            Q_ASSERT(item);
-            TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( item );
-            Q_ASSERT(message);
-            if ( first ) {
-                seq = Sequence( message->uid() );
-                first = false;
-            } else {
-                seq.add( message->uid() );
-            }
-        }
-    }
-
-    if ( first ) {
-        // No valid messages
-        qDebug() << "All messages got removed before we could ask for their metadata";
-        _completed();
-        return;
+    Q_ASSERT( ! uids.isEmpty() );
+    qSort( uids );
+    Sequence seq( uids.first() );
+    for ( int i = 1; i < uids.size(); ++i ) {
+        seq.add( uids[i] );
     }
 
     // we do not want to use _onlineMessageFetch because it contains UID and FLAGS
@@ -81,9 +56,15 @@ void FetchMsgMetadataTask::perform()
 
 bool FetchMsgMetadataTask::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
 {
-    Q_ASSERT( ! messages.isEmpty() );
-    TreeItemMailbox* mailbox = Model::mailboxForSomeItem( messages.first() );
-    model->_genericHandleFetch( mailbox, resp );
+    if ( ! mailbox.isValid() ) {
+        qDebug() << "FetchMsgMetadataTask::handleFetch: mailbox disappeared";
+        _completed();
+        // FIXME: nice error handling
+        return false;
+    }
+    TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItemMailbox*>( mailbox.internalPointer() ) );
+    Q_ASSERT(mailboxPtr);
+    model->_genericHandleFetch( mailboxPtr, resp );
     return true;
 }
 
