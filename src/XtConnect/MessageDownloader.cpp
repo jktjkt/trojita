@@ -49,12 +49,20 @@ void MessageDownloader::requestDownload( const QModelIndex &message )
 
     MessageMetadata metaData;
     metaData.message = message;
-    metaData.header = lastModel->index( 0, Imap::Mailbox::TreeItem::OFFSET_HEADER, message );
-    QVariant headerData = metaData.header.data( Imap::Mailbox::RolePartData );
+
+    QModelIndex header = lastModel->index( 0, Imap::Mailbox::TreeItem::OFFSET_HEADER, message );
+    QVariant headerData = header.data( Imap::Mailbox::RolePartData );
     metaData.hasHeader = headerData.isValid();
-    metaData.body = lastModel->index( 0, Imap::Mailbox::TreeItem::OFFSET_TEXT, message );
-    QVariant textData = metaData.body.data( Imap::Mailbox::RolePartData );
+    if ( metaData.hasHeader )
+        metaData.headerData = headerData.toByteArray();
+
+    QModelIndex text = lastModel->index( 0, Imap::Mailbox::TreeItem::OFFSET_TEXT, message );
+    QVariant textData = text.data( Imap::Mailbox::RolePartData );
     metaData.hasBody = textData.isValid();
+    if ( metaData.hasBody )
+        metaData.bodyData = textData.toByteArray();
+
+
     metaData.hasMessage = message.data( Imap::Mailbox::RoleMessageMessageId ).isValid();
 
     QModelIndex mainPart;
@@ -65,7 +73,7 @@ void MessageDownloader::requestDownload( const QModelIndex &message )
     metaData.mainPartFailed = mainPartStatus == MAINPART_PART_CANNOT_DETERMINE;
 
     if ( metaData.hasHeader && metaData.hasBody && metaData.hasMessage && metaData.hasMainPart ) {
-        emit messageDownloaded( message, headerData.toByteArray(), textData.toByteArray(),
+        emit messageDownloaded( message, metaData.headerData, metaData.bodyData,
                                 mainPartStatus == MAINPART_FOUND ? partData : metaData.partMessage );
         return;
     }
@@ -94,10 +102,21 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
     if ( it == m_parts.end() )
         return;
 
-    if ( a == it->header ) {
+    const QAbstractItemModel *model = message.model();
+
+    QModelIndex header = model->index( 0, Imap::Mailbox::TreeItem::OFFSET_HEADER, message );
+    QModelIndex text = model->index( 0, Imap::Mailbox::TreeItem::OFFSET_TEXT, message );
+
+    if ( a == header ) {
         it->hasHeader = true;
-    } else if ( a == it->body ) {
+        QVariant data = header.data( Imap::Mailbox::RolePartData );
+        Q_ASSERT(data.isValid());
+        it->headerData = data.toByteArray();
+    } else if ( a == text ) {
         it->hasBody = true;
+        QVariant data = text.data( Imap::Mailbox::RolePartData );
+        Q_ASSERT(data.isValid());
+        it->bodyData = data.toByteArray();
     } else if ( a == it->message && ! it->hasMessage ) {
         it->hasMessage = true;
 
@@ -127,12 +146,8 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
     }
 
     if ( it->hasHeader && it->hasBody && it->hasMessage && it->hasMainPart ) {
-        QVariant headerData = it->header.data( Imap::Mailbox::RolePartData );
-        QVariant textData = it->body.data( Imap::Mailbox::RolePartData );
         QVariant mainPartData = it->mainPart.data( Imap::Mailbox::RolePartData );
         QString mainPart;
-        Q_ASSERT(headerData.isValid());
-        Q_ASSERT(textData.isValid());
         if ( it->mainPartFailed ) {
             mainPart = it->partMessage;
         } else {
@@ -142,10 +157,10 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
         Q_ASSERT(it->message.data( Imap::Mailbox::RoleMessageMessageId ).isValid());
         Q_ASSERT(it->message.data( Imap::Mailbox::RoleMessageSubject ).isValid());
         Q_ASSERT(it->message.data( Imap::Mailbox::RoleMessageDate ).isValid());
-        emit messageDownloaded( message, headerData.toByteArray(), textData.toByteArray(), mainPart );
+        emit messageDownloaded( message, it->headerData, it->bodyData, mainPart );
 
         // The const_cast should be safe here -- this action is certainly not going to invalidate the index,
-        // and even the partDataNotNeeded() won't (directly) touch its members anyway...
+        // and even the releaseMessageData() won't (directly) touch its members anyway...
         Imap::Mailbox::Model *model = qobject_cast<Imap::Mailbox::Model*>( const_cast<QAbstractItemModel*>( message.model() ) );
         Q_ASSERT(model);
         model->releaseMessageData( it->message );
