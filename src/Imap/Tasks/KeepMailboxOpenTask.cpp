@@ -134,10 +134,7 @@ void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
 {
     Q_ASSERT( task );
 
-    if ( idleLauncher && idleLauncher->idling() ) {
-        // If we're idling right now, we should immediately abort
-        idleLauncher->finishIdle();
-    }
+    breakPossibleIdle();
 
     KeepMailboxOpenTask* keepTask = qobject_cast<KeepMailboxOpenTask*>( task );
     if ( keepTask ) {
@@ -300,10 +297,7 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
         }
         mailbox->syncState.setExists( resp->number );
 
-        if ( idleLauncher && idleLauncher->idling() ) {
-            // If we're idling right now, we should immediately abort
-            idleLauncher->finishIdle();
-        }
+        breakPossibleIdle();
 
         QString uidSpecification = QString::fromAscii("UID %1:*").arg( mailbox->syncState.uidNext() );
         uidSyncingCmd = parser->uidSearchUid( uidSpecification );
@@ -352,7 +346,7 @@ bool KeepMailboxOpenTask::handleStateHelper( Imap::Parser* ptr, const Imap::Resp
         Q_ASSERT( idleLauncher );
         if ( resp->kind == Responses::OK ) {
             // The IDLE got terminated for whatever reason, so we should schedule its restart
-            idleLauncher->enterIdleLater();
+            idleLauncher->idleCommandCompleted();
         } else {
             // FIXME: we should get nervous because it failed -- we won't restart it anyway...
         }
@@ -409,8 +403,7 @@ void KeepMailboxOpenTask::detachFromMailbox( TreeItemMailbox *mailbox )
 void KeepMailboxOpenTask::stopForLogout()
 {
     die();
-    if ( idleLauncher && idleLauncher->idling() )
-        idleLauncher->finishIdle();
+    breakPossibleIdle();
 }
 
 bool KeepMailboxOpenTask::handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp )
@@ -438,6 +431,8 @@ void KeepMailboxOpenTask::activateTasks()
 {
     if ( ! isRunning )
         return;
+
+    breakPossibleIdle();
 
     while ( ! delayedTasks.isEmpty() && model->accessParser( parser ).activeTasks.size() < limitActiveTasks ) {
         ImapTask *task = delayedTasks.takeFirst();
@@ -477,6 +472,14 @@ void KeepMailboxOpenTask::slotFetchRequestedParts()
             return;
 
         fetchPartTasks << model->_taskFactory->createFetchMsgPartTask( model, mailboxIndex, uids, parts.toList() );
+    }
+}
+
+void KeepMailboxOpenTask::breakPossibleIdle()
+{
+    if ( idleLauncher && idleLauncher->idling() ) {
+        // If we're idling right now, we should immediately abort
+        idleLauncher->finishIdle();
     }
 }
 

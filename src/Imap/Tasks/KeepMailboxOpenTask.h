@@ -116,6 +116,9 @@ private:
     /** @short Activate the dependent tasks while also limiting the rate */
     void activateTasks();
 
+    /** @short If there's an IDLE running, be sure to stop it */
+    void breakPossibleIdle();
+
 protected:
     QPersistentModelIndex mailboxIndex;
     /** @short Future maintaining takss which are waiting for their opportunity to run */

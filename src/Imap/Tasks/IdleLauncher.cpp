@@ -28,7 +28,7 @@ namespace Imap {
 namespace Mailbox {
 
 IdleLauncher::IdleLauncher( KeepMailboxOpenTask* parent ):
-        QObject(parent), task(parent), _idling(false)
+        QObject(parent), task(parent), _idling(false), _idleCommandRunning(false)
 {
     delayedEnter = new QTimer( this );
     delayedEnter->setObjectName( QString::fromAscii("%1-IdleLauncher-delayedEnter").arg( task->objectName() ) );
@@ -58,18 +58,27 @@ void IdleLauncher::slotEnterIdleNow()
     delayedEnter->stop();
     renewal->stop();
 
+    if ( _idleCommandRunning ) {
+        enterIdleLater();
+        return;
+    }
+
     Q_ASSERT( task->parser );
     Q_ASSERT( ! _idling );
+    Q_ASSERT( ! _idleCommandRunning );
+    Q_ASSERT( task->tagIdle.isEmpty() );
     task->tagIdle = task->parser->idle();
     task->model->accessParser( task->parser ).commandMap[ task->tagIdle ] = Model::Task( Model::Task::IDLE, 0 );
     renewal->start();
     _idling = true;
+    _idleCommandRunning = true;
 }
 
 void IdleLauncher::finishIdle()
 {
     Q_ASSERT( task->parser );
-    Q_ASSERT( idling() );
+    Q_ASSERT( _idling );
+    Q_ASSERT( _idleCommandRunning );
     task->parser->idleDone();
     _idling = false;
 }
@@ -81,8 +90,10 @@ void IdleLauncher::slotTerminateLongIdle()
 
 void IdleLauncher::enterIdleLater()
 {
-    if ( ! idling() )
-        delayedEnter->start();
+    if ( _idling )
+        return;
+
+    delayedEnter->start();
 }
 
 void IdleLauncher::die()
@@ -96,6 +107,15 @@ void IdleLauncher::die()
 bool IdleLauncher::idling() const
 {
     return _idling;
+}
+
+void IdleLauncher::idleCommandCompleted()
+{
+    // FIXME: these asseerts could be triggered by a rogue server...
+    Q_ASSERT( ! _idling );
+    Q_ASSERT( _idleCommandRunning );
+    _idleCommandRunning = false;
+    enterIdleLater();
 }
 
 }

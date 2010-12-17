@@ -67,6 +67,12 @@ target mailbox and all member variables are set up.
     though.
 */
     bool idling() const;
+
+    /** @short Informs the IdleLauncher that the server OKed the end of the IDLE mode
+
+We will automatically resume IDLE later.
+ */
+    void idleCommandCompleted();
 public slots:
     /** @short Immediately send the IDLE command to the parser */
     void slotEnterIdleNow();
@@ -76,7 +82,10 @@ private:
     KeepMailboxOpenTask* task;
     QTimer* delayedEnter;
     QTimer* renewal;
+    /** @short Are we between queueing the IDLE and DONE statements? */
     bool _idling;
+    /** @short Are we between queueing the IDLE and receiving the <tag> OK? */
+    bool _idleCommandRunning;
 
     IdleLauncher(const Imap::Mailbox::IdleLauncher&); // don't implement
     IdleLauncher& operator=(const Imap::Mailbox::IdleLauncher&); // don't implement
