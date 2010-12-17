@@ -62,7 +62,6 @@ and are passed through the parameters here.
 
 private:
     struct MessageMetadata {
-        QPersistentModelIndex message;
         QPersistentModelIndex mainPart;
         bool hasHeader;
         bool hasBody;

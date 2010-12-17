@@ -48,7 +48,6 @@ void MessageDownloader::requestDownload( const QModelIndex &message )
     Q_ASSERT(lastModel == message.model());
 
     MessageMetadata metaData;
-    metaData.message = message;
 
     QModelIndex header = lastModel->index( 0, Imap::Mailbox::TreeItem::OFFSET_HEADER, message );
     QVariant headerData = header.data( Imap::Mailbox::RolePartData );
@@ -117,7 +116,7 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
         QVariant data = text.data( Imap::Mailbox::RolePartData );
         Q_ASSERT(data.isValid());
         it->bodyData = data.toByteArray();
-    } else if ( a == it->message && ! it->hasMessage ) {
+    } else if ( a == message && ! it->hasMessage ) {
         it->hasMessage = true;
 
         QModelIndex mainPart;
@@ -154,16 +153,16 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
             Q_ASSERT(mainPartData.isValid());
             mainPart = mainPartData.toString();
         }
-        Q_ASSERT(it->message.data( Imap::Mailbox::RoleMessageMessageId ).isValid());
-        Q_ASSERT(it->message.data( Imap::Mailbox::RoleMessageSubject ).isValid());
-        Q_ASSERT(it->message.data( Imap::Mailbox::RoleMessageDate ).isValid());
+        Q_ASSERT(message.data( Imap::Mailbox::RoleMessageMessageId ).isValid());
+        Q_ASSERT(message.data( Imap::Mailbox::RoleMessageSubject ).isValid());
+        Q_ASSERT(message.data( Imap::Mailbox::RoleMessageDate ).isValid());
         emit messageDownloaded( message, it->headerData, it->bodyData, mainPart );
 
         // The const_cast should be safe here -- this action is certainly not going to invalidate the index,
         // and even the releaseMessageData() won't (directly) touch its members anyway...
         Imap::Mailbox::Model *model = qobject_cast<Imap::Mailbox::Model*>( const_cast<QAbstractItemModel*>( message.model() ) );
         Q_ASSERT(model);
-        model->releaseMessageData( it->message );
+        model->releaseMessageData( message );
         m_parts.erase( it );
     }
 }
