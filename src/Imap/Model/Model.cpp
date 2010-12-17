@@ -1366,6 +1366,7 @@ void Model::releaseMessageData( const QModelIndex &message )
     if ( ! msg )
         return;
 
+    // FIXME: beginRemoveRows() is *veeeeeeeeeeeery* slow...
     beginRemoveRows( message, 0, msg->_children.size() - 1 );
     qDeleteAll( msg->_children );
     msg->_children.clear();
