@@ -109,6 +109,8 @@ private slots:
     void slotDownloadMessageFileNameRequested( QString* fileName );
     void slotScrollToUnseenMessage( const QModelIndex &mailbox, const QModelIndex &message );
 
+    void slotReleaseSelectedMessage();
+
 private:
     void createMenus();
     void createActions();
@@ -159,6 +161,7 @@ private:
 #ifdef XTUPLE_CONNECT
     QAction* xtIncludeMailboxInSync;
 #endif
+    QAction* releaseMessageData;
     QAction* aboutTrojita;
     QAction* donateToTrojita;
 

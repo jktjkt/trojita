@@ -170,6 +170,9 @@ void MainWindow::createActions()
     connect( xtIncludeMailboxInSync, SIGNAL(triggered()), this, SLOT(slotXtSyncCurrentMailbox()) );
 #endif
 
+    releaseMessageData = new QAction( tr("Release memory for this message"), this );
+    connect( releaseMessageData, SIGNAL(triggered()), this, SLOT(slotReleaseSelectedMessage()) );
+
     replyTo = new QAction( tr("Reply..."), this );
     replyTo->setShortcut( tr("Ctrl+R") );
     connect( replyTo, SIGNAL(triggered()), this, SLOT(slotReplyTo()) );
@@ -516,6 +519,7 @@ void MainWindow::showContextMenuMsgListTree( const QPoint& position )
         actionList.append( markAsDeleted );
         actionList.append( saveWholeMessage );
         actionList.append( viewMsgHeaders );
+        actionList.append( releaseMessageData );
     }
     if ( ! actionList.isEmpty() )
         QMenu::exec( actionList, msgListTree->mapToGlobal( position ) );
@@ -994,6 +998,15 @@ void MainWindow::slotScrollToUnseenMessage( const QModelIndex &mailbox, const QM
 
     // ...now, we can scroll, using the translated index
     msgListTree->scrollTo( targetIndex );
+}
+
+void MainWindow::slotReleaseSelectedMessage()
+{
+    QModelIndex index = msgListTree->currentIndex();
+    if ( ! index.isValid() )
+        return;
+
+    model->releaseMessageData( index );
 }
 
 }
