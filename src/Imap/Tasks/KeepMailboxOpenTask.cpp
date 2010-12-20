@@ -196,14 +196,15 @@ void KeepMailboxOpenTask::terminate()
     shouldRunNoop = false;
     isRunning = false;
 
-    // Mark current mailbox as "orphaned by the housekeeping task"
-    Q_ASSERT( mailboxIndex.isValid() );
-    TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
-    Q_ASSERT( mailbox );
-
-    detachFromMailbox( mailbox );
-
     die();
+
+    if ( mailboxIndex.isValid() ) {
+        // Mark current mailbox as "orphaned by the housekeeping task"
+        TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
+        Q_ASSERT( mailbox );
+
+        detachFromMailbox( mailbox );
+    }
 
     // Merge the lists of waiting tasks
     if ( ! waitingTasks.isEmpty() ) {
