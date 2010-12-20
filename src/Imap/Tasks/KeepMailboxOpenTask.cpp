@@ -203,12 +203,7 @@ void KeepMailboxOpenTask::terminate()
 
     detachFromMailbox( mailbox );
 
-    // Don't forget to disable NOOPing
-    noopTimer->stop();
-
-    // ...and idling, too
-    if ( idleLauncher )
-        idleLauncher->die();
+    die();
 
     // Merge the lists of waiting tasks
     if ( ! waitingTasks.isEmpty() ) {
