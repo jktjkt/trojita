@@ -13,7 +13,7 @@ DEFINES -= QT3_SUPPORT
 TARGET = trojita
 TEMPLATE = app
 SOURCES += \
-#    ../Imap/Model/ModelTest/modeltest.cpp \
+    ../Imap/Model/ModelTest/modeltest.cpp \
     main.cpp \
     MessageView.cpp \
     EmbeddedWebView.cpp \
@@ -29,7 +29,9 @@ SOURCES += \
     MsgListView.cpp \
     ExternalElementsWidget.cpp \
     ProtocolLoggerWidget.cpp
-HEADERS += ComposeWidget.h \
+HEADERS += \
+    ../Imap/Model/ModelTest/modeltest.h \
+    ComposeWidget.h \
     MessageView.h \
     SimplePartWidget.h \
     AbstractPartWidget.h \
