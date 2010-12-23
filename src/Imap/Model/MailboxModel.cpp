@@ -74,20 +74,20 @@ bool MailboxModel::hasChildren( const QModelIndex& parent ) const
 
 void MailboxModel::handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight )
 {
-    if ( topLeft.parent() != bottomRight.parent() || topLeft.column() != bottomRight.column() ) {
-        emit layoutAboutToBeChanged();
-        emit layoutChanged();
-    }
-
     QModelIndex first = mapFromSource( topLeft );
     QModelIndex second = mapFromSource( bottomRight );
 
-    if ( first.isValid() && second.isValid() && first.parent() == second.parent() && first.column() == second.column() ) {
+    if ( ! first.isValid() || ! second.isValid() ) {
+        // It's something completely alien...
+        return;
+    }
+
+    if ( first.parent() == second.parent() && first.column() == second.column() ) {
         emit dataChanged( first, second );
     } else {
-        // can't do much besides throwing out everything
-        emit layoutAboutToBeChanged();
-        emit layoutChanged();
+        // FIXME: batched updates aren't used yet
+        Q_ASSERT(false);
+        return;
     }
 }
 
