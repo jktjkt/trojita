@@ -346,6 +346,9 @@ void MainWindow::setupModels()
         }
     }
 
+    //setProperty( "trojita-sqlcache-commit-period", QVariant(5000) );
+    //setProperty( "trojita-sqlcache-commit-delay", QVariant(1000) );
+
     if ( ! shouldUsePersistentCache ) {
         cache = new Imap::Mailbox::MemoryCache( this, QString() );
     } else {

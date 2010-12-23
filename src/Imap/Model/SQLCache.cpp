@@ -39,14 +39,23 @@ void SQLCache::init()
 {
     if ( delayedCommit )
         delayedCommit->deleteLater();
+    Q_ASSERT(parent());
+    bool ok;
+    int num;
     delayedCommit = new QTimer( this );
-    delayedCommit->setInterval( 10000 );
+    num = parent()->property( "trojita-sqlcache-commit-delay" ).toInt( &ok );
+    if ( ! ok )
+        num = 10000;
+    delayedCommit->setInterval( num );
     delayedCommit->setObjectName( QString::fromAscii("delayedCommit-%1").arg( objectName() ) );
     connect( delayedCommit, SIGNAL(timeout()), this, SLOT(timeToCommit()) );
     if ( tooMuchTimeWithoutCommit )
         tooMuchTimeWithoutCommit->deleteLater();
     tooMuchTimeWithoutCommit = new QTimer( this );
-    tooMuchTimeWithoutCommit->setInterval( 60000 );
+    num = parent()->property( "trojita-sqlcache-commit-period" ).toInt( &ok );
+    if ( ! ok )
+        num = 60000;
+    tooMuchTimeWithoutCommit->setInterval( num );
     tooMuchTimeWithoutCommit->setObjectName( QString::fromAscii("tooMuchTimeWithoutCommit-%1").arg( objectName() ) );
     connect( tooMuchTimeWithoutCommit, SIGNAL(timeout()), this, SLOT(timeToCommit()) );
 }
