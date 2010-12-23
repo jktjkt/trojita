@@ -36,16 +36,5 @@ void _MailboxListUpdater::perform()
     deleteLater();
 }
 
-_NumberOfMessagesUpdater::_NumberOfMessagesUpdater( Model* model, TreeItemMailbox* mailbox ):
-        QObject(model), _model(model), _mailbox(mailbox)
-{
-}
-
-void _NumberOfMessagesUpdater::perform()
-{
-    _model->emitMessageCountChanged( _mailbox );
-}
-
-
 }
 }

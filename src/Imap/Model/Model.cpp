@@ -665,9 +665,7 @@ void Model::_askForNumberOfMessages( TreeItemMsgList* item )
             item->_unreadMessageCount = 0;
             item->_totalMessageCount = syncState.exists();
             item->_numberFetchingStatus = TreeItem::DONE;
-            // We're most likely invoked from deep inside the GUI, so we have to delay the update
-            _NumberOfMessagesUpdater* updater = new _NumberOfMessagesUpdater( this, mailboxPtr );
-            QTimer::singleShot( 0, updater, SLOT(perform()) );
+            emitMessageCountChanged( mailboxPtr );
         } else {
             item->_numberFetchingStatus = TreeItem::UNAVAILABLE;
         }

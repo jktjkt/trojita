@@ -47,18 +47,6 @@ private:
     QList<TreeItem*> _children;
 };
 
-/** @short Helper class for delayed updates of the number of messages in a mailbox */
-class _NumberOfMessagesUpdater: public QObject {
-    Q_OBJECT
-public:
-    _NumberOfMessagesUpdater( Model* model, TreeItemMailbox* mailbox );
-public slots:
-    void perform();
-private:
-    Model* _model;
-    TreeItemMailbox* _mailbox;
-};
-
 }
 
 }
