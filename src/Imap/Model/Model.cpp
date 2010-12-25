@@ -361,24 +361,38 @@ void Model::_finalizeIncrementalList( Parser* parser, const QString& parentMailb
 
 void Model::replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<TreeItem*> mailboxes )
 {
-    /* It would be nice to avoid calling layoutAboutToBeChanged(), but
-       unfortunately it seems that it is neccessary for QTreeView to work
-       correctly (at least in Qt 4.5).
+    /* Previously, we would call layoutAboutToBeChanged() and layoutChanged() here, but it
+       resulted in invalid memory access in the attached QSortFilterProxyModels like this one:
 
-       Additionally, the fine-frained signals aren't popagated via
-       QSortFilterProxyModel, on which we rely for detailed models like
-       MailboxModel.
+==23294== Invalid read of size 4
+==23294==    at 0x5EA34B1: QSortFilterProxyModelPrivate::index_to_iterator(QModelIndex const&) const (qsortfilterproxymodel.cpp:191)
+==23294==    by 0x5E9F8A3: QSortFilterProxyModel::parent(QModelIndex const&) const (qsortfilterproxymodel.cpp:1654)
+==23294==    by 0x5C5D45D: QModelIndex::parent() const (qabstractitemmodel.h:389)
+==23294==    by 0x5E47C48: QTreeView::drawRow(QPainter*, QStyleOptionViewItem const&, QModelIndex const&) const (qtreeview.cpp:1479)
+==23294==    by 0x5E479D9: QTreeView::drawTree(QPainter*, QRegion const&) const (qtreeview.cpp:1441)
+==23294==    by 0x5E4703A: QTreeView::paintEvent(QPaintEvent*) (qtreeview.cpp:1274)
+==23294==    by 0x5810C30: QWidget::event(QEvent*) (qwidget.cpp:8346)
+==23294==    by 0x5C91D03: QFrame::event(QEvent*) (qframe.cpp:557)
+==23294==    by 0x5D4259C: QAbstractScrollArea::viewportEvent(QEvent*) (qabstractscrollarea.cpp:1043)
+==23294==    by 0x5DFFD6E: QAbstractItemView::viewportEvent(QEvent*) (qabstractitemview.cpp:1619)
+==23294==    by 0x5E46EE0: QTreeView::viewportEvent(QEvent*) (qtreeview.cpp:1256)
+==23294==    by 0x5D43110: QAbstractScrollAreaPrivate::viewportEvent(QEvent*) (qabstractscrollarea_p.h:100)
+==23294==  Address 0x908dbec is 20 bytes inside a block of size 24 free'd
+==23294==    at 0x4024D74: operator delete(void*) (vg_replace_malloc.c:346)
+==23294==    by 0x5EA5236: void qDeleteAll<QHash<QModelIndex, QSortFilterProxyModelPrivate::Mapping*>::const_iterator>(QHash<QModelIndex, QSortFilterProxyModelPrivate::Mapping*>::const_iterator, QHash<QModelIndex, QSortFilterProxyModelPrivate::Mapping*>::const_iterator) (qalgorithms.h:322)
+==23294==    by 0x5EA3C06: void qDeleteAll<QHash<QModelIndex, QSortFilterProxyModelPrivate::Mapping*> >(QHash<QModelIndex, QSortFilterProxyModelPrivate::Mapping*> const&) (qalgorithms.h:330)
+==23294==    by 0x5E9E64B: QSortFilterProxyModelPrivate::_q_sourceLayoutChanged() (qsortfilterproxymodel.cpp:1249)
+==23294==    by 0x5EA29EC: QSortFilterProxyModel::qt_metacall(QMetaObject::Call, int, void**) (moc_qsortfilterproxymodel.cpp:133)
+==23294==    by 0x80EB205: Imap::Mailbox::PrettyMailboxModel::qt_metacall(QMetaObject::Call, int, void**) (moc_PrettyMailboxModel.cpp:64)
+==23294==    by 0x65D3EAD: QMetaObject::metacall(QObject*, QMetaObject::Call, int, void**) (qmetaobject.cpp:237)
+==23294==    by 0x65E8D7C: QMetaObject::activate(QObject*, QMetaObject const*, int, void**) (qobject.cpp:3272)
+==23294==    by 0x664A7E8: QAbstractItemModel::layoutChanged() (moc_qabstractitemmodel.cpp:161)
+==23294==    by 0x664A354: QAbstractItemModel::qt_metacall(QMetaObject::Call, int, void**) (moc_qabstractitemmodel.cpp:118)
+==23294==    by 0x5E9A3A9: QAbstractProxyModel::qt_metacall(QMetaObject::Call, int, void**) (moc_qabstractproxymodel.cpp:67)
+==23294==    by 0x80EAF3D: Imap::Mailbox::MailboxModel::qt_metacall(QMetaObject::Call, int, void**) (moc_MailboxModel.cpp:81)
 
-       Some observations are at http://lists.trolltech.com/qt-interest/2006-01/thread00099-0.html
-
-       Trolltech's QFileSystemModel works in the same way:
-            rowsAboutToBeInserted( QModelIndex(0,0,0x9bbf290,QFileSystemModel(0x9bac530) )  0 16 )
-            rowsInserted( QModelIndex(0,0,0x9bbf290,QFileSystemModel(0x9bac530) )  0 16 )
-            layoutAboutToBeChanged()
-            layoutChanged()
-
-       This applies to other handlers in this file which update model layout as
-       well.
+       I have no idea why something like that happens -- layoutChanged() should be a hint that the indexes are gone now, which means
+       that the code should *not* use tham after that point. That's just weird.
     */
 
     QModelIndex parent = mailboxPtr == _mailboxes ? QModelIndex() : QAbstractItemModel::createIndex( mailboxPtr->row(), 0, mailboxPtr );
@@ -399,11 +413,9 @@ void Model::replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<Tree
     }
 
     if ( ! mailboxes.isEmpty() ) {
-        emit layoutAboutToBeChanged();
         beginInsertRows( parent, 1, mailboxes.size() );
         QList<TreeItem*> dummy = mailboxPtr->setChildren( mailboxes );
         endInsertRows();
-        emit layoutChanged();
         Q_ASSERT( dummy.isEmpty() );
     } else {
         QList<TreeItem*> dummy = mailboxPtr->setChildren( mailboxes );
