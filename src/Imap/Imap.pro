@@ -26,7 +26,6 @@ SOURCES += Parser/Parser.cpp \
     ConnectionState.cpp \
     Model/Model.cpp \
     Model/MailboxMetadata.cpp \
-    Model/ModelUpdaters.cpp \
     Model/MailboxModel.cpp \
     Model/PrettyMailboxModel.cpp \
     Model/MsgListModel.cpp \
@@ -74,7 +73,6 @@ HEADERS += Parser/Parser.h \
     ConnectionState.h \
     Model/Model.h \
     Model/MailboxMetadata.h \
-    Model/ModelUpdaters.h \
     Model/MailboxModel.h \
     Model/PrettyMailboxModel.h \
     Model/MsgListModel.h \

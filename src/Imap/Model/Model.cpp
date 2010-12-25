@@ -21,7 +21,6 @@
 
 #include "Model.h"
 #include "MailboxTree.h"
-#include "ModelUpdaters.h"
 #include "GetAnyConnectionTask.h"
 #include "KeepMailboxOpenTask.h"
 #include <QAbstractProxyModel>
@@ -597,9 +596,7 @@ void Model::_askForChildrenOfMailbox( TreeItemMailbox* item )
         }
         TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( item );
         Q_ASSERT( mailboxPtr );
-        // We can't call replaceChildMailboxes() here directly, as we're likely invoked from inside GUI
-        _MailboxListUpdater* updater = new _MailboxListUpdater( this, mailboxPtr, mailboxes );
-        QTimer::singleShot( 0, updater, SLOT(perform()) );
+        replaceChildMailboxes( mailboxPtr, mailboxes );
     } else if ( networkPolicy() == NETWORK_OFFLINE ) {
         // No cached data, no network -> fail
         item->_fetchStatus = TreeItem::UNAVAILABLE;
