@@ -776,7 +776,6 @@ void MainWindow::updateMessageFlags(const QModelIndex &index)
 void MainWindow::updateActionsOnlineOffline( bool online )
 {
     reloadMboxList->setEnabled( online );
-    reloadAllMailboxes->setEnabled( online );
     resyncMbox->setEnabled( online );
     expunge->setEnabled( online );
     createChildMailbox->setEnabled( online );
