@@ -53,6 +53,7 @@
 #include "Imap/Model/CombinedCache.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/PrettyMailboxModel.h"
+#include "Imap/Model/ThreadingMsgListModel.h"
 #include "Imap/Network/FileDownloadManager.h"
 #include "Streams/SocketFactory.h"
 
@@ -368,6 +369,9 @@ void MainWindow::setupModels()
     prettyMboxModel->setObjectName( QLatin1String("prettyMboxModel") );
     msgListModel = new Imap::Mailbox::MsgListModel( this, model );
     msgListModel->setObjectName( QLatin1String("msgListModel") );
+    threadingMsgListModel = new Imap::Mailbox::ThreadingMsgListModel( this );
+    threadingMsgListModel->setSourceModel( msgListModel );;
+    threadingMsgListModel->setObjectName( QLatin1String("threadingMsgListModel") );
 
     connect( mboxTree, SIGNAL( clicked(const QModelIndex&) ), msgListModel, SLOT( setMailbox(const QModelIndex&) ) );
     connect( mboxTree, SIGNAL( activated(const QModelIndex&) ), msgListModel, SLOT( setMailbox(const QModelIndex&) ) );
@@ -410,7 +414,7 @@ void MainWindow::setupModels()
     //ModelTest* tester = new ModelTest( prettyMboxModel, this ); // when testing, test just one model at time
 
     mboxTree->setModel( prettyMboxModel );
-    msgListTree->setModel( msgListModel );
+    msgListTree->setModel( threadingMsgListModel ); // FIXME: fix the asserts at various places of this file...
     connect( msgListTree->selectionModel(), SIGNAL( selectionChanged( const QItemSelection&, const QItemSelection& ) ),
              this, SLOT( msgListSelectionChanged( const QItemSelection&, const QItemSelection& ) ) );
 

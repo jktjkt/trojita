@@ -19,12 +19,10 @@
    Boston, MA 02110-1301, USA.
 */
 
-#ifndef IMAP_MSGLISTMODEL_H
-#define IMAP_MSGLISTMODEL_H
+#ifndef IMAP_THREADINGMSGLISTMODEL_H
+#define IMAP_THREADINGMSGLISTMODEL_H
 
 #include <QAbstractProxyModel>
-#include "Model.h"
-#include "ItemRoles.h"
 
 /** @short Namespace for IMAP interaction */
 namespace Imap {
@@ -32,12 +30,23 @@ namespace Imap {
 /** @short Classes for handling of mailboxes and connections */
 namespace Mailbox {
 
+class TreeItem;
+
+struct ThreadNodeInfo {
+    uint uid;
+    uint parent;
+    QList<uint> children;
+    TreeItem *ptr;
+    ThreadNodeInfo(): uid(0), parent(0), ptr(0) {}
+};
+
 /** @short A model implementing view of the whole IMAP server */
-class MsgListModel: public QAbstractProxyModel {
+class ThreadingMsgListModel: public QAbstractProxyModel {
     Q_OBJECT
 
 public:
-    MsgListModel( QObject* parent, Model* model );
+    ThreadingMsgListModel( QObject *parent );
+    virtual void setSourceModel( QAbstractItemModel *sourceModel );
 
     virtual QModelIndex index( int row, int column, const QModelIndex& parent=QModelIndex() ) const;
     virtual QModelIndex parent( const QModelIndex& index ) const;
@@ -46,45 +55,24 @@ public:
     virtual QModelIndex mapToSource( const QModelIndex& proxyIndex ) const;
     virtual QModelIndex mapFromSource( const QModelIndex& sourceIndex ) const;
     virtual bool hasChildren( const QModelIndex& parent=QModelIndex() ) const;
-    virtual QVariant data(const QModelIndex &proxyIndex, int role=Qt::DisplayRole) const;
-    virtual QVariant headerData( int section, Qt::Orientation orientation, int role=Qt::DisplayRole ) const;
-    virtual Qt::ItemFlags flags( const QModelIndex& index ) const;
-    virtual QStringList mimeTypes() const;
-    virtual QMimeData* mimeData( const QModelIndexList& indexes ) const;
-    virtual Qt::DropActions supportedDropActions() const;
-
-    TreeItemMailbox* currentMailbox() const;
-
-    enum { SUBJECT, SEEN, FROM, TO, DATE, SIZE, COLUMN_COUNT };
 
 public slots:
     void resetMe();
-    void setMailbox( const QModelIndex& index );
     void handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight );
     void handleRowsAboutToBeRemoved( const QModelIndex& parent, int start, int end );
     void handleRowsRemoved( const QModelIndex& parent, int start, int end );
     void handleRowsAboutToBeInserted( const QModelIndex& parent, int start, int end );
     void handleRowsInserted( const QModelIndex& parent, int start, int end );
 
-signals:
-    void messageRemoved( void* );
-    void mailboxChanged();
-
-    /** @short Messages are available for the first time after selecting new mailbox */
-    void messagesAvailable();
-
 private:
-    MsgListModel& operator=( const MsgListModel& ); // don't implement
-    MsgListModel( const MsgListModel& ); // don't implement
+    ThreadingMsgListModel& operator=( const ThreadingMsgListModel& ); // don't implement
+    ThreadingMsgListModel( const ThreadingMsgListModel& ); // don't implement
 
-    TreeItemMsgList* msgList;
-    bool waitingForMessages;
-
-    friend class ThreadingMsgListModel;
+    QHash<uint,ThreadNodeInfo> _threading;
 };
 
 }
 
 }
 
-#endif /* IMAP_MSGLISTMODEL_H */
+#endif /* IMAP_THREADINGMSGLISTMODEL_H */
