@@ -117,12 +117,14 @@ QModelIndex ThreadingMsgListModel::parent( const QModelIndex& index ) const
 
     QHash<uint,ThreadNodeInfo>::const_iterator parentNode = _threading.constFind( node->parent );
     Q_ASSERT(parentNode != _threading.constEnd());
+    Q_ASSERT(parentNode->uid == node->parent);
 
     if ( parentNode->uid == 0 )
         return QModelIndex();
 
-    QHash<uint,ThreadNodeInfo>::const_iterator grantParentNode = _threading.constFind( parentNode->uid );
+    QHash<uint,ThreadNodeInfo>::const_iterator grantParentNode = _threading.constFind( parentNode->parent );
     Q_ASSERT(grantParentNode != _threading.constEnd());
+    Q_ASSERT(grantParentNode->uid == parentNode->parent);
 
     return createIndex( grantParentNode->children.indexOf( parentNode->uid ), 0, parentNode->uid );
 }
@@ -177,8 +179,10 @@ QModelIndex ThreadingMsgListModel::mapFromSource( const QModelIndex& sourceIndex
 
     QHash<uint,ThreadNodeInfo>::const_iterator parentNode = _threading.constFind( node->parent );
     Q_ASSERT(parentNode != _threading.constEnd());
+    int offset = parentNode->children.indexOf( uid );
+    Q_ASSERT( offset != -1 );
 
-    return createIndex( parentNode->children.indexOf( uid ), sourceIndex.column(), uid );
+    return createIndex( offset, sourceIndex.column(), uid );
 }
 
 void ThreadingMsgListModel::handleRowsAboutToBeRemoved( const QModelIndex& parent, int start, int end )
