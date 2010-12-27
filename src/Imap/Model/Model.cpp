@@ -212,6 +212,8 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
             case Task::COPY:
             case Task::CREATE:
             case Task::DELETE:
+            case Task::SEARCH_UIDS:
+            case Task::FETCH_FLAGS:
                 throw CantHappen( "[port-in-progress]: should be handled elsewhere", *resp );
                 break;
             case Task::FETCH_MESSAGE_METADATA:
