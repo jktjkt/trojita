@@ -89,7 +89,7 @@ QModelIndex ThreadingMsgListModel::index( int row, int column, const QModelIndex
     QHash<uint,ThreadNodeInfo>::const_iterator it = _threading.constFind( parentId );
     Q_ASSERT(it != _threading.constEnd());
 
-    if ( it->children.size() >= row )
+    if ( it->children.size() <= row )
         return QModelIndex();
 
     return createIndex( row, column, it->children[row] );
