@@ -62,11 +62,16 @@ void ThreadingMsgListModel::handleDataChanged( const QModelIndex& topLeft, const
     QModelIndex first = mapFromSource( topLeft );
     QModelIndex second = mapFromSource( bottomRight );
 
-    if ( ! first.isValid() || ! second.isValid() ) {
+    Q_ASSERT(first.isValid());
+    Q_ASSERT(second.isValid());
+
+    if ( first.row() != second.row() ) {
+        // FIXME: Batched updates...
+        Q_ASSERT(false);
         return;
     }
 
-    // FIXME: walk through the indexes, translate them...
+    emit dataChanged( first, second );
 }
 
 QModelIndex ThreadingMsgListModel::index( int row, int column, const QModelIndex& parent ) const
