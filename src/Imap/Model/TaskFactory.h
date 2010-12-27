@@ -42,6 +42,7 @@ class NumberOfMessagesTask;
 class ObtainSynchronizedMailboxTask;
 class OpenConnectionTask;
 class UpdateFlagsTask;
+class ThreadTask;
 
 class Model;
 class TreeItemMailbox;
@@ -67,6 +68,7 @@ public:
     virtual OpenConnectionTask* createOpenConnectionTask( Model* _model );
     virtual UpdateFlagsTask* createUpdateFlagsTask( Model* _model, const QModelIndexList& _messages, const QString& _flagOperation, const QString& _flags );
     virtual UpdateFlagsTask* createUpdateFlagsTask( Model* _model, CopyMoveMessagesTask* copyTask, const QList<QPersistentModelIndex>& _messages, const QString& _flagOperation, const QString& _flags );
+    virtual ThreadTask* createThreadTask( Model* _model, const QModelIndex& mailbox, const QString &_algorithm, const QStringList &_searchCriteria );
 };
 
 class TestingTaskFactory: public TaskFactory

@@ -31,6 +31,7 @@
 #include "ObtainSynchronizedMailboxTask.h"
 #include "OpenConnectionTask.h"
 #include "UpdateFlagsTask.h"
+#include "ThreadTask.h"
 #include "Imap/Parser/Parser.h"
 
 namespace Imap {
@@ -109,6 +110,11 @@ UpdateFlagsTask* TaskFactory::createUpdateFlagsTask( Model* _model, const QModel
 UpdateFlagsTask* TaskFactory::createUpdateFlagsTask( Model* _model, CopyMoveMessagesTask* copyTask, const QList<QPersistentModelIndex>& _messages, const QString& _flagOperation, const QString& _flags )
 {
     return new UpdateFlagsTask( _model, copyTask, _messages, _flagOperation, _flags );
+}
+
+ThreadTask* TaskFactory::createThreadTask( Model *_model, const QModelIndex &mailbox, const QString &_algorithm, const QStringList &_searchCriteria )
+{
+    return new ThreadTask( _model, mailbox, _algorithm, _searchCriteria );
 }
 
 

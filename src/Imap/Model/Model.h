@@ -64,13 +64,12 @@ typedef enum { STATE_WAIT_FOR_CONN, /**< Waiting for connection to become active
 /** @short A model implementing view of the whole IMAP server */
 class Model: public QAbstractItemModel {
     Q_OBJECT
-    //Q_PROPERTY( ThreadAlgorithm threadSorting READ threadSorting WRITE setThreadSorting )
 
     struct Task {
         enum Kind { NONE, STARTTLS, LOGIN, LIST, STATUS, SELECT, FETCH_MESSAGE_METADATA, NOOP,
                     CAPABILITY, STORE, NAMESPACE, EXPUNGE, FETCH_WITH_FLAGS,
                     COPY, CREATE, DELETE, LOGOUT, LIST_AFTER_CREATE,
-                    FETCH_PART, IDLE, SEARCH_UIDS, FETCH_FLAGS };
+                    FETCH_PART, IDLE, SEARCH_UIDS, FETCH_FLAGS, THREAD };
         Kind kind;
         TreeItem* what;
         QString str;
@@ -328,6 +327,8 @@ signals:
 
     void mailboxFirstUnseenMessage( const QModelIndex &maillbox, const QModelIndex &message );
 
+    void threadingAvailable( const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria );
+
 private:
     Model& operator=( const Model& ); // don't implement
     Model( const Model& ); // don't implement
@@ -362,6 +363,7 @@ private:
     friend class Fake_ListChildMailboxesTask;
     friend class Fake_OpenConnectionTask;
     friend class NoopTask;
+    friend class ThreadTask;
 
     friend class TestingTaskFactory; // needs access to _socketFactory
 
