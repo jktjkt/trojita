@@ -65,6 +65,7 @@ public slots:
     void handleRowsRemoved( const QModelIndex& parent, int start, int end );
     void handleRowsAboutToBeInserted( const QModelIndex& parent, int start, int end );
     void handleRowsInserted( const QModelIndex& parent, int start, int end );
+    void updateFakeThreading();
 
 private:
     ThreadingMsgListModel& operator=( const ThreadingMsgListModel& ); // don't implement

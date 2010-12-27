@@ -225,7 +225,11 @@ void ThreadingMsgListModel::resetMe()
 {
     reset();
     _threading.clear();
+    QTimer::singleShot( 0, this, SLOT(updateFakeThreading()) );
+}
 
+void ThreadingMsgListModel::updateFakeThreading()
+{
     // Messgae discovery...
     int count = sourceModel()->rowCount();
     QList<uint> allUids;
