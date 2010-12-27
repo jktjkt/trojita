@@ -772,7 +772,7 @@ Thread::Thread( const QByteArray &line, int &start ): AbstractResponse(THREAD)
     }
 }
 
-/** @short Helper for parsing the brainded RFC5256 THREAD response
+/** @short Helper for parsing the brain-dead RFC5256 THREAD response
 
 Please note that the syntax for the THREAD untagged response, as defined in
 RFC5256, is rather counter-intuitive -- items placed at the *same* level in the
