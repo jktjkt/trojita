@@ -167,9 +167,11 @@ QModelIndex ThreadingMsgListModel::mapFromSource( const QModelIndex& sourceIndex
     if ( uid == 0 )
         return QModelIndex();
 
-    QHash<uint,ThreadNodeInfo>::const_iterator parentNode = _threading.constFind( uid );
-    if ( parentNode == _threading.constEnd() )
-        return QModelIndex();
+    QHash<uint,ThreadNodeInfo>::const_iterator node = _threading.constFind( uid );
+    Q_ASSERT(node != _threading.constEnd());
+
+    QHash<uint,ThreadNodeInfo>::const_iterator parentNode = _threading.constFind( node->parent );
+    Q_ASSERT(parentNode != _threading.constEnd());
 
     return createIndex( parentNode->children.indexOf( uid ), sourceIndex.column(), uid );
 }
