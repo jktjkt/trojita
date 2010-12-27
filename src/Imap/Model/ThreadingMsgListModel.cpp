@@ -235,5 +235,11 @@ void ThreadingMsgListModel::resetMe()
     }
 }
 
+QDebug operator<<(QDebug debug, const ThreadNodeInfo &node)
+{
+    debug << "ThreadNodeInfo(" << node.uid << node.ptr<< node.parent << node.children << ")";
+    return debug;
+}
+
 }
 }

@@ -40,6 +40,8 @@ struct ThreadNodeInfo {
     ThreadNodeInfo(): uid(0), parent(0), ptr(0) {}
 };
 
+QDebug operator<<(QDebug debug, const ThreadNodeInfo &node);
+
 /** @short A model implementing view of the whole IMAP server */
 class ThreadingMsgListModel: public QAbstractProxyModel {
     Q_OBJECT
