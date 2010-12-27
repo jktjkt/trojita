@@ -106,9 +106,12 @@ QModelIndex ThreadingMsgListModel::parent( const QModelIndex& index ) const
     if ( index.row() < 0 || index.column() < 0 || index.column() >= MsgListModel::COLUMN_COUNT )
         return QModelIndex();
 
-    QHash<uint,ThreadNodeInfo>::const_iterator parentNode = _threading.constFind( index.internalId() );
-    if ( parentNode == _threading.constEnd() )
+    QHash<uint,ThreadNodeInfo>::const_iterator node = _threading.constFind( index.internalId() );
+    if ( node == _threading.constEnd() )
         return QModelIndex();
+
+    QHash<uint,ThreadNodeInfo>::const_iterator parentNode = _threading.constFind( node->parent );
+    Q_ASSERT(parentNode != _threading.constEnd());
 
     if ( parentNode->uid == 0 )
         return QModelIndex();
