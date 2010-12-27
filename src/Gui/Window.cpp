@@ -483,6 +483,7 @@ void MainWindow::msgListDoubleClicked( const QModelIndex& index )
     widget->setWidget( newView );
     widget->setWidgetResizable( true );
     widget->setWindowTitle( message->envelope( model ).subject );
+    widget->setAttribute( Qt::WA_DeleteOnClose );
     widget->show();
 }
 
