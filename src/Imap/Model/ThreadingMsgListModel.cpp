@@ -225,36 +225,67 @@ void ThreadingMsgListModel::resetMe()
 {
     reset();
     _threading.clear();
+    updateNoThreading();
     QTimer::singleShot( 0, this, SLOT(updateFakeThreading()) );
+}
+
+void ThreadingMsgListModel::updateNoThreading()
+{
+    bool containedSomething = false;
+    if ( ! _threading.isEmpty() ) {
+        beginRemoveRows( QModelIndex(), 0, rowCount() );
+        _threading.clear();
+        endRemoveRows();
+        containedSomething = true;
+    }
+
+    int upstreamMessages = sourceModel()->rowCount();
+    if ( upstreamMessages )
+        beginInsertRows( QModelIndex(), 0, upstreamMessages - 1 );
+    QList<uint> allUids;
+    for ( int i = 0; i < upstreamMessages; ++i ) {
+        QModelIndex index = sourceModel()->index( i, 0 );
+        uint uid = index.data( RoleMessageUid ).toUInt();
+        Q_ASSERT(uid);
+        ThreadNodeInfo node;
+        node.uid = uid;
+        node.ptr = static_cast<TreeItem*>( index.internalPointer() );
+        _threading[ uid ] = node;
+        allUids.append( uid );
+    }
+    _threading[ 0 ].children = allUids;
+    _threading[ 0 ].ptr = static_cast<MsgListModel*>( sourceModel() )->msgList;
+
+    if ( upstreamMessages )
+        emit endInsertRows();;
 }
 
 void ThreadingMsgListModel::updateFakeThreading()
 {
-    // Messgae discovery...
     int count = sourceModel()->rowCount();
-    QList<uint> allUids;
+    Q_ASSERT(count == rowCount());
 
+    uint lastUid = 0;
+
+    emit layoutAboutToBeChanged();
+    _threading.clear();
+    _threading[ 0 ].ptr = static_cast<MsgListModel*>( sourceModel() )->msgList;
     if ( count ) {
-        beginInsertRows( QModelIndex(), 0, count - 1 );
         for ( int i = 0; i < count; ++i ) {
             QModelIndex index = sourceModel()->index( i, 0 );
             uint uid = index.data( RoleMessageUid ).toUInt();
             Q_ASSERT(uid);
             ThreadNodeInfo node;
             node.uid = uid;
-            node.parent = 0;
+            node.parent = lastUid;
+            Q_ASSERT(_threading.contains( lastUid ));
+            _threading[ lastUid ].children.append( uid );
+            lastUid = uid;
             node.ptr = static_cast<TreeItem*>( index.internalPointer() );
             _threading[ uid ] = node;
-            allUids.append( uid );
         }
     }
-
-    _threading[ 0 ].children = allUids;
-    _threading[ 0 ].ptr = static_cast<MsgListModel*>( sourceModel() )->msgList;
-
-    if ( count ) {
-        endInsertRows();
-    }
+    emit layoutChanged();
 }
 
 QDebug operator<<(QDebug debug, const ThreadNodeInfo &node)
