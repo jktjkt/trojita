@@ -34,6 +34,7 @@ ThreadingMsgListModel::ThreadingMsgListModel( QObject* parent ): QAbstractProxyM
 
 void ThreadingMsgListModel::setSourceModel( QAbstractItemModel *sourceModel )
 {
+    _threading.clear();
     reset();
     Imap::Mailbox::MsgListModel *msgList = qobject_cast<Imap::Mailbox::MsgListModel*>( sourceModel );
     QAbstractProxyModel::setSourceModel( msgList );
@@ -226,7 +227,7 @@ void ThreadingMsgListModel::resetMe()
     reset();
     _threading.clear();
     updateNoThreading();
-    QTimer::singleShot( 0, this, SLOT(updateFakeThreading()) );
+    QTimer::singleShot( 1000, this, SLOT(updateFakeThreading()) );
 }
 
 void ThreadingMsgListModel::updateNoThreading()
