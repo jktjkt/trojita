@@ -264,13 +264,15 @@ void ThreadingMsgListModel::updateNoThreading()
 void ThreadingMsgListModel::updateFakeThreading()
 {
     int count = sourceModel()->rowCount();
-    Q_ASSERT(count == rowCount());
-
-    uint lastUid = 0;
+    if ( count != rowCount() ) {
+        qDebug() << "Already threaded, huh?";
+        return;
+    }
 
     emit layoutAboutToBeChanged();
     _threading.clear();
     _threading[ 0 ].ptr = static_cast<MsgListModel*>( sourceModel() )->msgList;
+    uint lastUid = 0;
     if ( count ) {
         for ( int i = 0; i < count; ++i ) {
             QModelIndex index = sourceModel()->index( i, 0 );
