@@ -86,7 +86,7 @@ QModelIndex ThreadingMsgListModel::index( int row, int column, const QModelIndex
         return QModelIndex();
     }
 
-    if ( row < 0 || column < 0 || column >= MsgListModel::COLUMN_COUNT )
+    if ( row < 0 || column != 0 )
         return QModelIndex();
 
     uint parentId = parent.isValid() ? parent.internalId() : 0;
