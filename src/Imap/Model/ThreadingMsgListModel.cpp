@@ -205,7 +205,7 @@ void ThreadingMsgListModel::resetMe()
     if ( count ) {
         beginInsertRows( QModelIndex(), 0, count - 1 );
         for ( int i = 0; i < count; ++i ) {
-            QModelIndex index = sourceModel()->index( 0, 0 );
+            QModelIndex index = sourceModel()->index( i, 0 );
             uint uid = index.data( RoleMessageUid ).toUInt();
             Q_ASSERT(uid);
             ThreadNodeInfo node;
