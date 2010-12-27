@@ -288,6 +288,20 @@ void ThreadingMsgListModel::updateFakeThreading()
             _threading[ uid ] = node;
         }
     }
+    QList<QModelIndex> updatedIndexes;
+    Q_FOREACH( const QModelIndex &oldIndex, persistentIndexList() ) {
+        QHash<uint,ThreadNodeInfo>::const_iterator it = _threading.constFind( oldIndex.internalId() );
+        if ( it == _threading.constEnd() ) {
+            updatedIndexes.append( QModelIndex() );
+        } else {
+            QHash<uint,ThreadNodeInfo>::const_iterator parentNode = _threading.constFind( it->parent );
+            Q_ASSERT(parentNode != _threading.constEnd());
+            int offset = parentNode->children.indexOf(it->uid);
+            Q_ASSERT(offset != -1);
+            updatedIndexes.append( createIndex( offset, oldIndex.column(), it->uid ) );
+        }
+    }
+    changePersistentIndexList( persistentIndexList(), updatedIndexes );
     emit layoutChanged();
 }
 
