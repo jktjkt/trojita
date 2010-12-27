@@ -86,8 +86,13 @@ QModelIndex ThreadingMsgListModel::index( int row, int column, const QModelIndex
         return QModelIndex();
     }
 
-    if ( row < 0 || column != 0 )
+    if ( row < 0 || column < 0 || column >= MsgListModel::COLUMN_COUNT )
         return QModelIndex();
+
+    if ( parent.isValid() && parent.column() != 0 ) {
+        // only the first column should have children
+        return QModelIndex();
+    }
 
     uint parentId = parent.isValid() ? parent.internalId() : 0;
 
@@ -131,6 +136,9 @@ QModelIndex ThreadingMsgListModel::parent( const QModelIndex& index ) const
 
 bool ThreadingMsgListModel::hasChildren( const QModelIndex& parent ) const
 {
+    if ( parent.isValid() && parent.column() != 0 )
+        return false;
+
     return ! _threading.isEmpty() && ! _threading.value( parent.internalId() ).children.isEmpty();
 }
 
@@ -139,11 +147,17 @@ int ThreadingMsgListModel::rowCount( const QModelIndex& parent ) const
     if ( _threading.isEmpty() )
         return 0;
 
+    if ( parent.isValid() && parent.column() != 0 )
+        return 0;
+
     return _threading.value( parent.internalId() ).children.size();
 }
 
 int ThreadingMsgListModel::columnCount( const QModelIndex& parent ) const
 {
+    if ( parent.isValid() && parent.column() != 0 )
+        return 0;
+
     return MsgListModel::COLUMN_COUNT;
 }
 
