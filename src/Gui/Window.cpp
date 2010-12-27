@@ -435,7 +435,6 @@ void MainWindow::msgListSelectionChanged( const QItemSelection& selected, const 
 void MainWindow::msgListActivated( const QModelIndex& index )
 {
     Q_ASSERT( index.isValid() );
-    Q_ASSERT( index.model() == msgListModel );
 
     if ( index.column() != Imap::Mailbox::MsgListModel::SEEN ) {
         msgView->setMessage( index );
@@ -446,7 +445,6 @@ void MainWindow::msgListActivated( const QModelIndex& index )
 void MainWindow::msgListClicked( const QModelIndex& index )
 {
     Q_ASSERT( index.isValid() );
-    Q_ASSERT( index.model() == msgListModel );
 
     if ( index.column() == Imap::Mailbox::MsgListModel::SEEN ) {
         Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
@@ -462,14 +460,14 @@ void MainWindow::msgListClicked( const QModelIndex& index )
 void MainWindow::msgListDoubleClicked( const QModelIndex& index )
 {
     Q_ASSERT( index.isValid() );
-    Q_ASSERT( index.model() == msgListModel );
 
     MessageView* newView = new MessageView( 0 );
-    QModelIndex realIndex = msgListModel->mapToSource( index );
+    QModelIndex realIndex;
+    const Imap::Mailbox::Model *realModel;
     Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
-            Imap::Mailbox::Model::realTreeItem( index ) );
+            Imap::Mailbox::Model::realTreeItem( index, &realModel, &realIndex ) );
     Q_ASSERT( message );
-    Q_ASSERT( realIndex.model() == model );
+    Q_ASSERT( realModel == model );
     newView->setMessage( index );
 
     // Now make sure we check all possible paths that could possibly lead to problems when a message gets deleted
@@ -681,7 +679,6 @@ void MainWindow::handleMarkAsRead( bool value )
     QModelIndexList indices = msgListTree->selectionModel()->selectedIndexes();
     for ( QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it ) {
         Q_ASSERT( it->isValid() );
-        Q_ASSERT( it->model() == msgListModel );
         if ( it->column() != 0 )
             continue;
         Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
@@ -697,7 +694,6 @@ void MainWindow::handleMarkAsDeleted( bool value )
     QModelIndexList indices = msgListTree->selectionModel()->selectedIndexes();
     for ( QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it ) {
         Q_ASSERT( it->isValid() );
-        Q_ASSERT( it->model() == msgListModel );
         if ( it->column() != 0 )
             continue;
         Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
@@ -773,8 +769,8 @@ void MainWindow::updateMessageFlags()
 
 void MainWindow::updateMessageFlags(const QModelIndex &index)
 {
-    markAsRead->setChecked( msgListModel->data( index, Imap::Mailbox::RoleMessageIsMarkedRead ).toBool() );
-    markAsDeleted->setChecked( msgListModel->data( index, Imap::Mailbox::RoleMessageIsMarkedDeleted ).toBool() );
+    markAsRead->setChecked( index.data( Imap::Mailbox::RoleMessageIsMarkedRead ).toBool() );
+    markAsDeleted->setChecked( index.data( Imap::Mailbox::RoleMessageIsMarkedDeleted ).toBool() );
 }
 
 void MainWindow::updateActionsOnlineOffline( bool online )
@@ -891,7 +887,6 @@ void MainWindow::slotSaveCurrentMessageBody()
     QModelIndexList indices = msgListTree->selectionModel()->selectedIndexes();
     for ( QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it ) {
         Q_ASSERT( it->isValid() );
-        Q_ASSERT( it->model() == msgListModel );
         if ( it->column() != 0 )
             continue;
         Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
@@ -936,7 +931,6 @@ void MainWindow::slotViewMsgHeaders()
     QModelIndexList indices = msgListTree->selectionModel()->selectedIndexes();
     for ( QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it ) {
         Q_ASSERT( it->isValid() );
-        Q_ASSERT( it->model() == msgListModel );
         if ( it->column() != 0 )
             continue;
         Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(

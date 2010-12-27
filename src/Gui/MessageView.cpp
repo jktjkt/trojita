@@ -97,16 +97,11 @@ void MessageView::setEmpty()
 void MessageView::setMessage( const QModelIndex& index )
 {
     // first, let's get a real model
-    Imap::Mailbox::Model* modelCandidate = dynamic_cast<Imap::Mailbox::Model*>( const_cast<QAbstractItemModel*>( index.model() ) );
-    const Imap::Mailbox::MsgListModel* msgListModel = dynamic_cast<const Imap::Mailbox::MsgListModel*>( index.model() );
-    Imap::Mailbox::TreeItem* item = Imap::Mailbox::Model::realTreeItem( index );
-
-    if ( modelCandidate ) {
-        model = modelCandidate;
-    } else {
-        Q_ASSERT( msgListModel );
-        model = dynamic_cast<Imap::Mailbox::Model*>( msgListModel->sourceModel() );
-    }
+    Imap::Mailbox::TreeItem *item;
+    const Imap::Mailbox::Model *realModel;
+    item = Imap::Mailbox::Model::realTreeItem( index, &realModel, 0 );
+    Q_ASSERT(item);
+    model = const_cast<Imap::Mailbox::Model*>(realModel);
 
     // now let's find a real message root
     Imap::Mailbox::TreeItemMessage* messageCandidate = dynamic_cast<Imap::Mailbox::TreeItemMessage*>( item );
