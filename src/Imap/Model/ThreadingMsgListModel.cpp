@@ -370,7 +370,6 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
     }
 
     registerThreading( mapping, 0 );
-    qDebug() << _threading;
 
     updatePersistentIndexes();
     emit layoutChanged();
@@ -381,7 +380,6 @@ void ThreadingMsgListModel::registerThreading( const QList<Imap::Responses::Thre
     Q_FOREACH( const Imap::Responses::Thread::Node &node, mapping ) {
         uint nodeId;
         if ( node.num == 0 ) {
-            qDebug() << "Creating fake node below" << parentId << _threading.value( parentId ).uid;
             ThreadNodeInfo fake;
             fake.internalId = ++_threadingHelperLastId;
             fake.parent = parentId;
@@ -394,10 +392,8 @@ void ThreadingMsgListModel::registerThreading( const QList<Imap::Responses::Thre
             Q_ASSERT(nodeIt != uidToInternal.constEnd()); // FIXME: exception?
             nodeId = *nodeIt;
         }
-        qDebug() << "Will work at node" << nodeId << _threading.value( nodeId ).uid;
         _threading[ parentId ].children.append( nodeId );
         _threading[ nodeId ].parent = parentId;
-        qDebug() << "Nested" << nodeId << _threading.value( nodeId ).uid << "below" << parentId << _threading.value( parentId ).uid;
         registerThreading( node.children, nodeId );
     }
 }
