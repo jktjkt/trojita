@@ -492,4 +492,6 @@ namespace Responses {
 
 }
 
+Q_DECLARE_METATYPE(Imap::Responses::Thread::Node);
+
 #endif // IMAP_RESPONSE_H

@@ -279,13 +279,13 @@ void ThreadingMsgListModel::askForThreading()
     realModel->_taskFactory->createThreadTask( const_cast<Imap::Mailbox::Model*>(realModel),
                                                mailboxIndex, QLatin1String("REFS"),
                                                QStringList() << QLatin1String("ALL") );
-    connect( realModel, SIGNAL(threadingAvailable(QModelIndex,QString,QStringList,QMap<uint,QList<uint> >)),
-             this, SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QMap<uint,QList<uint> >)) );
+    connect( realModel, SIGNAL(threadingAvailable(QModelIndex,QString,QStringList,QList<Imap::Responses::Thread::Node>)),
+             this, SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QList<Imap::Responses::Thread::Node>)) );
 }
 
 void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, const QString &algorithm,
                                                     const QStringList &searchCriteria,
-                                                    const QMap<uint, QList<uint> > &mapping )
+                                                    const QList<Imap::Responses::Thread::Node> &mapping )
 {
     int count = sourceModel()->rowCount();
     if ( count != rowCount() ) {
@@ -296,32 +296,16 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
     // FIXME: check for correct mailbox, algorithm and search criteria...
 
     disconnect( sender(), 0, this,
-                SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QMap<uint,QList<uint> >)) );
+                SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QList<Imap::Responses::Thread::Node>)) );
+
+
+    return; // FIXME: for now...
 
     emit layoutAboutToBeChanged();
     _threading.clear();
     _threading[ 0 ].ptr = static_cast<MsgListModel*>( sourceModel() )->msgList;
 
-    qDebug() << mapping;
-
-    for ( QMap<uint, QList<uint> >::const_iterator it = mapping.constBegin(); it != mapping.constEnd(); ++it ) {
-        if ( it.key() == 0 ) {
-            // The fun starts here -- this situation denotes a moment when a thread contains
-            // non-existing messages. We have to take care not to overwrite previous children...
-            _threading[ it.key() ].children.append( it.value() );
-        } else {
-            Q_ASSERT(_threading[ it.key() ].children.isEmpty()); // FIXME: relax to exception, add failover...
-            _threading[ it.key() ].children = it.value();
-        }
-        _threading[ it.key() ].uid = it.key();
-
-        // We'll set the ptr later on
-        Q_FOREACH( const uint num, it.value() ) {
-            _threading[ num ].parent = it.key();
-        }
-    }
-
-    qDebug() << _threading;
+    // FIXME: create mapping here...
 
     int upstreamMessages = sourceModel()->rowCount();
     for ( int i = 0; i < upstreamMessages; ++i ) {

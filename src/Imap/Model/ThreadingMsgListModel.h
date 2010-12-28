@@ -23,6 +23,7 @@
 #define IMAP_THREADINGMSGLISTMODEL_H
 
 #include <QAbstractProxyModel>
+#include "Imap/Parser/Response.h"
 
 /** @short Namespace for IMAP interaction */
 namespace Imap {
@@ -67,7 +68,7 @@ public slots:
     void handleRowsInserted( const QModelIndex& parent, int start, int end );
     void slotThreadingAvailable( const QModelIndex &mailbox, const QString &algorithm,
                                  const QStringList &searchCriteria,
-                                 const QMap<uint,QList<uint> > &mapping );
+                                 const QList<Imap::Responses::Thread::Node> &mapping );
 
 private slots:
     void updateFakeThreading();

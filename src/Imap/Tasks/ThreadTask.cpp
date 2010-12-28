@@ -72,24 +72,7 @@ bool ThreadTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::St
 bool ThreadTask::handleThread( Imap::Parser *ptr, const Imap::Responses::Thread *const resp )
 {
     Q_UNUSED(ptr);
-
-    QList<Imap::Responses::Thread::Node> queue = resp->rootItems;
-    while ( ! queue.isEmpty() ) {
-        Imap::Responses::Thread::Node node = queue.takeFirst();
-        queue.append( node.children );
-        QList<uint> numbers;
-        Q_FOREACH( const Imap::Responses::Thread::Node &child, node.children ) {
-            numbers.append( child.num );
-        }
-        if ( node.num == 0 ) {
-            // Fun -- 0 denotes a special, "missing" message...
-            mapping[ node.num ].append( numbers );
-        } else {
-            Q_ASSERT(mapping[ node.num ].isEmpty());
-            mapping[ node.num ] = numbers;
-        }
-    }
-    qDebug() << mapping;
+    mapping = resp->rootItems;
     return true;
 }
 
