@@ -35,10 +35,11 @@ class TreeItem;
 
 struct ThreadNodeInfo {
     uint internalId;
+    uint uid;
     uint parent;
     QList<uint> children;
     TreeItem *ptr;
-    ThreadNodeInfo(): internalId(0), parent(0), ptr(0) {}
+    ThreadNodeInfo(): internalId(0), uid(0), parent(0), ptr(0) {}
 };
 
 QDebug operator<<(QDebug debug, const ThreadNodeInfo &node);
@@ -58,6 +59,7 @@ public:
     virtual QModelIndex mapToSource( const QModelIndex& proxyIndex ) const;
     virtual QModelIndex mapFromSource( const QModelIndex& sourceIndex ) const;
     virtual bool hasChildren( const QModelIndex& parent=QModelIndex() ) const;
+    virtual QVariant data( const QModelIndex &proxyIndex, int role ) const;
 
 public slots:
     void resetMe();
@@ -81,6 +83,7 @@ private:
     ThreadingMsgListModel& operator=( const ThreadingMsgListModel& ); // don't implement
     ThreadingMsgListModel( const ThreadingMsgListModel& ); // don't implement
 
+    QHash<uint,uint> uidToInternal;
     QHash<uint,ThreadNodeInfo> _threading;
 };
 

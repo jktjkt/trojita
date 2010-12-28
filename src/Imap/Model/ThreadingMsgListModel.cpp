@@ -35,6 +35,7 @@ ThreadingMsgListModel::ThreadingMsgListModel( QObject* parent ): QAbstractProxyM
 void ThreadingMsgListModel::setSourceModel( QAbstractItemModel *sourceModel )
 {
     _threading.clear();
+    uidToInternal.clear();
     reset();
     Imap::Mailbox::MsgListModel *msgList = qobject_cast<Imap::Mailbox::MsgListModel*>( sourceModel );
     QAbstractProxyModel::setSourceModel( msgList );
@@ -176,7 +177,12 @@ QModelIndex ThreadingMsgListModel::mapToSource( const QModelIndex& proxyIndex ) 
     if ( node == _threading.constEnd() )
         return QModelIndex();
 
-    return msgList->createIndex( node->ptr->row(), proxyIndex.column(), node->ptr );
+    if ( node->uid ) {
+        return msgList->createIndex( node->ptr->row(), proxyIndex.column(), node->ptr );
+    } else {
+        // it's a fake message
+        return QModelIndex();
+    }
 }
 
 QModelIndex ThreadingMsgListModel::mapFromSource( const QModelIndex& sourceIndex ) const
@@ -188,7 +194,9 @@ QModelIndex ThreadingMsgListModel::mapFromSource( const QModelIndex& sourceIndex
     if ( uid == 0 )
         return QModelIndex();
 
-    const uint internalId = uid; // FIXME
+    QHash<uint,uint>::const_iterator it = uidToInternal.constFind( uid );
+    Q_ASSERT( it != uidToInternal.constEnd() );
+    const uint internalId = *it;
 
     QHash<uint,ThreadNodeInfo>::const_iterator node = _threading.constFind( internalId );
     Q_ASSERT(node != _threading.constEnd());
@@ -199,6 +207,23 @@ QModelIndex ThreadingMsgListModel::mapFromSource( const QModelIndex& sourceIndex
     Q_ASSERT( offset != -1 );
 
     return createIndex( offset, sourceIndex.column(), internalId );
+}
+
+QVariant ThreadingMsgListModel::data( const QModelIndex &proxyIndex, int role ) const
+{
+    if ( ! proxyIndex.isValid() || proxyIndex.model() != this )
+        return QVariant();
+
+    QHash<uint,ThreadNodeInfo>::const_iterator it = _threading.constFind( proxyIndex.internalId() );
+    Q_ASSERT(it != _threading.constEnd());
+    if ( it->uid )
+        return QAbstractProxyModel::data( proxyIndex, role );
+
+    switch( role ) {
+    case Qt::DisplayRole:
+        return tr("Fake message");
+    }
+    return QVariant();
 }
 
 void ThreadingMsgListModel::handleRowsAboutToBeRemoved( const QModelIndex& parent, int start, int end )
@@ -227,6 +252,7 @@ void ThreadingMsgListModel::resetMe()
 {
     reset();
     _threading.clear();
+    uidToInternal.clear();
     updateNoThreading();
     //QTimer::singleShot( 1000, this, SLOT(askForThreading()) );
     QTimer::singleShot( 1000, this, SLOT(updateFakeThreading()) );
@@ -238,6 +264,7 @@ void ThreadingMsgListModel::updateNoThreading()
     if ( ! _threading.isEmpty() ) {
         beginRemoveRows( QModelIndex(), 0, rowCount() );
         _threading.clear();
+        uidToInternal.clear();
         endRemoveRows();
         containedSomething = true;
     }
@@ -251,7 +278,9 @@ void ThreadingMsgListModel::updateNoThreading()
         uint uid = index.data( RoleMessageUid ).toUInt();
         Q_ASSERT(uid);
         ThreadNodeInfo node;
-        node.internalId = uid; // FIXME
+        node.internalId = i + 1;
+        node.uid = uid;
+        uidToInternal[ node.uid ] = node.internalId;
         node.ptr = static_cast<TreeItem*>( index.internalPointer() );
         _threading[ node.internalId ] = node;
         allIds.append( node.internalId );
@@ -306,6 +335,7 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
 
     emit layoutAboutToBeChanged();
     _threading.clear();
+    uidToInternal.clear();
     _threading[ 0 ].ptr = static_cast<MsgListModel*>( sourceModel() )->msgList;
 
     // FIXME: create mapping here...
@@ -314,12 +344,14 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
     for ( int i = 0; i < upstreamMessages; ++i ) {
         QModelIndex index = sourceModel()->index( i, 0 );
         uint uid = index.data( RoleMessageUid ).toUInt();
-        uint internalId = uid; // FIXME
+        uint internalId = i + 1; // FIXME: maybe required even earlier?
+        uidToInternal[ uid ] = internalId;
         Q_ASSERT(uid);
         Q_ASSERT(_threading.contains( internalId ));
         Q_ASSERT(_threading.contains( _threading[ internalId ].parent ));
         Q_ASSERT(_threading[ _threading[ internalId ].parent ].children.contains( internalId ));
         _threading[ internalId ].ptr = static_cast<TreeItem*>( index.internalPointer() );
+        _threading[ internalId ].uid = uid;
     }
 
     qDebug() << _threading;
@@ -338,21 +370,36 @@ void ThreadingMsgListModel::updateFakeThreading()
 
     emit layoutAboutToBeChanged();
     _threading.clear();
+    uidToInternal.clear();
     _threading[ 0 ].ptr = static_cast<MsgListModel*>( sourceModel() )->msgList;
     uint lastId = 0;
+    uint internalIdCounter = 1;
     if ( count ) {
-        for ( int i = 0; i < count; ++i ) {
+        for ( int i = 0; i < count; ++i, ++internalIdCounter ) {
             QModelIndex index = sourceModel()->index( i, 0 );
             uint uid = index.data( RoleMessageUid ).toUInt();
             Q_ASSERT(uid);
             ThreadNodeInfo node;
-            node.internalId = uid; // FIXME
+            node.internalId = internalIdCounter;
+            uidToInternal[ uid ] = node.internalId;
+            // FIXME: insert some fake messages every now and then...
+            node.uid = uid;
             node.parent = lastId;
             Q_ASSERT(_threading.contains( lastId ));
             _threading[ lastId ].children.append( node.internalId );
             lastId = node.internalId;
             node.ptr = static_cast<TreeItem*>( index.internalPointer() );
             _threading[ node.internalId ] = node;
+
+            if ( internalIdCounter % 3 == 0 ) {
+                ThreadNodeInfo fake;
+                fake.internalId = ++internalIdCounter;
+                fake.parent = lastId;
+                Q_ASSERT(_threading.contains( lastId ));
+                _threading[ lastId ].children.append( fake.internalId );;
+                lastId = fake.internalId;
+                _threading[ fake.internalId ] = fake;
+            }
         }
     }
     updatePersistentIndexes();
@@ -379,7 +426,7 @@ void ThreadingMsgListModel::updatePersistentIndexes()
 
 QDebug operator<<(QDebug debug, const ThreadNodeInfo &node)
 {
-    debug << "ThreadNodeInfo(" << node.internalId << node.ptr<< node.parent << node.children << ")";
+    debug << "ThreadNodeInfo(" << node.internalId << node.uid << node.ptr<< node.parent << node.children << ")";
     return debug;
 }
 
