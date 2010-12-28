@@ -81,7 +81,13 @@ bool ThreadTask::handleThread( Imap::Parser *ptr, const Imap::Responses::Thread 
         Q_FOREACH( const Imap::Responses::Thread::Node &child, node.children ) {
             numbers.append( child.num );
         }
-        mapping[ node.num ] = numbers;
+        if ( node.num == 0 ) {
+            // Fun -- 0 denotes a special, "missing" message...
+            mapping[ node.num ].append( numbers );
+        } else {
+            Q_ASSERT(mapping[ node.num ].isEmpty());
+            mapping[ node.num ] = numbers;
+        }
     }
     qDebug() << mapping;
     return true;
