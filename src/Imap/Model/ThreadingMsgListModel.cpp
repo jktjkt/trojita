@@ -362,7 +362,6 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
         node.uid = index.data( RoleMessageUid ).toUInt();
         Q_ASSERT(node.uid);
         node.internalId = i + 1;
-        qDebug() << "NODE" << node.internalId << node.uid;
         node.ptr = static_cast<TreeItem*>( index.internalPointer() );
         _threadingHelperLastId = node.internalId;
         Q_ASSERT(!_threading.contains( node.internalId ));
@@ -395,10 +394,10 @@ void ThreadingMsgListModel::registerThreading( const QList<Imap::Responses::Thre
             Q_ASSERT(nodeIt != uidToInternal.constEnd()); // FIXME: exception?
             nodeId = *nodeIt;
         }
-        qDebug() << "Will work at node" << _threading.value( nodeId ).uid;
+        qDebug() << "Will work at node" << nodeId << _threading.value( nodeId ).uid;
         _threading[ parentId ].children.append( nodeId );
         _threading[ nodeId ].parent = parentId;
-        qDebug() << "Nested" << _threading.value( nodeId ).uid << "below" << _threading.value( parentId ).uid;
+        qDebug() << "Nested" << nodeId << _threading.value( nodeId ).uid << "below" << parentId << _threading.value( parentId ).uid;
         registerThreading( node.children, nodeId );
     }
 }
