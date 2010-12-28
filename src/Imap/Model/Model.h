@@ -327,7 +327,7 @@ signals:
 
     void mailboxFirstUnseenMessage( const QModelIndex &maillbox, const QModelIndex &message );
 
-    void threadingAvailable( const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria );
+    void threadingAvailable( const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria, const QMap<uint,QList<uint> > &mapping );
 
 private:
     Model& operator=( const Model& ); // don't implement

@@ -60,6 +60,8 @@ bool ThreadTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::St
         IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::Task::THREAD );
         // FIXME: we should probably care about how the command ended here...
         _completed();
+        emit model->threadingAvailable( mailboxIndex, algorithm, searchCriteria, mapping );
+        mapping.clear();
         IMAP_TASK_CLEANUP_COMMAND;
         return true;
     } else {
@@ -69,7 +71,19 @@ bool ThreadTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::St
 
 bool ThreadTask::handleThread( Imap::Parser *ptr, const Imap::Responses::Thread *const resp )
 {
-    // FIXME
+    Q_UNUSED(ptr);
+
+    QList<Imap::Responses::Thread::Node> queue = resp->rootItems;
+    while ( ! queue.isEmpty() ) {
+        Imap::Responses::Thread::Node node = queue.takeFirst();
+        queue.append( node.children );
+        QList<uint> numbers;
+        Q_FOREACH( const Imap::Responses::Thread::Node &child, node.children ) {
+            numbers.append( child.num );
+        }
+        mapping[ node.num ] = numbers;
+    }
+    qDebug() << mapping;
     return true;
 }
 
