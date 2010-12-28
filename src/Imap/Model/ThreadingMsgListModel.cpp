@@ -401,7 +401,6 @@ void ThreadingMsgListModel::updateFakeThreading()
             ThreadNodeInfo node;
             node.internalId = internalIdCounter;
             uidToInternal[ uid ] = node.internalId;
-            // FIXME: insert some fake messages every now and then...
             node.uid = uid;
             node.parent = lastId;
             Q_ASSERT(_threading.contains( lastId ));
@@ -410,7 +409,7 @@ void ThreadingMsgListModel::updateFakeThreading()
             node.ptr = static_cast<TreeItem*>( index.internalPointer() );
             _threading[ node.internalId ] = node;
 
-            if ( internalIdCounter % 3 == 0 ) {
+            if ( internalIdCounter % 6 == 0 ) {
                 ThreadNodeInfo fake;
                 fake.internalId = ++internalIdCounter;
                 fake.parent = lastId;
