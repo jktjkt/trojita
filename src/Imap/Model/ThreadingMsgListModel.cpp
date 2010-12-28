@@ -295,14 +295,27 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
 
     // FIXME: check for correct mailbox, algorithm and search criteria...
 
+    disconnect( sender(), 0, this,
+                SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QMap<uint,QList<uint> >)) );
+
     emit layoutAboutToBeChanged();
     _threading.clear();
     _threading[ 0 ].ptr = static_cast<MsgListModel*>( sourceModel() )->msgList;
 
+    qDebug() << mapping;
+
     for ( QMap<uint, QList<uint> >::const_iterator it = mapping.constBegin(); it != mapping.constEnd(); ++it ) {
+        if ( it.key() == 0 ) {
+            // The fun starts here -- this situation denotes a moment when a thread contains
+            // non-existing messages. We have to take care not to overwrite previous children...
+            _threading[ it.key() ].children.append( it.value() );
+        } else {
+            Q_ASSERT(_threading[ it.key() ].children.isEmpty()); // FIXME: relax to exception, add failover...
+            _threading[ it.key() ].children = it.value();
+        }
         _threading[ it.key() ].uid = it.key();
-        _threading[ it.key() ].children = it.value();
-        _threading[ it.key() ].ptr = 0; // FIXME
+
+        // We'll set the ptr later on
         Q_FOREACH( const uint num, it.value() ) {
             _threading[ num ].parent = it.key();
         }
@@ -310,8 +323,18 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
 
     qDebug() << _threading;
 
-    disconnect( sender(), 0, this,
-                SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QMap<uint,QList<uint> >)) );
+    int upstreamMessages = sourceModel()->rowCount();
+    for ( int i = 0; i < upstreamMessages; ++i ) {
+        QModelIndex index = sourceModel()->index( i, 0 );
+        uint uid = index.data( RoleMessageUid ).toUInt();
+        Q_ASSERT(uid);
+        Q_ASSERT(_threading.contains( uid ));
+        Q_ASSERT(_threading.contains( _threading[ uid ].parent ));
+        Q_ASSERT(_threading[ _threading[ uid ].parent ].children.contains( uid ));
+        _threading[ uid ].ptr = static_cast<TreeItem*>( index.internalPointer() );
+    }
+
+    qDebug() << _threading;
 
     updatePersistentIndexes();
     emit layoutChanged();
