@@ -221,7 +221,12 @@ QVariant ThreadingMsgListModel::data( const QModelIndex &proxyIndex, int role ) 
 
     switch( role ) {
     case Qt::DisplayRole:
-        return tr("Fake message");
+        if ( proxyIndex.column() == 0 )
+            return tr("[Message is missing]");
+        break;
+    case Qt::ToolTipRole:
+        return tr("This thread refers to an extra message, but that message is not present in the "
+                  "selected mailbox, or is missing from the current search context.");
     }
     return QVariant();
 }
