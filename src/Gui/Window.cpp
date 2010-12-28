@@ -428,13 +428,18 @@ void MainWindow::msgListSelectionChanged( const QItemSelection& selected, const 
         return;
 
     QModelIndex index = selected.indexes().front();
-    updateMessageFlags( index );
-    msgView->setMessage( index );
+    if ( index.data( Imap::Mailbox::RoleMessageUid ).isValid() ) {
+        updateMessageFlags( index );
+        msgView->setMessage( index );
+    }
 }
 
 void MainWindow::msgListActivated( const QModelIndex& index )
 {
     Q_ASSERT( index.isValid() );
+
+    if ( ! index.data( Imap::Mailbox::RoleMessageUid ).isValid() )
+        return;
 
     if ( index.column() != Imap::Mailbox::MsgListModel::SEEN ) {
         msgView->setMessage( index );
@@ -460,6 +465,9 @@ void MainWindow::msgListClicked( const QModelIndex& index )
 void MainWindow::msgListDoubleClicked( const QModelIndex& index )
 {
     Q_ASSERT( index.isValid() );
+
+    if ( ! index.data( Imap::Mailbox::RoleMessageUid ).isValid() )
+        return;
 
     MessageView* newView = new MessageView( 0 );
     QModelIndex realIndex;
