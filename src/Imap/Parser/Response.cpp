@@ -892,7 +892,7 @@ QString Thread::dumpHelper( const Node& node )
         return QString::number( node.num );
     } else {
         QStringList res;
-        for ( QList<Node>::const_iterator it = node.children.begin(); it != node.children.end(); ++it ) {
+        for ( QVector<Node>::const_iterator it = node.children.begin(); it != node.children.end(); ++it ) {
             res << dumpHelper( *it );
         }
         return QString::fromAscii("%1: {%2}").arg( node.num ).arg( res.join(QString::fromAscii(", ") ) );

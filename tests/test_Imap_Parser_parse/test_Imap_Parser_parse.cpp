@@ -320,7 +320,7 @@ void ImapParserParseTest::testParseUntagged_data()
         << QSharedPointer<AbstractResponse>( new Sort( QList<uint>() << 13 << 1 << 6 << 5 << 7 << 9 << 10 << 11 << 12 << 4 << 3 << 2 << 8 ) );
 
     Thread::Node node2(2), node3(3), node6(6), node4(4), node23(23), node44(44), node7(7), node96(96);
-    QList<Thread::Node> rootNodes;
+    QVector<Thread::Node> rootNodes;
     node4.children << node23;
     node7.children << node96;
     node44.children << node7;
@@ -375,9 +375,9 @@ void ImapParserParseTest::testParseUntagged_data()
     node603.children << node604;
     node602.children << node603;
     rootNodes << node608 << node602 << node607 << node609 << node610;
-    rootNodes << Thread::Node(0, QList<Thread::Node>() << node611 << node612 );
+    rootNodes << Thread::Node(0, QVector<Thread::Node>() << node611 << node612 );
     rootNodes << node605;
-    rootNodes << Thread::Node(0, QList<Thread::Node>() << node601 << node606 );
+    rootNodes << Thread::Node(0, QVector<Thread::Node>() << node601 << node606 );
     rootNodes << node613;
     QTest::newRow("thread-6")
         << QByteArray("* THREAD (8)(2 3 4)(7)(9)(10)((11)(12))(5)((1)(6))(13)\r\n")

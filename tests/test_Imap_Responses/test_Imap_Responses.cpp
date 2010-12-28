@@ -114,13 +114,13 @@ void ImapResponsesTest::testCompareEq_data()
     Thread::Node node;
     node.num = 666;
     QTest::newRow( "thread-1" ) <<
-        respPtr( new Thread( QList<Thread::Node>() << node ) ) <<
-        respPtr( new Thread( QList<Thread::Node>() << node ) );
+        respPtr( new Thread( QVector<Thread::Node>() << node ) ) <<
+        respPtr( new Thread( QVector<Thread::Node>() << node ) );
     Thread::Node node2;
-    node.children.append( QList<Thread::Node>() << node2 );
+    node.children += QVector<Thread::Node>() << node2;
     QTest::newRow( "thread-2" ) <<
-        respPtr( new Thread( QList<Thread::Node>() << node ) ) <<
-        respPtr( new Thread( QList<Thread::Node>() << node ) );
+        respPtr( new Thread( QVector<Thread::Node>() << node ) ) <<
+        respPtr( new Thread( QVector<Thread::Node>() << node ) );
 }
 
 void ImapResponsesTest::testCompareNe_data()
@@ -245,16 +245,16 @@ void ImapResponsesTest::testCompareNe_data()
     Thread::Node node( 666  );
     Thread::Node node2( 333 );
     QTest::newRow( "thread-1" ) <<
-        respPtr( new Thread( QList<Thread::Node>() ) ) <<
-        respPtr( new Thread( QList<Thread::Node>() << node ) );
+        respPtr( new Thread( QVector<Thread::Node>() ) ) <<
+        respPtr( new Thread( QVector<Thread::Node>() << node ) );
     QTest::newRow( "thread-2" ) <<
-        respPtr( new Thread( QList<Thread::Node>() << node2 ) ) <<
-        respPtr( new Thread( QList<Thread::Node>() << node ) );
+        respPtr( new Thread( QVector<Thread::Node>() << node2 ) ) <<
+        respPtr( new Thread( QVector<Thread::Node>() << node ) );
     Thread::Node node3;
-    node.children.append( QList<Thread::Node>() << node3 );
+    node.children += QVector<Thread::Node>() << node3;
     QTest::newRow( "thread-3" ) <<
-        respPtr( new Thread( QList<Thread::Node>() << node ) ) <<
-        respPtr( new Thread( QList<Thread::Node>() << node << node3 ) );
+        respPtr( new Thread( QVector<Thread::Node>() << node ) ) <<
+        respPtr( new Thread( QVector<Thread::Node>() << node << node3 ) );
 }
 
 TROJITA_HEADLESS_TEST( ImapResponsesTest )

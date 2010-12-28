@@ -27,6 +27,7 @@
 #include <QStringList>
 #include <QTextStream>
 #include <QVariantList>
+#include <QVector>
 #include "Command.h"
 #include "../Exceptions.h"
 #include "Data.h"
@@ -454,13 +455,13 @@ namespace Responses {
 */
             uint num;
             /** @short Recursive data structure storing numbers of all messages which are children of the current one */
-            QList<Node> children;
-            Node( const uint _num=0, const QList<Node>& _children=QList<Node>() ): num(_num), children(_children) {}
+            QVector<Node> children;
+            Node( const uint _num=0, const QVector<Node>& _children=QVector<Node>() ): num(_num), children(_children) {}
         };
         /** @short List of "top-level" messages */
-        QList<Node> rootItems;
+        QVector<Node> rootItems;
         Thread( const QByteArray& line, int& start );
-        Thread( const QList<Node>& items ): AbstractResponse(THREAD), rootItems(items) {}
+        Thread( const QVector<Node>& items ): AbstractResponse(THREAD), rootItems(items) {}
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
         virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const;

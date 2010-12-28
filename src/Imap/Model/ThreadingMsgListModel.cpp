@@ -329,13 +329,13 @@ void ThreadingMsgListModel::askForThreading()
     realModel->_taskFactory->createThreadTask( const_cast<Imap::Mailbox::Model*>(realModel),
                                                mailboxIndex, QLatin1String("REFS"),
                                                QStringList() << QLatin1String("ALL") );
-    connect( realModel, SIGNAL(threadingAvailable(QModelIndex,QString,QStringList,QList<Imap::Responses::Thread::Node>)),
-             this, SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QList<Imap::Responses::Thread::Node>)) );
+    connect( realModel, SIGNAL(threadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::Thread::Node>)),
+             this, SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::Thread::Node>)) );
 }
 
 void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, const QString &algorithm,
                                                     const QStringList &searchCriteria,
-                                                    const QList<Imap::Responses::Thread::Node> &mapping )
+                                                    const QVector<Imap::Responses::Thread::Node> &mapping )
 {
     int count = sourceModel()->rowCount();
     if ( count != rowCount() ) {
@@ -346,7 +346,7 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
     // FIXME: check for correct mailbox, algorithm and search criteria...
 
     disconnect( sender(), 0, this,
-                SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QList<Imap::Responses::Thread::Node>)) );
+                SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::Thread::Node>)) );
 
 
     emit layoutAboutToBeChanged();
@@ -374,7 +374,7 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
     emit layoutChanged();
 }
 
-void ThreadingMsgListModel::registerThreading( const QList<Imap::Responses::Thread::Node> &mapping, uint parentId )
+void ThreadingMsgListModel::registerThreading( const QVector<Imap::Responses::Thread::Node> &mapping, uint parentId )
 {
     Q_FOREACH( const Imap::Responses::Thread::Node &node, mapping ) {
         uint nodeId;

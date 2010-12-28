@@ -71,7 +71,7 @@ public slots:
     void handleRowsInserted( const QModelIndex& parent, int start, int end );
     void slotThreadingAvailable( const QModelIndex &mailbox, const QString &algorithm,
                                  const QStringList &searchCriteria,
-                                 const QList<Imap::Responses::Thread::Node> &mapping );
+                                 const QVector<Imap::Responses::Thread::Node> &mapping );
 
 private slots:
     void updateNoThreading();
@@ -79,7 +79,7 @@ private slots:
 
 private:
     void updatePersistentIndexes();
-    void registerThreading( const QList<Imap::Responses::Thread::Node> &mapping, uint parentId );
+    void registerThreading( const QVector<Imap::Responses::Thread::Node> &mapping, uint parentId );
 
     ThreadingMsgListModel& operator=( const ThreadingMsgListModel& ); // don't implement
     ThreadingMsgListModel( const ThreadingMsgListModel& ); // don't implement
