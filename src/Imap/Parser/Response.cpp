@@ -763,7 +763,6 @@ Sort::Sort( const QByteArray &line, int &start ): AbstractResponse(THREAD)
 
 Thread::Thread( const QByteArray &line, int &start ): AbstractResponse(THREAD)
 {
-    QList<QByteArray> foo;
     Node node;
     while ( start < line.size() - 2 ) {
         QVariantList current = LowLevelParser::parseList( '(', ')', line, start );
