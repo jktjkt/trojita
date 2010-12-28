@@ -74,7 +74,6 @@ public slots:
                                  const QList<Imap::Responses::Thread::Node> &mapping );
 
 private slots:
-    void updateFakeThreading();
     void updateNoThreading();
     void askForThreading();
 

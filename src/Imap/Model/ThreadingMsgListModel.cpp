@@ -274,7 +274,6 @@ void ThreadingMsgListModel::resetMe()
     uidToInternal.clear();
     updateNoThreading();
     QTimer::singleShot( 1000, this, SLOT(askForThreading()) );
-    //QTimer::singleShot( 1000, this, SLOT(updateFakeThreading()) );
 }
 
 void ThreadingMsgListModel::updateNoThreading()
@@ -396,51 +395,6 @@ void ThreadingMsgListModel::registerThreading( const QList<Imap::Responses::Thre
         _threading[ nodeId ].parent = parentId;
         registerThreading( node.children, nodeId );
     }
-}
-
-void ThreadingMsgListModel::updateFakeThreading()
-{
-    int count = sourceModel()->rowCount();
-    if ( count != rowCount() ) {
-        qDebug() << "Already threaded, huh?";
-        return;
-    }
-
-    emit layoutAboutToBeChanged();
-    _threading.clear();
-    uidToInternal.clear();
-    _threading[ 0 ].ptr = static_cast<MsgListModel*>( sourceModel() )->msgList;
-    uint lastId = 0;
-    uint internalIdCounter = 1;
-    if ( count ) {
-        for ( int i = 0; i < count; ++i, ++internalIdCounter ) {
-            QModelIndex index = sourceModel()->index( i, 0 );
-            uint uid = index.data( RoleMessageUid ).toUInt();
-            Q_ASSERT(uid);
-            ThreadNodeInfo node;
-            node.internalId = internalIdCounter;
-            uidToInternal[ uid ] = node.internalId;
-            node.uid = uid;
-            node.parent = lastId;
-            Q_ASSERT(_threading.contains( lastId ));
-            _threading[ lastId ].children.append( node.internalId );
-            lastId = node.internalId;
-            node.ptr = static_cast<TreeItem*>( index.internalPointer() );
-            _threading[ node.internalId ] = node;
-
-            if ( internalIdCounter % 6 == 0 ) {
-                ThreadNodeInfo fake;
-                fake.internalId = ++internalIdCounter;
-                fake.parent = lastId;
-                Q_ASSERT(_threading.contains( lastId ));
-                _threading[ lastId ].children.append( fake.internalId );;
-                lastId = fake.internalId;
-                _threading[ fake.internalId ] = fake;
-            }
-        }
-    }
-    updatePersistentIndexes();
-    emit layoutChanged();
 }
 
 void ThreadingMsgListModel::updatePersistentIndexes()
