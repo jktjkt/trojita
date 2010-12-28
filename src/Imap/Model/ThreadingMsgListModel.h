@@ -34,11 +34,11 @@ namespace Mailbox {
 class TreeItem;
 
 struct ThreadNodeInfo {
-    uint uid;
+    uint internalId;
     uint parent;
     QList<uint> children;
     TreeItem *ptr;
-    ThreadNodeInfo(): uid(0), parent(0), ptr(0) {}
+    ThreadNodeInfo(): internalId(0), parent(0), ptr(0) {}
 };
 
 QDebug operator<<(QDebug debug, const ThreadNodeInfo &node);
