@@ -288,6 +288,12 @@ void ThreadingMsgListModel::updateFakeThreading()
             _threading[ uid ] = node;
         }
     }
+    updatePersistentIndexes();
+    emit layoutChanged();
+}
+
+void ThreadingMsgListModel::updatePersistentIndexes()
+{
     QList<QModelIndex> updatedIndexes;
     Q_FOREACH( const QModelIndex &oldIndex, persistentIndexList() ) {
         QHash<uint,ThreadNodeInfo>::const_iterator it = _threading.constFind( oldIndex.internalId() );
@@ -302,7 +308,6 @@ void ThreadingMsgListModel::updateFakeThreading()
         }
     }
     changePersistentIndexList( persistentIndexList(), updatedIndexes );
-    emit layoutChanged();
 }
 
 QDebug operator<<(QDebug debug, const ThreadNodeInfo &node)

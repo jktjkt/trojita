@@ -71,6 +71,8 @@ private slots:
     void updateNoThreading();
 
 private:
+    void updatePersistentIndexes();
+
     ThreadingMsgListModel& operator=( const ThreadingMsgListModel& ); // don't implement
     ThreadingMsgListModel( const ThreadingMsgListModel& ); // don't implement
 
