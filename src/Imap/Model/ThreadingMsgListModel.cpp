@@ -358,16 +358,16 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
     int upstreamMessages = sourceModel()->rowCount();
     for ( int i = 0; i < upstreamMessages; ++i ) {
         QModelIndex index = sourceModel()->index( i, 0 );
-        uint uid = index.data( RoleMessageUid ).toUInt();
-        uint internalId = i + 1;
-        _threadingHelperLastId = internalId;
-        uidToInternal[ uid ] = internalId;
-        Q_ASSERT(uid);
-        Q_ASSERT(!_threading.contains( internalId ));
-        //Q_ASSERT(_threading.contains( _threading[ internalId ].parent ));
-        //Q_ASSERT(_threading[ _threading[ internalId ].parent ].children.contains( internalId ));
-        _threading[ internalId ].ptr = static_cast<TreeItem*>( index.internalPointer() );
-        _threading[ internalId ].uid = uid;
+        ThreadNodeInfo node;
+        node.uid = index.data( RoleMessageUid ).toUInt();
+        Q_ASSERT(node.uid);
+        node.internalId = i + 1;
+        qDebug() << "NODE" << node.internalId << node.uid;
+        node.ptr = static_cast<TreeItem*>( index.internalPointer() );
+        _threadingHelperLastId = node.internalId;
+        Q_ASSERT(!_threading.contains( node.internalId ));
+        _threading[ node.internalId ] = node;
+        uidToInternal[ node.uid ] = node.internalId;
     }
 
     registerThreading( mapping, 0 );
@@ -382,6 +382,7 @@ void ThreadingMsgListModel::registerThreading( const QList<Imap::Responses::Thre
     Q_FOREACH( const Imap::Responses::Thread::Node &node, mapping ) {
         uint nodeId;
         if ( node.num == 0 ) {
+            qDebug() << "Creating fake node below" << parentId << _threading.value( parentId ).uid;
             ThreadNodeInfo fake;
             fake.internalId = ++_threadingHelperLastId;
             fake.parent = parentId;
@@ -394,24 +395,10 @@ void ThreadingMsgListModel::registerThreading( const QList<Imap::Responses::Thre
             Q_ASSERT(nodeIt != uidToInternal.constEnd()); // FIXME: exception?
             nodeId = *nodeIt;
         }
-        Q_FOREACH( const Imap::Responses::Thread::Node &child, node.children ) {
-            uint childId;
-            if ( child.num == 0 ) {
-                ThreadNodeInfo fake;
-                fake.internalId = ++_threadingHelperLastId;
-                fake.parent = nodeId;
-                Q_ASSERT(_threading.contains( nodeId ));
-                _threading[ nodeId ].children.append( fake.internalId );;
-                _threading[ fake.internalId ] = fake;
-                childId = fake.internalId;
-            } else {
-                QHash<uint,uint>::const_iterator childIt = uidToInternal.constFind( child.num );
-                Q_ASSERT(childIt != uidToInternal.constEnd()); // FIXME: exception?
-                childId = *childIt;
-            }
-            _threading[ nodeId ].children.append( childId );
-            _threading[ childId ].parent = nodeId;
-        }
+        qDebug() << "Will work at node" << _threading.value( nodeId ).uid;
+        _threading[ parentId ].children.append( nodeId );
+        _threading[ nodeId ].parent = parentId;
+        qDebug() << "Nested" << _threading.value( nodeId ).uid << "below" << _threading.value( parentId ).uid;
         registerThreading( node.children, nodeId );
     }
 }
