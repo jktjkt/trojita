@@ -273,8 +273,8 @@ void ThreadingMsgListModel::resetMe()
     _threading.clear();
     uidToInternal.clear();
     updateNoThreading();
-    //QTimer::singleShot( 1000, this, SLOT(askForThreading()) );
-    QTimer::singleShot( 1000, this, SLOT(updateFakeThreading()) );
+    QTimer::singleShot( 1000, this, SLOT(askForThreading()) );
+    //QTimer::singleShot( 1000, this, SLOT(updateFakeThreading()) );
 }
 
 void ThreadingMsgListModel::updateNoThreading()
@@ -350,33 +350,70 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
                 SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QList<Imap::Responses::Thread::Node>)) );
 
 
-    return; // FIXME: for now...
-
     emit layoutAboutToBeChanged();
     _threading.clear();
     uidToInternal.clear();
     _threading[ 0 ].ptr = static_cast<MsgListModel*>( sourceModel() )->msgList;
 
-    // FIXME: create mapping here...
-
     int upstreamMessages = sourceModel()->rowCount();
     for ( int i = 0; i < upstreamMessages; ++i ) {
         QModelIndex index = sourceModel()->index( i, 0 );
         uint uid = index.data( RoleMessageUid ).toUInt();
-        uint internalId = i + 1; // FIXME: maybe required even earlier?
+        uint internalId = i + 1;
+        _threadingHelperLastId = internalId;
         uidToInternal[ uid ] = internalId;
         Q_ASSERT(uid);
-        Q_ASSERT(_threading.contains( internalId ));
-        Q_ASSERT(_threading.contains( _threading[ internalId ].parent ));
-        Q_ASSERT(_threading[ _threading[ internalId ].parent ].children.contains( internalId ));
+        Q_ASSERT(!_threading.contains( internalId ));
+        //Q_ASSERT(_threading.contains( _threading[ internalId ].parent ));
+        //Q_ASSERT(_threading[ _threading[ internalId ].parent ].children.contains( internalId ));
         _threading[ internalId ].ptr = static_cast<TreeItem*>( index.internalPointer() );
         _threading[ internalId ].uid = uid;
     }
 
+    registerThreading( mapping, 0 );
     qDebug() << _threading;
 
     updatePersistentIndexes();
     emit layoutChanged();
+}
+
+void ThreadingMsgListModel::registerThreading( const QList<Imap::Responses::Thread::Node> &mapping, uint parentId )
+{
+    Q_FOREACH( const Imap::Responses::Thread::Node &node, mapping ) {
+        uint nodeId;
+        if ( node.num == 0 ) {
+            ThreadNodeInfo fake;
+            fake.internalId = ++_threadingHelperLastId;
+            fake.parent = parentId;
+            Q_ASSERT(_threading.contains( parentId ));
+            _threading[ parentId ].children.append( fake.internalId );;
+            _threading[ fake.internalId ] = fake;
+            nodeId = fake.internalId;
+        } else {
+            QHash<uint,uint>::const_iterator nodeIt = uidToInternal.constFind( node.num );
+            Q_ASSERT(nodeIt != uidToInternal.constEnd()); // FIXME: exception?
+            nodeId = *nodeIt;
+        }
+        Q_FOREACH( const Imap::Responses::Thread::Node &child, node.children ) {
+            uint childId;
+            if ( child.num == 0 ) {
+                ThreadNodeInfo fake;
+                fake.internalId = ++_threadingHelperLastId;
+                fake.parent = nodeId;
+                Q_ASSERT(_threading.contains( nodeId ));
+                _threading[ nodeId ].children.append( fake.internalId );;
+                _threading[ fake.internalId ] = fake;
+                childId = fake.internalId;
+            } else {
+                QHash<uint,uint>::const_iterator childIt = uidToInternal.constFind( child.num );
+                Q_ASSERT(childIt != uidToInternal.constEnd()); // FIXME: exception?
+                childId = *childIt;
+            }
+            _threading[ nodeId ].children.append( childId );
+            _threading[ childId ].parent = nodeId;
+        }
+        registerThreading( node.children, nodeId );
+    }
 }
 
 void ThreadingMsgListModel::updateFakeThreading()

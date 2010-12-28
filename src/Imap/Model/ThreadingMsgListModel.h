@@ -80,12 +80,14 @@ private slots:
 
 private:
     void updatePersistentIndexes();
+    void registerThreading( const QList<Imap::Responses::Thread::Node> &mapping, uint parentId );
 
     ThreadingMsgListModel& operator=( const ThreadingMsgListModel& ); // don't implement
     ThreadingMsgListModel( const ThreadingMsgListModel& ); // don't implement
 
     QHash<uint,uint> uidToInternal;
     QHash<uint,ThreadNodeInfo> _threading;
+    uint _threadingHelperLastId;
 };
 
 }
