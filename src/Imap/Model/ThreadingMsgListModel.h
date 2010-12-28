@@ -60,6 +60,7 @@ public:
     virtual QModelIndex mapFromSource( const QModelIndex& sourceIndex ) const;
     virtual bool hasChildren( const QModelIndex& parent=QModelIndex() ) const;
     virtual QVariant data( const QModelIndex &proxyIndex, int role ) const;
+    virtual Qt::ItemFlags flags( const QModelIndex &index ) const;
 
 public slots:
     void resetMe();

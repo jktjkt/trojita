@@ -226,6 +226,20 @@ QVariant ThreadingMsgListModel::data( const QModelIndex &proxyIndex, int role ) 
     return QVariant();
 }
 
+Qt::ItemFlags ThreadingMsgListModel::flags( const QModelIndex &index ) const
+{
+    if ( ! index.isValid() || index.model() != this )
+        return Qt::NoItemFlags;
+
+    QHash<uint,ThreadNodeInfo>::const_iterator it = _threading.constFind( index.internalId() );
+    Q_ASSERT(it != _threading.constEnd());
+    if ( it->uid )
+        return QAbstractProxyModel::flags( index );
+
+    return Qt::NoItemFlags;
+
+}
+
 void ThreadingMsgListModel::handleRowsAboutToBeRemoved( const QModelIndex& parent, int start, int end )
 {
     // FIXME: remove from our mapping...
