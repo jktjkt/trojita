@@ -386,7 +386,7 @@ void ThreadingMsgListModel::registerThreading( const QList<Imap::Responses::Thre
             fake.internalId = ++_threadingHelperLastId;
             fake.parent = parentId;
             Q_ASSERT(_threading.contains( parentId ));
-            _threading[ parentId ].children.append( fake.internalId );;
+            // We can't append not the paren't children, that is be done after the if/else branch
             _threading[ fake.internalId ] = fake;
             nodeId = fake.internalId;
         } else {
