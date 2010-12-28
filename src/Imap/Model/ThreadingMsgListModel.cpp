@@ -55,7 +55,6 @@ void ThreadingMsgListModel::setSourceModel( QAbstractItemModel *sourceModel )
              this, SLOT( handleRowsAboutToBeInserted(const QModelIndex&, int,int ) ) );
     connect( sourceModel, SIGNAL( rowsInserted( const QModelIndex&, int, int ) ),
              this, SLOT( handleRowsInserted(const QModelIndex&, int,int ) ) );
-
 }
 
 void ThreadingMsgListModel::handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight )
@@ -227,7 +226,7 @@ void ThreadingMsgListModel::resetMe()
     reset();
     _threading.clear();
     updateNoThreading();
-    QTimer::singleShot( 1000, this, SLOT(updateFakeThreading()) );
+    QTimer::singleShot( 1000, this, SLOT(askForThreading()) );
 }
 
 void ThreadingMsgListModel::updateNoThreading()
@@ -259,6 +258,63 @@ void ThreadingMsgListModel::updateNoThreading()
 
     if ( upstreamMessages )
         emit endInsertRows();;
+}
+
+void ThreadingMsgListModel::askForThreading()
+{
+    int count = sourceModel()->rowCount();
+    if ( count != rowCount() ) {
+        qDebug() << "Already threaded, huh?";
+        return;
+    }
+
+    if ( ! count )
+        return;
+
+    const Imap::Mailbox::Model *realModel;
+    QModelIndex someMessage = sourceModel()->index(0,0);
+    QModelIndex realIndex;
+    Imap::Mailbox::Model::realTreeItem( someMessage, &realModel, &realIndex );
+    QModelIndex mailboxIndex = realIndex.parent().parent();
+    realModel->_taskFactory->createThreadTask( const_cast<Imap::Mailbox::Model*>(realModel),
+                                               mailboxIndex, QLatin1String("REFS"),
+                                               QStringList() << QLatin1String("ALL") );
+    connect( realModel, SIGNAL(threadingAvailable(QModelIndex,QString,QStringList,QMap<uint,QList<uint> >)),
+             this, SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QMap<uint,QList<uint> >)) );
+}
+
+void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, const QString &algorithm,
+                                                    const QStringList &searchCriteria,
+                                                    const QMap<uint, QList<uint> > &mapping )
+{
+    int count = sourceModel()->rowCount();
+    if ( count != rowCount() ) {
+        qDebug() << "Already threaded, huh?";
+        return;
+    }
+
+    // FIXME: check for correct mailbox, algorithm and search criteria...
+
+    emit layoutAboutToBeChanged();
+    _threading.clear();
+    _threading[ 0 ].ptr = static_cast<MsgListModel*>( sourceModel() )->msgList;
+
+    for ( QMap<uint, QList<uint> >::const_iterator it = mapping.constBegin(); it != mapping.constEnd(); ++it ) {
+        _threading[ it.key() ].uid = it.key();
+        _threading[ it.key() ].children = it.value();
+        _threading[ it.key() ].ptr = 0; // FIXME
+        Q_FOREACH( const uint num, it.value() ) {
+            _threading[ num ].parent = it.key();
+        }
+    }
+
+    qDebug() << _threading;
+
+    disconnect( sender(), 0, this,
+                SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QMap<uint,QList<uint> >)) );
+
+    updatePersistentIndexes();
+    emit layoutChanged();
 }
 
 void ThreadingMsgListModel::updateFakeThreading()

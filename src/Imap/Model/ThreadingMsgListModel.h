@@ -65,10 +65,14 @@ public slots:
     void handleRowsRemoved( const QModelIndex& parent, int start, int end );
     void handleRowsAboutToBeInserted( const QModelIndex& parent, int start, int end );
     void handleRowsInserted( const QModelIndex& parent, int start, int end );
+    void slotThreadingAvailable( const QModelIndex &mailbox, const QString &algorithm,
+                                 const QStringList &searchCriteria,
+                                 const QMap<uint,QList<uint> > &mapping );
 
 private slots:
     void updateFakeThreading();
     void updateNoThreading();
+    void askForThreading();
 
 private:
     void updatePersistentIndexes();
