@@ -451,6 +451,9 @@ void MainWindow::msgListClicked( const QModelIndex& index )
 {
     Q_ASSERT( index.isValid() );
 
+    if ( ! index.data( Imap::Mailbox::RoleMessageUid ).isValid() )
+        return;
+
     if ( index.column() == Imap::Mailbox::MsgListModel::SEEN ) {
         Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
                 Imap::Mailbox::Model::realTreeItem( index )
@@ -690,6 +693,8 @@ void MainWindow::handleMarkAsRead( bool value )
         Q_ASSERT( it->isValid() );
         if ( it->column() != 0 )
             continue;
+        if ( ! it->data( Imap::Mailbox::RoleMessageUid ).isValid() )
+            continue;
         Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
                 Imap::Mailbox::Model::realTreeItem( *it )
                 );
@@ -704,6 +709,8 @@ void MainWindow::handleMarkAsDeleted( bool value )
     for ( QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it ) {
         Q_ASSERT( it->isValid() );
         if ( it->column() != 0 )
+            continue;
+        if ( ! it->data( Imap::Mailbox::RoleMessageUid ).isValid() )
             continue;
         Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
                 Imap::Mailbox::Model::realTreeItem( *it )
@@ -898,6 +905,8 @@ void MainWindow::slotSaveCurrentMessageBody()
         Q_ASSERT( it->isValid() );
         if ( it->column() != 0 )
             continue;
+        if ( ! it->data( Imap::Mailbox::RoleMessageUid ).isValid() )
+            continue;
         Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
                 Imap::Mailbox::Model::realTreeItem( *it )
                 );
@@ -941,6 +950,8 @@ void MainWindow::slotViewMsgHeaders()
     for ( QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it ) {
         Q_ASSERT( it->isValid() );
         if ( it->column() != 0 )
+            continue;
+        if ( ! it->data( Imap::Mailbox::RoleMessageUid ).isValid() )
             continue;
         Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
                 Imap::Mailbox::Model::realTreeItem( *it )
@@ -1013,6 +1024,8 @@ void MainWindow::slotReleaseSelectedMessage()
 {
     QModelIndex index = msgListTree->currentIndex();
     if ( ! index.isValid() )
+        return;
+    if ( ! index.data( Imap::Mailbox::RoleMessageUid ).isValid() )
         return;
 
     model->releaseMessageData( index );
