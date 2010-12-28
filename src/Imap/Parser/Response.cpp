@@ -767,8 +767,8 @@ Thread::Thread( const QByteArray &line, int &start ): AbstractResponse(THREAD)
     while ( start < line.size() - 2 ) {
         QVariantList current = LowLevelParser::parseList( '(', ')', line, start );
         insertHere( &node, current );
-        rootItems = node.children;
     }
+    rootItems = node.children;
 }
 
 /** @short Helper for parsing the brain-dead RFC5256 THREAD response
