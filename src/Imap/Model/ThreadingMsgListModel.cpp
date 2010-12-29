@@ -273,7 +273,7 @@ void ThreadingMsgListModel::resetMe()
     _threading.clear();
     uidToInternal.clear();
     updateNoThreading();
-    QTimer::singleShot( 1000, this, SLOT(askForThreading()) );
+    QTimer::singleShot( 0, this, SLOT(askForThreading()) );
 }
 
 void ThreadingMsgListModel::updateNoThreading()
