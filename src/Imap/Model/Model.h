@@ -231,6 +231,9 @@ this message happen again.
 */
     void releaseMessageData( const QModelIndex &message );
 
+    /** @short Return a list of capabilities which are supported by the server */
+    QStringList capabilities() const;
+
 public slots:
     /** @short Ask for an updated list of mailboxes on the server */
     void reloadMailboxList();

@@ -1400,5 +1400,16 @@ void Model::releaseMessageData( const QModelIndex &message )
     emit dataChanged( realMessage, realMessage );
 }
 
+QStringList Model::capabilities() const
+{
+    if ( _parsers.isEmpty() )
+        return QStringList();
+
+    if ( _parsers.constBegin()->capabilitiesFresh )
+        return _parsers.constBegin()->capabilities;
+
+    return QStringList();
+}
+
 }
 }

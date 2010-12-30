@@ -326,11 +326,21 @@ void ThreadingMsgListModel::askForThreading()
     QModelIndex realIndex;
     Imap::Mailbox::Model::realTreeItem( someMessage, &realModel, &realIndex );
     QModelIndex mailboxIndex = realIndex.parent().parent();
-    realModel->_taskFactory->createThreadTask( const_cast<Imap::Mailbox::Model*>(realModel),
-                                               mailboxIndex, QLatin1String("REFS"),
-                                               QStringList() << QLatin1String("ALL") );
-    connect( realModel, SIGNAL(threadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::Thread::Node>)),
-             this, SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::Thread::Node>)) );
+
+    QString algo;
+    if ( realModel->capabilities().contains( QLatin1String("THREAD=REFS")) ) {
+        algo = QLatin1String("REFS");
+    } else if ( realModel->capabilities().contains( QLatin1String("THREAD=REFERENCES") ) ) {
+        algo = QLatin1String("REFERENCES");
+    }
+
+    if ( ! algo.isEmpty() ) {
+        realModel->_taskFactory->createThreadTask( const_cast<Imap::Mailbox::Model*>(realModel),
+                                                   mailboxIndex, algo,
+                                                   QStringList() << QLatin1String("ALL") );
+        connect( realModel, SIGNAL(threadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::Thread::Node>)),
+                 this, SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::Thread::Node>)) );
+    }
 }
 
 void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, const QString &algorithm,
