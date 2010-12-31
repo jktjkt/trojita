@@ -57,7 +57,7 @@ SettingsDialog::SettingsDialog(): QDialog()
     stack->addTab( outgoing, tr("SMTP") );
 #ifdef XTUPLE_CONNECT
     xtConnect = new XtConnectPage( this, s, imap );
-    stack->addTab( xtConnect, tr("XTuple Connect") );
+    stack->addTab( xtConnect, tr("xTuple") );
 #endif
 
     QDialogButtonBox* buttons = new QDialogButtonBox( QDialogButtonBox::Save | QDialogButtonBox::Cancel, Qt::Horizontal, this );
@@ -381,7 +381,7 @@ XtConnectPage::XtConnectPage( QWidget* parent, QSettings& s, ImapPage* imapPage 
     QFormLayout* layout = new QFormLayout( this );
     cacheDir = new QLineEdit( s.value( Common::SettingsNames::xtConnectCacheDirectory, QString::fromAscii("~/.cache/xtuple.com/xtconnect-trojita") ).toString(), this );
     layout->addRow( tr("Cache Directory"), cacheDir );
-    QPushButton* btn = new QPushButton("Save XTuple Connect Configuration");
+    QPushButton* btn = new QPushButton("Save xTuple Configuration");
     connect( btn, SIGNAL(clicked()), this, SLOT(saveXtConfig()) );
     layout->addRow( btn );
 

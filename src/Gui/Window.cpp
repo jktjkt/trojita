@@ -166,7 +166,7 @@ void MainWindow::createActions()
     connect( deleteCurrentMailbox, SIGNAL(triggered()), this, SLOT(slotDeleteCurrentMailbox()) );
 
 #ifdef XTUPLE_CONNECT
-    xtIncludeMailboxInSync = new QAction( tr("Synchronize with XTuple Connect"), this );
+    xtIncludeMailboxInSync = new QAction( tr("Synchronize with xTuple"), this );
     xtIncludeMailboxInSync->setCheckable( true );
     connect( xtIncludeMailboxInSync, SIGNAL(triggered()), this, SLOT(slotXtSyncCurrentMailbox()) );
 #endif
