@@ -113,3 +113,5 @@ HEADERS += Parser/Parser.h \
     Network/MsgPartNetAccessManager.h \
     Network/MsgPartNetworkReply.h \
     Network/FileDownloadManager.h
+
+XtConnect:DEFINES += XTUPLE_CONNECT

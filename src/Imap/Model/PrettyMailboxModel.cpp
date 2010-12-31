@@ -22,6 +22,11 @@
 #include "MailboxModel.h"
 #include "ItemRoles.h"
 
+#ifdef XTUPLE_CONNECT
+# include "Common/SettingsNames.h"
+# include <QSettings>
+#endif
+
 #include <QFont>
 #include <QIcon>
 
@@ -77,6 +82,11 @@ QVariant PrettyMailboxModel::data( const QModelIndex& index, int role ) const
             if ( translated.data( RoleMailboxItemsAreLoading ).toBool() )
                 return QIcon::fromTheme( QLatin1String("folder-grey"),
                                          QIcon( QLatin1String(":/icons/folder-grey.png") ) );
+#ifdef XTUPLE_CONNECT
+            else if ( QSettings().value( Common::SettingsNames::xtSyncMailboxList ).toStringList().contains(
+                    translated.data( RoleMailboxName ).toString() ) )
+                return QIcon( QLatin1String(":/icons/folder-xt-sync.png") );
+#endif
             else if ( translated.data( RoleMailboxIsINBOX ).toBool() )
                 return QIcon::fromTheme( QLatin1String("mail-folder-inbox"),
                                          QIcon( QLatin1String(":/icons/mail-folder-inbox") ) );

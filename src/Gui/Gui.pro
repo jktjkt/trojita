@@ -63,3 +63,4 @@ GITVERSION_PREFIX = $$join(PWD,,,/../..)
 include(../gitversion.pri)
 
 XtConnect:DEFINES += XTUPLE_CONNECT
+XtConnect:RESOURCES += ../xtconnect-icons.qrc
