@@ -37,6 +37,8 @@
 #include <QSqlQuery>
 #include "Common/SqlTransactionAutoAborter.h"
 
+class QTimer;
+
 namespace XtConnect {
 
 /** @short Access to the XtConnect database for e-mails */
@@ -62,6 +64,10 @@ public:
     /** @short Log a message saying that something talking to the DB failed */
     void fail( const QString &message );
 
+private slots:
+    /** @short Record a failure and optionally reconnect if too many errors happened since last reconnect */
+    void slotReconnect();
+
 private:
     void _prepareStatements();
     void _fail( const QString &message, const QSqlQuery &query );
@@ -71,6 +77,8 @@ private:
     QSqlQuery _queryInsertMail;
     QSqlQuery _queryInsertAddress;
     QSqlQuery _queryMarkMailReady;
+
+    QTimer *reconnect;
 };
 
 }

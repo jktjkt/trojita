@@ -31,6 +31,7 @@
 #include <QCryptographicHash>
 #include <QDebug>
 #include <QSqlError>
+#include <QTimer>
 #include <QVariant>
 
 namespace XtConnect {
@@ -38,6 +39,10 @@ namespace XtConnect {
 SqlStorage::SqlStorage(QObject *parent) :
     QObject(parent)
 {
+    reconnect = new QTimer( this );
+    reconnect->setSingleShot( true );
+    reconnect->setInterval( 10 * 1000 );
+    connect( reconnect, SIGNAL(timeout()), this, SLOT(slotReconnect()) );
 }
 
 void SqlStorage::open()
@@ -101,11 +106,15 @@ SqlStorage::ResultType SqlStorage::insertMail( const QDateTime &dateTime, const 
 
 void SqlStorage::_fail( const QString &message, const QSqlQuery &query )
 {
+    if ( ! db.isOpen() )
+        reconnect->start();
     qWarning() << QString::fromAscii("SqlStorage: Query Error: %1: %2").arg( message, query.lastError().text() );
 }
 
 void SqlStorage::_fail( const QString &message, const QSqlDatabase &database )
 {
+    if ( ! db.isOpen() )
+        reconnect->start();
     qWarning() << QString::fromAscii("SqlStorage: Query Error: %1: %2").arg( message, database.lastError().text() );
 }
 
@@ -144,6 +153,21 @@ SqlStorage::ResultType SqlStorage::markMailReady( const quint64 emlId )
     }
 
     return RESULT_OK;
+}
+
+void SqlStorage::slotReconnect()
+{
+    qDebug() << "Trying to reconnect to the database...";
+    // Release all DB resources
+    _queryInsertAddress.clear();
+    _queryInsertMail.clear();
+    _queryMarkMailReady.clear();
+    db.close();
+
+    // Unregister the DB
+    QSqlDatabase::removeDatabase( QLatin1String("xtconnect-sqlstorage") );
+
+    open();
 }
 
 }
