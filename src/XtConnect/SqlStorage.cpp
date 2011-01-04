@@ -58,51 +58,48 @@ void SqlStorage::open()
     bool    readstdin = false;
 
     QStringList args = QCoreApplication::arguments();
-    for (int i = 1; i < args.length(); i++)
-    {
-      if (args.at(i) == "-h" && args.length() > i)
-        host = args.at(++i);
-      else if (args.at(i) == "-d" && args.length() > i)
-        dbname = args.at(++i);
-      else if (args.at(i) == "-p" && args.length() > i)
-        port = args.at(++i).toInt();
-      else if (args.at(i) == "-U" && args.length() > i)
-        username = args.at(++i);
-      else if (args.at(i) == "-W")
-        readstdin = true;
+    for ( int i = 1; i < args.length(); i++ ) {
+        if (args.at(i) == "-h" && args.length() > i)
+            host = args.at(++i);
+        else if (args.at(i) == "-d" && args.length() > i)
+            dbname = args.at(++i);
+        else if (args.at(i) == "-p" && args.length() > i)
+            port = args.at(++i).toInt();
+        else if (args.at(i) == "-U" && args.length() > i)
+            username = args.at(++i);
+        else if (args.at(i) == "-W")
+            readstdin = true;
     }
 
-    for (int i = 0; i < 3 && username.isEmpty() && readstdin; i++)
-    {
-      char *rawinput;
-      std::cout << "User: ";
-      std::cin >> rawinput;
-      username = QString(rawinput).trimmed();
+    for ( int i = 0; i < 3 && username.isEmpty() && readstdin; i++ ) {
+        char *rawinput;
+        std::cout << "User: ";
+        std::cin >> rawinput;
+        username = QString(rawinput).trimmed();
     }
 
-    for (int i = 0; i < 3 && password.isEmpty() && readstdin; i++)
-    {
-      char *rawinput;
-      std::cout << "Password: ";
-      std::cin >> rawinput;
-      password = QString(rawinput).trimmed();
+    for ( int i = 0; i < 3 && password.isEmpty() && readstdin; i++ ) {
+        char *rawinput;
+        std::cout << "Password: ";
+        std::cin >> rawinput;
+        password = QString(rawinput).trimmed();
     }
 
     db = QSqlDatabase::addDatabase( QLatin1String("QPSQL"), QLatin1String("xtconnect-sqlstorage") );
     if ( ! host.isEmpty() )
-      db.setHostName(host);
+        db.setHostName(host);
 
     if ( port != -1 )
-      db.setPort(port);
+        db.setPort(port);
 
     if ( ! dbname.isEmpty() )
-      db.setDatabaseName( dbname );
+        db.setDatabaseName( dbname );
 
     if ( ! username.isEmpty() )
-      db.setUserName( username );
+        db.setUserName( username );
 
     if ( ! password.isEmpty() )
-      db.setPassword( password );
+        db.setPassword( password );
 
     if ( ! db.open() ) {
         _fail( "Failed to open database connection", db );
