@@ -72,17 +72,17 @@ void SqlStorage::open()
     }
 
     for ( int i = 0; i < 3 && username.isEmpty() && readstdin; i++ ) {
-        char *rawinput;
+        std::string rawinput;
         std::cout << "User: ";
         std::cin >> rawinput;
-        username = QString(rawinput).trimmed();
+        username = QString(rawinput.c_str()).trimmed();
     }
 
     for ( int i = 0; i < 3 && password.isEmpty() && readstdin; i++ ) {
-        char *rawinput;
+        std::string rawinput;
         std::cout << "Password: ";
         std::cin >> rawinput;
-        password = QString(rawinput).trimmed();
+        password = QString(rawinput.c_str()).trimmed();
     }
 
     db = QSqlDatabase::addDatabase( QLatin1String("QPSQL"), QLatin1String("xtconnect-sqlstorage") );
