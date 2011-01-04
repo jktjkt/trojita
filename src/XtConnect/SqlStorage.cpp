@@ -28,7 +28,6 @@
 */
 
 #include "SqlStorage.h"
-#include <iostream>
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDebug>
@@ -72,17 +71,13 @@ void SqlStorage::open()
     }
 
     for ( int i = 0; i < 3 && username.isEmpty() && readstdin; i++ ) {
-        std::string rawinput;
-        std::cout << "User: ";
-        std::cin >> rawinput;
-        username = QString(rawinput.c_str()).trimmed();
+        QTextStream(stdout) << tr("Username: ");
+        username = QTextStream(stdin).readLine();
     }
 
     for ( int i = 0; i < 3 && password.isEmpty() && readstdin; i++ ) {
-        std::string rawinput;
-        std::cout << "Password: ";
-        std::cin >> rawinput;
-        password = QString(rawinput.c_str()).trimmed();
+        QTextStream(stdout) << tr("Password: ");
+        password = QTextStream(stdin).readLine();
     }
 
     db = QSqlDatabase::addDatabase( QLatin1String("QPSQL"), QLatin1String("xtconnect-sqlstorage") );
