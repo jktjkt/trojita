@@ -677,6 +677,8 @@ void MainWindow::nukeModels()
     mboxModel = 0;
     prettyMboxModel->deleteLater();
     prettyMboxModel = 0;
+    threadingMsgListModel->deleteLater();
+    threadingMsgListModel = 0;
     model->deleteLater();
     model = 0;
 }
