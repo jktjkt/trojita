@@ -44,7 +44,8 @@ class MessageDownloader : public QObject
 {
     Q_OBJECT
 public:
-    explicit MessageDownloader( QObject *parent );
+    /** @short Create a new downloader and inform it to ignore messages which belong to another mailbox */
+    explicit MessageDownloader( QObject *parent, const QString &mailboxName );
     /** @short Find out the body structure of a message and ask for relevant parts */
     void requestDownload( const QModelIndex &message );
     int pendingMessages() const;
@@ -98,6 +99,9 @@ main part can't be found, this function will return a string message mentioning 
 
     QMap<uint, MessageMetadata> m_parts;
     const QAbstractItemModel *lastModel;
+
+    /** @short Mailbox to which all messages got to belong */
+    QString registeredMailbox;
 
 };
 

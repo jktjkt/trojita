@@ -34,8 +34,8 @@
 
 namespace XtConnect {
 
-MessageDownloader::MessageDownloader(QObject *parent) :
-    QObject(parent), lastModel(0)
+MessageDownloader::MessageDownloader(QObject *parent, const QString &mailboxName ):
+    QObject(parent), lastModel(0), registeredMailbox(mailboxName)
 {
 }
 
@@ -46,6 +46,8 @@ void MessageDownloader::requestDownload( const QModelIndex &message )
         connect( lastModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(slotDataChanged(QModelIndex,QModelIndex)) );
     }
     Q_ASSERT(lastModel == message.model());
+
+    Q_ASSERT( message.parent().parent().data( Imap::Mailbox::RoleMailboxName ).toString() == registeredMailbox );
 
     MessageMetadata metaData;
 
@@ -92,6 +94,9 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
 
     QModelIndex message = Imap::Mailbox::Model::findMessageForItem( a );
     if ( ! message.isValid() )
+        return;
+
+    if ( message.parent().parent().data( Imap::Mailbox::RoleMailboxName ).toString() != registeredMailbox )
         return;
 
     const uint uid = message.data( Imap::Mailbox::RoleMessageUid ).toUInt();
