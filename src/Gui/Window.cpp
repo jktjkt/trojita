@@ -671,14 +671,14 @@ void MainWindow::nukeModels()
     mboxTree->setModel( 0 );
     msgListTree->setModel( 0 );
     allTree->setModel( 0 );
+    threadingMsgListModel->deleteLater();
+    threadingMsgListModel = 0;
     msgListModel->deleteLater();
     msgListModel = 0;
     mboxModel->deleteLater();
     mboxModel = 0;
     prettyMboxModel->deleteLater();
     prettyMboxModel = 0;
-    threadingMsgListModel->deleteLater();
-    threadingMsgListModel = 0;
     model->deleteLater();
     model = 0;
 }
