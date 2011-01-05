@@ -37,7 +37,7 @@ namespace XtConnect {
 /** @short Download messages from the IMAP server
 
 This class is responsible for requesting message structure, finding out the "most interesting part",
-downloading all required parts and finally makeing the data retrieved so far available to other
+downloading all required parts and finally making the data retrieved so far available to other
 parts of the application.
 */
 class MessageDownloader : public QObject

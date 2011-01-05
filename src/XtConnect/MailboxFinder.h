@@ -53,7 +53,7 @@ listing, nesting as needed. When the mailbox is found, the mailboxFound() slot w
 When there's a problem finding that mailbox, no signal will be emitted. This is related to how the
 Model currently works, because the Tasks have no way of informing the user that they failed.
 
-In addition, the MailboxFinder works purely on MVC layer, so it has no IMAP knowledge besides custo
+In addition, the MailboxFinder works purely on MVC layer, so it has no IMAP knowledge besides custom
 item roles.
 */
 class MailboxFinder : public QObject
