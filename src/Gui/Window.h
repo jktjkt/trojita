@@ -43,6 +43,7 @@ class MailboxModel;
 class MsgListModel;
 class PrettyMailboxModel;
 class ThreadingMsgListModel;
+class PrettyMsgListModel;
 
 }
 }
@@ -130,6 +131,7 @@ private:
     Imap::Mailbox::PrettyMailboxModel* prettyMboxModel;
     Imap::Mailbox::MsgListModel* msgListModel;
     Imap::Mailbox::ThreadingMsgListModel* threadingMsgListModel;
+    Imap::Mailbox::PrettyMsgListModel* prettyMsgListModel;
 
     QTreeView* mboxTree;
     MsgListView* msgListTree;
