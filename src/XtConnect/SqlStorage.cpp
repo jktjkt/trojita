@@ -28,18 +28,16 @@
 */
 
 #include "SqlStorage.h"
-#include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDebug>
 #include <QSqlError>
-#include <QStringList>
 #include <QTimer>
 #include <QVariant>
 
 namespace XtConnect {
 
-SqlStorage::SqlStorage(QObject *parent) :
-    QObject(parent)
+SqlStorage::SqlStorage(QObject *parent, const QString &host, const int port, const QString &dbname, const QString &username, const QString &password ) :
+    QObject(parent), _host(host), _port(port), _dbname(dbname), _username(username), _password(password)
 {
     reconnect = new QTimer( this );
     reconnect->setSingleShot( true );
@@ -49,52 +47,21 @@ SqlStorage::SqlStorage(QObject *parent) :
 
 void SqlStorage::open()
 {
-    QString host;
-    int     port = -1;
-    QString dbname;
-    QString username;
-    QString password;
-    bool    readstdin = false;
-
-    QStringList args = QCoreApplication::arguments();
-    for ( int i = 1; i < args.length(); i++ ) {
-        if (args.at(i) == "-h" && args.length() > i)
-            host = args.at(++i);
-        else if (args.at(i) == "-d" && args.length() > i)
-            dbname = args.at(++i);
-        else if (args.at(i) == "-p" && args.length() > i)
-            port = args.at(++i).toInt();
-        else if (args.at(i) == "-U" && args.length() > i)
-            username = args.at(++i);
-        else if (args.at(i) == "-W")
-            readstdin = true;
-    }
-
-    for ( int i = 0; i < 3 && username.isEmpty() && readstdin; i++ ) {
-        QTextStream(stdout) << tr("Username: ");
-        username = QTextStream(stdin).readLine();
-    }
-
-    for ( int i = 0; i < 3 && password.isEmpty() && readstdin; i++ ) {
-        QTextStream(stdout) << tr("Password: ");
-        password = QTextStream(stdin).readLine();
-    }
-
     db = QSqlDatabase::addDatabase( QLatin1String("QPSQL"), QLatin1String("xtconnect-sqlstorage") );
-    if ( ! host.isEmpty() )
-        db.setHostName(host);
+    if ( ! _host.isEmpty() )
+        db.setHostName(_host);
 
-    if ( port != -1 )
-        db.setPort(port);
+    if ( _port != -1 )
+        db.setPort(_port);
 
-    if ( ! dbname.isEmpty() )
-        db.setDatabaseName( dbname );
+    if ( ! _dbname.isEmpty() )
+        db.setDatabaseName( _dbname );
 
-    if ( ! username.isEmpty() )
-        db.setUserName( username );
+    if ( ! _username.isEmpty() )
+        db.setUserName( _username );
 
-    if ( ! password.isEmpty() )
-        db.setPassword( password );
+    if ( ! _password.isEmpty() )
+        db.setPassword( _password );
 
     if ( ! db.open() ) {
         _fail( "Failed to open database connection", db );

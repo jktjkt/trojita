@@ -29,6 +29,7 @@
 
 #include "XtConnect.h"
 #include <QAuthenticator>
+#include <QCoreApplication>
 #include <QDir>
 #include <QDebug>
 #include <QSettings>
@@ -50,11 +51,38 @@ XtConnect::XtConnect(QObject *parent, QSettings *s) :
     if ( ! m_settings->contains( Common::SettingsNames::xtConnectCacheDirectory ) ) {
         qFatal("The service is not configured yet. Please use the Trojita GUI for configuration.");
     }
+
+    QString host = s->value( Common::SettingsNames::xtDbHost ).toString();
+    int port = s->value( Common::SettingsNames::xtDbPort, QVariant(5432) ).toInt();
+    QString dbname = s->value( Common::SettingsNames::xtDbDbName ).toString();
+    QString username = s->value( Common::SettingsNames::xtDbUser ).toString();
+    QString password;
+    bool readstdin = false;
+
+    QStringList args = QCoreApplication::arguments();
+    for ( int i = 1; i < args.length(); i++ ) {
+        if (args.at(i) == "-h" && args.length() > i)
+            host = args.at(++i);
+        else if (args.at(i) == "-d" && args.length() > i)
+            dbname = args.at(++i);
+        else if (args.at(i) == "-p" && args.length() > i)
+            port = args.at(++i).toInt();
+        else if (args.at(i) == "-U" && args.length() > i)
+            username = args.at(++i);
+        else if (args.at(i) == "-W")
+            readstdin = true;
+    }
+
+    for ( int i = 0; i < 3 && password.isEmpty() && readstdin; i++ ) {
+        QTextStream(stdout) << tr("Password: ");
+        password = QTextStream(stdin).readLine();
+    }
+
     setupModels();
 
     // Prepare the mailboxes
     m_finder = new MailboxFinder( this, m_model );
-    SqlStorage *storage = new SqlStorage(this);
+    SqlStorage *storage = new SqlStorage( this, host, port, dbname, username, password );
     storage->open();
 
     QTimer *statsDumper = new QTimer(this);

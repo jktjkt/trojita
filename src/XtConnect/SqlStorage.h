@@ -49,7 +49,7 @@ public:
 
     typedef enum { RESULT_OK, RESULT_DUPLICATE, RESULT_ERROR } ResultType;
 
-    explicit SqlStorage(QObject *parent = 0);
+    explicit SqlStorage(QObject *parent, const QString &host, const int port, const QString &dbname, const QString &username, const QString &password);
     void open();
 
     /** @short Save mail data to the "eml" table */
@@ -79,6 +79,12 @@ private:
     QSqlQuery _queryMarkMailReady;
 
     QTimer *reconnect;
+
+    QString _host;
+    int _port;
+    QString _dbname;
+    QString _username;
+    QString _password;
 };
 
 }
