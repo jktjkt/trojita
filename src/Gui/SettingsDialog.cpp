@@ -468,7 +468,7 @@ void XtConnectPage::runXtConnect()
     QString password = QInputDialog::getText( this, tr("Database Connection"), tr("Password"), QLineEdit::Password );
     args << QLatin1String("-W") << password;
 
-    QProcess::execute( cmd, args );
+    QProcess::startDetached( cmd, args );
 }
 #endif
 
