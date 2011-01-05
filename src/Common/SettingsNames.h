@@ -36,7 +36,8 @@ struct SettingsNames
     static QString cacheMetadataKey, cacheMetadataMemory, cacheMetadataPersistent,
             cacheOfflineKey, cacheOfflineNone, cacheOfflineXDays, cacheOfflineXMessages,
             cacheOfflineAll, cacheOfflineNumberDaysKey, cacheOfflineNumberMessagesKey;
-    static QString xtConnectCacheDirectory, xtSyncMailboxList;
+    static QString xtConnectCacheDirectory, xtSyncMailboxList, xtDbHost, xtDbPort,
+            xtDbDbName, xtDbUser;
 };
 
 }

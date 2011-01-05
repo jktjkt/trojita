@@ -57,5 +57,10 @@ QString SettingsNames::cacheOfflineNumberDaysKey = QLatin1String("offline.sync.d
 QString SettingsNames::cacheOfflineNumberMessagesKey = QLatin1String("offline.sync.messages");
 QString SettingsNames::xtConnectCacheDirectory = QLatin1String("xtconnect.cachedir");
 QString SettingsNames::xtSyncMailboxList = QLatin1String("xtconnect.listOfMailboxes");
+QString SettingsNames::xtDbHost = QLatin1String("xtconnect.db.hostname");
+QString SettingsNames::xtDbPort = QLatin1String("xtconnect.db.port");
+QString SettingsNames::xtDbDbName = QLatin1String("xtconnect.db.dbname");
+QString SettingsNames::xtDbUser = QLatin1String("xtconnect.db.username");
+
 
 }

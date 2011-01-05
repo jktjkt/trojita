@@ -23,12 +23,14 @@
 #include <QDialogButtonBox>
 #include <QFormLayout>
 #include <QGroupBox>
+#include <QInputDialog>
 #include <QLineEdit>
 #include <QListWidget>
 #include <QRadioButton>
 #include <QSpinBox>
 #include <QTabWidget>
 #include <QVBoxLayout>
+#include <QProcess>
 #include <QPushButton>
 #include <QResizeEvent>
 #include <QDebug>
@@ -395,20 +397,78 @@ XtConnectPage::XtConnectPage( QWidget* parent, QSettings& s, ImapPage* imapPage 
     mailboxes->setToolTip( tr("Please use context menu inside the main application to select mailboxes to synchronize") );
     boxLayout->addWidget( mailboxes );
     layout->addRow( box );
+
+    hostName = new QLineEdit( s.value( Common::SettingsNames::xtDbHost ).toString() );
+    layout->addRow( tr("DB Hostname"), hostName );
+    port = new QSpinBox();
+    port->setRange( 1, 65535 );
+    port->setValue( s.value( Common::SettingsNames::xtDbPort, QVariant( 5432 ) ).toInt() );
+    layout->addRow( tr("DB Port"), port );
+    dbName = new QLineEdit( s.value( Common::SettingsNames::xtDbDbName ).toString() );
+    layout->addRow( tr("DB Name"), dbName );
+    username = new QLineEdit( s.value( Common::SettingsNames::xtDbUser ).toString() );
+    layout->addRow( tr("DB Username"), username );
+    btn = new QPushButton( tr("Run xTuple Synchronization") );
+    connect( btn, SIGNAL(clicked()), this, SLOT(runXtConnect()) );
+    layout->addRow( btn );
 }
 
 void XtConnectPage::save( QSettings& s )
 {
     s.setValue( Common::SettingsNames::xtConnectCacheDirectory, cacheDir->text() );
+    s.setValue( Common::SettingsNames::xtDbHost, hostName->text() );
+    s.setValue( Common::SettingsNames::xtDbPort, port->value() );
+    s.setValue( Common::SettingsNames::xtDbDbName, dbName->text() );
+    s.setValue( Common::SettingsNames::xtDbUser, username->text() );
 }
 
 void XtConnectPage::saveXtConfig()
 {
     QSettings s( QString::fromAscii("xtuple.com"), QString::fromAscii("xtconnect-trojita") );
-    s.setValue( Common::SettingsNames::xtConnectCacheDirectory, cacheDir->text() );
-    s.setValue( Common::SettingsNames::xtSyncMailboxList, QSettings().value( Common::SettingsNames::xtSyncMailboxList ) );
+
+    // Copy the IMAP settings
     Q_ASSERT(imap);
     imap->save( s );
+
+    // XtConnect-specific stuff
+    s.setValue( Common::SettingsNames::xtConnectCacheDirectory, cacheDir->text() );
+    QStringList keys = QStringList() <<
+                       Common::SettingsNames::xtSyncMailboxList <<
+                       Common::SettingsNames::xtDbHost <<
+                       Common::SettingsNames::xtDbPort <<
+                       Common::SettingsNames::xtDbDbName <<
+                       Common::SettingsNames::xtDbUser;
+    Q_FOREACH( const QString &key, keys ) {
+        s.setValue( key, QSettings().value( key ) );
+    }
+}
+
+void XtConnectPage::runXtConnect()
+{
+    QString path = QCoreApplication::applicationFilePath().replace(
+            QLatin1String("src/Gui/trojita"),
+            QLatin1String("src/XtConnect/xtconnect-trojita") );
+    QStringList args;
+
+    args << QLatin1String("-e") << path;
+    QString cmd = QLatin1String("xterm");
+
+    if ( ! hostName->text().isEmpty() )
+        args << QLatin1String("-h") << hostName->text();
+
+    if ( port->value() != 5432 )
+        args << QLatin1String("-p") << QString::number( port->value() );
+
+    if ( ! dbName->text().isEmpty() )
+        args << QLatin1String("-d") << dbName->text();
+
+    if ( ! username->text().isEmpty() )
+        args << QLatin1String("-U") << username->text();
+
+    QString password = QInputDialog::getText( this, tr("Database Connection"), tr("Password"), QLineEdit::Password );
+    args << QLatin1String("-W") << password;
+
+    QProcess::execute( cmd, args );
 }
 #endif
 

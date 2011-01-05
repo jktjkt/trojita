@@ -124,9 +124,15 @@ public:
     void save( QSettings& s );
 public slots:
     void saveXtConfig();
+    void runXtConnect();
 private:
     QLineEdit* cacheDir;
     QPointer<ImapPage> imap;
+
+    QLineEdit *hostName;
+    QSpinBox *port;
+    QLineEdit *dbName;
+    QLineEdit *username;
 
     XtConnectPage(const XtConnectPage&); // don't implement
     XtConnectPage& operator=(const XtConnectPage&); // don't implement
