@@ -414,7 +414,7 @@ void MainWindow::setupModels()
     //ModelTest* tester = new ModelTest( prettyMboxModel, this ); // when testing, test just one model at time
 
     mboxTree->setModel( prettyMboxModel );
-    msgListTree->setModel( threadingMsgListModel ); // FIXME: fix the asserts at various places of this file...
+    msgListTree->setModel( threadingMsgListModel );
     connect( msgListTree->selectionModel(), SIGNAL( selectionChanged( const QItemSelection&, const QItemSelection& ) ),
              this, SLOT( msgListSelectionChanged( const QItemSelection&, const QItemSelection& ) ) );
 
