@@ -51,7 +51,7 @@ void SqlStorage::open()
     if ( ! _host.isEmpty() )
         db.setHostName(_host);
 
-    if ( _port != -1 )
+    if ( _port != 5432 && _port > 0 && _port < 65536 )
         db.setPort(_port);
 
     if ( ! _dbname.isEmpty() )
