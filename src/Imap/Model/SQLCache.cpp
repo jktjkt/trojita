@@ -37,6 +37,9 @@ SQLCache::SQLCache( QObject* parent ):
 
 void SQLCache::init()
 {
+#ifdef CACHE_DEBUG
+    qDebug() << "SQLCache::init()";
+#endif
     if ( delayedCommit )
         delayedCommit->deleteLater();
     Q_ASSERT(parent());
@@ -68,6 +71,9 @@ SQLCache::~SQLCache()
 
 bool SQLCache::open( const QString& name, const QString& fileName )
 {
+#ifdef CACHE_DEBUG
+    qDebug() << "SQLCache::open()";
+#endif
     db = QSqlDatabase::addDatabase( QLatin1String("QSQLITE"), name );
     db.setDatabaseName( fileName );
 
@@ -110,6 +116,9 @@ bool SQLCache::open( const QString& name, const QString& fileName )
         return false;
     }
     init();
+#ifdef CACHE_DEBUG
+    qDebug() << "SQLCache::open() succeeded";
+#endif
     return true;
 }
 
@@ -320,6 +329,9 @@ bool SQLCache::_prepareQueries()
         return false;
     }
 
+#ifdef CACHE_DEBUG
+    qDebug() << "SQLCache::_prepareQueries() succeded";
+#endif
     return true;
 }
 
