@@ -189,60 +189,8 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
                 default:
                     return QVariant();
             }
-        case Qt::TextAlignmentRole:
-            switch ( proxyIndex.column() ) {
-                case SIZE:
-                    return Qt::AlignRight;
-                default:
-                    return QVariant();
-            }
-        case Qt::DecorationRole:
-                switch ( proxyIndex.column() ) {
-                case SUBJECT:
-                    if ( ! message->fetched() )
-                        return QVariant();
-                    if ( message->isMarkedAsDeleted() )
-                        return QIcon::fromTheme( QLatin1String("mail-deleted"),
-                                                 QIcon( QLatin1String(":/icons/mail-deleted.png") ) );
-                    else if ( message->isMarkedAsForwarded() && message->isMarkedAsReplied() )
-                        return QIcon::fromTheme( QLatin1String("mail-replied-forw"),
-                                                 QIcon( QLatin1String(":/icons/mail-replied-forw.png") ) );
-                    else if ( message->isMarkedAsReplied() )
-                        return QIcon::fromTheme( QLatin1String("mail-replied"),
-                                                 QIcon( QLatin1String(":/icons/mail-replied.png") ) );
-                    else if ( message->isMarkedAsForwarded() )
-                        return QIcon::fromTheme( QLatin1String("mail-forwarded"),
-                                                 QIcon( QLatin1String(":/icons/mail-forwarded.png") ) );
-                    else if ( message->isMarkedAsRecent() )
-                        return QIcon::fromTheme( QLatin1String("mail-recent"),
-                                                 QIcon( QLatin1String(":/icons/mail-recent.png") ) );
-                    else
-                        return QIcon( QLatin1String(":/icons/transparent.png") );
-                case SEEN:
-                    if ( ! message->fetched() )
-                        return QVariant();
-                    if ( ! message->isMarkedAsRead() )
-                        return QIcon( QLatin1String(":/icons/mail-unread.png") );
-                    else
-                        return QIcon( QLatin1String(":/icons/mail-read.png") );
-                default:
-                    return QVariant();
-                }
-        case Qt::FontRole:
-            {
-                TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( Model::realTreeItem( proxyIndex ) );
-                Q_ASSERT( message );
 
-                if ( ! message->fetched() )
-                    return QVariant();
-
-                QFont font;
-                if ( message->isMarkedAsDeleted() )
-                    font.setStrikeOut( true );
-                if ( ! message->isMarkedAsRead() )
-                    font.setBold( true );
-                return font;
-            }
+        case RoleIsFetched:
         case RoleMessageUid:
         case RoleMessageIsMarkedDeleted:
         case RoleMessageIsMarkedRead:

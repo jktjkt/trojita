@@ -19,7 +19,7 @@
    Boston, MA 02110-1301, USA.
 */
 #include "PrettyMsgListModel.h"
-#include "MailboxModel.h"
+#include "MsgListModel.h"
 #include "ItemRoles.h"
 
 #include <QFont>
@@ -44,6 +44,71 @@ QVariant PrettyMsgListModel::data( const QModelIndex& index, int role ) const
 
     if ( index.row() < 0 || index.row() >= rowCount( index.parent() ) )
         return QVariant();
+
+    QModelIndex translated = mapToSource( index );
+
+    switch ( role ) {
+
+    case Qt::TextAlignmentRole:
+        switch ( index.column() ) {
+        case MsgListModel::SIZE:
+            return Qt::AlignRight;
+        default:
+            return QVariant();
+        }
+
+    case Qt::DecorationRole:
+        switch ( index.column() ) {
+        case MsgListModel::SUBJECT:
+            {
+            if ( ! translated.data( RoleIsFetched ).toBool() )
+                return QVariant();
+
+            bool isForwarded = translated.data( RoleMessageIsMarkedForwarded ).toBool();
+            bool isReplied = translated.data( RoleMessageIsMarkedReplied ).toBool();
+
+            if ( translated.data( RoleMessageIsMarkedDeleted ).toBool() )
+                return QIcon::fromTheme( QLatin1String("mail-deleted"),
+                                         QIcon( QLatin1String(":/icons/mail-deleted.png") ) );
+            else if ( isForwarded && isReplied )
+                return QIcon::fromTheme( QLatin1String("mail-replied-forw"),
+                                         QIcon( QLatin1String(":/icons/mail-replied-forw.png") ) );
+            else if ( isReplied )
+                return QIcon::fromTheme( QLatin1String("mail-replied"),
+                                         QIcon( QLatin1String(":/icons/mail-replied.png") ) );
+            else if ( isForwarded )
+                return QIcon::fromTheme( QLatin1String("mail-forwarded"),
+                                         QIcon( QLatin1String(":/icons/mail-forwarded.png") ) );
+            else if ( translated.data( RoleMessageIsMarkedRecent ).toBool() )
+                return QIcon::fromTheme( QLatin1String("mail-recent"),
+                                         QIcon( QLatin1String(":/icons/mail-recent.png") ) );
+            else
+                return QIcon( QLatin1String(":/icons/transparent.png") );
+            }
+        case MsgListModel::SEEN:
+            if ( ! translated.data( RoleIsFetched ).toBool() )
+                return QVariant();
+            if ( ! translated.data( RoleMessageIsMarkedRead ).toBool() )
+                return QIcon( QLatin1String(":/icons/mail-unread.png") );
+            else
+                return QIcon( QLatin1String(":/icons/mail-read.png") );
+        default:
+            return QVariant();
+        }
+
+    case Qt::FontRole:
+        {
+            if ( ! translated.data( RoleIsFetched ).toBool() )
+                return QVariant();
+
+            QFont font;
+            if ( translated.data( RoleMessageIsMarkedDeleted ).toBool() )
+                font.setStrikeOut( true );
+            if ( ! translated.data( RoleMessageIsMarkedRead ).toBool() )
+                font.setBold( true );
+            return font;
+        }
+    }
 
     return QSortFilterProxyModel::data( index, role );
 }
