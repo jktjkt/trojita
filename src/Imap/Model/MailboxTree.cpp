@@ -687,6 +687,10 @@ QVariant TreeItemMessage::data( Model* const model, int role )
     if ( role == RoleIsFetched )
         return fetched();
 
+    // FLAGS shouldn't trigger message fetching, either
+    if ( role == RoleMessageFlags )
+        return _flags;
+
     fetch( model );
 
     switch ( role ) {
@@ -745,8 +749,6 @@ QVariant TreeItemMessage::data( Model* const model, int role )
             return envelope( model ).messageId;
         case RoleMessageSubject:
             return envelope( model ).subject;
-        case RoleMessageFlags:
-            return _flags;
         default:
             return QVariant();
     }
