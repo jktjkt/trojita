@@ -44,9 +44,11 @@ private slots:
     void testSyncTwoInParallel();
     void testResyncNoArrivals();
     void testResyncOneNew();
+    void testResyncUidValidity();
 
 private:
     void helperSyncAWithMessagesEmptyState();
+    void helperSyncAFullSync();
     void helperSyncBNoMessages();
     void helperSyncAWithMessagesNoArrivals();
     void helperSyncFlags();

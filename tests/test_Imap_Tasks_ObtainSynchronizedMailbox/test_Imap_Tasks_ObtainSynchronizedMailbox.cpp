@@ -268,6 +268,12 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesEmptyState()
     QCOMPARE( model->rowCount( msgListA ), 0 );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+
+    helperSyncAFullSync();
+}
+
+void ImapModelObtainSynchronizedMailboxTest::helperSyncAFullSync()
+{
     QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
 
     helperFakeExistsUidValidityUidNext();
@@ -672,6 +678,29 @@ void ImapModelObtainSynchronizedMailboxTest::helperCheckCache()
 
     QVERIFY( errorSpy->isEmpty() );
     QVERIFY( SOCK->writtenStuff().isEmpty() );
+}
+
+
+void ImapModelObtainSynchronizedMailboxTest::testResyncUidValidity()
+{
+    existsA = 42;
+    uidValidityA = 1337;
+    for ( uint i = 1; i <= existsA; ++i ) {
+        uidMapA.append( 6 + i * 3.6 );
+    }
+    uidNextA = qMax( 666u, uidMapA.last() );
+    helperSyncAWithMessagesEmptyState();
+
+    // Change UIDVALIDITY
+    uidValidityA = 333666;
+    helperSyncBNoMessages();
+
+    QCOMPARE( model->rowCount( msgListA ), 42 );
+    model->switchToMailbox( idxA );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+
+    helperSyncAFullSync();
 }
 
 

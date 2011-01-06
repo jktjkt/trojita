@@ -193,6 +193,7 @@ void ObtainSynchronizedMailboxTask::_finalizeSelect()
 void ObtainSynchronizedMailboxTask::_fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState )
 {
     model->cache()->clearUidMapping( mailbox->mailbox() );
+    model->cache()->setMailboxSyncState( mailbox->mailbox(), SyncState() );
 
     QModelIndex parent = model->createIndex( 0, 0, list );
     if ( ! list->_children.isEmpty() ) {
