@@ -108,7 +108,18 @@ QString MailAddress::prettyList( const QList<MailAddress>& list, FormattingMode 
     return buf.join( QString::fromAscii(", ") );
 }
 
-
+QString MailAddress::prettyList( const QVariantList& list, FormattingMode mode )
+{
+    QStringList buf;
+    for ( QVariantList::const_iterator it = list.begin(); it != list.end(); ++it ) {
+        Q_ASSERT(it->type() == QVariant::StringList);
+        QStringList item = it->toStringList();
+        Q_ASSERT(item.size() == 4);
+        MailAddress a( item[0], item[1], item[2], item[3] );
+        buf << a.prettyName( mode );
+    }
+    return buf.join( QString::fromAscii(", ") );
+}
 
 Envelope Envelope::fromList( const QVariantList& items, const QByteArray& line, const int start )
 {

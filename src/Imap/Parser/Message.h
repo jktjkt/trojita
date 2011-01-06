@@ -74,6 +74,7 @@ namespace Message {
         QString prettyName( FormattingMode mode ) const;
 
         static QString prettyList( const QList<MailAddress>& list, FormattingMode mode );
+        static QString prettyList( const QVariantList& list, FormattingMode mode );
     };
 
     /** @short Storage for envelope */

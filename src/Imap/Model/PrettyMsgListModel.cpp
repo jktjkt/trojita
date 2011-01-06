@@ -53,6 +53,15 @@ QVariant PrettyMsgListModel::data( const QModelIndex& index, int role ) const
     case Qt::DisplayRole:
     case Qt::ToolTipRole:
         switch ( index.column() ) {
+        case MsgListModel::TO:
+        case MsgListModel::FROM:
+            {
+                QVariantList items = translated.data(
+                        index.column() == MsgListModel::TO ? RoleMessageTo : RoleMessageFrom ).toList();
+                return Imap::Message::MailAddress::prettyList( items, role == Qt::DisplayRole ?
+                                                               Imap::Message::MailAddress::FORMAT_JUST_NAME :
+                                                               Imap::Message::MailAddress::FORMAT_READABLE );
+            }
         case MsgListModel::DATE:
             {
                 QDateTime res = translated.data( RoleMessageDate ).toDateTime();

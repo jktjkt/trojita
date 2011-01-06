@@ -168,13 +168,9 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
                 case SUBJECT:
                     return QAbstractProxyModel::data( proxyIndex, Qt::DisplayRole );
                 case FROM:
-                    return Imap::Message::MailAddress::prettyList(
-                            message->envelope( static_cast<Model*>( sourceModel() ) ).from,
-                            role == Qt::DisplayRole ? Imap::Message::MailAddress::FORMAT_JUST_NAME : Imap::Message::MailAddress::FORMAT_READABLE );
+                    return QString::fromAscii("[from]");
                 case TO:
-                    return Imap::Message::MailAddress::prettyList(
-                            message->envelope( static_cast<Model*>( sourceModel() ) ).to,
-                            role == Qt::DisplayRole ? Imap::Message::MailAddress::FORMAT_JUST_NAME : Imap::Message::MailAddress::FORMAT_READABLE );
+                    return QString::fromAscii("[to]");
                 case DATE:
                     return message->envelope( static_cast<Model*>( sourceModel() ) ).date;
                 case SIZE:
