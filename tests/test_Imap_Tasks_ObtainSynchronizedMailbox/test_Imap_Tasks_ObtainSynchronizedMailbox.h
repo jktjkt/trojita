@@ -59,6 +59,8 @@ private:
     void helperVerifyUidMapA();
     void helperCheckCache();
 
+    void helperOneFlagUpdate( const QModelIndex &message );
+
 
     Imap::Mailbox::Model* model;
     Imap::Mailbox::FakeSocketFactory* factory;

@@ -242,6 +242,7 @@ void ImapModelObtainSynchronizedMailboxTest::testResyncNoArrivals()
     helperSyncBNoMessages();
     helperSyncAWithMessagesNoArrivals();
     helperVerifyUidMapA();
+    helperOneFlagUpdate( idxA.child( 0,0 ).child( 10, 0 ) );
 }
 
 void ImapModelObtainSynchronizedMailboxTest::testResyncOneNew()
@@ -417,6 +418,14 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncFlags()
     }
     SOCK->fakeReading( buf + t.last("OK yay\r\n") );
     QCoreApplication::processEvents();
+}
+
+void ImapModelObtainSynchronizedMailboxTest::helperOneFlagUpdate( const QModelIndex &message )
+{
+    SOCK->fakeReading( QString::fromAscii("* %1 FETCH (FLAGS (\\Seen foo bar))\r\n").arg( message.row() + 1 ).toAscii() );
+    QCoreApplication::processEvents();
+    QVERIFY( message.data( Imap::Mailbox::RoleMessageFlags ).toStringList() == QStringList() << QLatin1String("\\Seen") << QLatin1String("foo") << QLatin1String("bar") );
+    QVERIFY(errorSpy->isEmpty());
 }
 
 void ImapModelObtainSynchronizedMailboxTest::helperSyncASomeNew( int number )
