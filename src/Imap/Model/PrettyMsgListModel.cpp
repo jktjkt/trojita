@@ -21,6 +21,7 @@
 #include "PrettyMsgListModel.h"
 #include "MsgListModel.h"
 #include "ItemRoles.h"
+#include "Utils.h"
 
 #include <QFont>
 #include <QIcon>
@@ -48,6 +49,23 @@ QVariant PrettyMsgListModel::data( const QModelIndex& index, int role ) const
     QModelIndex translated = mapToSource( index );
 
     switch ( role ) {
+
+    case Qt::DisplayRole:
+    case Qt::ToolTipRole:
+        switch ( index.column() ) {
+        case MsgListModel::DATE:
+            {
+                QDateTime res = translated.data( RoleMessageDate ).toDateTime();
+                if ( res.date() == QDate::currentDate() )
+                    return res.time().toString( Qt::SystemLocaleShortDate );
+                else
+                    return res.toString( Qt::SystemLocaleShortDate );
+            }
+        case MsgListModel::SIZE:
+            return PrettySize::prettySize( translated.data( RoleMessageSize ).toUInt() );
+        }
+        break;
+
 
     case Qt::TextAlignmentRole:
         switch ( index.column() ) {

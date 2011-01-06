@@ -22,7 +22,6 @@
 #include "MsgListModel.h"
 #include "MailboxTree.h"
 #include "MailboxModel.h"
-#include "Utils.h"
 
 #include <QApplication>
 #include <QDebug>
@@ -177,15 +176,9 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
                             message->envelope( static_cast<Model*>( sourceModel() ) ).to,
                             role == Qt::DisplayRole ? Imap::Message::MailAddress::FORMAT_JUST_NAME : Imap::Message::MailAddress::FORMAT_READABLE );
                 case DATE:
-                {
-                    QDateTime res = message->envelope( static_cast<Model*>( sourceModel() ) ).date;
-                    if ( res.date() == QDate::currentDate() )
-                        return res.time().toString( Qt::SystemLocaleShortDate );
-                    else
-                        return res.toString( Qt::SystemLocaleShortDate );
-                }
+                    return message->envelope( static_cast<Model*>( sourceModel() ) ).date;
                 case SIZE:
-                    return PrettySize::prettySize( message->size( static_cast<Model*>( sourceModel() ) ) );
+                    return message->size( static_cast<Model*>( sourceModel() ) );
                 default:
                     return QVariant();
             }
