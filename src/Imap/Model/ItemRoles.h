@@ -33,6 +33,9 @@ enum {
     /** @short A "random" offset */
     RoleBase = Qt::UserRole + 666,
 
+    /** @short Is the item already fetched? */
+    RoleIsFetched,
+
     /** @short Name of the mailbox */
     RoleMailboxName,
     /** @short Short name of the mailbox */

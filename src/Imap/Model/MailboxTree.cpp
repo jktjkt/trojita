@@ -181,6 +181,8 @@ QVariant TreeItemMailbox::data( Model* const model, int role )
         QString res = separator().isEmpty() ? mailbox() : mailbox().split( separator(), QString::SkipEmptyParts ).last();
         return loading() ? res + " [loading]" : res;
     }
+    case RoleIsFetched:
+        return fetched();
     case RoleShortMailboxName:
         return separator().isEmpty() ? mailbox() : mailbox().split( separator(), QString::SkipEmptyParts ).last();
     case RoleMailboxName:
@@ -555,6 +557,9 @@ unsigned int TreeItemMsgList::rowCount( Model* const model )
 
 QVariant TreeItemMsgList::data( Model* const model, int role )
 {
+    if ( role == RoleIsFetched )
+        return fetched();
+
     if ( role != Qt::DisplayRole )
         return QVariant();
 
@@ -677,6 +682,10 @@ QVariant TreeItemMessage::data( Model* const model, int role )
     // This one is special, UID doesn't depend on fetch() and should not trigger it, either
     if ( role == RoleMessageUid )
         return _uid ? QVariant(_uid) : QVariant();
+
+    // The same for RoleIsFetched
+    if ( role == RoleIsFetched )
+        return fetched();
 
     fetch( model );
 
@@ -863,6 +872,8 @@ QVariant TreeItemPart::data( Model* const model, int role )
 
     // these data are available immediately
     switch ( role ) {
+    case RoleIsFetched:
+        return fetched();
     case RolePartMimeType:
         return _mimeType;
     case RolePartCharset:
