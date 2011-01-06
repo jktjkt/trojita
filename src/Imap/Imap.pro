@@ -5,11 +5,13 @@ DEFINES -= QT3_SUPPORT
 INCLUDEPATH += ../ \
     ../.. \
     Model \
-    Tasks
+    Tasks \
+    .
 DEPENDPATH += ../ \
     ../.. \
     Model \
-    Tasks
+    Tasks \
+    .
 TARGET = Imap
 TEMPLATE = lib
 SOURCES += Parser/Parser.cpp \
