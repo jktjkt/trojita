@@ -93,6 +93,8 @@ enum {
     RoleMessageIsMarkedReplied,
     /** @short Is the message marked as a recent one? */
     RoleMessageIsMarkedRecent,
+    /** @short IMAP flags of a message */
+    RoleMessageFlags,
 
     /** @short Contents of a message part */
     RolePartData,
