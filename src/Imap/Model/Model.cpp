@@ -638,7 +638,6 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
 
     Q_ASSERT( item->_children.size() == 0 );
 
-    bool cacheOk = false;
     QList<uint> uidMapping = cache()->uidMapping( mailbox );
     if ( networkPolicy() == NETWORK_OFFLINE && uidMapping.size() != item->_totalMessageCount ) {
         qDebug() << "UID cache stale for mailbox" << mailbox <<
@@ -655,7 +654,6 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
             item->_children << message;
         }
         endInsertRows();
-        cacheOk = true;
         item->_fetchStatus = TreeItem::DONE; // required for FETCH processing later on
     }
 

@@ -278,13 +278,11 @@ void ThreadingMsgListModel::resetMe()
 
 void ThreadingMsgListModel::updateNoThreading()
 {
-    bool containedSomething = false;
     if ( ! _threading.isEmpty() ) {
         beginRemoveRows( QModelIndex(), 0, rowCount() );
         _threading.clear();
         uidToInternal.clear();
         endRemoveRows();
-        containedSomething = true;
     }
 
     int upstreamMessages = sourceModel()->rowCount();
