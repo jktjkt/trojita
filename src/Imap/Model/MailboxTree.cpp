@@ -199,6 +199,8 @@ QVariant TreeItemMailbox::data( Model* const model, int role )
         return list->numbersFetched();
     case RoleTotalMessageCount:
     {
+        if ( ! isSelectable() )
+            return QVariant();
         // At first, register that request for count
         int res = list->totalMessageCount( model );
         // ...and now that it's been sent, display a number if it's available
@@ -206,6 +208,8 @@ QVariant TreeItemMailbox::data( Model* const model, int role )
     }
     case RoleUnreadMessageCount:
     {
+        if ( ! isSelectable() )
+            return QVariant();
         // This one is similar to the case of RoleTotalMessageCount
         int res = list->unreadMessageCount( model );
         return list->numbersFetched() ? QVariant(res): QVariant();
