@@ -56,6 +56,7 @@ void ThreadingMsgListModel::setSourceModel( QAbstractItemModel *sourceModel )
              this, SLOT( handleRowsAboutToBeInserted(const QModelIndex&, int,int ) ) );
     connect( sourceModel, SIGNAL( rowsInserted( const QModelIndex&, int, int ) ),
              this, SLOT( handleRowsInserted(const QModelIndex&, int,int ) ) );
+    resetMe();
 }
 
 void ThreadingMsgListModel::handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight )
