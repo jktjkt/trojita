@@ -216,6 +216,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
     QVERIFY( errorSpy->isEmpty() );
 }
 
+/** @short Initial sync of a mailbox that contains some messages */
 void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
 {
     existsA = 33;
@@ -228,6 +229,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncWithMessages()
     helperVerifyUidMapA();
 }
 
+/** @short Go back to a selected mailbox after some time, the mailbox doesn't have any modifications */
 void ImapModelObtainSynchronizedMailboxTest::testResyncNoArrivals()
 {
     existsA = 42;
@@ -245,6 +247,7 @@ void ImapModelObtainSynchronizedMailboxTest::testResyncNoArrivals()
     helperOneFlagUpdate( idxA.child( 0,0 ).child( 10, 0 ) );
 }
 
+/** @short Test new message arrivals happening on each resync */
 void ImapModelObtainSynchronizedMailboxTest::testResyncOneNew()
 {
     existsA = 17;
@@ -263,6 +266,7 @@ void ImapModelObtainSynchronizedMailboxTest::testResyncOneNew()
 }
 
 
+/** @short Helper: simulate sync of mailbox A that contains some messages from an empty state */
 void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesEmptyState()
 {
     // Ask the model to sync stuff
@@ -273,6 +277,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesEmptyState()
     helperSyncAFullSync();
 }
 
+/** @short Helper: perform a full sync of the mailbox A */
 void ImapModelObtainSynchronizedMailboxTest::helperSyncAFullSync()
 {
     QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
@@ -339,6 +344,11 @@ void ImapModelObtainSynchronizedMailboxTest::helperFakeUidSearch( uint start )
     SOCK->fakeReading( buf + t.last("OK search\r\n") );
 }
 
+/** @short Helper: make the parser switch to mailbox B which is actually empty
+
+This function is useful for making sure that the parser switches to another mailbox and will perform
+a fresh SELECT when it goes back to the original mailbox.
+*/
 void ImapModelObtainSynchronizedMailboxTest::helperSyncBNoMessages()
 {
     // Try to go to second mailbox
@@ -370,10 +380,10 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncBNoMessages()
     QVERIFY( SOCK->writtenStuff().isEmpty() );
 }
 
-/** @short SImulates what happens when mailbox A gets opened again, assuming that nothing has changed since the last time with 17 messages etc */
+/** @short Simulates what happens when mailbox A gets opened again, assuming that nothing has changed since the last time etc */
 void ImapModelObtainSynchronizedMailboxTest::helperSyncAWithMessagesNoArrivals()
 {
-    // assume we've got 17 messages since the last case
+    // assume we've got some messages from the last case
     QCOMPARE( model->rowCount( msgListA ), static_cast<int>(existsA) );
     model->switchToMailbox( idxA );
     QCoreApplication::processEvents();
@@ -420,6 +430,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperSyncFlags()
     QCoreApplication::processEvents();
 }
 
+/** @short Helper: update flags for some message */
 void ImapModelObtainSynchronizedMailboxTest::helperOneFlagUpdate( const QModelIndex &message )
 {
     SOCK->fakeReading( QString::fromAscii("* %1 FETCH (FLAGS (\\Seen foo bar))\r\n").arg( message.row() + 1 ).toAscii() );
@@ -661,6 +672,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncTwoInParallel()
     QVERIFY( errorSpy->isEmpty() );
 }
 
+/** @short Helper: make sure that UID mapping is correct */
 void ImapModelObtainSynchronizedMailboxTest::helperVerifyUidMapA()
 {
     QCOMPARE( model->rowCount( msgListA ), static_cast<int>(existsA) );
@@ -672,6 +684,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperVerifyUidMapA()
     }
 }
 
+/** @short Helper: verify that values recorded in the cache are valid */
 void ImapModelObtainSynchronizedMailboxTest::helperCheckCache()
 {
     // Check the cache
@@ -692,6 +705,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperCheckCache()
 }
 
 
+/** @short Test whether a change in the UIDVALIDITY results in a complete resync */
 void ImapModelObtainSynchronizedMailboxTest::testResyncUidValidity()
 {
     existsA = 42;
