@@ -350,8 +350,6 @@ private:
     friend class ThreadingMsgListModel; // needs access to _taskFactory
 
     friend class IdleLauncher;
-    friend class _MailboxListUpdater;
-    friend class _NumberOfMessagesUpdater;
 
     friend class ImapTask;
     friend class FetchMsgPartTask;
