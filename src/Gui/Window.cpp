@@ -186,11 +186,13 @@ void MainWindow::createActions()
 
     actionThreadMsgList = new QAction(tr("Show Messages in Threads"), this);
     actionThreadMsgList->setCheckable(true);
-    connect( actionThreadMsgList, SIGNAL(triggered(bool)), this, SLOT(slotThreadMsgList(bool)) );
+    // This action is enabled/disabled by model's capabilities
+    actionThreadMsgList->setEnabled(false);
     if ( QSettings().value(Common::SettingsNames::guiMsgListShowThreading).toBool() ) {
         actionThreadMsgList->setChecked(true);
-        slotThreadMsgList(true);
+        // The actual threading will be performed only when model updates its capabilities
     }
+    connect( actionThreadMsgList, SIGNAL(triggered(bool)), this, SLOT(slotThreadMsgList()) );
 
     aboutTrojita = new QAction( trUtf8("About Trojitá..."), this );
     connect( aboutTrojita, SIGNAL(triggered()), this, SLOT(slotShowAboutTrojita()) );
@@ -279,6 +281,8 @@ void MainWindow::createWidgets()
     msgListTree->setAllColumnsShowFocus( true );
     msgListTree->setAlternatingRowColors( true );
     msgListTree->setDragEnabled( true );
+    // This will be enabled again when threading is available, see slotThreadMsgList() and slotCapabilitiesUpdated()
+    msgListTree->setRootIsDecorated(false);
 
     connect( msgListTree, SIGNAL( customContextMenuRequested( const QPoint & ) ),
             this, SLOT( showContextMenuMsgListTree( const QPoint& ) ) );
@@ -423,6 +427,8 @@ void MainWindow::setupModels()
     connect( model, SIGNAL(mailboxCreationFailed(QString,QString)), this, SLOT(slotMailboxCreateFailed(QString,QString)) );
 
     connect( model, SIGNAL(mailboxFirstUnseenMessage(QModelIndex,QModelIndex)), this, SLOT(slotScrollToUnseenMessage(QModelIndex,QModelIndex)) );
+
+    connect(model, SIGNAL(capabilitiesUpdated(QStringList)), this, SLOT(slotCapabilitiesUpdated(QStringList)));
 
     //Imap::Mailbox::ModelWatcher* w = new Imap::Mailbox::ModelWatcher( this );
     //w->setModel( model );
@@ -1051,17 +1057,35 @@ void MainWindow::slotReleaseSelectedMessage()
     model->releaseMessageData( index );
 }
 
-void MainWindow::slotThreadMsgList(const bool useThreading)
+void MainWindow::slotThreadMsgList()
 {
-    if ( useThreading ) {
+    // We want to save user's preferences and not override them with "threading disabled" when the server
+    // doesn't report them, like in initial greetings. That's why we have to check for isEnabled() here.
+    const bool useThreading = actionThreadMsgList->isChecked();
+    if ( useThreading && actionThreadMsgList->isEnabled() ) {
         threadingMsgListModel->setSourceModel(msgListModel);
         prettyMsgListModel->setSourceModel(threadingMsgListModel);
+        msgListTree->setRootIsDecorated(true);
     } else {
         prettyMsgListModel->setSourceModel(msgListModel);
         threadingMsgListModel->setSourceModel(0);
+        msgListTree->setRootIsDecorated(false);
     }
-    msgListTree->setRootIsDecorated(useThreading);
     QSettings().setValue(Common::SettingsNames::guiMsgListShowThreading, QVariant(useThreading));
+}
+
+void MainWindow::slotCapabilitiesUpdated(const QStringList &capabilities)
+{
+    const QStringList supportedCapabilities = Imap::Mailbox::ThreadingMsgListModel::supportedCapabilities();
+    Q_FOREACH( const QString &capability, capabilities ) {
+        if ( supportedCapabilities.contains(capability) ) {
+            actionThreadMsgList->setEnabled(true);
+            if ( actionThreadMsgList->isChecked() )
+                slotThreadMsgList();
+            return;
+        }
+    }
+    actionThreadMsgList->setEnabled(false);
 }
 
 }

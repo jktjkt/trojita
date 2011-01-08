@@ -103,7 +103,8 @@ private slots:
     void slotDonateToTrojita();
     void slotSaveCurrentMessageBody();
     void slotViewMsgHeaders();
-    void slotThreadMsgList( const bool useThreading );
+    void slotThreadMsgList();
+    void slotCapabilitiesUpdated(const QStringList& capabilities);
 
     void slotMailboxDeleteFailed( const QString& mailbox, const QString& msg );
     void slotMailboxCreateFailed( const QString& mailbox, const QString& msg );
