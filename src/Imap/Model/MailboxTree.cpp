@@ -589,7 +589,8 @@ bool TreeItemMsgList::hasChildren( Model* const model )
 
 int TreeItemMsgList::totalMessageCount( Model* const model )
 {
-    // yes, we really check the normal fetch status
+    // The goal here is to allow periodic updates of the numbers, that's why we don't check just the numbersFetched().
+    // That said, it would require other pieces to support refresh of these numbers.
     if ( ! fetched() )
         fetchNumbers( model );
     return _totalMessageCount;
@@ -597,7 +598,7 @@ int TreeItemMsgList::totalMessageCount( Model* const model )
 
 int TreeItemMsgList::unreadMessageCount( Model* const model )
 {
-    // yes, we really check the normal fetch status
+    // See totalMessageCount()
     if ( ! fetched() )
         fetchNumbers( model );
     return _unreadMessageCount;
