@@ -1060,6 +1060,7 @@ void MainWindow::slotThreadMsgList(const bool useThreading)
         prettyMsgListModel->setSourceModel(msgListModel);
         threadingMsgListModel->setSourceModel(0);
     }
+    msgListTree->setRootIsDecorated(useThreading);
     QSettings().setValue(Common::SettingsNames::guiMsgListShowThreading, QVariant(useThreading));
 }
 
