@@ -680,6 +680,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperCheckCache()
     QCOMPARE( syncState.isUsableForSyncing(), true );
     QCOMPARE( syncState.uidNext(), uidNextA );
     QCOMPARE( syncState.uidValidity(), uidValidityA );
+    QCOMPARE( model->cache()->uidMapping( QString::fromAscii("a") ), uidMapA );
 
 
     QCoreApplication::processEvents();
