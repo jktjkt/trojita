@@ -135,6 +135,7 @@ void MainWindow::createActions()
     connect( composeMail, SIGNAL(triggered()), this, SLOT(slotComposeMail()) );
 
     expunge = new QAction( QIcon::fromTheme( QLatin1String("trash-empty") ),  tr("Expunge Mailbox"), this );
+    expunge->setShortcut( tr("Ctrl+E") );
     connect( expunge, SIGNAL(triggered()), this, SLOT(slotExpunge()) );
 
     markAsRead = new QAction( QIcon::fromTheme( QLatin1String("mail-mark-read") ),  tr("Mark as Read"), this );
