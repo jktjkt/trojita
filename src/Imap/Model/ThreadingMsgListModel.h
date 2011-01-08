@@ -62,6 +62,12 @@ public:
     virtual QVariant data( const QModelIndex &proxyIndex, int role ) const;
     virtual Qt::ItemFlags flags( const QModelIndex &index ) const;
 
+    /** @short List of capabilities which could be used for threading
+
+    If any of them are present in server's capabilities, at least some level of threading will be possible.
+*/
+    static QStringList supportedCapabilities();
+
 public slots:
     void resetMe();
     void handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight );

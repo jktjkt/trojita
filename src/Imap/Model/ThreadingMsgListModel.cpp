@@ -430,5 +430,10 @@ QDebug operator<<(QDebug debug, const ThreadNodeInfo &node)
     return debug;
 }
 
+QStringList ThreadingMsgListModel::supportedCapabilities()
+{
+    return QStringList() << QLatin1String("THREAD=REFS") << QLatin1String("THREAD=REFERENCES");
+}
+
 }
 }
