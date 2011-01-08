@@ -38,6 +38,7 @@ struct SettingsNames
             cacheOfflineAll, cacheOfflineNumberDaysKey, cacheOfflineNumberMessagesKey;
     static QString xtConnectCacheDirectory, xtSyncMailboxList, xtDbHost, xtDbPort,
             xtDbDbName, xtDbUser;
+    static QString guiMsgListShowThreading;
 };
 
 }

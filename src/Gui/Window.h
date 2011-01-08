@@ -103,6 +103,7 @@ private slots:
     void slotDonateToTrojita();
     void slotSaveCurrentMessageBody();
     void slotViewMsgHeaders();
+    void slotThreadMsgList( const bool useThreading );
 
     void slotMailboxDeleteFailed( const QString& mailbox, const QString& msg );
     void slotMailboxCreateFailed( const QString& mailbox, const QString& msg );
@@ -173,6 +174,8 @@ private:
     QAction* markAsDeleted;
     QAction* saveWholeMessage;
     QAction* viewMsgHeaders;
+
+    QAction *actionThreadMsgList;
 
     QProgressBar* busyParsersIndicator;
     QToolButton* networkIndicator;

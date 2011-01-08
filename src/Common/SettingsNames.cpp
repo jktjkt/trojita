@@ -61,6 +61,7 @@ QString SettingsNames::xtDbHost = QLatin1String("xtconnect.db.hostname");
 QString SettingsNames::xtDbPort = QLatin1String("xtconnect.db.port");
 QString SettingsNames::xtDbDbName = QLatin1String("xtconnect.db.dbname");
 QString SettingsNames::xtDbUser = QLatin1String("xtconnect.db.username");
+QString SettingsNames::guiMsgListShowThreading = QLatin1String("gui.msglist.showThreading");
 
 
 }

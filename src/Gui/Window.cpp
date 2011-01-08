@@ -184,6 +184,14 @@ void MainWindow::createActions()
     replyAll->setShortcut( tr("Ctrl+Shift+R") );
     connect( replyAll, SIGNAL(triggered()), this, SLOT(slotReplyAll()) );
 
+    actionThreadMsgList = new QAction(tr("Show Messages in Threads"), this);
+    actionThreadMsgList->setCheckable(true);
+    connect( actionThreadMsgList, SIGNAL(triggered(bool)), this, SLOT(slotThreadMsgList(bool)) );
+    if ( QSettings().value(Common::SettingsNames::guiMsgListShowThreading).toBool() ) {
+        actionThreadMsgList->setChecked(true);
+        slotThreadMsgList(true);
+    }
+
     aboutTrojita = new QAction( trUtf8("About Trojitá..."), this );
     connect( aboutTrojita, SIGNAL(triggered()), this, SLOT(slotShowAboutTrojita()) );
 
@@ -233,6 +241,9 @@ void MainWindow::createMenus()
     imapMenu->addAction( showMenuBar );
     imapMenu->addSeparator();
     imapMenu->addAction( exitAction );
+
+    QMenu *viewMenu = menuBar()->addMenu( tr("View") );
+    viewMenu->addAction( actionThreadMsgList );
 
     QMenu* mailboxMenu = menuBar()->addMenu( tr("Mailbox") );
     mailboxMenu->addAction( resyncMbox );
@@ -372,10 +383,10 @@ void MainWindow::setupModels()
     msgListModel = new Imap::Mailbox::MsgListModel( this, model );
     msgListModel->setObjectName( QLatin1String("msgListModel") );
     threadingMsgListModel = new Imap::Mailbox::ThreadingMsgListModel( this );
-    threadingMsgListModel->setSourceModel( msgListModel );;
+    // no call to setSourceModel() at this point
     threadingMsgListModel->setObjectName( QLatin1String("threadingMsgListModel") );
     prettyMsgListModel = new Imap::Mailbox::PrettyMsgListModel(this);
-    prettyMsgListModel->setSourceModel(threadingMsgListModel);
+    prettyMsgListModel->setSourceModel(msgListModel);
     prettyMsgListModel->setObjectName( QLatin1String("prettyMsgListModel") );
 
     connect( mboxTree, SIGNAL( clicked(const QModelIndex&) ), msgListModel, SLOT( setMailbox(const QModelIndex&) ) );
@@ -1038,6 +1049,18 @@ void MainWindow::slotReleaseSelectedMessage()
         return;
 
     model->releaseMessageData( index );
+}
+
+void MainWindow::slotThreadMsgList(const bool useThreading)
+{
+    if ( useThreading ) {
+        threadingMsgListModel->setSourceModel(msgListModel);
+        prettyMsgListModel->setSourceModel(threadingMsgListModel);
+    } else {
+        prettyMsgListModel->setSourceModel(msgListModel);
+        threadingMsgListModel->setSourceModel(0);
+    }
+    QSettings().setValue(Common::SettingsNames::guiMsgListShowThreading, QVariant(useThreading));
 }
 
 }
