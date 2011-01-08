@@ -198,7 +198,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
     QVERIFY( list->loading() );
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
-    SOCK->fakeReading( QByteArray("* 0 exists\r\n")
+    SOCK->fakeReading( QByteArray("* 0 exists\r\n* NO a random no in inserted here\r\n")
                                   + t.last("OK done\r\n") );
     QCoreApplication::processEvents();
     QVERIFY( SOCK->writtenStuff().isEmpty() );

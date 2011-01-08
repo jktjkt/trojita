@@ -256,6 +256,10 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 // FIXME: would be cool to have that logged somehow
                 break;
             }
+        case NO:
+            // FIXME: maybe present as a warning to the user? But what would she do with it?
+            qDebug() << "Warning: unhandled untagged NO...";
+            break;
         default:
             throw UnexpectedResponseReceived( "[Port-in-progress] Unhhandled untagged response, sorry", *resp );
         }
