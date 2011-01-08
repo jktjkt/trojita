@@ -34,6 +34,7 @@ ImapTask::~ImapTask()
 
 void ImapTask::addDependentTask( ImapTask *task )
 {
+    Q_ASSERT(task);
     dependentTasks.append( task );
 }
 
