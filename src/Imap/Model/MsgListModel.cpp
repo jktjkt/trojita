@@ -197,6 +197,7 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
         case RoleMessageMessageId:
         case RoleMessageSubject:
         case RoleMessageFlags:
+        case RoleMessageSize:
             return dynamic_cast<TreeItemMessage*>( Model::realTreeItem(
                     proxyIndex ) )->data( static_cast<Model*>( sourceModel() ), role );
         default:
