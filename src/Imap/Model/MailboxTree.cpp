@@ -199,12 +199,15 @@ QVariant TreeItemMailbox::data( Model* const model, int role )
         return list->numbersFetched();
     case RoleTotalMessageCount:
     {
-        uint res = list->totalMessageCount( model );
+        // At first, register that request for count
+        int res = list->totalMessageCount( model );
+        // ...and now that it's been sent, display a number if it's available
         return list->numbersFetched() ? QVariant(res) : QVariant();
     }
     case RoleUnreadMessageCount:
     {
-        uint res = list->unreadMessageCount( model );
+        // This one is similar to the case of RoleTotalMessageCount
+        int res = list->unreadMessageCount( model );
         return list->numbersFetched() ? QVariant(res): QVariant();
     }
     case RoleMailboxItemsAreLoading:
