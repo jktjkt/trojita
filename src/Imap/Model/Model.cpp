@@ -884,6 +884,8 @@ void Model::updateCapabilities( Parser* parser, const QStringList capabilities )
     accessParser( parser ).capabilities = uppercaseCaps;
     accessParser( parser ).capabilitiesFresh = true;
     parser->enableLiteralPlus( uppercaseCaps.contains( QLatin1String( "LITERAL+" ) ) );
+    if ( _parsers.begin().key() == parser )
+        emit capabilitiesUpdated(uppercaseCaps);
 }
 
 void Model::markMessageDeleted( TreeItemMessage* msg, bool marked )

@@ -333,6 +333,8 @@ signals:
     void threadingAvailable( const QModelIndex &mailbox, const QString &algorithm,
                              const QStringList &searchCriteria, const QVector<Imap::Responses::Thread::Node> &mapping );
 
+    void capabilitiesUpdated(const QStringList &capabilities);
+
 private:
     Model& operator=( const Model& ); // don't implement
     Model( const Model& ); // don't implement
