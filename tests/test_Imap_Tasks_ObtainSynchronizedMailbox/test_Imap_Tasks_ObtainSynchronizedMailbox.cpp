@@ -31,6 +31,23 @@
 
 #define SOCK static_cast<Imap::FakeSocket*>( factory->lastSocket() )
 
+/** @short Class for persuading the model that the parser supports certain capabilities */
+class FakeCapabilitiesInjector
+{
+public:
+    FakeCapabilitiesInjector(Imap::Mailbox::Model *_model): model(_model)
+    {}
+
+    /** @short Add the specified capability to the list of capabilities "supported" by the server */
+    void injectCapability(const QString& cap)
+    {
+        Q_ASSERT(!model->_parsers.isEmpty());
+        model->updateCapabilities( model->_parsers.begin().key(), model->capabilities() << cap );
+    }
+private:
+    Imap::Mailbox::Model *model;
+};
+
 void ImapModelObtainSynchronizedMailboxTest::init()
 {
     Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache( this, QString() );
@@ -728,6 +745,26 @@ void ImapModelObtainSynchronizedMailboxTest::testResyncUidValidity()
     helperSyncAFullSync();
 }
 
+void ImapModelObtainSynchronizedMailboxTest::testIdleNo()
+{
+    model->setProperty("trojita-imap-idle-delayedEnter", QVariant(30));
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability(QLatin1String("IDLE"));
+    existsA = 3;
+    uidValidityA = 6;
+    uidMapA << 1 << 7 << 9;
+    uidNextA = 16;
+    helperSyncAWithMessagesEmptyState();
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+    QTest::qWait(40);
+    QCOMPARE( SOCK->writtenStuff(), t.mk("IDLE\r\n") );
+    SOCK->fakeReading(t.last("NO you can't idle now\r\n"));
+    QTest::qWait(40);
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+    helperSyncBNoMessages();
+    QVERIFY(errorSpy->isEmpty());
+    //QCOMPARE( SOCK->writtenStuff(), t.mk("IDLE\r\n") );
+}
 
 #if 0
 void ImapModelObtainSynchronizedMailboxTest::testBenchmarkParserModelInteraction()

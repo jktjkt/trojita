@@ -344,7 +344,12 @@ bool KeepMailboxOpenTask::handleStateHelper( Imap::Parser* ptr, const Imap::Resp
             // The IDLE got terminated for whatever reason, so we should schedule its restart
             idleLauncher->idleCommandCompleted();
         } else {
-            // FIXME: we should get nervous because it failed -- we won't restart it anyway...
+            // The IDLE command has failed. Let's assume it's a permanent error and don't request it in future.
+            qDebug() << "The IDLE command has failed:" << resp->message;
+            shouldRunIdle = false;
+            idleLauncher->idleCommandFailed();
+            idleLauncher->deleteLater();
+            idleLauncher = 0;
         }
         tagIdle.clear();
         IMAP_TASK_CLEANUP_COMMAND;

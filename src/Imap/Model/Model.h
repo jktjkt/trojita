@@ -34,6 +34,8 @@
 
 class QAuthenticator;
 
+class FakeCapabilitiesInjector;
+
 /** @short Namespace for IMAP interaction */
 namespace Imap {
 
@@ -371,6 +373,8 @@ private:
     friend class ThreadTask;
 
     friend class TestingTaskFactory; // needs access to _socketFactory
+
+    friend class ::FakeCapabilitiesInjector; // for injecting fake capabilities
 
     void _askForChildrenOfMailbox( TreeItemMailbox* item );
     void _askForMessagesInMailbox( TreeItemMsgList* item );

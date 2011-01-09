@@ -73,6 +73,9 @@ target mailbox and all member variables are set up.
 We will automatically resume IDLE later.
  */
     void idleCommandCompleted();
+
+    /** @short Informs the IdleLauncher that the IDLE command failed */
+    void idleCommandFailed();
 public slots:
     /** @short Immediately send the IDLE command to the parser */
     void slotEnterIdleNow();

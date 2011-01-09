@@ -231,6 +231,9 @@ namespace Imap {
         /** @short The DONE for terminating the IDLE state, RFC2177 */
         void idleDone();
 
+        /** @short Don't wait for the initial continuation prompt, it won't come */
+        void idleContinuationWontCome();
+
 
         /** @short NAMESPACE, RFC 2342 */
         CommandHandle namespaceCommand();

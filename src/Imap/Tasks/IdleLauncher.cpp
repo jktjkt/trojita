@@ -118,5 +118,15 @@ void IdleLauncher::idleCommandCompleted()
     enterIdleLater();
 }
 
+void IdleLauncher::idleCommandFailed()
+{
+    // FIXME: these asseerts could be triggered by a rogue server...
+    Q_ASSERT( _idling );
+    Q_ASSERT( _idleCommandRunning );
+    _idleCommandRunning = false;
+    task->parser->idleContinuationWontCome();
+    die();
+}
+
 }
 }
