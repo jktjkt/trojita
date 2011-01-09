@@ -22,20 +22,14 @@
 #ifndef TEST_IMAP_TASKS_OBTAINSYNCHRONIZEDMAILBOXTASK
 #define TEST_IMAP_TASKS_OBTAINSYNCHRONIZEDMAILBOXTASK
 
-#include "Imap/Model/Model.h"
-#include "Streams/SocketFactory.h"
-#include "TagGenerator.h"
+#include "test_LibMailboxSync/test_LibMailboxSync.h"
 
 class QSignalSpy;
 
-class ImapModelObtainSynchronizedMailboxTest : public QObject
+class ImapModelObtainSynchronizedMailboxTest : public LibMailboxSync
 {
     Q_OBJECT
 private slots:
-    void init();
-    void cleanup();
-    void cleanupTestCase();
-    void initTestCase();
 
     void testSyncEmptyMinimal();
     void testSyncEmptyNormal();
@@ -50,41 +44,6 @@ private slots:
     void testIdleRenewal();
     void testIdleBreakTask();
     void testIdleSlowResponses();
-
-private:
-    void helperSyncAWithMessagesEmptyState();
-    void helperSyncAFullSync();
-    void helperSyncBNoMessages();
-    void helperSyncAWithMessagesNoArrivals();
-    void helperSyncFlags();
-    void helperSyncASomeNew( int number );
-
-    void helperFakeExistsUidValidityUidNext();
-    void helperFakeUidSearch( uint start=0 );
-    void helperVerifyUidMapA();
-    void helperCheckCache();
-
-    void helperOneFlagUpdate( const QModelIndex &message );
-
-
-    Imap::Mailbox::Model* model;
-    Imap::Mailbox::FakeSocketFactory* factory;
-    Imap::Mailbox::TestingTaskFactory* taskFactoryUnsafe;
-    QSignalSpy* errorSpy;
-
-    QModelIndex idxA, idxB, msgListA, msgListB;
-    TagGenerator t;
-    uint existsA, uidValidityA, uidNextA;
-    QList<uint> uidMapA;
-
-#if 0
-    uint x;
-    QTime ttt;
-private slots:
-    void testBenchmarkParserModelInteraction();
-    void gotLine();
-#endif
-
 };
 
 #endif
