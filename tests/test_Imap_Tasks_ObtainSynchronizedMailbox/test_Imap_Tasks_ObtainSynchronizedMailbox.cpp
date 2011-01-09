@@ -786,7 +786,7 @@ void ImapModelObtainSynchronizedMailboxTest::testIdleImmediateReturn()
     QCOMPARE( SOCK->writtenStuff(), t.mk("IDLE\r\n") );
 }
 
-/** @short Test standard IDLE */
+/** @short Test automatic IDLE renewal */
 void ImapModelObtainSynchronizedMailboxTest::testIdleRenewal()
 {
     model->setProperty("trojita-imap-idle-delayedEnter", QVariant(30));
@@ -807,6 +807,31 @@ void ImapModelObtainSynchronizedMailboxTest::testIdleRenewal()
     SOCK->fakeReading(t.last("OK done\r\n"));
     QTest::qWait(40);
     QCOMPARE( SOCK->writtenStuff(), t.mk("IDLE\r\n") );
+}
+
+/** @short Test that IDLE gets immediately interrupted by any Task */
+void ImapModelObtainSynchronizedMailboxTest::testIdleBreakTask()
+{
+    model->setProperty("trojita-imap-idle-delayedEnter", QVariant(30));
+    // Intentionally leave trojita-imap-idle-renewal at its rather high default value
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability(QLatin1String("IDLE"));
+    existsA = 3;
+    uidValidityA = 6;
+    uidMapA << 1 << 7 << 9;
+    uidNextA = 16;
+    helperSyncAWithMessagesEmptyState();
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+    QTest::qWait(40);
+    QCOMPARE( SOCK->writtenStuff(), t.mk("IDLE\r\n") );
+    SOCK->fakeReading(QByteArray("+ blah\r\n"));
+    QCOMPARE( msgListA.child(0,0).data(Imap::Mailbox::RoleMessageFrom).toString(), QString() );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE( SOCK->writtenStuff(), QByteArray("DONE\r\n") + t.mk("UID FETCH 1,7,9 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n") );
+    SOCK->fakeReading(t.last("OK done\r\n"));
+    QTest::qWait(40);
+    QVERIFY(SOCK->writtenStuff().isEmpty());
 }
 
 #if 0
