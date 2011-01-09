@@ -26,8 +26,6 @@
 #include "Imap/Model/ItemRoles.h"
 #include "test_LibMailboxSync/FakeCapabilitiesInjector.h"
 
-#define SOCK static_cast<Imap::FakeSocket*>( factory->lastSocket() )
-
 /** @short Test a NO reply to IDLE command */
 void ImapModelIdleTest::testIdleNo()
 {

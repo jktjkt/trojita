@@ -24,9 +24,7 @@
 #include "../headless_test.h"
 #include "test_LibMailboxSync/FakeCapabilitiesInjector.h"
 #include "Streams/FakeSocket.h"
-#include "Imap/Model/Cache.h"
 #include "Imap/Model/ItemRoles.h"
-#include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Tasks/ObtainSynchronizedMailboxTask.h"
 

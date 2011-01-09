@@ -66,4 +66,6 @@ protected:
     QList<uint> uidMapA;
 };
 
+#define SOCK static_cast<Imap::FakeSocket*>( factory->lastSocket() )
+
 #endif

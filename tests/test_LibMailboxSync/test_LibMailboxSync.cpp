@@ -27,9 +27,6 @@
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/MailboxTree.h"
-#include "Imap/Tasks/ObtainSynchronizedMailboxTask.h"
-
-#define SOCK static_cast<Imap::FakeSocket*>( factory->lastSocket() )
 
 LibMailboxSync::~LibMailboxSync()
 {
