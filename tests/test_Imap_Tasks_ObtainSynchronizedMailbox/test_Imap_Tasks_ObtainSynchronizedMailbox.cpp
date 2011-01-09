@@ -847,16 +847,31 @@ void ImapModelObtainSynchronizedMailboxTest::testIdleSlowResponses()
     uidNextA = 16;
     helperSyncAWithMessagesEmptyState();
     QVERIFY(SOCK->writtenStuff().isEmpty());
+
     QTest::qWait(40);
     QCOMPARE( SOCK->writtenStuff(), t.mk("IDLE\r\n") );
+    // Check what happens if it takes the server a lot of time to issue the initial continuation
     QTest::qWait(70);
     SOCK->fakeReading(QByteArray("+ blah\r\n"));
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("DONE\r\n") );
     SOCK->fakeReading(t.last("OK done\r\n"));
+
     QTest::qWait(40);
     QCOMPARE( SOCK->writtenStuff(), t.mk("IDLE\r\n") );
+    SOCK->fakeReading(QByteArray("+ blah\r\n"));
+    // The client is fast enough...
+    QTest::qWait(40);
+    QCOMPARE( SOCK->writtenStuff(), QByteArray("DONE\r\n") );
+    // ...but the server is taking its time
+    QTest::qWait(70);
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+    SOCK->fakeReading(t.last("OK done\r\n"));
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+    //QCOMPARE( SOCK->writtenStuff(), t.mk("DONE\r\n") );
 }
 
 #if 0
