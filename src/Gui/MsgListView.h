@@ -26,7 +26,12 @@
 namespace Gui {
 
 
-/** @short A slightly tweaked QTreeView optimized for showing a list of messages in one mailbox */
+/** @short A slightly tweaked QTreeView optimized for showing a list of messages in one mailbox
+
+The optimizations (or rather modifications) include:
+- automatically expanding a whole subtree when root item is expanded
+- setting up reasonable size hints for all columns
+*/
 class MsgListView : public QTreeView
 {
     Q_OBJECT
@@ -37,6 +42,8 @@ protected:
     virtual int sizeHintForColumn( int column ) const;
 private slots:
     void slotFixSize();
+    /** @short Expand all items below current root index */
+    void slotExpandWholeSubtree(const QModelIndex &rootIndex);
 };
 
 }

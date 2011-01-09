@@ -29,6 +29,7 @@ namespace Gui {
 MsgListView::MsgListView( QWidget* parent ): QTreeView(parent)
 {
     connect( header(), SIGNAL(geometriesChanged()), this, SLOT(slotFixSize()) );
+    connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(slotExpandWholeSubtree(QModelIndex)));
 }
 
 int MsgListView::sizeHintForColumn( int column ) const
@@ -63,6 +64,22 @@ void MsgListView::slotFixSize()
     header()->setStretchLastSection( false );
     header()->setResizeMode( Imap::Mailbox::MsgListModel::SUBJECT, QHeaderView::Stretch );
     header()->setResizeMode( Imap::Mailbox::MsgListModel::SEEN, QHeaderView::Fixed );
+}
+
+void MsgListView::slotExpandWholeSubtree(const QModelIndex &rootIndex)
+{
+    if ( rootIndex.parent().isValid() )
+        return;
+
+    QVector<QModelIndex> queue(1, rootIndex);
+    for ( int i = 0; i < queue.size(); ++i ) {
+        const QModelIndex &currentIndex = queue[i];
+        // Append all children to the queue...
+        for ( int j = 0; j < currentIndex.model()->rowCount(currentIndex); ++j )
+            queue.append(currentIndex.child(j, 0));
+        // ...and expand the current index
+        expand(currentIndex);
+    }
 }
 
 }
