@@ -49,6 +49,7 @@ private slots:
     void testIdleImmediateReturn();
     void testIdleRenewal();
     void testIdleBreakTask();
+    void testIdleSlowResponses();
 
 private:
     void helperSyncAWithMessagesEmptyState();

@@ -834,6 +834,31 @@ void ImapModelObtainSynchronizedMailboxTest::testIdleBreakTask()
     QVERIFY(SOCK->writtenStuff().isEmpty());
 }
 
+/** @short Test automatic IDLE renewal when server gets really slow to respond */
+void ImapModelObtainSynchronizedMailboxTest::testIdleSlowResponses()
+{
+    model->setProperty("trojita-imap-idle-delayedEnter", QVariant(30));
+    model->setProperty("trojita-imap-idle-renewal", QVariant(10));
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability(QLatin1String("IDLE"));
+    existsA = 3;
+    uidValidityA = 6;
+    uidMapA << 1 << 7 << 9;
+    uidNextA = 16;
+    helperSyncAWithMessagesEmptyState();
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+    QTest::qWait(40);
+    QCOMPARE( SOCK->writtenStuff(), t.mk("IDLE\r\n") );
+    QTest::qWait(70);
+    SOCK->fakeReading(QByteArray("+ blah\r\n"));
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE( SOCK->writtenStuff(), QByteArray("DONE\r\n") );
+    SOCK->fakeReading(t.last("OK done\r\n"));
+    QTest::qWait(40);
+    QCOMPARE( SOCK->writtenStuff(), t.mk("IDLE\r\n") );
+}
+
 #if 0
 void ImapModelObtainSynchronizedMailboxTest::testBenchmarkParserModelInteraction()
 {
