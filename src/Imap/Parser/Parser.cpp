@@ -358,6 +358,13 @@ void Parser::idleContinuationWontCome()
     QTimer::singleShot( 0, this, SLOT(executeCommands()) );
 }
 
+void Parser::idleMagicallyTerminatedByServer()
+{
+    Q_ASSERT( ! _waitForInitialIdle );
+    Q_ASSERT( _idling );
+    _idling = false;
+}
+
 CommandHandle Parser::namespaceCommand()
 {
     return queueCommand( Commands::ATOM, "NAMESPACE" );

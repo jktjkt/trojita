@@ -234,6 +234,9 @@ namespace Imap {
         /** @short Don't wait for the initial continuation prompt, it won't come */
         void idleContinuationWontCome();
 
+        /** @short The IDLE command got terminated by the server after it sent the continuation request but before we got a chance to break it */
+        void idleMagicallyTerminatedByServer();
+
 
         /** @short NAMESPACE, RFC 2342 */
         CommandHandle namespaceCommand();

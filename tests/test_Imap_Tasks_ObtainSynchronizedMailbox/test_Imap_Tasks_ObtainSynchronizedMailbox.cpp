@@ -745,6 +745,7 @@ void ImapModelObtainSynchronizedMailboxTest::testResyncUidValidity()
     helperSyncAFullSync();
 }
 
+/** @short Test a NO reply to IDLE command */
 void ImapModelObtainSynchronizedMailboxTest::testIdleNo()
 {
     model->setProperty("trojita-imap-idle-delayedEnter", QVariant(30));
@@ -763,8 +764,27 @@ void ImapModelObtainSynchronizedMailboxTest::testIdleNo()
     QVERIFY(SOCK->writtenStuff().isEmpty());
     helperSyncBNoMessages();
     QVERIFY(errorSpy->isEmpty());
-    //QCOMPARE( SOCK->writtenStuff(), t.mk("IDLE\r\n") );
 }
+
+/** @short Test what happens when IDLE terminates by an OK, but without our "DONE" input */
+void ImapModelObtainSynchronizedMailboxTest::testIdleImmediateReturn()
+{
+    model->setProperty("trojita-imap-idle-delayedEnter", QVariant(30));
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability(QLatin1String("IDLE"));
+    existsA = 3;
+    uidValidityA = 6;
+    uidMapA << 1 << 7 << 9;
+    uidNextA = 16;
+    helperSyncAWithMessagesEmptyState();
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+    QTest::qWait(40);
+    QCOMPARE( SOCK->writtenStuff(), t.mk("IDLE\r\n") );
+    SOCK->fakeReading(QByteArray("+ blah\r\n") + t.last("OK done\r\n"));
+    QTest::qWait(40);
+    QCOMPARE( SOCK->writtenStuff(), t.mk("IDLE\r\n") );
+}
+
 
 #if 0
 void ImapModelObtainSynchronizedMailboxTest::testBenchmarkParserModelInteraction()

@@ -46,6 +46,7 @@ private slots:
     void testResyncOneNew();
     void testResyncUidValidity();
     void testIdleNo();
+    void testIdleImmediateReturn();
 
 private:
     void helperSyncAWithMessagesEmptyState();

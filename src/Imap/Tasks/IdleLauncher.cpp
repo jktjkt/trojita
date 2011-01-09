@@ -112,7 +112,11 @@ bool IdleLauncher::idling() const
 void IdleLauncher::idleCommandCompleted()
 {
     // FIXME: these asseerts could be triggered by a rogue server...
-    Q_ASSERT( ! _idling );
+    if ( _idling ) {
+        qDebug() << "Warning: IDLE completed before we could ask for its termination...";
+        _idling = false;
+        task->parser->idleMagicallyTerminatedByServer();
+    }
     Q_ASSERT( _idleCommandRunning );
     _idleCommandRunning = false;
     enterIdleLater();
