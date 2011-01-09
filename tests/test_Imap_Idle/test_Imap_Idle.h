@@ -19,26 +19,23 @@
    Boston, MA 02110-1301, USA.
 */
 
-#ifndef TEST_IMAP_TASKS_OBTAINSYNCHRONIZEDMAILBOXTASK
-#define TEST_IMAP_TASKS_OBTAINSYNCHRONIZEDMAILBOXTASK
+#ifndef TEST_IMAP_IDLE
+#define TEST_IMAP_IDLE
 
 #include "test_LibMailboxSync/test_LibMailboxSync.h"
 
 class QSignalSpy;
 
-class ImapModelObtainSynchronizedMailboxTest : public LibMailboxSync
+class ImapModelIdleTest : public LibMailboxSync
 {
     Q_OBJECT
 private slots:
 
-    void testSyncEmptyMinimal();
-    void testSyncEmptyNormal();
-    void testSyncWithMessages();
-    void testSyncTwoLikeCyrus();
-    void testSyncTwoInParallel();
-    void testResyncNoArrivals();
-    void testResyncOneNew();
-    void testResyncUidValidity();
+    void testIdleNo();
+    void testIdleImmediateReturn();
+    void testIdleRenewal();
+    void testIdleBreakTask();
+    void testIdleSlowResponses();
 };
 
 #endif

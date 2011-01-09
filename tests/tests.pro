@@ -7,7 +7,8 @@ SUBDIRS  = \
     test_Imap_Tasks_ListChildMailboxes \
     test_Imap_Tasks_CreateMailbox \
     test_Imap_Tasks_DeleteMailbox \
-    test_Imap_Tasks_ObtainSynchronizedMailbox
+    test_Imap_Tasks_ObtainSynchronizedMailbox \
+    test_Imap_Idle
 CONFIG += ordered
 
 # At first, we define the "check" target which simply propagates the "check" call below
