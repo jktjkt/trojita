@@ -83,6 +83,7 @@ void ImapModelObtainSynchronizedMailboxTest::cleanup()
     delete model;
     model = 0;
     taskFactoryUnsafe = 0;
+    QVERIFY( errorSpy->isEmpty() );
     delete errorSpy;
     errorSpy = 0;
     QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
