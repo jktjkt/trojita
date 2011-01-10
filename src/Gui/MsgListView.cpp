@@ -106,6 +106,20 @@ void MsgListView::slotSectionCountChanged()
         connect(action, SIGNAL(toggled(bool)), headerFieldsMapper, SLOT(map()));
         headerFieldsMapper->setMapping(action, i);
         header()->addAction(action);
+
+        // Next, add some special handling of certain columns
+        switch (i) {
+        case Imap::Mailbox::MsgListModel::SEEN:
+            // This column doesn't have a textual description
+            action->setText(tr("Seen status"));
+            break;
+        case Imap::Mailbox::MsgListModel::TO:
+            // And this one should be hidden by default
+            action->toggle();
+            break;
+        default:
+            break;
+        }
     }
 }
 
