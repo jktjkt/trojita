@@ -118,11 +118,11 @@ void Model::responseReceived( Parser *parser )
             is rather complex -- this call to plug() could result in signals being
             emited, and certain slots connected to those signals might in turn want
             to queue more Tasks. Therefore, it->activeTasks could be modified, some
-            items could be appended to it uwing the QList::append, which in turn could
+            items could be appended to it using the QList::append, which in turn could
             cause a realloc to happen, happily invalidating our iterators, and that
             kind of sucks.
 
-            So, we have to iterate over a copy of the original list and istead of
+            So, we have to iterate over a copy of the original list and instead of
             deleting Tasks, we store them into a temporary list. When we're done with
             processing, we walk the original list once again and simply remove all
             "deleted" items for real.
