@@ -103,7 +103,7 @@ void MsgListView::slotSectionCountChanged()
         QAction *action = new QAction( header()->model()->headerData(i, Qt::Horizontal).toString(), this );
         action->setCheckable(true);
         action->setChecked(true);
-        connect(action, SIGNAL(triggered(bool)), headerFieldsMapper, SLOT(map()));
+        connect(action, SIGNAL(toggled(bool)), headerFieldsMapper, SLOT(map()));
         headerFieldsMapper->setMapping(action, i);
         header()->addAction(action);
     }
