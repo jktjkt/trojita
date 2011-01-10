@@ -90,6 +90,7 @@ void MsgListView::slotExpandWholeSubtree(const QModelIndex &rootIndex)
 
 void MsgListView::slotSectionCountChanged()
 {
+    Q_ASSERT(header());
     // At first, remove all actions
     QList<QAction*> actions = header()->actions();
     Q_FOREACH(QAction *action, actions) {
@@ -100,7 +101,8 @@ void MsgListView::slotSectionCountChanged()
     actions.clear();
     // Now add them again
     for ( int i = 0; i < header()->count(); ++i ) {
-        QAction *action = new QAction( header()->model()->headerData(i, Qt::Horizontal).toString(), this );
+        QString message = header()->model() ? header()->model()->headerData(i, Qt::Horizontal).toString() : QString::number(i);
+        QAction *action = new QAction( message, this );
         action->setCheckable(true);
         action->setChecked(true);
         connect(action, SIGNAL(toggled(bool)), headerFieldsMapper, SLOT(map()));
