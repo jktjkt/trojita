@@ -113,8 +113,12 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
             model->accessParser( ptr ).commandMap[ capabilityCmd ] = Model::Task( Model::Task::CAPABILITY, 0 );
             emit model->activityHappening( true );
         } else {
-            emit model->connectionError( tr("Can't establish a secure connection to the server (STARTTLS failed). Refusing to proceed.") );
-            // FIXME: error handling
+            // Well, this place is *very* bad -- we're in the middle of a responseRecevied(), Model is iterating over active tasks
+            // and we really want to emit that connectionError signal here. The problem is that a typical reaction from the GUI is
+            // to show a dialog box, which unfortunately invokes the event loop, which would in turn handle the socketDisconnected()
+            // (because the real SSL operation for switching on the encryption failed, too).
+            // Let's just throw an exception and let the Model deal with it.
+            throw StartTlsFailed( tr("Can't establish a secure connection to the server (STARTTLS failed: %1). Refusing to proceed.").arg( resp->message ).toUtf8().constData() );
         }
         //IMAP_TASK_CLEANUP_COMMAND;
         if ( command != model->accessParser( ptr ).commandMap.end() )

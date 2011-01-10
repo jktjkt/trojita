@@ -71,6 +71,9 @@ namespace Responses {
     CLASSNAME( const std::string& msg, const QByteArray& line, const int offset ): PARENT( msg, line, offset ) { _exceptionClass = #CLASSNAME; }\
     };
 
+    /** @short The STARTTLS command failed */
+    ECBODY(StartTlsFailed, ImapException)
+
     /** @short A generic parser exception */
     ECBODY(ParserException, ImapException)
 
