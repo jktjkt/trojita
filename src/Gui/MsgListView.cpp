@@ -20,8 +20,10 @@
 */
 #include "MsgListView.h"
 
+#include <QAction>
 #include <QFontMetrics>
 #include <QHeaderView>
+#include <QSignalMapper>
 #include "Imap/Model/MsgListModel.h"
 
 namespace Gui {
@@ -30,6 +32,10 @@ MsgListView::MsgListView( QWidget* parent ): QTreeView(parent)
 {
     connect( header(), SIGNAL(geometriesChanged()), this, SLOT(slotFixSize()) );
     connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(slotExpandWholeSubtree(QModelIndex)));
+    connect(header(), SIGNAL(sectionCountChanged(int,int)), this, SLOT(slotSectionCountChanged()));
+    header()->setContextMenuPolicy(Qt::ActionsContextMenu);
+    headerFieldsMapper = new QSignalMapper(this);
+    connect(headerFieldsMapper, SIGNAL(mapped(int)), this, SLOT(slotHeaderSectionVisibilityToggled(int)));
 }
 
 int MsgListView::sizeHintForColumn( int column ) const
@@ -79,6 +85,42 @@ void MsgListView::slotExpandWholeSubtree(const QModelIndex &rootIndex)
             queue.append(currentIndex.child(j, 0));
         // ...and expand the current index
         expand(currentIndex);
+    }
+}
+
+void MsgListView::slotSectionCountChanged()
+{
+    // At first, remove all actions
+    QList<QAction*> actions = header()->actions();
+    Q_FOREACH(QAction *action, actions) {
+        header()->removeAction(action);
+        headerFieldsMapper->removeMappings(action);
+        action->deleteLater();
+    }
+    actions.clear();
+    // Now add them again
+    for ( int i = 0; i < header()->count(); ++i ) {
+        QAction *action = new QAction( header()->model()->headerData(i, Qt::Horizontal).toString(), this );
+        action->setCheckable(true);
+        action->setChecked(true);
+        connect(action, SIGNAL(triggered(bool)), headerFieldsMapper, SLOT(map()));
+        headerFieldsMapper->setMapping(action, i);
+        header()->addAction(action);
+    }
+}
+
+void MsgListView::slotHeaderSectionVisibilityToggled(int section)
+{
+    QList<QAction*> actions = header()->actions();
+    if ( section >= actions.size() || section < 0 )
+        return;
+    bool hide = ! actions[section]->isChecked();
+
+    if ( hide && header()->hiddenSectionCount() == header()->count() - 1 ) {
+        // This would hide the very last section, which would hide the whole header view
+        actions[section]->setChecked(true);
+    } else {
+        header()->setSectionHidden(section, hide);
     }
 }
 

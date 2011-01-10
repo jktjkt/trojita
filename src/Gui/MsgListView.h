@@ -23,8 +23,9 @@
 
 #include <QTreeView>
 
-namespace Gui {
+class QSignalMapper;
 
+namespace Gui {
 
 /** @short A slightly tweaked QTreeView optimized for showing a list of messages in one mailbox
 
@@ -44,6 +45,12 @@ private slots:
     void slotFixSize();
     /** @short Expand all items below current root index */
     void slotExpandWholeSubtree(const QModelIndex &rootIndex);
+    /** @short Update header actions for showing/hiding columns */
+    void slotSectionCountChanged();
+    /** @short Show/hide a corresponding column */
+    void slotHeaderSectionVisibilityToggled(int section);
+private:
+    QSignalMapper *headerFieldsMapper;
 };
 
 }
