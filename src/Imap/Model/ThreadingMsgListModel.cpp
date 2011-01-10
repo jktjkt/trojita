@@ -331,6 +331,8 @@ void ThreadingMsgListModel::askForThreading()
         algo = QLatin1String("REFS");
     } else if ( realModel->capabilities().contains( QLatin1String("THREAD=REFERENCES") ) ) {
         algo = QLatin1String("REFERENCES");
+    } else if ( realModel->capabilities().contains( QLatin1String("THREAD=ORDEREDSUBJECT") ) ) {
+        algo = QLatin1String("ORDEREDSUBJECT");
     }
 
     if ( ! algo.isEmpty() ) {
@@ -432,7 +434,7 @@ QDebug operator<<(QDebug debug, const ThreadNodeInfo &node)
 
 QStringList ThreadingMsgListModel::supportedCapabilities()
 {
-    return QStringList() << QLatin1String("THREAD=REFS") << QLatin1String("THREAD=REFERENCES");
+    return QStringList() << QLatin1String("THREAD=REFS") << QLatin1String("THREAD=REFERENCES") << QLatin1String("THREAD=ORDEREDSUBJECT");
 }
 
 }
