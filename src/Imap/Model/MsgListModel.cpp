@@ -171,6 +171,10 @@ QVariant MsgListModel::data( const QModelIndex& proxyIndex, int role ) const
                     return QString::fromAscii("[from]");
                 case TO:
                     return QString::fromAscii("[to]");
+                case CC:
+                    return QString::fromAscii("[cc]");
+                case BCC:
+                    return QString::fromAscii("[bcc]");
                 case DATE:
                     return message->envelope( static_cast<Model*>( sourceModel() ) ).date;
                 case SIZE:
@@ -217,6 +221,10 @@ QVariant MsgListModel::headerData ( int section, Qt::Orientation orientation, in
             return tr( "From" );
         case TO:
             return tr( "To" );
+        case CC:
+            return tr("Cc");
+        case BCC:
+            return tr("Bcc");
         case DATE:
             return tr( "Date" );
         case SIZE:

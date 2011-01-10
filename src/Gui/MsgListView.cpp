@@ -114,7 +114,9 @@ void MsgListView::slotSectionCountChanged()
             action->setText(tr("Seen status"));
             break;
         case Imap::Mailbox::MsgListModel::TO:
-            // And this one should be hidden by default
+        case Imap::Mailbox::MsgListModel::CC:
+        case Imap::Mailbox::MsgListModel::BCC:
+            // And these should be hidden by default
             action->toggle();
             break;
         default:

@@ -55,9 +55,25 @@ QVariant PrettyMsgListModel::data( const QModelIndex& index, int role ) const
         switch ( index.column() ) {
         case MsgListModel::TO:
         case MsgListModel::FROM:
+        case MsgListModel::CC:
+        case MsgListModel::BCC:
             {
-                QVariantList items = translated.data(
-                        index.column() == MsgListModel::TO ? RoleMessageTo : RoleMessageFrom ).toList();
+                int backendRole = 0;
+                switch ( index.column() ) {
+                case MsgListModel::FROM:
+                    backendRole = RoleMessageFrom;
+                    break;
+                case MsgListModel::TO:
+                    backendRole = RoleMessageTo;
+                    break;
+                case MsgListModel::CC:
+                    backendRole = RoleMessageCc;
+                    break;
+                case MsgListModel::BCC:
+                    backendRole = RoleMessageBcc;
+                    break;
+                }
+                QVariantList items = translated.data( backendRole ).toList();
                 return Imap::Message::MailAddress::prettyList( items, role == Qt::DisplayRole ?
                                                                Imap::Message::MailAddress::FORMAT_JUST_NAME :
                                                                Imap::Message::MailAddress::FORMAT_READABLE );
