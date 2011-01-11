@@ -158,6 +158,7 @@ void XtConnect::setupModels()
     connect( m_model, SIGNAL( alertReceived( const QString& ) ), this, SLOT( alertReceived( const QString& ) ) );
     connect( m_model, SIGNAL( connectionError( const QString& ) ), this, SLOT( connectionError( const QString& ) ) );
     connect( m_model, SIGNAL( authRequested( QAuthenticator* ) ), this, SLOT( authenticationRequested( QAuthenticator* ) ) );
+    connect(m_model, SIGNAL(authAttemptFailed(QString)), this, SLOT(authenticationFailed(QString)));
     connect( m_model, SIGNAL(connectionStateChanged(QObject*,Imap::ConnectionState)), this, SLOT(showConnectionStatus(QObject*,Imap::ConnectionState)) );
 }
 
@@ -168,6 +169,10 @@ void XtConnect::alertReceived(const QString &alert)
 
 void XtConnect::authenticationRequested(QAuthenticator *auth)
 {
+    if ( ! m_settings->contains(Common::SettingsNames::imapPassKey) ) {
+        qWarning() << "Warning: no IMAP password set in the configuration.";
+        qWarning() << "Please remember to configure the synchronization service in Trojita GUI's settings dialog.";
+    }
     QString user = m_settings->value( Common::SettingsNames::imapUserKey ).toString();
     QString pass = m_settings->value( Common::SettingsNames::imapPassKey ).toString();
     auth->setUser( user );
@@ -180,6 +185,13 @@ void XtConnect::connectionError(const QString &error)
     m_model->setNetworkOffline();
     // FIXME: add some nice behavior for reconnecting. Also handle failed logins...
     qFatal("Reconnects not supported yet -> see you.");
+}
+
+void XtConnect::authenticationFailed(const QString &message)
+{
+    qCritical() << "Cannot login to the IMAP server: " << message;
+    m_model->setNetworkOffline();
+    qFatal("Unable to login to the IMAP server");
 }
 
 void XtConnect::cacheError(const QString &error)

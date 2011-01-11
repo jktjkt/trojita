@@ -54,6 +54,8 @@ public slots:
     void connectionError(const QString &error);
     /** @short Feed the auth data back to the Model */
     void authenticationRequested(QAuthenticator *auth);
+    /** @short Authentication error */
+    void authenticationFailed(const QString &message);
     /** @short Cache has encountered some error */
     void cacheError(const QString &error);
     /** @short Updating progress */
