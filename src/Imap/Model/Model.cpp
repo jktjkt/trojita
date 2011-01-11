@@ -1415,5 +1415,12 @@ QStringList Model::capabilities() const
     return QStringList();
 }
 
+void Model::emitAuthFailed(const QString &message)
+{
+    delete _authenticator;
+    _authenticator = 0;
+    emit authAttemptFailed(message);
+}
+
 }
 }

@@ -97,6 +97,44 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
             model->changeConnectionState( ptr, CONN_STATE_AUTHENTICATED);
             _completed();
         } else {
+            QString message;
+            switch ( resp->respCode ) {
+            case Responses::UNAVAILABLE:
+                message = tr("Temporary failure because a subsystem is down.");
+                break;
+            case Responses::AUTHENTICATIONFAILED:
+                message = tr("Authentication failed for some reason on which the server is "
+                             "unwilling to elaborate.  Typically, this includes \"unknown "
+                             "user\" and \"bad password\".");
+                break;
+            case Responses::AUTHORIZATIONFAILED:
+                message = tr("Authentication succeeded in using the authentication identity, "
+                             "but the server cannot or will not allow the authentication "
+                             "identity to act as the requested authorization identity.");
+                break;
+            case Responses::EXPIRED:
+                message = tr("Either authentication succeeded or the server no longer had the "
+                             "necessary data; either way, access is no longer permitted using "
+                             "that passphrase.  You should get a new passphrase.");
+                break;
+            case Responses::PRIVACYREQUIRED:
+                message = tr("he operation is not permitted due to a lack of privacy.");
+                break;
+            case Responses::CONTACTADMIN:
+                message = tr("You should contact the system administrator or support desk.");
+                break;
+            default:
+                break;
+            }
+
+            if ( message.isEmpty() ) {
+                message = tr("Login failed: %1").arg(resp->message);
+            } else {
+                message = tr("%1\r\n\r\n%2").arg(message, resp->message);
+            }
+            model->emitAuthFailed(message);
+            loginCmd = model->performAuthentication( ptr );
+
             // FIXME: error handling
         }
         IMAP_TASK_CLEANUP_COMMAND;

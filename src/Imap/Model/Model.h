@@ -301,6 +301,14 @@ signals:
 */
     void authRequested( QAuthenticator* auth );
 
+    /** @short The authentication attempt has failed
+
+Slots attached to his signal should display an appropriate message to the user and (if applicable) also invalidate
+the cached credentials.  The credentials be requested when the model decides to try logging in again via the usual
+authRequested() function.
+*/
+    void authAttemptFailed(const QString &message);
+
     /** @short The amount of messages in the indicated mailbox might have changed */
     void messageCountPossiblyChanged( const QModelIndex& mailbox );
 
@@ -393,6 +401,8 @@ private:
     TreeItem* translatePtr( const QModelIndex& index ) const;
 
     void emitMessageCountChanged( TreeItemMailbox* const mailbox );
+    /** @short Helper for cleaning the QAuthenticator and informing about auth failure */
+    void emitAuthFailed(const QString &message);
 
     TreeItemMailbox* findMailboxByName( const QString& name ) const;
     TreeItemMailbox* findMailboxByName( const QString& name, const TreeItemMailbox* const root ) const;

@@ -78,6 +78,7 @@ private slots:
     void connectionError( const QString& message );
     void cacheError( const QString& message );
     void authenticationRequested( QAuthenticator* auth );
+    void authenticationFailed(const QString &message);
     void slotComposeMailUrl( const QUrl& url );
     void slotComposeMail();
     void slotReplyTo();
@@ -180,6 +181,8 @@ private:
 
     QProgressBar* busyParsersIndicator;
     QToolButton* networkIndicator;
+
+    bool m_ignoreStoredPassword;
 
     MainWindow(const MainWindow&); // don't implement
     MainWindow& operator=(const MainWindow&); // don't implement

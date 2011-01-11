@@ -65,7 +65,7 @@
 /** @short All user-facing widgets and related classes */
 namespace Gui {
 
-MainWindow::MainWindow(): QMainWindow(), model(0)
+MainWindow::MainWindow(): QMainWindow(), model(0), m_ignoreStoredPassword(false)
 {
     setWindowTitle( trUtf8("Trojitá") );
     createWidgets();
@@ -408,6 +408,7 @@ void MainWindow::setupModels()
     connect( model, SIGNAL( alertReceived( const QString& ) ), this, SLOT( alertReceived( const QString& ) ) );
     connect( model, SIGNAL( connectionError( const QString& ) ), this, SLOT( connectionError( const QString& ) ) );
     connect( model, SIGNAL( authRequested( QAuthenticator* ) ), this, SLOT( authenticationRequested( QAuthenticator* ) ) );
+    connect(model, SIGNAL(authAttemptFailed(QString)), this, SLOT(authenticationFailed(QString)));
 
     connect( model, SIGNAL( networkPolicyOffline() ), this, SLOT( networkPolicyOffline() ) );
     connect( model, SIGNAL( networkPolicyExpensive() ), this, SLOT( networkPolicyExpensive() ) );
@@ -672,7 +673,7 @@ void MainWindow::authenticationRequested( QAuthenticator* auth )
     QSettings s;
     QString user = s.value( Common::SettingsNames::imapUserKey ).toString();
     QString pass = s.value( Common::SettingsNames::imapPassKey ).toString();
-    if ( pass.isEmpty() ) {
+    if ( m_ignoreStoredPassword || pass.isEmpty() ) {
         bool ok;
         pass = QInputDialog::getText( this, tr("Password"),
                                       tr("Please provide password for %1").arg( user ),
@@ -685,6 +686,12 @@ void MainWindow::authenticationRequested( QAuthenticator* auth )
         auth->setUser( user );
         auth->setPassword( pass );
     }
+}
+
+void MainWindow::authenticationFailed(const QString &message)
+{
+    m_ignoreStoredPassword = true;
+    QMessageBox::warning(this, tr("Login Failed"), message);
 }
 
 void MainWindow::nukeModels()
