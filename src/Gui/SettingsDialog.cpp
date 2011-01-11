@@ -453,13 +453,22 @@ void XtConnectPage::saveXtConfig()
 
 void XtConnectPage::runXtConnect()
 {
-    QString path = QCoreApplication::applicationFilePath().replace(
-            QLatin1String("src/Gui/trojita"),
-            QLatin1String("src/XtConnect/xtconnect-trojita") );
+    QString path = QCoreApplication::applicationFilePath();
     QStringList args;
 
+#ifdef Q_OS_WIN
+    path = path.replace(
+            QLatin1String("Gui/debug/trojita"),
+            QLatin1String("XtConnect/debug/xtconnect-trojita") ).replace(
+            QLatin1String("Gui/release/trojita"),
+            QLatin1String("XtConnect/release/xtconnect-trojita") );
+    QString cmd = path;
+#else
+    path = path.replace(QLatin1String("src/Gui/trojita"),
+                        QLatin1String("src/XtConnect/xtconnect-trojita"));
     args << QLatin1String("-e") << path;
     QString cmd = QLatin1String("xterm");
+#endif
 
     if ( ! hostName->text().isEmpty() )
         args << QLatin1String("-h") << hostName->text();
