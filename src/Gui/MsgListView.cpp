@@ -47,6 +47,8 @@ int MsgListView::sizeHintForColumn( int column ) const
             return 16;
         case Imap::Mailbox::MsgListModel::FROM:
         case Imap::Mailbox::MsgListModel::TO:
+        case Imap::Mailbox::MsgListModel::CC:
+        case Imap::Mailbox::MsgListModel::BCC:
             return fontMetrics().size( Qt::TextSingleLine, QLatin1String("Blesmrt Trojita Foo Bar") ).width();
         case Imap::Mailbox::MsgListModel::DATE:
             return fontMetrics().size( Qt::TextSingleLine,
