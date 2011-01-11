@@ -203,7 +203,8 @@ void ImapPage::save( QSettings& s )
                 s.setValue( SettingsNames::imapPortKey, imapPort->text() );
             s.setValue( SettingsNames::imapStartTlsKey, startTls->isChecked() );
             s.setValue( SettingsNames::imapUserKey, imapUser->text() );
-            s.setValue( SettingsNames::imapPassKey, imapPass->text() );
+            if ( ! imapPass->text().isEmpty() )
+                s.setValue( SettingsNames::imapPassKey, imapPass->text() );
             break;
         case SSL:
             s.setValue( SettingsNames::imapMethodKey, SettingsNames::methodSSL );
@@ -212,7 +213,8 @@ void ImapPage::save( QSettings& s )
                 s.setValue( SettingsNames::imapPortKey, imapPort->text() );
             s.setValue( SettingsNames::imapStartTlsKey, startTls->isChecked() );
             s.setValue( SettingsNames::imapUserKey, imapUser->text() );
-            s.setValue( SettingsNames::imapPassKey, imapPass->text() );
+            if ( ! imapPass->text().isEmpty() )
+                s.setValue( SettingsNames::imapPassKey, imapPass->text() );
             break;
         default:
             s.setValue( SettingsNames::imapMethodKey, SettingsNames::methodProcess );
