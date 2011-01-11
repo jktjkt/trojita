@@ -406,15 +406,33 @@ XtConnectPage::XtConnectPage( QWidget* parent, QSettings& s, ImapPage* imapPage 
     boxLayout->addWidget( mailboxes );
     layout->addRow( box );
 
-    hostName = new QLineEdit( s.value( Common::SettingsNames::xtDbHost ).toString() );
+    QString optionHost = s.value( Common::SettingsNames::xtDbHost ).toString();
+    int optionPort = s.value( Common::SettingsNames::xtDbPort, QVariant(5432) ).toInt();
+    QString optionDbname = s.value( Common::SettingsNames::xtDbDbName ).toString();
+    QString optionUsername = s.value( Common::SettingsNames::xtDbUser ).toString();
+
+    QStringList args = QCoreApplication::arguments();
+    for ( int i = 1; i < args.length(); i++ ) {
+        if (args.at(i) == "-h" && args.length() > i)
+            optionHost = args.at(++i);
+        else if (args.at(i) == "-d" && args.length() > i)
+            optionDbname = args.at(++i);
+        else if (args.at(i) == "-p" && args.length() > i)
+            optionPort = args.at(++i).toInt();
+        else if (args.at(i) == "-U" && args.length() > i)
+            optionUsername = args.at(++i);
+    }
+
+
+    hostName = new QLineEdit( optionHost );
     layout->addRow( tr("DB Hostname"), hostName );
     port = new QSpinBox();
     port->setRange( 1, 65535 );
-    port->setValue( s.value( Common::SettingsNames::xtDbPort, QVariant( 5432 ) ).toInt() );
+    port->setValue( optionPort );
     layout->addRow( tr("DB Port"), port );
-    dbName = new QLineEdit( s.value( Common::SettingsNames::xtDbDbName ).toString() );
+    dbName = new QLineEdit( optionDbname );
     layout->addRow( tr("DB Name"), dbName );
-    username = new QLineEdit( s.value( Common::SettingsNames::xtDbUser ).toString() );
+    username = new QLineEdit( optionUsername );
     layout->addRow( tr("DB Username"), username );
     QPushButton *btn = new QPushButton( tr("Run xTuple Synchronization") );
     connect( btn, SIGNAL(clicked()), this, SLOT(runXtConnect()) );
