@@ -83,10 +83,10 @@ void SqlStorage::_prepareStatements()
                                                    "(E:eml_hash, :eml_date, :eml_subj, :eml_body, E:eml_msg, 'I') returning eml_id;")) )
         _fail( "Failed to prepare query _queryInsertMail", _queryInsertMail );
 
-    _queryInsertAddress = QSqlQuery(db);
+    _queryInsertAddress = XSqlQuery(db);
     if ( ! _queryInsertAddress.prepare( QLatin1String("INSERT INTO xtbatch.emladdr "
                                                       "(emladdr_eml_id, emladdr_type, emladdr_addr, emladdr_name) "
-                                                      "VALUES (?, ?, ?, ?)") ) )
+                                                      "VALUES (:emladdr_eml_id, :emladdr_type, E:emladdr_addr, E:emladdr_name)") ) )
         _fail( "Failed to prepare query _queryInsertAddress", _queryInsertAddress );
 
     _queryMarkMailReady = QSqlQuery(db);
@@ -153,10 +153,10 @@ Common::SqlTransactionAutoAborter SqlStorage::transactionGuard()
 
 SqlStorage::ResultType SqlStorage::insertAddress( const quint64 emlId, const QString &name, const QString &address, const QLatin1String kind )
 {
-    _queryInsertAddress.bindValue( 0, emlId );
-    _queryInsertAddress.bindValue( 1, kind );
-    _queryInsertAddress.bindValue( 2, address );
-    _queryInsertAddress.bindValue( 3, name );
+    _queryInsertAddress.bindValue( QLatin1String(":emladdr_eml_id"), emlId );
+    _queryInsertAddress.bindValue( QLatin1String(":emladdr_type"), kind );
+    _queryInsertAddress.bindValue( QLatin1String(":emladdr_addr"), address );
+    _queryInsertAddress.bindValue( QLatin1String(":emladdr_name"), name );
 
     if ( ! _queryInsertAddress.exec() ) {
         _fail( "Query _queryInsertAddress failed", _queryInsertAddress );

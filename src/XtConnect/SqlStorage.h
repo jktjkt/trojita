@@ -77,7 +77,7 @@ private:
     QSqlDatabase db;
     XSqlQuery _queryValidateMail;
     XSqlQuery _queryInsertMail;
-    QSqlQuery _queryInsertAddress;
+    XSqlQuery _queryInsertAddress;
     QSqlQuery _queryMarkMailReady;
 
     QTimer *reconnect;
