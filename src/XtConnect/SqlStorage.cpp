@@ -73,20 +73,14 @@ void SqlStorage::open()
 void SqlStorage::_prepareStatements()
 {
     _queryValidateMail = XSqlQuery(db);
-    if ( ! _queryValidateMail.prepare( "SELECT eml_id "
-                                       "FROM xtbatch.eml "
-                                       "WHERE (eml_hash=E:eml_hash);") )
+    if ( ! _queryValidateMail.prepare( QLatin1String("SELECT eml_id FROM xtbatch.eml WHERE (eml_hash=E:eml_hash);")) )
         _fail( "Failed to prepare query _queryValidateMail", _queryValidateMail );
 
     _queryInsertMail = XSqlQuery(db);
-    if ( ! _queryInsertMail.prepare( "INSERT INTO xtbatch.eml "
-                                     "(eml_hash, eml_date, "
-                                     " eml_subj, eml_body, "
-                                     " eml_msg, eml_status) "
-                                     "VALUES "
-                                     "(E:eml_hash, :eml_date, "
-                                     " :eml_subj, :eml_body, "
-                                     " E:eml_msg, 'I') returning eml_id;") )
+    if ( ! _queryInsertMail.prepare( QLatin1String("INSERT INTO xtbatch.eml "
+                                                   "(eml_hash, eml_date, eml_subj, eml_body, eml_msg, eml_status) "
+                                                   "VALUES "
+                                                   "(E:eml_hash, :eml_date, :eml_subj, :eml_body, E:eml_msg, 'I') returning eml_id;")) )
         _fail( "Failed to prepare query _queryInsertMail", _queryInsertMail );
 
     _queryInsertAddress = QSqlQuery(db);
