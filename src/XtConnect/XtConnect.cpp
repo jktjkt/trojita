@@ -33,6 +33,7 @@
 #include <QDir>
 #include <QDebug>
 #include <QSettings>
+#include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
 #include "XtCache.h"
 #include "Imap/Model/MemoryCache.h"
@@ -115,12 +116,12 @@ void XtConnect::setupModels()
     if ( m_settings->value( SettingsNames::imapMethodKey ).toString() == SettingsNames::methodTCP ) {
         factory.reset( new Imap::Mailbox::TlsAbleSocketFactory(
                 m_settings->value( SettingsNames::imapHostKey ).toString(),
-                m_settings->value( SettingsNames::imapPortKey ).toUInt() ) );
+                m_settings->value( SettingsNames::imapPortKey, QString::number(Common::PORT_IMAP) ).toUInt() ) );
         factory->setStartTlsRequired( m_settings->value( SettingsNames::imapStartTlsKey, true ).toBool() );
     } else if ( m_settings->value( SettingsNames::imapMethodKey ).toString() == SettingsNames::methodSSL ) {
         factory.reset( new Imap::Mailbox::SslSocketFactory(
                 m_settings->value( SettingsNames::imapHostKey ).toString(),
-                m_settings->value( SettingsNames::imapPortKey ).toUInt() ) );
+                m_settings->value( SettingsNames::imapPortKey, QString::number(Common::PORT_IMAPS) ).toUInt() ) );
     } else {
         QStringList args = m_settings->value( SettingsNames::imapProcessKey ).toString().split( QLatin1Char(' ') );
         if ( args.isEmpty() ) {

@@ -43,6 +43,7 @@
 #include "MessageView.h"
 #include "MsgListView.h"
 #include "SettingsDialog.h"
+#include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
 #include "SimplePartWidget.h"
 #include "Imap/Model/Model.h"
@@ -337,12 +338,12 @@ void MainWindow::setupModels()
     if ( s.value( SettingsNames::imapMethodKey ).toString() == SettingsNames::methodTCP ) {
         factory.reset( new Imap::Mailbox::TlsAbleSocketFactory(
                 s.value( SettingsNames::imapHostKey ).toString(),
-                s.value( SettingsNames::imapPortKey ).toUInt() ) );
+                s.value( SettingsNames::imapPortKey, QString::number(Common::PORT_IMAP) ).toUInt() ) );
         factory->setStartTlsRequired( s.value( SettingsNames::imapStartTlsKey, true ).toBool() );
     } else if ( s.value( SettingsNames::imapMethodKey ).toString() == SettingsNames::methodSSL ) {
         factory.reset( new Imap::Mailbox::SslSocketFactory(
                 s.value( SettingsNames::imapHostKey ).toString(),
-                s.value( SettingsNames::imapPortKey ).toUInt() ) );
+                s.value( SettingsNames::imapPortKey, QString::number(Common::PORT_IMAPS) ).toUInt() ) );
     } else {
         QStringList args = s.value( SettingsNames::imapProcessKey ).toString().split( QLatin1Char(' ') );
         Q_ASSERT( ! args.isEmpty() ); // FIXME

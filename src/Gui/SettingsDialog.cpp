@@ -35,6 +35,7 @@
 #include <QResizeEvent>
 #include <QDebug>
 #include "SettingsDialog.h"
+#include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
 
 namespace Gui {
@@ -112,7 +113,7 @@ ImapPage::ImapPage( QWidget* parent, QSettings& s ): QScrollArea(parent), Ui_Ima
     }
 
     imapHost->setText(s.value( SettingsNames::imapHostKey ).toString());
-    imapPort->setText(s.value( SettingsNames::imapPortKey, 143 ).toString());
+    imapPort->setText(s.value( SettingsNames::imapPortKey, QString::number(Common::PORT_IMAP) ).toString());
     imapPort->setValidator( new QIntValidator( 1, 65535, this ) );
     startTls->setChecked( s.value( SettingsNames::imapStartTlsKey, true ).toBool() );
     imapUser->setText(s.value( SettingsNames::imapUserKey ).toString());
@@ -141,8 +142,8 @@ void ImapPage::updateWidgets()
             imapHost->setEnabled( true );
             lay->labelForField( imapHost )->setEnabled( true );
             imapPort->setEnabled( true );
-            if ( imapPort->text().isEmpty() || imapPort->text() == QLatin1String("993") )
-                imapPort->setText( QString::number( 143 ) );
+            if ( imapPort->text().isEmpty() || imapPort->text() == QString::number(Common::PORT_IMAPS) )
+                imapPort->setText( QString::number( Common::PORT_IMAP ) );
             else if ( QSettings().contains(Common::SettingsNames::imapPortKey) )
                 imapPort->setText(QSettings().value(Common::SettingsNames::imapPortKey).toString());
             lay->labelForField( imapPort )->setEnabled( true );
@@ -160,8 +161,8 @@ void ImapPage::updateWidgets()
             imapHost->setEnabled( true );
             lay->labelForField( imapHost )->setEnabled( true );
             imapPort->setEnabled( true );
-            if ( imapPort->text().isEmpty() || imapPort->text() == QLatin1String("143") )
-                imapPort->setText( QString::number( 993 ) );
+            if ( imapPort->text().isEmpty() || imapPort->text() == QString::number(Common::PORT_IMAP) )
+                imapPort->setText( QString::number( Common::PORT_IMAPS ) );
             else if ( QSettings().contains(Common::SettingsNames::imapPortKey) )
                 imapPort->setText(QSettings().value(Common::SettingsNames::imapPortKey).toString());
             lay->labelForField( imapPort )->setEnabled( true );
@@ -198,7 +199,7 @@ void ImapPage::save( QSettings& s )
         case TCP:
             s.setValue( SettingsNames::imapMethodKey, SettingsNames::methodTCP );
             s.setValue( SettingsNames::imapHostKey, imapHost->text() );
-            if ( imapPort->text() != QLatin1String("143") )
+            if ( imapPort->text() != QString::number(Common::PORT_IMAP) )
                 s.setValue( SettingsNames::imapPortKey, imapPort->text() );
             s.setValue( SettingsNames::imapStartTlsKey, startTls->isChecked() );
             s.setValue( SettingsNames::imapUserKey, imapUser->text() );
@@ -207,7 +208,7 @@ void ImapPage::save( QSettings& s )
         case SSL:
             s.setValue( SettingsNames::imapMethodKey, SettingsNames::methodSSL );
             s.setValue( SettingsNames::imapHostKey, imapHost->text() );
-            if ( imapPort->text() != QLatin1String("993") )
+            if ( imapPort->text() != QString::number(Common::PORT_IMAPS) )
                 s.setValue( SettingsNames::imapPortKey, imapPort->text() );
             s.setValue( SettingsNames::imapStartTlsKey, startTls->isChecked() );
             s.setValue( SettingsNames::imapUserKey, imapUser->text() );
