@@ -78,6 +78,9 @@ class ImapPage : public QScrollArea, Ui_ImapPage
 public:
     ImapPage( QWidget* parent, QSettings& s );
     void save( QSettings& s );
+#ifdef XTUPLE_CONNECT
+    bool hasPassword() const;
+#endif
 
 protected:
     virtual void resizeEvent ( QResizeEvent * event );
@@ -122,6 +125,7 @@ class XtConnectPage : public QWidget
 public:
     XtConnectPage( QWidget* parent, QSettings&s, ImapPage* imapPage );
     void save( QSettings& s );
+    virtual void showEvent(QShowEvent *event);
 public slots:
     void saveXtConfig();
     void runXtConnect();
@@ -133,6 +137,7 @@ private:
     QSpinBox *port;
     QLineEdit *dbName;
     QLineEdit *username;
+    QLabel *imapPasswordWarning;
 
     XtConnectPage(const XtConnectPage&); // don't implement
     XtConnectPage& operator=(const XtConnectPage&); // don't implement

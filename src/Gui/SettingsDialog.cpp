@@ -434,6 +434,15 @@ XtConnectPage::XtConnectPage( QWidget* parent, QSettings& s, ImapPage* imapPage 
     layout->addRow( tr("DB Name"), dbName );
     username = new QLineEdit( optionUsername );
     layout->addRow( tr("DB Username"), username );
+
+    imapPasswordWarning = new QLabel(tr("Please file in all IMAP details, including the password, at the IMAP page. "
+                                        "If you do not save password, background synchronization will not to run."), this);
+    imapPasswordWarning->setWordWrap(true);
+    imapPasswordWarning->setStyleSheet( QString::fromAscii("border: 2px solid red; background-color: #E7C575; "
+                                                           "font-weight: bold; padding: 5px; margin: 5px; "
+                                                           "text-align: center;") );
+    layout->addRow(imapPasswordWarning);
+
     QPushButton *btn = new QPushButton( tr("Run xTuple Synchronization") );
     connect( btn, SIGNAL(clicked()), this, SLOT(runXtConnect()) );
     layout->addRow( btn );
@@ -506,6 +515,20 @@ void XtConnectPage::runXtConnect()
 
     QProcess::startDetached( cmd, args );
 }
+
+void XtConnectPage::showEvent(QShowEvent *event)
+{
+    if ( imap ) {
+        imapPasswordWarning->setVisible( ! imap->hasPassword() );
+    }
+    QWidget::showEvent(event);
+}
+
+bool ImapPage::hasPassword() const
+{
+    return ! imapPass->text().isEmpty();
+}
+
 #endif
 
 }
