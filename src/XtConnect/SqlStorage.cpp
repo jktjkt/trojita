@@ -72,12 +72,21 @@ void SqlStorage::open()
 
 void SqlStorage::_prepareStatements()
 {
-    _queryInsertMail = QSqlQuery(db);
-    if ( ! _queryInsertMail.prepare( QLatin1String("INSERT INTO xtbatch.eml "
-                                                   "(eml_hash, eml_date, eml_subj, eml_body, eml_msg, eml_status) "
-                                                   "SELECT ?, ?, ?, ?, ?, 'I' WHERE NOT EXISTS "
-                                                   " ( SELECT eml_id FROM xtbatch.eml WHERE eml_hash = ? ) "
-                                                   "RETURNING eml_id") ) )
+    _queryValidateMail = XSqlQuery(db);
+    if ( ! _queryValidateMail.prepare( "SELECT eml_id "
+                                       "FROM xtbatch.eml "
+                                       "WHERE (eml_hash=E:eml_hash);") )
+        _fail( "Failed to prepare query _queryValidateMail", _queryValidateMail );
+
+    _queryInsertMail = XSqlQuery(db);
+    if ( ! _queryInsertMail.prepare( "INSERT INTO xtbatch.eml "
+                                     "(eml_hash, eml_date, "
+                                     " eml_subj, eml_body, "
+                                     " eml_msg, eml_status) "
+                                     "VALUES "
+                                     "(E:eml_hash, :eml_date, "
+                                     " :eml_subj, :eml_body, "
+                                     " E:eml_msg, 'I') returning eml_id;") )
         _fail( "Failed to prepare query _queryInsertMail", _queryInsertMail );
 
     _queryInsertAddress = QSqlQuery(db);
@@ -96,12 +105,20 @@ SqlStorage::ResultType SqlStorage::insertMail( const QDateTime &dateTime, const 
     QCryptographicHash hash( QCryptographicHash::Sha1 );
     hash.addData( body );
     QByteArray hashValue = hash.result();
-    _queryInsertMail.bindValue( 0, hashValue );
-    _queryInsertMail.bindValue( 1, dateTime );
-    _queryInsertMail.bindValue( 2, subject );
-    _queryInsertMail.bindValue( 3, readableText );
-    _queryInsertMail.bindValue( 4, headers + body );
-    _queryInsertMail.bindValue( 5, hashValue );
+
+    _queryValidateMail.bindValue( ":eml_hash", hashValue );
+    if ( ! _queryValidateMail.exec() ) {
+        _fail( "Query _queryValidateMail failed", _queryValidateMail );
+        return RESULT_ERROR;
+    } else if ( _queryValidateMail.first() ) {
+        return RESULT_DUPLICATE;
+    }
+
+    _queryInsertMail.bindValue( ":eml_hash", hashValue );
+    _queryInsertMail.bindValue( ":eml_date", dateTime );
+    _queryInsertMail.bindValue( ":eml_subj", subject );
+    _queryInsertMail.bindValue( ":eml_body", readableText );
+    _queryInsertMail.bindValue( ":eml_msg", headers + body);
 
     if ( ! _queryInsertMail.exec() ) {
         _fail( "Query _queryInsertMail failed", _queryInsertMail );
@@ -112,7 +129,7 @@ SqlStorage::ResultType SqlStorage::insertMail( const QDateTime &dateTime, const 
         emlId = _queryInsertMail.value( 0 ).toULongLong();
         return RESULT_OK;
     } else {
-        return RESULT_DUPLICATE;
+        return RESULT_ERROR;
     }
 }
 

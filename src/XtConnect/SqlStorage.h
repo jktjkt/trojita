@@ -36,6 +36,7 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include "Common/SqlTransactionAutoAborter.h"
+#include "xsqlquery.h"
 
 class QTimer;
 
@@ -74,7 +75,8 @@ private:
     void _fail( const QString &message, const QSqlDatabase &database );
 
     QSqlDatabase db;
-    QSqlQuery _queryInsertMail;
+    XSqlQuery _queryValidateMail;
+    XSqlQuery _queryInsertMail;
     QSqlQuery _queryInsertAddress;
     QSqlQuery _queryMarkMailReady;
 
