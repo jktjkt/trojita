@@ -80,7 +80,7 @@ void SqlStorage::_prepareStatements()
     if ( ! _queryInsertMail.prepare( QLatin1String("INSERT INTO xtbatch.eml "
                                                    "(eml_hash, eml_date, eml_subj, eml_body, eml_msg, eml_status) "
                                                    "VALUES "
-                                                   "(E:eml_hash, :eml_date, :eml_subj, :eml_body, E:eml_msg, 'I') returning eml_id;")) )
+                                                   "(E:eml_hash, :eml_date, E:eml_subj, E:eml_body, E:eml_msg, 'I') returning eml_id;")) )
         _fail( "Failed to prepare query _queryInsertMail", _queryInsertMail );
 
     _queryInsertAddress = XSqlQuery(db);
