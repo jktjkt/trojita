@@ -392,9 +392,6 @@ XtConnectPage::XtConnectPage( QWidget* parent, QSettings& s, ImapPage* imapPage 
     QFormLayout* layout = new QFormLayout( this );
     cacheDir = new QLineEdit( s.value( Common::SettingsNames::xtConnectCacheDirectory, QString::fromAscii("~/.cache/xtuple.com/xtconnect-trojita") ).toString(), this );
     layout->addRow( tr("Cache Directory"), cacheDir );
-    QPushButton* btn = new QPushButton("Save xTuple Configuration");
-    connect( btn, SIGNAL(clicked()), this, SLOT(saveXtConfig()) );
-    layout->addRow( btn );
 
     QGroupBox *box = new QGroupBox( tr("Mailboxes to synchronize"), this );
     QVBoxLayout *boxLayout = new QVBoxLayout( box );
@@ -417,7 +414,7 @@ XtConnectPage::XtConnectPage( QWidget* parent, QSettings& s, ImapPage* imapPage 
     layout->addRow( tr("DB Name"), dbName );
     username = new QLineEdit( s.value( Common::SettingsNames::xtDbUser ).toString() );
     layout->addRow( tr("DB Username"), username );
-    btn = new QPushButton( tr("Run xTuple Synchronization") );
+    QPushButton *btn = new QPushButton( tr("Run xTuple Synchronization") );
     connect( btn, SIGNAL(clicked()), this, SLOT(runXtConnect()) );
     layout->addRow( btn );
 }
@@ -429,6 +426,7 @@ void XtConnectPage::save( QSettings& s )
     s.setValue( Common::SettingsNames::xtDbPort, port->value() );
     s.setValue( Common::SettingsNames::xtDbDbName, dbName->text() );
     s.setValue( Common::SettingsNames::xtDbUser, username->text() );
+    saveXtConfig();
 }
 
 void XtConnectPage::saveXtConfig()
