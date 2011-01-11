@@ -431,7 +431,7 @@ void XtConnectPage::save( QSettings& s )
 
 void XtConnectPage::saveXtConfig()
 {
-    QSettings s( QString::fromAscii("xtuple.com"), QString::fromAscii("xtconnect-trojita") );
+    QSettings s(QSettings::UserScope, QString::fromAscii("xTuple.com"), QString::fromAscii("xTuple"));
 
     // Copy the IMAP settings
     Q_ASSERT(imap);
