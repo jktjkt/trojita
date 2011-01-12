@@ -454,12 +454,12 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList( const QVariantList& i
 
             kind = MESSAGE;
             if ( items[i].type() != QVariant::List )
-                throw UnexpectedHere( "envelope not a list", line, start );
+                throw UnexpectedHere( "message/rfc822: envelope not a list", line, start );
             envelope = Envelope::fromList( items[i].toList(), line, start );
             ++i;
 
             if ( items[i].type() != QVariant::List )
-                throw UnexpectedHere( "body not recognized as a list", line, start );
+                throw UnexpectedHere( "message/rfc822: body not recognized as a list", line, start );
             body = AbstractMessage::fromList( items[i].toList(), line, start );
             ++i;
 
