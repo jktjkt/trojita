@@ -34,15 +34,16 @@ QList<MailAddress> Envelope::getListOfAddresses( const QVariant& in, const QByte
 {
     if ( in.type() == QVariant::ByteArray ) {
         if ( ! in.toByteArray().isNull() )
-            throw UnexpectedHere( line, start );
-    } else if ( in.type() != QVariant::List )
-        throw ParseError( line, start );
+            throw UnexpectedHere( "getListOfAddresses: byte array not null", line, start );
+    } else if ( in.type() != QVariant::List ) {
+        throw ParseError( "getListOfAddresses: not a list", line, start );
+    }
 
     QVariantList list = in.toList();
     QList<MailAddress> res;
     for ( QVariantList::const_iterator it = list.begin(); it != list.end(); ++it ) {
         if ( it->type() != QVariant::List )
-            throw UnexpectedHere( line, start ); // FIXME: wrong offset
+            throw UnexpectedHere( "getListOfAddresses: split item not a list", line, start ); // FIXME: wrong offset
         res.append( MailAddress( it->toList(), line, start ) );
     }
     return res;
@@ -52,16 +53,16 @@ MailAddress::MailAddress( const QVariantList& input, const QByteArray& line, con
 {
     // FIXME: all offsets are wrong here
     if ( input.size() != 4 )
-        throw ParseError( line, start );
+        throw ParseError( "MailAddress: not four items", line, start );
 
     if ( input[0].type() != QVariant::ByteArray )
-        throw UnexpectedHere( line, start );
+        throw UnexpectedHere( "MailAddress: item#1 not a QByteArray", line, start );
     if ( input[1].type() != QVariant::ByteArray )
-        throw UnexpectedHere( line, start );
+        throw UnexpectedHere( "MailAddress: item#2 not a QByteArray", line, start );
     if ( input[2].type() != QVariant::ByteArray )
-        throw UnexpectedHere( line, start );
+        throw UnexpectedHere( "MailAddress: item#3 not a QByteArray", line, start );
     if ( input[3].type() != QVariant::ByteArray )
-        throw UnexpectedHere( line, start );
+        throw UnexpectedHere( "MailAddress: item#4 not a QByteArray", line, start );
 
     name = Imap::decodeRFC2047String( input[0].toByteArray() );
     adl = Imap::decodeRFC2047String( input[1].toByteArray() );
@@ -124,7 +125,7 @@ QString MailAddress::prettyList( const QVariantList& list, FormattingMode mode )
 Envelope Envelope::fromList( const QVariantList& items, const QByteArray& line, const int start )
 {
     if ( items.size() != 10 )
-        throw ParseError( line, start ); // FIXME: wrong offset
+        throw ParseError( "Envelope::fromList: size != 10", line, start ); // FIXME: wrong offset
 
     // date
     QDateTime date;
@@ -152,11 +153,11 @@ Envelope Envelope::fromList( const QVariantList& items, const QByteArray& line, 
     bcc = Envelope::getListOfAddresses( items[7], line, start );
 
     if ( items[8].type() != QVariant::ByteArray )
-        throw UnexpectedHere( line, start );
+        throw UnexpectedHere( "Envelope::fromList: inReplyTo not a QByteArray", line, start );
     QByteArray inReplyTo = items[8].toByteArray();
 
     if ( items[9].type() != QVariant::ByteArray )
-        throw UnexpectedHere( line, start );
+        throw UnexpectedHere( "Envelope::fromList: messageId not a QByteArray", line, start );
     QByteArray messageId = items[9].toByteArray();
 
     return Envelope( date, subject, from, sender, replyTo, to, cc, bcc, inReplyTo, messageId );
@@ -339,14 +340,14 @@ AbstractMessage::bodyFldParam_t AbstractMessage::makeBodyFldParam( const QVarian
     if ( input.type() != QVariant::List ) {
         if ( input.type() == QVariant::ByteArray && input.toByteArray().isNull() )
             return map;
-        throw UnexpectedHere( line, start ); // body-fld-param: not a list / nil
+        throw UnexpectedHere( "body-fld-param: not a list / nil", line, start );
     }
     QVariantList list = input.toList();
     if ( list.size() % 2 )
-        throw UnexpectedHere( line, start ); // body-fld-param: wrong number of entries
+        throw UnexpectedHere( "body-fld-param: wrong number of entries", line, start );
     for ( int j = 0; j < list.size(); j += 2 )
         if ( list[j].type() != QVariant::ByteArray || list[j+1].type() != QVariant::ByteArray )
-            throw UnexpectedHere( line, start ); // body-fld-param: string not found
+            throw UnexpectedHere( "body-fld-param: string not found", line, start );
         else
             map[ list[j].toByteArray().toUpper() ] = list[j+1].toByteArray();
     return map;
@@ -359,13 +360,13 @@ AbstractMessage::bodyFldDsp_t AbstractMessage::makeBodyFldDsp( const QVariant& i
     if ( input.type() != QVariant::List ) {
         if ( input.type() == QVariant::ByteArray && input.toByteArray().isNull() )
             return res;
-        throw UnexpectedHere( line, start ); // body-fld-dsp: not a list / nil
+        throw UnexpectedHere( "body-fld-dsp: not a list / nil", line, start );
     }
     QVariantList list = input.toList();
     if ( list.size() != 2 )
-        throw ParseError( line, start ); // body-fld-dsp: wrong number of entries in the list
+        throw ParseError( "body-fld-dsp: wrong number of entries in the list", line, start );
     if ( list[0].type() != QVariant::ByteArray )
-        throw UnexpectedHere( line, start ); // body-fld-dsp: first item is not a string
+        throw UnexpectedHere( "body-fld-dsp: first item is not a string", line, start );
     res.first = list[0].toByteArray();
     res.second = makeBodyFldParam( list[1], line, start );
     return res;
@@ -382,11 +383,11 @@ QList<QByteArray> AbstractMessage::makeBodyFldLang( const QVariant& input, const
         QVariantList list = input.toList();
         for ( QVariantList::const_iterator it = list.begin(); it != list.end(); ++it )
             if ( it->type() != QVariant::ByteArray )
-                throw UnexpectedHere( line, start ); // body-fld-lang has wrong structure
+                throw UnexpectedHere( "body-fld-lang has wrong structure", line, start );
             else
                 res << it->toByteArray();
     } else
-        throw UnexpectedHere( line, start ); // body-fld-lang not found
+        throw UnexpectedHere( "body-fld-lang not found", line, start );
     return res;
 }
 
@@ -398,19 +399,19 @@ uint AbstractMessage::extractUInt( const QVariant& var, const QByteArray& line, 
         qDebug() << "Parser warning: -1 is not an unsigned int";
         return 0;
     }
-    throw UnexpectedHere( line, start );
+    throw UnexpectedHere( "extractUInt: weird data type", line, start );
 }
 
 
 QSharedPointer<AbstractMessage> AbstractMessage::fromList( const QVariantList& items, const QByteArray& line, const int start )
 {
     if ( items.size() < 3 )
-        throw NoData( line, start );
+        throw NoData( "AbstractMessage::fromList: no data", line, start );
 
     if ( items[0].type() == QVariant::ByteArray ) {
         // it's a single-part message, hurray
         if ( items.size() < 7 )
-            throw NoData( line, start );
+            throw NoData( "AbstractMessage::fromList: items.size != 7", line, start );
 
         int i = 0;
         QString mediaType = items[i].toString().toLower();
@@ -618,7 +619,7 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList( const QVariantList& i
                 new MultiMessage( bodies, mediaSubType, bodyFldParam,
                     bodyFldDsp, bodyFldLang, bodyFldLoc, bodyExtension ) );
     } else {
-        throw UnexpectedHere( line, start );
+        throw UnexpectedHere( "AbstractMessage::fromList: invalid data type of first item", line, start );
     }
 }
 

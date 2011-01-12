@@ -33,7 +33,7 @@ namespace LowLevelParser {
 uint getUInt( const QByteArray& line, int& start )
 {
     if ( start == line.size() )
-        throw NoData( line, start );
+        throw NoData( "getUInt: no data", line, start );
 
     QByteArray item;
     bool breakIt = false;
@@ -53,14 +53,14 @@ uint getUInt( const QByteArray& line, int& start )
     bool ok;
     uint number = item.toUInt( &ok );
     if (!ok)
-        throw ParseError( line, start );
+        throw ParseError( "getUInt: not a number", line, start );
     return number;
 }
 
 QByteArray getAtom( const QByteArray& line, int& start )
 {
     if ( start == line.size() )
-        throw NoData( line, start );
+        throw NoData( "getAtom: no data", line, start );
 
     int old(start);
     bool breakIt = false;
@@ -81,14 +81,14 @@ QByteArray getAtom( const QByteArray& line, int& start )
     }
 
     if ( old == start )
-        throw ParseError( line, start );
+        throw ParseError( "getAtom: did not read anything", line, start );
     return line.mid( old, start - old );
 }
 
 QPair<QByteArray,ParsedAs> getString( const QByteArray& line, int& start )
 {
     if ( start == line.size() )
-        throw NoData( line, start );
+        throw NoData( "getString: no data", line, start );
 
     if ( line[start] == '"' ) {
         // quoted string
@@ -102,7 +102,7 @@ QPair<QByteArray,ParsedAs> getString( const QByteArray& line, int& start )
                 if ( line[start] == '"' || line[start] == '\\' )
                     res.append( line[start] );
                 else
-                    throw UnexpectedHere( line, start );
+                    throw UnexpectedHere( "getString: escaping invalid character", line, start );
             } else {
                 switch (line[start]) {
                     case '"':
@@ -112,7 +112,7 @@ QPair<QByteArray,ParsedAs> getString( const QByteArray& line, int& start )
                         escaping = true;
                         break;
                     case '\r': case '\n':
-                        throw ParseError( line, start );
+                        throw ParseError( "getString: premature end of quoted string", line, start );
                     default:
                         res.append( line[start] );
                 }
@@ -120,28 +120,29 @@ QPair<QByteArray,ParsedAs> getString( const QByteArray& line, int& start )
             ++start;
         }
         if (!terminated)
-            throw NoData( line, start );
+            throw NoData( "getString: unterminated quoted string", line, start );
         return qMakePair( res, QUOTED );
     } else if ( line[start] == '{' ) {
         // literal
         ++start;
         int size = getUInt( line, start );
         if ( line.mid( start, 3 ) != "}\r\n" )
-            throw ParseError( line, start );
+            throw ParseError( "getString: mallformed literal specification", line, start );
         start += 3;
         if ( start + size > line.size() )
-            throw NoData( line, start );
+            throw NoData( "getString: run out of data", line, start );
         int old(start);
         start += size;
         return qMakePair( line.mid(old, size), LITERAL );
-    } else
-        throw UnexpectedHere( line, start );
+    } else {
+        throw UnexpectedHere( "getString: did not get quoted string or literal", line, start );
+    }
 }
 
 QPair<QByteArray,ParsedAs> getAString( const QByteArray& line, int& start )
 {
     if ( start == line.size() )
-        throw NoData( line, start );
+        throw NoData( "getAString: no data", line, start );
 
     if ( line[start] == '{' || line[start] == '"' )
         return getString( line, start );
@@ -206,7 +207,7 @@ QVariantList parseList( const char open, const char close,
 QVariant getAnything( const QByteArray& line, int& start )
 {
     if ( start >= line.size() )
-        throw NoData( line, start );
+        throw NoData( "getAnything: no data", line, start );
 
     if ( line[start] == '[' ) {
         QVariant res = parseList( '[', ']', line, start );
@@ -224,7 +225,7 @@ QVariant getAnything( const QByteArray& line, int& start )
         // valid for "flag"
         ++start;
         if ( start >= line.size() )
-            throw NoData( line, start );
+            throw NoData( "getAnything: backslash-nothing is invalid", line, start );
         if ( line[start] == '*' ) {
             ++start;
             return QByteArray( "\\*" );
@@ -244,7 +245,7 @@ QVariant getAnything( const QByteArray& line, int& start )
                     // next atom...
                     int pos = line.indexOf( ']', start );
                     if ( pos == -1 )
-                        throw ParseError( line, start );
+                        throw ParseError( "getAnything: can't find ']' for the '['", line, start );
                     ++pos;
                     atom += line.mid( start, pos - start );
                     start = pos;
@@ -252,7 +253,7 @@ QVariant getAnything( const QByteArray& line, int& start )
                         // Let's check if it continues with "<range>"
                         pos = line.indexOf( '>', start );
                         if ( pos == -1 )
-                            throw ParseError( line, start );
+                            throw ParseError( "getAnything: can't find proper <range>", line, start );
                         ++pos;
                         atom += line.mid( start, pos - start );
                         start = pos;
