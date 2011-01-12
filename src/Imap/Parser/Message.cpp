@@ -485,7 +485,11 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList( const QVariantList& i
             body = AbstractMessage::fromList( items[i].toList(), line, start );
             ++i;
 
-            bodyFldLines = extractUInt( items[i], line, start );
+            try {
+                bodyFldLines = extractUInt( items[i], line, start );
+            } catch ( const UnexpectedHere & e ) {
+                qDebug() << "AbstractMessage::fromList(): message/rfc822: yuck, invalid body-fld-lines";
+            }
             ++i;
 
         } else if ( mediaType == "text" ) {
