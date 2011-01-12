@@ -453,9 +453,14 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList( const QVariantList& i
                 throw NoData( "too few fields for a Message-message", line, start );
 
             kind = MESSAGE;
-            if ( items[i].type() != QVariant::List )
+            if ( items[i].type() == QVariant::ByteArray && items[i].toByteArray().isEmpty() ) {
+                // ENVELOPE is NIL, this shouldn't really happen
+                qDebug() << "AbstractMessage::fromList(): message/rfc822: yuck, got NIL for envelope";
+            } else if ( items[i].type() != QVariant::List ) {
                 throw UnexpectedHere( "message/rfc822: envelope not a list", line, start );
-            envelope = Envelope::fromList( items[i].toList(), line, start );
+            } else {
+                envelope = Envelope::fromList( items[i].toList(), line, start );
+            }
             ++i;
 
             if ( items[i].type() != QVariant::List )
