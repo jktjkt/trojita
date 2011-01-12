@@ -405,13 +405,11 @@ uint AbstractMessage::extractUInt( const QVariant& var, const QByteArray& line, 
 
 QSharedPointer<AbstractMessage> AbstractMessage::fromList( const QVariantList& items, const QByteArray& line, const int start )
 {
-    if ( items.size() < 3 )
+    if ( items.size() < 2 )
         throw NoData( "AbstractMessage::fromList: no data", line, start );
 
     if ( items[0].type() == QVariant::ByteArray ) {
         // it's a single-part message, hurray
-        if ( items.size() < 7 )
-            throw NoData( "AbstractMessage::fromList: items.size != 7", line, start );
 
         int i = 0;
         QString mediaType = items[i].toString().toLower();
@@ -419,26 +417,45 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList( const QVariantList& i
         QString mediaSubType = items[i].toString().toLower();
         ++i;
 
-        bodyFldParam_t bodyFldParam = makeBodyFldParam( items[i], line, start );
-        ++i;
+        if ( items.size() < 7 ) {
+            qDebug() << "AbstractMessage::fromList(): body-type-basic(?): yuck, too few items, using what we've got";
+        }
 
-        if ( items[i].type() != QVariant::ByteArray )
-            throw UnexpectedHere( "body-fld-id not recognized as a ByteArray", line, start );
-        QByteArray bodyFldId = items[i].toByteArray();
-        ++i;
+        bodyFldParam_t bodyFldParam;
+        if ( i < items.size() ) {
+            bodyFldParam = makeBodyFldParam( items[i], line, start );
+            ++i;
+        }
 
-        if ( items[i].type() != QVariant::ByteArray )
-            throw UnexpectedHere( "body-fld-desc not recognized as a ByteArray", line, start );
-        QByteArray bodyFldDesc = items[i].toByteArray();
-        ++i;
+        QByteArray bodyFldId;
+        if ( i < items.size() ) {
+            if ( items[i].type() != QVariant::ByteArray )
+                throw UnexpectedHere( "body-fld-id not recognized as a ByteArray", line, start );
+            bodyFldId = items[i].toByteArray();
+            ++i;
+        }
 
-        if ( items[i].type() != QVariant::ByteArray )
-            throw UnexpectedHere( "body-fld-enc not recognized as a ByteArray", line, start );
-        QByteArray bodyFldEnc = items[i].toByteArray();
-        ++i;
+        QByteArray bodyFldDesc;
+        if ( i < items.size() ) {
+            if ( items[i].type() != QVariant::ByteArray )
+                throw UnexpectedHere( "body-fld-desc not recognized as a ByteArray", line, start );
+            bodyFldDesc = items[i].toByteArray();
+            ++i;
+        }
 
-        uint bodyFldOctets = extractUInt( items[i], line, start );
-        ++i;
+        QByteArray bodyFldEnc;
+        if ( i < items.size() ) {
+            if ( items[i].type() != QVariant::ByteArray )
+                throw UnexpectedHere( "body-fld-enc not recognized as a ByteArray", line, start );
+            bodyFldEnc = items[i].toByteArray();
+            ++i;
+        }
+
+        uint bodyFldOctets = 0;
+        if ( i < items.size() ) {
+            bodyFldOctets = extractUInt( items[i], line, start );
+            ++i;
+        }
 
         uint bodyFldLines = 0;
         Envelope envelope;
@@ -472,12 +489,12 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList( const QVariantList& i
             ++i;
 
         } else if ( mediaType == "text" ) {
-            // extract body-fld-lines
-
-            kind = TEXT;
-            bodyFldLines = extractUInt( items[i], line, start );
-            ++i;
-
+            if ( i < items.size() ) {
+                // extract body-fld-lines
+                kind = TEXT;
+                bodyFldLines = extractUInt( items[i], line, start );
+                ++i;
+            }
         } else {
             // don't extract anything as we're done here
             kind = BASIC;
