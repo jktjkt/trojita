@@ -1027,6 +1027,7 @@ void MainWindow::slotXtSyncCurrentMailbox()
         mailboxes.removeAll( mailbox );
     }
     s.setValue( Common::SettingsNames::xtSyncMailboxList, mailboxes );
+    QSettings(QSettings::UserScope, QString::fromAscii("xTuple.com"), QString::fromAscii("xTuple")).setValue(Common::SettingsNames::xtSyncMailboxList, mailboxes);
     prettyMboxModel->xtConnectStatusChanged(index);
 }
 #endif
