@@ -53,12 +53,7 @@ Socket* ProcessSocketFactory::create()
     // FIXME: this may leak memory if an exception strikes in this function
     // (before we return the pointer)
     QProcess* proc = new QProcess();
-    QString cmdLine = _executable;
-    if ( ! _args.isEmpty() )
-        cmdLine += QLatin1Char(' ') + _args.join(QLatin1String(" "));
-    proc->setProperty("trojita-stream-qprocess-cmdline", cmdLine);
-    proc->start( _executable, _args );
-    return new IODeviceSocket( proc );
+    return new ProcessSocket(new QProcess(), _executable, _args);
 }
 
 SslSocketFactory::SslSocketFactory( const QString& host, const quint16 port ):
@@ -69,14 +64,11 @@ SslSocketFactory::SslSocketFactory( const QString& host, const quint16 port ):
 Socket* SslSocketFactory::create()
 {
     QSslSocket* sslSock = new QSslSocket();
-    sslSock->setProperty("trojita-stream-socket-hostname", _host);
-    sslSock->setProperty("trojita-stream-socket-port", QString::number(_port));
     sslSock->ignoreSslErrors(); // big fat FIXME here!!!
     sslSock->setProtocol( QSsl::AnyProtocol );
     sslSock->setPeerVerifyMode( QSslSocket::QueryPeer );
-    IODeviceSocket* ioSock = new IODeviceSocket( sslSock, true );
+    IODeviceSocket* ioSock = new SslTlsSocket( sslSock, _host, _port, true );
     connect( sslSock, SIGNAL(encrypted()), ioSock, SIGNAL(connected()) );
-    sslSock->connectToHostEncrypted( _host, _port );
     return ioSock;
 }
 
@@ -88,13 +80,10 @@ TlsAbleSocketFactory::TlsAbleSocketFactory( const QString& host, const quint16 p
 Socket* TlsAbleSocketFactory::create()
 {
     QSslSocket* sslSock = new QSslSocket();
-    sslSock->setProperty("trojita-stream-socket-hostname", _host);
-    sslSock->setProperty("trojita-stream-socket-port", QString::number(_port));
     sslSock->ignoreSslErrors(); // big fat FIXME here!!!
     sslSock->setProtocol( QSsl::AnyProtocol );
     sslSock->setPeerVerifyMode( QSslSocket::QueryPeer );
-    sslSock->connectToHost( _host, _port );
-    return new IODeviceSocket( sslSock );
+    return new SslTlsSocket(sslSock, _host, _port);
 }
 
 FakeSocketFactory::FakeSocketFactory(): SocketFactory()
