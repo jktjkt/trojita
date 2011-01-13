@@ -181,7 +181,8 @@ void SslTlsSocket::handleStateChanged()
         emit stateChanged(Imap::CONN_STATE_HOST_LOOKUP, tr("Looking up %1...").arg(_host));
         break;
     case QAbstractSocket::ConnectingState:
-        emit stateChanged(Imap::CONN_STATE_CONNECTING, tr("Connecting to %1:%2...").arg(_host, QString::number(_port)));
+        emit stateChanged(Imap::CONN_STATE_CONNECTING, tr("Connecting to %1:%2%3...").arg(
+                _host, QString::number(_port), _startEncrypted ? tr(" (SSL)") : QString()));
         break;
     case QAbstractSocket::BoundState:
     case QAbstractSocket::ListeningState:
