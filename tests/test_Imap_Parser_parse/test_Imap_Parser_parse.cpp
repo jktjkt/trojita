@@ -153,7 +153,10 @@ void ImapParserParseTest::testParseUntagged()
 
     Q_ASSERT( response );
     QSharedPointer<Imap::Responses::AbstractResponse> r = parser->parseUntagged( line );
-#if 0 // qDebug()'s internal buffer is too small to be useful here, that's why QCOMPARE's normal dumping is not enough
+    if ( Imap::Responses::Fetch* fetchResult = dynamic_cast<Imap::Responses::Fetch*>( r.data() ) ) {
+        fetchResult->data.remove( "x-trojita-bodystructure" );
+    }
+#if 0// qDebug()'s internal buffer is too small to be useful here, that's why QCOMPARE's normal dumping is not enough
     if ( *r != *response ) {
         QTextStream s( stderr );
         s << "\nPARSED:\n" << *r;
@@ -161,9 +164,6 @@ void ImapParserParseTest::testParseUntagged()
         s << *response;
     }
 #endif
-    if ( Imap::Responses::Fetch* fetchResult = dynamic_cast<Imap::Responses::Fetch*>( r.data() ) ) {
-        fetchResult->data.remove( "x-trojita-bodystructure" );
-    }
     QCOMPARE( *r, *response );
 }
 
