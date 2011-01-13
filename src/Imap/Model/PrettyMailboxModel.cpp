@@ -108,6 +108,14 @@ bool PrettyMailboxModel::filterAcceptsColumn( int source_column, const QModelInd
     return source_column == 0;
 }
 
+#ifdef XTUPLE_CONNECT
+void PrettyMailboxModel::xtConnectStatusChanged(QModelIndex index)
+{
+    Q_ASSERT(index.model() == this);
+    emit dataChanged(index, index);
+}
+#endif
+
 }
 
 }
