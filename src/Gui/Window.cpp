@@ -122,6 +122,9 @@ void MainWindow::createActions()
     connect( showImapLogger, SIGNAL(triggered(bool)), imapLoggerDock, SLOT(setVisible(bool)) );
     connect( imapLoggerDock, SIGNAL(visibilityChanged(bool)), showImapLogger, SLOT(setChecked(bool)) );
 
+    showImapCapabilities = new QAction(tr("IMAP Server Capabilities..."), this);
+    connect(showImapCapabilities, SIGNAL(triggered()), this, SLOT(slotShowImapCapabilities()));
+
     showMenuBar = new QAction( QIcon::fromTheme( QLatin1String("view-list-text") ),  tr("Show Main Menu Bar"), this );
     showMenuBar->setCheckable( true );
     showMenuBar->setChecked( true );
@@ -239,6 +242,7 @@ void MainWindow::createMenus()
     imapMenu->addSeparator();
     imapMenu->addAction( showFullView );
     imapMenu->addAction( showImapLogger );
+    imapMenu->addAction( showImapCapabilities );
     imapMenu->addSeparator();
     imapMenu->addAction( configSettings );
     imapMenu->addAction( showMenuBar );
@@ -833,6 +837,7 @@ void MainWindow::updateActionsOnlineOffline( bool online )
     deleteCurrentMailbox->setEnabled( online );
     markAsDeleted->setEnabled( online );
     markAsRead->setEnabled( online );
+    showImapCapabilities->setEnabled(online);
 }
 
 void MainWindow::scrollMessageUp()
@@ -1096,6 +1101,17 @@ void MainWindow::slotCapabilitiesUpdated(const QStringList &capabilities)
         }
     }
     actionThreadMsgList->setEnabled(false);
+}
+
+void MainWindow::slotShowImapCapabilities()
+{
+    QString caps;
+    Q_FOREACH( const QString &cap, model->capabilities() ) {
+        caps += tr("<li>%1</li>\n").arg(cap);
+    }
+    QMessageBox::information(this, tr("IMAP Server Capabilities"),
+                             tr("<p>This IMAP server is currently advertising support for the following capabilities:</p>\n"
+                                "<ul>\n%1</ul>").arg(caps));
 }
 
 }

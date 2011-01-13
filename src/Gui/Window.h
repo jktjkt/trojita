@@ -74,6 +74,7 @@ private slots:
     void networkPolicyExpensive();
     void networkPolicyOnline();
     void slotShowSettings();
+    void slotShowImapCapabilities();
     void slotExpunge();
     void connectionError( const QString& message );
     void cacheError( const QString& message );
@@ -156,6 +157,7 @@ private:
     QAction* exitAction;
     QAction* showFullView;
     QAction* showImapLogger;
+    QAction* showImapCapabilities;
     QAction* showMenuBar;
     QAction* configSettings;
     QAction* composeMail;
