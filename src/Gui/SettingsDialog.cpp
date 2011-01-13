@@ -20,7 +20,9 @@
 */
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDesktopServices>
 #include <QDialogButtonBox>
+#include <QDir>
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QInputDialog>
@@ -391,8 +393,12 @@ void OutgoingPage::save( QSettings& s )
 #ifdef XTUPLE_CONNECT
 XtConnectPage::XtConnectPage( QWidget* parent, QSettings& s, ImapPage* imapPage ): QWidget(parent), imap(imapPage)
 {
+    // Take care not to clash with the cache of the GUI
+    QString cacheLocation = QDesktopServices::storageLocation( QDesktopServices::CacheLocation ) + QString::fromAscii("/xtconnect-trojita");
+    if ( cacheLocation.isEmpty() )
+        cacheLocation = QDir::homePath() + QLatin1String("/.xtconnect-trojita");
     QFormLayout* layout = new QFormLayout( this );
-    cacheDir = new QLineEdit( s.value( Common::SettingsNames::xtConnectCacheDirectory, QString::fromAscii("~/.cache/xtuple.com/xtconnect-trojita") ).toString(), this );
+    cacheDir = new QLineEdit( s.value( Common::SettingsNames::xtConnectCacheDirectory, cacheLocation ).toString(), this );
     layout->addRow( tr("Cache Directory"), cacheDir );
 
     QGroupBox *box = new QGroupBox( tr("Mailboxes to synchronize"), this );
