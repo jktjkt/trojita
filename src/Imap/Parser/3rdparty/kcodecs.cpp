@@ -35,6 +35,12 @@
 
 #include <stdio.h>
 #include <string.h>
+
+#ifdef _MSC_VER
+#define strcasecmp stricmp
+#define strncasecmp  strnicmp
+#endif
+
 #include <stdlib.h>
 
 //#include <kdebug.h>

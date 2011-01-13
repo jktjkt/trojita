@@ -85,7 +85,7 @@ namespace {
                 index[3] = encodedWord.lastIndexOf("?=");
                 if ((index[2] != -1) && (index[3] > index[2]))
                 {
-                    QByteArray charset = ::unquoteString(encodedWord.mid(index[0] + 2, (index[1] - index[0] - 2)));
+                    QByteArray charset = unquoteString(encodedWord.mid(index[0] + 2, (index[1] - index[0] - 2)));
                     QByteArray encoding = encodedWord.mid(index[1] + 1, (index[2] - index[1] - 1)).toUpper();
                     QByteArray encoded = encodedWord.mid(index[2] + 1, (index[3] - index[2] - 1));
 

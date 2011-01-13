@@ -28,7 +28,7 @@ QString PrettySize::prettySize( uint bytes )
 {
     if ( bytes == 0 )
         return tr("0");
-    int order = std::log( bytes ) / std::log( 1024 );
+    int order = std::log( (double)bytes ) / std::log( 1024.0 );
     QString suffix;
     if ( order <= 0 )
         return QString::number( bytes );
