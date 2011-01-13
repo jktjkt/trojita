@@ -23,7 +23,7 @@
 #include <QFile>
 #include <QTest>
 #include "Imap/Parser/Message.h"
-#include "Streams/IODeviceSocket.h"
+#include "Streams/FakeSocket.h"
 
 #include "test_Imap_Parser_parse.h"
 #include "../headless_test.h"
@@ -35,7 +35,7 @@ Q_DECLARE_METATYPE(Imap::Sequence)
 void ImapParserParseTest::initTestCase()
 {
     array.reset( new QByteArray() );
-    Imap::Socket* sock( new Imap::IODeviceSocket( new QBuffer() ) );
+    Imap::Socket* sock( new Imap::FakeSocket() );
     parser = new Imap::Parser( this, sock, 666 );
 }
 
