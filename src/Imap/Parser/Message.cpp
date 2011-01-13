@@ -235,8 +235,9 @@ bool MsgMessage::eq( const AbstractData& other ) const
             } else {
                 return false;
             }
-        } else if ( body )
+        } else if ( body ) {
             return false;
+        }
 
         return OneMessage::eq( o ) && bodyFldLines == o.bodyFldLines &&
             envelope == o.envelope;
@@ -288,18 +289,22 @@ bool MultiMessage::eq( const AbstractData& other ) const
     try {
         const MultiMessage& o = dynamic_cast<const MultiMessage&>( other );
 
-        if ( bodies.count() != o.bodies.count() )
+        if ( bodies.count() != o.bodies.count() ) {
             return false;
+        }
 
         for ( int i = 0; i < bodies.count(); ++i ) {
             if ( bodies[i] ) {
                 if ( o.bodies[i] ) {
-                    if ( *bodies[i] != *o.bodies[i] )
+                    if ( *bodies[i] != *o.bodies[i] ) {
                         return false;
-                } else
+                    }
+                } else {
                     return false;
-            } else if ( ! o.bodies[i] )
+                }
+            } else if ( ! o.bodies[i] ) {
                 return false;
+            }
         }
 
         return mediaSubType == o.mediaSubType && bodyFldParam == o.bodyFldParam &&
