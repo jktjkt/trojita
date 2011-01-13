@@ -437,7 +437,7 @@ private:
     void parsersMightBeIdling();
 
     /** @short Dispose of the parser in a C++-safe way */
-    void killParser( Parser* parser );
+    void killParser( Parser* parser, bool nice=false );
 
     ParserState& accessParser( Parser *parser );
 

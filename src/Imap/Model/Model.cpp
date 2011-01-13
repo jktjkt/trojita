@@ -225,7 +225,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
                 break;
             case Task::LOGOUT:
                 // we are inside while loop in responseReceived(), so we can't delete current parser just yet
-                killParser( ptr );
+                killParser( ptr, true );
                 parsersMightBeIdling();
                 return;
         }
@@ -245,7 +245,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
         // FIXME: we should probably just eat them and don't bother, as untagged OK/NO could be rather common...
         switch ( resp->kind ) {
         case BYE:
-            killParser( ptr );
+            killParser( ptr, true );
             parsersMightBeIdling();
             break;
         case OK:
@@ -839,7 +839,7 @@ void Model::slotParserDisconnected( Imap::Parser *parser, const QString msg )
         return;
 
     // This function is *not* called from inside the responseReceived(), so we have to remove the parser from the list, too
-    killParser( parser );
+    killParser( parser, true );
     _parsers.remove( parser );
     parsersMightBeIdling();
 }
@@ -1146,7 +1146,7 @@ void Model::parsersMightBeIdling()
     emit activityHappening( someParserBusy );
 }
 
-void Model::killParser(Parser *parser)
+void Model::killParser(Parser *parser, bool nice)
 {
     Q_FOREACH( ImapTask* task, accessParser( parser ).activeTasks ) {
         task->die();
@@ -1157,10 +1157,15 @@ void Model::killParser(Parser *parser)
             it != accessParser( parser ).commandMap.end(); ++it ) {
         // FIXME: fail the command, perform cleanup,...
     }
+    uint parserId = parser->parserId();
     accessParser( parser ).commandMap.clear();
     parser->disconnect();
     parser->deleteLater();
     accessParser( parser ).parser = 0;
+    if ( nice )
+        emit logParserLineSent( parserId, "*** Connection closed.");
+    else
+        emit logParserLineSent( parserId, "*** Connection killed.");
 }
 
 void Model::slotParserLineReceived( Parser *parser, const QByteArray& line )

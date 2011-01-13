@@ -91,7 +91,7 @@ Parser::Parser( QObject* parent, Socket* socket, const uint myId ):
              this, SLOT( handleDisconnected( const QString& ) ) );
     connect( _socket, SIGNAL( readyRead() ), this, SLOT( handleReadyRead() ) );
     connect( _socket, SIGNAL(connected()), this, SLOT(handleConnectionEstablished()) );
-    connect( _socket, SIGNAL(stateChanged(Imap::ConnectionState)), this, SLOT(slotSocketStateChanged(Imap::ConnectionState)) );
+    connect( _socket, SIGNAL(stateChanged(Imap::ConnectionState,QString)), this, SLOT(slotSocketStateChanged(Imap::ConnectionState,QString)) );
 }
 
 CommandHandle Parser::noop()
@@ -772,7 +772,7 @@ void Parser::enableLiteralPlus( const bool enabled )
 
 void Parser::handleDisconnected( const QString& reason )
 {
-    emit lineReceived( this, "*** Socket disconnected" );
+    emit lineReceived( this, "*** Socket disconnected: " + reason.toLocal8Bit() );
 #ifdef PRINT_TRAFFIC_TX
     qDebug() << _parserId << "*** Socket disconnected";
 #endif
@@ -803,8 +803,9 @@ uint Parser::parserId() const
     return _parserId;
 }
 
-void Parser::slotSocketStateChanged( const Imap::ConnectionState connState )
+void Parser::slotSocketStateChanged( const Imap::ConnectionState connState, const QString &message )
 {
+    emit lineReceived( this, "*** " + message.toLocal8Bit());
     emit connectionStateChanged( this, connState );
 }
 

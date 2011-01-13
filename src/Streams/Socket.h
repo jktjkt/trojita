@@ -70,7 +70,7 @@ namespace Imap {
         void readyRead();
 
         /** @short Low-level state of the connection has changed */
-        void stateChanged(Imap::ConnectionState state);
+        void stateChanged(Imap::ConnectionState state, const QString &message);
     };
 
 };

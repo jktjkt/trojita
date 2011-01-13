@@ -250,7 +250,7 @@ namespace Imap {
         /** UID THREAD, RFC5256 */
         CommandHandle uidThread( const QString& algo, const QString& charset, const QStringList& searchCriteria );
 
-        void slotSocketStateChanged( const Imap::ConnectionState connState );
+        void slotSocketStateChanged(const Imap::ConnectionState connState, const QString &message);
 
 
     signals:

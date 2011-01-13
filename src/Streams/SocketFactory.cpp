@@ -53,6 +53,10 @@ Socket* ProcessSocketFactory::create()
     // FIXME: this may leak memory if an exception strikes in this function
     // (before we return the pointer)
     QProcess* proc = new QProcess();
+    QString cmdLine = _executable;
+    if ( ! _args.isEmpty() )
+        cmdLine += QLatin1Char(' ') + _args.join(QLatin1String(" "));
+    proc->setProperty("trojita-stream-qprocess-cmdline", cmdLine);
     proc->start( _executable, _args );
     return new IODeviceSocket( proc );
 }
@@ -65,6 +69,8 @@ SslSocketFactory::SslSocketFactory( const QString& host, const quint16 port ):
 Socket* SslSocketFactory::create()
 {
     QSslSocket* sslSock = new QSslSocket();
+    sslSock->setProperty("trojita-stream-socket-hostname", _host);
+    sslSock->setProperty("trojita-stream-socket-port", QString::number(_port));
     sslSock->ignoreSslErrors(); // big fat FIXME here!!!
     sslSock->setProtocol( QSsl::AnyProtocol );
     sslSock->setPeerVerifyMode( QSslSocket::QueryPeer );
@@ -82,6 +88,8 @@ TlsAbleSocketFactory::TlsAbleSocketFactory( const QString& host, const quint16 p
 Socket* TlsAbleSocketFactory::create()
 {
     QSslSocket* sslSock = new QSslSocket();
+    sslSock->setProperty("trojita-stream-socket-hostname", _host);
+    sslSock->setProperty("trojita-stream-socket-port", QString::number(_port));
     sslSock->ignoreSslErrors(); // big fat FIXME here!!!
     sslSock->setProtocol( QSsl::AnyProtocol );
     sslSock->setPeerVerifyMode( QSslSocket::QueryPeer );

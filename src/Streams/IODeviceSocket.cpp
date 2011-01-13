@@ -110,10 +110,11 @@ void IODeviceSocket::handleStateChanged()
         switch ( proc->state() ) {
             case QProcess::Running:
                 emit connected();
-                emit stateChanged(Imap::CONN_STATE_ESTABLISHED);
+                emit stateChanged(Imap::CONN_STATE_ESTABLISHED, tr("The process has started"));
                 break;
             case QProcess::Starting:
-                emit stateChanged(Imap::CONN_STATE_CONNECTING);
+                emit stateChanged(Imap::CONN_STATE_CONNECTING, tr("Starting process `%1`").arg(
+                        proc->property("trojita-stream-qprocess-cmdline").toString()));
                 break;
             case QProcess::NotRunning:
                 {
@@ -133,10 +134,13 @@ void IODeviceSocket::handleStateChanged()
     } else if ( QAbstractSocket* sock = qobject_cast<QAbstractSocket*>( d ) ) {
         switch ( sock->state() ) {
             case QAbstractSocket::HostLookupState:
-                emit stateChanged(Imap::CONN_STATE_HOST_LOOKUP);
+                emit stateChanged(Imap::CONN_STATE_HOST_LOOKUP, tr("Looking up %1...").arg(
+                        sock->property("trojita-stream-socket-hostname").toString()));
                 break;
             case QAbstractSocket::ConnectingState:
-                emit stateChanged(Imap::CONN_STATE_CONNECTING);
+                emit stateChanged(Imap::CONN_STATE_CONNECTING, tr("Connecting to %1:%2...").arg(
+                        sock->property("trojita-stream-socket-hostname").toString(),
+                        sock->property("trojita-stream-socket-port").toString() ));
                 break;
             case QAbstractSocket::BoundState:
             case QAbstractSocket::ListeningState:
@@ -144,7 +148,9 @@ void IODeviceSocket::handleStateChanged()
             case QAbstractSocket::ConnectedState:
                 if ( ! _startEncrypted ) {
                     emit connected();
-                    emit stateChanged(Imap::CONN_STATE_ESTABLISHED);
+                    emit stateChanged(Imap::CONN_STATE_ESTABLISHED, tr("Connected to %1:%2").arg(
+                            sock->property("trojita-stream-socket-hostname").toString(),
+                            sock->property("trojita-stream-socket-port").toString() ));
                 }
                 break;
             case QAbstractSocket::UnconnectedState:
