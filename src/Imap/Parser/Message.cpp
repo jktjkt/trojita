@@ -257,6 +257,19 @@ QTextStream& MsgMessage::dump( QTextStream& s, const int indent ) const
     s <<
         i << "body-fld-lines " << bodyFldLines << lf <<
         i << "body:" << lf;
+
+    s <<
+    i << "body-fld-param: " << bodyFldParam << lf <<
+    i << "body-fld-id: " << bodyFldId << lf <<
+    i << "body-fld-desc: " << bodyFldDesc << lf <<
+    i << "body-fld-enc: " << bodyFldEnc << lf <<
+    i << "body-fld-octets: " << bodyFldOctets << lf <<
+    i << "bodyFldMd5: " << bodyFldMd5 << lf <<
+    i << "body-fld-dsp: " << bodyFldDsp << lf <<
+    i << "body-fld-lang: " << bodyFldLang << lf <<
+    i << "body-fld-loc: " << bodyFldLoc << lf <<
+    i << "body-extension is " << bodyExtension.typeName() << lf;
+
     if ( body )
         body->dump( s, indent + 2 );
     else
@@ -269,7 +282,7 @@ QTextStream& BasicMessage::dump( QTextStream& s, const int indent ) const
     QByteArray i( indent + 1, ' ' );
     QByteArray lf( "\n" );
 
-    return s << QByteArray( indent, ' ' ) << "TextMessage( " << mediaType << "/" << mediaSubType << lf <<
+    return s << QByteArray( indent, ' ' ) << "BasicMessage( " << mediaType << "/" << mediaSubType << lf <<
         i << "body-fld-param: " << bodyFldParam << lf <<
         i << "body-fld-id: " << bodyFldId << lf <<
         i << "body-fld-desc: " << bodyFldDesc << lf <<
