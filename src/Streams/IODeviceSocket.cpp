@@ -156,6 +156,13 @@ void ProcessSocket::delayedStart()
 SslTlsSocket::SslTlsSocket(QSslSocket *sock, const QString &host, const quint16 port, const bool startEncrypted):
         IODeviceSocket(sock), _startEncrypted(startEncrypted), _host(host), _port(port)
 {
+    sock->ignoreSslErrors(); // big fat FIXME here!!!
+    sock->setProtocol( QSsl::AnyProtocol );
+    sock->setPeerVerifyMode( QSslSocket::QueryPeer );
+
+    if (startEncrypted)
+        connect( sock, SIGNAL(encrypted()), this, SIGNAL(connected()) );
+
     connect( sock, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(handleStateChanged()) );
     connect( sock, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(handleSocketError(QAbstractSocket::SocketError)) );
 }

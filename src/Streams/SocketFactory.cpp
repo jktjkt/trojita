@@ -64,11 +64,7 @@ SslSocketFactory::SslSocketFactory( const QString& host, const quint16 port ):
 Socket* SslSocketFactory::create()
 {
     QSslSocket* sslSock = new QSslSocket();
-    sslSock->ignoreSslErrors(); // big fat FIXME here!!!
-    sslSock->setProtocol( QSsl::AnyProtocol );
-    sslSock->setPeerVerifyMode( QSslSocket::QueryPeer );
     IODeviceSocket* ioSock = new SslTlsSocket( sslSock, _host, _port, true );
-    connect( sslSock, SIGNAL(encrypted()), ioSock, SIGNAL(connected()) );
     return ioSock;
 }
 
@@ -80,9 +76,6 @@ TlsAbleSocketFactory::TlsAbleSocketFactory( const QString& host, const quint16 p
 Socket* TlsAbleSocketFactory::create()
 {
     QSslSocket* sslSock = new QSslSocket();
-    sslSock->ignoreSslErrors(); // big fat FIXME here!!!
-    sslSock->setProtocol( QSsl::AnyProtocol );
-    sslSock->setPeerVerifyMode( QSslSocket::QueryPeer );
     return new SslTlsSocket(sslSock, _host, _port);
 }
 
