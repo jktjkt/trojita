@@ -201,8 +201,7 @@ void ImapPage::save( QSettings& s )
         case TCP:
             s.setValue( SettingsNames::imapMethodKey, SettingsNames::methodTCP );
             s.setValue( SettingsNames::imapHostKey, imapHost->text() );
-            if ( imapPort->text() != QString::number(Common::PORT_IMAP) )
-                s.setValue( SettingsNames::imapPortKey, imapPort->text() );
+            s.setValue( SettingsNames::imapPortKey, imapPort->text() );
             s.setValue( SettingsNames::imapStartTlsKey, startTls->isChecked() );
             s.setValue( SettingsNames::imapUserKey, imapUser->text() );
             if ( ! imapPass->text().isEmpty() )
@@ -211,8 +210,7 @@ void ImapPage::save( QSettings& s )
         case SSL:
             s.setValue( SettingsNames::imapMethodKey, SettingsNames::methodSSL );
             s.setValue( SettingsNames::imapHostKey, imapHost->text() );
-            if ( imapPort->text() != QString::number(Common::PORT_IMAPS) )
-                s.setValue( SettingsNames::imapPortKey, imapPort->text() );
+            s.setValue( SettingsNames::imapPortKey, imapPort->text() );
             s.setValue( SettingsNames::imapStartTlsKey, startTls->isChecked() );
             s.setValue( SettingsNames::imapUserKey, imapUser->text() );
             if ( ! imapPass->text().isEmpty() )
