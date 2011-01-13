@@ -544,6 +544,71 @@ void ImapParserParseTest::testParseUntagged_data()
                        "(BODYSTRUCTURE (\"text\" \"plain\" (\"charset\" \"UTF-8\" \"format\" \"flowed\") "
                        "NIL NIL \"quoted-printable\" -1 -1 NIL NIL NIL NIL))\r\n") <<
             QSharedPointer<AbstractResponse>( new Fetch( 61, fetchData ) );
+
+
+    // GMail and its flawed representation of a nested message/rfc822
+    fetchData.clear();
+    from.clear(); from << MailAddress(QLatin1String("somebody"), QString(), QLatin1String("info"), QLatin1String("example.com"));
+    sender = replyTo = from;
+    to.clear(); to << MailAddress(QLatin1String("destination"), QString(), QLatin1String("foobar"), QLatin1String("gmail.com"));
+    cc.clear();
+    bcc.clear();
+    fetchData["ENVELOPE"] = QSharedPointer<AbstractData>(
+            new RespData<Envelope>(
+                    Envelope( QDateTime(QDate(2011, 1, 11), QTime(9, 21, 42), Qt::UTC), QLatin1String("blablabla"), from, sender, replyTo, to, cc, bcc, QByteArray(), QByteArray() )
+                    ));
+    fetchData["UID"] = QSharedPointer<AbstractData>(new RespData<uint>(8803));
+    fetchData["RFC822.SIZE"] = QSharedPointer<AbstractData>(new RespData<uint>(56144));
+
+    msgList.clear();
+    bodyFldParam.clear();
+    bodyFldParam["CHARSET"] = "iso-8859-2";
+    msgList.append(QSharedPointer<AbstractMessage>(
+            new TextMessage("text", "plain", bodyFldParam, QByteArray(), QByteArray(), "QUOTED-PRINTABLE", 52, QByteArray(),
+                            AbstractMessage::bodyFldDsp_t(), QList<QByteArray>(), QByteArray(), QVariant(), 2)));
+    msgList.append(QSharedPointer<AbstractMessage>(
+            new TextMessage("text", "html", bodyFldParam, QByteArray(), QByteArray(), "QUOTED-PRINTABLE", 1739, QByteArray(),
+                            AbstractMessage::bodyFldDsp_t(), QList<QByteArray>(), QByteArray(), QVariant(), 66)));
+    bodyFldParam.clear();
+    bodyFldParam["BOUNDARY"] = "----=_NextPart_001_0078_01CBB179.57530990";
+    msgList = QList<QSharedPointer<AbstractMessage> >() << QSharedPointer<AbstractMessage>(
+            new MultiMessage( msgList, "ALTERNATIVE", bodyFldParam, AbstractMessage::bodyFldDsp_t(), QList<QByteArray>(), QByteArray(), QVariant() ) );
+    msgList << QSharedPointer<AbstractMessage>(
+            new MsgMessage("message", "rfc822", AbstractMessage::bodyFldParam_t(), QByteArray(), QByteArray(), "7BIT", 836,
+                           QByteArray(), AbstractMessage::bodyFldDsp_t(), QList<QByteArray>(), QByteArray(), QVariant(),
+                           Envelope(), QSharedPointer<AbstractMessage>(
+                                   new BasicMessage("attachment", QString(), AbstractMessage::bodyFldParam_t(), QByteArray(), QByteArray(),
+                                                    QByteArray(), 0, QByteArray(), AbstractMessage::bodyFldDsp_t(), QList<QByteArray>(), QByteArray(), QVariant())
+                                   ), 0 ));
+    msgList << QSharedPointer<AbstractMessage>(
+            new MsgMessage("message", "rfc822", AbstractMessage::bodyFldParam_t(), QByteArray(), QByteArray(), "7BIT", 50785,
+                           QByteArray(), AbstractMessage::bodyFldDsp_t(), QList<QByteArray>(), QByteArray(), QVariant(),
+                           Envelope(), QSharedPointer<AbstractMessage>(
+                                   new BasicMessage("attachment", QString(), AbstractMessage::bodyFldParam_t(), QByteArray(), QByteArray(),
+                                                    QByteArray(), 0, QByteArray(), AbstractMessage::bodyFldDsp_t(), QList<QByteArray>(), QByteArray(), QVariant())
+                                   ), 0 ));
+    bodyFldParam.clear();
+    bodyFldParam.clear();
+    bodyFldParam["BOUNDARY"] = "----=_NextPart_000_0077_01CBB179.57530990";
+    bodyFldDsp = AbstractMessage::bodyFldDsp_t();
+    fetchData["BODYSTRUCTURE"] = QSharedPointer<AbstractData>(
+            new MultiMessage( msgList, QLatin1String("MIXED"), bodyFldParam, bodyFldDsp, QList<QByteArray>(), QByteArray(), QVariant()));
+    QTest::newRow("fetch-envelope-blupix-gmail")
+            << QByteArray("* 6116 FETCH (UID 8803 RFC822.SIZE 56144 ENVELOPE (\"Tue, 11 Jan 2011 10:21:42 +0100\" "
+                          "\"blablabla\" ((\"somebody\" NIL \"info\" \"example.com\")) "
+                          "((\"somebody\" NIL \"info\" \"example.com\")) "
+                          "((\"somebody\" NIL \"info\" \"example.com\")) "
+                          "((\"destination\" NIL \"foobar\" \"gmail.com\")) "
+                          "NIL NIL NIL \"\") "
+                          "BODYSTRUCTURE (((\"TEXT\" \"PLAIN\" (\"CHARSET\" \"iso-8859-2\") NIL NIL "
+                          "\"QUOTED-PRINTABLE\" 52 2 NIL NIL NIL)(\"TEXT\" \"HTML\" (\"CHARSET\" \"iso-8859-2\") "
+                          "NIL NIL \"QUOTED-PRINTABLE\" 1739 66 NIL NIL NIL) \"ALTERNATIVE\" "
+                          "(\"BOUNDARY\" \"----=_NextPart_001_0078_01CBB179.57530990\") NIL NIL)"
+                          "(\"MESSAGE\" \"RFC822\" NIL NIL NIL \"7BIT\" 836 NIL (\"ATTACHMENT\" NIL) NIL)"
+                          "(\"MESSAGE\" \"RFC822\" NIL NIL NIL \"7BIT\" 50785 NIL (\"ATTACHMENT\" NIL) NIL) "
+                          "\"MIXED\" (\"BOUNDARY\" \"----=_NextPart_000_0077_01CBB179.57530990\") NIL NIL))\r\n")
+            << QSharedPointer<AbstractResponse>( new Fetch( 6116, fetchData ) );
+
 }
 
 void ImapParserParseTest::benchmark()
