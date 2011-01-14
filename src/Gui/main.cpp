@@ -33,7 +33,7 @@ int main( int argc, char** argv) {
 #ifdef HAS_GITVERSION
     QCoreApplication::setApplicationVersion( QString::fromAscii( gitVersion ) );
 #else
-    QCoreApplication::setApplicationVersion( QString::fromAscii("0.2.9") );
+    QCoreApplication::setApplicationVersion( QString::fromAscii("0.2.9.1") );
 #endif
     QCoreApplication::setOrganizationDomain( QString::fromAscii("flaska.net") );
     QCoreApplication::setOrganizationName( QString::fromAscii("flaska.net") );
