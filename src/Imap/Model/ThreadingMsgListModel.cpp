@@ -286,6 +286,11 @@ void ThreadingMsgListModel::updateNoThreading()
         endRemoveRows();
     }
 
+    if ( ! sourceModel() ) {
+        // Maybe we got reset because the parent model is no longer here...
+        return;
+    }
+
     int upstreamMessages = sourceModel()->rowCount();
     if ( upstreamMessages )
         beginInsertRows( QModelIndex(), 0, upstreamMessages - 1 );
@@ -311,6 +316,11 @@ void ThreadingMsgListModel::updateNoThreading()
 
 void ThreadingMsgListModel::askForThreading()
 {
+    if ( ! sourceModel() ) {
+        updateNoThreading();
+        return;
+    }
+
     int count = sourceModel()->rowCount();
     if ( count != rowCount() ) {
         qDebug() << "Already threaded, huh?";
