@@ -36,6 +36,7 @@ private slots:
     void testIdleRenewal();
     void testIdleBreakTask();
     void testIdleSlowResponses();
+    void testIdleNoPerpetuateRenewal();
 };
 
 #endif

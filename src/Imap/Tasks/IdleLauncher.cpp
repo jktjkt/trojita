@@ -79,13 +79,15 @@ void IdleLauncher::finishIdle()
     Q_ASSERT( task->parser );
     Q_ASSERT( _idling );
     Q_ASSERT( _idleCommandRunning );
+    renewal->stop();
     task->parser->idleDone();
     _idling = false;
 }
 
 void IdleLauncher::slotTerminateLongIdle()
 {
-    finishIdle();
+    if ( _idling )
+        finishIdle();
 }
 
 void IdleLauncher::enterIdleLater()
@@ -115,6 +117,7 @@ void IdleLauncher::idleCommandCompleted()
     if ( _idling ) {
         qDebug() << "Warning: IDLE completed before we could ask for its termination...";
         _idling = false;
+        renewal->stop();
         task->parser->idleMagicallyTerminatedByServer();
     }
     Q_ASSERT( _idleCommandRunning );
@@ -127,6 +130,7 @@ void IdleLauncher::idleCommandFailed()
     // FIXME: these asseerts could be triggered by a rogue server...
     Q_ASSERT( _idling );
     Q_ASSERT( _idleCommandRunning );
+    renewal->stop();
     _idleCommandRunning = false;
     task->parser->idleContinuationWontCome();
     die();

@@ -23,7 +23,9 @@
 #include "test_Imap_Idle.h"
 #include "../headless_test.h"
 #include "Streams/FakeSocket.h"
+#include "Imap/Tasks/IdleLauncher.h"
 #include "Imap/Model/ItemRoles.h"
+#include "Imap/Tasks/KeepMailboxOpenTask.h"
 #include "test_LibMailboxSync/FakeCapabilitiesInjector.h"
 
 /** @short Test a NO reply to IDLE command */
@@ -153,5 +155,57 @@ void ImapModelIdleTest::testIdleSlowResponses()
     QVERIFY(SOCK->writtenStuff().isEmpty());
     //QCOMPARE( SOCK->writtenStuff(), t.mk("DONE\r\n") );
 }
+
+/** @short Test that the automatic IDLE renewal gets disabled when IDLE finishes */
+void ImapModelIdleTest::testIdleNoPerpetuateRenewal()
+{
+    // we shouldn't enter IDLE automatically
+    model->setProperty("trojita-imap-idle-delayedEnter", QVariant(1000 * 1000 ));
+    model->setProperty("trojita-imap-idle-renewal", QVariant(10));
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability(QLatin1String("IDLE"));
+    existsA = 3;
+    uidValidityA = 6;
+    uidMapA << 1 << 7 << 9;
+    uidNextA = 16;
+    helperSyncAWithMessagesEmptyState();
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+
+    // Force manual trigger of the IDLE
+    model->findTaskResponsibleFor(idxA)->idleLauncher->slotEnterIdleNow();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE( SOCK->writtenStuff(), t.mk("IDLE\r\n") );
+    SOCK->fakeReading(t.last("NO you can't idle now\r\n"));
+    // ...make sure it won't try to "break long IDLE"
+    QTest::qWait(30);
+    // switch away
+    helperSyncBNoMessages();
+    QVERIFY(errorSpy->isEmpty());
+
+    // Now go back to mailbox A
+    model->switchToMailbox(idxA);
+    helperSyncAWithMessagesNoArrivals();
+
+    // Force manual trigger of the IDLE
+    model->findTaskResponsibleFor(idxA)->idleLauncher->slotEnterIdleNow();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE( SOCK->writtenStuff(), t.mk("IDLE\r\n") );
+    SOCK->fakeReading(QByteArray("+ blah\r\n"));
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+
+    // so we're in regular IDLE and want to break it
+    QCOMPARE( msgListA.child(0,0).data(Imap::Mailbox::RoleMessageFrom).toString(), QString() );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE( SOCK->writtenStuff(), QByteArray("DONE\r\n") + t.mk("UID FETCH 1,7,9 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n") );
+    SOCK->fakeReading(t.last("OK done\r\n"));
+    // Make sure we won't try to "renew" it automatically...
+    QTest::qWait(30);
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+}
+
 
 TROJITA_HEADLESS_TEST( ImapModelIdleTest )

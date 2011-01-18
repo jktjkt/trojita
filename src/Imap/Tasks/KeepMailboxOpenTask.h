@@ -21,9 +21,10 @@
 
 #include "ImapTask.h"
 #include <QModelIndex>
-#include "Parser/Parser.h"
+#include "../Parser/Parser.h"
 
 class QTimer;
+class ImapModelIdleTest;
 
 namespace Imap {
 
@@ -140,6 +141,7 @@ protected:
     CommandHandle tagIdle;
     CommandHandle uidSyncingCmd;
     friend class IdleLauncher;
+    friend class ::ImapModelIdleTest;
 
     QList<uint> uidMap;
     QMap<uint, QSet<QString> > requestedParts;
