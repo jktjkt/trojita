@@ -280,7 +280,7 @@ void ThreadingMsgListModel::resetMe()
 void ThreadingMsgListModel::updateNoThreading()
 {
     if ( ! _threading.isEmpty() ) {
-        beginRemoveRows( QModelIndex(), 0, rowCount() );
+        beginRemoveRows( QModelIndex(), 0, rowCount() - 1 );
         _threading.clear();
         uidToInternal.clear();
         endRemoveRows();
