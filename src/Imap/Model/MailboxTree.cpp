@@ -458,12 +458,6 @@ void TreeItemMailbox::handleExpunge( Model* const model, const Responses::Number
     model->emitMessageCountChanged( this );
 }
 
-void TreeItemMailbox::finalizeFetch( Model* const model, const Responses::Status& response )
-{
-    Q_UNUSED(model); Q_UNUSED(response);
-    // FIXME: implement me?
-}
-
 TreeItemPart* TreeItemMailbox::partIdToPtr( Model* const model, TreeItemMessage* message, const QString& msgId )
 {
     QString partIdentification;
