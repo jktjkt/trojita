@@ -283,23 +283,41 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
         model->cache()->setMailboxSyncState( mailbox->mailbox(), mailbox->syncState );
         return true;
     } else if ( resp->kind == Imap::Responses::EXISTS ) {
+        // This is a bit tricky -- unfortunately, we can't assume anything about the UID of new arrivals. On the other hand,
+        // these messages can be referenced by (even unrequested) FETCH responses and deleted by EXPUNGE, so we really want
+        // to add them to the tree.
         TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[ 0 ] );
         Q_ASSERT( list );
-        if ( resp->number < static_cast<uint>( list->_children.size() ) ) {
+        int newArrivals = resp->number - list->_children.size();
+        if ( newArrivals < 0 ) {
             throw UnexpectedResponseReceived( "EXISTS response attempted to decrease number of messages", *resp );
-        } else if ( resp->number == static_cast<uint>( list->_children.size() ) ) {
+        } else if ( newArrivals == 0 ) {
             // remains unchanged...
             return true;
         }
         mailbox->syncState.setExists( resp->number );
 
+        QModelIndex parent = model->createIndex( 0, 0, list );
+        int offset = list->_children.size();
+        model->beginInsertRows( parent, offset, mailbox->syncState.exists() - 1 );
+        for ( int i = 0; i < newArrivals; ++i ) {
+            TreeItemMessage * msg = new TreeItemMessage( list );
+            msg->_offset = i + offset;
+            list->_children << msg;
+            // yes, we really have to add this message with UID 0 :(
+        }
+        model->endInsertRows();
+
         breakPossibleIdle();
 
-        QString uidSpecification = QString::fromAscii("UID %1:*").arg( mailbox->syncState.uidNext() );
-        uidSyncingCmd = parser->uidSearchUid( uidSpecification );
-        model->accessParser( parser ).commandMap[ uidSyncingCmd ] = Model::Task( Model::Task::SEARCH_UIDS, 0 );
+        Q_ASSERT(list->_children.size());
+        uint highestKnownUid = 0;
+        for ( int i = list->_children.size() - 1; ! highestKnownUid && i >= 0; --i ) {
+            highestKnownUid = static_cast<const TreeItemMessage*>(list->_children[i])->uid();
+        }
+        newArrivalsFetch = parser->uidFetch( Sequence::startingAt( highestKnownUid + 1 ), QStringList() << QLatin1String("FLAGS") );
+        model->accessParser(parser).commandMap[newArrivalsFetch] = Model::Task(Model::Task::FETCH_FLAGS, 0);
         emit model->activityHappening( true );
-        mailbox->syncState.setUidNext( mailbox->syncState.uidNext() + resp->number - list->_children.size() );
         model->cache()->clearUidMapping( mailbox->mailbox() );
 
         return true;
@@ -354,15 +372,11 @@ bool KeepMailboxOpenTask::handleStateHelper( Imap::Parser* ptr, const Imap::Resp
         tagIdle.clear();
         IMAP_TASK_CLEANUP_COMMAND;
         return true;
-    } else if ( resp->tag == uidSyncingCmd ) {
-        IMAP_TASK_ENSURE_VALID_COMMAND( uidSyncingCmd, Model::Task::SEARCH_UIDS );
+    } else if ( resp->tag == newArrivalsFetch ) {
+        IMAP_TASK_ENSURE_VALID_COMMAND( newArrivalsFetch, Model::Task::FETCH_FLAGS );
 
         if ( resp->kind == Responses::OK ) {
-            Q_ASSERT( mailboxIndex.isValid() );
-            TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
-            Q_ASSERT( mailbox );
-            // FIXME: fix behavior when we received "* exists 10\r\n* exists 11\r\n"...
-            ObtainSynchronizedMailboxTask::_finalizeUidSyncOnlyNew( model, mailbox, model->cache()->mailboxSyncState( mailbox->mailbox() ).exists(), uidMap );
+            // FIXME: update uidNext in the sync state...
         } else {
             // FIXME: handling of failure...
         }

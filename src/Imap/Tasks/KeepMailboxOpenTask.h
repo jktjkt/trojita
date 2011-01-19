@@ -139,7 +139,7 @@ protected:
     IdleLauncher* idleLauncher;
     QList<FetchMsgPartTask*> fetchPartTasks;
     CommandHandle tagIdle;
-    CommandHandle uidSyncingCmd;
+    CommandHandle newArrivalsFetch;
     friend class IdleLauncher;
     friend class ::ImapModelIdleTest;
 

@@ -312,9 +312,35 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
     TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->child( number, model ) );
     Q_ASSERT( message ); // FIXME: this should be relaxed for allowing null pointers instead of "unfetched" TreeItemMessage
 
-    // This should stay, unless we ever abandon the UID SEARCH ALL for UID discovery.
-    // I believe it's guaranteed by the check for list->fetched() above.
-    Q_ASSERT(message->_uid);
+    // At first, have a look at the response and check the UID of the message
+    Responses::Fetch::dataType::const_iterator uidRecord = response.data.find( QLatin1String("UID") );
+    if ( uidRecord != response.data.constEnd() ) {
+        uint receivedUid = dynamic_cast<const Responses::RespData<uint>&>( *(uidRecord.value()) ).data;
+        if ( message->uid() == receivedUid ) {
+            // That's what we expect -> do nothing
+        } else if ( message->uid() == 0 ) {
+            // This is the first time we see the UID, so let's take a note
+            message->_uid = receivedUid;
+            changedMessage = message;
+            if ( message->loading() ) {
+                // The Model tried to ask for data for this message. That couldn't succeded because the UID
+                // wasn't known at that point, so let's ask now
+                // FIXME: this breaks preload, unfortunately :(
+                message->_fetchStatus = NONE;
+                message->fetch(model);
+            }
+        } else {
+            throw MailboxException( QString::fromAscii("FETCH response: UID consistency error for message #%1 -- expected UID %2, got UID %3").arg(
+                    QString::number(response.number), QString::number(message->uid()), QString::number(receivedUid) ).toAscii().constData(), response );
+        }
+    } else if ( ! message->uid() ) {
+        qDebug() << "FETCH: received a FETCH response (#" << response.number << ") for a message whose UID is not yet known. This sucks.";
+        QList<uint> uidsInMailbox;
+        Q_FOREACH( TreeItem *node, list->_children ) {
+            uidsInMailbox << dynamic_cast<TreeItemMessage*>(node)->uid();
+        }
+        qDebug() << "UIDs in the mailbox now: " << uidsInMailbox;
+    }
 
     bool savedBodyStructure = false;
     bool gotEnvelope = false;
