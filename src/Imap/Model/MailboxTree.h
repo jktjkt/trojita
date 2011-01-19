@@ -146,8 +146,8 @@ No network activity will be caused. If the answer is not known for sure, we retu
     */
     void handleFetchResponse( Model* const model,
                               const Responses::Fetch& response,
-                              QList<TreeItemPart*>* changedParts=0,
-                              TreeItemMessage** changedMessage=0 );
+                              QList<TreeItemPart*> &changedParts,
+                              TreeItemMessage* &changedMessage );
     void handleFetchWhileSyncing( Model* const model, Parser* ptr, const Responses::Fetch& response );
     void finalizeFetch( Model* const model, const Responses::Status& response );
     void rescanForChildMailboxes( Model* const model );

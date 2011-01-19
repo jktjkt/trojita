@@ -291,8 +291,8 @@ QList<TreeItem*> TreeItemMailbox::setChildren( const QList<TreeItem*> items )
 
 void TreeItemMailbox::handleFetchResponse( Model* const model,
                                            const Responses::Fetch& response,
-                                           QList<TreeItemPart*>* changedParts,
-                                           TreeItemMessage** changedMessage )
+                                           QList<TreeItemPart*> &changedParts,
+                                           TreeItemMessage* &changedMessage )
 {
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[0] );
     Q_ASSERT( list );
@@ -323,13 +323,13 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
 
     for ( Responses::Fetch::dataType::const_iterator it = response.data.begin(); it != response.data.end(); ++ it ) {
         if (  it.key() == "UID" ) {
+            // established above
             Q_ASSERT( dynamic_cast<const Responses::RespData<uint>&>( *(it.value()) ).data == message->uid() );
         } else if ( it.key() == "ENVELOPE" ) {
             message->_envelope = dynamic_cast<const Responses::RespData<Message::Envelope>&>( *(it.value()) ).data;
             message->_fetchStatus = DONE;
             gotEnvelope = true;
-            if ( changedMessage )
-                *changedMessage = message;
+            changedMessage = message;
         } else if ( it.key() == "BODYSTRUCTURE" ) {
             if ( message->fetched() ) {
                 // The message structure is already known, so we are free to ignore it
@@ -364,9 +364,7 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
             part->_fetchStatus = DONE;
             if ( message->uid() )
                 model->cache()->setMsgPart( mailbox(), message->uid(), it.key(), part->_data );
-            if ( changedParts ) {
-                changedParts->append( part );
-            }
+            changedParts.append( part );
         } else if ( it.key() == "FLAGS" ) {
             bool wasSeen = message->isMarkedAsRead();
             message->_flags = dynamic_cast<const Responses::RespData<QStringList>&>( *(it.value()) ).data;
@@ -386,8 +384,7 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
                     }
                 }
             }
-            if ( changedMessage )
-                *changedMessage = message;
+            changedMessage = message;
         } else {
             qDebug() << "TreeItemMailbox::handleFetchResponse: unknown FETCH identifier" << it.key();
         }
