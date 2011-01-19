@@ -656,7 +656,7 @@ Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
                 QDataStream stream( &buffer, QIODevice::WriteOnly );
                 stream << it->toList();
                 data["x-trojita-bodystructure"] = QSharedPointer<AbstractData>(
-                        new RespData<QByteArray>( buffer ) );;
+                        new RespData<QByteArray>( buffer ) );
 
             } else if ( identifier.startsWith( "BODY[" ) ) {
                 // FIXME: split into more identifiers?

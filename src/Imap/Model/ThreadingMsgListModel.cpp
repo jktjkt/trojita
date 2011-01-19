@@ -311,7 +311,7 @@ void ThreadingMsgListModel::updateNoThreading()
     _threading[ 0 ].ptr = static_cast<MsgListModel*>( sourceModel() )->msgList;
 
     if ( upstreamMessages )
-        emit endInsertRows();;
+        emit endInsertRows();
 }
 
 void ThreadingMsgListModel::askForThreading()

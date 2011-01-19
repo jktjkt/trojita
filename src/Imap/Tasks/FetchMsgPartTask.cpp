@@ -59,7 +59,7 @@ bool FetchMsgPartTask::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fe
     TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
     Q_ASSERT(mailbox);
     model->_genericHandleFetch( mailbox, resp );
-    return true;;
+    return true;
 }
 
 bool FetchMsgPartTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )

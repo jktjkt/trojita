@@ -646,7 +646,7 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
     if ( networkPolicy() == NETWORK_OFFLINE && uidMapping.size() != item->_totalMessageCount ) {
         qDebug() << "UID cache stale for mailbox" << mailbox <<
                 "(" << uidMapping.size() << "in UID cache vs." <<
-                item->_totalMessageCount << "as totalMessageCount)";;
+                item->_totalMessageCount << "as totalMessageCount)";
         item->_fetchStatus = TreeItem::UNAVAILABLE;
     } else if ( uidMapping.size() ) {
         QModelIndex listIndex = createIndex( item->row(), 0, item );
