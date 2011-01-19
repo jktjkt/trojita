@@ -106,7 +106,7 @@ class Model: public QAbstractItemModel {
         /** @short LIST responses which were not processed yet */
         QList<Responses::List> listResponses;
 
-        ParserState( Parser* _parser ): parser(_parser), maintainingTask(0), capabilitiesFresh(false) {}
+        ParserState( Parser* _parser ): parser(_parser), connState(CONN_STATE_NONE), maintainingTask(0), capabilitiesFresh(false) {}
         ParserState(): connState(CONN_STATE_NONE), maintainingTask(0), capabilitiesFresh(false) {}
     };
 
