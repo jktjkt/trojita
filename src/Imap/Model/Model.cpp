@@ -776,13 +776,15 @@ void Model::_askForMsgPart( TreeItemPart* item, bool onlyFromCache )
     TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( item->message()->parent()->parent() );
     Q_ASSERT( mailboxPtr );
 
+    // We are asking for a message part, which means that the structure of a message is already known.
+    // If the UID was zero at this point, it would meand that we are completely doomed.
     uint uid = static_cast<TreeItemMessage*>( item->message() )->uid();
-    if ( uid ) {
-        const QByteArray& data = cache()->messagePart( mailboxPtr->mailbox(), uid, item->partId() );
-        if ( ! data.isNull() ) {
-            item->_data = data;
-            item->_fetchStatus = TreeItem::DONE;
-        }
+    Q_ASSERT(uid);
+
+    const QByteArray& data = cache()->messagePart( mailboxPtr->mailbox(), uid, item->partId() );
+    if ( ! data.isNull() ) {
+        item->_data = data;
+        item->_fetchStatus = TreeItem::DONE;
     }
 
     if ( networkPolicy() == NETWORK_OFFLINE ) {
