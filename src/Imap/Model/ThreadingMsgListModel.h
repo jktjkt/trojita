@@ -33,11 +33,17 @@ namespace Mailbox {
 
 class TreeItem;
 
+/** @short A node in tree structure used for threading representation */
 struct ThreadNodeInfo {
+    /** @short Internal unique identifier used for model indexes */
     uint internalId;
+    /** @short A UID of the message in a mailbox */
     uint uid;
+    /** @short internalId of a parent of this message */
     uint parent;
+    /** @short List of children of current node */
     QList<uint> children;
+    /** @short Pointer to the TreeItemMessage* of the corresponding message */
     TreeItem *ptr;
     ThreadNodeInfo(): internalId(0), uid(0), parent(0), ptr(0) {}
 };
@@ -75,23 +81,31 @@ public slots:
     void handleRowsRemoved( const QModelIndex& parent, int start, int end );
     void handleRowsAboutToBeInserted( const QModelIndex& parent, int start, int end );
     void handleRowsInserted( const QModelIndex& parent, int start, int end );
+    /** @short Feed this with the data from a THREAD response */
     void slotThreadingAvailable( const QModelIndex &mailbox, const QString &algorithm,
                                  const QStringList &searchCriteria,
                                  const QVector<Imap::Responses::Thread::Node> &mapping );
 
 private slots:
+    /** @short Display messages without any threading at all, as a liner list */
     void updateNoThreading();
+    /** @short Ask the model for a THREAD response */
     void askForThreading();
 
 private:
+    /** @short Update QAbstractItemModel's idea of persistent indexes after a threading change */
     void updatePersistentIndexes();
+    /** @short Convert the threading from a THREAD response and apply that threading to this model */
     void registerThreading( const QVector<Imap::Responses::Thread::Node> &mapping, uint parentId );
 
     ThreadingMsgListModel& operator=( const ThreadingMsgListModel& ); // don't implement
     ThreadingMsgListModel( const ThreadingMsgListModel& ); // don't implement
 
+    /** @short Mapping from the message UID to ThreadingMsgListModel's internal IDs */
     QHash<uint,uint> uidToInternal;
+    /** @short Tree for the threading */
     QHash<uint,ThreadNodeInfo> _threading;
+    /** @short Last assigned internal ID */
     uint _threadingHelperLastId;
 };
 
