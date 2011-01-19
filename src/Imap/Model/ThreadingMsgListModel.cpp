@@ -404,7 +404,7 @@ void ThreadingMsgListModel::registerThreading( const QVector<Imap::Responses::Th
             fake.internalId = ++_threadingHelperLastId;
             fake.parent = parentId;
             Q_ASSERT(_threading.contains( parentId ));
-            // We can't append not the paren't children, that is be done after the if/else branch
+            // The child will be registered to the list of parent's children after the if/else branch
             _threading[ fake.internalId ] = fake;
             nodeId = fake.internalId;
         } else {
