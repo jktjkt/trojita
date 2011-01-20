@@ -32,6 +32,7 @@ class ImapModelSelectedMailboxUpdatesTest : public LibMailboxSync
 private slots:
 
     void testExpungeImmediatelyAfterArrival();
+    void testUnsolicitedFetch();
 };
 
 #endif

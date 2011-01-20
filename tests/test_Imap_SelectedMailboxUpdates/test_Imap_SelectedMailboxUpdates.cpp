@@ -61,4 +61,40 @@ void ImapModelSelectedMailboxUpdatesTest::testExpungeImmediatelyAfterArrival()
     helperVerifyUidMapA();
 }
 
+void ImapModelSelectedMailboxUpdatesTest::testUnsolicitedFetch()
+{
+    existsA = 2;
+    uidValidityA = 666;
+    uidMapA << 3 << 9;
+    uidNextA = 33;
+    helperSyncAWithMessagesEmptyState();
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+
+    SOCK->fakeReading(QString::fromAscii("* %1 EXISTS\r\n* %1 FETCH (FLAGS (\\Seen \\Recent $NotJunk NotJunk))\r\n").arg(QString::number(existsA + 1)).toAscii());
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE(SOCK->writtenStuff(), QString(t.mk("UID FETCH %1:* (FLAGS)\r\n")).arg(QString::number( uidMapA.last() + 1 )).toAscii());
+
+    // Add message with this UID to our internal list
+    uint addedUid = 42;
+    ++existsA;
+    uidMapA << addedUid;
+
+    SOCK->fakeReading( QString("* %1 FETCH (FLAGS (\\Seen \\Recent $NotJunk NotJunk) UID %2)\r\n").arg(
+            QString::number(existsA), QString::number(addedUid)).toAscii() +
+                       t.last("OK flags returned\r\n"));
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+    QVERIFY(errorSpy->isEmpty());
+
+    // FIXME: UIDNEXT is not updated yet
+    //uidNextA = addedUid + 1;
+
+    // FIXME: we do not update EXISTS yet...
+    //helperCheckCache();
+    helperVerifyUidMapA();
+
+}
+
 TROJITA_HEADLESS_TEST( ImapModelSelectedMailboxUpdatesTest )
