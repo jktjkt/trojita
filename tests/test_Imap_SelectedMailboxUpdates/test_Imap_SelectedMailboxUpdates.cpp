@@ -25,8 +25,18 @@
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/ItemRoles.h"
 
-/** @short Test that we survive a new message arrival and its subsequent removal in rapid sequence */
-void ImapModelSelectedMailboxUpdatesTest::testExpungeImmediatelyAfterArrival()
+/** @short Test that we survive a new message arrival and its subsequent removal in rapid sequence
+
+The code won't notice that the message got expunged immediately (simply because it has no idea of a
+next response when processing the first EXISTS), will ask for UID and FLAGS, but the message gets
+deleted (and EXPUNGE sent) before the server receives the UID FETCH command. This leads to us having
+a flawed idea of UIDNEXT, unless the server provides a hint via the * OK [UIDNEXT xyz] response.
+
+It's a question whether or not to at least increment the UIDNEXT by one when the response doesn't
+arrive. Doing that would probably break when the server employs an Outlook-workaround for IDLE with
+a fake EXISTS/EXPUNGE responses.
+*/
+void ImapModelSelectedMailboxUpdatesTest::helperTestExpungeImmediatelyAfterArrival(bool sendUidNext)
 {
     existsA = 3;
     uidValidityA = 6;
@@ -42,21 +52,20 @@ void ImapModelSelectedMailboxUpdatesTest::testExpungeImmediatelyAfterArrival()
 
     // Add message with this UID to our internal list
     uint addedUid = 33;
-    ++existsA;
-    uidMapA << addedUid;
+    uidNextA = addedUid + 1;
+
+    QByteArray uidUpdateResponse = sendUidNext ? QString("* OK [UIDNEXT %1] courtesy of the server\r\n").arg(
+            QString::number(uidNextA)).toAscii() : QByteArray();
 
     // ...but because it got deleted, here we go
-    SOCK->fakeReading(t.last("OK empty fetch\r\n"));
+    SOCK->fakeReading(t.last("OK empty fetch\r\n") + uidUpdateResponse);
+
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QVERIFY(SOCK->writtenStuff().isEmpty());
     QVERIFY(errorSpy->isEmpty());
 
-    --existsA;
-    uidMapA.removeLast();
-    uidNextA = addedUid + 1;
-
-    helperCheckCache(true);
+    helperCheckCache( ! sendUidNext );
     helperVerifyUidMapA();
 }
 
@@ -90,7 +99,24 @@ void ImapModelSelectedMailboxUpdatesTest::testUnsolicitedFetch()
 
     helperCheckCache();
     helperVerifyUidMapA();
+}
 
+/** @short Test a rapid EXISTS/EXPUNGE sequence
+
+@see helperTestExpungeImmediatelyAfterArrival for details
+*/
+void ImapModelSelectedMailboxUpdatesTest::testExpungeImmediatelyAfterArrival()
+{
+    helperTestExpungeImmediatelyAfterArrival(false);
+}
+
+/** @short Test a rapid EXISTS/EXPUNGE sequence with an added UIDNEXT response
+
+@see helperTestExpungeImmediatelyAfterArrival for details
+*/
+void ImapModelSelectedMailboxUpdatesTest::testExpungeImmediatelyAfterArrivalWithUidNext()
+{
+    helperTestExpungeImmediatelyAfterArrival(true);
 }
 
 TROJITA_HEADLESS_TEST( ImapModelSelectedMailboxUpdatesTest )

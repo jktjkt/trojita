@@ -353,6 +353,9 @@ void KeepMailboxOpenTask::slotPerformNoop()
 
 bool KeepMailboxOpenTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
+    if ( handleResponseCodeInsideState(resp) )
+        return true;
+
     // FIXME: checks for shouldExit and proper boundaries?
 
     if ( resp->tag.isEmpty() )
@@ -500,6 +503,30 @@ void KeepMailboxOpenTask::breakPossibleIdle()
         // If we're idling right now, we should immediately abort
         idleLauncher->finishIdle();
     }
+}
+
+bool KeepMailboxOpenTask::handleResponseCodeInsideState( const Imap::Responses::State* const resp )
+{
+    TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
+    Q_ASSERT(mailbox);
+    switch ( resp->respCode ) {
+    case Responses::UIDNEXT:
+    {
+        const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.data() );
+        if ( num ) {
+            mailbox->syncState.setUidNext( num->data );
+            model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
+            return true;
+        } else {
+            throw CantHappen( "State response has invalid UIDNEXT respCodeData", *resp );
+        }
+        break;
+    }
+    default:
+        // Do nothing here
+        break;
+    }
+    return false;
 }
 
 }

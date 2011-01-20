@@ -103,6 +103,7 @@ initialize synchronization now.
     virtual bool handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );
     virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
     virtual bool handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp );
+    bool handleResponseCodeInsideState( const Imap::Responses::State* const resp );
 
     void slotPerformNoop();
     void slotActivateTasks() { activateTasks(); }
