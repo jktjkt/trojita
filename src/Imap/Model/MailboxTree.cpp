@@ -335,7 +335,7 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
                     QString::number(response.number), QString::number(message->uid()), QString::number(receivedUid) ).toAscii().constData(), response );
         }
     } else if ( ! message->uid() ) {
-        qDebug() << "FETCH: received a FETCH response (#" << response.number << ") for a message whose UID is not yet known. This sucks.";
+        qDebug() << "FETCH: received a FETCH response for message #" << response.number << "whose UID is not yet known. This sucks.";
         QList<uint> uidsInMailbox;
         Q_FOREACH( TreeItem *node, list->_children ) {
             uidsInMailbox << dynamic_cast<TreeItemMessage*>(node)->uid();
