@@ -32,6 +32,8 @@
 #include "Imap/Model/Model.h"
 #include "Imap/Model/MailboxTree.h"
 
+//#define DEBUG_PENDING_MESSAGES
+
 namespace XtConnect {
 
 MessageDownloader::MessageDownloader(QObject *parent, const QString &mailboxName ):
@@ -73,6 +75,11 @@ void MessageDownloader::requestDownload( const QModelIndex &message )
     metaData.hasMainPart = ( mainPartStatus == MAINPART_FOUND || mainPartStatus == MAINPART_PART_CANNOT_DETERMINE );
     metaData.mainPartFailed = mainPartStatus == MAINPART_PART_CANNOT_DETERMINE;
 
+#ifdef DEBUG_PENDING_MESSAGES
+    qDebug() << "requestDownload:" << message.row() << message.data( Imap::Mailbox::RoleMessageUid ).toUInt() <<
+            metaData.hasHeader << metaData.hasBody << metaData.hasMessage << metaData.hasMainPart;
+#endif
+
     if ( metaData.hasHeader && metaData.hasBody && metaData.hasMessage && metaData.hasMainPart ) {
         emit messageDownloaded( message, metaData.headerData, metaData.bodyData,
                                 mainPartStatus == MAINPART_FOUND ? partData : metaData.partMessage );
@@ -86,25 +93,45 @@ void MessageDownloader::requestDownload( const QModelIndex &message )
 
 void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex &b )
 {
-    if ( ! a.isValid() )
+    if ( ! a.isValid() ) {
+#ifdef DEBUG_PENDING_MESSAGES
+        qDebug() << "MessageDownloader::slotDataChanged: a not valid" << a;
+#endif
         return;
+    }
 
-    if ( a != b )
+    if ( a != b ) {
+#ifdef DEBUG_PENDING_MESSAGES
+        qDebug() << "MessageDownloader::slotDataChanged: a != b" << a;
+#endif
         return;
+    }
 
     QModelIndex message = Imap::Mailbox::Model::findMessageForItem( a );
-    if ( ! message.isValid() )
+    if ( ! message.isValid() ) {
+#ifdef DEBUG_PENDING_MESSAGES
+        qDebug() << "MessageDownloader::slotDataChanged: message not valid" << a;
+#endif
         return;
+    }
 
-    if ( message.parent().parent().data( Imap::Mailbox::RoleMailboxName ).toString() != registeredMailbox )
+    if ( message.parent().parent().data( Imap::Mailbox::RoleMailboxName ).toString() != registeredMailbox ) {
+#ifdef DEBUG_PENDING_MESSAGES
+        qDebug() << "MessageDownloader::slotDataChanged: not this mailbox" << a << message.parent().parent().data( Imap::Mailbox::RoleMailboxName );
+#endif
         return;
+    }
 
     const uint uid = message.data( Imap::Mailbox::RoleMessageUid ).toUInt();
     Q_ASSERT(uid);
 
     QMap<uint,MessageMetadata>::iterator it = m_parts.find( uid );
-    if ( it == m_parts.end() )
+    if ( it == m_parts.end() ) {
+#ifdef DEBUG_PENDING_MESSAGES
+        qDebug() << "We are not interested in message with UID" << uid;
+#endif
         return;
+    }
 
     const QAbstractItemModel *model = message.model();
 
@@ -116,13 +143,22 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
         QVariant data = header.data( Imap::Mailbox::RolePartData );
         Q_ASSERT(data.isValid());
         it->headerData = data.toByteArray();
+#ifdef DEBUG_PENDING_MESSAGES
+        qDebug() << "  Got header for" << uid;
+#endif
     } else if ( a == text ) {
         it->hasBody = true;
         QVariant data = text.data( Imap::Mailbox::RolePartData );
         Q_ASSERT(data.isValid());
         it->bodyData = data.toByteArray();
+#ifdef DEBUG_PENDING_MESSAGES
+        qDebug() << "  Got body for" << uid;
+#endif
     } else if ( a == message && ! it->hasMessage ) {
         it->hasMessage = true;
+#ifdef DEBUG_PENDING_MESSAGES
+        qDebug() << "  Got message for" << uid;
+#endif
 
         QModelIndex mainPart;
         QString partData;
@@ -131,25 +167,46 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
         switch( mainPartStatus ) {
         case MAINPART_FOUND:
             it->hasMainPart = true;
+#ifdef DEBUG_PENDING_MESSAGES
+            qDebug() << "  ...and MAINPART_FOUND for" << uid;
+#endif
             break;
         case MAINPART_MESSAGE_NOT_LOADED:
+#ifdef DEBUG_PENDING_MESSAGES
+            qDebug() << "  ...and MAINPART_MESSAGE_NOT_LOADED for" << uid;
+#endif
             Q_ASSERT(false);
             break;
         case MAINPART_PART_CANNOT_DETERMINE:
             it->mainPartFailed = true;
             it->hasMainPart = true;
+#ifdef DEBUG_PENDING_MESSAGES
+            qDebug() << "  ...and MAINPART_PART_CANNOT_DETERMINE for" << uid;
+#endif
             break;
         case MAINPART_PART_LOADING:
             // nothing needed here
-            ;
+#ifdef DEBUG_PENDING_MESSAGES
+            qDebug() << "  ...and MAINPART_PART_LOADING for" << uid;
+#endif
+            break;
         }
     } else if ( it->mainPart.isValid() && a == it->mainPart ) {
         it->hasMainPart = true;
+#ifdef DEBUG_PENDING_MESSAGES
+        qDebug() << "  Got main part for" << uid;
+#endif
     } else {
+#ifdef DEBUG_PENDING_MESSAGES
+        qDebug() << "  Got something else for" << uid;
+#endif
         return;
     }
 
     if ( it->hasHeader && it->hasBody && it->hasMessage && it->hasMainPart ) {
+#ifdef DEBUG_PENDING_MESSAGES
+        qDebug() << "We've got everything for" << uid << "-> saving";
+#endif
         QVariant mainPartData = it->mainPart.data( Imap::Mailbox::RolePartData );
         QString mainPart;
         if ( it->mainPartFailed ) {
@@ -169,6 +226,10 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
         Q_ASSERT(model);
         model->releaseMessageData( message );
         m_parts.erase( it );
+    } else {
+#ifdef DEBUG_PENDING_MESSAGES
+        qDebug() << "Something is missing for" << uid << it->hasHeader << it->hasBody << it->hasMessage << it->hasMainPart;
+#endif
     }
 }
 
