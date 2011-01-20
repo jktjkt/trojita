@@ -299,7 +299,7 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
 
         QModelIndex parent = model->createIndex( 0, 0, list );
         int offset = list->_children.size();
-        model->beginInsertRows( parent, offset, mailbox->syncState.exists() - 1 );
+        model->beginInsertRows( parent, offset, resp->number - 1 );
         for ( int i = 0; i < newArrivals; ++i ) {
             TreeItemMessage * msg = new TreeItemMessage( list );
             msg->_offset = i + offset;
@@ -307,6 +307,8 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
             // yes, we really have to add this message with UID 0 :(
         }
         model->endInsertRows();
+        list->_totalMessageCount = resp->number;
+        model->emitMessageCountChanged(mailbox);
 
         breakPossibleIdle();
 
