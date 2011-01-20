@@ -25,6 +25,8 @@
 #include <QAbstractProxyModel>
 #include "Imap/Parser/Response.h"
 
+class QTimer;
+
 /** @short Namespace for IMAP interaction */
 namespace Imap {
 
@@ -109,6 +111,7 @@ private:
     uint _threadingHelperLastId;
     /** @short Messages with unkown UIDs */
     QList<QPersistentModelIndex> unknownUids;
+    QTimer *delayedUidRefresh;
 };
 
 }

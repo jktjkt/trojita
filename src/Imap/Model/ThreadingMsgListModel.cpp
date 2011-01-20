@@ -30,6 +30,10 @@ namespace Mailbox {
 
 ThreadingMsgListModel::ThreadingMsgListModel( QObject* parent ): QAbstractProxyModel(parent)
 {
+    delayedUidRefresh = new QTimer(this);
+    delayedUidRefresh->setSingleShot(true);
+    delayedUidRefresh->setInterval(10);
+    connect( delayedUidRefresh, SIGNAL(timeout()), this, SLOT(askForThreading()) );
 }
 
 void ThreadingMsgListModel::setSourceModel( QAbstractItemModel *sourceModel )
@@ -70,7 +74,8 @@ void ThreadingMsgListModel::handleDataChanged( const QModelIndex& topLeft, const
 
     if ( unknownUids.contains(topLeft) ) {
         // The message wasn't fully synced before, and now it is. Let's re-thread, then!
-        QTimer::singleShot(0, this, SLOT(askForThreading()));
+        if ( ! delayedUidRefresh->isActive() )
+            delayedUidRefresh->start();
         return;
     }
 
@@ -285,7 +290,7 @@ void ThreadingMsgListModel::resetMe()
     unknownUids.clear();
     reset();
     updateNoThreading();
-    QTimer::singleShot( 0, this, SLOT(askForThreading()) );
+    delayedUidRefresh->start();
 }
 
 void ThreadingMsgListModel::updateNoThreading()
@@ -334,8 +339,8 @@ void ThreadingMsgListModel::updateNoThreading()
         endInsertRows();
     }
     // FIXME: do something reasonable with these missing messages...
-    if ( ! unknownUids.isEmpty() )
-        QTimer::singleShot(1000, this, SLOT(askForThreading()));
+    if ( ! unknownUids.isEmpty() && ! delayedUidRefresh->isActive() )
+        delayedUidRefresh->start();
 }
 
 void ThreadingMsgListModel::askForThreading()
