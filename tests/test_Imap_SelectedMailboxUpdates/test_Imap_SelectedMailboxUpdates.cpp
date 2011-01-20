@@ -38,15 +38,27 @@ void ImapModelSelectedMailboxUpdatesTest::testExpungeImmediatelyAfterArrival()
     SOCK->fakeReading(QString::fromAscii("* %1 EXISTS\r\n* %1 EXPUNGE\r\n").arg(QString::number(existsA + 1)).toAscii());
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    //QCOMPARE(SOCK->writtenStuff(), QString(t.mk("UID SEARCH UID %1:*\r\n")).arg(QString::number(uidNextA)).toAscii());
+    QCOMPARE(SOCK->writtenStuff(), QString(t.mk("UID FETCH %1:* (FLAGS)\r\n")).arg(QString::number( uidMapA.last() + 1 )).toAscii());
 
-    uidMapA << uidNextA;
-    ++uidNextA;
+    // Add message with this UID to our internal list
+    uint addedUid = 33;
     ++existsA;
+    uidMapA << addedUid;
 
-    //SOCK->fakeReading(QString::fromAscii("* %2 EXPUNGE\r\n").arg(QString::number(existsA)).toAscii());
-
+    // ...but because it got deleted, here we go
+    SOCK->fakeReading(t.last("OK empty fetch\r\n"));
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QVERIFY(SOCK->writtenStuff().isEmpty());
     QVERIFY(errorSpy->isEmpty());
+
+    --existsA;
+    uidMapA.removeLast();
+    // FIXME: UIDNEXT is not updated yet
+    //uidNextA = addedUid + 1;
+
+    helperCheckCache();
+    helperVerifyUidMapA();
 }
 
 TROJITA_HEADLESS_TEST( ImapModelSelectedMailboxUpdatesTest )
