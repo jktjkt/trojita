@@ -330,6 +330,19 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
                 message->_fetchStatus = NONE;
                 message->fetch(model);
             }
+            if ( syncState.uidNext() <= receivedUid ) {
+                // Try to guess the UIDNEXT. We have to take an educated guess here, and I believe that this approach
+                // at least is not wrong. The server won't tell us the UIDNEXT (well, it could, but it doesn't have to),
+                // the only way of asking for it is via STATUS which is not allowed to reference the current mailbox and
+                // even if it was, it wouldn't be atomic. So, what could the UIDNEXT possibly be? It can't be smaller
+                // than the UID_of_highest_message, and it can't be the same, either, so it really has to be higher.
+                // Let's just increment it by one, this is our lower bound.
+                // Not guessing the UIDNEXT correctly would result at decreased performance at the next sync, and we
+                // can't really do better -> let's just set it now, along with the UID mapping.
+                syncState.setUidNext( receivedUid + 1 );
+                model->cache()->setMailboxSyncState( mailbox(), syncState );
+                model->saveUidMap(list);
+            }
         } else {
             throw MailboxException( QString::fromAscii("FETCH response: UID consistency error for message #%1 -- expected UID %2, got UID %3").arg(
                     QString::number(response.number), QString::number(message->uid()), QString::number(receivedUid) ).toAscii().constData(), response );

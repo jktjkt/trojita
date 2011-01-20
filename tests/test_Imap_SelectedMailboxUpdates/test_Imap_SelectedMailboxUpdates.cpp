@@ -54,10 +54,9 @@ void ImapModelSelectedMailboxUpdatesTest::testExpungeImmediatelyAfterArrival()
 
     --existsA;
     uidMapA.removeLast();
-    // FIXME: UIDNEXT is not updated yet
-    //uidNextA = addedUid + 1;
+    uidNextA = addedUid + 1;
 
-    helperCheckCache();
+    helperCheckCache(true);
     helperVerifyUidMapA();
 }
 
@@ -79,6 +78,7 @@ void ImapModelSelectedMailboxUpdatesTest::testUnsolicitedFetch()
     uint addedUid = 42;
     ++existsA;
     uidMapA << addedUid;
+    uidNextA = addedUid + 1;
 
     SOCK->fakeReading( QString("* %1 FETCH (FLAGS (\\Seen \\Recent $NotJunk NotJunk) UID %2)\r\n").arg(
             QString::number(existsA), QString::number(addedUid)).toAscii() +
@@ -88,11 +88,7 @@ void ImapModelSelectedMailboxUpdatesTest::testUnsolicitedFetch()
     QVERIFY(SOCK->writtenStuff().isEmpty());
     QVERIFY(errorSpy->isEmpty());
 
-    // FIXME: UIDNEXT is not updated yet
-    //uidNextA = addedUid + 1;
-
-    // FIXME: we do not update EXISTS yet...
-    //helperCheckCache();
+    helperCheckCache();
     helperVerifyUidMapA();
 
 }

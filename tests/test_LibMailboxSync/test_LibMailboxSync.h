@@ -50,7 +50,7 @@ protected:
     virtual void helperFakeExistsUidValidityUidNext();
     virtual void helperFakeUidSearch( uint start=0 );
     virtual void helperVerifyUidMapA();
-    virtual void helperCheckCache();
+    virtual void helperCheckCache(bool ignoreUidNext=false);
 
     virtual void helperOneFlagUpdate( const QModelIndex &message );
 

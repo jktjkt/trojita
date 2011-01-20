@@ -313,12 +313,15 @@ void LibMailboxSync::helperVerifyUidMapA()
 }
 
 /** @short Helper: verify that values recorded in the cache are valid */
-void LibMailboxSync::helperCheckCache()
+void LibMailboxSync::helperCheckCache(bool ignoreUidNext)
 {
     // Check the cache
     Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QString::fromAscii("a") );
     QCOMPARE( syncState.exists(), existsA );
     QCOMPARE( syncState.isUsableForSyncing(), true );
+    if ( ignoreUidNext ) {
+        QEXPECT_FAIL("", "UIDNEXT is not updated", Continue);
+    }
     QCOMPARE( syncState.uidNext(), uidNextA );
     QCOMPARE( syncState.uidValidity(), uidValidityA );
     QCOMPARE( model->cache()->uidMapping( QString::fromAscii("a") ), uidMapA );
