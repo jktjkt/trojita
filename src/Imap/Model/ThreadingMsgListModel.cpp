@@ -36,6 +36,7 @@ void ThreadingMsgListModel::setSourceModel( QAbstractItemModel *sourceModel )
 {
     _threading.clear();
     uidToInternal.clear();
+    unknownUids.clear();
     reset();
     Imap::Mailbox::MsgListModel *msgList = qobject_cast<Imap::Mailbox::MsgListModel*>( sourceModel );
     QAbstractProxyModel::setSourceModel( msgList );
@@ -61,17 +62,24 @@ void ThreadingMsgListModel::setSourceModel( QAbstractItemModel *sourceModel )
 
 void ThreadingMsgListModel::handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight )
 {
+    if ( topLeft.row() != bottomRight.row() ) {
+        // FIXME: Batched updates...
+        Q_ASSERT(false);
+        return;
+    }
+
+    if ( unknownUids.contains(topLeft) ) {
+        // The message wasn't known before, but it's likely that we got some data now.
+        QTimer::singleShot(0, this, SLOT(askForThreading()));
+        return;
+    }
+
     QModelIndex first = mapFromSource( topLeft );
     QModelIndex second = mapFromSource( bottomRight );
 
     Q_ASSERT(first.isValid());
     Q_ASSERT(second.isValid());
 
-    if ( first.row() != second.row() ) {
-        // FIXME: Batched updates...
-        Q_ASSERT(false);
-        return;
-    }
 
     emit dataChanged( first, second );
 }
@@ -196,7 +204,9 @@ QModelIndex ThreadingMsgListModel::mapFromSource( const QModelIndex& sourceIndex
         return QModelIndex();
 
     QHash<uint,uint>::const_iterator it = uidToInternal.constFind( uid );
-    Q_ASSERT( it != uidToInternal.constEnd() );
+    if ( it == uidToInternal.constEnd() )
+        return QModelIndex();
+
     const uint internalId = *it;
 
     QHash<uint,ThreadNodeInfo>::const_iterator node = _threading.constFind( internalId );
@@ -273,7 +283,32 @@ void ThreadingMsgListModel::resetMe()
     reset();
     _threading.clear();
     uidToInternal.clear();
-    updateNoThreading();
+    unknownUids.clear();
+    /* We *cannot* call updateNoThreading() here, that would break the attached
+     * QSortFilterProxyModel for some reason (a QTreeView attached to that would
+     * show twice as much rows, and ModelTest fails). Here's a diff output from
+     * what the ModelWatcher attached to the PrettyMsgListModel reports:
+     *
+     *  modelReset()
+     *  layoutAboutToBeChanged()
+     *  layoutChanged()
+     * +rowsAboutToBeInserted( QModelIndex() 0 12 )
+     * +rowsInserted( QModelIndex() 0 12 )
+     *  modelAboutToBeReset()
+     *  modelReset()
+     *  layoutAboutToBeChanged()
+     * ...
+     *  rowsRemoved( QModelIndex() 0 12 )
+     *  rowsAboutToBeInserted( QModelIndex() 0 12 )
+     *  rowsInserted( QModelIndex() 0 12 )
+     * -dataChanged( QModelIndex(0,0)  QModelIndex(0,7 )  )
+     * +rowsAboutToBeRemoved( QModelIndex() 0 12 )
+     * +rowsRemoved( QModelIndex() 0 12 )
+     * +rowsAboutToBeInserted( QModelIndex() 0 12 )
+     * +rowsInserted( QModelIndex() 0 12 )
+     * +dataChanged( QModelIndex(0,0)  QModelIndex(0,7)  )
+     *
+     * */
     QTimer::singleShot( 0, this, SLOT(askForThreading()) );
 }
 
@@ -285,6 +320,7 @@ void ThreadingMsgListModel::updateNoThreading()
         uidToInternal.clear();
         endRemoveRows();
     }
+    unknownUids.clear();
 
     if ( ! sourceModel() ) {
         // Maybe we got reset because the parent model is no longer here...
@@ -292,30 +328,46 @@ void ThreadingMsgListModel::updateNoThreading()
     }
 
     int upstreamMessages = sourceModel()->rowCount();
-    if ( upstreamMessages )
-        beginInsertRows( QModelIndex(), 0, upstreamMessages - 1 );
     QList<uint> allIds;
+    QHash<uint,ThreadNodeInfo> newThreading;
+    QHash<uint,uint> newUidToInternal;
+
     for ( int i = 0; i < upstreamMessages; ++i ) {
         QModelIndex index = sourceModel()->index( i, 0 );
         uint uid = index.data( RoleMessageUid ).toUInt();
-        Q_ASSERT(uid);
         ThreadNodeInfo node;
         node.internalId = i + 1;
         node.uid = uid;
-        uidToInternal[ node.uid ] = node.internalId;
         node.ptr = static_cast<TreeItem*>( index.internalPointer() );
-        _threading[ node.internalId ] = node;
-        allIds.append( node.internalId );
+        if ( node.uid ) {
+            newThreading[ node.internalId ] = node;
+            allIds.append( node.internalId );
+            newUidToInternal[ node.uid ] = node.internalId;
+        } else {
+            qDebug() << "Message" << index.row() << "has unkown UID";
+            unknownUids << index;
+        }
     }
-    _threading[ 0 ].children = allIds;
-    _threading[ 0 ].ptr = static_cast<MsgListModel*>( sourceModel() )->msgList;
 
-    if ( upstreamMessages )
-        emit endInsertRows();
+    if ( newThreading.size() ) {
+        beginInsertRows( QModelIndex(), 0, newThreading.size() - 1 );
+        _threading = newThreading;
+        uidToInternal = newUidToInternal;
+        _threading[ 0 ].children = allIds;
+        _threading[ 0 ].ptr = static_cast<MsgListModel*>( sourceModel() )->msgList;
+        endInsertRows();
+    }
+    // FIXME: do something reasonable with these missing messages...
+    if ( ! unknownUids.isEmpty() )
+        QTimer::singleShot(1000, this, SLOT(askForThreading()));
 }
 
 void ThreadingMsgListModel::askForThreading()
 {
+    // Threading is broken with newly arriving messages (and their UIDs)
+    updateNoThreading();
+    return;
+
     if ( ! sourceModel() ) {
         updateNoThreading();
         return;
@@ -385,6 +437,8 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
         node.ptr = static_cast<TreeItem*>( index.internalPointer() );
         _threadingHelperLastId = node.internalId;
         Q_ASSERT(!_threading.contains( node.internalId ));
+        // FIXME: this is broken with new message arrivals...
+        Q_ASSERT(node.uid);
         _threading[ node.internalId ] = node;
         uidToInternal[ node.uid ] = node.internalId;
     }

@@ -107,6 +107,8 @@ private:
     QHash<uint,ThreadNodeInfo> _threading;
     /** @short Last assigned internal ID */
     uint _threadingHelperLastId;
+    /** @short Messages with unkown UIDs */
+    QList<QPersistentModelIndex> unknownUids;
 };
 
 }
