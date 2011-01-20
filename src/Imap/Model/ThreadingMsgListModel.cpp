@@ -69,7 +69,7 @@ void ThreadingMsgListModel::handleDataChanged( const QModelIndex& topLeft, const
     }
 
     if ( unknownUids.contains(topLeft) ) {
-        // The message wasn't known before, but it's likely that we got some data now.
+        // The message wasn't fully synced before, and now it is. Let's re-thread, then!
         QTimer::singleShot(0, this, SLOT(askForThreading()));
         return;
     }
@@ -280,35 +280,11 @@ void ThreadingMsgListModel::handleRowsInserted( const QModelIndex& parent, int s
 
 void ThreadingMsgListModel::resetMe()
 {
-    reset();
     _threading.clear();
     uidToInternal.clear();
     unknownUids.clear();
-    /* We *cannot* call updateNoThreading() here, that would break the attached
-     * QSortFilterProxyModel for some reason (a QTreeView attached to that would
-     * show twice as much rows, and ModelTest fails). Here's a diff output from
-     * what the ModelWatcher attached to the PrettyMsgListModel reports:
-     *
-     *  modelReset()
-     *  layoutAboutToBeChanged()
-     *  layoutChanged()
-     * +rowsAboutToBeInserted( QModelIndex() 0 12 )
-     * +rowsInserted( QModelIndex() 0 12 )
-     *  modelAboutToBeReset()
-     *  modelReset()
-     *  layoutAboutToBeChanged()
-     * ...
-     *  rowsRemoved( QModelIndex() 0 12 )
-     *  rowsAboutToBeInserted( QModelIndex() 0 12 )
-     *  rowsInserted( QModelIndex() 0 12 )
-     * -dataChanged( QModelIndex(0,0)  QModelIndex(0,7 )  )
-     * +rowsAboutToBeRemoved( QModelIndex() 0 12 )
-     * +rowsRemoved( QModelIndex() 0 12 )
-     * +rowsAboutToBeInserted( QModelIndex() 0 12 )
-     * +rowsInserted( QModelIndex() 0 12 )
-     * +dataChanged( QModelIndex(0,0)  QModelIndex(0,7)  )
-     *
-     * */
+    reset();
+    updateNoThreading();
     QTimer::singleShot( 0, this, SLOT(askForThreading()) );
 }
 
