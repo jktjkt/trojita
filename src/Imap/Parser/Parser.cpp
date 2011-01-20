@@ -33,6 +33,7 @@
 //#define PRINT_TRAFFIC 100
 //#define PRINT_TRAFFIC_TX 500
 //#define PRINT_TRAFFIC_RX 25
+//#define PRINT_TRAFFIC_SENSITIVE
 
 #ifdef PRINT_TRAFFIC
 # ifndef PRINT_TRAFFIC_TX
@@ -499,6 +500,18 @@ void Parser::executeACommand()
 
     QByteArray buf;
 
+    bool sensitiveCommand = ( cmd._cmds.size() > 2 && cmd._cmds[1]._text == QLatin1String("LOGIN"));
+    QByteArray privateMessage = sensitiveCommand ? QByteArray("[LOGIN command goes here]") : QByteArray();
+
+#ifdef PRINT_TRAFFIC
+#ifdef PRINT_TRAFFIC_SENSITIVE
+    bool printThisCommand = true;
+#else
+    bool printThisCommand = ! sensitiveCommand;
+#endif
+#endif
+
+
     if ( cmd._cmds[ cmd._currentPart ]._kind == Commands::ATOM )
         emit sendingCommand( this, cmd._cmds[ cmd._currentPart ]._text );
 
@@ -547,12 +560,15 @@ void Parser::executeACommand()
                     buf.append( QByteArray::number( part._text.size() ) );
                     buf.append( "}\r\n" );
 #ifdef PRINT_TRAFFIC_TX
-                    qDebug() << _parserId << ">>>" << buf.left( PRINT_TRAFFIC_TX ).trimmed();
+                    if ( printThisCommand )
+                        qDebug() << _parserId << ">>>" << buf.left( PRINT_TRAFFIC_TX ).trimmed();
+                    else
+                        qDebug() << _parserId << ">>> [sensitive command] -- added literal";
 #endif
                     _socket->write( buf );
                     part._numberSent = true;
                     _waitingForContinuation = true;
-                    emit lineSent( this, buf );
+                    emit lineSent( this, sensitiveCommand ? privateMessage : buf );
                     return; // and wait for continuation request
                 }
                 break;
@@ -587,11 +603,14 @@ void Parser::executeACommand()
             // finalize
             buf.append( "\r\n" );
 #ifdef PRINT_TRAFFIC_TX
-            qDebug() << _parserId << ">>>" << buf.left( PRINT_TRAFFIC_TX ).trimmed();
+            if ( printThisCommand )
+                qDebug() << _parserId << ">>>" << buf.left( PRINT_TRAFFIC_TX ).trimmed();
+            else
+                qDebug() << _parserId << ">>> [sensitive command]";
 #endif
             _socket->write( buf );
             _cmdQueue.pop_front();
-            emit lineSent( this, buf );
+            emit lineSent( this, sensitiveCommand ? privateMessage : buf );
             break;
         } else {
             buf.append( ' ' );
