@@ -380,7 +380,7 @@ bool KeepMailboxOpenTask::handleStateHelper( Imap::Parser* ptr, const Imap::Resp
         IMAP_TASK_ENSURE_VALID_COMMAND( newArrivalsFetch, Model::Task::FETCH_FLAGS );
 
         if ( resp->kind == Responses::OK ) {
-            // FIXME: update uidNext in the sync state...
+            // FIXME: anything to do here?
         } else {
             // FIXME: handling of failure...
         }
