@@ -316,6 +316,7 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
         uint highestKnownUid = 0;
         for ( int i = list->_children.size() - 1; ! highestKnownUid && i >= 0; --i ) {
             highestKnownUid = static_cast<const TreeItemMessage*>(list->_children[i])->uid();
+            //qDebug() << "UID disco: trying seq" << i << highestKnownUid;
         }
         newArrivalsFetch = parser->uidFetch( Sequence::startingAt( highestKnownUid + 1 ), QStringList() << QLatin1String("FLAGS") );
         model->accessParser(parser).commandMap[newArrivalsFetch] = Model::Task(Model::Task::FETCH_FLAGS, 0);
