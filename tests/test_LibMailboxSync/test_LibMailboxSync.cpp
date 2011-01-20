@@ -307,6 +307,7 @@ void LibMailboxSync::helperVerifyUidMapA()
     for ( int i = 0; i < uidMapA.size(); ++i ) {
         QModelIndex message = model->index( i, 0, msgListA );
         Q_ASSERT( message.isValid() );
+        QVERIFY( uidMapA[i] != 0 );
         QCOMPARE( message.data( Imap::Mailbox::RoleMessageUid ).toUInt(), uidMapA[i] );
     }
 }
