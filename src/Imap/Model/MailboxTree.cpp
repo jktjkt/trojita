@@ -307,7 +307,8 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
 
     int number = response.number - 1;
     if ( number < 0 || number >= list->_children.size() )
-        throw UnknownMessageIndex( "Got FETCH that is out of bounds", response );
+        throw UnknownMessageIndex( QString::fromAscii("Got FETCH that is out of bounds -- got %1 messages").arg(
+                QString::number(list->_children.size())).toAscii().constData(), response );
 
     TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->child( number, model ) );
     Q_ASSERT( message ); // FIXME: this should be relaxed for allowing null pointers instead of "unfetched" TreeItemMessage
