@@ -47,6 +47,10 @@ MailSynchronizer::MailSynchronizer( QObject *parent, Imap::Mailbox::Model *model
     connect( m_finder, SIGNAL(mailboxFound(QString,QModelIndex)), this, SLOT(slotMailboxFound(QString,QModelIndex)) );
     connect( m_downloader, SIGNAL(messageDownloaded(QModelIndex,QByteArray,QByteArray,QString)),
              this, SLOT(slotMessageDataReady(QModelIndex,QByteArray,QByteArray,QString)) );
+    m_deferredTimer = new QTimer(this);
+    m_deferredTimer->setSingleShot(true);
+    m_deferredTimer->setInterval(5000);
+    connect(m_deferredTimer, SIGNAL(timeout()), this, SLOT(slotWalkDeferredMessages()));
 }
 
 void MailSynchronizer::setMailbox( const QString &mailbox )
@@ -109,7 +113,10 @@ void MailSynchronizer::walkThroughMessages( int start, int end )
                 m_downloader->requestDownload( message );
             }
         } else {
-            qDebug() << m_mailbox << i << "[unsynced message, huh?]";
+            m_deferredMessages << message;
+            if ( ! m_deferredTimer->isActive() )
+                m_deferredTimer->start();
+            qDebug() << "Message not synced yet, will check in a while" << m_mailbox << i;
         }
     }
 }
@@ -212,10 +219,39 @@ void MailSynchronizer::debugStats() const
     if ( m_index.isValid() ) {
         qDebug() << "Mailbox" << m_mailbox <<
                 ( m_index.data(Imap::Mailbox::RoleMailboxItemsAreLoading).toBool() ? "[loading]" : "" ) <<
-                "total" << m_index.data( Imap::Mailbox::RoleTotalMessageCount ).toUInt() << ", pending" << m_downloader->pendingMessages();
+                "total" << m_index.data( Imap::Mailbox::RoleTotalMessageCount ).toUInt() <<
+                ", pending" << m_downloader->pendingMessages() << ", uid_wait" << m_deferredMessages.count();
     } else {
         qDebug() << "Mailbox" << m_mailbox << ": waiting for sync.";
     }
+}
+
+void MailSynchronizer::slotWalkDeferredMessages()
+{
+    QList<QPersistentModelIndex>::iterator it = m_deferredMessages.begin();
+    while (it != m_deferredMessages.end()) {
+        if ( ! it->isValid() ) {
+            qDebug() << "A message got removed between the moment we saw it for the first time and the time we tried to process it";
+            it = m_deferredMessages.erase(it);
+            continue;
+        }
+        QVariant uid = it->data(Imap::Mailbox::RoleMessageUid);
+        Q_ASSERT(uid.isValid());
+        if ( uid.toUInt() == 0 ) {
+            qDebug() << m_mailbox << ": still no UID for message #" << it->row() + 1;
+            ++it;
+        } else {
+            bool shouldLoad = true;
+            QModelIndex message = *it;
+            it = m_deferredMessages.erase(it);
+            emit aboutToRequestMessage( m_mailbox, message, &shouldLoad );
+            if ( shouldLoad ) {
+                m_downloader->requestDownload(message);
+            }
+        }
+    }
+    if ( ! m_deferredMessages.isEmpty() )
+        m_deferredTimer->start();
 }
 
 }
