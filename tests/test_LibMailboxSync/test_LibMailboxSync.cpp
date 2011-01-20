@@ -319,10 +319,9 @@ void LibMailboxSync::helperCheckCache(bool ignoreUidNext)
     Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QString::fromAscii("a") );
     QCOMPARE( syncState.exists(), existsA );
     QCOMPARE( syncState.isUsableForSyncing(), true );
-    if ( ignoreUidNext ) {
-        QEXPECT_FAIL("", "UIDNEXT is not updated", Continue);
+    if ( ! ignoreUidNext ) {
+        QCOMPARE( syncState.uidNext(), uidNextA );
     }
-    QCOMPARE( syncState.uidNext(), uidNextA );
     QCOMPARE( syncState.uidValidity(), uidValidityA );
     QCOMPARE( model->cache()->uidMapping( QString::fromAscii("a") ), uidMapA );
 
