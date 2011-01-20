@@ -296,6 +296,8 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
             return true;
         }
         mailbox->syncState.setExists( resp->number );
+        model->cache()->clearUidMapping( mailbox->mailbox() );
+        model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
 
         QModelIndex parent = model->createIndex( 0, 0, list );
         int offset = list->_children.size();
@@ -321,7 +323,6 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
         newArrivalsFetch = parser->uidFetch( Sequence::startingAt( highestKnownUid + 1 ), QStringList() << QLatin1String("FLAGS") );
         model->accessParser(parser).commandMap[newArrivalsFetch] = Model::Task(Model::Task::FETCH_FLAGS, 0);
         emit model->activityHappening( true );
-        model->cache()->clearUidMapping( mailbox->mailbox() );
 
         return true;
     } else if ( resp->kind == Imap::Responses::RECENT ) {
