@@ -473,6 +473,7 @@ bool ObtainSynchronizedMailboxTask::handleSearch( Imap::Parser* ptr, const Imap:
         break;
     }
     uidMap = resp->items;
+    qSort(uidMap);
     return true;
 }
 

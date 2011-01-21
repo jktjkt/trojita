@@ -153,8 +153,14 @@ void LibMailboxSync::helperFakeUidSearch( uint start )
     QByteArray buf;
     QTextStream ss( &buf );
     ss << "* SEARCH";
+
+    // Try to be nasty and confuse the model with out-of-order UIDs
+    QList<uint> shuffledMap = uidMapA;
+    if ( shuffledMap.size() > 2 )
+        qSwap(shuffledMap[0], shuffledMap[2]);
+
     for ( uint i = start; i < existsA; ++i ) {
-        ss << " " << uidMapA[i];
+        ss << " " << shuffledMap[i];
     }
     ss << "\r\n";
     ss.flush();
