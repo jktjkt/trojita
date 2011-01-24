@@ -140,6 +140,9 @@ void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
     if ( keepTask ) {
         // Another KeepMailboxOpenTask would like to replace us, so we shall die, eventually.
 
+        // Before we can die, though, we have to accomodate fetch requests for all parts queued so far.
+        fetchRequestedParts(true);
+
         waitingTasks.append( keepTask );
         shouldExit = true;
 
@@ -467,11 +470,13 @@ void KeepMailboxOpenTask::requestPartDownload( const uint uid, const QString &pa
 {
     requestedParts[uid].insert( partId );
     requestedPartSizes[uid] += estimatedSize;
-    if ( isRunning && ! fetchTimer->isActive() )
+    if ( ! fetchTimer->isActive() )
         fetchTimer->start();
+    if ( shouldExit )
+        fetchRequestedParts(true);
 }
 
-void KeepMailboxOpenTask::slotFetchRequestedParts()
+void KeepMailboxOpenTask::fetchRequestedParts(const bool flushAll)
 {
     if ( requestedParts.isEmpty() )
         return;
@@ -479,7 +484,7 @@ void KeepMailboxOpenTask::slotFetchRequestedParts()
     QMap<uint, QSet<QString> >::iterator it = requestedParts.begin();
     QSet<QString> parts = *it;
 
-    while ( fetchPartTasks.size() < limitParallelFetchTasks ) {
+    while ( flushAll || fetchPartTasks.size() < limitParallelFetchTasks ) {
         QList<uint> uids;
         uint totalSize = 0;
         while ( uids.size() < limitMessagesAtOnce && it != requestedParts.end() && totalSize < limitBytesAtOnce ) {
