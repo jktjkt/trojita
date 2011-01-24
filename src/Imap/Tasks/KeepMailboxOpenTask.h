@@ -107,7 +107,7 @@ initialize synchronization now.
 
     void slotPerformNoop();
     void slotActivateTasks() { activateTasks(); }
-    void slotFetchRequestedParts() { fetchRequestedParts(false); }
+    void slotFetchRequestedParts();
 
 private:
     void terminate();
@@ -120,9 +120,6 @@ private:
 
     /** @short If there's an IDLE running, be sure to stop it */
     void breakPossibleIdle();
-
-    /** @short Helper for slotFetchRequestedParts() which could optionally check sizes */
-    void fetchRequestedParts(const bool flushAll);
 
 protected:
     QPersistentModelIndex mailboxIndex;

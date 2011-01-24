@@ -140,13 +140,13 @@ void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
     if ( keepTask ) {
         // Another KeepMailboxOpenTask would like to replace us, so we shall die, eventually.
 
-        // Before we can die, though, we have to accomodate fetch requests for all parts queued so far.
-        fetchRequestedParts(true);
-
         waitingTasks.append( keepTask );
         shouldExit = true;
 
-        if ( dependentTasks.isEmpty() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
+        // Before we can die, though, we have to accomodate fetch requests for all parts queued so far.
+        slotFetchRequestedParts();
+
+        if ( dependentTasks.isEmpty() && requestedParts.isEmpty() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
             terminate();
         }
     } else {
@@ -173,7 +173,7 @@ void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )
         slotFetchRequestedParts();
     }
 
-    if ( shouldExit && dependentTasks.isEmpty() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
+    if ( shouldExit && requestedParts.isEmpty() && dependentTasks.isEmpty() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
         terminate();
     } else if ( shouldRunNoop ) {
         // A command just completed, and NOOPing is active, so let's schedule it again
@@ -189,6 +189,7 @@ void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )
 void KeepMailboxOpenTask::terminate()
 {
     Q_ASSERT( dependentTasks.isEmpty() );
+    Q_ASSERT( requestedParts.isEmpty() );
 
     // Break periodic activities
     if ( idleLauncher ) {
@@ -230,7 +231,7 @@ void KeepMailboxOpenTask::perform()
 
     model->accessParser( parser ).activeTasks.append( this );
 
-    if ( ! waitingTasks.isEmpty() && dependentTasks.isEmpty() ) {
+    if ( ! waitingTasks.isEmpty() && requestedParts.isEmpty() && dependentTasks.isEmpty() ) {
         // We're basically useless, but we have to die reasonably
         shouldExit = true;
         terminate();
@@ -472,11 +473,9 @@ void KeepMailboxOpenTask::requestPartDownload( const uint uid, const QString &pa
     requestedPartSizes[uid] += estimatedSize;
     if ( ! fetchTimer->isActive() )
         fetchTimer->start();
-    if ( shouldExit )
-        fetchRequestedParts(true);
 }
 
-void KeepMailboxOpenTask::fetchRequestedParts(const bool flushAll)
+void KeepMailboxOpenTask::slotFetchRequestedParts()
 {
     if ( requestedParts.isEmpty() )
         return;
@@ -484,7 +483,8 @@ void KeepMailboxOpenTask::fetchRequestedParts(const bool flushAll)
     QMap<uint, QSet<QString> >::iterator it = requestedParts.begin();
     QSet<QString> parts = *it;
 
-    while ( flushAll || fetchPartTasks.size() < limitParallelFetchTasks ) {
+    // When asked to exit, do as much as possibleand die
+    while ( shouldExit || fetchPartTasks.size() < limitParallelFetchTasks ) {
         QList<uint> uids;
         uint totalSize = 0;
         while ( uids.size() < limitMessagesAtOnce && it != requestedParts.end() && totalSize < limitBytesAtOnce ) {
