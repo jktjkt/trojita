@@ -119,13 +119,31 @@ void ImapModelSelectedMailboxUpdatesTest::testExpungeImmediatelyAfterArrivalWith
     helperTestExpungeImmediatelyAfterArrival(true);
 }
 
+/** @short Test generic traffic to an opened mailbox without asking for message data too soon */
 void ImapModelSelectedMailboxUpdatesTest::testGenericTraffic()
+{
+    helperGenericTraffic(false);
+}
+
+/** @short Test generic traffic to an opened mailbox when we ask for message metadata as soon as they arrive */
+void ImapModelSelectedMailboxUpdatesTest::testGenericTrafficWithEnvelopes()
+{
+    helperGenericTraffic(true);
+}
+
+void ImapModelSelectedMailboxUpdatesTest::helperGenericTraffic(bool askForEnvelopes)
 {
     // At first, sync to an empty state
     uidNextA = 12;
     uidValidityA = 333;
     helperSyncANoMessagesCompleteState();
 
+    // Fake delivery of A, B and C
+    helperGenericTrafficFirstArrivals(askForEnvelopes);
+}
+
+void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool askForEnvelopes)
+{
     // Fake delivery of A, B and C
     SOCK->fakeReading(QByteArray("* 3 EXISTS\r\n* 3 RECENT\r\n"));
     QCoreApplication::processEvents();
@@ -140,24 +158,50 @@ void ImapModelSelectedMailboxUpdatesTest::testGenericTraffic()
     QVERIFY( ! msgListA.child(3,0).isValid());
     // We shouldn't have the UID yet
     QCOMPARE(msgB.data(Imap::Mailbox::RoleMessageUid).toUInt(), 0u);
-    // In the meanwhile, ask for ENVELOPE etc -- but it shouldn't be there yet
-    QVERIFY( ! msgB.data(Imap::Mailbox::RoleMessageFrom).isValid() );
+
+    if ( askForEnvelopes ) {
+        // In the meanwhile, ask for ENVELOPE etc -- but it shouldn't be there yet
+        QVERIFY( ! msgB.data(Imap::Mailbox::RoleMessageFrom).isValid() );
+    }
+
+    // FLAGS arrive, bringing the UID with them
     SOCK->fakeReading( QByteArray("* 1 FETCH (UID 43 FLAGS (\\Recent))\r\n"
                                   "* 2 FETCH (UID 44 FLAGS (\\Recent))\r\n"
                                   "* 3 FETCH (UID 45 FLAGS (\\Recent))\r\n") +
                        t.last("OK fetched\r\n"));
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    // The UIDs shall be known at thsi point
+    QCOMPARE(msgB.data(Imap::Mailbox::RoleMessageUid).toUInt(), 44u);
+    QCoreApplication::processEvents();
+
+    if ( askForEnvelopes ) {
+        // The ENVELOPE and related fields should be requested now
+        QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 43:44 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+    }
+
     existsA = 3;
     uidNextA = 46;
     uidMapA << 43 << 44 << 45;
-    qDebug() << SOCK->writtenStuff(); // FIXME: remove me
     helperCheckCache();
     helperVerifyUidMapA();
-    QCOMPARE(msgB.data(Imap::Mailbox::RoleMessageUid).toUInt(), 44u);
+
+    for ( int i = 0; i < 3; ++i )
+        msgListA.child(i,0).data(Imap::Mailbox::RoleMessageSubject);
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+
+    if ( askForEnvelopes ) {
+        // Envelopes for A and B already got requested
+        QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 45 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+    } else {
+        // Requesting all envelopes at once
+        QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 43:45 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+    }
 
     QVERIFY( errorSpy->isEmpty() );
     QVERIFY( SOCK->writtenStuff().isEmpty() );
+
 }
 
 TROJITA_HEADLESS_TEST( ImapModelSelectedMailboxUpdatesTest )
