@@ -208,6 +208,8 @@ void LibMailboxSync::helperSyncBNoMessages()
 Unlike helperSyncBNoMessages(), this function actually performs the sync with all required
 responses like UIDVALIDITY and UIDNEXT.
 
+It is the caller's responsibility to provide reasonable values for uidNextA and uidValidityA.
+
 @see helperSyncBNoMessages()
 */
 void LibMailboxSync::helperSyncANoMessagesCompleteState()
@@ -217,7 +219,8 @@ void LibMailboxSync::helperSyncANoMessagesCompleteState()
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
-    SOCK->fakeReading( QByteArray("* 0 exists\r\n* OK [uidnext 10] foo\r\n* ok [uidvalidity 123] bar\r\n")
+    SOCK->fakeReading( QString::fromAscii("* 0 exists\r\n* OK [uidnext %1] foo\r\n* ok [uidvalidity %2] bar\r\n"
+                                          ).arg(QString::number(uidNextA), QString::number(uidValidityA)).toAscii()
                                   + t.last("ok completed\r\n") );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
@@ -228,12 +231,10 @@ void LibMailboxSync::helperSyncANoMessagesCompleteState()
     Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QString::fromAscii("a") );
     QCOMPARE( syncState.exists(), 0u );
     QCOMPARE( syncState.isUsableForSyncing(), true );
-    QCOMPARE( syncState.uidNext(), 10u );
-    QCOMPARE( syncState.uidValidity(), 123u );
+    QCOMPARE( syncState.uidNext(), uidNextA );
+    QCOMPARE( syncState.uidValidity(), uidValidityA );
 
     existsA = 0;
-    uidNextA = 10;
-    uidValidityA = 123;
     uidMapA.clear();
     helperCheckCache();
     helperVerifyUidMapA();
