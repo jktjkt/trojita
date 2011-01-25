@@ -675,7 +675,17 @@ void TreeItemMessage::fetch( Model* const model )
     if ( fetched() || loading() || isUnavailable( model ) )
         return;
 
-    model->_askForMsgMetadata( this );
+    if ( _uid ) {
+        // Message UID is already known, which means that we can request data for this message
+        model->_askForMsgMetadata( this );
+    } else {
+        // The UID is not known yet, so we can't initiate a UID FETCH at this point. However, we mark
+        // this message as "loading", which has the side effect that it will get re-fetched as soon as
+        // the UID arrives -- see TreeItemMailbox::handleFetchResponse(), the section which deals with
+        // setting previously unknown UIDs.
+        // Unfortunately, this whole thing breaks preload of message metadata :(.
+        _fetchStatus = LOADING;
+    }
 }
 
 unsigned int TreeItemMessage::rowCount( Model* const model )

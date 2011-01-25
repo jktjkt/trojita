@@ -690,6 +690,7 @@ void Model::_askForNumberOfMessages( TreeItemMsgList* item )
 
 void Model::_askForMsgMetadata( TreeItemMessage* item )
 {
+    Q_ASSERT(item->uid());
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( item->parent() );
     Q_ASSERT( list );
     TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( list->parent() );
@@ -756,7 +757,7 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
                 for ( int i = qMax( 0, order - preload ); i < qMin( list->_children.size(), order + preload ); ++i ) {
                     TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->_children[i] );
                     Q_ASSERT( message );
-                    if ( item == message || ( ! message->fetched() && ! message->loading() ) ) {
+                    if ( item == message || ( ! message->fetched() && ! message->loading() && message->uid() ) ) {
                         message->_fetchStatus = TreeItem::LOADING;
                         uids << message->uid();
                     }
