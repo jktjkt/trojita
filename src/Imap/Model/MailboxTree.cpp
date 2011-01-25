@@ -326,7 +326,12 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
             if ( message->loading() ) {
                 // The Model tried to ask for data for this message. That couldn't succeded because the UID
                 // wasn't known at that point, so let's ask now
-                // FIXME: this breaks preload, unfortunately :(
+                //
+                // FIXME: tweak this to keep a high watermark of "highest UID we requested an ENVELOPE for",
+                // issue bulk fetches in the same manner as we do the UID FETCH (FLAGS) when discovering UIDs,
+                // and at this place in code, only ask for the metadata when the UID is higher than the watermark.
+                // Optionally, simply ask for the ENVELOPE etc along with the FLAGS upon new message arrivals, maybe
+                // with some limit on the number of pending fetches. And make that dapandent on online/expensive modes.
                 message->_fetchStatus = NONE;
                 message->fetch(model);
             }
