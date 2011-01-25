@@ -42,6 +42,7 @@ protected slots:
 protected:
     virtual void helperSyncAWithMessagesEmptyState();
     virtual void helperSyncAFullSync();
+    virtual void helperSyncANoMessagesCompleteState();
     virtual void helperSyncBNoMessages();
     virtual void helperSyncAWithMessagesNoArrivals();
     virtual void helperSyncFlags();

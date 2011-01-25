@@ -203,6 +203,51 @@ void LibMailboxSync::helperSyncBNoMessages()
     QVERIFY( SOCK->writtenStuff().isEmpty() );
 }
 
+/** @short Helper: synchronization of an empty mailbox A
+
+Unlike helperSyncBNoMessages(), this function actually performs the sync with all required
+responses like UIDVALIDITY and UIDNEXT.
+
+@see helperSyncBNoMessages()
+*/
+void LibMailboxSync::helperSyncANoMessagesCompleteState()
+{
+    QCOMPARE( model->rowCount( msgListA ), 0 );
+    model->switchToMailbox( idxA );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
+    SOCK->fakeReading( QByteArray("* 0 exists\r\n* OK [uidnext 10] foo\r\n* ok [uidvalidity 123] bar\r\n")
+                                  + t.last("ok completed\r\n") );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+
+    // Check the cache
+    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QString::fromAscii("a") );
+    QCOMPARE( syncState.exists(), 0u );
+    QCOMPARE( syncState.isUsableForSyncing(), true );
+    QCOMPARE( syncState.uidNext(), 10u );
+    QCOMPARE( syncState.uidValidity(), 123u );
+
+    existsA = 0;
+    uidNextA = 10;
+    uidValidityA = 123;
+    uidMapA.clear();
+    helperCheckCache();
+    helperVerifyUidMapA();
+
+    // Verify that we indeed received what we wanted
+    Imap::Mailbox::TreeItemMsgList* list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( static_cast<Imap::Mailbox::TreeItem*>( msgListA.internalPointer() ) );
+    Q_ASSERT( list );
+    QVERIFY( list->fetched() );
+
+    QVERIFY( errorSpy->isEmpty() );
+    QVERIFY( SOCK->writtenStuff().isEmpty() );
+}
+
+
 /** @short Simulates what happens when mailbox A gets opened again, assuming that nothing has changed since the last time etc */
 void LibMailboxSync::helperSyncAWithMessagesNoArrivals()
 {
