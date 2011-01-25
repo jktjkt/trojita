@@ -152,10 +152,6 @@ void ImapPage::updateWidgets()
             startTls->setEnabled( true );
             startTls->setChecked( QSettings().value( Common::SettingsNames::imapStartTlsKey, true ).toBool() );
             lay->labelForField( startTls )->setEnabled( true );
-            imapUser->setEnabled( true );
-            lay->labelForField( imapUser )->setEnabled( true );
-            imapPass->setEnabled( true );
-            lay->labelForField( imapPass )->setEnabled( true );
             processPath->setEnabled( false );
             lay->labelForField( processPath )->setEnabled( false );
             break;
@@ -171,10 +167,6 @@ void ImapPage::updateWidgets()
             startTls->setEnabled( false );
             startTls->setChecked( true );
             lay->labelForField( startTls )->setEnabled( false );
-            imapUser->setEnabled( true );
-            lay->labelForField( imapUser )->setEnabled( true );
-            imapPass->setEnabled( true );
-            lay->labelForField( imapPass )->setEnabled( true );
             processPath->setEnabled( false );
             lay->labelForField( processPath )->setEnabled( false );
             break;
@@ -185,10 +177,6 @@ void ImapPage::updateWidgets()
             lay->labelForField( imapPort )->setEnabled( false );
             startTls->setEnabled( false );
             lay->labelForField( startTls )->setEnabled( false );
-            imapUser->setEnabled( false );
-            lay->labelForField( imapUser )->setEnabled( false );
-            imapPass->setEnabled( false );
-            lay->labelForField( imapPass )->setEnabled( false );
             processPath->setEnabled( true );
             lay->labelForField( processPath )->setEnabled( true );
     }
@@ -203,23 +191,20 @@ void ImapPage::save( QSettings& s )
             s.setValue( SettingsNames::imapHostKey, imapHost->text() );
             s.setValue( SettingsNames::imapPortKey, imapPort->text() );
             s.setValue( SettingsNames::imapStartTlsKey, startTls->isChecked() );
-            s.setValue( SettingsNames::imapUserKey, imapUser->text() );
-            if ( ! imapPass->text().isEmpty() )
-                s.setValue( SettingsNames::imapPassKey, imapPass->text() );
             break;
         case SSL:
             s.setValue( SettingsNames::imapMethodKey, SettingsNames::methodSSL );
             s.setValue( SettingsNames::imapHostKey, imapHost->text() );
             s.setValue( SettingsNames::imapPortKey, imapPort->text() );
             s.setValue( SettingsNames::imapStartTlsKey, startTls->isChecked() );
-            s.setValue( SettingsNames::imapUserKey, imapUser->text() );
-            if ( ! imapPass->text().isEmpty() )
-                s.setValue( SettingsNames::imapPassKey, imapPass->text() );
             break;
         default:
             s.setValue( SettingsNames::imapMethodKey, SettingsNames::methodProcess );
             s.setValue( SettingsNames::imapProcessKey, processPath->text() );
     }
+    s.setValue( SettingsNames::imapUserKey, imapUser->text() );
+    if ( ! imapPass->text().isEmpty() )
+        s.setValue( SettingsNames::imapPassKey, imapPass->text() );
     s.setValue( SettingsNames::imapStartOffline, startOffline->isChecked() );
 }
 
