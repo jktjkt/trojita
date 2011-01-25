@@ -34,6 +34,7 @@ private slots:
     void testExpungeImmediatelyAfterArrival();
     void testExpungeImmediatelyAfterArrivalWithUidNext();
     void testUnsolicitedFetch();
+    void testGenericTraffic();
 private:
     void helperTestExpungeImmediatelyAfterArrival(bool sendUidNext);
 };

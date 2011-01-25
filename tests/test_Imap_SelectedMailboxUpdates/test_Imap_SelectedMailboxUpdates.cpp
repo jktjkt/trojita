@@ -119,4 +119,45 @@ void ImapModelSelectedMailboxUpdatesTest::testExpungeImmediatelyAfterArrivalWith
     helperTestExpungeImmediatelyAfterArrival(true);
 }
 
+void ImapModelSelectedMailboxUpdatesTest::testGenericTraffic()
+{
+    // At first, sync to an empty state
+    uidNextA = 12;
+    uidValidityA = 333;
+    helperSyncANoMessagesCompleteState();
+
+    // Fake delivery of A, B and C
+    SOCK->fakeReading(QByteArray("* 3 EXISTS\r\n* 3 RECENT\r\n"));
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    // This should trigger a request for flags
+    QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 1:* (FLAGS)\r\n"));
+    // The messages sgould be there already
+    QVERIFY(msgListA.child(0,0).isValid());
+    QModelIndex msgB = msgListA.child(1, 0);
+    QVERIFY(msgB.isValid());
+    QVERIFY(msgListA.child(2,0).isValid());
+    QVERIFY( ! msgListA.child(3,0).isValid());
+    // We shouldn't have the UID yet
+    QCOMPARE(msgB.data(Imap::Mailbox::RoleMessageUid).toUInt(), 0u);
+    // In the meanwhile, ask for ENVELOPE etc -- but it shouldn't be there yet
+    QVERIFY( ! msgB.data(Imap::Mailbox::RoleMessageFrom).isValid() );
+    SOCK->fakeReading( QByteArray("* 1 FETCH (UID 43 FLAGS (\\Recent))\r\n"
+                                  "* 2 FETCH (UID 44 FLAGS (\\Recent))\r\n"
+                                  "* 3 FETCH (UID 45 FLAGS (\\Recent))\r\n") +
+                       t.last("OK fetched\r\n"));
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    existsA = 3;
+    uidNextA = 46;
+    uidMapA << 43 << 44 << 45;
+    qDebug() << SOCK->writtenStuff(); // FIXME: remove me
+    helperCheckCache();
+    helperVerifyUidMapA();
+    QCOMPARE(msgB.data(Imap::Mailbox::RoleMessageUid).toUInt(), 44u);
+
+    QVERIFY( errorSpy->isEmpty() );
+    QVERIFY( SOCK->writtenStuff().isEmpty() );
+}
+
 TROJITA_HEADLESS_TEST( ImapModelSelectedMailboxUpdatesTest )
