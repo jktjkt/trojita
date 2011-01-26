@@ -81,14 +81,20 @@ MultipartSignedWidget::MultipartSignedWidget(QWidget *parent,
     using namespace Imap::Mailbox;
     QVBoxLayout* layout = new QVBoxLayout( this );
     uint childrenCount = part->childrenCount( factory->model() );
-    if ( childrenCount != 2 ) {
-        QLabel* lbl = new QLabel( tr("Mallformed multipart/signed message"), this );
+    if ( childrenCount == 1 ) {
+        setTitle(tr("Mallformed multipart/signed message: only one nested part"));
+        TreeItemPart* anotherPart = dynamic_cast<TreeItemPart*>(
+                part->child( 0, factory->model() ) );
+        layout->addWidget( factory->create( anotherPart, recursionDepth + 1 ) );
+    } else if ( childrenCount != 2 ) {
+        QLabel* lbl = new QLabel( tr("Mallformed multipart/signed message: %1 nested parts").arg(QString::number(childrenCount)), this );
         layout->addWidget( lbl );
         return;
+    } else {
+        TreeItemPart* anotherPart = dynamic_cast<TreeItemPart*>(
+                part->child( 0, factory->model() ) );
+        layout->addWidget( factory->create( anotherPart, recursionDepth + 1 ) );
     }
-    TreeItemPart* anotherPart = dynamic_cast<TreeItemPart*>(
-            part->child( 0, factory->model() ) );
-    layout->addWidget( factory->create( anotherPart, recursionDepth + 1 ) );
 }
 
 QString MultipartSignedWidget::quoteMe() const
