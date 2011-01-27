@@ -90,6 +90,9 @@ QVariant PrettyMailboxModel::data( const QModelIndex& index, int role ) const
             else if ( translated.data( RoleMailboxIsINBOX ).toBool() )
                 return QIcon::fromTheme( QLatin1String("mail-folder-inbox"),
                                          QIcon( QLatin1String(":/icons/mail-folder-inbox") ) );
+            else if ( translated.data( RoleRecentMessageCount ).toInt() > 0 )
+                return QIcon::fromTheme( QLatin1String("folder-bookmark"),
+                                         QIcon( QLatin1String(":/icons/folder-bookmark.png") ) );
             else if ( translated.data( RoleMailboxIsSelectable ).toBool() )
                 return QIcon::fromTheme( QLatin1String("folder"),
                                          QIcon( QLatin1String(":/icons/folder.png") ) );

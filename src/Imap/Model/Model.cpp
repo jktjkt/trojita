@@ -456,6 +456,8 @@ void Model::handleStatus( Imap::Parser* ptr, const Imap::Responses::Status* cons
         list->_totalMessageCount = resp->states[ Imap::Responses::Status::MESSAGES ];
     if ( resp->states.contains( Imap::Responses::Status::UNSEEN ) )
         list->_unreadMessageCount = resp->states[ Imap::Responses::Status::UNSEEN ];
+    if ( resp->states.contains( Imap::Responses::Status::RECENT ) )
+        list->_recentMessageCount = resp->states[ Imap::Responses::Status::RECENT ];
     list->_numberFetchingStatus = TreeItem::DONE;
     emitMessageCountChanged( mailbox );
 }
@@ -629,6 +631,7 @@ void Model::_askForNumberOfMessages( TreeItemMsgList* item )
         if ( syncState.isComplete() ) {
             item->_unreadMessageCount = 0;
             item->_totalMessageCount = syncState.exists();
+            item->_recentMessageCount = syncState.recent();
             item->_numberFetchingStatus = TreeItem::DONE;
             emitMessageCountChanged( mailboxPtr );
         } else {

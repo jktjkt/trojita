@@ -16,5 +16,6 @@
         <file>icons/network-offline.png</file>
         <file>icons/network-expensive.png</file>
         <file>icons/network-online.png</file>
+        <file>icons/folder-bookmark.png</file>
     </qresource>
 </RCC>

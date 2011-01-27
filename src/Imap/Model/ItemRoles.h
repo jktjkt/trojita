@@ -46,6 +46,8 @@ enum {
     RoleTotalMessageCount,
     /** @short Number of unread messages in a mailbox */
     RoleUnreadMessageCount,
+    /** @short Number of recent messages in a mailbox */
+    RoleRecentMessageCount,
     /** @short The mailbox in question is the INBOX */
     RoleMailboxIsINBOX,
     /** @short The mailbox can be selected */

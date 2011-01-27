@@ -51,7 +51,7 @@ void NumberOfMessagesTask::perform()
     Q_ASSERT( mailbox );
 
     tag = parser->status( mailbox->mailbox(),
-                          QStringList() << QLatin1String("MESSAGES") << QLatin1String("UNSEEN") );
+                          QStringList() << QLatin1String("MESSAGES") << QLatin1String("UNSEEN") << QLatin1String("RECENT") );
     emit model->activityHappening( true );
 }
 

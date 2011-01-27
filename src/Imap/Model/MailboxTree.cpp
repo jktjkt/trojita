@@ -214,6 +214,14 @@ QVariant TreeItemMailbox::data( Model* const model, int role )
         int res = list->unreadMessageCount( model );
         return list->numbersFetched() ? QVariant(res): QVariant();
     }
+    case RoleRecentMessageCount:
+    {
+        if ( ! isSelectable() )
+            return QVariant();
+        // see above
+        int res = list->recentMessageCount( model );
+        return list->numbersFetched() ? QVariant(res): QVariant();
+    }
     case RoleMailboxItemsAreLoading:
         return list->loading() || ! list->numbersFetched();
     case RoleMailboxUidValidity:
@@ -568,7 +576,7 @@ bool TreeItemMailbox::isSelectable() const
 
 TreeItemMsgList::TreeItemMsgList( TreeItem* parent ):
         TreeItem(parent), _numberFetchingStatus(NONE), _totalMessageCount(-1),
-        _unreadMessageCount(-1)
+        _unreadMessageCount(-1), _recentMessageCount(-1)
 {
     if ( ! parent->parent() )
         _fetchStatus = DONE;
@@ -642,6 +650,14 @@ int TreeItemMsgList::unreadMessageCount( Model* const model )
     if ( ! fetched() )
         fetchNumbers( model );
     return _unreadMessageCount;
+}
+
+int TreeItemMsgList::recentMessageCount( Model* const model )
+{
+    // See totalMessageCount()
+    if ( ! fetched() )
+        fetchNumbers( model );
+    return _recentMessageCount;
 }
 
 void TreeItemMsgList::recalcUnreadMessageCount()

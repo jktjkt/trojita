@@ -280,6 +280,8 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
 
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
     Q_ASSERT(mailbox);
+    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList*>(mailbox->_children[0]);
+    Q_ASSERT(list);
     // FIXME: tests!
     if ( resp->kind == Imap::Responses::EXPUNGE ) {
         mailbox->handleExpunge( model, *resp );
@@ -290,8 +292,6 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
         // This is a bit tricky -- unfortunately, we can't assume anything about the UID of new arrivals. On the other hand,
         // these messages can be referenced by (even unrequested) FETCH responses and deleted by EXPUNGE, so we really want
         // to add them to the tree.
-        TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[ 0 ] );
-        Q_ASSERT( list );
         int newArrivals = resp->number - list->_children.size();
         if ( newArrivals < 0 ) {
             throw UnexpectedResponseReceived( "EXISTS response attempted to decrease number of messages", *resp );
@@ -329,8 +329,9 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
 
         return true;
     } else if ( resp->kind == Imap::Responses::RECENT ) {
-        // FIXME: save it later?
         mailbox->syncState.setRecent( resp->number );
+        list->_recentMessageCount = resp->number;
+        model->emitMessageCountChanged(mailbox);
         return true;
     } else {
         return false;

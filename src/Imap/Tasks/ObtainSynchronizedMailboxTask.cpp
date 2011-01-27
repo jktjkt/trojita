@@ -403,6 +403,8 @@ bool ObtainSynchronizedMailboxTask::handleNumberResponse( Imap::Parser* ptr, con
     Q_ASSERT( ptr == parser );
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
     Q_ASSERT(mailbox);
+    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList*>(mailbox->_children[0]);
+    Q_ASSERT(list);
     switch ( resp->kind ) {
         case Imap::Responses::EXISTS:
             mailbox->syncState.setExists( resp->number );
@@ -413,6 +415,7 @@ bool ObtainSynchronizedMailboxTask::handleNumberResponse( Imap::Parser* ptr, con
             break;
         case Imap::Responses::RECENT:
             mailbox->syncState.setRecent( resp->number );
+            list->_recentMessageCount = resp->number;
             return true;
             break;
         default:

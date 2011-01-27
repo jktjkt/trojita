@@ -168,6 +168,7 @@ class TreeItemMsgList: public TreeItem {
     FetchingState _numberFetchingStatus;
     int _totalMessageCount;
     int _unreadMessageCount;
+    int _recentMessageCount;
 public:
     TreeItemMsgList( TreeItem* parent );
 
@@ -178,6 +179,7 @@ public:
 
     int totalMessageCount( Model* const model );
     int unreadMessageCount( Model* const model );
+    int recentMessageCount( Model* const model );
     void fetchNumbers( Model* const model );
     void recalcUnreadMessageCount();
     bool numbersFetched() const;
