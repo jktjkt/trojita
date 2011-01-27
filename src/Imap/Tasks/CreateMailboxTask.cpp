@@ -40,7 +40,7 @@ void CreateMailboxTask::perform()
     model->accessParser( parser ).activeTasks.append( this );
 
     tagCreate = parser->create( mailbox );
-    model->accessParser( parser ).commandMap[ tagCreate ] = Model::Task( Model::Task::CREATE, 0 );
+    model->accessParser( parser ).commandMap[ tagCreate ] = Model::CMD_CREATE;
     emit model->activityHappening( true );
 }
 
@@ -50,12 +50,12 @@ bool CreateMailboxTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respon
         return false;
 
     if ( resp->tag == tagCreate ) {
-        IMAP_TASK_ENSURE_VALID_COMMAND( tagCreate, Model::Task::CREATE );
+        IMAP_TASK_ENSURE_VALID_COMMAND( tagCreate, Model::CMD_CREATE );
 
         if ( resp->kind == Responses::OK ) {
             emit model->mailboxCreationSucceded( mailbox );
             tagList = parser->list( QLatin1String(""), mailbox );
-            model->accessParser( parser ).commandMap[ tagList ] = Model::Task( Model::Task::LIST_AFTER_CREATE, command->str );
+            model->accessParser( parser ).commandMap[ tagList ] = Model::CMD_LIST_AFTER_CREATE;
             emit model->activityHappening( true );
         } else {
             emit model->mailboxCreationFailed( mailbox, resp->message );
@@ -65,7 +65,7 @@ bool CreateMailboxTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respon
         IMAP_TASK_CLEANUP_COMMAND;
         return true;
     } else if ( resp->tag == tagList ) {
-        IMAP_TASK_ENSURE_VALID_COMMAND( tagList, Model::Task::LIST_AFTER_CREATE );
+        IMAP_TASK_ENSURE_VALID_COMMAND( tagList, Model::CMD_LIST_AFTER_CREATE );
         if ( resp->kind == Responses::OK ) {
             model->_finalizeIncrementalList( ptr, mailbox );
         } else {

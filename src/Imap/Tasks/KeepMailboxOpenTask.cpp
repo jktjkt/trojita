@@ -325,7 +325,7 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
             //qDebug() << "UID disco: trying seq" << i << highestKnownUid;
         }
         newArrivalsFetch = parser->uidFetch( Sequence::startingAt( highestKnownUid + 1 ), QStringList() << QLatin1String("FLAGS") );
-        model->accessParser(parser).commandMap[newArrivalsFetch] = Model::Task(Model::Task::FETCH_FLAGS, 0);
+        model->accessParser(parser).commandMap[newArrivalsFetch] = Model::CMD_FETCH_FLAGS;
         emit model->activityHappening( true );
 
         return true;
@@ -366,7 +366,7 @@ bool KeepMailboxOpenTask::handleStateHelper( Imap::Parser* ptr, const Imap::Resp
         return false;
 
     if ( resp->tag == tagIdle ) {
-        IMAP_TASK_ENSURE_VALID_COMMAND( tagIdle, Model::Task::IDLE );
+        IMAP_TASK_ENSURE_VALID_COMMAND( tagIdle, Model::CMD_IDLE );
 
         Q_ASSERT( idleLauncher );
         if ( resp->kind == Responses::OK ) {
@@ -384,7 +384,7 @@ bool KeepMailboxOpenTask::handleStateHelper( Imap::Parser* ptr, const Imap::Resp
         IMAP_TASK_CLEANUP_COMMAND;
         return true;
     } else if ( resp->tag == newArrivalsFetch ) {
-        IMAP_TASK_ENSURE_VALID_COMMAND( newArrivalsFetch, Model::Task::FETCH_FLAGS );
+        IMAP_TASK_ENSURE_VALID_COMMAND( newArrivalsFetch, Model::CMD_FETCH_FLAGS );
 
         if ( resp->kind == Responses::OK ) {
             // FIXME: anything to do here?

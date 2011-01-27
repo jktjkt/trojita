@@ -50,7 +50,7 @@ void FetchMsgMetadataTask::perform()
 
     // we do not want to use _onlineMessageFetch because it contains UID and FLAGS
     tag = parser->uidFetch( seq, QStringList() << QLatin1String("ENVELOPE") << QLatin1String("BODYSTRUCTURE") << QLatin1String("RFC822.SIZE") );
-    model->accessParser( parser ).commandMap[ tag ] = Model::Task( Model::Task::FETCH_MESSAGE_METADATA, 0 );
+    model->accessParser( parser ).commandMap[ tag ] = Model::CMD_FETCH_MESSAGE_METADATA;
     emit model->activityHappening( true );
 }
 
@@ -74,7 +74,7 @@ bool FetchMsgMetadataTask::handleStateHelper( Imap::Parser* ptr, const Imap::Res
         return false;
 
     if ( resp->tag == tag ) {
-        IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::Task::FETCH_MESSAGE_METADATA );
+        IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::CMD_FETCH_MESSAGE_METADATA );
 
         if ( resp->kind == Responses::OK ) {
             // nothing should be needed here

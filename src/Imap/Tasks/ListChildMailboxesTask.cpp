@@ -56,7 +56,7 @@ void ListChildMailboxesTask::perform()
     else
         mailboxName += mailbox->separator() + QChar( '%' );
     tag = parser->list( "", mailboxName );
-    model->accessParser( parser ).commandMap[ tag ] = Model::Task( Model::Task::LIST, 0 );
+    model->accessParser( parser ).commandMap[ tag ] = Model::CMD_LIST;
     emit model->activityHappening( true );
 }
 
@@ -66,7 +66,7 @@ bool ListChildMailboxesTask::handleStateHelper( Imap::Parser* ptr, const Imap::R
         return false;
 
     if ( resp->tag == tag ) {
-        IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::Task::LIST );
+        IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::CMD_LIST );
 
         if ( mailboxIndex.isValid() ) {
             TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );

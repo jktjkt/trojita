@@ -40,7 +40,7 @@ void DeleteMailboxTask::perform()
     model->accessParser( parser ).activeTasks.append( this );
 
     tag = parser->deleteMailbox( mailbox );
-    model->accessParser( parser ).commandMap[ tag ] = Model::Task( Model::Task::DELETE, 0 );
+    model->accessParser( parser ).commandMap[ tag ] = Model::CMD_DELETE;
     emit model->activityHappening( true );
 }
 
@@ -50,7 +50,7 @@ bool DeleteMailboxTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respon
         return false;
 
     if ( resp->tag == tag ) {
-        IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::Task::DELETE );
+        IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::CMD_DELETE );
 
         if ( resp->kind == Responses::OK ) {
             TreeItemMailbox* mailboxPtr = model->findMailboxByName( mailbox );

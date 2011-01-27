@@ -57,7 +57,7 @@ void ObtainSynchronizedMailboxTask::perform()
     Q_ASSERT( it != model->_parsers.end() );
 
     selectCmd = parser->select( mailbox->mailbox() );
-    it->commandMap[ selectCmd ] = Model::Task( Model::Task::SELECT, 0 );
+    it->commandMap[ selectCmd ] = Model::CMD_SELECT;
     mailbox->syncState = SyncState();
     status = STATE_SELECTING;
     emit model->mailboxSyncingProgress( mailboxIndex, status );
@@ -73,7 +73,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( Imap::Parser* ptr, const 
         return false;
 
     if ( resp->tag == selectCmd ) {
-        IMAP_TASK_ENSURE_VALID_COMMAND( selectCmd, Model::Task::SELECT );
+        IMAP_TASK_ENSURE_VALID_COMMAND( selectCmd, Model::CMD_SELECT );
 
         if ( resp->kind == Responses::OK ) {
             //qDebug() << "received OK for selectCmd";
@@ -86,7 +86,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( Imap::Parser* ptr, const 
         IMAP_TASK_CLEANUP_COMMAND;
         return true;
     } else if ( resp->tag == uidSyncingCmd ) {
-        IMAP_TASK_ENSURE_VALID_COMMAND( uidSyncingCmd, Model::Task::SEARCH_UIDS );
+        IMAP_TASK_ENSURE_VALID_COMMAND( uidSyncingCmd, Model::CMD_SEARCH_UIDS );
 
         if ( resp->kind == Responses::OK ) {
             //qDebug() << "received OK for uidSyncingCmd";
@@ -109,7 +109,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( Imap::Parser* ptr, const 
         IMAP_TASK_CLEANUP_COMMAND;
         return true;
     } else if ( resp->tag == flagsCmd ) {
-        IMAP_TASK_ENSURE_VALID_COMMAND( flagsCmd, Model::Task::FETCH_FLAGS );
+        IMAP_TASK_ENSURE_VALID_COMMAND( flagsCmd, Model::CMD_FETCH_FLAGS );
 
         if ( resp->kind == Responses::OK ) {
             //qDebug() << "received OK for flagsCmd";
@@ -325,7 +325,7 @@ void ObtainSynchronizedMailboxTask::syncUids( TreeItemMailbox* mailbox, const ui
         uidSpecification = QString::fromAscii("UID %1:*").arg( lowestUidToQuery );
     }
     uidSyncingCmd = parser->uidSearchUid( uidSpecification );
-    model->accessParser( parser ).commandMap[ uidSyncingCmd ] = Model::Task( Model::Task::SEARCH_UIDS, 0 );
+    model->accessParser( parser ).commandMap[ uidSyncingCmd ] = Model::CMD_SEARCH_UIDS;
     emit model->activityHappening( true );
     model->cache()->clearUidMapping( mailbox->mailbox() );
     status = STATE_SYNCING_UIDS;
@@ -338,7 +338,7 @@ void ObtainSynchronizedMailboxTask::syncFlags( TreeItemMailbox *mailbox )
     Q_ASSERT( list );
 
     flagsCmd = parser->fetch( Sequence( 1, mailbox->syncState.exists() ), QStringList() << QLatin1String("FLAGS") );
-    model->accessParser( parser ).commandMap[ flagsCmd ] = Model::Task( Model::Task::FETCH_FLAGS, 0 );
+    model->accessParser( parser ).commandMap[ flagsCmd ] = Model::CMD_FETCH_FLAGS;
     emit model->activityHappening( true );
     list->_numberFetchingStatus = TreeItem::LOADING;
     list->_unreadMessageCount = 0;

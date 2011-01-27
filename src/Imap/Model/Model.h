@@ -68,18 +68,11 @@ typedef enum { STATE_WAIT_FOR_CONN, /**< Waiting for connection to become active
 class Model: public QAbstractItemModel {
     Q_OBJECT
 
-    struct Task {
-        enum Kind { NONE, STARTTLS, LOGIN, LIST, STATUS, SELECT, FETCH_MESSAGE_METADATA, NOOP,
-                    CAPABILITY, STORE, NAMESPACE, EXPUNGE, FETCH_WITH_FLAGS,
-                    COPY, CREATE, DELETE, LOGOUT, LIST_AFTER_CREATE,
-                    FETCH_PART, IDLE, SEARCH_UIDS, FETCH_FLAGS, THREAD };
-        Kind kind;
-        TreeItem* what;
-        QString str;
-        Task( const Kind _kind, TreeItem* _what ): kind(_kind), what(_what) {}
-        Task( const Kind _kind, const QString& _str ): kind(_kind), str(_str) {}
-        Task(): kind(NONE) {}
-    };
+    /** @short What command is associated with a given tag */
+    enum CommandKind { CMD_NONE, CMD_STARTTLS, CMD_LOGIN, CMD_LIST, CMD_STATUS, CMD_SELECT, CMD_FETCH_MESSAGE_METADATA, CMD_NOOP,
+                       CMD_CAPABILITY, CMD_STORE, CMD_NAMESPACE, CMD_EXPUNGE, CMD_FETCH_WITH_FLAGS,
+                       CMD_COPY, CMD_CREATE, CMD_DELETE, CMD_LOGOUT, CMD_LIST_AFTER_CREATE,
+                       CMD_FETCH_PART, CMD_IDLE, CMD_SEARCH_UIDS, CMD_FETCH_FLAGS, CMD_THREAD };
 
     /** @short How to open a mailbox */
     enum RWMode {
@@ -94,7 +87,7 @@ class Model: public QAbstractItemModel {
         /** @short The mailbox which we'd like to have selected */
         ConnectionState connState;
         /** @short Mapping of IMAP tag to the helper structure */
-        QMap<CommandHandle, Task> commandMap;
+        QMap<CommandHandle, CommandKind> commandMap;
         /** @short List of tasks which are active already, and should therefore receive events */
         QList<ImapTask*> activeTasks;
         /** @short An active KeepMailboxOpenTask, if one exists */

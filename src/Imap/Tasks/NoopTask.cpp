@@ -40,7 +40,7 @@ void NoopTask::perform()
 
     // we do not want to use _onlineMessageFetch because it contains UID and FLAGS
     tag = parser->noop();
-    model->accessParser( parser ).commandMap[ tag ] = Model::Task( Model::Task::NOOP, 0 );
+    model->accessParser( parser ).commandMap[ tag ] = Model::CMD_NOOP;
     emit model->activityHappening( true );
 }
 
@@ -50,7 +50,7 @@ bool NoopTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::Stat
         return false;
 
     if ( resp->tag == tag ) {
-        IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::Task::NOOP );
+        IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::CMD_NOOP );
 
         if ( resp->kind == Responses::OK ) {
             // nothing should be needed here

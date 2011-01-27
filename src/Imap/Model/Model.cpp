@@ -186,44 +186,44 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
     const QString& tag = resp->tag;
 
     if ( ! tag.isEmpty() ) {
-        QMap<CommandHandle, Task>::iterator command = accessParser( ptr ).commandMap.find( tag );
+        QMap<CommandHandle, CommandKind>::iterator command = accessParser( ptr ).commandMap.find( tag );
         if ( command == accessParser( ptr ).commandMap.end() ) {
             qDebug() << "This command is not valid anymore" << tag;
             return;
         }
 
         // FIXME: distinguish among OK/NO/BAD here
-        switch ( command->kind ) {
-            case Task::STARTTLS:
-            case Task::LOGIN:
-            case Task::NONE:
-            case Task::LIST:
-            case Task::LIST_AFTER_CREATE:
-            case Task::STATUS:
-            case Task::SELECT:
-            case Task::FETCH_WITH_FLAGS:
-            case Task::FETCH_PART:
-            case Task::NOOP:
-            case Task::IDLE:
-            case Task::CAPABILITY:
-            case Task::STORE:
-            case Task::NAMESPACE:
-            case Task::EXPUNGE:
-            case Task::COPY:
-            case Task::CREATE:
-            case Task::DELETE:
-            case Task::SEARCH_UIDS:
-            case Task::FETCH_FLAGS:
-            case Task::THREAD:
+        switch ( *command ) {
+            case CMD_STARTTLS:
+            case CMD_LOGIN:
+            case CMD_NONE:
+            case CMD_LIST:
+            case CMD_LIST_AFTER_CREATE:
+            case CMD_STATUS:
+            case CMD_SELECT:
+            case CMD_FETCH_WITH_FLAGS:
+            case CMD_FETCH_PART:
+            case CMD_NOOP:
+            case CMD_IDLE:
+            case CMD_CAPABILITY:
+            case CMD_STORE:
+            case CMD_NAMESPACE:
+            case CMD_EXPUNGE:
+            case CMD_COPY:
+            case CMD_CREATE:
+            case CMD_DELETE:
+            case CMD_SEARCH_UIDS:
+            case CMD_FETCH_FLAGS:
+            case CMD_THREAD:
                 throw CantHappen( "[port-in-progress]: should be handled elsewhere", *resp );
                 break;
-            case Task::FETCH_MESSAGE_METADATA:
+            case CMD_FETCH_MESSAGE_METADATA:
                 // Either we were fetching just UID & FLAGS, or that and stuff like BODYSTRUCTURE.
                 // In any case, we don't have to do anything here, besides updating message status
                 // FIXME: this should probably go when the Task migration's done, as Tasks themselves could be made responsible for state updates
                 changeConnectionState( ptr, CONN_STATE_SELECTED );
                 break;
-            case Task::LOGOUT:
+            case CMD_LOGOUT:
                 // we are inside while loop in responseReceived(), so we can't delete current parser just yet
                 killParser( ptr, true );
                 parsersMightBeIdling();
@@ -814,7 +814,7 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
                     it->maintainingTask->stopForLogout();
                 }
                 CommandHandle cmd = it->parser->logout();
-                accessParser( it.key() ).commandMap[ cmd ] = Task( Task::LOGOUT, 0 );
+                accessParser( it.key() ).commandMap[ cmd ] = CMD_LOGOUT;
                 emit activityHappening( true );
             }
             emit networkPolicyOffline();
@@ -1076,7 +1076,7 @@ CommandHandle Model::performAuthentication( Imap::Parser* ptr )
         return CommandHandle();
     } else {
         CommandHandle cmd = ptr->login( _authenticator->user(), _authenticator->password() );
-        accessParser( ptr ).commandMap[ cmd ] = Task( Task::LOGIN, 0 );
+        accessParser( ptr ).commandMap[ cmd ] = CMD_LOGIN;
         emit activityHappening( true );
         return cmd;
     }
@@ -1099,35 +1099,35 @@ void Model::handleSocketStateChanged( Parser *parser, Imap::ConnectionState stat
 void Model::parserIsSendingCommand( Parser *parser, const QString& tag)
 {
     Q_ASSERT(parser);
-    QMap<CommandHandle, Task>::const_iterator it = accessParser( parser ).commandMap.find( tag );
+    QMap<CommandHandle, CommandKind>::const_iterator it = accessParser( parser ).commandMap.find( tag );
     if ( it == accessParser( parser ).commandMap.end() ) {
         qDebug() << "Dunno anything about command" << tag;
         return;
     }
 
-    switch ( it->kind ) {
-        case Task::NONE: // invalid
-        case Task::STARTTLS: // handled elsewhere
-        case Task::NAMESPACE: // FIXME: not needed yet
-        case Task::LOGOUT: // not worth the effort
+    switch ( *it ) {
+        case CMD_NONE: // invalid
+        case CMD_STARTTLS: // handled elsewhere
+        case CMD_NAMESPACE: // FIXME: not needed yet
+        case CMD_LOGOUT: // not worth the effort
             break;
-        case Task::LOGIN:
+        case CMD_LOGIN:
             changeConnectionState( parser, CONN_STATE_LOGIN );
             break;
-        case Task::SELECT:
+        case CMD_SELECT:
             changeConnectionState( parser, CONN_STATE_SELECTING );
             break;
-        case Task::FETCH_WITH_FLAGS:
+        case CMD_FETCH_WITH_FLAGS:
             changeConnectionState( parser, CONN_STATE_SYNCING );
             break;
-        case Task::FETCH_PART:
+        case CMD_FETCH_PART:
             changeConnectionState( parser, CONN_STATE_FETCHING_PART );
             break;
-        case Task::FETCH_MESSAGE_METADATA:
+        case CMD_FETCH_MESSAGE_METADATA:
             changeConnectionState( parser, CONN_STATE_FETCHING_MSG_METADATA );
             break;
-        case Task::NOOP:
-        case Task::IDLE:
+        case CMD_NOOP:
+        case CMD_IDLE:
             // do nothing
             break;
     }
@@ -1139,8 +1139,8 @@ void Model::parsersMightBeIdling()
     Q_FOREACH( const ParserState& p, _parsers ) {
         if ( p.commandMap.isEmpty() )
             continue;
-        Q_FOREACH( const Task& t, p.commandMap ) {
-            if ( t.kind != Task::IDLE ) {
+        Q_FOREACH( const CommandKind& kind, p.commandMap ) {
+            if ( kind != CMD_IDLE ) {
                 someParserBusy = true;
                 break;
             }
@@ -1156,7 +1156,7 @@ void Model::killParser(Parser *parser, bool nice)
         task->deleteLater();
     }
 
-    for ( QMap<CommandHandle, Task>::const_iterator it = accessParser( parser ).commandMap.begin();
+    for ( QMap<CommandHandle, CommandKind>::const_iterator it = accessParser( parser ).commandMap.begin();
             it != accessParser( parser ).commandMap.end(); ++it ) {
         // FIXME: fail the command, perform cleanup,...
     }

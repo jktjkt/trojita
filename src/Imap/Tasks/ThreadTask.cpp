@@ -47,7 +47,7 @@ void ThreadTask::perform()
     }
 
     tag = parser->uidThread( algorithm, QLatin1String("utf-8"), searchCriteria );
-    model->accessParser( parser ).commandMap[ tag ] = Model::Task( Model::Task::THREAD, 0 );
+    model->accessParser( parser ).commandMap[ tag ] = Model::CMD_THREAD;
     emit model->activityHappening( true );
 }
 
@@ -57,7 +57,7 @@ bool ThreadTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::St
         return false;
 
     if ( resp->tag == tag ) {
-        IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::Task::THREAD );
+        IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::CMD_THREAD );
         // FIXME: we should probably care about how the command ended here...
         _completed();
         emit model->threadingAvailable( mailboxIndex, algorithm, searchCriteria, mapping );

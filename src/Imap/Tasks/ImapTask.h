@@ -117,12 +117,12 @@ protected:
 FIXME: this is ugly; a nice OO way for doing that stuff should be much much better
 */
 #define IMAP_TASK_ENSURE_VALID_COMMAND(tag, myKind) \
-QMap<CommandHandle, Model::Task>::iterator command = model->accessParser( ptr ).commandMap.find( tag ); \
+QMap<CommandHandle, Model::CommandKind>::iterator command = model->accessParser( ptr ).commandMap.find( tag ); \
 if ( command == model->accessParser( ptr ).commandMap.end() ) { \
     qDebug() << "This command is not valid anymore" << tag; \
     return false; \
 } \
-Q_ASSERT( command->kind == myKind );
+Q_ASSERT( *command == myKind );
 
 /** @short Remove command/task from the registry */
 #define IMAP_TASK_CLEANUP_COMMAND \

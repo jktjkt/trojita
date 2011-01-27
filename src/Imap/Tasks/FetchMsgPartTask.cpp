@@ -47,7 +47,7 @@ void FetchMsgPartTask::perform()
     }
 
     tag = parser->uidFetch( seq, parts );
-    model->accessParser( parser ).commandMap[ tag ] = Model::Task( Model::Task::FETCH_PART, 0 );
+    model->accessParser( parser ).commandMap[ tag ] = Model::CMD_FETCH_PART;
     emit model->activityHappening( true );
 }
 
@@ -68,7 +68,7 @@ bool FetchMsgPartTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respons
         return false;
 
     if ( resp->tag == tag ) {
-        IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::Task::FETCH_PART );
+        IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::CMD_FETCH_PART );
 
         if ( resp->kind == Responses::OK ) {
             verifyFetchingState();
