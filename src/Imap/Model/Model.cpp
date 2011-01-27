@@ -148,8 +148,10 @@ void Model::responseReceived( Parser *parser )
 #endif
                 }
 
-                if ( (*taskIt)->isFinished() )
+                if ( (*taskIt)->isFinished() ) {
                     deletedTasks << *taskIt;
+                    parsersMightBeIdling();
+                }
             }
 
             removeDeletedTasks( deletedTasks, it->activeTasks );
@@ -193,7 +195,6 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
             // Unhandled command -- this is *extremely* weird
             throw CantHappen( "The following command should have been handled elsewhere", *resp );
         }
-        parsersMightBeIdling();
     } else {
         // untagged response
         // FIXME: we should probably just eat them and don't bother, as untagged OK/NO could be rather common...
