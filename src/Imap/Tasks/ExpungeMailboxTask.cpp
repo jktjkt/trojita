@@ -47,7 +47,6 @@ void ExpungeMailboxTask::perform()
     }
 
     tag = parser->expunge();
-    model->accessParser( parser ).commandMap[ tag ] = Model::CMD_EXPUNGE;
     emit model->activityHappening( true );
 }
 
@@ -57,10 +56,8 @@ bool ExpungeMailboxTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
         return false;
 
     if ( resp->tag == tag ) {
-        IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::CMD_EXPUNGE );
         // FIXME: we should probably care about how the command ended here...
         _completed();
-        IMAP_TASK_CLEANUP_COMMAND;
         return true;
     } else {
         return false;

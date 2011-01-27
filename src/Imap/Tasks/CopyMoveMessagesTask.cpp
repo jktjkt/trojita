@@ -77,7 +77,6 @@ void CopyMoveMessagesTask::perform()
     }
 
     copyTag = parser->uidCopy( seq, targetMailbox );
-    model->accessParser( parser ).commandMap[ copyTag ] = Model::CMD_COPY;
     emit model->activityHappening( true );
 }
 
@@ -87,7 +86,6 @@ bool CopyMoveMessagesTask::handleStateHelper( Imap::Parser* ptr, const Imap::Res
         return false;
 
     if ( resp->tag == copyTag ) {
-        IMAP_TASK_ENSURE_VALID_COMMAND( copyTag, Model::CMD_COPY );
 
         if ( resp->kind == Responses::OK ) {
             if ( shouldDelete ) {
@@ -99,7 +97,6 @@ bool CopyMoveMessagesTask::handleStateHelper( Imap::Parser* ptr, const Imap::Res
             qDebug() << "COPY failed:" << resp->message;
             _completed();
         }
-        IMAP_TASK_CLEANUP_COMMAND;
         return true;
     } else {
         return false;

@@ -68,12 +68,6 @@ typedef enum { STATE_WAIT_FOR_CONN, /**< Waiting for connection to become active
 class Model: public QAbstractItemModel {
     Q_OBJECT
 
-    /** @short What command is associated with a given tag */
-    enum CommandKind { CMD_NONE, CMD_STARTTLS, CMD_LOGIN, CMD_LIST, CMD_STATUS, CMD_SELECT, CMD_FETCH_MESSAGE_METADATA, CMD_NOOP,
-                       CMD_CAPABILITY, CMD_STORE, CMD_NAMESPACE, CMD_EXPUNGE, CMD_FETCH_WITH_FLAGS,
-                       CMD_COPY, CMD_CREATE, CMD_DELETE, CMD_LOGOUT, CMD_LIST_AFTER_CREATE,
-                       CMD_FETCH_PART, CMD_IDLE, CMD_SEARCH_UIDS, CMD_FETCH_FLAGS, CMD_THREAD };
-
     /** @short How to open a mailbox */
     enum RWMode {
         ReadOnly /**< @short Use EXAMINE or leave it in SELECTed mode*/,
@@ -86,8 +80,8 @@ class Model: public QAbstractItemModel {
         QPointer<Parser> parser;
         /** @short The mailbox which we'd like to have selected */
         ConnectionState connState;
-        /** @short Mapping of IMAP tag to the helper structure */
-        QMap<CommandHandle, CommandKind> commandMap;
+        /** @short The logout command */
+        CommandHandle logoutCmd;
         /** @short List of tasks which are active already, and should therefore receive events */
         QList<ImapTask*> activeTasks;
         /** @short An active KeepMailboxOpenTask, if one exists */

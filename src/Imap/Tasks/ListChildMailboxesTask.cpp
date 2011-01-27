@@ -56,7 +56,6 @@ void ListChildMailboxesTask::perform()
     else
         mailboxName += mailbox->separator() + QChar( '%' );
     tag = parser->list( "", mailboxName );
-    model->accessParser( parser ).commandMap[ tag ] = Model::CMD_LIST;
     emit model->activityHappening( true );
 }
 
@@ -66,7 +65,6 @@ bool ListChildMailboxesTask::handleStateHelper( Imap::Parser* ptr, const Imap::R
         return false;
 
     if ( resp->tag == tag ) {
-        IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::CMD_LIST );
 
         if ( mailboxIndex.isValid() ) {
             TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
@@ -82,7 +80,6 @@ bool ListChildMailboxesTask::handleStateHelper( Imap::Parser* ptr, const Imap::R
             qDebug() << Q_FUNC_INFO << "Mailbox no longer available -- weird timing?";
         }
         _completed();
-        IMAP_TASK_CLEANUP_COMMAND;
         return true;
     } else {
         return false;

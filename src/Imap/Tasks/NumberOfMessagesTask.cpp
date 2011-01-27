@@ -52,7 +52,6 @@ void NumberOfMessagesTask::perform()
 
     tag = parser->status( mailbox->mailbox(),
                           QStringList() << QLatin1String("MESSAGES") << QLatin1String("UNSEEN") );
-    model->accessParser( parser ).commandMap[ tag ] = Model::CMD_STATUS;
     emit model->activityHappening( true );
 }
 
@@ -62,10 +61,8 @@ bool NumberOfMessagesTask::handleStateHelper( Imap::Parser* ptr, const Imap::Res
         return false;
 
     if ( resp->tag == tag ) {
-        IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::CMD_STATUS );
         // FIXME: we should probably care about how the command ended here...
         _completed();
-        IMAP_TASK_CLEANUP_COMMAND;
         return true;
     } else {
         return false;

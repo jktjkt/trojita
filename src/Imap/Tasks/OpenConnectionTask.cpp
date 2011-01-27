@@ -36,7 +36,6 @@ OpenConnectionTask::OpenConnectionTask( Model* _model ) :
     connect( parser, SIGNAL(lineSent(Imap::Parser*,QByteArray)), model, SLOT(slotParserLineSent(Imap::Parser*,QByteArray)) );
     if ( model->_startTls ) {
         startTlsCmd = parser->startTls();
-        parserState.commandMap[ startTlsCmd ] = Model::CMD_STARTTLS;
         emit model->activityHappening( true );
     }
     parserState.activeTasks.append( this );
@@ -65,7 +64,6 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
         return false;
 
     if ( resp->tag == capabilityCmd ) {
-        IMAP_TASK_ENSURE_VALID_COMMAND( capabilityCmd, Model::CMD_CAPABILITY );
         if ( resp->kind == Responses::OK ) {
             if ( gotPreauth ) {
                 // The greetings indicated that we're already in the auth state, and now we
@@ -77,7 +75,6 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
                     qDebug() << "Can't login yet, trying STARTTLS";
                     // ... and we are forbidden from logging in, so we have to try the STARTTLS
                     startTlsCmd = ptr->startTls();
-                    model->accessParser( ptr ).commandMap[ startTlsCmd ] = Model::CMD_STARTTLS;
                     emit model->activityHappening( true );
                 } else {
                     // Apparently no need for STARTTLS and we are free to login
@@ -87,12 +84,10 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
         } else {
             // FIXME: Tasks API error handling
         }
-        IMAP_TASK_CLEANUP_COMMAND;
         return true;
     } else if ( resp->tag == loginCmd ) {
         // The LOGIN command is finished, and we know capabilities already
         Q_ASSERT( model->accessParser( ptr ).capabilitiesFresh );
-        IMAP_TASK_ENSURE_VALID_COMMAND( loginCmd, Model::CMD_LOGIN );
         if ( resp->kind == Responses::OK ) {
             model->changeConnectionState( ptr, CONN_STATE_AUTHENTICATED);
             _completed();
@@ -137,18 +132,14 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
 
             // FIXME: error handling
         }
-        IMAP_TASK_CLEANUP_COMMAND;
         return true;
     } else if ( resp->tag == startTlsCmd ) {
         // So now we've got a secure connection, but we will have to login. Additionally,
         // we are obliged to forget any capabilities.
         model->accessParser( ptr ).capabilitiesFresh = false;
         // FIXME: why do I have to comment that out?
-        //IMAP_TASK_ENSURE_VALID_COMMAND( startTlsCmd, Model::CMD_STARTTLS );
-        QMap<CommandHandle, Model::CommandKind>::iterator command = model->accessParser( ptr ).commandMap.find( startTlsCmd );
         if ( resp->kind == Responses::OK ) {
             capabilityCmd = ptr->capability();
-            model->accessParser( ptr ).commandMap[ capabilityCmd ] = Model::CMD_CAPABILITY;
             emit model->activityHappening( true );
         } else {
             // Well, this place is *very* bad -- we're in the middle of a responseRecevied(), Model is iterating over active tasks
@@ -158,9 +149,6 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
             // Let's just throw an exception and let the Model deal with it.
             throw StartTlsFailed( tr("Can't establish a secure connection to the server (STARTTLS failed: %1). Refusing to proceed.").arg( resp->message ).toUtf8().constData() );
         }
-        //IMAP_TASK_CLEANUP_COMMAND;
-        if ( command != model->accessParser( ptr ).commandMap.end() )
-            model->accessParser( ptr ).commandMap.erase( command );
         model->parsersMightBeIdling();
         return true;
     } else {
@@ -187,7 +175,6 @@ void OpenConnectionTask::handleInitialResponse( Imap::Parser* ptr, const Imap::R
             model->changeConnectionState( ptr, CONN_STATE_AUTHENTICATED);
             if ( ! model->accessParser( ptr ).capabilitiesFresh ) {
                 capabilityCmd = ptr->capability();
-                model->accessParser( ptr ).commandMap[ capabilityCmd ] = Model::CMD_CAPABILITY;
                 emit model->activityHappening( true );
             } else {
                 _completed();
@@ -201,13 +188,11 @@ void OpenConnectionTask::handleInitialResponse( Imap::Parser* ptr, const Imap::R
             // The STARTTLS surely has not been issued yet
             if ( ! model->accessParser( ptr ).capabilitiesFresh ) {
                 capabilityCmd = ptr->capability();
-                model->accessParser( ptr ).commandMap[ capabilityCmd ] = Model::CMD_CAPABILITY;
                 emit model->activityHappening( true );
             } else if ( model->accessParser( ptr ).capabilities.contains( QLatin1String("LOGINDISABLED") ) ) {
                 qDebug() << "Can't login yet, trying STARTTLS";
                 // ... and we are forbidden from logging in, so we have to try the STARTTLS
                 startTlsCmd = ptr->startTls();
-                model->accessParser( ptr ).commandMap[ startTlsCmd ] = Model::CMD_STARTTLS;
                 emit model->activityHappening( true );
             } else {
                 // Apparently no need for STARTTLS and we are free to login

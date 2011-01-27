@@ -85,7 +85,6 @@ void UpdateFlagsTask::perform()
     }
 
     tag = parser->uidStore( seq, flagOperation, flags );
-    model->accessParser( parser ).commandMap[ tag ] = Model::CMD_STORE;
     emit model->activityHappening( true );
 }
 
@@ -95,7 +94,6 @@ bool UpdateFlagsTask::handleStateHelper( Imap::Parser* ptr, const Imap::Response
         return false;
 
     if ( resp->tag == tag ) {
-        IMAP_TASK_ENSURE_VALID_COMMAND( tag, Model::CMD_STORE );
 
         if ( resp->kind == Responses::OK ) {
             // nothing should be needed here
@@ -103,7 +101,6 @@ bool UpdateFlagsTask::handleStateHelper( Imap::Parser* ptr, const Imap::Response
             // FIXME: error handling
         }
         _completed();
-        IMAP_TASK_CLEANUP_COMMAND;
         return true;
     } else {
         return false;
