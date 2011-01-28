@@ -46,6 +46,7 @@ public:
 private:
     QLineEdit* realName;
     QLineEdit* address;
+    QCheckBox *checkForUpdates;
 
     IdentityPage(const IdentityPage&); // don't implement
     IdentityPage& operator=(const IdentityPage&); // don't implement

@@ -91,12 +91,24 @@ IdentityPage::IdentityPage( QWidget* parent, QSettings& s ): QWidget(parent)
     layout->addRow( tr("Real Name"), realName );
     address = new QLineEdit( s.value( Common::SettingsNames::addressKey ).toString(), this );
     layout->addRow( tr("E-mail"), address );
+    QFrame *separator = new QFrame(this);
+    separator->setFrameShape(QFrame::HLine);
+    layout->addRow(separator);
+    checkForUpdates = new QCheckBox(tr("Automatically check for updates"), this);
+    checkForUpdates->setChecked(s.value(Common::SettingsNames::appCheckUpdatesEnabled, QVariant(true)).toBool());
+    checkForUpdates->setToolTip(trUtf8("<p>If enabled, Trojitá will try to find out if there are any newer "
+                                       "versions available.</p>"
+                                       "<p>The update server will receive the user's IP address and versions of "
+                                       "Trojitá and the Qt library. No private information, like account settings "
+                                       "or IMAP server details, are collected.</p>"));
+    layout->addRow(checkForUpdates);
 }
 
 void IdentityPage::save( QSettings& s )
 {
     s.setValue( Common::SettingsNames::realNameKey, realName->text() );
     s.setValue( Common::SettingsNames::addressKey, address->text() );
+    s.setValue(Common::SettingsNames::appCheckUpdatesEnabled, checkForUpdates->isChecked());
 }
 
 ImapPage::ImapPage( QWidget* parent, QSettings& s ): QScrollArea(parent), Ui_ImapPage()
