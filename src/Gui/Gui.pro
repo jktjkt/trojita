@@ -28,7 +28,8 @@ SOURCES += \
     ComposeWidget.cpp \
     MsgListView.cpp \
     ExternalElementsWidget.cpp \
-    ProtocolLoggerWidget.cpp
+    ProtocolLoggerWidget.cpp \
+    CheckForUpdates.cpp
 HEADERS += \
     ../Imap/Model/ModelTest/modeltest.h \
     ComposeWidget.h \
@@ -45,7 +46,8 @@ HEADERS += \
     MsgListView.h \
     AttachmentView.h \
     ExternalElementsWidget.h \
-    ProtocolLoggerWidget.h
+    ProtocolLoggerWidget.h \
+    CheckForUpdates.h
 FORMS += CreateMailboxDialog.ui \
     ComposeWidget.ui \
     SettingsImapPage.ui \

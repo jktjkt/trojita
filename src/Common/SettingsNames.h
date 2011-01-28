@@ -39,6 +39,7 @@ struct SettingsNames
     static QString xtConnectCacheDirectory, xtSyncMailboxList, xtDbHost, xtDbPort,
             xtDbDbName, xtDbUser;
     static QString guiMsgListShowThreading;
+    static QString appCheckUpdatesEnabled, appCheckUpdatesLastTime;
 };
 
 }
