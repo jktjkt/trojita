@@ -193,15 +193,50 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool
 
     if ( askForEnvelopes ) {
         // Envelopes for A and B already got requested
+        // We have to preserve the previous command, too
+        QByteArray completionForFirstFetch = t.last("OK fetched\r\n");
         QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 45 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+        // Simulate out-of-order execution here -- the completion responses for both commands arrive only
+        // after the actual data for both of them got pushed
+        SOCK->fakeReading( helperCreateTrivialEnvelope(1, 43, QLatin1String("A")) +
+                           helperCreateTrivialEnvelope(2, 44, QLatin1String("B")) +
+                           helperCreateTrivialEnvelope(3, 45, QLatin1String("C")) +
+                           completionForFirstFetch +
+                           t.last("OK fetched\r\n"));
     } else {
         // Requesting all envelopes at once
         QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 43:45 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+        SOCK->fakeReading( helperCreateTrivialEnvelope(1, 43, QLatin1String("A")) +
+                           helperCreateTrivialEnvelope(2, 44, QLatin1String("B")) +
+                           helperCreateTrivialEnvelope(3, 45, QLatin1String("C")) +
+                           t.last("OK fetched\r\n"));
     }
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    helperCheckSubjects(QStringList() << QLatin1String("A") << QLatin1String("B") << QLatin1String("C"));
+
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
 
     QVERIFY( errorSpy->isEmpty() );
     QVERIFY( SOCK->writtenStuff().isEmpty() );
 
+}
+
+QByteArray ImapModelSelectedMailboxUpdatesTest::helperCreateTrivialEnvelope(const uint seq, const uint uid, const QString &subject)
+{
+    return QString::fromAscii("* %1 FETCH (UID %2 RFC822.SIZE 89 ENVELOPE (NIL \"%3\" NIL NIL NIL NIL NIL NIL NIL NIL) "
+                              "BODYSTRUCTURE (\"text\" \"plain\" () NIL NIL NIL 19 2 NIL NIL NIL NIL))\r\n").arg(
+                                      QString::number(seq), QString::number(uid), subject ).toAscii();
+}
+
+void ImapModelSelectedMailboxUpdatesTest::helperCheckSubjects(const QStringList &subjects)
+{
+    for ( int i = 0; i < subjects.size(); ++i ) {
+        QModelIndex index = msgListA.child(i,0);
+        QVERIFY(index.isValid());
+        QCOMPARE(index.data(Imap::Mailbox::RoleMessageSubject).toString(), subjects[i]);
+    }
 }
 
 TROJITA_HEADLESS_TEST( ImapModelSelectedMailboxUpdatesTest )
