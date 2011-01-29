@@ -42,7 +42,6 @@ private:
     void helperGenericTrafficFirstArrivals(bool askForEnvelopes);
     void helperGenericTrafficArrive2(bool askForEnvelopes);
     QByteArray helperCreateTrivialEnvelope(const uint seq, const uint uid, const QString &subject);
-    /** @short Verify that all subjects in mailbox A match the passed data */
     void helperCheckSubjects(const QStringList &subjects);
 };
 
