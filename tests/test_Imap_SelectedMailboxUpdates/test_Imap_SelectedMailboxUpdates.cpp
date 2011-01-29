@@ -159,6 +159,14 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool
     // We shouldn't have the UID yet
     QCOMPARE(msgB.data(Imap::Mailbox::RoleMessageUid).toUInt(), 0u);
 
+    // Verify various message counts
+    // This one is parsed from RECENT
+    QCOMPARE(idxA.data(Imap::Mailbox::RoleRecentMessageCount).toInt(), 3);
+    // This one is easy, too
+    QCOMPARE(idxA.data(Imap::Mailbox::RoleTotalMessageCount).toInt(), 3);
+    // We have to wait for FLAGS for this one
+    QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 0);
+
     if ( askForEnvelopes ) {
         // In the meanwhile, ask for ENVELOPE etc -- but it shouldn't be there yet
         QVERIFY( ! msgB.data(Imap::Mailbox::RoleMessageFrom).isValid() );
@@ -171,8 +179,10 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool
                        t.last("OK fetched\r\n"));
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    // The UIDs shall be known at thsi point
+    // The UIDs shall be known at this point
     QCOMPARE(msgB.data(Imap::Mailbox::RoleMessageUid).toUInt(), 44u);
+    // The unread message count should be correct now, too
+    QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 3);
     QCoreApplication::processEvents();
 
     if ( askForEnvelopes ) {
