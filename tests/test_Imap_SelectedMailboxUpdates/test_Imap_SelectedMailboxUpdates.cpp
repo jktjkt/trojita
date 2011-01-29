@@ -143,6 +143,18 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTraffic(bool askForEnvelo
 
     // Now add one more message, the D
     helperGenericTrafficArrive2(askForEnvelopes);
+
+    // Remove B
+    helperDeleteOneMessage(1, QStringList() << QLatin1String("A") << QLatin1String("C") << QLatin1String("D"));
+
+    // Remove D
+    helperDeleteOneMessage(2, QStringList() << QLatin1String("A") << QLatin1String("C"));
+
+    // Remove A
+    helperDeleteOneMessage(0, QStringList() << QLatin1String("C"));
+
+    // Remove C
+    helperDeleteOneMessage(0, QStringList());
 }
 
 /** @short Test an arrival of three brand new messages to an already synced mailbox
@@ -344,6 +356,24 @@ void ImapModelSelectedMailboxUpdatesTest::helperCheckSubjects(const QStringList 
     }
     // Me sure thet there are no more messages
     QVERIFY( ! msgListA.child(subjects.size(),0).isValid() );
+}
+
+/** @short Test what happens when the server tells us that one message got deleted */
+void ImapModelSelectedMailboxUpdatesTest::helperDeleteOneMessage(const uint seq, const QStringList &remainingSubjects)
+{
+    // Fake deleting one message
+    --existsA;
+    uidMapA.removeAt(seq);
+    Q_ASSERT(remainingSubjects.size() == static_cast<int>(existsA));
+    Q_ASSERT(uidMapA.size() == static_cast<int>(existsA));
+    SOCK->fakeReading(QString::fromAscii("* %1 EXPUNGE\r\n* %2 RECENT\r\n").arg(QString::number(seq+1), QString::number(existsA)).toAscii());
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+
+    // Verify the model's idea about the current state
+    helperCheckSubjects(remainingSubjects);
+    helperCheckCache();
+    helperVerifyUidMapA();
 }
 
 TROJITA_HEADLESS_TEST( ImapModelSelectedMailboxUpdatesTest )
