@@ -205,7 +205,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool
     helperVerifyUidMapA();
 
     // Yes, we're counting to one more than what actually is here; that's because we want to prevent a possible out-of-bounds access
-    for ( int i = 0; i < existsA + 1; ++i )
+    for ( int i = 0; i < static_cast<int>(existsA) + 1; ++i )
         msgListA.child(i,0).data(Imap::Mailbox::RoleMessageSubject);
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
