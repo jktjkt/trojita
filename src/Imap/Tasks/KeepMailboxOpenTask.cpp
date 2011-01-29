@@ -324,7 +324,16 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
             highestKnownUid = static_cast<const TreeItemMessage*>(list->_children[i])->uid();
             //qDebug() << "UID disco: trying seq" << i << highestKnownUid;
         }
-        newArrivalsFetch = parser->uidFetch( Sequence::startingAt( highestKnownUid + 1 ), QStringList() << QLatin1String("FLAGS") );
+        newArrivalsFetch = parser->uidFetch( Sequence::startingAt(
+                // Did the UID walk return a usable number?
+                highestKnownUid ?
+                    // Yes, we've got at least one message with a UID known -> ask for higher
+                    highestKnownUid + 1
+                :
+                    // No messages, or no messages with valid UID -> use the UIDNEXT from the syncing state
+                    // but prevent a possible invalid 0:*
+                    qMax( mailbox->syncState.uidNext(), 1u )
+                ), QStringList() << QLatin1String("FLAGS") );
         emit model->activityHappening( true );
 
         return true;

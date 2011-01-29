@@ -169,7 +169,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     // This should trigger a request for flags
-    QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 1:* (FLAGS)\r\n"));
+    QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 12:* (FLAGS)\r\n"));
     // The messages sgould be there already
     QVERIFY(msgListA.child(0,0).isValid());
     QModelIndex msgB = msgListA.child(1, 0);
