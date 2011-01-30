@@ -162,6 +162,9 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTraffic(bool askForEnvelo
     // remove C and B
     helperDeleteOneMessage(2, QStringList() << QLatin1String("A") << QLatin1String("B") << QLatin1String("D"));
     helperDeleteOneMessage(1, QStringList() << QLatin1String("A") << QLatin1String("D"));
+
+    // Add E, F and G
+    helperGenericTrafficArrive4(askForEnvelopes);
 }
 
 /** @short Test an arrival of three brand new messages to an already synced mailbox
@@ -468,6 +471,89 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive3(bool askFo
 
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+
+    QVERIFY( errorSpy->isEmpty() );
+    QVERIFY( SOCK->writtenStuff().isEmpty() );
+}
+
+/** @short Fake delivery of three new messages, E, F and G, to a mailbox with A and D */
+void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive4(bool askForEnvelopes)
+{
+    // Fake the announcement of the delivery
+    SOCK->fakeReading(QByteArray("* 5 EXISTS\r\n* 5 RECENT\r\n"));
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    // This should trigger a request for flags
+    QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 51:* (FLAGS)\r\n"));
+
+    QModelIndex msgE = msgListA.child(2, 0);
+    QVERIFY(msgE.isValid());
+    // We shouldn't have the UID yet
+    QCOMPARE(msgE.data(Imap::Mailbox::RoleMessageUid).toUInt(), 0u);
+
+    // Verify various message counts
+    // This one is parsed from RECENT
+    QCOMPARE(idxA.data(Imap::Mailbox::RoleRecentMessageCount).toInt(), 5);
+    // This one is easy, too
+    QCOMPARE(idxA.data(Imap::Mailbox::RoleTotalMessageCount).toInt(), 5);
+    // this one isn't available yet
+    QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 2);
+
+    if ( askForEnvelopes ) {
+        // In the meanwhile, ask for ENVELOPE etc -- but it shouldn't be there yet
+        QVERIFY( ! msgE.data(Imap::Mailbox::RoleMessageFrom).isValid() );
+    }
+
+    // FLAGS arrive, bringing the UID with them
+    SOCK->fakeReading( QByteArray("* 3 FETCH (UID 51 FLAGS (\\Recent))\r\n"
+                                  "* 4 FETCH (UID 52 FLAGS (\\Recent))\r\n"
+                                  "* 5 FETCH (UID 53 FLAGS (\\Recent))\r\n") +
+                       t.last("OK fetched\r\n"));
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    // The UIDs shall be known at this point
+    QCOMPARE(msgE.data(Imap::Mailbox::RoleMessageUid).toUInt(), 51u);
+    // The unread message count should be correct now, too
+    QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 5);
+    QCoreApplication::processEvents();
+
+    /*if ( askForEnvelopes ) {
+        // The ENVELOPE and related fields should be requested now
+        QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 47:50 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+    }
+
+    existsA = 4;
+    uidNextA = 51;
+    uidMapA.clear();
+    uidMapA << 47 << 48 << 49 << 50;
+    helperCheckCache();
+    helperVerifyUidMapA();
+
+    if ( askForEnvelopes ) {
+        // Envelopes already requested -> nothing to do here
+    } else {
+        // Not requested yet -> do it now
+        QVERIFY( ! msgD.data(Imap::Mailbox::RoleMessageFrom).isValid() );
+        QCoreApplication::processEvents();
+        QCoreApplication::processEvents();
+        QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 47:50 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+    }
+    // This is common for both cases; the data should finally arrive
+    SOCK->fakeReading( helperCreateTrivialEnvelope(1, 47, QLatin1String("A")) +
+                       helperCreateTrivialEnvelope(2, 48, QLatin1String("B")) +
+                       helperCreateTrivialEnvelope(3, 49, QLatin1String("C")) +
+                       helperCreateTrivialEnvelope(4, 50, QLatin1String("D")) +
+                       t.last("OK fetched\r\n"));
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    helperCheckSubjects(QStringList() << QLatin1String("A") << QLatin1String("B") << QLatin1String("C") << QLatin1String("D"));
+
+    // Verify UIDd and cache stuff once again to make sure reading data doesn't mess anything up
+    helperCheckCache();
+    helperVerifyUidMapA();
+
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();*/
 
     QVERIFY( errorSpy->isEmpty() );
     QVERIFY( SOCK->writtenStuff().isEmpty() );

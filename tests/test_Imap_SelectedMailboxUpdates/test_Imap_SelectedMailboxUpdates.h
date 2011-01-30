@@ -42,6 +42,7 @@ private:
     void helperGenericTrafficFirstArrivals(bool askForEnvelopes);
     void helperGenericTrafficArrive2(bool askForEnvelopes);
     void helperGenericTrafficArrive3(bool askForEnvelopes);
+    void helperGenericTrafficArrive4(bool askForEnvelopes);
     QByteArray helperCreateTrivialEnvelope(const uint seq, const uint uid, const QString &subject);
     void helperCheckSubjects(const QStringList &subjects);
     void helperDeleteOneMessage(const uint seq, const QStringList &remainingSubjects);
