@@ -46,6 +46,7 @@ private:
     QByteArray helperCreateTrivialEnvelope(const uint seq, const uint uid, const QString &subject);
     void helperCheckSubjects(const QStringList &subjects);
     void helperDeleteOneMessage(const uint seq, const QStringList &remainingSubjects);
+    void helperDeleteTwoMessages(const uint seq1, const uint seq2, const QStringList &remainingSubjects);
 };
 
 #endif
