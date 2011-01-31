@@ -66,3 +66,10 @@ include(../gitversion.pri)
 
 XtConnect:DEFINES += XTUPLE_CONNECT
 XtConnect:RESOURCES += ../xtconnect-icons.qrc
+
+unix {
+    INSTALLS += desktop
+
+    desktop.path = $$DATADIR/applications
+    desktop.files += trojita.desktop
+}
