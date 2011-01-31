@@ -1,11 +1,11 @@
 [Desktop Entry]
 Encoding=UTF-8
 Name=Trojitá
-Comment=IMAP E-mail Client
 GenericName=IMAP E-mail Client
+TryExec=trojita
 Exec=trojita
 Terminal=false
 Type=Application
 Icon=trojita
-Categories=Network;Email;
-StartupNotify=false
+Categories=Qt;Network;Email;
+StartupNotify=true
