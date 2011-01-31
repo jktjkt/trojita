@@ -530,26 +530,26 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive4(bool askFo
     }
 
     // FLAGS arrive, bringing the UID with them
-    SOCK->fakeReading( QByteArray("* 3 FETCH (UID 51 FLAGS (\\Recent))\r\n"
-                                  "* 4 FETCH (UID 52 FLAGS (\\Recent))\r\n"
+    SOCK->fakeReading( QByteArray("* 3 FETCH (UID 52 FLAGS (\\Recent))\r\n"
+                                  "* 4 FETCH (UID 53 FLAGS (\\Recent))\r\n"
                                   "* 5 FETCH (UID 63 FLAGS (\\Recent))\r\n") +
                        t.last("OK fetched\r\n"));
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     // The UIDs shall be known at this point
-    QCOMPARE(msgE.data(Imap::Mailbox::RoleMessageUid).toUInt(), 51u);
+    QCOMPARE(msgE.data(Imap::Mailbox::RoleMessageUid).toUInt(), 52u);
     // The unread message count should be correct now, too
     QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 5);
     QCoreApplication::processEvents();
 
     if ( askForEnvelopes ) {
         // The ENVELOPE and related fields should be requested now
-        QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 51 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+        QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 52 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
     }
 
     existsA = 5;
     uidNextA = 64;
-    uidMapA << 51 << 52 << 63;
+    uidMapA << 52 << 53 << 63;
     helperCheckCache();
     helperVerifyUidMapA();
 
@@ -560,11 +560,11 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive4(bool askFo
         QVERIFY( ! msgE.data(Imap::Mailbox::RoleMessageFrom).isValid() );
         QCoreApplication::processEvents();
         QCoreApplication::processEvents();
-        QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 51:52,63 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+        QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 52:53,63 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
     }
     // This is common for both cases; the data should finally arrive
-    SOCK->fakeReading( helperCreateTrivialEnvelope(3, 51, QLatin1String("E")) +
-                       helperCreateTrivialEnvelope(4, 52, QLatin1String("F")) +
+    SOCK->fakeReading( helperCreateTrivialEnvelope(3, 52, QLatin1String("E")) +
+                       helperCreateTrivialEnvelope(4, 53, QLatin1String("F")) +
                        helperCreateTrivialEnvelope(5, 63, QLatin1String("G")) +
                        t.last("OK fetched\r\n"));
     QCoreApplication::processEvents();
