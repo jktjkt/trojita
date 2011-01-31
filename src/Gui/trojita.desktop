@@ -1,7 +1,8 @@
 [Desktop Entry]
-Name=trojita
-Comment=""
-GenericName=Mail Client
+Encoding=UTF-8
+Name=Trojitá
+Comment=IMAP E-mail Client
+GenericName=IMAP E-mail Client
 Exec=trojita
 Terminal=false
 Type=Application
