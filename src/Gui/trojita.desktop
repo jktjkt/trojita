@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=trojita
+Comment=""
+GenericName=Mail Client
+Exec=trojita
+Terminal=false
+Type=Application
+Icon=trojita
+Categories=Network;Email;
+StartupNotify=false
