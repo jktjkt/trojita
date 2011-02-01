@@ -66,3 +66,16 @@ include(../gitversion.pri)
 
 XtConnect:DEFINES += XTUPLE_CONNECT
 XtConnect:RESOURCES += ../xtconnect-icons.qrc
+
+unix {
+    INSTALLS += desktop iconsvg icon32
+
+    desktop.path = $$DATADIR/applications
+    desktop.files += trojita.desktop
+
+    iconsvg.path = $$DATADIR/icons/hicolor/scalable/apps
+    iconsvg.files += ../icons/trojita.svg
+
+    icon32.path = $$DATADIR/icons/hicolor/32x32/apps
+    icon32.files += ../icons/trojita.png
+}
