@@ -111,7 +111,6 @@ private:
     uint _threadingHelperLastId;
     /** @short Messages with unkown UIDs */
     QList<QPersistentModelIndex> unknownUids;
-    QTimer *delayedUidRefresh;
 };
 
 }

@@ -30,10 +30,6 @@ namespace Mailbox {
 
 ThreadingMsgListModel::ThreadingMsgListModel( QObject* parent ): QAbstractProxyModel(parent)
 {
-    delayedUidRefresh = new QTimer(this);
-    delayedUidRefresh->setSingleShot(true);
-    delayedUidRefresh->setInterval(10);
-    connect( delayedUidRefresh, SIGNAL(timeout()), this, SLOT(askForThreading()) );
 }
 
 void ThreadingMsgListModel::setSourceModel( QAbstractItemModel *sourceModel )
@@ -73,9 +69,13 @@ void ThreadingMsgListModel::handleDataChanged( const QModelIndex& topLeft, const
     }
 
     if ( unknownUids.contains(topLeft) ) {
-        // The message wasn't fully synced before, and now it is. Let's re-thread, then!
-        if ( ! delayedUidRefresh->isActive() )
-            delayedUidRefresh->start();
+        // The message wasn't fully synced before, and now it is
+        unknownUids.removeOne(topLeft);
+        qDebug() << "Got UID for" << topLeft.row();
+        if ( unknownUids.isEmpty() ) {
+            // Let's re-thread, then!
+            askForThreading();
+        }
         return;
     }
 
@@ -290,7 +290,6 @@ void ThreadingMsgListModel::resetMe()
     unknownUids.clear();
     reset();
     updateNoThreading();
-    delayedUidRefresh->start();
 }
 
 void ThreadingMsgListModel::updateNoThreading()
@@ -338,29 +337,16 @@ void ThreadingMsgListModel::updateNoThreading()
         _threading[ 0 ].ptr = static_cast<MsgListModel*>( sourceModel() )->msgList;
         endInsertRows();
     }
-    // FIXME: do something reasonable with these missing messages...
-    if ( ! unknownUids.isEmpty() && ! delayedUidRefresh->isActive() )
-        delayedUidRefresh->start();
 }
 
 void ThreadingMsgListModel::askForThreading()
 {
-    // Threading is broken with newly arriving messages (and their UIDs)
-    updateNoThreading();
-    return;
-
     if ( ! sourceModel() ) {
         updateNoThreading();
         return;
     }
 
-    int count = sourceModel()->rowCount();
-    if ( count != rowCount() ) {
-        qDebug() << "Already threaded, huh?";
-        return;
-    }
-
-    if ( ! count )
+    if ( ! sourceModel()->rowCount() )
         return;
 
     const Imap::Mailbox::Model *realModel;
@@ -391,17 +377,17 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
                                                     const QStringList &searchCriteria,
                                                     const QVector<Imap::Responses::Thread::Node> &mapping )
 {
-    int count = sourceModel()->rowCount();
-    if ( count != rowCount() ) {
-        qDebug() << "Already threaded, huh?";
-        return;
-    }
-
     // FIXME: check for correct mailbox, algorithm and search criteria...
 
     disconnect( sender(), 0, this,
                 SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::Thread::Node>)) );
 
+    if ( ! unknownUids.isEmpty() ) {
+        // Some messages have UID zero, which means that they weren't loaded yet. Too bad.
+        // FIXME: maybe we could re-use the response...
+        qDebug() << unknownUids.size() << "messages have 0 UID";
+        return;
+    }
 
     emit layoutAboutToBeChanged();
     _threading.clear();
