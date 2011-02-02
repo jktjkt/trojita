@@ -35,7 +35,7 @@ ThreadingMsgListModel::ThreadingMsgListModel( QObject* parent ): QAbstractProxyM
 void ThreadingMsgListModel::setSourceModel( QAbstractItemModel *sourceModel )
 {
     _threading.clear();
-    uidToInternal.clear();
+    ptrToInternal.clear();
     unknownUids.clear();
     reset();
     Imap::Mailbox::MsgListModel *msgList = qobject_cast<Imap::Mailbox::MsgListModel*>( sourceModel );
@@ -204,12 +204,8 @@ QModelIndex ThreadingMsgListModel::mapFromSource( const QModelIndex& sourceIndex
     if ( sourceIndex.model() != sourceModel() )
         return QModelIndex();
 
-    const uint uid = sourceIndex.data( RoleMessageUid ).toUInt();
-    if ( uid == 0 )
-        return QModelIndex();
-
-    QHash<uint,uint>::const_iterator it = uidToInternal.constFind( uid );
-    if ( it == uidToInternal.constEnd() )
+    QHash<void*,uint>::const_iterator it = ptrToInternal.constFind( sourceIndex.internalPointer() );
+    if ( it == ptrToInternal.constEnd() )
         return QModelIndex();
 
     const uint internalId = *it;
@@ -286,7 +282,7 @@ void ThreadingMsgListModel::handleRowsInserted( const QModelIndex& parent, int s
 void ThreadingMsgListModel::resetMe()
 {
     _threading.clear();
-    uidToInternal.clear();
+    ptrToInternal.clear();
     unknownUids.clear();
     reset();
     updateNoThreading();
@@ -297,7 +293,7 @@ void ThreadingMsgListModel::updateNoThreading()
     if ( ! _threading.isEmpty() ) {
         beginRemoveRows( QModelIndex(), 0, rowCount() - 1 );
         _threading.clear();
-        uidToInternal.clear();
+        ptrToInternal.clear();
         endRemoveRows();
     }
     unknownUids.clear();
@@ -310,7 +306,7 @@ void ThreadingMsgListModel::updateNoThreading()
     int upstreamMessages = sourceModel()->rowCount();
     QList<uint> allIds;
     QHash<uint,ThreadNodeInfo> newThreading;
-    QHash<uint,uint> newUidToInternal;
+    QHash<void*,uint> newPtrToInternal;
 
     for ( int i = 0; i < upstreamMessages; ++i ) {
         QModelIndex index = sourceModel()->index( i, 0 );
@@ -322,7 +318,7 @@ void ThreadingMsgListModel::updateNoThreading()
         if ( node.uid ) {
             newThreading[ node.internalId ] = node;
             allIds.append( node.internalId );
-            newUidToInternal[ node.uid ] = node.internalId;
+            newPtrToInternal[ node.ptr ] = node.internalId;
         } else {
             qDebug() << "Message" << index.row() << "has unkown UID";
             unknownUids << index;
@@ -332,7 +328,7 @@ void ThreadingMsgListModel::updateNoThreading()
     if ( newThreading.size() ) {
         beginInsertRows( QModelIndex(), 0, newThreading.size() - 1 );
         _threading = newThreading;
-        uidToInternal = newUidToInternal;
+        ptrToInternal = newPtrToInternal;
         _threading[ 0 ].children = allIds;
         _threading[ 0 ].ptr = static_cast<MsgListModel*>( sourceModel() )->msgList;
         endInsertRows();
@@ -391,32 +387,35 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
 
     emit layoutAboutToBeChanged();
     _threading.clear();
-    uidToInternal.clear();
+    ptrToInternal.clear();
     _threading[ 0 ].ptr = static_cast<MsgListModel*>( sourceModel() )->msgList;
 
     int upstreamMessages = sourceModel()->rowCount();
+    QHash<uint,void*> uidToPtrCache;
     for ( int i = 0; i < upstreamMessages; ++i ) {
         QModelIndex index = sourceModel()->index( i, 0 );
         ThreadNodeInfo node;
         node.uid = index.data( RoleMessageUid ).toUInt();
-        Q_ASSERT(node.uid);
+        if ( ! node.uid ) {
+            throw UnknownMessageIndex("Encountered a message with zero UID when threading. This is a bug in Trojita, sorry.");
+        }
+
         node.internalId = i + 1;
         node.ptr = static_cast<TreeItem*>( index.internalPointer() );
+        uidToPtrCache[node.uid] = node.ptr;
         _threadingHelperLastId = node.internalId;
         Q_ASSERT(!_threading.contains( node.internalId ));
-        // FIXME: this is broken with new message arrivals...
-        Q_ASSERT(node.uid);
         _threading[ node.internalId ] = node;
-        uidToInternal[ node.uid ] = node.internalId;
+        ptrToInternal[ node.ptr ] = node.internalId;
     }
 
-    registerThreading( mapping, 0 );
+    registerThreading( mapping, 0, uidToPtrCache );
 
     updatePersistentIndexes();
     emit layoutChanged();
 }
 
-void ThreadingMsgListModel::registerThreading( const QVector<Imap::Responses::Thread::Node> &mapping, uint parentId )
+void ThreadingMsgListModel::registerThreading( const QVector<Imap::Responses::Thread::Node> &mapping, uint parentId, const QHash<uint,void*> &uidToPtr )
 {
     Q_FOREACH( const Imap::Responses::Thread::Node &node, mapping ) {
         uint nodeId;
@@ -429,13 +428,18 @@ void ThreadingMsgListModel::registerThreading( const QVector<Imap::Responses::Th
             _threading[ fake.internalId ] = fake;
             nodeId = fake.internalId;
         } else {
-            QHash<uint,uint>::const_iterator nodeIt = uidToInternal.constFind( node.num );
-            Q_ASSERT(nodeIt != uidToInternal.constEnd()); // FIXME: exception?
+            QHash<uint,void*>::const_iterator ptrIt = uidToPtr.find( node.num );
+            if ( ptrIt == uidToPtr.constEnd() ) {
+                throw UnknownMessageIndex("THREAD response referenced a UID which is not known at this point");
+            }
+
+            QHash<void*,uint>::const_iterator nodeIt = ptrToInternal.constFind( *ptrIt );
+            Q_ASSERT(nodeIt != ptrToInternal.constEnd()); // FIXME: exception?
             nodeId = *nodeIt;
         }
         _threading[ parentId ].children.append( nodeId );
         _threading[ nodeId ].parent = parentId;
-        registerThreading( node.children, nodeId );
+        registerThreading( node.children, nodeId, uidToPtr );
     }
 }
 

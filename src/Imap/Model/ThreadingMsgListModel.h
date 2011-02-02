@@ -98,13 +98,14 @@ private:
     /** @short Update QAbstractItemModel's idea of persistent indexes after a threading change */
     void updatePersistentIndexes();
     /** @short Convert the threading from a THREAD response and apply that threading to this model */
-    void registerThreading( const QVector<Imap::Responses::Thread::Node> &mapping, uint parentId );
+    void registerThreading( const QVector<Imap::Responses::Thread::Node> &mapping, uint parentId,
+                            const QHash<uint,void*> &uidToPtr );
 
     ThreadingMsgListModel& operator=( const ThreadingMsgListModel& ); // don't implement
     ThreadingMsgListModel( const ThreadingMsgListModel& ); // don't implement
 
-    /** @short Mapping from the message UID to ThreadingMsgListModel's internal IDs */
-    QHash<uint,uint> uidToInternal;
+    /** @short Mapping from the upstream model's internalId to ThreadingMsgListModel's internal IDs */
+    QHash<void*,uint> ptrToInternal;
     /** @short Tree for the threading */
     QHash<uint,ThreadNodeInfo> _threading;
     /** @short Last assigned internal ID */
