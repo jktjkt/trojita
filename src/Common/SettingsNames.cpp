@@ -61,7 +61,7 @@ QString SettingsNames::xtDbHost = QLatin1String("xtconnect.db.hostname");
 QString SettingsNames::xtDbPort = QLatin1String("xtconnect.db.port");
 QString SettingsNames::xtDbDbName = QLatin1String("xtconnect.db.dbname");
 QString SettingsNames::xtDbUser = QLatin1String("xtconnect.db.username");
-QString SettingsNames::guiMsgListShowThreading = QLatin1String("gui.msglist.showThreading");
+QString SettingsNames::guiMsgListShowThreading = QLatin1String("gui/msgList.showThreading");
 QString SettingsNames::appCheckUpdatesEnabled = QLatin1String("app.updates.checkEnabled");
 QString SettingsNames::appCheckUpdatesLastTime = QLatin1String("app.updates.lastTime");
 
