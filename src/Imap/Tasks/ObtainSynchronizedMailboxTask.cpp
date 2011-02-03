@@ -162,7 +162,7 @@ void ObtainSynchronizedMailboxTask::_finalizeSelect()
                     _fullMboxSync( mailbox, list, syncState ); return; // FIXME: change later
                 }
 
-            } else {
+            } else if ( syncState.uidNext() > oldState.uidNext() ) {
                 // Some new messages were delivered since we checked the last time.
                 // There's no guarantee they are still present, though.
 
@@ -174,6 +174,14 @@ void ObtainSynchronizedMailboxTask::_finalizeSelect()
                     //_syncGeneric( mailbox, list, syncState );
                     _fullMboxSync( mailbox, list, syncState ); return; // FIXME: change later
                 }
+            } else {
+                // The UIDNEXT has decreased while UIDVALIDITY remains the same. This is forbidden,
+                // so either a server's bug, or a completely invalid cache.
+                Q_ASSERT(syncState.uidNext() < oldState.uidNext());
+                Q_ASSERT(syncState.uidValidity() == oldState.uidValidity());
+                qDebug() << "Yuck, UIDVALIDITY remains same but UIDNEXT decreased";
+                model->cache()->clearAllMessages( mailbox->mailbox() );
+                _fullMboxSync( mailbox, list, syncState );
             }
         } else {
             // Forget everything, do a dumb sync

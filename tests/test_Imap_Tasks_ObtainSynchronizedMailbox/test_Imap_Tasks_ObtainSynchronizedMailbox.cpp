@@ -214,6 +214,33 @@ void ImapModelObtainSynchronizedMailboxTest::testResyncOneNew()
     helperVerifyUidMapA();
 }
 
+/** @short Test inconsistency in the local cache where UIDNEXT got decreased without UIDVALIDITY change */
+void ImapModelObtainSynchronizedMailboxTest::testDecreasedUidNext()
+{
+    // Initial state
+    existsA = 3;
+    uidValidityA = 333666;
+    for ( uint i = 1; i <= existsA; ++i ) {
+        uidMapA.append(i);
+    }
+    uidNextA = uidMapA.last();
+    helperSyncAWithMessagesEmptyState();
+    helperVerifyUidMapA();
+    helperSyncBNoMessages();
+
+    // Now perform the nasty change...
+    --existsA;
+    uidMapA.removeLast();
+    --uidNextA;
+
+    // ...and resync again, this should scream loud, but not crash
+    QCOMPARE( model->rowCount( msgListA ), 3 );
+    model->switchToMailbox( idxA );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    helperSyncAFullSync();
+}
+
 
 #if 0
 {
