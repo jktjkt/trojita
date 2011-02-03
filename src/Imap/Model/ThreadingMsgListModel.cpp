@@ -28,7 +28,7 @@
 namespace Imap {
 namespace Mailbox {
 
-ThreadingMsgListModel::ThreadingMsgListModel( QObject* parent ): QAbstractProxyModel(parent)
+ThreadingMsgListModel::ThreadingMsgListModel( QObject* parent ): QAbstractProxyModel(parent), modelResetInProgress(false)
 {
 }
 
@@ -281,11 +281,21 @@ void ThreadingMsgListModel::handleRowsInserted( const QModelIndex& parent, int s
 
 void ThreadingMsgListModel::resetMe()
 {
+    // Prevent possible recursion here
+    if ( modelResetInProgress )
+        return;
+
+    modelResetInProgress = true;
     _threading.clear();
     ptrToInternal.clear();
     unknownUids.clear();
     reset();
     updateNoThreading();
+    modelResetInProgress = false;
+
+    // If there are any messages, try to thread them
+    if ( sourceModel() && rowCount() )
+        askForThreading();
 }
 
 void ThreadingMsgListModel::updateNoThreading()

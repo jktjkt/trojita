@@ -112,6 +112,14 @@ private:
     uint _threadingHelperLastId;
     /** @short Messages with unkown UIDs */
     QList<QPersistentModelIndex> unknownUids;
+
+    /** @short Recursion guard for "is the model currently being reset?"
+
+    We can't be sure what happens when we call rowCount() from updateNoThreading(). It is
+    possible that the rowCount() would propagate to Model's _askForMessagesInMailbox(),
+    which could in turn call beginInsertRows, leading to a possible recursion.
+ */
+    bool modelResetInProgress;
 };
 
 }
