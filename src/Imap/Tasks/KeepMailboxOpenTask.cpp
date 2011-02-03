@@ -517,11 +517,11 @@ void KeepMailboxOpenTask::breakPossibleIdle()
 
 bool KeepMailboxOpenTask::handleResponseCodeInsideState( const Imap::Responses::State* const resp )
 {
-    TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
-    Q_ASSERT(mailbox);
     switch ( resp->respCode ) {
     case Responses::UIDNEXT:
     {
+        TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
+        Q_ASSERT(mailbox);
         const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.data() );
         if ( num ) {
             mailbox->syncState.setUidNext( num->data );
