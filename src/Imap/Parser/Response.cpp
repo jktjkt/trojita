@@ -569,7 +569,7 @@ Status::Status( const QByteArray& line, int& start )
         throw NoData( line, start );
     QStringList items = QVariant( LowLevelParser::parseList( '(', ')', line, start  ) ).toStringList();
     if ( start != line.size() - 2 && line.mid( start ) != QByteArray( " \r\n" ) )
-        throw TooMuchData( line, start );
+        throw TooMuchData( "STATUS response contains data after the list of items", line, start );
 
     bool gotIdentifier = false;
     QString identifier;
