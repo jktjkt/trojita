@@ -188,14 +188,17 @@ QVariantList parseList( const char open, const char close,
             return res;
         }
         while ( line[start] != close ) {
+            // We want to be benevolent here and eat extra whitespace
+            eatSpaces( line, start );
             res.append( getAnything( line, start ) );
             if ( start >= line.size() )
                 throw NoData( "Could not parse list: truncated data", line, start );
+            // Eat whitespace after each token, too
+            eatSpaces( line, start );
             if ( line[start] == close ) {
                 ++start;
                 return res;
             }
-            eatSpaces( line, start );
         }
         return res;
     } else {
