@@ -307,6 +307,12 @@ void MainWindow::createWidgets()
     vSplitter->addWidget( area );
     hSplitter->addWidget( mboxTree );
     hSplitter->addWidget( vSplitter );
+
+    // The mboxTree shall not expand...
+    hSplitter->setStretchFactor(0, 0);
+    // ...while the msgListTree shall consume all the remaining space
+    hSplitter->setStretchFactor(1, 1);
+
     setCentralWidget( hSplitter );
 
     allDock = new QDockWidget( "Everything", this );
