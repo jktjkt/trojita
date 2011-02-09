@@ -289,7 +289,6 @@ void MainWindow::createWidgets()
     msgListTree->setAllColumnsShowFocus( true );
     msgListTree->setAlternatingRowColors( true );
     msgListTree->setDragEnabled( true );
-    // This will be enabled again when threading is available, see slotThreadMsgList() and slotCapabilitiesUpdated()
     msgListTree->setRootIsDecorated(false);
 
     connect( msgListTree, SIGNAL( customContextMenuRequested( const QPoint & ) ),
