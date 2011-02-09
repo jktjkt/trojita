@@ -482,5 +482,27 @@ QStringList ThreadingMsgListModel::supportedCapabilities()
     return QStringList() << QLatin1String("THREAD=REFS") << QLatin1String("THREAD=REFERENCES") << QLatin1String("THREAD=ORDEREDSUBJECT");
 }
 
+QStringList ThreadingMsgListModel::mimeTypes() const
+{
+    return sourceModel() ? sourceModel()->mimeTypes() : QStringList();
+}
+
+QMimeData* ThreadingMsgListModel::mimeData( const QModelIndexList& indexes ) const
+{
+    if ( ! sourceModel() )
+        return 0;
+
+    QModelIndexList translated;
+    Q_FOREACH(const QModelIndex &idx, indexes) {
+        translated << mapToSource(idx);
+    }
+    return sourceModel()->mimeData(translated);
+}
+
+Qt::DropActions ThreadingMsgListModel::supportedDropActions() const
+{
+    return sourceModel() ? sourceModel()->supportedDropActions() : Qt::DropActions(0);
+}
+
 }
 }
