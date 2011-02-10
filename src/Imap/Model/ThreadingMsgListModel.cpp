@@ -383,7 +383,16 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
                                                     const QStringList &searchCriteria,
                                                     const QVector<Imap::Responses::Thread::Node> &mapping )
 {
-    // FIXME: check for correct mailbox, algorithm and search criteria...
+    const Imap::Mailbox::Model *realModel;
+    QModelIndex someMessage = sourceModel()->index(0,0);
+    QModelIndex realIndex;
+    Imap::Mailbox::Model::realTreeItem( someMessage, &realModel, &realIndex );
+    QModelIndex mailboxIndex = realIndex.parent().parent();
+    if ( mailboxIndex != mailbox ) {
+        // this is for another mailbox
+        return;
+    }
+    // FIXME: check for correct algorithm and search criteria...
 
     disconnect( sender(), 0, this,
                 SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::Thread::Node>)) );
