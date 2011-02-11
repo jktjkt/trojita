@@ -391,7 +391,7 @@ void Model::emitMessageCountChanged( TreeItemMailbox* const mailbox )
 }
 
 /** @short Retrieval of a message part has completed */
-void Model::_finalizeFetchPart( Parser* parser, TreeItemMailbox* const mailbox, const uint sequenceNo, const QString &partId )
+void Model::_finalizeFetchPart( TreeItemMailbox* const mailbox, const uint sequenceNo, const QString &partId )
 {
     // At first, verify that the message itself is marked as loaded.
     // If it isn't, it's probably because of Model::releaseMessageData().
@@ -424,6 +424,7 @@ void Model::handleCapability( Imap::Parser* ptr, const Imap::Responses::Capabili
 
 void Model::handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp )
 {
+    Q_UNUSED(ptr);
     throw UnexpectedResponseReceived( "[Tasks API Port] Unhandled NumberResponse", *resp );
 }
 
@@ -434,11 +435,13 @@ void Model::handleList( Imap::Parser* ptr, const Imap::Responses::List* const re
 
 void Model::handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp )
 {
+    Q_UNUSED(ptr);
     throw UnexpectedResponseReceived( "[Tasks API Port] Unhandled Flags", *resp );
 }
 
 void Model::handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp )
 {
+    Q_UNUSED(ptr);
     throw UnexpectedResponseReceived( "[Tasks API Port] Unhandled Search", *resp );
 }
 
@@ -464,6 +467,7 @@ void Model::handleStatus( Imap::Parser* ptr, const Imap::Responses::Status* cons
 
 void Model::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
 {
+    Q_UNUSED(ptr);
     throw UnexpectedResponseReceived( "[Tasks API Port] Unhandled Fetch", *resp );
 }
 
@@ -475,11 +479,13 @@ void Model::handleNamespace( Imap::Parser* ptr, const Imap::Responses::Namespace
 
 void Model::handleSort(Imap::Parser *ptr, const Imap::Responses::Sort *const resp)
 {
+    Q_UNUSED(ptr);
     throw UnexpectedResponseReceived( "[Tasks API Port] Unhandled Sort", *resp );
 }
 
 void Model::handleThread(Imap::Parser *ptr, const Imap::Responses::Thread *const resp)
 {
+    Q_UNUSED(ptr);
     throw UnexpectedResponseReceived( "[Tasks API Port] Unhandled Thread", *resp );
 }
 

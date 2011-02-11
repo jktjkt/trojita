@@ -95,7 +95,7 @@ void FetchMsgPartTask::verifyFetchingState()
     QList<TreeItemMessage*> messages = model->findMessagesByUids( mailbox, uids );
     Q_FOREACH( TreeItemMessage *message, messages ) {
         Q_FOREACH( const QString &partId, parts ) {
-            model->_finalizeFetchPart( parser, mailbox, message->row() + 1, partId );
+            model->_finalizeFetchPart( mailbox, message->row() + 1, partId );
         }
     }
 }

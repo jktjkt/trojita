@@ -484,7 +484,7 @@ bool ObtainSynchronizedMailboxTask::handleFetch( Imap::Parser* ptr, const Imap::
     Q_ASSERT ( ptr == parser );
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
     Q_ASSERT(mailbox);
-    mailbox->handleFetchWhileSyncing( model, ptr, *resp );
+    mailbox->handleFetchWhileSyncing( model, *resp );
     return true;
 }
 

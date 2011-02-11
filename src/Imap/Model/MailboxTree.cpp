@@ -457,7 +457,7 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
     }
 }
 
-void TreeItemMailbox::handleFetchWhileSyncing( Model* const model, Parser* ptr, const Responses::Fetch& response )
+void TreeItemMailbox::handleFetchWhileSyncing( Model* const model, const Responses::Fetch& response )
 {
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[0] );
     Q_ASSERT( list );

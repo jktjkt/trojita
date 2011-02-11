@@ -381,7 +381,7 @@ private:
 
     void _finalizeList( Parser* parser, TreeItemMailbox* const mailboxPtr );
     void _finalizeIncrementalList( Parser* parser, const QString& parentMailboxName );
-    void _finalizeFetchPart( Parser* parser, TreeItemMailbox* const mailbox, const uint sequenceNo, const QString &partId );
+    void _finalizeFetchPart( TreeItemMailbox* const mailbox, const uint sequenceNo, const QString &partId );
     void _genericHandleFetch( TreeItemMailbox* mailbox, const Imap::Responses::Fetch* const resp );
 
     void replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<TreeItem*> mailboxes );
