@@ -1090,8 +1090,6 @@ void Model::parsersMightBeIdling()
 {
     bool someParserBusy = false;
     // FIXME: track activity on a Task basis...
-    Q_FOREACH( const ParserState& p, _parsers ) {
-    }
     emit activityHappening( someParserBusy );
 }
 
