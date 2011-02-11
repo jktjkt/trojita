@@ -57,6 +57,7 @@ void NumberOfMessagesTask::perform()
 
 bool NumberOfMessagesTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
+    Q_UNUSED(ptr);
     if ( resp->tag.isEmpty() )
         return false;
 

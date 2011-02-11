@@ -274,6 +274,7 @@ void KeepMailboxOpenTask::resynchronizeMailbox()
 
 bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp )
 {
+    Q_UNUSED(ptr);
     // FIXME: add proper boundaries
     if ( ! isRunning )
         return false;
@@ -349,6 +350,7 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
 
 bool KeepMailboxOpenTask::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
 {
+    Q_UNUSED(ptr);
     // FIXME: add proper boundaries
     if ( ! isRunning )
         return false;
@@ -366,6 +368,7 @@ void KeepMailboxOpenTask::slotPerformNoop()
 
 bool KeepMailboxOpenTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
+    Q_UNUSED(ptr);
     if ( handleResponseCodeInsideState(resp) )
         return true;
 

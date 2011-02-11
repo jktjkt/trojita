@@ -52,6 +52,7 @@ void FetchMsgPartTask::perform()
 
 bool FetchMsgPartTask::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
 {
+    Q_UNUSED(ptr);
     if ( ! mailboxIndex.isValid() )
         return false;
 
@@ -63,6 +64,7 @@ bool FetchMsgPartTask::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fe
 
 bool FetchMsgPartTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
 {
+    Q_UNUSED(ptr);
     if ( resp->tag.isEmpty() )
         return false;
 
