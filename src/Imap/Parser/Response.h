@@ -334,7 +334,8 @@ namespace Responses {
     };
 
     /** @short Structure storing a NAMESPACE untagged response */
-    struct Namespace : public AbstractResponse {
+    class Namespace : public AbstractResponse {
+    public:
         QList<NamespaceData> personal, users, other;
         /** @short Parse line and construct List object from it */
         Namespace( const QByteArray& line, int& start );
