@@ -52,7 +52,6 @@ Socket* ProcessSocketFactory::create()
 {
     // FIXME: this may leak memory if an exception strikes in this function
     // (before we return the pointer)
-    QProcess* proc = new QProcess();
     return new ProcessSocket(new QProcess(), _executable, _args);
 }
 
