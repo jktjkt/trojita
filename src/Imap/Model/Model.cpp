@@ -470,7 +470,7 @@ void Model::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const 
 void Model::handleNamespace( Imap::Parser* ptr, const Imap::Responses::Namespace* const resp )
 {
     return; // because it's broken and won't fly
-    Q_UNUSED(ptr); Q_UNUSED(resp);
+    Q_UNUSED(ptr);
 }
 
 void Model::handleSort(Imap::Parser *ptr, const Imap::Responses::Sort *const resp)
