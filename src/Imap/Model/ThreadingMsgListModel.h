@@ -105,6 +105,9 @@ private:
     void registerThreading( const QVector<Imap::Responses::Thread::Node> &mapping, uint parentId,
                             const QHash<uint,void*> &uidToPtr );
 
+    /** @short Check current thread for "unread messages" */
+    bool threadContainsUnreadMessages(const uint root) const;
+
     ThreadingMsgListModel& operator=( const ThreadingMsgListModel& ); // don't implement
     ThreadingMsgListModel( const ThreadingMsgListModel& ); // don't implement
 

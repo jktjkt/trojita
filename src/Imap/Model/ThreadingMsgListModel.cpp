@@ -231,8 +231,15 @@ QVariant ThreadingMsgListModel::data( const QModelIndex &proxyIndex, int role ) 
 
     QHash<uint,ThreadNodeInfo>::const_iterator it = _threading.constFind( proxyIndex.internalId() );
     Q_ASSERT(it != _threading.constEnd());
-    if ( it->uid )
-        return QAbstractProxyModel::data( proxyIndex, role );
+
+    if ( it->uid ) {
+        // It's a real item which exists in the underlying model
+        if ( role == RoleThreadRootWithUnreadMessages && ! proxyIndex.parent().isValid() ) {
+            return threadContainsUnreadMessages(it->internalId);
+        } else {
+            return QAbstractProxyModel::data( proxyIndex, role );
+        }
+    }
 
     switch( role ) {
     case Qt::DisplayRole:
@@ -514,6 +521,25 @@ QMimeData* ThreadingMsgListModel::mimeData( const QModelIndexList& indexes ) con
 Qt::DropActions ThreadingMsgListModel::supportedDropActions() const
 {
     return sourceModel() ? sourceModel()->supportedDropActions() : Qt::DropActions(0);
+}
+
+bool ThreadingMsgListModel::threadContainsUnreadMessages(const uint root) const
+{
+    // FIXME: cache the value somewhere...
+    QList<uint> queue;
+    queue.append(root);
+    while ( ! queue.isEmpty() ) {
+        uint current = queue.takeFirst();
+        QHash<uint,ThreadNodeInfo>::const_iterator it = _threading.constFind(current);
+        Q_ASSERT(it != _threading.constEnd());
+        Q_ASSERT(it->ptr);
+        TreeItemMessage *message = dynamic_cast<TreeItemMessage*>(it->ptr);
+        Q_ASSERT(message);
+        if ( ! message->isMarkedAsRead() )
+            return true;
+        queue.append(it->children);
+    }
+    return false;
 }
 
 }

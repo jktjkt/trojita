@@ -147,8 +147,16 @@ QVariant PrettyMsgListModel::data( const QModelIndex& index, int role ) const
             QFont font;
             if ( translated.data( RoleMessageIsMarkedDeleted ).toBool() )
                 font.setStrikeOut( true );
-            if ( ! translated.data( RoleMessageIsMarkedRead ).toBool() )
+
+            if ( ! translated.data( RoleMessageIsMarkedRead ).toBool() ) {
+                // If any message is marked as unread, show it in bold and be done with it
                 font.setBold( true );
+            } else if ( translated.model()->hasChildren(translated) && translated.data(RoleThreadRootWithUnreadMessages).toBool() ) {
+                // If this node is not marked as read, is a root of some thread and that thread
+                // contains unread messages, display the thread's root underlined
+                font.setUnderline(true);
+            }
+
             return font;
         }
     }
