@@ -269,7 +269,10 @@ Qt::ItemFlags ThreadingMsgListModel::flags( const QModelIndex &index ) const
 
 void ThreadingMsgListModel::handleRowsAboutToBeRemoved( const QModelIndex& parent, int start, int end )
 {
-    // FIXME: remove from our mapping...
+    // Deal with that only when it's done, so nothing to do here
+    Q_UNUSED(parent);
+    Q_UNUSED(start);
+    Q_UNUSED(end);
 }
 
 void ThreadingMsgListModel::handleRowsRemoved( const QModelIndex& parent, int start, int end )
@@ -280,13 +283,18 @@ void ThreadingMsgListModel::handleRowsRemoved( const QModelIndex& parent, int st
 
 void ThreadingMsgListModel::handleRowsAboutToBeInserted( const QModelIndex& parent, int start, int end )
 {
-    // FIXME: queue them for later...
+    // Nothing to do at this point
+    Q_UNUSED(parent);
+    Q_UNUSED(start);
+    Q_UNUSED(end);
 }
 
 void ThreadingMsgListModel::handleRowsInserted( const QModelIndex& parent, int start, int end )
 {
-    resetMe();
-    // FIXME...
+    Q_UNUSED(parent);
+    Q_UNUSED(start);
+    Q_UNUSED(end);
+    askForThreading();
 }
 
 void ThreadingMsgListModel::resetMe()
