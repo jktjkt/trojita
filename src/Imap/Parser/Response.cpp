@@ -918,7 +918,8 @@ template<> QTextStream& RespData<QDateTime>::dump( QTextStream& stream ) const
 bool RespData<void>::eq( const AbstractData& other ) const
 {
     try {
-        dynamic_cast<const RespData<void>&>( other );
+        // There's no data involved, so we just want to compare the type
+        (void) dynamic_cast<const RespData<void>&>( other );
         return true;
     } catch ( std::bad_cast& ) {
         return false;
