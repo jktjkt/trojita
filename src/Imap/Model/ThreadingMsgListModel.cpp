@@ -82,9 +82,12 @@ void ThreadingMsgListModel::handleDataChanged( const QModelIndex& topLeft, const
     QModelIndex first = mapFromSource( topLeft );
     QModelIndex second = mapFromSource( bottomRight );
 
-    Q_ASSERT(first.isValid());
-    Q_ASSERT(second.isValid());
-
+    // There's a possibility for a short race window when te underlying model signals
+    // new data for a message but said message doesn't have threading info yet. Therefore,
+    // the translated indexes are invalid, so we have to handle that gracefully.
+    // "Doing nothing" could be a reasonable thing.
+    if ( ! first.isValid() || ! second.isValid() )
+        return;
 
     emit dataChanged( first, second );
 }
