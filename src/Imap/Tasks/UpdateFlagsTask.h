@@ -21,7 +21,6 @@
 
 #include <QPersistentModelIndex>
 #include "ImapTask.h"
-#include "Parser/Parser.h"
 
 namespace Imap {
 namespace Mailbox {
@@ -50,7 +49,7 @@ and the desired change (actual flags) is passed in the @arg _flags argument.
     UpdateFlagsTask( Model* _model, CopyMoveMessagesTask* copyTask, const QList<QPersistentModelIndex>& _messages, const QString& _flagOperation, const QString& _flags );
     virtual void perform();
 
-    virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
+    virtual bool handleStateHelper( const Imap::Responses::State* const resp );
 private:
     CommandHandle tag;
     ImapTask* conn;

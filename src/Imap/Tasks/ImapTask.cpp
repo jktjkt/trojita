@@ -38,85 +38,74 @@ void ImapTask::addDependentTask( ImapTask *task )
     dependentTasks.append( task );
 }
 
-bool ImapTask::handleState( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+bool ImapTask::handleState( const Imap::Responses::State* const resp )
 {
-    handleResponseCode( ptr, resp );
-    return handleStateHelper( ptr, resp );
+    handleResponseCode(resp);
+    return handleStateHelper(resp);
 }
 
-bool ImapTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+bool ImapTask::handleStateHelper( const Imap::Responses::State* const resp )
 {
-    Q_UNUSED(ptr);
     Q_UNUSED(resp);
     return false;
 }
 
-bool ImapTask::handleCapability( Imap::Parser* ptr, const Imap::Responses::Capability* const resp )
+bool ImapTask::handleCapability( const Imap::Responses::Capability* const resp )
 {
-    Q_UNUSED(ptr);
     Q_UNUSED(resp);
     return false;
 }
 
-bool ImapTask::handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp )
+bool ImapTask::handleNumberResponse( const Imap::Responses::NumberResponse* const resp )
 {
-    Q_UNUSED(ptr);
     Q_UNUSED(resp);
     return false;
 }
 
-bool ImapTask::handleList( Imap::Parser* ptr, const Imap::Responses::List* const resp )
+bool ImapTask::handleList( const Imap::Responses::List* const resp )
 {
-    Q_UNUSED(ptr);
     Q_UNUSED(resp);
     return false;
 }
 
-bool ImapTask::handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp )
+bool ImapTask::handleFlags( const Imap::Responses::Flags* const resp )
 {
-    Q_UNUSED(ptr);
     Q_UNUSED(resp);
     return false;
 }
 
-bool ImapTask::handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp )
+bool ImapTask::handleSearch( const Imap::Responses::Search* const resp )
 {
-    Q_UNUSED(ptr);
     Q_UNUSED(resp);
     return false;
 }
 
-bool ImapTask::handleStatus( Imap::Parser* ptr, const Imap::Responses::Status* const resp )
+bool ImapTask::handleStatus( const Imap::Responses::Status* const resp )
 {
-    Q_UNUSED(ptr);
     Q_UNUSED(resp);
     return false;
 }
 
-bool ImapTask::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
+bool ImapTask::handleFetch( const Imap::Responses::Fetch* const resp )
 {
-    Q_UNUSED(ptr);
     Q_UNUSED(resp);
     return false;
 }
 
-bool ImapTask::handleNamespace( Imap::Parser* ptr, const Imap::Responses::Namespace* const resp )
+bool ImapTask::handleNamespace( const Imap::Responses::Namespace* const resp )
 {
-    Q_UNUSED(ptr);
     Q_UNUSED(resp);
     return false;
 }
 
-bool ImapTask::handleSort( Imap::Parser* ptr, const Imap::Responses::Sort* const resp )
+bool ImapTask::handleSort( const Imap::Responses::Sort* const resp )
 {
-    Q_UNUSED(ptr);
     Q_UNUSED(resp);
     return false;
 }
 
-bool ImapTask::handleThread( Imap::Parser* ptr, const Imap::Responses::Thread* const resp )
+bool ImapTask::handleThread( const Imap::Responses::Thread* const resp )
 {
-    Q_UNUSED(ptr);
     Q_UNUSED(resp);
     return false;
 }
@@ -131,7 +120,7 @@ void ImapTask::_completed()
     emit completed();
 }
 
-void ImapTask::handleResponseCode( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+void ImapTask::handleResponseCode( const Imap::Responses::State* const resp )
 {
     using namespace Imap::Responses;
     // Check for common stuff like ALERT and CAPABILITIES update
@@ -146,7 +135,7 @@ void ImapTask::handleResponseCode( Imap::Parser* ptr, const Imap::Responses::Sta
                 const RespData<QStringList>* const caps = dynamic_cast<const RespData<QStringList>* const>(
                         resp->respCodeData.data() );
                 if ( caps ) {
-                    model->updateCapabilities( ptr, caps->data );
+                    model->updateCapabilities( parser, caps->data );
                 }
             }
             break;

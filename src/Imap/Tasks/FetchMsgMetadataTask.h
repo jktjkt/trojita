@@ -21,7 +21,6 @@
 
 #include <QPersistentModelIndex>
 #include "ImapTask.h"
-#include "Parser/Parser.h"
 
 namespace Imap {
 namespace Mailbox {
@@ -37,8 +36,8 @@ public:
     FetchMsgMetadataTask( Model *_model, const QModelIndex &_mailbox, const QList<uint> &_uids );
     virtual void perform();
 
-    virtual bool handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );
-    virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
+    virtual bool handleFetch( const Imap::Responses::Fetch* const resp );
+    virtual bool handleStateHelper( const Imap::Responses::State* const resp );
 private:
     CommandHandle tag;
     ImapTask* conn;

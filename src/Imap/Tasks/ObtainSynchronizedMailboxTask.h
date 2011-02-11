@@ -41,11 +41,11 @@ Q_OBJECT
 public:
     ObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex, ImapTask* parentTask );
     virtual void perform();
-    virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
-    virtual bool handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp );
-    virtual bool handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp );
-    virtual bool handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp );
-    virtual bool handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );
+    virtual bool handleStateHelper( const Imap::Responses::State* const resp );
+    virtual bool handleNumberResponse( const Imap::Responses::NumberResponse* const resp );
+    virtual bool handleFlags( const Imap::Responses::Flags* const resp );
+    virtual bool handleSearch( const Imap::Responses::Search* const resp );
+    virtual bool handleFetch( const Imap::Responses::Fetch* const resp );
 
     typedef enum { UID_SYNC_ALL, UID_SYNC_ONLY_NEW } UidSyncingMode;
 

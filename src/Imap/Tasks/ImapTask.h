@@ -20,6 +20,7 @@
 #define IMAP_IMAPTASK_H
 
 #include <QObject>
+#include "../Parser/Parser.h"
 
 namespace Imap {
 
@@ -36,8 +37,6 @@ namespace Responses {
     class Sort;
     class Thread;
 }
-
-class Parser;
 
 namespace Mailbox {
 
@@ -62,18 +61,18 @@ doesn't have to be implemented for most of them.
 
     virtual void addDependentTask( ImapTask* task );
 
-    bool handleState( Imap::Parser* ptr, const Imap::Responses::State* const resp );
-    virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
-    virtual bool handleCapability( Imap::Parser* ptr, const Imap::Responses::Capability* const resp );
-    virtual bool handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp );
-    virtual bool handleList( Imap::Parser* ptr, const Imap::Responses::List* const resp );
-    virtual bool handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp );
-    virtual bool handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp );
-    virtual bool handleStatus( Imap::Parser* ptr, const Imap::Responses::Status* const resp );
-    virtual bool handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );
-    virtual bool handleNamespace( Imap::Parser* ptr, const Imap::Responses::Namespace* const resp );
-    virtual bool handleSort( Imap::Parser* ptr, const Imap::Responses::Sort* const resp );
-    virtual bool handleThread( Imap::Parser* ptr, const Imap::Responses::Thread* const resp );
+    bool handleState( const Imap::Responses::State* const resp );
+    virtual bool handleStateHelper( const Imap::Responses::State* const resp );
+    virtual bool handleCapability( const Imap::Responses::Capability* const resp );
+    virtual bool handleNumberResponse( const Imap::Responses::NumberResponse* const resp );
+    virtual bool handleList( const Imap::Responses::List* const resp );
+    virtual bool handleFlags( const Imap::Responses::Flags* const resp );
+    virtual bool handleSearch( const Imap::Responses::Search* const resp );
+    virtual bool handleStatus( const Imap::Responses::Status* const resp );
+    virtual bool handleFetch( const Imap::Responses::Fetch* const resp );
+    virtual bool handleNamespace( const Imap::Responses::Namespace* const resp );
+    virtual bool handleSort( const Imap::Responses::Sort* const resp );
+    virtual bool handleThread( const Imap::Responses::Thread* const resp );
 
     /** @short Return true if this task has already finished and can be safely deleted */
     bool isFinished() const { return _finished; }
@@ -92,7 +91,7 @@ protected:
     void _completed();
 
 private:
-    void handleResponseCode( Imap::Parser* ptr, const Imap::Responses::State* const resp );
+    void handleResponseCode( const Imap::Responses::State* const resp );
 
 signals:
     /** @short This signal is emitted if the job failed in some way */

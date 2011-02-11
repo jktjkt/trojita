@@ -50,9 +50,8 @@ void FetchMsgPartTask::perform()
     emit model->activityHappening( true );
 }
 
-bool FetchMsgPartTask::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
+bool FetchMsgPartTask::handleFetch( const Imap::Responses::Fetch* const resp )
 {
-    Q_UNUSED(ptr);
     if ( ! mailboxIndex.isValid() )
         return false;
 
@@ -62,9 +61,8 @@ bool FetchMsgPartTask::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fe
     return true;
 }
 
-bool FetchMsgPartTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+bool FetchMsgPartTask::handleStateHelper( const Imap::Responses::State* const resp )
 {
-    Q_UNUSED(ptr);
     if ( resp->tag.isEmpty() )
         return false;
 

@@ -21,7 +21,6 @@
 
 #include <QPersistentModelIndex>
 #include "ImapTask.h"
-#include "Parser/Parser.h"
 
 namespace Imap {
 namespace Mailbox {
@@ -40,8 +39,8 @@ public:
     ThreadTask( Model* _model, const QModelIndex& mailbox, const QString &_algorithm, const QStringList &_searchCriteria );
     virtual void perform();
 
-    virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
-    virtual bool handleThread( Imap::Parser *ptr, const Imap::Responses::Thread *const resp );
+    virtual bool handleStateHelper( const Imap::Responses::State* const resp );
+    virtual bool handleThread( const Imap::Responses::Thread *const resp );
 private:
     CommandHandle tag;
     ImapTask* conn;

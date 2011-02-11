@@ -20,7 +20,6 @@
 #define IMAP_DELETEMAILBOX_TASK_H
 
 #include "ImapTask.h"
-#include "../Parser/Parser.h"
 
 namespace Imap {
 namespace Mailbox {
@@ -33,7 +32,7 @@ public:
     DeleteMailboxTask( Model* _model, const QString& _mailbox );
     virtual void perform();
 
-    virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
+    virtual bool handleStateHelper( const Imap::Responses::State* const resp );
 private:
     CommandHandle tag;
     ImapTask* conn;

@@ -43,7 +43,7 @@ void CreateMailboxTask::perform()
     emit model->activityHappening( true );
 }
 
-bool CreateMailboxTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+bool CreateMailboxTask::handleStateHelper( const Imap::Responses::State* const resp )
 {
     if ( resp->tag.isEmpty() )
         return false;
@@ -62,7 +62,7 @@ bool CreateMailboxTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respon
         return true;
     } else if ( resp->tag == tagList ) {
         if ( resp->kind == Responses::OK ) {
-            model->_finalizeIncrementalList( ptr, mailbox );
+            model->_finalizeIncrementalList( parser, mailbox );
         } else {
             // FIXME
         }

@@ -28,8 +28,6 @@ class QTimer;
 
 namespace Imap {
 
-class Parser;
-
 namespace Mailbox {
 
 class KeepMailboxOpenTask;

@@ -272,9 +272,8 @@ void KeepMailboxOpenTask::resynchronizeMailbox()
     }
 }
 
-bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp )
+bool KeepMailboxOpenTask::handleNumberResponse( const Imap::Responses::NumberResponse* const resp )
 {
-    Q_UNUSED(ptr);
     // FIXME: add proper boundaries
     if ( ! isRunning )
         return false;
@@ -348,9 +347,8 @@ bool KeepMailboxOpenTask::handleNumberResponse( Imap::Parser* ptr, const Imap::R
     }
 }
 
-bool KeepMailboxOpenTask::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
+bool KeepMailboxOpenTask::handleFetch( const Imap::Responses::Fetch* const resp )
 {
-    Q_UNUSED(ptr);
     // FIXME: add proper boundaries
     if ( ! isRunning )
         return false;
@@ -366,9 +364,8 @@ void KeepMailboxOpenTask::slotPerformNoop()
     new NoopTask( model, this );
 }
 
-bool KeepMailboxOpenTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+bool KeepMailboxOpenTask::handleStateHelper( const Imap::Responses::State* const resp )
 {
-    Q_UNUSED(ptr);
     if ( handleResponseCodeInsideState(resp) )
         return true;
 
@@ -440,9 +437,8 @@ void KeepMailboxOpenTask::stopForLogout()
     breakPossibleIdle();
 }
 
-bool KeepMailboxOpenTask::handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp )
+bool KeepMailboxOpenTask::handleSearch( const Imap::Responses::Search* const resp )
 {
-    Q_ASSERT( ptr == parser );
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
     Q_ASSERT(mailbox);
     // Be sure there really are some new messages

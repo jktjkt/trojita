@@ -37,11 +37,11 @@ void Fake_OpenConnectionTask::perform()
     _completed();
 }
 
-bool Fake_OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+bool Fake_OpenConnectionTask::handleStateHelper( const Imap::Responses::State* const resp )
 {
     // This is a fake task, and therefore we aren't interested in any responses.
     // We have to override OpenConnectionTask's implementation.
-    Q_UNUSED(ptr); Q_UNUSED(resp);
+    Q_UNUSED(resp);
     return false;
 }
 

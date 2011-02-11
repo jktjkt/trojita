@@ -42,7 +42,7 @@ public:
     OpenConnectionTask( Model* _model );
     virtual void perform();
 
-    virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
+    virtual bool handleStateHelper( const Imap::Responses::State* const resp );
     // FIXME: reimplement handleCapability(), add some guards against "unexpected changes" to Model's implementation
 
 protected:
@@ -50,7 +50,7 @@ protected:
     OpenConnectionTask( Model* _model, void* dummy);
 
 private:
-    void handleInitialResponse( Imap::Parser* ptr, const Imap::Responses::State* const resp );
+    void handleInitialResponse( const Imap::Responses::State* const resp );
 
 private:
     bool waitingForGreetings;

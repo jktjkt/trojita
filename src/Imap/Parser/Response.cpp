@@ -1080,8 +1080,8 @@ bool NamespaceData::operator!=( const NamespaceData& other ) const
 
 #define PLUG(X) void X::plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const \
 { model->handle##X( parser, this ); } \
-bool X::plug( Imap::Parser* parser, Imap::Mailbox::ImapTask* task ) const \
-{ return task->handle##X( parser, this ); }
+bool X::plug( Imap::Mailbox::ImapTask* task ) const \
+{ return task->handle##X( this ); }
 
 PLUG( State )
 PLUG( Capability )

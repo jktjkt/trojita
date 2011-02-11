@@ -37,7 +37,7 @@ public:
     CopyMoveMessagesTask( Model* _model, const QModelIndexList& _messages, const QString& _targetMailbox, const CopyMoveOperation _op );
     virtual void perform();
 
-    virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
+    virtual bool handleStateHelper( const Imap::Responses::State* const resp );
 private:
     CommandHandle copyTag;
     ImapTask* conn;

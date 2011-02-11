@@ -62,9 +62,8 @@ void ObtainSynchronizedMailboxTask::perform()
     emit model->mailboxSyncingProgress( mailboxIndex, status );
 }
 
-bool ObtainSynchronizedMailboxTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+bool ObtainSynchronizedMailboxTask::handleStateHelper( const Imap::Responses::State* const resp )
 {
-    Q_ASSERT( parser == ptr );
     if ( handleResponseCodeInsideState( resp ) )
         return true;
 
@@ -79,7 +78,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( Imap::Parser* ptr, const 
             _finalizeSelect();
         } else {
             // FIXME: Tasks API error handling
-            model->changeConnectionState( ptr, CONN_STATE_AUTHENTICATED);
+            model->changeConnectionState( parser, CONN_STATE_AUTHENTICATED);
         }
         return true;
     } else if ( resp->tag == uidSyncingCmd ) {
@@ -406,9 +405,8 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState( const Imap::R
     return res;
 }
 
-bool ObtainSynchronizedMailboxTask::handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp )
+bool ObtainSynchronizedMailboxTask::handleNumberResponse( const Imap::Responses::NumberResponse* const resp )
 {
-    Q_ASSERT( ptr == parser );
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
     Q_ASSERT(mailbox);
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList*>(mailbox->_children[0]);
@@ -432,18 +430,16 @@ bool ObtainSynchronizedMailboxTask::handleNumberResponse( Imap::Parser* ptr, con
     return false;
 }
 
-bool ObtainSynchronizedMailboxTask::handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp )
+bool ObtainSynchronizedMailboxTask::handleFlags( const Imap::Responses::Flags* const resp )
 {
-    Q_ASSERT( ptr == parser );
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
     Q_ASSERT(mailbox);
     mailbox->syncState.setFlags( resp->flags );
     return true;
 }
 
-bool ObtainSynchronizedMailboxTask::handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp )
+bool ObtainSynchronizedMailboxTask::handleSearch( const Imap::Responses::Search* const resp )
 {
-    Q_ASSERT( ptr == parser );
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
     Q_ASSERT(mailbox);
     switch ( uidSyncingMode ) {
@@ -479,9 +475,8 @@ bool ObtainSynchronizedMailboxTask::handleSearch( Imap::Parser* ptr, const Imap:
     return true;
 }
 
-bool ObtainSynchronizedMailboxTask::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
+bool ObtainSynchronizedMailboxTask::handleFetch( const Imap::Responses::Fetch* const resp )
 {
-    Q_ASSERT ( ptr == parser );
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
     Q_ASSERT(mailbox);
     mailbox->handleFetchWhileSyncing( model, *resp );

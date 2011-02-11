@@ -21,7 +21,6 @@
 
 #include "ImapTask.h"
 #include <QModelIndex>
-#include "../Parser/Parser.h"
 
 class QTimer;
 class ImapModelIdleTest;
@@ -99,10 +98,10 @@ initialize synchronization now.
 */
     void slotPerformConnection();
 
-    virtual bool handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp );
-    virtual bool handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );
-    virtual bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
-    virtual bool handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp );
+    virtual bool handleNumberResponse( const Imap::Responses::NumberResponse* const resp );
+    virtual bool handleFetch( const Imap::Responses::Fetch* const resp );
+    virtual bool handleStateHelper( const Imap::Responses::State* const resp );
+    virtual bool handleSearch( const Imap::Responses::Search* const resp );
     bool handleResponseCodeInsideState( const Imap::Responses::State* const resp );
 
     void slotPerformNoop();

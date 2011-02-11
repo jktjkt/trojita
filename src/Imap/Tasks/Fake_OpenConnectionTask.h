@@ -40,7 +40,7 @@ public:
 protected slots:
     void slotPerform() { perform(); }
 private:
-    bool handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp );
+    bool handleStateHelper( const Imap::Responses::State* const resp );
 };
 
 }

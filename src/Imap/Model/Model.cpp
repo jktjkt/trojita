@@ -140,7 +140,7 @@ void Model::responseReceived( Parser *parser )
             // Try various tasks, perhaps it's their response. Also check if they're already finished and remove them.
             for ( QList<ImapTask*>::const_iterator taskIt = taskSnapshot.constBegin(); taskIt != taskEnd; ++taskIt ) {
                 if ( ! handled ) {
-                    handled = resp->plug( it->parser, *taskIt );
+                    handled = resp->plug(*taskIt);
 
 #ifdef DEBUG_TASK_ROUTING
                     if ( handled )

@@ -88,9 +88,8 @@ void UpdateFlagsTask::perform()
     emit model->activityHappening( true );
 }
 
-bool UpdateFlagsTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+bool UpdateFlagsTask::handleStateHelper( const Imap::Responses::State* const resp )
 {
-    Q_UNUSED(ptr);
     if ( resp->tag.isEmpty() )
         return false;
 

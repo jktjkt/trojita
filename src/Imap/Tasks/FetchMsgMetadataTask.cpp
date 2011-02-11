@@ -53,9 +53,8 @@ void FetchMsgMetadataTask::perform()
     emit model->activityHappening( true );
 }
 
-bool FetchMsgMetadataTask::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
+bool FetchMsgMetadataTask::handleFetch( const Imap::Responses::Fetch* const resp )
 {
-    Q_UNUSED(ptr);
     if ( ! mailbox.isValid() ) {
         qDebug() << "FetchMsgMetadataTask::handleFetch: mailbox disappeared";
         _completed();
@@ -68,9 +67,8 @@ bool FetchMsgMetadataTask::handleFetch( Imap::Parser* ptr, const Imap::Responses
     return true;
 }
 
-bool FetchMsgMetadataTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+bool FetchMsgMetadataTask::handleStateHelper( const Imap::Responses::State* const resp )
 {
-    Q_UNUSED(ptr);
     if ( resp->tag.isEmpty() )
         return false;
 

@@ -80,9 +80,8 @@ void CopyMoveMessagesTask::perform()
     emit model->activityHappening( true );
 }
 
-bool CopyMoveMessagesTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+bool CopyMoveMessagesTask::handleStateHelper( const Imap::Responses::State* const resp )
 {
-    Q_UNUSED(ptr);
     if ( resp->tag.isEmpty() )
         return false;
 

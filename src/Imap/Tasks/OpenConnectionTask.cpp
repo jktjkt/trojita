@@ -53,10 +53,10 @@ void OpenConnectionTask::perform()
 }
 
 /** @short Process the "state" response originating from the IMAP server */
-bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+bool OpenConnectionTask::handleStateHelper( const Imap::Responses::State* const resp )
 {
     if ( waitingForGreetings ) {
-        handleInitialResponse( ptr, resp );
+        handleInitialResponse(resp);
         return true;
     }
 
@@ -71,14 +71,14 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
                 _completed();
             } else {
                 // We want to log in, but we might have to STARTTLS before
-                if ( model->accessParser( ptr ).capabilities.contains( QLatin1String("LOGINDISABLED") ) ) {
+                if ( model->accessParser( parser ).capabilities.contains( QLatin1String("LOGINDISABLED") ) ) {
                     qDebug() << "Can't login yet, trying STARTTLS";
                     // ... and we are forbidden from logging in, so we have to try the STARTTLS
-                    startTlsCmd = ptr->startTls();
+                    startTlsCmd = parser->startTls();
                     emit model->activityHappening( true );
                 } else {
                     // Apparently no need for STARTTLS and we are free to login
-                    loginCmd = model->performAuthentication( ptr );
+                    loginCmd = model->performAuthentication( parser );
                 }
             }
         } else {
@@ -87,9 +87,9 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
         return true;
     } else if ( resp->tag == loginCmd ) {
         // The LOGIN command is finished, and we know capabilities already
-        Q_ASSERT( model->accessParser( ptr ).capabilitiesFresh );
+        Q_ASSERT( model->accessParser( parser ).capabilitiesFresh );
         if ( resp->kind == Responses::OK ) {
-            model->changeConnectionState( ptr, CONN_STATE_AUTHENTICATED);
+            model->changeConnectionState( parser, CONN_STATE_AUTHENTICATED);
             _completed();
         } else {
             QString message;
@@ -128,7 +128,7 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
                 message = tr("%1\r\n\r\n%2").arg(message, resp->message);
             }
             model->emitAuthFailed(message);
-            loginCmd = model->performAuthentication( ptr );
+            loginCmd = model->performAuthentication( parser );
 
             // FIXME: error handling
         }
@@ -136,10 +136,10 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
     } else if ( resp->tag == startTlsCmd ) {
         // So now we've got a secure connection, but we will have to login. Additionally,
         // we are obliged to forget any capabilities.
-        model->accessParser( ptr ).capabilitiesFresh = false;
+        model->accessParser( parser ).capabilitiesFresh = false;
         // FIXME: why do I have to comment that out?
         if ( resp->kind == Responses::OK ) {
-            capabilityCmd = ptr->capability();
+            capabilityCmd = parser->capability();
             emit model->activityHappening( true );
         } else {
             // Well, this place is *very* bad -- we're in the middle of a responseRecevied(), Model is iterating over active tasks
@@ -157,7 +157,7 @@ bool OpenConnectionTask::handleStateHelper( Imap::Parser* ptr, const Imap::Respo
 }
 
 /** @short Helper for dealing with the very first response from the server */
-void OpenConnectionTask::handleInitialResponse( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+void OpenConnectionTask::handleInitialResponse( const Imap::Responses::State* const resp )
 {
     waitingForGreetings = false;
     if ( ! resp->tag.isEmpty() ) {
@@ -172,9 +172,9 @@ void OpenConnectionTask::handleInitialResponse( Imap::Parser* ptr, const Imap::R
         {
             // Cool, we're already authenticated. Now, let's see if we have to issue CAPABILITY or if we already know that
             gotPreauth = true;
-            model->changeConnectionState( ptr, CONN_STATE_AUTHENTICATED);
-            if ( ! model->accessParser( ptr ).capabilitiesFresh ) {
-                capabilityCmd = ptr->capability();
+            model->changeConnectionState( parser, CONN_STATE_AUTHENTICATED);
+            if ( ! model->accessParser( parser ).capabilitiesFresh ) {
+                capabilityCmd = parser->capability();
                 emit model->activityHappening( true );
             } else {
                 _completed();
@@ -186,22 +186,22 @@ void OpenConnectionTask::handleInitialResponse( Imap::Parser* ptr, const Imap::R
             // The STARTTLS command is already queued -> no need to issue it once again
         } else {
             // The STARTTLS surely has not been issued yet
-            if ( ! model->accessParser( ptr ).capabilitiesFresh ) {
-                capabilityCmd = ptr->capability();
+            if ( ! model->accessParser( parser ).capabilitiesFresh ) {
+                capabilityCmd = parser->capability();
                 emit model->activityHappening( true );
-            } else if ( model->accessParser( ptr ).capabilities.contains( QLatin1String("LOGINDISABLED") ) ) {
+            } else if ( model->accessParser( parser ).capabilities.contains( QLatin1String("LOGINDISABLED") ) ) {
                 qDebug() << "Can't login yet, trying STARTTLS";
                 // ... and we are forbidden from logging in, so we have to try the STARTTLS
-                startTlsCmd = ptr->startTls();
+                startTlsCmd = parser->startTls();
                 emit model->activityHappening( true );
             } else {
                 // Apparently no need for STARTTLS and we are free to login
-                loginCmd = model->performAuthentication( ptr );
+                loginCmd = model->performAuthentication( parser );
             }
         }
         break;
     case BYE:
-        model->changeConnectionState( ptr, CONN_STATE_LOGOUT );
+        model->changeConnectionState( parser, CONN_STATE_LOGOUT );
         // FIXME: Tasks error handling
         break;
     case BAD:

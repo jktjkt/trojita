@@ -59,7 +59,7 @@ void ListChildMailboxesTask::perform()
     emit model->activityHappening( true );
 }
 
-bool ListChildMailboxesTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+bool ListChildMailboxesTask::handleStateHelper( const Imap::Responses::State* const resp )
 {
     if ( resp->tag.isEmpty() )
         return false;
@@ -71,7 +71,7 @@ bool ListChildMailboxesTask::handleStateHelper( Imap::Parser* ptr, const Imap::R
             Q_ASSERT( mailbox );
 
             if ( resp->kind == Responses::OK ) {
-                model->_finalizeList( ptr, mailbox );
+                model->_finalizeList( parser, mailbox );
             } else {
                 // FIXME: error handling
             }

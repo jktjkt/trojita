@@ -50,9 +50,8 @@ void ThreadTask::perform()
     emit model->activityHappening( true );
 }
 
-bool ThreadTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+bool ThreadTask::handleStateHelper( const Imap::Responses::State* const resp )
 {
-    Q_UNUSED(ptr);
     if ( resp->tag.isEmpty() )
         return false;
 
@@ -67,9 +66,8 @@ bool ThreadTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::St
     }
 }
 
-bool ThreadTask::handleThread( Imap::Parser *ptr, const Imap::Responses::Thread *const resp )
+bool ThreadTask::handleThread( const Imap::Responses::Thread *const resp )
 {
-    Q_UNUSED(ptr);
     mapping = resp->rootItems;
     return true;
 }

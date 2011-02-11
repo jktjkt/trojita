@@ -55,9 +55,8 @@ void NumberOfMessagesTask::perform()
     emit model->activityHappening( true );
 }
 
-bool NumberOfMessagesTask::handleStateHelper( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+bool NumberOfMessagesTask::handleStateHelper( const Imap::Responses::State* const resp )
 {
-    Q_UNUSED(ptr);
     if ( resp->tag.isEmpty() )
         return false;
 
