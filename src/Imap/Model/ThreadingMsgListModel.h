@@ -120,6 +120,9 @@ private:
     /** @short Messages with unkown UIDs */
     QList<QPersistentModelIndex> unknownUids;
 
+    /** @short Threading algorithm we're using for this request */
+    QString requestedAlgorithm;
+
     /** @short Recursion guard for "is the model currently being reset?"
 
     We can't be sure what happens when we call rowCount() from updateNoThreading(). It is

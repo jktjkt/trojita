@@ -371,18 +371,17 @@ void ThreadingMsgListModel::askForThreading()
     Imap::Mailbox::Model::realTreeItem( someMessage, &realModel, &realIndex );
     QModelIndex mailboxIndex = realIndex.parent().parent();
 
-    QString algo;
     if ( realModel->capabilities().contains( QLatin1String("THREAD=REFS")) ) {
-        algo = QLatin1String("REFS");
+        requestedAlgorithm = QLatin1String("REFS");
     } else if ( realModel->capabilities().contains( QLatin1String("THREAD=REFERENCES") ) ) {
-        algo = QLatin1String("REFERENCES");
+        requestedAlgorithm = QLatin1String("REFERENCES");
     } else if ( realModel->capabilities().contains( QLatin1String("THREAD=ORDEREDSUBJECT") ) ) {
-        algo = QLatin1String("ORDEREDSUBJECT");
+        requestedAlgorithm = QLatin1String("ORDEREDSUBJECT");
     }
 
-    if ( ! algo.isEmpty() ) {
+    if ( ! requestedAlgorithm.isEmpty() ) {
         realModel->_taskFactory->createThreadTask( const_cast<Imap::Mailbox::Model*>(realModel),
-                                                   mailboxIndex, algo,
+                                                   mailboxIndex, requestedAlgorithm,
                                                    QStringList() << QLatin1String("ALL") );
         connect( realModel, SIGNAL(threadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::Thread::Node>)),
                  this, SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::Thread::Node>)) );
@@ -402,7 +401,17 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
         // this is for another mailbox
         return;
     }
-    // FIXME: check for correct algorithm and search criteria...
+
+    if ( algorithm != requestedAlgorithm ) {
+        qDebug() << "Weird, asked for threading via" << requestedAlgorithm << " but got" << algorithm <<
+                "instead -- ignoring.";
+        return;
+    }
+
+    if ( searchCriteria.size() != 1 || searchCriteria.front() != QLatin1String("ALL") ) {
+        qDebug() << "Weird, requesting messages matching ALL, but got this instead: " << searchCriteria;
+        return;
+    }
 
     disconnect( sender(), 0, this,
                 SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::Thread::Node>)) );
