@@ -88,6 +88,11 @@ public:
     /** @short Do nothing */
     virtual void setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data );
 
+    /** @short Do nothing */
+    virtual QVector<Imap::Responses::ThreadingNode> messageThreading(const QString &mailbox);
+    /** @short Do nothing */
+    virtual void setMessageThreading(const QString &mailbox, const QVector<Imap::Responses::ThreadingNode> &threading);
+
     /** @short Open a connection to the cache */
     bool open();
 

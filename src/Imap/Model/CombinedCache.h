@@ -80,6 +80,9 @@ public:
     virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId ) const;
     virtual void setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data );
 
+    virtual QVector<Imap::Responses::ThreadingNode> messageThreading(const QString &mailbox);
+    virtual void setMessageThreading(const QString &mailbox, const QVector<Imap::Responses::ThreadingNode> &threading);
+
     /** @short Open a connection to the cache */
     bool open();
 

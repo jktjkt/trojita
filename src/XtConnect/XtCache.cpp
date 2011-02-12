@@ -170,4 +170,16 @@ void XtCache::setMessageSavingStatus( const QString &mailbox, const uint uid, co
     _sqlCache->setMsgFlags( mailbox, uid, flags );
 }
 
+QVector<Imap::Responses::ThreadingNode> XtCache::messageThreading(const QString &mailbox)
+{
+    Q_UNUSED(mailbox);
+    return QVector<Imap::Responses::ThreadingNode>();
+}
+
+void XtCache::setMessageThreading(const QString &mailbox, const QVector<Imap::Responses::ThreadingNode> &threading)
+{
+    Q_UNUSED(mailbox);
+    Q_UNUSED(threading);
+}
+
 }

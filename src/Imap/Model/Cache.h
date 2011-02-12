@@ -24,6 +24,7 @@
 
 #include "MailboxMetadata.h"
 #include "../Parser/Message.h"
+#include "Imap/Parser/ThreadingNode.h"
 
 /** @short Namespace for IMAP interaction */
 namespace Imap {
@@ -97,6 +98,11 @@ public:
     virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId ) const = 0;
     /** @short Save data for one message part */
     virtual void setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data ) = 0;
+
+    /** @short Return cached threading info for a given mailbox */
+    virtual QVector<Imap::Responses::ThreadingNode> messageThreading(const QString &mailbox) = 0;
+    /** @short Save information about how messages are threaded */
+    virtual void setMessageThreading(const QString &mailbox, const QVector<Imap::Responses::ThreadingNode> &threading) = 0;
 
 signals:
     /** @short Some cache error has occured */

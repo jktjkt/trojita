@@ -72,6 +72,9 @@ public:
     virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId ) const;
     virtual void setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data );
 
+    virtual QVector<Imap::Responses::ThreadingNode> messageThreading(const QString &mailbox);
+    virtual void setMessageThreading(const QString &mailbox, const QVector<Imap::Responses::ThreadingNode> &threading);
+
 private:
     bool loadData();
     bool saveData() const;
@@ -82,6 +85,8 @@ private:
     QMap<QString, QMap<uint,QStringList> > _flags;
     QMap<QString, QMap<uint, LightMessageDataBundle> > _msgMetadata;
     QMap<QString, QMap<uint, QMap<QString, QByteArray> > > _parts;
+    QMap<QString, QVector<Imap::Responses::ThreadingNode> > _threads;
+
 
     QString _fileName;
 };

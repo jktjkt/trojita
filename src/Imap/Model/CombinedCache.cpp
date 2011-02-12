@@ -139,5 +139,15 @@ void CombinedCache::setMsgPart( const QString& mailbox, uint uid, const QString&
     }
 }
 
+QVector<Imap::Responses::ThreadingNode> CombinedCache::messageThreading(const QString &mailbox)
+{
+    return _sqlCache->messageThreading(mailbox);
+}
+
+void CombinedCache::setMessageThreading(const QString &mailbox, const QVector<Imap::Responses::ThreadingNode> &threading)
+{
+    _sqlCache->setMessageThreading(mailbox, threading);
+}
+
 }
 }

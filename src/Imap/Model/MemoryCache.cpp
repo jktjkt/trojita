@@ -187,6 +187,16 @@ QByteArray MemoryCache::messagePart( const QString& mailbox, uint uid, const QSt
     return messageParts[ partId ];
 }
 
+QVector<Imap::Responses::ThreadingNode> MemoryCache::messageThreading(const QString &mailbox)
+{
+    return _threads[mailbox];
+}
+
+void MemoryCache::setMessageThreading(const QString &mailbox, const QVector<Imap::Responses::ThreadingNode> &threading)
+{
+    _threads[mailbox] = threading;
+}
+
 bool MemoryCache::loadData()
 {
     if ( ! _fileName.isEmpty() ) {
@@ -194,7 +204,7 @@ bool MemoryCache::loadData()
         if ( ! file.open( QIODevice::ReadOnly ) )
             return false;
         QDataStream stream( &file );
-        stream >> _mailboxes >> _syncState >> _seqToUid >> _flags >> _msgMetadata >> _parts;
+        stream >> _mailboxes >> _syncState >> _seqToUid >> _flags >> _msgMetadata >> _parts >> _threads;
         file.close();
         return true;
     }
@@ -208,7 +218,7 @@ bool MemoryCache::saveData() const
         if ( ! file.open( QIODevice::WriteOnly ) )
             return false;
         QDataStream stream( &file );
-        stream << _mailboxes << _syncState << _seqToUid << _flags << _msgMetadata << _parts;
+        stream << _mailboxes << _syncState << _seqToUid << _flags << _msgMetadata << _parts << _threads;
         file.close();
         return true;
     }

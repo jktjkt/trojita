@@ -105,7 +105,12 @@ bool SQLCache::open( const QString& name, const QString& fileName )
     }
 
     uint version = q.value(0).toUInt();
-    if ( version != 1 ) {
+    if ( version == 1 ) {
+        emitError(tr("The cache is using an old format of the on-disk database. Please remove file "
+                     "\"%1\" and try again. Until that file is removed, no permanent cache will be "
+                     "available.").arg(fileName));
+        return false;
+    } else if ( version != 2 ) {
         emitError( tr("Unknown version"));
         return false;
     }
@@ -130,7 +135,7 @@ bool SQLCache::_createTables()
         emitError( tr("Failed to prepare table structures"), q );
         return false;
     }
-    if ( ! q.exec( QLatin1String("INSERT INTO trojita ( version ) VALUES ( 1 )") ) ) {
+    if ( ! q.exec( QLatin1String("INSERT INTO trojita ( version ) VALUES ( 2 )") ) ) {
         emitError( tr("Can't store version info"), q );
         return false;
     }
@@ -194,6 +199,14 @@ bool SQLCache::_createTables()
                                  "PRIMARY KEY (mailbox, uid, part_id)"
                                  ")") ) ) {
         emitError( tr("Can't create table parts"), q );
+    }
+
+    if ( ! q.exec( QLatin1String("CREATE TABLE msg_threading ( "
+                                 "mailbox STRING NOT NULL PRIMARY KEY, "
+                                 "threading BINARY"
+                                 " )") ) ) {
+        emitError( tr("Can't create table msg_threading"), q );
+        return false;
     }
 
     return true;
@@ -326,6 +339,18 @@ bool SQLCache::_prepareQueries()
     querySetMessagePart = QSqlQuery(db);
     if ( ! querySetMessagePart.prepare( QLatin1String("INSERT OR REPLACE INTO parts ( mailbox, uid, part_id, data ) VALUES (?, ?, ?, ?)") ) ) {
         emitError( tr("Failed to prepare querySetMessagePart"), querySetMessagePart );
+        return false;
+    }
+
+    queryMessageThreading = QSqlQuery(db);
+    if ( ! queryMessageThreading.prepare( QLatin1String("SELECT threading FROM msg_threading WHERE mailbox = ?") ) ) {
+        emitError( tr("Failed to prepare queryMessageThreading"), queryMessageThreading );
+        return false;
+    }
+
+    querySetMessageThreading = QSqlQuery(db);
+    if ( ! querySetMessageThreading.prepare( QLatin1String("INSERT OR REPLACE INTO msg_threading (mailbox, threading) VALUES  ( ?, ? )") ) ) {
+        emitError( tr("Failed to prepare querySetMessageThreading"), querySetMessageThreading );
         return false;
     }
 
@@ -667,6 +692,38 @@ void SQLCache::setMsgPart( const QString& mailbox, uint uid, const QString& part
     if ( ! querySetMessagePart.exec() ) {
         emitError( tr("Query querySetMessagePart failed"), querySetMessagePart );
     }
+}
+
+QVector<Imap::Responses::ThreadingNode> SQLCache::messageThreading(const QString &mailbox)
+{
+    QVector<Imap::Responses::ThreadingNode> res;
+    queryMessageThreading.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
+    if ( ! queryMessageThreading.exec() ) {
+        emitError( tr("Query queryMessageThreading failed"), queryMessageThreading );
+        return res;
+    }
+    if ( queryMessageThreading.first() ) {
+        QDataStream stream( qUncompress( queryMessageThreading.value(0).toByteArray() ) );
+        stream >> res;
+    }
+    return res;
+}
+
+void SQLCache::setMessageThreading(const QString &mailbox, const QVector<Imap::Responses::ThreadingNode> &threading)
+{
+#ifdef CACHE_DEBUG
+    qDebug() << "Setting threading for" << mailbox;
+#endif
+    touchingDB();
+    querySetMessageThreading.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
+    QByteArray buf;
+    QDataStream stream( &buf, QIODevice::ReadWrite );
+    stream << threading;
+    querySetMessageThreading.bindValue( 1, qCompress( buf ) );
+    if ( ! querySetMessageThreading.exec() ) {
+        emitError( tr("Query querySetMessageThreading failed"), querySetMessageThreading );
+    }
+
 }
 
 void SQLCache::touchingDB()
