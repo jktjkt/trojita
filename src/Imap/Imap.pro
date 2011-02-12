@@ -20,6 +20,7 @@ SOURCES += Parser/Parser.cpp \
     Parser/LowLevelParser.cpp \
     Parser/Data.cpp \
     Parser/Message.cpp \
+    Parser/ThreadingNode.cpp \
     Parser/3rdparty/rfccodecs.cpp \
     Parser/3rdparty/kcodecs.cpp \
     Parser/3rdparty/qmailcodec.cpp \

@@ -22,6 +22,7 @@
 #ifndef IMAP_PARSER_THREADINGNODE
 #define IMAP_PARSER_THREADINGNODE
 
+#include <QDataStream>
 #include <QMetaType>
 #include <QVector>
 
@@ -50,13 +51,11 @@ struct ThreadingNode {
     }
 };
 
-inline bool operator==( const ThreadingNode& n1, const ThreadingNode& n2 ) {
-    return n1.num == n2.num && n1.children == n2.children;
-}
+bool operator==( const ThreadingNode& n1, const ThreadingNode& n2 );
+bool operator!=( const ThreadingNode& n1, const ThreadingNode& n2 );
 
-inline bool operator!=( const ThreadingNode& n1, const ThreadingNode& n2 ) {
-    return ! ( n1 == n2 );
-}
+QDataStream& operator>>(QDataStream& s, ThreadingNode& n);
+QDataStream& operator<<(QDataStream& s, const ThreadingNode& n);
 
 }
 }
