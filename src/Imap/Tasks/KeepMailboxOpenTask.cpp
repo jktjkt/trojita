@@ -542,6 +542,21 @@ bool KeepMailboxOpenTask::handleResponseCodeInsideState( const Imap::Responses::
         }
         break;
     }
+    case Responses::PERMANENTFLAGS:
+    // Another useless one, but we want to consume it now to prevent a warning about
+    // an unhandled message
+    {
+        TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
+        Q_ASSERT(mailbox);
+        const Responses::RespData<QStringList>* const num = dynamic_cast<const Responses::RespData<QStringList>* const>( resp->respCodeData.data() );
+        if ( num ) {
+            mailbox->syncState.setPermanentFlags( num->data );
+            return true;
+        } else {
+            throw CantHappen( "State response has invalid PERMANENTFLAGS respCodeData", *resp );
+        }
+        break;
+    }
     default:
         // Do nothing here
         break;
