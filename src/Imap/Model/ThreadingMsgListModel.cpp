@@ -432,6 +432,9 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
     }
 
     emit layoutAboutToBeChanged();
+
+    updatePersistentIndexesPhase1();
+
     _threading.clear();
     ptrToInternal.clear();
     _threading[ 0 ].ptr = static_cast<MsgListModel*>( sourceModel() )->msgList;
@@ -457,7 +460,7 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
 
     registerThreading( mapping, 0, uidToPtrCache );
 
-    updatePersistentIndexes();
+    updatePersistentIndexesPhase2();
     emit layoutChanged();
 }
 
@@ -489,22 +492,42 @@ void ThreadingMsgListModel::registerThreading( const QVector<Imap::Responses::Th
     }
 }
 
-void ThreadingMsgListModel::updatePersistentIndexes()
+void ThreadingMsgListModel::updatePersistentIndexesPhase1()
 {
-    QList<QModelIndex> updatedIndexes;
-    Q_FOREACH( const QModelIndex &oldIndex, persistentIndexList() ) {
-        QHash<uint,ThreadNodeInfo>::const_iterator it = _threading.constFind( oldIndex.internalId() );
-        if ( it == _threading.constEnd() ) {
-            updatedIndexes.append( QModelIndex() );
-        } else {
-            QHash<uint,ThreadNodeInfo>::const_iterator parentNode = _threading.constFind( it->parent );
-            Q_ASSERT(parentNode != _threading.constEnd());
-            int offset = parentNode->children.indexOf(it->internalId);
-            Q_ASSERT(offset != -1);
-            updatedIndexes.append( createIndex( offset, oldIndex.column(), it->internalId ) );
+    oldPersistentIndexes = persistentIndexList();
+    oldPtrs.clear();
+    Q_FOREACH( const QModelIndex &idx, oldPersistentIndexes ) {
+        if ( ! idx.isValid() ) {
+            oldPtrs << 0;
+            continue;
         }
+        QModelIndex translated = mapToSource(idx);
+        Q_ASSERT(translated.isValid());
+        oldPtrs << translated.internalPointer();
     }
-    changePersistentIndexList( persistentIndexList(), updatedIndexes );
+}
+
+void ThreadingMsgListModel::updatePersistentIndexesPhase2()
+{
+    Q_ASSERT(oldPersistentIndexes.size() == oldPtrs.size());
+    QList<QModelIndex> updatedIndexes;
+    for ( int i = 0; i < oldPersistentIndexes.size(); ++i ) {
+        QHash<void*,uint>::const_iterator ptrIt = ptrToInternal.constFind(oldPtrs[i]);
+        if ( ptrIt == ptrToInternal.constEnd() ) {
+            updatedIndexes.append( QModelIndex() );
+            continue;
+        }
+        QHash<uint,ThreadNodeInfo>::const_iterator it = _threading.constFind(*ptrIt);
+        Q_ASSERT(it != _threading.constEnd());
+        QHash<uint,ThreadNodeInfo>::const_iterator parentNode = _threading.constFind( it->parent );
+        Q_ASSERT(parentNode != _threading.constEnd());
+        int offset = parentNode->children.indexOf(it->internalId);
+        Q_ASSERT(offset != -1);
+        updatedIndexes.append( createIndex( offset, oldPersistentIndexes[i].column(), it->internalId ) );
+    }
+    changePersistentIndexList( oldPersistentIndexes, updatedIndexes );
+    oldPersistentIndexes.clear();
+    oldPtrs.clear();
 }
 
 QDebug operator<<(QDebug debug, const ThreadNodeInfo &node)

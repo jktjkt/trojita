@@ -100,7 +100,8 @@ private slots:
 
 private:
     /** @short Update QAbstractItemModel's idea of persistent indexes after a threading change */
-    void updatePersistentIndexes();
+    void updatePersistentIndexesPhase1();
+    void updatePersistentIndexesPhase2();
     /** @short Convert the threading from a THREAD response and apply that threading to this model */
     void registerThreading( const QVector<Imap::Responses::ThreadingNode> &mapping, uint parentId,
                             const QHash<uint,void*> &uidToPtr );
@@ -130,6 +131,9 @@ private:
     which could in turn call beginInsertRows, leading to a possible recursion.
  */
     bool modelResetInProgress;
+
+    QModelIndexList oldPersistentIndexes;
+    QList<void*> oldPtrs;
 };
 
 }
