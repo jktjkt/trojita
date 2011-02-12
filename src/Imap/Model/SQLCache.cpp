@@ -69,6 +69,15 @@ SQLCache::~SQLCache()
     db.close();
 }
 
+#define TROJITA_SQL_CACHE_CREATE_THREADING \
+if ( ! q.exec( QLatin1String("CREATE TABLE msg_threading ( " \
+                             "mailbox STRING NOT NULL PRIMARY KEY, " \
+                             "threading BINARY" \
+                             " )") ) ) { \
+    emitError( tr("Can't create table msg_threading"), q ); \
+    return false; \
+}
+
 bool SQLCache::open( const QString& name, const QString& fileName )
 {
 #ifdef CACHE_DEBUG
@@ -106,11 +115,15 @@ bool SQLCache::open( const QString& name, const QString& fileName )
 
     uint version = q.value(0).toUInt();
     if ( version == 1 ) {
-        emitError(tr("The cache is using an old format of the on-disk database. Please remove file "
-                     "\"%1\" and try again. Until that file is removed, no permanent cache will be "
-                     "available.").arg(fileName));
-        return false;
-    } else if ( version != 2 ) {
+        TROJITA_SQL_CACHE_CREATE_THREADING
+        version = 2;
+        if ( ! q.exec(QLatin1String("UPDATE trojita SET version = 2;")) ) {
+            emitError(tr("Failed to update cache DB scheme from v1 to v2"), q);
+            return false;
+        }
+    }
+
+    if ( version != 2 ) {
         emitError( tr("Unknown version"));
         return false;
     }
@@ -201,13 +214,7 @@ bool SQLCache::_createTables()
         emitError( tr("Can't create table parts"), q );
     }
 
-    if ( ! q.exec( QLatin1String("CREATE TABLE msg_threading ( "
-                                 "mailbox STRING NOT NULL PRIMARY KEY, "
-                                 "threading BINARY"
-                                 " )") ) ) {
-        emitError( tr("Can't create table msg_threading"), q );
-        return false;
-    }
+    TROJITA_SQL_CACHE_CREATE_THREADING
 
     return true;
 }
