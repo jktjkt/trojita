@@ -111,16 +111,16 @@ void ImapResponsesTest::testCompareEq_data()
     QTest::newRow( "sort-empty" ) << respPtr( new Sort( QList<uint>() ) ) << respPtr( new Sort( QList<uint>() ) );
     QTest::newRow( "sort-1" ) << respPtr( new Sort( QList<uint>() << 3 << 6 ) ) << respPtr( new Sort( QList<uint>() << 3 << 6 ) );
 
-    Thread::Node node;
+    ThreadingNode node;
     node.num = 666;
     QTest::newRow( "thread-1" ) <<
-        respPtr( new Thread( QVector<Thread::Node>() << node ) ) <<
-        respPtr( new Thread( QVector<Thread::Node>() << node ) );
-    Thread::Node node2;
-    node.children += QVector<Thread::Node>() << node2;
+        respPtr( new Thread( QVector<ThreadingNode>() << node ) ) <<
+        respPtr( new Thread( QVector<ThreadingNode>() << node ) );
+    ThreadingNode node2;
+    node.children += QVector<ThreadingNode>() << node2;
     QTest::newRow( "thread-2" ) <<
-        respPtr( new Thread( QVector<Thread::Node>() << node ) ) <<
-        respPtr( new Thread( QVector<Thread::Node>() << node ) );
+        respPtr( new Thread( QVector<ThreadingNode>() << node ) ) <<
+        respPtr( new Thread( QVector<ThreadingNode>() << node ) );
 }
 
 void ImapResponsesTest::testCompareNe_data()
@@ -242,19 +242,19 @@ void ImapResponsesTest::testCompareNe_data()
     QTest::newRow( "sort-empty-2" ) << respPtr( new Sort( QList<uint>() << 6 ) ) << respPtr( new Sort( QList<uint>() ) );
     QTest::newRow( "sort-1" ) << respPtr( new Sort( QList<uint>() << 33 << 6 ) ) << respPtr( new Sort( QList<uint>() << 3 << 6 ) );
 
-    Thread::Node node( 666  );
-    Thread::Node node2( 333 );
+    ThreadingNode node( 666  );
+    ThreadingNode node2( 333 );
     QTest::newRow( "thread-1" ) <<
-        respPtr( new Thread( QVector<Thread::Node>() ) ) <<
-        respPtr( new Thread( QVector<Thread::Node>() << node ) );
+        respPtr( new Thread( QVector<ThreadingNode>() ) ) <<
+        respPtr( new Thread( QVector<ThreadingNode>() << node ) );
     QTest::newRow( "thread-2" ) <<
-        respPtr( new Thread( QVector<Thread::Node>() << node2 ) ) <<
-        respPtr( new Thread( QVector<Thread::Node>() << node ) );
-    Thread::Node node3;
-    node.children += QVector<Thread::Node>() << node3;
+        respPtr( new Thread( QVector<ThreadingNode>() << node2 ) ) <<
+        respPtr( new Thread( QVector<ThreadingNode>() << node ) );
+    ThreadingNode node3;
+    node.children += QVector<ThreadingNode>() << node3;
     QTest::newRow( "thread-3" ) <<
-        respPtr( new Thread( QVector<Thread::Node>() << node ) ) <<
-        respPtr( new Thread( QVector<Thread::Node>() << node << node3 ) );
+        respPtr( new Thread( QVector<ThreadingNode>() << node ) ) <<
+        respPtr( new Thread( QVector<ThreadingNode>() << node << node3 ) );
 }
 
 TROJITA_HEADLESS_TEST( ImapResponsesTest )

@@ -31,6 +31,7 @@
 #include "Command.h"
 #include "../Exceptions.h"
 #include "Data.h"
+#include "ThreadingNode.h"
 
 /**
  * @file
@@ -441,35 +442,17 @@ namespace Responses {
     /** @short Structure storing a THREAD untagged response */
     class Thread : public AbstractResponse {
     public:
-        /** @short Structure for keeping track of the message hierarchy */
-        struct Node {
-            /** @short Message sequence number or UID number
-
-              Which of the two allowed numbering schemes would be used depends on
-            the command which triggered this reply, if it was plain THREAD, it
-            will use message sequence numbers, if it was an UID THREAD command,
-            it uses UIDs.
-
-            Special value 0 means "parent is present and its existence can be
-            proved, but it doesn't match the search criteria or it isn't in the
-            mailbox.
-*/
-            uint num;
-            /** @short Recursive data structure storing numbers of all messages which are children of the current one */
-            QVector<Node> children;
-            Node( const uint _num=0, const QVector<Node>& _children=QVector<Node>() ): num(_num), children(_children) {}
-        };
         /** @short List of "top-level" messages */
-        QVector<Node> rootItems;
+        QVector<ThreadingNode> rootItems;
         Thread( const QByteArray& line, int& start );
-        Thread( const QVector<Node>& items ): AbstractResponse(THREAD), rootItems(items) {}
+        Thread( const QVector<ThreadingNode>& items ): AbstractResponse(THREAD), rootItems(items) {}
         virtual QTextStream& dump( QTextStream& s ) const;
         virtual bool eq( const AbstractResponse& other ) const;
         virtual void plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const;
         virtual bool plug( Imap::Mailbox::ImapTask* task ) const;
     private:
-        void insertHere( Node* where, const QVariantList& what );
-        static QString dumpHelper( const Node& node );
+        void insertHere( ThreadingNode* where, const QVariantList& what );
+        static QString dumpHelper( const ThreadingNode& node );
     };
 
 
@@ -493,7 +476,5 @@ namespace Responses {
 }
 
 }
-
-Q_DECLARE_METATYPE(Imap::Responses::Thread::Node);
 
 #endif // IMAP_RESPONSE_H

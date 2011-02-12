@@ -329,7 +329,7 @@ authRequested() function.
     void mailboxFirstUnseenMessage( const QModelIndex &maillbox, const QModelIndex &message );
 
     void threadingAvailable( const QModelIndex &mailbox, const QString &algorithm,
-                             const QStringList &searchCriteria, const QVector<Imap::Responses::Thread::Node> &mapping );
+                             const QStringList &searchCriteria, const QVector<Imap::Responses::ThreadingNode> &mapping );
 
     void capabilitiesUpdated(const QStringList &capabilities);
 

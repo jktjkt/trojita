@@ -763,7 +763,7 @@ Sort::Sort( const QByteArray &line, int &start ): AbstractResponse(THREAD)
 
 Thread::Thread( const QByteArray &line, int &start ): AbstractResponse(THREAD)
 {
-    Node node;
+    ThreadingNode node;
     while ( start < line.size() - 2 ) {
         QVariantList current = LowLevelParser::parseList( '(', ')', line, start );
         insertHere( &node, current );
@@ -777,17 +777,17 @@ Please note that the syntax for the THREAD untagged response, as defined in
 RFC5256, is rather counter-intuitive -- items placed at the *same* level in the
 list are actually parent/child, not siblings.
  */
-void Thread::insertHere( Node* where, const QVariantList& what )
+void Thread::insertHere( ThreadingNode* where, const QVariantList& what )
 {
     bool first = true;
     for ( QVariantList::const_iterator it = what.begin(); it != what.end(); ++it ) {
         if ( it->type() == QVariant::UInt ) {
-            where->children.append( Node() );
+            where->children.append( ThreadingNode() );
             where = &( where->children.last() );
             where->num = it->toUInt();
         } else if ( it->type() == QVariant::List ) {
             if ( first ) {
-                where->children.append( Node() );
+                where->children.append( ThreadingNode() );
                 where = &( where->children.last() );
             }
             insertHere( where, it->toList() );
@@ -881,18 +881,18 @@ QTextStream& Sort::dump( QTextStream& stream ) const
 
 QTextStream& Thread::dump( QTextStream& stream ) const
 {
-    Thread::Node node;
+    ThreadingNode node;
     node.children = rootItems;
     return stream << "THREAD {parsed-into-sane-form}" << dumpHelper( node );
 }
 
-QString Thread::dumpHelper( const Node& node )
+QString Thread::dumpHelper( const ThreadingNode& node )
 {
     if ( node.children.isEmpty() ) {
         return QString::number( node.num );
     } else {
         QStringList res;
-        for ( QVector<Node>::const_iterator it = node.children.begin(); it != node.children.end(); ++it ) {
+        for ( QVector<ThreadingNode>::const_iterator it = node.children.begin(); it != node.children.end(); ++it ) {
             res << dumpHelper( *it );
         }
         return QString::fromAscii("%1: {%2}").arg( node.num ).arg( res.join(QString::fromAscii(", ") ) );
@@ -1050,11 +1050,11 @@ bool Sort::eq( const AbstractResponse& other ) const
     }
 }
 
-inline bool operator==( const Thread::Node& n1, const Thread::Node& n2 ) {
+inline bool operator==( const ThreadingNode& n1, const ThreadingNode& n2 ) {
     return n1.num == n2.num && n1.children == n2.children;
 }
 
-inline bool operator!=( const Thread::Node& n1, const Thread::Node& n2 ) {
+inline bool operator!=( const ThreadingNode& n1, const ThreadingNode& n2 ) {
     return ! ( n1 == n2 );
 }
 

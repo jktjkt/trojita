@@ -90,7 +90,7 @@ public slots:
     /** @short Feed this with the data from a THREAD response */
     void slotThreadingAvailable( const QModelIndex &mailbox, const QString &algorithm,
                                  const QStringList &searchCriteria,
-                                 const QVector<Imap::Responses::Thread::Node> &mapping );
+                                 const QVector<Imap::Responses::ThreadingNode> &mapping );
 
 private slots:
     /** @short Display messages without any threading at all, as a liner list */
@@ -102,7 +102,7 @@ private:
     /** @short Update QAbstractItemModel's idea of persistent indexes after a threading change */
     void updatePersistentIndexes();
     /** @short Convert the threading from a THREAD response and apply that threading to this model */
-    void registerThreading( const QVector<Imap::Responses::Thread::Node> &mapping, uint parentId,
+    void registerThreading( const QVector<Imap::Responses::ThreadingNode> &mapping, uint parentId,
                             const QHash<uint,void*> &uidToPtr );
 
     /** @short Check current thread for "unread messages" */

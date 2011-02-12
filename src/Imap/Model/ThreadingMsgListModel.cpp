@@ -391,14 +391,14 @@ void ThreadingMsgListModel::askForThreading()
         realModel->_taskFactory->createThreadTask( const_cast<Imap::Mailbox::Model*>(realModel),
                                                    mailboxIndex, requestedAlgorithm,
                                                    QStringList() << QLatin1String("ALL") );
-        connect( realModel, SIGNAL(threadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::Thread::Node>)),
-                 this, SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::Thread::Node>)) );
+        connect( realModel, SIGNAL(threadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::ThreadingNode>)),
+                 this, SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::ThreadingNode>)) );
     }
 }
 
 void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, const QString &algorithm,
                                                     const QStringList &searchCriteria,
-                                                    const QVector<Imap::Responses::Thread::Node> &mapping )
+                                                    const QVector<Imap::Responses::ThreadingNode> &mapping )
 {
     const Imap::Mailbox::Model *realModel;
     QModelIndex someMessage = sourceModel()->index(0,0);
@@ -422,7 +422,7 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
     }
 
     disconnect( sender(), 0, this,
-                SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::Thread::Node>)) );
+                SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::ThreadingNode>)) );
 
     if ( ! unknownUids.isEmpty() ) {
         // Some messages have UID zero, which means that they weren't loaded yet. Too bad.
@@ -461,9 +461,9 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
     emit layoutChanged();
 }
 
-void ThreadingMsgListModel::registerThreading( const QVector<Imap::Responses::Thread::Node> &mapping, uint parentId, const QHash<uint,void*> &uidToPtr )
+void ThreadingMsgListModel::registerThreading( const QVector<Imap::Responses::ThreadingNode> &mapping, uint parentId, const QHash<uint,void*> &uidToPtr )
 {
-    Q_FOREACH( const Imap::Responses::Thread::Node &node, mapping ) {
+    Q_FOREACH( const Imap::Responses::ThreadingNode &node, mapping ) {
         uint nodeId;
         if ( node.num == 0 ) {
             ThreadNodeInfo fake;

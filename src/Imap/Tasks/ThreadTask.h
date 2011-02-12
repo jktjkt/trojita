@@ -47,7 +47,7 @@ private:
     QPersistentModelIndex mailboxIndex;
     QString algorithm;
     QStringList searchCriteria;
-    QVector<Imap::Responses::Thread::Node> mapping;
+    QVector<Imap::Responses::ThreadingNode> mapping;
 };
 
 }

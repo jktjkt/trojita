@@ -70,6 +70,7 @@ HEADERS += Parser/Parser.h \
     Parser/LowLevelParser.h \
     Parser/Data.h \
     Parser/Message.h \
+    Parser/ThreadingNode.h \
     Parser/3rdparty/rfccodecs.h \
     Parser/3rdparty/kcodecs.h \
     Parser/3rdparty/qmailcodec.h \
