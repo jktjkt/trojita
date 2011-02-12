@@ -462,6 +462,7 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
 
     updatePersistentIndexesPhase2();
     emit layoutChanged();
+    realModel->cache()->setMessageThreading(mailbox.data(RoleMailboxName).toString(), mapping);
 }
 
 void ThreadingMsgListModel::registerThreading( const QVector<Imap::Responses::ThreadingNode> &mapping, uint parentId, const QHash<uint,void*> &uidToPtr )
