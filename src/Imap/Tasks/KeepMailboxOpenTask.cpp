@@ -457,6 +457,17 @@ bool KeepMailboxOpenTask::handleSearch( const Imap::Responses::Search* const res
     return true;
 }
 
+bool KeepMailboxOpenTask::handleFlags( const Imap::Responses::Flags* const resp )
+{
+    // Well, there isn't much point in keeping track of these flags, but given that
+    // IMAP servers are happy to send these responses even after the initial sync, we
+    // better handle them explicitly here.
+    TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
+    Q_ASSERT(mailbox);
+    mailbox->syncState.setFlags( resp->flags );
+    return true;
+}
+
 void KeepMailboxOpenTask::activateTasks()
 {
     if ( ! isRunning )
