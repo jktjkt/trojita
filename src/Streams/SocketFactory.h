@@ -86,15 +86,15 @@ public:
 };
 
 /** @short A fake factory suitable for unit tests */
-class FakeSocketFactory: public Imap::Mailbox::SocketFactory {
+class FakeSocketFactory: public SocketFactory {
     Q_OBJECT
 public:
     FakeSocketFactory();
-    virtual Imap::Socket* create();
+    virtual Socket* create();
     /** @short Return the last created socket */
-    Imap::Socket* lastSocket();
+    Socket* lastSocket();
 private:
-    Imap::Socket* _last;
+    Socket* _last;
 };
 
 
