@@ -50,6 +50,14 @@ struct ThreadingNode {
     }
 };
 
+inline bool operator==( const ThreadingNode& n1, const ThreadingNode& n2 ) {
+    return n1.num == n2.num && n1.children == n2.children;
+}
+
+inline bool operator!=( const ThreadingNode& n1, const ThreadingNode& n2 ) {
+    return ! ( n1 == n2 );
+}
+
 }
 }
 
