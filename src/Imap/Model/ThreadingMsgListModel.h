@@ -91,6 +91,8 @@ public slots:
     void slotThreadingAvailable( const QModelIndex &mailbox, const QString &algorithm,
                                  const QStringList &searchCriteria,
                                  const QVector<Imap::Responses::ThreadingNode> &mapping );
+    /** @short Really apply threading to this model */
+    void applyThreading(const QVector<Imap::Responses::ThreadingNode> &mapping);
 
 private slots:
     /** @short Display messages without any threading at all, as a liner list */

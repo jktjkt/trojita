@@ -424,6 +424,13 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
     disconnect( sender(), 0, this,
                 SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::ThreadingNode>)) );
 
+    applyThreading(mapping);
+
+    realModel->cache()->setMessageThreading(mailbox.data(RoleMailboxName).toString(), mapping);
+}
+
+void ThreadingMsgListModel::applyThreading(const QVector<Imap::Responses::ThreadingNode> &mapping)
+{
     if ( ! unknownUids.isEmpty() ) {
         // Some messages have UID zero, which means that they weren't loaded yet. Too bad.
         // FIXME: maybe we could re-use the response...
@@ -462,7 +469,6 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
 
     updatePersistentIndexesPhase2();
     emit layoutChanged();
-    realModel->cache()->setMessageThreading(mailbox.data(RoleMailboxName).toString(), mapping);
 }
 
 void ThreadingMsgListModel::registerThreading( const QVector<Imap::Responses::ThreadingNode> &mapping, uint parentId, const QHash<uint,void*> &uidToPtr )
