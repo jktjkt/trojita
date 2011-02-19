@@ -59,7 +59,8 @@ protected slots:
     void handleMessageCountPossiblyChanged( const QModelIndex& mailbox );
 
 private slots:
-    void resetMe();
+    void handleModelAboutToBeReset();
+    void handleModelReset();
     void handleRowsAboutToBeRemoved( const QModelIndex& parent, int first, int last );
     void handleRowsRemoved( const QModelIndex& parent, int first, int last );
     void handleRowsAboutToBeInserted( const QModelIndex& parent, int first, int last );
