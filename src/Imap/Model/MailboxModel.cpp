@@ -139,7 +139,7 @@ int MailboxModel::columnCount( const QModelIndex& parent ) const
 QModelIndex MailboxModel::mapToSource( const QModelIndex& proxyIndex ) const
 {
     int row = proxyIndex.row();
-    if ( row < 0 || proxyIndex.column() < 0 )
+    if ( row < 0 || proxyIndex.column() != 0 )
         return QModelIndex();
     ++row;
     return static_cast<Imap::Mailbox::Model*>( sourceModel() )->createIndex( row, 0, proxyIndex.internalPointer() );
@@ -159,6 +159,8 @@ QModelIndex MailboxModel::mapFromSource( const QModelIndex& sourceIndex ) const
         return QModelIndex();
     if ( row > 0 )
         --row;
+    if ( sourceIndex.column() != 0 )
+        return QModelIndex();
 
     return createIndex( row, 0, sourceIndex.internalPointer() );
 }
