@@ -216,7 +216,7 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
             qDebug() << "Warning: unhandled untagged NO...";
             break;
         default:
-            throw UnexpectedResponseReceived( "[Port-in-progress] Unhhandled untagged response, sorry", *resp );
+            throw UnexpectedResponseReceived( "[Port-in-progress] Unhandled untagged response, sorry", *resp );
         }
     }
 }
