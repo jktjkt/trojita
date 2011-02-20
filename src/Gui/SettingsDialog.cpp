@@ -74,12 +74,21 @@ SettingsDialog::SettingsDialog(): QDialog()
 void SettingsDialog::accept()
 {
     QSettings s;
+#ifndef Q_OS_WIN
+    // Try to wour around QSettings' inability to set umask for its file access. We don't want to set umask globally.
+    QFile settingsFile(s.fileName());
+    settingsFile.setPermissions(QFile::ReadUser | QFile::WriteUser);
+#endif
     identity->save( s );
     imap->save( s );
     cache->save( s );
     outgoing->save( s );
 #ifdef XTUPLE_CONNECT
     xtConnect->save( s );
+#endif
+    s.sync();
+#ifndef Q_OS_WIN
+    settingsFile.setPermissions(QFile::ReadUser | QFile::WriteUser);
 #endif
     QDialog::accept();
 }
