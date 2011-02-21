@@ -43,6 +43,13 @@ ComposeWidget::ComposeWidget(QWidget *parent) :
 {
     ui->setupUi(this);
     connect( ui->sendButton, SIGNAL(clicked()), this, SLOT(send()) );
+
+    // Ask for a fixed-width font. The problem is that these names wary acros platforms,
+    // but the following works well -- at first, we come up with a made-up name, and then
+    // let the Qt font substitution algorithm do its magic.
+    QFont font(QString::fromAscii("x-trojita-terminus-like-fixed-width"));
+    font.setStyleHint(QFont::TypeWriter);
+    ui->mailText->setFont(font);
 }
 
 ComposeWidget::~ComposeWidget()
