@@ -142,6 +142,8 @@ ImapPage::ImapPage( QWidget* parent, QSettings& s ): QScrollArea(parent), Ui_Ima
     imapHost->setText(s.value( SettingsNames::imapHostKey ).toString());
     imapPort->setText(s.value( SettingsNames::imapPortKey, QString::number(Common::PORT_IMAP) ).toString());
     imapPort->setValidator( new QIntValidator( 1, 65535, this ) );
+    passwordWarning->setStyleSheet(SettingsDialog::warningStyleSheet);
+    connect(imapPass, SIGNAL(textChanged(QString)), this, SLOT(maybeShowPasswordWarning()));
     startTls->setChecked( s.value( SettingsNames::imapStartTlsKey, true ).toBool() );
     imapUser->setText(s.value( SettingsNames::imapUserKey ).toString());
     imapPass->setText(s.value( SettingsNames::imapPassKey ).toString());
@@ -150,6 +152,7 @@ ImapPage::ImapPage( QWidget* parent, QSettings& s ): QScrollArea(parent), Ui_Ima
 
     connect( method, SIGNAL( currentIndexChanged( int ) ), this, SLOT( updateWidgets() ) );
     updateWidgets();
+    maybeShowPasswordWarning();
 }
 
 void ImapPage::resizeEvent ( QResizeEvent * event )
@@ -230,6 +233,11 @@ void ImapPage::save( QSettings& s )
     s.setValue( SettingsNames::imapUserKey, imapUser->text() );
     s.setValue( SettingsNames::imapPassKey, imapPass->text() );
     s.setValue( SettingsNames::imapStartOffline, startOffline->isChecked() );
+}
+
+void ImapPage::maybeShowPasswordWarning()
+{
+    passwordWarning->setVisible(!imapPass->text().isEmpty());
 }
 
 CachePage::CachePage( QWidget* parent, QSettings& s ): QScrollArea(parent), Ui_CachePage()

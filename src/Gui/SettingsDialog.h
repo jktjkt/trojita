@@ -91,6 +91,7 @@ private:
 
 private slots:
     void updateWidgets();
+    void maybeShowPasswordWarning();
 
 private:
     ImapPage(const ImapPage&); // don't implement
