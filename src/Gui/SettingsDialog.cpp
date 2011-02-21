@@ -228,8 +228,7 @@ void ImapPage::save( QSettings& s )
             s.setValue( SettingsNames::imapProcessKey, processPath->text() );
     }
     s.setValue( SettingsNames::imapUserKey, imapUser->text() );
-    if ( ! imapPass->text().isEmpty() )
-        s.setValue( SettingsNames::imapPassKey, imapPass->text() );
+    s.setValue( SettingsNames::imapPassKey, imapPass->text() );
     s.setValue( SettingsNames::imapStartOffline, startOffline->isChecked() );
 }
 
