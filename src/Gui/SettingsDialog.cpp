@@ -42,6 +42,10 @@
 
 namespace Gui {
 
+QString SettingsDialog::warningStyleSheet = QString::fromAscii("border: 2px solid red; background-color: #E7C575; "
+                                                               "font-weight: bold; padding: 5px; margin: 5px; "
+                                                               "text-align: center;");
+
 SettingsDialog::SettingsDialog(): QDialog()
 {
     setWindowTitle( tr("Settings") );
@@ -450,9 +454,7 @@ XtConnectPage::XtConnectPage( QWidget* parent, QSettings& s, ImapPage* imapPage 
     imapPasswordWarning = new QLabel(tr("Please fill in all IMAP options, including the password, at the IMAP page. "
                                         "If you do not save the password, background synchronization will not run."), this);
     imapPasswordWarning->setWordWrap(true);
-    imapPasswordWarning->setStyleSheet( QString::fromAscii("border: 2px solid red; background-color: #E7C575; "
-                                                           "font-weight: bold; padding: 5px; margin: 5px; "
-                                                           "text-align: center;") );
+    imapPasswordWarning->setStyleSheet( SettingsDialog::warningStyleSheet );
     layout->addRow(imapPasswordWarning);
 
     QPushButton *btn = new QPushButton( tr("Run xTuple Synchronization") );

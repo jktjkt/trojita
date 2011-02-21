@@ -151,6 +151,8 @@ class SettingsDialog : public QDialog
     Q_OBJECT
 public:
     SettingsDialog();
+
+    static QString warningStyleSheet;
 public slots:
     void accept();
 private:
