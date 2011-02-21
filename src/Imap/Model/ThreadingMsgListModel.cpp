@@ -444,10 +444,15 @@ void ThreadingMsgListModel::applyThreading(const QVector<Imap::Responses::Thread
 
     _threading.clear();
     ptrToInternal.clear();
+    // Default-construct the root node
     _threading[ 0 ].ptr = static_cast<MsgListModel*>( sourceModel() )->msgList;
 
+    // At first, initialize threading nodes for all messages which are right now available in the mailbox.
+    // We risk that we will have to delete some of them later on, but this is likely better than doing a lookup
+    // for each UID individually (remember, the THREAD response might contain UIDs in crazy order).
     int upstreamMessages = sourceModel()->rowCount();
     QHash<uint,void*> uidToPtrCache;
+    QSet<uint> usedNodes;
     for ( int i = 0; i < upstreamMessages; ++i ) {
         QModelIndex index = sourceModel()->index( i, 0 );
         ThreadNodeInfo node;
@@ -460,18 +465,36 @@ void ThreadingMsgListModel::applyThreading(const QVector<Imap::Responses::Thread
         node.ptr = static_cast<TreeItem*>( index.internalPointer() );
         uidToPtrCache[node.uid] = node.ptr;
         _threadingHelperLastId = node.internalId;
+        // We're creating a new node here
         Q_ASSERT(!_threading.contains( node.internalId ));
         _threading[ node.internalId ] = node;
         ptrToInternal[ node.ptr ] = node.internalId;
     }
 
-    registerThreading( mapping, 0, uidToPtrCache );
+    // Mark the root node as always present
+    usedNodes.insert(0);
+
+    // Set up parents and find the list of all used nodes
+    registerThreading( mapping, 0, uidToPtrCache, usedNodes );
+
+    // Now remove all messages which were not referenced in the THREAD response from our mapping
+    QHash<uint,ThreadNodeInfo>::iterator it = _threading.begin();
+    while ( it != _threading.end() ) {
+        if ( usedNodes.contains(it.key()) ) {
+            // this message should be shown
+            ++it;
+        } else {
+            // this message is not included in the list of messages actually to be shown
+            ptrToInternal.remove(it->ptr);
+            it = _threading.erase(it);
+        }
+    }
 
     updatePersistentIndexesPhase2();
     emit layoutChanged();
 }
 
-void ThreadingMsgListModel::registerThreading( const QVector<Imap::Responses::ThreadingNode> &mapping, uint parentId, const QHash<uint,void*> &uidToPtr )
+void ThreadingMsgListModel::registerThreading( const QVector<Imap::Responses::ThreadingNode> &mapping, uint parentId, const QHash<uint,void*> &uidToPtr, QSet<uint> &usedNodes )
 {
     Q_FOREACH( const Imap::Responses::ThreadingNode &node, mapping ) {
         uint nodeId;
@@ -495,7 +518,8 @@ void ThreadingMsgListModel::registerThreading( const QVector<Imap::Responses::Th
         }
         _threading[ parentId ].children.append( nodeId );
         _threading[ nodeId ].parent = parentId;
-        registerThreading( node.children, nodeId, uidToPtr );
+        usedNodes.insert(nodeId);
+        registerThreading( node.children, nodeId, uidToPtr, usedNodes );
     }
 }
 

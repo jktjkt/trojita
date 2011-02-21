@@ -106,7 +106,7 @@ private:
     void updatePersistentIndexesPhase2();
     /** @short Convert the threading from a THREAD response and apply that threading to this model */
     void registerThreading( const QVector<Imap::Responses::ThreadingNode> &mapping, uint parentId,
-                            const QHash<uint,void*> &uidToPtr );
+                            const QHash<uint,void*> &uidToPtr, QSet<uint> &usedNodes );
 
     /** @short Check current thread for "unread messages" */
     bool threadContainsUnreadMessages(const uint root) const;
