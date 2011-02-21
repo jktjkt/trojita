@@ -33,6 +33,14 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="toolTip">
+          <string>Speed up opening mailboxes by keeping a local cache of their state</string>
+         </property>
+         <property name="whatsThis">
+          <string>Speed up access to mailboxes by remembering their state between sessions.
+
+If you enable this option, Trojitá will use local storage of this device to accelerate opening mailboxes when you select them next time.</string>
+         </property>
          <property name="text">
           <string>Use persistent cache</string>
          </property>
@@ -45,6 +53,12 @@
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Don't use on-device caching</string>
+         </property>
+         <property name="whatsThis">
+          <string>If you select this option, Trojitá will not store any data related to the state of remote mailboxes on this device. This means that all messages will have to be downloaded again when you launch Trojitá next time.</string>
          </property>
          <property name="text">
           <string>Cache metadata only for session duration</string>
