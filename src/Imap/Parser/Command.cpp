@@ -49,7 +49,7 @@ namespace Commands {
         for ( int i = 0; i < str.size(); ++i ) {
             char c = str.at(i).toAscii();
 
-            if ( !isalnum(c) )
+            if ( !isalnum(c) && c != '-' && c != '_' )
                 res = QUOTED_STRING;
 
             if ( !isascii(c) || c == '\r' || c == '\n' || c == '\0' || c == '"' ) {

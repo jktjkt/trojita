@@ -128,10 +128,10 @@ void ImapModelTest::testCreationDeletionHandling()
     QVERIFY( noParseError.isEmpty() );
 
     // Try to create mailbox
-    model->createMailbox( QString::fromAscii("zzz_newlyCreated") );
+    model->createMailbox( QString::fromAscii("zzz_newly-Created") );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 CREATE \"zzz_newlyCreated\"\r\n") );
+    QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 CREATE zzz_newly-Created\r\n") );
 
     // Sane invariants
     QSignalSpy creationFailed( model, SIGNAL(mailboxCreationFailed(QString,QString)) );
@@ -149,7 +149,7 @@ void ImapModelTest::testCreationDeletionHandling()
     QCOMPARE( creationFailed.count(), 1 );
     QList<QVariant> args = creationFailed.takeFirst();
     QCOMPARE( args.size(), 2 );
-    QCOMPARE( args[0], QVariant("zzz_newlyCreated") );
+    QCOMPARE( args[0], QVariant("zzz_newly-Created") );
     QCOMPARE( args[1], QVariant("go away") );
     QCOMPARE( creationSucceded.count(), 0 );
     QCOMPARE( deletionFailed.count(), 0 );
@@ -157,26 +157,26 @@ void ImapModelTest::testCreationDeletionHandling()
     QVERIFY( noParseError.isEmpty() );
 
     // Now test its succesfull completion
-    model->createMailbox( QString::fromAscii("zzz_newlyCreated2") );
+    model->createMailbox( QString::fromAscii("zzz_newly-Created2") );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y2 CREATE \"zzz_newlyCreated2\"\r\n") );
+    QCOMPARE( SOCK->writtenStuff(), QByteArray("y2 CREATE zzz_newly-Created2\r\n") );
     SOCK->fakeReading( "y2 OK mailbox created\r\n" );
     // This one results in issuing another command -> got to make two passes through the event loop
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y3 LIST \"\" \"zzz_newlyCreated2\"\r\n") );
-    SOCK->fakeReading( "* LIST (\\HasNoChildren) \".\" zzz_newlyCreated2\r\ny3 OK x\r\n");
+    QCOMPARE( SOCK->writtenStuff(), QByteArray("y3 LIST \"\" zzz_newly-Created2\r\n") );
+    SOCK->fakeReading( "* LIST (\\HasNoChildren) \".\" zzz_newly-Created2\r\ny3 OK x\r\n");
     QCOMPARE( creationFailed.count(), 0 );
     QCOMPARE( creationSucceded.count(), 1 );
     args = creationSucceded.takeFirst();
     QCOMPARE( args.size(), 1 );
-    QCOMPARE( args[0], QVariant("zzz_newlyCreated2") );
+    QCOMPARE( args[0], QVariant("zzz_newly-Created2") );
     QCOMPARE( deletionFailed.count(), 0 );
     QCOMPARE( deletionSucceded.count(), 0 );
     QCoreApplication::processEvents();
     QModelIndex mbox_zzz = model->index( 5, 0, QModelIndex() );
-    QCOMPARE( model->data( mbox_zzz, Qt::DisplayRole ), QVariant("zzz_newlyCreated2") );
+    QCOMPARE( model->data( mbox_zzz, Qt::DisplayRole ), QVariant("zzz_newly-Created2") );
     QVERIFY( noParseError.isEmpty() );
 
 }
