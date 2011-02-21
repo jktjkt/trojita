@@ -293,6 +293,9 @@ void MainWindow::createWidgets()
 
     connect( msgListTree, SIGNAL( customContextMenuRequested( const QPoint & ) ),
             this, SLOT( showContextMenuMsgListTree( const QPoint& ) ) );
+    connect( msgListTree, SIGNAL( activated(const QModelIndex&) ), this, SLOT( msgListActivated(const QModelIndex&) ) );
+    connect( msgListTree, SIGNAL( clicked(const QModelIndex&) ), this, SLOT( msgListClicked(const QModelIndex&) ) );
+    connect( msgListTree, SIGNAL( doubleClicked( const QModelIndex& ) ), this, SLOT( msgListDoubleClicked( const QModelIndex& ) ) );
 
     msgView = new MessageView();
     area = new QScrollArea();
@@ -412,9 +415,6 @@ void MainWindow::setupModels()
     connect( msgListModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ), this, SLOT( updateMessageFlags() ) );
     connect( msgListModel, SIGNAL(messagesAvailable()), msgListTree, SLOT(scrollToBottom()) );
 
-    connect( msgListTree, SIGNAL( activated(const QModelIndex&) ), this, SLOT( msgListActivated(const QModelIndex&) ) );
-    connect( msgListTree, SIGNAL( clicked(const QModelIndex&) ), this, SLOT( msgListClicked(const QModelIndex&) ) );
-    connect( msgListTree, SIGNAL( doubleClicked( const QModelIndex& ) ), this, SLOT( msgListDoubleClicked( const QModelIndex& ) ) );
     connect( msgListModel, SIGNAL( modelAboutToBeReset() ), msgView, SLOT( setEmpty() ) );
     connect( msgListModel, SIGNAL( messageRemoved( void* ) ), msgView, SLOT( handleMessageRemoved( void* ) ) );
 
