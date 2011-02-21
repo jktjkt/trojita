@@ -91,6 +91,8 @@ public slots:
     void slotThreadingAvailable( const QModelIndex &mailbox, const QString &algorithm,
                                  const QStringList &searchCriteria,
                                  const QVector<Imap::Responses::ThreadingNode> &mapping );
+    void slotThreadingFailed(const QModelIndex &mailbox, const QString &algorithm,
+                             const QStringList &searchCriteria);
     /** @short Really apply threading to this model */
     void applyThreading(const QVector<Imap::Responses::ThreadingNode> &mapping);
 
@@ -110,6 +112,10 @@ private:
 
     /** @short Check current thread for "unread messages" */
     bool threadContainsUnreadMessages(const uint root) const;
+
+    /** @short Is this someone else's THREAD response? */
+    bool shouldIgnoreThisThreadingResponse(const QModelIndex &mailbox, const QString &algorithm,
+                                           const QStringList &searchCriteria, const Model **realModel=0);
 
     ThreadingMsgListModel& operator=( const ThreadingMsgListModel& ); // don't implement
     ThreadingMsgListModel( const ThreadingMsgListModel& ); // don't implement

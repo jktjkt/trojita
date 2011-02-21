@@ -393,40 +393,68 @@ void ThreadingMsgListModel::askForThreading()
                                                    QStringList() << QLatin1String("ALL") );
         connect( realModel, SIGNAL(threadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::ThreadingNode>)),
                  this, SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::ThreadingNode>)) );
+        connect( realModel, SIGNAL(threadingFailed(QModelIndex,QString,QStringList)), this, SLOT(slotThreadingFailed(QModelIndex,QString,QStringList)));
     }
+}
+
+bool ThreadingMsgListModel::shouldIgnoreThisThreadingResponse(const QModelIndex &mailbox, const QString &algorithm,
+                                                              const QStringList &searchCriteria, const Model **realModel)
+{
+    const Model *model;
+    QModelIndex someMessage = sourceModel()->index(0,0);
+    QModelIndex realIndex;
+    Imap::Mailbox::Model::realTreeItem( someMessage, &model, &realIndex );
+    QModelIndex mailboxIndex = realIndex.parent().parent();
+    if ( mailboxIndex != mailbox ) {
+        // this is for another mailbox
+        return true;
+    }
+
+    if ( algorithm != requestedAlgorithm ) {
+        qDebug() << "Weird, asked for threading via" << requestedAlgorithm << " but got" << algorithm <<
+                "instead -- ignoring.";
+        return true;
+    }
+
+    if ( searchCriteria.size() != 1 || searchCriteria.front() != QLatin1String("ALL") ) {
+        qDebug() << "Weird, requesting messages matching ALL, but got this instead: " << searchCriteria;
+        return true;
+    }
+
+    if (realModel)
+        *realModel = model;
+    return false;
+}
+
+void ThreadingMsgListModel::slotThreadingFailed(const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria)
+{
+    if ( shouldIgnoreThisThreadingResponse(mailbox, algorithm, searchCriteria) )
+        return;
+
+    disconnect( sender(), 0, this,
+                SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::ThreadingNode>)) );
+    disconnect( sender(), 0, this,
+                SLOT(slotThreadingFailed(QModelIndex,QString,QStringList)) );
+
+    updateNoThreading();
 }
 
 void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, const QString &algorithm,
                                                     const QStringList &searchCriteria,
                                                     const QVector<Imap::Responses::ThreadingNode> &mapping )
 {
-    const Imap::Mailbox::Model *realModel;
-    QModelIndex someMessage = sourceModel()->index(0,0);
-    QModelIndex realIndex;
-    Imap::Mailbox::Model::realTreeItem( someMessage, &realModel, &realIndex );
-    QModelIndex mailboxIndex = realIndex.parent().parent();
-    if ( mailboxIndex != mailbox ) {
-        // this is for another mailbox
+    const Model *model = 0;
+    if ( shouldIgnoreThisThreadingResponse(mailbox, algorithm, searchCriteria, &model) )
         return;
-    }
-
-    if ( algorithm != requestedAlgorithm ) {
-        qDebug() << "Weird, asked for threading via" << requestedAlgorithm << " but got" << algorithm <<
-                "instead -- ignoring.";
-        return;
-    }
-
-    if ( searchCriteria.size() != 1 || searchCriteria.front() != QLatin1String("ALL") ) {
-        qDebug() << "Weird, requesting messages matching ALL, but got this instead: " << searchCriteria;
-        return;
-    }
 
     disconnect( sender(), 0, this,
                 SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::ThreadingNode>)) );
+    disconnect( sender(), 0, this,
+                SLOT(slotThreadingFailed(QModelIndex,QString,QStringList)) );
 
     applyThreading(mapping);
 
-    realModel->cache()->setMessageThreading(mailbox.data(RoleMailboxName).toString(), mapping);
+    model->cache()->setMessageThreading(mailbox.data(RoleMailboxName).toString(), mapping);
 }
 
 void ThreadingMsgListModel::applyThreading(const QVector<Imap::Responses::ThreadingNode> &mapping)

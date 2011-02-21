@@ -56,9 +56,14 @@ bool ThreadTask::handleStateHelper( const Imap::Responses::State* const resp )
         return false;
 
     if ( resp->tag == tag ) {
-        // FIXME: we should probably care about how the command ended here...
         _completed();
-        emit model->threadingAvailable( mailboxIndex, algorithm, searchCriteria, mapping );
+        if ( resp->kind == Responses::OK ) {
+            emit model->threadingAvailable(mailboxIndex, algorithm, searchCriteria, mapping);
+        } else {
+            // FIXME: show this in the GUI
+            qDebug() << "Threading command has failed:" << resp->message;
+            emit model->threadingFailed(mailboxIndex, algorithm, searchCriteria);
+        }
         mapping.clear();
         return true;
     } else {
