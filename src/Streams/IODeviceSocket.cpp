@@ -207,7 +207,8 @@ void SslTlsSocket::handleSocketError( QAbstractSocket::SocketError err )
     QAbstractSocket* sock = qobject_cast<QAbstractSocket*>( d );
     Q_ASSERT( sock );
     delayedDisconnect->stop();
-    emit disconnected( tr( "The underlying socket is having troubles: %1" ).arg( sock->errorString() ) );
+    emit disconnected( tr( "The underlying socket is having troubles when processing connection to %1:%2: %3" ).arg(
+                          _host, QString::number(_port), sock->errorString() ) );
 }
 
 bool SslTlsSocket::isDead()
