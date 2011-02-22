@@ -227,7 +227,7 @@ QVariant TreeItemMailbox::data( Model* const model, int role )
         return list->numbersFetched() ? QVariant(res): QVariant();
     }
     case RoleMailboxItemsAreLoading:
-        return list->loading() || ! list->numbersFetched();
+        return list->loading() || ( isSelectable() && ! list->numbersFetched() );
     case RoleMailboxUidValidity:
     {
         list->fetch( model );
