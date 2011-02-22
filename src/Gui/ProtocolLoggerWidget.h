@@ -61,6 +61,7 @@ private slots:
 
 private:
     typedef enum { MSG_NONE, MSG_SENT, MSG_RECEIVED, MSG_INFO_SENT, MSG_INFO_RECEIVED } MessageType;
+    enum { SIZE_CUTOFF = 200 };
 
     class ParserLog {
     public:
