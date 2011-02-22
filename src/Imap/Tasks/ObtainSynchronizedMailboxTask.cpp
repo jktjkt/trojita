@@ -284,7 +284,7 @@ void ObtainSynchronizedMailboxTask::_syncNoNewNoDeletions( TreeItemMailbox* mail
 void ObtainSynchronizedMailboxTask::_syncOnlyDeletions( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState )
 {
     list->_numberFetchingStatus = TreeItem::LOADING;
-    list->_unreadMessageCount = 0;
+    list->_unreadMessageCount = 0; // FIXME: this case needs further attention...
     uidMap.clear();
     for ( uint i = 0; i < syncState.exists(); ++i )
         uidMap << 0;
@@ -301,7 +301,6 @@ void ObtainSynchronizedMailboxTask::_syncOnlyAdditions( TreeItemMailbox* mailbox
     // Therefore we ask only for UIDs of new messages
 
     list->_numberFetchingStatus = TreeItem::LOADING;
-    list->_unreadMessageCount = 0;
     uidSyncingMode = UID_SYNC_ONLY_NEW;
     syncUids( mailbox, oldState.uidNext() );
 }
@@ -339,7 +338,6 @@ void ObtainSynchronizedMailboxTask::syncFlags( TreeItemMailbox *mailbox )
     flagsCmd = parser->fetch( Sequence( 1, mailbox->syncState.exists() ), QStringList() << QLatin1String("FLAGS") );
     emit model->activityHappening( true );
     list->_numberFetchingStatus = TreeItem::LOADING;
-    list->_unreadMessageCount = 0;
     status = STATE_SYNCING_FLAGS;
     emit model->mailboxSyncingProgress( mailboxIndex, status );
 }
@@ -579,26 +577,8 @@ void ObtainSynchronizedMailboxTask::_finalizeUidSyncAll( TreeItemMailbox* mailbo
 
     uidMap.clear();
 
-    int unSeenCount = 0;
-    for ( QList<TreeItem*>::const_iterator it = list->_children.begin();
-          it != list->_children.end(); ++it ) {
-        TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( *it );
-        Q_ASSERT( message );
-        if ( message->_uid != 0 ) {
-            /*throw CantHappen("Port in progress: we shouldn't have to deal with syncingFlags here, sorry.");
-            message->_flags = accessParser( parser ].syncingFlags[ message->_uid );
-            if ( message->uid() )
-                cache()->setMsgFlags( mailbox->mailbox(), message->uid(), message->_flags );
-            if ( ! message->isMarkedAsRead() )
-                ++unSeenCount;
-            message->_flagsHandled = true;
-            QModelIndex index = createIndex( message->row(), 0, message );
-            emit dataChanged( index, index );*/
-        }
-    }
     list->_totalMessageCount = list->_children.size();
-    list->_unreadMessageCount = unSeenCount;
-    list->_numberFetchingStatus = TreeItem::DONE;
+
 
     // Store stuff we already have in the cache
     model->cache()->setMailboxSyncState( mailbox->mailbox(), mailbox->syncState );
@@ -642,7 +622,6 @@ void ObtainSynchronizedMailboxTask::_finalizeUidSyncOnlyNew( Model *model, TreeI
     uidMap.clear();
 
     list->_totalMessageCount = list->_children.size();
-    list->_unreadMessageCount = 0; // FIXME
     list->_numberFetchingStatus = TreeItem::DONE; // FIXME: they aren't done yet
     model->cache()->setMailboxSyncState( mailbox->mailbox(), mailbox->syncState );
     model->saveUidMap( list );
