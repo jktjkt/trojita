@@ -615,6 +615,44 @@ void ImapParserParseTest::testParseUntagged_data()
                           "(\"MESSAGE\" \"RFC822\" NIL NIL NIL \"7BIT\" 50785 NIL (\"ATTACHMENT\" NIL) NIL) "
                           "\"MIXED\" (\"BOUNDARY\" \"----=_NextPart_000_0077_01CBB179.57530990\") NIL NIL))\r\n")
             << QSharedPointer<AbstractResponse>( new Fetch( 6116, fetchData ) );
+#if 0
+            // Test data from http://thread.gmane.org/gmane.mail.squirrelmail.user/26433
+            // I just can't be bothered to actually translate this garbage into object tree...
+            // ...but we do parse it without problem :)
+            << QByteArray("* 1 FETCH (BODYSTRUCTURE "
+                          "(((\"text\" \"plain\" (\"charset\" \"US-ASCII\") NIL NIL \"7bit\" 2 1 NIL NIL "
+                          "NIL)(\"text\" \"html\" (\"charset\" \"US-ASCII\") NIL NIL \"quoted-printable\" 486 "
+                          "10 NIL NIL NIL) \"alternative\" (\"boundary\" "
+                          "\"-----------------------------1131387468\") NIL NIL)(\"message\" \"rfc822\" NIL "
+                          "NIL NIL NIL 191761 (\"Thu, 3 Nov 2005 14:19:49 EST\" \"Fwd: Fw: Fw:\" ((NIL "
+                          "NIL \"Ernestgerp12\" \"aol.com\")) NIL NIL ((NIL NIL \"BagLady1933\" "
+                          "\"aol.com\")(NIL NIL \"BOBPEGRUKS\" \"cs.com\")(NIL NIL \"bren804\" "
+                          "\"webtv.net\")(NIL NIL \"khgsk\" \"comcast.net\")(NIL NIL \"KOKOGOSIK\" "
+                          "\"COMCAST.NET\")(NIL NIL \"MAG2215\" \"aol.com\")(NIL NIL \"Mamabenc\" "
+                          "\"aol.com\")(NIL NIL \"Ifix2th\" \"aol.com\")(NIL NIL \"Ooosal\" \"aol.com\")(NIL "
+                          "NIL \"rtalalaj\" \"comcast.net\")) NIL NIL NIL \"e3.1fdeccbc.309bbcd5 <at> aol.com\") "
+                          "(((\"text\" \"plain\" (\"charset\" \"US-ASCII\") NIL NIL \"7bit\" 2 1 NIL NIL "
+                          "NIL)(\"text\" \"html\" (\"charset\" \"US-ASCII\") NIL NIL \"quoted-printable\" 486 "
+                          "10 NIL NIL NIL) \"alternative\" (\"boundary\" "
+                          "\"-----------------------------1131045588\") NIL NIL)(\"message\" \"rfc822\" NIL "
+                          "NIL NIL NIL 190153 NIL (((\"text\" \"plain\" (\"charset\" \"iso-8859-1\") NIL NIL "
+                          "\"quoted-printable\" 6584 293 NIL NIL NIL)(\"text\" \"html\" (\"charset\" "
+                          "\"iso-8859-1\") NIL NIL \"quoted-printable\" 61190 948 NIL NIL NIL) "
+                          "\"alternative\" (\"boundary\" \"----=_NextPart_001_004C_01C5E044.F95592A0\") NIL "
+                          "NIL)(\"image\" \"gif\" (\"name\" \"ATT0000712221112121.gif\") NIL NIL \"base64\" "
+                          "68496 NIL NIL NIL)(\"image\" \"gif\" (\"name\" \"ATT0001023332223232.gif\") NIL "
+                          "NIL \"base64\" 20038 NIL NIL NIL)(\"image\" \"gif\" (\"name\" "
+                          "\"image001334343.gif\") NIL NIL \"base64\" 10834 NIL NIL NIL)(\"image\" \"gif\" "
+                          "(\"name\" \"ATT0001646665545455.gif\") NIL NIL \"base64\" 7146 NIL NIL "
+                          "NIL)(\"audio\" \"mid\" (\"name\" \"ATT0001951116651516.mid\") NIL NIL \"base64\" "
+                          "12938 NIL NIL NIL) \"related\" (\"boundary\" "
+                          "\"----=_NextPart_000_004B_01C5E044.F95592A0\" \"type\" "
+                          "\"multipart/alternative\") NIL NIL) NIL NIL (\"INLINE\" NIL) NIL) \"mixed\" "
+                          "(\"boundary\" \"part2_d7.319e0427.309bbcd5_boundary\") NIL NIL) NIL NIL "
+                          "(\"INLINE\" NIL) NIL) \"mixed\" (\"boundary\" "
+                          "\"part1_d7.319e0427.30a0f44c_boundary\") NIL NIL)"
+                          " )\r\n")
+#endif
 
 }
 
