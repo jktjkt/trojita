@@ -25,6 +25,7 @@
 #include "Imap/Encoders.h"
 #include "KeepMailboxOpenTask.h"
 #include "ItemRoles.h"
+#include "DelayedPopulation.h"
 #include <QtDebug>
 
 namespace {
@@ -147,7 +148,10 @@ void TreeItemMailbox::fetch( Model* const model )
 
     if ( ! loading() ) {
         _fetchStatus = LOADING;
-        model->_askForChildrenOfMailbox( this );
+        // It's possible that we've got invoked in response to something relatively harmless like rowCount(),
+        // that's why we have to delay the call to _askForChildrenOfMailbox() until we re-enter the event
+        // loop.
+        new DelayedAskForChildrenOfMailbox(model, model->createIndex(row(), 0, this));
     }
 }
 

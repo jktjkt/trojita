@@ -41,6 +41,7 @@ SOURCES += Parser/Parser.cpp \
     Model/CombinedCache.cpp \
     Model/Utils.cpp \
     Model/TaskFactory.cpp \
+    Model/DelayedPopulation.cpp \
     Tasks/ImapTask.cpp \
     Tasks/FetchMsgPartTask.cpp \
     Tasks/FetchMsgMetadataTask.cpp \
@@ -93,6 +94,7 @@ HEADERS += Parser/Parser.h \
     Model/Cache.h \
     Model/Utils.h \
     Model/TaskFactory.h \
+    Model/DelayedPopulation.h \
     Model/CopyMoveOperation.h \
     Model/ItemRoles.h \
     Tasks/ImapTask.h \

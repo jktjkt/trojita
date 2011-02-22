@@ -50,6 +50,7 @@ class TreeItemMessage;
 class TreeItemPart;
 class MsgListModel;
 class MailboxModel;
+class DelayedAskForChildrenOfMailbox;
 
 class ImapTask;
 class KeepMailboxOpenTask;
@@ -349,6 +350,7 @@ private:
     friend class MailboxModel; // needs access to createIndex()
     friend class ThreadingMsgListModel; // needs access to _taskFactory
 
+    friend class DelayedAskForChildrenOfMailbox; // needs access to _askForChildrenOfMailbox();
     friend class IdleLauncher;
 
     friend class ImapTask;
