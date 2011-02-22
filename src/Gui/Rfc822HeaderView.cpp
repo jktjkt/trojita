@@ -46,6 +46,10 @@ Rfc822HeaderView::Rfc822HeaderView( QWidget* parent,
 
 void Rfc822HeaderView::handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight )
 {
+    if ( ! topLeft.isValid() ) {
+        // For example when reloading a top-level mailbox -> do nothing...
+        return;
+    }
     Q_UNUSED(bottomRight);
     // FIXME: verify that th dataChanged() is emitted separately for each message
     Q_ASSERT( topLeft.model() == model );
