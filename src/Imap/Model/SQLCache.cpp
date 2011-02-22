@@ -401,7 +401,6 @@ QList<MailboxMetadata> SQLCache::childMailboxes( const QString& mailbox ) const
             emitError( tr("Corrupt data when reading child items for mailbox %1, line %2").arg( mailbox, item.mailbox ) );
             return QList<MailboxMetadata>();
         }
-        item.flags = queryChildMailboxes.value(2).toStringList();
         res << item;
     }
     return res;
