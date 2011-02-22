@@ -423,24 +423,8 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
                 model->cache()->setMsgPart( mailbox(), message->uid(), it.key(), part->_data );
             changedParts.append( part );
         } else if ( it.key() == "FLAGS" ) {
-            bool wasSeen = message->isMarkedAsRead();
-            message->_flags = dynamic_cast<const Responses::RespData<QStringList>&>( *(it.value()) ).data;
+            message->setFlags(list, dynamic_cast<const Responses::RespData<QStringList>&>( *(it.value()) ).data);
             gotFlags = true;
-            if ( list->_numberFetchingStatus == DONE ) {
-                bool isSeen = message->isMarkedAsRead();
-                if ( message->_flagsHandled ) {
-                    if ( wasSeen && ! isSeen )
-                        ++list->_unreadMessageCount;
-                    else if ( ! wasSeen && isSeen )
-                        --list->_unreadMessageCount;
-                } else {
-                    // it's a new message
-                    message->_flagsHandled = true;
-                    if ( ! isSeen ) {
-                        ++list->_unreadMessageCount;
-                    }
-                }
-            }
             changedMessage = message;
         } else {
             qDebug() << "TreeItemMailbox::handleFetchResponse: unknown FETCH identifier" << it.key();
@@ -476,12 +460,10 @@ void TreeItemMailbox::handleFetchWhileSyncing( Model* const model, const Respons
             qDebug() << "Specifying UID while syncing flags in a mailbox is not too useful";
         } else if ( it.key() == "FLAGS" ) {
             TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->_children[ number ] );
-            Q_ASSERT( message );
-            Q_ASSERT( message->uid() );
-            TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( list->parent() );
-            Q_ASSERT( mailbox );
-            message->_flags = dynamic_cast<const Responses::RespData<QStringList>&>( *(it.value()) ).data;
-            model->cache()->setMsgFlags( mailbox->mailbox(), message->uid(), message->_flags );
+            Q_ASSERT(message);
+            Q_ASSERT(message->uid());
+            message->setFlags(list, dynamic_cast<const Responses::RespData<QStringList>&>( *(it.value()) ).data);
+            model->cache()->setMsgFlags(mailbox(), message->uid(), message->_flags);
         } else {
             qDebug() << "Ignoring FETCH field" << it.key() << "while syncing mailbox";
         }
@@ -871,6 +853,27 @@ uint TreeItemMessage::size( Model* const model )
 {
     fetch( model );
     return _size;
+}
+
+void TreeItemMessage::setFlags(TreeItemMsgList *list, const QStringList &flags)
+{
+    bool wasSeen = isMarkedAsRead();
+    _flags = flags;
+    if ( list->_numberFetchingStatus == DONE ) {
+        bool isSeen = isMarkedAsRead();
+        if ( _flagsHandled ) {
+            if ( wasSeen && ! isSeen )
+                ++list->_unreadMessageCount;
+            else if ( ! wasSeen && isSeen )
+                --list->_unreadMessageCount;
+        } else {
+            // it's a new message
+            _flagsHandled = true;
+            if ( ! isSeen ) {
+                ++list->_unreadMessageCount;
+            }
+        }
+    }
 }
 
 

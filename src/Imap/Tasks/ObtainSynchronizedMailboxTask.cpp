@@ -111,6 +111,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( const Imap::Responses::St
             TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ));
             Q_ASSERT( mailbox );
             notifyInterestingMessages( mailbox );
+            model->emitMessageCountChanged(mailbox);
         } else {
             // FIXME: error handling
         }

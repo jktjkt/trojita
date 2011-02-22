@@ -162,6 +162,7 @@ private:
 class TreeItemMsgList: public TreeItem {
     void operator=( const TreeItem& ); // don't implement
     friend class TreeItemMailbox;
+    friend class TreeItemMessage; // for maintaining the _unreadMessageCount
     friend class Model;
     friend class ObtainSynchronizedMailboxTask;
     friend class KeepMailboxOpenTask;
@@ -200,6 +201,8 @@ class TreeItemMessage: public TreeItem {
     int _offset;
     TreeItemPart* _partHeader;
     TreeItemPart* _partText;
+    /** @short Set FLAGS and maintain the unread message counter */
+    void setFlags(TreeItemMsgList *list, const QStringList &flags);
 public:
     TreeItemMessage( TreeItem* parent );
     ~TreeItemMessage();
