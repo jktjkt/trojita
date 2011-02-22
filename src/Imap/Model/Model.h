@@ -43,8 +43,6 @@ namespace Imap {
 /** @short Classes for handling of mailboxes and connections */
 namespace Mailbox {
 
-class Model;
-
 class TreeItem;
 class TreeItemMailbox;
 class TreeItemMsgList;
