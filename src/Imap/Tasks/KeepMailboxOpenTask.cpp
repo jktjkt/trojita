@@ -202,8 +202,6 @@ void KeepMailboxOpenTask::terminate()
 
     die();
 
-    detachFromMailbox();
-
     // Merge the lists of waiting tasks
     if ( ! waitingTasks.isEmpty() ) {
         KeepMailboxOpenTask* first = waitingTasks.takeFirst();
@@ -403,6 +401,16 @@ void KeepMailboxOpenTask::die()
         noopTimer->stop();
     if ( idleLauncher )
         idleLauncher->die();
+
+    if ( mailboxIndex.isValid() ) {
+        // Mark current mailbox as "orphaned by the housekeeping task"
+        TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
+        Q_ASSERT( mailbox );
+
+        // We're already obsolete -> don't pretend to accept new tasks
+        if ( mailbox->maintainingTask == this )
+            mailbox->maintainingTask = 0;
+    }
 }
 
 QString KeepMailboxOpenTask::debugIdentification() const
@@ -416,19 +424,6 @@ QString KeepMailboxOpenTask::debugIdentification() const
                                                        ( synchronizeConn && ! synchronizeConn->isFinished() ) ? " [syncConn unfinished]" : "",
                                                        shouldExit ? " [shouldExit]" : ""
                                                        );
-}
-
-void KeepMailboxOpenTask::detachFromMailbox()
-{
-    if ( mailboxIndex.isValid() ) {
-        // Mark current mailbox as "orphaned by the housekeeping task"
-        TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
-        Q_ASSERT( mailbox );
-
-        // We're already obsolete -> don't pretend to accept new tasks
-        if ( mailbox->maintainingTask == this )
-            mailbox->maintainingTask = 0;
-    }
 }
 
 void KeepMailboxOpenTask::stopForLogout()
