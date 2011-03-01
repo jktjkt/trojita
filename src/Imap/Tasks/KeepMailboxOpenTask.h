@@ -113,7 +113,7 @@ private:
     void terminate();
 
     /** @short Detach from the TreeItemMailbox, preventing new tasks from hitting us */
-    void detachFromMailbox( TreeItemMailbox *mailbox );
+    void detachFromMailbox();
 
     /** @short Activate the dependent tasks while also limiting the rate */
     void activateTasks();
