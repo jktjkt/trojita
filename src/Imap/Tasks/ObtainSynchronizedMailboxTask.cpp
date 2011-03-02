@@ -33,6 +33,14 @@ ObtainSynchronizedMailboxTask::ObtainSynchronizedMailboxTask( Model* _model, con
     // this is a special case, our perform() is called explicitly by KeepMailboxOpenTask
 }
 
+void ObtainSynchronizedMailboxTask::addDependentTask( ImapTask* task )
+{
+    if ( ! dependentTasks.isEmpty() ) {
+        throw CantHappen("Attempted to add another dependent task to an ObtainSynchronizedMailboxTask");
+    }
+    ImapTask::addDependentTask(task);
+}
+
 void ObtainSynchronizedMailboxTask::perform()
 {
     parser = conn->parser;

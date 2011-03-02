@@ -49,6 +49,8 @@ public:
 
     typedef enum { UID_SYNC_ALL, UID_SYNC_ONLY_NEW } UidSyncingMode;
 
+    virtual void addDependentTask( ImapTask* task );
+
     virtual QString debugIdentification() const;
 
 private:
