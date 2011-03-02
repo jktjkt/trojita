@@ -24,7 +24,7 @@
 namespace Imap {
 namespace Mailbox {
 
-/** @short Fetch metadata about a message set */
+/** @short Send a NOOP command, and be responsible for that */
 class NoopTask : public ImapTask
 {
 Q_OBJECT
