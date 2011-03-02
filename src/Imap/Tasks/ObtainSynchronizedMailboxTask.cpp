@@ -19,6 +19,7 @@
 #include "ObtainSynchronizedMailboxTask.h"
 #include <sstream>
 #include <QTimer>
+#include "KeepMailboxOpenTask.h"
 #include "MailboxTree.h"
 #include "Model.h"
 
@@ -37,6 +38,9 @@ void ObtainSynchronizedMailboxTask::addDependentTask( ImapTask* task )
 {
     if ( ! dependentTasks.isEmpty() ) {
         throw CantHappen("Attempted to add another dependent task to an ObtainSynchronizedMailboxTask");
+    }
+    if ( ! dynamic_cast<KeepMailboxOpenTask*>(task) ) {
+        throw CantHappen("Attempted to add something else than a KeepMailboxOpenTask as a dependency to ObtainSynchronizedMailboxTask");
     }
     ImapTask::addDependentTask(task);
 }
