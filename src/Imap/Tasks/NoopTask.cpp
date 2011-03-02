@@ -38,7 +38,6 @@ void NoopTask::perform()
     Q_ASSERT( parser );
     model->accessParser( parser ).activeTasks.append( this );
 
-    // we do not want to use _onlineMessageFetch because it contains UID and FLAGS
     tag = parser->noop();
     emit model->activityHappening( true );
 }
