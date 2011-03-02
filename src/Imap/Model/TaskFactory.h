@@ -43,6 +43,7 @@ class ObtainSynchronizedMailboxTask;
 class OpenConnectionTask;
 class UpdateFlagsTask;
 class ThreadTask;
+class NoopTask;
 
 class Model;
 class TreeItemMailbox;
@@ -69,6 +70,7 @@ public:
     virtual UpdateFlagsTask* createUpdateFlagsTask( Model* _model, const QModelIndexList& _messages, const QString& _flagOperation, const QString& _flags );
     virtual UpdateFlagsTask* createUpdateFlagsTask( Model* _model, CopyMoveMessagesTask* copyTask, const QList<QPersistentModelIndex>& _messages, const QString& _flagOperation, const QString& _flags );
     virtual ThreadTask* createThreadTask( Model* _model, const QModelIndex& mailbox, const QString &_algorithm, const QStringList &_searchCriteria );
+    virtual NoopTask* createNoopTask(Model* _model, ImapTask* parentTask);
 };
 
 class TestingTaskFactory: public TaskFactory

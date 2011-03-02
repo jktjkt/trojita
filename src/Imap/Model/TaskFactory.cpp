@@ -32,6 +32,7 @@
 #include "OpenConnectionTask.h"
 #include "UpdateFlagsTask.h"
 #include "ThreadTask.h"
+#include "NoopTask.h"
 #include "Imap/Parser/Parser.h"
 
 namespace Imap {
@@ -115,6 +116,11 @@ UpdateFlagsTask* TaskFactory::createUpdateFlagsTask( Model* _model, CopyMoveMess
 ThreadTask* TaskFactory::createThreadTask( Model *_model, const QModelIndex &mailbox, const QString &_algorithm, const QStringList &_searchCriteria )
 {
     return new ThreadTask( _model, mailbox, _algorithm, _searchCriteria );
+}
+
+NoopTask* TaskFactory::createNoopTask(Model* _model, ImapTask* parentTask)
+{
+    return new NoopTask(_model, parentTask);
 }
 
 

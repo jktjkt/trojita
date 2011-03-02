@@ -353,7 +353,7 @@ bool KeepMailboxOpenTask::handleFetch( const Imap::Responses::Fetch* const resp 
 
 void KeepMailboxOpenTask::slotPerformNoop()
 {
-    new NoopTask( model, this );
+    model->_taskFactory->createNoopTask(model, this);
 }
 
 bool KeepMailboxOpenTask::handleStateHelper( const Imap::Responses::State* const resp )
