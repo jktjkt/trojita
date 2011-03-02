@@ -52,11 +52,12 @@ public:
 
     virtual void perform() = 0;
 
-    /** @short Used for informing the task that it should cease from performing *any* activities immediately
+    /** @short Used for informing the task that it should cease from performing *any* activities immediately and that it will die soon
 
-This is crucial for any tasks which could perform some periodical activities involving Parser*, but
-doesn't have to be implemented for most of them.
-*/
+    This is crucial for any tasks which could perform some periodical activities involving Parser*, and should
+    also be implemented for those that want to restore the rest of the world to a reasonable and consistent state
+    before they get killed.
+    */
     virtual void die();
 
     virtual void addDependentTask( ImapTask* task );
@@ -82,9 +83,9 @@ doesn't have to be implemented for most of them.
 
     /** @short Obtain some additional information for the purpose of this task for debugging purposes
 
-The meaning of this function is to be able to tell what any given Task is supposed to do. It's useful
-especially when the Model is compiled with DEBUG_TASK_ROUTING.
-*/
+    The meaning of this function is to be able to tell what any given Task is supposed to do. It's useful
+    especially when the Model is compiled with DEBUG_TASK_ROUTING.
+    */
     virtual QString debugIdentification() const;
 
 protected:

@@ -156,6 +156,7 @@ bool ImapTask::isReadyToRun() const
 
 void ImapTask::die()
 {
+    // FIXME: shall we kill children here as well? If we don't do that, isn't that a memleak?
 }
 
 QString ImapTask::debugIdentification() const
