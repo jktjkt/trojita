@@ -22,13 +22,14 @@
 #include "KeepMailboxOpenTask.h"
 #include "MailboxTree.h"
 #include "Model.h"
+#include "UnSelectTask.h"
 
 namespace Imap {
 namespace Mailbox {
 
 ObtainSynchronizedMailboxTask::ObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex, ImapTask* parentTask ) :
     ImapTask( _model ), conn(parentTask), mailboxIndex(_mailboxIndex),
-    status(STATE_WAIT_FOR_CONN), uidSyncingMode(UID_SYNC_ALL)
+    status(STATE_WAIT_FOR_CONN), uidSyncingMode(UID_SYNC_ALL), unSelectTask(0)
 {
     // We do *not* want to add ourselves to the list of dependant tasks here;
     // this is a special case, our perform() is called explicitly by KeepMailboxOpenTask
@@ -76,6 +77,9 @@ void ObtainSynchronizedMailboxTask::perform()
 
 bool ObtainSynchronizedMailboxTask::handleStateHelper( const Imap::Responses::State* const resp )
 {
+    if ( dieIfInvalidMailbox() )
+        return true;
+
     if ( handleResponseCodeInsideState( resp ) )
         return true;
 
@@ -357,6 +361,9 @@ void ObtainSynchronizedMailboxTask::syncFlags( TreeItemMailbox *mailbox )
 
 bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState( const Imap::Responses::State* const resp )
 {
+    if ( dieIfInvalidMailbox() )
+        return true;
+
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
     Q_ASSERT(mailbox);
     bool res = false;
@@ -418,6 +425,9 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState( const Imap::R
 
 bool ObtainSynchronizedMailboxTask::handleNumberResponse( const Imap::Responses::NumberResponse* const resp )
 {
+    if ( dieIfInvalidMailbox() )
+        return true;
+
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
     Q_ASSERT(mailbox);
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList*>(mailbox->_children[0]);
@@ -443,6 +453,9 @@ bool ObtainSynchronizedMailboxTask::handleNumberResponse( const Imap::Responses:
 
 bool ObtainSynchronizedMailboxTask::handleFlags( const Imap::Responses::Flags* const resp )
 {
+    if ( dieIfInvalidMailbox() )
+        return true;
+
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
     Q_ASSERT(mailbox);
     mailbox->syncState.setFlags( resp->flags );
@@ -451,6 +464,9 @@ bool ObtainSynchronizedMailboxTask::handleFlags( const Imap::Responses::Flags* c
 
 bool ObtainSynchronizedMailboxTask::handleSearch( const Imap::Responses::Search* const resp )
 {
+    if ( dieIfInvalidMailbox() )
+        return true;
+
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
     Q_ASSERT(mailbox);
     switch ( uidSyncingMode ) {
@@ -488,6 +504,9 @@ bool ObtainSynchronizedMailboxTask::handleSearch( const Imap::Responses::Search*
 
 bool ObtainSynchronizedMailboxTask::handleFetch( const Imap::Responses::Fetch* const resp )
 {
+    if ( dieIfInvalidMailbox() )
+        return true;
+
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
     Q_ASSERT(mailbox);
     mailbox->handleFetchWhileSyncing( model, *resp );
@@ -680,6 +699,36 @@ void ObtainSynchronizedMailboxTask::notifyInterestingMessages( TreeItemMailbox *
     Q_ASSERT(listIndex.isValid());
     QModelIndex firstInterestingMessage = model->index( mailbox->syncState.unSeen(), 0, listIndex );
     emit model->mailboxFirstUnseenMessage( model->createIndex( mailbox->row(), 0, mailbox ), firstInterestingMessage );
+}
+
+bool ObtainSynchronizedMailboxTask::dieIfInvalidMailbox()
+{
+    Q_ASSERT(!unSelectTask);
+
+    if ( mailboxIndex.isValid() )
+        return false;
+
+    // OK, so we are in trouble -- our mailbox has disappeared, but the IMAP server will likely keep us busy with its
+    // status updates. This is bad, so we have to get out as fast as possible. All hands, evasive maneuvers!
+
+    unSelectTask = model->_taskFactory->createUnSelectTask(model, this);
+    connect(unSelectTask, SIGNAL(completed()), this, SLOT(slotUnSelectCompleted()));
+    unSelectTask->perform();
+
+    return true;
+}
+
+void ObtainSynchronizedMailboxTask::slotUnSelectCompleted()
+{
+    Q_ASSERT(dependentTasks.size() == 1);
+    KeepMailboxOpenTask *keepTask = dynamic_cast<KeepMailboxOpenTask*>(dependentTasks.takeFirst());
+    Q_ASSERT(keepTask);
+
+    keepTask->slotUnSelectCompleted();
+
+    // Now, just finish and signal a failure
+    _finished = true;
+    emit failed();
 }
 
 }

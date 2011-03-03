@@ -109,6 +109,9 @@ initialize synchronization now.
     void slotActivateTasks() { activateTasks(); }
     void slotFetchRequestedParts();
 
+    /** @short We're now out of that mailbox, hurray! */
+    void slotUnSelectCompleted();
+
 private:
     void terminate();
 
@@ -144,6 +147,7 @@ protected:
     CommandHandle tagIdle;
     CommandHandle newArrivalsFetch;
     friend class IdleLauncher;
+    friend class ObtainSynchronizedMailboxTask; // needs access to slotUnSelectCompleted()
     friend class ::ImapModelIdleTest;
 
     QList<uint> uidMap;

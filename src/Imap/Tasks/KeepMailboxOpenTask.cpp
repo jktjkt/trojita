@@ -559,5 +559,22 @@ bool KeepMailboxOpenTask::handleResponseCodeInsideState( const Imap::Responses::
     return false;
 }
 
+void KeepMailboxOpenTask::slotUnSelectCompleted()
+{
+    if (model->accessParser(parser).maintainingTask == this)
+        model->accessParser(parser).maintainingTask = 0;
+
+    isRunning = true;
+    shouldExit = true;
+
+    // Just got to wake them up, they won't succeed anyway
+    activateTasks();
+    slotFetchRequestedParts();
+
+    if ( dependentTasks.isEmpty() && requestedParts.isEmpty() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
+        terminate();
+    }
+}
+
 }
 }

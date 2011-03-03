@@ -27,6 +27,7 @@ namespace Imap {
 namespace Mailbox {
 
 class TreeItemMailbox;
+class UnSelectTask;
 
 /** @short Create a synchronized connection to the IMAP server
 
@@ -71,6 +72,22 @@ private:
 
     bool handleResponseCodeInsideState( const Imap::Responses::State* const resp );
 
+    /** @short Check current mailbox for validty, and take an evasive action if it disappeared
+
+      There's a problem when going online after an outage, where the underlying TreeItemMailbox could disappear.
+      This function checks the index for validity, and queues a fake "unselect" task just to make sure that
+      we get out of that mailbox as soon as possible. This task will also die() in such situation.
+
+      See issue #88 for details.
+
+      @returns true if the current response shall be consumed
+    */
+    bool dieIfInvalidMailbox();
+
+private slots:
+    /** @short We're now out of that mailbox, hurray! */
+    void slotUnSelectCompleted();
+
 private:
     ImapTask* conn;
     QPersistentModelIndex mailboxIndex;
@@ -80,6 +97,9 @@ private:
     Imap::Mailbox::MailboxSyncingProgress status;
     UidSyncingMode uidSyncingMode;
     QList<uint> uidMap;
+
+    /** @short An UNSELECT task, if active */
+    UnSelectTask *unSelectTask;
 
     friend class KeepMailboxOpenTask; // needs access to conn because it wants to re-use its parser, yay
 };
