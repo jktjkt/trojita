@@ -120,7 +120,7 @@ private:
 
 protected:
     QPersistentModelIndex mailboxIndex;
-    /** @short Future maintaining takss which are waiting for their opportunity to run */
+    /** @short Future maintaining tasks which are waiting for their opportunity to run */
     QList<KeepMailboxOpenTask*> waitingTasks;
     /** @short Regular tasks which weren't started yet */
     QList<ImapTask*> delayedTasks;
