@@ -351,6 +351,7 @@ private:
     friend class ThreadingMsgListModel; // needs access to _taskFactory
 
     friend class DelayedAskForChildrenOfMailbox; // needs access to _askForChildrenOfMailbox();
+    friend class DelayedAskForMessagesInMailbox; // needs access to _askForMessagesInMailbox();
     friend class IdleLauncher;
 
     friend class ImapTask;

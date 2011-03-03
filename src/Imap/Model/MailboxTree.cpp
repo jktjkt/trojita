@@ -575,7 +575,8 @@ void TreeItemMsgList::fetch( Model* const model )
 
     if ( ! loading() ) {
         _fetchStatus = LOADING;
-        model->_askForMessagesInMailbox( this );
+        // We can't ask right now, has to wait till the end of the event loop
+        new DelayedAskForMessagesInMailbox(model, model->createIndex(row(), 0, this));
     }
 }
 

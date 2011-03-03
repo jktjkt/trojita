@@ -71,6 +71,25 @@ private:
     bool m_topLevel;
 };
 
+/** @short Helper for filing messages into a TreeItemMsgList outside of MVC slots
+
+@see DelayedAskForChildrenOfMailbox
+*/
+class DelayedAskForMessagesInMailbox : public QObject
+{
+Q_OBJECT
+public:
+    DelayedAskForMessagesInMailbox(Model *model, const QModelIndex &list);
+private slots:
+    /** @short Call Model's _askForMessagesInMailbox() */
+    void askNow();
+private:
+    /** @short The Model */
+    Model *m_model;
+    /** @short Mailbox which wants to have its children updated */
+    QPersistentModelIndex m_list;
+};
+
 }
 
 }

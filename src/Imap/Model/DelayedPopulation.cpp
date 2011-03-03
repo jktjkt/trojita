@@ -58,6 +58,28 @@ void DelayedAskForChildrenOfMailbox::askNow()
     deleteLater();
 }
 
+
+DelayedAskForMessagesInMailbox::DelayedAskForMessagesInMailbox(Model *model, const QModelIndex &list):
+    QObject(model), m_model(model), m_list(list)
+{
+    QTimer::singleShot(0, this, SLOT(askNow()));
+}
+
+void DelayedAskForMessagesInMailbox::askNow()
+{
+    Q_ASSERT(m_model);
+    if ( ! m_list.isValid() ) {
+        qDebug() << "DelayedAskForMessages: lost mailbox";
+        deleteLater();
+        return;
+    }
+    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList*>(static_cast<TreeItem*>(m_list.internalPointer()));
+    Q_ASSERT(list);
+    m_model->_askForMessagesInMailbox(list);
+    // We're responsible for cleaning up
+    deleteLater();
+}
+
 }
 
 }
