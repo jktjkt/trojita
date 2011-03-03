@@ -40,6 +40,7 @@ GetAnyConnectionTask::GetAnyConnectionTask( Model* _model ) :
 
         if ( it->maintainingTask ) {
             // The parser already has some maintaining task associated with it
+            // We can't ignore the maintaining task, if only because of the IDLE
             newConn = it->maintainingTask;
             newConn->addDependentTask( this );
         } else {
