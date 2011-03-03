@@ -33,6 +33,7 @@
 #include "UpdateFlagsTask.h"
 #include "ThreadTask.h"
 #include "NoopTask.h"
+#include "UnSelectTask.h"
 #include "Imap/Parser/Parser.h"
 
 namespace Imap {
@@ -123,6 +124,10 @@ NoopTask* TaskFactory::createNoopTask(Model* _model, ImapTask* parentTask)
     return new NoopTask(_model, parentTask);
 }
 
+UnSelectTask* TaskFactory::createUnSelectTask(Model* _model, ImapTask* parentTask)
+{
+    return new UnSelectTask(_model, parentTask);
+}
 
 
 TestingTaskFactory::TestingTaskFactory(): TaskFactory(), fakeOpenConnectionTask(false), fakeListChildMailboxes(false)
