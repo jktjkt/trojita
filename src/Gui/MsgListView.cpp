@@ -28,9 +28,9 @@
 
 namespace Gui {
 
-MsgListView::MsgListView( QWidget* parent ): QTreeView(parent)
+MsgListView::MsgListView(QWidget* parent): QTreeView(parent)
 {
-    connect( header(), SIGNAL(geometriesChanged()), this, SLOT(slotFixSize()) );
+    connect(header(), SIGNAL(geometriesChanged()), this, SLOT(slotFixSize()));
     connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(slotExpandWholeSubtree(QModelIndex)));
     connect(header(), SIGNAL(sectionCountChanged(int,int)), this, SLOT(slotSectionCountChanged()));
     header()->setContextMenuPolicy(Qt::ActionsContextMenu);
