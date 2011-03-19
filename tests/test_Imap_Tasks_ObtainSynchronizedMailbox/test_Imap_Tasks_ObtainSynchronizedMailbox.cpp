@@ -44,6 +44,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyMinimal()
     QCOMPARE( model->rowCount( msgListA ), 0 );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
 
     // Try to feed it with absolute minimum data
@@ -57,6 +58,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyMinimal()
     Q_ASSERT( list );
     QVERIFY( list->fetched() );
     //QTest::qWait( 100 );
+    QCoreApplication::processEvents();
     QVERIFY( SOCK->writtenStuff().isEmpty() );
 
     // Now, let's try to re-sync it once again; the difference is that our cache now has "something"
@@ -101,6 +103,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
     QCOMPARE( model->rowCount( msgListA ), 0 );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
 
     // Try to feed it with absolute minimum data
@@ -118,6 +121,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
     Imap::Mailbox::TreeItemMsgList* list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( static_cast<Imap::Mailbox::TreeItem*>( msgListA.internalPointer() ) );
     Q_ASSERT( list );
     QVERIFY( list->fetched() );
+    QCoreApplication::processEvents();
     QVERIFY( SOCK->writtenStuff().isEmpty() );
 
     // Check the cache
@@ -315,6 +319,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncTwoLikeCyrus()
     QCOMPARE( model->rowCount( msgListB ), 0 );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT b\r\n") );
 
     SOCK->fakeReading( QByteArray("* 0 EXISTS\r\n"
@@ -336,10 +341,13 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncTwoLikeCyrus()
 
     QCOMPARE( model->rowCount( msgListB ), 0 );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QVERIFY( SOCK->writtenStuff().isEmpty() );
     QVERIFY( errorSpy->isEmpty() );
 
     QCOMPARE( model->rowCount( msgListA ), 0 );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
@@ -375,6 +383,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncTwoInParallel()
     QCOMPARE( model->rowCount( msgListB ), 0 );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
     SOCK->fakeReading( QByteArray("* 1 EXISTS\r\n"
                                   "* 0 RECENT\r\n"
@@ -390,6 +399,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncTwoInParallel()
     QCOMPARE( SOCK->writtenStuff(), t.mk("UID SEARCH ALL\r\n") );
     QCOMPARE( model->rowCount( msgListA ), 0 );
     QCOMPARE( model->rowCount( msgListB ), 0 );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( msgListA ), 0 );
@@ -413,6 +423,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncTwoInParallel()
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( msgListA ), 1 );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 
     QCOMPARE( SOCK->writtenStuff(), t.mk(QByteArray("UID FETCH 1 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n")) );

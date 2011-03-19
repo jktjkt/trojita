@@ -46,6 +46,7 @@ void LibMailboxSync::init()
 
     model->rowCount( QModelIndex() );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( QModelIndex() ), 3 );
     idxA = model->index( 1, 0, QModelIndex() );
     idxB = model->index( 2, 0, QModelIndex() );
@@ -53,6 +54,7 @@ void LibMailboxSync::init()
     QCOMPARE( model->data( idxB, Qt::DisplayRole ), QVariant(QString::fromAscii("b")) );
     msgListA = model->index( 0, 0, idxA );
     msgListB = model->index( 0, 0, idxB );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QVERIFY( SOCK->writtenStuff().isEmpty() );
     t.reset();
@@ -88,6 +90,7 @@ void LibMailboxSync::helperSyncAWithMessagesEmptyState()
 {
     // Ask the model to sync stuff
     QCOMPARE( model->rowCount( msgListA ), 0 );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 

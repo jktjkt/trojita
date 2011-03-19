@@ -59,6 +59,7 @@ void ImapModelListChildMailboxesTest::testSimpleListing()
     model->rowCount( QModelIndex() );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 LIST \"\" \"%\"\r\n") );
     SOCK->fakeReading( "* LIST (\\HasNoChildren) \".\" \"b\"\r\n"
                        "* LIST (\\HasChildren) \".\" \"a\"\r\n"
@@ -81,9 +82,11 @@ void ImapModelListChildMailboxesTest::testSimpleListing()
     QCOMPARE( model->rowCount( idxInbox ), 1 ); // just the "list of messages"
     QCOMPARE( model->rowCount( idxB ), 1 ); // just the "list of messages"
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray() );
     model->rowCount( idxA );
     model->rowCount( idxXyz );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 LIST \"\" \"a.%\"\r\n" "y2 LIST \"\" \"xyz.%\"\r\n") );
@@ -106,6 +109,7 @@ void ImapModelListChildMailboxesTest::testFakeListing()
     taskFactoryUnsafe->fakeListChildMailboxesMap[ QString::fromAscii("a") ] = QStringList() << QString::fromAscii("aa") << QString::fromAscii("ab");
     model->rowCount( QModelIndex() );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( QModelIndex() ), 3 );
     QModelIndex idxA = model->index( 1, 0, QModelIndex() );
     QModelIndex idxB = model->index( 2, 0, QModelIndex() );
@@ -113,6 +117,7 @@ void ImapModelListChildMailboxesTest::testFakeListing()
     QCOMPARE( model->data( idxB, Qt::DisplayRole ), QVariant(QString::fromAscii("b")) );
     model->rowCount( idxA );
     model->rowCount( idxB );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( idxA ), 3 );
     QCOMPARE( model->rowCount( idxB ), 1 );
