@@ -66,6 +66,7 @@ void ImapModelDeleteMailboxTest::_initWithOne()
     taskFactoryUnsafe->fakeListChildMailboxesMap[ QString::fromAscii("") ] = QStringList() << QString::fromAscii("a");
     model->rowCount( QModelIndex() );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( QModelIndex() ), 2 );
     QModelIndex idxA = model->index( 1, 0, QModelIndex() );
     QCOMPARE( model->data( idxA, Qt::DisplayRole ), QVariant(QString::fromAscii("a")) );
@@ -86,6 +87,7 @@ void ImapModelDeleteMailboxTest::testDeleteOne()
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( QModelIndex() ), 1 );
+    QCoreApplication::processEvents();
     QVERIFY( SOCK->writtenStuff().isEmpty() );
     QCOMPARE( deletedSpy->size(), 1 );
     QVERIFY( failedSpy->isEmpty() );
@@ -104,6 +106,7 @@ void ImapModelDeleteMailboxTest::testDeleteFail()
     QCoreApplication::processEvents();
 
     QCOMPARE( model->rowCount( QModelIndex() ), 2 );
+    QCoreApplication::processEvents();
     QVERIFY( SOCK->writtenStuff().isEmpty() );
     QCOMPARE( failedSpy->size(), 1 );
     QVERIFY( deletedSpy->isEmpty() );

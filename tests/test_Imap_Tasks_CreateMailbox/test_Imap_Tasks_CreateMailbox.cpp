@@ -70,9 +70,11 @@ void ImapModelCreateMailboxTest::_initWithOne()
     taskFactoryUnsafe->fakeListChildMailboxesMap[ QString::fromAscii("") ] = QStringList() << QString::fromAscii("a");
     model->rowCount( QModelIndex() );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( QModelIndex() ), 2 );
     QModelIndex idxA = model->index( 1, 0, QModelIndex() );
     QCOMPARE( model->data( idxA, Qt::DisplayRole ), QVariant(QString::fromAscii("a")) );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray() );
     QVERIFY( errorSpy->isEmpty() );
@@ -83,7 +85,9 @@ void ImapModelCreateMailboxTest::_initWithEmpty()
     // Init with empty set of mailboxes
     model->rowCount( QModelIndex() );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( QModelIndex() ), 1 );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray() );
     QVERIFY( errorSpy->isEmpty() );
@@ -106,6 +110,7 @@ void ImapModelCreateMailboxTest::testCreateOneMore()
             "y1 OK list\r\n") );
     QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( QModelIndex() ), 3 );
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray() );
     QCOMPARE( createdSpy->size(), 1 );
     QVERIFY( failedSpy->isEmpty() );
@@ -128,7 +133,9 @@ void ImapModelCreateMailboxTest::testCreateEmpty()
     SOCK->fakeReading( QByteArray("* LIST (\\HasNoChildren) \"^\" \"ahoj\"\r\n"
             "y1 OK list\r\n") );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( QModelIndex() ), 2 );
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray() );
     QCOMPARE( createdSpy->size(), 1 );
     QVERIFY( failedSpy->isEmpty() );
@@ -148,6 +155,7 @@ void ImapModelCreateMailboxTest::testCreateFail()
     QCoreApplication::processEvents();
 
     QCOMPARE( model->rowCount( QModelIndex() ), 1 );
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray() );
     QCOMPARE( failedSpy->size(), 1 );
     QVERIFY( createdSpy->isEmpty() );

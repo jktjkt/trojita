@@ -58,6 +58,7 @@ void ImapModelTest::cleanup()
 void ImapModelTest::testSyncMailbox()
 {
     model->rowCount( QModelIndex() );
+    QCoreApplication::processEvents();
     SOCK->fakeReading( "* PREAUTH [CAPABILITY Imap4Rev1] foo\r\n" );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
@@ -84,6 +85,7 @@ void ImapModelTest::testInboxCaseSensitivity()
 {
     mboxModel = new Imap::Mailbox::MailboxModel( this, model );
     mboxModel->rowCount( QModelIndex() );
+    QCoreApplication::processEvents();
     SOCK->fakeReading( "* PREAUTH [Capability imap4rev1] foo\r\n" );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
@@ -102,6 +104,7 @@ void ImapModelTest::testCreationDeletionHandling()
     QVERIFY( noParseError.isValid() );
     // Start the conversation
     model->rowCount( QModelIndex() );
+    QCoreApplication::processEvents();
     SOCK->fakeReading( "* PREAUTH [CAPABILITY imap4rev1] foo\r\n" );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
