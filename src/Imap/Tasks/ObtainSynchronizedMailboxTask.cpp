@@ -244,9 +244,14 @@ void ObtainSynchronizedMailboxTask::_fullMboxSync( TreeItemMailbox* mailbox, Tre
         status = STATE_DONE;
         emit model->mailboxSyncingProgress( mailboxIndex, status );
         notifyInterestingMessages( mailbox );
+        // Take care here: this call could invalidate our index (see test coverage)
         _completed();
     }
-    model->emitMessageCountChanged( mailbox );
+    // Our mailbox might have actually been invalidated by various callbacks activated above
+    if (mailboxIndex.isValid()) {
+        Q_ASSERT(mailboxIndex.internalPointer() == mailbox);
+        model->emitMessageCountChanged( mailbox );
+    }
 }
 
 void ObtainSynchronizedMailboxTask::_syncNoNewNoDeletions( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState, const QList<uint>& seqToUid )
