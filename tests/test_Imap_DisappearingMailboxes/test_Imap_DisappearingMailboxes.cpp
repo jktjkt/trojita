@@ -50,4 +50,40 @@ void ImapModelDisappearingMailboxTest::testGoingOfflineOnline()
     QCoreApplication::processEvents();
 }
 
+/** @short Simulate what happens when user goes offline with views attached
+
+This is intended to be very similar to how real application behaves, reacting to events etc.
+ */
+void ImapModelDisappearingMailboxTest::testGoingReallyOfflineOnline()
+{
+    helperSyncBNoMessages();
+
+    // Make sure the socket is present
+    QPointer<Imap::Socket> socketPtr(factory->lastSocket());
+    Q_ASSERT(!socketPtr.isNull());
+
+    model->setNetworkOffline();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+
+    QCOMPARE(SOCK->writtenStuff(), t.mk("LOGOUT\r\n"));
+    SOCK->fakeReading(QByteArray("* BYE see ya\r\n")
+                      + t.last("ok logged out\r\n"));
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+
+    // It should be gone by now
+    QVERIFY(socketPtr.isNull());
+
+    // Try a reconnect
+    t.reset();
+    model->setNetworkOnline();
+    helperInitialListing();
+    helperSyncBNoMessages();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+}
+
 TROJITA_HEADLESS_TEST( ImapModelDisappearingMailboxTest )

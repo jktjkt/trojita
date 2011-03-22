@@ -32,6 +32,7 @@ class ImapModelDisappearingMailboxTest : public LibMailboxSync
 private slots:
 
     void testGoingOfflineOnline();
+    void testGoingReallyOfflineOnline();
 private:
 };
 
