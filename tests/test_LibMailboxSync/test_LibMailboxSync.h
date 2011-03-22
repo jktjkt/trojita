@@ -61,7 +61,7 @@ protected:
     Imap::Mailbox::TestingTaskFactory* taskFactoryUnsafe;
     QSignalSpy* errorSpy;
 
-    QModelIndex idxA, idxB, msgListA, msgListB;
+    QPersistentModelIndex idxA, idxB, msgListA, msgListB;
     TagGenerator t;
     uint existsA, uidValidityA, uidNextA;
     QList<uint> uidMapA;
