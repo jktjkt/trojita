@@ -55,6 +55,7 @@ protected:
 
     virtual void helperOneFlagUpdate( const QModelIndex &message );
 
+    void helperInitialListing();
 
     Imap::Mailbox::Model* model;
     Imap::Mailbox::FakeSocketFactory* factory;

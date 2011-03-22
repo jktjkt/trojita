@@ -44,6 +44,11 @@ void LibMailboxSync::init()
     model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), taskFactory, false );
     errorSpy = new QSignalSpy( model, SIGNAL(connectionError(QString)) );
 
+    helperInitialListing();
+}
+
+void LibMailboxSync::helperInitialListing()
+{
     model->rowCount( QModelIndex() );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
