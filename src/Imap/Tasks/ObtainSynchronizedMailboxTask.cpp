@@ -142,6 +142,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( const Imap::Responses::St
 
 void ObtainSynchronizedMailboxTask::_finalizeSelect()
 {
+    Q_ASSERT(mailboxIndex.isValid());
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ));
     Q_ASSERT(mailbox);
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[ 0 ] );

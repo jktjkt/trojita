@@ -198,6 +198,7 @@ void LibMailboxSync::helperSyncBNoMessages()
     QCOMPARE( syncState.uidValidity(), 0u );
 
     // Verify that we indeed received what we wanted
+    Q_ASSERT(msgListB.isValid());
     Imap::Mailbox::TreeItemMsgList* list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( static_cast<Imap::Mailbox::TreeItem*>( msgListB.internalPointer() ) );
     Q_ASSERT( list );
     QVERIFY( list->fetched() );
