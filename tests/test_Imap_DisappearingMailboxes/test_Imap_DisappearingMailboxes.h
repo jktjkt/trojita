@@ -33,6 +33,7 @@ private slots:
 
     void testGoingOfflineOnline();
     void testGoingReallyOfflineOnline();
+    void testTrafficAfterSyncedMailboxGoesAway();
 private:
 };
 

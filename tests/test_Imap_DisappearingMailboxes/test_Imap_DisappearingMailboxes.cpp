@@ -149,4 +149,25 @@ void ImapModelDisappearingMailboxTest::testGoingReallyOfflineOnline()
     QVERIFY(SOCK->writtenStuff().isEmpty());
 }
 
+/** @short Simulate traffic into a selected mailbox whose index got invalidated
+
+This is a test for issue #124 where Trojita's KeepMailboxOpenTask assert()ed on an index getting invalidated
+while the mailbox was still selected and synced properly.
+*/
+void ImapModelDisappearingMailboxTest::testTrafficAfterSyncedMailboxGoesAway()
+{
+    existsA = 2;
+    uidValidityA = 333;
+    uidMapA << 666 << 686;
+    uidNextA = 1337;
+    helperSyncAWithMessagesEmptyState();
+    model->reloadMailboxList();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    SOCK->fakeReading(QByteArray("* 666 FETCH (FLAGS ())\r\n"));
+    // FIXME: this will assert, the KeepMailboxOpenTask hasn't been fixed yet
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+}
+
 TROJITA_HEADLESS_TEST( ImapModelDisappearingMailboxTest )
