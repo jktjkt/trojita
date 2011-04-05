@@ -56,12 +56,14 @@ This is intended to be very similar to how real application behaves, reacting to
  */
 void ImapModelDisappearingMailboxTest::testGoingReallyOfflineOnline()
 {
+    // At first, open mailbox B
     helperSyncBNoMessages();
 
     // Make sure the socket is present
     QPointer<Imap::Socket> socketPtr(factory->lastSocket());
     Q_ASSERT(!socketPtr.isNull());
 
+    // Go offline
     model->setNetworkOffline();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
@@ -76,11 +78,69 @@ void ImapModelDisappearingMailboxTest::testGoingReallyOfflineOnline()
     // It should be gone by now
     QVERIFY(socketPtr.isNull());
 
+    // So now we're offline and want to reconnect back to see if we break.
+
     // Try a reconnect
+    taskFactoryUnsafe->fakeListChildMailboxes = false;
     t.reset();
     model->setNetworkOnline();
-    helperInitialListing();
-    helperSyncBNoMessages();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    // The DelayedAskForChildrenOfMailbox::askNow runs at this point
+    QCoreApplication::processEvents();
+
+    // The trick here is that the reconnect resulted in querying a mailbox listing again
+    QCOMPARE(SOCK->writtenStuff(), t.mk("LIST \"\" \"%\"\r\n"));
+    QByteArray listResponse = QByteArray("* LIST (\\HasNoChildren) \".\" \"b\"\r\n"
+                                         "* LIST (\\HasNoChildren) \".\" \"a\"\r\n")
+                              + t.last("OK List done.\r\n");
+
+    // But before we "receive" the LIST responses, GUI could easily request syncong of mailbox B again,
+    // which is what we do here
+    QCOMPARE( model->rowCount( msgListB ), 0 );
+    model->switchToMailbox( idxB );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT b\r\n") );
+    QByteArray selectResponse =  QByteArray("* 0 exists\r\n") + t.last("ok completed\r\n");
+
+    // Nice, so we're in the middle of a SELECT. Let's confuse things a bit by finalizing the LIST now :).
+    SOCK->fakeReading(listResponse);
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+
+    // At this point, the msgListB should be invalidated
+    QVERIFY(!idxB.isValid());
+    QVERIFY(!msgListB.isValid());
+    // ... and therefore the SELECT handler should take care not to rely on it being valid
+    SOCK->fakeReading(selectResponse);
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+
+    // It should've noticed that the index is gone, and try to get out of there
+    QCOMPARE(SOCK->writtenStuff(), t.mk("UNSELECT\r\n"));
+
+    // Make sure it really ignores stuff
+    SOCK->fakeReading(QByteArray("* 666 FETCH (FLAGS ())\r\n")
+                      // and make it happy by switching away from that mailbox
+                      + t.last("OK gond from mailbox\r\n"));
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+
+    // Verify the shape of the tree now
+    QCOMPARE(model->rowCount(QModelIndex()), 3);
+    // the first one will be "list of messages"
+    idxA = model->index(1, 0, QModelIndex());
+    idxB = model->index(2, 0, QModelIndex());
+    QVERIFY(idxA.isValid());
+    QVERIFY(idxB.isValid());
+    QCOMPARE( model->data(idxA, Qt::DisplayRole), QVariant(QString::fromAscii("a")));
+    QCOMPARE( model->data(idxB, Qt::DisplayRole), QVariant(QString::fromAscii("b")));
+    msgListA = idxA.child(0, 0);
+    msgListB = idxB.child(0, 0);
+    QVERIFY(msgListA.isValid());
+    QVERIFY(msgListB.isValid());
+
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QVERIFY(SOCK->writtenStuff().isEmpty());
