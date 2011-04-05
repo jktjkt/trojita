@@ -53,7 +53,10 @@ void ImapModelDisappearingMailboxTest::testGoingOfflineOnline()
 /** @short Simulate what happens when user goes offline with views attached
 
 This is intended to be very similar to how real application behaves, reacting to events etc.
- */
+
+This is a test for issue #88 where the ObtainSynchronizedMailboxTask failed to account for the possibility
+of indexes getting invalidated while the sync is in progress.
+*/
 void ImapModelDisappearingMailboxTest::testGoingReallyOfflineOnline()
 {
     // At first, open mailbox B
