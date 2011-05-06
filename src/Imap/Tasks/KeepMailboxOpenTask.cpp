@@ -36,7 +36,7 @@ FIXME: we should eat "* OK [CLOSED] former mailbox closed", or somehow let it fa
 
 KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mailboxIndex, Parser* oldParser ) :
     ImapTask( _model ), mailboxIndex(_mailboxIndex), synchronizeConn(0), shouldExit(false), isRunning(false),
-    shouldRunNoop(false), shouldRunIdle(false), idleLauncher(0)
+    shouldRunNoop(false), shouldRunIdle(false), idleLauncher(0), unSelectTask(0)
 {
     Q_ASSERT( mailboxIndex.isValid() );
     Q_ASSERT( mailboxIndex.model() == model );
@@ -574,6 +574,20 @@ void KeepMailboxOpenTask::slotUnSelectCompleted()
     if ( dependentTasks.isEmpty() && requestedParts.isEmpty() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
         terminate();
     }
+}
+
+bool KeepMailboxOpenTask::dieIfInvalidMailbox()
+{
+    Q_ASSERT(!unSelectTask);
+    if (mailboxIndex.isValid())
+        return false;
+
+    // See ObtainSynchronizedMailboxTask::dieIfInvalidMailbox() for details
+    unSelectTask = model->_taskFactory->createUnSelectTask(model, this);
+    connect(unSelectTask, SIGNAL(completed()), this, SLOT(slotUnSelectCompleted()));
+    unSelectTask->perform();
+
+    return true;
 }
 
 }

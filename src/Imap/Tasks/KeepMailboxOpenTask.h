@@ -121,6 +121,17 @@ private:
     /** @short If there's an IDLE running, be sure to stop it */
     void breakPossibleIdle();
 
+    /** @short Check current mailbox for validity, and take an evasive action if it disappeared
+
+    This is an equivalent of ObtainSynchronizedMailboxTask::dieIfInvalidMailbox. It will check whether
+    the underlying index is still valid, and do best to detach from this mailbox if the index disappears.
+    More details about why this is needed along the fix to ObtainSynchronizedMailboxTask can be found in
+    issue #124.
+
+    @see ObtainSynchronizedMailboxTask::dieIfInvalidMailbox
+    */
+    bool dieIfInvalidMailbox();
+
 protected:
     QPersistentModelIndex mailboxIndex;
     /** @short Future maintaining tasks which are waiting for their opportunity to run */
@@ -158,6 +169,9 @@ protected:
     int limitMessagesAtOnce;
     int limitParallelFetchTasks;
     int limitActiveTasks;
+
+    /** @short An UNSELECT task, if active */
+    UnSelectTask *unSelectTask;
 };
 
 }
