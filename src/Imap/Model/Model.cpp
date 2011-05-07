@@ -663,6 +663,7 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
             item->_flags = cache()->msgFlags( mailboxPtr->mailbox(), item->uid() );
             item->_size = data.size;
             QDataStream stream( &data.serializedBodyStructure, QIODevice::ReadOnly );
+            stream.setVersion(QDataStream::Qt_4_6);
             QVariantList unserialized;
             stream >> unserialized;
             QSharedPointer<Message::AbstractMessage> abstractMessage;

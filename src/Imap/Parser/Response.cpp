@@ -654,6 +654,7 @@ Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
                 data[identifier] = Message::AbstractMessage::fromList( it->toList(), line, start );
                 QByteArray buffer;
                 QDataStream stream( &buffer, QIODevice::WriteOnly );
+                stream.setVersion(QDataStream::Qt_4_6);
                 stream << it->toList();
                 data["x-trojita-bodystructure"] = QSharedPointer<AbstractData>(
                         new RespData<QByteArray>( buffer ) );

@@ -267,6 +267,7 @@ QMimeData* MsgListModel::mimeData( const QModelIndexList& indexes ) const
     QMimeData* res = new QMimeData();
     QByteArray encodedData;
     QDataStream stream( &encodedData, QIODevice::WriteOnly );
+    stream.setVersion(QDataStream::Qt_4_6);
 
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( Model::realTreeItem(
             indexes.front() )->parent()->parent() );
