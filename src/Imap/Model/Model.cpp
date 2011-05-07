@@ -635,7 +635,7 @@ void Model::_askForNumberOfMessages( TreeItemMsgList* item )
     if ( networkPolicy() == NETWORK_OFFLINE ) {
         Imap::Mailbox::SyncState syncState = cache()->mailboxSyncState( mailboxPtr->mailbox() );
         if ( syncState.isUsableForNumbers() ) {
-            item->_unreadMessageCount = syncState.unSeen();
+            item->_unreadMessageCount = syncState.unSeenCount();
             item->_totalMessageCount = syncState.exists();
             item->_recentMessageCount = syncState.recent();
             item->_numberFetchingStatus = TreeItem::DONE;

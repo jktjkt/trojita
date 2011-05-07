@@ -40,16 +40,17 @@ struct MailboxMetadata {
 
 /** @short Class for keeping track of information from the SELECT command */
 class SyncState {
-   uint _exists, _recent, _unSeen, _uidNext, _uidValidity;
+   uint _exists, _recent, _unSeenCount, _unSeenOffset, _uidNext, _uidValidity;
    QStringList _flags, _permanentFlags;
 
-   bool _hasExists, _hasRecent, _hasUnSeen, _hasUidNext, _hasUidValidity,
+   bool _hasExists, _hasRecent, _hasUnSeenCount, _hasUnSeenOffset, _hasUidNext, _hasUidValidity,
         _hasFlags, _hasPermanentFlags;
 public:
     SyncState();
     uint exists() const;
     uint recent() const;
-    uint unSeen() const;
+    uint unSeenCount() const;
+    uint unSeenOffset() const;
     uint uidNext() const;
     uint uidValidity() const;
     QStringList flags() const;
@@ -57,7 +58,8 @@ public:
 
     void setExists( const uint exists );
     void setRecent( const uint recent );
-    void setUnSeen( const uint unSeen );
+    void setUnSeenCount( const uint unSeenCount );
+    void setUnSeenOffset( const uint unSeenOffset );
     void setUidNext( const uint uidNext );
     void setUidValidity( const uint uidValidity );
     void setFlags( const QStringList& flags );

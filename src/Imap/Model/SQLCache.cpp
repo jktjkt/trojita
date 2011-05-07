@@ -470,7 +470,7 @@ SyncState SQLCache::mailboxSyncState( const QString& mailbox ) const
         res.setRecent( queryMailboxSyncState.value(1).toUInt() );
         res.setUidNext( queryMailboxSyncState.value(2).toUInt() );
         res.setUidValidity( queryMailboxSyncState.value(3).toUInt() );
-        res.setUnSeen( queryMailboxSyncState.value(4).toUInt() );
+        res.setUnSeenCount( queryMailboxSyncState.value(4).toUInt() );
         QDataStream stream1( queryMailboxSyncState.value(5).toByteArray() );
         QStringList list;
         stream1 >> list;
@@ -496,7 +496,7 @@ void SQLCache::setMailboxSyncState( const QString& mailbox, const SyncState& sta
     querySetMailboxSyncState.bindValue( 2, state.recent() );
     querySetMailboxSyncState.bindValue( 3, state.uidNext() );
     querySetMailboxSyncState.bindValue( 4, state.uidValidity() );
-    querySetMailboxSyncState.bindValue( 5, state.unSeen() );
+    querySetMailboxSyncState.bindValue( 5, state.unSeenCount() );
     QByteArray buf1;
     QDataStream stream1( &buf1, QIODevice::ReadWrite );
     stream1 << state.flags();

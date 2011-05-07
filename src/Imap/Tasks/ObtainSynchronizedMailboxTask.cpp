@@ -378,7 +378,7 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState( const Imap::R
         {
             const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.data() );
             if ( num ) {
-                mailbox->syncState.setUnSeen( num->data );
+                mailbox->syncState.setUnSeenOffset( num->data );
                 res = true;
             } else {
                 throw CantHappen( "State response has invalid UNSEEN respCodeData", *resp );
@@ -703,7 +703,7 @@ void ObtainSynchronizedMailboxTask::notifyInterestingMessages( TreeItemMailbox *
     Q_ASSERT(list);
     QModelIndex listIndex = model->createIndex( 0, 0, list );
     Q_ASSERT(listIndex.isValid());
-    QModelIndex firstInterestingMessage = model->index( mailbox->syncState.unSeen(), 0, listIndex );
+    QModelIndex firstInterestingMessage = model->index( mailbox->syncState.unSeenOffset(), 0, listIndex );
     emit model->mailboxFirstUnseenMessage( model->createIndex( mailbox->row(), 0, mailbox ), firstInterestingMessage );
 }
 

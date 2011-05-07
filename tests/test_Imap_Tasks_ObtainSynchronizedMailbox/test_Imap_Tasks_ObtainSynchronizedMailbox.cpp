@@ -86,7 +86,8 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyMinimal()
     QCOMPARE( syncState.recent(), 0u );
     QCOMPARE( syncState.uidNext(), 0u );
     QCOMPARE( syncState.uidValidity(), 0u );
-    QCOMPARE( syncState.unSeen(), 0u );
+    QCOMPARE( syncState.unSeenCount(), 0u );
+    QCOMPARE( syncState.unSeenOffset(), 0u );
 
     // No errors
     QVERIFY( errorSpy->isEmpty() );
@@ -138,7 +139,8 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
     QCOMPARE( syncState.recent(), 0u );
     QCOMPARE( syncState.uidNext(), 3u );
     QCOMPARE( syncState.uidValidity(), 666u );
-    QCOMPARE( syncState.unSeen(), 0u );
+    QCOMPARE( syncState.unSeenCount(), 0u );
+    QCOMPARE(syncState.unSeenOffset(), 0u);
 
     // Now, let's try to re-sync it once again; the difference is that our cache now has "something"
     // and that we feed it with a rather limited set of responses

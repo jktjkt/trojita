@@ -25,8 +25,8 @@ namespace Mailbox {
 
 
 SyncState::SyncState():
-        _exists(0), _recent(0), _unSeen(0), _uidNext(0), _uidValidity(0),
-        _hasExists(false), _hasRecent(false), _hasUnSeen(false),
+        _exists(0), _recent(0), _unSeenCount(0), _unSeenOffset(0), _uidNext(0), _uidValidity(0),
+        _hasExists(false), _hasRecent(false), _hasUnSeenCount(false), _hasUnSeenOffset(false),
         _hasUidNext(false), _hasUidValidity(false), _hasFlags(false),
         _hasPermanentFlags(false)
 {
@@ -34,7 +34,7 @@ SyncState::SyncState():
 
 bool SyncState::isUsableForNumbers() const
 {
-    return _hasExists && _hasRecent && _hasUnSeen;
+    return _hasExists && _hasRecent && _hasUnSeenCount;
 }
 
 bool SyncState::isUsableForSyncing() const
@@ -108,15 +108,26 @@ void SyncState::setUidValidity( const uint uidValidity )
     _hasUidValidity = true;
 }
 
-uint SyncState::unSeen() const
+uint SyncState::unSeenCount() const
 {
-    return _unSeen;
+    return _unSeenCount;
 }
 
-void SyncState::setUnSeen( const uint unSeen )
+void SyncState::setUnSeenCount( const uint unSeen )
 {
-    _unSeen = unSeen;
-    _hasUnSeen = true;
+    _unSeenCount = unSeen;
+    _hasUnSeenCount = true;
+}
+
+uint SyncState::unSeenOffset() const
+{
+    return _unSeenOffset;
+}
+
+void SyncState::setUnSeenOffset( const uint unSeen )
+{
+    _unSeenOffset = unSeen;
+    _hasUnSeenOffset = true;
 }
 
 }
@@ -131,7 +142,8 @@ QDebug operator<<( QDebug& dbg, const Imap::Mailbox::MailboxMetadata& metadata )
 QDebug operator<<( QDebug& dbg, const Imap::Mailbox::SyncState& state )
 {
     return dbg << "UIDVALIDITY" << state.uidValidity() << "UIDNEXT" << state.uidNext() <<
-            "EXISTS" << state.exists() << "UNSEEN" << state.unSeen() <<
+            "EXISTS" << state.exists() << "UNSEEN-count" << state.unSeenCount() <<
+            "UNSEEN-offset" << state.unSeenOffset() <<
             "RECENT" << state.recent() << "PERMANENTFLAGS" << state.permanentFlags();
 }
 
@@ -145,14 +157,15 @@ QDataStream& operator>>( QDataStream& stream, Imap::Mailbox::SyncState& ss )
     stream >> i; ss.setRecent( i );
     stream >> i; ss.setUidNext( i );
     stream >> i; ss.setUidValidity( i );
-    stream >> i; ss.setUnSeen( i );
+    stream >> i; ss.setUnSeenCount( i );
+    stream >> i; ss.setUnSeenOffset(i);
     return stream;
 }
 
 QDataStream& operator<<( QDataStream& stream, const Imap::Mailbox::SyncState& ss )
 {
     return stream << ss.exists() << ss.flags() << ss.permanentFlags() <<
-            ss.recent() << ss.uidNext() << ss.uidValidity() << ss.unSeen();
+            ss.recent() << ss.uidNext() << ss.uidValidity() << ss.unSeenCount() << ss.unSeenOffset();
 }
 
 QDataStream& operator>>( QDataStream& stream, Imap::Mailbox::MailboxMetadata& mm )
