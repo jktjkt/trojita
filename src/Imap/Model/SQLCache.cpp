@@ -27,6 +27,10 @@
 
 //#define CACHE_DEBUG
 
+namespace {
+static int streamVersion = QDataStream::Qt_4_6;
+}
+
 namespace Imap {
 namespace Mailbox {
 
@@ -405,6 +409,7 @@ QList<MailboxMetadata> SQLCache::childMailboxes( const QString& mailbox ) const
         item.mailbox = queryChildMailboxes.value(0).toString();
         item.separator = queryChildMailboxes.value(1).toString();
         QDataStream stream( queryChildMailboxes.value(2).toByteArray() );
+        stream.setVersion(streamVersion);
         stream >> item.flags;
         if ( stream.status() != QDataStream::Ok ) {
             emitError( tr("Corrupt data when reading child items for mailbox %1, line %2").arg( mailbox, item.mailbox ) );
@@ -439,6 +444,7 @@ void SQLCache::setChildMailboxes( const QString& mailbox, const QList<MailboxMet
         separatorFields << item.separator;
         QByteArray buf;
         QDataStream stream( &buf, QIODevice::ReadWrite );
+        stream.setVersion(streamVersion);
         stream << item.flags;
         flagsFelds << buf;
     }
@@ -475,6 +481,7 @@ SyncState SQLCache::mailboxSyncState( const QString& mailbox ) const
     }
     if ( queryMailboxSyncState.first() ) {
         QDataStream stream(queryMailboxSyncState.value(0).toByteArray());
+        stream.setVersion(streamVersion);
         stream >> res;
     }
     // "No data present" doesn't necessarily imply a problem -- it simply might not be there yet :)
@@ -490,6 +497,7 @@ void SQLCache::setMailboxSyncState( const QString& mailbox, const SyncState& sta
     querySetMailboxSyncState.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     QByteArray buf;
     QDataStream stream(&buf, QIODevice::ReadWrite);
+    stream.setVersion(streamVersion);
     stream << state;
     querySetMailboxSyncState.bindValue(1, buf);
     if ( ! querySetMailboxSyncState.exec() ) {
@@ -508,6 +516,7 @@ QList<uint> SQLCache::uidMapping( const QString& mailbox ) const
     }
     if ( queryUidMapping.first() ) {
         QDataStream stream( qUncompress( queryUidMapping.value(0).toByteArray() ) );
+        stream.setVersion(streamVersion);
         stream >> res;
     }
     // "No data present" doesn't necessarily imply a problem -- it simply might not be there yet :)
@@ -523,6 +532,7 @@ void SQLCache::setUidMapping( const QString& mailbox, const QList<uint>& seqToUi
     querySetUidMapping.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     QByteArray buf;
     QDataStream stream( &buf, QIODevice::ReadWrite );
+    stream.setVersion(streamVersion);
     stream << seqToUid;
     querySetUidMapping.bindValue( 1, qCompress( buf ) );
     if ( ! querySetUidMapping.exec() ) {
@@ -596,6 +606,7 @@ QStringList SQLCache::msgFlags( const QString& mailbox, uint uid ) const
     }
     if ( queryMessageFlags.first() ) {
         QDataStream stream( queryMessageFlags.value(0).toByteArray() );
+        stream.setVersion(streamVersion);
         stream >> res;
     }
     // "Not found" is not an error here
@@ -612,6 +623,7 @@ void SQLCache::setMsgFlags( const QString& mailbox, uint uid, const QStringList&
     querySetMessageFlags.bindValue( 1, uid );
     QByteArray buf;
     QDataStream stream( &buf, QIODevice::ReadWrite );
+    stream.setVersion(streamVersion);
     stream << flags;
     querySetMessageFlags.bindValue( 2, buf );
     if ( ! querySetMessageFlags.exec() ) {
@@ -631,6 +643,7 @@ AbstractCache::MessageDataBundle SQLCache::messageMetadata( const QString& mailb
     if ( queryMessageMetadata.first() ) {
         res.uid = uid;
         QDataStream stream( qUncompress( queryMessageMetadata.value(0).toByteArray() ) );
+        stream.setVersion(streamVersion);
         stream >> res.envelope >> res.size >> res.serializedBodyStructure;
     }
     // "Not found" is not an error here
@@ -648,6 +661,7 @@ void SQLCache::setMessageMetadata( const QString& mailbox, uint uid, const Messa
     querySetMessageMetadata.bindValue( 1, uid );
     QByteArray buf;
     QDataStream stream( &buf, QIODevice::ReadWrite );
+    stream.setVersion(streamVersion);
     stream << metadata.envelope << metadata.size << metadata.serializedBodyStructure;
     querySetMessageMetadata.bindValue( 2, qCompress( buf ) );
     if ( ! querySetMessageMetadata.exec() ) {
@@ -697,6 +711,7 @@ QVector<Imap::Responses::ThreadingNode> SQLCache::messageThreading(const QString
     }
     if ( queryMessageThreading.first() ) {
         QDataStream stream( qUncompress( queryMessageThreading.value(0).toByteArray() ) );
+        stream.setVersion(streamVersion);
         stream >> res;
     }
     return res;
@@ -711,6 +726,7 @@ void SQLCache::setMessageThreading(const QString &mailbox, const QVector<Imap::R
     querySetMessageThreading.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     QByteArray buf;
     QDataStream stream( &buf, QIODevice::ReadWrite );
+    stream.setVersion(streamVersion);
     stream << threading;
     querySetMessageThreading.bindValue( 1, qCompress( buf ) );
     if ( ! querySetMessageThreading.exec() ) {
