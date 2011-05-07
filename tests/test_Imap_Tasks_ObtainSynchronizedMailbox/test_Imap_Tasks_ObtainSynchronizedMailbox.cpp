@@ -80,7 +80,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyMinimal()
     Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QString::fromAscii("a") );
     QCOMPARE( syncState.exists(), 0u );
     QCOMPARE( syncState.flags(), QStringList() );
-    QCOMPARE( syncState.isComplete(), false );
+    QCOMPARE( syncState.isUsableForNumbers(), false );
     QCOMPARE( syncState.isUsableForSyncing(), false );
     QCOMPARE( syncState.permanentFlags(), QStringList() );
     QCOMPARE( syncState.recent(), 0u );
@@ -130,7 +130,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
     QCOMPARE( syncState.flags(), QStringList() << QString::fromAscii("\\Answered") <<
               QString::fromAscii("\\Flagged") << QString::fromAscii("\\Deleted") <<
               QString::fromAscii("\\Seen") << QString::fromAscii("\\Draft") );
-    QCOMPARE( syncState.isComplete(), false );
+    QCOMPARE( syncState.isUsableForNumbers(), false );
     QCOMPARE( syncState.isUsableForSyncing(), true );
     QCOMPARE( syncState.permanentFlags(), QStringList() << QString::fromAscii("\\Answered") <<
               QString::fromAscii("\\Flagged") << QString::fromAscii("\\Deleted") <<
@@ -160,7 +160,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
     syncState = model->cache()->mailboxSyncState( QString::fromAscii("a") );
     QCOMPARE( syncState.exists(), 0u );
     QCOMPARE( syncState.flags(), QStringList() );
-    QCOMPARE( syncState.isComplete(), false );
+    QCOMPARE( syncState.isUsableForNumbers(), false );
     QCOMPARE( syncState.isUsableForSyncing(), false );
     QCOMPARE( syncState.permanentFlags(), QStringList() );
     QCOMPARE( syncState.recent(), 0u );

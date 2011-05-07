@@ -32,10 +32,9 @@ SyncState::SyncState():
 {
 }
 
-bool SyncState::isComplete() const
+bool SyncState::isUsableForNumbers() const
 {
-    return _hasExists && _hasFlags && _hasPermanentFlags && _hasRecent &&
-            _hasUidNext && _hasUidValidity && _hasUnSeen;
+    return _hasExists && _hasRecent && _hasUnSeen;
 }
 
 bool SyncState::isUsableForSyncing() const

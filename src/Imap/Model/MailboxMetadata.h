@@ -63,8 +63,11 @@ public:
     void setFlags( const QStringList& flags );
     void setPermanentFlags( const QStringList& permanentFlags );
 
-    /** @short Return true if all fields required by RFC3501 are filed */
-    bool isComplete() const;
+    /** @short Return true if the record contains all items needed to display message numbers
+
+      Ie. check for EXISTS, RECENT and UNSEEN.
+*/
+    bool isUsableForNumbers() const;
     /** @short Return true if all items really required for re-sync are available
 
       These fields are just UIDNEXT, UIDVALIDITY and EIXSTS. We don't care about
