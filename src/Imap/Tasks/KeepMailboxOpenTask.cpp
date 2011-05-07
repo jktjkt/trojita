@@ -26,6 +26,7 @@
 #include "Model.h"
 #include "TaskFactory.h"
 #include "NoopTask.h"
+#include "UnSelectTask.h"
 
 namespace Imap {
 namespace Mailbox {

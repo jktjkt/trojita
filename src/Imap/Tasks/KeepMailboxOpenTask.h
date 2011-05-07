@@ -35,6 +35,7 @@ class TreeItemMailbox;
 class ObtainSynchronizedMailboxTask;
 class IdleLauncher;
 class FetchMsgPartTask;
+class UnSelectTask;
 
 /** @short Maintain a connection to a mailbox
 
