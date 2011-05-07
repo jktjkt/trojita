@@ -267,6 +267,9 @@ void KeepMailboxOpenTask::resynchronizeMailbox()
 
 bool KeepMailboxOpenTask::handleNumberResponse( const Imap::Responses::NumberResponse* const resp )
 {
+    if (dieIfInvalidMailbox())
+        return true;
+
     // FIXME: add proper boundaries
     if ( ! isRunning )
         return false;
@@ -342,6 +345,9 @@ bool KeepMailboxOpenTask::handleNumberResponse( const Imap::Responses::NumberRes
 
 bool KeepMailboxOpenTask::handleFetch( const Imap::Responses::Fetch* const resp )
 {
+    if (dieIfInvalidMailbox())
+        return true;
+
     // FIXME: add proper boundaries
     if ( ! isRunning )
         return false;
@@ -359,6 +365,9 @@ void KeepMailboxOpenTask::slotPerformNoop()
 
 bool KeepMailboxOpenTask::handleStateHelper( const Imap::Responses::State* const resp )
 {
+    if (dieIfInvalidMailbox())
+        return true;
+
     if ( handleResponseCodeInsideState(resp) )
         return true;
 
@@ -435,6 +444,9 @@ void KeepMailboxOpenTask::stopForLogout()
 
 bool KeepMailboxOpenTask::handleSearch( const Imap::Responses::Search* const resp )
 {
+    if (dieIfInvalidMailbox())
+        return true;
+
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
     Q_ASSERT(mailbox);
     // Be sure there really are some new messages
@@ -455,6 +467,9 @@ bool KeepMailboxOpenTask::handleSearch( const Imap::Responses::Search* const res
 
 bool KeepMailboxOpenTask::handleFlags( const Imap::Responses::Flags* const resp )
 {
+    if (dieIfInvalidMailbox())
+        return true;
+
     // Well, there isn't much point in keeping track of these flags, but given that
     // IMAP servers are happy to send these responses even after the initial sync, we
     // better handle them explicitly here.
@@ -523,6 +538,9 @@ void KeepMailboxOpenTask::breakPossibleIdle()
 
 bool KeepMailboxOpenTask::handleResponseCodeInsideState( const Imap::Responses::State* const resp )
 {
+    if (dieIfInvalidMailbox())
+        return true;
+
     switch ( resp->respCode ) {
     case Responses::UIDNEXT:
     {
