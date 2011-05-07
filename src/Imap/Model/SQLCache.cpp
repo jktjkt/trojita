@@ -78,6 +78,15 @@ if ( ! q.exec( QLatin1String("CREATE TABLE msg_threading ( " \
     return false; \
 }
 
+#define TROJITA_SQL_CACHE_CREATE_SYNC_STATE \
+if ( ! q.exec( QLatin1String("CREATE TABLE mailbox_sync_state ( " \
+                             "mailbox STRING NOT NULL PRIMARY KEY, " \
+                             "sync_state BINARY " \
+                             " )") ) ) { \
+    emitError( tr("Can't create table mailbox_sync_state"), q ); \
+    return false; \
+}
+
 bool SQLCache::open( const QString& name, const QString& fileName )
 {
 #ifdef CACHE_DEBUG
@@ -123,7 +132,20 @@ bool SQLCache::open( const QString& name, const QString& fileName )
         }
     }
 
-    if ( version != 2 ) {
+    if (version == 2) {
+        if (!q.exec(QLatin1String("DROP TABLE mailbox_sync_state;"))) {
+            emitError(tr("Failed to drop old table mailbox_sync_state"));
+            return false;
+        }
+        TROJITA_SQL_CACHE_CREATE_SYNC_STATE;
+        version = 3;
+        if ( ! q.exec(QLatin1String("UPDATE trojita SET version = 3;")) ) {
+            emitError(tr("Failed to update cache DB scheme from v2 to v3"), q);
+            return false;
+        }
+    }
+
+    if ( version != 3 ) {
         emitError( tr("Unknown version"));
         return false;
     }
@@ -148,7 +170,7 @@ bool SQLCache::_createTables()
         emitError( tr("Failed to prepare table structures"), q );
         return false;
     }
-    if ( ! q.exec( QLatin1String("INSERT INTO trojita ( version ) VALUES ( 2 )") ) ) {
+    if ( ! q.exec( QLatin1String("INSERT INTO trojita ( version ) VALUES ( 3 )") ) ) {
         emitError( tr("Can't store version info"), q );
         return false;
     }
@@ -161,20 +183,6 @@ bool SQLCache::_createTables()
             ")"
             ) ) ) {
         emitError( tr("Can't create table child_mailboxes") );
-        return false;
-    }
-
-    if ( ! q.exec( QLatin1String("CREATE TABLE mailbox_sync_state ( "
-                                 "mailbox STRING NOT NULL PRIMARY KEY, "
-                                 "m_exists INT NOT NULL, "
-                                 "recent INT NOT NULL, "
-                                 "uidnext INT NOT NULL, "
-                                 "uidvalidity INT NOT NULL, "
-                                 "unseen INT NOT NULL, "
-                                 "flags BINARY, "
-                                 "permanentflags BINARY"
-                                 " )") ) ) {
-        emitError( tr("Can't create table mailbox_sync_state"), q );
         return false;
     }
 
@@ -214,7 +222,8 @@ bool SQLCache::_createTables()
         emitError( tr("Can't create table parts"), q );
     }
 
-    TROJITA_SQL_CACHE_CREATE_THREADING
+    TROJITA_SQL_CACHE_CREATE_THREADING;
+    TROJITA_SQL_CACHE_CREATE_SYNC_STATE;
 
     return true;
 }
@@ -246,15 +255,15 @@ bool SQLCache::_prepareQueries()
     }
 
     queryMailboxSyncState = QSqlQuery(db);
-    if ( ! queryMailboxSyncState.prepare( QLatin1String("SELECT m_exists, recent, uidnext, uidvalidity, unseen, flags, permanentflags FROM mailbox_sync_state WHERE mailbox = ?") ) ) {
+    if ( ! queryMailboxSyncState.prepare( QLatin1String("SELECT sync_state FROM mailbox_sync_state WHERE mailbox = ?") ) ) {
         emitError( tr("Failed to prepare queryMailboxSyncState"), queryMailboxSyncState );
         return false;
     }
 
     querySetMailboxSyncState = QSqlQuery(db);
     if ( ! querySetMailboxSyncState.prepare( QLatin1String("INSERT OR REPLACE INTO mailbox_sync_state "
-                                                           "( mailbox, m_exists, recent, uidnext, uidvalidity, unseen, flags, permanentflags ) "
-                                                           "VALUES ( ?, ?, ?, ?, ?, ?, ?, ? )") ) ) {
+                                                           "( mailbox, sync_state ) "
+                                                           "VALUES ( ?, ? )") ) ) {
         emitError( tr("Failed to prepare querySetMailboxSyncState"), querySetMailboxSyncState );
         return false;
     }
@@ -465,20 +474,8 @@ SyncState SQLCache::mailboxSyncState( const QString& mailbox ) const
         return res;
     }
     if ( queryMailboxSyncState.first() ) {
-        // Order of arguments: exists, recent, uidnext, uidvalidity, unseen, flags, permanentflags
-        res.setExists( queryMailboxSyncState.value(0).toUInt() );
-        res.setRecent( queryMailboxSyncState.value(1).toUInt() );
-        res.setUidNext( queryMailboxSyncState.value(2).toUInt() );
-        res.setUidValidity( queryMailboxSyncState.value(3).toUInt() );
-        res.setUnSeenCount( queryMailboxSyncState.value(4).toUInt() );
-        QDataStream stream1( queryMailboxSyncState.value(5).toByteArray() );
-        QStringList list;
-        stream1 >> list;
-        res.setFlags( list );
-        list.clear();
-        QDataStream stream2( queryMailboxSyncState.value(6).toByteArray() );
-        stream2 >> list;
-        res.setPermanentFlags( list );
+        QDataStream stream(queryMailboxSyncState.value(0).toByteArray());
+        stream >> res;
     }
     // "No data present" doesn't necessarily imply a problem -- it simply might not be there yet :)
     return res;
@@ -490,21 +487,11 @@ void SQLCache::setMailboxSyncState( const QString& mailbox, const SyncState& sta
     qDebug() << "Setting sync state for" << mailbox;
 #endif
     touchingDB();
-    // Order of arguments: mailbox, exists, recent, uidnext, uidvalidity, unseen, flags, permanentflags
     querySetMailboxSyncState.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
-    querySetMailboxSyncState.bindValue( 1, state.exists() );
-    querySetMailboxSyncState.bindValue( 2, state.recent() );
-    querySetMailboxSyncState.bindValue( 3, state.uidNext() );
-    querySetMailboxSyncState.bindValue( 4, state.uidValidity() );
-    querySetMailboxSyncState.bindValue( 5, state.unSeenCount() );
-    QByteArray buf1;
-    QDataStream stream1( &buf1, QIODevice::ReadWrite );
-    stream1 << state.flags();
-    querySetMailboxSyncState.bindValue( 6, buf1 );
-    QByteArray buf2;
-    QDataStream stream2( &buf2, QIODevice::ReadWrite );
-    stream2 << state.permanentFlags();
-    querySetMailboxSyncState.bindValue( 7, buf2 );
+    QByteArray buf;
+    QDataStream stream(&buf, QIODevice::ReadWrite);
+    stream << state;
+    querySetMailboxSyncState.bindValue(1, buf);
     if ( ! querySetMailboxSyncState.exec() ) {
         emitError( tr("Query querySetMailboxSyncState failed"), querySetMailboxSyncState );
         return;
