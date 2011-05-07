@@ -651,6 +651,7 @@ void Model::_askForNumberOfMessages( TreeItemMsgList* item )
 void Model::_askForMsgMetadata( TreeItemMessage* item )
 {
     Q_ASSERT(item->uid());
+    Q_ASSERT(!item->fetched());
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( item->parent() );
     Q_ASSERT( list );
     TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( list->parent() );
@@ -681,10 +682,11 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
                     Q_ASSERT( oldChildren.size() == 0 );
                 } else {
                     QModelIndex messageIdx = createIndex( item->row(), 0, item );
-                    beginRemoveRows( messageIdx, 0, item->_children.size() - 1 );
-                    QList<TreeItem*> oldChildren = item->setChildren( newChildren );
-                    endRemoveRows();
-                    qDeleteAll( oldChildren );
+                    // The following assert guards against that crazy signal emitting we had when various _askFor*()
+                    // functions were not delayed. If it gets hit, it means that someone tried to call this function
+                    // on an item which was already loaded.
+                    Q_ASSERT(item->_children.isEmpty());
+                    item->setChildren(newChildren);
                 }
                 item->_fetchStatus = TreeItem::DONE;
             }
