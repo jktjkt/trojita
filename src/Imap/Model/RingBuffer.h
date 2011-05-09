@@ -117,6 +117,7 @@ public:
     {
         buf_ = QVector<T>(buf_.size());
         wrapped_ = false;
+        appendPos_ = 0;
     }
 
 private:
