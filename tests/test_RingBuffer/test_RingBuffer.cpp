@@ -34,6 +34,7 @@ void RingBufferTest::testOne()
 {
     QFETCH(int, size);
     QFETCH(QVector<int>, sourceData);
+    QFETCH(QVector<int>, expectedData);
     RingBuffer<int> rb(size);
     Q_FOREACH(const int item, sourceData) {
         rb.append(item);
@@ -44,10 +45,10 @@ void RingBufferTest::testOne()
     }
 
     // Correct amount of data received?
-    QCOMPARE(output.size(), sourceData.size());
+    QCOMPARE(output.size(), expectedData.size());
 
     // Correct data?
-    QCOMPARE(sourceData, output);
+    QCOMPARE(expectedData, output);
 
     // Try to nuke them
     rb.clear();
@@ -60,25 +61,26 @@ void RingBufferTest::testOne_data()
 {
     QTest::addColumn<int>("size");
     QTest::addColumn<QVector<int> >("sourceData");
+    QTest::addColumn<QVector<int> >("expectedData");
 
     QVector<int> data;
-    QTest::newRow("empty") << 5 << data;
+    QTest::newRow("empty") << 5 << data << data;
 
     data.clear();
     data << 333;
-    QTest::newRow("one-value") << 5 << data;
+    QTest::newRow("one-value") << 5 << data << data;
 
     data.clear();
     data << 333 << 666;
-    QTest::newRow("two-values") << 5 << data;
+    QTest::newRow("two-values") << 5 << data << data;
 
     data.clear();
     data << 333 << 666 << 7;
-    QTest::newRow("three-values") << 5 << data;
+    QTest::newRow("three-values") << 5 << data << data;
 
     data.clear();
     data << 333 << 666 << 7 << 15;
-    QTest::newRow("four-values") << 5 << data;
+    QTest::newRow("four-values") << 5 << data << data;
 
     /*data.clear();
     data << 333 << 666 << 7 << 15 << 9;
