@@ -29,6 +29,7 @@ class RingBufferTest : public QObject
   Q_OBJECT
 private Q_SLOTS:
     void testOne();
+    void testOne_data();
 };
 
 #endif

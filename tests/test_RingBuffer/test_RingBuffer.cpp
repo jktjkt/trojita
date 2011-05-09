@@ -20,6 +20,7 @@
 */
 
 #include <QDebug>
+#include <QMetaType>
 #include <QTest>
 #include "test_RingBuffer.h"
 #include "../headless_test.h"
@@ -27,13 +28,69 @@
 
 using namespace Imap;
 
+Q_DECLARE_METATYPE(QVector<int>);
+
 void RingBufferTest::testOne()
 {
-    typedef RingBuffer<int>::const_iterator It;
-    RingBuffer<int> rb(5);
-    rb.append(3);
-    for(It it = rb.begin(); it != rb.end(); ++it) {
+    QFETCH(int, size);
+    QFETCH(QVector<int>, sourceData);
+    RingBuffer<int> rb(size);
+    Q_FOREACH(const int item, sourceData) {
+        rb.append(item);
     }
+    QVector<int> output1, output2;
+    for (RingBuffer<int>::const_iterator it = rb.begin(); it != rb.end(); ++it) {
+        output1 << *it;
+    }
+
+    // Correct amount of data received?
+    QCOMPARE(output1.size(), sourceData.size());
+
+    // Correct data?
+    QCOMPARE(sourceData, output1);
+
+    // Now try to do it once again
+    for (RingBuffer<int>::const_iterator it = rb.begin(); it != rb.end(); ++it) {
+        output2 << *it;
+    }
+
+    // Do we get the same data?
+    QCOMPARE(output1, output2);
+
+    // Try to nuke them
+    rb.clear();
+    // Is it really empty?
+    // Yes, QVERIFY instead of QCOMPARE -- they can't be printed
+    QVERIFY(rb.begin() == rb.end());
+}
+
+void RingBufferTest::testOne_data()
+{
+    QTest::addColumn<int>("size");
+    QTest::addColumn<QVector<int> >("sourceData");
+
+    QVector<int> data;
+    QTest::newRow("empty") << 5 << data;
+
+    data.clear();
+    data << 333;
+    QTest::newRow("one-value") << 5 << data;
+
+    data.clear();
+    data << 333 << 666;
+    QTest::newRow("two-values") << 5 << data;
+
+    data.clear();
+    data << 333 << 666 << 7;
+    QTest::newRow("three-values") << 5 << data;
+
+    data.clear();
+    data << 333 << 666 << 7 << 15;
+    QTest::newRow("four-values") << 5 << data;
+
+    /*data.clear();
+    data << 333 << 666 << 7 << 15 << 9;
+    QTest::newRow("five-values") << 5 << data;*/
 }
 
 TROJITA_HEADLESS_TEST( RingBufferTest )
