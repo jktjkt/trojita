@@ -53,10 +53,13 @@ public:
         /** @short Increment the iterator, wrapping around past end if neccessary */
         const_iterator &operator++()
         {
-            if (myPos_ == container_->buf_.size() - 1)
+            if (myPos_ == container_->buf_.size() - 1) {
+                //qDebug() << "iterator++ wrapped";
                 myPos_ = 0;
-            else
+            } else {
+                //qDebug() << "iterator++ now at" << myPos_ + 1;
                 ++myPos_;
+            }
             return *this;
         }
 
@@ -64,6 +67,7 @@ public:
         bool operator==(const const_iterator& other)
         {
             Q_ASSERT(container_ == other.container_);
+            //qDebug() << "compare" << myPos_ << other.myPos_;
             return myPos_ == other.myPos_;
         }
 
@@ -89,8 +93,10 @@ public:
     const_iterator begin() const
     {
         if (!wrapped_) {
+            //qDebug() << "Begin @0";
             return const_iterator(this, 0);
         } else {
+            //qDebug() << "Begin at " << (appendPos_ == 0 ? 1 : appendPos_ + 1);
             return const_iterator(this, appendPos_ == 0 ? 1 : appendPos_ + 1);
         }
     }
@@ -98,6 +104,7 @@ public:
     /** @short Return an interator pointing to one item past the recent addition */
     const_iterator end() const
     {
+        //qDebug() << "end at" << appendPos_;
         return const_iterator(this, appendPos_);
     }
 
@@ -105,10 +112,12 @@ public:
     void append(const T &what)
     {
         if (appendPos_ == buf_.size()) {
+            //qDebug() << "Appended at the end";
             wrapped_ = true;
             appendPos_ = 0;
         }
         buf_[appendPos_] = what;
+        //qDebug() << "pos" << appendPos_ << " -> +1";
         ++appendPos_;
     }
 
