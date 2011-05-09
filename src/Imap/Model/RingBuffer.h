@@ -51,12 +51,13 @@ public:
         }
 
         /** @short Increment the iterator, wrapping around past end if neccessary */
-        void operator++()
+        const_iterator &operator++()
         {
             if (myPos_ == container_->buf_.size() - 1)
                 myPos_ = 0;
             else
                 ++myPos_;
+            return *this;
         }
 
         /** @short Compare two iterators from the same container for equality */
