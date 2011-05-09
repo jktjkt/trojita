@@ -46,7 +46,7 @@ public:
         /** @short Dereference the iterator */
         const T& operator*() const
         {
-            Q_ASSERT(myPos_ >= 0 && myPos_ < container_->size());
+            Q_ASSERT(myPos_ >= 0 && myPos_ < container_->buf_.size());
             return container_->buf_[myPos_];
         }
 
