@@ -1012,10 +1012,7 @@ TreeItem* Model::realTreeItem( QModelIndex index, const Model** whichModel, QMod
         proxy = qobject_cast<const QAbstractProxyModel*>( index.model() );
     }
     const Model* model = qobject_cast<const Model*>( index.model() );
-    if ( ! model ) {
-        qDebug() << index << "does not belong to Imap::Mailbox::Model";
-        return 0;
-    }
+    Q_ASSERT(model);
     if ( whichModel )
         *whichModel = model;
     if ( translatedIndex )
