@@ -63,7 +63,7 @@ private:
     void _syncGeneric( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState );
 
     void _finalizeUidSyncAll( TreeItemMailbox* mailbox );
-    static void _finalizeUidSyncOnlyNew( Model *model, TreeItemMailbox* mailbox, const uint oldExists, QList<uint> &uidMap );
+    void _finalizeUidSyncOnlyNew( Model *model, TreeItemMailbox* mailbox, const uint oldExists, QList<uint> &uidMap );
 
     void syncUids( TreeItemMailbox* mailbox, const uint lowestUidToQuery=0 );
     void syncFlags( TreeItemMailbox* mailbox );
