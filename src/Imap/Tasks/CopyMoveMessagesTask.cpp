@@ -54,7 +54,7 @@ void CopyMoveMessagesTask::perform()
     Q_FOREACH( const QPersistentModelIndex& index, messages ) {
         if ( ! index.isValid() ) {
             // FIXME: add proper fix
-            qDebug() << "Some message got removed before we could copy them";
+            log() << "Some message got removed before we could copy them";
         } else {
             TreeItem* item = static_cast<TreeItem*>( index.internalPointer() );
             Q_ASSERT(item);
@@ -71,7 +71,7 @@ void CopyMoveMessagesTask::perform()
 
     if ( first ) {
         // No valid messages
-        qDebug() << "All messages got removed before we could've copied them";
+        log() << "All messages got removed before we could've copied them";
         _completed();
         return;
     }
@@ -94,7 +94,7 @@ bool CopyMoveMessagesTask::handleStateHelper( const Imap::Responses::State* cons
             _completed();
         } else {
             // FIXME: error handling
-            qDebug() << "COPY failed:" << resp->message;
+            log() << "COPY failed:" << resp->message;
             _completed();
         }
         return true;
