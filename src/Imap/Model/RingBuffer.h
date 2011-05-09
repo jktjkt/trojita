@@ -37,9 +37,10 @@ Invalidated iterators will likely not get caught .
 template<typename T>
 class RingBuffer
 {
+public:
     class const_iterator
     {
-        RingBuffer<T> *container_;
+        const RingBuffer<T> *container_;
         int myPos_;
     public:
         /** @short Dereference the iterator */
@@ -58,20 +59,25 @@ class RingBuffer
                 ++myPos_;
         }
 
-        /** @short Compare two iterators of the same container for equality */
-        void operator==(const const_iterator& other)
+        /** @short Compare two iterators from the same container for equality */
+        bool operator==(const const_iterator& other)
         {
             Q_ASSERT(container_ == other.container_);
             return myPos_ == other.myPos_;
         }
+
+        /** @short Compare two iterators from the same container for inqeuality */
+        bool operator!=(const const_iterator& other)
+        {
+            return !(*this == other);
+        }
     private:
         friend class RingBuffer<T>;
-        const_iterator(RingBuffer<T>* container, int myPos): container_(container), myPos_(myPos)
+        const_iterator(const RingBuffer<T>* container, int myPos): container_(container), myPos_(myPos)
         {
         }
     };
 
-public:
     /** @short Instantiate a ring buffer holding size elements */
     RingBuffer(const int size): buf_(size), appendPos_(0), wrapped_(false)
     {
