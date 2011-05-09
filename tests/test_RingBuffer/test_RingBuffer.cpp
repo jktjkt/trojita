@@ -87,9 +87,9 @@ void RingBufferTest::testOne_data()
     data << 333 << 666 << 7 << 15;
     QTest::newRow("four-values") << 5 << data << data;
 
-    /*data.clear();
+    data.clear();
     data << 333 << 666 << 7 << 15 << 9;
-    QTest::newRow("five-values") << 5 << data;*/
+    QTest::newRow("five-values") << 5 << data << data;
 }
 
 TROJITA_HEADLESS_TEST( RingBufferTest )
