@@ -112,6 +112,7 @@ bool ImapTask::handleThread( const Imap::Responses::Thread* const resp )
 
 void ImapTask::_completed()
 {
+    log() << "Completed.";
     _finished = true;
     Q_FOREACH( ImapTask* task, dependentTasks ) {
         if ( ! task->isFinished() )
