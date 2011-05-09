@@ -53,7 +53,7 @@ public:
         /** @short Increment the iterator, wrapping around past end if neccessary */
         const_iterator &operator++()
         {
-            if (myPos_ == container_->buf_.size() - 1) {
+            if (myPos_ == container_->buf_.size()) {
                 //qDebug() << "iterator++ wrapped";
                 myPos_ = 0;
             } else {
@@ -111,7 +111,7 @@ public:
     /** @short Append an item to the container. Oldest item could get overwritten. */
     void append(const T &what)
     {
-        if (appendPos_ == buf_.size() - 1) {
+        if (appendPos_ == buf_.size()) {
             //qDebug() << "Appended at the end";
             wrapped_ = true;
             appendPos_ = 0;
