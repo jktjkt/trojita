@@ -18,7 +18,7 @@
    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#ifndef TROJITA_RUNGBUFFER_H
+#ifndef TROJITA_RINGBUFFER_H
 #define TROJITA_RINGBUFFER_H
 
 #include <QVector>
