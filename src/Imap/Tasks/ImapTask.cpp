@@ -164,6 +164,12 @@ QString ImapTask::debugIdentification() const
     return QString();
 }
 
+QDebug ImapTask::log()
+{
+    // FIXME: change this to log to a Model's infrastructure
+    return qDebug() << staticMetaObject.className() << debugIdentification();
+}
+
 }
 
 }
