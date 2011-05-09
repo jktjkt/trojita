@@ -38,24 +38,16 @@ void RingBufferTest::testOne()
     Q_FOREACH(const int item, sourceData) {
         rb.append(item);
     }
-    QVector<int> output1, output2;
+    QVector<int> output;
     for (RingBuffer<int>::const_iterator it = rb.begin(); it != rb.end(); ++it) {
-        output1 << *it;
+        output << *it;
     }
 
     // Correct amount of data received?
-    QCOMPARE(output1.size(), sourceData.size());
+    QCOMPARE(output.size(), sourceData.size());
 
     // Correct data?
-    QCOMPARE(sourceData, output1);
-
-    // Now try to do it once again
-    for (RingBuffer<int>::const_iterator it = rb.begin(); it != rb.end(); ++it) {
-        output2 << *it;
-    }
-
-    // Do we get the same data?
-    QCOMPARE(output1, output2);
+    QCOMPARE(sourceData, output);
 
     // Try to nuke them
     rb.clear();
