@@ -111,7 +111,7 @@ public:
     /** @short Append an item to the container. Oldest item could get overwritten. */
     void append(const T &what)
     {
-        if (appendPos_ == buf_.size()) {
+        if (appendPos_ == buf_.size() - 1) {
             //qDebug() << "Appended at the end";
             wrapped_ = true;
             appendPos_ = 0;
