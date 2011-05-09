@@ -54,6 +54,7 @@ bool CreateMailboxTask::handleStateHelper( const Imap::Responses::State* const r
             emit model->mailboxCreationSucceded( mailbox );
             tagList = parser->list( QLatin1String(""), mailbox );
             emit model->activityHappening( true );
+            // Don't call _completed() yet, we're going to update mbox list before that
         } else {
             emit model->mailboxCreationFailed( mailbox, resp->message );
             _completed();
