@@ -400,8 +400,10 @@ void ThreadingMsgListModel::askForThreading()
 bool ThreadingMsgListModel::shouldIgnoreThisThreadingResponse(const QModelIndex &mailbox, const QString &algorithm,
                                                               const QStringList &searchCriteria, const Model **realModel)
 {
-    const Model *model;
     QModelIndex someMessage = sourceModel()->index(0,0);
+    if (!someMessage.isValid())
+        return true;
+    const Model *model;
     QModelIndex realIndex;
     Imap::Mailbox::Model::realTreeItem( someMessage, &model, &realIndex );
     QModelIndex mailboxIndex = realIndex.parent().parent();
