@@ -41,7 +41,7 @@ void ExpungeMailboxTask::perform()
 
     if ( ! mailboxIndex.isValid() ) {
         // FIXME: add proper fix
-        qDebug() << "Mailbox vanished before we could expunge it";
+        log() << "Mailbox vanished before we could expunge it";
         _completed();
         return;
     }

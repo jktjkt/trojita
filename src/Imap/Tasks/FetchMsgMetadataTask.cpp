@@ -56,7 +56,7 @@ void FetchMsgMetadataTask::perform()
 bool FetchMsgMetadataTask::handleFetch( const Imap::Responses::Fetch* const resp )
 {
     if ( ! mailbox.isValid() ) {
-        qDebug() << "FetchMsgMetadataTask::handleFetch: mailbox disappeared";
+        log() << "FetchMsgMetadataTask::handleFetch: mailbox disappeared";
         _completed();
         // FIXME: nice error handling
         return false;
