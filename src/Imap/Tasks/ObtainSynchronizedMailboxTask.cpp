@@ -52,9 +52,11 @@ void ObtainSynchronizedMailboxTask::perform()
     Q_ASSERT( parser );
     model->accessParser( parser ).activeTasks.append( this );
 
+    log() << "Synchronizing mailbox";
+
     if ( ! mailboxIndex.isValid() ) {
         // FIXME: proper error handling
-        qDebug() << "The mailbox went missing, sorry";
+        log() << "The mailbox went missing, sorry";
         _completed();
         return;
     }
@@ -94,13 +96,14 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( const Imap::Responses::St
             _finalizeSelect();
         } else {
             // FIXME: Tasks API error handling
+            log() << "SELECT failed";
             model->changeConnectionState( parser, CONN_STATE_AUTHENTICATED);
         }
         return true;
     } else if ( resp->tag == uidSyncingCmd ) {
 
         if ( resp->kind == Responses::OK ) {
-            //qDebug() << "received OK for uidSyncingCmd";
+            log() << "UIDs synchronized";
             Q_ASSERT( status == STATE_SYNCING_UIDS );
             Q_ASSERT( mailboxIndex.isValid() ); // FIXME
             TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ));
@@ -115,12 +118,14 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( const Imap::Responses::St
             }
             syncFlags( mailbox );
         } else {
+            log() << "UID syncing failed";
             // FIXME: error handling
         }
         return true;
     } else if ( resp->tag == flagsCmd ) {
 
         if ( resp->kind == Responses::OK ) {
+            log() << "Flags synchronized";
             //qDebug() << "received OK for flagsCmd";
             Q_ASSERT( status == STATE_SYNCING_FLAGS );
             Q_ASSERT( mailboxIndex.isValid() ); // FIXME
@@ -129,6 +134,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( const Imap::Responses::St
             notifyInterestingMessages( mailbox );
             model->emitMessageCountChanged(mailbox);
         } else {
+            log() << "Flags synchronization failed";
             // FIXME: error handling
         }
         status = STATE_DONE;
@@ -159,7 +165,7 @@ void ObtainSynchronizedMailboxTask::_finalizeSelect()
     if ( static_cast<uint>( seqToUid.size() ) != oldState.exists() ||
          oldState.exists() != static_cast<uint>( list->_children.size() ) ) {
 
-        qDebug() << "Inconsistent cache data, falling back to full sync (" <<
+        log() << "Inconsistent cache data, falling back to full sync (" <<
                 seqToUid.size() << "in UID map," << oldState.exists() <<
                 "EXIST before," << list->_children.size() << "nodes)";
         _fullMboxSync( mailbox, list, syncState );
@@ -196,7 +202,7 @@ void ObtainSynchronizedMailboxTask::_finalizeSelect()
                 // so either a server's bug, or a completely invalid cache.
                 Q_ASSERT(syncState.uidNext() < oldState.uidNext());
                 Q_ASSERT(syncState.uidValidity() == oldState.uidValidity());
-                qDebug() << "Yuck, UIDVALIDITY remains same but UIDNEXT decreased";
+                log() << "Yuck, UIDVALIDITY remains same but UIDNEXT decreased";
                 model->cache()->clearAllMessages( mailbox->mailbox() );
                 _fullMboxSync( mailbox, list, syncState );
             }
@@ -210,6 +216,7 @@ void ObtainSynchronizedMailboxTask::_finalizeSelect()
 
 void ObtainSynchronizedMailboxTask::_fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState )
 {
+    log() << "Full synchronization";
     model->cache()->clearUidMapping( mailbox->mailbox() );
     model->cache()->setMailboxSyncState( mailbox->mailbox(), SyncState() );
 
@@ -256,6 +263,7 @@ void ObtainSynchronizedMailboxTask::_fullMboxSync( TreeItemMailbox* mailbox, Tre
 
 void ObtainSynchronizedMailboxTask::_syncNoNewNoDeletions( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState, const QList<uint>& seqToUid )
 {
+    log() << "No arrivals or deletions since the last time";
     if ( syncState.exists() ) {
         // Verify that we indeed have all UIDs and not need them anymore
         bool uidsOk = true;
@@ -306,6 +314,7 @@ void ObtainSynchronizedMailboxTask::_syncNoNewNoDeletions( TreeItemMailbox* mail
 
 void ObtainSynchronizedMailboxTask::_syncOnlyDeletions( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState )
 {
+    log() << "Some messages got deleted, but no new arrivals";
     list->_numberFetchingStatus = TreeItem::LOADING;
     list->_unreadMessageCount = 0; // FIXME: this case needs further attention...
     uidMap.clear();
@@ -317,6 +326,7 @@ void ObtainSynchronizedMailboxTask::_syncOnlyDeletions( TreeItemMailbox* mailbox
 
 void ObtainSynchronizedMailboxTask::_syncOnlyAdditions( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState, const SyncState& oldState )
 {
+    log() << "Syncing new arrivals";
     Q_UNUSED(syncState);
 
     // So, we know that messages only got added to the mailbox and that none were removed,
@@ -330,6 +340,7 @@ void ObtainSynchronizedMailboxTask::_syncOnlyAdditions( TreeItemMailbox* mailbox
 
 void ObtainSynchronizedMailboxTask::_syncGeneric( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState )
 {
+    log() << "generic synchronization from previous state";
     Q_UNUSED(syncState);
 
     list->_numberFetchingStatus = TreeItem::LOADING;
@@ -340,6 +351,7 @@ void ObtainSynchronizedMailboxTask::_syncGeneric( TreeItemMailbox* mailbox, Tree
 
 void ObtainSynchronizedMailboxTask::syncUids( TreeItemMailbox* mailbox, const uint lowestUidToQuery )
 {
+    log() << "Syncing UIDs";
     QString uidSpecification;
     if ( lowestUidToQuery == 0 ) {
         uidSpecification = QLatin1String("ALL");
@@ -355,6 +367,7 @@ void ObtainSynchronizedMailboxTask::syncUids( TreeItemMailbox* mailbox, const ui
 
 void ObtainSynchronizedMailboxTask::syncFlags( TreeItemMailbox *mailbox )
 {
+    log() << "Syncing flags";
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[ 0 ] );
     Q_ASSERT( list );
 
@@ -531,6 +544,7 @@ safest, but also the most bandwidth-hungry way to achive our goal.
 */
 void ObtainSynchronizedMailboxTask::_finalizeUidSyncAll( TreeItemMailbox* mailbox )
 {
+    log() << "Processing the UID SEARCH response";
     // Verify that we indeed received UIDs for all messages
     if ( static_cast<uint>( uidMap.size() ) != mailbox->syncState.exists() ) {
         // FIXME: this needs to be checked for what happens when the number of messages changes between SELECT and UID SEARCH ALL
@@ -636,6 +650,7 @@ so it's a static function with many arguments.
 */
 void ObtainSynchronizedMailboxTask::_finalizeUidSyncOnlyNew( Model *model, TreeItemMailbox* mailbox, const uint oldExists, QList<uint> &uidMap )
 {
+    log() << "Processing the UID response just for new arrivals";
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[0] );
     Q_ASSERT( list );
     list->_fetchStatus = TreeItem::DONE;
@@ -704,6 +719,7 @@ void ObtainSynchronizedMailboxTask::notifyInterestingMessages( TreeItemMailbox *
     QModelIndex listIndex = model->createIndex( 0, 0, list );
     Q_ASSERT(listIndex.isValid());
     QModelIndex firstInterestingMessage = model->index( mailbox->syncState.unSeenOffset(), 0, listIndex );
+    log() << "First interesting message at" << mailbox->syncState.unSeenOffset();
     emit model->mailboxFirstUnseenMessage( model->createIndex( mailbox->row(), 0, mailbox ), firstInterestingMessage );
 }
 
@@ -717,6 +733,8 @@ bool ObtainSynchronizedMailboxTask::dieIfInvalidMailbox()
     // OK, so we are in trouble -- our mailbox has disappeared, but the IMAP server will likely keep us busy with its
     // status updates. This is bad, so we have to get out as fast as possible. All hands, evasive maneuvers!
 
+    log() << "Mailbox disappeared";
+
     unSelectTask = model->_taskFactory->createUnSelectTask(model, this);
     connect(unSelectTask, SIGNAL(completed()), this, SLOT(slotUnSelectCompleted()));
     unSelectTask->perform();
@@ -726,6 +744,7 @@ bool ObtainSynchronizedMailboxTask::dieIfInvalidMailbox()
 
 void ObtainSynchronizedMailboxTask::slotUnSelectCompleted()
 {
+    log() << "Escaped form the mailbox";
     Q_ASSERT(dependentTasks.size() == 1);
     KeepMailboxOpenTask *keepTask = dynamic_cast<KeepMailboxOpenTask*>(dependentTasks.takeFirst());
     Q_ASSERT(keepTask);
