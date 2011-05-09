@@ -40,8 +40,13 @@ void RingBufferTest::testOne()
         rb.append(item);
     }
     QVector<int> output;
+
     for (RingBuffer<int>::const_iterator it = rb.begin(); it != rb.end(); ++it) {
         output << *it;
+        if (output.size() >= size * 2) {
+            QFAIL("Iterated way too many times");
+            break;
+        }
     }
 
     // Correct amount of data received?
