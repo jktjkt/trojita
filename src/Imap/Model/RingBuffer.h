@@ -100,12 +100,10 @@ public:
     void append(const T &what)
     {
         if (appendPos_ == buf_.size()) {
-            qDebug() << "Appended at the end";
             wrapped_ = true;
             appendPos_ = 0;
         }
         buf_[appendPos_] = what;
-        qDebug() << "pos" << appendPos_ << " -> +1";
         ++appendPos_;
     }
 
