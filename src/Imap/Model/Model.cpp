@@ -1111,19 +1111,19 @@ void Model::killParser(Parser *parser, bool nice)
     parser->deleteLater();
     accessParser( parser ).parser = 0;
     if ( nice )
-        logTrace(parser, LOG_IO_WRITTEN, QString(), "*** Connection closed.");
+        logTrace(parser->parserId(), LOG_IO_WRITTEN, QString(), "*** Connection closed.");
     else
-        logTrace(parser, LOG_IO_WRITTEN, QString(), "*** Connection killed.");
+        logTrace(parser->parserId(), LOG_IO_WRITTEN, QString(), "*** Connection killed.");
 }
 
 void Model::slotParserLineReceived( Parser *parser, const QByteArray& line )
 {
-    logTrace(parser, LOG_IO_READ, QString(), line);
+    logTrace(parser->parserId(), LOG_IO_READ, QString(), line);
 }
 
 void Model::slotParserLineSent( Parser *parser, const QByteArray& line )
 {
-    logTrace(parser, LOG_IO_WRITTEN, QString(), line);
+    logTrace(parser->parserId(), LOG_IO_WRITTEN, QString(), line);
 }
 
 void Model::setCache( AbstractCache* cache )
@@ -1371,13 +1371,12 @@ void Model::emitAuthFailed(const QString &message)
     emit authAttemptFailed(message);
 }
 
-void Model::logTrace(Parser *parser, const LogKind kind, const QString &source, const QString &message)
+void Model::logTrace(uint parserId, const LogKind kind, const QString &source, const QString &message)
 {
     enum {CUTOFF=200};
     bool truncated = message.size() <= CUTOFF;
     LogMessage m(QDateTime::currentDateTime(), kind, source, truncated ? message.left(CUTOFF) : message, truncated);
-    accessParser(parser).eventLog.append(m);
-
+    emit logged(parserId, m);
 }
 
 }

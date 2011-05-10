@@ -33,7 +33,6 @@
 #include "TaskFactory.h"
 
 #include "Logging.h"
-#include "RingBuffer.h"
 
 class QAuthenticator;
 
@@ -94,14 +93,9 @@ class Model: public QAbstractItemModel {
         bool capabilitiesFresh;
         /** @short LIST responses which were not processed yet */
         QList<Responses::List> listResponses;
-        /** @short Buffer for storing trace messages */
-        RingBuffer<LogMessage> eventLog;
 
-        ParserState( Parser* _parser ):
-            parser(_parser), connState(CONN_STATE_NONE), maintainingTask(0), capabilitiesFresh(false),
-            eventLog(10)
-        {}
-        ParserState(): connState(CONN_STATE_NONE), maintainingTask(0), capabilitiesFresh(false), eventLog(10) {}
+        ParserState( Parser* _parser ): parser(_parser), connState(CONN_STATE_NONE), maintainingTask(0), capabilitiesFresh(false) {}
+        ParserState(): connState(CONN_STATE_NONE), maintainingTask(0), capabilitiesFresh(false) {}
     };
 
     /** @short Policy for accessing network */
@@ -232,7 +226,7 @@ this message happen again.
     QStringList capabilities() const;
 
     /** @short Log an IMAP-related message */
-    void logTrace(Parser *parser, const LogKind kind, const QString &source, const QString &message);
+    void logTrace(uint parserId, const LogKind kind, const QString &source, const QString &message);
 
 public slots:
     /** @short Ask for an updated list of mailboxes on the server */
@@ -340,6 +334,8 @@ authRequested() function.
     void threadingFailed(const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria);
 
     void capabilitiesUpdated(const QStringList &capabilities);
+
+    void logged(uint parserId, const LogMessage &message);
 
 private:
     Model& operator=( const Model& ); // don't implement

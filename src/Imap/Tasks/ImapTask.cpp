@@ -169,7 +169,7 @@ void ImapTask::log(const QString &message, const LogKind kind)
 {
     Q_ASSERT(model);
     Q_ASSERT(parser);
-    model->logTrace(parser, kind, metaObject()->className() + debugIdentification(), message);
+    model->logTrace(parser->parserId(), kind, metaObject()->className() + debugIdentification(), message);
 }
 
 }
