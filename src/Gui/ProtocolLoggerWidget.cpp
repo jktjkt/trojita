@@ -117,7 +117,11 @@ void ProtocolLoggerWidget::slotImapLogged(uint parser, const Imap::Mailbox::LogM
 
 void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<Imap::Mailbox::LogMessage> &buf)
 {
-    // FIXME: skipped messages
+    if (buf.skippedCount()) {
+        getLogger(parserId).widget->appendHtml(tr("<p style='color: #bb0000'><i><b>%n message(s)</b> were skipped because this widget was hidden.</i></p>",
+                                                  "", buf.skippedCount()));
+    }
+
     for (Imap::RingBuffer<Imap::Mailbox::LogMessage>::const_iterator it = buf.begin(); it != buf.end(); ++it) {
         QString message = QString::fromAscii( "<pre><span style='color: #808080'>%1</span> %2<span style='color: %3;%4'>%5</span>%6</pre>" );
         QString direction;
