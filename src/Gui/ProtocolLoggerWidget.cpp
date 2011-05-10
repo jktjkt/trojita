@@ -59,6 +59,7 @@ QPlainTextEdit *ProtocolLoggerWidget::getLogger( const uint parser )
         res->setMaximumBlockCount( 1000 );
         res->setReadOnly( true );
         res->setUndoRedoEnabled( false );
+        res->setWordWrapMode(QTextOption::NoWrap);
         // Got to output something here using the default background,
         // otherwise the QPlainTextEdit would default its background
         // to the very first value we throw at it, which might be a
