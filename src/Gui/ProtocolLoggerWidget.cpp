@@ -64,7 +64,7 @@ QPlainTextEdit *ProtocolLoggerWidget::getLogger( const uint parser )
         // to the very first value we throw at it, which might be a
         // grey one.
         res->appendHtml(QString::fromAscii("<p>&nbsp;</p>"));
-        tabs->addTab(res, tr("Parser %1").arg(parser));
+        tabs->addTab(res, tr("Connection %1").arg(parser));
         loggerWidgets[parser] = res;
     }
     return res;
