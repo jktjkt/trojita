@@ -1375,5 +1375,11 @@ void Model::emitAuthFailed(const QString &message)
     emit authAttemptFailed(message);
 }
 
+void Model::logTrace(Parser *parser, const LogKind kind, const QString &source, const QString &message)
+{
+    LogMessage m(QDateTime::currentDateTime(), kind, source, message);
+    accessParser(parser).eventLog.append(m);
+}
+
 }
 }
