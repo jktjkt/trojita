@@ -137,7 +137,7 @@ void ProtocolLoggerWidget::parserLineSent( uint parser, const QByteArray& line )
 
 ProtocolLoggerWidget::ParserLog& ProtocolLoggerWidget::getLogger( const uint parser )
 {
-    ParserLog& res = buffers[ parser ];
+    ParserLog& res = loggerWidgets[ parser ];
     if ( ! res.widget ) {
         res.widget = new QPlainTextEdit();
         res.widget->setLineWrapMode( QPlainTextEdit::NoWrap );
@@ -159,10 +159,10 @@ void ProtocolLoggerWidget::closeTab( int index )
 {
     QPlainTextEdit* w = qobject_cast<QPlainTextEdit*>( tabs->widget( index ) );
     Q_ASSERT( w );
-    for ( QMap<uint, ParserLog>::iterator it = buffers.begin(); it != buffers.end(); ++it ) {
+    for ( QMap<uint, ParserLog>::iterator it = loggerWidgets.begin(); it != loggerWidgets.end(); ++it ) {
         if ( it->widget != w )
             continue;
-        buffers.erase( it );
+        loggerWidgets.erase( it );
         tabs->removeTab( index );
         w->deleteLater();
         return;
@@ -171,14 +171,14 @@ void ProtocolLoggerWidget::closeTab( int index )
 
 void ProtocolLoggerWidget::clearLogDisplay()
 {
-    for ( QMap<uint, ParserLog>::iterator it = buffers.begin(); it != buffers.end(); ++it ) {
+    for ( QMap<uint, ParserLog>::iterator it = loggerWidgets.begin(); it != loggerWidgets.end(); ++it ) {
         it->widget->document()->clear();
     }
 }
 
 void ProtocolLoggerWidget::enableLogging( bool enabled )
 {
-    for ( QMap<uint, ParserLog>::iterator it = buffers.begin(); it != buffers.end(); ++it ) {
+    for ( QMap<uint, ParserLog>::iterator it = loggerWidgets.begin(); it != loggerWidgets.end(); ++it ) {
         if ( ! loggingActive && enabled ) {
             if ( it->skippedItems ) {
                 it->widget->appendHtml(

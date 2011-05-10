@@ -75,7 +75,7 @@ private:
     };
 
     QTabWidget* tabs;
-    QMap<uint, ParserLog> buffers;
+    QMap<uint, ParserLog> loggerWidgets;
     QPushButton* clearAll;
     bool loggingActive;
 
