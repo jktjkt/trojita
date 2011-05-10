@@ -60,22 +60,15 @@ private slots:
     void slotShowLogs();
 
 private:
-    class ParserLog {
-    public:
-        ParserLog(): widget(0), skippedItems(0) {}
-        QPlainTextEdit* widget; /**< @short Widget displaying the log */
-        uint skippedItems;
-    };
-
     QTabWidget* tabs;
-    QMap<uint, ParserLog> loggerWidgets;
+    QMap<uint, QPlainTextEdit*> loggerWidgets;
     QMap<uint, Imap::RingBuffer<Imap::Mailbox::LogMessage> > buffers;
     QPushButton* clearAll;
     bool loggingActive;
     QTimer *delayedDisplay;
 
-    /** @short Return (possibly newly created) ParserLog struct for a given parser */
-    ParserLog& getLogger( const uint parser );
+    /** @short Return (possibly newly created) logger widget for a given parser */
+    QPlainTextEdit *getLogger( const uint parser );
 
     /** @short Dump the log bufer contents to the GUI widget */
     void flushToWidget(const uint parserId, Imap::RingBuffer<Imap::Mailbox::LogMessage> &buf);

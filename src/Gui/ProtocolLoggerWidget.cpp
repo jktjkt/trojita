@@ -49,22 +49,23 @@ ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
     connect(delayedDisplay, SIGNAL(timeout()), this, SLOT(slotShowLogs()));
 }
 
-ProtocolLoggerWidget::ParserLog& ProtocolLoggerWidget::getLogger( const uint parser )
+QPlainTextEdit *ProtocolLoggerWidget::getLogger( const uint parser )
 {
-    ParserLog& res = loggerWidgets[ parser ];
-    if ( ! res.widget ) {
-        res.widget = new QPlainTextEdit();
-        res.widget->setLineWrapMode( QPlainTextEdit::NoWrap );
-        res.widget->setCenterOnScroll( true );
-        res.widget->setMaximumBlockCount( 1000 );
-        res.widget->setReadOnly( true );
-        res.widget->setUndoRedoEnabled( false );
+    QPlainTextEdit *res = loggerWidgets[parser];
+    if (!res) {
+        res = new QPlainTextEdit();
+        res->setLineWrapMode( QPlainTextEdit::NoWrap );
+        res->setCenterOnScroll( true );
+        res->setMaximumBlockCount( 1000 );
+        res->setReadOnly( true );
+        res->setUndoRedoEnabled( false );
         // Got to output something here using the default background,
         // otherwise the QPlainTextEdit would default its background
         // to the very first value we throw at it, which might be a
         // grey one.
-        res.widget->appendHtml( QString::fromAscii("<p>&nbsp;</p>") );
-        tabs->addTab( res.widget, tr("Parser %1").arg( parser ) );
+        res->appendHtml(QString::fromAscii("<p>&nbsp;</p>"));
+        tabs->addTab(res, tr("Parser %1").arg(parser));
+        loggerWidgets[parser] = res;
     }
     return res;
 }
@@ -73,8 +74,8 @@ void ProtocolLoggerWidget::closeTab( int index )
 {
     QPlainTextEdit* w = qobject_cast<QPlainTextEdit*>( tabs->widget( index ) );
     Q_ASSERT( w );
-    for ( QMap<uint, ParserLog>::iterator it = loggerWidgets.begin(); it != loggerWidgets.end(); ++it ) {
-        if ( it->widget != w )
+    for ( QMap<uint, QPlainTextEdit*>::iterator it = loggerWidgets.begin(); it != loggerWidgets.end(); ++it ) {
+        if ( *it != w )
             continue;
         loggerWidgets.erase( it );
         tabs->removeTab( index );
@@ -85,8 +86,8 @@ void ProtocolLoggerWidget::closeTab( int index )
 
 void ProtocolLoggerWidget::clearLogDisplay()
 {
-    for ( QMap<uint, ParserLog>::iterator it = loggerWidgets.begin(); it != loggerWidgets.end(); ++it ) {
-        it->widget->document()->clear();
+    for ( QMap<uint, QPlainTextEdit*>::iterator it = loggerWidgets.begin(); it != loggerWidgets.end(); ++it ) {
+        (*it)->document()->clear();
     }
 }
 
@@ -118,12 +119,14 @@ void ProtocolLoggerWidget::slotImapLogged(uint parser, const Imap::Mailbox::LogM
 void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<Imap::Mailbox::LogMessage> &buf)
 {
     if (buf.skippedCount()) {
-        getLogger(parserId).widget->appendHtml(tr("<p style='color: #bb0000'><i><b>%n message(s)</b> were skipped because this widget was hidden.</i></p>",
+        getLogger(parserId)->appendHtml(tr("<p style='color: #bb0000'><i><b>%n message(s)</b> were skipped because this widget was hidden.</i></p>",
                                                   "", buf.skippedCount()));
     }
 
+    QPlainTextEdit *w = getLogger(parserId);
+
     for (Imap::RingBuffer<Imap::Mailbox::LogMessage>::const_iterator it = buf.begin(); it != buf.end(); ++it) {
-        QString message = QString::fromAscii( "<pre><span style='color: #808080'>%1</span> %2<span style='color: %3;%4'>%5</span>%6</pre>" );
+        QString message = QString::fromAscii("<pre><span style='color: #808080'>%1</span> %2<span style='color: %3;%4'>%5</span>%6</pre>");
         QString direction;
         QString textColor;
         QString bgColor;
@@ -164,10 +167,10 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<I
         niceLine.replace( QChar('\r'), 0x240d /* SYMBOL FOR CARRIAGE RETURN */ )
                 .replace( QChar('\n'), 0x240a /* SYMBOL FOR LINE FEED */ );
 
-        getLogger(parserId).widget->appendHtml(message.arg( QTime::currentTime().toString( QString::fromAscii("hh:mm:ss.zzz") ),
-                                               direction, textColor,
-                                               bgColor.isEmpty() ? QString() : QString::fromAscii("background-color: %1").arg(bgColor),
-                                               niceLine, trimmedInfo ) );
+        w->appendHtml(message.arg(QTime::currentTime().toString(QString::fromAscii("hh:mm:ss.zzz")),
+                                  direction, textColor,
+                                  bgColor.isEmpty() ? QString() : QString::fromAscii("background-color: %1").arg(bgColor),
+                                  niceLine, trimmedInfo));
     }
     buf.clear();
 }
