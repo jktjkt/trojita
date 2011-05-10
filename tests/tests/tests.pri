@@ -1,19 +1,19 @@
 QT += core network
 CONFIG += qtestlib
 DEFINES -= QT3_SUPPORT
-DEPENDPATH += ../../src/ ../
-INCLUDEPATH += ../../src/ ../
+DEPENDPATH += ../../../src/ ../../
+INCLUDEPATH += ../../../src/ ../../
 TEMPLATE = app
 
 # Link with some common stuff which is used by more tests
 trojita_libs = test_LibMailboxSync
-myprefix = ../
-include(../src/linking.pri)
+myprefix = ../../
+include(../../src/linking.pri)
 
 # Link with Trojita
 trojita_libs = Imap Streams
-myprefix = ../../src/
-include(../src/linking.pri)
+myprefix = ../../../src/
+include(../../src/linking.pri)
 
 # ...yes, the order above really matters, why are you asking?
 

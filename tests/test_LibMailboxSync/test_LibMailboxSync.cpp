@@ -21,7 +21,7 @@
 
 #include <QtTest>
 #include "test_LibMailboxSync.h"
-#include "../headless_test.h"
+#include "../tests/headless_test.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/Cache.h"
 #include "Imap/Model/ItemRoles.h"
