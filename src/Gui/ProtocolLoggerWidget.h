@@ -31,6 +31,7 @@
 class QPushButton;
 class QTabWidget;
 class QPlainTextEdit;
+class QTimer;
 
 namespace Gui {
 
@@ -57,6 +58,9 @@ private slots:
     /** @short Enable/disable active logging */
     void enableLogging( bool enabled );
 
+    /** @short Copy contents of all buffers into the GUI widgets */
+    void slotShowLogs();
+
 private:
     typedef enum { MSG_NONE, MSG_SENT, MSG_RECEIVED, MSG_INFO_SENT, MSG_INFO_RECEIVED } MessageType;
     enum { SIZE_CUTOFF = 200 };
@@ -73,6 +77,7 @@ private:
     QMap<uint, Imap::RingBuffer<Imap::Mailbox::LogMessage> > buffers;
     QPushButton* clearAll;
     bool loggingActive;
+    QTimer *delayedDisplay;
 
     /** @short Return (possibly newly created) ParserLog struct for a given parser */
     ParserLog& getLogger( const uint parser );

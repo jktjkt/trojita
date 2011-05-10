@@ -42,6 +42,11 @@ ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
     clearAll = new QPushButton( tr("Clear all"), this );
     connect( clearAll, SIGNAL(clicked()), this, SLOT(clearLogDisplay()) );
     tabs->setCornerWidget( clearAll, Qt::BottomRightCorner );
+
+    delayedDisplay = new QTimer(this);
+    delayedDisplay->setSingleShot(true);
+    delayedDisplay->setInterval(300);
+    connect(delayedDisplay, SIGNAL(timeout()), this, SLOT(slotShowLogs()));
 }
 
 #if 0
@@ -229,6 +234,8 @@ void ProtocolLoggerWidget::slotImapLogged(uint parser, const Imap::Mailbox::LogM
         bufIt = buffers.insert(parser, Imap::RingBuffer<Imap::Mailbox::LogMessage>(5000));
     }
     bufIt->append(message);
+    if (!delayedDisplay->isActive())
+        delayedDisplay->start();
 }
 
 void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<Imap::Mailbox::LogMessage> &buf)
@@ -282,6 +289,13 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<I
                                                niceLine, trimmedInfo ) );
     }
     buf.clear();
+}
+
+void ProtocolLoggerWidget::slotShowLogs()
+{
+    for (QMap<uint, Imap::RingBuffer<Imap::Mailbox::LogMessage> >::iterator it = buffers.begin(); it != buffers.end(); ++it) {
+        flushToWidget(it.key(), *it);
+    }
 }
 
 }
