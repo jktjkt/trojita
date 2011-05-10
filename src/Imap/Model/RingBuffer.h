@@ -134,6 +134,18 @@ public:
         return skipped_;
     }
 
+    /** @short Reinitialize the buffer with a new size
+
+    Old data will be thrown away and iterators will get corrupted.
+    */
+    void resize(const int size)
+    {
+        buf_ = QVector<T>(size);
+        wrapped_ = false;
+        appendPos_ = 0;
+        skipped_ = 0;
+    }
+
 private:
     QVector<T> buf_;
     int appendPos_;
