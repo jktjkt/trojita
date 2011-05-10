@@ -231,4 +231,57 @@ void ProtocolLoggerWidget::slotImapLogged(uint parser, const Imap::Mailbox::LogM
     bufIt->append(message);
 }
 
+void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<Imap::Mailbox::LogMessage> &buf)
+{
+    // FIXME: skipped messages
+    for (Imap::RingBuffer<Imap::Mailbox::LogMessage>::const_iterator it = buf.begin(); it != buf.end(); ++it) {
+        QString message = QString::fromAscii( "<pre><span style='color: #808080'>%1</span> %2<span style='color: %3;%4'>%5</span>%6</pre>" );
+        QString direction;
+        QString textColor;
+        QString bgColor;
+        QString trimmedInfo;
+
+        switch (it->kind) {
+        case Imap::Mailbox::LOG_IO_WRITTEN:
+            if ( it->message.startsWith("***")) {
+                textColor = "#800080";
+                bgColor = "#d0d0d0";
+            } else {
+                textColor = "#800000";
+                direction = "<span style='color: #c0c0c0;'>&gt;&gt;&gt;&nbsp;</span>";
+            }
+            break;
+        case Imap::Mailbox::LOG_IO_READ:
+            if ( it->message.startsWith("***")) {
+                textColor = "#808000";
+                bgColor = "#d0d0d0";
+            } else {
+                textColor = "#008000";
+                direction = "<span style='color: #c0c0c0;'>&lt;&lt;&lt;&nbsp;</span>";
+            }
+            break;
+        case Imap::Mailbox::LOG_MAILBOX_SYNC:
+        case Imap::Mailbox::LOG_MESSAGES:
+        case Imap::Mailbox::LOG_OTHER:
+        case Imap::Mailbox::LOG_PARSE_ERROR:
+        case Imap::Mailbox::LOG_TASKS:
+            break;
+        }
+
+        if (it->truncated) {
+            trimmedInfo = tr("<br/><span style='color: #808080; font-style: italic;'>(trimmed)</span>");
+        }
+
+        QString niceLine = Qt::escape(it->message);
+        niceLine.replace( QChar('\r'), 0x240d /* SYMBOL FOR CARRIAGE RETURN */ )
+                .replace( QChar('\n'), 0x240a /* SYMBOL FOR LINE FEED */ );
+
+        getLogger(parserId).widget->appendHtml(message.arg( QTime::currentTime().toString( QString::fromAscii("hh:mm:ss.zzz") ),
+                                               direction, textColor,
+                                               bgColor.isEmpty() ? QString() : QString::fromAscii("background-color: %1").arg(bgColor),
+                                               niceLine, trimmedInfo ) );
+    }
+    buf.clear();
+}
+
 }

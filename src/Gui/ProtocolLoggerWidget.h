@@ -80,6 +80,9 @@ private:
     /** @short Log the message into the GUI */
     void logMessage( const uint parser, const MessageType kind, const QByteArray& line );
 
+    /** @short Dump the log bufer contents to the GUI widget */
+    void flushToWidget(const uint parserId, Imap::RingBuffer<Imap::Mailbox::LogMessage> &buf);
+
     virtual void showEvent( QShowEvent* e );
     virtual void hideEvent( QHideEvent* e );
 };
