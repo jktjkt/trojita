@@ -94,8 +94,7 @@ void ProtocolLoggerWidget::showEvent( QShowEvent* e )
 {
     loggingActive = true;
     QWidget::showEvent( e );
-    if(!delayedDisplay->isActive())
-        delayedDisplay->start();
+    slotShowLogs();
 }
 
 void ProtocolLoggerWidget::hideEvent( QHideEvent* e )
