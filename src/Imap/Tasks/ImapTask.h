@@ -21,6 +21,7 @@
 
 #include <QObject>
 #include "../Parser/Parser.h"
+#include "../Model/Logging.h"
 
 namespace Imap {
 
@@ -97,7 +98,7 @@ protected:
     task. The events will be marked with an identification of the task which triggered them, and could be accessed from
     the GUI if logging is enabled.
     */
-    QDebug log();
+    void log(const QString &message, const LogKind kind=LOG_TASKS);
 
 private:
     void handleResponseCode( const Imap::Responses::State* const resp );

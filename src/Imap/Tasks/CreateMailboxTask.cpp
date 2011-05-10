@@ -51,12 +51,11 @@ bool CreateMailboxTask::handleStateHelper( const Imap::Responses::State* const r
     if ( resp->tag == tagCreate ) {
 
         if ( resp->kind == Responses::OK ) {
-            log() << "Mailbox created";
             emit model->mailboxCreationSucceded( mailbox );
             tagList = parser->list( QLatin1String(""), mailbox );
             emit model->activityHappening( true );
         } else {
-            log() << "Failed to create mailbox";
+            log("Failed to create mailbox");
             emit model->mailboxCreationFailed( mailbox, resp->message );
             _completed();
             // FIXME: proper error handling for the Tasks API

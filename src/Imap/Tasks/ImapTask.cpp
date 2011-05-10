@@ -112,7 +112,7 @@ bool ImapTask::handleThread( const Imap::Responses::Thread* const resp )
 
 void ImapTask::_completed()
 {
-    log() << "Completed.";
+    log("Completed");
     _finished = true;
     Q_FOREACH( ImapTask* task, dependentTasks ) {
         if ( ! task->isFinished() )
@@ -165,10 +165,11 @@ QString ImapTask::debugIdentification() const
     return QString();
 }
 
-QDebug ImapTask::log()
+void ImapTask::log(const QString &message, const LogKind kind)
 {
-    // FIXME: change this to log to a Model's infrastructure
-    return qDebug() << metaObject()->className() << debugIdentification();
+    Q_ASSERT(model);
+    Q_ASSERT(parser);
+    model->logTrace(parser, kind, metaObject()->className() + debugIdentification(), message);
 }
 
 }

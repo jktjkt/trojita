@@ -58,7 +58,7 @@ bool UnSelectTask::handleStateHelper( const Imap::Responses::State* const resp )
         QByteArray buf;
         QTextStream s(&buf);
         s << *resp;
-        log() << "Ignoring response" << buf;
+        log("Ignoring response " + buf, LOG_MAILBOX_SYNC);
         return true;
     }
 }
@@ -66,28 +66,28 @@ bool UnSelectTask::handleStateHelper( const Imap::Responses::State* const resp )
 bool UnSelectTask::handleNumberResponse( const Imap::Responses::NumberResponse* const resp )
 {
     Q_UNUSED(resp);
-    log() << "UnSelectTask: ignoring numeric response";
+    log("UnSelectTask: ignoring numeric response", LOG_MAILBOX_SYNC);
     return true;
 }
 
 bool UnSelectTask::handleFlags( const Imap::Responses::Flags* const resp )
 {
     Q_UNUSED(resp);
-    log() << "UnSelectTask: ignoring FLAGS response";
+    log("UnSelectTask: ignoring FLAGS response", LOG_MAILBOX_SYNC);
     return true;
 }
 
 bool UnSelectTask::handleSearch( const Imap::Responses::Search* const resp )
 {
     Q_UNUSED(resp);
-    log() << "UnSelectTask: ignoring SEARCH response";
+    log("UnSelectTask: ignoring SEARCH response", LOG_MAILBOX_SYNC);
     return true;
 }
 
 bool UnSelectTask::handleFetch( const Imap::Responses::Fetch* const resp )
 {
     Q_UNUSED(resp);
-    log() << "UnSelectTask: ignoring FETCH response";
+    log("UnSelectTask: ignoring FETCH response", LOG_MAILBOX_SYNC);
     return true;
 }
 
