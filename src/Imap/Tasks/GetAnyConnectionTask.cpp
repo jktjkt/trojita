@@ -30,7 +30,6 @@ GetAnyConnectionTask::GetAnyConnectionTask( Model* _model ) :
 {
     if ( model->_parsers.isEmpty() ) {
         // We're creating a completely new connection
-        log() << "Creating completely new connection";
         newConn = model->_taskFactory->createOpenConnectionTask( model );
         newConn->addDependentTask( this );
     } else {
@@ -42,13 +41,11 @@ GetAnyConnectionTask::GetAnyConnectionTask( Model* _model ) :
         if ( it->maintainingTask ) {
             // The parser already has some maintaining task associated with it
             // We can't ignore the maintaining task, if only because of the IDLE
-            log() << "Queueing behind the maintaning task";
             newConn = it->maintainingTask;
             newConn->addDependentTask( this );
         } else {
             // The parser doesn't have anything associated with it, so we can go ahead and
             // register ourselves
-            log() << "Going directly to the parser";
             it->activeTasks.append( this );
             QTimer::singleShot( 0, model, SLOT(runReadyTasks()) );
         }
@@ -61,7 +58,6 @@ void GetAnyConnectionTask::perform()
     if ( newConn ) {
         // We're "dependent" on some connection, so we should update our parser (even though
         // it could be already set), and also register ourselves with the Model
-        log() << "Registering with the parser";
         parser = newConn->parser;
         Q_ASSERT( parser );
         model->accessParser( parser ).activeTasks.append( this );
