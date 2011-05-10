@@ -108,7 +108,7 @@ void ProtocolLoggerWidget::slotImapLogged(uint parser, const Imap::Mailbox::LogM
     QMap<uint, Imap::RingBuffer<Imap::Mailbox::LogMessage> >::iterator bufIt = buffers.find(parser);
     if (bufIt == buffers.end()) {
         // FIXME: don't hard-code that
-        bufIt = buffers.insert(parser, Imap::RingBuffer<Imap::Mailbox::LogMessage>(5000));
+        bufIt = buffers.insert(parser, Imap::RingBuffer<Imap::Mailbox::LogMessage>(900));
     }
     bufIt->append(message);
     if (loggingActive && !delayedDisplay->isActive())
