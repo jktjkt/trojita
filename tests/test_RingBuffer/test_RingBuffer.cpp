@@ -102,6 +102,30 @@ void RingBufferTest::testOne_data()
     expected.clear();
     expected << 7 << 15 << 9 << 13 << 0;
     QTest::newRow("seven-wrapped") << 5 << data << expected;
+
+    data.clear();
+    data << 333 << 666 << 7 << 15 << 9 << 13 << 0 << 2;
+    expected.clear();
+    expected << 15 << 9 << 13 << 0 << 2;
+    QTest::newRow("eight-wrapped") << 5 << data << expected;
+
+    data.clear();
+    data << 333 << 666 << 7 << 15 << 9 << 13 << 0 << 2 << 1;
+    expected.clear();
+    expected << 9 << 13 << 0 << 2 << 1;
+    QTest::newRow("nine-wrapped") << 5 << data << expected;
+
+    data.clear();
+    data << 333 << 666 << 7 << 15 << 9 << 13 << 0 << 2 << 1 << 800500;
+    expected.clear();
+    expected << 13 << 0 << 2 << 1 << 800500;
+    QTest::newRow("ten-wrapped") << 5 << data << expected;
+
+    data.clear();
+    data << 333 << 666 << 7 << 15 << 9 << 13 << 0 << 2 << 1 << 800500 << 11;
+    expected.clear();
+    expected << 0 << 2 << 1 << 800500 << 11;
+    QTest::newRow("eleven-wrapped") << 5 << data << expected;
 }
 
 TROJITA_HEADLESS_TEST( RingBufferTest )
