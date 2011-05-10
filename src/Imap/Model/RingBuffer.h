@@ -60,6 +60,11 @@ public:
             return container_->buf_[pos];
         }
 
+        const T* operator->() const
+        {
+            return &operator*();
+        }
+
         /** @short Increment the iterator */
         const_iterator &operator++()
         {
