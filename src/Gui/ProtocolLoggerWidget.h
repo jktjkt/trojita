@@ -60,9 +60,6 @@ private slots:
     void slotShowLogs();
 
 private:
-    typedef enum { MSG_NONE, MSG_SENT, MSG_RECEIVED, MSG_INFO_SENT, MSG_INFO_RECEIVED } MessageType;
-    enum { SIZE_CUTOFF = 200 };
-
     class ParserLog {
     public:
         ParserLog(): widget(0), skippedItems(0) {}
@@ -79,9 +76,6 @@ private:
 
     /** @short Return (possibly newly created) ParserLog struct for a given parser */
     ParserLog& getLogger( const uint parser );
-
-    /** @short Log the message into the GUI */
-    void logMessage( const uint parser, const MessageType kind, const QByteArray& line );
 
     /** @short Dump the log bufer contents to the GUI widget */
     void flushToWidget(const uint parserId, Imap::RingBuffer<Imap::Mailbox::LogMessage> &buf);
