@@ -1377,8 +1377,11 @@ void Model::emitAuthFailed(const QString &message)
 
 void Model::logTrace(Parser *parser, const LogKind kind, const QString &source, const QString &message)
 {
-    LogMessage m(QDateTime::currentDateTime(), kind, source, message);
+    enum {CUTOFF=200};
+    bool truncated = message.size() <= CUTOFF;
+    LogMessage m(QDateTime::currentDateTime(), kind, source, truncated ? message.left(CUTOFF) : message, truncated);
     accessParser(parser).eventLog.append(m);
+
 }
 
 }
