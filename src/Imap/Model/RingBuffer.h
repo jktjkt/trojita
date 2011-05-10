@@ -32,12 +32,16 @@ obtain an iterator by calling begin(). The returned iterator will cease to be va
 buffer. Iteration has to be performed by comparing the current value of an iterator for equivalence against the
 container's end(), and incrementing the iterator. Any other form is not supported.
 
-Invalidated iterators will likely not get caught .
+Invalidated iterators will likely not get caught.
 */
 template<typename T>
 class RingBuffer
 {
 public:
+    /** @short Constat iterator fro visiting the items after each other, starting at the oldest one
+
+    The iterator itself is linear, ie. it won't wrap. It will however
+*/
     class const_iterator
     {
         const RingBuffer<T> *container_;
@@ -46,15 +50,21 @@ public:
         /** @short Dereference the iterator */
         const T& operator*() const
         {
+            // It has to point to a correct offset
             Q_ASSERT(offset_ >= 0 && offset_ < container_->buf_.size());
-            int pos = container_->wrapped_ ? (container_->appendPos_ + offset_) % container_->buf_.size() : offset_;
+            int pos = container_->wrapped_ ?
+                        // It got wrapped, so we have to get wrapped past the end, too, and start at the oldest one
+                        (container_->appendPos_ + offset_) % container_->buf_.size() :
+                        // It isn't full yet
+                        offset_;
             return container_->buf_[pos];
         }
 
-        /** @short Increment the iterator, wrapping around past end if neccessary */
+        /** @short Increment the iterator */
         const_iterator &operator++()
         {
             ++offset_;
+            // Allow incrementing to the end, ie. one past the last item
             Q_ASSERT(offset_ <= container_->buf_.size());
             return *this;
         }
