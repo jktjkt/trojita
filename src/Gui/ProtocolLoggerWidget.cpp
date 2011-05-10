@@ -42,115 +42,31 @@ ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
     clearAll = new QPushButton( tr("Clear all"), this );
     connect( clearAll, SIGNAL(clicked()), this, SLOT(clearLogDisplay()) );
     tabs->setCornerWidget( clearAll, Qt::BottomRightCorner );
+
+    delayedDisplay = new QTimer(this);
+    delayedDisplay->setSingleShot(true);
+    delayedDisplay->setInterval(300);
+    connect(delayedDisplay, SIGNAL(timeout()), this, SLOT(slotShowLogs()));
 }
 
-void ProtocolLoggerWidget::logMessage( const uint parser, const MessageType kind, const QByteArray& line )
+QPlainTextEdit *ProtocolLoggerWidget::getLogger( const uint parser )
 {
-    ParserLog& log = getLogger( parser );
-
-    if ( ! loggingActive ) {
-        ++log.skippedItems;
-        return;
-    }
-
-    QString message = QString::fromAscii( "<pre><span style='color: #808080'>%1</span> %2<span style='color: %3;%4'>%5</span>%6</pre>" );
-    QString direction;
-    QString textColor;
-    QString bgColor;
-    QString niceLine;
-    QString trimmedInfo;
-
-    switch ( kind ) {
-    case MSG_SENT:
-        textColor = "#800000";
-        direction = "<span style='color: #c0c0c0;'>&gt;&gt;&gt;&nbsp;</span>";
-        break;
-    case MSG_RECEIVED:
-        textColor = "#008000";
-        direction = "<span style='color: #c0c0c0;'>&lt;&lt;&lt;&nbsp;</span>";
-        break;
-    case MSG_INFO_SENT:
-        textColor = "#800080";
-        bgColor = "#d0d0d0";
-        break;
-    case MSG_INFO_RECEIVED:
-        textColor = "#808000";
-        bgColor = "#d0d0d0";
-        break;
-    case MSG_NONE:
-        Q_ASSERT( false );
-    }
-
-    if ( line.size() > SIZE_CUTOFF ) {
-        niceLine = Qt::escape( QString::fromAscii( line.left( SIZE_CUTOFF ) ) );
-        trimmedInfo = tr( "<br/><span style='color: #808080; font-style: italic;'>(+ %n more bytes)</span>", "",  line.size() - SIZE_CUTOFF );
-    } else {
-        niceLine = Qt::escape( QString::fromAscii( line ) );
-    }
-
-    niceLine.replace( QChar('\r'), 0x240d /* SYMBOL FOR CARRIAGE RETURN */ )
-            .replace( QChar('\n'), 0x240a /* SYMBOL FOR LINE FEED */ );
-
-    log.widget->appendHtml( message.arg( QTime::currentTime().toString( QString::fromAscii("hh:mm:ss.zzz") ),
-                                         direction, textColor,
-                                         bgColor.isEmpty() ? QString() : QString::fromAscii("background-color: %1").arg(bgColor),
-                                         niceLine, trimmedInfo ) );
-}
-
-void ProtocolLoggerWidget::parserFatalError( uint parser, const QString& exceptionClass, const QString& message, const QByteArray& line, int position )
-{
-    QString buf = QString::fromAscii( "<pre><span style='color: #808080'>%1</span> "
-                                          "<span style='color: #ff0000'>!!!</span> "
-                                          "<span>%2</span></pre>" );
-    QString niceLine = QString::fromLocal8Bit( line )
-                       .replace( QChar('\r'), 0x240d /* SYMBOL FOR CARRIAGE RETURN */ )
-                       .replace( QChar('\n'), 0x240a /* SYMBOL FOR LINE FEED */ );
-    if ( position >= 0 && position < line.size() ) {
-        niceLine = QString::fromAscii("%1<span style='background-color: #d08080;'>%2</span>")
-                   .arg( Qt::escape( niceLine.left( position ) ), Qt::escape( niceLine.mid( position ) ) );
-    } else {
-        niceLine = Qt::escape( niceLine );
-    }
-    ParserLog& log = getLogger( parser );
-    if ( log.skippedItems ) {
-        log.widget->appendHtml(
-                tr("<p style='color: #bb0000'><i>"
-                   "<b>%n message(s)</b> were skipped because this widget was hidden.</i></p>",
-                   "", log.skippedItems ) );
-        log.skippedItems = 0;
-    }
-    log.widget->appendHtml( buf.arg( QTime::currentTime().toString( QString::fromAscii("hh:mm:ss.zzz") ),
-                                     tr("Encountered fatal exception %1: %2").arg( exceptionClass, message ) ) );
-    log.widget->appendHtml( buf.arg( QTime::currentTime().toString( QString::fromAscii("hh:mm:ss.zzz") ),
-                                     niceLine ) );
-}
-
-void ProtocolLoggerWidget::parserLineReceived( uint parser, const QByteArray& line )
-{
-    logMessage( parser, line.startsWith( "*** " ) ? MSG_INFO_RECEIVED : MSG_RECEIVED, line.trimmed() );
-}
-
-void ProtocolLoggerWidget::parserLineSent( uint parser, const QByteArray& line )
-{
-    logMessage( parser, line.startsWith( "*** " ) ? MSG_INFO_SENT : MSG_SENT, line.trimmed() );
-}
-
-ProtocolLoggerWidget::ParserLog& ProtocolLoggerWidget::getLogger( const uint parser )
-{
-    ParserLog& res = buffers[ parser ];
-    if ( ! res.widget ) {
-        res.widget = new QPlainTextEdit();
-        res.widget->setLineWrapMode( QPlainTextEdit::NoWrap );
-        res.widget->setCenterOnScroll( true );
-        res.widget->setMaximumBlockCount( 1000 );
-        res.widget->setReadOnly( true );
-        res.widget->setUndoRedoEnabled( false );
+    QPlainTextEdit *res = loggerWidgets[parser];
+    if (!res) {
+        res = new QPlainTextEdit();
+        res->setLineWrapMode( QPlainTextEdit::NoWrap );
+        res->setCenterOnScroll( true );
+        res->setMaximumBlockCount( 1000 );
+        res->setReadOnly( true );
+        res->setUndoRedoEnabled( false );
+        res->setWordWrapMode(QTextOption::NoWrap);
         // Got to output something here using the default background,
         // otherwise the QPlainTextEdit would default its background
         // to the very first value we throw at it, which might be a
         // grey one.
-        res.widget->appendHtml( QString::fromAscii("<p>&nbsp;</p>") );
-        tabs->addTab( res.widget, tr("Parser %1").arg( parser ) );
+        res->appendHtml(QString::fromAscii("<p>&nbsp;</p>"));
+        tabs->addTab(res, tr("Connection %1").arg(parser));
+        loggerWidgets[parser] = res;
     }
     return res;
 }
@@ -159,10 +75,10 @@ void ProtocolLoggerWidget::closeTab( int index )
 {
     QPlainTextEdit* w = qobject_cast<QPlainTextEdit*>( tabs->widget( index ) );
     Q_ASSERT( w );
-    for ( QMap<uint, ParserLog>::iterator it = buffers.begin(); it != buffers.end(); ++it ) {
-        if ( it->widget != w )
+    for ( QMap<uint, QPlainTextEdit*>::iterator it = loggerWidgets.begin(); it != loggerWidgets.end(); ++it ) {
+        if ( *it != w )
             continue;
-        buffers.erase( it );
+        loggerWidgets.erase( it );
         tabs->removeTab( index );
         w->deleteLater();
         return;
@@ -171,37 +87,101 @@ void ProtocolLoggerWidget::closeTab( int index )
 
 void ProtocolLoggerWidget::clearLogDisplay()
 {
-    for ( QMap<uint, ParserLog>::iterator it = buffers.begin(); it != buffers.end(); ++it ) {
-        it->widget->document()->clear();
+    for ( QMap<uint, QPlainTextEdit*>::iterator it = loggerWidgets.begin(); it != loggerWidgets.end(); ++it ) {
+        (*it)->document()->clear();
     }
-}
-
-void ProtocolLoggerWidget::enableLogging( bool enabled )
-{
-    for ( QMap<uint, ParserLog>::iterator it = buffers.begin(); it != buffers.end(); ++it ) {
-        if ( ! loggingActive && enabled ) {
-            if ( it->skippedItems ) {
-                it->widget->appendHtml(
-                        tr("<p style='color: #bb0000'><i>Logging resumed. "
-                           "<b>%n message(s)</b> got skipped while the logger widget was hidden.</i></p>",
-                           "", it->skippedItems ) );
-                it->skippedItems = 0;
-            }
-        }
-    }
-    loggingActive = enabled;
 }
 
 void ProtocolLoggerWidget::showEvent( QShowEvent* e )
 {
-    enableLogging( true );
+    loggingActive = true;
     QWidget::showEvent( e );
+    slotShowLogs();
 }
 
 void ProtocolLoggerWidget::hideEvent( QHideEvent* e )
 {
-    enableLogging( false );
+    loggingActive = false;
     QWidget::hideEvent( e );
+}
+
+void ProtocolLoggerWidget::slotImapLogged(uint parser, const Imap::Mailbox::LogMessage &message)
+{
+    QMap<uint, Imap::RingBuffer<Imap::Mailbox::LogMessage> >::iterator bufIt = buffers.find(parser);
+    if (bufIt == buffers.end()) {
+        // FIXME: don't hard-code that
+        bufIt = buffers.insert(parser, Imap::RingBuffer<Imap::Mailbox::LogMessage>(900));
+    }
+    bufIt->append(message);
+    if (loggingActive && !delayedDisplay->isActive())
+        delayedDisplay->start();
+}
+
+void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<Imap::Mailbox::LogMessage> &buf)
+{
+    if (buf.skippedCount()) {
+        getLogger(parserId)->appendHtml(tr("<p style='color: #bb0000'><i><b>%n message(s)</b> were skipped because this widget was hidden.</i></p>",
+                                                  "", buf.skippedCount()));
+    }
+
+    QPlainTextEdit *w = getLogger(parserId);
+
+    for (Imap::RingBuffer<Imap::Mailbox::LogMessage>::const_iterator it = buf.begin(); it != buf.end(); ++it) {
+        QString message = QString::fromAscii("<pre><span style='color: #808080'>%1</span> %2<span style='color: %3;%4'>%5</span>%6</pre>");
+        QString direction;
+        QString textColor;
+        QString bgColor;
+        QString trimmedInfo;
+
+        switch (it->kind) {
+        case Imap::Mailbox::LOG_IO_WRITTEN:
+            if ( it->message.startsWith("***")) {
+                textColor = "#800080";
+                bgColor = "#d0d0d0";
+            } else {
+                textColor = "#800000";
+                direction = "<span style='color: #c0c0c0;'>&gt;&gt;&gt;&nbsp;</span>";
+            }
+            break;
+        case Imap::Mailbox::LOG_IO_READ:
+            if ( it->message.startsWith("***")) {
+                textColor = "#808000";
+                bgColor = "#d0d0d0";
+            } else {
+                textColor = "#008000";
+                direction = "<span style='color: #c0c0c0;'>&lt;&lt;&lt;&nbsp;</span>";
+            }
+            break;
+        case Imap::Mailbox::LOG_MAILBOX_SYNC:
+        case Imap::Mailbox::LOG_MESSAGES:
+        case Imap::Mailbox::LOG_OTHER:
+        case Imap::Mailbox::LOG_PARSE_ERROR:
+        case Imap::Mailbox::LOG_TASKS:
+            break;
+        }
+
+        if (it->truncatedBytes) {
+            trimmedInfo = tr("<br/><span style='color: #808080; font-style: italic;'>(+ %n more bytes)</span>", "", it->truncatedBytes);
+        }
+
+        QString niceLine = Qt::escape(it->message);
+        niceLine.replace( QChar('\r'), 0x240d /* SYMBOL FOR CARRIAGE RETURN */ )
+                .replace( QChar('\n'), 0x240a /* SYMBOL FOR LINE FEED */ );
+
+        w->appendHtml(message.arg(QTime::currentTime().toString(QString::fromAscii("hh:mm:ss.zzz")),
+                                  direction, textColor,
+                                  bgColor.isEmpty() ? QString() : QString::fromAscii("background-color: %1").arg(bgColor),
+                                  niceLine, trimmedInfo));
+    }
+    buf.clear();
+}
+
+void ProtocolLoggerWidget::slotShowLogs()
+{
+    // Please note that we can't return to the event loop from this context, as the log buffer has to be read atomically
+    for (QMap<uint, Imap::RingBuffer<Imap::Mailbox::LogMessage> >::iterator it = buffers.begin(); it != buffers.end(); ++it) {
+        flushToWidget(it.key(), *it);
+    }
 }
 
 }

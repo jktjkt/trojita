@@ -32,6 +32,8 @@
 #include "CopyMoveOperation.h"
 #include "TaskFactory.h"
 
+#include "Logging.h"
+
 class QAuthenticator;
 
 class FakeCapabilitiesInjector;
@@ -223,6 +225,9 @@ this message happen again.
     /** @short Return a list of capabilities which are supported by the server */
     QStringList capabilities() const;
 
+    /** @short Log an IMAP-related message */
+    void logTrace(uint parserId, const LogKind kind, const QString &source, const QString &message);
+
 public slots:
     /** @short Ask for an updated list of mailboxes on the server */
     void reloadMailboxList();
@@ -314,12 +319,6 @@ authRequested() function.
     /** @short An interaction with the remote server is taking place */
     void activityHappening( bool isHappening );
 
-    /** @short The parser has received a full line */
-    void logParserLineReceived( uint parser, const QByteArray& line );
-
-    /** @short The parser has sent a block of data */
-    void logParserLineSent( uint parser, const QByteArray& line );
-
     /** @short The parser has encountered a fatal error */
     void logParserFatalError( uint parser, const QString& exceptionClass, const QString& message, const QByteArray& line, int position );
 
@@ -335,6 +334,8 @@ authRequested() function.
     void threadingFailed(const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria);
 
     void capabilitiesUpdated(const QStringList &capabilities);
+
+    void logged(uint parserId, const Imap::Mailbox::LogMessage &message);
 
 private:
     Model& operator=( const Model& ); // don't implement

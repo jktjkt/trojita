@@ -60,12 +60,16 @@ bool DeleteMailboxTask::handleStateHelper( const Imap::Responses::State* const r
                 model->endRemoveRows();
                 delete mailboxPtr;
             } else {
-                qDebug() << "The IMAP server just told us that it succeded to delete mailbox named" <<
-                        mailbox << ", yet wo don't know of any such mailbox. Message from the server:" <<
+                QString buf;
+                QDebug dbg(&buf);
+                dbg << "The IMAP server just told us that it succeded to delete mailbox named" <<
+                        mailbox << ", yet we don't know of any such mailbox. Message from the server:" <<
                         resp->message;
+                log(buf);
             }
             emit model->mailboxDeletionSucceded( mailbox );
         } else {
+            log("Couldn't delete mailbox");
             emit model->mailboxDeletionFailed( mailbox, resp->message );
             // FIXME: Tasks API error handling
         }

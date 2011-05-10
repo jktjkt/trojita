@@ -1111,23 +1111,19 @@ void Model::killParser(Parser *parser, bool nice)
     parser->deleteLater();
     accessParser( parser ).parser = 0;
     if ( nice )
-        emit logParserLineSent( parserId, "*** Connection closed.");
+        logTrace(parser->parserId(), LOG_IO_WRITTEN, QString(), "*** Connection closed.");
     else
-        emit logParserLineSent( parserId, "*** Connection killed.");
+        logTrace(parser->parserId(), LOG_IO_WRITTEN, QString(), "*** Connection killed.");
 }
 
 void Model::slotParserLineReceived( Parser *parser, const QByteArray& line )
 {
-    Q_ASSERT( parser );
-    Q_ASSERT( _parsers.contains( parser ) );
-    emit logParserLineReceived( parser->parserId(), line );
+    logTrace(parser->parserId(), LOG_IO_READ, QString(), line);
 }
 
 void Model::slotParserLineSent( Parser *parser, const QByteArray& line )
 {
-    Q_ASSERT( parser );
-    Q_ASSERT( _parsers.contains( parser ) );
-    emit logParserLineSent( parser->parserId(), line );
+    logTrace(parser->parserId(), LOG_IO_WRITTEN, QString(), line);
 }
 
 void Model::setCache( AbstractCache* cache )
@@ -1373,6 +1369,14 @@ void Model::emitAuthFailed(const QString &message)
     delete _authenticator;
     _authenticator = 0;
     emit authAttemptFailed(message);
+}
+
+void Model::logTrace(uint parserId, const LogKind kind, const QString &source, const QString &message)
+{
+    enum {CUTOFF=200};
+    uint truncatedBytes = message.size() > CUTOFF ? message.size() - CUTOFF : 0;
+    LogMessage m(QDateTime::currentDateTime(), kind, source, truncatedBytes ? message.left(CUTOFF) : message, truncatedBytes);
+    emit logged(parserId, m);
 }
 
 }

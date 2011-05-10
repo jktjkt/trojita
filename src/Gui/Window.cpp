@@ -432,13 +432,10 @@ void MainWindow::setupModels()
 
     connect( model, SIGNAL(activityHappening(bool)), this, SLOT(updateBusyParsers(bool)) );
 
-    connect( model, SIGNAL(logParserLineReceived(uint,QByteArray)), imapLogger, SLOT(parserLineReceived(uint,QByteArray)) );
-    connect( model, SIGNAL(logParserLineSent(uint,QByteArray)), imapLogger, SLOT(parserLineSent(uint,QByteArray)) );
-    connect( model, SIGNAL(logParserFatalError(uint,QString,QString,QByteArray,int)),
-             imapLogger, SLOT(parserFatalError(uint,QString,QString,QByteArray,int)) );
-
     connect( model, SIGNAL(mailboxDeletionFailed(QString,QString)), this, SLOT(slotMailboxDeleteFailed(QString,QString)) );
     connect( model, SIGNAL(mailboxCreationFailed(QString,QString)), this, SLOT(slotMailboxCreateFailed(QString,QString)) );
+
+    connect(model, SIGNAL(logged(uint,Imap::Mailbox::LogMessage)), imapLogger, SLOT(slotImapLogged(uint,Imap::Mailbox::LogMessage)));
 
     connect( model, SIGNAL(mailboxFirstUnseenMessage(QModelIndex,QModelIndex)), this, SLOT(slotScrollToUnseenMessage(QModelIndex,QModelIndex)) );
 

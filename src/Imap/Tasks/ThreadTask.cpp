@@ -41,7 +41,7 @@ void ThreadTask::perform()
 
     if ( ! mailboxIndex.isValid() ) {
         // FIXME: add proper fix
-        qDebug() << "Mailbox vanished before we could ask for threading info";
+        log("Mailbox vanished before we could ask for threading info");
         _completed();
         return;
     }
@@ -61,7 +61,7 @@ bool ThreadTask::handleStateHelper( const Imap::Responses::State* const resp )
             emit model->threadingAvailable(mailboxIndex, algorithm, searchCriteria, mapping);
         } else {
             // FIXME: show this in the GUI
-            qDebug() << "Threading command has failed:" << resp->message;
+            log("Threading command has failed: " + resp->message);
             emit model->threadingFailed(mailboxIndex, algorithm, searchCriteria);
         }
         mapping.clear();

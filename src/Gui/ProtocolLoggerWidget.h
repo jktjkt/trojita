@@ -25,10 +25,13 @@
 
 #include <QMap>
 #include <QWidget>
+#include "Imap/Model/Logging.h"
+#include "Imap/Model/RingBuffer.h"
 
 class QPushButton;
 class QTabWidget;
 class QPlainTextEdit;
+class QTimer;
 
 namespace Gui {
 
@@ -44,42 +47,31 @@ public:
     explicit ProtocolLoggerWidget(QWidget *parent = 0);
 
 public slots:
-    /** @short A parser received something from the server */
-    void parserLineReceived( uint parser, const QByteArray& line );
-    /** @short Parser just sent a piece of data */
-    void parserLineSent( uint parser, const QByteArray& line );
-    /** @short Parser reported a fatal error */
-    void parserFatalError( uint parser, const QString& exceptionClass, const QString& message, const QByteArray& line, int position );
+    /** @short An IMAP model wants to log something */
+    void slotImapLogged(uint parser, const Imap::Mailbox::LogMessage &message);
 
 private slots:
     /** @short A tab is requested to close */
     void closeTab( int index );
     /** @short Clear all logs */
     void clearLogDisplay();
-    /** @short Enable/disable active logging */
-    void enableLogging( bool enabled );
+
+    /** @short Copy contents of all buffers into the GUI widgets */
+    void slotShowLogs();
 
 private:
-    typedef enum { MSG_NONE, MSG_SENT, MSG_RECEIVED, MSG_INFO_SENT, MSG_INFO_RECEIVED } MessageType;
-    enum { SIZE_CUTOFF = 200 };
-
-    class ParserLog {
-    public:
-        ParserLog(): widget(0), skippedItems(0) {}
-        QPlainTextEdit* widget; /**< @short Widget displaying the log */
-        uint skippedItems;
-    };
-
     QTabWidget* tabs;
-    QMap<uint, ParserLog> buffers;
+    QMap<uint, QPlainTextEdit*> loggerWidgets;
+    QMap<uint, Imap::RingBuffer<Imap::Mailbox::LogMessage> > buffers;
     QPushButton* clearAll;
     bool loggingActive;
+    QTimer *delayedDisplay;
 
-    /** @short Return (possibly newly created) ParserLog struct for a given parser */
-    ParserLog& getLogger( const uint parser );
+    /** @short Return (possibly newly created) logger widget for a given parser */
+    QPlainTextEdit *getLogger( const uint parser );
 
-    /** @short Log the message into the GUI */
-    void logMessage( const uint parser, const MessageType kind, const QByteArray& line );
+    /** @short Dump the log bufer contents to the GUI widget */
+    void flushToWidget(const uint parserId, Imap::RingBuffer<Imap::Mailbox::LogMessage> &buf);
 
     virtual void showEvent( QShowEvent* e );
     virtual void hideEvent( QHideEvent* e );

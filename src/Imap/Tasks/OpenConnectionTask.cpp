@@ -72,7 +72,7 @@ bool OpenConnectionTask::handleStateHelper( const Imap::Responses::State* const 
             } else {
                 // We want to log in, but we might have to STARTTLS before
                 if ( model->accessParser( parser ).capabilities.contains( QLatin1String("LOGINDISABLED") ) ) {
-                    qDebug() << "Can't login yet, trying STARTTLS";
+                    log("Can't login yet, trying STARTTLS", LOG_OTHER);
                     // ... and we are forbidden from logging in, so we have to try the STARTTLS
                     startTlsCmd = parser->startTls();
                     emit model->activityHappening( true );
@@ -190,7 +190,7 @@ void OpenConnectionTask::handleInitialResponse( const Imap::Responses::State* co
                 capabilityCmd = parser->capability();
                 emit model->activityHappening( true );
             } else if ( model->accessParser( parser ).capabilities.contains( QLatin1String("LOGINDISABLED") ) ) {
-                qDebug() << "Can't login yet, trying STARTTLS";
+                log("Can't login yet, trying STARTTLS", LOG_OTHER);
                 // ... and we are forbidden from logging in, so we have to try the STARTTLS
                 startTlsCmd = parser->startTls();
                 emit model->activityHappening( true );

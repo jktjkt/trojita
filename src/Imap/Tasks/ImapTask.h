@@ -21,6 +21,7 @@
 
 #include <QObject>
 #include "../Parser/Parser.h"
+#include "../Model/Logging.h"
 
 namespace Imap {
 
@@ -90,6 +91,14 @@ public:
 
 protected:
     void _completed();
+
+    /** @short Get a debug logger associated with this task
+
+    Use this function to obtain a logger which can be used for recording debug information associated with the current
+    task. The events will be marked with an identification of the task which triggered them, and could be accessed from
+    the GUI if logging is enabled.
+    */
+    void log(const QString &message, const LogKind kind=LOG_TASKS);
 
 private:
     void handleResponseCode( const Imap::Responses::State* const resp );

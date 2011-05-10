@@ -69,10 +69,12 @@ bool FetchMsgPartTask::handleStateHelper( const Imap::Responses::State* const re
     if ( resp->tag == tag ) {
 
         if ( resp->kind == Responses::OK ) {
+            log("Fetched parts", LOG_MESSAGES);
             verifyFetchingState();
             model->changeConnectionState( parser, CONN_STATE_SELECTED );
         } else {
             // FIXME: error handling
+            log("Part fetch failed", LOG_MESSAGES);
         }
         _completed();
         return true;
@@ -84,7 +86,7 @@ bool FetchMsgPartTask::handleStateHelper( const Imap::Responses::State* const re
 void FetchMsgPartTask::verifyFetchingState()
 {
     if ( ! mailboxIndex.isValid() ) {
-        qDebug() << "Mailbox has disappeared, huh?";
+        log("Mailbox has disappeared, huh?", LOG_TASKS);
         return;
     }
 
@@ -93,6 +95,7 @@ void FetchMsgPartTask::verifyFetchingState()
     QList<TreeItemMessage*> messages = model->findMessagesByUids( mailbox, uids );
     Q_FOREACH( TreeItemMessage *message, messages ) {
         Q_FOREACH( const QString &partId, parts ) {
+            log("Fetched part" + partId, LOG_MESSAGES);
             model->_finalizeFetchPart( mailbox, message->row() + 1, partId );
         }
     }

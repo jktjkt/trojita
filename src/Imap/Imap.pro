@@ -98,6 +98,8 @@ HEADERS += Parser/Parser.h \
     Model/DelayedPopulation.h \
     Model/CopyMoveOperation.h \
     Model/ItemRoles.h \
+    Model/RingBuffer.h \
+    Model/Logging.h \
     Tasks/ImapTask.h \
     Tasks/FetchMsgPartTask.h \
     Tasks/FetchMsgMetadataTask.h \

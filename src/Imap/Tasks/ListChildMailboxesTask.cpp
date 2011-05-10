@@ -43,7 +43,7 @@ void ListChildMailboxesTask::perform()
 
     if ( ! mailboxIndex.isValid() ) {
         // FIXME: add proper fix
-        qDebug() << "Mailbox vanished before we could ask for its children";
+        log("Mailbox vanished before we could ask for its children", LOG_TASKS);
         _completed();
         return;
     }
@@ -73,11 +73,12 @@ bool ListChildMailboxesTask::handleStateHelper( const Imap::Responses::State* co
             if ( resp->kind == Responses::OK ) {
                 model->_finalizeList( parser, mailbox );
             } else {
+                log("LIST failed");
                 // FIXME: error handling
             }
         } else {
             // FIXME: error handling
-            qDebug() << Q_FUNC_INFO << "Mailbox no longer available -- weird timing?";
+            log("Mailbox no longer available -- weird timing?");
         }
         _completed();
         return true;
