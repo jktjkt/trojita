@@ -55,6 +55,9 @@ void RingBufferTest::testOne()
     // Correct data?
     QCOMPARE(expectedData, output);
 
+    // Did it overwrite a correct number of items?
+    QCOMPARE(static_cast<uint>(sourceData.size() - expectedData.size()), rb.skippedCount());
+
     // Try to nuke them
     rb.clear();
     // Is it really empty?

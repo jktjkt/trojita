@@ -89,7 +89,7 @@ public:
     };
 
     /** @short Instantiate a ring buffer holding size elements */
-    RingBuffer(const int size): buf_(size), appendPos_(0), wrapped_(false)
+    RingBuffer(const int size): buf_(size), appendPos_(0), wrapped_(false), skipped_(0)
     {
         Q_ASSERT(size >= 1);
     }
@@ -113,6 +113,8 @@ public:
             wrapped_ = true;
             appendPos_ = 0;
         }
+        if (wrapped_)
+            ++skipped_;
         buf_[appendPos_] = what;
         ++appendPos_;
     }
@@ -123,12 +125,20 @@ public:
         buf_ = QVector<T>(buf_.size());
         wrapped_ = false;
         appendPos_ = 0;
+        skipped_ = 0;
+    }
+
+    /** @short How many items were overwritten */
+    uint skippedCount() const
+    {
+        return skipped_;
     }
 
 private:
     QVector<T> buf_;
     int appendPos_;
     bool wrapped_;
+    uint skipped_;
 };
 
 }
