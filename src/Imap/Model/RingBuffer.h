@@ -41,30 +41,21 @@ public:
     class const_iterator
     {
         const RingBuffer<T> *container_;
-        int myPos_;
+        int offset_;
     public:
         /** @short Dereference the iterator */
         const T& operator*() const
         {
-            Q_ASSERT(myPos_ >= 0 && myPos_ < container_->buf_.size());
-            return container_->buf_[myPos_];
+            Q_ASSERT(offset_ >= 0 && offset_ < container_->buf_.size());
+            int pos = container_->wrapped_ ? (container_->appendPos_ + offset_) % container_->buf_.size() : offset_;
+            return container_->buf_[pos];
         }
 
         /** @short Increment the iterator, wrapping around past end if neccessary */
         const_iterator &operator++()
         {
-            if (myPos_ == container_->buf_.size() - 1) {
-                if (container_->wrapped_) {
-                    qDebug() << "iterator++ wrapped";
-                    myPos_ = 0;
-                } else {
-                    qDebug() << "not wrapped yet, so iterator++ now at" << myPos_ + 1;
-                    ++myPos_;
-                }
-            } else {
-                qDebug() << "iterator++ now at" << myPos_ + 1;
-                ++myPos_;
-            }
+            ++offset_;
+            Q_ASSERT(offset_ <= container_->buf_.size());
             return *this;
         }
 
@@ -72,8 +63,7 @@ public:
         bool operator==(const const_iterator& other)
         {
             Q_ASSERT(container_ == other.container_);
-            qDebug() << "compare" << myPos_ << other.myPos_;
-            return myPos_ == other.myPos_;
+            return offset_ == other.offset_;
         }
 
         /** @short Compare two iterators from the same container for inqeuality */
@@ -83,7 +73,7 @@ public:
         }
     private:
         friend class RingBuffer<T>;
-        const_iterator(const RingBuffer<T>* container, int myPos): container_(container), myPos_(myPos)
+        const_iterator(const RingBuffer<T>* container, int offset): container_(container), offset_(offset)
         {
         }
     };
@@ -97,20 +87,13 @@ public:
     /** @short Return an interator pointing to the oldest item in the container */
     const_iterator begin() const
     {
-        if (!wrapped_) {
-            qDebug() << "Begin @0";
-            return const_iterator(this, 0);
-        } else {
-            qDebug() << "Begin at " << (appendPos_ == 0 ? 1 : appendPos_ + 1);
-            return const_iterator(this, appendPos_ == 0 ? 1 : appendPos_ + 1);
-        }
+        return const_iterator(this, 0);
     }
 
     /** @short Return an interator pointing to one item past the recent addition */
     const_iterator end() const
     {
-        qDebug() << "end at" << appendPos_;
-        return const_iterator(this, appendPos_);
+        return const_iterator(this, wrapped_ ?  buf_.size() : appendPos_);
     }
 
     /** @short Append an item to the container. Oldest item could get overwritten. */
