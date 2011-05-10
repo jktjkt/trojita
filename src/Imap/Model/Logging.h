@@ -49,6 +49,14 @@ struct LogMessage
     QString source;
     /** @short Actual message */
     QString message;
+
+    LogMessage(const QDateTime &timestamp_, const LogKind kind_, const QString &source_, const QString &message_):
+        timestamp(timestamp_), kind(kind_), source(source_), message(message_)
+    {
+    }
+
+    // default constructor for QVector
+    LogMessage() {}
 };
 
 }
