@@ -90,6 +90,18 @@ void RingBufferTest::testOne_data()
     data.clear();
     data << 333 << 666 << 7 << 15 << 9;
     QTest::newRow("five-values") << 5 << data << data;
+
+    data.clear();
+    data << 333 << 666 << 7 << 15 << 9 << 13;
+    QVector<int> expected;
+    expected << 666 << 7 << 15 << 9 << 13;
+    QTest::newRow("six-wrapped") << 5 << data << expected;
+
+    data.clear();
+    data << 333 << 666 << 7 << 15 << 9 << 13 << 0;
+    expected.clear();
+    expected << 7 << 15 << 9 << 13 << 0;
+    QTest::newRow("seven-wrapped") << 5 << data << expected;
 }
 
 TROJITA_HEADLESS_TEST( RingBufferTest )
