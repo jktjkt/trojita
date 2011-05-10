@@ -54,4 +54,7 @@ struct LogMessage
 }
 }
 
+// Both QString and QDateTime are movable, so our combination is movable as well
+Q_DECLARE_TYPEINFO(Imap::Mailbox::LogMessage, Q_MOVABLE_TYPE);
+
 #endif // TROJITA_IMAP_LOGGING_H
