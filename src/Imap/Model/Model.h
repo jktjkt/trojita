@@ -325,12 +325,6 @@ authRequested() function.
     /** @short An interaction with the remote server is taking place */
     void activityHappening( bool isHappening );
 
-    /** @short The parser has received a full line */
-    void logParserLineReceived( uint parser, const QByteArray& line );
-
-    /** @short The parser has sent a block of data */
-    void logParserLineSent( uint parser, const QByteArray& line );
-
     /** @short The parser has encountered a fatal error */
     void logParserFatalError( uint parser, const QString& exceptionClass, const QString& message, const QByteArray& line, int position );
 
