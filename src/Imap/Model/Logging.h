@@ -50,10 +50,10 @@ struct LogMessage
     /** @short Actual message */
     QString message;
     /** @short Was it truncated? */
-    bool truncated;
+    uint truncatedBytes;
 
-    LogMessage(const QDateTime &timestamp_, const LogKind kind_, const QString &source_, const QString &message_, const bool truncated_):
-        timestamp(timestamp_), kind(kind_), source(source_), message(message_), truncated(truncated_)
+    LogMessage(const QDateTime &timestamp_, const LogKind kind_, const QString &source_, const QString &message_, const uint truncated_):
+        timestamp(timestamp_), kind(kind_), source(source_), message(message_), truncatedBytes(truncated_)
     {
     }
 

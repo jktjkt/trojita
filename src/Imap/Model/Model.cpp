@@ -1374,8 +1374,8 @@ void Model::emitAuthFailed(const QString &message)
 void Model::logTrace(uint parserId, const LogKind kind, const QString &source, const QString &message)
 {
     enum {CUTOFF=200};
-    bool truncated = message.size() <= CUTOFF;
-    LogMessage m(QDateTime::currentDateTime(), kind, source, truncated ? message.left(CUTOFF) : message, truncated);
+    uint truncatedBytes = message.size() > CUTOFF ? message.size() - CUTOFF : 0;
+    LogMessage m(QDateTime::currentDateTime(), kind, source, truncatedBytes ? message.left(CUTOFF) : message, truncatedBytes);
     emit logged(parserId, m);
 }
 

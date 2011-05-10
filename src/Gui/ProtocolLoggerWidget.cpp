@@ -152,8 +152,8 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<I
             break;
         }
 
-        if (it->truncated) {
-            trimmedInfo = tr("<br/><span style='color: #808080; font-style: italic;'>(trimmed)</span>");
+        if (it->truncatedBytes) {
+            trimmedInfo = tr("<br/><span style='color: #808080; font-style: italic;'>(+ %n more bytes)</span>", "", it->truncatedBytes);
         }
 
         QString niceLine = Qt::escape(it->message);
