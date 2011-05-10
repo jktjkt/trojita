@@ -204,4 +204,21 @@ void ProtocolLoggerWidget::hideEvent( QHideEvent* e )
     QWidget::hideEvent( e );
 }
 
+void ProtocolLoggerWidget::slotImapLogged(uint parser, const Imap::Mailbox::LogMessage &message)
+{
+    // FIXME: a very much testing implementation
+    MessageType t;
+    switch (message.kind) {
+    case Imap::Mailbox::LOG_IO_READ:
+        t = MSG_SENT;
+        break;
+    case Imap::Mailbox::LOG_IO_WRITTEN:
+        t = MSG_RECEIVED;
+        break;
+    default:
+        t = MSG_INFO_SENT; // catch-all
+    }
+    logMessage(parser, t, message.message.toLocal8Bit());
+}
+
 }

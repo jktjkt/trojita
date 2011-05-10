@@ -435,6 +435,8 @@ void MainWindow::setupModels()
     connect( model, SIGNAL(mailboxDeletionFailed(QString,QString)), this, SLOT(slotMailboxDeleteFailed(QString,QString)) );
     connect( model, SIGNAL(mailboxCreationFailed(QString,QString)), this, SLOT(slotMailboxCreateFailed(QString,QString)) );
 
+    connect(model, SIGNAL(logged(uint,Imap::Mailbox::LogMessage)), imapLogger, SLOT(slotImapLogged(uint,Imap::Mailbox::LogMessage)));
+
     connect( model, SIGNAL(mailboxFirstUnseenMessage(QModelIndex,QModelIndex)), this, SLOT(slotScrollToUnseenMessage(QModelIndex,QModelIndex)) );
 
     connect(model, SIGNAL(capabilitiesUpdated(QStringList)), this, SLOT(slotCapabilitiesUpdated(QStringList)));

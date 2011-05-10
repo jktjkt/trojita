@@ -25,6 +25,7 @@
 
 #include <QMap>
 #include <QWidget>
+#include "Imap/Model/Logging.h"
 
 class QPushButton;
 class QTabWidget;
@@ -44,6 +45,9 @@ public:
     explicit ProtocolLoggerWidget(QWidget *parent = 0);
 
 public slots:
+    /** @short An IMAP model wants to log something */
+    void slotImapLogged(uint parser, const Imap::Mailbox::LogMessage &message);
+
     /** @short A parser received something from the server */
     void parserLineReceived( uint parser, const QByteArray& line );
     /** @short Parser just sent a piece of data */
