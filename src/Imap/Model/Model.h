@@ -335,7 +335,7 @@ authRequested() function.
 
     void capabilitiesUpdated(const QStringList &capabilities);
 
-    void logged(uint parserId, const LogMessage &message);
+    void logged(uint parserId, const Imap::Mailbox::LogMessage &message);
 
 private:
     Model& operator=( const Model& ); // don't implement
