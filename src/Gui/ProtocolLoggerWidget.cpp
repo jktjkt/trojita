@@ -44,6 +44,7 @@ ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
     tabs->setCornerWidget( clearAll, Qt::BottomRightCorner );
 }
 
+#if 0
 void ProtocolLoggerWidget::logMessage( const uint parser, const MessageType kind, const QByteArray& line )
 {
     ParserLog& log = getLogger( parser );
@@ -134,6 +135,7 @@ void ProtocolLoggerWidget::parserLineSent( uint parser, const QByteArray& line )
 {
     logMessage( parser, line.startsWith( "*** " ) ? MSG_INFO_SENT : MSG_SENT, line.trimmed() );
 }
+#endif
 
 ProtocolLoggerWidget::ParserLog& ProtocolLoggerWidget::getLogger( const uint parser )
 {
@@ -206,6 +208,7 @@ void ProtocolLoggerWidget::hideEvent( QHideEvent* e )
 
 void ProtocolLoggerWidget::slotImapLogged(uint parser, const Imap::Mailbox::LogMessage &message)
 {
+#if 0
     // FIXME: a very much testing implementation
     MessageType t;
     switch (message.kind) {
@@ -219,6 +222,13 @@ void ProtocolLoggerWidget::slotImapLogged(uint parser, const Imap::Mailbox::LogM
         t = MSG_INFO_SENT; // catch-all
     }
     logMessage(parser, t, message.message.toLocal8Bit());
+#endif
+    QMap<uint, Imap::RingBuffer<Imap::Mailbox::LogMessage> >::iterator bufIt = buffers.find(parser);
+    if (bufIt == buffers.end()) {
+        // FIXME: don't hard-code that
+        bufIt = buffers.insert(parser, Imap::RingBuffer<Imap::Mailbox::LogMessage>(5000));
+    }
+    bufIt->append(message);
 }
 
 }

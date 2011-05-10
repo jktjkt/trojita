@@ -26,6 +26,7 @@
 #include <QMap>
 #include <QWidget>
 #include "Imap/Model/Logging.h"
+#include "Imap/Model/RingBuffer.h"
 
 class QPushButton;
 class QTabWidget;
@@ -48,13 +49,6 @@ public slots:
     /** @short An IMAP model wants to log something */
     void slotImapLogged(uint parser, const Imap::Mailbox::LogMessage &message);
 
-    /** @short A parser received something from the server */
-    void parserLineReceived( uint parser, const QByteArray& line );
-    /** @short Parser just sent a piece of data */
-    void parserLineSent( uint parser, const QByteArray& line );
-    /** @short Parser reported a fatal error */
-    void parserFatalError( uint parser, const QString& exceptionClass, const QString& message, const QByteArray& line, int position );
-
 private slots:
     /** @short A tab is requested to close */
     void closeTab( int index );
@@ -76,6 +70,7 @@ private:
 
     QTabWidget* tabs;
     QMap<uint, ParserLog> loggerWidgets;
+    QMap<uint, Imap::RingBuffer<Imap::Mailbox::LogMessage> > buffers;
     QPushButton* clearAll;
     bool loggingActive;
 
