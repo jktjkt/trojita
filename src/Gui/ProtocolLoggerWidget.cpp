@@ -174,6 +174,7 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<I
 
 void ProtocolLoggerWidget::slotShowLogs()
 {
+    // Please note that we can't return to the event loop from this context, as the log buffer has to be read atomically
     for (QMap<uint, Imap::RingBuffer<Imap::Mailbox::LogMessage> >::iterator it = buffers.begin(); it != buffers.end(); ++it) {
         flushToWidget(it.key(), *it);
     }
