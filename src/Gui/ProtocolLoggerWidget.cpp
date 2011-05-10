@@ -90,31 +90,17 @@ void ProtocolLoggerWidget::clearLogDisplay()
     }
 }
 
-void ProtocolLoggerWidget::enableLogging( bool enabled )
-{
-    for ( QMap<uint, ParserLog>::iterator it = loggerWidgets.begin(); it != loggerWidgets.end(); ++it ) {
-        if ( ! loggingActive && enabled ) {
-            if ( it->skippedItems ) {
-                it->widget->appendHtml(
-                        tr("<p style='color: #bb0000'><i>Logging resumed. "
-                           "<b>%n message(s)</b> got skipped while the logger widget was hidden.</i></p>",
-                           "", it->skippedItems ) );
-                it->skippedItems = 0;
-            }
-        }
-    }
-    loggingActive = enabled;
-}
-
 void ProtocolLoggerWidget::showEvent( QShowEvent* e )
 {
-    enableLogging( true );
+    loggingActive = true;
     QWidget::showEvent( e );
+    if(!delayedDisplay->isActive())
+        delayedDisplay->start();
 }
 
 void ProtocolLoggerWidget::hideEvent( QHideEvent* e )
 {
-    enableLogging( false );
+    loggingActive = false;
     QWidget::hideEvent( e );
 }
 
@@ -126,7 +112,7 @@ void ProtocolLoggerWidget::slotImapLogged(uint parser, const Imap::Mailbox::LogM
         bufIt = buffers.insert(parser, Imap::RingBuffer<Imap::Mailbox::LogMessage>(5000));
     }
     bufIt->append(message);
-    if (!delayedDisplay->isActive())
+    if (loggingActive && !delayedDisplay->isActive())
         delayedDisplay->start();
 }
 

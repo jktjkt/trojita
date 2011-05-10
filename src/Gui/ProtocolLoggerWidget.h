@@ -55,8 +55,6 @@ private slots:
     void closeTab( int index );
     /** @short Clear all logs */
     void clearLogDisplay();
-    /** @short Enable/disable active logging */
-    void enableLogging( bool enabled );
 
     /** @short Copy contents of all buffers into the GUI widgets */
     void slotShowLogs();
