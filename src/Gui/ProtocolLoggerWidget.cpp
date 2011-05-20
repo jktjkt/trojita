@@ -157,6 +157,7 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<I
         case Imap::Mailbox::LOG_OTHER:
         case Imap::Mailbox::LOG_PARSE_ERROR:
         case Imap::Mailbox::LOG_TASKS:
+            direction = QLatin1String("<span style='color: #c0c0c0;'>") + it->source + QLatin1String("</span> ");
             break;
         }
 
