@@ -260,14 +260,14 @@ bool TreeItemMailbox::hasNoChildMaliboxesAlreadyKnown()
 
 bool TreeItemMailbox::hasChildMailboxes( Model* const model )
 {
-    if ( fetched() || isUnavailable( model ) )
+    if ( fetched() || isUnavailable( model ) ) {
         return _children.size() > 1;
-    else if ( hasNoChildMaliboxesAlreadyKnown() )
+    } else if ( hasNoChildMaliboxesAlreadyKnown() ) {
         return false;
-    else if ( _metadata.flags.contains( _hasChildren ) &&
-              ! _metadata.flags.contains( _hasNoChildren ) )
+    } else if ( _metadata.flags.contains( _hasChildren ) &&
+              ! _metadata.flags.contains( _hasNoChildren ) ) {
         return true;
-    else {
+    } else {
         fetch( model );
         return _children.size() > 1;
     }
