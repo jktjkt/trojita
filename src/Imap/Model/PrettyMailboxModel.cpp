@@ -111,6 +111,11 @@ bool PrettyMailboxModel::filterAcceptsColumn( int source_column, const QModelInd
     return source_column == 0;
 }
 
+bool PrettyMailboxModel::hasChildren(const QModelIndex& parent) const
+{
+    return dynamic_cast<const MailboxModel*>(sourceModel())->hasChildren(mapToSource(parent));
+}
+
 #ifdef XTUPLE_CONNECT
 void PrettyMailboxModel::xtConnectStatusChanged(QModelIndex index)
 {

@@ -36,6 +36,8 @@ public:
     PrettyMailboxModel( QObject* parent, MailboxModel* mailboxModel );
     virtual QVariant data( const QModelIndex& index, int role ) const;
     virtual bool filterAcceptsColumn( int source_column, const QModelIndex& source_parent ) const;
+    /** @short Override in order to prevent needless LIST commands */
+    virtual bool hasChildren(const QModelIndex &parent=QModelIndex()) const;
 #ifdef XTUPLE_CONNECT
     void xtConnectStatusChanged(QModelIndex index);
 #endif
