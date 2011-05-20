@@ -75,6 +75,15 @@ void MsgPartNetworkReply::slotMyDataChanged()
                    part->charset().isEmpty() ?
                     part->mimeType() :
                     QString::fromAscii("%1; charset=%2").arg( part->mimeType(), part->charset() ) );
+    } else if (part->mimeType() == QLatin1String("image/pjpeg")) {
+        // The "image/pjpeg" nonsense is non-standard kludge produced by Micorosft Internet Explorer
+        // (http://msdn.microsoft.com/en-us/library/ms775147(VS.85).aspx#_replace). As of May 2011, it is not listed in
+        // the official list of assigned MIME types (http://www.iana.org/assignments/media-types/image/index.html), but generated
+        // by MSIE nonetheless. Users of e-mail can see it for example in messages produced by webmails which do not check the
+        // client-provided MIME types. QWebView would (arguably correctly) refuse to display such a blob, but the damned users
+        // typically want to see their images (I certainly do), even though they are not standards-compliant. Hence we fix the
+        // header here.
+        setHeader( QNetworkRequest::ContentTypeHeader, QLatin1String("image/jpeg") );
     } else {
         setHeader( QNetworkRequest::ContentTypeHeader, part->mimeType() );
     }

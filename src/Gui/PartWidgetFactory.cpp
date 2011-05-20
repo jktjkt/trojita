@@ -71,7 +71,7 @@ QWidget* PartWidgetFactory::create( Imap::Mailbox::TreeItemPart* part, int recur
     } else {
         QStringList allowedMimeTypes;
         allowedMimeTypes << "text/html" << "text/plain" << "image/jpeg" <<
-                "image/jpg" << "image/png" << "image/gif";
+                "image/jpg" << "image/pjpeg" << "image/png" << "image/gif";
         // The problem is that some nasty MUAs (hint hint Thunderbird) would
         // happily attach a .tar.gz and call it "inline"
         bool showInline = part->bodyDisposition().toLower() != "attachment" &&
