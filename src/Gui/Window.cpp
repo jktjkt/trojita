@@ -57,6 +57,7 @@
 #include "Imap/Model/PrettyMailboxModel.h"
 #include "Imap/Model/PrettyMsgListModel.h"
 #include "Imap/Model/ThreadingMsgListModel.h"
+#include "Imap/Model/Utils.h"
 #include "Imap/Network/FileDownloadManager.h"
 #include "Streams/SocketFactory.h"
 
@@ -124,6 +125,11 @@ void MainWindow::createActions()
     showImapLogger->setCheckable( true );
     connect( showImapLogger, SIGNAL(triggered(bool)), imapLoggerDock, SLOT(setVisible(bool)) );
     connect( imapLoggerDock, SIGNAL(visibilityChanged(bool)), showImapLogger, SLOT(setChecked(bool)) );
+
+    logPersistent = new QAction(tr("Log into %1").arg(Imap::Mailbox::persistentLogFileName()), this);
+    logPersistent->setCheckable(true);
+    connect(logPersistent, SIGNAL(triggered(bool)), imapLogger, SLOT(slotSetPersistentLogging(bool)));
+    logPersistent->trigger();
 
     showImapCapabilities = new QAction(tr("IMAP Server Capabilities..."), this);
     connect(showImapCapabilities, SIGNAL(triggered()), this, SLOT(slotShowImapCapabilities()));
@@ -244,7 +250,9 @@ void MainWindow::createMenus()
     netPolicyMenu->addAction( netOnline );
     imapMenu->addSeparator();
     imapMenu->addAction( showFullView );
-    imapMenu->addAction( showImapLogger );
+    QMenu *loggingMenu = imapMenu->addMenu(tr("Logging"));
+    loggingMenu->addAction(showImapLogger);
+    loggingMenu->addAction(logPersistent);
     imapMenu->addAction( showImapCapabilities );
     imapMenu->addSeparator();
     imapMenu->addAction( configSettings );

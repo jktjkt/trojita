@@ -20,17 +20,20 @@
 */
 
 #include <QDateTime>
+#include <QFile>
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QTabWidget>
+#include <QTextStream>
 #include <QTimer>
 #include <QVBoxLayout>
 #include "ProtocolLoggerWidget.h"
+#include "Imap/Model/Utils.h"
 
 namespace Gui {
 
 ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
-    QWidget(parent), loggingActive(false)
+    QWidget(parent), loggingActive(false), m_fileLog(0)
 {
     QVBoxLayout* layout = new QVBoxLayout( this );
     tabs = new QTabWidget( this );
@@ -47,6 +50,30 @@ ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
     delayedDisplay->setSingleShot(true);
     delayedDisplay->setInterval(300);
     connect(delayedDisplay, SIGNAL(timeout()), this, SLOT(slotShowLogs()));
+}
+
+void ProtocolLoggerWidget::slotSetPersistentLogging(const bool enabled)
+{
+    if (enabled) {
+        if (m_fileLog)
+            return;
+
+        QFile *logFile = new QFile(Imap::Mailbox::persistentLogFileName(), this);
+        logFile->open(QIODevice::Truncate | QIODevice::WriteOnly);
+        m_fileLog = new QTextStream(logFile);
+    } else {
+        if (m_fileLog) {
+            QIODevice *dev = m_fileLog->device();
+            delete m_fileLog;
+            delete dev;
+            m_fileLog = 0;
+        }
+    }
+}
+
+ProtocolLoggerWidget::~ProtocolLoggerWidget()
+{
+    delete m_fileLog;
 }
 
 QPlainTextEdit *ProtocolLoggerWidget::getLogger( const uint parser )
@@ -115,6 +142,39 @@ void ProtocolLoggerWidget::slotImapLogged(uint parser, const Imap::Mailbox::LogM
     bufIt->append(message);
     if (loggingActive && !delayedDisplay->isActive())
         delayedDisplay->start();
+
+    if (m_fileLog) {
+        using namespace Imap::Mailbox;
+        QString direction;
+        switch (message.kind) {
+        case LOG_IO_READ:
+            direction = QLatin1String(" <<< ");
+            break;
+        case LOG_IO_WRITTEN:
+            direction = QLatin1String(" >>> ");
+            break;
+        case LOG_PARSE_ERROR:
+            direction = QLatin1String(" [err] ");
+            break;
+        case LOG_MAILBOX_SYNC:
+            direction = QLatin1String(" [sync] ");
+            break;
+        case LOG_TASKS:
+            direction = QLatin1String(" [task] ");
+            break;
+        case LOG_MESSAGES:
+            direction = QLatin1String(" [msg] ");
+            break;
+        case LOG_OTHER:
+            direction = QLatin1String(" ");
+            break;
+        }
+        if (message.truncatedBytes)
+            direction += QLatin1String("[truncated] ");
+        QString line = message.timestamp.toString(QString::fromAscii("hh:mm:ss.zzz")) + QString::number(parser) + QLatin1Char(' ') +
+                direction + message.source + QLatin1Char(' ') + message.message.trimmed() + QLatin1String("\r\n");
+        *m_fileLog << line;
+    }
 }
 
 void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<Imap::Mailbox::LogMessage> &buf)

@@ -20,6 +20,8 @@
 */
 #include "Utils.h"
 #include <cmath>
+#include <QDesktopServices>
+#include <QDir>
 
 namespace Imap {
 namespace Mailbox {
@@ -45,6 +47,15 @@ QString PrettySize::prettySize( uint bytes )
             'f', 1 ), suffix );
 }
 
+QString persistentLogFileName()
+{
+    QString logFileName = QDesktopServices::storageLocation( QDesktopServices::CacheLocation );
+    if (logFileName.isEmpty())
+        logFileName = QDir::homePath() + QLatin1String("/.trojita-connection-log");
+    else
+         logFileName += QString::fromAscii("/trojita-connection-log");
+    return logFileName;
+}
 
 }
 

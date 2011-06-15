@@ -33,6 +33,9 @@ public:
     static QString prettySize( uint bytes );
 };
 
+/** @short Return the name of a log file for logging IMAP communication */
+QString persistentLogFileName();
+
 }
 }
 

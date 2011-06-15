@@ -31,6 +31,7 @@
 class QPushButton;
 class QTabWidget;
 class QPlainTextEdit;
+class QTextStream;
 class QTimer;
 
 namespace Gui {
@@ -45,10 +46,14 @@ class ProtocolLoggerWidget : public QWidget
 Q_OBJECT
 public:
     explicit ProtocolLoggerWidget(QWidget *parent = 0);
+    virtual ~ProtocolLoggerWidget();
 
 public slots:
     /** @short An IMAP model wants to log something */
     void slotImapLogged(uint parser, const Imap::Mailbox::LogMessage &message);
+
+    /** @short Enable/disable persistent logging */
+    void slotSetPersistentLogging(const bool enabled);
 
 private slots:
     /** @short A tab is requested to close */
@@ -66,6 +71,7 @@ private:
     QPushButton* clearAll;
     bool loggingActive;
     QTimer *delayedDisplay;
+    QTextStream *m_fileLog;
 
     /** @short Return (possibly newly created) logger widget for a given parser */
     QPlainTextEdit *getLogger( const uint parser );

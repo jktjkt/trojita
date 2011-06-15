@@ -163,6 +163,7 @@ private:
     QAction* exitAction;
     QAction* showFullView;
     QAction* showImapLogger;
+    QAction *logPersistent;
     QAction* showImapCapabilities;
     QAction* showMenuBar;
     QAction* configSettings;
