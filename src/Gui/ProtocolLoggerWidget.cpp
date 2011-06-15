@@ -172,7 +172,7 @@ void ProtocolLoggerWidget::slotImapLogged(uint parser, const Imap::Mailbox::LogM
         if (message.truncatedBytes)
             direction += QLatin1String("[truncated] ");
         QString line = message.timestamp.toString(QString::fromAscii("hh:mm:ss.zzz")) + QString::number(parser) + QLatin1Char(' ') +
-                direction + message.source + QLatin1Char(' ') + message.message.trimmed() + QLatin1String("\r\n");
+                direction + message.source + QLatin1Char(' ') + message.message.trimmed() + QLatin1String("\n");
         *m_fileLog << line;
     }
 }
