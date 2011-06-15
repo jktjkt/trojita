@@ -144,37 +144,42 @@ void ProtocolLoggerWidget::slotImapLogged(uint parser, const Imap::Mailbox::LogM
         delayedDisplay->start();
 
     if (m_fileLog) {
-        using namespace Imap::Mailbox;
-        QString direction;
-        switch (message.kind) {
-        case LOG_IO_READ:
-            direction = QLatin1String(" <<< ");
-            break;
-        case LOG_IO_WRITTEN:
-            direction = QLatin1String(" >>> ");
-            break;
-        case LOG_PARSE_ERROR:
-            direction = QLatin1String(" [err] ");
-            break;
-        case LOG_MAILBOX_SYNC:
-            direction = QLatin1String(" [sync] ");
-            break;
-        case LOG_TASKS:
-            direction = QLatin1String(" [task] ");
-            break;
-        case LOG_MESSAGES:
-            direction = QLatin1String(" [msg] ");
-            break;
-        case LOG_OTHER:
-            direction = QLatin1String(" ");
-            break;
-        }
-        if (message.truncatedBytes)
-            direction += QLatin1String("[truncated] ");
-        QString line = message.timestamp.toString(QString::fromAscii("hh:mm:ss.zzz")) + QString::number(parser) + QLatin1Char(' ') +
-                direction + message.source + QLatin1Char(' ') + message.message.trimmed() + QLatin1String("\n");
-        *m_fileLog << line;
+        writeToDisk(parser, message);
     }
+}
+
+void ProtocolLoggerWidget::writeToDisk(uint parser, const Imap::Mailbox::LogMessage &message)
+{
+    using namespace Imap::Mailbox;
+    QString direction;
+    switch (message.kind) {
+    case LOG_IO_READ:
+        direction = QLatin1String(" <<< ");
+        break;
+    case LOG_IO_WRITTEN:
+        direction = QLatin1String(" >>> ");
+        break;
+    case LOG_PARSE_ERROR:
+        direction = QLatin1String(" [err] ");
+        break;
+    case LOG_MAILBOX_SYNC:
+        direction = QLatin1String(" [sync] ");
+        break;
+    case LOG_TASKS:
+        direction = QLatin1String(" [task] ");
+        break;
+    case LOG_MESSAGES:
+        direction = QLatin1String(" [msg] ");
+        break;
+    case LOG_OTHER:
+        direction = QLatin1String(" ");
+        break;
+    }
+    if (message.truncatedBytes)
+        direction += QLatin1String("[truncated] ");
+    QString line = message.timestamp.toString(QString::fromAscii("hh:mm:ss.zzz")) + QString::number(parser) + QLatin1Char(' ') +
+            direction + message.source + QLatin1Char(' ') + message.message.trimmed() + QLatin1String("\n");
+    *m_fileLog << line;
 }
 
 void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<Imap::Mailbox::LogMessage> &buf)

@@ -79,6 +79,9 @@ private:
     /** @short Dump the log bufer contents to the GUI widget */
     void flushToWidget(const uint parserId, Imap::RingBuffer<Imap::Mailbox::LogMessage> &buf);
 
+    /** @short Append a message to the log file */
+    void writeToDisk(uint parser, const Imap::Mailbox::LogMessage &message);
+
     virtual void showEvent( QShowEvent* e );
     virtual void hideEvent( QHideEvent* e );
 };
