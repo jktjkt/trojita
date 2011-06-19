@@ -24,8 +24,8 @@
 #include <QWebFrame>
 
 #include "SimplePartWidget.h"
+#include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
-#include "Imap/Model/Model.h" // FIXME: remove
 #include "Imap/Network/FileDownloadManager.h"
 
 namespace Gui {
@@ -33,18 +33,15 @@ namespace Gui {
 SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex):
         EmbeddedWebView(parent, manager)
 {
-    // FIXME: remove this after porting FileDownloadManager, redmine #6
-    Imap::Mailbox::TreeItemPart *_part = dynamic_cast<Imap::Mailbox::TreeItemPart*>(Imap::Mailbox::Model::realTreeItem(partIndex));
-    Q_ASSERT(_part);
-
+    Q_ASSERT(partIndex.isValid());
     QUrl url;
-    url.setScheme( QLatin1String("trojita-imap") );
-    url.setHost( QLatin1String("msg") );
-    url.setPath( _part->pathToPart() );
-    load( url );
+    url.setScheme(QLatin1String("trojita-imap"));
+    url.setHost(QLatin1String("msg"));
+    url.setPath(partIndex.data(Imap::Mailbox::RolePartPathToPart).toString());
+    load(url);
 
-    _fileDownloadManager = new Imap::Network::FileDownloadManager( this, manager, _part );
-    connect( _fileDownloadManager, SIGNAL(fileNameRequested(QString*)), this, SLOT(slotFileNameRequested(QString*)) );
+    _fileDownloadManager = new Imap::Network::FileDownloadManager(this, manager, partIndex);
+    connect(_fileDownloadManager, SIGNAL(fileNameRequested(QString*)), this, SLOT(slotFileNameRequested(QString*)));
 
     saveAction = new QAction( tr("Save..."), this );
     connect( saveAction, SIGNAL(triggered()), _fileDownloadManager, SLOT(slotDownloadNow()) );

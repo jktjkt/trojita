@@ -19,6 +19,7 @@
    Boston, MA 02110-1301, USA.
 */
 #include "FileDownloadManager.h"
+#include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 
 #include <QDesktopServices>
@@ -28,39 +29,40 @@ namespace Imap {
 
 namespace Network {
 
-FileDownloadManager::FileDownloadManager( QObject* parent,
-                                Imap::Network::MsgPartNetAccessManager* _manager,
-                                Imap::Mailbox::TreeItemPart* _part):
-    QObject( parent ), manager(_manager), part(_part), reply(0), saved(false)
+FileDownloadManager::FileDownloadManager(QObject *parent, Imap::Network::MsgPartNetAccessManager *_manager, const QModelIndex &_partIndex):
+    QObject( parent ), manager(_manager), partIndex(_partIndex), reply(0), saved(false)
 {
 }
 
-QString FileDownloadManager::toRealFileName( Imap::Mailbox::TreeItemPart* part )
+QString FileDownloadManager::toRealFileName(const QModelIndex &index)
 {
-    QString name = part->fileName().isEmpty() ?
-                   tr("msg_%1_%2").arg( part->message()->uid() ).arg( part->partId() )
-                       : part->fileName();
-    return QDir( QDesktopServices::storageLocation( QDesktopServices::DocumentsLocation )
-                 ).filePath( name );
+    QString fileName = index.data(Imap::Mailbox::RolePartFileName).toString();
+    QString uid = index.data(Imap::Mailbox::RoleMessageUid).toString();
+    QString partId = index.data(Imap::Mailbox::RolePartId).toString();
+    QString name = fileName.isEmpty() ? tr("msg_%1_%2").arg(uid, partId) : fileName;
+    return QDir(QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation)).filePath(name);
 }
 
 void FileDownloadManager::slotDownloadNow()
 {
-    Q_ASSERT( part );
-    QString saveFileName = toRealFileName( part );
-    emit fileNameRequested( &saveFileName );
-    if ( saveFileName.isEmpty() )
+    if (!partIndex.isValid()) {
+        emit transferError(tr("FileDownloadManager::slotDownloadNow(): part has disappeared"));
+        return;
+    }
+    QString saveFileName = toRealFileName(partIndex);
+    emit fileNameRequested(&saveFileName);
+    if (saveFileName.isEmpty())
         return;
 
-    saving.setFileName( saveFileName );
+    saving.setFileName(saveFileName);
 
     QNetworkRequest request;
     QUrl url;
-    url.setScheme( QLatin1String("trojita-imap") );
-    url.setHost( QLatin1String("msg") );
-    url.setPath( part->pathToPart() );
-    request.setUrl( url );
-    reply = manager->get( request );
+    url.setScheme(QLatin1String("trojita-imap"));
+    url.setHost(QLatin1String("msg"));
+    url.setPath(partIndex.data(Imap::Mailbox::RolePartPathToPart).toString());
+    request.setUrl(url);
+    reply = manager->get(request);
     connect( reply, SIGNAL(finished()), this, SLOT(slotDataTransfered()) );
     connect( reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(slotTransferError()) );
     connect( manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(slotDeleteReply(QNetworkReply*)) );

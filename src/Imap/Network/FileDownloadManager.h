@@ -22,6 +22,7 @@
 #define IMAP_NETWORK_DOWNLOADMANAGER_H
 
 #include <QFile>
+#include <QPersistentModelIndex>
 #include <QNetworkReply>
 #include "Imap/Network/MsgPartNetAccessManager.h"
 
@@ -38,11 +39,8 @@ class FileDownloadManager : public QObject
 {
     Q_OBJECT
 public:
-    FileDownloadManager( QObject* parent,
-                    Imap::Network::MsgPartNetAccessManager* _manager,
-                    Imap::Mailbox::TreeItemPart* _part );
-
-    static QString toRealFileName( Imap::Mailbox::TreeItemPart* part );
+    FileDownloadManager(QObject* parent, Imap::Network::MsgPartNetAccessManager* _manager, const QModelIndex &partIndex);
+    static QString toRealFileName(const QModelIndex &index);
 private slots:
     void slotDataTransfered();
     void slotTransferError();
@@ -55,7 +53,7 @@ signals:
     void succeeded();
 private:
     Imap::Network::MsgPartNetAccessManager* manager;
-    Imap::Mailbox::TreeItemPart* part;
+    QPersistentModelIndex partIndex;
     QNetworkReply* reply;
     QFile saving;
     bool saved;

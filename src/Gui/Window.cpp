@@ -959,17 +959,16 @@ void MainWindow::slotSaveCurrentMessageBody()
             continue;
         if ( ! it->data( Imap::Mailbox::RoleMessageUid ).isValid() )
             continue;
+        QModelIndex messageIndex;
         Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
-                Imap::Mailbox::Model::realTreeItem( *it )
+                Imap::Mailbox::Model::realTreeItem(*it, 0, &messageIndex)
                 );
         Q_ASSERT( message );
 
         Imap::Network::MsgPartNetAccessManager* netAccess = new Imap::Network::MsgPartNetAccessManager( this );
         netAccess->setModelMessage( model, message );
         Imap::Network::FileDownloadManager* fileDownloadManager =
-                new Imap::Network::FileDownloadManager( this, netAccess,
-                    dynamic_cast<Imap::Mailbox::TreeItemPart*>(
-                            message->specialColumnPtr( 0, Imap::Mailbox::TreeItem::OFFSET_HEADER ) ) );
+                new Imap::Network::FileDownloadManager(this, netAccess, messageIndex.child(0, Imap::Mailbox::TreeItem::OFFSET_HEADER));
         // FIXME: change from "header" into "whole message"
         connect( fileDownloadManager, SIGNAL(succeeded()), fileDownloadManager, SLOT(deleteLater()) );
         connect( fileDownloadManager, SIGNAL(transferError(QString)), fileDownloadManager, SLOT(deleteLater()) );
