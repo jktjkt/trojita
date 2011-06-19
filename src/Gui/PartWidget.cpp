@@ -58,7 +58,7 @@ MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
 
 QString MultipartAlternativeWidget::quoteMe() const
 {
-    const AbstractPartWidget* w = dynamic_cast<const AbstractPartWidget*>( currentWidget() );
+    const AbstractPartWidget* w = dynamic_cast<const AbstractPartWidget*>(currentWidget());
     return w ? w->quoteMe() : QString();
 }
 
@@ -66,9 +66,10 @@ void MultipartAlternativeWidget::reloadContents()
 {
     if ( count() ) {
         for ( int i = 0; i < count(); ++i ) {
-            AbstractPartWidget* w = dynamic_cast<AbstractPartWidget*>( widget(i) );
-            if ( w )
+            AbstractPartWidget* w = dynamic_cast<AbstractPartWidget*>(widget(i));
+            if ( w ) {
                 w->reloadContents();
+            }
         }
     }
 }
