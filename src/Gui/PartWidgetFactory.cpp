@@ -84,12 +84,13 @@ QWidget* PartWidgetFactory::create( Imap::Mailbox::TreeItemPart* part, int recur
                 showDirectly = manager->model->isNetworkOnline() || part->octets() <= ExpensiveFetchThreshold;
 
             QWidget* widget = 0;
-            if ( showDirectly )
+            if ( showDirectly ) {
                 widget = new SimplePartWidget( 0, manager, part );
-            else if ( manager->model->isNetworkAvailable() )
+            } else if ( manager->model->isNetworkAvailable() ) {
                 widget = new LoadablePartWidget( 0, manager, part, wheelEventFilter );
-            else
+            } else {
                 widget = new QLabel( tr("Offline"), 0 );
+            }
             widget->installEventFilter( wheelEventFilter );
             return widget;
         } else {
