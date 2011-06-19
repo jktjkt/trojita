@@ -116,6 +116,10 @@ enum {
     RolePartFileName,
     /** @short The size of this part, as determined from BODYSTRUCTURE */
     RolePartOctets,
+    /** @short Access to the partId() function */
+    RolePartId,
+    /** @short Access to the partToPath() function */
+    RolePartPathToPart,
 
     /** @short The very last role */
     RoleInvalidLastOne

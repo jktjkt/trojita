@@ -972,6 +972,10 @@ QVariant TreeItemPart::data( Model* const model, int role )
         return _fileName;
     case RolePartOctets:
         return _octets;
+    case RolePartId:
+        return partId();
+    case RolePartPathToPart:
+        return pathToPart();
     }
 
 
