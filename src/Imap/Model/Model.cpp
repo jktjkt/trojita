@@ -501,6 +501,10 @@ QVariant Model::data(const QModelIndex& index, int role ) const
 
 QModelIndex Model::index(int row, int column, const QModelIndex& parent ) const
 {
+    if (parent.isValid()) {
+        Q_ASSERT(parent.model() == this);
+    }
+
     TreeItem* parentItem = translatePtr( parent );
 
     // Deal with the possibility of an "irregular shape" of our model here.
@@ -524,6 +528,8 @@ QModelIndex Model::parent(const QModelIndex& index ) const
     if ( !index.isValid() )
         return QModelIndex();
 
+    Q_ASSERT(index.model() == this);
+
     TreeItem *childItem = static_cast<TreeItem*>(index.internalPointer());
     TreeItem *parentItem = childItem->parent();
 
@@ -538,6 +544,8 @@ int Model::rowCount(const QModelIndex& index ) const
     TreeItem* node = static_cast<TreeItem*>( index.internalPointer() );
     if ( !node ) {
         node = _mailboxes;
+    } else {
+        Q_ASSERT(index.model() == this);
     }
     Q_ASSERT(node);
     return node->rowCount( const_cast<Model*>( this ) );
@@ -548,6 +556,8 @@ int Model::columnCount(const QModelIndex& index ) const
     TreeItem* node = static_cast<TreeItem*>( index.internalPointer() );
     if ( !node ) {
         node = _mailboxes;
+    } else {
+        Q_ASSERT(index.model() == this);
     }
     Q_ASSERT(node);
     return node->columnCount();
@@ -555,6 +565,10 @@ int Model::columnCount(const QModelIndex& index ) const
 
 bool Model::hasChildren( const QModelIndex& parent ) const
 {
+    if (parent.isValid()) {
+        Q_ASSERT(parent.model() == this);
+    }
+
     TreeItem* node = translatePtr( parent );
 
     if ( node )
