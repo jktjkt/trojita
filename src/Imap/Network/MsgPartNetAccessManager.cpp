@@ -41,6 +41,7 @@ MsgPartNetAccessManager::MsgPartNetAccessManager( QObject* parent ):
 void MsgPartNetAccessManager::setModelMessage( Imap::Mailbox::Model* _model,
     Imap::Mailbox::TreeItemMessage* _message )
 {
+    // FIXME: use QPersistentModelIndex, redmine #6
     model = _model;
     message = _message;
 }
