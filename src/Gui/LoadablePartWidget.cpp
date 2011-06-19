@@ -19,8 +19,7 @@
    Boston, MA 02110-1301, USA.
 */
 #include "LoadablePartWidget.h"
-#include "Imap/Model/MailboxTree.h"
-#include "Imap/Model/Model.h"
+#include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/Utils.h"
 
 #include <QPushButton>
@@ -35,10 +34,9 @@ QStackedWidget(parent), manager(_manager), partIndex(_part), realPart(0),
 wheelEventFilter(_wheelEventFilter)
 {
     Q_ASSERT(partIndex.isValid());
-    Imap::Mailbox::TreeItemPart *part = dynamic_cast<Imap::Mailbox::TreeItemPart*>(Imap::Mailbox::Model::realTreeItem(partIndex));
-    Q_ASSERT(part);
-    loadButton = new QPushButton( tr("Load %1 (%2)").arg(
-            part->mimeType(), Imap::Mailbox::PrettySize::prettySize( part->octets() ) ), this );
+    loadButton = new QPushButton(tr("Load %1 (%2)").arg(partIndex.data(Imap::Mailbox::RolePartMimeType).toString(),
+                                                        Imap::Mailbox::PrettySize::prettySize(partIndex.data(Imap::Mailbox::RolePartOctets).toUInt())),
+                                 this );
     connect( loadButton, SIGNAL(clicked()), this, SLOT(loadClicked()) );
     addWidget( loadButton );
 }
