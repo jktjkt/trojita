@@ -26,15 +26,13 @@
 #include <QAction>
 #include <QFile>
 
+class QModelIndex;
 class QNetworkReply;
 
 namespace Imap {
 namespace Network {
     class FileDownloadManager;
     class MsgPartNetAccessManager;
-}
-namespace Mailbox {
-    class TreeItemPart;
 }
 }
 
@@ -50,9 +48,7 @@ class SimplePartWidget : public EmbeddedWebView, public AbstractPartWidget
 {
     Q_OBJECT
 public:
-    SimplePartWidget( QWidget* parent,
-                      Imap::Network::MsgPartNetAccessManager* manager,
-                      Imap::Mailbox::TreeItemPart* _part );
+    SimplePartWidget(QWidget* parent, Imap::Network::MsgPartNetAccessManager* manager, const QModelIndex &partIndex);
     virtual QString quoteMe() const;
     virtual void reloadContents();
 private slots:

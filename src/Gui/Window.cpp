@@ -1005,8 +1005,9 @@ void MainWindow::slotViewMsgHeaders()
             continue;
         if ( ! it->data( Imap::Mailbox::RoleMessageUid ).isValid() )
             continue;
+        QModelIndex messageIndex;
         Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
-                Imap::Mailbox::Model::realTreeItem( *it )
+                Imap::Mailbox::Model::realTreeItem(*it, 0, &messageIndex)
                 );
         Q_ASSERT( message );
 
@@ -1015,9 +1016,7 @@ void MainWindow::slotViewMsgHeaders()
 
         QScrollArea* area = new QScrollArea();
         area->setWidgetResizable(true);
-        SimplePartWidget* headers = new SimplePartWidget( 0, netAccess,
-            dynamic_cast<Imap::Mailbox::TreeItemPart*>(
-                    message->specialColumnPtr( 0, Imap::Mailbox::TreeItem::OFFSET_HEADER ) ) );
+        SimplePartWidget* headers = new SimplePartWidget(0, netAccess, messageIndex.model()->index(0, Imap::Mailbox::TreeItem::OFFSET_HEADER, messageIndex) );
         area->setWidget( headers );
         area->setAttribute( Qt::WA_DeleteOnClose );
         connect( area, SIGNAL(destroyed()), headers, SLOT(deleteLater()) );

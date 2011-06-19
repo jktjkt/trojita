@@ -21,6 +21,7 @@
 #ifndef LOADABLEPARTWIDGET_H
 #define LOADABLEPARTWIDGET_H
 
+#include <QPersistentModelIndex>
 #include <QStackedWidget>
 
 #include "AbstractPartWidget.h"
@@ -43,7 +44,7 @@ class LoadablePartWidget : public QStackedWidget, public AbstractPartWidget
 public:
     LoadablePartWidget( QWidget* parent,
                         Imap::Network::MsgPartNetAccessManager* _manager,
-                        Imap::Mailbox::TreeItemPart* _part,
+                        const QModelIndex &_part,
                         QObject* _wheelEventFilter );
     QString quoteMe() const;
     virtual void reloadContents() {}
@@ -51,7 +52,7 @@ private slots:
     void loadClicked();
 private:
     Imap::Network::MsgPartNetAccessManager* manager;
-    Imap::Mailbox::TreeItemPart* part;
+    QPersistentModelIndex partIndex;
     SimplePartWidget* realPart;
     QObject* wheelEventFilter;
     QPushButton* loadButton;

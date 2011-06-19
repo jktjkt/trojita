@@ -22,24 +22,28 @@
 
 #include <QModelIndex>
 
+#include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
 
 namespace Gui {
 
-Rfc822HeaderView::Rfc822HeaderView( QWidget* parent,
-                                    Imap::Mailbox::Model* _model,
-                                    Imap::Mailbox::TreeItemPart* _part):
-    QLabel(parent), model(_model), part(_part)
+Rfc822HeaderView::Rfc822HeaderView(QWidget* parent, const QModelIndex &index_):
+    QLabel(parent), index(index_)
 {
-    part->fetch( model );
-    if ( part->fetched() ) {
+    Q_ASSERT(index.isValid());
+    const Imap::Mailbox::Model *constModel;
+    Imap::Mailbox::TreeItemPart *part = dynamic_cast<Imap::Mailbox::TreeItemPart*>(Imap::Mailbox::Model::realTreeItem(index, &constModel));
+    Q_ASSERT(part);
+    Imap::Mailbox::Model *model = const_cast<Imap::Mailbox::Model*>(constModel);  // the const_cast is required because QModelIndex::model() returns const
+    part->fetch(model);
+    if (part->fetched()) {
         setCorrectText();
-    } else if ( part->isUnavailable( model ) ) {
-        setText( tr("Offline") );
+    } else if (part->isUnavailable(model)) {
+        setText(tr("Offline"));
     } else {
-        setText( tr("Loading...") );
-        connect( model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleDataChanged(QModelIndex,QModelIndex)) );
+        setText(tr("Loading..."));
+        connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
     }
     setTextInteractionFlags( Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse );
 }
@@ -52,16 +56,14 @@ void Rfc822HeaderView::handleDataChanged( const QModelIndex& topLeft, const QMod
     }
     Q_UNUSED(bottomRight);
     // FIXME: verify that th dataChanged() is emitted separately for each message
-    Q_ASSERT( topLeft.model() == model );
-    Imap::Mailbox::TreeItemPart* source = dynamic_cast<Imap::Mailbox::TreeItemPart*>(
-            Imap::Mailbox::Model::realTreeItem( topLeft ) );
-    if ( source == part )
+    Q_ASSERT(topLeft.model() == index.model());
+    if (topLeft == index)
         setCorrectText();
 }
 
 void Rfc822HeaderView::setCorrectText()
 {
-    setText( *part->dataPtr() );
+    setText(index.data(Imap::Mailbox::RolePartData).toString());
 }
 
 }

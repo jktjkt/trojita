@@ -23,15 +23,13 @@
 
 #include <QWidget>
 
+class QModelIndex;
 class QNetworkReply;
 
 namespace Imap {
 namespace Network {
     class FileDownloadManager;
     class MsgPartNetAccessManager;
-}
-namespace Mailbox {
-    class TreeItemPart;
 }
 }
 
@@ -48,9 +46,7 @@ class AttachmentView : public QWidget
 {
     Q_OBJECT
 public:
-    AttachmentView( QWidget* parent,
-                    Imap::Network::MsgPartNetAccessManager* _manager,
-                    Imap::Mailbox::TreeItemPart* _part );
+    AttachmentView(QWidget* parent,  Imap::Network::MsgPartNetAccessManager* _manager, const QModelIndex &partIndex);
 private slots:
     void slotTransferError( const QString& errorString );
     void slotFileNameRequested( QString* fileName );

@@ -21,6 +21,7 @@
 #include "AttachmentView.h"
 #include "Imap/Network/FileDownloadManager.h"
 #include "Imap/Model/MailboxTree.h"
+#include "Imap/Model/Model.h"
 
 #include <QDesktopServices>
 #include <QFileDialog>
@@ -31,11 +32,13 @@
 
 namespace Gui {
 
-AttachmentView::AttachmentView( QWidget* parent,
-                                Imap::Network::MsgPartNetAccessManager* _manager,
-                                Imap::Mailbox::TreeItemPart* _part):
+AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *_manager, const QModelIndex &partIndex):
     QWidget( parent ), _fileDownloadManager(0)
 {
+    // FIXME: redmine #6
+    Imap::Mailbox::TreeItemPart *_part = dynamic_cast<Imap::Mailbox::TreeItemPart*>(Imap::Mailbox::Model::realTreeItem(partIndex));
+    Q_ASSERT(_part);
+
     _fileDownloadManager = new Imap::Network::FileDownloadManager( this, _manager, _part );
     QHBoxLayout* layout = new QHBoxLayout( this );
     QLabel* lbl = new QLabel( tr("Attachment %1 (%2)").arg( _part->fileName(), _part->mimeType() ) );

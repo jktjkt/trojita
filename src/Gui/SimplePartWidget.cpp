@@ -25,15 +25,18 @@
 
 #include "SimplePartWidget.h"
 #include "Imap/Model/MailboxTree.h"
+#include "Imap/Model/Model.h" // FIXME: remove
 #include "Imap/Network/FileDownloadManager.h"
 
 namespace Gui {
 
-SimplePartWidget::SimplePartWidget( QWidget* parent,
-                                    Imap::Network::MsgPartNetAccessManager* manager,
-                                    Imap::Mailbox::TreeItemPart* _part ):
-        EmbeddedWebView( parent, manager )
+SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex):
+        EmbeddedWebView(parent, manager)
 {
+    // FIXME: remove this after porting FileDownloadManager, redmine #6
+    Imap::Mailbox::TreeItemPart *_part = dynamic_cast<Imap::Mailbox::TreeItemPart*>(Imap::Mailbox::Model::realTreeItem(partIndex));
+    Q_ASSERT(_part);
+
     QUrl url;
     url.setScheme( QLatin1String("trojita-imap") );
     url.setHost( QLatin1String("msg") );

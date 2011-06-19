@@ -25,6 +25,8 @@
 
 #include <QCoreApplication>
 
+class QModelIndex;
+
 namespace Gui {
 
 class PartWidgetFactory
@@ -33,8 +35,8 @@ class PartWidgetFactory
     enum { ExpensiveFetchThreshold = 50*1024 };
 public:
     PartWidgetFactory( Imap::Network::MsgPartNetAccessManager* _manager, QObject* _wheelEventFilter );
-    QWidget* create( Imap::Mailbox::TreeItemPart* part );
-    QWidget* create( Imap::Mailbox::TreeItemPart* part, int recursionDepth );
+    QWidget* create(const QModelIndex &partIndex);
+    QWidget* create(const QModelIndex &partIndex, int recursionDepth);
     Imap::Mailbox::Model* model() const;
 private:
     Imap::Network::MsgPartNetAccessManager* manager;

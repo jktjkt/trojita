@@ -22,15 +22,9 @@
 #define GUI_RFC822HEADERVIEW_H
 
 #include <QLabel>
+#include <QPersistentModelIndex>
 
 class QModelIndex;
-
-namespace Imap {
-namespace Mailbox {
-class Model;
-class TreeItemPart;
-}
-}
 
 namespace Gui {
 
@@ -38,13 +32,12 @@ class Rfc822HeaderView : public QLabel
 {
     Q_OBJECT
 public:
-    Rfc822HeaderView( QWidget* parent, Imap::Mailbox::Model* _model, Imap::Mailbox::TreeItemPart* _part );
+    Rfc822HeaderView(QWidget* parent, const QModelIndex &index);
 private slots:
     void handleDataChanged(const QModelIndex&, const QModelIndex& );
     void setCorrectText();
 private:
-    Imap::Mailbox::Model* model;
-    Imap::Mailbox::TreeItemPart* part;
+    QPersistentModelIndex index;
 
     Rfc822HeaderView(const Rfc822HeaderView&); // don't implement
     Rfc822HeaderView& operator=(const Rfc822HeaderView&); // don't implement

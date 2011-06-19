@@ -20,6 +20,7 @@
 */
 #include "LoadablePartWidget.h"
 #include "Imap/Model/MailboxTree.h"
+#include "Imap/Model/Model.h"
 #include "Imap/Model/Utils.h"
 
 #include <QPushButton>
@@ -28,11 +29,14 @@ namespace Gui {
 
 LoadablePartWidget::LoadablePartWidget( QWidget* parent,
                          Imap::Network::MsgPartNetAccessManager* _manager,
-                         Imap::Mailbox::TreeItemPart* _part,
+                         const QModelIndex  &_part,
                          QObject* _wheelEventFilter ):
-QStackedWidget(parent), manager(_manager), part(_part), realPart(0),
+QStackedWidget(parent), manager(_manager), partIndex(_part), realPart(0),
 wheelEventFilter(_wheelEventFilter)
 {
+    Q_ASSERT(partIndex.isValid());
+    Imap::Mailbox::TreeItemPart *part = dynamic_cast<Imap::Mailbox::TreeItemPart*>(Imap::Mailbox::Model::realTreeItem(partIndex));
+    Q_ASSERT(part);
     loadButton = new QPushButton( tr("Load %1 (%2)").arg(
             part->mimeType(), Imap::Mailbox::PrettySize::prettySize( part->octets() ) ), this );
     connect( loadButton, SIGNAL(clicked()), this, SLOT(loadClicked()) );
@@ -41,7 +45,11 @@ wheelEventFilter(_wheelEventFilter)
 
 void LoadablePartWidget::loadClicked()
 {
-    realPart = new SimplePartWidget( this, manager, part );
+    if (!partIndex.isValid()) {
+        loadButton->setEnabled(false);
+        return;
+    }
+    realPart = new SimplePartWidget(this, manager, partIndex);
     realPart->installEventFilter( wheelEventFilter );
     addWidget( realPart );
     setCurrentIndex( 1 );

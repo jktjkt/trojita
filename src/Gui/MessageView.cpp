@@ -100,7 +100,7 @@ void MessageView::setMessage( const QModelIndex& index )
     Imap::Mailbox::TreeItem *item;
     const Imap::Mailbox::Model *realModel;
     item = Imap::Mailbox::Model::realTreeItem( index, &realModel, 0 );
-    Q_ASSERT(item);
+    Q_ASSERT(item); // Make sure it's a message
     model = const_cast<Imap::Mailbox::Model*>(realModel);
 
     // now let's find a real message root
@@ -114,9 +114,7 @@ void MessageView::setMessage( const QModelIndex& index )
         return;
     }
 
-    Imap::Mailbox::TreeItemPart* part = dynamic_cast<Imap::Mailbox::TreeItemPart*>( messageCandidate->child( 0, model ) );
-    Q_ASSERT( part );
-
+    QModelIndex rootPartIndex = index.child(0, 0);
     if ( message != messageCandidate ) {
         emptyView->hide();
         layout->removeWidget( viewer );
@@ -128,7 +126,7 @@ void MessageView::setMessage( const QModelIndex& index )
         netAccess->setExternalsEnabled( false );
         externalElements->hide();
         netAccess->setModelMessage( model, message );
-        viewer = factory->create( part );
+        viewer = factory->create(rootPartIndex);
         viewer->setParent( this );
         layout->addWidget( viewer );
         viewer->show();

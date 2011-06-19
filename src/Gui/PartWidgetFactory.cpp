@@ -23,6 +23,7 @@
 #include "LoadablePartWidget.h"
 #include "PartWidget.h"
 #include "SimplePartWidget.h"
+#include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
 
@@ -41,15 +42,15 @@ PartWidgetFactory::PartWidgetFactory( Imap::Network::MsgPartNetAccessManager* _m
 {
 }
 
-QWidget* PartWidgetFactory::create( Imap::Mailbox::TreeItemPart* part )
+QWidget* PartWidgetFactory::create(const QModelIndex &partIndex)
 {
-    return create( part, 0 );
+    return create(partIndex, 0);
 }
 
-QWidget* PartWidgetFactory::create( Imap::Mailbox::TreeItemPart* part, int recursionDepth )
+QWidget* PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDepth)
 {
     using namespace Imap::Mailbox;
-    Q_ASSERT( part );
+    Q_ASSERT(partIndex.isValid());
 
     if ( recursionDepth > 1000 ) {
         return new QLabel( tr("This message contains too deep nesting of MIME message parts.\n"
@@ -57,51 +58,55 @@ QWidget* PartWidgetFactory::create( Imap::Mailbox::TreeItemPart* part, int recur
                               "the top-most thousand items or so are shown."), 0 );
     }
 
-    if ( part->mimeType().startsWith( QLatin1String("multipart/") ) ) {
+    QString mimeType = partIndex.data(Imap::Mailbox::RolePartMimeType).toString();
+    if (mimeType.startsWith( QLatin1String("multipart/"))) {
         // it's a compound part
-        if ( part->mimeType() == QLatin1String("multipart/alternative") ) {
-            return new MultipartAlternativeWidget( 0, this, part, recursionDepth );
-        } else if ( part->mimeType() == QLatin1String("multipart/signed") ) {
-            return new MultipartSignedWidget( 0, this, part, recursionDepth );
+        if (mimeType == QLatin1String("multipart/alternative")) {
+            return new MultipartAlternativeWidget(0, this, partIndex, recursionDepth);
+        } else if (mimeType == QLatin1String("multipart/signed")) {
+            return new MultipartSignedWidget(0, this, partIndex, recursionDepth);
         } else {
-            return new GenericMultipartWidget( 0, this, part, recursionDepth );
+            return new GenericMultipartWidget(0, this, partIndex, recursionDepth);
         }
-    } else if ( part->mimeType() == QLatin1String("message/rfc822") ) {
-        return new Message822Widget( 0, this, part, recursionDepth );
+    } else if (mimeType == QLatin1String("message/rfc822")) {
+        return new Message822Widget(0, this, partIndex, recursionDepth);
     } else {
         QStringList allowedMimeTypes;
         allowedMimeTypes << "text/html" << "text/plain" << "image/jpeg" <<
                 "image/jpg" << "image/pjpeg" << "image/png" << "image/gif";
         // The problem is that some nasty MUAs (hint hint Thunderbird) would
         // happily attach a .tar.gz and call it "inline"
-        bool showInline = part->bodyDisposition().toLower() != "attachment" &&
-                          allowedMimeTypes.contains( part->mimeType() );
+        bool showInline = partIndex.data(Imap::Mailbox::RolePartBodyDisposition).toByteArray().toLower() != "attachment" &&
+                          allowedMimeTypes.contains(mimeType);
 
         if ( showInline ) {
-            part->fetchFromCache( manager->model );
+            Imap::Mailbox::TreeItemPart *part = dynamic_cast<Imap::Mailbox::TreeItemPart*>(Imap::Mailbox::Model::realTreeItem(partIndex));
+            Q_ASSERT(part);
+            part->fetchFromCache(manager->model);
             bool showDirectly = true;
-            if ( ! part->fetched() )
+            if (!part->fetched())
                 showDirectly = manager->model->isNetworkOnline() || part->octets() <= ExpensiveFetchThreshold;
 
             QWidget* widget = 0;
             if ( showDirectly ) {
-                widget = new SimplePartWidget( 0, manager, part );
+                widget = new SimplePartWidget(0, manager, partIndex);
             } else if ( manager->model->isNetworkAvailable() ) {
-                widget = new LoadablePartWidget( 0, manager, part, wheelEventFilter );
+                widget = new LoadablePartWidget(0, manager, partIndex, wheelEventFilter);
             } else {
-                widget = new QLabel( tr("Offline"), 0 );
+                widget = new QLabel(tr("Offline"), 0);
             }
-            widget->installEventFilter( wheelEventFilter );
+            widget->installEventFilter(wheelEventFilter);
             return widget;
         } else {
-            return new AttachmentView( 0, manager, part );
+            return new AttachmentView(0, manager, partIndex);
         }
     }
-    QLabel* lbl = new QLabel( part->mimeType(), 0 );
+    QLabel* lbl = new QLabel(mimeType, 0);
     return lbl;
 }
 
 Imap::Mailbox::Model* PartWidgetFactory::model() const
+// FIXME: remove this function
 {
     return manager->model;
 }
