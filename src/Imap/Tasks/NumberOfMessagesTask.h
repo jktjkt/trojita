@@ -25,17 +25,15 @@
 namespace Imap {
 namespace Mailbox {
 
-class TreeItemMailbox;
-
 /** @short Ask for number of messages in a certain mailbox */
 class NumberOfMessagesTask : public ImapTask
 {
 Q_OBJECT
 public:
-    NumberOfMessagesTask( Model* _model, const QModelIndex& mailbox );
+    NumberOfMessagesTask(Model* _model, const QModelIndex& mailbox);
     virtual void perform();
 
-    virtual bool handleStateHelper( const Imap::Responses::State* const resp );
+    virtual bool handleStateHelper(const Imap::Responses::State* const resp);
 
     virtual QString debugIdentification() const;
 private:

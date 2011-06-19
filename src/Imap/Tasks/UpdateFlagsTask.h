@@ -25,9 +25,6 @@
 namespace Imap {
 namespace Mailbox {
 
-class TreeItemMailbox;
-class TreeItemMessage;
-
 class CopyMoveMessagesTask;
 
 /** @short Update message flags for a particular message set
@@ -45,11 +42,11 @@ IMAP flags for the @arg _messages message set are changed -- the @arg _flagOpera
 should be FLAGS, +FLAGS or -FLAGS (all of them optionally with the ".silent" modifier),
 and the desired change (actual flags) is passed in the @arg _flags argument.
 */
-    UpdateFlagsTask( Model* _model, const QModelIndexList& _messages, const QString& _flagOperation, const QString& _flags );
-    UpdateFlagsTask( Model* _model, CopyMoveMessagesTask* copyTask, const QList<QPersistentModelIndex>& _messages, const QString& _flagOperation, const QString& _flags );
+    UpdateFlagsTask(Model* _model, const QModelIndexList& _messages, const QString& _flagOperation, const QString& _flags);
+    UpdateFlagsTask(Model* _model, CopyMoveMessagesTask* copyTask, const QList<QPersistentModelIndex>& _messages, const QString& _flagOperation, const QString& _flags);
     virtual void perform();
 
-    virtual bool handleStateHelper( const Imap::Responses::State* const resp );
+    virtual bool handleStateHelper(const Imap::Responses::State* const resp);
 private:
     CommandHandle tag;
     ImapTask* conn;

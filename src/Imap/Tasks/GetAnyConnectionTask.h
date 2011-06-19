@@ -25,8 +25,6 @@
 namespace Imap {
 namespace Mailbox {
 
-class TreeItemMailbox;
-
 /** @short Come up with a connection that is (at least) in the authenticated state
 
 In contrast to OpenConnectionTask, this task merely looks at any existing connection
@@ -43,7 +41,7 @@ class GetAnyConnectionTask : public ImapTask
 {
 Q_OBJECT
 public:
-    GetAnyConnectionTask( Model* _model );
+    GetAnyConnectionTask(Model* _model);
     virtual void perform();
     virtual bool isReadyToRun() const;
 private:

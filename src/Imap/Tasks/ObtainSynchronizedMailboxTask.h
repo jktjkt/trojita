@@ -26,7 +26,6 @@
 namespace Imap {
 namespace Mailbox {
 
-class TreeItemMailbox;
 class UnSelectTask;
 
 /** @short Create a synchronized connection to the IMAP server

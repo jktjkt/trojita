@@ -29,10 +29,10 @@ class NoopTask : public ImapTask
 {
 Q_OBJECT
 public:
-    NoopTask( Model* _model, ImapTask* parentTask );
+    NoopTask(Model* _model, ImapTask* parentTask);
     virtual void perform();
 
-    virtual bool handleStateHelper( const Imap::Responses::State* const resp );
+    virtual bool handleStateHelper(const Imap::Responses::State* const resp);
 private:
     CommandHandle tag;
     ImapTask* conn;

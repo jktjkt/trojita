@@ -29,14 +29,14 @@ class UnSelectTask : public ImapTask
 {
 Q_OBJECT
 public:
-    UnSelectTask( Model* _model, ImapTask* parentTask );
+    UnSelectTask(Model* _model, ImapTask* parentTask);
     virtual void perform();
 
-    virtual bool handleStateHelper( const Imap::Responses::State* const resp );
-    virtual bool handleNumberResponse( const Imap::Responses::NumberResponse* const resp );
-    virtual bool handleFlags( const Imap::Responses::Flags* const resp );
-    virtual bool handleSearch( const Imap::Responses::Search* const resp );
-    virtual bool handleFetch( const Imap::Responses::Fetch* const resp );
+    virtual bool handleStateHelper(const Imap::Responses::State* const resp);
+    virtual bool handleNumberResponse(const Imap::Responses::NumberResponse* const resp);
+    virtual bool handleFlags(const Imap::Responses::Flags* const resp);
+    virtual bool handleSearch(const Imap::Responses::Search* const resp);
+    virtual bool handleFetch(const Imap::Responses::Fetch* const resp);
 private:
     CommandHandle unSelectTag;
     ImapTask* conn;

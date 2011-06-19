@@ -25,8 +25,6 @@
 namespace Imap {
 namespace Mailbox {
 
-class TreeItemMailbox;
-
 /** @short Create new connection and make sure it reaches authenticated state
 
 Use this task if you want to obtain a new connection which ends up in the authenticated
@@ -39,18 +37,18 @@ class OpenConnectionTask : public ImapTask
 {
 Q_OBJECT
 public:
-    OpenConnectionTask( Model* _model );
+    OpenConnectionTask(Model* _model);
     virtual void perform();
 
-    virtual bool handleStateHelper( const Imap::Responses::State* const resp );
+    virtual bool handleStateHelper(const Imap::Responses::State* const resp);
     // FIXME: reimplement handleCapability(), add some guards against "unexpected changes" to Model's implementation
 
 protected:
     /** @short A special, internal constructor used only by Fake_OpenConnectionTask */
-    OpenConnectionTask( Model* _model, void* dummy);
+    OpenConnectionTask(Model* _model, void* dummy);
 
 private:
-    void handleInitialResponse( const Imap::Responses::State* const resp );
+    void handleInitialResponse(const Imap::Responses::State* const resp);
 
 private:
     bool waitingForGreetings;

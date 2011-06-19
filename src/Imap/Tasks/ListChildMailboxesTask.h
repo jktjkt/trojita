@@ -25,17 +25,15 @@
 namespace Imap {
 namespace Mailbox {
 
-class TreeItemMailbox;
-
 /** @short Ask for child mailboxes below a certain mailbox */
 class ListChildMailboxesTask : public ImapTask
 {
 Q_OBJECT
 public:
-    ListChildMailboxesTask( Model* _model, const QModelIndex& mailbox );
+    ListChildMailboxesTask(Model* _model, const QModelIndex& mailbox);
     virtual void perform();
 
-    virtual bool handleStateHelper( const Imap::Responses::State* const resp );
+    virtual bool handleStateHelper(const Imap::Responses::State* const resp);
 
     virtual QString debugIdentification() const;
 private:

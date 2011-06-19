@@ -25,8 +25,6 @@
 namespace Imap {
 namespace Mailbox {
 
-class TreeItemMailbox;
-
 /** @short Expunge all messages marked as \\Deleted in the mailbox
 
 Please note that this task simply sends the EXPUNGE command; no careful flag
@@ -36,10 +34,10 @@ class ExpungeMailboxTask : public ImapTask
 {
 Q_OBJECT
 public:
-    ExpungeMailboxTask( Model* _model, const QModelIndex& mailbox );
+    ExpungeMailboxTask(Model* _model, const QModelIndex& mailbox);
     virtual void perform();
 
-    virtual bool handleStateHelper( const Imap::Responses::State* const resp );
+    virtual bool handleStateHelper(const Imap::Responses::State* const resp);
 private:
     CommandHandle tag;
     ImapTask* conn;

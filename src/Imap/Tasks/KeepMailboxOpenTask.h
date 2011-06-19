@@ -31,7 +31,6 @@ class Parser;
 
 namespace Mailbox {
 
-class TreeItemMailbox;
 class ObtainSynchronizedMailboxTask;
 class IdleLauncher;
 class FetchMsgPartTask;

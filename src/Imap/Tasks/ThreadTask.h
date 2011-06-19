@@ -25,8 +25,6 @@
 namespace Imap {
 namespace Mailbox {
 
-class TreeItemMailbox;
-
 /** @short Expunge all messages marked as \\Deleted in the mailbox
 
 Please note that this task simply sends the EXPUNGE command; no careful flag
@@ -36,11 +34,11 @@ class ThreadTask : public ImapTask
 {
 Q_OBJECT
 public:
-    ThreadTask( Model* _model, const QModelIndex& mailbox, const QString &_algorithm, const QStringList &_searchCriteria );
+    ThreadTask(Model* _model, const QModelIndex& mailbox, const QString &_algorithm, const QStringList &_searchCriteria);
     virtual void perform();
 
-    virtual bool handleStateHelper( const Imap::Responses::State* const resp );
-    virtual bool handleThread( const Imap::Responses::Thread *const resp );
+    virtual bool handleStateHelper(const Imap::Responses::State* const resp);
+    virtual bool handleThread(const Imap::Responses::Thread *const resp);
 private:
     CommandHandle tag;
     ImapTask* conn;
