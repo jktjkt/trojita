@@ -97,16 +97,17 @@ void MessageView::setEmpty()
 void MessageView::setMessage(const QModelIndex& index)
 {
     // first, let's get a real model
-    Imap::Mailbox::TreeItem *item;
-    const Imap::Mailbox::Model *realModel;
-    item = Imap::Mailbox::Model::realTreeItem( index, &realModel, 0 );
+    Imap::Mailbox::TreeItem *item = 0;
+    const Imap::Mailbox::Model *realModel = 0;
+    QModelIndex messageIndex;
+    item = Imap::Mailbox::Model::realTreeItem(index, &realModel, &messageIndex);
     Q_ASSERT(item); // Make sure it's a message
     model = const_cast<Imap::Mailbox::Model*>(realModel);
 
     // now let's find a real message root
-    Imap::Mailbox::TreeItemMessage* messageCandidate = dynamic_cast<Imap::Mailbox::TreeItemMessage*>( item );
-    Q_ASSERT( model );
-    Q_ASSERT( messageCandidate );
+    Imap::Mailbox::TreeItemMessage* messageCandidate = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(item);
+    Q_ASSERT(model);
+    Q_ASSERT(messageCandidate);
 
     if (!messageCandidate->fetched()) {
         qDebug() << "Attempted to load a message that hasn't been synced yet";
@@ -114,7 +115,8 @@ void MessageView::setMessage(const QModelIndex& index)
         return;
     }
 
-    QModelIndex rootPartIndex = index.child(0, 0);
+    QModelIndex rootPartIndex = messageIndex.child(0, 0);
+
     if ( message != messageCandidate ) {
         emptyView->hide();
         layout->removeWidget( viewer );
