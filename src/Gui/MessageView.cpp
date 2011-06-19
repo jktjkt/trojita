@@ -94,7 +94,7 @@ void MessageView::setEmpty()
     }
 }
 
-void MessageView::setMessage( const QModelIndex& index )
+void MessageView::setMessage(const QModelIndex& index)
 {
     // first, let's get a real model
     Imap::Mailbox::TreeItem *item;
@@ -108,7 +108,7 @@ void MessageView::setMessage( const QModelIndex& index )
     Q_ASSERT( model );
     Q_ASSERT( messageCandidate );
 
-    if ( ! messageCandidate->fetched() ) {
+    if (!messageCandidate->fetched()) {
         qDebug() << "Attempted to load a message that hasn't been synced yet";
         setEmpty();
         return;
