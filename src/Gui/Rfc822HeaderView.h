@@ -32,7 +32,7 @@ class Rfc822HeaderView : public QLabel
 {
     Q_OBJECT
 public:
-    Rfc822HeaderView(QWidget* parent, const QModelIndex &index);
+    Rfc822HeaderView(QWidget* parent, QModelIndex index);
 private slots:
     void handleDataChanged(const QModelIndex&, const QModelIndex& );
     void setCorrectText();

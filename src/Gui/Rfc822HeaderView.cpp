@@ -28,13 +28,17 @@
 
 namespace Gui {
 
-Rfc822HeaderView::Rfc822HeaderView(QWidget* parent, const QModelIndex &index_):
-    QLabel(parent), index(index_)
+Rfc822HeaderView::Rfc822HeaderView(QWidget* parent, QModelIndex index_):
+    QLabel(parent)
 {
-    Q_ASSERT(index.isValid());
+    Q_ASSERT(index_.isValid());
+
+    // We have to obtain the underlying index
     const Imap::Mailbox::Model *constModel;
-    Imap::Mailbox::TreeItemPart *part = dynamic_cast<Imap::Mailbox::TreeItemPart*>(Imap::Mailbox::Model::realTreeItem(index, &constModel));
+    Imap::Mailbox::TreeItemPart *part = dynamic_cast<Imap::Mailbox::TreeItemPart*>(Imap::Mailbox::Model::realTreeItem(index_, &constModel, &index_));
     Q_ASSERT(part);
+    index = index_;
+
     Imap::Mailbox::Model *model = const_cast<Imap::Mailbox::Model*>(constModel);  // the const_cast is required because QModelIndex::model() returns const
     part->fetch(model);
     if (part->fetched()) {
