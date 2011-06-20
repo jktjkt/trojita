@@ -98,7 +98,7 @@ void ImapModelDisappearingMailboxTest::testGoingReallyOfflineOnline()
                                          "* LIST (\\HasNoChildren) \".\" \"a\"\r\n")
                               + t.last("OK List done.\r\n");
 
-    // But before we "receive" the LIST responses, GUI could easily request syncong of mailbox B again,
+    // But before we "receive" the LIST responses, GUI could easily request syncing of mailbox B again,
     // which is what we do here
     QCOMPARE( model->rowCount( msgListB ), 0 );
     model->switchToMailbox( idxB );
@@ -126,7 +126,7 @@ void ImapModelDisappearingMailboxTest::testGoingReallyOfflineOnline()
     // Make sure it really ignores stuff
     SOCK->fakeReading(QByteArray("* 666 FETCH (FLAGS ())\r\n")
                       // and make it happy by switching away from that mailbox
-                      + t.last("OK gond from mailbox\r\n"));
+                      + t.last("OK gone from mailbox\r\n"));
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 
