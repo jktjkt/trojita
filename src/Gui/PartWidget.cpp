@@ -132,7 +132,9 @@ Message822Widget::Message822Widget(QWidget *parent,
         QGroupBox( tr("Message"), parent )
 {
     QVBoxLayout* layout = new QVBoxLayout(this);
-    QLabel* header = new Rfc822HeaderView(0, partIndex);
+    QModelIndex headerIndex = partIndex.child(0, Imap::Mailbox::TreeItem::OFFSET_HEADER);
+    Q_ASSERT(headerIndex.isValid());
+    QLabel* header = new Rfc822HeaderView(0, headerIndex);
     layout->addWidget( header );
     for (int i = 0; i < partIndex.model()->rowCount(partIndex); ++i) {
         using namespace Imap::Mailbox;
