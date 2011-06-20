@@ -871,9 +871,11 @@ void Model::updateCapabilities( Parser* parser, const QStringList capabilities )
         emit capabilitiesUpdated(uppercaseCaps);
 }
 
-void Model::markMessageDeleted( TreeItemMessage* msg, bool marked )
+void Model::markMessageDeleted(const QModelIndex &msg, bool marked)
 {
-    _taskFactory->createUpdateFlagsTask( this, QModelIndexList() << createIndex( msg->row(), 0, msg ),
+    Q_ASSERT(msg.isValid());
+    Q_ASSERT(msg.model() == this);
+    _taskFactory->createUpdateFlagsTask( this, QModelIndexList() << msg,
                          marked ? QLatin1String("+FLAGS") : QLatin1String("-FLAGS"),
                          QLatin1String("(\\Deleted)") );
 }

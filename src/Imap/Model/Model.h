@@ -170,7 +170,7 @@ the list of messages, which is why this function exists in the first place.
     void resyncMailbox( const QModelIndex& mbox );
 
     /** @short Ask the server to set/unset the \\Deleted flag for a particular message */
-    void markMessageDeleted( TreeItemMessage* msg, bool marked );
+    void markMessageDeleted(const QModelIndex &msg, bool marked);
     /** @short Ask the server to set/unset the \\Seen flag for a particular message */
     void markMessageRead(const QModelIndex &msg, bool marked);
 

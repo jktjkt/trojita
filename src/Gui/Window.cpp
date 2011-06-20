@@ -750,11 +750,10 @@ void MainWindow::handleMarkAsDeleted( bool value )
             continue;
         if ( ! it->data( Imap::Mailbox::RoleMessageUid ).isValid() )
             continue;
-        Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
-                Imap::Mailbox::Model::realTreeItem( *it )
-                );
-        Q_ASSERT( message );
-        model->markMessageDeleted( message, value );
+
+        QModelIndex translated;
+        Imap::Mailbox::Model::realTreeItem(*it, 0, &translated);
+        model->markMessageDeleted(translated, value);
     }
 }
 
