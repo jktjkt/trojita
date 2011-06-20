@@ -32,6 +32,8 @@
 
 #ifdef HAS_GITVERSION
 extern const char* gitVersion;
+#else
+#include "trojita-version.h"
 #endif
 
 int main( int argc, char** argv) {
@@ -40,7 +42,7 @@ int main( int argc, char** argv) {
 #ifdef HAS_GITVERSION
     QCoreApplication::setApplicationVersion( QString::fromAscii( gitVersion ) );
 #else
-    QCoreApplication::setApplicationVersion( QString::fromAscii("0.2.9.3-git") );
+    QCoreApplication::setApplicationVersion( QString::fromAscii( trojitaVersion ) );
 #endif
     QCoreApplication::setOrganizationDomain( QString::fromAscii("xtuple.com") );
     QCoreApplication::setOrganizationName( QString::fromAscii("xtuple.com") );
