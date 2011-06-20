@@ -58,6 +58,15 @@ void Rfc822HeaderView::handleDataChanged( const QModelIndex& topLeft, const QMod
         // For example when reloading a top-level mailbox -> do nothing...
         return;
     }
+    if (!index.isValid()) {
+        // Our message is gone, so there's no point in checking further
+        disconnect(sender(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
+        if (text() == tr("Loading...") || text() == tr("Offline")) {
+            setCorrectText();
+        }
+        return;
+    }
+
     Q_UNUSED(bottomRight);
     // FIXME: verify that th dataChanged() is emitted separately for each message
     Q_ASSERT(topLeft.model() == index.model());
@@ -67,7 +76,7 @@ void Rfc822HeaderView::handleDataChanged( const QModelIndex& topLeft, const QMod
 
 void Rfc822HeaderView::setCorrectText()
 {
-    setText(index.data(Imap::Mailbox::RolePartData).toString());
+    setText(index.isValid() ? index.data(Imap::Mailbox::RolePartData).toString() : tr("<i>Message deleted</i>"));
 }
 
 }
