@@ -423,9 +423,6 @@ void MainWindow::setupModels()
     connect( msgListModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ), this, SLOT( updateMessageFlags() ) );
     connect( msgListModel, SIGNAL(messagesAvailable()), msgListTree, SLOT(scrollToBottom()) );
 
-    connect( msgListModel, SIGNAL( modelAboutToBeReset() ), msgView, SLOT( setEmpty() ) );
-    connect( msgListModel, SIGNAL( messageRemoved( void* ) ), msgView, SLOT( handleMessageRemoved( void* ) ) );
-
     connect( model, SIGNAL( alertReceived( const QString& ) ), this, SLOT( alertReceived( const QString& ) ) );
     connect( model, SIGNAL( connectionError( const QString& ) ), this, SLOT( connectionError( const QString& ) ) );
     connect( model, SIGNAL( authRequested( QAuthenticator* ) ), this, SLOT( authenticationRequested( QAuthenticator* ) ) );
@@ -495,14 +492,12 @@ void MainWindow::msgListClicked( const QModelIndex& index )
     if ( ! index.data( Imap::Mailbox::RoleMessageUid ).isValid() )
         return;
 
-    if ( index.column() == Imap::Mailbox::MsgListModel::SEEN ) {
-        Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
-                Imap::Mailbox::Model::realTreeItem( index )
-                );
-        Q_ASSERT( message );
-        if ( ! message->fetched() )
+    if (index.column() == Imap::Mailbox::MsgListModel::SEEN) {
+        QModelIndex translated;
+        Imap::Mailbox::Model::realTreeItem(index, 0, &translated);
+        if (!translated.data(Imap::Mailbox::RoleIsFetched).toBool())
             return;
-        model->markMessageRead( message, ! message->isMarkedAsRead() );
+        model->markMessageRead(translated, !translated.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool());
     }
 }
 
@@ -521,15 +516,6 @@ void MainWindow::msgListDoubleClicked( const QModelIndex& index )
     Q_ASSERT( message );
     Q_ASSERT( realModel == model );
     newView->setMessage( index );
-
-    // Now make sure we check all possible paths that could possibly lead to problems when a message gets deleted
-    // big fat FIXME: This is too simplified, albeit safe. What we really want here, however,
-    // is to have a way in which the *real* Model signals a deletion of a particular message.
-    // That way we can safely ignore signals coming from msgListModel which might be result of,
-    // say, switching the view to another mailbox...
-    connect( msgListModel, SIGNAL( modelAboutToBeReset() ), newView, SLOT( setEmpty() ) );
-    connect( msgListModel, SIGNAL( messageRemoved( void* ) ), newView, SLOT( handleMessageRemoved( void* ) ) );
-    connect( msgListModel, SIGNAL( destroyed() ), newView, SLOT( setEmpty() ) );
 
     QScrollArea* widget = new QScrollArea();
     widget->setWidget( newView );
@@ -741,16 +727,17 @@ void MainWindow::handleMarkAsRead( bool value )
 {
     QModelIndexList indices = msgListTree->selectionModel()->selectedIndexes();
     for ( QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it ) {
-        Q_ASSERT( it->isValid() );
-        if ( it->column() != 0 )
+        Q_ASSERT(it->isValid());
+        if (it->column() != 0)
             continue;
-        if ( ! it->data( Imap::Mailbox::RoleMessageUid ).isValid() )
+        if (!it->data( Imap::Mailbox::RoleMessageUid ).isValid())
             continue;
-        Imap::Mailbox::TreeItemMessage* message = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(
-                Imap::Mailbox::Model::realTreeItem( *it )
-                );
-        Q_ASSERT( message );
-        model->markMessageRead( message, value );
+
+        QModelIndex translated;
+        Imap::Mailbox::Model::realTreeItem(*it, 0, &translated);
+        if (!translated.data(Imap::Mailbox::RoleIsFetched).toBool())
+            return;
+        model->markMessageRead(translated, value);
     }
 }
 

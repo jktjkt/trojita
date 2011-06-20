@@ -172,7 +172,7 @@ the list of messages, which is why this function exists in the first place.
     /** @short Ask the server to set/unset the \\Deleted flag for a particular message */
     void markMessageDeleted( TreeItemMessage* msg, bool marked );
     /** @short Ask the server to set/unset the \\Seen flag for a particular message */
-    void markMessageRead( TreeItemMessage* msg, bool marked );
+    void markMessageRead(const QModelIndex &msg, bool marked);
 
     /** @short Run the EXPUNGE command in the specified mailbox */
     void expungeMailbox( TreeItemMailbox* mbox );

@@ -40,7 +40,7 @@
 
 namespace Gui {
 
-MessageView::MessageView( QWidget* parent ): QWidget(parent), message(0), model(0)
+MessageView::MessageView(QWidget* parent): QWidget(parent)
 {
     netAccess = new Imap::Network::MsgPartNetAccessManager( this );
     connect(netAccess, SIGNAL(requestingExternal(QUrl)), this, SLOT(externalsRequested(QUrl)));
@@ -73,17 +73,11 @@ MessageView::~MessageView()
     delete factory;
 }
 
-void MessageView::handleMessageRemoved( void* msg )
-{
-    if ( msg == message )
-        setEmpty();
-}
-
 void MessageView::setEmpty()
 {
     markAsReadTimer->stop();
     header->setText( QString() );
-    message = 0;
+    message = QModelIndex();
     if ( viewer != emptyView ) {
         layout->removeWidget( viewer );
         viewer->deleteLater();
@@ -97,19 +91,15 @@ void MessageView::setEmpty()
 void MessageView::setMessage(const QModelIndex& index)
 {
     // first, let's get a real model
-    Imap::Mailbox::TreeItem *item = 0;
-    const Imap::Mailbox::Model *realModel = 0;
     QModelIndex messageIndex;
-    item = Imap::Mailbox::Model::realTreeItem(index, &realModel, &messageIndex);
+    const Imap::Mailbox::Model *constModel = 0;
+    Imap::Mailbox::TreeItem *item = Imap::Mailbox::Model::realTreeItem(index, &constModel, &messageIndex);
     Q_ASSERT(item); // Make sure it's a message
-    model = const_cast<Imap::Mailbox::Model*>(realModel);
+    Q_ASSERT(messageIndex.isValid());
+    Imap::Mailbox::Model *realModel = const_cast<Imap::Mailbox::Model*>(constModel);
+    Q_ASSERT(realModel);
 
-    // now let's find a real message root
-    Imap::Mailbox::TreeItemMessage* messageCandidate = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(item);
-    Q_ASSERT(model);
-    Q_ASSERT(messageCandidate);
-
-    if (!messageCandidate->fetched()) {
+    if (!messageIndex.data(Imap::Mailbox::RoleIsFetched).toBool()) {
         qDebug() << "Attempted to load a message that hasn't been synced yet";
         setEmpty();
         return;
@@ -117,17 +107,23 @@ void MessageView::setMessage(const QModelIndex& index)
 
     QModelIndex rootPartIndex = messageIndex.child(0, 0);
 
-    if ( message != messageCandidate ) {
+    if (message != messageIndex) {
         emptyView->hide();
         layout->removeWidget( viewer );
         if ( viewer != emptyView ) {
             viewer->setParent( 0 );
             viewer->deleteLater();
         }
-        message = messageCandidate;
+        message = messageIndex;
         netAccess->setExternalsEnabled( false );
         externalElements->hide();
-        netAccess->setModelMessage( model, message );
+
+        Imap::Mailbox::Model *model = dynamic_cast<Imap::Mailbox::Model*>(const_cast<QAbstractItemModel*>(message.model()));
+        Imap::Mailbox::TreeItemMessage *messagePtr = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(static_cast<Imap::Mailbox::TreeItem*>(message.internalPointer()));
+        Q_ASSERT(model);
+        Q_ASSERT(messagePtr);
+        netAccess->setModelMessage(model, messagePtr);
+
         viewer = factory->create(rootPartIndex);
         viewer->setParent( this );
         layout->addWidget( viewer );
@@ -139,15 +135,19 @@ void MessageView::setMessage(const QModelIndex& index)
         viewer->installEventFilter( this );
     }
 
-    if ( model->isNetworkAvailable() )
+    if (realModel->isNetworkAvailable() )
         markAsReadTimer->start( 2000 ); // FIXME: make this configurable
 }
 
 void MessageView::markAsRead()
 {
-    if ( ! message || ! model->isNetworkAvailable() )
+    if (!message.isValid())
         return;
-    model->markMessageRead( message, true );
+    Imap::Mailbox::Model *model = const_cast<Imap::Mailbox::Model*>(dynamic_cast<const Imap::Mailbox::Model*>(message.model()));
+    Q_ASSERT(model);
+    if (!model->isNetworkAvailable())
+        return;
+    model->markMessageRead(message, true);
 }
 
 bool MessageView::eventFilter( QObject* object, QEvent* event )
@@ -178,26 +178,26 @@ bool MessageView::eventFilter( QObject* object, QEvent* event )
 
 QString MessageView::headerText()
 {
-    if ( ! message )
+    if (!message.isValid())
         return QString();
 
+    // Accessing the envelope via QVariant is just too much work here; it's way easier to just get the raw pointer
+    Imap::Mailbox::Model *model = dynamic_cast<Imap::Mailbox::Model*>(const_cast<QAbstractItemModel*>(message.model()));
+    Imap::Mailbox::TreeItemMessage *messagePtr = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(static_cast<Imap::Mailbox::TreeItem*>(message.internalPointer()));
+    const Imap::Message::Envelope& envelope = messagePtr->envelope(model);
+
     QString res;
-    if ( ! message->envelope( model ).from.isEmpty() )
-        res += tr("<b>From:</b>&nbsp;%1<br/>").arg(
-                Imap::Message::MailAddress::prettyList( message->envelope( model ).from, Imap::Message::MailAddress::FORMAT_CLICKABLE ) );
-    if ( ! message->envelope( model ).to.isEmpty() )
-        res += tr("<b>To:</b>&nbsp;%1<br/>").arg(
-                Imap::Message::MailAddress::prettyList( message->envelope( model ).to, Imap::Message::MailAddress::FORMAT_CLICKABLE ) );
-    if ( ! message->envelope( model ).cc.isEmpty() )
-        res += tr("<b>Cc:</b>&nbsp;%1<br/>").arg(
-                Imap::Message::MailAddress::prettyList( message->envelope( model ).cc, Imap::Message::MailAddress::FORMAT_CLICKABLE ) );
-    if ( ! message->envelope( model ).bcc.isEmpty() )
-        res += tr("<b>Bcc:</b>&nbsp;%1<br/>").arg(
-                Imap::Message::MailAddress::prettyList( message->envelope( model ).bcc, Imap::Message::MailAddress::FORMAT_CLICKABLE ) );
-    res += tr("<b>Subject:</b>&nbsp;%1").arg( Qt::escape( message->envelope( model ).subject ) );
-    if ( message->envelope( model ).date.isValid() )
-        res += tr("<br/><b>Date:</b>&nbsp;%1").arg(
-                message->envelope( model ).date.toString( Qt::SystemLocaleLongDate ) );
+    if (!envelope.from.isEmpty())
+        res += tr("<b>From:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(envelope.from, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+    if (!envelope.to.isEmpty())
+        res += tr("<b>To:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(envelope.to, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+    if (!envelope.cc.isEmpty())
+        res += tr("<b>Cc:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(envelope.cc, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+    if (!envelope.bcc.isEmpty())
+        res += tr("<b>Bcc:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(envelope.bcc, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+    res += tr("<b>Subject:</b>&nbsp;%1").arg(Qt::escape(envelope.subject));
+    if (envelope.date.isValid())
+        res += tr("<br/><b>Date:</b>&nbsp;%1").arg(envelope.date.toString(Qt::SystemLocaleLongDate));
     return res;
 }
 
@@ -209,10 +209,15 @@ QString MessageView::quoteText() const
 
 void MessageView::reply( MainWindow* mainWindow, ReplyMode mode )
 {
-    if ( ! message )
+    if (!message.isValid())
         return;
 
-    const Imap::Message::Envelope& envelope = message->envelope( model );
+    // Accessing the envelope via QVariant is just too much work here; it's way easier to just get the raw pointer
+    Imap::Mailbox::Model *model = dynamic_cast<Imap::Mailbox::Model*>(const_cast<QAbstractItemModel*>(message.model()));
+    Imap::Mailbox::TreeItemMessage *messagePtr = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(static_cast<Imap::Mailbox::TreeItem*>(message.internalPointer()));
+    const Imap::Message::Envelope& envelope = messagePtr->envelope(model);
+    // ...now imagine how that would look like on just a single line :)
+
     QList<QPair<QString,QString> > recipients;
     for ( QList<Imap::Message::MailAddress>::const_iterator it = envelope.from.begin(); it != envelope.from.end(); ++it ) {
         recipients << qMakePair( tr("To"), QString::fromAscii("%1@%2").arg( it->mailbox, it->host ));

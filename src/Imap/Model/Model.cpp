@@ -878,9 +878,11 @@ void Model::markMessageDeleted( TreeItemMessage* msg, bool marked )
                          QLatin1String("(\\Deleted)") );
 }
 
-void Model::markMessageRead( TreeItemMessage* msg, bool marked )
+void Model::markMessageRead(const QModelIndex &msg, bool marked)
 {
-    _taskFactory->createUpdateFlagsTask( this, QModelIndexList() << createIndex( msg->row(), 0, msg ),
+    Q_ASSERT(msg.isValid());
+    Q_ASSERT(msg.model() == this);
+    _taskFactory->createUpdateFlagsTask( this, QModelIndexList() << msg,
                          marked ? QLatin1String("+FLAGS") : QLatin1String("-FLAGS"),
                          QLatin1String("(\\Seen)") );
 }

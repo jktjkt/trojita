@@ -21,20 +21,16 @@
 #ifndef VIEW_MESSAGEVIEW_H
 #define VIEW_MESSAGEVIEW_H
 
+#include <QPersistentModelIndex>
 #include <QWidget>
 
 class QLabel;
 class QLayout;
-class QModelIndex;
 class QTimer;
 class QUrl;
 class QWebView;
 
 namespace Imap {
-namespace Mailbox {
-class TreeItemMessage;
-class Model;
-}
 namespace Network {
 class MsgPartNetAccessManager;
 }
@@ -56,7 +52,7 @@ class MessageView : public QWidget
 {
 Q_OBJECT
 public:
-    MessageView( QWidget* parent=0);
+    MessageView(QWidget* parent=0);
     ~MessageView();
     enum ReplyMode { REPLY_SENDER_ONLY, /**< @short Reply to sender(s) only */
                      REPLY_ALL /**< @short Reply to all recipients */ };
@@ -64,7 +60,6 @@ public:
 public slots:
     void setMessage( const QModelIndex& index );
     void setEmpty();
-    void handleMessageRemoved( void* msg );
 private slots:
     void markAsRead();
     void externalsRequested( const QUrl& url );
@@ -82,8 +77,7 @@ private:
     QLabel* header;
     ExternalElementsWidget* externalElements;
     QLayout* layout;
-    Imap::Mailbox::TreeItemMessage* message;
-    Imap::Mailbox::Model* model;
+    QPersistentModelIndex message;
     Imap::Network::MsgPartNetAccessManager* netAccess;
     QTimer* markAsReadTimer;
     QWebView* emptyView;
