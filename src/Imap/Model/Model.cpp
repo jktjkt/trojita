@@ -1243,6 +1243,7 @@ QModelIndex Model::findMailboxForItems( const QModelIndexList& items )
     TreeItemMailbox* mailbox = 0;
     Q_FOREACH( const QModelIndex& index, items ) {
         TreeItemMailbox* currentMailbox = 0;
+        Q_ASSERT(index.model() == this);
 
         TreeItem* item = static_cast<TreeItem*>( index.internalPointer() );
         Q_ASSERT(item);
