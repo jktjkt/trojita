@@ -54,7 +54,7 @@ Rfc822HeaderView::Rfc822HeaderView(QWidget* parent, QModelIndex index_):
 
 void Rfc822HeaderView::handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight )
 {
-    if ( ! topLeft.isValid() ) {
+    if (!topLeft.isValid()) {
         // For example when reloading a top-level mailbox -> do nothing...
         return;
     }
