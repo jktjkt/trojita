@@ -871,20 +871,20 @@ void Model::updateCapabilities( Parser* parser, const QStringList capabilities )
         emit capabilitiesUpdated(uppercaseCaps);
 }
 
-void Model::markMessageDeleted(const QModelIndex &msg, bool marked)
+void Model::markMessagesDeleted(const QModelIndexList &messages, bool marked)
 {
-    Q_ASSERT(msg.isValid());
-    Q_ASSERT(msg.model() == this);
-    _taskFactory->createUpdateFlagsTask( this, QModelIndexList() << msg,
+    Q_ASSERT(!messages.isEmpty());
+    Q_ASSERT(messages.front().model() == this);
+    _taskFactory->createUpdateFlagsTask( this, messages,
                          marked ? QLatin1String("+FLAGS") : QLatin1String("-FLAGS"),
                          QLatin1String("(\\Deleted)") );
 }
 
-void Model::markMessageRead(const QModelIndex &msg, bool marked)
+void Model::markMessagesRead(const QModelIndexList &messages, bool marked)
 {
-    Q_ASSERT(msg.isValid());
-    Q_ASSERT(msg.model() == this);
-    _taskFactory->createUpdateFlagsTask( this, QModelIndexList() << msg,
+    Q_ASSERT(!messages.isEmpty());
+    Q_ASSERT(messages.front().model() == this);
+    _taskFactory->createUpdateFlagsTask( this, messages,
                          marked ? QLatin1String("+FLAGS") : QLatin1String("-FLAGS"),
                          QLatin1String("(\\Seen)") );
 }

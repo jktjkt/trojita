@@ -497,7 +497,7 @@ void MainWindow::msgListClicked( const QModelIndex& index )
         Imap::Mailbox::Model::realTreeItem(index, 0, &translated);
         if (!translated.data(Imap::Mailbox::RoleIsFetched).toBool())
             return;
-        model->markMessageRead(translated, !translated.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool());
+        model->markMessagesRead(QModelIndexList() << translated, !translated.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool());
     }
 }
 
@@ -726,34 +726,42 @@ void MainWindow::slotComposeMail()
 void MainWindow::handleMarkAsRead( bool value )
 {
     QModelIndexList indices = msgListTree->selectionModel()->selectedIndexes();
-    for ( QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it ) {
+    QModelIndexList translatedIndexes;
+    for (QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it) {
         Q_ASSERT(it->isValid());
         if (it->column() != 0)
             continue;
-        if (!it->data( Imap::Mailbox::RoleMessageUid ).isValid())
+        if (!it->data(Imap::Mailbox::RoleMessageUid).isValid())
             continue;
-
         QModelIndex translated;
         Imap::Mailbox::Model::realTreeItem(*it, 0, &translated);
-        if (!translated.data(Imap::Mailbox::RoleIsFetched).toBool())
-            return;
-        model->markMessageRead(translated, value);
+        translatedIndexes << translated;
+    }
+    if (translatedIndexes.isEmpty()) {
+        qDebug() << "Model::handleMarkAsRead: no valid messages";
+    } else {
+        model->markMessagesRead(translatedIndexes, value);
     }
 }
 
 void MainWindow::handleMarkAsDeleted( bool value )
 {
     QModelIndexList indices = msgListTree->selectionModel()->selectedIndexes();
-    for ( QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it ) {
-        Q_ASSERT( it->isValid() );
-        if ( it->column() != 0 )
+    QModelIndexList translatedIndexes;
+    for (QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it) {
+        Q_ASSERT(it->isValid());
+        if (it->column() != 0)
             continue;
-        if ( ! it->data( Imap::Mailbox::RoleMessageUid ).isValid() )
+        if (!it->data(Imap::Mailbox::RoleMessageUid).isValid())
             continue;
-
         QModelIndex translated;
         Imap::Mailbox::Model::realTreeItem(*it, 0, &translated);
-        model->markMessageDeleted(translated, value);
+        translatedIndexes << translated;
+    }
+    if (translatedIndexes.isEmpty()) {
+        qDebug() << "Model::handleMarkAsDeleted: no valid messages";
+    } else {
+        model->markMessagesDeleted(translatedIndexes, value);
     }
 }
 

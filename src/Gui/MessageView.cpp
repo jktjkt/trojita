@@ -147,7 +147,7 @@ void MessageView::markAsRead()
     Q_ASSERT(model);
     if (!model->isNetworkAvailable())
         return;
-    model->markMessageRead(message, true);
+    model->markMessagesRead(QModelIndexList() << message, true);
 }
 
 bool MessageView::eventFilter( QObject* object, QEvent* event )
