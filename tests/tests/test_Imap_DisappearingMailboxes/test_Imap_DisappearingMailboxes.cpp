@@ -51,6 +51,16 @@ void ImapModelDisappearingMailboxTest::testGoingOfflineOnline()
     QCoreApplication::processEvents();
 }
 
+void ImapModelDisappearingMailboxTest::testGoingOfflineOnlineExamine()
+{
+    helperTestGoingReallyOfflineOnline(false);
+}
+
+void ImapModelDisappearingMailboxTest::testGoingOfflineOnlineUnselect()
+{
+    helperTestGoingReallyOfflineOnline(true);
+}
+
 /** @short Simulate what happens when user goes offline with views attached
 
 This is intended to be very similar to how real application behaves, reacting to events etc.
@@ -58,7 +68,7 @@ This is intended to be very similar to how real application behaves, reacting to
 This is a test for issue #88 where the ObtainSynchronizedMailboxTask failed to account for the possibility
 of indexes getting invalidated while the sync is in progress.
 */
-void ImapModelDisappearingMailboxTest::testGoingReallyOfflineOnline()
+void ImapModelDisappearingMailboxTest::helperTestGoingReallyOfflineOnline(bool withUnselect)
 {
     // At first, open mailbox B
     helperSyncBNoMessages();
@@ -99,9 +109,11 @@ void ImapModelDisappearingMailboxTest::testGoingReallyOfflineOnline()
                                          "* LIST (\\HasNoChildren) \".\" \"a\"\r\n")
                               + t.last("OK List done.\r\n");
 
-    // We'll need the UNSELECT later on
-    FakeCapabilitiesInjector injector(model);
-    injector.injectCapability(QLatin1String("UNSELECT"));
+    if (withUnselect) {
+        // We'll need the UNSELECT later on
+        FakeCapabilitiesInjector injector(model);
+        injector.injectCapability(QLatin1String("UNSELECT"));
+    }
 
     // But before we "receive" the LIST responses, GUI could easily request syncing of mailbox B again,
     // which is what we do here
@@ -125,8 +137,13 @@ void ImapModelDisappearingMailboxTest::testGoingReallyOfflineOnline()
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 
-    // It should've noticed that the index is gone, and try to get out of there
-    QCOMPARE(SOCK->writtenStuff(), t.mk("UNSELECT\r\n"));
+    if (withUnselect) {
+        // It should've noticed that the index is gone, and try to get out of there
+        QCOMPARE(SOCK->writtenStuff(), t.mk("UNSELECT\r\n"));
+    } else {
+        // The actual mailbox contains a timestamp, so let's take a shortcut here
+        QVERIFY(SOCK->writtenStuff().startsWith(t.mk("EXAMINE \"trojita non existing ")));
+    }
 
     // Make sure it really ignores stuff
     SOCK->fakeReading(QByteArray("* 666 FETCH (FLAGS ())\r\n")
