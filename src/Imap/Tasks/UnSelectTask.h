@@ -37,8 +37,12 @@ public:
     virtual bool handleFlags(const Imap::Responses::Flags* const resp);
     virtual bool handleSearch(const Imap::Responses::Search* const resp);
     virtual bool handleFetch(const Imap::Responses::Fetch* const resp);
+private slots:
+    /** @short Try to guess a non-existing mailbox name */
+    void doFakeSelect();
 private:
     CommandHandle unSelectTag;
+    CommandHandle selectMissingTag;
     ImapTask* conn;
 };
 

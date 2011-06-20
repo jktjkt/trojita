@@ -159,6 +159,7 @@ protected:
     CommandHandle newArrivalsFetch;
     friend class IdleLauncher;
     friend class ObtainSynchronizedMailboxTask; // needs access to slotUnSelectCompleted()
+    friend class UnSelectTask; // needs access to breakPossibleIdle()
     friend class ::ImapModelIdleTest;
 
     QList<uint> uidMap;

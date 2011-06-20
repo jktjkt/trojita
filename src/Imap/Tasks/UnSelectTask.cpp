@@ -35,32 +35,56 @@ UnSelectTask::UnSelectTask( Model* _model, ImapTask* parentTask ) :
 
 void UnSelectTask::perform()
 {
-    model->accessParser( parser ).activeTasks.prepend( this );
+    model->accessParser( parser ).activeTasks.prepend(this);
+    if (model->accessParser(parser).maintainingTask) {
+        model->accessParser(parser).maintainingTask->breakPossibleIdle();
+    }
+    if (model->accessParser(parser).capabilities.contains("UNSELECT")) {
+        unSelectTag = parser->unSelect();
+    } else {
+        doFakeSelect();
+    }
+    emit model->activityHappening(true);
+}
 
-    // FIXME: SELECT a fake mailbox when UNSELECT is not supported
-    unSelectTag = parser->unSelect();
-    emit model->activityHappening( true );
+void UnSelectTask::doFakeSelect()
+{
+    if (model->accessParser(parser).maintainingTask) {
+        model->accessParser(parser).maintainingTask->breakPossibleIdle();
+    }
+    // The server does not support UNSELECT. Let's construct an unlikely-to-exist mailbox, then.
+    selectMissingTag = parser->examine(QString("trojita non existing %1").arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate)));
 }
 
 bool UnSelectTask::handleStateHelper( const Imap::Responses::State* const resp )
 {
-    if ( resp->tag == unSelectTag ) {
-        if ( resp->kind == Responses::OK ) {
-            // nothing should be needed here
-        } else {
-            // This is really bad.
-            throw MailboxException("Attempted to unselect current mailbox, but the server denied our request. "
-                                   "Can't continue, to avoid possible data corruption.", *resp);
+    if (!resp->tag.isEmpty()) {
+        if (resp->tag == unSelectTag) {
+            if (resp->kind == Responses::OK) {
+                // nothing should be needed here
+            } else {
+                // This is really bad.
+                throw MailboxException("Attempted to unselect current mailbox, but the server denied our request. "
+                                       "Can't continue, to avoid possible data corruption.", *resp);
+            }
+            _completed();
+            return true;
+        } else if (resp->tag == selectMissingTag) {
+            if (resp->kind == Responses::OK) {
+                QTimer::singleShot(1000, this, SLOT(doFakeSelect()));
+                log(tr("The emergency EXAMINE command has unexpectedly succeeded, trying to get out of here..."), LOG_MAILBOX_SYNC);
+            } else {
+                // This is very good :)
+                _completed();
+            }
+            return true;
         }
-        _completed();
-        return true;
-    } else {
-        QByteArray buf;
-        QTextStream s(&buf);
-        s << *resp;
-        log("Ignoring response " + buf, LOG_MAILBOX_SYNC);
-        return true;
     }
+    QByteArray buf;
+    QTextStream s(&buf);
+    s << *resp;
+    log("Ignoring response " + buf, LOG_MAILBOX_SYNC);
+    return true;
 }
 
 bool UnSelectTask::handleNumberResponse( const Imap::Responses::NumberResponse* const resp )
