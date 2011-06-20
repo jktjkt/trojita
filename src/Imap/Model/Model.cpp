@@ -1124,7 +1124,6 @@ void Model::killParser(Parser *parser, bool nice)
         task->deleteLater();
     }
 
-    uint parserId = parser->parserId();
     parser->disconnect();
     parser->deleteLater();
     accessParser( parser ).parser = 0;
