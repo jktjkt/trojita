@@ -23,6 +23,7 @@
 #include "test_Imap_DisappearingMailboxes.h"
 #include "../headless_test.h"
 #include "Streams/FakeSocket.h"
+#include "test_LibMailboxSync/FakeCapabilitiesInjector.h"
 
 /** @short This test verifies that we don't segfault during offline -> online transition */
 void ImapModelDisappearingMailboxTest::testGoingOfflineOnline()
@@ -97,6 +98,10 @@ void ImapModelDisappearingMailboxTest::testGoingReallyOfflineOnline()
     QByteArray listResponse = QByteArray("* LIST (\\HasNoChildren) \".\" \"b\"\r\n"
                                          "* LIST (\\HasNoChildren) \".\" \"a\"\r\n")
                               + t.last("OK List done.\r\n");
+
+    // We'll need the UNSELECT later on
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability(QLatin1String("UNSELECT"));
 
     // But before we "receive" the LIST responses, GUI could easily request syncing of mailbox B again,
     // which is what we do here
