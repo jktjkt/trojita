@@ -36,6 +36,9 @@ public:
 /** @short Return the name of a log file for logging IMAP communication */
 QString persistentLogFileName();
 
+/** @short Return a system/platform version */
+QString systemPlatformVersion();
+
 }
 }
 

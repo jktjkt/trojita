@@ -30,6 +30,7 @@
 #include "MSA/Sendmail.h"
 #include "MSA/SMTP.h"
 #include "Imap/Encoders.h"
+#include "Imap/Model/Utils.h"
 
 namespace {
     enum { OFFSET_OF_FIRST_ADDRESSEE = 1 };
@@ -128,8 +129,9 @@ void ComposeWidget::send()
     mailData.append( "Date: " ).append( now.toString(
             QString::fromAscii( "ddd, dd MMM yyyy hh:mm:ss" ) ).append(
                     " +0000\r\n" ) );
-    mailData.append( "User-Agent: ").append( qApp->applicationName() ).append(
-            "/").append( qApp->applicationVersion() ).append( "\r\n");
+    mailData.append( "User-Agent: ").append(
+                QString::fromAscii("%1/%2; %3").arg(qApp->applicationName(), qApp->applicationVersion(), Imap::Mailbox::systemPlatformVersion()).toAscii()
+                ).append( "\r\n");
     mailData.append( "MIME-Version: 1.0\r\n" );
     mailData.append( "\r\n" );
     mailData.append( ui->mailText->toPlainText().toUtf8() );

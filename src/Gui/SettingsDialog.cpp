@@ -109,10 +109,9 @@ IdentityPage::IdentityPage( QWidget* parent, QSettings& s ): QWidget(parent)
     layout->addRow(separator);
     checkForUpdates = new QCheckBox(tr("Automatically check for updates"), this);
     checkForUpdates->setChecked(s.value(Common::SettingsNames::appCheckUpdatesEnabled, QVariant(true)).toBool());
-    checkForUpdates->setToolTip(trUtf8("<p>If enabled, Trojitá will try to find out if there are any newer "
-                                       "versions available.</p>"
-                                       "<p>The update server will receive the user's IP address and versions of "
-                                       "Trojitá and the Qt library. No private information, like account settings "
+    checkForUpdates->setToolTip(trUtf8("<p>If enabled, Trojitá will try to find out if there are any newer versions available.</p>"
+                                       "<p>The update server will receive the user's IP address and versions of Trojitá, the Qt library, "
+                                       "and the underlying operating system. No private information, like account settings "
                                        "or IMAP server details, are collected.</p>"));
     layout->addRow(checkForUpdates);
 }

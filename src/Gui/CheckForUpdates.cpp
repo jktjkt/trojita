@@ -27,6 +27,7 @@
 #include <QNetworkRequest>
 #include <QSettings>
 #include "Common/SettingsNames.h"
+#include <Imap/Model/Utils.h>
 
 /** @short All user-facing widgets and related classes */
 namespace Gui {
@@ -40,7 +41,7 @@ void CheckForUpdates::checkForUpdates()
     QNetworkRequest request;
     request.setUrl(QUrl(QString::fromAscii("http://updates.trojita.flaska.net/updates-v1/trojita/%1").arg(QCoreApplication::applicationVersion())));
     // We're tracking current version of Qt, not the build version
-    request.setRawHeader(QByteArray("User-Agent"), QString::fromAscii("Qt/%1").arg(qVersion()).toAscii());
+    request.setRawHeader(QByteArray("User-Agent"), Imap::Mailbox::systemPlatformVersion().toAscii());
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
     manager->get(request);
     connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(slotReplyFinished(QNetworkReply*)));

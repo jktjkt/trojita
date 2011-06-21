@@ -33,7 +33,7 @@ namespace Gui {
 This class will send a HTTP request to the Trojita's webserver. The request contains the application
 version, which is used to decide what kind of response to return.
 
-The server will know the sender's IP address, current version of Qt and Trojita's version.
+The server will know the sender's IP address, current version of Qt, OS information and Trojita's version.
 */
 class CheckForUpdates: public QObject {
     Q_OBJECT
