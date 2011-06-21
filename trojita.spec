@@ -18,7 +18,13 @@
 Name:           trojita
 Version:        0.2.9.4
 Release:        1
-License:        GPLv3
+# Almost everything: dual-licensed under the GPLv2 or GPLv3
+# src/src/XtConnect: BSD
+# src/Imap/Parser/3rdparty/kcodecs.*: LGPLv2
+# src/Imap/Parser/3rdparty/qmailcodec.*: LGPLv2.1 or GPLv3
+# src/Imap/Parser/3rdparty/rfccodecs.cpp: LGPLv2+
+# src/qwwsmtpclient/: GPLv2
+License:        (GPLv2 or GPLv3) and BSD and LGPLv2 and (LGPLv2.1 or GPLv3) and LGPLv2+ and GPLv2
 Summary:        Qt IMAP e-mail client
 Url:            http://trojita.flaska.net/
 Group:          Productivity/Networking/Email/Clients
