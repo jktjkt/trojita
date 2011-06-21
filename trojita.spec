@@ -52,7 +52,7 @@ qmake PREFIX=/usr
 make
  
 %install
-make INSTALL_ROOT=%{buildroot} install
+make %{?_smp_mflags} INSTALL_ROOT=%{buildroot} install
  
 %clean
 %{?buildroot:rm -rf "%{buildroot}"}
