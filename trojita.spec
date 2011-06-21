@@ -31,6 +31,7 @@ Group:          Productivity/Networking/Email/Clients
 Source:         http://sourceforge.net/projects/trojita/files/src/%{name}-%{version}.tar.bz2
 BuildRequires:  pkgconfig(QtGui) >= 4.6
 BuildRequires:  pkgconfig(QtWebKit) >= 4.6
+BuildRequires:  libQtWebKit-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
  
 %description
