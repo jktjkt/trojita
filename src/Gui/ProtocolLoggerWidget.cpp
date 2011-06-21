@@ -235,7 +235,7 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<I
         niceLine.replace( QChar('\r'), 0x240d /* SYMBOL FOR CARRIAGE RETURN */ )
                 .replace( QChar('\n'), 0x240a /* SYMBOL FOR LINE FEED */ );
 
-        w->appendHtml(message.arg(QTime::currentTime().toString(QString::fromAscii("hh:mm:ss.zzz")),
+        w->appendHtml(message.arg(it->timestamp.toString(QString::fromAscii("hh:mm:ss.zzz")),
                                   direction, textColor,
                                   bgColor.isEmpty() ? QString() : QString::fromAscii("background-color: %1").arg(bgColor),
                                   niceLine, trimmedInfo));
