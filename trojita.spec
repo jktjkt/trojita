@@ -1,6 +1,7 @@
+#
 # spec file for package trojita
 #
-# Copyright (c) 2011 SUSE LINUX Products GmbH, Nuernberg, Germany.
+# Copyright (c) 2010 SUSE LINUX Products GmbH, Nuernberg, Germany.
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -14,55 +15,50 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
  
-# norootforbuild
- 
 Name:           trojita
-BuildRequires:  libqt4-devel libQtWebKit-devel update-desktop-files
-License:        GPL v2 or later  
-Group:          Productivity/Networking/Email/Clients
-Summary:        A simple, Qt4 IMAP client
-Version:        0.2.9.3
+Version:        0.2.9.4
 Release:        1
+License:        GPLv3
+Summary:        Qt IMAP e-mail client
 Url:            http://trojita.flaska.net/
+Group:          Productivity/Networking/Email/Clients
+Source:         http://sourceforge.net/projects/trojita/files/src/%{name}-%{version}.tar.bz2
+BuildRequires:  pkgconfig(QtGui) >= 4.6
+BuildRequires:  pkgconfig(QtWebKit) >= 4.6
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-Source0:        %{name}-%{version}.tar.bz2
  
 %description
-Trojita is a pure Qt4 IMAP email client.  It features:
-  * Robust IMAP core, using Qt's Model-View
-  * Standards Compliant
-  * On-demand message list and body part loading
-  * Offline IMAP support
-  * Support for bandwidth-saving mode
-  * IMAP over SSH -- instead of going over an SSL socket, the server 
-    could be accessed via SSH
-  * Safe dealing with HTML mail
- 
- 
- 
-Authors:
---------
-    Jan Kundr�t
+Trojita is a Qt IMAP e-mail client:
+  * a pure Qt4 application with no additional dependencies
+  * robust IMAP core implemented using Qt's Model-View framework
+  * standards compliance is a design goal
+  * on-demand message list and body part loading
+  * offline IMAP support (you can access data you already have; there's no complete "offline mail access" yet, though)
+  * support for bandwidth-saving mode aimed at mobile users with expensive connection
+  * IMAP over SSH -- in addition to usual SSL/TLS connections, the server could be accessed via SSH
+  * safe dealing with HTML mail (actually more robust than Thunderbird's)
  
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q
  
 %build
-  qmake -r PREFIX=/usr
-  make
+qmake PREFIX=/usr
+make
  
 %install
-  make INSTALL_ROOT=$RPM_BUILD_ROOT install
- 
-%suse_update_desktop_file trojita
+make INSTALL_ROOT=%{buildroot} install
  
 %clean
-rm -rf $RPM_BUILD_ROOT
+%{?buildroot:rm -rf "%{buildroot}"}
  
 %files
 %defattr(-,root,root)
-/usr/bin/trojita
+%doc LICENSE README
+%{_bindir}/trojita
 %{_datadir}/applications/trojita.desktop
+%dir %{_datadir}/icons/hicolor
+%dir %{_datadir}/icons/hicolor/*
+%dir %{_datadir}/icons/hicolor/*/apps
 %{_datadir}/icons/hicolor/32x32/apps/trojita.png
 %{_datadir}/icons/hicolor/scalable/apps/trojita.svg
  
