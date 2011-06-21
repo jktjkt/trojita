@@ -50,7 +50,7 @@ Trojita is a Qt IMAP e-mail client:
  
 %build
 qmake PREFIX=/usr
-make
+make %{?_smp_mflags}
  
 %install
 make %{?_smp_mflags} INSTALL_ROOT=%{buildroot} install
