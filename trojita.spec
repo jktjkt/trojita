@@ -29,9 +29,21 @@ Summary:        Qt IMAP e-mail client
 Url:            http://trojita.flaska.net/
 Group:          Productivity/Networking/Email/Clients
 Source:         http://sourceforge.net/projects/trojita/files/src/%{name}-%{version}.tar.bz2
+%if 0%{?fedora}
+BuildRequires:  qt-webkit-devel >= 4.6
+%define qmake_command qmake-qt4
+%endif
+%if 0%{?rhel_version} || 0%{?centos_version}
+BuildRequires:  qtwebkit-devel >= 4.6
+%define qmake_command qmake-qt4
+%endif
+%if 0%{?suse_version} || 0%{?sles_version}
 BuildRequires:  pkgconfig(QtGui) >= 4.6
 BuildRequires:  pkgconfig(QtWebKit) >= 4.6
 BuildRequires:  libQtWebKit-devel
+BuildRequires: update-desktop-files
+%define qmake_command qmake
+%endif
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
  
 %description
@@ -49,11 +61,14 @@ Trojita is a Qt IMAP e-mail client:
 %setup -q
  
 %build
-qmake PREFIX=/usr
+%qmake_command CONFIG+=debug PREFIX=/usr
 make %{?_smp_mflags}
  
 %install
 make %{?_smp_mflags} INSTALL_ROOT=%{buildroot} install
+%if 0%{?suse_version} || 0%{?sles_version}
+%suse_update_desktop_file %{buildroot}/%{_datadir}/applications/trojita.desktop
+%endif
  
 %clean
 %{?buildroot:rm -rf "%{buildroot}"}
@@ -68,5 +83,8 @@ make %{?_smp_mflags} INSTALL_ROOT=%{buildroot} install
 %dir %{_datadir}/icons/hicolor/*/apps
 %{_datadir}/icons/hicolor/32x32/apps/trojita.png
 %{_datadir}/icons/hicolor/scalable/apps/trojita.svg
- 
+
+%check
+make test
+
 %changelog
