@@ -53,7 +53,7 @@ void UnSelectTask::doFakeSelect()
         model->accessParser(parser).maintainingTask->breakPossibleIdle();
     }
     // The server does not support UNSELECT. Let's construct an unlikely-to-exist mailbox, then.
-    selectMissingTag = parser->examine(QString("trojita non existing %1").arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate)));
+    selectMissingTag = parser->examine(QString("trojita non existing %1").arg(QDateTime::currentDateTime().toString(Qt::ISODate)));
 }
 
 bool UnSelectTask::handleStateHelper( const Imap::Responses::State* const resp )
