@@ -24,7 +24,7 @@
 #include "Utils.h"
 
 #include <QFont>
-#include <QIcon>
+#include "Gui/IconLoader.h"
 
 namespace Imap {
 
@@ -111,30 +111,25 @@ QVariant PrettyMsgListModel::data( const QModelIndex& index, int role ) const
             bool isReplied = translated.data( RoleMessageIsMarkedReplied ).toBool();
 
             if ( translated.data( RoleMessageIsMarkedDeleted ).toBool() )
-                return QIcon::fromTheme( QLatin1String("mail-deleted"),
-                                         QIcon( QLatin1String(":/icons/mail-deleted.png") ) );
+                return Gui::loadIcon(QLatin1String("mail-deleted"));
             else if ( isForwarded && isReplied )
-                return QIcon::fromTheme( QLatin1String("mail-replied-forw"),
-                                         QIcon( QLatin1String(":/icons/mail-replied-forw.png") ) );
+                return Gui::loadIcon(QLatin1String("mail-replied-forw"));
             else if ( isReplied )
-                return QIcon::fromTheme( QLatin1String("mail-replied"),
-                                         QIcon( QLatin1String(":/icons/mail-replied.png") ) );
+                return Gui::loadIcon(QLatin1String("mail-replied"));
             else if ( isForwarded )
-                return QIcon::fromTheme( QLatin1String("mail-forwarded"),
-                                         QIcon( QLatin1String(":/icons/mail-forwarded.png") ) );
+                return Gui::loadIcon(QLatin1String("mail-forwarded"));
             else if ( translated.data( RoleMessageIsMarkedRecent ).toBool() )
-                return QIcon::fromTheme( QLatin1String("mail-recent"),
-                                         QIcon( QLatin1String(":/icons/mail-recent.png") ) );
+                return Gui::loadIcon(QLatin1String("mail-recent"));
             else
-                return QIcon( QLatin1String(":/icons/transparent.png") );
+                return QIcon(QLatin1String(":/icons/transparent.png"));
             }
         case MsgListModel::SEEN:
             if ( ! translated.data( RoleIsFetched ).toBool() )
                 return QVariant();
             if ( ! translated.data( RoleMessageIsMarkedRead ).toBool() )
-                return QIcon( QLatin1String(":/icons/mail-unread.png") );
+                return QIcon(QLatin1String(":/icons/mail-unread.png"));
             else
-                return QIcon( QLatin1String(":/icons/mail-read.png") );
+                return QIcon(QLatin1String(":/icons/mail-read.png"));
         default:
             return QVariant();
         }

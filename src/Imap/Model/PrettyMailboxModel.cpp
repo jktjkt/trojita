@@ -28,7 +28,7 @@
 #endif
 
 #include <QFont>
-#include <QIcon>
+#include "Gui/IconLoader.h"
 
 namespace Imap {
 
@@ -80,25 +80,20 @@ QVariant PrettyMailboxModel::data( const QModelIndex& index, int role ) const
             {
             QModelIndex translated = mapToSource( index );
             if ( translated.data( RoleMailboxItemsAreLoading ).toBool() )
-                return QIcon::fromTheme( QLatin1String("folder-grey"),
-                                         QIcon( QLatin1String(":/icons/folder-grey.png") ) );
+                return Gui::loadIcon(QLatin1String("folder-grey"));
 #ifdef XTUPLE_CONNECT
             else if ( QSettings().value( Common::SettingsNames::xtSyncMailboxList ).toStringList().contains(
                     translated.data( RoleMailboxName ).toString() ) )
-                return QIcon( QLatin1String(":/icons/folder-xt-sync.png") );
+                return Gui::loadIcon(QLatin1String("folder-xt-sync.png"));
 #endif
             else if ( translated.data( RoleMailboxIsINBOX ).toBool() )
-                return QIcon::fromTheme( QLatin1String("mail-folder-inbox"),
-                                         QIcon( QLatin1String(":/icons/mail-folder-inbox") ) );
+                return Gui::loadIcon(QLatin1String("mail-folder-inbox"));
             else if ( translated.data( RoleRecentMessageCount ).toInt() > 0 )
-                return QIcon::fromTheme( QLatin1String("folder-bookmark"),
-                                         QIcon( QLatin1String(":/icons/folder-bookmark.png") ) );
+                return Gui::loadIcon(QLatin1String("folder-bookmark"));
             else if ( translated.data( RoleMailboxIsSelectable ).toBool() )
-                return QIcon::fromTheme( QLatin1String("folder"),
-                                         QIcon( QLatin1String(":/icons/folder.png") ) );
+                return Gui::loadIcon(QLatin1String("folder"));
             else
-                return QIcon::fromTheme( QLatin1String("folder-open"),
-                                         QIcon( QLatin1String(":/icons/folder-open.png") ) );
+                return Gui::loadIcon(QLatin1String("folder-open"));
             }
         default:
             return QSortFilterProxyModel::data( index, role );

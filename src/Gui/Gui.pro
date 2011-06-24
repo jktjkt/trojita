@@ -47,7 +47,8 @@ HEADERS += \
     AttachmentView.h \
     ExternalElementsWidget.h \
     ProtocolLoggerWidget.h \
-    CheckForUpdates.h
+    CheckForUpdates.h \
+    IconLoader.h
 FORMS += CreateMailboxDialog.ui \
     ComposeWidget.ui \
     SettingsImapPage.ui \
