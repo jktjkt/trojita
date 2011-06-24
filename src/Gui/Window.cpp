@@ -70,6 +70,12 @@ namespace Gui {
 
 MainWindow::MainWindow(): QMainWindow(), model(0), m_ignoreStoredPassword(false)
 {
+    if (QIcon::themeName().isEmpty()) {
+        // hack: make it look into the QRC's :/icons
+        // http://bugreports.qt.nokia.com/browse/QTBUG-16697
+        QIcon::setThemeName(QString::fromAscii("/"));
+    }
+
     setWindowTitle( trUtf8("Trojitá") );
     createWidgets();
 
