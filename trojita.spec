@@ -35,6 +35,7 @@ BuildRequires:  qt-webkit-devel >= 4.6
 %endif
 %if 0%{?rhel_version} || 0%{?centos_version}
 BuildRequires:  qtwebkit-devel >= 4.6
+BuildRequires: libstdc++-devel gcc-c++
 %define qmake_command qmake-qt4
 %endif
 %if 0%{?suse_version} || 0%{?sles_version}
