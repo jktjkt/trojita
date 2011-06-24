@@ -30,18 +30,18 @@ Url:            http://trojita.flaska.net/
 Group:          Productivity/Networking/Email/Clients
 Source:         http://sourceforge.net/projects/trojita/files/src/%{name}-%{version}.tar.bz2
 %if 0%{?fedora}
-BuildRequires:  qt-webkit-devel >= 4.6
+BuildRequires: qt-webkit-devel >= 4.6
 %define qmake_command qmake-qt4
 %endif
 %if 0%{?rhel_version} || 0%{?centos_version}
-BuildRequires:  qtwebkit-devel >= 4.6
+BuildRequires: qtwebkit-devel >= 4.6
 BuildRequires: libstdc++-devel gcc-c++
 %define qmake_command qmake-qt4
 %endif
 %if 0%{?suse_version} || 0%{?sles_version}
-BuildRequires:  pkgconfig(QtGui) >= 4.6
-BuildRequires:  pkgconfig(QtWebKit) >= 4.6
-BuildRequires:  libQtWebKit-devel
+BuildRequires: pkgconfig(QtGui) >= 4.6
+BuildRequires: pkgconfig(QtWebKit) >= 4.6
+BuildRequires: libQtWebKit-devel
 BuildRequires: update-desktop-files
 %define qmake_command qmake
 %endif
