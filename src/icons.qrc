@@ -18,5 +18,14 @@
         <file>icons/network-online.png</file>
         <file>icons/folder-bookmark.png</file>
         <file>icons/application-exit.png</file>
+        <file>icons/configure.png</file>
+        <file>icons/document-edit.png</file>
+        <file>icons/document-save.png</file>
+        <file>icons/edit-find-mail.png</file>
+        <file>icons/list-remove.png</file>
+        <file>icons/mail-mark-read.png</file>
+        <file>icons/trash-empty.png</file>
+        <file>icons/view-list-text.png</file>
+        <file>icons/view-refresh.png</file>
     </qresource>
 </RCC>
