@@ -87,7 +87,13 @@ QVariant PrettyMsgListModel::data( const QModelIndex& index, int role ) const
                     return res.toString( Qt::SystemLocaleShortDate );
             }
         case MsgListModel::SIZE:
-            return PrettySize::prettySize( translated.data( RoleMessageSize ).toUInt() );
+            {
+                QVariant size = translated.data(RoleMessageSize);
+                if (!size.isValid()) {
+                    return QVariant();
+                }
+                return PrettySize::prettySize(size.toUInt());
+            }
         }
         break;
 
