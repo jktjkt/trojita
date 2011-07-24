@@ -28,9 +28,9 @@ namespace Mailbox {
 FetchMsgPartTask::FetchMsgPartTask( Model *_model, const QModelIndex &mailbox, const QList<uint> &_uids, const QStringList &_parts ):
     ImapTask( _model ), uids(_uids), parts(_parts), mailboxIndex(mailbox)
 {
-    conn = model->findTaskResponsibleFor( mailboxIndex );
-    conn->addDependentTask( this );
-    Q_ASSERT( ! uids.isEmpty() );
+    Q_ASSERT(!uids.isEmpty());
+    conn = model->findTaskResponsibleFor(mailboxIndex);
+    conn->addDependentTask(this);
 }
 
 void FetchMsgPartTask::perform()

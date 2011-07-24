@@ -28,11 +28,9 @@ namespace Mailbox {
 FetchMsgMetadataTask::FetchMsgMetadataTask( Model *_model, const QModelIndex &_mailbox, const QList<uint> &_uids ) :
     ImapTask( _model ), mailbox(_mailbox), uids(_uids)
 {
-    if ( uids.isEmpty() ) {
-        throw CantHappen( "FetchMsgMetadataTask called with empty message set");
-    }
-    conn = model->findTaskResponsibleFor( mailbox );
-    conn->addDependentTask( this );
+    Q_ASSERT(!uids.isEmpty());
+    conn = model->findTaskResponsibleFor(mailbox);
+    conn->addDependentTask(this);
 }
 
 void FetchMsgMetadataTask::perform()
