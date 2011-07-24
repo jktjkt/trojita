@@ -18,6 +18,7 @@
 
 #include<sstream>
 #include "KeepMailboxOpenTask.h"
+#include "FetchMsgMetadataTask.h"
 #include "FetchMsgPartTask.h"
 #include "OpenConnectionTask.h"
 #include "ObtainSynchronizedMailboxTask.h"
@@ -97,13 +98,18 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
     noopTimer->setInterval( timeout );
     noopTimer->setSingleShot( true );
 
-    fetchTimer = new QTimer(this);
-    connect( fetchTimer, SIGNAL(timeout()), this, SLOT(slotFetchRequestedParts()) );
+    fetchPartTimer = new QTimer(this);
+    connect(fetchPartTimer, SIGNAL(timeout()), this, SLOT(slotFetchRequestedParts()));
     timeout = model->property( "trojita-imap-delayed-fetch-part" ).toUInt( &ok );
     if ( ! ok )
         timeout = 50;
-    fetchTimer->setInterval( timeout );
-    fetchTimer->setSingleShot( true );
+    fetchPartTimer->setInterval( timeout );
+    fetchPartTimer->setSingleShot( true );
+
+    fetchEnvelopeTimer = new QTimer(this);
+    connect(fetchEnvelopeTimer, SIGNAL(timeout()), this, SLOT(slotFetchRequestedEnvelopes()));
+    fetchEnvelopeTimer->setInterval(0); // message metadata is pretty important, hence an immediate fetch
+    fetchEnvelopeTimer->setSingleShot(true);
 
     limitBytesAtOnce = model->property( "trojita-imap-limit-fetch-bytes-per-group" ).toUInt( &ok );
     if ( ! ok )
@@ -144,10 +150,11 @@ void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
         waitingTasks.append( keepTask );
         shouldExit = true;
 
-        // Before we can die, though, we have to accomodate fetch requests for all parts queued so far.
+        // Before we can die, though, we have to accomodate fetch requests for all envelopes and parts queued so far.
+        slotFetchRequestedEnvelopes();
         slotFetchRequestedParts();
 
-        if ( dependentTasks.isEmpty() && requestedParts.isEmpty() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
+        if ( dependentTasks.isEmpty() && requestedParts.isEmpty() && requestedEnvelopes.isEmpty() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
             terminate();
         }
     } else {
@@ -173,8 +180,13 @@ void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )
         fetchPartTasks.erase( it );
         slotFetchRequestedParts();
     }
+    QList<FetchMsgMetadataTask*>::iterator it2 = qFind(fetchMetadataTasks.begin(), fetchMetadataTasks.end(), static_cast<FetchMsgMetadataTask*>(object));
+    if (it2 != fetchMetadataTasks.end()) {
+        fetchMetadataTasks.erase(it2);
+        slotFetchRequestedEnvelopes();
+    }
 
-    if ( shouldExit && requestedParts.isEmpty() && dependentTasks.isEmpty() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
+    if ( shouldExit && requestedParts.isEmpty() && requestedEnvelopes.isEmpty() && dependentTasks.isEmpty() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
         terminate();
     } else if ( shouldRunNoop ) {
         // A command just completed, and NOOPing is active, so let's schedule it again
@@ -189,8 +201,9 @@ void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )
 
 void KeepMailboxOpenTask::terminate()
 {
-    Q_ASSERT( dependentTasks.isEmpty() );
-    Q_ASSERT( requestedParts.isEmpty() );
+    Q_ASSERT(dependentTasks.isEmpty());
+    Q_ASSERT(requestedParts.isEmpty());
+    Q_ASSERT(requestedEnvelopes.isEmpty());
 
     // Break periodic activities
     if ( idleLauncher ) {
@@ -224,7 +237,7 @@ void KeepMailboxOpenTask::perform()
 
     model->accessParser( parser ).activeTasks.append( this );
 
-    if ( ! waitingTasks.isEmpty() && requestedParts.isEmpty() && dependentTasks.isEmpty() ) {
+    if ( ! waitingTasks.isEmpty() && requestedParts.isEmpty() && requestedEnvelopes.isEmpty() && dependentTasks.isEmpty() ) {
         // We're basically useless, but we have to die reasonably
         shouldExit = true;
         terminate();
@@ -232,7 +245,8 @@ void KeepMailboxOpenTask::perform()
     }
 
     isRunning = true;
-    fetchTimer->start();
+    fetchPartTimer->start();
+    fetchEnvelopeTimer->start();
 
     activateTasks();
 
@@ -497,8 +511,17 @@ void KeepMailboxOpenTask::requestPartDownload( const uint uid, const QString &pa
 {
     requestedParts[uid].insert( partId );
     requestedPartSizes[uid] += estimatedSize;
-    if ( ! fetchTimer->isActive() )
-        fetchTimer->start();
+    if (!fetchPartTimer->isActive()) {
+        fetchPartTimer->start();
+    }
+}
+
+void KeepMailboxOpenTask::requestEnvelopeDownload(const uint uid)
+{
+    requestedEnvelopes.append(uid);
+    if (!fetchEnvelopeTimer->isActive()) {
+        fetchEnvelopeTimer->start();
+    }
 }
 
 void KeepMailboxOpenTask::slotFetchRequestedParts()
@@ -509,7 +532,7 @@ void KeepMailboxOpenTask::slotFetchRequestedParts()
     QMap<uint, QSet<QString> >::iterator it = requestedParts.begin();
     QSet<QString> parts = *it;
 
-    // When asked to exit, do as much as possibleand die
+    // When asked to exit, do as much as possible and die
     while ( shouldExit || fetchPartTasks.size() < limitParallelFetchTasks ) {
         QList<uint> uids;
         uint totalSize = 0;
@@ -526,6 +549,23 @@ void KeepMailboxOpenTask::slotFetchRequestedParts()
 
         fetchPartTasks << model->_taskFactory->createFetchMsgPartTask( model, mailboxIndex, uids, parts.toList() );
     }
+}
+
+void KeepMailboxOpenTask::slotFetchRequestedEnvelopes()
+{
+    if (requestedEnvelopes.isEmpty())
+        return;
+
+    QList<uint> fetchNow;
+    if (shouldExit) {
+        fetchNow = requestedEnvelopes;
+        requestedEnvelopes.clear();
+    } else {
+        const int amount = qMin(requestedEnvelopes.size(), limitMessagesAtOnce); // FIXME: add an extra limit?
+        fetchNow = requestedEnvelopes.mid(0, amount);
+        requestedEnvelopes.erase(requestedEnvelopes.begin(), requestedEnvelopes.begin() + amount);
+    }
+    fetchMetadataTasks << model->_taskFactory->createFetchMsgMetadataTask(model, mailboxIndex, fetchNow);
 }
 
 void KeepMailboxOpenTask::breakPossibleIdle()
@@ -590,7 +630,7 @@ void KeepMailboxOpenTask::slotUnSelectCompleted()
     activateTasks();
     slotFetchRequestedParts();
 
-    if ( dependentTasks.isEmpty() && requestedParts.isEmpty() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
+    if ( dependentTasks.isEmpty() && requestedParts.isEmpty() && requestedEnvelopes.isEmpty() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
         terminate();
     }
 }

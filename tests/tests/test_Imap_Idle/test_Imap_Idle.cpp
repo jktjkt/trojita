@@ -110,6 +110,7 @@ void ImapModelIdleTest::testIdleBreakTask()
     QCOMPARE( msgListA.child(0,0).data(Imap::Mailbox::RoleMessageFrom).toString(), QString() );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("DONE\r\n") + t.mk("UID FETCH 1,7,9 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n") );
     SOCK->fakeReading(t.last("OK done\r\n"));
     QTest::qWait(40);
@@ -198,6 +199,7 @@ void ImapModelIdleTest::testIdleNoPerpetuateRenewal()
 
     // so we're in regular IDLE and want to break it
     QCOMPARE( msgListA.child(0,0).data(Imap::Mailbox::RoleMessageFrom).toString(), QString() );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("DONE\r\n") + t.mk("UID FETCH 1,7,9 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n") );

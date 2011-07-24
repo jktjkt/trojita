@@ -33,6 +33,7 @@ namespace Mailbox {
 
 class ObtainSynchronizedMailboxTask;
 class IdleLauncher;
+class FetchMsgMetadataTask;
 class FetchMsgPartTask;
 class UnSelectTask;
 
@@ -84,6 +85,8 @@ prevents replacing an "alive" KeepMailboxOpenTask with a different one.
     QString debugIdentification() const;
 
     void requestPartDownload( const uint uid, const QString &partId, const uint estimatedSize );
+    /** @short Request a delayed loading of a message envelope */
+    void requestEnvelopeDownload(const uint uid);
 
 private slots:
     void slotTaskDeleted( QObject* object );
@@ -108,6 +111,8 @@ initialize synchronization now.
     void slotPerformNoop();
     void slotActivateTasks() { activateTasks(); }
     void slotFetchRequestedParts();
+    /** @short Fetch the ENVELOPEs which were queued for later retrieval */
+    void slotFetchRequestedEnvelopes();
 
     /** @short We're now out of that mailbox, hurray! */
     void slotUnSelectCompleted();
@@ -150,11 +155,13 @@ protected:
     bool isRunning;
 
     QTimer* noopTimer;
-    QTimer* fetchTimer;
+    QTimer* fetchPartTimer;
+    QTimer* fetchEnvelopeTimer;
     bool shouldRunNoop;
     bool shouldRunIdle;
     IdleLauncher* idleLauncher;
     QList<FetchMsgPartTask*> fetchPartTasks;
+    QList<FetchMsgMetadataTask*> fetchMetadataTasks;
     CommandHandle tagIdle;
     CommandHandle newArrivalsFetch;
     friend class IdleLauncher;
@@ -165,6 +172,12 @@ protected:
     QList<uint> uidMap;
     QMap<uint, QSet<QString> > requestedParts;
     QMap<uint, uint> requestedPartSizes;
+    /** @short UIDs of messages with pending FetchMsgMetadataTask request
+
+    QList is used in preference to the QSet in an attempt to maintain the order of requests. Simply ordering via UID is
+    not enough because of output sorting, threads etc etc.
+    */
+    QList<uint> requestedEnvelopes;
 
     uint limitBytesAtOnce;
     int limitMessagesAtOnce;

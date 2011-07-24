@@ -220,6 +220,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool
     // The unread message count should be correct now, too
     QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 3);
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
 
     if ( askForEnvelopes ) {
         // The ENVELOPE and related fields should be requested now
@@ -235,6 +236,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool
     // Yes, we're counting to one more than what actually is here; that's because we want to prevent a possible out-of-bounds access
     for ( int i = 0; i < static_cast<int>(existsA) + 1; ++i )
         msgListA.child(i,0).data(Imap::Mailbox::RoleMessageSubject);
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 
@@ -311,6 +313,7 @@ void  ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive2(bool askF
     QCoreApplication::processEvents();
 
     if ( askForEnvelopes ) {
+        QCoreApplication::processEvents();
         // The ENVELOPE and related fields should be requested now
         QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 46 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
     }
@@ -327,6 +330,7 @@ void  ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive2(bool askF
     // actually there. The main motivation is trying to behave in a different manner than before. Hope this helps.
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
 
     if ( askForEnvelopes ) {
         // Envelope for D already got requested -> nothing to do here
@@ -337,8 +341,10 @@ void  ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive2(bool askF
     SOCK->fakeReading( helperCreateTrivialEnvelope(4, 46, QLatin1String("D")) + t.last("OK fetched\r\n"));
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     helperCheckSubjects(QStringList() << QLatin1String("A") << QLatin1String("B") << QLatin1String("C") << QLatin1String("D"));
 
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 
@@ -460,6 +466,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive3(bool askFo
     QCoreApplication::processEvents();
 
     if ( askForEnvelopes ) {
+        QCoreApplication::processEvents();
         // The ENVELOPE and related fields should be requested now
         QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 47:50 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
     }
@@ -476,6 +483,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive3(bool askFo
     } else {
         // Not requested yet -> do it now
         QVERIFY( ! msgD.data(Imap::Mailbox::RoleMessageFrom).isValid() );
+        QCoreApplication::processEvents();
         QCoreApplication::processEvents();
         QCoreApplication::processEvents();
         QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 47:50 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
@@ -543,6 +551,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive4(bool askFo
     QCoreApplication::processEvents();
 
     if ( askForEnvelopes ) {
+        QCoreApplication::processEvents();
         // The ENVELOPE and related fields should be requested now
         QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 52 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
     }
@@ -558,6 +567,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive4(bool askFo
     } else {
         // Not requested yet -> do it now
         QVERIFY( ! msgE.data(Imap::Mailbox::RoleMessageFrom).isValid() );
+        QCoreApplication::processEvents();
         QCoreApplication::processEvents();
         QCoreApplication::processEvents();
         QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 52:53,63 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
