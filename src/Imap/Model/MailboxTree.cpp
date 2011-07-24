@@ -492,9 +492,8 @@ void TreeItemMailbox::handleExpunge( Model* const model, const Responses::Number
     model->endRemoveRows();
 
     --list->_totalMessageCount;
-    list->recalcUnreadMessageCount();
+    list->recalcVariousMessageCounts(const_cast<Model*>(model));
     model->saveUidMap( list );
-    model->emitMessageCountChanged( this );
 }
 
 TreeItemPart* TreeItemMailbox::partIdToPtr( Model* const model, TreeItemMessage* message, const QString& msgId )
@@ -647,15 +646,20 @@ int TreeItemMsgList::recentMessageCount( Model* const model )
     return _recentMessageCount;
 }
 
-void TreeItemMsgList::recalcUnreadMessageCount()
+void TreeItemMsgList::recalcVariousMessageCounts(Model *model)
 {
     _unreadMessageCount = 0;
+    _recentMessageCount = 0;
     for ( int i = 0; i < _children.size(); ++i ) {
         TreeItemMessage* message = static_cast<TreeItemMessage*>( _children[i] );
         message->_flagsHandled = true;
         if ( ! message->isMarkedAsRead() )
             ++_unreadMessageCount;
+        if (message->isMarkedAsRecent())
+            ++_recentMessageCount;
     }
+    _totalMessageCount = _children.size();
+    model->emitMessageCountChanged(static_cast<TreeItemMailbox*>(parent()));
 }
 
 bool TreeItemMsgList::numbersFetched() const

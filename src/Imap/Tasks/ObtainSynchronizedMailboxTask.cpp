@@ -719,13 +719,12 @@ void ObtainSynchronizedMailboxTask::notifyInterestingMessages( TreeItemMailbox *
     Q_ASSERT(mailbox);
     TreeItemMsgList *list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( mailbox->_children[0] );
     Q_ASSERT(list);
-    list->recalcUnreadMessageCount();
+    list->recalcVariousMessageCounts(model);
     QModelIndex listIndex = model->createIndex( 0, 0, list );
     Q_ASSERT(listIndex.isValid());
     QModelIndex firstInterestingMessage = model->index( mailbox->syncState.unSeenOffset(), 0, listIndex );
     log("First interesting message at " + QString::number(mailbox->syncState.unSeenOffset()), LOG_MAILBOX_SYNC);
     emit model->mailboxFirstUnseenMessage(model->createIndex(mailbox->row(), 0, mailbox), firstInterestingMessage);
-    model->emitMessageCountChanged(mailbox);
 }
 
 bool ObtainSynchronizedMailboxTask::dieIfInvalidMailbox()

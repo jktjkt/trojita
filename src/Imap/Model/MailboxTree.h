@@ -182,7 +182,7 @@ public:
     int unreadMessageCount( Model* const model );
     int recentMessageCount( Model* const model );
     void fetchNumbers( Model* const model );
-    void recalcUnreadMessageCount();
+    void recalcVariousMessageCounts(Model *model);
     bool numbersFetched() const;
 };
 
