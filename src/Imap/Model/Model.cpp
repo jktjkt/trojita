@@ -384,10 +384,10 @@ void Model::replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<Tree
 
 void Model::emitMessageCountChanged( TreeItemMailbox* const mailbox )
 {
-    TreeItemMsgList* list = static_cast<TreeItemMsgList*>( mailbox->_children[ 0 ] );
-    QModelIndex msgListIndex = createIndex( list->row(), 0, list );
-    emit dataChanged( msgListIndex, msgListIndex );
-    emit messageCountPossiblyChanged( createIndex( mailbox->row(), 0, mailbox ) );
+    TreeItemMsgList* list = static_cast<TreeItemMsgList*>(mailbox->_children[0]);
+    QModelIndex msgListIndex = createIndex(list->row(), 0, list);
+    emit dataChanged(msgListIndex, msgListIndex);
+    emit messageCountPossiblyChanged(createIndex(mailbox->row(), 0, mailbox));
 }
 
 /** @short Retrieval of a message part has completed */
