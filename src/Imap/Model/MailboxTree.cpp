@@ -420,7 +420,7 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
             decodeMessagePartTransportEncoding( data, part->encoding(), part->dataPtr() );
             part->_fetchStatus = DONE;
             if ( message->uid() )
-                model->cache()->setMsgPart( mailbox(), message->uid(), it.key(), part->_data );
+                model->cache()->setMsgPart( mailbox(), message->uid(), part->partId(), part->_data );
             changedParts.append( part );
         } else if ( it.key() == "FLAGS" ) {
             message->setFlags(list, dynamic_cast<const Responses::RespData<QStringList>&>( *(it.value()) ).data);
