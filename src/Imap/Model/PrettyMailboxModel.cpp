@@ -37,8 +37,8 @@ namespace Mailbox {
 PrettyMailboxModel::PrettyMailboxModel( QObject* parent, MailboxModel* mailboxModel ):
         QSortFilterProxyModel( parent )
 {
-    setDynamicSortFilter( true );
-    setSourceModel( mailboxModel );
+    setDynamicSortFilter(true);
+    setSourceModel(mailboxModel);
 }
 
 QVariant PrettyMailboxModel::data( const QModelIndex& index, int role ) const
