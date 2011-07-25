@@ -1,5 +1,7 @@
-#ifndef UTIL_H
-#define UTIL_H
+// FIXME: license
+
+#ifndef GUI_UTIL_H
+#define GUI_UTIL_H
 
 class QWidget;
 
@@ -7,11 +9,11 @@ namespace Gui {
 
 namespace Util {
 
-/** @short center widget on screen containing its parent widget of the mousepointer */
-void centerWidgetOnScreen(QWidget* widget, bool centerOnCursorScreen = true) ;
+/** @short Center widget on screen containing its parent widget of the mousepointer */
+void centerWidgetOnScreen(QWidget *widget, bool centerOnCursorScreen=true);
 
-}//namespace Util
+} // namespace Util
 
-}//namespace Gui
+} // namespace Gui
 
-#endif // UTIL_H
+#endif // GUI_UTIL_H
