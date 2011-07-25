@@ -1230,9 +1230,9 @@ void Model::_genericHandleFetch( TreeItemMailbox* mailbox, const Imap::Responses
             emit dataChanged( index, index );
         }
     }
-    if ( changedMessage ) {
-        QModelIndex index = createIndex( changedMessage->row(), 0, changedMessage );
-        emit dataChanged( index, index );
+    if (changedMessage) {
+        QModelIndex index = createIndex(changedMessage->row(), 0, changedMessage);
+        emit dataChanged(index, index);
     }
 }
 
