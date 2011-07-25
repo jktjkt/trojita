@@ -1233,6 +1233,7 @@ void Model::_genericHandleFetch( TreeItemMailbox* mailbox, const Imap::Responses
     if (changedMessage) {
         QModelIndex index = createIndex(changedMessage->row(), 0, changedMessage);
         emit dataChanged(index, index);
+        emitMessageCountChanged(mailbox);
     }
 }
 
