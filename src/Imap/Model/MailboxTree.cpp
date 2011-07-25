@@ -659,6 +659,7 @@ void TreeItemMsgList::recalcVariousMessageCounts(Model *model)
             ++_recentMessageCount;
     }
     _totalMessageCount = _children.size();
+    _numberFetchingStatus = DONE;
     model->emitMessageCountChanged(static_cast<TreeItemMailbox*>(parent()));
 }
 
