@@ -64,6 +64,6 @@ QString SettingsNames::xtDbUser = QLatin1String("xtconnect.db.username");
 QString SettingsNames::guiMsgListShowThreading = QLatin1String("gui/msgList.showThreading");
 QString SettingsNames::appCheckUpdatesEnabled = QLatin1String("app.updates.checkEnabled");
 QString SettingsNames::appCheckUpdatesLastTime = QLatin1String("app.updates.lastTime");
-
+QString SettingsNames::knownEmailsKey = QLatin1String("addressBook/knownEmails");
 
 }

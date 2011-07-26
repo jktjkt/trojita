@@ -18,11 +18,13 @@
    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
+#include <QCompleter>
 #include <QDateTime>
 #include <QMessageBox>
 #include <QProgressDialog>
 #include <QSettings>
 
+#include "AutoCompletion.h"
 #include "ComposeWidget.h"
 #include "ui_ComposeWidget.h"
 
@@ -38,9 +40,10 @@ namespace {
 
 namespace Gui {
 
-ComposeWidget::ComposeWidget(QWidget *parent) :
+ComposeWidget::ComposeWidget(QAbstractListModel *autoCompleteModel, QWidget *parent) :
     QWidget(parent, Qt::Window),
-    ui(new Ui::ComposeWidget)
+    ui(new Ui::ComposeWidget),
+    _recipientCompleter(new QCompleter(this))
 {
     ui->setupUi(this);
     connect( ui->sendButton, SIGNAL(clicked()), this, SLOT(send()) );
@@ -51,6 +54,9 @@ ComposeWidget::ComposeWidget(QWidget *parent) :
     QFont font(QString::fromAscii("x-trojita-terminus-like-fixed-width"));
     font.setStyleHint(QFont::TypeWriter);
     ui->mailText->setFont(font);
+
+    if (autoCompleteModel)
+        _recipientCompleter->setModel(autoCompleteModel);
 }
 
 ComposeWidget::~ComposeWidget()
@@ -184,6 +190,7 @@ void ComposeWidget::addRecipient( int position, const QString& kind, const QStri
     combo->addItems( toCcBcc );
     combo->setCurrentIndex( toCcBcc.indexOf( kind ) );
     QLineEdit* edit = new QLineEdit( address, this );
+    edit->setCompleter(_recipientCompleter);
     _recipientsAddress.insert( position, edit );
     _recipientsKind.insert( position, combo );
     connect( edit, SIGNAL(editingFinished()), this, SLOT(handleRecipientAddressChange()) );
@@ -266,11 +273,26 @@ QList<QPair<QString, QString> > ComposeWidget::_parseRecipients()
             kind = QLatin1String("Cc");
         else if ( _recipientsKind[i]->currentText() == tr("Bcc") )
             kind = QLatin1String("Bcc");
+        //TODO: simplify recipient - i.e. strip stuff like < > or the real name
+        //=> only keep string around @ until either <,> or space is hit...
         res << qMakePair( kind, _recipientsAddress[i]->text() );
+        maybeAddNewKnownRecipient(_recipientsAddress[i]->text());
     }
     return res;
 }
 
+void ComposeWidget::maybeAddNewKnownRecipient(const QString &recipient)
+{
+    //let completer look for recipient
+    _recipientCompleter->setCompletionPrefix(recipient);
+    //and if not found, insert it into completer's model
+    if( _recipientCompleter->currentCompletion().isEmpty() ){
+        QAbstractItemModel *acMdl = _recipientCompleter->model();
+        acMdl->insertRow(0);
+        QModelIndex idx = acMdl->index(0,0);
+        acMdl->setData(idx,recipient);
+    }
 }
 
+}
 

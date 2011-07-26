@@ -27,7 +27,9 @@ namespace Ui {
     class ComposeWidget;
 }
 
+class QAbstractListModel;
 class QComboBox;
+class QCompleter;
 class QLineEdit;
 
 namespace Gui {
@@ -40,7 +42,7 @@ class ComposeWidget : public QWidget
 {
     Q_OBJECT
 public:
-    ComposeWidget(QWidget *parent = 0);
+    ComposeWidget(QAbstractListModel *autoCompleteModel, QWidget *parent = 0);
     ~ComposeWidget();
 
     void setData( const QString& from, const QList<QPair<QString, QString> >& recipients,
@@ -67,6 +69,9 @@ private:
 
     ComposeWidget(const ComposeWidget&); // don't implement
     ComposeWidget& operator=(const ComposeWidget&); // don't implement
+
+    QCompleter *_recipientCompleter;    //< completer for known / recently used recipients
+    void maybeAddNewKnownRecipient( const QString& recipient );
 };
 
 }

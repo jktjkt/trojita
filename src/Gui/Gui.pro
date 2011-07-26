@@ -30,7 +30,8 @@ SOURCES += \
     ExternalElementsWidget.cpp \
     ProtocolLoggerWidget.cpp \
     CheckForUpdates.cpp \
-    Util.cpp
+    Util.cpp \
+    AutoCompletion.cpp
 HEADERS += \
     ../Imap/Model/ModelTest/modeltest.h \
     ComposeWidget.h \
@@ -50,7 +51,8 @@ HEADERS += \
     ProtocolLoggerWidget.h \
     CheckForUpdates.h \
     IconLoader.h \
-    Util.h
+    Util.h \
+    AutoCompletion.h
 FORMS += CreateMailboxDialog.ui \
     ComposeWidget.ui \
     SettingsImapPage.ui \

@@ -37,6 +37,7 @@
 #include <QToolButton>
 #include <QUrl>
 
+#include "AutoCompletion.h"
 #include "Window.h"
 #include "ComposeWidget.h"
 #include "Util.h"
@@ -459,6 +460,9 @@ void MainWindow::setupModels()
              this, SLOT( msgListSelectionChanged( const QItemSelection&, const QItemSelection& ) ) );
 
     allTree->setModel( model );
+
+    _autoCompletionModel = new AutoCompletionModel(this);
+
 }
 
 void MainWindow::msgListSelectionChanged( const QItemSelection& selected, const QItemSelection& deselected )
@@ -718,6 +722,8 @@ void MainWindow::nukeModels()
     prettyMboxModel = 0;
     model->deleteLater();
     model = 0;
+    _autoCompletionModel->deleteLater();
+    _autoCompletionModel = 0;
 }
 
 void MainWindow::slotComposeMail()
@@ -875,7 +881,7 @@ void MainWindow::invokeComposeDialog( const QString& subject, const QString& bod
                                       const QList<QPair<QString,QString> >& recipients )
 {
     QSettings s;
-    ComposeWidget *w = new ComposeWidget( this );
+    ComposeWidget *w = new ComposeWidget(_autoCompletionModel, this);
     w->setData( QString::fromAscii("%1 <%2>").arg(
             s.value( Common::SettingsNames::realNameKey ).toString(),
             s.value( Common::SettingsNames::addressKey ).toString() ),

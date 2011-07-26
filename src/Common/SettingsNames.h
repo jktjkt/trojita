@@ -40,6 +40,7 @@ struct SettingsNames
             xtDbDbName, xtDbUser;
     static QString guiMsgListShowThreading;
     static QString appCheckUpdatesEnabled, appCheckUpdatesLastTime;
+    static QString knownEmailsKey;
 };
 
 }
