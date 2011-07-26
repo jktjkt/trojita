@@ -42,7 +42,7 @@ class ComposeWidget : public QWidget
 {
     Q_OBJECT
 public:
-    ComposeWidget(QAbstractListModel *autoCompleteModel, QWidget *parent = 0);
+    ComposeWidget(QWidget *parent, QAbstractListModel *autoCompleteModel);
     ~ComposeWidget();
 
     void setData( const QString& from, const QList<QPair<QString, QString> >& recipients,

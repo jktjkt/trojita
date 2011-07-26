@@ -21,6 +21,7 @@
 
 #ifndef GUI_AUTOCOMPLETION_H
 #define GUI_AUTOCOMPLETION_H
+
 #include <QStringListModel>
 
 namespace Gui {
@@ -31,11 +32,13 @@ namespace Gui {
   * this will be changed into a full-fledged subclass of
   * QAbstractListModel
   */
-struct AutoCompletionModel : public QStringListModel
+class AutoCompletionModel : public QStringListModel
 {
+public:
     AutoCompletionModel(QObject *parent=0);
     ~AutoCompletionModel();
 
+    /** @short Save the gathered list of e-mails into a persistent storage */
     void saveKnownEMails()const;
 };
 

@@ -40,7 +40,7 @@ namespace {
 
 namespace Gui {
 
-ComposeWidget::ComposeWidget(QAbstractListModel *autoCompleteModel, QWidget *parent) :
+ComposeWidget::ComposeWidget(QWidget *parent, QAbstractListModel *autoCompleteModel) :
     QWidget(parent, Qt::Window),
     ui(new Ui::ComposeWidget),
     _recipientCompleter(new QCompleter(this))
@@ -273,8 +273,8 @@ QList<QPair<QString, QString> > ComposeWidget::_parseRecipients()
             kind = QLatin1String("Cc");
         else if ( _recipientsKind[i]->currentText() == tr("Bcc") )
             kind = QLatin1String("Bcc");
-        //TODO: simplify recipient - i.e. strip stuff like < > or the real name
-        //=> only keep string around @ until either <,> or space is hit...
+        // TODO: simplify recipient - i.e. strip stuff like < > or the real name
+        // => only keep string around @ until either <,> or space is hit...
         res << qMakePair( kind, _recipientsAddress[i]->text() );
         maybeAddNewKnownRecipient(_recipientsAddress[i]->text());
     }
@@ -283,10 +283,10 @@ QList<QPair<QString, QString> > ComposeWidget::_parseRecipients()
 
 void ComposeWidget::maybeAddNewKnownRecipient(const QString &recipient)
 {
-    //let completer look for recipient
+    // let completer look for recipient
     _recipientCompleter->setCompletionPrefix(recipient);
-    //and if not found, insert it into completer's model
-    if( _recipientCompleter->currentCompletion().isEmpty() ){
+    // and if not found, insert it into completer's model
+    if (_recipientCompleter->currentCompletion().isEmpty()) {
         QAbstractItemModel *acMdl = _recipientCompleter->model();
         acMdl->insertRow(0);
         QModelIndex idx = acMdl->index(0,0);

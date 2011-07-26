@@ -881,7 +881,7 @@ void MainWindow::invokeComposeDialog( const QString& subject, const QString& bod
                                       const QList<QPair<QString,QString> >& recipients )
 {
     QSettings s;
-    ComposeWidget *w = new ComposeWidget(_autoCompletionModel, this);
+    ComposeWidget *w = new ComposeWidget(this, _autoCompletionModel);
     w->setData( QString::fromAscii("%1 <%2>").arg(
             s.value( Common::SettingsNames::realNameKey ).toString(),
             s.value( Common::SettingsNames::addressKey ).toString() ),

@@ -31,14 +31,13 @@ AutoCompletionModel::AutoCompletionModel(QObject *parent):
     QStringListModel(parent)
 {
     QSettings s;
-    //load list of known emails from QSettings
+    // load list of known emails from QSettings
     QStringList knownEmails = s.value(Common::SettingsNames::knownEmailsKey).toStringList();
     setStringList(knownEmails);
 }
 
 AutoCompletionModel::~AutoCompletionModel()
 {
-    //just to be sure
     saveKnownEMails();
 }
 
@@ -48,5 +47,5 @@ void AutoCompletionModel::saveKnownEMails()const
     s.setValue(Common::SettingsNames::knownEmailsKey, stringList());
 }
 
-}//namespace Gui
+} // namespace Gui
 
