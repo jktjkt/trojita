@@ -36,7 +36,7 @@
 #include "Imap/Model/Utils.h"
 
 namespace {
-    enum { OFFSET_OF_FIRST_ADDRESSEE = 1 };
+    enum { OFFSET_OF_FIRST_ADDRESSEE = 2 };
 }
 
 namespace Gui {
@@ -221,6 +221,7 @@ void ComposeWidget::handleRecipientAddressChange()
         ui->formLayout = new QFormLayout( this );
 
         // the first line
+        ui->formLayout->addRow(ui->developmentWarning);
         ui->formLayout->addRow( ui->fromLabel, ui->sender );
 
         // note: number of layout items before this one has to match OFFSET_OF_FIRST_ADDRESSEE
