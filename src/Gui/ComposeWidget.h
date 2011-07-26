@@ -31,6 +31,7 @@ class QAbstractListModel;
 class QComboBox;
 class QCompleter;
 class QLineEdit;
+class QPushButton;
 
 namespace Gui {
 
@@ -64,6 +65,8 @@ private:
     QList<QPair<QString, QString> > _parseRecipients();
 
     Ui::ComposeWidget *ui;
+    QPushButton *sendButton;
+    QPushButton *cancelButton;
     QList<QComboBox*> _recipientsKind;
     QList<QLineEdit*> _recipientsAddress;
 

@@ -22,6 +22,7 @@
 #include <QDateTime>
 #include <QMessageBox>
 #include <QProgressDialog>
+#include <QPushButton>
 #include <QSettings>
 
 #include "AutoCompletion.h"
@@ -46,7 +47,10 @@ ComposeWidget::ComposeWidget(QWidget *parent, QAbstractListModel *autoCompleteMo
     _recipientCompleter(new QCompleter(this))
 {
     ui->setupUi(this);
-    connect( ui->sendButton, SIGNAL(clicked()), this, SLOT(send()) );
+    sendButton = ui->buttonBox->addButton(tr("Send"), QDialogButtonBox::AcceptRole);
+    connect(sendButton, SIGNAL(clicked()), this, SLOT(send()));
+    cancelButton = ui->buttonBox->addButton(QDialogButtonBox::Cancel);
+    connect(cancelButton, SIGNAL(clicked()), this, SLOT(close()));
 
     // Ask for a fixed-width font. The problem is that these names wary acros platforms,
     // but the following works well -- at first, we come up with a made-up name, and then
@@ -227,7 +231,7 @@ void ComposeWidget::handleRecipientAddressChange()
         // all other stuff
         ui->formLayout->addRow( ui->subjectLabel, ui->subject );
         ui->formLayout->addRow( ui->mailText );
-        ui->formLayout->addRow( 0, ui->sendButton );
+        ui->formLayout->addRow( 0, ui->buttonBox );
         setLayout( ui->formLayout );
     }
 }
