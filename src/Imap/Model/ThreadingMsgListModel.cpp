@@ -599,19 +599,28 @@ bool ThreadingMsgListModel::pruneTree()
 {
     bool res = false;
 
-    // Our mapping (_threading) is completely unsorted, which means that we simply don't have any way of walking the tree from the top.
-    // Instead, we got to work with a random walk, processing nodes in an unspecified order. Therefore we basically have to repeat everything
-    // whenever the current iteration decided to drop a message.
-    for (QHash<uint, ThreadNodeInfo>::iterator it = _threading.begin(); it != _threading.end(); /* nothing */) {
-        qDebug() << "Checking node" << it->internalId << it->uid << it->parent;
+    // Our mapping (_threading) is completely unsorted, which means that we simply don't have any way of walking the tree from
+    // the top. Instead, we got to work with a random walk, processing nodes in an unspecified order.  If we iterated on the QMap
+    // directly, we'd hit an issue with iterator ordering (basically, we want to be able to say "hey, I don't care at which point
+    // of the iteration I'm right now, the next node to process should be this one, and then we should resume with the rest").
+    QList<uint> pending = _threading.keys();
+    for (QList<uint>::iterator id = pending.begin(); id != pending.end(); /* nothing */) {
+        // Convert to the hashmap
+        QHash<uint, ThreadNodeInfo>::iterator it = _threading.find(*id);
+        if (it == _threading.end()) {
+            // We've already seen this node, that's due to promoting
+            ++id;
+            continue;
+        }
+
         if (it->internalId == 0) {
             // A special root item; we should not delete that one :)
-            ++it;
+            ++id;
             continue;
         }
         if (it->uid) {
             // regular and valid message -> skip
-            ++it;
+            ++id;
         } else {
             // a fake one
             res = true;
@@ -627,16 +636,22 @@ bool ThreadingMsgListModel::pruneTree()
             if (it->children.isEmpty()) {
                 // this is a leaf node, so we can just remove it
                 parent->children.erase(childIt);
-                it = _threading.erase(it);
+                _threading.erase(it);
+                ++id;
             } else {
-                // This node has some children, so we can't just delete it. Instead of that, we promote its first child to replace this node.
+                // This node has some children, so we can't just delete it. Instead of that, we promote its first child
+                // to replace this node.
                 QHash<uint, ThreadNodeInfo>::iterator replaceWith = _threading.find(it->children.first());
                 Q_ASSERT(replaceWith != _threading.end());
 
                 *childIt = it->children.first();
                 replaceWith->parent = parent->internalId;
-                it = _threading.erase(it);
-                // FIXME: this won't catch a chain of fake items...
+                _threading.erase(it);
+
+                // If the just-promoted item is also a fake one, we'll have to visit it as well. This assignment is safe,
+                // because we've already processed the current item and are completely done with it. The worst which can
+                // happen is that we'll visit the same node twice, which is reasonably acceptable.
+                *id = replaceWith->internalId;
             }
         }
     }
