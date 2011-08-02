@@ -110,6 +110,12 @@ private:
     void registerThreading( const QVector<Imap::Responses::ThreadingNode> &mapping, uint parentId,
                             const QHash<uint,void*> &uidToPtr, QSet<uint> &usedNodes );
 
+    /** @short Remove fake messages from the threading tree
+
+    @return True if any fake messages got removed, false otherwise
+    */
+    bool pruneTree();
+
     /** @short Check current thread for "unread messages" */
     bool threadContainsUnreadMessages(const uint root) const;
 
@@ -122,7 +128,10 @@ private:
 
     /** @short Mapping from the upstream model's internalId to ThreadingMsgListModel's internal IDs */
     QHash<void*,uint> ptrToInternal;
-    /** @short Tree for the threading */
+    /** @short Tree for the threading
+
+    This tree is indexed by our internal ID.
+    */
     QHash<uint,ThreadNodeInfo> _threading;
     /** @short Last assigned internal ID */
     uint _threadingHelperLastId;

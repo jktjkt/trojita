@@ -20,6 +20,7 @@
 */
 
 #include "ThreadingMsgListModel.h"
+#include <algorithm>
 #include <QDebug>
 #include "ItemRoles.h"
 #include "MailboxTree.h"
@@ -521,6 +522,7 @@ void ThreadingMsgListModel::applyThreading(const QVector<Imap::Responses::Thread
     }
 
     updatePersistentIndexesPhase2();
+    pruneTree();
     emit layoutChanged();
 }
 
@@ -591,6 +593,55 @@ void ThreadingMsgListModel::updatePersistentIndexesPhase2()
     changePersistentIndexList( oldPersistentIndexes, updatedIndexes );
     oldPersistentIndexes.clear();
     oldPtrs.clear();
+}
+
+bool ThreadingMsgListModel::pruneTree()
+{
+    bool res = false;
+
+    // Our mapping (_threading) is completely unsorted, which means that we simply don't have any way of walking the tree from the top.
+    // Instead, we got to work with a random walk, processing nodes in an unspecified order. Therefore we basically have to repeat everything
+    // whenever the current iteration decided to drop a message.
+    for (QHash<uint, ThreadNodeInfo>::iterator it = _threading.begin(); it != _threading.end(); /* nothing */) {
+        qDebug() << "Checking node" << it->internalId << it->uid << it->parent;
+        if (it->internalId == 0) {
+            // A special root item; we should not delete that one :)
+            ++it;
+            continue;
+        }
+        if (it->uid) {
+            // regular and valid message -> skip
+            ++it;
+        } else {
+            // a fake one
+            res = true;
+
+            // each node has a parent
+            QHash<uint, ThreadNodeInfo>::iterator parent = _threading.find(it->parent);
+            Q_ASSERT(parent != _threading.end());
+
+            // and the node itself has to be found in its parent's children
+            QList<uint>::iterator childIt = qFind(parent->children.begin(), parent->children.end(), it->internalId);
+            Q_ASSERT(childIt != parent->children.end());
+
+            if (it->children.isEmpty()) {
+                // this is a leaf node, so we can just remove it
+                parent->children.erase(childIt);
+                it = _threading.erase(it);
+            } else {
+                // This node has some children, so we can't just delete it. Instead of that, we promote its first child to replace this node.
+                QHash<uint, ThreadNodeInfo>::iterator replaceWith = _threading.find(it->children.first());
+                Q_ASSERT(replaceWith != _threading.end());
+
+                *childIt = it->children.first();
+                replaceWith->parent = parent->internalId;
+                it = _threading.erase(it);
+                // FIXME: this won't catch a chain of fake items...
+            }
+        }
+    }
+
+    return res;
 }
 
 QDebug operator<<(QDebug debug, const ThreadNodeInfo &node)
