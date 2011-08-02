@@ -543,7 +543,9 @@ void ThreadingMsgListModel::registerThreading( const QVector<Imap::Responses::Th
             }
 
             QHash<void*,uint>::const_iterator nodeIt = ptrToInternal.constFind( *ptrIt );
-            Q_ASSERT(nodeIt != ptrToInternal.constEnd()); // FIXME: exception?
+            // The following assert would fail if there was a node with a valid UID, but not in our ptrToInternal mapping.
+            // That is however non-issue, as we pre-create nodes for all messages beforehand.
+            Q_ASSERT(nodeIt != ptrToInternal.constEnd());
             nodeId = *nodeIt;
         }
         _threading[ parentId ].children.append( nodeId );
