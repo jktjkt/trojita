@@ -646,6 +646,16 @@ bool ThreadingMsgListModel::pruneTree()
 
                 *childIt = it->children.first();
                 replaceWith->parent = parent->internalId;
+
+                // set parent of all siblings of the just promoted node to the promoted node, and list them as children
+                it->children.removeFirst();
+                Q_FOREACH(const uint childId, it->children) {
+                    QHash<uint, ThreadNodeInfo>::iterator sibling = _threading.find(childId);
+                    Q_ASSERT(sibling != _threading.end());
+                    sibling->parent = replaceWith.key();
+                    replaceWith->children.append(sibling.key());
+                }
+
                 _threading.erase(it);
 
                 // If the just-promoted item is also a fake one, we'll have to visit it as well. This assignment is safe,
