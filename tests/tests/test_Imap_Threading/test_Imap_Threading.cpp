@@ -71,7 +71,22 @@ void ImapModelThreadingTest::testStaticThreading_data()
     QTest::newRow("extra-parentheses")
             << QByteArray("(1)((2))(((3)))((((4))))(((((5)))))(6)(7)(8)(9)(((10)))")
             << m;
+
     m.clear();
+    m["0"] = 1;
+    m["1"] = 0;
+    m["0.0"] = 2;
+    m["0.1"] = 0;
+    m["0.0.0"] = 0;
+    m["0.0.1"] = 0;
+    QTest::newRow("linear-threading-just-two")
+            << QByteArray("(1 2)")
+            << m;
+    m["0.0.0"] = 3;
+    m["0.0.0.0"] = 0;
+    QTest::newRow("linear-threading-just-three")
+            << QByteArray("(1 2 3)")
+            << m;
 }
 
 /** @short Prepare an index to a threaded message */
