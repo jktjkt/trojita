@@ -30,9 +30,6 @@ class ThreadingMsgListModel;
 }
 }
 
-typedef QPair<QString, uint> MappingPair;
-typedef QList<MappingPair> Mapping;
-
 class ImapModelThreadingTest : public LibMailboxSync
 {
     Q_OBJECT
@@ -43,7 +40,7 @@ protected slots:
     virtual void initTestCase();
     virtual void cleanup();
 private:
-    void verify(const Mapping &mapping);
+    void verify(const QMap<QString, int> &mapping);
     QModelIndex findItem(const QList<int> &where);
     QModelIndex findItem(const QString &where);
 

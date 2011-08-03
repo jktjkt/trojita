@@ -37,23 +37,21 @@ void ImapModelThreadingTest::testStaticThreading()
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 
-    verify(QList<MappingPair>()
-           << MappingPair("0", 1) // index 0: UID 1
-           << MappingPair("0.0", 0) // index 0.0: invalid
-           << MappingPair("0.1", 0) // index 0.1: invalid
-           << MappingPair("1", 2)
-           << MappingPair("2", 3)
-           << MappingPair("3", 4)
-           << MappingPair("3.0", 0) // index 3.0: invalid
-           << MappingPair("3.1", 0) // index 3.1: invalid
-           << MappingPair("4", 5)
-           << MappingPair("5", 6)
-           << MappingPair("6", 7)
-           << MappingPair("7", 8)
-           << MappingPair("8", 9)
-           << MappingPair("9", 10) // index 9: UID 10
-           << MappingPair("10", 0) // idnex 10: invalid
-           );
+    QMap<QString, int> m;
+    m["0"] = 1; // index 0: UID 1
+    m["0.0"] = 0; // index 0.0: invalid
+    m["0.1"] = 0; // index 0.1: invalid
+    m["1"] = 2;
+    m["2"] = 3;
+    m["3"] = 4;
+    m["4"] = 5;
+    m["5"] = 6;
+    m["6"] = 7;
+    m["7"] = 8;
+    m["8"] = 9;
+    m["9"] = 10; // index 9: UID 10
+    m["10"] = 0; // index 10: invalid
+    verify(m);
     QVERIFY(SOCK->writtenStuff().isEmpty());
     QVERIFY(errorSpy->isEmpty());
 }
@@ -84,14 +82,14 @@ QModelIndex ImapModelThreadingTest::findItem(const QString &where)
     return findItem(items);
 }
 
-void ImapModelThreadingTest::verify(const Mapping &mapping)
+void ImapModelThreadingTest::verify(const QMap<QString, int> &mapping)
 {
-    Q_FOREACH(const MappingPair &item, mapping) {
-        QModelIndex index = findItem(item.first);
-        if (item.second) {
+    for(QMap<QString, int>::const_iterator it = mapping.begin(); it != mapping.end(); ++it) {
+        QModelIndex index = findItem(it.key());
+        if (it.value()) {
             // it's a supposedly valid index
             QVERIFY(index.isValid());
-            QCOMPARE(index.data(Imap::Mailbox::RoleMessageUid).toUInt(), item.second);
+            QCOMPARE(index.data(Imap::Mailbox::RoleMessageUid).toInt(), it.value());
         } else {
             QVERIFY(!index.isValid());
         }
