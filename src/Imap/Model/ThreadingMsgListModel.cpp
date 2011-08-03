@@ -541,7 +541,12 @@ void ThreadingMsgListModel::registerThreading( const QVector<Imap::Responses::Th
         } else {
             QHash<uint,void*>::const_iterator ptrIt = uidToPtr.find( node.num );
             if ( ptrIt == uidToPtr.constEnd() ) {
-                throw UnknownMessageIndex("THREAD response referenced a UID which is not known at this point");
+                QByteArray buf;
+                QTextStream ss(&buf);
+                ss << "The THREAD response references a message with UID " << node.num << ", which is not recognized at this point. ";
+                ss << "More information is be available in the IMAP protocol log.";
+                ss.flush();
+                throw UnknownMessageIndex(buf.constData());
             }
 
             QHash<void*,uint>::const_iterator nodeIt = ptrToInternal.constFind( *ptrIt );
