@@ -27,17 +27,30 @@
 #include "Streams/FakeSocket.h"
 #include "test_LibMailboxSync/FakeCapabilitiesInjector.h"
 
+Q_DECLARE_METATYPE(Mapping);
+
 /** @short */
 void ImapModelThreadingTest::testStaticThreading()
 {
+    QFETCH(QByteArray, response);
+    QFETCH(Mapping, mapping);
     QCOMPARE(SOCK->writtenStuff(), t.mk("UID THREAD REFS utf-8 ALL\r\n"));
-    SOCK->fakeReading(QByteArray("* THREAD (1)(2)(3)(4)(5)(6)(7)(8)(9)(10)\r\n") + t.last("OK thread\r\n"));
+    SOCK->fakeReading(QByteArray("* THREAD ") + response + QByteArray("\r\n") + t.last("OK thread\r\n"));
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    verify(mapping);
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+    QVERIFY(errorSpy->isEmpty());
+}
 
-    QMap<QString, int> m;
+void ImapModelThreadingTest::testStaticThreading_data()
+{
+    QTest::addColumn<QByteArray>("response");
+    QTest::addColumn<Mapping>("mapping");
+
+    Mapping m;
     m["0"] = 1; // index 0: UID 1
     m["0.0"] = 0; // index 0.0: invalid
     m["0.1"] = 0; // index 0.1: invalid
@@ -51,9 +64,10 @@ void ImapModelThreadingTest::testStaticThreading()
     m["8"] = 9;
     m["9"] = 10; // index 9: UID 10
     m["10"] = 0; // index 10: invalid
-    verify(m);
-    QVERIFY(SOCK->writtenStuff().isEmpty());
-    QVERIFY(errorSpy->isEmpty());
+    QTest::newRow("no-threads")
+            << QByteArray("(1)(2)(3)(4)(5)(6)(7)(8)(9)(10)")
+            << m;
+    m.clear();
 }
 
 QModelIndex ImapModelThreadingTest::findItem(const QList<int> &where)
@@ -82,9 +96,9 @@ QModelIndex ImapModelThreadingTest::findItem(const QString &where)
     return findItem(items);
 }
 
-void ImapModelThreadingTest::verify(const QMap<QString, int> &mapping)
+void ImapModelThreadingTest::verify(const Mapping &mapping)
 {
-    for(QMap<QString, int>::const_iterator it = mapping.begin(); it != mapping.end(); ++it) {
+    for(Mapping::const_iterator it = mapping.begin(); it != mapping.end(); ++it) {
         QModelIndex index = findItem(it.key());
         if (it.value()) {
             // it's a supposedly valid index
