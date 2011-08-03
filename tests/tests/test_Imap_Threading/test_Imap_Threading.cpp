@@ -30,23 +30,6 @@
 /** @short */
 void ImapModelThreadingTest::testFoo()
 {
-    FakeCapabilitiesInjector injector(model);
-    injector.injectCapability(QLatin1String("THREAD=REFS"));
-
-    existsA = 10;
-    uidValidityA = 333;
-    for (uint i = 1; i <= existsA; ++i) {
-        uidMapA << i;
-    }
-    uidNextA = 6;
-    helperSyncAWithMessagesEmptyState();
-
-    msgListModel = new Imap::Mailbox::MsgListModel(this, model);
-    msgListModel->setMailbox(idxA);
-    threadingModel = new Imap::Mailbox::ThreadingMsgListModel(this);
-    threadingModel->setSourceModel(msgListModel);
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
     //QCoreApplication::processEvents();
     //QCoreApplication::processEvents();
     QCOMPARE(SOCK->writtenStuff(), t.mk("UID THREAD REFS utf-8 ALL\r\n"));
@@ -102,6 +85,45 @@ void ImapModelThreadingTest::verify(const Mapping &mapping)
             QVERIFY(!index.isValid());
         }
     }
+}
+
+void ImapModelThreadingTest::initTestCase()
+{
+    LibMailboxSync::initTestCase();
+    msgListModel = 0;
+    threadingModel = 0;
+}
+
+void ImapModelThreadingTest::init()
+{
+    LibMailboxSync::init();
+
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability(QLatin1String("THREAD=REFS"));
+
+    existsA = 10;
+    uidValidityA = 333;
+    for (uint i = 1; i <= existsA; ++i) {
+        uidMapA << i;
+    }
+    uidNextA = 6;
+    helperSyncAWithMessagesEmptyState();
+
+    msgListModel = new Imap::Mailbox::MsgListModel(this, model);
+    msgListModel->setMailbox(idxA);
+    threadingModel = new Imap::Mailbox::ThreadingMsgListModel(this);
+    threadingModel->setSourceModel(msgListModel);
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+}
+
+void ImapModelThreadingTest::cleanup()
+{
+    LibMailboxSync::cleanup();
+    threadingModel->deleteLater();
+    threadingModel = 0;
+    msgListModel->deleteLater();
+    msgListModel = 0;
 }
 
 TROJITA_HEADLESS_TEST( ImapModelThreadingTest )
