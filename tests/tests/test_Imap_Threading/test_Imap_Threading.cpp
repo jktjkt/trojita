@@ -38,21 +38,21 @@ void ImapModelThreadingTest::testFoo()
     QCoreApplication::processEvents();
 
     verify(QList<MappingPair>()
-           << MappingPair(QList<int>() << 0, 1) // index 0: UID 1
-           << MappingPair(QList<int>() << 0 << 0, 0) // index 0.0: invalid
-           << MappingPair(QList<int>() << 0 << 1, 0) // index 0.1: invalid
-           << MappingPair(QList<int>() << 1, 2)
-           << MappingPair(QList<int>() << 2, 3)
-           << MappingPair(QList<int>() << 3, 4)
-           << MappingPair(QList<int>() << 3 << 0, 0) // index 3.0: invalid
-           << MappingPair(QList<int>() << 3 << 1, 0) // index 3.1: invalid
-           << MappingPair(QList<int>() << 4, 5)
-           << MappingPair(QList<int>() << 5, 6)
-           << MappingPair(QList<int>() << 6, 7)
-           << MappingPair(QList<int>() << 7, 8)
-           << MappingPair(QList<int>() << 8, 9)
-           << MappingPair(QList<int>() << 9, 10) // index 9: UID 10
-           << MappingPair(QList<int>() << 10, 0) // idnex 10: invalid
+           << MappingPair("0", 1) // index 0: UID 1
+           << MappingPair("0.0", 0) // index 0.0: invalid
+           << MappingPair("0.1", 0) // index 0.1: invalid
+           << MappingPair("1", 2)
+           << MappingPair("2", 3)
+           << MappingPair("3", 4)
+           << MappingPair("3.0", 0) // index 3.0: invalid
+           << MappingPair("3.1", 0) // index 3.1: invalid
+           << MappingPair("4", 5)
+           << MappingPair("5", 6)
+           << MappingPair("6", 7)
+           << MappingPair("7", 8)
+           << MappingPair("8", 9)
+           << MappingPair("9", 10) // index 9: UID 10
+           << MappingPair("10", 0) // idnex 10: invalid
            );
     QVERIFY(SOCK->writtenStuff().isEmpty());
     QVERIFY(errorSpy->isEmpty());
@@ -69,6 +69,19 @@ QModelIndex ImapModelThreadingTest::findItem(const QList<int> &where)
         }
     }
     return index;
+}
+
+QModelIndex ImapModelThreadingTest::findItem(const QString &where)
+{
+    QStringList list = where.split(QLatin1Char('.'));
+    Q_ASSERT(!list.isEmpty());
+    QList<int> items;
+    Q_FOREACH(const QString number, list) {
+        bool ok;
+        items << number.toInt(&ok);
+        Q_ASSERT(ok);
+    }
+    return findItem(items);
 }
 
 void ImapModelThreadingTest::verify(const Mapping &mapping)
