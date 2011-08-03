@@ -661,7 +661,7 @@ bool ThreadingMsgListModel::pruneTree()
                 // If the just-promoted item is also a fake one, we'll have to visit it as well. This assignment is safe,
                 // because we've already processed the current item and are completely done with it. The worst which can
                 // happen is that we'll visit the same node twice, which is reasonably acceptable.
-                *id = replaceWith->internalId;
+                *id = replaceWith.key();
             }
         }
     }
