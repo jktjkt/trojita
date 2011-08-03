@@ -30,8 +30,6 @@
 /** @short */
 void ImapModelThreadingTest::testFoo()
 {
-    //QCoreApplication::processEvents();
-    //QCoreApplication::processEvents();
     QCOMPARE(SOCK->writtenStuff(), t.mk("UID THREAD REFS utf-8 ALL\r\n"));
     SOCK->fakeReading(QByteArray("* THREAD (1)(2)(3)(4)(5)(6)(7)(8)(9)(10)\r\n") + t.last("OK thread\r\n"));
     QCoreApplication::processEvents();
