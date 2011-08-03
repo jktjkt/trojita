@@ -37,7 +37,7 @@ class ImapModelThreadingTest : public LibMailboxSync
 {
     Q_OBJECT
 private slots:
-    void testFoo();
+    void testStaticThreading();
 protected slots:
     virtual void init();
     virtual void initTestCase();
