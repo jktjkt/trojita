@@ -29,7 +29,7 @@
 
 Q_DECLARE_METATYPE(Mapping);
 
-/** @short */
+/** @short Test that the ThreadingMsgListModel can process a static THREAD response */
 void ImapModelThreadingTest::testStaticThreading()
 {
     QFETCH(QByteArray, response);
@@ -40,21 +40,29 @@ void ImapModelThreadingTest::testStaticThreading()
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    verify(mapping);
+    verifyMapping(mapping);
     QVERIFY(SOCK->writtenStuff().isEmpty());
     QVERIFY(errorSpy->isEmpty());
 }
 
+/** @short Data for the testStaticThreading */
 void ImapModelThreadingTest::testStaticThreading_data()
 {
     QTest::addColumn<QByteArray>("response");
     QTest::addColumn<Mapping>("mapping");
 
     Mapping m;
+
+    // A linear subset of messages
     m["0"] = 1; // index 0: UID 1
     m["0.0"] = 0; // index 0.0: invalid
     m["0.1"] = 0; // index 0.1: invalid
     m["1"] = 2;
+    QTest::newRow("no-threads")
+            << QByteArray("(1)(2)")
+            << m;
+
+    // No threading at all; just an unthreaded list of all messages
     m["2"] = 3;
     m["3"] = 4;
     m["4"] = 5;
@@ -68,10 +76,13 @@ void ImapModelThreadingTest::testStaticThreading_data()
             << QByteArray("(1)(2)(3)(4)(5)(6)(7)(8)(9)(10)")
             << m;
 
+    // A flat list of threads, but now with some added fake nodes for complexity.
+    // The expected result is that they get cleared as redundant and useless nodes.
     QTest::newRow("extra-parentheses")
             << QByteArray("(1)((2))(((3)))((((4))))(((((5)))))(6)(7)(8)(9)(((10)))")
             << m;
 
+    // A liner nested list (ie. a message is a child of the previous one)
     m.clear();
     m["0"] = 1;
     m["1"] = 0;
@@ -82,10 +93,19 @@ void ImapModelThreadingTest::testStaticThreading_data()
     QTest::newRow("linear-threading-just-two")
             << QByteArray("(1 2)")
             << m;
+
+    // The same, but with three messages
     m["0.0.0"] = 3;
     m["0.0.0.0"] = 0;
     QTest::newRow("linear-threading-just-three")
             << QByteArray("(1 2 3)")
+            << m;
+
+    // The same, but with some added parentheses
+    m["0.0.0"] = 3;
+    m["0.0.0.0"] = 0;
+    QTest::newRow("linear-threading-just-three")
+            << QByteArray("((((1 2 3))))")
             << m;
 }
 
@@ -103,6 +123,7 @@ QModelIndex ImapModelThreadingTest::findItem(const QList<int> &where)
     return index;
 }
 
+/** @short Prepare an index to a threaded message based on a compressed text index description */
 QModelIndex ImapModelThreadingTest::findItem(const QString &where)
 {
     QStringList list = where.split(QLatin1Char('.'));
@@ -116,7 +137,8 @@ QModelIndex ImapModelThreadingTest::findItem(const QString &where)
     return findItem(items);
 }
 
-void ImapModelThreadingTest::verify(const Mapping &mapping)
+/** @short Make sure that the specified indexes resolve to proper UIDs */
+void ImapModelThreadingTest::verifyMapping(const Mapping &mapping)
 {
     for(Mapping::const_iterator it = mapping.begin(); it != mapping.end(); ++it) {
         QModelIndex index = findItem(it.key());
@@ -125,6 +147,7 @@ void ImapModelThreadingTest::verify(const Mapping &mapping)
             QVERIFY(index.isValid());
             QCOMPARE(index.data(Imap::Mailbox::RoleMessageUid).toInt(), it.value());
         } else {
+            // we expect this one to be a fake
             QVERIFY(!index.isValid());
         }
     }
@@ -141,9 +164,11 @@ void ImapModelThreadingTest::init()
 {
     LibMailboxSync::init();
 
+    // Got to pretend that we support threads. Well, we really do :).
     FakeCapabilitiesInjector injector(model);
     injector.injectCapability(QLatin1String("THREAD=REFS"));
 
+    // Setup ten fake messages and open the mailbox
     existsA = 10;
     uidValidityA = 333;
     for (uint i = 1; i <= existsA; ++i) {
@@ -152,6 +177,7 @@ void ImapModelThreadingTest::init()
     uidNextA = 6;
     helperSyncAWithMessagesEmptyState();
 
+    // Setup the threading model
     msgListModel = new Imap::Mailbox::MsgListModel(this, model);
     msgListModel->setMailbox(idxA);
     threadingModel = new Imap::Mailbox::ThreadingMsgListModel(this);
