@@ -67,6 +67,10 @@ void ImapModelThreadingTest::testStaticThreading_data()
     QTest::newRow("no-threads")
             << QByteArray("(1)(2)(3)(4)(5)(6)(7)(8)(9)(10)")
             << m;
+
+    QTest::newRow("extra-parentheses")
+            << QByteArray("(1)((2))(((3)))((((4))))(((((5)))))(6)(7)(8)(9)(((10)))")
+            << m;
     m.clear();
 }
 
