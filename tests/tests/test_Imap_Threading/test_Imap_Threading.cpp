@@ -74,11 +74,12 @@ void ImapModelThreadingTest::testStaticThreading_data()
     m.clear();
 }
 
+/** @short Prepare an index to a threaded message */
 QModelIndex ImapModelThreadingTest::findItem(const QList<int> &where)
 {
-    QModelIndex index = msgListA;
+    QModelIndex index = QModelIndex();
     for (QList<int>::const_iterator it = where.begin(); it != where.end(); ++it) {
-        index = index.child(*it, 0);
+        index = threadingModel->index(*it, 0, index);
         if (it + 1 != where.end()) {
             // this index is an intermediate one in the path, hence it should not really fail
             Q_ASSERT(index.isValid());
