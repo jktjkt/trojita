@@ -127,8 +127,13 @@ void ImapModelThreadingTest::testStaticThreading_data()
             << QByteArray("(1 (2) 3)")
             << m;
 
+    complexMapping();
+}
+
+Mapping ImapModelThreadingTest::complexMapping()
+{
     // A complex nested hierarchy with nodes to be promoted
-    m.clear();
+    Mapping m;
     m["0"] = 1;
     m["0.0"] = 0;
     m["1"] = 2;
@@ -150,6 +155,7 @@ void ImapModelThreadingTest::testStaticThreading_data()
     QTest::newRow("complex-threading")
             << QByteArray("(1)(2 3)(4 (5)(6))((7)(8)(9 10))")
             << m;
+    return m;
 }
 
 /** @short Prepare an index to a threaded message */
