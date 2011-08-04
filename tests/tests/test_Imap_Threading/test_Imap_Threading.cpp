@@ -104,8 +104,27 @@ void ImapModelThreadingTest::testStaticThreading_data()
     // The same, but with some added parentheses
     m["0.0.0"] = 3;
     m["0.0.0.0"] = 0;
-    QTest::newRow("linear-threading-just-three")
+    QTest::newRow("linear-threading-just-three-extra-parentheses-outside")
             << QByteArray("((((1 2 3))))")
+            << m;
+    // The same, but with the extra parentheses in the innermost item
+    QTest::newRow("linear-threading-just-three-extra-parentheses-inside")
+            << QByteArray("(1 2 (((3))))")
+            << m;
+
+    // The same, but with the extra parentheses in the middle item
+    // This is actually a server's bug, as the fake node should've been eliminated
+    // by the IMAP server.
+    m.clear();
+    m["0"] = 1;
+    m["1"] = 0;
+    m["0.0"] = 2;
+    m["0.0.0"] = 0;
+    m["0.1"] = 3;
+    m["0.1.0"] = 0;
+    m["0.2"] = 0;
+    QTest::newRow("linear-threading-just-three-extra-parentheses-middle")
+            << QByteArray("(1 (2) 3)")
             << m;
 }
 
