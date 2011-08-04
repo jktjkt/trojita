@@ -126,6 +126,30 @@ void ImapModelThreadingTest::testStaticThreading_data()
     QTest::newRow("linear-threading-just-three-extra-parentheses-middle")
             << QByteArray("(1 (2) 3)")
             << m;
+
+    // A complex nested hierarchy with nodes to be promoted
+    m.clear();
+    m["0"] = 1;
+    m["0.0"] = 0;
+    m["1"] = 2;
+    m["1.0"] = 3;
+    m["1.0.0"] = 0;
+    m["2"] = 4;
+    m["2.0"] = 5;
+    m["2.0.0"] = 0;
+    m["2.1"] = 6;
+    m["2.1.0"] = 0;
+    m["3"] = 7;
+    m["3.0"] = 8;
+    m["3.0.0"] = 0;
+    m["3.1"] = 9;
+    m["3.1.0"] = 10;
+    m["3.1.0.0"] = 0;
+    m["3.2"] = 0;
+    m["4"] = 0;
+    QTest::newRow("complex-threading")
+            << QByteArray("(1)(2 3)(4 (5)(6))((7)(8)(9 10))")
+            << m;
 }
 
 /** @short Prepare an index to a threaded message */
