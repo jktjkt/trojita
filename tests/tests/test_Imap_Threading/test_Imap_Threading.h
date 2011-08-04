@@ -44,7 +44,7 @@ protected slots:
     virtual void initTestCase();
     virtual void cleanup();
 private:
-    Mapping complexMapping();
+    void complexMapping(Mapping &m, QByteArray &response);
 
     void verifyMapping(const Mapping &mapping);
     QModelIndex findItem(const QList<int> &where);
