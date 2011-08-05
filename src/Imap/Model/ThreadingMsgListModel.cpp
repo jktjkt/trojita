@@ -276,10 +276,8 @@ Qt::ItemFlags ThreadingMsgListModel::flags( const QModelIndex &index ) const
 
 void ThreadingMsgListModel::handleRowsAboutToBeRemoved(const QModelIndex& parent, int start, int end)
 {
-    if (parent.isValid()) {
-        // The source mailbox is a MsgListModel which provides a flat view
-        return;
-    }
+    Q_ASSERT(!parent.isValid());
+
     for (int i = start; i <= end; ++i) {
         QModelIndex index = sourceModel()->index(i, 0, parent);
         Q_ASSERT(index.isValid());
@@ -303,10 +301,7 @@ void ThreadingMsgListModel::handleRowsAboutToBeRemoved(const QModelIndex& parent
 
 void ThreadingMsgListModel::handleRowsRemoved(const QModelIndex& parent, int start, int end)
 {
-    if (parent.isValid()) {
-        // The source mailbox is a MsgListModel which provides a flat view
-        return;
-    }
+    Q_ASSERT(!parent.isValid());
 
     Q_UNUSED(start);
     Q_UNUSED(end);
@@ -321,17 +316,19 @@ void ThreadingMsgListModel::handleRowsRemoved(const QModelIndex& parent, int sta
     emit layoutChanged();
 }
 
-void ThreadingMsgListModel::handleRowsAboutToBeInserted( const QModelIndex& parent, int start, int end )
+void ThreadingMsgListModel::handleRowsAboutToBeInserted(const QModelIndex& parent, int start, int end)
 {
+    Q_ASSERT(!parent.isValid());
+
     // Nothing to do at this point
-    Q_UNUSED(parent);
     Q_UNUSED(start);
     Q_UNUSED(end);
 }
 
-void ThreadingMsgListModel::handleRowsInserted( const QModelIndex& parent, int start, int end )
+void ThreadingMsgListModel::handleRowsInserted( const QModelIndex& parent, int start, int end)
 {
-    Q_UNUSED(parent);
+    Q_ASSERT(!parent.isValid());
+
     Q_UNUSED(start);
     Q_UNUSED(end);
     askForThreading();
