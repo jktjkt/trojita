@@ -567,7 +567,9 @@ void ThreadingMsgListModel::updatePersistentIndexesPhase1()
     oldPersistentIndexes = persistentIndexList();
     oldPtrs.clear();
     Q_FOREACH( const QModelIndex &idx, oldPersistentIndexes ) {
-        if ( ! idx.isValid() ) {
+        // the index could get invalidated by the pruneTree() or something else manipulating our _threading
+        bool isOk = idx.isValid() && _threading.contains(idx.internalId());
+        if (!isOk) {
             oldPtrs << 0;
             continue;
         }
