@@ -195,7 +195,7 @@ QModelIndex ThreadingMsgListModel::mapToSource( const QModelIndex& proxyIndex ) 
     if ( node == _threading.constEnd() )
         return QModelIndex();
 
-    if ( node->uid ) {
+    if (node->ptr) {
         return msgList->createIndex( node->ptr->row(), proxyIndex.column(), node->ptr );
     } else {
         // it's a fake message
@@ -233,7 +233,7 @@ QVariant ThreadingMsgListModel::data( const QModelIndex &proxyIndex, int role ) 
     QHash<uint,ThreadNodeInfo>::const_iterator it = _threading.constFind( proxyIndex.internalId() );
     Q_ASSERT(it != _threading.constEnd());
 
-    if ( it->uid ) {
+    if (it->ptr) {
         // It's a real item which exists in the underlying model
         if ( role == RoleThreadRootWithUnreadMessages && ! proxyIndex.parent().isValid() ) {
             return threadContainsUnreadMessages(it->internalId);
@@ -261,7 +261,7 @@ Qt::ItemFlags ThreadingMsgListModel::flags( const QModelIndex &index ) const
 
     QHash<uint,ThreadNodeInfo>::const_iterator it = _threading.constFind( index.internalId() );
     Q_ASSERT(it != _threading.constEnd());
-    if ( it->uid )
+    if (it->ptr)
         return QAbstractProxyModel::flags( index );
 
     return Qt::NoItemFlags;
@@ -623,7 +623,7 @@ bool ThreadingMsgListModel::pruneTree()
             ++id;
             continue;
         }
-        if (it->uid) {
+        if (it->ptr) {
             // regular and valid message -> skip
             ++id;
         } else {
@@ -663,7 +663,7 @@ bool ThreadingMsgListModel::pruneTree()
 
                 _threading.erase(it);
 
-                if (!replaceWith->uid) {
+                if (!replaceWith->ptr) {
                     // If the just-promoted item is also a fake one, we'll have to visit it as well. This assignment is safe,
                     // because we've already processed the current item and are completely done with it. The worst which can
                     // happen is that we'll visit the same node twice, which is reasonably acceptable.
