@@ -39,7 +39,7 @@ class ImapModelThreadingTest : public LibMailboxSync
 private slots:
     void testStaticThreading();
     void testStaticThreading_data();
-    void testThreadingDelete();
+    void testDynamicThreading();
 protected slots:
     virtual void init();
     virtual void initTestCase();

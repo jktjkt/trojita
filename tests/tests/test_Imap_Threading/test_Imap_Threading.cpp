@@ -138,7 +138,7 @@ void ImapModelThreadingTest::testStaticThreading_data()
 }
 
 /** @short Test deletion of one message */
-void ImapModelThreadingTest::testThreadingDelete()
+void ImapModelThreadingTest::testDynamicThreading()
 {
     initialMessages();
 
