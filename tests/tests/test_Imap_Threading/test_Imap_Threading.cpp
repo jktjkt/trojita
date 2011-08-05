@@ -179,7 +179,7 @@ void ImapModelThreadingTest::testDynamicThreading()
     QVERIFY(!delete10.isValid());
     mapping.remove("3.1.0.0");
     mapping["3.1.0"] = 0;
-    indexMap.remove("3.1.0");
+    indexMap.remove("3.1.0.0");
     verifyMapping(mapping);
     verifyIndexMap(indexMap, mapping);
 
@@ -205,7 +205,8 @@ void ImapModelThreadingTest::testDynamicThreading()
     mapping["1.0"] = 0;
     mapping["1"] = 3;
     verifyMapping(mapping);
-    indexMap.remove("1");
+    // Check the changed persistent indexes
+    indexMap.remove("1.0.0");
     indexMap["1"] = indexMap["1.0"];
     indexMap.remove("1.0");
     verifyIndexMap(indexMap, mapping);
@@ -289,14 +290,13 @@ void ImapModelThreadingTest::verifyMapping(const Mapping &mapping)
     }
 }
 
+/** @short Create a map of (position -> persistent_index) based on the current state of the model */
 IndexMapping ImapModelThreadingTest::buildIndexMap(const Mapping &mapping)
 {
     IndexMapping res;
     Q_FOREACH(const QString &key, mapping.keys()) {
-        if (mapping[key]) {
-            // only include real indexes
-            res[key] = findItem(key);
-        }
+        // only include real indexes
+        res[key] = findItem(key);
     }
     return res;
 }
@@ -304,10 +304,24 @@ IndexMapping ImapModelThreadingTest::buildIndexMap(const Mapping &mapping)
 void ImapModelThreadingTest::verifyIndexMap(const IndexMapping &indexMap, const Mapping &map)
 {
     Q_FOREACH(const QString key, indexMap.keys()) {
-        Q_ASSERT(map.contains(key));
+        if (!map.contains(key)) {
+            qDebug() << "Table contains an index for" << key << ", but mapping to UIDs indicates that the index should not be there. Bug in the unit test, I'd say.";
+            QFAIL("Extra index found in the map");
+        }
         const QPersistentModelIndex &idx = indexMap[key];
-        QVERIFY(idx.isValid());
-        QCOMPARE(idx.data(Imap::Mailbox::RoleMessageUid).toInt(), map[key]);
+        int expected = map[key];
+        if (expected) {
+            if (!idx.isValid()) {
+                qDebug() << "Invalid persistent index for" << key;
+            }
+            QVERIFY(idx.isValid());
+            QCOMPARE(idx.data(Imap::Mailbox::RoleMessageUid).toInt(), expected);
+        } else {
+            if (idx.isValid()) {
+                qDebug() << "Persistent index for" << key << "should not be valid";
+            }
+            QVERIFY(!idx.isValid());
+        }
     }
 }
 
