@@ -52,7 +52,24 @@ struct ThreadNodeInfo {
 
 QDebug operator<<(QDebug debug, const ThreadNodeInfo &node);
 
-/** @short A model implementing view of the whole IMAP server */
+/** @short A model implementing view of the whole IMAP server
+
+The problem with threading is that due to the extremely asynchronous nature of the IMAP Model, we often get informed about indexes
+to messages which "just arrived", and therefore do not have even their UID available. That sucks, because we have to somehow handle
+them.  Situation gets a bit more complicated by the initial syncing -- this ThreadingMsgListModel can't tell whether the rowsInserted()
+signals mean that the underlying model is getting populated, or whether it's a sign of a just-arrived message.
+
+The model should also refrain from sending extra THREAD commands to the server, and cache the responses locally.  This is pretty easy for
+message deletions, as it should be only a matter of replacing some node in the threading info with a fake ThreadNodeInfo node and running
+the pruneTree() method, except that we might not know the UID of the message in question, and hence can't know what to delete.
+
+As a cruel bonus, there's absolutely no guarantee that the UID THREAD response arrives only after the UID SEARCH (which is used for UID
+discovery).  This means that the code processing this threading info will always have to deal with a situation where it hits a UID which
+belongs to an unknown message.
+
+
+
+*/
 class ThreadingMsgListModel: public QAbstractProxyModel {
     Q_OBJECT
 
