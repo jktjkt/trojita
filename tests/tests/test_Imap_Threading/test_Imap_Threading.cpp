@@ -211,6 +211,43 @@ void ImapModelThreadingTest::testDynamicThreading()
     indexMap.remove("1.0");
     verifyIndexMap(indexMap, mapping);
 
+    // Push a new message, but with an unknown UID so far
+    ++existsA;
+    ++uidNextA;
+    QCOMPARE(existsA, 9u);
+    QCOMPARE(uidNextA, 67u);
+    SOCK->fakeReading("* 9 EXISTS\r\n");
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+
+    QByteArray fetchCommand1 = t.mk("UID FETCH 10:* (FLAGS)\r\n");
+    QByteArray delayedFetchResponse1 = t.last("OK uid fetch\r\n");
+    QByteArray threadCommand1 = t.mk("UID THREAD REFS utf-8 ALL\r\n");
+    QByteArray delayedThreadResponse1 = t.last("OK threading\r\n");
+    QCOMPARE(SOCK->writtenStuff(), fetchCommand1 + threadCommand1);
+
+    QByteArray fetchUntagged1("* 9 FETCH (UID 11 FLAGS (\\Recent))\r\n");
+    QByteArray threadUntagged1("* THREAD (1)(3)(4 (5)(6))((7)(8)(9))\r\n");
+
+    // Check that we've registered that change
+    QCOMPARE(msgListModel->rowCount(QModelIndex()), static_cast<int>(existsA));
+
+    if (1) {
+        SOCK->fakeReading(fetchUntagged1 + delayedFetchResponse1 + threadUntagged1 + delayedThreadResponse1);
+        QCoreApplication::processEvents();
+        QCoreApplication::processEvents();
+        QCoreApplication::processEvents();
+        QCoreApplication::processEvents();
+        mapping["4"] = 11;
+        indexMap["4"] = findItem("4");
+        /*verifyMapping(mapping);
+        verifyIndexMap(indexMap, mapping);*/
+    }
+
+    qDebug() << SOCK->writtenStuff();
+
     QVERIFY(SOCK->writtenStuff().isEmpty());
     QVERIFY(errorSpy->isEmpty());
 }

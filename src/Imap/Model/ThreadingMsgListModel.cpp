@@ -320,17 +320,32 @@ void ThreadingMsgListModel::handleRowsAboutToBeInserted(const QModelIndex& paren
 {
     Q_ASSERT(!parent.isValid());
 
-    // Nothing to do at this point
-    Q_UNUSED(start);
-    Q_UNUSED(end);
+    int myStart = _threading[0].children.size();
+    int myEnd = myStart + (end - start);
+    beginInsertRows(QModelIndex(), myStart, myEnd);
 }
 
 void ThreadingMsgListModel::handleRowsInserted( const QModelIndex& parent, int start, int end)
 {
     Q_ASSERT(!parent.isValid());
 
-    Q_UNUSED(start);
-    Q_UNUSED(end);
+    for (int i = start; i <= end; ++i) {
+        QModelIndex index = sourceModel()->index(i, 0);
+        uint uid = index.data(RoleMessageUid).toUInt();
+        ThreadNodeInfo node;
+        node.internalId = i + 1;
+        node.uid = uid;
+        node.ptr = static_cast<TreeItem*>(index.internalPointer());
+        _threading[node.internalId] = node;
+        _threading[0].children << node.internalId;
+        ptrToInternal[node.ptr] = node.internalId;
+        if (!node.uid) {
+            qDebug() << "Message" << index.row() << "has unkown UID";
+            unknownUids << index;
+        }
+    }
+    endInsertRows();
+
     askForThreading();
 }
 
@@ -380,11 +395,10 @@ void ThreadingMsgListModel::updateNoThreading()
         node.internalId = i + 1;
         node.uid = uid;
         node.ptr = static_cast<TreeItem*>( index.internalPointer() );
-        if ( node.uid ) {
-            newThreading[ node.internalId ] = node;
-            allIds.append( node.internalId );
-            newPtrToInternal[ node.ptr ] = node.internalId;
-        } else {
+        newThreading[node.internalId] = node;
+        allIds.append(node.internalId);
+        newPtrToInternal[node.ptr] = node.internalId;
+        if (!node.uid) {
             qDebug() << "Message" << index.row() << "has unkown UID";
             unknownUids << index;
         }
