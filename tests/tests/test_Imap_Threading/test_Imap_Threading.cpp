@@ -135,7 +135,39 @@ void ImapModelThreadingTest::testStaticThreading_data()
             << m;
 }
 
-/** @short */
+/** @short Test deletion of one message */
+void ImapModelThreadingTest::testThreadingDelete()
+{
+    // FIXME: this one doesn't work yet as there are no incremental updates at this point
+    return;
+
+    // A complex nested hierarchy with nodes to be promoted
+    Mapping mapping;
+    QByteArray response;
+    complexMapping(mapping, response);
+
+    QCOMPARE(SOCK->writtenStuff(), t.mk("UID THREAD REFS utf-8 ALL\r\n"));
+    SOCK->fakeReading(QByteArray("* THREAD ") + response + QByteArray("\r\n") + t.last("OK thread\r\n"));
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    verifyMapping(mapping);
+
+    SOCK->fakeReading("* 10 EXPUNGE\r\n");
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    mapping.remove("3.1.0.0");
+    mapping["3.1.0"] = 0;
+    verifyMapping(mapping);
+
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+    QVERIFY(errorSpy->isEmpty());
+}
+
+/** @short Create a tuple of (mapping, string)*/
 void ImapModelThreadingTest::complexMapping(Mapping &m, QByteArray &response)
 {
     m.clear();
