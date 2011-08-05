@@ -32,6 +32,8 @@ Q_DECLARE_METATYPE(Mapping);
 /** @short Test that the ThreadingMsgListModel can process a static THREAD response */
 void ImapModelThreadingTest::testStaticThreading()
 {
+    initialMessages();
+
     QFETCH(QByteArray, response);
     QFETCH(Mapping, mapping);
     QCOMPARE(SOCK->writtenStuff(), t.mk("UID THREAD REFS utf-8 ALL\r\n"));
@@ -138,6 +140,8 @@ void ImapModelThreadingTest::testStaticThreading_data()
 /** @short Test deletion of one message */
 void ImapModelThreadingTest::testThreadingDelete()
 {
+    initialMessages();
+
     // FIXME: this one doesn't work yet as there are no incremental updates at this point
     return;
 
@@ -251,7 +255,15 @@ void ImapModelThreadingTest::init()
     FakeCapabilitiesInjector injector(model);
     injector.injectCapability(QLatin1String("THREAD=REFS"));
 
-    // Setup ten fake messages and open the mailbox
+    // Setup the threading model
+    msgListModel = new Imap::Mailbox::MsgListModel(this, model);
+    threadingModel = new Imap::Mailbox::ThreadingMsgListModel(this);
+    threadingModel->setSourceModel(msgListModel);
+}
+
+void ImapModelThreadingTest::initialMessages()
+{
+    // Setup ten fake messages
     existsA = 10;
     uidValidityA = 333;
     for (uint i = 1; i <= existsA; ++i) {
@@ -260,11 +272,8 @@ void ImapModelThreadingTest::init()
     uidNextA = 66;
     helperSyncAWithMessagesEmptyState();
 
-    // Setup the threading model
-    msgListModel = new Imap::Mailbox::MsgListModel(this, model);
+    // open the mailbox
     msgListModel->setMailbox(idxA);
-    threadingModel = new Imap::Mailbox::ThreadingMsgListModel(this);
-    threadingModel->setSourceModel(msgListModel);
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 }
