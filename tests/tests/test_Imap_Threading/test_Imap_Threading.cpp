@@ -155,6 +155,8 @@ void ImapModelThreadingTest::testDynamicThreading()
     QCoreApplication::processEvents();
     verifyMapping(mapping);
     QCOMPARE(threadingModel->rowCount(QModelIndex()), 4);
+    IndexMapping indexMap = buildIndexMap(mapping);
+    verifyIndexMap(indexMap, mapping);
 
     // this one will be deleted
     QPersistentModelIndex delete10 = findItem("3.1.0");
@@ -177,7 +179,9 @@ void ImapModelThreadingTest::testDynamicThreading()
     QVERIFY(!delete10.isValid());
     mapping.remove("3.1.0.0");
     mapping["3.1.0"] = 0;
+    indexMap.remove("3.1.0");
     verifyMapping(mapping);
+    verifyIndexMap(indexMap, mapping);
 
     QPersistentModelIndex msg2 = findItem("1");
     QVERIFY(msg2.isValid());
@@ -201,6 +205,10 @@ void ImapModelThreadingTest::testDynamicThreading()
     mapping["1.0"] = 0;
     mapping["1"] = 3;
     verifyMapping(mapping);
+    indexMap.remove("1");
+    indexMap["1"] = indexMap["1.0"];
+    indexMap.remove("1.0");
+    verifyIndexMap(indexMap, mapping);
 
     QVERIFY(SOCK->writtenStuff().isEmpty());
     QVERIFY(errorSpy->isEmpty());
@@ -278,6 +286,28 @@ void ImapModelThreadingTest::verifyMapping(const Mapping &mapping)
             }
             QVERIFY(!index.isValid());
         }
+    }
+}
+
+IndexMapping ImapModelThreadingTest::buildIndexMap(const Mapping &mapping)
+{
+    IndexMapping res;
+    Q_FOREACH(const QString &key, mapping.keys()) {
+        if (mapping[key]) {
+            // only include real indexes
+            res[key] = findItem(key);
+        }
+    }
+    return res;
+}
+
+void ImapModelThreadingTest::verifyIndexMap(const IndexMapping &indexMap, const Mapping &map)
+{
+    Q_FOREACH(const QString key, indexMap.keys()) {
+        Q_ASSERT(map.contains(key));
+        const QPersistentModelIndex &idx = indexMap[key];
+        QVERIFY(idx.isValid());
+        QCOMPARE(idx.data(Imap::Mailbox::RoleMessageUid).toInt(), map[key]);
     }
 }
 

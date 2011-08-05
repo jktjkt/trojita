@@ -31,6 +31,7 @@ class ThreadingMsgListModel;
 }
 
 typedef QMap<QString, int> Mapping;
+typedef QMap<QString, QPersistentModelIndex> IndexMapping;
 
 /** @short Test the THREAD response processing and the ThreadingMsgListModel's correctness */
 class ImapModelThreadingTest : public LibMailboxSync
@@ -51,6 +52,8 @@ private:
     void verifyMapping(const Mapping &mapping);
     QModelIndex findItem(const QList<int> &where);
     QModelIndex findItem(const QString &where);
+    IndexMapping buildIndexMap(const Mapping &mapping);
+    void verifyIndexMap(const IndexMapping &indexMap, const Mapping &map);
 
     Imap::Mailbox::MsgListModel *msgListModel;
     Imap::Mailbox::ThreadingMsgListModel *threadingModel;
