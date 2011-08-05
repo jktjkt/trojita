@@ -128,7 +128,7 @@ private:
 
     @return True if any fake messages got removed, false otherwise
     */
-    bool pruneTree();
+    void pruneTree();
 
     /** @short Check current thread for "unread messages" */
     bool threadContainsUnreadMessages(const uint root) const;

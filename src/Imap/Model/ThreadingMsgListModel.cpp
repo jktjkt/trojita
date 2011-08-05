@@ -638,10 +638,8 @@ void ThreadingMsgListModel::updatePersistentIndexesPhase2()
     oldPtrs.clear();
 }
 
-bool ThreadingMsgListModel::pruneTree()
+void ThreadingMsgListModel::pruneTree()
 {
-    bool res = false;
-
     // Our mapping (_threading) is completely unsorted, which means that we simply don't have any way of walking the tree from
     // the top. Instead, we got to work with a random walk, processing nodes in an unspecified order.  If we iterated on the QMap
     // directly, we'd hit an issue with iterator ordering (basically, we want to be able to say "hey, I don't care at which point
@@ -666,7 +664,6 @@ bool ThreadingMsgListModel::pruneTree()
             ++id;
         } else {
             // a fake one
-            res = true;
 
             // each node has a parent
             QHash<uint, ThreadNodeInfo>::iterator parent = _threading.find(it->parent);
@@ -710,8 +707,6 @@ bool ThreadingMsgListModel::pruneTree()
             }
         }
     }
-
-    return res;
 }
 
 QDebug operator<<(QDebug debug, const ThreadNodeInfo &node)
