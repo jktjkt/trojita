@@ -696,7 +696,14 @@ void TreeItemMessage::fetch( Model* const model )
         // this message as "loading", which has the side effect that it will get re-fetched as soon as
         // the UID arrives -- see TreeItemMailbox::handleFetchResponse(), the section which deals with
         // setting previously unknown UIDs.
-        // Unfortunately, this whole thing breaks preload of message metadata :(.
+        // Even though this breaks the message preload done in Model::_askForMsgmetadata, chances are that
+        // the UIDs will arrive rather soon for all of the pending messages, and the request for metadata
+        // will therefore get queued roughly at the same time.  This gives the KeepMailboxOpenTask a chance
+        // to group similar requests together.  To reiterate:
+        // - Messages are attempted to get *preloaded* (ie. requesting metadata even for messages that are not
+        //   yet shown) as usual; this could fail because the UIDs might not be known yet.
+        // - The actual FETCH could be batched by the KeepMailboxOpenTask anyway
+        // - Hence, this should be still pretty fast and efficient
         _fetchStatus = LOADING;
     }
 }
