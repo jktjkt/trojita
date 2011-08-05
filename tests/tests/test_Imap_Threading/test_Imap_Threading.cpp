@@ -165,7 +165,7 @@ void ImapModelThreadingTest::testThreadingDelete()
     QCOMPARE(QPersistentModelIndex(delete10.parent()), msg9);
     QCOMPARE(threadingModel->rowCount(msg9), 1);
 
-    // actual deletion
+    // Delete the last message; it's some leaf
     SOCK->fakeReading("* 10 EXPUNGE\r\n");
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
@@ -177,6 +177,29 @@ void ImapModelThreadingTest::testThreadingDelete()
     QVERIFY(!delete10.isValid());
     mapping.remove("3.1.0.0");
     mapping["3.1.0"] = 0;
+    verifyMapping(mapping);
+
+    QPersistentModelIndex msg2 = findItem("1");
+    QVERIFY(msg2.isValid());
+    QPersistentModelIndex msg3 = findItem("1.0");
+    QVERIFY(msg3.isValid());
+
+    // Delete the root of the second thread
+    SOCK->fakeReading("* 2 EXPUNGE\r\n");
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    --existsA;
+    QCOMPARE(msgListModel->rowCount(QModelIndex()), static_cast<int>(existsA));
+    QCOMPARE(threadingModel->rowCount(QModelIndex()), 4);
+    QPersistentModelIndex newMsg3 = findItem("1");
+    QVERIFY(!msg2.isValid());
+    QVERIFY(msg3.isValid());
+    QCOMPARE(msg3, newMsg3);
+    mapping.remove("1.0.0");
+    mapping["1.0"] = 0;
+    mapping["1"] = 3;
     verifyMapping(mapping);
 
     QVERIFY(SOCK->writtenStuff().isEmpty());
