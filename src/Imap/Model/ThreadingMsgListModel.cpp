@@ -544,7 +544,7 @@ void ThreadingMsgListModel::registerThreading( const QVector<Imap::Responses::Th
                 QByteArray buf;
                 QTextStream ss(&buf);
                 ss << "The THREAD response references a message with UID " << node.num << ", which is not recognized at this point. ";
-                ss << "More information is be available in the IMAP protocol log.";
+                ss << "More information is available in the IMAP protocol log.";
                 ss.flush();
                 throw UnknownMessageIndex(buf.constData());
             }
