@@ -38,6 +38,12 @@ void ThreadingMsgListModel::setSourceModel( QAbstractItemModel *sourceModel )
     _threading.clear();
     ptrToInternal.clear();
     unknownUids.clear();
+
+    if (this->sourceModel()) {
+        // there's already something, so take care to disconnect all signals
+        this->sourceModel()->disconnect(this);
+    }
+
     reset();
     Imap::Mailbox::MsgListModel *msgList = qobject_cast<Imap::Mailbox::MsgListModel*>( sourceModel );
     QAbstractProxyModel::setSourceModel( msgList );
