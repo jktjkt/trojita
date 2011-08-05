@@ -279,7 +279,11 @@ void ImapModelThreadingTest::verifyMapping(const Mapping &mapping)
                 qDebug() << "Invalid index at" << it.key();
             }
             QVERIFY(index.isValid());
-            QCOMPARE(index.data(Imap::Mailbox::RoleMessageUid).toInt(), it.value());
+            int got = index.data(Imap::Mailbox::RoleMessageUid).toInt();
+            if (got != it.value()) {
+                qDebug() << "Index" << it.key();
+            }
+            QCOMPARE(got, it.value());
         } else {
             // we expect this one to be a fake
             if (index.isValid()) {
