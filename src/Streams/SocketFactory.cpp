@@ -89,6 +89,7 @@ Socket* FakeSocketFactory::create()
 
 Socket* FakeSocketFactory::lastSocket()
 {
+    Q_ASSERT(_last);
     return _last;
 }
 

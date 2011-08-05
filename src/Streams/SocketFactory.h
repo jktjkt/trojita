@@ -22,6 +22,7 @@
 #ifndef IMAP_SOCKETFACTORY_H
 #define IMAP_SOCKETFACTORY_H
 
+#include <QPointer>
 #include <QStringList>
 #include "Socket.h"
 
@@ -94,7 +95,7 @@ public:
     /** @short Return the last created socket */
     Socket* lastSocket();
 private:
-    Socket* _last;
+    QPointer<Socket> _last;
 };
 
 
