@@ -768,6 +768,9 @@ void ImapParserParseTest::testThrow_data()
             << QByteArray("* blah\r\n")
             << QString("UnrecognizedResponseKind")
             << QString("BLAH");
+
+    QTest::newRow("expunge-number-at-the-end")
+            << QByteArray("* expunge 666\r\n") << QString("UnexpectedHere") << QString("Mallformed response: the number should go first");
 }
 
 TROJITA_HEADLESS_TEST( ImapParserParseTest )

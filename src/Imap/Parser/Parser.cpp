@@ -767,7 +767,7 @@ QSharedPointer<Responses::AbstractResponse> Parser::_parseUntaggedText(
         case Responses::FETCH:
         case Responses::EXISTS:
         case Responses::RECENT:
-            Q_ASSERT(0);
+            throw UnexpectedHere("Mallformed response: the number should go first", line, start);
     }
     throw UnexpectedHere( line, start );
 }
