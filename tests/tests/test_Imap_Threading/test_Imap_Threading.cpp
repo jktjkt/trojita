@@ -257,7 +257,7 @@ void ImapModelThreadingTest::init()
     for (uint i = 1; i <= existsA; ++i) {
         uidMapA << i;
     }
-    uidNextA = 6;
+    uidNextA = 66;
     helperSyncAWithMessagesEmptyState();
 
     // Setup the threading model
