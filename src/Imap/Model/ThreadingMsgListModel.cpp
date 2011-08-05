@@ -268,18 +268,51 @@ Qt::ItemFlags ThreadingMsgListModel::flags( const QModelIndex &index ) const
 
 }
 
-void ThreadingMsgListModel::handleRowsAboutToBeRemoved( const QModelIndex& parent, int start, int end )
+void ThreadingMsgListModel::handleRowsAboutToBeRemoved(const QModelIndex& parent, int start, int end)
 {
-    // Deal with that only when it's done, so nothing to do here
-    Q_UNUSED(parent);
-    Q_UNUSED(start);
-    Q_UNUSED(end);
+    if (parent.isValid()) {
+        // The source mailbox is a MsgListModel which provides a flat view
+        return;
+    }
+    for (int i = start; i <= end; ++i) {
+        QModelIndex index = sourceModel()->index(i, 0, parent);
+        Q_ASSERT(index.isValid());
+        uint uid = index.data(Imap::Mailbox::RoleMessageUid).toUInt();
+        if (uid) {
+            // Removing a message with an already known UID. We'll just mark it for deletion.
+            QModelIndex translated = mapFromSource(index);
+            Q_ASSERT(translated.isValid());
+            QHash<uint,ThreadNodeInfo>::iterator it = _threading.find(translated.internalId());
+            Q_ASSERT(it != _threading.end());
+            it->uid = 0;
+            it->ptr = 0;
+            // it will get cleaned up by the pruneTree call later on
+        } else {
+            // removing message without a UID
+            unknownUids.removeOne(index);
+            // such a message is not in the mapping yet, and therefore invisible
+        }
+    }
 }
 
-void ThreadingMsgListModel::handleRowsRemoved( const QModelIndex& parent, int start, int end )
+void ThreadingMsgListModel::handleRowsRemoved(const QModelIndex& parent, int start, int end)
 {
-    resetMe();
-    // FIXME
+    if (parent.isValid()) {
+        // The source mailbox is a MsgListModel which provides a flat view
+        return;
+    }
+
+    Q_UNUSED(start);
+    Q_UNUSED(end);
+
+    // It looks like this simplified approach won't really fly when model starts to issue interleaved rowsRemoved signals,
+    // as we'll just remove everything upon first rowsRemoved.  I'll just hope that it doesn't matter (much).
+
+    emit layoutAboutToBeChanged();
+    pruneTree();
+    updatePersistentIndexesPhase1();
+    updatePersistentIndexesPhase2();
+    emit layoutChanged();
 }
 
 void ThreadingMsgListModel::handleRowsAboutToBeInserted( const QModelIndex& parent, int start, int end )

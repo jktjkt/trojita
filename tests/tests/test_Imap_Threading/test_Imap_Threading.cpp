@@ -142,9 +142,6 @@ void ImapModelThreadingTest::testThreadingDelete()
 {
     initialMessages();
 
-    // FIXME: this one doesn't work yet as there are no incremental updates at this point
-    return;
-
     // A complex nested hierarchy with nodes to be promoted
     Mapping mapping;
     QByteArray response;
@@ -157,12 +154,27 @@ void ImapModelThreadingTest::testThreadingDelete()
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     verifyMapping(mapping);
+    QCOMPARE(threadingModel->rowCount(QModelIndex()), 4);
 
+    // this one will be deleted
+    QPersistentModelIndex delete10 = findItem("3.1.0");
+    QVERIFY(delete10.isValid());
+
+    // its parent
+    QPersistentModelIndex msg9 = findItem("3.1");
+    QCOMPARE(QPersistentModelIndex(delete10.parent()), msg9);
+    QCOMPARE(threadingModel->rowCount(msg9), 1);
+
+    // actual deletion
     SOCK->fakeReading("* 10 EXPUNGE\r\n");
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    --existsA;
+    QCOMPARE(msgListModel->rowCount(QModelIndex()), static_cast<int>(existsA));
+    QCOMPARE(threadingModel->rowCount(msg9), 0);
+    QVERIFY(!delete10.isValid());
     mapping.remove("3.1.0.0");
     mapping["3.1.0"] = 0;
     verifyMapping(mapping);
