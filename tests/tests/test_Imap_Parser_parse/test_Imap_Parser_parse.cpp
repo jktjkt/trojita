@@ -736,6 +736,40 @@ void ImapParserParseTest::testSequences_data()
             "1:4,6:7,99:102,333,666";
 }
 
+/** @short Test responses which fail to parse */
+void ImapParserParseTest::testThrow()
+{
+    QFETCH(QByteArray, line);
+    QFETCH(QString, exceptionClass);
+    QFETCH(QString, error);
+
+    try {
+        QSharedPointer<Imap::Responses::AbstractResponse> ptr = parser->parseUntagged(line);
+        QVERIFY2(!ptr, "should have thrown");
+    } catch (Imap::ImapException &e) {
+        QCOMPARE(QString::fromAscii(e.exceptionClass().c_str()), exceptionClass);
+        QCOMPARE(QString::fromAscii(e.msg().c_str()), error);
+    }
+}
+
+/** @short Test data for testThrow() */
+void ImapParserParseTest::testThrow_data()
+{
+    QTest::addColumn<QByteArray>("line");
+    QTest::addColumn<QString>("exceptionClass");
+    QTest::addColumn<QString>("error");
+
+    QTest::newRow("garbage")
+            << QByteArray("blah")
+            << QString("UnrecognizedResponseKind")
+            << QString("AH"); // uppercase of "blah" after cutting the two leading characters
+
+    QTest::newRow("garbage-well-formed")
+            << QByteArray("* blah\r\n")
+            << QString("UnrecognizedResponseKind")
+            << QString("BLAH");
+}
+
 TROJITA_HEADLESS_TEST( ImapParserParseTest )
 
 namespace QTest {

@@ -43,6 +43,10 @@ private Q_SLOTS:
     /** @short Test sequence output */
     void testSequences();
     void testSequences_data();
+    /** @short Test for parsing errors */
+    void testThrow();
+    void testThrow_data();
+
     void initTestCase();
     void cleanupTestCase();
 
