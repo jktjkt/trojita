@@ -28,6 +28,23 @@
 #include "Imap/Tasks/KeepMailboxOpenTask.h"
 #include "test_LibMailboxSync/FakeCapabilitiesInjector.h"
 
+/** @short Wait for the IDLE to arrive, or a timeout
+
+The motivation here is to avoid being too fast, as reported in Redmine#275
+*/
+void ImapModelIdleTest::waitForIdle()
+{
+    QTest::qWait(40);
+    QByteArray written = SOCK->writtenStuff();
+    int times = 0;
+    while (written.isEmpty() && times < 4) {
+        QTest::qWait(5);
+        written = SOCK->writtenStuff();
+        ++times;
+    }
+    QCOMPARE(written, t.mk("IDLE\r\n"));
+}
+
 /** @short Test a NO reply to IDLE command */
 void ImapModelIdleTest::testIdleNo()
 {
@@ -40,8 +57,7 @@ void ImapModelIdleTest::testIdleNo()
     uidNextA = 16;
     helperSyncAWithMessagesEmptyState();
     QVERIFY(SOCK->writtenStuff().isEmpty());
-    QTest::qWait(40);
-    QCOMPARE( SOCK->writtenStuff(), t.mk("IDLE\r\n") );
+    waitForIdle();
     SOCK->fakeReading(t.last("NO you can't idle now\r\n"));
     QTest::qWait(40);
     QVERIFY(SOCK->writtenStuff().isEmpty());
@@ -61,11 +77,9 @@ void ImapModelIdleTest::testIdleImmediateReturn()
     uidNextA = 16;
     helperSyncAWithMessagesEmptyState();
     QVERIFY(SOCK->writtenStuff().isEmpty());
-    QTest::qWait(40);
-    QCOMPARE( SOCK->writtenStuff(), t.mk("IDLE\r\n") );
+    waitForIdle();
     SOCK->fakeReading(QByteArray("+ blah\r\n") + t.last("OK done\r\n"));
-    QTest::qWait(40);
-    QCOMPARE( SOCK->writtenStuff(), t.mk("IDLE\r\n") );
+    waitForIdle();
 }
 
 /** @short Test automatic IDLE renewal */
@@ -81,14 +95,12 @@ void ImapModelIdleTest::testIdleRenewal()
     uidNextA = 16;
     helperSyncAWithMessagesEmptyState();
     QVERIFY(SOCK->writtenStuff().isEmpty());
-    QTest::qWait(40);
-    QCOMPARE( SOCK->writtenStuff(), t.mk("IDLE\r\n") );
+    waitForIdle();
     SOCK->fakeReading(QByteArray("+ blah\r\n"));
     QTest::qWait(10);
     QCOMPARE( SOCK->writtenStuff(), QByteArray("DONE\r\n") );
     SOCK->fakeReading(t.last("OK done\r\n"));
-    QTest::qWait(40);
-    QCOMPARE( SOCK->writtenStuff(), t.mk("IDLE\r\n") );
+    waitForIdle();
 }
 
 /** @short Test that IDLE gets immediately interrupted by any Task */
@@ -104,8 +116,7 @@ void ImapModelIdleTest::testIdleBreakTask()
     uidNextA = 16;
     helperSyncAWithMessagesEmptyState();
     QVERIFY(SOCK->writtenStuff().isEmpty());
-    QTest::qWait(40);
-    QCOMPARE( SOCK->writtenStuff(), t.mk("IDLE\r\n") );
+    waitForIdle();
     SOCK->fakeReading(QByteArray("+ blah\r\n"));
     QCOMPARE( msgListA.child(0,0).data(Imap::Mailbox::RoleMessageFrom).toString(), QString() );
     QCoreApplication::processEvents();
@@ -131,8 +142,7 @@ void ImapModelIdleTest::testIdleSlowResponses()
     helperSyncAWithMessagesEmptyState();
     QVERIFY(SOCK->writtenStuff().isEmpty());
 
-    QTest::qWait(40);
-    QCOMPARE( SOCK->writtenStuff(), t.mk("IDLE\r\n") );
+    waitForIdle();
     // Check what happens if it takes the server a lot of time to issue the initial continuation
     QTest::qWait(70);
     SOCK->fakeReading(QByteArray("+ blah\r\n"));
@@ -141,8 +151,7 @@ void ImapModelIdleTest::testIdleSlowResponses()
     QCOMPARE( SOCK->writtenStuff(), QByteArray("DONE\r\n") );
     SOCK->fakeReading(t.last("OK done\r\n"));
 
-    QTest::qWait(40);
-    QCOMPARE( SOCK->writtenStuff(), t.mk("IDLE\r\n") );
+    waitForIdle();
     SOCK->fakeReading(QByteArray("+ blah\r\n"));
     // The client is fast enough...
     QTest::qWait(40);
@@ -176,6 +185,7 @@ void ImapModelIdleTest::testIdleNoPerpetuateRenewal()
     model->findTaskResponsibleFor(idxA)->idleLauncher->slotEnterIdleNow();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    // we check it immediately, ie. no via the waitForIdle()
     QCOMPARE( SOCK->writtenStuff(), t.mk("IDLE\r\n") );
     SOCK->fakeReading(t.last("NO you can't idle now\r\n"));
     // ...make sure it won't try to "break long IDLE"
