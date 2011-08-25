@@ -37,7 +37,7 @@ void ImapModelIdleTest::waitForIdle()
     QTest::qWait(40);
     QByteArray written = SOCK->writtenStuff();
     int times = 0;
-    while (written.isEmpty() && times < 200) {
+    while (written.isEmpty() && times < 4) {
         QTest::qWait(5);
         written = SOCK->writtenStuff();
         ++times;
