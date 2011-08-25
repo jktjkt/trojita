@@ -97,7 +97,7 @@ void ImapModelIdleTest::testIdleRenewal()
     QVERIFY(SOCK->writtenStuff().isEmpty());
     waitForIdle();
     SOCK->fakeReading(QByteArray("+ blah\r\n"));
-    QTest::qWait(10);
+    QTest::qWait(50);
     QCOMPARE( SOCK->writtenStuff(), QByteArray("DONE\r\n") );
     SOCK->fakeReading(t.last("OK done\r\n"));
     waitForIdle();
