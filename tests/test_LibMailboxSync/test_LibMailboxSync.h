@@ -39,6 +39,8 @@ protected slots:
     virtual void cleanupTestCase();
     virtual void initTestCase();
 
+    void modelSignalsError(const QString &message);
+
 protected:
     virtual void helperSyncAWithMessagesEmptyState();
     virtual void helperSyncAFullSync();
