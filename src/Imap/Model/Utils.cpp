@@ -52,10 +52,12 @@ QString PrettySize::prettySize( uint bytes )
 QString persistentLogFileName()
 {
     QString logFileName = QDesktopServices::storageLocation( QDesktopServices::CacheLocation );
-    if (logFileName.isEmpty())
+    if (logFileName.isEmpty()) {
         logFileName = QDir::homePath() + QLatin1String("/.trojita-connection-log");
-    else
-         logFileName += QString::fromAscii("/trojita-connection-log");
+    } else {
+        QDir().mkpath(logFileName);
+        logFileName += QString::fromAscii("/trojita-connection-log");
+    }
     return logFileName;
 }
 
@@ -66,7 +68,9 @@ QString systemPlatformVersion()
 "AIX"
 #endif
 #ifdef Q_OS_BSD4
-"AnyBSD4.4"
+  #ifndef Q_OS_MAC
+  "AnyBSD4.4"
+  #endif
 #endif
 #ifdef Q_OS_BSDI
 "BSD/OS"
