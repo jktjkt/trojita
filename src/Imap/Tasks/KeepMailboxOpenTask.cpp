@@ -154,7 +154,7 @@ void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
         slotFetchRequestedEnvelopes();
         slotFetchRequestedParts();
 
-        if ( dependentTasks.isEmpty() && requestedParts.isEmpty() && requestedEnvelopes.isEmpty() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
+        if ( ! hasPendingInternalActions() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
             terminate();
         }
     } else {
@@ -186,7 +186,7 @@ void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )
         slotFetchRequestedEnvelopes();
     }
 
-    if ( shouldExit && requestedParts.isEmpty() && requestedEnvelopes.isEmpty() && dependentTasks.isEmpty() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
+    if ( shouldExit && ! hasPendingInternalActions() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
         terminate();
     } else if ( shouldRunNoop ) {
         // A command just completed, and NOOPing is active, so let's schedule it again
@@ -237,7 +237,7 @@ void KeepMailboxOpenTask::perform()
 
     model->accessParser( parser ).activeTasks.append( this );
 
-    if ( ! waitingTasks.isEmpty() && requestedParts.isEmpty() && requestedEnvelopes.isEmpty() && dependentTasks.isEmpty() ) {
+    if ( ! waitingTasks.isEmpty() && ! hasPendingInternalActions() ) {
         // We're basically useless, but we have to die reasonably
         shouldExit = true;
         terminate();
@@ -630,7 +630,7 @@ void KeepMailboxOpenTask::slotUnSelectCompleted()
     activateTasks();
     slotFetchRequestedParts();
 
-    if ( dependentTasks.isEmpty() && requestedParts.isEmpty() && requestedEnvelopes.isEmpty() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
+    if ( ! hasPendingInternalActions() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
         terminate();
     }
 }
@@ -647,6 +647,11 @@ bool KeepMailboxOpenTask::dieIfInvalidMailbox()
     unSelectTask->perform();
 
     return true;
+}
+
+bool KeepMailboxOpenTask::hasPendingInternalActions() const
+{
+    return ! (dependentTasks.isEmpty() && requestedParts.isEmpty() && requestedEnvelopes.isEmpty());
 }
 
 }
