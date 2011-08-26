@@ -68,7 +68,9 @@ QString systemPlatformVersion()
 "AIX"
 #endif
 #ifdef Q_OS_BSD4
-"AnyBSD4.4"
+  #ifndef Q_OS_MAC
+  "AnyBSD4.4"
+  #endif
 #endif
 #ifdef Q_OS_BSDI
 "BSD/OS"
