@@ -55,6 +55,7 @@ QString persistentLogFileName()
     if (logFileName.isEmpty()) {
         logFileName = QDir::homePath() + QLatin1String("/.trojita-connection-log");
     } else {
+        QDir().mkpath(logFileName);
         logFileName += QString::fromAscii("/trojita-connection-log");
     }
     return logFileName;
