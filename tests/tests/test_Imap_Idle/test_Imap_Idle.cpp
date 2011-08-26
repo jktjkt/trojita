@@ -251,10 +251,18 @@ void ImapModelIdleTest::testIdleMailboxChange()
     model->switchToMailbox( idxB );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("DONE\r\n") + t.mk("SELECT b\r\n") );
+    QCOMPARE(SOCK->writtenStuff(), QByteArray("DONE\r\n"));
+    // be sure that we wait for the tagged termination of the IDLE command
+    for (int i = 0; i < 100; ++i) {
+        QCoreApplication::processEvents();
+    }
+    SOCK->fakeReading(respIdleDone);
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE(SOCK->writtenStuff(), t.mk("SELECT b\r\n"));
     SOCK->fakeReading(QByteArray("* 0 exists\r\n")
-                      + t.last("ok completed\r\n")
-                      + respIdleDone);
+                      + t.last("ok completed\r\n"));
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
