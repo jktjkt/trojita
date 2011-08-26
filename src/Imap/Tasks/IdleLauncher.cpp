@@ -110,6 +110,11 @@ bool IdleLauncher::idling() const
     return _idling;
 }
 
+bool IdleLauncher::waitingForIdleTaggedTermination() const
+{
+    return _idleCommandRunning;
+}
+
 void IdleLauncher::idleCommandCompleted()
 {
     // FIXME: these asseerts could be triggered by a rogue server...
