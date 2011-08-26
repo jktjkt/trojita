@@ -52,10 +52,11 @@ QString PrettySize::prettySize( uint bytes )
 QString persistentLogFileName()
 {
     QString logFileName = QDesktopServices::storageLocation( QDesktopServices::CacheLocation );
-    if (logFileName.isEmpty())
+    if (logFileName.isEmpty()) {
         logFileName = QDir::homePath() + QLatin1String("/.trojita-connection-log");
-    else
-         logFileName += QString::fromAscii("/trojita-connection-log");
+    } else {
+        logFileName += QString::fromAscii("/trojita-connection-log");
+    }
     return logFileName;
 }
 
