@@ -220,4 +220,59 @@ void ImapModelIdleTest::testIdleNoPerpetuateRenewal()
 }
 
 
+/** @short Test that the tagged OK for terminating IDLE gets correctly handled when changing mailboxes */
+void ImapModelIdleTest::testIdleMailboxChange()
+{
+    // we shouldn't enter IDLE automatically
+    model->setProperty("trojita-imap-idle-delayedEnter", QVariant(1000 * 1000 ));
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability(QLatin1String("IDLE"));
+    existsA = 3;
+    uidValidityA = 6;
+    uidMapA << 1 << 7 << 9;
+    uidNextA = 16;
+    helperSyncAWithMessagesEmptyState();
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+
+    // Force manual trigger of the IDLE
+    model->findTaskResponsibleFor(idxA)->idleLauncher->slotEnterIdleNow();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    // we check it immediately, ie. no via the waitForIdle()
+    QCOMPARE( SOCK->writtenStuff(), t.mk("IDLE\r\n") );
+    SOCK->fakeReading("+ idling\r\n");
+    // save the IDLE termination response for later
+    QByteArray respIdleDone = t.last("OK idle terminated\r\n");
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+
+    // Now switch away
+    // can't use the helperSyncBNoMessages() as we do have to check the IDLE explicitly here
+    model->switchToMailbox( idxB );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE(SOCK->writtenStuff(), QByteArray("DONE\r\n"));
+    // be sure that we wait for the tagged termination of the IDLE command
+    for (int i = 0; i < 100; ++i) {
+        QCoreApplication::processEvents();
+    }
+    SOCK->fakeReading(respIdleDone);
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE(SOCK->writtenStuff(), t.mk("SELECT b\r\n"));
+    SOCK->fakeReading(QByteArray("* 0 exists\r\n")
+                      + t.last("ok completed\r\n"));
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+
+    QVERIFY(errorSpy->isEmpty());
+
+    QTest::qWait(30);
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+}
+
+
 TROJITA_HEADLESS_TEST( ImapModelIdleTest )

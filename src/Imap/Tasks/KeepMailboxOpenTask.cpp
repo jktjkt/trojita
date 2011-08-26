@@ -154,7 +154,7 @@ void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
         slotFetchRequestedEnvelopes();
         slotFetchRequestedParts();
 
-        if ( dependentTasks.isEmpty() && requestedParts.isEmpty() && requestedEnvelopes.isEmpty() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
+        if ( ! hasPendingInternalActions() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
             terminate();
         }
     } else {
@@ -186,7 +186,7 @@ void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )
         slotFetchRequestedEnvelopes();
     }
 
-    if ( shouldExit && requestedParts.isEmpty() && requestedEnvelopes.isEmpty() && dependentTasks.isEmpty() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
+    if ( shouldExit && ! hasPendingInternalActions() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
         terminate();
     } else if ( shouldRunNoop ) {
         // A command just completed, and NOOPing is active, so let's schedule it again
@@ -237,7 +237,7 @@ void KeepMailboxOpenTask::perform()
 
     model->accessParser( parser ).activeTasks.append( this );
 
-    if ( ! waitingTasks.isEmpty() && requestedParts.isEmpty() && requestedEnvelopes.isEmpty() && dependentTasks.isEmpty() ) {
+    if ( ! waitingTasks.isEmpty() && ! hasPendingInternalActions() ) {
         // We're basically useless, but we have to die reasonably
         shouldExit = true;
         terminate();
@@ -405,6 +405,12 @@ bool KeepMailboxOpenTask::handleStateHelper( const Imap::Responses::State* const
             idleLauncher = 0;
         }
         tagIdle.clear();
+        // IDLE is a special, because it's not really a native Task. Therefore, we have to duplicate the check for its completion
+        // and possible termination request here.
+        // FIXME: maybe rewrite IDLE to be a native task and get all the benefits for free? Any drawbacks?
+        if ( shouldExit && ! hasPendingInternalActions() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
+            terminate();
+        }
         return true;
     } else if ( resp->tag == newArrivalsFetch ) {
 
@@ -630,7 +636,7 @@ void KeepMailboxOpenTask::slotUnSelectCompleted()
     activateTasks();
     slotFetchRequestedParts();
 
-    if ( dependentTasks.isEmpty() && requestedParts.isEmpty() && requestedEnvelopes.isEmpty() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
+    if ( ! hasPendingInternalActions() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
         terminate();
     }
 }
@@ -647,6 +653,12 @@ bool KeepMailboxOpenTask::dieIfInvalidMailbox()
     unSelectTask->perform();
 
     return true;
+}
+
+bool KeepMailboxOpenTask::hasPendingInternalActions() const
+{
+    bool hasToWaitForIdleTermination = idleLauncher ? idleLauncher->waitingForIdleTaggedTermination() : false;
+    return ! (dependentTasks.isEmpty() && requestedParts.isEmpty() && requestedEnvelopes.isEmpty()) || hasToWaitForIdleTermination;
 }
 
 }

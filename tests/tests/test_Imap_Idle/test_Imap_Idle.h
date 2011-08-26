@@ -37,6 +37,7 @@ private slots:
     void testIdleBreakTask();
     void testIdleSlowResponses();
     void testIdleNoPerpetuateRenewal();
+    void testIdleMailboxChange();
 
 private:
     void waitForIdle();

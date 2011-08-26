@@ -66,6 +66,9 @@ target mailbox and all member variables are set up.
 */
     bool idling() const;
 
+    /** @short Are we waiting for the "OK idle done"? */
+    bool waitingForIdleTaggedTermination() const;
+
     /** @short Informs the IdleLauncher that the server OKed the end of the IDLE mode
 
 We will automatically resume IDLE later.

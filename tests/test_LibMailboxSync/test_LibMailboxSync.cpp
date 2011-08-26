@@ -43,8 +43,15 @@ void LibMailboxSync::init()
     taskFactoryUnsafe->fakeListChildMailboxesMap[ QString::fromAscii("") ] = QStringList() << QString::fromAscii("a") << QString::fromAscii("b");
     model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), taskFactory, false );
     errorSpy = new QSignalSpy( model, SIGNAL(connectionError(QString)) );
+    connect(model, SIGNAL(connectionError(QString)), this, SLOT(modelSignalsError(QString)));
 
     helperInitialListing();
+}
+
+void LibMailboxSync::modelSignalsError(const QString &message)
+{
+    qDebug() << message;
+    QFAIL("Model emits an error");
 }
 
 void LibMailboxSync::helperInitialListing()
