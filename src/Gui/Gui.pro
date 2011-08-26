@@ -72,7 +72,7 @@ include(../gitversion.pri)
 XtConnect:DEFINES += XTUPLE_CONNECT
 XtConnect:RESOURCES += ../xtconnect-icons.qrc
 
-unix {
+unix:!trojita_harmattan {
     INSTALLS += desktop iconsvg icon32
 
     desktop.path = $$DATADIR/applications
@@ -85,13 +85,13 @@ unix {
     icon32.files += ../icons/trojita.png
 }
 
-unix:!symbian:!maemo5 {
+trojita_harmattan {
     desktopfile.files = trojita.desktop
     desktopfile.path = /usr/share/applications
     INSTALLS += desktopfile
 }
 
-unix:!symbian:!maemo5 {
+trojita_harmattan {
     icon.files = ../icons/trojita.png
     icon.path = /usr/share/icons/hicolor/64x64/apps
     INSTALLS += icon
