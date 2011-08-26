@@ -84,3 +84,15 @@ unix {
     icon32.path = $$DATADIR/icons/hicolor/32x32/apps
     icon32.files += ../icons/trojita.png
 }
+
+unix:!symbian:!maemo5 {
+    desktopfile.files = trojita.desktop
+    desktopfile.path = /usr/share/applications
+    INSTALLS += desktopfile
+}
+
+unix:!symbian:!maemo5 {
+    icon.files = ../icons/trojita.png
+    icon.path = /usr/share/icons/hicolor/64x64/apps
+    INSTALLS += icon
+}
