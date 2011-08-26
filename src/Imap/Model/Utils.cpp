@@ -44,6 +44,8 @@ QString PrettySize::prettySize(uint bytes)
     } else if (order == 3) {
         suffix = tr("GB");
     } else {
+        // make sure not to show wrong size for those that have > 1024 TB e-mail messages
+        order = 4;
         suffix = tr("TB"); // shame on you for such mails
     }
     return tr("%1 %2").arg( QString::number(
