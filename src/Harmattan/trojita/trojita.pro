@@ -41,6 +41,13 @@ OTHER_FILES += \
 RESOURCES += \
     res.qrc
 
+INCLUDEPATH += ../../
+DEPENDPATH += ../../
+
+trojita_libs = Imap MSA Streams qwwsmtpclient Common
+myprefix = ../../
+include(../../linking.pri)
+
 # Please do not modify the following two lines. Required for deployment.
 include(deployment.pri)
 qtcAddDeployment()

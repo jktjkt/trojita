@@ -1,5 +1,10 @@
 TEMPLATE = subdirs
-SUBDIRS  = Imap MSA Streams qwwsmtpclient Common Gui
+SUBDIRS  = Imap MSA Streams qwwsmtpclient Common
 CONFIG += ordered
 
-XtConnect:SUBDIRS += XtConnect
+trojita_harmattan {
+    SUBDIRS += Harmattan
+} else {
+    SUBDIRS += Gui
+    XtConnect:SUBDIRS += XtConnect
+}
