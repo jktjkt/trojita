@@ -1,3 +1,4 @@
+include(../../configh.pri)
 QT += network \
     sql
 CONFIG += staticlib

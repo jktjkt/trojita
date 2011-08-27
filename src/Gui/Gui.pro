@@ -7,6 +7,7 @@ QT += core \
     network \
     sql
 include(../../install.pri)
+include(../../configh.pri)
 INCLUDEPATH += ../
 DEPENDPATH += ../
 DEFINES -= QT3_SUPPORT

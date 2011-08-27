@@ -25,6 +25,10 @@
 #include <QProcess>
 #include <QSysInfo>
 
+#ifdef TROJITA_MOBILITY_SYSTEMINFO
+#include <QSystemDeviceInfo>
+#endif
+
 namespace Imap {
 namespace Mailbox {
 
@@ -178,6 +182,16 @@ QString systemPlatformVersion()
 ;
 
     static QString platformVersion;
+#ifdef TROJITA_MOBILITY_SYSTEMINFO
+    if (platformVersion.isEmpty()) {
+        QtMobility::QSystemDeviceInfo device;
+        if (device.productName().isEmpty()) {
+            platformVersion = device.manufacturer() + QLatin1String(" ") + device.model();
+        } else {
+            platformVersion = QString::fromAscii("%1 %2 (%3)").arg(device.manufacturer(), device.productName(), device.model());
+        }
+    }
+#endif
     if (platformVersion.isEmpty()) {
 #ifdef Q_OS_WIN32
     switch (QSysInfo::WindowsVersion) {

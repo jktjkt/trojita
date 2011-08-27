@@ -11,6 +11,8 @@ unix {
     QMAKE_EXTRA_TARGETS += test
 }
 
+include(configh.pri)
+
 OTHER_FILES += \
     qtc_packaging/debian_harmattan/rules \
     qtc_packaging/debian_harmattan/README \
