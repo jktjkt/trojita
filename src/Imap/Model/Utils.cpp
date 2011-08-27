@@ -233,13 +233,13 @@ QString systemPlatformVersion()
         platformVersion = "CE";
         break;
     case QSysInfo::WV_CENET:
-        platform = "CE.NET";
+        platformVersion = "CE.NET";
         break;
     case QSysInfo::WV_CE_5:
-        platform = "CE5.x";
+        platformVersion = "CE5.x";
         break;
     case QSysInfo::WV_CE_6:
-        platform = "CE6.x";
+        platformVersion = "CE6.x";
         break;
     }
 #endif
