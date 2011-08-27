@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Type=Application
+Terminal=false
+Name=trojita
+Exec=invoker --single-instance --type=d /opt/trojita/bin/trojita
+Icon=/usr/share/icons/hicolor/scalable/apps/trojita.svg
+X-Window-Icon=
+X-HildonDesk-ShowInToolbar=true
+X-Osso-Type=application/x-executable
