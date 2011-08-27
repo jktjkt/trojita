@@ -28,6 +28,3 @@ trojita_libs = Imap MSA Streams Common
 
 myprefix = ../
 include(../linking.pri)
-
-GITVERSION_PREFIX = $$join(PWD,,,/../..)
-include(../gitversion.pri)

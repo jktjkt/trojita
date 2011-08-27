@@ -18,18 +18,15 @@
    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#include <QApplication>
 
-#include "Gui/Window.h"
-#include "Common/SetCoreApplication.h"
+#ifndef TROJITA_COMMON_SETCOREAPPLICATION_H
+#define TROJITA_COMMON_SETCOREAPPLICATION_H
 
-int main( int argc, char** argv) {
-    QApplication app( argc, argv );
-    Q_INIT_RESOURCE(icons);
-    QCoreApplication::setApplicationName( QString::fromAscii("trojita") );
-    Common::setCoreApplicationData();
-    app.setWindowIcon( QIcon( QString::fromAscii(":/icons/trojita.png") ) );
-    Gui::MainWindow win;
-    win.show();
-    return app.exec();
+namespace Common {
+
+    /** @short Set application version, manufacturer etc etc */
+    void setCoreApplicationData();
+
 }
+
+#endif // TROJITA_COMMON_SETCOREAPPLICATION_H

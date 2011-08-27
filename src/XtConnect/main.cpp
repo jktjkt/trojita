@@ -29,21 +29,12 @@
 #include <QCoreApplication>
 #include <QSettings>
 #include "XtConnect.h"
-
-#ifdef HAS_GITVERSION
-extern const char* gitVersion;
-#else
-#include "trojita-version.h"
-#endif
+#include "Common/SetCoreApplication.h"
 
 int main( int argc, char** argv) {
     QCoreApplication app( argc, argv );
     QCoreApplication::setApplicationName( QString::fromAscii("xtconnect-trojita") );
-#ifdef HAS_GITVERSION
-    QCoreApplication::setApplicationVersion( QString::fromAscii( gitVersion ) );
-#else
-    QCoreApplication::setApplicationVersion( QString::fromAscii( trojitaVersion ) );
-#endif
+    Common::setCoreApplicationData();
     QCoreApplication::setOrganizationDomain( QString::fromAscii("xtuple.com") );
     QCoreApplication::setOrganizationName( QString::fromAscii("xtuple.com") );
     QSettings s(QSettings::UserScope, QString::fromAscii("xTuple.com"), QString::fromAscii("xTuple"));

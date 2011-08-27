@@ -18,18 +18,27 @@
    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#include <QApplication>
 
-#include "Gui/Window.h"
-#include "Common/SetCoreApplication.h"
+#include <QCoreApplication>
+#include "SetCoreApplication.h"
 
-int main( int argc, char** argv) {
-    QApplication app( argc, argv );
-    Q_INIT_RESOURCE(icons);
-    QCoreApplication::setApplicationName( QString::fromAscii("trojita") );
-    Common::setCoreApplicationData();
-    app.setWindowIcon( QIcon( QString::fromAscii(":/icons/trojita.png") ) );
-    Gui::MainWindow win;
-    win.show();
-    return app.exec();
+#ifdef HAS_GITVERSION
+extern const char* gitVersion;
+#else
+#include "../trojita-version.h"
+#endif
+
+namespace Common {
+
+void setCoreApplicationData()
+{
+#ifdef HAS_GITVERSION
+    QCoreApplication::setApplicationVersion(QString::fromAscii(gitVersion));
+#else
+    QCoreApplication::setApplicationVersion(QString::fromAscii(trojitaVersion));
+#endif
+    QCoreApplication::setOrganizationDomain(QString::fromAscii("flaska.net"));
+    QCoreApplication::setOrganizationName(QString::fromAscii("flaska.net"));
+}
+
 }

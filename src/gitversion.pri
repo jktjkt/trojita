@@ -1,6 +1,6 @@
 unix:exists($$join(GITVERSION_PREFIX,,,/.git/HEAD)) {
     DEFINES += HAS_GITVERSION
-    GITVERSION_FILES = main.cpp
+    GITVERSION_FILES = SetCoreApplication.cpp
     gitversion.name = Creating GIT version
     gitversion.input = GITVERSION_FILES
     gitversion.depends = FORCE
