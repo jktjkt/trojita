@@ -15,6 +15,6 @@ Page {
         anchors.top: label.bottom
         anchors.topMargin: 10
         text: qsTr("Click here!")
-        onClicked: label.visible=true
+        onClicked: label.visible = ! label.visible
     }
 }
