@@ -41,3 +41,9 @@ OTHER_FILES += \
     qtc_packaging/debian_harmattan/compat \
     qtc_packaging/debian_harmattan/changelog
 
+INCLUDEPATH += ../../
+DEPENDPATH += ../../
+
+trojita_libs = Imap MSA Streams qwwsmtpclient Common
+myprefix = ../../
+include(../../linking.pri)
