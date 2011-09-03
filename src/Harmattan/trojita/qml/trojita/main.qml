@@ -4,21 +4,25 @@ import com.nokia.meego 1.0
 PageStackWindow {
     id: appWindow
 
-    initialPage: mainPage
+    initialPage: imapSettingsPage
 
     MainPage {
         id: mainPage
     }
 
-    ToolBarLayout {
+    ImapSettingsPage {
+        id: imapSettingsPage
+    }
+
+    /*ToolBarLayout {
         id: commonTools
-        visible: true
+        //visible: true
         ToolIcon {
             platformIconId: "toolbar-view-menu"
             anchors.right: (parent === undefined) ? undefined : parent.right
             onClicked: (myMenu.status == DialogStatus.Closed) ? myMenu.open() : myMenu.close()
         }
-    }
+    }*/
 
     Menu {
         id: myMenu
