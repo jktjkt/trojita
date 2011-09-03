@@ -44,7 +44,17 @@ Page {
                 inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhEmailCharactersOnly | Qt.ImhNoPredictiveText
             }
 
-           TumblerButton {
+
+            Label {
+                text: qsTr("Server address")
+            }
+            TextField {
+                id: imapServer
+                anchors {left: col.left; right: col.right;}
+                inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhPreferLowercase | Qt.ImhUrlCharactersOnly | Qt.ImhNoPredictiveText
+            }
+
+            TumblerButton {
                 id: encryptionMethodBtn
                 anchors {left: col.left; right: col.right;}
                 text: retrieveText()
@@ -77,6 +87,15 @@ Page {
                 onAccepted: {
                     encryptionMethodBtn.text = encryptionMethodBtn.retrieveText()
                 }
+            }
+
+            Label {
+                text: qsTr("Port")
+            }
+            TextField {
+                id: imapPort
+                anchors {left: col.left; right: col.right;}
+                inputMethodHints: Qt.ImhDigitsOnly
             }
         }
     }
