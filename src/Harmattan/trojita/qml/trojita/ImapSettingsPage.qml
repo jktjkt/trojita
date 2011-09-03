@@ -28,7 +28,7 @@ Page {
             anchors.fill: parent
 
             Label {
-                text: qsTr("Name:")
+                text: qsTr("Name")
             }
             TextField {
                 id: realName
@@ -36,7 +36,7 @@ Page {
             }
 
             Label {
-                text: qsTr("E-mail:")
+                text: qsTr("E-mail address")
             }
             TextField {
                 id: email
@@ -61,7 +61,7 @@ Page {
 
             SelectionDialog {
                 id: encryptionMethodDialog
-                titleText: qsTr("Encryption")
+                titleText: qsTr("Secure connection")
                 selectedIndex: 0
                 model: ListModel {
                     ListElement {
