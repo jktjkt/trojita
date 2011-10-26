@@ -17,3 +17,4 @@ tests/test_Imap_Parser_parse/test_Imap_Parser_parse
 tests/test_Imap_Responses/test_Imap_Responses
 tests/test_rfccodecs/test_rfccodecs
 src/Gui/main.version.cpp
+_various-data
