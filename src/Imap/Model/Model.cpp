@@ -221,37 +221,37 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
     }
 }
 
-void Model::_finalizeList( Parser* parser, TreeItemMailbox* mailboxPtr )
+void Model::_finalizeList(Parser* parser, TreeItemMailbox* mailboxPtr)
 {
     QList<TreeItem*> mailboxes;
 
-    QList<Responses::List>& listResponses = accessParser( parser ).listResponses;
+    QList<Responses::List>& listResponses = accessParser(parser).listResponses;
     const QString prefix = mailboxPtr->mailbox() + mailboxPtr->separator();
-    for ( QList<Responses::List>::iterator it = listResponses.begin();
-            it != listResponses.end(); /* nothing */ ) {
-        if ( it->mailbox == mailboxPtr->mailbox() || it->mailbox == prefix ) {
+    for (QList<Responses::List>::iterator it = listResponses.begin(); it != listResponses.end(); /* nothing */) {
+        if (it->mailbox == mailboxPtr->mailbox() || it->mailbox == prefix) {
             // rubbish, ignore
-            it = listResponses.erase( it );
-        } else if ( it->mailbox.startsWith( prefix ) ) {
-            mailboxes << new TreeItemMailbox( mailboxPtr, *it );
-            it = listResponses.erase( it );
+            it = listResponses.erase(it);
+        } else if (it->mailbox.startsWith(prefix)) {
+            mailboxes << new TreeItemMailbox(mailboxPtr, *it);
+            it = listResponses.erase(it);
         } else {
             // it clearly is someone else's LIST response
             ++it;
         }
     }
-    qSort( mailboxes.begin(), mailboxes.end(), MailboxNameComparator );
+    qSort(mailboxes.begin(), mailboxes.end(), MailboxNameComparator);
 
     // Remove duplicates; would be great if this could be done in a STLish way,
     // but unfortunately std::unique won't help here (the "duped" part of the
     // sequence contains undefined items)
-    if ( mailboxes.size() > 1 ) {
+    if (mailboxes.size() > 1) {
         QList<TreeItem*>::iterator it = mailboxes.begin();
+        // We've got to ignore the first one, that's the message list
         ++it;
-        while ( it != mailboxes.end() ) {
-            if ( MailboxNamesEqual( it[-1], *it ) ) {
+        while (it != mailboxes.end()) {
+            if (MailboxNamesEqual(it[-1], *it)) {
                 delete *it;
-                it = mailboxes.erase( it );
+                it = mailboxes.erase(it);
             } else {
                 ++it;
             }
@@ -260,18 +260,18 @@ void Model::_finalizeList( Parser* parser, TreeItemMailbox* mailboxPtr )
 
     QList<MailboxMetadata> metadataToCache;
     QList<TreeItemMailbox*> mailboxesWithoutChildren;
-    for ( QList<TreeItem*>::const_iterator it = mailboxes.begin(); it != mailboxes.end(); ++it ) {
-        TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( *it );
-        Q_ASSERT( mailbox );
-        metadataToCache.append( mailbox->mailboxMetadata() );
-        if ( mailbox->hasNoChildMaliboxesAlreadyKnown() ) {
+    for (QList<TreeItem*>::const_iterator it = mailboxes.begin(); it != mailboxes.end(); ++it) {
+        TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>(*it);
+        Q_ASSERT(mailbox);
+        metadataToCache.append(mailbox->mailboxMetadata());
+        if (mailbox->hasNoChildMaliboxesAlreadyKnown()) {
             mailboxesWithoutChildren << mailbox;
         }
     }
-    cache()->setChildMailboxes( mailboxPtr->mailbox(), metadataToCache );
-    for ( QList<TreeItemMailbox*>::const_iterator it = mailboxesWithoutChildren.begin(); it != mailboxesWithoutChildren.end(); ++it )
-        cache()->setChildMailboxes( (*it)->mailbox(), QList<MailboxMetadata>() );
-    replaceChildMailboxes( mailboxPtr, mailboxes );
+    cache()->setChildMailboxes(mailboxPtr->mailbox(), metadataToCache);
+    for (QList<TreeItemMailbox*>::const_iterator it = mailboxesWithoutChildren.begin(); it != mailboxesWithoutChildren.end(); ++it)
+        cache()->setChildMailboxes((*it)->mailbox(), QList<MailboxMetadata>());
+    replaceChildMailboxes(mailboxPtr, mailboxes);
 }
 
 void Model::_finalizeIncrementalList( Parser* parser, const QString& parentMailboxName )
@@ -909,10 +909,10 @@ void Model::copyMoveMessages( TreeItemMailbox* sourceMbox, const QString& destMa
     _taskFactory->createCopyMoveMessagesTask( this, messages, destMailboxName, op );
 }
 
-QList<TreeItemMessage*> Model::findMessagesByUids( const TreeItemMailbox* const mailbox, const QList<uint> &uids )
+QList<TreeItemMessage*> Model::findMessagesByUids(const TreeItemMailbox* const mailbox, const QList<uint> &uids)
 {
-    const TreeItemMsgList* const list = dynamic_cast<const TreeItemMsgList* const>( mailbox->_children[0] );
-    Q_ASSERT( list );
+    const TreeItemMsgList* const list = dynamic_cast<const TreeItemMsgList* const>(mailbox->_children[0]);
+    Q_ASSERT(list);
     QList<TreeItemMessage*> res;
     QList<TreeItem*>::const_iterator it = list->_children.constBegin();
     // qBinaryFind is not designed to operate on a value of a different kind than stored in the container
@@ -920,16 +920,16 @@ QList<TreeItemMessage*> Model::findMessagesByUids( const TreeItemMailbox* const 
     // (it keeps calling it both via LowerThan(*it, value) and LowerThan(value, *it).
     TreeItemMessage fakeMessage(0);
     uint lastUid = 0;
-    Q_FOREACH( const uint& uid, uids ) {
-        if ( lastUid == uid ) {
+    Q_FOREACH(const uint& uid, uids) {
+        if (lastUid == uid) {
             // we have to filter out duplicates
             continue;
         }
         lastUid = uid;
         fakeMessage._uid = uid;
-        it = qBinaryFind( it, list->_children.constEnd(), &fakeMessage, uidComparator );
-        if ( it != list->_children.end() ) {
-            res << static_cast<TreeItemMessage*>( *it );
+        it = qBinaryFind(it, list->_children.constEnd(), &fakeMessage, uidComparator);
+        if (it != list->_children.end()) {
+            res << static_cast<TreeItemMessage*>(*it);
         } else {
             qDebug() << "Can't find UID" << uid;
         }
@@ -937,43 +937,43 @@ QList<TreeItemMessage*> Model::findMessagesByUids( const TreeItemMailbox* const 
     return res;
 }
 
-TreeItemMailbox* Model::findMailboxByName( const QString& name ) const
+TreeItemMailbox* Model::findMailboxByName(const QString& name) const
 {
-    return findMailboxByName( name, _mailboxes );
+    return findMailboxByName(name, _mailboxes);
 }
 
-TreeItemMailbox* Model::findMailboxByName( const QString& name,
-                                           const TreeItemMailbox* const root ) const
+TreeItemMailbox* Model::findMailboxByName(const QString& name, const TreeItemMailbox* const root) const
 {
-    Q_ASSERT( ! root->_children.isEmpty() );
-    // FIXME: names are sorted, so linear search is not required
-    for ( int i = 1; i < root->_children.size(); ++i ) {
-        TreeItemMailbox* mailbox = static_cast<TreeItemMailbox*>( root->_children[i] );
-        if ( name == mailbox->mailbox() )
+    Q_ASSERT(!root->_children.isEmpty());
+    // Names are sorted, so linear search is not required. On the ohterhand, the mailbox sizes are typically small enough
+    // so that this shouldn't matter at all, and linear search is simple enough.
+    for (int i = 1; i < root->_children.size(); ++i) {
+        TreeItemMailbox* mailbox = static_cast<TreeItemMailbox*>(root->_children[i]);
+        if (name == mailbox->mailbox())
             return mailbox;
-        else if ( name.startsWith( mailbox->mailbox() + mailbox->separator() ) )
-            return findMailboxByName( name, mailbox );
+        else if (name.startsWith(mailbox->mailbox() + mailbox->separator()))
+            return findMailboxByName(name, mailbox);
     }
     return 0;
 }
 
-TreeItemMailbox* Model::findParentMailboxByName( const QString& name ) const
+TreeItemMailbox* Model::findParentMailboxByName(const QString& name) const
 {
     TreeItemMailbox* root = _mailboxes;
-    while ( true ) {
-        if ( root->_children.size() == 1 ) {
+    while (true) {
+        if (root->_children.size() == 1) {
             break;
         }
         bool found = false;
-        for ( int i = 1; ! found && i < root->_children.size(); ++i ) {
-            TreeItemMailbox* const item = dynamic_cast<TreeItemMailbox*>( root->_children[i] );
-            Q_ASSERT( item );
-            if ( name.startsWith( item->mailbox() + item->separator() ) ) {
+        for (int i = 1; !found && i < root->_children.size(); ++i) {
+            TreeItemMailbox* const item = dynamic_cast<TreeItemMailbox*>(root->_children[i]);
+            Q_ASSERT(item);
+            if (name.startsWith(item->mailbox() + item->separator())) {
                 root = item;
                 found = true;
             }
         }
-        if ( ! found ) {
+        if (!found) {
             return root;
         }
     }
@@ -981,27 +981,27 @@ TreeItemMailbox* Model::findParentMailboxByName( const QString& name ) const
 }
 
 
-void Model::expungeMailbox( TreeItemMailbox* mbox )
+void Model::expungeMailbox(TreeItemMailbox* mbox)
 {
-    if ( ! mbox )
+    if (!mbox)
         return;
 
-    if ( _netPolicy == NETWORK_OFFLINE ) {
+    if (_netPolicy == NETWORK_OFFLINE) {
         qDebug() << "Can't expunge while offline";
         return;
     }
 
-    _taskFactory->createExpungeMailboxTask( this, createIndex( mbox->row(), 0, mbox ) );
+    _taskFactory->createExpungeMailboxTask(this, createIndex(mbox->row(), 0, mbox));
 }
 
-void Model::createMailbox( const QString& name )
+void Model::createMailbox(const QString& name)
 {
-    if ( _netPolicy == NETWORK_OFFLINE ) {
+    if (_netPolicy == NETWORK_OFFLINE) {
         qDebug() << "Can't create mailboxes while offline";
         return;
     }
 
-    _taskFactory->createCreateMailboxTask( this, name );
+    _taskFactory->createCreateMailboxTask(this, name);
 }
 
 void Model::deleteMailbox( const QString& name )
