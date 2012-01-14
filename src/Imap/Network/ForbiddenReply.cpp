@@ -25,17 +25,16 @@
 namespace Imap {
 namespace Network {
 
-ForbiddenReply::ForbiddenReply( QObject* parent):
-    QNetworkReply( parent )
+ForbiddenReply::ForbiddenReply(QObject* parent):
+    QNetworkReply(parent)
 {
-    setError( QNetworkReply::ContentOperationNotPermittedError,
-        tr("Remote Content Is Banned"));
-    QTimer::singleShot( 0, this, SLOT( slotFinish() ) );
+    setError(QNetworkReply::ContentOperationNotPermittedError, tr("Remote Content Is Banned"));
+    QTimer::singleShot(0, this, SLOT(slotFinish()));
 }
 
 void ForbiddenReply::slotFinish()
 {
-    emit error( QNetworkReply::ContentOperationNotPermittedError );
+    emit error(QNetworkReply::ContentOperationNotPermittedError);
     emit finished();
 }
 

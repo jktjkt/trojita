@@ -63,17 +63,17 @@ void FileDownloadManager::slotDownloadNow()
     url.setPath(partIndex.data(Imap::Mailbox::RolePartPathToPart).toString());
     request.setUrl(url);
     reply = manager->get(request);
-    connect( reply, SIGNAL(finished()), this, SLOT(slotDataTransfered()) );
-    connect( reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(slotTransferError()) );
-    connect( manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(slotDeleteReply(QNetworkReply*)) );
+    connect(reply, SIGNAL(finished()), this, SLOT(slotDataTransfered()));
+    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(slotTransferError()));
+    connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(slotDeleteReply(QNetworkReply*)));
 }
 
 void FileDownloadManager::slotDataTransfered()
 {
-    Q_ASSERT( reply );
-    if ( reply->error() == QNetworkReply::NoError ) {
-        saving.open( QIODevice::WriteOnly );
-        saving.write( reply->readAll() );
+    Q_ASSERT(reply);
+    if (reply->error() == QNetworkReply::NoError) {
+        saving.open(QIODevice::WriteOnly);
+        saving.write(reply->readAll());
         saving.close();
         saved = true;
         emit succeeded();
@@ -82,14 +82,14 @@ void FileDownloadManager::slotDataTransfered()
 
 void FileDownloadManager::slotTransferError()
 {
-    Q_ASSERT( reply );
-    emit transferError( reply->errorString() );
+    Q_ASSERT(reply);
+    emit transferError(reply->errorString());
 }
 
 void FileDownloadManager::slotDeleteReply(QNetworkReply* reply)
 {
-    if ( reply == this->reply ) {
-        if ( ! saved )
+    if (reply == this->reply) {
+        if (!saved)
             slotDataTransfered();
         delete reply;
         this->reply = 0;

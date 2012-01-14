@@ -38,16 +38,16 @@ class MsgPartNetworkReply : public QNetworkReply
 {
 Q_OBJECT
 public:
-    MsgPartNetworkReply( QObject* parent, Imap::Mailbox::Model* _model,
-        Imap::Mailbox::TreeItemMessage* _msg, Imap::Mailbox::TreeItemPart* _part );
+    MsgPartNetworkReply(QObject* parent, Imap::Mailbox::Model* _model, Imap::Mailbox::TreeItemMessage* _msg,
+                        Imap::Mailbox::TreeItemPart* _part);
     virtual void abort();
     virtual void close();
     virtual qint64 bytesAvailable() const;
 public slots:
-    void slotModelDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight );
+    void slotModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
     void slotMyDataChanged();
 protected:
-    virtual qint64 readData( char* data, qint64 maxSize );
+    virtual qint64 readData(char* data, qint64 maxSize);
 private:
     Imap::Mailbox::Model* model;
     Imap::Mailbox::TreeItemMessage* msg;

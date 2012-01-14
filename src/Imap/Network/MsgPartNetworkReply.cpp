@@ -83,9 +83,9 @@ void MsgPartNetworkReply::slotMyDataChanged()
         // client-provided MIME types. QWebView would (arguably correctly) refuse to display such a blob, but the damned users
         // typically want to see their images (I certainly do), even though they are not standards-compliant. Hence we fix the
         // header here.
-        setHeader( QNetworkRequest::ContentTypeHeader, QLatin1String("image/jpeg") );
+        setHeader(QNetworkRequest::ContentTypeHeader, QLatin1String("image/jpeg"));
     } else {
-        setHeader( QNetworkRequest::ContentTypeHeader, part->mimeType() );
+        setHeader(QNetworkRequest::ContentTypeHeader, part->mimeType());
     }
     emit readyRead();
     emit finished();
@@ -108,7 +108,7 @@ qint64 MsgPartNetworkReply::bytesAvailable() const
 
 qint64 MsgPartNetworkReply::readData( char* data, qint64 maxSize )
 {
-    return buffer.read( data, maxSize );
+    return buffer.read(data, maxSize);
 }
 
 }
