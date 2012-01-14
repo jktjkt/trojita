@@ -36,30 +36,43 @@ namespace {
 
 using namespace Imap::Mailbox;
 
-bool MailboxNamesEqual( const TreeItem* const a, const TreeItem* const b )
+/** @short Return true iff the two mailboxes have the same name
+
+It's an error to call this function on anything else but a mailbox.
+*/
+bool MailboxNamesEqual(const TreeItem* const a, const TreeItem* const b)
 {
     const TreeItemMailbox* const mailboxA = dynamic_cast<const TreeItemMailbox* const>(a);
     const TreeItemMailbox* const mailboxB = dynamic_cast<const TreeItemMailbox* const>(b);
+    Q_ASSERT(mailboxA);
+    Q_ASSERT(mailboxB);
 
-    return mailboxA && mailboxB && mailboxA->mailbox() == mailboxB->mailbox();
+    return mailboxA->mailbox() == mailboxB->mailbox();
 }
 
-bool MailboxNameComparator( const TreeItem* const a, const TreeItem* const b )
+/** @short Mailbox name comparator to be used when sorting mailbox names
+
+The special-case mailbox name, the "INBOX", is always sorted as the first one.
+*/
+bool MailboxNameComparator(const TreeItem* const a, const TreeItem* const b)
 {
     const TreeItemMailbox* const mailboxA = dynamic_cast<const TreeItemMailbox* const>(a);
     const TreeItemMailbox* const mailboxB = dynamic_cast<const TreeItemMailbox* const>(b);
 
-    if ( mailboxA->mailbox() == QLatin1String( "INBOX" ) )
+    if (mailboxA->mailbox() == QLatin1String("INBOX"))
         return true;
-    if ( mailboxB->mailbox() == QLatin1String( "INBOX" ) )
+    if ( mailboxB->mailbox() == QLatin1String("INBOX"))
         return false;
-    return mailboxA->mailbox().compare( mailboxB->mailbox(), Qt::CaseInsensitive ) < 1;
+    return mailboxA->mailbox().compare(mailboxB->mailbox(), Qt::CaseInsensitive) < 1;
 }
 
-bool uidComparator( const TreeItem* const a, const TreeItem* const b )
+bool uidComparator(const TreeItem* const a, const TreeItem* const b)
 {
-    const TreeItemMessage* const messageA = dynamic_cast<const TreeItemMessage* const>( a );
-    const TreeItemMessage* const messageB = dynamic_cast<const TreeItemMessage* const>( b );
+    const TreeItemMessage* const messageA = dynamic_cast<const TreeItemMessage* const>(a);
+    const TreeItemMessage* const messageB = dynamic_cast<const TreeItemMessage* const>(b);
+    Q_ASSERT(messageA);
+    Q_ASSERT(messageB);
+
     return messageA->uid() < messageB->uid();
 }
 
@@ -909,6 +922,7 @@ void Model::copyMoveMessages( TreeItemMailbox* sourceMbox, const QString& destMa
     _taskFactory->createCopyMoveMessagesTask( this, messages, destMailboxName, op );
 }
 
+/** @short Convert a list of UIDs to a list of pointers to the relevant message nodes */
 QList<TreeItemMessage*> Model::findMessagesByUids(const TreeItemMailbox* const mailbox, const QList<uint> &uids)
 {
     const TreeItemMsgList* const list = dynamic_cast<const TreeItemMsgList* const>(mailbox->_children[0]);
@@ -957,6 +971,7 @@ TreeItemMailbox* Model::findMailboxByName(const QString& name, const TreeItemMai
     return 0;
 }
 
+/** @short Find a parent mailbox for the specified name */
 TreeItemMailbox* Model::findParentMailboxByName(const QString& name) const
 {
     TreeItemMailbox* root = _mailboxes;
