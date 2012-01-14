@@ -26,6 +26,7 @@
 namespace Imap {
 namespace Network {
 
+/** @short A network reply which indicates that the request got denied by policy */
 class ForbiddenReply : public QNetworkReply
 {
 Q_OBJECT

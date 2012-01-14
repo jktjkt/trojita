@@ -34,6 +34,7 @@ class TreeItemPart;
 
 namespace Network {
 
+/** @short Qt-like access to one MIME message part */
 class MsgPartNetworkReply : public QNetworkReply
 {
 Q_OBJECT

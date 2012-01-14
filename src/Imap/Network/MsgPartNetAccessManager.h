@@ -40,6 +40,7 @@ class TreeItemPart;
 
 namespace Network {
 
+/** @short Implement access to the MIME Parts of the current message and optiojnally also to the public Internet */
 class MsgPartNetAccessManager : public QNetworkAccessManager
 {
     Q_OBJECT

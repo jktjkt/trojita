@@ -30,51 +30,50 @@ namespace Imap {
 
 namespace Network {
 
-MsgPartNetworkReply::MsgPartNetworkReply( QObject* parent,
-        Imap::Mailbox::Model* _model,
-        Imap::Mailbox::TreeItemMessage* _msg,
-        Imap::Mailbox::TreeItemPart* _part ):
+MsgPartNetworkReply::MsgPartNetworkReply(QObject* parent, Imap::Mailbox::Model* _model, Imap::Mailbox::TreeItemMessage* _msg,
+        Imap::Mailbox::TreeItemPart* _part):
     QNetworkReply(parent), model(_model), msg(_msg), part(_part)
 {
-    setOpenMode( QIODevice::ReadOnly | QIODevice::Unbuffered );
-    Q_ASSERT( model );
-    Q_ASSERT( msg );
-    Q_ASSERT( part );
+    setOpenMode(QIODevice::ReadOnly | QIODevice::Unbuffered);
+    Q_ASSERT(model);
+    Q_ASSERT(msg);
+    Q_ASSERT(part);
 
-    connect( _model, SIGNAL( dataChanged( const QModelIndex&, const QModelIndex& ) ),
-             this, SLOT( slotModelDataChanged( const QModelIndex&, const QModelIndex& ) ) );
+    connect(_model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(slotModelDataChanged(QModelIndex,QModelIndex)));
 
     // We have to ask for contents before we check whether it's already fetched
-    part->fetch( model );
-    if ( part->fetched() ) {
-        QTimer::singleShot( 0, this, SLOT( slotMyDataChanged() ) );
+    part->fetch(model);
+    if (part->fetched()) {
+        QTimer::singleShot(0, this, SLOT(slotMyDataChanged()));
     }
 
-    buffer.setBuffer( part->dataPtr() );
-    buffer.open( QIODevice::ReadOnly );
+    buffer.setBuffer(part->dataPtr());
+    buffer.open(QIODevice::ReadOnly);
 }
 
-void MsgPartNetworkReply::slotModelDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight )
+/** @short Check to see whether the data which concern this object has arrived already */
+void MsgPartNetworkReply::slotModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight)
 {
     Q_UNUSED(bottomRight);
     // FIXME: use bottomRight as well!
-    if ( topLeft.model() != model ) {
+    if (topLeft.model() != model) {
         return;
     }
-    Imap::Mailbox::TreeItemPart* receivedPart = dynamic_cast<Imap::Mailbox::TreeItemPart*> (
-            Imap::Mailbox::Model::realTreeItem( topLeft ) );
-    if ( receivedPart == part ) {
+    Imap::Mailbox::TreeItemPart* receivedPart = dynamic_cast<Imap::Mailbox::TreeItemPart*>(Imap::Mailbox::Model::realTreeItem(topLeft));
+    if (receivedPart == part) {
         slotMyDataChanged();
     }
 }
 
+/** @short Data for the current message part are available now */
 void MsgPartNetworkReply::slotMyDataChanged()
 {
-    if ( part->mimeType().startsWith( QLatin1String( "text/" ) ) ) {
-        setHeader( QNetworkRequest::ContentTypeHeader,
-                   part->charset().isEmpty() ?
+    if (part->mimeType().startsWith(QLatin1String("text/"))) {
+        setHeader(QNetworkRequest::ContentTypeHeader,
+                  part->charset().isEmpty() ?
                     part->mimeType() :
-                    QString::fromAscii("%1; charset=%2").arg( part->mimeType(), part->charset() ) );
+                    QString::fromAscii("%1; charset=%2").arg(part->mimeType(), part->charset())
+                 );
     } else if (part->mimeType() == QLatin1String("image/pjpeg")) {
         // The "image/pjpeg" nonsense is non-standard kludge produced by Micorosft Internet Explorer
         // (http://msdn.microsoft.com/en-us/library/ms775147(VS.85).aspx#_replace). As of May 2011, it is not listed in
@@ -91,22 +90,26 @@ void MsgPartNetworkReply::slotMyDataChanged()
     emit finished();
 }
 
+/** @short QIODevice compatibility */
 void MsgPartNetworkReply::abort()
 {
     close();
 }
 
+/** @short QIODevice compatibility */
 void MsgPartNetworkReply::close()
 {
     buffer.close();
 }
 
+/** @short QIODevice compatibility */
 qint64 MsgPartNetworkReply::bytesAvailable() const
 {
     return buffer.bytesAvailable() + QNetworkReply::bytesAvailable();
 }
 
-qint64 MsgPartNetworkReply::readData( char* data, qint64 maxSize )
+/** @short QIODevice compatibility */
+qint64 MsgPartNetworkReply::readData(char* data, qint64 maxSize)
 {
     return buffer.read(data, maxSize);
 }
