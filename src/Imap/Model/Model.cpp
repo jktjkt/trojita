@@ -475,6 +475,7 @@ void Model::handleNamespace( Imap::Parser* ptr, const Imap::Responses::Namespace
 {
     return; // because it's broken and won't fly
     Q_UNUSED(ptr);
+    Q_UNUSED(resp);
 }
 
 void Model::handleSort(Imap::Parser *ptr, const Imap::Responses::Sort *const resp)
@@ -1074,6 +1075,7 @@ void Model::handleSocketStateChanged( Parser *parser, Imap::ConnectionState stat
 void Model::parserIsSendingCommand( Parser *parser, const QString& tag)
 {
     Q_ASSERT(parser);
+    Q_UNUSED(tag);
     // FIXME: move this somewhere else!
     /*QMap<CommandHandle, CommandKind>::const_iterator it = accessParser( parser ).commandMap.find( tag );
     if ( it == accessParser( parser ).commandMap.end() ) {
