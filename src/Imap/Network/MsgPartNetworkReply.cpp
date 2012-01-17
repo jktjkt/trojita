@@ -23,6 +23,7 @@
 #include <QTimer>
 
 #include "MsgPartNetworkReply.h"
+#include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
 
@@ -30,24 +31,27 @@ namespace Imap {
 
 namespace Network {
 
-MsgPartNetworkReply::MsgPartNetworkReply(QObject* parent, Imap::Mailbox::Model* _model, Imap::Mailbox::TreeItemMessage* _msg,
-        Imap::Mailbox::TreeItemPart* _part):
-    QNetworkReply(parent), model(_model), msg(_msg), part(_part)
+MsgPartNetworkReply::MsgPartNetworkReply(QObject* parent, const QPersistentModelIndex &_part):
+    QNetworkReply(parent), part(_part)
 {
     setOpenMode(QIODevice::ReadOnly | QIODevice::Unbuffered);
+    Q_ASSERT(part.isValid());
+    const Mailbox::Model *model = 0;
+    Mailbox::Model::realTreeItem(part, &model);
     Q_ASSERT(model);
-    Q_ASSERT(msg);
-    Q_ASSERT(part);
 
-    connect(_model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(slotModelDataChanged(QModelIndex,QModelIndex)));
+    connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(slotModelDataChanged(QModelIndex,QModelIndex)));
+
+    Mailbox::TreeItemPart *partPtr = dynamic_cast<Mailbox::TreeItemPart*>(static_cast<Mailbox::TreeItem*>(part.internalPointer()));
+    Q_ASSERT(partPtr);
 
     // We have to ask for contents before we check whether it's already fetched
-    part->fetch(model);
-    if (part->fetched()) {
+    partPtr->fetch(const_cast<Mailbox::Model*>(model));
+    if (partPtr->fetched()) {
         QTimer::singleShot(0, this, SLOT(slotMyDataChanged()));
     }
 
-    buffer.setBuffer(part->dataPtr());
+    buffer.setBuffer(partPtr->dataPtr());
     buffer.open(QIODevice::ReadOnly);
 }
 
@@ -56,11 +60,10 @@ void MsgPartNetworkReply::slotModelDataChanged(const QModelIndex& topLeft, const
 {
     Q_UNUSED(bottomRight);
     // FIXME: use bottomRight as well!
-    if (topLeft.model() != model) {
+    if (topLeft.model() != part.model()) {
         return;
     }
-    Imap::Mailbox::TreeItemPart* receivedPart = dynamic_cast<Imap::Mailbox::TreeItemPart*>(Imap::Mailbox::Model::realTreeItem(topLeft));
-    if (receivedPart == part) {
+    if (topLeft == part) {
         slotMyDataChanged();
     }
 }
@@ -68,13 +71,13 @@ void MsgPartNetworkReply::slotModelDataChanged(const QModelIndex& topLeft, const
 /** @short Data for the current message part are available now */
 void MsgPartNetworkReply::slotMyDataChanged()
 {
-    if (part->mimeType().startsWith(QLatin1String("text/"))) {
+    QString mimeType = part.data(Mailbox::RolePartMimeType).toString();
+    QString charset = part.data(Mailbox::RolePartCharset).toString();
+    if (mimeType.startsWith(QLatin1String("text/"))) {
         setHeader(QNetworkRequest::ContentTypeHeader,
-                  part->charset().isEmpty() ?
-                    part->mimeType() :
-                    QString::fromAscii("%1; charset=%2").arg(part->mimeType(), part->charset())
+                  charset.isEmpty() ? mimeType : QString::fromAscii("%1; charset=%2").arg(mimeType, charset)
                  );
-    } else if (part->mimeType() == QLatin1String("image/pjpeg")) {
+    } else if (mimeType == QLatin1String("image/pjpeg")) {
         // The "image/pjpeg" nonsense is non-standard kludge produced by Micorosft Internet Explorer
         // (http://msdn.microsoft.com/en-us/library/ms775147(VS.85).aspx#_replace). As of May 2011, it is not listed in
         // the official list of assigned MIME types (http://www.iana.org/assignments/media-types/image/index.html), but generated
@@ -84,7 +87,7 @@ void MsgPartNetworkReply::slotMyDataChanged()
         // header here.
         setHeader(QNetworkRequest::ContentTypeHeader, QLatin1String("image/jpeg"));
     } else {
-        setHeader(QNetworkRequest::ContentTypeHeader, part->mimeType());
+        setHeader(QNetworkRequest::ContentTypeHeader, mimeType);
     }
     emit readyRead();
     emit finished();
@@ -99,19 +102,32 @@ void MsgPartNetworkReply::abort()
 /** @short QIODevice compatibility */
 void MsgPartNetworkReply::close()
 {
+    disconnectBufferIfVanished();
     buffer.close();
 }
 
 /** @short QIODevice compatibility */
 qint64 MsgPartNetworkReply::bytesAvailable() const
 {
+    disconnectBufferIfVanished();
     return buffer.bytesAvailable() + QNetworkReply::bytesAvailable();
 }
 
 /** @short QIODevice compatibility */
 qint64 MsgPartNetworkReply::readData(char* data, qint64 maxSize)
 {
+    disconnectBufferIfVanished();
     return buffer.read(data, maxSize);
+}
+
+
+/** @short Cut the buffer connection in case the message got removed */
+void MsgPartNetworkReply::disconnectBufferIfVanished() const
+{
+    if (!part.isValid()) {
+        buffer.close();
+        buffer.setData(QByteArray());
+    }
 }
 
 }

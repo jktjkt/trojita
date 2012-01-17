@@ -58,11 +58,12 @@ QNetworkReply* MsgPartNetAccessManager::createRequest(Operation op, const QNetwo
     Q_ASSERT(model);
     Q_ASSERT(message);
     Imap::Mailbox::TreeItemPart* part = pathToPart(req.url().path());
+    QModelIndex partIndex = part->toIndex(model);
 
     if (req.url().scheme() == QLatin1String( "trojita-imap" ) && req.url().host() == QLatin1String("msg")) {
         // Internal Trojita reference
         if (part) {
-            return new Imap::Network::MsgPartNetworkReply(this, model, message, part);
+            return new Imap::Network::MsgPartNetworkReply(this, partIndex);
         } else {
             qDebug() << "No such part:" << req.url();
             return new Imap::Network::ForbiddenReply( this );
@@ -76,7 +77,7 @@ QNetworkReply* MsgPartNetAccessManager::createRequest(Operation op, const QNetwo
             cid += ">";
         Imap::Mailbox::TreeItemPart* target = cidToPart(cid, message);
         if (target) {
-            return new Imap::Network::MsgPartNetworkReply(this, model, message, target);
+            return new Imap::Network::MsgPartNetworkReply(this, target->toIndex(model));
         } else {
             qDebug() << "Content-ID not found" << cid;
             return new Imap::Network::ForbiddenReply( this );

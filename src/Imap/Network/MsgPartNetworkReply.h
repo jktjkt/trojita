@@ -39,8 +39,7 @@ class MsgPartNetworkReply : public QNetworkReply
 {
 Q_OBJECT
 public:
-    MsgPartNetworkReply(QObject* parent, Imap::Mailbox::Model* _model, Imap::Mailbox::TreeItemMessage* _msg,
-                        Imap::Mailbox::TreeItemPart* _part);
+    MsgPartNetworkReply(QObject* parent, const QPersistentModelIndex &_part);
     virtual void abort();
     virtual void close();
     virtual qint64 bytesAvailable() const;
@@ -50,10 +49,10 @@ public slots:
 protected:
     virtual qint64 readData(char* data, qint64 maxSize);
 private:
-    Imap::Mailbox::Model* model;
-    Imap::Mailbox::TreeItemMessage* msg;
-    Imap::Mailbox::TreeItemPart* part;
-    QBuffer buffer;
+    void disconnectBufferIfVanished() const;
+
+    QPersistentModelIndex part;
+    mutable QBuffer buffer;
 
     MsgPartNetworkReply(const MsgPartNetworkReply&); // don't implement
     MsgPartNetworkReply& operator=(const MsgPartNetworkReply&); // don't implement
