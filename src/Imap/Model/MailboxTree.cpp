@@ -158,7 +158,7 @@ void TreeItemMailbox::fetch( Model* const model )
         // It's possible that we've got invoked in response to something relatively harmless like rowCount(),
         // that's why we have to delay the call to _askForChildrenOfMailbox() until we re-enter the event
         // loop.
-        new DelayedAskForChildrenOfMailbox(model, model->createIndex(row(), 0, this));
+        new DelayedAskForChildrenOfMailbox(model, toIndex(model));
     }
 }
 
@@ -401,7 +401,7 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
                 // We had no idea about the structure of the message
                 QList<TreeItem*> newChildren = dynamic_cast<const Message::AbstractMessage&>( *(it.value()) ).createTreeItems( message );
                 if ( ! message->_children.isEmpty() ) {
-                    QModelIndex messageIdx = model->createIndex( message->row(), 0, message );
+                    QModelIndex messageIdx = message->toIndex(model);
                     model->beginRemoveRows( messageIdx, 0, message->_children.size() - 1 );
                     QList<TreeItem*> oldChildren = message->setChildren( newChildren );
                     model->endRemoveRows();
@@ -489,7 +489,7 @@ void TreeItemMailbox::handleExpunge( Model* const model, const Responses::Number
     }
     uint offset = resp.number - 1;
 
-    model->beginRemoveRows( model->createIndex( 0, 0, list ), offset, offset );
+    model->beginRemoveRows( list->toIndex(model), offset, offset );
     TreeItemMessage* message = static_cast<TreeItemMessage*>( list->_children.takeAt( offset ) );
     model->cache()->clearMessage( static_cast<TreeItemMailbox*>( list->parent() )->mailbox(), message->uid() );
     delete message;
@@ -582,7 +582,7 @@ void TreeItemMsgList::fetch( Model* const model )
     if ( ! loading() ) {
         _fetchStatus = LOADING;
         // We can't ask right now, has to wait till the end of the event loop
-        new DelayedAskForMessagesInMailbox(model, model->createIndex(row(), 0, this));
+        new DelayedAskForMessagesInMailbox(model, toIndex(model));
     }
 }
 

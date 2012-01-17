@@ -223,7 +223,7 @@ void ObtainSynchronizedMailboxTask::_fullMboxSync( TreeItemMailbox* mailbox, Tre
     model->cache()->clearUidMapping( mailbox->mailbox() );
     model->cache()->setMailboxSyncState( mailbox->mailbox(), SyncState() );
 
-    QModelIndex parent = model->createIndex( 0, 0, list );
+    QModelIndex parent = list->toIndex(model);
     if ( ! list->_children.isEmpty() ) {
         model->beginRemoveRows( parent, 0, list->_children.size() - 1 );
         qDeleteAll( list->_children );
@@ -558,7 +558,7 @@ void ObtainSynchronizedMailboxTask::_finalizeUidSyncAll( TreeItemMailbox* mailbo
     Q_ASSERT( list );
     list->_fetchStatus = TreeItem::DONE;
 
-    QModelIndex parent = model->createIndex( 0, 0, list );
+    QModelIndex parent = list->toIndex(model);
 
     if ( uidMap.isEmpty() ) {
         // the mailbox is empty
@@ -665,7 +665,7 @@ void ObtainSynchronizedMailboxTask::_finalizeUidSyncOnlyNew( Model *model, TreeI
     Q_ASSERT( mailbox->syncState.exists() > oldExists );
     Q_ASSERT( static_cast<uint>(uidMap.size()) == mailbox->syncState.exists() - oldExists );
 
-    QModelIndex parent = model->createIndex( 0, 0, list );
+    QModelIndex parent = list->toIndex(model);
     int offset = list->_children.size();
     model->beginInsertRows( parent, offset, mailbox->syncState.exists() - 1 );
     for ( int i = 0; i < uidMap.size(); ++i ) {
@@ -720,11 +720,11 @@ void ObtainSynchronizedMailboxTask::notifyInterestingMessages( TreeItemMailbox *
     TreeItemMsgList *list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( mailbox->_children[0] );
     Q_ASSERT(list);
     list->recalcVariousMessageCounts(model);
-    QModelIndex listIndex = model->createIndex( 0, 0, list );
+    QModelIndex listIndex = list->toIndex(model);
     Q_ASSERT(listIndex.isValid());
     QModelIndex firstInterestingMessage = model->index( mailbox->syncState.unSeenOffset(), 0, listIndex );
     log("First interesting message at " + QString::number(mailbox->syncState.unSeenOffset()), LOG_MAILBOX_SYNC);
-    emit model->mailboxFirstUnseenMessage(model->createIndex(mailbox->row(), 0, mailbox), firstInterestingMessage);
+    emit model->mailboxFirstUnseenMessage(mailbox->toIndex(model), firstInterestingMessage);
 }
 
 bool ObtainSynchronizedMailboxTask::dieIfInvalidMailbox()

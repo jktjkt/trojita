@@ -313,7 +313,7 @@ bool KeepMailboxOpenTask::handleNumberResponse( const Imap::Responses::NumberRes
         model->cache()->clearUidMapping( mailbox->mailbox() );
         model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
 
-        QModelIndex parent = model->createIndex( 0, 0, list );
+        QModelIndex parent = list->toIndex(model);
         int offset = list->_children.size();
         model->beginInsertRows( parent, offset, resp->number - 1 );
         for ( int i = 0; i < newArrivals; ++i ) {
