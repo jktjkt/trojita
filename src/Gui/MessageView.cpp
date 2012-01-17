@@ -118,11 +118,7 @@ void MessageView::setMessage(const QModelIndex& index)
         netAccess->setExternalsEnabled( false );
         externalElements->hide();
 
-        Imap::Mailbox::Model *model = dynamic_cast<Imap::Mailbox::Model*>(const_cast<QAbstractItemModel*>(message.model()));
-        Imap::Mailbox::TreeItemMessage *messagePtr = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(static_cast<Imap::Mailbox::TreeItem*>(message.internalPointer()));
-        Q_ASSERT(model);
-        Q_ASSERT(messagePtr);
-        netAccess->setModelMessage(model, messagePtr);
+        netAccess->setModelMessage(message);
 
         viewer = factory->create(rootPartIndex);
         viewer->setParent( this );

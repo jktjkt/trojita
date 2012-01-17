@@ -37,7 +37,6 @@ public:
     PartWidgetFactory( Imap::Network::MsgPartNetAccessManager* _manager, QObject* _wheelEventFilter );
     QWidget* create(const QModelIndex &partIndex);
     QWidget* create(const QModelIndex &partIndex, int recursionDepth);
-    Imap::Mailbox::Model* model() const;
 private:
     Imap::Network::MsgPartNetAccessManager* manager;
     QObject* wheelEventFilter;

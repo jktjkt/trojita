@@ -34,14 +34,12 @@ namespace Imap {
 namespace Network {
 
 MsgPartNetAccessManager::MsgPartNetAccessManager(QObject* parent):
-    QNetworkAccessManager(parent), model(0), message(0), _externalsEnabled(false)
+    QNetworkAccessManager(parent), _externalsEnabled(false)
 {
 }
 
-void MsgPartNetAccessManager::setModelMessage(Imap::Mailbox::Model* _model, Imap::Mailbox::TreeItemMessage* _message)
+void MsgPartNetAccessManager::setModelMessage(const QModelIndex &_message)
 {
-    // FIXME: use QPersistentModelIndex, redmine #6
-    model = _model;
     message = _message;
 }
 
@@ -55,10 +53,21 @@ QNetworkReply* MsgPartNetAccessManager::createRequest(Operation op, const QNetwo
 {
     Q_UNUSED(op);
     Q_UNUSED(outgoingData);
+
+    if (!message.isValid()) {
+        // Our message got removed in the meanwhile
+        // FIXME: add a better class here
+        return new Imap::Network::ForbiddenReply(this);
+    }
+
+    Q_ASSERT(message.isValid());
+    const Mailbox::Model *constModel = 0;
+    Mailbox::Model::realTreeItem(message, &constModel);
+    Q_ASSERT(constModel);
+    Mailbox::Model *model = const_cast<Mailbox::Model*>(constModel);
     Q_ASSERT(model);
-    Q_ASSERT(message);
     Imap::Mailbox::TreeItemPart* part = pathToPart(req.url().path());
-    QModelIndex partIndex = part->toIndex(model);
+    QModelIndex partIndex = part ? part->toIndex(model) : QModelIndex();
 
     if (req.url().scheme() == QLatin1String( "trojita-imap" ) && req.url().host() == QLatin1String("msg")) {
         // Internal Trojita reference
@@ -75,7 +84,7 @@ QNetworkReply* MsgPartNetAccessManager::createRequest(Operation op, const QNetwo
             cid = QByteArray("<") + cid;
         if (!cid.endsWith(">"))
             cid += ">";
-        Imap::Mailbox::TreeItemPart* target = cidToPart(cid, message);
+        Imap::Mailbox::TreeItemPart* target = cidToPart(cid, model, model->realTreeItem(message));
         if (target) {
             return new Imap::Network::MsgPartNetworkReply(this, target->toIndex(model));
         } else {
@@ -103,7 +112,10 @@ Imap::Mailbox::TreeItemPart* MsgPartNetAccessManager::pathToPart(const QString& 
 {
     Imap::Mailbox::TreeItemPart* part = 0;
     QStringList items = path.split('/', QString::SkipEmptyParts);
-    Imap::Mailbox::TreeItem* target = message;
+    const Mailbox::Model *model = 0;
+    Imap::Mailbox::TreeItem* target = Mailbox::Model::realTreeItem(message, &model);
+    Q_ASSERT(model);
+    Q_ASSERT(target);
     bool ok = ! items.isEmpty(); // if it's empty, it's a bogous URL
 
     for(QStringList::const_iterator it = items.begin(); it != items.end(); ++it) {
@@ -118,11 +130,11 @@ Imap::Mailbox::TreeItemPart* MsgPartNetAccessManager::pathToPart(const QString& 
                 target = target->specialColumnPtr(0, Imap::Mailbox::TreeItem::OFFSET_MIME);
             break;
         }
-        if (offset >= target->childrenCount(model)) {
+        if (offset >= target->childrenCount(const_cast<Mailbox::Model*>(model))) {
             ok = false;
             break;
         }
-        target = target->child(offset, model);
+        target = target->child(offset, const_cast<Mailbox::Model*>(model));
     }
     part = dynamic_cast<Imap::Mailbox::TreeItemPart*>(target);
     if (ok)
@@ -135,7 +147,7 @@ Imap::Mailbox::TreeItemPart* MsgPartNetAccessManager::pathToPart(const QString& 
 The MIME messages contain a scheme which can be used to provide a reference from one message part to another using the content id
 headers.  This function walks the MIME tree and tries to find a MIME part whose ID matches the requested item.
 */
-Imap::Mailbox::TreeItemPart* MsgPartNetAccessManager::cidToPart(const QByteArray& cid, Imap::Mailbox::TreeItem* root)
+Imap::Mailbox::TreeItemPart* MsgPartNetAccessManager::cidToPart(const QByteArray& cid, Mailbox::Model *model, Mailbox::TreeItem *root)
 {
     // A DFS search through the MIME parts tree of the current message which tries to check for a matching body part
     for (uint i = 0; i < root->childrenCount(model); ++i) {
@@ -143,7 +155,7 @@ Imap::Mailbox::TreeItemPart* MsgPartNetAccessManager::cidToPart(const QByteArray
         Q_ASSERT(part);
         if (part->bodyFldId() == cid)
             return part;
-        part = cidToPart(cid, part);
+        part = cidToPart(cid, model, part);
         if (part)
             return part;
     }

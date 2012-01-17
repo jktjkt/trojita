@@ -22,6 +22,7 @@
 #define MSGPARTNETACCESSMANAGER_H
 
 #include <QNetworkAccessManager>
+#include <QPersistentModelIndex>
 
 class QUrl;
 
@@ -46,9 +47,9 @@ class MsgPartNetAccessManager : public QNetworkAccessManager
     Q_OBJECT
 public:
     MsgPartNetAccessManager(QObject* parent=0 );
-    void setModelMessage(Imap::Mailbox::Model* _model, Imap::Mailbox::TreeItemMessage* _message);
+    void setModelMessage(const QModelIndex &_message);
     Imap::Mailbox::TreeItemPart* pathToPart(const QString& path);
-    Imap::Mailbox::TreeItemPart* cidToPart(const QByteArray& cid, Imap::Mailbox::TreeItem* root);
+    Imap::Mailbox::TreeItemPart* cidToPart(const QByteArray& cid, Mailbox::Model *model, Mailbox::TreeItem* root);
 protected:
     virtual QNetworkReply* createRequest(Operation op, const QNetworkRequest& req, QIODevice* outgoingData=0);
 signals:
@@ -57,8 +58,7 @@ public slots:
     void setExternalsEnabled(bool enabled);
 private:
     friend class Gui::PartWidgetFactory;
-    Imap::Mailbox::Model* model;
-    Imap::Mailbox::TreeItemMessage* message;
+    QPersistentModelIndex message;
 
     bool _externalsEnabled;
 

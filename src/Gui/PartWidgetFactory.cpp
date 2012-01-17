@@ -80,17 +80,20 @@ QWidget* PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
                           allowedMimeTypes.contains(mimeType);
 
         if ( showInline ) {
-            Imap::Mailbox::TreeItemPart *part = dynamic_cast<Imap::Mailbox::TreeItemPart*>(Imap::Mailbox::Model::realTreeItem(partIndex));
+            const Imap::Mailbox::Model *constModel = 0;
+            Imap::Mailbox::TreeItemPart *part = dynamic_cast<Imap::Mailbox::TreeItemPart*>(Imap::Mailbox::Model::realTreeItem(partIndex, &constModel));
+            Imap::Mailbox::Model *model = const_cast<Imap::Mailbox::Model*>(constModel);
+            Q_ASSERT(model);
             Q_ASSERT(part);
-            part->fetchFromCache(manager->model);
+            part->fetchFromCache(model);
             bool showDirectly = true;
             if (!part->fetched())
-                showDirectly = manager->model->isNetworkOnline() || part->octets() <= ExpensiveFetchThreshold;
+                showDirectly = model->isNetworkOnline() || part->octets() <= ExpensiveFetchThreshold;
 
             QWidget* widget = 0;
             if ( showDirectly ) {
                 widget = new SimplePartWidget(0, manager, partIndex);
-            } else if ( manager->model->isNetworkAvailable() ) {
+            } else if ( model->isNetworkAvailable() ) {
                 widget = new LoadablePartWidget(0, manager, partIndex, wheelEventFilter);
             } else {
                 widget = new QLabel(tr("Offline"), 0);
@@ -103,12 +106,6 @@ QWidget* PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
     }
     QLabel* lbl = new QLabel(mimeType, 0);
     return lbl;
-}
-
-Imap::Mailbox::Model* PartWidgetFactory::model() const
-// FIXME: remove this function
-{
-    return manager->model;
 }
 
 }
