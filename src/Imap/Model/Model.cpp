@@ -325,7 +325,7 @@ void Model::_finalizeIncrementalList( Parser* parser, const QString& parentMailb
     ++it;
     while ( it != parentMbox->_children.end() && MailboxNameComparator( *it, mailboxes[0] ) )
         ++it;
-    QModelIndex parentIdx = parentMbox == _mailboxes ? QModelIndex() : QAbstractItemModel::createIndex( parentMbox->row(), 0, parentMbox );
+    QModelIndex parentIdx = parentMbox == _mailboxes ? QModelIndex() : parentMbox->toIndex(this);
     if ( it == parentMbox->_children.end() )
         beginInsertRows( parentIdx, parentMbox->_children.size(), parentMbox->_children.size() );
     else
@@ -370,7 +370,7 @@ void Model::replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<Tree
        that the code should *not* use tham after that point. That's just weird.
     */
 
-    QModelIndex parent = mailboxPtr == _mailboxes ? QModelIndex() : QAbstractItemModel::createIndex( mailboxPtr->row(), 0, mailboxPtr );
+    QModelIndex parent = mailboxPtr == _mailboxes ? QModelIndex() : mailboxPtr->toIndex(this);
 
     if ( mailboxPtr->_children.size() != 1 ) {
         // There's something besides the TreeItemMsgList and we're going to
@@ -398,9 +398,9 @@ void Model::replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<Tree
 void Model::emitMessageCountChanged( TreeItemMailbox* const mailbox )
 {
     TreeItemMsgList* list = static_cast<TreeItemMsgList*>(mailbox->_children[0]);
-    QModelIndex msgListIndex = createIndex(list->row(), 0, list);
+    QModelIndex msgListIndex = list->toIndex(this);
     emit dataChanged(msgListIndex, msgListIndex);
-    emit messageCountPossiblyChanged(createIndex(mailbox->row(), 0, mailbox));
+    emit messageCountPossiblyChanged(mailbox->toIndex(this));
 }
 
 /** @short Retrieval of a message part has completed */
@@ -608,9 +608,9 @@ void Model::_askForChildrenOfMailbox( TreeItemMailbox* item )
         item->_fetchStatus = TreeItem::UNAVAILABLE;
     } else {
         // We have to go to the network
-        _taskFactory->createListChildMailboxesTask( this, createIndex( item->row(), 0, item) );
+        _taskFactory->createListChildMailboxesTask(this, item->toIndex(this));
     }
-    QModelIndex idx = createIndex( item->row(), 0, item );
+    QModelIndex idx = item->toIndex(this);
     emit dataChanged( idx, idx );
 }
 
@@ -636,7 +636,7 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
                 item->_totalMessageCount << "as totalMessageCount)";
         item->_fetchStatus = TreeItem::UNAVAILABLE;
     } else if ( uidMapping.size() ) {
-        QModelIndex listIndex = createIndex( item->row(), 0, item );
+        QModelIndex listIndex = item->toIndex(this);
         beginInsertRows( listIndex, 0, uidMapping.size() - 1 );
         for ( uint seq = 0; seq < static_cast<uint>( uidMapping.size() ); ++seq ) {
             TreeItemMessage* message = new TreeItemMessage( item );
@@ -672,7 +672,7 @@ void Model::_askForNumberOfMessages( TreeItemMsgList* item )
             item->_numberFetchingStatus = TreeItem::UNAVAILABLE;
         }
     } else {
-        _taskFactory->createNumberOfMessagesTask( this, createIndex( mailboxPtr->row(), 0, mailboxPtr ) );
+        _taskFactory->createNumberOfMessagesTask(this, mailboxPtr->toIndex(this));
     }
 }
 
@@ -709,7 +709,7 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
                     QList<TreeItem*> oldChildren = item->setChildren( newChildren );
                     Q_ASSERT( oldChildren.size() == 0 );
                 } else {
-                    QModelIndex messageIdx = createIndex( item->row(), 0, item );
+                    QModelIndex messageIdx = item->toIndex(this);
                     // The following assert guards against that crazy signal emitting we had when various _askFor*()
                     // functions were not delayed. If it gets hit, it means that someone tried to call this function
                     // on an item which was already loaded.
@@ -916,7 +916,7 @@ void Model::copyMoveMessages( TreeItemMailbox* sourceMbox, const QString& destMa
     QModelIndexList messages;
     Sequence seq;
     Q_FOREACH( TreeItemMessage* m, findMessagesByUids( sourceMbox, uids ) ) {
-        messages << createIndex( m->row(), 0, m );
+        messages << m->toIndex(this);
         seq.add( m->uid() );
     }
     _taskFactory->createCopyMoveMessagesTask( this, messages, destMailboxName, op );
@@ -1006,7 +1006,7 @@ void Model::expungeMailbox(TreeItemMailbox* mbox)
         return;
     }
 
-    _taskFactory->createExpungeMailboxTask(this, createIndex(mbox->row(), 0, mbox));
+    _taskFactory->createExpungeMailboxTask(this, mbox->toIndex(this));
 }
 
 void Model::createMailbox(const QString& name)
@@ -1210,22 +1210,22 @@ KeepMailboxOpenTask* Model::findTaskResponsibleFor( const QModelIndex& mailbox )
     return findTaskResponsibleFor( mailboxPtr );
 }
 
-KeepMailboxOpenTask* Model::findTaskResponsibleFor( TreeItemMailbox *mailboxPtr )
+KeepMailboxOpenTask* Model::findTaskResponsibleFor(TreeItemMailbox *mailboxPtr)
 {
     Q_ASSERT( mailboxPtr );
     bool canCreateConn = _parsers.isEmpty(); // FIXME: multiple connections
 
-    if ( mailboxPtr->maintainingTask ) {
+    if (mailboxPtr->maintainingTask) {
         // The requested mailbox already has the maintaining task associated
         return mailboxPtr->maintainingTask;
-    } else if ( canCreateConn ) {
+    } else if (canCreateConn) {
         // The mailbox is not being maintained, but we can create a new connection
-        return _taskFactory->createKeepMailboxOpenTask( this, createIndex( mailboxPtr->row(), 0, mailboxPtr ), 0 );
+        return _taskFactory->createKeepMailboxOpenTask(this, mailboxPtr->toIndex(this), 0);
     } else {
         // Too bad, we have to re-use an existing parser. That will probably lead to
         // stealing it from some mailbox, but there's no other way.
-        Q_ASSERT( ! _parsers.isEmpty() );
-        return _taskFactory->createKeepMailboxOpenTask( this, createIndex( mailboxPtr->row(), 0, mailboxPtr ), _parsers.begin().key() );
+        Q_ASSERT(!_parsers.isEmpty());
+        return _taskFactory->createKeepMailboxOpenTask(this, mailboxPtr->toIndex(this), _parsers.begin().key());
     }
 }
 void Model::_genericHandleFetch( TreeItemMailbox* mailbox, const Imap::Responses::Fetch* const resp )
@@ -1241,7 +1241,7 @@ void Model::_genericHandleFetch( TreeItemMailbox* mailbox, const Imap::Responses
         }
     }
     if (changedMessage) {
-        QModelIndex index = createIndex(changedMessage->row(), 0, changedMessage);
+        QModelIndex index = changedMessage->toIndex(this);
         emit dataChanged(index, index);
         emitMessageCountChanged(mailbox);
     }
@@ -1276,7 +1276,7 @@ QModelIndex Model::findMailboxForItems( const QModelIndexList& items )
             throw CantHappen( "Messages from several mailboxes");
         }
     }
-    return createIndex( mailbox->row(), 0, mailbox );
+    return mailbox->toIndex(this);
 }
 
 void Model::slotTasksChanged()
