@@ -115,6 +115,13 @@ TreeItem* TreeItem::specialColumnPtr( int row, int column ) const
     return 0;
 }
 
+QModelIndex TreeItem::toIndex(Model *const model) const
+{
+    Q_ASSERT(model);
+    // void* != const void*, but I believe that it's safe in this context
+    return model->createIndex(row(), 0, const_cast<TreeItem*>(this));
+}
+
 
 TreeItemMailbox::TreeItemMailbox( TreeItem* parent ): TreeItem(parent), maintainingTask(0)
 {
@@ -1198,6 +1205,13 @@ QString TreeItemModifiedPart::pathToPart() const
         Q_ASSERT( parentMessage );
         return QString::fromAscii( "/%1" ).arg( modifierToString() );
     }
+}
+
+QModelIndex TreeItemModifiedPart::toIndex(Model *const model) const
+{
+    Q_ASSERT(model);
+    // see TreeItem::toIndex() for the const_cast explanation
+    return model->createIndex(row(), static_cast<int>(kind()), const_cast<TreeItemModifiedPart*>(this));
 }
 
 }

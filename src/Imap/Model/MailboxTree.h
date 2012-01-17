@@ -23,6 +23,7 @@
 #define IMAP_MAILBOXTREE_H
 
 #include <QList>
+#include <QModelIndex>
 #include <QPointer>
 #include <QString>
 #include "../Parser/Response.h"
@@ -96,6 +97,7 @@ public:
     virtual bool loading() const { return _fetchStatus == LOADING; }
     virtual bool isUnavailable( Model* const model ) const;
     virtual TreeItem* specialColumnPtr( int row, int column ) const;
+    virtual QModelIndex toIndex(Model *const model) const;
 };
 
 class TreeItemPart;
@@ -303,6 +305,7 @@ public:
     virtual QString pathToPart() const;
     virtual TreeItem* specialColumnPtr( int row, int column ) const;
     PartModifier kind() const;
+    virtual QModelIndex toIndex(Model *const model) const;
 protected:
     virtual bool isTopLevelMultiPart() const;
 private:

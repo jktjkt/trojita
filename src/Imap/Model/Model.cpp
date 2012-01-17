@@ -1236,14 +1236,7 @@ void Model::_genericHandleFetch( TreeItemMailbox* mailbox, const Imap::Responses
     mailbox->handleFetchResponse( this, *resp, changedParts, changedMessage );
     if ( ! changedParts.isEmpty() ) {
         Q_FOREACH( TreeItemPart* part, changedParts ) {
-            QModelIndex index;
-            if ( TreeItemModifiedPart* modifiedPart = dynamic_cast<TreeItemModifiedPart*>( part ) ) {
-                // A special case, we're dealing with irregular layout
-                index = createIndex( part->row(), static_cast<int>( modifiedPart->kind() ), part );
-            } else {
-                // Normal parts without fancy modifiers
-                index = createIndex( part->row(), 0, part );
-            }
+            QModelIndex index = part->toIndex(this);
             emit dataChanged( index, index );
         }
     }

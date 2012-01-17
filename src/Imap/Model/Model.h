@@ -347,6 +347,7 @@ private:
     friend class TreeItemMsgList;
     friend class TreeItemMessage;
     friend class TreeItemPart;
+    friend class TreeItemModifiedPart; // needs access to createIndex()
     friend class MsgListModel; // needs access to createIndex()
     friend class MailboxModel; // needs access to createIndex()
     friend class ThreadingMsgListModel; // needs access to _taskFactory
