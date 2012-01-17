@@ -26,12 +26,6 @@
 #include <QNetworkReply>
 
 namespace Imap {
-namespace Mailbox {
-class Model;
-class TreeItemMessage;
-class TreeItemPart;
-}
-
 namespace Network {
 
 /** @short Qt-like access to one MIME message part */
