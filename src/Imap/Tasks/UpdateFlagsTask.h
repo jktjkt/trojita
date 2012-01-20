@@ -43,7 +43,8 @@ should be FLAGS, +FLAGS or -FLAGS (all of them optionally with the ".silent" mod
 and the desired change (actual flags) is passed in the @arg _flags argument.
 */
     UpdateFlagsTask(Model* _model, const QModelIndexList& _messages, const QString& _flagOperation, const QString& _flags);
-    UpdateFlagsTask(Model* _model, CopyMoveMessagesTask* copyTask, const QList<QPersistentModelIndex>& _messages, const QString& _flagOperation, const QString& _flags);
+    UpdateFlagsTask(Model* _model, CopyMoveMessagesTask* copyTask, const QList<QPersistentModelIndex>& _messages,
+                    const QString& _flagOperation, const QString& _flags);
     virtual void perform();
 
     virtual bool handleStateHelper(const Imap::Responses::State* const resp);

@@ -26,76 +26,77 @@
 namespace Imap {
 namespace Mailbox {
 
-UpdateFlagsTask::UpdateFlagsTask( Model* _model, const QModelIndexList& _messages, const QString& _flagOperation, const QString& _flags ):
-    ImapTask( _model ), copyMove(0), flagOperation(_flagOperation), flags(_flags)
+UpdateFlagsTask::UpdateFlagsTask(Model* _model, const QModelIndexList& _messages, const QString& _flagOperation, const QString& _flags):
+    ImapTask(_model), copyMove(0), flagOperation(_flagOperation), flags(_flags)
 {
-    if ( _messages.isEmpty() ) {
+    if (_messages.isEmpty()) {
         throw CantHappen( "UpdateFlagsTask called with empty message set");
     }
-    Q_FOREACH( const QModelIndex& index, _messages ) {
+    Q_FOREACH(const QModelIndex& index, _messages) {
         messages << index;
     }
-    QModelIndex mailboxIndex = model->findMailboxForItems( _messages );
-    conn = model->findTaskResponsibleFor( mailboxIndex );
-    conn->addDependentTask( this );
+    QModelIndex mailboxIndex = model->findMailboxForItems(_messages);
+    conn = model->findTaskResponsibleFor(mailboxIndex);
+    conn->addDependentTask(this);
 }
 
-UpdateFlagsTask::UpdateFlagsTask( Model* _model, CopyMoveMessagesTask* copyTask, const QList<QPersistentModelIndex>& _messages, const QString& _flagOperation, const QString& _flags ):
-    ImapTask( _model ), conn(0), copyMove(copyTask), messages(_messages), flagOperation(_flagOperation), flags(_flags)
+UpdateFlagsTask::UpdateFlagsTask(Model* _model, CopyMoveMessagesTask* copyTask, const QList<QPersistentModelIndex>& _messages,
+                                 const QString& _flagOperation, const QString& _flags):
+    ImapTask(_model), conn(0), copyMove(copyTask), messages(_messages), flagOperation(_flagOperation), flags(_flags)
 {
-    copyTask->addDependentTask( this );
+    copyTask->addDependentTask(this);
 }
 
 void UpdateFlagsTask::perform()
 {
-    Q_ASSERT( conn || copyMove );
-    if ( conn )
+    Q_ASSERT(conn || copyMove);
+    if (conn)
         parser = conn->parser;
-    else if ( copyMove )
+    else if (copyMove)
         parser = copyMove->parser;
-    Q_ASSERT( parser );
-    model->accessParser( parser ).activeTasks.append( this );
+    Q_ASSERT(parser);
+    model->accessParser(parser).activeTasks.append(this);
 
     Sequence seq;
     bool first = true;
 
-    Q_FOREACH( const QPersistentModelIndex& index, messages ) {
-        if ( ! index.isValid() ) {
+    Q_FOREACH(const QPersistentModelIndex& index, messages) {
+        if (!index.isValid()) {
             // FIXME: add proper fix
             log("Some message got removed before we could update its flags", LOG_MESSAGES);
         } else {
-            TreeItem* item = static_cast<TreeItem*>( index.internalPointer() );
+            TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
             Q_ASSERT(item);
-            TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( item );
+            TreeItemMessage* message = dynamic_cast<TreeItemMessage*>(item);
             Q_ASSERT(message);
-            if ( first ) {
-                seq = Sequence( message->uid() );
+            if (first) {
+                seq = Sequence(message->uid());
                 first = false;
             } else {
-                seq.add( message->uid() );
+                seq.add(message->uid());
             }
         }
     }
 
-    if ( first ) {
+    if (first) {
         // No valid messages
         log("All messages got removed before we could've updated their flags", LOG_MESSAGES);
         _completed();
         return;
     }
 
-    tag = parser->uidStore( seq, flagOperation, flags );
-    emit model->activityHappening( true );
+    tag = parser->uidStore(seq, flagOperation, flags);
+    emit model->activityHappening(true);
 }
 
-bool UpdateFlagsTask::handleStateHelper( const Imap::Responses::State* const resp )
+bool UpdateFlagsTask::handleStateHelper(const Imap::Responses::State* const resp)
 {
-    if ( resp->tag.isEmpty() )
+    if (resp->tag.isEmpty())
         return false;
 
-    if ( resp->tag == tag ) {
+    if (resp->tag == tag) {
 
-        if ( resp->kind == Responses::OK ) {
+        if (resp->kind == Responses::OK) {
             // nothing should be needed here
         } else {
             log("Failed to update FLAGS", LOG_MESSAGES);
