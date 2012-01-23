@@ -217,7 +217,7 @@ void Model::handleState(Imap::Parser *ptr, const Imap::Responses::State *const r
             parsersMightBeIdling();
             break;
         case OK:
-            if ( resp->respCode == NONE ) {
+            if (resp->respCode == NONE) {
                 break;
             } else {
                 qDebug() << "Warning: unhandled untagged OK with a response code";
@@ -229,7 +229,7 @@ void Model::handleState(Imap::Parser *ptr, const Imap::Responses::State *const r
             qDebug() << "Warning: unhandled untagged NO...";
             break;
         default:
-            throw UnexpectedResponseReceived( "[Port-in-progress] Unhandled untagged response, sorry", *resp );
+            throw UnexpectedResponseReceived( "Unhandled untagged response, sorry", *resp );
         }
     }
 }
@@ -823,11 +823,11 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
         reloadMailboxList();
 }
 
-void Model::slotParserDisconnected( Imap::Parser *parser, const QString msg )
+void Model::slotParserDisconnected(Imap::Parser *parser, const QString msg)
 {
-    emit connectionError( msg );
+    emit connectionError(msg);
 
-    if ( ! parser )
+    if (!parser)
         return;
 
     // This function is *not* called from inside the responseReceived(), so we have to remove the parser from the list, too
@@ -849,11 +849,11 @@ void Model::broadcastParseError( const uint parser, const QString& exceptionClas
                                   ).arg( exceptionClass, errorMessage, line, details ) );
 }
 
-void Model::slotParseError( Parser *parser, const QString& exceptionClass, const QString& errorMessage, const QByteArray& line, int position )
+void Model::slotParseError(Parser *parser, const QString &exceptionClass, const QString &errorMessage, const QByteArray &line, int position)
 {
-    Q_ASSERT( parser );
+    Q_ASSERT(parser);
 
-    broadcastParseError( parser->parserId(), exceptionClass, errorMessage, line, position );
+    broadcastParseError(parser->parserId(), exceptionClass, errorMessage, line, position);
 
     // This function is *not* called from inside the responseReceived(), so we have to remove the parser from the list, too
     killParser(parser, PARSER_KILL_HARD);
@@ -1135,7 +1135,7 @@ void Model::parsersMightBeIdling()
 
 void Model::killParser(Parser *parser, ParserKillingMethod method)
 {
-    Q_FOREACH( ImapTask* task, accessParser( parser ).activeTasks ) {
+    Q_FOREACH(ImapTask *task, accessParser(parser).activeTasks) {
         task->die();
         task->deleteLater();
     }
