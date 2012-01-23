@@ -306,15 +306,18 @@ void LibMailboxSync::helperSyncAWithMessagesNoArrivals()
 void LibMailboxSync::helperSyncFlags()
 {
     QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), t.mk("FETCH 1:") + QString::number(existsA).toAscii() + QByteArray(" (FLAGS)\r\n") );
+    QByteArray expectedFetch = t.mk("FETCH ") +
+            (existsA == 1 ? QByteArray("1") : QByteArray("1:") + QString::number(existsA).toAscii()) +
+            QByteArray(" (FLAGS)\r\n");
+    QCOMPARE(SOCK->writtenStuff(), expectedFetch);
     QByteArray buf;
-    for ( uint i = 1; i <= existsA; ++i ) {
+    for (uint i = 1; i <= existsA; ++i) {
         if ( i % 2 )
             buf += QString::fromAscii("* %1 FETCH (FLAGS (\\Seen))\r\n").arg(i).toAscii();
         else
             buf += QString::fromAscii("* %1 FETCH (FLAGS ())\r\n").arg(i).toAscii();
     }
-    SOCK->fakeReading( buf + t.last("OK yay\r\n") );
+    SOCK->fakeReading(buf + t.last("OK yay\r\n"));
     QCoreApplication::processEvents();
 }
 
