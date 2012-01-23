@@ -85,6 +85,9 @@ namespace Imap {
 
         /** @short Converts sequence to string suitable for sending over the wire */
         QString toString() const;
+
+        /** @short Create a sequence from a list of numbers */
+        static Sequence fromList(QList<uint> numbers);
     };
 
     /** @short A handle identifying a command sent to the server */

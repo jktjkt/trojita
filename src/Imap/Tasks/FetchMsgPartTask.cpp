@@ -39,13 +39,7 @@ void FetchMsgPartTask::perform()
     Q_ASSERT( parser );
     model->accessParser( parser ).activeTasks.append( this );
 
-    Q_ASSERT( ! uids.isEmpty() );
-    qSort( uids );
-    Sequence seq( uids.first() );
-    for ( int i = 1; i < uids.size(); ++i ) {
-        seq.add( uids[i] );
-    }
-
+    Sequence seq = Sequence::fromList(uids);
     tag = parser->uidFetch( seq, parts );
     emit model->activityHappening( true );
 }

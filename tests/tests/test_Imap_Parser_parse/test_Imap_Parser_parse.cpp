@@ -734,6 +734,10 @@ void ImapParserParseTest::testSequences_data()
             Imap::Sequence( 2 ).add( 3 ).add( 4 ).add( 6 ).add( 7 ).add( 1 )
             .add( 100 ).add( 101 ).add( 102 ).add( 99 ).add( 666 ).add( 333 ).add( 666 ) <<
             "1:4,6:7,99:102,333,666";
+
+    QTest::newRow("sequence-from-list-1") <<
+            Imap::Sequence::fromList( QList<uint>() << 2 << 3 << 4 << 6 << 7 << 1 << 100 << 101 << 102 << 99 << 666 << 333 << 666) <<
+            "1:4,6:7,99:102,333,666";
 }
 
 /** @short Test responses which fail to parse */

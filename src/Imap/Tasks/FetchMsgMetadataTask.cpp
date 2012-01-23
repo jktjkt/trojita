@@ -39,12 +39,7 @@ void FetchMsgMetadataTask::perform()
     Q_ASSERT( parser );
     model->accessParser( parser ).activeTasks.append( this );
 
-    Q_ASSERT( ! uids.isEmpty() );
-    qSort( uids );
-    Sequence seq( uids.first() );
-    for ( int i = 1; i < uids.size(); ++i ) {
-        seq.add( uids[i] );
-    }
+    Sequence seq = Sequence::fromList(uids);
 
     // we do not want to use _onlineMessageFetch because it contains UID and FLAGS
     tag = parser->uidFetch( seq, QStringList() << QLatin1String("ENVELOPE") << QLatin1String("BODYSTRUCTURE") << QLatin1String("RFC822.SIZE") );

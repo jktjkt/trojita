@@ -889,6 +889,17 @@ Sequence& Sequence::add( uint num )
     return *this;
 }
 
+Sequence Sequence::fromList(QList<uint> numbers)
+{
+    Q_ASSERT(!numbers.isEmpty());
+    qSort(numbers);
+    Sequence seq(numbers.first());
+    for (int i = 1; i < numbers.size(); ++i) {
+        seq.add(numbers[i]);
+    }
+    return seq;
+}
+
 QTextStream& operator<<( QTextStream& stream, const Sequence& s )
 {
     return stream << s.toString();
