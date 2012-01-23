@@ -433,8 +433,14 @@ private:
     /** @short Check if all the parsers are indeed idling, and update the GUI if so */
     void parsersMightBeIdling();
 
+    /** @short Is the reason for killing the parser an expected one? */
+    typedef enum {
+        PARSER_KILL_EXPECTED, /**< @short Normal operation */
+        PARSER_KILL_HARD /**< @short Sudden, unexpected death */
+    } ParserKillingMethod;
+
     /** @short Dispose of the parser in a C++-safe way */
-    void killParser( Parser* parser, bool nice=false );
+    void killParser(Parser *parser, ParserKillingMethod method=PARSER_KILL_HARD);
 
     ParserState& accessParser( Parser *parser );
 

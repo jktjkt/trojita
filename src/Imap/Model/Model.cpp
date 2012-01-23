@@ -177,10 +177,10 @@ void Model::responseReceived( Parser *parser )
 #endif
                 resp->plug( it.value().parser, this );
             }
-        } catch ( Imap::ImapException& e ) {
+        } catch (Imap::ImapException &e) {
             uint parserId = it->parser->parserId();
-            killParser( it->parser );
-            _parsers.erase( it );
+            killParser(it->parser, PARSER_KILL_HARD);
+            _parsers.erase(it);
             broadcastParseError( parserId, QString::fromStdString( e.exceptionClass() ), e.what(), e.line(), e.offset() );
             parsersMightBeIdling();
             return;
@@ -193,17 +193,17 @@ void Model::responseReceived( Parser *parser )
     }
 }
 
-void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const resp )
+void Model::handleState(Imap::Parser *ptr, const Imap::Responses::State *const resp)
 {
     // OK/NO/BAD/PREAUTH/BYE
     using namespace Imap::Responses;
 
-    const QString& tag = resp->tag;
+    const QString &tag = resp->tag;
 
-    if ( ! tag.isEmpty() ) {
-        if ( tag == accessParser(ptr).logoutCmd ) {
+    if (!tag.isEmpty()) {
+        if (tag == accessParser(ptr).logoutCmd) {
             // The LOGOUT is special, as it isn't associated with any task
-            killParser( ptr, true );
+            killParser(ptr, PARSER_KILL_EXPECTED);
         } else {
             // Unhandled command -- this is *extremely* weird
             throw CantHappen( "The following command should have been handled elsewhere", *resp );
@@ -211,9 +211,9 @@ void Model::handleState( Imap::Parser* ptr, const Imap::Responses::State* const 
     } else {
         // untagged response
         // FIXME: we should probably just eat them and don't bother, as untagged OK/NO could be rather common...
-        switch ( resp->kind ) {
+        switch (resp->kind) {
         case BYE:
-            killParser( ptr, true );
+            killParser(ptr, PARSER_KILL_EXPECTED);
             parsersMightBeIdling();
             break;
         case OK:
@@ -831,8 +831,8 @@ void Model::slotParserDisconnected( Imap::Parser *parser, const QString msg )
         return;
 
     // This function is *not* called from inside the responseReceived(), so we have to remove the parser from the list, too
-    killParser( parser, true );
-    _parsers.remove( parser );
+    killParser(parser, PARSER_KILL_EXPECTED);
+    _parsers.remove(parser);
     parsersMightBeIdling();
 }
 
@@ -856,8 +856,8 @@ void Model::slotParseError( Parser *parser, const QString& exceptionClass, const
     broadcastParseError( parser->parserId(), exceptionClass, errorMessage, line, position );
 
     // This function is *not* called from inside the responseReceived(), so we have to remove the parser from the list, too
-    killParser( parser );
-    _parsers.remove( parser );
+    killParser(parser, PARSER_KILL_HARD);
+    _parsers.remove(parser);
     parsersMightBeIdling();
 }
 
@@ -1133,7 +1133,7 @@ void Model::parsersMightBeIdling()
     emit activityHappening( someParserBusy );
 }
 
-void Model::killParser(Parser *parser, bool nice)
+void Model::killParser(Parser *parser, ParserKillingMethod method)
 {
     Q_FOREACH( ImapTask* task, accessParser( parser ).activeTasks ) {
         task->die();
@@ -1142,11 +1142,16 @@ void Model::killParser(Parser *parser, bool nice)
 
     parser->disconnect();
     parser->deleteLater();
-    accessParser( parser ).parser = 0;
-    if ( nice )
+    accessParser(parser).parser = 0;
+    switch (method) {
+    case PARSER_KILL_EXPECTED:
         logTrace(parser->parserId(), LOG_IO_WRITTEN, QString(), "*** Connection closed.");
-    else
+        return;
+    case PARSER_KILL_HARD:
         logTrace(parser->parserId(), LOG_IO_WRITTEN, QString(), "*** Connection killed.");
+        return;
+    }
+    Q_ASSERT(false);
 }
 
 void Model::slotParserLineReceived( Parser *parser, const QByteArray& line )
