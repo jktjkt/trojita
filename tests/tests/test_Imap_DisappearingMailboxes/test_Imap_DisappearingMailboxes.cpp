@@ -192,4 +192,42 @@ void ImapModelDisappearingMailboxTest::testTrafficAfterSyncedMailboxGoesAway()
     QCoreApplication::processEvents();
 }
 
+/** @short Connection going offline shall not be reused for further requests for message structure
+
+The code in the Imap::Mailbox::Model already checks for connection status before asking for message structure.
+*/
+void ImapModelDisappearingMailboxTest::testSlowOfflineMsgStructure()
+{
+    // Initialize the environment
+    existsA = 1;
+    uidValidityA = 1;
+    uidMapA << 1;
+    uidNextA = 2;
+    helperSyncAWithMessagesEmptyState();
+    idxA = model->index(1, 0, QModelIndex());
+    QVERIFY(idxA.isValid());
+    QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QString::fromAscii("a")));
+    msgListA = idxA.child(0, 0);
+    QVERIFY(msgListA.isValid());
+    QModelIndex msg = msgListA.child(0, 0);
+    QVERIFY(msg.isValid());
+    Imap::FakeSocket *origSocket = SOCK;
+
+    // Switch the connection to an offline mode, but postpone the BYE response
+    model->setNetworkOffline();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE(SOCK->writtenStuff(), t.mk("LOGOUT\r\n"));
+
+    // Ask for the bodystructure of this message
+    QCOMPARE(model->rowCount(msg), 0);
+
+    // Make sure that nothing else happens
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+    QVERIFY(SOCK == origSocket);
+}
+
 TROJITA_HEADLESS_TEST( ImapModelDisappearingMailboxTest )
