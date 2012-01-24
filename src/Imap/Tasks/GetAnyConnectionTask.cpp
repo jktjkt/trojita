@@ -36,18 +36,18 @@ GetAnyConnectionTask::GetAnyConnectionTask( Model* _model ) :
         // There's an existing parser, so let's reuse it
         QMap<Parser*,Model::ParserState>::iterator it = model->_parsers.begin();
         parser = it.key();
-        Q_ASSERT( parser );
+        Q_ASSERT(parser);
 
         if ( it->maintainingTask ) {
             // The parser already has some maintaining task associated with it
             // We can't ignore the maintaining task, if only because of the IDLE
             newConn = it->maintainingTask;
-            newConn->addDependentTask( this );
+            newConn->addDependentTask(this);
         } else {
             // The parser doesn't have anything associated with it, so we can go ahead and
             // register ourselves
-            it->activeTasks.append( this );
-            QTimer::singleShot( 0, model, SLOT(runReadyTasks()) );
+            it->activeTasks.append(this);
+            QTimer::singleShot(0, model, SLOT(runReadyTasks()));
         }
     }
 }
