@@ -34,6 +34,7 @@ void ImapModelDisappearingMailboxTest::testGoingOfflineOnline()
     QCoreApplication::processEvents();
     QCOMPARE(SOCK->writtenStuff(), t.mk("LOGOUT\r\n"));
     model->setNetworkOnline();
+    t.reset();
 
     // We can't call helperSyncBNoMessages() here, it relies on msgListB's validity,
     // but that index is not neccessary valid because of our kludgy fake listing...
