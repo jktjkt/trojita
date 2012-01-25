@@ -231,4 +231,43 @@ void ImapModelDisappearingMailboxTest::testSlowOfflineMsgStructure()
     QVERIFY(SOCK == origSocket);
 }
 
+void ImapModelDisappearingMailboxTest::testSlowOfflineFlags()
+{
+    // Initialize the environment
+    existsA = 1;
+    uidValidityA = 1;
+    uidMapA << 1;
+    uidNextA = 2;
+    helperSyncAWithMessagesEmptyState();
+    idxA = model->index(1, 0, QModelIndex());
+    idxB = model->index(2, 0, QModelIndex());
+    QVERIFY(idxA.isValid());
+    QVERIFY(idxB.isValid());
+    QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QString::fromAscii("a")));
+    QCOMPARE(model->data(idxB, Qt::DisplayRole), QVariant(QString::fromAscii("b")));
+    msgListA = idxA.child(0, 0);
+    QVERIFY(msgListA.isValid());
+    QModelIndex msg = msgListA.child(0, 0);
+    QVERIFY(msg.isValid());
+    Imap::FakeSocket *origSocket = SOCK;
+
+    // Switch the connection to an offline mode, but postpone the BYE response
+    model->setNetworkOffline();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE(SOCK->writtenStuff(), t.mk("LOGOUT\r\n"));
+
+    // Ask for the bodystructure of this message
+    model->markMessagesDeleted(QModelIndexList() << msg, true);
+    // FIXME: make it work, Redmine#257
+    return;
+
+    // Make sure that nothing else happens
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+    QVERIFY(SOCK == origSocket);
+}
+
 TROJITA_HEADLESS_TEST( ImapModelDisappearingMailboxTest )
