@@ -28,13 +28,22 @@ namespace Mailbox {
 GetAnyConnectionTask::GetAnyConnectionTask( Model* _model ) :
     ImapTask( _model ), newConn(0)
 {
-    if ( model->_parsers.isEmpty() ) {
+    QMap<Parser*,Model::ParserState>::iterator it = model->_parsers.begin();
+    while (it != model->_parsers.end()) {
+        if (it->connState == CONN_STATE_LOGOUT) {
+            // We cannot possibly use this connection
+            ++it;
+        } else {
+            // we've found it
+            break;
+        }
+    }
+
+    if (it == model->_parsers.end()) {
         // We're creating a completely new connection
         newConn = model->_taskFactory->createOpenConnectionTask( model );
         newConn->addDependentTask( this );
     } else {
-        // There's an existing parser, so let's reuse it
-        QMap<Parser*,Model::ParserState>::iterator it = model->_parsers.begin();
         parser = it.key();
         Q_ASSERT(parser);
 

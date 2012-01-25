@@ -25,6 +25,7 @@ namespace Mailbox {
 OpenConnectionTask::OpenConnectionTask( Model* _model ) :
     ImapTask( _model ), waitingForGreetings(true), gotPreauth(false)
 {
+    // FIXME: honor the offline policy here
     parser = new Parser( model, model->_socketFactory->create(), ++model->lastParserId );
     Model::ParserState parserState = Model::ParserState( parser );
     connect( parser, SIGNAL(responseReceived(Imap::Parser*)), model, SLOT(responseReceived(Imap::Parser*)) );

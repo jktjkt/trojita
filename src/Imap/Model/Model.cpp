@@ -802,6 +802,7 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
                     it->maintainingTask->stopForLogout();
                 }
                 it->logoutCmd = it->parser->logout();
+                it->connState = CONN_STATE_LOGOUT;
                 emit activityHappening( true );
             }
             emit networkPolicyOffline();
@@ -1216,20 +1217,35 @@ KeepMailboxOpenTask* Model::findTaskResponsibleFor( const QModelIndex& mailbox )
 KeepMailboxOpenTask* Model::findTaskResponsibleFor(TreeItemMailbox *mailboxPtr)
 {
     Q_ASSERT( mailboxPtr );
-    bool canCreateConn = _parsers.isEmpty(); // FIXME: multiple connections
+    bool canCreateParallelConn = _parsers.isEmpty(); // FIXME: multiple connections
 
     if (mailboxPtr->maintainingTask) {
         // The requested mailbox already has the maintaining task associated
-        return mailboxPtr->maintainingTask;
-    } else if (canCreateConn) {
+        if (accessParser(mailboxPtr->maintainingTask->parser).connState == CONN_STATE_LOGOUT) {
+            // The connection is currently getting closed, so we have to create another one
+            return _taskFactory->createKeepMailboxOpenTask(this, mailboxPtr->toIndex(this), 0);
+        } else {
+            // it's usable as-is
+            return mailboxPtr->maintainingTask;
+        }
+    } else if (canCreateParallelConn) {
         // The mailbox is not being maintained, but we can create a new connection
         return _taskFactory->createKeepMailboxOpenTask(this, mailboxPtr->toIndex(this), 0);
     } else {
         // Too bad, we have to re-use an existing parser. That will probably lead to
         // stealing it from some mailbox, but there's no other way.
         Q_ASSERT(!_parsers.isEmpty());
-        return _taskFactory->createKeepMailboxOpenTask(this, mailboxPtr->toIndex(this), _parsers.begin().key());
+
+        if (_parsers.begin()->connState == CONN_STATE_LOGOUT) {
+            // At this point, we have no other choice than create a nwe connection
+            return _taskFactory->createKeepMailboxOpenTask(this, mailboxPtr->toIndex(this), 0);
+        } else {
+            return _taskFactory->createKeepMailboxOpenTask(this, mailboxPtr->toIndex(this), _parsers.begin().key());
+        }
     }
+
+
+
 }
 void Model::_genericHandleFetch( TreeItemMailbox* mailbox, const Imap::Responses::Fetch* const resp )
 {
