@@ -19,15 +19,15 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include "Model.h"
-#include "MailboxTree.h"
-#include "GetAnyConnectionTask.h"
-#include "KeepMailboxOpenTask.h"
 #include <QAbstractProxyModel>
 #include <QAuthenticator>
 #include <QCoreApplication>
 #include <QDebug>
 #include <QtAlgorithms>
+#include "Model.h"
+#include "GetAnyConnectionTask.h"
+#include "KeepMailboxOpenTask.h"
+#include "MailboxTree.h"
 
 //#define DEBUG_PERIODICALLY_DUMP_TASKS
 //#define DEBUG_TASK_ROUTING
