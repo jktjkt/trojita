@@ -128,6 +128,26 @@ int TaskPresentationModel::columnCount(const QModelIndex &parent) const
 
 QVariant TaskPresentationModel::data(const QModelIndex &index, int role) const
 {
+    if (!index.isValid()) {
+        return QVariant();
+    }
+
+    bool isParserState = m_model->_parsers.find(static_cast<Imap::Parser*>(index.internalPointer())) != m_model->_parsers.end();
+
+    switch (role) {
+    case RoleTaskIsParserState:
+        return isParserState;
+    case Qt::DisplayRole:
+        if (isParserState) {
+            Imap::Parser *parser = static_cast<Imap::Parser*>(index.internalPointer());
+            return tr("Parser %1").arg(QString::number(parser->parserId()));
+        } else {
+            ImapTask *task = static_cast<ImapTask*>(index.internalPointer());
+            return task->debugIdentification();
+        }
+    default:
+        return QVariant();
+    }
 }
 
 /** @short Called when a new task is created and registered with the model */
