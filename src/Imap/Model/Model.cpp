@@ -1304,9 +1304,24 @@ QModelIndex Model::findMailboxForItems( const QModelIndexList& items )
     return mailbox->toIndex(this);
 }
 
+namespace {
+void dumpModelContents(QAbstractItemModel *model, QModelIndex index=QModelIndex(), QByteArray offset=QByteArray()) {
+    qDebug() << offset << index.data(Qt::DisplayRole).toString();
+    for (int i=0; i < model->rowCount(index); ++i) {
+        QModelIndex child = model->index(i, 0, index);
+        if (!child.isValid()) {
+            qDebug() << "FAIL: " << index << child << i << model->rowCount(index);
+        }
+        Q_ASSERT(child.isValid());
+        dumpModelContents(model, child, offset+QByteArray(" "));
+    }
+}
+}
+
 void Model::slotTasksChanged()
 {
-    QList<ImapTask*> tasks = findChildren<ImapTask*>();
+    ::dumpModelContents(m_taskModel);
+    /*QList<ImapTask*> tasks = findChildren<ImapTask*>();
     qDebug() << "-------------";
     Q_FOREACH( ParserState parserState, _parsers ) {
         qDebug() << "Parser" << parserState.parser->parserId() << parserState.activeTasks.size() << "active tasks";
@@ -1329,7 +1344,7 @@ void Model::slotTasksChanged()
             break;
         }
     }
-    qDebug() << "-------------";
+    qDebug() << "-------------";*/
 }
 
 void Model::slotTaskDying( QObject *obj )
