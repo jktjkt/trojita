@@ -35,7 +35,7 @@ UnSelectTask::UnSelectTask( Model* _model, ImapTask* parentTask ) :
 
 void UnSelectTask::perform()
 {
-    markAsActiveTask();
+    markAsActiveTask(TASK_PREPEND);
     if (model->accessParser(parser).maintainingTask) {
         model->accessParser(parser).maintainingTask->breakPossibleIdle();
     }

@@ -101,7 +101,12 @@ protected:
     */
     void log(const QString &message, const LogKind kind=LOG_TASKS);
 
-    void markAsActiveTask();
+    /** @short Priority of the task activation that controls where it gets placed in the queue */
+    typedef enum {
+        TASK_APPEND, /**< @short Normal mode -- task goes at the end of the list */
+        TASK_PREPEND /**< @short Special mode -- this task shall have higher priority for all event processing and hence goes to the top */
+    } TaskActivatingPosition;
+    void markAsActiveTask(const TaskActivatingPosition place=TASK_APPEND);
 
 private:
     void handleResponseCode( const Imap::Responses::State* const resp );

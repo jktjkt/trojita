@@ -53,10 +53,17 @@ void ImapTask::updateParentTask(ImapTask *newParent)
 }
 
 /** @short Tells the Model that we're from now on an active task */
-void ImapTask::markAsActiveTask()
+void ImapTask::markAsActiveTask(const TaskActivatingPosition place)
 {
     Q_ASSERT(parser);
-    model->accessParser(parser).activeTasks.append(this);
+    switch(place) {
+    case TASK_APPEND:
+        model->accessParser(parser).activeTasks.append(this);
+        break;
+    case TASK_PREPEND:
+        model->accessParser(parser).activeTasks.prepend(this);
+        break;
+    }
     // As we're an active task, we no longer have a parent task
     parentTask = 0;
 }
