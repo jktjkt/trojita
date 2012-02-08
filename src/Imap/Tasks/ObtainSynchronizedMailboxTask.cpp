@@ -49,8 +49,7 @@ void ObtainSynchronizedMailboxTask::addDependentTask( ImapTask* task )
 void ObtainSynchronizedMailboxTask::perform()
 {
     parser = conn->parser;
-    Q_ASSERT( parser );
-    model->accessParser( parser ).activeTasks.append( this );
+    markAsActiveTask();
 
     log("Synchronizing mailbox", LOG_MAILBOX_SYNC);
 

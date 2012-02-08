@@ -36,8 +36,7 @@ FetchMsgMetadataTask::FetchMsgMetadataTask( Model *_model, const QModelIndex &_m
 void FetchMsgMetadataTask::perform()
 {
     parser = conn->parser;
-    Q_ASSERT( parser );
-    model->accessParser( parser ).activeTasks.append( this );
+    markAsActiveTask();
 
     Sequence seq = Sequence::fromList(uids);
 

@@ -45,8 +45,7 @@ CopyMoveMessagesTask::CopyMoveMessagesTask( Model* _model, const QModelIndexList
 void CopyMoveMessagesTask::perform()
 {
     parser = conn->parser;
-    Q_ASSERT( parser );
-    model->accessParser( parser ).activeTasks.append( this );
+    markAsActiveTask();
 
     Sequence seq;
     bool first = true;

@@ -55,7 +55,7 @@ GetAnyConnectionTask::GetAnyConnectionTask( Model* _model ) :
         } else {
             // The parser doesn't have anything associated with it, so we can go ahead and
             // register ourselves
-            it->activeTasks.append(this);
+            markAsActiveTask();
             QTimer::singleShot(0, model, SLOT(runReadyTasks()));
         }
     }
@@ -68,8 +68,7 @@ void GetAnyConnectionTask::perform()
         // We're "dependent" on some connection, so we should update our parser (even though
         // it could be already set), and also register ourselves with the Model
         parser = newConn->parser;
-        Q_ASSERT( parser );
-        model->accessParser( parser ).activeTasks.append( this );
+        markAsActiveTask();
     }
     // ... we don't really have to do any work here, just declare ourselves completed
     _completed();

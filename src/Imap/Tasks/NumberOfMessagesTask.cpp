@@ -38,8 +38,7 @@ NumberOfMessagesTask::NumberOfMessagesTask( Model* _model, const QModelIndex& ma
 void NumberOfMessagesTask::perform()
 {
     parser = conn->parser;
-    Q_ASSERT( parser );
-    model->accessParser( parser ).activeTasks.append( this );
+    markAsActiveTask();
 
     if ( ! mailboxIndex.isValid() ) {
         // FIXME: add proper fix

@@ -39,8 +39,8 @@ OpenConnectionTask::OpenConnectionTask( Model* _model ) :
         startTlsCmd = parser->startTls();
         emit model->activityHappening( true );
     }
-    parserState.activeTasks.append( this );
     model->_parsers[ parser ] = parserState;
+    markAsActiveTask();
 }
 
 OpenConnectionTask::OpenConnectionTask( Model* _model, void* dummy): ImapTask( _model )

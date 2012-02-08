@@ -36,8 +36,7 @@ FetchMsgPartTask::FetchMsgPartTask( Model *_model, const QModelIndex &mailbox, c
 void FetchMsgPartTask::perform()
 {
     parser = conn->parser;
-    Q_ASSERT( parser );
-    model->accessParser( parser ).activeTasks.append( this );
+    markAsActiveTask();
 
     Sequence seq = Sequence::fromList(uids);
     tag = parser->uidFetch( seq, parts );

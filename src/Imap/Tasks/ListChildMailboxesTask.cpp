@@ -38,8 +38,7 @@ ListChildMailboxesTask::ListChildMailboxesTask( Model* _model, const QModelIndex
 void ListChildMailboxesTask::perform()
 {
     parser = conn->parser;
-    Q_ASSERT( parser );
-    model->accessParser( parser ).activeTasks.append( this );
+    markAsActiveTask();
 
     if ( ! mailboxIndex.isValid() ) {
         // FIXME: add proper fix

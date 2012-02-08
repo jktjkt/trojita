@@ -54,8 +54,7 @@ void UpdateFlagsTask::perform()
         parser = conn->parser;
     else if (copyMove)
         parser = copyMove->parser;
-    Q_ASSERT(parser);
-    model->accessParser(parser).activeTasks.append(this);
+    markAsActiveTask();
 
     Sequence seq;
     bool first = true;

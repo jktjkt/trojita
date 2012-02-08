@@ -36,8 +36,7 @@ ThreadTask::ThreadTask( Model* _model, const QModelIndex& mailbox, const QString
 void ThreadTask::perform()
 {
     parser = conn->parser;
-    Q_ASSERT( parser );
-    model->accessParser( parser ).activeTasks.append( this );
+    markAsActiveTask();
 
     if ( ! mailboxIndex.isValid() ) {
         // FIXME: add proper fix

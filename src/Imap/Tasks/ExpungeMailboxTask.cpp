@@ -36,8 +36,7 @@ ExpungeMailboxTask::ExpungeMailboxTask( Model* _model, const QModelIndex& mailbo
 void ExpungeMailboxTask::perform()
 {
     parser = conn->parser;
-    Q_ASSERT( parser );
-    model->accessParser( parser ).activeTasks.append( this );
+    markAsActiveTask();
 
     if ( ! mailboxIndex.isValid() ) {
         // FIXME: add proper fix

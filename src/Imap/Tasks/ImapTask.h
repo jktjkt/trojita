@@ -101,6 +101,8 @@ protected:
     */
     void log(const QString &message, const LogKind kind=LOG_TASKS);
 
+    void markAsActiveTask();
+
 private:
     void handleResponseCode( const Imap::Responses::State* const resp );
 

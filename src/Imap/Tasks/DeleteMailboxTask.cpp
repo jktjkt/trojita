@@ -36,8 +36,7 @@ DeleteMailboxTask::DeleteMailboxTask( Model* _model, const QString& _mailbox ):
 void DeleteMailboxTask::perform()
 {
     parser = conn->parser;
-    Q_ASSERT( parser );
-    model->accessParser( parser ).activeTasks.append( this );
+    markAsActiveTask();
 
     tag = parser->deleteMailbox( mailbox );
     emit model->activityHappening( true );

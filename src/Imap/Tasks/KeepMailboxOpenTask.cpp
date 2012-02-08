@@ -235,9 +235,7 @@ void KeepMailboxOpenTask::perform()
     Q_ASSERT( synchronizeConn->isFinished() );
     parser = synchronizeConn->parser;
     synchronizeConn = 0; // will get deleted by Model
-    Q_ASSERT( parser );
-
-    model->accessParser( parser ).activeTasks.append( this );
+    markAsActiveTask();
 
     if ( ! waitingTasks.isEmpty() && ! hasPendingInternalActions() ) {
         // We're basically useless, but we have to die reasonably

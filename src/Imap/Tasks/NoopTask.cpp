@@ -35,8 +35,7 @@ NoopTask::NoopTask( Model* _model, ImapTask* parentTask ) :
 void NoopTask::perform()
 {
     parser = conn->parser;
-    Q_ASSERT( parser );
-    model->accessParser( parser ).activeTasks.append( this );
+    markAsActiveTask();
 
     tag = parser->noop();
     emit model->activityHappening( true );
