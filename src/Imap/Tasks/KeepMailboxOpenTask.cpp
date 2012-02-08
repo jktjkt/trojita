@@ -166,6 +166,8 @@ void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
             QTimer::singleShot( 0, this, SLOT(slotActivateTasks()) );
         delayedTasks.append( task );
     }
+
+    task->updateParentTask(this);
 }
 
 void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )

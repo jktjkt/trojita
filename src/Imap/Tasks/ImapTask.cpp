@@ -23,7 +23,7 @@ namespace Imap {
 namespace Mailbox {
 
 ImapTask::ImapTask( Model* _model ) :
-    QObject(_model), parser(0), model(_model), _finished(false)
+    QObject(_model), parser(0), parentTask(0), model(_model), _finished(false)
 {
     connect( this, SIGNAL(destroyed(QObject*)), model, SLOT(slotTaskDying(QObject*)) );
 }
@@ -32,10 +32,24 @@ ImapTask::~ImapTask()
 {
 }
 
-void ImapTask::addDependentTask( ImapTask *task )
+/** @short Schedule another task to get a go when this one completes
+
+This function informs the current task (this) that when it terminates succesfully, the dependant task (@arg task) shall be started.
+Subclasses are free to reimplement this method (@see KeepMailboxOpenTask), but they must not forget to update the parentTask of
+the depending task.
+*/
+void ImapTask::addDependentTask(ImapTask *task)
 {
     Q_ASSERT(task);
-    dependentTasks.append( task );
+    dependentTasks.append(task);
+    task->updateParentTask(this);
+}
+
+/** @short Set this task's parent to the specified value */
+void ImapTask::updateParentTask(ImapTask *newParent)
+{
+    Q_ASSERT(newParent);
+    parentTask = newParent;
 }
 
 bool ImapTask::handleState( const Imap::Responses::State* const resp )

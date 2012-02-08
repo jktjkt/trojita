@@ -62,6 +62,7 @@ public:
     virtual void die();
 
     virtual void addDependentTask( ImapTask* task );
+    void updateParentTask(ImapTask *newParent);
 
     bool handleState( const Imap::Responses::State* const resp );
     virtual bool handleStateHelper( const Imap::Responses::State* const resp );
@@ -111,6 +112,7 @@ signals:
 
 public:
     Imap::Parser* parser;
+    ImapTask *parentTask;
 
 protected:
     Model* model;
