@@ -26,6 +26,8 @@
 #include <QAbstractItemModel>
 
 namespace Imap {
+class Parser;
+
 namespace Mailbox {
 
 class ImapTask;
@@ -53,6 +55,9 @@ public slots:
     void slotTaskCreated(const ImapTask *const task);
     void slotTaskDestroyed(const ImapTask *const task);
     void slotTaskActivated(const ImapTask *const task);
+
+    void slotParserCreated(Parser *parser);
+    void slotParserDeleted(Parser *parser);
 
 private:
     Model *m_model;

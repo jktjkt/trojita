@@ -34,6 +34,7 @@
 #include "ThreadTask.h"
 #include "NoopTask.h"
 #include "UnSelectTask.h"
+#include "Imap/Model/TaskPresentationModel.h"
 #include "Imap/Parser/Parser.h"
 
 namespace Imap {
@@ -146,6 +147,7 @@ Parser* TestingTaskFactory::newParser( Model* model )
     QObject::connect( parser, SIGNAL(lineReceived(Imap::Parser*,QByteArray)), model, SLOT(slotParserLineReceived(Imap::Parser*,QByteArray)) );
     QObject::connect( parser, SIGNAL(lineSent(Imap::Parser*,QByteArray)), model, SLOT(slotParserLineSent(Imap::Parser*,QByteArray)) );
     model->_parsers[ parser ] = parserState;
+    model->m_taskModel->slotParserCreated(parser);
     return parser;
 }
 

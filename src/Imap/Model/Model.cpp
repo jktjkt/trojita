@@ -836,6 +836,7 @@ void Model::slotParserDisconnected(Imap::Parser *parser, const QString msg)
     // This function is *not* called from inside the responseReceived(), so we have to remove the parser from the list, too
     killParser(parser, PARSER_KILL_EXPECTED);
     _parsers.remove(parser);
+    m_taskModel->slotParserDeleted(parser);
     parsersMightBeIdling();
 }
 
@@ -861,6 +862,7 @@ void Model::slotParseError(Parser *parser, const QString &exceptionClass, const 
     // This function is *not* called from inside the responseReceived(), so we have to remove the parser from the list, too
     killParser(parser, PARSER_KILL_HARD);
     _parsers.remove(parser);
+    m_taskModel->slotParserDeleted(parser);
     parsersMightBeIdling();
 }
 

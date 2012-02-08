@@ -18,6 +18,7 @@
 
 #include "OpenConnectionTask.h"
 #include <QTimer>
+#include "Model/TaskPresentationModel.h"
 
 namespace Imap {
 namespace Mailbox {
@@ -40,6 +41,7 @@ OpenConnectionTask::OpenConnectionTask( Model* _model ) :
         emit model->activityHappening( true );
     }
     model->_parsers[ parser ] = parserState;
+    model->m_taskModel->slotParserCreated(parser);
     markAsActiveTask();
 }
 

@@ -173,5 +173,23 @@ void TaskPresentationModel::slotTaskActivated(const ImapTask *const task)
 {
 }
 
+/** @short A new parser just got created
+
+We don't bother with proper fine-grained signals here.
+*/
+void TaskPresentationModel::slotParserCreated(Parser *parser)
+{
+    reset();
+}
+
+/** @short A parser has just been deleted
+
+We don't bother with proper fine-grained signals here.
+*/
+void TaskPresentationModel::slotParserDeleted(Parser *parser)
+{
+    reset();
+}
+
 }
 }
