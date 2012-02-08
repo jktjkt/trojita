@@ -43,22 +43,30 @@ QModelIndex TaskPresentationModel::index(int row, int column, const QModelIndex 
         // Parent is a valid index, so the child is definitely an ImapTask. The parent could still be a ParserState, though.
         if (parent.data(RoleTaskIsParserState).toBool()) {
             // The parent is a ParserState
-            Model::ParserState *parserState = static_cast<Model::ParserState*>(parent.internalPointer());
-            Q_ASSERT(parserState);
-            if (row >= parserState->activeTasks.size()) {
+            Imap::Parser *parser = static_cast<Imap::Parser*>(parent.internalPointer());
+            Model::ParserState &parserState = m_model->accessParser(parser);
+            if (row >= parserState.activeTasks.size()) {
                 return QModelIndex();
             } else {
-                return createIndex(row, 0, parserState->activeTasks.at(row));
+                return createIndex(row, 0, parserState.activeTasks.at(row));
             }
         } else {
             // The parent is a regular ImapTask
             ImapTask *task = static_cast<ImapTask*>(parent.internalPointer());
             Q_ASSERT(task);
-
-
+            if (row >= task->dependentTasks.size()) {
+                return QModelIndex();
+            } else {
+                return createIndex(row, 0, task->dependentTasks.at(row));
+            }
         }
     } else {
-        // FIXME
+        // So this is about a ParserState -- fair enough
+        if (row >= m_model->_parsers.size()) {
+            return QModelIndex();
+        } else {
+            return createIndex(row, 0, m_model->_parsers.keys().at(row));
+        }
     }
 }
 
@@ -94,9 +102,9 @@ int TaskPresentationModel::rowCount(const QModelIndex &parent) const
         // This is where it starts to get complicated -- we're somewhere inside the tree
         if (parent.data(RoleTaskIsParserState).toBool()) {
             // A child of the top level item, ie. a ParserState object
-            Model::ParserState *parserState = static_cast<Model::ParserState*>(parent.internalPointer());
-            Q_ASSERT(parserState);
-            return parserState->activeTasks.size();
+            Imap::Parser *parser = static_cast<Imap::Parser*>(parent.internalPointer());
+            Model::ParserState &parserState = m_model->accessParser(parser);
+            return parserState.activeTasks.size();
         } else {
             // It's a regular ImapTask
             ImapTask *task = static_cast<ImapTask*>(parent.internalPointer());
