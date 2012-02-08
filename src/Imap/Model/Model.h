@@ -56,6 +56,7 @@ class DelayedAskForChildrenOfMailbox;
 
 class ImapTask;
 class KeepMailboxOpenTask;
+class TaskPresentationModel;
 
 /** @short Progress of mailbox synchronization with the IMAP server */
 typedef enum { STATE_WAIT_FOR_CONN, /**< Waiting for connection to become active */
@@ -380,6 +381,7 @@ private:
 
     friend class ::FakeCapabilitiesInjector; // for injecting fake capabilities
     friend class ::ImapModelIdleTest; // needs access to findTaskResponsibleFor() for IDLE testing
+    friend class TaskPresentationModel; // needs access to the ParserState
 
     void _askForChildrenOfMailbox( TreeItemMailbox* item );
     void _askForMessagesInMailbox( TreeItemMsgList* item );
@@ -461,6 +463,9 @@ private:
     QAuthenticator* _authenticator;
 
     uint lastParserId;
+
+    /** @short Model visualizing the state of the tasks */
+    TaskPresentationModel *m_taskModel;
 
 protected slots:
     void responseReceived( Imap::Parser *parser );

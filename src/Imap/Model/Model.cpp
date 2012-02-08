@@ -28,6 +28,7 @@
 #include "GetAnyConnectionTask.h"
 #include "KeepMailboxOpenTask.h"
 #include "MailboxTree.h"
+#include "TaskPresentationModel.h"
 
 //#define DEBUG_PERIODICALLY_DUMP_TASKS
 //#define DEBUG_TASK_ROUTING
@@ -87,7 +88,8 @@ Model::Model( QObject* parent, AbstractCache* cache, SocketFactoryPtr socketFact
     // our tools
     _cache(cache), _socketFactory(socketFactory), _taskFactory(taskFactory),
     _maxParsers(4), _mailboxes(0), _netPolicy( NETWORK_ONLINE ),
-    _authenticator(0), lastParserId(0)
+    _authenticator(0), lastParserId(0),
+    m_taskModel(0)
 {
     _cache->setParent(this);
     _startTls = _socketFactory->startTlsRequired();
@@ -109,6 +111,8 @@ Model::Model( QObject* parent, AbstractCache* cache, SocketFactoryPtr socketFact
     connect( periodicTaskDumper, SIGNAL(timeout()), this, SLOT(slotTasksChanged()) );
     periodicTaskDumper->start();
 #endif
+
+    m_taskModel = new TaskPresentationModel(this);
 }
 
 Model::~Model()
@@ -1332,6 +1336,7 @@ void Model::slotTaskDying( QObject *obj )
     for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
         it->activeTasks.removeOne( task );
     }
+    m_taskModel->slotTaskDestroyed(task);
 }
 
 TreeItemMailbox* Model::mailboxForSomeItem( QModelIndex index )

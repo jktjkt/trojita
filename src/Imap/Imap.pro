@@ -67,7 +67,8 @@ SOURCES += Parser/Parser.cpp \
     Network/MsgPartNetworkReply.cpp \
     Network/ForbiddenReply.cpp \
     Network/MsgPartNetAccessManager.cpp \
-    Network/FileDownloadManager.cpp
+    Network/FileDownloadManager.cpp \
+    Model/TaskPresentationModel.cpp
 HEADERS += Parser/Parser.h \
     Parser/Command.h \
     Parser/Response.h \
@@ -125,6 +126,7 @@ HEADERS += Parser/Parser.h \
     Network/ForbiddenReply.h \
     Network/MsgPartNetAccessManager.h \
     Network/MsgPartNetworkReply.h \
-    Network/FileDownloadManager.h
+    Network/FileDownloadManager.h \
+    Model/TaskPresentationModel.h
 
 XtConnect:DEFINES += XTUPLE_CONNECT

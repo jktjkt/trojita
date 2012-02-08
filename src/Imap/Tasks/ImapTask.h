@@ -125,6 +125,8 @@ protected:
     Model* model;
     QList<ImapTask*> dependentTasks;
     bool _finished;
+
+    friend class TaskPresentationModel; // needs access to the TaskPresentationModel
 };
 
 }

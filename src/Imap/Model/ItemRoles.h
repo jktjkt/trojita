@@ -121,6 +121,12 @@ enum {
     /** @short Access to the partToPath() function */
     RolePartPathToPart,
 
+    /** @short True if the item in the tasks list is actually a ParserState
+
+    This role is *not* used or implemented by the IMAP models, but only by the TaskPresentationModel.
+    */
+    RoleTaskIsParserState,
+
     /** @short The very last role */
     RoleInvalidLastOne
 };
