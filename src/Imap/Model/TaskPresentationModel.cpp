@@ -80,19 +80,20 @@ QModelIndex TaskPresentationModel::parent(const QModelIndex &child) const
         return QModelIndex();
     }
 
-    // So it's definitely an ImapTask
+    // The child is definitely an ImapTask
     ImapTask *task = static_cast<ImapTask*>(child.internalPointer());
     Q_ASSERT(task);
     if (task->parentTask) {
+        // And the child says that it has a prent task. The parent of this childis therefore an ImapTask, too
         int index = task->parentTask->dependentTasks.indexOf(task);
         Q_ASSERT(index != -1);
-        return createIndex(index, 0, task);
+        return createIndex(index, 0, task->parentTask);
     } else {
-        // no parent, so it's apparently the top-levle task for a given parser
-        Model::ParserState &parserState = m_model->accessParser(task->parser);
-        int index = parserState.activeTasks.indexOf(task);
+        // The child has no parent, so the child is apparently the top-level task for a given parser,
+        // and hence the parent is obviously the ParserState
+        int index = m_model->_parsers.keys().indexOf(task->parser);
         Q_ASSERT(index != -1);
-        return createIndex(index, 0, task);
+        return createIndex(index, 0, task->parser);
     }
 }
 
