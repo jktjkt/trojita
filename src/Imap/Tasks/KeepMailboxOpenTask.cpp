@@ -177,12 +177,12 @@ void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )
     fetchPartTasks.removeOne(static_cast<FetchMsgPartTask*>(object));
     fetchMetadataTasks.removeOne(static_cast<FetchMsgMetadataTask*>(object));
 
-    if ( shouldExit && ! hasPendingInternalActions() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
+    if (shouldExit && !hasPendingInternalActions() && (!synchronizeConn || synchronizeConn->isFinished())) {
         terminate();
-    } else if ( shouldRunNoop ) {
+    } else if (shouldRunNoop) {
         // A command just completed, and NOOPing is active, so let's schedule/postpone it again
         noopTimer->start();
-    } else if ( shouldRunIdle ) {
+    } else if (shouldRunIdle) {
         // A command just completed and IDLE is supported, so let's queue/schedule/postpone it
         idleLauncher->enterIdleLater();
     }
@@ -198,7 +198,7 @@ void KeepMailboxOpenTask::terminate()
     Q_ASSERT(runningTasksForThisMailbox.isEmpty());
 
     // Break periodic activities
-    if ( idleLauncher ) {
+    if (idleLauncher) {
         // got to break the IDLE cycle and especially make sure it won't restart
         idleLauncher->die();
     }
@@ -240,16 +240,17 @@ void KeepMailboxOpenTask::perform()
 
     activateTasks();
 
-    if ( model->accessParser( parser ).capabilitiesFresh && model->accessParser( parser ).capabilities.contains( "IDLE" ) )
+    if (model->accessParser(parser).capabilitiesFresh && model->accessParser(parser).capabilities.contains("IDLE")) {
         shouldRunIdle = true;
-    else
+    } else {
         shouldRunNoop = true;
+    }
 
-    if ( shouldRunNoop ) {
+    if (shouldRunNoop) {
         noopTimer->start();
-    } else if ( shouldRunIdle ) {
-        idleLauncher = new IdleLauncher( this );
-        if ( dependentTasks.isEmpty() ) {
+    } else if (shouldRunIdle) {
+        idleLauncher = new IdleLauncher(this);
+        if (dependentTasks.isEmpty()) {
             // There's no task yet, so we have to start IDLE now
             idleLauncher->enterIdleLater();
         }
@@ -258,11 +259,10 @@ void KeepMailboxOpenTask::perform()
 
 void KeepMailboxOpenTask::resynchronizeMailbox()
 {
-    if ( isRunning ) {
-        // FIXME: would be cool to wait for completion of current tasks...
+    if (isRunning) {
         // Instead of wild magic with re-creating synchronizeConn, it's way easier to
         // just have us replaced by another KeepMailboxOpenTask
-        model->_taskFactory->createKeepMailboxOpenTask( model, mailboxIndex, parser );
+        model->_taskFactory->createKeepMailboxOpenTask(model, mailboxIndex, parser);
     } else {
         // We aren't running yet, which means that the sync hadn't happened yet, and therefore
         // we don't have to do it "once again" -- it will happen automatically later on.
