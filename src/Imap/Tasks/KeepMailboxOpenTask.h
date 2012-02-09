@@ -147,8 +147,8 @@ protected:
     /** @short Regular tasks which weren't started yet
 
       This list is different from the dependentTasks, because for the dependentTasks, items are removed when the task
-      ends, while for this waitingTasks we remove them immediately after they are started. The semantics of the
-      waitingTasks is, therefore, to contain tasks which weren't started yet.
+      ends, while for this delayedTasks we remove them immediately after they are started. The semantics of the
+      delayedTasks is, therefore, to contain tasks which weren't started yet.
     */
     QList<ImapTask*> delayedTasks;
     /** @short An ImapTask that will be started to actually sync to a mailbox once the connection is free */
