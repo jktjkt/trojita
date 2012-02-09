@@ -52,6 +52,7 @@ void ImapTask::updateParentTask(ImapTask *newParent)
 {
     Q_ASSERT(newParent);
     parentTask = newParent;
+    model->m_taskModel->slotTaskGotReparented(this);
 }
 
 /** @short Tells the Model that we're from now on an active task */
@@ -68,6 +69,7 @@ void ImapTask::markAsActiveTask(const TaskActivatingPosition place)
     }
     // As we're an active task, we no longer have a parent task
     parentTask = 0;
+    model->m_taskModel->slotTaskGotReparented(this);
 }
 
 bool ImapTask::handleState( const Imap::Responses::State* const resp )

@@ -175,14 +175,6 @@ void TaskPresentationModel::slotTaskDestroyed(const ImapTask *const task)
     reset();
 }
 
-/** @short The ImapTask has been moved to an active state, that is, it will be processing the IMAP protocol chat from now.
-
-*/
-void TaskPresentationModel::slotTaskActivated(const ImapTask *const task)
-{
-    reset();
-}
-
 /** @short A new parser just got created
 
 We don't bother with proper fine-grained signals here.
@@ -197,6 +189,11 @@ void TaskPresentationModel::slotParserCreated(Parser *parser)
 We don't bother with proper fine-grained signals here.
 */
 void TaskPresentationModel::slotParserDeleted(Parser *parser)
+{
+    reset();
+}
+
+void TaskPresentationModel::slotTaskGotReparented(const ImapTask *const task)
 {
     reset();
 }
