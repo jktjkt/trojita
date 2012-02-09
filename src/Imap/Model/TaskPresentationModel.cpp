@@ -84,8 +84,16 @@ QModelIndex TaskPresentationModel::parent(const QModelIndex &child) const
     ImapTask *task = static_cast<ImapTask*>(child.internalPointer());
     Q_ASSERT(task);
     if (task->parentTask) {
-        // And the child says that it has a prent task. The parent of this childis therefore an ImapTask, too
-        int index = task->parentTask->dependentTasks.indexOf(task);
+        // And the child says that it has a prent task. The parent of this childis therefore an ImapTask, too.
+        // The question is, what's the parent of our parent?
+        int index = -1;
+        if (task->parentTask->parentTask) {
+            // The parent has an ImapTask as a parent.
+            index = task->parentTask->parentTask->dependentTasks.indexOf(task->parentTask);
+        } else {
+            // Our grandparent is a ParserState
+            index = m_model->accessParser(task->parentTask->parser).activeTasks.indexOf(task->parentTask);
+        }
         Q_ASSERT(index != -1);
         return createIndex(index, 0, task->parentTask);
     } else {
