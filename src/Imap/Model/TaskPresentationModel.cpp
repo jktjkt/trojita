@@ -148,7 +148,7 @@ QVariant TaskPresentationModel::data(const QModelIndex &index, int role) const
             return tr("Parser %1").arg(QString::number(parser->parserId()));
         } else {
             ImapTask *task = static_cast<ImapTask*>(index.internalPointer());
-            return task->debugIdentification();
+            return tr("%1: %2").arg(QLatin1String(task->metaObject()->className()), task->debugIdentification());
         }
     default:
         return QVariant();
