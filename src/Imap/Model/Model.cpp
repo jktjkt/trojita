@@ -1448,5 +1448,10 @@ void Model::logTrace(uint parserId, const LogKind kind, const QString &source, c
     emit logged(parserId, m);
 }
 
+QAbstractItemModel *Model::taskModel() const
+{
+    return m_taskModel;
+}
+
 }
 }

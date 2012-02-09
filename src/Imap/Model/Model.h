@@ -248,6 +248,13 @@ public slots:
     */
     void switchToMailbox( const QModelIndex& mbox );
 
+    /** @short Get a pointer to the model visualizing the state of the tasks
+
+    The returned object still belongs to this Imap::Mailbox::Model, and its internal working is implementation-specific.  The only
+    valid method of access is through the usual Qt Interview framework.
+    */
+    QAbstractItemModel *taskModel() const;
+
 private slots:
     /** @short Handler for the "parser got disconnected" event */
     void slotParserDisconnected( Imap::Parser *parser, const QString );
