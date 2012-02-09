@@ -66,6 +66,9 @@ private:
     friend class Model; // needs to be able to call reset() on us
 };
 
+/** @short Debug: dump the model in a tree-like manner */
+void dumpModelContents(QAbstractItemModel *model, QModelIndex index=QModelIndex(), QByteArray offset=QByteArray());
+
 }
 }
 

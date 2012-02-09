@@ -198,5 +198,18 @@ void TaskPresentationModel::slotTaskGotReparented(const ImapTask *const task)
     reset();
 }
 
+void dumpModelContents(QAbstractItemModel *model, QModelIndex index, QByteArray offset) {
+    qDebug() << offset << index.data(Qt::DisplayRole).toString();
+    for (int i=0; i < model->rowCount(index); ++i) {
+        QModelIndex child = model->index(i, 0, index);
+        if (!child.isValid()) {
+            qDebug() << "FAIL: " << index << child << i << model->rowCount(index);
+        }
+        Q_ASSERT(child.isValid());
+        dumpModelContents(model, child, offset+QByteArray(" "));
+    }
+}
+
+
 }
 }
