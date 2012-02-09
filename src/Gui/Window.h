@@ -150,6 +150,8 @@ private:
     QTreeView* allTree;
     MessageView* msgView;
     QDockWidget* allDock;
+    QTreeView *taskTree;
+    QDockWidget *taskDock;
 
     QScrollArea* area;
 
@@ -164,6 +166,7 @@ private:
     QAction* netOnline;
     QAction* exitAction;
     QAction* showFullView;
+    QAction *showTaskView;
     QAction* showImapLogger;
     QAction *logPersistent;
     QAction* showImapCapabilities;

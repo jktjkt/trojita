@@ -124,6 +124,11 @@ void MainWindow::createActions()
     connect( showFullView, SIGNAL( triggered(bool) ), allDock, SLOT(setVisible(bool)) );
     connect( allDock, SIGNAL( visibilityChanged(bool) ), showFullView, SLOT( setChecked(bool) ) );
 
+    showTaskView = new QAction(tr("Show ImapTask tree"), this);
+    showTaskView->setCheckable(true);
+    connect(showTaskView, SIGNAL(triggered(bool)), taskDock, SLOT(setVisible(bool)));
+    connect(taskDock, SIGNAL(visibilityChanged(bool)), showTaskView, SLOT(setChecked(bool)));
+
     showImapLogger = new QAction( tr("Show IMAP protocol log"), this );
     showImapLogger->setCheckable( true );
     connect( showImapLogger, SIGNAL(triggered(bool)), imapLoggerDock, SLOT(setVisible(bool)) );
@@ -253,6 +258,7 @@ void MainWindow::createMenus()
     netPolicyMenu->addAction( netOnline );
     imapMenu->addSeparator();
     imapMenu->addAction( showFullView );
+    imapMenu->addAction(showTaskView);
     QMenu *loggingMenu = imapMenu->addMenu(tr("Logging"));
     loggingMenu->addAction(showImapLogger);
     loggingMenu->addAction(logPersistent);
@@ -336,6 +342,12 @@ void MainWindow::createWidgets()
     allTree->setHeaderHidden( true );
     allDock->setWidget( allTree );
     addDockWidget( Qt::LeftDockWidgetArea, allDock );
+    taskDock = new QDockWidget("IMAP Tasks", this);
+    taskTree = new QTreeView(taskDock);
+    taskDock->hide();
+    taskTree->setHeaderHidden(true);
+    taskDock->setWidget(taskTree);
+    addDockWidget(Qt::LeftDockWidgetArea, taskDock);
 
     imapLoggerDock = new QDockWidget( tr("IMAP Protocol"), this );
     imapLogger = new ProtocolLoggerWidget( imapLoggerDock );
@@ -460,6 +472,7 @@ void MainWindow::setupModels()
              this, SLOT( msgListSelectionChanged( const QItemSelection&, const QItemSelection& ) ) );
 
     allTree->setModel( model );
+    taskTree->setModel(model->taskModel());
 
     _autoCompletionModel = new AutoCompletionModel(this);
 
@@ -710,6 +723,7 @@ void MainWindow::nukeModels()
     mboxTree->setModel( 0 );
     msgListTree->setModel( 0 );
     allTree->setModel( 0 );
+    taskTree->setModel(0);
     prettyMsgListModel->deleteLater();
     prettyMsgListModel = 0;
     threadingMsgListModel->deleteLater();
