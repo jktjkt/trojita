@@ -473,6 +473,11 @@ void MainWindow::setupModels()
 
     allTree->setModel( model );
     taskTree->setModel(model->taskModel());
+    connect(model->taskModel(), SIGNAL(layoutChanged()), taskTree, SLOT(expandAll()));
+    connect(model->taskModel(), SIGNAL(modelReset()), taskTree, SLOT(expandAll()));
+    connect(model->taskModel(), SIGNAL(rowsInserted(QModelIndex,int,int)), taskTree, SLOT(expandAll()));
+    connect(model->taskModel(), SIGNAL(rowsRemoved(QModelIndex,int,int)), taskTree, SLOT(expandAll()));
+    connect(model->taskModel(), SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)), taskTree, SLOT(expandAll()));
 
     _autoCompletionModel = new AutoCompletionModel(this);
 
