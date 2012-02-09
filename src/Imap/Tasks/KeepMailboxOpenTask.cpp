@@ -508,8 +508,12 @@ void KeepMailboxOpenTask::activateTasks()
 
     while ( ! delayedTasks.isEmpty() && model->accessParser( parser ).activeTasks.size() < limitActiveTasks ) {
         ImapTask *task = delayedTasks.takeFirst();
-        if ( ! task->isFinished() )
+        if ( ! task->isFinished() ) {
+            // The task is going to get activated (and thereby added to the ParserState's activeTasks),
+            // so it shall be removed from the list of tasks which depend on this one.
+            dependentTasks.removeAll(task);
             task->perform();
+        }
     }
 }
 
