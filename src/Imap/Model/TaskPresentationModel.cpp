@@ -154,6 +154,7 @@ QVariant TaskPresentationModel::data(const QModelIndex &index, int role) const
 void TaskPresentationModel::slotTaskCreated(const ImapTask *const task)
 {
     qDebug() << Q_FUNC_INFO << task;
+    reset();
 }
 
 /** @short Called when a particular task ceases to exist
@@ -164,6 +165,7 @@ this function.
 void TaskPresentationModel::slotTaskDestroyed(const ImapTask *const task)
 {
     qDebug() << Q_FUNC_INFO << task;
+    reset();
 }
 
 /** @short The ImapTask has been moved to an active state, that is, it will be processing the IMAP protocol chat from now.
@@ -171,6 +173,7 @@ void TaskPresentationModel::slotTaskDestroyed(const ImapTask *const task)
 */
 void TaskPresentationModel::slotTaskActivated(const ImapTask *const task)
 {
+    reset();
 }
 
 /** @short A new parser just got created
