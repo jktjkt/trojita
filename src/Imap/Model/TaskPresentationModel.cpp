@@ -119,11 +119,7 @@ int TaskPresentationModel::rowCount(const QModelIndex &parent) const
 
 int TaskPresentationModel::columnCount(const QModelIndex &parent) const
 {
-    if (parent.isValid()) {
-        return 0;
-    } else {
-        return 1;
-    }
+    return (rowCount(parent) > 0) ? 1 : 0;
 }
 
 QVariant TaskPresentationModel::data(const QModelIndex &index, int role) const
