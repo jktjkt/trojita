@@ -101,6 +101,9 @@ initialize synchronization now.
 */
     void slotPerformConnection();
 
+    /** @short The synchronization is done, let's start working now */
+    void slotSyncHasCompleted() { perform(); }
+
     virtual bool handleNumberResponse( const Imap::Responses::NumberResponse* const resp );
     virtual bool handleFetch( const Imap::Responses::Fetch* const resp );
     virtual bool handleStateHelper( const Imap::Responses::State* const resp );
@@ -114,8 +117,8 @@ initialize synchronization now.
     /** @short Fetch the ENVELOPEs which were queued for later retrieval */
     void slotFetchRequestedEnvelopes();
 
-    /** @short We're now out of that mailbox, hurray! */
-    void slotUnSelectCompleted();
+    /** @short Something bad has happened to the connection, and we're no longer in that mailbox */
+    void slotConnFailed();
 
 private:
     void terminate();

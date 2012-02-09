@@ -87,7 +87,9 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
         synchronizeConn = model->_taskFactory->createObtainSynchronizedMailboxTask( _model, mailboxIndex, conn );
     }
     // This will make sure that synchronizeConn will call perform() on us when it's finished
-    synchronizeConn->addDependentTask( this );
+    // We explicitly do *not* want to depend on that, as that'd introduce inconsistency into this KeepMailboxOpenTask::parentTask
+    connect(synchronizeConn, SIGNAL(completed()), this, SLOT(slotSyncHasCompleted()));
+    connect(synchronizeConn, SIGNAL(failed()), this, SLOT(slotConnFailed()));
 
     // Setup the timer for NOOPing. It won't get started at this time, though.
     noopTimer = new QTimer(this);
@@ -614,7 +616,7 @@ bool KeepMailboxOpenTask::handleResponseCodeInsideState( const Imap::Responses::
     return false;
 }
 
-void KeepMailboxOpenTask::slotUnSelectCompleted()
+void KeepMailboxOpenTask::slotConnFailed()
 {
     if (model->accessParser(parser).maintainingTask == this)
         model->accessParser(parser).maintainingTask = 0;
@@ -639,7 +641,7 @@ bool KeepMailboxOpenTask::dieIfInvalidMailbox()
 
     // See ObtainSynchronizedMailboxTask::dieIfInvalidMailbox() for details
     unSelectTask = model->_taskFactory->createUnSelectTask(model, this);
-    connect(unSelectTask, SIGNAL(completed()), this, SLOT(slotUnSelectCompleted()));
+    connect(unSelectTask, SIGNAL(completed()), this, SLOT(slotConnFailed()));
     unSelectTask->perform();
 
     return true;

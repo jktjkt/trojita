@@ -748,12 +748,6 @@ bool ObtainSynchronizedMailboxTask::dieIfInvalidMailbox()
 void ObtainSynchronizedMailboxTask::slotUnSelectCompleted()
 {
     log("Escaped form the mailbox", LOG_MAILBOX_SYNC);
-    Q_ASSERT(dependentTasks.size() == 1);
-    KeepMailboxOpenTask *keepTask = dynamic_cast<KeepMailboxOpenTask*>(dependentTasks.takeFirst());
-    Q_ASSERT(keepTask);
-
-    keepTask->slotUnSelectCompleted();
-
     // Now, just finish and signal a failure
     _finished = true;
     emit failed();
