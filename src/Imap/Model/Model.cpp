@@ -185,13 +185,15 @@ void Model::responseReceived( Parser *parser )
             uint parserId = it->parser->parserId();
             killParser(it->parser, PARSER_KILL_HARD);
             _parsers.erase(it);
+            m_taskModel->reset();
             broadcastParseError( parserId, QString::fromStdString( e.exceptionClass() ), e.what(), e.line(), e.offset() );
             parsersMightBeIdling();
             return;
         }
-        if ( ! it.value().parser ) {
+        if (!it.value().parser) {
             // it got deleted
-            _parsers.erase( it );
+            _parsers.erase(it);
+            m_taskModel->reset();
             break;
         }
     }

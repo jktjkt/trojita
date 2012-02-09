@@ -61,6 +61,8 @@ public slots:
 
 private:
     Model *m_model;
+
+    friend class Model; // needs to be able to call reset() on us
 };
 
 }
