@@ -69,6 +69,4 @@ private:
 }
 }
 
-Q_DECLARE_METATYPE(const Imap::Mailbox::ImapTask*);
-
 #endif // IMAP_MAILBOX_TASKPRESENTATIONMODEL_H
