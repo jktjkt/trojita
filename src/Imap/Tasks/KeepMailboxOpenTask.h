@@ -142,15 +142,53 @@ private:
 
 protected:
     QPersistentModelIndex mailboxIndex;
-    /** @short Future maintaining tasks which are waiting for their opportunity to run */
-    QList<KeepMailboxOpenTask*> waitingTasks;
-    /** @short Regular tasks which weren't started yet
 
-      This list is different from the dependentTasks, because for the dependentTasks, items are removed when the task
-      ends, while for this delayedTasks we remove them immediately after they are started. The semantics of the
-      delayedTasks is, therefore, to contain tasks which weren't started yet.
+    /** @short Future maintaining tasks which are waiting for their opportunity to run
+
+
+    A list of KeepMailboxOpenTask which would like to use this connection to the IMAP server for conducting their business.  They
+    have to wait until this KeepMailboxOpenTask finished whatever it has to do.
     */
-    QList<ImapTask*> delayedTasks;
+    QList<KeepMailboxOpenTask*> waitingKeepTasks;
+
+    /** @short List of pending or running tasks which require this mailbox
+
+    There are four sorts of tasks:
+
+    1) Those that require a synchronized mailbox connection and are already running
+    2) Those that require such a connection but are not running yet
+    3) Tasks which are going to replace this KeepMailboxOpenTask when it's done
+    4) Tasks that do not need any particular mailbox
+
+    If these sorts, 4) are not scheduled through the KeepMailboxOpenTask, and hence are not visible from this context at all.
+
+    Sorts 2) and 3) have a common feature -- they are somehow "waiting" for their turn, so that they could get their job done.
+    They will start when this KeepMailboxOpenTask asks them to.
+
+    Finally, tasks of the first kind shall not be treated as "children of the KeepMailboxOpenTask", but shall be able to keep the
+    KeepMailboxOpenTask from disappearing.
+
+    An "active task" means that a task is receiving the server's responses.  An active task in this sense is always present in the
+    corresponding ParserState's activeTasks list.  These tasks have their ImapTask::parentTask set to zero, because they are no
+    longer waiting for their chance to run, they are running already.  They are also *not* included in any other task's
+    dependentTasks -- simply because the sanity rule says that:
+
+        (ImapTask::parentTask is non-zero) <=> (the parentTask::dependingTasks contains that task)
+
+    This approach is also used for visualization of the task tree.
+
+    This is the mapping of the task sorts into the places which keep track of them:
+
+    * The 4) go straight to the ParserState::activeTasks and remain there until they terminate
+    * The 3) gets added to the waitingKeepTasks *and* to the dependentTasks. They remain there until the time this
+    KeepMailboxOpenTask terminates. At that time, the first of them gets activated while the others get prepended to the first
+    task's waitingKeepTasks list.
+    * The 2) are found in the dependentTasks
+    * The 1) originally existed as 2), but got run at some time.  When they got run, they got also added to the
+    ParserState::activeTasks, but vanished from this KeepMailboxOpenTask::dependentTasks.  However, to prevent this
+    KeepMailboxOpenTask from disappearing, they are also kept in the runningTasksForThisMailbox list.
+    */
+    QList<ImapTask*> runningTasksForThisMailbox;
     /** @short An ImapTask that will be started to actually sync to a mailbox once the connection is free */
     ObtainSynchronizedMailboxTask* synchronizeConn;
 

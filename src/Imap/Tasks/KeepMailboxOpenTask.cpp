@@ -69,10 +69,11 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
             // ...and simply schedule us for immediate execution. We can do that, because there's
             // no mailbox besides us in the game, yet.
             synchronizeConn = model->_taskFactory->createObtainSynchronizedMailboxTask( _model, mailboxIndex, this );
+            // We'll also register with the model, so that all other KeepMailboxOpenTask which could get constructed in future
+            // know about us and don't step on our toes.  This means that further KeepMailboxOpenTask which could possibly want
+            // to use this connection will have to go through this task at first.
             model->accessParser( oldParser ).maintainingTask = this;
             QTimer::singleShot( 0, this, SLOT(slotPerformConnection()) );
-            // We'll also register with the model, so that all other KeepMailboxOpenTask which could
-            // get constructed in future know about us and don't step on our toes
         }
     } else {
         // Create new connection
@@ -147,7 +148,7 @@ void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
     if ( keepTask ) {
         // Another KeepMailboxOpenTask would like to replace us, so we shall die, eventually.
 
-        waitingTasks.append( keepTask );
+        waitingKeepTasks.append( keepTask );
         shouldExit = true;
 
         // Before we can die, though, we have to accomodate fetch requests for all envelopes and parts queued so far.
@@ -160,11 +161,7 @@ void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
     } else {
         connect( task, SIGNAL(destroyed(QObject*)), this, SLOT(slotTaskDeleted(QObject*)) );
         ImapTask::addDependentTask( task );
-
-        // If this is the first task to be queued, let's make sure it'll get run
-        if ( delayedTasks.isEmpty() )
-            QTimer::singleShot( 0, this, SLOT(slotActivateTasks()) );
-        delayedTasks.append( task );
+        QTimer::singleShot(0, this, SLOT(slotActivateTasks()));
     }
 
     task->updateParentTask(this);
@@ -175,26 +172,18 @@ void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )
     // Now, object is no longer an ImapTask*, as this gets emitted from inside QObject's destructor. However,
     // we can't use the passed pointer directly, and therefore we have to perform the cast here. It is safe
     // to do that here, as we're only interested in raw pointer value.
-    dependentTasks.removeOne( static_cast<ImapTask*>( object ) );
-
-    QList<FetchMsgPartTask*>::iterator it = qFind( fetchPartTasks.begin(), fetchPartTasks.end(), static_cast<FetchMsgPartTask*>( object ) );
-    if ( it != fetchPartTasks.end() ) {
-        fetchPartTasks.erase( it );
-        slotFetchRequestedParts();
-    }
-    QList<FetchMsgMetadataTask*>::iterator it2 = qFind(fetchMetadataTasks.begin(), fetchMetadataTasks.end(), static_cast<FetchMsgMetadataTask*>(object));
-    if (it2 != fetchMetadataTasks.end()) {
-        fetchMetadataTasks.erase(it2);
-        slotFetchRequestedEnvelopes();
-    }
+    dependentTasks.removeOne(static_cast<ImapTask*>(object));
+    runningTasksForThisMailbox.removeOne(static_cast<ImapTask*>(object));
+    fetchPartTasks.removeOne(static_cast<FetchMsgPartTask*>(object));
+    fetchMetadataTasks.removeOne(static_cast<FetchMsgMetadataTask*>(object));
 
     if ( shouldExit && ! hasPendingInternalActions() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
         terminate();
     } else if ( shouldRunNoop ) {
-        // A command just completed, and NOOPing is active, so let's schedule it again
+        // A command just completed, and NOOPing is active, so let's schedule/postpone it again
         noopTimer->start();
     } else if ( shouldRunIdle ) {
-        // A command just completed and IDLE is supported, so let's queue it
+        // A command just completed and IDLE is supported, so let's queue/schedule/postpone it
         idleLauncher->enterIdleLater();
     }
     // It's possible that we can start more tasks at this time...
@@ -206,6 +195,7 @@ void KeepMailboxOpenTask::terminate()
     Q_ASSERT(dependentTasks.isEmpty());
     Q_ASSERT(requestedParts.isEmpty());
     Q_ASSERT(requestedEnvelopes.isEmpty());
+    Q_ASSERT(runningTasksForThisMailbox.isEmpty());
 
     // Break periodic activities
     if ( idleLauncher ) {
@@ -219,11 +209,11 @@ void KeepMailboxOpenTask::terminate()
     die();
 
     // Merge the lists of waiting tasks
-    if ( ! waitingTasks.isEmpty() ) {
-        KeepMailboxOpenTask* first = waitingTasks.takeFirst();
-        first->waitingTasks = waitingTasks + first->waitingTasks;
+    if (!waitingKeepTasks.isEmpty()) {
+        KeepMailboxOpenTask* first = waitingKeepTasks.takeFirst();
+        first->waitingKeepTasks = waitingKeepTasks + first->waitingKeepTasks;
         model->accessParser( parser ).maintainingTask = first;
-        QTimer::singleShot( 0, first, SLOT(slotPerformConnection()) );
+        QTimer::singleShot(0, first, SLOT(slotPerformConnection()));
     }
     _finished = true;
     emit completed();
@@ -231,13 +221,13 @@ void KeepMailboxOpenTask::terminate()
 
 void KeepMailboxOpenTask::perform()
 {
-    Q_ASSERT( synchronizeConn );
-    Q_ASSERT( synchronizeConn->isFinished() );
+    Q_ASSERT(synchronizeConn);
+    Q_ASSERT(synchronizeConn->isFinished());
     parser = synchronizeConn->parser;
     synchronizeConn = 0; // will get deleted by Model
     markAsActiveTask();
 
-    if ( ! waitingTasks.isEmpty() && ! hasPendingInternalActions() ) {
+    if (!waitingKeepTasks.isEmpty() && ! hasPendingInternalActions()) {
         // We're basically useless, but we have to die reasonably
         shouldExit = true;
         terminate();
@@ -501,19 +491,15 @@ bool KeepMailboxOpenTask::handleFlags( const Imap::Responses::Flags* const resp 
 
 void KeepMailboxOpenTask::activateTasks()
 {
-    if ( ! isRunning )
+    if (!isRunning)
         return;
 
     breakPossibleIdle();
 
-    while ( ! delayedTasks.isEmpty() && model->accessParser( parser ).activeTasks.size() < limitActiveTasks ) {
-        ImapTask *task = delayedTasks.takeFirst();
-        if ( ! task->isFinished() ) {
-            // The task is going to get activated (and thereby added to the ParserState's activeTasks),
-            // so it shall be removed from the list of tasks which depend on this one.
-            dependentTasks.removeAll(task);
-            task->perform();
-        }
+    while (!dependentTasks.isEmpty() && model->accessParser(parser).activeTasks.size() < limitActiveTasks) {
+        ImapTask *task = dependentTasks.takeFirst();
+        runningTasksForThisMailbox.append(task);
+        task->perform();
     }
 }
 
