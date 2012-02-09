@@ -67,6 +67,9 @@ void ImapTask::markAsActiveTask(const TaskActivatingPosition place)
         model->accessParser(parser).activeTasks.prepend(this);
         break;
     }
+    if (parentTask) {
+        parentTask->dependentTasks.removeAll(this);
+    }
     // As we're an active task, we no longer have a parent task
     parentTask = 0;
     model->m_taskModel->slotTaskGotReparented(this);
