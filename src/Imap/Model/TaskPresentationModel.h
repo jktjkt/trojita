@@ -42,6 +42,9 @@ completion of another task are positioned as children of the item they're blocki
 class TaskPresentationModel : public QAbstractItemModel
 {
     Q_OBJECT
+
+    QModelIndex indexForTask(const ImapTask *const task) const;
+
 public:
     explicit TaskPresentationModel(Model *model);
     

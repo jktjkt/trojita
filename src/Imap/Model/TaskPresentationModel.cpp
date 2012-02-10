@@ -81,7 +81,12 @@ QModelIndex TaskPresentationModel::parent(const QModelIndex &child) const
     }
 
     // The child is definitely an ImapTask
-    ImapTask *task = static_cast<ImapTask*>(child.internalPointer());
+    return indexForTask(static_cast<ImapTask*>(child.internalPointer()));
+}
+
+/** @short Return a QModelIndex for the specified ImapTask* */
+QModelIndex TaskPresentationModel::indexForTask(const ImapTask *const task) const
+{
     Q_ASSERT(task);
     if (task->parentTask) {
         // And the child says that it has a prent task. The parent of this childis therefore an ImapTask, too.
