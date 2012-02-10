@@ -193,6 +193,10 @@ void TaskPresentationModel::slotParserDeleted(Parser *parser)
     reset();
 }
 
+/** @short A parent of the given Imaptask has just changed
+
+The task might or might not have been present in the model before.  We don't know.
+*/
 void TaskPresentationModel::slotTaskGotReparented(const ImapTask *const task)
 {
     Q_UNUSED(task);
