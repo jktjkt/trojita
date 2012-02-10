@@ -49,7 +49,8 @@ void ImapModelOpenConnectionTest::init( bool startTlsRequired )
     model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), taskFactory, false );
     connect(model, SIGNAL(authRequested(QAuthenticator*)), this, SLOT(provideAuthDetails(QAuthenticator*)) );
     task = new Imap::Mailbox::OpenConnectionTask( model );
-    completedSpy = new QSignalSpy( task, SIGNAL(completed()) );
+    using Imap::Mailbox::ImapTask;
+    completedSpy = new QSignalSpy(task, SIGNAL(completed(ImapTask*const)));
     authSpy = new QSignalSpy( model, SIGNAL(authRequested(QAuthenticator*)) );
 }
 

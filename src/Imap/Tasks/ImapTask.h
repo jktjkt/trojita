@@ -115,7 +115,7 @@ signals:
     /** @short This signal is emitted if the job failed in some way */
     void failed();
     /** @short This signal is emitted upon succesfull completion of a job */
-    void completed();
+    void completed(const ImapTask *const task);
 
 public:
     Imap::Parser* parser;

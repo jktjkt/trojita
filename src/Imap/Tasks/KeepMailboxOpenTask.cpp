@@ -210,7 +210,7 @@ void KeepMailboxOpenTask::terminate()
         QTimer::singleShot(0, first->keepTaskChild, SLOT(slotPerformConnection()));
     }
     _finished = true;
-    emit completed();
+    emit completed(this);
 }
 
 void KeepMailboxOpenTask::perform()
@@ -633,7 +633,7 @@ bool KeepMailboxOpenTask::dieIfInvalidMailbox()
 
     // See ObtainSynchronizedMailboxTask::dieIfInvalidMailbox() for details
     unSelectTask = model->_taskFactory->createUnSelectTask(model, this);
-    connect(unSelectTask, SIGNAL(completed()), this, SLOT(slotConnFailed()));
+    connect(unSelectTask, SIGNAL(completed(ImapTask*const)), this, SLOT(slotConnFailed()));
     unSelectTask->perform();
 
     return true;

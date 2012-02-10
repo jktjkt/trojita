@@ -154,7 +154,7 @@ void ImapTask::_completed()
         if ( ! task->isFinished() )
             task->perform();
     }
-    emit completed();
+    emit completed(this);
 }
 
 void ImapTask::handleResponseCode( const Imap::Responses::State* const resp )

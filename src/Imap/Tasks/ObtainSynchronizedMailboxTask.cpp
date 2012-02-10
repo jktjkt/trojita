@@ -741,7 +741,7 @@ bool ObtainSynchronizedMailboxTask::dieIfInvalidMailbox()
     log("Mailbox disappeared", LOG_MAILBOX_SYNC);
 
     unSelectTask = model->_taskFactory->createUnSelectTask(model, this);
-    connect(unSelectTask, SIGNAL(completed()), this, SLOT(slotUnSelectCompleted()));
+    connect(unSelectTask, SIGNAL(completed(ImapTask*const)), this, SLOT(slotUnSelectCompleted()));
     unSelectTask->perform();
 
     return true;
