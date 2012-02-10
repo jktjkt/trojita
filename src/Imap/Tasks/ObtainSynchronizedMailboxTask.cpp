@@ -53,8 +53,6 @@ void ObtainSynchronizedMailboxTask::perform()
     parser = keepTaskChild->parser;
     markAsActiveTask();
 
-    log("Synchronizing mailbox", LOG_MAILBOX_SYNC);
-
     if ( ! mailboxIndex.isValid() ) {
         // FIXME: proper error handling
         log("The mailbox went missing, sorry", LOG_MAILBOX_SYNC);
@@ -75,6 +73,7 @@ void ObtainSynchronizedMailboxTask::perform()
     selectCmd = parser->select( mailbox->mailbox() );
     mailbox->syncState = SyncState();
     status = STATE_SELECTING;
+    log("Synchronizing mailbox", LOG_MAILBOX_SYNC);
     emit model->mailboxSyncingProgress( mailboxIndex, status );
 }
 
@@ -126,19 +125,20 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( const Imap::Responses::St
     } else if ( resp->tag == flagsCmd ) {
 
         if ( resp->kind == Responses::OK ) {
-            log("Flags synchronized", LOG_MAILBOX_SYNC);
             //qDebug() << "received OK for flagsCmd";
             Q_ASSERT( status == STATE_SYNCING_FLAGS );
             Q_ASSERT( mailboxIndex.isValid() ); // FIXME
             TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ));
             Q_ASSERT( mailbox );
+            status = STATE_DONE;
+            log("Flags synchronized", LOG_MAILBOX_SYNC);
             notifyInterestingMessages( mailbox );
             model->emitMessageCountChanged(mailbox);
         } else {
+            status = STATE_DONE;
             log("Flags synchronization failed", LOG_MAILBOX_SYNC);
             // FIXME: error handling
         }
-        status = STATE_DONE;
         emit model->mailboxSyncingProgress( mailboxIndex, status );
         _completed();
         return true;
@@ -355,6 +355,7 @@ void ObtainSynchronizedMailboxTask::_syncGeneric( TreeItemMailbox* mailbox, Tree
 
 void ObtainSynchronizedMailboxTask::syncUids( TreeItemMailbox* mailbox, const uint lowestUidToQuery )
 {
+    status = STATE_SYNCING_UIDS;
     log("Syncing UIDs", LOG_MAILBOX_SYNC);
     QString uidSpecification;
     if ( lowestUidToQuery == 0 ) {
@@ -365,12 +366,12 @@ void ObtainSynchronizedMailboxTask::syncUids( TreeItemMailbox* mailbox, const ui
     uidSyncingCmd = parser->uidSearchUid( uidSpecification );
     emit model->activityHappening( true );
     model->cache()->clearUidMapping( mailbox->mailbox() );
-    status = STATE_SYNCING_UIDS;
     emit model->mailboxSyncingProgress( mailboxIndex, status );
 }
 
 void ObtainSynchronizedMailboxTask::syncFlags( TreeItemMailbox *mailbox )
 {
+    status = STATE_SYNCING_FLAGS;
     log("Syncing flags", LOG_MAILBOX_SYNC);
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[ 0 ] );
     Q_ASSERT( list );
@@ -378,7 +379,6 @@ void ObtainSynchronizedMailboxTask::syncFlags( TreeItemMailbox *mailbox )
     flagsCmd = parser->fetch( Sequence( 1, mailbox->syncState.exists() ), QStringList() << QLatin1String("FLAGS") );
     emit model->activityHappening( true );
     list->_numberFetchingStatus = TreeItem::LOADING;
-    status = STATE_SYNCING_FLAGS;
     emit model->mailboxSyncingProgress( mailboxIndex, status );
 }
 
