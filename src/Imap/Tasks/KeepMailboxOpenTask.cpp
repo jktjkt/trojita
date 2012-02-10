@@ -202,7 +202,6 @@ void KeepMailboxOpenTask::terminate()
     // Merge the lists of waiting tasks
     if (!waitingObtainTasks.isEmpty()) {
         ObtainSynchronizedMailboxTask* first = waitingObtainTasks.takeFirst();
-        qDebug() << first;
         Q_ASSERT(first);
         Q_ASSERT(first->keepTaskChild);
         first->keepTaskChild->waitingObtainTasks = waitingObtainTasks + first->keepTaskChild->waitingObtainTasks;
