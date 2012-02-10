@@ -169,6 +169,7 @@ this function.
 */
 void TaskPresentationModel::slotTaskDestroyed(const ImapTask *const task)
 {
+    Q_UNUSED(task);
     reset();
 }
 
@@ -178,6 +179,7 @@ We don't bother with proper fine-grained signals here.
 */
 void TaskPresentationModel::slotParserCreated(Parser *parser)
 {
+    Q_UNUSED(parser);
     reset();
 }
 
@@ -187,11 +189,13 @@ We don't bother with proper fine-grained signals here.
 */
 void TaskPresentationModel::slotParserDeleted(Parser *parser)
 {
+    Q_UNUSED(parser);
     reset();
 }
 
 void TaskPresentationModel::slotTaskGotReparented(const ImapTask *const task)
 {
+    Q_UNUSED(task);
     reset();
 }
 
