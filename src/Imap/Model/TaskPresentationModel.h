@@ -52,7 +52,6 @@ public:
     virtual QVariant data(const QModelIndex &index, int role) const;
 
 public slots:
-    void slotTaskCreated(const ImapTask *const task);
     void slotTaskDestroyed(const ImapTask *const task);
 
     void slotTaskGotReparented(const ImapTask *const task);

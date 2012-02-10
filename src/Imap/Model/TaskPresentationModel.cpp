@@ -157,12 +157,6 @@ QVariant TaskPresentationModel::data(const QModelIndex &index, int role) const
     }
 }
 
-/** @short Called when a new task is created and registered with the model */
-void TaskPresentationModel::slotTaskCreated(const ImapTask *const task)
-{
-    reset();
-}
-
 /** @short Called when a particular task ceases to exist
 
 The ImapTask might be in various stages of destruction at this point, so it is not advisable to access its contents from

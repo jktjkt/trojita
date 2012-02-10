@@ -27,7 +27,6 @@ ImapTask::ImapTask( Model* _model ) :
     QObject(_model), parser(0), parentTask(0), model(_model), _finished(false)
 {
     connect( this, SIGNAL(destroyed(QObject*)), model, SLOT(slotTaskDying(QObject*)) );
-    model->m_taskModel->slotTaskCreated(this);
 }
 
 ImapTask::~ImapTask()
