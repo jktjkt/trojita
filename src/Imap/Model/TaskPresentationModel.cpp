@@ -160,7 +160,6 @@ QVariant TaskPresentationModel::data(const QModelIndex &index, int role) const
 /** @short Called when a new task is created and registered with the model */
 void TaskPresentationModel::slotTaskCreated(const ImapTask *const task)
 {
-    qDebug() << Q_FUNC_INFO << task;
     reset();
 }
 
@@ -171,7 +170,6 @@ this function.
 */
 void TaskPresentationModel::slotTaskDestroyed(const ImapTask *const task)
 {
-    qDebug() << Q_FUNC_INFO << task;
     reset();
 }
 
