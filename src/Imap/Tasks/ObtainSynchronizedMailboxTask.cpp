@@ -27,28 +27,30 @@
 namespace Imap {
 namespace Mailbox {
 
-ObtainSynchronizedMailboxTask::ObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex, ImapTask* parentTask ) :
-    ImapTask( _model ), conn(parentTask), mailboxIndex(_mailboxIndex),
-    status(STATE_WAIT_FOR_CONN), uidSyncingMode(UID_SYNC_ALL), unSelectTask(0)
+ObtainSynchronizedMailboxTask::ObtainSynchronizedMailboxTask(Model *_model, const QModelIndex &_mailboxIndex, ImapTask *parentTask,
+                                                             KeepMailboxOpenTask *keepTask):
+    ImapTask(_model), conn(parentTask), mailboxIndex(_mailboxIndex),
+    status(STATE_WAIT_FOR_CONN), uidSyncingMode(UID_SYNC_ALL), unSelectTask(0), keepTaskChild(keepTask)
 {
-    // We do *not* want to add ourselves to the list of dependant tasks here;
-    // this is a special case, our perform() is called explicitly by KeepMailboxOpenTask
+    if (conn) {
+        conn->addDependentTask(this);
+    }
+    addDependentTask(keepTaskChild);
 }
 
 void ObtainSynchronizedMailboxTask::addDependentTask( ImapTask* task )
 {
-    if ( ! dependentTasks.isEmpty() ) {
+    if (!dependentTasks.isEmpty()) {
         throw CantHappen("Attempted to add another dependent task to an ObtainSynchronizedMailboxTask");
-    }
-    if ( ! dynamic_cast<KeepMailboxOpenTask*>(task) ) {
-        throw CantHappen("Attempted to add something else than a KeepMailboxOpenTask as a dependency to ObtainSynchronizedMailboxTask");
     }
     ImapTask::addDependentTask(task);
 }
 
 void ObtainSynchronizedMailboxTask::perform()
 {
-    parser = conn->parser;
+    // The Parser* is not provided by our parent task, but instead through the keepTaskChild.  The reason is simple, the parent
+    // task might not even exist, but there's always an KeepMailboxOpenTask in the game.
+    parser = keepTaskChild->parser;
     markAsActiveTask();
 
     log("Synchronizing mailbox", LOG_MAILBOX_SYNC);

@@ -39,7 +39,7 @@ class ObtainSynchronizedMailboxTask : public ImapTask
 {
 Q_OBJECT
 public:
-    ObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex, ImapTask* parentTask );
+    ObtainSynchronizedMailboxTask(Model *_model, const QModelIndex &_mailboxIndex, ImapTask *parentTask, KeepMailboxOpenTask *keepTask);
     virtual void perform();
     virtual bool handleStateHelper( const Imap::Responses::State* const resp );
     virtual bool handleNumberResponse( const Imap::Responses::NumberResponse* const resp );
@@ -99,6 +99,9 @@ private:
 
     /** @short An UNSELECT task, if active */
     UnSelectTask *unSelectTask;
+
+    /** @short The KeepMailboxOpenTask for which we're working */
+    KeepMailboxOpenTask *keepTaskChild;
 
     friend class KeepMailboxOpenTask; // needs access to conn because it wants to re-use its parser, yay
 };

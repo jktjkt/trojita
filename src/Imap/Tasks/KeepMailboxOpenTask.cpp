@@ -49,47 +49,36 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
     // maintainingTask to the target mailbox
     mailbox->maintainingTask = this;
 
-    if ( oldParser ) {
+    if (oldParser) {
         // We're asked to re-use an existing connection. Let's see if there's something associated with it
 
+        // We will use its parser, that's for sure already
+        parser = oldParser;
+
         // Find if there's a KeepMailboxOpenTask already associated; if it is, we have to register with it
-        if ( model->accessParser( oldParser ).maintainingTask ) {
+        if (model->accessParser(parser).maintainingTask) {
             // The parser looks busy -- some task is associated with it and has a mailbox open, so
             // let's just wait till we get a chance to play
-            // Got to copy the parser information; also make sure our assumptions about who's who really hold
-            parser = oldParser;
-            Q_ASSERT( model->accessParser( oldParser ).maintainingTask->parser == oldParser );
-            model->accessParser( oldParser ).maintainingTask->addDependentTask( this );
-            synchronizeConn = model->_taskFactory->createObtainSynchronizedMailboxTask( _model, mailboxIndex, this );
-            // our synchronizeConn will be triggered by that other KeepMailboxOpenTask
+            synchronizeConn = model->_taskFactory->
+                    createObtainSynchronizedMailboxTask(_model, mailboxIndex, model->accessParser(oldParser).maintainingTask, this);
         } else {
-            // The parser is free, or at least there's no KeepMailboxOpenTask associated with it
-            // That means that we can steal its parser...
-            parser = oldParser;
-            // ...and simply schedule us for immediate execution. We can do that, because there's
-            // no mailbox besides us in the game, yet.
-            synchronizeConn = model->_taskFactory->createObtainSynchronizedMailboxTask( _model, mailboxIndex, this );
+            // The parser is free, or at least there's no KeepMailboxOpenTask associated with it.
+            // There's no mailbox besides us in the game, yet, so we can simply schedule us for immediate execution.
+            synchronizeConn = model->_taskFactory->createObtainSynchronizedMailboxTask(_model, mailboxIndex, 0, this);
             // We'll also register with the model, so that all other KeepMailboxOpenTask which could get constructed in future
             // know about us and don't step on our toes.  This means that further KeepMailboxOpenTask which could possibly want
             // to use this connection will have to go through this task at first.
-            model->accessParser( oldParser ).maintainingTask = this;
-            QTimer::singleShot( 0, this, SLOT(slotPerformConnection()) );
+            model->accessParser(parser).maintainingTask = this;
+            QTimer::singleShot(0, this, SLOT(slotPerformConnection()));
         }
     } else {
         // Create new connection
         ImapTask* conn = model->_taskFactory->createOpenConnectionTask( model );
         parser = conn->parser;
         Q_ASSERT(parser);
-        model->accessParser( parser ).maintainingTask = this;
-        // We don't register ourselves as a "dependant task" on conn, as we don't want it to call perform() on us;
-        // instead of that, we listen for its completion and trigger the slotPerformConnection()
-        connect( conn, SIGNAL(completed()), this, SLOT(slotPerformConnection()) );
-        synchronizeConn = model->_taskFactory->createObtainSynchronizedMailboxTask( _model, mailboxIndex, conn );
+        model->accessParser(parser).maintainingTask = this;
+        synchronizeConn = model->_taskFactory->createObtainSynchronizedMailboxTask(_model, mailboxIndex, conn, this);
     }
-    // This will make sure that synchronizeConn will call perform() on us when it's finished
-    // We explicitly do *not* want to depend on that, as that'd introduce inconsistency into this KeepMailboxOpenTask::parentTask
-    connect(synchronizeConn, SIGNAL(completed()), this, SLOT(slotSyncHasCompleted()));
-    connect(synchronizeConn, SIGNAL(failed()), this, SLOT(slotConnFailed()));
 
     // Setup the timer for NOOPing. It won't get started at this time, though.
     noopTimer = new QTimer(this);
@@ -135,8 +124,8 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
 
 void KeepMailboxOpenTask::slotPerformConnection()
 {
-    Q_ASSERT( synchronizeConn );
-    Q_ASSERT( ! synchronizeConn->isFinished() );
+    Q_ASSERT(synchronizeConn);
+    Q_ASSERT(!synchronizeConn->isFinished());
     synchronizeConn->perform();
 }
 
@@ -146,11 +135,11 @@ void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
 
     breakPossibleIdle();
 
-    KeepMailboxOpenTask* keepTask = qobject_cast<KeepMailboxOpenTask*>( task );
-    if ( keepTask ) {
+    ObtainSynchronizedMailboxTask* obtainTask = qobject_cast<ObtainSynchronizedMailboxTask*>( task );
+    if (obtainTask) {
         // Another KeepMailboxOpenTask would like to replace us, so we shall die, eventually.
 
-        waitingKeepTasks.append( keepTask );
+        waitingObtainTasks.append( obtainTask );
         shouldExit = true;
 
         // Before we can die, though, we have to accomodate fetch requests for all envelopes and parts queued so far.
@@ -211,11 +200,14 @@ void KeepMailboxOpenTask::terminate()
     die();
 
     // Merge the lists of waiting tasks
-    if (!waitingKeepTasks.isEmpty()) {
-        KeepMailboxOpenTask* first = waitingKeepTasks.takeFirst();
-        first->waitingKeepTasks = waitingKeepTasks + first->waitingKeepTasks;
-        model->accessParser( parser ).maintainingTask = first;
-        QTimer::singleShot(0, first, SLOT(slotPerformConnection()));
+    if (!waitingObtainTasks.isEmpty()) {
+        ObtainSynchronizedMailboxTask* first = waitingObtainTasks.takeFirst();
+        qDebug() << first;
+        Q_ASSERT(first);
+        Q_ASSERT(first->keepTaskChild);
+        first->keepTaskChild->waitingObtainTasks = waitingObtainTasks + first->keepTaskChild->waitingObtainTasks;
+        model->accessParser(parser).maintainingTask = first->keepTaskChild;
+        QTimer::singleShot(0, first->keepTaskChild, SLOT(slotPerformConnection()));
     }
     _finished = true;
     emit completed();
@@ -229,7 +221,7 @@ void KeepMailboxOpenTask::perform()
     synchronizeConn = 0; // will get deleted by Model
     markAsActiveTask();
 
-    if (!waitingKeepTasks.isEmpty() && ! hasPendingInternalActions()) {
+    if (!waitingObtainTasks.isEmpty() && ! hasPendingInternalActions()) {
         // We're basically useless, but we have to die reasonably
         shouldExit = true;
         terminate();

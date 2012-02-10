@@ -152,7 +152,7 @@ protected:
     A list of KeepMailboxOpenTask which would like to use this connection to the IMAP server for conducting their business.  They
     have to wait until this KeepMailboxOpenTask finished whatever it has to do.
     */
-    QList<KeepMailboxOpenTask*> waitingKeepTasks;
+    QList<ObtainSynchronizedMailboxTask*> waitingObtainTasks;
 
     /** @short List of pending or running tasks which require this mailbox
 

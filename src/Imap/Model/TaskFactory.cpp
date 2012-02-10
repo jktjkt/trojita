@@ -100,9 +100,10 @@ NumberOfMessagesTask* TaskFactory::createNumberOfMessagesTask( Model* _model, co
     return new NumberOfMessagesTask( _model, mailbox );
 }
 
-ObtainSynchronizedMailboxTask* TaskFactory::createObtainSynchronizedMailboxTask( Model* _model, const QModelIndex& _mailboxIndex, ImapTask* parentTask )
+ObtainSynchronizedMailboxTask* TaskFactory::createObtainSynchronizedMailboxTask( Model *_model, const QModelIndex &_mailboxIndex,
+                                                                                 ImapTask *parentTask, KeepMailboxOpenTask *keepTask)
 {
-    return new ObtainSynchronizedMailboxTask( _model, _mailboxIndex, parentTask );
+    return new ObtainSynchronizedMailboxTask(_model, _mailboxIndex, parentTask, keepTask);
 }
 
 UpdateFlagsTask* TaskFactory::createUpdateFlagsTask( Model* _model, const QModelIndexList& _messages, const QString& _flagOperation, const QString& _flags )
