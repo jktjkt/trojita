@@ -633,7 +633,7 @@ bool KeepMailboxOpenTask::dieIfInvalidMailbox()
 
     // See ObtainSynchronizedMailboxTask::dieIfInvalidMailbox() for details
     unSelectTask = model->_taskFactory->createUnSelectTask(model, this);
-    connect(unSelectTask, SIGNAL(completed(ImapTask*const)), this, SLOT(slotConnFailed()));
+    connect(unSelectTask, SIGNAL(completed(ImapTask*)), this, SLOT(slotConnFailed()));
     unSelectTask->perform();
 
     return true;

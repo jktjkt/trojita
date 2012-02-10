@@ -50,7 +50,8 @@ void ImapModelOpenConnectionTest::init( bool startTlsRequired )
     connect(model, SIGNAL(authRequested(QAuthenticator*)), this, SLOT(provideAuthDetails(QAuthenticator*)) );
     task = new Imap::Mailbox::OpenConnectionTask( model );
     using Imap::Mailbox::ImapTask;
-    completedSpy = new QSignalSpy(task, SIGNAL(completed(ImapTask*const)));
+    qRegisterMetaType<ImapTask*>("ImapTask*");
+    completedSpy = new QSignalSpy(task, SIGNAL(completed(ImapTask*)));
     authSpy = new QSignalSpy( model, SIGNAL(authRequested(QAuthenticator*)) );
 }
 

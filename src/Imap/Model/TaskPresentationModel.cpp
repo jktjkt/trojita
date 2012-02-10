@@ -200,11 +200,11 @@ The task might or might not have been present in the model before.  We don't kno
 void TaskPresentationModel::slotTaskGotReparented(const ImapTask *const task)
 {
     reset();
-    connect(task, SIGNAL(completed(ImapTask*const)), this, SLOT(slotTaskMighHaveChanged(ImapTask*const)));
+    connect(task, SIGNAL(completed(ImapTask*)), this, SLOT(slotTaskMighHaveChanged(ImapTask*)));
 }
 
 /** @short The textual description, the state or something else related to this task might have changed */
-void TaskPresentationModel::slotTaskMighHaveChanged(const ImapTask *const task)
+void TaskPresentationModel::slotTaskMighHaveChanged(ImapTask *task)
 {
     QModelIndex index = indexForTask(task);
     Q_ASSERT(index.isValid());
