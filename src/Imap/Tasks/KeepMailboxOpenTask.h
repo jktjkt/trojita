@@ -192,6 +192,8 @@ protected:
     KeepMailboxOpenTask from disappearing, they are also kept in the runningTasksForThisMailbox list.
     */
     QList<ImapTask*> runningTasksForThisMailbox;
+    /** @short Contents of the dependentTasks without the waitingObtainTasks */
+    QList<ImapTask*> dependingTasksForThisMailbox;
     /** @short An ImapTask that will be started to actually sync to a mailbox once the connection is free */
     ObtainSynchronizedMailboxTask* synchronizeConn;
 

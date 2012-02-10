@@ -139,6 +139,7 @@ void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
     if (obtainTask) {
         // Another KeepMailboxOpenTask would like to replace us, so we shall die, eventually.
 
+        dependentTasks.append(task);
         waitingObtainTasks.append( obtainTask );
         shouldExit = true;
 
@@ -152,6 +153,7 @@ void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
     } else {
         connect( task, SIGNAL(destroyed(QObject*)), this, SLOT(slotTaskDeleted(QObject*)) );
         ImapTask::addDependentTask( task );
+        dependingTasksForThisMailbox.append(task);
         QTimer::singleShot(0, this, SLOT(slotActivateTasks()));
     }
 
@@ -164,6 +166,7 @@ void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )
     // we can't use the passed pointer directly, and therefore we have to perform the cast here. It is safe
     // to do that here, as we're only interested in raw pointer value.
     dependentTasks.removeOne(static_cast<ImapTask*>(object));
+    dependingTasksForThisMailbox.removeOne(static_cast<ImapTask*>(object));
     runningTasksForThisMailbox.removeOne(static_cast<ImapTask*>(object));
     fetchPartTasks.removeOne(static_cast<FetchMsgPartTask*>(object));
     fetchMetadataTasks.removeOne(static_cast<FetchMsgMetadataTask*>(object));
@@ -183,7 +186,7 @@ void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )
 
 void KeepMailboxOpenTask::terminate()
 {
-    Q_ASSERT(dependentTasks.isEmpty());
+    Q_ASSERT(dependingTasksForThisMailbox.isEmpty());
     Q_ASSERT(requestedParts.isEmpty());
     Q_ASSERT(requestedEnvelopes.isEmpty());
     Q_ASSERT(runningTasksForThisMailbox.isEmpty());
@@ -243,7 +246,7 @@ void KeepMailboxOpenTask::perform()
         noopTimer->start();
     } else if (shouldRunIdle) {
         idleLauncher = new IdleLauncher(this);
-        if (dependentTasks.isEmpty()) {
+        if (dependingTasksForThisMailbox.isEmpty()) {
             // There's no task yet, so we have to start IDLE now
             idleLauncher->enterIdleLater();
         }
@@ -489,9 +492,10 @@ void KeepMailboxOpenTask::activateTasks()
 
     breakPossibleIdle();
 
-    while (!dependentTasks.isEmpty() && model->accessParser(parser).activeTasks.size() < limitActiveTasks) {
-        ImapTask *task = dependentTasks.takeFirst();
+    while (!dependingTasksForThisMailbox.isEmpty() && model->accessParser(parser).activeTasks.size() < limitActiveTasks) {
+        ImapTask *task = dependingTasksForThisMailbox.takeFirst();
         runningTasksForThisMailbox.append(task);
+        dependentTasks.removeOne(task);
         task->perform();
     }
 }
@@ -641,7 +645,7 @@ bool KeepMailboxOpenTask::dieIfInvalidMailbox()
 bool KeepMailboxOpenTask::hasPendingInternalActions() const
 {
     bool hasToWaitForIdleTermination = idleLauncher ? idleLauncher->waitingForIdleTaggedTermination() : false;
-    return ! (dependentTasks.isEmpty() && requestedParts.isEmpty() && requestedEnvelopes.isEmpty()) || hasToWaitForIdleTermination;
+    return ! (dependingTasksForThisMailbox.isEmpty() && requestedParts.isEmpty() && requestedEnvelopes.isEmpty()) || hasToWaitForIdleTermination;
 }
 
 }
