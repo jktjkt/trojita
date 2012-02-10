@@ -56,8 +56,8 @@ public:
 
 public slots:
     void slotTaskDestroyed(const ImapTask *const task);
-
     void slotTaskGotReparented(const ImapTask *const task);
+    void slotTaskMighHaveChanged(const ImapTask *const task);
 
     void slotParserCreated(Parser *parser);
     void slotParserDeleted(Parser *parser);

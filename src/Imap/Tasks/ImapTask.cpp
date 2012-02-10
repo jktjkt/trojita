@@ -210,6 +210,7 @@ void ImapTask::log(const QString &message, const LogKind kind)
         dbg.prepend(QLatin1Char(' '));
     }
     model->logTrace(parser->parserId(), kind, metaObject()->className() + dbg, message);
+    model->m_taskModel->slotTaskMighHaveChanged(this);
 }
 
 }

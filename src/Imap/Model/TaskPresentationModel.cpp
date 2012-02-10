@@ -203,6 +203,14 @@ void TaskPresentationModel::slotTaskGotReparented(const ImapTask *const task)
     reset();
 }
 
+/** @short The textual description, the state or something else related to this task might have changed */
+void TaskPresentationModel::slotTaskMighHaveChanged(const ImapTask *const task)
+{
+    QModelIndex index = indexForTask(task);
+    Q_ASSERT(index.isValid());
+    emit dataChanged(index, index);
+}
+
 void dumpModelContents(QAbstractItemModel *model, QModelIndex index, QByteArray offset) {
     qDebug() << offset << index.data(Qt::DisplayRole).toString();
     for (int i=0; i < model->rowCount(index); ++i) {
