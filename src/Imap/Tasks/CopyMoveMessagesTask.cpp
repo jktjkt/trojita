@@ -70,8 +70,7 @@ void CopyMoveMessagesTask::perform()
 
     if ( first ) {
         // No valid messages
-        log("All messages got removed before we could've copied them");
-        _completed();
+        _failed(tr("All messages disappeared before we could have copied them."));
         return;
     }
 
@@ -94,7 +93,7 @@ bool CopyMoveMessagesTask::handleStateHelper( const Imap::Responses::State* cons
         } else {
             // FIXME: error handling
             log("COPY failed: " + resp->message);
-            _completed();
+            _failed(tr("The COPY operation has failed.  Server reports: ").arg(resp->message));
         }
         return true;
     } else {

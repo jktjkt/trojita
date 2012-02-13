@@ -157,6 +157,13 @@ void ImapTask::_completed()
     emit completed(this);
 }
 
+void ImapTask::_failed(const QString &errorMessage)
+{
+    log(QString::fromAscii("Failed: %1").arg(errorMessage));
+    _finished = true;
+    emit failed(errorMessage);
+}
+
 void ImapTask::handleResponseCode( const Imap::Responses::State* const resp )
 {
     using namespace Imap::Responses;

@@ -749,10 +749,8 @@ bool ObtainSynchronizedMailboxTask::dieIfInvalidMailbox()
 
 void ObtainSynchronizedMailboxTask::slotUnSelectCompleted()
 {
-    log("Escaped form the mailbox", LOG_MAILBOX_SYNC);
     // Now, just finish and signal a failure
-    _finished = true;
-    emit failed();
+    _failed(tr("Escaped from mailbox"));
 }
 
 }

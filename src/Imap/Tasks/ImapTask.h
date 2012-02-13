@@ -93,6 +93,8 @@ public:
 protected:
     void _completed();
 
+    void _failed(const QString &errorMessage);
+
     /** @short Get a debug logger associated with this task
 
     Use this function to obtain a logger which can be used for recording debug information associated with the current
@@ -113,7 +115,7 @@ private:
 
 signals:
     /** @short This signal is emitted if the job failed in some way */
-    void failed();
+    void failed(QString errorMessage);
     /** @short This signal is emitted upon succesfull completion of a job */
     void completed(ImapTask *task);
 
