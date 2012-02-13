@@ -48,8 +48,7 @@ void FetchMsgMetadataTask::perform()
 bool FetchMsgMetadataTask::handleFetch( const Imap::Responses::Fetch* const resp )
 {
     if ( ! mailbox.isValid() ) {
-        log("handleFetch: mailbox disappeared", LOG_MESSAGES);
-        _completed();
+        _failed("handleFetch: mailbox disappeared");
         // FIXME: nice error handling
         return false;
     }
@@ -67,11 +66,11 @@ bool FetchMsgMetadataTask::handleStateHelper( const Imap::Responses::State* cons
     if ( resp->tag == tag ) {
 
         if ( resp->kind == Responses::OK ) {
-            // nothing should be needed here
+            _completed();
         } else {
+            _failed("UID FETCH failed");
             // FIXME: error handling
         }
-        _completed();
         return true;
     } else {
         return false;

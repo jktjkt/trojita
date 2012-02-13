@@ -45,8 +45,10 @@ void FetchMsgPartTask::perform()
 
 bool FetchMsgPartTask::handleFetch( const Imap::Responses::Fetch* const resp )
 {
-    if ( ! mailboxIndex.isValid() )
+    if (!mailboxIndex.isValid()) {
+        _failed("Mailbox disappeared");
         return false;
+    }
 
     TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
     Q_ASSERT(mailbox);
@@ -65,11 +67,11 @@ bool FetchMsgPartTask::handleStateHelper( const Imap::Responses::State* const re
             log("Fetched parts", LOG_MESSAGES);
             verifyFetchingState();
             model->changeConnectionState( parser, CONN_STATE_SELECTED );
+            _completed();
         } else {
             // FIXME: error handling
-            log("Part fetch failed", LOG_MESSAGES);
+            _failed("Part fetch failed");
         }
-        _completed();
         return true;
     } else {
         return false;
@@ -79,7 +81,7 @@ bool FetchMsgPartTask::handleStateHelper( const Imap::Responses::State* const re
 void FetchMsgPartTask::verifyFetchingState()
 {
     if ( ! mailboxIndex.isValid() ) {
-        log("Mailbox has disappeared, huh?", LOG_TASKS);
+        _failed("Mailbox has disappeared, huh?");
         return;
     }
 
