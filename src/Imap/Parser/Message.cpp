@@ -511,9 +511,9 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList( const QVariantList& i
             ++i;
 
         } else if ( mediaType == "text" ) {
+            kind = TEXT;
             if ( i < items.size() ) {
                 // extract body-fld-lines
-                kind = TEXT;
                 bodyFldLines = extractUInt( items[i], line, start );
                 ++i;
             }
