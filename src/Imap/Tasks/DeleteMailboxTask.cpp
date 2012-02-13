@@ -67,12 +67,11 @@ bool DeleteMailboxTask::handleStateHelper( const Imap::Responses::State* const r
                 log(buf);
             }
             emit model->mailboxDeletionSucceded( mailbox );
+            _completed();
         } else {
-            log("Couldn't delete mailbox");
             emit model->mailboxDeletionFailed( mailbox, resp->message );
-            // FIXME: Tasks API error handling
+            _failed("Couldn't delete mailbox");
         }
-        _completed();
         return true;
     } else {
         return false;

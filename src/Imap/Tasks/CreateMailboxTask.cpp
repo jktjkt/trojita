@@ -55,19 +55,17 @@ bool CreateMailboxTask::handleStateHelper( const Imap::Responses::State* const r
             emit model->activityHappening( true );
             // Don't call _completed() yet, we're going to update mbox list before that
         } else {
-            log("Failed to create mailbox");
             emit model->mailboxCreationFailed( mailbox, resp->message );
-            _completed();
-            // FIXME: proper error handling for the Tasks API
+            _failed("Cannot create mailbox");
         }
         return true;
     } else if ( resp->tag == tagList ) {
         if ( resp->kind == Responses::OK ) {
             model->_finalizeIncrementalList( parser, mailbox );
+            _completed();
         } else {
-            // FIXME
+            _failed("Error with the LIST command after the CREATE");
         }
-        _completed();
         return true;
     } else {
         return false;

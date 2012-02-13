@@ -39,9 +39,8 @@ void ExpungeMailboxTask::perform()
     markAsActiveTask();
 
     if ( ! mailboxIndex.isValid() ) {
-        // FIXME: add proper fix
-        log("Mailbox vanished before we could expunge it");
-        _completed();
+        _failed("Mailbox vanished before we could expunge it");
+        // FIXME: add proper fix/callback to the Model
         return;
     }
 
@@ -55,8 +54,11 @@ bool ExpungeMailboxTask::handleStateHelper( const Imap::Responses::State* const 
         return false;
 
     if ( resp->tag == tag ) {
-        // FIXME: we should probably care about how the command ended here...
-        _completed();
+        if (resp->kind == Responses::OK) {
+            _completed();
+        } else {
+            _failed("Expunge failed");
+        }
         return true;
     } else {
         return false;
