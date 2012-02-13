@@ -39,9 +39,7 @@ void ThreadTask::perform()
     markAsActiveTask();
 
     if ( ! mailboxIndex.isValid() ) {
-        // FIXME: add proper fix
-        log("Mailbox vanished before we could ask for threading info");
-        _completed();
+        _failed("Mailbox vanished before we could ask for threading info");
         return;
     }
 
@@ -55,13 +53,13 @@ bool ThreadTask::handleStateHelper( const Imap::Responses::State* const resp )
         return false;
 
     if ( resp->tag == tag ) {
-        _completed();
         if ( resp->kind == Responses::OK ) {
             emit model->threadingAvailable(mailboxIndex, algorithm, searchCriteria, mapping);
+            _completed();
         } else {
             // FIXME: show this in the GUI
-            log("Threading command has failed: " + resp->message);
             emit model->threadingFailed(mailboxIndex, algorithm, searchCriteria);
+            _failed("Threading command has failed");
         }
         mapping.clear();
         return true;

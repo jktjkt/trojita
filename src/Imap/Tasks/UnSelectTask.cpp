@@ -62,12 +62,12 @@ bool UnSelectTask::handleStateHelper( const Imap::Responses::State* const resp )
         if (resp->tag == unSelectTag) {
             if (resp->kind == Responses::OK) {
                 // nothing should be needed here
+                _completed();
             } else {
                 // This is really bad.
                 throw MailboxException("Attempted to unselect current mailbox, but the server denied our request. "
                                        "Can't continue, to avoid possible data corruption.", *resp);
             }
-            _completed();
             return true;
         } else if (resp->tag == selectMissingTag) {
             if (resp->kind == Responses::OK) {
