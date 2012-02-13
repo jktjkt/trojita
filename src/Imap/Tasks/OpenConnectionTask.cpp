@@ -140,7 +140,6 @@ bool OpenConnectionTask::handleStateHelper( const Imap::Responses::State* const 
         // So now we've got a secure connection, but we will have to login. Additionally,
         // we are obliged to forget any capabilities.
         model->accessParser( parser ).capabilitiesFresh = false;
-        // FIXME: why do I have to comment that out?
         if ( resp->kind == Responses::OK ) {
             capabilityCmd = parser->capability();
             emit model->activityHappening( true );
