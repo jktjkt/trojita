@@ -42,8 +42,7 @@ void ListChildMailboxesTask::perform()
 
     if ( ! mailboxIndex.isValid() ) {
         // FIXME: add proper fix
-        log("Mailbox vanished before we could ask for its children", LOG_TASKS);
-        _completed();
+        _failed("Mailbox vanished before we could ask for its children");
         return;
     }
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
@@ -71,15 +70,15 @@ bool ListChildMailboxesTask::handleStateHelper( const Imap::Responses::State* co
 
             if ( resp->kind == Responses::OK ) {
                 model->_finalizeList( parser, mailbox );
+                _completed();
             } else {
-                log("LIST failed");
+                _failed("LIST failed");
                 // FIXME: error handling
             }
         } else {
+            _failed("Mailbox no longer available -- weird timing?");
             // FIXME: error handling
-            log("Mailbox no longer available -- weird timing?");
         }
-        _completed();
         return true;
     } else {
         return false;

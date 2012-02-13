@@ -59,9 +59,13 @@ bool NumberOfMessagesTask::handleStateHelper( const Imap::Responses::State* cons
     if ( resp->tag.isEmpty() )
         return false;
 
-    if ( resp->tag == tag ) {
-        // FIXME: we should probably care about how the command ended here...
-        _completed();
+    if (resp->tag == tag) {
+        if (resp->kind == Responses::OK) {
+            _completed();
+        } else {
+            _failed("STATUS has failed");
+            // FIXME: error handling
+        }
         return true;
     } else {
         return false;

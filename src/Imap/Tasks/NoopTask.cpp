@@ -50,11 +50,11 @@ bool NoopTask::handleStateHelper( const Imap::Responses::State* const resp )
 
         if ( resp->kind == Responses::OK ) {
             // nothing should be needed here
+            _completed();
         } else {
-            log("NOOP failed, strange");
+            _failed("NOOP failed, strange");
             // FIXME: error handling
         }
-        _completed();
         return true;
     } else {
         return false;

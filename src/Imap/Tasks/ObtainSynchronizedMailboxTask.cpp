@@ -95,8 +95,8 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( const Imap::Responses::St
             Q_ASSERT( status == STATE_SELECTING );
             _finalizeSelect();
         } else {
-            // FIXME: Tasks API error handling
-            log("SELECT failed", LOG_MAILBOX_SYNC);
+            _failed("SELECT failed");
+            // FIXME: error handling
             model->changeConnectionState( parser, CONN_STATE_AUTHENTICATED);
         }
         return true;
@@ -118,7 +118,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( const Imap::Responses::St
             }
             syncFlags( mailbox );
         } else {
-            log("UID syncing failed", LOG_MAILBOX_SYNC);
+            _failed("UID syncing failed");
             // FIXME: error handling
         }
         return true;
@@ -134,13 +134,13 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( const Imap::Responses::St
             log("Flags synchronized", LOG_MAILBOX_SYNC);
             notifyInterestingMessages( mailbox );
             model->emitMessageCountChanged(mailbox);
+            _completed();
         } else {
             status = STATE_DONE;
-            log("Flags synchronization failed", LOG_MAILBOX_SYNC);
+            _failed("Flags synchronization failed");
             // FIXME: error handling
         }
         emit model->mailboxSyncingProgress( mailboxIndex, status );
-        _completed();
         return true;
     } else {
         return false;
@@ -750,7 +750,7 @@ bool ObtainSynchronizedMailboxTask::dieIfInvalidMailbox()
 void ObtainSynchronizedMailboxTask::slotUnSelectCompleted()
 {
     // Now, just finish and signal a failure
-    _failed(tr("Escaped from mailbox"));
+    _failed("Escaped from mailbox");
 }
 
 }
