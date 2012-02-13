@@ -645,7 +645,8 @@ bool KeepMailboxOpenTask::dieIfInvalidMailbox()
 bool KeepMailboxOpenTask::hasPendingInternalActions() const
 {
     bool hasToWaitForIdleTermination = idleLauncher ? idleLauncher->waitingForIdleTaggedTermination() : false;
-    return ! (dependingTasksForThisMailbox.isEmpty() && requestedParts.isEmpty() && requestedEnvelopes.isEmpty()) || hasToWaitForIdleTermination;
+    return ! (dependingTasksForThisMailbox.isEmpty() && runningTasksForThisMailbox.isEmpty() &&
+              requestedParts.isEmpty() && requestedEnvelopes.isEmpty()) || hasToWaitForIdleTermination;
 }
 
 }
