@@ -85,7 +85,7 @@ bool OpenConnectionTask::handleStateHelper( const Imap::Responses::State* const 
                 }
             }
         } else {
-            // FIXME: Tasks API error handling
+            _failed("CAPABILITY failed");
         }
         return true;
     } else if ( resp->tag == loginCmd ) {
