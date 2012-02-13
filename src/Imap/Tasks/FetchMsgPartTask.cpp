@@ -61,7 +61,10 @@ bool FetchMsgPartTask::handleStateHelper( const Imap::Responses::State* const re
     if ( resp->tag.isEmpty() )
         return false;
 
-    if ( resp->tag == tag ) {
+    if (!mailboxIndex.isValid()) {
+        _failed("Mailbox disappeared");
+        return false;
+    }
 
         if ( resp->kind == Responses::OK ) {
             log("Fetched parts", LOG_MESSAGES);
