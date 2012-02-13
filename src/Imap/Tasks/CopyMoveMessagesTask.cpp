@@ -91,8 +91,6 @@ bool CopyMoveMessagesTask::handleStateHelper( const Imap::Responses::State* cons
             }
             _completed();
         } else {
-            // FIXME: error handling
-            log("COPY failed: " + resp->message);
             _failed(tr("The COPY operation has failed.  Server reports: ").arg(resp->message));
         }
         return true;
