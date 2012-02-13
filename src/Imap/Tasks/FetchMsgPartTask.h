@@ -36,8 +36,6 @@ public:
     virtual bool handleFetch(const Imap::Responses::Fetch* const resp);
     virtual bool handleStateHelper(const Imap::Responses::State* const resp);
 private:
-    void verifyFetchingState();
-
     CommandHandle tag;
     ImapTask* conn;
     QList<uint> uids;
