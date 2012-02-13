@@ -118,8 +118,8 @@ bool IdleLauncher::waitingForIdleTaggedTermination() const
 void IdleLauncher::idleCommandCompleted()
 {
     // FIXME: these asseerts could be triggered by a rogue server...
-    if ( _idling ) {
-        qDebug() << "Warning: IDLE completed before we could ask for its termination...";
+    if (_idling) {
+        task->log("Warning: IDLE completed before we could ask for its termination...", LOG_MAILBOX_SYNC);
         _idling = false;
         renewal->stop();
         task->parser->idleMagicallyTerminatedByServer();

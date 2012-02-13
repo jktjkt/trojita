@@ -384,7 +384,7 @@ bool KeepMailboxOpenTask::handleStateHelper( const Imap::Responses::State* const
             idleLauncher->idleCommandCompleted();
         } else {
             // The IDLE command has failed. Let's assume it's a permanent error and don't request it in future.
-            qDebug() << "The IDLE command has failed:" << resp->message;
+            log("The IDLE command has failed");
             shouldRunIdle = false;
             idleLauncher->idleCommandFailed();
             idleLauncher->deleteLater();
