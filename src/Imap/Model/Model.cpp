@@ -777,6 +777,7 @@ void Model::_askForMsgPart( TreeItemPart* item, bool onlyFromCache )
     if ( ! data.isNull() ) {
         item->_data = data;
         item->_fetchStatus = TreeItem::DONE;
+        return;
     }
 
     if ( networkPolicy() == NETWORK_OFFLINE ) {
