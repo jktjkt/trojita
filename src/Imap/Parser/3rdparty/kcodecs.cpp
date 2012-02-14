@@ -391,10 +391,10 @@ void KCodecs::base64Encode( const QByteArray& in, QByteArray& out,
                 count += 4;
             }
             out[didx++] = Base64EncMap[(data[sidx] >> 2) & 077];
-            out[didx++] = Base64EncMap[(data[sidx+1] >> 4) & 017 |
-                                       (data[sidx] << 4) & 077];
-            out[didx++] = Base64EncMap[(data[sidx+2] >> 6) & 003 |
-                                       (data[sidx+1] << 2) & 077];
+            out[didx++] = Base64EncMap[((data[sidx+1] >> 4) & 017) |
+                                       ((data[sidx] << 4) & 077)];
+            out[didx++] = Base64EncMap[((data[sidx+2] >> 6) & 003) |
+                                       ((data[sidx+1] << 2) & 077)];
             out[didx++] = Base64EncMap[data[sidx+2] & 077];
             sidx += 3;
         }
@@ -408,8 +408,8 @@ void KCodecs::base64Encode( const QByteArray& in, QByteArray& out,
         out[didx++] = Base64EncMap[(data[sidx] >> 2) & 077];
         if (sidx < len-1)
         {
-            out[didx++] = Base64EncMap[(data[sidx+1] >> 4) & 017 |
-                                       (data[sidx] << 4) & 077];
+            out[didx++] = Base64EncMap[((data[sidx+1] >> 4) & 017) |
+                                       ((data[sidx] << 4) & 077)];
             out[didx++] = Base64EncMap[(data[sidx+1] << 2) & 077];
         }
         else
@@ -547,10 +547,10 @@ void KCodecs::uuencode( const QByteArray& in, QByteArray& out )
         for (unsigned int end = sidx+line_len; sidx < end; sidx += 3)
         {
             out[didx++] = UUEncMap[(data[sidx] >> 2) & 077];
-            out[didx++] = UUEncMap[(data[sidx+1] >> 4) & 017 |
-                                   (data[sidx] << 4) & 077];
-            out[didx++] = UUEncMap[(data[sidx+2] >> 6) & 003 |
-                                (data[sidx+1] << 2) & 077];
+            out[didx++] = UUEncMap[((data[sidx+1] >> 4) & 017) |
+                                   ((data[sidx] << 4) & 077)];
+            out[didx++] = UUEncMap[((data[sidx+2] >> 6) & 003) |
+                                ((data[sidx+1] << 2) & 077)];
             out[didx++] = UUEncMap[data[sidx+2] & 077];
         }
 
@@ -567,10 +567,10 @@ void KCodecs::uuencode( const QByteArray& in, QByteArray& out )
     while (sidx+2 < len)
     {
         out[didx++] = UUEncMap[(data[sidx] >> 2) & 077];
-        out[didx++] = UUEncMap[(data[sidx+1] >> 4) & 017 |
-                               (data[sidx] << 4) & 077];
-        out[didx++] = UUEncMap[(data[sidx+2] >> 6) & 003 |
-                               (data[sidx+1] << 2) & 077];
+        out[didx++] = UUEncMap[((data[sidx+1] >> 4) & 017) |
+                               ((data[sidx] << 4) & 077)];
+        out[didx++] = UUEncMap[((data[sidx+2] >> 6) & 003) |
+                               ((data[sidx+1] << 2) & 077)];
         out[didx++] = UUEncMap[data[sidx+2] & 077];
         sidx += 3;
     }
@@ -578,8 +578,8 @@ void KCodecs::uuencode( const QByteArray& in, QByteArray& out )
     if (sidx < len-1)
     {
         out[didx++] = UUEncMap[(data[sidx] >> 2) & 077];
-        out[didx++] = UUEncMap[(data[sidx+1] >> 4) & 017 |
-                               (data[sidx] << 4) & 077];
+        out[didx++] = UUEncMap[((data[sidx+1] >> 4) & 017) |
+                               ((data[sidx] << 4) & 077)];
         out[didx++] = UUEncMap[(data[sidx+1] << 2) & 077];
         out[didx++] = UUEncMap[0];
     }
