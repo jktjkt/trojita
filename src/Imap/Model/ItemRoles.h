@@ -126,6 +126,11 @@ enum {
     This role is *not* used or implemented by the IMAP models, but only by the TaskPresentationModel.
     */
     RoleTaskIsParserState,
+    /** @short True if the task shall be visible in the user-facing list of current activities
+
+    This role is *not* used or implemented by the IMAP models, but only by the TaskPresentationModel and VisibleTasksModel.
+    */
+    RoleTaskIsVisible,
 
     /** @short The very last role */
     RoleInvalidLastOne

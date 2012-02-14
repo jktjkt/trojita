@@ -69,7 +69,9 @@ SOURCES += Parser/Parser.cpp \
     Network/ForbiddenReply.cpp \
     Network/MsgPartNetAccessManager.cpp \
     Network/FileDownloadManager.cpp \
-    Model/TaskPresentationModel.cpp
+    Model/TaskPresentationModel.cpp \
+    Model/kdeui-itemviews/kdescendantsproxymodel.cpp \
+    Model/VisibleTasksModel.cpp
 HEADERS += Parser/Parser.h \
     Parser/Command.h \
     Parser/Response.h \
@@ -128,6 +130,9 @@ HEADERS += Parser/Parser.h \
     Network/MsgPartNetAccessManager.h \
     Network/MsgPartNetworkReply.h \
     Network/FileDownloadManager.h \
-    Model/TaskPresentationModel.h
+    Model/TaskPresentationModel.h \
+    kdeui-itemviews/kdescendantsproxymodel.h \
+    kdeui-itemviews/kbihash_p.h \
+    Model/VisibleTasksModel.h
 
 XtConnect:DEFINES += XTUPLE_CONNECT
