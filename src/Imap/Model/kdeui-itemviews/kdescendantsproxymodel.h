@@ -25,7 +25,7 @@
 
 class KDescendantsProxyModelPrivate;
 
-#include "kdeui_export.h"
+#define KDEUI_EXPORT
 
 /**
 @brief Proxy Model for restructuring a Tree into a list.

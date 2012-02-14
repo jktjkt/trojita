@@ -25,10 +25,6 @@
 #include <QtCore/QStringList>
 #include <QtCore/QTimer>
 
-#include "kdebug.h"
-
-#define KDO(object) kDebug() << #object << object
-
 #include "kbihash_p.h"
 
 typedef KHash2Map<QPersistentModelIndex, int> Mapping;
