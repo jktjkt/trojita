@@ -160,7 +160,7 @@ QVariant TaskPresentationModel::data(const QModelIndex &index, int role) const
 
         ImapTask *task = static_cast<ImapTask*>(index.internalPointer());
         if (dynamic_cast<KeepMailboxOpenTask*>(task) || dynamic_cast<GetAnyConnectionTask*>(task) ||
-                dynamic_cast<OpenConnectionTask*>(task) || dynamic_cast<UnSelectTask*>(task) || dynamic_cast<NoopTask*>(task)) {
+                dynamic_cast<UnSelectTask*>(task)) {
             // Internal, auxiliary tasks
             return false;
         } else {
