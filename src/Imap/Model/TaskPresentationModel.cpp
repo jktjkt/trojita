@@ -20,9 +20,13 @@
 */
 
 #include "TaskPresentationModel.h"
-#include "ImapTask.h"
+#include "GetAnyConnectionTask.h"
 #include "ItemRoles.h"
+#include "KeepMailboxOpenTask.h"
 #include "Model.h"
+#include "NoopTask.h"
+#include "OpenConnectionTask.h"
+#include "UnSelectTask.h"
 
 namespace Imap {
 namespace Mailbox {
@@ -147,6 +151,22 @@ QVariant TaskPresentationModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case RoleTaskIsParserState:
         return isParserState;
+    case RoleTaskIsVisible:
+    {
+        if (isParserState) {
+            // That's not a task at all
+            return false;
+        }
+
+        ImapTask *task = static_cast<ImapTask*>(index.internalPointer());
+        if (dynamic_cast<KeepMailboxOpenTask*>(task) || dynamic_cast<GetAnyConnectionTask*>(task) ||
+                dynamic_cast<OpenConnectionTask*>(task) || dynamic_cast<UnSelectTask*>(task) || dynamic_cast<NoopTask*>(task)) {
+            // Internal, auxiliary tasks
+            return false;
+        } else {
+            return true;
+        }
+    }
     case Qt::DisplayRole:
         if (isParserState) {
             Imap::Parser *parser = static_cast<Imap::Parser*>(index.internalPointer());
