@@ -503,7 +503,7 @@ void Parser::executeACommand()
     bool sensitiveCommand = ( cmd._cmds.size() > 2 && cmd._cmds[1]._text == QLatin1String("LOGIN"));
     QByteArray privateMessage = sensitiveCommand ? QByteArray("[LOGIN command goes here]") : QByteArray();
 
-#ifdef PRINT_TRAFFIC
+#ifdef PRINT_TRAFFIC_TX
 #ifdef PRINT_TRAFFIC_SENSITIVE
     bool printThisCommand = true;
 #else
