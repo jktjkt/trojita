@@ -167,7 +167,6 @@ void Model::responseReceived( Parser *parser )
 
                 if ( (*taskIt)->isFinished() ) {
                     deletedTasks << *taskIt;
-                    parsersMightBeIdling();
                 }
             }
 
@@ -187,7 +186,6 @@ void Model::responseReceived( Parser *parser )
             _parsers.erase(it);
             m_taskModel->reset();
             broadcastParseError( parserId, QString::fromStdString( e.exceptionClass() ), e.what(), e.line(), e.offset() );
-            parsersMightBeIdling();
             return;
         }
         if (!it.value().parser) {
@@ -220,7 +218,6 @@ void Model::handleState(Imap::Parser *ptr, const Imap::Responses::State *const r
         switch (resp->kind) {
         case BYE:
             killParser(ptr, PARSER_KILL_EXPECTED);
-            parsersMightBeIdling();
             break;
         case OK:
             if (resp->respCode == NONE) {
@@ -809,7 +806,6 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
                 }
                 it->logoutCmd = it->parser->logout();
                 it->connState = CONN_STATE_LOGOUT;
-                emit activityHappening( true );
             }
             emit networkPolicyOffline();
             _netPolicy = NETWORK_OFFLINE;
@@ -839,7 +835,6 @@ void Model::slotParserDisconnected(Imap::Parser *parser, const QString msg)
     killParser(parser, PARSER_KILL_EXPECTED);
     _parsers.remove(parser);
     m_taskModel->slotParserDeleted(parser);
-    parsersMightBeIdling();
 }
 
 void Model::broadcastParseError( const uint parser, const QString& exceptionClass, const QString& errorMessage, const QByteArray& line, int position )
@@ -865,7 +860,6 @@ void Model::slotParseError(Parser *parser, const QString &exceptionClass, const 
     killParser(parser, PARSER_KILL_HARD);
     _parsers.remove(parser);
     m_taskModel->slotParserDeleted(parser);
-    parsersMightBeIdling();
 }
 
 void Model::switchToMailbox( const QModelIndex& mbox )
@@ -1075,7 +1069,6 @@ CommandHandle Model::performAuthentication( Imap::Parser* ptr )
         return CommandHandle();
     } else {
         CommandHandle cmd = ptr->login( _authenticator->user(), _authenticator->password() );
-        emit activityHappening( true );
         return cmd;
     }
 }
@@ -1131,13 +1124,6 @@ void Model::parserIsSendingCommand( Parser *parser, const QString& tag)
             // do nothing
             break;
     }*/
-}
-
-void Model::parsersMightBeIdling()
-{
-    bool someParserBusy = false;
-    // FIXME: track activity on a Task basis...
-    emit activityHappening( someParserBusy );
 }
 
 void Model::killParser(Parser *parser, ParserKillingMethod method)

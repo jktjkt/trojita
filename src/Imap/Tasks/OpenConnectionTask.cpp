@@ -148,7 +148,6 @@ bool OpenConnectionTask::handleStateHelper( const Imap::Responses::State* const 
             // Let's just throw an exception and let the Model deal with it.
             throw StartTlsFailed( tr("Can't establish a secure connection to the server (STARTTLS failed: %1). Refusing to proceed.").arg( resp->message ).toUtf8().constData() );
         }
-        model->parsersMightBeIdling();
         return true;
     } else {
         return false;

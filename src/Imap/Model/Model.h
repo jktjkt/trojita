@@ -324,9 +324,6 @@ authRequested() function.
     /** @short Inform the GUI about the progress of a connection */
     void connectionStateChanged( QObject* parser, Imap::ConnectionState state ); // got to use fully qualified namespace here
 
-    /** @short An interaction with the remote server is taking place */
-    void activityHappening( bool isHappening );
-
     /** @short The parser has encountered a fatal error */
     void logParserFatalError( uint parser, const QString& exceptionClass, const QString& message, const QByteArray& line, int position );
 
@@ -438,9 +435,6 @@ private:
 
     /** @short Try to authenticate the user to the IMAP server */
     CommandHandle performAuthentication( Imap::Parser* ptr );
-
-    /** @short Check if all the parsers are indeed idling, and update the GUI if so */
-    void parsersMightBeIdling();
 
     /** @short Is the reason for killing the parser an expected one? */
     typedef enum {
