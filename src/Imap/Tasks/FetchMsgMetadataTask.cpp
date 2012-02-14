@@ -42,7 +42,6 @@ void FetchMsgMetadataTask::perform()
 
     // we do not want to use _onlineMessageFetch because it contains UID and FLAGS
     tag = parser->uidFetch( seq, QStringList() << QLatin1String("ENVELOPE") << QLatin1String("BODYSTRUCTURE") << QLatin1String("RFC822.SIZE") );
-    emit model->activityHappening( true );
 }
 
 bool FetchMsgMetadataTask::handleFetch( const Imap::Responses::Fetch* const resp )

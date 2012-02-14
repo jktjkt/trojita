@@ -44,7 +44,6 @@ void ThreadTask::perform()
     }
 
     tag = parser->uidThread( algorithm, QLatin1String("utf-8"), searchCriteria );
-    emit model->activityHappening( true );
 }
 
 bool ThreadTask::handleStateHelper( const Imap::Responses::State* const resp )

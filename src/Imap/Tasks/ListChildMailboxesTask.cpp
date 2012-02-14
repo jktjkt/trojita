@@ -54,7 +54,6 @@ void ListChildMailboxesTask::perform()
     else
         mailboxName += mailbox->separator() + QChar( '%' );
     tag = parser->list( "", mailboxName );
-    emit model->activityHappening( true );
 }
 
 bool ListChildMailboxesTask::handleStateHelper( const Imap::Responses::State* const resp )

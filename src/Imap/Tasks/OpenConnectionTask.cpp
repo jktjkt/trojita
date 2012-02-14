@@ -38,7 +38,6 @@ OpenConnectionTask::OpenConnectionTask( Model* _model ) :
     connect( parser, SIGNAL(lineSent(Imap::Parser*,QByteArray)), model, SLOT(slotParserLineSent(Imap::Parser*,QByteArray)) );
     if ( model->_startTls ) {
         startTlsCmd = parser->startTls();
-        emit model->activityHappening( true );
     }
     model->_parsers[ parser ] = parserState;
     model->m_taskModel->slotParserCreated(parser);
@@ -78,7 +77,6 @@ bool OpenConnectionTask::handleStateHelper( const Imap::Responses::State* const 
                     log("Can't login yet, trying STARTTLS", LOG_OTHER);
                     // ... and we are forbidden from logging in, so we have to try the STARTTLS
                     startTlsCmd = parser->startTls();
-                    emit model->activityHappening( true );
                 } else {
                     // Apparently no need for STARTTLS and we are free to login
                     loginCmd = model->performAuthentication( parser );
@@ -142,7 +140,6 @@ bool OpenConnectionTask::handleStateHelper( const Imap::Responses::State* const 
         model->accessParser( parser ).capabilitiesFresh = false;
         if ( resp->kind == Responses::OK ) {
             capabilityCmd = parser->capability();
-            emit model->activityHappening( true );
         } else {
             // Well, this place is *very* bad -- we're in the middle of a responseRecevied(), Model is iterating over active tasks
             // and we really want to emit that connectionError signal here. The problem is that a typical reaction from the GUI is
@@ -177,7 +174,6 @@ void OpenConnectionTask::handleInitialResponse( const Imap::Responses::State* co
             model->changeConnectionState( parser, CONN_STATE_AUTHENTICATED);
             if ( ! model->accessParser( parser ).capabilitiesFresh ) {
                 capabilityCmd = parser->capability();
-                emit model->activityHappening( true );
             } else {
                 _completed();
             }
@@ -190,12 +186,10 @@ void OpenConnectionTask::handleInitialResponse( const Imap::Responses::State* co
             // The STARTTLS surely has not been issued yet
             if ( ! model->accessParser( parser ).capabilitiesFresh ) {
                 capabilityCmd = parser->capability();
-                emit model->activityHappening( true );
             } else if ( model->accessParser( parser ).capabilities.contains( QLatin1String("LOGINDISABLED") ) ) {
                 log("Can't login yet, trying STARTTLS", LOG_OTHER);
                 // ... and we are forbidden from logging in, so we have to try the STARTTLS
                 startTlsCmd = parser->startTls();
-                emit model->activityHappening( true );
             } else {
                 // Apparently no need for STARTTLS and we are free to login
                 loginCmd = model->performAuthentication( parser );

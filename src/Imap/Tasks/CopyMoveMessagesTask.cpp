@@ -75,7 +75,6 @@ void CopyMoveMessagesTask::perform()
     }
 
     copyTag = parser->uidCopy( seq, targetMailbox );
-    emit model->activityHappening( true );
 }
 
 bool CopyMoveMessagesTask::handleStateHelper( const Imap::Responses::State* const resp )

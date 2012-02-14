@@ -39,7 +39,6 @@ void DeleteMailboxTask::perform()
     markAsActiveTask();
 
     tag = parser->deleteMailbox( mailbox );
-    emit model->activityHappening( true );
 }
 
 bool DeleteMailboxTask::handleStateHelper( const Imap::Responses::State* const resp )

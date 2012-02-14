@@ -40,7 +40,6 @@ void FetchMsgPartTask::perform()
 
     Sequence seq = Sequence::fromList(uids);
     tag = parser->uidFetch( seq, parts );
-    emit model->activityHappening( true );
 }
 
 bool FetchMsgPartTask::handleFetch( const Imap::Responses::Fetch* const resp )

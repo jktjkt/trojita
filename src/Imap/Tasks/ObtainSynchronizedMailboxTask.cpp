@@ -364,7 +364,6 @@ void ObtainSynchronizedMailboxTask::syncUids( TreeItemMailbox* mailbox, const ui
         uidSpecification = QString::fromAscii("UID %1:*").arg( lowestUidToQuery );
     }
     uidSyncingCmd = parser->uidSearchUid( uidSpecification );
-    emit model->activityHappening( true );
     model->cache()->clearUidMapping( mailbox->mailbox() );
     emit model->mailboxSyncingProgress( mailboxIndex, status );
 }
@@ -377,7 +376,6 @@ void ObtainSynchronizedMailboxTask::syncFlags( TreeItemMailbox *mailbox )
     Q_ASSERT( list );
 
     flagsCmd = parser->fetch( Sequence( 1, mailbox->syncState.exists() ), QStringList() << QLatin1String("FLAGS") );
-    emit model->activityHappening( true );
     list->_numberFetchingStatus = TreeItem::LOADING;
     emit model->mailboxSyncingProgress( mailboxIndex, status );
 }

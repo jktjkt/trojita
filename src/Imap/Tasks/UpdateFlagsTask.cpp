@@ -83,7 +83,6 @@ void UpdateFlagsTask::perform()
     }
 
     tag = parser->uidStore(seq, flagOperation, flags);
-    emit model->activityHappening(true);
 }
 
 bool UpdateFlagsTask::handleStateHelper(const Imap::Responses::State* const resp)

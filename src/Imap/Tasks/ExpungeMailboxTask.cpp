@@ -45,7 +45,6 @@ void ExpungeMailboxTask::perform()
     }
 
     tag = parser->expunge();
-    emit model->activityHappening( true );
 }
 
 bool ExpungeMailboxTask::handleStateHelper( const Imap::Responses::State* const resp )

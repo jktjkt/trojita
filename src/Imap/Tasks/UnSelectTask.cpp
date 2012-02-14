@@ -44,7 +44,6 @@ void UnSelectTask::perform()
     } else {
         doFakeSelect();
     }
-    emit model->activityHappening(true);
 }
 
 void UnSelectTask::doFakeSelect()

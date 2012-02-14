@@ -330,8 +330,6 @@ bool KeepMailboxOpenTask::handleNumberResponse( const Imap::Responses::NumberRes
                     // but prevent a possible invalid 0:*
                     qMax( mailbox->syncState.uidNext(), 1u )
                 ), QStringList() << QLatin1String("FLAGS") );
-        emit model->activityHappening( true );
-
         return true;
     } else if ( resp->kind == Imap::Responses::RECENT ) {
         mailbox->syncState.setRecent( resp->number );

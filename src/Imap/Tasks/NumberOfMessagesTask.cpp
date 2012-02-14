@@ -51,7 +51,6 @@ void NumberOfMessagesTask::perform()
 
     tag = parser->status( mailbox->mailbox(),
                           QStringList() << QLatin1String("MESSAGES") << QLatin1String("UNSEEN") << QLatin1String("RECENT") );
-    emit model->activityHappening( true );
 }
 
 bool NumberOfMessagesTask::handleStateHelper( const Imap::Responses::State* const resp )

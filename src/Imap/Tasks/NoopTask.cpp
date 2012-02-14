@@ -38,7 +38,6 @@ void NoopTask::perform()
     markAsActiveTask();
 
     tag = parser->noop();
-    emit model->activityHappening( true );
 }
 
 bool NoopTask::handleStateHelper( const Imap::Responses::State* const resp )
