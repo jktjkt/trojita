@@ -118,7 +118,7 @@ Imap::Mailbox::TreeItemPart* MsgPartNetAccessManager::pathToPart(const QString& 
     Q_ASSERT(target);
     bool ok = ! items.isEmpty(); // if it's empty, it's a bogous URL
 
-    for(QStringList::const_iterator it = items.begin(); it != items.end(); ++it) {
+    for(QStringList::const_iterator it = items.constBegin(); it != items.constEnd(); ++it) {
         uint offset = it->toUInt(&ok);
         if (!ok) {
             // special case, we have to dive into that funny, irregular special parts now

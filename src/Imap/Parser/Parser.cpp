@@ -721,7 +721,7 @@ QSharedPointer<Responses::AbstractResponse> Parser::_parseUntaggedText(
             {
                 QStringList capabilities;
                 QList<QByteArray> list = line.mid( start ).split( ' ' );
-                for ( QList<QByteArray>::const_iterator it = list.begin(); it != list.end(); ++it ) {
+                for ( QList<QByteArray>::const_iterator it = list.constBegin(); it != list.constEnd(); ++it ) {
                     QByteArray str = *it;
                     if ( str.endsWith( "\r\n" ) )
                         str.chop(2);

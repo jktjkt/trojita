@@ -277,7 +277,7 @@ void Model::_finalizeList(Parser* parser, TreeItemMailbox* mailboxPtr)
 
     QList<MailboxMetadata> metadataToCache;
     QList<TreeItemMailbox*> mailboxesWithoutChildren;
-    for (QList<TreeItem*>::const_iterator it = mailboxes.begin(); it != mailboxes.end(); ++it) {
+    for (QList<TreeItem*>::const_iterator it = mailboxes.constBegin(); it != mailboxes.constEnd(); ++it) {
         TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>(*it);
         Q_ASSERT(mailbox);
         metadataToCache.append(mailbox->mailboxMetadata());
@@ -286,7 +286,7 @@ void Model::_finalizeList(Parser* parser, TreeItemMailbox* mailboxPtr)
         }
     }
     cache()->setChildMailboxes(mailboxPtr->mailbox(), metadataToCache);
-    for (QList<TreeItemMailbox*>::const_iterator it = mailboxesWithoutChildren.begin(); it != mailboxesWithoutChildren.end(); ++it)
+    for (QList<TreeItemMailbox*>::const_iterator it = mailboxesWithoutChildren.constBegin(); it != mailboxesWithoutChildren.constEnd(); ++it)
         cache()->setChildMailboxes((*it)->mailbox(), QList<MailboxMetadata>());
     replaceChildMailboxes(mailboxPtr, mailboxes);
 }
@@ -601,7 +601,7 @@ void Model::_askForChildrenOfMailbox( TreeItemMailbox* item )
         // We aren't online and the permanent cache contains relevant data
         QList<MailboxMetadata> metadata = cache()->childMailboxes( item->mailbox() );
         QList<TreeItem*> mailboxes;
-        for ( QList<MailboxMetadata>::const_iterator it = metadata.begin(); it != metadata.end(); ++it ) {
+        for ( QList<MailboxMetadata>::const_iterator it = metadata.constBegin(); it != metadata.constEnd(); ++it ) {
             mailboxes << TreeItemMailbox::fromMetadata( item, *it );
         }
         TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( item );

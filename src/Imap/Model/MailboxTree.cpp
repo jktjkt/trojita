@@ -131,7 +131,7 @@ TreeItemMailbox::TreeItemMailbox( TreeItem* parent ): TreeItem(parent), maintain
 TreeItemMailbox::TreeItemMailbox( TreeItem* parent, Responses::List response ):
     TreeItem(parent), _metadata( response.mailbox, response.separator, QStringList() ), maintainingTask(0)
 {
-    for ( QStringList::const_iterator it = response.flags.begin(); it != response.flags.end(); ++it )
+    for (QStringList::const_iterator it = response.flags.constBegin(); it != response.flags.constEnd(); ++it)
         _metadata.flags.append( it->toUpper() );
     _children.prepend( new TreeItemMsgList( this ) );
 }
@@ -518,12 +518,12 @@ TreeItemPart* TreeItemMailbox::partIdToPtr( Model* const model, TreeItemMessage*
     Q_ASSERT( item );
     Q_ASSERT( item->parent()->fetched() ); // TreeItemMsgList
     QStringList separated = partIdentification.split( '.' );
-    for ( QStringList::const_iterator it = separated.begin(); it != separated.end(); ++it ) {
+    for (QStringList::const_iterator it = separated.constBegin(); it != separated.constEnd(); ++it) {
         bool ok;
         uint number = it->toUInt( &ok );
         if ( !ok ) {
             // It isn't a number, so let's check for that special modifiers
-            if ( it + 1 != separated.end() ) {
+            if (it + 1 != separated.constEnd()) {
                 // If it isn't at the very end, it's an error
                 throw UnknownMessageIndex(
                         QString::fromAscii("Part offset contains non-numeric identifiers in the middle: %1" )

@@ -41,7 +41,7 @@ QList<MailAddress> Envelope::getListOfAddresses( const QVariant& in, const QByte
 
     QVariantList list = in.toList();
     QList<MailAddress> res;
-    for ( QVariantList::const_iterator it = list.begin(); it != list.end(); ++it ) {
+    for ( QVariantList::const_iterator it = list.constBegin(); it != list.constEnd(); ++it ) {
         if ( it->type() != QVariant::List )
             throw UnexpectedHere( "getListOfAddresses: split item not a list", line, start ); // FIXME: wrong offset
         res.append( MailAddress( it->toList(), line, start ) );
@@ -399,7 +399,7 @@ QList<QByteArray> AbstractMessage::makeBodyFldLang( const QVariant& input, const
         res << input.toByteArray();
     } else if ( input.type() == QVariant::List ) {
         QVariantList list = input.toList();
-        for ( QVariantList::const_iterator it = list.begin(); it != list.end(); ++it )
+        for ( QVariantList::const_iterator it = list.constBegin(); it != list.constEnd(); ++it )
             if ( it->type() != QVariant::ByteArray )
                 throw UnexpectedHere( "body-fld-lang has wrong structure", line, start );
             else

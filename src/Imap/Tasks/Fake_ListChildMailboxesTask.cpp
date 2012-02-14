@@ -48,11 +48,11 @@ void Fake_ListChildMailboxesTask::perform()
     Q_ASSERT( listResponses.isEmpty() );
     TestingTaskFactory* factory = dynamic_cast<TestingTaskFactory*>( model->_taskFactory.get() );
     Q_ASSERT( factory );
-    for ( QMap<QString, QStringList>::const_iterator it = factory->fakeListChildMailboxesMap.begin();
-            it != factory->fakeListChildMailboxesMap.end(); ++it ) {
+    for (QMap<QString, QStringList>::const_iterator it = factory->fakeListChildMailboxesMap.constBegin();
+            it != factory->fakeListChildMailboxesMap.constEnd(); ++it) {
         if ( it.key() != mailbox->mailbox() )
             continue;
-        for ( QStringList::const_iterator childIt = it->begin(); childIt != it->end(); ++childIt ) {
+        for (QStringList::const_iterator childIt = it->begin(); childIt != it->end(); ++childIt) {
             QString childMailbox = mailbox->mailbox().isEmpty() ? *childIt : QString::fromAscii( "%1^%2" ).arg( mailbox->mailbox(), *childIt );
             listResponses.append( Responses::List( Responses::LIST, QStringList(), QString::fromAscii("^"), childMailbox ) );
         }

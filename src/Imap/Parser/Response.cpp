@@ -573,7 +573,7 @@ Status::Status( const QByteArray& line, int& start )
 
     bool gotIdentifier = false;
     QString identifier;
-    for ( QStringList::const_iterator it = items.begin(); it != items.end(); ++it ) {
+    for ( QStringList::const_iterator it = items.constBegin(); it != items.constEnd(); ++it ) {
         if ( gotIdentifier ) {
             gotIdentifier = false;
             bool ok;
@@ -639,7 +639,7 @@ Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
 
     bool isIdentifier = true;
     QString identifier;
-    for (QVariantList::const_iterator it = list.begin(); it != list.end();
+    for (QVariantList::const_iterator it = list.constBegin(); it != list.constEnd();
             ++it, isIdentifier = !isIdentifier ) {
         if ( isIdentifier ) {
             identifier = it->toString().toUpper();
@@ -720,7 +720,7 @@ QList<NamespaceData> NamespaceData::listFromLine( const QByteArray& line, int& s
     QList<NamespaceData> result;
     try {
         QVariantList list = LowLevelParser::parseList( '(', ')', line, start );
-        for ( QVariantList::const_iterator it = list.begin(); it != list.end(); ++it ) {
+        for ( QVariantList::const_iterator it = list.constBegin(); it != list.constEnd(); ++it ) {
             if ( it->type() != QVariant::List )
                 throw UnexpectedHere( "Mallformed data found when processing one item "
                         "in NAMESPACE record (not a list)", line, start );
