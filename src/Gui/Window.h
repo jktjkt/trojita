@@ -44,6 +44,7 @@ class MsgListModel;
 class PrettyMailboxModel;
 class ThreadingMsgListModel;
 class PrettyMsgListModel;
+class VisibleTasksModel;
 
 }
 }
@@ -101,7 +102,7 @@ private slots:
     void updateMessageFlags( const QModelIndex& index );
     void scrollMessageUp();
     void showConnectionStatus( QObject* parser, Imap::ConnectionState state );
-    void updateBusyParsers( bool busy );
+    void updateActivityIndication();
     void slotShowAboutTrojita();
     void slotDonateToTrojita();
 
@@ -143,6 +144,7 @@ private:
     Imap::Mailbox::MsgListModel* msgListModel;
     Imap::Mailbox::ThreadingMsgListModel* threadingMsgListModel;
     Imap::Mailbox::PrettyMsgListModel* prettyMsgListModel;
+    Imap::Mailbox::VisibleTasksModel *m_visibleTasksModel;
     AutoCompletionModel *_autoCompletionModel;
 
     QTreeView* mboxTree;

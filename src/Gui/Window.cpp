@@ -61,6 +61,7 @@
 #include "Imap/Model/PrettyMsgListModel.h"
 #include "Imap/Model/ThreadingMsgListModel.h"
 #include "Imap/Model/Utils.h"
+#include "Imap/Model/VisibleTasksModel.h"
 #include "Imap/Network/FileDownloadManager.h"
 #include "Streams/SocketFactory.h"
 
@@ -431,6 +432,7 @@ void MainWindow::setupModels()
     prettyMsgListModel = new Imap::Mailbox::PrettyMsgListModel(this);
     prettyMsgListModel->setSourceModel(msgListModel);
     prettyMsgListModel->setObjectName( QLatin1String("prettyMsgListModel") );
+    m_visibleTasksModel = new Imap::Mailbox::VisibleTasksModel(model, model->taskModel());
 
     connect( mboxTree, SIGNAL( clicked(const QModelIndex&) ), msgListModel, SLOT( setMailbox(const QModelIndex&) ) );
     connect( mboxTree, SIGNAL( activated(const QModelIndex&) ), msgListModel, SLOT( setMailbox(const QModelIndex&) ) );
@@ -450,7 +452,10 @@ void MainWindow::setupModels()
     connect( model, SIGNAL(connectionStateChanged(QObject*,Imap::ConnectionState)),
              this, SLOT(showConnectionStatus(QObject*,Imap::ConnectionState)) );
 
-    connect( model, SIGNAL(activityHappening(bool)), this, SLOT(updateBusyParsers(bool)) );
+    connect(m_visibleTasksModel, SIGNAL(layoutChanged()), this, SLOT(updateActivityIndication()));
+    connect(m_visibleTasksModel, SIGNAL(modelReset()), this, SLOT(updateActivityIndication()));
+    connect(m_visibleTasksModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(updateActivityIndication()));
+    connect(m_visibleTasksModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(updateActivityIndication()));
 
     connect( model, SIGNAL(mailboxDeletionFailed(QString,QString)), this, SLOT(slotMailboxDeleteFailed(QString,QString)) );
     connect( model, SIGNAL(mailboxCreationFailed(QString,QString)), this, SLOT(slotMailboxCreateFailed(QString,QString)) );
@@ -739,6 +744,7 @@ void MainWindow::nukeModels()
     mboxModel = 0;
     prettyMboxModel->deleteLater();
     prettyMboxModel = 0;
+    m_visibleTasksModel = 0; // will get deleted automatically
     model->deleteLater();
     model = 0;
     _autoCompletionModel->deleteLater();
@@ -944,9 +950,10 @@ void MainWindow::showConnectionStatus( QObject* parser, Imap::ConnectionState st
     statusBar()->showMessage( message, transient ? DURATION : 0 );
 }
 
-void MainWindow::updateBusyParsers(bool busy)
+void MainWindow::updateActivityIndication()
 {
     static bool wasBusy = false;
+    bool busy = m_visibleTasksModel->hasChildren();
     busyParsersIndicator->setVisible(busy);
     if ( ! wasBusy && busy ) {
         wasBusy = busy;
