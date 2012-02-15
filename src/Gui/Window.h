@@ -43,7 +43,6 @@ class MsgListModel;
 class PrettyMailboxModel;
 class ThreadingMsgListModel;
 class PrettyMsgListModel;
-class VisibleTasksModel;
 
 }
 }

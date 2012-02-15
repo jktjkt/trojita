@@ -62,7 +62,6 @@
 #include "Imap/Model/PrettyMsgListModel.h"
 #include "Imap/Model/ThreadingMsgListModel.h"
 #include "Imap/Model/Utils.h"
-#include "Imap/Model/VisibleTasksModel.h"
 #include "Imap/Network/FileDownloadManager.h"
 #include "Streams/SocketFactory.h"
 
