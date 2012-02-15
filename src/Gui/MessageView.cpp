@@ -194,6 +194,11 @@ QString MessageView::headerText()
     res += tr("<b>Subject:</b>&nbsp;%1").arg(Qt::escape(envelope.subject));
     if (envelope.date.isValid())
         res += tr("<br/><b>Date:</b>&nbsp;%1").arg(envelope.date.toString(Qt::SystemLocaleLongDate));
+
+    QStringList flags = messagePtr->data(model, Imap::Mailbox::RoleMessageFlags).toStringList();
+    if(!flags.isEmpty())
+        res += tr("<br/><b>Flags:</b>&nbsp;%1").arg(flags.join(", "));
+
     return res;
 }
 
