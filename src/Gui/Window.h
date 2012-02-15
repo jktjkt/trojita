@@ -30,7 +30,6 @@
 class QAuthenticator;
 class QItemSelection;
 class QModelIndex;
-class QProgressBar;
 class QScrollArea;
 class QToolButton;
 class QTreeView;
@@ -55,6 +54,7 @@ class AutoCompletionModel;
 class MessageView;
 class MsgListView;
 class ProtocolLoggerWidget;
+class TaskProgressIndicator;
 
 class MainWindow: public QMainWindow {
     Q_OBJECT
@@ -102,7 +102,6 @@ private slots:
     void updateMessageFlags( const QModelIndex& index );
     void scrollMessageUp();
     void showConnectionStatus( QObject* parser, Imap::ConnectionState state );
-    void updateActivityIndication();
     void slotShowAboutTrojita();
     void slotDonateToTrojita();
 
@@ -144,7 +143,6 @@ private:
     Imap::Mailbox::MsgListModel* msgListModel;
     Imap::Mailbox::ThreadingMsgListModel* threadingMsgListModel;
     Imap::Mailbox::PrettyMsgListModel* prettyMsgListModel;
-    Imap::Mailbox::VisibleTasksModel *m_visibleTasksModel;
     AutoCompletionModel *_autoCompletionModel;
 
     QTreeView* mboxTree;
@@ -195,7 +193,7 @@ private:
 
     QAction *actionThreadMsgList;
 
-    QProgressBar* busyParsersIndicator;
+    TaskProgressIndicator* busyParsersIndicator;
     QToolButton* networkIndicator;
 
     bool m_ignoreStoredPassword;

@@ -22,7 +22,15 @@
 #ifndef GUI_TASKPROGRESSINDICATOR_H
 #define GUI_TASKPROGRESSINDICATOR_H
 
+#include <QPointer>
 #include <QProgressBar>
+
+namespace Imap {
+namespace Mailbox {
+class Model;
+class VisibleTasksModel;
+}
+}
 
 namespace Gui {
 
@@ -31,8 +39,17 @@ class TaskProgressIndicator : public QProgressBar
     Q_OBJECT
 public:
     explicit TaskProgressIndicator(QWidget *parent = 0);
+
+    void setImapModel(Imap::Mailbox::Model *model);
+
+public slots:
+    void updateActivityIndication();
+
 protected:
     void mousePressEvent(QMouseEvent *event);
+
+private:
+    QPointer<Imap::Mailbox::VisibleTasksModel> m_visibleTasksModel;
 };
 
 }

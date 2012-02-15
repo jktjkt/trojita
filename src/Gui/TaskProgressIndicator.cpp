@@ -20,17 +20,60 @@
 */
 
 #include "TaskProgressIndicator.h"
+#include <QApplication>
 #include <QMouseEvent>
+#include "Imap/Model/Model.h"
+#include "Imap/Model/VisibleTasksModel.h"
 
 namespace Gui {
 
 TaskProgressIndicator::TaskProgressIndicator(QWidget *parent) :
     QProgressBar(parent)
 {
+    setMinimum(0);
+    setMaximum(0);
+}
+
+void TaskProgressIndicator::setImapModel(Imap::Mailbox::Model *model)
+{
+    if (model) {
+        m_visibleTasksModel = new Imap::Mailbox::VisibleTasksModel(model, model->taskModel());
+        connect(m_visibleTasksModel, SIGNAL(layoutChanged()), this, SLOT(updateActivityIndication()));
+        connect(m_visibleTasksModel, SIGNAL(modelReset()), this, SLOT(updateActivityIndication()));
+        connect(m_visibleTasksModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(updateActivityIndication()));
+        connect(m_visibleTasksModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(updateActivityIndication()));
+    }
+}
+
+void TaskProgressIndicator::updateActivityIndication()
+{
+    static bool wasBusy = false;
+
+    if (!m_visibleTasksModel)
+        return;
+
+    bool busy = m_visibleTasksModel->hasChildren();
+    setVisible(busy);
+    if (!wasBusy && busy) {
+        wasBusy = busy;
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+    } else if (wasBusy && !busy) {
+        wasBusy = busy;
+        QApplication::restoreOverrideCursor();
+    }
+
+    if (busy) {
+        setToolTip(tr("%1 ongoing actions").arg(QString::number(m_visibleTasksModel->rowCount())));
+    } else {
+        setToolTip(tr("IMAP connection idle"));
+    }
 }
 
 void TaskProgressIndicator::mousePressEvent(QMouseEvent * event)
 {
+    if (!m_visibleTasksModel)
+        return;
+
     if (event->buttons() == Qt::LeftButton) {
         event->accept();
     } else {
