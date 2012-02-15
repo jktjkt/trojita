@@ -34,6 +34,7 @@ class VisibleTasksModel;
 
 namespace Gui {
 
+/** @short A GUI element for showing whether anything is "using" the IMAP connection */
 class TaskProgressIndicator : public QProgressBar
 {
     Q_OBJECT
@@ -49,7 +50,11 @@ protected:
     void mousePressEvent(QMouseEvent *event);
 
 private:
+    /** @short Model for a list of "visible tasks" */
     QPointer<Imap::Mailbox::VisibleTasksModel> m_visibleTasksModel;
+
+    /** @short Is there any ongoing activity? */
+    bool m_busy;
 };
 
 }

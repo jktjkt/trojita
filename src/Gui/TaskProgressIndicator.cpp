@@ -28,12 +28,13 @@
 namespace Gui {
 
 TaskProgressIndicator::TaskProgressIndicator(QWidget *parent) :
-    QProgressBar(parent)
+    QProgressBar(parent), m_busy(false)
 {
     setMinimum(0);
     setMaximum(0);
 }
 
+/** @short Connect to the specified IMAP model as the source of the activity information */
 void TaskProgressIndicator::setImapModel(Imap::Mailbox::Model *model)
 {
     if (model) {
@@ -45,20 +46,17 @@ void TaskProgressIndicator::setImapModel(Imap::Mailbox::Model *model)
     }
 }
 
+/** @short Reflect a possible change in the activity in the GUI */
 void TaskProgressIndicator::updateActivityIndication()
 {
-    static bool wasBusy = false;
-
     if (!m_visibleTasksModel)
         return;
 
     bool busy = m_visibleTasksModel->hasChildren();
     setVisible(busy);
-    if (!wasBusy && busy) {
-        wasBusy = busy;
+    if (!m_busy && busy) {
         QApplication::setOverrideCursor(Qt::WaitCursor);
-    } else if (wasBusy && !busy) {
-        wasBusy = busy;
+    } else if (m_busy && !busy) {
         QApplication::restoreOverrideCursor();
     }
 
@@ -67,8 +65,11 @@ void TaskProgressIndicator::updateActivityIndication()
     } else {
         setToolTip(tr("IMAP connection idle"));
     }
+
+    m_busy = busy;
 }
 
+/** @short Reimplemented from QProgressBar for launching the pop-up widgets with detailed activity */
 void TaskProgressIndicator::mousePressEvent(QMouseEvent * event)
 {
     if (!m_visibleTasksModel)
