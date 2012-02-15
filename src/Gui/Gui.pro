@@ -32,7 +32,8 @@ SOURCES += \
     ProtocolLoggerWidget.cpp \
     CheckForUpdates.cpp \
     Util.cpp \
-    AutoCompletion.cpp
+    AutoCompletion.cpp \
+    TaskProgressIndicator.cpp
 HEADERS += \
     ../Imap/Model/ModelTest/modeltest.h \
     ComposeWidget.h \
@@ -53,7 +54,8 @@ HEADERS += \
     CheckForUpdates.h \
     IconLoader.h \
     Util.h \
-    AutoCompletion.h
+    AutoCompletion.h \
+    TaskProgressIndicator.h
 FORMS += CreateMailboxDialog.ui \
     ComposeWidget.ui \
     SettingsImapPage.ui \
