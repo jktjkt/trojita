@@ -517,28 +517,28 @@ void KeepMailboxOpenTask::requestEnvelopeDownload(const uint uid)
 
 void KeepMailboxOpenTask::slotFetchRequestedParts()
 {
-    if ( requestedParts.isEmpty() )
+    if (requestedParts.isEmpty())
         return;
 
     QMap<uint, QSet<QString> >::iterator it = requestedParts.begin();
     QSet<QString> parts = *it;
 
     // When asked to exit, do as much as possible and die
-    while ( shouldExit || fetchPartTasks.size() < limitParallelFetchTasks ) {
+    while (shouldExit || fetchPartTasks.size() < limitParallelFetchTasks) {
         QList<uint> uids;
         uint totalSize = 0;
-        while ( uids.size() < limitMessagesAtOnce && it != requestedParts.end() && totalSize < limitBytesAtOnce ) {
-            if ( parts != *it )
+        while (uids.size() < limitMessagesAtOnce && it != requestedParts.end() && totalSize < limitBytesAtOnce) {
+            if (parts != *it)
                 break;
             parts = *it;
             uids << it.key();
-            totalSize += requestedPartSizes.take( it.key() );
-            it = requestedParts.erase( it );
+            totalSize += requestedPartSizes.take(it.key());
+            it = requestedParts.erase(it);
         }
-        if ( uids.isEmpty() )
+        if (uids.isEmpty())
             return;
 
-        fetchPartTasks << model->_taskFactory->createFetchMsgPartTask( model, mailboxIndex, uids, parts.toList() );
+        fetchPartTasks << model->_taskFactory->createFetchMsgPartTask(model, mailboxIndex, uids, parts.toList());
     }
 }
 
