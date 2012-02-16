@@ -532,8 +532,8 @@ void KeepMailboxOpenTask::slotFetchRequestedParts()
                 break;
             parts = *it;
             uids << it.key();
-            it = requestedParts.erase( it );
             totalSize += requestedPartSizes.take( it.key() );
+            it = requestedParts.erase( it );
         }
         if ( uids.isEmpty() )
             return;
