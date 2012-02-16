@@ -81,7 +81,7 @@ void MsgListView::slotExpandWholeSubtree(const QModelIndex &rootIndex)
 
     QVector<QModelIndex> queue(1, rootIndex);
     for ( int i = 0; i < queue.size(); ++i ) {
-        const QModelIndex &currentIndex = queue[i];
+        const QModelIndex currentIndex = queue[i];
         // Append all children to the queue...
         for ( int j = 0; j < currentIndex.model()->rowCount(currentIndex); ++j )
             queue.append(currentIndex.child(j, 0));
