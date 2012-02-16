@@ -23,10 +23,10 @@
 namespace Imap {
 namespace Mailbox {
 
-ImapTask::ImapTask( Model* _model ) :
+ImapTask::ImapTask(Model* _model) :
     QObject(_model), parser(0), parentTask(0), model(_model), _finished(false)
 {
-    connect( this, SIGNAL(destroyed(QObject*)), model, SLOT(slotTaskDying(QObject*)) );
+    connect(this, SIGNAL(destroyed(QObject*)), model, SLOT(slotTaskDying(QObject*)));
 }
 
 ImapTask::~ImapTask()
@@ -74,73 +74,73 @@ void ImapTask::markAsActiveTask(const TaskActivatingPosition place)
     model->m_taskModel->slotTaskGotReparented(this);
 }
 
-bool ImapTask::handleState( const Imap::Responses::State* const resp )
+bool ImapTask::handleState(const Imap::Responses::State *const resp)
 {
     handleResponseCode(resp);
     return handleStateHelper(resp);
 }
 
-bool ImapTask::handleStateHelper( const Imap::Responses::State* const resp )
+bool ImapTask::handleStateHelper(const Imap::Responses::State *const resp)
 {
     Q_UNUSED(resp);
     return false;
 }
 
-bool ImapTask::handleCapability( const Imap::Responses::Capability* const resp )
+bool ImapTask::handleCapability(const Imap::Responses::Capability *const resp)
 {
     Q_UNUSED(resp);
     return false;
 }
 
-bool ImapTask::handleNumberResponse( const Imap::Responses::NumberResponse* const resp )
+bool ImapTask::handleNumberResponse(const Imap::Responses::NumberResponse *const resp)
 {
     Q_UNUSED(resp);
     return false;
 }
 
-bool ImapTask::handleList( const Imap::Responses::List* const resp )
+bool ImapTask::handleList(const Imap::Responses::List *const resp)
 {
     Q_UNUSED(resp);
     return false;
 }
 
-bool ImapTask::handleFlags( const Imap::Responses::Flags* const resp )
+bool ImapTask::handleFlags(const Imap::Responses::Flags *const resp)
 {
     Q_UNUSED(resp);
     return false;
 }
 
-bool ImapTask::handleSearch( const Imap::Responses::Search* const resp )
+bool ImapTask::handleSearch(const Imap::Responses::Search *const resp)
 {
     Q_UNUSED(resp);
     return false;
 }
 
-bool ImapTask::handleStatus( const Imap::Responses::Status* const resp )
+bool ImapTask::handleStatus(const Imap::Responses::Status *const resp)
 {
     Q_UNUSED(resp);
     return false;
 }
 
-bool ImapTask::handleFetch( const Imap::Responses::Fetch* const resp )
+bool ImapTask::handleFetch(const Imap::Responses::Fetch *const resp)
 {
     Q_UNUSED(resp);
     return false;
 }
 
-bool ImapTask::handleNamespace( const Imap::Responses::Namespace* const resp )
+bool ImapTask::handleNamespace(const Imap::Responses::Namespace *const resp)
 {
     Q_UNUSED(resp);
     return false;
 }
 
-bool ImapTask::handleSort( const Imap::Responses::Sort* const resp )
+bool ImapTask::handleSort(const Imap::Responses::Sort *const resp)
 {
     Q_UNUSED(resp);
     return false;
 }
 
-bool ImapTask::handleThread( const Imap::Responses::Thread* const resp )
+bool ImapTask::handleThread(const Imap::Responses::Thread *const resp)
 {
     Q_UNUSED(resp);
     return false;
@@ -150,8 +150,8 @@ void ImapTask::_completed()
 {
     log("Completed");
     _finished = true;
-    Q_FOREACH( ImapTask* task, dependentTasks ) {
-        if ( ! task->isFinished() )
+    Q_FOREACH(ImapTask* task, dependentTasks) {
+        if (!task->isFinished())
             task->perform();
     }
     emit completed(this);
@@ -164,32 +164,29 @@ void ImapTask::_failed(const QString &errorMessage)
     emit failed(errorMessage);
 }
 
-void ImapTask::handleResponseCode( const Imap::Responses::State* const resp )
+void ImapTask::handleResponseCode(const Imap::Responses::State *const resp)
 {
     using namespace Imap::Responses;
     // Check for common stuff like ALERT and CAPABILITIES update
-    switch ( resp->respCode ) {
-        case ALERT:
-            {
-                emit model->alertReceived( tr("The server sent the following ALERT:\n%1").arg( resp->message ) );
-            }
-            break;
-        case CAPABILITIES:
-            {
-                const RespData<QStringList>* const caps = dynamic_cast<const RespData<QStringList>* const>(
-                        resp->respCodeData.data() );
-                if ( caps ) {
-                    model->updateCapabilities( parser, caps->data );
-                }
-            }
-            break;
-        case BADCHARSET:
-        case PARSE:
-            qDebug() << "The server was having troubles with parsing message data:" << resp->message;
-            break;
-        default:
-            // do nothing here, it must be handled later
-            break;
+    switch (resp->respCode) {
+    case ALERT:
+        emit model->alertReceived(tr("The server sent the following ALERT:\n%1").arg(resp->message));
+        break;
+    case CAPABILITIES:
+    {
+        const RespData<QStringList>* const caps = dynamic_cast<const RespData<QStringList>* const>(resp->respCodeData.data());
+        if (caps) {
+            model->updateCapabilities(parser, caps->data);
+        }
+    }
+    break;
+    case BADCHARSET:
+    case PARSE:
+        qDebug() << "The server was having troubles with parsing message data:" << resp->message;
+        break;
+    default:
+        // do nothing here, it must be handled later
+        break;
     }
 }
 
