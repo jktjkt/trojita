@@ -269,4 +269,84 @@ void ImapModelDisappearingMailboxTest::testSlowOfflineFlags()
     QVERIFY(SOCK == origSocket);
 }
 
+/** @short Test what happens when we switch to offline after the flag update request, but before the underlying task gets activated */
+void ImapModelDisappearingMailboxTest::testSlowOfflineFlags2()
+{
+    // Initialize the environment
+    existsA = 1;
+    uidValidityA = 1;
+    uidMapA << 1;
+    uidNextA = 2;
+    helperSyncAWithMessagesEmptyState();
+    idxA = model->index(1, 0, QModelIndex());
+    idxB = model->index(2, 0, QModelIndex());
+    QVERIFY(idxA.isValid());
+    QVERIFY(idxB.isValid());
+    QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QString::fromAscii("a")));
+    QCOMPARE(model->data(idxB, Qt::DisplayRole), QVariant(QString::fromAscii("b")));
+    msgListA = idxA.child(0, 0);
+    QVERIFY(msgListA.isValid());
+    QModelIndex msg = msgListA.child(0, 0);
+    QVERIFY(msg.isValid());
+    Imap::FakeSocket *origSocket = SOCK;
+
+    // Ask for the bodystructure of this message
+    model->markMessagesDeleted(QModelIndexList() << msg, true);
+
+    // Switch the connection to an offline mode, but postpone the BYE response
+    model->setNetworkOffline();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE(SOCK->writtenStuff(), t.mk("LOGOUT\r\n"));
+
+    // Make sure that nothing else happens
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+    QVERIFY(SOCK == origSocket);
+
+}
+
+/** @short Test what happens when we switch to offline after the flag update request and the task got activated, but before the tagged response */
+void ImapModelDisappearingMailboxTest::testSlowOfflineFlags3()
+{
+    // Initialize the environment
+    existsA = 1;
+    uidValidityA = 1;
+    uidMapA << 1;
+    uidNextA = 2;
+    helperSyncAWithMessagesEmptyState();
+    idxA = model->index(1, 0, QModelIndex());
+    idxB = model->index(2, 0, QModelIndex());
+    QVERIFY(idxA.isValid());
+    QVERIFY(idxB.isValid());
+    QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QString::fromAscii("a")));
+    QCOMPARE(model->data(idxB, Qt::DisplayRole), QVariant(QString::fromAscii("b")));
+    msgListA = idxA.child(0, 0);
+    QVERIFY(msgListA.isValid());
+    QModelIndex msg = msgListA.child(0, 0);
+    QVERIFY(msg.isValid());
+    Imap::FakeSocket *origSocket = SOCK;
+
+    // Ask for the bodystructure of this message
+    model->markMessagesDeleted(QModelIndexList() << msg, true);
+
+    // Switch the connection to an offline mode, but postpone the BYE response
+    QCoreApplication::processEvents();
+    model->setNetworkOffline();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QByteArray writtenStuff = t.mk("UID STORE 1 +FLAGS (\\Deleted)\r\n");
+    writtenStuff += t.mk("LOGOUT\r\n");
+    QCOMPARE(SOCK->writtenStuff(), writtenStuff);
+
+    // Make sure that nothing else happens
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+    QVERIFY(SOCK == origSocket);
+}
+
 TROJITA_HEADLESS_TEST( ImapModelDisappearingMailboxTest )

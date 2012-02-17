@@ -38,6 +38,8 @@ private slots:
     void testTrafficAfterSyncedMailboxGoesAway();
     void testSlowOfflineMsgStructure();
     void testSlowOfflineFlags();
+    void testSlowOfflineFlags2();
+    void testSlowOfflineFlags3();
 private:
 };
 
