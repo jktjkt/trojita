@@ -208,8 +208,10 @@ QModelIndex ThreadingMsgListModel::mapToSource( const QModelIndex& proxyIndex ) 
 
 QModelIndex ThreadingMsgListModel::mapFromSource( const QModelIndex& sourceIndex ) const
 {
-    if ( sourceIndex.model() != sourceModel() )
+    if (!sourceIndex.isValid())
         return QModelIndex();
+
+    Q_ASSERT(sourceIndex.model() == sourceModel());
 
     QHash<void*,uint>::const_iterator it = ptrToInternal.constFind( sourceIndex.internalPointer() );
     if ( it == ptrToInternal.constEnd() )
