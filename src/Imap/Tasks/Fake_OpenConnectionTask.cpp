@@ -33,6 +33,9 @@ Fake_OpenConnectionTask::Fake_OpenConnectionTask( Imap::Mailbox::Model* _model, 
 void Fake_OpenConnectionTask::perform()
 {
     markAsActiveTask();
+
+    IMAP_TASK_CHECK_ABORT_DIE;
+
     _completed();
 }
 

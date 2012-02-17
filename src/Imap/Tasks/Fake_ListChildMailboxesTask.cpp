@@ -41,6 +41,8 @@ void Fake_ListChildMailboxesTask::perform()
     parser = conn->parser;
     markAsActiveTask();
 
+    IMAP_TASK_CHECK_ABORT_DIE;
+
     TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
     Q_ASSERT( mailbox );
     parser = conn->parser;
