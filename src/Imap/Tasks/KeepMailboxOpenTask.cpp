@@ -512,10 +512,12 @@ QString KeepMailboxOpenTask::debugIdentification() const
                                                        );
 }
 
+/** @short The user wants us to go offline */
 void KeepMailboxOpenTask::stopForLogout()
 {
     abort();
     breakPossibleIdle();
+    killAllPendingTasks();
 }
 
 bool KeepMailboxOpenTask::handleSearch( const Imap::Responses::Search* const resp )
@@ -639,7 +641,6 @@ void KeepMailboxOpenTask::slotFetchRequestedEnvelopes()
 
 void KeepMailboxOpenTask::breakPossibleIdle()
 {
-    // FIXME: abort/die
     if ( idleLauncher && idleLauncher->idling() ) {
         // If we're idling right now, we should immediately abort
         idleLauncher->finishIdle();

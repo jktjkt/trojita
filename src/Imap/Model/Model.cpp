@@ -803,7 +803,12 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
             for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
                 Q_ASSERT( it->parser );
                 if ( it->maintainingTask ) {
+                    // First of all, give the maintaining task a chance to finish its housekeeping
                     it->maintainingTask->stopForLogout();
+                }
+                // Kill all tasks that are also using this connection
+                Q_FOREACH(ImapTask *task, it->activeTasks) {
+                    task->die();
                 }
                 it->logoutCmd = it->parser->logout();
                 it->connState = CONN_STATE_LOGOUT;
