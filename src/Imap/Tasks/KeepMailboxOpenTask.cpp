@@ -437,11 +437,17 @@ bool KeepMailboxOpenTask::handleStateHelper( const Imap::Responses::State* const
     }
 }
 
+/** @short Reimplemented from ImapTask
+
+This function's semantics is slightly shifted from ImapTask::abort(). It gets called when the KeepMailboxOpenTask has decided to
+terminate and its biggest goals are to:
+
+- Prevent any further activity from hitting this parser. We're here to "guard" access to it, and we're about to terminate, so the
+  tasks shall negotiate their access through some other KeepMailboxOpenTask.
+- Terminate our internal code which might want to access the connection (NoopTask, IdleLauncher,...)
+*/
 void KeepMailboxOpenTask::abort()
 {
-    // FIXME: propagate this further, killing these tasks
-    // FIXME: and do the same for the die()?
-
     if ( noopTimer )
         noopTimer->stop();
     if ( idleLauncher )
@@ -455,6 +461,26 @@ void KeepMailboxOpenTask::abort()
         // We're already obsolete -> don't pretend to accept new tasks
         if ( mailbox->maintainingTask == this )
             mailbox->maintainingTask = 0;
+    }
+
+    _aborted = true;
+    // We do not want to propagate the signal to the hcild tasks, though -- the KeepMailboxOpenTask::abort() is used in the course
+    // of the regular "hey, free this connection and pass it to another KeepMailboxOpenTask" situations.
+}
+
+/** @short Reimplemented from ImapTask
+
+We're aksed to die right now, so we better take any depending stuff with us. That poor tasks are not going to outlive me!
+*/
+void KeepMailboxOpenTask::die()
+{
+    _dead = true;
+
+    Q_FOREACH(ImapTask *task, dependingTasksForThisMailbox) {
+        task->die();
+    }
+    Q_FOREACH(ImapTask *task, waitingObtainTasks) {
+        task->die();
     }
 }
 

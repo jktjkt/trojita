@@ -60,6 +60,7 @@ that mailbox now loses its KeepMailboxOpenTask and the underlying parser is reus
     KeepMailboxOpenTask( Model* _model, const QModelIndex& _mailboxIndex, Parser* oldParser );
 
     virtual void abort();
+    virtual void die();
 
     /** @short Similar to die(), but allow for correct abort of a possible IDLE command */
     void stopForLogout();
