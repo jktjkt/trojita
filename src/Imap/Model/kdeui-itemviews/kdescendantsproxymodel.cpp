@@ -111,7 +111,6 @@ void KDescendantsProxyModelPrivate::synchronousMappingRefresh()
 
 void KDescendantsProxyModelPrivate::scheduleProcessPendingParents() const
 {
-  Q_Q(const KDescendantsProxyModel);
   const_cast<KDescendantsProxyModelPrivate*>(this)->processPendingParents();
 }
 
@@ -121,11 +120,7 @@ void KDescendantsProxyModelPrivate::processPendingParents()
   const QVector<QPersistentModelIndex>::iterator begin = m_pendingParents.begin();
   QVector<QPersistentModelIndex>::iterator it = begin;
 
-  // Process chunkSize elements per invokation.
-  static const int chunkSize = 30;
-
-  const QVector<QPersistentModelIndex>::iterator end =
-          /* (m_pendingParents.size() > chunkSize) ? begin + chunkSize : */ m_pendingParents.end();
+  const QVector<QPersistentModelIndex>::iterator end = m_pendingParents.end();
 
   QVector<QPersistentModelIndex> newPendingParents;
 
@@ -969,9 +964,7 @@ void KDescendantsProxyModelPrivate::sourceDataChanged(const QModelIndex &topLeft
 
 void KDescendantsProxyModelPrivate::sourceModelDestroyed()
 {
-  Q_Q(KDescendantsProxyModel);
   resetInternalData();
-//   q->endResetModel();
 }
 
 QMimeData* KDescendantsProxyModel::mimeData( const QModelIndexList & indexes ) const
