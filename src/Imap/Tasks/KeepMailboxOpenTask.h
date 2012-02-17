@@ -144,7 +144,11 @@ private:
     /** @short Return true if this has a list of stuff to do */
     bool hasPendingInternalActions() const;
 
+    void detachFromMailbox();
+
 protected:
+    virtual void killAllPendingTasks();
+
     QPersistentModelIndex mailboxIndex;
 
     /** @short Future maintaining tasks which are waiting for their opportunity to run

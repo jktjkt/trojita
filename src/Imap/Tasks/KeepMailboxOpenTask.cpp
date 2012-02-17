@@ -453,6 +453,16 @@ void KeepMailboxOpenTask::abort()
     if ( idleLauncher )
         idleLauncher->die();
 
+    detachFromMailbox();
+
+    _aborted = true;
+    // We do not want to propagate the signal to the child tasks, though -- the KeepMailboxOpenTask::abort() is used in the course
+    // of the regular "hey, free this connection and pass it to another KeepMailboxOpenTask" situations.
+}
+
+/** @short Stop working as a maintaining task */
+void KeepMailboxOpenTask::detachFromMailbox()
+{
     if ( mailboxIndex.isValid() ) {
         // Mark current mailbox as "orphaned by the housekeeping task"
         TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
@@ -462,10 +472,6 @@ void KeepMailboxOpenTask::abort()
         if ( mailbox->maintainingTask == this )
             mailbox->maintainingTask = 0;
     }
-
-    _aborted = true;
-    // We do not want to propagate the signal to the hcild tasks, though -- the KeepMailboxOpenTask::abort() is used in the course
-    // of the regular "hey, free this connection and pass it to another KeepMailboxOpenTask" situations.
 }
 
 /** @short Reimplemented from ImapTask
@@ -475,7 +481,16 @@ We're aksed to die right now, so we better take any depending stuff with us. Tha
 void KeepMailboxOpenTask::die()
 {
     _dead = true;
+    killAllPendingTasks();
+    detachFromMailbox();
+}
 
+/** @short Kill all pending tasks -- both the regular one and the replacement ObtainSynchronizedMailboxTask instances
+
+Reimplemented from the ImapTask.
+*/
+void KeepMailboxOpenTask::killAllPendingTasks()
+{
     Q_FOREACH(ImapTask *task, dependingTasksForThisMailbox) {
         task->die();
     }

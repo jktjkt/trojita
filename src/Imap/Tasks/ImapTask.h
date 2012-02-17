@@ -105,6 +105,9 @@ protected:
 
     void _failed(const QString &errorMessage);
 
+    /** @short Kill all pending tasks that are waiting for this one to success */
+    virtual void killAllPendingTasks();
+
     /** @short Get a debug logger associated with this task
 
     Use this function to obtain a logger which can be used for recording debug information associated with the current
