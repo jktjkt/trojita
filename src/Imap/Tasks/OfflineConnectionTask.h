@@ -35,8 +35,8 @@ Q_OBJECT
 public:
     OfflineConnectionTask(Model* _model);
     virtual void perform();
-private:
-    Socket *m_sock;
+protected slots:
+    void slotPerform();
 };
 
 }

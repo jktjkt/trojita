@@ -26,18 +26,23 @@ namespace Mailbox {
 
 OfflineConnectionTask::OfflineConnectionTask(Model *_model) : ImapTask(_model)
 {
-    m_sock = new Imap::FakeSocket();
-    parser = new Parser(model, m_sock, ++model->lastParserId);
+    parser = new Parser(model, new FakeSocket(), ++model->lastParserId);
     Model::ParserState parserState = Model::ParserState(parser);
     model->_parsers[parser] = parserState;
     model->m_taskModel->slotParserCreated(parser);
     markAsActiveTask();
+    QTimer::singleShot(0, this, SLOT(slotPerform()));
+}
+
+/** @short A decorator for slottifying the perform() method */
+void OfflineConnectionTask::slotPerform()
+{
+    perform();
 }
 
 void OfflineConnectionTask::perform()
 {
     _failed("We're offline");
-    m_sock->deleteLater();
 }
 
 }
