@@ -70,6 +70,9 @@ void GetAnyConnectionTask::perform()
         parser = newConn->parser;
         markAsActiveTask();
     }
+
+    CHECK_ABORT_DIE;
+
     // ... we don't really have to do any work here, just declare ourselves completed
     _completed();
 }

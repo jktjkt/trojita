@@ -124,6 +124,11 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
 
 void KeepMailboxOpenTask::slotPerformConnection()
 {
+    if (_dead) {
+        _failed("Asked to die");
+        return;
+    }
+
     Q_ASSERT(synchronizeConn);
     Q_ASSERT(!synchronizeConn->isFinished());
     synchronizeConn->perform();
@@ -132,6 +137,8 @@ void KeepMailboxOpenTask::slotPerformConnection()
 void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
 {
     Q_ASSERT( task );
+
+    // FIXME: what about abort()/die() here?
 
     breakPossibleIdle();
 
@@ -162,6 +169,8 @@ void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
 
 void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )
 {
+    // FIXME: abort/die
+
     // Now, object is no longer an ImapTask*, as this gets emitted from inside QObject's destructor. However,
     // we can't use the passed pointer directly, and therefore we have to perform the cast here. It is safe
     // to do that here, as we're only interested in raw pointer value.
@@ -186,6 +195,8 @@ void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )
 
 void KeepMailboxOpenTask::terminate()
 {
+    // FIXME: abort/die
+
     Q_ASSERT(dependingTasksForThisMailbox.isEmpty());
     Q_ASSERT(requestedParts.isEmpty());
     Q_ASSERT(requestedEnvelopes.isEmpty());
@@ -200,7 +211,7 @@ void KeepMailboxOpenTask::terminate()
     shouldRunNoop = false;
     isRunning = false;
 
-    die();
+    abort();
 
     // Merge the lists of waiting tasks
     if (!waitingObtainTasks.isEmpty()) {
@@ -217,6 +228,8 @@ void KeepMailboxOpenTask::terminate()
 
 void KeepMailboxOpenTask::perform()
 {
+    // FIXME: abort/die
+
     Q_ASSERT(synchronizeConn);
     Q_ASSERT(synchronizeConn->isFinished());
     parser = synchronizeConn->parser;
@@ -255,6 +268,8 @@ void KeepMailboxOpenTask::perform()
 
 void KeepMailboxOpenTask::resynchronizeMailbox()
 {
+    // FIXME: abort/die
+
     if (isRunning) {
         // Instead of wild magic with re-creating synchronizeConn, it's way easier to
         // just have us replaced by another KeepMailboxOpenTask
@@ -267,6 +282,11 @@ void KeepMailboxOpenTask::resynchronizeMailbox()
 
 bool KeepMailboxOpenTask::handleNumberResponse( const Imap::Responses::NumberResponse* const resp )
 {
+    if (_dead) {
+        _failed("Asked to die");
+        return true;
+    }
+
     if (dieIfInvalidMailbox())
         return true;
 
@@ -346,6 +366,11 @@ bool KeepMailboxOpenTask::handleFetch( const Imap::Responses::Fetch* const resp 
     if (dieIfInvalidMailbox())
         return true;
 
+    if (_dead) {
+        _failed("Asked to die");
+        return true;
+    }
+
     // FIXME: add proper boundaries
     if ( ! isRunning )
         return false;
@@ -358,11 +383,14 @@ bool KeepMailboxOpenTask::handleFetch( const Imap::Responses::Fetch* const resp 
 
 void KeepMailboxOpenTask::slotPerformNoop()
 {
+    // FIXME: abort/die
     model->_taskFactory->createNoopTask(model, this);
 }
 
 bool KeepMailboxOpenTask::handleStateHelper( const Imap::Responses::State* const resp )
 {
+    // FIXME: abort/die
+
     if (dieIfInvalidMailbox())
         return true;
 
@@ -409,8 +437,11 @@ bool KeepMailboxOpenTask::handleStateHelper( const Imap::Responses::State* const
     }
 }
 
-void KeepMailboxOpenTask::die()
+void KeepMailboxOpenTask::abort()
 {
+    // FIXME: propagate this further, killing these tasks
+    // FIXME: and do the same for the die()?
+
     if ( noopTimer )
         noopTimer->stop();
     if ( idleLauncher )
@@ -442,7 +473,7 @@ QString KeepMailboxOpenTask::debugIdentification() const
 
 void KeepMailboxOpenTask::stopForLogout()
 {
-    die();
+    abort();
     breakPossibleIdle();
 }
 
@@ -485,6 +516,8 @@ bool KeepMailboxOpenTask::handleFlags( const Imap::Responses::Flags* const resp 
 
 void KeepMailboxOpenTask::activateTasks()
 {
+    // FIXME: abort/die
+
     if (!isRunning)
         return;
 
@@ -517,6 +550,8 @@ void KeepMailboxOpenTask::requestEnvelopeDownload(const uint uid)
 
 void KeepMailboxOpenTask::slotFetchRequestedParts()
 {
+    // FIXME: abort/die
+
     if (requestedParts.isEmpty())
         return;
 
@@ -544,6 +579,8 @@ void KeepMailboxOpenTask::slotFetchRequestedParts()
 
 void KeepMailboxOpenTask::slotFetchRequestedEnvelopes()
 {
+    // FIXME: abort/die
+
     if (requestedEnvelopes.isEmpty())
         return;
 
@@ -561,6 +598,7 @@ void KeepMailboxOpenTask::slotFetchRequestedEnvelopes()
 
 void KeepMailboxOpenTask::breakPossibleIdle()
 {
+    // FIXME: abort/die
     if ( idleLauncher && idleLauncher->idling() ) {
         // If we're idling right now, we should immediately abort
         idleLauncher->finishIdle();
@@ -618,6 +656,7 @@ void KeepMailboxOpenTask::slotConnFailed()
     shouldExit = true;
 
     // Just got to wake them up, they won't succeed anyway
+    // FIXME: kill them!
     activateTasks();
     slotFetchRequestedParts();
 

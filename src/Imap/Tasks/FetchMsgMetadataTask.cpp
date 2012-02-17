@@ -38,6 +38,8 @@ void FetchMsgMetadataTask::perform()
     parser = conn->parser;
     markAsActiveTask();
 
+    CHECK_ABORT_DIE;
+
     Sequence seq = Sequence::fromList(uids);
 
     // we do not want to use _onlineMessageFetch because it contains UID and FLAGS

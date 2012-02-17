@@ -58,8 +58,18 @@ public:
     This is crucial for any tasks which could perform some periodical activities involving Parser*, and should
     also be implemented for those that want to restore the rest of the world to a reasonable and consistent state
     before they get killed.
+
+    This function is really a hard requirement -- as soon as this function got called, it's an error for this task to talk to the
+    parser at all.
     */
     virtual void die();
+
+    /** @short Abort the current activity of this task in a safe manner
+
+    This function is executed in contexts where someone/something has decided that this task shall not really proceed any further.
+    In case the activity is already in the middle of a critical section, it shall however proceed further and finish.
+    */
+    virtual void abort();
 
     virtual void addDependentTask( ImapTask* task );
     void updateParentTask(ImapTask *newParent);
@@ -127,9 +137,21 @@ protected:
     Model* model;
     QList<ImapTask*> dependentTasks;
     bool _finished;
+    bool _dead;
+    bool _aborted;
 
     friend class TaskPresentationModel; // needs access to the TaskPresentationModel
 };
+
+#define CHECK_ABORT_DIE \
+    if (_dead) {\
+        _failed("Asked to die");\
+        return;\
+    } \
+    if (_aborted) {\
+        _failed("Aborted");\
+        return;\
+    }
 
 }
 }

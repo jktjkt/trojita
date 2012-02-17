@@ -38,6 +38,8 @@ void CreateMailboxTask::perform()
     parser = conn->parser;
     markAsActiveTask();
 
+    CHECK_ABORT_DIE;
+
     tagCreate = parser->create( mailbox );
 }
 
@@ -47,9 +49,13 @@ bool CreateMailboxTask::handleStateHelper( const Imap::Responses::State* const r
         return false;
 
     if ( resp->tag == tagCreate ) {
-
         if ( resp->kind == Responses::OK ) {
             emit model->mailboxCreationSucceded( mailbox );
+            if (_dead) {
+                // Got to check if we're still allowed to execute before launching yet another command
+                _failed("Asked to die");
+                return true;
+            }
             tagList = parser->list( QLatin1String(""), mailbox );
             // Don't call _completed() yet, we're going to update mbox list before that
         } else {

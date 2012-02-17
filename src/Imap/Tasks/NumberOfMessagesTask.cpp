@@ -40,6 +40,8 @@ void NumberOfMessagesTask::perform()
     parser = conn->parser;
     markAsActiveTask();
 
+    CHECK_ABORT_DIE;
+
     if ( ! mailboxIndex.isValid() ) {
         // FIXME: add proper fix
         log("Mailbox vanished before we could ask for number of messages inside");

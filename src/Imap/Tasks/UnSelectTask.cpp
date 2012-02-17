@@ -36,6 +36,13 @@ UnSelectTask::UnSelectTask( Model* _model, ImapTask* parentTask ) :
 void UnSelectTask::perform()
 {
     markAsActiveTask(TASK_PREPEND);
+
+    if (_dead) {
+        _failed("Asked to die");
+        return;
+    }
+    // We really should ignore abort() -- we're a very important task
+
     if (model->accessParser(parser).maintainingTask) {
         model->accessParser(parser).maintainingTask->breakPossibleIdle();
     }
@@ -48,6 +55,12 @@ void UnSelectTask::perform()
 
 void UnSelectTask::doFakeSelect()
 {
+    if (_dead) {
+        _failed("Asked to die");
+        return;
+    }
+    // Again, ignoring abort()
+
     if (model->accessParser(parser).maintainingTask) {
         model->accessParser(parser).maintainingTask->breakPossibleIdle();
     }

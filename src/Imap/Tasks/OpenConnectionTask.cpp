@@ -57,6 +57,12 @@ void OpenConnectionTask::perform()
 /** @short Process the "state" response originating from the IMAP server */
 bool OpenConnectionTask::handleStateHelper( const Imap::Responses::State* const resp )
 {
+    if (_dead) {
+        _failed("Asked to die");
+        return true;
+    }
+    // Ignore abort()
+
     if ( waitingForGreetings ) {
         handleInitialResponse(resp);
         return true;
@@ -157,6 +163,12 @@ bool OpenConnectionTask::handleStateHelper( const Imap::Responses::State* const 
 /** @short Helper for dealing with the very first response from the server */
 void OpenConnectionTask::handleInitialResponse( const Imap::Responses::State* const resp )
 {
+    if (_dead) {
+        _failed("Asked to die");
+        return;
+    }
+    // Ignore abort()
+
     waitingForGreetings = false;
     if ( ! resp->tag.isEmpty() ) {
         throw Imap::UnexpectedResponseReceived(

@@ -53,6 +53,13 @@ void ObtainSynchronizedMailboxTask::perform()
     parser = keepTaskChild->parser;
     markAsActiveTask();
 
+    if (_dead || _aborted) {
+        // We're at the very start, so let's try to abort in a sane way
+        _failed("Asked to abort or die");
+        die();
+        return;
+    }
+
     if ( ! mailboxIndex.isValid() ) {
         // FIXME: proper error handling
         log("The mailbox went missing, sorry", LOG_MAILBOX_SYNC);
@@ -87,6 +94,12 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( const Imap::Responses::St
 
     if ( resp->tag.isEmpty() )
         return false;
+
+    if (_dead) {
+        _failed("Asked to die");
+        return true;
+    }
+    // We absolutely have to ignore the abort() request
 
     if ( resp->tag == selectCmd ) {
 

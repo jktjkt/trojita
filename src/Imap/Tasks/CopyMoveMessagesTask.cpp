@@ -47,6 +47,8 @@ void CopyMoveMessagesTask::perform()
     parser = conn->parser;
     markAsActiveTask();
 
+    CHECK_ABORT_DIE;
+
     Sequence seq;
     bool first = true;
 
@@ -83,9 +85,15 @@ bool CopyMoveMessagesTask::handleStateHelper( const Imap::Responses::State* cons
         return false;
 
     if ( resp->tag == copyTag ) {
-
         if ( resp->kind == Responses::OK ) {
             if ( shouldDelete ) {
+                if (_dead) {
+                    // Yeah, that's bad -- the COPY has succeeded, yet we cannot update the flags :(
+                    log("COPY succeeded, but cannot update flags due to received die()");
+                    _failed("Asked to die");
+                    return true;
+                }
+                // We ignore the _aborted status here, though -- we just want to finish in an "atomic" manner
                 new UpdateFlagsTask( model, this, messages, QLatin1String("+FLAGS"), QLatin1String("\\Deleted") );
             }
             _completed();

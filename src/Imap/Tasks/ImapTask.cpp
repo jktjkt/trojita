@@ -24,7 +24,7 @@ namespace Imap {
 namespace Mailbox {
 
 ImapTask::ImapTask(Model* _model) :
-    QObject(_model), parser(0), parentTask(0), model(_model), _finished(false)
+    QObject(_model), parser(0), parentTask(0), model(_model), _finished(false), _dead(false), _aborted(false)
 {
     connect(this, SIGNAL(destroyed(QObject*)), model, SLOT(slotTaskDying(QObject*)));
 }
@@ -197,7 +197,18 @@ bool ImapTask::isReadyToRun() const
 
 void ImapTask::die()
 {
-    // FIXME: shall we kill children here as well? If we don't do that, isn't that a memleak?
+    _dead = true;
+    Q_FOREACH(ImapTask* task, dependentTasks) {
+        task->die();
+    }
+}
+
+void ImapTask::abort()
+{
+    _aborted = true;
+    Q_FOREACH(ImapTask* task, dependentTasks) {
+        task->abort();
+    }
 }
 
 QString ImapTask::debugIdentification() const

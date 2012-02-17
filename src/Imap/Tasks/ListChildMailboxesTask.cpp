@@ -40,6 +40,8 @@ void ListChildMailboxesTask::perform()
     parser = conn->parser;
     markAsActiveTask();
 
+    CHECK_ABORT_DIE;
+
     if ( ! mailboxIndex.isValid() ) {
         // FIXME: add proper fix
         _failed("Mailbox vanished before we could ask for its children");
