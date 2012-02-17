@@ -143,7 +143,7 @@ protected:
     friend class TaskPresentationModel; // needs access to the TaskPresentationModel
 };
 
-#define CHECK_ABORT_DIE \
+#define IMAP_TASK_CHECK_ABORT_DIE \
     if (_dead) {\
         _failed("Asked to die");\
         return;\

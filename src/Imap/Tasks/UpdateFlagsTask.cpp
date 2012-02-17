@@ -56,7 +56,7 @@ void UpdateFlagsTask::perform()
         parser = copyMove->parser;
     markAsActiveTask();
 
-    CHECK_ABORT_DIE;
+    IMAP_TASK_CHECK_ABORT_DIE;
 
     Sequence seq;
     bool first = true;

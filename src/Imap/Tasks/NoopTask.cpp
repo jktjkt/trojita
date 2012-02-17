@@ -37,7 +37,7 @@ void NoopTask::perform()
     parser = conn->parser;
     markAsActiveTask();
 
-    CHECK_ABORT_DIE;
+    IMAP_TASK_CHECK_ABORT_DIE;
 
     tag = parser->noop();
 }

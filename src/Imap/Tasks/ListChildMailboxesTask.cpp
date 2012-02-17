@@ -40,7 +40,7 @@ void ListChildMailboxesTask::perform()
     parser = conn->parser;
     markAsActiveTask();
 
-    CHECK_ABORT_DIE;
+    IMAP_TASK_CHECK_ABORT_DIE;
 
     if ( ! mailboxIndex.isValid() ) {
         // FIXME: add proper fix

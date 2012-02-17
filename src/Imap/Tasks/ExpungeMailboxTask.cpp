@@ -44,7 +44,7 @@ void ExpungeMailboxTask::perform()
         return;
     }
 
-    CHECK_ABORT_DIE;
+    IMAP_TASK_CHECK_ABORT_DIE;
 
     tag = parser->expunge();
 }

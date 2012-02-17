@@ -38,7 +38,7 @@ void FetchMsgPartTask::perform()
     parser = conn->parser;
     markAsActiveTask();
 
-    CHECK_ABORT_DIE;
+    IMAP_TASK_CHECK_ABORT_DIE;
 
     Sequence seq = Sequence::fromList(uids);
     tag = parser->uidFetch( seq, parts );

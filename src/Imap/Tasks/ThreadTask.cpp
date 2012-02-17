@@ -38,7 +38,7 @@ void ThreadTask::perform()
     parser = conn->parser;
     markAsActiveTask();
 
-    CHECK_ABORT_DIE;
+    IMAP_TASK_CHECK_ABORT_DIE;
 
     if ( ! mailboxIndex.isValid() ) {
         _failed("Mailbox vanished before we could ask for threading info");

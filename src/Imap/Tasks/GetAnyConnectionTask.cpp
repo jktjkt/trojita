@@ -71,7 +71,7 @@ void GetAnyConnectionTask::perform()
         markAsActiveTask();
     }
 
-    CHECK_ABORT_DIE;
+    IMAP_TASK_CHECK_ABORT_DIE;
 
     // ... we don't really have to do any work here, just declare ourselves completed
     _completed();
