@@ -231,6 +231,7 @@ void ImapModelDisappearingMailboxTest::testSlowOfflineMsgStructure()
     QVERIFY(SOCK == origSocket);
 }
 
+/** @short Test that requests for updating message flags will fail when offline */
 void ImapModelDisappearingMailboxTest::testSlowOfflineFlags()
 {
     // Initialize the environment
@@ -259,8 +260,6 @@ void ImapModelDisappearingMailboxTest::testSlowOfflineFlags()
 
     // Ask for the bodystructure of this message
     model->markMessagesDeleted(QModelIndexList() << msg, true);
-    // FIXME: make it work, Redmine#257
-    return;
 
     // Make sure that nothing else happens
     QCoreApplication::processEvents();

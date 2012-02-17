@@ -22,6 +22,7 @@
 #include "FetchMsgPartTask.h"
 #include "OpenConnectionTask.h"
 #include "ObtainSynchronizedMailboxTask.h"
+#include "OfflineConnectionTask.h"
 #include "IdleLauncher.h"
 #include "MailboxTree.h"
 #include "Model.h"
@@ -72,8 +73,13 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
             QTimer::singleShot(0, this, SLOT(slotPerformConnection()));
         }
     } else {
-        // Create new connection
-        ImapTask* conn = model->_taskFactory->createOpenConnectionTask( model );
+        ImapTask *conn = 0;
+        if (model->networkPolicy() == Model::NETWORK_OFFLINE) {
+            // Well, except that we cannot really open a new connection now
+            conn = new OfflineConnectionTask(model);
+        } else {
+            conn = model->_taskFactory->createOpenConnectionTask(model);
+        }
         parser = conn->parser;
         Q_ASSERT(parser);
         model->accessParser(parser).maintainingTask = this;
@@ -696,15 +702,7 @@ void KeepMailboxOpenTask::slotConnFailed()
 
     isRunning = true;
     shouldExit = true;
-
-    // Just got to wake them up, they won't succeed anyway
-    // FIXME: kill them!
-    activateTasks();
-    slotFetchRequestedParts();
-
-    if ( ! hasPendingInternalActions() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
-        terminate();
-    }
+    _failed("Connection failed");
 }
 
 bool KeepMailboxOpenTask::dieIfInvalidMailbox()

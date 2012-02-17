@@ -380,6 +380,7 @@ private:
     friend class NoopTask;
     friend class ThreadTask;
     friend class UnSelectTask;
+    friend class OfflineConnectionTask;
 
     friend class TestingTaskFactory; // needs access to _socketFactory
 
