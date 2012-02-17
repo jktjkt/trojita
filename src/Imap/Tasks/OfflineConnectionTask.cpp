@@ -43,6 +43,14 @@ void OfflineConnectionTask::slotPerform()
 void OfflineConnectionTask::perform()
 {
     _failed("We're offline");
+    QTimer::singleShot(0, this, SLOT(slotDie()));
+}
+
+/** @short A slot for the die() */
+void OfflineConnectionTask::slotDie()
+{
+    die();
+    deleteLater();
 }
 
 }

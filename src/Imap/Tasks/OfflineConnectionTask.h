@@ -37,6 +37,7 @@ public:
     virtual void perform();
 protected slots:
     void slotPerform();
+    void slotDie();
 };
 
 }
