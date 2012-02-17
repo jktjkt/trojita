@@ -101,10 +101,7 @@ void ThreadingMsgListModel::handleDataChanged( const QModelIndex& topLeft, const
 
 QModelIndex ThreadingMsgListModel::index( int row, int column, const QModelIndex& parent ) const
 {
-    if ( parent.isValid() && parent.model() != this ) {
-        // foreign model
-        return QModelIndex();
-    }
+    Q_ASSERT(!parent.isValid() || parent.model() == this);
 
     if ( _threading.isEmpty() ) {
         // mapping not available yet
