@@ -117,7 +117,6 @@ private slots:
     void askForThreading();
 
 private:
-    /** @short Update QAbstractItemModel's idea of persistent indexes after a threading change */
     void updatePersistentIndexesPhase1();
     void updatePersistentIndexesPhase2();
     /** @short Convert the threading from a THREAD response and apply that threading to this model */

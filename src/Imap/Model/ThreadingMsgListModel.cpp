@@ -633,6 +633,7 @@ void ThreadingMsgListModel::registerThreading( const QVector<Imap::Responses::Th
     }
 }
 
+/** @short Gather a list of persistent indexes which we have to transform after out layout change */
 void ThreadingMsgListModel::updatePersistentIndexesPhase1()
 {
     oldPersistentIndexes = persistentIndexList();
@@ -650,6 +651,7 @@ void ThreadingMsgListModel::updatePersistentIndexesPhase1()
     }
 }
 
+/** @short Update the gathered persistent indexes after our change in the layout */
 void ThreadingMsgListModel::updatePersistentIndexesPhase2()
 {
     Q_ASSERT(oldPersistentIndexes.size() == oldPtrs.size());
@@ -657,6 +659,7 @@ void ThreadingMsgListModel::updatePersistentIndexesPhase2()
     for ( int i = 0; i < oldPersistentIndexes.size(); ++i ) {
         QHash<void*,uint>::const_iterator ptrIt = ptrToInternal.constFind(oldPtrs[i]);
         if ( ptrIt == ptrToInternal.constEnd() ) {
+            // That message is no longer there
             updatedIndexes.append( QModelIndex() );
             continue;
         }
