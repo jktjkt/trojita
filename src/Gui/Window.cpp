@@ -132,7 +132,7 @@ void MainWindow::createActions()
 
     showImapLogger = new QAction( tr("Show IMAP protocol log"), this );
     showImapLogger->setCheckable( true );
-    connect( showImapLogger, SIGNAL(triggered(bool)), imapLoggerDock, SLOT(setVisible(bool)) );
+    connect( showImapLogger, SIGNAL(toggled(bool)), imapLoggerDock, SLOT(setVisible(bool)) );
     connect( imapLoggerDock, SIGNAL(visibilityChanged(bool)), showImapLogger, SLOT(setChecked(bool)) );
 
     logPersistent = new QAction(tr("Log into %1").arg(Imap::Mailbox::persistentLogFileName()), this);
@@ -637,6 +637,9 @@ void MainWindow::connectionError( const QString& message )
 {
     if ( QSettings().contains( Common::SettingsNames::imapMethodKey ) ) {
         QMessageBox::critical( this, tr("Connection Error"), message );
+        // Show the IMAP logger -- maybe some user will take that as a hint that they shall include it in the bug report.
+        // </joke>
+        showImapLogger->setChecked(true);
     } else {
         // hack: this slot is called even on the first run with no configuration
         // We shouldn't have to worry about that, since the dialog is already scheduled for calling
