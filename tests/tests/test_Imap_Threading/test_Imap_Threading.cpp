@@ -185,12 +185,18 @@ void ImapModelThreadingTest::testThreadDeletions_data()
     QTest::addColumn<QByteArray>("response");
     QTest::addColumn<QStringList>("operations");
 
+    // Just test that dumping works; no deletions yet
     QTest::newRow("basic-flat-list") << (uint)2 << QByteArray("(1)(2)") << QStringList();
+    // Simple tests for flat lists
     QTest::newRow("flat-list-two-delete-first") << (uint)2 << QByteArray("(1)(2)") << (QStringList() << "1" << "(2)");
     QTest::newRow("flat-list-two-delete-last") << (uint)2 << QByteArray("(1)(2)") << (QStringList() << "2" << "(1)");
     QTest::newRow("flat-list-three-delete-first") << (uint)3 << QByteArray("(1)(2)(3)") << (QStringList() << "1" << "(2)(3)");
     QTest::newRow("flat-list-three-delete-middle") << (uint)3 << QByteArray("(1)(2)(3)") << (QStringList() << "2" << "(1)(3)");
     QTest::newRow("flat-list-three-delete-last") << (uint)3 << QByteArray("(1)(2)(3)") << (QStringList() << "3" << "(1)(2)");
+    // Try to test a single thread
+    QTest::newRow("simple-three-delete-first") << (uint)3 << QByteArray("(1 2 3)") << (QStringList() << "1" << "(2 3)");
+    QTest::newRow("simple-three-delete-middle") << (uint)3 << QByteArray("(1 2 3)") << (QStringList() << "2" << "(1 3)");
+    QTest::newRow("simple-three-delete-last") << (uint)3 << QByteArray("(1 2 3)") << (QStringList() << "3" << "(1 2)");
 }
 
 /** @short Test deletion of one message */
