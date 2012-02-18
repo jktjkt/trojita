@@ -146,6 +146,53 @@ void ImapModelThreadingTest::testStaticThreading_data()
             << m;
 }
 
+void ImapModelThreadingTest::testThreadDeletions()
+{
+    QFETCH(uint, exists);
+    QFETCH(QByteArray, response);
+    QFETCH(QStringList, operations);
+    Q_ASSERT(operations.size() % 2 == 0);
+
+    initialMessages(exists);
+
+    QCOMPARE(SOCK->writtenStuff(), t.mk("UID THREAD REFS utf-8 ALL\r\n"));
+    SOCK->fakeReading(QByteArray("* THREAD ") + response + QByteArray("\r\n") + t.last("OK thread\r\n"));
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE(response, treeToThreading(QModelIndex()));
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+    QVERIFY(errorSpy->isEmpty());
+
+    for (int i = 0; i < operations.size(); i += 2) {
+        QString whichOne = operations[i];
+        QString expectedRes = operations[i+1];
+        SOCK->fakeReading(QString::fromAscii("* %1 EXPUNGE\r\n").arg(whichOne).toAscii());
+        QCoreApplication::processEvents();
+        QCoreApplication::processEvents();
+        QCoreApplication::processEvents();
+        QCoreApplication::processEvents();
+        QVERIFY(SOCK->writtenStuff().isEmpty());
+        QVERIFY(errorSpy->isEmpty());
+        QCOMPARE(expectedRes, QString::fromAscii(treeToThreading(QModelIndex())));
+    }
+}
+
+void ImapModelThreadingTest::testThreadDeletions_data()
+{
+    QTest::addColumn<uint>("exists");
+    QTest::addColumn<QByteArray>("response");
+    QTest::addColumn<QStringList>("operations");
+
+    QTest::newRow("basic-flat-list") << (uint)2 << QByteArray("(1)(2)") << QStringList();
+    QTest::newRow("flat-list-two-delete-first") << (uint)2 << QByteArray("(1)(2)") << (QStringList() << "1" << "(2)");
+    QTest::newRow("flat-list-two-delete-last") << (uint)2 << QByteArray("(1)(2)") << (QStringList() << "2" << "(1)");
+    QTest::newRow("flat-list-three-delete-first") << (uint)3 << QByteArray("(1)(2)(3)") << (QStringList() << "1" << "(2)(3)");
+    QTest::newRow("flat-list-three-delete-middle") << (uint)3 << QByteArray("(1)(2)(3)") << (QStringList() << "2" << "(1)(3)");
+    QTest::newRow("flat-list-three-delete-last") << (uint)3 << QByteArray("(1)(2)(3)") << (QStringList() << "3" << "(1)(2)");
+}
+
 /** @short Test deletion of one message */
 void ImapModelThreadingTest::testDynamicThreading()
 {

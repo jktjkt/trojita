@@ -41,6 +41,8 @@ private slots:
     void testStaticThreading();
     void testStaticThreading_data();
     void testDynamicThreading();
+    void testThreadDeletions();
+    void testThreadDeletions_data();
 protected slots:
     virtual void init();
     virtual void initTestCase();
