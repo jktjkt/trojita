@@ -168,14 +168,24 @@ void ImapModelThreadingTest::testThreadDeletions()
     for (int i = 0; i < operations.size(); i += 2) {
         QString whichOne = operations[i];
         QString expectedRes = operations[i+1];
-        SOCK->fakeReading(QString::fromAscii("* %1 EXPUNGE\r\n").arg(whichOne).toAscii());
-        QCoreApplication::processEvents();
-        QCoreApplication::processEvents();
-        QCoreApplication::processEvents();
-        QCoreApplication::processEvents();
-        QVERIFY(SOCK->writtenStuff().isEmpty());
-        QVERIFY(errorSpy->isEmpty());
-        QCOMPARE(expectedRes, QString::fromAscii(treeToThreading(QModelIndex())));
+        if (whichOne[0] == QLatin1Char('-')) {
+            // Removing messages. The number specifies a *sequence number*
+            Q_ASSERT(whichOne.size() > 1);
+            SOCK->fakeReading(QString::fromAscii("* %1 EXPUNGE\r\n").arg(whichOne.mid(1)).toAscii());
+            QCoreApplication::processEvents();
+            QCoreApplication::processEvents();
+            QCoreApplication::processEvents();
+            QCoreApplication::processEvents();
+            QVERIFY(SOCK->writtenStuff().isEmpty());
+            QVERIFY(errorSpy->isEmpty());
+            QCOMPARE(expectedRes, QString::fromAscii(treeToThreading(QModelIndex())));
+        } else if (whichOne[0] == QLatin1Char('+')) {
+            // New additions. The number specifies the number of new arrivals.
+            // FIXME: implement me
+            Q_ASSERT(false);
+        } else {
+            Q_ASSERT(false);
+        }
     }
 }
 
@@ -188,15 +198,15 @@ void ImapModelThreadingTest::testThreadDeletions_data()
     // Just test that dumping works; no deletions yet
     QTest::newRow("basic-flat-list") << (uint)2 << QByteArray("(1)(2)") << QStringList();
     // Simple tests for flat lists
-    QTest::newRow("flat-list-two-delete-first") << (uint)2 << QByteArray("(1)(2)") << (QStringList() << "1" << "(2)");
-    QTest::newRow("flat-list-two-delete-last") << (uint)2 << QByteArray("(1)(2)") << (QStringList() << "2" << "(1)");
-    QTest::newRow("flat-list-three-delete-first") << (uint)3 << QByteArray("(1)(2)(3)") << (QStringList() << "1" << "(2)(3)");
-    QTest::newRow("flat-list-three-delete-middle") << (uint)3 << QByteArray("(1)(2)(3)") << (QStringList() << "2" << "(1)(3)");
-    QTest::newRow("flat-list-three-delete-last") << (uint)3 << QByteArray("(1)(2)(3)") << (QStringList() << "3" << "(1)(2)");
+    QTest::newRow("flat-list-two-delete-first") << (uint)2 << QByteArray("(1)(2)") << (QStringList() << "-1" << "(2)");
+    QTest::newRow("flat-list-two-delete-last") << (uint)2 << QByteArray("(1)(2)") << (QStringList() << "-2" << "(1)");
+    QTest::newRow("flat-list-three-delete-first") << (uint)3 << QByteArray("(1)(2)(3)") << (QStringList() << "-1" << "(2)(3)");
+    QTest::newRow("flat-list-three-delete-middle") << (uint)3 << QByteArray("(1)(2)(3)") << (QStringList() << "-2" << "(1)(3)");
+    QTest::newRow("flat-list-three-delete-last") << (uint)3 << QByteArray("(1)(2)(3)") << (QStringList() << "-3" << "(1)(2)");
     // Try to test a single thread
-    QTest::newRow("simple-three-delete-first") << (uint)3 << QByteArray("(1 2 3)") << (QStringList() << "1" << "(2 3)");
-    QTest::newRow("simple-three-delete-middle") << (uint)3 << QByteArray("(1 2 3)") << (QStringList() << "2" << "(1 3)");
-    QTest::newRow("simple-three-delete-last") << (uint)3 << QByteArray("(1 2 3)") << (QStringList() << "3" << "(1 2)");
+    QTest::newRow("simple-three-delete-first") << (uint)3 << QByteArray("(1 2 3)") << (QStringList() << "-1" << "(2 3)");
+    QTest::newRow("simple-three-delete-middle") << (uint)3 << QByteArray("(1 2 3)") << (QStringList() << "-2" << "(1 3)");
+    QTest::newRow("simple-three-delete-last") << (uint)3 << QByteArray("(1 2 3)") << (QStringList() << "-3" << "(1 2)");
     // A thread with a fork:
     // 1
     // +- 2
@@ -204,14 +214,14 @@ void ImapModelThreadingTest::testThreadDeletions_data()
     // +- 4
     //    +- 5
     QTest::newRow("fork") << (uint)5 << QByteArray("(1 (2 3)(4 5))") << QStringList();
-    QTest::newRow("fork-delete-first") << (uint)5 << QByteArray("(1 (2 3)(4 5))") << (QStringList() << "1" << "(2 (3)(4 5))");
-    QTest::newRow("fork-delete-second") << (uint)5 << QByteArray("(1 (2 3)(4 5))") << (QStringList() << "2" << "(1 (3)(4 5))");
-    QTest::newRow("fork-delete-third") << (uint)5 << QByteArray("(1 (2 3)(4 5))") << (QStringList() << "3" << "(1 (2)(4 5))");
+    QTest::newRow("fork-delete-first") << (uint)5 << QByteArray("(1 (2 3)(4 5))") << (QStringList() << "-1" << "(2 (3)(4 5))");
+    QTest::newRow("fork-delete-second") << (uint)5 << QByteArray("(1 (2 3)(4 5))") << (QStringList() << "-2" << "(1 (3)(4 5))");
+    QTest::newRow("fork-delete-third") << (uint)5 << QByteArray("(1 (2 3)(4 5))") << (QStringList() << "-3" << "(1 (2)(4 5))");
     // Remember, we're using EXPUNGE which use sequence numbers, not UIDs
     QTest::newRow("fork-delete-two-three") << (uint)5 << QByteArray("(1 (2 3)(4 5))") <<
-                                              (QStringList() << "2" << "(1 (3)(4 5))" << "2" << "(1 4 5)");
+                                              (QStringList() << "-2" << "(1 (3)(4 5))" << "-2" << "(1 4 5)");
     QTest::newRow("fork-delete-two-four") << (uint)5 << QByteArray("(1 (2 3)(4 5))") <<
-                                              (QStringList() << "2" << "(1 (3)(4 5))" << "3" << "(1 (3)(5))");
+                                              (QStringList() << "-2" << "(1 (3)(4 5))" << "-3" << "(1 (3)(5))");
 }
 
 /** @short Test deletion of one message */
