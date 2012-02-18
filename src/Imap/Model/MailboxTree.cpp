@@ -771,12 +771,13 @@ QVariant TreeItemMessage::data( Model* const model, int role )
 
     switch ( role ) {
         case Qt::DisplayRole:
-            if ( loading() )
-                return "[loading...]";
-            else if ( isUnavailable( model ) )
-                return "[offline]";
-            else
-                return _envelope.subject;
+            if (loading()) {
+                return QString::fromAscii("[loading UID %1...]").arg(QString::number(uid()));
+            } else if (isUnavailable(model)) {
+                return QString::fromAscii("[offline UID %1]").arg(QString::number(uid()));
+            } else {
+                return QString::fromAscii("UID %1: %2").arg(QString::number(uid()), _envelope.subject);
+            }
         case Qt::ToolTipRole:
             if ( fetched() ) {
                 QString buf;

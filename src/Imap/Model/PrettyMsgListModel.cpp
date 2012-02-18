@@ -94,6 +94,8 @@ QVariant PrettyMsgListModel::data( const QModelIndex& index, int role ) const
                 }
                 return PrettySize::prettySize(size.toUInt());
             }
+        case MsgListModel::SUBJECT:
+            return translated.data(RoleIsFetched).toBool() ? translated.data(RoleMessageSubject) : tr("Loading...");
         }
         break;
 
