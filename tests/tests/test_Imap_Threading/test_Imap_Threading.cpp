@@ -197,6 +197,21 @@ void ImapModelThreadingTest::testThreadDeletions_data()
     QTest::newRow("simple-three-delete-first") << (uint)3 << QByteArray("(1 2 3)") << (QStringList() << "1" << "(2 3)");
     QTest::newRow("simple-three-delete-middle") << (uint)3 << QByteArray("(1 2 3)") << (QStringList() << "2" << "(1 3)");
     QTest::newRow("simple-three-delete-last") << (uint)3 << QByteArray("(1 2 3)") << (QStringList() << "3" << "(1 2)");
+    // A thread with a fork:
+    // 1
+    // +- 2
+    //    +- 3
+    // +- 4
+    //    +- 5
+    QTest::newRow("fork") << (uint)5 << QByteArray("(1 (2 3)(4 5))") << QStringList();
+    QTest::newRow("fork-delete-first") << (uint)5 << QByteArray("(1 (2 3)(4 5))") << (QStringList() << "1" << "(2 (3)(4 5))");
+    QTest::newRow("fork-delete-second") << (uint)5 << QByteArray("(1 (2 3)(4 5))") << (QStringList() << "2" << "(1 (3)(4 5))");
+    QTest::newRow("fork-delete-third") << (uint)5 << QByteArray("(1 (2 3)(4 5))") << (QStringList() << "3" << "(1 (2)(4 5))");
+    // Remember, we're using EXPUNGE which use sequence numbers, not UIDs
+    QTest::newRow("fork-delete-two-three") << (uint)5 << QByteArray("(1 (2 3)(4 5))") <<
+                                              (QStringList() << "2" << "(1 (3)(4 5))" << "2" << "(1 4 5)");
+    QTest::newRow("fork-delete-two-four") << (uint)5 << QByteArray("(1 (2 3)(4 5))") <<
+                                              (QStringList() << "2" << "(1 (3)(4 5))" << "3" << "(1 (3)(5))");
 }
 
 /** @short Test deletion of one message */
