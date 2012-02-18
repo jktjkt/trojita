@@ -146,7 +146,7 @@ void ImapModelThreadingTest::testStaticThreading_data()
             << m;
 }
 
-void ImapModelThreadingTest::testThreadDeletions()
+void ImapModelThreadingTest::testThreadDeletionsAdditions()
 {
     QFETCH(uint, exists);
     QFETCH(QByteArray, response);
@@ -189,7 +189,7 @@ void ImapModelThreadingTest::testThreadDeletions()
     }
 }
 
-void ImapModelThreadingTest::testThreadDeletions_data()
+void ImapModelThreadingTest::testThreadDeletionsAdditions_data()
 {
     QTest::addColumn<uint>("exists");
     QTest::addColumn<QByteArray>("response");
