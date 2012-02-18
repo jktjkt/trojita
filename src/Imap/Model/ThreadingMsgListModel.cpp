@@ -331,8 +331,8 @@ void ThreadingMsgListModel::handleRowsRemoved(const QModelIndex& parent, int sta
     // as we'll just remove everything upon first rowsRemoved.  I'll just hope that it doesn't matter (much).
 
     emit layoutAboutToBeChanged();
-    pruneTree();
     updatePersistentIndexesPhase1();
+    pruneTree();
     updatePersistentIndexesPhase2();
     emit layoutChanged();
 }
@@ -591,9 +591,8 @@ void ThreadingMsgListModel::applyThreading(const QVector<Imap::Responses::Thread
             it = _threading.erase(it);
         }
     }
-
-    updatePersistentIndexesPhase2();
     pruneTree();
+    updatePersistentIndexesPhase2();
     emit layoutChanged();
 }
 
