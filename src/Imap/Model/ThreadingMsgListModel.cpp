@@ -21,10 +21,28 @@
 
 #include "ThreadingMsgListModel.h"
 #include <algorithm>
+#include <QBuffer>
 #include <QDebug>
 #include "ItemRoles.h"
 #include "MailboxTree.h"
 #include "MsgListModel.h"
+
+namespace {
+using Imap::Mailbox::ThreadNodeInfo;
+QByteArray dumpThreadNodeInfo(const QHash<uint,ThreadNodeInfo> &mapping, const uint nodeId, const uint offset)
+{
+    QByteArray res;
+    QByteArray prefix(offset, ' ');
+    QTextStream ss(&res);
+    Q_ASSERT(mapping.contains(nodeId));
+    const ThreadNodeInfo &node = mapping[nodeId];
+    ss << prefix << "ThreadNodeInfo " << node.internalId << " " << node.uid << " " << node.ptr << " " << node.parent << "\n";
+    Q_FOREACH(const uint childId, node.children) {
+        ss << dumpThreadNodeInfo(mapping, childId, offset + 1);
+    }
+    return res;
+}
+}
 
 namespace Imap {
 namespace Mailbox {
@@ -722,12 +740,6 @@ void ThreadingMsgListModel::pruneTree()
             }
         }
     }
-}
-
-QDebug operator<<(QDebug debug, const ThreadNodeInfo &node)
-{
-    debug << "ThreadNodeInfo(" << node.internalId << node.uid << node.ptr<< node.parent << node.children << ")";
-    return debug;
 }
 
 QStringList ThreadingMsgListModel::supportedCapabilities()
