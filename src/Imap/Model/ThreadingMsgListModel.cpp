@@ -645,7 +645,11 @@ void ThreadingMsgListModel::updatePersistentIndexesPhase1()
             continue;
         }
         QModelIndex translated = mapToSource(idx);
-        Q_ASSERT(translated.isValid());
+        if (!translated.isValid()) {
+            // another stale item
+            oldPtrs << 0;
+            continue;
+        }
         oldPtrs << translated.internalPointer();
     }
 }
