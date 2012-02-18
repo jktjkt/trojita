@@ -668,6 +668,7 @@ void ThreadingMsgListModel::updatePersistentIndexesPhase2()
         Q_ASSERT(offset != -1);
         updatedIndexes.append( createIndex( offset, oldPersistentIndexes[i].column(), it->internalId ) );
     }
+    Q_ASSERT(oldPersistentIndexes.size() == updatedIndexes.size());
     changePersistentIndexList( oldPersistentIndexes, updatedIndexes );
     oldPersistentIndexes.clear();
     oldPtrs.clear();
