@@ -572,6 +572,9 @@ void KeepMailboxOpenTask::activateTasks()
 
     breakPossibleIdle();
 
+    slotFetchRequestedEnvelopes();
+    slotFetchRequestedParts();
+
     while (!dependingTasksForThisMailbox.isEmpty() && model->accessParser(parser).activeTasks.size() < limitActiveTasks) {
         ImapTask *task = dependingTasksForThisMailbox.takeFirst();
         runningTasksForThisMailbox.append(task);
