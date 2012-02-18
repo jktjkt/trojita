@@ -54,6 +54,7 @@ private:
     QModelIndex findItem(const QString &where);
     IndexMapping buildIndexMap(const Mapping &mapping);
     void verifyIndexMap(const IndexMapping &indexMap, const Mapping &map);
+    QByteArray treeToThreading(QModelIndex index);
 
     Imap::Mailbox::MsgListModel *msgListModel;
     Imap::Mailbox::ThreadingMsgListModel *threadingModel;

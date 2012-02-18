@@ -422,4 +422,28 @@ void ImapModelThreadingTest::cleanup()
     msgListModel = 0;
 }
 
+/** @short Walk the model and output a THREAD-like responsde with the UIDs */
+QByteArray ImapModelThreadingTest::treeToThreading(QModelIndex index)
+{
+    QByteArray res = index.data(Imap::Mailbox::RoleMessageUid).toString().toAscii();
+    for (int i = 0; i < threadingModel->rowCount(index); ++i) {
+        // We're the first child of something
+        bool shallAddSpace = (i == 0) && index.isValid();
+        // If there are multiple siblings (or at the top level), we're always enclosed in parentheses
+        bool shallEncloseInParenteses = threadingModel->rowCount(index) > 1 || !index.isValid();
+        if (shallAddSpace) {
+            res += " ";
+        }
+        if (shallEncloseInParenteses) {
+            res += "(";
+        }
+        QModelIndex child = threadingModel->index(i, 0, index);
+        res += treeToThreading(child);
+        if (shallEncloseInParenteses) {
+            res += ")";
+        }
+    }
+    return res;
+}
+
 TROJITA_HEADLESS_TEST( ImapModelThreadingTest )
