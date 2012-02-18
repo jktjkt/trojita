@@ -134,7 +134,7 @@ void ImapModelThreadingTest::testStaticThreading_data()
     m["0.1"] = 3;
     m["0.1.0"] = 0;
     m["0.2"] = 0;
-    QTest::newRow("linear-threading-just-three-extra-parentheses-middle")
+    QTest::newRow("linear-threading-just-extra-parentheses-middle")
             << QByteArray("(1 (2) 3)")
             << m;
 
