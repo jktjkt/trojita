@@ -832,6 +832,7 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
 
 void Model::slotParserDisconnected(Imap::Parser *parser, const QString msg)
 {
+    logTrace(parser->parserId(), LOG_PARSE_ERROR, QString(), msg);
     emit connectionError(msg);
 
     if (!parser)
@@ -847,6 +848,7 @@ void Model::broadcastParseError( const uint parser, const QString& exceptionClas
 {
     emit logParserFatalError( parser, exceptionClass, errorMessage, line, position );
     QByteArray details = ( position == -1 ) ? QByteArray() : QByteArray( position, ' ' ) + QByteArray("^ here");
+    logTrace(parser, LOG_PARSE_ERROR, exceptionClass, QString::fromAscii("%1\n%2\n%3").arg(errorMessage, line, details));
     emit connectionError( trUtf8( "<p>The IMAP server sent us a reply which we could not parse. "
                                   "This might either mean that there's a bug in Trojiá's code, or "
                                   "that the IMAP server you are connected to is broken. Please "
@@ -1071,7 +1073,9 @@ CommandHandle Model::performAuthentication( Imap::Parser* ptr )
     if ( _authenticator->isNull() ) {
         delete _authenticator;
         _authenticator = 0;
-        emit connectionError( tr("Can't login without user/password data") );
+        QString message = tr("Can't login without user/password data");
+        logTrace(ptr->parserId(), LOG_OTHER, QString(), message);
+        emit connectionError(message);
         return CommandHandle();
     } else {
         CommandHandle cmd = ptr->login( _authenticator->user(), _authenticator->password() );
