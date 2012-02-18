@@ -32,7 +32,7 @@ Q_DECLARE_METATYPE(Mapping);
 /** @short Test that the ThreadingMsgListModel can process a static THREAD response */
 void ImapModelThreadingTest::testStaticThreading()
 {
-    initialMessages();
+    initialMessages(10);
 
     QFETCH(QByteArray, response);
     QFETCH(Mapping, mapping);
@@ -149,7 +149,7 @@ void ImapModelThreadingTest::testStaticThreading_data()
 /** @short Test deletion of one message */
 void ImapModelThreadingTest::testDynamicThreading()
 {
-    initialMessages();
+    initialMessages(10);
 
     // A complex nested hierarchy with nodes to be promoted
     Mapping mapping;
@@ -396,10 +396,10 @@ void ImapModelThreadingTest::init()
     threadingModel->setSourceModel(msgListModel);
 }
 
-void ImapModelThreadingTest::initialMessages()
+void ImapModelThreadingTest::initialMessages(const uint exists)
 {
     // Setup ten fake messages
-    existsA = 10;
+    existsA = exists;
     uidValidityA = 333;
     for (uint i = 1; i <= existsA; ++i) {
         uidMapA << i;
