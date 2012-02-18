@@ -111,8 +111,10 @@ void ThreadingMsgListModel::handleDataChanged( const QModelIndex& topLeft, const
     // new data for a message but said message doesn't have threading info yet. Therefore,
     // the translated indexes are invalid, so we have to handle that gracefully.
     // "Doing nothing" could be a reasonable thing.
-    if ( ! first.isValid() || ! second.isValid() )
+    if ( ! first.isValid() || ! second.isValid() ) {
+        qDebug() << "Got dataChanged() for an index which is not recognized in the threaded proxy";
         return;
+    }
 
     emit dataChanged( first, second );
 }
