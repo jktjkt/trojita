@@ -21,9 +21,11 @@
 #include "EmbeddedWebView.h"
 
 #include <QAction>
+#include <QApplication>
 #include <QDesktopServices>
 #include <QWebFrame>
 #include <QWebHistory>
+#include <QWindowsStyle>
 
 #include <QDebug>
 
@@ -57,6 +59,15 @@ EmbeddedWebView::EmbeddedWebView( QWidget* parent, QNetworkAccessManager* networ
     QAction* copyAction = page()->action( QWebPage::Copy );
     copyAction->setShortcut( tr("Ctrl+C") );
     addAction( copyAction );
+
+    // Redmine#3, the QWebView uses black text color when rendering stuff on dark background
+    QPalette palette = QApplication::palette();
+    if (palette.background().color().lightness() < 50) {
+        qDebug() << "Setting the palette tweak";
+        QWindowsStyle s;
+        palette = s.standardPalette();
+        setPalette(palette);
+    }
 
     setContextMenuPolicy( Qt::NoContextMenu );
 }
