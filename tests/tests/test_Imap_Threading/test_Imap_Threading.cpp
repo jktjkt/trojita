@@ -309,13 +309,13 @@ void ImapModelThreadingTest::testDynamicThreading()
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 
-    QByteArray fetchCommand1 = t.mk("UID FETCH 10:* (FLAGS)\r\n");
+    QByteArray fetchCommand1 = t.mk("UID FETCH ") + QString::fromAscii("%1:* (FLAGS)\r\n").arg(QString::number(uidNextA - 1)).toAscii();
     QByteArray delayedFetchResponse1 = t.last("OK uid fetch\r\n");
     QByteArray threadCommand1 = t.mk("UID THREAD REFS utf-8 ALL\r\n");
     QByteArray delayedThreadResponse1 = t.last("OK threading\r\n");
     QCOMPARE(SOCK->writtenStuff(), fetchCommand1 + threadCommand1);
 
-    QByteArray fetchUntagged1("* 9 FETCH (UID 11 FLAGS (\\Recent))\r\n");
+    QByteArray fetchUntagged1("* 9 FETCH (UID 66 FLAGS (\\Recent))\r\n");
     QByteArray threadUntagged1("* THREAD (1)(3)(4 (5)(6))((7)(8)(9))\r\n");
 
     // Check that we've registered that change
@@ -327,7 +327,7 @@ void ImapModelThreadingTest::testDynamicThreading()
         QCoreApplication::processEvents();
         QCoreApplication::processEvents();
         QCoreApplication::processEvents();
-        mapping["4"] = 11;
+        mapping["4"] = 66;
         indexMap["4"] = findItem("4");
         /*verifyMapping(mapping);
         verifyIndexMap(indexMap, mapping);*/

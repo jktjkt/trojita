@@ -48,7 +48,8 @@ void ImapModelSelectedMailboxUpdatesTest::helperTestExpungeImmediatelyAfterArriv
     SOCK->fakeReading(QString::fromAscii("* %1 EXISTS\r\n* %1 EXPUNGE\r\n").arg(QString::number(existsA + 1)).toAscii());
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    QCOMPARE(SOCK->writtenStuff(), QString(t.mk("UID FETCH %1:* (FLAGS)\r\n")).arg(QString::number( uidMapA.last() + 1 )).toAscii());
+    QCOMPARE(SOCK->writtenStuff(), QString(t.mk("UID FETCH %1:* (FLAGS)\r\n")).arg(
+                 QString::number(qMax(uidMapA.last() + 1, uidNextA))).toAscii());
 
     // Add message with this UID to our internal list
     uint addedUid = 33;
@@ -81,7 +82,8 @@ void ImapModelSelectedMailboxUpdatesTest::testUnsolicitedFetch()
     SOCK->fakeReading(QString::fromAscii("* %1 EXISTS\r\n* %1 FETCH (FLAGS (\\Seen \\Recent $NotJunk NotJunk))\r\n").arg(QString::number(existsA + 1)).toAscii());
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    QCOMPARE(SOCK->writtenStuff(), QString(t.mk("UID FETCH %1:* (FLAGS)\r\n")).arg(QString::number( uidMapA.last() + 1 )).toAscii());
+    QCOMPARE(SOCK->writtenStuff(), QString(t.mk("UID FETCH %1:* (FLAGS)\r\n")).arg(
+                 QString::number(qMax(uidMapA.last() + 1, uidNextA))).toAscii());
 
     // Add message with this UID to our internal list
     uint addedUid = 42;

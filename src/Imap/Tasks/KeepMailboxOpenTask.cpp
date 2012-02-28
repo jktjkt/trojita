@@ -350,7 +350,8 @@ bool KeepMailboxOpenTask::handleNumberResponse( const Imap::Responses::NumberRes
                 // Did the UID walk return a usable number?
                 highestKnownUid ?
                     // Yes, we've got at least one message with a UID known -> ask for higher
-                    highestKnownUid + 1
+                    // but don't forget to compensate for an pre-existing UIDNEXT value
+                    qMax(mailbox->syncState.uidNext(), highestKnownUid + 1)
                 :
                     // No messages, or no messages with valid UID -> use the UIDNEXT from the syncing state
                     // but prevent a possible invalid 0:*
