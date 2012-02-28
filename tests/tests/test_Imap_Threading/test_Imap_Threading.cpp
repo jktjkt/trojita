@@ -178,7 +178,7 @@ void ImapModelThreadingTest::testThreadDeletionsAdditions()
             QCoreApplication::processEvents();
             QVERIFY(SOCK->writtenStuff().isEmpty());
             QVERIFY(errorSpy->isEmpty());
-            QCOMPARE(expectedRes, QString::fromAscii(treeToThreading(QModelIndex())));
+            QCOMPARE(QString::fromAscii(treeToThreading(QModelIndex())), expectedRes);
         } else if (whichOne[0] == QLatin1Char('+')) {
             // New additions. The number specifies the number of new arrivals.
             // FIXME: implement me
