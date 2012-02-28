@@ -460,7 +460,7 @@ void ThreadingMsgListModel::wantThreading()
         if (highestUidInThreadingLowerBound < node.num) {
             highestUidInThreadingLowerBound = node.num;
         }
-        if (highestUidInMailbox > highestUidInThreadingLowerBound) {
+        if (highestUidInThreadingLowerBound >= highestUidInMailbox) {
             // There's no point going further, we already know that we shall ask for threading
             break;
         }
