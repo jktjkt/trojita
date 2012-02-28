@@ -222,7 +222,7 @@ void ImapModelThreadingTest::testThreadDeletionsAdditions()
             QCoreApplication::processEvents();
             QCoreApplication::processEvents();
 
-            //QVERIFY(SOCK->writtenStuff().isEmpty());
+            QVERIFY(SOCK->writtenStuff().isEmpty());
             QVERIFY(errorSpy->isEmpty());
             QCOMPARE(QString::fromAscii(treeToThreading(QModelIndex())), expectedRes);
         } else {
@@ -266,7 +266,7 @@ void ImapModelThreadingTest::testThreadDeletionsAdditions_data()
                                               (QStringList() << "-2" << "(1 (3)(4 5))" << "-3" << "(1 (3)(5))");
 
     // Test new arrivals
-    //QTest::newRow("flat-list-new") << (uint)2 << QByteArray("(1)(2)") << (QStringList() << "+1" << "(1)(2)(3)");
+    QTest::newRow("flat-list-new") << (uint)2 << QByteArray("(1)(2)") << (QStringList() << "+1" << "(1)(2)(66)");
 }
 
 /** @short Test deletion of one message */
