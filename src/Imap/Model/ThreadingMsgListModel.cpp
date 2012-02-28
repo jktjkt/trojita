@@ -97,10 +97,7 @@ void ThreadingMsgListModel::handleDataChanged( const QModelIndex& topLeft, const
         // The message wasn't fully synced before, and now it is
         unknownUids.removeOne(topLeft);
         qDebug() << "Got UID for" << topLeft.row();
-        if ( unknownUids.isEmpty() ) {
-            // Let's re-thread, then!
-            askForThreading();
-        }
+        wantThreading();
         return;
     }
 
@@ -384,9 +381,7 @@ void ThreadingMsgListModel::resetMe()
     updateNoThreading();
     modelResetInProgress = false;
 
-    // If there are any messages, try to thread them
-    if ( sourceModel() && rowCount() )
-        askForThreading();
+    wantThreading();
 }
 
 void ThreadingMsgListModel::updateNoThreading()
@@ -435,15 +430,60 @@ void ThreadingMsgListModel::updateNoThreading()
     }
 }
 
-void ThreadingMsgListModel::askForThreading()
+void ThreadingMsgListModel::wantThreading()
 {
-    if ( ! sourceModel() ) {
+    if (!sourceModel() || !sourceModel()->rowCount()) {
         updateNoThreading();
         return;
     }
 
-    if ( ! sourceModel()->rowCount() )
-        return;
+    const Imap::Mailbox::Model *realModel;
+    QModelIndex someMessage = sourceModel()->index(0,0);
+    QModelIndex realIndex;
+    Imap::Mailbox::Model::realTreeItem( someMessage, &realModel, &realIndex );
+    QModelIndex mailbox = realIndex.parent().parent();
+
+    // Something has happened and we want to process the THREAD response
+    QVector<Imap::Responses::ThreadingNode> mapping = realModel->cache()->messageThreading(mailbox.data(RoleMailboxName).toString());
+    QVector<Imap::Responses::ThreadingNode> originalMapping = mapping;
+
+    // Find the UID of the last message in the mailbox
+    uint highestUidInMailbox = 0;
+    for (int i = sourceModel()->rowCount(); i != -1 && !highestUidInMailbox; --i) {
+        highestUidInMailbox = sourceModel()->data(sourceModel()->index(i, 0, QModelIndex()), RoleMessageUid).toUInt();
+    }
+
+    // Find the highest UID for which we have the threading info
+    uint highestUidInThreadingLowerBound = 0;
+    for (int i = 0; i < mapping.size(); ++i) {
+        const Imap::Responses::ThreadingNode &node = mapping[i];
+        if (highestUidInThreadingLowerBound < node.num) {
+            highestUidInThreadingLowerBound = node.num;
+        }
+        if (highestUidInMailbox > highestUidInThreadingLowerBound) {
+            // There's no point going further, we already know that we shall ask for threading
+            break;
+        }
+        mapping += node.children;
+    }
+
+    qDebug() << "ThreadingMsgListModel::wantThreading: THREAD contains info about UID" << highestUidInThreadingLowerBound <<
+                "(or higher), mailbox has" << highestUidInMailbox;
+
+    if (highestUidInThreadingLowerBound >= highestUidInMailbox) {
+        // There's no point asking for data at this point, we shall just apply threading
+        applyThreading(originalMapping);
+    } else {
+        // There's apparently at least one known UID whose threading info we do not know; that means that we have to ask the
+        // server here.
+        askForThreading();
+    }
+}
+
+void ThreadingMsgListModel::askForThreading()
+{
+    Q_ASSERT(sourceModel());
+    Q_ASSERT(sourceModel()->rowCount());
 
     const Imap::Mailbox::Model *realModel;
     QModelIndex someMessage = sourceModel()->index(0,0);

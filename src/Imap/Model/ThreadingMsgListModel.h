@@ -115,6 +115,8 @@ private slots:
     void updateNoThreading();
     /** @short Ask the model for a THREAD response */
     void askForThreading();
+    /** @short Apply cached THREAD response or ask for threading again */
+    void wantThreading();
 
 private:
     void updatePersistentIndexesPhase1();
