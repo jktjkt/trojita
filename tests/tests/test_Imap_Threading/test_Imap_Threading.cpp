@@ -181,8 +181,46 @@ void ImapModelThreadingTest::testThreadDeletionsAdditions()
             QCOMPARE(QString::fromAscii(treeToThreading(QModelIndex())), expectedRes);
         } else if (whichOne[0] == QLatin1Char('+')) {
             // New additions. The number specifies the number of new arrivals.
-            // FIXME: implement me
-            Q_ASSERT(false);
+            Q_ASSERT(whichOne.size() > 1);
+            int newArrivals = whichOne.mid(1).toInt();
+            Q_ASSERT(newArrivals > 0);
+
+            for (int i = 0; i < newArrivals; ++i) {
+                uidMapA.append(uidNextA + i);
+            }
+
+            existsA += newArrivals;
+
+            // Send information about the new arrival
+            SOCK->fakeReading(QString::fromAscii("* %1 EXISTS\r\n").arg(QString::number(existsA)).toAscii());
+            QCoreApplication::processEvents();
+            QCoreApplication::processEvents();
+
+            // At this point, the threading code should have asked for new threading and the generic IMAP model code for flags
+            QByteArray expected = t.mk("UID FETCH ") + QString::fromAscii("%1:* (FLAGS)\r\n").arg(QString::number(uidNextA)).toAscii();
+            uidNextA += newArrivals;
+            QByteArray uidFetchResponse;
+            for (int i = 0; i < newArrivals; ++i) {
+                int offset = existsA - newArrivals + i;
+                uidFetchResponse += QString::fromAscii("* %1 FETCH (UID %2 FLAGS ())\r\n").arg(
+                            // the sequqnce number is one-based, not zero-based
+                            QString::number(offset + 1),
+                            QString::number(uidMapA[offset])
+                            ).toAscii();
+            }
+            uidFetchResponse += t.last("OK fetch");
+            expected += t.mk("UID THREAD REFS utf-8 ALL\r\n");
+            QByteArray uidThreadResponse = QByteArray("* THREAD ") + expectedRes.toAscii() + QByteArray("\r\n") + t.last("OK thread\r\n");
+            QCOMPARE(SOCK->writtenStuff(), expected);
+            SOCK->fakeReading(uidFetchResponse + uidThreadResponse);
+            QCoreApplication::processEvents();
+            QCoreApplication::processEvents();
+            QCoreApplication::processEvents();
+            QCoreApplication::processEvents();
+
+            //QVERIFY(SOCK->writtenStuff().isEmpty());
+            QVERIFY(errorSpy->isEmpty());
+            QCOMPARE(QString::fromAscii(treeToThreading(QModelIndex())), expectedRes);
         } else {
             Q_ASSERT(false);
         }
@@ -222,6 +260,9 @@ void ImapModelThreadingTest::testThreadDeletionsAdditions_data()
                                               (QStringList() << "-2" << "(1 (3)(4 5))" << "-2" << "(1 4 5)");
     QTest::newRow("fork-delete-two-four") << (uint)5 << QByteArray("(1 (2 3)(4 5))") <<
                                               (QStringList() << "-2" << "(1 (3)(4 5))" << "-3" << "(1 (3)(5))");
+
+    // Test new arrivals
+    //QTest::newRow("flat-list-new") << (uint)2 << QByteArray("(1)(2)") << (QStringList() << "+1" << "(1)(2)(3)");
 }
 
 /** @short Test deletion of one message */
