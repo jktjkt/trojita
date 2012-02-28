@@ -47,7 +47,8 @@ QByteArray dumpThreadNodeInfo(const QHash<uint,ThreadNodeInfo> &mapping, const u
 namespace Imap {
 namespace Mailbox {
 
-ThreadingMsgListModel::ThreadingMsgListModel( QObject* parent ): QAbstractProxyModel(parent), modelResetInProgress(false)
+ThreadingMsgListModel::ThreadingMsgListModel( QObject* parent ): QAbstractProxyModel(parent), modelResetInProgress(false),
+    m_threadingInFlight(false)
 {
 }
 
@@ -437,6 +438,27 @@ void ThreadingMsgListModel::wantThreading()
         return;
     }
 
+    if (m_threadingInFlight) {
+        // Imagine the following scenario:
+        // <<< "* 3 EXISTS"
+        // Message 2 has unkown UID
+        // >>> "y4 UID FETCH 66:* (FLAGS)"
+        // >>> "y5 UID THREAD REFS utf-8 ALL"
+        // <<< "* 3 FETCH (UID 66 FLAGS ())"
+        // Got UID for seq# 3
+        // ThreadingMsgListModel::wantThreading: THREAD contains info about UID 1 (or higher), mailbox has 66
+        //    *** this is the interesting part ***
+        // <<< "y4 OK fetch"
+        // <<< "* THREAD (1)(2)(66)"
+        // <<< "y5 OK thread"
+        // >>> "y6 UID THREAD REFS utf-8 ALL"
+        //
+        // See, at the indicated (***) place, we already have an in-flight THREAD request and receive UID for newly arrived
+        // message.  We certainly don't want to ask for threading once again; it's better to wait a bit and only ask when the
+        // to-be-received THREAD does not contain all required UIDs.
+        return;
+    }
+
     const Imap::Mailbox::Model *realModel;
     QModelIndex someMessage = sourceModel()->index(0,0);
     QModelIndex realIndex;
@@ -500,6 +522,7 @@ void ThreadingMsgListModel::askForThreading()
     }
 
     if ( ! requestedAlgorithm.isEmpty() ) {
+        m_threadingInFlight = true;
         realModel->_taskFactory->createThreadTask( const_cast<Imap::Mailbox::Model*>(realModel),
                                                    mailboxIndex, requestedAlgorithm,
                                                    QStringList() << QLatin1String("ALL") );
@@ -542,6 +565,9 @@ bool ThreadingMsgListModel::shouldIgnoreThisThreadingResponse(const QModelIndex 
 
 void ThreadingMsgListModel::slotThreadingFailed(const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria)
 {
+    // Better safe than sorry -- prevent infinite waiting to the maximal possible extent
+    m_threadingInFlight = false;
+
     if ( shouldIgnoreThisThreadingResponse(mailbox, algorithm, searchCriteria) )
         return;
 
@@ -557,6 +583,9 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
                                                     const QStringList &searchCriteria,
                                                     const QVector<Imap::Responses::ThreadingNode> &mapping )
 {
+    // Better safe than sorry -- prevent infinite waiting to the maximal possible extent
+    m_threadingInFlight = false;
+
     const Model *model = 0;
     if ( shouldIgnoreThisThreadingResponse(mailbox, algorithm, searchCriteria, &model) )
         return;
@@ -566,9 +595,11 @@ void ThreadingMsgListModel::slotThreadingAvailable( const QModelIndex &mailbox, 
     disconnect( sender(), 0, this,
                 SLOT(slotThreadingFailed(QModelIndex,QString,QStringList)) );
 
-    applyThreading(mapping);
-
     model->cache()->setMessageThreading(mailbox.data(RoleMailboxName).toString(), mapping);
+
+    // Indirect processing here -- the wantThreading() will check that the received response really contains everything we need
+    // and if it does, simply applyThreading() that.  If there's something missing, it will ask for the threading again.
+    wantThreading();
 }
 
 void ThreadingMsgListModel::applyThreading(const QVector<Imap::Responses::ThreadingNode> &mapping)

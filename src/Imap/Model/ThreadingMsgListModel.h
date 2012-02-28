@@ -166,6 +166,9 @@ private:
 
     QModelIndexList oldPersistentIndexes;
     QList<void*> oldPtrs;
+
+    /** @short There's a pending THREAD command for which we haven't received data yet */
+    bool m_threadingInFlight;
 };
 
 }
