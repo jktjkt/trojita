@@ -208,7 +208,7 @@ void ImapModelThreadingTest::testThreadDeletionsAdditions()
                             QString::number(uidMapA[offset])
                             ).toAscii();
             }
-            uidFetchResponse += t.last("OK fetch");
+            uidFetchResponse += t.last("OK fetch\r\n");
             expected += t.mk("UID THREAD REFS utf-8 ALL\r\n");
             QByteArray uidThreadResponse = QByteArray("* THREAD ") + expectedRes.toAscii() + QByteArray("\r\n") + t.last("OK thread\r\n");
             QCOMPARE(SOCK->writtenStuff(), expected);
