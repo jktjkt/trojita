@@ -478,7 +478,7 @@ void ThreadingMsgListModel::wantThreading()
     // Find the highest UID for which we have the threading info
     uint highestUidInThreadingLowerBound = 0;
     for (int i = 0; i < mapping.size(); ++i) {
-        const Imap::Responses::ThreadingNode &node = mapping[i];
+        const Imap::Responses::ThreadingNode node = mapping[i];
         if (highestUidInThreadingLowerBound < node.num) {
             highestUidInThreadingLowerBound = node.num;
         }
