@@ -96,7 +96,7 @@ void ThreadingMsgListModel::handleDataChanged( const QModelIndex& topLeft, const
     if ( unknownUids.contains(topLeft) ) {
         // The message wasn't fully synced before, and now it is
         unknownUids.removeOne(topLeft);
-        qDebug() << "Got UID for" << topLeft.row();
+        qDebug() << "Got UID for seq#" << topLeft.row() + 1;
         wantThreading();
         return;
     }
