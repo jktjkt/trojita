@@ -55,6 +55,7 @@ void OfflineConnectionTask::slotDie()
     deleteLater();
     model->killParser(parser, Model::PARSER_KILL_EXPECTED);
     model->_parsers.remove(parser);
+    model->m_taskModel->slotParserDeleted(parser);
 }
 
 }
