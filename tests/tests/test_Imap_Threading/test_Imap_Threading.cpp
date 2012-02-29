@@ -32,10 +32,6 @@ Q_DECLARE_METATYPE(Mapping);
 /** @short Test that the ThreadingMsgListModel can process a static THREAD response */
 void ImapModelThreadingTest::testStaticThreading()
 {
-    // Well, this is bad, this code works with responses for just a small set of messages, but the recent changes in the
-    // ThreadingMsgListModel just got changed to ask for threading when not enough information was received...
-    return;
-
     initialMessages(10);
 
     QFETCH(QByteArray, response);
@@ -78,6 +74,9 @@ void ImapModelThreadingTest::testStaticThreading_data()
 
     Mapping m;
 
+    // Well, this is bad, this code works with responses for just a small set of messages, but the recent changes in the
+    // ThreadingMsgListModel just got changed to ask for threading when not enough information was received...
+    /*
     THREAD_TWO_MESSAGES;
 
     QTest::newRow("no-threads")
@@ -140,7 +139,7 @@ void ImapModelThreadingTest::testStaticThreading_data()
     m["0.2"] = 0;
     QTest::newRow("linear-threading-just-extra-parentheses-middle")
             << QByteArray("(1 (2) 3)")
-            << m;
+            << m;*/
 
     // A complex nested hierarchy with nodes to be promoted
     QByteArray response;
