@@ -32,10 +32,10 @@ Q_DECLARE_METATYPE(Mapping);
 /** @short Test that the ThreadingMsgListModel can process a static THREAD response */
 void ImapModelThreadingTest::testStaticThreading()
 {
-    initialMessages(10);
-
+    QFETCH(uint, messageCount);
     QFETCH(QByteArray, response);
     QFETCH(Mapping, mapping);
+    initialMessages(messageCount);
     QCOMPARE(SOCK->writtenStuff(), t.mk("UID THREAD REFS utf-8 ALL\r\n"));
     SOCK->fakeReading(QByteArray("* THREAD ") + response + QByteArray("\r\n") + t.last("OK thread\r\n"));
     QCoreApplication::processEvents();
@@ -69,17 +69,16 @@ void ImapModelThreadingTest::testStaticThreading()
 /** @short Data for the testStaticThreading */
 void ImapModelThreadingTest::testStaticThreading_data()
 {
+    QTest::addColumn<uint>("messageCount");
     QTest::addColumn<QByteArray>("response");
     QTest::addColumn<Mapping>("mapping");
 
     Mapping m;
 
-    // Well, this is bad, this code works with responses for just a small set of messages, but the recent changes in the
-    // ThreadingMsgListModel just got changed to ask for threading when not enough information was received...
-    /*
     THREAD_TWO_MESSAGES;
 
     QTest::newRow("no-threads")
+            << (uint)2
             << QByteArray("(1)(2)")
             << m;
 
@@ -87,12 +86,14 @@ void ImapModelThreadingTest::testStaticThreading_data()
     THREAD_LINEAR_THREE_TEN;
 
     QTest::newRow("no-threads-ten")
+            << (uint)10
             << QByteArray("(1)(2)(3)(4)(5)(6)(7)(8)(9)(10)")
             << m;
 
     // A flat list of threads, but now with some added fake nodes for complexity.
     // The expected result is that they get cleared as redundant and useless nodes.
     QTest::newRow("extra-parentheses")
+            << (uint)10
             << QByteArray("(1)((2))(((3)))((((4))))(((((5)))))(6)(7)(8)(9)(((10)))")
             << m;
 
@@ -105,6 +106,7 @@ void ImapModelThreadingTest::testStaticThreading_data()
     m["0.0.0"] = 0;
     m["0.0.1"] = 0;
     QTest::newRow("linear-threading-just-two")
+            << (uint)2
             << QByteArray("(1 2)")
             << m;
 
@@ -112,6 +114,7 @@ void ImapModelThreadingTest::testStaticThreading_data()
     m["0.0.0"] = 3;
     m["0.0.0.0"] = 0;
     QTest::newRow("linear-threading-just-three")
+            << (uint)3
             << QByteArray("(1 2 3)")
             << m;
 
@@ -119,10 +122,12 @@ void ImapModelThreadingTest::testStaticThreading_data()
     m["0.0.0"] = 3;
     m["0.0.0.0"] = 0;
     QTest::newRow("linear-threading-just-three-extra-parentheses-outside")
+            << (uint)3
             << QByteArray("((((1 2 3))))")
             << m;
     // The same, but with the extra parentheses in the innermost item
     QTest::newRow("linear-threading-just-three-extra-parentheses-inside")
+            << (uint)3
             << QByteArray("(1 2 (((3))))")
             << m;
 
@@ -138,13 +143,15 @@ void ImapModelThreadingTest::testStaticThreading_data()
     m["0.1.0"] = 0;
     m["0.2"] = 0;
     QTest::newRow("linear-threading-just-extra-parentheses-middle")
+            << (uint)3
             << QByteArray("(1 (2) 3)")
-            << m;*/
+            << m;
 
     // A complex nested hierarchy with nodes to be promoted
     QByteArray response;
     complexMapping(m, response);
     QTest::newRow("complex-threading")
+            << (uint)10
             << response
             << m;
 }
