@@ -120,7 +120,7 @@ bool OpenConnectionTask::handleStateHelper( const Imap::Responses::State* const 
                              "that passphrase.  You should get a new passphrase.");
                 break;
             case Responses::PRIVACYREQUIRED:
-                message = tr("he operation is not permitted due to a lack of privacy.");
+                message = tr("The operation is not permitted due to a lack of privacy.");
                 break;
             case Responses::CONTACTADMIN:
                 message = tr("You should contact the system administrator or support desk.");
