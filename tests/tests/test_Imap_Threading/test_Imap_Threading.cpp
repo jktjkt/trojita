@@ -47,25 +47,6 @@ void ImapModelThreadingTest::testStaticThreading()
     QVERIFY(errorSpy->isEmpty());
 }
 
-#define THREAD_TWO_MESSAGES \
-    /* A linear subset of messages */ \
-    m["0"] = 1; /* index 0: UID 1 */ \
-    m["0.0"] = 0; /* index 0.0: invalid */ \
-    m["0.1"] = 0; /* index 0.1: invalid */ \
-    m["1"] = 2;
-
-#define THREAD_LINEAR_THREE_TEN \
-    /* No threading at all; just an unthreaded list of all messages */ \
-    m["2"] = 3; \
-    m["3"] = 4; \
-    m["4"] = 5; \
-    m["5"] = 6; \
-    m["6"] = 7; \
-    m["7"] = 8; \
-    m["8"] = 9; \
-    m["9"] = 10; /* index 9: UID 10 */ \
-    m["10"] = 0; /* index 10: invalid */
-
 /** @short Data for the testStaticThreading */
 void ImapModelThreadingTest::testStaticThreading_data()
 {
@@ -75,15 +56,27 @@ void ImapModelThreadingTest::testStaticThreading_data()
 
     Mapping m;
 
-    THREAD_TWO_MESSAGES;
+    // A linear subset of messages
+    m["0"] = 1; // index 0: UID
+    m["0.0"] = 0; // index 0.0: invalid
+    m["0.1"] = 0; // index 0.1: invalid
+    m["1"] = 2;
 
     QTest::newRow("no-threads")
             << (uint)2
             << QByteArray("(1)(2)")
             << m;
 
-
-    THREAD_LINEAR_THREE_TEN;
+    // No threading at all; just an unthreaded list of all messages
+    m["2"] = 3;
+    m["3"] = 4;
+    m["4"] = 5;
+    m["5"] = 6;
+    m["6"] = 7;
+    m["7"] = 8;
+    m["8"] = 9;
+    m["9"] = 10; // index 9: UID 10
+    m["10"] = 0; // index 10: invalid
 
     QTest::newRow("no-threads-ten")
             << (uint)10
