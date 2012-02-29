@@ -20,6 +20,7 @@
 #include <QTimer>
 #include "KeepMailboxOpenTask.h"
 #include "MailboxTree.h"
+#include "OfflineConnectionTask.h"
 #include "OpenConnectionTask.h"
 
 namespace Imap {
@@ -41,8 +42,14 @@ GetAnyConnectionTask::GetAnyConnectionTask( Model* _model ) :
 
     if (it == model->_parsers.end()) {
         // We're creating a completely new connection
-        newConn = model->_taskFactory->createOpenConnectionTask( model );
-        newConn->addDependentTask( this );
+        if (model->networkPolicy() == Model::NETWORK_OFFLINE) {
+            // ...but we're offline -> too bad, got to fail
+            newConn = new OfflineConnectionTask(model);
+            newConn->addDependentTask(this);
+        } else {
+            newConn = model->_taskFactory->createOpenConnectionTask(model);
+            newConn->addDependentTask(this);
+        }
     } else {
         parser = it.key();
         Q_ASSERT(parser);
