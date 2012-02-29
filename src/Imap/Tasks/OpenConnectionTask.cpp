@@ -137,7 +137,12 @@ bool OpenConnectionTask::handleStateHelper( const Imap::Responses::State* const 
             model->emitAuthFailed(message);
             loginCmd = model->performAuthentication( parser );
 
-            // FIXME: error handling
+            if (loginCmd == CommandHandle()) {
+                // The user has given up
+                _failed(QString::fromAscii("No credentials returned in response to a direct request to the user"));
+            } else {
+                // This is not a failure yet; we're retrying again
+            }
         }
         return true;
     } else if ( resp->tag == startTlsCmd ) {
@@ -209,14 +214,14 @@ void OpenConnectionTask::handleInitialResponse( const Imap::Responses::State* co
         break;
     case BYE:
         model->changeConnectionState( parser, CONN_STATE_LOGOUT );
-        // FIXME: Tasks error handling
+        _failed("Server has closed the conection");
         break;
     case BAD:
         // If it was an ALERT, we've already warned the user
         if ( resp->respCode != ALERT ) {
             emit model->alertReceived( tr("The server replied with the following BAD response:\n%1").arg( resp->message ) );
         }
-        // FIXME: Tasks error handling
+        _failed("Server has greeted us with a BAD response");
         break;
     default:
         throw Imap::UnexpectedResponseReceived(
