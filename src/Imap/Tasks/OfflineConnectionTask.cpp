@@ -28,6 +28,7 @@ OfflineConnectionTask::OfflineConnectionTask(Model *_model) : ImapTask(_model)
 {
     parser = new Parser(model, new FakeSocket(), ++model->lastParserId);
     Model::ParserState parserState = Model::ParserState(parser);
+    parserState.connState = CONN_STATE_LOGOUT;
     model->_parsers[parser] = parserState;
     model->m_taskModel->slotParserCreated(parser);
     markAsActiveTask();
@@ -42,6 +43,7 @@ void OfflineConnectionTask::slotPerform()
 
 void OfflineConnectionTask::perform()
 {
+    model->runReadyTasks();
     _failed("We're offline");
     QTimer::singleShot(0, this, SLOT(slotDie()));
 }
@@ -51,6 +53,8 @@ void OfflineConnectionTask::slotDie()
 {
     die();
     deleteLater();
+    model->killParser(parser, Model::PARSER_KILL_EXPECTED);
+    model->_parsers.remove(parser);
 }
 
 }
