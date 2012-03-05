@@ -51,8 +51,8 @@ int MsgListView::sizeHintForColumn( int column ) const
             return fontMetrics().size( Qt::TextSingleLine, QLatin1String("Blesmrt Trojita Foo Bar") ).width();
         case Imap::Mailbox::MsgListModel::DATE:
             return fontMetrics().size( Qt::TextSingleLine,
-                                       QVariant( QDateTime::currentDateTime() ).toString()
-                                       // because that's what the model's doing
+                                       QDateTime::currentDateTime().toString(Qt::DefaultLocaleShortDate)
+                                       // Because that's roughly what the PrettyMsgListModel is doing
                                        ).width();
         case Imap::Mailbox::MsgListModel::SIZE:
             return fontMetrics().size( Qt::TextSingleLine, QLatin1String("888.1 kB") ).width();
