@@ -80,11 +80,15 @@ QVariant PrettyMsgListModel::data( const QModelIndex& index, int role ) const
             }
         case MsgListModel::DATE:
             {
-                QDateTime res = translated.data( RoleMessageDate ).toDateTime();
-                if ( res.date() == QDate::currentDate() )
-                    return res.time().toString( Qt::SystemLocaleShortDate );
-                else
-                    return res.toString( Qt::SystemLocaleShortDate );
+                QDateTime res = translated.data(RoleMessageDate).toDateTime();
+                // Tooltips use longer variant, displayed text is shorter to save precious space
+                Qt::DateFormat format = role == Qt::ToolTipRole ? Qt::DefaultLocaleLongDate : Qt::DefaultLocaleShortDate;
+                if (res.date() == QDate::currentDate()) {
+                    // Also don't show dates for today's e-mail
+                    return res.time().toString(format);
+                } else {
+                    return res.toString(format);
+                }
             }
         case MsgListModel::SIZE:
             {
