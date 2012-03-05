@@ -41,10 +41,9 @@ MsgListView::MsgListView(QWidget* parent): QTreeView(parent)
 int MsgListView::sizeHintForColumn( int column ) const
 {
     switch ( column ) {
-        case Imap::Mailbox::MsgListModel::SUBJECT:
-            return 200;
         case Imap::Mailbox::MsgListModel::SEEN:
             return 16;
+        case Imap::Mailbox::MsgListModel::SUBJECT:
         case Imap::Mailbox::MsgListModel::FROM:
         case Imap::Mailbox::MsgListModel::TO:
         case Imap::Mailbox::MsgListModel::CC:
