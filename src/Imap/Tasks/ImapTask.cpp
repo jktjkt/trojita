@@ -73,6 +73,7 @@ void ImapTask::markAsActiveTask(const TaskActivatingPosition place)
     // As we're an active task, we no longer have a parent task
     parentTask = 0;
     model->m_taskModel->slotTaskGotReparented(this);
+    log(tr("Activated"));
 }
 
 bool ImapTask::handleState(const Imap::Responses::State *const resp)
