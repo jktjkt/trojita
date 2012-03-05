@@ -424,7 +424,7 @@ bool KeepMailboxOpenTask::handleStateHelper( const Imap::Responses::State* const
             idleLauncher = 0;
         }
         tagIdle.clear();
-        // IDLE is a special, because it's not really a native Task. Therefore, we have to duplicate the check for its completion
+        // IDLE is special because it's not really a native Task. Therefore, we have to duplicate the check for its completion
         // and possible termination request here.
         // FIXME: maybe rewrite IDLE to be a native task and get all the benefits for free? Any drawbacks?
         if ( shouldExit && ! hasPendingInternalActions() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
