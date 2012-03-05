@@ -52,6 +52,7 @@ void ImapTask::updateParentTask(ImapTask *newParent)
     Q_ASSERT(newParent);
     parentTask = newParent;
     model->m_taskModel->slotTaskGotReparented(this);
+    // FIXME: We cannot call log() here as the parser might be 0. That shall be fixed, really.
 }
 
 /** @short Tells the Model that we're from now on an active task */
