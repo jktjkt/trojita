@@ -159,6 +159,9 @@ QTextStream& operator<<( QTextStream& stream, const Kind& res )
         case THREAD:
             stream << "THREAD";
             break;
+        case ID:
+            stream << "ID";
+            break;
     }
     return stream;
 }
@@ -205,6 +208,8 @@ Kind kindFromString( QByteArray str ) throw( UnrecognizedResponseKind )
         return SORT;
     if ( str == "THREAD" )
         return THREAD;
+    if (str == "ID")
+        return ID;
     throw UnrecognizedResponseKind( str.constData() );
 }
 
@@ -799,6 +804,28 @@ void Thread::insertHere( ThreadingNode* where, const QVariantList& what )
     }
 }
 
+Id::Id(const QByteArray &line, int &start): AbstractResponse(ID)
+{
+    try {
+        QVariantList list = LowLevelParser::parseList('(', ')', line, start);
+        if (list.size() % 2) {
+            throw ParseError("ID response with invalid number of entries", line, start);
+        }
+        for (int i = 0; i < list.size() - 1; i += 2 ) {
+            data[list[i].toByteArray()] = list[i+1].toByteArray();
+        }
+    } catch (UnexpectedHere &e) {
+        // Check for NIL
+        QPair<QByteArray,LowLevelParser::ParsedAs> nString = LowLevelParser::getNString(line, start);
+        if (nString.second != LowLevelParser::NIL) {
+            // Let's propagate the original exception from here
+            throw;
+        } else {
+            // It's a NIL, which is explicitly OK, so let's just accept it
+        }
+    }
+}
+
 QTextStream& State::dump( QTextStream& stream ) const
 {
     if ( !tag.isEmpty() )
@@ -897,6 +924,21 @@ QString Thread::dumpHelper( const ThreadingNode& node )
             res << dumpHelper( *it );
         }
         return QString::fromAscii("%1: {%2}").arg( node.num ).arg( res.join(QString::fromAscii(", ") ) );
+    }
+}
+
+QTextStream &Id::dump(QTextStream &s) const
+{
+    if (data.isEmpty()) {
+        return s << "ID NIL";
+    } else {
+        s << "ID (";
+        for (QMap<QByteArray,QByteArray>::const_iterator it = data.constBegin(); it != data.constEnd(); ++it) {
+            if (it != data.constBegin())
+                s << " ";
+            s << it.key() << " " << it.value();
+        }
+        return s << ")";
     }
 }
 
@@ -1061,6 +1103,16 @@ bool Thread::eq(const AbstractResponse &other) const
     }
 }
 
+bool Id::eq(const AbstractResponse &other) const
+{
+    try {
+        const Id& r = dynamic_cast<const Id &>(other);
+        return data == r.data;
+    } catch (std::bad_cast &) {
+        return false;
+    }
+}
+
 bool NamespaceData::operator==( const NamespaceData& other ) const
 {
     return separator == other.separator && prefix == other.prefix;
@@ -1087,6 +1139,7 @@ PLUG( Fetch )
 PLUG( Namespace )
 PLUG( Sort )
 PLUG( Thread )
+PLUG(Id)
 
 #undef PLUG
 

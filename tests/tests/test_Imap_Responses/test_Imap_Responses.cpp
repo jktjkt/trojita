@@ -121,6 +121,10 @@ void ImapResponsesTest::testCompareEq_data()
     QTest::newRow( "thread-2" ) <<
         respPtr( new Thread( QVector<ThreadingNode>() << node ) ) <<
         respPtr( new Thread( QVector<ThreadingNode>() << node ) );
+
+    QTest::newRow("id-empty") <<
+        respPtr(new Id(QMap<QByteArray,QByteArray>())) <<
+        respPtr(new Id(QMap<QByteArray,QByteArray>()));
 }
 
 void ImapResponsesTest::testCompareNe_data()
@@ -255,6 +259,14 @@ void ImapResponsesTest::testCompareNe_data()
     QTest::newRow( "thread-3" ) <<
         respPtr( new Thread( QVector<ThreadingNode>() << node ) ) <<
         respPtr( new Thread( QVector<ThreadingNode>() << node << node3 ) );
+
+
+    QMap<QByteArray,QByteArray> sampleId;
+    sampleId["foo"] = "bar";
+
+    QTest::newRow("id") <<
+        respPtr(new Id(QMap<QByteArray,QByteArray>())) <<
+        respPtr(new Id(sampleId));
 }
 
 TROJITA_HEADLESS_TEST( ImapResponsesTest )

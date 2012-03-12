@@ -154,6 +154,7 @@ public:
     void handleNamespace( Imap::Parser* ptr, const Imap::Responses::Namespace* const resp );
     void handleSort( Imap::Parser* ptr, const Imap::Responses::Sort* const resp );
     void handleThread( Imap::Parser* ptr, const Imap::Responses::Thread* const resp );
+    void handleId(Imap::Parser *ptr, const Imap::Responses::Id *const resp);
 
     AbstractCache* cache() const { return _cache; }
     /** Throw away current cache implementation, replace it with the new one
@@ -375,6 +376,7 @@ private:
     friend class KeepMailboxOpenTask;
     friend class OpenConnectionTask;
     friend class GetAnyConnectionTask;
+    friend class IdTask;
     friend class Fake_ListChildMailboxesTask;
     friend class Fake_OpenConnectionTask;
     friend class NoopTask;

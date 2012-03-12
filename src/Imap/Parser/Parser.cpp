@@ -371,6 +371,21 @@ CommandHandle Parser::namespaceCommand()
     return queueCommand( Commands::ATOM, "NAMESPACE" );
 }
 
+CommandHandle Parser::idCommand()
+{
+    return queueCommand(Commands::Command("ID NIL"));
+}
+
+CommandHandle Parser::idCommand(const QMap<QByteArray,QByteArray> &args)
+{
+    Commands::Command cmd("ID (");
+    for (QMap<QByteArray,QByteArray>::const_iterator it = args.constBegin(); it != args.constEnd(); ++it) {
+        cmd << Commands::PartOfCommand(Commands::QUOTED_STRING, it.key()) << Commands::PartOfCommand(Commands::QUOTED_STRING, it.value());
+    }
+    cmd << Commands::PartOfCommand(Commands::ATOM, ")");
+    return queueCommand(cmd);
+}
+
 CommandHandle Parser::queueCommand( Commands::Command command )
 {
     QString tag = generateTag();
@@ -761,6 +776,9 @@ QSharedPointer<Responses::AbstractResponse> Parser::_parseUntaggedText(
         case Responses::THREAD:
             return QSharedPointer<Responses::AbstractResponse>(
                     new Responses::Thread( line, start ) );
+        case Responses::ID:
+            return QSharedPointer<Responses::AbstractResponse>(
+                    new Responses::Id(line, start));
 
         // Those already handled above follow here
         case Responses::EXPUNGE:

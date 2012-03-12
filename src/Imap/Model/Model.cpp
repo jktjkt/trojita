@@ -504,6 +504,12 @@ void Model::handleThread(Imap::Parser *ptr, const Imap::Responses::Thread *const
     throw UnexpectedResponseReceived( "[Tasks API Port] Unhandled Thread", *resp );
 }
 
+void Model::handleId(Parser *ptr, const Responses::Id *const resp)
+{
+    Q_UNUSED(ptr);
+    throw UnexpectedResponseReceived("Unhandled ID response", *resp);
+}
+
 TreeItem* Model::translatePtr( const QModelIndex& index ) const
 {
     return index.internalPointer() ? static_cast<TreeItem*>( index.internalPointer() ) : _mailboxes;

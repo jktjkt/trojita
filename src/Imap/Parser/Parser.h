@@ -253,6 +253,18 @@ namespace Imap {
         /** UID THREAD, RFC5256 */
         CommandHandle uidThread( const QString& algo, const QString& charset, const QStringList& searchCriteria );
 
+        /** @short ID, RFC 2971 section 3.1
+
+        This variant will send the ID NIL command.
+        */
+        CommandHandle idCommand();
+
+        /** @short ID, RFC 2971 section 3.1
+
+        This variant of the idCommand() sends an arbitrary list of arguments to the server.
+        */
+        CommandHandle idCommand(const QMap<QByteArray,QByteArray> &args);
+
         void slotSocketStateChanged(const Imap::ConnectionState connState, const QString &message);
 
 
