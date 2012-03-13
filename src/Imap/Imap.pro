@@ -61,6 +61,7 @@ SOURCES += Parser/Parser.cpp \
     Tasks/Fake_ListChildMailboxesTask.cpp \
     Tasks/Fake_OpenConnectionTask.cpp \
     Tasks/NoopTask.cpp \
+    Tasks/IdTask.cpp \
     Tasks/IdleLauncher.cpp \
     Tasks/ThreadTask.cpp \
     Tasks/UnSelectTask.cpp \
@@ -123,6 +124,7 @@ HEADERS += Parser/Parser.h \
     Tasks/Fake_ListChildMailboxesTask.h \
     Tasks/Fake_OpenConnectionTask.h \
     Tasks/NoopTask.h \
+    Tasks/IdTask.h \
     Tasks/IdleLauncher.h \
     Tasks/ThreadTask.h \
     Tasks/UnSelectTask.h \

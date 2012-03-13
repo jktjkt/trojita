@@ -1444,5 +1444,10 @@ QAbstractItemModel *Model::taskModel() const
     return m_taskModel;
 }
 
+QMap<QByteArray,QByteArray> Model::serverId() const
+{
+    return m_idResult;
+}
+
 }
 }
