@@ -74,7 +74,10 @@ void SMTP::sendMail( const QString& from, const QStringList& to, const QByteArra
     if ( _startTls )
         _qwwSmtp->startTls();
     if ( _auth )
-        _qwwSmtp->authenticate( _user, _pass );
+        _qwwSmtp->authenticate( _user, _pass,
+                                (_startTls || _encryptedConnect) ?
+                                    QwwSmtpClient::AuthPlain :
+                                    QwwSmtpClient::AuthAny );
     emit sending(); // FIXME: later
     _qwwSmtp->sendMail( from, to, QString::fromUtf8( data ) );
     _qwwSmtp->disconnectFromHost();
