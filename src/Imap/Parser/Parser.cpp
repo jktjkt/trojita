@@ -551,6 +551,7 @@ void Parser::executeACommand()
         Commands::PartOfCommand& part = cmd._cmds[ cmd._currentPart ];
         switch( part._kind ) {
             case Commands::ATOM:
+            case Commands::ATOM_NO_SPACE_AROUND:
                 buf.append( part._text );
                 break;
             case Commands::QUOTED_STRING:
@@ -628,7 +629,11 @@ void Parser::executeACommand()
             emit lineSent( this, sensitiveCommand ? privateMessage : buf );
             break;
         } else {
-            buf.append( ' ' );
+            if (part._kind == Commands::ATOM_NO_SPACE_AROUND || cmd._cmds[cmd._currentPart + 1]._kind == Commands::ATOM_NO_SPACE_AROUND) {
+                // Skip the extra space if asked to do so
+            } else {
+                buf.append( ' ' );
+            }
             ++cmd._currentPart;
         }
     }
