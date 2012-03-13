@@ -388,7 +388,7 @@ void QwwSmtpClientPrivate::processNextCommand(bool ok) {
     break;
     case SMTPCommand::Mail:
         setState(QwwSmtpClient::Sending);
-        socket->write(QString("MAIL FROM: %1\r\n").arg(cmd.data.toList().at(0).toString()).toUtf8());
+        socket->write(QString("MAIL FROM: <%1>\r\n").arg(cmd.data.toList().at(0).toString()).toUtf8());
         break;
     case SMTPCommand::RawCommand: {
 	QString cont = cmd.data.toString();
@@ -440,14 +440,14 @@ void QwwSmtpClientPrivate::sendRcpt() {
     SMTPCommand &cmd = commandqueue.head();
     if (cmd.data.toList().at(1).type()==QVariant::StringList) {
         QStringList rcptlist = cmd.data.toList().at(1).toStringList();
-        socket->write(QString("RCPT TO: %1\r\n").arg(rcptlist.first()).toUtf8());
+        socket->write(QString("RCPT TO: <%1>\r\n").arg(rcptlist.first()).toUtf8());
         rcptlist.removeFirst();
         QVariantList vlist = cmd.data.toList();
         vlist[1] = rcptlist;
         cmd.data = vlist;
         if (rcptlist.isEmpty()) cmd.extra = 1;
     } else {
-        socket->write(QString("RCPT TO: %1\r\n").arg(cmd.data.toList().at(1).toString()).toUtf8());
+        socket->write(QString("RCPT TO: <%1>\r\n").arg(cmd.data.toList().at(1).toString()).toUtf8());
         cmd.extra=1;
     }
 }
