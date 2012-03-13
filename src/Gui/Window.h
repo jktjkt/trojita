@@ -75,7 +75,7 @@ private slots:
     void networkPolicyExpensive();
     void networkPolicyOnline();
     void slotShowSettings();
-    void slotShowImapCapabilities();
+    void slotShowImapInfo();
     void slotExpunge();
     void connectionError( const QString& message );
     void cacheError( const QString& message );

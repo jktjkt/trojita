@@ -140,8 +140,8 @@ void MainWindow::createActions()
     connect(logPersistent, SIGNAL(triggered(bool)), imapLogger, SLOT(slotSetPersistentLogging(bool)));
     logPersistent->trigger();
 
-    showImapCapabilities = new QAction(tr("IMAP Server Capabilities..."), this);
-    connect(showImapCapabilities, SIGNAL(triggered()), this, SLOT(slotShowImapCapabilities()));
+    showImapCapabilities = new QAction(tr("IMAP Server Information..."), this);
+    connect(showImapCapabilities, SIGNAL(triggered()), this, SLOT(slotShowImapInfo()));
 
     showMenuBar = new QAction(loadIcon(QLatin1String("view-list-text")),  tr("Show Main Menu Bar"), this);
     showMenuBar->setCheckable( true );
@@ -1121,7 +1121,7 @@ void MainWindow::slotCapabilitiesUpdated(const QStringList &capabilities)
     actionThreadMsgList->setEnabled(false);
 }
 
-void MainWindow::slotShowImapCapabilities()
+void MainWindow::slotShowImapInfo()
 {
     QString caps;
     Q_FOREACH( const QString &cap, model->capabilities() ) {
