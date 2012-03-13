@@ -148,6 +148,12 @@ bool ImapTask::handleThread(const Imap::Responses::Thread *const resp)
     return false;
 }
 
+bool ImapTask::handleId(const Responses::Id *const resp)
+{
+    Q_UNUSED(resp);
+    return false;
+}
+
 void ImapTask::_completed()
 {
     log("Completed");

@@ -371,6 +371,22 @@ CommandHandle Parser::namespaceCommand()
     return queueCommand( Commands::ATOM, "NAMESPACE" );
 }
 
+CommandHandle Parser::idCommand()
+{
+    return queueCommand(Commands::Command("ID NIL"));
+}
+
+CommandHandle Parser::idCommand(const QMap<QByteArray,QByteArray> &args)
+{
+    Commands::Command cmd("ID ");
+    cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, "(");
+    for (QMap<QByteArray,QByteArray>::const_iterator it = args.constBegin(); it != args.constEnd(); ++it) {
+        cmd << Commands::PartOfCommand(Commands::QUOTED_STRING, it.key()) << Commands::PartOfCommand(Commands::QUOTED_STRING, it.value());
+    }
+    cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, ")");
+    return queueCommand(cmd);
+}
+
 CommandHandle Parser::queueCommand( Commands::Command command )
 {
     QString tag = generateTag();
@@ -536,6 +552,7 @@ void Parser::executeACommand()
         Commands::PartOfCommand& part = cmd._cmds[ cmd._currentPart ];
         switch( part._kind ) {
             case Commands::ATOM:
+            case Commands::ATOM_NO_SPACE_AROUND:
                 buf.append( part._text );
                 break;
             case Commands::QUOTED_STRING:
@@ -613,7 +630,11 @@ void Parser::executeACommand()
             emit lineSent( this, sensitiveCommand ? privateMessage : buf );
             break;
         } else {
-            buf.append( ' ' );
+            if (part._kind == Commands::ATOM_NO_SPACE_AROUND || cmd._cmds[cmd._currentPart + 1]._kind == Commands::ATOM_NO_SPACE_AROUND) {
+                // Skip the extra space if asked to do so
+            } else {
+                buf.append( ' ' );
+            }
             ++cmd._currentPart;
         }
     }
@@ -761,6 +782,9 @@ QSharedPointer<Responses::AbstractResponse> Parser::_parseUntaggedText(
         case Responses::THREAD:
             return QSharedPointer<Responses::AbstractResponse>(
                     new Responses::Thread( line, start ) );
+        case Responses::ID:
+            return QSharedPointer<Responses::AbstractResponse>(
+                    new Responses::Id(line, start));
 
         // Those already handled above follow here
         case Responses::EXPUNGE:

@@ -35,6 +35,7 @@ class ExpungeMailboxTask;
 class FetchMsgMetadataTask;
 class FetchMsgPartTask;
 class GetAnyConnectionTask;
+class IdTask;
 class ImapTask;
 class KeepMailboxOpenTask;
 class ListChildMailboxesTask;
@@ -63,6 +64,7 @@ public:
     virtual FetchMsgMetadataTask* createFetchMsgMetadataTask( Model *_model, const QModelIndex &_mailbox, const QList<uint> &_uid );
     virtual FetchMsgPartTask* createFetchMsgPartTask( Model* _model, const QModelIndex &mailbox, const QList<uint> &uids, const QStringList &parts );
     virtual GetAnyConnectionTask* createGetAnyConnectionTask( Model* _model );
+    virtual IdTask *createIdTask(Model *_model, ImapTask *dependingTask);
     virtual KeepMailboxOpenTask* createKeepMailboxOpenTask( Model* _model, const QModelIndex& mailbox, Parser* oldParser );
     virtual ListChildMailboxesTask* createListChildMailboxesTask( Model* _model, const QModelIndex& mailbox );
     virtual NumberOfMessagesTask* createNumberOfMessagesTask( Model* _model, const QModelIndex& mailbox );

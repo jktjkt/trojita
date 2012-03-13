@@ -50,6 +50,9 @@ protected:
 private:
     void handleInitialResponse(const Imap::Responses::State* const resp);
 
+    /** @short Wrapper around the _completed() call for optionally launching the ID command */
+    void onComplete();
+
 private:
     bool waitingForGreetings;
     bool gotPreauth;

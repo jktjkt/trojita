@@ -148,6 +148,7 @@ ImapPage::ImapPage( QWidget* parent, QSettings& s ): QScrollArea(parent), Ui_Ima
     imapPass->setText(s.value( SettingsNames::imapPassKey ).toString());
     processPath->setText(s.value( SettingsNames::imapProcessKey ).toString());
     startOffline->setChecked( s.value( SettingsNames::imapStartOffline ).toBool() );
+    imapEnableId->setChecked(s.value(SettingsNames::imapEnableId, true).toBool());
 
     connect( method, SIGNAL( currentIndexChanged( int ) ), this, SLOT( updateWidgets() ) );
     updateWidgets();
@@ -232,6 +233,7 @@ void ImapPage::save( QSettings& s )
     s.setValue( SettingsNames::imapUserKey, imapUser->text() );
     s.setValue( SettingsNames::imapPassKey, imapPass->text() );
     s.setValue( SettingsNames::imapStartOffline, startOffline->isChecked() );
+    s.setValue(SettingsNames::imapEnableId, imapEnableId->isChecked());
 }
 
 void ImapPage::maybeShowPasswordWarning()

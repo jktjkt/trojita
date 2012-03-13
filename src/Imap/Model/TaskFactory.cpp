@@ -24,6 +24,7 @@
 #include "FetchMsgMetadataTask.h"
 #include "FetchMsgPartTask.h"
 #include "GetAnyConnectionTask.h"
+#include "IdTask.h"
 #include "KeepMailboxOpenTask.h"
 #include "Fake_ListChildMailboxesTask.h"
 #include "Fake_OpenConnectionTask.h"
@@ -88,6 +89,11 @@ FetchMsgMetadataTask* TaskFactory::createFetchMsgMetadataTask( Model *_model, co
 FetchMsgPartTask* TaskFactory::createFetchMsgPartTask( Model* _model, const QModelIndex &mailbox, const QList<uint> &uids, const QStringList &parts )
 {
     return new FetchMsgPartTask( _model, mailbox, uids, parts );
+}
+
+IdTask *TaskFactory::createIdTask(Model *_model, ImapTask *dependingTask)
+{
+    return new IdTask(_model, dependingTask);
 }
 
 KeepMailboxOpenTask* TaskFactory::createKeepMailboxOpenTask( Model* _model, const QModelIndex& mailbox, Parser* oldParser )

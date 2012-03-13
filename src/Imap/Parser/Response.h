@@ -76,7 +76,8 @@ namespace Responses {
         STATUS,
         NAMESPACE,
         SORT,
-        THREAD
+        THREAD,
+        ID
     }; // aren't those comments just sexy? :)
 
     /** @short Response Code */
@@ -453,6 +454,19 @@ namespace Responses {
     private:
         void insertHere( ThreadingNode* where, const QVariantList& what );
         static QString dumpHelper( const ThreadingNode& node );
+    };
+
+    /** @short Structure storing the result of the ID command */
+    class Id : public AbstractResponse {
+    public:
+        /** @short List of sequence/UID numbers as returned by the server */
+        QMap<QByteArray,QByteArray> data;
+        Id(const QByteArray &line, int &start);
+        Id(const QMap<QByteArray,QByteArray> &items): AbstractResponse(ID), data(items) {}
+        virtual QTextStream& dump(QTextStream& s) const;
+        virtual bool eq(const AbstractResponse &other) const;
+        virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
+        virtual bool plug(Imap::Mailbox::ImapTask *task) const;
     };
 
 

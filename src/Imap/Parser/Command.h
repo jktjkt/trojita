@@ -44,7 +44,8 @@ namespace Commands {
         LITERAL /**< Don't bother with checking this data, always use literal form */,
         IDLE, /**< Special case: IDLE command */
         IDLE_DONE, /**< Special case: the DONE for finalizing the IDLE command */
-        STARTTLS /**< Special case: STARTTLS */
+        STARTTLS, /**< Special case: STARTTLS */
+        ATOM_NO_SPACE_AROUND /**< Do not add extra space either before or after this part */
     };
 
     /** @short Checks if we can use a quoted-string form for transmitting this string.

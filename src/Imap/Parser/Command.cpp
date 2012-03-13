@@ -84,6 +84,8 @@ namespace Commands {
             case STARTTLS:
                 stream << "STARTTLS" << endl << "[Starting TLS...]";
                 break;
+            case ATOM_NO_SPACE_AROUND:
+                stream << part._text;
         }
         return stream;
     }

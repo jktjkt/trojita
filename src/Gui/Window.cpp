@@ -33,6 +33,7 @@
 #include <QScrollArea>
 #include <QSplitter>
 #include <QStatusBar>
+#include <QTextDocument>
 #include <QToolBar>
 #include <QToolButton>
 #include <QUrl>
@@ -140,8 +141,8 @@ void MainWindow::createActions()
     connect(logPersistent, SIGNAL(triggered(bool)), imapLogger, SLOT(slotSetPersistentLogging(bool)));
     logPersistent->trigger();
 
-    showImapCapabilities = new QAction(tr("IMAP Server Capabilities..."), this);
-    connect(showImapCapabilities, SIGNAL(triggered()), this, SLOT(slotShowImapCapabilities()));
+    showImapCapabilities = new QAction(tr("IMAP Server Information..."), this);
+    connect(showImapCapabilities, SIGNAL(triggered()), this, SLOT(slotShowImapInfo()));
 
     showMenuBar = new QAction(loadIcon(QLatin1String("view-list-text")),  tr("Show Main Menu Bar"), this);
     showMenuBar->setCheckable( true );
@@ -417,6 +418,9 @@ void MainWindow::setupModels()
     }
     model = new Imap::Mailbox::Model( this, cache, factory, taskFactory, s.value( SettingsNames::imapStartOffline ).toBool() );
     model->setObjectName( QLatin1String("model") );
+    if (s.value(SettingsNames::imapEnableId, true).toBool()) {
+        model->setProperty("trojita-imap-enable-id", true);
+    }
     mboxModel = new Imap::Mailbox::MailboxModel( this, model );
     mboxModel->setObjectName( QLatin1String("mboxModel") );
     prettyMboxModel = new Imap::Mailbox::PrettyMailboxModel( this, mboxModel );
@@ -1121,15 +1125,64 @@ void MainWindow::slotCapabilitiesUpdated(const QStringList &capabilities)
     actionThreadMsgList->setEnabled(false);
 }
 
-void MainWindow::slotShowImapCapabilities()
+void MainWindow::slotShowImapInfo()
 {
     QString caps;
     Q_FOREACH( const QString &cap, model->capabilities() ) {
         caps += tr("<li>%1</li>\n").arg(cap);
     }
-    QMessageBox::information(this, tr("IMAP Server Capabilities"),
-                             tr("<p>This IMAP server is currently advertising support for the following capabilities:</p>\n"
-                                "<ul>\n%1</ul>").arg(caps));
+
+    QString idString;
+    if (!model->serverId().isEmpty() && model->capabilities().contains(QLatin1String("ID"))) {
+        QMap<QByteArray,QByteArray> serverId = model->serverId();
+
+#define IMAP_ID_FIELD(Var, Name) bool has_##Var = serverId.contains(Name); \
+    QString Var = has_##Var ? Qt::escape(QString::fromAscii(serverId[Name])) : tr("Unknown");
+        IMAP_ID_FIELD(serverName, "name");
+        IMAP_ID_FIELD(serverVersion, "version");
+        IMAP_ID_FIELD(os, "os");
+        IMAP_ID_FIELD(osVersion, "os-version");
+        IMAP_ID_FIELD(vendor, "vendor");
+        IMAP_ID_FIELD(supportUrl, "support-url");
+        IMAP_ID_FIELD(address, "address");
+        IMAP_ID_FIELD(date, "date");
+        IMAP_ID_FIELD(command, "command");
+        IMAP_ID_FIELD(arguments, "arguments");
+        IMAP_ID_FIELD(environment, "environment");
+#undef IMAP_ID_FIELD
+        if (has_serverName) {
+            idString = tr("<p>");
+            if (has_serverVersion)
+                idString += tr("Server: %1 %2").arg(serverName, serverVersion);
+            else
+                idString += tr("Server: %1").arg(serverName);
+
+            if (has_vendor) {
+                idString += tr(" (%1)").arg(vendor);
+            }
+            if (has_os) {
+                if (has_osVersion)
+                    idString += tr(" on %1 %2").arg(os, osVersion);
+                else
+                    idString += tr(" on %1").arg(os);
+            }
+            idString += tr("</p>");
+        } else {
+            idString = tr("<p>The IMAP server did not return usable information about itself.</p>");
+        }
+        QString fullId;
+        for (QMap<QByteArray,QByteArray>::const_iterator it = serverId.constBegin(); it != serverId.constEnd(); ++it) {
+            fullId += tr("<li>%1: %2</li>").arg(Qt::escape(QString::fromAscii(it.key())), Qt::escape(QString::fromAscii(it.value())));
+        }
+        idString += tr("<ul>%1</ul>").arg(fullId);
+    } else {
+        idString = tr("<p>The server has not provided information about its software version.</p>");
+    }
+
+    QMessageBox::information(this, tr("IMAP Server Information"),
+                             tr("%1"
+                                "<p>The following capabilities are currently advertised:</p>\n"
+                                "<ul>\n%2</ul>").arg(idString, caps));
 }
 
 void MainWindow::slotCheckForUpdatesPerform()

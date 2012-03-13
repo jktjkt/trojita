@@ -76,7 +76,7 @@ bool OpenConnectionTask::handleStateHelper( const Imap::Responses::State* const 
             if ( gotPreauth ) {
                 // The greetings indicated that we're already in the auth state, and now we
                 // know capabilities, too, so we're done here
-                _completed();
+                onComplete();
             } else {
                 // We want to log in, but we might have to STARTTLS before
                 if ( model->accessParser( parser ).capabilities.contains( QLatin1String("LOGINDISABLED") ) ) {
@@ -97,7 +97,7 @@ bool OpenConnectionTask::handleStateHelper( const Imap::Responses::State* const 
         Q_ASSERT( model->accessParser( parser ).capabilitiesFresh );
         if ( resp->kind == Responses::OK ) {
             model->changeConnectionState( parser, CONN_STATE_AUTHENTICATED);
-            _completed();
+            onComplete();
         } else {
             QString message;
             switch ( resp->respCode ) {
@@ -191,7 +191,7 @@ void OpenConnectionTask::handleInitialResponse( const Imap::Responses::State* co
             if ( ! model->accessParser( parser ).capabilitiesFresh ) {
                 capabilityCmd = parser->capability();
             } else {
-                _completed();
+                onComplete();
             }
             break;
         }
@@ -228,6 +228,17 @@ void OpenConnectionTask::handleInitialResponse( const Imap::Responses::State* co
                 "Waiting for initial OK/BYE/BAD/PREAUTH, but got this instead",
                 *resp );
     }
+}
+
+void OpenConnectionTask::onComplete()
+{
+    // Optionally issue the ID command
+    if (model->accessParser(parser).capabilities.contains(QLatin1String("ID"))) {
+        model->_taskFactory->createIdTask(model, this);
+    }
+
+    // But do terminate this task
+    _completed();
 }
 
 }

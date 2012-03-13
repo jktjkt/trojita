@@ -654,6 +654,19 @@ void ImapParserParseTest::testParseUntagged_data()
                           " )\r\n")
 #endif
 
+    QTest::newRow("id-nil")
+            << QByteArray("* ID nIl\r\n")
+            << QSharedPointer<AbstractResponse>(new Id(QMap<QByteArray,QByteArray>()));
+
+    QTest::newRow("id-empty")
+            << QByteArray("* ID ()\r\n")
+            << QSharedPointer<AbstractResponse>(new Id(QMap<QByteArray,QByteArray>()));
+
+    QMap<QByteArray,QByteArray> sampleId;
+    sampleId["foo "] = "bar";
+    QTest::newRow("id-something")
+            << QByteArray("* ID (\"foo \" \"bar\")\r\n")
+            << QSharedPointer<AbstractResponse>(new Id(sampleId));
 }
 
 void ImapParserParseTest::benchmark()

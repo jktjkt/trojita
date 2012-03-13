@@ -504,6 +504,12 @@ void Model::handleThread(Imap::Parser *ptr, const Imap::Responses::Thread *const
     throw UnexpectedResponseReceived( "[Tasks API Port] Unhandled Thread", *resp );
 }
 
+void Model::handleId(Parser *ptr, const Responses::Id *const resp)
+{
+    Q_UNUSED(ptr);
+    throw UnexpectedResponseReceived("Unhandled ID response", *resp);
+}
+
 TreeItem* Model::translatePtr( const QModelIndex& index ) const
 {
     return index.internalPointer() ? static_cast<TreeItem*>( index.internalPointer() ) : _mailboxes;
@@ -795,9 +801,7 @@ void Model::resyncMailbox( const QModelIndex& mbox )
 
 void Model::setNetworkPolicy( const NetworkPolicy policy )
 {
-    // If we're connecting after being offline, we should ask for an updated list of mailboxes
-    // The main reason is that this happens after entering wrong password and going back online
-    bool shouldReloadMailboxes = _netPolicy == NETWORK_OFFLINE && policy != NETWORK_OFFLINE;
+    bool networkReconnected = _netPolicy == NETWORK_OFFLINE && policy != NETWORK_OFFLINE;
     switch ( policy ) {
         case NETWORK_OFFLINE:
             for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
@@ -826,8 +830,11 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
             emit networkPolicyOnline();
             break;
     }
-    if ( shouldReloadMailboxes )
+    if (networkReconnected) {
+        // If we're connecting after being offline, we should ask for an updated list of mailboxes
+        // The main reason is that this happens after entering wrong password and going back online
         reloadMailboxList();
+    }
 }
 
 void Model::slotParserDisconnected(Imap::Parser *parser, const QString msg)
@@ -1435,6 +1442,11 @@ void Model::logTrace(uint parserId, const LogKind kind, const QString &source, c
 QAbstractItemModel *Model::taskModel() const
 {
     return m_taskModel;
+}
+
+QMap<QByteArray,QByteArray> Model::serverId() const
+{
+    return m_idResult;
 }
 
 }

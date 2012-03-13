@@ -154,6 +154,7 @@ public:
     void handleNamespace( Imap::Parser* ptr, const Imap::Responses::Namespace* const resp );
     void handleSort( Imap::Parser* ptr, const Imap::Responses::Sort* const resp );
     void handleThread( Imap::Parser* ptr, const Imap::Responses::Thread* const resp );
+    void handleId(Imap::Parser *ptr, const Imap::Responses::Id *const resp);
 
     AbstractCache* cache() const { return _cache; }
     /** Throw away current cache implementation, replace it with the new one
@@ -228,6 +229,18 @@ this message happen again.
 
     /** @short Log an IMAP-related message */
     void logTrace(uint parserId, const LogKind kind, const QString &source, const QString &message);
+
+    /** @short Return the server's response to the ID command
+
+    When the server indicates that the ID command is available, Trojitá will always send the ID command.  The information sent to
+    the server is controlled by the trojita-imap-enable-id property; if it is set, Trojitá will tell the truth and proudly present
+    herself under her own name. If it isn't set, it will just send NIL on the wire.
+
+    The command is always sent upon each connection (ie. one protocol session, not the mailbox session).  The result of this
+    function will therefore not make much sense (like be empty) when the model has always been offline.  Each reconnection updates
+    the cached result.  See RFC 2971 for the semantics of the ID command.
+    */
+    QMap<QByteArray,QByteArray> serverId() const;
 
 public slots:
     /** @short Ask for an updated list of mailboxes on the server */
@@ -375,6 +388,7 @@ private:
     friend class KeepMailboxOpenTask;
     friend class OpenConnectionTask;
     friend class GetAnyConnectionTask;
+    friend class IdTask;
     friend class Fake_ListChildMailboxesTask;
     friend class Fake_OpenConnectionTask;
     friend class NoopTask;
@@ -468,6 +482,8 @@ private:
 
     /** @short Model visualizing the state of the tasks */
     TaskPresentationModel *m_taskModel;
+
+    QMap<QByteArray,QByteArray> m_idResult;
 
 protected slots:
     void responseReceived( Imap::Parser *parser );
