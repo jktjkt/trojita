@@ -378,11 +378,12 @@ CommandHandle Parser::idCommand()
 
 CommandHandle Parser::idCommand(const QMap<QByteArray,QByteArray> &args)
 {
-    Commands::Command cmd("ID (");
+    Commands::Command cmd("ID ");
+    cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, "(");
     for (QMap<QByteArray,QByteArray>::const_iterator it = args.constBegin(); it != args.constEnd(); ++it) {
         cmd << Commands::PartOfCommand(Commands::QUOTED_STRING, it.key()) << Commands::PartOfCommand(Commands::QUOTED_STRING, it.value());
     }
-    cmd << Commands::PartOfCommand(Commands::ATOM, ")");
+    cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, ")");
     return queueCommand(cmd);
 }
 
