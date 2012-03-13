@@ -412,7 +412,7 @@ void QwwSmtpClientPrivate::_q_encrypted() {
 void QwwSmtpClientPrivate::sendEhlo() {
     SMTPCommand &cmd = commandqueue.head();
     QString domain = localName;
-    if (socket->isEncrypted() && localNameEncrypted.isEmpty())
+    if (socket->isEncrypted() && !localNameEncrypted.isEmpty())
         domain = localNameEncrypted;
     socket->write(QString("EHLO "+domain+"\r\n").toUtf8());
     cmd.extra = 1;
