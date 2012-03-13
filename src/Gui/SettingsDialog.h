@@ -63,7 +63,7 @@ protected:
     virtual void resizeEvent ( QResizeEvent * event );
 
 private:
-    enum { SMTP, SENDMAIL };
+    enum { SMTP, SSMTP, SENDMAIL };
 
 private slots:
     void updateWidgets();

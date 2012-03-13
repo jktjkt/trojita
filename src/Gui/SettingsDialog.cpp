@@ -321,7 +321,8 @@ OutgoingPage::OutgoingPage( QWidget* parent, QSettings& s ): QScrollArea(parent)
     using Common::SettingsNames;
     Ui_OutgoingPage::setupUi(this);
     method->insertItem( 0, tr("SMTP"), QVariant( SMTP ) );
-    method->insertItem( 1, tr("Local sendmail-compatible"), QVariant( SENDMAIL ) );
+    method->insertItem( 1, tr("Secure SMTP"), QVariant( SSMTP ) );
+    method->insertItem( 2, tr("Local sendmail-compatible"), QVariant( SENDMAIL ) );
     if ( QSettings().value( SettingsNames::msaMethodKey ).toString() == SettingsNames::methodSMTP ) {
         method->setCurrentIndex( 0 );
     } else {
@@ -331,6 +332,7 @@ OutgoingPage::OutgoingPage( QWidget* parent, QSettings& s ): QScrollArea(parent)
     smtpHost->setText( s.value( SettingsNames::smtpHostKey ).toString() );
     smtpPort->setText( s.value( SettingsNames::smtpPortKey, 25 ).toString() );
     smtpPort->setValidator( new QIntValidator( 1, 65535, this ) );
+    smtpStartTls->setChecked( s.value( SettingsNames::smtpStartTlsKey ).toBool() );
     smtpAuth->setChecked( s.value( SettingsNames::smtpAuthKey, false ).toBool() );
     smtpUser->setText( s.value( SettingsNames::smtpUserKey ).toString() );
     smtpPass->setText( s.value( SettingsNames::smtpPassKey ).toString() );
@@ -352,13 +354,17 @@ void OutgoingPage::updateWidgets()
 {
     QFormLayout* lay = formLayout;
     Q_ASSERT( lay );
-    switch ( method->itemData( method->currentIndex() ).toInt() ) {
+    int smtpMethod = method->itemData( method->currentIndex() ).toInt();
+    switch ( smtpMethod ) {
         case SMTP:
+        case SSMTP:
         {
             smtpHost->setEnabled( true );
             lay->labelForField( smtpHost )->setEnabled( true );
             smtpPort->setEnabled( true );
             lay->labelForField( smtpPort )->setEnabled( true );
+            smtpStartTls->setEnabled( smtpMethod == SMTP );
+            lay->labelForField( smtpStartTls )->setEnabled( smtpMethod == SMTP );
             smtpAuth->setEnabled( true );
             lay->labelForField( smtpAuth )->setEnabled( true );
             bool authEnabled = smtpAuth->isChecked();
@@ -375,6 +381,8 @@ void OutgoingPage::updateWidgets()
             lay->labelForField( smtpHost )->setEnabled( false );
             smtpPort->setEnabled( false );
             lay->labelForField( smtpPort )->setEnabled( false );
+            smtpStartTls->setEnabled( false );
+            lay->labelForField( smtpStartTls )->setEnabled( false );
             smtpAuth->setEnabled( false );
             lay->labelForField( smtpAuth )->setEnabled( false );
             smtpUser->setEnabled( false );
@@ -391,16 +399,28 @@ void OutgoingPage::updateWidgets()
 void OutgoingPage::save( QSettings& s )
 {
     using Common::SettingsNames;
-    if ( method->currentIndex() == SMTP ) {
+    switch( method->currentIndex() ) {
+      case SMTP:
         s.setValue( SettingsNames::msaMethodKey, SettingsNames::methodSMTP );
+        s.setValue( SettingsNames::smtpHostKey, smtpHost->text() );
+        s.setValue( SettingsNames::smtpPortKey, smtpPort->text() );
+        s.setValue( SettingsNames::smtpStartTlsKey, smtpStartTls->isChecked() );
+        s.setValue( SettingsNames::smtpAuthKey, smtpAuth->isChecked() );
+        s.setValue( SettingsNames::smtpUserKey, smtpUser->text() );
+        s.setValue( SettingsNames::smtpPassKey, smtpPass->text() );
+        break;
+      case SSMTP:
+        s.setValue( SettingsNames::msaMethodKey, SettingsNames::methodSSMTP );
         s.setValue( SettingsNames::smtpHostKey, smtpHost->text() );
         s.setValue( SettingsNames::smtpPortKey, smtpPort->text() );
         s.setValue( SettingsNames::smtpAuthKey, smtpAuth->isChecked() );
         s.setValue( SettingsNames::smtpUserKey, smtpUser->text() );
         s.setValue( SettingsNames::smtpPassKey, smtpPass->text() );
-    } else {
+        break;
+      default:
         s.setValue( SettingsNames::msaMethodKey, SettingsNames::methodSENDMAIL );
         s.setValue( SettingsNames::sendmailKey, sendmail->text() );
+        break;
     }
 }
 
