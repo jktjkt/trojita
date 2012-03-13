@@ -886,22 +886,23 @@ void Model::updateCapabilities( Parser* parser, const QStringList capabilities )
         emit capabilitiesUpdated(uppercaseCaps);
 }
 
-void Model::markMessagesDeleted(const QModelIndexList &messages, bool marked)
+void Model::setMessageFlags(const QModelIndexList &messages, const QString flag, bool marked)
 {
     Q_ASSERT(!messages.isEmpty());
     Q_ASSERT(messages.front().model() == this);
     _taskFactory->createUpdateFlagsTask( this, messages,
                          marked ? QLatin1String("+FLAGS") : QLatin1String("-FLAGS"),
-                         QLatin1String("(\\Deleted)") );
+                         QString("(%1)").arg(flag) );
+}
+
+void Model::markMessagesDeleted(const QModelIndexList &messages, bool marked)
+{
+    this->setMessageFlags(messages, "\\Deleted", marked);
 }
 
 void Model::markMessagesRead(const QModelIndexList &messages, bool marked)
 {
-    Q_ASSERT(!messages.isEmpty());
-    Q_ASSERT(messages.front().model() == this);
-    _taskFactory->createUpdateFlagsTask( this, messages,
-                         marked ? QLatin1String("+FLAGS") : QLatin1String("-FLAGS"),
-                         QLatin1String("(\\Seen)") );
+    this->setMessageFlags(messages, "\\Seen", marked);
 }
 
 void Model::copyMoveMessages( TreeItemMailbox* sourceMbox, const QString& destMailboxName, QList<uint> uids, const CopyMoveOperation op )
