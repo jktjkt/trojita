@@ -216,7 +216,7 @@ void QwwSmtpClientPrivate::_q_readFromSocket() {
                     socket->startClientEncryption();
                 }
                 // TLS established, connection is encrypted, EHLO was sent
-                if (stage==1 && status==250) {
+                else if (stage==1 && status==250) {
                     setState(QwwSmtpClient::Connected);
                     parseOption(rxlast.cap(2).trimmed());   // we're probably receiving options
                     errorString.clear();
@@ -224,6 +224,9 @@ void QwwSmtpClientPrivate::_q_readFromSocket() {
                     processNextCommand();
                 }
                 // starttls failed
+                else {
+                    qDebug() << "TLS failed at stage " << stage << ": " << line;
+                }
             }
             break;
             // trying to authenticate the client to the server
@@ -385,7 +388,7 @@ void QwwSmtpClientPrivate::processNextCommand(bool ok) {
     break;
     case SMTPCommand::Mail:
         setState(QwwSmtpClient::Sending);
-        socket->write(QString("MAIL FROM: %1\r\n").arg(cmd.data.toList().at(0).toString()).toUtf8());
+        socket->write(QString("MAIL FROM: <%1>\r\n").arg(cmd.data.toList().at(0).toString()).toUtf8());
         break;
     case SMTPCommand::RawCommand: {
 	QString cont = cmd.data.toString();
@@ -409,7 +412,7 @@ void QwwSmtpClientPrivate::_q_encrypted() {
 void QwwSmtpClientPrivate::sendEhlo() {
     SMTPCommand &cmd = commandqueue.head();
     QString domain = localName;
-    if (socket->isEncrypted() && localNameEncrypted.isEmpty())
+    if (socket->isEncrypted() && !localNameEncrypted.isEmpty())
         domain = localNameEncrypted;
     socket->write(QString("EHLO "+domain+"\r\n").toUtf8());
     cmd.extra = 1;
@@ -437,14 +440,14 @@ void QwwSmtpClientPrivate::sendRcpt() {
     SMTPCommand &cmd = commandqueue.head();
     if (cmd.data.toList().at(1).type()==QVariant::StringList) {
         QStringList rcptlist = cmd.data.toList().at(1).toStringList();
-        socket->write(QString("RCPT TO: %1\r\n").arg(rcptlist.first()).toUtf8());
+        socket->write(QString("RCPT TO: <%1>\r\n").arg(rcptlist.first()).toUtf8());
         rcptlist.removeFirst();
         QVariantList vlist = cmd.data.toList();
         vlist[1] = rcptlist;
         cmd.data = vlist;
         if (rcptlist.isEmpty()) cmd.extra = 1;
     } else {
-        socket->write(QString("RCPT TO: %1\r\n").arg(cmd.data.toList().at(1).toString()).toUtf8());
+        socket->write(QString("RCPT TO: <%1>\r\n").arg(cmd.data.toList().at(1).toString()).toUtf8());
         cmd.extra=1;
     }
 }

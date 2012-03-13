@@ -85,10 +85,13 @@ void ComposeWidget::send()
     using Common::SettingsNames;
     QSettings s;
     MSA::AbstractMSA* msa = 0;
-    if ( s.value( SettingsNames::msaMethodKey ).toString() == SettingsNames::methodSMTP ) {
+    QString method = s.value( SettingsNames::msaMethodKey ).toString();
+    if ( method == SettingsNames::methodSMTP || method == SettingsNames::methodSSMTP ) {
         msa = new MSA::SMTP( this, s.value( SettingsNames::smtpHostKey ).toString(),
                              s.value( SettingsNames::smtpPortKey ).toInt(),
-                             false, false, // FIXME: encryption & startTls
+                             (method == SettingsNames::methodSSMTP),
+                             (method == SettingsNames::methodSMTP)
+                               && s.value( SettingsNames::smtpStartTlsKey ).toBool(),
                              s.value( SettingsNames::smtpAuthKey ).toBool(),
                              s.value( SettingsNames::smtpUserKey ).toString(),
                              s.value( SettingsNames::smtpPassKey ).toString() );

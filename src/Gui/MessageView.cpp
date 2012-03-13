@@ -31,8 +31,9 @@
 #include "AbstractPartWidget.h"
 #include "EmbeddedWebView.h"
 #include "ExternalElementsWidget.h"
-#include "Window.h"
 #include "PartWidgetFactory.h"
+#include "TagListWidget.h"
+#include "Window.h"
 
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/MsgListModel.h"
@@ -51,12 +52,17 @@ MessageView::MessageView(QWidget* parent): QWidget(parent)
     viewer = emptyView;
     header = new QLabel( this );
     header->setTextInteractionFlags( Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse );
-    connect( header, SIGNAL(linkHovered(QString)), this, SLOT(linkInTitleHovered(QString)) );
+    tags = new TagListWidget( this );
+    tags->hide();
+    connect(tags, SIGNAL(tagAdded(QString)), this, SLOT(newLabelAction(QString)));
+    connect(tags, SIGNAL(tagRemoved(QString)), this, SLOT(deleteLabelAction(QString)));
+    connect(header, SIGNAL(linkHovered(QString)), this, SLOT(linkInTitleHovered(QString)) );
     externalElements = new ExternalElementsWidget( this );
     externalElements->hide();
     connect(externalElements, SIGNAL(loadingEnabled()), this, SLOT(externalsEnabled()));
     layout->addWidget( externalElements );
     layout->addWidget( header );
+    layout->addWidget( tags );
     layout->addWidget( viewer );
     layout->setContentsMargins( 0, 0, 0, 0 );
 
@@ -78,6 +84,8 @@ void MessageView::setEmpty()
     markAsReadTimer->stop();
     header->setText( QString() );
     message = QModelIndex();
+    disconnect(this, SLOT(messageDataChanged()));
+    tags->hide();
     if ( viewer != emptyView ) {
         layout->removeWidget( viewer );
         viewer->deleteLater();
@@ -125,6 +133,12 @@ void MessageView::setMessage(const QModelIndex& index)
         layout->addWidget( viewer );
         viewer->show();
         header->setText( headerText() );
+
+        tags->show();
+        tags->setTagList(messageIndex.data(Imap::Mailbox::RoleMessageFlags).toStringList());
+        disconnect(this, SLOT(messageDataChanged()));
+        connect(realModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(messageDataChanged()));
+
         emit messageChanged();
 
         // We want to propagate the QWheelEvent to upper layers
@@ -194,11 +208,6 @@ QString MessageView::headerText()
     res += tr("<b>Subject:</b>&nbsp;%1").arg(Qt::escape(envelope.subject));
     if (envelope.date.isValid())
         res += tr("<br/><b>Date:</b>&nbsp;%1").arg(envelope.date.toString(Qt::SystemLocaleLongDate));
-
-    QStringList flags = messagePtr->data(model, Imap::Mailbox::RoleMessageFlags).toStringList();
-    if (!flags.isEmpty())
-        res += tr("<br/><b>Flags:</b>&nbsp;%1").arg(Qt::escape(flags.join(tr(", "))));
-
     return res;
 }
 
@@ -272,6 +281,29 @@ void MessageView::linkInTitleHovered( const QString &target )
     else
         header->setToolTip( QString::fromAscii("<p style='white-space:pre'>%1 &lt;%2@%3&gt;</p>").arg(
                 Qt::escape( niceName ), Qt::escape( url.userName() ), Qt::escape( url.host() ) ) );
+}
+
+void MessageView::newLabelAction(const QString tag)
+{
+    if (!message.isValid())
+        return;
+
+    Imap::Mailbox::Model *model = dynamic_cast<Imap::Mailbox::Model*>(const_cast<QAbstractItemModel*>(message.model()));
+    model->setMessageFlags(QModelIndexList() << message, tag, true);
+}
+
+void MessageView::deleteLabelAction(const QString tag)
+{
+    if (!message.isValid())
+        return;
+
+    Imap::Mailbox::Model *model = dynamic_cast<Imap::Mailbox::Model*>(const_cast<QAbstractItemModel*>(message.model()));
+    model->setMessageFlags(QModelIndexList() << message, tag, false);
+}
+
+void MessageView::messageDataChanged()
+{
+    tags->setTagList(message.data(Imap::Mailbox::RoleMessageFlags).toStringList());
 }
 
 }

@@ -28,8 +28,9 @@ namespace Common {
 struct SettingsNames
 {
     static QString realNameKey, addressKey;
-    static QString msaMethodKey, methodSMTP, methodSENDMAIL, smtpHostKey, smtpPortKey,
-            smtpAuthKey, smtpUserKey, smtpPassKey, sendmailKey, sendmailDefaultCmd;
+    static QString msaMethodKey, methodSMTP, methodSSMTP, methodSENDMAIL, smtpHostKey,
+            smtpPortKey, smtpAuthKey, smtpStartTlsKey, smtpUserKey, smtpPassKey,
+            sendmailKey, sendmailDefaultCmd;
     static QString imapMethodKey, methodTCP, methodSSL, methodProcess, imapHostKey,
             imapPortKey, imapStartTlsKey, imapUserKey, imapPassKey, imapProcessKey,
             imapStartOffline, imapEnableId;

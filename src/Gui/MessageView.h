@@ -41,6 +41,7 @@ namespace Gui {
 class MainWindow;
 class PartWidgetFactory;
 class ExternalElementsWidget;
+class TagListWidget;
 
 
 /** @short Widget for displaying complete e-mail messages as available from the IMAP server
@@ -65,6 +66,9 @@ private slots:
     void externalsRequested( const QUrl& url );
     void externalsEnabled();
     void linkInTitleHovered( const QString& target );
+    void newLabelAction(const QString tag);
+    void deleteLabelAction(const QString tag);
+    void messageDataChanged();
 signals:
     void messageChanged();
 private:
@@ -77,6 +81,7 @@ private:
     QLabel* header;
     ExternalElementsWidget* externalElements;
     QLayout* layout;
+    TagListWidget* tags;
     QPersistentModelIndex message;
     Imap::Network::MsgPartNetAccessManager* netAccess;
     QTimer* markAsReadTimer;
