@@ -418,6 +418,9 @@ void MainWindow::setupModels()
     }
     model = new Imap::Mailbox::Model( this, cache, factory, taskFactory, s.value( SettingsNames::imapStartOffline ).toBool() );
     model->setObjectName( QLatin1String("model") );
+    if (s.value(SettingsNames::imapEnableId, true).toBool()) {
+        model->setProperty("trojita-imap-enable-id", true);
+    }
     mboxModel = new Imap::Mailbox::MailboxModel( this, model );
     mboxModel->setObjectName( QLatin1String("mboxModel") );
     prettyMboxModel = new Imap::Mailbox::PrettyMailboxModel( this, mboxModel );
