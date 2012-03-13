@@ -216,7 +216,7 @@ void QwwSmtpClientPrivate::_q_readFromSocket() {
                     socket->startClientEncryption();
                 }
                 // TLS established, connection is encrypted, EHLO was sent
-                if (stage==1 && status==250) {
+                else if (stage==1 && status==250) {
                     setState(QwwSmtpClient::Connected);
                     parseOption(rxlast.cap(2).trimmed());   // we're probably receiving options
                     errorString.clear();
@@ -224,6 +224,9 @@ void QwwSmtpClientPrivate::_q_readFromSocket() {
                     processNextCommand();
                 }
                 // starttls failed
+                else {
+                    qDebug() << "TLS failed at stage " << stage << ": " << line;
+                }
             }
             break;
             // trying to authenticate the client to the server
