@@ -24,7 +24,7 @@ TagListWidget::TagListWidget(QWidget *parent) :
     parentLayout = new FlowLayout( this );
     setLayout(parentLayout);
 
-    addButton = new TagWidget( "+" );
+    addButton = new TagWidget("+");
     connect(addButton, SIGNAL(clicked()), this, SLOT(newTagRequested()));
 
     parentLayout->addWidget( new QLabel(tr("<b>Tags:</b>")) );
@@ -37,7 +37,7 @@ void TagListWidget::setTagList(QStringList list)
     parentLayout->removeWidget(addButton);
 
     foreach(QString tagName, list) {
-        TagWidget* lbl = new TagWidget( tagName, "x" );
+        TagWidget* lbl = new TagWidget(tagName, "x");
         parentLayout->addWidget(lbl);
         connect(lbl, SIGNAL(removeClicked(QString)), this, SIGNAL(tagRemoved(QString)));
 
@@ -56,7 +56,7 @@ void TagListWidget::empty()
 void TagListWidget::newTagRequested()
 {
     QString tag = QInputDialog::getText( this, tr("New Label"), tr("Label name:") );
-    if(!tag.isEmpty())
+    if (!tag.isEmpty())
         emit tagAdded(tag);
 }
 

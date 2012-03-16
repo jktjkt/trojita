@@ -35,8 +35,8 @@ private slots:
     void newTagRequested();
 
 private:
-    FlowLayout* parentLayout;
-    TagWidget* addButton;
+    FlowLayout *parentLayout;
+    TagWidget *addButton;
     QList<QObject*> children;
 
     void empty();

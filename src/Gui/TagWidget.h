@@ -24,7 +24,7 @@ public:
 
     QString tagName() const;
 
-    bool event(QEvent* e);
+    bool event(QEvent *e);
 
 signals:
     void removeClicked(QString);
