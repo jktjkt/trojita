@@ -759,31 +759,36 @@ bool operator==( const MailAddress& a, const MailAddress& b )
     return a.name == b.name && a.adl == b.adl && a.mailbox == b.mailbox && a.host == b.host;
 }
 
-void OneMessage::storeInterestingFields( Mailbox::TreeItemPart* p ) const
+void AbstractMessage::storeInterestingFields(Mailbox::TreeItemPart *p) const
 {
-    p->setEncoding( bodyFldEnc.toLower() );
-    p->setOctets( bodyFldOctets );
     bodyFldParam_t::const_iterator it = bodyFldParam.find( "CHARSET" );
-    if ( it != bodyFldParam.end() ) {
-        p->setCharset( *it );
+    if (it != bodyFldParam.end()) {
+        p->setCharset(*it);
     }
-    if ( ! bodyFldDsp.first.isNull() ) {
-        p->setBodyDisposition( bodyFldDsp.first );
-        it = bodyFldDsp.second.find( "FILENAME" );
-        if ( it != bodyFldDsp.second.end() ) {
-            p->setFileName( Imap::decodeRFC2047String( *it ) );
-        } else if ( ( it = bodyFldParam.find( "NAME" ) ) != bodyFldParam.end() ) {
-            p->setFileName( Imap::decodeRFC2047String( *it ) );
+    if (!bodyFldDsp.first.isNull()) {
+        p->setBodyDisposition(bodyFldDsp.first);
+        it = bodyFldDsp.second.find("FILENAME");
+        if (it != bodyFldDsp.second.end()) {
+            p->setFileName(Imap::decodeRFC2047String(*it));
+        } else if ((it = bodyFldParam.find("NAME")) != bodyFldParam.end()) {
+            p->setFileName(Imap::decodeRFC2047String(*it));
         }
     }
-    p->setBodyFldId( bodyFldId );
+}
+
+void OneMessage::storeInterestingFields(Mailbox::TreeItemPart *p) const
+{
+    AbstractMessage::storeInterestingFields(p);
+    p->setEncoding(bodyFldEnc.toLower());
+    p->setOctets(bodyFldOctets);
+    p->setBodyFldId(bodyFldId);
 }
 
 QList<Mailbox::TreeItem*> TextMessage::createTreeItems( Mailbox::TreeItem* parent ) const
 {
     QList<Mailbox::TreeItem*> list;
     Mailbox::TreeItemPart* p = new Mailbox::TreeItemPart( parent, QString("%1/%2").arg( mediaType, mediaSubType) );
-    storeInterestingFields( p );
+    storeInterestingFields(p);
     list << p;
     return list;
 }
@@ -792,7 +797,7 @@ QList<Mailbox::TreeItem*> BasicMessage::createTreeItems( Mailbox::TreeItem* pare
 {
     QList<Mailbox::TreeItem*> list;
     Mailbox::TreeItemPart* p = new Mailbox::TreeItemPart( parent, QString("%1/%2").arg( mediaType, mediaSubType) );
-    storeInterestingFields( p );
+    storeInterestingFields(p);
     list << p;
     return list;
 }
@@ -802,20 +807,20 @@ QList<Mailbox::TreeItem*> MsgMessage::createTreeItems( Mailbox::TreeItem* parent
     QList<Mailbox::TreeItem*> list;
     Mailbox::TreeItemPart* part = new Mailbox::TreeItemPart( parent, QString("%1/%2").arg( mediaType, mediaSubType) );
     part->setChildren( body->createTreeItems( part ) ); // always returns an empty list -> no need to qDeleteAll()
-    storeInterestingFields( part );
+    storeInterestingFields(part);
     list << part;
     return list;
 }
 
 QList<Mailbox::TreeItem*> MultiMessage::createTreeItems( Mailbox::TreeItem* parent ) const
 {
-    // FIXME: store more data?
     QList<Mailbox::TreeItem*> list, list2;
     Mailbox::TreeItemPart* part = new Mailbox::TreeItemPart( parent, QString("multipart/%1").arg( mediaSubType) );
     for ( QList<QSharedPointer<AbstractMessage> >::const_iterator it = bodies.begin(); it != bodies.end(); ++it ) {
         list2 << (*it)->createTreeItems( part );
     }
     part->setChildren( list2 ); // always returns an empty list -> no need to qDeleteAll()
+    storeInterestingFields(part);
     list << part;
     return list;
 }

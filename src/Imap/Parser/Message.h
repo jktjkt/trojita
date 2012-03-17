@@ -144,6 +144,7 @@ namespace Message {
             bodyFldLoc(_bodyFldLoc), bodyExtension(_bodyExtension) {}
     protected:
         static uint extractUInt( const QVariant& var, const QByteArray& line, const int start );
+        virtual void storeInterestingFields(Mailbox::TreeItemPart * p) const;
     };
 
     /** @short Abstract parent class for all non-multipart messages */
