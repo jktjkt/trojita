@@ -120,6 +120,8 @@ enum {
     RolePartId,
     /** @short Access to the partToPath() function */
     RolePartPathToPart,
+    /** @short CID of the main part of a multipart/related message */
+    RolePartMultipartRelatedMainCid,
 
     /** @short True if the item in the tasks list is actually a ParserState
 

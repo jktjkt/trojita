@@ -996,6 +996,11 @@ QVariant TreeItemPart::data( Model* const model, int role )
         return partId();
     case RolePartPathToPart:
         return pathToPart();
+    case RolePartMultipartRelatedMainCid:
+        if (!multipartRelatedStartPart().isEmpty())
+            return multipartRelatedStartPart();
+        else
+            return QVariant();
     }
 
 
