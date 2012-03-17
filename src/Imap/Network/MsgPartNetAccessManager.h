@@ -49,7 +49,7 @@ public:
     MsgPartNetAccessManager(QObject* parent=0 );
     void setModelMessage(const QModelIndex &_message);
     Imap::Mailbox::TreeItemPart* pathToPart(const QString& path);
-    Imap::Mailbox::TreeItemPart* cidToPart(const QByteArray& cid, Mailbox::Model *model, Mailbox::TreeItem* root);
+    static Imap::Mailbox::TreeItemPart* cidToPart(const QByteArray& cid, Mailbox::Model *model, Mailbox::TreeItem* root);
 protected:
     virtual QNetworkReply* createRequest(Operation op, const QNetworkRequest& req, QIODevice* outgoingData=0);
 signals:

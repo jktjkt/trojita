@@ -65,6 +65,40 @@ QWidget* PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
             return new MultipartAlternativeWidget(0, this, partIndex, recursionDepth);
         } else if (mimeType == QLatin1String("multipart/signed")) {
             return new MultipartSignedWidget(0, this, partIndex, recursionDepth);
+        } else if (mimeType == QLatin1String("multipart/related")) {
+            // The purpose of this section is to find a text/html e-mail, along with its associated body parts, and hide
+            // everything else than the HTML widget.
+
+            // Let's see if we know what the root part is
+            QModelIndex mainPartIndex;
+            QVariant mainPartCID = partIndex.data(RolePartMultipartRelatedMainCid);
+            if (mainPartCID.isValid()) {
+                const Imap::Mailbox::Model *constModel = 0;
+                Imap::Mailbox::TreeItemPart *part = dynamic_cast<Imap::Mailbox::TreeItemPart*>(Imap::Mailbox::Model::realTreeItem(partIndex, &constModel));
+                Imap::Mailbox::Model *model = const_cast<Imap::Mailbox::Model*>(constModel);
+                Imap::Mailbox::TreeItemPart *mainPartPtr = Imap::Network::MsgPartNetAccessManager::cidToPart(mainPartCID.toByteArray(), model, part);
+                if (mainPartPtr) {
+                    mainPartIndex = mainPartPtr->toIndex(model);
+                }
+            }
+
+            // FIXME: look harder for that HTML piece in absence of the start parameter
+
+            if (mainPartIndex.isValid()) {
+                if (mainPartIndex.data(RolePartMimeType).toString() == QLatin1String("text/html")) {
+                    return PartWidgetFactory::create(mainPartIndex, recursionDepth+1);
+                } else {
+                    // Sorry, but anything else than text/html is by definition suspicious here. Better than picking some random
+                    // choice, let's just show everything.
+                    return new GenericMultipartWidget(0, this, partIndex, recursionDepth);
+                }
+            } else {
+                // The RFC2387's wording is clear that in absence of an explicit START argument, the first part is the starting one.
+                // On the other hand, I've seen real-world messages whose first part is some utter garbage (an image sent as
+                // application/octet-stream, for example) and some *other* part is an HTML text. In that case (and if we somehow
+                // failed to pick the HTML part by a heuristic), it's better to show everything.
+                return new GenericMultipartWidget(0, this, partIndex, recursionDepth);
+            }
         } else {
             return new GenericMultipartWidget(0, this, partIndex, recursionDepth);
         }
