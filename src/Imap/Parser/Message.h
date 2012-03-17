@@ -254,6 +254,8 @@ namespace Message {
         using AbstractMessage::dump;
         virtual bool eq( const AbstractData& other ) const;
         virtual QList<Mailbox::TreeItem*> createTreeItems( Mailbox::TreeItem* parent ) const;
+    protected:
+        void storeInterestingFields(Mailbox::TreeItemPart *p) const;
     };
 
     QTextStream& operator<<( QTextStream& stream, const MailAddress& address );

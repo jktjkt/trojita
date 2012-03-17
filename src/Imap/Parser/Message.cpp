@@ -791,6 +791,19 @@ void OneMessage::storeInterestingFields(Mailbox::TreeItemPart *p) const
     p->setBodyFldId(bodyFldId);
 }
 
+void MultiMessage::storeInterestingFields(Mailbox::TreeItemPart *p) const
+{
+    AbstractMessage::storeInterestingFields(p);
+
+    // The multipart/related can specify the root part to show
+    if (mediaSubType == QLatin1String("related")) {
+        bodyFldParam_t::const_iterator it = bodyFldParam.find("START");
+        if (it != bodyFldParam.end()) {
+            p->setMultipartRelatedStartPart(*it);
+        }
+    }
+}
+
 QList<Mailbox::TreeItem*> TextMessage::createTreeItems( Mailbox::TreeItem* parent ) const
 {
     QList<Mailbox::TreeItem*> list;

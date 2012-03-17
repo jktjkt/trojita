@@ -238,6 +238,7 @@ class TreeItemPart: public TreeItem {
     QByteArray _bodyDisposition;
     QString _fileName;
     uint _octets;
+    QByteArray m_multipartRelatedStartPart;
     TreeItemPart* _partHeader;
     TreeItemPart* _partText;
     TreeItemPart* _partMime;
@@ -283,6 +284,8 @@ public:
     void setOctets( const uint size ) { _octets = size; }
     /** @short Return the downloadable size of the message part */
     uint octets() const { return _octets; }
+    QByteArray multipartRelatedStartPart() const { return m_multipartRelatedStartPart; }
+    void setMultipartRelatedStartPart(const QByteArray &start) { m_multipartRelatedStartPart = start; }
     virtual TreeItem* specialColumnPtr( int row, int column ) const;
 
     void silentlyReleaseMemoryRecursive();
