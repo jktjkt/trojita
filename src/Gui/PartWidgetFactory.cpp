@@ -82,7 +82,17 @@ QWidget* PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
                 }
             }
 
-            // FIXME: look harder for that HTML piece in absence of the start parameter
+            if (!mainPartIndex.isValid()) {
+                // The Content-Type-based start parameter was not terribly useful. Let's find the HTML part manually.
+                QModelIndex candidate = partIndex.child(0, 0);
+                while (candidate.isValid()) {
+                    if (candidate.data(RolePartMimeType).toString() == QLatin1String("text/html")) {
+                        mainPartIndex = candidate;
+                        break;
+                    }
+                    candidate = candidate.sibling(candidate.row() + 1, 0);
+                }
+            }
 
             if (mainPartIndex.isValid()) {
                 if (mainPartIndex.data(RolePartMimeType).toString() == QLatin1String("text/html")) {
