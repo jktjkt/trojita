@@ -579,7 +579,7 @@ void ImapParserParseTest::testParseUntagged_data()
     bodyFldParam.clear();
     bodyFldParam["BOUNDARY"] = "----=_NextPart_001_0078_01CBB179.57530990";
     msgList = QList<QSharedPointer<AbstractMessage> >() << QSharedPointer<AbstractMessage>(
-            new MultiMessage( msgList, "ALTERNATIVE", bodyFldParam, AbstractMessage::bodyFldDsp_t(), QList<QByteArray>(), QByteArray(), QVariant() ) );
+            new MultiMessage( msgList, "alternative", bodyFldParam, AbstractMessage::bodyFldDsp_t(), QList<QByteArray>(), QByteArray(), QVariant() ) );
     msgList << QSharedPointer<AbstractMessage>(
             new MsgMessage("message", "rfc822", AbstractMessage::bodyFldParam_t(), QByteArray(), QByteArray(), "7BIT", 836,
                            QByteArray(), AbstractMessage::bodyFldDsp_t(), QList<QByteArray>(), QByteArray(), QVariant(),
@@ -599,7 +599,7 @@ void ImapParserParseTest::testParseUntagged_data()
     bodyFldParam["BOUNDARY"] = "----=_NextPart_000_0077_01CBB179.57530990";
     bodyFldDsp = AbstractMessage::bodyFldDsp_t();
     fetchData["BODYSTRUCTURE"] = QSharedPointer<AbstractData>(
-            new MultiMessage( msgList, QLatin1String("MIXED"), bodyFldParam, bodyFldDsp, QList<QByteArray>(), QByteArray(), QVariant()));
+            new MultiMessage( msgList, QLatin1String("mixed"), bodyFldParam, bodyFldDsp, QList<QByteArray>(), QByteArray(), QVariant()));
     QTest::newRow("fetch-envelope-blupix-gmail")
             << QByteArray("* 6116 FETCH (UID 8803 RFC822.SIZE 56144 ENVELOPE (\"Tue, 11 Jan 2011 10:21:42 +0100\" "
                           "\"blablabla\" ((\"somebody\" NIL \"info\" \"example.com\")) "

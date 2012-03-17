@@ -610,7 +610,7 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList( const QVariantList& i
 
         if ( items[i].type() != QVariant::ByteArray )
             throw UnexpectedHere( "body-type-mpart: media-subtype not recognized", line, start );
-        QString mediaSubType = items[i].toString();
+        QString mediaSubType = items[i].toString().toLower();
         ++i;
 
         // body-ext-mpart
