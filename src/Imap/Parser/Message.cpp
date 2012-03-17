@@ -759,12 +759,19 @@ bool operator==( const MailAddress& a, const MailAddress& b )
     return a.name == b.name && a.adl == b.adl && a.mailbox == b.mailbox && a.host == b.host;
 }
 
+/** @short Extract interesting part-specific metadata from the BODYSTRUCTURE into the actual part
+
+Examples are stuff like the charset, or the suggested filename.
+*/
 void AbstractMessage::storeInterestingFields(Mailbox::TreeItemPart *p) const
 {
-    bodyFldParam_t::const_iterator it = bodyFldParam.find( "CHARSET" );
+    // Charset
+    bodyFldParam_t::const_iterator it = bodyFldParam.find("CHARSET");
     if (it != bodyFldParam.end()) {
         p->setCharset(*it);
     }
+
+    // Filename and content-disposition
     if (!bodyFldDsp.first.isNull()) {
         p->setBodyDisposition(bodyFldDsp.first);
         it = bodyFldDsp.second.find("FILENAME");
