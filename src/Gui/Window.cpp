@@ -383,7 +383,10 @@ void MainWindow::setupModels()
                 s.value( SettingsNames::imapPortKey, QString::number(Common::PORT_IMAPS) ).toUInt() ) );
     } else {
         QStringList args = s.value( SettingsNames::imapProcessKey ).toString().split( QLatin1Char(' ') );
-        Q_ASSERT( ! args.isEmpty() ); // FIXME
+        if (args.isEmpty()) {
+            // it's going to fail anyway
+            args << QLatin1String("");
+        }
         QString appName = args.takeFirst();
         factory.reset( new Imap::Mailbox::ProcessSocketFactory( appName, args ) );
     }
