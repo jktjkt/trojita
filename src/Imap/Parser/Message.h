@@ -119,6 +119,7 @@ namespace Message {
         typedef QPair<QByteArray, bodyFldParam_t> bodyFldDsp_t;
 
         // Common fields
+        QString mediaType;
         QString mediaSubType;
         // Common optional fields
         bodyFldParam_t bodyFldParam;
@@ -138,10 +139,11 @@ namespace Message {
         virtual QTextStream& dump( QTextStream& s, const int indent ) const = 0;
         virtual QList<Mailbox::TreeItem*> createTreeItems( Mailbox::TreeItem* parent ) const = 0;
 
-        AbstractMessage(const QString &_mediaSubType, const bodyFldParam_t &_bodyFldParam, const bodyFldDsp_t &_bodyFldDsp,
-                        const QList<QByteArray> &_bodyFldLang, const QByteArray &_bodyFldLoc, const QVariant &_bodyExtension):
-            mediaSubType(_mediaSubType), bodyFldParam(_bodyFldParam), bodyFldDsp(_bodyFldDsp), bodyFldLang(_bodyFldLang),
-            bodyFldLoc(_bodyFldLoc), bodyExtension(_bodyExtension) {}
+        AbstractMessage(const QString &_mediaType, const QString &_mediaSubType, const bodyFldParam_t &_bodyFldParam,
+                        const bodyFldDsp_t &_bodyFldDsp, const QList<QByteArray> &_bodyFldLang, const QByteArray &_bodyFldLoc,
+                        const QVariant &_bodyExtension):
+            mediaType(_mediaType), mediaSubType(_mediaSubType), bodyFldParam(_bodyFldParam), bodyFldDsp(_bodyFldDsp),
+            bodyFldLang(_bodyFldLang), bodyFldLoc(_bodyFldLoc), bodyExtension(_bodyExtension) {}
     protected:
         static uint extractUInt( const QVariant& var, const QByteArray& line, const int start );
         virtual void storeInterestingFields(Mailbox::TreeItemPart * p) const;
@@ -149,7 +151,6 @@ namespace Message {
 
     /** @short Abstract parent class for all non-multipart messages */
     struct OneMessage: public AbstractMessage {
-        QString mediaType;
         QByteArray bodyFldId;
         QByteArray bodyFldDesc;
         QByteArray bodyFldEnc;
@@ -163,8 +164,8 @@ namespace Message {
                 const bodyFldDsp_t& _bodyFldDsp,
                 const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,
                 const QVariant& _bodyExtension ):
-            AbstractMessage(_mediaSubType, _bodyFldParam, _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension),
-            mediaType(_mediaType), bodyFldId(_bodyFldId), bodyFldDesc(_bodyFldDesc),
+            AbstractMessage(_mediaType, _mediaSubType, _bodyFldParam, _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension),
+            bodyFldId(_bodyFldId), bodyFldDesc(_bodyFldDesc),
             bodyFldEnc(_bodyFldEnc), bodyFldOctets(_bodyFldOctets), bodyFldMd5(_bodyFldMd5) {}
 
         virtual bool eq( const AbstractData& other ) const;
@@ -247,7 +248,7 @@ namespace Message {
                 const bodyFldDsp_t& _bodyFldDsp,
                 const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,
                 const QVariant& _bodyExtension ):
-            AbstractMessage(_mediaSubType, _bodyFldParam, _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension),
+            AbstractMessage(QLatin1String("multipart"), _mediaSubType, _bodyFldParam, _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension),
             bodies(_bodies) {}
         virtual QTextStream& dump( QTextStream& s, const int indent ) const;
         using AbstractMessage::dump;
