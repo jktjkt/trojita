@@ -115,11 +115,20 @@ namespace Message {
      * A message can be either one-part (OneMessage) or multipart (MultiMessage)
      * */
     struct AbstractMessage: public Responses::AbstractData {
-        virtual ~AbstractMessage() {}
-        static QSharedPointer<AbstractMessage> fromList( const QVariantList& items, const QByteArray& line, const int start );
-
         typedef QMap<QByteArray,QByteArray> bodyFldParam_t;
         typedef QPair<QByteArray, bodyFldParam_t> bodyFldDsp_t;
+
+        // Common fields
+        QString mediaSubType;
+        // Common optional fields
+        bodyFldParam_t bodyFldParam;
+        bodyFldDsp_t bodyFldDsp;
+        QList<QByteArray> bodyFldLang;
+        QByteArray bodyFldLoc;
+        QVariant bodyExtension;
+
+        virtual ~AbstractMessage() {}
+        static QSharedPointer<AbstractMessage> fromList( const QVariantList& items, const QByteArray& line, const int start );
 
         static bodyFldParam_t makeBodyFldParam( const QVariant& list, const QByteArray& line, const int start );
         static bodyFldDsp_t makeBodyFldDsp( const QVariant& list, const QByteArray& line, const int start );
@@ -128,6 +137,11 @@ namespace Message {
         virtual QTextStream& dump( QTextStream& s ) const { return dump( s, 0 ); }
         virtual QTextStream& dump( QTextStream& s, const int indent ) const = 0;
         virtual QList<Mailbox::TreeItem*> createTreeItems( Mailbox::TreeItem* parent ) const = 0;
+
+        AbstractMessage(const QString &_mediaSubType, const bodyFldParam_t &_bodyFldParam, const bodyFldDsp_t &_bodyFldDsp,
+                        const QList<QByteArray> &_bodyFldLang, const QByteArray &_bodyFldLoc, const QVariant &_bodyExtension):
+            mediaSubType(_mediaSubType), bodyFldParam(_bodyFldParam), bodyFldDsp(_bodyFldDsp), bodyFldLang(_bodyFldLang),
+            bodyFldLoc(_bodyFldLoc), bodyExtension(_bodyExtension) {}
     protected:
         static uint extractUInt( const QVariant& var, const QByteArray& line, const int start );
     };
@@ -135,18 +149,12 @@ namespace Message {
     /** @short Abstract parent class for all non-multipart messages */
     struct OneMessage: public AbstractMessage {
         QString mediaType;
-        QString mediaSubType;
-        bodyFldParam_t bodyFldParam;
         QByteArray bodyFldId;
         QByteArray bodyFldDesc;
         QByteArray bodyFldEnc;
         uint bodyFldOctets;
-        // optional fields:
+        // optional fields specific to non-multipart:
         QByteArray bodyFldMd5;
-        bodyFldDsp_t bodyFldDsp;
-        QList<QByteArray> bodyFldLang;
-        QByteArray bodyFldLoc;
-        QVariant bodyExtension;
         OneMessage( const QString& _mediaType, const QString& _mediaSubType,
                 const bodyFldParam_t& _bodyFldParam, const QByteArray& _bodyFldId,
                 const QByteArray& _bodyFldDesc, const QByteArray& _bodyFldEnc,
@@ -154,10 +162,9 @@ namespace Message {
                 const bodyFldDsp_t& _bodyFldDsp,
                 const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,
                 const QVariant& _bodyExtension ):
-            mediaType(_mediaType), mediaSubType(_mediaSubType), bodyFldParam(_bodyFldParam),
-            bodyFldId(_bodyFldId), bodyFldDesc(_bodyFldDesc), bodyFldEnc(_bodyFldEnc),
-            bodyFldOctets(_bodyFldOctets), bodyFldMd5(_bodyFldMd5), bodyFldDsp(_bodyFldDsp),
-            bodyFldLang(_bodyFldLang), bodyFldLoc(_bodyFldLoc), bodyExtension(_bodyExtension) {}
+            AbstractMessage(_mediaSubType, _bodyFldParam, _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension),
+            mediaType(_mediaType), bodyFldId(_bodyFldId), bodyFldDesc(_bodyFldDesc),
+            bodyFldEnc(_bodyFldEnc), bodyFldOctets(_bodyFldOctets), bodyFldMd5(_bodyFldMd5) {}
 
         virtual bool eq( const AbstractData& other ) const;
 
@@ -233,22 +240,14 @@ namespace Message {
     /** @short Multipart message (body-type-mpart) */
     struct MultiMessage: public AbstractMessage {
         QList<QSharedPointer<AbstractMessage> > bodies;
-        QString mediaSubType;
-        // optional fields
-        bodyFldParam_t bodyFldParam;
-        bodyFldDsp_t bodyFldDsp;
-        QList<QByteArray> bodyFldLang;
-        QByteArray bodyFldLoc;
-        QVariant bodyExtension;
 
         MultiMessage( const QList<QSharedPointer<AbstractMessage> >& _bodies,
                 const QString& _mediaSubType, const bodyFldParam_t& _bodyFldParam,
                 const bodyFldDsp_t& _bodyFldDsp,
                 const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,
                 const QVariant& _bodyExtension ):
-            bodies(_bodies), mediaSubType(_mediaSubType), bodyFldParam(_bodyFldParam),
-            bodyFldDsp(_bodyFldDsp), bodyFldLang(_bodyFldLang), bodyFldLoc(_bodyFldLoc),
-            bodyExtension(_bodyExtension) {}
+            AbstractMessage(_mediaSubType, _bodyFldParam, _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension),
+            bodies(_bodies) {}
         virtual QTextStream& dump( QTextStream& s, const int indent ) const;
         using AbstractMessage::dump;
         virtual bool eq( const AbstractData& other ) const;
