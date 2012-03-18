@@ -30,6 +30,7 @@
 #include "../Parser/Parser.h"
 #include "Streams/SocketFactory.h"
 #include "CopyMoveOperation.h"
+#include "FlagsOperation.h"
 #include "TaskFactory.h"
 
 #include "Logging.h"
@@ -172,11 +173,11 @@ the list of messages, which is why this function exists in the first place.
     void resyncMailbox( const QModelIndex& mbox );
 
     /** @short Add/Remove a flag for the indicated message */
-    void setMessageFlags(const QModelIndexList &messages, const QString flag, bool marked);
+    void setMessageFlags(const QModelIndexList &messages, const QString flag, const FlagsOperation marked);
     /** @short Ask the server to set/unset the \\Deleted flag for the indicated messages */
-    void markMessagesDeleted(const QModelIndexList &messages, bool marked);
+    void markMessagesDeleted(const QModelIndexList &messages, const FlagsOperation marked);
     /** @short Ask the server to set/unset the \\Seen flag for the indicated messages */
-    void markMessagesRead(const QModelIndexList &messages, bool marked);
+    void markMessagesRead(const QModelIndexList &messages, const FlagsOperation marked);
 
     /** @short Run the EXPUNGE command in the specified mailbox */
     void expungeMailbox( TreeItemMailbox* mbox );

@@ -157,7 +157,7 @@ void MessageView::markAsRead()
     Q_ASSERT(model);
     if (!model->isNetworkAvailable())
         return;
-    model->markMessagesRead(QModelIndexList() << message, true);
+    model->markMessagesRead(QModelIndexList() << message, Imap::Mailbox::FLAG_ADD);
 }
 
 bool MessageView::eventFilter( QObject* object, QEvent* event )
@@ -289,7 +289,7 @@ void MessageView::newLabelAction(const QString tag)
         return;
 
     Imap::Mailbox::Model *model = dynamic_cast<Imap::Mailbox::Model*>(const_cast<QAbstractItemModel*>(message.model()));
-    model->setMessageFlags(QModelIndexList() << message, tag, true);
+    model->setMessageFlags(QModelIndexList() << message, tag, Imap::Mailbox::FLAG_ADD);
 }
 
 void MessageView::deleteLabelAction(const QString tag)
@@ -298,7 +298,7 @@ void MessageView::deleteLabelAction(const QString tag)
         return;
 
     Imap::Mailbox::Model *model = dynamic_cast<Imap::Mailbox::Model*>(const_cast<QAbstractItemModel*>(message.model()));
-    model->setMessageFlags(QModelIndexList() << message, tag, false);
+    model->setMessageFlags(QModelIndexList() << message, tag, Imap::Mailbox::FLAG_REMOVE);
 }
 
 void MessageView::messageDataChanged()

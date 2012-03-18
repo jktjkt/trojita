@@ -26,7 +26,7 @@
 namespace Imap {
 namespace Mailbox {
 
-UpdateFlagsTask::UpdateFlagsTask(Model* _model, const QModelIndexList& _messages, const QString& _flagOperation, const QString& _flags):
+UpdateFlagsTask::UpdateFlagsTask(Model *_model, const QModelIndexList &_messages, const FlagsOperation _flagOperation, const QString &_flags):
     ImapTask(_model), copyMove(0), flagOperation(_flagOperation), flags(_flags)
 {
     if (_messages.isEmpty()) {
@@ -40,8 +40,8 @@ UpdateFlagsTask::UpdateFlagsTask(Model* _model, const QModelIndexList& _messages
     conn->addDependentTask(this);
 }
 
-UpdateFlagsTask::UpdateFlagsTask(Model* _model, CopyMoveMessagesTask* copyTask, const QList<QPersistentModelIndex>& _messages,
-                                 const QString& _flagOperation, const QString& _flags):
+UpdateFlagsTask::UpdateFlagsTask(Model *_model, CopyMoveMessagesTask *copyTask, const QList<QPersistentModelIndex> &_messages,
+                                 const FlagsOperation _flagOperation, const QString &_flags):
     ImapTask(_model), conn(0), copyMove(copyTask), messages(_messages), flagOperation(_flagOperation), flags(_flags)
 {
     copyTask->addDependentTask(this);
@@ -84,7 +84,17 @@ void UpdateFlagsTask::perform()
         return;
     }
 
-    tag = parser->uidStore(seq, flagOperation, flags);
+    QString op;
+    switch (flagOperation) {
+    case FLAG_ADD:
+        op = QLatin1String("+FLAGS");
+        break;
+    case FLAG_REMOVE:
+        op = QLatin1String("-FLAGS");
+        break;
+    }
+    Q_ASSERT(!op.isEmpty());
+    tag = parser->uidStore(seq, op, flags);
 }
 
 bool UpdateFlagsTask::handleStateHelper(const Imap::Responses::State* const resp)

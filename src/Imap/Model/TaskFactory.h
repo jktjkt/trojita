@@ -23,6 +23,7 @@
 #include <QMap>
 #include <QModelIndex>
 #include "CopyMoveOperation.h"
+#include "FlagsOperation.h"
 
 namespace Imap {
 class Parser;
@@ -71,8 +72,11 @@ public:
     virtual ObtainSynchronizedMailboxTask* createObtainSynchronizedMailboxTask(Model *_model, const QModelIndex &_mailboxIndex,
                                                                                ImapTask *parentTask, KeepMailboxOpenTask *keepTask);
     virtual OpenConnectionTask* createOpenConnectionTask( Model* _model );
-    virtual UpdateFlagsTask* createUpdateFlagsTask( Model* _model, const QModelIndexList& _messages, const QString& _flagOperation, const QString& _flags );
-    virtual UpdateFlagsTask* createUpdateFlagsTask( Model* _model, CopyMoveMessagesTask* copyTask, const QList<QPersistentModelIndex>& _messages, const QString& _flagOperation, const QString& _flags );
+    virtual UpdateFlagsTask* createUpdateFlagsTask(Model *model, const QModelIndexList &messages, const FlagsOperation flagOperation,
+                                                   const QString &flags);
+    virtual UpdateFlagsTask* createUpdateFlagsTask(Model *model, CopyMoveMessagesTask *copyTask,
+                                                   const QList<QPersistentModelIndex> &messages, const FlagsOperation flagOperation,
+                                                   const QString &_flags);
     virtual ThreadTask* createThreadTask( Model* _model, const QModelIndex& mailbox, const QString &_algorithm, const QStringList &_searchCriteria );
     virtual NoopTask* createNoopTask(Model* _model, ImapTask* parentTask);
     virtual UnSelectTask* createUnSelectTask(Model* _model, ImapTask* parentTask);

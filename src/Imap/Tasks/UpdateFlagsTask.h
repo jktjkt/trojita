@@ -20,6 +20,7 @@
 #define IMAP_UPDATEFLAGS_TASK_H
 
 #include <QPersistentModelIndex>
+#include "FlagsOperation.h"
 #include "ImapTask.h"
 
 namespace Imap {
@@ -42,11 +43,11 @@ IMAP flags for the @arg _messages message set are changed -- the @arg _flagOpera
 should be FLAGS, +FLAGS or -FLAGS (all of them optionally with the ".silent" modifier),
 and the desired change (actual flags) is passed in the @arg _flags argument.
 */
-    UpdateFlagsTask(Model* _model, const QModelIndexList& _messages, const QString& _flagOperation, const QString& _flags);
+    UpdateFlagsTask(Model *_model, const QModelIndexList &_messages, const FlagsOperation _flagOperation, const QString &_flags);
 
     /** @short Marking moved messages as deleted */
-    UpdateFlagsTask(Model* _model, CopyMoveMessagesTask* copyTask, const QList<QPersistentModelIndex>& _messages,
-                    const QString& _flagOperation, const QString& _flags);
+    UpdateFlagsTask(Model *_model, CopyMoveMessagesTask *copyTask, const QList<QPersistentModelIndex> &_messages,
+                    const FlagsOperation _flagOperation, const QString &_flags);
     virtual void perform();
 
     virtual bool handleStateHelper(const Imap::Responses::State* const resp);
@@ -55,7 +56,7 @@ private:
     ImapTask* conn;
     CopyMoveMessagesTask* copyMove;
     QList<QPersistentModelIndex> messages;
-    QString flagOperation;
+    FlagsOperation flagOperation;
     QString flags;
 };
 

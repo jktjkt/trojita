@@ -104,6 +104,7 @@ HEADERS += Parser/Parser.h \
     Model/TaskFactory.h \
     Model/DelayedPopulation.h \
     Model/CopyMoveOperation.h \
+    Model/FlagsOperation.h \
     Model/ItemRoles.h \
     Model/RingBuffer.h \
     Model/Logging.h \

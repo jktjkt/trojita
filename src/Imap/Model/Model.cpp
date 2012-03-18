@@ -900,21 +900,19 @@ void Model::updateCapabilities( Parser* parser, const QStringList capabilities )
         emit capabilitiesUpdated(uppercaseCaps);
 }
 
-void Model::setMessageFlags(const QModelIndexList &messages, const QString flag, bool marked)
+void Model::setMessageFlags(const QModelIndexList &messages, const QString flag, const FlagsOperation marked)
 {
     Q_ASSERT(!messages.isEmpty());
     Q_ASSERT(messages.front().model() == this);
-    _taskFactory->createUpdateFlagsTask( this, messages,
-                         marked ? QLatin1String("+FLAGS") : QLatin1String("-FLAGS"),
-                         QString("(%1)").arg(flag) );
+    _taskFactory->createUpdateFlagsTask(this, messages, marked, QString("(%1)").arg(flag));
 }
 
-void Model::markMessagesDeleted(const QModelIndexList &messages, bool marked)
+void Model::markMessagesDeleted(const QModelIndexList &messages, const FlagsOperation marked)
 {
     this->setMessageFlags(messages, "\\Deleted", marked);
 }
 
-void Model::markMessagesRead(const QModelIndexList &messages, bool marked)
+void Model::markMessagesRead(const QModelIndexList &messages, const FlagsOperation marked)
 {
     this->setMessageFlags(messages, "\\Seen", marked);
 }

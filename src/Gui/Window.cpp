@@ -527,7 +527,9 @@ void MainWindow::msgListClicked( const QModelIndex& index )
         Imap::Mailbox::Model::realTreeItem(index, 0, &translated);
         if (!translated.data(Imap::Mailbox::RoleIsFetched).toBool())
             return;
-        model->markMessagesRead(QModelIndexList() << translated, !translated.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool());
+        Imap::Mailbox::FlagsOperation flagOp = translated.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool() ?
+                    Imap::Mailbox::FLAG_REMOVE : Imap::Mailbox::FLAG_ADD;
+        model->markMessagesRead(QModelIndexList() << translated, flagOp);
     }
 }
 
@@ -776,7 +778,10 @@ void MainWindow::handleMarkAsRead( bool value )
     if (translatedIndexes.isEmpty()) {
         qDebug() << "Model::handleMarkAsRead: no valid messages";
     } else {
-        model->markMessagesRead(translatedIndexes, value);
+        if (value)
+            model->markMessagesRead(translatedIndexes, Imap::Mailbox::FLAG_ADD);
+        else
+            model->markMessagesRead(translatedIndexes, Imap::Mailbox::FLAG_REMOVE);
     }
 }
 
@@ -797,7 +802,10 @@ void MainWindow::handleMarkAsDeleted( bool value )
     if (translatedIndexes.isEmpty()) {
         qDebug() << "Model::handleMarkAsDeleted: no valid messages";
     } else {
-        model->markMessagesDeleted(translatedIndexes, value);
+        if (value)
+            model->markMessagesDeleted(translatedIndexes, Imap::Mailbox::FLAG_ADD);
+        else
+            model->markMessagesDeleted(translatedIndexes, Imap::Mailbox::FLAG_REMOVE);
     }
 }
 

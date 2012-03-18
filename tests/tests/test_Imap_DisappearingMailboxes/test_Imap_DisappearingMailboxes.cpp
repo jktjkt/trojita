@@ -259,7 +259,7 @@ void ImapModelDisappearingMailboxTest::testSlowOfflineFlags()
     QCOMPARE(SOCK->writtenStuff(), t.mk("LOGOUT\r\n"));
 
     // Ask for the bodystructure of this message
-    model->markMessagesDeleted(QModelIndexList() << msg, true);
+    model->markMessagesDeleted(QModelIndexList() << msg, Imap::Mailbox::FLAG_ADD);
 
     // Make sure that nothing else happens
     QCoreApplication::processEvents();
@@ -291,7 +291,7 @@ void ImapModelDisappearingMailboxTest::testSlowOfflineFlags2()
     Imap::FakeSocket *origSocket = SOCK;
 
     // Ask for the bodystructure of this message
-    model->markMessagesDeleted(QModelIndexList() << msg, true);
+    model->markMessagesDeleted(QModelIndexList() << msg, Imap::Mailbox::FLAG_ADD);
 
     // Switch the connection to an offline mode, but postpone the BYE response
     model->setNetworkOffline();
@@ -330,7 +330,7 @@ void ImapModelDisappearingMailboxTest::testSlowOfflineFlags3()
     Imap::FakeSocket *origSocket = SOCK;
 
     // Ask for the bodystructure of this message
-    model->markMessagesDeleted(QModelIndexList() << msg, true);
+    model->markMessagesDeleted(QModelIndexList() << msg, Imap::Mailbox::FLAG_ADD);
 
     // Switch the connection to an offline mode, but postpone the BYE response
     QCoreApplication::processEvents();

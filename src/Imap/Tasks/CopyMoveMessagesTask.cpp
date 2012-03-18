@@ -94,7 +94,7 @@ bool CopyMoveMessagesTask::handleStateHelper( const Imap::Responses::State* cons
                     return true;
                 }
                 // We ignore the _aborted status here, though -- we just want to finish in an "atomic" manner
-                new UpdateFlagsTask( model, this, messages, QLatin1String("+FLAGS"), QLatin1String("\\Deleted") );
+                new UpdateFlagsTask( model, this, messages, FLAG_ADD, QLatin1String("\\Deleted") );
             }
             _completed();
         } else {

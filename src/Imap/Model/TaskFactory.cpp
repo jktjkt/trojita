@@ -112,14 +112,14 @@ ObtainSynchronizedMailboxTask* TaskFactory::createObtainSynchronizedMailboxTask(
     return new ObtainSynchronizedMailboxTask(_model, _mailboxIndex, parentTask, keepTask);
 }
 
-UpdateFlagsTask* TaskFactory::createUpdateFlagsTask( Model* _model, const QModelIndexList& _messages, const QString& _flagOperation, const QString& _flags )
+UpdateFlagsTask* TaskFactory::createUpdateFlagsTask(Model *model, const QModelIndexList &messages, const FlagsOperation flagOperation, const QString &flags)
 {
-    return new UpdateFlagsTask( _model, _messages, _flagOperation, _flags );
+    return new UpdateFlagsTask(model, messages, flagOperation, flags);
 }
 
-UpdateFlagsTask* TaskFactory::createUpdateFlagsTask( Model* _model, CopyMoveMessagesTask* copyTask, const QList<QPersistentModelIndex>& _messages, const QString& _flagOperation, const QString& _flags )
+UpdateFlagsTask* TaskFactory::createUpdateFlagsTask(Model *model, CopyMoveMessagesTask *copyTask, const QList<QPersistentModelIndex> &messages, const FlagsOperation flagOperation, const QString &flags)
 {
-    return new UpdateFlagsTask( _model, copyTask, _messages, _flagOperation, _flags );
+    return new UpdateFlagsTask(model, copyTask, messages, flagOperation, flags);
 }
 
 ThreadTask* TaskFactory::createThreadTask( Model *_model, const QModelIndex &mailbox, const QString &_algorithm, const QStringList &_searchCriteria )
