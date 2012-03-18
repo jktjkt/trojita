@@ -140,7 +140,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper( const Imap::Responses::St
         if ( resp->kind == Responses::OK ) {
             //qDebug() << "received OK for flagsCmd";
             Q_ASSERT( status == STATE_SYNCING_FLAGS );
-            Q_ASSERT( mailboxIndex.isValid() ); // FIXME
+            Q_ASSERT(mailboxIndex.isValid());
             TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ));
             Q_ASSERT( mailbox );
             status = STATE_DONE;
