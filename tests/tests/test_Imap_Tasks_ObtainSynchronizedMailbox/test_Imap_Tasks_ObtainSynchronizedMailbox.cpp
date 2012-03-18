@@ -28,6 +28,33 @@
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Tasks/ObtainSynchronizedMailboxTask.h"
 
+/** @short Operator for QCOMPARE which acts on all data stored in the SyncState
+
+This operator compares *everything*, including the hidden members.
+*/
+bool operator==(const Imap::Mailbox::SyncState &a, const Imap::Mailbox::SyncState &b)
+{
+    return a.completelyEqualTo(b);
+}
+
+namespace QTest {
+
+/** @short Debug data dumper for unit tests
+
+Could be a bit confusing as it doesn't print out the hidden members. Therefore a simple x.setFlags(QStringList()) -- which merely
+sets a value same as the default one -- will result in comparison failure, but this function wouldn't print the original cause.
+*/
+template<>
+char *toString(const Imap::Mailbox::SyncState &syncState)
+{
+    QString buf;
+    QDebug d(&buf);
+    d << syncState;
+    return qstrdup(buf.toAscii().constData());
+}
+
+}
+
 #define SOCK static_cast<Imap::FakeSocket*>( factory->lastSocket() )
 
 /** Verify syncing of an empty mailbox with just the EXISTS response
@@ -514,5 +541,45 @@ void ImapModelObtainSynchronizedMailboxTest::gotLine()
 }
 
 #endif
+
+void ImapModelObtainSynchronizedMailboxTest::cServer(const QByteArray &data)
+{
+    SOCK->fakeReading(data);
+    for (int i=0; i<4; ++i)
+        QCoreApplication::processEvents();
+}
+
+void ImapModelObtainSynchronizedMailboxTest::cClient(const QByteArray &data)
+{
+    for (int i=0; i<4; ++i)
+        QCoreApplication::processEvents();
+    QCOMPARE(QString::fromAscii(SOCK->writtenStuff()), QString::fromAscii(data));
+}
+
+void ImapModelObtainSynchronizedMailboxTest::testCacheNoChange()
+{
+    Imap::Mailbox::SyncState sync;
+    sync.setExists(3);
+    sync.setUidValidity(666);
+    sync.setUidNext(15);
+    QList<uint> uidMap;
+    uidMap << 6 << 9 << 10;
+    model->cache()->setMailboxSyncState("a", sync);
+    model->cache()->setUidMapping("a", uidMap);
+    QCOMPARE(model->rowCount(msgListA), 0);
+    cClient(t.mk("SELECT a\r\n"));
+    cServer("* 3 EXISTS\r\n"
+            "* OK [UIDVALIDITY 666] .\r\n"
+            "* OK [UIDNEXT 15] .\r\n");
+    cServer(t.last("OK selected\r\n"));
+    cClient(t.mk("FETCH 1:3 (FLAGS)\r\n"));
+    cServer("* 1 FETCH (FLAGS (x))\r\n"
+            "* 2 FETCH (FLAGS (y))\r\n"
+            "* 3 FETCH (FLAGS (z))\r\n");
+    cServer(t.last("OK fetch\r\n"));
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+    QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(model->cache()->uidMapping("a"), uidMap);
+}
 
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )
