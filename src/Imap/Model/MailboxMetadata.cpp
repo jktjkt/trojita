@@ -130,6 +130,16 @@ void SyncState::setUnSeenOffset( const uint unSeen )
     _hasUnSeenOffset = true;
 }
 
+bool SyncState::completelyEqualTo(const SyncState &other) const
+{
+    return _exists == other._exists && _recent == other._recent && _unSeenCount == other._unSeenCount &&
+            _unSeenOffset == other._unSeenOffset && _uidNext == other._uidNext && _uidValidity == other._uidValidity &&
+            _flags == other._flags && _permanentFlags == other._permanentFlags && _hasExists == other._hasExists &&
+            _hasRecent == other._hasRecent && _hasUnSeenCount == other._hasUnSeenCount && _hasUnSeenOffset == other._hasUnSeenOffset &&
+            _hasUidNext == other._hasUidNext && _hasUidValidity == other._hasUidValidity && _hasFlags == other._hasFlags &&
+            _hasPermanentFlags == other._hasPermanentFlags;
+}
+
 }
 }
 

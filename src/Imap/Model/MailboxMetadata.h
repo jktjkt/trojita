@@ -76,6 +76,9 @@ public:
       crap like RECENT.
     */
     bool isUsableForSyncing() const;
+
+    /** @short Compare all members (including the hidden ones) with other */
+    bool completelyEqualTo(const SyncState &other) const;
 };
 
 }
