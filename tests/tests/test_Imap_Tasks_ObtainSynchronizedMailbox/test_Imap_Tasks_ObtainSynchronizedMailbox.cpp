@@ -580,6 +580,9 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheNoChange()
     QVERIFY(SOCK->writtenStuff().isEmpty());
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
+    QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
+    QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
+    QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
 }
 
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )
