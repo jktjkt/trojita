@@ -170,7 +170,7 @@ This command sends a SELECT or EXAMINE command to the remote server, even if the
 requested mailbox is currently selected. This has a side effect that we synchronize
 the list of messages, which is why this function exists in the first place.
 */
-    void resyncMailbox( const QModelIndex& mbox );
+    void resyncMailbox(const QModelIndex& mailbox);
 
     /** @short Add/Remove a flag for the indicated message */
     void setMessageFlags(const QModelIndexList &messages, const QString flag, const FlagsOperation marked);

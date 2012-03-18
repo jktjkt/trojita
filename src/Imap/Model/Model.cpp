@@ -796,9 +796,9 @@ void Model::_askForMsgPart( TreeItemPart* item, bool onlyFromCache )
     }
 }
 
-void Model::resyncMailbox( const QModelIndex& mbox )
+void Model::resyncMailbox(const QModelIndex& mailbox)
 {
-    findTaskResponsibleFor( mbox )->resynchronizeMailbox();
+    findTaskResponsibleFor(mailbox)->resynchronizeMailbox();
 }
 
 void Model::setNetworkPolicy( const NetworkPolicy policy )
