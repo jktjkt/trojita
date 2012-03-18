@@ -644,6 +644,8 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
         item->_fetchStatus = TreeItem::UNAVAILABLE;
     } else if ( uidMapping.size() ) {
         QModelIndex listIndex = item->toIndex(this);
+        Q_ASSERT(item->_children.isEmpty());
+        Q_ASSERT(item->_fetchStatus == TreeItem::LOADING);
         beginInsertRows( listIndex, 0, uidMapping.size() - 1 );
         for ( uint seq = 0; seq < static_cast<uint>( uidMapping.size() ); ++seq ) {
             TreeItemMessage* message = new TreeItemMessage( item );
