@@ -30,7 +30,7 @@ UnSelectTask::UnSelectTask( Model* _model, ImapTask* parentTask ) :
 {
     conn = parentTask;
     parser = conn->parser;
-    Q_ASSERT( parser );
+    Q_ASSERT(parser);
 }
 
 void UnSelectTask::perform()
