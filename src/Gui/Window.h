@@ -63,6 +63,7 @@ public:
     void invokeComposeDialog( const QString& subject = QString(),
                               const QString& body = QString(),
                               const _recipientsType& recipients = _recipientsType() );
+    QSize sizeHint() const;
 
 private slots:
     void showContextMenuMboxTree( const QPoint& position );

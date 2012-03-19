@@ -1197,6 +1197,11 @@ void MainWindow::slotShowImapInfo()
                                 "<ul>\n%2</ul>").arg(idString, caps));
 }
 
+QSize MainWindow::sizeHint() const
+{
+    return QSize(1150, 980);
+}
+
 }
 
 
