@@ -317,7 +317,8 @@ void MainWindow::createWidgets()
     area->setWidget( msgView );
     area->setWidgetResizable( true );
     connect( msgView, SIGNAL(messageChanged()), this, SLOT(scrollMessageUp()) );
-    if (QSettings().value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool()) {
+    if (QSettings().value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool() &&
+            !QSettings().value(Common::SettingsNames::imapStartOffline).toBool()) {
         msgView->setHomepageUrl(QUrl(QString::fromAscii("http://welcome.trojita.flaska.net/%1").arg(QCoreApplication::applicationVersion())));
     }
 
