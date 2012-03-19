@@ -41,37 +41,37 @@
 
 namespace Gui {
 
-MessageView::MessageView(QWidget* parent): QWidget(parent)
+MessageView::MessageView(QWidget *parent): QWidget(parent)
 {
-    netAccess = new Imap::Network::MsgPartNetAccessManager( this );
+    netAccess = new Imap::Network::MsgPartNetAccessManager(this);
     connect(netAccess, SIGNAL(requestingExternal(QUrl)), this, SLOT(externalsRequested(QUrl)));
-    emptyView = new EmbeddedWebView( this, netAccess );
-    factory = new PartWidgetFactory( netAccess, this );
+    emptyView = new EmbeddedWebView(this, netAccess);
+    factory = new PartWidgetFactory(netAccess, this);
 
-    layout = new QVBoxLayout( this );
+    layout = new QVBoxLayout(this);
     viewer = emptyView;
-    header = new QLabel( this );
-    header->setTextInteractionFlags( Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse );
-    tags = new TagListWidget( this );
+    header = new QLabel(this);
+    header->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
+    tags = new TagListWidget(this);
     tags->hide();
     connect(tags, SIGNAL(tagAdded(QString)), this, SLOT(newLabelAction(QString)));
     connect(tags, SIGNAL(tagRemoved(QString)), this, SLOT(deleteLabelAction(QString)));
     connect(header, SIGNAL(linkHovered(QString)), this, SLOT(linkInTitleHovered(QString)) );
-    externalElements = new ExternalElementsWidget( this );
+    externalElements = new ExternalElementsWidget(this);
     externalElements->hide();
     connect(externalElements, SIGNAL(loadingEnabled()), this, SLOT(externalsEnabled()));
-    layout->addWidget( externalElements );
-    layout->addWidget( header );
-    layout->addWidget( tags );
-    layout->addWidget( viewer );
-    layout->setContentsMargins( 0, 0, 0, 0 );
+    layout->addWidget(externalElements);
+    layout->addWidget(header);
+    layout->addWidget(tags);
+    layout->addWidget(viewer);
+    layout->setContentsMargins(0, 0, 0, 0);
 
-    markAsReadTimer = new QTimer( this );
-    markAsReadTimer->setSingleShot( true );
+    markAsReadTimer = new QTimer(this);
+    markAsReadTimer->setSingleShot(true);
     connect( markAsReadTimer, SIGNAL(timeout()), this, SLOT(markAsRead()) );
 
-    header->setIndent( 5 );
-    header->setWordWrap( true );
+    header->setIndent(5);
+    header->setWordWrap(true);
 }
 
 MessageView::~MessageView()
@@ -82,21 +82,21 @@ MessageView::~MessageView()
 void MessageView::setEmpty()
 {
     markAsReadTimer->stop();
-    header->setText( QString() );
+    header->setText(QString());
     message = QModelIndex();
     disconnect(this, SLOT(messageDataChanged()));
     tags->hide();
-    if ( viewer != emptyView ) {
-        layout->removeWidget( viewer );
+    if (viewer != emptyView) {
+        layout->removeWidget(viewer);
         viewer->deleteLater();
         viewer = emptyView;
         viewer->show();
-        layout->addWidget( viewer );
+        layout->addWidget(viewer);
         emit messageChanged();
     }
 }
 
-void MessageView::setMessage(const QModelIndex& index)
+void MessageView::setMessage(const QModelIndex &index)
 {
     // first, let's get a real model
     QModelIndex messageIndex;
@@ -117,22 +117,22 @@ void MessageView::setMessage(const QModelIndex& index)
 
     if (message != messageIndex) {
         emptyView->hide();
-        layout->removeWidget( viewer );
+        layout->removeWidget(viewer);
         if ( viewer != emptyView ) {
-            viewer->setParent( 0 );
+            viewer->setParent(0);
             viewer->deleteLater();
         }
         message = messageIndex;
-        netAccess->setExternalsEnabled( false );
+        netAccess->setExternalsEnabled(false);
         externalElements->hide();
 
         netAccess->setModelMessage(message);
 
         viewer = factory->create(rootPartIndex);
-        viewer->setParent( this );
-        layout->addWidget( viewer );
+        viewer->setParent(this);
+        layout->addWidget(viewer);
         viewer->show();
-        header->setText( headerText() );
+        header->setText(headerText());
 
         tags->show();
         tags->setTagList(messageIndex.data(Imap::Mailbox::RoleMessageFlags).toStringList());
@@ -142,11 +142,11 @@ void MessageView::setMessage(const QModelIndex& index)
         emit messageChanged();
 
         // We want to propagate the QWheelEvent to upper layers
-        viewer->installEventFilter( this );
+        viewer->installEventFilter(this);
     }
 
-    if (realModel->isNetworkAvailable() )
-        markAsReadTimer->start( 2000 ); // FIXME: make this configurable
+    if (realModel->isNetworkAvailable())
+        markAsReadTimer->start(2000); // FIXME: make this configurable
 }
 
 void MessageView::markAsRead()
@@ -160,14 +160,14 @@ void MessageView::markAsRead()
     model->markMessagesRead(QModelIndexList() << message, Imap::Mailbox::FLAG_ADD);
 }
 
-bool MessageView::eventFilter( QObject* object, QEvent* event )
+bool MessageView::eventFilter(QObject *object, QEvent *event)
 {
-    if ( event->type() == QEvent::Wheel ) {
+    if (event->type() == QEvent::Wheel) {
         MessageView::event( event );
         return true;
-    } else if ( event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease ) {
-        QKeyEvent* keyEvent = static_cast<QKeyEvent*>( event );
-        switch ( keyEvent->key() ) {
+    } else if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
+        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+        switch (keyEvent->key()) {
             case Qt::Key_Left:
             case Qt::Key_Right:
             case Qt::Key_Up:
@@ -179,10 +179,10 @@ bool MessageView::eventFilter( QObject* object, QEvent* event )
                 MessageView::event( event );
                 return true;
             default:
-                return QObject::eventFilter( object, event );
+                return QObject::eventFilter(object, event);
         }
     } else {
-        return QObject::eventFilter( object, event );
+        return QObject::eventFilter(object, event);
     }
 }
 
@@ -213,11 +213,11 @@ QString MessageView::headerText()
 
 QString MessageView::quoteText() const
 {
-    const AbstractPartWidget* w = dynamic_cast<const AbstractPartWidget*>( viewer );
+    const AbstractPartWidget* w = dynamic_cast<const AbstractPartWidget*>(viewer);
     return w ? w->quoteMe() : QString();
 }
 
-void MessageView::reply( MainWindow* mainWindow, ReplyMode mode )
+void MessageView::reply(MainWindow *mainWindow, ReplyMode mode)
 {
     if (!message.isValid())
         return;
@@ -243,15 +243,15 @@ void MessageView::reply( MainWindow* mainWindow, ReplyMode mode )
     mainWindow->invokeComposeDialog( replySubject( envelope.subject ), quoteText(), recipients );
 }
 
-QString MessageView::replySubject( const QString& subject )
+QString MessageView::replySubject(const QString &subject)
 {
-    if ( ! subject.startsWith(tr("Re:")) )
+    if (!subject.startsWith(tr("Re:")))
         return tr("Re: ") + subject;
     else
         return subject;
 }
 
-void MessageView::externalsRequested( const QUrl &url )
+void MessageView::externalsRequested(const QUrl &url)
 {
     Q_UNUSED(url);
     externalElements->show();
@@ -259,23 +259,23 @@ void MessageView::externalsRequested( const QUrl &url )
 
 void MessageView::externalsEnabled()
 {
-    netAccess->setExternalsEnabled( true );
+    netAccess->setExternalsEnabled(true);
     externalElements->hide();
-    AbstractPartWidget* w = dynamic_cast<AbstractPartWidget*>( viewer );
-    if ( w )
+    AbstractPartWidget* w = dynamic_cast<AbstractPartWidget*>(viewer);
+    if (w)
         w->reloadContents();
 }
 
-void MessageView::linkInTitleHovered( const QString &target )
+void MessageView::linkInTitleHovered(const QString &target)
 {
-    if ( target.isEmpty() ) {
-        header->setToolTip( QString() );
+    if (target.isEmpty()) {
+        header->setToolTip(QString());
         return;
     }
 
     QUrl url(target);
     QString niceName = url.queryItemValue( QLatin1String("X-Trojita-DisplayName") );
-    if ( niceName.isEmpty() )
+    if (niceName.isEmpty())
         header->setToolTip( QString::fromAscii("%1@%2").arg(
                 Qt::escape( url.userName() ), Qt::escape( url.host() ) ) );
     else

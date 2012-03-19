@@ -44,10 +44,10 @@ namespace Gui {
 class EmbeddedWebView: public QWebView {
     Q_OBJECT
 public:
-    EmbeddedWebView( QWidget* parent, QNetworkAccessManager* networkManager );
+    EmbeddedWebView(QWidget *parent, QNetworkAccessManager *networkManager);
 private slots:
-    void slotLinkClicked( const QUrl& url );
-    void handlePageLoadFinished( bool ok );
+    void slotLinkClicked(const QUrl &url);
+    void handlePageLoadFinished(bool ok);
 };
 
 }
