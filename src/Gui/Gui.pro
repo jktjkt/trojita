@@ -36,7 +36,8 @@ SOURCES += \
     TaskProgressIndicator.cpp \
     TagListWidget.cpp \
     FlowLayout.cpp \
-    TagWidget.cpp
+    TagWidget.cpp \
+    UserAgentWebPage.cpp
 HEADERS += \
     ../Imap/Model/ModelTest/modeltest.h \
     ComposeWidget.h \
@@ -61,7 +62,8 @@ HEADERS += \
     TaskProgressIndicator.h \
     TagListWidget.h \
     FlowLayout.h \
-    TagWidget.h
+    TagWidget.h \
+    UserAgentWebPage.h
 FORMS += CreateMailboxDialog.ui \
     ComposeWidget.ui \
     SettingsImapPage.ui \

@@ -33,6 +33,7 @@
 #include "ExternalElementsWidget.h"
 #include "PartWidgetFactory.h"
 #include "TagListWidget.h"
+#include "UserAgentWebPage.h"
 #include "Window.h"
 
 #include "Imap/Model/MailboxTree.h"
@@ -45,8 +46,11 @@ MessageView::MessageView(QWidget *parent): QWidget(parent)
 {
     netAccess = new Imap::Network::MsgPartNetAccessManager(this);
     connect(netAccess, SIGNAL(requestingExternal(QUrl)), this, SLOT(externalsRequested(QUrl)));
-    emptyView = new EmbeddedWebView(this, netAccess);
     factory = new PartWidgetFactory(netAccess, this);
+
+    emptyView = new EmbeddedWebView(this, new QNetworkAccessManager(this));
+    emptyView->setPage(new UserAgentWebPage(emptyView));
+    emptyView->installEventFilter(this);
 
     layout = new QVBoxLayout(this);
     viewer = emptyView;
@@ -304,6 +308,11 @@ void MessageView::deleteLabelAction(const QString &tag)
 void MessageView::messageDataChanged()
 {
     tags->setTagList(message.data(Imap::Mailbox::RoleMessageFlags).toStringList());
+}
+
+void MessageView::setHomepageUrl(const QUrl &homepage)
+{
+    emptyView->load(homepage);
 }
 
 }

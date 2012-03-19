@@ -61,6 +61,7 @@ public:
 public slots:
     void setMessage( const QModelIndex& index );
     void setEmpty();
+    void setHomepageUrl(const QUrl &homepage);
 private slots:
     void markAsRead();
     void externalsRequested( const QUrl& url );
