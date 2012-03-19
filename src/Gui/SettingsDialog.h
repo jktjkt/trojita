@@ -37,19 +37,19 @@ class QTabWidget;
 
 namespace Gui {
 
-class IdentityPage : public QWidget
+class GeneralPage : public QWidget
 {
     Q_OBJECT
 public:
-    IdentityPage( QWidget* parent, QSettings&s );
+    GeneralPage( QWidget* parent, QSettings&s );
     void save( QSettings& s );
 private:
     QLineEdit* realName;
     QLineEdit* address;
     QCheckBox *checkForUpdates;
 
-    IdentityPage(const IdentityPage&); // don't implement
-    IdentityPage& operator=(const IdentityPage&); // don't implement
+    GeneralPage(const GeneralPage&); // don't implement
+    GeneralPage& operator=(const GeneralPage&); // don't implement
 };
 
 class OutgoingPage : public QScrollArea, Ui_OutgoingPage
@@ -158,7 +158,7 @@ public slots:
     void accept();
 private:
     QTabWidget* stack;
-    IdentityPage* identity;
+    GeneralPage* general;
     ImapPage* imap;
     CachePage* cache;
     OutgoingPage* outgoing;

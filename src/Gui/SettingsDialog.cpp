@@ -56,8 +56,8 @@ SettingsDialog::SettingsDialog(): QDialog()
     layout->addWidget( stack );
     stack->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
-    identity = new IdentityPage( this, s );
-    stack->addTab( identity, tr("Identity") );
+    general = new GeneralPage( this, s );
+    stack->addTab( general, tr("General") );
     imap = new ImapPage( stack, s );
     stack->addTab( imap, tr("IMAP") );
     cache = new CachePage( this, s );
@@ -83,7 +83,7 @@ void SettingsDialog::accept()
     QFile settingsFile(s.fileName());
     settingsFile.setPermissions(QFile::ReadUser | QFile::WriteUser);
 #endif
-    identity->save( s );
+    general->save( s );
     imap->save( s );
     cache->save( s );
     outgoing->save( s );
@@ -97,7 +97,7 @@ void SettingsDialog::accept()
     QDialog::accept();
 }
 
-IdentityPage::IdentityPage( QWidget* parent, QSettings& s ): QWidget(parent)
+GeneralPage::GeneralPage( QWidget* parent, QSettings& s ): QWidget(parent)
 {
     QFormLayout* layout = new QFormLayout( this );
     realName = new QLineEdit( s.value( Common::SettingsNames::realNameKey ).toString(), this );
@@ -116,7 +116,7 @@ IdentityPage::IdentityPage( QWidget* parent, QSettings& s ): QWidget(parent)
     layout->addRow(checkForUpdates);
 }
 
-void IdentityPage::save( QSettings& s )
+void GeneralPage::save( QSettings& s )
 {
     s.setValue( Common::SettingsNames::realNameKey, realName->text() );
     s.setValue( Common::SettingsNames::addressKey, address->text() );
