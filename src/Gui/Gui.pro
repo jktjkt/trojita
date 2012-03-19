@@ -30,7 +30,6 @@ SOURCES += \
     MsgListView.cpp \
     ExternalElementsWidget.cpp \
     ProtocolLoggerWidget.cpp \
-    CheckForUpdates.cpp \
     Util.cpp \
     AutoCompletion.cpp \
     TaskProgressIndicator.cpp \
@@ -55,7 +54,6 @@ HEADERS += \
     AttachmentView.h \
     ExternalElementsWidget.h \
     ProtocolLoggerWidget.h \
-    CheckForUpdates.h \
     IconLoader.h \
     Util.h \
     AutoCompletion.h \

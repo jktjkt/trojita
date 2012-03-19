@@ -51,7 +51,6 @@
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
 #include "SimplePartWidget.h"
-#include "CheckForUpdates.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/MailboxModel.h"
 #include "Imap/Model/MailboxTree.h"
@@ -89,8 +88,6 @@ MainWindow::MainWindow(): QMainWindow(), model(0), m_ignoreStoredPassword(false)
 
     // Please note that Qt 4.6.1 really requires passing the method signature this way, *not* using the SLOT() macro
     QDesktopServices::setUrlHandler( QLatin1String("mailto"), this, "slotComposeMailUrl" );
-
-    QTimer::singleShot( 60 * 1000, this, SLOT(slotCheckForUpdatesPerform()) );
 }
 
 void MainWindow::createActions()
@@ -320,6 +317,9 @@ void MainWindow::createWidgets()
     area->setWidget( msgView );
     area->setWidgetResizable( true );
     connect( msgView, SIGNAL(messageChanged()), this, SLOT(scrollMessageUp()) );
+    if (QSettings().value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool()) {
+        msgView->setHomepageUrl(QUrl(QString::fromAscii("http://welcome.trojita.flaska.net/%1").arg(QCoreApplication::applicationVersion())));
+    }
 
     QSplitter* hSplitter = new QSplitter();
     QSplitter* vSplitter = new QSplitter();
@@ -1195,29 +1195,6 @@ void MainWindow::slotShowImapInfo()
                              tr("%1"
                                 "<p>The following capabilities are currently advertised:</p>\n"
                                 "<ul>\n%2</ul>").arg(idString, caps));
-}
-
-void MainWindow::slotCheckForUpdatesPerform()
-{
-    if ( ! QSettings().value(Common::SettingsNames::appCheckUpdatesEnabled, QVariant(true)).toBool() ) {
-        // Updates are disabled -> do nothing
-        return;
-    }
-    QDateTime lastUpdate = QSettings().value(Common::SettingsNames::appCheckUpdatesLastTime).toDateTime();
-    if ( lastUpdate.secsTo( QDateTime::currentDateTime() ) < 60 * 60 * 24 ) {
-        // Don't check for updates more often than once a day
-        return;
-    }
-    CheckForUpdates *updates = new CheckForUpdates(this);
-    connect(updates, SIGNAL(updateAvailable(QString)), this, SLOT(slotCheckForUpdatesUpdateAvailable(QString)));
-    connect(updates, SIGNAL(checkingDone()), updates, SLOT(deleteLater()));
-    updates->checkForUpdates();
-}
-
-void MainWindow::slotCheckForUpdatesUpdateAvailable(const QString &message)
-{
-    // Just show that in the status bar
-    statusBar()->showMessage( message, 30 * 1000 );
 }
 
 }

@@ -46,7 +46,7 @@ public:
 private:
     QLineEdit* realName;
     QLineEdit* address;
-    QCheckBox *checkForUpdates;
+    QCheckBox *showHomepage;
 
     GeneralPage(const GeneralPage&); // don't implement
     GeneralPage& operator=(const GeneralPage&); // don't implement

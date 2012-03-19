@@ -107,20 +107,20 @@ GeneralPage::GeneralPage( QWidget* parent, QSettings& s ): QWidget(parent)
     QFrame *separator = new QFrame(this);
     separator->setFrameShape(QFrame::HLine);
     layout->addRow(separator);
-    checkForUpdates = new QCheckBox(tr("Automatically check for updates"), this);
-    checkForUpdates->setChecked(s.value(Common::SettingsNames::appCheckUpdatesEnabled, QVariant(true)).toBool());
-    checkForUpdates->setToolTip(trUtf8("<p>If enabled, Trojitá will try to find out if there are any newer versions available.</p>"
-                                       "<p>The update server will receive the user's IP address and versions of Trojitá, the Qt library, "
+    showHomepage = new QCheckBox(trUtf8("Show Trojitá's homepage on startup"), this);
+    showHomepage->setChecked(s.value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool());
+    showHomepage->setToolTip(trUtf8("<p>If enabled, Trojitá will show its hoempage upon startup.</p>"
+                                       "<p>The remote server will receive the user's IP address and versions of Trojitá, the Qt library, "
                                        "and the underlying operating system. No private information, like account settings "
                                        "or IMAP server details, are collected.</p>"));
-    layout->addRow(checkForUpdates);
+    layout->addRow(showHomepage);
 }
 
 void GeneralPage::save( QSettings& s )
 {
     s.setValue( Common::SettingsNames::realNameKey, realName->text() );
     s.setValue( Common::SettingsNames::addressKey, address->text() );
-    s.setValue(Common::SettingsNames::appCheckUpdatesEnabled, checkForUpdates->isChecked());
+    s.setValue(Common::SettingsNames::appLoadHomepage, showHomepage->isChecked());
 }
 
 ImapPage::ImapPage( QWidget* parent, QSettings& s ): QScrollArea(parent), Ui_ImapPage()

@@ -104,11 +104,6 @@ private slots:
     void slotShowAboutTrojita();
     void slotDonateToTrojita();
 
-    /** @short Optionally check for updates to trojita */
-    void slotCheckForUpdatesPerform();
-    /** @short A new version is available */
-    void slotCheckForUpdatesUpdateAvailable(const QString &message);
-
     void slotSaveCurrentMessageBody();
     void slotViewMsgHeaders();
     void slotThreadMsgList();
