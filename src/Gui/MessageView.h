@@ -66,8 +66,8 @@ private slots:
     void externalsRequested( const QUrl& url );
     void externalsEnabled();
     void linkInTitleHovered( const QString& target );
-    void newLabelAction(const QString tag);
-    void deleteLabelAction(const QString tag);
+    void newLabelAction(const QString &tag);
+    void deleteLabelAction(const QString &tag);
     void messageDataChanged();
 signals:
     void messageChanged();

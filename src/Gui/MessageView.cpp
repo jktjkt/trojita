@@ -283,7 +283,7 @@ void MessageView::linkInTitleHovered(const QString &target)
                 Qt::escape( niceName ), Qt::escape( url.userName() ), Qt::escape( url.host() ) ) );
 }
 
-void MessageView::newLabelAction(const QString tag)
+void MessageView::newLabelAction(const QString &tag)
 {
     if (!message.isValid())
         return;
@@ -292,7 +292,7 @@ void MessageView::newLabelAction(const QString tag)
     model->setMessageFlags(QModelIndexList() << message, tag, Imap::Mailbox::FLAG_ADD);
 }
 
-void MessageView::deleteLabelAction(const QString tag)
+void MessageView::deleteLabelAction(const QString &tag)
 {
     if (!message.isValid())
         return;
