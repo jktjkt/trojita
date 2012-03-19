@@ -126,6 +126,9 @@ void MsgListView::slotSectionCountChanged()
             break;
         }
     }
+
+    // Make sure to kick the header again so that it shows reasonable sizing
+    slotFixSize();
 }
 
 void MsgListView::slotHeaderSectionVisibilityToggled(int section)

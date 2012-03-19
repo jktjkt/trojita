@@ -474,7 +474,6 @@ void MainWindow::setupModels()
     msgListTree->setModel( prettyMsgListModel );
     connect( msgListTree->selectionModel(), SIGNAL( selectionChanged( const QItemSelection&, const QItemSelection& ) ),
              this, SLOT( msgListSelectionChanged( const QItemSelection&, const QItemSelection& ) ) );
-    QTimer::singleShot(0, msgListTree, SLOT(slotFixSize()));
 
     allTree->setModel( model );
     taskTree->setModel(model->taskModel());
