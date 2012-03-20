@@ -906,11 +906,13 @@ void MainWindow::slotReplyAll()
     msgView->reply( this, MessageView::REPLY_ALL );
 }
 
-void MainWindow::slotComposeMailUrl( const QUrl &url )
+void MainWindow::slotComposeMailUrl(const QUrl &url)
 {
-    Q_ASSERT( url.scheme().toLower() == QLatin1String("mailto") );
+    Q_ASSERT(url.scheme().toLower() == QLatin1String("mailto"));
 
-    // FIXME
+    QList<QPair<QString,QString> > recipients;
+    recipients << qMakePair<QString,QString>(QString(), url.path());
+    invokeComposeDialog(QString(), QString(), recipients);
 }
 
 void MainWindow::invokeComposeDialog( const QString& subject, const QString& body,
