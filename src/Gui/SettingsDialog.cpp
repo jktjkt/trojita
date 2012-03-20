@@ -246,11 +246,13 @@ CachePage::CachePage( QWidget* parent, QSettings& s ): QScrollArea(parent), Ui_C
     Ui_CachePage::setupUi(this);
 
     using Common::SettingsNames;
+
+    // Enable on-disk cache by default
     QString val = s.value( SettingsNames::cacheMetadataKey ).toString();
-    if ( val == SettingsNames::cacheMetadataPersistent )
-        metadataPersistentCache->setChecked( true );
+    if (val == SettingsNames::cacheMetadataMemory)
+        metadataMemoryCache->setChecked(true);
     else
-        metadataMemoryCache->setChecked( true );
+        metadataPersistentCache->setChecked(true);
 
     val = s.value( SettingsNames::cacheOfflineKey ).toString();
     if ( val == SettingsNames::cacheOfflineAll )
