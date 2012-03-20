@@ -31,6 +31,13 @@ a:hover{
   margin: 0 auto -4em;
 }
 
+#wrapper-welcome{
+  width:100%;
+  min-width:450px;
+  margin: 0 auto -4em;
+  font: 14px sans-serif;
+}
+
 #header{
   background:#bae9ff;
   width:100%;
