@@ -45,6 +45,7 @@ class TreeItem {
     friend class DeleteMailboxTask; // for direct access to _children
     friend class ObtainSynchronizedMailboxTask;
     friend class KeepMailboxOpenTask; // for direct access to _children
+    friend class MsgListModel; // for direct access to _children
     friend class ThreadingMsgListModel; // for direct access to _children
 
 protected:

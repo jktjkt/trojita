@@ -82,13 +82,10 @@ QModelIndex MsgListModel::index( int row, int column, const QModelIndex& parent 
     if ( column < 0 || column >= COLUMN_COUNT )
         return QModelIndex();
 
-    Model* model = dynamic_cast<Model*>( sourceModel() );
-    Q_ASSERT( model );
-
-    if ( row >= static_cast<int>( msgList->rowCount( model ) ) || row < 0 )
+    if (row >= msgList->_children.size() || row < 0)
         return QModelIndex();
 
-    return createIndex( row, column, msgList->child( row, model ) );
+    return createIndex(row, column, msgList->_children[row]);
 }
 
 QModelIndex MsgListModel::parent( const QModelIndex& index ) const
@@ -130,10 +127,9 @@ QModelIndex MsgListModel::mapToSource( const QModelIndex& proxyIndex ) const
     if ( proxyIndex.parent().isValid() )
         return QModelIndex();
 
-    Model* model = dynamic_cast<Model*>( sourceModel() );
-    Q_ASSERT( model );
-
-    return model->createIndex( proxyIndex.row(), 0, msgList->child( proxyIndex.row(), model ) );
+    Model *model = dynamic_cast<Model*>(sourceModel());
+    Q_ASSERT(model);
+    return model->createIndex(proxyIndex.row(), 0, msgList->_children[proxyIndex.row()]);
 }
 
 QModelIndex MsgListModel::mapFromSource( const QModelIndex& sourceIndex ) const
@@ -320,7 +316,7 @@ void MsgListModel::handleRowsAboutToBeRemoved( const QModelIndex& parent, int st
         if ( newList == msgList ) {
             beginRemoveRows( mapFromSource( parent ), start, end );
             for ( int i = start; i <= end; ++i )
-                emit messageRemoved( msgList->child( i, static_cast<Model*>( sourceModel() ) ) );
+                emit messageRemoved(msgList->_children[i]);
         }
     } else if ( mailbox ) {
         Q_ASSERT( start > 0 );
