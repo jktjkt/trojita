@@ -662,6 +662,9 @@ void ThreadingMsgListModel::applyThreading(const QVector<Imap::Responses::Thread
     int upstreamMessages = sourceModel()->rowCount();
     QHash<uint,void*> uidToPtrCache;
     QSet<uint> usedNodes;
+    uidToPtrCache.reserve(upstreamMessages);
+    _threading.reserve(upstreamMessages);
+    ptrToInternal.reserve(upstreamMessages);
     for ( int i = 0; i < upstreamMessages; ++i ) {
         QModelIndex index = sourceModel()->index( i, 0 );
         ThreadNodeInfo node;
