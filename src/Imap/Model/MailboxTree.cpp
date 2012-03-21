@@ -854,8 +854,9 @@ uint TreeItemMessage::size( Model* const model )
 void TreeItemMessage::setFlags(TreeItemMsgList *list, const QStringList &flags)
 {
     bool wasSeen = isMarkedAsRead();
+    bool flagsChanged = (_flags != flags);
     _flags = flags;
-    if (list->_numberFetchingStatus == DONE) {
+    if (list->_numberFetchingStatus == DONE && flagsChanged) {
         bool isSeen = isMarkedAsRead();
         if (_flagsHandled) {
             if (wasSeen && !isSeen) {
