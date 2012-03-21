@@ -356,6 +356,8 @@ void ImapModelThreadingTest::testDynamicThreading()
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    // There should be a message with zero UID at the end
+    QCOMPARE(treeToThreading(QModelIndex()), QByteArray("(1)(3)(4 (5)(6))(7 (8)(9))()"));
 
     QByteArray fetchCommand1 = t.mk("UID FETCH ") + QString::fromAscii("%1:* (FLAGS)\r\n").arg(QString::number(uidNextA - 1)).toAscii();
     QByteArray delayedFetchResponse1 = t.last("OK uid fetch\r\n");

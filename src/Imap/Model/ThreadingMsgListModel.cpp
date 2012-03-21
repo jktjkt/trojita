@@ -352,7 +352,7 @@ void ThreadingMsgListModel::handleRowsInserted( const QModelIndex& parent, int s
         QModelIndex index = sourceModel()->index(i, 0);
         uint uid = index.data(RoleMessageUid).toUInt();
         ThreadNodeInfo node;
-        node.internalId = i + 1;
+        node.internalId = _threadingHelperLastId++;
         node.uid = uid;
         node.ptr = static_cast<TreeItem*>(index.internalPointer());
         _threading[node.internalId] = node;
