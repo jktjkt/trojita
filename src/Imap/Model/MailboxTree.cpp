@@ -855,17 +855,18 @@ void TreeItemMessage::setFlags(TreeItemMsgList *list, const QStringList &flags)
 {
     bool wasSeen = isMarkedAsRead();
     _flags = flags;
-    if ( list->_numberFetchingStatus == DONE ) {
+    if (list->_numberFetchingStatus == DONE) {
         bool isSeen = isMarkedAsRead();
-        if ( _flagsHandled ) {
-            if ( wasSeen && ! isSeen )
+        if (_flagsHandled) {
+            if (wasSeen && !isSeen) {
                 ++list->_unreadMessageCount;
-            else if ( ! wasSeen && isSeen )
+            } else if (!wasSeen && isSeen) {
                 --list->_unreadMessageCount;
+            }
         } else {
             // it's a new message
             _flagsHandled = true;
-            if ( ! isSeen ) {
+            if (!isSeen) {
                 ++list->_unreadMessageCount;
             }
         }
