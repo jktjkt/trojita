@@ -26,6 +26,7 @@
 #include "Imap/Parser/Response.h"
 
 class QTimer;
+class ImapModelThreadingTest;
 
 /** @short Namespace for IMAP interaction */
 namespace Imap {
@@ -173,6 +174,8 @@ private:
 
     /** @short There's a pending THREAD command for which we haven't received data yet */
     bool m_threadingInFlight;
+
+    friend class ::ImapModelThreadingTest; // needs access to wantThreading();
 };
 
 }

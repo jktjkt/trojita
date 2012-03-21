@@ -635,8 +635,7 @@ void ImapModelThreadingTest::testThreadingPerformance()
         QCoreApplication::processEvents();
         QCoreApplication::processEvents();
         model->cache()->setMessageThreading("a", QVector<Imap::Responses::ThreadingNode>());
-        threadingModel->setSourceModel(0);
-        threadingModel->setSourceModel(msgListModel);
+        threadingModel->wantThreading();
         QCoreApplication::processEvents();
         QCoreApplication::processEvents();
     }
