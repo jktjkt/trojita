@@ -181,6 +181,7 @@ void ProtocolLoggerWidget::writeToDisk(uint parser, const Imap::Mailbox::LogMess
     QString line = message.timestamp.toString(QString::fromAscii("hh:mm:ss.zzz")) + QString::number(parser) + QLatin1Char(' ') +
             direction + message.source + QLatin1Char(' ') + message.message.trimmed() + QLatin1String("\n");
     *m_fileLog << line;
+    m_fileLog->flush();
 }
 
 void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<Imap::Mailbox::LogMessage> &buf)
