@@ -365,7 +365,7 @@ void ThreadingMsgListModel::handleRowsInserted( const QModelIndex& parent, int s
     }
     endInsertRows();
 
-    askForThreading();
+    wantThreading();
 }
 
 void ThreadingMsgListModel::resetMe()

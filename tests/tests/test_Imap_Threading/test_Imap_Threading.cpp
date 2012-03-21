@@ -212,12 +212,16 @@ void ImapModelThreadingTest::testThreadDeletionsAdditions()
                             ).toAscii();
             }
             uidFetchResponse += t.last("OK fetch\r\n");
-            expected += t.mk("UID THREAD REFS utf-8 ALL\r\n");
-            QByteArray uidThreadResponse = QByteArray("* THREAD ") + expectedRes.toAscii() + QByteArray("\r\n") + t.last("OK thread\r\n");
             QCOMPARE(SOCK->writtenStuff(), expected);
-            SOCK->fakeReading(uidFetchResponse + uidThreadResponse);
+            SOCK->fakeReading(uidFetchResponse);
             QCoreApplication::processEvents();
             QCoreApplication::processEvents();
+            QCoreApplication::processEvents();
+            QCoreApplication::processEvents();
+            QByteArray expectedThread = t.mk("UID THREAD REFS utf-8 ALL\r\n");
+            QByteArray uidThreadResponse = QByteArray("* THREAD ") + expectedRes.toAscii() + QByteArray("\r\n") + t.last("OK thread\r\n");
+            QCOMPARE(SOCK->writtenStuff(), expectedThread);
+            SOCK->fakeReading(uidThreadResponse);
             QCoreApplication::processEvents();
             QCoreApplication::processEvents();
 
@@ -363,27 +367,39 @@ void ImapModelThreadingTest::testDynamicThreading()
     QByteArray delayedFetchResponse1 = t.last("OK uid fetch\r\n");
     QByteArray threadCommand1 = t.mk("UID THREAD REFS utf-8 ALL\r\n");
     QByteArray delayedThreadResponse1 = t.last("OK threading\r\n");
-    QCOMPARE(SOCK->writtenStuff(), fetchCommand1 + threadCommand1);
+    QCOMPARE(SOCK->writtenStuff(), fetchCommand1);
 
     QByteArray fetchUntagged1("* 9 FETCH (UID 66 FLAGS (\\Recent))\r\n");
-    QByteArray threadUntagged1("* THREAD (1)(3)(4 (5)(6))((7)(8)(9))\r\n");
+    QByteArray threadUntagged1("* THREAD (1)(3)(4 (5)(6))((7)(8)(9)(66))\r\n");
 
     // Check that we've registered that change
     QCOMPARE(msgListModel->rowCount(QModelIndex()), static_cast<int>(existsA));
 
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    // The UID haven't arrived yet
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+
     if (1) {
-        SOCK->fakeReading(fetchUntagged1 + delayedFetchResponse1 + threadUntagged1 + delayedThreadResponse1);
+        // Make the UID known
+        SOCK->fakeReading(fetchUntagged1 + delayedFetchResponse1);
         QCoreApplication::processEvents();
         QCoreApplication::processEvents();
         QCoreApplication::processEvents();
         QCoreApplication::processEvents();
+        QCOMPARE(SOCK->writtenStuff(), threadCommand1);
+        QCoreApplication::processEvents();
+        QCoreApplication::processEvents();
+        SOCK->fakeReading(threadUntagged1 + delayedThreadResponse1);
         mapping["4"] = 66;
         indexMap["4"] = findItem("4");
-        /*verifyMapping(mapping);
-        verifyIndexMap(indexMap, mapping);*/
-    }
 
-    qDebug() << SOCK->writtenStuff();
+        verifyMapping(mapping);
+        verifyIndexMap(indexMap, mapping);
+        QCOMPARE(treeToThreading(QModelIndex()), QByteArray("(1)(3)(4 (5)(6))(7 (8)(9))(66)"));
+    }
 
     QVERIFY(SOCK->writtenStuff().isEmpty());
     QVERIFY(errorSpy->isEmpty());
