@@ -136,7 +136,6 @@ void MainWindow::createActions()
     logPersistent = new QAction(tr("Log into %1").arg(Imap::Mailbox::persistentLogFileName()), this);
     logPersistent->setCheckable(true);
     connect(logPersistent, SIGNAL(triggered(bool)), imapLogger, SLOT(slotSetPersistentLogging(bool)));
-    logPersistent->trigger();
 
     showImapCapabilities = new QAction(tr("IMAP Server Information..."), this);
     connect(showImapCapabilities, SIGNAL(triggered()), this, SLOT(slotShowImapInfo()));
