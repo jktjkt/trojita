@@ -64,10 +64,13 @@ void ThreadingMsgListModel::setSourceModel( QAbstractItemModel *sourceModel )
     }
 
     reset();
-    Imap::Mailbox::MsgListModel *msgList = qobject_cast<Imap::Mailbox::MsgListModel*>( sourceModel );
-    QAbstractProxyModel::setSourceModel( msgList );
-    if ( ! msgList )
+
+    if (!sourceModel)
         return;
+
+    Imap::Mailbox::MsgListModel *msgList = qobject_cast<Imap::Mailbox::MsgListModel*>( sourceModel );
+    Q_ASSERT(msgList);
+    QAbstractProxyModel::setSourceModel(msgList);
 
     // FIXME: will need to be expanded when Model supports more signals...
     connect( sourceModel, SIGNAL( modelReset() ), this, SLOT( resetMe() ) );
