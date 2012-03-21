@@ -486,7 +486,6 @@ void ThreadingMsgListModel::wantThreading()
 
     // Something has happened and we want to process the THREAD response
     QVector<Imap::Responses::ThreadingNode> mapping = realModel->cache()->messageThreading(mailbox.data(RoleMailboxName).toString());
-    QVector<Imap::Responses::ThreadingNode> originalMapping = mapping;
 
     // Find the UID of the last message in the mailbox
     uint highestUidInMailbox = 0;
@@ -494,31 +493,43 @@ void ThreadingMsgListModel::wantThreading()
         highestUidInMailbox = sourceModel()->data(sourceModel()->index(i, 0, QModelIndex()), RoleMessageUid).toUInt();
     }
 
-    // Find the highest UID for which we have the threading info
-    uint highestUidInThreadingLowerBound = 0;
-    for (int i = 0; i < mapping.size(); ++i) {
-        const Imap::Responses::ThreadingNode node = mapping[i];
-        if (highestUidInThreadingLowerBound < node.num) {
-            highestUidInThreadingLowerBound = node.num;
-        }
-        if (highestUidInThreadingLowerBound >= highestUidInMailbox) {
-            // There's no point going further, we already know that we shall ask for threading
-            break;
-        }
-        mapping += node.children;
-    }
+    uint highestUidInThreadingLowerBound = findHighEnoughNumber(mapping, highestUidInMailbox);
 
     qDebug() << "ThreadingMsgListModel::wantThreading: THREAD contains info about UID" << highestUidInThreadingLowerBound <<
                 "(or higher), mailbox has" << highestUidInMailbox;
 
     if (highestUidInThreadingLowerBound >= highestUidInMailbox) {
         // There's no point asking for data at this point, we shall just apply threading
-        applyThreading(originalMapping);
+        applyThreading(mapping);
     } else {
         // There's apparently at least one known UID whose threading info we do not know; that means that we have to ask the
         // server here.
         askForThreading();
     }
+}
+
+uint ThreadingMsgListModel::findHighEnoughNumber(const QVector<Responses::ThreadingNode> &mapping, uint marker)
+{
+    // Find the highest UID for which we have the threading info
+    uint highestUidInThreadingLowerBound = 0;
+
+    for (int i = 0; i < mapping.size(); ++i) {
+        if (highestUidInThreadingLowerBound < mapping[i].num) {
+            highestUidInThreadingLowerBound = mapping[i].num;
+
+            if (highestUidInThreadingLowerBound >= marker) {
+                // There's no point going further, we already know that we shall ask for threading
+                return highestUidInThreadingLowerBound;
+            }
+        }
+
+        // OK, we have to consult our children
+        highestUidInThreadingLowerBound = qMax(highestUidInThreadingLowerBound, findHighEnoughNumber(mapping[i].children, marker));
+        if (highestUidInThreadingLowerBound >= marker) {
+            return highestUidInThreadingLowerBound;
+        }
+    }
+    return highestUidInThreadingLowerBound;
 }
 
 void ThreadingMsgListModel::askForThreading()
