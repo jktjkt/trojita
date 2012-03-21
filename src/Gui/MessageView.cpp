@@ -88,7 +88,7 @@ void MessageView::setEmpty()
     markAsReadTimer->stop();
     header->setText(QString());
     message = QModelIndex();
-    disconnect(this, SLOT(messageDataChanged()));
+    disconnect(this, SLOT(handleDataChanged()));
     tags->hide();
     if (viewer != emptyView) {
         layout->removeWidget(viewer);
@@ -140,8 +140,8 @@ void MessageView::setMessage(const QModelIndex &index)
 
         tags->show();
         tags->setTagList(messageIndex.data(Imap::Mailbox::RoleMessageFlags).toStringList());
-        disconnect(this, SLOT(messageDataChanged()));
-        connect(realModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(messageDataChanged()));
+        disconnect(this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
+        connect(realModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
 
         emit messageChanged();
 
@@ -305,9 +305,12 @@ void MessageView::deleteLabelAction(const QString &tag)
     model->setMessageFlags(QModelIndexList() << message, tag, Imap::Mailbox::FLAG_REMOVE);
 }
 
-void MessageView::messageDataChanged()
+void MessageView::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
-    tags->setTagList(message.data(Imap::Mailbox::RoleMessageFlags).toStringList());
+    Q_ASSERT(topLeft.row() == bottomRight.row() && topLeft.parent() == bottomRight.parent());
+    if (topLeft == message) {
+        tags->setTagList(message.data(Imap::Mailbox::RoleMessageFlags).toStringList());
+    }
 }
 
 void MessageView::setHomepageUrl(const QUrl &homepage)

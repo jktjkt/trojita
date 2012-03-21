@@ -69,7 +69,7 @@ private slots:
     void linkInTitleHovered( const QString& target );
     void newLabelAction(const QString &tag);
     void deleteLabelAction(const QString &tag);
-    void messageDataChanged();
+    void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 signals:
     void messageChanged();
 private:
