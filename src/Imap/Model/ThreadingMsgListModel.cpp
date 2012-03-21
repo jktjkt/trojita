@@ -106,7 +106,7 @@ void ThreadingMsgListModel::handleDataChanged( const QModelIndex& topLeft, const
     QModelIndex second = mapFromSource( bottomRight );
 
     // There's a possibility for a short race window when te underlying model signals
-    // new data for a message but said message doesn't have threading info yet. Therefore,
+    // new data for a message but said message doesn't have threading info (or even known UID) yet. Therefore,
     // the translated indexes are invalid, so we have to handle that gracefully.
     // "Doing nothing" could be a reasonable thing.
     if ( ! first.isValid() || ! second.isValid() ) {
