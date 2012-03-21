@@ -548,7 +548,7 @@ void ImapModelThreadingTest::initialMessages(const uint exists)
     for (uint i = 1; i <= existsA; ++i) {
         uidMapA << i;
     }
-    uidNextA = 66;
+    uidNextA = qMax(66u, exists+2);
     helperSyncAWithMessagesEmptyState();
 
     // open the mailbox
