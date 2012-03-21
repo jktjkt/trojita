@@ -288,6 +288,8 @@ void ImapModelThreadingTest::testDynamicThreading()
     QCOMPARE(threadingModel->rowCount(QModelIndex()), 4);
     IndexMapping indexMap = buildIndexMap(mapping);
     verifyIndexMap(indexMap, mapping);
+    // The response is actually slightly different, but never mind (extra parentheses around 7)
+    QCOMPARE(treeToThreading(QModelIndex()), QByteArray("(1)(2 3)(4 (5)(6))(7 (8)(9 10))"));
 
     // this one will be deleted
     QPersistentModelIndex delete10 = findItem("3.1.0");
@@ -313,6 +315,7 @@ void ImapModelThreadingTest::testDynamicThreading()
     indexMap.remove("3.1.0.0");
     verifyMapping(mapping);
     verifyIndexMap(indexMap, mapping);
+    QCOMPARE(treeToThreading(QModelIndex()), QByteArray("(1)(2 3)(4 (5)(6))(7 (8)(9))"));
 
     QPersistentModelIndex msg2 = findItem("1");
     QVERIFY(msg2.isValid());
@@ -341,6 +344,7 @@ void ImapModelThreadingTest::testDynamicThreading()
     indexMap["1"] = indexMap["1.0"];
     indexMap.remove("1.0");
     verifyIndexMap(indexMap, mapping);
+    QCOMPARE(treeToThreading(QModelIndex()), QByteArray("(1)(3)(4 (5)(6))(7 (8)(9))"));
 
     // Push a new message, but with an unknown UID so far
     ++existsA;
