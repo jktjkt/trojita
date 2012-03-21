@@ -115,6 +115,22 @@ void ThreadingMsgListModel::handleDataChanged( const QModelIndex& topLeft, const
     }
 
     emit dataChanged( first, second );
+
+    // We provide funny data like "does this thread contain unread messages?". Now the original signal might mean that flags of a
+    // nested message have changed. In order to always be consistent, we have to find the thread root and emit dataChanged() on that
+    // as well.
+
+    // This is really required for this naive algorithm
+    Q_ASSERT(first.row() == second.row() && first.parent() == second.parent());
+
+    QModelIndex rootCandidate = first;
+    while (rootCandidate.parent().isValid()) {
+        rootCandidate = rootCandidate.parent();
+    }
+    if (rootCandidate != first) {
+        // We're really an embedded message
+        emit dataChanged(rootCandidate, rootCandidate.sibling(rootCandidate.row(), second.column()));
+    }
 }
 
 QModelIndex ThreadingMsgListModel::index( int row, int column, const QModelIndex& parent ) const
