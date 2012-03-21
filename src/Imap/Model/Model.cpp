@@ -1247,17 +1247,18 @@ KeepMailboxOpenTask* Model::findTaskResponsibleFor(TreeItemMailbox *mailboxPtr)
         // stealing it from some mailbox, but there's no other way.
         Q_ASSERT(!_parsers.isEmpty());
 
-        if (_parsers.begin()->connState == CONN_STATE_LOGOUT) {
-            // At this point, we have no other choice than create a nwe connection
-            return _taskFactory->createKeepMailboxOpenTask(this, mailboxPtr->toIndex(this), 0);
-        } else {
-            return _taskFactory->createKeepMailboxOpenTask(this, mailboxPtr->toIndex(this), _parsers.begin().key());
+        for (QMap<Parser*,ParserState>::const_iterator it = _parsers.constBegin(); it != _parsers.constEnd(); ++it) {
+            if (it->connState == CONN_STATE_LOGOUT) {
+                // this one is not usable
+                continue;
+            }
+            return _taskFactory->createKeepMailboxOpenTask(this, mailboxPtr->toIndex(this), it.key());
         }
+        // At this point, we have no other choice than create a new connection
+        return _taskFactory->createKeepMailboxOpenTask(this, mailboxPtr->toIndex(this), 0);
     }
-
-
-
 }
+
 void Model::_genericHandleFetch( TreeItemMailbox* mailbox, const Imap::Responses::Fetch* const resp )
 {
     Q_ASSERT(mailbox);
