@@ -590,4 +590,56 @@ QByteArray ImapModelThreadingTest::treeToThreading(QModelIndex index)
     return res;
 }
 
+void ImapModelThreadingTest::testThreadingPerformance()
+{
+    const uint num = 100000;
+    initialMessages(num);
+    QString sampleThread = QString::fromAscii("(%1 (%2 %3 (%4)(%5 %6 %7))(%8 %9 %10))");
+    QString linearThread = QString::fromAscii("(%1 %2 %3 %4 %5 %6 %7 %8 %9 %10)");
+    QString flatThread = QString::fromAscii("(%1 (%2)(%3)(%4)(%5)(%6)(%7)(%8)(%9)(%10))");
+    Q_ASSERT(num % 10 == 0);
+    QString response = QString::fromAscii("* THREAD ");
+    for (uint i = 1; i < num; i += 10) {
+        QString *format = 0;
+        switch (i % 100) {
+        case 1:
+        case 11:
+        case 21:
+        case 31:
+        case 41:
+            format = &sampleThread;
+            break;
+        case 51:
+        case 61:
+            format = &linearThread;
+            break;
+        case 71:
+        case 81:
+        case 91:
+            format = &flatThread;
+            break;
+        }
+        Q_ASSERT(format);
+        response += format->arg(QString::number(i), QString::number(i+1), QString::number(i+2), QString::number(i+3),
+                                QString::number(i+4), QString::number(i+5), QString::number(i+6), QString::number(i+7),
+                                QString::number(i+8)).arg(QString::number(i+9));
+    }
+    response += QString::fromAscii("\r\n");
+    QByteArray untaggedThread = response.toAscii();
+
+    QBENCHMARK {
+        QCOMPARE(SOCK->writtenStuff(), t.mk("UID THREAD REFS utf-8 ALL\r\n"));
+        SOCK->fakeReading(untaggedThread + t.last("OK thread\r\n"));
+        QCoreApplication::processEvents();
+        QCoreApplication::processEvents();
+        QCoreApplication::processEvents();
+        QCoreApplication::processEvents();
+        model->cache()->setMessageThreading("a", QVector<Imap::Responses::ThreadingNode>());
+        threadingModel->setSourceModel(0);
+        threadingModel->setSourceModel(msgListModel);
+        QCoreApplication::processEvents();
+        QCoreApplication::processEvents();
+    }
+}
+
 TROJITA_HEADLESS_TEST( ImapModelThreadingTest )
