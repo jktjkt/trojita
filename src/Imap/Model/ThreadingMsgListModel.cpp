@@ -643,7 +643,6 @@ void ThreadingMsgListModel::applyThreading(const QVector<Imap::Responses::Thread
 {
     if ( ! unknownUids.isEmpty() ) {
         // Some messages have UID zero, which means that they weren't loaded yet. Too bad.
-        // FIXME: maybe we could re-use the response...
         qDebug() << unknownUids.size() << "messages have 0 UID";
         return;
     }
