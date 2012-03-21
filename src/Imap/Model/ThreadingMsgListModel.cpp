@@ -687,7 +687,11 @@ void ThreadingMsgListModel::registerThreading( const QVector<Imap::Responses::Th
                 ss << "The THREAD response references a message with UID " << node.num << ", which is not recognized at this point. ";
                 ss << "More information is available in the IMAP protocol log.";
                 ss.flush();
-                throw UnknownMessageIndex(buf.constData());
+                qDebug() << buf.constData();
+
+                // It's possible that the THREAD response came from cache; in that case, it isn't pretty, but completely harmless
+                // FIXME: it'd be great to be able to distinguish between data sent by the IMAP server and a stale cache...
+                continue;
             }
 
             QHash<void*,uint>::const_iterator nodeIt = ptrToInternal.constFind( *ptrIt );
