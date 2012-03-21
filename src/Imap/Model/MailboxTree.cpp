@@ -383,7 +383,7 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
     bool savedBodyStructure = false;
     bool gotEnvelope = false;
     bool gotSize = false;
-    bool gotFlags = false;
+    bool updatedFlags = false;
 
     for ( Responses::Fetch::dataType::const_iterator it = response.data.begin(); it != response.data.end(); ++ it ) {
         if (  it.key() == "UID" ) {
@@ -430,9 +430,14 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
                 model->cache()->setMsgPart( mailbox(), message->uid(), part->partId(), part->_data );
             changedParts.append( part );
         } else if ( it.key() == "FLAGS" ) {
-            message->setFlags(list, dynamic_cast<const Responses::RespData<QStringList>&>( *(it.value()) ).data);
-            gotFlags = true;
-            changedMessage = message;
+            // Only emit signals when the flags have actually changed
+            QStringList newFlags = dynamic_cast<const Responses::RespData<QStringList>&>(*(it.value())).data;
+            bool forceChange = (message->_flags != newFlags);
+            message->setFlags(list, newFlags, forceChange);
+            if (forceChange) {
+                updatedFlags = true;
+                changedMessage = message;
+            }
         } else {
             qDebug() << "TreeItemMailbox::handleFetchResponse: unknown FETCH identifier" << it.key();
         }
@@ -446,7 +451,7 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
             dataForCache.uid = message->uid();
             model->cache()->setMessageMetadata( mailbox(), message->uid(), dataForCache );
         }
-        if ( gotFlags ) {
+        if (updatedFlags) {
             model->cache()->setMsgFlags( mailbox(), message->uid(), message->_flags );
         }
     }
@@ -851,12 +856,11 @@ uint TreeItemMessage::size( Model* const model )
     return _size;
 }
 
-void TreeItemMessage::setFlags(TreeItemMsgList *list, const QStringList &flags)
+void TreeItemMessage::setFlags(TreeItemMsgList *list, const QStringList &flags, bool forceChange)
 {
     bool wasSeen = isMarkedAsRead();
-    bool flagsChanged = (_flags != flags);
     _flags = flags;
-    if (list->_numberFetchingStatus == DONE && flagsChanged) {
+    if (list->_numberFetchingStatus == DONE && forceChange) {
         bool isSeen = isMarkedAsRead();
         if (_flagsHandled) {
             if (wasSeen && !isSeen) {

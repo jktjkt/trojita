@@ -203,7 +203,7 @@ class TreeItemMessage: public TreeItem {
     TreeItemPart* _partHeader;
     TreeItemPart* _partText;
     /** @short Set FLAGS and maintain the unread message counter */
-    void setFlags(TreeItemMsgList *list, const QStringList &flags);
+    void setFlags(TreeItemMsgList *list, const QStringList &flags, bool forceChange);
 public:
     TreeItemMessage( TreeItem* parent );
     ~TreeItemMessage();
