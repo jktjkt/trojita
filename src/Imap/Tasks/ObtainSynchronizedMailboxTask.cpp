@@ -543,7 +543,19 @@ bool ObtainSynchronizedMailboxTask::handleFetch( const Imap::Responses::Fetch* c
 
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
     Q_ASSERT(mailbox);
-    mailbox->handleFetchWhileSyncing( model, *resp );
+    QList<TreeItemPart*> changedParts;
+    TreeItemMessage *changedMessage = 0;
+    mailbox->handleFetchResponse(model, *resp, changedParts, changedMessage);
+    if (changedMessage) {
+        QModelIndex index = changedMessage->toIndex(model);
+        emit model->dataChanged(index, index);
+        // On the other hand, this one will be emitted at the very end
+        // model->emitMessageCountChanged(mailbox);
+    }
+    if (!changedParts.isEmpty()) {
+        qDebug() << "Weird, FETCH when syncing has changed some body parts. We aren't ready for that.";
+        log(QString::fromAscii("This response has changed some message parts. That should not have happened, as we're still syncing."));
+    }
     return true;
 }
 

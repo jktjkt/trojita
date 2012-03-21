@@ -452,31 +452,6 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
     }
 }
 
-void TreeItemMailbox::handleFetchWhileSyncing( Model* const model, const Responses::Fetch& response )
-{
-    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[0] );
-    Q_ASSERT( list );
-
-    int number = response.number - 1;
-    if ( number < 0 || number >= list->_children.size() )
-        throw UnknownMessageIndex( "FECTH response during mailbox sync referrs "
-                                   "to a message that is out-of-bounds", response );
-
-    for ( Responses::Fetch::dataType::const_iterator it = response.data.begin(); it != response.data.end(); ++ it ) {
-        if ( it.key() == "UID" ) {
-            qDebug() << "Specifying UID while syncing flags in a mailbox is not too useful";
-        } else if ( it.key() == "FLAGS" ) {
-            TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->_children[ number ] );
-            Q_ASSERT(message);
-            Q_ASSERT(message->uid());
-            message->setFlags(list, dynamic_cast<const Responses::RespData<QStringList>&>( *(it.value()) ).data);
-            model->cache()->setMsgFlags(mailbox(), message->uid(), message->_flags);
-        } else {
-            qDebug() << "Ignoring FETCH field" << it.key() << "while syncing mailbox";
-        }
-    }
-}
-
 void TreeItemMailbox::handleExpunge( Model* const model, const Responses::NumberResponse& resp )
 {
     TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( _children[ 0 ] );

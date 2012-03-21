@@ -150,7 +150,6 @@ No network activity will be caused. If the answer is not known for sure, we retu
                               const Responses::Fetch& response,
                               QList<TreeItemPart*> &changedParts,
                               TreeItemMessage* &changedMessage );
-    void handleFetchWhileSyncing( Model* const model, const Responses::Fetch& response );
     void rescanForChildMailboxes( Model* const model );
     void handleExpunge( Model* const model, const Responses::NumberResponse& resp );
     bool isSelectable() const;
