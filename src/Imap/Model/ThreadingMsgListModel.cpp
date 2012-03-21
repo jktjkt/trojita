@@ -510,10 +510,17 @@ void ThreadingMsgListModel::wantThreading()
 
 uint ThreadingMsgListModel::findHighEnoughNumber(const QVector<Responses::ThreadingNode> &mapping, uint marker)
 {
+    if (mapping.isEmpty())
+        return 0;
+
     // Find the highest UID for which we have the threading info
     uint highestUidInThreadingLowerBound = 0;
 
-    for (int i = 0; i < mapping.size(); ++i) {
+    // If the threading already contains everything we need, we could have a higher chance of finding the high enough UID at the
+    // end of the list.  On the other hand, in case when the cached THREAD response does not cintain everything we need, we're out
+    // of luck, we have absolutely no guarantee about relative greatness of parent/child/siblings in the tree.
+    // Searching backward could lead to faster lookups, but we cannot avoid a full lookup in the bad case.
+    for (int i = mapping.size() - 1; i >= 0; --i) {
         if (highestUidInThreadingLowerBound < mapping[i].num) {
             highestUidInThreadingLowerBound = mapping[i].num;
 
