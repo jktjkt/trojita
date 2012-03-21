@@ -665,22 +665,35 @@ void ThreadingMsgListModel::applyThreading(const QVector<Imap::Responses::Thread
     uidToPtrCache.reserve(upstreamMessages);
     _threading.reserve(upstreamMessages);
     ptrToInternal.reserve(upstreamMessages);
-    for ( int i = 0; i < upstreamMessages; ++i ) {
-        QModelIndex index = sourceModel()->index( i, 0 );
-        ThreadNodeInfo node;
-        node.uid = index.data( RoleMessageUid ).toUInt();
-        if ( ! node.uid ) {
-            throw UnknownMessageIndex("Encountered a message with zero UID when threading. This is a bug in Trojita, sorry.");
-        }
 
-        node.internalId = i + 1;
-        node.ptr = static_cast<TreeItem*>( index.internalPointer() );
-        uidToPtrCache[node.uid] = node.ptr;
-        _threadingHelperLastId = node.internalId;
-        // We're creating a new node here
-        Q_ASSERT(!_threading.contains( node.internalId ));
-        _threading[ node.internalId ] = node;
-        ptrToInternal[ node.ptr ] = node.internalId;
+    if (upstreamMessages) {
+        // Work with pointers instead going through the MVC API for performance.
+        // This matters (at least that's what by benchmarks said).
+        QModelIndex firstMessageIndex = sourceModel()->index(0, 0);
+        Q_ASSERT(firstMessageIndex.isValid());
+        const Model *realModel = 0;
+        TreeItem *firstMessagePtr = Model::realTreeItem(firstMessageIndex, &realModel);
+        Q_ASSERT(firstMessagePtr);
+        // If the next asserts fails, it means that the implementation of MsgListModel has changed and uses its own pointers
+        Q_ASSERT(firstMessagePtr == firstMessageIndex.internalPointer());
+        TreeItemMsgList *list = dynamic_cast<TreeItemMsgList*>(firstMessagePtr->parent());
+        Q_ASSERT(list);
+        for (int i = 0; i < upstreamMessages; ++i) {
+            ThreadNodeInfo node;
+            node.uid = dynamic_cast<TreeItemMessage*>(list->_children[i])->uid();
+            if ( ! node.uid ) {
+                throw UnknownMessageIndex("Encountered a message with zero UID when threading. This is a bug in Trojita, sorry.");
+            }
+
+            node.internalId = i + 1;
+            node.ptr = list->_children[i];
+            uidToPtrCache[node.uid] = node.ptr;
+            _threadingHelperLastId = node.internalId;
+            // We're creating a new node here
+            Q_ASSERT(!_threading.contains( node.internalId ));
+            _threading[ node.internalId ] = node;
+            ptrToInternal[ node.ptr ] = node.internalId;
+        }
     }
 
     // Mark the root node as always present
