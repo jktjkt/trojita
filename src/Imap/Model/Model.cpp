@@ -650,6 +650,7 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
             message->_offset = seq;
             message->_uid = uidMapping[ seq ];
             item->_children << message;
+            message->_flags = cache()->msgFlags(mailbox, message->_uid);
         }
         endInsertRows();
         item->_fetchStatus = TreeItem::DONE; // required for FETCH processing later on
