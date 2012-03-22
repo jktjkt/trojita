@@ -1111,6 +1111,9 @@ void TreeItemPart::silentlyReleaseMemoryRecursive()
         Q_ASSERT(part);
         part->silentlyReleaseMemoryRecursive();
     }
+    _partHeader->silentlyReleaseMemoryRecursive();
+    _partText->silentlyReleaseMemoryRecursive();
+    _partMime->silentlyReleaseMemoryRecursive();
     _data.clear();
     _fetchStatus = NONE;
 }
