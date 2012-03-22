@@ -312,10 +312,27 @@ void LibMailboxSync::helperSyncFlags()
     QCOMPARE(SOCK->writtenStuff(), expectedFetch);
     QByteArray buf;
     for (uint i = 1; i <= existsA; ++i) {
-        if ( i % 2 )
+        switch (i % 10) {
+        case 0:
+        case 1:
             buf += QString::fromAscii("* %1 FETCH (FLAGS (\\Seen))\r\n").arg(i).toAscii();
-        else
+            break;
+        case 2:
+        case 3:
+        case 4:
+            buf += QString::fromAscii("* %1 FETCH (FLAGS (\\Seen \\Answered))\r\n").arg(i).toAscii();
+            break;
+        case 5:
+            buf += QString::fromAscii("* %1 FETCH (FLAGS (\\Seen starred))\r\n").arg(i).toAscii();
+        case 6:
+        case 7:
+        case 8:
+            buf += QString::fromAscii("* %1 FETCH (FLAGS (\\Seen \\Answered $NotJunk))\r\n").arg(i).toAscii();
+            break;
+        case 9:
             buf += QString::fromAscii("* %1 FETCH (FLAGS ())\r\n").arg(i).toAscii();
+            break;
+        }
     }
     SOCK->fakeReading(buf + t.last("OK yay\r\n"));
     QCoreApplication::processEvents();
