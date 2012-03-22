@@ -432,7 +432,7 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
         } else if ( it.key() == "FLAGS" ) {
             // Only emit signals when the flags have actually changed
             QStringList newFlagList = dynamic_cast<const Responses::RespData<QStringList>&>(*(it.value())).data;
-            QSet<QString> newFlags = newFlagList.toSet(); // FIXME: sharing
+            QSet<QString> newFlags = model->normalizeFlags(newFlagList.toSet());
             bool forceChange = (message->_flags != newFlags);
             message->setFlags(list, newFlags, forceChange);
             if (forceChange) {
@@ -750,8 +750,13 @@ QVariant TreeItemMessage::data( Model* const model, int role )
         return fetched();
 
     // FLAGS shouldn't trigger message fetching, either
-    if ( role == RoleMessageFlags )
-        return QVariant(_flags.toList());
+    if ( role == RoleMessageFlags ) {
+        // We're using QSet<QString> which does not guarantee the order. In order to be reasonably deterministic, we always sort
+        // the flags here.
+        QStringList res = _flags.toList();
+        res.sort();
+        return res;
+    }
 
     fetch( model );
 
@@ -821,27 +826,27 @@ QVariant TreeItemMessage::data( Model* const model, int role )
 
 bool TreeItemMessage::isMarkedAsDeleted() const
 {
-    return _flags.contains(QLatin1String("\\Deleted"));
+    return _flags.contains(QLatin1String("\\deleted"));
 }
 
 bool TreeItemMessage::isMarkedAsRead() const
 {
-    return _flags.contains(QLatin1String("\\Seen"));
+    return _flags.contains(QLatin1String("\\seen"));
 }
 
 bool TreeItemMessage::isMarkedAsReplied() const
 {
-    return _flags.contains(QLatin1String("\\Answered"));
+    return _flags.contains(QLatin1String("\\answered"));
 }
 
 bool TreeItemMessage::isMarkedAsForwarded() const
 {
-    return _flags.contains(QLatin1String("$Forwarded"));
+    return _flags.contains(QLatin1String("$forwarded"));
 }
 
 bool TreeItemMessage::isMarkedAsRecent() const
 {
-    return _flags.contains(QLatin1String("\\Recent"));
+    return _flags.contains(QLatin1String("\\recent"));
 }
 
 uint TreeItemMessage::uid() const

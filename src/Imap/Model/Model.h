@@ -245,6 +245,8 @@ this message happen again.
     */
     QMap<QByteArray,QByteArray> serverId() const;
 
+    QSet<QString> normalizeFlags(const QSet<QString> &source) const;
+
 public slots:
     /** @short Ask for an updated list of mailboxes on the server */
     void reloadMailboxList();
@@ -487,6 +489,9 @@ private:
     TaskPresentationModel *m_taskModel;
 
     QMap<QByteArray,QByteArray> m_idResult;
+
+    QSet<QString> m_specialFlagNames;
+    mutable QSet<QString> m_flagLiterals;
 
 protected slots:
     void responseReceived( Imap::Parser *parser );

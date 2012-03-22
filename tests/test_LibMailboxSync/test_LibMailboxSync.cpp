@@ -348,9 +348,12 @@ void LibMailboxSync::helperSyncFlags()
 /** @short Helper: update flags for some message */
 void LibMailboxSync::helperOneFlagUpdate( const QModelIndex &message )
 {
-    SOCK->fakeReading( QString::fromAscii("* %1 FETCH (FLAGS (\\Seen foo bar))\r\n").arg( message.row() + 1 ).toAscii() );
+    SOCK->fakeReading( QString::fromAscii("* %1 FETCH (FLAGS (\\Seen fOo bar))\r\n").arg( message.row() + 1 ).toAscii() );
     QCoreApplication::processEvents();
-    QVERIFY( message.data( Imap::Mailbox::RoleMessageFlags ).toStringList() == QStringList() << QLatin1String("\\Seen") << QLatin1String("foo") << QLatin1String("bar") );
+    QStringList expectedFlags;
+    expectedFlags << QLatin1String("\\seen") << QLatin1String("fOo") << QLatin1String("bar");
+    expectedFlags.sort();
+    QCOMPARE(message.data(Imap::Mailbox::RoleMessageFlags).toStringList(), expectedFlags);
     QVERIFY(errorSpy->isEmpty());
 }
 

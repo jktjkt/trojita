@@ -610,7 +610,6 @@ QSet<QString> SQLCache::msgFlags(const QString &mailbox, uint uid) const
         stream >> res;
     }
     // "Not found" is not an error here
-    // FIXME: explicit sharing here!
     return res.toSet();
 }
 

@@ -113,6 +113,12 @@ Model::Model( QObject* parent, AbstractCache* cache, SocketFactoryPtr socketFact
 #endif
 
     m_taskModel = new TaskPresentationModel(this);
+
+    m_specialFlagNames.insert(QLatin1String("\\seen"));
+    m_specialFlagNames.insert(QLatin1String("\\deleted"));
+    m_specialFlagNames.insert(QLatin1String("\\answered"));
+    m_specialFlagNames.insert(QLatin1String("$forwarded"));
+    m_specialFlagNames.insert(QLatin1String("\\recent"));
 }
 
 Model::~Model()
@@ -650,7 +656,7 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
             message->_offset = seq;
             message->_uid = uidMapping[ seq ];
             item->_children << message;
-            message->_flags = cache()->msgFlags(mailbox, message->_uid);
+            message->_flags = normalizeFlags(cache()->msgFlags(mailbox, message->_uid));
         }
         endInsertRows();
         item->_fetchStatus = TreeItem::DONE; // required for FETCH processing later on
@@ -697,7 +703,7 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
         AbstractCache::MessageDataBundle data = cache()->messageMetadata( mailboxPtr->mailbox(), item->uid() );
         if ( data.uid == item->uid() ) {
             item->_envelope = data.envelope;
-            item->_flags = cache()->msgFlags( mailboxPtr->mailbox(), item->uid() );
+            item->_flags = normalizeFlags(cache()->msgFlags(mailboxPtr->mailbox(), item->uid()));
             item->_size = data.size;
             QDataStream stream( &data.serializedBodyStructure, QIODevice::ReadOnly );
             stream.setVersion(QDataStream::Qt_4_6);
@@ -1452,6 +1458,39 @@ QAbstractItemModel *Model::taskModel() const
 QMap<QByteArray,QByteArray> Model::serverId() const
 {
     return m_idResult;
+}
+
+/** @short Handle explicit sharing and case mapping for message flags
+
+This function will try to minimize the amount of QString instances used for storage of individual message flags via Qt's implicit
+sharing that is built into QString.
+
+At the same time, some well-known flags are converted to their "canonical" form (like \\SEEN -> \\Seen etc).
+*/
+QSet<QString> Model::normalizeFlags(const QSet<QString> &source) const
+{
+    QSet<QString> res;
+    for (QSet<QString>::const_iterator flag = source.constBegin(); flag != source.constEnd(); ++flag) {
+        // At first, perform a case-insensitive lookup in the (rather short) list of known special flags
+        QString lowerCase = flag->toLower();
+        QSet<QString>::const_iterator it = m_specialFlagNames.constFind(lowerCase);
+        if (it != m_specialFlagNames.constEnd()) {
+            res.insert(*it);
+            continue;
+        }
+
+        // If it isn't a special flag, just check whether it's been encountered already
+        it = m_flagLiterals.constFind(*flag);
+        if (it == m_flagLiterals.constEnd()) {
+            // Not in cache, so add it and return an implicitly shared copy
+            m_flagLiterals.insert(*flag);
+            res.insert(*flag);
+        } else {
+            // It's in the cache already, se let's QString share the data
+            res.insert(*it);
+        }
+    }
+    return res;
 }
 
 }
