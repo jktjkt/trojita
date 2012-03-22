@@ -54,6 +54,16 @@ void FakeSocket::fakeReading( const QByteArray& what )
     // data back. It's pretty obvious when you think about it, but took sime time to
     // debug nevertheless :).
     qint64 pos = readChannel->pos();
+    if (pos > 1024 * 1024) {
+        // There's too much stale data in the socket already, let's cut it
+        QByteArray unProcessedData = readChannel->readAll();
+        r.clear();
+        readChannel->close();
+        static_cast<QBuffer*>(readChannel)->setBuffer(&r);
+        readChannel->open(QIODevice::ReadWrite);
+        readChannel->write(unProcessedData);
+        pos = unProcessedData.size();
+    }
     readChannel->write( what );
     readChannel->seek( pos );
 }
