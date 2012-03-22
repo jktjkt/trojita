@@ -48,7 +48,7 @@ void FakeSocket::slotEmitConnected()
 
 void FakeSocket::fakeReading( const QByteArray& what )
 {
-    // The position of the cursor is shared for both reading and wirting, and therefore
+    // The position of the cursor is shared for both reading and writing, and therefore
     // we have to save and restore it after appending data, otherwise the pointer will
     // be left scrolled to after the actual data, failing further attempts to read the
     // data back. It's pretty obvious when you think about it, but took sime time to
