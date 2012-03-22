@@ -658,10 +658,8 @@ bool TreeItemMsgList::numbersFetched() const
 
 
 TreeItemMessage::TreeItemMessage( TreeItem* parent ):
-        TreeItem(parent), _size(0), _uid(0), _flagsHandled(false), _offset(-1)
+    TreeItem(parent), _size(0), _uid(0), _flagsHandled(false), _offset(-1), _partHeader(0), _partText(0)
 {
-    _partHeader = new TreeItemModifiedPart( this, OFFSET_HEADER );
-    _partText = new TreeItemModifiedPart( this, OFFSET_TEXT );
 }
 
 TreeItemMessage::~TreeItemMessage()
@@ -713,6 +711,13 @@ TreeItem* TreeItemMessage::specialColumnPtr( int row, int column ) const
     // No extra columns on other rows
     if ( row != 0 )
         return 0;
+
+    if (!_partText) {
+        _partText = new TreeItemModifiedPart(const_cast<TreeItemMessage*>(this), OFFSET_TEXT);
+    }
+    if (!_partHeader) {
+        _partHeader = new TreeItemModifiedPart(const_cast<TreeItemMessage*>(this), OFFSET_HEADER);
+    }
 
     switch ( column ) {
     case OFFSET_TEXT:

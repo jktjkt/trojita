@@ -1404,8 +1404,12 @@ void Model::releaseMessageData( const QModelIndex &message )
 
     msg->_fetchStatus = TreeItem::NONE;
     msg->_envelope.clear();
-    msg->_partHeader->silentlyReleaseMemoryRecursive();
-    msg->_partText->silentlyReleaseMemoryRecursive();
+    if (msg->_partHeader) {
+        msg->_partHeader->silentlyReleaseMemoryRecursive();
+    }
+    if (msg->_partText) {
+        msg->_partText->silentlyReleaseMemoryRecursive();
+    }
     Q_FOREACH( TreeItem *item, msg->_children ) {
         TreeItemPart *part = dynamic_cast<TreeItemPart*>( item );
         Q_ASSERT(part);

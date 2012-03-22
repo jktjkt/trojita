@@ -202,8 +202,9 @@ class TreeItemMessage: public TreeItem {
     QStringList _flags;
     bool _flagsHandled;
     int _offset;
-    TreeItemPart* _partHeader;
-    TreeItemPart* _partText;
+    // These are lazily-populated from a const method, so they got to be mutable
+    mutable TreeItemPart *_partHeader;
+    mutable TreeItemPart *_partText;
     /** @short Set FLAGS and maintain the unread message counter */
     void setFlags(TreeItemMsgList *list, const QStringList &flags, bool forceChange);
 public:
