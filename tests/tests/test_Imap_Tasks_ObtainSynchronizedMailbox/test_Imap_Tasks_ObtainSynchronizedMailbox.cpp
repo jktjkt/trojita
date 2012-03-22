@@ -515,4 +515,20 @@ void ImapModelObtainSynchronizedMailboxTest::gotLine()
 
 #endif
 
+void ImapModelObtainSynchronizedMailboxTest::testFlagReSyncBenchmark()
+{
+    existsA = 100000;
+    uidValidityA = 333;
+    for (uint i = 1; i <= existsA; ++i) {
+        uidMapA << i;
+    }
+    uidNextA = existsA + 2;
+    helperSyncAWithMessagesEmptyState();
+
+    QBENCHMARK {
+        helperSyncBNoMessages();
+        helperSyncAWithMessagesNoArrivals();
+    }
+}
+
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )

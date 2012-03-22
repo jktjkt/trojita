@@ -40,6 +40,7 @@ private slots:
     void testResyncOneNew();
     void testResyncUidValidity();
     void testDecreasedUidNext();
+    void testFlagReSyncBenchmark();
 };
 
 #endif
