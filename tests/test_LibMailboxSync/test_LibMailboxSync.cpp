@@ -333,6 +333,13 @@ void LibMailboxSync::helperSyncFlags()
             buf += QString::fromAscii("* %1 FETCH (FLAGS ())\r\n").arg(i).toAscii();
             break;
         }
+        if (buf.size() > 10*1024) {
+            // Flush the output buffer roughly every 10kB
+            SOCK->fakeReading(buf);
+            buf.clear();
+            QCoreApplication::processEvents();
+            QCoreApplication::processEvents();
+        }
     }
     SOCK->fakeReading(buf + t.last("OK yay\r\n"));
     QCoreApplication::processEvents();
