@@ -431,7 +431,8 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
             changedParts.append( part );
         } else if ( it.key() == "FLAGS" ) {
             // Only emit signals when the flags have actually changed
-            QStringList newFlags = dynamic_cast<const Responses::RespData<QStringList>&>(*(it.value())).data;
+            QStringList newFlagList = dynamic_cast<const Responses::RespData<QStringList>&>(*(it.value())).data;
+            QSet<QString> newFlags = newFlagList.toSet(); // FIXME: sharing
             bool forceChange = (message->_flags != newFlags);
             message->setFlags(list, newFlags, forceChange);
             if (forceChange) {
@@ -750,7 +751,7 @@ QVariant TreeItemMessage::data( Model* const model, int role )
 
     // FLAGS shouldn't trigger message fetching, either
     if ( role == RoleMessageFlags )
-        return _flags;
+        return QVariant(_flags.toList());
 
     fetch( model );
 
@@ -820,27 +821,27 @@ QVariant TreeItemMessage::data( Model* const model, int role )
 
 bool TreeItemMessage::isMarkedAsDeleted() const
 {
-    return _flags.contains( QLatin1String("\\Deleted"), Qt::CaseInsensitive );
+    return _flags.contains(QLatin1String("\\Deleted"));
 }
 
 bool TreeItemMessage::isMarkedAsRead() const
 {
-    return _flags.contains( QLatin1String("\\Seen"), Qt::CaseInsensitive );
+    return _flags.contains(QLatin1String("\\Seen"));
 }
 
 bool TreeItemMessage::isMarkedAsReplied() const
 {
-    return _flags.contains( QLatin1String("\\Answered"), Qt::CaseInsensitive );
+    return _flags.contains(QLatin1String("\\Answered"));
 }
 
 bool TreeItemMessage::isMarkedAsForwarded() const
 {
-    return _flags.contains( QLatin1String("$Forwarded"), Qt::CaseInsensitive );
+    return _flags.contains(QLatin1String("$Forwarded"));
 }
 
 bool TreeItemMessage::isMarkedAsRecent() const
 {
-    return _flags.contains( QLatin1String("\\Recent"), Qt::CaseInsensitive );
+    return _flags.contains(QLatin1String("\\Recent"));
 }
 
 uint TreeItemMessage::uid() const
@@ -861,7 +862,7 @@ uint TreeItemMessage::size( Model* const model )
     return _size;
 }
 
-void TreeItemMessage::setFlags(TreeItemMsgList *list, const QStringList &flags, bool forceChange)
+void TreeItemMessage::setFlags(TreeItemMsgList *list, const QSet<QString> &flags, bool forceChange)
 {
     bool wasSeen = isMarkedAsRead();
     _flags = flags;

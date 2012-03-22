@@ -66,8 +66,8 @@ public:
     virtual MessageDataBundle messageMetadata( const QString& mailbox, uint uid ) const;
     virtual void setMessageMetadata( const QString& mailbox, uint uid, const MessageDataBundle& metadata );
 
-    virtual QStringList msgFlags( const QString& mailbox, uint uid ) const;
-    virtual void setMsgFlags( const QString& mailbox, uint uid, const QStringList& flags );
+    virtual QSet<QString> msgFlags(const QString &mailbox, uint uid) const;
+    virtual void setMsgFlags(const QString &mailbox, uint uid, const QSet<QString> &flags);
 
     virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId ) const;
     virtual void setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data );
@@ -82,7 +82,7 @@ private:
     QMap<QString, QList<MailboxMetadata> > _mailboxes;
     QMap<QString, SyncState> _syncState;
     QMap<QString, QList<uint> > _seqToUid;
-    QMap<QString, QMap<uint,QStringList> > _flags;
+    QMap<QString, QMap<uint,QSet<QString> > > _flags;
     QMap<QString, QMap<uint, LightMessageDataBundle> > _msgMetadata;
     QMap<QString, QMap<uint, QMap<QString, QByteArray> > > _parts;
     QMap<QString, QVector<Imap::Responses::ThreadingNode> > _threads;

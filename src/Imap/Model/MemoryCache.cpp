@@ -131,17 +131,17 @@ void MemoryCache::setMsgPart( const QString& mailbox, uint uid, const QString& p
     _parts[ mailbox ][ uid ][ partId ] = data;
 }
 
-void MemoryCache::setMsgFlags( const QString& mailbox, uint uid, const QStringList& flags )
+void MemoryCache::setMsgFlags(const QString &mailbox, uint uid, const QSet<QString> &flags)
 {
 #ifdef CACHE_DEBUG
     qDebug() << "set FLAGS for" << mailbox << uid << flags;
 #endif
-    _flags[ mailbox ][ uid ] = flags;
+    _flags[mailbox][uid] = flags;
 }
 
-QStringList MemoryCache::msgFlags( const QString& mailbox, uint uid ) const
+QSet<QString> MemoryCache::msgFlags(const QString &mailbox, uint uid) const
 {
-    return _flags[ mailbox ][ uid ];
+    return _flags[mailbox][uid];
 }
 
 QList<uint> MemoryCache::uidMapping( const QString& mailbox ) const
