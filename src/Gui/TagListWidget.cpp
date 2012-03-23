@@ -10,6 +10,7 @@
 #include <QHBoxLayout>
 #include <QInputDialog>
 #include <QLabel>
+#include <QMessageBox>
 #include <QPushButton>
 
 #include "TagListWidget.h"
@@ -68,9 +69,17 @@ void TagListWidget::empty()
 
 void TagListWidget::newTagRequested()
 {
-    QString tag = QInputDialog::getText( this, tr("New Label"), tr("Label name:") );
-    if (!tag.isEmpty())
-        emit tagAdded(tag);
+    QString tag = QInputDialog::getText(this, tr("New Label"), tr("Label name:"));
+    if (tag.isEmpty()) {
+        return;
+    }
+    if (m_ignoredFlags.contains(tag.toLower())) {
+        QMessageBox::warning(this, tr("Invalid tag value"),
+                             tr("Tag name %1 is a reserved name which cannot be manipulated this way.").arg(tag));
+        return;
+    }
+
+    emit tagAdded(tag);
 }
 
 }
