@@ -100,7 +100,7 @@ void ThreadingMsgListModel::handleDataChanged( const QModelIndex& topLeft, const
     if ( unknownUids.contains(topLeft) ) {
         // The message wasn't fully synced before, and now it is
         unknownUids.removeOne(topLeft);
-        qDebug() << "Got UID for seq#" << topLeft.row() + 1;
+        logTrace(QString::fromAscii("Got UID for seq# %1").arg(topLeft.row() + 1));
         wantThreading();
         return;
     }
@@ -113,7 +113,7 @@ void ThreadingMsgListModel::handleDataChanged( const QModelIndex& topLeft, const
     // the translated indexes are invalid, so we have to handle that gracefully.
     // "Doing nothing" could be a reasonable thing.
     if ( ! first.isValid() || ! second.isValid() ) {
-        qDebug() << "Got dataChanged() for an index which is not recognized in the threaded proxy";
+        logTrace(QString::fromAscii("Got dataChanged() for an index which is not recognized in the threaded proxy"));
         return;
     }
 
@@ -378,7 +378,7 @@ void ThreadingMsgListModel::handleRowsInserted( const QModelIndex& parent, int s
         _threading[0].children << node.internalId;
         ptrToInternal[node.ptr] = node.internalId;
         if (!node.uid) {
-            qDebug() << "Message" << index.row() << "has unkown UID";
+            logTrace(QString::fromAscii("Message %1 has unknown UID").arg(index.row()));
             unknownUids << index;
         }
     }
@@ -435,7 +435,7 @@ void ThreadingMsgListModel::updateNoThreading()
         allIds.append(node.internalId);
         newPtrToInternal[node.ptr] = node.internalId;
         if (!node.uid) {
-            qDebug() << "Message" << index.row() << "has unkown UID";
+            logTrace(QString::fromAscii("Message %1 has unknown UID").arg(index.row()));
             unknownUids << index;
         }
     }
@@ -495,8 +495,8 @@ void ThreadingMsgListModel::wantThreading()
 
     uint highestUidInThreadingLowerBound = findHighEnoughNumber(mapping, highestUidInMailbox);
 
-    qDebug() << "ThreadingMsgListModel::wantThreading: THREAD contains info about UID" << highestUidInThreadingLowerBound <<
-                "(or higher), mailbox has" << highestUidInMailbox;
+    logTrace(QString::fromAscii("ThreadingMsgListModel::wantThreading: THREAD contains info about UID %1 (or higher), mailbox has %2")
+             .arg(QString::number(highestUidInThreadingLowerBound), QString::number(highestUidInMailbox)));
 
     if (highestUidInThreadingLowerBound >= highestUidInMailbox) {
         // There's no point asking for data at this point, we shall just apply threading
@@ -584,14 +584,17 @@ bool ThreadingMsgListModel::shouldIgnoreThisThreadingResponse(const QModelIndex 
         return true;
     }
 
-    if ( algorithm != requestedAlgorithm ) {
-        qDebug() << "Weird, asked for threading via" << requestedAlgorithm << " but got" << algorithm <<
-                "instead -- ignoring.";
+    if (algorithm != requestedAlgorithm) {
+        logTrace(QString::fromAscii("Weird, asked for threading via %1 but got %2 instead -- ignoring")
+                 .arg(requestedAlgorithm, algorithm));
         return true;
     }
 
     if ( searchCriteria.size() != 1 || searchCriteria.front() != QLatin1String("ALL") ) {
-        qDebug() << "Weird, requesting messages matching ALL, but got this instead: " << searchCriteria;
+        QString buf;
+        QTextStream ss(&buf);
+        logTrace(QString::fromAscii("Weird, requesting messages matching ALL, but got this instead: %1")
+                 .arg(searchCriteria.join(QString::fromAscii(", "))));
         return true;
     }
 
@@ -643,7 +646,7 @@ void ThreadingMsgListModel::applyThreading(const QVector<Imap::Responses::Thread
 {
     if ( ! unknownUids.isEmpty() ) {
         // Some messages have UID zero, which means that they weren't loaded yet. Too bad.
-        qDebug() << unknownUids.size() << "messages have 0 UID";
+        logTrace(QString::fromAscii("%1 messages have 0 UID").arg(unknownUids.size()));
         return;
     }
 
@@ -734,13 +737,9 @@ void ThreadingMsgListModel::registerThreading( const QVector<Imap::Responses::Th
         } else {
             QHash<uint,void*>::const_iterator ptrIt = uidToPtr.find( node.num );
             if ( ptrIt == uidToPtr.constEnd() ) {
-                QByteArray buf;
-                QTextStream ss(&buf);
-                ss << "The THREAD response references a message with UID " << node.num << ", which is not recognized at this point. ";
-                ss << "More information is available in the IMAP protocol log.";
-                ss.flush();
-                qDebug() << buf.constData();
-
+                logTrace(QString::fromAscii("The THREAD response references a message with UID %1, which is not recognized "
+                                            "at this point. More information is available in the IMAP protocol log.")
+                         .arg(node.num));
                 // It's possible that the THREAD response came from cache; in that case, it isn't pretty, but completely harmless
                 // FIXME: it'd be great to be able to distinguish between data sent by the IMAP server and a stale cache...
                 continue;
@@ -922,6 +921,33 @@ bool ThreadingMsgListModel::threadContainsUnreadMessages(const uint root) const
         queue.append(it->children);
     }
     return false;
+}
+
+/** @short Pass a debugging message to the real Model, if possible
+
+If we don't know what the real model is, just dump it through the qDebug(); that's better than nothing.
+*/
+void ThreadingMsgListModel::logTrace(const QString &message)
+{
+    if (!sourceModel()) {
+        qDebug() << message;
+        return;
+    }
+    QModelIndex idx = sourceModel()->index(0, 0);
+    if (!idx.isValid()) {
+        qDebug() << message;
+        return;
+    }
+
+    // Got to find out the real model and also translate the index to one belonging to a real Model
+    Q_ASSERT(idx.model());
+    const Model *realModel;
+    QModelIndex realIndex;
+    Model::realTreeItem(idx, &realModel, &realIndex);
+    Q_ASSERT(realModel);
+    QModelIndex mailboxIndex = const_cast<Model*>(realModel)->findMailboxForItems(QModelIndexList() << realIndex);
+    const_cast<Model*>(realModel)->logTrace(mailboxIndex, LOG_OTHER,
+        QString::fromAscii("ThreadingMsgListModel for %1").arg(mailboxIndex.data(RoleMailboxName).toString()), message);
 }
 
 }

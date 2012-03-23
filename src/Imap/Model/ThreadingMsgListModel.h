@@ -142,6 +142,8 @@ private:
     /** @short Return some number from the thread mapping @arg mapping which is either the highest among them, or at least as high as the marker*/
     static uint findHighEnoughNumber(const QVector<Imap::Responses::ThreadingNode> &mapping, uint marker);
 
+    void logTrace(const QString &message);
+
 
     ThreadingMsgListModel& operator=( const ThreadingMsgListModel& ); // don't implement
     ThreadingMsgListModel( const ThreadingMsgListModel& ); // don't implement
