@@ -1305,22 +1305,30 @@ QModelIndex Model::findMailboxForItems( const QModelIndexList& items )
         TreeItem* item = static_cast<TreeItem*>( index.internalPointer() );
         Q_ASSERT(item);
 
-        TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( item );
-        if ( ! message ) {
-            if ( TreeItemPart* part = dynamic_cast<TreeItemPart*>( item ) ) {
-                message = part->message();
-            } else {
-                throw CantHappen( "findMailboxForItems() called on strange items");
+        if ((currentMailbox = dynamic_cast<TreeItemMailbox*>(item))) {
+            // yes, that's an assignment, not a comparison
+
+            // This case is OK
+        } else {
+            // TreeItemMessage and TreeItemPart have to walk the tree, which is why they are lumped together in this branch
+            TreeItemMessage *message = dynamic_cast<TreeItemMessage*>(item);
+            if (!message) {
+                if (TreeItemPart *part = dynamic_cast<TreeItemPart*>(item)) {
+                    message = part->message();
+                } else {
+                    throw CantHappen("findMailboxForItems() called on strange items");
+                }
             }
+            Q_ASSERT(message);
+            TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>(message->parent());
+            Q_ASSERT(list);
+            currentMailbox = dynamic_cast<TreeItemMailbox*>(list->parent());
         }
-        Q_ASSERT(message);
-        TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( message->parent() );
-        Q_ASSERT(list);
-        currentMailbox = dynamic_cast<TreeItemMailbox*>( list->parent() );
+
         Q_ASSERT(currentMailbox);
-        if ( ! mailbox ) {
+        if (!mailbox) {
             mailbox = currentMailbox;
-        } else if ( mailbox != currentMailbox ) {
+        } else if (mailbox != currentMailbox) {
             throw CantHappen( "Messages from several mailboxes");
         }
     }
