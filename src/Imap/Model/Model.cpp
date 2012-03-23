@@ -135,6 +135,17 @@ void Model::responseReceived( Parser *parser )
     while ( it.value().parser->hasResponse() ) {
         QSharedPointer<Imap::Responses::AbstractResponse> resp = it.value().parser->getResponse();
         Q_ASSERT( resp );
+        // Always log BAD responses from a central place. They're bad enough to warant an extra treatment.
+        // FIXME: is it worth an UI popup?
+        if (Responses::State *stateResponse = dynamic_cast<Responses::State*>(resp.data())) {
+            if (stateResponse->kind == Responses::BAD) {
+                QString buf;
+                QTextStream s(&buf);
+                s << *stateResponse;
+                logTrace(parser->parserId(), LOG_OTHER, QString::fromAscii("Model"), QString::fromAscii("BAD response: %1").arg(buf));
+                qDebug() << buf;
+            }
+        }
         try {
             /* At this point, we want to iterate over all active tasks and try them
             for processing the server's responses (the plug() method). However, this
