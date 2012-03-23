@@ -490,7 +490,7 @@ private:
 
     QMap<QByteArray,QByteArray> m_idResult;
 
-    QSet<QString> m_specialFlagNames;
+    QHash<QString,QString> m_specialFlagNames;
     mutable QSet<QString> m_flagLiterals;
 
 protected slots:

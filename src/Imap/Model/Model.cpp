@@ -114,11 +114,11 @@ Model::Model( QObject* parent, AbstractCache* cache, SocketFactoryPtr socketFact
 
     m_taskModel = new TaskPresentationModel(this);
 
-    m_specialFlagNames.insert(QLatin1String("\\seen"));
-    m_specialFlagNames.insert(QLatin1String("\\deleted"));
-    m_specialFlagNames.insert(QLatin1String("\\answered"));
-    m_specialFlagNames.insert(QLatin1String("$forwarded"));
-    m_specialFlagNames.insert(QLatin1String("\\recent"));
+    m_specialFlagNames[QLatin1String("\\seen")] = QLatin1String("\\Seen");
+    m_specialFlagNames[QLatin1String("\\deleted")] = QLatin1String("\\Deleted");
+    m_specialFlagNames[QLatin1String("\\answered")] = QLatin1String("\\Answered");
+    m_specialFlagNames[QLatin1String("\\recent")] = QLatin1String("\\Recent");
+    m_specialFlagNames[QLatin1String("$forwarded")] = QLatin1String("$Forwarded");
 }
 
 Model::~Model()
@@ -1473,14 +1473,14 @@ QStringList Model::normalizeFlags(const QStringList &source) const
     for (QStringList::const_iterator flag = source.constBegin(); flag != source.constEnd(); ++flag) {
         // At first, perform a case-insensitive lookup in the (rather short) list of known special flags
         QString lowerCase = flag->toLower();
-        QSet<QString>::const_iterator it = m_specialFlagNames.constFind(lowerCase);
-        if (it != m_specialFlagNames.constEnd()) {
-            res.append(*it);
+        QHash<QString,QString>::const_iterator known = m_specialFlagNames.constFind(lowerCase);
+        if (known != m_specialFlagNames.constEnd()) {
+            res.append(*known);
             continue;
         }
 
         // If it isn't a special flag, just check whether it's been encountered already
-        it = m_flagLiterals.constFind(*flag);
+        QSet<QString>::const_iterator it = m_flagLiterals.constFind(*flag);
         if (it == m_flagLiterals.constEnd()) {
             // Not in cache, so add it and return an implicitly shared copy
             m_flagLiterals.insert(*flag);
