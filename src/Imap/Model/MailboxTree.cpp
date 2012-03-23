@@ -822,27 +822,27 @@ QVariant TreeItemMessage::data( Model* const model, int role )
 
 bool TreeItemMessage::isMarkedAsDeleted() const
 {
-    return _flags.contains(QLatin1String("\\deleted"));
+    return _flags.contains(QLatin1String("\\Deleted"));
 }
 
 bool TreeItemMessage::isMarkedAsRead() const
 {
-    return _flags.contains(QLatin1String("\\seen"));
+    return _flags.contains(QLatin1String("\\Seen"));
 }
 
 bool TreeItemMessage::isMarkedAsReplied() const
 {
-    return _flags.contains(QLatin1String("\\answered"));
+    return _flags.contains(QLatin1String("\\Answered"));
 }
 
 bool TreeItemMessage::isMarkedAsForwarded() const
 {
-    return _flags.contains(QLatin1String("$forwarded"));
+    return _flags.contains(QLatin1String("$Forwarded"));
 }
 
 bool TreeItemMessage::isMarkedAsRecent() const
 {
-    return _flags.contains(QLatin1String("\\recent"));
+    return _flags.contains(QLatin1String("\\Recent"));
 }
 
 uint TreeItemMessage::uid() const
