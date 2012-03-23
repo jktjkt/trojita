@@ -121,7 +121,7 @@ int MsgListModel::columnCount( const QModelIndex& parent ) const
 
 QModelIndex MsgListModel::mapToSource( const QModelIndex& proxyIndex ) const
 {
-    if ( ! msgList )
+    if (!msgList || !proxyIndex.isValid())
         return QModelIndex();
 
     if ( proxyIndex.parent().isValid() )
