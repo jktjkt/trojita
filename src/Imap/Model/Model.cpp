@@ -1469,6 +1469,32 @@ void Model::logTrace(uint parserId, const LogKind kind, const QString &source, c
     emit logged(parserId, m);
 }
 
+/** @short Overloaded version which accepts a QModelIndex of an item which is somehow "related" to the logged message
+
+The relevantIndex argument is used for finding out what parser to send the message to.
+*/
+void Model::logTrace(const QModelIndex &relevantIndex, const LogKind kind, const QString &source, const QString &message)
+{
+    QModelIndex translatedIndex;
+    realTreeItem(relevantIndex, 0, &translatedIndex);
+
+    // It appears that it's OK to use 0 here; the attached loggers apparently deal with random parsers appearing just OK
+    uint parserId = 0;
+
+    if (translatedIndex.isValid()) {
+        Q_ASSERT(translatedIndex.model() == this);
+        QModelIndex mailboxIndex = findMailboxForItems(QModelIndexList() << translatedIndex);
+        Q_ASSERT(mailboxIndex.isValid());
+        TreeItemMailbox *mailboxPtr = dynamic_cast<TreeItemMailbox*>(static_cast<TreeItem*>(mailboxIndex.internalPointer()));
+        Q_ASSERT(mailboxPtr);
+        if (mailboxPtr->maintainingTask) {
+            parserId = mailboxPtr->maintainingTask->parser->parserId();
+        }
+    }
+
+    logTrace(parserId, kind, source, message);
+}
+
 QAbstractItemModel *Model::taskModel() const
 {
     return m_taskModel;

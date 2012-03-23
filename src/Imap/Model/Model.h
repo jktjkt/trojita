@@ -232,6 +232,7 @@ this message happen again.
 
     /** @short Log an IMAP-related message */
     void logTrace(uint parserId, const LogKind kind, const QString &source, const QString &message);
+    void logTrace(const QModelIndex &relevantIndex, const LogKind kind, const QString &source, const QString &message);
 
     /** @short Return the server's response to the ID command
 
