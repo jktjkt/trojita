@@ -1467,15 +1467,15 @@ sharing that is built into QString.
 
 At the same time, some well-known flags are converted to their "canonical" form (like \\SEEN -> \\Seen etc).
 */
-QSet<QString> Model::normalizeFlags(const QSet<QString> &source) const
+QStringList Model::normalizeFlags(const QStringList &source) const
 {
-    QSet<QString> res;
-    for (QSet<QString>::const_iterator flag = source.constBegin(); flag != source.constEnd(); ++flag) {
+    QStringList res;
+    for (QStringList::const_iterator flag = source.constBegin(); flag != source.constEnd(); ++flag) {
         // At first, perform a case-insensitive lookup in the (rather short) list of known special flags
         QString lowerCase = flag->toLower();
         QSet<QString>::const_iterator it = m_specialFlagNames.constFind(lowerCase);
         if (it != m_specialFlagNames.constEnd()) {
-            res.insert(*it);
+            res.append(*it);
             continue;
         }
 
@@ -1484,12 +1484,15 @@ QSet<QString> Model::normalizeFlags(const QSet<QString> &source) const
         if (it == m_flagLiterals.constEnd()) {
             // Not in cache, so add it and return an implicitly shared copy
             m_flagLiterals.insert(*flag);
-            res.insert(*flag);
+            res.append(*flag);
         } else {
             // It's in the cache already, se let's QString share the data
-            res.insert(*it);
+            res.append(*it);
         }
     }
+    // Always sort the flags when performing normalization to obtain reasonable results and be ready for possible future
+    // deduplication of the actual QLists
+    res.sort();
     return res;
 }
 

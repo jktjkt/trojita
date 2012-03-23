@@ -101,12 +101,12 @@ void CombinedCache::clearMessage( const QString mailbox, uint uid )
     _diskPartCache->clearMessage( mailbox, uid );
 }
 
-QSet<QString> CombinedCache::msgFlags(const QString &mailbox, uint uid) const
+QStringList CombinedCache::msgFlags(const QString &mailbox, uint uid) const
 {
     return _sqlCache->msgFlags(mailbox, uid);
 }
 
-void CombinedCache::setMsgFlags(const QString &mailbox, uint uid, const QSet<QString> &flags)
+void CombinedCache::setMsgFlags(const QString &mailbox, uint uid, const QStringList &flags)
 {
     _sqlCache->setMsgFlags(mailbox, uid, flags);
 }

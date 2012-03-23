@@ -245,7 +245,7 @@ this message happen again.
     */
     QMap<QByteArray,QByteArray> serverId() const;
 
-    QSet<QString> normalizeFlags(const QSet<QString> &source) const;
+    QStringList normalizeFlags(const QStringList &source) const;
 
 public slots:
     /** @short Ask for an updated list of mailboxes on the server */

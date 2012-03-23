@@ -74,8 +74,8 @@ public:
     virtual MessageDataBundle messageMetadata( const QString& mailbox, uint uid ) const;
     virtual void setMessageMetadata( const QString& mailbox, uint uid, const MessageDataBundle& metadata );
 
-    virtual QSet<QString> msgFlags(const QString &mailbox, uint uid) const;
-    virtual void setMsgFlags(const QString &mailbox, uint uid, const QSet<QString> &flags);
+    virtual QStringList msgFlags(const QString &mailbox, uint uid) const;
+    virtual void setMsgFlags(const QString &mailbox, uint uid, const QStringList &flags);
 
     virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId ) const;
     virtual void setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data );

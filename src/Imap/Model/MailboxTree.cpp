@@ -431,8 +431,7 @@ void TreeItemMailbox::handleFetchResponse( Model* const model,
             changedParts.append( part );
         } else if ( it.key() == "FLAGS" ) {
             // Only emit signals when the flags have actually changed
-            QStringList newFlagList = dynamic_cast<const Responses::RespData<QStringList>&>(*(it.value())).data;
-            QSet<QString> newFlags = model->normalizeFlags(newFlagList.toSet());
+            QStringList newFlags = model->normalizeFlags(dynamic_cast<const Responses::RespData<QStringList>&>(*(it.value())).data);
             bool forceChange = (message->_flags != newFlags);
             message->setFlags(list, newFlags, forceChange);
             if (forceChange) {
@@ -751,11 +750,8 @@ QVariant TreeItemMessage::data( Model* const model, int role )
 
     // FLAGS shouldn't trigger message fetching, either
     if ( role == RoleMessageFlags ) {
-        // We're using QSet<QString> which does not guarantee the order. In order to be reasonably deterministic, we always sort
-        // the flags here.
-        QStringList res = _flags.toList();
-        res.sort();
-        return res;
+        // The flags are already sorted by Model::normalizeFlags()
+        return _flags;
     }
 
     fetch( model );
@@ -867,7 +863,7 @@ uint TreeItemMessage::size( Model* const model )
     return _size;
 }
 
-void TreeItemMessage::setFlags(TreeItemMsgList *list, const QSet<QString> &flags, bool forceChange)
+void TreeItemMessage::setFlags(TreeItemMsgList *list, const QStringList &flags, bool forceChange)
 {
     bool wasSeen = isMarkedAsRead();
     _flags = flags;

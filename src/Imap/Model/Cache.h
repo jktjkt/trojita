@@ -90,9 +90,9 @@ public:
     virtual void setMessageMetadata( const QString& mailbox, uint uid, const MessageDataBundle& metadata ) = 0;
 
     /** @short Retrieve flags for one message in a mailbox */
-    virtual QSet<QString> msgFlags(const QString &mailbox, uint uid) const = 0;
+    virtual QStringList msgFlags(const QString &mailbox, uint uid) const = 0;
     /** @short Save flags for one message in mailbox */
-    virtual void setMsgFlags(const QString &mailbox, uint uid, const QSet<QString> &flags) = 0;
+    virtual void setMsgFlags(const QString &mailbox, uint uid, const QStringList &flags) = 0;
 
     /** @short Return part data or a null QByteArray if none available */
     virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId ) const = 0;

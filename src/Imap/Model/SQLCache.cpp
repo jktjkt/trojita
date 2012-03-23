@@ -595,25 +595,25 @@ void SQLCache::clearMessage( const QString mailbox, uint uid )
     }
 }
 
-QSet<QString> SQLCache::msgFlags(const QString &mailbox, uint uid) const
+QStringList SQLCache::msgFlags(const QString &mailbox, uint uid) const
 {
+    QStringList res;
     queryMessageFlags.bindValue( 0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox );
     queryMessageFlags.bindValue( 1, uid );
     if ( ! queryMessageFlags.exec() ) {
         emitError( tr("Query queryMessageFlags failed"), queryMessageFlags );
-        return QSet<QString>();
+        return res;
     }
-    QStringList res;
     if ( queryMessageFlags.first() ) {
         QDataStream stream( queryMessageFlags.value(0).toByteArray() );
         stream.setVersion(streamVersion);
         stream >> res;
     }
     // "Not found" is not an error here
-    return res.toSet();
+    return res;
 }
 
-void SQLCache::setMsgFlags(const QString &mailbox, uint uid, const QSet<QString> &flags)
+void SQLCache::setMsgFlags(const QString &mailbox, uint uid, const QStringList &flags)
 {
 #ifdef CACHE_DEBUG
     qDebug() << "Updating flags for" << mailbox << uid;
@@ -624,7 +624,7 @@ void SQLCache::setMsgFlags(const QString &mailbox, uint uid, const QSet<QString>
     QByteArray buf;
     QDataStream stream( &buf, QIODevice::ReadWrite );
     stream.setVersion(streamVersion);
-    stream << flags.toList();
+    stream << flags;
     querySetMessageFlags.bindValue( 2, buf );
     if ( ! querySetMessageFlags.exec() ) {
         emitError( tr("Query querySetMessageFlags failed"), querySetMessageFlags );

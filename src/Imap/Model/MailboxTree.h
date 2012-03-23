@@ -199,14 +199,14 @@ class TreeItemMessage: public TreeItem {
     Message::Envelope _envelope;
     uint _size;
     uint _uid;
-    QSet<QString> _flags;
+    QStringList _flags;
     bool _flagsHandled;
     int _offset;
     // These are lazily-populated from a const method, so they got to be mutable
     mutable TreeItemPart *_partHeader;
     mutable TreeItemPart *_partText;
     /** @short Set FLAGS and maintain the unread message counter */
-    void setFlags(TreeItemMsgList *list, const QSet<QString> &flags, bool forceChange);
+    void setFlags(TreeItemMsgList *list, const QStringList &flags, bool forceChange);
 public:
     TreeItemMessage( TreeItem* parent );
     ~TreeItemMessage();
