@@ -29,6 +29,17 @@ TagListWidget::TagListWidget(QWidget *parent) :
 
     parentLayout->addWidget( new QLabel(tr("<b>Tags:</b>")) );
     parentLayout->addWidget(addButton);
+
+    m_ignoredFlags.insert(QLatin1String("\\seen"));
+    m_ignoredFlags.insert(QLatin1String("\\recent"));
+    m_ignoredFlags.insert(QLatin1String("\\deleted"));
+    m_ignoredFlags.insert(QLatin1String("\\answered"));
+    // We do want to show \Flagged, though
+    m_ignoredFlags.insert(QLatin1String("\\draft"));
+    m_ignoredFlags.insert(QLatin1String("$mdnsent"));
+    m_ignoredFlags.insert(QLatin1String("$forwarded"));
+    m_ignoredFlags.insert(QLatin1String("$submitpending"));
+    m_ignoredFlags.insert(QLatin1String("$submitted"));
 }
 
 void TagListWidget::setTagList(QStringList list)
@@ -36,7 +47,9 @@ void TagListWidget::setTagList(QStringList list)
     empty();
     parentLayout->removeWidget(addButton);
 
-    foreach(QString tagName, list) {
+    foreach(const QString &tagName, list) {
+        if (m_ignoredFlags.contains(tagName.toLower()))
+            continue;
         TagWidget* lbl = new TagWidget(tagName, "x");
         parentLayout->addWidget(lbl);
         connect(lbl, SIGNAL(removeClicked(QString)), this, SIGNAL(tagRemoved(QString)));
