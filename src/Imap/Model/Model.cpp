@@ -858,11 +858,14 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
 
 void Model::slotParserDisconnected(Imap::Parser *parser, const QString msg)
 {
-    logTrace(parser->parserId(), LOG_PARSE_ERROR, QString(), msg);
-    emit connectionError(msg);
-
-    if (!parser)
-        return;
+    if (!accessParser(parser).logoutCmd.isEmpty()) {
+        // If we're already scheduled for logout, don't treat connection errors as, well, errors.
+        // This branch can be reached by e.g. user selecting offline after a network change, with logout
+        // already on the fly.
+    } else {
+        logTrace(parser->parserId(), LOG_PARSE_ERROR, QString(), msg);
+        emit connectionError(msg);
+    }
 
     // This function is *not* called from inside the responseReceived(), so we have to remove the parser from the list, too
     killParser(parser, PARSER_KILL_EXPECTED);
