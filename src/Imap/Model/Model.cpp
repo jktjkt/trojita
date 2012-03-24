@@ -238,6 +238,7 @@ void Model::handleState(Imap::Parser *ptr, const Imap::Responses::State *const r
             break;
         case OK:
             if (resp->respCode == NONE) {
+                // This one probably should not be logged at all; dovecot sends these reponses to keep NATted connections alive
                 break;
             } else {
                 logTrace(ptr->parserId(), LOG_OTHER, QString(), tr("Warning: unhandled untagged OK with a response code"));
