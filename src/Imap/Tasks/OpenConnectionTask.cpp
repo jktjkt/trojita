@@ -135,6 +135,11 @@ bool OpenConnectionTask::handleStateHelper( const Imap::Responses::State* const 
                 message = tr("%1\r\n\r\n%2").arg(message, resp->message);
             }
             model->emitAuthFailed(message);
+            if (model->accessParser(parser).connState == CONN_STATE_LOGOUT) {
+                // The server has closed the conenction
+                _failed(QString::fromAscii("Connection closed after a failed login"));
+                return true;
+            }
             loginCmd = model->performAuthentication( parser );
 
             if (loginCmd == CommandHandle()) {
