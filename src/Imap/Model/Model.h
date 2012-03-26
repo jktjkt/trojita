@@ -96,8 +96,35 @@ class Model: public QAbstractItemModel {
         /** @short LIST responses which were not processed yet */
         QList<Responses::List> listResponses;
 
-        ParserState( Parser* _parser ): parser(_parser), connState(CONN_STATE_NONE), maintainingTask(0), capabilitiesFresh(false) {}
-        ParserState(): connState(CONN_STATE_NONE), maintainingTask(0), capabilitiesFresh(false) {}
+        /** @short Is the connection currently being processed? */
+        bool beingProcessed;
+
+        ParserState( Parser* _parser ): parser(_parser), connState(CONN_STATE_NONE), maintainingTask(0), capabilitiesFresh(false),
+            beingProcessed(false) {}
+        ParserState(): connState(CONN_STATE_NONE), maintainingTask(0), capabilitiesFresh(false), beingProcessed(false) {}
+    };
+
+    /** @short Guards access to the ParserState
+
+    Slots which are connected to signals directly or indirectly connected to this Model could, unfortunately, re-enter the event
+    loop.  When this happens, other events could possibly get delivered leading to activation of Model's "dangerous" slots:
+
+        - responseReceived()
+        - slotParserDisconnected()
+        - slotParseError()
+
+    These slots are dangerous because they have the potential of re-entering the event loop and also could delete the Parsers/Tasks.
+    Thhat's why we have to use a crude reference counter to guarantee that our objects aren't deleted on return from a nested event
+    loop until the slots triggered by the *outer* event loops have finished.
+
+    See https://projects.flaska.net/issues/467 for a tiny bit of detail.
+
+    */
+    struct ParserStateGuard {
+        ParserState &m_s;
+        bool wasActive;
+        ParserStateGuard(ParserState &s);
+        ~ParserStateGuard();
     };
 
     /** @short Policy for accessing network */
@@ -460,7 +487,8 @@ private:
     /** @short Is the reason for killing the parser an expected one? */
     typedef enum {
         PARSER_KILL_EXPECTED, /**< @short Normal operation */
-        PARSER_KILL_HARD /**< @short Sudden, unexpected death */
+        PARSER_KILL_HARD, /**< @short Sudden, unexpected death */
+        PARSER_JUST_DELETE_LATER /**< @short Just call deleteLater(), nothing else */
     } ParserKillingMethod;
 
     /** @short Dispose of the parser in a C++-safe way */

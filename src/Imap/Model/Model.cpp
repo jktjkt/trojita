@@ -132,7 +132,10 @@ void Model::responseReceived( Parser *parser )
     QMap<Parser*,ParserState>::iterator it = _parsers.find( parser );
     Q_ASSERT( it != _parsers.end() );
 
-    while ( it->parser->hasResponse() ) {
+    ParserStateGuard guard(*it);
+    Q_ASSERT(it->parser);
+
+    while (it->parser && it->parser->hasResponse()) {
         QSharedPointer<Imap::Responses::AbstractResponse> resp = it->parser->getResponse();
         Q_ASSERT( resp );
         // Always log BAD responses from a central place. They're bad enough to warant an extra treatment.
@@ -200,16 +203,18 @@ void Model::responseReceived( Parser *parser )
         } catch (Imap::ImapException &e) {
             uint parserId = it->parser->parserId();
             killParser(it->parser, PARSER_KILL_HARD);
-            _parsers.erase(it);
-            m_taskModel->reset();
             broadcastParseError( parserId, QString::fromStdString( e.exceptionClass() ), e.what(), e.line(), e.offset() );
-            return;
+            break;
         }
-        if (!it->parser) {
-            // it got deleted
+    }
+
+    if (!it->parser) {
+        // It's dead now
+
+        if (!guard.wasActive) {
+            killParser(it.key(), PARSER_JUST_DELETE_LATER);
             _parsers.erase(it);
             m_taskModel->reset();
-            break;
         }
     }
 }
@@ -858,6 +863,10 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
 
 void Model::slotParserDisconnected(Imap::Parser *parser, const QString msg)
 {
+    Q_ASSERT(parser);
+    ParserState &state = accessParser(parser);
+    ParserStateGuard guard(state);
+
     if (!accessParser(parser).logoutCmd.isEmpty()) {
         // If we're already scheduled for logout, don't treat connection errors as, well, errors.
         // This branch can be reached by e.g. user selecting offline after a network change, with logout
@@ -869,8 +878,12 @@ void Model::slotParserDisconnected(Imap::Parser *parser, const QString msg)
 
     // This function is *not* called from inside the responseReceived(), so we have to remove the parser from the list, too
     killParser(parser, PARSER_KILL_EXPECTED);
-    _parsers.remove(parser);
-    m_taskModel->slotParserDeleted(parser);
+
+    if (!guard.wasActive) {
+        killParser(parser, PARSER_JUST_DELETE_LATER);
+        _parsers.remove(parser);
+        m_taskModel->slotParserDeleted(parser);
+    }
 }
 
 void Model::broadcastParseError( const uint parser, const QString& exceptionClass, const QString& errorMessage, const QByteArray& line, int position )
@@ -890,13 +903,18 @@ void Model::broadcastParseError( const uint parser, const QString& exceptionClas
 void Model::slotParseError(Parser *parser, const QString &exceptionClass, const QString &errorMessage, const QByteArray &line, int position)
 {
     Q_ASSERT(parser);
+    ParserState &state = accessParser(parser);
+    ParserStateGuard guard(state);
 
     broadcastParseError(parser->parserId(), exceptionClass, errorMessage, line, position);
 
-    // This function is *not* called from inside the responseReceived(), so we have to remove the parser from the list, too
     killParser(parser, PARSER_KILL_HARD);
-    _parsers.remove(parser);
-    m_taskModel->slotParserDeleted(parser);
+
+    if (!guard.wasActive) {
+        killParser(parser, PARSER_JUST_DELETE_LATER);
+        _parsers.remove(parser);
+        m_taskModel->slotParserDeleted(parser);
+    }
 }
 
 void Model::switchToMailbox( const QModelIndex& mbox )
@@ -1166,13 +1184,21 @@ void Model::parserIsSendingCommand( Parser *parser, const QString& tag)
 
 void Model::killParser(Parser *parser, ParserKillingMethod method)
 {
+    if (method == PARSER_JUST_DELETE_LATER) {
+        Q_ASSERT(accessParser(parser).parser == 0);
+        Q_FOREACH(ImapTask *task, accessParser(parser).activeTasks) {
+            task->deleteLater();
+        }
+        parser->deleteLater();
+        return;
+    }
+
     Q_FOREACH(ImapTask *task, accessParser(parser).activeTasks) {
         task->die();
-        task->deleteLater();
     }
 
     parser->disconnect();
-    parser->deleteLater();
+    Q_ASSERT(accessParser(parser).parser);
     accessParser(parser).parser = 0;
     switch (method) {
     case PARSER_KILL_EXPECTED:
@@ -1180,6 +1206,9 @@ void Model::killParser(Parser *parser, ParserKillingMethod method)
         return;
     case PARSER_KILL_HARD:
         logTrace(parser->parserId(), LOG_IO_WRITTEN, QString(), "*** Connection killed.");
+        return;
+    case PARSER_JUST_DELETE_LATER:
+        // already handled
         return;
     }
     Q_ASSERT(false);
@@ -1543,6 +1572,21 @@ QStringList Model::normalizeFlags(const QStringList &source) const
     // deduplication of the actual QLists
     res.sort();
     return res;
+}
+
+Model::ParserStateGuard::ParserStateGuard(ParserState &s):
+    m_s(s), wasActive(m_s.beingProcessed)
+{
+    if (!wasActive) {
+        m_s.beingProcessed = true;
+    }
+}
+
+Model::ParserStateGuard::~ParserStateGuard()
+{
+    if (!wasActive) {
+        m_s.beingProcessed = false;
+    }
 }
 
 }
