@@ -829,6 +829,10 @@ void Model::setNetworkPolicy( const NetworkPolicy policy )
     switch ( policy ) {
         case NETWORK_OFFLINE:
             for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
+                if (!it->parser || it->connState == CONN_STATE_LOGOUT) {
+                    // there's no point in sending LOGOUT over these
+                    continue;
+                }
                 Q_ASSERT( it->parser );
                 if ( it->maintainingTask ) {
                     // First of all, give the maintaining task a chance to finish its housekeeping
