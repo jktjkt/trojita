@@ -200,6 +200,12 @@ void Model::responseReceived( Parser *parser )
 #endif
                 resp->plug( it->parser, this );
             }
+        } catch (Imap::StartTlsFailed &e) {
+            uint parserId = it->parser->parserId();
+            killParser(it->parser, PARSER_KILL_HARD);
+            logTrace(parserId, LOG_PARSE_ERROR, QString::fromStdString(e.exceptionClass()), QString::fromAscii("STARTTLS has failed"));
+            emit connectionError(tr("<p>The server has refused to start the encryption thourgh the STARTTLS command.</p>"));
+            break;
         } catch (Imap::ImapException &e) {
             uint parserId = it->parser->parserId();
             killParser(it->parser, PARSER_KILL_HARD);
