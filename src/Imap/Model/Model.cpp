@@ -132,8 +132,8 @@ void Model::responseReceived( Parser *parser )
     QMap<Parser*,ParserState>::iterator it = _parsers.find( parser );
     Q_ASSERT( it != _parsers.end() );
 
-    while ( it.value().parser->hasResponse() ) {
-        QSharedPointer<Imap::Responses::AbstractResponse> resp = it.value().parser->getResponse();
+    while ( it->parser->hasResponse() ) {
+        QSharedPointer<Imap::Responses::AbstractResponse> resp = it->parser->getResponse();
         Q_ASSERT( resp );
         // Always log BAD responses from a central place. They're bad enough to warant an extra treatment.
         // FIXME: is it worth an UI popup?
@@ -195,7 +195,7 @@ void Model::responseReceived( Parser *parser )
 #ifdef DEBUG_TASK_ROUTING
                 qDebug() << "Handling by the Model itself";
 #endif
-                resp->plug( it.value().parser, this );
+                resp->plug( it->parser, this );
             }
         } catch (Imap::ImapException &e) {
             uint parserId = it->parser->parserId();
@@ -205,7 +205,7 @@ void Model::responseReceived( Parser *parser )
             broadcastParseError( parserId, QString::fromStdString( e.exceptionClass() ), e.what(), e.line(), e.offset() );
             return;
         }
-        if (!it.value().parser) {
+        if (!it->parser) {
             // it got deleted
             _parsers.erase(it);
             m_taskModel->reset();
