@@ -1584,20 +1584,5 @@ QStringList Model::normalizeFlags(const QStringList &source) const
     return res;
 }
 
-ParserStateGuard::ParserStateGuard(ParserState &s):
-    m_s(s), wasActive(m_s.beingProcessed)
-{
-    if (!wasActive) {
-        m_s.beingProcessed = true;
-    }
-}
-
-ParserStateGuard::~ParserStateGuard()
-{
-    if (!wasActive) {
-        m_s.beingProcessed = false;
-    }
-}
-
 }
 }
