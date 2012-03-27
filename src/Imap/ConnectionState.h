@@ -30,10 +30,14 @@ namespace Imap {
         CONN_STATE_NONE, /**< @short Initial state */
         CONN_STATE_HOST_LOOKUP, /**< @short Resolving hostname */
         CONN_STATE_CONNECTING, /**< @short Connecting to the remote host or starting the process */
-        CONN_STATE_STARTTLS, /**< @short Negotiating authentication */
+        CONN_STATE_CONNECTED_PRETLS_PRECAPS, /**< @short Connection has been established but there's been no CAPABILITY yet */
+        CONN_STATE_CONNECTED_PRETLS, /**< @short Connection has been established and capabilities are known but STARTTLS remains to be issued */
+        CONN_STATE_STARTTLS, /**< @short Negotiating encryption */
+        CONN_STATE_ESTABLISHED_PRECAPS, /**< @short Waiting for capabilities after the encryption has been set up */
         CONN_STATE_ESTABLISHED, /**< @short The connection is ready, including optional encryption */
         CONN_STATE_LOGIN, /**< @short Performing login */
         CONN_STATE_LOGIN_FAILED, /**< @short Failed to log in */
+        CONN_STATE_POSTAUTH_PRECAPS, /**< @short Authenticated, but capabilities weren't refreshed yet */
         CONN_STATE_AUTHENTICATED, /**< @short Logged in */
         CONN_STATE_SELECTING, /**< @short Selecting a mailbox -- initial state */
         CONN_STATE_SYNCING, /**< @short Selecting a mailbox -- performing synchronization */
