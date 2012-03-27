@@ -326,7 +326,7 @@ bool OpenConnectionTask::checkCapabilitiesResult(const Responses::State *const r
             return true;
         }
         if (resp->kind != Responses::OK) {
-            logout(QString::fromAscii("CAPABILITIES command has failed"));
+            logout(tr("CAPABILITIES command has failed"));
         }
         return true;
     }
