@@ -29,7 +29,7 @@ namespace Mailbox {
 GetAnyConnectionTask::GetAnyConnectionTask( Model* _model ) :
     ImapTask( _model ), newConn(0)
 {
-    QMap<Parser*,Model::ParserState>::iterator it = model->_parsers.begin();
+    QMap<Parser*,ParserState>::iterator it = model->_parsers.begin();
     while (it != model->_parsers.end()) {
         if (it->connState == CONN_STATE_LOGOUT) {
             // We cannot possibly use this connection

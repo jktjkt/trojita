@@ -27,7 +27,7 @@ namespace Mailbox {
 OfflineConnectionTask::OfflineConnectionTask(Model *_model) : ImapTask(_model)
 {
     parser = new Parser(model, new FakeSocket(), ++model->lastParserId);
-    Model::ParserState parserState = Model::ParserState(parser);
+    ParserState parserState(parser);
     parserState.connState = CONN_STATE_LOGOUT;
     model->_parsers[parser] = parserState;
     model->m_taskModel->slotParserCreated(parser);

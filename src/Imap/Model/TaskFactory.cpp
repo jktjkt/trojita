@@ -145,7 +145,7 @@ TestingTaskFactory::TestingTaskFactory(): TaskFactory(), fakeOpenConnectionTask(
 Parser* TestingTaskFactory::newParser( Model* model )
 {
     Parser* parser = new Parser( model, model->_socketFactory->create(), ++model->lastParserId );
-    Model::ParserState parserState = Model::ParserState( parser );
+    ParserState parserState(parser);
     QObject::connect( parser, SIGNAL(responseReceived(Imap::Parser*)), model, SLOT(responseReceived(Imap::Parser*)) );
     QObject::connect( parser, SIGNAL(disconnected(Imap::Parser*,QString)), model, SLOT(slotParserDisconnected(Imap::Parser*,QString)) );
     QObject::connect( parser, SIGNAL(connectionStateChanged(Imap::Parser*,Imap::ConnectionState)), model, SLOT(handleSocketStateChanged(Imap::Parser*,Imap::ConnectionState)) );

@@ -28,7 +28,7 @@ OpenConnectionTask::OpenConnectionTask( Model* _model ) :
 {
     // FIXME: honor the offline policy here
     parser = new Parser( model, model->_socketFactory->create(), ++model->lastParserId );
-    Model::ParserState parserState = Model::ParserState( parser );
+    ParserState parserState(parser);
     connect( parser, SIGNAL(responseReceived(Imap::Parser*)), model, SLOT(responseReceived(Imap::Parser*)) );
     connect( parser, SIGNAL(disconnected(Imap::Parser*,const QString)), model, SLOT(slotParserDisconnected(Imap::Parser*,const QString)) );
     connect( parser, SIGNAL(connectionStateChanged(Imap::Parser*,Imap::ConnectionState)), model, SLOT(handleSocketStateChanged(Imap::Parser*,Imap::ConnectionState)) );

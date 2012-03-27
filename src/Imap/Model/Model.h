@@ -31,6 +31,7 @@
 #include "Streams/SocketFactory.h"
 #include "CopyMoveOperation.h"
 #include "FlagsOperation.h"
+#include "ParserState.h"
 #include "TaskFactory.h"
 
 #include "Logging.h"
@@ -75,56 +76,6 @@ class Model: public QAbstractItemModel {
     enum RWMode {
         ReadOnly /**< @short Use EXAMINE or leave it in SELECTed mode*/,
         ReadWrite /**< @short Invoke SELECT if necessarry */
-    };
-
-    /** @short Helper structure for keeping track of each parser's state */
-    struct ParserState {
-        /** @short Which parser are we talking about here */
-        QPointer<Parser> parser;
-        /** @short The mailbox which we'd like to have selected */
-        ConnectionState connState;
-        /** @short The logout command */
-        CommandHandle logoutCmd;
-        /** @short List of tasks which are active already, and should therefore receive events */
-        QList<ImapTask*> activeTasks;
-        /** @short An active KeepMailboxOpenTask, if one exists */
-        KeepMailboxOpenTask* maintainingTask;
-        /** @short A list of cepabilities, as advertised by the server */
-        QStringList capabilities;
-        /** @short Is the @arg capabilities usable? */
-        bool capabilitiesFresh;
-        /** @short LIST responses which were not processed yet */
-        QList<Responses::List> listResponses;
-
-        /** @short Is the connection currently being processed? */
-        bool beingProcessed;
-
-        ParserState( Parser* _parser ): parser(_parser), connState(CONN_STATE_NONE), maintainingTask(0), capabilitiesFresh(false),
-            beingProcessed(false) {}
-        ParserState(): connState(CONN_STATE_NONE), maintainingTask(0), capabilitiesFresh(false), beingProcessed(false) {}
-    };
-
-    /** @short Guards access to the ParserState
-
-    Slots which are connected to signals directly or indirectly connected to this Model could, unfortunately, re-enter the event
-    loop.  When this happens, other events could possibly get delivered leading to activation of Model's "dangerous" slots:
-
-        - responseReceived()
-        - slotParserDisconnected()
-        - slotParseError()
-
-    These slots are dangerous because they have the potential of re-entering the event loop and also could delete the Parsers/Tasks.
-    Thhat's why we have to use a crude reference counter to guarantee that our objects aren't deleted on return from a nested event
-    loop until the slots triggered by the *outer* event loops have finished.
-
-    See https://projects.flaska.net/issues/467 for a tiny bit of detail.
-
-    */
-    struct ParserStateGuard {
-        ParserState &m_s;
-        bool wasActive;
-        ParserStateGuard(ParserState &s);
-        ~ParserStateGuard();
     };
 
     /** @short Policy for accessing network */

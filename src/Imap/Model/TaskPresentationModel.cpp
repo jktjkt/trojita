@@ -48,7 +48,7 @@ QModelIndex TaskPresentationModel::index(int row, int column, const QModelIndex 
         if (parent.data(RoleTaskIsParserState).toBool()) {
             // The parent is a ParserState
             Imap::Parser *parser = static_cast<Imap::Parser*>(parent.internalPointer());
-            Model::ParserState &parserState = m_model->accessParser(parser);
+            ParserState &parserState = m_model->accessParser(parser);
             if (row >= parserState.activeTasks.size()) {
                 return QModelIndex();
             } else {
@@ -121,7 +121,7 @@ int TaskPresentationModel::rowCount(const QModelIndex &parent) const
         if (parent.data(RoleTaskIsParserState).toBool()) {
             // A child of the top level item, ie. a ParserState object
             Imap::Parser *parser = static_cast<Imap::Parser*>(parent.internalPointer());
-            Model::ParserState &parserState = m_model->accessParser(parser);
+            ParserState &parserState = m_model->accessParser(parser);
             return parserState.activeTasks.size();
         } else {
             // It's a regular ImapTask

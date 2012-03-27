@@ -108,6 +108,7 @@ HEADERS += Parser/Parser.h \
     Model/ItemRoles.h \
     Model/RingBuffer.h \
     Model/Logging.h \
+    Model/ParserState.h \
     Tasks/ImapTask.h \
     Tasks/FetchMsgPartTask.h \
     Tasks/FetchMsgMetadataTask.h \

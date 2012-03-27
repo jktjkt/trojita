@@ -1426,7 +1426,7 @@ TreeItemMailbox* Model::mailboxForSomeItem( QModelIndex index )
     return mailbox;
 }
 
-Model::ParserState& Model::accessParser( Parser *parser )
+ParserState& Model::accessParser( Parser *parser )
 {
     Q_ASSERT( _parsers.contains( parser ) );
     return _parsers[ parser ];
@@ -1584,7 +1584,7 @@ QStringList Model::normalizeFlags(const QStringList &source) const
     return res;
 }
 
-Model::ParserStateGuard::ParserStateGuard(ParserState &s):
+ParserStateGuard::ParserStateGuard(ParserState &s):
     m_s(s), wasActive(m_s.beingProcessed)
 {
     if (!wasActive) {
@@ -1592,7 +1592,7 @@ Model::ParserStateGuard::ParserStateGuard(ParserState &s):
     }
 }
 
-Model::ParserStateGuard::~ParserStateGuard()
+ParserStateGuard::~ParserStateGuard()
 {
     if (!wasActive) {
         m_s.beingProcessed = false;

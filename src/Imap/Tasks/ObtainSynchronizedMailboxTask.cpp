@@ -74,7 +74,7 @@ void ObtainSynchronizedMailboxTask::perform()
 
     msgList->_fetchStatus = TreeItem::LOADING;
 
-    QMap<Parser*,Model::ParserState>::iterator it = model->_parsers.find( parser );
+    QMap<Parser*,ParserState>::iterator it = model->_parsers.find( parser );
     Q_ASSERT( it != model->_parsers.end() );
 
     selectCmd = parser->select( mailbox->mailbox() );
