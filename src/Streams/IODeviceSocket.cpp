@@ -193,8 +193,8 @@ void SslTlsSocket::handleStateChanged()
             emit stateChanged(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS, tr("Connected"));
         }
         break;
-            case QAbstractSocket::UnconnectedState:
-            case QAbstractSocket::ClosingState:
+    case QAbstractSocket::UnconnectedState:
+    case QAbstractSocket::ClosingState:
         disconnectedMessage = tr("Socket is disconnected: %1").arg( sock->errorString() );
         delayedDisconnect->start();
         break;
