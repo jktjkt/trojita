@@ -87,6 +87,7 @@ class SocketFactory;
         void handleStateChanged();
         void handleSocketError( QAbstractSocket::SocketError );
         void delayedStart();
+        void handleConnected();
     private:
         bool _startEncrypted;
         QString _host;

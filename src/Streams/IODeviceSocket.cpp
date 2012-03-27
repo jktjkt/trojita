@@ -161,10 +161,17 @@ SslTlsSocket::SslTlsSocket(QSslSocket *sock, const QString &host, const quint16 
     sock->setPeerVerifyMode( QSslSocket::QueryPeer );
 
     if (startEncrypted)
-        connect( sock, SIGNAL(encrypted()), this, SIGNAL(connected()) );
+        connect(sock, SIGNAL(encrypted()), this, SLOT(handleConnected()));
 
     connect( sock, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(handleStateChanged()) );
     connect( sock, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(handleSocketError(QAbstractSocket::SocketError)) );
+}
+
+/** @short Be sure to report our state change through the usual stateChanged() signal even on encrypted channels */
+void SslTlsSocket::handleConnected()
+{
+    emit connected();
+    emit stateChanged(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS, tr("Connected"));
 }
 
 void SslTlsSocket::handleStateChanged()
