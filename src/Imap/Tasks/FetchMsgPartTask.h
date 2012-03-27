@@ -35,6 +35,8 @@ public:
 
     virtual bool handleFetch(const Imap::Responses::Fetch* const resp);
     virtual bool handleStateHelper(const Imap::Responses::State* const resp);
+
+    virtual QString debugIdentification() const;
 private:
     CommandHandle tag;
     ImapTask* conn;

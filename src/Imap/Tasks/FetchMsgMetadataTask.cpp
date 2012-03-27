@@ -18,6 +18,7 @@
 
 
 #include "FetchMsgMetadataTask.h"
+#include "ItemRoles.h"
 #include "KeepMailboxOpenTask.h"
 #include "Model.h"
 #include "MailboxTree.h"
@@ -76,6 +77,15 @@ bool FetchMsgMetadataTask::handleStateHelper( const Imap::Responses::State* cons
     } else {
         return false;
     }
+}
+
+QString FetchMsgMetadataTask::debugIdentification() const
+{
+    if (!mailbox.isValid())
+        return QString::fromAscii("[invalid mailbox]");
+
+    Q_ASSERT(!uids.isEmpty());
+    return QString::fromAscii("%1: UIDs %2").arg(mailbox.data(RoleMailboxName).toString(), Sequence::fromList(uids).toString());
 }
 
 }
