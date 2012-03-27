@@ -949,6 +949,12 @@ void Model::updateCapabilities( Parser* parser, const QStringList capabilities )
     parser->enableLiteralPlus( uppercaseCaps.contains( QLatin1String( "LITERAL+" ) ) );
     if ( _parsers.begin().key() == parser )
         emit capabilitiesUpdated(uppercaseCaps);
+
+    if (!uppercaseCaps.contains(QLatin1String("IMAP4REV1"))) {
+        changeConnectionState(parser, CONN_STATE_LOGOUT);
+        accessParser(parser).logoutCmd = parser->logout();
+        emit connectionError(tr("We aren't talking to an IMAP4 server"));
+    }
 }
 
 void Model::setMessageFlags(const QModelIndexList &messages, const QString flag, const FlagsOperation marked)

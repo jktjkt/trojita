@@ -41,6 +41,7 @@ private slots:
 
     void testOk();
     void testOkWithCapability();
+    void testOkMissingImap4rev1();
 
     void testOkLogindisabled();
     void testOkLogindisabledWithoutStarttls();

@@ -149,6 +149,19 @@ void ImapModelOpenConnectionTest::testOkWithCapability()
     QCOMPARE( authSpy->size(), 1 );
 }
 
+/** @short See what happens when the capability response doesn't contain IMAP4rev1 capability */
+void ImapModelOpenConnectionTest::testOkMissingImap4rev1()
+{
+    SOCK->fakeReading( "* OK [CAPABILITY pwn] foo\r\n" );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE(SOCK->writtenStuff(), QByteArray("y0 LOGOUT\r\n"));
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QVERIFY(authSpy->isEmpty());
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+}
+
 /** @short Test to honor embedded LOGINDISABLED */
 void ImapModelOpenConnectionTest::testOkLogindisabled()
 {

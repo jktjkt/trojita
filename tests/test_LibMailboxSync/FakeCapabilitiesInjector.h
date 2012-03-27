@@ -14,7 +14,11 @@ public:
     void injectCapability(const QString& cap)
     {
         Q_ASSERT(!model->_parsers.isEmpty());
-        model->updateCapabilities( model->_parsers.begin().key(), model->capabilities() << cap );
+        QStringList existingCaps = model->capabilities();
+        if (!existingCaps.contains(QLatin1String("IMAP4REV1"))) {
+            existingCaps << QLatin1String("IMAP4rev1");
+        }
+        model->updateCapabilities( model->_parsers.begin().key(), existingCaps << cap );
     }
 private:
     Imap::Mailbox::Model *model;
