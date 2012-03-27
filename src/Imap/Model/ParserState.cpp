@@ -24,6 +24,16 @@
 namespace Imap {
 namespace Mailbox {
 
+ParserState::ParserState(Parser *_parser):
+    parser(_parser), connState(CONN_STATE_NONE), maintainingTask(0), capabilitiesFresh(false), beingProcessed(false)
+{
+}
+
+ParserState::ParserState():
+    connState(CONN_STATE_NONE), maintainingTask(0), capabilitiesFresh(false), beingProcessed(false)
+{
+}
+
 ParserStateGuard::ParserStateGuard(ParserState &s):
     m_s(s), wasActive(m_s.beingProcessed)
 {

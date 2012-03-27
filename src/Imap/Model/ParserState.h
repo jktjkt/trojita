@@ -54,9 +54,8 @@ struct ParserState {
     /** @short Is the connection currently being processed? */
     bool beingProcessed;
 
-    ParserState( Parser* _parser ): parser(_parser), connState(CONN_STATE_NONE), maintainingTask(0), capabilitiesFresh(false),
-        beingProcessed(false) {}
-    ParserState(): connState(CONN_STATE_NONE), maintainingTask(0), capabilitiesFresh(false), beingProcessed(false) {}
+    ParserState(Parser *parser);
+    ParserState();
 };
 
 /** @short Guards access to the ParserState
