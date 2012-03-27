@@ -57,6 +57,8 @@ private:
     /** @short Wrapper around the _completed() call for optionally launching the ID command */
     void onComplete();
 
+    void logout(const QString &message);
+
 private:
     bool waitingForGreetings;
     bool gotPreauth;

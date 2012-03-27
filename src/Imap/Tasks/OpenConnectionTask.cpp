@@ -152,8 +152,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
             return true;
 
         case BYE:
-            model->changeConnectionState(parser, CONN_STATE_LOGOUT);
-            _failed("Server has closed the conection");
+            logout(tr("Server has closed the conection"));
             return true;
 
         case BAD:
@@ -162,7 +161,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
             if (resp->respCode != ALERT) {
                 emit model->alertReceived(tr("The server replied with the following BAD response:\n%1").arg(resp->message));
             }
-            _failed("Server has greeted us with a BAD response");
+            logout(tr("Server has greeted us with a BAD response"));
             return true;
 
         default:
@@ -189,7 +188,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
                 model->accessParser(parser).capabilitiesFresh = false;
                 capabilityCmd = parser->capability();
             } else {
-                _failed(QString::fromAscii("STARTTLS failed: %1").arg(resp->message));
+                logout(tr("STARTTLS failed: %1").arg(resp->message));
             }
             return true;
         }
@@ -202,7 +201,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
         bool wasCaps = checkCapabilitiesResult(resp);
         if (wasCaps && !_finished) {
             if (model->accessParser(parser).capabilities.contains(QLatin1String("LOGINDISABLED"))) {
-                _failed(QString::fromAscii("Capabilities still contain LOGINDISABLED even after STARTTLS"));
+                logout(tr("Capabilities still contain LOGINDISABLED even after STARTTLS"));
             } else {
                 model->changeConnectionState(parser, CONN_STATE_LOGIN);
                 loginCmd = model->performAuthentication(parser);
@@ -273,7 +272,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
 
                 if (loginCmd == CommandHandle()) {
                     // The user has given up
-                    _failed(QString::fromAscii("No credentials returned in response to a direct request to the user"));
+                    logout(tr("No credentials returned in response to a direct request to the user"));
                 } else {
                     // This is not a failure yet; we're retrying again
                 }
@@ -303,7 +302,7 @@ void OpenConnectionTask::startTlsOrLoginNow()
         // Should run STARTTLS later and already have the capabilities
         Q_ASSERT(model->accessParser(parser).capabilitiesFresh);
         if (!model->accessParser(parser).capabilities.contains(QLatin1String("STARTTLS"))) {
-            _failed(QString::fromAscii("Server does not support STARTTLS"));
+            logout(tr("Server does not support STARTTLS"));
         } else {
             startTlsCmd = parser->startTls();
             model->changeConnectionState(parser, CONN_STATE_STARTTLS);
@@ -323,11 +322,11 @@ bool OpenConnectionTask::checkCapabilitiesResult(const Responses::State *const r
 
     if (resp->tag == capabilityCmd) {
         if (!model->accessParser(parser).capabilitiesFresh) {
-            _failed(tr("Server did not provide useful capabilities"));
+            logout(tr("Server did not provide useful capabilities"));
             return true;
         }
         if (resp->kind != Responses::OK) {
-            _failed(QString::fromAscii("CAPABILITIES command has failed"));
+            logout(QString::fromAscii("CAPABILITIES command has failed"));
         }
         return true;
     }
@@ -344,6 +343,14 @@ void OpenConnectionTask::onComplete()
 
     // But do terminate this task
     _completed();
+}
+
+void OpenConnectionTask::logout(const QString &message)
+{
+    emit model->connectionError(message);
+    model->changeConnectionState(parser, CONN_STATE_LOGOUT);
+    model->accessParser(parser).logoutCmd = parser->logout();
+    _failed(message);
 }
 
 }
