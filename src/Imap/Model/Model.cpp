@@ -940,6 +940,7 @@ void Model::switchToMailbox( const QModelIndex& mbox )
 
 void Model::updateCapabilities( Parser* parser, const QStringList capabilities )
 {
+    Q_ASSERT(parser);
     QStringList uppercaseCaps;
     Q_FOREACH( const QString& str, capabilities )
             uppercaseCaps << str.toUpper();
