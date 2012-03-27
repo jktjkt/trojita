@@ -43,7 +43,7 @@ void FakeSocket::slotEmitConnected()
 {
     // We have to use both conventions for letting the world know that "we're finally usable"
     emit connected();
-    emit stateChanged(Imap::CONN_STATE_ESTABLISHED, QString());
+    emit stateChanged(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS, QString());
 }
 
 void FakeSocket::fakeReading( const QByteArray& what )

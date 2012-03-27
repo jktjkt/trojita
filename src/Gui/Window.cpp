@@ -949,8 +949,6 @@ void MainWindow::showConnectionStatus( QObject* parser, Imap::ConnectionState st
     bool transient = false;
 
     switch ( state ) {
-    case CONN_STATE_ESTABLISHED:
-    case CONN_STATE_LOGIN_FAILED:
     case CONN_STATE_AUTHENTICATED:
     case CONN_STATE_SELECTED:
         transient = true;

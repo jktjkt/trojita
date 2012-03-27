@@ -34,9 +34,7 @@ namespace Imap {
         CONN_STATE_CONNECTED_PRETLS, /**< @short Connection has been established and capabilities are known but STARTTLS remains to be issued */
         CONN_STATE_STARTTLS, /**< @short Negotiating encryption */
         CONN_STATE_ESTABLISHED_PRECAPS, /**< @short Waiting for capabilities after the encryption has been set up */
-        CONN_STATE_ESTABLISHED, /**< @short The connection is ready, including optional encryption */
         CONN_STATE_LOGIN, /**< @short Performing login */
-        CONN_STATE_LOGIN_FAILED, /**< @short Failed to log in */
         CONN_STATE_POSTAUTH_PRECAPS, /**< @short Authenticated, but capabilities weren't refreshed yet */
         CONN_STATE_AUTHENTICATED, /**< @short Logged in */
         CONN_STATE_SELECTING, /**< @short Selecting a mailbox -- initial state */

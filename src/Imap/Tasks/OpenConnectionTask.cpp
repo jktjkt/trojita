@@ -55,185 +55,286 @@ void OpenConnectionTask::perform()
     // nothing should happen here
 }
 
-/** @short Process the "state" response originating from the IMAP server */
-bool OpenConnectionTask::handleStateHelper( const Imap::Responses::State* const resp )
+/** @short Decide what to do next based on the received response and the current state of the connection
+
+CONN_STATE_NONE:
+CONN_STATE_HOST_LOOKUP:
+CONN_STATE_CONNECTING:
+ - not allowed
+
+CONN_STATE_CONNECTED_PRETLS_PRECAPS:
+ -> CONN_STATE_AUTHENTICATED iff "* PREAUTH [CAPABILITIES ...]"
+    - done
+ -> CONN_STATE_POSTAUTH_PRECAPS iff "* PREAUTH"
+    - requesting capabilities
+ -> CONN_STATE_TLS if "* OK [CAPABILITIES ...]"
+    - calling STARTTLS
+ -> CONN_STATE_CONNECTED_PRETLS if caps not known
+    - asking for capabilities
+ -> CONN_STATE_LOGIN iff capabilities are provided and LOGINDISABLED is not there and configuration doesn't want STARTTLS
+    - trying to LOGIN.
+ -> CONN_STATE_LOGOUT if the initial greeting asks us to leave
+    - fail
+
+CONN_STATE_CONNECTED_PRETLS: checks result of the capability command
+ -> CONN_STATE_STARTTLS
+    - calling STARTTLS
+ -> CONN_STATE_LOGIN
+    - calling login
+ -> fail
+
+CONN_STATE_STARTTLS: checks result of STARTTLS command
+ -> CONN_STATE_ESTABLISHED_PRECAPS
+    - asking for capabilities
+ -> fail
+
+CONN_STATE_ESTABLISHED_PRECAPS: checks for the result of capabilities
+ -> CONN_STATE_LOGIN
+ -> fail
+
+CONN_STATE_POSTAUTH_PRECAPS: checks result of the capability command
+*/
+bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const resp)
 {
     if (_dead) {
         _failed("Asked to die");
         return true;
     }
-    // Ignore abort()
+    using namespace Imap::Responses;
 
-    if ( waitingForGreetings ) {
-        handleInitialResponse(resp);
-        return true;
+    if (model->accessParser(parser).connState == CONN_STATE_CONNECTED_PRETLS_PRECAPS) {
+        if (!resp->tag.isEmpty()) {
+            throw Imap::UnexpectedResponseReceived("Waiting for initial OK/BYE/PREAUTH, but got tagged response instead", *resp );
+        }
+    } else {
+        if (resp->tag.isEmpty()) {
+            return false;
+        }
     }
 
-    if ( resp->tag.isEmpty() )
+    switch (model->accessParser(parser).connState) {
+
+    case CONN_STATE_NONE:
+    case CONN_STATE_HOST_LOOKUP:
+    case CONN_STATE_CONNECTING:
+    case CONN_STATE_AUTHENTICATED:
+    case CONN_STATE_SELECTING:
+    case CONN_STATE_SYNCING:
+    case CONN_STATE_SELECTED:
+    case CONN_STATE_FETCHING_PART:
+    case CONN_STATE_FETCHING_MSG_METADATA:
+    case CONN_STATE_LOGOUT:
+        // These shall not ever be reached by this code
+        Q_ASSERT(false);
         return false;
 
-    if ( resp->tag == capabilityCmd ) {
-        if ( resp->kind == Responses::OK ) {
-            if ( gotPreauth ) {
-                // The greetings indicated that we're already in the auth state, and now we
-                // know capabilities, too, so we're done here
+    case CONN_STATE_CONNECTED_PRETLS_PRECAPS:
+    // We're connected now -- this is our initial state.
+    {
+        switch (resp->kind) {
+        case PREAUTH:
+            // Cool, we're already authenticated. Now, let's see if we have to issue CAPABILITY or if we already know that
+            if (model->accessParser(parser).capabilitiesFresh) {
+                // We're done here
+                model->changeConnectionState(parser, CONN_STATE_AUTHENTICATED);
                 onComplete();
             } else {
-                // We want to log in, but we might have to STARTTLS before
-                if ( model->accessParser( parser ).capabilities.contains( QLatin1String("LOGINDISABLED") ) ) {
-                    log("Can't login yet, trying STARTTLS", LOG_OTHER);
-                    // ... and we are forbidden from logging in, so we have to try the STARTTLS
-                    startTlsCmd = parser->startTls();
+                model->changeConnectionState(parser, CONN_STATE_POSTAUTH_PRECAPS);
+                capabilityCmd = parser->capability();
+            }
+            return true;
+
+        case OK:
+            if (!model->accessParser(parser).capabilitiesFresh) {
+                model->changeConnectionState(parser, CONN_STATE_CONNECTED_PRETLS);
+                capabilityCmd = parser->capability();
+            } else {
+                startTlsOrLoginNow();
+            }
+            return true;
+
+        case BYE:
+            model->changeConnectionState(parser, CONN_STATE_LOGOUT);
+            _failed("Server has closed the conection");
+            return true;
+
+        case BAD:
+            model->changeConnectionState(parser, CONN_STATE_LOGOUT);
+            // If it was an ALERT, we've already warned the user
+            if (resp->respCode != ALERT) {
+                emit model->alertReceived(tr("The server replied with the following BAD response:\n%1").arg(resp->message));
+            }
+            _failed("Server has greeted us with a BAD response");
+            return true;
+
+        default:
+            throw Imap::UnexpectedResponseReceived("Waiting for initial OK/BYE/BAD/PREAUTH, but got this instead", *resp);
+        }
+        break;
+    }
+
+    case CONN_STATE_CONNECTED_PRETLS:
+    // We've asked for capabilities upon the initial interaction
+    {
+        bool wasCaps = checkCapabilitiesResult(resp);
+        if (wasCaps && !_finished) {
+            startTlsOrLoginNow();
+        }
+        return wasCaps;
+    }
+
+    case CONN_STATE_STARTTLS:
+    {
+        if (resp->tag == startTlsCmd) {
+            if (resp->kind == OK) {
+                model->changeConnectionState(parser, CONN_STATE_ESTABLISHED_PRECAPS);
+                model->accessParser(parser).capabilitiesFresh = false;
+                capabilityCmd = parser->capability();
+            } else {
+                _failed(QString::fromAscii("STARTTLS failed: %1").arg(resp->message));
+            }
+            return true;
+        }
+        return false;
+    }
+
+    case CONN_STATE_ESTABLISHED_PRECAPS:
+    // Connection is established and we're waiting for updated capabilities
+    {
+        bool wasCaps = checkCapabilitiesResult(resp);
+        if (wasCaps && !_finished) {
+            if (model->accessParser(parser).capabilities.contains(QLatin1String("LOGINDISABLED"))) {
+                _failed(QString::fromAscii("Capabilities still contain LOGINDISABLED even after STARTTLS"));
+            } else {
+                model->changeConnectionState(parser, CONN_STATE_LOGIN);
+                loginCmd = model->performAuthentication(parser);
+            }
+        }
+        return wasCaps;
+    }
+
+    case CONN_STATE_LOGIN:
+    // Check the result of the LOGIN command
+    {
+        if (resp->tag == loginCmd) {
+            // The LOGIN command is finished
+            if (resp->kind == OK) {
+                if (resp->respCode == CAPABILITIES) {
+                    // Capabilities are already known
+                    model->changeConnectionState(parser, CONN_STATE_AUTHENTICATED);
+                    onComplete();
                 } else {
-                    // Apparently no need for STARTTLS and we are free to login
-                    loginCmd = model->performAuthentication( parser );
+                    // Got to ask for the capabilities
+                    model->changeConnectionState(parser, CONN_STATE_POSTAUTH_PRECAPS);
+                    capabilityCmd = parser->capability();
+                }
+            } else {
+                // Login failed
+                QString message;
+                switch ( resp->respCode ) {
+                case Responses::UNAVAILABLE:
+                    message = tr("Temporary failure because a subsystem is down.");
+                    break;
+                case Responses::AUTHENTICATIONFAILED:
+                    message = tr("Authentication failed for some reason on which the server is "
+                                 "unwilling to elaborate.  Typically, this includes \"unknown "
+                                 "user\" and \"bad password\".");
+                    break;
+                case Responses::AUTHORIZATIONFAILED:
+                    message = tr("Authentication succeeded in using the authentication identity, "
+                                 "but the server cannot or will not allow the authentication "
+                                 "identity to act as the requested authorization identity.");
+                    break;
+                case Responses::EXPIRED:
+                    message = tr("Either authentication succeeded or the server no longer had the "
+                                 "necessary data; either way, access is no longer permitted using "
+                                 "that passphrase.  You should get a new passphrase.");
+                    break;
+                case Responses::PRIVACYREQUIRED:
+                    message = tr("The operation is not permitted due to a lack of privacy.");
+                    break;
+                case Responses::CONTACTADMIN:
+                    message = tr("You should contact the system administrator or support desk.");
+                    break;
+                default:
+                    break;
+                }
+
+                if (message.isEmpty()) {
+                    message = tr("Login failed: %1").arg(resp->message);
+                } else {
+                    message = tr("%1\r\n\r\n%2").arg(message, resp->message);
+                }
+                model->emitAuthFailed(message);
+                if (model->accessParser(parser).connState == CONN_STATE_LOGOUT) {
+                    // The server has closed the conenction
+                    _failed(QString::fromAscii("Connection closed after a failed login"));
+                    return true;
+                }
+                loginCmd = model->performAuthentication(parser);
+
+                if (loginCmd == CommandHandle()) {
+                    // The user has given up
+                    _failed(QString::fromAscii("No credentials returned in response to a direct request to the user"));
+                } else {
+                    // This is not a failure yet; we're retrying again
                 }
             }
-        } else {
-            _failed("CAPABILITY failed");
+            return true;
         }
-        return true;
-    } else if ( resp->tag == loginCmd ) {
-        // The LOGIN command is finished, and we know capabilities already
-        Q_ASSERT( model->accessParser( parser ).capabilitiesFresh );
-        if ( resp->kind == Responses::OK ) {
-            model->changeConnectionState( parser, CONN_STATE_AUTHENTICATED);
-            onComplete();
-        } else {
-            QString message;
-            switch ( resp->respCode ) {
-            case Responses::UNAVAILABLE:
-                message = tr("Temporary failure because a subsystem is down.");
-                break;
-            case Responses::AUTHENTICATIONFAILED:
-                message = tr("Authentication failed for some reason on which the server is "
-                             "unwilling to elaborate.  Typically, this includes \"unknown "
-                             "user\" and \"bad password\".");
-                break;
-            case Responses::AUTHORIZATIONFAILED:
-                message = tr("Authentication succeeded in using the authentication identity, "
-                             "but the server cannot or will not allow the authentication "
-                             "identity to act as the requested authorization identity.");
-                break;
-            case Responses::EXPIRED:
-                message = tr("Either authentication succeeded or the server no longer had the "
-                             "necessary data; either way, access is no longer permitted using "
-                             "that passphrase.  You should get a new passphrase.");
-                break;
-            case Responses::PRIVACYREQUIRED:
-                message = tr("The operation is not permitted due to a lack of privacy.");
-                break;
-            case Responses::CONTACTADMIN:
-                message = tr("You should contact the system administrator or support desk.");
-                break;
-            default:
-                break;
-            }
-
-            if ( message.isEmpty() ) {
-                message = tr("Login failed: %1").arg(resp->message);
-            } else {
-                message = tr("%1\r\n\r\n%2").arg(message, resp->message);
-            }
-            model->emitAuthFailed(message);
-            if (model->accessParser(parser).connState == CONN_STATE_LOGOUT) {
-                // The server has closed the conenction
-                _failed(QString::fromAscii("Connection closed after a failed login"));
-                return true;
-            }
-            loginCmd = model->performAuthentication( parser );
-
-            if (loginCmd == CommandHandle()) {
-                // The user has given up
-                _failed(QString::fromAscii("No credentials returned in response to a direct request to the user"));
-            } else {
-                // This is not a failure yet; we're retrying again
-            }
-        }
-        return true;
-    } else if ( resp->tag == startTlsCmd ) {
-        // So now we've got a secure connection, but we will have to login. Additionally,
-        // we are obliged to forget any capabilities.
-        model->accessParser( parser ).capabilitiesFresh = false;
-        if ( resp->kind == Responses::OK ) {
-            capabilityCmd = parser->capability();
-        } else {
-            // Well, this place is *very* bad -- we're in the middle of a responseRecevied(), Model is iterating over active tasks
-            // and we really want to emit that connectionError signal here. The problem is that a typical reaction from the GUI is
-            // to show a dialog box, which unfortunately invokes the event loop, which would in turn handle the socketDisconnected()
-            // (because the real SSL operation for switching on the encryption failed, too).
-            // Let's just throw an exception and let the Model deal with it.
-            throw StartTlsFailed( tr("Can't establish a secure connection to the server (STARTTLS failed: %1). Refusing to proceed.").arg( resp->message ).toUtf8().constData() );
-        }
-        return true;
-    } else {
         return false;
+    }
+
+    case CONN_STATE_POSTAUTH_PRECAPS:
+    {
+        bool wasCaps = checkCapabilitiesResult(resp);
+        if (wasCaps && !_finished) {
+            model->changeConnectionState(parser, CONN_STATE_AUTHENTICATED);
+            onComplete();
+        }
+        return wasCaps;
+    }
+
     }
 }
 
-/** @short Helper for dealing with the very first response from the server */
-void OpenConnectionTask::handleInitialResponse( const Imap::Responses::State* const resp )
+/** @short Either call STARTTLS or go ahead and try to LOGIN */
+void OpenConnectionTask::startTlsOrLoginNow()
 {
-    if (_dead) {
-        _failed("Asked to die");
-        return;
-    }
-    // Ignore abort()
-
-    waitingForGreetings = false;
-    if ( ! resp->tag.isEmpty() ) {
-        throw Imap::UnexpectedResponseReceived(
-                "Waiting for initial OK/BYE/PREAUTH, but got tagged response instead",
-                *resp );
-    }
-
-    using namespace Imap::Responses;
-    switch ( resp->kind ) {
-    case PREAUTH:
-        {
-            // Cool, we're already authenticated. Now, let's see if we have to issue CAPABILITY or if we already know that
-            gotPreauth = true;
-            model->changeConnectionState( parser, CONN_STATE_AUTHENTICATED);
-            if ( ! model->accessParser( parser ).capabilitiesFresh ) {
-                capabilityCmd = parser->capability();
-            } else {
-                onComplete();
-            }
-            break;
-        }
-    case OK:
-        if ( model->_startTls ) {
-            // The STARTTLS command is already queued -> no need to issue it once again
+    if (model->_startTls || model->accessParser(parser).capabilities.contains(QLatin1String("LOGINDISABLED"))) {
+        // Should run STARTTLS later and already have the capabilities
+        Q_ASSERT(model->accessParser(parser).capabilitiesFresh);
+        if (!model->accessParser(parser).capabilities.contains(QLatin1String("STARTTLS"))) {
+            _failed(QString::fromAscii("Server does not support STARTTLS"));
         } else {
-            // The STARTTLS surely has not been issued yet
-            if ( ! model->accessParser( parser ).capabilitiesFresh ) {
-                capabilityCmd = parser->capability();
-            } else if ( model->accessParser( parser ).capabilities.contains( QLatin1String("LOGINDISABLED") ) ) {
-                log("Can't login yet, trying STARTTLS", LOG_OTHER);
-                // ... and we are forbidden from logging in, so we have to try the STARTTLS
-                startTlsCmd = parser->startTls();
-            } else {
-                // Apparently no need for STARTTLS and we are free to login
-                loginCmd = model->performAuthentication( parser );
-            }
+            startTlsCmd = parser->startTls();
+            model->changeConnectionState(parser, CONN_STATE_STARTTLS);
         }
-        break;
-    case BYE:
-        model->changeConnectionState( parser, CONN_STATE_LOGOUT );
-        _failed("Server has closed the conection");
-        break;
-    case BAD:
-        // If it was an ALERT, we've already warned the user
-        if ( resp->respCode != ALERT ) {
-            emit model->alertReceived( tr("The server replied with the following BAD response:\n%1").arg( resp->message ) );
-        }
-        _failed("Server has greeted us with a BAD response");
-        break;
-    default:
-        throw Imap::UnexpectedResponseReceived(
-                "Waiting for initial OK/BYE/BAD/PREAUTH, but got this instead",
-                *resp );
+    } else {
+        // We're requested to authenticate even without STARTTLS
+        Q_ASSERT(!model->accessParser(parser).capabilities.contains(QLatin1String("LOGINDISABLED")));
+        model->changeConnectionState(parser, CONN_STATE_LOGIN);
+        loginCmd = model->performAuthentication(parser);
     }
+}
+
+bool OpenConnectionTask::checkCapabilitiesResult(const Responses::State *const resp)
+{
+    if (resp->tag.isEmpty())
+        return false;
+
+    if (resp->tag == capabilityCmd) {
+        if (!model->accessParser(parser).capabilitiesFresh) {
+            _failed(tr("Server did not provide useful capabilities"));
+            return true;
+        }
+        if (resp->kind != Responses::OK) {
+            _failed(QString::fromAscii("CAPABILITIES command has failed"));
+        }
+        return true;
+    }
+
+    return false;
 }
 
 void OpenConnectionTask::onComplete()

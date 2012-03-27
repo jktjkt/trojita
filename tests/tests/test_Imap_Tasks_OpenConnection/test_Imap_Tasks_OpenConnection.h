@@ -43,6 +43,7 @@ private slots:
     void testOkWithCapability();
 
     void testOkLogindisabled();
+    void testOkLogindisabledWithoutStarttls();
     void testOkLogindisabledLater();
 
     void testOkStartTls();
@@ -55,6 +56,7 @@ private:
     Imap::Mailbox::FakeSocketFactory* factory;
     Imap::Mailbox::OpenConnectionTask* task;
     QSignalSpy* completedSpy;
+    QSignalSpy* failedSpy;
     QSignalSpy* authSpy;
 };
 

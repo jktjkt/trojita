@@ -48,7 +48,11 @@ protected:
     OpenConnectionTask(Model* _model, void* dummy);
 
 private:
-    void handleInitialResponse(const Imap::Responses::State* const resp);
+    bool stateMachine(const Imap::Responses::State *const resp);
+
+    void startTlsOrLoginNow();
+
+    bool checkCapabilitiesResult(const Imap::Responses::State *const resp);
 
     /** @short Wrapper around the _completed() call for optionally launching the ID command */
     void onComplete();
