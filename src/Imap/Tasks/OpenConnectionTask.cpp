@@ -37,9 +37,6 @@ OpenConnectionTask::OpenConnectionTask( Model* _model ) :
     connect( parser, SIGNAL(parseError(Imap::Parser*,QString,QString,QByteArray,int)), model, SLOT(slotParseError(Imap::Parser*,QString,QString,QByteArray,int)) );
     connect( parser, SIGNAL(lineReceived(Imap::Parser*,QByteArray)), model, SLOT(slotParserLineReceived(Imap::Parser*,QByteArray)) );
     connect( parser, SIGNAL(lineSent(Imap::Parser*,QByteArray)), model, SLOT(slotParserLineSent(Imap::Parser*,QByteArray)) );
-    if ( model->_startTls ) {
-        startTlsCmd = parser->startTls();
-    }
     model->_parsers[ parser ] = parserState;
     model->m_taskModel->slotParserCreated(parser);
     markAsActiveTask();
