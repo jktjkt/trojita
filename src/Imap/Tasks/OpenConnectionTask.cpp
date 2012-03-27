@@ -103,7 +103,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
         if (!resp->tag.isEmpty()) {
             throw Imap::UnexpectedResponseReceived("Waiting for initial OK/BYE/PREAUTH, but got tagged response instead", *resp );
         }
-    } else {
+    } else if (model->accessParser(parser).connState > CONN_STATE_CONNECTED_PRETLS_PRECAPS) {
         if (resp->tag.isEmpty()) {
             return false;
         }
@@ -111,9 +111,6 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
 
     switch (model->accessParser(parser).connState) {
 
-    case CONN_STATE_NONE:
-    case CONN_STATE_HOST_LOOKUP:
-    case CONN_STATE_CONNECTING:
     case CONN_STATE_AUTHENTICATED:
     case CONN_STATE_SELECTING:
     case CONN_STATE_SYNCING:
@@ -125,6 +122,10 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
         Q_ASSERT(false);
         return false;
 
+    case CONN_STATE_NONE:
+    case CONN_STATE_HOST_LOOKUP:
+    case CONN_STATE_CONNECTING:
+        // Looks like the corresponding stateChanged() signal could be delayed, at least with QProcess-based sockets
     case CONN_STATE_CONNECTED_PRETLS_PRECAPS:
     // We're connected now -- this is our initial state.
     {
