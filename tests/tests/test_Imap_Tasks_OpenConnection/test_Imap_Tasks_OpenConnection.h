@@ -47,6 +47,7 @@ private slots:
     void testOkLogindisabledLater();
 
     void testOkStartTls();
+    void testOkStartTlsForbidden();
     void testOkStartTlsDiscardCaps();
 
     void provideAuthDetails( QAuthenticator* auth );
