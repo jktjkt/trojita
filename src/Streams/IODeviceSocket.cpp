@@ -123,7 +123,6 @@ void ProcessSocket::handleStateChanged()
     Q_ASSERT(proc);
     switch ( proc->state() ) {
     case QProcess::Running:
-        emit connected();
         emit stateChanged(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS, tr("The process has started"));
         break;
     case QProcess::Starting:
@@ -170,7 +169,6 @@ SslTlsSocket::SslTlsSocket(QSslSocket *sock, const QString &host, const quint16 
 /** @short Be sure to report our state change through the usual stateChanged() signal even on encrypted channels */
 void SslTlsSocket::handleConnected()
 {
-    emit connected();
     emit stateChanged(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS, tr("Connected"));
 }
 
@@ -196,7 +194,6 @@ void SslTlsSocket::handleStateChanged()
         break;
     case QAbstractSocket::ConnectedState:
         if ( ! _startEncrypted ) {
-            emit connected();
             emit stateChanged(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS, tr("Connected"));
         }
         break;

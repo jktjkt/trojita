@@ -91,7 +91,6 @@ Parser::Parser( QObject* parent, Socket* socket, const uint myId ):
     connect( _socket, SIGNAL( disconnected( const QString& ) ),
              this, SLOT( handleDisconnected( const QString& ) ) );
     connect( _socket, SIGNAL( readyRead() ), this, SLOT( handleReadyRead() ) );
-    connect( _socket, SIGNAL(connected()), this, SLOT(handleConnectionEstablished()) );
     connect( _socket, SIGNAL(stateChanged(Imap::ConnectionState,QString)), this, SLOT(slotSocketStateChanged(Imap::ConnectionState,QString)) );
 }
 
@@ -822,16 +821,6 @@ void Parser::handleDisconnected( const QString& reason )
     emit disconnected( this, reason );
 }
 
-void Parser::handleConnectionEstablished()
-{
-#ifdef PRINT_TRAFFIC_TX
-    qDebug() << _parserId << "*** Connection established";
-#endif
-    emit lineReceived( this, "*** Connection established" );
-    _waitingForConnection = false;
-    QTimer::singleShot( 0, this, SLOT(executeCommands()));
-}
-
 Parser::~Parser()
 {
     // We want to prevent nasty signals from the underlying socket from
@@ -848,6 +837,14 @@ uint Parser::parserId() const
 
 void Parser::slotSocketStateChanged( const Imap::ConnectionState connState, const QString &message )
 {
+    if (connState == CONN_STATE_CONNECTED_PRETLS_PRECAPS) {
+#ifdef PRINT_TRAFFIC_TX
+        qDebug() << _parserId << "*** Connection established";
+#endif
+        emit lineReceived( this, "*** Connection established" );
+        _waitingForConnection = false;
+        QTimer::singleShot( 0, this, SLOT(executeCommands()));
+    }
     emit lineReceived( this, "*** " + message.toLocal8Bit());
     emit connectionStateChanged( this, connState );
 }

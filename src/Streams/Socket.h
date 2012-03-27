@@ -60,9 +60,6 @@ namespace Imap {
         /** @short Return true if the socket is no longer usable */
         virtual bool isDead() = 0;
     signals:
-        /** @short The socket is ready for use, including encryption, if requested */
-        void connected();
-
         /** @short The socket got disconnected */
         void disconnected( const QString );
 

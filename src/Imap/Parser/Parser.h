@@ -313,7 +313,6 @@ containing the original line and indicating the troublesome position, or -1 if n
 
     private slots:
         void handleReadyRead();
-        void handleConnectionEstablished();
         void handleDisconnected( const QString& reason );
         void executeACommand();
         void executeCommands();
