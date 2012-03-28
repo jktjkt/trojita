@@ -95,6 +95,13 @@ QVariant PrettyMailboxModel::data( const QModelIndex& index, int role ) const
         else
             return Gui::loadIcon(QLatin1String("folder-open"));
     }
+    case Qt::ToolTipRole:
+    {
+        QModelIndex translated = mapToSource(index);
+        return tr("<p>%1</p>\n<p>%2 messages<br/>%3 unread</p>")
+                .arg(translated.data(RoleShortMailboxName).toString(), translated.data(RoleTotalMessageCount).toString(),
+                     translated.data(RoleUnreadMessageCount).toString());
+    }
     default:
         return QSortFilterProxyModel::data(index, role);
     }
