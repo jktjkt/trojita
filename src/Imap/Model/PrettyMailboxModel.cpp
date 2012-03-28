@@ -53,50 +53,50 @@ QVariant PrettyMailboxModel::data( const QModelIndex& index, int role ) const
         return QVariant();
 
     switch ( role ) {
-        case Qt::DisplayRole:
-            {
-            QModelIndex translated = mapToSource( index );
-            qlonglong unreadCount = translated.data( RoleUnreadMessageCount ).toLongLong();
-            if ( unreadCount )
-                return tr("%1 (%2)").arg(
-                        QSortFilterProxyModel::data( index, RoleShortMailboxName ).toString() ).arg(
-                        unreadCount );
-            else
-                return QSortFilterProxyModel::data( index, RoleShortMailboxName );
-            }
-        case Qt::FontRole:
-            {
-            QModelIndex translated = mapToSource( index );
-            if ( translated.data( RoleMailboxNumbersFetched ).toBool() &&
-                 translated.data( RoleUnreadMessageCount ).toULongLong() > 0 ) {
-                QFont font;
-                font.setBold( true );
-                return font;
-            } else {
-                return QVariant();
-            }
-            }
-        case Qt::DecorationRole:
-            {
-            QModelIndex translated = mapToSource( index );
-            if ( translated.data( RoleMailboxItemsAreLoading ).toBool() )
-                return Gui::loadIcon(QLatin1String("folder-grey"));
+    case Qt::DisplayRole:
+    {
+        QModelIndex translated = mapToSource(index);
+        qlonglong unreadCount = translated.data(RoleUnreadMessageCount).toLongLong();
+        if (unreadCount)
+            return tr("%1 (%2)")
+                    .arg(QSortFilterProxyModel::data(index, RoleShortMailboxName).toString(),
+                         QString::number(unreadCount));
+        else
+            return QSortFilterProxyModel::data(index, RoleShortMailboxName);
+    }
+    case Qt::FontRole:
+    {
+        QModelIndex translated = mapToSource(index);
+        if ( translated.data(RoleMailboxNumbersFetched).toBool() &&
+             translated.data(RoleUnreadMessageCount).toULongLong() > 0 ) {
+            QFont font;
+            font.setBold(true);
+            return font;
+        } else {
+            return QVariant();
+        }
+    }
+    case Qt::DecorationRole:
+    {
+        QModelIndex translated = mapToSource(index);
+        if (translated.data( RoleMailboxItemsAreLoading).toBool() )
+            return Gui::loadIcon(QLatin1String("folder-grey"));
 #ifdef XTUPLE_CONNECT
-            else if ( QSettings().value( Common::SettingsNames::xtSyncMailboxList ).toStringList().contains(
-                    translated.data( RoleMailboxName ).toString() ) )
-                return Gui::loadIcon(QLatin1String("folder-xt-sync.png"));
+        else if (QSettings().value(Common::SettingsNames::xtSyncMailboxList).toStringList().contains(
+                      translated.data(RoleMailboxName ).toString()) )
+            return Gui::loadIcon(QLatin1String("folder-xt-sync.png"));
 #endif
-            else if ( translated.data( RoleMailboxIsINBOX ).toBool() )
-                return Gui::loadIcon(QLatin1String("mail-folder-inbox"));
-            else if ( translated.data( RoleRecentMessageCount ).toInt() > 0 )
-                return Gui::loadIcon(QLatin1String("folder-bookmark"));
-            else if ( translated.data( RoleMailboxIsSelectable ).toBool() )
-                return Gui::loadIcon(QLatin1String("folder"));
-            else
-                return Gui::loadIcon(QLatin1String("folder-open"));
-            }
-        default:
-            return QSortFilterProxyModel::data( index, role );
+        else if (translated.data( RoleMailboxIsINBOX).toBool())
+            return Gui::loadIcon(QLatin1String("mail-folder-inbox"));
+        else if (translated.data( RoleRecentMessageCount).toInt() > 0)
+            return Gui::loadIcon(QLatin1String("folder-bookmark"));
+        else if (translated.data( RoleMailboxIsSelectable).toBool())
+            return Gui::loadIcon(QLatin1String("folder"));
+        else
+            return Gui::loadIcon(QLatin1String("folder-open"));
+    }
+    default:
+        return QSortFilterProxyModel::data(index, role);
     }
 }
 
