@@ -27,8 +27,8 @@ namespace Imap
 namespace Mailbox
 {
 
-NoopTask::NoopTask(Model *_model, ImapTask *parentTask) :
-    ImapTask(_model)
+NoopTask::NoopTask(Model *model, ImapTask *parentTask) :
+    ImapTask(model)
 {
     conn = parentTask;
     parentTask->addDependentTask(this);

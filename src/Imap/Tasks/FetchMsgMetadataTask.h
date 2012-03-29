@@ -32,7 +32,7 @@ class FetchMsgMetadataTask : public ImapTask
 {
     Q_OBJECT
 public:
-    FetchMsgMetadataTask(Model *_model, const QModelIndex &_mailbox, const QList<uint> &_uids);
+    FetchMsgMetadataTask(Model *model, const QModelIndex &mailbox, const QList<uint> &uids);
     virtual void perform();
 
     virtual bool handleFetch(const Imap::Responses::Fetch *const resp);

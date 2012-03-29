@@ -28,8 +28,8 @@ namespace Mailbox
 {
 
 
-ExpungeMailboxTask::ExpungeMailboxTask(Model *_model, const QModelIndex &mailbox):
-    ImapTask(_model), mailboxIndex(mailbox)
+ExpungeMailboxTask::ExpungeMailboxTask(Model *model, const QModelIndex &mailbox):
+    ImapTask(model), mailboxIndex(mailbox)
 {
     conn = model->findTaskResponsibleFor(mailbox);
     conn->addDependentTask(this);

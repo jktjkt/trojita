@@ -43,7 +43,7 @@ class GetAnyConnectionTask : public ImapTask
 {
     Q_OBJECT
 public:
-    GetAnyConnectionTask(Model *_model);
+    GetAnyConnectionTask(Model *model);
     virtual void perform();
     virtual bool isReadyToRun() const;
 private:

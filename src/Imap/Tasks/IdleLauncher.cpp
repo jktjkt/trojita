@@ -30,7 +30,7 @@ namespace Mailbox
 {
 
 IdleLauncher::IdleLauncher(KeepMailboxOpenTask *parent):
-    QObject(parent), task(parent), _idling(false), _idleCommandRunning(false)
+    QObject(parent), task(parent), m_idling(false), m_idleCommandRunning(false)
 {
     delayedEnter = new QTimer(this);
     delayedEnter->setObjectName(QString::fromAscii("%1-IdleLauncher-delayedEnter").arg(task->objectName()));
@@ -60,40 +60,40 @@ void IdleLauncher::slotEnterIdleNow()
     delayedEnter->stop();
     renewal->stop();
 
-    if (_idleCommandRunning) {
+    if (m_idleCommandRunning) {
         enterIdleLater();
         return;
     }
 
     Q_ASSERT(task->parser);
-    Q_ASSERT(! _idling);
-    Q_ASSERT(! _idleCommandRunning);
+    Q_ASSERT(! m_idling);
+    Q_ASSERT(! m_idleCommandRunning);
     Q_ASSERT(task->tagIdle.isEmpty());
     task->tagIdle = task->parser->idle();
     renewal->start();
-    _idling = true;
-    _idleCommandRunning = true;
+    m_idling = true;
+    m_idleCommandRunning = true;
 }
 
 void IdleLauncher::finishIdle()
 {
     Q_ASSERT(task->parser);
-    Q_ASSERT(_idling);
-    Q_ASSERT(_idleCommandRunning);
+    Q_ASSERT(m_idling);
+    Q_ASSERT(m_idleCommandRunning);
     renewal->stop();
     task->parser->idleDone();
-    _idling = false;
+    m_idling = false;
 }
 
 void IdleLauncher::slotTerminateLongIdle()
 {
-    if (_idling)
+    if (m_idling)
         finishIdle();
 }
 
 void IdleLauncher::enterIdleLater()
 {
-    if (_idling)
+    if (m_idling)
         return;
 
     delayedEnter->start();
@@ -109,35 +109,35 @@ void IdleLauncher::die()
 
 bool IdleLauncher::idling() const
 {
-    return _idling;
+    return m_idling;
 }
 
 bool IdleLauncher::waitingForIdleTaggedTermination() const
 {
-    return _idleCommandRunning;
+    return m_idleCommandRunning;
 }
 
 void IdleLauncher::idleCommandCompleted()
 {
     // FIXME: these asseerts could be triggered by a rogue server...
-    if (_idling) {
+    if (m_idling) {
         task->log("Warning: IDLE completed before we could ask for its termination...", LOG_MAILBOX_SYNC);
-        _idling = false;
+        m_idling = false;
         renewal->stop();
         task->parser->idleMagicallyTerminatedByServer();
     }
-    Q_ASSERT(_idleCommandRunning);
-    _idleCommandRunning = false;
+    Q_ASSERT(m_idleCommandRunning);
+    m_idleCommandRunning = false;
     enterIdleLater();
 }
 
 void IdleLauncher::idleCommandFailed()
 {
     // FIXME: these asseerts could be triggered by a rogue server...
-    Q_ASSERT(_idling);
-    Q_ASSERT(_idleCommandRunning);
+    Q_ASSERT(m_idling);
+    Q_ASSERT(m_idleCommandRunning);
     renewal->stop();
-    _idleCommandRunning = false;
+    m_idleCommandRunning = false;
     task->parser->idleContinuationWontCome();
     die();
 }

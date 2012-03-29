@@ -35,19 +35,19 @@ struct MailboxMetadata {
     QString separator;
     QStringList flags;
 
-    MailboxMetadata(const QString &_mailbox, const QString &_separator, const QStringList &_flags):
-        mailbox(_mailbox), separator(_separator), flags(_flags) {}
+    MailboxMetadata(const QString &mailbox, const QString &separator, const QStringList &flags):
+        mailbox(mailbox), separator(separator), flags(flags) {}
     MailboxMetadata() {}
 };
 
 /** @short Class for keeping track of information from the SELECT command */
 class SyncState
 {
-    uint _exists, _recent, _unSeenCount, _unSeenOffset, _uidNext, _uidValidity;
-    QStringList _flags, _permanentFlags;
+    uint m_exists, m_recent, m_unSeenCount, m_unSeenOffset, m_uidNext, m_uidValidity;
+    QStringList m_flags, m_permanentFlags;
 
-    bool _hasExists, _hasRecent, _hasUnSeenCount, _hasUnSeenOffset, _hasUidNext, _hasUidValidity,
-         _hasFlags, _hasPermanentFlags;
+    bool m_hasExists, m_hasRecent, m_hasUnSeenCount, m_hasUnSeenOffset, m_hasUidNext, m_hasUidValidity,
+         m_hasFlags, m_hasPermanentFlags;
 public:
     SyncState();
     uint exists() const;

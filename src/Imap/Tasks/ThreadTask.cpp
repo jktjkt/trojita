@@ -28,8 +28,8 @@ namespace Mailbox
 {
 
 
-ThreadTask::ThreadTask(Model *_model, const QModelIndex &mailbox, const QString &_algorithm, const QStringList &_searchCriteria):
-    ImapTask(_model), mailboxIndex(mailbox), algorithm(_algorithm), searchCriteria(_searchCriteria)
+ThreadTask::ThreadTask(Model *model, const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria):
+    ImapTask(model), mailboxIndex(mailbox), algorithm(algorithm), searchCriteria(searchCriteria)
 {
     conn = model->findTaskResponsibleFor(mailbox);
     conn->addDependentTask(this);

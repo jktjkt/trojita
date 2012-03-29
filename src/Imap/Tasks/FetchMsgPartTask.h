@@ -32,7 +32,7 @@ class FetchMsgPartTask : public ImapTask
 {
     Q_OBJECT
 public:
-    FetchMsgPartTask(Model *_model, const QModelIndex &_mailbox, const QList<uint> &_uids, const QStringList &_parts);
+    FetchMsgPartTask(Model *model, const QModelIndex &mailbox, const QList<uint> &uids, const QStringList &parts);
     virtual void perform();
 
     virtual bool handleFetch(const Imap::Responses::Fetch *const resp);

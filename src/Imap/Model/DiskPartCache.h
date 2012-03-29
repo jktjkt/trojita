@@ -62,7 +62,7 @@ private:
     QString dirForMailbox(const QString &mailbox) const;
 
     /** @short The root directory for all caching */
-    QString _cacheDir;
+    QString cacheDir;
 };
 
 }

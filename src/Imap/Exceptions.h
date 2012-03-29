@@ -48,30 +48,30 @@ class ImapException : public std::exception
 {
 protected:
     /** The error message */
-    std::string _msg;
+    std::string m_msg;
     /** Line with data that caused this error */
-    QByteArray _line;
+    QByteArray m_line;
     /** Offset in line for error source */
-    int _offset;
+    int m_offset;
     /** Class name of the exception */
-    std::string _exceptionClass;
+    std::string m_exceptionClass;
 public:
-    ImapException(): _offset(-1), _exceptionClass("ImapException") {}
-    ImapException(const std::string &msg) : _msg(msg), _offset(-1), _exceptionClass("ImapException") {};
+    ImapException(): m_offset(-1), m_exceptionClass("ImapException") {}
+    ImapException(const std::string &msg) : m_msg(msg), m_offset(-1), m_exceptionClass("ImapException") {};
     ImapException(const std::string &msg, const QByteArray &line, const int offset):
-        _msg(msg), _line(line), _offset(offset), _exceptionClass("ImapException") {};
+        m_msg(msg), m_line(line), m_offset(offset), m_exceptionClass("ImapException") {};
     virtual const char *what() const throw();
     virtual ~ImapException() throw() {};
-    std::string msg() const { return _msg; }
-    QByteArray line() const { return _line; }
-    int offset() const { return _offset; }
-    std::string exceptionClass() const { return _exceptionClass; }
+    std::string msg() const { return m_msg; }
+    QByteArray line() const { return m_line; }
+    int offset() const { return m_offset; }
+    std::string exceptionClass() const { return m_exceptionClass; }
 };
 
 #define ECBODY(CLASSNAME, PARENT) class CLASSNAME: public PARENT { \
-    public: CLASSNAME( const std::string& msg ): PARENT(msg ) { _exceptionClass = #CLASSNAME; }\
-    CLASSNAME( const QByteArray& line, const int offset ): PARENT( #CLASSNAME, line, offset ) { _exceptionClass = #CLASSNAME; }\
-    CLASSNAME( const std::string& msg, const QByteArray& line, const int offset ): PARENT( msg, line, offset ) { _exceptionClass = #CLASSNAME; }\
+    public: CLASSNAME(const std::string &msg): PARENT(msg) { m_exceptionClass = #CLASSNAME; }\
+    CLASSNAME(const QByteArray &line, const int offset): PARENT(#CLASSNAME, line, offset) { m_exceptionClass = #CLASSNAME; }\
+    CLASSNAME(const std::string &msg, const QByteArray &line, const int offset): PARENT(msg, line, offset) { m_exceptionClass = #CLASSNAME; }\
     };
 
 /** @short The STARTTLS command failed */
@@ -121,14 +121,14 @@ class MailboxException: public ImapException
 public:
     MailboxException(const char *const msg, const Imap::Responses::AbstractResponse &response);
     MailboxException(const char *const msg);
-    virtual const char *what() const throw() { return _msg.c_str(); };
+    virtual const char *what() const throw() { return m_msg.c_str(); };
     virtual ~MailboxException() throw() {};
 
 };
 
 #define ECBODY(CLASSNAME, PARENT) class CLASSNAME: public PARENT { \
-    public: CLASSNAME(const char* const msg, const Imap::Responses::AbstractResponse& response): PARENT(msg, response) { _exceptionClass=#CLASSNAME; } \
-    CLASSNAME(const char* const msg): PARENT(msg) { _exceptionClass=#CLASSNAME; } \
+    public: CLASSNAME(const char *const msg, const Imap::Responses::AbstractResponse &response): PARENT(msg, response) { m_exceptionClass=#CLASSNAME; } \
+    CLASSNAME(const char *const msg): PARENT(msg) { m_exceptionClass=#CLASSNAME; } \
     };
 
 /** @short Server sent us something that isn't expected right now */

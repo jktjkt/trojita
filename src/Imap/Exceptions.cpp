@@ -28,14 +28,14 @@ namespace Imap
 
 const char *ImapException::what() const throw()
 {
-    if (_offset == -1)
-        return _msg.c_str();
+    if (m_offset == -1)
+        return m_msg.c_str();
     else {
-        QByteArray out(_msg.c_str());
+        QByteArray out(m_msg.c_str());
         out += " when parsing this:\n";
-        out += _line;
-        out += QByteArray(_offset, ' ');
-        out += "^ here (offset " + QString::number(_offset) + ")\n";
+        out += m_line;
+        out += QByteArray(m_offset, ' ');
+        out += "^ here (offset " + QString::number(m_offset) + ")\n";
         return out.constData();
     }
 }
@@ -48,14 +48,14 @@ MailboxException::MailboxException(const char *const msg,
     QTextStream s(&buf);
     s << msg << "\r\n" << response;
     s.flush();
-    _msg = buf.constData();
-    _exceptionClass = "MailboxException";
+    m_msg = buf.constData();
+    m_exceptionClass = "MailboxException";
 }
 
 MailboxException::MailboxException(const char *const msg)
 {
-    _msg = msg;
-    _exceptionClass = "MailboxException";
+    m_msg = msg;
+    m_exceptionClass = "MailboxException";
 }
 
 }

@@ -41,7 +41,7 @@ class ObtainSynchronizedMailboxTask : public ImapTask
 {
     Q_OBJECT
 public:
-    ObtainSynchronizedMailboxTask(Model *_model, const QModelIndex &_mailboxIndex, ImapTask *parentTask, KeepMailboxOpenTask *keepTask);
+    ObtainSynchronizedMailboxTask(Model *model, const QModelIndex &mailboxIndex, ImapTask *parentTask, KeepMailboxOpenTask *keepTask);
     virtual void perform();
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
     virtual bool handleNumberResponse(const Imap::Responses::NumberResponse *const resp);
@@ -56,15 +56,15 @@ public:
     virtual QString debugIdentification() const;
 
 private:
-    void _finalizeSelect();
-    void _fullMboxSync(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState);
-    void _syncNoNewNoDeletions(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState, const QList<uint> &seqToUid);
-    void _syncOnlyDeletions(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState);
-    void _syncOnlyAdditions(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState, const SyncState &oldState);
-    void _syncGeneric(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState);
+    void finalizeSelect();
+    void fullMboxSync(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState);
+    void syncNoNewNoDeletions(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState, const QList<uint> &seqToUid);
+    void syncOnlyDeletions(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState);
+    void syncOnlyAdditions(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState, const SyncState &oldState);
+    void syncGeneric(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState);
 
-    void _finalizeUidSyncAll(TreeItemMailbox *mailbox);
-    void _finalizeUidSyncOnlyNew(Model *model, TreeItemMailbox *mailbox, const uint oldExists, QList<uint> &uidMap);
+    void finalizeUidSyncAll(TreeItemMailbox *mailbox);
+    void finalizeUidSyncOnlyNew(Model *model, TreeItemMailbox *mailbox, const uint oldExists, QList<uint> &uidMap);
 
     void syncUids(TreeItemMailbox *mailbox, const uint lowestUidToQuery=0);
     void syncFlags(TreeItemMailbox *mailbox);

@@ -91,13 +91,13 @@ public:
 
 private:
     /** @short The SQL-based cache */
-    SQLCache *_sqlCache;
+    SQLCache *sqlCache;
     /** @short Cache for bigger message parts */
-    DiskPartCache *_diskPartCache;
+    DiskPartCache *diskPartCache;
     /** @short Name of the DB connection */
-    QString _name;
+    QString name;
     /** @short Directory to serve as a cache root */
-    QString _cacheDir;
+    QString cacheDir;
 };
 
 }

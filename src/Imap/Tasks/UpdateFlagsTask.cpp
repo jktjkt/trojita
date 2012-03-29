@@ -28,16 +28,16 @@ namespace Imap
 namespace Mailbox
 {
 
-UpdateFlagsTask::UpdateFlagsTask(Model *_model, const QModelIndexList &_messages, const FlagsOperation _flagOperation, const QString &_flags):
-    ImapTask(_model), copyMove(0), flagOperation(_flagOperation), flags(_flags)
+UpdateFlagsTask::UpdateFlagsTask(Model *model, const QModelIndexList &messages_, const FlagsOperation flagOperation, const QString &flags):
+    ImapTask(model), copyMove(0), flagOperation(flagOperation), flags(flags)
 {
-    if (_messages.isEmpty()) {
+    if (messages_.isEmpty()) {
         throw CantHappen("UpdateFlagsTask called with empty message set");
     }
-    Q_FOREACH(const QModelIndex& index, _messages) {
+    Q_FOREACH(const QModelIndex& index, messages_) {
         messages << index;
     }
-    QModelIndex mailboxIndex = model->findMailboxForItems(_messages);
+    QModelIndex mailboxIndex = model->findMailboxForItems(messages_);
     conn = model->findTaskResponsibleFor(mailboxIndex);
     conn->addDependentTask(this);
 }

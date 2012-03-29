@@ -29,17 +29,17 @@ namespace Mailbox
 {
 
 
-CopyMoveMessagesTask::CopyMoveMessagesTask(Model *_model, const QModelIndexList &_messages,
-        const QString &_targetMailbox, const CopyMoveOperation _op):
-    ImapTask(_model), targetMailbox(_targetMailbox), shouldDelete(_op == MOVE)
+CopyMoveMessagesTask::CopyMoveMessagesTask(Model *model, const QModelIndexList &messages_, const QString &targetMailbox,
+                                           const CopyMoveOperation op):
+    ImapTask(model), targetMailbox(targetMailbox), shouldDelete(op == MOVE)
 {
-    if (_messages.isEmpty()) {
+    if (messages_.isEmpty()) {
         throw CantHappen("CopyMoveMessagesTask called with empty message set");
     }
-    Q_FOREACH(const QModelIndex& index, _messages) {
+    Q_FOREACH(const QModelIndex& index, messages_) {
         messages << index;
     }
-    QModelIndex mailboxIndex = model->findMailboxForItems(_messages);
+    QModelIndex mailboxIndex = model->findMailboxForItems(messages_);
     conn = model->findTaskResponsibleFor(mailboxIndex);
     conn->addDependentTask(this);
 }

@@ -29,8 +29,8 @@ namespace Mailbox
 {
 
 
-Fake_ListChildMailboxesTask::Fake_ListChildMailboxesTask(Model *_model, const QModelIndex &mailbox):
-    ListChildMailboxesTask(_model, mailbox)
+Fake_ListChildMailboxesTask::Fake_ListChildMailboxesTask(Model *model, const QModelIndex &mailbox):
+    ListChildMailboxesTask(model, mailbox)
 {
     TreeItemMailbox *mailboxPtr = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailbox.internalPointer()));
     Q_ASSERT(mailboxPtr);

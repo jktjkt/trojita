@@ -28,8 +28,8 @@ namespace Imap
 namespace Mailbox
 {
 
-GetAnyConnectionTask::GetAnyConnectionTask(Model *_model) :
-    ImapTask(_model), newConn(0)
+GetAnyConnectionTask::GetAnyConnectionTask(Model *model) :
+    ImapTask(model), newConn(0)
 {
     QMap<Parser *,ParserState>::iterator it = model->_parsers.begin();
     while (it != model->_parsers.end()) {

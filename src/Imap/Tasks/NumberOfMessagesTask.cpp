@@ -28,8 +28,8 @@ namespace Mailbox
 {
 
 
-NumberOfMessagesTask::NumberOfMessagesTask(Model *_model, const QModelIndex &mailbox):
-    ImapTask(_model), mailboxIndex(mailbox)
+NumberOfMessagesTask::NumberOfMessagesTask(Model *model, const QModelIndex &mailbox):
+    ImapTask(model), mailboxIndex(mailbox)
 {
     TreeItemMailbox *mailboxPtr = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailbox.internalPointer()));
     Q_ASSERT(mailboxPtr);

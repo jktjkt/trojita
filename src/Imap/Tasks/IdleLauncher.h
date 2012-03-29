@@ -90,9 +90,9 @@ private:
     QTimer *delayedEnter;
     QTimer *renewal;
     /** @short Are we between queueing the IDLE and DONE statements? */
-    bool _idling;
+    bool m_idling;
     /** @short Are we between queueing the IDLE and receiving the <tag> OK? */
-    bool _idleCommandRunning;
+    bool m_idleCommandRunning;
 
     IdleLauncher(const Imap::Mailbox::IdleLauncher &); // don't implement
     IdleLauncher &operator=(const Imap::Mailbox::IdleLauncher &); // don't implement

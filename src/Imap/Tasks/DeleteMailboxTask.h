@@ -31,7 +31,7 @@ class DeleteMailboxTask : public ImapTask
 {
     Q_OBJECT
 public:
-    DeleteMailboxTask(Model *_model, const QString &_mailbox);
+    DeleteMailboxTask(Model *model, const QString &mailbox);
     virtual void perform();
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);

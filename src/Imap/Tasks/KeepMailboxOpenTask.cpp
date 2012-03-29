@@ -39,13 +39,13 @@ namespace Mailbox
 FIXME: we should eat "* OK [CLOSED] former mailbox closed", or somehow let it fall down to the model, which shouldn't delegate it to AuthenticatedHandler
 */
 
-KeepMailboxOpenTask::KeepMailboxOpenTask(Model *_model, const QModelIndex &_mailboxIndex, Parser *oldParser) :
-    ImapTask(_model), mailboxIndex(_mailboxIndex), synchronizeConn(0), shouldExit(false), isRunning(false),
+KeepMailboxOpenTask::KeepMailboxOpenTask(Model *model, const QModelIndex &mailboxIndex, Parser *oldParser) :
+    ImapTask(model), mailboxIndex(mailboxIndex), synchronizeConn(0), shouldExit(false), isRunning(false),
     shouldRunNoop(false), shouldRunIdle(false), idleLauncher(0), unSelectTask(0)
 {
     Q_ASSERT(mailboxIndex.isValid());
     Q_ASSERT(mailboxIndex.model() == model);
-    TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(_mailboxIndex.internalPointer()));
+    TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
     Q_ASSERT(mailbox);
 
     // We're the latest KeepMailboxOpenTask, so it makes a lot of sense to add us as the active
@@ -63,11 +63,11 @@ KeepMailboxOpenTask::KeepMailboxOpenTask(Model *_model, const QModelIndex &_mail
             // The parser looks busy -- some task is associated with it and has a mailbox open, so
             // let's just wait till we get a chance to play
             synchronizeConn = model->_taskFactory->
-                              createObtainSynchronizedMailboxTask(_model, mailboxIndex, model->accessParser(oldParser).maintainingTask, this);
+                              createObtainSynchronizedMailboxTask(model, mailboxIndex, model->accessParser(oldParser).maintainingTask, this);
         } else {
             // The parser is free, or at least there's no KeepMailboxOpenTask associated with it.
             // There's no mailbox besides us in the game, yet, so we can simply schedule us for immediate execution.
-            synchronizeConn = model->_taskFactory->createObtainSynchronizedMailboxTask(_model, mailboxIndex, 0, this);
+            synchronizeConn = model->_taskFactory->createObtainSynchronizedMailboxTask(model, mailboxIndex, 0, this);
             // We'll also register with the model, so that all other KeepMailboxOpenTask which could get constructed in future
             // know about us and don't step on our toes.  This means that further KeepMailboxOpenTask which could possibly want
             // to use this connection will have to go through this task at first.
@@ -85,7 +85,7 @@ KeepMailboxOpenTask::KeepMailboxOpenTask(Model *_model, const QModelIndex &_mail
         parser = conn->parser;
         Q_ASSERT(parser);
         model->accessParser(parser).maintainingTask = this;
-        synchronizeConn = model->_taskFactory->createObtainSynchronizedMailboxTask(_model, mailboxIndex, conn, this);
+        synchronizeConn = model->_taskFactory->createObtainSynchronizedMailboxTask(model, mailboxIndex, conn, this);
     }
 
     // Setup the timer for NOOPing. It won't get started at this time, though.

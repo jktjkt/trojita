@@ -26,7 +26,7 @@ namespace Imap
 namespace Mailbox
 {
 
-OfflineConnectionTask::OfflineConnectionTask(Model *_model) : ImapTask(_model)
+OfflineConnectionTask::OfflineConnectionTask(Model *model) : ImapTask(model)
 {
     parser = new Parser(model, new FakeSocket(), ++model->lastParserId);
     ParserState parserState(parser);

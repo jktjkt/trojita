@@ -23,12 +23,12 @@ namespace Imap
 namespace Mailbox
 {
 
-Fake_OpenConnectionTask::Fake_OpenConnectionTask(Imap::Mailbox::Model *_model, Imap::Parser *_parser):
-    OpenConnectionTask(_model, 0)
+Fake_OpenConnectionTask::Fake_OpenConnectionTask(Imap::Mailbox::Model *model, Imap::Parser *parser_):
+    OpenConnectionTask(model, 0)
 {
     // We really want to call the protected constructor, otherwise the OpenConnectionTask
     // would create a socket itself, and we don't want to end up there
-    parser = _parser;
+    parser = parser_;
     QTimer::singleShot(0, this, SLOT(slotPerform()));
 }
 

@@ -27,8 +27,8 @@ namespace Imap
 namespace Mailbox
 {
 
-UnSelectTask::UnSelectTask(Model *_model, ImapTask *parentTask) :
-    ImapTask(_model)
+UnSelectTask::UnSelectTask(Model *model, ImapTask *parentTask) :
+    ImapTask(model)
 {
     conn = parentTask;
     parser = conn->parser;

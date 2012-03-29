@@ -31,7 +31,7 @@ class UnSelectTask : public ImapTask
 {
     Q_OBJECT
 public:
-    UnSelectTask(Model *_model, ImapTask *parentTask);
+    UnSelectTask(Model *model, ImapTask *parentTask);
     virtual void perform();
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);

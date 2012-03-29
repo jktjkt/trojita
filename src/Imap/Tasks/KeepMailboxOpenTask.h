@@ -59,7 +59,7 @@ public:
     @arg formerMailbox the mailbox which was kept open by the previous KeepMailboxOpenTask;
     that mailbox now loses its KeepMailboxOpenTask and the underlying parser is reused for this task
     */
-    KeepMailboxOpenTask(Model *_model, const QModelIndex &_mailboxIndex, Parser *oldParser);
+    KeepMailboxOpenTask(Model *model, const QModelIndex &mailboxIndex, Parser *oldParser);
 
     virtual void abort();
     virtual void die();

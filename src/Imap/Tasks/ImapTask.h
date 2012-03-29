@@ -51,7 +51,7 @@ class ImapTask : public QObject
 {
     Q_OBJECT
 public:
-    ImapTask(Model *_model);
+    ImapTask(Model *model);
     virtual ~ImapTask();
 
     virtual void perform() = 0;

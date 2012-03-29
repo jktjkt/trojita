@@ -69,10 +69,10 @@ namespace Imap
 namespace Mailbox
 {
 
-DiskPartCache::DiskPartCache(QObject *parent, const QString &cacheDir): QObject(parent), _cacheDir(cacheDir)
+DiskPartCache::DiskPartCache(QObject *parent, const QString &cacheDir_): QObject(parent), cacheDir(cacheDir_)
 {
-    if (! _cacheDir.endsWith(QChar('/')))
-        _cacheDir.append(QChar('/'));
+    if (!cacheDir.endsWith(QChar('/')))
+        cacheDir.append(QChar('/'));
 }
 
 void DiskPartCache::clearAllMessages(const QString &mailbox)
@@ -120,7 +120,7 @@ void DiskPartCache::setMsgPart(const QString &mailbox, uint uid, const QString &
 
 QString DiskPartCache::dirForMailbox(const QString &mailbox) const
 {
-    return _cacheDir + mailbox.toUtf8().toBase64();
+    return cacheDir + mailbox.toUtf8().toBase64();
 }
 
 }

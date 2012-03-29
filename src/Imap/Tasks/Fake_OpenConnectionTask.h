@@ -36,7 +36,7 @@ class Fake_OpenConnectionTask: public OpenConnectionTask
 {
     Q_OBJECT
 public:
-    Fake_OpenConnectionTask(Imap::Mailbox::Model *_model, Imap::Parser *_parser);
+    Fake_OpenConnectionTask(Imap::Mailbox::Model *model, Imap::Parser *parser);
     virtual void perform();
 protected slots:
     void slotPerform() { perform(); }

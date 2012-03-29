@@ -45,7 +45,7 @@ public:
     should be FLAGS, +FLAGS or -FLAGS (all of them optionally with the ".silent" modifier),
     and the desired change (actual flags) is passed in the @arg _flags argument.
     */
-    UpdateFlagsTask(Model *_model, const QModelIndexList &_messages, const FlagsOperation _flagOperation, const QString &_flags);
+    UpdateFlagsTask(Model *model, const QModelIndexList &messages_, const FlagsOperation flagOperation, const QString &flags);
 
     /** @short Marking moved messages as deleted */
     UpdateFlagsTask(Model *_model, CopyMoveMessagesTask *copyTask, const QList<QPersistentModelIndex> &_messages,

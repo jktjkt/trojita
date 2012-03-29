@@ -36,7 +36,7 @@ class ThreadTask : public ImapTask
 {
     Q_OBJECT
 public:
-    ThreadTask(Model *_model, const QModelIndex &mailbox, const QString &_algorithm, const QStringList &_searchCriteria);
+    ThreadTask(Model *model, const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria);
     virtual void perform();
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);

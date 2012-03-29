@@ -28,10 +28,10 @@ namespace Mailbox
 {
 
 
-DeleteMailboxTask::DeleteMailboxTask(Model *_model, const QString &_mailbox):
-    ImapTask(_model), mailbox(_mailbox)
+DeleteMailboxTask::DeleteMailboxTask(Model *model, const QString &mailbox):
+    ImapTask(model), mailbox(mailbox)
 {
-    conn = model->_taskFactory->createGetAnyConnectionTask(_model);
+    conn = model->_taskFactory->createGetAnyConnectionTask(model);
     conn->addDependentTask(this);
 }
 

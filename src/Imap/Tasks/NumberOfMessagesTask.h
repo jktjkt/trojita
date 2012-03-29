@@ -32,7 +32,7 @@ class NumberOfMessagesTask : public ImapTask
 {
     Q_OBJECT
 public:
-    NumberOfMessagesTask(Model *_model, const QModelIndex &mailbox);
+    NumberOfMessagesTask(Model *model, const QModelIndex &mailbox);
     virtual void perform();
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);

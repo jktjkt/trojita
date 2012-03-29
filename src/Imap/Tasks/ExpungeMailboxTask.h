@@ -36,7 +36,7 @@ class ExpungeMailboxTask : public ImapTask
 {
     Q_OBJECT
 public:
-    ExpungeMailboxTask(Model *_model, const QModelIndex &mailbox);
+    ExpungeMailboxTask(Model *model, const QModelIndex &mailbox);
     virtual void perform();
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);

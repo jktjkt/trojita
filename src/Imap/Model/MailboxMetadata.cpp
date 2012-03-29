@@ -27,109 +27,109 @@ namespace Mailbox
 
 
 SyncState::SyncState():
-    _exists(0), _recent(0), _unSeenCount(0), _unSeenOffset(0), _uidNext(0), _uidValidity(0),
-    _hasExists(false), _hasRecent(false), _hasUnSeenCount(false), _hasUnSeenOffset(false),
-    _hasUidNext(false), _hasUidValidity(false), _hasFlags(false),
-    _hasPermanentFlags(false)
+    m_exists(0), m_recent(0), m_unSeenCount(0), m_unSeenOffset(0), m_uidNext(0), m_uidValidity(0),
+    m_hasExists(false), m_hasRecent(false), m_hasUnSeenCount(false), m_hasUnSeenOffset(false),
+    m_hasUidNext(false), m_hasUidValidity(false), m_hasFlags(false),
+    m_hasPermanentFlags(false)
 {
 }
 
 bool SyncState::isUsableForNumbers() const
 {
-    return _hasExists && _hasRecent && _hasUnSeenCount;
+    return m_hasExists && m_hasRecent && m_hasUnSeenCount;
 }
 
 bool SyncState::isUsableForSyncing() const
 {
-    return _hasExists && _hasUidNext && _hasUidValidity;
+    return m_hasExists && m_hasUidNext && m_hasUidValidity;
 }
 
 uint SyncState::exists() const
 {
-    return _exists;
+    return m_exists;
 }
 
 void SyncState::setExists(const uint exists)
 {
-    _exists = exists;
-    _hasExists = true;
+    m_exists = exists;
+    m_hasExists = true;
 }
 
 QStringList SyncState::flags() const
 {
-    return _flags;
+    return m_flags;
 }
 
 void SyncState::setFlags(const QStringList &flags)
 {
-    _flags = flags;
-    _hasFlags = true;
+    m_flags = flags;
+    m_hasFlags = true;
 }
 
 QStringList SyncState::permanentFlags() const
 {
-    return _permanentFlags;
+    return m_permanentFlags;
 }
 
 void SyncState::setPermanentFlags(const QStringList &permanentFlags)
 {
-    _permanentFlags = permanentFlags;
-    _hasPermanentFlags = true;
+    m_permanentFlags = permanentFlags;
+    m_hasPermanentFlags = true;
 }
 
 uint SyncState::recent() const
 {
-    return _recent;
+    return m_recent;
 }
 
 void SyncState::setRecent(const uint recent)
 {
-    _recent = recent;
-    _hasRecent = true;
+    m_recent = recent;
+    m_hasRecent = true;
 }
 
 uint SyncState::uidNext() const
 {
-    return _uidNext;
+    return m_uidNext;
 }
 
 void SyncState::setUidNext(const uint uidNext)
 {
-    _uidNext = uidNext;
-    _hasUidNext = true;
+    m_uidNext = uidNext;
+    m_hasUidNext = true;
 }
 
 uint SyncState::uidValidity() const
 {
-    return _uidValidity;
+    return m_uidValidity;
 }
 
 void SyncState::setUidValidity(const uint uidValidity)
 {
-    _uidValidity = uidValidity;
-    _hasUidValidity = true;
+    m_uidValidity = uidValidity;
+    m_hasUidValidity = true;
 }
 
 uint SyncState::unSeenCount() const
 {
-    return _unSeenCount;
+    return m_unSeenCount;
 }
 
 void SyncState::setUnSeenCount(const uint unSeen)
 {
-    _unSeenCount = unSeen;
-    _hasUnSeenCount = true;
+    m_unSeenCount = unSeen;
+    m_hasUnSeenCount = true;
 }
 
 uint SyncState::unSeenOffset() const
 {
-    return _unSeenOffset;
+    return m_unSeenOffset;
 }
 
 void SyncState::setUnSeenOffset(const uint unSeen)
 {
-    _unSeenOffset = unSeen;
-    _hasUnSeenOffset = true;
+    m_unSeenOffset = unSeen;
+    m_hasUnSeenOffset = true;
 }
 
 }

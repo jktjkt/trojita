@@ -39,7 +39,7 @@ class OpenConnectionTask : public ImapTask
 {
     Q_OBJECT
 public:
-    OpenConnectionTask(Model *_model);
+    OpenConnectionTask(Model *model);
     virtual void perform();
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
@@ -47,7 +47,7 @@ public:
 
 protected:
     /** @short A special, internal constructor used only by Fake_OpenConnectionTask */
-    OpenConnectionTask(Model *_model, void *dummy);
+    OpenConnectionTask(Model *model, void *dummy);
 
 private:
     bool stateMachine(const Imap::Responses::State *const resp);

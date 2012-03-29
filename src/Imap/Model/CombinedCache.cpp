@@ -29,12 +29,12 @@ namespace Mailbox
 {
 
 CombinedCache::CombinedCache(QObject *parent, const QString &name, const QString &cacheDir):
-    AbstractCache(parent), _name(name), _cacheDir(cacheDir)
+    AbstractCache(parent), name(name), cacheDir(cacheDir)
 {
-    _sqlCache = new SQLCache(this);
-    connect(_sqlCache, SIGNAL(error(QString)), this, SIGNAL(error(QString)));
-    _diskPartCache = new DiskPartCache(this, cacheDir);
-    connect(_diskPartCache, SIGNAL(error(QString)), this, SIGNAL(error(QString)));
+    sqlCache = new SQLCache(this);
+    connect(sqlCache, SIGNAL(error(QString)), this, SIGNAL(error(QString)));
+    diskPartCache = new DiskPartCache(this, cacheDir);
+    connect(diskPartCache, SIGNAL(error(QString)), this, SIGNAL(error(QString)));
 }
 
 CombinedCache::~CombinedCache()
@@ -43,91 +43,91 @@ CombinedCache::~CombinedCache()
 
 bool CombinedCache::open()
 {
-    return _sqlCache->open(_name, _cacheDir + QLatin1String("/imap.cache.sqlite"));
+    return sqlCache->open(name, cacheDir + QLatin1String("/imap.cache.sqlite"));
 }
 
 QList<MailboxMetadata> CombinedCache::childMailboxes(const QString &mailbox) const
 {
-    return _sqlCache->childMailboxes(mailbox);
+    return sqlCache->childMailboxes(mailbox);
 }
 
 bool CombinedCache::childMailboxesFresh(const QString &mailbox) const
 {
-    return _sqlCache->childMailboxesFresh(mailbox);
+    return sqlCache->childMailboxesFresh(mailbox);
 }
 
 void CombinedCache::setChildMailboxes(const QString &mailbox, const QList<MailboxMetadata> &data)
 {
-    _sqlCache->setChildMailboxes(mailbox, data);
+    sqlCache->setChildMailboxes(mailbox, data);
 }
 
 void CombinedCache::forgetChildMailboxes(const QString &mailbox)
 {
-    _sqlCache->forgetChildMailboxes(mailbox);
+    sqlCache->forgetChildMailboxes(mailbox);
 }
 
 SyncState CombinedCache::mailboxSyncState(const QString &mailbox) const
 {
-    return _sqlCache->mailboxSyncState(mailbox);
+    return sqlCache->mailboxSyncState(mailbox);
 }
 
 void CombinedCache::setMailboxSyncState(const QString &mailbox, const SyncState &state)
 {
-    _sqlCache->setMailboxSyncState(mailbox, state);
+    sqlCache->setMailboxSyncState(mailbox, state);
 }
 
 QList<uint> CombinedCache::uidMapping(const QString &mailbox) const
 {
-    return _sqlCache->uidMapping(mailbox);
+    return sqlCache->uidMapping(mailbox);
 }
 
 void CombinedCache::setUidMapping(const QString &mailbox, const QList<uint> &seqToUid)
 {
-    _sqlCache->setUidMapping(mailbox, seqToUid);
+    sqlCache->setUidMapping(mailbox, seqToUid);
 }
 
 void CombinedCache::clearUidMapping(const QString &mailbox)
 {
-    _sqlCache->clearUidMapping(mailbox);
+    sqlCache->clearUidMapping(mailbox);
 }
 
 void CombinedCache::clearAllMessages(const QString &mailbox)
 {
-    _sqlCache->clearAllMessages(mailbox);
-    _diskPartCache->clearAllMessages(mailbox);
+    sqlCache->clearAllMessages(mailbox);
+    diskPartCache->clearAllMessages(mailbox);
 }
 
 void CombinedCache::clearMessage(const QString mailbox, uint uid)
 {
-    _sqlCache->clearMessage(mailbox, uid);
-    _diskPartCache->clearMessage(mailbox, uid);
+    sqlCache->clearMessage(mailbox, uid);
+    diskPartCache->clearMessage(mailbox, uid);
 }
 
 QStringList CombinedCache::msgFlags(const QString &mailbox, uint uid) const
 {
-    return _sqlCache->msgFlags(mailbox, uid);
+    return sqlCache->msgFlags(mailbox, uid);
 }
 
 void CombinedCache::setMsgFlags(const QString &mailbox, uint uid, const QStringList &flags)
 {
-    _sqlCache->setMsgFlags(mailbox, uid, flags);
+    sqlCache->setMsgFlags(mailbox, uid, flags);
 }
 
 AbstractCache::MessageDataBundle CombinedCache::messageMetadata(const QString &mailbox, uint uid) const
 {
-    return _sqlCache->messageMetadata(mailbox, uid);
+    return sqlCache->messageMetadata(mailbox, uid);
 }
 
 void CombinedCache::setMessageMetadata(const QString &mailbox, uint uid, const MessageDataBundle &metadata)
 {
-    _sqlCache->setMessageMetadata(mailbox, uid, metadata);
+    sqlCache->setMessageMetadata(mailbox, uid, metadata);
 }
 
 QByteArray CombinedCache::messagePart(const QString &mailbox, uint uid, const QString &partId) const
 {
-    QByteArray res = _sqlCache->messagePart(mailbox, uid, partId);
+    QByteArray res = sqlCache->messagePart(mailbox, uid, partId);
     if (res.isEmpty()) {
-        res = _diskPartCache->messagePart(mailbox, uid, partId);
+        res = diskPartCache->messagePart(mailbox, uid, partId);
     }
     return res;
 }
@@ -135,20 +135,20 @@ QByteArray CombinedCache::messagePart(const QString &mailbox, uint uid, const QS
 void CombinedCache::setMsgPart(const QString &mailbox, uint uid, const QString &partId, const QByteArray &data)
 {
     if (data.size() < 1000) {
-        _sqlCache->setMsgPart(mailbox, uid, partId, data);
+        sqlCache->setMsgPart(mailbox, uid, partId, data);
     } else {
-        _diskPartCache->setMsgPart(mailbox, uid, partId, data);
+        diskPartCache->setMsgPart(mailbox, uid, partId, data);
     }
 }
 
 QVector<Imap::Responses::ThreadingNode> CombinedCache::messageThreading(const QString &mailbox)
 {
-    return _sqlCache->messageThreading(mailbox);
+    return sqlCache->messageThreading(mailbox);
 }
 
 void CombinedCache::setMessageThreading(const QString &mailbox, const QVector<Imap::Responses::ThreadingNode> &threading)
 {
-    _sqlCache->setMessageThreading(mailbox, threading);
+    sqlCache->setMessageThreading(mailbox, threading);
 }
 
 }

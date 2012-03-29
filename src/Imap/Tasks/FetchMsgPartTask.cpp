@@ -28,8 +28,8 @@ namespace Imap
 namespace Mailbox
 {
 
-FetchMsgPartTask::FetchMsgPartTask(Model *_model, const QModelIndex &mailbox, const QList<uint> &_uids, const QStringList &_parts):
-    ImapTask(_model), uids(_uids), parts(_parts), mailboxIndex(mailbox)
+FetchMsgPartTask::FetchMsgPartTask(Model *model, const QModelIndex &mailbox, const QList<uint> &uids, const QStringList &parts):
+    ImapTask(model), uids(uids), parts(parts), mailboxIndex(mailbox)
 {
     Q_ASSERT(!uids.isEmpty());
     conn = model->findTaskResponsibleFor(mailboxIndex);

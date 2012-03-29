@@ -25,8 +25,8 @@ namespace Imap
 namespace Mailbox
 {
 
-OpenConnectionTask::OpenConnectionTask(Model *_model) :
-    ImapTask(_model), waitingForGreetings(true), gotPreauth(false)
+OpenConnectionTask::OpenConnectionTask(Model *model) :
+    ImapTask(model), waitingForGreetings(true), gotPreauth(false)
 {
     // Offline mode shall be checked by the caller who decides to create the conneciton
     Q_ASSERT(model->networkPolicy() != Model::NETWORK_OFFLINE);
@@ -44,7 +44,8 @@ OpenConnectionTask::OpenConnectionTask(Model *_model) :
     markAsActiveTask();
 }
 
-OpenConnectionTask::OpenConnectionTask(Model *_model, void *dummy): ImapTask(_model)
+OpenConnectionTask::OpenConnectionTask(Model *model, void *dummy):
+    ImapTask(model)
 {
     Q_UNUSED(dummy);
 }
