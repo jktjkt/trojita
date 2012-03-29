@@ -106,11 +106,9 @@ public slots:
     void handleRowsAboutToBeInserted(const QModelIndex &parent, int start, int end);
     void handleRowsInserted(const QModelIndex &parent, int start, int end);
     /** @short Feed this with the data from a THREAD response */
-    void slotThreadingAvailable(const QModelIndex &mailbox, const QString &algorithm,
-                                const QStringList &searchCriteria,
+    void slotThreadingAvailable(const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria,
                                 const QVector<Imap::Responses::ThreadingNode> &mapping);
-    void slotThreadingFailed(const QModelIndex &mailbox, const QString &algorithm,
-                             const QStringList &searchCriteria);
+    void slotThreadingFailed(const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria);
     /** @short Really apply threading to this model */
     void applyThreading(const QVector<Imap::Responses::ThreadingNode> &mapping);
 
@@ -157,9 +155,9 @@ private:
 
     This tree is indexed by our internal ID.
     */
-    QHash<uint,ThreadNodeInfo> _threading;
+    QHash<uint,ThreadNodeInfo> threading;
     /** @short Last assigned internal ID */
-    uint _threadingHelperLastId;
+    uint threadingHelperLastId;
     /** @short Messages with unkown UIDs */
     QList<QPersistentModelIndex> unknownUids;
 
@@ -178,7 +176,7 @@ private:
     QList<void *> oldPtrs;
 
     /** @short There's a pending THREAD command for which we haven't received data yet */
-    bool m_threadingInFlight;
+    bool threadingInFlight;
 
     friend class ::ImapModelThreadingTest; // needs access to wantThreading();
 };
