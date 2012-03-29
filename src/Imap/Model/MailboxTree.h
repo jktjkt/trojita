@@ -42,14 +42,14 @@ class KeepMailboxOpenTask;
 
 class TreeItem
 {
-    friend class Model; // for _loading and _fetched
+    friend class Model; // for m_loading and m_fetched
     TreeItem(const TreeItem &); // don't implement
     void operator=(const TreeItem &);  // don't implement
-    friend class DeleteMailboxTask; // for direct access to _children
+    friend class DeleteMailboxTask; // for direct access to m_children
     friend class ObtainSynchronizedMailboxTask;
-    friend class KeepMailboxOpenTask; // for direct access to _children
-    friend class MsgListModel; // for direct access to _children
-    friend class ThreadingMsgListModel; // for direct access to _children
+    friend class KeepMailboxOpenTask; // for direct access to m_children
+    friend class MsgListModel; // for direct access to m_children
+    friend class ThreadingMsgListModel; // for direct access to m_children
 
 protected:
     /** @short Availability of an item */
@@ -170,7 +170,7 @@ class TreeItemMsgList: public TreeItem
 {
     void operator=(const TreeItem &);  // don't implement
     friend class TreeItemMailbox;
-    friend class TreeItemMessage; // for maintaining the _unreadMessageCount
+    friend class TreeItemMessage; // for maintaining the m_unreadMessageCount
     friend class Model;
     friend class ObtainSynchronizedMailboxTask;
     friend class KeepMailboxOpenTask;
@@ -200,8 +200,8 @@ class TreeItemMessage: public TreeItem
     friend class TreeItemMailbox;
     friend class TreeItemMsgList;
     friend class Model;
-    friend class ObtainSynchronizedMailboxTask; // needs access to _offset
-    friend class KeepMailboxOpenTask; // needs access to _offset
+    friend class ObtainSynchronizedMailboxTask; // needs access to m_offset
+    friend class KeepMailboxOpenTask; // needs access to m_offset
     Message::Envelope m_envelope;
     uint m_size;
     uint m_uid;
@@ -237,7 +237,7 @@ public:
 class TreeItemPart: public TreeItem
 {
     void operator=(const TreeItem &);  // don't implement
-    friend class TreeItemMailbox; // needs access to _data
+    friend class TreeItemMailbox; // needs access to m_data
     friend class Model; // dtto
     QString m_mimeType;
     QString m_charset;
