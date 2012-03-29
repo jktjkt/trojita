@@ -33,7 +33,8 @@
 //#define DEBUG_PERIODICALLY_DUMP_TASKS
 //#define DEBUG_TASK_ROUTING
 
-namespace {
+namespace
+{
 
 using namespace Imap::Mailbox;
 
@@ -41,10 +42,10 @@ using namespace Imap::Mailbox;
 
 It's an error to call this function on anything else but a mailbox.
 */
-bool MailboxNamesEqual(const TreeItem* const a, const TreeItem* const b)
+bool MailboxNamesEqual(const TreeItem *const a, const TreeItem *const b)
 {
-    const TreeItemMailbox* const mailboxA = dynamic_cast<const TreeItemMailbox* const>(a);
-    const TreeItemMailbox* const mailboxB = dynamic_cast<const TreeItemMailbox* const>(b);
+    const TreeItemMailbox *const mailboxA = dynamic_cast<const TreeItemMailbox *const>(a);
+    const TreeItemMailbox *const mailboxB = dynamic_cast<const TreeItemMailbox *const>(b);
     Q_ASSERT(mailboxA);
     Q_ASSERT(mailboxB);
 
@@ -55,22 +56,22 @@ bool MailboxNamesEqual(const TreeItem* const a, const TreeItem* const b)
 
 The special-case mailbox name, the "INBOX", is always sorted as the first one.
 */
-bool MailboxNameComparator(const TreeItem* const a, const TreeItem* const b)
+bool MailboxNameComparator(const TreeItem *const a, const TreeItem *const b)
 {
-    const TreeItemMailbox* const mailboxA = dynamic_cast<const TreeItemMailbox* const>(a);
-    const TreeItemMailbox* const mailboxB = dynamic_cast<const TreeItemMailbox* const>(b);
+    const TreeItemMailbox *const mailboxA = dynamic_cast<const TreeItemMailbox *const>(a);
+    const TreeItemMailbox *const mailboxB = dynamic_cast<const TreeItemMailbox *const>(b);
 
     if (mailboxA->mailbox() == QLatin1String("INBOX"))
         return true;
-    if ( mailboxB->mailbox() == QLatin1String("INBOX"))
+    if (mailboxB->mailbox() == QLatin1String("INBOX"))
         return false;
     return mailboxA->mailbox().compare(mailboxB->mailbox(), Qt::CaseInsensitive) < 1;
 }
 
-bool uidComparator(const TreeItem* const a, const TreeItem* const b)
+bool uidComparator(const TreeItem *const a, const TreeItem *const b)
 {
-    const TreeItemMessage* const messageA = dynamic_cast<const TreeItemMessage* const>(a);
-    const TreeItemMessage* const messageB = dynamic_cast<const TreeItemMessage* const>(b);
+    const TreeItemMessage *const messageA = dynamic_cast<const TreeItemMessage *const>(a);
+    const TreeItemMessage *const messageB = dynamic_cast<const TreeItemMessage *const>(b);
     Q_ASSERT(messageA);
     Q_ASSERT(messageB);
 
@@ -79,36 +80,38 @@ bool uidComparator(const TreeItem* const a, const TreeItem* const b)
 
 }
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
-Model::Model( QObject* parent, AbstractCache* cache, SocketFactoryPtr socketFactory, TaskFactoryPtr taskFactory, bool offline ):
+Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFactory, TaskFactoryPtr taskFactory, bool offline):
     // parent
-    QAbstractItemModel( parent ),
+    QAbstractItemModel(parent),
     // our tools
     _cache(cache), _socketFactory(socketFactory), _taskFactory(taskFactory),
-    _maxParsers(4), _mailboxes(0), _netPolicy( NETWORK_ONLINE ),
+    _maxParsers(4), _mailboxes(0), _netPolicy(NETWORK_ONLINE),
     _authenticator(0), lastParserId(0),
     m_taskModel(0)
 {
     _cache->setParent(this);
     _startTls = _socketFactory->startTlsRequired();
 
-    _mailboxes = new TreeItemMailbox( 0 );
+    _mailboxes = new TreeItemMailbox(0);
 
     _onlineMessageFetch << "ENVELOPE" << "BODYSTRUCTURE" << "RFC822.SIZE" << "UID" << "FLAGS";
 
-    if ( offline ) {
+    if (offline) {
         _netPolicy = NETWORK_OFFLINE;
-        QTimer::singleShot( 0, this, SLOT(setNetworkOffline()) );
+        QTimer::singleShot(0, this, SLOT(setNetworkOffline()));
     } else {
-        QTimer::singleShot( 0, this, SLOT( setNetworkOnline() ) );
+        QTimer::singleShot(0, this, SLOT(setNetworkOnline()));
     }
 
 #ifdef DEBUG_PERIODICALLY_DUMP_TASKS
-    QTimer* periodicTaskDumper = new QTimer(this);
-    periodicTaskDumper->setInterval( 1000 );
-    connect( periodicTaskDumper, SIGNAL(timeout()), this, SLOT(slotTasksChanged()) );
+    QTimer *periodicTaskDumper = new QTimer(this);
+    periodicTaskDumper->setInterval(1000);
+    connect(periodicTaskDumper, SIGNAL(timeout()), this, SLOT(slotTasksChanged()));
     periodicTaskDumper->start();
 #endif
 
@@ -127,20 +130,20 @@ Model::~Model()
     delete _authenticator;
 }
 
-void Model::responseReceived( Parser *parser )
+void Model::responseReceived(Parser *parser)
 {
-    QMap<Parser*,ParserState>::iterator it = _parsers.find( parser );
-    Q_ASSERT( it != _parsers.end() );
+    QMap<Parser *,ParserState>::iterator it = _parsers.find(parser);
+    Q_ASSERT(it != _parsers.end());
 
     ParserStateGuard guard(*it);
     Q_ASSERT(it->parser);
 
     while (it->parser && it->parser->hasResponse()) {
         QSharedPointer<Imap::Responses::AbstractResponse> resp = it->parser->getResponse();
-        Q_ASSERT( resp );
+        Q_ASSERT(resp);
         // Always log BAD responses from a central place. They're bad enough to warant an extra treatment.
         // FIXME: is it worth an UI popup?
-        if (Responses::State *stateResponse = dynamic_cast<Responses::State*>(resp.data())) {
+        if (Responses::State *stateResponse = dynamic_cast<Responses::State *>(resp.data())) {
             if (stateResponse->kind == Responses::BAD) {
                 QString buf;
                 QTextStream s(&buf);
@@ -170,35 +173,35 @@ void Model::responseReceived( Parser *parser )
             */
 
             bool handled = false;
-            QList<ImapTask*> taskSnapshot = it->activeTasks;
-            QList<ImapTask*> deletedTasks;
-            QList<ImapTask*>::const_iterator taskEnd = taskSnapshot.constEnd();
+            QList<ImapTask *> taskSnapshot = it->activeTasks;
+            QList<ImapTask *> deletedTasks;
+            QList<ImapTask *>::const_iterator taskEnd = taskSnapshot.constEnd();
 
             // Try various tasks, perhaps it's their response. Also check if they're already finished and remove them.
-            for ( QList<ImapTask*>::const_iterator taskIt = taskSnapshot.constBegin(); taskIt != taskEnd; ++taskIt ) {
-                if ( ! handled ) {
+            for (QList<ImapTask *>::const_iterator taskIt = taskSnapshot.constBegin(); taskIt != taskEnd; ++taskIt) {
+                if (! handled) {
                     handled = resp->plug(*taskIt);
 
 #ifdef DEBUG_TASK_ROUTING
-                    if ( handled )
+                    if (handled)
                         qDebug() << "Handled by" << *taskIt << (*taskIt)->debugIdentification();
 #endif
                 }
 
-                if ( (*taskIt)->isFinished() ) {
+                if ((*taskIt)->isFinished()) {
                     deletedTasks << *taskIt;
                 }
             }
 
-            removeDeletedTasks( deletedTasks, it->activeTasks );
+            removeDeletedTasks(deletedTasks, it->activeTasks);
 
             runReadyTasks();
 
-            if ( ! handled ) {
+            if (! handled) {
 #ifdef DEBUG_TASK_ROUTING
                 qDebug() << "Handling by the Model itself";
 #endif
-                resp->plug( it->parser, this );
+                resp->plug(it->parser, this);
             }
         } catch (Imap::StartTlsFailed &e) {
             uint parserId = it->parser->parserId();
@@ -209,7 +212,7 @@ void Model::responseReceived( Parser *parser )
         } catch (Imap::ImapException &e) {
             uint parserId = it->parser->parserId();
             killParser(it->parser, PARSER_KILL_HARD);
-            broadcastParseError( parserId, QString::fromStdString( e.exceptionClass() ), e.what(), e.line(), e.offset() );
+            broadcastParseError(parserId, QString::fromStdString(e.exceptionClass()), e.what(), e.line(), e.offset());
             break;
         }
     }
@@ -238,7 +241,7 @@ void Model::handleState(Imap::Parser *ptr, const Imap::Responses::State *const r
             killParser(ptr, PARSER_KILL_EXPECTED);
         } else {
             // Unhandled command -- this is *extremely* weird
-            throw CantHappen( "The following command should have been handled elsewhere", *resp );
+            throw CantHappen("The following command should have been handled elsewhere", *resp);
         }
     } else {
         // untagged response
@@ -259,16 +262,16 @@ void Model::handleState(Imap::Parser *ptr, const Imap::Responses::State *const r
             logTrace(ptr->parserId(), LOG_OTHER, QString(), tr("Warning: unhandled untagged NO..."));
             break;
         default:
-            throw UnexpectedResponseReceived( "Unhandled untagged response, sorry", *resp );
+            throw UnexpectedResponseReceived("Unhandled untagged response, sorry", *resp);
         }
     }
 }
 
-void Model::_finalizeList(Parser* parser, TreeItemMailbox* mailboxPtr)
+void Model::_finalizeList(Parser *parser, TreeItemMailbox *mailboxPtr)
 {
-    QList<TreeItem*> mailboxes;
+    QList<TreeItem *> mailboxes;
 
-    QList<Responses::List>& listResponses = accessParser(parser).listResponses;
+    QList<Responses::List> &listResponses = accessParser(parser).listResponses;
     const QString prefix = mailboxPtr->mailbox() + mailboxPtr->separator();
     for (QList<Responses::List>::iterator it = listResponses.begin(); it != listResponses.end(); /* nothing */) {
         if (it->mailbox == mailboxPtr->mailbox() || it->mailbox == prefix) {
@@ -288,7 +291,7 @@ void Model::_finalizeList(Parser* parser, TreeItemMailbox* mailboxPtr)
     // but unfortunately std::unique won't help here (the "duped" part of the
     // sequence contains undefined items)
     if (mailboxes.size() > 1) {
-        QList<TreeItem*>::iterator it = mailboxes.begin();
+        QList<TreeItem *>::iterator it = mailboxes.begin();
         // We've got to ignore the first one, that's the message list
         ++it;
         while (it != mailboxes.end()) {
@@ -302,9 +305,9 @@ void Model::_finalizeList(Parser* parser, TreeItemMailbox* mailboxPtr)
     }
 
     QList<MailboxMetadata> metadataToCache;
-    QList<TreeItemMailbox*> mailboxesWithoutChildren;
-    for (QList<TreeItem*>::const_iterator it = mailboxes.constBegin(); it != mailboxes.constEnd(); ++it) {
-        TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>(*it);
+    QList<TreeItemMailbox *> mailboxesWithoutChildren;
+    for (QList<TreeItem *>::const_iterator it = mailboxes.constBegin(); it != mailboxes.constEnd(); ++it) {
+        TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(*it);
         Q_ASSERT(mailbox);
         metadataToCache.append(mailbox->mailboxMetadata());
         if (mailbox->hasNoChildMaliboxesAlreadyKnown()) {
@@ -312,89 +315,89 @@ void Model::_finalizeList(Parser* parser, TreeItemMailbox* mailboxPtr)
         }
     }
     cache()->setChildMailboxes(mailboxPtr->mailbox(), metadataToCache);
-    for (QList<TreeItemMailbox*>::const_iterator it = mailboxesWithoutChildren.constBegin(); it != mailboxesWithoutChildren.constEnd(); ++it)
+    for (QList<TreeItemMailbox *>::const_iterator it = mailboxesWithoutChildren.constBegin(); it != mailboxesWithoutChildren.constEnd(); ++it)
         cache()->setChildMailboxes((*it)->mailbox(), QList<MailboxMetadata>());
     replaceChildMailboxes(mailboxPtr, mailboxes);
 }
 
-void Model::_finalizeIncrementalList( Parser* parser, const QString& parentMailboxName )
+void Model::_finalizeIncrementalList(Parser *parser, const QString &parentMailboxName)
 {
-    TreeItemMailbox* parentMbox = findParentMailboxByName( parentMailboxName );
-    if ( ! parentMbox ) {
+    TreeItemMailbox *parentMbox = findParentMailboxByName(parentMailboxName);
+    if (! parentMbox) {
         qDebug() << "Weird, no idea where to put the newly created mailbox" << parentMailboxName;
         return;
     }
 
-    QList<TreeItem*> mailboxes;
+    QList<TreeItem *> mailboxes;
 
-    QList<Responses::List>& listResponses = accessParser( parser ).listResponses;
-    for ( QList<Responses::List>::iterator it = listResponses.begin();
-            it != listResponses.end(); /* nothing */ ) {
-        if ( it->mailbox == parentMailboxName ) {
-            mailboxes << new TreeItemMailbox( parentMbox, *it );
-            it = listResponses.erase( it );
+    QList<Responses::List> &listResponses = accessParser(parser).listResponses;
+    for (QList<Responses::List>::iterator it = listResponses.begin();
+         it != listResponses.end(); /* nothing */) {
+        if (it->mailbox == parentMailboxName) {
+            mailboxes << new TreeItemMailbox(parentMbox, *it);
+            it = listResponses.erase(it);
         } else {
             // it clearly is someone else's LIST response
             ++it;
         }
     }
-    qSort( mailboxes.begin(), mailboxes.end(), MailboxNameComparator );
+    qSort(mailboxes.begin(), mailboxes.end(), MailboxNameComparator);
 
-    if ( mailboxes.size() == 0) {
+    if (mailboxes.size() == 0) {
         qDebug() << "Weird, no matching LIST response for our prompt after CREATE";
-        qDeleteAll( mailboxes );
+        qDeleteAll(mailboxes);
         return;
-    } else if ( mailboxes.size() > 1 ) {
+    } else if (mailboxes.size() > 1) {
         qDebug() << "Weird, too many LIST responses for our prompt after CREATE";
-        qDeleteAll( mailboxes );
+        qDeleteAll(mailboxes);
         return;
     }
 
-    QList<TreeItem*>::iterator it = parentMbox->_children.begin();
-    Q_ASSERT( it != parentMbox->_children.end() );
+    QList<TreeItem *>::iterator it = parentMbox->_children.begin();
+    Q_ASSERT(it != parentMbox->_children.end());
     ++it;
-    while ( it != parentMbox->_children.end() && MailboxNameComparator( *it, mailboxes[0] ) )
+    while (it != parentMbox->_children.end() && MailboxNameComparator(*it, mailboxes[0]))
         ++it;
     QModelIndex parentIdx = parentMbox == _mailboxes ? QModelIndex() : parentMbox->toIndex(this);
-    if ( it == parentMbox->_children.end() )
-        beginInsertRows( parentIdx, parentMbox->_children.size(), parentMbox->_children.size() );
+    if (it == parentMbox->_children.end())
+        beginInsertRows(parentIdx, parentMbox->_children.size(), parentMbox->_children.size());
     else
-        beginInsertRows( parentIdx, (*it)->row(), (*it)->row() );
-    parentMbox->_children.insert( it, mailboxes[0] );
+        beginInsertRows(parentIdx, (*it)->row(), (*it)->row());
+    parentMbox->_children.insert(it, mailboxes[0]);
     endInsertRows();
 }
 
-void Model::replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<TreeItem*> mailboxes )
+void Model::replaceChildMailboxes(TreeItemMailbox *mailboxPtr, const QList<TreeItem *> mailboxes)
 {
     /* Previously, we would call layoutAboutToBeChanged() and layoutChanged() here, but it
        resulted in invalid memory access in the attached QSortFilterProxyModels like this one:
 
-==23294== Invalid read of size 4
-==23294==    at 0x5EA34B1: QSortFilterProxyModelPrivate::index_to_iterator(QModelIndex const&) const (qsortfilterproxymodel.cpp:191)
-==23294==    by 0x5E9F8A3: QSortFilterProxyModel::parent(QModelIndex const&) const (qsortfilterproxymodel.cpp:1654)
-==23294==    by 0x5C5D45D: QModelIndex::parent() const (qabstractitemmodel.h:389)
-==23294==    by 0x5E47C48: QTreeView::drawRow(QPainter*, QStyleOptionViewItem const&, QModelIndex const&) const (qtreeview.cpp:1479)
-==23294==    by 0x5E479D9: QTreeView::drawTree(QPainter*, QRegion const&) const (qtreeview.cpp:1441)
-==23294==    by 0x5E4703A: QTreeView::paintEvent(QPaintEvent*) (qtreeview.cpp:1274)
-==23294==    by 0x5810C30: QWidget::event(QEvent*) (qwidget.cpp:8346)
-==23294==    by 0x5C91D03: QFrame::event(QEvent*) (qframe.cpp:557)
-==23294==    by 0x5D4259C: QAbstractScrollArea::viewportEvent(QEvent*) (qabstractscrollarea.cpp:1043)
-==23294==    by 0x5DFFD6E: QAbstractItemView::viewportEvent(QEvent*) (qabstractitemview.cpp:1619)
-==23294==    by 0x5E46EE0: QTreeView::viewportEvent(QEvent*) (qtreeview.cpp:1256)
-==23294==    by 0x5D43110: QAbstractScrollAreaPrivate::viewportEvent(QEvent*) (qabstractscrollarea_p.h:100)
-==23294==  Address 0x908dbec is 20 bytes inside a block of size 24 free'd
-==23294==    at 0x4024D74: operator delete(void*) (vg_replace_malloc.c:346)
-==23294==    by 0x5EA5236: void qDeleteAll<QHash<QModelIndex, QSortFilterProxyModelPrivate::Mapping*>::const_iterator>(QHash<QModelIndex, QSortFilterProxyModelPrivate::Mapping*>::const_iterator, QHash<QModelIndex, QSortFilterProxyModelPrivate::Mapping*>::const_iterator) (qalgorithms.h:322)
-==23294==    by 0x5EA3C06: void qDeleteAll<QHash<QModelIndex, QSortFilterProxyModelPrivate::Mapping*> >(QHash<QModelIndex, QSortFilterProxyModelPrivate::Mapping*> const&) (qalgorithms.h:330)
-==23294==    by 0x5E9E64B: QSortFilterProxyModelPrivate::_q_sourceLayoutChanged() (qsortfilterproxymodel.cpp:1249)
-==23294==    by 0x5EA29EC: QSortFilterProxyModel::qt_metacall(QMetaObject::Call, int, void**) (moc_qsortfilterproxymodel.cpp:133)
-==23294==    by 0x80EB205: Imap::Mailbox::PrettyMailboxModel::qt_metacall(QMetaObject::Call, int, void**) (moc_PrettyMailboxModel.cpp:64)
-==23294==    by 0x65D3EAD: QMetaObject::metacall(QObject*, QMetaObject::Call, int, void**) (qmetaobject.cpp:237)
-==23294==    by 0x65E8D7C: QMetaObject::activate(QObject*, QMetaObject const*, int, void**) (qobject.cpp:3272)
-==23294==    by 0x664A7E8: QAbstractItemModel::layoutChanged() (moc_qabstractitemmodel.cpp:161)
-==23294==    by 0x664A354: QAbstractItemModel::qt_metacall(QMetaObject::Call, int, void**) (moc_qabstractitemmodel.cpp:118)
-==23294==    by 0x5E9A3A9: QAbstractProxyModel::qt_metacall(QMetaObject::Call, int, void**) (moc_qabstractproxymodel.cpp:67)
-==23294==    by 0x80EAF3D: Imap::Mailbox::MailboxModel::qt_metacall(QMetaObject::Call, int, void**) (moc_MailboxModel.cpp:81)
+    ==23294== Invalid read of size 4
+    ==23294==    at 0x5EA34B1: QSortFilterProxyModelPrivate::index_to_iterator(QModelIndex const&) const (qsortfilterproxymodel.cpp:191)
+    ==23294==    by 0x5E9F8A3: QSortFilterProxyModel::parent(QModelIndex const&) const (qsortfilterproxymodel.cpp:1654)
+    ==23294==    by 0x5C5D45D: QModelIndex::parent() const (qabstractitemmodel.h:389)
+    ==23294==    by 0x5E47C48: QTreeView::drawRow(QPainter*, QStyleOptionViewItem const&, QModelIndex const&) const (qtreeview.cpp:1479)
+    ==23294==    by 0x5E479D9: QTreeView::drawTree(QPainter*, QRegion const&) const (qtreeview.cpp:1441)
+    ==23294==    by 0x5E4703A: QTreeView::paintEvent(QPaintEvent*) (qtreeview.cpp:1274)
+    ==23294==    by 0x5810C30: QWidget::event(QEvent*) (qwidget.cpp:8346)
+    ==23294==    by 0x5C91D03: QFrame::event(QEvent*) (qframe.cpp:557)
+    ==23294==    by 0x5D4259C: QAbstractScrollArea::viewportEvent(QEvent*) (qabstractscrollarea.cpp:1043)
+    ==23294==    by 0x5DFFD6E: QAbstractItemView::viewportEvent(QEvent*) (qabstractitemview.cpp:1619)
+    ==23294==    by 0x5E46EE0: QTreeView::viewportEvent(QEvent*) (qtreeview.cpp:1256)
+    ==23294==    by 0x5D43110: QAbstractScrollAreaPrivate::viewportEvent(QEvent*) (qabstractscrollarea_p.h:100)
+    ==23294==  Address 0x908dbec is 20 bytes inside a block of size 24 free'd
+    ==23294==    at 0x4024D74: operator delete(void*) (vg_replace_malloc.c:346)
+    ==23294==    by 0x5EA5236: void qDeleteAll<QHash<QModelIndex, QSortFilterProxyModelPrivate::Mapping*>::const_iterator>(QHash<QModelIndex, QSortFilterProxyModelPrivate::Mapping*>::const_iterator, QHash<QModelIndex, QSortFilterProxyModelPrivate::Mapping*>::const_iterator) (qalgorithms.h:322)
+    ==23294==    by 0x5EA3C06: void qDeleteAll<QHash<QModelIndex, QSortFilterProxyModelPrivate::Mapping*> >(QHash<QModelIndex, QSortFilterProxyModelPrivate::Mapping*> const&) (qalgorithms.h:330)
+    ==23294==    by 0x5E9E64B: QSortFilterProxyModelPrivate::_q_sourceLayoutChanged() (qsortfilterproxymodel.cpp:1249)
+    ==23294==    by 0x5EA29EC: QSortFilterProxyModel::qt_metacall(QMetaObject::Call, int, void**) (moc_qsortfilterproxymodel.cpp:133)
+    ==23294==    by 0x80EB205: Imap::Mailbox::PrettyMailboxModel::qt_metacall(QMetaObject::Call, int, void**) (moc_PrettyMailboxModel.cpp:64)
+    ==23294==    by 0x65D3EAD: QMetaObject::metacall(QObject*, QMetaObject::Call, int, void**) (qmetaobject.cpp:237)
+    ==23294==    by 0x65E8D7C: QMetaObject::activate(QObject*, QMetaObject const*, int, void**) (qobject.cpp:3272)
+    ==23294==    by 0x664A7E8: QAbstractItemModel::layoutChanged() (moc_qabstractitemmodel.cpp:161)
+    ==23294==    by 0x664A354: QAbstractItemModel::qt_metacall(QMetaObject::Call, int, void**) (moc_qabstractitemmodel.cpp:118)
+    ==23294==    by 0x5E9A3A9: QAbstractProxyModel::qt_metacall(QMetaObject::Call, int, void**) (moc_qabstractproxymodel.cpp:67)
+    ==23294==    by 0x80EAF3D: Imap::Mailbox::MailboxModel::qt_metacall(QMetaObject::Call, int, void**) (moc_MailboxModel.cpp:81)
 
        I have no idea why something like that happens -- layoutChanged() should be a hint that the indexes are gone now, which means
        that the code should *not* use tham after that point. That's just weird.
@@ -402,119 +405,119 @@ void Model::replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<Tree
 
     QModelIndex parent = mailboxPtr == _mailboxes ? QModelIndex() : mailboxPtr->toIndex(this);
 
-    if ( mailboxPtr->_children.size() != 1 ) {
+    if (mailboxPtr->_children.size() != 1) {
         // There's something besides the TreeItemMsgList and we're going to
         // overwrite them, so we have to delete them right now
-        int count = mailboxPtr->rowCount( this );
-        beginRemoveRows( parent, 1, count - 1 );
-        QList<TreeItem*> oldItems = mailboxPtr->setChildren( QList<TreeItem*>() );
+        int count = mailboxPtr->rowCount(this);
+        beginRemoveRows(parent, 1, count - 1);
+        QList<TreeItem *> oldItems = mailboxPtr->setChildren(QList<TreeItem *>());
         endRemoveRows();
 
-        qDeleteAll( oldItems );
+        qDeleteAll(oldItems);
     }
 
-    if ( ! mailboxes.isEmpty() ) {
-        beginInsertRows( parent, 1, mailboxes.size() );
-        QList<TreeItem*> dummy = mailboxPtr->setChildren( mailboxes );
+    if (! mailboxes.isEmpty()) {
+        beginInsertRows(parent, 1, mailboxes.size());
+        QList<TreeItem *> dummy = mailboxPtr->setChildren(mailboxes);
         endInsertRows();
-        Q_ASSERT( dummy.isEmpty() );
+        Q_ASSERT(dummy.isEmpty());
     } else {
-        QList<TreeItem*> dummy = mailboxPtr->setChildren( mailboxes );
-        Q_ASSERT( dummy.isEmpty() );
+        QList<TreeItem *> dummy = mailboxPtr->setChildren(mailboxes);
+        Q_ASSERT(dummy.isEmpty());
     }
-    emit dataChanged( parent, parent );
+    emit dataChanged(parent, parent);
 }
 
-void Model::emitMessageCountChanged( TreeItemMailbox* const mailbox )
+void Model::emitMessageCountChanged(TreeItemMailbox *const mailbox)
 {
-    TreeItemMsgList* list = static_cast<TreeItemMsgList*>(mailbox->_children[0]);
+    TreeItemMsgList *list = static_cast<TreeItemMsgList *>(mailbox->_children[0]);
     QModelIndex msgListIndex = list->toIndex(this);
     emit dataChanged(msgListIndex, msgListIndex);
     emit messageCountPossiblyChanged(mailbox->toIndex(this));
 }
 
 /** @short Retrieval of a message part has completed */
-void Model::_finalizeFetchPart( TreeItemMailbox* const mailbox, const uint sequenceNo, const QString &partId )
+void Model::_finalizeFetchPart(TreeItemMailbox *const mailbox, const uint sequenceNo, const QString &partId)
 {
     // At first, verify that the message itself is marked as loaded.
     // If it isn't, it's probably because of Model::releaseMessageData().
-    TreeItem* item = mailbox->_children[0]; // TreeItemMsgList
-    Q_ASSERT( static_cast<TreeItemMsgList*>( item )->fetched() );
-    item = item->child( sequenceNo - 1, this ); // TreeItemMessage
-    Q_ASSERT( item ); // FIXME: or rather throw an exception?
-    if ( item->_fetchStatus == TreeItem::NONE ) {
+    TreeItem *item = mailbox->_children[0]; // TreeItemMsgList
+    Q_ASSERT(static_cast<TreeItemMsgList *>(item)->fetched());
+    item = item->child(sequenceNo - 1, this);   // TreeItemMessage
+    Q_ASSERT(item);   // FIXME: or rather throw an exception?
+    if (item->_fetchStatus == TreeItem::NONE) {
         // ...and it indeed got released, so let's just return and don't try to check anything
         return;
     }
 
-    TreeItemPart* part = mailbox->partIdToPtr( this, static_cast<TreeItemMessage*>(item), partId );
-    if ( ! part ) {
+    TreeItemPart *part = mailbox->partIdToPtr(this, static_cast<TreeItemMessage *>(item), partId);
+    if (! part) {
         qDebug() << "Can't verify part fetching status: part is not here!";
         return;
     }
-    if ( part->loading() ) {
+    if (part->loading()) {
         // basically, there's nothing to do if the FETCH targetted a message part and not the message as a whole
         qDebug() << "Imap::Model::_finalizeFetch(): didn't receive anything about message" <<
-            part->message()->row() << "part" << part->partId();
+                 part->message()->row() << "part" << part->partId();
         part->_fetchStatus = TreeItem::DONE;
     }
 }
 
-void Model::handleCapability( Imap::Parser* ptr, const Imap::Responses::Capability* const resp )
+void Model::handleCapability(Imap::Parser *ptr, const Imap::Responses::Capability *const resp)
 {
-    updateCapabilities( ptr, resp->capabilities );
+    updateCapabilities(ptr, resp->capabilities);
 }
 
-void Model::handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp )
+void Model::handleNumberResponse(Imap::Parser *ptr, const Imap::Responses::NumberResponse *const resp)
 {
     Q_UNUSED(ptr);
-    throw UnexpectedResponseReceived( "[Tasks API Port] Unhandled NumberResponse", *resp );
+    throw UnexpectedResponseReceived("[Tasks API Port] Unhandled NumberResponse", *resp);
 }
 
-void Model::handleList( Imap::Parser* ptr, const Imap::Responses::List* const resp )
+void Model::handleList(Imap::Parser *ptr, const Imap::Responses::List *const resp)
 {
-    accessParser( ptr ).listResponses << *resp;
+    accessParser(ptr).listResponses << *resp;
 }
 
-void Model::handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp )
-{
-    Q_UNUSED(ptr);
-    throw UnexpectedResponseReceived( "[Tasks API Port] Unhandled Flags", *resp );
-}
-
-void Model::handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp )
+void Model::handleFlags(Imap::Parser *ptr, const Imap::Responses::Flags *const resp)
 {
     Q_UNUSED(ptr);
-    throw UnexpectedResponseReceived( "[Tasks API Port] Unhandled Search", *resp );
+    throw UnexpectedResponseReceived("[Tasks API Port] Unhandled Flags", *resp);
 }
 
-void Model::handleStatus( Imap::Parser* ptr, const Imap::Responses::Status* const resp )
+void Model::handleSearch(Imap::Parser *ptr, const Imap::Responses::Search *const resp)
 {
-    Q_UNUSED( ptr );
-    TreeItemMailbox* mailbox = findMailboxByName( resp->mailbox );
-    if ( ! mailbox ) {
+    Q_UNUSED(ptr);
+    throw UnexpectedResponseReceived("[Tasks API Port] Unhandled Search", *resp);
+}
+
+void Model::handleStatus(Imap::Parser *ptr, const Imap::Responses::Status *const resp)
+{
+    Q_UNUSED(ptr);
+    TreeItemMailbox *mailbox = findMailboxByName(resp->mailbox);
+    if (! mailbox) {
         qDebug() << "Couldn't find out which mailbox is" << resp->mailbox << "when parsing a STATUS reply";
         return;
     }
-    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( mailbox->_children[0] );
-    Q_ASSERT( list );
-    if ( resp->states.contains( Imap::Responses::Status::MESSAGES ) )
+    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(mailbox->_children[0]);
+    Q_ASSERT(list);
+    if (resp->states.contains(Imap::Responses::Status::MESSAGES))
         list->_totalMessageCount = resp->states[ Imap::Responses::Status::MESSAGES ];
-    if ( resp->states.contains( Imap::Responses::Status::UNSEEN ) )
+    if (resp->states.contains(Imap::Responses::Status::UNSEEN))
         list->_unreadMessageCount = resp->states[ Imap::Responses::Status::UNSEEN ];
-    if ( resp->states.contains( Imap::Responses::Status::RECENT ) )
+    if (resp->states.contains(Imap::Responses::Status::RECENT))
         list->_recentMessageCount = resp->states[ Imap::Responses::Status::RECENT ];
     list->_numberFetchingStatus = TreeItem::DONE;
-    emitMessageCountChanged( mailbox );
+    emitMessageCountChanged(mailbox);
 }
 
-void Model::handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp )
+void Model::handleFetch(Imap::Parser *ptr, const Imap::Responses::Fetch *const resp)
 {
     Q_UNUSED(ptr);
-    throw UnexpectedResponseReceived( "[Tasks API Port] Unhandled Fetch", *resp );
+    throw UnexpectedResponseReceived("[Tasks API Port] Unhandled Fetch", *resp);
 }
 
-void Model::handleNamespace( Imap::Parser* ptr, const Imap::Responses::Namespace* const resp )
+void Model::handleNamespace(Imap::Parser *ptr, const Imap::Responses::Namespace *const resp)
 {
     return; // because it's broken and won't fly
     Q_UNUSED(ptr);
@@ -524,13 +527,13 @@ void Model::handleNamespace( Imap::Parser* ptr, const Imap::Responses::Namespace
 void Model::handleSort(Imap::Parser *ptr, const Imap::Responses::Sort *const resp)
 {
     Q_UNUSED(ptr);
-    throw UnexpectedResponseReceived( "[Tasks API Port] Unhandled Sort", *resp );
+    throw UnexpectedResponseReceived("[Tasks API Port] Unhandled Sort", *resp);
 }
 
 void Model::handleThread(Imap::Parser *ptr, const Imap::Responses::Thread *const resp)
 {
     Q_UNUSED(ptr);
-    throw UnexpectedResponseReceived( "[Tasks API Port] Unhandled Thread", *resp );
+    throw UnexpectedResponseReceived("[Tasks API Port] Unhandled Thread", *resp);
 }
 
 void Model::handleId(Parser *ptr, const Responses::Id *const resp)
@@ -539,72 +542,72 @@ void Model::handleId(Parser *ptr, const Responses::Id *const resp)
     throw UnexpectedResponseReceived("Unhandled ID response", *resp);
 }
 
-TreeItem* Model::translatePtr( const QModelIndex& index ) const
+TreeItem *Model::translatePtr(const QModelIndex &index) const
 {
-    return index.internalPointer() ? static_cast<TreeItem*>( index.internalPointer() ) : _mailboxes;
+    return index.internalPointer() ? static_cast<TreeItem *>(index.internalPointer()) : _mailboxes;
 }
 
-QVariant Model::data(const QModelIndex& index, int role ) const
+QVariant Model::data(const QModelIndex &index, int role) const
 {
-    return translatePtr( index )->data( const_cast<Model*>( this ), role );
+    return translatePtr(index)->data(const_cast<Model *>(this), role);
 }
 
-QModelIndex Model::index(int row, int column, const QModelIndex& parent ) const
+QModelIndex Model::index(int row, int column, const QModelIndex &parent) const
 {
     if (parent.isValid()) {
         Q_ASSERT(parent.model() == this);
     }
 
-    TreeItem* parentItem = translatePtr( parent );
+    TreeItem *parentItem = translatePtr(parent);
 
     // Deal with the possibility of an "irregular shape" of our model here.
     // The issue is that some items have child items not only in column #0
     // and in specified number of rows, but also in row #0 and various columns.
-    if ( column != 0 ) {
-        TreeItem* item = parentItem->specialColumnPtr( row, column );
-        if ( item )
-            return QAbstractItemModel::createIndex( row, column, item );
+    if (column != 0) {
+        TreeItem *item = parentItem->specialColumnPtr(row, column);
+        if (item)
+            return QAbstractItemModel::createIndex(row, column, item);
         else
             return QModelIndex();
     }
 
-    TreeItem* child = parentItem->child( row, const_cast<Model*>( this ) );
+    TreeItem *child = parentItem->child(row, const_cast<Model *>(this));
 
-    return child ? QAbstractItemModel::createIndex( row, column, child ) : QModelIndex();
+    return child ? QAbstractItemModel::createIndex(row, column, child) : QModelIndex();
 }
 
-QModelIndex Model::parent(const QModelIndex& index ) const
+QModelIndex Model::parent(const QModelIndex &index) const
 {
-    if ( !index.isValid() )
+    if (!index.isValid())
         return QModelIndex();
 
     Q_ASSERT(index.model() == this);
 
-    TreeItem *childItem = static_cast<TreeItem*>(index.internalPointer());
+    TreeItem *childItem = static_cast<TreeItem *>(index.internalPointer());
     TreeItem *parentItem = childItem->parent();
 
-    if ( ! parentItem || parentItem == _mailboxes )
+    if (! parentItem || parentItem == _mailboxes)
         return QModelIndex();
 
-    return QAbstractItemModel::createIndex( parentItem->row(), 0, parentItem );
+    return QAbstractItemModel::createIndex(parentItem->row(), 0, parentItem);
 }
 
-int Model::rowCount(const QModelIndex& index ) const
+int Model::rowCount(const QModelIndex &index) const
 {
-    TreeItem* node = static_cast<TreeItem*>( index.internalPointer() );
-    if ( !node ) {
+    TreeItem *node = static_cast<TreeItem *>(index.internalPointer());
+    if (!node) {
         node = _mailboxes;
     } else {
         Q_ASSERT(index.model() == this);
     }
     Q_ASSERT(node);
-    return node->rowCount( const_cast<Model*>( this ) );
+    return node->rowCount(const_cast<Model *>(this));
 }
 
-int Model::columnCount(const QModelIndex& index ) const
+int Model::columnCount(const QModelIndex &index) const
 {
-    TreeItem* node = static_cast<TreeItem*>( index.internalPointer() );
-    if ( !node ) {
+    TreeItem *node = static_cast<TreeItem *>(index.internalPointer());
+    if (!node) {
         node = _mailboxes;
     } else {
         Q_ASSERT(index.model() == this);
@@ -613,33 +616,33 @@ int Model::columnCount(const QModelIndex& index ) const
     return node->columnCount();
 }
 
-bool Model::hasChildren( const QModelIndex& parent ) const
+bool Model::hasChildren(const QModelIndex &parent) const
 {
     if (parent.isValid()) {
         Q_ASSERT(parent.model() == this);
     }
 
-    TreeItem* node = translatePtr( parent );
+    TreeItem *node = translatePtr(parent);
 
-    if ( node )
-        return node->hasChildren( const_cast<Model*>( this ) );
+    if (node)
+        return node->hasChildren(const_cast<Model *>(this));
     else
         return false;
 }
 
-void Model::_askForChildrenOfMailbox( TreeItemMailbox* item )
+void Model::_askForChildrenOfMailbox(TreeItemMailbox *item)
 {
-    if ( networkPolicy() != NETWORK_ONLINE && cache()->childMailboxesFresh( item->mailbox() ) ) {
+    if (networkPolicy() != NETWORK_ONLINE && cache()->childMailboxesFresh(item->mailbox())) {
         // We aren't online and the permanent cache contains relevant data
-        QList<MailboxMetadata> metadata = cache()->childMailboxes( item->mailbox() );
-        QList<TreeItem*> mailboxes;
-        for ( QList<MailboxMetadata>::const_iterator it = metadata.constBegin(); it != metadata.constEnd(); ++it ) {
-            mailboxes << TreeItemMailbox::fromMetadata( item, *it );
+        QList<MailboxMetadata> metadata = cache()->childMailboxes(item->mailbox());
+        QList<TreeItem *> mailboxes;
+        for (QList<MailboxMetadata>::const_iterator it = metadata.constBegin(); it != metadata.constEnd(); ++it) {
+            mailboxes << TreeItemMailbox::fromMetadata(item, *it);
         }
-        TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( item );
-        Q_ASSERT( mailboxPtr );
-        replaceChildMailboxes( mailboxPtr, mailboxes );
-    } else if ( networkPolicy() == NETWORK_OFFLINE ) {
+        TreeItemMailbox *mailboxPtr = dynamic_cast<TreeItemMailbox *>(item);
+        Q_ASSERT(mailboxPtr);
+        replaceChildMailboxes(mailboxPtr, mailboxes);
+    } else if (networkPolicy() == NETWORK_OFFLINE) {
         // No cached data, no network -> fail
         item->_fetchStatus = TreeItem::UNAVAILABLE;
     } else {
@@ -647,35 +650,35 @@ void Model::_askForChildrenOfMailbox( TreeItemMailbox* item )
         _taskFactory->createListChildMailboxesTask(this, item->toIndex(this));
     }
     QModelIndex idx = item->toIndex(this);
-    emit dataChanged( idx, idx );
+    emit dataChanged(idx, idx);
 }
 
 void Model::reloadMailboxList()
 {
-    _mailboxes->rescanForChildMailboxes( this );
+    _mailboxes->rescanForChildMailboxes(this);
 }
 
-void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
+void Model::_askForMessagesInMailbox(TreeItemMsgList *item)
 {
-    Q_ASSERT( item->parent() );
-    TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( item->parent() );
-    Q_ASSERT( mailboxPtr );
+    Q_ASSERT(item->parent());
+    TreeItemMailbox *mailboxPtr = dynamic_cast<TreeItemMailbox *>(item->parent());
+    Q_ASSERT(mailboxPtr);
 
     QString mailbox = mailboxPtr->mailbox();
 
-    Q_ASSERT( item->_children.size() == 0 );
+    Q_ASSERT(item->_children.size() == 0);
 
-    QList<uint> uidMapping = cache()->uidMapping( mailbox );
-    if ( networkPolicy() == NETWORK_OFFLINE && uidMapping.size() != item->_totalMessageCount ) {
+    QList<uint> uidMapping = cache()->uidMapping(mailbox);
+    if (networkPolicy() == NETWORK_OFFLINE && uidMapping.size() != item->_totalMessageCount) {
         qDebug() << "UID cache stale for mailbox" << mailbox <<
-                "(" << uidMapping.size() << "in UID cache vs." <<
-                item->_totalMessageCount << "as totalMessageCount)";
+                 "(" << uidMapping.size() << "in UID cache vs." <<
+                 item->_totalMessageCount << "as totalMessageCount)";
         item->_fetchStatus = TreeItem::UNAVAILABLE;
-    } else if ( uidMapping.size() ) {
+    } else if (uidMapping.size()) {
         QModelIndex listIndex = item->toIndex(this);
-        beginInsertRows( listIndex, 0, uidMapping.size() - 1 );
-        for ( uint seq = 0; seq < static_cast<uint>( uidMapping.size() ); ++seq ) {
-            TreeItemMessage* message = new TreeItemMessage( item );
+        beginInsertRows(listIndex, 0, uidMapping.size() - 1);
+        for (uint seq = 0; seq < static_cast<uint>(uidMapping.size()); ++seq) {
+            TreeItemMessage *message = new TreeItemMessage(item);
             message->_offset = seq;
             message->_uid = uidMapping[ seq ];
             item->_children << message;
@@ -685,26 +688,26 @@ void Model::_askForMessagesInMailbox( TreeItemMsgList* item )
         item->_fetchStatus = TreeItem::DONE; // required for FETCH processing later on
     }
 
-    if ( networkPolicy() != NETWORK_OFFLINE ) {
-        findTaskResponsibleFor( mailboxPtr );
+    if (networkPolicy() != NETWORK_OFFLINE) {
+        findTaskResponsibleFor(mailboxPtr);
         // and that's all -- the task will detect following replies and sync automatically
     }
 }
 
-void Model::_askForNumberOfMessages( TreeItemMsgList* item )
+void Model::_askForNumberOfMessages(TreeItemMsgList *item)
 {
-    Q_ASSERT( item->parent() );
-    TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( item->parent() );
-    Q_ASSERT( mailboxPtr );
+    Q_ASSERT(item->parent());
+    TreeItemMailbox *mailboxPtr = dynamic_cast<TreeItemMailbox *>(item->parent());
+    Q_ASSERT(mailboxPtr);
 
-    if ( networkPolicy() == NETWORK_OFFLINE ) {
-        Imap::Mailbox::SyncState syncState = cache()->mailboxSyncState( mailboxPtr->mailbox() );
-        if ( syncState.isUsableForNumbers() ) {
+    if (networkPolicy() == NETWORK_OFFLINE) {
+        Imap::Mailbox::SyncState syncState = cache()->mailboxSyncState(mailboxPtr->mailbox());
+        if (syncState.isUsableForNumbers()) {
             item->_unreadMessageCount = syncState.unSeenCount();
             item->_totalMessageCount = syncState.exists();
             item->_recentMessageCount = syncState.recent();
             item->_numberFetchingStatus = TreeItem::DONE;
-            emitMessageCountChanged( mailboxPtr );
+            emitMessageCountChanged(mailboxPtr);
         } else {
             item->_numberFetchingStatus = TreeItem::UNAVAILABLE;
         }
@@ -713,38 +716,38 @@ void Model::_askForNumberOfMessages( TreeItemMsgList* item )
     }
 }
 
-void Model::_askForMsgMetadata( TreeItemMessage* item )
+void Model::_askForMsgMetadata(TreeItemMessage *item)
 {
     Q_ASSERT(item->uid());
     Q_ASSERT(!item->fetched());
-    TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>( item->parent() );
-    Q_ASSERT( list );
-    TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( list->parent() );
-    Q_ASSERT( mailboxPtr );
+    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(item->parent());
+    Q_ASSERT(list);
+    TreeItemMailbox *mailboxPtr = dynamic_cast<TreeItemMailbox *>(list->parent());
+    Q_ASSERT(mailboxPtr);
 
-    if ( item->uid() ) {
-        AbstractCache::MessageDataBundle data = cache()->messageMetadata( mailboxPtr->mailbox(), item->uid() );
-        if ( data.uid == item->uid() ) {
+    if (item->uid()) {
+        AbstractCache::MessageDataBundle data = cache()->messageMetadata(mailboxPtr->mailbox(), item->uid());
+        if (data.uid == item->uid()) {
             item->_envelope = data.envelope;
             item->_flags = normalizeFlags(cache()->msgFlags(mailboxPtr->mailbox(), item->uid()));
             item->_size = data.size;
-            QDataStream stream( &data.serializedBodyStructure, QIODevice::ReadOnly );
+            QDataStream stream(&data.serializedBodyStructure, QIODevice::ReadOnly);
             stream.setVersion(QDataStream::Qt_4_6);
             QVariantList unserialized;
             stream >> unserialized;
             QSharedPointer<Message::AbstractMessage> abstractMessage;
             try {
-                abstractMessage = Message::AbstractMessage::fromList( unserialized, QByteArray(), 0 );
-            } catch ( Imap::ParserException& e ) {
+                abstractMessage = Message::AbstractMessage::fromList(unserialized, QByteArray(), 0);
+            } catch (Imap::ParserException &e) {
                 qDebug() << "Error when parsing cached BODYSTRUCTURE" << e.what();
             }
-            if ( ! abstractMessage ) {
+            if (! abstractMessage) {
                 item->_fetchStatus = TreeItem::UNAVAILABLE;
             } else {
-                QList<TreeItem*> newChildren = abstractMessage->createTreeItems( item );
-                if ( item->_children.isEmpty() ) {
-                    QList<TreeItem*> oldChildren = item->setChildren( newChildren );
-                    Q_ASSERT( oldChildren.size() == 0 );
+                QList<TreeItem *> newChildren = abstractMessage->createTreeItems(item);
+                if (item->_children.isEmpty()) {
+                    QList<TreeItem *> oldChildren = item->setChildren(newChildren);
+                    Q_ASSERT(oldChildren.size() == 0);
                 } else {
                     QModelIndex messageIdx = item->toIndex(this);
                     // The following assert guards against that crazy signal emitting we had when various _askFor*()
@@ -758,111 +761,110 @@ void Model::_askForMsgMetadata( TreeItemMessage* item )
         }
     }
 
-    if ( item->fetched() ) {
+    if (item->fetched()) {
         // Nothing to do here
         return;
     }
 
     int order = item->row();
 
-    switch ( networkPolicy() ) {
-        case NETWORK_OFFLINE:
-            if ( item->_fetchStatus != TreeItem::DONE )
-                item->_fetchStatus = TreeItem::UNAVAILABLE;
-            break;
-        case NETWORK_EXPENSIVE:
-            item->_fetchStatus = TreeItem::LOADING;
-            findTaskResponsibleFor(mailboxPtr)->requestEnvelopeDownload(item->uid());
-            break;
-        case NETWORK_ONLINE:
-            {
-                // preload
-                bool ok;
-                int preload = property( "trojita-imap-preload-msg-metadata" ).toInt( &ok );
-                if ( ! ok )
-                    preload = 50;
-                KeepMailboxOpenTask *keepTask = findTaskResponsibleFor(mailboxPtr);
-                for ( int i = qMax( 0, order - preload ); i < qMin( list->_children.size(), order + preload ); ++i ) {
-                    TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( list->_children[i] );
-                    Q_ASSERT( message );
-                    if ( item == message || ( ! message->fetched() && ! message->loading() && message->uid() ) ) {
-                        message->_fetchStatus = TreeItem::LOADING;
-                        keepTask->requestEnvelopeDownload(message->uid());
-                    }
-                }
+    switch (networkPolicy()) {
+    case NETWORK_OFFLINE:
+        if (item->_fetchStatus != TreeItem::DONE)
+            item->_fetchStatus = TreeItem::UNAVAILABLE;
+        break;
+    case NETWORK_EXPENSIVE:
+        item->_fetchStatus = TreeItem::LOADING;
+        findTaskResponsibleFor(mailboxPtr)->requestEnvelopeDownload(item->uid());
+        break;
+    case NETWORK_ONLINE: {
+        // preload
+        bool ok;
+        int preload = property("trojita-imap-preload-msg-metadata").toInt(&ok);
+        if (! ok)
+            preload = 50;
+        KeepMailboxOpenTask *keepTask = findTaskResponsibleFor(mailboxPtr);
+        for (int i = qMax(0, order - preload); i < qMin(list->_children.size(), order + preload); ++i) {
+            TreeItemMessage *message = dynamic_cast<TreeItemMessage *>(list->_children[i]);
+            Q_ASSERT(message);
+            if (item == message || (! message->fetched() && ! message->loading() && message->uid())) {
+                message->_fetchStatus = TreeItem::LOADING;
+                keepTask->requestEnvelopeDownload(message->uid());
             }
-            break;
+        }
+    }
+    break;
     }
 }
 
-void Model::_askForMsgPart( TreeItemPart* item, bool onlyFromCache )
+void Model::_askForMsgPart(TreeItemPart *item, bool onlyFromCache)
 {
     // FIXME: fetch parts in chunks, not at once
-    Q_ASSERT( item->message() ); // TreeItemMessage
-    Q_ASSERT( item->message()->parent() ); // TreeItemMsgList
-    Q_ASSERT( item->message()->parent()->parent() ); // TreeItemMailbox
-    TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( item->message()->parent()->parent() );
-    Q_ASSERT( mailboxPtr );
+    Q_ASSERT(item->message());   // TreeItemMessage
+    Q_ASSERT(item->message()->parent());   // TreeItemMsgList
+    Q_ASSERT(item->message()->parent()->parent());   // TreeItemMailbox
+    TreeItemMailbox *mailboxPtr = dynamic_cast<TreeItemMailbox *>(item->message()->parent()->parent());
+    Q_ASSERT(mailboxPtr);
 
     // We are asking for a message part, which means that the structure of a message is already known.
     // If the UID was zero at this point, it would mean that we are completely doomed.
-    uint uid = static_cast<TreeItemMessage*>( item->message() )->uid();
+    uint uid = static_cast<TreeItemMessage *>(item->message())->uid();
     Q_ASSERT(uid);
 
-    const QByteArray& data = cache()->messagePart( mailboxPtr->mailbox(), uid, item->partId() );
-    if ( ! data.isNull() ) {
+    const QByteArray &data = cache()->messagePart(mailboxPtr->mailbox(), uid, item->partId());
+    if (! data.isNull()) {
         item->_data = data;
         item->_fetchStatus = TreeItem::DONE;
         return;
     }
 
-    if ( networkPolicy() == NETWORK_OFFLINE ) {
-        if ( item->_fetchStatus != TreeItem::DONE )
+    if (networkPolicy() == NETWORK_OFFLINE) {
+        if (item->_fetchStatus != TreeItem::DONE)
             item->_fetchStatus = TreeItem::UNAVAILABLE;
-    } else if ( ! onlyFromCache ) {
-        findTaskResponsibleFor( mailboxPtr )->requestPartDownload( item->message()->_uid, item->partIdForFetch(), item->octets() );
+    } else if (! onlyFromCache) {
+        findTaskResponsibleFor(mailboxPtr)->requestPartDownload(item->message()->_uid, item->partIdForFetch(), item->octets());
     }
 }
 
-void Model::resyncMailbox( const QModelIndex& mbox )
+void Model::resyncMailbox(const QModelIndex &mbox)
 {
-    findTaskResponsibleFor( mbox )->resynchronizeMailbox();
+    findTaskResponsibleFor(mbox)->resynchronizeMailbox();
 }
 
-void Model::setNetworkPolicy( const NetworkPolicy policy )
+void Model::setNetworkPolicy(const NetworkPolicy policy)
 {
     bool networkReconnected = _netPolicy == NETWORK_OFFLINE && policy != NETWORK_OFFLINE;
-    switch ( policy ) {
-        case NETWORK_OFFLINE:
-            for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
-                if (!it->parser || it->connState == CONN_STATE_LOGOUT) {
-                    // there's no point in sending LOGOUT over these
-                    continue;
-                }
-                Q_ASSERT( it->parser );
-                if ( it->maintainingTask ) {
-                    // First of all, give the maintaining task a chance to finish its housekeeping
-                    it->maintainingTask->stopForLogout();
-                }
-                // Kill all tasks that are also using this connection
-                Q_FOREACH(ImapTask *task, it->activeTasks) {
-                    task->die();
-                }
-                it->logoutCmd = it->parser->logout();
-                it->connState = CONN_STATE_LOGOUT;
+    switch (policy) {
+    case NETWORK_OFFLINE:
+        for (QMap<Parser *,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it) {
+            if (!it->parser || it->connState == CONN_STATE_LOGOUT) {
+                // there's no point in sending LOGOUT over these
+                continue;
             }
-            emit networkPolicyOffline();
-            _netPolicy = NETWORK_OFFLINE;
-            // FIXME: kill the connection
-            break;
-        case NETWORK_EXPENSIVE:
-            _netPolicy = NETWORK_EXPENSIVE;
-            emit networkPolicyExpensive();
-            break;
-        case NETWORK_ONLINE:
-            _netPolicy = NETWORK_ONLINE;
-            emit networkPolicyOnline();
-            break;
+            Q_ASSERT(it->parser);
+            if (it->maintainingTask) {
+                // First of all, give the maintaining task a chance to finish its housekeeping
+                it->maintainingTask->stopForLogout();
+            }
+            // Kill all tasks that are also using this connection
+            Q_FOREACH(ImapTask *task, it->activeTasks) {
+                task->die();
+            }
+            it->logoutCmd = it->parser->logout();
+            it->connState = CONN_STATE_LOGOUT;
+        }
+        emit networkPolicyOffline();
+        _netPolicy = NETWORK_OFFLINE;
+        // FIXME: kill the connection
+        break;
+    case NETWORK_EXPENSIVE:
+        _netPolicy = NETWORK_EXPENSIVE;
+        emit networkPolicyExpensive();
+        break;
+    case NETWORK_ONLINE:
+        _netPolicy = NETWORK_ONLINE;
+        emit networkPolicyOnline();
+        break;
     }
     if (networkReconnected) {
         // If we're connecting after being offline, we should ask for an updated list of mailboxes
@@ -896,18 +898,18 @@ void Model::slotParserDisconnected(Imap::Parser *parser, const QString msg)
     }
 }
 
-void Model::broadcastParseError( const uint parser, const QString& exceptionClass, const QString& errorMessage, const QByteArray& line, int position )
+void Model::broadcastParseError(const uint parser, const QString &exceptionClass, const QString &errorMessage, const QByteArray &line, int position)
 {
-    emit logParserFatalError( parser, exceptionClass, errorMessage, line, position );
-    QByteArray details = ( position == -1 ) ? QByteArray() : QByteArray( position, ' ' ) + QByteArray("^ here");
+    emit logParserFatalError(parser, exceptionClass, errorMessage, line, position);
+    QByteArray details = (position == -1) ? QByteArray() : QByteArray(position, ' ') + QByteArray("^ here");
     logTrace(parser, LOG_PARSE_ERROR, exceptionClass, QString::fromAscii("%1\n%2\n%3").arg(errorMessage, line, details));
-    emit connectionError( trUtf8( "<p>The IMAP server sent us a reply which we could not parse. "
-                                  "This might either mean that there's a bug in Trojiá's code, or "
-                                  "that the IMAP server you are connected to is broken. Please "
-                                  "report this as a bug anyway. Here are the details:</p>"
-                                  "<p><b>%1</b>: %2</p>"
-                                  "<pre>%3\n%4</pre>"
-                                  ).arg( exceptionClass, errorMessage, line, details ) );
+    emit connectionError(trUtf8("<p>The IMAP server sent us a reply which we could not parse. "
+                                "This might either mean that there's a bug in Trojiá's code, or "
+                                "that the IMAP server you are connected to is broken. Please "
+                                "report this as a bug anyway. Here are the details:</p>"
+                                "<p><b>%1</b>: %2</p>"
+                                "<pre>%3\n%4</pre>"
+                               ).arg(exceptionClass, errorMessage, line, details));
 }
 
 void Model::slotParseError(Parser *parser, const QString &exceptionClass, const QString &errorMessage, const QByteArray &line, int position)
@@ -927,27 +929,27 @@ void Model::slotParseError(Parser *parser, const QString &exceptionClass, const 
     }
 }
 
-void Model::switchToMailbox( const QModelIndex& mbox )
+void Model::switchToMailbox(const QModelIndex &mbox)
 {
-    if ( ! mbox.isValid() )
+    if (! mbox.isValid())
         return;
 
-    if ( _netPolicy == NETWORK_OFFLINE )
+    if (_netPolicy == NETWORK_OFFLINE)
         return;
 
-    findTaskResponsibleFor( mbox );
+    findTaskResponsibleFor(mbox);
 }
 
-void Model::updateCapabilities( Parser* parser, const QStringList capabilities )
+void Model::updateCapabilities(Parser *parser, const QStringList capabilities)
 {
     Q_ASSERT(parser);
     QStringList uppercaseCaps;
-    Q_FOREACH( const QString& str, capabilities )
-            uppercaseCaps << str.toUpper();
-    accessParser( parser ).capabilities = uppercaseCaps;
-    accessParser( parser ).capabilitiesFresh = true;
-    parser->enableLiteralPlus( uppercaseCaps.contains( QLatin1String( "LITERAL+" ) ) );
-    if ( _parsers.begin().key() == parser )
+    Q_FOREACH(const QString& str, capabilities)
+    uppercaseCaps << str.toUpper();
+    accessParser(parser).capabilities = uppercaseCaps;
+    accessParser(parser).capabilitiesFresh = true;
+    parser->enableLiteralPlus(uppercaseCaps.contains(QLatin1String("LITERAL+")));
+    if (_parsers.begin().key() == parser)
         emit capabilitiesUpdated(uppercaseCaps);
 
     if (!uppercaseCaps.contains(QLatin1String("IMAP4REV1"))) {
@@ -974,33 +976,33 @@ void Model::markMessagesRead(const QModelIndexList &messages, const FlagsOperati
     this->setMessageFlags(messages, "\\Seen", marked);
 }
 
-void Model::copyMoveMessages( TreeItemMailbox* sourceMbox, const QString& destMailboxName, QList<uint> uids, const CopyMoveOperation op )
+void Model::copyMoveMessages(TreeItemMailbox *sourceMbox, const QString &destMailboxName, QList<uint> uids, const CopyMoveOperation op)
 {
-    if ( _netPolicy == NETWORK_OFFLINE ) {
+    if (_netPolicy == NETWORK_OFFLINE) {
         // FIXME: error signalling
         return;
     }
 
-    Q_ASSERT( sourceMbox );
+    Q_ASSERT(sourceMbox);
 
-    qSort( uids );
+    qSort(uids);
 
     QModelIndexList messages;
     Sequence seq;
-    Q_FOREACH( TreeItemMessage* m, findMessagesByUids( sourceMbox, uids ) ) {
+    Q_FOREACH(TreeItemMessage* m, findMessagesByUids(sourceMbox, uids)) {
         messages << m->toIndex(this);
-        seq.add( m->uid() );
+        seq.add(m->uid());
     }
-    _taskFactory->createCopyMoveMessagesTask( this, messages, destMailboxName, op );
+    _taskFactory->createCopyMoveMessagesTask(this, messages, destMailboxName, op);
 }
 
 /** @short Convert a list of UIDs to a list of pointers to the relevant message nodes */
-QList<TreeItemMessage*> Model::findMessagesByUids(const TreeItemMailbox* const mailbox, const QList<uint> &uids)
+QList<TreeItemMessage *> Model::findMessagesByUids(const TreeItemMailbox *const mailbox, const QList<uint> &uids)
 {
-    const TreeItemMsgList* const list = dynamic_cast<const TreeItemMsgList* const>(mailbox->_children[0]);
+    const TreeItemMsgList *const list = dynamic_cast<const TreeItemMsgList *const>(mailbox->_children[0]);
     Q_ASSERT(list);
-    QList<TreeItemMessage*> res;
-    QList<TreeItem*>::const_iterator it = list->_children.constBegin();
+    QList<TreeItemMessage *> res;
+    QList<TreeItem *>::const_iterator it = list->_children.constBegin();
     // qBinaryFind is not designed to operate on a value of a different kind than stored in the container
     // so we can't really compare TreeItem* with uint, even though our LessThan supports that
     // (it keeps calling it both via LowerThan(*it, value) and LowerThan(value, *it).
@@ -1015,7 +1017,7 @@ QList<TreeItemMessage*> Model::findMessagesByUids(const TreeItemMailbox* const m
         fakeMessage._uid = uid;
         it = qBinaryFind(it, list->_children.constEnd(), &fakeMessage, uidComparator);
         if (it != list->_children.end()) {
-            res << static_cast<TreeItemMessage*>(*it);
+            res << static_cast<TreeItemMessage *>(*it);
         } else {
             qDebug() << "Can't find UID" << uid;
         }
@@ -1023,18 +1025,18 @@ QList<TreeItemMessage*> Model::findMessagesByUids(const TreeItemMailbox* const m
     return res;
 }
 
-TreeItemMailbox* Model::findMailboxByName(const QString& name) const
+TreeItemMailbox *Model::findMailboxByName(const QString &name) const
 {
     return findMailboxByName(name, _mailboxes);
 }
 
-TreeItemMailbox* Model::findMailboxByName(const QString& name, const TreeItemMailbox* const root) const
+TreeItemMailbox *Model::findMailboxByName(const QString &name, const TreeItemMailbox *const root) const
 {
     Q_ASSERT(!root->_children.isEmpty());
     // Names are sorted, so linear search is not required. On the ohterhand, the mailbox sizes are typically small enough
     // so that this shouldn't matter at all, and linear search is simple enough.
     for (int i = 1; i < root->_children.size(); ++i) {
-        TreeItemMailbox* mailbox = static_cast<TreeItemMailbox*>(root->_children[i]);
+        TreeItemMailbox *mailbox = static_cast<TreeItemMailbox *>(root->_children[i]);
         if (name == mailbox->mailbox())
             return mailbox;
         else if (name.startsWith(mailbox->mailbox() + mailbox->separator()))
@@ -1044,16 +1046,16 @@ TreeItemMailbox* Model::findMailboxByName(const QString& name, const TreeItemMai
 }
 
 /** @short Find a parent mailbox for the specified name */
-TreeItemMailbox* Model::findParentMailboxByName(const QString& name) const
+TreeItemMailbox *Model::findParentMailboxByName(const QString &name) const
 {
-    TreeItemMailbox* root = _mailboxes;
+    TreeItemMailbox *root = _mailboxes;
     while (true) {
         if (root->_children.size() == 1) {
             break;
         }
         bool found = false;
         for (int i = 1; !found && i < root->_children.size(); ++i) {
-            TreeItemMailbox* const item = dynamic_cast<TreeItemMailbox*>(root->_children[i]);
+            TreeItemMailbox *const item = dynamic_cast<TreeItemMailbox *>(root->_children[i]);
             Q_ASSERT(item);
             if (name.startsWith(item->mailbox() + item->separator())) {
                 root = item;
@@ -1068,7 +1070,7 @@ TreeItemMailbox* Model::findParentMailboxByName(const QString& name) const
 }
 
 
-void Model::expungeMailbox(TreeItemMailbox* mbox)
+void Model::expungeMailbox(TreeItemMailbox *mbox)
 {
     if (!mbox)
         return;
@@ -1081,7 +1083,7 @@ void Model::expungeMailbox(TreeItemMailbox* mbox)
     _taskFactory->createExpungeMailboxTask(this, mbox->toIndex(this));
 }
 
-void Model::createMailbox(const QString& name)
+void Model::createMailbox(const QString &name)
 {
     if (_netPolicy == NETWORK_OFFLINE) {
         qDebug() << "Can't create mailboxes while offline";
@@ -1091,49 +1093,49 @@ void Model::createMailbox(const QString& name)
     _taskFactory->createCreateMailboxTask(this, name);
 }
 
-void Model::deleteMailbox( const QString& name )
+void Model::deleteMailbox(const QString &name)
 {
-    if ( _netPolicy == NETWORK_OFFLINE ) {
+    if (_netPolicy == NETWORK_OFFLINE) {
         qDebug() << "Can't delete mailboxes while offline";
         return;
     }
 
-    _taskFactory->createDeleteMailboxTask( this, name );
+    _taskFactory->createDeleteMailboxTask(this, name);
 }
 
-void Model::saveUidMap( TreeItemMsgList* list )
+void Model::saveUidMap(TreeItemMsgList *list)
 {
     QList<uint> seqToUid;
-    for ( int i = 0; i < list->_children.size(); ++i )
-        seqToUid << static_cast<TreeItemMessage*>( list->_children[ i ] )->uid();
-    cache()->setUidMapping( static_cast<TreeItemMailbox*>( list->parent() )->mailbox(), seqToUid );
+    for (int i = 0; i < list->_children.size(); ++i)
+        seqToUid << static_cast<TreeItemMessage *>(list->_children[ i ])->uid();
+    cache()->setUidMapping(static_cast<TreeItemMailbox *>(list->parent())->mailbox(), seqToUid);
 }
 
 
-TreeItem* Model::realTreeItem( QModelIndex index, const Model** whichModel, QModelIndex* translatedIndex )
+TreeItem *Model::realTreeItem(QModelIndex index, const Model **whichModel, QModelIndex *translatedIndex)
 {
-    while ( const QAbstractProxyModel* proxy = qobject_cast<const QAbstractProxyModel*>( index.model() ) ) {
-        index = proxy->mapToSource( index );
-        proxy = qobject_cast<const QAbstractProxyModel*>( index.model() );
+    while (const QAbstractProxyModel *proxy = qobject_cast<const QAbstractProxyModel *>(index.model())) {
+        index = proxy->mapToSource(index);
+        proxy = qobject_cast<const QAbstractProxyModel *>(index.model());
     }
-    const Model* model = qobject_cast<const Model*>( index.model() );
+    const Model *model = qobject_cast<const Model *>(index.model());
     Q_ASSERT(model);
-    if ( whichModel )
+    if (whichModel)
         *whichModel = model;
-    if ( translatedIndex )
+    if (translatedIndex)
         *translatedIndex = index;
-    return static_cast<TreeItem*>( index.internalPointer() );
+    return static_cast<TreeItem *>(index.internalPointer());
 }
 
-CommandHandle Model::performAuthentication( Imap::Parser* ptr )
+CommandHandle Model::performAuthentication(Imap::Parser *ptr)
 {
     // The LOGINDISABLED capability is checked elsewhere
-    if ( ! _authenticator ) {
+    if (! _authenticator) {
         _authenticator = new QAuthenticator();
-        emit authRequested( _authenticator );
+        emit authRequested(_authenticator);
     }
 
-    if ( _authenticator->isNull() ) {
+    if (_authenticator->isNull()) {
         delete _authenticator;
         _authenticator = 0;
         QString message = tr("Can't login without user/password data");
@@ -1141,26 +1143,26 @@ CommandHandle Model::performAuthentication( Imap::Parser* ptr )
         emit connectionError(message);
         return CommandHandle();
     } else {
-        CommandHandle cmd = ptr->login( _authenticator->user(), _authenticator->password() );
+        CommandHandle cmd = ptr->login(_authenticator->user(), _authenticator->password());
         return cmd;
     }
 }
 
 void Model::changeConnectionState(Parser *parser, ConnectionState state)
 {
-    accessParser( parser ).connState = state;
-    emit connectionStateChanged( parser, state );
+    accessParser(parser).connState = state;
+    emit connectionStateChanged(parser, state);
 }
 
-void Model::handleSocketStateChanged( Parser *parser, Imap::ConnectionState state)
+void Model::handleSocketStateChanged(Parser *parser, Imap::ConnectionState state)
 {
     Q_ASSERT(parser);
-    if ( accessParser( parser ).connState < state ) {
-        changeConnectionState( parser, state );
+    if (accessParser(parser).connState < state) {
+        changeConnectionState(parser, state);
     }
 }
 
-void Model::parserIsSendingCommand( Parser *parser, const QString& tag)
+void Model::parserIsSendingCommand(Parser *parser, const QString &tag)
 {
     Q_ASSERT(parser);
     Q_UNUSED(tag);
@@ -1231,70 +1233,70 @@ void Model::killParser(Parser *parser, ParserKillingMethod method)
     Q_ASSERT(false);
 }
 
-void Model::slotParserLineReceived( Parser *parser, const QByteArray& line )
+void Model::slotParserLineReceived(Parser *parser, const QByteArray &line)
 {
     logTrace(parser->parserId(), LOG_IO_READ, QString(), line);
 }
 
-void Model::slotParserLineSent( Parser *parser, const QByteArray& line )
+void Model::slotParserLineSent(Parser *parser, const QByteArray &line)
 {
     logTrace(parser->parserId(), LOG_IO_WRITTEN, QString(), line);
 }
 
-void Model::setCache( AbstractCache* cache )
+void Model::setCache(AbstractCache *cache)
 {
-    if ( _cache )
+    if (_cache)
         _cache->deleteLater();
     _cache = cache;
-    _cache->setParent( this );
+    _cache->setParent(this);
 }
 
 void Model::runReadyTasks()
 {
-    for ( QMap<Parser*,ParserState>::iterator parserIt = _parsers.begin(); parserIt != _parsers.end(); ++parserIt ) {
+    for (QMap<Parser *,ParserState>::iterator parserIt = _parsers.begin(); parserIt != _parsers.end(); ++parserIt) {
         bool runSomething = false;
         do {
             runSomething = false;
             // See responseReceived() for more details about why we do need to iterate over a copy here.
             // Basically, calls to ImapTask::perform could invalidate our precious iterators.
-            QList<ImapTask*> origList = parserIt->activeTasks;
-            QList<ImapTask*> deletedList;
-            QList<ImapTask*>::const_iterator taskEnd = origList.constEnd();
-            for ( QList<ImapTask*>::const_iterator taskIt = origList.constBegin(); taskIt != taskEnd; ++taskIt ) {
+            QList<ImapTask *> origList = parserIt->activeTasks;
+            QList<ImapTask *> deletedList;
+            QList<ImapTask *>::const_iterator taskEnd = origList.constEnd();
+            for (QList<ImapTask *>::const_iterator taskIt = origList.constBegin(); taskIt != taskEnd; ++taskIt) {
                 ImapTask *task = *taskIt;
-                if ( task->isReadyToRun() ) {
+                if (task->isReadyToRun()) {
                     task->perform();
                     runSomething = true;
                 }
-                if ( task->isFinished() ) {
+                if (task->isFinished()) {
                     deletedList << task;
                 }
             }
-            removeDeletedTasks( deletedList, parserIt->activeTasks );
-        } while ( runSomething );
+            removeDeletedTasks(deletedList, parserIt->activeTasks);
+        } while (runSomething);
     }
 }
 
-void Model::removeDeletedTasks( const QList<ImapTask*>& deletedTasks, QList<ImapTask*>& activeTasks )
+void Model::removeDeletedTasks(const QList<ImapTask *> &deletedTasks, QList<ImapTask *> &activeTasks)
 {
     // Remove the finished commands
-    for ( QList<ImapTask*>::const_iterator deletedIt = deletedTasks.begin(); deletedIt != deletedTasks.end(); ++deletedIt ) {
+    for (QList<ImapTask *>::const_iterator deletedIt = deletedTasks.begin(); deletedIt != deletedTasks.end(); ++deletedIt) {
         (*deletedIt)->deleteLater();
-        activeTasks.removeOne( *deletedIt );
+        activeTasks.removeOne(*deletedIt);
     }
 }
 
-KeepMailboxOpenTask* Model::findTaskResponsibleFor( const QModelIndex& mailbox )
+KeepMailboxOpenTask *Model::findTaskResponsibleFor(const QModelIndex &mailbox)
 {
-    Q_ASSERT( mailbox.isValid() );
+    Q_ASSERT(mailbox.isValid());
     QModelIndex translatedIndex;
-    TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( realTreeItem( mailbox, 0, &translatedIndex ) );
-    return findTaskResponsibleFor( mailboxPtr );
+    TreeItemMailbox *mailboxPtr = dynamic_cast<TreeItemMailbox *>(realTreeItem(mailbox, 0, &translatedIndex));
+    return findTaskResponsibleFor(mailboxPtr);
 }
 
-KeepMailboxOpenTask* Model::findTaskResponsibleFor(TreeItemMailbox *mailboxPtr)
+KeepMailboxOpenTask *Model::findTaskResponsibleFor(TreeItemMailbox *mailboxPtr)
 {
-    Q_ASSERT( mailboxPtr );
+    Q_ASSERT(mailboxPtr);
     bool canCreateParallelConn = _parsers.isEmpty(); // FIXME: multiple connections
 
     if (mailboxPtr->maintainingTask) {
@@ -1314,7 +1316,7 @@ KeepMailboxOpenTask* Model::findTaskResponsibleFor(TreeItemMailbox *mailboxPtr)
         // stealing it from some mailbox, but there's no other way.
         Q_ASSERT(!_parsers.isEmpty());
 
-        for (QMap<Parser*,ParserState>::const_iterator it = _parsers.constBegin(); it != _parsers.constEnd(); ++it) {
+        for (QMap<Parser *,ParserState>::const_iterator it = _parsers.constBegin(); it != _parsers.constEnd(); ++it) {
             if (it->connState == CONN_STATE_LOGOUT) {
                 // this one is not usable
                 continue;
@@ -1326,16 +1328,16 @@ KeepMailboxOpenTask* Model::findTaskResponsibleFor(TreeItemMailbox *mailboxPtr)
     }
 }
 
-void Model::_genericHandleFetch( TreeItemMailbox* mailbox, const Imap::Responses::Fetch* const resp )
+void Model::_genericHandleFetch(TreeItemMailbox *mailbox, const Imap::Responses::Fetch *const resp)
 {
     Q_ASSERT(mailbox);
-    QList<TreeItemPart*> changedParts;
-    TreeItemMessage* changedMessage = 0;
-    mailbox->handleFetchResponse( this, *resp, changedParts, changedMessage );
-    if ( ! changedParts.isEmpty() ) {
-        Q_FOREACH( TreeItemPart* part, changedParts ) {
+    QList<TreeItemPart *> changedParts;
+    TreeItemMessage *changedMessage = 0;
+    mailbox->handleFetchResponse(this, *resp, changedParts, changedMessage);
+    if (! changedParts.isEmpty()) {
+        Q_FOREACH(TreeItemPart* part, changedParts) {
             QModelIndex index = part->toIndex(this);
-            emit dataChanged( index, index );
+            emit dataChanged(index, index);
         }
     }
     if (changedMessage) {
@@ -1345,41 +1347,41 @@ void Model::_genericHandleFetch( TreeItemMailbox* mailbox, const Imap::Responses
     }
 }
 
-QModelIndex Model::findMailboxForItems( const QModelIndexList& items )
+QModelIndex Model::findMailboxForItems(const QModelIndexList &items)
 {
-    TreeItemMailbox* mailbox = 0;
-    Q_FOREACH( const QModelIndex& index, items ) {
-        TreeItemMailbox* currentMailbox = 0;
+    TreeItemMailbox *mailbox = 0;
+    Q_FOREACH(const QModelIndex& index, items) {
+        TreeItemMailbox *currentMailbox = 0;
         Q_ASSERT(index.model() == this);
 
-        TreeItem* item = static_cast<TreeItem*>( index.internalPointer() );
+        TreeItem *item = static_cast<TreeItem *>(index.internalPointer());
         Q_ASSERT(item);
 
-        if ((currentMailbox = dynamic_cast<TreeItemMailbox*>(item))) {
+        if ((currentMailbox = dynamic_cast<TreeItemMailbox *>(item))) {
             // yes, that's an assignment, not a comparison
 
             // This case is OK
         } else {
             // TreeItemMessage and TreeItemPart have to walk the tree, which is why they are lumped together in this branch
-            TreeItemMessage *message = dynamic_cast<TreeItemMessage*>(item);
+            TreeItemMessage *message = dynamic_cast<TreeItemMessage *>(item);
             if (!message) {
-                if (TreeItemPart *part = dynamic_cast<TreeItemPart*>(item)) {
+                if (TreeItemPart *part = dynamic_cast<TreeItemPart *>(item)) {
                     message = part->message();
                 } else {
                     throw CantHappen("findMailboxForItems() called on strange items");
                 }
             }
             Q_ASSERT(message);
-            TreeItemMsgList* list = dynamic_cast<TreeItemMsgList*>(message->parent());
+            TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(message->parent());
             Q_ASSERT(list);
-            currentMailbox = dynamic_cast<TreeItemMailbox*>(list->parent());
+            currentMailbox = dynamic_cast<TreeItemMailbox *>(list->parent());
         }
 
         Q_ASSERT(currentMailbox);
         if (!mailbox) {
             mailbox = currentMailbox;
         } else if (mailbox != currentMailbox) {
-            throw CantHappen( "Messages from several mailboxes");
+            throw CantHappen("Messages from several mailboxes");
         }
     }
     return mailbox->toIndex(this);
@@ -1414,46 +1416,46 @@ void Model::slotTasksChanged()
     qDebug() << "-------------";*/
 }
 
-void Model::slotTaskDying( QObject *obj )
+void Model::slotTaskDying(QObject *obj)
 {
-    ImapTask *task = static_cast<ImapTask*>( obj );
-    for ( QMap<Parser*,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it ) {
-        it->activeTasks.removeOne( task );
+    ImapTask *task = static_cast<ImapTask *>(obj);
+    for (QMap<Parser *,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it) {
+        it->activeTasks.removeOne(task);
     }
     m_taskModel->slotTaskDestroyed(task);
 }
 
-TreeItemMailbox* Model::mailboxForSomeItem( QModelIndex index )
+TreeItemMailbox *Model::mailboxForSomeItem(QModelIndex index)
 {
-    TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( index.internalPointer() ) );
-    while ( index.isValid() && ! mailbox ) {
+    TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(index.internalPointer()));
+    while (index.isValid() && ! mailbox) {
         index = index.parent();
-        mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( index.internalPointer() ) );
+        mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(index.internalPointer()));
     }
     return mailbox;
 }
 
-ParserState& Model::accessParser( Parser *parser )
+ParserState &Model::accessParser(Parser *parser)
 {
-    Q_ASSERT( _parsers.contains( parser ) );
+    Q_ASSERT(_parsers.contains(parser));
     return _parsers[ parser ];
 }
 
-QModelIndex Model::findMessageForItem( QModelIndex index )
+QModelIndex Model::findMessageForItem(QModelIndex index)
 {
-    if ( ! index.isValid() )
+    if (! index.isValid())
         return QModelIndex();
 
-    if ( ! dynamic_cast<const Model*>( index.model() ) )
+    if (! dynamic_cast<const Model *>(index.model()))
         return QModelIndex();
 
-    TreeItem* item = static_cast<TreeItem*>( index.internalPointer() );
-    Q_ASSERT( item );
-    while ( item ) {
-        Q_ASSERT( index.internalPointer() == item );
-        if ( dynamic_cast<TreeItemMessage*>(item) ) {
+    TreeItem *item = static_cast<TreeItem *>(index.internalPointer());
+    Q_ASSERT(item);
+    while (item) {
+        Q_ASSERT(index.internalPointer() == item);
+        if (dynamic_cast<TreeItemMessage *>(item)) {
             return index;
-        } else if ( dynamic_cast<TreeItemPart*>(item) ) {
+        } else if (dynamic_cast<TreeItemPart *>(item)) {
             index = index.parent();
             item = item->parent();
         } else {
@@ -1463,18 +1465,18 @@ QModelIndex Model::findMessageForItem( QModelIndex index )
     return QModelIndex();
 }
 
-void Model::releaseMessageData( const QModelIndex &message )
+void Model::releaseMessageData(const QModelIndex &message)
 {
-    if ( ! message.isValid() )
+    if (! message.isValid())
         return;
 
     const Model *whichModel = 0;
     QModelIndex realMessage;
-    realTreeItem( message, &whichModel, &realMessage );
-    Q_ASSERT( whichModel == this );
+    realTreeItem(message, &whichModel, &realMessage);
+    Q_ASSERT(whichModel == this);
 
-    TreeItemMessage *msg = dynamic_cast<TreeItemMessage*>( static_cast<TreeItem*>( realMessage.internalPointer() ) );
-    if ( ! msg )
+    TreeItemMessage *msg = dynamic_cast<TreeItemMessage *>(static_cast<TreeItem *>(realMessage.internalPointer()));
+    if (! msg)
         return;
 
     msg->_fetchStatus = TreeItem::NONE;
@@ -1485,20 +1487,20 @@ void Model::releaseMessageData( const QModelIndex &message )
     if (msg->_partText) {
         msg->_partText->silentlyReleaseMemoryRecursive();
     }
-    Q_FOREACH( TreeItem *item, msg->_children ) {
-        TreeItemPart *part = dynamic_cast<TreeItemPart*>( item );
+    Q_FOREACH(TreeItem *item, msg->_children) {
+        TreeItemPart *part = dynamic_cast<TreeItemPart *>(item);
         Q_ASSERT(part);
         part->silentlyReleaseMemoryRecursive();
     }
-    emit dataChanged( realMessage, realMessage );
+    emit dataChanged(realMessage, realMessage);
 }
 
 QStringList Model::capabilities() const
 {
-    if ( _parsers.isEmpty() )
+    if (_parsers.isEmpty())
         return QStringList();
 
-    if ( _parsers.constBegin()->capabilitiesFresh )
+    if (_parsers.constBegin()->capabilitiesFresh)
         return _parsers.constBegin()->capabilities;
 
     return QStringList();
@@ -1535,7 +1537,7 @@ void Model::logTrace(const QModelIndex &relevantIndex, const LogKind kind, const
         Q_ASSERT(translatedIndex.model() == this);
         QModelIndex mailboxIndex = findMailboxForItems(QModelIndexList() << translatedIndex);
         Q_ASSERT(mailboxIndex.isValid());
-        TreeItemMailbox *mailboxPtr = dynamic_cast<TreeItemMailbox*>(static_cast<TreeItem*>(mailboxIndex.internalPointer()));
+        TreeItemMailbox *mailboxPtr = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
         Q_ASSERT(mailboxPtr);
         if (mailboxPtr->maintainingTask) {
             parserId = mailboxPtr->maintainingTask->parser->parserId();

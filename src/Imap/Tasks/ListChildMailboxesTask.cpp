@@ -22,17 +22,19 @@
 #include "Model.h"
 #include "MailboxTree.h"
 
-namespace Imap {
-namespace Mailbox {
-
-
-ListChildMailboxesTask::ListChildMailboxesTask( Model* _model, const QModelIndex& mailbox ):
-    ImapTask( _model ), mailboxIndex(mailbox)
+namespace Imap
 {
-    TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailbox.internalPointer() ) );
-    Q_ASSERT( mailboxPtr );
-    conn = model->_taskFactory->createGetAnyConnectionTask( model );
-    conn->addDependentTask( this );
+namespace Mailbox
+{
+
+
+ListChildMailboxesTask::ListChildMailboxesTask(Model *_model, const QModelIndex &mailbox):
+    ImapTask(_model), mailboxIndex(mailbox)
+{
+    TreeItemMailbox *mailboxPtr = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailbox.internalPointer()));
+    Q_ASSERT(mailboxPtr);
+    conn = model->_taskFactory->createGetAnyConnectionTask(model);
+    conn->addDependentTask(this);
 }
 
 void ListChildMailboxesTask::perform()
@@ -42,35 +44,35 @@ void ListChildMailboxesTask::perform()
 
     IMAP_TASK_CHECK_ABORT_DIE;
 
-    if ( ! mailboxIndex.isValid() ) {
+    if (! mailboxIndex.isValid()) {
         // FIXME: add proper fix
         _failed("Mailbox vanished before we could ask for its children");
         return;
     }
-    TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
-    Q_ASSERT( mailbox );
+    TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
+    Q_ASSERT(mailbox);
 
     QString mailboxName = mailbox->mailbox();
-    if ( mailboxName.isNull() )
+    if (mailboxName.isNull())
         mailboxName = QString::fromAscii("%");
     else
-        mailboxName += mailbox->separator() + QChar( '%' );
-    tag = parser->list( "", mailboxName );
+        mailboxName += mailbox->separator() + QChar('%');
+    tag = parser->list("", mailboxName);
 }
 
-bool ListChildMailboxesTask::handleStateHelper( const Imap::Responses::State* const resp )
+bool ListChildMailboxesTask::handleStateHelper(const Imap::Responses::State *const resp)
 {
-    if ( resp->tag.isEmpty() )
+    if (resp->tag.isEmpty())
         return false;
 
-    if ( resp->tag == tag ) {
+    if (resp->tag == tag) {
 
-        if ( mailboxIndex.isValid() ) {
-            TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
-            Q_ASSERT( mailbox );
+        if (mailboxIndex.isValid()) {
+            TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
+            Q_ASSERT(mailbox);
 
-            if ( resp->kind == Responses::OK ) {
-                model->_finalizeList( parser, mailbox );
+            if (resp->kind == Responses::OK) {
+                model->_finalizeList(parser, mailbox);
                 _completed();
             } else {
                 _failed("LIST failed");
@@ -88,12 +90,12 @@ bool ListChildMailboxesTask::handleStateHelper( const Imap::Responses::State* co
 
 QString ListChildMailboxesTask::debugIdentification() const
 {
-    if ( ! mailboxIndex.isValid() )
+    if (! mailboxIndex.isValid())
         return QString::fromAscii("[invalid mailboxIndex]");
 
-    TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
+    TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
     Q_ASSERT(mailbox);
-    return QString::fromAscii("Listing stuff below mailbox %1").arg( mailbox->mailbox() );
+    return QString::fromAscii("Listing stuff below mailbox %1").arg(mailbox->mailbox());
 }
 
 

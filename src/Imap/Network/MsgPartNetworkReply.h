@@ -25,31 +25,33 @@
 #include <QModelIndex>
 #include <QNetworkReply>
 
-namespace Imap {
-namespace Network {
+namespace Imap
+{
+namespace Network
+{
 
 /** @short Qt-like access to one MIME message part */
 class MsgPartNetworkReply : public QNetworkReply
 {
-Q_OBJECT
+    Q_OBJECT
 public:
-    MsgPartNetworkReply(QObject* parent, const QPersistentModelIndex &_part);
+    MsgPartNetworkReply(QObject *parent, const QPersistentModelIndex &_part);
     virtual void abort();
     virtual void close();
     virtual qint64 bytesAvailable() const;
 public slots:
-    void slotModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
+    void slotModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void slotMyDataChanged();
 protected:
-    virtual qint64 readData(char* data, qint64 maxSize);
+    virtual qint64 readData(char *data, qint64 maxSize);
 private:
     void disconnectBufferIfVanished() const;
 
     QPersistentModelIndex part;
     mutable QBuffer buffer;
 
-    MsgPartNetworkReply(const MsgPartNetworkReply&); // don't implement
-    MsgPartNetworkReply& operator=(const MsgPartNetworkReply&); // don't implement
+    MsgPartNetworkReply(const MsgPartNetworkReply &); // don't implement
+    MsgPartNetworkReply &operator=(const MsgPartNetworkReply &); // don't implement
 };
 
 }

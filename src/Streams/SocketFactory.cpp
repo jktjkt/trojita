@@ -25,14 +25,16 @@
 #include "IODeviceSocket.h"
 #include "FakeSocket.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 SocketFactory::SocketFactory(): _startTls(false)
 {
 }
 
-void SocketFactory::setStartTlsRequired( const bool doIt )
+void SocketFactory::setStartTlsRequired(const bool doIt)
 {
     _startTls = doIt;
 }
@@ -43,38 +45,38 @@ bool SocketFactory::startTlsRequired()
 }
 
 ProcessSocketFactory::ProcessSocketFactory(
-        const QString& executable, const QStringList& args):
+    const QString &executable, const QStringList &args):
     _executable(executable), _args(args)
 {
 }
 
-Socket* ProcessSocketFactory::create()
+Socket *ProcessSocketFactory::create()
 {
     // FIXME: this may leak memory if an exception strikes in this function
     // (before we return the pointer)
     return new ProcessSocket(new QProcess(), _executable, _args);
 }
 
-SslSocketFactory::SslSocketFactory( const QString& host, const quint16 port ):
+SslSocketFactory::SslSocketFactory(const QString &host, const quint16 port):
     _host(host), _port(port)
 {
 }
 
-Socket* SslSocketFactory::create()
+Socket *SslSocketFactory::create()
 {
-    QSslSocket* sslSock = new QSslSocket();
-    IODeviceSocket* ioSock = new SslTlsSocket( sslSock, _host, _port, true );
+    QSslSocket *sslSock = new QSslSocket();
+    IODeviceSocket *ioSock = new SslTlsSocket(sslSock, _host, _port, true);
     return ioSock;
 }
 
-TlsAbleSocketFactory::TlsAbleSocketFactory( const QString& host, const quint16 port ):
+TlsAbleSocketFactory::TlsAbleSocketFactory(const QString &host, const quint16 port):
     _host(host), _port(port)
 {
 }
 
-Socket* TlsAbleSocketFactory::create()
+Socket *TlsAbleSocketFactory::create()
 {
-    QSslSocket* sslSock = new QSslSocket();
+    QSslSocket *sslSock = new QSslSocket();
     return new SslTlsSocket(sslSock, _host, _port);
 }
 
@@ -82,12 +84,12 @@ FakeSocketFactory::FakeSocketFactory(): SocketFactory()
 {
 }
 
-Socket* FakeSocketFactory::create()
+Socket *FakeSocketFactory::create()
 {
     return _last = new FakeSocket();
 }
 
-Socket* FakeSocketFactory::lastSocket()
+Socket *FakeSocketFactory::lastSocket()
 {
     Q_ASSERT(_last);
     return _last;

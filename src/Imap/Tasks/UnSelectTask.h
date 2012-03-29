@@ -21,29 +21,31 @@
 
 #include "ImapTask.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 /** @short Get out from a mailbox as soon as possible */
 class UnSelectTask : public ImapTask
 {
-Q_OBJECT
+    Q_OBJECT
 public:
-    UnSelectTask(Model* _model, ImapTask* parentTask);
+    UnSelectTask(Model *_model, ImapTask *parentTask);
     virtual void perform();
 
-    virtual bool handleStateHelper(const Imap::Responses::State* const resp);
-    virtual bool handleNumberResponse(const Imap::Responses::NumberResponse* const resp);
-    virtual bool handleFlags(const Imap::Responses::Flags* const resp);
-    virtual bool handleSearch(const Imap::Responses::Search* const resp);
-    virtual bool handleFetch(const Imap::Responses::Fetch* const resp);
+    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
+    virtual bool handleNumberResponse(const Imap::Responses::NumberResponse *const resp);
+    virtual bool handleFlags(const Imap::Responses::Flags *const resp);
+    virtual bool handleSearch(const Imap::Responses::Search *const resp);
+    virtual bool handleFetch(const Imap::Responses::Fetch *const resp);
 private slots:
     /** @short Try to guess a non-existing mailbox name */
     void doFakeSelect();
 private:
     CommandHandle unSelectTag;
     CommandHandle selectMissingTag;
-    ImapTask* conn;
+    ImapTask *conn;
 };
 
 }

@@ -27,11 +27,13 @@
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
 
-namespace Imap {
+namespace Imap
+{
 
-namespace Network {
+namespace Network
+{
 
-MsgPartNetworkReply::MsgPartNetworkReply(QObject* parent, const QPersistentModelIndex &_part):
+MsgPartNetworkReply::MsgPartNetworkReply(QObject *parent, const QPersistentModelIndex &_part):
     QNetworkReply(parent), part(_part)
 {
     setOpenMode(QIODevice::ReadOnly | QIODevice::Unbuffered);
@@ -42,11 +44,11 @@ MsgPartNetworkReply::MsgPartNetworkReply(QObject* parent, const QPersistentModel
 
     connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(slotModelDataChanged(QModelIndex,QModelIndex)));
 
-    Mailbox::TreeItemPart *partPtr = dynamic_cast<Mailbox::TreeItemPart*>(static_cast<Mailbox::TreeItem*>(part.internalPointer()));
+    Mailbox::TreeItemPart *partPtr = dynamic_cast<Mailbox::TreeItemPart *>(static_cast<Mailbox::TreeItem *>(part.internalPointer()));
     Q_ASSERT(partPtr);
 
     // We have to ask for contents before we check whether it's already fetched
-    partPtr->fetch(const_cast<Mailbox::Model*>(model));
+    partPtr->fetch(const_cast<Mailbox::Model *>(model));
     if (partPtr->fetched()) {
         QTimer::singleShot(0, this, SLOT(slotMyDataChanged()));
     }
@@ -56,7 +58,7 @@ MsgPartNetworkReply::MsgPartNetworkReply(QObject* parent, const QPersistentModel
 }
 
 /** @short Check to see whether the data which concern this object has arrived already */
-void MsgPartNetworkReply::slotModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight)
+void MsgPartNetworkReply::slotModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     Q_UNUSED(bottomRight);
     // FIXME: use bottomRight as well!
@@ -114,7 +116,7 @@ qint64 MsgPartNetworkReply::bytesAvailable() const
 }
 
 /** @short QIODevice compatibility */
-qint64 MsgPartNetworkReply::readData(char* data, qint64 maxSize)
+qint64 MsgPartNetworkReply::readData(char *data, qint64 maxSize)
 {
     disconnectBufferIfVanished();
     return buffer.read(data, maxSize);

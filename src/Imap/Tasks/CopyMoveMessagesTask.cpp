@@ -23,23 +23,25 @@
 #include "Model.h"
 #include "MailboxTree.h"
 
-namespace Imap {
-namespace Mailbox {
-
-
-CopyMoveMessagesTask::CopyMoveMessagesTask( Model* _model, const QModelIndexList& _messages,
-                                            const QString& _targetMailbox, const CopyMoveOperation _op ):
-    ImapTask( _model ), targetMailbox(_targetMailbox), shouldDelete( _op == MOVE)
+namespace Imap
 {
-    if ( _messages.isEmpty() ) {
-        throw CantHappen( "CopyMoveMessagesTask called with empty message set");
+namespace Mailbox
+{
+
+
+CopyMoveMessagesTask::CopyMoveMessagesTask(Model *_model, const QModelIndexList &_messages,
+        const QString &_targetMailbox, const CopyMoveOperation _op):
+    ImapTask(_model), targetMailbox(_targetMailbox), shouldDelete(_op == MOVE)
+{
+    if (_messages.isEmpty()) {
+        throw CantHappen("CopyMoveMessagesTask called with empty message set");
     }
-    Q_FOREACH( const QModelIndex& index, _messages ) {
+    Q_FOREACH(const QModelIndex& index, _messages) {
         messages << index;
     }
-    QModelIndex mailboxIndex = model->findMailboxForItems( _messages );
-    conn = model->findTaskResponsibleFor( mailboxIndex );
-    conn->addDependentTask( this );
+    QModelIndex mailboxIndex = model->findMailboxForItems(_messages);
+    conn = model->findTaskResponsibleFor(mailboxIndex);
+    conn->addDependentTask(this);
 }
 
 void CopyMoveMessagesTask::perform()
@@ -52,41 +54,41 @@ void CopyMoveMessagesTask::perform()
     Sequence seq;
     bool first = true;
 
-    Q_FOREACH( const QPersistentModelIndex& index, messages ) {
-        if ( ! index.isValid() ) {
+    Q_FOREACH(const QPersistentModelIndex& index, messages) {
+        if (! index.isValid()) {
             // FIXME: add proper fix
             log("Some message got removed before we could copy them");
         } else {
-            TreeItem* item = static_cast<TreeItem*>( index.internalPointer() );
+            TreeItem *item = static_cast<TreeItem *>(index.internalPointer());
             Q_ASSERT(item);
-            TreeItemMessage* message = dynamic_cast<TreeItemMessage*>( item );
+            TreeItemMessage *message = dynamic_cast<TreeItemMessage *>(item);
             Q_ASSERT(message);
-            if ( first ) {
-                seq = Sequence( message->uid() );
+            if (first) {
+                seq = Sequence(message->uid());
                 first = false;
             } else {
-                seq.add( message->uid() );
+                seq.add(message->uid());
             }
         }
     }
 
-    if ( first ) {
+    if (first) {
         // No valid messages
         _failed("All messages disappeared before we could have copied them");
         return;
     }
 
-    copyTag = parser->uidCopy( seq, targetMailbox );
+    copyTag = parser->uidCopy(seq, targetMailbox);
 }
 
-bool CopyMoveMessagesTask::handleStateHelper( const Imap::Responses::State* const resp )
+bool CopyMoveMessagesTask::handleStateHelper(const Imap::Responses::State *const resp)
 {
-    if ( resp->tag.isEmpty() )
+    if (resp->tag.isEmpty())
         return false;
 
-    if ( resp->tag == copyTag ) {
-        if ( resp->kind == Responses::OK ) {
-            if ( shouldDelete ) {
+    if (resp->tag == copyTag) {
+        if (resp->kind == Responses::OK) {
+            if (shouldDelete) {
                 if (_dead) {
                     // Yeah, that's bad -- the COPY has succeeded, yet we cannot update the flags :(
                     log("COPY succeeded, but cannot update flags due to received die()");
@@ -94,7 +96,7 @@ bool CopyMoveMessagesTask::handleStateHelper( const Imap::Responses::State* cons
                     return true;
                 }
                 // We ignore the _aborted status here, though -- we just want to finish in an "atomic" manner
-                new UpdateFlagsTask( model, this, messages, FLAG_ADD, QLatin1String("\\Deleted") );
+                new UpdateFlagsTask(model, this, messages, FLAG_ADD, QLatin1String("\\Deleted"));
             }
             _completed();
         } else {

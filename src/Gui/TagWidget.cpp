@@ -11,7 +11,8 @@
 
 #include "TagWidget.h"
 
-namespace Gui {
+namespace Gui
+{
 
 TagWidget::TagWidget(const QString &buttonText, QWidget *parent, Qt::WindowFlags f) :
     QLabel(buttonText, parent, f)
@@ -28,10 +29,10 @@ TagWidget::TagWidget(const QString &tagName, const QString &buttonText, QWidget 
 bool TagWidget::event(QEvent *e)
 {
     if (e->type() == QEvent::MouseButtonPress) {
-       if (!m_tagName.isEmpty())
-           emit removeClicked(m_tagName);
-       emit clicked();
-       return true;
+        if (!m_tagName.isEmpty())
+            emit removeClicked(m_tagName);
+        emit clicked();
+        return true;
     }
 
     return QLabel::event(e);

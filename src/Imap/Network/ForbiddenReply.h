@@ -23,18 +23,19 @@
 
 #include <QNetworkReply>
 
-namespace Imap {
-namespace Network {
+namespace Imap
+{
+namespace Network
+{
 
 /** @short A network reply which indicates that the request got denied by policy */
 class ForbiddenReply : public QNetworkReply
 {
-Q_OBJECT
+    Q_OBJECT
 public:
-    ForbiddenReply(QObject* parent);
+    ForbiddenReply(QObject *parent);
 protected:
-    virtual qint64 readData(char* data, qint64 maxSize)
-    {
+    virtual qint64 readData(char *data, qint64 maxSize) {
         Q_UNUSED(data); Q_UNUSED(maxSize);
         return -1;
     }

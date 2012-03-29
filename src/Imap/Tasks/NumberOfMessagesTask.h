@@ -22,23 +22,25 @@
 #include <QPersistentModelIndex>
 #include "ImapTask.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 /** @short Ask for number of messages in a certain mailbox */
 class NumberOfMessagesTask : public ImapTask
 {
-Q_OBJECT
+    Q_OBJECT
 public:
-    NumberOfMessagesTask(Model* _model, const QModelIndex& mailbox);
+    NumberOfMessagesTask(Model *_model, const QModelIndex &mailbox);
     virtual void perform();
 
-    virtual bool handleStateHelper(const Imap::Responses::State* const resp);
+    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
 
     virtual QString debugIdentification() const;
 private:
     CommandHandle tag;
-    ImapTask* conn;
+    ImapTask *conn;
     QPersistentModelIndex mailboxIndex;
 };
 

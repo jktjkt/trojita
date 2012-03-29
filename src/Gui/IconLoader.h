@@ -24,7 +24,8 @@
 
 #include <QIcon>
 
-namespace Gui {
+namespace Gui
+{
 
 /** @short Wrapper around the QIcon::fromTheme with sane fallback
  *

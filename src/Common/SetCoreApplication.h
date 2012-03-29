@@ -22,10 +22,11 @@
 #ifndef TROJITA_COMMON_SETCOREAPPLICATION_H
 #define TROJITA_COMMON_SETCOREAPPLICATION_H
 
-namespace Common {
+namespace Common
+{
 
-    /** @short Set application version, manufacturer etc etc */
-    void setCoreApplicationData();
+/** @short Set application version, manufacturer etc etc */
+void setCoreApplicationData();
 
 }
 

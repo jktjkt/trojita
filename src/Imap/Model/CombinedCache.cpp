@@ -23,16 +23,18 @@
 #include "DiskPartCache.h"
 #include "SQLCache.h"
 
-namespace Imap {
-namespace Mailbox {
-
-CombinedCache::CombinedCache( QObject* parent, const QString& name, const QString& cacheDir ):
-        AbstractCache(parent), _name(name), _cacheDir(cacheDir)
+namespace Imap
 {
-    _sqlCache = new SQLCache( this );
-    connect( _sqlCache, SIGNAL(error(QString)), this, SIGNAL(error(QString)) );
-    _diskPartCache = new DiskPartCache( this, cacheDir );
-    connect( _diskPartCache, SIGNAL(error(QString)), this, SIGNAL(error(QString)) );
+namespace Mailbox
+{
+
+CombinedCache::CombinedCache(QObject *parent, const QString &name, const QString &cacheDir):
+    AbstractCache(parent), _name(name), _cacheDir(cacheDir)
+{
+    _sqlCache = new SQLCache(this);
+    connect(_sqlCache, SIGNAL(error(QString)), this, SIGNAL(error(QString)));
+    _diskPartCache = new DiskPartCache(this, cacheDir);
+    connect(_diskPartCache, SIGNAL(error(QString)), this, SIGNAL(error(QString)));
 }
 
 CombinedCache::~CombinedCache()
@@ -41,64 +43,64 @@ CombinedCache::~CombinedCache()
 
 bool CombinedCache::open()
 {
-    return _sqlCache->open( _name, _cacheDir + QLatin1String("/imap.cache.sqlite") );
+    return _sqlCache->open(_name, _cacheDir + QLatin1String("/imap.cache.sqlite"));
 }
 
-QList<MailboxMetadata> CombinedCache::childMailboxes( const QString& mailbox ) const
+QList<MailboxMetadata> CombinedCache::childMailboxes(const QString &mailbox) const
 {
-    return _sqlCache->childMailboxes( mailbox );
+    return _sqlCache->childMailboxes(mailbox);
 }
 
-bool CombinedCache::childMailboxesFresh( const QString& mailbox ) const
+bool CombinedCache::childMailboxesFresh(const QString &mailbox) const
 {
-    return _sqlCache->childMailboxesFresh( mailbox );
+    return _sqlCache->childMailboxesFresh(mailbox);
 }
 
-void CombinedCache::setChildMailboxes( const QString& mailbox, const QList<MailboxMetadata>& data )
+void CombinedCache::setChildMailboxes(const QString &mailbox, const QList<MailboxMetadata> &data)
 {
-    _sqlCache->setChildMailboxes( mailbox, data );
+    _sqlCache->setChildMailboxes(mailbox, data);
 }
 
-void CombinedCache::forgetChildMailboxes( const QString& mailbox )
+void CombinedCache::forgetChildMailboxes(const QString &mailbox)
 {
-    _sqlCache->forgetChildMailboxes( mailbox );
+    _sqlCache->forgetChildMailboxes(mailbox);
 }
 
-SyncState CombinedCache::mailboxSyncState( const QString& mailbox ) const
+SyncState CombinedCache::mailboxSyncState(const QString &mailbox) const
 {
-    return _sqlCache->mailboxSyncState( mailbox );
+    return _sqlCache->mailboxSyncState(mailbox);
 }
 
-void CombinedCache::setMailboxSyncState( const QString& mailbox, const SyncState& state )
+void CombinedCache::setMailboxSyncState(const QString &mailbox, const SyncState &state)
 {
-    _sqlCache->setMailboxSyncState( mailbox, state );
+    _sqlCache->setMailboxSyncState(mailbox, state);
 }
 
-QList<uint> CombinedCache::uidMapping( const QString& mailbox ) const
+QList<uint> CombinedCache::uidMapping(const QString &mailbox) const
 {
-    return _sqlCache->uidMapping( mailbox );
+    return _sqlCache->uidMapping(mailbox);
 }
 
-void CombinedCache::setUidMapping( const QString& mailbox, const QList<uint>& seqToUid )
+void CombinedCache::setUidMapping(const QString &mailbox, const QList<uint> &seqToUid)
 {
-    _sqlCache->setUidMapping( mailbox, seqToUid );
+    _sqlCache->setUidMapping(mailbox, seqToUid);
 }
 
-void CombinedCache::clearUidMapping( const QString& mailbox )
+void CombinedCache::clearUidMapping(const QString &mailbox)
 {
-    _sqlCache->clearUidMapping( mailbox );
+    _sqlCache->clearUidMapping(mailbox);
 }
 
-void CombinedCache::clearAllMessages( const QString& mailbox )
+void CombinedCache::clearAllMessages(const QString &mailbox)
 {
-    _sqlCache->clearAllMessages( mailbox );
-    _diskPartCache->clearAllMessages( mailbox );
+    _sqlCache->clearAllMessages(mailbox);
+    _diskPartCache->clearAllMessages(mailbox);
 }
 
-void CombinedCache::clearMessage( const QString mailbox, uint uid )
+void CombinedCache::clearMessage(const QString mailbox, uint uid)
 {
-    _sqlCache->clearMessage( mailbox, uid );
-    _diskPartCache->clearMessage( mailbox, uid );
+    _sqlCache->clearMessage(mailbox, uid);
+    _diskPartCache->clearMessage(mailbox, uid);
 }
 
 QStringList CombinedCache::msgFlags(const QString &mailbox, uint uid) const
@@ -111,31 +113,31 @@ void CombinedCache::setMsgFlags(const QString &mailbox, uint uid, const QStringL
     _sqlCache->setMsgFlags(mailbox, uid, flags);
 }
 
-AbstractCache::MessageDataBundle CombinedCache::messageMetadata( const QString& mailbox, uint uid ) const
+AbstractCache::MessageDataBundle CombinedCache::messageMetadata(const QString &mailbox, uint uid) const
 {
-    return _sqlCache->messageMetadata( mailbox, uid );
+    return _sqlCache->messageMetadata(mailbox, uid);
 }
 
-void CombinedCache::setMessageMetadata( const QString& mailbox, uint uid, const MessageDataBundle& metadata )
+void CombinedCache::setMessageMetadata(const QString &mailbox, uint uid, const MessageDataBundle &metadata)
 {
-    _sqlCache->setMessageMetadata( mailbox, uid, metadata );
+    _sqlCache->setMessageMetadata(mailbox, uid, metadata);
 }
 
-QByteArray CombinedCache::messagePart( const QString& mailbox, uint uid, const QString& partId ) const
+QByteArray CombinedCache::messagePart(const QString &mailbox, uint uid, const QString &partId) const
 {
-    QByteArray res = _sqlCache->messagePart( mailbox, uid, partId );
-    if ( res.isEmpty() ) {
-        res = _diskPartCache->messagePart( mailbox, uid, partId );
+    QByteArray res = _sqlCache->messagePart(mailbox, uid, partId);
+    if (res.isEmpty()) {
+        res = _diskPartCache->messagePart(mailbox, uid, partId);
     }
     return res;
 }
 
-void CombinedCache::setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data )
+void CombinedCache::setMsgPart(const QString &mailbox, uint uid, const QString &partId, const QByteArray &data)
 {
-    if ( data.size() < 1000 ) {
-        _sqlCache->setMsgPart( mailbox, uid, partId, data );
+    if (data.size() < 1000) {
+        _sqlCache->setMsgPart(mailbox, uid, partId, data);
     } else {
-        _diskPartCache->setMsgPart( mailbox, uid, partId, data );
+        _diskPartCache->setMsgPart(mailbox, uid, partId, data);
     }
 }
 

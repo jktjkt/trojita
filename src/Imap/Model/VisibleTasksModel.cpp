@@ -23,8 +23,10 @@
 #include "kdeui-itemviews/kdescendantsproxymodel.h"
 #include "ItemRoles.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 /** @short Construct the required proxy model hierarchy */
 VisibleTasksModel::VisibleTasksModel(QObject *parent, QAbstractItemModel *taskModel) :

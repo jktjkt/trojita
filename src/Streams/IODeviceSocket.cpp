@@ -24,14 +24,15 @@
 #include "IODeviceSocket.h"
 #include "Imap/Exceptions.h"
 
-namespace Imap {
-
-IODeviceSocket::IODeviceSocket(QIODevice* device): d(device)
+namespace Imap
 {
-    connect( d, SIGNAL(readyRead()), this, SIGNAL(readyRead()) );
-    connect( d, SIGNAL(readChannelFinished()), this, SLOT( handleStateChanged() ) );
+
+IODeviceSocket::IODeviceSocket(QIODevice *device): d(device)
+{
+    connect(d, SIGNAL(readyRead()), this, SIGNAL(readyRead()));
+    connect(d, SIGNAL(readChannelFinished()), this, SLOT(handleStateChanged()));
     delayedDisconnect = new QTimer();
-    delayedDisconnect->setSingleShot( true );
+    delayedDisconnect->setSingleShot(true);
     connect(delayedDisconnect, SIGNAL(timeout()), this, SLOT(emitError()));
     QTimer::singleShot(0, this, SLOT(delayedStart()));
 }
@@ -46,26 +47,26 @@ bool IODeviceSocket::canReadLine()
     return d->canReadLine();
 }
 
-QByteArray IODeviceSocket::read( qint64 maxSize )
+QByteArray IODeviceSocket::read(qint64 maxSize)
 {
-    return d->read( maxSize );
+    return d->read(maxSize);
 }
 
-QByteArray IODeviceSocket::readLine( qint64 maxSize )
+QByteArray IODeviceSocket::readLine(qint64 maxSize)
 {
-    return d->readLine( maxSize );
+    return d->readLine(maxSize);
 }
 
-qint64 IODeviceSocket::write( const QByteArray& byteArray )
+qint64 IODeviceSocket::write(const QByteArray &byteArray)
 {
-    return d->write( byteArray );
+    return d->write(byteArray);
 }
 
 void IODeviceSocket::startTls()
 {
-    QSslSocket* sock = qobject_cast<QSslSocket*>( d );
-    if ( ! sock ) {
-        throw InvalidArgument( "This IODeviceSocket is not a QSslSocket, and therefore doesn't support STARTTLS." );
+    QSslSocket *sock = qobject_cast<QSslSocket *>(d);
+    if (! sock) {
+        throw InvalidArgument("This IODeviceSocket is not a QSslSocket, and therefore doesn't support STARTTLS.");
     } else {
         sock->startClientEncryption();
     }
@@ -73,23 +74,23 @@ void IODeviceSocket::startTls()
 
 void IODeviceSocket::emitError()
 {
-    emit disconnected( disconnectedMessage );
+    emit disconnected(disconnectedMessage);
 }
 
 ProcessSocket::ProcessSocket(QProcess *proc, const QString &executable, const QStringList &args):
-        IODeviceSocket(proc), _executable(executable), _args(args)
+    IODeviceSocket(proc), _executable(executable), _args(args)
 {
-    connect( proc, SIGNAL(stateChanged(QProcess::ProcessState)), this, SLOT(handleStateChanged()) );
-    connect( proc, SIGNAL(error(QProcess::ProcessError)), this, SLOT(handleProcessError(QProcess::ProcessError)) );
+    connect(proc, SIGNAL(stateChanged(QProcess::ProcessState)), this, SLOT(handleStateChanged()));
+    connect(proc, SIGNAL(error(QProcess::ProcessError)), this, SLOT(handleProcessError(QProcess::ProcessError)));
 }
 
 ProcessSocket::~ProcessSocket()
 {
-    QProcess* proc = qobject_cast<QProcess*>( d );
+    QProcess *proc = qobject_cast<QProcess *>(d);
     Q_ASSERT(proc);
     // Be nice to it, let it die peacefully before using an axe
     // QTBUG-5990, don't call waitForFinished() on a process which hadn't started
-    if ( proc->state() == QProcess::Running ) {
+    if (proc->state() == QProcess::Running) {
         proc->terminate();
         proc->waitForFinished(200);
         proc->kill();
@@ -98,18 +99,18 @@ ProcessSocket::~ProcessSocket()
 
 bool ProcessSocket::isDead()
 {
-    QProcess* proc = qobject_cast<QProcess*>( d );
+    QProcess *proc = qobject_cast<QProcess *>(d);
     Q_ASSERT(proc);
     return proc->state() != QProcess::Running;
 }
 
-void ProcessSocket::handleProcessError( QProcess::ProcessError err )
+void ProcessSocket::handleProcessError(QProcess::ProcessError err)
 {
-    Q_UNUSED( err );
-    QProcess* proc = qobject_cast<QProcess*>( d );
-    Q_ASSERT( proc );
+    Q_UNUSED(err);
+    QProcess *proc = qobject_cast<QProcess *>(d);
+    Q_ASSERT(proc);
     delayedDisconnect->stop();
-    emit disconnected( tr( "The QProcess is having troubles: %1" ).arg( proc->errorString() ) );
+    emit disconnected(tr("The QProcess is having troubles: %1").arg(proc->errorString()));
 }
 
 void ProcessSocket::handleStateChanged()
@@ -119,51 +120,50 @@ void ProcessSocket::handleStateChanged()
     to the user and QAbstractSocket::error() is not set yet by the time this
     function executes. That's why we have to delay the first disconnected() signal. */
 
-    QProcess* proc = qobject_cast<QProcess*>( d );
+    QProcess *proc = qobject_cast<QProcess *>(d);
     Q_ASSERT(proc);
-    switch ( proc->state() ) {
+    switch (proc->state()) {
     case QProcess::Running:
         emit stateChanged(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS, tr("The process has started"));
         break;
     case QProcess::Starting:
-        emit stateChanged(Imap::CONN_STATE_CONNECTING, tr("Starting process `%1 %2`").arg( _executable, _args.join(QLatin1String(" "))));
+        emit stateChanged(Imap::CONN_STATE_CONNECTING, tr("Starting process `%1 %2`").arg(_executable, _args.join(QLatin1String(" "))));
         break;
-    case QProcess::NotRunning:
-        {
-            if ( delayedDisconnect->isActive() )
-                break;
-            QString stdErr = QString::fromLocal8Bit( proc->readAllStandardError() );
-            if ( stdErr.isEmpty() )
-                disconnectedMessage = tr("The QProcess has exited with return code %1.").arg(
-                        proc->exitCode() );
-            else
-                disconnectedMessage = tr("The QProcess has exited with return code %1:\n\n%2").arg(
-                        proc->exitCode() ).arg( stdErr );
-            delayedDisconnect->start();
-        }
-        break;
+    case QProcess::NotRunning: {
+        if (delayedDisconnect->isActive())
+            break;
+        QString stdErr = QString::fromLocal8Bit(proc->readAllStandardError());
+        if (stdErr.isEmpty())
+            disconnectedMessage = tr("The QProcess has exited with return code %1.").arg(
+                                      proc->exitCode());
+        else
+            disconnectedMessage = tr("The QProcess has exited with return code %1:\n\n%2").arg(
+                                      proc->exitCode()).arg(stdErr);
+        delayedDisconnect->start();
+    }
+    break;
     }
 }
 
 void ProcessSocket::delayedStart()
 {
-    QProcess* proc = qobject_cast<QProcess*>( d );
+    QProcess *proc = qobject_cast<QProcess *>(d);
     Q_ASSERT(proc);
-    proc->start( _executable, _args );
+    proc->start(_executable, _args);
 }
 
 SslTlsSocket::SslTlsSocket(QSslSocket *sock, const QString &host, const quint16 port, const bool startEncrypted):
-        IODeviceSocket(sock), _startEncrypted(startEncrypted), _host(host), _port(port)
+    IODeviceSocket(sock), _startEncrypted(startEncrypted), _host(host), _port(port)
 {
     sock->ignoreSslErrors(); // big fat FIXME here!!!
-    sock->setProtocol( QSsl::AnyProtocol );
-    sock->setPeerVerifyMode( QSslSocket::QueryPeer );
+    sock->setProtocol(QSsl::AnyProtocol);
+    sock->setPeerVerifyMode(QSslSocket::QueryPeer);
 
     if (startEncrypted)
         connect(sock, SIGNAL(encrypted()), this, SLOT(handleConnected()));
 
-    connect( sock, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(handleStateChanged()) );
-    connect( sock, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(handleSocketError(QAbstractSocket::SocketError)) );
+    connect(sock, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(handleStateChanged()));
+    connect(sock, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(handleSocketError(QAbstractSocket::SocketError)));
 }
 
 /** @short Be sure to report our state change through the usual stateChanged() signal even on encrypted channels */
@@ -179,54 +179,54 @@ void SslTlsSocket::handleStateChanged()
     to the user and QAbstractSocket::error() is not set yet by the time this
     function executes. That's why we have to delay the first disconnected() signal. */
 
-    QAbstractSocket* sock = qobject_cast<QAbstractSocket*>( d );
+    QAbstractSocket *sock = qobject_cast<QAbstractSocket *>(d);
     Q_ASSERT(sock);
-    switch ( sock->state() ) {
+    switch (sock->state()) {
     case QAbstractSocket::HostLookupState:
         emit stateChanged(Imap::CONN_STATE_HOST_LOOKUP, tr("Looking up %1...").arg(_host));
         break;
     case QAbstractSocket::ConnectingState:
         emit stateChanged(Imap::CONN_STATE_CONNECTING, tr("Connecting to %1:%2%3...").arg(
-                _host, QString::number(_port), _startEncrypted ? tr(" (SSL)") : QString()));
+                              _host, QString::number(_port), _startEncrypted ? tr(" (SSL)") : QString()));
         break;
     case QAbstractSocket::BoundState:
     case QAbstractSocket::ListeningState:
         break;
     case QAbstractSocket::ConnectedState:
-        if ( ! _startEncrypted ) {
+        if (! _startEncrypted) {
             emit stateChanged(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS, tr("Connected"));
         }
         break;
     case QAbstractSocket::UnconnectedState:
     case QAbstractSocket::ClosingState:
-        disconnectedMessage = tr("Socket is disconnected: %1").arg( sock->errorString() );
+        disconnectedMessage = tr("Socket is disconnected: %1").arg(sock->errorString());
         delayedDisconnect->start();
         break;
     }
 }
 
-void SslTlsSocket::handleSocketError( QAbstractSocket::SocketError err )
+void SslTlsSocket::handleSocketError(QAbstractSocket::SocketError err)
 {
-    Q_UNUSED( err );
-    QAbstractSocket* sock = qobject_cast<QAbstractSocket*>( d );
-    Q_ASSERT( sock );
+    Q_UNUSED(err);
+    QAbstractSocket *sock = qobject_cast<QAbstractSocket *>(d);
+    Q_ASSERT(sock);
     delayedDisconnect->stop();
-    emit disconnected( tr( "The underlying socket is having troubles when processing connection to %1:%2: %3" ).arg(
-                          _host, QString::number(_port), sock->errorString() ) );
+    emit disconnected(tr("The underlying socket is having troubles when processing connection to %1:%2: %3").arg(
+                          _host, QString::number(_port), sock->errorString()));
 }
 
 bool SslTlsSocket::isDead()
 {
-    QAbstractSocket* sock = qobject_cast<QAbstractSocket*>( d );
+    QAbstractSocket *sock = qobject_cast<QAbstractSocket *>(d);
     Q_ASSERT(sock);
     return sock->state() != QAbstractSocket::ConnectedState;
 }
 
 void SslTlsSocket::delayedStart()
 {
-    QSslSocket* sock = qobject_cast<QSslSocket*>( d );
+    QSslSocket *sock = qobject_cast<QSslSocket *>(d);
     Q_ASSERT(sock);
-    if ( _startEncrypted )
+    if (_startEncrypted)
         sock->connectToHostEncrypted(_host, _port);
     else
         sock->connectToHost(_host, _port);

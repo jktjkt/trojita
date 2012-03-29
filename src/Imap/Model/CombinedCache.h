@@ -24,9 +24,11 @@
 
 #include "Cache.h"
 
-namespace Imap {
+namespace Imap
+{
 
-namespace Mailbox {
+namespace Mailbox
+{
 
 class SQLCache;
 class DiskPartCache;
@@ -43,7 +45,8 @@ only after the MemoryCache rework) which should only speed-up certain
 operations. This will likely be implemented when we will switch from
 storing the actual data in the various TreeItem* instances.
 */
-class CombinedCache : public AbstractCache {
+class CombinedCache : public AbstractCache
+{
     Q_OBJECT
 public:
     /** @short Constructor
@@ -51,34 +54,34 @@ public:
       Create new instance, using the @arg name as the name for the database connnection.
       Store all data into the @arg cacheDir directory. Actual opening of the DB connection
       is deferred till a call to the load() method.
-*/
-    CombinedCache( QObject* parent, const QString& name, const QString& cacheDir );
+    */
+    CombinedCache(QObject *parent, const QString &name, const QString &cacheDir);
 
     virtual ~CombinedCache();
 
-    virtual QList<MailboxMetadata> childMailboxes( const QString& mailbox ) const;
-    virtual bool childMailboxesFresh( const QString& mailbox ) const;
-    virtual void setChildMailboxes( const QString& mailbox, const QList<MailboxMetadata>& data );
-    virtual void forgetChildMailboxes( const QString& mailbox );
+    virtual QList<MailboxMetadata> childMailboxes(const QString &mailbox) const;
+    virtual bool childMailboxesFresh(const QString &mailbox) const;
+    virtual void setChildMailboxes(const QString &mailbox, const QList<MailboxMetadata> &data);
+    virtual void forgetChildMailboxes(const QString &mailbox);
 
-    virtual SyncState mailboxSyncState( const QString& mailbox ) const;
-    virtual void setMailboxSyncState( const QString& mailbox, const SyncState& state );
+    virtual SyncState mailboxSyncState(const QString &mailbox) const;
+    virtual void setMailboxSyncState(const QString &mailbox, const SyncState &state);
 
-    virtual void setUidMapping( const QString& mailbox, const QList<uint>& seqToUid );
-    virtual void clearUidMapping( const QString& mailbox );
-    virtual QList<uint> uidMapping( const QString& mailbox ) const;
+    virtual void setUidMapping(const QString &mailbox, const QList<uint> &seqToUid);
+    virtual void clearUidMapping(const QString &mailbox);
+    virtual QList<uint> uidMapping(const QString &mailbox) const;
 
-    virtual void clearAllMessages( const QString& mailbox );
-    virtual void clearMessage( const QString mailbox, uint uid );
+    virtual void clearAllMessages(const QString &mailbox);
+    virtual void clearMessage(const QString mailbox, uint uid);
 
-    virtual MessageDataBundle messageMetadata( const QString& mailbox, uint uid ) const;
-    virtual void setMessageMetadata( const QString& mailbox, uint uid, const MessageDataBundle& metadata );
+    virtual MessageDataBundle messageMetadata(const QString &mailbox, uint uid) const;
+    virtual void setMessageMetadata(const QString &mailbox, uint uid, const MessageDataBundle &metadata);
 
     virtual QStringList msgFlags(const QString &mailbox, uint uid) const;
     virtual void setMsgFlags(const QString &mailbox, uint uid, const QStringList &flags);
 
-    virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId ) const;
-    virtual void setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data );
+    virtual QByteArray messagePart(const QString &mailbox, uint uid, const QString &partId) const;
+    virtual void setMsgPart(const QString &mailbox, uint uid, const QString &partId, const QByteArray &data);
 
     virtual QVector<Imap::Responses::ThreadingNode> messageThreading(const QString &mailbox);
     virtual void setMessageThreading(const QString &mailbox, const QVector<Imap::Responses::ThreadingNode> &threading);
@@ -88,9 +91,9 @@ public:
 
 private:
     /** @short The SQL-based cache */
-    SQLCache* _sqlCache;
+    SQLCache *_sqlCache;
     /** @short Cache for bigger message parts */
-    DiskPartCache* _diskPartCache;
+    DiskPartCache *_diskPartCache;
     /** @short Name of the DB connection */
     QString _name;
     /** @short Directory to serve as a cache root */

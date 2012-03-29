@@ -23,14 +23,16 @@
 #include "Model.h"
 #include "MailboxTree.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 UpdateFlagsTask::UpdateFlagsTask(Model *_model, const QModelIndexList &_messages, const FlagsOperation _flagOperation, const QString &_flags):
     ImapTask(_model), copyMove(0), flagOperation(_flagOperation), flags(_flags)
 {
     if (_messages.isEmpty()) {
-        throw CantHappen( "UpdateFlagsTask called with empty message set");
+        throw CantHappen("UpdateFlagsTask called with empty message set");
     }
     Q_FOREACH(const QModelIndex& index, _messages) {
         messages << index;
@@ -65,9 +67,9 @@ void UpdateFlagsTask::perform()
         if (!index.isValid()) {
             log("Some message got removed before we could update its flags", LOG_MESSAGES);
         } else {
-            TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
+            TreeItem *item = static_cast<TreeItem *>(index.internalPointer());
             Q_ASSERT(item);
-            TreeItemMessage* message = dynamic_cast<TreeItemMessage*>(item);
+            TreeItemMessage *message = dynamic_cast<TreeItemMessage *>(item);
             Q_ASSERT(message);
             if (first) {
                 seq = Sequence(message->uid());
@@ -97,7 +99,7 @@ void UpdateFlagsTask::perform()
     tag = parser->uidStore(seq, op, flags);
 }
 
-bool UpdateFlagsTask::handleStateHelper(const Imap::Responses::State* const resp)
+bool UpdateFlagsTask::handleStateHelper(const Imap::Responses::State *const resp)
 {
     if (resp->tag.isEmpty())
         return false;

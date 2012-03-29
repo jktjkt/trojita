@@ -24,9 +24,11 @@
 #include "MailboxTree.h"
 #include "Model.h"
 
-namespace Imap {
+namespace Imap
+{
 
-namespace Mailbox {
+namespace Mailbox
+{
 
 DelayedAskForChildrenOfMailbox::DelayedAskForChildrenOfMailbox(Model *model, const QModelIndex &mailbox):
     QObject(model), m_model(model), m_mailbox(mailbox),
@@ -40,17 +42,17 @@ void DelayedAskForChildrenOfMailbox::askNow()
 {
     Q_ASSERT(m_model);
     TreeItemMailbox *mailboxPtr = 0;
-    if ( m_topLevel ) {
+    if (m_topLevel) {
         // We're asked for the root, and we can find that
         mailboxPtr = m_model->_mailboxes;
     } else {
         // The index was previously valid, so let's check if it remains so
-        if ( ! m_mailbox.isValid() ) {
+        if (! m_mailbox.isValid()) {
             qDebug() << "DelayedAskForChildrenOfMailbox: lost mailbox";
             deleteLater();
             return;
         }
-        mailboxPtr = dynamic_cast<TreeItemMailbox*>(static_cast<TreeItem*>(m_mailbox.internalPointer()));
+        mailboxPtr = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(m_mailbox.internalPointer()));
     }
     Q_ASSERT(mailboxPtr);
     m_model->_askForChildrenOfMailbox(mailboxPtr);
@@ -68,12 +70,12 @@ DelayedAskForMessagesInMailbox::DelayedAskForMessagesInMailbox(Model *model, con
 void DelayedAskForMessagesInMailbox::askNow()
 {
     Q_ASSERT(m_model);
-    if ( ! m_list.isValid() ) {
+    if (! m_list.isValid()) {
         qDebug() << "DelayedAskForMessages: lost mailbox";
         deleteLater();
         return;
     }
-    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList*>(static_cast<TreeItem*>(m_list.internalPointer()));
+    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(static_cast<TreeItem *>(m_list.internalPointer()));
     Q_ASSERT(list);
     m_model->_askForMessagesInMailbox(list);
     // We're responsible for cleaning up

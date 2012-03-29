@@ -22,8 +22,10 @@
 #include "ImapTask.h"
 #include "../Model/Model.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 /** @short Create new "connection" that will fail immediately
 
@@ -31,9 +33,9 @@ The whole point of this class is to create a Parser because the whole stack depe
 */
 class OfflineConnectionTask : public ImapTask
 {
-Q_OBJECT
+    Q_OBJECT
 public:
-    OfflineConnectionTask(Model* _model);
+    OfflineConnectionTask(Model *_model);
     virtual void perform();
 protected slots:
     void slotPerform();

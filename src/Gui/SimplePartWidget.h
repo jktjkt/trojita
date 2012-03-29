@@ -29,14 +29,17 @@
 class QModelIndex;
 class QNetworkReply;
 
-namespace Imap {
-namespace Network {
-    class FileDownloadManager;
-    class MsgPartNetAccessManager;
+namespace Imap
+{
+namespace Network
+{
+class FileDownloadManager;
+class MsgPartNetAccessManager;
 }
 }
 
-namespace Gui {
+namespace Gui
+{
 
 /** @short Widget that handles display of primitive message parts
 
@@ -48,18 +51,18 @@ class SimplePartWidget : public EmbeddedWebView, public AbstractPartWidget
 {
     Q_OBJECT
 public:
-    SimplePartWidget(QWidget* parent, Imap::Network::MsgPartNetAccessManager* manager, const QModelIndex &partIndex);
+    SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex);
     virtual QString quoteMe() const;
     virtual void reloadContents();
 private slots:
-    void slotTransferError( const QString& errorString );
-    void slotFileNameRequested( QString* fileName );
+    void slotTransferError(const QString &errorString);
+    void slotFileNameRequested(QString *fileName);
 private:
-    QAction* saveAction;
-    Imap::Network::FileDownloadManager* _fileDownloadManager;
+    QAction *saveAction;
+    Imap::Network::FileDownloadManager *_fileDownloadManager;
 
-    SimplePartWidget(const SimplePartWidget&); // don't implement
-    SimplePartWidget& operator=(const SimplePartWidget&); // don't implement
+    SimplePartWidget(const SimplePartWidget &); // don't implement
+    SimplePartWidget &operator=(const SimplePartWidget &); // don't implement
 };
 
 }

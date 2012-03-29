@@ -20,13 +20,15 @@
 #include "Model.h"
 #include "TaskPresentationModel.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
-ImapTask::ImapTask(Model* _model) :
+ImapTask::ImapTask(Model *_model) :
     QObject(_model), parser(0), parentTask(0), model(_model), _finished(false), _dead(false), _aborted(false)
 {
-    connect(this, SIGNAL(destroyed(QObject*)), model, SLOT(slotTaskDying(QObject*)));
+    connect(this, SIGNAL(destroyed(QObject *)), model, SLOT(slotTaskDying(QObject *)));
 }
 
 ImapTask::~ImapTask()
@@ -59,7 +61,7 @@ void ImapTask::updateParentTask(ImapTask *newParent)
 void ImapTask::markAsActiveTask(const TaskActivatingPosition place)
 {
     Q_ASSERT(parser);
-    switch(place) {
+    switch (place) {
     case TASK_APPEND:
         model->accessParser(parser).activeTasks.append(this);
         break;
@@ -188,9 +190,8 @@ void ImapTask::handleResponseCode(const Imap::Responses::State *const resp)
     case ALERT:
         emit model->alertReceived(tr("The server sent the following ALERT:\n%1").arg(resp->message));
         break;
-    case CAPABILITIES:
-    {
-        const RespData<QStringList>* const caps = dynamic_cast<const RespData<QStringList>* const>(resp->respCodeData.data());
+    case CAPABILITIES: {
+        const RespData<QStringList> *const caps = dynamic_cast<const RespData<QStringList>* const>(resp->respCodeData.data());
         if (caps) {
             model->updateCapabilities(parser, caps->data);
         }

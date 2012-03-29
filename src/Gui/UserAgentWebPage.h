@@ -23,11 +23,13 @@
 
 #include <QWebPage>
 
-namespace Gui {
+namespace Gui
+{
 
 
 /** @short QWebPage which sends proper User-Agent headers */
-class UserAgentWebPage: public QWebPage {
+class UserAgentWebPage: public QWebPage
+{
     Q_OBJECT
 public:
     UserAgentWebPage(QWidget *parent);

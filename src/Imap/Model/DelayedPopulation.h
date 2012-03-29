@@ -24,9 +24,11 @@
 #include <QObject>
 #include <QPersistentModelIndex>
 
-namespace Imap {
+namespace Imap
+{
 
-namespace Mailbox {
+namespace Mailbox
+{
 
 class Model;
 
@@ -51,7 +53,7 @@ like this:
  */
 class DelayedAskForChildrenOfMailbox : public QObject
 {
-Q_OBJECT
+    Q_OBJECT
 public:
     DelayedAskForChildrenOfMailbox(Model *model, const QModelIndex &mailbox);
 private slots:
@@ -77,7 +79,7 @@ private:
 */
 class DelayedAskForMessagesInMailbox : public QObject
 {
-Q_OBJECT
+    Q_OBJECT
 public:
     DelayedAskForMessagesInMailbox(Model *model, const QModelIndex &list);
 private slots:

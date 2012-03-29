@@ -12,7 +12,8 @@
 
 #include <QLabel>
 
-namespace Gui {
+namespace Gui
+{
 
 class TagWidget : public QLabel
 {

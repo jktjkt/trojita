@@ -22,8 +22,10 @@
 #include "ImapTask.h"
 #include "../Model/Model.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 /** @short Come up with a connection that is (at least) in the authenticated state
 
@@ -39,13 +41,13 @@ finishes immediately, so the serialization effectively isn't here.
 */
 class GetAnyConnectionTask : public ImapTask
 {
-Q_OBJECT
+    Q_OBJECT
 public:
-    GetAnyConnectionTask(Model* _model);
+    GetAnyConnectionTask(Model *_model);
     virtual void perform();
     virtual bool isReadyToRun() const;
 private:
-    ImapTask* newConn;
+    ImapTask *newConn;
 };
 
 }

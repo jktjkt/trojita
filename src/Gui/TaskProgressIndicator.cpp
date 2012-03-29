@@ -25,7 +25,8 @@
 #include "Imap/Model/Model.h"
 #include "Imap/Model/VisibleTasksModel.h"
 
-namespace Gui {
+namespace Gui
+{
 
 TaskProgressIndicator::TaskProgressIndicator(QWidget *parent) :
     QProgressBar(parent), m_busy(false)
@@ -70,7 +71,7 @@ void TaskProgressIndicator::updateActivityIndication()
 }
 
 /** @short Reimplemented from QProgressBar for launching the pop-up widgets with detailed activity */
-void TaskProgressIndicator::mousePressEvent(QMouseEvent * event)
+void TaskProgressIndicator::mousePressEvent(QMouseEvent *event)
 {
     if (!m_visibleTasksModel)
         return;

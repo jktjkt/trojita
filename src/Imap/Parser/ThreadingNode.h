@@ -26,8 +26,10 @@
 #include <QMetaType>
 #include <QVector>
 
-namespace Imap {
-namespace Responses {
+namespace Imap
+{
+namespace Responses
+{
 
 /** @short Structure for keeping track of the message hierarchy, or threading */
 struct ThreadingNode {
@@ -41,21 +43,20 @@ struct ThreadingNode {
     Special value 0 means "parent is present and its existence can be
     proved, but it doesn't match the search criteria or it isn't in the
     mailbox.
-*/
+    */
     uint num;
     /** @short Recursive data structure storing numbers of all messages which are children of the current one */
     QVector<ThreadingNode> children;
-    ThreadingNode( const uint _num=0, const QVector<ThreadingNode>& _children=QVector<ThreadingNode>() ):
-            num(_num), children(_children)
-    {
+    ThreadingNode(const uint _num=0, const QVector<ThreadingNode> &_children=QVector<ThreadingNode>()):
+        num(_num), children(_children) {
     }
 };
 
-bool operator==( const ThreadingNode& n1, const ThreadingNode& n2 );
-bool operator!=( const ThreadingNode& n1, const ThreadingNode& n2 );
+bool operator==(const ThreadingNode &n1, const ThreadingNode &n2);
+bool operator!=(const ThreadingNode &n1, const ThreadingNode &n2);
 
-QDataStream& operator>>(QDataStream& s, ThreadingNode& n);
-QDataStream& operator<<(QDataStream& s, const ThreadingNode& n);
+QDataStream &operator>>(QDataStream &s, ThreadingNode &n);
+QDataStream &operator<<(QDataStream &s, const ThreadingNode &n);
 
 }
 }

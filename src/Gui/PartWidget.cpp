@@ -29,29 +29,30 @@
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 
-namespace Gui {
+namespace Gui
+{
 
-QString quoteMeHelper( const QObjectList& children )
+QString quoteMeHelper(const QObjectList &children)
 {
     QStringList res;
-    for ( QObjectList::const_iterator it = children.begin(); it != children.end(); ++it ) {
-        const AbstractPartWidget* w = dynamic_cast<const AbstractPartWidget*>( *it );
-        if ( w )
+    for (QObjectList::const_iterator it = children.begin(); it != children.end(); ++it) {
+        const AbstractPartWidget *w = dynamic_cast<const AbstractPartWidget *>(*it);
+        if (w)
             res += w->quoteMe();
     }
     return res.join("\n");
 }
 
 MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
-    PartWidgetFactory *factory, const QModelIndex &partIndex,
-    const int recursionDepth ):
-        QTabWidget( parent )
+        PartWidgetFactory *factory, const QModelIndex &partIndex,
+        const int recursionDepth):
+    QTabWidget(parent)
 {
     for (int i = 0; i < partIndex.model()->rowCount(partIndex); ++i) {
         using namespace Imap::Mailbox;
         QModelIndex anotherPart = partIndex.child(i, 0);
         Q_ASSERT(anotherPart.isValid());
-        QWidget* item = factory->create(anotherPart, recursionDepth + 1);
+        QWidget *item = factory->create(anotherPart, recursionDepth + 1);
         addTab(item, anotherPart.data(Imap::Mailbox::RolePartMimeType).toString());
     }
     setCurrentIndex(partIndex.model()->rowCount(partIndex) - 1);
@@ -59,16 +60,16 @@ MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
 
 QString MultipartAlternativeWidget::quoteMe() const
 {
-    const AbstractPartWidget* w = dynamic_cast<const AbstractPartWidget*>(currentWidget());
+    const AbstractPartWidget *w = dynamic_cast<const AbstractPartWidget *>(currentWidget());
     return w ? w->quoteMe() : QString();
 }
 
 void MultipartAlternativeWidget::reloadContents()
 {
-    if ( count() ) {
-        for ( int i = 0; i < count(); ++i ) {
-            AbstractPartWidget* w = dynamic_cast<AbstractPartWidget*>(widget(i));
-            if ( w ) {
+    if (count()) {
+        for (int i = 0; i < count(); ++i) {
+            AbstractPartWidget *w = dynamic_cast<AbstractPartWidget *>(widget(i));
+            if (w) {
                 w->reloadContents();
             }
         }
@@ -76,12 +77,12 @@ void MultipartAlternativeWidget::reloadContents()
 }
 
 MultipartSignedWidget::MultipartSignedWidget(QWidget *parent,
-    PartWidgetFactory *factory, const QModelIndex &partIndex,
-    const int recursionDepth ):
-        QGroupBox( tr("Signed Message"), parent )
+        PartWidgetFactory *factory, const QModelIndex &partIndex,
+        const int recursionDepth):
+    QGroupBox(tr("Signed Message"), parent)
 {
     using namespace Imap::Mailbox;
-    QVBoxLayout* layout = new QVBoxLayout( this );
+    QVBoxLayout *layout = new QVBoxLayout(this);
     uint childrenCount = partIndex.model()->rowCount(partIndex);
     if (childrenCount == 1) {
         setTitle(tr("Mallformed multipart/signed message: only one nested part"));
@@ -89,7 +90,7 @@ MultipartSignedWidget::MultipartSignedWidget(QWidget *parent,
         Q_ASSERT(anotherPart.isValid()); // guaranteed by the MVC
         layout->addWidget(factory->create(anotherPart, recursionDepth + 1));
     } else if (childrenCount != 2) {
-        QLabel* lbl = new QLabel(tr("Mallformed multipart/signed message: %1 nested parts").arg(QString::number(childrenCount)), this );
+        QLabel *lbl = new QLabel(tr("Mallformed multipart/signed message: %1 nested parts").arg(QString::number(childrenCount)), this);
         layout->addWidget(lbl);
         return;
     } else {
@@ -102,21 +103,21 @@ MultipartSignedWidget::MultipartSignedWidget(QWidget *parent,
 
 QString MultipartSignedWidget::quoteMe() const
 {
-    return quoteMeHelper( children() );
+    return quoteMeHelper(children());
 }
 
 GenericMultipartWidget::GenericMultipartWidget(QWidget *parent,
-    PartWidgetFactory *factory, const QModelIndex &partIndex,
-    int recursionDepth):
-        QGroupBox( tr("Multipart Message"), parent )
+        PartWidgetFactory *factory, const QModelIndex &partIndex,
+        int recursionDepth):
+    QGroupBox(tr("Multipart Message"), parent)
 {
     // multipart/mixed or anything else, as mandated by RFC 2046, Section 5.1.3
-    QVBoxLayout* layout = new QVBoxLayout( this );
+    QVBoxLayout *layout = new QVBoxLayout(this);
     for (int i = 0; i < partIndex.model()->rowCount(partIndex); ++i) {
         using namespace Imap::Mailbox;
         QModelIndex anotherPart = partIndex.child(i, 0);
         Q_ASSERT(anotherPart.isValid()); // guaranteed by the MVC
-        QWidget* res = factory->create(anotherPart, recursionDepth + 1);
+        QWidget *res = factory->create(anotherPart, recursionDepth + 1);
         layout->addWidget(res);
     }
 }
@@ -127,27 +128,27 @@ QString GenericMultipartWidget::quoteMe() const
 }
 
 Message822Widget::Message822Widget(QWidget *parent,
-    PartWidgetFactory *factory, const QModelIndex &partIndex,
-    int recursionDepth):
-        QGroupBox( tr("Message"), parent )
+                                   PartWidgetFactory *factory, const QModelIndex &partIndex,
+                                   int recursionDepth):
+    QGroupBox(tr("Message"), parent)
 {
-    QVBoxLayout* layout = new QVBoxLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout(this);
     QModelIndex headerIndex = partIndex.child(0, Imap::Mailbox::TreeItem::OFFSET_HEADER);
     Q_ASSERT(headerIndex.isValid());
-    QLabel* header = new Rfc822HeaderView(0, headerIndex);
-    layout->addWidget( header );
+    QLabel *header = new Rfc822HeaderView(0, headerIndex);
+    layout->addWidget(header);
     for (int i = 0; i < partIndex.model()->rowCount(partIndex); ++i) {
         using namespace Imap::Mailbox;
         QModelIndex anotherPart = partIndex.child(i, 0);
         Q_ASSERT(anotherPart.isValid()); // guaranteed by the MVC
-        QWidget* res = factory->create(anotherPart, recursionDepth + 1);
+        QWidget *res = factory->create(anotherPart, recursionDepth + 1);
         layout->addWidget(res);
     }
 }
 
 QString Message822Widget::quoteMe() const
 {
-    return quoteMeHelper( children() );
+    return quoteMeHelper(children());
 }
 
 #define IMPL_RELOAD(CLASS) void CLASS::reloadContents() \

@@ -25,7 +25,8 @@
 
 class QSignalMapper;
 
-namespace Gui {
+namespace Gui
+{
 
 /** @short A slightly tweaked QTreeView optimized for showing a list of messages in one mailbox
 
@@ -37,10 +38,10 @@ class MsgListView : public QTreeView
 {
     Q_OBJECT
 public:
-    MsgListView( QWidget* parent=0 );
+    MsgListView(QWidget *parent=0);
     virtual ~MsgListView() {}
 protected:
-    virtual int sizeHintForColumn( int column ) const;
+    virtual int sizeHintForColumn(int column) const;
 private slots:
     void slotFixSize();
     /** @short Expand all items below current root index */

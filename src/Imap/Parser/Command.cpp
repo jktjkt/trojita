@@ -22,73 +22,74 @@
 #include <QStringList>
 #include "Command.h"
 
-namespace Imap {
-namespace Commands {
+namespace Imap
+{
+namespace Commands
+{
 
-    QTextStream& operator<<( QTextStream& stream, const Command& cmd )
-    {
-        for (QList<PartOfCommand>::const_iterator it = cmd._cmds.begin(); it != cmd._cmds.end(); ++it ) {
-            if ( it != cmd._cmds.begin () ) {
-                stream << " ";
-            }
-            stream << *it;
+QTextStream &operator<<(QTextStream &stream, const Command &cmd)
+{
+    for (QList<PartOfCommand>::const_iterator it = cmd._cmds.begin(); it != cmd._cmds.end(); ++it) {
+        if (it != cmd._cmds.begin()) {
+            stream << " ";
         }
-        return stream << endl;
+        stream << *it;
     }
+    return stream << endl;
+}
 
-    TokenType howToTransmit( const QString& str )
-    {
-        if (str.length() > 100)
+TokenType howToTransmit(const QString &str)
+{
+    if (str.length() > 100)
+        return LITERAL;
+
+    if (str.isEmpty())
+        return QUOTED_STRING;
+
+    TokenType res = ATOM;
+
+    for (int i = 0; i < str.size(); ++i) {
+        char c = str.at(i).toAscii();
+
+        if (!isalnum(c) && c != '-' && c != '_')
+            res = QUOTED_STRING;
+
+        if (!isascii(c) || c == '\r' || c == '\n' || c == '\0' || c == '"') {
             return LITERAL;
-
-        if (str.isEmpty())
-            return QUOTED_STRING;
-
-        TokenType res = ATOM;
-
-        for ( int i = 0; i < str.size(); ++i ) {
-            char c = str.at(i).toAscii();
-
-            if ( !isalnum(c) && c != '-' && c != '_' )
-                res = QUOTED_STRING;
-
-            if ( !isascii(c) || c == '\r' || c == '\n' || c == '\0' || c == '"' ) {
-                return LITERAL;
-            }
         }
-        return res;
     }
+    return res;
+}
 
-    QTextStream& operator<<( QTextStream& stream, const PartOfCommand& part )
-    {
-        switch (part._kind) {
-            case ATOM:
-                stream << part._text;
-                break;
-            case QUOTED_STRING:
-                {
-                QString item = part._text;
-                item.replace( QChar('\\'), QString::fromAscii("\\\\") );
-                stream << '"' << item << '"';
-                }
-                break;
-            case LITERAL:
-                stream << "{" << part._text.length() << "}" << endl << part._text;
-                break;
-            case IDLE:
-                stream << "IDLE" << endl << "[Entering IDLE mode...]";
-                break;
-            case IDLE_DONE:
-                stream << "DONE" << endl << "[Leaving IDLE mode...]";
-                break;
-            case STARTTLS:
-                stream << "STARTTLS" << endl << "[Starting TLS...]";
-                break;
-            case ATOM_NO_SPACE_AROUND:
-                stream << part._text;
-        }
-        return stream;
+QTextStream &operator<<(QTextStream &stream, const PartOfCommand &part)
+{
+    switch (part._kind) {
+    case ATOM:
+        stream << part._text;
+        break;
+    case QUOTED_STRING: {
+        QString item = part._text;
+        item.replace(QChar('\\'), QString::fromAscii("\\\\"));
+        stream << '"' << item << '"';
     }
+    break;
+    case LITERAL:
+        stream << "{" << part._text.length() << "}" << endl << part._text;
+        break;
+    case IDLE:
+        stream << "IDLE" << endl << "[Entering IDLE mode...]";
+        break;
+    case IDLE_DONE:
+        stream << "DONE" << endl << "[Leaving IDLE mode...]";
+        break;
+    case STARTTLS:
+        stream << "STARTTLS" << endl << "[Starting TLS...]";
+        break;
+    case ATOM_NO_SPACE_AROUND:
+        stream << part._text;
+    }
+    return stream;
+}
 
 }
 }

@@ -29,10 +29,12 @@
 class QTimer;
 
 /** @short Namespace for IMAP interaction */
-namespace Imap {
+namespace Imap
+{
 
 /** @short Classes for handling of mailboxes and connections */
-namespace Mailbox {
+namespace Mailbox
+{
 
 /** @short A cache implementation using an sqlite database for the underlying storage
 
@@ -55,49 +57,50 @@ Some ideas for improvements:
   or using on-the-fly compression via sqlite's VFS subsystem
 
  */
-class SQLCache : public AbstractCache {
+class SQLCache : public AbstractCache
+{
     Q_OBJECT
 public:
-    SQLCache( QObject* parent );
+    SQLCache(QObject *parent);
     virtual ~SQLCache();
 
-    virtual QList<MailboxMetadata> childMailboxes( const QString& mailbox ) const;
-    virtual bool childMailboxesFresh( const QString& mailbox ) const;
-    virtual void setChildMailboxes( const QString& mailbox, const QList<MailboxMetadata>& data );
-    virtual void forgetChildMailboxes( const QString& mailbox );
+    virtual QList<MailboxMetadata> childMailboxes(const QString &mailbox) const;
+    virtual bool childMailboxesFresh(const QString &mailbox) const;
+    virtual void setChildMailboxes(const QString &mailbox, const QList<MailboxMetadata> &data);
+    virtual void forgetChildMailboxes(const QString &mailbox);
 
-    virtual SyncState mailboxSyncState( const QString& mailbox ) const;
-    virtual void setMailboxSyncState( const QString& mailbox, const SyncState& state );
+    virtual SyncState mailboxSyncState(const QString &mailbox) const;
+    virtual void setMailboxSyncState(const QString &mailbox, const SyncState &state);
 
-    virtual void setUidMapping( const QString& mailbox, const QList<uint>& seqToUid );
-    virtual void clearUidMapping( const QString& mailbox );
-    virtual QList<uint> uidMapping( const QString& mailbox ) const;
+    virtual void setUidMapping(const QString &mailbox, const QList<uint> &seqToUid);
+    virtual void clearUidMapping(const QString &mailbox);
+    virtual QList<uint> uidMapping(const QString &mailbox) const;
 
-    virtual void clearAllMessages( const QString& mailbox );
-    virtual void clearMessage( const QString mailbox, uint uid );
+    virtual void clearAllMessages(const QString &mailbox);
+    virtual void clearMessage(const QString mailbox, uint uid);
 
-    virtual MessageDataBundle messageMetadata( const QString& mailbox, uint uid ) const;
-    virtual void setMessageMetadata( const QString& mailbox, uint uid, const MessageDataBundle& metadata );
+    virtual MessageDataBundle messageMetadata(const QString &mailbox, uint uid) const;
+    virtual void setMessageMetadata(const QString &mailbox, uint uid, const MessageDataBundle &metadata);
 
     virtual QStringList msgFlags(const QString &mailbox, uint uid) const;
     virtual void setMsgFlags(const QString &mailbox, uint uid, const QStringList &flags);
 
-    virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId ) const;
-    virtual void setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data );
+    virtual QByteArray messagePart(const QString &mailbox, uint uid, const QString &partId) const;
+    virtual void setMsgPart(const QString &mailbox, uint uid, const QString &partId, const QByteArray &data);
 
     virtual QVector<Imap::Responses::ThreadingNode> messageThreading(const QString &mailbox);
     virtual void setMessageThreading(const QString &mailbox, const QVector<Imap::Responses::ThreadingNode> &threading);
 
     /** @short Open a connection to the cache */
-    bool open( const QString& name, const QString& fileName  );
+    bool open(const QString &name, const QString &fileName);
 
 private:
     /** @short Broadcast an error from the SQL query */
-    void emitError( const QString& message, const QSqlQuery& query ) const;
+    void emitError(const QString &message, const QSqlQuery &query) const;
     /** @short Broadcast an error from the SQL "database" */
-    void emitError( const QString& message, const QSqlDatabase& database ) const;
+    void emitError(const QString &message, const QSqlDatabase &database) const;
     /** @short Broadcast a generic error */
-    void emitError( const QString& message ) const;
+    void emitError(const QString &message) const;
 
     /** @short Blindly create all tables */
     bool _createTables();
@@ -141,8 +144,8 @@ private:
     mutable QSqlQuery queryMessageThreading;
     mutable QSqlQuery querySetMessageThreading;
 
-    QTimer* delayedCommit;
-    QTimer* tooMuchTimeWithoutCommit;
+    QTimer *delayedCommit;
+    QTimer *tooMuchTimeWithoutCommit;
     bool inTransaction;
 };
 

@@ -26,11 +26,14 @@
 
 #include "Util.h"
 
-namespace Gui {
+namespace Gui
+{
 
-namespace Util {
+namespace Util
+{
 
-void centerWidgetOnScreen(QWidget* widget, bool centerOnCursorScreen) {
+void centerWidgetOnScreen(QWidget *widget, bool centerOnCursorScreen)
+{
     widget->adjustSize();
     // Regarding the option to center widget on screen containing mousepointer (only relevant for dual-screen-setups):
     // If some day we'll have (configurable) key shortcuts, there might be situations when the mousepointer (and
@@ -42,10 +45,10 @@ void centerWidgetOnScreen(QWidget* widget, bool centerOnCursorScreen) {
     // completeness the option to pass false is kept open for any case where it might be needed.
     if (centerOnCursorScreen) {
         widget->move(QApplication::desktop()->screenGeometry(QCursor::pos()).center()
-                      - widget->rect().center());
+                     - widget->rect().center());
     } else {
         widget->move(QApplication::desktop()->screenGeometry(widget->parentWidget()).center()
-                      - widget->rect().center());
+                     - widget->rect().center());
     }
 }
 

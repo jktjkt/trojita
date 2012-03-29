@@ -22,8 +22,10 @@
 #include <QPersistentModelIndex>
 #include "ImapTask.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 /** @short Expunge all messages marked as \\Deleted in the mailbox
 
@@ -32,16 +34,16 @@ synchronization is performed.
  */
 class ThreadTask : public ImapTask
 {
-Q_OBJECT
+    Q_OBJECT
 public:
-    ThreadTask(Model* _model, const QModelIndex& mailbox, const QString &_algorithm, const QStringList &_searchCriteria);
+    ThreadTask(Model *_model, const QModelIndex &mailbox, const QString &_algorithm, const QStringList &_searchCriteria);
     virtual void perform();
 
-    virtual bool handleStateHelper(const Imap::Responses::State* const resp);
+    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
     virtual bool handleThread(const Imap::Responses::Thread *const resp);
 private:
     CommandHandle tag;
-    ImapTask* conn;
+    ImapTask *conn;
     QPersistentModelIndex mailboxIndex;
     QString algorithm;
     QStringList searchCriteria;

@@ -22,15 +22,17 @@
 #include "Model.h"
 #include "MailboxTree.h"
 
-namespace Imap {
-namespace Mailbox {
-
-
-DeleteMailboxTask::DeleteMailboxTask( Model* _model, const QString& _mailbox ):
-    ImapTask( _model ), mailbox(_mailbox)
+namespace Imap
 {
-    conn = model->_taskFactory->createGetAnyConnectionTask( _model );
-    conn->addDependentTask( this );
+namespace Mailbox
+{
+
+
+DeleteMailboxTask::DeleteMailboxTask(Model *_model, const QString &_mailbox):
+    ImapTask(_model), mailbox(_mailbox)
+{
+    conn = model->_taskFactory->createGetAnyConnectionTask(_model);
+    conn->addDependentTask(this);
 }
 
 void DeleteMailboxTask::perform()
@@ -40,37 +42,37 @@ void DeleteMailboxTask::perform()
 
     IMAP_TASK_CHECK_ABORT_DIE;
 
-    tag = parser->deleteMailbox( mailbox );
+    tag = parser->deleteMailbox(mailbox);
 }
 
-bool DeleteMailboxTask::handleStateHelper( const Imap::Responses::State* const resp )
+bool DeleteMailboxTask::handleStateHelper(const Imap::Responses::State *const resp)
 {
-    if ( resp->tag.isEmpty() )
+    if (resp->tag.isEmpty())
         return false;
 
-    if ( resp->tag == tag ) {
+    if (resp->tag == tag) {
 
-        if ( resp->kind == Responses::OK ) {
-            TreeItemMailbox* mailboxPtr = model->findMailboxByName( mailbox );
-            if ( mailboxPtr ) {
-                TreeItem* parentPtr = mailboxPtr->parent();
+        if (resp->kind == Responses::OK) {
+            TreeItemMailbox *mailboxPtr = model->findMailboxByName(mailbox);
+            if (mailboxPtr) {
+                TreeItem *parentPtr = mailboxPtr->parent();
                 QModelIndex parentIndex = parentPtr == model->_mailboxes ? QModelIndex() : parentPtr->toIndex(model);
-                model->beginRemoveRows( parentIndex, mailboxPtr->row(), mailboxPtr->row() );
-                mailboxPtr->parent()->_children.removeAt( mailboxPtr->row() );
+                model->beginRemoveRows(parentIndex, mailboxPtr->row(), mailboxPtr->row());
+                mailboxPtr->parent()->_children.removeAt(mailboxPtr->row());
                 model->endRemoveRows();
                 delete mailboxPtr;
             } else {
                 QString buf;
                 QDebug dbg(&buf);
                 dbg << "The IMAP server just told us that it succeded to delete mailbox named" <<
-                        mailbox << ", yet we don't know of any such mailbox. Message from the server:" <<
-                        resp->message;
+                    mailbox << ", yet we don't know of any such mailbox. Message from the server:" <<
+                    resp->message;
                 log(buf);
             }
-            emit model->mailboxDeletionSucceded( mailbox );
+            emit model->mailboxDeletionSucceded(mailbox);
             _completed();
         } else {
-            emit model->mailboxDeletionFailed( mailbox, resp->message );
+            emit model->mailboxDeletionFailed(mailbox, resp->message);
             _failed("Couldn't delete mailbox");
         }
         return true;

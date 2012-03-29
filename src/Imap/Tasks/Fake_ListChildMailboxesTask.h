@@ -22,21 +22,23 @@
 #include <QPersistentModelIndex>
 #include "ListChildMailboxesTask.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 /** @short Fake test version of the ListChildMailboxesTask */
 class Fake_ListChildMailboxesTask : public ListChildMailboxesTask
 {
-Q_OBJECT
+    Q_OBJECT
 public:
-    Fake_ListChildMailboxesTask(Model* _model, const QModelIndex& mailbox);
+    Fake_ListChildMailboxesTask(Model *_model, const QModelIndex &mailbox);
     virtual void perform();
 
-    virtual bool handleStateHelper(const Imap::Responses::State* const resp);
+    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
 private:
     CommandHandle tag;
-    ImapTask* conn;
+    ImapTask *conn;
 };
 
 }

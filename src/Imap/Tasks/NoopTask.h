@@ -21,21 +21,23 @@
 
 #include "ImapTask.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 /** @short Send a NOOP command, and be responsible for that */
 class NoopTask : public ImapTask
 {
-Q_OBJECT
+    Q_OBJECT
 public:
-    NoopTask(Model* _model, ImapTask* parentTask);
+    NoopTask(Model *_model, ImapTask *parentTask);
     virtual void perform();
 
-    virtual bool handleStateHelper(const Imap::Responses::State* const resp);
+    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
 private:
     CommandHandle tag;
-    ImapTask* conn;
+    ImapTask *conn;
 };
 
 }

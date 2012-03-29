@@ -23,22 +23,22 @@
 
 #include <QString>
 
-namespace Common {
-
-struct SettingsNames
+namespace Common
 {
+
+struct SettingsNames {
     static QString realNameKey, addressKey;
     static QString msaMethodKey, methodSMTP, methodSSMTP, methodSENDMAIL, smtpHostKey,
-            smtpPortKey, smtpAuthKey, smtpStartTlsKey, smtpUserKey, smtpPassKey,
-            sendmailKey, sendmailDefaultCmd;
+           smtpPortKey, smtpAuthKey, smtpStartTlsKey, smtpUserKey, smtpPassKey,
+           sendmailKey, sendmailDefaultCmd;
     static QString imapMethodKey, methodTCP, methodSSL, methodProcess, imapHostKey,
-            imapPortKey, imapStartTlsKey, imapUserKey, imapPassKey, imapProcessKey,
-            imapStartOffline, imapEnableId;
+           imapPortKey, imapStartTlsKey, imapUserKey, imapPassKey, imapProcessKey,
+           imapStartOffline, imapEnableId;
     static QString cacheMetadataKey, cacheMetadataMemory, cacheMetadataPersistent,
-            cacheOfflineKey, cacheOfflineNone, cacheOfflineXDays, cacheOfflineXMessages,
-            cacheOfflineAll, cacheOfflineNumberDaysKey, cacheOfflineNumberMessagesKey;
+           cacheOfflineKey, cacheOfflineNone, cacheOfflineXDays, cacheOfflineXMessages,
+           cacheOfflineAll, cacheOfflineNumberDaysKey, cacheOfflineNumberMessagesKey;
     static QString xtConnectCacheDirectory, xtSyncMailboxList, xtDbHost, xtDbPort,
-            xtDbDbName, xtDbUser;
+           xtDbDbName, xtDbUser;
     static QString guiMsgListShowThreading;
     static QString appLoadHomepage;
     static QString knownEmailsKey;

@@ -23,29 +23,30 @@
 
 #include <QString>
 
-namespace Imap {
+namespace Imap
+{
 
-    /** @short A human-readable state of the connection to the IMAP server */
-    typedef enum {
-        CONN_STATE_NONE, /**< @short Initial state */
-        CONN_STATE_HOST_LOOKUP, /**< @short Resolving hostname */
-        CONN_STATE_CONNECTING, /**< @short Connecting to the remote host or starting the process */
-        CONN_STATE_CONNECTED_PRETLS_PRECAPS, /**< @short Connection has been established but there's been no CAPABILITY yet */
-        CONN_STATE_CONNECTED_PRETLS, /**< @short Connection has been established and capabilities are known but STARTTLS remains to be issued */
-        CONN_STATE_STARTTLS, /**< @short Negotiating encryption */
-        CONN_STATE_ESTABLISHED_PRECAPS, /**< @short Waiting for capabilities after the encryption has been set up */
-        CONN_STATE_LOGIN, /**< @short Performing login */
-        CONN_STATE_POSTAUTH_PRECAPS, /**< @short Authenticated, but capabilities weren't refreshed yet */
-        CONN_STATE_AUTHENTICATED, /**< @short Logged in */
-        CONN_STATE_SELECTING, /**< @short Selecting a mailbox -- initial state */
-        CONN_STATE_SYNCING, /**< @short Selecting a mailbox -- performing synchronization */
-        CONN_STATE_SELECTED, /**< @short Mailbox is selected and synchronized */
-        CONN_STATE_FETCHING_PART, /** @short Downloading an actual body part */
-        CONN_STATE_FETCHING_MSG_METADATA, /** @short Retrieving message metadata */
-        CONN_STATE_LOGOUT, /**< @short Logging out */
-    } ConnectionState;
+/** @short A human-readable state of the connection to the IMAP server */
+typedef enum {
+    CONN_STATE_NONE, /**< @short Initial state */
+    CONN_STATE_HOST_LOOKUP, /**< @short Resolving hostname */
+    CONN_STATE_CONNECTING, /**< @short Connecting to the remote host or starting the process */
+    CONN_STATE_CONNECTED_PRETLS_PRECAPS, /**< @short Connection has been established but there's been no CAPABILITY yet */
+    CONN_STATE_CONNECTED_PRETLS, /**< @short Connection has been established and capabilities are known but STARTTLS remains to be issued */
+    CONN_STATE_STARTTLS, /**< @short Negotiating encryption */
+    CONN_STATE_ESTABLISHED_PRECAPS, /**< @short Waiting for capabilities after the encryption has been set up */
+    CONN_STATE_LOGIN, /**< @short Performing login */
+    CONN_STATE_POSTAUTH_PRECAPS, /**< @short Authenticated, but capabilities weren't refreshed yet */
+    CONN_STATE_AUTHENTICATED, /**< @short Logged in */
+    CONN_STATE_SELECTING, /**< @short Selecting a mailbox -- initial state */
+    CONN_STATE_SYNCING, /**< @short Selecting a mailbox -- performing synchronization */
+    CONN_STATE_SELECTED, /**< @short Mailbox is selected and synchronized */
+    CONN_STATE_FETCHING_PART, /** @short Downloading an actual body part */
+    CONN_STATE_FETCHING_MSG_METADATA, /** @short Retrieving message metadata */
+    CONN_STATE_LOGOUT, /**< @short Logging out */
+} ConnectionState;
 
-    QString connectionStateToString( const ConnectionState state );
+QString connectionStateToString(const ConnectionState state);
 
 }
 

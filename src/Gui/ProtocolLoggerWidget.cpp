@@ -30,21 +30,22 @@
 #include "ProtocolLoggerWidget.h"
 #include "Imap/Model/Utils.h"
 
-namespace Gui {
+namespace Gui
+{
 
 ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
     QWidget(parent), loggingActive(false), m_fileLog(0)
 {
-    QVBoxLayout* layout = new QVBoxLayout( this );
-    tabs = new QTabWidget( this );
-    tabs->setTabsClosable( true );
-    tabs->setTabPosition( QTabWidget::South );
-    layout->addWidget( tabs );
-    connect( tabs, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)) );
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    tabs = new QTabWidget(this);
+    tabs->setTabsClosable(true);
+    tabs->setTabPosition(QTabWidget::South);
+    layout->addWidget(tabs);
+    connect(tabs, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
 
-    clearAll = new QPushButton( tr("Clear all"), this );
-    connect( clearAll, SIGNAL(clicked()), this, SLOT(clearLogDisplay()) );
-    tabs->setCornerWidget( clearAll, Qt::BottomRightCorner );
+    clearAll = new QPushButton(tr("Clear all"), this);
+    connect(clearAll, SIGNAL(clicked()), this, SLOT(clearLogDisplay()));
+    tabs->setCornerWidget(clearAll, Qt::BottomRightCorner);
 
     delayedDisplay = new QTimer(this);
     delayedDisplay->setSingleShot(true);
@@ -76,16 +77,16 @@ ProtocolLoggerWidget::~ProtocolLoggerWidget()
     delete m_fileLog;
 }
 
-QPlainTextEdit *ProtocolLoggerWidget::getLogger( const uint parser )
+QPlainTextEdit *ProtocolLoggerWidget::getLogger(const uint parser)
 {
     QPlainTextEdit *res = loggerWidgets[parser];
     if (!res) {
         res = new QPlainTextEdit();
-        res->setLineWrapMode( QPlainTextEdit::NoWrap );
-        res->setCenterOnScroll( true );
-        res->setMaximumBlockCount( 1000 );
-        res->setReadOnly( true );
-        res->setUndoRedoEnabled( false );
+        res->setLineWrapMode(QPlainTextEdit::NoWrap);
+        res->setCenterOnScroll(true);
+        res->setMaximumBlockCount(1000);
+        res->setReadOnly(true);
+        res->setUndoRedoEnabled(false);
         res->setWordWrapMode(QTextOption::NoWrap);
         // Got to output something here using the default background,
         // otherwise the QPlainTextEdit would default its background
@@ -98,15 +99,15 @@ QPlainTextEdit *ProtocolLoggerWidget::getLogger( const uint parser )
     return res;
 }
 
-void ProtocolLoggerWidget::closeTab( int index )
+void ProtocolLoggerWidget::closeTab(int index)
 {
-    QPlainTextEdit* w = qobject_cast<QPlainTextEdit*>( tabs->widget( index ) );
-    Q_ASSERT( w );
-    for ( QMap<uint, QPlainTextEdit*>::iterator it = loggerWidgets.begin(); it != loggerWidgets.end(); ++it ) {
-        if ( *it != w )
+    QPlainTextEdit *w = qobject_cast<QPlainTextEdit *>(tabs->widget(index));
+    Q_ASSERT(w);
+    for (QMap<uint, QPlainTextEdit *>::iterator it = loggerWidgets.begin(); it != loggerWidgets.end(); ++it) {
+        if (*it != w)
             continue;
-        loggerWidgets.erase( it );
-        tabs->removeTab( index );
+        loggerWidgets.erase(it);
+        tabs->removeTab(index);
         w->deleteLater();
         return;
     }
@@ -114,22 +115,22 @@ void ProtocolLoggerWidget::closeTab( int index )
 
 void ProtocolLoggerWidget::clearLogDisplay()
 {
-    for ( QMap<uint, QPlainTextEdit*>::iterator it = loggerWidgets.begin(); it != loggerWidgets.end(); ++it ) {
+    for (QMap<uint, QPlainTextEdit *>::iterator it = loggerWidgets.begin(); it != loggerWidgets.end(); ++it) {
         (*it)->document()->clear();
     }
 }
 
-void ProtocolLoggerWidget::showEvent( QShowEvent* e )
+void ProtocolLoggerWidget::showEvent(QShowEvent *e)
 {
     loggingActive = true;
-    QWidget::showEvent( e );
+    QWidget::showEvent(e);
     slotShowLogs();
 }
 
-void ProtocolLoggerWidget::hideEvent( QHideEvent* e )
+void ProtocolLoggerWidget::hideEvent(QHideEvent *e)
 {
     loggingActive = false;
-    QWidget::hideEvent( e );
+    QWidget::hideEvent(e);
 }
 
 void ProtocolLoggerWidget::slotImapLogged(uint parser, const Imap::Mailbox::LogMessage &message)
@@ -179,7 +180,7 @@ void ProtocolLoggerWidget::writeToDisk(uint parser, const Imap::Mailbox::LogMess
         direction += QLatin1String("[truncated] ");
     }
     QString line = message.timestamp.toString(QString::fromAscii("hh:mm:ss.zzz")) + QString::number(parser) + QLatin1Char(' ') +
-            direction + message.source + QLatin1Char(' ') + message.message.trimmed() + QLatin1String("\n");
+                   direction + message.source + QLatin1Char(' ') + message.message.trimmed() + QLatin1String("\n");
     *m_fileLog << line;
     m_fileLog->flush();
 }
@@ -188,7 +189,7 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<I
 {
     if (buf.skippedCount()) {
         getLogger(parserId)->appendHtml(tr("<p style='color: #bb0000'><i><b>%n message(s)</b> were skipped because this widget was hidden.</i></p>",
-                                                  "", buf.skippedCount()));
+                                           "", buf.skippedCount()));
     }
 
     QPlainTextEdit *w = getLogger(parserId);
@@ -202,7 +203,7 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<I
 
         switch (it->kind) {
         case Imap::Mailbox::LOG_IO_WRITTEN:
-            if ( it->message.startsWith("***")) {
+            if (it->message.startsWith("***")) {
                 textColor = "#800080";
                 bgColor = "#d0d0d0";
             } else {
@@ -211,7 +212,7 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<I
             }
             break;
         case Imap::Mailbox::LOG_IO_READ:
-            if ( it->message.startsWith("***")) {
+            if (it->message.startsWith("***")) {
                 textColor = "#808000";
                 bgColor = "#d0d0d0";
             } else {
@@ -233,8 +234,8 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<I
         }
 
         QString niceLine = Qt::escape(it->message);
-        niceLine.replace( QChar('\r'), 0x240d /* SYMBOL FOR CARRIAGE RETURN */ )
-                .replace( QChar('\n'), 0x240a /* SYMBOL FOR LINE FEED */ );
+        niceLine.replace(QChar('\r'), 0x240d /* SYMBOL FOR CARRIAGE RETURN */)
+        .replace(QChar('\n'), 0x240a /* SYMBOL FOR LINE FEED */);
 
         w->appendHtml(message.arg(it->timestamp.toString(QString::fromAscii("hh:mm:ss.zzz")),
                                   direction, textColor,

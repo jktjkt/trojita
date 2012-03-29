@@ -20,31 +20,33 @@
 #include <QTimer>
 #include "Model/TaskPresentationModel.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
-OpenConnectionTask::OpenConnectionTask( Model* _model ) :
-    ImapTask( _model ), waitingForGreetings(true), gotPreauth(false)
+OpenConnectionTask::OpenConnectionTask(Model *_model) :
+    ImapTask(_model), waitingForGreetings(true), gotPreauth(false)
 {
     // Offline mode shall be checked by the caller who decides to create the conneciton
     Q_ASSERT(model->networkPolicy() != Model::NETWORK_OFFLINE);
-    parser = new Parser( model, model->_socketFactory->create(), ++model->lastParserId );
+    parser = new Parser(model, model->_socketFactory->create(), ++model->lastParserId);
     ParserState parserState(parser);
-    connect( parser, SIGNAL(responseReceived(Imap::Parser*)), model, SLOT(responseReceived(Imap::Parser*)) );
-    connect( parser, SIGNAL(disconnected(Imap::Parser*,const QString)), model, SLOT(slotParserDisconnected(Imap::Parser*,const QString)) );
-    connect( parser, SIGNAL(connectionStateChanged(Imap::Parser*,Imap::ConnectionState)), model, SLOT(handleSocketStateChanged(Imap::Parser*,Imap::ConnectionState)) );
-    connect( parser, SIGNAL(sendingCommand(Imap::Parser*,QString)), model, SLOT(parserIsSendingCommand(Imap::Parser*,QString)) );
-    connect( parser, SIGNAL(parseError(Imap::Parser*,QString,QString,QByteArray,int)), model, SLOT(slotParseError(Imap::Parser*,QString,QString,QByteArray,int)) );
-    connect( parser, SIGNAL(lineReceived(Imap::Parser*,QByteArray)), model, SLOT(slotParserLineReceived(Imap::Parser*,QByteArray)) );
-    connect( parser, SIGNAL(lineSent(Imap::Parser*,QByteArray)), model, SLOT(slotParserLineSent(Imap::Parser*,QByteArray)) );
+    connect(parser, SIGNAL(responseReceived(Imap::Parser *)), model, SLOT(responseReceived(Imap::Parser *)));
+    connect(parser, SIGNAL(disconnected(Imap::Parser *,const QString)), model, SLOT(slotParserDisconnected(Imap::Parser *,const QString)));
+    connect(parser, SIGNAL(connectionStateChanged(Imap::Parser *,Imap::ConnectionState)), model, SLOT(handleSocketStateChanged(Imap::Parser *,Imap::ConnectionState)));
+    connect(parser, SIGNAL(sendingCommand(Imap::Parser *,QString)), model, SLOT(parserIsSendingCommand(Imap::Parser *,QString)));
+    connect(parser, SIGNAL(parseError(Imap::Parser *,QString,QString,QByteArray,int)), model, SLOT(slotParseError(Imap::Parser *,QString,QString,QByteArray,int)));
+    connect(parser, SIGNAL(lineReceived(Imap::Parser *,QByteArray)), model, SLOT(slotParserLineReceived(Imap::Parser *,QByteArray)));
+    connect(parser, SIGNAL(lineSent(Imap::Parser *,QByteArray)), model, SLOT(slotParserLineSent(Imap::Parser *,QByteArray)));
     model->_parsers[ parser ] = parserState;
     model->m_taskModel->slotParserCreated(parser);
     markAsActiveTask();
 }
 
-OpenConnectionTask::OpenConnectionTask( Model* _model, void* dummy): ImapTask( _model )
+OpenConnectionTask::OpenConnectionTask(Model *_model, void *dummy): ImapTask(_model)
 {
-    Q_UNUSED( dummy );
+    Q_UNUSED(dummy);
 }
 
 void OpenConnectionTask::perform()
@@ -101,7 +103,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
 
     if (model->accessParser(parser).connState == CONN_STATE_CONNECTED_PRETLS_PRECAPS) {
         if (!resp->tag.isEmpty()) {
-            throw Imap::UnexpectedResponseReceived("Waiting for initial OK/BYE/PREAUTH, but got tagged response instead", *resp );
+            throw Imap::UnexpectedResponseReceived("Waiting for initial OK/BYE/PREAUTH, but got tagged response instead", *resp);
         }
     } else if (model->accessParser(parser).connState > CONN_STATE_CONNECTED_PRETLS_PRECAPS) {
         if (resp->tag.isEmpty()) {
@@ -127,7 +129,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
     case CONN_STATE_CONNECTING:
         // Looks like the corresponding stateChanged() signal could be delayed, at least with QProcess-based sockets
     case CONN_STATE_CONNECTED_PRETLS_PRECAPS:
-    // We're connected now -- this is our initial state.
+        // We're connected now -- this is our initial state.
     {
         switch (resp->kind) {
         case PREAUTH:
@@ -171,7 +173,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
     }
 
     case CONN_STATE_CONNECTED_PRETLS:
-    // We've asked for capabilities upon the initial interaction
+        // We've asked for capabilities upon the initial interaction
     {
         bool wasCaps = checkCapabilitiesResult(resp);
         if (wasCaps && !_finished) {
@@ -180,8 +182,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
         return wasCaps;
     }
 
-    case CONN_STATE_STARTTLS:
-    {
+    case CONN_STATE_STARTTLS: {
         if (resp->tag == startTlsCmd) {
             if (resp->kind == OK) {
                 model->changeConnectionState(parser, CONN_STATE_ESTABLISHED_PRECAPS);
@@ -196,7 +197,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
     }
 
     case CONN_STATE_ESTABLISHED_PRECAPS:
-    // Connection is established and we're waiting for updated capabilities
+        // Connection is established and we're waiting for updated capabilities
     {
         bool wasCaps = checkCapabilitiesResult(resp);
         if (wasCaps && !_finished) {
@@ -211,7 +212,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
     }
 
     case CONN_STATE_LOGIN:
-    // Check the result of the LOGIN command
+        // Check the result of the LOGIN command
     {
         if (resp->tag == loginCmd) {
             // The LOGIN command is finished
@@ -228,7 +229,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
             } else {
                 // Login failed
                 QString message;
-                switch ( resp->respCode ) {
+                switch (resp->respCode) {
                 case Responses::UNAVAILABLE:
                     message = tr("Temporary failure because a subsystem is down.");
                     break;
@@ -282,8 +283,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
         return false;
     }
 
-    case CONN_STATE_POSTAUTH_PRECAPS:
-    {
+    case CONN_STATE_POSTAUTH_PRECAPS: {
         bool wasCaps = checkCapabilitiesResult(resp);
         if (wasCaps && !_finished) {
             model->changeConnectionState(parser, CONN_STATE_AUTHENTICATED);

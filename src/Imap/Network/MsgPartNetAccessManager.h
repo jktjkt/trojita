@@ -26,34 +26,38 @@
 
 class QUrl;
 
-namespace Gui {
+namespace Gui
+{
 class PartWidgetFactory;
 }
 
-namespace Imap {
+namespace Imap
+{
 
-namespace Mailbox {
+namespace Mailbox
+{
 class Model;
 class TreeItem;
 class TreeItemMessage;
 class TreeItemPart;
 }
 
-namespace Network {
+namespace Network
+{
 
 /** @short Implement access to the MIME Parts of the current message and optiojnally also to the public Internet */
 class MsgPartNetAccessManager : public QNetworkAccessManager
 {
     Q_OBJECT
 public:
-    MsgPartNetAccessManager(QObject* parent=0 );
+    MsgPartNetAccessManager(QObject *parent=0);
     void setModelMessage(const QModelIndex &_message);
-    Imap::Mailbox::TreeItemPart* pathToPart(const QString& path);
-    static Imap::Mailbox::TreeItemPart* cidToPart(const QByteArray& cid, Mailbox::Model *model, Mailbox::TreeItem* root);
+    Imap::Mailbox::TreeItemPart *pathToPart(const QString &path);
+    static Imap::Mailbox::TreeItemPart *cidToPart(const QByteArray &cid, Mailbox::Model *model, Mailbox::TreeItem *root);
 protected:
-    virtual QNetworkReply* createRequest(Operation op, const QNetworkRequest& req, QIODevice* outgoingData=0);
+    virtual QNetworkReply *createRequest(Operation op, const QNetworkRequest &req, QIODevice *outgoingData=0);
 signals:
-    void requestingExternal(const QUrl& url);
+    void requestingExternal(const QUrl &url);
 public slots:
     void setExternalsEnabled(bool enabled);
 private:
@@ -62,8 +66,8 @@ private:
 
     bool _externalsEnabled;
 
-    MsgPartNetAccessManager(const MsgPartNetAccessManager&); // don't implement
-    MsgPartNetAccessManager& operator=(const MsgPartNetAccessManager&); // don't implement
+    MsgPartNetAccessManager(const MsgPartNetAccessManager &); // don't implement
+    MsgPartNetAccessManager &operator=(const MsgPartNetAccessManager &); // don't implement
 };
 
 }

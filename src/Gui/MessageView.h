@@ -30,13 +30,16 @@ class QTimer;
 class QUrl;
 class QWebView;
 
-namespace Imap {
-namespace Network {
+namespace Imap
+{
+namespace Network
+{
 class MsgPartNetAccessManager;
 }
 }
 
-namespace Gui {
+namespace Gui
+{
 
 class MainWindow;
 class PartWidgetFactory;
@@ -51,46 +54,47 @@ class TagListWidget;
 */
 class MessageView : public QWidget
 {
-Q_OBJECT
+    Q_OBJECT
 public:
-    MessageView(QWidget* parent=0);
+    MessageView(QWidget *parent=0);
     ~MessageView();
     enum ReplyMode { REPLY_SENDER_ONLY, /**< @short Reply to sender(s) only */
-                     REPLY_ALL /**< @short Reply to all recipients */ };
-    void reply( MainWindow* mainWindow, ReplyMode mode );
+                     REPLY_ALL /**< @short Reply to all recipients */
+                   };
+    void reply(MainWindow *mainWindow, ReplyMode mode);
 public slots:
-    void setMessage( const QModelIndex& index );
+    void setMessage(const QModelIndex &index);
     void setEmpty();
     void setHomepageUrl(const QUrl &homepage);
 private slots:
     void markAsRead();
-    void externalsRequested( const QUrl& url );
+    void externalsRequested(const QUrl &url);
     void externalsEnabled();
-    void linkInTitleHovered( const QString& target );
+    void linkInTitleHovered(const QString &target);
     void newLabelAction(const QString &tag);
     void deleteLabelAction(const QString &tag);
     void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 signals:
     void messageChanged();
 private:
-    bool eventFilter( QObject* object, QEvent* event );
+    bool eventFilter(QObject *object, QEvent *event);
     QString headerText();
     QString quoteText() const;
-    static QString replySubject( const QString& subject );
+    static QString replySubject(const QString &subject);
 
-    QWidget* viewer;
-    QLabel* header;
-    ExternalElementsWidget* externalElements;
-    QLayout* layout;
-    TagListWidget* tags;
+    QWidget *viewer;
+    QLabel *header;
+    ExternalElementsWidget *externalElements;
+    QLayout *layout;
+    TagListWidget *tags;
     QPersistentModelIndex message;
-    Imap::Network::MsgPartNetAccessManager* netAccess;
-    QTimer* markAsReadTimer;
-    QWebView* emptyView;
-    PartWidgetFactory* factory;
+    Imap::Network::MsgPartNetAccessManager *netAccess;
+    QTimer *markAsReadTimer;
+    QWebView *emptyView;
+    PartWidgetFactory *factory;
 
-    MessageView(const MessageView&); // don't implement
-    MessageView& operator=(const MessageView&); // don't implement
+    MessageView(const MessageView &); // don't implement
+    MessageView &operator=(const MessageView &); // don't implement
 };
 
 }

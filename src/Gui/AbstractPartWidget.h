@@ -23,7 +23,8 @@
 
 #include <QString>
 
-namespace Gui {
+namespace Gui
+{
 
 /** @short An abstract glue interface providing support for message quoting */
 class AbstractPartWidget

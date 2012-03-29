@@ -28,71 +28,76 @@
 class QSslSocket;
 class QTimer;
 
-namespace Imap {
+namespace Imap
+{
 
-namespace Mailbox {
+namespace Mailbox
+{
 class SocketFactory;
 }
 
-    /** @short Helper class for all sockets which are based on a QIODevice */
-    class IODeviceSocket: public Socket {
-        Q_OBJECT
-        Q_DISABLE_COPY(IODeviceSocket)
-    public:
-        IODeviceSocket( QIODevice* device);
-        ~IODeviceSocket();
-        virtual bool canReadLine();
-        virtual QByteArray read( qint64 maxSize );
-        virtual QByteArray readLine( qint64 maxSize = 0 );
-        virtual qint64 write( const QByteArray& byteArray );
-        virtual void startTls();
-        virtual bool isDead() = 0;
-    private slots:
-        virtual void handleStateChanged() = 0;
-        virtual void delayedStart() = 0;
-        void emitError();
-    protected:
-        QIODevice* d;
-        QTimer* delayedDisconnect;
-        QString disconnectedMessage;
-    };
+/** @short Helper class for all sockets which are based on a QIODevice */
+class IODeviceSocket: public Socket
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(IODeviceSocket)
+public:
+    IODeviceSocket(QIODevice *device);
+    ~IODeviceSocket();
+    virtual bool canReadLine();
+    virtual QByteArray read(qint64 maxSize);
+    virtual QByteArray readLine(qint64 maxSize = 0);
+    virtual qint64 write(const QByteArray &byteArray);
+    virtual void startTls();
+    virtual bool isDead() = 0;
+private slots:
+    virtual void handleStateChanged() = 0;
+    virtual void delayedStart() = 0;
+    void emitError();
+protected:
+    QIODevice *d;
+    QTimer *delayedDisconnect;
+    QString disconnectedMessage;
+};
 
-    /** @short A QProcess-based socket */
-    class ProcessSocket: public IODeviceSocket {
-        Q_OBJECT
-        Q_DISABLE_COPY(ProcessSocket);
-    public:
-        ProcessSocket(QProcess *proc, const QString& executable, const QStringList& args);
-        ~ProcessSocket();
-        bool isDead();
-    private slots:
-        void handleStateChanged();
-        void handleProcessError( QProcess::ProcessError );
-        void delayedStart();
-    private:
-        QString _executable;
-        QStringList _args;
-    };
+/** @short A QProcess-based socket */
+class ProcessSocket: public IODeviceSocket
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(ProcessSocket);
+public:
+    ProcessSocket(QProcess *proc, const QString &executable, const QStringList &args);
+    ~ProcessSocket();
+    bool isDead();
+private slots:
+    void handleStateChanged();
+    void handleProcessError(QProcess::ProcessError);
+    void delayedStart();
+private:
+    QString _executable;
+    QStringList _args;
+};
 
-    /** @short An SSL socket, usable both in SSL-from-start and STARTTLS-on-demand mode */
-    class SslTlsSocket: public IODeviceSocket {
-        Q_OBJECT
-        Q_DISABLE_COPY(SslTlsSocket);
-    public:
-        /** Set the @arg startEncrypted to true if the wrapper is supposed to emit
-        connected() only after it has established proper encryption */
-        SslTlsSocket(QSslSocket *sock, const QString& host, const quint16 port, const bool startEncrypted=false);
-        bool isDead();
-    private slots:
-        void handleStateChanged();
-        void handleSocketError( QAbstractSocket::SocketError );
-        void delayedStart();
-        void handleConnected();
-    private:
-        bool _startEncrypted;
-        QString _host;
-        quint16 _port;
-    };
+/** @short An SSL socket, usable both in SSL-from-start and STARTTLS-on-demand mode */
+class SslTlsSocket: public IODeviceSocket
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(SslTlsSocket);
+public:
+    /** Set the @arg startEncrypted to true if the wrapper is supposed to emit
+    connected() only after it has established proper encryption */
+    SslTlsSocket(QSslSocket *sock, const QString &host, const quint16 port, const bool startEncrypted=false);
+    bool isDead();
+private slots:
+    void handleStateChanged();
+    void handleSocketError(QAbstractSocket::SocketError);
+    void delayedStart();
+    void handleConnected();
+private:
+    bool _startEncrypted;
+    QString _host;
+    quint16 _port;
+};
 
 };
 

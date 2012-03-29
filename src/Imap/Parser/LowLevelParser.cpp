@@ -27,315 +27,316 @@
 #include "../Exceptions.h"
 #include "Imap/Encoders.h"
 
-namespace Imap {
-namespace LowLevelParser {
-
-uint getUInt( const QByteArray& line, int& start )
+namespace Imap
 {
-    if ( start == line.size() )
-        throw NoData( "getUInt: no data", line, start );
+namespace LowLevelParser
+{
+
+uint getUInt(const QByteArray &line, int &start)
+{
+    if (start == line.size())
+        throw NoData("getUInt: no data", line, start);
 
     QByteArray item;
     bool breakIt = false;
-    while ( !breakIt && start < line.size() ) {
+    while (!breakIt && start < line.size()) {
         switch (line[start]) {
-            case '0': case '1': case '2': case '3': case '4':
-            case '5': case '6': case '7': case '8': case '9':
-                item.append( line[start] );
-                ++start;
-                break;
-            default:
-                breakIt = true;
-                break;
+        case '0': case '1': case '2': case '3': case '4':
+        case '5': case '6': case '7': case '8': case '9':
+            item.append(line[start]);
+            ++start;
+            break;
+        default:
+            breakIt = true;
+            break;
         }
     }
 
     bool ok;
-    uint number = item.toUInt( &ok );
+    uint number = item.toUInt(&ok);
     if (!ok)
-        throw ParseError( "getUInt: not a number", line, start );
+        throw ParseError("getUInt: not a number", line, start);
     return number;
 }
 
-QByteArray getAtom( const QByteArray& line, int& start )
+QByteArray getAtom(const QByteArray &line, int &start)
 {
-    if ( start == line.size() )
-        throw NoData( "getAtom: no data", line, start );
+    if (start == line.size())
+        throw NoData("getAtom: no data", line, start);
 
     int old(start);
     bool breakIt = false;
-    while (!breakIt && start < line.size() ) {
-        if ( line[start] <= '\x1f' ) {
+    while (!breakIt && start < line.size()) {
+        if (line[start] <= '\x1f') {
             // CTL characters (excluding 0x7f) as defined in ABNF
             breakIt = true;
             break;
         }
         switch (line[start]) {
-            case '(': case ')': case '{': case '\x20': case '\x7f':
-            case '%': case '*': case '"': case '\\': case ']':
-                breakIt  = true;
-                break;
-            default:
-                ++start;
+        case '(': case ')': case '{': case '\x20': case '\x7f':
+        case '%': case '*': case '"': case '\\': case ']':
+            breakIt  = true;
+            break;
+        default:
+            ++start;
         }
     }
 
-    if ( old == start )
-        throw ParseError( "getAtom: did not read anything", line, start );
-    return line.mid( old, start - old );
+    if (old == start)
+        throw ParseError("getAtom: did not read anything", line, start);
+    return line.mid(old, start - old);
 }
 
-QPair<QByteArray,ParsedAs> getString( const QByteArray& line, int& start )
+QPair<QByteArray,ParsedAs> getString(const QByteArray &line, int &start)
 {
-    if ( start == line.size() )
-        throw NoData( "getString: no data", line, start );
+    if (start == line.size())
+        throw NoData("getString: no data", line, start);
 
-    if ( line[start] == '"' ) {
+    if (line[start] == '"') {
         // quoted string
         ++start;
         bool escaping = false;
         QByteArray res;
         bool terminated = false;
-        while ( start != line.size() && !terminated ) {
+        while (start != line.size() && !terminated) {
             if (escaping) {
                 escaping = false;
-                if ( line[start] == '"' || line[start] == '\\' )
-                    res.append( line[start] );
+                if (line[start] == '"' || line[start] == '\\')
+                    res.append(line[start]);
                 else
-                    throw UnexpectedHere( "getString: escaping invalid character", line, start );
+                    throw UnexpectedHere("getString: escaping invalid character", line, start);
             } else {
                 switch (line[start]) {
-                    case '"':
-                        terminated = true;
-                        break;
-                    case '\\':
-                        escaping = true;
-                        break;
-                    case '\r': case '\n':
-                        throw ParseError( "getString: premature end of quoted string", line, start );
-                    default:
-                        res.append( line[start] );
+                case '"':
+                    terminated = true;
+                    break;
+                case '\\':
+                    escaping = true;
+                    break;
+                case '\r': case '\n':
+                    throw ParseError("getString: premature end of quoted string", line, start);
+                default:
+                    res.append(line[start]);
                 }
             }
             ++start;
         }
         if (!terminated)
-            throw NoData( "getString: unterminated quoted string", line, start );
-        return qMakePair( res, QUOTED );
-    } else if ( line[start] == '{' ) {
+            throw NoData("getString: unterminated quoted string", line, start);
+        return qMakePair(res, QUOTED);
+    } else if (line[start] == '{') {
         // literal
         ++start;
-        int size = getUInt( line, start );
-        if ( line.mid( start, 3 ) != "}\r\n" )
-            throw ParseError( "getString: mallformed literal specification", line, start );
+        int size = getUInt(line, start);
+        if (line.mid(start, 3) != "}\r\n")
+            throw ParseError("getString: mallformed literal specification", line, start);
         start += 3;
-        if ( start + size > line.size() )
-            throw NoData( "getString: run out of data", line, start );
+        if (start + size > line.size())
+            throw NoData("getString: run out of data", line, start);
         int old(start);
         start += size;
-        return qMakePair( line.mid(old, size), LITERAL );
+        return qMakePair(line.mid(old, size), LITERAL);
     } else {
-        throw UnexpectedHere( "getString: did not get quoted string or literal", line, start );
+        throw UnexpectedHere("getString: did not get quoted string or literal", line, start);
     }
 }
 
-QPair<QByteArray,ParsedAs> getAString( const QByteArray& line, int& start )
+QPair<QByteArray,ParsedAs> getAString(const QByteArray &line, int &start)
 {
-    if ( start == line.size() )
-        throw NoData( "getAString: no data", line, start );
+    if (start == line.size())
+        throw NoData("getAString: no data", line, start);
 
-    if ( line[start] == '{' || line[start] == '"' )
-        return getString( line, start );
+    if (line[start] == '{' || line[start] == '"')
+        return getString(line, start);
     else
-        return qMakePair( getAtom( line, start ), ATOM );
+        return qMakePair(getAtom(line, start), ATOM);
 }
 
-QPair<QByteArray,ParsedAs> getNString( const QByteArray& line, int& start )
+QPair<QByteArray,ParsedAs> getNString(const QByteArray &line, int &start)
 {
-    QPair<QByteArray,ParsedAs> r = getAString( line, start );
-    if ( r.second == ATOM && r.first.toUpper() == "NIL" ) {
+    QPair<QByteArray,ParsedAs> r = getAString(line, start);
+    if (r.second == ATOM && r.first.toUpper() == "NIL") {
         r.first.clear();
         r.second = NIL;
     }
     return r;
 }
 
-QString getMailbox( const QByteArray& line, int& start )
+QString getMailbox(const QByteArray &line, int &start)
 {
-    QPair<QByteArray,ParsedAs> r = getAString( line, start );
-    if ( r.first.toUpper() == "INBOX" )
+    QPair<QByteArray,ParsedAs> r = getAString(line, start);
+    if (r.first.toUpper() == "INBOX")
         return "INBOX";
     else
-        return decodeImapFolderName( r.first );
+        return decodeImapFolderName(r.first);
 
 }
 
-QVariantList parseList( const char open, const char close,
-        const QByteArray& line, int& start )
+QVariantList parseList(const char open, const char close,
+                       const QByteArray &line, int &start)
 {
-    if ( start >= line.size() )
-        throw NoData( "Could not parse list: no more data", line, start );
+    if (start >= line.size())
+        throw NoData("Could not parse list: no more data", line, start);
 
-    if ( line[start] == open ) {
+    if (line[start] == open) {
         // found the opening parenthesis
         ++start;
-        if ( start >= line.size() )
-            throw NoData( "Could not parse list: just the opening bracket", line, start );
+        if (start >= line.size())
+            throw NoData("Could not parse list: just the opening bracket", line, start);
 
         QVariantList res;
-        if ( line[start] == close ) {
+        if (line[start] == close) {
             ++start;
             return res;
         }
-        while ( line[start] != close ) {
+        while (line[start] != close) {
             // We want to be benevolent here and eat extra whitespace
-            eatSpaces( line, start );
-            res.append( getAnything( line, start ) );
-            if ( start >= line.size() )
-                throw NoData( "Could not parse list: truncated data", line, start );
+            eatSpaces(line, start);
+            res.append(getAnything(line, start));
+            if (start >= line.size())
+                throw NoData("Could not parse list: truncated data", line, start);
             // Eat whitespace after each token, too
-            eatSpaces( line, start );
-            if ( line[start] == close ) {
+            eatSpaces(line, start);
+            if (line[start] == close) {
                 ++start;
                 return res;
             }
         }
         return res;
     } else {
-        throw UnexpectedHere( std::string("Could not parse list: expected a list enclosed in ")
-                              + open + close + ", but got something else instead", line, start );
+        throw UnexpectedHere(std::string("Could not parse list: expected a list enclosed in ")
+                             + open + close + ", but got something else instead", line, start);
     }
 }
 
-QVariant getAnything( const QByteArray& line, int& start )
+QVariant getAnything(const QByteArray &line, int &start)
 {
-    if ( start >= line.size() )
-        throw NoData( "getAnything: no data", line, start );
+    if (start >= line.size())
+        throw NoData("getAnything: no data", line, start);
 
-    if ( line[start] == '[' ) {
-        QVariant res = parseList( '[', ']', line, start );
+    if (line[start] == '[') {
+        QVariant res = parseList('[', ']', line, start);
         return res;
-    } else if ( line[start] == '(' ) {
-        QVariant res = parseList( '(', ')', line, start );
+    } else if (line[start] == '(') {
+        QVariant res = parseList('(', ')', line, start);
         return res;
-    } else if ( line[start] == '"' || line[start] == '{' ) {
-        QPair<QByteArray,ParsedAs> res = getString( line, start );
+    } else if (line[start] == '"' || line[start] == '{') {
+        QPair<QByteArray,ParsedAs> res = getString(line, start);
         return res.first;
-    } else if ( line.mid( start, 3 ).toUpper() == "NIL" ) {
+    } else if (line.mid(start, 3).toUpper() == "NIL") {
         start += 3;
         return QByteArray();
-    } else if ( line[start] == '\\' ) {
+    } else if (line[start] == '\\') {
         // valid for "flag"
         ++start;
-        if ( start >= line.size() )
-            throw NoData( "getAnything: backslash-nothing is invalid", line, start );
-        if ( line[start] == '*' ) {
+        if (start >= line.size())
+            throw NoData("getAnything: backslash-nothing is invalid", line, start);
+        if (line[start] == '*') {
             ++start;
-            return QByteArray( "\\*" );
+            return QByteArray("\\*");
         }
-        return QByteArray( 1, '\\' ) + getAtom( line, start );
+        return QByteArray(1, '\\') + getAtom(line, start);
     } else {
-        switch ( line.at( start ) ) {
-            case '0': case '1': case '2': case '3': case '4':
-            case '5': case '6': case '7': case '8': case '9':
-                return getUInt( line, start );
-                break;
-            default:
-                {
-                QByteArray atom = getAtom( line, start );
-                if ( atom.indexOf( '[', 0 ) != -1 ) {
-                    // "BODY[something]" -- there's no whitespace between "[" and
-                    // next atom...
-                    int pos = line.indexOf( ']', start );
-                    if ( pos == -1 )
-                        throw ParseError( "getAnything: can't find ']' for the '['", line, start );
+        switch (line.at(start)) {
+        case '0': case '1': case '2': case '3': case '4':
+        case '5': case '6': case '7': case '8': case '9':
+            return getUInt(line, start);
+            break;
+        default: {
+            QByteArray atom = getAtom(line, start);
+            if (atom.indexOf('[', 0) != -1) {
+                // "BODY[something]" -- there's no whitespace between "[" and
+                // next atom...
+                int pos = line.indexOf(']', start);
+                if (pos == -1)
+                    throw ParseError("getAnything: can't find ']' for the '['", line, start);
+                ++pos;
+                atom += line.mid(start, pos - start);
+                start = pos;
+                if (start < line.size() && line[start] == '<') {
+                    // Let's check if it continues with "<range>"
+                    pos = line.indexOf('>', start);
+                    if (pos == -1)
+                        throw ParseError("getAnything: can't find proper <range>", line, start);
                     ++pos;
-                    atom += line.mid( start, pos - start );
+                    atom += line.mid(start, pos - start);
                     start = pos;
-                    if ( start < line.size() && line[start] == '<' ) {
-                        // Let's check if it continues with "<range>"
-                        pos = line.indexOf( '>', start );
-                        if ( pos == -1 )
-                            throw ParseError( "getAnything: can't find proper <range>", line, start );
-                        ++pos;
-                        atom += line.mid( start, pos - start );
-                        start = pos;
-                    }
                 }
-                return atom;
-                }
+            }
+            return atom;
+        }
         }
     }
 }
 
-QDateTime parseRFC2822DateTime( const QString& string )
+QDateTime parseRFC2822DateTime(const QString &string)
 {
     QStringList monthNames = QStringList() << "jan" << "feb" << "mar" << "apr"
-        << "may" << "jun" << "jul" << "aug" << "sep" << "oct" << "nov" << "dec";
-        
-    QRegExp rx( QString( "^(?:\\s*([A-Z][a-z]+)\\s*,\\s*)?" // date-of-week
-                "(\\d{1,2})\\s+(%1)\\s+(\\d{2,4})" // date
-                "\\s+(\\d{2})\\s*:(\\d{2})\\s*(?::\\s*(\\d{2})\\s*)" // time
-                "(\\s+(?:(?:([+-]?)(\\d{2})(\\d{2}))|(UT|GMT|EST|EDT|CST|CDT|MST|MDT|PST|PDT|[A-IK-Za-ik-z])))?" // timezone
-                ).arg( monthNames.join( "|" ) ), Qt::CaseInsensitive );
-    int pos = rx.indexIn( string );
+                             << "may" << "jun" << "jul" << "aug" << "sep" << "oct" << "nov" << "dec";
 
-    if ( pos == -1 )
-        throw ParseError( "Date format not recognized" );
+    QRegExp rx(QString("^(?:\\s*([A-Z][a-z]+)\\s*,\\s*)?"   // date-of-week
+                       "(\\d{1,2})\\s+(%1)\\s+(\\d{2,4})" // date
+                       "\\s+(\\d{2})\\s*:(\\d{2})\\s*(?::\\s*(\\d{2})\\s*)" // time
+                       "(\\s+(?:(?:([+-]?)(\\d{2})(\\d{2}))|(UT|GMT|EST|EDT|CST|CDT|MST|MDT|PST|PDT|[A-IK-Za-ik-z])))?" // timezone
+                      ).arg(monthNames.join("|")), Qt::CaseInsensitive);
+    int pos = rx.indexIn(string);
+
+    if (pos == -1)
+        throw ParseError("Date format not recognized");
 
     QStringList list = rx.capturedTexts();
 
-    if ( list.size() != 13 )
-        throw ParseError( "Date regular expression returned weird data (internal error?)" );
+    if (list.size() != 13)
+        throw ParseError("Date regular expression returned weird data (internal error?)");
 
     int year = list[4].toInt();
-    int month = monthNames.indexOf( list[3].toLower() ) + 1;
-    if ( month == 0 )
-        throw ParseError( "Invalid month name" );
+    int month = monthNames.indexOf(list[3].toLower()) + 1;
+    if (month == 0)
+        throw ParseError("Invalid month name");
     int day = list[2].toInt();
     int hours = list[5].toInt();
     int minutes = list[6].toInt();
     int seconds = list[7].toInt();
     int shift = list[10].toInt() * 60 + list[11].toInt();
-    if ( list[9] == "-" )
+    if (list[9] == "-")
         shift *= 60;
     else
         shift *= -60;
-    if ( ! list[12].isEmpty() ) {
+    if (! list[12].isEmpty()) {
         const QString tz = list[12].toUpper();
-        if ( tz == "UT" || tz == "GMT" )
+        if (tz == "UT" || tz == "GMT")
             shift = 0;
-        else if ( tz == "EST" )
+        else if (tz == "EST")
             shift = 5 * 3600;
-        else if ( tz == "EDT" )
+        else if (tz == "EDT")
             shift = 4 * 3600;
-        else if ( tz == "CST" )
+        else if (tz == "CST")
             shift = 6 * 3600;
-        else if ( tz == "CDT" )
+        else if (tz == "CDT")
             shift = 5 * 3600;
-        else if ( tz == "MST" )
+        else if (tz == "MST")
             shift = 7 * 3600;
-        else if ( tz == "MDT" )
+        else if (tz == "MDT")
             shift = 6 * 3600;
-        else if ( tz == "PST" )
+        else if (tz == "PST")
             shift = 8 * 3600;
-        else if ( tz == "PDT" )
+        else if (tz == "PDT")
             shift = 7 * 3600;
-        else if ( tz.size() == 1 )
+        else if (tz.size() == 1)
             shift = 0;
         else
-            throw ParseError( "Invalid TZ specification" );
+            throw ParseError("Invalid TZ specification");
     }
 
-    QDateTime date( QDate( year, month, day ), QTime( hours, minutes, seconds ), Qt::UTC );
-    date = date.addSecs( shift );
+    QDateTime date(QDate(year, month, day), QTime(hours, minutes, seconds), Qt::UTC);
+    date = date.addSecs(shift);
 
     return date;
 }
 
-void eatSpaces( const QByteArray& line, int& start )
+void eatSpaces(const QByteArray &line, int &start)
 {
-    while ( line.size() > start && line[start] == ' ' )
+    while (line.size() > start && line[start] == ' ')
         ++start;
 }
 

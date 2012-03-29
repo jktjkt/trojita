@@ -23,8 +23,10 @@
 #include <QModelIndex>
 #include "../Model/Model.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 class UnSelectTask;
 
@@ -37,39 +39,39 @@ and when all of the above is done, simply declare itself completed.
 */
 class ObtainSynchronizedMailboxTask : public ImapTask
 {
-Q_OBJECT
+    Q_OBJECT
 public:
     ObtainSynchronizedMailboxTask(Model *_model, const QModelIndex &_mailboxIndex, ImapTask *parentTask, KeepMailboxOpenTask *keepTask);
     virtual void perform();
-    virtual bool handleStateHelper( const Imap::Responses::State* const resp );
-    virtual bool handleNumberResponse( const Imap::Responses::NumberResponse* const resp );
-    virtual bool handleFlags( const Imap::Responses::Flags* const resp );
-    virtual bool handleSearch( const Imap::Responses::Search* const resp );
-    virtual bool handleFetch( const Imap::Responses::Fetch* const resp );
+    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
+    virtual bool handleNumberResponse(const Imap::Responses::NumberResponse *const resp);
+    virtual bool handleFlags(const Imap::Responses::Flags *const resp);
+    virtual bool handleSearch(const Imap::Responses::Search *const resp);
+    virtual bool handleFetch(const Imap::Responses::Fetch *const resp);
 
     typedef enum { UID_SYNC_ALL, UID_SYNC_ONLY_NEW } UidSyncingMode;
 
-    virtual void addDependentTask( ImapTask* task );
+    virtual void addDependentTask(ImapTask *task);
 
     virtual QString debugIdentification() const;
 
 private:
     void _finalizeSelect();
-    void _fullMboxSync( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState );
-    void _syncNoNewNoDeletions( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState, const QList<uint>& seqToUid );
-    void _syncOnlyDeletions( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState );
-    void _syncOnlyAdditions( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState, const SyncState& oldState );
-    void _syncGeneric( TreeItemMailbox* mailbox, TreeItemMsgList* list, const SyncState& syncState );
+    void _fullMboxSync(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState);
+    void _syncNoNewNoDeletions(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState, const QList<uint> &seqToUid);
+    void _syncOnlyDeletions(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState);
+    void _syncOnlyAdditions(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState, const SyncState &oldState);
+    void _syncGeneric(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState);
 
-    void _finalizeUidSyncAll( TreeItemMailbox* mailbox );
-    void _finalizeUidSyncOnlyNew( Model *model, TreeItemMailbox* mailbox, const uint oldExists, QList<uint> &uidMap );
+    void _finalizeUidSyncAll(TreeItemMailbox *mailbox);
+    void _finalizeUidSyncOnlyNew(Model *model, TreeItemMailbox *mailbox, const uint oldExists, QList<uint> &uidMap);
 
-    void syncUids( TreeItemMailbox* mailbox, const uint lowestUidToQuery=0 );
-    void syncFlags( TreeItemMailbox* mailbox );
+    void syncUids(TreeItemMailbox *mailbox, const uint lowestUidToQuery=0);
+    void syncFlags(TreeItemMailbox *mailbox);
 
-    void notifyInterestingMessages( TreeItemMailbox *mailbox );
+    void notifyInterestingMessages(TreeItemMailbox *mailbox);
 
-    bool handleResponseCodeInsideState( const Imap::Responses::State* const resp );
+    bool handleResponseCodeInsideState(const Imap::Responses::State *const resp);
 
     /** @short Check current mailbox for validty, and take an evasive action if it disappeared
 
@@ -88,7 +90,7 @@ private slots:
     void slotUnSelectCompleted();
 
 private:
-    ImapTask* conn;
+    ImapTask *conn;
     QPersistentModelIndex mailboxIndex;
     CommandHandle selectCmd;
     CommandHandle uidSyncingCmd;

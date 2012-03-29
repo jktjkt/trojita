@@ -26,8 +26,10 @@
 #include <QNetworkReply>
 #include "Imap/Network/MsgPartNetAccessManager.h"
 
-namespace Imap {
-namespace Network {
+namespace Imap
+{
+namespace Network
+{
 
 /** @short A glue code for managing message parts download
 
@@ -39,27 +41,27 @@ class FileDownloadManager : public QObject
 {
     Q_OBJECT
 public:
-    FileDownloadManager(QObject* parent, Imap::Network::MsgPartNetAccessManager* _manager, const QModelIndex &partIndex);
+    FileDownloadManager(QObject *parent, Imap::Network::MsgPartNetAccessManager *_manager, const QModelIndex &partIndex);
     static QString toRealFileName(const QModelIndex &index);
 private slots:
     void slotDataTransfered();
     void slotTransferError();
-    void slotDeleteReply(QNetworkReply* reply);
+    void slotDeleteReply(QNetworkReply *reply);
 public slots:
     void slotDownloadNow();
 signals:
-    void transferError( const QString& errorMessage );
-    void fileNameRequested( QString* fileName );
+    void transferError(const QString &errorMessage);
+    void fileNameRequested(QString *fileName);
     void succeeded();
 private:
-    Imap::Network::MsgPartNetAccessManager* manager;
+    Imap::Network::MsgPartNetAccessManager *manager;
     QPersistentModelIndex partIndex;
-    QNetworkReply* reply;
+    QNetworkReply *reply;
     QFile saving;
     bool saved;
 
-    FileDownloadManager(const FileDownloadManager&); // don't implement
-    FileDownloadManager& operator=(const FileDownloadManager&); // don't implement
+    FileDownloadManager(const FileDownloadManager &); // don't implement
+    FileDownloadManager &operator=(const FileDownloadManager &); // don't implement
 };
 
 }

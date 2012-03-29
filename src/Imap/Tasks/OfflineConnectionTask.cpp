@@ -21,8 +21,10 @@
 #include "Streams/FakeSocket.h"
 #include "TaskPresentationModel.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 OfflineConnectionTask::OfflineConnectionTask(Model *_model) : ImapTask(_model)
 {

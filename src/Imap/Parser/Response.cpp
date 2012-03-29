@@ -25,38 +25,40 @@
 #include "../Model/Model.h"
 #include "../Tasks/ImapTask.h"
 
-namespace Imap {
-namespace Responses {
+namespace Imap
+{
+namespace Responses
+{
 
 AbstractResponse::~AbstractResponse()
 {
 }
 
-QTextStream& operator<<( QTextStream& stream, const Code& r )
+QTextStream &operator<<(QTextStream &stream, const Code &r)
 {
 #define CASE(X) case X: stream << #X; break;
     switch (r) {
-        case ATOM:
-            stream << "<<ATOM>>'"; break;
+    case ATOM:
+        stream << "<<ATOM>>'"; break;
         CASE(ALERT);
         CASE(BADCHARSET);
         CASE(CAPABILITIES);
         CASE(PARSE);
         CASE(PERMANENTFLAGS);
-        case READ_ONLY:
-            stream << "READ-ONLY"; break;
-        case READ_WRITE:
-            stream << "READ-WRITE"; break;
+    case READ_ONLY:
+        stream << "READ-ONLY"; break;
+    case READ_WRITE:
+        stream << "READ-WRITE"; break;
         CASE(TRYCREATE);
         CASE(UIDNEXT);
         CASE(UIDVALIDITY);
         CASE(UNSEEN);
-        case NONE:
-            stream << "<<NONE>>"; break;
+    case NONE:
+        stream << "<<NONE>>"; break;
         CASE(NEWNAME);
         CASE(REFERRAL);
-        case UNKNOWN_CTE:
-            stream << "UINKNOWN-CTE"; break;
+    case UNKNOWN_CTE:
+        stream << "UINKNOWN-CTE"; break;
         CASE(UIDNOTSTICKY);
         CASE(APPENDUID);
         CASE(COPYUID);
@@ -79,8 +81,8 @@ QTextStream& operator<<( QTextStream& stream, const Code& r )
         CASE(METADATA);
         CASE(NOTIFICATIONOVERFLOW);
         CASE(BADEVENT);
-        case UNDEFINED_FILTER:
-            stream << "UNDEFINED-FILTER"; break;
+    case UNDEFINED_FILTER:
+        stream << "UNDEFINED-FILTER"; break;
         CASE(UNAVAILABLE);
         CASE(AUTHENTICATIONFAILED);
         CASE(AUTHORIZATIONFAILED);
@@ -103,197 +105,197 @@ QTextStream& operator<<( QTextStream& stream, const Code& r )
 #undef CASE
 }
 
-QTextStream& operator<<( QTextStream& stream, const Kind& res )
+QTextStream &operator<<(QTextStream &stream, const Kind &res)
 {
-    switch ( res ) {
-        case OK:
-            stream << "OK";
-            break;
-        case NO:
-            stream << "NO";
-            break;
-        case BAD:
-            stream << "BAD";
-            break;
-        case BYE:
-            stream << "BYE";
-            break;
-        case PREAUTH:
-            stream << "PREAUTH";
-            break;
-        case EXPUNGE:
-            stream << "EXPUNGE";
-            break;
-        case FETCH:
-            stream << "FETCH";
-            break;
-        case EXISTS:
-            stream << "EXISTS";
-            break;
-        case RECENT:
-            stream << "RECENT";
-            break;
-        case CAPABILITY:
-            stream << "CAPABILITY";
-            break;
-        case LIST:
-            stream << "LIST";
-            break;
-        case LSUB:
-            stream << "LSUB";
-            break;
-        case FLAGS:
-            stream << "FLAGS";
-            break;
-        case SEARCH:
-            stream << "SEARCH";
-            break;
-        case STATUS:
-            stream << "STATUS";
-            break;
-        case NAMESPACE:
-            stream << "NAMESPACE";
-            break;
-        case SORT:
-            stream << "SORT";
-        case THREAD:
-            stream << "THREAD";
-            break;
-        case ID:
-            stream << "ID";
-            break;
+    switch (res) {
+    case OK:
+        stream << "OK";
+        break;
+    case NO:
+        stream << "NO";
+        break;
+    case BAD:
+        stream << "BAD";
+        break;
+    case BYE:
+        stream << "BYE";
+        break;
+    case PREAUTH:
+        stream << "PREAUTH";
+        break;
+    case EXPUNGE:
+        stream << "EXPUNGE";
+        break;
+    case FETCH:
+        stream << "FETCH";
+        break;
+    case EXISTS:
+        stream << "EXISTS";
+        break;
+    case RECENT:
+        stream << "RECENT";
+        break;
+    case CAPABILITY:
+        stream << "CAPABILITY";
+        break;
+    case LIST:
+        stream << "LIST";
+        break;
+    case LSUB:
+        stream << "LSUB";
+        break;
+    case FLAGS:
+        stream << "FLAGS";
+        break;
+    case SEARCH:
+        stream << "SEARCH";
+        break;
+    case STATUS:
+        stream << "STATUS";
+        break;
+    case NAMESPACE:
+        stream << "NAMESPACE";
+        break;
+    case SORT:
+        stream << "SORT";
+    case THREAD:
+        stream << "THREAD";
+        break;
+    case ID:
+        stream << "ID";
+        break;
     }
     return stream;
 }
 
-Kind kindFromString( QByteArray str ) throw( UnrecognizedResponseKind )
+Kind kindFromString(QByteArray str) throw(UnrecognizedResponseKind)
 {
     str = str.toUpper();
 
-    if ( str == "OK" )
+    if (str == "OK")
         return OK;
-    if ( str == "NO" )
+    if (str == "NO")
         return NO;
-    if ( str == "BAD" )
+    if (str == "BAD")
         return BAD;
-    if ( str == "BYE" )
+    if (str == "BYE")
         return BYE;
-    if ( str == "PREAUTH" )
+    if (str == "PREAUTH")
         return PREAUTH;
-    if ( str == "FETCH" )
+    if (str == "FETCH")
         return FETCH;
-    if ( str == "EXPUNGE" )
+    if (str == "EXPUNGE")
         return EXPUNGE;
-    if ( str == "FETCH" )
+    if (str == "FETCH")
         return FETCH;
-    if ( str == "EXISTS" )
+    if (str == "EXISTS")
         return EXISTS;
-    if ( str == "RECENT" )
+    if (str == "RECENT")
         return RECENT;
-    if ( str == "CAPABILITY" )
+    if (str == "CAPABILITY")
         return CAPABILITY;
-    if ( str == "LIST" )
+    if (str == "LIST")
         return LIST;
-    if ( str == "LSUB" )
+    if (str == "LSUB")
         return LSUB;
-    if ( str == "FLAGS" )
+    if (str == "FLAGS")
         return FLAGS;
-    if ( str == "SEARCH" || str == "SEARCH\r\n" )
+    if (str == "SEARCH" || str == "SEARCH\r\n")
         return SEARCH;
-    if ( str == "STATUS" )
+    if (str == "STATUS")
         return STATUS;
-    if ( str == "NAMESPACE" )
+    if (str == "NAMESPACE")
         return NAMESPACE;
-    if ( str == "SORT" )
+    if (str == "SORT")
         return SORT;
-    if ( str == "THREAD" )
+    if (str == "THREAD")
         return THREAD;
     if (str == "ID")
         return ID;
-    throw UnrecognizedResponseKind( str.constData() );
+    throw UnrecognizedResponseKind(str.constData());
 }
 
-QTextStream& operator<<( QTextStream& stream, const Status::StateKind& kind )
+QTextStream &operator<<(QTextStream &stream, const Status::StateKind &kind)
 {
     switch (kind) {
-        case Status::MESSAGES:
-            stream << "MESSAGES"; break;
-        case Status::RECENT:
-            stream << "RECENT"; break;
-        case Status::UIDNEXT:
-            stream << "UIDNEXT"; break;
-        case Status::UIDVALIDITY:
-            stream << "UIDVALIDITY"; break;
-        case Status::UNSEEN:
-            stream << "UNSEEN"; break;
+    case Status::MESSAGES:
+        stream << "MESSAGES"; break;
+    case Status::RECENT:
+        stream << "RECENT"; break;
+    case Status::UIDNEXT:
+        stream << "UIDNEXT"; break;
+    case Status::UIDVALIDITY:
+        stream << "UIDVALIDITY"; break;
+    case Status::UNSEEN:
+        stream << "UNSEEN"; break;
     }
     return stream;
 }
 
-QTextStream& operator<<( QTextStream& stream, const NamespaceData& data )
+QTextStream &operator<<(QTextStream &stream, const NamespaceData &data)
 {
     return stream << "( prefix \"" << data.prefix << "\", separator \"" << data.separator << "\")";
 }
 
-Status::StateKind Status::stateKindFromStr( QString s )
+Status::StateKind Status::stateKindFromStr(QString s)
 {
     s = s.toUpper();
-    if ( s == "MESSAGES" )
+    if (s == "MESSAGES")
         return MESSAGES;
-    if ( s == "RECENT" )
+    if (s == "RECENT")
         return RECENT;
-    if ( s == "UIDNEXT" )
+    if (s == "UIDNEXT")
         return UIDNEXT;
-    if ( s == "UIDVALIDITY" )
+    if (s == "UIDVALIDITY")
         return UIDVALIDITY;
-    if ( s == "UNSEEN" )
+    if (s == "UNSEEN")
         return UNSEEN;
-    throw UnrecognizedResponseKind( s.toStdString() );
+    throw UnrecognizedResponseKind(s.toStdString());
 }
 
-QTextStream& operator<<( QTextStream& stream, const AbstractResponse& res )
+QTextStream &operator<<(QTextStream &stream, const AbstractResponse &res)
 {
-    return res.dump( stream );
+    return res.dump(stream);
 }
 
-State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int& start ):
-    tag(_tag), kind(_kind), respCode( NONE )
+State::State(const QString &_tag, const Kind _kind, const QByteArray &line, int &start):
+    tag(_tag), kind(_kind), respCode(NONE)
 {
-    if ( !tag.isEmpty() ) {
+    if (!tag.isEmpty()) {
         // tagged
-        switch ( kind ) {
-            case OK:
-            case NO:
-            case BAD:
-                break;
-            default:
-                throw UnexpectedHere( line, start ); // tagged response of weird kind
+        switch (kind) {
+        case OK:
+        case NO:
+        case BAD:
+            break;
+        default:
+            throw UnexpectedHere(line, start);   // tagged response of weird kind
         }
     }
 
     QStringList _list;
     QVariantList originalList;
     try {
-        originalList = LowLevelParser::parseList( '[', ']', line, start );
-        _list = QVariant( originalList ).toStringList();
+        originalList = LowLevelParser::parseList('[', ']', line, start);
+        _list = QVariant(originalList).toStringList();
         ++start;
-    } catch ( UnexpectedHere& ) {
+    } catch (UnexpectedHere &) {
         // this is perfectly possible
     }
 
-    if ( !_list.isEmpty() ) {
+    if (!_list.isEmpty()) {
         const QString r = _list.first().toUpper();
-    #define CASE(X) else if ( r == #X ) respCode = Responses::X;
-        if ( r == "ALERT" )
+#define CASE(X) else if ( r == #X ) respCode = Responses::X;
+        if (r == "ALERT")
             respCode = Responses::ALERT;
         CASE(BADCHARSET)
-        else if ( r == "CAPABILITY" )
+        else if (r == "CAPABILITY")
             respCode = Responses::CAPABILITIES;
         CASE(PARSE)
         CASE(PERMANENTFLAGS)
-        else if ( r == "READ-ONLY" )
+        else if (r == "READ-ONLY")
             respCode = Responses::READ_ONLY;
-        else if ( r == "READ-WRITE" )
+        else if (r == "READ-WRITE")
             respCode = Responses::READ_WRITE;
         CASE(TRYCREATE)
         CASE(UIDNEXT)
@@ -301,7 +303,7 @@ State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int
         CASE(UNSEEN)
         CASE(NEWNAME)
         CASE(REFERRAL)
-        else if ( r == "UNKNOWN-CTE" )
+        else if (r == "UNKNOWN-CTE")
             respCode = Responses::UNKNOWN_CTE;
         CASE(UIDNOTSTICKY)
         // FIXME: not implemented CASE(APPENDUID)
@@ -325,7 +327,7 @@ State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int
         // FIXME: not implemented CASE(METADATA)
         CASE(NOTIFICATIONOVERFLOW)
         CASE(BADEVENT)
-        else if ( r == "UNDEFINED-FILTER" )
+        else if (r == "UNDEFINED-FILTER")
             respCode = Responses::UNDEFINED_FILTER;
         CASE(UNAVAILABLE)
         CASE(AUTHENTICATIONFAILED)
@@ -347,249 +349,248 @@ State::State( const QString& _tag, const Kind _kind, const QByteArray& line, int
         else
             respCode = Responses::ATOM;
 
-        if ( respCode != Responses::ATOM )
+        if (respCode != Responses::ATOM)
             _list.pop_front();
 
         // now perform validity check and construct & store the storage object
-        switch ( respCode ) {
-            case Responses::ALERT:
-            case Responses::PARSE:
-            case Responses::READ_ONLY:
-            case Responses::READ_WRITE:
-            case Responses::TRYCREATE:
-            case Responses::UNAVAILABLE:
-            case Responses::AUTHENTICATIONFAILED:
-            case Responses::AUTHORIZATIONFAILED:
-            case Responses::EXPIRED:
-            case Responses::PRIVACYREQUIRED:
-            case Responses::CONTACTADMIN:
-            case Responses::NOPERM:
-            case Responses::INUSE:
-            case Responses::EXPUNGEISSUED:
-            case Responses::CORRUPTION:
-            case Responses::SERVERBUG:
-            case Responses::CLIENTBUG:
-            case Responses::CANNOT:
-            case Responses::LIMIT:
-            case Responses::OVERQUOTA:
-            case Responses::ALREADYEXISTS:
-            case Responses::NONEXISTENT:
-            case Responses::UNKNOWN_CTE:
-            case Responses::UIDNOTSTICKY:
-            case Responses::TOOBIG:
-            case Responses::NOMODSEQ:
-            case Responses::COMPRESSIONACTIVE:
-            case Responses::CLOSED:
-            case Responses::NOTSAVED:
-            case Responses::BADCOMPARATOR:
-            case Responses::TEMPFAIL:
-            case Responses::NOTIFICATIONOVERFLOW:
-                // check for "no more stuff"
-                if ( _list.count() )
-                    throw InvalidResponseCode( "Got a response code with extra data inside the brackets",
-                                               line, start );
-                respCodeData = QSharedPointer<AbstractData>( new RespData<void>() );
-                break;
-            case Responses::UIDNEXT:
-            case Responses::UIDVALIDITY:
-            case Responses::UNSEEN:
-            case Responses::MAXCONVERTMESSAGES:
-            case Responses::MAXCONVERTPARTS:
-                // check for "number only"
-                {
-                if ( _list.count() != 1 )
-                    throw InvalidResponseCode( line, start );
-                bool ok;
-                uint number = _list.first().toUInt( &ok );
-                if ( !ok )
-                    throw InvalidResponseCode( line, start );
-                respCodeData = QSharedPointer<AbstractData>( new RespData<uint>( number ) );
+        switch (respCode) {
+        case Responses::ALERT:
+        case Responses::PARSE:
+        case Responses::READ_ONLY:
+        case Responses::READ_WRITE:
+        case Responses::TRYCREATE:
+        case Responses::UNAVAILABLE:
+        case Responses::AUTHENTICATIONFAILED:
+        case Responses::AUTHORIZATIONFAILED:
+        case Responses::EXPIRED:
+        case Responses::PRIVACYREQUIRED:
+        case Responses::CONTACTADMIN:
+        case Responses::NOPERM:
+        case Responses::INUSE:
+        case Responses::EXPUNGEISSUED:
+        case Responses::CORRUPTION:
+        case Responses::SERVERBUG:
+        case Responses::CLIENTBUG:
+        case Responses::CANNOT:
+        case Responses::LIMIT:
+        case Responses::OVERQUOTA:
+        case Responses::ALREADYEXISTS:
+        case Responses::NONEXISTENT:
+        case Responses::UNKNOWN_CTE:
+        case Responses::UIDNOTSTICKY:
+        case Responses::TOOBIG:
+        case Responses::NOMODSEQ:
+        case Responses::COMPRESSIONACTIVE:
+        case Responses::CLOSED:
+        case Responses::NOTSAVED:
+        case Responses::BADCOMPARATOR:
+        case Responses::TEMPFAIL:
+        case Responses::NOTIFICATIONOVERFLOW:
+            // check for "no more stuff"
+            if (_list.count())
+                throw InvalidResponseCode("Got a response code with extra data inside the brackets",
+                                          line, start);
+            respCodeData = QSharedPointer<AbstractData>(new RespData<void>());
+            break;
+        case Responses::UIDNEXT:
+        case Responses::UIDVALIDITY:
+        case Responses::UNSEEN:
+        case Responses::MAXCONVERTMESSAGES:
+        case Responses::MAXCONVERTPARTS:
+            // check for "number only"
+        {
+            if (_list.count() != 1)
+                throw InvalidResponseCode(line, start);
+            bool ok;
+            uint number = _list.first().toUInt(&ok);
+            if (!ok)
+                throw InvalidResponseCode(line, start);
+            respCodeData = QSharedPointer<AbstractData>(new RespData<uint>(number));
+        }
+        break;
+        case Responses::HIGHESTMODSEQ:
+            // similar to the above, but an unsigned 64bit int
+        {
+            if (_list.count() != 1)
+                throw InvalidResponseCode(line, start);
+            bool ok;
+            quint64 number = _list.first().toULongLong(&ok);
+            if (!ok)
+                throw InvalidResponseCode(line, start);
+            respCodeData = QSharedPointer<AbstractData>(new RespData<quint64>(number));
+        }
+        break;
+        case Responses::BADCHARSET:
+        case Responses::PERMANENTFLAGS:
+        case Responses::BADEVENT:
+            // The following text should be a parenthesized list of atoms
+            if (originalList.size() == 1) {
+                if (respCode != Responses::BADCHARSET) {
+                    // BADCHARSET can be empty without any problem, but PERMANENTFLAGS or BADEVENT shouldn't
+                    qDebug() << "Parser warning: empty PERMANENTFLAGS or BADEVENT";
                 }
-                break;
-            case Responses::HIGHESTMODSEQ:
-                // similar to the above, but an unsigned 64bit int
-                {
-                if ( _list.count() != 1 )
-                    throw InvalidResponseCode( line, start );
-                bool ok;
-                quint64 number = _list.first().toULongLong( &ok );
-                if ( !ok )
-                    throw InvalidResponseCode( line, start );
-                respCodeData = QSharedPointer<AbstractData>( new RespData<quint64>( number ) );
-                }
-                break;
-            case Responses::BADCHARSET:
-            case Responses::PERMANENTFLAGS:
-            case Responses::BADEVENT:
-                // The following text should be a parenthesized list of atoms
-                if ( originalList.size() == 1 ) {
-                    if ( respCode != Responses::BADCHARSET ) {
-                        // BADCHARSET can be empty without any problem, but PERMANENTFLAGS or BADEVENT shouldn't
-                        qDebug() << "Parser warning: empty PERMANENTFLAGS or BADEVENT";
-                    }
-                    respCodeData = QSharedPointer<AbstractData>( new RespData<QStringList>( QStringList() ) );
-                } else if ( originalList.size() == 2 && originalList[1].type() == QVariant::List ) {
-                    respCodeData = QSharedPointer<AbstractData>( new RespData<QStringList>( originalList[1].toStringList() ) );
-                } else {
-                    // Well, we used to accept "* OK [PERMANENTFLAGS foo bar] xyz" for quite long time,
-                    // so no need to break backwards compatibility here
-                    respCodeData = QSharedPointer<AbstractData>( new RespData<QStringList>( _list ) );
-                    qDebug() << "Parser warning: obsolete format of BADCAHRSET/PERMANENTFLAGS/BADEVENT";
-                }
-                break;
-            case Responses::CAPABILITIES:
-                // no check here
-                respCodeData = QSharedPointer<AbstractData>( new RespData<QStringList>( _list ) );
-                break;
-            case Responses::ATOM: // no sanity check here, just make a string
-            case Responses::NONE: // this won't happen, but if we ommit it, gcc warns us about that
-                respCodeData = QSharedPointer<AbstractData>( new RespData<QString>( _list.join(" ") ) );
-                break;
-            case Responses::NEWNAME:
-            case Responses::REFERRAL:
-            case Responses::BADURL:
-                // FIXME: check if indeed won't eat the spaces
-                respCodeData = QSharedPointer<AbstractData>( new RespData<QString>( _list.join(" ") ) );
-                break;
-            case Responses::NOUPDATE:
-                // FIXME: check if indeed won't eat the spaces, and optionally verify that it came as a quoted string
-                respCodeData = QSharedPointer<AbstractData>( new RespData<QString>( _list.join(" ") ) );
-                break;
-            case Responses::UNDEFINED_FILTER:
-                // FIXME: check if indeed won't eat the spaces, and optionally verify that it came as an atom
-                respCodeData = QSharedPointer<AbstractData>( new RespData<QString>( _list.join(" ") ) );
-                break;
-            case Responses::COPYUID:
-            case Responses::APPENDUID:
-                // FIXME: implement me
-                Q_ASSERT( false );
-                break;
-            case Responses::URLMECH:
-                // FIXME: implement me
-                Q_ASSERT( false );
-                break;
-            case Responses::MODIFIED:
-                // FIXME: clarify what "set" in the RFC 4551 means and implement it
-                Q_ASSERT( false );
-                break;
-            case Responses::ANNOTATE:
-                {
-                if ( _list.count() != 1 )
-                    throw InvalidResponseCode( "ANNOTATE response code got weird number of elements", line, start );
-                QString token = _list.first().toUpper();
-                if ( token == QString::fromAscii("TOOBIG") || token == QString::fromAscii("TOOMANY") )
-                    respCodeData = QSharedPointer<AbstractData>( new RespData<QString>( token ) );
-                else
-                    throw InvalidResponseCode( "ANNOTATE response code with invalid value", line, start );
-                }
-                break;
-            case Responses::ANNOTATIONS:
-            case Responses::METADATA:
-                // FIXME: implement me
-                Q_ASSERT( false );
-                break;
+                respCodeData = QSharedPointer<AbstractData>(new RespData<QStringList>(QStringList()));
+            } else if (originalList.size() == 2 && originalList[1].type() == QVariant::List) {
+                respCodeData = QSharedPointer<AbstractData>(new RespData<QStringList>(originalList[1].toStringList()));
+            } else {
+                // Well, we used to accept "* OK [PERMANENTFLAGS foo bar] xyz" for quite long time,
+                // so no need to break backwards compatibility here
+                respCodeData = QSharedPointer<AbstractData>(new RespData<QStringList>(_list));
+                qDebug() << "Parser warning: obsolete format of BADCAHRSET/PERMANENTFLAGS/BADEVENT";
+            }
+            break;
+        case Responses::CAPABILITIES:
+            // no check here
+            respCodeData = QSharedPointer<AbstractData>(new RespData<QStringList>(_list));
+            break;
+        case Responses::ATOM: // no sanity check here, just make a string
+        case Responses::NONE: // this won't happen, but if we ommit it, gcc warns us about that
+            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(_list.join(" ")));
+            break;
+        case Responses::NEWNAME:
+        case Responses::REFERRAL:
+        case Responses::BADURL:
+            // FIXME: check if indeed won't eat the spaces
+            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(_list.join(" ")));
+            break;
+        case Responses::NOUPDATE:
+            // FIXME: check if indeed won't eat the spaces, and optionally verify that it came as a quoted string
+            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(_list.join(" ")));
+            break;
+        case Responses::UNDEFINED_FILTER:
+            // FIXME: check if indeed won't eat the spaces, and optionally verify that it came as an atom
+            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(_list.join(" ")));
+            break;
+        case Responses::COPYUID:
+        case Responses::APPENDUID:
+            // FIXME: implement me
+            Q_ASSERT(false);
+            break;
+        case Responses::URLMECH:
+            // FIXME: implement me
+            Q_ASSERT(false);
+            break;
+        case Responses::MODIFIED:
+            // FIXME: clarify what "set" in the RFC 4551 means and implement it
+            Q_ASSERT(false);
+            break;
+        case Responses::ANNOTATE: {
+            if (_list.count() != 1)
+                throw InvalidResponseCode("ANNOTATE response code got weird number of elements", line, start);
+            QString token = _list.first().toUpper();
+            if (token == QString::fromAscii("TOOBIG") || token == QString::fromAscii("TOOMANY"))
+                respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(token));
+            else
+                throw InvalidResponseCode("ANNOTATE response code with invalid value", line, start);
+        }
+        break;
+        case Responses::ANNOTATIONS:
+        case Responses::METADATA:
+            // FIXME: implement me
+            Q_ASSERT(false);
+            break;
         }
     }
 
-    if ( start >= line.size() - 2 ) {
-        if ( originalList.isEmpty() ) {
+    if (start >= line.size() - 2) {
+        if (originalList.isEmpty()) {
             qDebug() << "Response with no data at all, yuck" << line;
         } else {
             qDebug() << "Response with no data besides the response code, yuck" << line;
         }
     } else {
-        message = line.mid( start );
-        Q_ASSERT( message.endsWith( "\r\n" ) );
+        message = line.mid(start);
+        Q_ASSERT(message.endsWith("\r\n"));
         message.chop(2);
     }
 }
 
-NumberResponse::NumberResponse( const Kind _kind, const uint _num ) throw(UnexpectedHere):
+NumberResponse::NumberResponse(const Kind _kind, const uint _num) throw(UnexpectedHere):
     AbstractResponse(_kind), number(_num)
 {
-    if ( kind != EXISTS && kind != EXPUNGE && kind != RECENT )
-        throw UnexpectedHere( "Attempted to create NumberResponse of invalid kind" );
+    if (kind != EXISTS && kind != EXPUNGE && kind != RECENT)
+        throw UnexpectedHere("Attempted to create NumberResponse of invalid kind");
 }
 
-List::List( const Kind _kind, const QByteArray& line, int& start ):
+List::List(const Kind _kind, const QByteArray &line, int &start):
     AbstractResponse(LIST), kind(_kind)
 {
-    if ( kind != LIST && kind != LSUB )
-        throw UnexpectedHere( line, start ); // FIXME: well, "start" is too late here...
+    if (kind != LIST && kind != LSUB)
+        throw UnexpectedHere(line, start);   // FIXME: well, "start" is too late here...
 
-    flags = QVariant( LowLevelParser::parseList( '(', ')', line, start ) ).toStringList();
+    flags = QVariant(LowLevelParser::parseList('(', ')', line, start)).toStringList();
     ++start;
 
-    if ( start >= line.size() - 5 )
-        throw NoData( line, start ); // flags and nothing else
+    if (start >= line.size() - 5)
+        throw NoData(line, start);   // flags and nothing else
 
-    if ( line.at(start) == '"' ) {
+    if (line.at(start) == '"') {
         ++start;
-        if ( line.at(start) == '\\' )
+        if (line.at(start) == '\\')
             ++start;
         separator = line.at(start);
         ++start;
-        if ( line.at(start) != '"' )
-            throw ParseError( line, start );
+        if (line.at(start) != '"')
+            throw ParseError(line, start);
         ++start;
-    } else if ( line.mid( start, 3 ).toLower() == "nil" ) {
+    } else if (line.mid(start, 3).toLower() == "nil") {
         separator = QString::null;
         start += 3;
     } else
-        throw ParseError( line, start );
+        throw ParseError(line, start);
 
     ++start;
 
-    if ( start >= line.size() )
-        throw NoData( line, start ); // no mailbox
+    if (start >= line.size())
+        throw NoData(line, start);   // no mailbox
 
-    mailbox = LowLevelParser::getMailbox( line, start );
+    mailbox = LowLevelParser::getMailbox(line, start);
 }
 
-Flags::Flags( const QByteArray& line, int& start )
+Flags::Flags(const QByteArray &line, int &start)
 {
-    flags = QVariant( LowLevelParser::parseList( '(', ')', line, start ) ).toStringList();
-    if ( start >= line.size() )
-        throw TooMuchData( line, start );
+    flags = QVariant(LowLevelParser::parseList('(', ')', line, start)).toStringList();
+    if (start >= line.size())
+        throw TooMuchData(line, start);
 }
 
-Search::Search( const QByteArray& line, int& start )
+Search::Search(const QByteArray &line, int &start)
 {
-    while ( start < line.size() - 2 ) {
+    while (start < line.size() - 2) {
         try {
-            uint number = LowLevelParser::getUInt( line, start );
+            uint number = LowLevelParser::getUInt(line, start);
             items << number;
             ++start;
-        } catch ( ParseError& ) {
-            throw UnexpectedHere( line, start );
+        } catch (ParseError &) {
+            throw UnexpectedHere(line, start);
         }
     }
 }
 
-Status::Status( const QByteArray& line, int& start )
+Status::Status(const QByteArray &line, int &start)
 {
-    mailbox = LowLevelParser::getMailbox( line, start );
+    mailbox = LowLevelParser::getMailbox(line, start);
     ++start;
-    if ( start >= line.size() )
-        throw NoData( line, start );
-    QStringList items = QVariant( LowLevelParser::parseList( '(', ')', line, start  ) ).toStringList();
-    if ( start != line.size() - 2 && line.mid( start ) != QByteArray( " \r\n" ) )
-        throw TooMuchData( "STATUS response contains data after the list of items", line, start );
+    if (start >= line.size())
+        throw NoData(line, start);
+    QStringList items = QVariant(LowLevelParser::parseList('(', ')', line, start)).toStringList();
+    if (start != line.size() - 2 && line.mid(start) != QByteArray(" \r\n"))
+        throw TooMuchData("STATUS response contains data after the list of items", line, start);
 
     bool gotIdentifier = false;
     QString identifier;
-    for ( QStringList::const_iterator it = items.constBegin(); it != items.constEnd(); ++it ) {
-        if ( gotIdentifier ) {
+    for (QStringList::const_iterator it = items.constBegin(); it != items.constEnd(); ++it) {
+        if (gotIdentifier) {
             gotIdentifier = false;
             bool ok;
-            uint number = it->toUInt( &ok );
+            uint number = it->toUInt(&ok);
             if (!ok)
-                throw ParseError( line, start );
+                throw ParseError(line, start);
             StateKind kind;
             try {
-                kind = stateKindFromStr( identifier );
-            } catch ( UnrecognizedResponseKind& e ) {
-                throw UnrecognizedResponseKind( e.what(), line, start );
+                kind = stateKindFromStr(identifier);
+            } catch (UnrecognizedResponseKind &e) {
+                throw UnrecognizedResponseKind(e.what(), line, start);
             }
             states[kind] = number;
         } else {
@@ -597,182 +598,182 @@ Status::Status( const QByteArray& line, int& start )
             gotIdentifier = true;
         }
     }
-    if ( gotIdentifier )
-        throw ParseError( line, start );
+    if (gotIdentifier)
+        throw ParseError(line, start);
 }
 
-QDateTime Fetch::dateify( QByteArray str, const QByteArray& line, const int start )
+QDateTime Fetch::dateify(QByteArray str, const QByteArray &line, const int start)
 {
     // FIXME: all offsets in exceptions are broken here.
-    if ( str.size() == 25 )
-        str = QByteArray::number( 0 ) + str;
-    if ( str.size() != 26 )
-        throw ParseError( line, start );
+    if (str.size() == 25)
+        str = QByteArray::number(0) + str;
+    if (str.size() != 26)
+        throw ParseError(line, start);
 
-    QDateTime date = QLocale( QString::fromAscii("C") ).toDateTime( str.left(20), QString::fromAscii( "d-MMM-yyyy HH:mm:ss" ) );
+    QDateTime date = QLocale(QString::fromAscii("C")).toDateTime(str.left(20), QString::fromAscii("d-MMM-yyyy HH:mm:ss"));
     const char sign = str[21];
     bool ok;
-    uint hours = str.mid(22, 2).toUInt( &ok );
+    uint hours = str.mid(22, 2).toUInt(&ok);
     if (!ok)
-        throw ParseError( line, start );
-    uint minutes = str.mid(24, 2).toUInt( &ok );
+        throw ParseError(line, start);
+    uint minutes = str.mid(24, 2).toUInt(&ok);
     if (!ok)
-        throw ParseError( line, start );
+        throw ParseError(line, start);
     switch (sign) {
-        case '+':
-            date = date.addSecs( -3600*hours - 60*minutes );
-            break;
-        case '-':
-            date = date.addSecs( +3600*hours + 60*minutes );
-            break;
-        default:
-            throw ParseError( line, start );
+    case '+':
+        date = date.addSecs(-3600*hours - 60*minutes);
+        break;
+    case '-':
+        date = date.addSecs(+3600*hours + 60*minutes);
+        break;
+    default:
+        throw ParseError(line, start);
     }
-    date.setTimeSpec( Qt::UTC );
+    date.setTimeSpec(Qt::UTC);
     return date;
 }
 
-Fetch::Fetch( const uint _number, const QByteArray& line, int& start ):
+Fetch::Fetch(const uint _number, const QByteArray &line, int &start):
     AbstractResponse(FETCH), number(_number)
 {
     ++start;
 
-    if ( start >= line.size() )
-        throw NoData( line, number );
+    if (start >= line.size())
+        throw NoData(line, number);
 
-    QVariantList list = LowLevelParser::parseList( '(', ')', line, start );
+    QVariantList list = LowLevelParser::parseList('(', ')', line, start);
 
     bool isIdentifier = true;
     QString identifier;
     for (QVariantList::const_iterator it = list.constBegin(); it != list.constEnd();
-            ++it, isIdentifier = !isIdentifier ) {
-        if ( isIdentifier ) {
+         ++it, isIdentifier = !isIdentifier) {
+        if (isIdentifier) {
             identifier = it->toString().toUpper();
-            if ( identifier.isEmpty() )
-                throw UnexpectedHere( line, start ); // FIXME: wrong offset
-            if ( data.contains( identifier ) )
-                throw UnexpectedHere( line, start ); // FIXME: wrong offset
+            if (identifier.isEmpty())
+                throw UnexpectedHere(line, start);   // FIXME: wrong offset
+            if (data.contains(identifier))
+                throw UnexpectedHere(line, start);   // FIXME: wrong offset
         } else {
-            if ( identifier == "BODY" || identifier == "BODYSTRUCTURE" ) {
-                if ( it->type() != QVariant::List )
-                    throw UnexpectedHere( line, start );
-                data[identifier] = Message::AbstractMessage::fromList( it->toList(), line, start );
+            if (identifier == "BODY" || identifier == "BODYSTRUCTURE") {
+                if (it->type() != QVariant::List)
+                    throw UnexpectedHere(line, start);
+                data[identifier] = Message::AbstractMessage::fromList(it->toList(), line, start);
                 QByteArray buffer;
-                QDataStream stream( &buffer, QIODevice::WriteOnly );
+                QDataStream stream(&buffer, QIODevice::WriteOnly);
                 stream.setVersion(QDataStream::Qt_4_6);
                 stream << it->toList();
                 data["x-trojita-bodystructure"] = QSharedPointer<AbstractData>(
-                        new RespData<QByteArray>( buffer ) );
+                                                      new RespData<QByteArray>(buffer));
 
-            } else if ( identifier.startsWith( "BODY[" ) ) {
+            } else if (identifier.startsWith("BODY[")) {
                 // FIXME: split into more identifiers?
-                if ( it->type() != QVariant::ByteArray )
-                    throw UnexpectedHere( line, start );
+                if (it->type() != QVariant::ByteArray)
+                    throw UnexpectedHere(line, start);
                 data[identifier] = QSharedPointer<AbstractData>(
-                        new RespData<QByteArray>( it->toByteArray() ) );
+                                       new RespData<QByteArray>(it->toByteArray()));
 
-            } else if ( identifier == "ENVELOPE" ) {
-                if ( it->type() != QVariant::List )
-                    throw UnexpectedHere( line, start );
+            } else if (identifier == "ENVELOPE") {
+                if (it->type() != QVariant::List)
+                    throw UnexpectedHere(line, start);
                 QVariantList items = it->toList();
                 data[identifier] = QSharedPointer<AbstractData>(
-                        new RespData<Message::Envelope>( Message::Envelope::fromList( items, line, start ) ) );
+                                       new RespData<Message::Envelope>(Message::Envelope::fromList(items, line, start)));
 
-            } else if ( identifier == "FLAGS" ) {
-                if ( ! it->canConvert( QVariant::StringList ) )
-                    throw UnexpectedHere( line, start ); // FIXME: wrong offset
+            } else if (identifier == "FLAGS") {
+                if (! it->canConvert(QVariant::StringList))
+                    throw UnexpectedHere(line, start);   // FIXME: wrong offset
 
                 data[identifier] = QSharedPointer<AbstractData>(
-                        new RespData<QStringList>( it->toStringList() ) );
+                                       new RespData<QStringList>(it->toStringList()));
 
-            } else if ( identifier == "INTERNALDATE" ) {
-                if ( it->type() != QVariant::ByteArray )
-                        throw UnexpectedHere( line, start ); // FIXME: wrong offset
+            } else if (identifier == "INTERNALDATE") {
+                if (it->type() != QVariant::ByteArray)
+                    throw UnexpectedHere(line, start);   // FIXME: wrong offset
                 QByteArray _str = it->toByteArray();
                 data[ identifier ] = QSharedPointer<AbstractData>(
-                        new RespData<QDateTime>( dateify( _str, line, start ) ) );
+                                         new RespData<QDateTime>(dateify(_str, line, start)));
 
-            } else if ( identifier == "RFC822" ||
-                    identifier == "RFC822.HEADER" || identifier == "RFC822.TEXT" ) {
-                if ( it->type() != QVariant::ByteArray )
-                    throw UnexpectedHere( line, start ); // FIXME: wrong offset
+            } else if (identifier == "RFC822" ||
+                       identifier == "RFC822.HEADER" || identifier == "RFC822.TEXT") {
+                if (it->type() != QVariant::ByteArray)
+                    throw UnexpectedHere(line, start);   // FIXME: wrong offset
                 data[ identifier ] = QSharedPointer<AbstractData>(
-                        new RespData<QByteArray>( it->toByteArray() ) );
-            } else if ( identifier == "RFC822.SIZE" || identifier == "UID" ) {
-                if ( it->type() != QVariant::UInt )
-                    throw ParseError( line, start ); // FIXME: wrong offset
+                                         new RespData<QByteArray>(it->toByteArray()));
+            } else if (identifier == "RFC822.SIZE" || identifier == "UID") {
+                if (it->type() != QVariant::UInt)
+                    throw ParseError(line, start);   // FIXME: wrong offset
                 data[ identifier ] = QSharedPointer<AbstractData>(
-                        new RespData<uint>( it->toUInt() ) );
+                                         new RespData<uint>(it->toUInt()));
             } else {
-                throw UnexpectedHere( line, start ); // FIXME: wrong offset
+                throw UnexpectedHere(line, start);   // FIXME: wrong offset
             }
 
         }
     }
 
-    if ( start != line.size() - 2 )
-        throw TooMuchData( line, start );
+    if (start != line.size() - 2)
+        throw TooMuchData(line, start);
 
 }
 
-Fetch::Fetch( const uint _number, const Fetch::dataType& _data ):
+Fetch::Fetch(const uint _number, const Fetch::dataType &_data):
     AbstractResponse(FETCH), number(_number), data(_data)
 {
 }
 
-QList<NamespaceData> NamespaceData::listFromLine( const QByteArray& line, int& start )
+QList<NamespaceData> NamespaceData::listFromLine(const QByteArray &line, int &start)
 {
     QList<NamespaceData> result;
     try {
-        QVariantList list = LowLevelParser::parseList( '(', ')', line, start );
-        for ( QVariantList::const_iterator it = list.constBegin(); it != list.constEnd(); ++it ) {
-            if ( it->type() != QVariant::List )
-                throw UnexpectedHere( "Mallformed data found when processing one item "
-                        "in NAMESPACE record (not a list)", line, start );
+        QVariantList list = LowLevelParser::parseList('(', ')', line, start);
+        for (QVariantList::const_iterator it = list.constBegin(); it != list.constEnd(); ++it) {
+            if (it->type() != QVariant::List)
+                throw UnexpectedHere("Mallformed data found when processing one item "
+                                     "in NAMESPACE record (not a list)", line, start);
             QStringList list = it->toStringList();
-            if ( list.size() != 2 )
-                throw UnexpectedHere( "Mallformed data found when processing one item "
-                        "in NAMESPACE record (list of weird size)", line, start );
-            result << NamespaceData( list[0], list[1] );
+            if (list.size() != 2)
+                throw UnexpectedHere("Mallformed data found when processing one item "
+                                     "in NAMESPACE record (list of weird size)", line, start);
+            result << NamespaceData(list[0], list[1]);
         }
-    } catch ( UnexpectedHere& ) {
+    } catch (UnexpectedHere &) {
         // must be a NIL, then
-        QPair<QByteArray,LowLevelParser::ParsedAs> res = LowLevelParser::getNString( line, start );
-        if ( res.second != LowLevelParser::NIL ) {
-            throw UnexpectedHere( "Top-level NAMESPACE record is neither list nor NIL", line, start );
+        QPair<QByteArray,LowLevelParser::ParsedAs> res = LowLevelParser::getNString(line, start);
+        if (res.second != LowLevelParser::NIL) {
+            throw UnexpectedHere("Top-level NAMESPACE record is neither list nor NIL", line, start);
         }
     }
     ++start;
     return result;
 }
 
-Namespace::Namespace( const QByteArray& line, int& start )
+Namespace::Namespace(const QByteArray &line, int &start)
 {
-    personal = NamespaceData::listFromLine( line, start );
-    users = NamespaceData::listFromLine( line, start );
-    other = NamespaceData::listFromLine( line, start );
+    personal = NamespaceData::listFromLine(line, start);
+    users = NamespaceData::listFromLine(line, start);
+    other = NamespaceData::listFromLine(line, start);
 }
 
-Sort::Sort( const QByteArray &line, int &start ): AbstractResponse(THREAD)
+Sort::Sort(const QByteArray &line, int &start): AbstractResponse(THREAD)
 {
-    while ( start < line.size() - 2 ) {
+    while (start < line.size() - 2) {
         try {
-            uint number = LowLevelParser::getUInt( line, start );
+            uint number = LowLevelParser::getUInt(line, start);
             numbers << number;
             ++start;
-        } catch ( ParseError& ) {
-            throw UnexpectedHere( line, start );
+        } catch (ParseError &) {
+            throw UnexpectedHere(line, start);
         }
     }
 }
 
 
-Thread::Thread( const QByteArray &line, int &start ): AbstractResponse(THREAD)
+Thread::Thread(const QByteArray &line, int &start): AbstractResponse(THREAD)
 {
     ThreadingNode node;
-    while ( start < line.size() - 2 ) {
-        QVariantList current = LowLevelParser::parseList( '(', ')', line, start );
-        insertHere( &node, current );
+    while (start < line.size() - 2) {
+        QVariantList current = LowLevelParser::parseList('(', ')', line, start);
+        insertHere(&node, current);
     }
     rootItems = node.children;
 }
@@ -783,22 +784,22 @@ Please note that the syntax for the THREAD untagged response, as defined in
 RFC5256, is rather counter-intuitive -- items placed at the *same* level in the
 list are actually parent/child, not siblings.
  */
-void Thread::insertHere( ThreadingNode* where, const QVariantList& what )
+void Thread::insertHere(ThreadingNode *where, const QVariantList &what)
 {
     bool first = true;
-    for ( QVariantList::const_iterator it = what.begin(); it != what.end(); ++it ) {
-        if ( it->type() == QVariant::UInt ) {
-            where->children.append( ThreadingNode() );
-            where = &( where->children.last() );
+    for (QVariantList::const_iterator it = what.begin(); it != what.end(); ++it) {
+        if (it->type() == QVariant::UInt) {
+            where->children.append(ThreadingNode());
+            where = &(where->children.last());
             where->num = it->toUInt();
-        } else if ( it->type() == QVariant::List ) {
-            if ( first ) {
-                where->children.append( ThreadingNode() );
-                where = &( where->children.last() );
+        } else if (it->type() == QVariant::List) {
+            if (first) {
+                where->children.append(ThreadingNode());
+                where = &(where->children.last());
             }
-            insertHere( where, it->toList() );
+            insertHere(where, it->toList());
         } else {
-            throw UnexpectedHere( "THREAD structure contains garbage; expecting fancy list of uints" );
+            throw UnexpectedHere("THREAD structure contains garbage; expecting fancy list of uints");
         }
         first = false;
     }
@@ -811,7 +812,7 @@ Id::Id(const QByteArray &line, int &start): AbstractResponse(ID)
         if (list.size() % 2) {
             throw ParseError("ID response with invalid number of entries", line, start);
         }
-        for (int i = 0; i < list.size() - 1; i += 2 ) {
+        for (int i = 0; i < list.size() - 1; i += 2) {
             data[list[i].toByteArray()] = list[i+1].toByteArray();
         }
     } catch (UnexpectedHere &e) {
@@ -826,104 +827,104 @@ Id::Id(const QByteArray &line, int &start): AbstractResponse(ID)
     }
 }
 
-QTextStream& State::dump( QTextStream& stream ) const
+QTextStream &State::dump(QTextStream &stream) const
 {
-    if ( !tag.isEmpty() )
+    if (!tag.isEmpty())
         stream << tag;
     else
         stream << '*';
     stream << ' ' << kind;
-    if ( respCode != NONE )
+    if (respCode != NONE)
         stream << " [" << respCode << ' ' << *respCodeData << ']';
     return stream << ' ' << message;
 }
 
-QTextStream& Capability::dump( QTextStream& stream ) const
+QTextStream &Capability::dump(QTextStream &stream) const
 {
     return stream << "* CAPABILITY " << capabilities.join(", ");
 }
 
-QTextStream& NumberResponse::dump( QTextStream& stream ) const
+QTextStream &NumberResponse::dump(QTextStream &stream) const
 {
     return stream << kind << " " << number;
 }
 
-QTextStream& List::dump( QTextStream& stream ) const
+QTextStream &List::dump(QTextStream &stream) const
 {
     return stream << kind << " '" << mailbox << "' (" << flags.join(", ") << "), sep '" << separator << "'";
 }
 
-QTextStream& Flags::dump( QTextStream& stream ) const
+QTextStream &Flags::dump(QTextStream &stream) const
 {
     return stream << "FLAGS " << flags.join(", ");
 }
 
-QTextStream& Search::dump( QTextStream& stream ) const
+QTextStream &Search::dump(QTextStream &stream) const
 {
     stream << "SEARCH";
-    for (QList<uint>::const_iterator it = items.begin(); it != items.end(); ++it )
+    for (QList<uint>::const_iterator it = items.begin(); it != items.end(); ++it)
         stream << " " << *it;
     return stream;
 }
 
-QTextStream& Status::dump( QTextStream& stream ) const
+QTextStream &Status::dump(QTextStream &stream) const
 {
     stream << "STATUS " << mailbox;
-    for (stateDataType::const_iterator it = states.begin(); it != states.end(); ++it ) {
+    for (stateDataType::const_iterator it = states.begin(); it != states.end(); ++it) {
         stream << " " << it.key() << " " << it.value();
     }
     return stream;
 }
 
-QTextStream& Fetch::dump( QTextStream& stream ) const
+QTextStream &Fetch::dump(QTextStream &stream) const
 {
     stream << "FETCH " << number << " (";
-    for ( dataType::const_iterator it = data.begin();
-            it != data.end(); ++it )
+    for (dataType::const_iterator it = data.begin();
+         it != data.end(); ++it)
         stream << ' ' << it.key() << " \"" << *it.value() << '"';
     return stream << ')';
 }
 
-QTextStream& Namespace::dump( QTextStream& stream ) const
+QTextStream &Namespace::dump(QTextStream &stream) const
 {
     stream << "NAMESPACE (";
     QList<NamespaceData>::const_iterator it;
-    for ( it = personal.begin(); it != personal.end(); ++it )
+    for (it = personal.begin(); it != personal.end(); ++it)
         stream << *it << ",";
     stream << ") (";
-    for ( it = users.begin(); it != users.end(); ++it )
+    for (it = users.begin(); it != users.end(); ++it)
         stream << *it << ",";
     stream << ") (";
-    for ( it = other.begin(); it != other.end(); ++it )
+    for (it = other.begin(); it != other.end(); ++it)
         stream << *it << ",";
     return stream << ")";
 }
 
-QTextStream& Sort::dump( QTextStream& stream ) const
+QTextStream &Sort::dump(QTextStream &stream) const
 {
     stream << "SORT ";
-    for (QList<uint>::const_iterator it = numbers.begin(); it != numbers.end(); ++it )
+    for (QList<uint>::const_iterator it = numbers.begin(); it != numbers.end(); ++it)
         stream << " " << *it;
     return stream;
 }
 
-QTextStream& Thread::dump( QTextStream& stream ) const
+QTextStream &Thread::dump(QTextStream &stream) const
 {
     ThreadingNode node;
     node.children = rootItems;
-    return stream << "THREAD {parsed-into-sane-form}" << dumpHelper( node );
+    return stream << "THREAD {parsed-into-sane-form}" << dumpHelper(node);
 }
 
-QString Thread::dumpHelper( const ThreadingNode& node )
+QString Thread::dumpHelper(const ThreadingNode &node)
 {
-    if ( node.children.isEmpty() ) {
-        return QString::number( node.num );
+    if (node.children.isEmpty()) {
+        return QString::number(node.num);
     } else {
         QStringList res;
-        for ( QVector<ThreadingNode>::const_iterator it = node.children.begin(); it != node.children.end(); ++it ) {
-            res << dumpHelper( *it );
+        for (QVector<ThreadingNode>::const_iterator it = node.children.begin(); it != node.children.end(); ++it) {
+            res << dumpHelper(*it);
         }
-        return QString::fromAscii("%1: {%2}").arg( node.num ).arg( res.join(QString::fromAscii(", ") ) );
+        return QString::fromAscii("%1: {%2}").arg(node.num).arg(res.join(QString::fromAscii(", ")));
     }
 }
 
@@ -943,152 +944,152 @@ QTextStream &Id::dump(QTextStream &s) const
 }
 
 
-template<class T> QTextStream& RespData<T>::dump( QTextStream& stream ) const
+template<class T> QTextStream &RespData<T>::dump(QTextStream &stream) const
 {
     return stream << data;
 }
 
-template<> QTextStream& RespData<QStringList>::dump( QTextStream& stream ) const
+template<> QTextStream &RespData<QStringList>::dump(QTextStream &stream) const
 {
-    return stream << data.join( " " );
+    return stream << data.join(" ");
 }
 
-template<> QTextStream& RespData<QDateTime>::dump( QTextStream& stream ) const
+template<> QTextStream &RespData<QDateTime>::dump(QTextStream &stream) const
 {
     return stream << data.toString();
 }
 
-bool RespData<void>::eq( const AbstractData& other ) const
+bool RespData<void>::eq(const AbstractData &other) const
 {
     try {
         // There's no data involved, so we just want to compare the type
-        (void) dynamic_cast<const RespData<void>&>( other );
+        (void) dynamic_cast<const RespData<void>&>(other);
         return true;
-    } catch ( std::bad_cast& ) {
+    } catch (std::bad_cast &) {
         return false;
     }
 }
 
-template<class T> bool RespData<T>::eq( const AbstractData& other ) const
+template<class T> bool RespData<T>::eq(const AbstractData &other) const
 {
     try {
-        const RespData<T>& r = dynamic_cast<const RespData<T>&>( other );
+        const RespData<T> &r = dynamic_cast<const RespData<T>&>(other);
         return data == r.data;
-    } catch ( std::bad_cast& ) {
+    } catch (std::bad_cast &) {
         return false;
     }
 }
 
-bool Capability::eq( const AbstractResponse& other ) const
+bool Capability::eq(const AbstractResponse &other) const
 {
     try {
-        const Capability& cap = dynamic_cast<const Capability&>( other );
+        const Capability &cap = dynamic_cast<const Capability &>(other);
         return capabilities == cap.capabilities;
-    } catch ( std::bad_cast& ) {
+    } catch (std::bad_cast &) {
         return false;
     }
 }
 
-bool NumberResponse::eq( const AbstractResponse& other ) const
+bool NumberResponse::eq(const AbstractResponse &other) const
 {
     try {
-        const NumberResponse& num = dynamic_cast<const NumberResponse&>( other );
+        const NumberResponse &num = dynamic_cast<const NumberResponse &>(other);
         return kind == num.kind && number == num.number;
-    } catch ( std::bad_cast& ) {
+    } catch (std::bad_cast &) {
         return false;
     }
 }
 
-bool State::eq( const AbstractResponse& other ) const
+bool State::eq(const AbstractResponse &other) const
 {
     try {
-        const State& s = dynamic_cast<const State&>( other );
-        if ( kind == s.kind && tag == s.tag && message == s.message && respCode == s.respCode )
-            if ( respCode == NONE )
+        const State &s = dynamic_cast<const State &>(other);
+        if (kind == s.kind && tag == s.tag && message == s.message && respCode == s.respCode)
+            if (respCode == NONE)
                 return true;
             else
                 return *respCodeData == *s.respCodeData;
         else
             return false;
-    } catch ( std::bad_cast& ) {
+    } catch (std::bad_cast &) {
         return false;
     }
 }
 
-bool List::eq( const AbstractResponse& other ) const
+bool List::eq(const AbstractResponse &other) const
 {
     try {
-        const List& r = dynamic_cast<const List&>( other );
+        const List &r = dynamic_cast<const List &>(other);
         return kind == r.kind && mailbox == r.mailbox && flags == r.flags && separator == r.separator;
-    } catch ( std::bad_cast& ) {
+    } catch (std::bad_cast &) {
         return false;
     }
 }
 
-bool Flags::eq( const AbstractResponse& other ) const
+bool Flags::eq(const AbstractResponse &other) const
 {
     try {
-        const Flags& fl = dynamic_cast<const Flags&>( other );
+        const Flags &fl = dynamic_cast<const Flags &>(other);
         return flags == fl.flags;
-    } catch ( std::bad_cast& ) {
+    } catch (std::bad_cast &) {
         return false;
     }
 }
 
-bool Search::eq( const AbstractResponse& other ) const
+bool Search::eq(const AbstractResponse &other) const
 {
     try {
-        const Search& s = dynamic_cast<const Search&>( other );
+        const Search &s = dynamic_cast<const Search &>(other);
         return items == s.items;
-    } catch ( std::bad_cast& ) {
+    } catch (std::bad_cast &) {
         return false;
     }
 }
 
-bool Status::eq( const AbstractResponse& other ) const
+bool Status::eq(const AbstractResponse &other) const
 {
     try {
-        const Status& s = dynamic_cast<const Status&>( other );
+        const Status &s = dynamic_cast<const Status &>(other);
         return mailbox == s.mailbox && states == s.states;
-    } catch ( std::bad_cast& ) {
+    } catch (std::bad_cast &) {
         return false;
     }
 }
 
-bool Fetch::eq( const AbstractResponse& other ) const
+bool Fetch::eq(const AbstractResponse &other) const
 {
     try {
-        const Fetch& f = dynamic_cast<const Fetch&>( other );
-        if ( number != f.number )
+        const Fetch &f = dynamic_cast<const Fetch &>(other);
+        if (number != f.number)
             return false;
-        if ( data.keys() != f.data.keys() )
+        if (data.keys() != f.data.keys())
             return false;
-        for ( dataType::const_iterator it = data.begin();
-                it != data.end(); ++it )
-            if ( !f.data.contains( it.key() ) || *it.value() != *f.data[ it.key() ] )
+        for (dataType::const_iterator it = data.begin();
+             it != data.end(); ++it)
+            if (!f.data.contains(it.key()) || *it.value() != *f.data[ it.key() ])
                 return false;
         return true;
-    } catch ( std::bad_cast& ) {
+    } catch (std::bad_cast &) {
         return false;
     }
 }
 
-bool Namespace::eq( const AbstractResponse& otherResp ) const
+bool Namespace::eq(const AbstractResponse &otherResp) const
 {
     try {
-        const Namespace& ns = dynamic_cast<const Namespace&>( otherResp );
+        const Namespace &ns = dynamic_cast<const Namespace &>(otherResp);
         return ns.personal == personal && ns.users == users && ns.other == other;
-    } catch ( std::bad_cast& ) {
+    } catch (std::bad_cast &) {
         return false;
     }
 }
 
-bool Sort::eq( const AbstractResponse& other ) const
+bool Sort::eq(const AbstractResponse &other) const
 {
     try {
-        const Sort& s = dynamic_cast<const Sort&>( other );
+        const Sort &s = dynamic_cast<const Sort &>(other);
         return numbers == s.numbers;
-    } catch ( std::bad_cast& ) {
+    } catch (std::bad_cast &) {
         return false;
     }
 }
@@ -1096,9 +1097,9 @@ bool Sort::eq( const AbstractResponse& other ) const
 bool Thread::eq(const AbstractResponse &other) const
 {
     try {
-        const Thread& t = dynamic_cast<const Thread&>( other );
+        const Thread &t = dynamic_cast<const Thread &>(other);
         return rootItems == t.rootItems;
-    } catch ( std::bad_cast& ) {
+    } catch (std::bad_cast &) {
         return false;
     }
 }
@@ -1106,21 +1107,21 @@ bool Thread::eq(const AbstractResponse &other) const
 bool Id::eq(const AbstractResponse &other) const
 {
     try {
-        const Id& r = dynamic_cast<const Id &>(other);
+        const Id &r = dynamic_cast<const Id &>(other);
         return data == r.data;
     } catch (std::bad_cast &) {
         return false;
     }
 }
 
-bool NamespaceData::operator==( const NamespaceData& other ) const
+bool NamespaceData::operator==(const NamespaceData &other) const
 {
     return separator == other.separator && prefix == other.prefix;
 }
 
-bool NamespaceData::operator!=( const NamespaceData& other ) const
+bool NamespaceData::operator!=(const NamespaceData &other) const
 {
-    return ! ( *this == other );
+    return !(*this == other);
 }
 
 #define PLUG(X) void X::plug( Imap::Parser* parser, Imap::Mailbox::Model* model ) const \
@@ -1128,17 +1129,17 @@ bool NamespaceData::operator!=( const NamespaceData& other ) const
 bool X::plug( Imap::Mailbox::ImapTask* task ) const \
 { return task->handle##X( this ); }
 
-PLUG( State )
-PLUG( Capability )
-PLUG( NumberResponse )
-PLUG( List )
-PLUG( Flags )
-PLUG( Search )
-PLUG( Status )
-PLUG( Fetch )
-PLUG( Namespace )
-PLUG( Sort )
-PLUG( Thread )
+PLUG(State)
+PLUG(Capability)
+PLUG(NumberResponse)
+PLUG(List)
+PLUG(Flags)
+PLUG(Search)
+PLUG(Status)
+PLUG(Fetch)
+PLUG(Namespace)
+PLUG(Sort)
+PLUG(Thread)
 PLUG(Id)
 
 #undef PLUG

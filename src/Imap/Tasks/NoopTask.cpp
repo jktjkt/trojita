@@ -22,14 +22,16 @@
 #include "Model.h"
 #include "MailboxTree.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
-NoopTask::NoopTask( Model* _model, ImapTask* parentTask ) :
-    ImapTask( _model )
+NoopTask::NoopTask(Model *_model, ImapTask *parentTask) :
+    ImapTask(_model)
 {
     conn = parentTask;
-    parentTask->addDependentTask( this );
+    parentTask->addDependentTask(this);
 }
 
 void NoopTask::perform()
@@ -42,14 +44,14 @@ void NoopTask::perform()
     tag = parser->noop();
 }
 
-bool NoopTask::handleStateHelper( const Imap::Responses::State* const resp )
+bool NoopTask::handleStateHelper(const Imap::Responses::State *const resp)
 {
-    if ( resp->tag.isEmpty() )
+    if (resp->tag.isEmpty())
         return false;
 
-    if ( resp->tag == tag ) {
+    if (resp->tag == tag) {
 
-        if ( resp->kind == Responses::OK ) {
+        if (resp->kind == Responses::OK) {
             // nothing should be needed here
             _completed();
         } else {

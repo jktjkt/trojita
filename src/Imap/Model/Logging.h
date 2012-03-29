@@ -24,8 +24,10 @@
 #include <QDateTime>
 #include <QVector>
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 /** @short What is that message related to? */
 enum LogKind {
@@ -39,8 +41,7 @@ enum LogKind {
 };
 
 /** @short Representaiton of one message */
-struct LogMessage
-{
+struct LogMessage {
     /** @short When did it occur? */
     QDateTime timestamp;
     /** @short What's it related to */
@@ -53,8 +54,7 @@ struct LogMessage
     uint truncatedBytes;
 
     LogMessage(const QDateTime &timestamp_, const LogKind kind_, const QString &source_, const QString &message_, const uint truncated_):
-        timestamp(timestamp_), kind(kind_), source(source_), message(message_), truncatedBytes(truncated_)
-    {
+        timestamp(timestamp_), kind(kind_), source(source_), message(message_), truncatedBytes(truncated_) {
     }
 
     // default constructor for QVector

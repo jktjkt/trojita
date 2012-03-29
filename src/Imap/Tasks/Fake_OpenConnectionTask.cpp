@@ -18,16 +18,18 @@
 
 #include "Fake_OpenConnectionTask.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
-Fake_OpenConnectionTask::Fake_OpenConnectionTask( Imap::Mailbox::Model* _model, Imap::Parser* _parser ):
-        OpenConnectionTask( _model, 0 )
+Fake_OpenConnectionTask::Fake_OpenConnectionTask(Imap::Mailbox::Model *_model, Imap::Parser *_parser):
+    OpenConnectionTask(_model, 0)
 {
     // We really want to call the protected constructor, otherwise the OpenConnectionTask
     // would create a socket itself, and we don't want to end up there
     parser = _parser;
-    QTimer::singleShot( 0, this, SLOT(slotPerform()) );
+    QTimer::singleShot(0, this, SLOT(slotPerform()));
 }
 
 void Fake_OpenConnectionTask::perform()
@@ -39,7 +41,7 @@ void Fake_OpenConnectionTask::perform()
     _completed();
 }
 
-bool Fake_OpenConnectionTask::handleStateHelper( const Imap::Responses::State* const resp )
+bool Fake_OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const resp)
 {
     // This is a fake task, and therefore we aren't interested in any responses.
     // We have to override OpenConnectionTask's implementation.

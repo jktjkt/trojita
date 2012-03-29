@@ -22,23 +22,26 @@
 #include "OpenConnectionTask.h"
 #include "../Parser/Parser.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 /** @short A fake version of the OpenConnectionTask
 
 This version is used for testing of various other tasks. Its purpose is to prevent
 cluttering up of the socket/connection with irrelevant data when testing other tasks.
 */
-class Fake_OpenConnectionTask: public OpenConnectionTask {
+class Fake_OpenConnectionTask: public OpenConnectionTask
+{
     Q_OBJECT
 public:
-    Fake_OpenConnectionTask(Imap::Mailbox::Model* _model, Imap::Parser* _parser);
+    Fake_OpenConnectionTask(Imap::Mailbox::Model *_model, Imap::Parser *_parser);
     virtual void perform();
 protected slots:
     void slotPerform() { perform(); }
 private:
-    bool handleStateHelper(const Imap::Responses::State* const resp);
+    bool handleStateHelper(const Imap::Responses::State *const resp);
 };
 
 }

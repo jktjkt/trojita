@@ -47,7 +47,8 @@
 #include <QStyle>
 #include <QWidgetItem>
 
-namespace Gui {
+namespace Gui
+{
 
 class FlowLayout : public QLayout
 {

@@ -29,10 +29,12 @@ class QTimer;
 class ImapModelThreadingTest;
 
 /** @short Namespace for IMAP interaction */
-namespace Imap {
+namespace Imap
+{
 
 /** @short Classes for handling of mailboxes and connections */
-namespace Mailbox {
+namespace Mailbox
+{
 
 class TreeItem;
 
@@ -68,44 +70,45 @@ message deletions, as it should be only a matter of replacing some node in the t
 the pruneTree() method, except that we might not know the UID of the message in question, and hence can't know what to delete.
 
 */
-class ThreadingMsgListModel: public QAbstractProxyModel {
+class ThreadingMsgListModel: public QAbstractProxyModel
+{
     Q_OBJECT
 
 public:
-    ThreadingMsgListModel( QObject *parent );
-    virtual void setSourceModel( QAbstractItemModel *sourceModel );
+    ThreadingMsgListModel(QObject *parent);
+    virtual void setSourceModel(QAbstractItemModel *sourceModel);
 
-    virtual QModelIndex index( int row, int column, const QModelIndex& parent=QModelIndex() ) const;
-    virtual QModelIndex parent( const QModelIndex& index ) const;
-    virtual int rowCount( const QModelIndex& parent=QModelIndex() ) const;
-    virtual int columnCount( const QModelIndex& parent=QModelIndex() ) const;
-    virtual QModelIndex mapToSource( const QModelIndex& proxyIndex ) const;
-    virtual QModelIndex mapFromSource( const QModelIndex& sourceIndex ) const;
-    virtual bool hasChildren( const QModelIndex& parent=QModelIndex() ) const;
-    virtual QVariant data( const QModelIndex &proxyIndex, int role ) const;
-    virtual Qt::ItemFlags flags( const QModelIndex &index ) const;
+    virtual QModelIndex index(int row, int column, const QModelIndex &parent=QModelIndex()) const;
+    virtual QModelIndex parent(const QModelIndex &index) const;
+    virtual int rowCount(const QModelIndex &parent=QModelIndex()) const;
+    virtual int columnCount(const QModelIndex &parent=QModelIndex()) const;
+    virtual QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
+    virtual QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
+    virtual bool hasChildren(const QModelIndex &parent=QModelIndex()) const;
+    virtual QVariant data(const QModelIndex &proxyIndex, int role) const;
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
     virtual QStringList mimeTypes() const;
-    virtual QMimeData* mimeData( const QModelIndexList& indexes ) const;
+    virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
     virtual Qt::DropActions supportedDropActions() const;
 
     /** @short List of capabilities which could be used for threading
 
     If any of them are present in server's capabilities, at least some level of threading will be possible.
-*/
+    */
     static QStringList supportedCapabilities();
 
 public slots:
     void resetMe();
-    void handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight );
-    void handleRowsAboutToBeRemoved( const QModelIndex& parent, int start, int end );
-    void handleRowsRemoved( const QModelIndex& parent, int start, int end );
-    void handleRowsAboutToBeInserted( const QModelIndex& parent, int start, int end );
-    void handleRowsInserted( const QModelIndex& parent, int start, int end );
+    void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void handleRowsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
+    void handleRowsRemoved(const QModelIndex &parent, int start, int end);
+    void handleRowsAboutToBeInserted(const QModelIndex &parent, int start, int end);
+    void handleRowsInserted(const QModelIndex &parent, int start, int end);
     /** @short Feed this with the data from a THREAD response */
-    void slotThreadingAvailable( const QModelIndex &mailbox, const QString &algorithm,
-                                 const QStringList &searchCriteria,
-                                 const QVector<Imap::Responses::ThreadingNode> &mapping );
+    void slotThreadingAvailable(const QModelIndex &mailbox, const QString &algorithm,
+                                const QStringList &searchCriteria,
+                                const QVector<Imap::Responses::ThreadingNode> &mapping);
     void slotThreadingFailed(const QModelIndex &mailbox, const QString &algorithm,
                              const QStringList &searchCriteria);
     /** @short Really apply threading to this model */
@@ -123,8 +126,8 @@ private:
     void updatePersistentIndexesPhase1();
     void updatePersistentIndexesPhase2();
     /** @short Convert the threading from a THREAD response and apply that threading to this model */
-    void registerThreading( const QVector<Imap::Responses::ThreadingNode> &mapping, uint parentId,
-                            const QHash<uint,void*> &uidToPtr, QSet<uint> &usedNodes );
+    void registerThreading(const QVector<Imap::Responses::ThreadingNode> &mapping, uint parentId,
+                           const QHash<uint,void *> &uidToPtr, QSet<uint> &usedNodes);
 
     /** @short Remove fake messages from the threading tree
 
@@ -145,11 +148,11 @@ private:
     void logTrace(const QString &message);
 
 
-    ThreadingMsgListModel& operator=( const ThreadingMsgListModel& ); // don't implement
-    ThreadingMsgListModel( const ThreadingMsgListModel& ); // don't implement
+    ThreadingMsgListModel &operator=(const ThreadingMsgListModel &);  // don't implement
+    ThreadingMsgListModel(const ThreadingMsgListModel &);  // don't implement
 
     /** @short Mapping from the upstream model's internalId to ThreadingMsgListModel's internal IDs */
-    QHash<void*,uint> ptrToInternal;
+    QHash<void *,uint> ptrToInternal;
     /** @short Tree for the threading
 
     This tree is indexed by our internal ID.
@@ -168,11 +171,11 @@ private:
     We can't be sure what happens when we call rowCount() from updateNoThreading(). It is
     possible that the rowCount() would propagate to Model's _askForMessagesInMailbox(),
     which could in turn call beginInsertRows, leading to a possible recursion.
- */
+    */
     bool modelResetInProgress;
 
     QModelIndexList oldPersistentIndexes;
-    QList<void*> oldPtrs;
+    QList<void *> oldPtrs;
 
     /** @short There's a pending THREAD command for which we haven't received data yet */
     bool m_threadingInFlight;

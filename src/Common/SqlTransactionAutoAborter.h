@@ -24,32 +24,31 @@
 
 #include <QSqlDatabase>
 
-namespace Common {
-    /** @short An auto-commiter
+namespace Common
+{
+/** @short An auto-commiter
 
-      A utility class using the RAII idiom -- when its instance goes out of scope,
-      it aborts the current transaction
+  A utility class using the RAII idiom -- when its instance goes out of scope,
+  it aborts the current transaction
 */
-    class SqlTransactionAutoAborter {
-    public:
-        SqlTransactionAutoAborter( QSqlDatabase* db ): _db(db), _commited(false)
-        {
-            _db->transaction();
-        }
-        ~SqlTransactionAutoAborter()
-        {
-            if ( ! _commited )
-                _db->rollback();
-        }
-        bool commit()
-        {
-            _commited = _db->commit();
-            return _commited;
-        }
-    private:
-        QSqlDatabase* _db;
-        bool _commited;
-    };
+class SqlTransactionAutoAborter
+{
+public:
+    SqlTransactionAutoAborter(QSqlDatabase *db): _db(db), _commited(false) {
+        _db->transaction();
+    }
+    ~SqlTransactionAutoAborter() {
+        if (! _commited)
+            _db->rollback();
+    }
+    bool commit() {
+        _commited = _db->commit();
+        return _commited;
+    }
+private:
+    QSqlDatabase *_db;
+    bool _commited;
+};
 }
 
 #endif // COMMON_SQLTRANSACTIONAUTOABORTER_H

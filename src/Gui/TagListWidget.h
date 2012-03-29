@@ -16,7 +16,8 @@
 
 class QPushButton;
 
-namespace Gui {
+namespace Gui
+{
 
 class FlowLayout;
 class TagWidget;
@@ -38,7 +39,7 @@ private slots:
 private:
     FlowLayout *parentLayout;
     TagWidget *addButton;
-    QList<QObject*> children;
+    QList<QObject *> children;
     QSet<QString> m_ignoredFlags;
 
     void empty();

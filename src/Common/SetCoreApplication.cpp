@@ -23,12 +23,13 @@
 #include "SetCoreApplication.h"
 
 #ifdef HAS_GITVERSION
-extern const char* gitVersion;
+extern const char *gitVersion;
 #else
 #include "../trojita-version.h"
 #endif
 
-namespace Common {
+namespace Common
+{
 
 void setCoreApplicationData()
 {

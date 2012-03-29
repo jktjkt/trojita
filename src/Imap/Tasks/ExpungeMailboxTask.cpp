@@ -22,15 +22,17 @@
 #include "Model.h"
 #include "MailboxTree.h"
 
-namespace Imap {
-namespace Mailbox {
-
-
-ExpungeMailboxTask::ExpungeMailboxTask( Model* _model, const QModelIndex& mailbox ):
-    ImapTask( _model ), mailboxIndex(mailbox)
+namespace Imap
 {
-    conn = model->findTaskResponsibleFor( mailbox );
-    conn->addDependentTask( this );
+namespace Mailbox
+{
+
+
+ExpungeMailboxTask::ExpungeMailboxTask(Model *_model, const QModelIndex &mailbox):
+    ImapTask(_model), mailboxIndex(mailbox)
+{
+    conn = model->findTaskResponsibleFor(mailbox);
+    conn->addDependentTask(this);
 }
 
 void ExpungeMailboxTask::perform()
@@ -38,7 +40,7 @@ void ExpungeMailboxTask::perform()
     parser = conn->parser;
     markAsActiveTask();
 
-    if ( ! mailboxIndex.isValid() ) {
+    if (! mailboxIndex.isValid()) {
         _failed("Mailbox vanished before we could expunge it");
         // FIXME: add proper fix/callback to the Model
         return;
@@ -49,12 +51,12 @@ void ExpungeMailboxTask::perform()
     tag = parser->expunge();
 }
 
-bool ExpungeMailboxTask::handleStateHelper( const Imap::Responses::State* const resp )
+bool ExpungeMailboxTask::handleStateHelper(const Imap::Responses::State *const resp)
 {
-    if ( resp->tag.isEmpty() )
+    if (resp->tag.isEmpty())
         return false;
 
-    if ( resp->tag == tag ) {
+    if (resp->tag == tag) {
         if (resp->kind == Responses::OK) {
             _completed();
         } else {

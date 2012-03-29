@@ -25,12 +25,14 @@
 #include <QDesktopServices>
 #include <QDir>
 
-namespace Imap {
+namespace Imap
+{
 
-namespace Network {
+namespace Network
+{
 
 FileDownloadManager::FileDownloadManager(QObject *parent, Imap::Network::MsgPartNetAccessManager *_manager, const QModelIndex &_partIndex):
-    QObject( parent ), manager(_manager), partIndex(_partIndex), reply(0), saved(false)
+    QObject(parent), manager(_manager), partIndex(_partIndex), reply(0), saved(false)
 {
 }
 
@@ -65,7 +67,7 @@ void FileDownloadManager::slotDownloadNow()
     reply = manager->get(request);
     connect(reply, SIGNAL(finished()), this, SLOT(slotDataTransfered()));
     connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(slotTransferError()));
-    connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(slotDeleteReply(QNetworkReply*)));
+    connect(manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(slotDeleteReply(QNetworkReply *)));
 }
 
 void FileDownloadManager::slotDataTransfered()
@@ -86,7 +88,7 @@ void FileDownloadManager::slotTransferError()
     emit transferError(reply->errorString());
 }
 
-void FileDownloadManager::slotDeleteReply(QNetworkReply* reply)
+void FileDownloadManager::slotDeleteReply(QNetworkReply *reply)
 {
     if (reply == this->reply) {
         if (!saved)

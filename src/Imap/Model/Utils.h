@@ -24,13 +24,16 @@
 #include <QObject>
 #include <QString>
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
-class PrettySize: public QObject {
+class PrettySize: public QObject
+{
     Q_OBJECT
 public:
-    static QString prettySize( uint bytes );
+    static QString prettySize(uint bytes);
 };
 
 /** @short Return the name of a log file for logging IMAP communication */

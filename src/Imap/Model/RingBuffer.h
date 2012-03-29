@@ -23,7 +23,8 @@
 
 #include <QVector>
 
-namespace Imap {
+namespace Imap
+{
 
 /** @short Circular buffer holding a number of items
 
@@ -41,33 +42,30 @@ public:
     /** @short Constat iterator fro visiting the items after each other, starting at the oldest one
 
     The iterator itself is linear, ie. it won't wrap. It will however
-*/
+    */
     class const_iterator
     {
         const RingBuffer<T> *container_;
         int offset_;
     public:
         /** @short Dereference the iterator */
-        const T& operator*() const
-        {
+        const T &operator*() const {
             // It has to point to a correct offset
             Q_ASSERT(offset_ >= 0 && offset_ < container_->buf_.size());
             int pos = container_->wrapped_ ?
-                        // It got wrapped, so we have to get wrapped past the end, too, and start at the oldest one
-                        (container_->appendPos_ + offset_) % container_->buf_.size() :
-                        // It isn't full yet
-                        offset_;
+                      // It got wrapped, so we have to get wrapped past the end, too, and start at the oldest one
+                      (container_->appendPos_ + offset_) % container_->buf_.size() :
+                      // It isn't full yet
+                      offset_;
             return container_->buf_[pos];
         }
 
-        const T* operator->() const
-        {
+        const T *operator->() const {
             return &operator*();
         }
 
         /** @short Increment the iterator */
-        const_iterator &operator++()
-        {
+        const_iterator &operator++() {
             ++offset_;
             // Allow incrementing to the end, ie. one past the last item
             Q_ASSERT(offset_ <= container_->buf_.size());
@@ -75,45 +73,38 @@ public:
         }
 
         /** @short Compare two iterators from the same container for equality */
-        bool operator==(const const_iterator& other)
-        {
+        bool operator==(const const_iterator &other) {
             Q_ASSERT(container_ == other.container_);
             return offset_ == other.offset_;
         }
 
         /** @short Compare two iterators from the same container for inqeuality */
-        bool operator!=(const const_iterator& other)
-        {
+        bool operator!=(const const_iterator &other) {
             return !(*this == other);
         }
     private:
         friend class RingBuffer<T>;
-        const_iterator(const RingBuffer<T>* container, int offset): container_(container), offset_(offset)
-        {
+        const_iterator(const RingBuffer<T> *container, int offset): container_(container), offset_(offset) {
         }
     };
 
     /** @short Instantiate a ring buffer holding size elements */
-    RingBuffer(const int size): buf_(size), appendPos_(0), wrapped_(false), skipped_(0)
-    {
+    RingBuffer(const int size): buf_(size), appendPos_(0), wrapped_(false), skipped_(0) {
         Q_ASSERT(size >= 1);
     }
 
     /** @short Return an interator pointing to the oldest item in the container */
-    const_iterator begin() const
-    {
+    const_iterator begin() const {
         return const_iterator(this, 0);
     }
 
     /** @short Return an interator pointing to one item past the recent addition */
-    const_iterator end() const
-    {
+    const_iterator end() const {
         return const_iterator(this, wrapped_ ?  buf_.size() : appendPos_);
     }
 
     /** @short Append an item to the container. Oldest item could get overwritten. */
-    void append(const T &what)
-    {
+    void append(const T &what) {
         if (appendPos_ == buf_.size()) {
             wrapped_ = true;
             appendPos_ = 0;
@@ -125,8 +116,7 @@ public:
     }
 
     /** @short Remove all items from the container */
-    void clear()
-    {
+    void clear() {
         buf_ = QVector<T>(buf_.size());
         wrapped_ = false;
         appendPos_ = 0;
@@ -134,8 +124,7 @@ public:
     }
 
     /** @short How many items were overwritten */
-    uint skippedCount() const
-    {
+    uint skippedCount() const {
         return skipped_;
     }
 

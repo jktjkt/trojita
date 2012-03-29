@@ -28,61 +28,63 @@
 
 class QTimer;
 
-namespace Imap {
+namespace Imap
+{
 
-    /** @short A fake socket implementation, useful for automated unit tests
+/** @short A fake socket implementation, useful for automated unit tests
 
 Typical use:
 
-    model->rowCount( QModelIndex() );
-    SOCK->fakeReading( "* PREAUTH foo\r\n" );
-    QTest::qWait( 100 );
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 CAPABILITY\r\ny0 LIST \"\" \"%\"\r\n") );
-    SOCK->fakeReading( "* LIST (\\HasNoChildren) \".\" \"INBOX\"\r\n"
-                       "* CAPABILITY IMAP4rev1\r\n"
-                       "y1 OK capability completed\r\n"
-                       "y0 ok list completed\r\n" );
-    QTest::qWait( 100 );
-    QModelIndex inbox = model->index( 1, 0, QModelIndex() );
-    QCOMPARE( model->data( inbox, Qt::DisplayRole ), QVariant("INBOX") );
+model->rowCount( QModelIndex() );
+SOCK->fakeReading( "* PREAUTH foo\r\n" );
+QTest::qWait( 100 );
+QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 CAPABILITY\r\ny0 LIST \"\" \"%\"\r\n") );
+SOCK->fakeReading( "* LIST (\\HasNoChildren) \".\" \"INBOX\"\r\n"
+                   "* CAPABILITY IMAP4rev1\r\n"
+                   "y1 OK capability completed\r\n"
+                   "y0 ok list completed\r\n" );
+QTest::qWait( 100 );
+QModelIndex inbox = model->index( 1, 0, QModelIndex() );
+QCOMPARE( model->data( inbox, Qt::DisplayRole ), QVariant("INBOX") );
 */
-    class FakeSocket: public Socket {
-        Q_OBJECT
-    public:
-        FakeSocket();
-        ~FakeSocket();
-        virtual bool canReadLine();
-        virtual QByteArray read( qint64 maxSize );
-        virtual QByteArray readLine( qint64 maxSize = 0 );
-        virtual qint64 write( const QByteArray& byteArray );
-        virtual void startTls();
-        virtual bool isDead();
+class FakeSocket: public Socket
+{
+    Q_OBJECT
+public:
+    FakeSocket();
+    ~FakeSocket();
+    virtual bool canReadLine();
+    virtual QByteArray read(qint64 maxSize);
+    virtual QByteArray readLine(qint64 maxSize = 0);
+    virtual qint64 write(const QByteArray &byteArray);
+    virtual void startTls();
+    virtual bool isDead();
 
-        /** @short Return data written since the last call to this function */
-        QByteArray writtenStuff();
+    /** @short Return data written since the last call to this function */
+    QByteArray writtenStuff();
 
-    private slots:
-        /** @short Delayed informing about being connected */
-        void slotEmitConnected();
+private slots:
+    /** @short Delayed informing about being connected */
+    void slotEmitConnected();
 
-    public slots:
-        /** @short Simulate arrival of some data
+public slots:
+    /** @short Simulate arrival of some data
 
-The provided @arg what data are appended to the internal buffer and relevant signals
-are emitted. This function currently does not free the occupied memory, which might
-eventually lead to certain troubles.
-*/
-        void fakeReading( const QByteArray& what );
+    The provided @arg what data are appended to the internal buffer and relevant signals
+    are emitted. This function currently does not free the occupied memory, which might
+    eventually lead to certain troubles.
+    */
+    void fakeReading(const QByteArray &what);
 
-    private:
-        QIODevice* readChannel;
-        QIODevice* writeChannel;
+private:
+    QIODevice *readChannel;
+    QIODevice *writeChannel;
 
-        QByteArray r, w;
+    QByteArray r, w;
 
-        FakeSocket(const FakeSocket&); // don't implement
-        FakeSocket& operator=(const FakeSocket&); // don't implement
-    };
+    FakeSocket(const FakeSocket &); // don't implement
+    FakeSocket &operator=(const FakeSocket &); // don't implement
+};
 
 };
 

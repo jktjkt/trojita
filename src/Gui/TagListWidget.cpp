@@ -17,18 +17,19 @@
 #include "FlowLayout.h"
 #include "TagWidget.h"
 
-namespace Gui {
+namespace Gui
+{
 
 TagListWidget::TagListWidget(QWidget *parent) :
     QWidget(parent)
 {
-    parentLayout = new FlowLayout( this );
+    parentLayout = new FlowLayout(this);
     setLayout(parentLayout);
 
     addButton = new TagWidget("+");
     connect(addButton, SIGNAL(clicked()), this, SLOT(newTagRequested()));
 
-    parentLayout->addWidget( new QLabel(tr("<b>Tags:</b>")) );
+    parentLayout->addWidget(new QLabel(tr("<b>Tags:</b>")));
     parentLayout->addWidget(addButton);
 
     m_ignoredFlags.insert(QLatin1String("\\seen"));
@@ -51,7 +52,7 @@ void TagListWidget::setTagList(QStringList list)
     foreach(const QString &tagName, list) {
         if (m_ignoredFlags.contains(tagName.toLower()))
             continue;
-        TagWidget* lbl = new TagWidget(tagName, "x");
+        TagWidget *lbl = new TagWidget(tagName, "x");
         parentLayout->addWidget(lbl);
         connect(lbl, SIGNAL(removeClicked(QString)), this, SIGNAL(tagRemoved(QString)));
 

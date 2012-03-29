@@ -23,11 +23,13 @@
 #include "Model.h"
 #include "MailboxTree.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
-FetchMsgPartTask::FetchMsgPartTask( Model *_model, const QModelIndex &mailbox, const QList<uint> &_uids, const QStringList &_parts ):
-    ImapTask( _model ), uids(_uids), parts(_parts), mailboxIndex(mailbox)
+FetchMsgPartTask::FetchMsgPartTask(Model *_model, const QModelIndex &mailbox, const QList<uint> &_uids, const QStringList &_parts):
+    ImapTask(_model), uids(_uids), parts(_parts), mailboxIndex(mailbox)
 {
     Q_ASSERT(!uids.isEmpty());
     conn = model->findTaskResponsibleFor(mailboxIndex);
@@ -42,25 +44,25 @@ void FetchMsgPartTask::perform()
     IMAP_TASK_CHECK_ABORT_DIE;
 
     Sequence seq = Sequence::fromList(uids);
-    tag = parser->uidFetch( seq, parts );
+    tag = parser->uidFetch(seq, parts);
 }
 
-bool FetchMsgPartTask::handleFetch( const Imap::Responses::Fetch* const resp )
+bool FetchMsgPartTask::handleFetch(const Imap::Responses::Fetch *const resp)
 {
     if (!mailboxIndex.isValid()) {
         _failed("Mailbox disappeared");
         return false;
     }
 
-    TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
+    TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
     Q_ASSERT(mailbox);
-    model->_genericHandleFetch( mailbox, resp );
+    model->_genericHandleFetch(mailbox, resp);
     return true;
 }
 
-bool FetchMsgPartTask::handleStateHelper( const Imap::Responses::State* const resp )
+bool FetchMsgPartTask::handleStateHelper(const Imap::Responses::State *const resp)
 {
-    if ( resp->tag.isEmpty() )
+    if (resp->tag.isEmpty())
         return false;
 
     if (!mailboxIndex.isValid()) {
@@ -68,19 +70,19 @@ bool FetchMsgPartTask::handleStateHelper( const Imap::Responses::State* const re
         return false;
     }
 
-    if ( resp->tag == tag ) {
-        if ( resp->kind == Responses::OK ) {
+    if (resp->tag == tag) {
+        if (resp->kind == Responses::OK) {
             log("Fetched parts", LOG_MESSAGES);
-            TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
+            TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
             Q_ASSERT(mailbox);
-            QList<TreeItemMessage*> messages = model->findMessagesByUids( mailbox, uids );
-            Q_FOREACH( TreeItemMessage *message, messages ) {
-                Q_FOREACH( const QString &partId, parts ) {
+            QList<TreeItemMessage *> messages = model->findMessagesByUids(mailbox, uids);
+            Q_FOREACH(TreeItemMessage *message, messages) {
+                Q_FOREACH(const QString &partId, parts) {
                     log("Fetched part" + partId, LOG_MESSAGES);
-                    model->_finalizeFetchPart( mailbox, message->row() + 1, partId );
+                    model->_finalizeFetchPart(mailbox, message->row() + 1, partId);
                 }
             }
-            model->changeConnectionState( parser, CONN_STATE_SELECTED );
+            model->changeConnectionState(parser, CONN_STATE_SELECTED);
             _completed();
         } else {
             // FIXME: error handling
@@ -99,8 +101,8 @@ QString FetchMsgPartTask::debugIdentification() const
 
     Q_ASSERT(!uids.isEmpty());
     return QString::fromAscii("%1: parts %2 for UIDs %3")
-            .arg(mailboxIndex.data(RoleMailboxName).toString(), parts.join(QLatin1String(", ")),
-                 Sequence::fromList(uids).toString());
+           .arg(mailboxIndex.data(RoleMailboxName).toString(), parts.join(QLatin1String(", ")),
+                Sequence::fromList(uids).toString());
 }
 
 }

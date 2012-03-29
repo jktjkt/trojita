@@ -28,12 +28,14 @@
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
 
-namespace Imap {
+namespace Imap
+{
 
 /** @short Classes associated with the implementation of the QNetworkAccessManager */
-namespace Network {
+namespace Network
+{
 
-MsgPartNetAccessManager::MsgPartNetAccessManager(QObject* parent):
+MsgPartNetAccessManager::MsgPartNetAccessManager(QObject *parent):
     QNetworkAccessManager(parent), _externalsEnabled(false)
 {
 }
@@ -49,7 +51,7 @@ This function handles delegating access to the other body parts using various sc
 by Trojita for internal purposes and the cid: one for referencing to other body parts).  Policy checks for filtering access to
 the public Internet are also performed at this level.
 */
-QNetworkReply* MsgPartNetAccessManager::createRequest(Operation op, const QNetworkRequest& req, QIODevice* outgoingData)
+QNetworkReply *MsgPartNetAccessManager::createRequest(Operation op, const QNetworkRequest &req, QIODevice *outgoingData)
 {
     Q_UNUSED(op);
     Q_UNUSED(outgoingData);
@@ -64,18 +66,18 @@ QNetworkReply* MsgPartNetAccessManager::createRequest(Operation op, const QNetwo
     const Mailbox::Model *constModel = 0;
     Mailbox::Model::realTreeItem(message, &constModel);
     Q_ASSERT(constModel);
-    Mailbox::Model *model = const_cast<Mailbox::Model*>(constModel);
+    Mailbox::Model *model = const_cast<Mailbox::Model *>(constModel);
     Q_ASSERT(model);
-    Imap::Mailbox::TreeItemPart* part = pathToPart(req.url().path());
+    Imap::Mailbox::TreeItemPart *part = pathToPart(req.url().path());
     QModelIndex partIndex = part ? part->toIndex(model) : QModelIndex();
 
-    if (req.url().scheme() == QLatin1String( "trojita-imap" ) && req.url().host() == QLatin1String("msg")) {
+    if (req.url().scheme() == QLatin1String("trojita-imap") && req.url().host() == QLatin1String("msg")) {
         // Internal Trojita reference
         if (part) {
             return new Imap::Network::MsgPartNetworkReply(this, partIndex);
         } else {
             qDebug() << "No such part:" << req.url();
-            return new Imap::Network::ForbiddenReply( this );
+            return new Imap::Network::ForbiddenReply(this);
         }
     } else if (req.url().scheme() == QLatin1String("cid")) {
         // The cid: scheme for cross-part references
@@ -84,20 +86,20 @@ QNetworkReply* MsgPartNetAccessManager::createRequest(Operation op, const QNetwo
             cid = QByteArray("<") + cid;
         if (!cid.endsWith(">"))
             cid += ">";
-        Imap::Mailbox::TreeItemPart* target = cidToPart(cid, model, model->realTreeItem(message));
+        Imap::Mailbox::TreeItemPart *target = cidToPart(cid, model, model->realTreeItem(message));
         if (target) {
             return new Imap::Network::MsgPartNetworkReply(this, target->toIndex(model));
         } else {
             qDebug() << "Content-ID not found" << cid;
-            return new Imap::Network::ForbiddenReply( this );
+            return new Imap::Network::ForbiddenReply(this);
         }
     } else {
         // Regular access -- we've got to check policy here
         if (req.url().scheme() == QLatin1String("http") || req.url().scheme() == QLatin1String("ftp")) {
-            if ( _externalsEnabled ) {
+            if (_externalsEnabled) {
                 return QNetworkAccessManager::createRequest(op, req, outgoingData);
             } else {
-                emit requestingExternal( req.url() );
+                emit requestingExternal(req.url());
                 return new Imap::Network::ForbiddenReply(this);
             }
         } else {
@@ -108,17 +110,17 @@ QNetworkReply* MsgPartNetAccessManager::createRequest(Operation op, const QNetwo
 }
 
 /** @short Find a message body part through its slash-separated string path */
-Imap::Mailbox::TreeItemPart* MsgPartNetAccessManager::pathToPart(const QString& path)
+Imap::Mailbox::TreeItemPart *MsgPartNetAccessManager::pathToPart(const QString &path)
 {
-    Imap::Mailbox::TreeItemPart* part = 0;
+    Imap::Mailbox::TreeItemPart *part = 0;
     QStringList items = path.split('/', QString::SkipEmptyParts);
     const Mailbox::Model *model = 0;
-    Imap::Mailbox::TreeItem* target = Mailbox::Model::realTreeItem(message, &model);
+    Imap::Mailbox::TreeItem *target = Mailbox::Model::realTreeItem(message, &model);
     Q_ASSERT(model);
     Q_ASSERT(target);
     bool ok = ! items.isEmpty(); // if it's empty, it's a bogous URL
 
-    for(QStringList::const_iterator it = items.constBegin(); it != items.constEnd(); ++it) {
+    for (QStringList::const_iterator it = items.constBegin(); it != items.constEnd(); ++it) {
         uint offset = it->toUInt(&ok);
         if (!ok) {
             // special case, we have to dive into that funny, irregular special parts now
@@ -130,13 +132,13 @@ Imap::Mailbox::TreeItemPart* MsgPartNetAccessManager::pathToPart(const QString& 
                 target = target->specialColumnPtr(0, Imap::Mailbox::TreeItem::OFFSET_MIME);
             break;
         }
-        if (offset >= target->childrenCount(const_cast<Mailbox::Model*>(model))) {
+        if (offset >= target->childrenCount(const_cast<Mailbox::Model *>(model))) {
             ok = false;
             break;
         }
-        target = target->child(offset, const_cast<Mailbox::Model*>(model));
+        target = target->child(offset, const_cast<Mailbox::Model *>(model));
     }
-    part = dynamic_cast<Imap::Mailbox::TreeItemPart*>(target);
+    part = dynamic_cast<Imap::Mailbox::TreeItemPart *>(target);
     if (ok)
         Q_ASSERT(part);
     return part;
@@ -147,11 +149,11 @@ Imap::Mailbox::TreeItemPart* MsgPartNetAccessManager::pathToPart(const QString& 
 The MIME messages contain a scheme which can be used to provide a reference from one message part to another using the content id
 headers.  This function walks the MIME tree and tries to find a MIME part whose ID matches the requested item.
 */
-Imap::Mailbox::TreeItemPart* MsgPartNetAccessManager::cidToPart(const QByteArray& cid, Mailbox::Model *model, Mailbox::TreeItem *root)
+Imap::Mailbox::TreeItemPart *MsgPartNetAccessManager::cidToPart(const QByteArray &cid, Mailbox::Model *model, Mailbox::TreeItem *root)
 {
     // A DFS search through the MIME parts tree of the current message which tries to check for a matching body part
     for (uint i = 0; i < root->childrenCount(model); ++i) {
-        Imap::Mailbox::TreeItemPart* part = dynamic_cast<Imap::Mailbox::TreeItemPart*>(root->child(i, model));
+        Imap::Mailbox::TreeItemPart *part = dynamic_cast<Imap::Mailbox::TreeItemPart *>(root->child(i, model));
         Q_ASSERT(part);
         if (part->bodyFldId() == cid)
             return part;

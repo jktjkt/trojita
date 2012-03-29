@@ -23,21 +23,23 @@
 #include "ImapTask.h"
 #include "Model/Model.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 /** @short Copy or move messages to a different mailbox */
 class CopyMoveMessagesTask : public ImapTask
 {
-Q_OBJECT
+    Q_OBJECT
 public:
-    CopyMoveMessagesTask(Model* _model, const QModelIndexList& _messages, const QString& _targetMailbox, const CopyMoveOperation _op);
+    CopyMoveMessagesTask(Model *_model, const QModelIndexList &_messages, const QString &_targetMailbox, const CopyMoveOperation _op);
     virtual void perform();
 
-    virtual bool handleStateHelper(const Imap::Responses::State* const resp);
+    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
 private:
     CommandHandle copyTag;
-    ImapTask* conn;
+    ImapTask *conn;
     QList<QPersistentModelIndex> messages;
     QString targetMailbox;
     bool shouldDelete;

@@ -22,8 +22,10 @@
 #ifndef IMAP_MODEL_COPYMOVE_H
 #define IMAP_MODEL_COPYMOVE_H
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 typedef enum { COPY, MOVE } CopyMoveOperation;
 

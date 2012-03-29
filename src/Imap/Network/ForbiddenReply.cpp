@@ -22,10 +22,12 @@
 
 #include "ForbiddenReply.h"
 
-namespace Imap {
-namespace Network {
+namespace Imap
+{
+namespace Network
+{
 
-ForbiddenReply::ForbiddenReply(QObject* parent):
+ForbiddenReply::ForbiddenReply(QObject *parent):
     QNetworkReply(parent)
 {
     setError(QNetworkReply::ContentOperationNotPermittedError, tr("Remote Content Is Banned"));

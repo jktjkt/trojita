@@ -24,17 +24,19 @@
 #include <QSortFilterProxyModel>
 #include "Imap/Model/MailboxModel.h"
 
-namespace Imap {
+namespace Imap
+{
 
-namespace Mailbox {
+namespace Mailbox
+{
 
 /** @short A pretty proxy model which increases sexiness of the (Threaded)MsgListModel */
 class PrettyMsgListModel: public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
-    PrettyMsgListModel( QObject* parent=0 );
-    virtual QVariant data( const QModelIndex& index, int role ) const;
+    PrettyMsgListModel(QObject *parent=0);
+    virtual QVariant data(const QModelIndex &index, int role) const;
 };
 
 }

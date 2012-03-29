@@ -21,21 +21,23 @@
 
 #include "ImapTask.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 /** @short Create a new mailbox */
 class CreateMailboxTask : public ImapTask
 {
-Q_OBJECT
+    Q_OBJECT
 public:
-    CreateMailboxTask(Model* _model, const QString& _mailbox);
+    CreateMailboxTask(Model *_model, const QString &_mailbox);
     virtual void perform();
 
-    virtual bool handleStateHelper(const Imap::Responses::State* const resp);
+    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
 private:
     CommandHandle tagCreate, tagList;
-    ImapTask* conn;
+    ImapTask *conn;
     QString mailbox;
 };
 

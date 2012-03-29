@@ -38,57 +38,59 @@
 #include "Imap/Model/TaskPresentationModel.h"
 #include "Imap/Parser/Parser.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 TaskFactory::~TaskFactory()
 {
 }
 
-OpenConnectionTask* TaskFactory::createOpenConnectionTask( Model* _model )
+OpenConnectionTask *TaskFactory::createOpenConnectionTask(Model *_model)
 {
-    return new OpenConnectionTask( _model );
+    return new OpenConnectionTask(_model);
 }
 
-CopyMoveMessagesTask* TaskFactory::createCopyMoveMessagesTask( Model* _model, const QModelIndexList& _messages,
-                                                               const QString& _targetMailbox, const CopyMoveOperation _op )
+CopyMoveMessagesTask *TaskFactory::createCopyMoveMessagesTask(Model *_model, const QModelIndexList &_messages,
+        const QString &_targetMailbox, const CopyMoveOperation _op)
 {
-    return new CopyMoveMessagesTask( _model, _messages, _targetMailbox, _op );
+    return new CopyMoveMessagesTask(_model, _messages, _targetMailbox, _op);
 }
 
-CreateMailboxTask* TaskFactory::createCreateMailboxTask( Model* _model, const QString& _mailbox )
+CreateMailboxTask *TaskFactory::createCreateMailboxTask(Model *_model, const QString &_mailbox)
 {
-    return new CreateMailboxTask( _model, _mailbox );
+    return new CreateMailboxTask(_model, _mailbox);
 }
 
-GetAnyConnectionTask* TaskFactory::createGetAnyConnectionTask( Model* _model )
+GetAnyConnectionTask *TaskFactory::createGetAnyConnectionTask(Model *_model)
 {
-    return new GetAnyConnectionTask( _model );
+    return new GetAnyConnectionTask(_model);
 }
 
-ListChildMailboxesTask* TaskFactory::createListChildMailboxesTask( Model* _model, const QModelIndex& mailbox )
+ListChildMailboxesTask *TaskFactory::createListChildMailboxesTask(Model *_model, const QModelIndex &mailbox)
 {
-    return new ListChildMailboxesTask( _model, mailbox );
+    return new ListChildMailboxesTask(_model, mailbox);
 }
 
-DeleteMailboxTask* TaskFactory::createDeleteMailboxTask( Model* _model, const QString& _mailbox )
+DeleteMailboxTask *TaskFactory::createDeleteMailboxTask(Model *_model, const QString &_mailbox)
 {
-    return new DeleteMailboxTask( _model, _mailbox );
+    return new DeleteMailboxTask(_model, _mailbox);
 }
 
-ExpungeMailboxTask* TaskFactory::createExpungeMailboxTask( Model* _model, const QModelIndex& mailbox )
+ExpungeMailboxTask *TaskFactory::createExpungeMailboxTask(Model *_model, const QModelIndex &mailbox)
 {
-    return new ExpungeMailboxTask( _model, mailbox );
+    return new ExpungeMailboxTask(_model, mailbox);
 }
 
-FetchMsgMetadataTask* TaskFactory::createFetchMsgMetadataTask( Model *_model, const QModelIndex &_mailbox, const QList<uint> &_uids )
+FetchMsgMetadataTask *TaskFactory::createFetchMsgMetadataTask(Model *_model, const QModelIndex &_mailbox, const QList<uint> &_uids)
 {
-    return new FetchMsgMetadataTask( _model, _mailbox, _uids );
+    return new FetchMsgMetadataTask(_model, _mailbox, _uids);
 }
 
-FetchMsgPartTask* TaskFactory::createFetchMsgPartTask( Model* _model, const QModelIndex &mailbox, const QList<uint> &uids, const QStringList &parts )
+FetchMsgPartTask *TaskFactory::createFetchMsgPartTask(Model *_model, const QModelIndex &mailbox, const QList<uint> &uids, const QStringList &parts)
 {
-    return new FetchMsgPartTask( _model, mailbox, uids, parts );
+    return new FetchMsgPartTask(_model, mailbox, uids, parts);
 }
 
 IdTask *TaskFactory::createIdTask(Model *_model, ImapTask *dependingTask)
@@ -96,43 +98,43 @@ IdTask *TaskFactory::createIdTask(Model *_model, ImapTask *dependingTask)
     return new IdTask(_model, dependingTask);
 }
 
-KeepMailboxOpenTask* TaskFactory::createKeepMailboxOpenTask( Model* _model, const QModelIndex& mailbox, Parser* oldParser )
+KeepMailboxOpenTask *TaskFactory::createKeepMailboxOpenTask(Model *_model, const QModelIndex &mailbox, Parser *oldParser)
 {
-    return new KeepMailboxOpenTask( _model, mailbox, oldParser );
+    return new KeepMailboxOpenTask(_model, mailbox, oldParser);
 }
 
-NumberOfMessagesTask* TaskFactory::createNumberOfMessagesTask( Model* _model, const QModelIndex& mailbox )
+NumberOfMessagesTask *TaskFactory::createNumberOfMessagesTask(Model *_model, const QModelIndex &mailbox)
 {
-    return new NumberOfMessagesTask( _model, mailbox );
+    return new NumberOfMessagesTask(_model, mailbox);
 }
 
-ObtainSynchronizedMailboxTask* TaskFactory::createObtainSynchronizedMailboxTask( Model *_model, const QModelIndex &_mailboxIndex,
-                                                                                 ImapTask *parentTask, KeepMailboxOpenTask *keepTask)
+ObtainSynchronizedMailboxTask *TaskFactory::createObtainSynchronizedMailboxTask(Model *_model, const QModelIndex &_mailboxIndex,
+        ImapTask *parentTask, KeepMailboxOpenTask *keepTask)
 {
     return new ObtainSynchronizedMailboxTask(_model, _mailboxIndex, parentTask, keepTask);
 }
 
-UpdateFlagsTask* TaskFactory::createUpdateFlagsTask(Model *model, const QModelIndexList &messages, const FlagsOperation flagOperation, const QString &flags)
+UpdateFlagsTask *TaskFactory::createUpdateFlagsTask(Model *model, const QModelIndexList &messages, const FlagsOperation flagOperation, const QString &flags)
 {
     return new UpdateFlagsTask(model, messages, flagOperation, flags);
 }
 
-UpdateFlagsTask* TaskFactory::createUpdateFlagsTask(Model *model, CopyMoveMessagesTask *copyTask, const QList<QPersistentModelIndex> &messages, const FlagsOperation flagOperation, const QString &flags)
+UpdateFlagsTask *TaskFactory::createUpdateFlagsTask(Model *model, CopyMoveMessagesTask *copyTask, const QList<QPersistentModelIndex> &messages, const FlagsOperation flagOperation, const QString &flags)
 {
     return new UpdateFlagsTask(model, copyTask, messages, flagOperation, flags);
 }
 
-ThreadTask* TaskFactory::createThreadTask( Model *_model, const QModelIndex &mailbox, const QString &_algorithm, const QStringList &_searchCriteria )
+ThreadTask *TaskFactory::createThreadTask(Model *_model, const QModelIndex &mailbox, const QString &_algorithm, const QStringList &_searchCriteria)
 {
-    return new ThreadTask( _model, mailbox, _algorithm, _searchCriteria );
+    return new ThreadTask(_model, mailbox, _algorithm, _searchCriteria);
 }
 
-NoopTask* TaskFactory::createNoopTask(Model* _model, ImapTask* parentTask)
+NoopTask *TaskFactory::createNoopTask(Model *_model, ImapTask *parentTask)
 {
     return new NoopTask(_model, parentTask);
 }
 
-UnSelectTask* TaskFactory::createUnSelectTask(Model* _model, ImapTask* parentTask)
+UnSelectTask *TaskFactory::createUnSelectTask(Model *_model, ImapTask *parentTask)
 {
     return new UnSelectTask(_model, parentTask);
 }
@@ -142,37 +144,37 @@ TestingTaskFactory::TestingTaskFactory(): TaskFactory(), fakeOpenConnectionTask(
 {
 }
 
-Parser* TestingTaskFactory::newParser( Model* model )
+Parser *TestingTaskFactory::newParser(Model *model)
 {
-    Parser* parser = new Parser( model, model->_socketFactory->create(), ++model->lastParserId );
+    Parser *parser = new Parser(model, model->_socketFactory->create(), ++model->lastParserId);
     ParserState parserState(parser);
-    QObject::connect( parser, SIGNAL(responseReceived(Imap::Parser*)), model, SLOT(responseReceived(Imap::Parser*)) );
-    QObject::connect( parser, SIGNAL(disconnected(Imap::Parser*,QString)), model, SLOT(slotParserDisconnected(Imap::Parser*,QString)) );
-    QObject::connect( parser, SIGNAL(connectionStateChanged(Imap::Parser*,Imap::ConnectionState)), model, SLOT(handleSocketStateChanged(Imap::Parser*,Imap::ConnectionState)) );
-    QObject::connect( parser, SIGNAL(sendingCommand(Imap::Parser*,QString)), model, SLOT(parserIsSendingCommand(Imap::Parser*,QString)) );
-    QObject::connect( parser, SIGNAL(parseError(Imap::Parser*,QString,QString,QByteArray,int)), model, SLOT(slotParseError(Imap::Parser*,QString,QString,QByteArray,int)) );
-    QObject::connect( parser, SIGNAL(lineReceived(Imap::Parser*,QByteArray)), model, SLOT(slotParserLineReceived(Imap::Parser*,QByteArray)) );
-    QObject::connect( parser, SIGNAL(lineSent(Imap::Parser*,QByteArray)), model, SLOT(slotParserLineSent(Imap::Parser*,QByteArray)) );
+    QObject::connect(parser, SIGNAL(responseReceived(Imap::Parser *)), model, SLOT(responseReceived(Imap::Parser *)));
+    QObject::connect(parser, SIGNAL(disconnected(Imap::Parser *,QString)), model, SLOT(slotParserDisconnected(Imap::Parser *,QString)));
+    QObject::connect(parser, SIGNAL(connectionStateChanged(Imap::Parser *,Imap::ConnectionState)), model, SLOT(handleSocketStateChanged(Imap::Parser *,Imap::ConnectionState)));
+    QObject::connect(parser, SIGNAL(sendingCommand(Imap::Parser *,QString)), model, SLOT(parserIsSendingCommand(Imap::Parser *,QString)));
+    QObject::connect(parser, SIGNAL(parseError(Imap::Parser *,QString,QString,QByteArray,int)), model, SLOT(slotParseError(Imap::Parser *,QString,QString,QByteArray,int)));
+    QObject::connect(parser, SIGNAL(lineReceived(Imap::Parser *,QByteArray)), model, SLOT(slotParserLineReceived(Imap::Parser *,QByteArray)));
+    QObject::connect(parser, SIGNAL(lineSent(Imap::Parser *,QByteArray)), model, SLOT(slotParserLineSent(Imap::Parser *,QByteArray)));
     model->_parsers[ parser ] = parserState;
     model->m_taskModel->slotParserCreated(parser);
     return parser;
 }
 
-OpenConnectionTask* TestingTaskFactory::createOpenConnectionTask( Model *_model )
+OpenConnectionTask *TestingTaskFactory::createOpenConnectionTask(Model *_model)
 {
-    if ( fakeOpenConnectionTask ) {
-        return new Fake_OpenConnectionTask( _model, newParser( _model ) );
+    if (fakeOpenConnectionTask) {
+        return new Fake_OpenConnectionTask(_model, newParser(_model));
     } else {
-        return TaskFactory::createOpenConnectionTask( _model );
+        return TaskFactory::createOpenConnectionTask(_model);
     }
 }
 
-ListChildMailboxesTask* TestingTaskFactory::createListChildMailboxesTask( Model* _model, const QModelIndex& mailbox )
+ListChildMailboxesTask *TestingTaskFactory::createListChildMailboxesTask(Model *_model, const QModelIndex &mailbox)
 {
-    if ( fakeListChildMailboxes ) {
-        return new Fake_ListChildMailboxesTask( _model, mailbox );
+    if (fakeListChildMailboxes) {
+        return new Fake_ListChildMailboxesTask(_model, mailbox);
     } else {
-        return TaskFactory::createListChildMailboxesTask( _model, mailbox );
+        return TaskFactory::createListChildMailboxesTask(_model, mailbox);
     }
 }
 

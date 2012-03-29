@@ -24,9 +24,11 @@
 
 #include <Qt>
 
-namespace Imap {
+namespace Imap
+{
 
-namespace Mailbox {
+namespace Mailbox
+{
 
 /** @short Custom item data roles for IMAP */
 enum {

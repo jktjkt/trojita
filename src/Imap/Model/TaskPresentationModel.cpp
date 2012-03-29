@@ -28,8 +28,10 @@
 #include "OpenConnectionTask.h"
 #include "UnSelectTask.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 TaskPresentationModel::TaskPresentationModel(Model *model) :
     QAbstractItemModel(model), m_model(model)
@@ -47,7 +49,7 @@ QModelIndex TaskPresentationModel::index(int row, int column, const QModelIndex 
         // Parent is a valid index, so the child is definitely an ImapTask. The parent could still be a ParserState, though.
         if (parent.data(RoleTaskIsParserState).toBool()) {
             // The parent is a ParserState
-            Imap::Parser *parser = static_cast<Imap::Parser*>(parent.internalPointer());
+            Imap::Parser *parser = static_cast<Imap::Parser *>(parent.internalPointer());
             ParserState &parserState = m_model->accessParser(parser);
             if (row >= parserState.activeTasks.size()) {
                 return QModelIndex();
@@ -56,7 +58,7 @@ QModelIndex TaskPresentationModel::index(int row, int column, const QModelIndex 
             }
         } else {
             // The parent is a regular ImapTask
-            ImapTask *task = static_cast<ImapTask*>(parent.internalPointer());
+            ImapTask *task = static_cast<ImapTask *>(parent.internalPointer());
             Q_ASSERT(task);
             if (row >= task->dependentTasks.size()) {
                 return QModelIndex();
@@ -85,7 +87,7 @@ QModelIndex TaskPresentationModel::parent(const QModelIndex &child) const
     }
 
     // The child is definitely an ImapTask
-    return indexForTask(static_cast<ImapTask*>(child.internalPointer()));
+    return indexForTask(static_cast<ImapTask *>(child.internalPointer()));
 }
 
 /** @short Return a QModelIndex for the specified ImapTask* */
@@ -120,12 +122,12 @@ int TaskPresentationModel::rowCount(const QModelIndex &parent) const
         // This is where it starts to get complicated -- we're somewhere inside the tree
         if (parent.data(RoleTaskIsParserState).toBool()) {
             // A child of the top level item, ie. a ParserState object
-            Imap::Parser *parser = static_cast<Imap::Parser*>(parent.internalPointer());
+            Imap::Parser *parser = static_cast<Imap::Parser *>(parent.internalPointer());
             ParserState &parserState = m_model->accessParser(parser);
             return parserState.activeTasks.size();
         } else {
             // It's a regular ImapTask
-            ImapTask *task = static_cast<ImapTask*>(parent.internalPointer());
+            ImapTask *task = static_cast<ImapTask *>(parent.internalPointer());
             Q_ASSERT(task);
             return task->dependentTasks.size();
         }
@@ -146,21 +148,20 @@ QVariant TaskPresentationModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    bool isParserState = m_model->_parsers.find(static_cast<Imap::Parser*>(index.internalPointer())) != m_model->_parsers.end();
+    bool isParserState = m_model->_parsers.find(static_cast<Imap::Parser *>(index.internalPointer())) != m_model->_parsers.end();
 
     switch (role) {
     case RoleTaskIsParserState:
         return isParserState;
-    case RoleTaskIsVisible:
-    {
+    case RoleTaskIsVisible: {
         if (isParserState) {
             // That's not a task at all
             return false;
         }
 
-        ImapTask *task = static_cast<ImapTask*>(index.internalPointer());
-        if (dynamic_cast<KeepMailboxOpenTask*>(task) || dynamic_cast<GetAnyConnectionTask*>(task) ||
-                dynamic_cast<UnSelectTask*>(task)) {
+        ImapTask *task = static_cast<ImapTask *>(index.internalPointer());
+        if (dynamic_cast<KeepMailboxOpenTask *>(task) || dynamic_cast<GetAnyConnectionTask *>(task) ||
+            dynamic_cast<UnSelectTask *>(task)) {
             // Internal, auxiliary tasks
             return false;
         } else {
@@ -169,10 +170,10 @@ QVariant TaskPresentationModel::data(const QModelIndex &index, int role) const
     }
     case Qt::DisplayRole:
         if (isParserState) {
-            Imap::Parser *parser = static_cast<Imap::Parser*>(index.internalPointer());
+            Imap::Parser *parser = static_cast<Imap::Parser *>(index.internalPointer());
             return tr("Parser %1").arg(QString::number(parser->parserId()));
         } else {
-            ImapTask *task = static_cast<ImapTask*>(index.internalPointer());
+            ImapTask *task = static_cast<ImapTask *>(index.internalPointer());
             QString className = QLatin1String(task->metaObject()->className());
             className.remove(QLatin1String("Imap::Mailbox::"));
             return tr("%1: %2").arg(className, task->debugIdentification());
@@ -220,7 +221,7 @@ The task might or might not have been present in the model before.  We don't kno
 void TaskPresentationModel::slotTaskGotReparented(const ImapTask *const task)
 {
     reset();
-    connect(task, SIGNAL(completed(ImapTask*)), this, SLOT(slotTaskMighHaveChanged(ImapTask*)));
+    connect(task, SIGNAL(completed(ImapTask *)), this, SLOT(slotTaskMighHaveChanged(ImapTask *)));
 }
 
 /** @short The textual description, the state or something else related to this task might have changed */
@@ -231,7 +232,8 @@ void TaskPresentationModel::slotTaskMighHaveChanged(ImapTask *task)
     emit dataChanged(index, index);
 }
 
-void dumpModelContents(QAbstractItemModel *model, QModelIndex index, QByteArray offset) {
+void dumpModelContents(QAbstractItemModel *model, QModelIndex index, QByteArray offset)
+{
     qDebug() << offset << index.data(Qt::DisplayRole).toString();
     for (int i=0; i < model->rowCount(index); ++i) {
         QModelIndex child = model->index(i, 0, index);

@@ -22,17 +22,19 @@
 #include "Model.h"
 #include "MailboxTree.h"
 
-namespace Imap {
-namespace Mailbox {
-
-
-NumberOfMessagesTask::NumberOfMessagesTask( Model* _model, const QModelIndex& mailbox ):
-    ImapTask( _model ), mailboxIndex(mailbox)
+namespace Imap
 {
-    TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailbox.internalPointer() ) );
-    Q_ASSERT( mailboxPtr );
-    conn = model->_taskFactory->createGetAnyConnectionTask( model );
-    conn->addDependentTask( this );
+namespace Mailbox
+{
+
+
+NumberOfMessagesTask::NumberOfMessagesTask(Model *_model, const QModelIndex &mailbox):
+    ImapTask(_model), mailboxIndex(mailbox)
+{
+    TreeItemMailbox *mailboxPtr = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailbox.internalPointer()));
+    Q_ASSERT(mailboxPtr);
+    conn = model->_taskFactory->createGetAnyConnectionTask(model);
+    conn->addDependentTask(this);
 }
 
 void NumberOfMessagesTask::perform()
@@ -42,22 +44,22 @@ void NumberOfMessagesTask::perform()
 
     IMAP_TASK_CHECK_ABORT_DIE;
 
-    if ( ! mailboxIndex.isValid() ) {
+    if (! mailboxIndex.isValid()) {
         // FIXME: add proper fix
         log("Mailbox vanished before we could ask for number of messages inside");
         _completed();
         return;
     }
-    TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
-    Q_ASSERT( mailbox );
+    TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
+    Q_ASSERT(mailbox);
 
-    tag = parser->status( mailbox->mailbox(),
-                          QStringList() << QLatin1String("MESSAGES") << QLatin1String("UNSEEN") << QLatin1String("RECENT") );
+    tag = parser->status(mailbox->mailbox(),
+                         QStringList() << QLatin1String("MESSAGES") << QLatin1String("UNSEEN") << QLatin1String("RECENT"));
 }
 
-bool NumberOfMessagesTask::handleStateHelper( const Imap::Responses::State* const resp )
+bool NumberOfMessagesTask::handleStateHelper(const Imap::Responses::State *const resp)
 {
-    if ( resp->tag.isEmpty() )
+    if (resp->tag.isEmpty())
         return false;
 
     if (resp->tag == tag) {
@@ -75,12 +77,12 @@ bool NumberOfMessagesTask::handleStateHelper( const Imap::Responses::State* cons
 
 QString NumberOfMessagesTask::debugIdentification() const
 {
-    if ( ! mailboxIndex.isValid() )
+    if (! mailboxIndex.isValid())
         return QString::fromAscii("[invalid mailboxIndex]");
 
-    TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
+    TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
     Q_ASSERT(mailbox);
-    return QString::fromAscii("attached to %1").arg( mailbox->mailbox() );
+    return QString::fromAscii("attached to %1").arg(mailbox->mailbox());
 }
 
 }

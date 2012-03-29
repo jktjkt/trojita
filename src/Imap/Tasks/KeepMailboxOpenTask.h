@@ -25,11 +25,13 @@
 class QTimer;
 class ImapModelIdleTest;
 
-namespace Imap {
+namespace Imap
+{
 
 class Parser;
 
-namespace Mailbox {
+namespace Mailbox
+{
 
 class ObtainSynchronizedMailboxTask;
 class IdleLauncher;
@@ -48,16 +50,16 @@ completed() unless something else wants to re-use its Parser instance.
 */
 class KeepMailboxOpenTask : public ImapTask
 {
-Q_OBJECT
+    Q_OBJECT
 public:
     /** @short Create new task for maintaining a mailbox
 
-@arg mailboxIndex the new mailbox to open and keep open
+    @arg mailboxIndex the new mailbox to open and keep open
 
-@arg formerMailbox the mailbox which was kept open by the previous KeepMailboxOpenTask;
-that mailbox now loses its KeepMailboxOpenTask and the underlying parser is reused for this task
-*/
-    KeepMailboxOpenTask( Model* _model, const QModelIndex& _mailboxIndex, Parser* oldParser );
+    @arg formerMailbox the mailbox which was kept open by the previous KeepMailboxOpenTask;
+    that mailbox now loses its KeepMailboxOpenTask and the underlying parser is reused for this task
+    */
+    KeepMailboxOpenTask(Model *_model, const QModelIndex &_mailboxIndex, Parser *oldParser);
 
     virtual void abort();
     virtual void die();
@@ -66,50 +68,50 @@ that mailbox now loses its KeepMailboxOpenTask and the underlying parser is reus
 
     /** @short Start child processes
 
-This function is called when the synchronizing task finished succesfully, that is, when we are ready
-to execute regular tasks which depend on us.
-*/
+    This function is called when the synchronizing task finished succesfully, that is, when we are ready
+    to execute regular tasks which depend on us.
+    */
     virtual void perform();
 
     /** @short Add any other task which somehow needs our current mailbox
 
-This function also automatically registers the depending task in a special list which will make
-sure that we won't emit finished() until all the dependant tasks have finished. This essnetially
-prevents replacing an "alive" KeepMailboxOpenTask with a different one.
-*/
-    virtual void addDependentTask( ImapTask* task);
+    This function also automatically registers the depending task in a special list which will make
+    sure that we won't emit finished() until all the dependant tasks have finished. This essnetially
+    prevents replacing an "alive" KeepMailboxOpenTask with a different one.
+    */
+    virtual void addDependentTask(ImapTask *task);
 
     /** @short Make sure to re-open the mailbox, even if it is already open */
     void resynchronizeMailbox();
 
     QString debugIdentification() const;
 
-    void requestPartDownload( const uint uid, const QString &partId, const uint estimatedSize );
+    void requestPartDownload(const uint uid, const QString &partId, const uint estimatedSize);
     /** @short Request a delayed loading of a message envelope */
     void requestEnvelopeDownload(const uint uid);
 
 private slots:
-    void slotTaskDeleted( QObject* object );
+    void slotTaskDeleted(QObject *object);
 
     /** @short Start mailbox synchronization process
 
-This function is called when we know that the underlying Parser is no longer in active use
-in any mailbox and that it is ready to be used for our purposes. It doesn't matter if that
-happened because the older KeepMailboxOpenTask got finished or because new connection got
-established and entered the authenticated state; the important part is that we should
-initialize synchronization now.
-*/
+    This function is called when we know that the underlying Parser is no longer in active use
+    in any mailbox and that it is ready to be used for our purposes. It doesn't matter if that
+    happened because the older KeepMailboxOpenTask got finished or because new connection got
+    established and entered the authenticated state; the important part is that we should
+    initialize synchronization now.
+    */
     void slotPerformConnection();
 
     /** @short The synchronization is done, let's start working now */
     void slotSyncHasCompleted() { perform(); }
 
-    virtual bool handleNumberResponse( const Imap::Responses::NumberResponse* const resp );
-    virtual bool handleFetch( const Imap::Responses::Fetch* const resp );
-    virtual bool handleStateHelper( const Imap::Responses::State* const resp );
-    virtual bool handleSearch( const Imap::Responses::Search* const resp );
-    virtual bool handleFlags( const Imap::Responses::Flags* const resp );
-    bool handleResponseCodeInsideState( const Imap::Responses::State* const resp );
+    virtual bool handleNumberResponse(const Imap::Responses::NumberResponse *const resp);
+    virtual bool handleFetch(const Imap::Responses::Fetch *const resp);
+    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
+    virtual bool handleSearch(const Imap::Responses::Search *const resp);
+    virtual bool handleFlags(const Imap::Responses::Flags *const resp);
+    bool handleResponseCodeInsideState(const Imap::Responses::State *const resp);
 
     void slotPerformNoop();
     void slotActivateTasks() { activateTasks(); }
@@ -156,7 +158,7 @@ protected:
     A list of KeepMailboxOpenTask which would like to use this connection to the IMAP server for conducting their business.  They
     have to wait until this KeepMailboxOpenTask finished whatever it has to do.
     */
-    QList<ObtainSynchronizedMailboxTask*> waitingObtainTasks;
+    QList<ObtainSynchronizedMailboxTask *> waitingObtainTasks;
 
     /** @short List of pending or running tasks which require this mailbox
 
@@ -195,23 +197,23 @@ protected:
     ParserState::activeTasks, but vanished from this KeepMailboxOpenTask::dependentTasks.  However, to prevent this
     KeepMailboxOpenTask from disappearing, they are also kept in the runningTasksForThisMailbox list.
     */
-    QList<ImapTask*> runningTasksForThisMailbox;
+    QList<ImapTask *> runningTasksForThisMailbox;
     /** @short Contents of the dependentTasks without the waitingObtainTasks */
-    QList<ImapTask*> dependingTasksForThisMailbox;
+    QList<ImapTask *> dependingTasksForThisMailbox;
     /** @short An ImapTask that will be started to actually sync to a mailbox once the connection is free */
-    ObtainSynchronizedMailboxTask* synchronizeConn;
+    ObtainSynchronizedMailboxTask *synchronizeConn;
 
     bool shouldExit;
     bool isRunning;
 
-    QTimer* noopTimer;
-    QTimer* fetchPartTimer;
-    QTimer* fetchEnvelopeTimer;
+    QTimer *noopTimer;
+    QTimer *fetchPartTimer;
+    QTimer *fetchEnvelopeTimer;
     bool shouldRunNoop;
     bool shouldRunIdle;
-    IdleLauncher* idleLauncher;
-    QList<FetchMsgPartTask*> fetchPartTasks;
-    QList<FetchMsgMetadataTask*> fetchMetadataTasks;
+    IdleLauncher *idleLauncher;
+    QList<FetchMsgPartTask *> fetchPartTasks;
+    QList<FetchMsgMetadataTask *> fetchMetadataTasks;
     CommandHandle tagIdle;
     CommandHandle newArrivalsFetch;
     friend class IdleLauncher;

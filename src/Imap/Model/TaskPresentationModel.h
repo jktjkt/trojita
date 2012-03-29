@@ -25,10 +25,12 @@
 
 #include <QAbstractItemModel>
 
-namespace Imap {
+namespace Imap
+{
 class Parser;
 
-namespace Mailbox {
+namespace Mailbox
+{
 
 class ImapTask;
 class Model;
@@ -47,7 +49,7 @@ class TaskPresentationModel : public QAbstractItemModel
 
 public:
     explicit TaskPresentationModel(Model *model);
-    
+
     virtual QModelIndex index(int row, int column, const QModelIndex &parent) const;
     virtual QModelIndex parent(const QModelIndex &child) const;
     virtual int rowCount(const QModelIndex &parent) const;

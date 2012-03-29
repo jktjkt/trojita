@@ -35,32 +35,33 @@ class QRadioButton;
 class QSpinBox;
 class QTabWidget;
 
-namespace Gui {
+namespace Gui
+{
 
 class GeneralPage : public QWidget
 {
     Q_OBJECT
 public:
-    GeneralPage( QWidget* parent, QSettings&s );
-    void save( QSettings& s );
+    GeneralPage(QWidget *parent, QSettings &s);
+    void save(QSettings &s);
 private:
-    QLineEdit* realName;
-    QLineEdit* address;
+    QLineEdit *realName;
+    QLineEdit *address;
     QCheckBox *showHomepage;
 
-    GeneralPage(const GeneralPage&); // don't implement
-    GeneralPage& operator=(const GeneralPage&); // don't implement
+    GeneralPage(const GeneralPage &); // don't implement
+    GeneralPage &operator=(const GeneralPage &); // don't implement
 };
 
 class OutgoingPage : public QScrollArea, Ui_OutgoingPage
 {
     Q_OBJECT
 public:
-    OutgoingPage( QWidget* parent, QSettings& s );
-    void save( QSettings& s );
+    OutgoingPage(QWidget *parent, QSettings &s);
+    void save(QSettings &s);
 
 protected:
-    virtual void resizeEvent ( QResizeEvent * event );
+    virtual void resizeEvent(QResizeEvent *event);
 
 private:
     enum { SMTP, SSMTP, SENDMAIL };
@@ -69,22 +70,22 @@ private slots:
     void updateWidgets();
 
 private:
-    OutgoingPage(const OutgoingPage&); // don't implement
-    OutgoingPage& operator=(const OutgoingPage&); // don't implement
+    OutgoingPage(const OutgoingPage &); // don't implement
+    OutgoingPage &operator=(const OutgoingPage &); // don't implement
 };
 
 class ImapPage : public QScrollArea, Ui_ImapPage
 {
     Q_OBJECT
 public:
-    ImapPage( QWidget* parent, QSettings& s );
-    void save( QSettings& s );
+    ImapPage(QWidget *parent, QSettings &s);
+    void save(QSettings &s);
 #ifdef XTUPLE_CONNECT
     bool hasPassword() const;
 #endif
 
 protected:
-    virtual void resizeEvent ( QResizeEvent * event );
+    virtual void resizeEvent(QResizeEvent *event);
 
 private:
     enum { TCP, SSL, PROCESS };
@@ -94,29 +95,29 @@ private slots:
     void maybeShowPasswordWarning();
 
 private:
-    ImapPage(const ImapPage&); // don't implement
-    ImapPage& operator=(const ImapPage&); // don't implement
+    ImapPage(const ImapPage &); // don't implement
+    ImapPage &operator=(const ImapPage &); // don't implement
 };
 
 class CachePage : public QScrollArea, Ui_CachePage
 {
     Q_OBJECT
 public:
-    CachePage( QWidget* parent, QSettings& s );
-    void save( QSettings& s );
+    CachePage(QWidget *parent, QSettings &s);
+    void save(QSettings &s);
 
 protected:
-    virtual void resizeEvent ( QResizeEvent * event );
+    virtual void resizeEvent(QResizeEvent *event);
 
 private:
-    QCheckBox* startOffline;
+    QCheckBox *startOffline;
 
 private slots:
     void updateWidgets();
 
 private:
-    CachePage(const CachePage&); // don't implement
-    CachePage& operator=(const CachePage&); // don't implement
+    CachePage(const CachePage &); // don't implement
+    CachePage &operator=(const CachePage &); // don't implement
 };
 
 #ifdef XTUPLE_CONNECT
@@ -125,14 +126,14 @@ class XtConnectPage : public QWidget
 {
     Q_OBJECT
 public:
-    XtConnectPage( QWidget* parent, QSettings&s, ImapPage* imapPage );
-    void save( QSettings& s );
+    XtConnectPage(QWidget *parent, QSettings &s, ImapPage *imapPage);
+    void save(QSettings &s);
     virtual void showEvent(QShowEvent *event);
 public slots:
     void saveXtConfig();
     void runXtConnect();
 private:
-    QLineEdit* cacheDir;
+    QLineEdit *cacheDir;
     QPointer<ImapPage> imap;
 
     QLineEdit *hostName;
@@ -141,8 +142,8 @@ private:
     QLineEdit *username;
     QLabel *imapPasswordWarning;
 
-    XtConnectPage(const XtConnectPage&); // don't implement
-    XtConnectPage& operator=(const XtConnectPage&); // don't implement
+    XtConnectPage(const XtConnectPage &); // don't implement
+    XtConnectPage &operator=(const XtConnectPage &); // don't implement
 };
 #endif
 
@@ -157,17 +158,17 @@ public:
 public slots:
     void accept();
 private:
-    QTabWidget* stack;
-    GeneralPage* general;
-    ImapPage* imap;
-    CachePage* cache;
-    OutgoingPage* outgoing;
+    QTabWidget *stack;
+    GeneralPage *general;
+    ImapPage *imap;
+    CachePage *cache;
+    OutgoingPage *outgoing;
 #ifdef XTUPLE_CONNECT
-    XtConnectPage* xtConnect;
+    XtConnectPage *xtConnect;
 #endif
 
-    SettingsDialog(const SettingsDialog&); // don't implement
-    SettingsDialog& operator=(const SettingsDialog&); // don't implement
+    SettingsDialog(const SettingsDialog &); // don't implement
+    SettingsDialog &operator=(const SettingsDialog &); // don't implement
 };
 
 }

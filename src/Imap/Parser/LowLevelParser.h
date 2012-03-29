@@ -25,7 +25,8 @@
 #include <QPair>
 #include <QVariant>
 
-namespace Imap {
+namespace Imap
+{
 
 /** @short Low-level parsing of IMAP data
  *
@@ -41,58 +42,59 @@ namespace Imap {
  * ie. there's no interaction with the Imap::Parser's methods for retrieving
  * further data.
  * */
-namespace LowLevelParser {
+namespace LowLevelParser
+{
 
-    enum ParsedAs {
-        ATOM /**< @short Parsed as RFC3501 "atom" data type */,
-        QUOTED /**< @short Quoted string (enclosed in single pair of double quotes */,
-        LITERAL /**< @short String literal, ie. the {size}-form */,
-        NIL /**< @short A special-case atom NIL */
-    };
+enum ParsedAs {
+    ATOM /**< @short Parsed as RFC3501 "atom" data type */,
+    QUOTED /**< @short Quoted string (enclosed in single pair of double quotes */,
+    LITERAL /**< @short String literal, ie. the {size}-form */,
+    NIL /**< @short A special-case atom NIL */
+};
 
-    /** @short Read an unsigned integer from input */
-    uint getUInt( const QByteArray& line, int& start );
+/** @short Read an unsigned integer from input */
+uint getUInt(const QByteArray &line, int &start);
 
-    /** @short Read an ATOM */
-    QByteArray getAtom( const QByteArray& line, int& start );
+/** @short Read an ATOM */
+QByteArray getAtom(const QByteArray &line, int &start);
 
-    /** @short Read a quoted string or literal */
-    QPair<QByteArray,ParsedAs> getString( const QByteArray& line, int& start );
+/** @short Read a quoted string or literal */
+QPair<QByteArray,ParsedAs> getString(const QByteArray &line, int &start);
 
-    /** @short Read atom or string */
-    QPair<QByteArray,ParsedAs> getAString( const QByteArray& line, int& start );
+/** @short Read atom or string */
+QPair<QByteArray,ParsedAs> getAString(const QByteArray &line, int &start);
 
-    /** @short Read NIL or a string */
-    QPair<QByteArray,ParsedAs> getNString( const QByteArray& line, int& start );
+/** @short Read NIL or a string */
+QPair<QByteArray,ParsedAs> getNString(const QByteArray &line, int &start);
 
-    /** @short Retrieve mailbox name */
-    QString getMailbox( const QByteArray& line, int& start );
+/** @short Retrieve mailbox name */
+QString getMailbox(const QByteArray &line, int &start);
 
-    /** @short Parse parenthesized list 
-     *
-     * Parenthesized lists is defined as a sequence of space-separated strings
-     * enclosed between "open" and "close" characters.
-     *
-     * @param open, close -- enclosing parentheses
-     * @param line, start -- full line data and starting offset
-     *
-     * We need to support parsing of nested lists (as found in the envelope data
-     * structure), that's why we deal with QVariant here.
-     * */
-    QVariantList parseList( const char open, const char close,
-            const QByteArray& line, int& start );
+/** @short Parse parenthesized list
+ *
+ * Parenthesized lists is defined as a sequence of space-separated strings
+ * enclosed between "open" and "close" characters.
+ *
+ * @param open, close -- enclosing parentheses
+ * @param line, start -- full line data and starting offset
+ *
+ * We need to support parsing of nested lists (as found in the envelope data
+ * structure), that's why we deal with QVariant here.
+ * */
+QVariantList parseList(const char open, const char close,
+                       const QByteArray &line, int &start);
 
-    /** @short Read one item from input, store it in a most-appropriate form */
-    QVariant getAnything( const QByteArray& line, int& start );
+/** @short Read one item from input, store it in a most-appropriate form */
+QVariant getAnything(const QByteArray &line, int &start);
 
-    /** @short Parse RFC2822-like formatted date
-     *
-     * Code for this class was lobotomized from KDE's KDateTime.
-     * */
-    QDateTime parseRFC2822DateTime( const QString& string );
+/** @short Parse RFC2822-like formatted date
+ *
+ * Code for this class was lobotomized from KDE's KDateTime.
+ * */
+QDateTime parseRFC2822DateTime(const QString &string);
 
-    /** @short Eat spaces as long as we can */
-    void eatSpaces( const QByteArray& line, int& start );
+/** @short Eat spaces as long as we can */
+void eatSpaces(const QByteArray &line, int &start);
 }
 }
 

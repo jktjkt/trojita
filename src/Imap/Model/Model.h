@@ -42,10 +42,12 @@ class FakeCapabilitiesInjector;
 class ImapModelIdleTest;
 
 /** @short Namespace for IMAP interaction */
-namespace Imap {
+namespace Imap
+{
 
 /** @short Classes for handling of mailboxes and connections */
-namespace Mailbox {
+namespace Mailbox
+{
 
 class TreeItem;
 class TreeItemMailbox;
@@ -66,10 +68,11 @@ typedef enum { STATE_WAIT_FOR_CONN, /**< Waiting for connection to become active
                STATE_SYNCING_UIDS, /**< UID syncing in progress */
                STATE_SYNCING_FLAGS, /**< Flag syncing in progress */
                STATE_DONE /**< Mailbox is fully synchronized, both UIDs and flags are up to date */
-           } MailboxSyncingProgress;
+             } MailboxSyncingProgress;
 
 /** @short A model implementing view of the whole IMAP server */
-class Model: public QAbstractItemModel {
+class Model: public QAbstractItemModel
+{
     Q_OBJECT
 
     /** @short How to open a mailbox */
@@ -99,12 +102,12 @@ class Model: public QAbstractItemModel {
         NETWORK_ONLINE
     };
 
-    mutable AbstractCache* _cache;
+    mutable AbstractCache *_cache;
     mutable SocketFactoryPtr _socketFactory;
     TaskFactoryPtr _taskFactory;
-    mutable QMap<Parser*,ParserState> _parsers;
+    mutable QMap<Parser *,ParserState> _parsers;
     int _maxParsers;
-    mutable TreeItemMailbox* _mailboxes;
+    mutable TreeItemMailbox *_mailboxes;
     mutable NetworkPolicy _netPolicy;
     bool _startTls;
 
@@ -112,43 +115,43 @@ class Model: public QAbstractItemModel {
 
 
 public:
-    Model( QObject* parent, AbstractCache* cache, SocketFactoryPtr socketFactory, TaskFactoryPtr taskFactory, bool offline );
+    Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFactory, TaskFactoryPtr taskFactory, bool offline);
     ~Model();
 
-    virtual QModelIndex index(int row, int column, const QModelIndex& parent ) const;
-    virtual QModelIndex parent(const QModelIndex& index ) const;
-    virtual int rowCount(const QModelIndex& index ) const;
-    virtual int columnCount(const QModelIndex& index ) const;
-    virtual QVariant data(const QModelIndex& index, int role ) const;
-    virtual bool hasChildren( const QModelIndex& parent = QModelIndex() ) const;
+    virtual QModelIndex index(int row, int column, const QModelIndex &parent) const;
+    virtual QModelIndex parent(const QModelIndex &index) const;
+    virtual int rowCount(const QModelIndex &index) const;
+    virtual int columnCount(const QModelIndex &index) const;
+    virtual QVariant data(const QModelIndex &index, int role) const;
+    virtual bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
 
-    void handleState( Imap::Parser* ptr, const Imap::Responses::State* const resp );
-    void handleCapability( Imap::Parser* ptr, const Imap::Responses::Capability* const resp );
-    void handleNumberResponse( Imap::Parser* ptr, const Imap::Responses::NumberResponse* const resp );
-    void handleList( Imap::Parser* ptr, const Imap::Responses::List* const resp );
-    void handleFlags( Imap::Parser* ptr, const Imap::Responses::Flags* const resp );
-    void handleSearch( Imap::Parser* ptr, const Imap::Responses::Search* const resp );
-    void handleStatus( Imap::Parser* ptr, const Imap::Responses::Status* const resp );
-    void handleFetch( Imap::Parser* ptr, const Imap::Responses::Fetch* const resp );
-    void handleNamespace( Imap::Parser* ptr, const Imap::Responses::Namespace* const resp );
-    void handleSort( Imap::Parser* ptr, const Imap::Responses::Sort* const resp );
-    void handleThread( Imap::Parser* ptr, const Imap::Responses::Thread* const resp );
+    void handleState(Imap::Parser *ptr, const Imap::Responses::State *const resp);
+    void handleCapability(Imap::Parser *ptr, const Imap::Responses::Capability *const resp);
+    void handleNumberResponse(Imap::Parser *ptr, const Imap::Responses::NumberResponse *const resp);
+    void handleList(Imap::Parser *ptr, const Imap::Responses::List *const resp);
+    void handleFlags(Imap::Parser *ptr, const Imap::Responses::Flags *const resp);
+    void handleSearch(Imap::Parser *ptr, const Imap::Responses::Search *const resp);
+    void handleStatus(Imap::Parser *ptr, const Imap::Responses::Status *const resp);
+    void handleFetch(Imap::Parser *ptr, const Imap::Responses::Fetch *const resp);
+    void handleNamespace(Imap::Parser *ptr, const Imap::Responses::Namespace *const resp);
+    void handleSort(Imap::Parser *ptr, const Imap::Responses::Sort *const resp);
+    void handleThread(Imap::Parser *ptr, const Imap::Responses::Thread *const resp);
     void handleId(Imap::Parser *ptr, const Imap::Responses::Id *const resp);
 
-    AbstractCache* cache() const { return _cache; }
+    AbstractCache *cache() const { return _cache; }
     /** Throw away current cache implementation, replace it with the new one
 
-The old cache is automatically deleted.
-*/
-    void setCache( AbstractCache* cache );
+    The old cache is automatically deleted.
+    */
+    void setCache(AbstractCache *cache);
 
     /** @short Force a SELECT / EXAMINE of a mailbox
 
-This command sends a SELECT or EXAMINE command to the remote server, even if the
-requested mailbox is currently selected. This has a side effect that we synchronize
-the list of messages, which is why this function exists in the first place.
-*/
-    void resyncMailbox( const QModelIndex& mbox );
+    This command sends a SELECT or EXAMINE command to the remote server, even if the
+    requested mailbox is currently selected. This has a side effect that we synchronize
+    the list of messages, which is why this function exists in the first place.
+    */
+    void resyncMailbox(const QModelIndex &mbox);
 
     /** @short Add/Remove a flag for the indicated message */
     void setMessageFlags(const QModelIndexList &messages, const QString flag, const FlagsOperation marked);
@@ -158,15 +161,15 @@ the list of messages, which is why this function exists in the first place.
     void markMessagesRead(const QModelIndexList &messages, const FlagsOperation marked);
 
     /** @short Run the EXPUNGE command in the specified mailbox */
-    void expungeMailbox( TreeItemMailbox* mbox );
+    void expungeMailbox(TreeItemMailbox *mbox);
 
     /** @short Copy or move a sequence of messages between two mailboxes */
-    void copyMoveMessages( TreeItemMailbox* sourceMbox, const QString& destMboxName, QList<uint> uids, const CopyMoveOperation op );
+    void copyMoveMessages(TreeItemMailbox *sourceMbox, const QString &destMboxName, QList<uint> uids, const CopyMoveOperation op);
 
     /** @short Create a new mailbox */
-    void createMailbox( const QString& name );
+    void createMailbox(const QString &name);
     /** @short Delete an existing mailbox */
-    void deleteMailbox( const QString& name );
+    void deleteMailbox(const QString &name);
 
     /** @short Returns true if we are allowed to access the network */
     bool isNetworkAvailable() const { return _netPolicy != NETWORK_OFFLINE; }
@@ -175,35 +178,35 @@ the list of messages, which is why this function exists in the first place.
 
     /** @short Return a TreeItem* for a specified index
 
-Certain proxy models implement their own indexes. These indexes typically won't
-share the internalPointer() with the original model.  Because we use this pointer
-quite often, a method is needed to automatically go through the list of all proxy
-models and return the appropriate raw pointer.
+    Certain proxy models implement their own indexes. These indexes typically won't
+    share the internalPointer() with the original model.  Because we use this pointer
+    quite often, a method is needed to automatically go through the list of all proxy
+    models and return the appropriate raw pointer.
 
-Upon success, a valid pointer is returned, *whichModel is set to point to the
-corresponding Model instance and *translatedIndex contains the index in the real
-underlying model. If any of these pointers is NULL, it won't get changed, of course.
+    Upon success, a valid pointer is returned, *whichModel is set to point to the
+    corresponding Model instance and *translatedIndex contains the index in the real
+    underlying model. If any of these pointers is NULL, it won't get changed, of course.
 
-Upon failure, this function returns 0 and doesn't touch any of @arg whichModel
-and @arg translatedIndex.
-*/
-    static TreeItem* realTreeItem( QModelIndex index, const Model** whichModel = 0, QModelIndex* translatedIndex = 0 );
+    Upon failure, this function returns 0 and doesn't touch any of @arg whichModel
+    and @arg translatedIndex.
+    */
+    static TreeItem *realTreeItem(QModelIndex index, const Model **whichModel = 0, QModelIndex *translatedIndex = 0);
 
     /** @short Walks the index hierarchy up until it finds a message which owns this part/message */
-    static QModelIndex findMessageForItem( QModelIndex index );
+    static QModelIndex findMessageForItem(QModelIndex index);
 
     /** @short Inform the model that data for this message won't likely be requested in near future
 
-Model will transform the corresponding TreeItemMessage into the state similar to how it would look
-right after a fresh mailbox synchronization. All TreeItemParts will be freed, envelope and body
-structure forgotten. This will substantially reduce Model's memory usage.
+    Model will transform the corresponding TreeItemMessage into the state similar to how it would look
+    right after a fresh mailbox synchronization. All TreeItemParts will be freed, envelope and body
+    structure forgotten. This will substantially reduce Model's memory usage.
 
-The UID and flags are not affected by this operation. The cache and any data stored in there will
-also be left intact (and would indeed be consulted instead of the network when future requests for
-this message happen again.
+    The UID and flags are not affected by this operation. The cache and any data stored in there will
+    also be left intact (and would indeed be consulted instead of the network when future requests for
+    this message happen again.
 
-*/
-    void releaseMessageData( const QModelIndex &message );
+    */
+    void releaseMessageData(const QModelIndex &message);
 
     /** @short Return a list of capabilities which are supported by the server */
     QStringList capabilities() const;
@@ -231,11 +234,11 @@ public slots:
     void reloadMailboxList();
 
     /** @short Set the netowrk access policy to "no access allowed" */
-    void setNetworkOffline() { setNetworkPolicy( NETWORK_OFFLINE ); }
+    void setNetworkOffline() { setNetworkPolicy(NETWORK_OFFLINE); }
     /** @short Set the network access policy to "possible, but expensive" */
-    void setNetworkExpensive() { setNetworkPolicy( NETWORK_EXPENSIVE ); }
+    void setNetworkExpensive() { setNetworkPolicy(NETWORK_EXPENSIVE); }
     /** @short Set the network access policy to "it's cheap to use it" */
-    void setNetworkOnline() { setNetworkPolicy( NETWORK_ONLINE ); }
+    void setNetworkOnline() { setNetworkPolicy(NETWORK_ONLINE); }
 
     /** @short Try to maintain a connection to the given mailbox
 
@@ -243,7 +246,7 @@ public slots:
       updates about the mailbox state, such as about the arrival of new messages.
       The usual response to such a hint is launching the IDLE command.
     */
-    void switchToMailbox( const QModelIndex& mbox );
+    void switchToMailbox(const QModelIndex &mbox);
 
     /** @short Get a pointer to the model visualizing the state of the tasks
 
@@ -254,83 +257,83 @@ public slots:
 
 private slots:
     /** @short Handler for the "parser got disconnected" event */
-    void slotParserDisconnected( Imap::Parser *parser, const QString );
+    void slotParserDisconnected(Imap::Parser *parser, const QString);
 
     /** @short Parser throwed out an exception */
-    void slotParseError( Imap::Parser *parser, const QString& exceptionClass, const QString& errorMessage, const QByteArray& line, int position );
+    void slotParseError(Imap::Parser *parser, const QString &exceptionClass, const QString &errorMessage, const QByteArray &line, int position);
 
     /** @short Helper for low-level state change propagation */
-    void handleSocketStateChanged( Imap::Parser *parser, Imap::ConnectionState state );
+    void handleSocketStateChanged(Imap::Parser *parser, Imap::ConnectionState state);
 
     /** @short Handler for the Parser::sendingCommand() signal */
-    void parserIsSendingCommand( Imap::Parser *parser, const QString& tag );
+    void parserIsSendingCommand(Imap::Parser *parser, const QString &tag);
 
     /** @short The parser has received a full line */
-    void slotParserLineReceived( Imap::Parser *parser, const QByteArray& line );
+    void slotParserLineReceived(Imap::Parser *parser, const QByteArray &line);
 
     /** @short The parser has sent a block of data */
-    void slotParserLineSent( Imap::Parser *parser, const QByteArray& line );
+    void slotParserLineSent(Imap::Parser *parser, const QByteArray &line);
 
     /** @short There's been a change in the state of various tasks */
     void slotTasksChanged();
 
     /** @short A maintaining task is about to die */
-    void slotTaskDying( QObject *obj );
+    void slotTaskDying(QObject *obj);
 
 signals:
     /** @short This signal is emitted then the server sent us an ALERT response code */
-    void alertReceived( const QString& message );
+    void alertReceived(const QString &message);
     /** @short The network went offline
 
       This signal is emitted if the network connection went offline for any reason.
     Common reasons are an explicit user action or a network error.
- */
+    */
     void networkPolicyOffline();
     /** @short The network access policy got changed to "expensive" */
     void networkPolicyExpensive();
     /** @short The network is available and cheap again */
     void networkPolicyOnline();
     /** @short A connection error has been encountered */
-    void connectionError( const QString& message );
+    void connectionError(const QString &message);
     /** @short The server requests the user to authenticate
 
       The user is expected to file username and password to the QAuthenticator* object.
-*/
-    void authRequested( QAuthenticator* auth );
+    */
+    void authRequested(QAuthenticator *auth);
 
     /** @short The authentication attempt has failed
 
-Slots attached to his signal should display an appropriate message to the user and (if applicable) also invalidate
-the cached credentials.  The credentials be requested when the model decides to try logging in again via the usual
-authRequested() function.
-*/
+    Slots attached to his signal should display an appropriate message to the user and (if applicable) also invalidate
+    the cached credentials.  The credentials be requested when the model decides to try logging in again via the usual
+    authRequested() function.
+    */
     void authAttemptFailed(const QString &message);
 
     /** @short The amount of messages in the indicated mailbox might have changed */
-    void messageCountPossiblyChanged( const QModelIndex& mailbox );
+    void messageCountPossiblyChanged(const QModelIndex &mailbox);
 
     /** @short We've succeeded to create the given mailbox */
-    void mailboxCreationSucceded( const QString& mailbox );
+    void mailboxCreationSucceded(const QString &mailbox);
     /** @short The mailbox creation failed for some reason */
-    void mailboxCreationFailed( const QString& mailbox, const QString& message );
+    void mailboxCreationFailed(const QString &mailbox, const QString &message);
     /** @short We've succeeded to delete a mailbox */
-    void mailboxDeletionSucceded( const QString& mailbox );
+    void mailboxDeletionSucceded(const QString &mailbox);
     /** @short Mailbox deletion failed */
-    void mailboxDeletionFailed( const QString& mailbox, const QString& message );
+    void mailboxDeletionFailed(const QString &mailbox, const QString &message);
 
     /** @short Inform the GUI about the progress of a connection */
-    void connectionStateChanged( QObject* parser, Imap::ConnectionState state ); // got to use fully qualified namespace here
+    void connectionStateChanged(QObject *parser, Imap::ConnectionState state);   // got to use fully qualified namespace here
 
     /** @short The parser has encountered a fatal error */
-    void logParserFatalError( uint parser, const QString& exceptionClass, const QString& message, const QByteArray& line, int position );
+    void logParserFatalError(uint parser, const QString &exceptionClass, const QString &message, const QByteArray &line, int position);
 
-    void mailboxSyncingProgress( const QModelIndex &mailbox, Imap::Mailbox::MailboxSyncingProgress state );
+    void mailboxSyncingProgress(const QModelIndex &mailbox, Imap::Mailbox::MailboxSyncingProgress state);
 
-    void mailboxFirstUnseenMessage( const QModelIndex &maillbox, const QModelIndex &message );
+    void mailboxFirstUnseenMessage(const QModelIndex &maillbox, const QModelIndex &message);
 
     /** @short Threading has arrived */
-    void threadingAvailable( const QModelIndex &mailbox, const QString &algorithm,
-                             const QStringList &searchCriteria, const QVector<Imap::Responses::ThreadingNode> &mapping );
+    void threadingAvailable(const QModelIndex &mailbox, const QString &algorithm,
+                            const QStringList &searchCriteria, const QVector<Imap::Responses::ThreadingNode> &mapping);
 
     /** @short Failed to obtain threading information */
     void threadingFailed(const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria);
@@ -340,8 +343,8 @@ authRequested() function.
     void logged(uint parserId, const Imap::Mailbox::LogMessage &message);
 
 private:
-    Model& operator=( const Model& ); // don't implement
-    Model( const Model& ); // don't implement
+    Model &operator=(const Model &);  // don't implement
+    Model(const Model &);  // don't implement
 
 
     friend class TreeItem;
@@ -386,54 +389,54 @@ private:
     friend class ::ImapModelIdleTest; // needs access to findTaskResponsibleFor() for IDLE testing
     friend class TaskPresentationModel; // needs access to the ParserState
 
-    void _askForChildrenOfMailbox( TreeItemMailbox* item );
-    void _askForMessagesInMailbox( TreeItemMsgList* item );
-    void _askForNumberOfMessages( TreeItemMsgList* item );
-    void _askForMsgMetadata( TreeItemMessage* item );
-    void _askForMsgPart( TreeItemPart* item, bool onlyFromCache=false );
+    void _askForChildrenOfMailbox(TreeItemMailbox *item);
+    void _askForMessagesInMailbox(TreeItemMsgList *item);
+    void _askForNumberOfMessages(TreeItemMsgList *item);
+    void _askForMsgMetadata(TreeItemMessage *item);
+    void _askForMsgPart(TreeItemPart *item, bool onlyFromCache=false);
 
-    void _finalizeList( Parser* parser, TreeItemMailbox* const mailboxPtr );
-    void _finalizeIncrementalList( Parser* parser, const QString& parentMailboxName );
-    void _finalizeFetchPart( TreeItemMailbox* const mailbox, const uint sequenceNo, const QString &partId );
-    void _genericHandleFetch( TreeItemMailbox* mailbox, const Imap::Responses::Fetch* const resp );
+    void _finalizeList(Parser *parser, TreeItemMailbox *const mailboxPtr);
+    void _finalizeIncrementalList(Parser *parser, const QString &parentMailboxName);
+    void _finalizeFetchPart(TreeItemMailbox *const mailbox, const uint sequenceNo, const QString &partId);
+    void _genericHandleFetch(TreeItemMailbox *mailbox, const Imap::Responses::Fetch *const resp);
 
-    void replaceChildMailboxes( TreeItemMailbox* mailboxPtr, const QList<TreeItem*> mailboxes );
-    void updateCapabilities( Parser* parser, const QStringList capabilities );
+    void replaceChildMailboxes(TreeItemMailbox *mailboxPtr, const QList<TreeItem *> mailboxes);
+    void updateCapabilities(Parser *parser, const QStringList capabilities);
 
-    TreeItem* translatePtr( const QModelIndex& index ) const;
+    TreeItem *translatePtr(const QModelIndex &index) const;
 
-    void emitMessageCountChanged( TreeItemMailbox* const mailbox );
+    void emitMessageCountChanged(TreeItemMailbox *const mailbox);
     /** @short Helper for cleaning the QAuthenticator and informing about auth failure */
     void emitAuthFailed(const QString &message);
 
-    TreeItemMailbox* findMailboxByName( const QString& name ) const;
-    TreeItemMailbox* findMailboxByName( const QString& name, const TreeItemMailbox* const root ) const;
-    TreeItemMailbox* findParentMailboxByName( const QString& name ) const;
-    QList<TreeItemMessage*> findMessagesByUids( const TreeItemMailbox* const mailbox, const QList<uint> &uids );
+    TreeItemMailbox *findMailboxByName(const QString &name) const;
+    TreeItemMailbox *findMailboxByName(const QString &name, const TreeItemMailbox *const root) const;
+    TreeItemMailbox *findParentMailboxByName(const QString &name) const;
+    QList<TreeItemMessage *> findMessagesByUids(const TreeItemMailbox *const mailbox, const QList<uint> &uids);
 
-    static TreeItemMailbox* mailboxForSomeItem( QModelIndex index );
+    static TreeItemMailbox *mailboxForSomeItem(QModelIndex index);
 
-    void saveUidMap( TreeItemMsgList* list );
+    void saveUidMap(TreeItemMsgList *list);
 
     /** @short Return a corresponding KeepMailboxOpenTask for a given mailbox */
-    KeepMailboxOpenTask* findTaskResponsibleFor( const QModelIndex& mailbox );
-    KeepMailboxOpenTask* findTaskResponsibleFor( TreeItemMailbox *mailboxPtr );
+    KeepMailboxOpenTask *findTaskResponsibleFor(const QModelIndex &mailbox);
+    KeepMailboxOpenTask *findTaskResponsibleFor(TreeItemMailbox *mailboxPtr);
 
     /** @short Find a mailbox which is expected to be common for all passed items
 
     The @arg items is expected to consists of message parts or messages themselves.
     If they belong to different mailboxes, an exception is thrown.
-*/
-    QModelIndex findMailboxForItems( const QModelIndexList& items );
+    */
+    QModelIndex findMailboxForItems(const QModelIndexList &items);
 
     NetworkPolicy networkPolicy() const { return _netPolicy; }
-    void setNetworkPolicy( const NetworkPolicy policy );
+    void setNetworkPolicy(const NetworkPolicy policy);
 
     /** @short Helper function for changing connection state */
-    void changeConnectionState( Parser* parser, ConnectionState state );
+    void changeConnectionState(Parser *parser, ConnectionState state);
 
     /** @short Try to authenticate the user to the IMAP server */
-    CommandHandle performAuthentication( Imap::Parser* ptr );
+    CommandHandle performAuthentication(Imap::Parser *ptr);
 
     /** @short Is the reason for killing the parser an expected one? */
     typedef enum {
@@ -445,13 +448,13 @@ private:
     /** @short Dispose of the parser in a C++-safe way */
     void killParser(Parser *parser, ParserKillingMethod method=PARSER_KILL_HARD);
 
-    ParserState& accessParser( Parser *parser );
+    ParserState &accessParser(Parser *parser);
 
     /** @short Helper for the slotParseError() */
-    void broadcastParseError( const uint parser, const QString& exceptionClass, const QString& errorMessage, const QByteArray& line, int position );
+    void broadcastParseError(const uint parser, const QString &exceptionClass, const QString &errorMessage, const QByteArray &line, int position);
 
     /** @short Remove deleted Tasks from the activeTasks list */
-    void removeDeletedTasks( const QList<ImapTask*>& deletedTasks, QList<ImapTask*>& activeTasks );
+    void removeDeletedTasks(const QList<ImapTask *> &deletedTasks, QList<ImapTask *> &activeTasks);
 
     QStringList _onlineMessageFetch;
 
@@ -461,7 +464,7 @@ private:
     and operator=() does not really work together and that I got a mysterious segfault when
     trying the operator=(). Oh well...
     */
-    QAuthenticator* _authenticator;
+    QAuthenticator *_authenticator;
 
     uint lastParserId;
 
@@ -474,7 +477,7 @@ private:
     mutable QSet<QString> m_flagLiterals;
 
 protected slots:
-    void responseReceived( Imap::Parser *parser );
+    void responseReceived(Imap::Parser *parser);
 
     void runReadyTasks();
 

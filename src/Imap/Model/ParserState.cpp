@@ -21,8 +21,10 @@
 
 #include "ParserState.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 ParserState::ParserState(Parser *_parser):
     parser(_parser), connState(CONN_STATE_NONE), maintainingTask(0), capabilitiesFresh(false), beingProcessed(false)

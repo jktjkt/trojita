@@ -30,12 +30,14 @@
 #include <QFont>
 #include "Gui/IconLoader.h"
 
-namespace Imap {
+namespace Imap
+{
 
-namespace Mailbox {
+namespace Mailbox
+{
 
 PrettyMailboxModel::PrettyMailboxModel(QObject *parent, MailboxModel *mailboxModel):
-        QSortFilterProxyModel(parent)
+    QSortFilterProxyModel(parent)
 {
     setDynamicSortFilter(true);
     setSourceModel(mailboxModel);
@@ -53,22 +55,20 @@ QVariant PrettyMailboxModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     switch (role) {
-    case Qt::DisplayRole:
-    {
+    case Qt::DisplayRole: {
         QModelIndex translated = mapToSource(index);
         qlonglong unreadCount = translated.data(RoleUnreadMessageCount).toLongLong();
         if (unreadCount)
             return tr("%1 (%2)")
-                    .arg(QSortFilterProxyModel::data(index, RoleShortMailboxName).toString(),
-                         QString::number(unreadCount));
+                   .arg(QSortFilterProxyModel::data(index, RoleShortMailboxName).toString(),
+                        QString::number(unreadCount));
         else
             return QSortFilterProxyModel::data(index, RoleShortMailboxName);
     }
-    case Qt::FontRole:
-    {
+    case Qt::FontRole: {
         QModelIndex translated = mapToSource(index);
-        if ( translated.data(RoleMailboxNumbersFetched).toBool() &&
-             translated.data(RoleUnreadMessageCount).toULongLong() > 0) {
+        if (translated.data(RoleMailboxNumbersFetched).toBool() &&
+            translated.data(RoleUnreadMessageCount).toULongLong() > 0) {
             QFont font;
             font.setBold(true);
             return font;
@@ -76,38 +76,36 @@ QVariant PrettyMailboxModel::data(const QModelIndex &index, int role) const
             return QVariant();
         }
     }
-    case Qt::DecorationRole:
-    {
+    case Qt::DecorationRole: {
         QModelIndex translated = mapToSource(index);
         if (translated.data(RoleMailboxItemsAreLoading).toBool())
             return Gui::loadIcon(QLatin1String("folder-grey"));
 #ifdef XTUPLE_CONNECT
         else if (QSettings().value(Common::SettingsNames::xtSyncMailboxList).toStringList().contains(
-                      translated.data(RoleMailboxName ).toString()))
+                     translated.data(RoleMailboxName).toString()))
             return Gui::loadIcon(QLatin1String("folder-xt-sync.png"));
 #endif
-        else if (translated.data( RoleMailboxIsINBOX).toBool())
+        else if (translated.data(RoleMailboxIsINBOX).toBool())
             return Gui::loadIcon(QLatin1String("mail-folder-inbox"));
-        else if (translated.data( RoleRecentMessageCount).toInt() > 0)
+        else if (translated.data(RoleRecentMessageCount).toInt() > 0)
             return Gui::loadIcon(QLatin1String("folder-bookmark"));
-        else if (translated.data( RoleMailboxIsSelectable).toBool())
+        else if (translated.data(RoleMailboxIsSelectable).toBool())
             return Gui::loadIcon(QLatin1String("folder"));
         else
             return Gui::loadIcon(QLatin1String("folder-open"));
     }
-    case Qt::ToolTipRole:
-    {
+    case Qt::ToolTipRole: {
         QModelIndex translated = mapToSource(index);
         return tr("<p>%1</p>\n<p>%2 messages<br/>%3 unread</p>")
-                .arg(translated.data(RoleShortMailboxName).toString(), translated.data(RoleTotalMessageCount).toString(),
-                     translated.data(RoleUnreadMessageCount).toString());
+               .arg(translated.data(RoleShortMailboxName).toString(), translated.data(RoleTotalMessageCount).toString(),
+                    translated.data(RoleUnreadMessageCount).toString());
     }
     default:
         return QSortFilterProxyModel::data(index, role);
     }
 }
 
-bool PrettyMailboxModel::filterAcceptsColumn(int source_column, const QModelIndex& source_parent) const
+bool PrettyMailboxModel::filterAcceptsColumn(int source_column, const QModelIndex &source_parent) const
 {
     Q_UNUSED(source_parent);
     return source_column == 0;
@@ -115,7 +113,7 @@ bool PrettyMailboxModel::filterAcceptsColumn(int source_column, const QModelInde
 
 bool PrettyMailboxModel::hasChildren(const QModelIndex &parent) const
 {
-    return dynamic_cast<const MailboxModel*>(sourceModel())->hasChildren(mapToSource(parent));
+    return dynamic_cast<const MailboxModel *>(sourceModel())->hasChildren(mapToSource(parent));
 }
 
 #ifdef XTUPLE_CONNECT

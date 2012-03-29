@@ -21,21 +21,23 @@
 
 #include "ImapTask.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 /** @short Delete an existing mailbox */
 class DeleteMailboxTask : public ImapTask
 {
-Q_OBJECT
+    Q_OBJECT
 public:
-    DeleteMailboxTask(Model* _model, const QString& _mailbox);
+    DeleteMailboxTask(Model *_model, const QString &_mailbox);
     virtual void perform();
 
-    virtual bool handleStateHelper(const Imap::Responses::State* const resp);
+    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
 private:
     CommandHandle tag;
-    ImapTask* conn;
+    ImapTask *conn;
     QString mailbox;
 };
 

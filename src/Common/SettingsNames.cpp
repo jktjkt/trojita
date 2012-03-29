@@ -20,7 +20,8 @@
 */
 #include "SettingsNames.h"
 
-namespace Common {
+namespace Common
+{
 
 QString SettingsNames::realNameKey = QLatin1String("identity.realName");
 QString SettingsNames::addressKey = QLatin1String("identity.address");

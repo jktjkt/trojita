@@ -23,16 +23,17 @@
 #include <QTimer>
 #include "FakeSocket.h"
 
-namespace Imap {
+namespace Imap
+{
 
 FakeSocket::FakeSocket()
 {
-    readChannel = new QBuffer( &r, this );
-    readChannel->open( QIODevice::ReadWrite );
-    writeChannel = new QBuffer( &w, this );
-    writeChannel->open( QIODevice::WriteOnly );
-    QTimer::singleShot( 0, this, SLOT(slotEmitConnected()) );
-    connect( readChannel, SIGNAL(readyRead()), this, SIGNAL(readyRead()) );
+    readChannel = new QBuffer(&r, this);
+    readChannel->open(QIODevice::ReadWrite);
+    writeChannel = new QBuffer(&w, this);
+    writeChannel->open(QIODevice::WriteOnly);
+    QTimer::singleShot(0, this, SLOT(slotEmitConnected()));
+    connect(readChannel, SIGNAL(readyRead()), this, SIGNAL(readyRead()));
 }
 
 FakeSocket::~FakeSocket()
@@ -45,7 +46,7 @@ void FakeSocket::slotEmitConnected()
     emit stateChanged(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS, QString());
 }
 
-void FakeSocket::fakeReading( const QByteArray& what )
+void FakeSocket::fakeReading(const QByteArray &what)
 {
     // The position of the cursor is shared for both reading and writing, and therefore
     // we have to save and restore it after appending data, otherwise the pointer will
@@ -58,13 +59,13 @@ void FakeSocket::fakeReading( const QByteArray& what )
         QByteArray unProcessedData = readChannel->readAll();
         r.clear();
         readChannel->close();
-        static_cast<QBuffer*>(readChannel)->setBuffer(&r);
+        static_cast<QBuffer *>(readChannel)->setBuffer(&r);
         readChannel->open(QIODevice::ReadWrite);
         readChannel->write(unProcessedData);
         pos = unProcessedData.size();
     }
-    readChannel->write( what );
-    readChannel->seek( pos );
+    readChannel->write(what);
+    readChannel->seek(pos);
 }
 
 bool FakeSocket::canReadLine()
@@ -72,25 +73,25 @@ bool FakeSocket::canReadLine()
     return readChannel->canReadLine();
 }
 
-QByteArray FakeSocket::read( qint64 maxSize )
+QByteArray FakeSocket::read(qint64 maxSize)
 {
-    return readChannel->read( maxSize );
+    return readChannel->read(maxSize);
 }
 
-QByteArray FakeSocket::readLine( qint64 maxSize )
+QByteArray FakeSocket::readLine(qint64 maxSize)
 {
-    return readChannel->readLine( maxSize );
+    return readChannel->readLine(maxSize);
 }
 
-qint64 FakeSocket::write( const QByteArray& byteArray )
+qint64 FakeSocket::write(const QByteArray &byteArray)
 {
-    return writeChannel->write( byteArray );
+    return writeChannel->write(byteArray);
 }
 
 void FakeSocket::startTls()
 {
     // fake it
-    writeChannel->write( QByteArray("[*** STARTTLS ***]") );
+    writeChannel->write(QByteArray("[*** STARTTLS ***]"));
 }
 
 bool FakeSocket::isDead()
@@ -103,7 +104,7 @@ QByteArray FakeSocket::writtenStuff()
 {
     QByteArray res = w;
     w.clear();
-    writeChannel->seek( 0 );
+    writeChannel->seek(0);
     return res;
 }
 

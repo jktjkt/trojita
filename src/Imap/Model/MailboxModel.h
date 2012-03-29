@@ -26,49 +26,52 @@
 #include "Model.h"
 
 /** @short Namespace for IMAP interaction */
-namespace Imap {
+namespace Imap
+{
 
 /** @short Classes for handling of mailboxes and connections */
-namespace Mailbox {
+namespace Mailbox
+{
 
 /** @short A model implementing view of the whole IMAP server */
-class MailboxModel: public QAbstractProxyModel {
+class MailboxModel: public QAbstractProxyModel
+{
     Q_OBJECT
 
 public:
-    MailboxModel( QObject* parent, Model* model );
+    MailboxModel(QObject *parent, Model *model);
 
-    virtual QModelIndex index( int row, int column, const QModelIndex& parent=QModelIndex() ) const;
-    virtual QModelIndex parent( const QModelIndex& index ) const;
-    virtual int rowCount( const QModelIndex& parent=QModelIndex() ) const;
-    virtual int columnCount( const QModelIndex& parent=QModelIndex() ) const;
-    virtual QModelIndex mapToSource( const QModelIndex& proxyIndex ) const;
-    virtual QModelIndex mapFromSource( const QModelIndex& sourceIndex ) const;
-    virtual bool hasChildren( const QModelIndex& parent = QModelIndex() ) const;
+    virtual QModelIndex index(int row, int column, const QModelIndex &parent=QModelIndex()) const;
+    virtual QModelIndex parent(const QModelIndex &index) const;
+    virtual int rowCount(const QModelIndex &parent=QModelIndex()) const;
+    virtual int columnCount(const QModelIndex &parent=QModelIndex()) const;
+    virtual QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
+    virtual QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
+    virtual bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
 
     virtual QVariant data(const QModelIndex &proxyIndex, int role = Qt::DisplayRole) const;
 
-    virtual Qt::ItemFlags flags( const QModelIndex& index ) const;
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
     virtual Qt::DropActions supportedDropActions() const;
     virtual QStringList mimeTypes() const;
-    virtual bool dropMimeData( const QMimeData* data, Qt::DropAction action,
-                               int row, int column, const QModelIndex& parent );
+    virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action,
+                              int row, int column, const QModelIndex &parent);
 
 protected slots:
-    void handleDataChanged( const QModelIndex& topLeft, const QModelIndex& bottomRight );
-    void handleMessageCountPossiblyChanged( const QModelIndex& mailbox );
+    void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void handleMessageCountPossiblyChanged(const QModelIndex &mailbox);
 
 private slots:
     void handleModelAboutToBeReset();
     void handleModelReset();
-    void handleRowsAboutToBeRemoved( const QModelIndex& parent, int first, int last );
-    void handleRowsRemoved( const QModelIndex& parent, int first, int last );
-    void handleRowsAboutToBeInserted( const QModelIndex& parent, int first, int last );
-    void handleRowsInserted( const QModelIndex& parent, int first, int last );
+    void handleRowsAboutToBeRemoved(const QModelIndex &parent, int first, int last);
+    void handleRowsRemoved(const QModelIndex &parent, int first, int last);
+    void handleRowsAboutToBeInserted(const QModelIndex &parent, int first, int last);
+    void handleRowsInserted(const QModelIndex &parent, int first, int last);
 
 private:
-    MailboxModel& operator=( const MailboxModel& ); // don't implement
-    MailboxModel( const MailboxModel& ); // don't implement
+    MailboxModel &operator=(const MailboxModel &);  // don't implement
+    MailboxModel(const MailboxModel &);  // don't implement
 };
 
 }

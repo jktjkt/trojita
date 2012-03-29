@@ -26,21 +26,22 @@
 
 class QModelIndex;
 
-namespace Gui {
+namespace Gui
+{
 
 class Rfc822HeaderView : public QLabel
 {
     Q_OBJECT
 public:
-    Rfc822HeaderView(QWidget* parent, QModelIndex index);
+    Rfc822HeaderView(QWidget *parent, QModelIndex index);
 private slots:
-    void handleDataChanged(const QModelIndex&, const QModelIndex& );
+    void handleDataChanged(const QModelIndex &, const QModelIndex &);
     void setCorrectText();
 private:
     QPersistentModelIndex index;
 
-    Rfc822HeaderView(const Rfc822HeaderView&); // don't implement
-    Rfc822HeaderView& operator=(const Rfc822HeaderView&); // don't implement
+    Rfc822HeaderView(const Rfc822HeaderView &); // don't implement
+    Rfc822HeaderView &operator=(const Rfc822HeaderView &); // don't implement
 };
 
 }

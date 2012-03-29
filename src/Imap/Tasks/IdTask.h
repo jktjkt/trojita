@@ -21,8 +21,10 @@
 
 #include "ImapTask.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 /** @short Send an ID command to the server */
 class IdTask : public ImapTask

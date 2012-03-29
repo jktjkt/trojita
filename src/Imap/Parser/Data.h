@@ -24,55 +24,62 @@
 #include <QTextStream>
 
 /** @short Namespace for IMAP interaction */
-namespace Imap {
+namespace Imap
+{
 
 /** @short IMAP server responses */
-namespace Responses {
+namespace Responses
+{
 
-    /** @short Parent of all "Response Code Data" classes
-     *
-     * More information available in AbstractData's documentation.
-     * */
-    class AbstractData {
-    public:
-        virtual ~AbstractData();
-        virtual QTextStream& dump( QTextStream& ) const = 0;
-        virtual bool eq( const AbstractData& other ) const = 0;
-    };
+/** @short Parent of all "Response Code Data" classes
+ *
+ * More information available in AbstractData's documentation.
+ * */
+class AbstractData
+{
+public:
+    virtual ~AbstractData();
+    virtual QTextStream &dump(QTextStream &) const = 0;
+    virtual bool eq(const AbstractData &other) const = 0;
+};
 
-    /** @short Storage for "Response Code Data"
-     *
-     * In IMAP, each status response might contain some additional information
-     * called "Response Code" and associated data. These data come in several
-     * shapes and this class servers as a storage for them, as a kind of
-     * QVariant-like wrapper around real data.
-     * */
-    template<class T> class RespData : public AbstractData {
-    public:
-        T data;
-        RespData( const T& _data ) : data(_data) {};
-        virtual QTextStream& dump( QTextStream& s ) const;
-        virtual bool eq( const AbstractData& other ) const;
-    };
+/** @short Storage for "Response Code Data"
+ *
+ * In IMAP, each status response might contain some additional information
+ * called "Response Code" and associated data. These data come in several
+ * shapes and this class servers as a storage for them, as a kind of
+ * QVariant-like wrapper around real data.
+ * */
+template<class T> class RespData : public AbstractData
+{
+public:
+    T data;
+    RespData(const T &_data) : data(_data) {};
+    virtual QTextStream &dump(QTextStream &s) const;
+    virtual bool eq(const AbstractData &other) const;
+};
 
-    /** Explicit specialization for void as we can't define a void member of a
-     * class */
-    template<> class RespData<void> : public AbstractData {
-    public:
-        virtual QTextStream& dump( QTextStream& s ) const { return s; };
-        virtual bool eq( const AbstractData& other ) const;
-    };
+/** Explicit specialization for void as we can't define a void member of a
+ * class */
+template<> class RespData<void> : public AbstractData
+{
+public:
+    virtual QTextStream &dump(QTextStream &s) const { return s; };
+    virtual bool eq(const AbstractData &other) const;
+};
 
 
-    QTextStream& operator<<( QTextStream& stream, const AbstractData& resp );
+QTextStream &operator<<(QTextStream &stream, const AbstractData &resp);
 
-    inline bool operator==( const AbstractData& first, const AbstractData& other ) {
-        return first.eq( other );
-    }
+inline bool operator==(const AbstractData &first, const AbstractData &other)
+{
+    return first.eq(other);
+}
 
-    inline bool operator!=( const AbstractData& first, const AbstractData& other ) {
-        return !first.eq( other );
-    }
+inline bool operator!=(const AbstractData &first, const AbstractData &other)
+{
+    return !first.eq(other);
+}
 
 }
 

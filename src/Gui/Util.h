@@ -25,9 +25,11 @@
 
 class QWidget;
 
-namespace Gui {
+namespace Gui
+{
 
-namespace Util {
+namespace Util
+{
 
 /** @short Center widget on screen containing its parent widget of the mousepointer */
 void centerWidgetOnScreen(QWidget *widget, bool centerOnCursorScreen=true);

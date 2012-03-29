@@ -22,7 +22,8 @@
 #include <QtCore/QCoreApplication>
 #include "Imap/Model/Utils.h"
 
-namespace Gui {
+namespace Gui
+{
 
 UserAgentWebPage::UserAgentWebPage(QWidget *parent): QWebPage(parent)
 {

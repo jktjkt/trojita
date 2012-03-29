@@ -24,7 +24,8 @@
 
 #include <QStringListModel>
 
-namespace Gui {
+namespace Gui
+{
 
 /** This is a dummy subclass of QStringListModel
   *

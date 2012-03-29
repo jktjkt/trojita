@@ -26,8 +26,10 @@
 
 class KDescendantsProxyModel;
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 /** @short Proxy model showing a list of tasks that are active or pending
 

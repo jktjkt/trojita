@@ -23,7 +23,8 @@
 
 #include <QString>
 
-namespace Common {
+namespace Common
+{
 
 /** @short Well-known port numbers for IMAP and IMAPS */
 enum { PORT_IMAP=143, PORT_IMAPS=993 };

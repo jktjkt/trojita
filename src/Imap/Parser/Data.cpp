@@ -21,16 +21,18 @@
 
 #include "Data.h"
 
-namespace Imap {
-namespace Responses {
+namespace Imap
+{
+namespace Responses
+{
 
 AbstractData::~AbstractData()
 {
 }
 
-QTextStream& operator<<( QTextStream& stream, const AbstractData& resp )
+QTextStream &operator<<(QTextStream &stream, const AbstractData &resp)
 {
-    return resp.dump( stream );
+    return resp.dump(stream);
 }
 
 }

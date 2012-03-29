@@ -30,36 +30,37 @@
 #include <QPushButton>
 #include <QLabel>
 
-namespace Gui {
+namespace Gui
+{
 
 AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *_manager, const QModelIndex &partIndex):
-    QWidget( parent ), _fileDownloadManager(0)
+    QWidget(parent), _fileDownloadManager(0)
 {
     _fileDownloadManager = new Imap::Network::FileDownloadManager(this, _manager, partIndex);
-    QHBoxLayout* layout = new QHBoxLayout(this);
-    QLabel* lbl = new QLabel( tr("Attachment %1 (%2)").arg(partIndex.data(Imap::Mailbox::RolePartFileName).toString(),
-                                                           partIndex.data(Imap::Mailbox::RolePartMimeType).toString()) );
-    layout->addWidget( lbl );
-    QPushButton* downloadButton = new QPushButton( tr("Download") );
-    downloadButton->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
-    layout->addWidget( downloadButton );
-    connect( downloadButton, SIGNAL(clicked()), _fileDownloadManager, SLOT(slotDownloadNow()) );
-    connect( _fileDownloadManager, SIGNAL(fileNameRequested(QString*)), this, SLOT(slotFileNameRequested(QString*)) );
-    setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
+    QHBoxLayout *layout = new QHBoxLayout(this);
+    QLabel *lbl = new QLabel(tr("Attachment %1 (%2)").arg(partIndex.data(Imap::Mailbox::RolePartFileName).toString(),
+                             partIndex.data(Imap::Mailbox::RolePartMimeType).toString()));
+    layout->addWidget(lbl);
+    QPushButton *downloadButton = new QPushButton(tr("Download"));
+    downloadButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    layout->addWidget(downloadButton);
+    connect(downloadButton, SIGNAL(clicked()), _fileDownloadManager, SLOT(slotDownloadNow()));
+    connect(_fileDownloadManager, SIGNAL(fileNameRequested(QString *)), this, SLOT(slotFileNameRequested(QString *)));
+    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 }
 
 void AttachmentView::slotFileNameRequested(QString *fileName)
 {
-    *fileName = QFileDialog::getSaveFileName( this, tr("Save Attachment"),
-                                  *fileName, QString(),
-                                  0, QFileDialog::HideNameFilterDetails
-                                  );
+    *fileName = QFileDialog::getSaveFileName(this, tr("Save Attachment"),
+                *fileName, QString(),
+                0, QFileDialog::HideNameFilterDetails
+                                            );
 }
 
-void AttachmentView::slotTransferError( const QString& errorString )
+void AttachmentView::slotTransferError(const QString &errorString)
 {
-    QMessageBox::critical( this, tr("Can't save attachment"),
-                           tr("Unable to save the attachment. Error:\n%1").arg( errorString ) );
+    QMessageBox::critical(this, tr("Can't save attachment"),
+                          tr("Unable to save the attachment. Error:\n%1").arg(errorString));
 }
 
 }

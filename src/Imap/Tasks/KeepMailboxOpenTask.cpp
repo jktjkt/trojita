@@ -30,21 +30,23 @@
 #include "NoopTask.h"
 #include "UnSelectTask.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 /*
 FIXME: we should eat "* OK [CLOSED] former mailbox closed", or somehow let it fall down to the model, which shouldn't delegate it to AuthenticatedHandler
 */
 
-KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mailboxIndex, Parser* oldParser ) :
-    ImapTask( _model ), mailboxIndex(_mailboxIndex), synchronizeConn(0), shouldExit(false), isRunning(false),
+KeepMailboxOpenTask::KeepMailboxOpenTask(Model *_model, const QModelIndex &_mailboxIndex, Parser *oldParser) :
+    ImapTask(_model), mailboxIndex(_mailboxIndex), synchronizeConn(0), shouldExit(false), isRunning(false),
     shouldRunNoop(false), shouldRunIdle(false), idleLauncher(0), unSelectTask(0)
 {
-    Q_ASSERT( mailboxIndex.isValid() );
-    Q_ASSERT( mailboxIndex.model() == model );
-    TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*> ( _mailboxIndex.internalPointer() ) );
-    Q_ASSERT( mailbox );
+    Q_ASSERT(mailboxIndex.isValid());
+    Q_ASSERT(mailboxIndex.model() == model);
+    TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(_mailboxIndex.internalPointer()));
+    Q_ASSERT(mailbox);
 
     // We're the latest KeepMailboxOpenTask, so it makes a lot of sense to add us as the active
     // maintainingTask to the target mailbox
@@ -61,7 +63,7 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
             // The parser looks busy -- some task is associated with it and has a mailbox open, so
             // let's just wait till we get a chance to play
             synchronizeConn = model->_taskFactory->
-                    createObtainSynchronizedMailboxTask(_model, mailboxIndex, model->accessParser(oldParser).maintainingTask, this);
+                              createObtainSynchronizedMailboxTask(_model, mailboxIndex, model->accessParser(oldParser).maintainingTask, this);
         } else {
             // The parser is free, or at least there's no KeepMailboxOpenTask associated with it.
             // There's no mailbox besides us in the game, yet, so we can simply schedule us for immediate execution.
@@ -88,44 +90,44 @@ KeepMailboxOpenTask::KeepMailboxOpenTask( Model* _model, const QModelIndex& _mai
 
     // Setup the timer for NOOPing. It won't get started at this time, though.
     noopTimer = new QTimer(this);
-    connect( noopTimer, SIGNAL(timeout()), this, SLOT(slotPerformNoop()) );
+    connect(noopTimer, SIGNAL(timeout()), this, SLOT(slotPerformNoop()));
     bool ok;
-    int timeout = model->property( "trojita-imap-noop-period" ).toUInt( &ok );
-    if ( ! ok )
+    int timeout = model->property("trojita-imap-noop-period").toUInt(&ok);
+    if (! ok)
         timeout = 2 * 60 * 1000; // once every two minutes
-    noopTimer->setInterval( timeout );
-    noopTimer->setSingleShot( true );
+    noopTimer->setInterval(timeout);
+    noopTimer->setSingleShot(true);
 
     fetchPartTimer = new QTimer(this);
     connect(fetchPartTimer, SIGNAL(timeout()), this, SLOT(slotFetchRequestedParts()));
-    timeout = model->property( "trojita-imap-delayed-fetch-part" ).toUInt( &ok );
-    if ( ! ok )
+    timeout = model->property("trojita-imap-delayed-fetch-part").toUInt(&ok);
+    if (! ok)
         timeout = 50;
-    fetchPartTimer->setInterval( timeout );
-    fetchPartTimer->setSingleShot( true );
+    fetchPartTimer->setInterval(timeout);
+    fetchPartTimer->setSingleShot(true);
 
     fetchEnvelopeTimer = new QTimer(this);
     connect(fetchEnvelopeTimer, SIGNAL(timeout()), this, SLOT(slotFetchRequestedEnvelopes()));
     fetchEnvelopeTimer->setInterval(0); // message metadata is pretty important, hence an immediate fetch
     fetchEnvelopeTimer->setSingleShot(true);
 
-    limitBytesAtOnce = model->property( "trojita-imap-limit-fetch-bytes-per-group" ).toUInt( &ok );
-    if ( ! ok )
+    limitBytesAtOnce = model->property("trojita-imap-limit-fetch-bytes-per-group").toUInt(&ok);
+    if (! ok)
         limitBytesAtOnce = 1024 * 1024;
 
-    limitMessagesAtOnce = model->property( "trojita-imap-limit-fetch-messages-per-group" ).toInt( &ok );
-    if ( ! ok )
+    limitMessagesAtOnce = model->property("trojita-imap-limit-fetch-messages-per-group").toInt(&ok);
+    if (! ok)
         limitMessagesAtOnce = 300;
 
-    limitParallelFetchTasks = model->property( "trojita-imap-limit-parallel-fetch-tasks" ).toInt( &ok );
-    if ( ! ok )
+    limitParallelFetchTasks = model->property("trojita-imap-limit-parallel-fetch-tasks").toInt(&ok);
+    if (! ok)
         limitParallelFetchTasks = 10;
 
-    limitActiveTasks = model->property( "trojita-imap-limit-active-tasks" ).toInt( &ok );
-    if ( ! ok )
+    limitActiveTasks = model->property("trojita-imap-limit-active-tasks").toInt(&ok);
+    if (! ok)
         limitActiveTasks = 100;
 
-    emit model->mailboxSyncingProgress( mailboxIndex, STATE_WAIT_FOR_CONN );
+    emit model->mailboxSyncingProgress(mailboxIndex, STATE_WAIT_FOR_CONN);
 }
 
 void KeepMailboxOpenTask::slotPerformConnection()
@@ -140,32 +142,32 @@ void KeepMailboxOpenTask::slotPerformConnection()
     synchronizeConn->perform();
 }
 
-void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
+void KeepMailboxOpenTask::addDependentTask(ImapTask *task)
 {
-    Q_ASSERT( task );
+    Q_ASSERT(task);
 
     // FIXME: what about abort()/die() here?
 
     breakPossibleIdle();
 
-    ObtainSynchronizedMailboxTask* obtainTask = qobject_cast<ObtainSynchronizedMailboxTask*>( task );
+    ObtainSynchronizedMailboxTask *obtainTask = qobject_cast<ObtainSynchronizedMailboxTask *>(task);
     if (obtainTask) {
         // Another KeepMailboxOpenTask would like to replace us, so we shall die, eventually.
 
         dependentTasks.append(task);
-        waitingObtainTasks.append( obtainTask );
+        waitingObtainTasks.append(obtainTask);
         shouldExit = true;
 
         // Before we can die, though, we have to accomodate fetch requests for all envelopes and parts queued so far.
         slotFetchRequestedEnvelopes();
         slotFetchRequestedParts();
 
-        if ( ! hasPendingInternalActions() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
+        if (! hasPendingInternalActions() && (! synchronizeConn || synchronizeConn->isFinished())) {
             terminate();
         }
     } else {
-        connect( task, SIGNAL(destroyed(QObject*)), this, SLOT(slotTaskDeleted(QObject*)) );
-        ImapTask::addDependentTask( task );
+        connect(task, SIGNAL(destroyed(QObject *)), this, SLOT(slotTaskDeleted(QObject *)));
+        ImapTask::addDependentTask(task);
         dependingTasksForThisMailbox.append(task);
         QTimer::singleShot(0, this, SLOT(slotActivateTasks()));
     }
@@ -173,18 +175,18 @@ void KeepMailboxOpenTask::addDependentTask( ImapTask* task )
     task->updateParentTask(this);
 }
 
-void KeepMailboxOpenTask::slotTaskDeleted( QObject *object )
+void KeepMailboxOpenTask::slotTaskDeleted(QObject *object)
 {
     // FIXME: abort/die
 
     // Now, object is no longer an ImapTask*, as this gets emitted from inside QObject's destructor. However,
     // we can't use the passed pointer directly, and therefore we have to perform the cast here. It is safe
     // to do that here, as we're only interested in raw pointer value.
-    dependentTasks.removeOne(static_cast<ImapTask*>(object));
-    dependingTasksForThisMailbox.removeOne(static_cast<ImapTask*>(object));
-    runningTasksForThisMailbox.removeOne(static_cast<ImapTask*>(object));
-    fetchPartTasks.removeOne(static_cast<FetchMsgPartTask*>(object));
-    fetchMetadataTasks.removeOne(static_cast<FetchMsgMetadataTask*>(object));
+    dependentTasks.removeOne(static_cast<ImapTask *>(object));
+    dependingTasksForThisMailbox.removeOne(static_cast<ImapTask *>(object));
+    runningTasksForThisMailbox.removeOne(static_cast<ImapTask *>(object));
+    fetchPartTasks.removeOne(static_cast<FetchMsgPartTask *>(object));
+    fetchMetadataTasks.removeOne(static_cast<FetchMsgMetadataTask *>(object));
 
     if (shouldExit && !hasPendingInternalActions() && (!synchronizeConn || synchronizeConn->isFinished())) {
         terminate();
@@ -221,7 +223,7 @@ void KeepMailboxOpenTask::terminate()
 
     // Merge the lists of waiting tasks
     if (!waitingObtainTasks.isEmpty()) {
-        ObtainSynchronizedMailboxTask* first = waitingObtainTasks.takeFirst();
+        ObtainSynchronizedMailboxTask *first = waitingObtainTasks.takeFirst();
         Q_ASSERT(first);
         Q_ASSERT(first->keepTaskChild);
         first->keepTaskChild->waitingObtainTasks = waitingObtainTasks + first->keepTaskChild->waitingObtainTasks;
@@ -286,7 +288,7 @@ void KeepMailboxOpenTask::resynchronizeMailbox()
     }
 }
 
-bool KeepMailboxOpenTask::handleNumberResponse( const Imap::Responses::NumberResponse* const resp )
+bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResponse *const resp)
 {
     if (_dead) {
         _failed("Asked to die");
@@ -297,39 +299,39 @@ bool KeepMailboxOpenTask::handleNumberResponse( const Imap::Responses::NumberRes
         return true;
 
     // FIXME: add proper boundaries
-    if ( ! isRunning )
+    if (! isRunning)
         return false;
 
-    TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
+    TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
     Q_ASSERT(mailbox);
-    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList*>(mailbox->_children[0]);
+    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(mailbox->_children[0]);
     Q_ASSERT(list);
     // FIXME: tests!
-    if ( resp->kind == Imap::Responses::EXPUNGE ) {
-        mailbox->handleExpunge( model, *resp );
-        mailbox->syncState.setExists( mailbox->syncState.exists() - 1 );
-        model->cache()->setMailboxSyncState( mailbox->mailbox(), mailbox->syncState );
+    if (resp->kind == Imap::Responses::EXPUNGE) {
+        mailbox->handleExpunge(model, *resp);
+        mailbox->syncState.setExists(mailbox->syncState.exists() - 1);
+        model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
         return true;
-    } else if ( resp->kind == Imap::Responses::EXISTS ) {
+    } else if (resp->kind == Imap::Responses::EXISTS) {
         // This is a bit tricky -- unfortunately, we can't assume anything about the UID of new arrivals. On the other hand,
         // these messages can be referenced by (even unrequested) FETCH responses and deleted by EXPUNGE, so we really want
         // to add them to the tree.
         int newArrivals = resp->number - list->_children.size();
-        if ( newArrivals < 0 ) {
-            throw UnexpectedResponseReceived( "EXISTS response attempted to decrease number of messages", *resp );
-        } else if ( newArrivals == 0 ) {
+        if (newArrivals < 0) {
+            throw UnexpectedResponseReceived("EXISTS response attempted to decrease number of messages", *resp);
+        } else if (newArrivals == 0) {
             // remains unchanged...
             return true;
         }
-        mailbox->syncState.setExists( resp->number );
-        model->cache()->clearUidMapping( mailbox->mailbox() );
+        mailbox->syncState.setExists(resp->number);
+        model->cache()->clearUidMapping(mailbox->mailbox());
         model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
 
         QModelIndex parent = list->toIndex(model);
         int offset = list->_children.size();
-        model->beginInsertRows( parent, offset, resp->number - 1 );
-        for ( int i = 0; i < newArrivals; ++i ) {
-            TreeItemMessage * msg = new TreeItemMessage( list );
+        model->beginInsertRows(parent, offset, resp->number - 1);
+        for (int i = 0; i < newArrivals; ++i) {
+            TreeItemMessage *msg = new TreeItemMessage(list);
             msg->_offset = i + offset;
             list->_children << msg;
             // yes, we really have to add this message with UID 0 :(
@@ -342,24 +344,24 @@ bool KeepMailboxOpenTask::handleNumberResponse( const Imap::Responses::NumberRes
 
         Q_ASSERT(list->_children.size());
         uint highestKnownUid = 0;
-        for ( int i = list->_children.size() - 1; ! highestKnownUid && i >= 0; --i ) {
-            highestKnownUid = static_cast<const TreeItemMessage*>(list->_children[i])->uid();
+        for (int i = list->_children.size() - 1; ! highestKnownUid && i >= 0; --i) {
+            highestKnownUid = static_cast<const TreeItemMessage *>(list->_children[i])->uid();
             //qDebug() << "UID disco: trying seq" << i << highestKnownUid;
         }
-        newArrivalsFetch = parser->uidFetch( Sequence::startingAt(
-                // Did the UID walk return a usable number?
-                highestKnownUid ?
-                    // Yes, we've got at least one message with a UID known -> ask for higher
-                    // but don't forget to compensate for an pre-existing UIDNEXT value
-                    qMax(mailbox->syncState.uidNext(), highestKnownUid + 1)
-                :
-                    // No messages, or no messages with valid UID -> use the UIDNEXT from the syncing state
-                    // but prevent a possible invalid 0:*
-                    qMax( mailbox->syncState.uidNext(), 1u )
-                ), QStringList() << QLatin1String("FLAGS") );
+        newArrivalsFetch = parser->uidFetch(Sequence::startingAt(
+                                                // Did the UID walk return a usable number?
+                                                highestKnownUid ?
+                                                // Yes, we've got at least one message with a UID known -> ask for higher
+                                                // but don't forget to compensate for an pre-existing UIDNEXT value
+                                                qMax(mailbox->syncState.uidNext(), highestKnownUid + 1)
+                                                :
+                                                // No messages, or no messages with valid UID -> use the UIDNEXT from the syncing state
+                                                // but prevent a possible invalid 0:*
+                                                qMax(mailbox->syncState.uidNext(), 1u)
+                                            ), QStringList() << QLatin1String("FLAGS"));
         return true;
-    } else if ( resp->kind == Imap::Responses::RECENT ) {
-        mailbox->syncState.setRecent( resp->number );
+    } else if (resp->kind == Imap::Responses::RECENT) {
+        mailbox->syncState.setRecent(resp->number);
         list->_recentMessageCount = resp->number;
         model->emitMessageCountChanged(mailbox);
         return true;
@@ -368,7 +370,7 @@ bool KeepMailboxOpenTask::handleNumberResponse( const Imap::Responses::NumberRes
     }
 }
 
-bool KeepMailboxOpenTask::handleFetch( const Imap::Responses::Fetch* const resp )
+bool KeepMailboxOpenTask::handleFetch(const Imap::Responses::Fetch *const resp)
 {
     if (dieIfInvalidMailbox())
         return true;
@@ -379,12 +381,12 @@ bool KeepMailboxOpenTask::handleFetch( const Imap::Responses::Fetch* const resp 
     }
 
     // FIXME: add proper boundaries
-    if ( ! isRunning )
+    if (! isRunning)
         return false;
 
-    TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
+    TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
     Q_ASSERT(mailbox);
-    model->_genericHandleFetch( mailbox, resp );
+    model->_genericHandleFetch(mailbox, resp);
     return true;
 }
 
@@ -394,25 +396,25 @@ void KeepMailboxOpenTask::slotPerformNoop()
     model->_taskFactory->createNoopTask(model, this);
 }
 
-bool KeepMailboxOpenTask::handleStateHelper( const Imap::Responses::State* const resp )
+bool KeepMailboxOpenTask::handleStateHelper(const Imap::Responses::State *const resp)
 {
     // FIXME: abort/die
 
     if (dieIfInvalidMailbox())
         return true;
 
-    if ( handleResponseCodeInsideState(resp) )
+    if (handleResponseCodeInsideState(resp))
         return true;
 
     // FIXME: checks for shouldExit and proper boundaries?
 
-    if ( resp->tag.isEmpty() )
+    if (resp->tag.isEmpty())
         return false;
 
-    if ( resp->tag == tagIdle ) {
+    if (resp->tag == tagIdle) {
 
-        Q_ASSERT( idleLauncher );
-        if ( resp->kind == Responses::OK ) {
+        Q_ASSERT(idleLauncher);
+        if (resp->kind == Responses::OK) {
             // The IDLE got terminated for whatever reason, so we should schedule its restart
             idleLauncher->idleCommandCompleted();
         } else {
@@ -427,13 +429,13 @@ bool KeepMailboxOpenTask::handleStateHelper( const Imap::Responses::State* const
         // IDLE is special because it's not really a native Task. Therefore, we have to duplicate the check for its completion
         // and possible termination request here.
         // FIXME: maybe rewrite IDLE to be a native task and get all the benefits for free? Any drawbacks?
-        if ( shouldExit && ! hasPendingInternalActions() && ( ! synchronizeConn || synchronizeConn->isFinished() ) ) {
+        if (shouldExit && ! hasPendingInternalActions() && (! synchronizeConn || synchronizeConn->isFinished())) {
             terminate();
         }
         return true;
-    } else if ( resp->tag == newArrivalsFetch ) {
+    } else if (resp->tag == newArrivalsFetch) {
 
-        if ( resp->kind == Responses::OK ) {
+        if (resp->kind == Responses::OK) {
             // FIXME: anything to do here?
         } else {
             // FIXME: handling of failure...
@@ -455,9 +457,9 @@ terminate and its biggest goals are to:
 */
 void KeepMailboxOpenTask::abort()
 {
-    if ( noopTimer )
+    if (noopTimer)
         noopTimer->stop();
-    if ( idleLauncher )
+    if (idleLauncher)
         idleLauncher->die();
 
     detachFromMailbox();
@@ -470,13 +472,13 @@ void KeepMailboxOpenTask::abort()
 /** @short Stop working as a maintaining task */
 void KeepMailboxOpenTask::detachFromMailbox()
 {
-    if ( mailboxIndex.isValid() ) {
+    if (mailboxIndex.isValid()) {
         // Mark current mailbox as "orphaned by the housekeeping task"
-        TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
-        Q_ASSERT( mailbox );
+        TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
+        Q_ASSERT(mailbox);
 
         // We're already obsolete -> don't pretend to accept new tasks
-        if ( mailbox->maintainingTask == this )
+        if (mailbox->maintainingTask == this)
             mailbox->maintainingTask = 0;
     }
 }
@@ -508,14 +510,14 @@ void KeepMailboxOpenTask::killAllPendingTasks()
 
 QString KeepMailboxOpenTask::debugIdentification() const
 {
-    if ( ! mailboxIndex.isValid() )
+    if (! mailboxIndex.isValid())
         return QString::fromAscii("[invalid mailboxIndex]");
 
-    TreeItemMailbox* mailbox = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItem*>( mailboxIndex.internalPointer() ) );
+    TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
     Q_ASSERT(mailbox);
-    return QString::fromAscii("attached to %1%2%3").arg( mailbox->mailbox(),
-                                                       ( synchronizeConn && ! synchronizeConn->isFinished() ) ? " [syncConn unfinished]" : "",
-                                                       shouldExit ? " [shouldExit]" : ""
+    return QString::fromAscii("attached to %1%2%3").arg(mailbox->mailbox(),
+            (synchronizeConn && ! synchronizeConn->isFinished()) ? " [syncConn unfinished]" : "",
+            shouldExit ? " [shouldExit]" : ""
                                                        );
 }
 
@@ -527,30 +529,30 @@ void KeepMailboxOpenTask::stopForLogout()
     killAllPendingTasks();
 }
 
-bool KeepMailboxOpenTask::handleSearch( const Imap::Responses::Search* const resp )
+bool KeepMailboxOpenTask::handleSearch(const Imap::Responses::Search *const resp)
 {
     if (dieIfInvalidMailbox())
         return true;
 
-    TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
+    TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
     Q_ASSERT(mailbox);
     // Be sure there really are some new messages
-    const SyncState& oldState = model->cache()->mailboxSyncState( mailbox->mailbox() );
+    const SyncState &oldState = model->cache()->mailboxSyncState(mailbox->mailbox());
     const int newArrivals = mailbox->syncState.exists() - oldState.exists();
-    Q_ASSERT( newArrivals > 0 );
+    Q_ASSERT(newArrivals > 0);
 
-    if ( newArrivals != resp->items.size() ) {
+    if (newArrivals != resp->items.size()) {
         std::ostringstream ss;
         ss << "UID SEARCH ALL returned unexpected number of entries when syncing new arrivals into already synced mailbox: "
-                << newArrivals << " expected, got " << resp->items.size() << std::endl;
+           << newArrivals << " expected, got " << resp->items.size() << std::endl;
         ss.flush();
-        throw MailboxException( ss.str().c_str(), *resp );
+        throw MailboxException(ss.str().c_str(), *resp);
     }
     uidMap = resp->items;
     return true;
 }
 
-bool KeepMailboxOpenTask::handleFlags( const Imap::Responses::Flags* const resp )
+bool KeepMailboxOpenTask::handleFlags(const Imap::Responses::Flags *const resp)
 {
     if (dieIfInvalidMailbox())
         return true;
@@ -558,9 +560,9 @@ bool KeepMailboxOpenTask::handleFlags( const Imap::Responses::Flags* const resp 
     // Well, there isn't much point in keeping track of these flags, but given that
     // IMAP servers are happy to send these responses even after the initial sync, we
     // better handle them explicitly here.
-    TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
+    TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
     Q_ASSERT(mailbox);
-    mailbox->syncState.setFlags( resp->flags );
+    mailbox->syncState.setFlags(resp->flags);
     return true;
 }
 
@@ -584,9 +586,9 @@ void KeepMailboxOpenTask::activateTasks()
     }
 }
 
-void KeepMailboxOpenTask::requestPartDownload( const uint uid, const QString &partId, const uint estimatedSize )
+void KeepMailboxOpenTask::requestPartDownload(const uint uid, const QString &partId, const uint estimatedSize)
 {
-    requestedParts[uid].insert( partId );
+    requestedParts[uid].insert(partId);
     requestedPartSizes[uid] += estimatedSize;
     if (!fetchPartTimer->isActive()) {
         fetchPartTimer->start();
@@ -651,44 +653,43 @@ void KeepMailboxOpenTask::slotFetchRequestedEnvelopes()
 
 void KeepMailboxOpenTask::breakPossibleIdle()
 {
-    if ( idleLauncher && idleLauncher->idling() ) {
+    if (idleLauncher && idleLauncher->idling()) {
         // If we're idling right now, we should immediately abort
         idleLauncher->finishIdle();
     }
 }
 
-bool KeepMailboxOpenTask::handleResponseCodeInsideState( const Imap::Responses::State* const resp )
+bool KeepMailboxOpenTask::handleResponseCodeInsideState(const Imap::Responses::State *const resp)
 {
     if (dieIfInvalidMailbox())
         return true;
 
-    switch ( resp->respCode ) {
-    case Responses::UIDNEXT:
-    {
-        TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
+    switch (resp->respCode) {
+    case Responses::UIDNEXT: {
+        TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
         Q_ASSERT(mailbox);
-        const Responses::RespData<uint>* const num = dynamic_cast<const Responses::RespData<uint>* const>( resp->respCodeData.data() );
-        if ( num ) {
-            mailbox->syncState.setUidNext( num->data );
+        const Responses::RespData<uint> *const num = dynamic_cast<const Responses::RespData<uint>* const>(resp->respCodeData.data());
+        if (num) {
+            mailbox->syncState.setUidNext(num->data);
             model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
             return true;
         } else {
-            throw CantHappen( "State response has invalid UIDNEXT respCodeData", *resp );
+            throw CantHappen("State response has invalid UIDNEXT respCodeData", *resp);
         }
         break;
     }
     case Responses::PERMANENTFLAGS:
-    // Another useless one, but we want to consume it now to prevent a warning about
-    // an unhandled message
+        // Another useless one, but we want to consume it now to prevent a warning about
+        // an unhandled message
     {
-        TreeItemMailbox *mailbox = Model::mailboxForSomeItem( mailboxIndex );
+        TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
         Q_ASSERT(mailbox);
-        const Responses::RespData<QStringList>* const num = dynamic_cast<const Responses::RespData<QStringList>* const>( resp->respCodeData.data() );
-        if ( num ) {
-            mailbox->syncState.setPermanentFlags( num->data );
+        const Responses::RespData<QStringList> *const num = dynamic_cast<const Responses::RespData<QStringList>* const>(resp->respCodeData.data());
+        if (num) {
+            mailbox->syncState.setPermanentFlags(num->data);
             return true;
         } else {
-            throw CantHappen( "State response has invalid PERMANENTFLAGS respCodeData", *resp );
+            throw CantHappen("State response has invalid PERMANENTFLAGS respCodeData", *resp);
         }
         break;
     }
@@ -717,7 +718,7 @@ bool KeepMailboxOpenTask::dieIfInvalidMailbox()
 
     // See ObtainSynchronizedMailboxTask::dieIfInvalidMailbox() for details
     unSelectTask = model->_taskFactory->createUnSelectTask(model, this);
-    connect(unSelectTask, SIGNAL(completed(ImapTask*)), this, SLOT(slotConnFailed()));
+    connect(unSelectTask, SIGNAL(completed(ImapTask *)), this, SLOT(slotConnFailed()));
     unSelectTask->perform();
 
     return true;
@@ -726,8 +727,8 @@ bool KeepMailboxOpenTask::dieIfInvalidMailbox()
 bool KeepMailboxOpenTask::hasPendingInternalActions() const
 {
     bool hasToWaitForIdleTermination = idleLauncher ? idleLauncher->waitingForIdleTaggedTermination() : false;
-    return ! (dependingTasksForThisMailbox.isEmpty() && runningTasksForThisMailbox.isEmpty() &&
-              requestedParts.isEmpty() && requestedEnvelopes.isEmpty()) || hasToWaitForIdleTermination;
+    return !(dependingTasksForThisMailbox.isEmpty() && runningTasksForThisMailbox.isEmpty() &&
+             requestedParts.isEmpty() && requestedEnvelopes.isEmpty()) || hasToWaitForIdleTermination;
 }
 
 }

@@ -25,7 +25,8 @@
 #include "Common/SettingsNames.h"
 
 
-namespace Gui{
+namespace Gui
+{
 
 AutoCompletionModel::AutoCompletionModel(QObject *parent):
     QStringListModel(parent)

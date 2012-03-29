@@ -26,17 +26,20 @@
 #include <QMap>
 
 /** @short Namespace for IMAP interaction */
-namespace Imap {
+namespace Imap
+{
 
 /** @short Classes for handling of mailboxes and connections */
-namespace Mailbox {
+namespace Mailbox
+{
 
 /** @short A cache implementation that uses in-memory cache
 
     It also has an optional feature to dump the data to a local file and read
     it back in. Is isn't suitable for real production use, but it's a good start.
  */
-class MemoryCache : public AbstractCache {
+class MemoryCache : public AbstractCache
+{
     Q_OBJECT
 public:
     struct LightMessageDataBundle {
@@ -45,32 +48,32 @@ public:
         QByteArray serializedBodyStructure;
     };
 
-    MemoryCache( QObject* parent, const QString& fileName );
+    MemoryCache(QObject *parent, const QString &fileName);
     ~MemoryCache();
 
-    virtual QList<MailboxMetadata> childMailboxes( const QString& mailbox ) const;
-    virtual bool childMailboxesFresh( const QString& mailbox ) const;
-    virtual void setChildMailboxes( const QString& mailbox, const QList<MailboxMetadata>& data );
-    virtual void forgetChildMailboxes( const QString& mailbox );
+    virtual QList<MailboxMetadata> childMailboxes(const QString &mailbox) const;
+    virtual bool childMailboxesFresh(const QString &mailbox) const;
+    virtual void setChildMailboxes(const QString &mailbox, const QList<MailboxMetadata> &data);
+    virtual void forgetChildMailboxes(const QString &mailbox);
 
-    virtual SyncState mailboxSyncState( const QString& mailbox ) const;
-    virtual void setMailboxSyncState( const QString& mailbox, const SyncState& state );
+    virtual SyncState mailboxSyncState(const QString &mailbox) const;
+    virtual void setMailboxSyncState(const QString &mailbox, const SyncState &state);
 
-    virtual void setUidMapping( const QString& mailbox, const QList<uint>& seqToUid );
-    virtual void clearUidMapping( const QString& mailbox );
-    virtual QList<uint> uidMapping( const QString& mailbox ) const;
+    virtual void setUidMapping(const QString &mailbox, const QList<uint> &seqToUid);
+    virtual void clearUidMapping(const QString &mailbox);
+    virtual QList<uint> uidMapping(const QString &mailbox) const;
 
-    virtual void clearAllMessages( const QString& mailbox );
-    virtual void clearMessage( const QString mailbox, uint uid );
+    virtual void clearAllMessages(const QString &mailbox);
+    virtual void clearMessage(const QString mailbox, uint uid);
 
-    virtual MessageDataBundle messageMetadata( const QString& mailbox, uint uid ) const;
-    virtual void setMessageMetadata( const QString& mailbox, uint uid, const MessageDataBundle& metadata );
+    virtual MessageDataBundle messageMetadata(const QString &mailbox, uint uid) const;
+    virtual void setMessageMetadata(const QString &mailbox, uint uid, const MessageDataBundle &metadata);
 
     virtual QStringList msgFlags(const QString &mailbox, uint uid) const;
     virtual void setMsgFlags(const QString &mailbox, uint uid, const QStringList &flags);
 
-    virtual QByteArray messagePart( const QString& mailbox, uint uid, const QString& partId ) const;
-    virtual void setMsgPart( const QString& mailbox, uint uid, const QString& partId, const QByteArray& data );
+    virtual QByteArray messagePart(const QString &mailbox, uint uid, const QString &partId) const;
+    virtual void setMsgPart(const QString &mailbox, uint uid, const QString &partId, const QByteArray &data);
 
     virtual QVector<Imap::Responses::ThreadingNode> messageThreading(const QString &mailbox);
     virtual void setMessageThreading(const QString &mailbox, const QVector<Imap::Responses::ThreadingNode> &threading);
@@ -95,7 +98,7 @@ private:
 
 }
 
-QDataStream& operator>>( QDataStream& stream, Imap::Mailbox::MemoryCache::LightMessageDataBundle& x );
-QDataStream& operator<<( QDataStream& stream, const Imap::Mailbox::MemoryCache::LightMessageDataBundle& x );
+QDataStream &operator>>(QDataStream &stream, Imap::Mailbox::MemoryCache::LightMessageDataBundle &x);
+QDataStream &operator<<(QDataStream &stream, const Imap::Mailbox::MemoryCache::LightMessageDataBundle &x);
 
 #endif /* IMAP_MODEL_MEMORYCACHE_H */

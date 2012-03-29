@@ -23,12 +23,13 @@
 #include "Gui/Window.h"
 #include "Common/SetCoreApplication.h"
 
-int main( int argc, char** argv) {
-    QApplication app( argc, argv );
+int main(int argc, char **argv)
+{
+    QApplication app(argc, argv);
     Q_INIT_RESOURCE(icons);
-    QCoreApplication::setApplicationName( QString::fromAscii("trojita") );
+    QCoreApplication::setApplicationName(QString::fromAscii("trojita"));
     Common::setCoreApplicationData();
-    app.setWindowIcon( QIcon( QString::fromAscii(":/icons/trojita.png") ) );
+    app.setWindowIcon(QIcon(QString::fromAscii(":/icons/trojita.png")));
     Gui::MainWindow win;
     win.show();
     return app.exec();

@@ -23,32 +23,35 @@
 #include "../Parser/Parser.h"
 #include "../Model/Logging.h"
 
-namespace Imap {
+namespace Imap
+{
 
-namespace Responses {
-    class State;
-    class Capability;
-    class NumberResponse;
-    class List;
-    class Flags;
-    class Search;
-    class Status;
-    class Fetch;
-    class Namespace;
-    class Sort;
-    class Thread;
+namespace Responses
+{
+class State;
+class Capability;
+class NumberResponse;
+class List;
+class Flags;
+class Search;
+class Status;
+class Fetch;
+class Namespace;
+class Sort;
+class Thread;
 }
 
-namespace Mailbox {
+namespace Mailbox
+{
 
 class Model;
 
 /** @short Parent class for all IMAP-related jobs */
 class ImapTask : public QObject
 {
-Q_OBJECT
+    Q_OBJECT
 public:
-    ImapTask( Model* _model );
+    ImapTask(Model *_model);
     virtual ~ImapTask();
 
     virtual void perform() = 0;
@@ -71,21 +74,21 @@ public:
     */
     virtual void abort();
 
-    virtual void addDependentTask( ImapTask* task );
+    virtual void addDependentTask(ImapTask *task);
     void updateParentTask(ImapTask *newParent);
 
-    bool handleState( const Imap::Responses::State* const resp );
-    virtual bool handleStateHelper( const Imap::Responses::State* const resp );
-    virtual bool handleCapability( const Imap::Responses::Capability* const resp );
-    virtual bool handleNumberResponse( const Imap::Responses::NumberResponse* const resp );
-    virtual bool handleList( const Imap::Responses::List* const resp );
-    virtual bool handleFlags( const Imap::Responses::Flags* const resp );
-    virtual bool handleSearch( const Imap::Responses::Search* const resp );
-    virtual bool handleStatus( const Imap::Responses::Status* const resp );
-    virtual bool handleFetch( const Imap::Responses::Fetch* const resp );
-    virtual bool handleNamespace( const Imap::Responses::Namespace* const resp );
-    virtual bool handleSort( const Imap::Responses::Sort* const resp );
-    virtual bool handleThread( const Imap::Responses::Thread* const resp );
+    bool handleState(const Imap::Responses::State *const resp);
+    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
+    virtual bool handleCapability(const Imap::Responses::Capability *const resp);
+    virtual bool handleNumberResponse(const Imap::Responses::NumberResponse *const resp);
+    virtual bool handleList(const Imap::Responses::List *const resp);
+    virtual bool handleFlags(const Imap::Responses::Flags *const resp);
+    virtual bool handleSearch(const Imap::Responses::Search *const resp);
+    virtual bool handleStatus(const Imap::Responses::Status *const resp);
+    virtual bool handleFetch(const Imap::Responses::Fetch *const resp);
+    virtual bool handleNamespace(const Imap::Responses::Namespace *const resp);
+    virtual bool handleSort(const Imap::Responses::Sort *const resp);
+    virtual bool handleThread(const Imap::Responses::Thread *const resp);
     virtual bool handleId(const Imap::Responses::Id *const resp);
 
     /** @short Return true if this task has already finished and can be safely deleted */
@@ -125,7 +128,7 @@ protected:
     void markAsActiveTask(const TaskActivatingPosition place=TASK_APPEND);
 
 private:
-    void handleResponseCode( const Imap::Responses::State* const resp );
+    void handleResponseCode(const Imap::Responses::State *const resp);
 
 signals:
     /** @short This signal is emitted if the job failed in some way */
@@ -134,12 +137,12 @@ signals:
     void completed(ImapTask *task);
 
 public:
-    Imap::Parser* parser;
+    Imap::Parser *parser;
     ImapTask *parentTask;
 
 protected:
-    Model* model;
-    QList<ImapTask*> dependentTasks;
+    Model *model;
+    QList<ImapTask *> dependentTasks;
     bool _finished;
     bool _dead;
     bool _aborted;

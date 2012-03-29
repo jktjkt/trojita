@@ -26,14 +26,17 @@
 class QModelIndex;
 class QNetworkReply;
 
-namespace Imap {
-namespace Network {
-    class FileDownloadManager;
-    class MsgPartNetAccessManager;
+namespace Imap
+{
+namespace Network
+{
+class FileDownloadManager;
+class MsgPartNetAccessManager;
 }
 }
 
-namespace Gui {
+namespace Gui
+{
 
 /** @short Widget depicting an attachment
 
@@ -46,15 +49,15 @@ class AttachmentView : public QWidget
 {
     Q_OBJECT
 public:
-    AttachmentView(QWidget* parent,  Imap::Network::MsgPartNetAccessManager* _manager, const QModelIndex &partIndex);
+    AttachmentView(QWidget *parent,  Imap::Network::MsgPartNetAccessManager *_manager, const QModelIndex &partIndex);
 private slots:
-    void slotTransferError( const QString& errorString );
-    void slotFileNameRequested( QString* fileName );
+    void slotTransferError(const QString &errorString);
+    void slotFileNameRequested(QString *fileName);
 private:
-    Imap::Network::FileDownloadManager* _fileDownloadManager;
+    Imap::Network::FileDownloadManager *_fileDownloadManager;
 
-    AttachmentView(const AttachmentView&); // don't implement
-    AttachmentView& operator=(const AttachmentView&); // don't implement
+    AttachmentView(const AttachmentView &); // don't implement
+    AttachmentView &operator=(const AttachmentView &); // don't implement
 };
 
 }

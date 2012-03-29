@@ -29,7 +29,8 @@
 
 class QPushButton;
 
-namespace Gui {
+namespace Gui
+{
 
 /** @short Widget which implements "click-through" for loading message parts on demand
 
@@ -42,23 +43,23 @@ class LoadablePartWidget : public QStackedWidget, public AbstractPartWidget
 {
     Q_OBJECT
 public:
-    LoadablePartWidget( QWidget* parent,
-                        Imap::Network::MsgPartNetAccessManager* _manager,
-                        const QModelIndex &_part,
-                        QObject* _wheelEventFilter );
+    LoadablePartWidget(QWidget *parent,
+                       Imap::Network::MsgPartNetAccessManager *_manager,
+                       const QModelIndex &_part,
+                       QObject *_wheelEventFilter);
     QString quoteMe() const;
     virtual void reloadContents() {}
 private slots:
     void loadClicked();
 private:
-    Imap::Network::MsgPartNetAccessManager* manager;
+    Imap::Network::MsgPartNetAccessManager *manager;
     QPersistentModelIndex partIndex;
-    SimplePartWidget* realPart;
-    QObject* wheelEventFilter;
-    QPushButton* loadButton;
+    SimplePartWidget *realPart;
+    QObject *wheelEventFilter;
+    QPushButton *loadButton;
 
-    LoadablePartWidget(const LoadablePartWidget&); // don't implement
-    LoadablePartWidget& operator=(const LoadablePartWidget&); // don't implement
+    LoadablePartWidget(const LoadablePartWidget &); // don't implement
+    LoadablePartWidget &operator=(const LoadablePartWidget &); // don't implement
 };
 
 }

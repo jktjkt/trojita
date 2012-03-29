@@ -26,9 +26,10 @@
 #include <QSignalMapper>
 #include "Imap/Model/MsgListModel.h"
 
-namespace Gui {
+namespace Gui
+{
 
-MsgListView::MsgListView(QWidget* parent): QTreeView(parent)
+MsgListView::MsgListView(QWidget *parent): QTreeView(parent)
 {
     connect(header(), SIGNAL(geometriesChanged()), this, SLOT(slotFixSize()));
     connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(slotExpandWholeSubtree(QModelIndex)));
@@ -38,52 +39,52 @@ MsgListView::MsgListView(QWidget* parent): QTreeView(parent)
     connect(headerFieldsMapper, SIGNAL(mapped(int)), this, SLOT(slotHeaderSectionVisibilityToggled(int)));
 }
 
-int MsgListView::sizeHintForColumn( int column ) const
+int MsgListView::sizeHintForColumn(int column) const
 {
-    switch ( column ) {
-        case Imap::Mailbox::MsgListModel::SEEN:
-            return 16;
-        case Imap::Mailbox::MsgListModel::SUBJECT:
-            return fontMetrics().size( Qt::TextSingleLine, QLatin1String("Blesmrt Trojita Foo Bar") ).width();
-        case Imap::Mailbox::MsgListModel::FROM:
-        case Imap::Mailbox::MsgListModel::TO:
-        case Imap::Mailbox::MsgListModel::CC:
-        case Imap::Mailbox::MsgListModel::BCC:
-            return fontMetrics().size( Qt::TextSingleLine, QLatin1String("Blesmrt Trojita") ).width();
-        case Imap::Mailbox::MsgListModel::DATE:
-            return fontMetrics().size( Qt::TextSingleLine,
-                                       QDateTime::currentDateTime().toString(Qt::DefaultLocaleShortDate)
-                                       // Because that's roughly what the PrettyMsgListModel is doing
-                                       ).width();
-        case Imap::Mailbox::MsgListModel::SIZE:
-            return fontMetrics().size( Qt::TextSingleLine, QLatin1String("888.1 kB") ).width();
-        default:
-            return QTreeView::sizeHintForColumn( column );
+    switch (column) {
+    case Imap::Mailbox::MsgListModel::SEEN:
+        return 16;
+    case Imap::Mailbox::MsgListModel::SUBJECT:
+        return fontMetrics().size(Qt::TextSingleLine, QLatin1String("Blesmrt Trojita Foo Bar")).width();
+    case Imap::Mailbox::MsgListModel::FROM:
+    case Imap::Mailbox::MsgListModel::TO:
+    case Imap::Mailbox::MsgListModel::CC:
+    case Imap::Mailbox::MsgListModel::BCC:
+        return fontMetrics().size(Qt::TextSingleLine, QLatin1String("Blesmrt Trojita")).width();
+    case Imap::Mailbox::MsgListModel::DATE:
+        return fontMetrics().size(Qt::TextSingleLine,
+                                  QDateTime::currentDateTime().toString(Qt::DefaultLocaleShortDate)
+                                  // Because that's roughly what the PrettyMsgListModel is doing
+                                 ).width();
+    case Imap::Mailbox::MsgListModel::SIZE:
+        return fontMetrics().size(Qt::TextSingleLine, QLatin1String("888.1 kB")).width();
+    default:
+        return QTreeView::sizeHintForColumn(column);
     }
 }
 
 void MsgListView::slotFixSize()
 {
-    if ( header()->visualIndex( Imap::Mailbox::MsgListModel::SEEN ) == -1 ) {
+    if (header()->visualIndex(Imap::Mailbox::MsgListModel::SEEN) == -1) {
         // calling setResizeMode() would assert()
         qDebug() << "Can't fix the header size of the icon, sorry";
         return;
     }
-    header()->setStretchLastSection( false );
-    header()->setResizeMode( Imap::Mailbox::MsgListModel::SUBJECT, QHeaderView::Stretch );
-    header()->setResizeMode( Imap::Mailbox::MsgListModel::SEEN, QHeaderView::Fixed );
+    header()->setStretchLastSection(false);
+    header()->setResizeMode(Imap::Mailbox::MsgListModel::SUBJECT, QHeaderView::Stretch);
+    header()->setResizeMode(Imap::Mailbox::MsgListModel::SEEN, QHeaderView::Fixed);
 }
 
 void MsgListView::slotExpandWholeSubtree(const QModelIndex &rootIndex)
 {
-    if ( rootIndex.parent().isValid() )
+    if (rootIndex.parent().isValid())
         return;
 
     QVector<QModelIndex> queue(1, rootIndex);
-    for ( int i = 0; i < queue.size(); ++i ) {
+    for (int i = 0; i < queue.size(); ++i) {
         const QModelIndex currentIndex = queue[i];
         // Append all children to the queue...
-        for ( int j = 0; j < currentIndex.model()->rowCount(currentIndex); ++j )
+        for (int j = 0; j < currentIndex.model()->rowCount(currentIndex); ++j)
             queue.append(currentIndex.child(j, 0));
         // ...and expand the current index
         expand(currentIndex);
@@ -94,7 +95,7 @@ void MsgListView::slotSectionCountChanged()
 {
     Q_ASSERT(header());
     // At first, remove all actions
-    QList<QAction*> actions = header()->actions();
+    QList<QAction *> actions = header()->actions();
     Q_FOREACH(QAction *action, actions) {
         header()->removeAction(action);
         headerFieldsMapper->removeMappings(action);
@@ -102,9 +103,9 @@ void MsgListView::slotSectionCountChanged()
     }
     actions.clear();
     // Now add them again
-    for ( int i = 0; i < header()->count(); ++i ) {
+    for (int i = 0; i < header()->count(); ++i) {
         QString message = header()->model() ? header()->model()->headerData(i, Qt::Horizontal).toString() : QString::number(i);
-        QAction *action = new QAction( message, this );
+        QAction *action = new QAction(message, this);
         action->setCheckable(true);
         action->setChecked(true);
         connect(action, SIGNAL(toggled(bool)), headerFieldsMapper, SLOT(map()));
@@ -134,12 +135,12 @@ void MsgListView::slotSectionCountChanged()
 
 void MsgListView::slotHeaderSectionVisibilityToggled(int section)
 {
-    QList<QAction*> actions = header()->actions();
-    if ( section >= actions.size() || section < 0 )
+    QList<QAction *> actions = header()->actions();
+    if (section >= actions.size() || section < 0)
         return;
     bool hide = ! actions[section]->isChecked();
 
-    if ( hide && header()->hiddenSectionCount() == header()->count() - 1 ) {
+    if (hide && header()->hiddenSectionCount() == header()->count() - 1) {
         // This would hide the very last section, which would hide the whole header view
         actions[section]->setChecked(true);
     } else {

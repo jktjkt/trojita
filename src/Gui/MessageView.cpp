@@ -40,7 +40,8 @@
 #include "Imap/Model/MsgListModel.h"
 #include "Imap/Network/MsgPartNetAccessManager.h"
 
-namespace Gui {
+namespace Gui
+{
 
 MessageView::MessageView(QWidget *parent): QWidget(parent)
 {
@@ -60,7 +61,7 @@ MessageView::MessageView(QWidget *parent): QWidget(parent)
     tags->hide();
     connect(tags, SIGNAL(tagAdded(QString)), this, SLOT(newLabelAction(QString)));
     connect(tags, SIGNAL(tagRemoved(QString)), this, SLOT(deleteLabelAction(QString)));
-    connect(header, SIGNAL(linkHovered(QString)), this, SLOT(linkInTitleHovered(QString)) );
+    connect(header, SIGNAL(linkHovered(QString)), this, SLOT(linkInTitleHovered(QString)));
     externalElements = new ExternalElementsWidget(this);
     externalElements->hide();
     connect(externalElements, SIGNAL(loadingEnabled()), this, SLOT(externalsEnabled()));
@@ -72,7 +73,7 @@ MessageView::MessageView(QWidget *parent): QWidget(parent)
 
     markAsReadTimer = new QTimer(this);
     markAsReadTimer->setSingleShot(true);
-    connect( markAsReadTimer, SIGNAL(timeout()), this, SLOT(markAsRead()) );
+    connect(markAsReadTimer, SIGNAL(timeout()), this, SLOT(markAsRead()));
 
     header->setIndent(5);
     header->setWordWrap(true);
@@ -108,7 +109,7 @@ void MessageView::setMessage(const QModelIndex &index)
     Imap::Mailbox::TreeItem *item = Imap::Mailbox::Model::realTreeItem(index, &constModel, &messageIndex);
     Q_ASSERT(item); // Make sure it's a message
     Q_ASSERT(messageIndex.isValid());
-    Imap::Mailbox::Model *realModel = const_cast<Imap::Mailbox::Model*>(constModel);
+    Imap::Mailbox::Model *realModel = const_cast<Imap::Mailbox::Model *>(constModel);
     Q_ASSERT(realModel);
 
     if (!messageIndex.data(Imap::Mailbox::RoleIsFetched).toBool()) {
@@ -122,7 +123,7 @@ void MessageView::setMessage(const QModelIndex &index)
     if (message != messageIndex) {
         emptyView->hide();
         layout->removeWidget(viewer);
-        if ( viewer != emptyView ) {
+        if (viewer != emptyView) {
             viewer->setParent(0);
             viewer->deleteLater();
         }
@@ -157,7 +158,7 @@ void MessageView::markAsRead()
 {
     if (!message.isValid())
         return;
-    Imap::Mailbox::Model *model = const_cast<Imap::Mailbox::Model*>(dynamic_cast<const Imap::Mailbox::Model*>(message.model()));
+    Imap::Mailbox::Model *model = const_cast<Imap::Mailbox::Model *>(dynamic_cast<const Imap::Mailbox::Model *>(message.model()));
     Q_ASSERT(model);
     if (!model->isNetworkAvailable())
         return;
@@ -167,23 +168,23 @@ void MessageView::markAsRead()
 bool MessageView::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type() == QEvent::Wheel) {
-        MessageView::event( event );
+        MessageView::event(event);
         return true;
     } else if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
-        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         switch (keyEvent->key()) {
-            case Qt::Key_Left:
-            case Qt::Key_Right:
-            case Qt::Key_Up:
-            case Qt::Key_Down:
-            case Qt::Key_PageUp:
-            case Qt::Key_PageDown:
-            case Qt::Key_Home:
-            case Qt::Key_End:
-                MessageView::event( event );
-                return true;
-            default:
-                return QObject::eventFilter(object, event);
+        case Qt::Key_Left:
+        case Qt::Key_Right:
+        case Qt::Key_Up:
+        case Qt::Key_Down:
+        case Qt::Key_PageUp:
+        case Qt::Key_PageDown:
+        case Qt::Key_Home:
+        case Qt::Key_End:
+            MessageView::event(event);
+            return true;
+        default:
+            return QObject::eventFilter(object, event);
         }
     } else {
         return QObject::eventFilter(object, event);
@@ -196,9 +197,9 @@ QString MessageView::headerText()
         return QString();
 
     // Accessing the envelope via QVariant is just too much work here; it's way easier to just get the raw pointer
-    Imap::Mailbox::Model *model = dynamic_cast<Imap::Mailbox::Model*>(const_cast<QAbstractItemModel*>(message.model()));
-    Imap::Mailbox::TreeItemMessage *messagePtr = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(static_cast<Imap::Mailbox::TreeItem*>(message.internalPointer()));
-    const Imap::Message::Envelope& envelope = messagePtr->envelope(model);
+    Imap::Mailbox::Model *model = dynamic_cast<Imap::Mailbox::Model *>(const_cast<QAbstractItemModel *>(message.model()));
+    Imap::Mailbox::TreeItemMessage *messagePtr = dynamic_cast<Imap::Mailbox::TreeItemMessage *>(static_cast<Imap::Mailbox::TreeItem *>(message.internalPointer()));
+    const Imap::Message::Envelope &envelope = messagePtr->envelope(model);
 
     QString res;
     if (!envelope.from.isEmpty())
@@ -217,7 +218,7 @@ QString MessageView::headerText()
 
 QString MessageView::quoteText() const
 {
-    const AbstractPartWidget* w = dynamic_cast<const AbstractPartWidget*>(viewer);
+    const AbstractPartWidget *w = dynamic_cast<const AbstractPartWidget *>(viewer);
     return w ? w->quoteMe() : QString();
 }
 
@@ -227,24 +228,24 @@ void MessageView::reply(MainWindow *mainWindow, ReplyMode mode)
         return;
 
     // Accessing the envelope via QVariant is just too much work here; it's way easier to just get the raw pointer
-    Imap::Mailbox::Model *model = dynamic_cast<Imap::Mailbox::Model*>(const_cast<QAbstractItemModel*>(message.model()));
-    Imap::Mailbox::TreeItemMessage *messagePtr = dynamic_cast<Imap::Mailbox::TreeItemMessage*>(static_cast<Imap::Mailbox::TreeItem*>(message.internalPointer()));
-    const Imap::Message::Envelope& envelope = messagePtr->envelope(model);
+    Imap::Mailbox::Model *model = dynamic_cast<Imap::Mailbox::Model *>(const_cast<QAbstractItemModel *>(message.model()));
+    Imap::Mailbox::TreeItemMessage *messagePtr = dynamic_cast<Imap::Mailbox::TreeItemMessage *>(static_cast<Imap::Mailbox::TreeItem *>(message.internalPointer()));
+    const Imap::Message::Envelope &envelope = messagePtr->envelope(model);
     // ...now imagine how that would look like on just a single line :)
 
     QList<QPair<QString,QString> > recipients;
-    for ( QList<Imap::Message::MailAddress>::const_iterator it = envelope.from.begin(); it != envelope.from.end(); ++it ) {
-        recipients << qMakePair( tr("To"), QString::fromAscii("%1@%2").arg( it->mailbox, it->host ));
+    for (QList<Imap::Message::MailAddress>::const_iterator it = envelope.from.begin(); it != envelope.from.end(); ++it) {
+        recipients << qMakePair(tr("To"), QString::fromAscii("%1@%2").arg(it->mailbox, it->host));
     }
-    if ( mode == REPLY_ALL ) {
-        for ( QList<Imap::Message::MailAddress>::const_iterator it = envelope.to.begin(); it != envelope.to.end(); ++it ) {
-            recipients << qMakePair( tr("Cc"), QString::fromAscii("%1@%2").arg( it->mailbox, it->host ));
+    if (mode == REPLY_ALL) {
+        for (QList<Imap::Message::MailAddress>::const_iterator it = envelope.to.begin(); it != envelope.to.end(); ++it) {
+            recipients << qMakePair(tr("Cc"), QString::fromAscii("%1@%2").arg(it->mailbox, it->host));
         }
-        for ( QList<Imap::Message::MailAddress>::const_iterator it = envelope.cc.begin(); it != envelope.cc.end(); ++it ) {
-            recipients << qMakePair( tr("Cc"), QString::fromAscii("%1@%2").arg( it->mailbox, it->host ));
+        for (QList<Imap::Message::MailAddress>::const_iterator it = envelope.cc.begin(); it != envelope.cc.end(); ++it) {
+            recipients << qMakePair(tr("Cc"), QString::fromAscii("%1@%2").arg(it->mailbox, it->host));
         }
     }
-    mainWindow->invokeComposeDialog( replySubject( envelope.subject ), quoteText(), recipients );
+    mainWindow->invokeComposeDialog(replySubject(envelope.subject), quoteText(), recipients);
 }
 
 QString MessageView::replySubject(const QString &subject)
@@ -265,7 +266,7 @@ void MessageView::externalsEnabled()
 {
     netAccess->setExternalsEnabled(true);
     externalElements->hide();
-    AbstractPartWidget* w = dynamic_cast<AbstractPartWidget*>(viewer);
+    AbstractPartWidget *w = dynamic_cast<AbstractPartWidget *>(viewer);
     if (w)
         w->reloadContents();
 }
@@ -278,13 +279,13 @@ void MessageView::linkInTitleHovered(const QString &target)
     }
 
     QUrl url(target);
-    QString niceName = url.queryItemValue( QLatin1String("X-Trojita-DisplayName") );
+    QString niceName = url.queryItemValue(QLatin1String("X-Trojita-DisplayName"));
     if (niceName.isEmpty())
-        header->setToolTip( QString::fromAscii("%1@%2").arg(
-                Qt::escape( url.userName() ), Qt::escape( url.host() ) ) );
+        header->setToolTip(QString::fromAscii("%1@%2").arg(
+                               Qt::escape(url.userName()), Qt::escape(url.host())));
     else
-        header->setToolTip( QString::fromAscii("<p style='white-space:pre'>%1 &lt;%2@%3&gt;</p>").arg(
-                Qt::escape( niceName ), Qt::escape( url.userName() ), Qt::escape( url.host() ) ) );
+        header->setToolTip(QString::fromAscii("<p style='white-space:pre'>%1 &lt;%2@%3&gt;</p>").arg(
+                               Qt::escape(niceName), Qt::escape(url.userName()), Qt::escape(url.host())));
 }
 
 void MessageView::newLabelAction(const QString &tag)
@@ -292,7 +293,7 @@ void MessageView::newLabelAction(const QString &tag)
     if (!message.isValid())
         return;
 
-    Imap::Mailbox::Model *model = dynamic_cast<Imap::Mailbox::Model*>(const_cast<QAbstractItemModel*>(message.model()));
+    Imap::Mailbox::Model *model = dynamic_cast<Imap::Mailbox::Model *>(const_cast<QAbstractItemModel *>(message.model()));
     model->setMessageFlags(QModelIndexList() << message, tag, Imap::Mailbox::FLAG_ADD);
 }
 
@@ -301,7 +302,7 @@ void MessageView::deleteLabelAction(const QString &tag)
     if (!message.isValid())
         return;
 
-    Imap::Mailbox::Model *model = dynamic_cast<Imap::Mailbox::Model*>(const_cast<QAbstractItemModel*>(message.model()));
+    Imap::Mailbox::Model *model = dynamic_cast<Imap::Mailbox::Model *>(const_cast<QAbstractItemModel *>(message.model()));
     model->setMessageFlags(QModelIndexList() << message, tag, Imap::Mailbox::FLAG_REMOVE);
 }
 

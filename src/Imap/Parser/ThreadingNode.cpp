@@ -21,24 +21,28 @@
 
 #include "ThreadingNode.h"
 
-namespace Imap {
-namespace Responses {
+namespace Imap
+{
+namespace Responses
+{
 
-bool operator==( const ThreadingNode& n1, const ThreadingNode& n2 ) {
+bool operator==(const ThreadingNode &n1, const ThreadingNode &n2)
+{
     return n1.num == n2.num && n1.children == n2.children;
 }
 
-bool operator!=( const ThreadingNode& n1, const ThreadingNode& n2 ) {
-    return ! ( n1 == n2 );
+bool operator!=(const ThreadingNode &n1, const ThreadingNode &n2)
+{
+    return !(n1 == n2);
 }
 
-QDataStream& operator>>(QDataStream& s, ThreadingNode& n)
+QDataStream &operator>>(QDataStream &s, ThreadingNode &n)
 {
     s >> n.num >> n.children;
     return s;
 }
 
-QDataStream& operator<<(QDataStream& s, const ThreadingNode& n)
+QDataStream &operator<<(QDataStream &s, const ThreadingNode &n)
 {
     s << n.num << n.children;
     return s;

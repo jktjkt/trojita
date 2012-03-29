@@ -22,15 +22,17 @@
 #include "Model.h"
 #include "MailboxTree.h"
 
-namespace Imap {
-namespace Mailbox {
-
-
-CreateMailboxTask::CreateMailboxTask( Model* _model, const QString& _mailbox ):
-    ImapTask( _model ), mailbox(_mailbox)
+namespace Imap
 {
-    conn = model->_taskFactory->createGetAnyConnectionTask( _model );
-    conn->addDependentTask( this );
+namespace Mailbox
+{
+
+
+CreateMailboxTask::CreateMailboxTask(Model *_model, const QString &_mailbox):
+    ImapTask(_model), mailbox(_mailbox)
+{
+    conn = model->_taskFactory->createGetAnyConnectionTask(_model);
+    conn->addDependentTask(this);
 }
 
 void CreateMailboxTask::perform()
@@ -40,32 +42,32 @@ void CreateMailboxTask::perform()
 
     IMAP_TASK_CHECK_ABORT_DIE;
 
-    tagCreate = parser->create( mailbox );
+    tagCreate = parser->create(mailbox);
 }
 
-bool CreateMailboxTask::handleStateHelper( const Imap::Responses::State* const resp )
+bool CreateMailboxTask::handleStateHelper(const Imap::Responses::State *const resp)
 {
-    if ( resp->tag.isEmpty() )
+    if (resp->tag.isEmpty())
         return false;
 
-    if ( resp->tag == tagCreate ) {
-        if ( resp->kind == Responses::OK ) {
-            emit model->mailboxCreationSucceded( mailbox );
+    if (resp->tag == tagCreate) {
+        if (resp->kind == Responses::OK) {
+            emit model->mailboxCreationSucceded(mailbox);
             if (_dead) {
                 // Got to check if we're still allowed to execute before launching yet another command
                 _failed("Asked to die");
                 return true;
             }
-            tagList = parser->list( QLatin1String(""), mailbox );
+            tagList = parser->list(QLatin1String(""), mailbox);
             // Don't call _completed() yet, we're going to update mbox list before that
         } else {
-            emit model->mailboxCreationFailed( mailbox, resp->message );
+            emit model->mailboxCreationFailed(mailbox, resp->message);
             _failed("Cannot create mailbox");
         }
         return true;
-    } else if ( resp->tag == tagList ) {
-        if ( resp->kind == Responses::OK ) {
-            model->_finalizeIncrementalList( parser, mailbox );
+    } else if (resp->tag == tagList) {
+        if (resp->kind == Responses::OK) {
+            model->_finalizeIncrementalList(parser, mailbox);
             _completed();
         } else {
             _failed("Error with the LIST command after the CREATE");

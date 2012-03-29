@@ -26,30 +26,31 @@
 #include <QProcess>
 #include <QStringList>
 
-namespace MSA {
+namespace MSA
+{
 
 class Sendmail : public AbstractMSA
 {
     Q_OBJECT
 public:
-    Sendmail( QObject* parent, const QString& _command, const QStringList& _args );
+    Sendmail(QObject *parent, const QString &_command, const QStringList &_args);
     virtual ~Sendmail();
-    virtual void sendMail( const QString& from, const QStringList& to, const QByteArray& data );
+    virtual void sendMail(const QString &from, const QStringList &to, const QByteArray &data);
 private slots:
-    void handleError( QProcess::ProcessError e );
-    void handleBytesWritten( qint64 bytes );
+    void handleError(QProcess::ProcessError e);
+    void handleBytesWritten(qint64 bytes);
     void handleStarted();
 public slots:
     virtual void cancel();
 private:
-    QProcess* proc;
+    QProcess *proc;
     QString command;
     QStringList args;
     QByteArray dataToSend;
     int writtenSoFar;
 
-    Sendmail(const Sendmail&); // don't implement
-    Sendmail& operator=(const Sendmail&); // don't implement
+    Sendmail(const Sendmail &); // don't implement
+    Sendmail &operator=(const Sendmail &); // don't implement
 };
 
 }

@@ -23,11 +23,13 @@
 #include "Model.h"
 #include "MailboxTree.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
-FetchMsgMetadataTask::FetchMsgMetadataTask( Model *_model, const QModelIndex &_mailbox, const QList<uint> &_uids ) :
-    ImapTask( _model ), mailbox(_mailbox), uids(_uids)
+FetchMsgMetadataTask::FetchMsgMetadataTask(Model *_model, const QModelIndex &_mailbox, const QList<uint> &_uids) :
+    ImapTask(_model), mailbox(_mailbox), uids(_uids)
 {
     Q_ASSERT(!uids.isEmpty());
     conn = model->findTaskResponsibleFor(mailbox);
@@ -44,30 +46,30 @@ void FetchMsgMetadataTask::perform()
     Sequence seq = Sequence::fromList(uids);
 
     // we do not want to use _onlineMessageFetch because it contains UID and FLAGS
-    tag = parser->uidFetch( seq, QStringList() << QLatin1String("ENVELOPE") << QLatin1String("BODYSTRUCTURE") << QLatin1String("RFC822.SIZE") );
+    tag = parser->uidFetch(seq, QStringList() << QLatin1String("ENVELOPE") << QLatin1String("BODYSTRUCTURE") << QLatin1String("RFC822.SIZE"));
 }
 
-bool FetchMsgMetadataTask::handleFetch( const Imap::Responses::Fetch* const resp )
+bool FetchMsgMetadataTask::handleFetch(const Imap::Responses::Fetch *const resp)
 {
-    if ( ! mailbox.isValid() ) {
+    if (! mailbox.isValid()) {
         _failed("handleFetch: mailbox disappeared");
         // FIXME: nice error handling
         return false;
     }
-    TreeItemMailbox* mailboxPtr = dynamic_cast<TreeItemMailbox*>( static_cast<TreeItemMailbox*>( mailbox.internalPointer() ) );
+    TreeItemMailbox *mailboxPtr = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItemMailbox *>(mailbox.internalPointer()));
     Q_ASSERT(mailboxPtr);
-    model->_genericHandleFetch( mailboxPtr, resp );
+    model->_genericHandleFetch(mailboxPtr, resp);
     return true;
 }
 
-bool FetchMsgMetadataTask::handleStateHelper( const Imap::Responses::State* const resp )
+bool FetchMsgMetadataTask::handleStateHelper(const Imap::Responses::State *const resp)
 {
-    if ( resp->tag.isEmpty() )
+    if (resp->tag.isEmpty())
         return false;
 
-    if ( resp->tag == tag ) {
+    if (resp->tag == tag) {
 
-        if ( resp->kind == Responses::OK ) {
+        if (resp->kind == Responses::OK) {
             _completed();
         } else {
             _failed("UID FETCH failed");

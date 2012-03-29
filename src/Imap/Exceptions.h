@@ -35,35 +35,38 @@
  */
 
 /** @short Namespace for IMAP interaction */
-namespace Imap {
+namespace Imap
+{
 
-namespace Responses {
-    class AbstractResponse;
+namespace Responses
+{
+class AbstractResponse;
 }
 
-    /** @short General exception class */
-    class ImapException : public std::exception {
-    protected:
-        /** The error message */
-        std::string _msg;
-        /** Line with data that caused this error */
-        QByteArray _line;
-        /** Offset in line for error source */
-        int _offset;
-        /** Class name of the exception */
-        std::string _exceptionClass;
-    public:
-        ImapException(): _offset(-1), _exceptionClass("ImapException") {}
-        ImapException( const std::string& msg ) : _msg(msg), _offset(-1), _exceptionClass("ImapException") {};
-        ImapException( const std::string& msg, const QByteArray& line, const int offset ):
-            _msg(msg), _line(line), _offset(offset), _exceptionClass("ImapException") {};
-        virtual const char* what() const throw();
-        virtual ~ImapException() throw() {};
-        std::string msg() const { return _msg; }
-        QByteArray line() const { return _line; }
-        int offset() const { return _offset; }
-        std::string exceptionClass() const { return _exceptionClass; }
-    };
+/** @short General exception class */
+class ImapException : public std::exception
+{
+protected:
+    /** The error message */
+    std::string _msg;
+    /** Line with data that caused this error */
+    QByteArray _line;
+    /** Offset in line for error source */
+    int _offset;
+    /** Class name of the exception */
+    std::string _exceptionClass;
+public:
+    ImapException(): _offset(-1), _exceptionClass("ImapException") {}
+    ImapException(const std::string &msg) : _msg(msg), _offset(-1), _exceptionClass("ImapException") {};
+    ImapException(const std::string &msg, const QByteArray &line, const int offset):
+        _msg(msg), _line(line), _offset(offset), _exceptionClass("ImapException") {};
+    virtual const char *what() const throw();
+    virtual ~ImapException() throw() {};
+    std::string msg() const { return _msg; }
+    QByteArray line() const { return _line; }
+    int offset() const { return _offset; }
+    std::string exceptionClass() const { return _exceptionClass; }
+};
 
 #define ECBODY(CLASSNAME, PARENT) class CLASSNAME: public PARENT { \
     public: CLASSNAME( const std::string& msg ): PARENT(msg ) { _exceptionClass = #CLASSNAME; }\
@@ -71,70 +74,71 @@ namespace Responses {
     CLASSNAME( const std::string& msg, const QByteArray& line, const int offset ): PARENT( msg, line, offset ) { _exceptionClass = #CLASSNAME; }\
     };
 
-    /** @short The STARTTLS command failed */
-    ECBODY(StartTlsFailed, ImapException)
+/** @short The STARTTLS command failed */
+ECBODY(StartTlsFailed, ImapException)
 
-    /** @short A generic parser exception */
-    ECBODY(ParserException, ImapException)
+/** @short A generic parser exception */
+ECBODY(ParserException, ImapException)
 
-    /** @short Invalid argument was passed to some function */
-    ECBODY(InvalidArgument, ParserException)
+/** @short Invalid argument was passed to some function */
+ECBODY(InvalidArgument, ParserException)
 
-    /** @short Socket error */
-    ECBODY(SocketException, ParserException)
+/** @short Socket error */
+ECBODY(SocketException, ParserException)
 
-    /** @short Waiting for something from the socket took too long */
-    ECBODY(SocketTimeout, SocketException)
+/** @short Waiting for something from the socket took too long */
+ECBODY(SocketTimeout, SocketException)
 
-    /** @short General parse error */
-    ECBODY(ParseError, ParserException)
+/** @short General parse error */
+ECBODY(ParseError, ParserException)
 
-    /** @short Parse error: unknown identifier */
-    ECBODY(UnknownIdentifier, ParseError)
+/** @short Parse error: unknown identifier */
+ECBODY(UnknownIdentifier, ParseError)
 
-    /** @short Parse error: unrecognized kind of response */
-    ECBODY(UnrecognizedResponseKind, UnknownIdentifier)
+/** @short Parse error: unrecognized kind of response */
+ECBODY(UnrecognizedResponseKind, UnknownIdentifier)
 
-    /** @short Parse error: this is known, but not expected here */
-    ECBODY(UnexpectedHere, ParseError)
+/** @short Parse error: this is known, but not expected here */
+ECBODY(UnexpectedHere, ParseError)
 
-    /** @short Parse error: No usable data */
-    ECBODY(NoData, ParseError)
+/** @short Parse error: No usable data */
+ECBODY(NoData, ParseError)
 
-    /** @short Parse error: Too much data */
-    ECBODY(TooMuchData, ParseError)
+/** @short Parse error: Too much data */
+ECBODY(TooMuchData, ParseError)
 
-    /** @short Command Continuation Request received, but we have no idea how to handle it here */
-    ECBODY(ContinuationRequest, ParserException)
+/** @short Command Continuation Request received, but we have no idea how to handle it here */
+ECBODY(ContinuationRequest, ParserException)
 
-    /** @short Invalid Response Code */
-    ECBODY(InvalidResponseCode, ParseError)
+/** @short Invalid Response Code */
+ECBODY(InvalidResponseCode, ParseError)
 
 #undef ECBODY
 
-    /** @short Parent for all exceptions thrown by Imap::Mailbox-related classes */
-    class MailboxException: public ImapException {
-    public:
-        MailboxException( const char* const msg, const Imap::Responses::AbstractResponse& response );
-        MailboxException( const char* const msg );
-        virtual const char* what() const throw () { return _msg.c_str(); };
-        virtual ~MailboxException() throw () {};
+/** @short Parent for all exceptions thrown by Imap::Mailbox-related classes */
+class MailboxException: public ImapException
+{
+public:
+    MailboxException(const char *const msg, const Imap::Responses::AbstractResponse &response);
+    MailboxException(const char *const msg);
+    virtual const char *what() const throw() { return _msg.c_str(); };
+    virtual ~MailboxException() throw() {};
 
-    };
+};
 
 #define ECBODY(CLASSNAME, PARENT) class CLASSNAME: public PARENT { \
     public: CLASSNAME(const char* const msg, const Imap::Responses::AbstractResponse& response): PARENT(msg, response) { _exceptionClass=#CLASSNAME; } \
     CLASSNAME(const char* const msg): PARENT(msg) { _exceptionClass=#CLASSNAME; } \
     };
 
-    /** @short Server sent us something that isn't expected right now */
-    ECBODY(UnexpectedResponseReceived, MailboxException)
+/** @short Server sent us something that isn't expected right now */
+ECBODY(UnexpectedResponseReceived, MailboxException)
 
-    /** @short Internal error in Imap::Mailbox code -- there must be bug in its code */
-    ECBODY(CantHappen, MailboxException)
+/** @short Internal error in Imap::Mailbox code -- there must be bug in its code */
+ECBODY(CantHappen, MailboxException)
 
-    /** @short Server sent us information about message we don't know */
-    ECBODY(UnknownMessageIndex, MailboxException)
+/** @short Server sent us information about message we don't know */
+ECBODY(UnknownMessageIndex, MailboxException)
 
 #undef ECBODY
 

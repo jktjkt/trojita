@@ -24,35 +24,37 @@
 #include <QModelIndex>
 #include <QAbstractItemModel>
 
-namespace Imap {
+namespace Imap
+{
 
-namespace Mailbox {
+namespace Mailbox
+{
 
 class ModelWatcher : public QObject
 {
-Q_OBJECT
+    Q_OBJECT
 public:
-    ModelWatcher( QObject* parent=0 ): QObject(parent) {};
-    void setModel( QAbstractItemModel* model );
+    ModelWatcher(QObject *parent=0): QObject(parent) {};
+    void setModel(QAbstractItemModel *model);
 
 private slots:
-    void columnsAboutToBeInserted( const QModelIndex&, int, int );
-    void columnsAboutToBeRemoved( const QModelIndex&, int, int );
-    void columnsInserted( const QModelIndex&, int, int );
-    void columnsRemoved( const QModelIndex&, int, int );
-    void dataChanged( const QModelIndex&, const QModelIndex& );
-    void headerDataChanged( Qt::Orientation, int, int );
+    void columnsAboutToBeInserted(const QModelIndex &, int, int);
+    void columnsAboutToBeRemoved(const QModelIndex &, int, int);
+    void columnsInserted(const QModelIndex &, int, int);
+    void columnsRemoved(const QModelIndex &, int, int);
+    void dataChanged(const QModelIndex &, const QModelIndex &);
+    void headerDataChanged(Qt::Orientation, int, int);
     void layoutAboutToBeChanged();
     void layoutChanged();
     void modelAboutToBeReset();
     void modelReset();
-    void rowsAboutToBeInserted( const QModelIndex&, int, int );
-    void rowsAboutToBeRemoved( const QModelIndex&, int, int );
-    void rowsInserted( const QModelIndex&, int, int );
-    void rowsRemoved( const QModelIndex&, int, int );
+    void rowsAboutToBeInserted(const QModelIndex &, int, int);
+    void rowsAboutToBeRemoved(const QModelIndex &, int, int);
+    void rowsInserted(const QModelIndex &, int, int);
+    void rowsRemoved(const QModelIndex &, int, int);
 
 private:
-    QAbstractItemModel* _model;
+    QAbstractItemModel *_model;
 };
 
 }

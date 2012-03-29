@@ -25,17 +25,18 @@
 
 class QPushButton;
 
-namespace Gui {
+namespace Gui
+{
 
 class ExternalElementsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    ExternalElementsWidget( QWidget* parent );
+    ExternalElementsWidget(QWidget *parent);
 signals:
     void loadingEnabled();
 private:
-    QPushButton* loadStuffButton;
+    QPushButton *loadStuffButton;
 };
 
 }

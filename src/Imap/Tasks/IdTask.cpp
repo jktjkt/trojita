@@ -23,8 +23,10 @@
 #include "Model.h"
 #include "Utils.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 IdTask::IdTask(Model *_model, ImapTask *dependingTask) : ImapTask(_model)
 {

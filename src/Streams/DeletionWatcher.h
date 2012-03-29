@@ -25,9 +25,9 @@
 
 class DeletionWatcher : public QObject
 {
-Q_OBJECT
+    Q_OBJECT
 public:
-    DeletionWatcher(QObject *parent, QObject* what);
+    DeletionWatcher(QObject *parent, QObject *what);
 public slots:
     void handleDeleted();
 

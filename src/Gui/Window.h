@@ -34,8 +34,10 @@ class QScrollArea;
 class QToolButton;
 class QTreeView;
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 class Model;
 class MailboxModel;
@@ -47,7 +49,8 @@ class PrettyMsgListModel;
 }
 }
 
-namespace Gui {
+namespace Gui
+{
 
 class AutoCompletionModel;
 class MessageView;
@@ -55,43 +58,44 @@ class MsgListView;
 class ProtocolLoggerWidget;
 class TaskProgressIndicator;
 
-class MainWindow: public QMainWindow {
+class MainWindow: public QMainWindow
+{
     Q_OBJECT
     typedef QList<QPair<QString,QString> > _recipientsType;
 public:
     MainWindow();
-    void invokeComposeDialog( const QString& subject = QString(),
-                              const QString& body = QString(),
-                              const _recipientsType& recipients = _recipientsType() );
+    void invokeComposeDialog(const QString &subject = QString(),
+                             const QString &body = QString(),
+                             const _recipientsType &recipients = _recipientsType());
     QSize sizeHint() const;
 
 private slots:
-    void showContextMenuMboxTree( const QPoint& position );
-    void showContextMenuMsgListTree( const QPoint& position );
+    void showContextMenuMboxTree(const QPoint &position);
+    void showContextMenuMsgListTree(const QPoint &position);
     void slotReloadMboxList();
     void slotResyncMbox();
     void slotResizeMsgListColumns();
-    void alertReceived( const QString& message );
+    void alertReceived(const QString &message);
     void networkPolicyOffline();
     void networkPolicyExpensive();
     void networkPolicyOnline();
     void slotShowSettings();
     void slotShowImapInfo();
     void slotExpunge();
-    void connectionError( const QString& message );
-    void cacheError( const QString& message );
-    void authenticationRequested( QAuthenticator* auth );
+    void connectionError(const QString &message);
+    void cacheError(const QString &message);
+    void authenticationRequested(QAuthenticator *auth);
     void authenticationFailed(const QString &message);
-    void slotComposeMailUrl( const QUrl& url );
+    void slotComposeMailUrl(const QUrl &url);
     void slotComposeMail();
     void slotReplyTo();
     void slotReplyAll();
-    void handleMarkAsRead( bool );
-    void handleMarkAsDeleted( bool );
-    void msgListActivated( const QModelIndex& );
-    void msgListClicked( const QModelIndex& );
-    void msgListDoubleClicked( const QModelIndex& );
-    void msgListSelectionChanged( const QItemSelection& selected, const QItemSelection& deselected );
+    void handleMarkAsRead(bool);
+    void handleMarkAsDeleted(bool);
+    void msgListActivated(const QModelIndex &);
+    void msgListClicked(const QModelIndex &);
+    void msgListDoubleClicked(const QModelIndex &);
+    void msgListSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     void slotCreateMailboxBelowCurrent();
     void slotCreateTopMailbox();
     void slotDeleteCurrentMailbox();
@@ -99,23 +103,23 @@ private slots:
     void slotXtSyncCurrentMailbox();
 #endif
     void updateMessageFlags();
-    void updateMessageFlags( const QModelIndex& index );
+    void updateMessageFlags(const QModelIndex &index);
     void scrollMessageUp();
-    void showConnectionStatus( QObject* parser, Imap::ConnectionState state );
+    void showConnectionStatus(QObject *parser, Imap::ConnectionState state);
     void slotShowAboutTrojita();
     void slotDonateToTrojita();
 
     void slotSaveCurrentMessageBody();
     void slotViewMsgHeaders();
     void slotThreadMsgList();
-    void slotCapabilitiesUpdated(const QStringList& capabilities);
+    void slotCapabilitiesUpdated(const QStringList &capabilities);
 
-    void slotMailboxDeleteFailed( const QString& mailbox, const QString& msg );
-    void slotMailboxCreateFailed( const QString& mailbox, const QString& msg );
+    void slotMailboxDeleteFailed(const QString &mailbox, const QString &msg);
+    void slotMailboxCreateFailed(const QString &mailbox, const QString &msg);
 
-    void slotDownloadMessageTransferError( const QString& errorString );
-    void slotDownloadMessageFileNameRequested( QString* fileName );
-    void slotScrollToUnseenMessage( const QModelIndex &mailbox, const QModelIndex &message );
+    void slotDownloadMessageTransferError(const QString &errorString);
+    void slotDownloadMessageFileNameRequested(QString *fileName);
+    void slotScrollToUnseenMessage(const QModelIndex &mailbox, const QModelIndex &message);
 
     void slotReleaseSelectedMessage();
 
@@ -128,73 +132,73 @@ private:
     void nukeModels();
     void connectModelActions();
 
-    void createMailboxBelow( const QModelIndex& index );
+    void createMailboxBelow(const QModelIndex &index);
 
-    void updateActionsOnlineOffline( bool online );
+    void updateActionsOnlineOffline(bool online);
 
-    Imap::Mailbox::Model* model;
-    Imap::Mailbox::MailboxModel* mboxModel;
-    Imap::Mailbox::PrettyMailboxModel* prettyMboxModel;
-    Imap::Mailbox::MsgListModel* msgListModel;
-    Imap::Mailbox::ThreadingMsgListModel* threadingMsgListModel;
-    Imap::Mailbox::PrettyMsgListModel* prettyMsgListModel;
+    Imap::Mailbox::Model *model;
+    Imap::Mailbox::MailboxModel *mboxModel;
+    Imap::Mailbox::PrettyMailboxModel *prettyMboxModel;
+    Imap::Mailbox::MsgListModel *msgListModel;
+    Imap::Mailbox::ThreadingMsgListModel *threadingMsgListModel;
+    Imap::Mailbox::PrettyMsgListModel *prettyMsgListModel;
     AutoCompletionModel *_autoCompletionModel;
 
-    QTreeView* mboxTree;
-    MsgListView* msgListTree;
-    QTreeView* allTree;
-    MessageView* msgView;
-    QDockWidget* allDock;
+    QTreeView *mboxTree;
+    MsgListView *msgListTree;
+    QTreeView *allTree;
+    MessageView *msgView;
+    QDockWidget *allDock;
     QTreeView *taskTree;
     QDockWidget *taskDock;
 
-    QScrollArea* area;
+    QScrollArea *area;
 
-    ProtocolLoggerWidget* imapLogger;
-    QDockWidget* imapLoggerDock;
+    ProtocolLoggerWidget *imapLogger;
+    QDockWidget *imapLoggerDock;
 
-    QAction* reloadMboxList;
-    QAction* reloadAllMailboxes;
-    QAction* resyncMbox;
-    QAction* netOffline;
-    QAction* netExpensive;
-    QAction* netOnline;
-    QAction* exitAction;
-    QAction* showFullView;
+    QAction *reloadMboxList;
+    QAction *reloadAllMailboxes;
+    QAction *resyncMbox;
+    QAction *netOffline;
+    QAction *netExpensive;
+    QAction *netOnline;
+    QAction *exitAction;
+    QAction *showFullView;
     QAction *showTaskView;
-    QAction* showImapLogger;
+    QAction *showImapLogger;
     QAction *logPersistent;
-    QAction* showImapCapabilities;
-    QAction* showMenuBar;
-    QAction* configSettings;
-    QAction* composeMail;
-    QAction* replyTo;
-    QAction* replyAll;
-    QAction* expunge;
-    QAction* createChildMailbox;
-    QAction* createTopMailbox;
-    QAction* deleteCurrentMailbox;
+    QAction *showImapCapabilities;
+    QAction *showMenuBar;
+    QAction *configSettings;
+    QAction *composeMail;
+    QAction *replyTo;
+    QAction *replyAll;
+    QAction *expunge;
+    QAction *createChildMailbox;
+    QAction *createTopMailbox;
+    QAction *deleteCurrentMailbox;
 #ifdef XTUPLE_CONNECT
-    QAction* xtIncludeMailboxInSync;
+    QAction *xtIncludeMailboxInSync;
 #endif
-    QAction* releaseMessageData;
-    QAction* aboutTrojita;
-    QAction* donateToTrojita;
+    QAction *releaseMessageData;
+    QAction *aboutTrojita;
+    QAction *donateToTrojita;
 
-    QAction* markAsRead;
-    QAction* markAsDeleted;
-    QAction* saveWholeMessage;
-    QAction* viewMsgHeaders;
+    QAction *markAsRead;
+    QAction *markAsDeleted;
+    QAction *saveWholeMessage;
+    QAction *viewMsgHeaders;
 
     QAction *actionThreadMsgList;
 
-    TaskProgressIndicator* busyParsersIndicator;
-    QToolButton* networkIndicator;
+    TaskProgressIndicator *busyParsersIndicator;
+    QToolButton *networkIndicator;
 
     bool m_ignoreStoredPassword;
 
-    MainWindow(const MainWindow&); // don't implement
-    MainWindow& operator=(const MainWindow&); // don't implement
+    MainWindow(const MainWindow &); // don't implement
+    MainWindow &operator=(const MainWindow &); // don't implement
 };
 
 }

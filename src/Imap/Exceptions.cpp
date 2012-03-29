@@ -23,35 +23,36 @@
 #include <QTextStream>
 #include "Parser/Response.h"
 
-namespace Imap {
-
-const char* ImapException::what() const throw()
+namespace Imap
 {
-    if ( _offset == -1 )
+
+const char *ImapException::what() const throw()
+{
+    if (_offset == -1)
         return _msg.c_str();
     else {
         QByteArray out(_msg.c_str());
         out += " when parsing this:\n";
         out += _line;
-        out += QByteArray( _offset, ' ' );
-        out += "^ here (offset " + QString::number( _offset ) + ")\n";
+        out += QByteArray(_offset, ' ');
+        out += "^ here (offset " + QString::number(_offset) + ")\n";
         return out.constData();
     }
 }
 
 
-MailboxException::MailboxException( const char* const msg,
-        const Imap::Responses::AbstractResponse& response )
+MailboxException::MailboxException(const char *const msg,
+                                   const Imap::Responses::AbstractResponse &response)
 {
     QByteArray buf;
-    QTextStream s( &buf );
+    QTextStream s(&buf);
     s << msg << "\r\n" << response;
     s.flush();
     _msg = buf.constData();
     _exceptionClass = "MailboxException";
 }
 
-MailboxException::MailboxException( const char* const msg )
+MailboxException::MailboxException(const char *const msg)
 {
     _msg = msg;
     _exceptionClass = "MailboxException";

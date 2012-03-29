@@ -22,8 +22,10 @@
 #include "ImapTask.h"
 #include "../Model/Model.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 /** @short Create new connection and make sure it reaches authenticated state
 
@@ -35,17 +37,17 @@ Obtaining capabilities, issuing STARTTLS and logging in are all handled here.
 */
 class OpenConnectionTask : public ImapTask
 {
-Q_OBJECT
+    Q_OBJECT
 public:
-    OpenConnectionTask(Model* _model);
+    OpenConnectionTask(Model *_model);
     virtual void perform();
 
-    virtual bool handleStateHelper(const Imap::Responses::State* const resp);
+    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
     // FIXME: reimplement handleCapability(), add some guards against "unexpected changes" to Model's implementation
 
 protected:
     /** @short A special, internal constructor used only by Fake_OpenConnectionTask */
-    OpenConnectionTask(Model* _model, void* dummy);
+    OpenConnectionTask(Model *_model, void *dummy);
 
 private:
     bool stateMachine(const Imap::Responses::State *const resp);

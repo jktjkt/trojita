@@ -24,33 +24,35 @@
 #include "KeepMailboxOpenTask.h"
 #include "Model.h"
 
-namespace Imap {
-namespace Mailbox {
-
-IdleLauncher::IdleLauncher( KeepMailboxOpenTask* parent ):
-        QObject(parent), task(parent), _idling(false), _idleCommandRunning(false)
+namespace Imap
 {
-    delayedEnter = new QTimer( this );
-    delayedEnter->setObjectName( QString::fromAscii("%1-IdleLauncher-delayedEnter").arg( task->objectName() ) );
-    delayedEnter->setSingleShot( true );
+namespace Mailbox
+{
+
+IdleLauncher::IdleLauncher(KeepMailboxOpenTask *parent):
+    QObject(parent), task(parent), _idling(false), _idleCommandRunning(false)
+{
+    delayedEnter = new QTimer(this);
+    delayedEnter->setObjectName(QString::fromAscii("%1-IdleLauncher-delayedEnter").arg(task->objectName()));
+    delayedEnter->setSingleShot(true);
     // It's a question about what timeout to set here -- if it's too long, we enter IDLE too soon, before the
     // user has a chance to click on a message, but if we set it too long, we needlessly wait too long between
     // we receive updates, and also between terminating one IDLE and starting another.
     // 6 seconds is a compromise here.
     bool ok;
-    int timeout = parent->model->property( "trojita-imap-idle-delayedEnter" ).toUInt( &ok );
-    if ( ! ok )
+    int timeout = parent->model->property("trojita-imap-idle-delayedEnter").toUInt(&ok);
+    if (! ok)
         timeout = 6 * 1000;
-    delayedEnter->setInterval( timeout );
-    connect( delayedEnter, SIGNAL(timeout()), this, SLOT(slotEnterIdleNow()) );
-    renewal = new QTimer( this );
-    renewal->setObjectName( QString::fromAscii("%1-IdleLauncher-renewal").arg( task->objectName() ) );
-    renewal->setSingleShot( true );
-    timeout = parent->model->property( "trojita-imap-idle-renewal" ).toUInt( &ok );
-    if ( ! ok )
+    delayedEnter->setInterval(timeout);
+    connect(delayedEnter, SIGNAL(timeout()), this, SLOT(slotEnterIdleNow()));
+    renewal = new QTimer(this);
+    renewal->setObjectName(QString::fromAscii("%1-IdleLauncher-renewal").arg(task->objectName()));
+    renewal->setSingleShot(true);
+    timeout = parent->model->property("trojita-imap-idle-renewal").toUInt(&ok);
+    if (! ok)
         timeout = 1000 * 29 * 60; // 29 minutes -- that's the longest allowed time to IDLE
-    renewal->setInterval( timeout );
-    connect( renewal, SIGNAL(timeout()), this, SLOT(slotTerminateLongIdle()) );
+    renewal->setInterval(timeout);
+    connect(renewal, SIGNAL(timeout()), this, SLOT(slotTerminateLongIdle()));
 }
 
 void IdleLauncher::slotEnterIdleNow()
@@ -58,15 +60,15 @@ void IdleLauncher::slotEnterIdleNow()
     delayedEnter->stop();
     renewal->stop();
 
-    if ( _idleCommandRunning ) {
+    if (_idleCommandRunning) {
         enterIdleLater();
         return;
     }
 
-    Q_ASSERT( task->parser );
-    Q_ASSERT( ! _idling );
-    Q_ASSERT( ! _idleCommandRunning );
-    Q_ASSERT( task->tagIdle.isEmpty() );
+    Q_ASSERT(task->parser);
+    Q_ASSERT(! _idling);
+    Q_ASSERT(! _idleCommandRunning);
+    Q_ASSERT(task->tagIdle.isEmpty());
     task->tagIdle = task->parser->idle();
     renewal->start();
     _idling = true;
@@ -75,9 +77,9 @@ void IdleLauncher::slotEnterIdleNow()
 
 void IdleLauncher::finishIdle()
 {
-    Q_ASSERT( task->parser );
-    Q_ASSERT( _idling );
-    Q_ASSERT( _idleCommandRunning );
+    Q_ASSERT(task->parser);
+    Q_ASSERT(_idling);
+    Q_ASSERT(_idleCommandRunning);
     renewal->stop();
     task->parser->idleDone();
     _idling = false;
@@ -85,13 +87,13 @@ void IdleLauncher::finishIdle()
 
 void IdleLauncher::slotTerminateLongIdle()
 {
-    if ( _idling )
+    if (_idling)
         finishIdle();
 }
 
 void IdleLauncher::enterIdleLater()
 {
-    if ( _idling )
+    if (_idling)
         return;
 
     delayedEnter->start();
@@ -124,7 +126,7 @@ void IdleLauncher::idleCommandCompleted()
         renewal->stop();
         task->parser->idleMagicallyTerminatedByServer();
     }
-    Q_ASSERT( _idleCommandRunning );
+    Q_ASSERT(_idleCommandRunning);
     _idleCommandRunning = false;
     enterIdleLater();
 }
@@ -132,8 +134,8 @@ void IdleLauncher::idleCommandCompleted()
 void IdleLauncher::idleCommandFailed()
 {
     // FIXME: these asseerts could be triggered by a rogue server...
-    Q_ASSERT( _idling );
-    Q_ASSERT( _idleCommandRunning );
+    Q_ASSERT(_idling);
+    Q_ASSERT(_idleCommandRunning);
     renewal->stop();
     _idleCommandRunning = false;
     task->parser->idleContinuationWontCome();

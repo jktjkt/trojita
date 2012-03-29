@@ -23,8 +23,10 @@
 #include "FlagsOperation.h"
 #include "ImapTask.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 class CopyMoveMessagesTask;
 
@@ -35,14 +37,14 @@ a given mailbox are changed.
 */
 class UpdateFlagsTask : public ImapTask
 {
-Q_OBJECT
+    Q_OBJECT
 public:
     /** @short Change flags for a message set
 
-IMAP flags for the @arg _messages message set are changed -- the @arg _flagOperation
-should be FLAGS, +FLAGS or -FLAGS (all of them optionally with the ".silent" modifier),
-and the desired change (actual flags) is passed in the @arg _flags argument.
-*/
+    IMAP flags for the @arg _messages message set are changed -- the @arg _flagOperation
+    should be FLAGS, +FLAGS or -FLAGS (all of them optionally with the ".silent" modifier),
+    and the desired change (actual flags) is passed in the @arg _flags argument.
+    */
     UpdateFlagsTask(Model *_model, const QModelIndexList &_messages, const FlagsOperation _flagOperation, const QString &_flags);
 
     /** @short Marking moved messages as deleted */
@@ -50,11 +52,11 @@ and the desired change (actual flags) is passed in the @arg _flags argument.
                     const FlagsOperation _flagOperation, const QString &_flags);
     virtual void perform();
 
-    virtual bool handleStateHelper(const Imap::Responses::State* const resp);
+    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
 private:
     CommandHandle tag;
-    ImapTask* conn;
-    CopyMoveMessagesTask* copyMove;
+    ImapTask *conn;
+    CopyMoveMessagesTask *copyMove;
     QList<QPersistentModelIndex> messages;
     FlagsOperation flagOperation;
     QString flags;

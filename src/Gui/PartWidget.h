@@ -28,7 +28,8 @@
 
 class QModelIndex;
 
-namespace Gui {
+namespace Gui
+{
 
 class PartWidgetFactory;
 
@@ -37,7 +38,7 @@ class MultipartAlternativeWidget: public QTabWidget, public AbstractPartWidget
 {
     Q_OBJECT
 public:
-    MultipartAlternativeWidget(QWidget* parent, PartWidgetFactory* factory, const QModelIndex &partIndex, const int recursionDepth);
+    MultipartAlternativeWidget(QWidget *parent, PartWidgetFactory *factory, const QModelIndex &partIndex, const int recursionDepth);
     virtual QString quoteMe() const;
     virtual void reloadContents();
 };
@@ -47,7 +48,7 @@ class MultipartSignedWidget: public QGroupBox, public AbstractPartWidget
 {
     Q_OBJECT
 public:
-    MultipartSignedWidget(QWidget* parent, PartWidgetFactory* factory, const QModelIndex &partIndex, const int recursionDepth);
+    MultipartSignedWidget(QWidget *parent, PartWidgetFactory *factory, const QModelIndex &partIndex, const int recursionDepth);
     virtual QString quoteMe() const;
     virtual void reloadContents();
 };
@@ -57,7 +58,7 @@ class GenericMultipartWidget: public QGroupBox, public AbstractPartWidget
 {
     Q_OBJECT
 public:
-    GenericMultipartWidget(QWidget* parent, PartWidgetFactory* factory, const QModelIndex &partIndex, const int recursionDepth);
+    GenericMultipartWidget(QWidget *parent, PartWidgetFactory *factory, const QModelIndex &partIndex, const int recursionDepth);
     virtual QString quoteMe() const;
     virtual void reloadContents();
 };
@@ -67,7 +68,7 @@ class Message822Widget: public QGroupBox, public AbstractPartWidget
 {
     Q_OBJECT
 public:
-    Message822Widget(QWidget* parent, PartWidgetFactory* factory, const QModelIndex &partIndex, const int recursionDepth);
+    Message822Widget(QWidget *parent, PartWidgetFactory *factory, const QModelIndex &partIndex, const int recursionDepth);
     virtual QString quoteMe() const;
     virtual void reloadContents();
 };

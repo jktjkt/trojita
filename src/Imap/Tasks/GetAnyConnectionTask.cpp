@@ -23,13 +23,15 @@
 #include "OfflineConnectionTask.h"
 #include "OpenConnectionTask.h"
 
-namespace Imap {
-namespace Mailbox {
-
-GetAnyConnectionTask::GetAnyConnectionTask( Model* _model ) :
-    ImapTask( _model ), newConn(0)
+namespace Imap
 {
-    QMap<Parser*,ParserState>::iterator it = model->_parsers.begin();
+namespace Mailbox
+{
+
+GetAnyConnectionTask::GetAnyConnectionTask(Model *_model) :
+    ImapTask(_model), newConn(0)
+{
+    QMap<Parser *,ParserState>::iterator it = model->_parsers.begin();
     while (it != model->_parsers.end()) {
         if (it->connState == CONN_STATE_LOGOUT) {
             // We cannot possibly use this connection
@@ -54,7 +56,7 @@ GetAnyConnectionTask::GetAnyConnectionTask( Model* _model ) :
         parser = it.key();
         Q_ASSERT(parser);
 
-        if ( it->maintainingTask ) {
+        if (it->maintainingTask) {
             // The parser already has some maintaining task associated with it
             // We can't ignore the maintaining task, if only because of the IDLE
             newConn = it->maintainingTask;
@@ -71,7 +73,7 @@ GetAnyConnectionTask::GetAnyConnectionTask( Model* _model ) :
 void GetAnyConnectionTask::perform()
 {
     // This is special from most ImapTasks' perform(), because the activeTasks could have already been updated
-    if ( newConn ) {
+    if (newConn) {
         // We're "dependent" on some connection, so we should update our parser (even though
         // it could be already set), and also register ourselves with the Model
         parser = newConn->parser;

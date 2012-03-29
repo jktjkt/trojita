@@ -22,15 +22,17 @@
 #include "Model.h"
 #include "MailboxTree.h"
 
-namespace Imap {
-namespace Mailbox {
-
-
-ThreadTask::ThreadTask( Model* _model, const QModelIndex& mailbox, const QString &_algorithm, const QStringList &_searchCriteria ):
-    ImapTask( _model ), mailboxIndex(mailbox), algorithm(_algorithm), searchCriteria(_searchCriteria)
+namespace Imap
 {
-    conn = model->findTaskResponsibleFor( mailbox );
-    conn->addDependentTask( this );
+namespace Mailbox
+{
+
+
+ThreadTask::ThreadTask(Model *_model, const QModelIndex &mailbox, const QString &_algorithm, const QStringList &_searchCriteria):
+    ImapTask(_model), mailboxIndex(mailbox), algorithm(_algorithm), searchCriteria(_searchCriteria)
+{
+    conn = model->findTaskResponsibleFor(mailbox);
+    conn->addDependentTask(this);
 }
 
 void ThreadTask::perform()
@@ -40,21 +42,21 @@ void ThreadTask::perform()
 
     IMAP_TASK_CHECK_ABORT_DIE;
 
-    if ( ! mailboxIndex.isValid() ) {
+    if (! mailboxIndex.isValid()) {
         _failed("Mailbox vanished before we could ask for threading info");
         return;
     }
 
-    tag = parser->uidThread( algorithm, QLatin1String("utf-8"), searchCriteria );
+    tag = parser->uidThread(algorithm, QLatin1String("utf-8"), searchCriteria);
 }
 
-bool ThreadTask::handleStateHelper( const Imap::Responses::State* const resp )
+bool ThreadTask::handleStateHelper(const Imap::Responses::State *const resp)
 {
-    if ( resp->tag.isEmpty() )
+    if (resp->tag.isEmpty())
         return false;
 
-    if ( resp->tag == tag ) {
-        if ( resp->kind == Responses::OK ) {
+    if (resp->tag == tag) {
+        if (resp->kind == Responses::OK) {
             emit model->threadingAvailable(mailboxIndex, algorithm, searchCriteria, mapping);
             _completed();
         } else {
@@ -69,7 +71,7 @@ bool ThreadTask::handleStateHelper( const Imap::Responses::State* const resp )
     }
 }
 
-bool ThreadTask::handleThread( const Imap::Responses::Thread *const resp )
+bool ThreadTask::handleThread(const Imap::Responses::Thread *const resp)
 {
     mapping = resp->rootItems;
     return true;

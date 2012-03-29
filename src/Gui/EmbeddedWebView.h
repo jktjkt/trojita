@@ -24,7 +24,8 @@
 #include <QWebPluginFactory>
 #include <QWebView>
 
-namespace Gui {
+namespace Gui
+{
 
 
 /** @short An embeddable QWebView with some safety checks and modified resizing
@@ -41,7 +42,8 @@ namespace Gui {
   @see Gui::MessageView
 
   */
-class EmbeddedWebView: public QWebView {
+class EmbeddedWebView: public QWebView
+{
     Q_OBJECT
 public:
     EmbeddedWebView(QWidget *parent, QNetworkAccessManager *networkManager);

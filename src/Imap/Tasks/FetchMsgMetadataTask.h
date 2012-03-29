@@ -22,24 +22,26 @@
 #include <QPersistentModelIndex>
 #include "ImapTask.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
 /** @short Fetch metadata about a message set */
 class FetchMsgMetadataTask : public ImapTask
 {
-Q_OBJECT
+    Q_OBJECT
 public:
     FetchMsgMetadataTask(Model *_model, const QModelIndex &_mailbox, const QList<uint> &_uids);
     virtual void perform();
 
-    virtual bool handleFetch(const Imap::Responses::Fetch* const resp);
-    virtual bool handleStateHelper(const Imap::Responses::State* const resp);
+    virtual bool handleFetch(const Imap::Responses::Fetch *const resp);
+    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
 
     virtual QString debugIdentification() const;
 private:
     CommandHandle tag;
-    ImapTask* conn;
+    ImapTask *conn;
     QPersistentModelIndex mailbox;
     QList<uint> uids;
 };

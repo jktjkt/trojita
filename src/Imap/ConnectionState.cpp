@@ -23,11 +23,12 @@
 #include "ConnectionState.h"
 #include "Imap/Model/Model.h"
 
-namespace Imap {
-
-QString connectionStateToString( const ConnectionState state )
+namespace Imap
 {
-    switch ( state ) {
+
+QString connectionStateToString(const ConnectionState state)
+{
+    switch (state) {
     case CONN_STATE_NONE:
         return QString();
     case CONN_STATE_HOST_LOOKUP:

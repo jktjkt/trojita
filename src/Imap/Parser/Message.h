@@ -34,251 +34,254 @@
 #include "LowLevelParser.h"
 
 /** @short Namespace for IMAP interaction */
-namespace Imap {
+namespace Imap
+{
 
-namespace Mailbox {
-    class TreeItem;
-    class TreeItemPart;
+namespace Mailbox
+{
+class TreeItem;
+class TreeItemPart;
 }
 
 /** @short Classes for handling e-mail messages */
-namespace Message {
+namespace Message
+{
 
-    /** @short Storage container for one address from an envelope */
-    struct MailAddress {
+/** @short Storage container for one address from an envelope */
+struct MailAddress {
 
-        /** @short Mode to format the address to string */
-        typedef enum {
-            FORMAT_JUST_NAME, /**< @short Just the human-readable name */
-            FORMAT_READABLE, /**< @short Real Name <foo@example.org> */
-            FORMAT_CLICKABLE /**< @short HTML clickable form of FORMAT_READABLE */
-        } FormattingMode;
+    /** @short Mode to format the address to string */
+    typedef enum {
+        FORMAT_JUST_NAME, /**< @short Just the human-readable name */
+        FORMAT_READABLE, /**< @short Real Name <foo@example.org> */
+        FORMAT_CLICKABLE /**< @short HTML clickable form of FORMAT_READABLE */
+    } FormattingMode;
 
-        /** @short Phrase from RFC2822 mailbox */
-        QString name;
+    /** @short Phrase from RFC2822 mailbox */
+    QString name;
 
-        /** @hosrt Route information */
-        QString adl;
+    /** @hosrt Route information */
+    QString adl;
 
-        /** @short RFC2822 Group Name or Local Part */
-        QString mailbox;
+    /** @short RFC2822 Group Name or Local Part */
+    QString mailbox;
 
-        /** @short RFC2822 Domain Name */
-        QString host;
+    /** @short RFC2822 Domain Name */
+    QString host;
 
-        MailAddress( const QString& _name, const QString& _adl,
-                const QString& _mailbox, const QString& _host ):
-            name(_name), adl(_adl), mailbox(_mailbox), host(_host) {}
-        MailAddress( const QVariantList& input, const QByteArray& line, const int start );
-        MailAddress() {}
-        QString prettyName( FormattingMode mode ) const;
+    MailAddress(const QString &_name, const QString &_adl,
+                const QString &_mailbox, const QString &_host):
+        name(_name), adl(_adl), mailbox(_mailbox), host(_host) {}
+    MailAddress(const QVariantList &input, const QByteArray &line, const int start);
+    MailAddress() {}
+    QString prettyName(FormattingMode mode) const;
 
-        static QString prettyList( const QList<MailAddress>& list, FormattingMode mode );
-        static QString prettyList( const QVariantList& list, FormattingMode mode );
-    };
+    static QString prettyList(const QList<MailAddress> &list, FormattingMode mode);
+    static QString prettyList(const QVariantList &list, FormattingMode mode);
+};
 
-    /** @short Storage for envelope */
-    struct Envelope {
-        QDateTime date;
-        QString subject;
-        QList<MailAddress> from;
-        QList<MailAddress> sender;
-        QList<MailAddress> replyTo;
-        QList<MailAddress> to;
-        QList<MailAddress> cc;
-        QList<MailAddress> bcc;
-        QByteArray inReplyTo;
-        QByteArray messageId;
+/** @short Storage for envelope */
+struct Envelope {
+    QDateTime date;
+    QString subject;
+    QList<MailAddress> from;
+    QList<MailAddress> sender;
+    QList<MailAddress> replyTo;
+    QList<MailAddress> to;
+    QList<MailAddress> cc;
+    QList<MailAddress> bcc;
+    QByteArray inReplyTo;
+    QByteArray messageId;
 
-        Envelope() {}
-        Envelope( const QDateTime& _date, const QString& _subject, const QList<MailAddress>& _from,
-                const QList<MailAddress>& _sender, const QList<MailAddress>& _replyTo,
-                const QList<MailAddress>& _to, const QList<MailAddress>& _cc,
-                const QList<MailAddress>& _bcc, const QByteArray& _inReplyTo,
-                const QByteArray& _messageId ):
-            date(_date), subject(_subject), from(_from), sender(_sender), replyTo(_replyTo),
-            to(_to), cc(_cc), bcc(_bcc), inReplyTo(_inReplyTo), messageId(_messageId) {}
-        static Envelope fromList( const QVariantList& items, const QByteArray& line, const int start );
-        QTextStream& dump( QTextStream& s, const int indent ) const;
+    Envelope() {}
+    Envelope(const QDateTime &_date, const QString &_subject, const QList<MailAddress> &_from,
+             const QList<MailAddress> &_sender, const QList<MailAddress> &_replyTo,
+             const QList<MailAddress> &_to, const QList<MailAddress> &_cc,
+             const QList<MailAddress> &_bcc, const QByteArray &_inReplyTo,
+             const QByteArray &_messageId):
+        date(_date), subject(_subject), from(_from), sender(_sender), replyTo(_replyTo),
+        to(_to), cc(_cc), bcc(_bcc), inReplyTo(_inReplyTo), messageId(_messageId) {}
+    static Envelope fromList(const QVariantList &items, const QByteArray &line, const int start);
+    QTextStream &dump(QTextStream &s, const int indent) const;
 
-        void clear();
+    void clear();
 
-    private:
-        static QList<MailAddress> getListOfAddresses( const QVariant& in,
-                const QByteArray& line, const int start );
-        friend class Fetch;
-    };
+private:
+    static QList<MailAddress> getListOfAddresses(const QVariant &in,
+            const QByteArray &line, const int start);
+    friend class Fetch;
+};
 
 
-    /** @short Abstract parent of all Message classes
-     *
-     * A message can be either one-part (OneMessage) or multipart (MultiMessage)
-     * */
-    struct AbstractMessage: public Responses::AbstractData {
-        typedef QMap<QByteArray,QByteArray> bodyFldParam_t;
-        typedef QPair<QByteArray, bodyFldParam_t> bodyFldDsp_t;
+/** @short Abstract parent of all Message classes
+ *
+ * A message can be either one-part (OneMessage) or multipart (MultiMessage)
+ * */
+struct AbstractMessage: public Responses::AbstractData {
+    typedef QMap<QByteArray,QByteArray> bodyFldParam_t;
+    typedef QPair<QByteArray, bodyFldParam_t> bodyFldDsp_t;
 
-        // Common fields
-        QString mediaType;
-        QString mediaSubType;
-        // Common optional fields
-        bodyFldParam_t bodyFldParam;
-        bodyFldDsp_t bodyFldDsp;
-        QList<QByteArray> bodyFldLang;
-        QByteArray bodyFldLoc;
-        QVariant bodyExtension;
+    // Common fields
+    QString mediaType;
+    QString mediaSubType;
+    // Common optional fields
+    bodyFldParam_t bodyFldParam;
+    bodyFldDsp_t bodyFldDsp;
+    QList<QByteArray> bodyFldLang;
+    QByteArray bodyFldLoc;
+    QVariant bodyExtension;
 
-        virtual ~AbstractMessage() {}
-        static QSharedPointer<AbstractMessage> fromList( const QVariantList& items, const QByteArray& line, const int start );
+    virtual ~AbstractMessage() {}
+    static QSharedPointer<AbstractMessage> fromList(const QVariantList &items, const QByteArray &line, const int start);
 
-        static bodyFldParam_t makeBodyFldParam( const QVariant& list, const QByteArray& line, const int start );
-        static bodyFldDsp_t makeBodyFldDsp( const QVariant& list, const QByteArray& line, const int start );
-        static QList<QByteArray> makeBodyFldLang( const QVariant& input, const QByteArray& line, const int start );
+    static bodyFldParam_t makeBodyFldParam(const QVariant &list, const QByteArray &line, const int start);
+    static bodyFldDsp_t makeBodyFldDsp(const QVariant &list, const QByteArray &line, const int start);
+    static QList<QByteArray> makeBodyFldLang(const QVariant &input, const QByteArray &line, const int start);
 
-        virtual QTextStream& dump( QTextStream& s ) const { return dump( s, 0 ); }
-        virtual QTextStream& dump( QTextStream& s, const int indent ) const = 0;
-        virtual QList<Mailbox::TreeItem*> createTreeItems( Mailbox::TreeItem* parent ) const = 0;
+    virtual QTextStream &dump(QTextStream &s) const { return dump(s, 0); }
+    virtual QTextStream &dump(QTextStream &s, const int indent) const = 0;
+    virtual QList<Mailbox::TreeItem *> createTreeItems(Mailbox::TreeItem *parent) const = 0;
 
-        AbstractMessage(const QString &_mediaType, const QString &_mediaSubType, const bodyFldParam_t &_bodyFldParam,
-                        const bodyFldDsp_t &_bodyFldDsp, const QList<QByteArray> &_bodyFldLang, const QByteArray &_bodyFldLoc,
-                        const QVariant &_bodyExtension):
-            mediaType(_mediaType), mediaSubType(_mediaSubType), bodyFldParam(_bodyFldParam), bodyFldDsp(_bodyFldDsp),
-            bodyFldLang(_bodyFldLang), bodyFldLoc(_bodyFldLoc), bodyExtension(_bodyExtension) {}
-    protected:
-        static uint extractUInt( const QVariant& var, const QByteArray& line, const int start );
-        virtual void storeInterestingFields(Mailbox::TreeItemPart * p) const;
-    };
+    AbstractMessage(const QString &_mediaType, const QString &_mediaSubType, const bodyFldParam_t &_bodyFldParam,
+                    const bodyFldDsp_t &_bodyFldDsp, const QList<QByteArray> &_bodyFldLang, const QByteArray &_bodyFldLoc,
+                    const QVariant &_bodyExtension):
+        mediaType(_mediaType), mediaSubType(_mediaSubType), bodyFldParam(_bodyFldParam), bodyFldDsp(_bodyFldDsp),
+        bodyFldLang(_bodyFldLang), bodyFldLoc(_bodyFldLoc), bodyExtension(_bodyExtension) {}
+protected:
+    static uint extractUInt(const QVariant &var, const QByteArray &line, const int start);
+    virtual void storeInterestingFields(Mailbox::TreeItemPart *p) const;
+};
 
-    /** @short Abstract parent class for all non-multipart messages */
-    struct OneMessage: public AbstractMessage {
-        QByteArray bodyFldId;
-        QByteArray bodyFldDesc;
-        QByteArray bodyFldEnc;
-        uint bodyFldOctets;
-        // optional fields specific to non-multipart:
-        QByteArray bodyFldMd5;
-        OneMessage( const QString& _mediaType, const QString& _mediaSubType,
-                const bodyFldParam_t& _bodyFldParam, const QByteArray& _bodyFldId,
-                const QByteArray& _bodyFldDesc, const QByteArray& _bodyFldEnc,
-                const uint _bodyFldOctets, const QByteArray& _bodyFldMd5,
-                const bodyFldDsp_t& _bodyFldDsp,
-                const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,
-                const QVariant& _bodyExtension ):
-            AbstractMessage(_mediaType, _mediaSubType, _bodyFldParam, _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension),
-            bodyFldId(_bodyFldId), bodyFldDesc(_bodyFldDesc),
-            bodyFldEnc(_bodyFldEnc), bodyFldOctets(_bodyFldOctets), bodyFldMd5(_bodyFldMd5) {}
+/** @short Abstract parent class for all non-multipart messages */
+struct OneMessage: public AbstractMessage {
+    QByteArray bodyFldId;
+    QByteArray bodyFldDesc;
+    QByteArray bodyFldEnc;
+    uint bodyFldOctets;
+    // optional fields specific to non-multipart:
+    QByteArray bodyFldMd5;
+    OneMessage(const QString &_mediaType, const QString &_mediaSubType,
+               const bodyFldParam_t &_bodyFldParam, const QByteArray &_bodyFldId,
+               const QByteArray &_bodyFldDesc, const QByteArray &_bodyFldEnc,
+               const uint _bodyFldOctets, const QByteArray &_bodyFldMd5,
+               const bodyFldDsp_t &_bodyFldDsp,
+               const QList<QByteArray> &_bodyFldLang, const QByteArray &_bodyFldLoc,
+               const QVariant &_bodyExtension):
+        AbstractMessage(_mediaType, _mediaSubType, _bodyFldParam, _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension),
+        bodyFldId(_bodyFldId), bodyFldDesc(_bodyFldDesc),
+        bodyFldEnc(_bodyFldEnc), bodyFldOctets(_bodyFldOctets), bodyFldMd5(_bodyFldMd5) {}
 
-        virtual bool eq( const AbstractData& other ) const;
+    virtual bool eq(const AbstractData &other) const;
 
-    protected:
-        void storeInterestingFields( Mailbox::TreeItemPart* p ) const;
-    };
+protected:
+    void storeInterestingFields(Mailbox::TreeItemPart *p) const;
+};
 
-    /** @short Ordinary Message (body-type-basic in RFC3501) */
-    struct BasicMessage: public OneMessage {
-        // nothing new, just stuff from OneMessage
-        BasicMessage( const QString& _mediaType, const QString& _mediaSubType,
-                const bodyFldParam_t& _bodyFldParam, const QByteArray& _bodyFldId,
-                const QByteArray& _bodyFldDesc, const QByteArray& _bodyFldEnc,
-                const uint _bodyFldOctets, const QByteArray& _bodyFldMd5,
-                const bodyFldDsp_t& _bodyFldDsp,
-                const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,
-                const QVariant& _bodyExtension ):
-            OneMessage( _mediaType, _mediaSubType, _bodyFldParam, _bodyFldId,
-                    _bodyFldDesc, _bodyFldEnc, _bodyFldOctets, _bodyFldMd5,
-                    _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension) {};
-        virtual QTextStream& dump( QTextStream& s, const int indent ) const;
-        using OneMessage::dump;
-        /* No need for "virtual bool eq( const AbstractData& other ) const" as
-         * it's already implemented in OneMessage::eq() */
-        virtual QList<Mailbox::TreeItem*> createTreeItems( Mailbox::TreeItem* parent ) const;
-    };
+/** @short Ordinary Message (body-type-basic in RFC3501) */
+struct BasicMessage: public OneMessage {
+    // nothing new, just stuff from OneMessage
+    BasicMessage(const QString &_mediaType, const QString &_mediaSubType,
+                 const bodyFldParam_t &_bodyFldParam, const QByteArray &_bodyFldId,
+                 const QByteArray &_bodyFldDesc, const QByteArray &_bodyFldEnc,
+                 const uint _bodyFldOctets, const QByteArray &_bodyFldMd5,
+                 const bodyFldDsp_t &_bodyFldDsp,
+                 const QList<QByteArray> &_bodyFldLang, const QByteArray &_bodyFldLoc,
+                 const QVariant &_bodyExtension):
+        OneMessage(_mediaType, _mediaSubType, _bodyFldParam, _bodyFldId,
+                   _bodyFldDesc, _bodyFldEnc, _bodyFldOctets, _bodyFldMd5,
+                   _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension) {};
+    virtual QTextStream &dump(QTextStream &s, const int indent) const;
+    using OneMessage::dump;
+    /* No need for "virtual bool eq( const AbstractData& other ) const" as
+     * it's already implemented in OneMessage::eq() */
+    virtual QList<Mailbox::TreeItem *> createTreeItems(Mailbox::TreeItem *parent) const;
+};
 
-    /** @short A message holding another RFC822 message (body-type-msg) */
-    struct MsgMessage: public OneMessage {
-        Envelope envelope;
-        QSharedPointer<AbstractMessage> body;
-        uint bodyFldLines;
-        MsgMessage( const QString& _mediaType, const QString& _mediaSubType,
-                const bodyFldParam_t& _bodyFldParam, const QByteArray& _bodyFldId,
-                const QByteArray& _bodyFldDesc, const QByteArray& _bodyFldEnc,
-                const uint _bodyFldOctets, const QByteArray& _bodyFldMd5,
-                const bodyFldDsp_t& _bodyFldDsp,
-                const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,
-                const QVariant& _bodyExtension,
-                const Envelope& _envelope, const QSharedPointer<AbstractMessage>& _body,
-                const uint _bodyFldLines ):
-            OneMessage( _mediaType, _mediaSubType, _bodyFldParam, _bodyFldId,
-                    _bodyFldDesc, _bodyFldEnc, _bodyFldOctets, _bodyFldMd5,
-                    _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension),
-            envelope(_envelope), body(_body), bodyFldLines(_bodyFldLines) {}
-        virtual QTextStream& dump( QTextStream& s, const int indent ) const;
-        using OneMessage::dump;
-        virtual bool eq( const AbstractData& other ) const;
-        virtual QList<Mailbox::TreeItem*> createTreeItems( Mailbox::TreeItem* parent ) const;
-    };
+/** @short A message holding another RFC822 message (body-type-msg) */
+struct MsgMessage: public OneMessage {
+    Envelope envelope;
+    QSharedPointer<AbstractMessage> body;
+    uint bodyFldLines;
+    MsgMessage(const QString &_mediaType, const QString &_mediaSubType,
+               const bodyFldParam_t &_bodyFldParam, const QByteArray &_bodyFldId,
+               const QByteArray &_bodyFldDesc, const QByteArray &_bodyFldEnc,
+               const uint _bodyFldOctets, const QByteArray &_bodyFldMd5,
+               const bodyFldDsp_t &_bodyFldDsp,
+               const QList<QByteArray> &_bodyFldLang, const QByteArray &_bodyFldLoc,
+               const QVariant &_bodyExtension,
+               const Envelope &_envelope, const QSharedPointer<AbstractMessage> &_body,
+               const uint _bodyFldLines):
+        OneMessage(_mediaType, _mediaSubType, _bodyFldParam, _bodyFldId,
+                   _bodyFldDesc, _bodyFldEnc, _bodyFldOctets, _bodyFldMd5,
+                   _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension),
+        envelope(_envelope), body(_body), bodyFldLines(_bodyFldLines) {}
+    virtual QTextStream &dump(QTextStream &s, const int indent) const;
+    using OneMessage::dump;
+    virtual bool eq(const AbstractData &other) const;
+    virtual QList<Mailbox::TreeItem *> createTreeItems(Mailbox::TreeItem *parent) const;
+};
 
-    /** @short A text message (body-type-text) */
-    struct TextMessage: public OneMessage {
-        uint bodyFldLines;
-        TextMessage( const QString& _mediaType, const QString& _mediaSubType,
-                const bodyFldParam_t& _bodyFldParam, const QByteArray& _bodyFldId,
-                const QByteArray& _bodyFldDesc, const QByteArray& _bodyFldEnc,
-                const uint _bodyFldOctets, const QByteArray& _bodyFldMd5,
-                const bodyFldDsp_t& _bodyFldDsp,
-                const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,
-                const QVariant& _bodyExtension,
-                const uint _bodyFldLines ):
-            OneMessage( _mediaType, _mediaSubType, _bodyFldParam, _bodyFldId,
-                    _bodyFldDesc, _bodyFldEnc, _bodyFldOctets, _bodyFldMd5,
-                    _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension),
-            bodyFldLines(_bodyFldLines) {}
-        virtual QTextStream& dump( QTextStream& s, const int indent ) const;
-        using OneMessage::dump;
-        virtual bool eq( const AbstractData& other ) const;
-        virtual QList<Mailbox::TreeItem*> createTreeItems( Mailbox::TreeItem* parent ) const;
-    };
+/** @short A text message (body-type-text) */
+struct TextMessage: public OneMessage {
+    uint bodyFldLines;
+    TextMessage(const QString &_mediaType, const QString &_mediaSubType,
+                const bodyFldParam_t &_bodyFldParam, const QByteArray &_bodyFldId,
+                const QByteArray &_bodyFldDesc, const QByteArray &_bodyFldEnc,
+                const uint _bodyFldOctets, const QByteArray &_bodyFldMd5,
+                const bodyFldDsp_t &_bodyFldDsp,
+                const QList<QByteArray> &_bodyFldLang, const QByteArray &_bodyFldLoc,
+                const QVariant &_bodyExtension,
+                const uint _bodyFldLines):
+        OneMessage(_mediaType, _mediaSubType, _bodyFldParam, _bodyFldId,
+                   _bodyFldDesc, _bodyFldEnc, _bodyFldOctets, _bodyFldMd5,
+                   _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension),
+        bodyFldLines(_bodyFldLines) {}
+    virtual QTextStream &dump(QTextStream &s, const int indent) const;
+    using OneMessage::dump;
+    virtual bool eq(const AbstractData &other) const;
+    virtual QList<Mailbox::TreeItem *> createTreeItems(Mailbox::TreeItem *parent) const;
+};
 
-    /** @short Multipart message (body-type-mpart) */
-    struct MultiMessage: public AbstractMessage {
-        QList<QSharedPointer<AbstractMessage> > bodies;
+/** @short Multipart message (body-type-mpart) */
+struct MultiMessage: public AbstractMessage {
+    QList<QSharedPointer<AbstractMessage> > bodies;
 
-        MultiMessage( const QList<QSharedPointer<AbstractMessage> >& _bodies,
-                const QString& _mediaSubType, const bodyFldParam_t& _bodyFldParam,
-                const bodyFldDsp_t& _bodyFldDsp,
-                const QList<QByteArray>& _bodyFldLang, const QByteArray& _bodyFldLoc,
-                const QVariant& _bodyExtension ):
-            AbstractMessage(QLatin1String("multipart"), _mediaSubType, _bodyFldParam, _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension),
-            bodies(_bodies) {}
-        virtual QTextStream& dump( QTextStream& s, const int indent ) const;
-        using AbstractMessage::dump;
-        virtual bool eq( const AbstractData& other ) const;
-        virtual QList<Mailbox::TreeItem*> createTreeItems( Mailbox::TreeItem* parent ) const;
-    protected:
-        void storeInterestingFields(Mailbox::TreeItemPart *p) const;
-    };
+    MultiMessage(const QList<QSharedPointer<AbstractMessage> > &_bodies,
+                 const QString &_mediaSubType, const bodyFldParam_t &_bodyFldParam,
+                 const bodyFldDsp_t &_bodyFldDsp,
+                 const QList<QByteArray> &_bodyFldLang, const QByteArray &_bodyFldLoc,
+                 const QVariant &_bodyExtension):
+        AbstractMessage(QLatin1String("multipart"), _mediaSubType, _bodyFldParam, _bodyFldDsp, _bodyFldLang, _bodyFldLoc, _bodyExtension),
+        bodies(_bodies) {}
+    virtual QTextStream &dump(QTextStream &s, const int indent) const;
+    using AbstractMessage::dump;
+    virtual bool eq(const AbstractData &other) const;
+    virtual QList<Mailbox::TreeItem *> createTreeItems(Mailbox::TreeItem *parent) const;
+protected:
+    void storeInterestingFields(Mailbox::TreeItemPart *p) const;
+};
 
-    QTextStream& operator<<( QTextStream& stream, const MailAddress& address );
-    QTextStream& operator<<( QTextStream& stream, const Envelope& e );
-    QTextStream& operator<<( QTextStream& stream, const AbstractMessage::bodyFldParam_t& p );
-    QTextStream& operator<<( QTextStream& stream, const AbstractMessage::bodyFldDsp_t& p );
-    QTextStream& operator<<( QTextStream& stream, const QList<QByteArray>& list );
+QTextStream &operator<<(QTextStream &stream, const MailAddress &address);
+QTextStream &operator<<(QTextStream &stream, const Envelope &e);
+QTextStream &operator<<(QTextStream &stream, const AbstractMessage::bodyFldParam_t &p);
+QTextStream &operator<<(QTextStream &stream, const AbstractMessage::bodyFldDsp_t &p);
+QTextStream &operator<<(QTextStream &stream, const QList<QByteArray> &list);
 
-    bool operator==( const Envelope& a, const Envelope& b );
-    inline bool operator!=( const Envelope& a, const Envelope& b ) { return !(a == b); }
-    bool operator==( const MailAddress& a, const MailAddress& b );
-    inline bool operator!=( const MailAddress& a, const MailAddress& b ) { return !(a == b); }
+bool operator==(const Envelope &a, const Envelope &b);
+inline bool operator!=(const Envelope &a, const Envelope &b) { return !(a == b); }
+bool operator==(const MailAddress &a, const MailAddress &b);
+inline bool operator!=(const MailAddress &a, const MailAddress &b) { return !(a == b); }
 
 }
 
 }
 
-QDebug operator<<( QDebug& dbg, const Imap::Message::Envelope& envelope );
+QDebug operator<<(QDebug &dbg, const Imap::Message::Envelope &envelope);
 
-QDataStream& operator>>( QDataStream& stream, Imap::Message::Envelope& e );
-QDataStream& operator<<( QDataStream& stream, const Imap::Message::Envelope& e );
-QDataStream& operator>>( QDataStream& stream, Imap::Message::MailAddress& a );
-QDataStream& operator<<( QDataStream& stream, const Imap::Message::MailAddress& a );
+QDataStream &operator>>(QDataStream &stream, Imap::Message::Envelope &e);
+QDataStream &operator<<(QDataStream &stream, const Imap::Message::Envelope &e);
+QDataStream &operator>>(QDataStream &stream, Imap::Message::MailAddress &a);
+QDataStream &operator<<(QDataStream &stream, const Imap::Message::MailAddress &a);
 
 
 #endif /* IMAP_MESSAGE_H */

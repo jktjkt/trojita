@@ -28,10 +28,11 @@
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Network/FileDownloadManager.h"
 
-namespace Gui {
+namespace Gui
+{
 
 SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex):
-        EmbeddedWebView(parent, manager)
+    EmbeddedWebView(parent, manager)
 {
     Q_ASSERT(partIndex.isValid());
     QUrl url;
@@ -41,33 +42,33 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
     load(url);
 
     _fileDownloadManager = new Imap::Network::FileDownloadManager(this, manager, partIndex);
-    connect(_fileDownloadManager, SIGNAL(fileNameRequested(QString*)), this, SLOT(slotFileNameRequested(QString*)));
+    connect(_fileDownloadManager, SIGNAL(fileNameRequested(QString *)), this, SLOT(slotFileNameRequested(QString *)));
 
-    saveAction = new QAction( tr("Save..."), this );
-    connect( saveAction, SIGNAL(triggered()), _fileDownloadManager, SLOT(slotDownloadNow()) );
-    this->addAction( saveAction );
+    saveAction = new QAction(tr("Save..."), this);
+    connect(saveAction, SIGNAL(triggered()), _fileDownloadManager, SLOT(slotDownloadNow()));
+    this->addAction(saveAction);
 
-    setContextMenuPolicy( Qt::ActionsContextMenu );
+    setContextMenuPolicy(Qt::ActionsContextMenu);
 }
 
 void SimplePartWidget::slotFileNameRequested(QString *fileName)
 {
-    *fileName = QFileDialog::getSaveFileName( this, tr("Save Attachment"),
-                                  *fileName, QString(),
-                                  0, QFileDialog::HideNameFilterDetails
-                                  );
+    *fileName = QFileDialog::getSaveFileName(this, tr("Save Attachment"),
+                *fileName, QString(),
+                0, QFileDialog::HideNameFilterDetails
+                                            );
 }
 
-void SimplePartWidget::slotTransferError( const QString& errorString )
+void SimplePartWidget::slotTransferError(const QString &errorString)
 {
-    QMessageBox::critical( this, tr("Can't save attachment"),
-                           tr("Unable to save the attachment. Error:\n%1").arg( errorString ) );
+    QMessageBox::critical(this, tr("Can't save attachment"),
+                          tr("Unable to save the attachment. Error:\n%1").arg(errorString));
 }
 
 QString SimplePartWidget::quoteMe() const
 {
     QString selection = selectedText();
-    if ( selection.isEmpty() )
+    if (selection.isEmpty())
         return page()->mainFrame()->toPlainText();
     else
         return selection;

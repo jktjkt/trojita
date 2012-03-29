@@ -25,14 +25,17 @@
 #include <QPointer>
 #include <QProgressBar>
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 class Model;
 class VisibleTasksModel;
 }
 }
 
-namespace Gui {
+namespace Gui
+{
 
 /** @short A GUI element for showing whether anything is "using" the IMAP connection */
 class TaskProgressIndicator : public QProgressBar

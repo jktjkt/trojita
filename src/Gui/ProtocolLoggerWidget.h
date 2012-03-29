@@ -34,7 +34,8 @@ class QPlainTextEdit;
 class QTextStream;
 class QTimer;
 
-namespace Gui {
+namespace Gui
+{
 
 /** @short Protocol chat logger
 
@@ -43,7 +44,7 @@ the client and the IMAP mail server.
 */
 class ProtocolLoggerWidget : public QWidget
 {
-Q_OBJECT
+    Q_OBJECT
 public:
     explicit ProtocolLoggerWidget(QWidget *parent = 0);
     virtual ~ProtocolLoggerWidget();
@@ -57,7 +58,7 @@ public slots:
 
 private slots:
     /** @short A tab is requested to close */
-    void closeTab( int index );
+    void closeTab(int index);
     /** @short Clear all logs */
     void clearLogDisplay();
 
@@ -65,16 +66,16 @@ private slots:
     void slotShowLogs();
 
 private:
-    QTabWidget* tabs;
-    QMap<uint, QPlainTextEdit*> loggerWidgets;
+    QTabWidget *tabs;
+    QMap<uint, QPlainTextEdit *> loggerWidgets;
     QMap<uint, Imap::RingBuffer<Imap::Mailbox::LogMessage> > buffers;
-    QPushButton* clearAll;
+    QPushButton *clearAll;
     bool loggingActive;
     QTimer *delayedDisplay;
     QTextStream *m_fileLog;
 
     /** @short Return (possibly newly created) logger widget for a given parser */
-    QPlainTextEdit *getLogger( const uint parser );
+    QPlainTextEdit *getLogger(const uint parser);
 
     /** @short Dump the log bufer contents to the GUI widget */
     void flushToWidget(const uint parserId, Imap::RingBuffer<Imap::Mailbox::LogMessage> &buf);
@@ -82,8 +83,8 @@ private:
     /** @short Append a message to the log file */
     void writeToDisk(uint parser, const Imap::Mailbox::LogMessage &message);
 
-    virtual void showEvent( QShowEvent* e );
-    virtual void hideEvent( QHideEvent* e );
+    virtual void showEvent(QShowEvent *e);
+    virtual void hideEvent(QHideEvent *e);
 };
 
 }

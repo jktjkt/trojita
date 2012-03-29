@@ -26,9 +26,11 @@
 #include "../ConnectionState.h"
 #include "../Parser/Parser.h"
 
-namespace Imap {
+namespace Imap
+{
 class Parser;
-namespace Mailbox {
+namespace Mailbox
+{
 class ImapTask;
 class KeepMailboxOpenTask;
 
@@ -41,9 +43,9 @@ struct ParserState {
     /** @short The logout command */
     CommandHandle logoutCmd;
     /** @short List of tasks which are active already, and should therefore receive events */
-    QList<ImapTask*> activeTasks;
+    QList<ImapTask *> activeTasks;
     /** @short An active KeepMailboxOpenTask, if one exists */
-    KeepMailboxOpenTask* maintainingTask;
+    KeepMailboxOpenTask *maintainingTask;
     /** @short A list of cepabilities, as advertised by the server */
     QStringList capabilities;
     /** @short Is the @arg capabilities usable? */

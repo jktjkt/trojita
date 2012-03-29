@@ -24,9 +24,11 @@
 #include <QSortFilterProxyModel>
 #include "Imap/Model/MailboxModel.h"
 
-namespace Imap {
+namespace Imap
+{
 
-namespace Mailbox {
+namespace Mailbox
+{
 
 /** @short A pretty proxy model which increases sexiness of the MailboxModel */
 class PrettyMailboxModel: public QSortFilterProxyModel

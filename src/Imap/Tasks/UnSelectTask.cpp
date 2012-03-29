@@ -22,15 +22,17 @@
 #include "Model.h"
 #include "MailboxTree.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Imap
+{
+namespace Mailbox
+{
 
-UnSelectTask::UnSelectTask( Model* _model, ImapTask* parentTask ) :
-    ImapTask( _model )
+UnSelectTask::UnSelectTask(Model *_model, ImapTask *parentTask) :
+    ImapTask(_model)
 {
     conn = parentTask;
     parser = conn->parser;
-    Q_ASSERT( parser );
+    Q_ASSERT(parser);
 }
 
 void UnSelectTask::perform()
@@ -68,7 +70,7 @@ void UnSelectTask::doFakeSelect()
     selectMissingTag = parser->examine(QString("trojita non existing %1").arg(QDateTime::currentDateTime().toString(Qt::ISODate)));
 }
 
-bool UnSelectTask::handleStateHelper( const Imap::Responses::State* const resp )
+bool UnSelectTask::handleStateHelper(const Imap::Responses::State *const resp)
 {
     if (!resp->tag.isEmpty()) {
         if (resp->tag == unSelectTag) {
@@ -99,28 +101,28 @@ bool UnSelectTask::handleStateHelper( const Imap::Responses::State* const resp )
     return true;
 }
 
-bool UnSelectTask::handleNumberResponse( const Imap::Responses::NumberResponse* const resp )
+bool UnSelectTask::handleNumberResponse(const Imap::Responses::NumberResponse *const resp)
 {
     Q_UNUSED(resp);
     log("UnSelectTask: ignoring numeric response", LOG_MAILBOX_SYNC);
     return true;
 }
 
-bool UnSelectTask::handleFlags( const Imap::Responses::Flags* const resp )
+bool UnSelectTask::handleFlags(const Imap::Responses::Flags *const resp)
 {
     Q_UNUSED(resp);
     log("UnSelectTask: ignoring FLAGS response", LOG_MAILBOX_SYNC);
     return true;
 }
 
-bool UnSelectTask::handleSearch( const Imap::Responses::Search* const resp )
+bool UnSelectTask::handleSearch(const Imap::Responses::Search *const resp)
 {
     Q_UNUSED(resp);
     log("UnSelectTask: ignoring SEARCH response", LOG_MAILBOX_SYNC);
     return true;
 }
 
-bool UnSelectTask::handleFetch( const Imap::Responses::Fetch* const resp )
+bool UnSelectTask::handleFetch(const Imap::Responses::Fetch *const resp)
 {
     Q_UNUSED(resp);
     log("UnSelectTask: ignoring FETCH response", LOG_MAILBOX_SYNC);
