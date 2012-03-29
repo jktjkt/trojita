@@ -506,6 +506,9 @@ void MainWindow::msgListActivated(const QModelIndex &index)
 {
     Q_ASSERT(index.isValid());
 
+    if (qApp->keyboardModifiers() & Qt::ShiftModifier || qApp->keyboardModifiers() & Qt::ControlModifier)
+        return;
+
     if (! index.data(Imap::Mailbox::RoleMessageUid).isValid())
         return;
 
@@ -518,6 +521,9 @@ void MainWindow::msgListActivated(const QModelIndex &index)
 void MainWindow::msgListClicked(const QModelIndex &index)
 {
     Q_ASSERT(index.isValid());
+
+    if (qApp->keyboardModifiers() & Qt::ShiftModifier || qApp->keyboardModifiers() & Qt::ControlModifier)
+        return;
 
     if (! index.data(Imap::Mailbox::RoleMessageUid).isValid())
         return;
