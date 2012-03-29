@@ -500,12 +500,12 @@ void Model::handleStatus(Imap::Parser *ptr, const Imap::Responses::Status *const
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(mailbox->m_children[0]);
     Q_ASSERT(list);
     if (resp->states.contains(Imap::Responses::Status::MESSAGES))
-        list->_totalMessageCount = resp->states[ Imap::Responses::Status::MESSAGES ];
+        list->m_totalMessageCount = resp->states[ Imap::Responses::Status::MESSAGES ];
     if (resp->states.contains(Imap::Responses::Status::UNSEEN))
-        list->_unreadMessageCount = resp->states[ Imap::Responses::Status::UNSEEN ];
+        list->m_unreadMessageCount = resp->states[ Imap::Responses::Status::UNSEEN ];
     if (resp->states.contains(Imap::Responses::Status::RECENT))
-        list->_recentMessageCount = resp->states[ Imap::Responses::Status::RECENT ];
-    list->_numberFetchingStatus = TreeItem::DONE;
+        list->m_recentMessageCount = resp->states[ Imap::Responses::Status::RECENT ];
+    list->m_numberFetchingStatus = TreeItem::DONE;
     emitMessageCountChanged(mailbox);
 }
 
@@ -667,20 +667,20 @@ void Model::askForMessagesInMailbox(TreeItemMsgList *item)
     Q_ASSERT(item->m_children.size() == 0);
 
     QList<uint> uidMapping = cache()->uidMapping(mailbox);
-    if (networkPolicy() == NETWORK_OFFLINE && uidMapping.size() != item->_totalMessageCount) {
+    if (networkPolicy() == NETWORK_OFFLINE && uidMapping.size() != item->m_totalMessageCount) {
         qDebug() << "UID cache stale for mailbox" << mailbox <<
                  "(" << uidMapping.size() << "in UID cache vs." <<
-                 item->_totalMessageCount << "as totalMessageCount)";
+                 item->m_totalMessageCount << "as totalMessageCount)";
         item->m_fetchStatus = TreeItem::UNAVAILABLE;
     } else if (uidMapping.size()) {
         QModelIndex listIndex = item->toIndex(this);
         beginInsertRows(listIndex, 0, uidMapping.size() - 1);
         for (uint seq = 0; seq < static_cast<uint>(uidMapping.size()); ++seq) {
             TreeItemMessage *message = new TreeItemMessage(item);
-            message->_offset = seq;
-            message->_uid = uidMapping[ seq ];
+            message->m_offset = seq;
+            message->m_uid = uidMapping[ seq ];
             item->m_children << message;
-            message->_flags = normalizeFlags(cache()->msgFlags(mailbox, message->_uid));
+            message->m_flags = normalizeFlags(cache()->msgFlags(mailbox, message->m_uid));
         }
         endInsertRows();
         item->m_fetchStatus = TreeItem::DONE; // required for FETCH processing later on
@@ -701,13 +701,13 @@ void Model::askForNumberOfMessages(TreeItemMsgList *item)
     if (networkPolicy() == NETWORK_OFFLINE) {
         Imap::Mailbox::SyncState syncState = cache()->mailboxSyncState(mailboxPtr->mailbox());
         if (syncState.isUsableForNumbers()) {
-            item->_unreadMessageCount = syncState.unSeenCount();
-            item->_totalMessageCount = syncState.exists();
-            item->_recentMessageCount = syncState.recent();
-            item->_numberFetchingStatus = TreeItem::DONE;
+            item->m_unreadMessageCount = syncState.unSeenCount();
+            item->m_totalMessageCount = syncState.exists();
+            item->m_recentMessageCount = syncState.recent();
+            item->m_numberFetchingStatus = TreeItem::DONE;
             emitMessageCountChanged(mailboxPtr);
         } else {
-            item->_numberFetchingStatus = TreeItem::UNAVAILABLE;
+            item->m_numberFetchingStatus = TreeItem::UNAVAILABLE;
         }
     } else {
         m_taskFactory->createNumberOfMessagesTask(this, mailboxPtr->toIndex(this));
@@ -726,9 +726,9 @@ void Model::askForMsgMetadata(TreeItemMessage *item)
     if (item->uid()) {
         AbstractCache::MessageDataBundle data = cache()->messageMetadata(mailboxPtr->mailbox(), item->uid());
         if (data.uid == item->uid()) {
-            item->_envelope = data.envelope;
-            item->_flags = normalizeFlags(cache()->msgFlags(mailboxPtr->mailbox(), item->uid()));
-            item->_size = data.size;
+            item->m_envelope = data.envelope;
+            item->m_flags = normalizeFlags(cache()->msgFlags(mailboxPtr->mailbox(), item->uid()));
+            item->m_size = data.size;
             QDataStream stream(&data.serializedBodyStructure, QIODevice::ReadOnly);
             stream.setVersion(QDataStream::Qt_4_6);
             QVariantList unserialized;
@@ -812,7 +812,7 @@ void Model::askForMsgPart(TreeItemPart *item, bool onlyFromCache)
 
     const QByteArray &data = cache()->messagePart(mailboxPtr->mailbox(), uid, item->partId());
     if (! data.isNull()) {
-        item->_data = data;
+        item->m_data = data;
         item->m_fetchStatus = TreeItem::DONE;
         return;
     }
@@ -821,7 +821,7 @@ void Model::askForMsgPart(TreeItemPart *item, bool onlyFromCache)
         if (item->m_fetchStatus != TreeItem::DONE)
             item->m_fetchStatus = TreeItem::UNAVAILABLE;
     } else if (! onlyFromCache) {
-        findTaskResponsibleFor(mailboxPtr)->requestPartDownload(item->message()->_uid, item->partIdForFetch(), item->octets());
+        findTaskResponsibleFor(mailboxPtr)->requestPartDownload(item->message()->m_uid, item->partIdForFetch(), item->octets());
     }
 }
 
@@ -1013,7 +1013,7 @@ QList<TreeItemMessage *> Model::findMessagesByUids(const TreeItemMailbox *const 
             continue;
         }
         lastUid = uid;
-        fakeMessage._uid = uid;
+        fakeMessage.m_uid = uid;
         it = qBinaryFind(it, list->m_children.constEnd(), &fakeMessage, uidComparator);
         if (it != list->m_children.end()) {
             res << static_cast<TreeItemMessage *>(*it);
@@ -1479,12 +1479,12 @@ void Model::releaseMessageData(const QModelIndex &message)
         return;
 
     msg->m_fetchStatus = TreeItem::NONE;
-    msg->_envelope.clear();
-    if (msg->_partHeader) {
-        msg->_partHeader->silentlyReleaseMemoryRecursive();
+    msg->m_envelope.clear();
+    if (msg->m_partHeader) {
+        msg->m_partHeader->silentlyReleaseMemoryRecursive();
     }
-    if (msg->_partText) {
-        msg->_partText->silentlyReleaseMemoryRecursive();
+    if (msg->m_partText) {
+        msg->m_partText->silentlyReleaseMemoryRecursive();
     }
     Q_FOREACH(TreeItem *item, msg->m_children) {
         TreeItemPart *part = dynamic_cast<TreeItemPart *>(item);

@@ -173,7 +173,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
     model->changeConnectionState(parser, CONN_STATE_SYNCING);
     const SyncState &syncState = mailbox->syncState;
     const SyncState &oldState = model->cache()->mailboxSyncState(mailbox->mailbox());
-    list->_totalMessageCount = syncState.exists();
+    list->m_totalMessageCount = syncState.exists();
     // Note: syncState.unSeen() is the NUMBER of the first unseen message, not their count!
 
     const QList<uint> &seqToUid = model->cache()->uidMapping(mailbox->mailbox());
@@ -255,12 +255,12 @@ void ObtainSynchronizedMailboxTask::fullMboxSync(TreeItemMailbox *mailbox, TreeI
         uidSyncingMode = UID_SYNC_ONLY_NEW;
         syncUids(mailbox);
 
-        list->_numberFetchingStatus = TreeItem::LOADING;
-        list->_unreadMessageCount = 0;
+        list->m_numberFetchingStatus = TreeItem::LOADING;
+        list->m_unreadMessageCount = 0;
     } else {
-        list->_totalMessageCount = 0;
-        list->_unreadMessageCount = 0;
-        list->_numberFetchingStatus = TreeItem::DONE;
+        list->m_totalMessageCount = 0;
+        list->m_unreadMessageCount = 0;
+        list->m_numberFetchingStatus = TreeItem::DONE;
         list->m_fetchStatus = TreeItem::DONE;
         model->cache()->setMailboxSyncState(mailbox->mailbox(), syncState);
         model->saveUidMap(list);
@@ -294,17 +294,17 @@ void ObtainSynchronizedMailboxTask::syncNoNewNoDeletions(TreeItemMailbox *mailbo
         }
         Q_ASSERT(uidsOk);
     } else {
-        list->_unreadMessageCount = 0;
-        list->_totalMessageCount = 0;
-        list->_numberFetchingStatus = TreeItem::DONE;
+        list->m_unreadMessageCount = 0;
+        list->m_totalMessageCount = 0;
+        list->m_numberFetchingStatus = TreeItem::DONE;
     }
 
     if (list->m_children.isEmpty()) {
         QList<TreeItem *> messages;
         for (uint i = 0; i < syncState.exists(); ++i) {
             TreeItemMessage *msg = new TreeItemMessage(list);
-            msg->_offset = i;
-            msg->_uid = seqToUid[ i ];
+            msg->m_offset = i;
+            msg->m_uid = seqToUid[ i ];
             messages << msg;
         }
         list->setChildren(messages);
@@ -334,8 +334,8 @@ void ObtainSynchronizedMailboxTask::syncNoNewNoDeletions(TreeItemMailbox *mailbo
 void ObtainSynchronizedMailboxTask::syncOnlyDeletions(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState)
 {
     log("Some messages got deleted, but no new arrivals", LOG_MAILBOX_SYNC);
-    list->_numberFetchingStatus = TreeItem::LOADING;
-    list->_unreadMessageCount = 0; // FIXME: this case needs further attention...
+    list->m_numberFetchingStatus = TreeItem::LOADING;
+    list->m_unreadMessageCount = 0; // FIXME: this case needs further attention...
     uidMap.clear();
     for (uint i = 0; i < syncState.exists(); ++i)
         uidMap << 0;
@@ -352,7 +352,7 @@ void ObtainSynchronizedMailboxTask::syncOnlyAdditions(TreeItemMailbox *mailbox, 
     // neither those that we already know or those that got added while we weren't around.
     // Therefore we ask only for UIDs of new messages
 
-    list->_numberFetchingStatus = TreeItem::LOADING;
+    list->m_numberFetchingStatus = TreeItem::LOADING;
     uidSyncingMode = UID_SYNC_ONLY_NEW;
     syncUids(mailbox, oldState.uidNext());
 }
@@ -362,8 +362,8 @@ void ObtainSynchronizedMailboxTask::syncGeneric(TreeItemMailbox *mailbox, TreeIt
     log("generic synchronization from previous state", LOG_MAILBOX_SYNC);
     Q_UNUSED(syncState);
 
-    list->_numberFetchingStatus = TreeItem::LOADING;
-    list->_unreadMessageCount = 0;
+    list->m_numberFetchingStatus = TreeItem::LOADING;
+    list->m_unreadMessageCount = 0;
     uidSyncingMode = UID_SYNC_ALL;
     syncUids(mailbox);
 }
@@ -391,7 +391,7 @@ void ObtainSynchronizedMailboxTask::syncFlags(TreeItemMailbox *mailbox)
     Q_ASSERT(list);
 
     flagsCmd = parser->fetch(Sequence(1, mailbox->syncState.exists()), QStringList() << QLatin1String("FLAGS"));
-    list->_numberFetchingStatus = TreeItem::LOADING;
+    list->m_numberFetchingStatus = TreeItem::LOADING;
     emit model->mailboxSyncingProgress(mailboxIndex, status);
 }
 
@@ -478,7 +478,7 @@ bool ObtainSynchronizedMailboxTask::handleNumberResponse(const Imap::Responses::
         break;
     case Imap::Responses::RECENT:
         mailbox->syncState.setRecent(resp->number);
-        list->_recentMessageCount = resp->number;
+        list->m_recentMessageCount = resp->number;
         return true;
         break;
     default:
@@ -602,13 +602,13 @@ void ObtainSynchronizedMailboxTask::finalizeUidSyncAll(TreeItemMailbox *mailbox)
                 // now we're just adding new messages to the end of the list
                 model->beginInsertRows(parent, i, i);
                 TreeItemMessage *msg = new TreeItemMessage(list);
-                msg->_offset = i;
-                msg->_uid = uidMap[ i ];
+                msg->m_offset = i;
+                msg->m_uid = uidMap[ i ];
                 list->m_children << msg;
                 model->endInsertRows();
-            } else if (dynamic_cast<TreeItemMessage *>(list->m_children[pos])->_uid == uidMap[ i ]) {
+            } else if (dynamic_cast<TreeItemMessage *>(list->m_children[pos])->m_uid == uidMap[ i ]) {
                 // current message has correct UID
-                dynamic_cast<TreeItemMessage *>(list->m_children[pos])->_offset = i;
+                dynamic_cast<TreeItemMessage *>(list->m_children[pos])->m_offset = i;
                 continue;
             } else {
                 // Traverse the messages we have in the cache, checking their UIDs. The idea here
@@ -618,7 +618,7 @@ void ObtainSynchronizedMailboxTask::finalizeUidSyncAll(TreeItemMailbox *mailbox)
                 bool found = false;
                 while (pos < list->m_children.size()) {
                     TreeItemMessage *message = dynamic_cast<TreeItemMessage *>(list->m_children[pos]);
-                    if (message->_uid != uidMap[ i ]) {
+                    if (message->m_uid != uidMap[ i ]) {
                         // this message is free to go
                         model->cache()->clearMessage(mailbox->mailbox(), message->uid());
                         model->beginRemoveRows(parent, pos, pos);
@@ -628,7 +628,7 @@ void ObtainSynchronizedMailboxTask::finalizeUidSyncAll(TreeItemMailbox *mailbox)
                     } else {
                         // this message is the correct one -> keep it, go to the next UID
                         found = true;
-                        message->_offset = i;
+                        message->m_offset = i;
                         break;
                     }
                 }
@@ -637,8 +637,8 @@ void ObtainSynchronizedMailboxTask::finalizeUidSyncAll(TreeItemMailbox *mailbox)
                     Q_ASSERT(pos == list->m_children.size());   // we're at the end of the list
                     model->beginInsertRows(parent, i, i);
                     TreeItemMessage *msg = new TreeItemMessage(list);
-                    msg->_uid = uidMap[ i ];
-                    msg->_offset = i;
+                    msg->m_uid = uidMap[ i ];
+                    msg->m_offset = i;
                     list->m_children << msg;
                     model->endInsertRows();
                 }
@@ -658,7 +658,7 @@ void ObtainSynchronizedMailboxTask::finalizeUidSyncAll(TreeItemMailbox *mailbox)
 
     uidMap.clear();
 
-    list->_totalMessageCount = list->m_children.size();
+    list->m_totalMessageCount = list->m_children.size();
 
 
     // Store stuff we already have in the cache
@@ -696,15 +696,15 @@ void ObtainSynchronizedMailboxTask::finalizeUidSyncOnlyNew(Model *model, TreeIte
     model->beginInsertRows(parent, offset, mailbox->syncState.exists() - 1);
     for (int i = 0; i < uidMap.size(); ++i) {
         TreeItemMessage *msg = new TreeItemMessage(list);
-        msg->_offset = i + offset;
-        msg->_uid = uidMap[ i ];
+        msg->m_offset = i + offset;
+        msg->m_uid = uidMap[ i ];
         list->m_children << msg;
     }
     model->endInsertRows();
     uidMap.clear();
 
-    list->_totalMessageCount = list->m_children.size();
-    list->_numberFetchingStatus = TreeItem::DONE; // FIXME: they aren't done yet
+    list->m_totalMessageCount = list->m_children.size();
+    list->m_numberFetchingStatus = TreeItem::DONE; // FIXME: they aren't done yet
     model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
     model->saveUidMap(list);
     uidMap.clear();

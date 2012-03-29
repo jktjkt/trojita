@@ -132,17 +132,17 @@ TreeItemMailbox::TreeItemMailbox(TreeItem *parent): TreeItem(parent), maintainin
 }
 
 TreeItemMailbox::TreeItemMailbox(TreeItem *parent, Responses::List response):
-    TreeItem(parent), _metadata(response.mailbox, response.separator, QStringList()), maintainingTask(0)
+    TreeItem(parent), m_metadata(response.mailbox, response.separator, QStringList()), maintainingTask(0)
 {
     for (QStringList::const_iterator it = response.flags.constBegin(); it != response.flags.constEnd(); ++it)
-        _metadata.flags.append(it->toUpper());
+        m_metadata.flags.append(it->toUpper());
     m_children.prepend(new TreeItemMsgList(this));
 }
 
 TreeItemMailbox *TreeItemMailbox::fromMetadata(TreeItem *parent, const MailboxMetadata &metadata)
 {
     TreeItemMailbox *res = new TreeItemMailbox(parent);
-    res->_metadata = metadata;
+    res->m_metadata = metadata;
     return res;
 }
 
@@ -159,7 +159,7 @@ void TreeItemMailbox::fetch(Model *const model)
     if (! loading()) {
         m_fetchStatus = LOADING;
         // It's possible that we've got invoked in response to something relatively harmless like rowCount(),
-        // that's why we have to delay the call to _askForChildrenOfMailbox() until we re-enter the event
+        // that's why we have to delay the call to askForChildrenOfMailbox() until we re-enter the event
         // loop.
         new DelayedAskForChildrenOfMailbox(model, toIndex(model));
     }
@@ -254,15 +254,15 @@ bool TreeItemMailbox::hasChildren(Model *const model)
     return true; // we have that "messages" thing built in
 }
 
-QLatin1String TreeItemMailbox::_noInferiors("\\NOINFERIORS");
-QLatin1String TreeItemMailbox::_hasNoChildren("\\HASNOCHILDREN");
-QLatin1String TreeItemMailbox::_hasChildren("\\HASCHILDREN");
+QLatin1String TreeItemMailbox::flagNoInferiors("\\NOINFERIORS");
+QLatin1String TreeItemMailbox::flagHasNoChildren("\\HASNOCHILDREN");
+QLatin1String TreeItemMailbox::flagHasChildren("\\HASCHILDREN");
 
 bool TreeItemMailbox::hasNoChildMaliboxesAlreadyKnown()
 {
-    if (_metadata.flags.contains(_noInferiors) ||
-        (_metadata.flags.contains(_hasNoChildren) &&
-         ! _metadata.flags.contains(_hasChildren)))
+    if (m_metadata.flags.contains(flagNoInferiors) ||
+        (m_metadata.flags.contains(flagHasNoChildren) &&
+         ! m_metadata.flags.contains(flagHasChildren)))
         return true;
     else
         return false;
@@ -274,8 +274,7 @@ bool TreeItemMailbox::hasChildMailboxes(Model *const model)
         return m_children.size() > 1;
     } else if (hasNoChildMaliboxesAlreadyKnown()) {
         return false;
-    } else if (_metadata.flags.contains(_hasChildren) &&
-               ! _metadata.flags.contains(_hasNoChildren)) {
+    } else if (m_metadata.flags.contains(flagHasChildren) && ! m_metadata.flags.contains(flagHasNoChildren)) {
         return true;
     } else {
         fetch(model);
@@ -294,13 +293,13 @@ TreeItem *TreeItemMailbox::child(const int offset, Model *const model)
 
 QList<TreeItem *> TreeItemMailbox::setChildren(const QList<TreeItem *> items)
 {
-    // This function has to be special because we want to preserve _children[0]
+    // This function has to be special because we want to preserve m_children[0]
 
     TreeItemMsgList *msgList = dynamic_cast<TreeItemMsgList *>(m_children[0]);
     Q_ASSERT(msgList);
     m_children.removeFirst();
 
-    QList<TreeItem *> list = TreeItem::setChildren(items);  // this also adjusts _loading and _fetched
+    QList<TreeItem *> list = TreeItem::setChildren(items);  // this also adjusts m_loading and m_fetched
 
     m_children.prepend(msgList);
 
@@ -343,7 +342,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
             // That's what we expect -> do nothing
         } else if (message->uid() == 0) {
             // This is the first time we see the UID, so let's take a note
-            message->_uid = receivedUid;
+            message->m_uid = receivedUid;
             changedMessage = message;
             if (message->loading()) {
                 // The Model tried to ask for data for this message. That couldn't succeded because the UID
@@ -393,7 +392,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
             // established above
             Q_ASSERT(dynamic_cast<const Responses::RespData<uint>&>(*(it.value())).data == message->uid());
         } else if (it.key() == "ENVELOPE") {
-            message->_envelope = dynamic_cast<const Responses::RespData<Message::Envelope>&>(*(it.value())).data;
+            message->m_envelope = dynamic_cast<const Responses::RespData<Message::Envelope>&>(*(it.value())).data;
             message->m_fetchStatus = DONE;
             gotEnvelope = true;
             changedMessage = message;
@@ -418,7 +417,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
         } else if (it.key() == "x-trojita-bodystructure") {
             // do nothing
         } else if (it.key() == "RFC822.SIZE") {
-            message->_size = dynamic_cast<const Responses::RespData<uint>&>(*(it.value())).data;
+            message->m_size = dynamic_cast<const Responses::RespData<uint>&>(*(it.value())).data;
             gotSize = true;
         } else if (it.key().startsWith("BODY[")) {
             if (it.key()[ it.key().size() - 1 ] != ']')
@@ -430,12 +429,12 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
             decodeMessagePartTransportEncoding(data, part->encoding(), part->dataPtr());
             part->m_fetchStatus = DONE;
             if (message->uid())
-                model->cache()->setMsgPart(mailbox(), message->uid(), part->partId(), part->_data);
+                model->cache()->setMsgPart(mailbox(), message->uid(), part->partId(), part->m_data);
             changedParts.append(part);
         } else if (it.key() == "FLAGS") {
             // Only emit signals when the flags have actually changed
             QStringList newFlags = model->normalizeFlags(dynamic_cast<const Responses::RespData<QStringList>&>(*(it.value())).data);
-            bool forceChange = (message->_flags != newFlags);
+            bool forceChange = (message->m_flags != newFlags);
             message->setFlags(list, newFlags, forceChange);
             if (forceChange) {
                 updatedFlags = true;
@@ -448,14 +447,14 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
     if (message->uid()) {
         if (gotEnvelope && gotSize && savedBodyStructure) {
             Imap::Mailbox::AbstractCache::MessageDataBundle dataForCache;
-            dataForCache.envelope = message->_envelope;
+            dataForCache.envelope = message->m_envelope;
             dataForCache.serializedBodyStructure = dynamic_cast<const Responses::RespData<QByteArray>&>(*(response.data[ "x-trojita-bodystructure" ])).data;
-            dataForCache.size = message->_size;
+            dataForCache.size = message->m_size;
             dataForCache.uid = message->uid();
             model->cache()->setMessageMetadata(mailbox(), message->uid(), dataForCache);
         }
         if (updatedFlags) {
-            model->cache()->setMsgFlags(mailbox(), message->uid(), message->_flags);
+            model->cache()->setMsgFlags(mailbox(), message->uid(), message->m_flags);
         }
     }
 }
@@ -477,11 +476,11 @@ void TreeItemMailbox::handleExpunge(Model *const model, const Responses::NumberR
     model->cache()->clearMessage(static_cast<TreeItemMailbox *>(list->parent())->mailbox(), message->uid());
     delete message;
     for (int i = offset; i < list->m_children.size(); ++i) {
-        --static_cast<TreeItemMessage *>(list->m_children[i])->_offset;
+        --static_cast<TreeItemMessage *>(list->m_children[i])->m_offset;
     }
     model->endRemoveRows();
 
-    --list->_totalMessageCount;
+    --list->m_totalMessageCount;
     list->recalcVariousMessageCounts(const_cast<Model *>(model));
     model->saveUidMap(list);
 }
@@ -544,14 +543,14 @@ TreeItemPart *TreeItemMailbox::partIdToPtr(Model *const model, TreeItemMessage *
 
 bool TreeItemMailbox::isSelectable() const
 {
-    return ! _metadata.flags.contains(QLatin1String("\\NOSELECT"));
+    return ! m_metadata.flags.contains(QLatin1String("\\NOSELECT"));
 }
 
 
 
 TreeItemMsgList::TreeItemMsgList(TreeItem *parent):
-    TreeItem(parent), _numberFetchingStatus(NONE), _totalMessageCount(-1),
-    _unreadMessageCount(-1), _recentMessageCount(-1)
+    TreeItem(parent), m_numberFetchingStatus(NONE), m_totalMessageCount(-1),
+    m_unreadMessageCount(-1), m_recentMessageCount(-1)
 {
     if (! parent->parent())
         m_fetchStatus = DONE;
@@ -571,8 +570,8 @@ void TreeItemMsgList::fetch(Model *const model)
 
 void TreeItemMsgList::fetchNumbers(Model *const model)
 {
-    if (_numberFetchingStatus == NONE) {
-        _numberFetchingStatus = LOADING;
+    if (m_numberFetchingStatus == NONE) {
+        m_numberFetchingStatus = LOADING;
         model->askForNumberOfMessages(this);
     }
 }
@@ -617,7 +616,7 @@ int TreeItemMsgList::totalMessageCount(Model *const model)
     // That said, it would require other pieces to support refresh of these numbers.
     if (! fetched())
         fetchNumbers(model);
-    return _totalMessageCount;
+    return m_totalMessageCount;
 }
 
 int TreeItemMsgList::unreadMessageCount(Model *const model)
@@ -625,7 +624,7 @@ int TreeItemMsgList::unreadMessageCount(Model *const model)
     // See totalMessageCount()
     if (! fetched())
         fetchNumbers(model);
-    return _unreadMessageCount;
+    return m_unreadMessageCount;
 }
 
 int TreeItemMsgList::recentMessageCount(Model *const model)
@@ -633,42 +632,42 @@ int TreeItemMsgList::recentMessageCount(Model *const model)
     // See totalMessageCount()
     if (! fetched())
         fetchNumbers(model);
-    return _recentMessageCount;
+    return m_recentMessageCount;
 }
 
 void TreeItemMsgList::recalcVariousMessageCounts(Model *model)
 {
-    _unreadMessageCount = 0;
-    _recentMessageCount = 0;
+    m_unreadMessageCount = 0;
+    m_recentMessageCount = 0;
     for (int i = 0; i < m_children.size(); ++i) {
         TreeItemMessage *message = static_cast<TreeItemMessage *>(m_children[i]);
-        message->_flagsHandled = true;
+        message->m_flagsHandled = true;
         if (! message->isMarkedAsRead())
-            ++_unreadMessageCount;
+            ++m_unreadMessageCount;
         if (message->isMarkedAsRecent())
-            ++_recentMessageCount;
+            ++m_recentMessageCount;
     }
-    _totalMessageCount = m_children.size();
-    _numberFetchingStatus = DONE;
+    m_totalMessageCount = m_children.size();
+    m_numberFetchingStatus = DONE;
     model->emitMessageCountChanged(static_cast<TreeItemMailbox *>(parent()));
 }
 
 bool TreeItemMsgList::numbersFetched() const
 {
-    return fetched() || _numberFetchingStatus == DONE;
+    return fetched() || m_numberFetchingStatus == DONE;
 }
 
 
 
 TreeItemMessage::TreeItemMessage(TreeItem *parent):
-    TreeItem(parent), _size(0), _uid(0), _flagsHandled(false), _offset(-1), _partHeader(0), _partText(0)
+    TreeItem(parent), m_size(0), m_uid(0), m_flagsHandled(false), m_offset(-1), m_partHeader(0), m_partText(0)
 {
 }
 
 TreeItemMessage::~TreeItemMessage()
 {
-    delete _partHeader;
-    delete _partText;
+    delete m_partHeader;
+    delete m_partText;
 }
 
 void TreeItemMessage::fetch(Model *const model)
@@ -676,7 +675,7 @@ void TreeItemMessage::fetch(Model *const model)
     if (fetched() || loading() || isUnavailable(model))
         return;
 
-    if (_uid) {
+    if (m_uid) {
         // Message UID is already known, which means that we can request data for this message
         model->askForMsgMetadata(this);
     } else {
@@ -715,18 +714,18 @@ TreeItem *TreeItemMessage::specialColumnPtr(int row, int column) const
     if (row != 0)
         return 0;
 
-    if (!_partText) {
-        _partText = new TreeItemModifiedPart(const_cast<TreeItemMessage *>(this), OFFSET_TEXT);
+    if (!m_partText) {
+        m_partText = new TreeItemModifiedPart(const_cast<TreeItemMessage *>(this), OFFSET_TEXT);
     }
-    if (!_partHeader) {
-        _partHeader = new TreeItemModifiedPart(const_cast<TreeItemMessage *>(this), OFFSET_HEADER);
+    if (!m_partHeader) {
+        m_partHeader = new TreeItemModifiedPart(const_cast<TreeItemMessage *>(this), OFFSET_HEADER);
     }
 
     switch (column) {
     case OFFSET_TEXT:
-        return _partText;
+        return m_partText;
     case OFFSET_HEADER:
-        return _partHeader;
+        return m_partHeader;
     default:
         return 0;
     }
@@ -734,8 +733,8 @@ TreeItem *TreeItemMessage::specialColumnPtr(int row, int column) const
 
 int TreeItemMessage::row() const
 {
-    Q_ASSERT(_offset != -1);
-    return _offset;
+    Q_ASSERT(m_offset != -1);
+    return m_offset;
 }
 
 QVariant TreeItemMessage::data(Model *const model, int role)
@@ -745,7 +744,7 @@ QVariant TreeItemMessage::data(Model *const model, int role)
 
     // This one is special, UID doesn't depend on fetch() and should not trigger it, either
     if (role == RoleMessageUid)
-        return _uid ? QVariant(_uid) : QVariant();
+        return m_uid ? QVariant(m_uid) : QVariant();
 
     // The same for RoleIsFetched
     if (role == RoleIsFetched)
@@ -754,7 +753,7 @@ QVariant TreeItemMessage::data(Model *const model, int role)
     // FLAGS shouldn't trigger message fetching, either
     if (role == RoleMessageFlags) {
         // The flags are already sorted by Model::normalizeFlags()
-        return _flags;
+        return m_flags;
     }
 
     fetch(model);
@@ -766,13 +765,13 @@ QVariant TreeItemMessage::data(Model *const model, int role)
         } else if (isUnavailable(model)) {
             return QString::fromAscii("[offline UID %1]").arg(QString::number(uid()));
         } else {
-            return QString::fromAscii("UID %1: %2").arg(QString::number(uid()), _envelope.subject);
+            return QString::fromAscii("UID %1: %2").arg(QString::number(uid()), m_envelope.subject);
         }
     case Qt::ToolTipRole:
         if (fetched()) {
             QString buf;
             QTextStream stream(&buf);
-            stream << _envelope;
+            stream << m_envelope;
             return buf;
         } else {
             return QVariant();
@@ -817,7 +816,7 @@ QVariant TreeItemMessage::data(Model *const model, int role)
     case RoleMessageSubject:
         return envelope(model).subject;
     case RoleMessageSize:
-        return _size;
+        return m_size;
     default:
         return QVariant();
     }
@@ -825,92 +824,92 @@ QVariant TreeItemMessage::data(Model *const model, int role)
 
 bool TreeItemMessage::isMarkedAsDeleted() const
 {
-    return _flags.contains(QLatin1String("\\Deleted"));
+    return m_flags.contains(QLatin1String("\\Deleted"));
 }
 
 bool TreeItemMessage::isMarkedAsRead() const
 {
-    return _flags.contains(QLatin1String("\\Seen"));
+    return m_flags.contains(QLatin1String("\\Seen"));
 }
 
 bool TreeItemMessage::isMarkedAsReplied() const
 {
-    return _flags.contains(QLatin1String("\\Answered"));
+    return m_flags.contains(QLatin1String("\\Answered"));
 }
 
 bool TreeItemMessage::isMarkedAsForwarded() const
 {
-    return _flags.contains(QLatin1String("$Forwarded"));
+    return m_flags.contains(QLatin1String("$Forwarded"));
 }
 
 bool TreeItemMessage::isMarkedAsRecent() const
 {
-    return _flags.contains(QLatin1String("\\Recent"));
+    return m_flags.contains(QLatin1String("\\Recent"));
 }
 
 uint TreeItemMessage::uid() const
 {
-    return _uid;
+    return m_uid;
 }
 
 
 Message::Envelope TreeItemMessage::envelope(Model *const model)
 {
     fetch(model);
-    return _envelope;
+    return m_envelope;
 }
 
 uint TreeItemMessage::size(Model *const model)
 {
     fetch(model);
-    return _size;
+    return m_size;
 }
 
 void TreeItemMessage::setFlags(TreeItemMsgList *list, const QStringList &flags, bool forceChange)
 {
     bool wasSeen = isMarkedAsRead();
-    _flags = flags;
-    if (list->_numberFetchingStatus == DONE && forceChange) {
+    m_flags = flags;
+    if (list->m_numberFetchingStatus == DONE && forceChange) {
         bool isSeen = isMarkedAsRead();
-        if (_flagsHandled) {
+        if (m_flagsHandled) {
             if (wasSeen && !isSeen) {
-                ++list->_unreadMessageCount;
+                ++list->m_unreadMessageCount;
             } else if (!wasSeen && isSeen) {
-                --list->_unreadMessageCount;
+                --list->m_unreadMessageCount;
             }
         } else {
             // it's a new message
-            _flagsHandled = true;
+            m_flagsHandled = true;
             if (!isSeen) {
-                ++list->_unreadMessageCount;
+                ++list->m_unreadMessageCount;
             }
         }
     }
 }
 
 
-TreeItemPart::TreeItemPart(TreeItem *parent, const QString &mimeType): TreeItem(parent), _mimeType(mimeType.toLower())
+TreeItemPart::TreeItemPart(TreeItem *parent, const QString &mimeType): TreeItem(parent), m_mimeType(mimeType.toLower())
 {
     if (isTopLevelMultiPart()) {
         // Note that top-level multipart messages are special, their immediate contents
         // can't be fetched. That's why we have to update the status here.
         m_fetchStatus = DONE;
     }
-    _partHeader = new TreeItemModifiedPart(this, OFFSET_HEADER);
-    _partMime = new TreeItemModifiedPart(this, OFFSET_MIME);
-    _partText = new TreeItemModifiedPart(this, OFFSET_TEXT);
+    m_partHeader = new TreeItemModifiedPart(this, OFFSET_HEADER);
+    m_partMime = new TreeItemModifiedPart(this, OFFSET_MIME);
+    m_partText = new TreeItemModifiedPart(this, OFFSET_TEXT);
 }
 
 TreeItemPart::TreeItemPart(TreeItem *parent):
-    TreeItem(parent), _mimeType(QString::fromAscii("text/plain")), _partHeader(0), _partText(0), _partMime(0)
+    TreeItem(parent), m_mimeType(QString::fromAscii("text/plain")), m_partHeader(0), m_partText(0), m_partMime(0)
 {
 }
 
 TreeItemPart::~TreeItemPart()
 {
-    delete _partHeader;
-    delete _partMime;
-    delete _partText;
+    delete m_partHeader;
+    delete m_partMime;
+    delete m_partText;
 }
 
 unsigned int TreeItemPart::childrenCount(Model *const model)
@@ -970,19 +969,19 @@ QVariant TreeItemPart::data(Model *const model, int role)
     case RoleIsFetched:
         return fetched();
     case RolePartMimeType:
-        return _mimeType;
+        return m_mimeType;
     case RolePartCharset:
-        return _charset;
+        return m_charset;
     case RolePartEncoding:
-        return _encoding;
+        return m_encoding;
     case RolePartBodyFldId:
-        return _bodyFldId;
+        return m_bodyFldId;
     case RolePartBodyDisposition:
-        return _bodyDisposition;
+        return m_bodyDisposition;
     case RolePartFileName:
-        return _fileName;
+        return m_fileName;
     case RolePartOctets:
-        return _octets;
+        return m_octets;
     case RolePartId:
         return partId();
     case RolePartPathToPart:
@@ -1000,8 +999,8 @@ QVariant TreeItemPart::data(Model *const model, int role)
     if (loading()) {
         if (role == Qt::DisplayRole) {
             return isTopLevelMultiPart() ?
-                   model->tr("[loading %1...]").arg(_mimeType) :
-                   model->tr("[loading %1: %2...]").arg(partId()).arg(_mimeType);
+                   model->tr("[loading %1...]").arg(m_mimeType) :
+                   model->tr("[loading %1: %2...]").arg(partId()).arg(m_mimeType);
         } else {
             return QVariant();
         }
@@ -1010,12 +1009,12 @@ QVariant TreeItemPart::data(Model *const model, int role)
     switch (role) {
     case Qt::DisplayRole:
         return isTopLevelMultiPart() ?
-               QString("%1").arg(_mimeType) :
-               QString("%1: %2").arg(partId()).arg(_mimeType);
+               QString("%1").arg(m_mimeType) :
+               QString("%1: %2").arg(partId()).arg(m_mimeType);
     case Qt::ToolTipRole:
-        return _data.size() > 10000 ? model->tr("%1 bytes of data").arg(_data.size()) : _data;
+        return m_data.size() > 10000 ? model->tr("%1 bytes of data").arg(m_data.size()) : m_data;
     case RolePartData:
-        return _data;
+        return m_data;
     default:
         return QVariant();
     }
@@ -1033,7 +1032,7 @@ bool TreeItemPart::isTopLevelMultiPart() const
 {
     TreeItemMessage *msg = dynamic_cast<TreeItemMessage *>(parent());
     TreeItemPart *part = dynamic_cast<TreeItemPart *>(parent());
-    return  _mimeType.startsWith("multipart/") && (msg || (part && part->_mimeType.startsWith("message/")));
+    return  m_mimeType.startsWith("multipart/") && (msg || (part && part->m_mimeType.startsWith("message/")));
 }
 
 QString TreeItemPart::partId() const
@@ -1088,7 +1087,7 @@ TreeItemMessage *TreeItemPart::message() const
 
 QByteArray *TreeItemPart::dataPtr()
 {
-    return &_data;
+    return &m_data;
 }
 
 unsigned int TreeItemPart::columnCount()
@@ -1104,11 +1103,11 @@ TreeItem *TreeItemPart::specialColumnPtr(int row, int column) const
 
     switch (column) {
     case OFFSET_HEADER:
-        return _partHeader;
+        return m_partHeader;
     case OFFSET_TEXT:
-        return _partText;
+        return m_partText;
     case OFFSET_MIME:
-        return _partMime;
+        return m_partMime;
     default:
         return 0;
     }
@@ -1121,17 +1120,17 @@ void TreeItemPart::silentlyReleaseMemoryRecursive()
         Q_ASSERT(part);
         part->silentlyReleaseMemoryRecursive();
     }
-    _partHeader->silentlyReleaseMemoryRecursive();
-    _partText->silentlyReleaseMemoryRecursive();
-    _partMime->silentlyReleaseMemoryRecursive();
-    _data.clear();
+    m_partHeader->silentlyReleaseMemoryRecursive();
+    m_partText->silentlyReleaseMemoryRecursive();
+    m_partMime->silentlyReleaseMemoryRecursive();
+    m_data.clear();
     m_fetchStatus = NONE;
 }
 
 
 
 TreeItemModifiedPart::TreeItemModifiedPart(TreeItem *parent, const PartModifier kind):
-    TreeItemPart(parent), _modifier(kind)
+    TreeItemPart(parent), m_modifier(kind)
 {
 }
 
@@ -1173,12 +1172,12 @@ QString TreeItemModifiedPart::partId() const
 
 TreeItem::PartModifier TreeItemModifiedPart::kind() const
 {
-    return _modifier;
+    return m_modifier;
 }
 
 QString TreeItemModifiedPart::modifierToString() const
 {
-    switch (_modifier) {
+    switch (m_modifier) {
     case OFFSET_HEADER:
         return QString::fromAscii("HEADER");
     case OFFSET_TEXT:

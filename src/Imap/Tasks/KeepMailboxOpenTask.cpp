@@ -332,12 +332,12 @@ bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResp
         model->beginInsertRows(parent, offset, resp->number - 1);
         for (int i = 0; i < newArrivals; ++i) {
             TreeItemMessage *msg = new TreeItemMessage(list);
-            msg->_offset = i + offset;
+            msg->m_offset = i + offset;
             list->m_children << msg;
             // yes, we really have to add this message with UID 0 :(
         }
         model->endInsertRows();
-        list->_totalMessageCount = resp->number;
+        list->m_totalMessageCount = resp->number;
         model->emitMessageCountChanged(mailbox);
 
         breakPossibleIdle();
@@ -362,7 +362,7 @@ bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResp
         return true;
     } else if (resp->kind == Imap::Responses::RECENT) {
         mailbox->syncState.setRecent(resp->number);
-        list->_recentMessageCount = resp->number;
+        list->m_recentMessageCount = resp->number;
         model->emitMessageCountChanged(mailbox);
         return true;
     } else {

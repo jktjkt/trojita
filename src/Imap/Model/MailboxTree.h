@@ -111,13 +111,13 @@ class TreeItemMessage;
 class TreeItemMailbox: public TreeItem
 {
     void operator=(const TreeItem &);  // don't implement
-    MailboxMetadata _metadata;
+    MailboxMetadata m_metadata;
     friend class Model; // needs access to maintianingTask
     friend class MailboxModel;
     friend class KeepMailboxOpenTask; // needs access to maintainingTask
-    static QLatin1String _noInferiors;
-    static QLatin1String _hasNoChildren;
-    static QLatin1String _hasChildren;
+    static QLatin1String flagNoInferiors;
+    static QLatin1String flagHasNoChildren;
+    static QLatin1String flagHasChildren;
 public:
     TreeItemMailbox(TreeItem *parent);
     TreeItemMailbox(TreeItem *parent, Responses::List);
@@ -144,9 +144,9 @@ public:
     */
     bool hasNoChildMaliboxesAlreadyKnown();
 
-    QString mailbox() const { return _metadata.mailbox; }
-    QString separator() const { return _metadata.separator; }
-    const MailboxMetadata &mailboxMetadata() const { return _metadata; }
+    QString mailbox() const { return m_metadata.mailbox; }
+    QString separator() const { return m_metadata.separator; }
+    const MailboxMetadata &mailboxMetadata() const { return m_metadata; }
     /** @short Update internal tree with the results of a FETCH response
 
       If \a changedPart is not null, it will be updated to point to the message
@@ -174,10 +174,10 @@ class TreeItemMsgList: public TreeItem
     friend class Model;
     friend class ObtainSynchronizedMailboxTask;
     friend class KeepMailboxOpenTask;
-    FetchingState _numberFetchingStatus;
-    int _totalMessageCount;
-    int _unreadMessageCount;
-    int _recentMessageCount;
+    FetchingState m_numberFetchingStatus;
+    int m_totalMessageCount;
+    int m_unreadMessageCount;
+    int m_recentMessageCount;
 public:
     TreeItemMsgList(TreeItem *parent);
 
@@ -202,15 +202,15 @@ class TreeItemMessage: public TreeItem
     friend class Model;
     friend class ObtainSynchronizedMailboxTask; // needs access to _offset
     friend class KeepMailboxOpenTask; // needs access to _offset
-    Message::Envelope _envelope;
-    uint _size;
-    uint _uid;
-    QStringList _flags;
-    bool _flagsHandled;
-    int _offset;
+    Message::Envelope m_envelope;
+    uint m_size;
+    uint m_uid;
+    QStringList m_flags;
+    bool m_flagsHandled;
+    int m_offset;
     // These are lazily-populated from a const method, so they got to be mutable
-    mutable TreeItemPart *_partHeader;
-    mutable TreeItemPart *_partText;
+    mutable TreeItemPart *m_partHeader;
+    mutable TreeItemPart *m_partText;
     /** @short Set FLAGS and maintain the unread message counter */
     void setFlags(TreeItemMsgList *list, const QStringList &flags, bool forceChange);
 public:
@@ -239,18 +239,18 @@ class TreeItemPart: public TreeItem
     void operator=(const TreeItem &);  // don't implement
     friend class TreeItemMailbox; // needs access to _data
     friend class Model; // dtto
-    QString _mimeType;
-    QString _charset;
-    QByteArray _encoding;
-    QByteArray _data;
-    QByteArray _bodyFldId;
-    QByteArray _bodyDisposition;
-    QString _fileName;
-    uint _octets;
+    QString m_mimeType;
+    QString m_charset;
+    QByteArray m_encoding;
+    QByteArray m_data;
+    QByteArray m_bodyFldId;
+    QByteArray m_bodyDisposition;
+    QString m_fileName;
+    uint m_octets;
     QByteArray m_multipartRelatedStartPart;
-    TreeItemPart *_partHeader;
-    TreeItemPart *_partText;
-    TreeItemPart *_partMime;
+    TreeItemPart *m_partHeader;
+    TreeItemPart *m_partText;
+    TreeItemPart *m_partMime;
 public:
     TreeItemPart(TreeItem *parent, const QString &mimeType);
     ~TreeItemPart();
@@ -279,20 +279,20 @@ public:
         Imap::Network::MsgPartNetworkReply.
      */
     QByteArray *dataPtr();
-    QString mimeType() const { return _mimeType; }
-    QString charset() const { return _charset; }
-    void setCharset(const QString &ch) { _charset = ch; }
-    void setEncoding(const QByteArray &encoding) { _encoding = encoding; }
-    QByteArray encoding() const { return _encoding; }
-    void setBodyFldId(const QByteArray &id) { _bodyFldId = id; }
-    QByteArray bodyFldId() const { return _bodyFldId; }
-    void setBodyDisposition(const QByteArray &disposition) { _bodyDisposition = disposition; }
-    QByteArray bodyDisposition() const { return _bodyDisposition; }
-    void setFileName(const QString &name) { _fileName = name; }
-    QString fileName() const { return _fileName; }
-    void setOctets(const uint size) { _octets = size; }
+    QString mimeType() const { return m_mimeType; }
+    QString charset() const { return m_charset; }
+    void setCharset(const QString &ch) { m_charset = ch; }
+    void setEncoding(const QByteArray &encoding) { m_encoding = encoding; }
+    QByteArray encoding() const { return m_encoding; }
+    void setBodyFldId(const QByteArray &id) { m_bodyFldId = id; }
+    QByteArray bodyFldId() const { return m_bodyFldId; }
+    void setBodyDisposition(const QByteArray &disposition) { m_bodyDisposition = disposition; }
+    QByteArray bodyDisposition() const { return m_bodyDisposition; }
+    void setFileName(const QString &name) { m_fileName = name; }
+    QString fileName() const { return m_fileName; }
+    void setOctets(const uint size) { m_octets = size; }
     /** @short Return the downloadable size of the message part */
-    uint octets() const { return _octets; }
+    uint octets() const { return m_octets; }
     QByteArray multipartRelatedStartPart() const { return m_multipartRelatedStartPart; }
     void setMultipartRelatedStartPart(const QByteArray &start) { m_multipartRelatedStartPart = start; }
     virtual TreeItem *specialColumnPtr(int row, int column) const;
@@ -309,7 +309,7 @@ This item hanldes fetching of message parts with an attached modifier (like TEXT
 */
 class TreeItemModifiedPart: public TreeItemPart
 {
-    PartModifier _modifier;
+    PartModifier m_modifier;
 public:
     TreeItemModifiedPart(TreeItem *parent, const PartModifier kind);
     virtual int row() const;
