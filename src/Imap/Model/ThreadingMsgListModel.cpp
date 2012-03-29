@@ -686,13 +686,13 @@ void ThreadingMsgListModel::applyThreading(const QVector<Imap::Responses::Thread
         Q_ASSERT(list);
         for (int i = 0; i < upstreamMessages; ++i) {
             ThreadNodeInfo node;
-            node.uid = dynamic_cast<TreeItemMessage *>(list->_children[i])->uid();
+            node.uid = dynamic_cast<TreeItemMessage *>(list->m_children[i])->uid();
             if (! node.uid) {
                 throw UnknownMessageIndex("Encountered a message with zero UID when threading. This is a bug in Trojita, sorry.");
             }
 
             node.internalId = i + 1;
-            node.ptr = list->_children[i];
+            node.ptr = list->m_children[i];
             uidToPtrCache[node.uid] = node.ptr;
             threadingHelperLastId = node.internalId;
             // We're creating a new node here

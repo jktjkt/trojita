@@ -71,10 +71,10 @@ void ObtainSynchronizedMailboxTask::perform()
 
     TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
     Q_ASSERT(mailbox);
-    TreeItemMsgList *msgList = dynamic_cast<TreeItemMsgList *>(mailbox->_children[0]);
+    TreeItemMsgList *msgList = dynamic_cast<TreeItemMsgList *>(mailbox->m_children[0]);
     Q_ASSERT(msgList);
 
-    msgList->_fetchStatus = TreeItem::LOADING;
+    msgList->m_fetchStatus = TreeItem::LOADING;
 
     QMap<Parser *,ParserState>::iterator it = model->m_parsers.find(parser);
     Q_ASSERT(it != model->m_parsers.end());
@@ -167,7 +167,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
     Q_ASSERT(mailboxIndex.isValid());
     TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
     Q_ASSERT(mailbox);
-    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(mailbox->_children[ 0 ]);
+    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(mailbox->m_children[ 0 ]);
     Q_ASSERT(list);
 
     model->changeConnectionState(parser, CONN_STATE_SYNCING);
@@ -179,13 +179,13 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
     const QList<uint> &seqToUid = model->cache()->uidMapping(mailbox->mailbox());
 
     if (static_cast<uint>(seqToUid.size()) != oldState.exists() ||
-        oldState.exists() != static_cast<uint>(list->_children.size())) {
+        oldState.exists() != static_cast<uint>(list->m_children.size())) {
 
         QString buf;
         QDebug dbg(&buf);
         dbg << "Inconsistent cache data, falling back to full sync (" <<
             seqToUid.size() << "in UID map," << oldState.exists() <<
-            "EXIST before," << list->_children.size() << "nodes)";
+            "EXIST before," << list->m_children.size() << "nodes)";
         log(buf, LOG_MAILBOX_SYNC);
         fullMboxSync(mailbox, list, syncState);
     } else {
@@ -240,10 +240,10 @@ void ObtainSynchronizedMailboxTask::fullMboxSync(TreeItemMailbox *mailbox, TreeI
     model->cache()->setMailboxSyncState(mailbox->mailbox(), SyncState());
 
     QModelIndex parent = list->toIndex(model);
-    if (! list->_children.isEmpty()) {
-        model->beginRemoveRows(parent, 0, list->_children.size() - 1);
-        qDeleteAll(list->_children);
-        list->_children.clear();
+    if (! list->m_children.isEmpty()) {
+        model->beginRemoveRows(parent, 0, list->m_children.size() - 1);
+        qDeleteAll(list->m_children);
+        list->m_children.clear();
         model->endRemoveRows();
     }
     if (syncState.exists()) {
@@ -261,7 +261,7 @@ void ObtainSynchronizedMailboxTask::fullMboxSync(TreeItemMailbox *mailbox, TreeI
         list->_totalMessageCount = 0;
         list->_unreadMessageCount = 0;
         list->_numberFetchingStatus = TreeItem::DONE;
-        list->_fetchStatus = TreeItem::DONE;
+        list->m_fetchStatus = TreeItem::DONE;
         model->cache()->setMailboxSyncState(mailbox->mailbox(), syncState);
         model->saveUidMap(list);
 
@@ -286,8 +286,8 @@ void ObtainSynchronizedMailboxTask::syncNoNewNoDeletions(TreeItemMailbox *mailbo
     if (syncState.exists()) {
         // Verify that we indeed have all UIDs and not need them anymore
         bool uidsOk = true;
-        for (int i = 0; i < list->_children.size(); ++i) {
-            if (! static_cast<TreeItemMessage *>(list->_children[i])->uid()) {
+        for (int i = 0; i < list->m_children.size(); ++i) {
+            if (! static_cast<TreeItemMessage *>(list->m_children[i])->uid()) {
                 uidsOk = false;
                 break;
             }
@@ -299,7 +299,7 @@ void ObtainSynchronizedMailboxTask::syncNoNewNoDeletions(TreeItemMailbox *mailbo
         list->_numberFetchingStatus = TreeItem::DONE;
     }
 
-    if (list->_children.isEmpty()) {
+    if (list->m_children.isEmpty()) {
         QList<TreeItem *> messages;
         for (uint i = 0; i < syncState.exists(); ++i) {
             TreeItemMessage *msg = new TreeItemMessage(list);
@@ -310,14 +310,14 @@ void ObtainSynchronizedMailboxTask::syncNoNewNoDeletions(TreeItemMailbox *mailbo
         list->setChildren(messages);
 
     } else {
-        if (syncState.exists() != static_cast<uint>(list->_children.size())) {
+        if (syncState.exists() != static_cast<uint>(list->m_children.size())) {
             throw CantHappen("TreeItemMsgList has wrong number of "
                              "children, even though no change of "
                              "message count occured");
         }
     }
 
-    list->_fetchStatus = TreeItem::DONE;
+    list->m_fetchStatus = TreeItem::DONE;
     model->cache()->setMailboxSyncState(mailbox->mailbox(), syncState);
     model->saveUidMap(list);
 
@@ -387,7 +387,7 @@ void ObtainSynchronizedMailboxTask::syncFlags(TreeItemMailbox *mailbox)
 {
     status = STATE_SYNCING_FLAGS;
     log("Syncing flags", LOG_MAILBOX_SYNC);
-    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(mailbox->_children[ 0 ]);
+    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(mailbox->m_children[ 0 ]);
     Q_ASSERT(list);
 
     flagsCmd = parser->fetch(Sequence(1, mailbox->syncState.exists()), QStringList() << QLatin1String("FLAGS"));
@@ -466,7 +466,7 @@ bool ObtainSynchronizedMailboxTask::handleNumberResponse(const Imap::Responses::
 
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
     Q_ASSERT(mailbox);
-    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(mailbox->_children[0]);
+    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(mailbox->m_children[0]);
     Q_ASSERT(list);
     switch (resp->kind) {
     case Imap::Responses::EXISTS:
@@ -580,16 +580,16 @@ void ObtainSynchronizedMailboxTask::finalizeUidSyncAll(TreeItemMailbox *mailbox)
         throw MailboxException("We received a weird number of UIDs for messages in the mailbox.");
     }
 
-    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(mailbox->_children[0]);
+    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(mailbox->m_children[0]);
     Q_ASSERT(list);
-    list->_fetchStatus = TreeItem::DONE;
+    list->m_fetchStatus = TreeItem::DONE;
 
     QModelIndex parent = list->toIndex(model);
 
     if (uidMap.isEmpty()) {
         // the mailbox is empty
-        if (list->_children.size() > 0) {
-            model->beginRemoveRows(parent, 0, list->_children.size() - 1);
+        if (list->m_children.size() > 0) {
+            model->beginRemoveRows(parent, 0, list->m_children.size() - 1);
             qDeleteAll(list->setChildren(QList<TreeItem *>()));
             model->endRemoveRows();
             model->cache()->clearAllMessages(mailbox->mailbox());
@@ -598,17 +598,17 @@ void ObtainSynchronizedMailboxTask::finalizeUidSyncAll(TreeItemMailbox *mailbox)
         // some messages are present *now*; they might or might not have been there before
         int pos = 0;
         for (int i = 0; i < uidMap.size(); ++i) {
-            if (i >= list->_children.size()) {
+            if (i >= list->m_children.size()) {
                 // now we're just adding new messages to the end of the list
                 model->beginInsertRows(parent, i, i);
                 TreeItemMessage *msg = new TreeItemMessage(list);
                 msg->_offset = i;
                 msg->_uid = uidMap[ i ];
-                list->_children << msg;
+                list->m_children << msg;
                 model->endInsertRows();
-            } else if (dynamic_cast<TreeItemMessage *>(list->_children[pos])->_uid == uidMap[ i ]) {
+            } else if (dynamic_cast<TreeItemMessage *>(list->m_children[pos])->_uid == uidMap[ i ]) {
                 // current message has correct UID
-                dynamic_cast<TreeItemMessage *>(list->_children[pos])->_offset = i;
+                dynamic_cast<TreeItemMessage *>(list->m_children[pos])->_offset = i;
                 continue;
             } else {
                 // Traverse the messages we have in the cache, checking their UIDs. The idea here
@@ -616,13 +616,13 @@ void ObtainSynchronizedMailboxTask::finalizeUidSyncAll(TreeItemMailbox *mailbox)
                 // "supposed UID" (ie. uidMap[i]); this is a valid behavior per the IMAP standard.
                 int pos = i;
                 bool found = false;
-                while (pos < list->_children.size()) {
-                    TreeItemMessage *message = dynamic_cast<TreeItemMessage *>(list->_children[pos]);
+                while (pos < list->m_children.size()) {
+                    TreeItemMessage *message = dynamic_cast<TreeItemMessage *>(list->m_children[pos]);
                     if (message->_uid != uidMap[ i ]) {
                         // this message is free to go
                         model->cache()->clearMessage(mailbox->mailbox(), message->uid());
                         model->beginRemoveRows(parent, pos, pos);
-                        delete list->_children.takeAt(pos);
+                        delete list->m_children.takeAt(pos);
                         // the _offset of all subsequent messages will be updated later
                         model->endRemoveRows();
                     } else {
@@ -634,21 +634,21 @@ void ObtainSynchronizedMailboxTask::finalizeUidSyncAll(TreeItemMailbox *mailbox)
                 }
                 if (! found) {
                     // Add one message, continue the loop
-                    Q_ASSERT(pos == list->_children.size());   // we're at the end of the list
+                    Q_ASSERT(pos == list->m_children.size());   // we're at the end of the list
                     model->beginInsertRows(parent, i, i);
                     TreeItemMessage *msg = new TreeItemMessage(list);
                     msg->_uid = uidMap[ i ];
                     msg->_offset = i;
-                    list->_children << msg;
+                    list->m_children << msg;
                     model->endInsertRows();
                 }
             }
         }
-        if (uidMap.size() != list->_children.size()) {
+        if (uidMap.size() != list->m_children.size()) {
             // remove items at the end
-            model->beginRemoveRows(parent, uidMap.size(), list->_children.size() - 1);
-            for (int i = uidMap.size(); i < list->_children.size(); ++i) {
-                TreeItemMessage *message = static_cast<TreeItemMessage *>(list->_children.takeAt(i));
+            model->beginRemoveRows(parent, uidMap.size(), list->m_children.size() - 1);
+            for (int i = uidMap.size(); i < list->m_children.size(); ++i) {
+                TreeItemMessage *message = static_cast<TreeItemMessage *>(list->m_children.takeAt(i));
                 model->cache()->clearMessage(mailbox->mailbox(), message->uid());
                 delete message;
             }
@@ -658,7 +658,7 @@ void ObtainSynchronizedMailboxTask::finalizeUidSyncAll(TreeItemMailbox *mailbox)
 
     uidMap.clear();
 
-    list->_totalMessageCount = list->_children.size();
+    list->_totalMessageCount = list->m_children.size();
 
 
     // Store stuff we already have in the cache
@@ -680,30 +680,30 @@ so it's a static function with many arguments.
 void ObtainSynchronizedMailboxTask::finalizeUidSyncOnlyNew(Model *model, TreeItemMailbox *mailbox, const uint oldExists, QList<uint> &uidMap)
 {
     log("Processing the UID response just for new arrivals", LOG_MAILBOX_SYNC);
-    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(mailbox->_children[0]);
+    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(mailbox->m_children[0]);
     Q_ASSERT(list);
-    list->_fetchStatus = TreeItem::DONE;
+    list->m_fetchStatus = TreeItem::DONE;
 
     // This invariant is set up in Model::_askForMessagesInMailbox
-    Q_ASSERT(oldExists == static_cast<uint>(list->_children.size()));
+    Q_ASSERT(oldExists == static_cast<uint>(list->m_children.size()));
 
     // Be sure there really are some new messages -- verified in handleSearch()
     Q_ASSERT(mailbox->syncState.exists() > oldExists);
     Q_ASSERT(static_cast<uint>(uidMap.size()) == mailbox->syncState.exists() - oldExists);
 
     QModelIndex parent = list->toIndex(model);
-    int offset = list->_children.size();
+    int offset = list->m_children.size();
     model->beginInsertRows(parent, offset, mailbox->syncState.exists() - 1);
     for (int i = 0; i < uidMap.size(); ++i) {
         TreeItemMessage *msg = new TreeItemMessage(list);
         msg->_offset = i + offset;
         msg->_uid = uidMap[ i ];
-        list->_children << msg;
+        list->m_children << msg;
     }
     model->endInsertRows();
     uidMap.clear();
 
-    list->_totalMessageCount = list->_children.size();
+    list->_totalMessageCount = list->m_children.size();
     list->_numberFetchingStatus = TreeItem::DONE; // FIXME: they aren't done yet
     model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
     model->saveUidMap(list);
@@ -743,7 +743,7 @@ QString ObtainSynchronizedMailboxTask::debugIdentification() const
 void ObtainSynchronizedMailboxTask::notifyInterestingMessages(TreeItemMailbox *mailbox)
 {
     Q_ASSERT(mailbox);
-    TreeItemMsgList *list = dynamic_cast<Imap::Mailbox::TreeItemMsgList *>(mailbox->_children[0]);
+    TreeItemMsgList *list = dynamic_cast<Imap::Mailbox::TreeItemMsgList *>(mailbox->m_children[0]);
     Q_ASSERT(list);
     list->recalcVariousMessageCounts(model);
     QModelIndex listIndex = list->toIndex(model);

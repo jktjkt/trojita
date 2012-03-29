@@ -304,7 +304,7 @@ bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResp
 
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
     Q_ASSERT(mailbox);
-    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(mailbox->_children[0]);
+    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(mailbox->m_children[0]);
     Q_ASSERT(list);
     // FIXME: tests!
     if (resp->kind == Imap::Responses::EXPUNGE) {
@@ -316,7 +316,7 @@ bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResp
         // This is a bit tricky -- unfortunately, we can't assume anything about the UID of new arrivals. On the other hand,
         // these messages can be referenced by (even unrequested) FETCH responses and deleted by EXPUNGE, so we really want
         // to add them to the tree.
-        int newArrivals = resp->number - list->_children.size();
+        int newArrivals = resp->number - list->m_children.size();
         if (newArrivals < 0) {
             throw UnexpectedResponseReceived("EXISTS response attempted to decrease number of messages", *resp);
         } else if (newArrivals == 0) {
@@ -328,12 +328,12 @@ bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResp
         model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
 
         QModelIndex parent = list->toIndex(model);
-        int offset = list->_children.size();
+        int offset = list->m_children.size();
         model->beginInsertRows(parent, offset, resp->number - 1);
         for (int i = 0; i < newArrivals; ++i) {
             TreeItemMessage *msg = new TreeItemMessage(list);
             msg->_offset = i + offset;
-            list->_children << msg;
+            list->m_children << msg;
             // yes, we really have to add this message with UID 0 :(
         }
         model->endInsertRows();
@@ -342,10 +342,10 @@ bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResp
 
         breakPossibleIdle();
 
-        Q_ASSERT(list->_children.size());
+        Q_ASSERT(list->m_children.size());
         uint highestKnownUid = 0;
-        for (int i = list->_children.size() - 1; ! highestKnownUid && i >= 0; --i) {
-            highestKnownUid = static_cast<const TreeItemMessage *>(list->_children[i])->uid();
+        for (int i = list->m_children.size() - 1; ! highestKnownUid && i >= 0; --i) {
+            highestKnownUid = static_cast<const TreeItemMessage *>(list->m_children[i])->uid();
             //qDebug() << "UID disco: trying seq" << i << highestKnownUid;
         }
         newArrivalsFetch = parser->uidFetch(Sequence::startingAt(

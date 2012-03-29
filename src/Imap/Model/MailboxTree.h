@@ -81,12 +81,12 @@ public:
     } PartModifier;
 
 protected:
-    TreeItem *_parent;
-    QList<TreeItem *> _children;
-    FetchingState _fetchStatus;
+    TreeItem *m_parent;
+    QList<TreeItem *> m_children;
+    FetchingState m_fetchStatus;
 public:
     TreeItem(TreeItem *parent);
-    TreeItem *parent() const { return _parent; }
+    TreeItem *parent() const { return m_parent; }
     virtual int row() const;
 
     virtual ~TreeItem();
@@ -98,8 +98,8 @@ public:
     virtual unsigned int columnCount();
     virtual QVariant data(Model *const model, int role) = 0;
     virtual bool hasChildren(Model *const model) = 0;
-    virtual bool fetched() const { return _fetchStatus == DONE; }
-    virtual bool loading() const { return _fetchStatus == LOADING; }
+    virtual bool fetched() const { return m_fetchStatus == DONE; }
+    virtual bool loading() const { return m_fetchStatus == LOADING; }
     virtual bool isUnavailable(Model *const model) const;
     virtual TreeItem *specialColumnPtr(int row, int column) const;
     virtual QModelIndex toIndex(Model *const model) const;

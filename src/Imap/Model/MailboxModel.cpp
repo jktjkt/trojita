@@ -271,7 +271,7 @@ void MailboxModel::handleRowsAboutToBeRemoved(const QModelIndex &parent, int fir
     if (! parentMbox)
         parentMbox = static_cast<Imap::Mailbox::Model *>(sourceModel())->m_mailboxes;
     Q_ASSERT(first >= 1);
-    Q_ASSERT(last <= parentMbox->_children.size() - 1);
+    Q_ASSERT(last <= parentMbox->m_children.size() - 1);
     Q_ASSERT(first <= last);
     beginRemoveRows(mapFromSource(parent), first - 1, last - 1);
 }
