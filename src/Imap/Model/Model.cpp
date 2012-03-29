@@ -1389,30 +1389,6 @@ QModelIndex Model::findMailboxForItems(const QModelIndexList &items)
 void Model::slotTasksChanged()
 {
     dumpModelContents(m_taskModel);
-    /*QList<ImapTask*> tasks = findChildren<ImapTask*>();
-    qDebug() << "-------------";
-    Q_FOREACH( ParserState parserState, _parsers ) {
-        qDebug() << "Parser" << parserState.parser->parserId() << parserState.activeTasks.size() << "active tasks";
-    }
-    int i = 0;
-    Q_FOREACH( ImapTask* task, tasks ) {
-        QString finished = ( task->isFinished() ? "[finished] " : "" );
-        QString isReadyToRun = ( task->isReadyToRun() ? "[ready-to-run] " : "" );
-        QString isActive;
-        Q_FOREACH( ParserState parserState, _parsers ) {
-            if ( parserState.activeTasks.contains( task ) ) {
-                isActive = "[active] ";
-                break;
-            }
-        }
-        qDebug() << task << task->debugIdentification() << finished << isReadyToRun << isActive; // << task->dependentTasks;
-        ++i;
-        if ( i > 50 ) {
-            qDebug() << "...and" << tasks.size() - i << "more tasks.";
-            break;
-        }
-    }
-    qDebug() << "-------------";*/
 }
 
 void Model::slotTaskDying(QObject *obj)
