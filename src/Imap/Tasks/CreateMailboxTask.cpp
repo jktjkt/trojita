@@ -31,7 +31,7 @@ namespace Mailbox
 CreateMailboxTask::CreateMailboxTask(Model *model, const QString &mailbox):
     ImapTask(model), mailbox(mailbox)
 {
-    conn = model->_taskFactory->createGetAnyConnectionTask(model);
+    conn = model->m_taskFactory->createGetAnyConnectionTask(model);
     conn->addDependentTask(this);
 }
 
@@ -67,7 +67,7 @@ bool CreateMailboxTask::handleStateHelper(const Imap::Responses::State *const re
         return true;
     } else if (resp->tag == tagList) {
         if (resp->kind == Responses::OK) {
-            model->_finalizeIncrementalList(parser, mailbox);
+            model->finalizeIncrementalList(parser, mailbox);
             _completed();
         } else {
             _failed("Error with the LIST command after the CREATE");

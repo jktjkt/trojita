@@ -310,7 +310,7 @@ void MsgListModel::handleRowsAboutToBeRemoved(const QModelIndex &parent, int sta
         Q_ASSERT(parent.model() == sourceModel());
     } else {
         // a top-level mailbox might have been deleted, so we gotta setup proper pointer
-        mailbox = static_cast<Model *>(sourceModel())->_mailboxes;
+        mailbox = static_cast<Model *>(sourceModel())->m_mailboxes;
         Q_ASSERT(mailbox);
     }
 

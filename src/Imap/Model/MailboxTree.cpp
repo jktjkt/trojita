@@ -573,7 +573,7 @@ void TreeItemMsgList::fetchNumbers(Model *const model)
 {
     if (_numberFetchingStatus == NONE) {
         _numberFetchingStatus = LOADING;
-        model->_askForNumberOfMessages(this);
+        model->askForNumberOfMessages(this);
     }
 }
 
@@ -678,7 +678,7 @@ void TreeItemMessage::fetch(Model *const model)
 
     if (_uid) {
         // Message UID is already known, which means that we can request data for this message
-        model->_askForMsgMetadata(this);
+        model->askForMsgMetadata(this);
     } else {
         // The UID is not known yet, so we can't initiate a UID FETCH at this point. However, we mark
         // this message as "loading", which has the side effect that it will get re-fetched as soon as
@@ -942,7 +942,7 @@ void TreeItemPart::fetch(Model *const model)
         return;
 
     _fetchStatus = LOADING;
-    model->_askForMsgPart(this);
+    model->askForMsgPart(this);
 }
 
 void TreeItemPart::fetchFromCache(Model *const model)
@@ -950,7 +950,7 @@ void TreeItemPart::fetchFromCache(Model *const model)
     if (fetched() || loading() || isUnavailable(model))
         return;
 
-    model->_askForMsgPart(this, true);
+    model->askForMsgPart(this, true);
 }
 
 unsigned int TreeItemPart::rowCount(Model *const model)

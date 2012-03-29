@@ -68,10 +68,10 @@ QModelIndex TaskPresentationModel::index(int row, int column, const QModelIndex 
         }
     } else {
         // So this is about a ParserState -- fair enough
-        if (row >= m_model->_parsers.size()) {
+        if (row >= m_model->m_parsers.size()) {
             return QModelIndex();
         } else {
-            return createIndex(row, 0, m_model->_parsers.keys().at(row));
+            return createIndex(row, 0, m_model->m_parsers.keys().at(row));
         }
     }
 }
@@ -110,7 +110,7 @@ QModelIndex TaskPresentationModel::indexForTask(const ImapTask *const task) cons
     } else {
         // The child has no parent, so the child is apparently the top-level task for a given parser,
         // and hence the parent is obviously the ParserState
-        int index = m_model->_parsers.keys().indexOf(task->parser);
+        int index = m_model->m_parsers.keys().indexOf(task->parser);
         Q_ASSERT(index != -1);
         return createIndex(index, 0, task->parser);
     }
@@ -133,7 +133,7 @@ int TaskPresentationModel::rowCount(const QModelIndex &parent) const
         }
     } else {
         // The top-level stuff children represent the list of active connections
-        return m_model->_parsers.size();
+        return m_model->m_parsers.size();
     }
 }
 
@@ -148,7 +148,7 @@ QVariant TaskPresentationModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    bool isParserState = m_model->_parsers.find(static_cast<Imap::Parser *>(index.internalPointer())) != m_model->_parsers.end();
+    bool isParserState = m_model->m_parsers.find(static_cast<Imap::Parser *>(index.internalPointer())) != m_model->m_parsers.end();
 
     switch (role) {
     case RoleTaskIsParserState:

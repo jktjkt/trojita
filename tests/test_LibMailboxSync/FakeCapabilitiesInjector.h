@@ -13,12 +13,12 @@ public:
     /** @short Add the specified capability to the list of capabilities "supported" by the server */
     void injectCapability(const QString& cap)
     {
-        Q_ASSERT(!model->_parsers.isEmpty());
+        Q_ASSERT(!model->m_parsers.isEmpty());
         QStringList existingCaps = model->capabilities();
         if (!existingCaps.contains(QLatin1String("IMAP4REV1"))) {
             existingCaps << QLatin1String("IMAP4rev1");
         }
-        model->updateCapabilities( model->_parsers.begin().key(), existingCaps << cap );
+        model->updateCapabilities( model->m_parsers.begin().key(), existingCaps << cap );
     }
 private:
     Imap::Mailbox::Model *model;

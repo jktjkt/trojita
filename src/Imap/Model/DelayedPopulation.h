@@ -57,7 +57,7 @@ class DelayedAskForChildrenOfMailbox : public QObject
 public:
     DelayedAskForChildrenOfMailbox(Model *model, const QModelIndex &mailbox);
 private slots:
-    /** @short Call Model's _askForChildrenOfMailbox() */
+    /** @short Call Model's askForChildrenOfMailbox() */
     void askNow();
 private:
     /** @short The Model */
@@ -83,7 +83,7 @@ class DelayedAskForMessagesInMailbox : public QObject
 public:
     DelayedAskForMessagesInMailbox(Model *model, const QModelIndex &list);
 private slots:
-    /** @short Call Model's _askForMessagesInMailbox() */
+    /** @short Call Model's askForMessagesInMailbox() */
     void askNow();
 private:
     /** @short The Model */

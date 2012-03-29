@@ -563,7 +563,7 @@ void ThreadingMsgListModel::askForThreading()
 
     if (! requestedAlgorithm.isEmpty()) {
         threadingInFlight = true;
-        realModel->_taskFactory->createThreadTask(const_cast<Imap::Mailbox::Model *>(realModel),
+        realModel->m_taskFactory->createThreadTask(const_cast<Imap::Mailbox::Model *>(realModel),
                 mailboxIndex, requestedAlgorithm,
                 QStringList() << QLatin1String("ALL"));
         connect(realModel, SIGNAL(threadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::ThreadingNode>)),

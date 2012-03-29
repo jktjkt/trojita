@@ -146,7 +146,7 @@ TestingTaskFactory::TestingTaskFactory(): TaskFactory(), fakeOpenConnectionTask(
 
 Parser *TestingTaskFactory::newParser(Model *model)
 {
-    Parser *parser = new Parser(model, model->_socketFactory->create(), ++model->lastParserId);
+    Parser *parser = new Parser(model, model->m_socketFactory->create(), ++model->m_lastParserId);
     ParserState parserState(parser);
     QObject::connect(parser, SIGNAL(responseReceived(Imap::Parser*)), model, SLOT(responseReceived(Imap::Parser*)));
     QObject::connect(parser, SIGNAL(disconnected(Imap::Parser*,QString)), model, SLOT(slotParserDisconnected(Imap::Parser*,QString)));
@@ -155,7 +155,7 @@ Parser *TestingTaskFactory::newParser(Model *model)
     QObject::connect(parser, SIGNAL(parseError(Imap::Parser*,QString,QString,QByteArray,int)), model, SLOT(slotParseError(Imap::Parser*,QString,QString,QByteArray,int)));
     QObject::connect(parser, SIGNAL(lineReceived(Imap::Parser*,QByteArray)), model, SLOT(slotParserLineReceived(Imap::Parser*,QByteArray)));
     QObject::connect(parser, SIGNAL(lineSent(Imap::Parser*,QByteArray)), model, SLOT(slotParserLineSent(Imap::Parser*,QByteArray)));
-    model->_parsers[ parser ] = parserState;
+    model->m_parsers[ parser ] = parserState;
     model->m_taskModel->slotParserCreated(parser);
     return parser;
 }

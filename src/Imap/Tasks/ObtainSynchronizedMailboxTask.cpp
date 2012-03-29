@@ -76,8 +76,8 @@ void ObtainSynchronizedMailboxTask::perform()
 
     msgList->_fetchStatus = TreeItem::LOADING;
 
-    QMap<Parser *,ParserState>::iterator it = model->_parsers.find(parser);
-    Q_ASSERT(it != model->_parsers.end());
+    QMap<Parser *,ParserState>::iterator it = model->m_parsers.find(parser);
+    Q_ASSERT(it != model->m_parsers.end());
 
     selectCmd = parser->select(mailbox->mailbox());
     mailbox->syncState = SyncState();
@@ -765,7 +765,7 @@ bool ObtainSynchronizedMailboxTask::dieIfInvalidMailbox()
 
     log("Mailbox disappeared", LOG_MAILBOX_SYNC);
 
-    unSelectTask = model->_taskFactory->createUnSelectTask(model, this);
+    unSelectTask = model->m_taskFactory->createUnSelectTask(model, this);
     connect(unSelectTask, SIGNAL(completed(ImapTask *)), this, SLOT(slotUnSelectCompleted()));
     unSelectTask->perform();
 

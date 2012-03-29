@@ -31,7 +31,7 @@ namespace Mailbox
 DeleteMailboxTask::DeleteMailboxTask(Model *model, const QString &mailbox):
     ImapTask(model), mailbox(mailbox)
 {
-    conn = model->_taskFactory->createGetAnyConnectionTask(model);
+    conn = model->m_taskFactory->createGetAnyConnectionTask(model);
     conn->addDependentTask(this);
 }
 
@@ -56,7 +56,7 @@ bool DeleteMailboxTask::handleStateHelper(const Imap::Responses::State *const re
             TreeItemMailbox *mailboxPtr = model->findMailboxByName(mailbox);
             if (mailboxPtr) {
                 TreeItem *parentPtr = mailboxPtr->parent();
-                QModelIndex parentIndex = parentPtr == model->_mailboxes ? QModelIndex() : parentPtr->toIndex(model);
+                QModelIndex parentIndex = parentPtr == model->m_mailboxes ? QModelIndex() : parentPtr->toIndex(model);
                 model->beginRemoveRows(parentIndex, mailboxPtr->row(), mailboxPtr->row());
                 mailboxPtr->parent()->_children.removeAt(mailboxPtr->row());
                 model->endRemoveRows();

@@ -62,12 +62,12 @@ KeepMailboxOpenTask::KeepMailboxOpenTask(Model *model, const QModelIndex &mailbo
         if (model->accessParser(parser).maintainingTask) {
             // The parser looks busy -- some task is associated with it and has a mailbox open, so
             // let's just wait till we get a chance to play
-            synchronizeConn = model->_taskFactory->
+            synchronizeConn = model->m_taskFactory->
                               createObtainSynchronizedMailboxTask(model, mailboxIndex, model->accessParser(oldParser).maintainingTask, this);
         } else {
             // The parser is free, or at least there's no KeepMailboxOpenTask associated with it.
             // There's no mailbox besides us in the game, yet, so we can simply schedule us for immediate execution.
-            synchronizeConn = model->_taskFactory->createObtainSynchronizedMailboxTask(model, mailboxIndex, 0, this);
+            synchronizeConn = model->m_taskFactory->createObtainSynchronizedMailboxTask(model, mailboxIndex, 0, this);
             // We'll also register with the model, so that all other KeepMailboxOpenTask which could get constructed in future
             // know about us and don't step on our toes.  This means that further KeepMailboxOpenTask which could possibly want
             // to use this connection will have to go through this task at first.
@@ -80,12 +80,12 @@ KeepMailboxOpenTask::KeepMailboxOpenTask(Model *model, const QModelIndex &mailbo
             // Well, except that we cannot really open a new connection now
             conn = new OfflineConnectionTask(model);
         } else {
-            conn = model->_taskFactory->createOpenConnectionTask(model);
+            conn = model->m_taskFactory->createOpenConnectionTask(model);
         }
         parser = conn->parser;
         Q_ASSERT(parser);
         model->accessParser(parser).maintainingTask = this;
-        synchronizeConn = model->_taskFactory->createObtainSynchronizedMailboxTask(model, mailboxIndex, conn, this);
+        synchronizeConn = model->m_taskFactory->createObtainSynchronizedMailboxTask(model, mailboxIndex, conn, this);
     }
 
     // Setup the timer for NOOPing. It won't get started at this time, though.
@@ -281,7 +281,7 @@ void KeepMailboxOpenTask::resynchronizeMailbox()
     if (isRunning) {
         // Instead of wild magic with re-creating synchronizeConn, it's way easier to
         // just have us replaced by another KeepMailboxOpenTask
-        model->_taskFactory->createKeepMailboxOpenTask(model, mailboxIndex, parser);
+        model->m_taskFactory->createKeepMailboxOpenTask(model, mailboxIndex, parser);
     } else {
         // We aren't running yet, which means that the sync hadn't happened yet, and therefore
         // we don't have to do it "once again" -- it will happen automatically later on.
@@ -386,14 +386,14 @@ bool KeepMailboxOpenTask::handleFetch(const Imap::Responses::Fetch *const resp)
 
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
     Q_ASSERT(mailbox);
-    model->_genericHandleFetch(mailbox, resp);
+    model->genericHandleFetch(mailbox, resp);
     return true;
 }
 
 void KeepMailboxOpenTask::slotPerformNoop()
 {
     // FIXME: abort/die
-    model->_taskFactory->createNoopTask(model, this);
+    model->m_taskFactory->createNoopTask(model, this);
 }
 
 bool KeepMailboxOpenTask::handleStateHelper(const Imap::Responses::State *const resp)
@@ -628,7 +628,7 @@ void KeepMailboxOpenTask::slotFetchRequestedParts()
         if (uids.isEmpty())
             return;
 
-        fetchPartTasks << model->_taskFactory->createFetchMsgPartTask(model, mailboxIndex, uids, parts.toList());
+        fetchPartTasks << model->m_taskFactory->createFetchMsgPartTask(model, mailboxIndex, uids, parts.toList());
     }
 }
 
@@ -648,7 +648,7 @@ void KeepMailboxOpenTask::slotFetchRequestedEnvelopes()
         fetchNow = requestedEnvelopes.mid(0, amount);
         requestedEnvelopes.erase(requestedEnvelopes.begin(), requestedEnvelopes.begin() + amount);
     }
-    fetchMetadataTasks << model->_taskFactory->createFetchMsgMetadataTask(model, mailboxIndex, fetchNow);
+    fetchMetadataTasks << model->m_taskFactory->createFetchMsgMetadataTask(model, mailboxIndex, fetchNow);
 }
 
 void KeepMailboxOpenTask::breakPossibleIdle()
@@ -718,7 +718,7 @@ bool KeepMailboxOpenTask::dieIfInvalidMailbox()
         return false;
 
     // See ObtainSynchronizedMailboxTask::dieIfInvalidMailbox() for details
-    unSelectTask = model->_taskFactory->createUnSelectTask(model, this);
+    unSelectTask = model->m_taskFactory->createUnSelectTask(model, this);
     connect(unSelectTask, SIGNAL(completed(ImapTask *)), this, SLOT(slotConnFailed()));
     unSelectTask->perform();
 

@@ -58,7 +58,7 @@ bool FetchMsgMetadataTask::handleFetch(const Imap::Responses::Fetch *const resp)
     }
     TreeItemMailbox *mailboxPtr = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItemMailbox *>(mailbox.internalPointer()));
     Q_ASSERT(mailboxPtr);
-    model->_genericHandleFetch(mailboxPtr, resp);
+    model->genericHandleFetch(mailboxPtr, resp);
     return true;
 }
 

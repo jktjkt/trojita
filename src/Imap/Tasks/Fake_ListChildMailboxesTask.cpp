@@ -34,7 +34,7 @@ Fake_ListChildMailboxesTask::Fake_ListChildMailboxesTask(Model *model, const QMo
 {
     TreeItemMailbox *mailboxPtr = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailbox.internalPointer()));
     Q_ASSERT(mailboxPtr);
-    conn = model->_taskFactory->createGetAnyConnectionTask(model);
+    conn = model->m_taskFactory->createGetAnyConnectionTask(model);
     conn->addDependentTask(this);
 }
 
@@ -50,7 +50,7 @@ void Fake_ListChildMailboxesTask::perform()
     parser = conn->parser;
     QList<Responses::List> &listResponses = model->accessParser(parser).listResponses;
     Q_ASSERT(listResponses.isEmpty());
-    TestingTaskFactory *factory = dynamic_cast<TestingTaskFactory *>(model->_taskFactory.get());
+    TestingTaskFactory *factory = dynamic_cast<TestingTaskFactory *>(model->m_taskFactory.get());
     Q_ASSERT(factory);
     for (QMap<QString, QStringList>::const_iterator it = factory->fakeListChildMailboxesMap.constBegin();
          it != factory->fakeListChildMailboxesMap.constEnd(); ++it) {
@@ -61,7 +61,7 @@ void Fake_ListChildMailboxesTask::perform()
             listResponses.append(Responses::List(Responses::LIST, QStringList(), QString::fromAscii("^"), childMailbox));
         }
     }
-    model->_finalizeList(parser, mailbox);
+    model->finalizeList(parser, mailbox);
     _completed();
 }
 

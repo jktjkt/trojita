@@ -60,7 +60,7 @@ public:
     virtual ~TaskFactory();
 
     virtual CopyMoveMessagesTask *createCopyMoveMessagesTask(Model *model, const QModelIndexList &messages,
-            const QString &targetMailbox, const CopyMoveOperation _op);
+            const QString &targetMailbox, const CopyMoveOperation op);
     virtual CreateMailboxTask *createCreateMailboxTask(Model *model, const QString &mailbox);
     virtual DeleteMailboxTask *createDeleteMailboxTask(Model *model, const QString &mailbox);
     virtual ExpungeMailboxTask *createExpungeMailboxTask(Model *model, const QModelIndex &mailbox);

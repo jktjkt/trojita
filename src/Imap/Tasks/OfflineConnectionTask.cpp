@@ -28,10 +28,10 @@ namespace Mailbox
 
 OfflineConnectionTask::OfflineConnectionTask(Model *model) : ImapTask(model)
 {
-    parser = new Parser(model, new FakeSocket(), ++model->lastParserId);
+    parser = new Parser(model, new FakeSocket(), ++model->m_lastParserId);
     ParserState parserState(parser);
     parserState.connState = CONN_STATE_LOGOUT;
-    model->_parsers[parser] = parserState;
+    model->m_parsers[parser] = parserState;
     model->m_taskModel->slotParserCreated(parser);
     markAsActiveTask();
     QTimer::singleShot(0, this, SLOT(slotPerform()));
@@ -56,7 +56,7 @@ void OfflineConnectionTask::slotDie()
     die();
     deleteLater();
     model->killParser(parser, Model::PARSER_KILL_EXPECTED);
-    model->_parsers.remove(parser);
+    model->m_parsers.remove(parser);
     model->m_taskModel->slotParserDeleted(parser);
 }
 

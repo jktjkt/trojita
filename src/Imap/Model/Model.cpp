@@ -89,20 +89,18 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
     // parent
     QAbstractItemModel(parent),
     // our tools
-    _cache(cache), _socketFactory(socketFactory), _taskFactory(taskFactory),
-    _maxParsers(4), _mailboxes(0), _netPolicy(NETWORK_ONLINE),
-    _authenticator(0), lastParserId(0),
-    m_taskModel(0)
+    m_cache(cache), m_socketFactory(socketFactory), m_taskFactory(taskFactory), m_maxParsers(4), m_mailboxes(0),
+    m_netPolicy(NETWORK_ONLINE), m_authenticator(0), m_lastParserId(0), m_taskModel(0)
 {
-    _cache->setParent(this);
-    _startTls = _socketFactory->startTlsRequired();
+    m_cache->setParent(this);
+    m_startTls = m_socketFactory->startTlsRequired();
 
-    _mailboxes = new TreeItemMailbox(0);
+    m_mailboxes = new TreeItemMailbox(0);
 
-    _onlineMessageFetch << "ENVELOPE" << "BODYSTRUCTURE" << "RFC822.SIZE" << "UID" << "FLAGS";
+    onlineMessageFetch << "ENVELOPE" << "BODYSTRUCTURE" << "RFC822.SIZE" << "UID" << "FLAGS";
 
     if (offline) {
-        _netPolicy = NETWORK_OFFLINE;
+        m_netPolicy = NETWORK_OFFLINE;
         QTimer::singleShot(0, this, SLOT(setNetworkOffline()));
     } else {
         QTimer::singleShot(0, this, SLOT(setNetworkOnline()));
@@ -126,14 +124,14 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
 
 Model::~Model()
 {
-    delete _mailboxes;
-    delete _authenticator;
+    delete m_mailboxes;
+    delete m_authenticator;
 }
 
 void Model::responseReceived(Parser *parser)
 {
-    QMap<Parser *,ParserState>::iterator it = _parsers.find(parser);
-    Q_ASSERT(it != _parsers.end());
+    QMap<Parser *,ParserState>::iterator it = m_parsers.find(parser);
+    Q_ASSERT(it != m_parsers.end());
 
     ParserStateGuard guard(*it);
     Q_ASSERT(it->parser);
@@ -222,7 +220,7 @@ void Model::responseReceived(Parser *parser)
 
         if (!guard.wasActive) {
             killParser(it.key(), PARSER_JUST_DELETE_LATER);
-            _parsers.erase(it);
+            m_parsers.erase(it);
             m_taskModel->reset();
         }
     }
@@ -267,7 +265,7 @@ void Model::handleState(Imap::Parser *ptr, const Imap::Responses::State *const r
     }
 }
 
-void Model::_finalizeList(Parser *parser, TreeItemMailbox *mailboxPtr)
+void Model::finalizeList(Parser *parser, TreeItemMailbox *mailboxPtr)
 {
     QList<TreeItem *> mailboxes;
 
@@ -320,7 +318,7 @@ void Model::_finalizeList(Parser *parser, TreeItemMailbox *mailboxPtr)
     replaceChildMailboxes(mailboxPtr, mailboxes);
 }
 
-void Model::_finalizeIncrementalList(Parser *parser, const QString &parentMailboxName)
+void Model::finalizeIncrementalList(Parser *parser, const QString &parentMailboxName)
 {
     TreeItemMailbox *parentMbox = findParentMailboxByName(parentMailboxName);
     if (! parentMbox) {
@@ -358,7 +356,7 @@ void Model::_finalizeIncrementalList(Parser *parser, const QString &parentMailbo
     ++it;
     while (it != parentMbox->_children.end() && MailboxNameComparator(*it, mailboxes[0]))
         ++it;
-    QModelIndex parentIdx = parentMbox == _mailboxes ? QModelIndex() : parentMbox->toIndex(this);
+    QModelIndex parentIdx = parentMbox == m_mailboxes ? QModelIndex() : parentMbox->toIndex(this);
     if (it == parentMbox->_children.end())
         beginInsertRows(parentIdx, parentMbox->_children.size(), parentMbox->_children.size());
     else
@@ -403,7 +401,7 @@ void Model::replaceChildMailboxes(TreeItemMailbox *mailboxPtr, const QList<TreeI
        that the code should *not* use tham after that point. That's just weird.
     */
 
-    QModelIndex parent = mailboxPtr == _mailboxes ? QModelIndex() : mailboxPtr->toIndex(this);
+    QModelIndex parent = mailboxPtr == m_mailboxes ? QModelIndex() : mailboxPtr->toIndex(this);
 
     if (mailboxPtr->_children.size() != 1) {
         // There's something besides the TreeItemMsgList and we're going to
@@ -437,7 +435,7 @@ void Model::emitMessageCountChanged(TreeItemMailbox *const mailbox)
 }
 
 /** @short Retrieval of a message part has completed */
-void Model::_finalizeFetchPart(TreeItemMailbox *const mailbox, const uint sequenceNo, const QString &partId)
+void Model::finalizeFetchPart(TreeItemMailbox *const mailbox, const uint sequenceNo, const QString &partId)
 {
     // At first, verify that the message itself is marked as loaded.
     // If it isn't, it's probably because of Model::releaseMessageData().
@@ -544,7 +542,7 @@ void Model::handleId(Parser *ptr, const Responses::Id *const resp)
 
 TreeItem *Model::translatePtr(const QModelIndex &index) const
 {
-    return index.internalPointer() ? static_cast<TreeItem *>(index.internalPointer()) : _mailboxes;
+    return index.internalPointer() ? static_cast<TreeItem *>(index.internalPointer()) : m_mailboxes;
 }
 
 QVariant Model::data(const QModelIndex &index, int role) const
@@ -586,7 +584,7 @@ QModelIndex Model::parent(const QModelIndex &index) const
     TreeItem *childItem = static_cast<TreeItem *>(index.internalPointer());
     TreeItem *parentItem = childItem->parent();
 
-    if (! parentItem || parentItem == _mailboxes)
+    if (! parentItem || parentItem == m_mailboxes)
         return QModelIndex();
 
     return QAbstractItemModel::createIndex(parentItem->row(), 0, parentItem);
@@ -596,7 +594,7 @@ int Model::rowCount(const QModelIndex &index) const
 {
     TreeItem *node = static_cast<TreeItem *>(index.internalPointer());
     if (!node) {
-        node = _mailboxes;
+        node = m_mailboxes;
     } else {
         Q_ASSERT(index.model() == this);
     }
@@ -608,7 +606,7 @@ int Model::columnCount(const QModelIndex &index) const
 {
     TreeItem *node = static_cast<TreeItem *>(index.internalPointer());
     if (!node) {
-        node = _mailboxes;
+        node = m_mailboxes;
     } else {
         Q_ASSERT(index.model() == this);
     }
@@ -630,7 +628,7 @@ bool Model::hasChildren(const QModelIndex &parent) const
         return false;
 }
 
-void Model::_askForChildrenOfMailbox(TreeItemMailbox *item)
+void Model::askForChildrenOfMailbox(TreeItemMailbox *item)
 {
     if (networkPolicy() != NETWORK_ONLINE && cache()->childMailboxesFresh(item->mailbox())) {
         // We aren't online and the permanent cache contains relevant data
@@ -647,7 +645,7 @@ void Model::_askForChildrenOfMailbox(TreeItemMailbox *item)
         item->_fetchStatus = TreeItem::UNAVAILABLE;
     } else {
         // We have to go to the network
-        _taskFactory->createListChildMailboxesTask(this, item->toIndex(this));
+        m_taskFactory->createListChildMailboxesTask(this, item->toIndex(this));
     }
     QModelIndex idx = item->toIndex(this);
     emit dataChanged(idx, idx);
@@ -655,10 +653,10 @@ void Model::_askForChildrenOfMailbox(TreeItemMailbox *item)
 
 void Model::reloadMailboxList()
 {
-    _mailboxes->rescanForChildMailboxes(this);
+    m_mailboxes->rescanForChildMailboxes(this);
 }
 
-void Model::_askForMessagesInMailbox(TreeItemMsgList *item)
+void Model::askForMessagesInMailbox(TreeItemMsgList *item)
 {
     Q_ASSERT(item->parent());
     TreeItemMailbox *mailboxPtr = dynamic_cast<TreeItemMailbox *>(item->parent());
@@ -694,7 +692,7 @@ void Model::_askForMessagesInMailbox(TreeItemMsgList *item)
     }
 }
 
-void Model::_askForNumberOfMessages(TreeItemMsgList *item)
+void Model::askForNumberOfMessages(TreeItemMsgList *item)
 {
     Q_ASSERT(item->parent());
     TreeItemMailbox *mailboxPtr = dynamic_cast<TreeItemMailbox *>(item->parent());
@@ -712,11 +710,11 @@ void Model::_askForNumberOfMessages(TreeItemMsgList *item)
             item->_numberFetchingStatus = TreeItem::UNAVAILABLE;
         }
     } else {
-        _taskFactory->createNumberOfMessagesTask(this, mailboxPtr->toIndex(this));
+        m_taskFactory->createNumberOfMessagesTask(this, mailboxPtr->toIndex(this));
     }
 }
 
-void Model::_askForMsgMetadata(TreeItemMessage *item)
+void Model::askForMsgMetadata(TreeItemMessage *item)
 {
     Q_ASSERT(item->uid());
     Q_ASSERT(!item->fetched());
@@ -798,7 +796,7 @@ void Model::_askForMsgMetadata(TreeItemMessage *item)
     }
 }
 
-void Model::_askForMsgPart(TreeItemPart *item, bool onlyFromCache)
+void Model::askForMsgPart(TreeItemPart *item, bool onlyFromCache)
 {
     // FIXME: fetch parts in chunks, not at once
     Q_ASSERT(item->message());   // TreeItemMessage
@@ -834,10 +832,10 @@ void Model::resyncMailbox(const QModelIndex &mbox)
 
 void Model::setNetworkPolicy(const NetworkPolicy policy)
 {
-    bool networkReconnected = _netPolicy == NETWORK_OFFLINE && policy != NETWORK_OFFLINE;
+    bool networkReconnected = m_netPolicy == NETWORK_OFFLINE && policy != NETWORK_OFFLINE;
     switch (policy) {
     case NETWORK_OFFLINE:
-        for (QMap<Parser *,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it) {
+        for (QMap<Parser *,ParserState>::iterator it = m_parsers.begin(); it != m_parsers.end(); ++it) {
             if (!it->parser || it->connState == CONN_STATE_LOGOUT) {
                 // there's no point in sending LOGOUT over these
                 continue;
@@ -855,15 +853,15 @@ void Model::setNetworkPolicy(const NetworkPolicy policy)
             it->connState = CONN_STATE_LOGOUT;
         }
         emit networkPolicyOffline();
-        _netPolicy = NETWORK_OFFLINE;
+        m_netPolicy = NETWORK_OFFLINE;
         // FIXME: kill the connection
         break;
     case NETWORK_EXPENSIVE:
-        _netPolicy = NETWORK_EXPENSIVE;
+        m_netPolicy = NETWORK_EXPENSIVE;
         emit networkPolicyExpensive();
         break;
     case NETWORK_ONLINE:
-        _netPolicy = NETWORK_ONLINE;
+        m_netPolicy = NETWORK_ONLINE;
         emit networkPolicyOnline();
         break;
     }
@@ -894,7 +892,7 @@ void Model::slotParserDisconnected(Imap::Parser *parser, const QString msg)
 
     if (!guard.wasActive) {
         killParser(parser, PARSER_JUST_DELETE_LATER);
-        _parsers.remove(parser);
+        m_parsers.remove(parser);
         m_taskModel->slotParserDeleted(parser);
     }
 }
@@ -925,7 +923,7 @@ void Model::slotParseError(Parser *parser, const QString &exceptionClass, const 
 
     if (!guard.wasActive) {
         killParser(parser, PARSER_JUST_DELETE_LATER);
-        _parsers.remove(parser);
+        m_parsers.remove(parser);
         m_taskModel->slotParserDeleted(parser);
     }
 }
@@ -935,7 +933,7 @@ void Model::switchToMailbox(const QModelIndex &mbox)
     if (! mbox.isValid())
         return;
 
-    if (_netPolicy == NETWORK_OFFLINE)
+    if (m_netPolicy == NETWORK_OFFLINE)
         return;
 
     findTaskResponsibleFor(mbox);
@@ -950,7 +948,7 @@ void Model::updateCapabilities(Parser *parser, const QStringList capabilities)
     accessParser(parser).capabilities = uppercaseCaps;
     accessParser(parser).capabilitiesFresh = true;
     parser->enableLiteralPlus(uppercaseCaps.contains(QLatin1String("LITERAL+")));
-    if (_parsers.begin().key() == parser)
+    if (m_parsers.begin().key() == parser)
         emit capabilitiesUpdated(uppercaseCaps);
 
     if (!uppercaseCaps.contains(QLatin1String("IMAP4REV1"))) {
@@ -964,7 +962,7 @@ void Model::setMessageFlags(const QModelIndexList &messages, const QString flag,
 {
     Q_ASSERT(!messages.isEmpty());
     Q_ASSERT(messages.front().model() == this);
-    _taskFactory->createUpdateFlagsTask(this, messages, marked, QString("(%1)").arg(flag));
+    m_taskFactory->createUpdateFlagsTask(this, messages, marked, QString("(%1)").arg(flag));
 }
 
 void Model::markMessagesDeleted(const QModelIndexList &messages, const FlagsOperation marked)
@@ -979,7 +977,7 @@ void Model::markMessagesRead(const QModelIndexList &messages, const FlagsOperati
 
 void Model::copyMoveMessages(TreeItemMailbox *sourceMbox, const QString &destMailboxName, QList<uint> uids, const CopyMoveOperation op)
 {
-    if (_netPolicy == NETWORK_OFFLINE) {
+    if (m_netPolicy == NETWORK_OFFLINE) {
         // FIXME: error signalling
         return;
     }
@@ -994,7 +992,7 @@ void Model::copyMoveMessages(TreeItemMailbox *sourceMbox, const QString &destMai
         messages << m->toIndex(this);
         seq.add(m->uid());
     }
-    _taskFactory->createCopyMoveMessagesTask(this, messages, destMailboxName, op);
+    m_taskFactory->createCopyMoveMessagesTask(this, messages, destMailboxName, op);
 }
 
 /** @short Convert a list of UIDs to a list of pointers to the relevant message nodes */
@@ -1028,7 +1026,7 @@ QList<TreeItemMessage *> Model::findMessagesByUids(const TreeItemMailbox *const 
 
 TreeItemMailbox *Model::findMailboxByName(const QString &name) const
 {
-    return findMailboxByName(name, _mailboxes);
+    return findMailboxByName(name, m_mailboxes);
 }
 
 TreeItemMailbox *Model::findMailboxByName(const QString &name, const TreeItemMailbox *const root) const
@@ -1049,7 +1047,7 @@ TreeItemMailbox *Model::findMailboxByName(const QString &name, const TreeItemMai
 /** @short Find a parent mailbox for the specified name */
 TreeItemMailbox *Model::findParentMailboxByName(const QString &name) const
 {
-    TreeItemMailbox *root = _mailboxes;
+    TreeItemMailbox *root = m_mailboxes;
     while (true) {
         if (root->_children.size() == 1) {
             break;
@@ -1076,32 +1074,32 @@ void Model::expungeMailbox(TreeItemMailbox *mbox)
     if (!mbox)
         return;
 
-    if (_netPolicy == NETWORK_OFFLINE) {
+    if (m_netPolicy == NETWORK_OFFLINE) {
         qDebug() << "Can't expunge while offline";
         return;
     }
 
-    _taskFactory->createExpungeMailboxTask(this, mbox->toIndex(this));
+    m_taskFactory->createExpungeMailboxTask(this, mbox->toIndex(this));
 }
 
 void Model::createMailbox(const QString &name)
 {
-    if (_netPolicy == NETWORK_OFFLINE) {
+    if (m_netPolicy == NETWORK_OFFLINE) {
         qDebug() << "Can't create mailboxes while offline";
         return;
     }
 
-    _taskFactory->createCreateMailboxTask(this, name);
+    m_taskFactory->createCreateMailboxTask(this, name);
 }
 
 void Model::deleteMailbox(const QString &name)
 {
-    if (_netPolicy == NETWORK_OFFLINE) {
+    if (m_netPolicy == NETWORK_OFFLINE) {
         qDebug() << "Can't delete mailboxes while offline";
         return;
     }
 
-    _taskFactory->createDeleteMailboxTask(this, name);
+    m_taskFactory->createDeleteMailboxTask(this, name);
 }
 
 void Model::saveUidMap(TreeItemMsgList *list)
@@ -1131,20 +1129,20 @@ TreeItem *Model::realTreeItem(QModelIndex index, const Model **whichModel, QMode
 CommandHandle Model::performAuthentication(Imap::Parser *ptr)
 {
     // The LOGINDISABLED capability is checked elsewhere
-    if (! _authenticator) {
-        _authenticator = new QAuthenticator();
-        emit authRequested(_authenticator);
+    if (! m_authenticator) {
+        m_authenticator = new QAuthenticator();
+        emit authRequested(m_authenticator);
     }
 
-    if (_authenticator->isNull()) {
-        delete _authenticator;
-        _authenticator = 0;
+    if (m_authenticator->isNull()) {
+        delete m_authenticator;
+        m_authenticator = 0;
         QString message = tr("Can't login without user/password data");
         logTrace(ptr->parserId(), LOG_OTHER, QString(), message);
         emit connectionError(message);
         return CommandHandle();
     } else {
-        CommandHandle cmd = ptr->login(_authenticator->user(), _authenticator->password());
+        CommandHandle cmd = ptr->login(m_authenticator->user(), m_authenticator->password());
         return cmd;
     }
 }
@@ -1246,15 +1244,15 @@ void Model::slotParserLineSent(Parser *parser, const QByteArray &line)
 
 void Model::setCache(AbstractCache *cache)
 {
-    if (_cache)
-        _cache->deleteLater();
-    _cache = cache;
-    _cache->setParent(this);
+    if (m_cache)
+        m_cache->deleteLater();
+    m_cache = cache;
+    m_cache->setParent(this);
 }
 
 void Model::runReadyTasks()
 {
-    for (QMap<Parser *,ParserState>::iterator parserIt = _parsers.begin(); parserIt != _parsers.end(); ++parserIt) {
+    for (QMap<Parser *,ParserState>::iterator parserIt = m_parsers.begin(); parserIt != m_parsers.end(); ++parserIt) {
         bool runSomething = false;
         do {
             runSomething = false;
@@ -1298,38 +1296,38 @@ KeepMailboxOpenTask *Model::findTaskResponsibleFor(const QModelIndex &mailbox)
 KeepMailboxOpenTask *Model::findTaskResponsibleFor(TreeItemMailbox *mailboxPtr)
 {
     Q_ASSERT(mailboxPtr);
-    bool canCreateParallelConn = _parsers.isEmpty(); // FIXME: multiple connections
+    bool canCreateParallelConn = m_parsers.isEmpty(); // FIXME: multiple connections
 
     if (mailboxPtr->maintainingTask) {
         // The requested mailbox already has the maintaining task associated
         if (accessParser(mailboxPtr->maintainingTask->parser).connState == CONN_STATE_LOGOUT) {
             // The connection is currently getting closed, so we have to create another one
-            return _taskFactory->createKeepMailboxOpenTask(this, mailboxPtr->toIndex(this), 0);
+            return m_taskFactory->createKeepMailboxOpenTask(this, mailboxPtr->toIndex(this), 0);
         } else {
             // it's usable as-is
             return mailboxPtr->maintainingTask;
         }
     } else if (canCreateParallelConn) {
         // The mailbox is not being maintained, but we can create a new connection
-        return _taskFactory->createKeepMailboxOpenTask(this, mailboxPtr->toIndex(this), 0);
+        return m_taskFactory->createKeepMailboxOpenTask(this, mailboxPtr->toIndex(this), 0);
     } else {
         // Too bad, we have to re-use an existing parser. That will probably lead to
         // stealing it from some mailbox, but there's no other way.
-        Q_ASSERT(!_parsers.isEmpty());
+        Q_ASSERT(!m_parsers.isEmpty());
 
-        for (QMap<Parser *,ParserState>::const_iterator it = _parsers.constBegin(); it != _parsers.constEnd(); ++it) {
+        for (QMap<Parser *,ParserState>::const_iterator it = m_parsers.constBegin(); it != m_parsers.constEnd(); ++it) {
             if (it->connState == CONN_STATE_LOGOUT) {
                 // this one is not usable
                 continue;
             }
-            return _taskFactory->createKeepMailboxOpenTask(this, mailboxPtr->toIndex(this), it.key());
+            return m_taskFactory->createKeepMailboxOpenTask(this, mailboxPtr->toIndex(this), it.key());
         }
         // At this point, we have no other choice than create a new connection
-        return _taskFactory->createKeepMailboxOpenTask(this, mailboxPtr->toIndex(this), 0);
+        return m_taskFactory->createKeepMailboxOpenTask(this, mailboxPtr->toIndex(this), 0);
     }
 }
 
-void Model::_genericHandleFetch(TreeItemMailbox *mailbox, const Imap::Responses::Fetch *const resp)
+void Model::genericHandleFetch(TreeItemMailbox *mailbox, const Imap::Responses::Fetch *const resp)
 {
     Q_ASSERT(mailbox);
     QList<TreeItemPart *> changedParts;
@@ -1420,7 +1418,7 @@ void Model::slotTasksChanged()
 void Model::slotTaskDying(QObject *obj)
 {
     ImapTask *task = static_cast<ImapTask *>(obj);
-    for (QMap<Parser *,ParserState>::iterator it = _parsers.begin(); it != _parsers.end(); ++it) {
+    for (QMap<Parser *,ParserState>::iterator it = m_parsers.begin(); it != m_parsers.end(); ++it) {
         it->activeTasks.removeOne(task);
     }
     m_taskModel->slotTaskDestroyed(task);
@@ -1438,8 +1436,8 @@ TreeItemMailbox *Model::mailboxForSomeItem(QModelIndex index)
 
 ParserState &Model::accessParser(Parser *parser)
 {
-    Q_ASSERT(_parsers.contains(parser));
-    return _parsers[ parser ];
+    Q_ASSERT(m_parsers.contains(parser));
+    return m_parsers[ parser ];
 }
 
 QModelIndex Model::findMessageForItem(QModelIndex index)
@@ -1498,19 +1496,19 @@ void Model::releaseMessageData(const QModelIndex &message)
 
 QStringList Model::capabilities() const
 {
-    if (_parsers.isEmpty())
+    if (m_parsers.isEmpty())
         return QStringList();
 
-    if (_parsers.constBegin()->capabilitiesFresh)
-        return _parsers.constBegin()->capabilities;
+    if (m_parsers.constBegin()->capabilitiesFresh)
+        return m_parsers.constBegin()->capabilities;
 
     return QStringList();
 }
 
 void Model::emitAuthFailed(const QString &message)
 {
-    delete _authenticator;
-    _authenticator = 0;
+    delete m_authenticator;
+    m_authenticator = 0;
     emit authAttemptFailed(message);
 }
 

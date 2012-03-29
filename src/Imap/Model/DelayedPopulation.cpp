@@ -44,7 +44,7 @@ void DelayedAskForChildrenOfMailbox::askNow()
     TreeItemMailbox *mailboxPtr = 0;
     if (m_topLevel) {
         // We're asked for the root, and we can find that
-        mailboxPtr = m_model->_mailboxes;
+        mailboxPtr = m_model->m_mailboxes;
     } else {
         // The index was previously valid, so let's check if it remains so
         if (! m_mailbox.isValid()) {
@@ -55,7 +55,7 @@ void DelayedAskForChildrenOfMailbox::askNow()
         mailboxPtr = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(m_mailbox.internalPointer()));
     }
     Q_ASSERT(mailboxPtr);
-    m_model->_askForChildrenOfMailbox(mailboxPtr);
+    m_model->askForChildrenOfMailbox(mailboxPtr);
     // We're responsible for cleaning up
     deleteLater();
 }
@@ -77,7 +77,7 @@ void DelayedAskForMessagesInMailbox::askNow()
     }
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(static_cast<TreeItem *>(m_list.internalPointer()));
     Q_ASSERT(list);
-    m_model->_askForMessagesInMailbox(list);
+    m_model->askForMessagesInMailbox(list);
     // We're responsible for cleaning up
     deleteLater();
 }

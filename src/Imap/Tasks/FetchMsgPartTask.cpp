@@ -56,7 +56,7 @@ bool FetchMsgPartTask::handleFetch(const Imap::Responses::Fetch *const resp)
 
     TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
     Q_ASSERT(mailbox);
-    model->_genericHandleFetch(mailbox, resp);
+    model->genericHandleFetch(mailbox, resp);
     return true;
 }
 
@@ -79,7 +79,7 @@ bool FetchMsgPartTask::handleStateHelper(const Imap::Responses::State *const res
             Q_FOREACH(TreeItemMessage *message, messages) {
                 Q_FOREACH(const QString &partId, parts) {
                     log("Fetched part" + partId, LOG_MESSAGES);
-                    model->_finalizeFetchPart(mailbox, message->row() + 1, partId);
+                    model->finalizeFetchPart(mailbox, message->row() + 1, partId);
                 }
             }
             model->changeConnectionState(parser, CONN_STATE_SELECTED);

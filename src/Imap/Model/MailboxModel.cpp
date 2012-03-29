@@ -269,7 +269,7 @@ void MailboxModel::handleRowsAboutToBeRemoved(const QModelIndex &parent, int fir
     if (parent.internalPointer() && ! parentMbox)
         return;
     if (! parentMbox)
-        parentMbox = static_cast<Imap::Mailbox::Model *>(sourceModel())->_mailboxes;
+        parentMbox = static_cast<Imap::Mailbox::Model *>(sourceModel())->m_mailboxes;
     Q_ASSERT(first >= 1);
     Q_ASSERT(last <= parentMbox->_children.size() - 1);
     Q_ASSERT(first <= last);
@@ -292,7 +292,7 @@ void MailboxModel::handleRowsAboutToBeInserted(const QModelIndex &parent, int fi
     if (parent.internalPointer() && ! parentMbox)
         return;
     if (! parentMbox)
-        parentMbox = static_cast<Imap::Mailbox::Model *>(sourceModel())->_mailboxes;
+        parentMbox = static_cast<Imap::Mailbox::Model *>(sourceModel())->m_mailboxes;
     if (first == 0 && last == 0)
         return;
     if (first != 0)

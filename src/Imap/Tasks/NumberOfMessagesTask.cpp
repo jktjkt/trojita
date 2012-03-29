@@ -33,7 +33,7 @@ NumberOfMessagesTask::NumberOfMessagesTask(Model *model, const QModelIndex &mail
 {
     TreeItemMailbox *mailboxPtr = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailbox.internalPointer()));
     Q_ASSERT(mailboxPtr);
-    conn = model->_taskFactory->createGetAnyConnectionTask(model);
+    conn = model->m_taskFactory->createGetAnyConnectionTask(model);
     conn->addDependentTask(this);
 }
 

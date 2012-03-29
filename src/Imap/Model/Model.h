@@ -102,20 +102,20 @@ class Model: public QAbstractItemModel
         NETWORK_ONLINE
     };
 
-    mutable AbstractCache *_cache;
-    mutable SocketFactoryPtr _socketFactory;
-    TaskFactoryPtr _taskFactory;
-    mutable QMap<Parser *,ParserState> _parsers;
-    int _maxParsers;
-    mutable TreeItemMailbox *_mailboxes;
-    mutable NetworkPolicy _netPolicy;
-    bool _startTls;
+    mutable AbstractCache *m_cache;
+    mutable SocketFactoryPtr m_socketFactory;
+    TaskFactoryPtr m_taskFactory;
+    mutable QMap<Parser *,ParserState> m_parsers;
+    int m_maxParsers;
+    mutable TreeItemMailbox *m_mailboxes;
+    mutable NetworkPolicy m_netPolicy;
+    bool m_startTls;
 
-    mutable QList<Imap::Responses::NamespaceData> _personalNamespace, _otherUsersNamespace, _sharedNamespace;
+    mutable QList<Imap::Responses::NamespaceData> m_personalNamespace, m_otherUsersNamespace, m_sharedNamespace;
 
 
 public:
-    Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFactory, TaskFactoryPtr taskFactory, bool offline);
+    Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr m_socketFactory, TaskFactoryPtr m_taskFactory, bool offline);
     ~Model();
 
     virtual QModelIndex index(int row, int column, const QModelIndex &parent) const;
@@ -138,7 +138,7 @@ public:
     void handleThread(Imap::Parser *ptr, const Imap::Responses::Thread *const resp);
     void handleId(Imap::Parser *ptr, const Imap::Responses::Id *const resp);
 
-    AbstractCache *cache() const { return _cache; }
+    AbstractCache *cache() const { return m_cache; }
     /** Throw away current cache implementation, replace it with the new one
 
     The old cache is automatically deleted.
@@ -172,9 +172,9 @@ public:
     void deleteMailbox(const QString &name);
 
     /** @short Returns true if we are allowed to access the network */
-    bool isNetworkAvailable() const { return _netPolicy != NETWORK_OFFLINE; }
+    bool isNetworkAvailable() const { return m_netPolicy != NETWORK_OFFLINE; }
     /** @short Returns true if the network access is cheap */
-    bool isNetworkOnline() const { return _netPolicy == NETWORK_ONLINE; }
+    bool isNetworkOnline() const { return m_netPolicy == NETWORK_ONLINE; }
 
     /** @short Return a TreeItem* for a specified index
 
@@ -355,10 +355,10 @@ private:
     friend class TreeItemModifiedPart; // needs access to createIndex()
     friend class MsgListModel; // needs access to createIndex()
     friend class MailboxModel; // needs access to createIndex()
-    friend class ThreadingMsgListModel; // needs access to _taskFactory
+    friend class ThreadingMsgListModel; // needs access to taskFactory
 
-    friend class DelayedAskForChildrenOfMailbox; // needs access to _askForChildrenOfMailbox();
-    friend class DelayedAskForMessagesInMailbox; // needs access to _askForMessagesInMailbox();
+    friend class DelayedAskForChildrenOfMailbox; // needs access to askForChildrenOfMailbox();
+    friend class DelayedAskForMessagesInMailbox; // needs access to askForMessagesInMailbox();
     friend class IdleLauncher;
 
     friend class ImapTask;
@@ -383,22 +383,22 @@ private:
     friend class UnSelectTask;
     friend class OfflineConnectionTask;
 
-    friend class TestingTaskFactory; // needs access to _socketFactory
+    friend class TestingTaskFactory; // needs access to socketFactory
 
     friend class ::FakeCapabilitiesInjector; // for injecting fake capabilities
     friend class ::ImapModelIdleTest; // needs access to findTaskResponsibleFor() for IDLE testing
     friend class TaskPresentationModel; // needs access to the ParserState
 
-    void _askForChildrenOfMailbox(TreeItemMailbox *item);
-    void _askForMessagesInMailbox(TreeItemMsgList *item);
-    void _askForNumberOfMessages(TreeItemMsgList *item);
-    void _askForMsgMetadata(TreeItemMessage *item);
-    void _askForMsgPart(TreeItemPart *item, bool onlyFromCache=false);
+    void askForChildrenOfMailbox(TreeItemMailbox *item);
+    void askForMessagesInMailbox(TreeItemMsgList *item);
+    void askForNumberOfMessages(TreeItemMsgList *item);
+    void askForMsgMetadata(TreeItemMessage *item);
+    void askForMsgPart(TreeItemPart *item, bool onlyFromCache=false);
 
-    void _finalizeList(Parser *parser, TreeItemMailbox *const mailboxPtr);
-    void _finalizeIncrementalList(Parser *parser, const QString &parentMailboxName);
-    void _finalizeFetchPart(TreeItemMailbox *const mailbox, const uint sequenceNo, const QString &partId);
-    void _genericHandleFetch(TreeItemMailbox *mailbox, const Imap::Responses::Fetch *const resp);
+    void finalizeList(Parser *parser, TreeItemMailbox *const mailboxPtr);
+    void finalizeIncrementalList(Parser *parser, const QString &parentMailboxName);
+    void finalizeFetchPart(TreeItemMailbox *const mailbox, const uint sequenceNo, const QString &partId);
+    void genericHandleFetch(TreeItemMailbox *mailbox, const Imap::Responses::Fetch *const resp);
 
     void replaceChildMailboxes(TreeItemMailbox *mailboxPtr, const QList<TreeItem *> mailboxes);
     void updateCapabilities(Parser *parser, const QStringList capabilities);
@@ -429,7 +429,7 @@ private:
     */
     QModelIndex findMailboxForItems(const QModelIndexList &items);
 
-    NetworkPolicy networkPolicy() const { return _netPolicy; }
+    NetworkPolicy networkPolicy() const { return m_netPolicy; }
     void setNetworkPolicy(const NetworkPolicy policy);
 
     /** @short Helper function for changing connection state */
@@ -456,7 +456,7 @@ private:
     /** @short Remove deleted Tasks from the activeTasks list */
     void removeDeletedTasks(const QList<ImapTask *> &deletedTasks, QList<ImapTask *> &activeTasks);
 
-    QStringList _onlineMessageFetch;
+    QStringList onlineMessageFetch;
 
     /** @short Helper for keeping track of user/pass over time
 
@@ -464,9 +464,9 @@ private:
     and operator=() does not really work together and that I got a mysterious segfault when
     trying the operator=(). Oh well...
     */
-    QAuthenticator *_authenticator;
+    QAuthenticator *m_authenticator;
 
-    uint lastParserId;
+    uint m_lastParserId;
 
     /** @short Model visualizing the state of the tasks */
     TaskPresentationModel *m_taskModel;

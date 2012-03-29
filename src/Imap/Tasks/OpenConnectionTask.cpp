@@ -30,7 +30,7 @@ OpenConnectionTask::OpenConnectionTask(Model *model) :
 {
     // Offline mode shall be checked by the caller who decides to create the conneciton
     Q_ASSERT(model->networkPolicy() != Model::NETWORK_OFFLINE);
-    parser = new Parser(model, model->_socketFactory->create(), ++model->lastParserId);
+    parser = new Parser(model, model->m_socketFactory->create(), ++model->m_lastParserId);
     ParserState parserState(parser);
     connect(parser, SIGNAL(responseReceived(Imap::Parser *)), model, SLOT(responseReceived(Imap::Parser *)));
     connect(parser, SIGNAL(disconnected(Imap::Parser *,const QString)), model, SLOT(slotParserDisconnected(Imap::Parser *,const QString)));
@@ -39,7 +39,7 @@ OpenConnectionTask::OpenConnectionTask(Model *model) :
     connect(parser, SIGNAL(parseError(Imap::Parser *,QString,QString,QByteArray,int)), model, SLOT(slotParseError(Imap::Parser *,QString,QString,QByteArray,int)));
     connect(parser, SIGNAL(lineReceived(Imap::Parser *,QByteArray)), model, SLOT(slotParserLineReceived(Imap::Parser *,QByteArray)));
     connect(parser, SIGNAL(lineSent(Imap::Parser *,QByteArray)), model, SLOT(slotParserLineSent(Imap::Parser *,QByteArray)));
-    model->_parsers[ parser ] = parserState;
+    model->m_parsers[ parser ] = parserState;
     model->m_taskModel->slotParserCreated(parser);
     markAsActiveTask();
 }
@@ -301,7 +301,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
 /** @short Either call STARTTLS or go ahead and try to LOGIN */
 void OpenConnectionTask::startTlsOrLoginNow()
 {
-    if (model->_startTls || model->accessParser(parser).capabilities.contains(QLatin1String("LOGINDISABLED"))) {
+    if (model->m_startTls || model->accessParser(parser).capabilities.contains(QLatin1String("LOGINDISABLED"))) {
         // Should run STARTTLS later and already have the capabilities
         Q_ASSERT(model->accessParser(parser).capabilitiesFresh);
         if (!model->accessParser(parser).capabilities.contains(QLatin1String("STARTTLS"))) {
@@ -341,7 +341,7 @@ void OpenConnectionTask::onComplete()
 {
     // Optionally issue the ID command
     if (model->accessParser(parser).capabilities.contains(QLatin1String("ID"))) {
-        model->_taskFactory->createIdTask(model, this);
+        model->m_taskFactory->createIdTask(model, this);
     }
 
     // But do terminate this task

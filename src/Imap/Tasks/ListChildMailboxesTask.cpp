@@ -33,7 +33,7 @@ ListChildMailboxesTask::ListChildMailboxesTask(Model *model, const QModelIndex &
 {
     TreeItemMailbox *mailboxPtr = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailbox.internalPointer()));
     Q_ASSERT(mailboxPtr);
-    conn = model->_taskFactory->createGetAnyConnectionTask(model);
+    conn = model->m_taskFactory->createGetAnyConnectionTask(model);
     conn->addDependentTask(this);
 }
 
@@ -72,7 +72,7 @@ bool ListChildMailboxesTask::handleStateHelper(const Imap::Responses::State *con
             Q_ASSERT(mailbox);
 
             if (resp->kind == Responses::OK) {
-                model->_finalizeList(parser, mailbox);
+                model->finalizeList(parser, mailbox);
                 _completed();
             } else {
                 _failed("LIST failed");
