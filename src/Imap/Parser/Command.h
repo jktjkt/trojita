@@ -65,18 +65,18 @@ TokenType howToTransmit(const QString &str);
  */
 class PartOfCommand
 {
-    TokenType _kind; /**< What encoding to use for this item */
-    QString _text; /**< Actual text to send */
-    bool _numberSent;
+    TokenType kind; /**< What encoding to use for this item */
+    QString text; /**< Actual text to send */
+    bool numberSent;
 
     friend QTextStream &operator<<(QTextStream &stream, const PartOfCommand &c);
     friend class ::Imap::Parser;
 
 public:
     /** Default constructor */
-    PartOfCommand(const TokenType kind, const QString &text): _kind(kind), _text(text), _numberSent(false) {}
+    PartOfCommand(const TokenType kind, const QString &text): kind(kind), text(text), numberSent(false) {}
     /** Constructor that guesses correct type for passed string */
-    PartOfCommand(const QString &text): _kind(howToTransmit(text)), _text(text), _numberSent(false) {}
+    PartOfCommand(const QString &text): kind(howToTransmit(text)), text(text), numberSent(false) {}
 };
 
 /** @short Abstract class for specifying what command to execute */
@@ -84,14 +84,14 @@ class Command
 {
     friend QTextStream &operator<<(QTextStream &stream, const Command &c);
     friend class ::Imap::Parser;
-    QList<PartOfCommand> _cmds;
-    int _currentPart;
+    QList<PartOfCommand> cmds;
+    int currentPart;
 public:
-    Command &operator<<(const PartOfCommand &part) { _cmds << part; return *this; }
-    Command &operator<<(const QString &text) { _cmds << PartOfCommand(text); return *this; }
-    Command(): _currentPart(0) {}
-    Command(const QString &name): _currentPart(0) { _cmds << PartOfCommand(ATOM, name); }
-    void addTag(const QString &tag) { _cmds.insert(0, PartOfCommand(ATOM, tag)); }
+    Command &operator<<(const PartOfCommand &part) { cmds << part; return *this; }
+    Command &operator<<(const QString &text) { cmds << PartOfCommand(text); return *this; }
+    Command(): currentPart(0) {}
+    Command(const QString &name): currentPart(0) { cmds << PartOfCommand(ATOM, name); }
+    void addTag(const QString &tag) { cmds.insert(0, PartOfCommand(ATOM, tag)); }
 };
 
 /** @short Used for dumping a command to debug stream */

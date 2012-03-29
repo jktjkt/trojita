@@ -64,7 +64,7 @@ private:
     friend class Gui::PartWidgetFactory;
     QPersistentModelIndex message;
 
-    bool _externalsEnabled;
+    bool externalsEnabled;
 
     MsgPartNetAccessManager(const MsgPartNetAccessManager &); // don't implement
     MsgPartNetAccessManager &operator=(const MsgPartNetAccessManager &); // don't implement

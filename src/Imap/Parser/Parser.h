@@ -48,12 +48,12 @@ namespace Imap
 */
 class Sequence
 {
-    uint _lo, _hi;
-    QList<uint> _list;
-    enum { DISTINCT, RANGE, UNLIMITED } _kind;
+    uint lo, hi;
+    QList<uint> list;
+    enum { DISTINCT, RANGE, UNLIMITED } kind;
 public:
     /** @short Construct an invalid sequence */
-    Sequence(): _kind(DISTINCT) {}
+    Sequence(): kind(DISTINCT) {}
 
     /** @short Construct a sequence holding only one number
 
@@ -68,7 +68,7 @@ public:
       This sequence can't be expanded ever after. Calling add() on it will
       assert().
     */
-    Sequence(const uint lo, const uint hi): _lo(lo), _hi(hi), _kind(RANGE) {}
+    Sequence(const uint lo, const uint hi): lo(lo), hi(hi), kind(RANGE) {}
 
     /** @short Create an "unlimited" sequence
 
@@ -191,7 +191,7 @@ public slots:
 
     /** @short SEARCH, RFC3501 sect 6.4.4 */
     CommandHandle search(const QStringList &criteria, const QString &charset = QString::null) {
-        return _searchHelper("SEARCH", criteria, charset);
+        return searchHelper("SEARCH", criteria, charset);
     };
 
     /** @short FETCH, RFC3501 sect 6.4.5 */
@@ -214,7 +214,7 @@ public slots:
 
     /** @short UID command (SEARCH), RFC3501 sect 6.4.8 */
     CommandHandle uidSearch(const QStringList &criteria, const QString &charset=QString::null) {
-        return _searchHelper("UID SEARCH", criteria, charset);
+        return searchHelper("UID SEARCH", criteria, charset);
     }
 
     /** @short A special case of the "UID SEARCH UID" command */
@@ -339,11 +339,11 @@ private:
     void reallyReadLine();
 
     /** @short Helper for search() and uidSearch() */
-    CommandHandle _searchHelper(const QString &command, const QStringList &criteria,
-                                const QString &charset = QString::null);
+    CommandHandle searchHelper(const QString &command, const QStringList &criteria,
+                               const QString &charset = QString::null);
 
-    CommandHandle _sortHelper(const QString &command, const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria);
-    CommandHandle _threadHelper(const QString &command, const QString &algo, const QString &charset, const QStringList &searchCriteria);
+    CommandHandle sortHelper(const QString &command, const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria);
+    CommandHandle threadHelper(const QString &command, const QString &algo, const QString &charset, const QStringList &searchCriteria);
 
     /** @short Generate tag for next command */
     QString generateTag();
@@ -368,34 +368,34 @@ private:
     void queueResponse(const QSharedPointer<Responses::AbstractResponse> &resp);
 
     /** @short Connection to the IMAP server */
-    Socket *_socket;
+    Socket *socket;
 
     /** @short Keeps track of the last-used command tag */
-    unsigned int _lastTagUsed;
+    unsigned int m_lastTagUsed;
 
     /** @short Queue storing commands that are about to be executed */
-    QLinkedList<Commands::Command> _cmdQueue;
+    QLinkedList<Commands::Command> cmdQueue;
 
     /** @short Queue storing parsed replies from the IMAP server */
-    QLinkedList<QSharedPointer<Responses::AbstractResponse> > _respQueue;
+    QLinkedList<QSharedPointer<Responses::AbstractResponse> > respQueue;
 
-    bool _idling;
-    bool _waitForInitialIdle;
+    bool idling;
+    bool waitForInitialIdle;
 
-    bool _literalPlus;
-    bool _waitingForContinuation;
-    bool _startTlsInProgress;
-    bool _waitingForConnection;
+    bool literalPlus;
+    bool waitingForContinuation;
+    bool startTlsInProgress;
+    bool waitingForConnection;
 
-    enum { ReadingLine, ReadingNumberOfBytes } _readingMode;
-    QByteArray _currentLine;
-    int _oldLiteralPosition;
-    uint _readingBytes;
-    QByteArray _startTlsCommand;
-    QByteArray _startTlsReply;
+    enum { ReadingLine, ReadingNumberOfBytes } readingMode;
+    QByteArray currentLine;
+    int oldLiteralPosition;
+    uint readingBytes;
+    QByteArray startTlsCommand;
+    QByteArray startTlsReply;
 
     /** @short Unique-id for debugging purposes */
-    uint _parserId;
+    uint m_parserId;
 };
 
 QTextStream &operator<<(QTextStream &stream, const Sequence &s);

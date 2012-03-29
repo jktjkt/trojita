@@ -194,7 +194,7 @@ public:
     /** @short Kind of reponse */
     Kind kind;
     AbstractResponse(): kind(BAD) {};
-    AbstractResponse(const Kind _kind): kind(_kind) {};
+    AbstractResponse(const Kind kind): kind(kind) {};
     virtual ~AbstractResponse();
     /** @short Helper for operator<<() */
     virtual QTextStream &dump(QTextStream &) const = 0;
@@ -263,14 +263,11 @@ public:
      * actually corresponds to all invariants we declare as per respCode's
      * documentation.
      * */
-    State(const QString &_tag, const Kind _kind, const QString &_message,
-          const Code _respCode,
-          const QSharedPointer<AbstractData> _respCodeData):
-        tag(_tag), kind(_kind), message(_message), respCode(_respCode),
-        respCodeData(_respCodeData) {};
+    State(const QString &tag, const Kind kind, const QString &message, const Code respCode, const QSharedPointer<AbstractData> respCodeData):
+        tag(tag), kind(kind), message(message), respCode(respCode), respCodeData(respCodeData) {}
 
     /** @short "Smart" constructor that parses a response out of a QByteArray */
-    State(const QString &_tag, const Kind _kind, const QByteArray &line, int &start);
+    State(const QString &tag, const Kind kind, const QByteArray &line, int &start);
 
     /** @short Default destructor that makes containers and QtTest happy */
     State(): respCode(NONE) {};

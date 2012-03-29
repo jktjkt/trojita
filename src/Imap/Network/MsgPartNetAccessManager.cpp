@@ -36,7 +36,7 @@ namespace Network
 {
 
 MsgPartNetAccessManager::MsgPartNetAccessManager(QObject *parent):
-    QNetworkAccessManager(parent), _externalsEnabled(false)
+    QNetworkAccessManager(parent), externalsEnabled(false)
 {
 }
 
@@ -96,7 +96,7 @@ QNetworkReply *MsgPartNetAccessManager::createRequest(Operation op, const QNetwo
     } else {
         // Regular access -- we've got to check policy here
         if (req.url().scheme() == QLatin1String("http") || req.url().scheme() == QLatin1String("ftp")) {
-            if (_externalsEnabled) {
+            if (externalsEnabled) {
                 return QNetworkAccessManager::createRequest(op, req, outgoingData);
             } else {
                 emit requestingExternal(req.url());
@@ -171,7 +171,7 @@ fetching contents via HTTP and FTP protocols.
 */
 void MsgPartNetAccessManager::setExternalsEnabled(bool enabled)
 {
-    _externalsEnabled = enabled;
+    externalsEnabled = enabled;
 }
 
 }

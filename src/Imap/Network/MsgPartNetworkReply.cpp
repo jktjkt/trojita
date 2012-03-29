@@ -33,8 +33,8 @@ namespace Imap
 namespace Network
 {
 
-MsgPartNetworkReply::MsgPartNetworkReply(QObject *parent, const QPersistentModelIndex &_part):
-    QNetworkReply(parent), part(_part)
+MsgPartNetworkReply::MsgPartNetworkReply(QObject *parent, const QPersistentModelIndex &part):
+    QNetworkReply(parent), part(part)
 {
     setOpenMode(QIODevice::ReadOnly | QIODevice::Unbuffered);
     Q_ASSERT(part.isValid());

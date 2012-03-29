@@ -31,8 +31,8 @@ namespace Imap
 namespace Network
 {
 
-FileDownloadManager::FileDownloadManager(QObject *parent, Imap::Network::MsgPartNetAccessManager *_manager, const QModelIndex &_partIndex):
-    QObject(parent), manager(_manager), partIndex(_partIndex), reply(0), saved(false)
+FileDownloadManager::FileDownloadManager(QObject *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex):
+    QObject(parent), manager(manager), partIndex(partIndex), reply(0), saved(false)
 {
 }
 

@@ -29,8 +29,8 @@ namespace Commands
 
 QTextStream &operator<<(QTextStream &stream, const Command &cmd)
 {
-    for (QList<PartOfCommand>::const_iterator it = cmd._cmds.begin(); it != cmd._cmds.end(); ++it) {
-        if (it != cmd._cmds.begin()) {
+    for (QList<PartOfCommand>::const_iterator it = cmd.cmds.begin(); it != cmd.cmds.end(); ++it) {
+        if (it != cmd.cmds.begin()) {
             stream << " ";
         }
         stream << *it;
@@ -63,18 +63,18 @@ TokenType howToTransmit(const QString &str)
 
 QTextStream &operator<<(QTextStream &stream, const PartOfCommand &part)
 {
-    switch (part._kind) {
+    switch (part.kind) {
     case ATOM:
-        stream << part._text;
+        stream << part.text;
         break;
     case QUOTED_STRING: {
-        QString item = part._text;
+        QString item = part.text;
         item.replace(QChar('\\'), QString::fromAscii("\\\\"));
         stream << '"' << item << '"';
     }
     break;
     case LITERAL:
-        stream << "{" << part._text.length() << "}" << endl << part._text;
+        stream << "{" << part.text.length() << "}" << endl << part.text;
         break;
     case IDLE:
         stream << "IDLE" << endl << "[Entering IDLE mode...]";
@@ -86,7 +86,7 @@ QTextStream &operator<<(QTextStream &stream, const PartOfCommand &part)
         stream << "STARTTLS" << endl << "[Starting TLS...]";
         break;
     case ATOM_NO_SPACE_AROUND:
-        stream << part._text;
+        stream << part.text;
     }
     return stream;
 }

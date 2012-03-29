@@ -35,7 +35,7 @@ class MsgPartNetworkReply : public QNetworkReply
 {
     Q_OBJECT
 public:
-    MsgPartNetworkReply(QObject *parent, const QPersistentModelIndex &_part);
+    MsgPartNetworkReply(QObject *parent, const QPersistentModelIndex &part);
     virtual void abort();
     virtual void close();
     virtual qint64 bytesAvailable() const;

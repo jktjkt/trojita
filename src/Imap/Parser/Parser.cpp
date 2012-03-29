@@ -84,15 +84,15 @@ namespace Imap
 {
 
 Parser::Parser(QObject *parent, Socket *socket, const uint myId):
-    QObject(parent), _socket(socket), _lastTagUsed(0), _idling(false), _waitForInitialIdle(false),
-    _literalPlus(false), _waitingForContinuation(false), _startTlsInProgress(false),
-    _waitingForConnection(true), _readingMode(ReadingLine),
-    _oldLiteralPosition(0), _parserId(myId)
+    QObject(parent), socket(socket), m_lastTagUsed(0), idling(false), waitForInitialIdle(false),
+    literalPlus(false), waitingForContinuation(false), startTlsInProgress(false),
+    waitingForConnection(true), readingMode(ReadingLine),
+    oldLiteralPosition(0), m_parserId(myId)
 {
-    connect(_socket, SIGNAL(disconnected(const QString &)),
+    connect(socket, SIGNAL(disconnected(const QString &)),
             this, SLOT(handleDisconnected(const QString &)));
-    connect(_socket, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
-    connect(_socket, SIGNAL(stateChanged(Imap::ConnectionState,QString)), this, SLOT(slotSocketStateChanged(Imap::ConnectionState,QString)));
+    connect(socket, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
+    connect(socket, SIGNAL(stateChanged(Imap::ConnectionState,QString)), this, SLOT(slotSocketStateChanged(Imap::ConnectionState,QString)));
 }
 
 CommandHandle Parser::noop()
@@ -214,7 +214,7 @@ CommandHandle Parser::expunge()
     return queueCommand(Commands::ATOM, "EXPUNGE");
 }
 
-CommandHandle Parser::_searchHelper(const QString &command, const QStringList &criteria, const QString &charset)
+CommandHandle Parser::searchHelper(const QString &command, const QStringList &criteria, const QString &charset)
 {
     Commands::Command cmd(command);
 
@@ -234,7 +234,7 @@ CommandHandle Parser::uidSearchUid(const QString &sequence)
     return queueCommand(command);
 }
 
-CommandHandle Parser::_sortHelper(const QString &command, const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria)
+CommandHandle Parser::sortHelper(const QString &command, const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria)
 {
     Q_ASSERT(! sortCriteria.isEmpty());
     Commands::Command cmd;
@@ -251,15 +251,15 @@ CommandHandle Parser::_sortHelper(const QString &command, const QStringList &sor
 
 CommandHandle Parser::sort(const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria)
 {
-    return _sortHelper(QLatin1String("SORT"), sortCriteria, charset, searchCriteria);
+    return sortHelper(QLatin1String("SORT"), sortCriteria, charset, searchCriteria);
 }
 
 CommandHandle Parser::uidSort(const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria)
 {
-    return _sortHelper(QLatin1String("UID SORT"), sortCriteria, charset, searchCriteria);
+    return sortHelper(QLatin1String("UID SORT"), sortCriteria, charset, searchCriteria);
 }
 
-CommandHandle Parser::_threadHelper(const QString &command, const QString &algo, const QString &charset, const QStringList &searchCriteria)
+CommandHandle Parser::threadHelper(const QString &command, const QString &algo, const QString &charset, const QStringList &searchCriteria)
 {
     Commands::Command cmd;
 
@@ -273,12 +273,12 @@ CommandHandle Parser::_threadHelper(const QString &command, const QString &algo,
 
 CommandHandle Parser::thread(const QString &algo, const QString &charset, const QStringList &searchCriteria)
 {
-    return _threadHelper(QLatin1String("THREAD"), algo, charset, searchCriteria);
+    return threadHelper(QLatin1String("THREAD"), algo, charset, searchCriteria);
 }
 
 CommandHandle Parser::uidThread(const QString &algo, const QString &charset, const QStringList &searchCriteria)
 {
-    return _threadHelper(QLatin1String("UID THREAD"), algo, charset, searchCriteria);
+    return threadHelper(QLatin1String("UID THREAD"), algo, charset, searchCriteria);
 }
 
 CommandHandle Parser::fetch(const Sequence &seq, const QStringList &items)
@@ -347,23 +347,23 @@ void Parser::idleDone()
     // which would allocate a new tag for us, but submit directly
     Commands::Command cmd;
     cmd << Commands::PartOfCommand(Commands::IDLE_DONE, "DONE");
-    _cmdQueue.append(cmd);
+    cmdQueue.append(cmd);
     QTimer::singleShot(0, this, SLOT(executeCommands()));
 }
 
 void Parser::idleContinuationWontCome()
 {
-    Q_ASSERT(_waitForInitialIdle);
-    _waitForInitialIdle = false;
-    _idling = false;
+    Q_ASSERT(waitForInitialIdle);
+    waitForInitialIdle = false;
+    idling = false;
     QTimer::singleShot(0, this, SLOT(executeCommands()));
 }
 
 void Parser::idleMagicallyTerminatedByServer()
 {
-    Q_ASSERT(! _waitForInitialIdle);
-    Q_ASSERT(_idling);
-    _idling = false;
+    Q_ASSERT(! waitForInitialIdle);
+    Q_ASSERT(idling);
+    idling = false;
 }
 
 CommandHandle Parser::namespaceCommand()
@@ -391,43 +391,43 @@ CommandHandle Parser::queueCommand(Commands::Command command)
 {
     QString tag = generateTag();
     command.addTag(tag);
-    _cmdQueue.append(command);
+    cmdQueue.append(command);
     QTimer::singleShot(0, this, SLOT(executeCommands()));
     return tag;
 }
 
 void Parser::queueResponse(const QSharedPointer<Responses::AbstractResponse> &resp)
 {
-    _respQueue.push_back(resp);
+    respQueue.push_back(resp);
     emit responseReceived(this);
 }
 
 bool Parser::hasResponse() const
 {
-    return ! _respQueue.empty();
+    return ! respQueue.empty();
 }
 
 QSharedPointer<Responses::AbstractResponse> Parser::getResponse()
 {
     QSharedPointer<Responses::AbstractResponse> ptr;
-    if (_respQueue.empty())
+    if (respQueue.empty())
         return ptr;
-    ptr = _respQueue.front();
-    _respQueue.pop_front();
+    ptr = respQueue.front();
+    respQueue.pop_front();
     return ptr;
 }
 
 QString Parser::generateTag()
 {
-    return QString("y%1").arg(_lastTagUsed++);
+    return QString("y%1").arg(m_lastTagUsed++);
 }
 
 void Parser::handleReadyRead()
 {
     while (1) {
-        switch (_readingMode) {
+        switch (readingMode) {
         case ReadingLine:
-            if (_socket->canReadLine()) {
+            if (socket->canReadLine()) {
                 reallyReadLine();
             } else {
                 // Not enough data yet, let's try again later
@@ -436,12 +436,12 @@ void Parser::handleReadyRead()
             break;
         case ReadingNumberOfBytes:
         {
-            QByteArray buf = _socket->read(_readingBytes);
-            _readingBytes -= buf.size();
-            _currentLine += buf;
-            if (_readingBytes == 0) {
+            QByteArray buf = socket->read(readingBytes);
+            readingBytes -= buf.size();
+            currentLine += buf;
+            if (readingBytes == 0) {
                 // we've read the literal
-                _readingMode = ReadingLine;
+                readingMode = ReadingLine;
             } else {
                 return;
             }
@@ -454,33 +454,33 @@ void Parser::handleReadyRead()
 void Parser::reallyReadLine()
 {
     try {
-        _currentLine += _socket->readLine();
-        if (_currentLine.endsWith("}\r\n")) {
-            int offset = _currentLine.lastIndexOf('{');
-            if (offset < _oldLiteralPosition)
-                throw ParseError("Got unmatched '}'", _currentLine, _currentLine.size() - 3);
+        currentLine += socket->readLine();
+        if (currentLine.endsWith("}\r\n")) {
+            int offset = currentLine.lastIndexOf('{');
+            if (offset < oldLiteralPosition)
+                throw ParseError("Got unmatched '}'", currentLine, currentLine.size() - 3);
             bool ok;
-            int number = _currentLine.mid(offset + 1, _currentLine.size() - offset - 4).toInt(&ok);
+            int number = currentLine.mid(offset + 1, currentLine.size() - offset - 4).toInt(&ok);
             if (!ok)
-                throw ParseError("Can't parse numeric literal size", _currentLine, offset);
+                throw ParseError("Can't parse numeric literal size", currentLine, offset);
             if (number < 0)
-                throw ParseError("Negative literal size", _currentLine, offset);
-            _oldLiteralPosition = offset;
-            _readingMode = ReadingNumberOfBytes;
-            _readingBytes = number;
-        } else if (_currentLine.endsWith("\r\n")) {
+                throw ParseError("Negative literal size", currentLine, offset);
+            oldLiteralPosition = offset;
+            readingMode = ReadingNumberOfBytes;
+            readingBytes = number;
+        } else if (currentLine.endsWith("\r\n")) {
             // it's complete
-            if (_startTlsInProgress && _currentLine.startsWith(_startTlsCommand)) {
-                _startTlsCommand.clear();
-                _startTlsReply = _currentLine;
-                _currentLine.clear();
-                _oldLiteralPosition = 0;
+            if (startTlsInProgress && currentLine.startsWith(startTlsCommand)) {
+                startTlsCommand.clear();
+                startTlsReply = currentLine;
+                currentLine.clear();
+                oldLiteralPosition = 0;
                 QTimer::singleShot(0, this, SLOT(finishStartTls()));
                 return;
             }
-            processLine(_currentLine);
-            _currentLine.clear();
-            _oldLiteralPosition = 0;
+            processLine(currentLine);
+            currentLine.clear();
+            oldLiteralPosition = 0;
         } else {
             throw CantHappen("canReadLine() returned true, but following readLine() failed");
         }
@@ -491,9 +491,9 @@ void Parser::reallyReadLine()
 
 void Parser::executeCommands()
 {
-    while (! _waitingForContinuation && ! _waitForInitialIdle &&
-           ! _waitingForConnection &&
-           ! _cmdQueue.isEmpty() && ! _startTlsInProgress)
+    while (! waitingForContinuation && ! waitForInitialIdle &&
+           ! waitingForConnection &&
+           ! cmdQueue.isEmpty() && ! startTlsInProgress)
         executeACommand();
 }
 
@@ -503,20 +503,20 @@ void Parser::finishStartTls()
 #ifdef PRINT_TRAFFIC_TX
     qDebug() << _parserId << "*** STARTTLS";
 #endif
-    _cmdQueue.pop_front();
-    _socket->startTls(); // warn: this might invoke event loop
-    _startTlsInProgress = false;
-    processLine(_startTlsReply);
+    cmdQueue.pop_front();
+    socket->startTls(); // warn: this might invoke event loop
+    startTlsInProgress = false;
+    processLine(startTlsReply);
 }
 
 void Parser::executeACommand()
 {
-    Q_ASSERT(! _cmdQueue.isEmpty());
-    Commands::Command &cmd = _cmdQueue.first();
+    Q_ASSERT(! cmdQueue.isEmpty());
+    Commands::Command &cmd = cmdQueue.first();
 
     QByteArray buf;
 
-    bool sensitiveCommand = (cmd._cmds.size() > 2 && cmd._cmds[1]._text == QLatin1String("LOGIN"));
+    bool sensitiveCommand = (cmd.cmds.size() > 2 && cmd.cmds[1].text == QLatin1String("LOGIN"));
     QByteArray privateMessage = sensitiveCommand ? QByteArray("[LOGIN command goes here]") : QByteArray();
 
 #ifdef PRINT_TRAFFIC_TX
@@ -528,36 +528,36 @@ void Parser::executeACommand()
 #endif
 
 
-    if (cmd._cmds[ cmd._currentPart ]._kind == Commands::ATOM)
-        emit sendingCommand(this, cmd._cmds[ cmd._currentPart ]._text);
+    if (cmd.cmds[ cmd.currentPart ].kind == Commands::ATOM)
+        emit sendingCommand(this, cmd.cmds[ cmd.currentPart ].text);
 
-    if (cmd._cmds[ cmd._currentPart ]._kind == Commands::IDLE_DONE) {
+    if (cmd.cmds[ cmd.currentPart ].kind == Commands::IDLE_DONE) {
         // Handling of the IDLE_DONE is a bit special, as we have to check and update the _idling flag...
-        Q_ASSERT(_idling);
+        Q_ASSERT(idling);
         buf.append("DONE\r\n");
 #ifdef PRINT_TRAFFIC_TX
         qDebug() << _parserId << ">>>" << buf.left(PRINT_TRAFFIC_TX).trimmed();
 #endif
-        _socket->write(buf);
-        _idling = false;
-        _cmdQueue.pop_front();
+        socket->write(buf);
+        idling = false;
+        cmdQueue.pop_front();
         emit lineSent(this, buf);
         buf.clear();
         return;
     }
 
-    Q_ASSERT(! _idling);
+    Q_ASSERT(! idling);
 
     while (1) {
-        Commands::PartOfCommand &part = cmd._cmds[ cmd._currentPart ];
-        switch (part._kind) {
+        Commands::PartOfCommand &part = cmd.cmds[ cmd.currentPart ];
+        switch (part.kind) {
         case Commands::ATOM:
         case Commands::ATOM_NO_SPACE_AROUND:
-            buf.append(part._text);
+            buf.append(part.text);
             break;
         case Commands::QUOTED_STRING:
         {
-            QString item = part._text;
+            QString item = part.text;
             item.replace(QChar('\\'), QString::fromAscii("\\\\"));
             buf.append('"');
             buf.append(item);
@@ -565,16 +565,16 @@ void Parser::executeACommand()
         }
         break;
         case Commands::LITERAL:
-            if (_literalPlus) {
+            if (literalPlus) {
                 buf.append('{');
-                buf.append(QByteArray::number(part._text.size()));
+                buf.append(QByteArray::number(part.text.size()));
                 buf.append("+}\r\n");
-                buf.append(part._text);
-            } else if (part._numberSent) {
-                buf.append(part._text);
+                buf.append(part.text);
+            } else if (part.numberSent) {
+                buf.append(part.text);
             } else {
                 buf.append('{');
-                buf.append(QByteArray::number(part._text.size()));
+                buf.append(QByteArray::number(part.text.size()));
                 buf.append("}\r\n");
 #ifdef PRINT_TRAFFIC_TX
                 if (printThisCommand)
@@ -582,9 +582,9 @@ void Parser::executeACommand()
                 else
                     qDebug() << _parserId << ">>> [sensitive command] -- added literal";
 #endif
-                _socket->write(buf);
-                part._numberSent = true;
-                _waitingForContinuation = true;
+                socket->write(buf);
+                part.numberSent = true;
+                waitingForContinuation = true;
                 emit lineSent(this, sensitiveCommand ? privateMessage : buf);
                 return; // and wait for continuation request
             }
@@ -597,26 +597,26 @@ void Parser::executeACommand()
 #ifdef PRINT_TRAFFIC_TX
             qDebug() << _parserId << ">>>" << buf.left(PRINT_TRAFFIC_TX).trimmed();
 #endif
-            _socket->write(buf);
-            _idling = true;
-            _waitForInitialIdle = true;
-            _cmdQueue.pop_front();
+            socket->write(buf);
+            idling = true;
+            waitForInitialIdle = true;
+            cmdQueue.pop_front();
             emit lineSent(this, buf);
             return;
             break;
         case Commands::STARTTLS:
-            _startTlsCommand = buf;
+            startTlsCommand = buf;
             buf.append("STARTTLS\r\n");
 #ifdef PRINT_TRAFFIC_TX
             qDebug() << _parserId << ">>>" << buf.left(PRINT_TRAFFIC_TX).trimmed();
 #endif
-            _socket->write(buf);
-            _startTlsInProgress = true;
+            socket->write(buf);
+            startTlsInProgress = true;
             emit lineSent(this, buf);
             return;
             break;
         }
-        if (cmd._currentPart == cmd._cmds.size() - 1) {
+        if (cmd.currentPart == cmd.cmds.size() - 1) {
             // finalize
             buf.append("\r\n");
 #ifdef PRINT_TRAFFIC_TX
@@ -625,17 +625,17 @@ void Parser::executeACommand()
             else
                 qDebug() << _parserId << ">>> [sensitive command]";
 #endif
-            _socket->write(buf);
-            _cmdQueue.pop_front();
+            socket->write(buf);
+            cmdQueue.pop_front();
             emit lineSent(this, sensitiveCommand ? privateMessage : buf);
             break;
         } else {
-            if (part._kind == Commands::ATOM_NO_SPACE_AROUND || cmd._cmds[cmd._currentPart + 1]._kind == Commands::ATOM_NO_SPACE_AROUND) {
+            if (part.kind == Commands::ATOM_NO_SPACE_AROUND || cmd.cmds[cmd.currentPart + 1].kind == Commands::ATOM_NO_SPACE_AROUND) {
                 // Skip the extra space if asked to do so
             } else {
                 buf.append(' ');
             }
-            ++cmd._currentPart;
+            ++cmd.currentPart;
         }
     }
 }
@@ -654,11 +654,11 @@ void Parser::processLine(QByteArray line)
     if (line.startsWith("* ")) {
         queueResponse(parseUntagged(line));
     } else if (line.startsWith("+ ")) {
-        if (_waitingForContinuation) {
-            _waitingForContinuation = false;
+        if (waitingForContinuation) {
+            waitingForContinuation = false;
             QTimer::singleShot(0, this, SLOT(executeCommands()));
-        } else if (_waitForInitialIdle) {
-            _waitForInitialIdle = false;
+        } else if (waitForInitialIdle) {
+            waitForInitialIdle = false;
             QTimer::singleShot(0, this, SLOT(executeCommands()));
         } else {
             throw ContinuationRequest(line.constData());
@@ -810,7 +810,7 @@ QSharedPointer<Responses::AbstractResponse> Parser::parseTagged(const QByteArray
 
 void Parser::enableLiteralPlus(const bool enabled)
 {
-    _literalPlus = enabled;
+    literalPlus = enabled;
 }
 
 void Parser::handleDisconnected(const QString &reason)
@@ -827,13 +827,13 @@ Parser::~Parser()
     // We want to prevent nasty signals from the underlying socket from
     // interfering with this object -- some of our local data might have
     // been already destroyed!
-    _socket->disconnect(this);
-    _socket->deleteLater();
+    socket->disconnect(this);
+    socket->deleteLater();
 }
 
 uint Parser::parserId() const
 {
-    return _parserId;
+    return m_parserId;
 }
 
 void Parser::slotSocketStateChanged(const Imap::ConnectionState connState, const QString &message)
@@ -843,45 +843,45 @@ void Parser::slotSocketStateChanged(const Imap::ConnectionState connState, const
         qDebug() << _parserId << "*** Connection established";
 #endif
         emit lineReceived(this, "*** Connection established");
-        _waitingForConnection = false;
+        waitingForConnection = false;
         QTimer::singleShot(0, this, SLOT(executeCommands()));
     }
     emit lineReceived(this, "*** " + message.toLocal8Bit());
     emit connectionStateChanged(this, connState);
 }
 
-Sequence::Sequence(const uint num): _kind(DISTINCT)
+Sequence::Sequence(const uint num): kind(DISTINCT)
 {
-    _list << num;
+    list << num;
 }
 
 Sequence Sequence::startingAt(const uint lo)
 {
     Sequence res(lo);
-    res._lo = lo;
-    res._kind = UNLIMITED;
+    res.lo = lo;
+    res.kind = UNLIMITED;
     return res;
 }
 
 QString Sequence::toString() const
 {
-    switch (_kind) {
+    switch (kind) {
     case DISTINCT:
     {
-        Q_ASSERT(! _list.isEmpty());
+        Q_ASSERT(! list.isEmpty());
 
         QStringList res;
         int i = 0;
-        while (i < _list.size()) {
+        while (i < list.size()) {
             int old = i;
-            while (i < _list.size() - 1 &&
-                   _list[i] == _list[ i + 1 ] - 1)
+            while (i < list.size() - 1 &&
+                   list[i] == list[ i + 1 ] - 1)
                 ++i;
             if (old != i) {
                 // we've found a sequence
-                res << QString::number(_list[old]) + QLatin1Char(':') + QString::number(_list[i]);
+                res << QString::number(list[old]) + QLatin1Char(':') + QString::number(list[i]);
             } else {
-                res << QString::number(_list[i]);
+                res << QString::number(list[i]);
             }
             ++i;
         }
@@ -889,13 +889,13 @@ QString Sequence::toString() const
         break;
     }
     case RANGE:
-        Q_ASSERT(_lo <= _hi);
-        if (_lo == _hi)
-            return QString::number(_lo);
+        Q_ASSERT(lo <= hi);
+        if (lo == hi)
+            return QString::number(lo);
         else
-            return QString::number(_lo) + QLatin1Char(':') + QString::number(_hi);
+            return QString::number(lo) + QLatin1Char(':') + QString::number(hi);
     case UNLIMITED:
-        return QString::number(_lo) + QLatin1String(":*");
+        return QString::number(lo) + QLatin1String(":*");
     }
     // fix gcc warning
     Q_ASSERT(false);
@@ -904,10 +904,10 @@ QString Sequence::toString() const
 
 Sequence &Sequence::add(uint num)
 {
-    Q_ASSERT(_kind == DISTINCT);
-    QList<uint>::iterator it = qLowerBound(_list.begin(), _list.end(), num);
-    if (it == _list.end() || *it != num)
-        _list.insert(it, num);
+    Q_ASSERT(kind == DISTINCT);
+    QList<uint>::iterator it = qLowerBound(list.begin(), list.end(), num);
+    if (it == list.end() || *it != num)
+        list.insert(it, num);
     return *this;
 }
 
