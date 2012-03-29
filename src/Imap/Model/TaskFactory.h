@@ -59,37 +59,37 @@ class TaskFactory
 public:
     virtual ~TaskFactory();
 
-    virtual CopyMoveMessagesTask *createCopyMoveMessagesTask(Model *_model, const QModelIndexList &_messages,
-            const QString &_targetMailbox, const CopyMoveOperation _op);
-    virtual CreateMailboxTask *createCreateMailboxTask(Model *_model, const QString &_mailbox);
-    virtual DeleteMailboxTask *createDeleteMailboxTask(Model *_model, const QString &_mailbox);
-    virtual ExpungeMailboxTask *createExpungeMailboxTask(Model *_model, const QModelIndex &mailbox);
-    virtual FetchMsgMetadataTask *createFetchMsgMetadataTask(Model *_model, const QModelIndex &_mailbox, const QList<uint> &_uid);
-    virtual FetchMsgPartTask *createFetchMsgPartTask(Model *_model, const QModelIndex &mailbox, const QList<uint> &uids, const QStringList &parts);
-    virtual GetAnyConnectionTask *createGetAnyConnectionTask(Model *_model);
-    virtual IdTask *createIdTask(Model *_model, ImapTask *dependingTask);
-    virtual KeepMailboxOpenTask *createKeepMailboxOpenTask(Model *_model, const QModelIndex &mailbox, Parser *oldParser);
-    virtual ListChildMailboxesTask *createListChildMailboxesTask(Model *_model, const QModelIndex &mailbox);
-    virtual NumberOfMessagesTask *createNumberOfMessagesTask(Model *_model, const QModelIndex &mailbox);
-    virtual ObtainSynchronizedMailboxTask *createObtainSynchronizedMailboxTask(Model *_model, const QModelIndex &_mailboxIndex,
+    virtual CopyMoveMessagesTask *createCopyMoveMessagesTask(Model *model, const QModelIndexList &messages,
+            const QString &targetMailbox, const CopyMoveOperation _op);
+    virtual CreateMailboxTask *createCreateMailboxTask(Model *model, const QString &mailbox);
+    virtual DeleteMailboxTask *createDeleteMailboxTask(Model *model, const QString &mailbox);
+    virtual ExpungeMailboxTask *createExpungeMailboxTask(Model *model, const QModelIndex &mailbox);
+    virtual FetchMsgMetadataTask *createFetchMsgMetadataTask(Model *model, const QModelIndex &mailbox, const QList<uint> &uid);
+    virtual FetchMsgPartTask *createFetchMsgPartTask(Model *model, const QModelIndex &mailbox, const QList<uint> &uids, const QStringList &parts);
+    virtual GetAnyConnectionTask *createGetAnyConnectionTask(Model *model);
+    virtual IdTask *createIdTask(Model *model, ImapTask *dependingTask);
+    virtual KeepMailboxOpenTask *createKeepMailboxOpenTask(Model *model, const QModelIndex &mailbox, Parser *oldParser);
+    virtual ListChildMailboxesTask *createListChildMailboxesTask(Model *model, const QModelIndex &mailbox);
+    virtual NumberOfMessagesTask *createNumberOfMessagesTask(Model *model, const QModelIndex &mailbox);
+    virtual ObtainSynchronizedMailboxTask *createObtainSynchronizedMailboxTask(Model *model, const QModelIndex &mailboxIndex,
             ImapTask *parentTask, KeepMailboxOpenTask *keepTask);
-    virtual OpenConnectionTask *createOpenConnectionTask(Model *_model);
+    virtual OpenConnectionTask *createOpenConnectionTask(Model *model);
     virtual UpdateFlagsTask *createUpdateFlagsTask(Model *model, const QModelIndexList &messages, const FlagsOperation flagOperation,
             const QString &flags);
     virtual UpdateFlagsTask *createUpdateFlagsTask(Model *model, CopyMoveMessagesTask *copyTask,
             const QList<QPersistentModelIndex> &messages, const FlagsOperation flagOperation,
-            const QString &_flags);
-    virtual ThreadTask *createThreadTask(Model *_model, const QModelIndex &mailbox, const QString &_algorithm, const QStringList &_searchCriteria);
-    virtual NoopTask *createNoopTask(Model *_model, ImapTask *parentTask);
-    virtual UnSelectTask *createUnSelectTask(Model *_model, ImapTask *parentTask);
+            const QString &flags);
+    virtual ThreadTask *createThreadTask(Model *model, const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria);
+    virtual NoopTask *createNoopTask(Model *model, ImapTask *parentTask);
+    virtual UnSelectTask *createUnSelectTask(Model *model, ImapTask *parentTask);
 };
 
 class TestingTaskFactory: public TaskFactory
 {
 public:
     TestingTaskFactory();
-    virtual OpenConnectionTask *createOpenConnectionTask(Model *_model);
-    virtual ListChildMailboxesTask *createListChildMailboxesTask(Model *_model, const QModelIndex &mailbox);
+    virtual OpenConnectionTask *createOpenConnectionTask(Model *model);
+    virtual ListChildMailboxesTask *createListChildMailboxesTask(Model *model, const QModelIndex &mailbox);
     bool fakeOpenConnectionTask;
     bool fakeListChildMailboxes;
     QMap<QString,QStringList> fakeListChildMailboxesMap;
