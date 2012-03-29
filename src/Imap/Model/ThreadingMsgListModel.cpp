@@ -264,7 +264,7 @@ QModelIndex ThreadingMsgListModel::mapFromSource(const QModelIndex &sourceIndex)
 
     QHash<uint,ThreadNodeInfo>::const_iterator parentNode = threading.constFind(node->parent);
     // If the following assert fails, it means that we've managed to get a malformed thread mapping -- a tree item references
-    // a non-existing item as a parent.  Remember, we're checking the _threading QHash, not the ptrToInternal one.
+    // a non-existing item as a parent.  Remember, we're checking the threading QHash, not the ptrToInternal one.
     Q_ASSERT(parentNode != threading.constEnd());
     int offset = parentNode->children.indexOf(internalId);
     Q_ASSERT(offset != -1);
@@ -767,7 +767,7 @@ void ThreadingMsgListModel::updatePersistentIndexesPhase1()
     oldPersistentIndexes = persistentIndexList();
     oldPtrs.clear();
     Q_FOREACH(const QModelIndex &idx, oldPersistentIndexes) {
-        // the index could get invalidated by the pruneTree() or something else manipulating our _threading
+        // the index could get invalidated by the pruneTree() or something else manipulating our threading
         bool isOk = idx.isValid() && threading.contains(idx.internalId());
         if (!isOk) {
             oldPtrs << 0;
