@@ -89,7 +89,7 @@ void MessageView::setEmpty()
     markAsReadTimer->stop();
     header->setText(QString());
     message = QModelIndex();
-    disconnect(this, SLOT(handleDataChanged()));
+    disconnect(this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
     tags->hide();
     if (viewer != emptyView) {
         layout->removeWidget(viewer);
