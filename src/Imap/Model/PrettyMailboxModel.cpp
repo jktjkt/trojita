@@ -34,25 +34,25 @@ namespace Imap {
 
 namespace Mailbox {
 
-PrettyMailboxModel::PrettyMailboxModel( QObject* parent, MailboxModel* mailboxModel ):
-        QSortFilterProxyModel( parent )
+PrettyMailboxModel::PrettyMailboxModel(QObject *parent, MailboxModel *mailboxModel):
+        QSortFilterProxyModel(parent)
 {
     setDynamicSortFilter(true);
     setSourceModel(mailboxModel);
 }
 
-QVariant PrettyMailboxModel::data( const QModelIndex& index, int role ) const
+QVariant PrettyMailboxModel::data(const QModelIndex &index, int role) const
 {
-    if ( ! index.isValid() )
+    if (!index.isValid())
         return QVariant();
 
-    if ( index.column() != 0 )
+    if (index.column() != 0)
         return QVariant();
 
-    if ( index.row() < 0 || index.row() >= rowCount( index.parent() ) || index.model() != this )
+    if (index.row() < 0 || index.row() >= rowCount(index.parent()) || index.model() != this)
         return QVariant();
 
-    switch ( role ) {
+    switch (role) {
     case Qt::DisplayRole:
     {
         QModelIndex translated = mapToSource(index);
@@ -68,7 +68,7 @@ QVariant PrettyMailboxModel::data( const QModelIndex& index, int role ) const
     {
         QModelIndex translated = mapToSource(index);
         if ( translated.data(RoleMailboxNumbersFetched).toBool() &&
-             translated.data(RoleUnreadMessageCount).toULongLong() > 0 ) {
+             translated.data(RoleUnreadMessageCount).toULongLong() > 0) {
             QFont font;
             font.setBold(true);
             return font;
@@ -79,11 +79,11 @@ QVariant PrettyMailboxModel::data( const QModelIndex& index, int role ) const
     case Qt::DecorationRole:
     {
         QModelIndex translated = mapToSource(index);
-        if (translated.data( RoleMailboxItemsAreLoading).toBool() )
+        if (translated.data(RoleMailboxItemsAreLoading).toBool())
             return Gui::loadIcon(QLatin1String("folder-grey"));
 #ifdef XTUPLE_CONNECT
         else if (QSettings().value(Common::SettingsNames::xtSyncMailboxList).toStringList().contains(
-                      translated.data(RoleMailboxName ).toString()) )
+                      translated.data(RoleMailboxName ).toString()))
             return Gui::loadIcon(QLatin1String("folder-xt-sync.png"));
 #endif
         else if (translated.data( RoleMailboxIsINBOX).toBool())
@@ -107,13 +107,13 @@ QVariant PrettyMailboxModel::data( const QModelIndex& index, int role ) const
     }
 }
 
-bool PrettyMailboxModel::filterAcceptsColumn( int source_column, const QModelIndex& source_parent ) const
+bool PrettyMailboxModel::filterAcceptsColumn(int source_column, const QModelIndex& source_parent) const
 {
     Q_UNUSED(source_parent);
     return source_column == 0;
 }
 
-bool PrettyMailboxModel::hasChildren(const QModelIndex& parent) const
+bool PrettyMailboxModel::hasChildren(const QModelIndex &parent) const
 {
     return dynamic_cast<const MailboxModel*>(sourceModel())->hasChildren(mapToSource(parent));
 }
