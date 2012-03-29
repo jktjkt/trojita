@@ -59,7 +59,7 @@ public:
     virtual SyncState mailboxSyncState(const QString &mailbox) const;
     virtual void setMailboxSyncState(const QString &mailbox, const SyncState &state);
 
-    virtual void setUidMapping(const QString &mailbox, const QList<uint> &seqToUid);
+    virtual void setUidMapping(const QString &mailbox, const QList<uint> &mapping);
     virtual void clearUidMapping(const QString &mailbox);
     virtual QList<uint> uidMapping(const QString &mailbox) const;
 
@@ -70,7 +70,7 @@ public:
     virtual void setMessageMetadata(const QString &mailbox, uint uid, const MessageDataBundle &metadata);
 
     virtual QStringList msgFlags(const QString &mailbox, uint uid) const;
-    virtual void setMsgFlags(const QString &mailbox, uint uid, const QStringList &flags);
+    virtual void setMsgFlags(const QString &mailbox, uint uid, const QStringList &newFlags);
 
     virtual QByteArray messagePart(const QString &mailbox, uint uid, const QString &partId) const;
     virtual void setMsgPart(const QString &mailbox, uint uid, const QString &partId, const QByteArray &data);
@@ -82,16 +82,16 @@ private:
     bool loadData();
     bool saveData() const;
 
-    QMap<QString, QList<MailboxMetadata> > _mailboxes;
-    QMap<QString, SyncState> _syncState;
-    QMap<QString, QList<uint> > _seqToUid;
-    QMap<QString, QMap<uint,QStringList> > _flags;
-    QMap<QString, QMap<uint, LightMessageDataBundle> > _msgMetadata;
-    QMap<QString, QMap<uint, QMap<QString, QByteArray> > > _parts;
-    QMap<QString, QVector<Imap::Responses::ThreadingNode> > _threads;
+    QMap<QString, QList<MailboxMetadata> > mailboxes;
+    QMap<QString, SyncState> syncState;
+    QMap<QString, QList<uint> > seqToUid;
+    QMap<QString, QMap<uint,QStringList> > flags;
+    QMap<QString, QMap<uint, LightMessageDataBundle> > msgMetadata;
+    QMap<QString, QMap<uint, QMap<QString, QByteArray> > > parts;
+    QMap<QString, QVector<Imap::Responses::ThreadingNode> > threads;
 
 
-    QString _fileName;
+    QString fileName;
 };
 
 }

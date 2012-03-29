@@ -112,7 +112,7 @@ bool SQLCache::open(const QString &name, const QString &fileName)
 
     QSqlRecord trojitaNames = db.record(QLatin1String("trojita"));
     if (! trojitaNames.contains(QLatin1String("version"))) {
-        if (! _createTables())
+        if (! createTables())
             return false;
     }
 
@@ -159,7 +159,7 @@ bool SQLCache::open(const QString &name, const QString &fileName)
 
     txn.commit();
 
-    if (! _prepareQueries()) {
+    if (! prepareQueries()) {
         return false;
     }
     init();
@@ -169,7 +169,7 @@ bool SQLCache::open(const QString &name, const QString &fileName)
     return true;
 }
 
-bool SQLCache::_createTables()
+bool SQLCache::createTables()
 {
     QSqlQuery q(QString(), db);
 
@@ -235,7 +235,7 @@ bool SQLCache::_createTables()
     return true;
 }
 
-bool SQLCache::_prepareQueries()
+bool SQLCache::prepareQueries()
 {
     queryChildMailboxes = QSqlQuery(db);
     if (! queryChildMailboxes.prepare("SELECT mailbox, separator, flags FROM child_mailboxes WHERE parent = ?")) {

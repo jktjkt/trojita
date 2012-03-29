@@ -103,9 +103,9 @@ private:
     void emitError(const QString &message) const;
 
     /** @short Blindly create all tables */
-    bool _createTables();
+    bool createTables();
     /** @short Initialize the prepared queries */
-    bool _prepareQueries();
+    bool prepareQueries();
 
     /** @short We're about to touch the DB, so it might be a good time to start a transaction */
     void touchingDB();

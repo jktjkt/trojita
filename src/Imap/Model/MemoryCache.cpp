@@ -30,7 +30,7 @@ namespace Imap
 namespace Mailbox
 {
 
-MemoryCache::MemoryCache(QObject *parent, const QString &fileName): AbstractCache(parent), _fileName(fileName)
+MemoryCache::MemoryCache(QObject *parent, const QString &fileName): AbstractCache(parent), fileName(fileName)
 {
     loadData();
 }
@@ -42,12 +42,12 @@ MemoryCache::~MemoryCache()
 
 QList<MailboxMetadata> MemoryCache::childMailboxes(const QString &mailbox) const
 {
-    return _mailboxes[ mailbox ];
+    return mailboxes[ mailbox ];
 }
 
 bool MemoryCache::childMailboxesFresh(const QString &mailbox) const
 {
-    return _mailboxes.contains(mailbox);
+    return mailboxes.contains(mailbox);
 }
 
 void MemoryCache::setChildMailboxes(const QString &mailbox, const QList<MailboxMetadata> &data)
@@ -55,18 +55,18 @@ void MemoryCache::setChildMailboxes(const QString &mailbox, const QList<MailboxM
 #ifdef CACHE_DEBUG
     qDebug() << "setting child mailboxes for" << mailbox << "to" << data;
 #endif
-    _mailboxes[ mailbox ] = data;
+    mailboxes[ mailbox ] = data;
 }
 
 void MemoryCache::forgetChildMailboxes(const QString &mailbox)
 {
-    for (QMap<QString,QList<MailboxMetadata> >::iterator it = _mailboxes.begin();
-         it != _mailboxes.end(); /* do nothing */) {
+    for (QMap<QString,QList<MailboxMetadata> >::iterator it = mailboxes.begin();
+         it != mailboxes.end(); /* do nothing */) {
         if (it.key().startsWith(mailbox)) {
 #ifdef CACHE_DEBUG
             qDebug() << "forgetting about mailbox" << it.key();
 #endif
-            it = _mailboxes.erase(it);
+            it = mailboxes.erase(it);
         } else {
             ++it;
         }
@@ -75,7 +75,7 @@ void MemoryCache::forgetChildMailboxes(const QString &mailbox)
 
 SyncState MemoryCache::mailboxSyncState(const QString &mailbox) const
 {
-    return _syncState[ mailbox ];
+    return syncState[ mailbox ];
 }
 
 void MemoryCache::setMailboxSyncState(const QString &mailbox, const SyncState &state)
@@ -83,15 +83,15 @@ void MemoryCache::setMailboxSyncState(const QString &mailbox, const SyncState &s
 #ifdef CACHE_DEBUG
     qDebug() << "setting mailbox sync state of" << mailbox << "to" << state;
 #endif
-    _syncState[ mailbox ] = state;
+    syncState[ mailbox ] = state;
 }
 
-void MemoryCache::setUidMapping(const QString &mailbox, const QList<uint> &seqToUid)
+void MemoryCache::setUidMapping(const QString &mailbox, const QList<uint> &mapping)
 {
 #ifdef CACHE_DEBUG
-    qDebug() << "saving UID mapping for" << mailbox << "to" << seqToUid;
+    qDebug() << "saving UID mapping for" << mailbox << "to" << mapping;
 #endif
-    _seqToUid[ mailbox ] = seqToUid;
+    seqToUid[ mailbox ] = mapping;
 }
 
 void MemoryCache::clearUidMapping(const QString &mailbox)
@@ -99,7 +99,7 @@ void MemoryCache::clearUidMapping(const QString &mailbox)
 #ifdef CACHE_DEBUG
     qDebug() << "clearing UID mapping for" << mailbox;
 #endif
-    _seqToUid.remove(mailbox);
+    seqToUid.remove(mailbox);
 }
 
 void MemoryCache::clearAllMessages(const QString &mailbox)
@@ -107,9 +107,9 @@ void MemoryCache::clearAllMessages(const QString &mailbox)
 #ifdef CACHE_DEBUG
     qDebug() << "pruging all info for mailbox" << mailbox;
 #endif
-    _flags.remove(mailbox);
-    _msgMetadata.remove(mailbox);
-    _parts.remove(mailbox);
+    flags.remove(mailbox);
+    msgMetadata.remove(mailbox);
+    parts.remove(mailbox);
 }
 
 void MemoryCache::clearMessage(const QString mailbox, uint uid)
@@ -117,12 +117,12 @@ void MemoryCache::clearMessage(const QString mailbox, uint uid)
 #ifdef CACHE_DEBUG
     qDebug() << "pruging all info for message" << mailbox << uid;
 #endif
-    if (_flags.contains(mailbox))
-        _flags[ mailbox ].remove(uid);
-    if (_msgMetadata.contains(mailbox))
-        _msgMetadata[ mailbox ].remove(uid);
-    if (_parts.contains(mailbox))
-        _parts[ mailbox ].remove(uid);
+    if (flags.contains(mailbox))
+        flags[ mailbox ].remove(uid);
+    if (msgMetadata.contains(mailbox))
+        msgMetadata[ mailbox ].remove(uid);
+    if (parts.contains(mailbox))
+        parts[ mailbox ].remove(uid);
 }
 
 void MemoryCache::setMsgPart(const QString &mailbox, uint uid, const QString &partId, const QByteArray &data)
@@ -130,25 +130,25 @@ void MemoryCache::setMsgPart(const QString &mailbox, uint uid, const QString &pa
 #ifdef CACHE_DEBUG
     qDebug() << "set message part" << mailbox << uid << partId << data.size();
 #endif
-    _parts[ mailbox ][ uid ][ partId ] = data;
+    parts[ mailbox ][ uid ][ partId ] = data;
 }
 
-void MemoryCache::setMsgFlags(const QString &mailbox, uint uid, const QStringList &flags)
+void MemoryCache::setMsgFlags(const QString &mailbox, uint uid, const QStringList &newFlags)
 {
 #ifdef CACHE_DEBUG
-    qDebug() << "set FLAGS for" << mailbox << uid << flags;
+    qDebug() << "set FLAGS for" << mailbox << uid << newFlags;
 #endif
-    _flags[mailbox][uid] = flags;
+    flags[mailbox][uid] = newFlags;
 }
 
 QStringList MemoryCache::msgFlags(const QString &mailbox, uint uid) const
 {
-    return _flags[mailbox][uid];
+    return flags[mailbox][uid];
 }
 
 QList<uint> MemoryCache::uidMapping(const QString &mailbox) const
 {
-    return _seqToUid[ mailbox ];
+    return seqToUid[ mailbox ];
 }
 
 void MemoryCache::setMessageMetadata(const QString &mailbox, uint uid, const MessageDataBundle &metadata)
@@ -157,13 +157,13 @@ void MemoryCache::setMessageMetadata(const QString &mailbox, uint uid, const Mes
     tmp.envelope = metadata.envelope;
     tmp.serializedBodyStructure = metadata.serializedBodyStructure;
     tmp.size = metadata.size;
-    _msgMetadata[ mailbox ][ uid ] = tmp;
+    msgMetadata[ mailbox ][ uid ] = tmp;
 }
 
 MemoryCache::MessageDataBundle MemoryCache::messageMetadata(const QString &mailbox, uint uid) const
 {
     MessageDataBundle res;
-    const QMap<uint, LightMessageDataBundle> &firstLevel = _msgMetadata[ mailbox ];
+    const QMap<uint, LightMessageDataBundle> &firstLevel = msgMetadata[ mailbox ];
     QMap<uint, LightMessageDataBundle>::const_iterator it = firstLevel.find(uid);
     if (it == firstLevel.end()) {
         res.uid = 0;
@@ -178,9 +178,9 @@ MemoryCache::MessageDataBundle MemoryCache::messageMetadata(const QString &mailb
 
 QByteArray MemoryCache::messagePart(const QString &mailbox, uint uid, const QString &partId) const
 {
-    if (! _parts.contains(mailbox))
+    if (! parts.contains(mailbox))
         return QByteArray();
-    const QMap<uint, QMap<QString, QByteArray> > &mailboxParts = _parts[ mailbox ];
+    const QMap<uint, QMap<QString, QByteArray> > &mailboxParts = parts[ mailbox ];
     if (! mailboxParts.contains(uid))
         return QByteArray();
     const QMap<QString, QByteArray> &messageParts = mailboxParts[ uid ];
@@ -191,22 +191,22 @@ QByteArray MemoryCache::messagePart(const QString &mailbox, uint uid, const QStr
 
 QVector<Imap::Responses::ThreadingNode> MemoryCache::messageThreading(const QString &mailbox)
 {
-    return _threads[mailbox];
+    return threads[mailbox];
 }
 
 void MemoryCache::setMessageThreading(const QString &mailbox, const QVector<Imap::Responses::ThreadingNode> &threading)
 {
-    _threads[mailbox] = threading;
+    threads[mailbox] = threading;
 }
 
 bool MemoryCache::loadData()
 {
-    if (! _fileName.isEmpty()) {
-        QFile file(_fileName);
+    if (! fileName.isEmpty()) {
+        QFile file(fileName);
         if (! file.open(QIODevice::ReadOnly))
             return false;
         QDataStream stream(&file);
-        stream >> _mailboxes >> _syncState >> _seqToUid >> _flags >> _msgMetadata >> _parts >> _threads;
+        stream >> mailboxes >> syncState >> seqToUid >> flags >> msgMetadata >> parts >> threads;
         file.close();
         return true;
     }
@@ -215,12 +215,12 @@ bool MemoryCache::loadData()
 
 bool MemoryCache::saveData() const
 {
-    if (! _fileName.isEmpty()) {
-        QFile file(_fileName);
+    if (! fileName.isEmpty()) {
+        QFile file(fileName);
         if (! file.open(QIODevice::WriteOnly))
             return false;
         QDataStream stream(&file);
-        stream << _mailboxes << _syncState << _seqToUid << _flags << _msgMetadata << _parts << _threads;
+        stream << mailboxes << syncState << seqToUid << flags << msgMetadata << parts << threads;
         file.close();
         return true;
     }
