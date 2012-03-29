@@ -357,11 +357,11 @@ private:
     QSharedPointer<Responses::AbstractResponse> parseTagged(const QByteArray &line);
 
     /** @short helper for parseUntagged() */
-    QSharedPointer<Responses::AbstractResponse> _parseUntaggedNumber(
+    QSharedPointer<Responses::AbstractResponse> parseUntaggedNumber(
         const QByteArray &line, int &start, const uint number);
 
     /** @short helper for parseUntagged() */
-    QSharedPointer<Responses::AbstractResponse> _parseUntaggedText(
+    QSharedPointer<Responses::AbstractResponse> parseUntaggedText(
         const QByteArray &line, int &start);
 
     /** @short Add parsed response to the internal queue, emit notification signal */

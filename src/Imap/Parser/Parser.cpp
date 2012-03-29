@@ -532,7 +532,7 @@ void Parser::executeACommand()
         emit sendingCommand(this, cmd.cmds[ cmd.currentPart ].text);
 
     if (cmd.cmds[ cmd.currentPart ].kind == Commands::IDLE_DONE) {
-        // Handling of the IDLE_DONE is a bit special, as we have to check and update the _idling flag...
+        // Handling of the IDLE_DONE is a bit special, as we have to check and update the idling flag...
         Q_ASSERT(idling);
         buf.append("DONE\r\n");
 #ifdef PRINT_TRAFFIC_TX
@@ -676,12 +676,12 @@ QSharedPointer<Responses::AbstractResponse> Parser::parseUntagged(const QByteArr
         number = LowLevelParser::getUInt(line, pos);
         ++pos;
     } catch (ParseError &) {
-        return _parseUntaggedText(line, pos);
+        return parseUntaggedText(line, pos);
     }
-    return _parseUntaggedNumber(line, pos, number);
+    return parseUntaggedNumber(line, pos, number);
 }
 
-QSharedPointer<Responses::AbstractResponse> Parser::_parseUntaggedNumber(
+QSharedPointer<Responses::AbstractResponse> Parser::parseUntaggedNumber(
     const QByteArray &line, int &start, const uint number)
 {
     if (start == line.size())
@@ -725,7 +725,7 @@ QSharedPointer<Responses::AbstractResponse> Parser::_parseUntaggedNumber(
     throw UnexpectedHere(line, start);
 }
 
-QSharedPointer<Responses::AbstractResponse> Parser::_parseUntaggedText(
+QSharedPointer<Responses::AbstractResponse> Parser::parseUntaggedText(
     const QByteArray &line, int &start)
 {
     Responses::Kind kind;
