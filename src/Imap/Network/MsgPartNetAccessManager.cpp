@@ -40,9 +40,9 @@ MsgPartNetAccessManager::MsgPartNetAccessManager(QObject *parent):
 {
 }
 
-void MsgPartNetAccessManager::setModelMessage(const QModelIndex &_message)
+void MsgPartNetAccessManager::setModelMessage(const QModelIndex &message_)
 {
-    message = _message;
+    message = message_;
 }
 
 /** @short Prepare a network request

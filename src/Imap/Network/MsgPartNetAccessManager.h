@@ -51,7 +51,7 @@ class MsgPartNetAccessManager : public QNetworkAccessManager
     Q_OBJECT
 public:
     MsgPartNetAccessManager(QObject *parent=0);
-    void setModelMessage(const QModelIndex &_message);
+    void setModelMessage(const QModelIndex &message);
     Imap::Mailbox::TreeItemPart *pathToPart(const QString &path);
     static Imap::Mailbox::TreeItemPart *cidToPart(const QByteArray &cid, Mailbox::Model *model, Mailbox::TreeItem *root);
 protected:
