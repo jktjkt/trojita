@@ -52,9 +52,6 @@ private slots:
     void rowsAboutToBeRemoved(const QModelIndex &, int, int);
     void rowsInserted(const QModelIndex &, int, int);
     void rowsRemoved(const QModelIndex &, int, int);
-
-private:
-    QAbstractItemModel *_model;
 };
 
 }
