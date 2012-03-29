@@ -64,7 +64,7 @@ private:
     static QByteArray encodeHeaderField(const QString &text);
     static QByteArray extractMailAddress(const QString &text, bool &ok);
     void addRecipient(int position, const QString &kind, const QString &address);
-    QList<QPair<QString, QString> > _parseRecipients();
+    QList<QPair<QString, QString> > parseRecipients();
 
     Ui::ComposeWidget *ui;
     QPushButton *sendButton;

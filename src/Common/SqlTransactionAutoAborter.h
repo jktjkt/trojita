@@ -34,20 +34,26 @@ namespace Common
 class SqlTransactionAutoAborter
 {
 public:
-    SqlTransactionAutoAborter(QSqlDatabase *db): _db(db), _commited(false) {
-        _db->transaction();
+    SqlTransactionAutoAborter(QSqlDatabase *db): db(db), commited(false)
+    {
+        db->transaction();
     }
-    ~SqlTransactionAutoAborter() {
-        if (! _commited)
-            _db->rollback();
+
+    ~SqlTransactionAutoAborter()
+    {
+        if (! commited)
+            db->rollback();
     }
-    bool commit() {
-        _commited = _db->commit();
-        return _commited;
+
+    bool commit()
+    {
+        commited = db->commit();
+        return commited;
     }
+
 private:
-    QSqlDatabase *_db;
-    bool _commited;
+    QSqlDatabase *db;
+    bool commited;
 };
 }
 

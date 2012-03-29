@@ -107,7 +107,7 @@ void ComposeWidget::send()
         msa = new MSA::Sendmail(this, appName, args);
     }
 
-    QList<QPair<QString,QString> > recipients = _parseRecipients();
+    QList<QPair<QString,QString> > recipients = parseRecipients();
     QList<QString> mailDestinations;
     QByteArray recipientHeaders;
     for (QList<QPair<QString,QString> >::const_iterator it = recipients.begin();
@@ -274,7 +274,7 @@ QByteArray ComposeWidget::extractMailAddress(const QString &text, bool &ok)
     }
 }
 
-QList<QPair<QString, QString> > ComposeWidget::_parseRecipients()
+QList<QPair<QString, QString> > ComposeWidget::parseRecipients()
 {
     QList<QPair<QString, QString> > res;
     Q_ASSERT(recipientsAddress.size() == recipientsKind.size());

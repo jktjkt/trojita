@@ -61,12 +61,10 @@ class TaskProgressIndicator;
 class MainWindow: public QMainWindow
 {
     Q_OBJECT
-    typedef QList<QPair<QString,QString> > _recipientsType;
+    typedef QList<QPair<QString,QString> > RecipientsType;
 public:
     MainWindow();
-    void invokeComposeDialog(const QString &subject = QString(),
-                             const QString &body = QString(),
-                             const _recipientsType &recipients = _recipientsType());
+    void invokeComposeDialog(const QString &subject=QString(), const QString &body=QString(), const RecipientsType &recipients=RecipientsType());
     QSize sizeHint() const;
 
 private slots:
@@ -142,7 +140,7 @@ private:
     Imap::Mailbox::MsgListModel *msgListModel;
     Imap::Mailbox::ThreadingMsgListModel *threadingMsgListModel;
     Imap::Mailbox::PrettyMsgListModel *prettyMsgListModel;
-    AutoCompletionModel *_autoCompletionModel;
+    AutoCompletionModel *autoCompletionModel;
 
     QTreeView *mboxTree;
     MsgListView *msgListTree;
