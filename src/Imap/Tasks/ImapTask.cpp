@@ -190,7 +190,8 @@ void ImapTask::handleResponseCode(const Imap::Responses::State *const resp)
     case ALERT:
         emit model->alertReceived(tr("The server sent the following ALERT:\n%1").arg(resp->message));
         break;
-    case CAPABILITIES: {
+    case CAPABILITIES:
+    {
         const RespData<QStringList> *const caps = dynamic_cast<const RespData<QStringList>* const>(resp->respCodeData.data());
         if (caps) {
             model->updateCapabilities(parser, caps->data);

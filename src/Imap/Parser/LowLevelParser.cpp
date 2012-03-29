@@ -172,8 +172,7 @@ QString getMailbox(const QByteArray &line, int &start)
 
 }
 
-QVariantList parseList(const char open, const char close,
-                       const QByteArray &line, int &start)
+QVariantList parseList(const char open, const char close, const QByteArray &line, int &start)
 {
     if (start >= line.size())
         throw NoData("Could not parse list: no more data", line, start);
@@ -242,7 +241,8 @@ QVariant getAnything(const QByteArray &line, int &start)
         case '5': case '6': case '7': case '8': case '9':
             return getUInt(line, start);
             break;
-        default: {
+        default:
+        {
             QByteArray atom = getAtom(line, start);
             if (atom.indexOf('[', 0) != -1) {
                 // "BODY[something]" -- there's no whitespace between "[" and

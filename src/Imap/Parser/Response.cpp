@@ -474,7 +474,8 @@ State::State(const QString &_tag, const Kind _kind, const QByteArray &line, int 
             // FIXME: clarify what "set" in the RFC 4551 means and implement it
             Q_ASSERT(false);
             break;
-        case Responses::ANNOTATE: {
+        case Responses::ANNOTATE:
+        {
             if (_list.count() != 1)
                 throw InvalidResponseCode("ANNOTATE response code got weird number of elements", line, start);
             QString token = _list.first().toUpper();

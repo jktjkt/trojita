@@ -665,7 +665,8 @@ bool KeepMailboxOpenTask::handleResponseCodeInsideState(const Imap::Responses::S
         return true;
 
     switch (resp->respCode) {
-    case Responses::UIDNEXT: {
+    case Responses::UIDNEXT:
+    {
         TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
         Q_ASSERT(mailbox);
         const Responses::RespData<uint> *const num = dynamic_cast<const Responses::RespData<uint>* const>(resp->respCodeData.data());

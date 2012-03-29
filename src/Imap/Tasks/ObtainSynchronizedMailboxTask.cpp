@@ -404,7 +404,8 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState(const Imap::Re
     Q_ASSERT(mailbox);
     bool res = false;
     switch (resp->respCode) {
-    case Responses::UNSEEN: {
+    case Responses::UNSEEN:
+    {
         const Responses::RespData<uint> *const num = dynamic_cast<const Responses::RespData<uint>* const>(resp->respCodeData.data());
         if (num) {
             mailbox->syncState.setUnSeenOffset(num->data);
@@ -414,7 +415,8 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState(const Imap::Re
         }
         break;
     }
-    case Responses::PERMANENTFLAGS: {
+    case Responses::PERMANENTFLAGS:
+    {
         const Responses::RespData<QStringList> *const num = dynamic_cast<const Responses::RespData<QStringList>* const>(resp->respCodeData.data());
         if (num) {
             mailbox->syncState.setPermanentFlags(num->data);
@@ -424,7 +426,8 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState(const Imap::Re
         }
         break;
     }
-    case Responses::UIDNEXT: {
+    case Responses::UIDNEXT:
+    {
         const Responses::RespData<uint> *const num = dynamic_cast<const Responses::RespData<uint>* const>(resp->respCodeData.data());
         if (num) {
             mailbox->syncState.setUidNext(num->data);
@@ -434,7 +437,8 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState(const Imap::Re
         }
         break;
     }
-    case Responses::UIDVALIDITY: {
+    case Responses::UIDVALIDITY:
+    {
         const Responses::RespData<uint> *const num = dynamic_cast<const Responses::RespData<uint>* const>(resp->respCodeData.data());
         if (num) {
             mailbox->syncState.setUidValidity(num->data);
@@ -512,7 +516,8 @@ bool ObtainSynchronizedMailboxTask::handleSearch(const Imap::Responses::Search *
         }
         Q_ASSERT(mailbox->syncState.isUsableForSyncing());
         break;
-    case UID_SYNC_ONLY_NEW: {
+    case UID_SYNC_ONLY_NEW:
+    {
         // Be sure there really are some new messages
         const SyncState &oldState = model->cache()->mailboxSyncState(mailbox->mailbox());
         const int newArrivals = mailbox->syncState.exists() - oldState.exists();
@@ -525,8 +530,8 @@ bool ObtainSynchronizedMailboxTask::handleSearch(const Imap::Responses::Search *
             ss.flush();
             throw MailboxException(ss.str().c_str(), *resp);
         }
+        break;
     }
-    break;
     }
     uidMap = resp->items;
     qSort(uidMap);

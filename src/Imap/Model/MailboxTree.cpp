@@ -189,7 +189,8 @@ QVariant TreeItemMailbox::data(Model *const model, int role)
     Q_ASSERT(list);
 
     switch (role) {
-    case Qt::DisplayRole: {
+    case Qt::DisplayRole:
+    {
         // this one is used only for a dumb view attached to the Model
         QString res = separator().isEmpty() ? mailbox() : mailbox().split(separator(), QString::SkipEmptyParts).last();
         return loading() ? res + " [loading]" : res;
@@ -210,7 +211,8 @@ QVariant TreeItemMailbox::data(Model *const model, int role)
         return isSelectable();
     case RoleMailboxNumbersFetched:
         return list->numbersFetched();
-    case RoleTotalMessageCount: {
+    case RoleTotalMessageCount:
+    {
         if (! isSelectable())
             return QVariant();
         // At first, register that request for count
@@ -218,14 +220,16 @@ QVariant TreeItemMailbox::data(Model *const model, int role)
         // ...and now that it's been sent, display a number if it's available
         return list->numbersFetched() ? QVariant(res) : QVariant();
     }
-    case RoleUnreadMessageCount: {
+    case RoleUnreadMessageCount:
+    {
         if (! isSelectable())
             return QVariant();
         // This one is similar to the case of RoleTotalMessageCount
         int res = list->unreadMessageCount(model);
         return list->numbersFetched() ? QVariant(res): QVariant();
     }
-    case RoleRecentMessageCount: {
+    case RoleRecentMessageCount:
+    {
         if (! isSelectable())
             return QVariant();
         // see above
@@ -234,7 +238,8 @@ QVariant TreeItemMailbox::data(Model *const model, int role)
     }
     case RoleMailboxItemsAreLoading:
         return list->loading() || (isSelectable() && ! list->numbersFetched());
-    case RoleMailboxUidValidity: {
+    case RoleMailboxUidValidity:
+    {
         list->fetch(model);
         return list->fetched() ? QVariant(syncState.uidValidity()) : QVariant();
     }

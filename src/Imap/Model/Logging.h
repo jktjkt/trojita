@@ -54,7 +54,8 @@ struct LogMessage {
     uint truncatedBytes;
 
     LogMessage(const QDateTime &timestamp_, const LogKind kind_, const QString &source_, const QString &message_, const uint truncated_):
-        timestamp(timestamp_), kind(kind_), source(source_), message(message_), truncatedBytes(truncated_) {
+        timestamp(timestamp_), kind(kind_), source(source_), message(message_), truncatedBytes(truncated_)
+    {
     }
 
     // default constructor for QVector

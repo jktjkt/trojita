@@ -182,7 +182,8 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
         return wasCaps;
     }
 
-    case CONN_STATE_STARTTLS: {
+    case CONN_STATE_STARTTLS:
+    {
         if (resp->tag == startTlsCmd) {
             if (resp->kind == OK) {
                 model->changeConnectionState(parser, CONN_STATE_ESTABLISHED_PRECAPS);
@@ -283,7 +284,8 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
         return false;
     }
 
-    case CONN_STATE_POSTAUTH_PRECAPS: {
+    case CONN_STATE_POSTAUTH_PRECAPS:
+    {
         bool wasCaps = checkCapabilitiesResult(resp);
         if (wasCaps && !_finished) {
             model->changeConnectionState(parser, CONN_STATE_AUTHENTICATED);

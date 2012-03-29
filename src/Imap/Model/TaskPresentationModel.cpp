@@ -153,7 +153,8 @@ QVariant TaskPresentationModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case RoleTaskIsParserState:
         return isParserState;
-    case RoleTaskIsVisible: {
+    case RoleTaskIsVisible:
+    {
         if (isParserState) {
             // That's not a task at all
             return false;

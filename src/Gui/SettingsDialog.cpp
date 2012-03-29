@@ -362,7 +362,8 @@ void OutgoingPage::updateWidgets()
     int smtpMethod = method->itemData(method->currentIndex()).toInt();
     switch (smtpMethod) {
     case SMTP:
-    case SSMTP: {
+    case SSMTP:
+    {
         smtpHost->setEnabled(true);
         lay->labelForField(smtpHost)->setEnabled(true);
         smtpPort->setEnabled(true);

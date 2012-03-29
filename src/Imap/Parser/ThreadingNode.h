@@ -48,7 +48,8 @@ struct ThreadingNode {
     /** @short Recursive data structure storing numbers of all messages which are children of the current one */
     QVector<ThreadingNode> children;
     ThreadingNode(const uint _num=0, const QVector<ThreadingNode> &_children=QVector<ThreadingNode>()):
-        num(_num), children(_children) {
+        num(_num), children(_children)
+    {
     }
 };
 

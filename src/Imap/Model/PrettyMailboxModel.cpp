@@ -55,7 +55,8 @@ QVariant PrettyMailboxModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     switch (role) {
-    case Qt::DisplayRole: {
+    case Qt::DisplayRole:
+    {
         QModelIndex translated = mapToSource(index);
         qlonglong unreadCount = translated.data(RoleUnreadMessageCount).toLongLong();
         if (unreadCount)
@@ -65,7 +66,8 @@ QVariant PrettyMailboxModel::data(const QModelIndex &index, int role) const
         else
             return QSortFilterProxyModel::data(index, RoleShortMailboxName);
     }
-    case Qt::FontRole: {
+    case Qt::FontRole:
+    {
         QModelIndex translated = mapToSource(index);
         if (translated.data(RoleMailboxNumbersFetched).toBool() &&
             translated.data(RoleUnreadMessageCount).toULongLong() > 0) {
@@ -76,7 +78,8 @@ QVariant PrettyMailboxModel::data(const QModelIndex &index, int role) const
             return QVariant();
         }
     }
-    case Qt::DecorationRole: {
+    case Qt::DecorationRole:
+    {
         QModelIndex translated = mapToSource(index);
         if (translated.data(RoleMailboxItemsAreLoading).toBool())
             return Gui::loadIcon(QLatin1String("folder-grey"));
@@ -94,7 +97,8 @@ QVariant PrettyMailboxModel::data(const QModelIndex &index, int role) const
         else
             return Gui::loadIcon(QLatin1String("folder-open"));
     }
-    case Qt::ToolTipRole: {
+    case Qt::ToolTipRole:
+    {
         QModelIndex translated = mapToSource(index);
         return tr("<p>%1</p>\n<p>%2 messages<br/>%3 unread</p>")
                .arg(translated.data(RoleShortMailboxName).toString(), translated.data(RoleTotalMessageCount).toString(),

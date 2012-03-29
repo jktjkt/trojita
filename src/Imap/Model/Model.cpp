@@ -777,7 +777,8 @@ void Model::_askForMsgMetadata(TreeItemMessage *item)
         item->_fetchStatus = TreeItem::LOADING;
         findTaskResponsibleFor(mailboxPtr)->requestEnvelopeDownload(item->uid());
         break;
-    case NETWORK_ONLINE: {
+    case NETWORK_ONLINE:
+    {
         // preload
         bool ok;
         int preload = property("trojita-imap-preload-msg-metadata").toInt(&ok);

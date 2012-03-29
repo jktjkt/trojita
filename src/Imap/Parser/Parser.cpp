@@ -434,7 +434,8 @@ void Parser::handleReadyRead()
                 return;
             }
             break;
-        case ReadingNumberOfBytes: {
+        case ReadingNumberOfBytes:
+        {
             QByteArray buf = _socket->read(_readingBytes);
             _readingBytes -= buf.size();
             _currentLine += buf;
@@ -554,7 +555,8 @@ void Parser::executeACommand()
         case Commands::ATOM_NO_SPACE_AROUND:
             buf.append(part._text);
             break;
-        case Commands::QUOTED_STRING: {
+        case Commands::QUOTED_STRING:
+        {
             QString item = part._text;
             item.replace(QChar('\\'), QString::fromAscii("\\\\"));
             buf.append('"');
@@ -736,7 +738,8 @@ QSharedPointer<Responses::AbstractResponse> Parser::_parseUntaggedText(
     if (start == line.size() && kind != Responses::SEARCH && kind != Responses::SORT)
         throw NoData(line, start);
     switch (kind) {
-    case Responses::CAPABILITY: {
+    case Responses::CAPABILITY:
+    {
         QStringList capabilities;
         QList<QByteArray> list = line.mid(start).split(' ');
         for (QList<QByteArray>::const_iterator it = list.constBegin(); it != list.constEnd(); ++it) {
@@ -863,7 +866,8 @@ Sequence Sequence::startingAt(const uint lo)
 QString Sequence::toString() const
 {
     switch (_kind) {
-    case DISTINCT: {
+    case DISTINCT:
+    {
         Q_ASSERT(! _list.isEmpty());
 
         QStringList res;

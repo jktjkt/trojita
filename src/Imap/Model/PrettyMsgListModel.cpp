@@ -58,7 +58,8 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
         case MsgListModel::TO:
         case MsgListModel::FROM:
         case MsgListModel::CC:
-        case MsgListModel::BCC: {
+        case MsgListModel::BCC:
+        {
             int backendRole = 0;
             switch (index.column()) {
             case MsgListModel::FROM:
@@ -79,7 +80,8 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
                     Imap::Message::MailAddress::FORMAT_JUST_NAME :
                     Imap::Message::MailAddress::FORMAT_READABLE);
         }
-        case MsgListModel::DATE: {
+        case MsgListModel::DATE:
+        {
             QDateTime res = translated.data(RoleMessageDate).toDateTime();
             // Tooltips use longer variant, displayed text is shorter to save precious space
             Qt::DateFormat format = role == Qt::ToolTipRole ? Qt::DefaultLocaleLongDate : Qt::DefaultLocaleShortDate;
@@ -90,7 +92,8 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
                 return res.toString(format);
             }
         }
-        case MsgListModel::SIZE: {
+        case MsgListModel::SIZE:
+        {
             QVariant size = translated.data(RoleMessageSize);
             if (!size.isValid()) {
                 return QVariant();
@@ -113,7 +116,8 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
 
     case Qt::DecorationRole:
         switch (index.column()) {
-        case MsgListModel::SUBJECT: {
+        case MsgListModel::SUBJECT:
+        {
             if (! translated.data(RoleIsFetched).toBool())
                 return QVariant();
 
