@@ -39,7 +39,7 @@ namespace Mailbox
 class SocketFactory: public QObject
 {
     Q_OBJECT
-    bool _startTls;
+    bool m_startTls;
 public:
     SocketFactory();
     virtual ~SocketFactory() {};
@@ -58,9 +58,9 @@ class ProcessSocketFactory: public SocketFactory
 {
     Q_OBJECT
     /** @short Name of executable file to launch */
-    QString _executable;
+    QString executable;
     /** @short Arguments to launch the process with */
-    QStringList _args;
+    QStringList args;
 public:
     ProcessSocketFactory(const QString &executable, const QStringList &args);
     virtual Socket *create();
@@ -71,9 +71,9 @@ class SslSocketFactory: public SocketFactory
 {
     Q_OBJECT
     /** @short Hostname of the remote host */
-    QString _host;
+    QString host;
     /** @short Port number */
-    quint16 _port;
+    quint16 port;
 public:
     SslSocketFactory(const QString &host, const quint16 port);
     virtual Socket *create();
@@ -84,9 +84,9 @@ class TlsAbleSocketFactory: public SocketFactory
 {
     Q_OBJECT
     /** @short Hostname of the remote host */
-    QString _host;
+    QString host;
     /** @short Port number */
-    quint16 _port;
+    quint16 port;
 public:
     TlsAbleSocketFactory(const QString &host, const quint16 port);
     virtual Socket *create();
@@ -102,7 +102,7 @@ public:
     /** @short Return the last created socket */
     Socket *lastSocket();
 private:
-    QPointer<Socket> _last;
+    QPointer<Socket> m_last;
 };
 
 

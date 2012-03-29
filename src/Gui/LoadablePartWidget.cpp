@@ -27,12 +27,9 @@
 namespace Gui
 {
 
-LoadablePartWidget::LoadablePartWidget(QWidget *parent,
-                                       Imap::Network::MsgPartNetAccessManager *_manager,
-                                       const QModelIndex  &_part,
-                                       QObject *_wheelEventFilter):
-    QStackedWidget(parent), manager(_manager), partIndex(_part), realPart(0),
-    wheelEventFilter(_wheelEventFilter)
+LoadablePartWidget::LoadablePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex  &part,
+                                       QObject *wheelEventFilter):
+    QStackedWidget(parent), manager(manager), partIndex(part), realPart(0), wheelEventFilter(wheelEventFilter)
 {
     Q_ASSERT(partIndex.isValid());
     loadButton = new QPushButton(tr("Load %1 (%2)").arg(partIndex.data(Imap::Mailbox::RolePartMimeType).toString(),

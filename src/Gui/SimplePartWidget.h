@@ -59,7 +59,7 @@ private slots:
     void slotFileNameRequested(QString *fileName);
 private:
     QAction *saveAction;
-    Imap::Network::FileDownloadManager *_fileDownloadManager;
+    Imap::Network::FileDownloadManager *fileDownloadManager;
 
     SimplePartWidget(const SimplePartWidget &); // don't implement
     SimplePartWidget &operator=(const SimplePartWidget &); // don't implement

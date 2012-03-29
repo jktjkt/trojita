@@ -23,8 +23,8 @@
 namespace MSA
 {
 
-Sendmail::Sendmail(QObject *parent, const QString &_command, const QStringList &_args):
-    AbstractMSA(parent), command(_command), args(_args)
+Sendmail::Sendmail(QObject *parent, const QString &command, const QStringList &args):
+    AbstractMSA(parent), command(command), args(args)
 {
     proc = new QProcess(this);
     connect(proc, SIGNAL(started()), this, SLOT(handleStarted()));

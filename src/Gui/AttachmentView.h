@@ -49,12 +49,12 @@ class AttachmentView : public QWidget
 {
     Q_OBJECT
 public:
-    AttachmentView(QWidget *parent,  Imap::Network::MsgPartNetAccessManager *_manager, const QModelIndex &partIndex);
+    AttachmentView(QWidget *parent,  Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex);
 private slots:
     void slotTransferError(const QString &errorString);
     void slotFileNameRequested(QString *fileName);
 private:
-    Imap::Network::FileDownloadManager *_fileDownloadManager;
+    Imap::Network::FileDownloadManager *fileDownloadManager;
 
     AttachmentView(const AttachmentView &); // don't implement
     AttachmentView &operator=(const AttachmentView &); // don't implement

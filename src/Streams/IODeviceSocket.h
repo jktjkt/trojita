@@ -74,8 +74,8 @@ private slots:
     void handleProcessError(QProcess::ProcessError);
     void delayedStart();
 private:
-    QString _executable;
-    QStringList _args;
+    QString executable;
+    QStringList args;
 };
 
 /** @short An SSL socket, usable both in SSL-from-start and STARTTLS-on-demand mode */
@@ -94,9 +94,9 @@ private slots:
     void delayedStart();
     void handleConnected();
 private:
-    bool _startEncrypted;
-    QString _host;
-    quint16 _port;
+    bool startEncrypted;
+    QString host;
+    quint16 port;
 };
 
 };

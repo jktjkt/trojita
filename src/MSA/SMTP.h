@@ -31,8 +31,7 @@ class SMTP : public AbstractMSA
 {
     Q_OBJECT
 public:
-    SMTP(QObject *parent, const QString &host, quint16 port,
-         bool encryptedConnect, bool startTls, bool auth,
+    SMTP(QObject *parent, const QString &host, quint16 port, bool encryptedConnect, bool startTls, bool auth,
          const QString &user, const QString &pass);
     virtual void sendMail(const QString &from, const QStringList &to, const QByteArray &data);
 public slots:
@@ -40,15 +39,15 @@ public slots:
     void handleDone(bool ok);
     void handleError(QAbstractSocket::SocketError err, const QString &msg);
 private:
-    QwwSmtpClient *_qwwSmtp;
-    QString _host;
-    quint16 _port;
-    bool _encryptedConnect;
-    bool _startTls;
-    bool _auth;
-    QString _user;
-    QString _pass;
-    bool _failed;
+    QwwSmtpClient *qwwSmtp;
+    QString host;
+    quint16 port;
+    bool encryptedConnect;
+    bool startTls;
+    bool auth;
+    QString user;
+    QString pass;
+    bool failed;
 
     SMTP(const SMTP &); // don't implement
     SMTP &operator=(const SMTP &); // don't implement

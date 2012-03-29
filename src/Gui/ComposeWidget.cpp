@@ -46,7 +46,7 @@ namespace Gui
 ComposeWidget::ComposeWidget(QWidget *parent, QAbstractListModel *autoCompleteModel) :
     QWidget(parent, Qt::Window),
     ui(new Ui::ComposeWidget),
-    _recipientCompleter(new QCompleter(this))
+    recipientCompleter(new QCompleter(this))
 {
     ui->setupUi(this);
     sendButton = ui->buttonBox->addButton(tr("Send"), QDialogButtonBox::AcceptRole);
@@ -62,7 +62,7 @@ ComposeWidget::ComposeWidget(QWidget *parent, QAbstractListModel *autoCompleteMo
     ui->mailText->setFont(font);
 
     if (autoCompleteModel)
-        _recipientCompleter->setModel(autoCompleteModel);
+        recipientCompleter->setModel(autoCompleteModel);
 }
 
 ComposeWidget::~ComposeWidget()
@@ -145,7 +145,8 @@ void ComposeWidget::send()
                                          QString::fromAscii("ddd, dd MMM yyyy hh:mm:ss")).append(
                                          " +0000\r\n"));
     mailData.append("User-Agent: ").append(
-        QString::fromAscii("%1/%2; %3").arg(qApp->applicationName(), qApp->applicationVersion(), Imap::Mailbox::systemPlatformVersion()).toAscii()
+        QString::fromAscii("%1/%2; %3")
+                .arg(qApp->applicationName(), qApp->applicationVersion(), Imap::Mailbox::systemPlatformVersion()).toAscii()
     ).append("\r\n");
     mailData.append("MIME-Version: 1.0\r\n");
     mailData.append("\r\n");
@@ -199,9 +200,9 @@ void ComposeWidget::addRecipient(int position, const QString &kind, const QStrin
     combo->addItems(toCcBcc);
     combo->setCurrentIndex(toCcBcc.indexOf(kind));
     QLineEdit *edit = new QLineEdit(address, this);
-    edit->setCompleter(_recipientCompleter);
-    _recipientsAddress.insert(position, edit);
-    _recipientsKind.insert(position, combo);
+    edit->setCompleter(recipientCompleter);
+    recipientsAddress.insert(position, edit);
+    recipientsKind.insert(position, combo);
     connect(edit, SIGNAL(editingFinished()), this, SLOT(handleRecipientAddressChange()));
     ui->formLayout->insertRow(position + OFFSET_OF_FIRST_ADDRESSEE, combo, edit);
 }
@@ -210,17 +211,17 @@ void ComposeWidget::handleRecipientAddressChange()
 {
     QLineEdit *item = qobject_cast<QLineEdit *>(sender());
     Q_ASSERT(item);
-    int index = _recipientsAddress.indexOf(item);
+    int index = recipientsAddress.indexOf(item);
     Q_ASSERT(index >= 0);
 
-    if (index == _recipientsAddress.size() - 1) {
+    if (index == recipientsAddress.size() - 1) {
         if (! item->text().isEmpty()) {
-            addRecipient(index + 1, _recipientsKind[ index ]->currentText(), QString());
-            _recipientsAddress[index + 1]->setFocus();
+            addRecipient(index + 1, recipientsKind[ index ]->currentText(), QString());
+            recipientsAddress[index + 1]->setFocus();
         }
-    } else if (item->text().isEmpty() && _recipientsAddress.size() != 1) {
-        _recipientsAddress.takeAt(index)->deleteLater();
-        _recipientsKind.takeAt(index)->deleteLater();
+    } else if (item->text().isEmpty() && recipientsAddress.size() != 1) {
+        recipientsAddress.takeAt(index)->deleteLater();
+        recipientsKind.takeAt(index)->deleteLater();
 
         delete ui->formLayout;
         ui->formLayout = new QFormLayout(this);
@@ -230,8 +231,8 @@ void ComposeWidget::handleRecipientAddressChange()
         ui->formLayout->addRow(ui->fromLabel, ui->sender);
 
         // note: number of layout items before this one has to match OFFSET_OF_FIRST_ADDRESSEE
-        for (int i = 0; i < _recipientsAddress.size(); ++i) {
-            ui->formLayout->addRow(_recipientsKind[ i ], _recipientsAddress[ i ]);
+        for (int i = 0; i < recipientsAddress.size(); ++i) {
+            ui->formLayout->addRow(recipientsKind[ i ], recipientsAddress[ i ]);
         }
 
         // all other stuff
@@ -276,17 +277,17 @@ QByteArray ComposeWidget::extractMailAddress(const QString &text, bool &ok)
 QList<QPair<QString, QString> > ComposeWidget::_parseRecipients()
 {
     QList<QPair<QString, QString> > res;
-    Q_ASSERT(_recipientsAddress.size() == _recipientsKind.size());
-    for (int i = 0; i < _recipientsAddress.size(); ++i) {
+    Q_ASSERT(recipientsAddress.size() == recipientsKind.size());
+    for (int i = 0; i < recipientsAddress.size(); ++i) {
         QString kind = QLatin1String("To");
-        if (_recipientsKind[i]->currentText() == tr("Cc"))
+        if (recipientsKind[i]->currentText() == tr("Cc"))
             kind = QLatin1String("Cc");
-        else if (_recipientsKind[i]->currentText() == tr("Bcc"))
+        else if (recipientsKind[i]->currentText() == tr("Bcc"))
             kind = QLatin1String("Bcc");
         // TODO: simplify recipient - i.e. strip stuff like < > or the real name
         // => only keep string around @ until either <,> or space is hit...
-        res << qMakePair(kind, _recipientsAddress[i]->text());
-        maybeAddNewKnownRecipient(_recipientsAddress[i]->text());
+        res << qMakePair(kind, recipientsAddress[i]->text());
+        maybeAddNewKnownRecipient(recipientsAddress[i]->text());
     }
     return res;
 }
@@ -294,10 +295,10 @@ QList<QPair<QString, QString> > ComposeWidget::_parseRecipients()
 void ComposeWidget::maybeAddNewKnownRecipient(const QString &recipient)
 {
     // let completer look for recipient
-    _recipientCompleter->setCompletionPrefix(recipient);
+    recipientCompleter->setCompletionPrefix(recipient);
     // and if not found, insert it into completer's model
-    if (_recipientCompleter->currentCompletion().isEmpty()) {
-        QAbstractItemModel *acMdl = _recipientCompleter->model();
+    if (recipientCompleter->currentCompletion().isEmpty()) {
+        QAbstractItemModel *acMdl = recipientCompleter->model();
         acMdl->insertRow(0);
         QModelIndex idx = acMdl->index(0,0);
         acMdl->setData(idx,recipient);

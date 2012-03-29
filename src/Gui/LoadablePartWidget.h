@@ -43,10 +43,7 @@ class LoadablePartWidget : public QStackedWidget, public AbstractPartWidget
 {
     Q_OBJECT
 public:
-    LoadablePartWidget(QWidget *parent,
-                       Imap::Network::MsgPartNetAccessManager *_manager,
-                       const QModelIndex &_part,
-                       QObject *_wheelEventFilter);
+    LoadablePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &part, QObject *wheelEventFilter);
     QString quoteMe() const;
     virtual void reloadContents() {}
 private slots:

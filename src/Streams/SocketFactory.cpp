@@ -30,23 +30,23 @@ namespace Imap
 namespace Mailbox
 {
 
-SocketFactory::SocketFactory(): _startTls(false)
+SocketFactory::SocketFactory(): m_startTls(false)
 {
 }
 
 void SocketFactory::setStartTlsRequired(const bool doIt)
 {
-    _startTls = doIt;
+    m_startTls = doIt;
 }
 
 bool SocketFactory::startTlsRequired()
 {
-    return _startTls;
+    return m_startTls;
 }
 
 ProcessSocketFactory::ProcessSocketFactory(
     const QString &executable, const QStringList &args):
-    _executable(executable), _args(args)
+    executable(executable), args(args)
 {
 }
 
@@ -54,30 +54,30 @@ Socket *ProcessSocketFactory::create()
 {
     // FIXME: this may leak memory if an exception strikes in this function
     // (before we return the pointer)
-    return new ProcessSocket(new QProcess(), _executable, _args);
+    return new ProcessSocket(new QProcess(), executable, args);
 }
 
 SslSocketFactory::SslSocketFactory(const QString &host, const quint16 port):
-    _host(host), _port(port)
+    host(host), port(port)
 {
 }
 
 Socket *SslSocketFactory::create()
 {
     QSslSocket *sslSock = new QSslSocket();
-    IODeviceSocket *ioSock = new SslTlsSocket(sslSock, _host, _port, true);
+    IODeviceSocket *ioSock = new SslTlsSocket(sslSock, host, port, true);
     return ioSock;
 }
 
 TlsAbleSocketFactory::TlsAbleSocketFactory(const QString &host, const quint16 port):
-    _host(host), _port(port)
+    host(host), port(port)
 {
 }
 
 Socket *TlsAbleSocketFactory::create()
 {
     QSslSocket *sslSock = new QSslSocket();
-    return new SslTlsSocket(sslSock, _host, _port);
+    return new SslTlsSocket(sslSock, host, port);
 }
 
 FakeSocketFactory::FakeSocketFactory(): SocketFactory()
@@ -86,13 +86,13 @@ FakeSocketFactory::FakeSocketFactory(): SocketFactory()
 
 Socket *FakeSocketFactory::create()
 {
-    return _last = new FakeSocket();
+    return m_last = new FakeSocket();
 }
 
 Socket *FakeSocketFactory::lastSocket()
 {
-    Q_ASSERT(_last);
-    return _last;
+    Q_ASSERT(m_last);
+    return m_last;
 }
 
 

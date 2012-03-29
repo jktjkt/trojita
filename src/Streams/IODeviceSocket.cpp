@@ -78,7 +78,7 @@ void IODeviceSocket::emitError()
 }
 
 ProcessSocket::ProcessSocket(QProcess *proc, const QString &executable, const QStringList &args):
-    IODeviceSocket(proc), _executable(executable), _args(args)
+    IODeviceSocket(proc), executable(executable), args(args)
 {
     connect(proc, SIGNAL(stateChanged(QProcess::ProcessState)), this, SLOT(handleStateChanged()));
     connect(proc, SIGNAL(error(QProcess::ProcessError)), this, SLOT(handleProcessError(QProcess::ProcessError)));
@@ -127,7 +127,7 @@ void ProcessSocket::handleStateChanged()
         emit stateChanged(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS, tr("The process has started"));
         break;
     case QProcess::Starting:
-        emit stateChanged(Imap::CONN_STATE_CONNECTING, tr("Starting process `%1 %2`").arg(_executable, _args.join(QLatin1String(" "))));
+        emit stateChanged(Imap::CONN_STATE_CONNECTING, tr("Starting process `%1 %2`").arg(executable, args.join(QLatin1String(" "))));
         break;
     case QProcess::NotRunning: {
         if (delayedDisconnect->isActive())
@@ -149,11 +149,11 @@ void ProcessSocket::delayedStart()
 {
     QProcess *proc = qobject_cast<QProcess *>(d);
     Q_ASSERT(proc);
-    proc->start(_executable, _args);
+    proc->start(executable, args);
 }
 
 SslTlsSocket::SslTlsSocket(QSslSocket *sock, const QString &host, const quint16 port, const bool startEncrypted):
-    IODeviceSocket(sock), _startEncrypted(startEncrypted), _host(host), _port(port)
+    IODeviceSocket(sock), startEncrypted(startEncrypted), host(host), port(port)
 {
     sock->ignoreSslErrors(); // big fat FIXME here!!!
     sock->setProtocol(QSsl::AnyProtocol);
@@ -183,17 +183,17 @@ void SslTlsSocket::handleStateChanged()
     Q_ASSERT(sock);
     switch (sock->state()) {
     case QAbstractSocket::HostLookupState:
-        emit stateChanged(Imap::CONN_STATE_HOST_LOOKUP, tr("Looking up %1...").arg(_host));
+        emit stateChanged(Imap::CONN_STATE_HOST_LOOKUP, tr("Looking up %1...").arg(host));
         break;
     case QAbstractSocket::ConnectingState:
         emit stateChanged(Imap::CONN_STATE_CONNECTING, tr("Connecting to %1:%2%3...").arg(
-                              _host, QString::number(_port), _startEncrypted ? tr(" (SSL)") : QString()));
+                              host, QString::number(port), startEncrypted ? tr(" (SSL)") : QString()));
         break;
     case QAbstractSocket::BoundState:
     case QAbstractSocket::ListeningState:
         break;
     case QAbstractSocket::ConnectedState:
-        if (! _startEncrypted) {
+        if (! startEncrypted) {
             emit stateChanged(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS, tr("Connected"));
         }
         break;
@@ -212,7 +212,7 @@ void SslTlsSocket::handleSocketError(QAbstractSocket::SocketError err)
     Q_ASSERT(sock);
     delayedDisconnect->stop();
     emit disconnected(tr("The underlying socket is having troubles when processing connection to %1:%2: %3").arg(
-                          _host, QString::number(_port), sock->errorString()));
+                          host, QString::number(port), sock->errorString()));
 }
 
 bool SslTlsSocket::isDead()
@@ -226,10 +226,10 @@ void SslTlsSocket::delayedStart()
 {
     QSslSocket *sock = qobject_cast<QSslSocket *>(d);
     Q_ASSERT(sock);
-    if (_startEncrypted)
-        sock->connectToHostEncrypted(_host, _port);
+    if (startEncrypted)
+        sock->connectToHostEncrypted(host, port);
     else
-        sock->connectToHost(_host, _port);
+        sock->connectToHost(host, port);
 }
 
 }

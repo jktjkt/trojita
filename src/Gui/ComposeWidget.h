@@ -69,13 +69,13 @@ private:
     Ui::ComposeWidget *ui;
     QPushButton *sendButton;
     QPushButton *cancelButton;
-    QList<QComboBox *> _recipientsKind;
-    QList<QLineEdit *> _recipientsAddress;
+    QList<QComboBox *> recipientsKind;
+    QList<QLineEdit *> recipientsAddress;
 
     ComposeWidget(const ComposeWidget &); // don't implement
     ComposeWidget &operator=(const ComposeWidget &); // don't implement
 
-    QCompleter *_recipientCompleter;    //< completer for known / recently used recipients
+    QCompleter *recipientCompleter;    //< completer for known / recently used recipients
     void maybeAddNewKnownRecipient(const QString &recipient);
 };
 

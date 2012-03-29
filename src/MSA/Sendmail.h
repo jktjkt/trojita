@@ -33,7 +33,7 @@ class Sendmail : public AbstractMSA
 {
     Q_OBJECT
 public:
-    Sendmail(QObject *parent, const QString &_command, const QStringList &_args);
+    Sendmail(QObject *parent, const QString &command, const QStringList &args);
     virtual ~Sendmail();
     virtual void sendMail(const QString &from, const QStringList &to, const QByteArray &data);
 private slots:

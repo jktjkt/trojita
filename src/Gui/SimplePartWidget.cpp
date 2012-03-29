@@ -41,11 +41,11 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
     url.setPath(partIndex.data(Imap::Mailbox::RolePartPathToPart).toString());
     load(url);
 
-    _fileDownloadManager = new Imap::Network::FileDownloadManager(this, manager, partIndex);
-    connect(_fileDownloadManager, SIGNAL(fileNameRequested(QString *)), this, SLOT(slotFileNameRequested(QString *)));
+    fileDownloadManager = new Imap::Network::FileDownloadManager(this, manager, partIndex);
+    connect(fileDownloadManager, SIGNAL(fileNameRequested(QString *)), this, SLOT(slotFileNameRequested(QString *)));
 
     saveAction = new QAction(tr("Save..."), this);
-    connect(saveAction, SIGNAL(triggered()), _fileDownloadManager, SLOT(slotDownloadNow()));
+    connect(saveAction, SIGNAL(triggered()), fileDownloadManager, SLOT(slotDownloadNow()));
     this->addAction(saveAction);
 
     setContextMenuPolicy(Qt::ActionsContextMenu);
