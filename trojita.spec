@@ -16,7 +16,7 @@
 #
  
 Name:           trojita
-Version:        0.2.9.4
+Version:        0.3
 Release:        1
 # Almost everything: dual-licensed under the GPLv2 or GPLv3
 # src/src/XtConnect: BSD
