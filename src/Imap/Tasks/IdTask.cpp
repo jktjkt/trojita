@@ -21,7 +21,7 @@
 #include <QCoreApplication>
 #include "GetAnyConnectionTask.h"
 #include "Model.h"
-#include "Utils.h"
+#include "../Model/Utils.h"
 
 namespace Imap
 {
