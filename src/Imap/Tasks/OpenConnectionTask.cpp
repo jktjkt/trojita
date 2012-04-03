@@ -296,6 +296,10 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
     }
 
     }
+
+    // Required catch-all for OpenSuSE's build service (Tumbleweed, 2012-04-03)
+    Q_ASSERT(false);
+    return false;
 }
 
 /** @short Either call STARTTLS or go ahead and try to LOGIN */
