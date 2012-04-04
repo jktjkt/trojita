@@ -41,6 +41,11 @@ private slots:
     void testResyncUidValidity();
     void testDecreasedUidNext();
     void testFlagReSyncBenchmark();
+    void testReloadReadsFromCache();
+    void testCacheNoChange();
+private:
+    void cServer(const QByteArray &data);
+    void cClient(const QByteArray &data);
 };
 
 #endif

@@ -75,10 +75,13 @@ public:
     bool isUsableForNumbers() const;
     /** @short Return true if all items really required for re-sync are available
 
-      These fields are just UIDNEXT, UIDVALIDITY and EIXSTS. We don't care about
+      These fields are just UIDNEXT, UIDVALIDITY and EXISTS. We don't care about
       crap like RECENT.
     */
     bool isUsableForSyncing() const;
+
+    /** @short Compare all members (including the hidden ones) with other */
+    bool completelyEqualTo(const SyncState &other) const;
 };
 
 }

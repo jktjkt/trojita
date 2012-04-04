@@ -48,6 +48,12 @@ KeepMailboxOpenTask::KeepMailboxOpenTask(Model *model, const QModelIndex &mailbo
     TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
     Q_ASSERT(mailbox);
 
+    // Now make sure that we at least try to load data from the cache
+    Q_ASSERT(mailbox->m_children.size() > 0);
+    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList*>(mailbox->m_children[0]);
+    Q_ASSERT(list);
+    list->fetch(model);
+
     // We're the latest KeepMailboxOpenTask, so it makes a lot of sense to add us as the active
     // maintainingTask to the target mailbox
     mailbox->maintainingTask = this;

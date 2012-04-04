@@ -673,6 +673,8 @@ void Model::askForMessagesInMailbox(TreeItemMsgList *item)
                  item->m_totalMessageCount << "as totalMessageCount)";
         item->m_fetchStatus = TreeItem::UNAVAILABLE;
     } else if (uidMapping.size()) {
+        Q_ASSERT(item->m_children.isEmpty());
+        Q_ASSERT(item->m_fetchStatus == TreeItem::LOADING);
         QModelIndex listIndex = item->toIndex(this);
         beginInsertRows(listIndex, 0, uidMapping.size() - 1);
         for (uint seq = 0; seq < static_cast<uint>(uidMapping.size()); ++seq) {
