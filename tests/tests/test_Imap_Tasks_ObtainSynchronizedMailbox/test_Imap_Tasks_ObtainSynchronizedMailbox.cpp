@@ -271,7 +271,7 @@ void ImapModelObtainSynchronizedMailboxTest::testDecreasedUidNext()
     for ( uint i = 1; i <= existsA; ++i ) {
         uidMapA.append(i);
     }
-    uidNextA = uidMapA.last();
+    uidNextA = uidMapA.last()+1;
     helperSyncAWithMessagesEmptyState();
     helperVerifyUidMapA();
     helperSyncBNoMessages();
@@ -733,8 +733,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivals()
     cServer("* SEARCH 42\r\n");
     cServer(t.last("OK uids\r\n"));
     uidMap << 42;
-    // FIXME: shall be 43!
-    sync.setUidNext(16);
+    sync.setUidNext(43);
     sync.setExists(4);
     cClient(t.mk("FETCH 1:4 (FLAGS)\r\n"));
     cServer("* 1 FETCH (FLAGS (x))\r\n"

@@ -535,6 +535,9 @@ bool ObtainSynchronizedMailboxTask::handleSearch(const Imap::Responses::Search *
     }
     uidMap = resp->items;
     qSort(uidMap);
+    if (!uidMap.isEmpty() && mailbox->syncState.uidNext() <= uidMap.last()) {
+        mailbox->syncState.setUidNext(uidMap.last() + 1);
+    }
     return true;
 }
 
