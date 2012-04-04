@@ -57,7 +57,7 @@ public:
         */
         QByteArray serializedBodyStructure;
 
-        MessageDataBundle(): uid(0) {}
+        MessageDataBundle(): uid(0), size(0) {}
     };
 
     AbstractCache(QObject *parent): QObject(parent) {}
