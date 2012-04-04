@@ -37,6 +37,11 @@ bool operator==(const Imap::Mailbox::SyncState &a, const Imap::Mailbox::SyncStat
     return a.completelyEqualTo(b);
 }
 
+bool operator==(const Imap::Mailbox::AbstractCache::MessageDataBundle &a, const Imap::Mailbox::AbstractCache::MessageDataBundle &b)
+{
+    return a.envelope == b.envelope && a.serializedBodyStructure == b.serializedBodyStructure && a.size == b.size && a.uid == b.uid;
+}
+
 namespace QTest {
 
 /** @short Debug data dumper for unit tests
@@ -50,6 +55,16 @@ char *toString(const Imap::Mailbox::SyncState &syncState)
     QString buf;
     QDebug d(&buf);
     d << syncState;
+    return qstrdup(buf.toAscii().constData());
+}
+
+template<>
+char *toString(const Imap::Mailbox::AbstractCache::MessageDataBundle &bundle)
+{
+    QString buf;
+    QDebug d(&buf);
+    d << "UID:" << bundle.uid << "Envelope:" << bundle.envelope << "size:" << bundle.size <<
+         "bodystruct:" << bundle.serializedBodyStructure;
     return qstrdup(buf.toAscii().constData());
 }
 
@@ -641,14 +656,46 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheUidValidity()
     sync.setUidNext(15);
     QList<uint> uidMap;
     uidMap << 6 << 9 << 10;
+
+    // Fill the cache with some values which shall make sense in the "previous state"
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
+    // Don't forget about the flags
+    model->cache()->setMsgFlags("a", 1, QStringList() << "f1");
+    model->cache()->setMsgFlags("a", 6, QStringList() << "f6");
+    // And even message metadata
+    Imap::Mailbox::AbstractCache::MessageDataBundle bundle;
+    bundle.envelope = Imap::Message::Envelope(QDateTime::currentDateTime(), QString::fromAscii("subj"),
+                                              QList<Imap::Message::MailAddress>(), QList<Imap::Message::MailAddress>(),
+                                              QList<Imap::Message::MailAddress>(), QList<Imap::Message::MailAddress>(),
+                                              QList<Imap::Message::MailAddress>(), QList<Imap::Message::MailAddress>(),
+                                              QByteArray(), QByteArray());
+    bundle.uid = 1;
+    model->cache()->setMessageMetadata("a", 1, bundle);
+    bundle.uid = 6;
+    model->cache()->setMessageMetadata("a", 6, bundle);
+    // And of course also message parts
+    model->cache()->setMsgPart("a", 1, "1", "blah");
+    model->cache()->setMsgPart("a", 6, "1", "blah");
+
     QCOMPARE(model->rowCount(msgListA), 0);
     cClient(t.mk("SELECT a\r\n"));
     cServer("* 3 EXISTS\r\n"
             "* OK [UIDVALIDITY 666] .\r\n"
             "* OK [UIDNEXT 15] .\r\n");
     cServer(t.last("OK selected\r\n"));
+
+    // The UIDVALIDTY change should be already discovered
+    QCOMPARE(model->cache()->msgFlags("a", 1), QStringList());
+    QCOMPARE(model->cache()->msgFlags("a", 3), QStringList());
+    QCOMPARE(model->cache()->msgFlags("a", 6), QStringList());
+    QCOMPARE(model->cache()->messageMetadata("a", 1), Imap::Mailbox::AbstractCache::MessageDataBundle());
+    QCOMPARE(model->cache()->messageMetadata("a", 3), Imap::Mailbox::AbstractCache::MessageDataBundle());
+    QCOMPARE(model->cache()->messageMetadata("a", 6), Imap::Mailbox::AbstractCache::MessageDataBundle());
+    QCOMPARE(model->cache()->messagePart("a", 1, "1"), QByteArray());
+    QCOMPARE(model->cache()->messagePart("a", 3, "1"), QByteArray());
+    QCOMPARE(model->cache()->messagePart("a", 6, "1"), QByteArray());
+
     cClient(t.mk("UID SEARCH ALL\r\n"));
     cServer(QByteArray("* SEARCH 6 9 10\r\n") + t.last("OK uid search\r\n"));
     cClient(t.mk("FETCH 1:3 (FLAGS)\r\n"));
