@@ -801,5 +801,47 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringUid()
     QCOMPARE(model->cache()->msgFlags("a", 43), QStringList() << "a");
 }
 
+/** @short New message arrives when syncing flags */
+void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringFlags()
+{
+    Imap::Mailbox::SyncState sync;
+    sync.setExists(3);
+    sync.setUidValidity(666);
+    sync.setUidNext(15);
+    QList<uint> uidMap;
+    uidMap << 6 << 9 << 10;
+    model->cache()->setMailboxSyncState("a", sync);
+    model->cache()->setUidMapping("a", uidMap);
+    QCOMPARE(model->rowCount(msgListA), 0);
+    cClient(t.mk("SELECT a\r\n"));
+    cServer("* 4 EXISTS\r\n"
+            "* OK [UIDVALIDITY 666] .\r\n"
+            "* OK [UIDNEXT 16] .\r\n");
+    cServer(t.last("OK selected\r\n"));
+    cClient(t.mk("UID SEARCH UID 15:*\r\n"));
+    cServer("* SEARCH 42\r\n");
+    cServer(t.last("OK uids\r\n"));
+    uidMap << 42;
+    sync.setUidNext(43);
+    sync.setExists(4);
+    cClient(t.mk("FETCH 1:4 (FLAGS)\r\n"));
+    cServer("* 1 FETCH (FLAGS (x))\r\n"
+            "* 2 FETCH (FLAGS (y))\r\n"
+            "* 5 EXISTS\r\n"
+            "* 3 FETCH (FLAGS (z))\r\n"
+            "* 4 FETCH (FLAGS (fn))\r\n");
+    cServer(t.last("OK fetch\r\n"));
+    // FIXME: bug: we don't notice the "5 EXISTS"
+    cEmpty();
+    // FIXME: we also shouldn't break on the following
+    //cServer("* 5 FETCH (FLAGS (gah))\r\n");
+    QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(model->cache()->uidMapping("a"), uidMap);
+    QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
+    QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
+    QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
+    QCOMPARE(model->cache()->msgFlags("a", 42), QStringList() << "fn");
+}
+
 
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )

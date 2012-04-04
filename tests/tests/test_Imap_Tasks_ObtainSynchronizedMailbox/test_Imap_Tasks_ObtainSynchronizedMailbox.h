@@ -46,6 +46,7 @@ private slots:
     void testCacheUidValidity();
     void testCacheArrivals();
     void testCacheArrivalRaceDuringUid();
+    void testCacheArrivalRaceDuringFlags();
 private:
     void cServer(const QByteArray &data);
     void cClient(const QByteArray &data);
