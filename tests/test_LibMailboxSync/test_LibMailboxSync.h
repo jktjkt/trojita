@@ -69,6 +69,7 @@ protected:
     TagGenerator t;
     uint existsA, uidValidityA, uidNextA;
     QList<uint> uidMapA;
+    bool m_verbose;
 };
 
 #define SOCK static_cast<Imap::FakeSocket*>( factory->lastSocket() )

@@ -34,6 +34,7 @@ LibMailboxSync::~LibMailboxSync()
 
 void LibMailboxSync::init()
 {
+    m_verbose = qgetenv("TROJITA_IMAP_DEBUG") == QByteArray("1");
     Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache( this, QString() );
     factory = new Imap::Mailbox::FakeSocketFactory();
     Imap::Mailbox::TaskFactoryPtr taskFactory( new Imap::Mailbox::TestingTaskFactory() );
@@ -57,7 +58,9 @@ void LibMailboxSync::modelSignalsError(const QString &message)
 
 void LibMailboxSync::modelLogged(uint parserId, const Imap::Mailbox::LogMessage &message)
 {
-    return;
+    if (!m_verbose)
+        return;
+
     qDebug() << "LOG" << parserId << message.source <<
                 (message.message.endsWith(QLatin1String("\r\n")) ?
                      message.message.left(message.message.size() - 2) : message.message);
