@@ -750,4 +750,49 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivals()
     QCOMPARE(model->cache()->msgFlags("a", 42), QStringList() << "fn");
 }
 
+/** @short Number of messages grows twice
+
+The first increment is when compared to the original state, the second one after the UID SEARCH is issued,
+but before its response arrives.
+*/
+void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringUid()
+{
+    Imap::Mailbox::SyncState sync;
+    sync.setExists(3);
+    sync.setUidValidity(666);
+    sync.setUidNext(15);
+    QList<uint> uidMap;
+    uidMap << 6 << 9 << 10;
+    model->cache()->setMailboxSyncState("a", sync);
+    model->cache()->setUidMapping("a", uidMap);
+    QCOMPARE(model->rowCount(msgListA), 0);
+    cClient(t.mk("SELECT a\r\n"));
+    cServer("* 4 EXISTS\r\n"
+            "* OK [UIDVALIDITY 666] .\r\n"
+            "* OK [UIDNEXT 16] .\r\n");
+    cServer(t.last("OK selected\r\n"));
+    cClient(t.mk("UID SEARCH UID 15:*\r\n"));
+    cServer("* 5 EXISTS\r\n* SEARCH 42 43\r\n");
+    cServer(t.last("OK uids\r\n"));
+    uidMap << 42 << 43;
+    sync.setUidNext(44);
+    sync.setExists(5);
+    cClient(t.mk("FETCH 1:5 (FLAGS)\r\n"));
+    cServer("* 1 FETCH (FLAGS (x))\r\n"
+            "* 2 FETCH (FLAGS (y))\r\n"
+            "* 3 FETCH (FLAGS (z))\r\n"
+            "* 4 FETCH (FLAGS (fn))\r\n"
+            "* 5 FETCH (FLAGS (a))\r\n");
+    cServer(t.last("OK fetch\r\n"));
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+    QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(model->cache()->uidMapping("a"), uidMap);
+    QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
+    QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
+    QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
+    QCOMPARE(model->cache()->msgFlags("a", 42), QStringList() << "fn");
+    QCOMPARE(model->cache()->msgFlags("a", 43), QStringList() << "a");
+}
+
+
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )
