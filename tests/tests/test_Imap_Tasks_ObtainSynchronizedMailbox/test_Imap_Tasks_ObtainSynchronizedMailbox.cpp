@@ -587,6 +587,13 @@ void ImapModelObtainSynchronizedMailboxTest::cClient(const QByteArray &data)
     QCOMPARE(QString::fromAscii(SOCK->writtenStuff()), QString::fromAscii(data));
 }
 
+void ImapModelObtainSynchronizedMailboxTest::cEmpty()
+{
+    for (int i=0; i<4; ++i)
+        QCoreApplication::processEvents();
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+}
+
 /** @short Make sure that calling Model::resyncMailbox() preloads data from the cache */
 void ImapModelObtainSynchronizedMailboxTest::testReloadReadsFromCache()
 {
@@ -609,7 +616,7 @@ void ImapModelObtainSynchronizedMailboxTest::testReloadReadsFromCache()
             "* 2 FETCH (FLAGS (y))\r\n"
             "* 3 FETCH (FLAGS (z))\r\n");
     cServer(t.last("OK fetch\r\n"));
-    QVERIFY(SOCK->writtenStuff().isEmpty());
+    cEmpty();
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
     QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
@@ -639,7 +646,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheNoChange()
             "* 2 FETCH (FLAGS (y))\r\n"
             "* 3 FETCH (FLAGS (z))\r\n");
     cServer(t.last("OK fetch\r\n"));
-    QVERIFY(SOCK->writtenStuff().isEmpty());
+    cEmpty();
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
     QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
@@ -703,7 +710,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheUidValidity()
             "* 2 FETCH (FLAGS (y))\r\n"
             "* 3 FETCH (FLAGS (z))\r\n");
     cServer(t.last("OK fetch\r\n"));
-    QVERIFY(SOCK->writtenStuff().isEmpty());
+    cEmpty();
     sync.setUidValidity(666);
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
@@ -741,7 +748,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivals()
             "* 3 FETCH (FLAGS (z))\r\n"
             "* 4 FETCH (FLAGS (fn))\r\n");
     cServer(t.last("OK fetch\r\n"));
-    QVERIFY(SOCK->writtenStuff().isEmpty());
+    cEmpty();
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
     QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
@@ -784,7 +791,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringUid()
             "* 4 FETCH (FLAGS (fn))\r\n"
             "* 5 FETCH (FLAGS (a))\r\n");
     cServer(t.last("OK fetch\r\n"));
-    QVERIFY(SOCK->writtenStuff().isEmpty());
+    cEmpty();
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
     QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
