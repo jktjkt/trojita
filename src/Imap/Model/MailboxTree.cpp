@@ -459,11 +459,13 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
     }
 }
 
+/** @short Process the EXPUNGE response when the UIDs are already synced */
 void TreeItemMailbox::handleExpunge(Model *const model, const Responses::NumberResponse &resp)
 {
+    Q_ASSERT(resp.kind == Responses::EXPUNGE);
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(m_children[ 0 ]);
     Q_ASSERT(list);
-    if (! list->fetched()) {
+    if (!list->fetched()) {
         throw UnexpectedResponseReceived("Got EXPUNGE before we fully synced", resp);
     }
     if (resp.number > static_cast<uint>(list->m_children.size()) || resp.number == 0) {
@@ -485,8 +487,13 @@ void TreeItemMailbox::handleExpunge(Model *const model, const Responses::NumberR
     model->saveUidMap(list);
 }
 
+/** @short Process the EXISTS response
+
+This function assumes that the mailbox is already synced.
+*/
 void TreeItemMailbox::handleExists(Model *const model, const Responses::NumberResponse &resp)
 {
+    Q_ASSERT(resp.kind == Responses::EXISTS);
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(m_children[0]);
     Q_ASSERT(list);
     if (!list->fetched()) {
