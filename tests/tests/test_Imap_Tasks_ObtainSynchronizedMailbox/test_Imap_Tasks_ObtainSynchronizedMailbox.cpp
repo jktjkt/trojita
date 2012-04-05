@@ -843,5 +843,6 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringFlags()
     QCOMPARE(model->cache()->msgFlags("a", 42), QStringList() << "fn");
 }
 
+// FIXME: test expunges during sync
 
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )
