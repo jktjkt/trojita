@@ -485,6 +485,41 @@ void TreeItemMailbox::handleExpunge(Model *const model, const Responses::NumberR
     model->saveUidMap(list);
 }
 
+void TreeItemMailbox::handleExists(Model *const model, const Responses::NumberResponse &resp)
+{
+    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(m_children[0]);
+    Q_ASSERT(list);
+    if (!list->fetched()) {
+        throw UnexpectedResponseReceived("Got EXPUNGE before we fully synced", resp);
+    }
+    // This is a bit tricky -- unfortunately, we can't assume anything about the UID of new arrivals. On the other hand,
+    // these messages can be referenced by (even unrequested) FETCH responses and deleted by EXPUNGE, so we really want
+    // to add them to the tree.
+    int newArrivals = resp.number - list->m_children.size();
+    if (newArrivals < 0) {
+        throw UnexpectedResponseReceived("EXISTS response attempted to decrease number of messages", resp);
+    } else if (newArrivals == 0) {
+        // remains unchanged...
+        return;
+    }
+    syncState.setExists(resp.number);
+    model->cache()->clearUidMapping(mailbox());
+    model->cache()->setMailboxSyncState(mailbox(), syncState);
+
+    QModelIndex parent = list->toIndex(model);
+    int offset = list->m_children.size();
+    model->beginInsertRows(parent, offset, resp.number - 1);
+    for (int i = 0; i < newArrivals; ++i) {
+        TreeItemMessage *msg = new TreeItemMessage(list);
+        msg->m_offset = i + offset;
+        list->m_children << msg;
+        // yes, we really have to add this message with UID 0 :(
+    }
+    model->endInsertRows();
+    list->m_totalMessageCount = resp.number;
+    model->emitMessageCountChanged(this);
+}
+
 TreeItemPart *TreeItemMailbox::partIdToPtr(Model *const model, TreeItemMessage *message, const QString &msgId)
 {
     QString partIdentification;

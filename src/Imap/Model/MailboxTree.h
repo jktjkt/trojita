@@ -158,6 +158,7 @@ public:
                              TreeItemMessage *&changedMessage);
     void rescanForChildMailboxes(Model *const model);
     void handleExpunge(Model *const model, const Responses::NumberResponse &resp);
+    void handleExists(Model *const model, const Responses::NumberResponse &resp);
     bool isSelectable() const;
 private:
     TreeItemPart *partIdToPtr(Model *model, TreeItemMessage *message, const QString &msgId);
