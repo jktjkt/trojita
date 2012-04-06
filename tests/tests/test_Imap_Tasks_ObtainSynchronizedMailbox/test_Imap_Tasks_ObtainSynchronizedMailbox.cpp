@@ -68,6 +68,19 @@ char *toString(const Imap::Mailbox::AbstractCache::MessageDataBundle &bundle)
     return qstrdup(buf.toAscii().constData());
 }
 
+template<>
+char *toString(const QList<uint> &list)
+{
+    QString buf;
+    QDebug d(&buf);
+    d << "QList<uint> (" << list.size() << "items):";
+    Q_FOREACH(const uint item, list) {
+        d << item;
+    }
+    return qstrdup(buf.toAscii().constData());
+}
+
+
 }
 
 #define SOCK static_cast<Imap::FakeSocket*>( factory->lastSocket() )
