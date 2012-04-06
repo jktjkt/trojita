@@ -497,7 +497,7 @@ void TreeItemMailbox::handleExists(Model *const model, const Responses::NumberRe
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(m_children[0]);
     Q_ASSERT(list);
     if (!list->fetched()) {
-        throw UnexpectedResponseReceived("Got EXPUNGE before we fully synced", resp);
+        throw UnexpectedResponseReceived("Got EXISTS before we fully synced", resp);
     }
     // This is a bit tricky -- unfortunately, we can't assume anything about the UID of new arrivals. On the other hand,
     // these messages can be referenced by (even unrequested) FETCH responses and deleted by EXPUNGE, so we really want
