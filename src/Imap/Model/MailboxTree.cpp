@@ -465,9 +465,6 @@ void TreeItemMailbox::handleExpunge(Model *const model, const Responses::NumberR
     Q_ASSERT(resp.kind == Responses::EXPUNGE);
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(m_children[ 0 ]);
     Q_ASSERT(list);
-    if (!list->fetched()) {
-        throw UnexpectedResponseReceived("Got EXPUNGE before we fully synced", resp);
-    }
     if (resp.number > static_cast<uint>(list->m_children.size()) || resp.number == 0) {
         throw UnknownMessageIndex("EXPUNGE references message number which is out-of-bounds");
     }
@@ -496,9 +493,6 @@ void TreeItemMailbox::handleExists(Model *const model, const Responses::NumberRe
     Q_ASSERT(resp.kind == Responses::EXISTS);
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(m_children[0]);
     Q_ASSERT(list);
-    if (!list->fetched()) {
-        throw UnexpectedResponseReceived("Got EXISTS before we fully synced", resp);
-    }
     // This is a bit tricky -- unfortunately, we can't assume anything about the UID of new arrivals. On the other hand,
     // these messages can be referenced by (even unrequested) FETCH responses and deleted by EXPUNGE, so we really want
     // to add them to the tree.
