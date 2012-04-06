@@ -456,12 +456,12 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncTwoInParallel()
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), t.mk("UID SEARCH ALL\r\n") );
-    QCOMPARE( model->rowCount( msgListA ), 0 );
+    QCOMPARE( model->rowCount( msgListA ), 1 );
     QCOMPARE( model->rowCount( msgListB ), 0 );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    QCOMPARE( model->rowCount( msgListA ), 0 );
+    QCOMPARE( model->rowCount( msgListA ), 1 );
     QCOMPARE( model->rowCount( msgListB ), 0 );
     // ...none of them are synced yet
 

@@ -266,16 +266,15 @@ void ObtainSynchronizedMailboxTask::fullMboxSync(TreeItemMailbox *mailbox, TreeI
         model->endRemoveRows();
     }
     if (syncState.exists()) {
-        // FIXME: condstore: allocate the messages right here
+        model->beginInsertRows(parent, 0, syncState.exists() - 1);
+        for (uint i = 0; i < syncState.exists(); ++i) {
+            TreeItemMessage *msg = new TreeItemMessage(list);
+            msg->m_offset = i;
+            list->m_children << msg;
+        }
+        model->endInsertRows();
 
-        // FIXME: Previously we'd create TreeItemMessages here, and then delete them in _finalizeUidSyncAll().
-        // We should consider preloading messages immediately, along with their flags etc, in order to
-        // minimize roundtrips.
-
-        // We're empty by now, so we sync just the additions.
-        uidSyncingMode = UID_SYNC_ONLY_NEW;
         syncUids(mailbox);
-
         list->m_numberFetchingStatus = TreeItem::LOADING;
         list->m_unreadMessageCount = 0;
     } else {
@@ -304,6 +303,7 @@ void ObtainSynchronizedMailboxTask::fullMboxSync(TreeItemMailbox *mailbox, TreeI
 
 void ObtainSynchronizedMailboxTask::syncNoNewNoDeletions(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState, const QList<uint> &seqToUid)
 {
+    Q_ASSERT(syncState.exists() == static_cast<uint>(seqToUid.size()));
     log("No arrivals or deletions since the last time", LOG_MAILBOX_SYNC);
     if (syncState.exists()) {
         // Verify that we indeed have all UIDs and not need them anymore
