@@ -149,6 +149,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper(const Imap::Responses::Sta
             log("Flags synchronized", LOG_MAILBOX_SYNC);
             notifyInterestingMessages(mailbox);
             model->emitMessageCountChanged(mailbox);
+            flagsCmd.clear();
 
             if (newArrivalsFetch.isEmpty()) {
                 _completed();
