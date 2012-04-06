@@ -637,6 +637,7 @@ void ImapModelObtainSynchronizedMailboxTest::testReloadReadsFromCache()
     QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
     QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
     QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
+    justKeepTask();
 }
 
 /** @short Test synchronization of a mailbox with on-disk cache being up-to-date, but no data in memory */
@@ -667,6 +668,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheNoChange()
     QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
     QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
     QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
+    justKeepTask();
 }
 
 /** @short Test UIDVALIDITY changes since the last cached state */
@@ -732,6 +734,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheUidValidity()
     QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
     QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
     QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
+    justKeepTask();
 }
 
 /** @short Test synchronization of a mailbox with on-disk cache when one new message arrives */
@@ -770,6 +773,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivals()
     QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
     QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
     QCOMPARE(model->cache()->msgFlags("a", 42), QStringList() << "fn");
+    justKeepTask();
 }
 
 /** @short Number of messages grows twice
@@ -814,6 +818,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringUid()
     QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
     QCOMPARE(model->cache()->msgFlags("a", 42), QStringList() << "fn");
     QCOMPARE(model->cache()->msgFlags("a", 43), QStringList() << "a");
+    justKeepTask();
 }
 
 /** @short New message arrives when syncing flags */
@@ -864,6 +869,19 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringFlags()
     QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
     QCOMPARE(model->cache()->msgFlags("a", 42), QStringList() << "fn");
     QCOMPARE(model->cache()->msgFlags("a", 60), QStringList() << "gah");
+    justKeepTask();
+}
+
+/** @short Make sure that the only existing task is the KeepMailboxOpenTask and nothing else */
+void ImapModelObtainSynchronizedMailboxTest::justKeepTask()
+{
+    QCOMPARE(model->taskModel()->rowCount(), 1);
+    QModelIndex parser1 = model->taskModel()->index(0, 0);
+    QVERIFY(parser1.isValid());
+    QCOMPARE(model->taskModel()->rowCount(parser1), 1);
+    QModelIndex firstTask = parser1.child(0, 0);
+    QVERIFY(firstTask.isValid());
+    QVERIFY(!firstTask.child(0, 0).isValid());
 }
 
 // FIXME: test expunges during sync

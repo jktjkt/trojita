@@ -51,6 +51,7 @@ private:
     void cServer(const QByteArray &data);
     void cClient(const QByteArray &data);
     void cEmpty();
+    void justKeepTask();
 };
 
 #endif
