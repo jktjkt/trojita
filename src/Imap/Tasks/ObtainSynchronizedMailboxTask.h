@@ -95,6 +95,7 @@ private:
     CommandHandle selectCmd;
     CommandHandle uidSyncingCmd;
     CommandHandle flagsCmd;
+    QList<CommandHandle> newArrivalsFetch;
     Imap::Mailbox::MailboxSyncingProgress status;
     UidSyncingMode uidSyncingMode;
     QList<uint> uidMap;

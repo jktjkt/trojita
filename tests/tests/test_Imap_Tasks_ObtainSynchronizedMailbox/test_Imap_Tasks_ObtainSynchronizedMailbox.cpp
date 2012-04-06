@@ -844,18 +844,26 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringFlags()
             "* 2 FETCH (FLAGS (y))\r\n"
             "* 5 EXISTS\r\n"
             "* 3 FETCH (FLAGS (z))\r\n"
-            "* 4 FETCH (FLAGS (fn))\r\n");
-    cServer(t.last("OK fetch\r\n"));
-    // FIXME: bug: we don't notice the "5 EXISTS"
+            "* 4 FETCH (FLAGS (fn))\r\n"
+            // notice that we're adding unsolicited data for a new message here
+            "* 5 FETCH (FLAGS (blah))\r\n");
+    // The new arrival shall be picked already, but not the UIDNEXT change
+    sync.setExists(5);
+    QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QByteArray fetchTermination = t.last("OK fetch\r\n");
+    cClient(t.mk("UID FETCH 43:* (FLAGS)\r\n"));
+    cServer(fetchTermination);
+    cServer("* 5 FETCH (FLAGS (gah) UID 60)\r\n" + t.last("OK new discovery\r\n"));
+    sync.setUidNext(61);
+    uidMap << 60;
     cEmpty();
-    // FIXME: we also shouldn't break on the following
-    //cServer("* 5 FETCH (FLAGS (gah))\r\n");
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
     QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
     QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
     QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
     QCOMPARE(model->cache()->msgFlags("a", 42), QStringList() << "fn");
+    QCOMPARE(model->cache()->msgFlags("a", 60), QStringList() << "gah");
 }
 
 // FIXME: test expunges during sync

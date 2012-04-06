@@ -149,7 +149,12 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper(const Imap::Responses::Sta
             log("Flags synchronized", LOG_MAILBOX_SYNC);
             notifyInterestingMessages(mailbox);
             model->emitMessageCountChanged(mailbox);
-            _completed();
+
+            if (newArrivalsFetch.isEmpty()) {
+                _completed();
+            } else {
+                log("Pending new arrival fetching, not terminateing yet", LOG_MAILBOX_SYNC);
+            }
         } else {
             status = STATE_DONE;
             _failed("Flags synchronization failed");
@@ -157,6 +162,19 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper(const Imap::Responses::Sta
         }
         emit model->mailboxSyncingProgress(mailboxIndex, status);
         return true;
+    } else if (newArrivalsFetch.contains(resp->tag)) {
+
+        if (resp->kind == Responses::OK) {
+            newArrivalsFetch.removeOne(resp->tag);
+
+            if (newArrivalsFetch.isEmpty() && status == STATE_DONE && flagsCmd.isEmpty()) {
+                _completed();
+            }
+        } else {
+            _failed("UID discovery of new arrivals after initial UID sync has failed");
+        }
+        return true;
+
     } else {
         return false;
     }
@@ -327,7 +345,10 @@ void ObtainSynchronizedMailboxTask::syncNoNewNoDeletions(TreeItemMailbox *mailbo
         status = STATE_DONE;
         emit model->mailboxSyncingProgress(mailboxIndex, status);
         notifyInterestingMessages(mailbox);
-        _completed();
+
+        if (newArrivalsFetch.isEmpty()) {
+            _completed();
+        }
     }
 }
 
@@ -470,9 +491,45 @@ bool ObtainSynchronizedMailboxTask::handleNumberResponse(const Imap::Responses::
     Q_ASSERT(list);
     switch (resp->kind) {
     case Imap::Responses::EXISTS:
-        mailbox->syncState.setExists(resp->number);
-        return true;
-        break;
+        switch (status) {
+        case STATE_WAIT_FOR_CONN:
+            Q_ASSERT(false);
+            return false;
+
+        case STATE_SELECTING:
+        case STATE_SYNCING_UIDS:
+            mailbox->syncState.setExists(resp->number);
+            return true;
+
+        case STATE_SYNCING_FLAGS:
+        case STATE_DONE:
+            if (resp->number == static_cast<uint>(list->m_children.size())) {
+                // no changes
+                return true;
+            }
+            mailbox->handleExists(model, *resp);
+            Q_ASSERT(list->m_children.size());
+            uint highestKnownUid = 0;
+            for (int i = list->m_children.size() - 1; ! highestKnownUid && i >= 0; --i) {
+                highestKnownUid = static_cast<const TreeItemMessage *>(list->m_children[i])->uid();
+            }
+            CommandHandle fetchCmd = parser->uidFetch(Sequence::startingAt(
+                                                    // Did the UID walk return a usable number?
+                                                    highestKnownUid ?
+                                                    // Yes, we've got at least one message with a UID known -> ask for higher
+                                                    // but don't forget to compensate for an pre-existing UIDNEXT value
+                                                    qMax(mailbox->syncState.uidNext(), highestKnownUid + 1)
+                                                    :
+                                                    // No messages, or no messages with valid UID -> use the UIDNEXT from the syncing state
+                                                    // but prevent a possible invalid 0:*
+                                                    qMax(mailbox->syncState.uidNext(), 1u)
+                                                ), QStringList() << QLatin1String("FLAGS"));
+            newArrivalsFetch.append(fetchCmd);
+            return true;
+        }
+        Q_ASSERT(false);
+        return false;
+
     case Imap::Responses::EXPUNGE:
         // must be handled elsewhere
         break;
@@ -505,6 +562,7 @@ bool ObtainSynchronizedMailboxTask::handleSearch(const Imap::Responses::Search *
 
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
     Q_ASSERT(mailbox);
+
     switch (uidSyncingMode) {
     case UID_SYNC_ALL:
         if (static_cast<uint>(resp->items.size()) != mailbox->syncState.exists()) {
