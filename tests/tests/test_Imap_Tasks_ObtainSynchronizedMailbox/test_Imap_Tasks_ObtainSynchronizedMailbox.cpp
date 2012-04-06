@@ -58,6 +58,7 @@ char *toString(const Imap::Mailbox::SyncState &syncState)
     return qstrdup(buf.toAscii().constData());
 }
 
+/** @short Debug data dumper for the MessageDataBundle */
 template<>
 char *toString(const Imap::Mailbox::AbstractCache::MessageDataBundle &bundle)
 {
@@ -68,6 +69,7 @@ char *toString(const Imap::Mailbox::AbstractCache::MessageDataBundle &bundle)
     return qstrdup(buf.toAscii().constData());
 }
 
+/** @short Debug data dumper for QList<uint> */
 template<>
 char *toString(const QList<uint> &list)
 {
