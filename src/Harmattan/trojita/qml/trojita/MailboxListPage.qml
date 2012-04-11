@@ -16,7 +16,7 @@ Page {
                 onClicked: {
                     view.positionViewAtIndex(model.index, ListView.Visible);
                     view.currentIndex = model.index
-                    view.mailboxSelected(mailboxName)
+                    mailboxSelected(mailboxName)
                 }
             }
             Text {
@@ -37,9 +37,8 @@ Page {
         highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
         highlightMoveDuration: 600
         focus: true
-
-        signal mailboxSelected(string mailbox)
     }
 
     property alias model: view.model
+    signal mailboxSelected(string mailbox)
 }
