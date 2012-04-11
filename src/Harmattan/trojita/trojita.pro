@@ -47,5 +47,6 @@ DEPENDPATH += ../../
 trojita_libs = Imap MSA Streams qwwsmtpclient Common
 myprefix = ../../
 include(../../linking.pri)
+include(../../../configh.pri)
 
 QT += network sql webkit
