@@ -12,7 +12,12 @@ Page {
             width: parent.width
             height: 150
             Text {
-                text: "<b>" + shortMailboxName + "</b><br/>" + totalMessageCount + " total, " + unreadMessageCount + " unread"
+                font.pointSize: 16
+                text: "<b>" + shortMailboxName + "</b><br/>" +
+                      (mailboxIsSelectable ?
+                           (totalMessageCount === 0 ? "empty" : (totalMessageCount + " total, " + unreadMessageCount + " unread")) :
+                           ("This mailbox does not contain any messages.")
+                           )
             }
         }
     }
