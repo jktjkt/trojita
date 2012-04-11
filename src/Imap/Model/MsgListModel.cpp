@@ -52,6 +52,28 @@ MsgListModel::MsgListModel(QObject *parent, Model *model): QAbstractProxyModel(p
             this, SLOT(handleRowsAboutToBeInserted(const QModelIndex &, int,int)));
     connect(model, SIGNAL(rowsInserted(const QModelIndex &, int, int)),
             this, SLOT(handleRowsInserted(const QModelIndex &, int,int)));
+
+    QHash<int, QByteArray> roleNames;
+    roleNames[RoleIsFetched] = "isFetched";
+    roleNames[RoleMessageUid] = "messageUid";
+    roleNames[RoleMessageIsMarkedDeleted] = "isMarkedDeleted";
+    roleNames[RoleMessageIsMarkedRead] = "isMarkedRead";
+    roleNames[RoleMessageIsMarkedForwarded] = "isMarkedForwarded";
+    roleNames[RoleMessageIsMarkedReplied] = "isMarkedReplied";
+    roleNames[RoleMessageIsMarkedRecent] = "isMarkedRecent";
+    roleNames[RoleMessageDate] = "date";
+    roleNames[RoleMessageFrom] = "from";
+    roleNames[RoleMessageTo] = "to";
+    roleNames[RoleMessageCc] = "cc";
+    roleNames[RoleMessageBcc] = "bcc";
+    roleNames[RoleMessageSender] = "sender";
+    roleNames[RoleMessageReplyTo] = "replyTo";
+    roleNames[RoleMessageInReplyTo] = "inReplyTo";
+    roleNames[RoleMessageMessageId] = "messageId";
+    roleNames[RoleMessageSubject] = "subject";
+    roleNames[RoleMessageFlags] = "flags";
+    roleNames[RoleMessageSize] = "size";
+    setRoleNames(roleNames);
 }
 
 void MsgListModel::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
