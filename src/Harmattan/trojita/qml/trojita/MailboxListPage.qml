@@ -10,7 +10,7 @@ Page {
 
         Item {
             width: parent.width
-            height: 150
+            height: UiConstants.ListItemHeightDefault
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -20,12 +20,20 @@ Page {
                 }
             }
             Text {
-                font.pointSize: 16
-                text: "<b>" + shortMailboxName + "</b><br/>" +
-                      (mailboxIsSelectable ?
-                           (totalMessageCount === 0 ? "empty" : (totalMessageCount + " total, " + unreadMessageCount + " unread")) :
-                           ("This mailbox does not contain any messages.")
-                           )
+                id: titleText
+                text: shortMailboxName
+                font: UiConstants.TitleFont
+            }
+            Text {
+                id: messageCountsText
+                anchors.top: titleText.bottom
+                font: UiConstants.SubtitleFont
+                text: mailboxIsSelectable ?
+                          (totalMessageCount === 0 ?
+                               "empty" :
+                               (totalMessageCount + " total, " + unreadMessageCount + " unread"))
+                        :
+                          "This mailbox does not contain any messages."
             }
         }
     }
@@ -38,6 +46,8 @@ Page {
         highlightMoveDuration: 600
         focus: true
     }
+
+    anchors.margins: UiConstants.DefaultMargin
 
     property alias model: view.model
     signal mailboxSelected(string mailbox)
