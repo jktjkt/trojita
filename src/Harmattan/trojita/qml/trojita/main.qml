@@ -4,25 +4,17 @@ import com.nokia.meego 1.0
 PageStackWindow {
     id: appWindow
 
-    initialPage: imapSettingsPage
+    //initialPage: imapSettingsPage
+    initialPage: mailboxListPage
 
-    MainPage {
-        id: mainPage
-    }
-
-    ImapSettingsPage {
+    /*ImapSettingsPage {
         id: imapSettingsPage
-    }
-
-    /*ToolBarLayout {
-        id: commonTools
-        //visible: true
-        ToolIcon {
-            platformIconId: "toolbar-view-menu"
-            anchors.right: (parent === undefined) ? undefined : parent.right
-            onClicked: (myMenu.status == DialogStatus.Closed) ? myMenu.open() : myMenu.close()
-        }
     }*/
+
+    MailboxListPage {
+        id: mailboxListPage
+        model: mailboxModel
+    }
 
     Menu {
         id: myMenu
