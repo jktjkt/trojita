@@ -3,19 +3,7 @@ import com.nokia.meego 1.0
 import com.nokia.extras 1.1
 
 Page {
-    //tools: imapSettingsTools
     Component.onCompleted: {theme.inverted = true}
-    //anchors.fill: parent
-
-    /*ToolBarLayout {
-        id: imapSettingsTools
-        ToolIcon { iconId: "toolbar-back"; onClicked: { myMenu.close(); pageStack.pop(); }  }
-        ToolButtonRow {
-            ToolButton { text: "ToolButton 1" }
-            ToolButton { text: "ToolButton 2" }
-        }
-        ToolIcon { iconId: "toolbar-view-menu" ; onClicked: myMenu.open(); }
-    }*/
 
     Flickable {
         id: flickable
