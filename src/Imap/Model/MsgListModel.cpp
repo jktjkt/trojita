@@ -437,6 +437,14 @@ void MsgListModel::setMailbox(const QModelIndex &index)
     }
 }
 
+/** @short Change mailbox to the one specified by its name */
+void MsgListModel::setMailbox(const QString &mailboxName)
+{
+    Model *model = dynamic_cast<Model*>(sourceModel());
+    Q_ASSERT(model);
+    setMailbox(model->findMailboxByName(mailboxName)->toIndex(model));
+}
+
 TreeItemMailbox *MsgListModel::currentMailbox() const
 {
     return msgList ? dynamic_cast<TreeItemMailbox *>(msgList->parent()) : 0;
