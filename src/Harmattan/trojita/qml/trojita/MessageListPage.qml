@@ -12,7 +12,7 @@ Page {
             height: 250
             Text {
                 font.pointSize: 16
-                text: "<b>" + subject + "</b><br/>" + from + date
+                text: "<b>" + subject + "</b><br/>" + from + "<br/>" + date
             }
         }
     }
