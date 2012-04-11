@@ -14,6 +14,16 @@ PageStackWindow {
     MailboxListPage {
         id: mailboxListPage
         model: mailboxModel
+
+        onMailboxSelected: {
+            msgListModel.setMailbox(mailbox)
+            pageStack.push(messageListPage)
+        }
+    }
+
+    MessageListPage {
+        id: messageListPage
+        model: msgListModel
     }
 
     /*Menu {
