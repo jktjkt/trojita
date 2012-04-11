@@ -57,12 +57,7 @@ Page {
             Button {
                 id: encryptionMethodBtn
                 anchors {left: col.left; right: col.right;}
-                text: retrieveText()
-
-                function retrieveText() {
-                    return encryptionMethodDialog.titleText + ": "
-                            + encryptionMethodDialog.model.get(encryptionMethodDialog.selectedIndex).name
-                }
+                text: encryptionMethodDialog.titleText + ": " + encryptionMethodDialog.model.get(encryptionMethodDialog.selectedIndex).name
 
                 onClicked: {
                     encryptionMethodDialog.open()
@@ -88,7 +83,6 @@ Page {
                     }
                 }
                 onAccepted: {
-                    encryptionMethodBtn.text = encryptionMethodBtn.retrieveText()
                     imapPort.text = encryptionMethodDialog.model.get(encryptionMethodDialog.selectedIndex).port
                 }
             }
