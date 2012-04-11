@@ -11,6 +11,14 @@ Page {
         Item {
             width: parent.width
             height: 150
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    view.positionViewAtIndex(model.index, ListView.Visible);
+                    view.currentIndex = model.index
+                    view.mailboxSelected(mailboxName)
+                }
+            }
             Text {
                 font.pointSize: 16
                 text: "<b>" + shortMailboxName + "</b><br/>" +
@@ -27,6 +35,10 @@ Page {
         anchors.fill: parent
         delegate: mailboxItemDelegate
         highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
+        highlightMoveDuration: 600
+        focus: true
+
+        signal mailboxSelected(string mailbox)
     }
 
     property alias model: view.model
