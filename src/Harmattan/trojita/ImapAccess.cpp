@@ -29,7 +29,7 @@ ImapAccess::ImapAccess(QObject *parent) :
     Imap::Mailbox::SocketFactoryPtr factory;
     Imap::Mailbox::TaskFactoryPtr taskFactory(new Imap::Mailbox::TaskFactory());
     // FIXME: respect the settings about where to connect
-    factory.reset(new Imap::Mailbox::SslSocketFactory(QLatin1String("localhost"), 143));
+    factory.reset(new Imap::Mailbox::TlsAbleSocketFactory(QLatin1String("localhost"), 143));
 
     // FIXME: respect the settings about the cache
     cache = new Imap::Mailbox::MemoryCache(this, QString());
