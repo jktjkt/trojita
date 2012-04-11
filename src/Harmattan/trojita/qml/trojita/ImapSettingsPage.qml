@@ -54,7 +54,7 @@ Page {
                 inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhPreferLowercase | Qt.ImhUrlCharactersOnly | Qt.ImhNoPredictiveText
             }
 
-            TumblerButton {
+            Button {
                 id: encryptionMethodBtn
                 anchors {left: col.left; right: col.right;}
                 text: retrieveText()
