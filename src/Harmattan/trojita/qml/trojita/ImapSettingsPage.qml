@@ -101,6 +101,7 @@ Page {
                 text: "143"
                 anchors {left: col.left; right: col.right;}
                 inputMethodHints: Qt.ImhDigitsOnly
+                validator: IntValidator { bottom: 1; top: 65535 }
             }
         }
     }
