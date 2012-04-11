@@ -76,16 +76,20 @@ Page {
                 model: ListModel {
                     ListElement {
                         name: QT_TR_NOOP("No")
+                        port: 143
                     }
                     ListElement {
                         name: QT_TR_NOOP("SSL")
+                        port: 993
                     }
                     ListElement {
                         name: QT_TR_NOOP("StartTLS")
+                        port: 143
                     }
                 }
                 onAccepted: {
                     encryptionMethodBtn.text = encryptionMethodBtn.retrieveText()
+                    imapPort.text = encryptionMethodDialog.model.get(encryptionMethodDialog.selectedIndex).port
                 }
             }
 
@@ -94,6 +98,7 @@ Page {
             }
             TextField {
                 id: imapPort
+                text: "143"
                 anchors {left: col.left; right: col.right;}
                 inputMethodHints: Qt.ImhDigitsOnly
             }
