@@ -3,13 +3,14 @@ import com.nokia.meego 1.0
 import com.nokia.extras 1.1
 
 Page {
+    property alias model: view.model
+
+    anchors.margins: UiConstants.DefaultMargin
+
     Component {
         id: messageItemDelegate
 
         Item {
-            width: parent.width
-            height: 120
-
             function formatMailAddress(items) {
                 if (items[0] !== null) {
                     return items[0] + " <" + items[2] + "@" + items[3] + ">"
@@ -17,6 +18,9 @@ Page {
                     return items[2] + "@" + items[3]
                 }
             }
+
+            width: parent.width
+            height: 120
 
             Column {
                 Text {
@@ -39,14 +43,10 @@ Page {
     }
 
     ListView {
+        signal messageSelected(string mailbox)
+
         id: view
         anchors.fill: parent
         delegate: messageItemDelegate
-
-        signal messageSelected(string mailbox)
     }
-
-    anchors.margins: UiConstants.DefaultMargin
-
-    property alias model: view.model
 }
