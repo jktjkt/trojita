@@ -7,6 +7,7 @@ Page {
     signal mailboxSelected(string mailbox)
 
     anchors.margins: UiConstants.DefaultMargin
+    tools: commonTools
 
     //Component.onCompleted: {theme.inverted = true}
 

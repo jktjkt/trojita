@@ -26,11 +26,26 @@ PageStackWindow {
         model: msgListModel
     }
 
-    /*Menu {
+    ToolBarLayout {
+        id: commonTools
+        visible: true
+        ToolIcon {
+            iconId: "toolbar-back"
+            onClicked: pageStack.pop()
+        }
+        ButtonRow {
+            style: TabButtonStyle {}
+            TabButton {
+                text: "blah"
+            }
+        }
+    }
+
+    Menu {
         id: myMenu
         visualParent: pageStack
         MenuLayout {
             MenuItem { text: qsTr("Sample menu item") }
         }
-    }*/
+    }
 }
