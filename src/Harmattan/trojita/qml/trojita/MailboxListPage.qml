@@ -51,4 +51,8 @@ Page {
         highlightMoveDuration: 600
         focus: true
     }
+
+    ScrollDecorator {
+        flickableItem: view
+    }
 }
