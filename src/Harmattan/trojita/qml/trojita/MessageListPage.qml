@@ -6,6 +6,7 @@ Page {
     property alias model: view.model
 
     anchors.margins: UiConstants.DefaultMargin
+    tools: commonTools
 
     Component {
         id: messageItemDelegate
