@@ -3,6 +3,11 @@ import com.nokia.meego 1.0
 import com.nokia.extras 1.1
 
 Page {
+    property alias model: view.model
+    signal mailboxSelected(string mailbox)
+
+    anchors.margins: UiConstants.DefaultMargin
+
     //Component.onCompleted: {theme.inverted = true}
 
     Component {
@@ -46,9 +51,4 @@ Page {
         highlightMoveDuration: 600
         focus: true
     }
-
-    anchors.margins: UiConstants.DefaultMargin
-
-    property alias model: view.model
-    signal mailboxSelected(string mailbox)
 }
