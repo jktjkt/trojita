@@ -30,19 +30,22 @@ Page {
                 text: shortMailboxName
                 font: UiConstants.TitleFont
             }
+            ProgressBar {
+                visible: mailboxIsSelectable && totalMessageCount === undefined
+                anchors { left: parent.left; right: parent.right; top: titleText.bottom }
+                indeterminate: true
+            }
             Text {
                 id: messageCountsText
                 anchors.top: titleText.bottom
                 font: UiConstants.SubtitleFont
-                text: totalMessageCount === undefined ?
-                          "loading..." :
-                          ( mailboxIsSelectable ?
-                               (totalMessageCount === 0 ?
-                                    "empty" :
-                                    (totalMessageCount + " total, " + unreadMessageCount + " unread")
-                               ) :
-                               "This mailbox does not contain any messages."
-                           )
+                visible: ! mailboxIsSelectable || totalMessageCount !== undefined
+                text: mailboxIsSelectable ?
+                          (totalMessageCount === 0 ?
+                               "empty" :
+                               (totalMessageCount + " total, " + unreadMessageCount + " unread")
+                           ) :
+                          "This mailbox does not contain any messages."
             }
         }
     }
