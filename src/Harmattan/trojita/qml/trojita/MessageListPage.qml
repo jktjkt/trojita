@@ -91,8 +91,7 @@ Page {
 
         id: view
         anchors.fill: parent
-        //delegate: messageItemDelegate
-        delegate: normalMessageItemDelegate
+        delegate: messageItemDelegate
 
         maximumFlickVelocity: 999999
     }
