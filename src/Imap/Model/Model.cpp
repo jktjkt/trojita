@@ -128,14 +128,29 @@ Model::~Model()
     delete m_mailboxes;
 }
 
+/** @short Process responses from all sockets */
+void Model::responseReceived()
+{
+    for (QMap<Parser *,ParserState>::iterator it = m_parsers.begin(); it != m_parsers.end(); ++it) {
+        responseReceived(it);
+    }
+}
+
+/** @short Process responses from the specified parser */
 void Model::responseReceived(Parser *parser)
 {
     QMap<Parser *,ParserState>::iterator it = m_parsers.find(parser);
     Q_ASSERT(it != m_parsers.end());
+    responseReceived(it);
+}
 
+/** @short Process responses from the specified parser */
+void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
+{
     ParserStateGuard guard(*it);
     Q_ASSERT(it->parser);
 
+    int counter = 0;
     while (it->parser && it->parser->hasResponse()) {
         QSharedPointer<Imap::Responses::AbstractResponse> resp = it->parser->getResponse();
         Q_ASSERT(resp);
@@ -146,7 +161,7 @@ void Model::responseReceived(Parser *parser)
                 QString buf;
                 QTextStream s(&buf);
                 s << *stateResponse;
-                logTrace(parser->parserId(), LOG_OTHER, QString::fromAscii("Model"), QString::fromAscii("BAD response: %1").arg(buf));
+                logTrace(it->parser->parserId(), LOG_OTHER, QString::fromAscii("Model"), QString::fromAscii("BAD response: %1").arg(buf));
                 qDebug() << buf;
             }
         }
@@ -211,6 +226,13 @@ void Model::responseReceived(Parser *parser)
             uint parserId = it->parser->parserId();
             killParser(it->parser, PARSER_KILL_HARD);
             broadcastParseError(parserId, QString::fromStdString(e.exceptionClass()), e.what(), e.line(), e.offset());
+            break;
+        }
+
+        // Return to the event loop every 100 messages to handle GUI events
+        ++counter;
+        if (counter == 100) {
+            QTimer::singleShot(0, this, SLOT(responseReceived()));
             break;
         }
     }

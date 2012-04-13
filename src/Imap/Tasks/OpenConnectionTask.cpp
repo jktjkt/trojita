@@ -32,7 +32,7 @@ OpenConnectionTask::OpenConnectionTask(Model *model) :
     Q_ASSERT(model->networkPolicy() != Model::NETWORK_OFFLINE);
     parser = new Parser(model, model->m_socketFactory->create(), ++model->m_lastParserId);
     ParserState parserState(parser);
-    connect(parser, SIGNAL(responseReceived(Imap::Parser *)), model, SLOT(responseReceived(Imap::Parser *)));
+    connect(parser, SIGNAL(responseReceived(Imap::Parser *)), model, SLOT(responseReceived(Imap::Parser*)), Qt::QueuedConnection);
     connect(parser, SIGNAL(disconnected(Imap::Parser *,const QString)), model, SLOT(slotParserDisconnected(Imap::Parser *,const QString)));
     connect(parser, SIGNAL(connectionStateChanged(Imap::Parser *,Imap::ConnectionState)), model, SLOT(handleSocketStateChanged(Imap::Parser *,Imap::ConnectionState)));
     connect(parser, SIGNAL(sendingCommand(Imap::Parser *,QString)), model, SLOT(parserIsSendingCommand(Imap::Parser *,QString)));

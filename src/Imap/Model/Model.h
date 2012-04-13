@@ -458,6 +458,8 @@ private:
     /** @short Helper for the slotParseError() */
     void broadcastParseError(const uint parser, const QString &exceptionClass, const QString &errorMessage, const QByteArray &line, int position);
 
+    void responseReceived(const QMap<Parser *,ParserState>::iterator it);
+
     /** @short Remove deleted Tasks from the activeTasks list */
     void removeDeletedTasks(const QList<ImapTask *> &deletedTasks, QList<ImapTask *> &activeTasks);
 
@@ -483,6 +485,7 @@ private:
     bool m_hasImapPassword;
 
 protected slots:
+    void responseReceived();
     void responseReceived(Imap::Parser *parser);
 
     void runReadyTasks();
