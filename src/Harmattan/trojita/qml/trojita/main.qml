@@ -181,6 +181,7 @@ PageStackWindow {
 
         content: Column {
             anchors.fill: parent
+            anchors.margins: UiConstants.DefaultMargin
             Label {
                 id: authFailureReason
                 visible: false
