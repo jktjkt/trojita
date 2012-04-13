@@ -56,5 +56,7 @@ void ImapAccess::connectionError(const QString &message)
 
 void ImapAccess::slotLogged(uint parserId, const Imap::Mailbox::LogMessage &message)
 {
-    qDebug() << "LOG" << parserId << message.timestamp << message.kind << message.source << message.message;
+    if (message.kind != Imap::Mailbox::LOG_IO_READ) {
+        qDebug() << "LOG" << parserId << message.timestamp << message.kind << message.source << message.message;
+    }
 }
