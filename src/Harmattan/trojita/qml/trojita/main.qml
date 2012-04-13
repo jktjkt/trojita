@@ -22,8 +22,7 @@ PageStackWindow {
     }
 
     function authAttemptFailed(message) {
-        authFailedBanner.text = message
-        authFailedBanner.show()
+        authFailedMessage.text = message
     }
 
     Component.onCompleted: {
@@ -90,10 +89,6 @@ PageStackWindow {
         timerShowTime: 5000
     }
 
-    InfoBanner {
-        id: authFailedBanner
-    }
-
     Sheet {
         id: passwordDialog
         acceptButtonText: qsTr("Login")
@@ -114,18 +109,14 @@ PageStackWindow {
                 inputMethodHints: Qt.ImhHiddenText | Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText
                 echoMode: TextInput.PasswordEchoOnEdit
             }
+            Label {
+                id: authFailedMessage
+                anchors { left: parent.left; right: parent.right; topMargin: 40; leftMargin: 16; rightMargin: 16 }
+                wrapMode: Text.Wrap
+            }
         }
 
         onAccepted: imapModel.imapPassword = password.text
         onRejected: imapModel.imapPassword = undefined
-        onVisibleChanged: {
-            if (visible) {
-                authFailedBanner.parent = passwordDialog
-                authFailedBanner.anchors.bottom = passwordDialog.bottom
-            } else {
-                authFailedBanner.parent = appWindow.pageStack.currentPage
-                authFailedBanner.anchors.bottom = undefined
-            }
-        }
     }
 }
