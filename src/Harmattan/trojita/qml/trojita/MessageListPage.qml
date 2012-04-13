@@ -62,13 +62,19 @@ Page {
 
     Component {
         id: scrollingMessageDelegate
-        Label {
-            text: qsTr("Scrolling...")
-            anchors.centerIn: parent
-            platformStyle: LabelStyle {
-                fontFamily: "Nokia Pure Text Light"
-                fontPixelSize: 40
-                textColor: "#a0a0a0"
+
+        Item {
+            width: parent.width
+            height: 120
+
+            Label {
+                text: qsTr("Scrolling...")
+                anchors.centerIn: parent
+                platformStyle: LabelStyle {
+                    fontFamily: "Nokia Pure Text Light"
+                    fontPixelSize: 40
+                    textColor: "#a0a0a0"
+                }
             }
         }
     }
