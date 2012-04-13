@@ -34,12 +34,15 @@ Page {
                 id: messageCountsText
                 anchors.top: titleText.bottom
                 font: UiConstants.SubtitleFont
-                text: mailboxIsSelectable ?
-                          (totalMessageCount === 0 ?
-                               "empty" :
-                               (totalMessageCount + " total, " + unreadMessageCount + " unread"))
-                        :
-                          "This mailbox does not contain any messages."
+                text: totalMessageCount === undefined ?
+                          "loading..." :
+                          ( mailboxIsSelectable ?
+                               (totalMessageCount === 0 ?
+                                    "empty" :
+                                    (totalMessageCount + " total, " + unreadMessageCount + " unread")
+                               ) :
+                               "This mailbox does not contain any messages."
+                           )
             }
         }
     }
