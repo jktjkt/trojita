@@ -413,7 +413,7 @@ void MsgListModel::handleRowsInserted(const QModelIndex &parent, int start, int 
 void MsgListModel::setMailbox(const QModelIndex &index)
 {
     waitingForMessages = true;
-    if (! index.isValid()) {
+    if (!index.isValid()) {
         msgList = 0;
         reset();
         emit mailboxChanged();
