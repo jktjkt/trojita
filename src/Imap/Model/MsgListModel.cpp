@@ -423,8 +423,12 @@ void MsgListModel::setMailbox(const QModelIndex &index)
     const Model *model = 0;
     TreeItemMailbox *mbox = dynamic_cast<TreeItemMailbox *>(Model::realTreeItem(index, &model));
     Q_ASSERT(mbox);
-    if (! mbox->isSelectable())
+    if (!mbox->isSelectable()) {
+        msgList = 0;
+        reset();
+        emit mailboxChanged();
         return;
+    }
     TreeItemMsgList *newList = dynamic_cast<TreeItemMsgList *>(
                                    mbox->child(0, const_cast<Model *>(model)));
     Q_ASSERT(newList);
