@@ -94,7 +94,6 @@ PageStackWindow {
             }
             TextField {
                 id: userName
-                text: "film"
                 anchors {left: col.left; right: col.right;}
                 inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhEmailCharactersOnly | Qt.ImhNoPredictiveText
             }
