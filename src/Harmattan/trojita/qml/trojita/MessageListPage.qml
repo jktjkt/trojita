@@ -20,15 +20,16 @@ Page {
                 }
             }
 
+            property variant model
 
             Column {
-                visible: isFetched
+                visible: model.isFetched
                 Label {
                     font: UiConstants.TitleFont
                     maximumLineCount: 1
                     elide: Text.ElideRight
                     width: view.width
-                    text: subject
+                    text: model.subject
                 }
                 Label {
                     font: UiConstants.SubtitleFont
@@ -36,18 +37,18 @@ Page {
                     elide: Text.ElideRight
                     width: view.width
                     // FIXME: multiple/no addresses...
-                    text: formatMailAddress(from[0])
+                    text: formatMailAddress(model.from[0])
                 }
                 Text {
                     font: UiConstants.BodyTextFont
                     // if there's a better way to compare QDateTime::date with "today", well, please do tell me
-                    text: Qt.formatDate(date, "YYYY-mm-dd") == Qt.formatDate(new Date(), "YYYY-mm-dd") ?
-                              Qt.formatTime(date) : Qt.formatDate(date)
+                    text: Qt.formatDate(model.date, "YYYY-mm-dd") == Qt.formatDate(new Date(), "YYYY-mm-dd") ?
+                              Qt.formatTime(model.date) : Qt.formatDate(model.date)
                 }
             }
             Label {
                 text: qsTr("Message is loading...")
-                visible: !isFetched
+                visible: !model.isFetched
                 anchors.centerIn: parent
                 platformStyle: LabelStyle {
                     fontFamily: "Nokia Pure Text Light"
@@ -81,6 +82,7 @@ Page {
             width: parent.width
             height: 120
             sourceComponent: view.verticalVelocity > 3000 ? scrollingMessageDelegate: normalMessageItemDelegate
+            Binding { target: item; property: "model"; value: model; when: status == Loader.Ready }
         }
     }
 
