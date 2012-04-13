@@ -45,6 +45,9 @@ public:
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
     // FIXME: reimplement handleCapability(), add some guards against "unexpected changes" to Model's implementation
 
+    /** @short Inform the task that the auth credentials are now available and can be used */
+    void authCredentialsNowAvailable();
+
 protected:
     /** @short A special, internal constructor used only by Fake_OpenConnectionTask */
     OpenConnectionTask(Model *model, void *dummy);
@@ -60,6 +63,8 @@ private:
     void onComplete();
 
     void logout(const QString &message);
+
+    void askForAuth();
 
 private:
     CommandHandle startTlsCmd;

@@ -29,6 +29,7 @@
 #include "KeepMailboxOpenTask.h"
 #include "MailboxTree.h"
 #include "TaskPresentationModel.h"
+#include "OpenConnectionTask.h"
 
 //#define DEBUG_PERIODICALLY_DUMP_TASKS
 //#define DEBUG_TASK_ROUTING
@@ -90,7 +91,7 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
     QAbstractItemModel(parent),
     // our tools
     m_cache(cache), m_socketFactory(socketFactory), m_taskFactory(taskFactory), m_maxParsers(4), m_mailboxes(0),
-    m_netPolicy(NETWORK_ONLINE), m_authenticator(0), m_lastParserId(0), m_taskModel(0)
+    m_netPolicy(NETWORK_ONLINE),  m_lastParserId(0), m_taskModel(0), m_hasImapPassword(false)
 {
     m_cache->setParent(this);
     m_startTls = m_socketFactory->startTlsRequired();
@@ -125,7 +126,6 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
 Model::~Model()
 {
     delete m_mailboxes;
-    delete m_authenticator;
 }
 
 void Model::responseReceived(Parser *parser)
@@ -1128,26 +1128,6 @@ TreeItem *Model::realTreeItem(QModelIndex index, const Model **whichModel, QMode
     return static_cast<TreeItem *>(index.internalPointer());
 }
 
-CommandHandle Model::performAuthentication(Imap::Parser *ptr)
-{
-    // The LOGINDISABLED capability is checked elsewhere
-    if (! m_authenticator) {
-        m_authenticator = new QAuthenticator();
-        emit authRequested(m_authenticator);
-    }
-
-    if (m_authenticator->isNull()) {
-        delete m_authenticator;
-        m_authenticator = 0;
-        QString message = tr("Can't login without user/password data");
-        logTrace(ptr->parserId(), LOG_OTHER, QString(), message);
-        return CommandHandle();
-    } else {
-        CommandHandle cmd = ptr->login(m_authenticator->user(), m_authenticator->password());
-        return cmd;
-    }
-}
-
 void Model::changeConnectionState(Parser *parser, ConnectionState state)
 {
     accessParser(parser).connState = state;
@@ -1482,13 +1462,6 @@ QStringList Model::capabilities() const
     return QStringList();
 }
 
-void Model::emitAuthFailed(const QString &message)
-{
-    delete m_authenticator;
-    m_authenticator = 0;
-    emit authAttemptFailed(message);
-}
-
 void Model::logTrace(uint parserId, const LogKind kind, const QString &source, const QString &message)
 {
     enum {CUTOFF=200};
@@ -1567,6 +1540,53 @@ QStringList Model::normalizeFlags(const QStringList &source) const
     // deduplication of the actual QLists
     res.sort();
     return res;
+}
+
+/** @short Set the IMAP username */
+void Model::setImapUser(const QString &imapUser)
+{
+    m_imapUser = imapUser;
+}
+
+/** @short Username to use for login */
+QString Model::imapUser() const
+{
+    return m_imapUser;
+}
+
+/** @short Set the password that the user wants to use */
+void Model::setImapPassword(const QString &password)
+{
+    m_imapPassword = password;
+    m_hasImapPassword = true;
+    informTasksAboutNewPassword();
+}
+
+/** @short Return the user's password, if cached */
+QString Model::imapPassword() const
+{
+    return m_imapPassword;
+}
+
+/** @short Indicate that the user doesn't want to provide her password */
+void Model::unsetImapPassword()
+{
+    m_imapPassword.clear();
+    m_hasImapPassword = false;
+    informTasksAboutNewPassword();
+}
+
+/** @short Tell all tasks which want to know about the availability of a password */
+void Model::informTasksAboutNewPassword()
+{
+    Q_FOREACH(const ParserState &p, m_parsers) {
+        Q_FOREACH(ImapTask *task, p.activeTasks) {
+            OpenConnectionTask *openTask = dynamic_cast<OpenConnectionTask *>(task);
+            if (!openTask)
+                continue;
+            openTask->authCredentialsNowAvailable();
+        }
+    }
 }
 
 }

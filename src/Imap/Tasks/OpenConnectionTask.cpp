@@ -207,10 +207,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
                 logout(tr("Capabilities still contain LOGINDISABLED even after STARTTLS"));
             } else {
                 model->changeConnectionState(parser, CONN_STATE_LOGIN);
-                loginCmd = model->performAuthentication(parser);
-                if (loginCmd.isEmpty()) {
-                    logout(tr("No credentials"));
-                }
+                askForAuth();
             }
         }
         return wasCaps;
@@ -220,6 +217,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
         // Check the result of the LOGIN command
     {
         if (resp->tag == loginCmd) {
+            loginCmd.clear();
             // The LOGIN command is finished
             if (resp->kind == OK) {
                 if (resp->respCode == CAPABILITIES) {
@@ -268,19 +266,15 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
                 } else {
                     message = tr("%1\r\n\r\n%2").arg(message, resp->message);
                 }
-                model->emitAuthFailed(message);
+                emit model->authAttemptFailed(message);
+                model->m_imapPassword.clear();
+                model->m_hasImapPassword = false;
                 if (model->accessParser(parser).connState == CONN_STATE_LOGOUT) {
                     // The server has closed the conenction
                     _failed(QString::fromAscii("Connection closed after a failed login"));
                     return true;
                 }
-                loginCmd = model->performAuthentication(parser);
-                if (loginCmd.isEmpty()) {
-                    // The user has given up
-                    logout(tr("No credentials returned in response to a direct request to the user"));
-                } else {
-                    // This is not a failure yet; we're retrying again
-                }
+                askForAuth();
             }
             return true;
         }
@@ -320,10 +314,7 @@ void OpenConnectionTask::startTlsOrLoginNow()
         // We're requested to authenticate even without STARTTLS
         Q_ASSERT(!model->accessParser(parser).capabilities.contains(QLatin1String("LOGINDISABLED")));
         model->changeConnectionState(parser, CONN_STATE_LOGIN);
-        loginCmd = model->performAuthentication(parser);
-        if (loginCmd.isEmpty()) {
-            logout(tr("No credentials"));
-        }
+        askForAuth();
     }
 }
 
@@ -361,6 +352,27 @@ void OpenConnectionTask::logout(const QString &message)
 {
     _failed(message);
     model->setNetworkOffline();
+}
+
+void OpenConnectionTask::askForAuth()
+{
+    if (model->m_hasImapPassword) {
+        Q_ASSERT(loginCmd.isEmpty());
+        loginCmd = parser->login(model->m_imapUser, model->m_imapPassword);
+    } else {
+        emit model->authRequested();
+    }
+}
+
+void OpenConnectionTask::authCredentialsNowAvailable()
+{
+    if (model->accessParser(parser).connState == CONN_STATE_LOGIN && loginCmd.isEmpty()) {
+        if (model->m_hasImapPassword) {
+            loginCmd = parser->login(model->m_imapUser, model->m_imapPassword);
+        } else {
+            logout(tr("No credentials available"));
+        }
+    }
 }
 
 }

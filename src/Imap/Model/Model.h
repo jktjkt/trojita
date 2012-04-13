@@ -75,6 +75,9 @@ class Model: public QAbstractItemModel
 {
     Q_OBJECT
 
+    Q_PROPERTY(QString imapUser READ imapUser WRITE setImapUser)
+    Q_PROPERTY(QString imapPassword READ imapPassword WRITE setImapPassword RESET unsetImapPassword)
+
     /** @short How to open a mailbox */
     enum RWMode {
         ReadOnly /**< @short Use EXAMINE or leave it in SELECTed mode*/,
@@ -229,6 +232,12 @@ public:
 
     QStringList normalizeFlags(const QStringList &source) const;
 
+    QString imapUser() const;
+    void setImapUser(const QString &imapUser);
+    QString imapPassword() const;
+    void setImapPassword(const QString &imapPassword);
+    void unsetImapPassword();
+
 public slots:
     /** @short Ask for an updated list of mailboxes on the server */
     void reloadMailboxList();
@@ -297,9 +306,10 @@ signals:
     void connectionError(const QString &message);
     /** @short The server requests the user to authenticate
 
-      The user is expected to file username and password to the QAuthenticator* object.
+    The user is expected to file username and password through setting the "imapUser" and "imapPassword" properties.  The imapUser
+    shall be set at first (if needed); a change to imapPassword will trigger the authentication process.
     */
-    void authRequested(QAuthenticator *auth);
+    void authRequested();
 
     /** @short The authentication attempt has failed
 
@@ -406,8 +416,6 @@ private:
     TreeItem *translatePtr(const QModelIndex &index) const;
 
     void emitMessageCountChanged(TreeItemMailbox *const mailbox);
-    /** @short Helper for cleaning the QAuthenticator and informing about auth failure */
-    void emitAuthFailed(const QString &message);
 
     TreeItemMailbox *findMailboxByName(const QString &name) const;
     TreeItemMailbox *findMailboxByName(const QString &name, const TreeItemMailbox *const root) const;
@@ -435,9 +443,6 @@ private:
     /** @short Helper function for changing connection state */
     void changeConnectionState(Parser *parser, ConnectionState state);
 
-    /** @short Try to authenticate the user to the IMAP server */
-    CommandHandle performAuthentication(Imap::Parser *ptr);
-
     /** @short Is the reason for killing the parser an expected one? */
     typedef enum {
         PARSER_KILL_EXPECTED, /**< @short Normal operation */
@@ -456,15 +461,9 @@ private:
     /** @short Remove deleted Tasks from the activeTasks list */
     void removeDeletedTasks(const QList<ImapTask *> &deletedTasks, QList<ImapTask *> &activeTasks);
 
+    void informTasksAboutNewPassword();
+
     QStringList onlineMessageFetch;
-
-    /** @short Helper for keeping track of user/pass over time
-
-    The reason for using QAuthenticator* instead of non-pointer member is that isNull()
-    and operator=() does not really work together and that I got a mysterious segfault when
-    trying the operator=(). Oh well...
-    */
-    QAuthenticator *m_authenticator;
 
     uint m_lastParserId;
 
@@ -475,6 +474,13 @@ private:
 
     QHash<QString,QString> m_specialFlagNames;
     mutable QSet<QString> m_flagLiterals;
+
+    /** @short Username for login */
+    QString m_imapUser;
+    /** @short Cached copy of the IMAP password */
+    QString m_imapPassword;
+    /** @short Is the IMAP password cached in the Model already? */
+    bool m_hasImapPassword;
 
 protected slots:
     void responseReceived(Imap::Parser *parser);
