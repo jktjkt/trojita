@@ -64,12 +64,7 @@ PageStackWindow {
         ToolIcon {
             iconId: "toolbar-back"
             onClicked: pageStack.pop()
-        }
-        ButtonRow {
-            style: TabButtonStyle {}
-            TabButton {
-                text: "blah"
-            }
+            enabled: pageStack.depth > 1
         }
     }
 
