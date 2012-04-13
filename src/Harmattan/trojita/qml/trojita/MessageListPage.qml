@@ -9,7 +9,7 @@ Page {
     tools: commonTools
 
     Component {
-        id: messageItemDelegate
+        id: normalMessageItemDelegate
 
         Item {
             function formatMailAddress(items) {
@@ -60,12 +60,34 @@ Page {
         }
     }
 
+    Component {
+        id: scrollingMessageDelegate
+        Label {
+            text: qsTr("Scrolling...")
+            anchors.centerIn: parent
+            platformStyle: LabelStyle {
+                fontFamily: "Nokia Pure Text Light"
+                fontPixelSize: 40
+                textColor: "#a0a0a0"
+            }
+        }
+    }
+
+    Component {
+        id: messageItemDelegate
+
+        Loader {
+            sourceComponent: view.verticalVelocity > 3000 ? scrollingMessageDelegate: normalMessageItemDelegate
+        }
+    }
+
     ListView {
         signal messageSelected(string mailbox)
 
         id: view
         anchors.fill: parent
-        delegate: messageItemDelegate
+        //delegate: messageItemDelegate
+        delegate: normalMessageItemDelegate
     }
 
     ScrollDecorator {
