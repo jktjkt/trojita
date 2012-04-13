@@ -67,4 +67,8 @@ Page {
         anchors.fill: parent
         delegate: messageItemDelegate
     }
+
+    ScrollDecorator {
+        flickableItem: view
+    }
 }
