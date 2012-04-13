@@ -88,6 +88,8 @@ Page {
         anchors.fill: parent
         //delegate: messageItemDelegate
         delegate: normalMessageItemDelegate
+
+        maximumFlickVelocity: 999999
     }
 
     ScrollDecorator {
