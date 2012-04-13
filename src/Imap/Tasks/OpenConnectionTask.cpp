@@ -208,6 +208,9 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
             } else {
                 model->changeConnectionState(parser, CONN_STATE_LOGIN);
                 loginCmd = model->performAuthentication(parser);
+                if (loginCmd.isEmpty()) {
+                    logout(tr("No credentials"));
+                }
             }
         }
         return wasCaps;
@@ -272,8 +275,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
                     return true;
                 }
                 loginCmd = model->performAuthentication(parser);
-
-                if (loginCmd == CommandHandle()) {
+                if (loginCmd.isEmpty()) {
                     // The user has given up
                     logout(tr("No credentials returned in response to a direct request to the user"));
                 } else {
@@ -319,6 +321,9 @@ void OpenConnectionTask::startTlsOrLoginNow()
         Q_ASSERT(!model->accessParser(parser).capabilities.contains(QLatin1String("LOGINDISABLED")));
         model->changeConnectionState(parser, CONN_STATE_LOGIN);
         loginCmd = model->performAuthentication(parser);
+        if (loginCmd.isEmpty()) {
+            logout(tr("No credentials"));
+        }
     }
 }
 
@@ -354,10 +359,8 @@ void OpenConnectionTask::onComplete()
 
 void OpenConnectionTask::logout(const QString &message)
 {
-    emit model->connectionError(message);
-    model->changeConnectionState(parser, CONN_STATE_LOGOUT);
-    model->accessParser(parser).logoutCmd = parser->logout();
     _failed(message);
+    model->setNetworkOffline();
 }
 
 }

@@ -1141,7 +1141,6 @@ CommandHandle Model::performAuthentication(Imap::Parser *ptr)
         m_authenticator = 0;
         QString message = tr("Can't login without user/password data");
         logTrace(ptr->parserId(), LOG_OTHER, QString(), message);
-        emit connectionError(message);
         return CommandHandle();
     } else {
         CommandHandle cmd = ptr->login(m_authenticator->user(), m_authenticator->password());
