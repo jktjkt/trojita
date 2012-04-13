@@ -30,7 +30,7 @@ Page {
                     maximumLineCount: 1
                     elide: Text.ElideRight
                     width: view.width
-                    text: subject === undefined ? "" : subject
+                    text: subject
                 }
                 Label {
                     font: UiConstants.SubtitleFont
@@ -38,7 +38,7 @@ Page {
                     elide: Text.ElideRight
                     width: view.width
                     // FIXME: multiple/no addresses...
-                    text: from === undefined ? "" : formatMailAddress(from[0])
+                    text: formatMailAddress(from[0])
                 }
                 Text {
                     font: UiConstants.BodyTextFont
