@@ -20,8 +20,6 @@ Page {
                 }
             }
 
-            width: parent.width
-            height: 120
 
             Column {
                 visible: isFetched
@@ -64,9 +62,6 @@ Page {
         id: scrollingMessageDelegate
 
         Item {
-            width: parent.width
-            height: 120
-
             Label {
                 text: qsTr("Scrolling...")
                 anchors.centerIn: parent
@@ -83,6 +78,8 @@ Page {
         id: messageItemDelegate
 
         Loader {
+            width: parent.width
+            height: 120
             sourceComponent: view.verticalVelocity > 3000 ? scrollingMessageDelegate: normalMessageItemDelegate
         }
     }
