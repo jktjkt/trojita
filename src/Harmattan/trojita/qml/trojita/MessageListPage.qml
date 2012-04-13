@@ -25,12 +25,18 @@ Page {
 
             Column {
                 visible: isFetched
-                Text {
+                Label {
                     font: UiConstants.TitleFont
+                    maximumLineCount: 1
+                    elide: Text.ElideRight
+                    width: view.width
                     text: subject === undefined ? "" : subject
                 }
-                Text {
+                Label {
                     font: UiConstants.SubtitleFont
+                    maximumLineCount: 1
+                    elide: Text.ElideRight
+                    width: view.width
                     // FIXME: multiple/no addresses...
                     text: from === undefined ? "" : formatMailAddress(from[0])
                 }
