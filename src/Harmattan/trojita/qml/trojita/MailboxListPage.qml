@@ -22,7 +22,9 @@ Page {
                 onClicked: {
                     view.positionViewAtIndex(model.index, ListView.Visible);
                     view.currentIndex = model.index
-                    mailboxSelected(mailboxName)
+                    if (mailboxIsSelectable) {
+                        mailboxSelected(mailboxName)
+                    }
                 }
             }
             Text {
