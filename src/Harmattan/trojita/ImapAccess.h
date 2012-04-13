@@ -32,18 +32,49 @@ class ImapAccess : public QObject
 {
     Q_OBJECT
 
+    Q_PROPERTY(QObject *imapModel READ imapModel)
+    Q_PROPERTY(QObject *mailboxModel READ mailboxModel)
+    Q_PROPERTY(QObject *msgListModel READ msgListModel)
+    Q_PROPERTY(QString server READ server WRITE setServer)
+    Q_PROPERTY(int port READ port WRITE setPort)
+    Q_PROPERTY(QString username READ username WRITE setUsername)
+    Q_PROPERTY(QString password READ password WRITE setPassword)
+    Q_PROPERTY(QString sslMode READ sslMode WRITE setSslMode)
+
 public:
     explicit ImapAccess(QObject *parent = 0);
 
-    Imap::Mailbox::Model *model;
-    Imap::Mailbox::AbstractCache *cache;
-    Imap::Mailbox::MailboxModel *mailboxModel;
-    Imap::Mailbox::MsgListModel *msgListModel;
+    QObject *imapModel() const;
+    QObject *mailboxModel() const;
+    QObject *msgListModel() const;
+
+    QString server() const;
+    void setServer(const QString &server);
+    int port() const;
+    void setPort(const int port);
+    QString username() const;
+    void setUsername(const QString &username);
+    QString password() const;
+    void setPassword(const QString &password);
+    QString sslMode() const;
+    void setSslMode(const QString &sslMode);
 
 public slots:
     void alertReceived(const QString &message);
     void connectionError(const QString &message);
     void slotLogged(uint parserId, const Imap::Mailbox::LogMessage &message);
+
+private:
+    Imap::Mailbox::Model *m_imapModel;
+    Imap::Mailbox::AbstractCache *cache;
+    Imap::Mailbox::MailboxModel *m_mailboxModel;
+    Imap::Mailbox::MsgListModel *m_msgListModel;
+
+    QString m_server;
+    int m_port;
+    QString m_username;
+    QString m_password;
+    QString m_sslMode;
 };
 
 #endif // IMAPACCESS_H

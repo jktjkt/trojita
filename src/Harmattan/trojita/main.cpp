@@ -14,9 +14,7 @@ int main(int argc, char *argv[])
 
     ImapAccess imapAccess;
     QDeclarativeContext *ctxt = viewer.rootContext();
-    ctxt->setContextProperty(QLatin1String("imapModel"), imapAccess.model);
-    ctxt->setContextProperty(QLatin1String("msgListModel"), imapAccess.msgListModel);
-    ctxt->setContextProperty(QLatin1String("mailboxModel"), imapAccess.mailboxModel);
+    ctxt->setContextProperty(QLatin1String("imapAccess"), &imapAccess);
 
     viewer.setOrientation(QmlApplicationViewer::ScreenOrientationAuto);
     viewer.setMainQmlFile(QLatin1String("qml/trojita/main.qml"));
