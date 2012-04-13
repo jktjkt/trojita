@@ -26,7 +26,7 @@ namespace Mailbox
 {
 
 OpenConnectionTask::OpenConnectionTask(Model *model) :
-    ImapTask(model), waitingForGreetings(true), gotPreauth(false)
+    ImapTask(model)
 {
     // Offline mode shall be checked by the caller who decides to create the conneciton
     Q_ASSERT(model->networkPolicy() != Model::NETWORK_OFFLINE);

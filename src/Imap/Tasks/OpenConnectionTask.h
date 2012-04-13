@@ -62,8 +62,6 @@ private:
     void logout(const QString &message);
 
 private:
-    bool waitingForGreetings;
-    bool gotPreauth;
     CommandHandle startTlsCmd;
     CommandHandle capabilityCmd;
     CommandHandle loginCmd;
