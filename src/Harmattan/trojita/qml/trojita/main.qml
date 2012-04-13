@@ -17,9 +17,21 @@ PageStackWindow {
         alertBanner.show()
     }
 
+    function requestingPassword() {
+        passwordDialog.open()
+    }
+
+    function authAttemptFailed(message) {
+        authFailedBanner.text = message
+        authFailedBanner.show()
+    }
+
     Component.onCompleted: {
         imapModel.connectionError.connect(showConnectionError)
         imapModel.alertReceived.connect(showImapAlert)
+        imapModel.imapUser = "FIXME"
+        imapModel.authRequested.connect(requestingPassword)
+        imapModel.authAttemptFailed.connect(authAttemptFailed)
     }
 
     //initialPage: imapSettingsPage
@@ -76,5 +88,44 @@ PageStackWindow {
     InfoBanner {
         id: alertBanner
         timerShowTime: 5000
+    }
+
+    InfoBanner {
+        id: authFailedBanner
+    }
+
+    Sheet {
+        id: passwordDialog
+        acceptButtonText: qsTr("Login")
+        rejectButtonText: qsTr("Cancel")
+
+        content: Column {
+            anchors.fill: parent
+            Label {
+                id: authFailureReason
+                visible: false
+            }
+            Label {
+                text: qsTr("Password")
+            }
+            TextField {
+                id: password
+                anchors {left: parent.left; right: parent.right;}
+                inputMethodHints: Qt.ImhHiddenText | Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText
+                echoMode: TextInput.PasswordEchoOnEdit
+            }
+        }
+
+        onAccepted: imapModel.imapPassword = password.text
+        onRejected: imapModel.imapPassword = undefined
+        onVisibleChanged: {
+            if (visible) {
+                authFailedBanner.parent = passwordDialog
+                authFailedBanner.anchors.bottom = passwordDialog.bottom
+            } else {
+                authFailedBanner.parent = appWindow.pageStack.currentPage
+                authFailedBanner.anchors.bottom = undefined
+            }
+        }
     }
 }

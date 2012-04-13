@@ -31,6 +31,7 @@
 class ImapAccess : public QObject
 {
     Q_OBJECT
+
 public:
     explicit ImapAccess(QObject *parent = 0);
 
@@ -42,8 +43,6 @@ public:
 public slots:
     void alertReceived(const QString &message);
     void connectionError(const QString &message);
-    void authenticationRequested(QAuthenticator *auth);
-    void authenticationFailed(const QString &message);
     void slotLogged(uint parserId, const Imap::Mailbox::LogMessage &message);
 };
 

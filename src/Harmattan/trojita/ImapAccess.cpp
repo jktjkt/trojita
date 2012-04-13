@@ -37,8 +37,6 @@ ImapAccess::ImapAccess(QObject *parent) :
     model = new Imap::Mailbox::Model(this, cache, factory, taskFactory, false);
     model->setProperty("trojita-imap-enable-id", true);
     connect(model, SIGNAL(alertReceived(QString)), this, SLOT(alertReceived(QString)));
-    connect(model, SIGNAL(authAttemptFailed(QString)), this, SLOT(authenticationFailed(QString)));
-    connect(model, SIGNAL(authRequested(QAuthenticator*)), this, SLOT(authenticationRequested(QAuthenticator*)));
     connect(model, SIGNAL(connectionError(QString)), this, SLOT(connectionError(QString)));
     connect(model, SIGNAL(logged(uint,Imap::Mailbox::LogMessage)), this, SLOT(slotLogged(uint,Imap::Mailbox::LogMessage)));
 
@@ -54,18 +52,6 @@ void ImapAccess::alertReceived(const QString &message)
 void ImapAccess::connectionError(const QString &message)
 {
     qDebug() << "connectionError" << message;
-}
-
-void ImapAccess::authenticationRequested(QAuthenticator *auth)
-{
-    Q_ASSERT(auth);
-    auth->setUser("");
-    auth->setPassword("");
-}
-
-void ImapAccess::authenticationFailed(const QString &message)
-{
-    qDebug() << "authenticationFailed" << message;
 }
 
 void ImapAccess::slotLogged(uint parserId, const Imap::Mailbox::LogMessage &message)
