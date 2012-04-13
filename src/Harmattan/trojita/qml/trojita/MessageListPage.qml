@@ -24,6 +24,7 @@ Page {
             height: 120
 
             Column {
+                visible: isFetched
                 Text {
                     font: UiConstants.TitleFont
                     text: subject
@@ -38,6 +39,16 @@ Page {
                     // if there's a better way to compare QDateTime::date with "today", well, please do tell me
                     text: Qt.formatDate(date, "YYYY-mm-dd") == Qt.formatDate(new Date(), "YYYY-mm-dd") ?
                               Qt.formatTime(date) : Qt.formatDate(date)
+                }
+            }
+            Label {
+                text: qsTr("Message is loading...")
+                visible: !isFetched
+                anchors.centerIn: parent
+                platformStyle: LabelStyle {
+                    fontFamily: "Nokia Pure Text Light"
+                    fontPixelSize: 40
+                    textColor: "#a0a0a0"
                 }
             }
         }
