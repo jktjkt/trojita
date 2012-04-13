@@ -68,15 +68,6 @@ PageStackWindow {
         }
     }
 
-    /*Menu {
-        id: myMenu
-        visualParent: pageStack
-        MenuLayout {
-            MenuItem { text: qsTr("Sample menu item") }
-        }
-    }*/
-
-
     InfoBanner {
         id: connectionErrorBanner
         timerShowTime: 5000
