@@ -27,12 +27,12 @@ Page {
                 visible: isFetched
                 Text {
                     font: UiConstants.TitleFont
-                    text: subject
+                    text: subject === undefined ? "" : subject
                 }
                 Text {
                     font: UiConstants.SubtitleFont
                     // FIXME: multiple/no addresses...
-                    text: formatMailAddress(from[0])
+                    text: from === undefined ? "" : formatMailAddress(from[0])
                 }
                 Text {
                     font: UiConstants.BodyTextFont
