@@ -26,11 +26,16 @@ Page {
                 id: col
                 visible: ! (model === undefined || model.subject === undefined || !model.isFetched)
                 Label {
-                    font: UiConstants.TitleFont
                     maximumLineCount: 1
                     elide: Text.ElideRight
                     width: view.width
                     text: !col.visible ? "" : model.subject
+                    color: !col.visible ? platformStyle.textColor :
+                                          model.isMarkedRead ?
+                                              (model.isMarkedDeleted ? Qt.darker(platformStyle.textColor) : platformStyle.textColor) :
+                                              theme.selectionColor
+                    font { pixelSize: UiConstants.TitleFont.pixelSize; family: UiConstants.TitleFont.family; bold: UiConstants.TitleFont.bold }
+                    font.strikeout: !col.visible ? false : model.isMarkedDeleted
                 }
                 Label {
                     font: UiConstants.SubtitleFont
