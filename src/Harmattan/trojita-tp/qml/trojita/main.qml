@@ -177,7 +177,7 @@ PageStackWindow {
 
     PasswordInputSheet {
         id: passwordDialog
-        onAccepted: imapAccess.imapModel.imapPassword = password.text
+        onAccepted: imapAccess.imapModel.imapPassword = password
         onRejected: imapAccess.imapModel.imapPassword = undefined
     }
 }
