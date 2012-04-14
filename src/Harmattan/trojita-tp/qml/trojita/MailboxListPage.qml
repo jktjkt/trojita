@@ -98,8 +98,6 @@ Page {
     ListView {
         id: view
         anchors.fill: parent
-        highlight: Rectangle { color: theme.selectionColor; radius: 5 }
-        highlightMoveDuration: 600
         focus: true
     }
 
