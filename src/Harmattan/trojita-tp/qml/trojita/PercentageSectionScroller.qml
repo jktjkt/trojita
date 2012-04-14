@@ -65,6 +65,7 @@ Item {
             drag.maximumY: height - tooltip.height/2
 
             onPressed: {
+                container.offset = mouse.y / dragArea.height
                 mouseDownTimer.start()
                 periodicUpdateTimer.start()
             }
