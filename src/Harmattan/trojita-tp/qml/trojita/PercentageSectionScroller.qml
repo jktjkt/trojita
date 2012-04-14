@@ -61,8 +61,8 @@ Item {
             anchors.fill: parent
             drag.target: tooltip
             drag.axis: Drag.YAxis
-            drag.minimumY: listView.y
-            drag.maximumY: listView.y + listView.height - tooltip.height
+            drag.minimumY: 0 - tooltip.height/2
+            drag.maximumY: height - tooltip.height/2
 
             onPressed: {
                 mouseDownTimer.start()
@@ -88,7 +88,6 @@ Item {
 
                 onTriggered: {
                     container.dragging = true;
-                    tooltip.positionAtY(dragArea.mouseY);
                 }
             }
 
