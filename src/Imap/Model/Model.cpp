@@ -140,7 +140,10 @@ void Model::responseReceived()
 void Model::responseReceived(Parser *parser)
 {
     QMap<Parser *,ParserState>::iterator it = m_parsers.find(parser);
-    Q_ASSERT(it != m_parsers.end());
+    if (it == m_parsers.end()) {
+        // This is a queued signal, so it's perfectly possible that the sender is gone already
+        return;
+    }
     responseReceived(it);
 }
 
