@@ -4,10 +4,20 @@ import com.nokia.extras 1.1
 
 Page {
     signal mailboxSelected(string mailbox)
+    property int nestingDepth: 0
 
     function setMailboxModel(model) {
         proxyModel.model = model
         view.model = proxyModel
+    }
+
+    function openParentMailbox() {
+        view.model.rootIndex = view.model.parentModelIndex()
+        --nestingDepth
+    }
+
+    function isNestedSomewhere() {
+        return nestingDepth > 0
     }
 
     anchors.margins: UiConstants.DefaultMargin
@@ -69,6 +79,7 @@ Page {
                         view.positionViewAtIndex(model.index, ListView.Visible);
                         view.currentIndex = model.index
                         view.model.rootIndex = view.model.modelIndex(index)
+                        ++nestingDepth
                     }
                 }
             }

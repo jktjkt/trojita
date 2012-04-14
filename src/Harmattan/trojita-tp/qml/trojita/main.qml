@@ -63,8 +63,14 @@ PageStackWindow {
         visible: true
         ToolIcon {
             iconId: enabled ? "toolbar-back" : "toolbar-back-dimmed"
-            onClicked: pageStack.pop()
-            enabled: pageStack.depth > 1
+            enabled: (pageStack.currentPage === mailboxListPage && mailboxListPage.isNestedSomewhere()) || pageStack.depth > 1
+            onClicked: {
+                if (pageStack.currentPage === mailboxListPage && mailboxListPage.isNestedSomewhere()) {
+                    mailboxListPage.openParentMailbox()
+                } else {
+                    pageStack.pop()
+                }
+            }
         }
     }
 
