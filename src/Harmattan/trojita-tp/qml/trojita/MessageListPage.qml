@@ -111,4 +111,8 @@ Page {
     ScrollDecorator {
         flickableItem: view
     }
+
+    PercentageSectionScroller {
+        listView: view
+    }
 }
