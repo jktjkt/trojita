@@ -22,7 +22,7 @@ PageStackWindow {
     }
 
     function authAttemptFailed(message) {
-        authFailedMessage.text = message
+        passwordDialog.authErrorMessage = message
     }
 
     function connectModels() {

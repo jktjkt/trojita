@@ -4,6 +4,7 @@ import com.nokia.extras 1.1
 
 Sheet {
     property alias password: password.text
+    property alias authErrorMessage: authFailedMessage.text
 
     acceptButtonText: qsTr("Login")
     rejectButtonText: qsTr("Cancel")
