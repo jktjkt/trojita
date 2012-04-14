@@ -120,6 +120,8 @@ Page {
                 source: "image://theme/meegotouch-groupheader" + (theme.inverted ? "-inverted" : "") + "-background"
             }
         }
+
+        onVisibleChanged: if (visible) positionViewAtEnd()
     }
 
     Label {
