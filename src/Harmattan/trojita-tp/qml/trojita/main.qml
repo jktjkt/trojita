@@ -62,7 +62,9 @@ PageStackWindow {
         id: commonTools
         visible: true
         ToolIcon {
-            iconId: "toolbar-back"
+            iconId: theme.inverted ?
+                        (enabled ? "toolbar-back-white" : "toolbar-back-dimmed-white") :
+                        (enabled ? "toolbar-back" : "toolbar-back-dimmed")
             onClicked: pageStack.pop()
             enabled: pageStack.depth > 1
         }
