@@ -83,13 +83,14 @@ Page {
         Loader {
             width: parent.width
             height: 120
-            sourceComponent: view.verticalVelocity > 2000 ? scrollingMessageDelegate: normalMessageItemDelegate
+            sourceComponent: view.count > 1000 && (view.massiveScrolling || view.verticalVelocity > 2000) ? scrollingMessageDelegate: normalMessageItemDelegate
             Binding { target: item; property: "model"; value: model; when: status == Loader.Ready }
         }
     }
 
     ListView {
         signal messageSelected(string mailbox)
+        property bool massiveScrolling
 
         id: view
         anchors.fill: parent

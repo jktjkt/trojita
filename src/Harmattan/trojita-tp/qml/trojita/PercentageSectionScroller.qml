@@ -67,20 +67,20 @@ Item {
             onPressed: {
                 container.offset = mouse.y / dragArea.height
                 mouseDownTimer.start()
-                periodicUpdateTimer.start()
             }
 
             onReleased: {
                 container.dragging = false;
                 mouseDownTimer.stop()
-                periodicUpdateTimer.doIt()
-                periodicUpdateTimer.stop()
+                delayedRenderingTimer.doIt()
+                delayedRenderingTimer.stop()
             }
 
             onPositionChanged: {
                 if (mouse.y < 0 || mouse.y > dragArea.height )
                     return;
                 container.offset = mouse.y / dragArea.height
+                delayedScrollingTimer.start()
             }
 
             Timer {
@@ -95,11 +95,20 @@ Item {
 
             Timer {
                 function doIt() {
-                    listView.positionViewAtIndex(Math.round(container.offset * (listView.count - 1)), ListView.Visible)
+                    listView.massiveScrolling = false
                 }
-                id: periodicUpdateTimer
-                interval: 300
-                repeat: true
+                id: delayedRenderingTimer
+                interval: 150
+                onTriggered: doIt()
+            }
+            Timer {
+                function doIt() {
+                    listView.massiveScrolling = true
+                    listView.positionViewAtIndex(Math.round(container.offset * (listView.count - 1)), ListView.Visible)
+                    delayedRenderingTimer.start()
+                }
+                id: delayedScrollingTimer
+                interval: 50
                 onTriggered: doIt()
             }
             states: [
