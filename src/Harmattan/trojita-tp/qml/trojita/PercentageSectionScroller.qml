@@ -46,18 +46,6 @@ Item {
 
     property ListView listView
 
-    onListViewChanged: {
-        if (listView && listView.model) {
-            internal.initDirtyObserver();
-        } else if (listView) {
-            listView.modelChanged.connect(function() {
-                if (listView.model) {
-                    internal.initDirtyObserver();
-                }
-            });
-        }
-    }
-
     Rectangle {
         id: container
         color: "transparent"
