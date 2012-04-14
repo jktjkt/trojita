@@ -23,13 +23,14 @@ Page {
             property variant model
 
             Column {
-                visible: model.isFetched
+                id: col
+                visible: ! (model === undefined || model.subject === undefined || !model.isFetched)
                 Label {
                     font: UiConstants.TitleFont
                     maximumLineCount: 1
                     elide: Text.ElideRight
                     width: view.width
-                    text: model.subject
+                    text: !col.visible ? "" : model.subject
                 }
                 Label {
                     font: UiConstants.SubtitleFont
@@ -37,18 +38,19 @@ Page {
                     elide: Text.ElideRight
                     width: view.width
                     // FIXME: multiple/no addresses...
-                    text: formatMailAddress(model.from[0])
+                    text: !col.visible ? "" : formatMailAddress(model.from[0])
                 }
                 Label {
                     font: UiConstants.BodyTextFont
                     // if there's a better way to compare QDateTime::date with "today", well, please do tell me
-                    text: Qt.formatDate(model.date, "YYYY-mm-dd") == Qt.formatDate(new Date(), "YYYY-mm-dd") ?
+                    text: !col.visible ? "" : Qt.formatDate(model.date, "YYYY-mm-dd") == Qt.formatDate(new Date(), "YYYY-mm-dd") ?
                               Qt.formatTime(model.date) : Qt.formatDate(model.date)
                 }
             }
             Label {
+                id: loadingIndicator
                 text: qsTr("Message is loading...")
-                visible: !model.isFetched
+                visible: !col.visible
                 anchors.centerIn: parent
                 platformStyle: LabelStyle {
                     fontFamily: "Nokia Pure Text Light"
