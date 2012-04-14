@@ -106,7 +106,6 @@ Page {
                 anchors.bottom: parent.bottom
                 anchors.rightMargin: 8
                 anchors.bottomMargin: 2
-                //text: section //Qt.formatDate(section, qsTr("MMMM yyyy"))
                 text: section
                 font.bold: true
                 font.pixelSize: 18
