@@ -17,37 +17,54 @@ Page {
         Item {
             width: parent.width
             height: UiConstants.ListItemHeightDefault
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    view.positionViewAtIndex(model.index, ListView.Visible);
-                    view.currentIndex = model.index
-                    if (mailboxIsSelectable) {
-                        mailboxSelected(mailboxName)
+
+            Item {
+                anchors {
+                    top: parent.top; bottom: parent.bottom; left: parent.left;
+                    right: moreIndicator.visible ? moreIndicator.left : parent.right
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        view.positionViewAtIndex(model.index, ListView.Visible);
+                        view.currentIndex = model.index
+                        if (mailboxIsSelectable) {
+                            mailboxSelected(mailboxName)
+                        }
                     }
                 }
+                Text {
+                    id: titleText
+                    text: shortMailboxName
+                    font: UiConstants.TitleFont
+                }
+                ProgressBar {
+                    visible: mailboxIsSelectable && totalMessageCount === undefined
+                    anchors { left: parent.left; right: parent.right; top: titleText.bottom }
+                    indeterminate: true
+                }
+                Text {
+                    id: messageCountsText
+                    anchors.top: titleText.bottom
+                    font: UiConstants.SubtitleFont
+                    visible: mailboxIsSelectable && totalMessageCount !== undefined
+                    text: totalMessageCount === 0 ?
+                              "empty" :
+                              (totalMessageCount + " total, " + unreadMessageCount + " unread")
+                }
             }
-            Text {
-                id: titleText
-                text: shortMailboxName
-                font: UiConstants.TitleFont
-            }
-            ProgressBar {
-                visible: mailboxIsSelectable && totalMessageCount === undefined
-                anchors { left: parent.left; right: parent.right; top: titleText.bottom }
-                indeterminate: true
-            }
-            Text {
-                id: messageCountsText
-                anchors.top: titleText.bottom
-                font: UiConstants.SubtitleFont
-                visible: ! mailboxIsSelectable || totalMessageCount !== undefined
-                text: mailboxIsSelectable ?
-                          (totalMessageCount === 0 ?
-                               "empty" :
-                               (totalMessageCount + " total, " + unreadMessageCount + " unread")
-                           ) :
-                          "This mailbox does not contain any messages."
+
+            MoreIndicator {
+                id: moreIndicator
+                visible: mailboxHasChildMailboxes
+                anchors {verticalCenter: parent.verticalCenter; right: parent.right}
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        console.log("expanding mailbox")
+                    }
+                }
             }
         }
     }
