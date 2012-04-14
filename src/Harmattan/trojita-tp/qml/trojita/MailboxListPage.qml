@@ -105,6 +105,7 @@ Page {
         flickableItem: view
     }
 
+    // FIXME: can we use shaders for these?
     SequentialAnimation {
         id: moveListViewLeft
         property int oneStepDuration: 100
