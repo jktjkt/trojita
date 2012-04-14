@@ -8,6 +8,7 @@ Flickable {
     property alias imapUserName: imapUserNameInput.text
     property alias imapPassword: imapPasswordInput.text
     property string imapSslMode: encryptionMethodDialog.model.get(encryptionMethodDialog.selectedIndex).name
+    property alias imapSslModeIndex: encryptionMethodDialog.selectedIndex
 
     id: flickable
     anchors.fill: parent
@@ -89,7 +90,6 @@ Flickable {
     SelectionDialog {
         id: encryptionMethodDialog
         titleText: qsTr("Secure connection")
-        selectedIndex: 0
         model: ListModel {
             ListElement {
                 name: QT_TR_NOOP("No")

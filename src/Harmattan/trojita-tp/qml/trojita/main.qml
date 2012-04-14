@@ -95,11 +95,26 @@ PageStackWindow {
             id: imapSettings
         }
 
+        Component.onCompleted: {
+            imapSettings.imapServer = imapAccess.server
+            if (imapAccess.port > 0)
+                imapSettings.imapPort = imapAccess.port
+            imapSettings.imapUserName = imapAccess.username
+            // That's right, we do not load the password
+            if (imapAccess.sslMode == "StartTLS")
+                imapSettings.imapSslModeIndex = 2
+            else if (imapAccess.sslMode == "SSL")
+                imapSettings.imapSslModeIndex = 1
+            else
+                imapSettings.imapSslModeIndex = 0
+        }
+
         onAccepted: {
             imapAccess.server = imapSettings.imapServer
             imapAccess.port = imapSettings.imapPort
             imapAccess.username = imapSettings.imapUserName
-            imapAccess.password = imapSettings.imapPassword
+            if (imapSettings.imapPassword.length)
+                imapAccess.password = imapSettings.imapPassword
             imapAccess.sslMode = imapSettings.imapSslMode
             connectModels()
         }

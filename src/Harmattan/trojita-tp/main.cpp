@@ -7,7 +7,7 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    QCoreApplication::setApplicationName(QString::fromAscii("trojita"));
+    QCoreApplication::setApplicationName(QString::fromAscii("trojita-tp"));
     Common::setCoreApplicationData();
 
     QmlApplicationViewer viewer;

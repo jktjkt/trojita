@@ -21,11 +21,30 @@
 
 #include "ImapAccess.h"
 #include <QAuthenticator>
+#include <QSettings>
+#include "Common/SettingsNames.h"
 #include "Imap/Model/MemoryCache.h"
 
 ImapAccess::ImapAccess(QObject *parent) :
     QObject(parent), m_imapModel(0), cache(0), m_mailboxModel(0), m_msgListModel(0), m_port(0)
 {
+    QSettings s;
+    m_server = s.value(Common::SettingsNames::imapHostKey).toString();
+    m_username = s.value(Common::SettingsNames::imapUserKey).toString();
+    if (s.value(Common::SettingsNames::imapMethodKey).toString() == Common::SettingsNames::methodSSL) {
+        m_sslMode = QLatin1String("SSL");
+    } else if (QSettings().value(Common::SettingsNames::imapStartTlsKey).toBool()) {
+        m_sslMode = QLatin1String("StartTLS");
+    } else {
+        m_sslMode = QLatin1String("TCP");
+    }
+    m_port = s.value(Common::SettingsNames::imapPortKey, QVariant(0)).toInt();
+    if (!m_port) {
+        if (m_sslMode == QLatin1String("SSL"))
+            m_port = 993;
+        else
+            m_port = 143;
+    }
 }
 
 void ImapAccess::alertReceived(const QString &message)
@@ -53,6 +72,7 @@ QString ImapAccess::server() const
 void ImapAccess::setServer(const QString &server)
 {
     m_server = server;
+    QSettings().setValue(Common::SettingsNames::imapHostKey, m_server);
 }
 
 QString ImapAccess::username() const
@@ -63,6 +83,7 @@ QString ImapAccess::username() const
 void ImapAccess::setUsername(const QString &username)
 {
     m_username = username;
+    QSettings().setValue(Common::SettingsNames::imapUserKey, m_username);
 }
 
 QString ImapAccess::password() const
@@ -83,6 +104,7 @@ int ImapAccess::port() const
 void ImapAccess::setPort(const int port)
 {
     m_port = port;
+    QSettings().setValue(Common::SettingsNames::imapPortKey, m_port);
 }
 
 QString ImapAccess::sslMode() const
@@ -99,11 +121,16 @@ void ImapAccess::setSslMode(const QString &sslMode)
     Imap::Mailbox::TaskFactoryPtr taskFactory(new Imap::Mailbox::TaskFactory());
 
     if (m_sslMode == QLatin1String("SSL")) {
+        QSettings().setValue(Common::SettingsNames::imapMethodKey, Common::SettingsNames::methodSSL);
         factory.reset(new Imap::Mailbox::SslSocketFactory(server(), port()));
     } else if (m_sslMode == QLatin1String("StartTLS")) {
+        QSettings().setValue(Common::SettingsNames::imapMethodKey, Common::SettingsNames::methodTCP);
+        QSettings().setValue(Common::SettingsNames::imapStartTlsKey, true);
         factory.reset(new Imap::Mailbox::TlsAbleSocketFactory(server(), port()));
         factory->setStartTlsRequired(true);
     } else {
+        QSettings().setValue(Common::SettingsNames::imapMethodKey, Common::SettingsNames::methodTCP);
+        QSettings().setValue(Common::SettingsNames::imapStartTlsKey, false);
         factory.reset(new Imap::Mailbox::TlsAbleSocketFactory(server(), port()));
     }
 
@@ -117,7 +144,10 @@ void ImapAccess::setSslMode(const QString &sslMode)
     connect(m_imapModel, SIGNAL(logged(uint,Imap::Mailbox::LogMessage)), this, SLOT(slotLogged(uint,Imap::Mailbox::LogMessage)));
 
     m_imapModel->setImapUser(username());
-    m_imapModel->setImapPassword(password());
+    if (!m_password.isNull()) {
+        // Really; the idea is to wait before it has been set for the first time
+        m_imapModel->setImapPassword(password());
+    }
 
     m_mailboxModel = new Imap::Mailbox::MailboxModel(this, m_imapModel);
     m_msgListModel = new Imap::Mailbox::MsgListModel(this, m_imapModel);

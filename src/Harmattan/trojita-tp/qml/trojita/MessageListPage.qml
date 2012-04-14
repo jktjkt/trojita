@@ -92,8 +92,20 @@ Page {
         id: view
         anchors.fill: parent
         delegate: messageItemDelegate
+        visible: count > 0
 
         maximumFlickVelocity: 999999
+    }
+
+    Label {
+        visible: !view.visible
+        anchors.fill: parent
+        text: qsTr("Empty Mailbox")
+        color: "#606060"
+        font {bold: true; pixelSize: 90}
+        wrapMode: Text.WordWrap
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
     }
 
     ScrollDecorator {
