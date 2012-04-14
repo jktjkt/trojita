@@ -89,6 +89,7 @@ Item {
 
                 onTriggered: {
                     container.dragging = true;
+                    tooltip.positionAtY(dragArea.mouseY)
                 }
             }
 
