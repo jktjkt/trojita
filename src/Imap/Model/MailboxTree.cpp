@@ -774,7 +774,8 @@ QVariant TreeItemMessage::data(Model *const model, int role)
         if (timestamp.date() == QDate::currentDate())
             return Model::tr("Today");
 
-        if (timestamp.date().weekNumber() == QDate::currentDate().weekNumber())
+        int beforeDays = timestamp.date().daysTo(QDate::currentDate());
+        if (beforeDays >= 0 && beforeDays < 7)
             return Model::tr("Last Week");
 
         return QDate(timestamp.date().year(), timestamp.date().month(), 1).toString(Model::tr("MMMM yyyy"));
