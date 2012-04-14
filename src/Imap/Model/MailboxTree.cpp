@@ -756,6 +756,30 @@ QVariant TreeItemMessage::data(Model *const model, int role)
         return m_flags;
     }
 
+    // This one is special. We do not want to trigger message fetching yet.
+    if (role == RoleMessageFuzzyDate) {
+        // When the QML ListView is configured with its section.* properties, it will call the corresponding data() section *very*
+        // often.  The data are however only "needed" when the real items are visible, and when they are visible, the data() will
+        // get called anyway and the correct stuff will ultimately arrive.  This is why we don't call fetch() from here.
+        //
+        // FIXME: double-check the above once again! Maybe it was just a side effect of too fast updates of the currentIndex?
+        if (!fetched()) {
+            return QVariant();
+        }
+
+        QDateTime timestamp = envelope(model).date;
+        if (!timestamp.isValid())
+            return QString();
+
+        if (timestamp.date() == QDate::currentDate())
+            return Model::tr("Today");
+
+        if (timestamp.date().weekNumber() == QDate::currentDate().weekNumber())
+            return Model::tr("Last Week");
+
+        return QDate(timestamp.date().year(), timestamp.date().month(), 1).toString(Model::tr("MMMM yyyy"));
+    }
+
     fetch(model);
 
     switch (role) {

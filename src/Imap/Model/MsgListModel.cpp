@@ -73,6 +73,7 @@ MsgListModel::MsgListModel(QObject *parent, Model *model): QAbstractProxyModel(p
     roleNames[RoleMessageSubject] = "subject";
     roleNames[RoleMessageFlags] = "flags";
     roleNames[RoleMessageSize] = "size";
+    roleNames[RoleMessageFuzzyDate] = "fuzzyDate";
     setRoleNames(roleNames);
 }
 

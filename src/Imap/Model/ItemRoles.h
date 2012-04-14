@@ -101,6 +101,8 @@ enum {
     RoleMessageFlags,
     /** @short Is the current item a root of thread with unread messages */
     RoleThreadRootWithUnreadMessages,
+    /** @short Fuzzy date of a particular message; useful for rough navigation */
+    RoleMessageFuzzyDate,
 
     /** @short Contents of a message part */
     RolePartData,
