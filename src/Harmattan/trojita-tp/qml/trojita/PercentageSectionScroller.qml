@@ -91,7 +91,7 @@ Item {
                 var offset = Math.round(100 * mouse.y / dragArea.height)
                 if (offset != container.offset) {
                     container.offset = offset
-                    listView.positionViewAtIndex(Math.round(container.offset * listView.count / 100), ListView.Visible)
+                    listView.positionViewAtIndex(Math.round(container.offset * (listView.count - 1) / 100), ListView.Visible)
                 }
             }
 
