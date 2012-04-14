@@ -66,21 +66,20 @@ Item {
 
             onPressed: {
                 mouseDownTimer.start()
+                periodicUpdateTimer.start()
             }
 
             onReleased: {
                 container.dragging = false;
                 mouseDownTimer.stop()
+                periodicUpdateTimer.doIt()
+                periodicUpdateTimer.stop()
             }
 
             onPositionChanged: {
                 if (mouse.y < 0 || mouse.y > dragArea.height )
                     return;
-                var offset = Math.round(100 * mouse.y / dragArea.height)
-                if (offset != container.offset) {
-                    container.offset = offset
-                    listView.positionViewAtIndex(Math.round(container.offset * (listView.count - 1) / 100), ListView.Visible)
-                }
+                container.offset = Math.round(100 * mouse.y / dragArea.height)
             }
 
             Timer {
@@ -89,9 +88,18 @@ Item {
 
                 onTriggered: {
                     container.dragging = true;
-                    // We're not timer-based anymore; the minimal scrollable amount is now 1%
                     tooltip.positionAtY(dragArea.mouseY);
                 }
+            }
+
+            Timer {
+                function doIt() {
+                    listView.positionViewAtIndex(Math.round(container.offset * (listView.count - 1) / 100), ListView.Visible)
+                }
+                id: periodicUpdateTimer
+                interval: 300
+                repeat: true
+                onTriggered: doIt()
             }
             states: [
                 State {
