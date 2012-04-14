@@ -37,6 +37,8 @@ Page {
                 anchors {
                     top: parent.top; bottom: parent.bottom; left: parent.left;
                     right: moreIndicator.visible ? moreIndicator.left : parent.right
+                    leftMargin: 6
+                    rightMargin: 16
                 }
                 MouseArea {
                     anchors.fill: parent
