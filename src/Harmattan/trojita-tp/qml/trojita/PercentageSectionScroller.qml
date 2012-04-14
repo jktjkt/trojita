@@ -86,12 +86,12 @@ Item {
             }
 
             onPositionChanged: {
-                if (mouse.y < 0 || mouse.y >= dragArea.height )
+                if (mouse.y < 0 || mouse.y > dragArea.height )
                     return;
                 var offset = Math.round(100 * mouse.y / dragArea.height)
-                if (Math.abs(offset - container.offset) > 5) {
+                if (offset != container.offset) {
                     container.offset = offset
-                    listView.positionViewAtIndex(container.offset * listView.count / 100, ListView.Visible)
+                    listView.positionViewAtIndex(Math.round(container.offset * listView.count / 100), ListView.Visible)
                 }
             }
 
@@ -101,7 +101,7 @@ Item {
 
                 onTriggered: {
                     container.dragging = true;
-                    //listView.positionViewAtIndex(container.offset * listView.count / 100, ListView.Visible)
+                    // We're not timer-based anymore; the minimal scrollable amount is now 1%
                     tooltip.positionAtY(dragArea.mouseY);
                 }
             }
