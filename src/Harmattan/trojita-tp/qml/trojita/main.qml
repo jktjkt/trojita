@@ -85,92 +85,16 @@ PageStackWindow {
         acceptButtonText: qsTr("OK")
         rejectButtonText: qsTr("Cancel")
 
-        content: Column {
-            id: col
-            spacing: 10
-            anchors.fill: parent
-            anchors.margins: UiConstants.DefaultMargin
-
-            Label {
-                text: qsTr("Username")
-            }
-            TextField {
-                id: userName
-                anchors {left: col.left; right: col.right;}
-                inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhEmailCharactersOnly | Qt.ImhNoPredictiveText
-            }
-
-            Label {
-                text: qsTr("Password")
-            }
-            TextField {
-                id: imapPassword
-                anchors {left: parent.left; right: parent.right;}
-                inputMethodHints: Qt.ImhHiddenText | Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText
-                echoMode: TextInput.Password
-            }
-
-            Label {
-                text: qsTr("Server address")
-            }
-            TextField {
-                id: imapServer
-                text: "192.168.2.14"
-                anchors {left: col.left; right: col.right;}
-                inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhPreferLowercase | Qt.ImhUrlCharactersOnly | Qt.ImhNoPredictiveText
-            }
-
-            Button {
-                id: encryptionMethodBtn
-                anchors {left: col.left; right: col.right;}
-                text: encryptionMethodDialog.titleText + ": " + encryptionMethodDialog.model.get(encryptionMethodDialog.selectedIndex).name
-
-                onClicked: {
-                    encryptionMethodDialog.open()
-                }
-            }
-
-            SelectionDialog {
-                id: encryptionMethodDialog
-                titleText: qsTr("Secure connection")
-                selectedIndex: 0
-                model: ListModel {
-                    ListElement {
-                        name: QT_TR_NOOP("No")
-                        port: 143
-                    }
-                    ListElement {
-                        name: QT_TR_NOOP("SSL")
-                        port: 993
-                    }
-                    ListElement {
-                        name: QT_TR_NOOP("StartTLS")
-                        port: 143
-                    }
-                }
-                onAccepted: {
-                    imapPort.text = encryptionMethodDialog.model.get(encryptionMethodDialog.selectedIndex).port
-                }
-            }
-
-            Label {
-                text: qsTr("Port")
-            }
-            TextField {
-                id: imapPort
-                text: "143"
-                anchors {left: col.left; right: col.right;}
-                inputMethodHints: Qt.ImhDigitsOnly
-                validator: IntValidator { bottom: 1; top: 65535 }
-            }
+        content: ImapSettings {
+            id: imapSettings
         }
 
         onAccepted: {
-            imapAccess.server = imapServer.text
-            imapAccess.port = imapPort.text
-            imapAccess.username = userName.text
-            imapAccess.password = imapPassword.text
-            imapAccess.sslMode = encryptionMethodDialog.model.get(encryptionMethodDialog.selectedIndex).name
+            imapAccess.server = imapSettings.imapServer
+            imapAccess.port = imapSettings.imapPort
+            imapAccess.username = imapSettings.imapUserName
+            imapAccess.password = imapSettings.imapPassword
+            imapAccess.sslMode = imapSettings.imapSslMode
             connectModels()
         }
     }
