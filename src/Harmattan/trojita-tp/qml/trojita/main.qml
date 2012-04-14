@@ -36,6 +36,7 @@ PageStackWindow {
 
     Component.onCompleted: {
         theme.inverted = true
+        theme.colorScheme = 7
         serverSettings.open()
     }
 
