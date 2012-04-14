@@ -39,7 +39,7 @@ Page {
                     // FIXME: multiple/no addresses...
                     text: formatMailAddress(model.from[0])
                 }
-                Text {
+                Label {
                     font: UiConstants.BodyTextFont
                     // if there's a better way to compare QDateTime::date with "today", well, please do tell me
                     text: Qt.formatDate(model.date, "YYYY-mm-dd") == Qt.formatDate(new Date(), "YYYY-mm-dd") ?

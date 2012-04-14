@@ -48,7 +48,7 @@ Page {
                         }
                     }
                 }
-                Text {
+                Label {
                     id: titleText
                     text: shortMailboxName
                     font: UiConstants.TitleFont
@@ -58,7 +58,7 @@ Page {
                     anchors { left: parent.left; right: parent.right; top: titleText.bottom }
                     indeterminate: true
                 }
-                Text {
+                Label {
                     id: messageCountsText
                     anchors.top: titleText.bottom
                     font: UiConstants.SubtitleFont
