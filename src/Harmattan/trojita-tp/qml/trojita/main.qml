@@ -105,7 +105,7 @@ PageStackWindow {
                 id: imapPassword
                 anchors {left: parent.left; right: parent.right;}
                 inputMethodHints: Qt.ImhHiddenText | Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText
-                echoMode: TextInput.PasswordEchoOnEdit
+                echoMode: TextInput.Password
             }
 
             Label {
@@ -192,7 +192,7 @@ PageStackWindow {
                 id: password
                 anchors {left: parent.left; right: parent.right;}
                 inputMethodHints: Qt.ImhHiddenText | Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText
-                echoMode: TextInput.PasswordEchoOnEdit
+                echoMode: TextInput.Password
             }
             Label {
                 id: authFailedMessage
