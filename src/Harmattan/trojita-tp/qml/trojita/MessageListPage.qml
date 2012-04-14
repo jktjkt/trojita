@@ -94,7 +94,6 @@ Page {
         delegate: messageItemDelegate
         visible: count > 0
 
-        maximumFlickVelocity: 999999
     }
 
     Label {
