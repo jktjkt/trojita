@@ -53,7 +53,7 @@ Item {
         height: listView.height
         x: listView.x + listView.width - width
         property bool dragging: false
-        property int offset: 0
+        property double offset: 0
 
         MouseArea {
             id: dragArea
@@ -79,7 +79,7 @@ Item {
             onPositionChanged: {
                 if (mouse.y < 0 || mouse.y > dragArea.height )
                     return;
-                container.offset = Math.round(100 * mouse.y / dragArea.height)
+                container.offset = mouse.y / dragArea.height
             }
 
             Timer {
@@ -94,7 +94,7 @@ Item {
 
             Timer {
                 function doIt() {
-                    listView.positionViewAtIndex(Math.round(container.offset * (listView.count - 1) / 100), ListView.Visible)
+                    listView.positionViewAtIndex(Math.round(container.offset * (listView.count - 1)), ListView.Visible)
                 }
                 id: periodicUpdateTimer
                 interval: 300
@@ -128,7 +128,7 @@ Item {
                 color: Qt.rgba(0, 0, 0, 0.5)
 
                 Label {
-                    text: container.offset + " %"
+                    text: Math.round(100 * container.offset) + " %"
                 }
             }
 
