@@ -3,8 +3,12 @@ import com.nokia.meego 1.0
 import com.nokia.extras 1.1
 
 Page {
-    property alias model: view.model
     signal mailboxSelected(string mailbox)
+
+    function setMailboxModel(model) {
+        proxyModel.model = model
+        view.model = proxyModel
+    }
 
     anchors.margins: UiConstants.DefaultMargin
     tools: commonTools
@@ -62,17 +66,23 @@ Page {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        console.log("expanding mailbox")
+                        view.positionViewAtIndex(model.index, ListView.Visible);
+                        view.currentIndex = model.index
+                        view.model.rootIndex = view.model.modelIndex(index)
                     }
                 }
             }
         }
     }
 
+    VisualDataModel {
+        id: proxyModel
+        delegate: mailboxItemDelegate
+    }
+
     ListView {
         id: view
         anchors.fill: parent
-        delegate: mailboxItemDelegate
         highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
         highlightMoveDuration: 600
         focus: true

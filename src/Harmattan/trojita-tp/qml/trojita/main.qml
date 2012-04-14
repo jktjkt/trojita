@@ -30,7 +30,7 @@ PageStackWindow {
         imapAccess.imapModel.alertReceived.connect(showImapAlert)
         imapAccess.imapModel.authRequested.connect(requestingPassword)
         imapAccess.imapModel.authAttemptFailed.connect(authAttemptFailed)
-        mailboxListPage.model = imapAccess.mailboxModel
+        mailboxListPage.setMailboxModel(imapAccess.mailboxModel)
         messageListPage.model = imapAccess.msgListModel
     }
 
