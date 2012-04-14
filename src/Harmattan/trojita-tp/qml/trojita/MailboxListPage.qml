@@ -12,6 +12,7 @@ Page {
     }
 
     function openParentMailbox() {
+        moveListViewRight.start()
         view.model.rootIndex = view.model.parentModelIndex()
         --nestingDepth
     }
@@ -78,6 +79,7 @@ Page {
                     onClicked: {
                         view.positionViewAtIndex(model.index, ListView.Visible);
                         view.currentIndex = model.index
+                        moveListViewLeft.start()
                         view.model.rootIndex = view.model.modelIndex(index)
                         ++nestingDepth
                     }
@@ -101,5 +103,25 @@ Page {
 
     ScrollDecorator {
         flickableItem: view
+    }
+
+    SequentialAnimation {
+        id: moveListViewLeft
+        property int oneStepDuration: 100
+        ScriptAction { script: view.anchors.fill = undefined }
+        PropertyAnimation { target: view; properties: "x"; to: -view.width; duration: moveListViewLeft.oneStepDuration }
+        PropertyAction { target: view; property: "x"; value: view.width }
+        PropertyAnimation { target: view; properties: "x"; to: 0; duration: moveListViewLeft.oneStepDuration }
+        ScriptAction { script: view.anchors.fill = view.parent }
+    }
+
+    SequentialAnimation {
+        id: moveListViewRight
+        property alias oneStepDuration: moveListViewLeft.oneStepDuration
+        ScriptAction { script: view.anchors.fill = undefined }
+        PropertyAnimation { target: view; properties: "x"; to: view.width; duration: moveListViewRight.oneStepDuration }
+        PropertyAction { target: view; property: "x"; value: -view.width }
+        PropertyAnimation { target: view; properties: "x"; to: 0; duration: moveListViewRight.oneStepDuration }
+        ScriptAction { script: view.anchors.fill = view.parent }
     }
 }
