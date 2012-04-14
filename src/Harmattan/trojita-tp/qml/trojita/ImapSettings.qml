@@ -62,7 +62,6 @@ Flickable {
         }
         TextField {
             id: imapServerInput
-            text: "192.168.2.14"
             anchors {left: col.left; right: col.right;}
             inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhPreferLowercase | Qt.ImhUrlCharactersOnly | Qt.ImhNoPredictiveText
         }
