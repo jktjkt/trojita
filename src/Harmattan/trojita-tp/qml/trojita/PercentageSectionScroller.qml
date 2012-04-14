@@ -58,11 +58,6 @@ Item {
         }
     }
 
-    property Style platformStyle: SectionScrollerStyle {}
-
-    //Deprecated, TODO Remove this on w13
-    property alias style: root.platformStyle
-
     Rectangle {
         id: container
         color: "transparent"
@@ -98,7 +93,6 @@ Item {
                     container.offset = offset
                     listView.positionViewAtIndex(container.offset * listView.count / 100, ListView.Visible)
                 }
-                //internal.adjustContentPosition(dragArea.mouseY);
             }
 
             Timer {
@@ -107,7 +101,6 @@ Item {
 
                 onTriggered: {
                     container.dragging = true;
-                    //internal.adjustContentPosition(dragArea.mouseY);
                     //listView.positionViewAtIndex(container.offset * listView.count / 100, ListView.Visible)
                     tooltip.positionAtY(dragArea.mouseY);
                 }
@@ -137,14 +130,6 @@ Item {
                 height: childrenRect.height// + 20
                 anchors.left: parent.left
                 color: Qt.rgba(0, 0, 0, 0.5)
-
-                    /*SectionScrollerLabel {
-                        id: currentSectionLabel
-                        objectName: "currentSectionLabel"
-                        text: internal.currentSection
-                        highlighted: true
-                        up: !internal.down
-                    }*/
 
                 Label {
                     text: container.offset + " %"
@@ -183,76 +168,4 @@ Item {
             }
         }
     }
-
-    /*Timer {
-        id: dirtyTimer
-        interval: 100
-        running: false
-        onTriggered: {
-            Sections.initSectionData(listView);
-            internal.modelDirty = false;
-        }
-    }
-
-    Connections {
-        target: root.listView
-        onCurrentSectionChanged: internal.curSect = container.dragging ? internal.curSect : ""
-    }*/
-
-    /*QtObject {
-        id: internal
-
-        property string prevSection: ""
-        property string currentSection: listView.currentSection
-        property string nextSection: ""
-        property string curSect: ""
-        property string curPos: "first"
-        property int oldY: 0
-        property bool modelDirty: false
-        property bool down: true
-
-        function initDirtyObserver() {
-            Sections.initialize(listView);
-            function dirtyObserver() {
-                if (!internal.modelDirty) {
-                    internal.modelDirty = true;
-                    dirtyTimer.running = true;
-                }
-            }
-
-            if (listView.model.countChanged)
-                listView.model.countChanged.connect(dirtyObserver);
-
-            if (listView.model.itemsChanged)
-                listView.model.itemsChanged.connect(dirtyObserver);
-
-            if (listView.model.itemsInserted)
-                listView.model.itemsInserted.connect(dirtyObserver);
-
-            if (listView.model.itemsMoved)
-                listView.model.itemsMoved.connect(dirtyObserver);
-
-            if (listView.model.itemsRemoved)
-                listView.model.itemsRemoved.connect(dirtyObserver);
-        }
-
-        function adjustContentPosition(y) {
-            if (y < 0 || y > dragArea.height) return;
-
-            internal.down = (y > internal.oldY);
-            var sect = Sections.getClosestSection((y / dragArea.height), internal.down);
-            internal.oldY = y;
-            if (internal.curSect != sect) {
-                internal.curSect = sect;
-                internal.curPos = Sections.getSectionPositionString(internal.curSect);
-                var sec = Sections.getRelativeSections(internal.curSect);
-                internal.prevSection = sec[0];
-                internal.currentSection = sec[1];
-                internal.nextSection = sec[2];
-                var idx = Sections.getIndexFor(sect);
-                listView.positionViewAtIndex(idx, ListView.Beginning);
-            }
-        }
-
-    }*/
 }
