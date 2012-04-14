@@ -39,8 +39,7 @@
 ****************************************************************************/
 
 import QtQuick 1.1
-import "." 1.0
-import "SectionScroller.js" as Sections
+import com.nokia.meego 1.0
 
 Item {
     id: root
@@ -71,6 +70,7 @@ Item {
         height: listView.height
         x: listView.x + listView.width - width
         property bool dragging: false
+        property int offset: 0
 
         MouseArea {
             id: dragArea
@@ -91,7 +91,14 @@ Item {
             }
 
             onPositionChanged: {
-                internal.adjustContentPosition(dragArea.mouseY);
+                if (mouse.y < 0 || mouse.y >= dragArea.height )
+                    return;
+                var offset = Math.round(100 * mouse.y / dragArea.height)
+                if (Math.abs(offset - container.offset) > 5) {
+                    container.offset = offset
+                    listView.positionViewAtIndex(container.offset * listView.count / 100, ListView.Visible)
+                }
+                //internal.adjustContentPosition(dragArea.mouseY);
             }
 
             Timer {
@@ -100,7 +107,8 @@ Item {
 
                 onTriggered: {
                     container.dragging = true;
-                    internal.adjustContentPosition(dragArea.mouseY);
+                    //internal.adjustContentPosition(dragArea.mouseY);
+                    //listView.positionViewAtIndex(container.offset * listView.count / 100, ListView.Visible)
                     tooltip.positionAtY(dragArea.mouseY);
                 }
             }
@@ -130,14 +138,18 @@ Item {
                 anchors.left: parent.left
                 color: Qt.rgba(0, 0, 0, 0.5)
 
-                    SectionScrollerLabel {
+                    /*SectionScrollerLabel {
                         id: currentSectionLabel
                         objectName: "currentSectionLabel"
                         text: internal.currentSection
                         highlighted: true
                         up: !internal.down
-                    }
+                    }*/
+
+                Label {
+                    text: container.offset + " %"
                 }
+            }
 
             states: [
                 State {
@@ -172,7 +184,7 @@ Item {
         }
     }
 
-    Timer {
+    /*Timer {
         id: dirtyTimer
         interval: 100
         running: false
@@ -185,9 +197,9 @@ Item {
     Connections {
         target: root.listView
         onCurrentSectionChanged: internal.curSect = container.dragging ? internal.curSect : ""
-    }
+    }*/
 
-    QtObject {
+    /*QtObject {
         id: internal
 
         property string prevSection: ""
@@ -242,5 +254,5 @@ Item {
             }
         }
 
-    }
+    }*/
 }
