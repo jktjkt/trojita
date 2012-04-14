@@ -101,11 +101,14 @@ PageStackWindow {
             imapAccess.sslMode = imapSettings.imapSslMode
             connectModels()
         }
+
+        onVisibleChanged: theme.inverted = visible
     }
 
     PasswordInputSheet {
         id: passwordDialog
         onAccepted: imapAccess.imapModel.imapPassword = password
         onRejected: imapAccess.imapModel.imapPassword = undefined
+        onVisibleChanged: theme.inverted = visible
     }
 }

@@ -13,8 +13,6 @@ Flickable {
     anchors.fill: parent
     flickableDirection: Flickable.VerticalFlick
 
-    //Component.onCompleted: {theme.inverted = true}
-
     Column {
         id: col
         spacing: 10
