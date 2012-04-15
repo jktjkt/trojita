@@ -6,6 +6,7 @@ PageStackWindow {
     id: appWindow
 
     function showConnectionError(message) {
+        passwordDialog.close()
         connectionErrorBanner.text = message
         connectionErrorBanner.parent = pageStack.currentPage
         connectionErrorBanner.show()
