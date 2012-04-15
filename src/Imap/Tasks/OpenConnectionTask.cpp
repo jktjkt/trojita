@@ -237,9 +237,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
                     message = tr("Temporary failure because a subsystem is down.");
                     break;
                 case Responses::AUTHENTICATIONFAILED:
-                    message = tr("Authentication failed for some reason on which the server is "
-                                 "unwilling to elaborate.  Typically, this includes \"unknown "
-                                 "user\" and \"bad password\".");
+                    message = tr("Authentication failed.  This often happens due to bad password or wrong user name.");
                     break;
                 case Responses::AUTHORIZATIONFAILED:
                     message = tr("Authentication succeeded in using the authentication identity, "
