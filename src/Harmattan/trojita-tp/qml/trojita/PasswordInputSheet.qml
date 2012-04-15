@@ -12,6 +12,7 @@ Sheet {
     content: Column {
         anchors.fill: parent
         anchors.margins: UiConstants.DefaultMargin
+        spacing: 10
         Label {
             id: authFailureReason
             visible: false
