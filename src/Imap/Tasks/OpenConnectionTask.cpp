@@ -262,7 +262,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
                 if (message.isEmpty()) {
                     message = tr("Login failed: %1").arg(resp->message);
                 } else {
-                    message = tr("%1\r\n\r\n%2").arg(message, resp->message);
+                    message = tr("%1\n\n%2").arg(message, resp->message);
                 }
                 emit model->authAttemptFailed(message);
                 model->m_imapPassword.clear();
