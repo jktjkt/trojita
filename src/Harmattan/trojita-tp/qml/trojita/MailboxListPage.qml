@@ -55,11 +55,6 @@ Page {
                     text: shortMailboxName
                     font: UiConstants.TitleFont
                 }
-                ProgressBar {
-                    visible: mailboxIsSelectable && totalMessageCount === undefined
-                    anchors { left: parent.left; right: parent.right; top: titleText.bottom }
-                    indeterminate: true
-                }
                 Label {
                     id: messageCountsText
                     anchors.top: titleText.bottom
@@ -68,6 +63,12 @@ Page {
                     text: totalMessageCount === 0 ?
                               "empty" :
                               (totalMessageCount + " total, " + unreadMessageCount + " unread")
+                }
+                Label {
+                    anchors.top: titleText.bottom
+                    font: UiConstants.SubtitleFont
+                    visible: mailboxIsSelectable && totalMessageCount === undefined
+                    text: qsTr("Loading...")
                 }
             }
 
