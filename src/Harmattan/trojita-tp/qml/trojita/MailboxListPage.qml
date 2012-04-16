@@ -5,6 +5,8 @@ import com.nokia.extras 1.1
 Page {
     signal mailboxSelected(string mailbox)
     property int nestingDepth: 0
+    property string viewTitle: isNestedSomewhere() ? currentMailbox : imapAccess.server
+    property string currentMailbox
 
     function setMailboxModel(model) {
         proxyModel.model = model
@@ -15,6 +17,7 @@ Page {
         moveListViewRight.start()
         view.model.rootIndex = view.model.parentModelIndex()
         --nestingDepth
+        currentMailbox = ""
     }
 
     function isNestedSomewhere() {
@@ -81,6 +84,7 @@ Page {
                     anchors.fill: parent
                     onClicked: {
                         view.positionViewAtIndex(model.index, ListView.Visible);
+                        currentMailbox = shortMailboxName
                         view.currentIndex = model.index
                         moveListViewLeft.start()
                         view.model.rootIndex = view.model.modelIndex(index)
