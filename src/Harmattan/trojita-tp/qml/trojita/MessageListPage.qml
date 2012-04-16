@@ -160,7 +160,7 @@ Page {
 
     PageHeader {
         id: header
-        text: "pwned"
+        text: mailboxListPage.currentMailbox
         anchors {left: parent.left; right: parent.right; top: parent.top}
     }
 }
