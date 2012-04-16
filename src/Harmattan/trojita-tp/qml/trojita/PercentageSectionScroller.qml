@@ -114,7 +114,7 @@ Item {
             states: [
                 State {
                     name: "dragging"; when: container.dragging
-                    PropertyChanges { target: container; color: Qt.rgba(1, 1, 1, 0.5) }
+                    PropertyChanges { target: container; color: Qt.rgba(1, 1, 1, theme.inverted ? 0.3 : 0.5) }
                 }
             ]
         }
@@ -135,10 +135,13 @@ Item {
                 width: parent.width
                 height: childrenRect.height// + 20
                 anchors.left: parent.left
-                color: Qt.rgba(0, 0, 0, 0.5)
+                color: theme.inverted ? Qt.rgba(1, 1, 1, 0.8) : Qt.rgba(0, 0, 0, 0.5)
 
                 Label {
                     text: Math.round(100 * container.offset) + " %"
+                    color: theme.inverted ? "black" : "white"
+                    anchors.left: parent.left
+                    anchors.leftMargin: UiConstants.DefaultMargin / 2
                 }
             }
 
