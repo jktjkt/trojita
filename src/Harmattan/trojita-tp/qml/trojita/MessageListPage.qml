@@ -5,7 +5,6 @@ import com.nokia.extras 1.1
 Page {
     property alias model: view.model
 
-    anchors.margins: UiConstants.DefaultMargin
     tools: commonTools
 
     Component {
@@ -22,13 +21,18 @@ Page {
 
             property variant model
 
+            width: view.width
+            height: 120
+
             Column {
                 id: col
+                anchors.margins: UiConstants.DefaultMargin
+                anchors.fill: parent
                 visible: ! (model === undefined || model.subject === undefined || !model.isFetched)
                 Label {
                     maximumLineCount: 1
                     elide: Text.ElideRight
-                    width: view.width
+                    width: parent.width
                     text: !col.visible ? "" : model.subject
                     color: !col.visible ? platformStyle.textColor :
                                           model.isMarkedRead ?
@@ -41,11 +45,12 @@ Page {
                     font: UiConstants.SubtitleFont
                     maximumLineCount: 1
                     elide: Text.ElideRight
-                    width: view.width
+                    width: parent.width
                     // FIXME: multiple/no addresses...
                     text: !col.visible ? "" : formatMailAddress(model.from[0])
                 }
                 Label {
+                    width: parent.width
                     font: UiConstants.BodyTextFont
                     // if there's a better way to compare QDateTime::date with "today", well, please do tell me
                     text: !col.visible ? "" : Qt.formatDate(model.date, "YYYY-mm-dd") == Qt.formatDate(new Date(), "YYYY-mm-dd") ?
@@ -70,6 +75,9 @@ Page {
         id: scrollingMessageDelegate
 
         Item {
+            width: view.width
+            height: 120
+            anchors.margins: UiConstants.DefaultMargin
             Label {
                 text: qsTr("Scrolling...")
                 anchors.centerIn: parent
@@ -86,8 +94,6 @@ Page {
         id: messageItemDelegate
 
         Loader {
-            width: parent.width
-            height: 120
             sourceComponent: view.count > 1000 && (view.massiveScrolling || view.verticalVelocity > 2000) ? scrollingMessageDelegate: normalMessageItemDelegate
             Binding { target: item; property: "model"; value: model; when: status == Loader.Ready }
         }
