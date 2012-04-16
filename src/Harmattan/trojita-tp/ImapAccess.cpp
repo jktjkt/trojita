@@ -73,6 +73,7 @@ void ImapAccess::setServer(const QString &server)
 {
     m_server = server;
     QSettings().setValue(Common::SettingsNames::imapHostKey, m_server);
+    emit serverChanged();
 }
 
 QString ImapAccess::username() const
