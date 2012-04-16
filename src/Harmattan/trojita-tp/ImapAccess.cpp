@@ -26,7 +26,7 @@
 #include "Imap/Model/MemoryCache.h"
 
 ImapAccess::ImapAccess(QObject *parent) :
-    QObject(parent), m_imapModel(0), cache(0), m_mailboxModel(0), m_msgListModel(0), m_port(0)
+    QObject(parent), m_imapModel(0), cache(0), m_mailboxModel(0), m_msgListModel(0), m_visibleTasksModel(0), m_port(0)
 {
     QSettings s;
     m_server = s.value(Common::SettingsNames::imapHostKey).toString();
@@ -152,6 +152,8 @@ void ImapAccess::setSslMode(const QString &sslMode)
 
     m_mailboxModel = new Imap::Mailbox::MailboxModel(this, m_imapModel);
     m_msgListModel = new Imap::Mailbox::MsgListModel(this, m_imapModel);
+    m_visibleTasksModel = new Imap::Mailbox::VisibleTasksModel(this, m_imapModel->taskModel());
+    visibleTasksModelChanged();
 }
 
 QObject *ImapAccess::imapModel() const
@@ -167,4 +169,9 @@ QObject *ImapAccess::mailboxModel() const
 QObject *ImapAccess::msgListModel() const
 {
     return m_msgListModel;
+}
+
+QObject *ImapAccess::visibleTasksModel() const
+{
+    return m_visibleTasksModel;
 }
