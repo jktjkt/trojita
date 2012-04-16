@@ -49,7 +49,7 @@ Page {
                         view.positionViewAtIndex(model.index, ListView.Visible);
                         view.currentIndex = model.index
                         if (mailboxIsSelectable) {
-                            currentMailbox = mailboxName
+                            currentMailbox = shortMailboxName
                             mailboxSelected(mailboxName)
                         }
                     }
