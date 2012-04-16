@@ -41,8 +41,12 @@ The goal is to have a way of showing an activity indication whenever the IMAP co
 class VisibleTasksModel : public QSortFilterProxyModel
 {
     Q_OBJECT
+    Q_PROPERTY(bool hasVisibleTasks READ hasVisibleTasks NOTIFY hasVisibleTasksChanged)
 public:
     explicit VisibleTasksModel(QObject *parent, QAbstractItemModel *taskModel);
+    bool hasVisibleTasks() const;
+signals:
+    void hasVisibleTasksChanged();
 protected:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
 private:
