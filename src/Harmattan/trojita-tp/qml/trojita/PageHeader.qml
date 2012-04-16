@@ -18,4 +18,11 @@ Rectangle {
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
     }
+
+    BusyIndicator {
+        id: busyIndicator
+        visible: imapAccess.visibleTasksModel ? imapAccess.visibleTasksModel.hasVisibleTasks : false
+        running: visible
+        anchors { right: parent.right; verticalCenter: parent.verticalCenter; margins: UiConstants.DefaultMargin }
+    }
 }
