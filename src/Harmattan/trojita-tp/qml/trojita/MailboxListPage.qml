@@ -21,7 +21,6 @@ Page {
         return nestingDepth > 0
     }
 
-    anchors.margins: UiConstants.DefaultMargin
     tools: commonTools
 
     //Component.onCompleted: {theme.inverted = true}
@@ -32,6 +31,7 @@ Page {
         Item {
             width: parent.width
             height: UiConstants.ListItemHeightDefault
+            anchors.margins: UiConstants.DefaultMargin
 
             Item {
                 anchors {
