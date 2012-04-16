@@ -100,34 +100,47 @@ Page {
         delegate: mailboxItemDelegate
     }
 
-    ListView {
-        id: view
+    Item {
+        id: contentView
         anchors.fill: parent
-        focus: true
-    }
 
-    ScrollDecorator {
-        flickableItem: view
+        ListView {
+            id: view
+            anchors {
+                top: header.bottom; left: parent.left; right: parent.right; bottom: parent.bottom
+            }
+            focus: true
+        }
+
+        ScrollDecorator {
+            flickableItem: view
+        }
+
+        PageHeader {
+            id: header
+            text: viewTitle
+            anchors {left: parent.left; right: parent.right; top: parent.top}
+        }
     }
 
     // FIXME: can we use shaders for these?
     SequentialAnimation {
         id: moveListViewLeft
         property int oneStepDuration: 100
-        ScriptAction { script: view.anchors.fill = undefined }
-        PropertyAnimation { target: view; properties: "x"; to: -view.width; duration: moveListViewLeft.oneStepDuration }
-        PropertyAction { target: view; property: "x"; value: view.width }
-        PropertyAnimation { target: view; properties: "x"; to: 0; duration: moveListViewLeft.oneStepDuration }
-        ScriptAction { script: view.anchors.fill = view.parent }
+        ScriptAction { script: contentView.anchors.fill = undefined }
+        PropertyAnimation { target: contentView; properties: "x"; to: -contentView.width; duration: moveListViewLeft.oneStepDuration }
+        PropertyAction { target: contentView; property: "x"; value: contentView.width }
+        PropertyAnimation { target: contentView; properties: "x"; to: 0; duration: moveListViewLeft.oneStepDuration }
+        ScriptAction { script: contentView.anchors.fill = contentView.parent }
     }
 
     SequentialAnimation {
         id: moveListViewRight
         property alias oneStepDuration: moveListViewLeft.oneStepDuration
-        ScriptAction { script: view.anchors.fill = undefined }
-        PropertyAnimation { target: view; properties: "x"; to: view.width; duration: moveListViewRight.oneStepDuration }
-        PropertyAction { target: view; property: "x"; value: -view.width }
+        ScriptAction { script: contentView.anchors.fill = undefined }
+        PropertyAnimation { target: view; properties: "x"; to: contentView.width; duration: moveListViewRight.oneStepDuration }
+        PropertyAction { target: view; property: "x"; value: -contentView.width }
         PropertyAnimation { target: view; properties: "x"; to: 0; duration: moveListViewRight.oneStepDuration }
-        ScriptAction { script: view.anchors.fill = view.parent }
+        ScriptAction { script: contentView.anchors.fill = contentView.parent }
     }
 }
