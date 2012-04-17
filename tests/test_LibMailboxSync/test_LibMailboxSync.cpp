@@ -132,6 +132,7 @@ void LibMailboxSync::helperSyncAFullSync()
     Q_ASSERT( list );
     QVERIFY( ! list->fetched() );
 
+    // FIXME: this command is obviously WRONG!
     // The messages are only added when their UID is known, ie. after the UID synchronization, hence no messages at this time
     QCOMPARE(static_cast<int>(list->childrenCount(model)), 0);
 
