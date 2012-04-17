@@ -139,9 +139,9 @@ Page {
         id: moveListViewRight
         property alias oneStepDuration: moveListViewLeft.oneStepDuration
         ScriptAction { script: contentView.anchors.fill = undefined }
-        PropertyAnimation { target: view; properties: "x"; to: contentView.width; duration: moveListViewRight.oneStepDuration }
-        PropertyAction { target: view; property: "x"; value: -contentView.width }
-        PropertyAnimation { target: view; properties: "x"; to: 0; duration: moveListViewRight.oneStepDuration }
+        PropertyAnimation { target: contentView; properties: "x"; to: contentView.width; duration: moveListViewRight.oneStepDuration }
+        PropertyAction { target: contentView; property: "x"; value: -contentView.width }
+        PropertyAnimation { target: contentView; properties: "x"; to: 0; duration: moveListViewRight.oneStepDuration }
         ScriptAction { script: contentView.anchors.fill = contentView.parent }
     }
 }
