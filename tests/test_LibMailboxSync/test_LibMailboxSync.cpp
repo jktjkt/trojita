@@ -357,6 +357,7 @@ void LibMailboxSync::helperSyncFlags()
     }
     SOCK->fakeReading(buf + t.last("OK yay\r\n"));
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
 }
 
 /** @short Helper: update flags for some message */
@@ -387,6 +388,7 @@ void LibMailboxSync::helperSyncASomeNew( int number )
         ++uidNextA;
     }
     helperFakeExistsUidValidityUidNext();
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 
