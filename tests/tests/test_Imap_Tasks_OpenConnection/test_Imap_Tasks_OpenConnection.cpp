@@ -47,7 +47,7 @@ void ImapModelOpenConnectionTest::init( bool startTlsRequired )
     factory->setStartTlsRequired( startTlsRequired );
     Imap::Mailbox::TaskFactoryPtr taskFactory( new Imap::Mailbox::TaskFactory() ); // yes, the real one
     model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), taskFactory, false );
-    connect(model, SIGNAL(authRequested()), this, SLOT(provideAuthDetails()), Qt::QueuedConnection);
+    connect(model, SIGNAL(authRequested()), this, SLOT(provideAuthDetails()));
     task = new Imap::Mailbox::OpenConnectionTask( model );
     using Imap::Mailbox::ImapTask;
     qRegisterMetaType<ImapTask*>("ImapTask*");
