@@ -47,13 +47,13 @@ void ImapModelOpenConnectionTest::init( bool startTlsRequired )
     factory->setStartTlsRequired( startTlsRequired );
     Imap::Mailbox::TaskFactoryPtr taskFactory( new Imap::Mailbox::TaskFactory() ); // yes, the real one
     model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), taskFactory, false );
-    connect(model, SIGNAL(authRequested(QAuthenticator*)), this, SLOT(provideAuthDetails(QAuthenticator*)) );
+    connect(model, SIGNAL(authRequested()), this, SLOT(provideAuthDetails()));
     task = new Imap::Mailbox::OpenConnectionTask( model );
     using Imap::Mailbox::ImapTask;
     qRegisterMetaType<ImapTask*>("ImapTask*");
     completedSpy = new QSignalSpy(task, SIGNAL(completed(ImapTask*)));
     failedSpy = new QSignalSpy(task, SIGNAL(failed(QString)));
-    authSpy = new QSignalSpy( model, SIGNAL(authRequested(QAuthenticator*)) );
+    authSpy = new QSignalSpy(model, SIGNAL(authRequested()));
 }
 
 void ImapModelOpenConnectionTest::cleanup()
@@ -341,12 +341,10 @@ void ImapModelOpenConnectionTest::testOkStartTlsDiscardCaps()
 
 // FIXME: verify how LOGINDISABLED even after STARTLS ends up
 
-void ImapModelOpenConnectionTest::provideAuthDetails( QAuthenticator* auth )
+void ImapModelOpenConnectionTest::provideAuthDetails()
 {
-    if ( auth ) {
-        auth->setUser( QLatin1String("luzr") );
-        auth->setPassword( QLatin1String("sikrit") );
-    }
+    model->setImapUser(QLatin1String("luzr"));
+    model->setImapPassword(QLatin1String("sikrit"));
 }
 
 
