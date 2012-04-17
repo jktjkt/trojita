@@ -126,6 +126,7 @@ void LibMailboxSync::helperSyncAFullSync()
     helperFakeExistsUidValidityUidNext();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
 
     // Verify that we indeed received what we wanted
     Imap::Mailbox::TreeItemMsgList* list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( static_cast<Imap::Mailbox::TreeItem*>( msgListA.internalPointer() ) );
@@ -138,6 +139,7 @@ void LibMailboxSync::helperSyncAFullSync()
 
     helperFakeUidSearch();
 
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( msgListA ), static_cast<int>( existsA ) );
     QVERIFY( SOCK->writtenStuff().isEmpty() );
@@ -205,6 +207,8 @@ void LibMailboxSync::helperSyncBNoMessages()
     // Try to go to second mailbox
     QCOMPARE( model->rowCount( msgListB ), 0 );
     model->switchToMailbox( idxB );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT b\r\n") );
@@ -359,6 +363,7 @@ void LibMailboxSync::helperSyncFlags()
 void LibMailboxSync::helperOneFlagUpdate( const QModelIndex &message )
 {
     SOCK->fakeReading( QString::fromAscii("* %1 FETCH (FLAGS (\\SeEn fOo bar))\r\n").arg( message.row() + 1 ).toAscii() );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QStringList expectedFlags;
     expectedFlags << QLatin1String("\\Seen") << QLatin1String("fOo") << QLatin1String("bar");

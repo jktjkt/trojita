@@ -78,6 +78,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyMinimal()
     SOCK->fakeReading( QByteArray("* 0 exists\r\n")
                                   + t.last("OK done\r\n") );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
 
     // Verify that we indeed received what we wanted
     QCOMPARE( model->rowCount( msgListA ), 0 );
@@ -143,6 +144,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
                                   "* OK [UIDNEXT 3] Predicted next UID\r\n")
                                   + t.last("OK [READ-WRITE] Select completed.\r\n") );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
 
     // Verify that we indeed received what we wanted
     QCOMPARE( model->rowCount( msgListA ), 0 );
@@ -182,6 +184,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
     QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
     SOCK->fakeReading( QByteArray("* 0 exists\r\n* NO a random no in inserted here\r\n")
                                   + t.last("OK done\r\n") );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QVERIFY( SOCK->writtenStuff().isEmpty() );
 
@@ -425,6 +428,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncTwoInParallel()
                        + t.last("OK [READ-WRITE] Completed\r\n"));
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), t.mk("UID SEARCH ALL\r\n") );
     QCOMPARE( model->rowCount( msgListA ), 0 );
     QCOMPARE( model->rowCount( msgListB ), 0 );
@@ -441,7 +445,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncTwoInParallel()
     QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( msgListA ), 1 );
     // the first one should contain a message now
-
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray(t.mk("FETCH 1 (FLAGS)\r\n")) );
     SOCK->fakeReading( QByteArray("* 1 FETCH (FLAGS (\\Seen hasatt hasnotd))\r\n")
                        + t.last("OK Completed (0.000 sec)\r\n"));
@@ -459,6 +463,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncTwoInParallel()
     // let's try to get around without specifying ENVELOPE and BODYSTRUCTURE
     SOCK->fakeReading( QByteArray("* 1 FETCH (UID 1 RFC822.SIZE 13021)\r\n")
                        + t.last("OK Completed\r\n") );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
