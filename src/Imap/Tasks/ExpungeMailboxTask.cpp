@@ -18,6 +18,7 @@
 
 
 #include "ExpungeMailboxTask.h"
+#include "ItemRoles.h"
 #include "KeepMailboxOpenTask.h"
 #include "Model.h"
 #include "MailboxTree.h"
@@ -68,6 +69,10 @@ bool ExpungeMailboxTask::handleStateHelper(const Imap::Responses::State *const r
     }
 }
 
+QVariant ExpungeMailboxTask::taskData(const int role) const
+{
+    return role == RoleTaskCompactName ? QVariant(tr("Removing deleted messages")) : QVariant();
+}
 
 }
 }

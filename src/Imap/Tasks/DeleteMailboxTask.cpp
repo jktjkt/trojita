@@ -19,6 +19,7 @@
 
 #include "DeleteMailboxTask.h"
 #include "GetAnyConnectionTask.h"
+#include "ItemRoles.h"
 #include "Model.h"
 #include "MailboxTree.h"
 
@@ -81,6 +82,10 @@ bool DeleteMailboxTask::handleStateHelper(const Imap::Responses::State *const re
     }
 }
 
+QVariant DeleteMailboxTask::taskData(const int role) const
+{
+    return role == RoleTaskCompactName ? QVariant(tr("Deleting mailbox")) : QVariant();
+}
 
 }
 }

@@ -36,6 +36,7 @@ public:
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
     virtual bool handleId(const Responses::Id *const resp);
+    virtual QVariant taskData(const int role) const;
 private:
     CommandHandle tag;
 };

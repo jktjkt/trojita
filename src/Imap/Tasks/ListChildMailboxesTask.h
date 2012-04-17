@@ -38,6 +38,7 @@ public:
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
 
     virtual QString debugIdentification() const;
+    virtual QVariant taskData(const int role) const;
 private:
     CommandHandle tag;
     ImapTask *conn;

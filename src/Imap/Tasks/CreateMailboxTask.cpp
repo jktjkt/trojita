@@ -19,6 +19,7 @@
 
 #include "CreateMailboxTask.h"
 #include "GetAnyConnectionTask.h"
+#include "ItemRoles.h"
 #include "Model.h"
 #include "MailboxTree.h"
 
@@ -76,6 +77,11 @@ bool CreateMailboxTask::handleStateHelper(const Imap::Responses::State *const re
     } else {
         return false;
     }
+}
+
+QVariant CreateMailboxTask::taskData(const int role) const
+{
+    return role == RoleTaskCompactName ? QVariant(tr("Creating mailbox")) : QVariant();
 }
 
 

@@ -91,6 +91,12 @@ bool GetAnyConnectionTask::isReadyToRun() const
     return ! isFinished() && ! newConn;
 }
 
+/** @short This is an internal task, calling this function does not make much sense */
+QVariant GetAnyConnectionTask::taskData(const int role) const
+{
+    Q_UNUSED(role);
+    return QVariant();
+}
 
 }
 }

@@ -105,5 +105,10 @@ QString FetchMsgPartTask::debugIdentification() const
                 Sequence::fromList(uids).toString());
 }
 
+QVariant FetchMsgPartTask::taskData(const int role) const
+{
+    return role == RoleTaskCompactName ? QVariant(tr("Downloading messages")) : QVariant();
+}
+
 }
 }

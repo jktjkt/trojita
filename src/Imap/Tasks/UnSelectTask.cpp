@@ -129,5 +129,12 @@ bool UnSelectTask::handleFetch(const Imap::Responses::Fetch *const resp)
     return true;
 }
 
+/** @short Internal task */
+QVariant UnSelectTask::taskData(const int role) const
+{
+    Q_UNUSED(role);
+    return QVariant();
+}
+
 }
 }

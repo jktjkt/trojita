@@ -46,6 +46,7 @@ public:
     GetAnyConnectionTask(Model *model);
     virtual void perform();
     virtual bool isReadyToRun() const;
+    virtual QVariant taskData(const int role) const;
 private:
     ImapTask *newConn;
 };

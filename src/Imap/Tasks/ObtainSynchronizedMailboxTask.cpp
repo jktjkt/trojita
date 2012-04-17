@@ -19,6 +19,7 @@
 #include "ObtainSynchronizedMailboxTask.h"
 #include <sstream>
 #include <QTimer>
+#include "ItemRoles.h"
 #include "KeepMailboxOpenTask.h"
 #include "MailboxTree.h"
 #include "Model.h"
@@ -776,6 +777,11 @@ void ObtainSynchronizedMailboxTask::slotUnSelectCompleted()
 {
     // Now, just finish and signal a failure
     _failed("Escaped from mailbox");
+}
+
+QVariant ObtainSynchronizedMailboxTask::taskData(const int role) const
+{
+    return role == RoleTaskCompactName ? QVariant(tr("Synchronizing mailbox")) : QVariant();
 }
 
 }

@@ -18,6 +18,7 @@
 
 
 #include "ThreadTask.h"
+#include "ItemRoles.h"
 #include "KeepMailboxOpenTask.h"
 #include "Model.h"
 #include "MailboxTree.h"
@@ -75,6 +76,11 @@ bool ThreadTask::handleThread(const Imap::Responses::Thread *const resp)
 {
     mapping = resp->rootItems;
     return true;
+}
+
+QVariant ThreadTask::taskData(const int role) const
+{
+    return role == RoleTaskCompactName ? QVariant(tr("Fetching conversations")) : QVariant();
 }
 
 }

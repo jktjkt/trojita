@@ -48,6 +48,8 @@ public:
     /** @short Inform the task that the auth credentials are now available and can be used */
     void authCredentialsNowAvailable();
 
+    virtual QVariant taskData(const int role) const;
+
 protected:
     /** @short A special, internal constructor used only by Fake_OpenConnectionTask */
     OpenConnectionTask(Model *model, void *dummy);

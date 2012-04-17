@@ -18,6 +18,7 @@
 
 
 #include "NoopTask.h"
+#include "ItemRoles.h"
 #include "KeepMailboxOpenTask.h"
 #include "Model.h"
 #include "MailboxTree.h"
@@ -63,6 +64,12 @@ bool NoopTask::handleStateHelper(const Imap::Responses::State *const resp)
         return false;
     }
 }
+
+QVariant NoopTask::taskData(const int role) const
+{
+    return role == RoleTaskCompactName ? QVariant(tr("Checking for new messages")) : QVariant();
+}
+
 
 }
 }

@@ -37,6 +37,7 @@ public:
     virtual void perform();
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
+    virtual QVariant taskData(const int role) const;
 private:
     CommandHandle copyTag;
     ImapTask *conn;
