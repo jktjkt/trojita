@@ -89,6 +89,7 @@ void ImapModelDisappearingMailboxTest::helperTestGoingReallyOfflineOnline(bool w
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
 
     // It should be gone by now
     QVERIFY(socketPtr.isNull());
@@ -135,6 +136,7 @@ void ImapModelDisappearingMailboxTest::helperTestGoingReallyOfflineOnline(bool w
     QVERIFY(!msgListB.isValid());
     // ... and therefore the SELECT handler should take care not to rely on it being valid
     SOCK->fakeReading(selectResponse);
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 
