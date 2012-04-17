@@ -17,6 +17,7 @@ Rectangle {
         anchors.fill: parent
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
+        font: UiConstants.HeaderFont
     }
 
     BusyIndicator {
