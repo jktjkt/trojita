@@ -164,6 +164,7 @@ QVariant TaskPresentationModel::data(const QModelIndex &index, int role) const
         if (dynamic_cast<KeepMailboxOpenTask *>(task) || dynamic_cast<GetAnyConnectionTask *>(task) ||
             dynamic_cast<UnSelectTask *>(task)) {
             // Internal, auxiliary tasks
+            // FIXME: revisit this for the KeepMailboxOpenTask; it *can* perform a certain activity after all
             return false;
         } else {
             return true;
