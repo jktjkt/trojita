@@ -211,6 +211,11 @@ void ImapModelThreadingTest::testThreadDeletionsAdditions()
                             QString::number(uidMapA[offset])
                             ).toAscii();
             }
+
+            // See LibMailboxSync::helperSyncFlags for why have to do this
+            for (int i = 0; i < (newArrivals / 100) + 1; ++i)
+                QCoreApplication::processEvents();
+
             uidFetchResponse += t.last("OK fetch\r\n");
             QCOMPARE(SOCK->writtenStuff(), expected);
             SOCK->fakeReading(uidFetchResponse);
