@@ -34,7 +34,9 @@ Rectangle {
     Rectangle {
         id: activeTasks
         width: 0.8 * parent.width
-        height: Math.max(Math.min(view.count * (view.itemHeight + view.spacing) + 2 * UiConstants.DefaultMargin, 350), 60)
+        height: state == "shown" ?
+                    Math.max(Math.min(view.count * (view.itemHeight + view.spacing) + 2 * UiConstants.DefaultMargin, 350), 60) :
+                    1
         anchors.right: parent.right
         color: Qt.rgba(0.1, 0.1, 0.1, 0.9)
         z: -1 // below the title bar, but still above the real page contents
@@ -42,17 +44,21 @@ Rectangle {
         states: [
             State {
                 name: "shown"
-                AnchorChanges { target: activeTasks; anchors.top: parent.bottom; anchors.bottom: undefined }
+                AnchorChanges { target: activeTasks; anchors.top: parent.bottom }
             },
             State {
                 name: "hidden"
-                AnchorChanges { target: activeTasks; anchors.top: undefined; anchors.bottom: parent.bottom }
+                AnchorChanges { target: activeTasks; anchors.top: parent.top }
             }
         ]
         state: "hidden"
 
         transitions: Transition {
-            AnchorAnimation { duration: 150 }
+            AnchorAnimation { duration: 200 }
+        }
+
+        Behavior on height {
+            NumberAnimation { duration: 200 }
         }
 
         Timer {
