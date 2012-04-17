@@ -51,7 +51,7 @@ private slots:
     void testOkStartTlsForbidden();
     void testOkStartTlsDiscardCaps();
 
-    void provideAuthDetails( QAuthenticator* auth );
+    void provideAuthDetails();
 
 private:
     Imap::Mailbox::Model* model;
