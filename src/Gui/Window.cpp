@@ -446,7 +446,7 @@ void MainWindow::setupModels()
 
     connect(model, SIGNAL(alertReceived(const QString &)), this, SLOT(alertReceived(const QString &)));
     connect(model, SIGNAL(connectionError(const QString &)), this, SLOT(connectionError(const QString &)));
-    connect(model, SIGNAL(authRequested(QAuthenticator *)), this, SLOT(authenticationRequested(QAuthenticator *)));
+    connect(model, SIGNAL(authRequested()), this, SLOT(authenticationRequested()), Qt::QueuedConnection);
     connect(model, SIGNAL(authAttemptFailed(QString)), this, SLOT(authenticationFailed(QString)));
 
     connect(model, SIGNAL(networkPolicyOffline()), this, SLOT(networkPolicyOffline()));
@@ -713,7 +713,7 @@ void MainWindow::slotShowSettings()
     }
 }
 
-void MainWindow::authenticationRequested(QAuthenticator *auth)
+void MainWindow::authenticationRequested()
 {
     QSettings s;
     QString user = s.value(Common::SettingsNames::imapUserKey).toString();
@@ -724,12 +724,14 @@ void MainWindow::authenticationRequested(QAuthenticator *auth)
                                      tr("Please provide password for %1").arg(user),
                                      QLineEdit::Password, QString::null, &ok);
         if (ok) {
-            auth->setUser(user);
-            auth->setPassword(pass);
+            model->setImapUser(user);
+            model->setImapPassword(pass);
+        } else {
+            model->unsetImapPassword();
         }
     } else {
-        auth->setUser(user);
-        auth->setPassword(pass);
+        model->setImapUser(user);
+        model->setImapPassword(pass);
     }
 }
 

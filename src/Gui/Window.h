@@ -82,7 +82,7 @@ private slots:
     void slotExpunge();
     void connectionError(const QString &message);
     void cacheError(const QString &message);
-    void authenticationRequested(QAuthenticator *auth);
+    void authenticationRequested();
     void authenticationFailed(const QString &message);
     void slotComposeMailUrl(const QUrl &url);
     void slotComposeMail();
