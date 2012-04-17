@@ -353,6 +353,7 @@ void LibMailboxSync::helperSyncFlags()
             buf.clear();
             QCoreApplication::processEvents();
             QCoreApplication::processEvents();
+            QCoreApplication::processEvents();
         }
     }
     SOCK->fakeReading(buf + t.last("OK yay\r\n"));
