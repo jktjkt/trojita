@@ -137,6 +137,8 @@ enum {
     This role is *not* used or implemented by the IMAP models, but only by the TaskPresentationModel and VisibleTasksModel.
     */
     RoleTaskIsVisible,
+    /** @short A short explanaiton of the task -- what is it doing? */
+    RoleTaskCompactName,
 
     /** @short The very last role */
     RoleInvalidLastOne

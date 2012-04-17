@@ -40,6 +40,9 @@ VisibleTasksModel::VisibleTasksModel(QObject *parent, QAbstractItemModel *taskMo
     connect(m_flatteningModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SIGNAL(hasVisibleTasksChanged()));
     connect(m_flatteningModel, SIGNAL(modelReset()), this, SIGNAL(hasVisibleTasksChanged()));
     connect(m_flatteningModel, SIGNAL(layoutChanged()), this, SIGNAL(hasVisibleTasksChanged()));
+    QHash<int, QByteArray> roleNames;
+    roleNames[RoleTaskCompactName] = "compactName";
+    setRoleNames(roleNames);
 }
 
 /** @short Reimplemented from QSortFilterProxyModel */
