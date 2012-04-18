@@ -61,6 +61,7 @@ class DelayedAskForChildrenOfMailbox;
 class ImapTask;
 class KeepMailboxOpenTask;
 class TaskPresentationModel;
+class SubtreeModel;
 
 /** @short Progress of mailbox synchronization with the IMAP server */
 typedef enum { STATE_WAIT_FOR_CONN, /**< Waiting for connection to become active */
@@ -366,6 +367,7 @@ private:
     friend class MsgListModel; // needs access to createIndex()
     friend class MailboxModel; // needs access to createIndex()
     friend class ThreadingMsgListModel; // needs access to taskFactory
+    friend class SubtreeModel; // needs access to createIndex()
 
     friend class DelayedAskForChildrenOfMailbox; // needs access to askForChildrenOfMailbox();
     friend class DelayedAskForMessagesInMailbox; // needs access to askForMessagesInMailbox();
