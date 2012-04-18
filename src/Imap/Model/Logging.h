@@ -31,7 +31,7 @@ namespace Mailbox
 
 /** @short What is that message related to? */
 enum LogKind {
-    LOG_IO_READ, /**< Data read fomr server */
+    LOG_IO_READ, /**< Data read from the server */
     LOG_IO_WRITTEN, /**< Data written to the server */
     LOG_PARSE_ERROR, /**< Error when parsing data */
     LOG_MAILBOX_SYNC, /**< Tracing of mailbox resynchronization */
