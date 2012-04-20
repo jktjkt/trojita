@@ -33,10 +33,10 @@ class ImapAccess : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QObject *imapModel READ imapModel)
-    Q_PROPERTY(QObject *mailboxModel READ mailboxModel)
-    Q_PROPERTY(QObject *msgListModel READ msgListModel)
-    Q_PROPERTY(QObject *visibleTasksModel READ visibleTasksModel NOTIFY visibleTasksModelChanged)
+    Q_PROPERTY(QObject *imapModel READ imapModel NOTIFY modelsChanged)
+    Q_PROPERTY(QObject *mailboxModel READ mailboxModel NOTIFY modelsChanged)
+    Q_PROPERTY(QObject *msgListModel READ msgListModel NOTIFY modelsChanged)
+    Q_PROPERTY(QObject *visibleTasksModel READ visibleTasksModel NOTIFY modelsChanged)
     Q_PROPERTY(QString server READ server WRITE setServer NOTIFY serverChanged)
     Q_PROPERTY(int port READ port WRITE setPort)
     Q_PROPERTY(QString username READ username WRITE setUsername)
@@ -64,7 +64,7 @@ public:
 
 signals:
     void serverChanged();
-    void visibleTasksModelChanged();
+    void modelsChanged();
 
 public slots:
     void alertReceived(const QString &message);
