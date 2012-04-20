@@ -124,7 +124,6 @@ QModelIndex SubtreeModel::mapFromSource(const QModelIndex &sourceIndex) const
 bool SubtreeModel::isVisibleIndex(QModelIndex sourceIndex) const
 {
     if (!m_rootIndex.isValid()) {
-        Q_ASSERT(false);
         return false;
     }
     while (sourceIndex.isValid()) {
