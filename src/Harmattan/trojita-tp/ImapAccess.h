@@ -27,6 +27,7 @@
 #include "Imap/Model/MailboxModel.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/MsgListModel.h"
+#include "Imap/Model/OneMessageModel.h"
 #include "Imap/Model/VisibleTasksModel.h"
 
 class ImapAccess : public QObject
@@ -37,6 +38,7 @@ class ImapAccess : public QObject
     Q_PROPERTY(QObject *mailboxModel READ mailboxModel NOTIFY modelsChanged)
     Q_PROPERTY(QObject *msgListModel READ msgListModel NOTIFY modelsChanged)
     Q_PROPERTY(QObject *visibleTasksModel READ visibleTasksModel NOTIFY modelsChanged)
+    Q_PROPERTY(QObject *oneMessageModel READ oneMessageModel NOTIFY modelsChanged)
     Q_PROPERTY(QString server READ server WRITE setServer NOTIFY serverChanged)
     Q_PROPERTY(int port READ port WRITE setPort)
     Q_PROPERTY(QString username READ username WRITE setUsername)
@@ -50,6 +52,7 @@ public:
     QObject *mailboxModel() const;
     QObject *msgListModel() const;
     QObject *visibleTasksModel() const;
+    QObject *oneMessageModel() const;
 
     QString server() const;
     void setServer(const QString &server);
@@ -61,6 +64,8 @@ public:
     void setPassword(const QString &password);
     QString sslMode() const;
     void setSslMode(const QString &sslMode);
+
+    Q_INVOKABLE void openMessage(const QString &mailbox, const uint uid);
 
 signals:
     void serverChanged();
@@ -77,6 +82,7 @@ private:
     Imap::Mailbox::MailboxModel *m_mailboxModel;
     Imap::Mailbox::MsgListModel *m_msgListModel;
     Imap::Mailbox::VisibleTasksModel *m_visibleTasksModel;
+    Imap::Mailbox::OneMessageModel *m_oneMessageModel;
 
     QString m_server;
     int m_port;
