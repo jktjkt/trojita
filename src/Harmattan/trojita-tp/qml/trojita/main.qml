@@ -31,8 +31,6 @@ PageStackWindow {
         imapAccess.imapModel.alertReceived.connect(showImapAlert)
         imapAccess.imapModel.authRequested.connect(requestingPassword)
         imapAccess.imapModel.authAttemptFailed.connect(authAttemptFailed)
-        mailboxListPage.setMailboxModel(imapAccess.mailboxModel)
-        messageListPage.model = imapAccess.msgListModel
     }
 
     Component.onCompleted: {
@@ -50,6 +48,7 @@ PageStackWindow {
 
     MailboxListPage {
         id: mailboxListPage
+        model: imapAccess.mailboxModel ? imapAccess.mailboxModel : undefined
 
         onMailboxSelected: {
             imapAccess.msgListModel.setMailbox(mailbox)
@@ -59,6 +58,7 @@ PageStackWindow {
 
     MessageListPage {
         id: messageListPage
+        model: imapAccess.msgListModel ? imapAccess.msgListModel : undefined
     }
 
     ToolBarLayout {

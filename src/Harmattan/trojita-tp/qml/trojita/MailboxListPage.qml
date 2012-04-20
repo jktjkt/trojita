@@ -7,11 +7,7 @@ Page {
     property int nestingDepth: 0
     property string viewTitle: isNestedSomewhere() ? currentMailbox : imapAccess.server
     property string currentMailbox
-
-    function setMailboxModel(model) {
-        proxyModel.model = model
-        view.model = proxyModel
-    }
+    property alias model: proxyModel.model
 
     function openParentMailbox() {
         moveListViewRight.start()
@@ -111,6 +107,7 @@ Page {
                 top: header.bottom; left: parent.left; right: parent.right; bottom: parent.bottom
             }
             focus: true
+            model: proxyModel
         }
 
         ScrollDecorator {
