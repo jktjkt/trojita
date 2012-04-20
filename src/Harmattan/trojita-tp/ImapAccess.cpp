@@ -40,10 +40,7 @@ ImapAccess::ImapAccess(QObject *parent) :
     }
     m_port = s.value(Common::SettingsNames::imapPortKey, QVariant(0)).toInt();
     if (!m_port) {
-        if (m_sslMode == QLatin1String("SSL"))
-            m_port = 993;
-        else
-            m_port = 143;
+        m_port = m_sslMode == QLatin1String("SSL") ? 993 : 143;
     }
 }
 
