@@ -182,6 +182,13 @@ void SubtreeModel::handleRowsRemoved(const QModelIndex &parent, int first, int l
 {
     Q_UNUSED(first);
     Q_UNUSED(last);
+
+    if (!m_rootIndex.isValid()) {
+        // Everything got replaced, apparently
+        reset();
+        return;
+    }
+
     if (!isVisibleIndex(parent))
         return;
     endRemoveRows();
@@ -198,6 +205,7 @@ void SubtreeModel::handleRowsInserted(const QModelIndex &parent, int first, int 
 {
     Q_UNUSED(first);
     Q_UNUSED(last);
+
     if (!isVisibleIndex(parent))
         return;
     endInsertRows();
