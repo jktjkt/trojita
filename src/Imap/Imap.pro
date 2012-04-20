@@ -75,7 +75,8 @@ SOURCES += Parser/Parser.cpp \
     Model/TaskPresentationModel.cpp \
     Model/kdeui-itemviews/kdescendantsproxymodel.cpp \
     Model/VisibleTasksModel.cpp \
-    Model/SubtreeModel.cpp
+    Model/SubtreeModel.cpp \
+    Model/OneMessageModel.cpp
 HEADERS += Parser/Parser.h \
     Parser/Command.h \
     Parser/Response.h \
@@ -142,6 +143,7 @@ HEADERS += Parser/Parser.h \
     kdeui-itemviews/kdescendantsproxymodel.h \
     kdeui-itemviews/kbihash_p.h \
     Model/VisibleTasksModel.h \
-    Model/SubtreeModel.h
+    Model/SubtreeModel.h \
+    Model/OneMessageModel.h
 
 XtConnect:DEFINES += XTUPLE_CONNECT

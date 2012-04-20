@@ -71,23 +71,29 @@ void SubtreeModel::handleModelReset()
     endResetModel();
 }
 
-void SubtreeModel::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+QModelIndex SubtreeModel::propagateHandleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     QModelIndex first = mapFromSource(topLeft);
     QModelIndex second = mapFromSource(bottomRight);
 
     if (! first.isValid() || ! second.isValid()) {
         // It's something completely alien...
-        return;
+        return QModelIndex();
     }
 
     if (first.parent() == second.parent() && first.column() == second.column()) {
         emit dataChanged(first, second);
+        return first;
     } else {
         // FIXME: batched updates aren't supported yet
         Q_ASSERT(false);
-        return;
+        return QModelIndex();
     }
+}
+
+void SubtreeModel::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+{
+    propagateHandleDataChanged(topLeft, bottomRight);
 }
 
 QModelIndex SubtreeModel::mapToSource(const QModelIndex &proxyIndex) const
