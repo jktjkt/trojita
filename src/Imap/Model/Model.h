@@ -239,6 +239,9 @@ public:
     void setImapPassword(const QString &imapPassword);
     void unsetImapPassword();
 
+    /** @short Return an index for the message specified by the mailbox name and the message UID */
+    QModelIndex messageIndexByUid(const QString &mailboxName, const uint uid);
+
 public slots:
     /** @short Ask for an updated list of mailboxes on the server */
     void reloadMailboxList();
