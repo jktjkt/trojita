@@ -157,18 +157,20 @@ QModelIndex SubtreeModel::parent(const QModelIndex &child) const
 
 int SubtreeModel::rowCount(const QModelIndex &parent) const
 {
-    return !sourceModel() ? 0 :
-                            parent.isValid() ?
-                                sourceModel()->rowCount(mapToSource(parent)) :
-                                sourceModel()->rowCount(m_rootIndex);
+    if (!sourceModel() || !m_rootIndex.isValid())
+        return 0;
+    return parent.isValid() ?
+                sourceModel()->rowCount(mapToSource(parent)) :
+                sourceModel()->rowCount(m_rootIndex);
 }
 
 int SubtreeModel::columnCount(const QModelIndex &parent) const
 {
-    return !sourceModel() ? 0 :
-                            parent.isValid() ?
-                                qMin(sourceModel()->columnCount(mapToSource(parent)), 1) :
-                                qMin(sourceModel()->columnCount(m_rootIndex), 1);
+    if (!sourceModel() || !m_rootIndex.isValid())
+        return 0;
+    return parent.isValid() ?
+                qMin(sourceModel()->columnCount(mapToSource(parent)), 1) :
+                qMin(sourceModel()->columnCount(m_rootIndex), 1);
 }
 
 void SubtreeModel::handleRowsAboutToBeRemoved(const QModelIndex &parent, int first, int last)
