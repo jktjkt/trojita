@@ -28,7 +28,6 @@ Page {
     }
 
     PageHeader {
-        // FIXME: this needs work -- text eliding,...
         id: header
         text: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.subject : ""
         anchors {left: parent.left; right: parent.right; top: parent.top}
