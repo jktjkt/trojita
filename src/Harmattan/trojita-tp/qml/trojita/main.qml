@@ -53,12 +53,22 @@ PageStackWindow {
         onMailboxSelected: {
             imapAccess.msgListModel.setMailbox(mailbox)
             pageStack.push(messageListPage)
+            oneMessagePage.mailbox = mailbox
         }
     }
 
     MessageListPage {
         id: messageListPage
         model: imapAccess.msgListModel ? imapAccess.msgListModel : undefined
+
+        onMessageSelected: {
+            imapAccess.oneMessageModel.setMessage(oneMessagePage.mailbox, uid)
+            pageStack.push(oneMessagePage)
+        }
+    }
+
+    OneMessagePage {
+        id: oneMessagePage
     }
 
     ToolBarLayout {

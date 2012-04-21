@@ -151,7 +151,7 @@ void ImapAccess::setSslMode(const QString &sslMode)
     m_mailboxModel = new Imap::Mailbox::MailboxModel(this, m_imapModel);
     m_msgListModel = new Imap::Mailbox::MsgListModel(this, m_imapModel);
     m_visibleTasksModel = new Imap::Mailbox::VisibleTasksModel(this, m_imapModel->taskModel());
-    m_oneMessageModel = new Imap::Mailbox::OneMessageModel(this);
+    m_oneMessageModel = new Imap::Mailbox::OneMessageModel(m_imapModel);
     emit modelsChanged();
 }
 

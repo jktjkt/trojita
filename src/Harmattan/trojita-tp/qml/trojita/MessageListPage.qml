@@ -5,6 +5,8 @@ import com.nokia.extras 1.1
 Page {
     property alias model: view.model
 
+    signal messageSelected(int uid)
+
     tools: commonTools
 
     Component {
@@ -55,6 +57,12 @@ Page {
                     // if there's a better way to compare QDateTime::date with "today", well, please do tell me
                     text: !col.visible ? "" : Qt.formatDate(model.date, "YYYY-mm-dd") == Qt.formatDate(new Date(), "YYYY-mm-dd") ?
                               Qt.formatTime(model.date) : Qt.formatDate(model.date)
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        messageSelected(model.messageUid)
+                    }
                 }
             }
             Label {

@@ -46,6 +46,7 @@ private slots:
 
 public:
     OneMessageModel(QObject *parent = 0);
+    Q_INVOKABLE void setMessage(const QString &mailbox, const uint uid);
     void setMessage(const QModelIndex &message);
 
     QString subject() const;

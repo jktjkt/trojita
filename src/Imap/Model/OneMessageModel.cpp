@@ -27,9 +27,22 @@ namespace Imap
 namespace Mailbox
 {
 
+// FIXME: use has-a instead of is-a for the SubtreeModel
+// this will lead to a revert of the handleDataChanged in the SubtreeModel
+
 OneMessageModel::OneMessageModel(QObject *parent): SubtreeModel(parent)
 {
     connect(this, SIGNAL(modelReset()), this, SIGNAL(envelopeChanged()));
+}
+
+void OneMessageModel::setMessage(const QString &mailbox, const uint uid)
+{
+    // FIXME: this is just ugly
+    QAbstractItemModel *abstractModel = qobject_cast<QAbstractItemModel*>(QObject::parent());
+    Q_ASSERT(abstractModel);
+    Model *model = qobject_cast<Model*>(abstractModel);
+    Q_ASSERT(model);
+    setMessage(model->messageIndexByUid(mailbox, uid));
 }
 
 void OneMessageModel::setMessage(const QModelIndex &message)
