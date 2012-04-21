@@ -58,11 +58,11 @@ Page {
                     text: !col.visible ? "" : Qt.formatDate(model.date, "YYYY-mm-dd") == Qt.formatDate(new Date(), "YYYY-mm-dd") ?
                               Qt.formatTime(model.date) : Qt.formatDate(model.date)
                 }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        messageSelected(model.messageUid)
-                    }
+            }
+            MouseArea {
+                anchors.fill: col
+                onClicked: {
+                    messageSelected(model.messageUid)
                 }
             }
             Label {
