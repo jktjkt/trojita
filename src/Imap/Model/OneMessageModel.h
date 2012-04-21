@@ -22,8 +22,9 @@
 #ifndef IMAP_MODEL_ONEMESSAGEMODEL_H
 #define IMAP_MODEL_ONEMESSAGEMODEL_H
 
+#include <QDateTime>
+#include <QPersistentModelIndex>
 #include <QVariant>
-#include "SubtreeModel.h"
 
 /** @short Namespace for IMAP interaction */
 namespace Imap
@@ -33,19 +34,19 @@ namespace Imap
 namespace Mailbox
 {
 
+class Model;
+class SubtreeModel;
+
 /** @short Publish contents of a selected message */
-class OneMessageModel: public SubtreeModel
+class OneMessageModel: public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(OneMessageModel)
     Q_PROPERTY(QString subject READ subject NOTIFY envelopeChanged)
     Q_PROPERTY(QDateTime date READ date NOTIFY envelopeChanged)
 
-private slots:
-    virtual void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-
 public:
-    OneMessageModel(QObject *parent = 0);
+    OneMessageModel(Model *model);
     Q_INVOKABLE void setMessage(const QString &mailbox, const uint uid);
     void setMessage(const QModelIndex &message);
 
@@ -54,6 +55,10 @@ public:
 
 signals:
     void envelopeChanged();
+
+private:
+    QPersistentModelIndex m_message;
+    SubtreeModel *m_subtree;
 };
 
 }

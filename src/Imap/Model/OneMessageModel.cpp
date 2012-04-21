@@ -21,23 +21,24 @@
 
 #include "OneMessageModel.h"
 #include "ItemRoles.h"
+#include "Model.h"
+#include "SubtreeModel.h"
 
 namespace Imap
 {
 namespace Mailbox
 {
 
-// FIXME: use has-a instead of is-a for the SubtreeModel
-// this will lead to a revert of the handleDataChanged in the SubtreeModel
-
-OneMessageModel::OneMessageModel(QObject *parent): SubtreeModel(parent)
+OneMessageModel::OneMessageModel(Model *model): QObject(model), m_subtree(0)
 {
-    connect(this, SIGNAL(modelReset()), this, SIGNAL(envelopeChanged()));
+    m_subtree = new SubtreeModel(this);
+    m_subtree->setSourceModel(model);
+    connect(m_subtree, SIGNAL(modelReset()), this, SIGNAL(envelopeChanged()));
+    connect(m_subtree, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(envelopeChanged()));
 }
 
 void OneMessageModel::setMessage(const QString &mailbox, const uint uid)
 {
-    // FIXME: this is just ugly
     QAbstractItemModel *abstractModel = qobject_cast<QAbstractItemModel*>(QObject::parent());
     Q_ASSERT(abstractModel);
     Model *model = qobject_cast<Model*>(abstractModel);
@@ -47,25 +48,19 @@ void OneMessageModel::setMessage(const QString &mailbox, const uint uid)
 
 void OneMessageModel::setMessage(const QModelIndex &message)
 {
-    setRootItem(message);
-}
-
-void OneMessageModel::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
-{
-    QModelIndex translated = SubtreeModel::propagateHandleDataChanged(topLeft, bottomRight);
-    if (translated.isValid()) {
-        emit envelopeChanged();
-    }
+    Q_ASSERT(!message.isValid() || message.model() == QObject::parent());
+    m_message = message;
+    m_subtree->setRootItem(message);
 }
 
 QDateTime OneMessageModel::date() const
 {
-    return m_rootIndex.data(RoleMessageDate).toDateTime();
+    return m_message.data(RoleMessageDate).toDateTime();
 }
 
 QString OneMessageModel::subject() const
 {
-    return m_rootIndex.data(RoleMessageSubject).toString();
+    return m_message.data(RoleMessageSubject).toString();
 }
 
 }

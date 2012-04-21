@@ -56,7 +56,9 @@ void SubtreeModel::setRootItem(QModelIndex rootIndex)
 {
     Q_ASSERT(rootIndex.isValid());
     beginResetModel();
-    setSourceModel(const_cast<QAbstractItemModel*>(rootIndex.model()));
+    if (rootIndex.model() != m_rootIndex.model()) {
+        setSourceModel(const_cast<QAbstractItemModel*>(rootIndex.model()));
+    }
     m_rootIndex = rootIndex;
     endResetModel();
 }
@@ -71,29 +73,22 @@ void SubtreeModel::handleModelReset()
     endResetModel();
 }
 
-QModelIndex SubtreeModel::propagateHandleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+void SubtreeModel::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     QModelIndex first = mapFromSource(topLeft);
     QModelIndex second = mapFromSource(bottomRight);
 
     if (! first.isValid() || ! second.isValid()) {
         // It's something completely alien...
-        return QModelIndex();
+        return;
     }
 
     if (first.parent() == second.parent() && first.column() == second.column()) {
         emit dataChanged(first, second);
-        return first;
     } else {
         // FIXME: batched updates aren't supported yet
         Q_ASSERT(false);
-        return QModelIndex();
     }
-}
-
-void SubtreeModel::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
-{
-    propagateHandleDataChanged(topLeft, bottomRight);
 }
 
 QModelIndex SubtreeModel::mapToSource(const QModelIndex &proxyIndex) const

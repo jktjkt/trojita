@@ -60,14 +60,8 @@ public:
     void setSourceModel(QAbstractItemModel *sourceModel);
     void setRootItem(QModelIndex rootIndex);
 
-protected:
-    QModelIndex propagateHandleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    QPersistentModelIndex m_rootIndex;
-
-protected slots:
-    virtual void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-
 private slots:
+    void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void handleModelAboutToBeReset();
     void handleModelReset();
     void handleRowsAboutToBeRemoved(const QModelIndex &parent, int first, int last);
@@ -77,6 +71,7 @@ private slots:
 
 private:
     bool isVisibleIndex(QModelIndex sourceIndex) const;
+    QPersistentModelIndex m_rootIndex;
 };
 
 }
