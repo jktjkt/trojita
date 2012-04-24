@@ -63,5 +63,70 @@ QString OneMessageModel::subject() const
     return m_message.data(RoleMessageSubject).toString();
 }
 
+QVariantList OneMessageModel::from() const
+{
+    return m_message.data(RoleMessageFrom).toList();
+}
+
+QVariantList OneMessageModel::to() const
+{
+    return m_message.data(RoleMessageTo).toList();
+}
+
+QVariantList OneMessageModel::cc() const
+{
+    return m_message.data(RoleMessageCc).toList();
+}
+
+QVariantList OneMessageModel::bcc() const
+{
+    return m_message.data(RoleMessageBcc).toList();
+}
+
+QVariantList OneMessageModel::sender() const
+{
+    return m_message.data(RoleMessageSender).toList();
+}
+
+QVariantList OneMessageModel::replyTo() const
+{
+    return m_message.data(RoleMessageReplyTo).toList();
+}
+
+QByteArray OneMessageModel::inReplyTo() const
+{
+    return m_message.data(RoleMessageInReplyTo).toByteArray();
+}
+
+QByteArray OneMessageModel::messageId() const
+{
+    return m_message.data(RoleMessageMessageId).toByteArray();
+}
+
+bool OneMessageModel::isMarkedDeleted() const
+{
+    return m_message.data(RoleMessageIsMarkedDeleted).toBool();
+}
+
+bool OneMessageModel::isMarkedRead() const
+{
+    return m_message.data(RoleMessageIsMarkedRead).toBool();
+}
+
+bool OneMessageModel::isMarkedForwarded() const
+{
+    return m_message.data(RoleMessageIsMarkedForwarded).toBool();
+}
+
+bool OneMessageModel::isMarkedReplied() const
+{
+    return m_message.data(RoleMessageIsMarkedReplied).toBool();
+}
+
+bool OneMessageModel::isMarkedRecent() const
+{
+    return m_message.data(RoleMessageIsMarkedRecent).toBool();
+}
+
 }
 }

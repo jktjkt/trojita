@@ -42,16 +42,44 @@ class OneMessageModel: public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(OneMessageModel)
+
     Q_PROPERTY(QString subject READ subject NOTIFY envelopeChanged)
     Q_PROPERTY(QDateTime date READ date NOTIFY envelopeChanged)
+    Q_PROPERTY(QVariantList from READ from NOTIFY envelopeChanged)
+    Q_PROPERTY(QVariantList to READ to NOTIFY envelopeChanged)
+    Q_PROPERTY(QVariantList cc READ cc NOTIFY envelopeChanged)
+    Q_PROPERTY(QVariantList bcc READ bcc NOTIFY envelopeChanged)
+    Q_PROPERTY(QVariantList sender READ sender NOTIFY envelopeChanged)
+    Q_PROPERTY(QVariantList replyTo READ replyTo NOTIFY envelopeChanged)
+    Q_PROPERTY(QByteArray inReplyTo READ inReplyTo NOTIFY envelopeChanged)
+    Q_PROPERTY(QByteArray messageId READ messageId NOTIFY envelopeChanged)
+    Q_PROPERTY(bool isMarkedDeleted READ isMarkedDeleted NOTIFY envelopeChanged)
+    Q_PROPERTY(bool isMarkedRead READ isMarkedRead NOTIFY envelopeChanged)
+    Q_PROPERTY(bool isMarkedForwarded READ isMarkedForwarded NOTIFY envelopeChanged)
+    Q_PROPERTY(bool isMarkedReplied READ isMarkedReplied NOTIFY envelopeChanged)
+    Q_PROPERTY(bool isMarkedRecent READ isMarkedRecent NOTIFY envelopeChanged)
 
 public:
     OneMessageModel(Model *model);
-    Q_INVOKABLE void setMessage(const QString &mailbox, const uint uid);
-    void setMessage(const QModelIndex &message);
 
     QString subject() const;
     QDateTime date() const;
+    QVariantList from() const;
+    QVariantList to() const;
+    QVariantList cc() const;
+    QVariantList bcc() const;
+    QVariantList sender() const;
+    QVariantList replyTo() const;
+    QByteArray inReplyTo() const;
+    QByteArray messageId() const;
+    bool isMarkedDeleted() const;
+    bool isMarkedRead() const;
+    bool isMarkedForwarded() const;
+    bool isMarkedReplied() const;
+    bool isMarkedRecent() const;
+
+    Q_INVOKABLE void setMessage(const QString &mailbox, const uint uid);
+    void setMessage(const QModelIndex &message);
 
 signals:
     void envelopeChanged();
