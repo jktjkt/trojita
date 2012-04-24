@@ -89,12 +89,12 @@ PageStackWindow {
 
     InfoBanner {
         id: connectionErrorBanner
-        timerShowTime: 5000
+        timerShowTime: 0
     }
 
     InfoBanner {
         id: alertBanner
-        timerShowTime: 5000
+        timerShowTime: 0
     }
 
     Sheet {
