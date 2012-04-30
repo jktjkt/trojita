@@ -4,12 +4,14 @@ import com.nokia.extras 1.1
 
 PageStackWindow {
     id: appWindow
+    property bool networkOffline: true
 
     function showConnectionError(message) {
         passwordDialog.close()
         connectionErrorBanner.text = message
         connectionErrorBanner.parent = pageStack.currentPage
         connectionErrorBanner.show()
+        networkOffline = true
     }
 
     function showImapAlert(message) {
@@ -31,6 +33,9 @@ PageStackWindow {
         imapAccess.imapModel.alertReceived.connect(showImapAlert)
         imapAccess.imapModel.authRequested.connect(requestingPassword)
         imapAccess.imapModel.authAttemptFailed.connect(authAttemptFailed)
+        imapAccess.imapModel.networkPolicyOffline.connect(function() {networkOffline = true})
+        imapAccess.imapModel.networkPolicyOnline.connect(function() {networkOffline = false})
+        imapAccess.imapModel.networkPolicyExpensive.connect(function() {networkOffline = false})
     }
 
     Component.onCompleted: {
