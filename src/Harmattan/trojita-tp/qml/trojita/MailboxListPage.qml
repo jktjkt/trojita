@@ -22,8 +22,6 @@ Page {
 
     tools: commonTools
 
-    //Component.onCompleted: {theme.inverted = true}
-
     Component {
         id: mailboxItemDelegate
 
