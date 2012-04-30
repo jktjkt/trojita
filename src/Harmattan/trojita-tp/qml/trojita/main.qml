@@ -44,12 +44,7 @@ PageStackWindow {
         serverSettings.open()
     }
 
-    //initialPage: imapSettingsPage
     initialPage: mailboxListPage
-
-    /*ImapSettingsPage {
-        id: imapSettingsPage
-    }*/
 
     MailboxListPage {
         id: mailboxListPage
