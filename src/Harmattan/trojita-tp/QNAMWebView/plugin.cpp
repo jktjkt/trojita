@@ -27,10 +27,10 @@ class TrojitaQNAMWebKitQmlPlugin : public QDeclarativeExtensionPlugin {
 public:
     virtual void registerTypes(const char* uri)
     {
-        Q_ASSERT(QLatin1String(uri) == QLatin1String("TrojitaQNAMQtWebKit"));
+        Q_ASSERT(QLatin1String(uri) == QLatin1String("net.flaska.trojita"));
         qmlRegisterType<TrojitaQNAMDeclarativeWebView>(uri, 1, 0, "TrojitaQNAMWebView");
     }
 };
 
-Q_EXPORT_PLUGIN2(qmlwebkitplugin, TrojitaQNAMWebKitQmlPlugin);
+Q_EXPORT_PLUGIN2(trojitaqnamwebviewplugin, TrojitaQNAMWebKitQmlPlugin);
 
