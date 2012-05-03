@@ -22,22 +22,15 @@
 #include <QtDeclarative/qdeclarative.h>
 #include <QtDeclarative/qdeclarativeextensionplugin.h>
 
-QT_BEGIN_NAMESPACE
-
-class WebKitQmlPlugin : public QDeclarativeExtensionPlugin {
+class TrojitaQNAMWebKitQmlPlugin : public QDeclarativeExtensionPlugin {
     Q_OBJECT
 public:
     virtual void registerTypes(const char* uri)
     {
-        Q_ASSERT(QLatin1String(uri) == QLatin1String("QtWebKit"));
-        qmlRegisterType<QDeclarativeWebSettings>();
-        qmlRegisterType<QDeclarativeWebView>(uri, 1, 0, "WebView");
+        Q_ASSERT(QLatin1String(uri) == QLatin1String("TrojitaQNAMQtWebKit"));
+        qmlRegisterType<TrojitaQNAMDeclarativeWebView>(uri, 1, 0, "TrojitaQNAMWebView");
     }
 };
 
-QT_END_NAMESPACE
-
-#include "plugin.moc"
-
-Q_EXPORT_PLUGIN2(qmlwebkitplugin, QT_PREPEND_NAMESPACE(WebKitQmlPlugin));
+Q_EXPORT_PLUGIN2(qmlwebkitplugin, TrojitaQNAMWebKitQmlPlugin);
 

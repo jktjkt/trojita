@@ -35,20 +35,17 @@ QT_BEGIN_HEADER
 class QWebHistory;
 class QWebSettings;
 
-QT_BEGIN_NAMESPACE
-
 QT_MODULE(Declarative)
 class QDeclarativeWebSettings;
-class QDeclarativeWebViewPrivate;
 class QNetworkRequest;
-class QDeclarativeWebView;
-class QDeclarativeWebViewPrivate;
+class TrojitaQNAMDeclarativeWebView;
+class TrojitaQNAMDeclarativeWebViewPrivate;
 
-class QDeclarativeWebPage : public QWebPage {
+class TrojitaQNAMDeclarativeWebPage : public QWebPage {
     Q_OBJECT
 public:
-    explicit QDeclarativeWebPage(QDeclarativeWebView *parent);
-    ~QDeclarativeWebPage();
+    explicit TrojitaQNAMDeclarativeWebPage(TrojitaQNAMDeclarativeWebView *parent);
+    ~TrojitaQNAMDeclarativeWebPage();
 protected:
     QWebPage *createWindow(WebWindowType type);
     QString chooseFile(QWebFrame *originatingFrame, const QString& oldFile);
@@ -57,13 +54,13 @@ protected:
     bool javaScriptPrompt(QWebFrame *originatingFrame, const QString& msg, const QString& defaultValue, QString* result);
 
 private:
-    QDeclarativeWebView *viewItem();
+    TrojitaQNAMDeclarativeWebView *viewItem();
 };
 
-class GraphicsWebView : public QGraphicsWebView {
+class TrojitaQNAMGraphicsWebView : public QGraphicsWebView {
     Q_OBJECT
 public:
-    GraphicsWebView(QDeclarativeWebView* parent = 0);
+    TrojitaQNAMGraphicsWebView(TrojitaQNAMDeclarativeWebView* parent = 0);
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
@@ -75,18 +72,18 @@ protected:
 Q_SIGNALS:
     void doubleClick(int clickX, int clickY);
 private:
-    QDeclarativeWebView *parent;
+    TrojitaQNAMDeclarativeWebView *parent;
     QPointF pressPoint;
     QBasicTimer pressTimer;
     int pressTime; // milliseconds before the touch event becomes a "tap and hold"
-    friend class QDeclarativeWebView;
+    friend class TrojitaQNAMDeclarativeWebView;
 };
 
-class QDeclarativeWebViewAttached;
+class TrojitaQNAMDeclarativeWebViewAttached;
 
 // TODO: browser plugins
 
-class QDeclarativeWebView : public QDeclarativeItem {
+class TrojitaQNAMDeclarativeWebView : public QDeclarativeItem {
     Q_OBJECT
 
     Q_ENUMS(Status SelectionMode)
@@ -125,8 +122,8 @@ class QDeclarativeWebView : public QDeclarativeItem {
     Q_PROPERTY(qreal contentsScale READ contentsScale WRITE setContentsScale NOTIFY contentsScaleChanged)
 
 public:
-    QDeclarativeWebView(QDeclarativeItem *parent = 0);
-    ~QDeclarativeWebView();
+    TrojitaQNAMDeclarativeWebView(QDeclarativeItem *parent = 0);
+    ~TrojitaQNAMDeclarativeWebView();
 
     QUrl url() const;
     void setUrl(const QUrl &);
@@ -179,7 +176,7 @@ public:
 
     QDeclarativeListProperty<QObject> javaScriptWindowObjects();
 
-    static QDeclarativeWebViewAttached* qmlAttachedProperties(QObject*);
+    static TrojitaQNAMDeclarativeWebViewAttached* qmlAttachedProperties(QObject*);
 
     QDeclarativeComponent *newWindowComponent() const;
     void setNewWindowComponent(QDeclarativeComponent *newWindow);
@@ -236,24 +233,24 @@ private Q_SLOTS:
 
     virtual void geometryChanged(const QRectF &newGeometry,
                                  const QRectF &oldGeometry);
-    QDeclarativeWebView* createWindow(QWebPage::WebWindowType type);
+    TrojitaQNAMDeclarativeWebView* createWindow(QWebPage::WebWindowType type);
 
 private:
     void updateContentsSize();
     void init();
     virtual void componentComplete();
-    Q_DISABLE_COPY(QDeclarativeWebView)
-    QDeclarativeWebViewPrivate* d;
+    Q_DISABLE_COPY(TrojitaQNAMDeclarativeWebView)
+    TrojitaQNAMDeclarativeWebViewPrivate* d;
     QMouseEvent* sceneMouseEventToMouseEvent(QGraphicsSceneMouseEvent*);
     QMouseEvent* sceneHoverMoveEventToMouseEvent(QGraphicsSceneHoverEvent*);
-    friend class QDeclarativeWebPage;
+    friend class TrojitaQNAMDeclarativeWebPage;
 };
 
-class QDeclarativeWebViewAttached : public QObject {
+class TrojitaQNAMDeclarativeWebViewAttached : public QObject {
     Q_OBJECT
     Q_PROPERTY(QString windowObjectName READ windowObjectName WRITE setWindowObjectName)
 public:
-    QDeclarativeWebViewAttached(QObject* parent)
+    TrojitaQNAMDeclarativeWebViewAttached(QObject* parent)
         : QObject(parent)
     {
     }
@@ -362,11 +359,8 @@ public:
     QWebSettings *s;
 };
 
-QT_END_NAMESPACE
-
-QML_DECLARE_TYPE(QDeclarativeWebView)
-QML_DECLARE_TYPE(QDeclarativeWebSettings)
-QML_DECLARE_TYPEINFO(QDeclarativeWebView, QML_HAS_ATTACHED_PROPERTIES)
+QML_DECLARE_TYPE(TrojitaQNAMDeclarativeWebPage)
+QML_DECLARE_TYPEINFO(TrojitaQNAMDeclarativeWebView, QML_HAS_ATTACHED_PROPERTIES)
 
 QT_END_HEADER
 

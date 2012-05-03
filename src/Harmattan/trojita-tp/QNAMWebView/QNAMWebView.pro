@@ -1,8 +1,9 @@
-TARGET  = qmlwebkitplugin
+TARGET  = trojitaqnamqmlwebkitplugin
 TARGETPATH = QtWebKit
 
 TEMPLATE = lib
 CONFIG += qt plugin
+QT += webkit
 
 win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release
 
@@ -33,7 +34,7 @@ symbian: {
     TARGET = $$TARGET$${QT_LIBINFIX}
 }
 
-include(../../../WebKit.pri)
+#include(../../../WebKit.pri)
 
 QT += declarative
 
