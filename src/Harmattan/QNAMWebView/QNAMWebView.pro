@@ -3,7 +3,7 @@ CONFIG += qt plugin
 QT += webkit declarative
 TEMPLATE = lib
 
-DESTDIR = net/flaska/trojita
+DESTDIR = ../trojita-tp/net/flaska/QNAMWebView
 
 # would be cool to have this one inherited from the main project...
 isEmpty(OUTPUT_DIR): OUTPUT_DIR = /opt/trojita-tp/
