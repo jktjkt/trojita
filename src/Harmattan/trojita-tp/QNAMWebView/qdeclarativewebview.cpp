@@ -99,7 +99,7 @@ void TrojitaQNAMGraphicsWebView::mousePressEvent(QGraphicsSceneMouseEvent* event
         grabMouse();
         parent->setKeepMouseGrab(true);
     }
-    TrojitaQNAMGraphicsWebView::mousePressEvent(event);
+    QGraphicsWebView::mousePressEvent(event);
 
     QWebHitTestResult hit = page()->mainFrame()->hitTestContent(pressPoint.toPoint());
     if (hit.isContentEditable())
