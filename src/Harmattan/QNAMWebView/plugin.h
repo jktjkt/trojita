@@ -17,14 +17,15 @@
     Boston, MA 02110-1301, USA.
 */
 
-#include "plugin.h"
-#include "qdeclarativewebview_p.h"
+#ifndef TROJITA_QML_QNAMWEBKITPLUGIN
+#define TROJITA_QML_QNAMWEBKITPLUGIN
 
-void TrojitaQNAMWebKitQmlPlugin::registerTypes(const char* uri)
-{
-    Q_ASSERT(QLatin1String(uri) == QLatin1String("net.flaska.QNAMWebView"));
-    qmlRegisterType<TrojitaQNAMDeclarativeWebView>(uri, 1, 0, "QNAMWebView");
-}
+#include <QtDeclarative/qdeclarativeextensionplugin.h>
 
-Q_EXPORT_PLUGIN2(trojitaqnamwebviewplugin, TrojitaQNAMWebKitQmlPlugin);
+class TrojitaQNAMWebKitQmlPlugin : public QDeclarativeExtensionPlugin {
+    Q_OBJECT
+public:
+    virtual void registerTypes(const char* uri);
+};
 
+#endif

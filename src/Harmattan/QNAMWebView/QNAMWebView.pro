@@ -19,7 +19,7 @@ copy2build.CONFIG += no_link
 QMAKE_EXTRA_COMPILERS += copy2build
 
 SOURCES += qdeclarativewebview.cpp plugin.cpp
-HEADERS += qdeclarativewebview_p.h
+HEADERS += qdeclarativewebview_p.h plugin.h
 
 qmldir.files += $$PWD/qmldir
 qmldir.path += $$OUTPUT_DIR/$$DESTDIR
