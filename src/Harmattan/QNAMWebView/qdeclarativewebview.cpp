@@ -49,6 +49,7 @@ public:
       , pending(PendingNone)
       , newWindowComponent(0)
       , newWindowParent(0)
+      , networkAccessManager(0)
       , rendering(true)
     {
     }
@@ -69,6 +70,7 @@ public:
     mutable QDeclarativeWebSettings settings;
     QDeclarativeComponent* newWindowComponent;
     QDeclarativeItem* newWindowParent;
+    QNetworkAccessManager* networkAccessManager;
 
     static void windowObjectsAppend(QDeclarativeListProperty<QObject>* prop, QObject* o)
     {
@@ -281,7 +283,7 @@ void TrojitaQNAMDeclarativeWebView::init()
 void TrojitaQNAMDeclarativeWebView::componentComplete()
 {
     QDeclarativeItem::componentComplete();
-    page()->setNetworkAccessManager(qmlEngine(this)->networkAccessManager());
+    page()->setNetworkAccessManager(networkAccessManager());
 
     switch (d->pending) {
     case TrojitaQNAMDeclarativeWebViewPrivate::PendingUrl:
@@ -997,6 +999,16 @@ QRect TrojitaQNAMDeclarativeWebView::elementAreaAt(int x, int y, int maxWidth, i
         element = element.parent();
     }
     return hitRect;
+}
+
+QNetworkAccessManager *TrojitaQNAMDeclarativeWebView::networkAccessManager() const
+{
+    return d->networkAccessManager;
+}
+
+void TrojitaQNAMDeclarativeWebView::setNetworkAccessManager(QNetworkAccessManager *manager)
+{
+    d->networkAccessManager = manager;
 }
 
 /*!

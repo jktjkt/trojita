@@ -121,6 +121,8 @@ class TrojitaQNAMDeclarativeWebView : public QDeclarativeItem {
     Q_PROPERTY(QSize contentsSize READ contentsSize NOTIFY contentsSizeChanged)
     Q_PROPERTY(qreal contentsScale READ contentsScale WRITE setContentsScale NOTIFY contentsScaleChanged)
 
+    Q_PROPERTY(QNetworkAccessManager* networkAccessManager READ networkAccessManager WRITE setNetworkAccessManager)
+
 public:
     TrojitaQNAMDeclarativeWebView(QDeclarativeItem *parent = 0);
     ~TrojitaQNAMDeclarativeWebView();
@@ -189,6 +191,9 @@ public:
 
     void setContentsScale(qreal scale);
     qreal contentsScale() const;
+
+    QNetworkAccessManager *networkAccessManager() const;
+    void setNetworkAccessManager(QNetworkAccessManager *manager);
 
 Q_SIGNALS:
     void preferredWidthChanged();
@@ -360,6 +365,7 @@ public:
 };
 
 QML_DECLARE_TYPE(TrojitaQNAMDeclarativeWebPage)
+QML_DECLARE_TYPE(QNetworkAccessManager)
 QML_DECLARE_TYPEINFO(TrojitaQNAMDeclarativeWebView, QML_HAS_ATTACHED_PROPERTIES)
 
 QT_END_HEADER
