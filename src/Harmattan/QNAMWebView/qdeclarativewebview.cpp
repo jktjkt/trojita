@@ -283,7 +283,11 @@ void TrojitaQNAMDeclarativeWebView::init()
 void TrojitaQNAMDeclarativeWebView::componentComplete()
 {
     QDeclarativeItem::componentComplete();
-    page()->setNetworkAccessManager(networkAccessManager());
+
+    if (networkAccessManager())
+        page()->setNetworkAccessManager(networkAccessManager());
+    else
+        page()->setNetworkAccessManager(qmlEngine(this)->networkAccessManager());
 
     switch (d->pending) {
     case TrojitaQNAMDeclarativeWebViewPrivate::PendingUrl:
