@@ -30,6 +30,8 @@
 #include "Imap/Model/OneMessageModel.h"
 #include "Imap/Model/VisibleTasksModel.h"
 
+class QNetworkAccessManager;
+
 class ImapAccess : public QObject
 {
     Q_OBJECT
@@ -39,6 +41,7 @@ class ImapAccess : public QObject
     Q_PROPERTY(QObject *msgListModel READ msgListModel NOTIFY modelsChanged)
     Q_PROPERTY(QObject *visibleTasksModel READ visibleTasksModel NOTIFY modelsChanged)
     Q_PROPERTY(QObject *oneMessageModel READ oneMessageModel NOTIFY modelsChanged)
+    Q_PROPERTY(QNetworkAccessManager *msgQNAM READ msgQNAM NOTIFY modelsChanged)
     Q_PROPERTY(QString server READ server WRITE setServer NOTIFY serverChanged)
     Q_PROPERTY(int port READ port WRITE setPort)
     Q_PROPERTY(QString username READ username WRITE setUsername)
@@ -53,6 +56,7 @@ public:
     QObject *msgListModel() const;
     QObject *visibleTasksModel() const;
     QObject *oneMessageModel() const;
+    QNetworkAccessManager *msgQNAM() const;
 
     QString server() const;
     void setServer(const QString &server);
@@ -83,6 +87,7 @@ private:
     Imap::Mailbox::MsgListModel *m_msgListModel;
     Imap::Mailbox::VisibleTasksModel *m_visibleTasksModel;
     Imap::Mailbox::OneMessageModel *m_oneMessageModel;
+    QNetworkAccessManager *m_msgQNAM;
 
     QString m_server;
     int m_port;

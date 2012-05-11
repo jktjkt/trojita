@@ -24,10 +24,11 @@
 #include <QSettings>
 #include "Common/SettingsNames.h"
 #include "Imap/Model/MemoryCache.h"
+#include "Imap/Network/MsgPartNetAccessManager.h"
 
 ImapAccess::ImapAccess(QObject *parent) :
     QObject(parent), m_imapModel(0), cache(0), m_mailboxModel(0), m_msgListModel(0), m_visibleTasksModel(0), m_oneMessageModel(0),
-    m_port(0)
+    m_msgQNAM(0), m_port(0)
 {
     QSettings s;
     m_server = s.value(Common::SettingsNames::imapHostKey).toString();
@@ -152,6 +153,7 @@ void ImapAccess::setSslMode(const QString &sslMode)
     m_msgListModel = new Imap::Mailbox::MsgListModel(this, m_imapModel);
     m_visibleTasksModel = new Imap::Mailbox::VisibleTasksModel(this, m_imapModel->taskModel());
     m_oneMessageModel = new Imap::Mailbox::OneMessageModel(m_imapModel);
+    m_msgQNAM = new Imap::Network::MsgPartNetAccessManager(this);
     emit modelsChanged();
 }
 
@@ -180,7 +182,14 @@ QObject *ImapAccess::oneMessageModel() const
     return m_oneMessageModel;
 }
 
+QNetworkAccessManager *ImapAccess::msgQNAM() const
+{
+    return m_msgQNAM;
+}
+
 void ImapAccess::openMessage(const QString &mailboxName, const uint uid)
 {
-    m_oneMessageModel->setMessage(m_imapModel->messageIndexByUid(mailboxName, uid));
+    QModelIndex msgIndex = m_imapModel->messageIndexByUid(mailboxName, uid);
+    m_oneMessageModel->setMessage(msgIndex);
+    static_cast<Imap::Network::MsgPartNetAccessManager*>(m_msgQNAM)->setModelMessage(msgIndex);
 }
