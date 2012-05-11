@@ -4,12 +4,14 @@ import com.nokia.extras 1.1
 
 PageStackWindow {
     id: appWindow
+    property bool networkOffline: true
 
     function showConnectionError(message) {
         passwordDialog.close()
         connectionErrorBanner.text = message
         connectionErrorBanner.parent = pageStack.currentPage
         connectionErrorBanner.show()
+        networkOffline = true
     }
 
     function showImapAlert(message) {
@@ -31,8 +33,9 @@ PageStackWindow {
         imapAccess.imapModel.alertReceived.connect(showImapAlert)
         imapAccess.imapModel.authRequested.connect(requestingPassword)
         imapAccess.imapModel.authAttemptFailed.connect(authAttemptFailed)
-        mailboxListPage.setMailboxModel(imapAccess.mailboxModel)
-        messageListPage.model = imapAccess.msgListModel
+        imapAccess.imapModel.networkPolicyOffline.connect(function() {networkOffline = true})
+        imapAccess.imapModel.networkPolicyOnline.connect(function() {networkOffline = false})
+        imapAccess.imapModel.networkPolicyExpensive.connect(function() {networkOffline = false})
     }
 
     Component.onCompleted: {
@@ -41,24 +44,33 @@ PageStackWindow {
         serverSettings.open()
     }
 
-    //initialPage: imapSettingsPage
     initialPage: mailboxListPage
-
-    /*ImapSettingsPage {
-        id: imapSettingsPage
-    }*/
 
     MailboxListPage {
         id: mailboxListPage
+        model: imapAccess.mailboxModel ? imapAccess.mailboxModel : undefined
 
         onMailboxSelected: {
             imapAccess.msgListModel.setMailbox(mailbox)
             pageStack.push(messageListPage)
+            oneMessagePage.mailbox = mailbox
         }
     }
 
     MessageListPage {
         id: messageListPage
+        model: imapAccess.msgListModel ? imapAccess.msgListModel : undefined
+
+        onMessageSelected: {
+            imapAccess.openMessage(oneMessagePage.mailbox, uid)
+            oneMessagePage.url = "about:blank"
+            oneMessagePage.url = imapAccess.oneMessageModel.mainPartUrl
+            pageStack.push(oneMessagePage)
+        }
+    }
+
+    OneMessagePage {
+        id: oneMessagePage
     }
 
     ToolBarLayout {
@@ -79,12 +91,12 @@ PageStackWindow {
 
     InfoBanner {
         id: connectionErrorBanner
-        timerShowTime: 5000
+        timerShowTime: 0
     }
 
     InfoBanner {
         id: alertBanner
-        timerShowTime: 5000
+        timerShowTime: 0
     }
 
     Sheet {

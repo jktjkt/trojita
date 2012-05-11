@@ -61,6 +61,7 @@ class DelayedAskForChildrenOfMailbox;
 class ImapTask;
 class KeepMailboxOpenTask;
 class TaskPresentationModel;
+class SubtreeModel;
 
 /** @short Progress of mailbox synchronization with the IMAP server */
 typedef enum { STATE_WAIT_FOR_CONN, /**< Waiting for connection to become active */
@@ -238,6 +239,9 @@ public:
     void setImapPassword(const QString &imapPassword);
     void unsetImapPassword();
 
+    /** @short Return an index for the message specified by the mailbox name and the message UID */
+    QModelIndex messageIndexByUid(const QString &mailboxName, const uint uid);
+
 public slots:
     /** @short Ask for an updated list of mailboxes on the server */
     void reloadMailboxList();
@@ -366,6 +370,7 @@ private:
     friend class MsgListModel; // needs access to createIndex()
     friend class MailboxModel; // needs access to createIndex()
     friend class ThreadingMsgListModel; // needs access to taskFactory
+    friend class SubtreeModel; // needs access to createIndex()
 
     friend class DelayedAskForChildrenOfMailbox; // needs access to askForChildrenOfMailbox();
     friend class DelayedAskForMessagesInMailbox; // needs access to askForMessagesInMailbox();

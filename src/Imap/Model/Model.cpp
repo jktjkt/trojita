@@ -1614,5 +1614,17 @@ void Model::informTasksAboutNewPassword()
     }
 }
 
+QModelIndex Model::messageIndexByUid(const QString &mailboxName, const uint uid)
+{
+    TreeItemMailbox *mailbox = findMailboxByName(mailboxName);
+    QList<TreeItemMessage*> messages = findMessagesByUids(mailbox, QList<uint>() << uid);
+    if (messages.isEmpty()) {
+        return QModelIndex();
+    } else {
+        Q_ASSERT(messages.size() == 1);
+        return messages.front()->toIndex(this);
+    }
+}
+
 }
 }

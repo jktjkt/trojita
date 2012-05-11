@@ -18,6 +18,9 @@ Rectangle {
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         font: UiConstants.HeaderFont
+        maximumLineCount: 1
+        elide: Text.ElideRight
+        width: parent.width - busyIndicator.width
     }
 
     BusyIndicator {

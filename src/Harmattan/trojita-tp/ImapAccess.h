@@ -27,16 +27,21 @@
 #include "Imap/Model/MailboxModel.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/MsgListModel.h"
+#include "Imap/Model/OneMessageModel.h"
 #include "Imap/Model/VisibleTasksModel.h"
+
+class QNetworkAccessManager;
 
 class ImapAccess : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QObject *imapModel READ imapModel)
-    Q_PROPERTY(QObject *mailboxModel READ mailboxModel)
-    Q_PROPERTY(QObject *msgListModel READ msgListModel)
-    Q_PROPERTY(QObject *visibleTasksModel READ visibleTasksModel NOTIFY visibleTasksModelChanged)
+    Q_PROPERTY(QObject *imapModel READ imapModel NOTIFY modelsChanged)
+    Q_PROPERTY(QObject *mailboxModel READ mailboxModel NOTIFY modelsChanged)
+    Q_PROPERTY(QObject *msgListModel READ msgListModel NOTIFY modelsChanged)
+    Q_PROPERTY(QObject *visibleTasksModel READ visibleTasksModel NOTIFY modelsChanged)
+    Q_PROPERTY(QObject *oneMessageModel READ oneMessageModel NOTIFY modelsChanged)
+    Q_PROPERTY(QNetworkAccessManager *msgQNAM READ msgQNAM NOTIFY modelsChanged)
     Q_PROPERTY(QString server READ server WRITE setServer NOTIFY serverChanged)
     Q_PROPERTY(int port READ port WRITE setPort)
     Q_PROPERTY(QString username READ username WRITE setUsername)
@@ -50,6 +55,8 @@ public:
     QObject *mailboxModel() const;
     QObject *msgListModel() const;
     QObject *visibleTasksModel() const;
+    QObject *oneMessageModel() const;
+    QNetworkAccessManager *msgQNAM() const;
 
     QString server() const;
     void setServer(const QString &server);
@@ -62,9 +69,11 @@ public:
     QString sslMode() const;
     void setSslMode(const QString &sslMode);
 
+    Q_INVOKABLE void openMessage(const QString &mailbox, const uint uid);
+
 signals:
     void serverChanged();
-    void visibleTasksModelChanged();
+    void modelsChanged();
 
 public slots:
     void alertReceived(const QString &message);
@@ -77,6 +86,8 @@ private:
     Imap::Mailbox::MailboxModel *m_mailboxModel;
     Imap::Mailbox::MsgListModel *m_msgListModel;
     Imap::Mailbox::VisibleTasksModel *m_visibleTasksModel;
+    Imap::Mailbox::OneMessageModel *m_oneMessageModel;
+    QNetworkAccessManager *m_msgQNAM;
 
     QString m_server;
     int m_port;
