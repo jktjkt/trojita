@@ -1013,6 +1013,7 @@ QNetworkAccessManager *TrojitaQNAMDeclarativeWebView::networkAccessManager() con
 void TrojitaQNAMDeclarativeWebView::setNetworkAccessManager(QNetworkAccessManager *manager)
 {
     d->networkAccessManager = manager;
+    page()->setNetworkAccessManager(manager);
 }
 
 /*!
