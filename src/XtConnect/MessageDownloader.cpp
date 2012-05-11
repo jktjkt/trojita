@@ -72,7 +72,7 @@ void MessageDownloader::requestDownload( const QModelIndex &message )
     QModelIndex mainPart;
     QString partData;
     Imap::Mailbox::FindInterestingPart::MainPartReturnCode mainPartStatus =
-            Imap::Mailbox::FindInterestingPart::findMainPartOfMessage(message, mainPart, metaData.partMessage, partData);
+            Imap::Mailbox::FindInterestingPart::findMainPartOfMessage(message, mainPart, metaData.partMessage, &partData);
     metaData.mainPart = mainPart;
     metaData.hasMainPart = ( mainPartStatus == Imap::Mailbox::FindInterestingPart::MAINPART_FOUND ||
                              mainPartStatus == Imap::Mailbox::FindInterestingPart::MAINPART_PART_CANNOT_DETERMINE );
@@ -166,7 +166,7 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
         QModelIndex mainPart;
         QString partData;
         Imap::Mailbox::FindInterestingPart::MainPartReturnCode mainPartStatus =
-                Imap::Mailbox::FindInterestingPart::findMainPartOfMessage(message, mainPart, it->partMessage, partData);
+                Imap::Mailbox::FindInterestingPart::findMainPartOfMessage(message, mainPart, it->partMessage, &partData);
         it->mainPart = mainPart;
         switch( mainPartStatus ) {
         case Imap::Mailbox::FindInterestingPart::MAINPART_FOUND:

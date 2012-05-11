@@ -85,7 +85,7 @@ QString FindInterestingPart::findMainPart( QModelIndex &part )
 }
 
 FindInterestingPart::MainPartReturnCode FindInterestingPart::findMainPartOfMessage(
-        const QModelIndex &message, QModelIndex &mainPartIndex, QString &partMessage, QString &partData )
+        const QModelIndex &message, QModelIndex &mainPartIndex, QString &partMessage, QString *partData)
 {
     mainPartIndex = message.child( 0, 0 );
     if ( ! mainPartIndex.isValid() ) {
@@ -97,13 +97,17 @@ FindInterestingPart::MainPartReturnCode FindInterestingPart::findMainPartOfMessa
         return MAINPART_PART_CANNOT_DETERMINE;
     }
 
-    QVariant data = mainPartIndex.data( Imap::Mailbox::RolePartData );
-    if ( ! data.isValid() ) {
-        return MAINPART_PART_LOADING;
-    }
+    if (partData) {
+        QVariant data = mainPartIndex.data( Imap::Mailbox::RolePartData );
+        if ( ! data.isValid() ) {
+            return MAINPART_PART_LOADING;
+        }
 
-    partData = data.toString();
-    return MAINPART_FOUND;
+        *partData = data.toString();
+        return MAINPART_FOUND;
+    } else {
+        return mainPartIndex.data(Imap::Mailbox::RoleIsFetched).toBool() ? MAINPART_FOUND : MAINPART_PART_LOADING;
+    }
 }
 
 }

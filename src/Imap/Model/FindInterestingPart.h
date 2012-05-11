@@ -58,7 +58,8 @@ struct FindInterestingPart
 
     @see findMainPart(), MainPartReturnCode
     */
-    static MainPartReturnCode findMainPartOfMessage( const QModelIndex &message, QModelIndex &mainPartIndex, QString &partMessage, QString &partData );
+    static MainPartReturnCode findMainPartOfMessage(const QModelIndex &message, QModelIndex &mainPartIndex, QString &partMessage,
+                                                    QString *partData);
 };
 
 }
