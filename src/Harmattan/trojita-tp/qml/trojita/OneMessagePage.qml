@@ -12,36 +12,44 @@ Page {
     Item {
         anchors {left: parent.left; right: parent.right; bottom: parent.bottom; top: header.bottom}
 
-        Column {
-            Label {
-                text: imapAccess.oneMessageModel ? qsTr("Date: ") + imapAccess.oneMessageModel.date : ""
-            }
-            Label {
-                text: imapAccess.oneMessageModel ? qsTr("Subject: ") + imapAccess.oneMessageModel.subject : ""
-            }
+        Flickable {
+            // FIXME: for some reason, this doesn't work
+            id: view
+            contentHeight: col.height
+            contentWidth: col.width
 
-            QNAMWebView {
-                id: messageView
-                width: parent.width
-                height: 500
-                networkAccessManager: imapAccess.msgQNAM
+            Column {
+                id: col
+                height: dateLabel.height + subjectLabel.height + messageView.preferredHeight
+                width: Math.max(parent.width, messageView.preferredWidth)
 
-                // Setting the URL from here would not be enough, we really want to force a reload whenever the message changes,
-                // even though the URL might remain the same
+                Label {
+                    id: dateLabel
+                    text: imapAccess.oneMessageModel ? qsTr("Date: ") + imapAccess.oneMessageModel.date : ""
+                }
+                Label {
+                    id: subjectLabel
+                    text: imapAccess.oneMessageModel ? qsTr("Subject: ") + imapAccess.oneMessageModel.subject : ""
+                }
 
-                settings.userStyleSheetUrl: "data:text/css;charset=utf-8;base64," +
-                                            Qt.btoa("* {color: white; background: black; font-size: " +
-                                                    UiConstants.TitleFont.pixelSize + "px;};")
+                QNAMWebView {
+                    id: messageView
+                    //width: parent.width
+                    networkAccessManager: imapAccess.msgQNAM
+
+                    // Setting the URL from here would not be enough, we really want to force a reload whenever the message changes,
+                    // even though the URL might remain the same
+
+                    settings.userStyleSheetUrl: "data:text/css;charset=utf-8;base64," +
+                                                Qt.btoa("* {color: white; background: black; font-size: " +
+                                                        UiConstants.TitleFont.pixelSize + "px;};")
+                }
             }
         }
 
-        /*ScrollDecorator {
+        ScrollDecorator {
             flickableItem: view
         }
-
-        PercentageSectionScroller {
-            listView: view
-        }*/
     }
 
     PageHeader {
