@@ -110,6 +110,7 @@ private slots:
     void slotSaveCurrentMessageBody();
     void slotViewMsgHeaders();
     void slotThreadMsgList();
+    void slotHideRead();
     void slotCapabilitiesUpdated(const QStringList &capabilities);
 
     void slotMailboxDeleteFailed(const QString &mailbox, const QString &msg);
@@ -189,6 +190,7 @@ private:
     QAction *viewMsgHeaders;
 
     QAction *actionThreadMsgList;
+    QAction *actionHideRead;
 
     TaskProgressIndicator *busyParsersIndicator;
     QToolButton *networkIndicator;

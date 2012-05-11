@@ -191,6 +191,7 @@ public:
     int recentMessageCount(Model *const model);
     void fetchNumbers(Model *const model);
     void recalcVariousMessageCounts(Model *model);
+    void resetWasUnreadState();
     bool numbersFetched() const;
 };
 
@@ -208,6 +209,7 @@ class TreeItemMessage: public TreeItem
     QStringList m_flags;
     bool m_flagsHandled;
     int m_offset;
+    bool m_wasUnread;
     // These are lazily-populated from a const method, so they got to be mutable
     mutable TreeItemPart *m_partHeader;
     mutable TreeItemPart *m_partText;
