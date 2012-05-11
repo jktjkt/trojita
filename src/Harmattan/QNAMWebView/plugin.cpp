@@ -25,6 +25,7 @@ void TrojitaQNAMWebKitQmlPlugin::registerTypes(const char* uri)
     Q_ASSERT(QLatin1String(uri) == QLatin1String("net.flaska.QNAMWebView"));
     qmlRegisterType<TrojitaQNAMDeclarativeWebView>(uri, 1, 0, "QNAMWebView");
     qmlRegisterExtendedType<QNetworkAccessManager, QObject>();
+    qmlRegisterType<TrojitaDeclarativeWebSettings>();
 }
 
 Q_EXPORT_PLUGIN2(trojitaqnamwebviewplugin, TrojitaQNAMWebKitQmlPlugin);

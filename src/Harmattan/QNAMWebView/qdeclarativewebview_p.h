@@ -284,6 +284,8 @@ class TrojitaDeclarativeWebSettings : public QObject {
     Q_PROPERTY(QString cursiveFontFamily READ cursiveFontFamily WRITE setCursiveFontFamily)
     Q_PROPERTY(QString fantasyFontFamily READ fantasyFontFamily WRITE setFantasyFontFamily)
 
+    Q_PROPERTY(QUrl userStyleSheetUrl READ userStyleSheetUrl WRITE setUserStyleSheetUrl)
+
     Q_PROPERTY(int minimumFontSize READ minimumFontSize WRITE setMinimumFontSize)
     Q_PROPERTY(int minimumLogicalFontSize READ minimumLogicalFontSize WRITE setMinimumLogicalFontSize)
     Q_PROPERTY(int defaultFontSize READ defaultFontSize WRITE setDefaultFontSize)
@@ -320,6 +322,8 @@ public:
     void setCursiveFontFamily(const QString& f) { s->setFontFamily(QWebSettings::CursiveFont, f); }
     QString fantasyFontFamily() const { return s->fontFamily(QWebSettings::FantasyFont); }
     void setFantasyFontFamily(const QString& f) { s->setFontFamily(QWebSettings::FantasyFont, f); }
+    QUrl userStyleSheetUrl() const { return s->userStyleSheetUrl(); }
+    void setUserStyleSheetUrl(const QUrl &url) { s->setUserStyleSheetUrl(url); }
 
     int minimumFontSize() const { return s->fontSize(QWebSettings::MinimumFontSize); }
     void setMinimumFontSize(int size) { s->setFontSize(QWebSettings::MinimumFontSize, size); }
