@@ -45,7 +45,7 @@ Page {
 
                     settings.userStyleSheetUrl: "data:text/css;charset=utf-8;base64," +
                                                 Qt.btoa("* {color: white; background: black; font-size: " +
-                                                        UiConstants.TitleFont.pixelSize + "px;};")
+                                                        UiConstants.BodyTextFont.pixelSize + "px;};")
                 }
             }
         }
