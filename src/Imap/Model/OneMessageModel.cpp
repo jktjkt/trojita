@@ -20,6 +20,7 @@
 */
 
 #include "OneMessageModel.h"
+#include "FindInterestingPart.h"
 #include "ItemRoles.h"
 #include "Model.h"
 #include "SubtreeModel.h"
@@ -39,6 +40,8 @@ OneMessageModel::OneMessageModel(Model *model): QObject(model), m_subtree(0)
 
 void OneMessageModel::setMessage(const QString &mailbox, const uint uid)
 {
+    m_mainPartUrl = QUrl(QLatin1String("about:blank"));
+    emit mainPartUrlChanged();
     QAbstractItemModel *abstractModel = qobject_cast<QAbstractItemModel*>(QObject::parent());
     Q_ASSERT(abstractModel);
     Model *model = qobject_cast<Model*>(abstractModel);
@@ -51,6 +54,28 @@ void OneMessageModel::setMessage(const QModelIndex &message)
     Q_ASSERT(!message.isValid() || message.model() == QObject::parent());
     m_message = message;
     m_subtree->setRootItem(message);
+
+    // Now try to locate the interesting part of the current message
+    QModelIndex idx;
+    QString partMessage;
+    FindInterestingPart::MainPartReturnCode res = FindInterestingPart::findMainPartOfMessage(m_message, idx, partMessage, 0);
+    switch (res) {
+    case Imap::Mailbox::FindInterestingPart::MAINPART_FOUND:
+    case Imap::Mailbox::FindInterestingPart::MAINPART_PART_LOADING:
+        Q_ASSERT(idx.isValid());
+        m_mainPartUrl = QLatin1String("trojita-imap://msg") + idx.data(RolePartPathToPart).toString();
+        break;
+    case Imap::Mailbox::FindInterestingPart::MAINPART_MESSAGE_NOT_LOADED:
+        Q_ASSERT(false);
+        m_mainPartUrl = QLatin1String("data:text/plain;charset=utf-8;base64,") + QString::fromAscii(QByteArray("").toBase64());
+        break;
+    case Imap::Mailbox::FindInterestingPart::MAINPART_PART_CANNOT_DETERMINE:
+        // FIXME: show a decent message here
+        m_mainPartUrl = QLatin1String("data:text/plain;charset=utf-8;base64,") + QString::fromAscii(QByteArray(partMessage.toAscii()).toBase64());
+        break;
+    }
+    qDebug() << m_mainPartUrl;
+    emit mainPartUrlChanged();
 }
 
 QDateTime OneMessageModel::date() const
@@ -126,6 +151,11 @@ bool OneMessageModel::isMarkedReplied() const
 bool OneMessageModel::isMarkedRecent() const
 {
     return m_message.data(RoleMessageIsMarkedRecent).toBool();
+}
+
+QUrl OneMessageModel::mainPartUrl() const
+{
+    return m_mainPartUrl;
 }
 
 }
