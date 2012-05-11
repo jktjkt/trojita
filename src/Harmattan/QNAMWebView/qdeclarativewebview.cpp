@@ -67,7 +67,7 @@ public:
     QUrl pendingUrl;
     QString pendingString;
     QByteArray pendingData;
-    mutable QDeclarativeWebSettings settings;
+    mutable TrojitaDeclarativeWebSettings settings;
     QDeclarativeComponent* newWindowComponent;
     QDeclarativeItem* newWindowParent;
     QNetworkAccessManager* networkAccessManager;
@@ -399,6 +399,7 @@ void TrojitaQNAMDeclarativeWebView::setUrl(const QUrl& url)
         page()->mainFrame()->load(seturl);
 
         emit urlChanged();
+
     } else {
         d->pending = d->PendingUrl;
         d->pendingUrl = url;
@@ -755,7 +756,7 @@ QWebPage* TrojitaQNAMDeclarativeWebView::page() const
     }
     \endqml
 */
-QDeclarativeWebSettings* TrojitaQNAMDeclarativeWebView::settingsObject() const
+TrojitaDeclarativeWebSettings* TrojitaQNAMDeclarativeWebView::settingsObject() const
 {
     d->settings.s = page()->settings();
     return &d->settings;
@@ -785,7 +786,6 @@ void TrojitaQNAMDeclarativeWebView::setPage(QWebPage* page)
     connect(page->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(windowObjectCleared()));
 
     page->settings()->setAttribute(QWebSettings::TiledBackingStoreEnabled, true);
-
 }
 
 /*!

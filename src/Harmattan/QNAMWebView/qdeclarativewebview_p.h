@@ -36,7 +36,7 @@ class QWebHistory;
 class QWebSettings;
 
 QT_MODULE(Declarative)
-class QDeclarativeWebSettings;
+class TrojitaDeclarativeWebSettings;
 class QNetworkRequest;
 class TrojitaQNAMDeclarativeWebView;
 class TrojitaQNAMDeclarativeWebViewPrivate;
@@ -109,7 +109,7 @@ class TrojitaQNAMDeclarativeWebView : public QDeclarativeItem {
     Q_PROPERTY(QAction* stop READ stopAction CONSTANT)
 #endif
 
-    Q_PROPERTY(QDeclarativeWebSettings* settings READ settingsObject CONSTANT)
+    Q_PROPERTY(TrojitaDeclarativeWebSettings* settings READ settingsObject CONSTANT)
 
     Q_PROPERTY(QDeclarativeListProperty<QObject> javaScriptWindowObjects READ javaScriptWindowObjects CONSTANT)
 
@@ -171,7 +171,7 @@ public:
 
     QWebHistory* history() const;
     QWebSettings* settings() const;
-    QDeclarativeWebSettings *settingsObject() const;
+    TrojitaDeclarativeWebSettings *settingsObject() const;
 
     bool renderingEnabled() const;
     void setRenderingEnabled(bool);
@@ -274,7 +274,7 @@ private:
     QString m_windowObjectName;
 };
 
-class QDeclarativeWebSettings : public QObject {
+class TrojitaDeclarativeWebSettings : public QObject {
     Q_OBJECT
 
     Q_PROPERTY(QString standardFontFamily READ standardFontFamily WRITE setStandardFontFamily)
@@ -306,7 +306,7 @@ class QDeclarativeWebSettings : public QObject {
     Q_PROPERTY(bool localContentCanAccessRemoteUrls READ localContentCanAccessRemoteUrls WRITE setLocalContentCanAccessRemoteUrls)
 
 public:
-    QDeclarativeWebSettings() {}
+    TrojitaDeclarativeWebSettings() {}
 
     QString standardFontFamily() const { return s->fontFamily(QWebSettings::StandardFont); }
     void setStandardFontFamily(const QString& f) { s->setFontFamily(QWebSettings::StandardFont, f); }
