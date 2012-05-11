@@ -62,7 +62,10 @@ PageStackWindow {
         model: imapAccess.msgListModel ? imapAccess.msgListModel : undefined
 
         onMessageSelected: {
-            imapAccess.oneMessageModel.setMessage(oneMessagePage.mailbox, uid)
+            imapAccess.openMessage(oneMessagePage.mailbox, uid)
+            oneMessagePage.url = "about:blank"
+            // FIXME: find URL of the main message part
+            oneMessagePage.url = "trojita-imap://msg/0"
             pageStack.push(oneMessagePage)
         }
     }

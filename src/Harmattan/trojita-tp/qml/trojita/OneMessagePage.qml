@@ -1,9 +1,12 @@
 import QtQuick 1.1
 import com.nokia.meego 1.0
 import com.nokia.extras 1.1
+import net.flaska.QNAMWebView 1.0
 
 Page {
     property string mailbox
+    property alias url: messageView.url
+
     tools: commonTools
 
     Item {
@@ -15,6 +18,13 @@ Page {
             }
             Label {
                 text: imapAccess.oneMessageModel ? qsTr("Subject: ") + imapAccess.oneMessageModel.subject : ""
+            }
+
+            QNAMWebView {
+                id: messageView
+                width: parent.width
+                height: 500
+                networkAccessManager: imapAccess.msgQNAM
             }
         }
 
