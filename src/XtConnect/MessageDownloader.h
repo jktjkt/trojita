@@ -75,28 +75,6 @@ private:
         MessageMetadata(): hasHeader(false), hasBody(false), hasMessage(false), hasMainPart(false), mainPartFailed(false) {}
     };
 
-    /** @short Manipulate the index to find a "main part" of a message
-
-This function will try to find the most interesting part of a message, ie. something which can be
-stored as representative data of a message in an environment which doesn't support MIME. If the
-main part can't be found, this function will return a string message mentioning what has happened.
-*/
-    QString findMainPart( QModelIndex &part );
-
-    /** @short Status of finding the main part */
-    enum MainPartReturnCode {
-        MAINPART_FOUND, /**< It was found and data are available right now */
-        MAINPART_MESSAGE_NOT_LOADED, /**< The bodystructure is not known yet */
-        MAINPART_PART_LOADING, /**< @short It was found, but the part data themselves weren't fetched yet */
-        MAINPART_PART_CANNOT_DETERMINE /**< @short There's no supported MIME part in this message */
-    };
-
-    /** @short Try to find a usable "main part" of a message
-
-    @see findMainPart(), MainPartReturnCode
-*/
-    MainPartReturnCode findMainPartOfMessage( const QModelIndex &message, QModelIndex &mainPartIndex, QString &partMessage, QString &partData );
-
     QMap<uint, MessageMetadata> m_parts;
     const QAbstractItemModel *lastModel;
 

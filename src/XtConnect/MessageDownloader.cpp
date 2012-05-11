@@ -28,6 +28,7 @@
 */
 
 #include "MessageDownloader.h"
+#include "Imap/Model/FindInterestingPart.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/MailboxTree.h"
@@ -70,10 +71,12 @@ void MessageDownloader::requestDownload( const QModelIndex &message )
 
     QModelIndex mainPart;
     QString partData;
-    MainPartReturnCode mainPartStatus = findMainPartOfMessage( message, mainPart, metaData.partMessage, partData );
+    Imap::Mailbox::FindInterestingPart::MainPartReturnCode mainPartStatus =
+            Imap::Mailbox::FindInterestingPart::findMainPartOfMessage(message, mainPart, metaData.partMessage, partData);
     metaData.mainPart = mainPart;
-    metaData.hasMainPart = ( mainPartStatus == MAINPART_FOUND || mainPartStatus == MAINPART_PART_CANNOT_DETERMINE );
-    metaData.mainPartFailed = mainPartStatus == MAINPART_PART_CANNOT_DETERMINE;
+    metaData.hasMainPart = ( mainPartStatus == Imap::Mailbox::FindInterestingPart::MAINPART_FOUND ||
+                             mainPartStatus == Imap::Mailbox::FindInterestingPart::MAINPART_PART_CANNOT_DETERMINE );
+    metaData.mainPartFailed = mainPartStatus == Imap::Mailbox::FindInterestingPart::MAINPART_PART_CANNOT_DETERMINE;
 
 #ifdef DEBUG_PENDING_MESSAGES
     qDebug() << "requestDownload:" << message.row() << message.data( Imap::Mailbox::RoleMessageUid ).toUInt() <<
@@ -82,7 +85,7 @@ void MessageDownloader::requestDownload( const QModelIndex &message )
 
     if ( metaData.hasHeader && metaData.hasBody && metaData.hasMessage && metaData.hasMainPart ) {
         emit messageDownloaded( message, metaData.headerData, metaData.bodyData,
-                                mainPartStatus == MAINPART_FOUND ? partData : metaData.partMessage );
+                                mainPartStatus == Imap::Mailbox::FindInterestingPart::MAINPART_FOUND ? partData : metaData.partMessage );
         return;
     }
 
@@ -162,29 +165,30 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
 
         QModelIndex mainPart;
         QString partData;
-        MainPartReturnCode mainPartStatus = findMainPartOfMessage( message, mainPart, it->partMessage, partData );
+        Imap::Mailbox::FindInterestingPart::MainPartReturnCode mainPartStatus =
+                Imap::Mailbox::FindInterestingPart::findMainPartOfMessage(message, mainPart, it->partMessage, partData);
         it->mainPart = mainPart;
         switch( mainPartStatus ) {
-        case MAINPART_FOUND:
+        case Imap::Mailbox::FindInterestingPart::MAINPART_FOUND:
             it->hasMainPart = true;
 #ifdef DEBUG_PENDING_MESSAGES
             qDebug() << "  ...and MAINPART_FOUND for" << uid;
 #endif
             break;
-        case MAINPART_MESSAGE_NOT_LOADED:
+        case Imap::Mailbox::FindInterestingPart::MAINPART_MESSAGE_NOT_LOADED:
 #ifdef DEBUG_PENDING_MESSAGES
             qDebug() << "  ...and MAINPART_MESSAGE_NOT_LOADED for" << uid;
 #endif
             Q_ASSERT(false);
             break;
-        case MAINPART_PART_CANNOT_DETERMINE:
+        case Imap::Mailbox::FindInterestingPart::MAINPART_PART_CANNOT_DETERMINE:
             it->mainPartFailed = true;
             it->hasMainPart = true;
 #ifdef DEBUG_PENDING_MESSAGES
             qDebug() << "  ...and MAINPART_PART_CANNOT_DETERMINE for" << uid;
 #endif
             break;
-        case MAINPART_PART_LOADING:
+        case Imap::Mailbox::FindInterestingPart::MAINPART_PART_LOADING:
             // nothing needed here
 #ifdef DEBUG_PENDING_MESSAGES
             qDebug() << "  ...and MAINPART_PART_LOADING for" << uid;
@@ -231,77 +235,6 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
         qDebug() << "Something is missing for" << uid << it->hasHeader << it->hasBody << it->hasMessage << it->hasMainPart;
 #endif
     }
-}
-
-QString MessageDownloader::findMainPart( QModelIndex &part )
-{
-    if ( ! part.isValid() )
-        return QString::fromAscii("Invalid index");
-
-    QString mimeType = part.data( Imap::Mailbox::RolePartMimeType ).toString().toLower();
-
-    if ( mimeType == QLatin1String("text/plain") ) {
-        // found it, no reason to do anything else
-        return QString();
-    }
-
-    if ( mimeType == QLatin1String("text/html") ) {
-        // HTML without a text/plain counterpart is not supported
-        part = QModelIndex();
-        return QString::fromAscii("A HTML message without a plaintext counterpart");
-    }
-
-    if ( mimeType == QLatin1String("message/rfc822") ) {
-        if ( part.model()->rowCount( part ) != 1 ) {
-            part = QModelIndex();
-            return QString::fromAscii("Unsupported message/rfc822 formatting");
-        }
-        part = part.child( 0, 0 );
-        return findMainPart( part );
-    }
-
-    if ( mimeType.startsWith( QLatin1String("multipart/") ) ) {
-        QModelIndex target;
-        QString str;
-        for ( int i = 0; i < part.model()->rowCount( part ); ++i ) {
-            // Walk through all children, try to find a first usable item
-            target = part.child( i, 0 );
-            str = findMainPart( target );
-            if ( target.isValid() ) {
-                // Found a usable item
-                part = target;
-                return QString();
-            }
-
-        }
-        part = QModelIndex();
-        return QString::fromAscii("This is a %1 formatted message whose parts are not suitable for diplaying here").arg(mimeType);
-    }
-
-    part = QModelIndex();
-    return QString::fromAscii("MIME type %1 is not supported").arg(mimeType);
-}
-
-MessageDownloader::MainPartReturnCode MessageDownloader::findMainPartOfMessage(
-        const QModelIndex &message, QModelIndex &mainPartIndex, QString &partMessage, QString &partData )
-{
-    mainPartIndex = message.child( 0, 0 );
-    if ( ! mainPartIndex.isValid() ) {
-        return MAINPART_MESSAGE_NOT_LOADED;
-    }
-
-    partMessage = findMainPart( mainPartIndex );
-    if ( ! mainPartIndex.isValid() ) {
-        return MAINPART_PART_CANNOT_DETERMINE;
-    }
-
-    QVariant data = mainPartIndex.data( Imap::Mailbox::RolePartData );
-    if ( ! data.isValid() ) {
-        return MAINPART_PART_LOADING;
-    }
-
-    partData = data.toString();
-    return MAINPART_FOUND;
 }
 
 int MessageDownloader::pendingMessages() const
