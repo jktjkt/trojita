@@ -62,7 +62,10 @@ Page {
             MouseArea {
                 anchors.fill: col
                 onClicked: {
-                    messageSelected(model.messageUid)
+                    // Do not try to open messages which are still loading, the viewer code doesn't like that and will assert angrily
+                    if (model.isFetched) {
+                        messageSelected(model.messageUid)
+                    }
                 }
             }
             Label {
