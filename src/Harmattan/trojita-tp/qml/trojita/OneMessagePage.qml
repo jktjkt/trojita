@@ -23,10 +23,13 @@ Page {
 
                 Label {
                     id: dateLabel
+                    width: view.width
                     text: imapAccess.oneMessageModel ? qsTr("Date: ") + imapAccess.oneMessageModel.date : ""
                 }
                 Label {
                     id: subjectLabel
+                    width: view.width
+                    wrapMode: Text.Wrap
                     text: imapAccess.oneMessageModel ? qsTr("Subject: ") + imapAccess.oneMessageModel.subject : ""
                 }
 
