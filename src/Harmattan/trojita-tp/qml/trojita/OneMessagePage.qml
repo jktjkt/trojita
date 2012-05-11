@@ -26,6 +26,9 @@ Page {
                 height: 500
                 networkAccessManager: imapAccess.msgQNAM
 
+                // Setting the URL from here would not be enough, we really want to force a reload whenever the message changes,
+                // even though the URL might remain the same
+
                 settings.userStyleSheetUrl: "data:text/css;charset=utf-8;base64," +
                                             Qt.btoa("* {color: white; background: black; font-size: " +
                                                     UiConstants.TitleFont.pixelSize + "px;};")
