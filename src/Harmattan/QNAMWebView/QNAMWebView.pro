@@ -6,7 +6,10 @@ TEMPLATE = lib
 DESTDIR = ../trojita-tp/net/flaska/QNAMWebView
 
 # would be cool to have this one inherited from the main project...
-isEmpty(OUTPUT_DIR): OUTPUT_DIR = /opt/trojita-tp/
+isEmpty(OUTPUT_DIR) {
+    OUTPUT_DIR = /opt/trojita-tp/bin/
+    DESTDIR = net/flaska/QNAMWebView
+}
 
 QMLDIRFILE = $${_PRO_FILE_PWD_}/qmldir
 copy2build.input = QMLDIRFILE
