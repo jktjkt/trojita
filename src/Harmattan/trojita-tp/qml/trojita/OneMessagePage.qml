@@ -25,6 +25,10 @@ Page {
                 width: parent.width
                 height: 500
                 networkAccessManager: imapAccess.msgQNAM
+
+                settings.userStyleSheetUrl: "data:text/css;charset=utf-8;base64," +
+                                            Qt.btoa("* {color: white; background: black; font-size: " +
+                                                    UiConstants.TitleFont.pixelSize + "px;};")
             }
         }
 
