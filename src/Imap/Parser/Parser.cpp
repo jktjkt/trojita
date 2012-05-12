@@ -399,7 +399,10 @@ CommandHandle Parser::queueCommand(Commands::Command command)
 void Parser::queueResponse(const QSharedPointer<Responses::AbstractResponse> &resp)
 {
     respQueue.push_back(resp);
-    emit responseReceived(this);
+    // Try to limit the signal rate -- when there are multiple items in the queue, there's no point in sending more signals
+    if (respQueue.size() == 1) {
+        emit responseReceived(this);
+    }
 }
 
 bool Parser::hasResponse() const

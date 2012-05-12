@@ -19,6 +19,7 @@
 
 #include "ListChildMailboxesTask.h"
 #include "GetAnyConnectionTask.h"
+#include "ItemRoles.h"
 #include "Model.h"
 #include "MailboxTree.h"
 
@@ -96,6 +97,11 @@ QString ListChildMailboxesTask::debugIdentification() const
     TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
     Q_ASSERT(mailbox);
     return QString::fromAscii("Listing stuff below mailbox %1").arg(mailbox->mailbox());
+}
+
+QVariant ListChildMailboxesTask::taskData(const int role) const
+{
+    return role == RoleTaskCompactName ? QVariant(tr("Listing mailboxes")) : QVariant();
 }
 
 

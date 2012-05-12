@@ -14,6 +14,7 @@ include(../../src/linking.pri)
 trojita_libs = Imap Streams
 myprefix = ../../../src/
 include(../../src/linking.pri)
+include(../../configh.pri)
 
 # ...yes, the order above really matters, why are you asking?
 

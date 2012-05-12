@@ -19,6 +19,7 @@
 #include "OfflineConnectionTask.h"
 #include <QTimer>
 #include "Streams/FakeSocket.h"
+#include "ItemRoles.h"
 #include "TaskPresentationModel.h"
 
 namespace Imap
@@ -59,6 +60,14 @@ void OfflineConnectionTask::slotDie()
     model->m_parsers.remove(parser);
     model->m_taskModel->slotParserDeleted(parser);
 }
+
+/** @short This is an internal task */
+QVariant OfflineConnectionTask::taskData(const int role) const
+{
+    Q_UNUSED(role);
+    return QVariant();
+}
+
 
 }
 }

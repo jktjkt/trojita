@@ -260,6 +260,7 @@ void ImapModelIdleTest::testIdleMailboxChange()
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE(SOCK->writtenStuff(), t.mk("SELECT b\r\n"));
     SOCK->fakeReading(QByteArray("* 0 exists\r\n")
                       + t.last("ok completed\r\n"));

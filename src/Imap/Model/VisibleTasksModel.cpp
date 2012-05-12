@@ -36,6 +36,13 @@ VisibleTasksModel::VisibleTasksModel(QObject *parent, QAbstractItemModel *taskMo
     m_flatteningModel->setSourceModel(taskModel);
     setSourceModel(m_flatteningModel);
     setDynamicSortFilter(true);
+    connect(m_flatteningModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SIGNAL(hasVisibleTasksChanged()));
+    connect(m_flatteningModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SIGNAL(hasVisibleTasksChanged()));
+    connect(m_flatteningModel, SIGNAL(modelReset()), this, SIGNAL(hasVisibleTasksChanged()));
+    connect(m_flatteningModel, SIGNAL(layoutChanged()), this, SIGNAL(hasVisibleTasksChanged()));
+    QHash<int, QByteArray> roleNames;
+    roleNames[RoleTaskCompactName] = "compactName";
+    setRoleNames(roleNames);
 }
 
 /** @short Reimplemented from QSortFilterProxyModel */
@@ -47,6 +54,11 @@ bool VisibleTasksModel::filterAcceptsRow(int source_row, const QModelIndex &sour
     }
 
     return index.data(RoleTaskIsVisible).toBool();
+}
+
+bool VisibleTasksModel::hasVisibleTasks() const
+{
+    return rowCount();
 }
 
 }

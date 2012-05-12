@@ -19,6 +19,7 @@
 
 #include "NumberOfMessagesTask.h"
 #include "GetAnyConnectionTask.h"
+#include "ItemRoles.h"
 #include "Model.h"
 #include "MailboxTree.h"
 
@@ -83,6 +84,11 @@ QString NumberOfMessagesTask::debugIdentification() const
     TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
     Q_ASSERT(mailbox);
     return QString::fromAscii("attached to %1").arg(mailbox->mailbox());
+}
+
+QVariant NumberOfMessagesTask::taskData(const int role) const
+{
+    return role == RoleTaskCompactName ? QVariant(tr("Looking for messages")) : QVariant();
 }
 
 }

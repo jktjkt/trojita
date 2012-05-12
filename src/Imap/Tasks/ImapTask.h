@@ -104,6 +104,9 @@ public:
     */
     virtual QString debugIdentification() const;
 
+    /** @short Implemente fetching of data for TaskPresentationModel */
+    virtual QVariant taskData(const int role) const = 0;
+
 protected:
     void _completed();
 

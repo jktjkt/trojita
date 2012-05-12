@@ -90,5 +90,10 @@ QString FetchMsgMetadataTask::debugIdentification() const
     return QString::fromAscii("%1: UIDs %2").arg(mailbox.data(RoleMailboxName).toString(), Sequence::fromList(uids).toString());
 }
 
+QVariant FetchMsgMetadataTask::taskData(const int role) const
+{
+    return role == RoleTaskCompactName ? QVariant(tr("Downloading headers")) : QVariant();
+}
+
 }
 }

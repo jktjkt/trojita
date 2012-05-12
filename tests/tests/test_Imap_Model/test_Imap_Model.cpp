@@ -62,10 +62,12 @@ void ImapModelTest::testSyncMailbox()
     SOCK->fakeReading( "* PREAUTH [CAPABILITY Imap4Rev1] foo\r\n" );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 LIST \"\" \"%\"\r\n") );
     SOCK->fakeReading( "* LIST (\\HasNoChildren) \".\" \"INBOX\"\r\n"
                        "* CAPABILITY IMAP4rev1\r\n"
                        "y0 ok list completed\r\n" );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QModelIndex inbox = model->index( 1, 0, QModelIndex() );
     QCOMPARE( model->data( inbox, Qt::DisplayRole ), QVariant("INBOX") );
@@ -89,9 +91,11 @@ void ImapModelTest::testInboxCaseSensitivity()
     SOCK->fakeReading( "* PREAUTH [Capability imap4rev1] foo\r\n" );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 LIST \"\" \"%\"\r\n") );
     SOCK->fakeReading( "* LIST (\\Noinferiors) \".\" \"Inbox\"\r\n"
                        "y0 ok list completed\r\n" );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( mboxModel->data( mboxModel->index( 0, 0, QModelIndex() ), Qt::DisplayRole ), QVariant("INBOX") );
     mboxModel->deleteLater();
@@ -108,6 +112,7 @@ void ImapModelTest::testCreationDeletionHandling()
     SOCK->fakeReading( "* PREAUTH [CAPABILITY imap4rev1] foo\r\n" );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
 
     // Ask for capabilities and list top-level mailboxes
     // These commands are interleaved with each other
@@ -117,6 +122,7 @@ void ImapModelTest::testCreationDeletionHandling()
                        "* LIST (\\HasNoChildren) \".\" \"one\"\r\n"
                        "* LIST (\\HasNoChildren) \".\" two\r\n"
                        "y0 ok list completed\r\n" );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 
     // Note that the ordering is case-insensitive
@@ -134,6 +140,7 @@ void ImapModelTest::testCreationDeletionHandling()
     model->createMailbox( QString::fromAscii("zzz_newly-Created") );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 CREATE zzz_newly-Created\r\n") );
 
     // Sane invariants
@@ -149,6 +156,8 @@ void ImapModelTest::testCreationDeletionHandling()
     // Test that we handle failure of the CREATE command
     SOCK->fakeReading( "y1 NO go away\r\n" );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( creationFailed.count(), 1 );
     QList<QVariant> args = creationFailed.takeFirst();
     QCOMPARE( args.size(), 2 );
@@ -163,9 +172,11 @@ void ImapModelTest::testCreationDeletionHandling()
     model->createMailbox( QString::fromAscii("zzz_newly-Created2") );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y2 CREATE zzz_newly-Created2\r\n") );
     SOCK->fakeReading( "y2 OK mailbox created\r\n" );
     // This one results in issuing another command -> got to make two passes through the event loop
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y3 LIST \"\" zzz_newly-Created2\r\n") );
@@ -177,6 +188,7 @@ void ImapModelTest::testCreationDeletionHandling()
     QCOMPARE( args[0], QVariant("zzz_newly-Created2") );
     QCOMPARE( deletionFailed.count(), 0 );
     QCOMPARE( deletionSucceded.count(), 0 );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QModelIndex mbox_zzz = model->index( 5, 0, QModelIndex() );
     QCOMPARE( model->data( mbox_zzz, Qt::DisplayRole ), QVariant("zzz_newly-Created2") );

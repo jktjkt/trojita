@@ -54,6 +54,7 @@ public:
     virtual void addDependentTask(ImapTask *task);
 
     virtual QString debugIdentification() const;
+    virtual QVariant taskData(const int role) const;
 
 private:
     void finalizeSelect();

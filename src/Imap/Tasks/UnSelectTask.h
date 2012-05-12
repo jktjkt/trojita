@@ -39,6 +39,7 @@ public:
     virtual bool handleFlags(const Imap::Responses::Flags *const resp);
     virtual bool handleSearch(const Imap::Responses::Search *const resp);
     virtual bool handleFetch(const Imap::Responses::Fetch *const resp);
+    virtual QVariant taskData(const int role) const;
 private slots:
     /** @short Try to guess a non-existing mailbox name */
     void doFakeSelect();

@@ -18,6 +18,7 @@
 
 #include "OpenConnectionTask.h"
 #include <QTimer>
+#include "ItemRoles.h"
 #include "Model/TaskPresentationModel.h"
 
 namespace Imap
@@ -26,13 +27,13 @@ namespace Mailbox
 {
 
 OpenConnectionTask::OpenConnectionTask(Model *model) :
-    ImapTask(model), waitingForGreetings(true), gotPreauth(false)
+    ImapTask(model)
 {
     // Offline mode shall be checked by the caller who decides to create the conneciton
     Q_ASSERT(model->networkPolicy() != Model::NETWORK_OFFLINE);
     parser = new Parser(model, model->m_socketFactory->create(), ++model->m_lastParserId);
     ParserState parserState(parser);
-    connect(parser, SIGNAL(responseReceived(Imap::Parser *)), model, SLOT(responseReceived(Imap::Parser *)));
+    connect(parser, SIGNAL(responseReceived(Imap::Parser *)), model, SLOT(responseReceived(Imap::Parser*)), Qt::QueuedConnection);
     connect(parser, SIGNAL(disconnected(Imap::Parser *,const QString)), model, SLOT(slotParserDisconnected(Imap::Parser *,const QString)));
     connect(parser, SIGNAL(connectionStateChanged(Imap::Parser *,Imap::ConnectionState)), model, SLOT(handleSocketStateChanged(Imap::Parser *,Imap::ConnectionState)));
     connect(parser, SIGNAL(sendingCommand(Imap::Parser *,QString)), model, SLOT(parserIsSendingCommand(Imap::Parser *,QString)));
@@ -207,7 +208,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
                 logout(tr("Capabilities still contain LOGINDISABLED even after STARTTLS"));
             } else {
                 model->changeConnectionState(parser, CONN_STATE_LOGIN);
-                loginCmd = model->performAuthentication(parser);
+                askForAuth();
             }
         }
         return wasCaps;
@@ -217,6 +218,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
         // Check the result of the LOGIN command
     {
         if (resp->tag == loginCmd) {
+            loginCmd.clear();
             // The LOGIN command is finished
             if (resp->kind == OK) {
                 if (resp->respCode == CAPABILITIES) {
@@ -236,9 +238,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
                     message = tr("Temporary failure because a subsystem is down.");
                     break;
                 case Responses::AUTHENTICATIONFAILED:
-                    message = tr("Authentication failed for some reason on which the server is "
-                                 "unwilling to elaborate.  Typically, this includes \"unknown "
-                                 "user\" and \"bad password\".");
+                    message = tr("Authentication failed.  This often happens due to bad password or wrong user name.");
                     break;
                 case Responses::AUTHORIZATIONFAILED:
                     message = tr("Authentication succeeded in using the authentication identity, "
@@ -263,22 +263,17 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
                 if (message.isEmpty()) {
                     message = tr("Login failed: %1").arg(resp->message);
                 } else {
-                    message = tr("%1\r\n\r\n%2").arg(message, resp->message);
+                    message = tr("%1\n\n%2").arg(message, resp->message);
                 }
-                model->emitAuthFailed(message);
+                emit model->authAttemptFailed(message);
+                model->m_imapPassword.clear();
+                model->m_hasImapPassword = false;
                 if (model->accessParser(parser).connState == CONN_STATE_LOGOUT) {
                     // The server has closed the conenction
                     _failed(QString::fromAscii("Connection closed after a failed login"));
                     return true;
                 }
-                loginCmd = model->performAuthentication(parser);
-
-                if (loginCmd == CommandHandle()) {
-                    // The user has given up
-                    logout(tr("No credentials returned in response to a direct request to the user"));
-                } else {
-                    // This is not a failure yet; we're retrying again
-                }
+                askForAuth();
             }
             return true;
         }
@@ -318,7 +313,7 @@ void OpenConnectionTask::startTlsOrLoginNow()
         // We're requested to authenticate even without STARTTLS
         Q_ASSERT(!model->accessParser(parser).capabilities.contains(QLatin1String("LOGINDISABLED")));
         model->changeConnectionState(parser, CONN_STATE_LOGIN);
-        loginCmd = model->performAuthentication(parser);
+        askForAuth();
     }
 }
 
@@ -354,11 +349,36 @@ void OpenConnectionTask::onComplete()
 
 void OpenConnectionTask::logout(const QString &message)
 {
-    emit model->connectionError(message);
-    model->changeConnectionState(parser, CONN_STATE_LOGOUT);
-    model->accessParser(parser).logoutCmd = parser->logout();
     _failed(message);
+    model->setNetworkOffline();
 }
+
+void OpenConnectionTask::askForAuth()
+{
+    if (model->m_hasImapPassword) {
+        Q_ASSERT(loginCmd.isEmpty());
+        loginCmd = parser->login(model->m_imapUser, model->m_imapPassword);
+    } else {
+        emit model->authRequested();
+    }
+}
+
+void OpenConnectionTask::authCredentialsNowAvailable()
+{
+    if (model->accessParser(parser).connState == CONN_STATE_LOGIN && loginCmd.isEmpty()) {
+        if (model->m_hasImapPassword) {
+            loginCmd = parser->login(model->m_imapUser, model->m_imapPassword);
+        } else {
+            logout(tr("No credentials available"));
+        }
+    }
+}
+
+QVariant OpenConnectionTask::taskData(const int role) const
+{
+    return role == RoleTaskCompactName ? QVariant(tr("Connecting to mail server")) : QVariant();
+}
+
 
 }
 }

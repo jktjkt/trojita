@@ -28,7 +28,7 @@ build-stamp: configure-stamp
 
 	# Add here commands to compile the package.
 	# $(MAKE) # Uncomment this line for use without Qt Creator
-	#docbook-to-man debian/trojita.sgml > trojita.1
+	#docbook-to-man debian/trojita-tp.sgml > trojita-tp.1
 
 	touch $@
 
@@ -48,8 +48,8 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 
-	# Add here commands to install the package into debian/trojita.
-	$(MAKE) INSTALL_ROOT="$(CURDIR)"/debian/trojita install
+	# Add here commands to install the package into debian/trojita-tp.
+	$(MAKE) INSTALL_ROOT="$(CURDIR)"/debian/trojita-tp install
 
 
 # Build architecture-independent files here.

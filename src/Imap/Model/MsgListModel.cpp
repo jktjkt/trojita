@@ -52,6 +52,29 @@ MsgListModel::MsgListModel(QObject *parent, Model *model): QAbstractProxyModel(p
             this, SLOT(handleRowsAboutToBeInserted(const QModelIndex &, int,int)));
     connect(model, SIGNAL(rowsInserted(const QModelIndex &, int, int)),
             this, SLOT(handleRowsInserted(const QModelIndex &, int,int)));
+
+    QHash<int, QByteArray> roleNames;
+    roleNames[RoleIsFetched] = "isFetched";
+    roleNames[RoleMessageUid] = "messageUid";
+    roleNames[RoleMessageIsMarkedDeleted] = "isMarkedDeleted";
+    roleNames[RoleMessageIsMarkedRead] = "isMarkedRead";
+    roleNames[RoleMessageIsMarkedForwarded] = "isMarkedForwarded";
+    roleNames[RoleMessageIsMarkedReplied] = "isMarkedReplied";
+    roleNames[RoleMessageIsMarkedRecent] = "isMarkedRecent";
+    roleNames[RoleMessageDate] = "date";
+    roleNames[RoleMessageFrom] = "from";
+    roleNames[RoleMessageTo] = "to";
+    roleNames[RoleMessageCc] = "cc";
+    roleNames[RoleMessageBcc] = "bcc";
+    roleNames[RoleMessageSender] = "sender";
+    roleNames[RoleMessageReplyTo] = "replyTo";
+    roleNames[RoleMessageInReplyTo] = "inReplyTo";
+    roleNames[RoleMessageMessageId] = "messageId";
+    roleNames[RoleMessageSubject] = "subject";
+    roleNames[RoleMessageFlags] = "flags";
+    roleNames[RoleMessageSize] = "size";
+    roleNames[RoleMessageFuzzyDate] = "fuzzyDate";
+    setRoleNames(roleNames);
 }
 
 void MsgListModel::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
@@ -391,7 +414,7 @@ void MsgListModel::handleRowsInserted(const QModelIndex &parent, int start, int 
 void MsgListModel::setMailbox(const QModelIndex &index)
 {
     waitingForMessages = true;
-    if (! index.isValid()) {
+    if (!index.isValid()) {
         msgList = 0;
         reset();
         emit mailboxChanged();
@@ -401,8 +424,12 @@ void MsgListModel::setMailbox(const QModelIndex &index)
     const Model *model = 0;
     TreeItemMailbox *mbox = dynamic_cast<TreeItemMailbox *>(Model::realTreeItem(index, &model));
     Q_ASSERT(mbox);
-    if (! mbox->isSelectable())
+    if (!mbox->isSelectable()) {
+        msgList = 0;
+        reset();
+        emit mailboxChanged();
         return;
+    }
     TreeItemMsgList *newList = dynamic_cast<TreeItemMsgList *>(
                                    mbox->child(0, const_cast<Model *>(model)));
     Q_ASSERT(newList);
@@ -413,6 +440,14 @@ void MsgListModel::setMailbox(const QModelIndex &index)
         // We want to tell the Model that it should consider starting the IDLE command.
         const_cast<Model *>(model)->switchToMailbox(index);
     }
+}
+
+/** @short Change mailbox to the one specified by its name */
+void MsgListModel::setMailbox(const QString &mailboxName)
+{
+    Model *model = dynamic_cast<Model*>(sourceModel());
+    Q_ASSERT(model);
+    setMailbox(model->findMailboxByName(mailboxName)->toIndex(model));
 }
 
 TreeItemMailbox *MsgListModel::currentMailbox() const

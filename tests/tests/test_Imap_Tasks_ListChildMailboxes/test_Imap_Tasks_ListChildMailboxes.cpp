@@ -67,6 +67,7 @@ void ImapModelListChildMailboxesTest::testSimpleListing()
                        "* LIST (\\HasNoChildren) \".\" \"INBOX\"\r\n"
                        "y0 OK List done.\r\n");
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( QModelIndex() ), 5 );
     // the first one will be "list of messages"
     QModelIndex idxInbox = model->index( 1, 0, QModelIndex() );
@@ -96,6 +97,7 @@ void ImapModelListChildMailboxesTest::testSimpleListing()
                        "* LIST (\\HasNoChildren) \".\" \"xyz.a\"\r\n"
                        "* LIST (\\HasNoChildren) \".\" \"xyz.c\"\r\n"
                        "y2 OK List completed.\r\n" );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( idxA ), 3 );
     QCOMPARE( model->rowCount( idxXyz ), 3 );

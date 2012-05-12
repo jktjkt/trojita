@@ -90,6 +90,8 @@ public:
     /** @short Request a delayed loading of a message envelope */
     void requestEnvelopeDownload(const uint uid);
 
+    virtual QVariant taskData(const int role) const;
+
 private slots:
     void slotTaskDeleted(QObject *object);
 

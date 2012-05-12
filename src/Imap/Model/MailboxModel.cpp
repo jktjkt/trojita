@@ -52,6 +52,21 @@ MailboxModel::MailboxModel(QObject *parent, Model *model): QAbstractProxyModel(p
             this, SLOT(handleRowsInserted(const QModelIndex &, int, int)));
     connect(model, SIGNAL(messageCountPossiblyChanged(const QModelIndex &)),
             this, SLOT(handleMessageCountPossiblyChanged(const QModelIndex &)));
+
+    QHash<int, QByteArray> roleNames;
+    roleNames[RoleIsFetched] = "isFetched";
+    roleNames[RoleShortMailboxName] = "shortMailboxName";
+    roleNames[RoleMailboxName] = "mailboxName";
+    roleNames[RoleMailboxSeparator] = "mailboxSeparator";
+    roleNames[RoleMailboxHasChildmailboxes] = "mailboxHasChildMailboxes";
+    roleNames[RoleMailboxIsINBOX] = "mailboxIsINBOX";
+    roleNames[RoleMailboxIsSelectable] = "mailboxIsSelectable";
+    roleNames[RoleMailboxNumbersFetched] = "mailboxNumbersFetched";
+    roleNames[RoleTotalMessageCount] = "totalMessageCount";
+    roleNames[RoleUnreadMessageCount] = "unreadMessageCount";
+    roleNames[RoleRecentMessageCount] = "recentMessageCount";
+    roleNames[RoleMailboxItemsAreLoading] = "mailboxItemsAreLoading";
+    setRoleNames(roleNames);
 }
 
 void MailboxModel::handleModelAboutToBeReset()

@@ -129,6 +129,7 @@ void LibMailboxSync::helperSyncAFullSync()
     helperFakeExistsUidValidityUidNext();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
 
     // Verify that we indeed received what we wanted
     Imap::Mailbox::TreeItemMsgList* list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( static_cast<Imap::Mailbox::TreeItem*>( msgListA.internalPointer() ) );
@@ -140,6 +141,7 @@ void LibMailboxSync::helperSyncAFullSync()
 
     helperFakeUidSearch();
 
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( msgListA ), static_cast<int>( existsA ) );
     QVERIFY( SOCK->writtenStuff().isEmpty() );
@@ -207,6 +209,8 @@ void LibMailboxSync::helperSyncBNoMessages()
     // Try to go to second mailbox
     QCOMPARE( model->rowCount( msgListB ), 0 );
     model->switchToMailbox( idxB );
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT b\r\n") );
@@ -351,9 +355,22 @@ void LibMailboxSync::helperSyncFlags()
             buf.clear();
             QCoreApplication::processEvents();
             QCoreApplication::processEvents();
+            QCoreApplication::processEvents();
         }
     }
+    // Now the ugly part -- we know that the Model has that habit of processing at most 100 responses at once and then returning
+    // from the event handler.  The idea is to make sure that the GUI can run even in presence of incoming FLAGS in a 50k mailbox
+    // (or really anything else; the point is to avoid GUI blocking).  Under normal circumstances, this shouldn't really matter as
+    // the event loop will take care of processing all the events, but with tests which "emulate" the event loop through
+    // repeatedly calling QCoreApplication::processEvents(), we might *very easily* leave some responses undelivered.
+    // This is where our crude hack comes into play -- we know that each message generated one response, so we just make sure that
+    // Model's responseReceived will surely runs enough times. Nasty, isn't it? Well, better than introducing a side channel from
+    // Model to signal "I really need to process more events, KTHXBYE", IMHO.
+    for (uint i = 0; i < (existsA / 100) + 1; ++i)
+        QCoreApplication::processEvents();
+
     SOCK->fakeReading(buf + t.last("OK yay\r\n"));
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 }
 
@@ -361,6 +378,7 @@ void LibMailboxSync::helperSyncFlags()
 void LibMailboxSync::helperOneFlagUpdate( const QModelIndex &message )
 {
     SOCK->fakeReading( QString::fromAscii("* %1 FETCH (FLAGS (\\SeEn fOo bar))\r\n").arg( message.row() + 1 ).toAscii() );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QStringList expectedFlags;
     expectedFlags << QLatin1String("\\Seen") << QLatin1String("fOo") << QLatin1String("bar");
@@ -384,6 +402,7 @@ void LibMailboxSync::helperSyncASomeNew( int number )
         ++uidNextA;
     }
     helperFakeExistsUidValidityUidNext();
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 

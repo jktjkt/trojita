@@ -105,9 +105,11 @@ void ImapModelCreateMailboxTest::testCreateOneMore()
     SOCK->fakeReading( QByteArray("y0 OK created\r\n") );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 LIST \"\" ahoj\r\n") );
     SOCK->fakeReading( QByteArray("* LIST (\\HasNoChildren) \"^\" \"ahoj\"\r\n"
             "y1 OK list\r\n") );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( QModelIndex() ), 3 );
     QCoreApplication::processEvents();
@@ -127,6 +129,7 @@ void ImapModelCreateMailboxTest::testCreateEmpty()
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 CREATE ahoj\r\n") );
     SOCK->fakeReading( QByteArray("y0 OK created\r\n") );
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 LIST \"\" ahoj\r\n") );

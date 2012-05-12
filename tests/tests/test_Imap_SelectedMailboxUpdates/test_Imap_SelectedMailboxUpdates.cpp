@@ -48,6 +48,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperTestExpungeImmediatelyAfterArriv
     SOCK->fakeReading(QString::fromAscii("* %1 EXISTS\r\n* %1 EXPUNGE\r\n").arg(QString::number(existsA + 1)).toAscii());
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE(SOCK->writtenStuff(), QString(t.mk("UID FETCH %1:* (FLAGS)\r\n")).arg(
                  QString::number(qMax(uidMapA.last() + 1, uidNextA))).toAscii());
 
@@ -80,6 +81,7 @@ void ImapModelSelectedMailboxUpdatesTest::testUnsolicitedFetch()
     QVERIFY(SOCK->writtenStuff().isEmpty());
 
     SOCK->fakeReading(QString::fromAscii("* %1 EXISTS\r\n* %1 FETCH (FLAGS (\\Seen \\Recent $NotJunk NotJunk))\r\n").arg(QString::number(existsA + 1)).toAscii());
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE(SOCK->writtenStuff(), QString(t.mk("UID FETCH %1:* (FLAGS)\r\n")).arg(
@@ -186,6 +188,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool
     SOCK->fakeReading(QByteArray("* 3 EXISTS\r\n* 3 RECENT\r\n"));
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     // This should trigger a request for flags
     QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 12:* (FLAGS)\r\n"));
     // The messages sgould be there already
@@ -221,6 +224,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool
     QCOMPARE(msgB.data(Imap::Mailbox::RoleMessageUid).toUInt(), 44u);
     // The unread message count should be correct now, too
     QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 3);
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 
@@ -280,6 +284,7 @@ void  ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive2(bool askF
     SOCK->fakeReading(QByteArray("* 4 EXISTS\r\n* 4 RECENT\r\n"));
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     // This should trigger a request for flags
     QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 46:* (FLAGS)\r\n"));
     // The messages sgould be there already
@@ -312,6 +317,7 @@ void  ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive2(bool askF
     QCOMPARE(msgD.data(Imap::Mailbox::RoleMessageUid).toUInt(), 46u);
     // The unread message count should be correct now, too
     QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 4);
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 
     if ( askForEnvelopes ) {
@@ -426,6 +432,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive3(bool askFo
     SOCK->fakeReading(QByteArray("* 4 EXISTS\r\n* 4 RECENT\r\n"));
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     // This should trigger a request for flags
     QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 47:* (FLAGS)\r\n"));
 
@@ -465,6 +472,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive3(bool askFo
     QCOMPARE(msgD.data(Imap::Mailbox::RoleMessageUid).toUInt(), 50u);
     // The unread message count should be correct now, too
     QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 4);
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 
     if ( askForEnvelopes ) {
@@ -518,6 +526,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive4(bool askFo
     SOCK->fakeReading(QByteArray("* 5 EXISTS\r\n* 5 RECENT\r\n"));
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     // This should trigger a request for flags
     QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 51:* (FLAGS)\r\n"));
 
@@ -550,6 +559,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive4(bool askFo
     QCOMPARE(msgE.data(Imap::Mailbox::RoleMessageUid).toUInt(), 52u);
     // The unread message count should be correct now, too
     QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 5);
+    QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 
     if ( askForEnvelopes ) {

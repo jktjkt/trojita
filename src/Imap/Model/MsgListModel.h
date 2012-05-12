@@ -63,6 +63,7 @@ public:
 public slots:
     void resetMe();
     void setMailbox(const QModelIndex &index);
+    Q_INVOKABLE void setMailbox(const QString &mailboxName);
     void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void handleRowsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
     void handleRowsRemoved(const QModelIndex &parent, int start, int end);

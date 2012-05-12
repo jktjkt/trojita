@@ -719,5 +719,12 @@ bool KeepMailboxOpenTask::hasPendingInternalActions() const
              requestedParts.isEmpty() && requestedEnvelopes.isEmpty()) || hasToWaitForIdleTermination;
 }
 
+QVariant KeepMailboxOpenTask::taskData(const int role) const
+{
+    // FIXME
+    Q_UNUSED(role);
+    return QVariant();
+}
+
 }
 }

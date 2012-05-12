@@ -1,5 +1,4 @@
-trojita (0.2.9) unstable; urgency=low
+trojita-tp (0.3.0) unstable; urgency=low
+  * <Add change description here>
 
-  * Initial Release.
-
- -- Jan Kundrát <jkt@flaska.net>  Fri, 26 Aug 2011 16:33:01 +0200
+ -- Jan Kundrát <jkt@flaska.net>  Wed, 11 Apr 2012 19:21:02 +0200

@@ -18,6 +18,7 @@
 
 
 #include "CopyMoveMessagesTask.h"
+#include "ItemRoles.h"
 #include "KeepMailboxOpenTask.h"
 #include "UpdateFlagsTask.h"
 #include "Model.h"
@@ -108,6 +109,10 @@ bool CopyMoveMessagesTask::handleStateHelper(const Imap::Responses::State *const
     }
 }
 
+QVariant CopyMoveMessagesTask::taskData(const int role) const
+{
+    return role == RoleTaskCompactName ? QVariant(tr("Copying messages")) : QVariant();
+}
 
 }
 }

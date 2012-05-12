@@ -18,10 +18,11 @@
 
 
 #include "UpdateFlagsTask.h"
-#include "KeepMailboxOpenTask.h"
 #include "CopyMoveMessagesTask.h"
-#include "Model.h"
+#include "ItemRoles.h"
+#include "KeepMailboxOpenTask.h"
 #include "MailboxTree.h"
+#include "Model.h"
 
 namespace Imap
 {
@@ -117,6 +118,11 @@ bool UpdateFlagsTask::handleStateHelper(const Imap::Responses::State *const resp
     } else {
         return false;
     }
+}
+
+QVariant UpdateFlagsTask::taskData(const int role) const
+{
+    return role == RoleTaskCompactName ? QVariant(tr("Saving message state")) : QVariant();
 }
 
 

@@ -37,6 +37,7 @@ class OfflineConnectionTask : public ImapTask
 public:
     OfflineConnectionTask(Model *model);
     virtual void perform();
+    virtual QVariant taskData(const int role) const;
 protected slots:
     void slotPerform();
     void slotDie();

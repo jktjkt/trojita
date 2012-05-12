@@ -164,6 +164,7 @@ QVariant TaskPresentationModel::data(const QModelIndex &index, int role) const
         if (dynamic_cast<KeepMailboxOpenTask *>(task) || dynamic_cast<GetAnyConnectionTask *>(task) ||
             dynamic_cast<UnSelectTask *>(task)) {
             // Internal, auxiliary tasks
+            // FIXME: revisit this for the KeepMailboxOpenTask; it *can* perform a certain activity after all
             return false;
         } else {
             return true;
@@ -179,6 +180,14 @@ QVariant TaskPresentationModel::data(const QModelIndex &index, int role) const
             className.remove(QLatin1String("Imap::Mailbox::"));
             return tr("%1: %2").arg(className, task->debugIdentification());
         }
+    case RoleTaskCompactName: {
+        if (isParserState) {
+            return QVariant();
+        } else {
+            ImapTask *task = static_cast<ImapTask *>(index.internalPointer());
+            return task->taskData(RoleTaskCompactName);
+        }
+    }
     default:
         return QVariant();
     }

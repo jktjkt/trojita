@@ -9,7 +9,7 @@ Upstream Author(s):
 
 Copyright:
 
-    Copyright (C) 2006 - 2011 Jan Kundrát <jkt@gentoo.org>
+    Copyright (C) 2006 - 2012 Jan Kundrát <jkt@flaska.net>
 
 License:
 
@@ -31,7 +31,7 @@ License:
 On Debian systems, the complete text of the GNU General
 Public License can be found in `/usr/share/common-licenses/GPL'.
 
-The Debian packaging is (C) 2011, Jan Kundrát <jkt@flaska.net> and
+The Debian packaging is (C) 2011 - 2012, Jan Kundrát <jkt@flaska.net> and
 is licensed under the GPL, see above.
 
 

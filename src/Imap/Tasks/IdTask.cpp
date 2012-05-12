@@ -20,6 +20,7 @@
 #include "IdTask.h"
 #include <QCoreApplication>
 #include "GetAnyConnectionTask.h"
+#include "ItemRoles.h"
 #include "Model.h"
 #include "../Model/Utils.h"
 
@@ -74,6 +75,11 @@ bool IdTask::handleId(const Responses::Id *const resp)
 {
     model->m_idResult = resp->data;
     return true;
+}
+
+QVariant IdTask::taskData(const int role) const
+{
+    return role == RoleTaskCompactName ? QVariant(tr("Identifying server")) : QVariant();
 }
 
 }

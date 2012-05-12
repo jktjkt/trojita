@@ -29,6 +29,7 @@
 #include "KeepMailboxOpenTask.h"
 #include "MailboxTree.h"
 #include "TaskPresentationModel.h"
+#include "OpenConnectionTask.h"
 
 //#define DEBUG_PERIODICALLY_DUMP_TASKS
 //#define DEBUG_TASK_ROUTING
@@ -90,7 +91,7 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
     QAbstractItemModel(parent),
     // our tools
     m_cache(cache), m_socketFactory(socketFactory), m_taskFactory(taskFactory), m_maxParsers(4), m_mailboxes(0),
-    m_netPolicy(NETWORK_ONLINE), m_authenticator(0), m_lastParserId(0), m_taskModel(0)
+    m_netPolicy(NETWORK_ONLINE),  m_lastParserId(0), m_taskModel(0), m_hasImapPassword(false)
 {
     m_cache->setParent(this);
     m_startTls = m_socketFactory->startTlsRequired();
@@ -125,17 +126,34 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
 Model::~Model()
 {
     delete m_mailboxes;
-    delete m_authenticator;
 }
 
+/** @short Process responses from all sockets */
+void Model::responseReceived()
+{
+    for (QMap<Parser *,ParserState>::iterator it = m_parsers.begin(); it != m_parsers.end(); ++it) {
+        responseReceived(it);
+    }
+}
+
+/** @short Process responses from the specified parser */
 void Model::responseReceived(Parser *parser)
 {
     QMap<Parser *,ParserState>::iterator it = m_parsers.find(parser);
-    Q_ASSERT(it != m_parsers.end());
+    if (it == m_parsers.end()) {
+        // This is a queued signal, so it's perfectly possible that the sender is gone already
+        return;
+    }
+    responseReceived(it);
+}
 
+/** @short Process responses from the specified parser */
+void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
+{
     ParserStateGuard guard(*it);
     Q_ASSERT(it->parser);
 
+    int counter = 0;
     while (it->parser && it->parser->hasResponse()) {
         QSharedPointer<Imap::Responses::AbstractResponse> resp = it->parser->getResponse();
         Q_ASSERT(resp);
@@ -146,7 +164,7 @@ void Model::responseReceived(Parser *parser)
                 QString buf;
                 QTextStream s(&buf);
                 s << *stateResponse;
-                logTrace(parser->parserId(), LOG_OTHER, QString::fromAscii("Model"), QString::fromAscii("BAD response: %1").arg(buf));
+                logTrace(it->parser->parserId(), LOG_OTHER, QString::fromAscii("Model"), QString::fromAscii("BAD response: %1").arg(buf));
                 qDebug() << buf;
             }
         }
@@ -211,6 +229,13 @@ void Model::responseReceived(Parser *parser)
             uint parserId = it->parser->parserId();
             killParser(it->parser, PARSER_KILL_HARD);
             broadcastParseError(parserId, QString::fromStdString(e.exceptionClass()), e.what(), e.line(), e.offset());
+            break;
+        }
+
+        // Return to the event loop every 100 messages to handle GUI events
+        ++counter;
+        if (counter == 100) {
+            QTimer::singleShot(0, this, SLOT(responseReceived()));
             break;
         }
     }
@@ -1128,27 +1153,6 @@ TreeItem *Model::realTreeItem(QModelIndex index, const Model **whichModel, QMode
     return static_cast<TreeItem *>(index.internalPointer());
 }
 
-CommandHandle Model::performAuthentication(Imap::Parser *ptr)
-{
-    // The LOGINDISABLED capability is checked elsewhere
-    if (! m_authenticator) {
-        m_authenticator = new QAuthenticator();
-        emit authRequested(m_authenticator);
-    }
-
-    if (m_authenticator->isNull()) {
-        delete m_authenticator;
-        m_authenticator = 0;
-        QString message = tr("Can't login without user/password data");
-        logTrace(ptr->parserId(), LOG_OTHER, QString(), message);
-        emit connectionError(message);
-        return CommandHandle();
-    } else {
-        CommandHandle cmd = ptr->login(m_authenticator->user(), m_authenticator->password());
-        return cmd;
-    }
-}
-
 void Model::changeConnectionState(Parser *parser, ConnectionState state)
 {
     accessParser(parser).connState = state;
@@ -1483,13 +1487,6 @@ QStringList Model::capabilities() const
     return QStringList();
 }
 
-void Model::emitAuthFailed(const QString &message)
-{
-    delete m_authenticator;
-    m_authenticator = 0;
-    emit authAttemptFailed(message);
-}
-
 void Model::logTrace(uint parserId, const LogKind kind, const QString &source, const QString &message)
 {
     enum {CUTOFF=200};
@@ -1568,6 +1565,65 @@ QStringList Model::normalizeFlags(const QStringList &source) const
     // deduplication of the actual QLists
     res.sort();
     return res;
+}
+
+/** @short Set the IMAP username */
+void Model::setImapUser(const QString &imapUser)
+{
+    m_imapUser = imapUser;
+}
+
+/** @short Username to use for login */
+QString Model::imapUser() const
+{
+    return m_imapUser;
+}
+
+/** @short Set the password that the user wants to use */
+void Model::setImapPassword(const QString &password)
+{
+    m_imapPassword = password;
+    m_hasImapPassword = true;
+    informTasksAboutNewPassword();
+}
+
+/** @short Return the user's password, if cached */
+QString Model::imapPassword() const
+{
+    return m_imapPassword;
+}
+
+/** @short Indicate that the user doesn't want to provide her password */
+void Model::unsetImapPassword()
+{
+    m_imapPassword.clear();
+    m_hasImapPassword = false;
+    informTasksAboutNewPassword();
+}
+
+/** @short Tell all tasks which want to know about the availability of a password */
+void Model::informTasksAboutNewPassword()
+{
+    Q_FOREACH(const ParserState &p, m_parsers) {
+        Q_FOREACH(ImapTask *task, p.activeTasks) {
+            OpenConnectionTask *openTask = dynamic_cast<OpenConnectionTask *>(task);
+            if (!openTask)
+                continue;
+            openTask->authCredentialsNowAvailable();
+        }
+    }
+}
+
+QModelIndex Model::messageIndexByUid(const QString &mailboxName, const uint uid)
+{
+    TreeItemMailbox *mailbox = findMailboxByName(mailboxName);
+    QList<TreeItemMessage*> messages = findMessagesByUids(mailbox, QList<uint>() << uid);
+    if (messages.isEmpty()) {
+        return QModelIndex();
+    } else {
+        Q_ASSERT(messages.size() == 1);
+        return messages.front()->toIndex(this);
+    }
 }
 
 }

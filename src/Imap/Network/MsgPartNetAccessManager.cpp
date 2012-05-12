@@ -93,6 +93,9 @@ QNetworkReply *MsgPartNetAccessManager::createRequest(Operation op, const QNetwo
             qDebug() << "Content-ID not found" << cid;
             return new Imap::Network::ForbiddenReply(this);
         }
+    } else if (req.url() == QUrl(QLatin1String("about:blank"))) {
+        // about:blank is a relatively harmless URL which is used for opening an empty page
+        return QNetworkAccessManager::createRequest(op, req, outgoingData);
     } else {
         // Regular access -- we've got to check policy here
         if (req.url().scheme() == QLatin1String("http") || req.url().scheme() == QLatin1String("ftp")) {
