@@ -46,14 +46,14 @@ Page {
                 Label {
                     id: dateLabel
                     width: view.width
-                    text: imapAccess.oneMessageModel ? qsTr("Date: ") + Utils.formatDate(imapAccess.oneMessageModel.date) : ""
+                    text: imapAccess.oneMessageModel ? qsTr("<b>Date:</b> ") + Utils.formatDate(imapAccess.oneMessageModel.date) : ""
                 }
 
                 Label {
                     id: subjectLabel
                     width: view.width
                     wrapMode: Text.Wrap
-                    text: imapAccess.oneMessageModel ? qsTr("Subject: ") + imapAccess.oneMessageModel.subject : ""
+                    text: imapAccess.oneMessageModel ? qsTr("<b>Subject:</b> ") + imapAccess.oneMessageModel.subject : ""
                 }
 
                 QNAMWebView {
