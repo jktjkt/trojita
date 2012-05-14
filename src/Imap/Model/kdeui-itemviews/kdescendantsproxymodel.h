@@ -180,6 +180,9 @@ class KDEUI_EXPORT KDescendantsProxyModel : public QAbstractProxyModel
     virtual QModelIndexList match(const QModelIndex& start, int role, const QVariant& value,
         int hits = 1, Qt::MatchFlags flags = Qt::MatchFlags( Qt::MatchStartsWith | Qt::MatchWrap ) ) const;
 
+    // it's so easy to have this one public...
+    void setRoleNames(const QHash<int,QByteArray> &roleNames) { QAbstractProxyModel::setRoleNames(roleNames); }
+
 
 private:
   Q_DECLARE_PRIVATE( KDescendantsProxyModel )
