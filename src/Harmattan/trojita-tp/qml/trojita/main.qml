@@ -52,6 +52,7 @@ PageStackWindow {
 
         onMailboxSelected: {
             imapAccess.msgListModel.setMailbox(mailbox)
+            messageListPage.scrollToBottom()
             pageStack.push(messageListPage)
             oneMessagePage.mailbox = mailbox
         }

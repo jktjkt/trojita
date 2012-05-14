@@ -3,9 +3,14 @@ import com.nokia.meego 1.0
 import com.nokia.extras 1.1
 
 Page {
+    id: root
     property alias model: view.model
 
     signal messageSelected(int uid)
+
+    function scrollToBottom() {
+        view.positionViewAtEnd()
+    }
 
     tools: commonTools
 
@@ -145,8 +150,6 @@ Page {
                     source: "image://theme/meegotouch-groupheader" + (theme.inverted ? "-inverted" : "") + "-background"
                 }
             }
-
-            onVisibleChanged: if (visible) positionViewAtEnd()
         }
 
         Label {
