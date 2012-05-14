@@ -46,7 +46,7 @@ Page {
                 Label {
                     id: dateLabel
                     width: view.width
-                    text: imapAccess.oneMessageModel ? qsTr("<b>Date:</b> ") + Utils.formatDate(imapAccess.oneMessageModel.date) : ""
+                    text: imapAccess.oneMessageModel ? qsTr("<b>Date:</b> ") + Utils.formatDateDetailed(imapAccess.oneMessageModel.date) : ""
                 }
 
                 Label {
