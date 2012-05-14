@@ -11,3 +11,10 @@ function formatMailAddress(items) {
         return items[2] + "@" + items[3]
     }
 }
+
+function formatDate(date) {
+    // if there's a better way to compare QDateTime::date with "today", well, please do tell me
+    return Qt.formatDate(date, "YYYY-mm-dd") == Qt.formatDate(new Date(), "YYYY-mm-dd") ?
+                Qt.formatTime(date) :
+                Qt.formatDate(date)
+}

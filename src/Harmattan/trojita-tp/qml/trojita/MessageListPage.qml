@@ -52,9 +52,7 @@ Page {
                 Label {
                     width: parent.width
                     font: UiConstants.BodyTextFont
-                    // if there's a better way to compare QDateTime::date with "today", well, please do tell me
-                    text: !col.visible ? "" : Qt.formatDate(model.date, "YYYY-mm-dd") == Qt.formatDate(new Date(), "YYYY-mm-dd") ?
-                              Qt.formatTime(model.date) : Qt.formatDate(model.date)
+                    text: !col.visible ? "" : Utils.formatDate(model.date)
                 }
             }
             MouseArea {
