@@ -1,6 +1,7 @@
 import QtQuick 1.1
 import com.nokia.meego 1.0
 import com.nokia.extras 1.1
+import "Utils.js" as Utils
 
 Page {
     id: root
@@ -18,14 +19,6 @@ Page {
         id: normalMessageItemDelegate
 
         Item {
-            function formatMailAddress(items) {
-                if (items[0] !== null) {
-                    return items[0] + " <" + items[2] + "@" + items[3] + ">"
-                } else {
-                    return items[2] + "@" + items[3]
-                }
-            }
-
             property variant model
 
             width: view.width
@@ -54,7 +47,7 @@ Page {
                     elide: Text.ElideRight
                     width: parent.width
                     // FIXME: multiple/no addresses...
-                    text: !col.visible ? "" : formatMailAddress(model.from[0])
+                    text: !col.visible ? "" : Utils.formatMailAddress(model.from[0])
                 }
                 Label {
                     width: parent.width
