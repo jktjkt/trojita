@@ -2,6 +2,7 @@ import QtQuick 1.1
 import com.nokia.meego 1.0
 import com.nokia.extras 1.1
 import net.flaska.QNAMWebView 1.0
+import "Utils.js" as Utils
 
 Page {
     property string mailbox
@@ -45,7 +46,7 @@ Page {
                 Label {
                     id: dateLabel
                     width: view.width
-                    text: imapAccess.oneMessageModel ? qsTr("Date: ") + imapAccess.oneMessageModel.date : ""
+                    text: imapAccess.oneMessageModel ? qsTr("Date: ") + Utils.formatDate(imapAccess.oneMessageModel.date) : ""
                 }
 
                 Label {
