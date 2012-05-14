@@ -61,7 +61,6 @@ Page {
                     networkAccessManager: imapAccess.msgQNAM
 
                     preferredWidth: view.width
-                    preferredHeight: view.height
 
                     // Without specifying the width here, plaintext e-mails would cause useless horizontal scrolling
                     width: parent.width
