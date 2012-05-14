@@ -21,11 +21,33 @@ Page {
             Column {
                 id: col
 
+                AddressWidget {
+                    caption: qsTr("From")
+                    address: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.from[0] : undefined
+                    width: view.width
+                }
+                AddressWidget {
+                    caption: qsTr("To")
+                    address: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.to[0] : undefined
+                    width: view.width
+                }
+                AddressWidget {
+                    caption: qsTr("Cc")
+                    address: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.cc[0] : undefined
+                    width: view.width
+                }
+                AddressWidget {
+                    caption: qsTr("Bcc")
+                    address: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.bcc[0] : undefined
+                    width: view.width
+                }
+
                 Label {
                     id: dateLabel
                     width: view.width
                     text: imapAccess.oneMessageModel ? qsTr("Date: ") + imapAccess.oneMessageModel.date : ""
                 }
+
                 Label {
                     id: subjectLabel
                     width: view.width
