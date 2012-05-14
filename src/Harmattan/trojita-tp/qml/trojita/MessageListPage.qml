@@ -6,11 +6,12 @@ import "Utils.js" as Utils
 Page {
     id: root
     property alias model: view.model
+    property bool _pendingScroll: false
 
     signal messageSelected(int uid)
 
     function scrollToBottom() {
-        view.positionViewAtEnd()
+        _pendingScroll = true
     }
 
     tools: commonTools
@@ -139,6 +140,13 @@ Page {
                     anchors.verticalCenter: headerLabel.verticalCenter
                     anchors.rightMargin: 24
                     source: "image://theme/meegotouch-groupheader" + (theme.inverted ? "-inverted" : "") + "-background"
+                }
+            }
+
+            onVisibleChanged: {
+                if (root._pendingScroll) {
+                    root._pendingScroll = false
+                    positionViewAtEnd()
                 }
             }
         }
