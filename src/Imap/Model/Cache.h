@@ -58,6 +58,12 @@ public:
         QByteArray serializedBodyStructure;
 
         MessageDataBundle(): uid(0), size(0) {}
+
+        bool operator==(const MessageDataBundle &other) const
+        {
+            return envelope == other.envelope && serializedBodyStructure == other.serializedBodyStructure &&
+                   size == other.size && uid == other.uid;
+        }
     };
 
     AbstractCache(QObject *parent): QObject(parent) {}

@@ -28,18 +28,18 @@
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Tasks/ObtainSynchronizedMailboxTask.h"
 
+namespace Imap {
+namespace Mailbox {
 /** @short Operator for QCOMPARE which acts on all data stored in the SyncState
 
 This operator compares *everything*, including the hidden members.
 */
-bool operator==(const Imap::Mailbox::SyncState &a, const Imap::Mailbox::SyncState &b)
+bool operator==(const SyncState &a, const SyncState &b)
 {
     return a.completelyEqualTo(b);
 }
 
-bool operator==(const Imap::Mailbox::AbstractCache::MessageDataBundle &a, const Imap::Mailbox::AbstractCache::MessageDataBundle &b)
-{
-    return a.envelope == b.envelope && a.serializedBodyStructure == b.serializedBodyStructure && a.size == b.size && a.uid == b.uid;
+}
 }
 
 namespace QTest {
