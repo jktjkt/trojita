@@ -73,6 +73,7 @@ Page {
                                                         UiConstants.BodyTextFont.pixelSize + "px;};")
                 }
 
+                // FIXME: move this to a dedicated page...
                 Component {
                     id: attachmentItemDelegate
 
@@ -90,6 +91,7 @@ Page {
                     width: view.width
                     // FIXME: magic constants...
                     height: count * 40 + 30
+                    // FIXME: filter out the main part from the view (in C++, of course)
                     model: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.attachmentsModel : undefined
                     delegate: attachmentItemDelegate
                 }
