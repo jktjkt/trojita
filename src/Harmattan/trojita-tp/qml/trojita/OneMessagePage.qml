@@ -72,6 +72,27 @@ Page {
                                                 Qt.btoa("* {color: white; background: black; font-size: " +
                                                         UiConstants.BodyTextFont.pixelSize + "px;};")
                 }
+
+                Component {
+                    id: attachmentItemDelegate
+
+                    Label {
+                        id: lbl
+                        text: "Attachment " + model.fileName + "(" + model.mimeType + "): " + imapAccess.prettySize(model.size)
+                        width: attachmentsView.width
+                        height: 40
+                    }
+                }
+
+                ListView {
+                    id: attachmentsView
+                    interactive: false
+                    width: view.width
+                    // FIXME: magic constants...
+                    height: count * 40 + 30
+                    model: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.attachmentsModel : undefined
+                    delegate: attachmentItemDelegate
+                }
             }
         }
 
