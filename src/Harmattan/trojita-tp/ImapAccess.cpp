@@ -24,6 +24,7 @@
 #include <QSettings>
 #include "Common/SettingsNames.h"
 #include "Imap/Model/MemoryCache.h"
+#include "Imap/Model/Utils.h"
 #include "Imap/Network/MsgPartNetAccessManager.h"
 
 ImapAccess::ImapAccess(QObject *parent) :
@@ -192,4 +193,9 @@ void ImapAccess::openMessage(const QString &mailboxName, const uint uid)
     QModelIndex msgIndex = m_imapModel->messageIndexByUid(mailboxName, uid);
     m_oneMessageModel->setMessage(msgIndex);
     static_cast<Imap::Network::MsgPartNetAccessManager*>(m_msgQNAM)->setModelMessage(msgIndex);
+}
+
+QString ImapAccess::prettySize(const uint bytes) const
+{
+    return Imap::Mailbox::PrettySize::prettySize(bytes, Imap::Mailbox::PrettySize::WITH_BYTES_SUFFIX);
 }

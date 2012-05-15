@@ -677,6 +677,8 @@ void TreeItemMsgList::recalcVariousMessageCounts(Model *model)
     m_recentMessageCount = 0;
     for (int i = 0; i < m_children.size(); ++i) {
         TreeItemMessage *message = static_cast<TreeItemMessage *>(m_children[i]);
+        if (!message->m_flagsHandled)
+            message->m_wasUnread = ! message->isMarkedAsRead();
         message->m_flagsHandled = true;
         if (! message->isMarkedAsRead())
             ++m_unreadMessageCount;
@@ -688,6 +690,14 @@ void TreeItemMsgList::recalcVariousMessageCounts(Model *model)
     model->emitMessageCountChanged(static_cast<TreeItemMailbox *>(parent()));
 }
 
+void TreeItemMsgList::resetWasUnreadState()
+{
+    for (int i = 0; i < m_children.size(); ++i) {
+        TreeItemMessage *message = static_cast<TreeItemMessage *>(m_children[i]);
+        message->m_wasUnread = ! message->isMarkedAsRead();
+    }
+}
+
 bool TreeItemMsgList::numbersFetched() const
 {
     return fetched() || m_numberFetchingStatus == DONE;
@@ -696,7 +706,7 @@ bool TreeItemMsgList::numbersFetched() const
 
 
 TreeItemMessage::TreeItemMessage(TreeItem *parent):
-    TreeItem(parent), m_size(0), m_uid(0), m_flagsHandled(false), m_offset(-1), m_partHeader(0), m_partText(0)
+    TreeItem(parent), m_size(0), m_uid(0), m_flagsHandled(false), m_offset(-1), m_wasUnread(false), m_partHeader(0), m_partText(0)
 {
 }
 
@@ -778,22 +788,17 @@ QVariant TreeItemMessage::data(Model *const model, int role)
     if (! m_parent)
         return QVariant();
 
-    // This one is special, UID doesn't depend on fetch() and should not trigger it, either
-    if (role == RoleMessageUid)
+    // Special item roles which should not trigger fetching of message metadata
+    switch (role) {
+    case RoleMessageUid:
         return m_uid ? QVariant(m_uid) : QVariant();
-
-    // The same for RoleIsFetched
-    if (role == RoleIsFetched)
+    case RoleIsFetched:
         return fetched();
-
-    // FLAGS shouldn't trigger message fetching, either
-    if (role == RoleMessageFlags) {
+    case RoleMessageFlags:
         // The flags are already sorted by Model::normalizeFlags()
         return m_flags;
-    }
-
-    // This one is special. We do not want to trigger message fetching yet.
-    if (role == RoleMessageFuzzyDate) {
+    case RoleMessageFuzzyDate:
+    {
         // When the QML ListView is configured with its section.* properties, it will call the corresponding data() section *very*
         // often.  The data are however only "needed" when the real items are visible, and when they are visible, the data() will
         // get called anyway and the correct stuff will ultimately arrive.  This is why we don't call fetch() from here.
@@ -816,7 +821,14 @@ QVariant TreeItemMessage::data(Model *const model, int role)
 
         return QDate(timestamp.date().year(), timestamp.date().month(), 1).toString(Model::tr("MMMM yyyy"));
     }
+    case RoleMessageWasUnread:
+        return m_wasUnread;
+    case RoleThreadRootWithUnreadMessages:
+        // This one doesn't really make much sense here, but we do want to catch it to prevent a fetch request from this context
+        return QVariant();
+    }
 
+    // Any other roles will result in fetching the data
     fetch(model);
 
     switch (role) {
@@ -928,6 +940,7 @@ uint TreeItemMessage::size(Model *const model)
 
 void TreeItemMessage::setFlags(TreeItemMsgList *list, const QStringList &flags, bool forceChange)
 {
+    // wasSeen is used to determine if the message was marked as read before this operation
     bool wasSeen = isMarkedAsRead();
     m_flags = flags;
     if (list->m_numberFetchingStatus == DONE && forceChange) {
@@ -935,6 +948,8 @@ void TreeItemMessage::setFlags(TreeItemMsgList *list, const QStringList &flags, 
         if (m_flagsHandled) {
             if (wasSeen && !isSeen) {
                 ++list->m_unreadMessageCount;
+                // leave the message as "was unread" so it persists in the view when read messages are hidden
+                m_wasUnread = true;
             } else if (!wasSeen && isSeen) {
                 --list->m_unreadMessageCount;
             }
@@ -943,13 +958,15 @@ void TreeItemMessage::setFlags(TreeItemMsgList *list, const QStringList &flags, 
             m_flagsHandled = true;
             if (!isSeen) {
                 ++list->m_unreadMessageCount;
+                // mark the message as "was unread" so it shows up in the view when read messages are hidden
+                m_wasUnread = true;
             }
         }
     }
 }
 
 
-TreeItemPart::TreeItemPart(TreeItem *parent, const QString &mimeType): TreeItem(parent), m_mimeType(mimeType.toLower())
+TreeItemPart::TreeItemPart(TreeItem *parent, const QString &mimeType): TreeItem(parent), m_mimeType(mimeType.toLower()), m_octets(0)
 {
     if (isTopLevelMultiPart()) {
         // Note that top-level multipart messages are special, their immediate contents
@@ -962,7 +979,7 @@ TreeItemPart::TreeItemPart(TreeItem *parent, const QString &mimeType): TreeItem(
 }
 
 TreeItemPart::TreeItemPart(TreeItem *parent):
-    TreeItem(parent), m_mimeType(QString::fromAscii("text/plain")), m_partHeader(0), m_partText(0), m_partMime(0)
+    TreeItem(parent), m_mimeType(QString::fromAscii("text/plain")), m_octets(0), m_partHeader(0), m_partText(0), m_partMime(0)
 {
 }
 

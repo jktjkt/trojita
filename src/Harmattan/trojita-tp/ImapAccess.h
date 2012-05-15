@@ -70,6 +70,7 @@ public:
     void setSslMode(const QString &sslMode);
 
     Q_INVOKABLE void openMessage(const QString &mailbox, const uint uid);
+    Q_INVOKABLE QString prettySize(const uint bytes) const;
 
 signals:
     void serverChanged();

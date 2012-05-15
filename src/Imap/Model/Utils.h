@@ -33,7 +33,11 @@ class PrettySize: public QObject
 {
     Q_OBJECT
 public:
-    static QString prettySize(uint bytes);
+    typedef enum {
+        COMPACT_FORM, /**< @short Do not append "B" when the size is less than 1kB */
+        WITH_BYTES_SUFFIX /**< @short Always prepend the units, even if it's just in bytes */
+    } ShowBytesSuffix;
+    static QString prettySize(uint bytes, const ShowBytesSuffix compactUnitFormat=COMPACT_FORM);
 };
 
 /** @short Return the name of a log file for logging IMAP communication */

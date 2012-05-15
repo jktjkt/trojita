@@ -1,11 +1,18 @@
 import QtQuick 1.1
 import com.nokia.meego 1.0
 import com.nokia.extras 1.1
+import "Utils.js" as Utils
 
 Page {
+    id: root
     property alias model: view.model
+    property bool _pendingScroll: false
 
     signal messageSelected(int uid)
+
+    function scrollToBottom() {
+        _pendingScroll = true
+    }
 
     tools: commonTools
 
@@ -13,14 +20,6 @@ Page {
         id: normalMessageItemDelegate
 
         Item {
-            function formatMailAddress(items) {
-                if (items[0] !== null) {
-                    return items[0] + " <" + items[2] + "@" + items[3] + ">"
-                } else {
-                    return items[2] + "@" + items[3]
-                }
-            }
-
             property variant model
 
             width: view.width
@@ -49,14 +48,12 @@ Page {
                     elide: Text.ElideRight
                     width: parent.width
                     // FIXME: multiple/no addresses...
-                    text: !col.visible ? "" : formatMailAddress(model.from[0])
+                    text: !col.visible ? "" : Utils.formatMailAddress(model.from[0])
                 }
                 Label {
                     width: parent.width
                     font: UiConstants.BodyTextFont
-                    // if there's a better way to compare QDateTime::date with "today", well, please do tell me
-                    text: !col.visible ? "" : Qt.formatDate(model.date, "YYYY-mm-dd") == Qt.formatDate(new Date(), "YYYY-mm-dd") ?
-                              Qt.formatTime(model.date) : Qt.formatDate(model.date)
+                    text: !col.visible ? "" : Utils.formatDate(model.date)
                 }
             }
             MouseArea {
@@ -146,7 +143,12 @@ Page {
                 }
             }
 
-            onVisibleChanged: if (visible) positionViewAtEnd()
+            onVisibleChanged: {
+                if (root._pendingScroll) {
+                    root._pendingScroll = false
+                    positionViewAtEnd()
+                }
+            }
         }
 
         Label {

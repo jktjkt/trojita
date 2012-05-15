@@ -2,6 +2,7 @@ import QtQuick 1.1
 import com.nokia.meego 1.0
 import com.nokia.extras 1.1
 import net.flaska.QNAMWebView 1.0
+import "Utils.js" as Utils
 
 Page {
     property string mailbox
@@ -21,16 +22,38 @@ Page {
             Column {
                 id: col
 
+                AddressWidget {
+                    caption: qsTr("From")
+                    address: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.from[0] : undefined
+                    width: view.width
+                }
+                AddressWidget {
+                    caption: qsTr("To")
+                    address: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.to[0] : undefined
+                    width: view.width
+                }
+                AddressWidget {
+                    caption: qsTr("Cc")
+                    address: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.cc[0] : undefined
+                    width: view.width
+                }
+                AddressWidget {
+                    caption: qsTr("Bcc")
+                    address: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.bcc[0] : undefined
+                    width: view.width
+                }
+
                 Label {
                     id: dateLabel
                     width: view.width
-                    text: imapAccess.oneMessageModel ? qsTr("Date: ") + imapAccess.oneMessageModel.date : ""
+                    text: imapAccess.oneMessageModel ? qsTr("<b>Date:</b> ") + Utils.formatDateDetailed(imapAccess.oneMessageModel.date) : ""
                 }
+
                 Label {
                     id: subjectLabel
                     width: view.width
                     wrapMode: Text.Wrap
-                    text: imapAccess.oneMessageModel ? qsTr("Subject: ") + imapAccess.oneMessageModel.subject : ""
+                    text: imapAccess.oneMessageModel ? qsTr("<b>Subject:</b> ") + imapAccess.oneMessageModel.subject : ""
                 }
 
                 QNAMWebView {
@@ -38,7 +61,6 @@ Page {
                     networkAccessManager: imapAccess.msgQNAM
 
                     preferredWidth: view.width
-                    preferredHeight: view.height
 
                     // Without specifying the width here, plaintext e-mails would cause useless horizontal scrolling
                     width: parent.width
@@ -49,6 +71,32 @@ Page {
                     settings.userStyleSheetUrl: "data:text/css;charset=utf-8;base64," +
                                                 Qt.btoa("* {color: white; background: black; font-size: " +
                                                         UiConstants.BodyTextFont.pixelSize + "px;};")
+                }
+
+                // FIXME: move this to a dedicated page...
+                Component {
+                    id: attachmentItemDelegate
+
+                    Label {
+                        id: lbl
+                        text: "Attachment " + (model.fileName.length ? model.fileName + " " : "") + "(" + model.mimeType +
+                              (model.size ?
+                                   "): " + imapAccess.prettySize(model.size) :
+                                   ")")
+                        width: attachmentsView.width
+                        height: 40
+                    }
+                }
+
+                ListView {
+                    id: attachmentsView
+                    interactive: false
+                    width: view.width
+                    // FIXME: magic constants...
+                    height: count * 40 + 30
+                    // FIXME: filter out the main part from the view (in C++, of course)
+                    model: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.attachmentsModel : undefined
+                    delegate: attachmentItemDelegate
                 }
             }
         }

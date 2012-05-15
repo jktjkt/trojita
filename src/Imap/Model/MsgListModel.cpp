@@ -435,6 +435,7 @@ void MsgListModel::setMailbox(const QModelIndex &index)
     Q_ASSERT(newList);
     if (newList != msgList && mbox->isSelectable()) {
         msgList = newList;
+        msgList->resetWasUnreadState();
         reset();
         emit mailboxChanged();
         // We want to tell the Model that it should consider starting the IDLE command.

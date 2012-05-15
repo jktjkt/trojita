@@ -27,6 +27,8 @@
 #include <QUrl>
 #include <QVariant>
 
+class KDescendantsProxyModel;
+
 /** @short Namespace for IMAP interaction */
 namespace Imap
 {
@@ -60,6 +62,7 @@ class OneMessageModel: public QObject
     Q_PROPERTY(bool isMarkedReplied READ isMarkedReplied NOTIFY envelopeChanged)
     Q_PROPERTY(bool isMarkedRecent READ isMarkedRecent NOTIFY envelopeChanged)
     Q_PROPERTY(QUrl mainPartUrl READ mainPartUrl NOTIFY mainPartUrlChanged)
+    Q_PROPERTY(QObject* attachmentsModel READ attachmentsModel NOTIFY mainPartUrlChanged)
 
 public:
     OneMessageModel(Model *model);
@@ -80,6 +83,7 @@ public:
     bool isMarkedReplied() const;
     bool isMarkedRecent() const;
     QUrl mainPartUrl() const;
+    QObject *attachmentsModel() const;
 
     Q_INVOKABLE void setMessage(const QString &mailbox, const uint uid);
     void setMessage(const QModelIndex &message);
@@ -91,6 +95,7 @@ signals:
 private:
     QPersistentModelIndex m_message;
     SubtreeModel *m_subtree;
+    KDescendantsProxyModel *m_flatteningModel;
     QUrl m_mainPartUrl;
 };
 

@@ -214,6 +214,15 @@ void MainWindow::createActions()
     }
     connect(actionThreadMsgList, SIGNAL(triggered(bool)), this, SLOT(slotThreadMsgList()));
 
+    actionHideRead = new QAction(tr("Hide Read Messages"), this);
+    actionHideRead->setCheckable(true);
+    addAction(actionHideRead);
+    if (QSettings().value(Common::SettingsNames::guiMsgListHideRead).toBool()) {
+        actionHideRead->setChecked(true);
+        prettyMsgListModel->setHideRead(true);
+    }
+    connect(actionHideRead, SIGNAL(triggered(bool)), this, SLOT(slotHideRead()));
+
     aboutTrojita = new QAction(trUtf8("About Trojitá..."), this);
     connect(aboutTrojita, SIGNAL(triggered()), this, SLOT(slotShowAboutTrojita()));
 
@@ -269,6 +278,7 @@ void MainWindow::createMenus()
 
     QMenu *viewMenu = menuBar()->addMenu(tr("View"));
     viewMenu->addAction(actionThreadMsgList);
+    viewMenu->addAction(actionHideRead);
 
     QMenu *mailboxMenu = menuBar()->addMenu(tr("Mailbox"));
     mailboxMenu->addAction(resyncMbox);
@@ -1129,6 +1139,13 @@ void MainWindow::slotThreadMsgList()
         msgListTree->setRootIsDecorated(false);
     }
     QSettings().setValue(Common::SettingsNames::guiMsgListShowThreading, QVariant(useThreading));
+}
+
+void MainWindow::slotHideRead()
+{
+    const bool hideRead = actionHideRead->isChecked();
+    prettyMsgListModel->setHideRead(hideRead);
+    QSettings().setValue(Common::SettingsNames::guiMsgListHideRead, QVariant(hideRead));
 }
 
 void MainWindow::slotCapabilitiesUpdated(const QStringList &capabilities)

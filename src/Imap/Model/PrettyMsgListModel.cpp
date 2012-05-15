@@ -32,7 +32,7 @@ namespace Imap
 namespace Mailbox
 {
 
-PrettyMsgListModel::PrettyMsgListModel(QObject *parent): QSortFilterProxyModel(parent)
+PrettyMsgListModel::PrettyMsgListModel(QObject *parent): QSortFilterProxyModel(parent), m_hideRead(false)
 {
     setDynamicSortFilter(true);
 }
@@ -170,6 +170,26 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
     }
 
     return QSortFilterProxyModel::data(index, role);
+}
+
+void PrettyMsgListModel::setHideRead(bool value)
+{
+    m_hideRead = value;
+    invalidateFilter();
+}
+
+bool PrettyMsgListModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
+{
+    if (!m_hideRead)
+        return true;
+
+    QModelIndex source_index = sourceModel()->index(source_row, 0, source_parent);
+
+    for (QModelIndex test = source_index; test.isValid(); test = test.parent())
+        if (test.data(RoleThreadRootWithUnreadMessages).toBool() || test.data(RoleMessageWasUnread).toBool())
+            return true;
+
+    return false;
 }
 
 }

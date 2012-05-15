@@ -20,6 +20,7 @@
 */
 
 #include "OneMessageModel.h"
+#include "kdeui-itemviews/kdescendantsproxymodel.h"
 #include "FindInterestingPart.h"
 #include "ItemRoles.h"
 #include "Model.h"
@@ -36,6 +37,20 @@ OneMessageModel::OneMessageModel(Model *model): QObject(model), m_subtree(0)
     m_subtree->setSourceModel(model);
     connect(m_subtree, SIGNAL(modelReset()), this, SIGNAL(envelopeChanged()));
     connect(m_subtree, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(envelopeChanged()));
+    m_flatteningModel = new KDescendantsProxyModel(this);
+    m_flatteningModel->setSourceModel(m_subtree);
+    QHash<int, QByteArray> roleNames;
+    roleNames[RoleIsFetched] = "isFetched";
+    roleNames[RolePartMimeType] = "mimeType";
+    roleNames[RolePartCharset] = "charset";
+    roleNames[RolePartEncoding] = "encoding";
+    roleNames[RolePartBodyFldId] = "bodyFldId";
+    roleNames[RolePartBodyDisposition] = "bodyDisposition";
+    roleNames[RolePartFileName] = "fileName";
+    roleNames[RolePartOctets] = "size";
+    roleNames[RolePartId] = "partId";
+    roleNames[RolePartPathToPart] = "pathToPart";
+    m_flatteningModel->setRoleNames(roleNames);
 }
 
 void OneMessageModel::setMessage(const QString &mailbox, const uint uid)
@@ -156,6 +171,11 @@ bool OneMessageModel::isMarkedRecent() const
 QUrl OneMessageModel::mainPartUrl() const
 {
     return m_mainPartUrl;
+}
+
+QObject *OneMessageModel::attachmentsModel() const
+{
+    return m_flatteningModel;
 }
 
 }
