@@ -22,6 +22,7 @@
 #include "Imap/Network/FileDownloadManager.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/Utils.h"
 
 #include <QDesktopServices>
 #include <QFileDialog>
@@ -38,8 +39,10 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
 {
     fileDownloadManager = new Imap::Network::FileDownloadManager(this, manager, partIndex);
     QHBoxLayout *layout = new QHBoxLayout(this);
-    QLabel *lbl = new QLabel(tr("Attachment %1 (%2)").arg(partIndex.data(Imap::Mailbox::RolePartFileName).toString(),
-                             partIndex.data(Imap::Mailbox::RolePartMimeType).toString()));
+    QLabel *lbl = new QLabel(tr("Attachment %1 (%2, %3)").arg(partIndex.data(Imap::Mailbox::RolePartFileName).toString(),
+                             partIndex.data(Imap::Mailbox::RolePartMimeType).toString(),
+                             Imap::Mailbox::PrettySize::prettySize(partIndex.data(Imap::Mailbox::RolePartOctets).toUInt(),
+                                                                   Imap::Mailbox::PrettySize::WITH_BYTES_SUFFIX)));
     layout->addWidget(lbl);
     QPushButton *downloadButton = new QPushButton(tr("Download"));
     downloadButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
