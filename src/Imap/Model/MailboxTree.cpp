@@ -785,6 +785,11 @@ QVariant TreeItemMessage::data(Model *const model, int role)
 
         return QDate(timestamp.date().year(), timestamp.date().month(), 1).toString(Model::tr("MMMM yyyy"));
     }
+    case RoleMessageWasUnread:
+        return m_wasUnread;
+    case RoleThreadRootWithUnreadMessages:
+        // This one doesn't really make much sense here, but we do want to catch it to prevent a fetch request from this context
+        return QVariant();
     }
 
     // Any other roles will result in fetching the data
@@ -821,8 +826,6 @@ QVariant TreeItemMessage::data(Model *const model, int role)
         return isMarkedAsDeleted();
     case RoleMessageIsMarkedRead:
         return isMarkedAsRead();
-    case RoleMessageWasUnread:
-        return m_wasUnread;
     case RoleMessageIsMarkedForwarded:
         return isMarkedAsForwarded();
     case RoleMessageIsMarkedReplied:
