@@ -670,7 +670,7 @@ bool TreeItemMsgList::numbersFetched() const
 
 
 TreeItemMessage::TreeItemMessage(TreeItem *parent):
-    TreeItem(parent), m_size(0), m_uid(0), m_flagsHandled(false), m_offset(-1), m_partHeader(0), m_partText(0), m_wasUnread(false)
+    TreeItem(parent), m_size(0), m_uid(0), m_flagsHandled(false), m_offset(-1), m_wasUnread(false), m_partHeader(0), m_partText(0)
 {
 }
 
