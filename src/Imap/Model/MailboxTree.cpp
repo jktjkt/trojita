@@ -752,22 +752,17 @@ QVariant TreeItemMessage::data(Model *const model, int role)
     if (! m_parent)
         return QVariant();
 
-    // This one is special, UID doesn't depend on fetch() and should not trigger it, either
-    if (role == RoleMessageUid)
+    // Special item roles which should not trigger fetching of message metadata
+    switch (role) {
+    case RoleMessageUid:
         return m_uid ? QVariant(m_uid) : QVariant();
-
-    // The same for RoleIsFetched
-    if (role == RoleIsFetched)
+    case RoleIsFetched:
         return fetched();
-
-    // FLAGS shouldn't trigger message fetching, either
-    if (role == RoleMessageFlags) {
+    case RoleMessageFlags:
         // The flags are already sorted by Model::normalizeFlags()
         return m_flags;
-    }
-
-    // This one is special. We do not want to trigger message fetching yet.
-    if (role == RoleMessageFuzzyDate) {
+    case RoleMessageFuzzyDate:
+    {
         // When the QML ListView is configured with its section.* properties, it will call the corresponding data() section *very*
         // often.  The data are however only "needed" when the real items are visible, and when they are visible, the data() will
         // get called anyway and the correct stuff will ultimately arrive.  This is why we don't call fetch() from here.
@@ -790,7 +785,9 @@ QVariant TreeItemMessage::data(Model *const model, int role)
 
         return QDate(timestamp.date().year(), timestamp.date().month(), 1).toString(Model::tr("MMMM yyyy"));
     }
+    }
 
+    // Any other roles will result in fetching the data
     fetch(model);
 
     switch (role) {
