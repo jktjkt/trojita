@@ -89,6 +89,9 @@ enum {
     RoleMessageSize,
     /** @short Status of the \Seen flag */
     RoleMessageIsMarkedRead,
+    /** @short Was unread when mailbox opened, or has been marked unread. This flag is transient and is recalculated
+     *         when switching mailboxes. */
+    RoleMessageWasUnread,
     /** @short Status of the \Deleted flag */
     RoleMessageIsMarkedDeleted,
     /** @short Was the message forwarded? */

@@ -641,6 +641,8 @@ void TreeItemMsgList::recalcVariousMessageCounts(Model *model)
     m_recentMessageCount = 0;
     for (int i = 0; i < m_children.size(); ++i) {
         TreeItemMessage *message = static_cast<TreeItemMessage *>(m_children[i]);
+        if (!message->m_flagsHandled)
+            message->m_wasUnread = ! message->isMarkedAsRead();
         message->m_flagsHandled = true;
         if (! message->isMarkedAsRead())
             ++m_unreadMessageCount;
@@ -652,6 +654,14 @@ void TreeItemMsgList::recalcVariousMessageCounts(Model *model)
     model->emitMessageCountChanged(static_cast<TreeItemMailbox *>(parent()));
 }
 
+void TreeItemMsgList::resetWasUnreadState()
+{
+    for (int i = 0; i < m_children.size(); ++i) {
+        TreeItemMessage *message = static_cast<TreeItemMessage *>(m_children[i]);
+        message->m_wasUnread = ! message->isMarkedAsRead();
+    }
+}
+
 bool TreeItemMsgList::numbersFetched() const
 {
     return fetched() || m_numberFetchingStatus == DONE;
@@ -660,7 +670,7 @@ bool TreeItemMsgList::numbersFetched() const
 
 
 TreeItemMessage::TreeItemMessage(TreeItem *parent):
-    TreeItem(parent), m_size(0), m_uid(0), m_flagsHandled(false), m_offset(-1), m_partHeader(0), m_partText(0)
+    TreeItem(parent), m_size(0), m_uid(0), m_flagsHandled(false), m_offset(-1), m_partHeader(0), m_partText(0), m_wasUnread(false)
 {
 }
 
@@ -814,6 +824,8 @@ QVariant TreeItemMessage::data(Model *const model, int role)
         return isMarkedAsDeleted();
     case RoleMessageIsMarkedRead:
         return isMarkedAsRead();
+    case RoleMessageWasUnread:
+        return m_wasUnread;
     case RoleMessageIsMarkedForwarded:
         return isMarkedAsForwarded();
     case RoleMessageIsMarkedReplied:
@@ -892,6 +904,7 @@ uint TreeItemMessage::size(Model *const model)
 
 void TreeItemMessage::setFlags(TreeItemMsgList *list, const QStringList &flags, bool forceChange)
 {
+    // wasSeen is used to determine if the message was marked as read before this operation
     bool wasSeen = isMarkedAsRead();
     m_flags = flags;
     if (list->m_numberFetchingStatus == DONE && forceChange) {
@@ -899,6 +912,8 @@ void TreeItemMessage::setFlags(TreeItemMsgList *list, const QStringList &flags, 
         if (m_flagsHandled) {
             if (wasSeen && !isSeen) {
                 ++list->m_unreadMessageCount;
+                // leave the message as "was unread" so it persists in the view when read messages are hidden
+                m_wasUnread = true;
             } else if (!wasSeen && isSeen) {
                 --list->m_unreadMessageCount;
             }
@@ -907,6 +922,8 @@ void TreeItemMessage::setFlags(TreeItemMsgList *list, const QStringList &flags, 
             m_flagsHandled = true;
             if (!isSeen) {
                 ++list->m_unreadMessageCount;
+                // mark the message as "was unread" so it shows up in the view when read messages are hidden
+                m_wasUnread = true;
             }
         }
     }

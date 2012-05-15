@@ -40,6 +40,7 @@ struct SettingsNames {
     static QString xtConnectCacheDirectory, xtSyncMailboxList, xtDbHost, xtDbPort,
            xtDbDbName, xtDbUser;
     static QString guiMsgListShowThreading;
+    static QString guiMsgListHideRead;
     static QString appLoadHomepage;
     static QString knownEmailsKey;
 };
