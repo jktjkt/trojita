@@ -79,7 +79,7 @@ Page {
 
                     Label {
                         id: lbl
-                        text: "Attachment " + model.fileName + "(" + model.mimeType +
+                        text: "Attachment " + (model.fileName.length ? model.fileName + " " : "") + "(" + model.mimeType +
                               (model.size ?
                                    "): " + imapAccess.prettySize(model.size) :
                                    ")")
