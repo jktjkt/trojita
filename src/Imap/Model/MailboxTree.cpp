@@ -913,7 +913,7 @@ void TreeItemMessage::setFlags(TreeItemMsgList *list, const QStringList &flags, 
 }
 
 
-TreeItemPart::TreeItemPart(TreeItem *parent, const QString &mimeType): TreeItem(parent), m_mimeType(mimeType.toLower())
+TreeItemPart::TreeItemPart(TreeItem *parent, const QString &mimeType): TreeItem(parent), m_mimeType(mimeType.toLower()), m_octets(0)
 {
     if (isTopLevelMultiPart()) {
         // Note that top-level multipart messages are special, their immediate contents
