@@ -34,7 +34,7 @@ namespace Imap
 namespace Mailbox
 {
 
-QString PrettySize::prettySize(uint bytes)
+QString PrettySize::prettySize(uint bytes, const ShowBytesSuffix compactUnitFormat)
 {
     if (bytes == 0) {
         return tr("0");
@@ -42,7 +42,10 @@ QString PrettySize::prettySize(uint bytes)
     int order = std::log(static_cast<double>(bytes)) / std::log(1024.0);
     QString suffix;
     if (order <= 0) {
-        return QString::number(bytes);
+        if (compactUnitFormat == COMPACT_FORM)
+            return QString::number(bytes);
+        else
+            return tr("%1 bytes").arg(QString::number(bytes));
     } else if (order == 1) {
         suffix = tr("kB");
     } else if (order == 2) {
