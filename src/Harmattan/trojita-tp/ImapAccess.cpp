@@ -197,5 +197,5 @@ void ImapAccess::openMessage(const QString &mailboxName, const uint uid)
 
 QString ImapAccess::prettySize(const uint bytes) const
 {
-    return Imap::Mailbox::PrettySize::prettySize(bytes);
+    return Imap::Mailbox::PrettySize::prettySize(bytes, Imap::Mailbox::PrettySize::WITH_BYTES_SUFFIX);
 }
