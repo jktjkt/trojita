@@ -79,7 +79,10 @@ Page {
 
                     Label {
                         id: lbl
-                        text: "Attachment " + model.fileName + "(" + model.mimeType + "): " + imapAccess.prettySize(model.size)
+                        text: "Attachment " + model.fileName + "(" + model.mimeType +
+                              (model.size ?
+                                   "): " + imapAccess.prettySize(model.size) :
+                                   ")")
                         width: attachmentsView.width
                         height: 40
                     }
