@@ -323,21 +323,21 @@ void ThreadingMsgListModel::handleRowsAboutToBeRemoved(const QModelIndex &parent
         QModelIndex index = sourceModel()->index(i, 0, parent);
         Q_ASSERT(index.isValid());
         uint uid = index.data(Imap::Mailbox::RoleMessageUid).toUInt();
-        if (uid) {
-            // Removing a message with an already known UID. We'll just mark it for deletion.
-            QModelIndex translated = mapFromSource(index);
-            Q_ASSERT(translated.isValid());
-            QHash<uint,ThreadNodeInfo>::iterator it = threading.find(translated.internalId());
-            Q_ASSERT(it != threading.end());
-            it->uid = 0;
-            it->ptr = 0;
-            // it will get cleaned up by the pruneTree call later on
-        } else {
+        QModelIndex translated = mapFromSource(index);
+        Q_ASSERT(translated.isValid());
+        QHash<uint,ThreadNodeInfo>::iterator it = threading.find(translated.internalId());
+        Q_ASSERT(it != threading.end());
+        it->uid = 0;
+        it->ptr = 0;
+        // it will get cleaned up by the pruneTree call later on
+        if (!uid) {
             // removing message without a UID
             unknownUids.removeOne(index);
             // such a message is not in the mapping yet, and therefore invisible
         }
     }
+    emit layoutAboutToBeChanged();
+    pruneTree();
 }
 
 void ThreadingMsgListModel::handleRowsRemoved(const QModelIndex &parent, int start, int end)
@@ -350,9 +350,6 @@ void ThreadingMsgListModel::handleRowsRemoved(const QModelIndex &parent, int sta
     // It looks like this simplified approach won't really fly when model starts to issue interleaved rowsRemoved signals,
     // as we'll just remove everything upon first rowsRemoved.  I'll just hope that it doesn't matter (much).
 
-    emit layoutAboutToBeChanged();
-    updatePersistentIndexesPhase1();
-    pruneTree();
     updatePersistentIndexesPhase2();
     emit layoutChanged();
 }
