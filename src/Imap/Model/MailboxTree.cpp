@@ -473,11 +473,11 @@ void TreeItemMailbox::handleExpunge(Model *const model, const Responses::NumberR
     model->beginRemoveRows(list->toIndex(model), offset, offset);
     TreeItemMessage *message = static_cast<TreeItemMessage *>(list->m_children.takeAt(offset));
     model->cache()->clearMessage(static_cast<TreeItemMailbox *>(list->parent())->mailbox(), message->uid());
-    delete message;
     for (int i = offset; i < list->m_children.size(); ++i) {
         --static_cast<TreeItemMessage *>(list->m_children[i])->m_offset;
     }
     model->endRemoveRows();
+    delete message;
 
     --list->m_totalMessageCount;
     list->recalcVariousMessageCounts(const_cast<Model *>(model));

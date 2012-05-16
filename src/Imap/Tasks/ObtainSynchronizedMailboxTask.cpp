@@ -262,9 +262,10 @@ void ObtainSynchronizedMailboxTask::fullMboxSync(TreeItemMailbox *mailbox, TreeI
     QModelIndex parent = list->toIndex(model);
     if (! list->m_children.isEmpty()) {
         model->beginRemoveRows(parent, 0, list->m_children.size() - 1);
-        qDeleteAll(list->m_children);
+        QList<TreeItem*> oldItems = list->m_children;
         list->m_children.clear();
         model->endRemoveRows();
+        qDeleteAll(oldItems);
     }
     if (syncState.exists()) {
         model->beginInsertRows(parent, 0, syncState.exists() - 1);
@@ -657,8 +658,10 @@ void ObtainSynchronizedMailboxTask::finalizeUidSyncAll(TreeItemMailbox *mailbox)
         // the mailbox is empty
         if (list->m_children.size() > 0) {
             model->beginRemoveRows(parent, 0, list->m_children.size() - 1);
-            qDeleteAll(list->setChildren(QList<TreeItem *>()));
+            QList<TreeItem*> oldItems = list->m_children;
+            list->m_children.clear();
             model->endRemoveRows();
+            qDeleteAll(oldItems);
             model->cache()->clearAllMessages(mailbox->mailbox());
         }
     } else {
@@ -689,9 +692,10 @@ void ObtainSynchronizedMailboxTask::finalizeUidSyncAll(TreeItemMailbox *mailbox)
                         // this message is free to go
                         model->cache()->clearMessage(mailbox->mailbox(), message->uid());
                         model->beginRemoveRows(parent, pos, pos);
-                        delete list->m_children.takeAt(pos);
+                        TreeItem *msg = list->m_children.takeAt(pos);
                         // the _offset of all subsequent messages will be updated later
                         model->endRemoveRows();
+                        delete msg;
                     } else {
                         // this message is the correct one -> keep it, go to the next UID
                         found = true;
@@ -714,12 +718,14 @@ void ObtainSynchronizedMailboxTask::finalizeUidSyncAll(TreeItemMailbox *mailbox)
         if (uidMap.size() != list->m_children.size()) {
             // remove items at the end
             model->beginRemoveRows(parent, uidMap.size(), list->m_children.size() - 1);
+            QList<TreeItem*> oldItems;
             for (int i = uidMap.size(); i < list->m_children.size(); ++i) {
                 TreeItemMessage *message = static_cast<TreeItemMessage *>(list->m_children.takeAt(i));
                 model->cache()->clearMessage(mailbox->mailbox(), message->uid());
-                delete message;
+                oldItems << message;
             }
             model->endRemoveRows();
+            qDeleteAll(oldItems);
         }
     }
 
