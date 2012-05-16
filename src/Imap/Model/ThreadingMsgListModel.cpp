@@ -50,8 +50,8 @@ namespace Imap
 namespace Mailbox
 {
 
-ThreadingMsgListModel::ThreadingMsgListModel(QObject *parent): QAbstractProxyModel(parent), modelResetInProgress(false),
-    threadingInFlight(false)
+ThreadingMsgListModel::ThreadingMsgListModel(QObject *parent):
+    QAbstractProxyModel(parent), threadingHelperLastId(0), modelResetInProgress(false), threadingInFlight(false)
 {
 }
 
