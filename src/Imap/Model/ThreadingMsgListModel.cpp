@@ -191,11 +191,6 @@ QModelIndex ThreadingMsgListModel::parent(const QModelIndex &index) const
     if (parentNode->internalId == 0)
         return QModelIndex();
 
-    QHash<uint,ThreadNodeInfo>::const_iterator grantParentNode = threading.constFind(parentNode->parent);
-    Q_ASSERT(grantParentNode != threading.constEnd());
-    Q_ASSERT(grantParentNode->internalId == parentNode->parent);
-    Q_ASSERT(grantParentNode->children.indexOf(parentNode->internalId) == parentNode->offset);
-
     return createIndex(parentNode->offset, 0, parentNode->internalId);
 }
 
@@ -264,14 +259,6 @@ QModelIndex ThreadingMsgListModel::mapFromSource(const QModelIndex &sourceIndex)
 
     QHash<uint,ThreadNodeInfo>::const_iterator node = threading.constFind(internalId);
     Q_ASSERT(node != threading.constEnd());
-
-    QHash<uint,ThreadNodeInfo>::const_iterator parentNode = threading.constFind(node->parent);
-    // If the following assert fails, it means that we've managed to get a malformed thread mapping -- a tree item references
-    // a non-existing item as a parent.  Remember, we're checking the threading QHash, not the ptrToInternal one.
-    Q_ASSERT(parentNode != threading.constEnd());
-    int offset = parentNode->children.indexOf(internalId);
-    Q_ASSERT(offset != -1);
-    Q_ASSERT(node->offset == offset);
 
     return createIndex(node->offset, sourceIndex.column(), internalId);
 }
@@ -802,11 +789,6 @@ void ThreadingMsgListModel::updatePersistentIndexesPhase2()
         }
         QHash<uint,ThreadNodeInfo>::const_iterator it = threading.constFind(*ptrIt);
         Q_ASSERT(it != threading.constEnd());
-        QHash<uint,ThreadNodeInfo>::const_iterator parentNode = threading.constFind(it->parent);
-        Q_ASSERT(parentNode != threading.constEnd());
-        int offset = parentNode->children.indexOf(it->internalId);
-        Q_ASSERT(offset != -1);
-        Q_ASSERT(offset == it->offset);
         updatedIndexes.append(createIndex(it->offset, oldPersistentIndexes[i].column(), it->internalId));
     }
     Q_ASSERT(oldPersistentIndexes.size() == updatedIndexes.size());
