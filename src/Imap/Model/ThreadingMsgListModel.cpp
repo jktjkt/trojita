@@ -94,12 +94,6 @@ void ThreadingMsgListModel::setSourceModel(QAbstractItemModel *sourceModel)
 
 void ThreadingMsgListModel::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
-    if (topLeft.row() != bottomRight.row()) {
-        // FIXME: Batched updates...
-        Q_ASSERT(false);
-        return;
-    }
-
     QSet<QPersistentModelIndex>::iterator persistent = unknownUids.find(topLeft);
     if (persistent != unknownUids.end()) {
         // The message wasn't fully synced before, and now it is
@@ -110,34 +104,24 @@ void ThreadingMsgListModel::handleDataChanged(const QModelIndex &topLeft, const 
         return;
     }
 
-    QModelIndex first = mapFromSource(topLeft);
-    QModelIndex second = mapFromSource(bottomRight);
+    // We don't support updates which concern multiple rows at this time.
+    // Doing that would very likely require a completely different codepath due to threading...
+    Q_ASSERT(topLeft.parent() == bottomRight.parent());
+    Q_ASSERT(topLeft.row() == bottomRight.row());
+    QModelIndex translated = mapFromSource(topLeft);
 
-    // There's a possibility for a short race window when te underlying model signals
-    // new data for a message but said message doesn't have threading info (or even known UID) yet. Therefore,
-    // the translated indexes are invalid, so we have to handle that gracefully.
-    // "Doing nothing" could be a reasonable thing.
-    if (! first.isValid() || ! second.isValid()) {
-        logTrace(QString::fromAscii("Got dataChanged() for an index which is not recognized in the threaded proxy"));
-        return;
-    }
-
-    emit dataChanged(first, second);
+    emit dataChanged(translated, translated.sibling(translated.row(), bottomRight.column()));
 
     // We provide funny data like "does this thread contain unread messages?". Now the original signal might mean that flags of a
     // nested message have changed. In order to always be consistent, we have to find the thread root and emit dataChanged() on that
     // as well.
-
-    // This is really required for this naive algorithm
-    Q_ASSERT(first.row() == second.row() && first.parent() == second.parent());
-
-    QModelIndex rootCandidate = first;
+    QModelIndex rootCandidate = translated;
     while (rootCandidate.parent().isValid()) {
         rootCandidate = rootCandidate.parent();
     }
-    if (rootCandidate != first) {
+    if (rootCandidate != translated) {
         // We're really an embedded message
-        emit dataChanged(rootCandidate, rootCandidate.sibling(rootCandidate.row(), second.column()));
+        emit dataChanged(rootCandidate, rootCandidate.sibling(rootCandidate.row(), translated.column()));
     }
 }
 
