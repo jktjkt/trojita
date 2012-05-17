@@ -104,7 +104,6 @@ void ThreadingMsgListModel::handleDataChanged(const QModelIndex &topLeft, const 
     if (persistent != unknownUids.end()) {
         // The message wasn't fully synced before, and now it is
         persistent = unknownUids.erase(persistent);
-        logTrace(QString::fromAscii("Got UID for seq# %1").arg(topLeft.row() + 1));
         if (unknownUids.isEmpty()) {
             wantThreading();
         }
