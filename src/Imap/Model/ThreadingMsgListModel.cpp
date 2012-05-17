@@ -194,8 +194,9 @@ QModelIndex ThreadingMsgListModel::parent(const QModelIndex &index) const
     QHash<uint,ThreadNodeInfo>::const_iterator grantParentNode = threading.constFind(parentNode->parent);
     Q_ASSERT(grantParentNode != threading.constEnd());
     Q_ASSERT(grantParentNode->internalId == parentNode->parent);
+    Q_ASSERT(grantParentNode->children.indexOf(parentNode->internalId) == parentNode->offset);
 
-    return createIndex(grantParentNode->children.indexOf(parentNode->internalId), 0, parentNode->internalId);
+    return createIndex(parentNode->offset, 0, parentNode->internalId);
 }
 
 bool ThreadingMsgListModel::hasChildren(const QModelIndex &parent) const
@@ -270,8 +271,9 @@ QModelIndex ThreadingMsgListModel::mapFromSource(const QModelIndex &sourceIndex)
     Q_ASSERT(parentNode != threading.constEnd());
     int offset = parentNode->children.indexOf(internalId);
     Q_ASSERT(offset != -1);
+    Q_ASSERT(node->offset == offset);
 
-    return createIndex(offset, sourceIndex.column(), internalId);
+    return createIndex(node->offset, sourceIndex.column(), internalId);
 }
 
 QVariant ThreadingMsgListModel::data(const QModelIndex &proxyIndex, int role) const
@@ -377,6 +379,7 @@ void ThreadingMsgListModel::handleRowsInserted(const QModelIndex &parent, int st
         node.internalId = ++threadingHelperLastId;
         node.uid = uid;
         node.ptr = static_cast<TreeItem *>(index.internalPointer());
+        node.offset = threading[0].children.size();
         threading[node.internalId] = node;
         threading[0].children << node.internalId;
         ptrToInternal[node.ptr] = node.internalId;
@@ -434,6 +437,7 @@ void ThreadingMsgListModel::updateNoThreading()
         node.internalId = i + 1;
         node.uid = uid;
         node.ptr = static_cast<TreeItem *>(index.internalPointer());
+        node.offset = i;
         newThreading[node.internalId] = node;
         allIds.append(node.internalId);
         newPtrToInternal[node.ptr] = node.internalId;
@@ -754,6 +758,7 @@ void ThreadingMsgListModel::registerThreading(const QVector<Imap::Responses::Thr
             Q_ASSERT(nodeIt != ptrToInternal.constEnd());
             nodeId = *nodeIt;
         }
+        threading[nodeId].offset = threading[parentId].children.size();
         threading[ parentId ].children.append(nodeId);
         threading[ nodeId ].parent = parentId;
         usedNodes.insert(nodeId);
@@ -801,7 +806,8 @@ void ThreadingMsgListModel::updatePersistentIndexesPhase2()
         Q_ASSERT(parentNode != threading.constEnd());
         int offset = parentNode->children.indexOf(it->internalId);
         Q_ASSERT(offset != -1);
-        updatedIndexes.append(createIndex(offset, oldPersistentIndexes[i].column(), it->internalId));
+        Q_ASSERT(offset == it->offset);
+        updatedIndexes.append(createIndex(it->offset, oldPersistentIndexes[i].column(), it->internalId));
     }
     Q_ASSERT(oldPersistentIndexes.size() == updatedIndexes.size());
     changePersistentIndexList(oldPersistentIndexes, updatedIndexes);
@@ -855,6 +861,7 @@ void ThreadingMsgListModel::pruneTree()
                 QHash<uint, ThreadNodeInfo>::iterator replaceWith = threading.find(it->children.first());
                 Q_ASSERT(replaceWith != threading.end());
 
+                replaceWith->offset = it->offset;
                 *childIt = it->children.first();
                 replaceWith->parent = parent->internalId;
 
@@ -865,6 +872,8 @@ void ThreadingMsgListModel::pruneTree()
                     Q_ASSERT(sibling != threading.end());
                     sibling->parent = replaceWith.key();
                     replaceWith->children.append(sibling.key());
+                    // We've moved the first of them one level up, so we got to adjust their offsets
+                    --sibling->offset;
                 }
 
                 threading.erase(it);
