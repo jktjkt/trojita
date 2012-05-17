@@ -104,7 +104,9 @@ void ThreadingMsgListModel::handleDataChanged(const QModelIndex &topLeft, const 
         // The message wasn't fully synced before, and now it is
         unknownUids.removeOne(topLeft);
         logTrace(QString::fromAscii("Got UID for seq# %1").arg(topLeft.row() + 1));
-        wantThreading();
+        if (unknownUids.isEmpty()) {
+            wantThreading();
+        }
         return;
     }
 
