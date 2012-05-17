@@ -337,7 +337,7 @@ void ThreadingMsgListModel::handleRowsAboutToBeRemoved(const QModelIndex &parent
         }
     }
     emit layoutAboutToBeChanged();
-    pruneTree();
+    updatePersistentIndexesPhase1();
 }
 
 void ThreadingMsgListModel::handleRowsRemoved(const QModelIndex &parent, int start, int end)
@@ -350,6 +350,7 @@ void ThreadingMsgListModel::handleRowsRemoved(const QModelIndex &parent, int sta
     // It looks like this simplified approach won't really fly when model starts to issue interleaved rowsRemoved signals,
     // as we'll just remove everything upon first rowsRemoved.  I'll just hope that it doesn't matter (much).
 
+    pruneTree();
     updatePersistentIndexesPhase2();
     emit layoutChanged();
 }
