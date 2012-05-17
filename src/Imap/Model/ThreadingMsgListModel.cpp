@@ -324,7 +324,6 @@ void ThreadingMsgListModel::handleRowsAboutToBeRemoved(const QModelIndex &parent
         if (!uid) {
             // removing message without a UID
             unknownUids.removeOne(index);
-            // such a message is not in the mapping yet, and therefore invisible
         }
     }
     emit layoutAboutToBeChanged();
