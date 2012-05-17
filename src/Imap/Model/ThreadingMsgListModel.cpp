@@ -100,9 +100,10 @@ void ThreadingMsgListModel::handleDataChanged(const QModelIndex &topLeft, const 
         return;
     }
 
-    if (unknownUids.contains(topLeft)) {
+    QSet<QPersistentModelIndex>::iterator persistent = unknownUids.find(topLeft);
+    if (persistent != unknownUids.end()) {
         // The message wasn't fully synced before, and now it is
-        unknownUids.removeOne(topLeft);
+        persistent = unknownUids.erase(persistent);
         logTrace(QString::fromAscii("Got UID for seq# %1").arg(topLeft.row() + 1));
         if (unknownUids.isEmpty()) {
             wantThreading();
@@ -323,7 +324,7 @@ void ThreadingMsgListModel::handleRowsAboutToBeRemoved(const QModelIndex &parent
         // it will get cleaned up by the pruneTree call later on
         if (!uid) {
             // removing message without a UID
-            unknownUids.removeOne(index);
+            unknownUids.remove(index);
         }
     }
     emit layoutAboutToBeChanged();
