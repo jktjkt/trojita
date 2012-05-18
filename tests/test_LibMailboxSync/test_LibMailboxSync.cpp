@@ -112,10 +112,6 @@ void LibMailboxSync::helperSyncAWithMessagesEmptyState()
 {
     // Ask the model to sync stuff
     QCOMPARE( model->rowCount( msgListA ), 0 );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-
     helperSyncAFullSync();
 }
 
@@ -317,7 +313,7 @@ void LibMailboxSync::helperSyncFlags()
     QByteArray expectedFetch = t.mk("FETCH ") +
             (existsA == 1 ? QByteArray("1") : QByteArray("1:") + QString::number(existsA).toAscii()) +
             QByteArray(" (FLAGS)\r\n");
-    QCOMPARE(SOCK->writtenStuff(), expectedFetch);
+    cClient(expectedFetch);
     QByteArray buf;
     for (uint i = 1; i <= existsA; ++i) {
         switch (i % 10) {
@@ -343,11 +339,8 @@ void LibMailboxSync::helperSyncFlags()
         }
         if (buf.size() > 10*1024) {
             // Flush the output buffer roughly every 10kB
-            SOCK->fakeReading(buf);
+            cServer(buf);
             buf.clear();
-            QCoreApplication::processEvents();
-            QCoreApplication::processEvents();
-            QCoreApplication::processEvents();
         }
     }
     // Now the ugly part -- we know that the Model has that habit of processing at most 100 responses at once and then returning
@@ -361,17 +354,13 @@ void LibMailboxSync::helperSyncFlags()
     for (uint i = 0; i < (existsA / 100) + 1; ++i)
         QCoreApplication::processEvents();
 
-    SOCK->fakeReading(buf + t.last("OK yay\r\n"));
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    cServer(buf + t.last("OK yay\r\n"));
 }
 
 /** @short Helper: update flags for some message */
 void LibMailboxSync::helperOneFlagUpdate( const QModelIndex &message )
 {
-    SOCK->fakeReading( QString::fromAscii("* %1 FETCH (FLAGS (\\SeEn fOo bar))\r\n").arg( message.row() + 1 ).toAscii() );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    cServer(QString::fromAscii("* %1 FETCH (FLAGS (\\SeEn fOo bar))\r\n").arg( message.row() + 1 ).toAscii());
     QStringList expectedFlags;
     expectedFlags << QLatin1String("\\Seen") << QLatin1String("fOo") << QLatin1String("bar");
     expectedFlags.sort();
@@ -383,9 +372,7 @@ void LibMailboxSync::helperSyncASomeNew( int number )
 {
     QCOMPARE( model->rowCount( msgListA ), static_cast<int>(existsA) );
     model->switchToMailbox( idxA );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
+    cClient(t.mk("SELECT a\r\n"));
 
     uint oldExistsA = existsA;
     for ( int i = 0; i < number; ++i ) {
@@ -394,9 +381,6 @@ void LibMailboxSync::helperSyncASomeNew( int number )
         ++uidNextA;
     }
     helperFakeExistsUidValidityUidNext();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
 
     // Verify that we indeed received what we wanted
     Imap::Mailbox::TreeItemMsgList* list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( static_cast<Imap::Mailbox::TreeItem*>( msgListA.internalPointer() ) );
@@ -449,11 +433,6 @@ void LibMailboxSync::helperCheckCache(bool ignoreUidNext)
     QCOMPARE( syncState.uidValidity(), uidValidityA );
     QCOMPARE( model->cache()->uidMapping( QString::fromAscii("a") ), uidMapA );
 
-
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-
+    cEmpty();
     QVERIFY( errorSpy->isEmpty() );
-    QVERIFY( SOCK->writtenStuff().isEmpty() );
 }
