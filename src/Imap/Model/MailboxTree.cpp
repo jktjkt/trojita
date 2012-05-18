@@ -499,11 +499,12 @@ void TreeItemMailbox::handleExists(Model *const model, const Responses::NumberRe
     int newArrivals = resp.number - list->m_children.size();
     if (newArrivals < 0) {
         throw UnexpectedResponseReceived("EXISTS response attempted to decrease number of messages", resp);
-    } else if (newArrivals == 0) {
+    }
+    syncState.setExists(resp.number);
+    if (newArrivals == 0) {
         // remains unchanged...
         return;
     }
-    syncState.setExists(resp.number);
     model->cache()->clearUidMapping(mailbox());
     model->cache()->setMailboxSyncState(mailbox(), syncState);
 
