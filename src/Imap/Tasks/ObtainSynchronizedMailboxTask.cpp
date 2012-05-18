@@ -658,102 +658,88 @@ void ObtainSynchronizedMailboxTask::finalizeUidSyncAll(TreeItemMailbox *mailbox)
 
     QModelIndex parent = list->toIndex(model);
 
-    if (uidMap.isEmpty()) {
-        // the mailbox is empty
-        if (list->m_children.size() > 0) {
-            model->beginRemoveRows(parent, 0, list->m_children.size() - 1);
-            QList<TreeItem*> oldItems = list->m_children;
-            list->m_children.clear();
-            model->endRemoveRows();
-            qDeleteAll(oldItems);
-            model->cache()->clearAllMessages(mailbox->mailbox());
-        }
-    } else {
-        // some messages are present *now*; they might or might not have been there before
-
-        int i = 0;
-        while (i < uidMap.size()) {
-            // For each UID which is really supposed to be there...
-            if (i >= list->m_children.size()) {
-                // now we're just adding new messages to the end of the list
-                model->beginInsertRows(parent, i, i - list->m_children.size());
-                for (/*nothing*/; i < list->m_children.size(); ++i) {
-                    // Add all messages in one go
-                    TreeItemMessage *msg = new TreeItemMessage(list);
-                    msg->m_offset = i;
-                    msg->m_uid = uidMap[i];
-                    list->m_children << msg;
-                }
-                model->endInsertRows();
-                Q_ASSERT(i == uidMap.size());
-                Q_ASSERT(uidMap.size() == list->m_children.size());
-            } else if (dynamic_cast<TreeItemMessage *>(list->m_children[i])->m_uid == uidMap[i]) {
-                // If the UID of the "current message" matches, we're okay
-                dynamic_cast<TreeItemMessage *>(list->m_children[i])->m_offset = i;
-                ++i;
-            } else if (dynamic_cast<TreeItemMessage *>(list->m_children[i])->m_uid == 0) {
-                // If the UID of the "current message" is zero, replace that with this message
-                TreeItemMessage *msg = static_cast<TreeItemMessage*>(list->m_children[i]);
-                msg->m_uid = uidMap[i];
+    int i = 0;
+    while (i < uidMap.size()) {
+        // For each UID which is really supposed to be there...
+        if (i >= list->m_children.size()) {
+            // now we're just adding new messages to the end of the list
+            model->beginInsertRows(parent, i, i - list->m_children.size());
+            for (/*nothing*/; i < list->m_children.size(); ++i) {
+                // Add all messages in one go
+                TreeItemMessage *msg = new TreeItemMessage(list);
                 msg->m_offset = i;
-                QModelIndex idx = model->createIndex(i, 0, msg);
-                emit model->dataChanged(idx, idx);
-                if (msg->m_fetchStatus == TreeItem::LOADING) {
-                    // We've got to ask for the message metadata once again; the first attempt happened when the UID was still zero,
-                    // so this is our chance
-                    model->askForMsgMetadata(msg);
-                }
-                ++i;
-            } else {
-                // We've got an UID mismatch
-                int pos = i;
-                while (pos < list->m_children.size()) {
-                    // Remove any messages which have non-zero UID which is at the same time different than the UID we want to add
-                    // The key idea here is that IMAP guarantees that each and every new message will have greater UID than any
-                    // other message already in the mailbox. Just for the sake of completeness, should an evil server send us a
-                    // malformed response, we wouldn't care (or notice at this point), we'd just "needlessly" delete many "innocent"
-                    // messages due to that one out-of-place arrival -- but we'd still remain correct and not crash.
-                    TreeItemMessage *otherMessage = dynamic_cast<TreeItemMessage*>(list->m_children[pos]);
-                    Q_ASSERT(otherMessage);
-                    if (otherMessage->m_uid != 0 && otherMessage->m_uid != uidMap[i]) {
-                        model->cache()->clearMessage(mailbox->mailbox(), otherMessage->uid());
-                        ++pos;
-                    } else {
-                        break;
-                    }
-                }
-                Q_ASSERT(pos > i);
-                model->beginRemoveRows(parent, i, pos - 1);
-                QList<TreeItem*> removedItems;
-                for (int j = i; j < pos; ++j)
-                    removedItems << list->m_children.takeAt(i);
-                model->endRemoveRows();
-                // the m_offset of all subsequent messages will be updated later, at the time *they* are processed
-                qDeleteAll(removedItems);
-                if (i == list->m_children.size()) {
-                    // We're asked to add messages to the end of the list. That's something that's already implemented above,
-                    // so let's reuse that code. That's why we do *not* want to increment the counter here.
+                msg->m_uid = uidMap[i];
+                list->m_children << msg;
+            }
+            model->endInsertRows();
+            Q_ASSERT(i == uidMap.size());
+            Q_ASSERT(uidMap.size() == list->m_children.size());
+        } else if (dynamic_cast<TreeItemMessage *>(list->m_children[i])->m_uid == uidMap[i]) {
+            // If the UID of the "current message" matches, we're okay
+            dynamic_cast<TreeItemMessage *>(list->m_children[i])->m_offset = i;
+            ++i;
+        } else if (dynamic_cast<TreeItemMessage *>(list->m_children[i])->m_uid == 0) {
+            // If the UID of the "current message" is zero, replace that with this message
+            TreeItemMessage *msg = static_cast<TreeItemMessage*>(list->m_children[i]);
+            msg->m_uid = uidMap[i];
+            msg->m_offset = i;
+            QModelIndex idx = model->createIndex(i, 0, msg);
+            emit model->dataChanged(idx, idx);
+            if (msg->m_fetchStatus == TreeItem::LOADING) {
+                // We've got to ask for the message metadata once again; the first attempt happened when the UID was still zero,
+                // so this is our chance
+                model->askForMsgMetadata(msg);
+            }
+            ++i;
+        } else {
+            // We've got an UID mismatch
+            int pos = i;
+            while (pos < list->m_children.size()) {
+                // Remove any messages which have non-zero UID which is at the same time different than the UID we want to add
+                // The key idea here is that IMAP guarantees that each and every new message will have greater UID than any
+                // other message already in the mailbox. Just for the sake of completeness, should an evil server send us a
+                // malformed response, we wouldn't care (or notice at this point), we'd just "needlessly" delete many "innocent"
+                // messages due to that one out-of-place arrival -- but we'd still remain correct and not crash.
+                TreeItemMessage *otherMessage = dynamic_cast<TreeItemMessage*>(list->m_children[pos]);
+                Q_ASSERT(otherMessage);
+                if (otherMessage->m_uid != 0 && otherMessage->m_uid != uidMap[i]) {
+                    model->cache()->clearMessage(mailbox->mailbox(), otherMessage->uid());
+                    ++pos;
                 } else {
-                    Q_ASSERT(i < list->m_children.size());
-                    Q_ASSERT(dynamic_cast<TreeItemMessage*>(list->m_children[i])->m_uid == 0);
-                    // But this case is also already implemented above, so we won't touch the counter from here, either,
-                    // and let the existing code do its job
+                    break;
                 }
             }
-        }
-
-        if (uidMap.size() != list->m_children.size()) {
-            // remove items at the end
-            model->beginRemoveRows(parent, uidMap.size(), list->m_children.size() - 1);
-            QList<TreeItem*> oldItems;
-            for (int i = uidMap.size(); i < list->m_children.size(); ++i) {
-                TreeItemMessage *message = static_cast<TreeItemMessage *>(list->m_children.takeAt(i));
-                model->cache()->clearMessage(mailbox->mailbox(), message->uid());
-                oldItems << message;
-            }
+            Q_ASSERT(pos > i);
+            model->beginRemoveRows(parent, i, pos - 1);
+            QList<TreeItem*> removedItems;
+            for (int j = i; j < pos; ++j)
+                removedItems << list->m_children.takeAt(i);
             model->endRemoveRows();
-            qDeleteAll(oldItems);
+            // the m_offset of all subsequent messages will be updated later, at the time *they* are processed
+            qDeleteAll(removedItems);
+            if (i == list->m_children.size()) {
+                // We're asked to add messages to the end of the list. That's something that's already implemented above,
+                // so let's reuse that code. That's why we do *not* want to increment the counter here.
+            } else {
+                Q_ASSERT(i < list->m_children.size());
+                Q_ASSERT(dynamic_cast<TreeItemMessage*>(list->m_children[i])->m_uid == 0);
+                // But this case is also already implemented above, so we won't touch the counter from here, either,
+                // and let the existing code do its job
+            }
         }
+    }
+
+    if (uidMap.size() != list->m_children.size()) {
+        // remove items at the end
+        model->beginRemoveRows(parent, uidMap.size(), list->m_children.size() - 1);
+        QList<TreeItem*> oldItems;
+        for (int i = uidMap.size(); i < list->m_children.size(); ++i) {
+            TreeItemMessage *message = static_cast<TreeItemMessage *>(list->m_children.takeAt(i));
+            model->cache()->clearMessage(mailbox->mailbox(), message->uid());
+            oldItems << message;
+        }
+        model->endRemoveRows();
+        qDeleteAll(oldItems);
     }
 
     uidMap.clear();
