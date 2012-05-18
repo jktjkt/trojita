@@ -444,41 +444,29 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncTwoInParallel()
     QCOMPARE( model->rowCount( msgListB ), 0 );
     // ...none of them are synced yet
 
-    SOCK->fakeReading( QByteArray("* SEARCH 1\r\n")
-                       + t.last("OK Completed (1 msgs in 0.000 secs)\r\n") );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    cServer(QByteArray("* SEARCH 1\r\n") + t.last("OK Completed (1 msgs in 0.000 secs)\r\n"));
     QCOMPARE( model->rowCount( msgListA ), 1 );
     // the first one should contain a message now
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray(t.mk("FETCH 1 (FLAGS)\r\n")) );
-    SOCK->fakeReading( QByteArray("* 1 FETCH (FLAGS (\\Seen hasatt hasnotd))\r\n")
-                       + t.last("OK Completed (0.000 sec)\r\n"));
+    cClient(t.mk("FETCH 1 (FLAGS)\r\n"));
+    // without the tagged OK -- se below
+    cServer(QByteArray("* 1 FETCH (FLAGS (\\Seen hasatt hasnotd))\r\n"));
     QModelIndex msg1A = model->index( 0, 0, msgListA );
 
-    // Requesting message data should delay entering the second mailbox
+    // Requesting message data should delay entering the second mailbox.
+    // That's why we had to delay the tagged OK for FLAGS.
     QCOMPARE( model->data( msg1A, Imap::Mailbox::RoleMessageMessageId ), QVariant() );
+    cServer(t.last("OK Completed (0.000 sec)\r\n"));
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( msgListA ), 1 );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 
-    QCOMPARE( SOCK->writtenStuff(), t.mk(QByteArray("UID FETCH 1 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n")) );
+    cClient(t.mk(QByteArray("UID FETCH 1 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n")));
     // let's try to get around without specifying ENVELOPE and BODYSTRUCTURE
-    SOCK->fakeReading( QByteArray("* 1 FETCH (UID 1 RFC822.SIZE 13021)\r\n")
-                       + t.last("OK Completed\r\n") );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-
-    QCOMPARE( SOCK->writtenStuff(), t.mk(QByteArray("SELECT b\r\n")));
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-
-    QVERIFY( SOCK->writtenStuff().isEmpty() );
+    cServer(QByteArray("* 1 FETCH (UID 1 RFC822.SIZE 13021)\r\n") + t.last("OK Completed\r\n"));
+    cClient(t.mk(QByteArray("SELECT b\r\n")));
+    cEmpty();
     QVERIFY( errorSpy->isEmpty() );
 }
 
