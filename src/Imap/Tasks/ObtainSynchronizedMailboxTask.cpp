@@ -155,7 +155,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper(const Imap::Responses::Sta
             if (newArrivalsFetch.isEmpty()) {
                 _completed();
             } else {
-                log("Pending new arrival fetching, not terminateing yet", LOG_MAILBOX_SYNC);
+                log("Pending new arrival fetching, not terminating yet", LOG_MAILBOX_SYNC);
             }
         } else {
             status = STATE_DONE;
