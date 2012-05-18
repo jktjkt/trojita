@@ -92,7 +92,7 @@ protected:
 { \
     for (int i=0; i<4; ++i) \
         QCoreApplication::processEvents(); \
-    QVERIFY(SOCK->writtenStuff().isEmpty()); \
+    QCOMPARE(QString::fromAscii(SOCK->writtenStuff()), QString()); \
 }
 
 
