@@ -87,25 +87,6 @@ char *toString(const QList<uint> &list)
 
 #define SOCK static_cast<Imap::FakeSocket*>( factory->lastSocket() )
 
-#define cServer(data) \
-{ \
-    SOCK->fakeReading(data); \
-    for (int i=0; i<4; ++i) \
-        QCoreApplication::processEvents(); \
-}
-#define cClient(data) \
-{ \
-    for (int i=0; i<4; ++i) \
-        QCoreApplication::processEvents(); \
-    QCOMPARE(QString::fromAscii(SOCK->writtenStuff()), QString::fromAscii(data));\
-}
-#define cEmpty() \
-{ \
-    for (int i=0; i<4; ++i) \
-        QCoreApplication::processEvents(); \
-    QVERIFY(SOCK->writtenStuff().isEmpty()); \
-}
-
 /** Verify syncing of an empty mailbox with just the EXISTS response
 
 Verify that we can synchronize a mailbox which is empty even if the server
