@@ -66,6 +66,7 @@ private:
 
     void finalizeUidSyncAll(TreeItemMailbox *mailbox);
     void finalizeUidSyncOnlyNew(Model *model, TreeItemMailbox *mailbox, const uint oldExists, QList<uint> &uidMap);
+    void applyUids(TreeItemMailbox *mailbox, const uint firstUnknownUidOffset);
 
     void syncUids(TreeItemMailbox *mailbox, const uint lowestUidToQuery=0);
     void syncFlags(TreeItemMailbox *mailbox);

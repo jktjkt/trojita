@@ -651,12 +651,20 @@ void ObtainSynchronizedMailboxTask::finalizeUidSyncAll(TreeItemMailbox *mailbox)
         // FIXME: this needs to be checked for what happens when the number of messages changes between SELECT and UID SEARCH ALL
         throw MailboxException("We received a weird number of UIDs for messages in the mailbox.");
     }
+    applyUids(mailbox, 0);
+}
 
+/** @short Apply the received UID map to the messages in mailbox
+
+The @arg firstUnknownUidOffset corresponds to the offset of a message whose UID is specified by the first item in the UID map.
+*/
+void ObtainSynchronizedMailboxTask::applyUids(TreeItemMailbox *mailbox, const uint firstUnknownUidOffset)
+{
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(mailbox->m_children[0]);
     Q_ASSERT(list);
     QModelIndex parent = list->toIndex(model);
 
-    int i = 0;
+    int i = firstUnknownUidOffset;
     while (i < uidMap.size()) {
         // For each UID which is really supposed to be there...
         if (i >= list->m_children.size()) {
