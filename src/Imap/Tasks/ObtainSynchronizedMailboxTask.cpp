@@ -770,6 +770,7 @@ void ObtainSynchronizedMailboxTask::finalizeUidSyncOnlyNew(Model *model, TreeIte
     Q_ASSERT(list);
     list->m_fetchStatus = TreeItem::DONE;
 
+    // FIXME: verify these "invariants" -- they are rather prone to races during the UID syncing...
     // This invariant is set up in Model::_askForMessagesInMailbox
     Q_ASSERT(oldExists == static_cast<uint>(list->m_children.size()));
 
