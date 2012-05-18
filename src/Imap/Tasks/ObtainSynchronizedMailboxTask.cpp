@@ -126,7 +126,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper(const Imap::Responses::Sta
             Q_ASSERT(mailbox);
             switch (uidSyncingMode) {
             case UID_SYNC_ONLY_NEW:
-                finalizeUidSyncOnlyNew(model, mailbox, model->cache()->mailboxSyncState(mailbox->mailbox()).exists(), uidMap);
+                finalizeUidSyncOnlyNew(mailbox, model->cache()->mailboxSyncState(mailbox->mailbox()).exists());
                 model->changeConnectionState(parser, CONN_STATE_SELECTED);
                 break;
             default:
@@ -757,7 +757,7 @@ a smaller set of messages.
 It is also inteded to be used from both ObtainSynchronizedMailboxTask and KeepMailboxOpenTask,
 so it's a static function with many arguments.
 */
-void ObtainSynchronizedMailboxTask::finalizeUidSyncOnlyNew(Model *model, TreeItemMailbox *mailbox, const uint oldExists, QList<uint> &uidMap)
+void ObtainSynchronizedMailboxTask::finalizeUidSyncOnlyNew(TreeItemMailbox *mailbox, const uint oldExists)
 {
     log("Processing the UID response just for new arrivals", LOG_MAILBOX_SYNC);
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(mailbox->m_children[0]);
