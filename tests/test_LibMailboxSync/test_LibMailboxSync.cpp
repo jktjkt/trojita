@@ -197,17 +197,8 @@ void LibMailboxSync::helperSyncBNoMessages()
     // Try to go to second mailbox
     QCOMPARE( model->rowCount( msgListB ), 0 );
     model->switchToMailbox( idxB );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT b\r\n") );
-    SOCK->fakeReading( QByteArray("* 0 exists\r\n")
-                                  + t.last("ok completed\r\n") );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    cClient(t.mk("SELECT b\r\n"));
+    cServer(QByteArray("* 0 exists\r\n") + t.last("ok completed\r\n"));
 
     // Check the cache
     Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QString::fromAscii("b") );
@@ -222,8 +213,8 @@ void LibMailboxSync::helperSyncBNoMessages()
     Q_ASSERT( list );
     QVERIFY( list->fetched() );
 
+    cEmpty();
     QVERIFY( errorSpy->isEmpty() );
-    QVERIFY( SOCK->writtenStuff().isEmpty() );
 }
 
 /** @short Helper: synchronization of an empty mailbox A
@@ -239,16 +230,10 @@ void LibMailboxSync::helperSyncANoMessagesCompleteState()
 {
     QCOMPARE( model->rowCount( msgListA ), 0 );
     model->switchToMailbox( idxA );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
-    SOCK->fakeReading( QString::fromAscii("* 0 exists\r\n* OK [uidnext %1] foo\r\n* ok [uidvalidity %2] bar\r\n"
+    cClient(t.mk("SELECT a\r\n"));
+    cServer(QString::fromAscii("* 0 exists\r\n* OK [uidnext %1] foo\r\n* ok [uidvalidity %2] bar\r\n"
                                           ).arg(QString::number(uidNextA), QString::number(uidValidityA)).toAscii()
-                                  + t.last("ok completed\r\n") );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+                                  + t.last("ok completed\r\n"));
 
     // Check the cache
     Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QString::fromAscii("a") );
@@ -267,8 +252,8 @@ void LibMailboxSync::helperSyncANoMessagesCompleteState()
     Q_ASSERT( list );
     QVERIFY( list->fetched() );
 
+    cEmpty();
     QVERIFY( errorSpy->isEmpty() );
-    QVERIFY( SOCK->writtenStuff().isEmpty() );
 }
 
 
@@ -278,13 +263,9 @@ void LibMailboxSync::helperSyncAWithMessagesNoArrivals()
     // assume we've got some messages from the last case
     QCOMPARE( model->rowCount( msgListA ), static_cast<int>(existsA) );
     model->switchToMailbox( idxA );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), t.mk("SELECT a\r\n") );
+    cClient(t.mk("SELECT a\r\n"));
 
     helperFakeExistsUidValidityUidNext();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
 
     // Verify that we indeed received what we wanted
     Imap::Mailbox::TreeItemMsgList* list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>( static_cast<Imap::Mailbox::TreeItem*>( msgListA.internalPointer() ) );
