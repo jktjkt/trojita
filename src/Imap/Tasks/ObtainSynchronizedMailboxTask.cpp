@@ -729,11 +729,11 @@ void ObtainSynchronizedMailboxTask::finalizeUidSyncAll(TreeItemMailbox *mailbox)
         }
     }
 
-    if (uidMap.size() != list->m_children.size()) {
+    if (i != list->m_children.size()) {
         // remove items at the end
-        model->beginRemoveRows(parent, uidMap.size(), list->m_children.size() - 1);
+        model->beginRemoveRows(parent, i, list->m_children.size() - 1);
         QList<TreeItem*> oldItems;
-        for (int i = uidMap.size(); i < list->m_children.size(); ++i) {
+        for (/* nothing */; i < list->m_children.size(); ++i) {
             TreeItemMessage *message = static_cast<TreeItemMessage *>(list->m_children.takeAt(i));
             model->cache()->clearMessage(mailbox->mailbox(), message->uid());
             oldItems << message;
