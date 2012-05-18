@@ -573,9 +573,12 @@ bool ObtainSynchronizedMailboxTask::handleSearch(const Imap::Responses::Search *
     switch (uidSyncingMode) {
     case UID_SYNC_ALL:
         if (static_cast<uint>(resp->items.size()) != mailbox->syncState.exists()) {
+            // The (possibly updated) EXISTS does not match what we received for UID SEARCH ALL. Please note that
+            // it's the server's responsibility to feed us with valid data; scenarios like sending out-of-order responses
+            // would clearly break this contract.
             std::ostringstream ss;
-            ss << "UID SEARCH ALL returned unexpected number of entries when syncing UID_SYNC_ALL: "
-               << mailbox->syncState.exists() << " expected, got " << resp->items.size() << std::endl;
+            ss << "Error when synchronizing all messages: server said that there are " << mailbox->syncState.exists() <<
+                  "messages, but UID SEARCH ALL response contains " << resp->items.size() << "entries" << std::endl;
             ss.flush();
             throw MailboxException(ss.str().c_str(), *resp);
         }
@@ -590,8 +593,9 @@ bool ObtainSynchronizedMailboxTask::handleSearch(const Imap::Responses::Search *
 
         if (newArrivals != resp->items.size()) {
             std::ostringstream ss;
-            ss << "UID SEARCH ALL returned unexpected number of entries when syncing UID_SYNC_ONLY_NEW: "
-               << newArrivals << " expected, got " << resp->items.size() << std::endl;
+            ss << "Error when synchronizing new messages: server said that there are " << mailbox->syncState.exists() <<
+                  "messages in total (" << newArrivals << " new), but UID SEARCH response contains " << resp->items.size() <<
+                  "entries" << std::endl;
             ss.flush();
             throw MailboxException(ss.str().c_str(), *resp);
         }
