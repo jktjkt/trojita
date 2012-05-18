@@ -78,7 +78,8 @@ void ModelWatcher::columnsRemoved(const QModelIndex &parent, int start, int end)
 void ModelWatcher::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     qDebug() << sender()->objectName() << "dataChanged(" << topLeft << bottomRight << ")";
-    qDebug() << "new data" << topLeft.data(Qt::DisplayRole);
+    if (!m_ignoreData)
+        qDebug() << "new data" << topLeft.data(Qt::DisplayRole);
 }
 void ModelWatcher::headerDataChanged(Qt::Orientation orientation, int first, int last)
 {
