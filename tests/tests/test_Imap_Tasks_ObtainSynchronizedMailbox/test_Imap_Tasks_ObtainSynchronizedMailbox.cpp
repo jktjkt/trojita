@@ -85,8 +85,6 @@ char *toString(const QList<uint> &list)
 
 }
 
-#define SOCK static_cast<Imap::FakeSocket*>( factory->lastSocket() )
-
 /** Verify syncing of an empty mailbox with just the EXISTS response
 
 Verify that we can synchronize a mailbox which is empty even if the server
