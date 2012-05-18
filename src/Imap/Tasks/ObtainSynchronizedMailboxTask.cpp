@@ -654,8 +654,6 @@ void ObtainSynchronizedMailboxTask::finalizeUidSyncAll(TreeItemMailbox *mailbox)
 
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(mailbox->m_children[0]);
     Q_ASSERT(list);
-    list->m_fetchStatus = TreeItem::DONE;
-
     QModelIndex parent = list->toIndex(model);
 
     int i = 0;
@@ -745,7 +743,7 @@ void ObtainSynchronizedMailboxTask::finalizeUidSyncAll(TreeItemMailbox *mailbox)
     uidMap.clear();
 
     list->m_totalMessageCount = list->m_children.size();
-
+    list->m_fetchStatus = TreeItem::DONE;
 
     // Store stuff we already have in the cache
     model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
