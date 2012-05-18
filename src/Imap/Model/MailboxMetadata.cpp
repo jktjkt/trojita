@@ -142,6 +142,46 @@ bool SyncState::completelyEqualTo(const SyncState &other) const
             m_hasPermanentFlags == other.m_hasPermanentFlags;
 }
 
+QDebug operator<<(QDebug &dbg, const Imap::Mailbox::SyncState &state)
+{
+    dbg << "UIDVALIDITY";
+    if (state.m_hasUidValidity)
+        dbg << state.uidValidity();
+    else
+        dbg << "n/a";
+    dbg << "UIDNEXT";
+    if (state.m_hasUidNext)
+        dbg << state.uidNext();
+    else
+        dbg << "n/a";
+    dbg << "EXISTS";
+    if (state.m_hasExists)
+        dbg << state.exists();
+    else
+        dbg << "n/a";
+    dbg << "UNSEEN-count";
+    if (state.m_hasUnSeenCount)
+        dbg << state.unSeenCount();
+    else
+        dbg << "n/a";
+    dbg << "UNSEEN-offset";
+    if (state.m_hasUnSeenOffset)
+        dbg << state.unSeenOffset();
+    else
+        dbg << "n/a";
+    dbg << "RECENT";
+    if (state.m_hasRecent)
+        dbg << state.recent();
+    else
+        dbg << "n/a";
+    dbg << "PERMANENTFLAGS";
+    if (state.m_hasPermanentFlags)
+        dbg << state.permanentFlags();
+    else
+        dbg << "n/a";
+    return dbg;
+}
+
 }
 }
 
@@ -149,14 +189,6 @@ bool SyncState::completelyEqualTo(const SyncState &other) const
 QDebug operator<<(QDebug &dbg, const Imap::Mailbox::MailboxMetadata &metadata)
 {
     return dbg << metadata.mailbox << metadata.separator << metadata.flags;
-}
-
-QDebug operator<<(QDebug &dbg, const Imap::Mailbox::SyncState &state)
-{
-    return dbg << "UIDVALIDITY" << state.uidValidity() << "UIDNEXT" << state.uidNext() <<
-           "EXISTS" << state.exists() << "UNSEEN-count" << state.unSeenCount() <<
-           "UNSEEN-offset" << state.unSeenOffset() <<
-           "RECENT" << state.recent() << "PERMANENTFLAGS" << state.permanentFlags();
 }
 
 QDataStream &operator>>(QDataStream &stream, Imap::Mailbox::SyncState &ss)
