@@ -130,7 +130,8 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper(const Imap::Responses::Sta
                 model->changeConnectionState(parser, CONN_STATE_SELECTED);
                 break;
             default:
-                finalizeUidSyncAll(mailbox);
+                // do nothing
+                break;
             }
             syncFlags(mailbox);
         } else {
@@ -583,6 +584,14 @@ bool ObtainSynchronizedMailboxTask::handleSearch(const Imap::Responses::Search *
             throw MailboxException(ss.str().c_str(), *resp);
         }
         Q_ASSERT(mailbox->syncState.isUsableForSyncing());
+
+        uidMap = resp->items;
+        qSort(uidMap);
+        applyUids(mailbox, 0);
+
+        if (!uidMap.isEmpty() && mailbox->syncState.uidNext() <= uidMap.last()) {
+            mailbox->syncState.setUidNext(uidMap.last() + 1);
+        }
         break;
     case UID_SYNC_ONLY_NEW:
     {
@@ -631,27 +640,6 @@ bool ObtainSynchronizedMailboxTask::handleFetch(const Imap::Responses::Fetch *co
         log(QString::fromAscii("This response has changed some message parts. That should not have happened, as we're still syncing."));
     }
     return true;
-}
-
-/** @short Generic handler for UID syncing
-
-The responsibility of this function is to process the "UID replies" triggered
-by previous phases of the syncing activity and use them in order to assign all
-messages their UIDs.
-
-This function assumes that we're doing a so-called "full UID sync", ie. we were
-forced to ask the server for a full list of all UIDs in a mailbox. This is the
-safest, but also the most bandwidth-hungry way to achive our goal.
-*/
-void ObtainSynchronizedMailboxTask::finalizeUidSyncAll(TreeItemMailbox *mailbox)
-{
-    log("Processing the UID SEARCH response", LOG_MAILBOX_SYNC);
-    // Verify that we indeed received UIDs for all messages
-    if (static_cast<uint>(uidMap.size()) != mailbox->syncState.exists()) {
-        // FIXME: this needs to be checked for what happens when the number of messages changes between SELECT and UID SEARCH ALL
-        throw MailboxException("We received a weird number of UIDs for messages in the mailbox.");
-    }
-    applyUids(mailbox, 0);
 }
 
 /** @short Apply the received UID map to the messages in mailbox

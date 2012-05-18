@@ -64,7 +64,6 @@ private:
     void syncOnlyAdditions(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState, const SyncState &oldState);
     void syncGeneric(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState);
 
-    void finalizeUidSyncAll(TreeItemMailbox *mailbox);
     void finalizeUidSyncOnlyNew(Model *model, TreeItemMailbox *mailbox, const uint oldExists, QList<uint> &uidMap);
     void applyUids(TreeItemMailbox *mailbox, const uint firstUnknownUidOffset);
 
