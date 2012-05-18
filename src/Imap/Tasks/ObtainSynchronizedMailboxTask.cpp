@@ -221,7 +221,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                 } else {
                     // Some messages got deleted, but there have been no additions
                     //_syncOnlyDeletions( mailbox, list, syncState );
-                    fullMboxSync(mailbox, list, syncState); return;   // FIXME: change later
+                    fullMboxSync(mailbox, list, syncState);
                 }
 
             } else if (syncState.uidNext() > oldState.uidNext()) {
@@ -234,7 +234,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                 } else {
                     // Generic case; we don't know anything about which messages were deleted and which added
                     //_syncGeneric( mailbox, list, syncState );
-                    fullMboxSync(mailbox, list, syncState); return;   // FIXME: change later
+                    fullMboxSync(mailbox, list, syncState);
                 }
             } else {
                 // The UIDNEXT has decreased while UIDVALIDITY remains the same. This is forbidden,
