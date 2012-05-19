@@ -204,9 +204,8 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
 
         QString buf;
         QDebug dbg(&buf);
-        dbg << "Inconsistent cache data, falling back to full sync (" <<
-            seqToUid.size() << "in UID map," << oldState.exists() <<
-            "EXIST before," << list->m_children.size() << "nodes)";
+        dbg << "Inconsistent cache data, falling back to full sync (" << seqToUid.size() << "in UID map," << oldState.exists() <<
+            "EXIST before)";
         log(buf, LOG_MAILBOX_SYNC);
         fullMboxSync(mailbox, list, syncState);
     } else {
@@ -579,7 +578,7 @@ bool ObtainSynchronizedMailboxTask::handleSearch(const Imap::Responses::Search *
             // would clearly break this contract.
             std::ostringstream ss;
             ss << "Error when synchronizing all messages: server said that there are " << mailbox->syncState.exists() <<
-                  "messages, but UID SEARCH ALL response contains " << resp->items.size() << "entries" << std::endl;
+                  " messages, but UID SEARCH ALL response contains " << resp->items.size() << " entries" << std::endl;
             ss.flush();
             throw MailboxException(ss.str().c_str(), *resp);
         }
@@ -603,8 +602,8 @@ bool ObtainSynchronizedMailboxTask::handleSearch(const Imap::Responses::Search *
         if (newArrivals != resp->items.size()) {
             std::ostringstream ss;
             ss << "Error when synchronizing new messages: server said that there are " << mailbox->syncState.exists() <<
-                  "messages in total (" << newArrivals << " new), but UID SEARCH response contains " << resp->items.size() <<
-                  "entries" << std::endl;
+                  " messages in total (" << newArrivals << " new), but UID SEARCH response contains " << resp->items.size() <<
+                  " entries" << std::endl;
             ss.flush();
             throw MailboxException(ss.str().c_str(), *resp);
         }
