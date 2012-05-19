@@ -326,6 +326,8 @@ bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResp
         }
 
         mailbox->handleExists(model, *resp);
+        model->cache()->clearUidMapping(mailbox->mailbox());
+        model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
 
         breakPossibleIdle();
 

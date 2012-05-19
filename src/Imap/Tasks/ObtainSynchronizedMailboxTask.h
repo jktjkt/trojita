@@ -65,10 +65,12 @@ private:
     void syncGeneric(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState);
 
     void finalizeUidSyncOnlyNew(TreeItemMailbox *mailbox, const uint oldExists);
-    void applyUids(TreeItemMailbox *mailbox, const uint firstUnknownUidOffset);
+    void applyUids(TreeItemMailbox *mailbox);
 
     void syncUids(TreeItemMailbox *mailbox, const uint lowestUidToQuery=0);
     void syncFlags(TreeItemMailbox *mailbox);
+    void saveSyncState(TreeItemMailbox *mailbox);
+    void updateHighestKnownUid(TreeItemMailbox *mailbox, const TreeItemMsgList *list) const;
 
     void notifyInterestingMessages(TreeItemMailbox *mailbox);
 
@@ -100,6 +102,7 @@ private:
     Imap::Mailbox::MailboxSyncingProgress status;
     UidSyncingMode uidSyncingMode;
     QList<uint> uidMap;
+    uint firstUnknownUidOffset;
 
     /** @short An UNSELECT task, if active */
     UnSelectTask *unSelectTask;

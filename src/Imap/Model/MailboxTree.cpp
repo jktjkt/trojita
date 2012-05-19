@@ -505,8 +505,6 @@ void TreeItemMailbox::handleExists(Model *const model, const Responses::NumberRe
         // remains unchanged...
         return;
     }
-    model->cache()->clearUidMapping(mailbox());
-    model->cache()->setMailboxSyncState(mailbox(), syncState);
 
     QModelIndex parent = list->toIndex(model);
     int offset = list->m_children.size();
