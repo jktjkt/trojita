@@ -650,7 +650,6 @@ response arrives, but before the tagged OK.
 */
 void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringUid2()
 {
-    return; // FIXME
     Imap::Mailbox::SyncState sync;
     sync.setExists(3);
     sync.setUidValidity(666);
@@ -671,13 +670,20 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringUid2()
     uidMap << 42;
     sync.setUidNext(43);
     sync.setExists(5);
-    cClient(t.mk("FETCH 1:5 (FLAGS)\r\n"));
+    QByteArray newArrivalsQuery = t.mk("UID FETCH 43:* (FLAGS)\r\n");
+    QByteArray newArrivalsResponse = t.last("OK uid fetch\r\n");
+    QByteArray preexistingFlagsQuery = t.mk("FETCH 1:5 (FLAGS)\r\n");
+    QByteArray preexistingFlagsResponse = t.last("OK fetch\r\n");
+    cClient(newArrivalsQuery + preexistingFlagsQuery);
+    cServer("* 5 FETCH (UID 66 FLAGS (a))\r\n");
     cServer("* 1 FETCH (FLAGS (x))\r\n"
             "* 2 FETCH (FLAGS (y))\r\n"
             "* 3 FETCH (FLAGS (z))\r\n"
             "* 4 FETCH (FLAGS (fn))\r\n"
             "* 5 FETCH (FLAGS (a))\r\n");
-    cServer(t.last("OK fetch\r\n"));
+    cServer(newArrivalsResponse + preexistingFlagsResponse);
+    uidMap << 66;
+    sync.setUidNext(67);
     cEmpty();
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
@@ -686,7 +692,9 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringUid2()
     QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
     QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
     QCOMPARE(model->cache()->msgFlags("a", 42), QStringList() << "fn");
-    QCOMPARE(model->cache()->msgFlags("a", 43), QStringList() << "a");
+    // UID 43 did not exist at any time after all
+    QCOMPARE(model->cache()->msgFlags("a", 43), QStringList());
+    QCOMPARE(model->cache()->msgFlags("a", 66), QStringList() << "a");
     justKeepTask();
 }
 /** @short New message arrives when syncing flags */

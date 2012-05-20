@@ -120,7 +120,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper(const Imap::Responses::Sta
 
         if (resp->kind == Responses::OK) {
             log("UIDs synchronized", LOG_MAILBOX_SYNC);
-            Q_ASSERT(status == STATE_SYNCING_UIDS);
+            Q_ASSERT(status == STATE_SYNCING_FLAGS);
             Q_ASSERT(mailboxIndex.isValid());   // FIXME
             TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
             Q_ASSERT(mailbox);
@@ -622,6 +622,7 @@ bool ObtainSynchronizedMailboxTask::handleSearch(const Imap::Responses::Search *
     uidMap.clear();
     updateHighestKnownUid(mailbox, list);
     model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
+    status = STATE_SYNCING_FLAGS;
     return true;
 }
 
