@@ -271,7 +271,9 @@ void ImapModelObtainSynchronizedMailboxTest::testDecreasedUidNext()
     for ( uint i = 1; i <= existsA; ++i ) {
         uidMapA.append(i);
     }
-    uidNextA = uidMapA.last()+1;
+    // Make sure the UID really gets decreeased
+    Q_ASSERT(uidNextA < uidMapA.last() + 1);
+    uidNextA = uidMapA.last() + 1;
     helperSyncAWithMessagesEmptyState();
     helperVerifyUidMapA();
     helperSyncBNoMessages();
