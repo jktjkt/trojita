@@ -450,6 +450,7 @@ void ImapModelObtainSynchronizedMailboxTest::testReloadReadsFromCache()
     cServer(t.last("OK fetch\r\n"));
     cEmpty();
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
     QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
     QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
@@ -481,6 +482,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheNoChange()
     cServer(t.last("OK fetch\r\n"));
     cEmpty();
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
     QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
     QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
@@ -547,6 +549,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheUidValidity()
     cEmpty();
     sync.setUidValidity(666);
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
     QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
     QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
@@ -585,6 +588,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivals()
     cServer(t.last("OK fetch\r\n"));
     cEmpty();
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
     QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
     QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
@@ -629,6 +633,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringUid()
     cServer(t.last("OK fetch\r\n"));
     cEmpty();
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
     QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
     QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
@@ -675,6 +680,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringUid2()
     cServer(t.last("OK fetch\r\n"));
     cEmpty();
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
     QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
     QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
@@ -726,6 +732,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringFlags()
     cEmpty();
     // At this point, the cache shall be up-to-speed again
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
     QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
     QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
