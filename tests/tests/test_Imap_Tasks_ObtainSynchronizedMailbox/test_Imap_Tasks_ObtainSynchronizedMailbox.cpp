@@ -262,9 +262,6 @@ void ImapModelObtainSynchronizedMailboxTest::testResyncOneNew()
 /** @short Test inconsistency in the local cache where UIDNEXT got decreased without UIDVALIDITY change */
 void ImapModelObtainSynchronizedMailboxTest::testDecreasedUidNext()
 {
-    // FIXME: fix this test case
-    return;
-
     // Initial state
     existsA = 3;
     uidValidityA = 333666;

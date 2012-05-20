@@ -514,6 +514,11 @@ bool ObtainSynchronizedMailboxTask::handleNumberResponse(const Imap::Responses::
             return false;
 
         case STATE_SELECTING:
+            // It's perfectly acceptable for the server to start its responses with EXISTS instead of UIDVALIDITY & UIDNEXT, so
+            // we really cannot do anything besides remembering this value for later.
+            mailbox->syncState.setExists(resp->number);
+            return true;
+
         case STATE_SYNCING_UIDS:
             mailbox->handleExists(model, *resp);
             updateHighestKnownUid(mailbox, list);
@@ -655,21 +660,32 @@ void ObtainSynchronizedMailboxTask::applyUids(TreeItemMailbox *mailbox)
 
     int i = firstUnknownUidOffset;
     while (i < uidMap.size() + static_cast<int>(firstUnknownUidOffset)) {
+        // Index inside the uidMap in which the UID of a message at offset i in the list->m_children can be found
         int uidOffset = i - firstUnknownUidOffset;
+        Q_ASSERT(uidOffset >= 0);
+        Q_ASSERT(uidOffset < uidMap.size());
+
         // For each UID which is really supposed to be there...
-        if (i >= list->m_children.size()) {
+
+        Q_ASSERT(i <= list->m_children.size());
+        if (i == list->m_children.size()) {
             // now we're just adding new messages to the end of the list
-            model->beginInsertRows(parent, i, i - list->m_children.size());
-            for (/*nothing*/; i < list->m_children.size(); ++i) {
+            int futureTotalMessages = i + uidMap.size();
+            model->beginInsertRows(parent, i, futureTotalMessages - 1);
+            for (/*nothing*/; i < futureTotalMessages; ++i) {
                 // Add all messages in one go
                 TreeItemMessage *msg = new TreeItemMessage(list);
                 msg->m_offset = i;
+                // We're iterating with i, so we got to update the uidOffset
+                uidOffset = i - firstUnknownUidOffset;
+                Q_ASSERT(uidOffset >= 0);
+                Q_ASSERT(uidOffset < uidMap.size());
                 msg->m_uid = uidMap[uidOffset];
                 list->m_children << msg;
             }
             model->endInsertRows();
-            Q_ASSERT(uidOffset == uidMap.size());
-            Q_ASSERT(uidMap.size() == list->m_children.size());
+            Q_ASSERT(i == list->m_children.size());
+            Q_ASSERT(i == futureTotalMessages);
         } else if (dynamic_cast<TreeItemMessage *>(list->m_children[i])->m_uid == uidMap[uidOffset]) {
             // If the UID of the "current message" matches, we're okay
             dynamic_cast<TreeItemMessage *>(list->m_children[i])->m_offset = i;
