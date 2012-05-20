@@ -668,8 +668,8 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringUid2()
     cClient(t.mk("UID SEARCH UID 15:*\r\n"));
     cServer("* SEARCH 42\r\n* 5 EXISTS\r\n");
     cServer(t.last("OK uids\r\n"));
-    uidMap << 42 << 43;
-    sync.setUidNext(44);
+    uidMap << 42;
+    sync.setUidNext(43);
     sync.setExists(5);
     cClient(t.mk("FETCH 1:5 (FLAGS)\r\n"));
     cServer("* 1 FETCH (FLAGS (x))\r\n"
