@@ -54,6 +54,7 @@ private slots:
     void testCacheExpungesDuringSelect();
     void testCacheExpungesDuringFlags();
     void testCacheArrivalsImmediatelyDeleted();
+    void testCacheArrivalsOldDeleted();
 private:
     void justKeepTask();
 };
