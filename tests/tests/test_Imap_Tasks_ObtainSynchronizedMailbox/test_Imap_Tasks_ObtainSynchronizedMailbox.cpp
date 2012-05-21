@@ -990,4 +990,44 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheExpungesDuringFlags()
     justKeepTask();
 }
 
+/** @short The mailbox contains one new message which gets deleted before we got a chance to ask for its UID */
+void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalsImmediatelyDeleted()
+{
+    Imap::Mailbox::SyncState sync;
+    sync.setExists(3);
+    sync.setUidValidity(666);
+    sync.setUidNext(15);
+    QList<uint> uidMap;
+    uidMap << 6 << 9 << 10;
+    model->cache()->setMailboxSyncState("a", sync);
+    model->cache()->setUidMapping("a", uidMap);
+    QCOMPARE(model->rowCount(msgListA), 0);
+    cClient(t.mk("SELECT a\r\n"));
+    cServer("* 4 EXISTS\r\n"
+            "* OK [UIDVALIDITY 666] .\r\n"
+            "* OK [UIDNEXT 16] .\r\n");
+    cServer(t.last("OK selected\r\n"));
+    cClient(t.mk("UID SEARCH UID 15:*\r\n"));
+    cServer("* 4 EXPUNGE\r\n* SEARCH \r\n");
+    cServer(t.last("OK uids\r\n"));
+    // We know that at least one message has arrived, so the UIDNEXT *must* have changed.
+    sync.setUidNext(16);
+    sync.setExists(3);
+    cClient(t.mk("FETCH 1:3 (FLAGS)\r\n"));
+    cServer("* 1 FETCH (FLAGS (x))\r\n"
+            "* 2 FETCH (FLAGS (y))\r\n"
+            "* 3 FETCH (FLAGS (z))\r\n");
+    cServer(t.last("OK fetch\r\n"));
+    cEmpty();
+    QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
+    QCOMPARE(model->cache()->uidMapping("a"), uidMap);
+    QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
+    QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
+    QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
+    QCOMPARE(model->cache()->msgFlags("a", 15), QStringList());
+    QCOMPARE(model->cache()->msgFlags("a", 16), QStringList());
+    justKeepTask();
+}
+
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )
