@@ -215,8 +215,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                     syncNoNewNoDeletions(mailbox, list, syncState, seqToUid);
                 } else {
                     // Some messages got deleted, but there have been no additions
-                    //_syncOnlyDeletions( mailbox, list, syncState );
-                    fullMboxSync(mailbox, list, syncState);
+                    syncGeneric(mailbox, list, syncState);
                 }
 
             } else if (syncState.uidNext() > oldState.uidNext()) {
@@ -228,8 +227,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                     syncOnlyAdditions(mailbox, list, syncState, oldState);
                 } else {
                     // Generic case; we don't know anything about which messages were deleted and which added
-                    //_syncGeneric( mailbox, list, syncState );
-                    fullMboxSync(mailbox, list, syncState);
+                    syncGeneric(mailbox, list, syncState);
                 }
             } else {
                 // The UIDNEXT has decreased while UIDVALIDITY remains the same. This is forbidden,
