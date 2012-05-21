@@ -60,7 +60,6 @@ private:
     void finalizeSelect();
     void fullMboxSync(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState);
     void syncNoNewNoDeletions(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState, const QList<uint> &seqToUid);
-    void syncOnlyDeletions(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState);
     void syncOnlyAdditions(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState, const SyncState &oldState);
     void syncGeneric(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState);
 

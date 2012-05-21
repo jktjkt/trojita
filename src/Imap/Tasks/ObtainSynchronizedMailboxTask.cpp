@@ -354,18 +354,6 @@ void ObtainSynchronizedMailboxTask::syncNoNewNoDeletions(TreeItemMailbox *mailbo
     }
 }
 
-void ObtainSynchronizedMailboxTask::syncOnlyDeletions(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState)
-{
-    log("Some messages got deleted, but no new arrivals", LOG_MAILBOX_SYNC);
-    list->m_numberFetchingStatus = TreeItem::LOADING;
-    list->m_unreadMessageCount = 0; // FIXME: this case needs further attention...
-    uidMap.clear();
-    for (uint i = 0; i < syncState.exists(); ++i)
-        uidMap << 0;
-    model->cache()->clearUidMapping(mailbox->mailbox());
-    syncUids(mailbox);
-}
-
 void ObtainSynchronizedMailboxTask::syncOnlyAdditions(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState, const SyncState &oldState)
 {
     log("Syncing new arrivals", LOG_MAILBOX_SYNC);
