@@ -52,6 +52,7 @@ private slots:
     void testCacheExpungesDuringUid();
     void testCacheExpungesDuringUid2();
     void testCacheExpungesDuringSelect();
+    void testCacheExpungesDuringFlags();
 private:
     void justKeepTask();
 };
