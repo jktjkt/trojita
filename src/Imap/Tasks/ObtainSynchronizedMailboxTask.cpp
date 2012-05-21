@@ -659,6 +659,9 @@ bool ObtainSynchronizedMailboxTask::handleSearch(const Imap::Responses::Search *
     }
     uidMap = resp->items;
     qSort(uidMap);
+    if (!uidMap.isEmpty() && uidMap.front() == 0) {
+        throw MailboxException("UID SEARCH response contains invalid UID zero", *resp);
+    }
     applyUids(mailbox);
     uidMap.clear();
     updateHighestKnownUid(mailbox, list);
