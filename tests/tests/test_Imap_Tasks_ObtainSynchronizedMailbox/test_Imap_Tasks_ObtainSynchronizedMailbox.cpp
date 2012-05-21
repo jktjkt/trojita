@@ -785,7 +785,6 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheExpunges()
     cServer("* SEARCH 6 10 11 12 14\r\n");
     cServer(t.last("OK uids\r\n"));
     uidMap.removeAt(1);
-    sync.setUidNext(15);
     sync.setExists(5);
     cClient(t.mk("FETCH 1:5 (FLAGS)\r\n"));
     cServer("* 1 FETCH (FLAGS (x))\r\n"
@@ -832,7 +831,6 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheExpungesDuringUid()
     cServer(t.last("OK uids\r\n"));
     uidMap.removeAt(1);
     uidMap.removeAt(3);
-    sync.setUidNext(15);
     sync.setExists(4);
     cClient(t.mk("FETCH 1:4 (FLAGS)\r\n"));
     cServer("* 1 FETCH (FLAGS (x))\r\n"
@@ -878,7 +876,6 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheExpungesDuringUid2()
     cServer(t.last("OK uids\r\n"));
     uidMap.removeAt(1);
     uidMap.removeAt(3);
-    sync.setUidNext(15);
     sync.setExists(4);
     cClient(t.mk("FETCH 1:4 (FLAGS)\r\n"));
     cServer("* 1 FETCH (FLAGS (x))\r\n"
@@ -925,7 +922,6 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheExpungesDuringSelect()
     cServer(t.last("OK uids\r\n"));
     uidMap.removeAt(1);
     uidMap.removeAt(3);
-    sync.setUidNext(15);
     sync.setExists(4);
     cClient(t.mk("FETCH 1:4 (FLAGS)\r\n"));
     cServer("* 1 FETCH (FLAGS (x))\r\n"
