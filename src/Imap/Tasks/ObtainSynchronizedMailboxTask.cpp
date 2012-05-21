@@ -768,49 +768,6 @@ void ObtainSynchronizedMailboxTask::applyUids(TreeItemMailbox *mailbox)
     model->changeConnectionState(parser, CONN_STATE_SELECTED);
 }
 
-/** @short Process delivered UIDs for new messages
-
-This function is similar to _finalizeUidSyncAll, except that it operates on
-a smaller set of messages.
-
-It is also inteded to be used from both ObtainSynchronizedMailboxTask and KeepMailboxOpenTask,
-so it's a static function with many arguments.
-*/
-void ObtainSynchronizedMailboxTask::finalizeUidSyncOnlyNew(TreeItemMailbox *mailbox, const uint oldExists)
-{
-    log("Processing the UID response just for new arrivals", LOG_MAILBOX_SYNC);
-    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(mailbox->m_children[0]);
-    Q_ASSERT(list);
-    list->m_fetchStatus = TreeItem::DONE;
-
-    // FIXME: verify these "invariants" -- they are rather prone to races during the UID syncing...
-    // This invariant is set up in Model::_askForMessagesInMailbox
-    Q_ASSERT(oldExists == static_cast<uint>(list->m_children.size()));
-
-    // Be sure there really are some new messages -- verified in handleSearch()
-    Q_ASSERT(mailbox->syncState.exists() > oldExists);
-    Q_ASSERT(static_cast<uint>(uidMap.size()) == mailbox->syncState.exists() - oldExists);
-
-    QModelIndex parent = list->toIndex(model);
-    int offset = list->m_children.size();
-    model->beginInsertRows(parent, offset, mailbox->syncState.exists() - 1);
-    for (int i = 0; i < uidMap.size(); ++i) {
-        TreeItemMessage *msg = new TreeItemMessage(list);
-        msg->m_offset = i + offset;
-        msg->m_uid = uidMap[ i ];
-        list->m_children << msg;
-    }
-    model->endInsertRows();
-    uidMap.clear();
-
-    list->m_totalMessageCount = list->m_children.size();
-    list->m_numberFetchingStatus = TreeItem::DONE; // FIXME: they aren't done yet
-    model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
-    model->saveUidMap(list);
-    uidMap.clear();
-    model->emitMessageCountChanged(mailbox);
-}
-
 QString ObtainSynchronizedMailboxTask::debugIdentification() const
 {
     if (! mailboxIndex.isValid())

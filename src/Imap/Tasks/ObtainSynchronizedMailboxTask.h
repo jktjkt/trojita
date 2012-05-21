@@ -64,7 +64,6 @@ private:
     void syncOnlyAdditions(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState, const SyncState &oldState);
     void syncGeneric(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState);
 
-    void finalizeUidSyncOnlyNew(TreeItemMailbox *mailbox, const uint oldExists);
     void applyUids(TreeItemMailbox *mailbox);
 
     void syncUids(TreeItemMailbox *mailbox, const uint lowestUidToQuery=0);
