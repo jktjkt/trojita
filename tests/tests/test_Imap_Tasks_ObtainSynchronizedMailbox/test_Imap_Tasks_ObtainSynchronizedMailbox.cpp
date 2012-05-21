@@ -809,4 +809,50 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheExpunges()
     justKeepTask();
 }
 
+/** @short Test two expunges, once during normal sync and then once again during the UID syncing */
+void ImapModelObtainSynchronizedMailboxTest::testCacheExpungesDuringUid()
+{
+    Imap::Mailbox::SyncState sync;
+    sync.setExists(6);
+    sync.setUidValidity(666);
+    sync.setUidNext(15);
+    QList<uint> uidMap;
+    uidMap << 6 << 9 << 10 << 11 << 12 << 14;
+    model->cache()->setMailboxSyncState("a", sync);
+    model->cache()->setUidMapping("a", uidMap);
+    model->cache()->setMsgFlags("a", 9, QStringList() << "foo");
+    QCOMPARE(model->rowCount(msgListA), 0);
+    cClient(t.mk("SELECT a\r\n"));
+    cServer("* 5 EXISTS\r\n"
+            "* OK [UIDVALIDITY 666] .\r\n"
+            "* OK [UIDNEXT 15] .\r\n");
+    cServer(t.last("OK selected\r\n"));
+    cClient(t.mk("UID SEARCH ALL\r\n"));
+    cServer("* 4 EXPUNGE\r\n* SEARCH 6 10 11 14\r\n");
+    cServer(t.last("OK uids\r\n"));
+    uidMap.removeAt(1);
+    uidMap.removeAt(3);
+    sync.setUidNext(15);
+    sync.setExists(4);
+    cClient(t.mk("FETCH 1:4 (FLAGS)\r\n"));
+    cServer("* 1 FETCH (FLAGS (x))\r\n"
+            "* 2 FETCH (FLAGS (z))\r\n"
+            "* 3 FETCH (FLAGS (a))\r\n"
+            "* 4 FETCH (FLAGS (c))\r\n"
+            );
+    cServer(t.last("OK fetch\r\n"));
+    cEmpty();
+    QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
+    QCOMPARE(model->cache()->uidMapping("a"), uidMap);
+    QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
+    QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
+    QCOMPARE(model->cache()->msgFlags("a", 11), QStringList() << "a");
+    QCOMPARE(model->cache()->msgFlags("a", 14), QStringList() << "c");
+    // Flags for the deleted messages shall be gone
+    QCOMPARE(model->cache()->msgFlags("a", 9), QStringList());
+    QCOMPARE(model->cache()->msgFlags("a", 12), QStringList());
+    justKeepTask();
+}
+
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )
