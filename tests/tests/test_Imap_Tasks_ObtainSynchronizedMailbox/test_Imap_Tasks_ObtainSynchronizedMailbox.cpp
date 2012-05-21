@@ -1072,4 +1072,100 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalsOldDeleted()
     justKeepTask();
 }
 
+/** @short Mailbox is said to contain some new messages. While performing the sync, many events occur. */
+void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalsThenDynamic()
+{
+    Imap::Mailbox::SyncState sync;
+    sync.setExists(10);
+    sync.setUidValidity(666);
+    sync.setUidNext(100);
+    QList<uint> uidMap;
+    for (uint i = 1; i <= sync.exists(); ++i)
+        uidMap << i;
+    model->cache()->setMailboxSyncState("a", sync);
+    model->cache()->setUidMapping("a", uidMap);
+    QCOMPARE(model->rowCount(msgListA), 0);
+    cClient(t.mk("SELECT a\r\n"));
+    // The sync indicates that there are five more messages and nothing else
+    cServer("* 15 EXISTS\r\n"
+            "* OK [UIDVALIDITY 666] .\r\n"
+            "* OK [UIDNEXT 105] .\r\n");
+    cServer(t.last("OK selected\r\n"));
+    cServer(
+        // One more message arrives
+        "* 16 EXISTS\r\n"
+        // The last of the previously known messages gets deleted
+        "* 10 EXPUNGE\r\n"
+        // The very first arrival (which happened between the disconnect and this sync) goes away
+        "* 10 EXPUNGE\r\n"
+            );
+    cClient(t.mk("UID SEARCH UID 100:*\r\n"));
+    // One of the old messages get deleted
+    cServer("* 3 EXPUNGE\r\n");
+    cServer("* SEARCH 102 103 104 105 106\r\n");
+    cServer(t.last("OK uids\r\n"));
+    // That's the last of the previously known, the first "10 EXPUNGE"
+    uidMap.removeAt(9);
+    // the second "10 EXPUNGE" is not reflected here at all, as it's for the new arrivals
+    // This one is for the "3 EXPUNGE"
+    uidMap.removeAt(2);
+    uidMap << 102 << 103 << 104 << 105 << 106;
+    sync.setUidNext(107);
+    sync.setExists(13);
+    cClient(t.mk("FETCH 1:13 (FLAGS)\r\n"));
+    cServer("* 2 EXPUNGE\r\n");
+    uidMap.removeAt(1);
+    cServer("* 12 EXPUNGE\r\n");
+    uidMap.removeAt(11);
+    sync.setExists(11);
+    cServer("* 1 FETCH (FLAGS (x))\r\n"
+            "* 2 FETCH (FLAGS (y))\r\n"
+            "* 3 FETCH (FLAGS (z))\r\n"
+            "* 4 FETCH (FLAGS (a))\r\n"
+            "* 5 FETCH (FLAGS (b))\r\n"
+            "* 6 FETCH (FLAGS (c))\r\n"
+            "* 7 FETCH (FLAGS (d))\r\n"
+            "* 8 FETCH (FLAGS (x102))\r\n"
+            "* 9 FETCH (FLAGS (x103))\r\n"
+            "* 10 FETCH (FLAGS (x104))\r\n"
+            "* 11 FETCH (FLAGS (x105))\r\n");
+    // Add two, delete the last of them
+    cServer("* 13 EXISTS\r\n* 13 EXPUNGE\r\n");
+    sync.setExists(12);
+    cServer(t.last("OK fetch\r\n"));
+    cClient(t.mk("UID FETCH 107:* (FLAGS)\r\n"));
+    cServer("* 12 FETCH (UID 109 FLAGS (last))\r\n");
+    uidMap << 109;
+    cServer(t.last("OK uid fetch flags done\r\n"));
+    cEmpty();
+    sync.setUidNext(110);
+    QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
+    QCOMPARE(model->cache()->uidMapping("a"), uidMap);
+    // Known UIDs at this point: 1, 4, 5, 6, 7, 8, 9, 102, 103, 104, 105, 109
+    QCOMPARE(model->cache()->msgFlags("a", 1), QStringList() << "x");
+    QCOMPARE(model->cache()->msgFlags("a", 4), QStringList() << "y");
+    QCOMPARE(model->cache()->msgFlags("a", 5), QStringList() << "z");
+    QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "a");
+    QCOMPARE(model->cache()->msgFlags("a", 7), QStringList() << "b");
+    QCOMPARE(model->cache()->msgFlags("a", 8), QStringList() << "c");
+    QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "d");
+    QCOMPARE(model->cache()->msgFlags("a", 102), QStringList() << "x102");
+    QCOMPARE(model->cache()->msgFlags("a", 103), QStringList() << "x103");
+    QCOMPARE(model->cache()->msgFlags("a", 104), QStringList() << "x104");
+    QCOMPARE(model->cache()->msgFlags("a", 105), QStringList() << "x105");
+    QCOMPARE(model->cache()->msgFlags("a", 109), QStringList() << "last");
+    QCOMPARE(model->cache()->msgFlags("a", 2), QStringList());
+    QCOMPARE(model->cache()->msgFlags("a", 3), QStringList());
+    QCOMPARE(model->cache()->msgFlags("a", 10), QStringList());
+    QCOMPARE(model->cache()->msgFlags("a", 100), QStringList());
+    QCOMPARE(model->cache()->msgFlags("a", 101), QStringList());
+    QCOMPARE(model->cache()->msgFlags("a", 106), QStringList());
+    QCOMPARE(model->cache()->msgFlags("a", 107), QStringList());
+    QCOMPARE(model->cache()->msgFlags("a", 108), QStringList());
+    QCOMPARE(model->cache()->msgFlags("a", 110), QStringList());
+    justKeepTask();
+}
+
+
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )
