@@ -544,17 +544,31 @@ bool ObtainSynchronizedMailboxTask::handleNumberResponse(const Imap::Responses::
 
     case Imap::Responses::EXPUNGE:
 
+        if (mailbox->syncState.exists() > 0) {
+            // Always update the number of expected messages
+            mailbox->syncState.setExists(mailbox->syncState.exists() - 1);
+        }
+
+        switch (status) {
+        case STATE_SYNCING_FLAGS:
+        case STATE_DONE:
+            // The UID mapping has been already established, so we just want to handle the EXPUNGE as usual
+            mailbox->handleExpunge(model, *resp);
+            return true;
+        default:
+            // This is handled by the code below
+            break;
+        }
+
         // We shall track updates to the place where the unknown UIDs resign
         if (resp->number < firstUnknownUidOffset + 1) {
             // The message which we're deleting has UID which is already known, ie. it isn't among those whose UIDs got requested
             // by an incremental UID SEARCH
             Q_ASSERT(firstUnknownUidOffset > 0);
             --firstUnknownUidOffset;
-        }
 
-        if (mailbox->syncState.exists() > 0) {
-            // Always update the number of expected messages
-            mailbox->syncState.setExists(mailbox->syncState.exists() - 1);
+            // The deleted message has previously been present; that means that we shall immediately signal about its expunge
+            mailbox->handleExpunge(model, *resp);
         }
 
         switch(status) {
@@ -573,9 +587,9 @@ bool ObtainSynchronizedMailboxTask::handleNumberResponse(const Imap::Responses::
 
         case STATE_SYNCING_FLAGS:
         case STATE_DONE:
-            // The UID mapping has been already established, so we just want to handle the EXPUNGE as usual
-            mailbox->handleExpunge(model, *resp);
-            return true;
+            // Already handled above
+            Q_ASSERT(false);
+            return false;
 
         }
 
