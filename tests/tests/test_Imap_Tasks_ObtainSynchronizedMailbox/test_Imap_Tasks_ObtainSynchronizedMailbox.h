@@ -50,6 +50,7 @@ private slots:
     void testCacheArrivalRaceDuringFlags();
     void testCacheExpunges();
     void testCacheExpungesDuringUid();
+    void testCacheExpungesDuringSelect();
 private:
     void justKeepTask();
 };
