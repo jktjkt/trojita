@@ -43,14 +43,10 @@ void ImapModelSelectedMailboxUpdatesTest::helperTestExpungeImmediatelyAfterArriv
     uidMapA << 1 << 7 << 9;
     uidNextA = 16;
     helperSyncAWithMessagesEmptyState();
-    QVERIFY(SOCK->writtenStuff().isEmpty());
+    cEmpty();
 
-    SOCK->fakeReading(QString::fromAscii("* %1 EXISTS\r\n* %1 EXPUNGE\r\n").arg(QString::number(existsA + 1)).toAscii());
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE(SOCK->writtenStuff(), QString(t.mk("UID FETCH %1:* (FLAGS)\r\n")).arg(
-                 QString::number(qMax(uidMapA.last() + 1, uidNextA))).toAscii());
+    cServer(QString::fromAscii("* %1 EXISTS\r\n* %1 EXPUNGE\r\n").arg(QString::number(existsA + 1)).toAscii());
+    cClient(QString(t.mk("UID FETCH %1:* (FLAGS)\r\n")).arg(QString::number(qMax(uidMapA.last() + 1, uidNextA))).toAscii());
 
     // Add message with this UID to our internal list
     uint addedUid = 33;
@@ -60,11 +56,8 @@ void ImapModelSelectedMailboxUpdatesTest::helperTestExpungeImmediatelyAfterArriv
             QString::number(uidNextA)).toAscii() : QByteArray();
 
     // ...but because it got deleted, here we go
-    SOCK->fakeReading(t.last("OK empty fetch\r\n") + uidUpdateResponse);
-
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY(SOCK->writtenStuff().isEmpty());
+    cServer(t.last("OK empty fetch\r\n") + uidUpdateResponse);
+    cEmpty();
     QVERIFY(errorSpy->isEmpty());
 
     helperCheckCache( ! sendUidNext );
@@ -78,13 +71,10 @@ void ImapModelSelectedMailboxUpdatesTest::testUnsolicitedFetch()
     uidMapA << 3 << 9;
     uidNextA = 33;
     helperSyncAWithMessagesEmptyState();
-    QVERIFY(SOCK->writtenStuff().isEmpty());
+    cEmpty();
 
-    SOCK->fakeReading(QString::fromAscii("* %1 EXISTS\r\n* %1 FETCH (FLAGS (\\Seen \\Recent $NotJunk NotJunk))\r\n").arg(QString::number(existsA + 1)).toAscii());
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE(SOCK->writtenStuff(), QString(t.mk("UID FETCH %1:* (FLAGS)\r\n")).arg(
+    cServer(QString::fromAscii("* %1 EXISTS\r\n* %1 FETCH (FLAGS (\\Seen \\Recent $NotJunk NotJunk))\r\n").arg(QString::number(existsA + 1)).toAscii());
+    cClient(QString(t.mk("UID FETCH %1:* (FLAGS)\r\n")).arg(
                  QString::number(qMax(uidMapA.last() + 1, uidNextA))).toAscii());
 
     // Add message with this UID to our internal list
@@ -93,12 +83,10 @@ void ImapModelSelectedMailboxUpdatesTest::testUnsolicitedFetch()
     uidMapA << addedUid;
     uidNextA = addedUid + 1;
 
-    SOCK->fakeReading( QString("* %1 FETCH (FLAGS (\\Seen \\Recent $NotJunk NotJunk) UID %2)\r\n").arg(
+    cServer(QString("* %1 FETCH (FLAGS (\\Seen \\Recent $NotJunk NotJunk) UID %2)\r\n").arg(
             QString::number(existsA), QString::number(addedUid)).toAscii() +
                        t.last("OK flags returned\r\n"));
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY(SOCK->writtenStuff().isEmpty());
+    cEmpty();
     QVERIFY(errorSpy->isEmpty());
 
     helperCheckCache();
@@ -185,12 +173,9 @@ of three brand new messages, A, B and C. This arrival will get noticed and proce
 void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool askForEnvelopes)
 {
     // Fake delivery of A, B and C
-    SOCK->fakeReading(QByteArray("* 3 EXISTS\r\n* 3 RECENT\r\n"));
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    cServer(QByteArray("* 3 EXISTS\r\n* 3 RECENT\r\n"));
     // This should trigger a request for flags
-    QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 12:* (FLAGS)\r\n"));
+    cClient(t.mk("UID FETCH 12:* (FLAGS)\r\n"));
     // The messages sgould be there already
     QVERIFY(msgListA.child(0,0).isValid());
     QModelIndex msgB = msgListA.child(1, 0);
@@ -214,23 +199,17 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool
     }
 
     // FLAGS arrive, bringing the UID with them
-    SOCK->fakeReading( QByteArray("* 1 FETCH (UID 43 FLAGS (\\Recent))\r\n"
+    cServer(QByteArray("* 1 FETCH (UID 43 FLAGS (\\Recent))\r\n"
                                   "* 2 FETCH (UID 44 FLAGS (\\Recent))\r\n"
                                   "* 3 FETCH (UID 45 FLAGS (\\Recent))\r\n") +
                        t.last("OK fetched\r\n"));
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
     // The UIDs shall be known at this point
     QCOMPARE(msgB.data(Imap::Mailbox::RoleMessageUid).toUInt(), 44u);
     // The unread message count should be correct now, too
     QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 3);
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-
     if ( askForEnvelopes ) {
         // The ENVELOPE and related fields should be requested now
-        QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 43:44 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+        cClient(t.mk("UID FETCH 43:44 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
     }
 
     existsA = 3;
@@ -242,51 +221,39 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool
     // Yes, we're counting to one more than what actually is here; that's because we want to prevent a possible out-of-bounds access
     for ( int i = 0; i < static_cast<int>(existsA) + 1; ++i )
         msgListA.child(i,0).data(Imap::Mailbox::RoleMessageSubject);
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
 
     if ( askForEnvelopes ) {
         // Envelopes for A and B already got requested
         // We have to preserve the previous command, too
         QByteArray completionForFirstFetch = t.last("OK fetched\r\n");
-        QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 45 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+        cClient(t.mk("UID FETCH 45 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
         // Simulate out-of-order execution here -- the completion responses for both commands arrive only
         // after the actual data for both of them got pushed
-        SOCK->fakeReading( helperCreateTrivialEnvelope(1, 43, QLatin1String("A")) +
+        cServer(helperCreateTrivialEnvelope(1, 43, QLatin1String("A")) +
                            helperCreateTrivialEnvelope(2, 44, QLatin1String("B")) +
                            helperCreateTrivialEnvelope(3, 45, QLatin1String("C")) +
                            completionForFirstFetch +
                            t.last("OK fetched\r\n"));
     } else {
         // Requesting all envelopes at once
-        QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 43:45 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
-        SOCK->fakeReading( helperCreateTrivialEnvelope(1, 43, QLatin1String("A")) +
+        cClient(t.mk("UID FETCH 43:45 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+        cServer(helperCreateTrivialEnvelope(1, 43, QLatin1String("A")) +
                            helperCreateTrivialEnvelope(2, 44, QLatin1String("B")) +
                            helperCreateTrivialEnvelope(3, 45, QLatin1String("C")) +
                            t.last("OK fetched\r\n"));
     }
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
     helperCheckSubjects(QStringList() << QLatin1String("A") << QLatin1String("B") << QLatin1String("C"));
-
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-
+    cEmpty();
     QVERIFY( errorSpy->isEmpty() );
-    QVERIFY( SOCK->writtenStuff().isEmpty() );
 }
 
 /** @short Fake delivery of D to a mailbox which already contains A, B and C */
 void  ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive2(bool askForEnvelopes)
 {
     // Fake delivery of D
-    SOCK->fakeReading(QByteArray("* 4 EXISTS\r\n* 4 RECENT\r\n"));
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    cServer(QByteArray("* 4 EXISTS\r\n* 4 RECENT\r\n"));
     // This should trigger a request for flags
-    QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 46:* (FLAGS)\r\n"));
+    cClient(t.mk("UID FETCH 46:* (FLAGS)\r\n"));
     // The messages sgould be there already
     QVERIFY(msgListA.child(0,0).isValid());
     QModelIndex msgD = msgListA.child(3, 0);
@@ -309,21 +276,17 @@ void  ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive2(bool askF
     }
 
     // FLAGS arrive, bringing the UID with them
-    SOCK->fakeReading( QByteArray("* 4 FETCH (UID 46 FLAGS (\\Recent))\r\n") +
+    cServer(QByteArray("* 4 FETCH (UID 46 FLAGS (\\Recent))\r\n") +
                        t.last("OK fetched\r\n"));
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
     // The UIDs shall be known at this point
     QCOMPARE(msgD.data(Imap::Mailbox::RoleMessageUid).toUInt(), 46u);
     // The unread message count should be correct now, too
     QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 4);
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
 
     if ( askForEnvelopes ) {
         QCoreApplication::processEvents();
         // The ENVELOPE and related fields should be requested now
-        QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 46 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+        cClient(t.mk("UID FETCH 46 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
     }
 
     existsA = 4;
@@ -336,28 +299,17 @@ void  ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive2(bool askF
     msgListA.child(3,0).data(Imap::Mailbox::RoleMessageSubject);
     // In contrast to helperGenericTrafficFirstArrivals, we won't query "message #5",ie. one more than how many are
     // actually there. The main motivation is trying to behave in a different manner than before. Hope this helps.
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
 
     if ( askForEnvelopes ) {
         // Envelope for D already got requested -> nothing to do here
     } else {
         // The D got requested by an explicit query above
-        QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 46 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+        cClient(t.mk("UID FETCH 46 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
     }
-    SOCK->fakeReading( helperCreateTrivialEnvelope(4, 46, QLatin1String("D")) + t.last("OK fetched\r\n"));
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    cServer(helperCreateTrivialEnvelope(4, 46, QLatin1String("D")) + t.last("OK fetched\r\n"));
     helperCheckSubjects(QStringList() << QLatin1String("A") << QLatin1String("B") << QLatin1String("C") << QLatin1String("D"));
-
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-
+    cEmpty();
     QVERIFY( errorSpy->isEmpty() );
-    QVERIFY( SOCK->writtenStuff().isEmpty() );
 }
 
 /** @short Helper for creating a fake FETCH response with all usually fetched fields
@@ -396,9 +348,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperDeleteOneMessage(const uint seq,
     uidMapA.removeAt(seq);
     Q_ASSERT(remainingSubjects.size() == static_cast<int>(existsA));
     Q_ASSERT(uidMapA.size() == static_cast<int>(existsA));
-    SOCK->fakeReading(QString::fromAscii("* %1 EXPUNGE\r\n* %2 RECENT\r\n").arg(QString::number(seq+1), QString::number(existsA)).toAscii());
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    cServer(QString::fromAscii("* %1 EXPUNGE\r\n* %2 RECENT\r\n").arg(QString::number(seq+1), QString::number(existsA)).toAscii());
 
     // Verify the model's idea about the current state
     helperCheckSubjects(remainingSubjects);
@@ -415,9 +365,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperDeleteTwoMessages(const uint seq
     uidMapA.removeAt(seq2);
     Q_ASSERT(remainingSubjects.size() == static_cast<int>(existsA));
     Q_ASSERT(uidMapA.size() == static_cast<int>(existsA));
-    SOCK->fakeReading(QString::fromAscii("* %1 EXPUNGE\r\n* %2 EXPUNGE\r\n* %3 RECENT\r\n").arg(QString::number(seq1+1), QString::number(seq2+1), QString::number(existsA)).toAscii());
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    cServer(QString::fromAscii("* %1 EXPUNGE\r\n* %2 EXPUNGE\r\n* %3 RECENT\r\n").arg(QString::number(seq1+1), QString::number(seq2+1), QString::number(existsA)).toAscii());
 
     // Verify the model's idea about the current state
     helperCheckSubjects(remainingSubjects);
@@ -429,12 +377,9 @@ void ImapModelSelectedMailboxUpdatesTest::helperDeleteTwoMessages(const uint seq
 void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive3(bool askForEnvelopes)
 {
     // Fake the announcement of the delivery
-    SOCK->fakeReading(QByteArray("* 4 EXISTS\r\n* 4 RECENT\r\n"));
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    cServer(QByteArray("* 4 EXISTS\r\n* 4 RECENT\r\n"));
     // This should trigger a request for flags
-    QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 47:* (FLAGS)\r\n"));
+    cClient(t.mk("UID FETCH 47:* (FLAGS)\r\n"));
 
     // The messages should be there already
     QVERIFY(msgListA.child(0,0).isValid());
@@ -458,27 +403,22 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive3(bool askFo
     }
 
     // FLAGS arrive, bringing the UID with them
-    SOCK->fakeReading( QByteArray("* 1 FETCH (UID 47 FLAGS (\\Recent))\r\n"
+    cServer(QByteArray("* 1 FETCH (UID 47 FLAGS (\\Recent))\r\n"
                                   "* 2 FETCH (UID 48 FLAGS (\\Recent))\r\n") );
     // Try to insert a pause here; this could be used to properly play with preloading in future...
     for ( int i = 0; i < 10; ++i)
         QCoreApplication::processEvents();
-    SOCK->fakeReading( QByteArray("* 3 FETCH (UID 49 FLAGS (\\Recent))\r\n"
+    cServer(QByteArray("* 3 FETCH (UID 49 FLAGS (\\Recent))\r\n"
                                   "* 4 FETCH (UID 50 FLAGS (\\Recent))\r\n") +
                        t.last("OK fetched\r\n"));
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
     // The UIDs shall be known at this point
     QCOMPARE(msgD.data(Imap::Mailbox::RoleMessageUid).toUInt(), 50u);
     // The unread message count should be correct now, too
     QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 4);
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
 
     if ( askForEnvelopes ) {
-        QCoreApplication::processEvents();
         // The ENVELOPE and related fields should be requested now
-        QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 47:50 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+        cClient(t.mk("UID FETCH 47:50 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
     }
 
     existsA = 4;
@@ -493,42 +433,30 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive3(bool askFo
     } else {
         // Not requested yet -> do it now
         QVERIFY( ! msgD.data(Imap::Mailbox::RoleMessageFrom).isValid() );
-        QCoreApplication::processEvents();
-        QCoreApplication::processEvents();
-        QCoreApplication::processEvents();
-        QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 47:50 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+        cClient(t.mk("UID FETCH 47:50 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
     }
     // This is common for both cases; the data should finally arrive
-    SOCK->fakeReading( helperCreateTrivialEnvelope(1, 47, QLatin1String("A")) +
+    cServer(helperCreateTrivialEnvelope(1, 47, QLatin1String("A")) +
                        helperCreateTrivialEnvelope(2, 48, QLatin1String("B")) +
                        helperCreateTrivialEnvelope(3, 49, QLatin1String("C")) +
                        helperCreateTrivialEnvelope(4, 50, QLatin1String("D")) +
                        t.last("OK fetched\r\n"));
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
     helperCheckSubjects(QStringList() << QLatin1String("A") << QLatin1String("B") << QLatin1String("C") << QLatin1String("D"));
 
     // Verify UIDd and cache stuff once again to make sure reading data doesn't mess anything up
     helperCheckCache();
     helperVerifyUidMapA();
-
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-
+    cEmpty();
     QVERIFY( errorSpy->isEmpty() );
-    QVERIFY( SOCK->writtenStuff().isEmpty() );
 }
 
 /** @short Fake delivery of three new messages, E, F and G, to a mailbox with A and D */
 void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive4(bool askForEnvelopes)
 {
     // Fake the announcement of the delivery
-    SOCK->fakeReading(QByteArray("* 5 EXISTS\r\n* 5 RECENT\r\n"));
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    cServer(QByteArray("* 5 EXISTS\r\n* 5 RECENT\r\n"));
     // This should trigger a request for flags
-    QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 51:* (FLAGS)\r\n"));
+    cClient(t.mk("UID FETCH 51:* (FLAGS)\r\n"));
 
     QModelIndex msgE = msgListA.child(2, 0);
     QVERIFY(msgE.isValid());
@@ -549,23 +477,19 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive4(bool askFo
     }
 
     // FLAGS arrive, bringing the UID with them
-    SOCK->fakeReading( QByteArray("* 3 FETCH (UID 52 FLAGS (\\Recent))\r\n"
+    cServer(QByteArray("* 3 FETCH (UID 52 FLAGS (\\Recent))\r\n"
                                   "* 4 FETCH (UID 53 FLAGS (\\Recent))\r\n"
                                   "* 5 FETCH (UID 63 FLAGS (\\Recent))\r\n") +
                        t.last("OK fetched\r\n"));
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
     // The UIDs shall be known at this point
     QCOMPARE(msgE.data(Imap::Mailbox::RoleMessageUid).toUInt(), 52u);
     // The unread message count should be correct now, too
     QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 5);
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
 
     if ( askForEnvelopes ) {
         QCoreApplication::processEvents();
         // The ENVELOPE and related fields should be requested now
-        QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 52 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+        cClient(t.mk("UID FETCH 52 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
     }
 
     existsA = 5;
@@ -579,29 +503,20 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive4(bool askFo
     } else {
         // Not requested yet -> do it now
         QVERIFY( ! msgE.data(Imap::Mailbox::RoleMessageFrom).isValid() );
-        QCoreApplication::processEvents();
-        QCoreApplication::processEvents();
-        QCoreApplication::processEvents();
-        QCOMPARE(SOCK->writtenStuff(), t.mk("UID FETCH 52:53,63 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+        cClient(t.mk("UID FETCH 52:53,63 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n"));
     }
     // This is common for both cases; the data should finally arrive
-    SOCK->fakeReading( helperCreateTrivialEnvelope(3, 52, QLatin1String("E")) +
+    cServer(helperCreateTrivialEnvelope(3, 52, QLatin1String("E")) +
                        helperCreateTrivialEnvelope(4, 53, QLatin1String("F")) +
                        helperCreateTrivialEnvelope(5, 63, QLatin1String("G")) +
                        t.last("OK fetched\r\n"));
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
     helperCheckSubjects(QStringList() << QLatin1String("A") << QLatin1String("D") << QLatin1String("E") << QLatin1String("F") << QLatin1String("G"));
 
     // Verify UIDd and cache stuff once again to make sure reading data doesn't mess anything up
     helperCheckCache();
     helperVerifyUidMapA();
-
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-
+    cEmpty();
     QVERIFY( errorSpy->isEmpty() );
-    QVERIFY( SOCK->writtenStuff().isEmpty() );
 }
 
 
