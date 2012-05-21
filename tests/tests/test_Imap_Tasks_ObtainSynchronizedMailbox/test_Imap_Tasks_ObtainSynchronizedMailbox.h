@@ -56,6 +56,7 @@ private slots:
     void testCacheArrivalsImmediatelyDeleted();
     void testCacheArrivalsOldDeleted();
     void testCacheArrivalsThenDynamic();
+    void testCacheDeletionsThenDynamic();
 private:
     void justKeepTask();
 };

@@ -712,7 +712,7 @@ void ObtainSynchronizedMailboxTask::applyUids(TreeItemMailbox *mailbox)
         Q_ASSERT(i <= list->m_children.size());
         if (i == list->m_children.size()) {
             // now we're just adding new messages to the end of the list
-            int futureTotalMessages = i + uidMap.size();
+            const int futureTotalMessages = mailbox->syncState.exists();
             model->beginInsertRows(parent, i, futureTotalMessages - 1);
             for (/*nothing*/; i < futureTotalMessages; ++i) {
                 // Add all messages in one go
