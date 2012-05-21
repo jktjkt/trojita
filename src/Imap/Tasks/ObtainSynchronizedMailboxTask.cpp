@@ -735,7 +735,6 @@ void ObtainSynchronizedMailboxTask::applyUids(TreeItemMailbox *mailbox)
                 // so let's reuse that code. That's why we do *not* want to increment the counter here.
             } else {
                 Q_ASSERT(i < list->m_children.size());
-                Q_ASSERT(dynamic_cast<TreeItemMessage*>(list->m_children[i])->m_uid == 0);
                 // But this case is also already implemented above, so we won't touch the counter from here, either,
                 // and let the existing code do its job
             }
