@@ -762,7 +762,6 @@ void ImapModelObtainSynchronizedMailboxTest::justKeepTask()
     QVERIFY(!firstTask.child(0, 0).isValid());
 }
 
-// FIXME: test expunges during sync
 /** @short Test synchronization of a mailbox with on-disk cache when one message got deleted */
 void ImapModelObtainSynchronizedMailboxTest::testCacheExpunges()
 {
