@@ -390,7 +390,11 @@ void ObtainSynchronizedMailboxTask::syncUids(TreeItemMailbox *mailbox, const uin
     } else {
         uidSpecification = QString::fromAscii("UID %1:*").arg(lowestUidToQuery);
     }
-    uidSyncingCmd = parser->uidSearchUid(uidSpecification);
+    if (model->accessParser(parser).capabilities.contains(QLatin1String("ESEARCH"))) {
+        uidSyncingCmd = parser->uidESearchUid(uidSpecification);
+    } else {
+        uidSyncingCmd = parser->uidSearchUid(uidSpecification);
+    }
     model->cache()->clearUidMapping(mailbox->mailbox());
     emit model->mailboxSyncingProgress(mailboxIndex, status);
 }
@@ -649,6 +653,74 @@ bool ObtainSynchronizedMailboxTask::handleSearch(const Imap::Responses::Search *
     qSort(uidMap);
     if (!uidMap.isEmpty() && uidMap.front() == 0) {
         throw MailboxException("UID SEARCH response contains invalid UID zero", *resp);
+    }
+    applyUids(mailbox);
+    uidMap.clear();
+    updateHighestKnownUid(mailbox, list);
+    model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
+    status = STATE_SYNCING_FLAGS;
+    return true;
+}
+
+bool ObtainSynchronizedMailboxTask::handleESearch(const Imap::Responses::ESearch *const resp)
+{
+    if (dieIfInvalidMailbox())
+        return true;
+
+    TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
+    Q_ASSERT(mailbox);
+    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList*>(mailbox->m_children[0]);
+    Q_ASSERT(list);
+
+
+    if (resp->tag != uidSyncingCmd)
+        return false;
+
+    if (resp->seqOrUids != Imap::Responses::ESearch::UIDS)
+        throw UnexpectedResponseReceived("ESEARCH response with matching tag uses sequence numbers instead of UIDs", *resp);
+
+    if (resp->listData.contains("ALL"))
+        uidMap = resp->listData["ALL"];
+    else if (resp->numData.contains("ALL"))
+        uidMap = QList<uint>() << resp->numData["ALL"];
+    else
+        throw UnexpectedResponseReceived("ESEARCH doesn't contain the ALL result", *resp);
+
+    switch (uidSyncingMode) {
+    case UID_SYNC_ALL:
+        if (static_cast<uint>(uidMap.size()) != mailbox->syncState.exists()) {
+            // The (possibly updated) EXISTS does not match what we received for UID SEARCH ALL. Please note that
+            // it's the server's responsibility to feed us with valid data; scenarios like sending out-of-order responses
+            // would clearly break this contract.
+            std::ostringstream ss;
+            ss << "Error when synchronizing all messages: server said that there are " << mailbox->syncState.exists() <<
+                  " messages, but UID ESEARCH ALL response contains " << uidMap.size() << " entries" << std::endl;
+            ss.flush();
+            throw MailboxException(ss.str().c_str(), *resp);
+        }
+        Q_ASSERT(mailbox->syncState.isUsableForSyncing());
+        break;
+    case UID_SYNC_ONLY_NEW:
+    {
+        // Be sure there really are some new messages
+        const int newArrivals = mailbox->syncState.exists() - firstUnknownUidOffset;
+        Q_ASSERT(newArrivals >= 0);
+
+        if (newArrivals != uidMap.size()) {
+            std::ostringstream ss;
+            ss << "Error when synchronizing new messages: server said that there are " << mailbox->syncState.exists() <<
+                  " messages in total (" << newArrivals << " new), but UID ESEARCH response contains " << uidMap.size() <<
+                  " entries" << std::endl;
+            ss.flush();
+            throw MailboxException(ss.str().c_str(), *resp);
+        }
+        break;
+    }
+    }
+
+    qSort(uidMap);
+    if (!uidMap.isEmpty() && uidMap.front() == 0) {
+        throw MailboxException("UID ESEARCH response contains invalid UID zero", *resp);
     }
     applyUids(mailbox);
     uidMap.clear();
