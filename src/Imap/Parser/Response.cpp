@@ -634,7 +634,6 @@ ESearch::ESearch(const QByteArray &line, int &start): seqOrUids(SEQUENCE)
     }
 
     while (start < line.size() - 2) {
-        LowLevelParser::eatSpaces(line, start);
         QByteArray label = LowLevelParser::getAtom(line, start).toUpper();
         LowLevelParser::eatSpaces(line, start);
         uint num = LowLevelParser::getUInt(line, start);
@@ -645,20 +644,48 @@ ESearch::ESearch(const QByteArray &line, int &start): seqOrUids(SEQUENCE)
             QList<uint> numbers;
             numbers << num;
 
+            enum {COMMA, RANGE} currentType = COMMA;
+
             // Try to find further items in the sequence set
             while (line[start] == ':' || line[start] == ',') {
+                // it's a sequence set
+
+                if (line[start] == ':') {
+                    if (currentType == RANGE) {
+                        // Now "x:y:z" is a funny syntax
+                        throw UnexpectedHere("Sequence set: range cannot me defined by three numbers", line, start);
+                    }
+                    currentType = RANGE;
+                } else {
+                    currentType = COMMA;
+                }
+
                 ++start;
                 if (start >= line.size() - 2) throw NoData("Truncated sequence set", line, start);
-                // it's a sequence list
+
                 uint num = LowLevelParser::getUInt(line, start);
-                numbers << num;
+                if (currentType == COMMA) {
+                    // just adding one more to the set
+                    numbers << num;
+                } else {
+                    // working with a range
+                    if (numbers.last() >= num)
+                        throw UnexpectedHere("Sequence set contains an invalid range. "
+                                             "First item of a range must always be smaller than the second item.", line, start);
+
+                    for (uint i = numbers.last() + 1; i <= num; ++i)
+                        numbers << i;
+                }
             }
 
+            // There's no synatctit difference between a single-item sequence set and one number, which is why we always parse
+            // such "sequences" as mere numbers
             if (numbers.size() == 1)
                 numData[label] = num;
             else
                 listData[label] = numbers;
         }
+        LowLevelParser::eatSpaces(line, start);
     }
 }
 
