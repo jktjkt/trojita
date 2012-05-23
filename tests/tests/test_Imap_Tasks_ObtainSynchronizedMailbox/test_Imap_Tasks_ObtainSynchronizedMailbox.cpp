@@ -26,6 +26,8 @@
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
+#include "Imap/Model/MsgListModel.h"
+#include "Imap/Model/ThreadingMsgListModel.h"
 #include "Imap/Tasks/ObtainSynchronizedMailboxTask.h"
 
 namespace Imap {
@@ -83,6 +85,19 @@ char *toString(const QList<uint> &list)
 }
 
 
+}
+
+void ImapModelObtainSynchronizedMailboxTest::init()
+{
+    LibMailboxSync::init();
+
+    using namespace Imap::Mailbox;
+    MsgListModel *msgListModelA = new MsgListModel(model, model);
+    ThreadingMsgListModel *threadingA = new ThreadingMsgListModel(msgListModelA);
+    threadingA->setSourceModel(msgListModelA);
+    MsgListModel *msgListModelB = new MsgListModel(model, model);
+    ThreadingMsgListModel *threadingB = new ThreadingMsgListModel(msgListModelB);
+    threadingB->setSourceModel(msgListModelB);
 }
 
 /** Verify syncing of an empty mailbox with just the EXISTS response

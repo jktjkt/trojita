@@ -30,7 +30,7 @@ class ImapModelObtainSynchronizedMailboxTest : public LibMailboxSync
 {
     Q_OBJECT
 private slots:
-
+    void init();
     void testSyncEmptyMinimal();
     void testSyncEmptyNormal();
     void testSyncWithMessages();
