@@ -76,6 +76,7 @@ enum Kind {
     LSUB,
     FLAGS,
     SEARCH,
+    ESEARCH, /** @short RFC 4731 ESEARCH */
     STATUS,
     NAMESPACE,
     SORT,
@@ -380,6 +381,40 @@ public:
     Search(const QByteArray &line, int &start);
     Search(const QList<uint> &_items) : AbstractResponse(SEARCH), items(_items) {};
     virtual QTextStream &dump(QTextStream &s) const;
+    virtual bool eq(const AbstractResponse &other) const;
+    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
+    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+};
+
+/** @short Structure storing an ESEARCH untagged response */
+class ESearch : public AbstractResponse
+{
+public:
+    /** @short Is the response given in UIDs, or just in sequence numbers */
+    typedef enum {
+        SEQUENCE, /**< @short In sequence numbers */
+        UIDS /**< @short In UIDs */
+    } SequencesOrUids;
+
+    /** @short The tag of the command which requested in this operation */
+    QByteArray tag;
+
+    /** @short Are the numbers given in UIDs, or as sequence numbers? */
+    SequencesOrUids seqOrUids;
+
+    /** @short The received data: numbers */
+    QMap<QByteArray, uint> numData;
+
+    /** @short The received data: sequences */
+    QMap<QByteArray, QList<uint> > listData;
+
+    // Other forms of returned data are quite explicitly not supported.
+
+    ESearch(const QByteArray &line, int &start);
+    ESearch(const QByteArray &tag, const SequencesOrUids seqOrUids, const QMap<QByteArray, uint> &numData,
+            const QMap<QByteArray, QList<uint> >&listData) :
+        AbstractResponse(ESEARCH), tag(tag), seqOrUids(seqOrUids), numData(numData), listData(listData) {}
+    virtual QTextStream &dump(QTextStream &stream) const;
     virtual bool eq(const AbstractResponse &other) const;
     virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
     virtual bool plug(Imap::Mailbox::ImapTask *task) const;

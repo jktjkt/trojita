@@ -12,6 +12,10 @@ public:
         ++number;
         return last( what );
     }
+    QByteArray last() const
+    {
+        return QString::fromAscii("y%1").arg(number).toAscii();
+    }
     QByteArray last( const char * const what ) const
     {
         return QString::fromAscii("y%1 ").arg( number ).toAscii() + QByteArray(what);

@@ -518,6 +518,12 @@ void Model::handleSearch(Imap::Parser *ptr, const Imap::Responses::Search *const
     throw UnexpectedResponseReceived("[Tasks API Port] Unhandled Search", *resp);
 }
 
+void Model::handleESearch(Imap::Parser *ptr, const Imap::Responses::ESearch *const resp)
+{
+    Q_UNUSED(ptr);
+    throw UnexpectedResponseReceived("Unhandled ESEARCH", *resp);
+}
+
 void Model::handleStatus(Imap::Parser *ptr, const Imap::Responses::Status *const resp)
 {
     Q_UNUSED(ptr);

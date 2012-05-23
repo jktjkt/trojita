@@ -87,6 +87,10 @@ void ImapResponsesTest::testCompareEq_data()
         respPtr( new Search( QList<uint>() << 333 ) ) <<
         respPtr( new Search( QList<uint>() << 333 ) );
 
+    QTest::newRow("esearch") <<
+        respPtr(new ESearch("t1", ESearch::UIDS, QMap<QByteArray, uint>(), QMap<QByteArray, QList<uint> >())) <<
+        respPtr(new ESearch("t1", ESearch::UIDS, QMap<QByteArray, uint>(), QMap<QByteArray, QList<uint> >()));
+
     Status::stateDataType stateMap;
     QTest::newRow( "status-1" ) <<
         respPtr( new Status( "ahoj", stateMap ) ) <<
@@ -209,6 +213,27 @@ void ImapResponsesTest::testCompareNe_data()
     QTest::newRow( "search" ) <<
         respPtr( new Search( QList<uint>() << 333 ) ) <<
         respPtr( new Search( QList<uint>() << 666 ) );
+
+    QTest::newRow("esearch-tag") <<
+        respPtr(new ESearch("t1", ESearch::UIDS, QMap<QByteArray, uint>(), QMap<QByteArray, QList<uint> >())) <<
+        respPtr(new ESearch(QByteArray(), ESearch::UIDS, QMap<QByteArray, uint>(), QMap<QByteArray, QList<uint> >()));
+
+    QTest::newRow("esearch-uid-seq") <<
+        respPtr(new ESearch("t1", ESearch::UIDS, QMap<QByteArray, uint>(), QMap<QByteArray, QList<uint> >())) <<
+        respPtr(new ESearch("t1", ESearch::SEQUENCE, QMap<QByteArray, uint>(), QMap<QByteArray, QList<uint> >()));
+
+    QMap<QByteArray, uint> dummyESearch1;
+    dummyESearch1["foo"] = 666;
+
+    QTest::newRow("esearch-numdata") <<
+        respPtr(new ESearch("t1", ESearch::UIDS, dummyESearch1, QMap<QByteArray, QList<uint> >())) <<
+        respPtr(new ESearch("t1", ESearch::UIDS, QMap<QByteArray, uint>(), QMap<QByteArray, QList<uint> >()));
+
+    QMap<QByteArray, QList<uint> > dummyESearch2;
+    dummyESearch2["blah"] = (QList<uint>() << 333);
+    QTest::newRow("esearch-listdata") <<
+        respPtr(new ESearch("t1", ESearch::UIDS, QMap<QByteArray, uint>(), QMap<QByteArray, QList<uint> >())) <<
+        respPtr(new ESearch("t1", ESearch::UIDS, QMap<QByteArray, uint>(), dummyESearch2));
 
     QTest::newRow( "status-mailbox" ) <<
         respPtr( new Status( "ahoj", Status::stateDataType() ) ) <<

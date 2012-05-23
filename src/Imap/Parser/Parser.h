@@ -220,6 +220,9 @@ public slots:
     /** @short A special case of the "UID SEARCH UID" command */
     CommandHandle uidSearchUid(const QString &sequence);
 
+    /** @short Perform the UID ESEARCH command with the specified UID set */
+    CommandHandle uidESearchUid(const QString &sequence);
+
 
     /** @short X<atom>, RFC3501 sect 6.5.1 */
     CommandHandle xAtom(const Commands::Command &commands);

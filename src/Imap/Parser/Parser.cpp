@@ -234,6 +234,13 @@ CommandHandle Parser::uidSearchUid(const QString &sequence)
     return queueCommand(command);
 }
 
+CommandHandle Parser::uidESearchUid(const QString &sequence)
+{
+    Commands::Command command("UID SEARCH RETURN ()");
+    command << Commands::PartOfCommand(Commands::ATOM, sequence);
+    return queueCommand(command);
+}
+
 CommandHandle Parser::sortHelper(const QString &command, const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria)
 {
     Q_ASSERT(! sortCriteria.isEmpty());
@@ -773,6 +780,9 @@ QSharedPointer<Responses::AbstractResponse> Parser::parseUntaggedText(
     case Responses::SEARCH:
         return QSharedPointer<Responses::AbstractResponse>(
                    new Responses::Search(line, start));
+    case Responses::ESEARCH:
+        return QSharedPointer<Responses::AbstractResponse>(
+                   new Responses::ESearch(line, start));
     case Responses::STATUS:
         return QSharedPointer<Responses::AbstractResponse>(
                    new Responses::Status(line, start));
