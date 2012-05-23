@@ -840,21 +840,26 @@ void ThreadingMsgListModel::pruneTree()
 
                 // Make sure that the offsets are still correct
                 Q_ASSERT(parent->children[it->offset] == it->internalId);
+
+                // Replace the node
                 replaceWith->offset = it->offset;
                 *childIt = it->children.first();
                 replaceWith->parent = parent->internalId;
 
-                // set parent of all siblings of the just promoted node to the promoted node, and list them as children
+                // Now merge the lists of children
                 it->children.removeFirst();
-                Q_FOREACH(const uint childId, it->children) {
-                    QHash<uint, ThreadNodeInfo>::iterator sibling = threading.find(childId);
+                replaceWith->children = replaceWith->children + it->children;
+
+                // Fix parent and offset information of all children of the replacement node
+                for (int i = 0; i < replaceWith->children.size(); ++i) {
+                    QHash<uint, ThreadNodeInfo>::iterator sibling = threading.find(replaceWith->children[i]);
                     Q_ASSERT(sibling != threading.end());
+
                     sibling->parent = replaceWith.key();
-                    replaceWith->children.append(sibling.key());
-                    // We've moved the first of them one level up, so we got to adjust their offsets
-                    --sibling->offset;
+                    sibling->offset = i;
                 }
 
+                // Now that all references are gone, remove the original node
                 threading.erase(it);
 
                 if (!replaceWith->ptr) {
