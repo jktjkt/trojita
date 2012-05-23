@@ -50,8 +50,8 @@ namespace Imap
 namespace Mailbox
 {
 
-ThreadingMsgListModel::ThreadingMsgListModel(QObject *parent): QAbstractProxyModel(parent), modelResetInProgress(false),
-    threadingInFlight(false)
+ThreadingMsgListModel::ThreadingMsgListModel(QObject *parent):
+    QAbstractProxyModel(parent), threadingHelperLastId(0), modelResetInProgress(false), threadingInFlight(false)
 {
 }
 
@@ -94,48 +94,34 @@ void ThreadingMsgListModel::setSourceModel(QAbstractItemModel *sourceModel)
 
 void ThreadingMsgListModel::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
-    if (topLeft.row() != bottomRight.row()) {
-        // FIXME: Batched updates...
-        Q_ASSERT(false);
-        return;
-    }
-
-    if (unknownUids.contains(topLeft)) {
+    QSet<QPersistentModelIndex>::iterator persistent = unknownUids.find(topLeft);
+    if (persistent != unknownUids.end()) {
         // The message wasn't fully synced before, and now it is
-        unknownUids.removeOne(topLeft);
-        logTrace(QString::fromAscii("Got UID for seq# %1").arg(topLeft.row() + 1));
-        wantThreading();
+        persistent = unknownUids.erase(persistent);
+        if (unknownUids.isEmpty()) {
+            wantThreading();
+        }
         return;
     }
 
-    QModelIndex first = mapFromSource(topLeft);
-    QModelIndex second = mapFromSource(bottomRight);
+    // We don't support updates which concern multiple rows at this time.
+    // Doing that would very likely require a completely different codepath due to threading...
+    Q_ASSERT(topLeft.parent() == bottomRight.parent());
+    Q_ASSERT(topLeft.row() == bottomRight.row());
+    QModelIndex translated = mapFromSource(topLeft);
 
-    // There's a possibility for a short race window when te underlying model signals
-    // new data for a message but said message doesn't have threading info (or even known UID) yet. Therefore,
-    // the translated indexes are invalid, so we have to handle that gracefully.
-    // "Doing nothing" could be a reasonable thing.
-    if (! first.isValid() || ! second.isValid()) {
-        logTrace(QString::fromAscii("Got dataChanged() for an index which is not recognized in the threaded proxy"));
-        return;
-    }
-
-    emit dataChanged(first, second);
+    emit dataChanged(translated, translated.sibling(translated.row(), bottomRight.column()));
 
     // We provide funny data like "does this thread contain unread messages?". Now the original signal might mean that flags of a
     // nested message have changed. In order to always be consistent, we have to find the thread root and emit dataChanged() on that
     // as well.
-
-    // This is really required for this naive algorithm
-    Q_ASSERT(first.row() == second.row() && first.parent() == second.parent());
-
-    QModelIndex rootCandidate = first;
+    QModelIndex rootCandidate = translated;
     while (rootCandidate.parent().isValid()) {
         rootCandidate = rootCandidate.parent();
     }
-    if (rootCandidate != first) {
+    if (rootCandidate != translated) {
         // We're really an embedded message
-        emit dataChanged(rootCandidate, rootCandidate.sibling(rootCandidate.row(), second.column()));
+        emit dataChanged(rootCandidate, rootCandidate.sibling(rootCandidate.row(), translated.column()));
     }
 }
 
@@ -189,11 +175,7 @@ QModelIndex ThreadingMsgListModel::parent(const QModelIndex &index) const
     if (parentNode->internalId == 0)
         return QModelIndex();
 
-    QHash<uint,ThreadNodeInfo>::const_iterator grantParentNode = threading.constFind(parentNode->parent);
-    Q_ASSERT(grantParentNode != threading.constEnd());
-    Q_ASSERT(grantParentNode->internalId == parentNode->parent);
-
-    return createIndex(grantParentNode->children.indexOf(parentNode->internalId), 0, parentNode->internalId);
+    return createIndex(parentNode->offset, 0, parentNode->internalId);
 }
 
 bool ThreadingMsgListModel::hasChildren(const QModelIndex &parent) const
@@ -262,14 +244,7 @@ QModelIndex ThreadingMsgListModel::mapFromSource(const QModelIndex &sourceIndex)
     QHash<uint,ThreadNodeInfo>::const_iterator node = threading.constFind(internalId);
     Q_ASSERT(node != threading.constEnd());
 
-    QHash<uint,ThreadNodeInfo>::const_iterator parentNode = threading.constFind(node->parent);
-    // If the following assert fails, it means that we've managed to get a malformed thread mapping -- a tree item references
-    // a non-existing item as a parent.  Remember, we're checking the threading QHash, not the ptrToInternal one.
-    Q_ASSERT(parentNode != threading.constEnd());
-    int offset = parentNode->children.indexOf(internalId);
-    Q_ASSERT(offset != -1);
-
-    return createIndex(offset, sourceIndex.column(), internalId);
+    return createIndex(node->offset, sourceIndex.column(), internalId);
 }
 
 QVariant ThreadingMsgListModel::data(const QModelIndex &proxyIndex, int role) const
@@ -323,21 +298,20 @@ void ThreadingMsgListModel::handleRowsAboutToBeRemoved(const QModelIndex &parent
         QModelIndex index = sourceModel()->index(i, 0, parent);
         Q_ASSERT(index.isValid());
         uint uid = index.data(Imap::Mailbox::RoleMessageUid).toUInt();
-        if (uid) {
-            // Removing a message with an already known UID. We'll just mark it for deletion.
-            QModelIndex translated = mapFromSource(index);
-            Q_ASSERT(translated.isValid());
-            QHash<uint,ThreadNodeInfo>::iterator it = threading.find(translated.internalId());
-            Q_ASSERT(it != threading.end());
-            it->uid = 0;
-            it->ptr = 0;
-            // it will get cleaned up by the pruneTree call later on
-        } else {
+        QModelIndex translated = mapFromSource(index);
+        Q_ASSERT(translated.isValid());
+        QHash<uint,ThreadNodeInfo>::iterator it = threading.find(translated.internalId());
+        Q_ASSERT(it != threading.end());
+        it->uid = 0;
+        it->ptr = 0;
+        // it will get cleaned up by the pruneTree call later on
+        if (!uid) {
             // removing message without a UID
-            unknownUids.removeOne(index);
-            // such a message is not in the mapping yet, and therefore invisible
+            unknownUids.remove(index);
         }
     }
+    emit layoutAboutToBeChanged();
+    updatePersistentIndexesPhase1();
 }
 
 void ThreadingMsgListModel::handleRowsRemoved(const QModelIndex &parent, int start, int end)
@@ -350,8 +324,6 @@ void ThreadingMsgListModel::handleRowsRemoved(const QModelIndex &parent, int sta
     // It looks like this simplified approach won't really fly when model starts to issue interleaved rowsRemoved signals,
     // as we'll just remove everything upon first rowsRemoved.  I'll just hope that it doesn't matter (much).
 
-    emit layoutAboutToBeChanged();
-    updatePersistentIndexesPhase1();
     pruneTree();
     updatePersistentIndexesPhase2();
     emit layoutChanged();
@@ -374,9 +346,10 @@ void ThreadingMsgListModel::handleRowsInserted(const QModelIndex &parent, int st
         QModelIndex index = sourceModel()->index(i, 0);
         uint uid = index.data(RoleMessageUid).toUInt();
         ThreadNodeInfo node;
-        node.internalId = threadingHelperLastId++;
+        node.internalId = ++threadingHelperLastId;
         node.uid = uid;
         node.ptr = static_cast<TreeItem *>(index.internalPointer());
+        node.offset = threading[0].children.size();
         threading[node.internalId] = node;
         threading[0].children << node.internalId;
         ptrToInternal[node.ptr] = node.internalId;
@@ -434,6 +407,7 @@ void ThreadingMsgListModel::updateNoThreading()
         node.internalId = i + 1;
         node.uid = uid;
         node.ptr = static_cast<TreeItem *>(index.internalPointer());
+        node.offset = i;
         newThreading[node.internalId] = node;
         allIds.append(node.internalId);
         newPtrToInternal[node.ptr] = node.internalId;
@@ -754,6 +728,7 @@ void ThreadingMsgListModel::registerThreading(const QVector<Imap::Responses::Thr
             Q_ASSERT(nodeIt != ptrToInternal.constEnd());
             nodeId = *nodeIt;
         }
+        threading[nodeId].offset = threading[parentId].children.size();
         threading[ parentId ].children.append(nodeId);
         threading[ nodeId ].parent = parentId;
         usedNodes.insert(nodeId);
@@ -797,11 +772,7 @@ void ThreadingMsgListModel::updatePersistentIndexesPhase2()
         }
         QHash<uint,ThreadNodeInfo>::const_iterator it = threading.constFind(*ptrIt);
         Q_ASSERT(it != threading.constEnd());
-        QHash<uint,ThreadNodeInfo>::const_iterator parentNode = threading.constFind(it->parent);
-        Q_ASSERT(parentNode != threading.constEnd());
-        int offset = parentNode->children.indexOf(it->internalId);
-        Q_ASSERT(offset != -1);
-        updatedIndexes.append(createIndex(offset, oldPersistentIndexes[i].column(), it->internalId));
+        updatedIndexes.append(createIndex(it->offset, oldPersistentIndexes[i].column(), it->internalId));
     }
     Q_ASSERT(oldPersistentIndexes.size() == updatedIndexes.size());
     changePersistentIndexList(oldPersistentIndexes, updatedIndexes);
@@ -811,13 +782,14 @@ void ThreadingMsgListModel::updatePersistentIndexesPhase2()
 
 void ThreadingMsgListModel::pruneTree()
 {
-    // Our mapping (_threading) is completely unsorted, which means that we simply don't have any way of walking the tree from
-    // the top. Instead, we got to work with a random walk, processing nodes in an unspecified order.  If we iterated on the QMap
+    // Our mapping (threading) is completely unsorted, which means that we simply don't have any way of walking the tree from
+    // the top. Instead, we got to work with a random walk, processing nodes in an unspecified order.  If we iterated on the QHash
     // directly, we'd hit an issue with iterator ordering (basically, we want to be able to say "hey, I don't care at which point
-    // of the iteration I'm right now, the next node to process should be this one, and then we should resume with the rest").
+    // of the iteration I'm right now, the next node to process should be that one, and then we should resume with the rest").
     QList<uint> pending = threading.keys();
     for (QList<uint>::iterator id = pending.begin(); id != pending.end(); /* nothing */) {
         // Convert to the hashmap
+        // The "it" iterator point to the current node in the threading mapping
         QHash<uint, ThreadNodeInfo>::iterator it = threading.find(*id);
         if (it == threading.end()) {
             // We've already seen this node, that's due to promoting
@@ -843,30 +815,51 @@ void ThreadingMsgListModel::pruneTree()
             // and the node itself has to be found in its parent's children
             QList<uint>::iterator childIt = qFind(parent->children.begin(), parent->children.end(), it->internalId);
             Q_ASSERT(childIt != parent->children.end());
+            // Check that its offset is correct
+            Q_ASSERT(childIt - parent->children.begin() == it->offset);
 
             if (it->children.isEmpty()) {
-                // this is a leaf node, so we can just remove it
-                parent->children.erase(childIt);
+                // This is a leaf node, so we can just remove it
+                childIt = parent->children.erase(childIt);
                 threading.erase(it);
                 ++id;
+
+                // Update offsets of all further nodes, siblings to the one we've just deleted
+                while (childIt != parent->children.end()) {
+                    QHash<uint, ThreadNodeInfo>::iterator sibling = threading.find(*childIt);
+                    Q_ASSERT(sibling != threading.end());
+                    --sibling->offset;
+                    Q_ASSERT(sibling->offset >= 0);
+                    ++childIt;
+                }
             } else {
                 // This node has some children, so we can't just delete it. Instead of that, we promote its first child
                 // to replace this node.
                 QHash<uint, ThreadNodeInfo>::iterator replaceWith = threading.find(it->children.first());
                 Q_ASSERT(replaceWith != threading.end());
 
+                // Make sure that the offsets are still correct
+                Q_ASSERT(parent->children[it->offset] == it->internalId);
+
+                // Replace the node
+                replaceWith->offset = it->offset;
                 *childIt = it->children.first();
                 replaceWith->parent = parent->internalId;
 
-                // set parent of all siblings of the just promoted node to the promoted node, and list them as children
+                // Now merge the lists of children
                 it->children.removeFirst();
-                Q_FOREACH(const uint childId, it->children) {
-                    QHash<uint, ThreadNodeInfo>::iterator sibling = threading.find(childId);
+                replaceWith->children = replaceWith->children + it->children;
+
+                // Fix parent and offset information of all children of the replacement node
+                for (int i = 0; i < replaceWith->children.size(); ++i) {
+                    QHash<uint, ThreadNodeInfo>::iterator sibling = threading.find(replaceWith->children[i]);
                     Q_ASSERT(sibling != threading.end());
+
                     sibling->parent = replaceWith.key();
-                    replaceWith->children.append(sibling.key());
+                    sibling->offset = i;
                 }
 
+                // Now that all references are gone, remove the original node
                 threading.erase(it);
 
                 if (!replaceWith->ptr) {

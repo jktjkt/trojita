@@ -69,8 +69,31 @@ protected:
     TagGenerator t;
     uint existsA, uidValidityA, uidNextA;
     QList<uint> uidMapA;
+    bool m_verbose;
 };
 
 #define SOCK static_cast<Imap::FakeSocket*>( factory->lastSocket() )
+
+#define cServer(data) \
+{ \
+    SOCK->fakeReading(data); \
+    for (int i=0; i<4; ++i) \
+        QCoreApplication::processEvents(); \
+}
+
+#define cClient(data) \
+{ \
+    for (int i=0; i<4; ++i) \
+        QCoreApplication::processEvents(); \
+    QCOMPARE(QString::fromAscii(SOCK->writtenStuff()), QString::fromAscii(data));\
+}
+
+#define cEmpty() \
+{ \
+    for (int i=0; i<4; ++i) \
+        QCoreApplication::processEvents(); \
+    QCOMPARE(QString::fromAscii(SOCK->writtenStuff()), QString()); \
+}
+
 
 #endif

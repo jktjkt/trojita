@@ -23,6 +23,7 @@
 #define IMAP_THREADINGMSGLISTMODEL_H
 
 #include <QAbstractProxyModel>
+#include <QSet>
 #include "Imap/Parser/Response.h"
 
 class QTimer;
@@ -50,7 +51,9 @@ struct ThreadNodeInfo {
     QList<uint> children;
     /** @short Pointer to the TreeItemMessage* of the corresponding message */
     TreeItem *ptr;
-    ThreadNodeInfo(): internalId(0), uid(0), parent(0), ptr(0) {}
+    /** @short Position among our parent's children */
+    int offset;
+    ThreadNodeInfo(): internalId(0), uid(0), parent(0), ptr(0), offset(0) {}
 };
 
 QDebug operator<<(QDebug debug, const ThreadNodeInfo &node);
@@ -159,7 +162,7 @@ private:
     /** @short Last assigned internal ID */
     uint threadingHelperLastId;
     /** @short Messages with unkown UIDs */
-    QList<QPersistentModelIndex> unknownUids;
+    QSet<QPersistentModelIndex> unknownUids;
 
     /** @short Threading algorithm we're using for this request */
     QString requestedAlgorithm;

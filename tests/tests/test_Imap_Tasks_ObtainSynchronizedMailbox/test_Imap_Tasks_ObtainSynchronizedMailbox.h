@@ -30,7 +30,7 @@ class ImapModelObtainSynchronizedMailboxTest : public LibMailboxSync
 {
     Q_OBJECT
 private slots:
-
+    void init();
     void testSyncEmptyMinimal();
     void testSyncEmptyNormal();
     void testSyncWithMessages();
@@ -43,9 +43,22 @@ private slots:
     void testFlagReSyncBenchmark();
     void testReloadReadsFromCache();
     void testCacheNoChange();
+    void testCacheUidValidity();
+    void testCacheArrivals();
+    void testCacheArrivalRaceDuringUid();
+    void testCacheArrivalRaceDuringUid2();
+    void testCacheArrivalRaceDuringFlags();
+    void testCacheExpunges();
+    void testCacheExpungesDuringUid();
+    void testCacheExpungesDuringUid2();
+    void testCacheExpungesDuringSelect();
+    void testCacheExpungesDuringFlags();
+    void testCacheArrivalsImmediatelyDeleted();
+    void testCacheArrivalsOldDeleted();
+    void testCacheArrivalsThenDynamic();
+    void testCacheDeletionsThenDynamic();
 private:
-    void cServer(const QByteArray &data);
-    void cClient(const QByteArray &data);
+    void justKeepTask();
 };
 
 #endif

@@ -60,15 +60,15 @@ private:
     void finalizeSelect();
     void fullMboxSync(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState);
     void syncNoNewNoDeletions(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState, const QList<uint> &seqToUid);
-    void syncOnlyDeletions(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState);
     void syncOnlyAdditions(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState, const SyncState &oldState);
     void syncGeneric(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState);
 
-    void finalizeUidSyncAll(TreeItemMailbox *mailbox);
-    void finalizeUidSyncOnlyNew(Model *model, TreeItemMailbox *mailbox, const uint oldExists, QList<uint> &uidMap);
+    void applyUids(TreeItemMailbox *mailbox);
 
     void syncUids(TreeItemMailbox *mailbox, const uint lowestUidToQuery=0);
     void syncFlags(TreeItemMailbox *mailbox);
+    void saveSyncState(TreeItemMailbox *mailbox);
+    void updateHighestKnownUid(TreeItemMailbox *mailbox, const TreeItemMsgList *list) const;
 
     void notifyInterestingMessages(TreeItemMailbox *mailbox);
 
@@ -96,9 +96,11 @@ private:
     CommandHandle selectCmd;
     CommandHandle uidSyncingCmd;
     CommandHandle flagsCmd;
+    QList<CommandHandle> newArrivalsFetch;
     Imap::Mailbox::MailboxSyncingProgress status;
     UidSyncingMode uidSyncingMode;
     QList<uint> uidMap;
+    uint firstUnknownUidOffset;
 
     /** @short An UNSELECT task, if active */
     UnSelectTask *unSelectTask;

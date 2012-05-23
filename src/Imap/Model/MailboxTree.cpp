@@ -459,13 +459,12 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
     }
 }
 
+/** @short Process the EXPUNGE response when the UIDs are already synced */
 void TreeItemMailbox::handleExpunge(Model *const model, const Responses::NumberResponse &resp)
 {
+    Q_ASSERT(resp.kind == Responses::EXPUNGE);
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(m_children[ 0 ]);
     Q_ASSERT(list);
-    if (! list->fetched()) {
-        throw UnexpectedResponseReceived("Got EXPUNGE before we fully synced", resp);
-    }
     if (resp.number > static_cast<uint>(list->m_children.size()) || resp.number == 0) {
         throw UnknownMessageIndex("EXPUNGE references message number which is out-of-bounds");
     }
@@ -474,15 +473,51 @@ void TreeItemMailbox::handleExpunge(Model *const model, const Responses::NumberR
     model->beginRemoveRows(list->toIndex(model), offset, offset);
     TreeItemMessage *message = static_cast<TreeItemMessage *>(list->m_children.takeAt(offset));
     model->cache()->clearMessage(static_cast<TreeItemMailbox *>(list->parent())->mailbox(), message->uid());
-    delete message;
     for (int i = offset; i < list->m_children.size(); ++i) {
         --static_cast<TreeItemMessage *>(list->m_children[i])->m_offset;
     }
     model->endRemoveRows();
+    delete message;
 
     --list->m_totalMessageCount;
     list->recalcVariousMessageCounts(const_cast<Model *>(model));
     model->saveUidMap(list);
+}
+
+/** @short Process the EXISTS response
+
+This function assumes that the mailbox is already synced.
+*/
+void TreeItemMailbox::handleExists(Model *const model, const Responses::NumberResponse &resp)
+{
+    Q_ASSERT(resp.kind == Responses::EXISTS);
+    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(m_children[0]);
+    Q_ASSERT(list);
+    // This is a bit tricky -- unfortunately, we can't assume anything about the UID of new arrivals. On the other hand,
+    // these messages can be referenced by (even unrequested) FETCH responses and deleted by EXPUNGE, so we really want
+    // to add them to the tree.
+    int newArrivals = resp.number - list->m_children.size();
+    if (newArrivals < 0) {
+        throw UnexpectedResponseReceived("EXISTS response attempted to decrease number of messages", resp);
+    }
+    syncState.setExists(resp.number);
+    if (newArrivals == 0) {
+        // remains unchanged...
+        return;
+    }
+
+    QModelIndex parent = list->toIndex(model);
+    int offset = list->m_children.size();
+    model->beginInsertRows(parent, offset, resp.number - 1);
+    for (int i = 0; i < newArrivals; ++i) {
+        TreeItemMessage *msg = new TreeItemMessage(list);
+        msg->m_offset = i + offset;
+        list->m_children << msg;
+        // yes, we really have to add this message with UID 0 :(
+    }
+    model->endInsertRows();
+    list->m_totalMessageCount = resp.number;
+    model->emitMessageCountChanged(this);
 }
 
 TreeItemPart *TreeItemMailbox::partIdToPtr(Model *const model, TreeItemMessage *message, const QString &msgId)
@@ -692,7 +727,8 @@ void TreeItemMessage::fetch(Model *const model)
         // The UID is not known yet, so we can't initiate a UID FETCH at this point. However, we mark
         // this message as "loading", which has the side effect that it will get re-fetched as soon as
         // the UID arrives -- see TreeItemMailbox::handleFetchResponse(), the section which deals with
-        // setting previously unknown UIDs.
+        // setting previously unknown UIDs, and the similar code in ObtainSynchronizedMailboxTask.
+        //
         // Even though this breaks the message preload done in Model::_askForMsgmetadata, chances are that
         // the UIDs will arrive rather soon for all of the pending messages, and the request for metadata
         // will therefore get queued roughly at the same time.  This gives the KeepMailboxOpenTask a chance

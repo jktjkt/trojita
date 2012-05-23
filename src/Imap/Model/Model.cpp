@@ -244,6 +244,10 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
         // It's dead now
 
         if (!guard.wasActive) {
+            // We really want to prevent the ParserStateGuard from accessing something which we'll delete very soon;
+            // teh easiest way is to fool the guard into thinking that it was active before
+            guard.wasActive = true;
+
             killParser(it.key(), PARSER_JUST_DELETE_LATER);
             m_parsers.erase(it);
             m_taskModel->reset();

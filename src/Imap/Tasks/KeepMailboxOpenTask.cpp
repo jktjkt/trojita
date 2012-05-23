@@ -319,32 +319,15 @@ bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResp
         model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
         return true;
     } else if (resp->kind == Imap::Responses::EXISTS) {
-        // This is a bit tricky -- unfortunately, we can't assume anything about the UID of new arrivals. On the other hand,
-        // these messages can be referenced by (even unrequested) FETCH responses and deleted by EXPUNGE, so we really want
-        // to add them to the tree.
-        int newArrivals = resp->number - list->m_children.size();
-        if (newArrivals < 0) {
-            throw UnexpectedResponseReceived("EXISTS response attempted to decrease number of messages", *resp);
-        } else if (newArrivals == 0) {
-            // remains unchanged...
+
+        if (resp->number == static_cast<uint>(list->m_children.size())) {
+            // no changes
             return true;
         }
-        mailbox->syncState.setExists(resp->number);
+
+        mailbox->handleExists(model, *resp);
         model->cache()->clearUidMapping(mailbox->mailbox());
         model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
-
-        QModelIndex parent = list->toIndex(model);
-        int offset = list->m_children.size();
-        model->beginInsertRows(parent, offset, resp->number - 1);
-        for (int i = 0; i < newArrivals; ++i) {
-            TreeItemMessage *msg = new TreeItemMessage(list);
-            msg->m_offset = i + offset;
-            list->m_children << msg;
-            // yes, we really have to add this message with UID 0 :(
-        }
-        model->endInsertRows();
-        list->m_totalMessageCount = resp->number;
-        model->emitMessageCountChanged(mailbox);
 
         breakPossibleIdle();
 
