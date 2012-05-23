@@ -634,7 +634,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperCacheArrivalRaceDuringUid(con
     cServer(t.last("OK selected\r\n"));
     if (esearch == WITH_ESEARCH) {
         cClient(t.mk("UID SEARCH RETURN () UID 15:*\r\n"));
-        cServer("* 5 EXISTS\r\n* SEARCH 42:43\r\n");
+        cServer(QByteArray("* 5 EXISTS\r\n* ESEARCH (TAG ") + t.last() + ") UID ALL 42:43\r\n");
     } else {
         cClient(t.mk("UID SEARCH UID 15:*\r\n"));
         cServer("* 5 EXISTS\r\n* SEARCH 42 43\r\n");
