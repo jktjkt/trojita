@@ -597,13 +597,27 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivals()
     justKeepTask();
 }
 
+void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringUid()
+{
+    helperCacheArrivalRaceDuringUid(WITHOUT_ESEARCH);
+}
+
+void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringUid_ESearch()
+{
+    helperCacheArrivalRaceDuringUid(WITH_ESEARCH);
+}
+
 /** @short Number of messages grows twice
 
 The first increment is when compared to the original state, the second one after the UID SEARCH is issued,
 but before its response arrives.
 */
-void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringUid()
+void ImapModelObtainSynchronizedMailboxTest::helperCacheArrivalRaceDuringUid(const ESearchMode esearch)
 {
+    if (esearch == WITH_ESEARCH) {
+        FakeCapabilitiesInjector injector(model);
+        injector.injectCapability("ESEARCH");
+    }
     Imap::Mailbox::SyncState sync;
     sync.setExists(3);
     sync.setUidValidity(666);
@@ -618,8 +632,13 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringUid()
             "* OK [UIDVALIDITY 666] .\r\n"
             "* OK [UIDNEXT 16] .\r\n");
     cServer(t.last("OK selected\r\n"));
-    cClient(t.mk("UID SEARCH UID 15:*\r\n"));
-    cServer("* 5 EXISTS\r\n* SEARCH 42 43\r\n");
+    if (esearch == WITH_ESEARCH) {
+        cClient(t.mk("UID SEARCH RETURN () UID 15:*\r\n"));
+        cServer("* 5 EXISTS\r\n* SEARCH 42:43\r\n");
+    } else {
+        cClient(t.mk("UID SEARCH UID 15:*\r\n"));
+        cServer("* 5 EXISTS\r\n* SEARCH 42 43\r\n");
+    }
     cServer(t.last("OK uids\r\n"));
     uidMap << 42 << 43;
     sync.setUidNext(44);

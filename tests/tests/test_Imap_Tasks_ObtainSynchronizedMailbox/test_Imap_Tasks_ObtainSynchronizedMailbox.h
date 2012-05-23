@@ -29,6 +29,9 @@ class QSignalSpy;
 class ImapModelObtainSynchronizedMailboxTest : public LibMailboxSync
 {
     Q_OBJECT
+
+    typedef enum {WITHOUT_ESEARCH, WITH_ESEARCH} ESearchMode;
+    void helperCacheArrivalRaceDuringUid(const ESearchMode esearch);
 private slots:
 
     void testSyncEmptyMinimal();
@@ -46,6 +49,7 @@ private slots:
     void testCacheUidValidity();
     void testCacheArrivals();
     void testCacheArrivalRaceDuringUid();
+    void testCacheArrivalRaceDuringUid_ESearch();
     void testCacheArrivalRaceDuringUid2();
     void testCacheArrivalRaceDuringFlags();
     void testCacheExpunges();
