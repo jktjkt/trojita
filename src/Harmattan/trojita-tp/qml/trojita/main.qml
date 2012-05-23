@@ -54,7 +54,6 @@ PageStackWindow {
             imapAccess.msgListModel.setMailbox(mailbox)
             messageListPage.scrollToBottom()
             pageStack.push(messageListPage)
-            oneMessagePage.mailbox = mailbox
         }
     }
 
@@ -63,15 +62,15 @@ PageStackWindow {
         model: imapAccess.msgListModel ? imapAccess.msgListModel : undefined
 
         onMessageSelected: {
-            imapAccess.openMessage(oneMessagePage.mailbox, uid)
-            oneMessagePage.url = "about:blank"
-            oneMessagePage.url = imapAccess.oneMessageModel.mainPartUrl
-            pageStack.push(oneMessagePage)
+            var component = Qt.createComponent("OneMessagePage.qml")
+            if (component.status == Component.Ready) {
+                var oneMessagePage = component.createObject(parent, {})
+                oneMessagePage.mailbox = mailboxListPage.currentMailboxLong
+                imapAccess.openMessage(oneMessagePage.mailbox, uid)
+                oneMessagePage.url = imapAccess.oneMessageModel.mainPartUrl
+                pageStack.push(oneMessagePage)
+            }
         }
-    }
-
-    OneMessagePage {
-        id: oneMessagePage
     }
 
     ToolBarLayout {

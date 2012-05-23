@@ -1627,6 +1627,7 @@ void Model::informTasksAboutNewPassword()
 QModelIndex Model::messageIndexByUid(const QString &mailboxName, const uint uid)
 {
     TreeItemMailbox *mailbox = findMailboxByName(mailboxName);
+    Q_ASSERT(mailbox);
     QList<TreeItemMessage*> messages = findMessagesByUids(mailbox, QList<uint>() << uid);
     if (messages.isEmpty()) {
         return QModelIndex();

@@ -7,8 +7,15 @@ import "Utils.js" as Utils
 Page {
     property string mailbox
     property alias url: messageView.url
+    id: oneMessagePage
 
     tools: commonTools
+
+    onStatusChanged: {
+        if (status == PageStatus.Inactive) {
+            oneMessagePage.destroy()
+        }
+    }
 
     Item {
         anchors {left: parent.left; right: parent.right; bottom: parent.bottom; top: header.bottom}
