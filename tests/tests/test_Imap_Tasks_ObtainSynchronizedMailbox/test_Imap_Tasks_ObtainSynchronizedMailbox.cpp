@@ -781,9 +781,24 @@ void ImapModelObtainSynchronizedMailboxTest::justKeepTask()
     QVERIFY(!firstTask.child(0, 0).isValid());
 }
 
-/** @short Test synchronization of a mailbox with on-disk cache when one message got deleted */
+
 void ImapModelObtainSynchronizedMailboxTest::testCacheExpunges()
 {
+    helperCacheExpunges(WITHOUT_ESEARCH);
+}
+
+void ImapModelObtainSynchronizedMailboxTest::testCacheExpunges_ESearch()
+{
+    helperCacheExpunges(WITH_ESEARCH);
+}
+
+/** @short Test synchronization of a mailbox with on-disk cache when one message got deleted */
+void ImapModelObtainSynchronizedMailboxTest::helperCacheExpunges(const ESearchMode esearch)
+{
+    if (esearch == WITH_ESEARCH) {
+        FakeCapabilitiesInjector injector(model);
+        injector.injectCapability("ESEARCH");
+    }
     Imap::Mailbox::SyncState sync;
     sync.setExists(6);
     sync.setUidValidity(666);
@@ -799,8 +814,13 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheExpunges()
             "* OK [UIDVALIDITY 666] .\r\n"
             "* OK [UIDNEXT 15] .\r\n");
     cServer(t.last("OK selected\r\n"));
-    cClient(t.mk("UID SEARCH ALL\r\n"));
-    cServer("* SEARCH 6 10 11 12 14\r\n");
+    if (esearch == WITH_ESEARCH) {
+        cClient(t.mk("UID SEARCH RETURN () ALL\r\n"));
+        cServer(QByteArray("* ESEARCH (TAG ") + t.last() + ") UID ALL 6,10:12,14\r\n");
+    } else {
+        cClient(t.mk("UID SEARCH ALL\r\n"));
+        cServer("* SEARCH 6 10 11 12 14\r\n");
+    }
     cServer(t.last("OK uids\r\n"));
     uidMap.removeAt(1);
     sync.setExists(5);

@@ -32,6 +32,7 @@ class ImapModelObtainSynchronizedMailboxTest : public LibMailboxSync
 
     typedef enum {WITHOUT_ESEARCH, WITH_ESEARCH} ESearchMode;
     void helperCacheArrivalRaceDuringUid(const ESearchMode esearch);
+    void helperCacheExpunges(const ESearchMode esearch);
 private slots:
 
     void testSyncEmptyMinimal();
@@ -53,6 +54,7 @@ private slots:
     void testCacheArrivalRaceDuringUid2();
     void testCacheArrivalRaceDuringFlags();
     void testCacheExpunges();
+    void testCacheExpunges_ESearch();
     void testCacheExpungesDuringUid();
     void testCacheExpungesDuringUid2();
     void testCacheExpungesDuringSelect();
