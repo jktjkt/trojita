@@ -819,10 +819,19 @@ void ThreadingMsgListModel::pruneTree()
             Q_ASSERT(childIt - parent->children.begin() == it->offset);
 
             if (it->children.isEmpty()) {
-                // this is a leaf node, so we can just remove it
-                parent->children.erase(childIt);
+                // This is a leaf node, so we can just remove it
+                childIt = parent->children.erase(childIt);
                 threading.erase(it);
                 ++id;
+
+                // Update offsets of all further nodes, siblings to the one we've just deleted
+                while (childIt != parent->children.end()) {
+                    QHash<uint, ThreadNodeInfo>::iterator sibling = threading.find(*childIt);
+                    Q_ASSERT(sibling != threading.end());
+                    --sibling->offset;
+                    Q_ASSERT(sibling->offset >= 0);
+                    ++childIt;
+                }
             } else {
                 // This node has some children, so we can't just delete it. Instead of that, we promote its first child
                 // to replace this node.
