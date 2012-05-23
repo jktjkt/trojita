@@ -7,6 +7,7 @@ Page {
     property int nestingDepth: 0
     property string viewTitle: isNestedSomewhere() ? currentMailbox : imapAccess.server
     property string currentMailbox
+    property string currentMailboxLong
     property alias model: proxyModel.model
 
     function openParentMailbox() {
@@ -44,6 +45,7 @@ Page {
                         view.currentIndex = model.index
                         if (mailboxIsSelectable) {
                             currentMailbox = shortMailboxName
+                            currentMailboxLong = mailboxName
                             mailboxSelected(mailboxName)
                         }
                     }
