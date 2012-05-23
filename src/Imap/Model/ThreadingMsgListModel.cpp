@@ -815,6 +815,8 @@ void ThreadingMsgListModel::pruneTree()
             // and the node itself has to be found in its parent's children
             QList<uint>::iterator childIt = qFind(parent->children.begin(), parent->children.end(), it->internalId);
             Q_ASSERT(childIt != parent->children.end());
+            // Check that its offset is correct
+            Q_ASSERT(childIt - parent->children.begin() == it->offset);
 
             if (it->children.isEmpty()) {
                 // this is a leaf node, so we can just remove it
@@ -827,6 +829,8 @@ void ThreadingMsgListModel::pruneTree()
                 QHash<uint, ThreadNodeInfo>::iterator replaceWith = threading.find(it->children.first());
                 Q_ASSERT(replaceWith != threading.end());
 
+                // Make sure that the offsets are still correct
+                Q_ASSERT(parent->children[it->offset] == it->internalId);
                 replaceWith->offset = it->offset;
                 *childIt = it->children.first();
                 replaceWith->parent = parent->internalId;
