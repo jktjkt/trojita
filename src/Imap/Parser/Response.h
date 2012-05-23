@@ -401,14 +401,18 @@ public:
     /** @short Are the numbers given in UIDs, or as sequence numbers? */
     SequencesOrUids seqOrUids;
 
-    /** @short The received data */
+    /** @short The received data: numbers */
+    QMap<QByteArray, uint> numData;
+
+    /** @short The received data: sequences */
     QMap<QByteArray, QList<uint> > listData;
 
     // Other forms of returned data are quite explicitly not supported.
 
     ESearch(const QByteArray &line, int &start);
-    ESearch(const QByteArray &tag, const SequencesOrUids seqOrUids, const QMap<QByteArray, QList<uint> >&listData) :
-        AbstractResponse(SEARCH), tag(tag), seqOrUids(seqOrUids), listData(listData) {}
+    ESearch(const QByteArray &tag, const SequencesOrUids seqOrUids, const QMap<QByteArray, uint> &numData,
+            const QMap<QByteArray, QList<uint> >&listData) :
+        AbstractResponse(ESEARCH), tag(tag), seqOrUids(seqOrUids), numData(numData), listData(listData) {}
     virtual QTextStream &dump(QTextStream &stream) const;
     virtual bool eq(const AbstractResponse &other) const;
     virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;

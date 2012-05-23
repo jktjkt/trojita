@@ -881,6 +881,9 @@ QTextStream &ESearch::dump(QTextStream &stream) const
         stream << "TAG " << tag << " ";
     if (seqOrUids == UIDS)
         stream << "UID ";
+    for (QMap<QByteArray, uint>::const_iterator it = numData.constBegin(); it != numData.constEnd(); ++it) {
+        stream << it.key() << " " << it.value() << " ";
+    }
     for (QMap<QByteArray, QList<uint> >::const_iterator it = listData.constBegin(); it != listData.constEnd(); ++it) {
         stream << it.key() << " (";
         Q_FOREACH(const uint number, it.value()) {
@@ -1074,7 +1077,7 @@ bool ESearch::eq(const AbstractResponse &other) const
 {
     try {
         const ESearch &s = dynamic_cast<const ESearch &>(other);
-        return tag == s.tag && seqOrUids == s.seqOrUids && listData == s.listData;
+        return tag == s.tag && seqOrUids == s.seqOrUids && numData == s.numData && listData == s.listData;
     } catch (std::bad_cast &) {
         return false;
     }
