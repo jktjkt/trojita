@@ -135,6 +135,7 @@ public:
     void handleList(Imap::Parser *ptr, const Imap::Responses::List *const resp);
     void handleFlags(Imap::Parser *ptr, const Imap::Responses::Flags *const resp);
     void handleSearch(Imap::Parser *ptr, const Imap::Responses::Search *const resp);
+    void handleESearch(Imap::Parser *ptr, const Imap::Responses::ESearch *const resp);
     void handleStatus(Imap::Parser *ptr, const Imap::Responses::Status *const resp);
     void handleFetch(Imap::Parser *ptr, const Imap::Responses::Fetch *const resp);
     void handleNamespace(Imap::Parser *ptr, const Imap::Responses::Namespace *const resp);

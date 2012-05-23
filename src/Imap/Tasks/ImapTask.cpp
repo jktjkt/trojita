@@ -120,6 +120,12 @@ bool ImapTask::handleSearch(const Imap::Responses::Search *const resp)
     return false;
 }
 
+bool ImapTask::handleESearch(const Imap::Responses::ESearch *const resp)
+{
+    Q_UNUSED(resp);
+    return false;
+}
+
 bool ImapTask::handleStatus(const Imap::Responses::Status *const resp)
 {
     Q_UNUSED(resp);

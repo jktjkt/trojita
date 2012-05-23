@@ -84,6 +84,7 @@ public:
     virtual bool handleList(const Imap::Responses::List *const resp);
     virtual bool handleFlags(const Imap::Responses::Flags *const resp);
     virtual bool handleSearch(const Imap::Responses::Search *const resp);
+    virtual bool handleESearch(const Imap::Responses::ESearch *const resp);
     virtual bool handleStatus(const Imap::Responses::Status *const resp);
     virtual bool handleFetch(const Imap::Responses::Fetch *const resp);
     virtual bool handleNamespace(const Imap::Responses::Namespace *const resp);

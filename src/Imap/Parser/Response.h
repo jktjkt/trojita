@@ -385,6 +385,36 @@ public:
     virtual bool plug(Imap::Mailbox::ImapTask *task) const;
 };
 
+/** @short Structure storing an ESEARCH untagged response */
+class ESearch : public AbstractResponse
+{
+public:
+    /** @short Is the response given in UIDs, or just in sequence numbers */
+    typedef enum {
+        SEQUENCE, /**< @short In sequence numbers */
+        UIDS /**< @short In UIDs */
+    } SequencesOrUids;
+
+    /** @short The tag of the command which requested in this operation */
+    QByteArray tag;
+
+    /** @short Are the numbers given in UIDs, or as sequence numbers? */
+    SequencesOrUids seqOrUids;
+
+    /** @short The received data */
+    QMap<QByteArray, QList<uint> > listData;
+
+    // Other forms of returned data are quite explicitly not supported.
+
+    ESearch(const QByteArray &line, int &start);
+    ESearch(const QByteArray &tag, const SequencesOrUids seqOrUids, const QMap<QByteArray, QList<uint> >&listData) :
+        AbstractResponse(SEARCH), tag(tag), seqOrUids(seqOrUids), listData(listData) {}
+    virtual QTextStream &dump(QTextStream &stream) const;
+    virtual bool eq(const AbstractResponse &other) const;
+    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
+    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+};
+
 /** @short Structure storing a STATUS untagged response */
 class Status : public AbstractResponse
 {

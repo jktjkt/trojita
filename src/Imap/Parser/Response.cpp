@@ -568,6 +568,12 @@ Search::Search(const QByteArray &line, int &start)
     }
 }
 
+ESearch::ESearch(const QByteArray &line, int &start)
+{
+    // FIXME
+    Q_ASSERT(false);
+}
+
 Status::Status(const QByteArray &line, int &start)
 {
     mailbox = LowLevelParser::getMailbox(line, start);
@@ -868,6 +874,23 @@ QTextStream &Search::dump(QTextStream &stream) const
     return stream;
 }
 
+QTextStream &ESearch::dump(QTextStream &stream) const
+{
+    stream << "ESEARCH ";
+    if (!tag.isEmpty())
+        stream << "TAG " << tag << " ";
+    if (seqOrUids == UIDS)
+        stream << "UID ";
+    for (QMap<QByteArray, QList<uint> >::const_iterator it = listData.constBegin(); it != listData.constEnd(); ++it) {
+        stream << it.key() << " (";
+        Q_FOREACH(const uint number, it.value()) {
+            stream << number << " ";
+        }
+        stream << ") ";
+    }
+    return stream;
+}
+
 QTextStream &Status::dump(QTextStream &stream) const
 {
     stream << "STATUS " << mailbox;
@@ -1047,6 +1070,16 @@ bool Search::eq(const AbstractResponse &other) const
     }
 }
 
+bool ESearch::eq(const AbstractResponse &other) const
+{
+    try {
+        const ESearch &s = dynamic_cast<const ESearch &>(other);
+        return tag == s.tag && seqOrUids == s.seqOrUids && listData == s.listData;
+    } catch (std::bad_cast &) {
+        return false;
+    }
+}
+
 bool Status::eq(const AbstractResponse &other) const
 {
     try {
@@ -1136,6 +1169,7 @@ PLUG(NumberResponse)
 PLUG(List)
 PLUG(Flags)
 PLUG(Search)
+PLUG(ESearch)
 PLUG(Status)
 PLUG(Fetch)
 PLUG(Namespace)
