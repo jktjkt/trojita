@@ -773,6 +773,9 @@ QSharedPointer<Responses::AbstractResponse> Parser::parseUntaggedText(
     case Responses::SEARCH:
         return QSharedPointer<Responses::AbstractResponse>(
                    new Responses::Search(line, start));
+    case Responses::ESEARCH:
+        return QSharedPointer<Responses::AbstractResponse>(
+                   new Responses::ESearch(line, start));
     case Responses::STATUS:
         return QSharedPointer<Responses::AbstractResponse>(
                    new Responses::Status(line, start));

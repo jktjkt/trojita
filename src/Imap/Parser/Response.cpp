@@ -150,6 +150,9 @@ QTextStream &operator<<(QTextStream &stream, const Kind &res)
     case SEARCH:
         stream << "SEARCH";
         break;
+    case ESEARCH:
+        stream << "ESEARCH";
+        break;
     case STATUS:
         stream << "STATUS";
         break;
@@ -202,6 +205,8 @@ Kind kindFromString(QByteArray str) throw(UnrecognizedResponseKind)
         return FLAGS;
     if (str == "SEARCH" || str == "SEARCH\r\n")
         return SEARCH;
+    if (str == "ESEARCH")
+        return ESEARCH;
     if (str == "STATUS")
         return STATUS;
     if (str == "NAMESPACE")
@@ -568,10 +573,93 @@ Search::Search(const QByteArray &line, int &start)
     }
 }
 
-ESearch::ESearch(const QByteArray &line, int &start)
+ESearch::ESearch(const QByteArray &line, int &start): seqOrUids(SEQUENCE)
 {
-    // FIXME
-    Q_ASSERT(false);
+    LowLevelParser::eatSpaces(line, start);
+
+    if (start >= line.size() - 2) {
+        // an empty ESEARCH response; that shall be OK
+        return;
+    }
+
+    if (line[start] == '(') {
+        // Extract the search-correlator
+        ++start;
+        if (start >= line.size()) throw NoData(line, start);
+
+        // extract the optional tag specifier
+        QByteArray header = LowLevelParser::getAtom(line, start).toUpper();
+        if (header != QByteArray("TAG")) {
+            throw ParseError("ESEARCH response: malformed search-correlator", line, start);
+        }
+
+        LowLevelParser::eatSpaces(line, start);
+        if (start >= line.size()) throw NoData(line, start);
+
+        QPair<QByteArray,LowLevelParser::ParsedAs> astring = LowLevelParser::getAString(line, start);
+        tag = astring.first;
+        if (start >= line.size()) throw NoData(line, start);
+
+        if (line[start] != ')')
+            throw ParseError("ESEARCH: search-correlator not enclosed in parentheses", line, start);
+
+        ++start;
+        LowLevelParser::eatSpaces(line, start);
+    }
+
+    if (start >= line.size() - 2) {
+        // So the search-correlator was given, but there isn't anything besides that. Well, let's accept that.
+        return;
+    }
+
+    // Extract the "UID" specifier, if present
+    try {
+        int oldStart = start;
+        QByteArray uid = LowLevelParser::getAtom(line, start);
+        if (uid.toUpper() == QByteArray("UID")) {
+            seqOrUids = UIDS;
+        } else {
+            // got to push the token "back"
+            start = oldStart;
+        }
+    } catch (ParseError &e) {
+        seqOrUids = SEQUENCE;
+    }
+
+    LowLevelParser::eatSpaces(line, start);
+
+    if (start >= line.size() - 2) {
+        // No data -> again, accept
+        return;
+    }
+
+    while (start < line.size() - 2) {
+        LowLevelParser::eatSpaces(line, start);
+        QByteArray label = LowLevelParser::getAtom(line, start).toUpper();
+        LowLevelParser::eatSpaces(line, start);
+        uint num = LowLevelParser::getUInt(line, start);
+        if (start >= line.size() - 2) {
+            // It's definitely just a number because there's no more data in here
+            numData[label] = num;
+        } else {
+            QList<uint> numbers;
+            numbers << num;
+
+            // Try to find further items in the sequence set
+            while (line[start] == ':' || line[start] == ',') {
+                ++start;
+                if (start >= line.size() - 2) throw NoData("Truncated sequence set", line, start);
+                // it's a sequence list
+                uint num = LowLevelParser::getUInt(line, start);
+                numbers << num;
+            }
+
+            if (numbers.size() == 1)
+                numData[label] = num;
+            else
+                listData[label] = numbers;
+        }
+    }
 }
 
 Status::Status(const QByteArray &line, int &start)

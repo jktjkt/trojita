@@ -76,6 +76,7 @@ enum Kind {
     LSUB,
     FLAGS,
     SEARCH,
+    ESEARCH, /** @short RFC 4731 ESEARCH */
     STATUS,
     NAMESPACE,
     SORT,

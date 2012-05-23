@@ -261,6 +261,59 @@ void ImapParserParseTest::testParseUntagged_data()
         << QByteArray("* SEARCH 1 33 666\r\n")
         << QSharedPointer<AbstractResponse>( new Search( QList<uint>() << 1 << 33 << 666 ) );
 
+    QTest::newRow("esearch-empty")
+        << QByteArray("* ESEARCH\r\n")
+        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, QMap<QByteArray, uint>(), QMap<QByteArray, QList<uint> >()));
+
+    QTest::newRow("esearch-empty-tag")
+        << QByteArray("* ESEARCH (TAG x)\r\n")
+        << QSharedPointer<AbstractResponse>(new ESearch("x", ESearch::SEQUENCE, QMap<QByteArray, uint>(), QMap<QByteArray, QList<uint> >()));
+
+    QTest::newRow("esearch-empty-uid")
+        << QByteArray("* ESEARCH UiD\r\n")
+        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::UIDS, QMap<QByteArray, uint>(), QMap<QByteArray, QList<uint> >()));
+
+    QTest::newRow("esearch-empty-uid-tag")
+        << QByteArray("* ESEARCH (TAG \"1\") UiD\r\n")
+        << QSharedPointer<AbstractResponse>(new ESearch("1", ESearch::UIDS, QMap<QByteArray, uint>(), QMap<QByteArray, QList<uint> >()));
+
+    QMap<QByteArray, uint> esearchNumData;
+    QMap<QByteArray, QList<uint> > esearchListData;
+
+    esearchNumData["BLAH"] = 10;
+    QTest::newRow("esearch-one-number")
+        << QByteArray("* ESEARCH BLaH 10\r\n")
+        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchNumData, esearchListData));
+
+    QTest::newRow("esearch-uid-one-number")
+        << QByteArray("* ESEArCH UiD BLaH 10\r\n")
+        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::UIDS, esearchNumData, esearchListData));
+
+    QTest::newRow("esearch-tag-one-number")
+        << QByteArray("* ESEArCH (TaG x) BLaH 10\r\n")
+        << QSharedPointer<AbstractResponse>(new ESearch("x", ESearch::SEQUENCE, esearchNumData, esearchListData));
+
+    QTest::newRow("esearch-uid-tag-one-number")
+        << QByteArray("* ESEArCH (TaG x) Uid BLaH 10\r\n")
+        << QSharedPointer<AbstractResponse>(new ESearch("x", ESearch::UIDS, esearchNumData, esearchListData));
+
+    esearchNumData["FOO"] = 333;
+    QTest::newRow("esearch-two-numbers")
+        << QByteArray("* ESEARCH fOO 333 foo 333   BLaH 10\r\n")
+        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchNumData, esearchListData));
+
+    QTest::newRow("esearch-uid-two-numbers")
+        << QByteArray("* ESEArCH UiD foo    333 BLaH  10\r\n")
+        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::UIDS, esearchNumData, esearchListData));
+
+    QTest::newRow("esearch-tag-two-numbers")
+        << QByteArray("* ESEArCH (TaG x)    BLaH 10 foo 333\r\n")
+        << QSharedPointer<AbstractResponse>(new ESearch("x", ESearch::SEQUENCE, esearchNumData, esearchListData));
+
+    QTest::newRow("esearch-uid-tag-two-numbers")
+        << QByteArray("* ESEArCH    (TaG   x)   Uid  foo 333 BLaH 10\r\n")
+        << QSharedPointer<AbstractResponse>(new ESearch("x", ESearch::UIDS, esearchNumData, esearchListData));
+
     Status::stateDataType states;
     states[Status::MESSAGES] = 231;
     states[Status::UIDNEXT] = 44292;
