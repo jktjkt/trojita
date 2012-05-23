@@ -782,13 +782,14 @@ void ThreadingMsgListModel::updatePersistentIndexesPhase2()
 
 void ThreadingMsgListModel::pruneTree()
 {
-    // Our mapping (_threading) is completely unsorted, which means that we simply don't have any way of walking the tree from
-    // the top. Instead, we got to work with a random walk, processing nodes in an unspecified order.  If we iterated on the QMap
+    // Our mapping (threading) is completely unsorted, which means that we simply don't have any way of walking the tree from
+    // the top. Instead, we got to work with a random walk, processing nodes in an unspecified order.  If we iterated on the QHash
     // directly, we'd hit an issue with iterator ordering (basically, we want to be able to say "hey, I don't care at which point
-    // of the iteration I'm right now, the next node to process should be this one, and then we should resume with the rest").
+    // of the iteration I'm right now, the next node to process should be that one, and then we should resume with the rest").
     QList<uint> pending = threading.keys();
     for (QList<uint>::iterator id = pending.begin(); id != pending.end(); /* nothing */) {
         // Convert to the hashmap
+        // The "it" iterator point to the current node in the threading mapping
         QHash<uint, ThreadNodeInfo>::iterator it = threading.find(*id);
         if (it == threading.end()) {
             // We've already seen this node, that's due to promoting
