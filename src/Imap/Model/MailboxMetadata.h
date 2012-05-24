@@ -85,6 +85,8 @@ public:
     */
     bool isUsableForSyncing() const;
 
+    bool isUsableForCondstore() const;
+
     /** @short Compare all members (including the hidden ones) with other */
     bool completelyEqualTo(const SyncState &other) const;
 };
