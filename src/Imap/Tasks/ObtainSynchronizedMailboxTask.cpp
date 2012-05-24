@@ -202,7 +202,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
         dbg << "Inconsistent cache data, falling back to full sync (" << seqToUid.size() << "in UID map," << oldSyncState.exists() <<
             "EXIST before)";
         log(buf, LOG_MAILBOX_SYNC);
-        fullMboxSync(mailbox, list, syncState);
+        fullMboxSync(mailbox, list);
     } else {
         if (syncState.isUsableForSyncing() && oldSyncState.isUsableForSyncing() && syncState.uidValidity() == oldSyncState.uidValidity()) {
             // Perform a nice re-sync
@@ -236,17 +236,17 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                 Q_ASSERT(syncState.uidValidity() == oldSyncState.uidValidity());
                 log("Yuck, UIDVALIDITY remains same but UIDNEXT decreased", LOG_MAILBOX_SYNC);
                 model->cache()->clearAllMessages(mailbox->mailbox());
-                fullMboxSync(mailbox, list, syncState);
+                fullMboxSync(mailbox, list);
             }
         } else {
             // Forget everything, do a dumb sync
             model->cache()->clearAllMessages(mailbox->mailbox());
-            fullMboxSync(mailbox, list, syncState);
+            fullMboxSync(mailbox, list);
         }
     }
 }
 
-void ObtainSynchronizedMailboxTask::fullMboxSync(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState)
+void ObtainSynchronizedMailboxTask::fullMboxSync(TreeItemMailbox *mailbox, TreeItemMsgList *list)
 {
     log("Full synchronization", LOG_MAILBOX_SYNC);
     model->cache()->clearUidMapping(mailbox->mailbox());
@@ -260,9 +260,9 @@ void ObtainSynchronizedMailboxTask::fullMboxSync(TreeItemMailbox *mailbox, TreeI
         model->endRemoveRows();
         qDeleteAll(oldItems);
     }
-    if (syncState.exists()) {
-        model->beginInsertRows(parent, 0, syncState.exists() - 1);
-        for (uint i = 0; i < syncState.exists(); ++i) {
+    if (mailbox->syncState.exists()) {
+        model->beginInsertRows(parent, 0, mailbox->syncState.exists() - 1);
+        for (uint i = 0; i < mailbox->syncState.exists(); ++i) {
             TreeItemMessage *msg = new TreeItemMessage(list);
             msg->m_offset = i;
             list->m_children << msg;
@@ -278,7 +278,7 @@ void ObtainSynchronizedMailboxTask::fullMboxSync(TreeItemMailbox *mailbox, TreeI
         list->m_unreadMessageCount = 0;
         list->m_numberFetchingStatus = TreeItem::DONE;
         list->m_fetchStatus = TreeItem::DONE;
-        model->cache()->setMailboxSyncState(mailbox->mailbox(), syncState);
+        model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
         model->saveUidMap(list);
 
         // The remote mailbox is empty -> we're done now
