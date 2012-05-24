@@ -959,6 +959,9 @@ void ObtainSynchronizedMailboxTask::saveSyncState(TreeItemMailbox *mailbox)
 {
     model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
     model->saveUidMap(dynamic_cast<TreeItemMsgList*>(mailbox->m_children[0]));
+    // FIXME: Redmine#457, we should commit the data at this point, along with the flags.
+    // The FETCH handler for flags shall be changes so that the persistent cache is updated only
+    // when all data are here.
 }
 
 }
