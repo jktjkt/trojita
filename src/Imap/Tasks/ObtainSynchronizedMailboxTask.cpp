@@ -189,28 +189,28 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
 
     model->changeConnectionState(parser, CONN_STATE_SYNCING);
     const SyncState &syncState = mailbox->syncState;
-    const SyncState &oldState = model->cache()->mailboxSyncState(mailbox->mailbox());
+    oldSyncState = model->cache()->mailboxSyncState(mailbox->mailbox());
     list->m_totalMessageCount = syncState.exists();
     // Note: syncState.unSeen() is the NUMBER of the first unseen message, not their count!
 
     const QList<uint> &seqToUid = model->cache()->uidMapping(mailbox->mailbox());
 
-    if (static_cast<uint>(seqToUid.size()) != oldState.exists()) {
+    if (static_cast<uint>(seqToUid.size()) != oldSyncState.exists()) {
 
         QString buf;
         QDebug dbg(&buf);
-        dbg << "Inconsistent cache data, falling back to full sync (" << seqToUid.size() << "in UID map," << oldState.exists() <<
+        dbg << "Inconsistent cache data, falling back to full sync (" << seqToUid.size() << "in UID map," << oldSyncState.exists() <<
             "EXIST before)";
         log(buf, LOG_MAILBOX_SYNC);
         fullMboxSync(mailbox, list, syncState);
     } else {
-        if (syncState.isUsableForSyncing() && oldState.isUsableForSyncing() && syncState.uidValidity() == oldState.uidValidity()) {
+        if (syncState.isUsableForSyncing() && oldSyncState.isUsableForSyncing() && syncState.uidValidity() == oldSyncState.uidValidity()) {
             // Perform a nice re-sync
 
-            if (syncState.uidNext() == oldState.uidNext()) {
+            if (syncState.uidNext() == oldSyncState.uidNext()) {
                 // No new messages
 
-                if (syncState.exists() == oldState.exists()) {
+                if (syncState.exists() == oldSyncState.exists()) {
                     // No deletions, either, so we resync only flag changes
                     syncNoNewNoDeletions(mailbox, list, syncState, seqToUid);
                 } else {
@@ -218,13 +218,13 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                     syncGeneric(mailbox, list, syncState);
                 }
 
-            } else if (syncState.uidNext() > oldState.uidNext()) {
+            } else if (syncState.uidNext() > oldSyncState.uidNext()) {
                 // Some new messages were delivered since we checked the last time.
                 // There's no guarantee they are still present, though.
 
-                if (syncState.uidNext() - oldState.uidNext() == syncState.exists() - oldState.exists()) {
+                if (syncState.uidNext() - oldSyncState.uidNext() == syncState.exists() - oldSyncState.exists()) {
                     // Only some new arrivals, no deletions
-                    syncOnlyAdditions(mailbox, list, syncState, oldState);
+                    syncOnlyAdditions(mailbox, list, syncState, oldSyncState);
                 } else {
                     // Generic case; we don't know anything about which messages were deleted and which added
                     syncGeneric(mailbox, list, syncState);
@@ -232,8 +232,8 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
             } else {
                 // The UIDNEXT has decreased while UIDVALIDITY remains the same. This is forbidden,
                 // so either a server's bug, or a completely invalid cache.
-                Q_ASSERT(syncState.uidNext() < oldState.uidNext());
-                Q_ASSERT(syncState.uidValidity() == oldState.uidValidity());
+                Q_ASSERT(syncState.uidNext() < oldSyncState.uidNext());
+                Q_ASSERT(syncState.uidValidity() == oldSyncState.uidValidity());
                 log("Yuck, UIDVALIDITY remains same but UIDNEXT decreased", LOG_MAILBOX_SYNC);
                 model->cache()->clearAllMessages(mailbox->mailbox());
                 fullMboxSync(mailbox, list, syncState);

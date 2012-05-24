@@ -102,6 +102,7 @@ private:
     UidSyncingMode uidSyncingMode;
     QList<uint> uidMap;
     uint firstUnknownUidOffset;
+    SyncState oldSyncState;
 
     /** @short An UNSELECT task, if active */
     UnSelectTask *unSelectTask;
