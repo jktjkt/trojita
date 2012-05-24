@@ -434,7 +434,6 @@ void ObtainSynchronizedMailboxTask::syncFlags(TreeItemMailbox *mailbox)
     }
     if (useModSeq > 0) {
         // FIXME: issue the corresponding command
-        // FIXME: FETCH: fails with '* 11235 FETCH (UID 42463 MODSEQ (45278) FLAGS (\Seen))'
         flagsCmd = parser->fetch(Sequence(1, mailbox->syncState.exists()), QStringList() << QLatin1String("FLAGS"));
     } else {
         flagsCmd = parser->fetch(Sequence(1, mailbox->syncState.exists()), QStringList() << QLatin1String("FLAGS"));

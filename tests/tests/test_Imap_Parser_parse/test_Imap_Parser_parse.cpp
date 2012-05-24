@@ -746,6 +746,14 @@ void ImapParserParseTest::testParseUntagged_data()
                           " )\r\n")
 #endif
 
+    fetchData.clear();
+    fetchData["UID"] = QSharedPointer<AbstractData>(new RespData<uint>(42463));
+    fetchData["FLAGS"] = QSharedPointer<AbstractData>(new RespData<QStringList>(QStringList() << QLatin1String("\\Seen")));
+    fetchData["MODSEQ"] = QSharedPointer<AbstractData>(new RespData<quint64>(quint64(45278)));
+    QTest::newRow("fetch-flags-modseq")
+            << QByteArray("* 11235 FETCH (UID 42463 MODSEQ (45278) FLAGS (\\Seen))\r\n")
+            << QSharedPointer<AbstractResponse>(new Fetch(11235, fetchData));
+
     QTest::newRow("id-nil")
             << QByteArray("* ID nIl\r\n")
             << QSharedPointer<AbstractResponse>(new Id(QMap<QByteArray,QByteArray>()));
