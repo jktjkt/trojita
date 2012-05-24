@@ -139,20 +139,22 @@ bool SQLCache::open(const QString &name, const QString &fileName)
         }
     }
 
-    if (version == 2) {
+    if (version == 2 || version == 3) {
+        // There's no difference in table layout between v3 and v4, but the mailbox_sync_state has changed due to the new
+        // HIGHESTMODSEQ in Mailbox::SyncState, which is why we throw away the old data unconditionally
         if (!q.exec(QLatin1String("DROP TABLE mailbox_sync_state;"))) {
             emitError(tr("Failed to drop old table mailbox_sync_state"));
             return false;
         }
         TROJITA_SQL_CACHE_CREATE_SYNC_STATE;
-        version = 3;
-        if (! q.exec(QLatin1String("UPDATE trojita SET version = 3;"))) {
-            emitError(tr("Failed to update cache DB scheme from v2 to v3"), q);
+        version = 4;
+        if (! q.exec(QLatin1String("UPDATE trojita SET version = 4;"))) {
+            emitError(tr("Failed to update cache DB scheme from v2/v3 to v4"), q);
             return false;
         }
     }
 
-    if (version != 3) {
+    if (version != 4) {
         emitError(tr("Unknown version"));
         return false;
     }
@@ -177,7 +179,7 @@ bool SQLCache::createTables()
         emitError(tr("Failed to prepare table structures"), q);
         return false;
     }
-    if (! q.exec(QLatin1String("INSERT INTO trojita ( version ) VALUES ( 3 )"))) {
+    if (! q.exec(QLatin1String("INSERT INTO trojita ( version ) VALUES ( 4 )"))) {
         emitError(tr("Can't store version info"), q);
         return false;
     }
