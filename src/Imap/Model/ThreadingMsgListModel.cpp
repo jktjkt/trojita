@@ -354,7 +354,6 @@ void ThreadingMsgListModel::handleRowsInserted(const QModelIndex &parent, int st
         threading[0].children << node.internalId;
         ptrToInternal[node.ptr] = node.internalId;
         if (!node.uid) {
-            logTrace(QString::fromAscii("Message %1 has unknown UID").arg(index.row()));
             unknownUids << index;
         }
     }
@@ -412,7 +411,6 @@ void ThreadingMsgListModel::updateNoThreading()
         allIds.append(node.internalId);
         newPtrToInternal[node.ptr] = node.internalId;
         if (!node.uid) {
-            logTrace(QString::fromAscii("Message %1 has unknown UID").arg(index.row()));
             unknownUids << index;
         }
     }
