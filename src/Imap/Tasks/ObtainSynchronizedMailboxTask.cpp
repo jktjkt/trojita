@@ -224,7 +224,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
 
                 if (syncState.uidNext() - oldSyncState.uidNext() == syncState.exists() - oldSyncState.exists()) {
                     // Only some new arrivals, no deletions
-                    syncOnlyAdditions(mailbox, list, syncState, oldSyncState);
+                    syncOnlyAdditions(mailbox, list);
                 } else {
                     // Generic case; we don't know anything about which messages were deleted and which added
                     syncGeneric(mailbox, list, syncState);
@@ -354,19 +354,18 @@ void ObtainSynchronizedMailboxTask::syncNoNewNoDeletions(TreeItemMailbox *mailbo
     }
 }
 
-void ObtainSynchronizedMailboxTask::syncOnlyAdditions(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState, const SyncState &oldState)
+void ObtainSynchronizedMailboxTask::syncOnlyAdditions(TreeItemMailbox *mailbox, TreeItemMsgList *list)
 {
     log("Syncing new arrivals", LOG_MAILBOX_SYNC);
-    Q_UNUSED(syncState);
 
     // So, we know that messages only got added to the mailbox and that none were removed,
     // neither those that we already know or those that got added while we weren't around.
     // Therefore we ask only for UIDs of new messages
 
-    firstUnknownUidOffset = oldState.exists();
+    firstUnknownUidOffset = oldSyncState.exists();
     list->m_numberFetchingStatus = TreeItem::LOADING;
     uidSyncingMode = UID_SYNC_ONLY_NEW;
-    syncUids(mailbox, oldState.uidNext());
+    syncUids(mailbox, oldSyncState.uidNext());
 }
 
 void ObtainSynchronizedMailboxTask::syncGeneric(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState)
