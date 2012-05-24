@@ -211,6 +211,7 @@ QDebug operator<<(QDebug &dbg, const Imap::Mailbox::MailboxMetadata &metadata)
 QDataStream &operator>>(QDataStream &stream, Imap::Mailbox::SyncState &ss)
 {
     uint i;
+    quint64 i64;
     QStringList list;
     stream >> i; ss.setExists(i);
     stream >> list; ss.setFlags(list);
@@ -218,7 +219,7 @@ QDataStream &operator>>(QDataStream &stream, Imap::Mailbox::SyncState &ss)
     stream >> i; ss.setRecent(i);
     stream >> i; ss.setUidNext(i);
     stream >> i; ss.setUidValidity(i);
-    stream >> i; ss.setHighestModSeq(i);
+    stream >> i64; ss.setHighestModSeq(i64);
     stream >> i; ss.setUnSeenCount(i);
     stream >> i; ss.setUnSeenOffset(i);
     return stream;
