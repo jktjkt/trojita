@@ -462,8 +462,22 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState(const Imap::Re
         }
         break;
     }
-    case Responses::CLOSED:
+    case Responses::NOMODSEQ:
+        // NOMODSEQ means that this mailbox doesn't support CONDSTORE. We have to avoid sending any fancy commands like
+        // the FETCH CHANGEDSINCE etc.
+        mailbox->syncState.setHighestModSeq(0);
+        res = true;
+        break;
+
     case Responses::HIGHESTMODSEQ:
+    {
+        const Responses::RespData<quint64> *const num = dynamic_cast<const Responses::RespData<quint64>* const>(resp->respCodeData.data());
+        Q_ASSERT(num);
+        mailbox->syncState.setHighestModSeq(num->data);
+        res = true;
+        break;
+    }
+    case Responses::CLOSED:
         // FIXME: handle when supporting the qresync
         res = true;
         break;
