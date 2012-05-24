@@ -440,6 +440,12 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                 updatedFlags = true;
                 changedMessage = message;
             }
+        } else if (it.key() == "MODSEQ") {
+            quint64 num = dynamic_cast<const Responses::RespData<quint64>&>(*(it.value())).data;
+            if (num > syncState.highestModSeq()) {
+                syncState.setHighestModSeq(num);
+                // FIXME: when shall we save this one to the persistent cache?
+            }
         } else {
             qDebug() << "TreeItemMailbox::handleFetchResponse: unknown FETCH identifier" << it.key();
         }
