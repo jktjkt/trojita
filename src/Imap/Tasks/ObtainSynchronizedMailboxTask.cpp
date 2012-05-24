@@ -751,10 +751,13 @@ bool ObtainSynchronizedMailboxTask::handleFetch(const Imap::Responses::Fetch *co
     Q_ASSERT(mailbox);
     QList<TreeItemPart *> changedParts;
     TreeItemMessage *changedMessage = 0;
-    mailbox->handleFetchResponse(model, *resp, changedParts, changedMessage);
+    mailbox->handleFetchResponse(model, *resp, changedParts, changedMessage, false);
     if (changedMessage) {
         QModelIndex index = changedMessage->toIndex(model);
         emit model->dataChanged(index, index);
+        if (mailbox->syncState.uidNext() <= changedMessage->uid()) {
+            mailbox->syncState.setUidNext(changedMessage->uid() + 1);
+        }
         // On the other hand, this one will be emitted at the very end
         // model->emitMessageCountChanged(mailbox);
     }
@@ -957,9 +960,8 @@ QVariant ObtainSynchronizedMailboxTask::taskData(const int role) const
 
 void ObtainSynchronizedMailboxTask::saveSyncState(TreeItemMailbox *mailbox)
 {
-    //model->cache()->clearUidMapping(mailbox->mailbox());
     model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
-    // FIXME: set the UID mapping as well
+    model->saveUidMap(dynamic_cast<TreeItemMsgList*>(mailbox->m_children[0]));
 }
 
 }

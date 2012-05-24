@@ -155,7 +155,8 @@ public:
     void handleFetchResponse(Model *const model,
                              const Responses::Fetch &response,
                              QList<TreeItemPart *> &changedParts,
-                             TreeItemMessage *&changedMessage);
+                             TreeItemMessage *&changedMessage,
+                             bool canSaveSyncStateDirectly);
     void rescanForChildMailboxes(Model *const model);
     void handleExpunge(Model *const model, const Responses::NumberResponse &resp);
     void handleExists(Model *const model, const Responses::NumberResponse &resp);
