@@ -132,14 +132,30 @@ CommandHandle Parser::login(const QString &username, const QString &password)
                         Commands::PartOfCommand(username) << Commands::PartOfCommand(password));
 }
 
-CommandHandle Parser::select(const QString &mailbox)
+CommandHandle Parser::select(const QString &mailbox, const QList<QByteArray> &params)
 {
-    return queueCommand(Commands::Command("SELECT") << encodeImapFolderName(mailbox));
+    Commands::Command cmd = Commands::Command("SELECT") << encodeImapFolderName(mailbox);
+    if (!params.isEmpty()) {
+        cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, " (");
+        Q_FOREACH(const QByteArray &param, params) {
+            cmd << Commands::PartOfCommand(Commands::ATOM, param);
+        }
+        cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, ")");
+    }
+    return queueCommand(cmd);
 }
 
-CommandHandle Parser::examine(const QString &mailbox)
+CommandHandle Parser::examine(const QString &mailbox, const QList<QByteArray> &params)
 {
-    return queueCommand(Commands::Command("EXAMINE") << encodeImapFolderName(mailbox));
+    Commands::Command cmd = Commands::Command("EXAMINE") << encodeImapFolderName(mailbox);
+    if (!params.isEmpty()) {
+        cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, " (");
+        Q_FOREACH(const QByteArray &param, params) {
+            cmd << Commands::PartOfCommand(Commands::ATOM, param);
+        }
+        cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, ")");
+    }
+    return queueCommand(cmd);
 }
 
 CommandHandle Parser::deleteMailbox(const QString &mailbox)
