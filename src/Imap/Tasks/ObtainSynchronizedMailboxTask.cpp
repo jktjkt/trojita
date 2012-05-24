@@ -402,7 +402,43 @@ void ObtainSynchronizedMailboxTask::syncFlags(TreeItemMailbox *mailbox)
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(mailbox->m_children[ 0 ]);
     Q_ASSERT(list);
 
-    flagsCmd = parser->fetch(Sequence(1, mailbox->syncState.exists()), QStringList() << QLatin1String("FLAGS"));
+    // 0 => don't use it; >0 => use that as the old value
+    quint64 useModSeq = 0;
+    if (model->accessParser(parser).capabilities.contains(QLatin1String("CONDSTORE")) &&
+            oldSyncState.highestModSeq() > 0 && mailbox->syncState.isUsableForCondstore() &&
+            oldSyncState.uidValidity() == mailbox->syncState.uidValidity()) {
+        if (oldSyncState.highestModSeq() == mailbox->syncState.highestModSeq()) {
+            // Looks like there were no changes in flags -- that's cool, we're done here
+            // FIXME: sanity checks for unchanged UIDNEXT and EXISTS
+            if (oldSyncState.exists() > mailbox->syncState.exists()) {
+                log("Some messages have arrived to the mailbox, but HIGHESTMODSEQ hasn't changed. "
+                    "That's a bug in the server implementation.", LOG_MAILBOX_SYNC);
+                // will issue the ordinary FETCH command for FLAGS
+            } else if (oldSyncState.uidNext() != mailbox->syncState.uidNext()) {
+                log("UIDNEXT has changed, yet HIGHESTMODSEQ remained constant; that's server's bug", LOG_MAILBOX_SYNC);
+                // and again, don't trust that HIGHESTMODSEQ
+            } else if (newArrivalsFetch.isEmpty()) {
+                status = STATE_DONE;
+                saveSyncState(mailbox);
+                _completed();
+                return;
+            } else {
+                status = STATE_DONE;
+            }
+        } else if (oldSyncState.highestModSeq() > mailbox->syncState.highestModSeq()) {
+            log("HIGHESTMODSEQ decreased, that's a bug in the IMAP server", LOG_MAILBOX_SYNC);
+            // won't use HIGHESTMODSEQ
+        } else {
+            useModSeq = oldSyncState.highestModSeq();
+        }
+    }
+    if (useModSeq > 0) {
+        // FIXME: issue the corresponding command
+        // FIXME: FETCH: fails with '* 11235 FETCH (UID 42463 MODSEQ (45278) FLAGS (\Seen))'
+        flagsCmd = parser->fetch(Sequence(1, mailbox->syncState.exists()), QStringList() << QLatin1String("FLAGS"));
+    } else {
+        flagsCmd = parser->fetch(Sequence(1, mailbox->syncState.exists()), QStringList() << QLatin1String("FLAGS"));
+    }
     list->m_numberFetchingStatus = TreeItem::LOADING;
     emit model->mailboxSyncingProgress(mailboxIndex, status);
 }
