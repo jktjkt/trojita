@@ -215,7 +215,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                     syncNoNewNoDeletions(mailbox, list, syncState, seqToUid);
                 } else {
                     // Some messages got deleted, but there have been no additions
-                    syncGeneric(mailbox, list, syncState);
+                    syncGeneric(mailbox, list);
                 }
 
             } else if (syncState.uidNext() > oldSyncState.uidNext()) {
@@ -227,7 +227,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                     syncOnlyAdditions(mailbox, list);
                 } else {
                     // Generic case; we don't know anything about which messages were deleted and which added
-                    syncGeneric(mailbox, list, syncState);
+                    syncGeneric(mailbox, list);
                 }
             } else {
                 // The UIDNEXT has decreased while UIDVALIDITY remains the same. This is forbidden,
@@ -368,10 +368,9 @@ void ObtainSynchronizedMailboxTask::syncOnlyAdditions(TreeItemMailbox *mailbox, 
     syncUids(mailbox, oldSyncState.uidNext());
 }
 
-void ObtainSynchronizedMailboxTask::syncGeneric(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState)
+void ObtainSynchronizedMailboxTask::syncGeneric(TreeItemMailbox *mailbox, TreeItemMsgList *list)
 {
     log("generic synchronization from previous state", LOG_MAILBOX_SYNC);
-    Q_UNUSED(syncState);
 
     list->m_numberFetchingStatus = TreeItem::LOADING;
     list->m_unreadMessageCount = 0;
