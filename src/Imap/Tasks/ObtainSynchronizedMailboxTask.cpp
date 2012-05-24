@@ -433,8 +433,9 @@ void ObtainSynchronizedMailboxTask::syncFlags(TreeItemMailbox *mailbox)
         }
     }
     if (useModSeq > 0) {
-        // FIXME: issue the corresponding command
-        flagsCmd = parser->fetch(Sequence(1, mailbox->syncState.exists()), QStringList() << QLatin1String("FLAGS"));
+        QMap<QByteArray, quint64> fetchModifier;
+        fetchModifier["CHANGEDSINCE"] = oldSyncState.highestModSeq();
+        flagsCmd = parser->fetch(Sequence(1, mailbox->syncState.exists()), QStringList() << QLatin1String("FLAGS"), fetchModifier);
     } else {
         flagsCmd = parser->fetch(Sequence(1, mailbox->syncState.exists()), QStringList() << QLatin1String("FLAGS"));
     }
