@@ -304,11 +304,20 @@ CommandHandle Parser::uidThread(const QString &algo, const QString &charset, con
     return threadHelper(QLatin1String("UID THREAD"), algo, charset, searchCriteria);
 }
 
-CommandHandle Parser::fetch(const Sequence &seq, const QStringList &items)
+CommandHandle Parser::fetch(const Sequence &seq, const QStringList &items, const QMap<QByteArray, quint64> &uint64Modifiers)
 {
-    return queueCommand(Commands::Command("FETCH") <<
+    Commands::Command cmd = Commands::Command("FETCH") <<
                         Commands::PartOfCommand(Commands::ATOM, seq.toString()) <<
-                        Commands::PartOfCommand(Commands::ATOM, '(' + items.join(" ") + ')'));
+                        Commands::PartOfCommand(Commands::ATOM, '(' + items.join(" ") + ')');
+    if (!uint64Modifiers.isEmpty()) {
+        cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, QLatin1String("("));
+        for (QMap<QByteArray, quint64>::const_iterator it = uint64Modifiers.constBegin(); it != uint64Modifiers.constEnd(); ++it) {
+            cmd << Commands::PartOfCommand(Commands::ATOM, QString::fromAscii(it.key())) <<
+                   Commands::PartOfCommand(Commands::ATOM, QString::number(it.value()));
+        }
+        cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, QLatin1String(")"));
+    }
+    return queueCommand(cmd);
 }
 
 CommandHandle Parser::store(const Sequence &seq, const QString &item, const QString &value)
