@@ -80,7 +80,11 @@ void ObtainSynchronizedMailboxTask::perform()
     QMap<Parser *,ParserState>::iterator it = model->m_parsers.find(parser);
     Q_ASSERT(it != model->m_parsers.end());
 
-    selectCmd = parser->select(mailbox->mailbox());
+    if (model->accessParser(parser).capabilities.contains(QLatin1String("CONDSTORE"))) {
+        selectCmd = parser->select(mailbox->mailbox(), QList<QByteArray>() << "CONDSTORE");
+    } else {
+        selectCmd = parser->select(mailbox->mailbox());
+    }
     mailbox->syncState = SyncState();
     status = STATE_SELECTING;
     log("Synchronizing mailbox", LOG_MAILBOX_SYNC);
