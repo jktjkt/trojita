@@ -193,13 +193,13 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
     list->m_totalMessageCount = syncState.exists();
     // Note: syncState.unSeen() is the NUMBER of the first unseen message, not their count!
 
-    const QList<uint> &seqToUid = model->cache()->uidMapping(mailbox->mailbox());
+    uidMap = model->cache()->uidMapping(mailbox->mailbox());
 
-    if (static_cast<uint>(seqToUid.size()) != oldSyncState.exists()) {
+    if (static_cast<uint>(uidMap.size()) != oldSyncState.exists()) {
 
         QString buf;
         QDebug dbg(&buf);
-        dbg << "Inconsistent cache data, falling back to full sync (" << seqToUid.size() << "in UID map," << oldSyncState.exists() <<
+        dbg << "Inconsistent cache data, falling back to full sync (" << uidMap.size() << "in UID map," << oldSyncState.exists() <<
             "EXIST before)";
         log(buf, LOG_MAILBOX_SYNC);
         fullMboxSync(mailbox, list);
@@ -212,7 +212,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
 
                 if (syncState.exists() == oldSyncState.exists()) {
                     // No deletions, either, so we resync only flag changes
-                    syncNoNewNoDeletions(mailbox, list, syncState, seqToUid);
+                    syncNoNewNoDeletions(mailbox, list);
                 } else {
                     // Some messages got deleted, but there have been no additions
                     syncGeneric(mailbox, list);
@@ -297,11 +297,11 @@ void ObtainSynchronizedMailboxTask::fullMboxSync(TreeItemMailbox *mailbox, TreeI
     }
 }
 
-void ObtainSynchronizedMailboxTask::syncNoNewNoDeletions(TreeItemMailbox *mailbox, TreeItemMsgList *list, const SyncState &syncState, const QList<uint> &seqToUid)
+void ObtainSynchronizedMailboxTask::syncNoNewNoDeletions(TreeItemMailbox *mailbox, TreeItemMsgList *list)
 {
-    Q_ASSERT(syncState.exists() == static_cast<uint>(seqToUid.size()));
+    Q_ASSERT(mailbox->syncState.exists() == static_cast<uint>(uidMap.size()));
     log("No arrivals or deletions since the last time", LOG_MAILBOX_SYNC);
-    if (syncState.exists()) {
+    if (mailbox->syncState.exists()) {
         // Verify that we indeed have all UIDs and not need them anymore
         bool uidsOk = true;
         for (int i = 0; i < list->m_children.size(); ++i) {
@@ -320,16 +320,16 @@ void ObtainSynchronizedMailboxTask::syncNoNewNoDeletions(TreeItemMailbox *mailbo
 
     if (list->m_children.isEmpty()) {
         QList<TreeItem *> messages;
-        for (uint i = 0; i < syncState.exists(); ++i) {
+        for (uint i = 0; i < mailbox->syncState.exists(); ++i) {
             TreeItemMessage *msg = new TreeItemMessage(list);
             msg->m_offset = i;
-            msg->m_uid = seqToUid[ i ];
+            msg->m_uid = uidMap[ i ];
             messages << msg;
         }
         list->setChildren(messages);
 
     } else {
-        if (syncState.exists() != static_cast<uint>(list->m_children.size())) {
+        if (mailbox->syncState.exists() != static_cast<uint>(list->m_children.size())) {
             throw CantHappen("TreeItemMsgList has wrong number of "
                              "children, even though no change of "
                              "message count occured");
@@ -337,10 +337,10 @@ void ObtainSynchronizedMailboxTask::syncNoNewNoDeletions(TreeItemMailbox *mailbo
     }
 
     list->m_fetchStatus = TreeItem::DONE;
-    model->cache()->setMailboxSyncState(mailbox->mailbox(), syncState);
+    model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
     model->saveUidMap(list);
 
-    if (syncState.exists()) {
+    if (mailbox->syncState.exists()) {
         syncFlags(mailbox);
     } else {
         status = STATE_DONE;
