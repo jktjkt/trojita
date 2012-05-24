@@ -249,8 +249,6 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
 void ObtainSynchronizedMailboxTask::fullMboxSync(TreeItemMailbox *mailbox, TreeItemMsgList *list)
 {
     log("Full synchronization", LOG_MAILBOX_SYNC);
-    model->cache()->clearUidMapping(mailbox->mailbox());
-    model->cache()->setMailboxSyncState(mailbox->mailbox(), SyncState());
 
     QModelIndex parent = list->toIndex(model);
     if (! list->m_children.isEmpty()) {
@@ -278,8 +276,6 @@ void ObtainSynchronizedMailboxTask::fullMboxSync(TreeItemMailbox *mailbox, TreeI
         list->m_unreadMessageCount = 0;
         list->m_numberFetchingStatus = TreeItem::DONE;
         list->m_fetchStatus = TreeItem::DONE;
-        model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
-        model->saveUidMap(list);
 
         // The remote mailbox is empty -> we're done now
         model->changeConnectionState(parser, CONN_STATE_SELECTED);
@@ -337,8 +333,6 @@ void ObtainSynchronizedMailboxTask::syncNoNewNoDeletions(TreeItemMailbox *mailbo
     }
 
     list->m_fetchStatus = TreeItem::DONE;
-    model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
-    model->saveUidMap(list);
 
     if (mailbox->syncState.exists()) {
         syncFlags(mailbox);
@@ -669,7 +663,6 @@ bool ObtainSynchronizedMailboxTask::handleSearch(const Imap::Responses::Search *
     applyUids(mailbox);
     uidMap.clear();
     updateHighestKnownUid(mailbox, list);
-    model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
     status = STATE_SYNCING_FLAGS;
     return true;
 }
@@ -737,7 +730,6 @@ bool ObtainSynchronizedMailboxTask::handleESearch(const Imap::Responses::ESearch
     applyUids(mailbox);
     uidMap.clear();
     updateHighestKnownUid(mailbox, list);
-    model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
     status = STATE_SYNCING_FLAGS;
     return true;
 }
@@ -877,10 +869,6 @@ void ObtainSynchronizedMailboxTask::applyUids(TreeItemMailbox *mailbox)
 
     list->m_totalMessageCount = list->m_children.size();
     list->m_fetchStatus = TreeItem::DONE;
-
-    // Store stuff we already have in the cache
-    model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
-    model->saveUidMap(list);
 
     model->emitMessageCountChanged(mailbox);
     model->changeConnectionState(parser, CONN_STATE_SELECTED);

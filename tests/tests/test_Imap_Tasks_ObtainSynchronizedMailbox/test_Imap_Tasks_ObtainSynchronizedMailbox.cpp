@@ -751,9 +751,6 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringFlags()
     cClient(t.mk("UID SEARCH UID 15:*\r\n"));
     cServer("* SEARCH 42\r\n");
     cServer(t.last("OK uids\r\n"));
-    uidMap << 42;
-    sync.setUidNext(43);
-    sync.setExists(4);
     cClient(t.mk("FETCH 1:4 (FLAGS)\r\n"));
     cServer("* 1 FETCH (FLAGS (x))\r\n"
             "* 2 FETCH (FLAGS (y))\r\n"
@@ -770,7 +767,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringFlags()
     cServer("* 5 FETCH (FLAGS (gah) UID 60)\r\n" + t.last("OK new discovery\r\n"));
     sync.setExists(5);
     sync.setUidNext(61);
-    uidMap << 60;
+    uidMap << 42 << 60;
     cEmpty();
     // At this point, the cache shall be up-to-speed again
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
