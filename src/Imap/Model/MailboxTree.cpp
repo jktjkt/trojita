@@ -481,7 +481,6 @@ void TreeItemMailbox::handleExpunge(Model *const model, const Responses::NumberR
 
     --list->m_totalMessageCount;
     list->recalcVariousMessageCounts(const_cast<Model *>(model));
-    model->saveUidMap(list);
 }
 
 /** @short Process the EXISTS response

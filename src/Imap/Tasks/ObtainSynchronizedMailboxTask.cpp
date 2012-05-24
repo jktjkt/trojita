@@ -549,10 +549,19 @@ bool ObtainSynchronizedMailboxTask::handleNumberResponse(const Imap::Responses::
 
         switch (status) {
         case STATE_SYNCING_FLAGS:
+            // The UID mapping has been already established, but we don't have enough information for
+            // an atomic state transition yet
+            mailbox->handleExpunge(model, *resp);
+            // The SyncState and the UID map will be saved later, along with the flags, when this task finishes
+            return true;
+
         case STATE_DONE:
             // The UID mapping has been already established, so we just want to handle the EXPUNGE as usual
             mailbox->handleExpunge(model, *resp);
+            model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
+            model->saveUidMap(list);
             return true;
+
         default:
             // This is handled by the code below
             break;
