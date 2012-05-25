@@ -44,7 +44,6 @@ private slots:
     void testResyncOneNew();
     void testResyncUidValidity();
     void testDecreasedUidNext();
-    void testFlagReSyncBenchmark();
     void testReloadReadsFromCache();
     void testCacheNoChange();
     void testCacheUidValidity();
@@ -63,6 +62,15 @@ private slots:
     void testCacheArrivalsOldDeleted();
     void testCacheArrivalsThenDynamic();
     void testCacheDeletionsThenDynamic();
+    void testCondstoreNoChanges();
+    void testCondstoreChangedFlags();
+    void testCondstoreErrorExists();
+    void testCondstoreErrorUidNext();
+    void testCondstoreUidValidity();
+    void testCondstoreDecreasedHighestModSeq();
+
+    // We put the benchmark to the last position as this one takes a long time
+    void testFlagReSyncBenchmark();
 private:
     void justKeepTask();
 };

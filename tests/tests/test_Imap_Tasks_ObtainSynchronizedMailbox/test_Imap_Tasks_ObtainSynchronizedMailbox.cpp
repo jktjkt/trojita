@@ -751,9 +751,6 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringFlags()
     cClient(t.mk("UID SEARCH UID 15:*\r\n"));
     cServer("* SEARCH 42\r\n");
     cServer(t.last("OK uids\r\n"));
-    uidMap << 42;
-    sync.setUidNext(43);
-    sync.setExists(4);
     cClient(t.mk("FETCH 1:4 (FLAGS)\r\n"));
     cServer("* 1 FETCH (FLAGS (x))\r\n"
             "* 2 FETCH (FLAGS (y))\r\n"
@@ -770,7 +767,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringFlags()
     cServer("* 5 FETCH (FLAGS (gah) UID 60)\r\n" + t.last("OK new discovery\r\n"));
     sync.setExists(5);
     sync.setUidNext(61);
-    uidMap << 60;
+    uidMap << 42 << 60;
     cEmpty();
     // At this point, the cache shall be up-to-speed again
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
@@ -1302,6 +1299,256 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheDeletionsThenDynamic()
         QCOMPARE(model->cache()->msgFlags("a", i), QStringList());
     for (int i=110; i < 120; ++i)
         QCOMPARE(model->cache()->msgFlags("a", i), QStringList());
+    justKeepTask();
+}
+
+/** @short Test what happens when HIGHESTMODSEQ says there are no changes */
+void ImapModelObtainSynchronizedMailboxTest::testCondstoreNoChanges()
+{
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("CONDSTORE");
+    Imap::Mailbox::SyncState sync;
+    sync.setExists(3);
+    sync.setUidValidity(666);
+    sync.setUidNext(15);
+    sync.setHighestModSeq(33);
+    QList<uint> uidMap;
+    uidMap << 6 << 9 << 10;
+    model->cache()->setMailboxSyncState("a", sync);
+    model->cache()->setUidMapping("a", uidMap);
+    model->cache()->setMsgFlags("a", 6, QStringList() << "x");
+    model->cache()->setMsgFlags("a", 9, QStringList() << "y");
+    model->cache()->setMsgFlags("a", 10, QStringList() << "z");
+    model->resyncMailbox(idxA);
+    cClient(t.mk("SELECT a (CONDSTORE)\r\n"));
+    cServer("* 3 EXISTS\r\n"
+            "* OK [UIDVALIDITY 666] .\r\n"
+            "* OK [UIDNEXT 15] .\r\n"
+            "* OK [HIGHESTMODSEQ 33] .\r\n"
+            );
+    cServer(t.last("OK selected\r\n"));
+    cEmpty();
+    QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
+    QCOMPARE(model->cache()->uidMapping("a"), uidMap);
+    QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
+    QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
+    QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
+    justKeepTask();
+}
+
+/** @short Test changed HIGHESTMODSEQ */
+void ImapModelObtainSynchronizedMailboxTest::testCondstoreChangedFlags()
+{
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("CONDSTORE");
+    Imap::Mailbox::SyncState sync;
+    sync.setExists(3);
+    sync.setUidValidity(666);
+    sync.setUidNext(15);
+    sync.setHighestModSeq(33);
+    QList<uint> uidMap;
+    uidMap << 6 << 9 << 10;
+    model->cache()->setMailboxSyncState("a", sync);
+    model->cache()->setUidMapping("a", uidMap);
+    model->cache()->setMsgFlags("a", 6, QStringList() << "x");
+    model->cache()->setMsgFlags("a", 9, QStringList() << "y");
+    model->cache()->setMsgFlags("a", 10, QStringList() << "z");
+    model->resyncMailbox(idxA);
+    cClient(t.mk("SELECT a (CONDSTORE)\r\n"));
+    cServer("* 3 EXISTS\r\n"
+            "* OK [UIDVALIDITY 666] .\r\n"
+            "* OK [UIDNEXT 15] .\r\n"
+            "* OK [HIGHESTMODSEQ 666] .\r\n"
+            );
+    cServer(t.last("OK selected\r\n"));
+    cClient(t.mk("FETCH 1:3 (FLAGS) (CHANGEDSINCE 33)\r\n"));
+    cServer("* 3 FETCH (FLAGS (f101))\r\n");
+    cServer(t.last("OK fetched\r\n"));
+    cEmpty();
+    sync.setHighestModSeq(666);
+    QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
+    QCOMPARE(model->cache()->uidMapping("a"), uidMap);
+    QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
+    QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
+    QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "f101");
+    justKeepTask();
+}
+
+/** @short Test constant HIGHESTMODSEQ and more EXISTS */
+void ImapModelObtainSynchronizedMailboxTest::testCondstoreErrorExists()
+{
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("CONDSTORE");
+    Imap::Mailbox::SyncState sync;
+    sync.setExists(3);
+    sync.setUidValidity(666);
+    sync.setUidNext(15);
+    sync.setHighestModSeq(33);
+    QList<uint> uidMap;
+    uidMap << 6 << 9 << 10;
+    model->cache()->setMailboxSyncState("a", sync);
+    model->cache()->setUidMapping("a", uidMap);
+    model->cache()->setMsgFlags("a", 6, QStringList() << "x");
+    model->cache()->setMsgFlags("a", 9, QStringList() << "y");
+    model->cache()->setMsgFlags("a", 10, QStringList() << "z");
+    model->resyncMailbox(idxA);
+    cClient(t.mk("SELECT a (CONDSTORE)\r\n"));
+    cServer("* 4 EXISTS\r\n"
+            "* OK [UIDVALIDITY 666] .\r\n"
+            "* OK [UIDNEXT 15] .\r\n"
+            "* OK [HIGHESTMODSEQ 33] .\r\n"
+            );
+    // yes, it's buggy. The goal here is to make sure that even an increased EXISTS is enough
+    // to disable CHANGEDSINCE
+    cServer(t.last("OK selected\r\n"));
+    cClient(t.mk("UID SEARCH ALL\r\n"));
+    cServer(QByteArray("* SEARCH 6 9 10 15\r\n") + t.last("OK uids\r\n"));
+    cClient(t.mk("FETCH 1:4 (FLAGS)\r\n"));
+    cServer("* 1 FETCH (FLAGS (x))\r\n"
+            "* 2 FETCH (FLAGS (y))\r\n"
+            "* 3 FETCH (FLAGS (z))\r\n"
+            "* 4 FETCH (FLAGS (blah))\r\n");
+    cServer(t.last("OK fetch\r\n"));
+    cEmpty();
+    uidMap << 15;
+    sync.setUidNext(16);
+    sync.setExists(4);
+    QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
+    QCOMPARE(model->cache()->uidMapping("a"), uidMap);
+    QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
+    QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
+    QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
+    QCOMPARE(model->cache()->msgFlags("a", 15), QStringList() << "blah");
+    justKeepTask();
+}
+
+/** @short Test constant HIGHESTMODSEQ but changed UIDNEXT */
+void ImapModelObtainSynchronizedMailboxTest::testCondstoreErrorUidNext()
+{
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("CONDSTORE");
+    Imap::Mailbox::SyncState sync;
+    sync.setExists(3);
+    sync.setUidValidity(666);
+    sync.setUidNext(15);
+    sync.setHighestModSeq(33);
+    QList<uint> uidMap;
+    uidMap << 6 << 9 << 10;
+    model->cache()->setMailboxSyncState("a", sync);
+    model->cache()->setUidMapping("a", uidMap);
+    model->cache()->setMsgFlags("a", 6, QStringList() << "x");
+    model->cache()->setMsgFlags("a", 9, QStringList() << "y");
+    model->cache()->setMsgFlags("a", 10, QStringList() << "z");
+    model->resyncMailbox(idxA);
+    cClient(t.mk("SELECT a (CONDSTORE)\r\n"));
+    cServer("* 3 EXISTS\r\n"
+            "* OK [UIDVALIDITY 666] .\r\n"
+            "* OK [UIDNEXT 16] .\r\n"
+            "* OK [HIGHESTMODSEQ 33] .\r\n"
+            );
+    cServer(t.last("OK selected\r\n"));
+    cClient(t.mk("UID SEARCH ALL\r\n"));
+    cServer(QByteArray("* SEARCH 6 9 10\r\n") + t.last("OK uids\r\n"));
+    cClient(t.mk("FETCH 1:3 (FLAGS)\r\n"));
+    cServer("* 1 FETCH (FLAGS (x))\r\n"
+            "* 2 FETCH (FLAGS (y))\r\n"
+            "* 3 FETCH (FLAGS (z))\r\n");
+    cServer(t.last("OK fetch\r\n"));
+    cEmpty();
+    sync.setUidNext(16);
+    QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
+    QCOMPARE(model->cache()->uidMapping("a"), uidMap);
+    QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
+    QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
+    QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
+    justKeepTask();
+}
+
+/** @short Changed UIDVALIDITY shall always lead to full sync, no matter what HIGHESTMODSEQ says */
+void ImapModelObtainSynchronizedMailboxTest::testCondstoreUidValidity()
+{
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("CONDSTORE");
+    Imap::Mailbox::SyncState sync;
+    sync.setExists(3);
+    sync.setUidValidity(666);
+    sync.setUidNext(15);
+    sync.setHighestModSeq(33);
+    QList<uint> uidMap;
+    uidMap << 6 << 9 << 10;
+    model->cache()->setMailboxSyncState("a", sync);
+    model->cache()->setUidMapping("a", uidMap);
+    model->cache()->setMsgFlags("a", 6, QStringList() << "x");
+    model->cache()->setMsgFlags("a", 9, QStringList() << "y");
+    model->cache()->setMsgFlags("a", 10, QStringList() << "z");
+    model->resyncMailbox(idxA);
+    cClient(t.mk("SELECT a (CONDSTORE)\r\n"));
+    cServer("* 3 EXISTS\r\n"
+            "* OK [UIDVALIDITY 333] .\r\n"
+            "* OK [UIDNEXT 15] .\r\n"
+            "* OK [HIGHESTMODSEQ 33] .\r\n"
+            );
+    cServer(t.last("OK selected\r\n"));
+    cClient(t.mk("UID SEARCH ALL\r\n"));
+    cServer(QByteArray("* SEARCH 6 9 10\r\n") + t.last("OK uids\r\n"));
+    cClient(t.mk("FETCH 1:3 (FLAGS)\r\n"));
+    cServer("* 1 FETCH (FLAGS (x))\r\n"
+            "* 2 FETCH (FLAGS (y))\r\n"
+            "* 3 FETCH (FLAGS (z))\r\n");
+    cServer(t.last("OK fetch\r\n"));
+    cEmpty();
+    sync.setUidValidity(333);
+    QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
+    QCOMPARE(model->cache()->uidMapping("a"), uidMap);
+    QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
+    QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
+    QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
+    justKeepTask();
+}
+
+/** @short Test decreased HIGHESTMODSEQ */
+void ImapModelObtainSynchronizedMailboxTest::testCondstoreDecreasedHighestModSeq()
+{
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("CONDSTORE");
+    Imap::Mailbox::SyncState sync;
+    sync.setExists(3);
+    sync.setUidValidity(666);
+    sync.setUidNext(15);
+    sync.setHighestModSeq(33);
+    QList<uint> uidMap;
+    uidMap << 6 << 9 << 10;
+    model->cache()->setMailboxSyncState("a", sync);
+    model->cache()->setUidMapping("a", uidMap);
+    model->cache()->setMsgFlags("a", 6, QStringList() << "x");
+    model->cache()->setMsgFlags("a", 9, QStringList() << "y");
+    model->cache()->setMsgFlags("a", 10, QStringList() << "z");
+    model->resyncMailbox(idxA);
+    cClient(t.mk("SELECT a (CONDSTORE)\r\n"));
+    cServer("* 3 EXISTS\r\n"
+            "* OK [UIDVALIDITY 666] .\r\n"
+            "* OK [UIDNEXT 15] .\r\n"
+            "* OK [HIGHESTMODSEQ 1] .\r\n"
+            );
+    cServer(t.last("OK selected\r\n"));
+    cClient(t.mk("FETCH 1:3 (FLAGS)\r\n"));
+    cServer("* 1 FETCH (FLAGS (x1))\r\n"
+            "* 2 FETCH (FLAGS (x2))\r\n"
+            "* 3 FETCH (FLAGS (x3))\r\n");
+    cServer(t.last("OK fetched\r\n"));
+    cEmpty();
+    sync.setHighestModSeq(1);
+    QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
+    QCOMPARE(model->cache()->uidMapping("a"), uidMap);
+    QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x1");
+    QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "x2");
+    QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "x3");
     justKeepTask();
 }
 

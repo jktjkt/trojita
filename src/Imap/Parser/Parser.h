@@ -146,10 +146,10 @@ public slots:
 
 
     /** @short SELECT, RFC3501 section 6.3.1 */
-    CommandHandle select(const QString &mailbox);
+    CommandHandle select(const QString &mailbox, const QList<QByteArray> &params = QList<QByteArray>());
 
     /** @short EXAMINE, RFC3501 section 6.3.2 */
-    CommandHandle examine(const QString &mailbox);
+    CommandHandle examine(const QString &mailbox, const QList<QByteArray> &params = QList<QByteArray>());
 
     /** @short CREATE, RFC3501 section 6.3.3 */
     CommandHandle create(const QString &mailbox);
@@ -195,7 +195,8 @@ public slots:
     };
 
     /** @short FETCH, RFC3501 sect 6.4.5 */
-    CommandHandle fetch(const Sequence &seq, const QStringList &items);
+    CommandHandle fetch(const Sequence &seq, const QStringList &items,
+                        const QMap<QByteArray, quint64> &uint64Modifiers = QMap<QByteArray, quint64>());
 
     /** @short STORE, RFC3501 sect 6.4.6 */
     CommandHandle store(const Sequence &seq, const QString &item, const QString &value);

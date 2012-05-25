@@ -313,7 +313,7 @@ QList<TreeItem *> TreeItemMailbox::setChildren(const QList<TreeItem *> items)
 void TreeItemMailbox::handleFetchResponse(Model *const model,
         const Responses::Fetch &response,
         QList<TreeItemPart *> &changedParts,
-        TreeItemMessage *&changedMessage)
+        TreeItemMessage *&changedMessage, bool canSaveSyncStateDirectly)
 {
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(m_children[0]);
     Q_ASSERT(list);
@@ -356,7 +356,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                 message->m_fetchStatus = NONE;
                 message->fetch(model);
             }
-            if (syncState.uidNext() <= receivedUid) {
+            if (canSaveSyncStateDirectly && syncState.uidNext() <= receivedUid) {
                 // Try to guess the UIDNEXT. We have to take an educated guess here, and I believe that this approach
                 // at least is not wrong. The server won't tell us the UIDNEXT (well, it could, but it doesn't have to),
                 // the only way of asking for it is via STATUS which is not allowed to reference the current mailbox and
@@ -440,6 +440,12 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                 updatedFlags = true;
                 changedMessage = message;
             }
+        } else if (it.key() == "MODSEQ") {
+            quint64 num = dynamic_cast<const Responses::RespData<quint64>&>(*(it.value())).data;
+            if (num > syncState.highestModSeq()) {
+                syncState.setHighestModSeq(num);
+                // FIXME: when shall we save this one to the persistent cache?
+            }
         } else {
             qDebug() << "TreeItemMailbox::handleFetchResponse: unknown FETCH identifier" << it.key();
         }
@@ -481,7 +487,6 @@ void TreeItemMailbox::handleExpunge(Model *const model, const Responses::NumberR
 
     --list->m_totalMessageCount;
     list->recalcVariousMessageCounts(const_cast<Model *>(model));
-    model->saveUidMap(list);
 }
 
 /** @short Process the EXISTS response

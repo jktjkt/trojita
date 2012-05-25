@@ -44,10 +44,11 @@ struct MailboxMetadata {
 class SyncState
 {
     uint m_exists, m_recent, m_unSeenCount, m_unSeenOffset, m_uidNext, m_uidValidity;
+    quint64 m_highestModSeq;
     QStringList m_flags, m_permanentFlags;
 
     bool m_hasExists, m_hasRecent, m_hasUnSeenCount, m_hasUnSeenOffset, m_hasUidNext, m_hasUidValidity,
-         m_hasFlags, m_hasPermanentFlags;
+         m_hasHighestModSeq, m_hasFlags, m_hasPermanentFlags;
 
     friend QDebug operator<<(QDebug &dbg, const Imap::Mailbox::SyncState &state);
 public:
@@ -58,6 +59,7 @@ public:
     uint unSeenOffset() const;
     uint uidNext() const;
     uint uidValidity() const;
+    quint64 highestModSeq() const;
     QStringList flags() const;
     QStringList permanentFlags() const;
 
@@ -67,6 +69,7 @@ public:
     void setUnSeenOffset(const uint unSeenOffset);
     void setUidNext(const uint uidNext);
     void setUidValidity(const uint uidValidity);
+    void setHighestModSeq(const quint64 highestModSeq);
     void setFlags(const QStringList &flags);
     void setPermanentFlags(const QStringList &permanentFlags);
 
@@ -81,6 +84,8 @@ public:
       crap like RECENT.
     */
     bool isUsableForSyncing() const;
+
+    bool isUsableForCondstore() const;
 
     /** @short Compare all members (including the hidden ones) with other */
     bool completelyEqualTo(const SyncState &other) const;

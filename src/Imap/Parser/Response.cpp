@@ -826,6 +826,17 @@ Fetch::Fetch(const uint _number, const QByteArray &line, int &start):
                     throw ParseError(line, start);   // FIXME: wrong offset
                 data[ identifier ] = QSharedPointer<AbstractData>(
                                          new RespData<uint>(it->toUInt()));
+            } else if (identifier == "MODSEQ") {
+                if (it->type() != QVariant::List)
+                    throw UnexpectedHere(line, start);
+                QVariantList items = it->toList();
+                if (items.size() != 1)
+                    throw ParseError("MODSEQ should contain exactly one item", line, start); // FIXME: wrong offset
+                bool ok = false;
+                quint64 num = items[0].toULongLong(&ok);
+                if (!ok)
+                    throw UnexpectedHere("MODSEQ not an 64bit unsigned integer", line, start); // FIXME: wrong offset
+                data[identifier] = QSharedPointer<AbstractData>(new RespData<quint64>(num));
             } else {
                 throw UnexpectedHere(line, start);   // FIXME: wrong offset
             }

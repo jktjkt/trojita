@@ -317,6 +317,7 @@ bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResp
         mailbox->handleExpunge(model, *resp);
         mailbox->syncState.setExists(mailbox->syncState.exists() - 1);
         model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
+        model->saveUidMap(list);
         return true;
     } else if (resp->kind == Imap::Responses::EXISTS) {
 

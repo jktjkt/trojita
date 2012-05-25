@@ -27,9 +27,9 @@ namespace Mailbox
 
 
 SyncState::SyncState():
-    m_exists(0), m_recent(0), m_unSeenCount(0), m_unSeenOffset(0), m_uidNext(0), m_uidValidity(0),
+    m_exists(0), m_recent(0), m_unSeenCount(0), m_unSeenOffset(0), m_uidNext(0), m_uidValidity(0), m_highestModSeq(0),
     m_hasExists(false), m_hasRecent(false), m_hasUnSeenCount(false), m_hasUnSeenOffset(false),
-    m_hasUidNext(false), m_hasUidValidity(false), m_hasFlags(false),
+    m_hasUidNext(false), m_hasUidValidity(false), m_hasHighestModSeq(false), m_hasFlags(false),
     m_hasPermanentFlags(false)
 {
 }
@@ -42,6 +42,11 @@ bool SyncState::isUsableForNumbers() const
 bool SyncState::isUsableForSyncing() const
 {
     return m_hasExists && m_hasUidNext && m_hasUidValidity;
+}
+
+bool SyncState::isUsableForCondstore() const
+{
+    return m_hasHighestModSeq && highestModSeq() > 0 && isUsableForSyncing();
 }
 
 uint SyncState::exists() const
@@ -132,14 +137,26 @@ void SyncState::setUnSeenOffset(const uint unSeen)
     m_hasUnSeenOffset = true;
 }
 
+quint64 SyncState::highestModSeq() const
+{
+    return m_highestModSeq;
+}
+
+void SyncState::setHighestModSeq(const quint64 highestModSeq)
+{
+    m_highestModSeq = highestModSeq;
+    m_hasHighestModSeq = true;
+}
+
 bool SyncState::completelyEqualTo(const SyncState &other) const
 {
     return m_exists == other.m_exists && m_recent == other.m_recent && m_unSeenCount == other.m_unSeenCount &&
             m_unSeenOffset == other.m_unSeenOffset && m_uidNext == other.m_uidNext && m_uidValidity == other.m_uidValidity &&
-            m_flags == other.m_flags && m_permanentFlags == other.m_permanentFlags && m_hasExists == other.m_hasExists &&
-            m_hasRecent == other.m_hasRecent && m_hasUnSeenCount == other.m_hasUnSeenCount && m_hasUnSeenOffset == other.m_hasUnSeenOffset &&
-            m_hasUidNext == other.m_hasUidNext && m_hasUidValidity == other.m_hasUidValidity && m_hasFlags == other.m_hasFlags &&
-            m_hasPermanentFlags == other.m_hasPermanentFlags;
+            m_highestModSeq == other.m_highestModSeq && m_flags == other.m_flags && m_permanentFlags == other.m_permanentFlags &&
+            m_hasExists == other.m_hasExists && m_hasRecent == other.m_hasRecent && m_hasUnSeenCount == other.m_hasUnSeenCount &&
+            m_hasUnSeenOffset == other.m_hasUnSeenOffset && m_hasUidNext == other.m_hasUidNext &&
+            m_hasUidValidity == other.m_hasUidValidity && m_hasHighestModSeq == other.m_hasHighestModSeq &&
+            m_hasFlags == other.m_hasFlags && m_hasPermanentFlags == other.m_hasPermanentFlags;
 }
 
 QDebug operator<<(QDebug &dbg, const Imap::Mailbox::SyncState &state)
@@ -157,6 +174,11 @@ QDebug operator<<(QDebug &dbg, const Imap::Mailbox::SyncState &state)
     dbg << "EXISTS";
     if (state.m_hasExists)
         dbg << state.exists();
+    else
+        dbg << "n/a";
+    dbg << "HIGHESTMODSEQ";
+    if (state.m_hasHighestModSeq)
+        dbg << state.highestModSeq();
     else
         dbg << "n/a";
     dbg << "UNSEEN-count";
@@ -194,6 +216,7 @@ QDebug operator<<(QDebug &dbg, const Imap::Mailbox::MailboxMetadata &metadata)
 QDataStream &operator>>(QDataStream &stream, Imap::Mailbox::SyncState &ss)
 {
     uint i;
+    quint64 i64;
     QStringList list;
     stream >> i; ss.setExists(i);
     stream >> list; ss.setFlags(list);
@@ -201,6 +224,7 @@ QDataStream &operator>>(QDataStream &stream, Imap::Mailbox::SyncState &ss)
     stream >> i; ss.setRecent(i);
     stream >> i; ss.setUidNext(i);
     stream >> i; ss.setUidValidity(i);
+    stream >> i64; ss.setHighestModSeq(i64);
     stream >> i; ss.setUnSeenCount(i);
     stream >> i; ss.setUnSeenOffset(i);
     return stream;
@@ -209,7 +233,7 @@ QDataStream &operator>>(QDataStream &stream, Imap::Mailbox::SyncState &ss)
 QDataStream &operator<<(QDataStream &stream, const Imap::Mailbox::SyncState &ss)
 {
     return stream << ss.exists() << ss.flags() << ss.permanentFlags() <<
-           ss.recent() << ss.uidNext() << ss.uidValidity() << ss.unSeenCount() << ss.unSeenOffset();
+           ss.recent() << ss.uidNext() << ss.uidValidity() << ss.highestModSeq() << ss.unSeenCount() << ss.unSeenOffset();
 }
 
 QDataStream &operator>>(QDataStream &stream, Imap::Mailbox::MailboxMetadata &mm)
