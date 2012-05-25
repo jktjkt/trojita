@@ -26,12 +26,6 @@
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/MailboxModel.h"
 
-//#define WITH_GUI
-
-#ifdef WITH_GUI
-#include <QTreeView>
-#endif
-
 void ImapModelTest::initTestCase()
 {
     model = 0;
@@ -73,14 +67,7 @@ void ImapModelTest::testSyncMailbox()
     QCOMPARE( model->data( inbox, Qt::DisplayRole ), QVariant("INBOX") );
     QCoreApplication::processEvents();
 
-    // FIXME: more stuff
-
-#ifdef WITH_GUI
-    QTreeView* w = new QTreeView();
-    w->setModel( model );
-    w->show();
-    QTest::qWait( 5000 );
-#endif
+    // further tests are especially in the Imap_Task_ObtainSynchronizedMailboxTest
 }
 
 void ImapModelTest::testInboxCaseSensitivity()
