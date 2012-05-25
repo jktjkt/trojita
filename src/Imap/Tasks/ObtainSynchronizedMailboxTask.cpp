@@ -407,9 +407,11 @@ void ObtainSynchronizedMailboxTask::syncFlags(TreeItemMailbox *mailbox)
     if (model->accessParser(parser).capabilities.contains(QLatin1String("CONDSTORE")) &&
             oldSyncState.highestModSeq() > 0 && mailbox->syncState.isUsableForCondstore() &&
             oldSyncState.uidValidity() == mailbox->syncState.uidValidity()) {
+        // The CONDSTORE is available, UIDVALIDITY has not changed and the HIGHESTMODSEQ suggests that
+        // it will be useful
         if (oldSyncState.highestModSeq() == mailbox->syncState.highestModSeq()) {
-            // Looks like there were no changes in flags -- that's cool, we're done here
-            // FIXME: sanity checks for unchanged UIDNEXT and EXISTS
+            // Looks like there were no changes in flags -- that's cool, we're done here,
+            // but only after some sanity checks
             if (oldSyncState.exists() > mailbox->syncState.exists()) {
                 log("Some messages have arrived to the mailbox, but HIGHESTMODSEQ hasn't changed. "
                     "That's a bug in the server implementation.", LOG_MAILBOX_SYNC);
@@ -417,18 +419,26 @@ void ObtainSynchronizedMailboxTask::syncFlags(TreeItemMailbox *mailbox)
             } else if (oldSyncState.uidNext() != mailbox->syncState.uidNext()) {
                 log("UIDNEXT has changed, yet HIGHESTMODSEQ remained constant; that's server's bug", LOG_MAILBOX_SYNC);
                 // and again, don't trust that HIGHESTMODSEQ
-            } else if (newArrivalsFetch.isEmpty()) {
-                status = STATE_DONE;
-                saveSyncState(mailbox);
-                _completed();
-                return;
             } else {
-                status = STATE_DONE;
+                // According to HIGHESTMODSEQ, there hasn't been any change. UIDNEXT and EXISTS do not contradict
+                // this interpretation, so we can go and call stuff finished.
+                if (newArrivalsFetch.isEmpty()) {
+                    // No pending activity -> let's call it a day
+                    status = STATE_DONE;
+                    saveSyncState(mailbox);
+                    _completed();
+                    return;
+                } else {
+                    // ...but there's still some pending activity; let's wait for its termination
+                    status = STATE_DONE;
+                }
             }
         } else if (oldSyncState.highestModSeq() > mailbox->syncState.highestModSeq()) {
+            // Clearly a bug
             log("HIGHESTMODSEQ decreased, that's a bug in the IMAP server", LOG_MAILBOX_SYNC);
             // won't use HIGHESTMODSEQ
         } else {
+            // Will use FETCH CHANGEDSINCE
             useModSeq = oldSyncState.highestModSeq();
         }
     }
