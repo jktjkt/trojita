@@ -67,6 +67,7 @@ private slots:
     void testCondstoreErrorExists();
     void testCondstoreErrorUidNext();
     void testCondstoreUidValidity();
+    void testCondstoreDecreasedHighestModSeq();
 
     // We put the benchmark to the last position as this one takes a long time
     void testFlagReSyncBenchmark();
