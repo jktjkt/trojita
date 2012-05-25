@@ -1425,4 +1425,51 @@ void ImapModelObtainSynchronizedMailboxTest::testCondstoreErrorExists()
     justKeepTask();
 }
 
+/** @short Test constant HIGHESTMODSEQ but changed UIDNEXT */
+void ImapModelObtainSynchronizedMailboxTest::testCondstoreErrorUidNext()
+{
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("CONDSTORE");
+    Imap::Mailbox::SyncState sync;
+    sync.setExists(3);
+    sync.setUidValidity(666);
+    sync.setUidNext(15);
+    sync.setHighestModSeq(33);
+    QList<uint> uidMap;
+    uidMap << 6 << 9 << 10;
+    model->cache()->setMailboxSyncState("a", sync);
+    model->cache()->setUidMapping("a", uidMap);
+    model->cache()->setMsgFlags("a", 6, QStringList() << "x");
+    model->cache()->setMsgFlags("a", 9, QStringList() << "y");
+    model->cache()->setMsgFlags("a", 10, QStringList() << "z");
+    model->resyncMailbox(idxA);
+    cClient(t.mk("SELECT a (CONDSTORE)\r\n"));
+    cServer("* 4 EXISTS\r\n"
+            "* OK [UIDVALIDITY 666] .\r\n"
+            "* OK [UIDNEXT 16] .\r\n"
+            "* OK [HIGHESTMODSEQ 33] .\r\n"
+            );
+    cServer(t.last("OK selected\r\n"));
+    cClient(t.mk("UID SEARCH UID 15:*\r\n"));
+    cServer(QByteArray("* SEARCH 15\r\n") + t.last("OK uids\r\n"));
+    cClient(t.mk("FETCH 1:4 (FLAGS)\r\n"));
+    cServer("* 1 FETCH (FLAGS (x))\r\n"
+            "* 2 FETCH (FLAGS (y))\r\n"
+            "* 3 FETCH (FLAGS (z))\r\n"
+            "* 4 FETCH (FLAGS (blah))\r\n");
+    cServer(t.last("OK fetch\r\n"));
+    cEmpty();
+    uidMap << 15;
+    sync.setUidNext(16);
+    sync.setExists(4);
+    QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
+    QCOMPARE(model->cache()->uidMapping("a"), uidMap);
+    QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
+    QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
+    QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
+    QCOMPARE(model->cache()->msgFlags("a", 15), QStringList() << "blah");
+    justKeepTask();
+}
+
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )
