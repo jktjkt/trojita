@@ -66,6 +66,7 @@ private slots:
     void testCondstoreChangedFlags();
     void testCondstoreErrorExists();
     void testCondstoreErrorUidNext();
+    void testCondstoreUidValidity();
 
     // We put the benchmark to the last position as this one takes a long time
     void testFlagReSyncBenchmark();
