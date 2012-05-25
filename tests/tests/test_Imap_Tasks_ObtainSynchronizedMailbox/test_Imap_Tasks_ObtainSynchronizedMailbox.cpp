@@ -1397,12 +1397,14 @@ void ImapModelObtainSynchronizedMailboxTest::testCondstoreErrorExists()
     cClient(t.mk("SELECT a (CONDSTORE)\r\n"));
     cServer("* 4 EXISTS\r\n"
             "* OK [UIDVALIDITY 666] .\r\n"
-            "* OK [UIDNEXT 16] .\r\n"
+            "* OK [UIDNEXT 15] .\r\n"
             "* OK [HIGHESTMODSEQ 33] .\r\n"
             );
+    // yes, it's buggy. The goal here is to make sure that even an increased EXISTS is enough
+    // to disable CHANGEDSINCE
     cServer(t.last("OK selected\r\n"));
-    cClient(t.mk("UID SEARCH UID 15:*\r\n"));
-    cServer(QByteArray("* SEARCH 15\r\n") + t.last("OK uids\r\n"));
+    cClient(t.mk("UID SEARCH ALL\r\n"));
+    cServer(QByteArray("* SEARCH 6 9 10 15\r\n") + t.last("OK uids\r\n"));
     cClient(t.mk("FETCH 1:4 (FLAGS)\r\n"));
     cServer("* 1 FETCH (FLAGS (x))\r\n"
             "* 2 FETCH (FLAGS (y))\r\n"
