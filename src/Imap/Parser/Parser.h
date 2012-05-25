@@ -95,6 +95,9 @@ public:
 /** @short A handle identifying a command sent to the server */
 typedef QString CommandHandle;
 
+// this is required for clang 3.0
+typedef QMap<QByteArray, quint64> MapByteArrayUint64;
+
 /** @short Class that does all IMAP parsing */
 class Parser : public QObject
 {
@@ -196,7 +199,7 @@ public slots:
 
     /** @short FETCH, RFC3501 sect 6.4.5 */
     CommandHandle fetch(const Sequence &seq, const QStringList &items,
-                        const QMap<QByteArray, quint64> &uint64Modifiers = QMap<QByteArray, quint64>());
+                        const QMap<QByteArray, quint64> &uint64Modifiers = MapByteArrayUint64());
 
     /** @short STORE, RFC3501 sect 6.4.6 */
     CommandHandle store(const Sequence &seq, const QString &item, const QString &value);
