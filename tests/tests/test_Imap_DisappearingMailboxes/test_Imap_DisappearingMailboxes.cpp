@@ -187,12 +187,12 @@ void ImapModelDisappearingMailboxTest::testTrafficAfterSyncedMailboxGoesAway()
     uidNextA = 1337;
     helperSyncAWithMessagesEmptyState();
     model->reloadMailboxList();
+    cServer(QByteArray("* 666 FETCH (FLAGS ())\r\n"));
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    SOCK->fakeReading(QByteArray("* 666 FETCH (FLAGS ())\r\n"));
-    // FIXME: this will assert, the KeepMailboxOpenTask hasn't been fixed yet
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+    // FIXME: finalize this test; there's much more traffic, the UNSELECT thing etc etc
 }
 
 /** @short Connection going offline shall not be reused for further requests for message structure
