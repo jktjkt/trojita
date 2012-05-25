@@ -62,6 +62,7 @@ private slots:
     void testCacheArrivalsOldDeleted();
     void testCacheArrivalsThenDynamic();
     void testCacheDeletionsThenDynamic();
+    void testCondstoreNoChanges();
 
     // We put the benchmark to the last position as this one takes a long time
     void testFlagReSyncBenchmark();
