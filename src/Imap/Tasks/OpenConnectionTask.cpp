@@ -387,7 +387,7 @@ QVariant OpenConnectionTask::taskData(const int role) const
 
 QList<QSslError> OpenConnectionTask::sslErrors() const
 {
-    return m_sslErrors;
+    return parser->sslErrors();
 }
 
 void OpenConnectionTask::sslConnectionPolicyDecided(bool ok)
@@ -407,7 +407,6 @@ void OpenConnectionTask::sslConnectionPolicyDecided(bool ok)
         Q_ASSERT(false);
     }
 }
-
 
 }
 }

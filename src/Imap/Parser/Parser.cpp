@@ -23,6 +23,7 @@
 #include <QStringList>
 #include <QMutexLocker>
 #include <QProcess>
+#include <QSslError>
 #include <QTime>
 #include <QTimer>
 #include "Parser.h"
@@ -963,6 +964,11 @@ Sequence Sequence::fromList(QList<uint> numbers)
 QTextStream &operator<<(QTextStream &stream, const Sequence &s)
 {
     return stream << s.toString();
+}
+
+QList<QSslError> Parser::sslErrors() const
+{
+    return socket->sslErrors();
 }
 
 }

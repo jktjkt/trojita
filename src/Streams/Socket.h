@@ -23,6 +23,7 @@
 
 #include <memory>
 #include <QAbstractSocket>
+#include <QSslError>
 #include "../Imap/ConnectionState.h"
 
 namespace Imap
@@ -61,6 +62,9 @@ public:
 
     /** @short Return true if the socket is no longer usable */
     virtual bool isDead() = 0;
+
+    /** @short Return a list of SSL errors encountered during this connection */
+    virtual QList<QSslError> sslErrors() const = 0;
 signals:
     /** @short The socket got disconnected */
     void disconnected(const QString);

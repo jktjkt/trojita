@@ -124,6 +124,8 @@ public:
 
     uint parserId() const;
 
+    QList<QSslError> sslErrors() const;
+
 public slots:
 
     /** @short CAPABILITY, RFC 3501 section 6.1.1 */
