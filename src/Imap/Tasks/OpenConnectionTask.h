@@ -20,6 +20,7 @@
 #define IMAP_OPENCONNECTIONTASK_H
 
 #include "ImapTask.h"
+#include <QSslError>
 #include "../Model/Model.h"
 
 namespace Imap
@@ -48,6 +49,12 @@ public:
     /** @short Inform the task that the auth credentials are now available and can be used */
     void authCredentialsNowAvailable();
 
+    /** @short A decision about the future whereabouts of the conneciton has been made */
+    void sslConnectionPolicyDecided(bool ok);
+
+    /** @short Return a list of SSL errors which the underlying socket has encountered since its start */
+    QList<QSslError> sslErrors() const;
+
     virtual QVariant taskData(const int role) const;
 
 protected:
@@ -72,6 +79,7 @@ private:
     CommandHandle startTlsCmd;
     CommandHandle capabilityCmd;
     CommandHandle loginCmd;
+    QList<QSslError> m_sslErrors;
 };
 
 }

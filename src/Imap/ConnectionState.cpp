@@ -39,8 +39,10 @@ QString connectionStateToString(const ConnectionState state)
         return Imap::Mailbox::Model::tr("Checking capabilities...");
     case CONN_STATE_CONNECTED_PRETLS:
         return Imap::Mailbox::Model::tr("Waiting for encryption...");
-    case CONN_STATE_STARTTLS:
-        return Imap::Mailbox::Model::tr("Negotiating encryption...");
+    case CONN_STATE_STARTTLS_ISSUED:
+        return Imap::Mailbox::Model::tr("Starting encryption...");
+    case CONN_STATE_STARTTLS_VERIFYING:
+        return Imap::Mailbox::Model::tr("Checking certificates...");
     case CONN_STATE_ESTABLISHED_PRECAPS:
         return Imap::Mailbox::Model::tr("Checking capabilities...");
     case CONN_STATE_LOGIN:

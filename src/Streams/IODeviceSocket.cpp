@@ -155,7 +155,11 @@ void ProcessSocket::delayedStart()
 SslTlsSocket::SslTlsSocket(QSslSocket *sock, const QString &host, const quint16 port, const bool startEncrypted):
     IODeviceSocket(sock), startEncrypted(startEncrypted), host(host), port(port)
 {
-    sock->ignoreSslErrors(); // big fat FIXME here!!!
+    // The Qt API for deciding about whereabouts of a SSL connection is unfortunately blocking, ie. one is expected to
+    // call a function from a slot attached to the sslErrors signal to tell the code whether to proceed or not.
+    // In QML, one cannot display a dialog box with a nested event loop, so this means that we have to deal with SSL/TLS
+    // establishing at higher level.
+    sock->ignoreSslErrors();
     sock->setProtocol(QSsl::AnyProtocol);
     sock->setPeerVerifyMode(QSslSocket::QueryPeer);
 

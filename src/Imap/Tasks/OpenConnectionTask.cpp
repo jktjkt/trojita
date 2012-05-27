@@ -184,18 +184,24 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
         return wasCaps;
     }
 
-    case CONN_STATE_STARTTLS:
+    case CONN_STATE_STARTTLS_ISSUED:
     {
         if (resp->tag == startTlsCmd) {
             if (resp->kind == OK) {
-                model->changeConnectionState(parser, CONN_STATE_ESTABLISHED_PRECAPS);
-                model->accessParser(parser).capabilitiesFresh = false;
-                capabilityCmd = parser->capability();
+                model->changeConnectionState(parser, CONN_STATE_STARTTLS_VERIFYING);
+                model->processSslErrors(this);
             } else {
                 logout(tr("STARTTLS failed: %1").arg(resp->message));
             }
             return true;
         }
+        return false;
+    }
+
+    case CONN_STATE_STARTTLS_VERIFYING:
+    {
+        // We're waiting for a decision based on a policy, so we do not really expect any network IO at this point
+        // FIXME: an assert(false) here?
         return false;
     }
 
@@ -307,7 +313,7 @@ void OpenConnectionTask::startTlsOrLoginNow()
             logout(tr("Server does not support STARTTLS"));
         } else {
             startTlsCmd = parser->startTls();
-            model->changeConnectionState(parser, CONN_STATE_STARTTLS);
+            model->changeConnectionState(parser, CONN_STATE_STARTTLS_ISSUED);
         }
     } else {
         // We're requested to authenticate even without STARTTLS
@@ -377,6 +383,29 @@ void OpenConnectionTask::authCredentialsNowAvailable()
 QVariant OpenConnectionTask::taskData(const int role) const
 {
     return role == RoleTaskCompactName ? QVariant(tr("Connecting to mail server")) : QVariant();
+}
+
+QList<QSslError> OpenConnectionTask::sslErrors() const
+{
+    return m_sslErrors;
+}
+
+void OpenConnectionTask::sslConnectionPolicyDecided(bool ok)
+{
+    // FIXME: add another state for SSL policy without the STARTTLS command
+    switch (model->accessParser(parser).connState) {
+    case CONN_STATE_STARTTLS_VERIFYING:
+        if (ok) {
+            model->changeConnectionState(parser, CONN_STATE_ESTABLISHED_PRECAPS);
+            model->accessParser(parser).capabilitiesFresh = false;
+            capabilityCmd = parser->capability();
+        } else {
+            _failed(tr("The security state of the connection after a STARTTLS operation got rejected"));
+        }
+        break;
+    default:
+        Q_ASSERT(false);
+    }
 }
 
 
