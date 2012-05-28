@@ -556,6 +556,9 @@ void Parser::handleSocketEncrypted()
     QTextStream ss(&buf);
     ss << "*** " << *resp;
     ss.flush();
+#ifdef PRINT_TRAFFIC_RX
+    qDebug() << m_parserId << "***" << buf;
+#endif
     emit lineReceived(this, buf);
     handleReadyRead();
     queueResponse(resp);
