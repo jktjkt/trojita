@@ -32,6 +32,7 @@
 #include <QProgressBar>
 #include <QScrollArea>
 #include <QSplitter>
+#include <QSslError>
 #include <QStatusBar>
 #include <QTextDocument>
 #include <QToolBar>
@@ -458,6 +459,7 @@ void MainWindow::setupModels()
     connect(model, SIGNAL(connectionError(const QString &)), this, SLOT(connectionError(const QString &)));
     connect(model, SIGNAL(authRequested()), this, SLOT(authenticationRequested()), Qt::QueuedConnection);
     connect(model, SIGNAL(authAttemptFailed(QString)), this, SLOT(authenticationFailed(QString)));
+    connect(model, SIGNAL(needsSslDecision(QList<QSslError>)), this, SLOT(sslErrors(QList<QSslError>)), Qt::QueuedConnection);
 
     connect(model, SIGNAL(networkPolicyOffline()), this, SLOT(networkPolicyOffline()));
     connect(model, SIGNAL(networkPolicyExpensive()), this, SLOT(networkPolicyExpensive()));
@@ -749,6 +751,12 @@ void MainWindow::authenticationFailed(const QString &message)
 {
     m_ignoreStoredPassword = true;
     QMessageBox::warning(this, tr("Login Failed"), message);
+}
+
+void MainWindow::sslErrors(const QList<QSslError> &errors)
+{
+    // FIXME: implement some real policy checking
+    model->setSslPolicy(errors, true);
 }
 
 void MainWindow::nukeModels()

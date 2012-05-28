@@ -96,7 +96,6 @@ private slots:
     void handleSocketError(QAbstractSocket::SocketError);
     void delayedStart();
     void handleConnected();
-    void handleSslErrors(const QList<QSslError> &errors);
 private:
     bool startEncrypted;
     QString host;

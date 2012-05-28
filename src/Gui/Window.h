@@ -31,6 +31,7 @@ class QAuthenticator;
 class QItemSelection;
 class QModelIndex;
 class QScrollArea;
+class QSslError;
 class QToolButton;
 class QTreeView;
 
@@ -84,6 +85,7 @@ private slots:
     void cacheError(const QString &message);
     void authenticationRequested();
     void authenticationFailed(const QString &message);
+    void sslErrors(const QList<QSslError> &errors);
     void slotComposeMailUrl(const QUrl &url);
     void slotComposeMail();
     void slotReplyTo();

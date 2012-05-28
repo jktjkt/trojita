@@ -87,13 +87,14 @@ namespace Imap
 Parser::Parser(QObject *parent, Socket *socket, const uint myId):
     QObject(parent), socket(socket), m_lastTagUsed(0), idling(false), waitForInitialIdle(false),
     literalPlus(false), waitingForContinuation(false), startTlsInProgress(false),
-    waitingForConnection(true), readingMode(ReadingLine),
+    waitingForConnection(true), waitingForEncryption(false), readingMode(ReadingLine),
     oldLiteralPosition(0), m_parserId(myId)
 {
     connect(socket, SIGNAL(disconnected(const QString &)),
             this, SLOT(handleDisconnected(const QString &)));
     connect(socket, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
     connect(socket, SIGNAL(stateChanged(Imap::ConnectionState,QString)), this, SLOT(slotSocketStateChanged(Imap::ConnectionState,QString)));
+    connect(socket, SIGNAL(encrypted()), this, SLOT(handleSocketEncrypted()));
 }
 
 CommandHandle Parser::noop()
@@ -528,7 +529,7 @@ void Parser::reallyReadLine()
 void Parser::executeCommands()
 {
     while (! waitingForContinuation && ! waitForInitialIdle &&
-           ! waitingForConnection &&
+           ! waitingForConnection && ! waitingForEncryption &&
            ! cmdQueue.isEmpty() && ! startTlsInProgress)
         executeACommand();
 }
@@ -542,7 +543,21 @@ void Parser::finishStartTls()
     cmdQueue.pop_front();
     socket->startTls(); // warn: this might invoke event loop
     startTlsInProgress = false;
+    waitingForEncryption = true;
     processLine(startTlsReply);
+}
+
+void Parser::handleSocketEncrypted()
+{
+    waitingForEncryption = false;
+    QSharedPointer<Responses::AbstractResponse> resp(new Responses::SocketEncryptedResponse(socket->sslErrors()));
+    QByteArray buf;
+    QTextStream ss(&buf);
+    ss << "*** " << *resp;
+    ss.flush();
+    emit lineReceived(this, buf);
+    queueResponse(resp);
+    executeCommands();
 }
 
 void Parser::executeACommand()
@@ -964,11 +979,6 @@ Sequence Sequence::fromList(QList<uint> numbers)
 QTextStream &operator<<(QTextStream &stream, const Sequence &s)
 {
     return stream << s.toString();
-}
-
-QList<QSslError> Parser::sslErrors() const
-{
-    return socket->sslErrors();
 }
 
 }

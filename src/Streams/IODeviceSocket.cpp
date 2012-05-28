@@ -170,8 +170,11 @@ SslTlsSocket::SslTlsSocket(QSslSocket *sock, const QString &host, const quint16 
 
     if (startEncrypted)
         connect(sock, SIGNAL(encrypted()), this, SLOT(handleConnected()));
+    else
+        connect(sock, SIGNAL(encrypted()), this, SIGNAL(encrypted()));
 
-    connect(sock, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(handleSslErrors(QList<QSslError>)));
+    sock->setCaCertificates(QList<QSslCertificate>());
+
     connect(sock, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(handleStateChanged()));
     connect(sock, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(handleSocketError(QAbstractSocket::SocketError)));
 }
@@ -240,17 +243,6 @@ void SslTlsSocket::delayedStart()
         sock->connectToHostEncrypted(host, port);
     else
         sock->connectToHost(host, port);
-}
-
-void SslTlsSocket::handleSslErrors(const QList<QSslError> &errors)
-{
-    qDebug() << Q_FUNC_INFO;
-    Q_FOREACH(const QSslError &e, errors) {
-        if (e.certificate().isNull())
-            qDebug() << e;
-        else
-            qDebug() << e << e.certificate();
-    }
 }
 
 QList<QSslError> SslTlsSocket::sslErrors() const

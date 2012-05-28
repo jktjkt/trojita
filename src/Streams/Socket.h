@@ -74,6 +74,9 @@ signals:
 
     /** @short Low-level state of the connection has changed */
     void stateChanged(Imap::ConnectionState state, const QString &message);
+
+    /** @short The socket is now encrypted */
+    void encrypted();
 };
 
 };

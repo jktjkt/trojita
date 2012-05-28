@@ -34,6 +34,7 @@ typedef enum {
     CONN_STATE_CONNECTED_PRETLS_PRECAPS, /**< @short Connection has been established but there's been no CAPABILITY yet */
     CONN_STATE_CONNECTED_PRETLS, /**< @short Connection has been established and capabilities are known but STARTTLS remains to be issued */
     CONN_STATE_STARTTLS_ISSUED, /**< @short The STARTTLS command has been sent */
+    CONN_STATE_STARTTLS_HANDSHAKE, /**< @short The socket is starting encryption */
     CONN_STATE_STARTTLS_VERIFYING, /** @short The STARTTLS processing is waiting for policy decision about whether to proceed or not */
     CONN_STATE_ESTABLISHED_PRECAPS, /**< @short Waiting for capabilities after the encryption has been set up */
     CONN_STATE_LOGIN, /**< @short Performing login */

@@ -45,6 +45,7 @@ public:
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
     // FIXME: reimplement handleCapability(), add some guards against "unexpected changes" to Model's implementation
+    virtual bool handleSocketEncryptedResponse(const Responses::SocketEncryptedResponse *const resp);
 
     /** @short Inform the task that the auth credentials are now available and can be used */
     void authCredentialsNowAvailable();

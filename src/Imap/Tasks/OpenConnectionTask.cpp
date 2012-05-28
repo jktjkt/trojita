@@ -188,8 +188,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
     {
         if (resp->tag == startTlsCmd) {
             if (resp->kind == OK) {
-                model->changeConnectionState(parser, CONN_STATE_STARTTLS_VERIFYING);
-                model->processSslErrors(this);
+                model->changeConnectionState(parser, CONN_STATE_STARTTLS_HANDSHAKE);
             } else {
                 logout(tr("STARTTLS failed: %1").arg(resp->message));
             }
@@ -197,6 +196,12 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
         }
         return false;
     }
+
+    case CONN_STATE_STARTTLS_HANDSHAKE:
+        // nothing should really arrive at this point; the Parser is expected to wait for encryption and only after that
+        // send the data
+        Q_ASSERT(false);
+        return false;
 
     case CONN_STATE_STARTTLS_VERIFYING:
     {
@@ -387,7 +392,7 @@ QVariant OpenConnectionTask::taskData(const int role) const
 
 QList<QSslError> OpenConnectionTask::sslErrors() const
 {
-    return parser->sslErrors();
+    return m_sslErrors;
 }
 
 void OpenConnectionTask::sslConnectionPolicyDecided(bool ok)
@@ -405,6 +410,19 @@ void OpenConnectionTask::sslConnectionPolicyDecided(bool ok)
         break;
     default:
         Q_ASSERT(false);
+    }
+}
+
+bool OpenConnectionTask::handleSocketEncryptedResponse(const Responses::SocketEncryptedResponse *const resp)
+{
+    switch (model->accessParser(parser).connState) {
+    case CONN_STATE_STARTTLS_HANDSHAKE:
+        model->changeConnectionState(parser, CONN_STATE_STARTTLS_VERIFYING);
+        m_sslErrors = resp->sslErrors;
+        model->processSslErrors(this);
+        return true;
+    default:
+        return false;
     }
 }
 

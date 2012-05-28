@@ -575,6 +575,12 @@ void Model::handleId(Parser *ptr, const Responses::Id *const resp)
     throw UnexpectedResponseReceived("Unhandled ID response", *resp);
 }
 
+void Model::handleSocketEncryptedResponse(Parser *ptr, const Responses::SocketEncryptedResponse *const resp)
+{
+    Q_UNUSED(ptr);
+    throw UnexpectedResponseReceived("Information about SSL state not handled", *resp);
+}
+
 TreeItem *Model::translatePtr(const QModelIndex &index) const
 {
     return index.internalPointer() ? static_cast<TreeItem *>(index.internalPointer()) : m_mailboxes;

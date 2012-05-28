@@ -25,6 +25,7 @@
 #include <QPair>
 #include <QSharedPointer>
 #include <QStringList>
+#include <QSslError>
 #include <QTextStream>
 #include <QVariantList>
 #include <QVector>
@@ -511,6 +512,19 @@ public:
     QMap<QByteArray,QByteArray> data;
     Id(const QByteArray &line, int &start);
     Id(const QMap<QByteArray,QByteArray> &items): AbstractResponse(ID), data(items) {}
+    virtual QTextStream &dump(QTextStream &s) const;
+    virtual bool eq(const AbstractResponse &other) const;
+    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
+    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+};
+
+/** @short A fake response for passing along the SSL state */
+class SocketEncryptedResponse : public AbstractResponse
+{
+public:
+    QList<QSslError> sslErrors;
+    /** @short List of sequence/UID numbers as returned by the server */
+    SocketEncryptedResponse(const QList<QSslError> &sslErrors);
     virtual QTextStream &dump(QTextStream &s) const;
     virtual bool eq(const AbstractResponse &other) const;
     virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
