@@ -63,6 +63,9 @@ public:
     /** @short Return true if the socket is no longer usable */
     virtual bool isDead() = 0;
 
+    /** @short Return complete SSL certificate chain of the peer */
+    virtual QList<QSslCertificate> sslChain() const = 0;
+
     /** @short Return a list of SSL errors encountered during this connection */
     virtual QList<QSslError> sslErrors() const = 0;
 

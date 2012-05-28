@@ -76,6 +76,7 @@ namespace Gui
 
 MainWindow::MainWindow(): QMainWindow(), model(0), m_ignoreStoredPassword(false)
 {
+    qRegisterMetaType<QList<QSslCertificate> >("QList<QSslCertificate>");
     setWindowTitle(trUtf8("Trojitá"));
     createWidgets();
 
@@ -459,7 +460,8 @@ void MainWindow::setupModels()
     connect(model, SIGNAL(connectionError(const QString &)), this, SLOT(connectionError(const QString &)));
     connect(model, SIGNAL(authRequested()), this, SLOT(authenticationRequested()), Qt::QueuedConnection);
     connect(model, SIGNAL(authAttemptFailed(QString)), this, SLOT(authenticationFailed(QString)));
-    connect(model, SIGNAL(needsSslDecision(QList<QSslError>)), this, SLOT(sslErrors(QList<QSslError>)), Qt::QueuedConnection);
+    connect(model, SIGNAL(needsSslDecision(QList<QSslCertificate>,QList<QSslError>)),
+            this, SLOT(sslErrors(QList<QSslCertificate>,QList<QSslError>)), Qt::QueuedConnection);
 
     connect(model, SIGNAL(networkPolicyOffline()), this, SLOT(networkPolicyOffline()));
     connect(model, SIGNAL(networkPolicyExpensive()), this, SLOT(networkPolicyExpensive()));
@@ -753,7 +755,7 @@ void MainWindow::authenticationFailed(const QString &message)
     QMessageBox::warning(this, tr("Login Failed"), message);
 }
 
-void MainWindow::sslErrors(const QList<QSslError> &errors)
+void MainWindow::sslErrors(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &errors)
 {
     // FIXME: implement some real policy checking
     model->setSslPolicy(errors, true);

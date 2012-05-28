@@ -106,6 +106,12 @@ bool FakeSocket::isDead()
     return false;
 }
 
+QList<QSslCertificate> FakeSocket::sslChain() const
+{
+    // fake it
+    return QList<QSslCertificate>();
+}
+
 QList<QSslError> FakeSocket::sslErrors() const
 {
     // fake it

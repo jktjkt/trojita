@@ -522,9 +522,10 @@ public:
 class SocketEncryptedResponse : public AbstractResponse
 {
 public:
+    QList<QSslCertificate> sslChain;
     QList<QSslError> sslErrors;
     /** @short List of sequence/UID numbers as returned by the server */
-    SocketEncryptedResponse(const QList<QSslError> &sslErrors);
+    SocketEncryptedResponse(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &sslErrors);
     virtual QTextStream &dump(QTextStream &s) const;
     virtual bool eq(const AbstractResponse &other) const;
     virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;

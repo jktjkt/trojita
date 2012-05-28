@@ -1666,7 +1666,7 @@ void Model::processSslErrors(OpenConnectionTask *task)
         }
         ++it;
     }
-    emit needsSslDecision(task->sslErrors());
+    emit needsSslDecision(task->sslCertificateChain(), task->sslErrors());
 }
 
 QModelIndex Model::messageIndexByUid(const QString &mailboxName, const uint uid)

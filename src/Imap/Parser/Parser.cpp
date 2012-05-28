@@ -551,7 +551,8 @@ void Parser::handleSocketEncrypted()
 {
     waitingForEncryption = false;
     waitingForConnection = false;
-    QSharedPointer<Responses::AbstractResponse> resp(new Responses::SocketEncryptedResponse(socket->sslErrors()));
+    QSharedPointer<Responses::AbstractResponse> resp(
+                new Responses::SocketEncryptedResponse(socket->sslChain(), socket->sslErrors()));
     QByteArray buf;
     QTextStream ss(&buf);
     ss << "*** " << *resp;

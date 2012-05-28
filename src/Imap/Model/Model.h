@@ -336,7 +336,7 @@ signals:
     of the code shall make a decision about whether the presented sequence of errors is safe to allow and call the setSslPolicy()
     with the passed list of errors and an instruction whether to continue or not.
     */
-    void needsSslDecision(const QList<QSslError> &sslErrors);
+    void needsSslDecision(const QList<QSslCertificate> &certificates, const QList<QSslError> &sslErrors);
 
     /** @short The amount of messages in the indicated mailbox might have changed */
     void messageCountPossiblyChanged(const QModelIndex &mailbox);

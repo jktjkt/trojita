@@ -960,7 +960,8 @@ Id::Id(const QByteArray &line, int &start): AbstractResponse(ID)
     }
 }
 
-SocketEncryptedResponse::SocketEncryptedResponse(const QList<QSslError> &sslErrors): sslErrors(sslErrors)
+SocketEncryptedResponse::SocketEncryptedResponse(const QList<QSslCertificate> &sslChain, const QList<QSslError> &sslErrors):
+    sslChain(sslChain), sslErrors(sslErrors)
 {
 }
 
@@ -1304,7 +1305,7 @@ bool SocketEncryptedResponse::eq(const AbstractResponse &other) const
 {
     try {
         const SocketEncryptedResponse &r = dynamic_cast<const SocketEncryptedResponse &>(other);
-        return sslErrors == r.sslErrors;
+        return sslChain == r.sslChain && sslErrors == r.sslErrors;
     } catch (std::bad_cast &) {
         return false;
     }

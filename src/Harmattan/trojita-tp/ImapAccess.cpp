@@ -31,6 +31,7 @@ ImapAccess::ImapAccess(QObject *parent) :
     QObject(parent), m_imapModel(0), cache(0), m_mailboxModel(0), m_msgListModel(0), m_visibleTasksModel(0), m_oneMessageModel(0),
     m_msgQNAM(0), m_port(0)
 {
+    qRegisterMetaType<QList<QSslCertificate> >("QList<QSslCertificate>");
     QSettings s;
     m_server = s.value(Common::SettingsNames::imapHostKey).toString();
     m_username = s.value(Common::SettingsNames::imapUserKey).toString();
@@ -143,7 +144,8 @@ void ImapAccess::setSslMode(const QString &sslMode)
     connect(m_imapModel, SIGNAL(alertReceived(QString)), this, SLOT(alertReceived(QString)));
     connect(m_imapModel, SIGNAL(connectionError(QString)), this, SLOT(connectionError(QString)));
     connect(m_imapModel, SIGNAL(logged(uint,Imap::Mailbox::LogMessage)), this, SLOT(slotLogged(uint,Imap::Mailbox::LogMessage)));
-    connect(m_imapModel, SIGNAL(needsSslDecision(QList<QSslError>)), this, SLOT(sslErrors(QList<QSslError>)));
+    connect(m_imapModel, SIGNAL(needsSslDecision(QList<QSslCertificate>,QList<QSslError>)),
+            this, SLOT(sslErrors(QList<QSslCertificate>,QList<QSslError>)));
 
     m_imapModel->setImapUser(username());
     if (!m_password.isNull()) {
@@ -201,7 +203,7 @@ QString ImapAccess::prettySize(const uint bytes) const
     return Imap::Mailbox::PrettySize::prettySize(bytes, Imap::Mailbox::PrettySize::WITH_BYTES_SUFFIX);
 }
 
-void ImapAccess::sslErrors(const QList<QSslError> &sslErrors)
+void ImapAccess::sslErrors(const QList<QSslCertificate> &sslCertificateChain, const QList<QSslError> &sslErrors)
 {
     // FIXME: implement a real policy
     m_imapModel->setSslPolicy(sslErrors, true);

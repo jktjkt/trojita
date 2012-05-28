@@ -392,6 +392,11 @@ QVariant OpenConnectionTask::taskData(const int role) const
     return role == RoleTaskCompactName ? QVariant(tr("Connecting to mail server")) : QVariant();
 }
 
+QList<QSslCertificate> OpenConnectionTask::sslCertificateChain() const
+{
+    return m_sslChain;
+}
+
 QList<QSslError> OpenConnectionTask::sslErrors() const
 {
     return m_sslErrors;
@@ -426,11 +431,13 @@ bool OpenConnectionTask::handleSocketEncryptedResponse(const Responses::SocketEn
     switch (model->accessParser(parser).connState) {
     case CONN_STATE_SSL_HANDSHAKE:
         model->changeConnectionState(parser, CONN_STATE_SSL_VERIFYING);
+        m_sslChain = resp->sslChain;
         m_sslErrors = resp->sslErrors;
         model->processSslErrors(this);
         return true;
     case CONN_STATE_STARTTLS_HANDSHAKE:
         model->changeConnectionState(parser, CONN_STATE_STARTTLS_VERIFYING);
+        m_sslChain = resp->sslChain;
         m_sslErrors = resp->sslErrors;
         model->processSslErrors(this);
         return true;

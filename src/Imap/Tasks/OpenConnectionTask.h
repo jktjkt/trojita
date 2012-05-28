@@ -53,6 +53,9 @@ public:
     /** @short A decision about the future whereabouts of the conneciton has been made */
     void sslConnectionPolicyDecided(bool ok);
 
+    /** @short Return the peer's chain of digital certificates, or an empty list of certificates */
+    QList<QSslCertificate> sslCertificateChain() const;
+
     /** @short Return a list of SSL errors which the underlying socket has encountered since its start */
     QList<QSslError> sslErrors() const;
 
@@ -80,6 +83,7 @@ private:
     CommandHandle startTlsCmd;
     CommandHandle capabilityCmd;
     CommandHandle loginCmd;
+    QList<QSslCertificate> m_sslChain;
     QList<QSslError> m_sslErrors;
 };
 

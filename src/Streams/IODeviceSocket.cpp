@@ -152,6 +152,11 @@ void ProcessSocket::delayedStart()
     proc->start(executable, args);
 }
 
+QList<QSslCertificate> ProcessSocket::sslChain() const
+{
+    return QList<QSslCertificate>();
+}
+
 QList<QSslError> ProcessSocket::sslErrors() const
 {
     return QList<QSslError>();
@@ -233,6 +238,13 @@ void SslTlsSocket::delayedStart()
         sock->connectToHostEncrypted(host, port);
     else
         sock->connectToHost(host, port);
+}
+
+QList<QSslCertificate> SslTlsSocket::sslChain() const
+{
+    QSslSocket *sock = qobject_cast<QSslSocket *>(d);
+    Q_ASSERT(sock);
+    return sock->peerCertificateChain();
 }
 
 QList<QSslError> SslTlsSocket::sslErrors() const

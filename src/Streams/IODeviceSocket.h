@@ -53,7 +53,6 @@ public:
 private slots:
     virtual void handleStateChanged() = 0;
     virtual void delayedStart() = 0;
-    virtual QList<QSslError> sslErrors() const = 0;
     void emitError();
 protected:
     QIODevice *d;
@@ -70,6 +69,7 @@ public:
     ProcessSocket(QProcess *proc, const QString &executable, const QStringList &args);
     ~ProcessSocket();
     bool isDead();
+    virtual QList<QSslCertificate> sslChain() const;
     virtual QList<QSslError> sslErrors() const;
 private slots:
     void handleStateChanged();
@@ -90,6 +90,7 @@ public:
     connected() only after it has established proper encryption */
     SslTlsSocket(QSslSocket *sock, const QString &host, const quint16 port, const bool startEncrypted=false);
     bool isDead();
+    virtual QList<QSslCertificate> sslChain() const;
     virtual QList<QSslError> sslErrors() const;
     bool isConnectingEncryptedSinceStart() const;
 private slots:
