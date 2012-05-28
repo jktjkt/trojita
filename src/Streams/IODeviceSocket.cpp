@@ -152,16 +152,6 @@ void ProcessSocket::delayedStart()
     proc->start(executable, args);
 }
 
-QList<QSslCertificate> ProcessSocket::sslChain() const
-{
-    return QList<QSslCertificate>();
-}
-
-QList<QSslError> ProcessSocket::sslErrors() const
-{
-    return QList<QSslError>();
-}
-
 SslTlsSocket::SslTlsSocket(QSslSocket *sock, const QString &host, const quint16 port, const bool startEncrypted):
     IODeviceSocket(sock), startEncrypted(startEncrypted), host(host), port(port)
 {

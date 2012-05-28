@@ -64,10 +64,10 @@ public:
     virtual bool isDead() = 0;
 
     /** @short Return complete SSL certificate chain of the peer */
-    virtual QList<QSslCertificate> sslChain() const = 0;
+    virtual QList<QSslCertificate> sslChain() const;
 
     /** @short Return a list of SSL errors encountered during this connection */
-    virtual QList<QSslError> sslErrors() const = 0;
+    virtual QList<QSslError> sslErrors() const;
 
     /** @short Is this socket starting ecnryption from the very start? */
     virtual bool isConnectingEncryptedSinceStart() const;
