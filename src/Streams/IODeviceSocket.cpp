@@ -169,9 +169,6 @@ SslTlsSocket::SslTlsSocket(QSslSocket *sock, const QString &host, const quint16 
     sock->setPeerVerifyMode(QSslSocket::QueryPeer);
 
     connect(sock, SIGNAL(encrypted()), this, SIGNAL(encrypted()));
-
-    sock->setCaCertificates(QList<QSslCertificate>());
-
     connect(sock, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(handleStateChanged()));
     connect(sock, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(handleSocketError(QAbstractSocket::SocketError)));
 }
