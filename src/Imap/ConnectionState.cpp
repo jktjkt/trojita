@@ -35,6 +35,10 @@ QString connectionStateToString(const ConnectionState state)
         return Imap::Mailbox::Model::tr("Resolving hostname...");
     case CONN_STATE_CONNECTING:
         return Imap::Mailbox::Model::tr("Connecting to the IMAP server...");
+    case CONN_STATE_SSL_HANDSHAKE:
+        return Imap::Mailbox::Model::tr("Starting encryption...");
+    case CONN_STATE_SSL_VERIFYING:
+        return Imap::Mailbox::Model::tr("Checking certificates...");
     case CONN_STATE_CONNECTED_PRETLS_PRECAPS:
         return Imap::Mailbox::Model::tr("Checking capabilities...");
     case CONN_STATE_CONNECTED_PRETLS:

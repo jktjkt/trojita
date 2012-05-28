@@ -28,4 +28,9 @@ Socket::~Socket()
 {
 }
 
+bool Socket::isConnectingEncryptedSinceStart() const
+{
+    return false;
+}
+
 }

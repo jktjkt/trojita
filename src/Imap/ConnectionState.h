@@ -31,6 +31,8 @@ typedef enum {
     CONN_STATE_NONE, /**< @short Initial state */
     CONN_STATE_HOST_LOOKUP, /**< @short Resolving hostname */
     CONN_STATE_CONNECTING, /**< @short Connecting to the remote host or starting the process */
+    CONN_STATE_SSL_HANDSHAKE, /**< @short The SSL encryption is starting */
+    CONN_STATE_SSL_VERIFYING, /**< @short The SSL connection processing is waiting for policy decision about whether to proceed or not */
     CONN_STATE_CONNECTED_PRETLS_PRECAPS, /**< @short Connection has been established but there's been no CAPABILITY yet */
     CONN_STATE_CONNECTED_PRETLS, /**< @short Connection has been established and capabilities are known but STARTTLS remains to be issued */
     CONN_STATE_STARTTLS_ISSUED, /**< @short The STARTTLS command has been sent */

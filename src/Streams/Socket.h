@@ -65,6 +65,9 @@ public:
 
     /** @short Return a list of SSL errors encountered during this connection */
     virtual QList<QSslError> sslErrors() const = 0;
+
+    /** @short Is this socket starting ecnryption from the very start? */
+    virtual bool isConnectingEncryptedSinceStart() const;
 signals:
     /** @short The socket got disconnected */
     void disconnected(const QString);

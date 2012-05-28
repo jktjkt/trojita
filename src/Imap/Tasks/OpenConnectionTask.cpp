@@ -197,6 +197,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
         return false;
     }
 
+    case CONN_STATE_SSL_HANDSHAKE:
     case CONN_STATE_STARTTLS_HANDSHAKE:
         // nothing should really arrive at this point; the Parser is expected to wait for encryption and only after that
         // send the data
@@ -204,6 +205,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
         return false;
 
     case CONN_STATE_STARTTLS_VERIFYING:
+    case CONN_STATE_SSL_VERIFYING:
     {
         // We're waiting for a decision based on a policy, so we do not really expect any network IO at this point
         // FIXME: an assert(false) here?
@@ -397,8 +399,14 @@ QList<QSslError> OpenConnectionTask::sslErrors() const
 
 void OpenConnectionTask::sslConnectionPolicyDecided(bool ok)
 {
-    // FIXME: add another state for SSL policy without the STARTTLS command
     switch (model->accessParser(parser).connState) {
+    case CONN_STATE_SSL_VERIFYING:
+        if (ok) {
+            model->changeConnectionState(parser, CONN_STATE_CONNECTED_PRETLS_PRECAPS);
+        } else {
+            _failed(tr("The security state of the SSL connection got rejected"));
+        }
+        break;
     case CONN_STATE_STARTTLS_VERIFYING:
         if (ok) {
             model->changeConnectionState(parser, CONN_STATE_ESTABLISHED_PRECAPS);
@@ -416,12 +424,18 @@ void OpenConnectionTask::sslConnectionPolicyDecided(bool ok)
 bool OpenConnectionTask::handleSocketEncryptedResponse(const Responses::SocketEncryptedResponse *const resp)
 {
     switch (model->accessParser(parser).connState) {
+    case CONN_STATE_SSL_HANDSHAKE:
+        model->changeConnectionState(parser, CONN_STATE_SSL_VERIFYING);
+        m_sslErrors = resp->sslErrors;
+        model->processSslErrors(this);
+        return true;
     case CONN_STATE_STARTTLS_HANDSHAKE:
         model->changeConnectionState(parser, CONN_STATE_STARTTLS_VERIFYING);
         m_sslErrors = resp->sslErrors;
         model->processSslErrors(this);
         return true;
     default:
+        qDebug() << model->accessParser(parser).connState;
         return false;
     }
 }

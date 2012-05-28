@@ -87,7 +87,7 @@ namespace Imap
 Parser::Parser(QObject *parent, Socket *socket, const uint myId):
     QObject(parent), socket(socket), m_lastTagUsed(0), idling(false), waitForInitialIdle(false),
     literalPlus(false), waitingForContinuation(false), startTlsInProgress(false),
-    waitingForConnection(true), waitingForEncryption(false), readingMode(ReadingLine),
+    waitingForConnection(true), waitingForEncryption(socket->isConnectingEncryptedSinceStart()), readingMode(ReadingLine),
     oldLiteralPosition(0), m_parserId(myId)
 {
     connect(socket, SIGNAL(disconnected(const QString &)),
@@ -461,7 +461,7 @@ QString Parser::generateTag()
 
 void Parser::handleReadyRead()
 {
-    while (1) {
+    while (!waitingForEncryption) {
         switch (readingMode) {
         case ReadingLine:
             if (socket->canReadLine()) {
@@ -550,12 +550,14 @@ void Parser::finishStartTls()
 void Parser::handleSocketEncrypted()
 {
     waitingForEncryption = false;
+    waitingForConnection = false;
     QSharedPointer<Responses::AbstractResponse> resp(new Responses::SocketEncryptedResponse(socket->sslErrors()));
     QByteArray buf;
     QTextStream ss(&buf);
     ss << "*** " << *resp;
     ss.flush();
     emit lineReceived(this, buf);
+    handleReadyRead();
     queueResponse(resp);
     executeCommands();
 }
