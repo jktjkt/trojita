@@ -46,6 +46,11 @@ void FakeSocket::slotEmitConnected()
     emit stateChanged(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS, QString());
 }
 
+void FakeSocket::slotEmitEncrypted()
+{
+    emit encrypted();
+}
+
 void FakeSocket::fakeReading(const QByteArray &what)
 {
     // The position of the cursor is shared for both reading and writing, and therefore
@@ -92,6 +97,7 @@ void FakeSocket::startTls()
 {
     // fake it
     writeChannel->write(QByteArray("[*** STARTTLS ***]"));
+    QTimer::singleShot(0, this, SLOT(slotEmitEncrypted()));
 }
 
 bool FakeSocket::isDead()

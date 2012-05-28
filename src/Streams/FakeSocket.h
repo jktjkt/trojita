@@ -67,6 +67,8 @@ public:
 private slots:
     /** @short Delayed informing about being connected */
     void slotEmitConnected();
+    /** @short Delayed informing about being encrypted */
+    void slotEmitEncrypted();
 
 public slots:
     /** @short Simulate arrival of some data
