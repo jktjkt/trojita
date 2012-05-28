@@ -143,6 +143,7 @@ void ImapAccess::setSslMode(const QString &sslMode)
     connect(m_imapModel, SIGNAL(alertReceived(QString)), this, SLOT(alertReceived(QString)));
     connect(m_imapModel, SIGNAL(connectionError(QString)), this, SLOT(connectionError(QString)));
     connect(m_imapModel, SIGNAL(logged(uint,Imap::Mailbox::LogMessage)), this, SLOT(slotLogged(uint,Imap::Mailbox::LogMessage)));
+    connect(m_imapModel, SIGNAL(needsSslDecision(QList<QSslError>)), this, SLOT(sslErrors(QList<QSslError>)));
 
     m_imapModel->setImapUser(username());
     if (!m_password.isNull()) {
@@ -198,4 +199,10 @@ void ImapAccess::openMessage(const QString &mailboxName, const uint uid)
 QString ImapAccess::prettySize(const uint bytes) const
 {
     return Imap::Mailbox::PrettySize::prettySize(bytes, Imap::Mailbox::PrettySize::WITH_BYTES_SUFFIX);
+}
+
+void ImapAccess::sslErrors(const QList<QSslError> &sslErrors)
+{
+    // FIXME: implement a real policy
+    m_imapModel->setSslPolicy(sslErrors, true);
 }
