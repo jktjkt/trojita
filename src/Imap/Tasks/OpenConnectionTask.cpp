@@ -404,7 +404,7 @@ void OpenConnectionTask::sslConnectionPolicyDecided(bool ok)
         if (ok) {
             model->changeConnectionState(parser, CONN_STATE_CONNECTED_PRETLS_PRECAPS);
         } else {
-            _failed(tr("The security state of the SSL connection got rejected"));
+            logout(tr("The security state of the SSL connection got rejected"));
         }
         break;
     case CONN_STATE_STARTTLS_VERIFYING:
@@ -413,7 +413,7 @@ void OpenConnectionTask::sslConnectionPolicyDecided(bool ok)
             model->accessParser(parser).capabilitiesFresh = false;
             capabilityCmd = parser->capability();
         } else {
-            _failed(tr("The security state of the connection after a STARTTLS operation got rejected"));
+            logout(tr("The security state of the connection after a STARTTLS operation got rejected"));
         }
         break;
     default:
