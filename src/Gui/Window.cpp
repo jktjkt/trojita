@@ -762,43 +762,16 @@ void MainWindow::sslErrors(const QList<QSslCertificate> &certificateChain, const
     QList<QSslCertificate> lastKnownCerts = lastKnownCertPem.isEmpty() ?
                 QList<QSslCertificate>() :
                 QSslCertificate::fromData(lastKnownCertPem, QSsl::Pem);
-    bool certChanged = false;
-    if (certificateChain.isEmpty()) {
-        // a special case, no certificate
-        if (!lastKnownCerts.isEmpty()) {
-            certChanged = true;
-        }
-    } else {
+    if (!certificateChain.isEmpty()) {
         if (!lastKnownCerts.isEmpty()) {
             if (certificateChain == lastKnownCerts) {
                 // It's the same certificate as the last time; we should accept that
                 model->setSslPolicy(certificateChain, errors, true);
                 return;
-            } else {
-                certChanged = true;
             }
         }
     }
-    QStringList sslErrorStrings;
-    Q_FOREACH(const QSslError &e, errors) {
-        sslErrorStrings << tr("<li>%1</li>").arg(Qt::escape(e.errorString()));
-    }
-    QString sslErrors = errors.isEmpty() ?
-                QString("<p>The connection established without an error.</p>\n") :
-                tr("<p>The connection triggered the following SSL errors:</p>\n<ul>%1</ul>\n").arg(sslErrorStrings.join(tr("\n")));
-    QStringList certificateStrings;
-    Q_FOREACH(const QSslCertificate &cert, certificateChain) {
-        certificateStrings << tr("<li><b>CN</b>: %1, <b>Organization</b>: %2, <b>SHA1</b>: %3, <b>MD5</b>: %4</li>").arg(
-                                  cert.subjectInfo(QSslCertificate::CommonName), cert.subjectInfo(QSslCertificate::Organization),
-                                  cert.digest(QCryptographicHash::Sha1).toHex(), cert.digest(QCryptographicHash::Md5).toHex());
-    }
-    QString certificates = certificateChain.isEmpty() ?
-                tr("<p>The remote side doesn't have a certificate.</p>\n") :
-                tr("<p>This is the certificate chain of the connection:</p>\n<ul>%1</ul>\n").arg(certificateStrings.join(tr("\n")));
-
-    QString changedString = certChanged ? tr("<p><b>The certificate has changed since the last time.</b></p>"): QString();
-
-    QString message = tr("%1\n%2\n%3\n<p>Would you like to accept this connection?</p>\n").arg(certificates, changedString, sslErrors);
+    QString message = Imap::Mailbox::CertificateUtils::certificateChainCheckingMessage(certificateChain, errors, lastKnownCerts);
     if (QMessageBox::question(this, tr("Accept SSL connection?"), message, QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
         if (!certificateChain.isEmpty()) {
             QByteArray buf;
