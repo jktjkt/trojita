@@ -1648,12 +1648,6 @@ void Model::setSslPolicy(const QList<QSslCertificate> &sslChain, const QList<QSs
 
 void Model::processSslErrors(OpenConnectionTask *task)
 {
-    if (task->sslErrors().isEmpty()) {
-        // This is a fast path, we've seen no SSL errors whatsoever
-        task->sslConnectionPolicyDecided(true);
-        return;
-    }
-
     // Qt doesn't define either operator< or a qHash specialization for QList<QSslError> (what a surprise),
     // so we use a plain old QList. Given that there will be at most one different QList<QSslError> sequence for
     // each connection attempt (and more realistically, for each server at all), this O(n) complexity shall not matter
