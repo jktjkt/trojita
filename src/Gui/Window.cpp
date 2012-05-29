@@ -77,7 +77,6 @@ namespace Gui
 MainWindow::MainWindow(): QMainWindow(), model(0), m_ignoreStoredPassword(false)
 {
     qRegisterMetaType<QList<QSslCertificate> >("QList<QSslCertificate>");
-    setWindowTitle(trUtf8("Trojitá"));
     createWidgets();
 
     QSettings s;
@@ -91,6 +90,8 @@ MainWindow::MainWindow(): QMainWindow(), model(0), m_ignoreStoredPassword(false)
 
     // Please note that Qt 4.6.1 really requires passing the method signature this way, *not* using the SLOT() macro
     QDesktopServices::setUrlHandler(QLatin1String("mailto"), this, "slotComposeMailUrl");
+
+    slotUpdateWindowTitle();
 }
 
 void MainWindow::createActions()
@@ -486,6 +487,9 @@ void MainWindow::setupModels()
     connect(model, SIGNAL(mailboxFirstUnseenMessage(QModelIndex,QModelIndex)), this, SLOT(slotScrollToUnseenMessage(QModelIndex,QModelIndex)));
 
     connect(model, SIGNAL(capabilitiesUpdated(QStringList)), this, SLOT(slotCapabilitiesUpdated(QStringList)));
+
+    connect(msgListModel, SIGNAL(modelReset()), this, SLOT(slotUpdateWindowTitle()));
+    connect(model, SIGNAL(messageCountPossiblyChanged(QModelIndex)), this, SLOT(slotUpdateWindowTitle()));
 
     //Imap::Mailbox::ModelWatcher* w = new Imap::Mailbox::ModelWatcher( this );
     //w->setModel( model );
@@ -1273,6 +1277,22 @@ void MainWindow::slotShowImapInfo()
 QSize MainWindow::sizeHint() const
 {
     return QSize(1150, 980);
+}
+
+void MainWindow::slotUpdateWindowTitle()
+{
+    if (Imap::Mailbox::TreeItemMailbox *mailbox = msgListModel->currentMailbox()) {
+        Imap::Mailbox::TreeItemMsgList *list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>(mailbox->child(0, model));
+        Q_ASSERT(list);
+        if (list->unreadMessageCount(model)) {
+            setWindowTitle(trUtf8("%1 — %2 unread — Trojitá").arg(mailbox->mailbox(),
+                                                                  QString::number(list->unreadMessageCount(model))));
+        } else {
+            setWindowTitle(trUtf8("%1 — Trojitá").arg(mailbox->mailbox()));
+        }
+    } else {
+        setWindowTitle(trUtf8("Trojitá"));
+    }
 }
 
 }
