@@ -348,7 +348,7 @@ QString CertificateUtils::errorsToHtml(const QList<QSslError> &sslErrors)
         sslErrorStrings << tr("<li>%1</li>").arg(Qt::escape(e.errorString()));
     }
     return sslErrors.isEmpty() ?
-                QString("<p>The connection established without an error.</p>\n") :
+                QString("<p>According to your system's policy, this connection is secure.</p>\n") :
                 tr("<p>The connection triggered the following SSL errors:</p>\n<ul>%1</ul>\n").arg(sslErrorStrings.join(tr("\n")));
 }
 
