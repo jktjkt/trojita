@@ -254,3 +254,8 @@ QString ImapAccess::sslErrors() const
 {
     return Imap::Mailbox::CertificateUtils::errorsToHtml(m_sslErrors);
 }
+
+void ImapAccess::forgetSslCertificate()
+{
+    QSettings().remove(Common::SettingsNames::imapSslPemCertificate);
+}

@@ -81,6 +81,7 @@ public:
     Q_INVOKABLE void openMessage(const QString &mailbox, const uint uid);
     Q_INVOKABLE QString prettySize(const uint bytes) const;
     Q_INVOKABLE void setSslPolicy(bool accept);
+    Q_INVOKABLE void forgetSslCertificate();
 
 signals:
     void serverChanged();

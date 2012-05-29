@@ -124,6 +124,8 @@ PageStackWindow {
         }
 
         onAccepted: {
+            if (imapSettings.imapServer != imapAccess.server)
+                imapAccess.forgetSslCertificate()
             imapAccess.server = imapSettings.imapServer
             imapAccess.port = imapSettings.imapPort
             imapAccess.username = imapSettings.imapUserName
