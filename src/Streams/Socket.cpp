@@ -28,4 +28,20 @@ Socket::~Socket()
 {
 }
 
+bool Socket::isConnectingEncryptedSinceStart() const
+{
+    return false;
+}
+
+
+QList<QSslCertificate> Socket::sslChain() const
+{
+    return QList<QSslCertificate>();
+}
+
+QList<QSslError> Socket::sslErrors() const
+{
+    return QList<QSslError>();
+}
+
 }

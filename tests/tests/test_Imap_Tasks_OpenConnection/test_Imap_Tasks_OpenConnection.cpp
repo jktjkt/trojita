@@ -48,12 +48,19 @@ void ImapModelOpenConnectionTest::init( bool startTlsRequired )
     Imap::Mailbox::TaskFactoryPtr taskFactory( new Imap::Mailbox::TaskFactory() ); // yes, the real one
     model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), taskFactory, false );
     connect(model, SIGNAL(authRequested()), this, SLOT(provideAuthDetails()));
+    connect(model, SIGNAL(needsSslDecision(QList<QSslCertificate>,QList<QSslError>)),
+            this, SLOT(acceptSsl(QList<QSslCertificate>,QList<QSslError>)));
     task = new Imap::Mailbox::OpenConnectionTask( model );
     using Imap::Mailbox::ImapTask;
     qRegisterMetaType<ImapTask*>("ImapTask*");
     completedSpy = new QSignalSpy(task, SIGNAL(completed(ImapTask*)));
     failedSpy = new QSignalSpy(task, SIGNAL(failed(QString)));
     authSpy = new QSignalSpy(model, SIGNAL(authRequested()));
+}
+
+void ImapModelOpenConnectionTest::acceptSsl(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &sslErrors)
+{
+    model->setSslPolicy(certificateChain, sslErrors, true);
 }
 
 void ImapModelOpenConnectionTest::cleanup()

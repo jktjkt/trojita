@@ -20,6 +20,7 @@
 #define IMAP_OPENCONNECTIONTASK_H
 
 #include "ImapTask.h"
+#include <QSslError>
 #include "../Model/Model.h"
 
 namespace Imap
@@ -44,9 +45,19 @@ public:
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
     // FIXME: reimplement handleCapability(), add some guards against "unexpected changes" to Model's implementation
+    virtual bool handleSocketEncryptedResponse(const Responses::SocketEncryptedResponse *const resp);
 
     /** @short Inform the task that the auth credentials are now available and can be used */
     void authCredentialsNowAvailable();
+
+    /** @short A decision about the future whereabouts of the conneciton has been made */
+    void sslConnectionPolicyDecided(bool ok);
+
+    /** @short Return the peer's chain of digital certificates, or an empty list of certificates */
+    QList<QSslCertificate> sslCertificateChain() const;
+
+    /** @short Return a list of SSL errors which the underlying socket has encountered since its start */
+    QList<QSslError> sslErrors() const;
 
     virtual QVariant taskData(const int role) const;
 
@@ -72,6 +83,8 @@ private:
     CommandHandle startTlsCmd;
     CommandHandle capabilityCmd;
     CommandHandle loginCmd;
+    QList<QSslCertificate> m_sslChain;
+    QList<QSslError> m_sslErrors;
 };
 
 }

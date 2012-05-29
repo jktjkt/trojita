@@ -24,6 +24,9 @@
 #include <QObject>
 #include <QString>
 
+class QSslCertificate;
+class QSslError;
+
 namespace Imap
 {
 namespace Mailbox
@@ -45,6 +48,14 @@ QString persistentLogFileName();
 
 /** @short Return a system/platform version */
 QString systemPlatformVersion();
+
+class CertificateUtils: public QObject
+{
+    Q_OBJECT
+public:
+    static QString chainToHtml(const QList<QSslCertificate> &sslChain);
+    static QString errorsToHtml(const QList<QSslError> &sslErrors);
+};
 
 }
 }

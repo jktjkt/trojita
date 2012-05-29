@@ -184,18 +184,32 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
         return wasCaps;
     }
 
-    case CONN_STATE_STARTTLS:
+    case CONN_STATE_STARTTLS_ISSUED:
     {
         if (resp->tag == startTlsCmd) {
             if (resp->kind == OK) {
-                model->changeConnectionState(parser, CONN_STATE_ESTABLISHED_PRECAPS);
-                model->accessParser(parser).capabilitiesFresh = false;
-                capabilityCmd = parser->capability();
+                model->changeConnectionState(parser, CONN_STATE_STARTTLS_HANDSHAKE);
             } else {
                 logout(tr("STARTTLS failed: %1").arg(resp->message));
             }
             return true;
         }
+        return false;
+    }
+
+    case CONN_STATE_SSL_HANDSHAKE:
+    case CONN_STATE_STARTTLS_HANDSHAKE:
+        // nothing should really arrive at this point; the Parser is expected to wait for encryption and only after that
+        // send the data
+        Q_ASSERT(false);
+        return false;
+
+    case CONN_STATE_STARTTLS_VERIFYING:
+    case CONN_STATE_SSL_VERIFYING:
+    {
+        // We're waiting for a decision based on a policy, so we do not really expect any network IO at this point
+        // FIXME: an assert(false) here?
+        qDebug() << "OpenConnectionTask: ignoring response, we're still waiting for SSL policy decision";
         return false;
     }
 
@@ -307,7 +321,7 @@ void OpenConnectionTask::startTlsOrLoginNow()
             logout(tr("Server does not support STARTTLS"));
         } else {
             startTlsCmd = parser->startTls();
-            model->changeConnectionState(parser, CONN_STATE_STARTTLS);
+            model->changeConnectionState(parser, CONN_STATE_STARTTLS_ISSUED);
         }
     } else {
         // We're requested to authenticate even without STARTTLS
@@ -379,6 +393,61 @@ QVariant OpenConnectionTask::taskData(const int role) const
     return role == RoleTaskCompactName ? QVariant(tr("Connecting to mail server")) : QVariant();
 }
 
+QList<QSslCertificate> OpenConnectionTask::sslCertificateChain() const
+{
+    return m_sslChain;
+}
+
+QList<QSslError> OpenConnectionTask::sslErrors() const
+{
+    return m_sslErrors;
+}
+
+void OpenConnectionTask::sslConnectionPolicyDecided(bool ok)
+{
+    switch (model->accessParser(parser).connState) {
+    case CONN_STATE_SSL_VERIFYING:
+        if (ok) {
+            model->changeConnectionState(parser, CONN_STATE_CONNECTED_PRETLS_PRECAPS);
+        } else {
+            logout(tr("The security state of the SSL connection got rejected"));
+        }
+        break;
+    case CONN_STATE_STARTTLS_VERIFYING:
+        if (ok) {
+            model->changeConnectionState(parser, CONN_STATE_ESTABLISHED_PRECAPS);
+            model->accessParser(parser).capabilitiesFresh = false;
+            capabilityCmd = parser->capability();
+        } else {
+            logout(tr("The security state of the connection after a STARTTLS operation got rejected"));
+        }
+        break;
+    default:
+        Q_ASSERT(false);
+    }
+    parser->unfreezeAfterEncryption();
+}
+
+bool OpenConnectionTask::handleSocketEncryptedResponse(const Responses::SocketEncryptedResponse *const resp)
+{
+    switch (model->accessParser(parser).connState) {
+    case CONN_STATE_SSL_HANDSHAKE:
+        model->changeConnectionState(parser, CONN_STATE_SSL_VERIFYING);
+        m_sslChain = resp->sslChain;
+        m_sslErrors = resp->sslErrors;
+        model->processSslErrors(this);
+        return true;
+    case CONN_STATE_STARTTLS_HANDSHAKE:
+        model->changeConnectionState(parser, CONN_STATE_STARTTLS_VERIFYING);
+        m_sslChain = resp->sslChain;
+        m_sslErrors = resp->sslErrors;
+        model->processSslErrors(this);
+        return true;
+    default:
+        qDebug() << model->accessParser(parser).connState;
+        return false;
+    }
+}
 
 }
 }

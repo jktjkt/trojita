@@ -31,6 +31,7 @@ ImapAccess::ImapAccess(QObject *parent) :
     QObject(parent), m_imapModel(0), cache(0), m_mailboxModel(0), m_msgListModel(0), m_visibleTasksModel(0), m_oneMessageModel(0),
     m_msgQNAM(0), m_port(0)
 {
+    qRegisterMetaType<QList<QSslCertificate> >("QList<QSslCertificate>");
     QSettings s;
     m_server = s.value(Common::SettingsNames::imapHostKey).toString();
     m_username = s.value(Common::SettingsNames::imapUserKey).toString();
@@ -143,6 +144,8 @@ void ImapAccess::setSslMode(const QString &sslMode)
     connect(m_imapModel, SIGNAL(alertReceived(QString)), this, SLOT(alertReceived(QString)));
     connect(m_imapModel, SIGNAL(connectionError(QString)), this, SLOT(connectionError(QString)));
     connect(m_imapModel, SIGNAL(logged(uint,Imap::Mailbox::LogMessage)), this, SLOT(slotLogged(uint,Imap::Mailbox::LogMessage)));
+    connect(m_imapModel, SIGNAL(needsSslDecision(QList<QSslCertificate>,QList<QSslError>)),
+            this, SLOT(slotSslErrors(QList<QSslCertificate>,QList<QSslError>)));
 
     m_imapModel->setImapUser(username());
     if (!m_password.isNull()) {
@@ -198,4 +201,61 @@ void ImapAccess::openMessage(const QString &mailboxName, const uint uid)
 QString ImapAccess::prettySize(const uint bytes) const
 {
     return Imap::Mailbox::PrettySize::prettySize(bytes, Imap::Mailbox::PrettySize::WITH_BYTES_SUFFIX);
+}
+
+void ImapAccess::slotSslErrors(const QList<QSslCertificate> &sslCertificateChain, const QList<QSslError> &sslErrors)
+{
+    m_sslChain = sslCertificateChain;
+    m_sslErrors = sslErrors;
+    QSettings s;
+    QByteArray lastKnownCertPem = s.value(Common::SettingsNames::imapSslPemCertificate).toByteArray();
+    if (!sslCertificateChain.isEmpty() && !lastKnownCertPem.isEmpty() &&
+            sslCertificateChain == QSslCertificate::fromData(lastKnownCertPem, QSsl::Pem)) {
+        m_imapModel->setSslPolicy(m_sslChain, m_sslErrors, true);
+    } else {
+        emit checkSslPolicy();
+    }
+}
+
+void ImapAccess::setSslPolicy(bool accept)
+{
+    if (accept && !m_sslChain.isEmpty()) {
+        QSettings s;
+        QByteArray buf;
+        Q_FOREACH(const QSslCertificate &cert, m_sslChain) {
+            buf.append(cert.toPem());
+        }
+        s.setValue(Common::SettingsNames::imapSslPemCertificate, buf);
+    }
+    m_imapModel->setSslPolicy(m_sslChain, m_sslErrors, accept);
+}
+
+bool ImapAccess::sslCertificateHasChanged() const
+{
+    QSettings s;
+    QByteArray lastKnownCertPem = s.value(Common::SettingsNames::imapSslPemCertificate).toByteArray();
+    if (lastKnownCertPem.isEmpty())
+        return false;
+    QList<QSslCertificate> lastKnownCerts = QSslCertificate::fromData(lastKnownCertPem, QSsl::Pem);
+    return lastKnownCerts != m_sslChain && !lastKnownCertPem.isEmpty();
+}
+
+bool ImapAccess::sslHasErrors() const
+{
+    return !m_sslErrors.isEmpty();
+}
+
+QString ImapAccess::sslCertificateChain() const
+{
+    return Imap::Mailbox::CertificateUtils::chainToHtml(m_sslChain);
+}
+
+QString ImapAccess::sslErrors() const
+{
+    return Imap::Mailbox::CertificateUtils::errorsToHtml(m_sslErrors);
+}
+
+void ImapAccess::forgetSslCertificate()
+{
+    QSettings().remove(Common::SettingsNames::imapSslPemCertificate);
 }

@@ -214,6 +214,9 @@ void ImapPage::updateWidgets()
 void ImapPage::save(QSettings &s)
 {
     using Common::SettingsNames;
+    if (s.value(SettingsNames::imapHostKey) != imapHost->text()) {
+        s.remove(Common::SettingsNames::imapSslPemCertificate);
+    }
     switch (method->currentIndex()) {
     case TCP:
         s.setValue(SettingsNames::imapMethodKey, SettingsNames::methodTCP);

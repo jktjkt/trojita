@@ -88,11 +88,13 @@ public:
     connected() only after it has established proper encryption */
     SslTlsSocket(QSslSocket *sock, const QString &host, const quint16 port, const bool startEncrypted=false);
     bool isDead();
+    virtual QList<QSslCertificate> sslChain() const;
+    virtual QList<QSslError> sslErrors() const;
+    bool isConnectingEncryptedSinceStart() const;
 private slots:
     void handleStateChanged();
     void handleSocketError(QAbstractSocket::SocketError);
     void delayedStart();
-    void handleConnected();
 private:
     bool startEncrypted;
     QString host;

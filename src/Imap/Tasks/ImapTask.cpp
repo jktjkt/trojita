@@ -162,6 +162,13 @@ bool ImapTask::handleId(const Responses::Id *const resp)
     return false;
 }
 
+
+bool ImapTask::handleSocketEncryptedResponse(const Imap::Responses::SocketEncryptedResponse *const resp)
+{
+    Q_UNUSED(resp);
+    return false;
+}
+
 void ImapTask::_completed()
 {
     log("Completed");

@@ -23,6 +23,7 @@
 #include <QStringList>
 #include <QMutexLocker>
 #include <QProcess>
+#include <QSslError>
 #include <QTime>
 #include <QTimer>
 #include "Parser.h"
@@ -86,13 +87,14 @@ namespace Imap
 Parser::Parser(QObject *parent, Socket *socket, const uint myId):
     QObject(parent), socket(socket), m_lastTagUsed(0), idling(false), waitForInitialIdle(false),
     literalPlus(false), waitingForContinuation(false), startTlsInProgress(false),
-    waitingForConnection(true), readingMode(ReadingLine),
-    oldLiteralPosition(0), m_parserId(myId)
+    waitingForConnection(true), waitingForEncryption(socket->isConnectingEncryptedSinceStart()), waitingForSslPolicy(false),
+    readingMode(ReadingLine), oldLiteralPosition(0), m_parserId(myId)
 {
     connect(socket, SIGNAL(disconnected(const QString &)),
             this, SLOT(handleDisconnected(const QString &)));
     connect(socket, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
     connect(socket, SIGNAL(stateChanged(Imap::ConnectionState,QString)), this, SLOT(slotSocketStateChanged(Imap::ConnectionState,QString)));
+    connect(socket, SIGNAL(encrypted()), this, SLOT(handleSocketEncrypted()));
 }
 
 CommandHandle Parser::noop()
@@ -459,7 +461,7 @@ QString Parser::generateTag()
 
 void Parser::handleReadyRead()
 {
-    while (1) {
+    while (!waitingForEncryption && !waitingForSslPolicy) {
         switch (readingMode) {
         case ReadingLine:
             if (socket->canReadLine()) {
@@ -527,7 +529,7 @@ void Parser::reallyReadLine()
 void Parser::executeCommands()
 {
     while (! waitingForContinuation && ! waitForInitialIdle &&
-           ! waitingForConnection &&
+           ! waitingForConnection && ! waitingForEncryption && ! waitingForSslPolicy &&
            ! cmdQueue.isEmpty() && ! startTlsInProgress)
         executeACommand();
 }
@@ -541,7 +543,36 @@ void Parser::finishStartTls()
     cmdQueue.pop_front();
     socket->startTls(); // warn: this might invoke event loop
     startTlsInProgress = false;
+    waitingForEncryption = true;
     processLine(startTlsReply);
+}
+
+void Parser::handleSocketEncrypted()
+{
+    waitingForEncryption = false;
+    waitingForConnection = false;
+    waitingForSslPolicy = true;
+    QSharedPointer<Responses::AbstractResponse> resp(
+                new Responses::SocketEncryptedResponse(socket->sslChain(), socket->sslErrors()));
+    QByteArray buf;
+    QTextStream ss(&buf);
+    ss << "*** " << *resp;
+    ss.flush();
+#ifdef PRINT_TRAFFIC_RX
+    qDebug() << m_parserId << "***" << buf;
+#endif
+    emit lineReceived(this, buf);
+    handleReadyRead();
+    queueResponse(resp);
+    executeCommands();
+}
+
+void Parser::unfreezeAfterEncryption()
+{
+    Q_ASSERT(waitingForSslPolicy);
+    waitingForSslPolicy = false;
+    handleReadyRead();
+    executeCommands();
 }
 
 void Parser::executeACommand()

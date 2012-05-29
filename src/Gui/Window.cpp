@@ -32,6 +32,7 @@
 #include <QProgressBar>
 #include <QScrollArea>
 #include <QSplitter>
+#include <QSslError>
 #include <QStatusBar>
 #include <QTextDocument>
 #include <QToolBar>
@@ -75,6 +76,7 @@ namespace Gui
 
 MainWindow::MainWindow(): QMainWindow(), model(0), m_ignoreStoredPassword(false)
 {
+    qRegisterMetaType<QList<QSslCertificate> >("QList<QSslCertificate>");
     setWindowTitle(trUtf8("Trojitá"));
     createWidgets();
 
@@ -458,6 +460,8 @@ void MainWindow::setupModels()
     connect(model, SIGNAL(connectionError(const QString &)), this, SLOT(connectionError(const QString &)));
     connect(model, SIGNAL(authRequested()), this, SLOT(authenticationRequested()), Qt::QueuedConnection);
     connect(model, SIGNAL(authAttemptFailed(QString)), this, SLOT(authenticationFailed(QString)));
+    connect(model, SIGNAL(needsSslDecision(QList<QSslCertificate>,QList<QSslError>)),
+            this, SLOT(sslErrors(QList<QSslCertificate>,QList<QSslError>)), Qt::QueuedConnection);
 
     connect(model, SIGNAL(networkPolicyOffline()), this, SLOT(networkPolicyOffline()));
     connect(model, SIGNAL(networkPolicyExpensive()), this, SLOT(networkPolicyExpensive()));
@@ -749,6 +753,42 @@ void MainWindow::authenticationFailed(const QString &message)
 {
     m_ignoreStoredPassword = true;
     QMessageBox::warning(this, tr("Login Failed"), message);
+}
+
+void MainWindow::sslErrors(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &errors)
+{
+    QSettings s;
+    QByteArray lastKnownCertPem = s.value(Common::SettingsNames::imapSslPemCertificate).toByteArray();
+    QList<QSslCertificate> lastKnownCerts = lastKnownCertPem.isEmpty() ?
+                QList<QSslCertificate>() :
+                QSslCertificate::fromData(lastKnownCertPem, QSsl::Pem);
+    if (!certificateChain.isEmpty()) {
+        if (!lastKnownCerts.isEmpty()) {
+            if (certificateChain == lastKnownCerts) {
+                // It's the same certificate as the last time; we should accept that
+                model->setSslPolicy(certificateChain, errors, true);
+                return;
+            }
+        }
+    }
+    bool certificateHasChanged = certificateChain != lastKnownCerts && ! lastKnownCertPem.isEmpty();
+    QString message = tr("%1%2%3").arg(Imap::Mailbox::CertificateUtils::chainToHtml(certificateChain),
+                                       Imap::Mailbox::CertificateUtils::errorsToHtml(errors),
+                                       certificateHasChanged ?
+                                           tr("<p><b>The certificate has changed since the last connection.</b></p>\n") :
+                                           QString());
+    if (QMessageBox::question(this, tr("Accept SSL connection?"), message, QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+        if (!certificateChain.isEmpty()) {
+            QByteArray buf;
+            Q_FOREACH(const QSslCertificate &cert, certificateChain) {
+                buf.append(cert.toPem());
+            }
+            s.setValue(Common::SettingsNames::imapSslPemCertificate, buf);
+        }
+        model->setSslPolicy(certificateChain, errors, true);
+    } else {
+        model->setSslPolicy(certificateChain, errors, false);
+    }
 }
 
 void MainWindow::nukeModels()

@@ -277,6 +277,8 @@ public slots:
 
     void slotSocketStateChanged(const Imap::ConnectionState connState, const QString &message);
 
+    void unfreezeAfterEncryption();
+
 
 signals:
     /** @short Socket got disconnected */
@@ -327,6 +329,7 @@ private slots:
     void executeACommand();
     void executeCommands();
     void finishStartTls();
+    void handleSocketEncrypted();
 
 private:
     /** @short Private copy constructor */
@@ -393,6 +396,8 @@ private:
     bool waitingForContinuation;
     bool startTlsInProgress;
     bool waitingForConnection;
+    bool waitingForEncryption;
+    bool waitingForSslPolicy;
 
     enum { ReadingLine, ReadingNumberOfBytes } readingMode;
     QByteArray currentLine;

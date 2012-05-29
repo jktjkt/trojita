@@ -575,6 +575,12 @@ void Model::handleId(Parser *ptr, const Responses::Id *const resp)
     throw UnexpectedResponseReceived("Unhandled ID response", *resp);
 }
 
+void Model::handleSocketEncryptedResponse(Parser *ptr, const Responses::SocketEncryptedResponse *const resp)
+{
+    Q_UNUSED(ptr);
+    throw UnexpectedResponseReceived("Information about SSL state not handled", *resp);
+}
+
 TreeItem *Model::translatePtr(const QModelIndex &index) const
 {
     return index.internalPointer() ? static_cast<TreeItem *>(index.internalPointer()) : m_mailboxes;
@@ -1622,6 +1628,39 @@ void Model::informTasksAboutNewPassword()
             openTask->authCredentialsNowAvailable();
         }
     }
+}
+
+/** @short Forward a policy decision about accepting or rejecting a SSL state */
+void Model::setSslPolicy(const QList<QSslCertificate> &sslChain, const QList<QSslError> &sslErrors, bool proceed)
+{
+    m_sslErrorPolicy.prepend(qMakePair(qMakePair(sslChain, sslErrors), proceed));
+     Q_FOREACH(const ParserState &p, m_parsers) {
+        Q_FOREACH(ImapTask *task, p.activeTasks) {
+            OpenConnectionTask *openTask = dynamic_cast<OpenConnectionTask *>(task);
+            if (!openTask)
+                continue;
+            if (openTask->sslCertificateChain() == sslChain && openTask->sslErrors() == sslErrors) {
+                openTask->sslConnectionPolicyDecided(proceed);
+            }
+        }
+    }
+}
+
+void Model::processSslErrors(OpenConnectionTask *task)
+{
+    // Qt doesn't define either operator< or a qHash specialization for QList<QSslError> (what a surprise),
+    // so we use a plain old QList. Given that there will be at most one different QList<QSslError> sequence for
+    // each connection attempt (and more realistically, for each server at all), this O(n) complexity shall not matter
+    // at all.
+    QList<QPair<QPair<QList<QSslCertificate>, QList<QSslError> >, bool> >::const_iterator it = m_sslErrorPolicy.constBegin();
+    while (it != m_sslErrorPolicy.constEnd()) {
+        if (it->first.first == task->sslCertificateChain() && it->first.second == task->sslErrors()) {
+            task->sslConnectionPolicyDecided(it->second);
+            return;
+        }
+        ++it;
+    }
+    emit needsSslDecision(task->sslCertificateChain(), task->sslErrors());
 }
 
 QModelIndex Model::messageIndexByUid(const QString &mailboxName, const uint uid)

@@ -23,6 +23,7 @@
 
 #include <memory>
 #include <QAbstractSocket>
+#include <QSslError>
 #include "../Imap/ConnectionState.h"
 
 namespace Imap
@@ -61,6 +62,15 @@ public:
 
     /** @short Return true if the socket is no longer usable */
     virtual bool isDead() = 0;
+
+    /** @short Return complete SSL certificate chain of the peer */
+    virtual QList<QSslCertificate> sslChain() const;
+
+    /** @short Return a list of SSL errors encountered during this connection */
+    virtual QList<QSslError> sslErrors() const;
+
+    /** @short Is this socket starting ecnryption from the very start? */
+    virtual bool isConnectingEncryptedSinceStart() const;
 signals:
     /** @short The socket got disconnected */
     void disconnected(const QString);
@@ -70,6 +80,9 @@ signals:
 
     /** @short Low-level state of the connection has changed */
     void stateChanged(Imap::ConnectionState state, const QString &message);
+
+    /** @short The socket is now encrypted */
+    void encrypted();
 };
 
 };

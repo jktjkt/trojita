@@ -155,21 +155,17 @@ void ProcessSocket::delayedStart()
 SslTlsSocket::SslTlsSocket(QSslSocket *sock, const QString &host, const quint16 port, const bool startEncrypted):
     IODeviceSocket(sock), startEncrypted(startEncrypted), host(host), port(port)
 {
-    sock->ignoreSslErrors(); // big fat FIXME here!!!
+    // The Qt API for deciding about whereabouts of a SSL connection is unfortunately blocking, ie. one is expected to
+    // call a function from a slot attached to the sslErrors signal to tell the code whether to proceed or not.
+    // In QML, one cannot display a dialog box with a nested event loop, so this means that we have to deal with SSL/TLS
+    // establishing at higher level.
+    sock->ignoreSslErrors();
     sock->setProtocol(QSsl::AnyProtocol);
     sock->setPeerVerifyMode(QSslSocket::QueryPeer);
 
-    if (startEncrypted)
-        connect(sock, SIGNAL(encrypted()), this, SLOT(handleConnected()));
-
+    connect(sock, SIGNAL(encrypted()), this, SIGNAL(encrypted()));
     connect(sock, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(handleStateChanged()));
     connect(sock, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(handleSocketError(QAbstractSocket::SocketError)));
-}
-
-/** @short Be sure to report our state change through the usual stateChanged() signal even on encrypted channels */
-void SslTlsSocket::handleConnected()
-{
-    emit stateChanged(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS, tr("Connected"));
 }
 
 void SslTlsSocket::handleStateChanged()
@@ -195,6 +191,8 @@ void SslTlsSocket::handleStateChanged()
     case QAbstractSocket::ConnectedState:
         if (! startEncrypted) {
             emit stateChanged(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS, tr("Connected"));
+        } else {
+            emit stateChanged(Imap::CONN_STATE_SSL_HANDSHAKE, tr("Negotiating encryption..."));
         }
         break;
     case QAbstractSocket::UnconnectedState:
@@ -230,6 +228,25 @@ void SslTlsSocket::delayedStart()
         sock->connectToHostEncrypted(host, port);
     else
         sock->connectToHost(host, port);
+}
+
+QList<QSslCertificate> SslTlsSocket::sslChain() const
+{
+    QSslSocket *sock = qobject_cast<QSslSocket *>(d);
+    Q_ASSERT(sock);
+    return sock->peerCertificateChain();
+}
+
+QList<QSslError> SslTlsSocket::sslErrors() const
+{
+    QSslSocket *sock = qobject_cast<QSslSocket *>(d);
+    Q_ASSERT(sock);
+    return sock->sslErrors();
+}
+
+bool SslTlsSocket::isConnectingEncryptedSinceStart() const
+{
+    return startEncrypted;
 }
 
 }

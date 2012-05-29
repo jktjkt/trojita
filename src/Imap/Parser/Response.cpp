@@ -960,6 +960,11 @@ Id::Id(const QByteArray &line, int &start): AbstractResponse(ID)
     }
 }
 
+SocketEncryptedResponse::SocketEncryptedResponse(const QList<QSslCertificate> &sslChain, const QList<QSslError> &sslErrors):
+    sslChain(sslChain), sslErrors(sslErrors)
+{
+}
+
 QTextStream &State::dump(QTextStream &stream) const
 {
     if (!tag.isEmpty())
@@ -1094,6 +1099,25 @@ QTextStream &Id::dump(QTextStream &s) const
         }
         return s << ")";
     }
+}
+
+QTextStream &SocketEncryptedResponse::dump(QTextStream &s) const
+{
+    s << "[Socket is encrypted now; ";
+    if (sslErrors.isEmpty()) {
+        s << "no errors]";
+    } else {
+        s << sslErrors.size() << " errors: ";
+        Q_FOREACH(const QSslError &e, sslErrors) {
+            if (e.certificate().isNull()) {
+                s << e.errorString() << " ";
+            } else {
+                s << e.errorString() << " (CN: " << e.certificate().subjectInfo(QSslCertificate::CommonName) << ") ";
+            }
+        }
+        s << "]";
+    }
+    return s;
 }
 
 
@@ -1277,6 +1301,15 @@ bool Id::eq(const AbstractResponse &other) const
     }
 }
 
+bool SocketEncryptedResponse::eq(const AbstractResponse &other) const
+{
+    try {
+        const SocketEncryptedResponse &r = dynamic_cast<const SocketEncryptedResponse &>(other);
+        return sslChain == r.sslChain && sslErrors == r.sslErrors;
+    } catch (std::bad_cast &) {
+        return false;
+    }
+}
 bool NamespaceData::operator==(const NamespaceData &other) const
 {
     return separator == other.separator && prefix == other.prefix;
@@ -1305,6 +1338,7 @@ PLUG(Namespace)
 PLUG(Sort)
 PLUG(Thread)
 PLUG(Id)
+PLUG(SocketEncryptedResponse)
 
 #undef PLUG
 

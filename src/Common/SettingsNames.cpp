@@ -49,6 +49,7 @@ QString SettingsNames::imapPassKey = QLatin1String("imap.auth.pass");
 QString SettingsNames::imapProcessKey = QLatin1String("imap.process");
 QString SettingsNames::imapStartOffline = QLatin1String("imap.offline");
 QString SettingsNames::imapEnableId = QLatin1String("imap.enableId");
+QString SettingsNames::imapSslPemCertificate = QLatin1String("imap.ssl.pemCertificate");
 QString SettingsNames::cacheMetadataKey = QLatin1String("offline.metadataCache");
 QString SettingsNames::cacheMetadataMemory = QLatin1String("memory");
 QString SettingsNames::cacheMetadataPersistent = QLatin1String("persistent");

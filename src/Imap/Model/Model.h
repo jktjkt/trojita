@@ -37,6 +37,7 @@
 #include "Logging.h"
 
 class QAuthenticator;
+class QSslError;
 
 class FakeCapabilitiesInjector;
 class ImapModelIdleTest;
@@ -117,6 +118,8 @@ class Model: public QAbstractItemModel
 
     mutable QList<Imap::Responses::NamespaceData> m_personalNamespace, m_otherUsersNamespace, m_sharedNamespace;
 
+    QList<QPair<QPair<QList<QSslCertificate>, QList<QSslError> >, bool> > m_sslErrorPolicy;
+
 
 public:
     Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr m_socketFactory, TaskFactoryPtr m_taskFactory, bool offline);
@@ -142,6 +145,7 @@ public:
     void handleSort(Imap::Parser *ptr, const Imap::Responses::Sort *const resp);
     void handleThread(Imap::Parser *ptr, const Imap::Responses::Thread *const resp);
     void handleId(Imap::Parser *ptr, const Imap::Responses::Id *const resp);
+    void handleSocketEncryptedResponse(Imap::Parser *ptr, const Imap::Responses::SocketEncryptedResponse *const resp);
 
     AbstractCache *cache() const { return m_cache; }
     /** Throw away current cache implementation, replace it with the new one
@@ -269,6 +273,8 @@ public slots:
     */
     QAbstractItemModel *taskModel() const;
 
+    void setSslPolicy(const QList<QSslCertificate> &sslChain, const QList<QSslError> &sslErrors, bool proceed);
+
 private slots:
     /** @short Handler for the "parser got disconnected" event */
     void slotParserDisconnected(Imap::Parser *parser, const QString);
@@ -323,6 +329,14 @@ signals:
     authRequested() function.
     */
     void authAttemptFailed(const QString &message);
+
+    /** @short Signal the need for a decision about accepting a particular SSL state
+
+    This signal is emitted in case a conneciton has hit a series of SSL errors which has not been encountered before.  The rest
+    of the code shall make a decision about whether the presented sequence of errors is safe to allow and call the setSslPolicy()
+    with the passed list of errors and an instruction whether to continue or not.
+    */
+    void needsSslDecision(const QList<QSslCertificate> &certificates, const QList<QSslError> &sslErrors);
 
     /** @short The amount of messages in the indicated mailbox might have changed */
     void messageCountPossiblyChanged(const QModelIndex &mailbox);
@@ -448,6 +462,8 @@ private:
 
     /** @short Helper function for changing connection state */
     void changeConnectionState(Parser *parser, ConnectionState state);
+
+    void processSslErrors(OpenConnectionTask *task);
 
     /** @short Is the reason for killing the parser an expected one? */
     typedef enum {

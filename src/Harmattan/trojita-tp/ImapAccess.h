@@ -47,6 +47,10 @@ class ImapAccess : public QObject
     Q_PROPERTY(QString username READ username WRITE setUsername)
     Q_PROPERTY(QString password READ password WRITE setPassword)
     Q_PROPERTY(QString sslMode READ sslMode WRITE setSslMode)
+    Q_PROPERTY(bool sslCertificateHasChanged READ sslCertificateHasChanged NOTIFY checkSslPolicy)
+    Q_PROPERTY(bool sslHasErrors READ sslHasErrors NOTIFY checkSslPolicy)
+    Q_PROPERTY(QString sslCertificateChain READ sslCertificateChain NOTIFY checkSslPolicy)
+    Q_PROPERTY(QString sslErrors READ sslErrors NOTIFY checkSslPolicy)
 
 public:
     explicit ImapAccess(QObject *parent = 0);
@@ -69,17 +73,26 @@ public:
     QString sslMode() const;
     void setSslMode(const QString &sslMode);
 
+    bool sslCertificateHasChanged() const;
+    bool sslHasErrors() const;
+    QString sslCertificateChain() const;
+    QString sslErrors() const;
+
     Q_INVOKABLE void openMessage(const QString &mailbox, const uint uid);
     Q_INVOKABLE QString prettySize(const uint bytes) const;
+    Q_INVOKABLE void setSslPolicy(bool accept);
+    Q_INVOKABLE void forgetSslCertificate();
 
 signals:
     void serverChanged();
     void modelsChanged();
+    void checkSslPolicy();
 
 public slots:
     void alertReceived(const QString &message);
     void connectionError(const QString &message);
     void slotLogged(uint parserId, const Imap::Mailbox::LogMessage &message);
+    void slotSslErrors(const QList<QSslCertificate> &sslCertificateChain, const QList<QSslError> &sslErrors);
 
 private:
     Imap::Mailbox::Model *m_imapModel;
@@ -95,6 +108,9 @@ private:
     QString m_username;
     QString m_password;
     QString m_sslMode;
+
+    QList<QSslCertificate> m_sslChain;
+    QList<QSslError> m_sslErrors;
 };
 
 #endif // IMAPACCESS_H
