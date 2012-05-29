@@ -75,8 +75,8 @@ EmbeddedWebView::EmbeddedWebView(QWidget *parent, QNetworkAccessManager *network
 
 void EmbeddedWebView::slotLinkClicked(const QUrl &url)
 {
-    // Only allow external http:// links for safety reasons
-    if (url.scheme().toLower() == QLatin1String("http")) {
+    // Only allow external http:// and https:// links for safety reasons
+    if (url.scheme().toLower() == QLatin1String("http") || url.scheme().toLower() == QLatin1String("https")) {
         QDesktopServices::openUrl(url);
     } else if (url.scheme().toLower() == QLatin1String("mailto")) {
         // The mailto: scheme is registered by Gui::MainWindow and handled internally;
