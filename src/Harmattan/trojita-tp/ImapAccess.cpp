@@ -205,6 +205,18 @@ QString ImapAccess::prettySize(const uint bytes) const
 
 void ImapAccess::sslErrors(const QList<QSslCertificate> &sslCertificateChain, const QList<QSslError> &sslErrors)
 {
-    // FIXME: implement a real policy
-    m_imapModel->setSslPolicy(sslCertificateChain, sslErrors, true);
+    m_sslChain = sslCertificateChain;
+    m_sslErrors = sslErrors;
+    emit checkSslPolicy();
+}
+
+void ImapAccess::setSslPolicy(bool accept)
+{
+    m_imapModel->setSslPolicy(m_sslChain, m_sslErrors, accept);
+}
+
+QString ImapAccess::sslCertificateMessage() const
+{
+    QList<QSslCertificate> oldCertificates;
+    return Imap::Mailbox::CertificateUtils::certificateChainCheckingMessage(m_sslChain, m_sslErrors, oldCertificates);
 }

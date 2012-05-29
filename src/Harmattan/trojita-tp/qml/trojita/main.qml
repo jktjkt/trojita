@@ -36,6 +36,7 @@ PageStackWindow {
         imapAccess.imapModel.networkPolicyOffline.connect(function() {networkOffline = true})
         imapAccess.imapModel.networkPolicyOnline.connect(function() {networkOffline = false})
         imapAccess.imapModel.networkPolicyExpensive.connect(function() {networkOffline = false})
+        imapAccess.checkSslPolicy.connect(function() {sslSheet.open()})
     }
 
     Component.onCompleted: {
@@ -137,5 +138,12 @@ PageStackWindow {
         id: passwordDialog
         onAccepted: imapAccess.imapModel.imapPassword = password
         onRejected: imapAccess.imapModel.imapPassword = undefined
+    }
+
+    SslSheet {
+        id: sslSheet
+        htmlText: imapAccess.sslCertificateMessage
+        onAccepted: imapAccess.setSslPolicy(true)
+        onRejected: imapAccess.setSslPolicy(false)
     }
 }

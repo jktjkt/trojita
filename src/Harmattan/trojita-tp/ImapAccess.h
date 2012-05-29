@@ -47,6 +47,7 @@ class ImapAccess : public QObject
     Q_PROPERTY(QString username READ username WRITE setUsername)
     Q_PROPERTY(QString password READ password WRITE setPassword)
     Q_PROPERTY(QString sslMode READ sslMode WRITE setSslMode)
+    Q_PROPERTY(QString sslCertificateMessage READ sslCertificateMessage NOTIFY checkSslPolicy)
 
 public:
     explicit ImapAccess(QObject *parent = 0);
@@ -69,12 +70,16 @@ public:
     QString sslMode() const;
     void setSslMode(const QString &sslMode);
 
+    QString sslCertificateMessage() const;
+
     Q_INVOKABLE void openMessage(const QString &mailbox, const uint uid);
     Q_INVOKABLE QString prettySize(const uint bytes) const;
+    Q_INVOKABLE void setSslPolicy(bool accept);
 
 signals:
     void serverChanged();
     void modelsChanged();
+    void checkSslPolicy();
 
 public slots:
     void alertReceived(const QString &message);
@@ -96,6 +101,9 @@ private:
     QString m_username;
     QString m_password;
     QString m_sslMode;
+
+    QList<QSslCertificate> m_sslChain;
+    QList<QSslError> m_sslErrors;
 };
 
 #endif // IMAPACCESS_H
