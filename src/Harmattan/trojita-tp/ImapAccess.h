@@ -85,7 +85,7 @@ public slots:
     void alertReceived(const QString &message);
     void connectionError(const QString &message);
     void slotLogged(uint parserId, const Imap::Mailbox::LogMessage &message);
-    void sslErrors(const QList<QSslCertificate> &sslCertificateChain, const QList<QSslError> &sslErrors);
+    void slotSslErrors(const QList<QSslCertificate> &sslCertificateChain, const QList<QSslError> &sslErrors);
 
 private:
     Imap::Mailbox::Model *m_imapModel;

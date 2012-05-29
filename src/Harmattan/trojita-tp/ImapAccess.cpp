@@ -145,7 +145,7 @@ void ImapAccess::setSslMode(const QString &sslMode)
     connect(m_imapModel, SIGNAL(connectionError(QString)), this, SLOT(connectionError(QString)));
     connect(m_imapModel, SIGNAL(logged(uint,Imap::Mailbox::LogMessage)), this, SLOT(slotLogged(uint,Imap::Mailbox::LogMessage)));
     connect(m_imapModel, SIGNAL(needsSslDecision(QList<QSslCertificate>,QList<QSslError>)),
-            this, SLOT(sslErrors(QList<QSslCertificate>,QList<QSslError>)));
+            this, SLOT(slotSslErrors(QList<QSslCertificate>,QList<QSslError>)));
 
     m_imapModel->setImapUser(username());
     if (!m_password.isNull()) {
@@ -203,7 +203,7 @@ QString ImapAccess::prettySize(const uint bytes) const
     return Imap::Mailbox::PrettySize::prettySize(bytes, Imap::Mailbox::PrettySize::WITH_BYTES_SUFFIX);
 }
 
-void ImapAccess::sslErrors(const QList<QSslCertificate> &sslCertificateChain, const QList<QSslError> &sslErrors)
+void ImapAccess::slotSslErrors(const QList<QSslCertificate> &sslCertificateChain, const QList<QSslError> &sslErrors)
 {
     m_sslChain = sslCertificateChain;
     m_sslErrors = sslErrors;
