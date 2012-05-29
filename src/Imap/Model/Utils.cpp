@@ -328,32 +328,28 @@ switch (QSysInfo:s60Version()) {
     return QString::fromAscii("Qt/%1; %2; %3; %4").arg(qVersion(), ws, os, platformVersion);
 }
 
-QString CertificateUtils::certificateChainCheckingMessage(const QList<QSslCertificate> &sslChain,
-                                                          const QList<QSslError> &sslErrors,
-                                                          const QList<QSslCertificate> &oldCertificates)
+QString CertificateUtils::chainToHtml(const QList<QSslCertificate> &sslChain)
 {
-    QStringList sslErrorStrings;
-    Q_FOREACH(const QSslError &e, sslErrors) {
-        sslErrorStrings << tr("<li>%1</li>").arg(Qt::escape(e.errorString()));
-    }
-    QString reportedErrors = sslErrors.isEmpty() ?
-                QString("<p>The connection established without an error.</p>\n") :
-                tr("<p>The connection triggered the following SSL errors:</p>\n<ul>%1</ul>\n").arg(sslErrorStrings.join(tr("\n")));
     QStringList certificateStrings;
     Q_FOREACH(const QSslCertificate &cert, sslChain) {
         certificateStrings << tr("<li><b>CN</b>: %1, <b>Organization</b>: %2, <b>SHA1</b>: %3, <b>MD5</b>: %4</li>").arg(
                                   cert.subjectInfo(QSslCertificate::CommonName), cert.subjectInfo(QSslCertificate::Organization),
                                   cert.digest(QCryptographicHash::Sha1).toHex(), cert.digest(QCryptographicHash::Md5).toHex());
     }
-    QString certificates = sslChain.isEmpty() ?
+    return sslChain.isEmpty() ?
                 tr("<p>The remote side doesn't have a certificate.</p>\n") :
                 tr("<p>This is the certificate chain of the connection:</p>\n<ul>%1</ul>\n").arg(certificateStrings.join(tr("\n")));
+}
 
-    QString changedString = (! sslChain.isEmpty() && sslChain != oldCertificates) ?
-                tr("<p><b>The certificate has changed since the last time.</b></p>") :
-                QString();
-
-    return tr("%1\n%2\n%3\n<p>Would you like to accept this connection?</p>\n").arg(certificates, changedString, reportedErrors);
+QString CertificateUtils::errorsToHtml(const QList<QSslError> &sslErrors)
+{
+    QStringList sslErrorStrings;
+    Q_FOREACH(const QSslError &e, sslErrors) {
+        sslErrorStrings << tr("<li>%1</li>").arg(Qt::escape(e.errorString()));
+    }
+    return sslErrors.isEmpty() ?
+                QString("<p>The connection established without an error.</p>\n") :
+                tr("<p>The connection triggered the following SSL errors:</p>\n<ul>%1</ul>\n").arg(sslErrorStrings.join(tr("\n")));
 }
 
 }

@@ -215,8 +215,27 @@ void ImapAccess::setSslPolicy(bool accept)
     m_imapModel->setSslPolicy(m_sslChain, m_sslErrors, accept);
 }
 
-QString ImapAccess::sslCertificateMessage() const
+bool ImapAccess::sslCertificateHasChanged() const
 {
-    QList<QSslCertificate> oldCertificates;
-    return Imap::Mailbox::CertificateUtils::certificateChainCheckingMessage(m_sslChain, m_sslErrors, oldCertificates);
+    QSettings s;
+    QByteArray lastKnownCertPem = s.value(Common::SettingsNames::imapSslPemCertificate).toByteArray();
+    if (lastKnownCertPem.isEmpty())
+        return false;
+    QList<QSslCertificate> lastKnownCerts = QSslCertificate::fromData(lastKnownCertPem, QSsl::Pem);
+    return lastKnownCerts != m_sslChain && !lastKnownCertPem.isEmpty();
+}
+
+bool ImapAccess::sslHasErrors() const
+{
+    return !m_sslErrors.isEmpty();
+}
+
+QString ImapAccess::sslCertificateChain() const
+{
+    return Imap::Mailbox::CertificateUtils::chainToHtml(m_sslChain);
+}
+
+QString ImapAccess::sslErrors() const
+{
+    return Imap::Mailbox::CertificateUtils::errorsToHtml(m_sslErrors);
 }

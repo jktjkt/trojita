@@ -142,7 +142,9 @@ PageStackWindow {
 
     SslSheet {
         id: sslSheet
-        htmlText: imapAccess.sslCertificateMessage
+        htmlText: imapAccess.sslCertificateChain + "\n" +
+                  imapAccess.sslErrors + "\n" +
+                  (imapAccess.sslCertificateHasChanged ? "<p><b>The certificate has changed since the last time</b></p>" : "")
         onAccepted: imapAccess.setSslPolicy(true)
         onRejected: imapAccess.setSslPolicy(false)
     }

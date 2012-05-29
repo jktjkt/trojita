@@ -771,7 +771,12 @@ void MainWindow::sslErrors(const QList<QSslCertificate> &certificateChain, const
             }
         }
     }
-    QString message = Imap::Mailbox::CertificateUtils::certificateChainCheckingMessage(certificateChain, errors, lastKnownCerts);
+    bool certificateHasChanged = certificateChain != lastKnownCerts && ! lastKnownCertPem.isEmpty();
+    QString message = tr("%1%2%3").arg(Imap::Mailbox::CertificateUtils::chainToHtml(certificateChain),
+                                       Imap::Mailbox::CertificateUtils::errorsToHtml(errors),
+                                       certificateHasChanged ?
+                                           tr("<p><b>The certificate has changed since the last connection.</b></p>\n") :
+                                           QString());
     if (QMessageBox::question(this, tr("Accept SSL connection?"), message, QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
         if (!certificateChain.isEmpty()) {
             QByteArray buf;

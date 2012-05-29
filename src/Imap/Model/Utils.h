@@ -53,8 +53,8 @@ class CertificateUtils: public QObject
 {
     Q_OBJECT
 public:
-    static QString certificateChainCheckingMessage(const QList<QSslCertificate> &sslChain, const QList<QSslError> &sslErrors,
-                                                   const QList<QSslCertificate> &oldCertificates);
+    static QString chainToHtml(const QList<QSslCertificate> &sslChain);
+    static QString errorsToHtml(const QList<QSslError> &sslErrors);
 };
 
 }
