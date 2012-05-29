@@ -772,7 +772,7 @@ void MainWindow::sslErrors(const QList<QSslCertificate> &certificateChain, const
         if (!lastKnownCerts.isEmpty()) {
             if (certificateChain == lastKnownCerts) {
                 // It's the same certificate as the last time; we should accept that
-                model->setSslPolicy(errors, true);
+                model->setSslPolicy(certificateChain, errors, true);
                 return;
             } else {
                 certChanged = true;
@@ -807,9 +807,9 @@ void MainWindow::sslErrors(const QList<QSslCertificate> &certificateChain, const
             }
             s.setValue(Common::SettingsNames::imapSslPemCertificate, buf);
         }
-        model->setSslPolicy(errors, true);
+        model->setSslPolicy(certificateChain, errors, true);
     } else {
-        model->setSslPolicy(errors, false);
+        model->setSslPolicy(certificateChain, errors, false);
     }
 }
 

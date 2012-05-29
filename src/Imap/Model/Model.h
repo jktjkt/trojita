@@ -118,7 +118,7 @@ class Model: public QAbstractItemModel
 
     mutable QList<Imap::Responses::NamespaceData> m_personalNamespace, m_otherUsersNamespace, m_sharedNamespace;
 
-    QList<QPair<QList<QSslError>, bool> > m_sslErrorPolicy;
+    QList<QPair<QPair<QList<QSslCertificate>, QList<QSslError> >, bool> > m_sslErrorPolicy;
 
 
 public:
@@ -273,7 +273,7 @@ public slots:
     */
     QAbstractItemModel *taskModel() const;
 
-    void setSslPolicy(const QList<QSslError> &sslErrors, bool proceed);
+    void setSslPolicy(const QList<QSslCertificate> &sslChain, const QList<QSslError> &sslErrors, bool proceed);
 
 private slots:
     /** @short Handler for the "parser got disconnected" event */
