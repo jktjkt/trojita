@@ -52,6 +52,7 @@ private slots:
     void testOkStartTlsDiscardCaps();
 
     void provideAuthDetails();
+    void acceptSsl(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &sslErrors);
 
 private:
     Imap::Mailbox::Model* model;
