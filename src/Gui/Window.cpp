@@ -95,6 +95,8 @@ MainWindow::MainWindow(): QMainWindow(), model(0), m_ignoreStoredPassword(false)
 
 void MainWindow::createActions()
 {
+    m_mainToolbar = addToolBar(tr("Navigation"));
+
     reloadMboxList = new QAction(style()->standardIcon(QStyle::SP_ArrowRight), tr("Update List of Child Mailboxes"), this);
     connect(reloadMboxList, SIGNAL(triggered()), this, SLOT(slotReloadMboxList()));
 
@@ -149,6 +151,11 @@ void MainWindow::createActions()
     showMenuBar->setShortcut(tr("Ctrl+M"));
     addAction(showMenuBar);   // otherwise it won't work with hidden menu bar
     connect(showMenuBar, SIGNAL(triggered(bool)), menuBar(), SLOT(setVisible(bool)));
+
+    showToolBar = new QAction(tr("Show Toolbar"), this);
+    showToolBar->setCheckable(true);
+    showToolBar->setChecked(true);
+    connect(showToolBar, SIGNAL(triggered(bool)), m_mainToolbar, SLOT(setVisible(bool)));
 
     configSettings = new QAction(loadIcon(QLatin1String("configure")),  tr("Settings..."), this);
     connect(configSettings, SIGNAL(triggered()), this, SLOT(slotShowSettings()));
@@ -233,17 +240,16 @@ void MainWindow::createActions()
 
     connectModelActions();
 
-    QToolBar *toolBar = addToolBar(tr("Navigation"));
-    toolBar->addAction(composeMail);
-    toolBar->addAction(replyTo);
-    toolBar->addAction(replyAll);
-    toolBar->addAction(expunge);
-    toolBar->addSeparator();
-    toolBar->addAction(markAsRead);
-    toolBar->addAction(markAsDeleted);
-    toolBar->addSeparator();
-    toolBar->addAction(showMenuBar);
-    toolBar->addAction(configSettings);
+    m_mainToolbar->addAction(composeMail);
+    m_mainToolbar->addAction(replyTo);
+    m_mainToolbar->addAction(replyAll);
+    m_mainToolbar->addAction(expunge);
+    m_mainToolbar->addSeparator();
+    m_mainToolbar->addAction(markAsRead);
+    m_mainToolbar->addAction(markAsDeleted);
+    m_mainToolbar->addSeparator();
+    m_mainToolbar->addAction(showMenuBar);
+    m_mainToolbar->addAction(configSettings);
 }
 
 void MainWindow::connectModelActions()
@@ -274,11 +280,13 @@ void MainWindow::createMenus()
     debugMenu->addAction(showImapCapabilities);
     imapMenu->addSeparator();
     imapMenu->addAction(configSettings);
-    imapMenu->addAction(showMenuBar);
     imapMenu->addSeparator();
     imapMenu->addAction(exitAction);
 
     QMenu *viewMenu = menuBar()->addMenu(tr("View"));
+    viewMenu->addAction(showMenuBar);
+    viewMenu->addAction(showToolBar);
+    viewMenu->addSeparator();
     viewMenu->addAction(actionThreadMsgList);
     viewMenu->addAction(actionHideRead);
 

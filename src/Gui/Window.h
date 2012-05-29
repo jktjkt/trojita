@@ -172,6 +172,7 @@ private:
     QAction *logPersistent;
     QAction *showImapCapabilities;
     QAction *showMenuBar;
+    QAction *showToolBar;
     QAction *configSettings;
     QAction *composeMail;
     QAction *replyTo;
@@ -194,6 +195,8 @@ private:
 
     QAction *actionThreadMsgList;
     QAction *actionHideRead;
+
+    QToolBar *m_mainToolbar;
 
     TaskProgressIndicator *busyParsersIndicator;
     QToolButton *networkIndicator;
