@@ -277,6 +277,8 @@ public slots:
 
     void slotSocketStateChanged(const Imap::ConnectionState connState, const QString &message);
 
+    void unfreezeAfterEncryption();
+
 
 signals:
     /** @short Socket got disconnected */
@@ -395,6 +397,7 @@ private:
     bool startTlsInProgress;
     bool waitingForConnection;
     bool waitingForEncryption;
+    bool waitingForSslPolicy;
 
     enum { ReadingLine, ReadingNumberOfBytes } readingMode;
     QByteArray currentLine;

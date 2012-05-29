@@ -87,8 +87,8 @@ namespace Imap
 Parser::Parser(QObject *parent, Socket *socket, const uint myId):
     QObject(parent), socket(socket), m_lastTagUsed(0), idling(false), waitForInitialIdle(false),
     literalPlus(false), waitingForContinuation(false), startTlsInProgress(false),
-    waitingForConnection(true), waitingForEncryption(socket->isConnectingEncryptedSinceStart()), readingMode(ReadingLine),
-    oldLiteralPosition(0), m_parserId(myId)
+    waitingForConnection(true), waitingForEncryption(socket->isConnectingEncryptedSinceStart()), waitingForSslPolicy(false),
+    readingMode(ReadingLine), oldLiteralPosition(0), m_parserId(myId)
 {
     connect(socket, SIGNAL(disconnected(const QString &)),
             this, SLOT(handleDisconnected(const QString &)));
@@ -461,7 +461,7 @@ QString Parser::generateTag()
 
 void Parser::handleReadyRead()
 {
-    while (!waitingForEncryption) {
+    while (!waitingForEncryption && !waitingForSslPolicy) {
         switch (readingMode) {
         case ReadingLine:
             if (socket->canReadLine()) {
@@ -529,7 +529,7 @@ void Parser::reallyReadLine()
 void Parser::executeCommands()
 {
     while (! waitingForContinuation && ! waitForInitialIdle &&
-           ! waitingForConnection && ! waitingForEncryption &&
+           ! waitingForConnection && ! waitingForEncryption && ! waitingForSslPolicy &&
            ! cmdQueue.isEmpty() && ! startTlsInProgress)
         executeACommand();
 }
@@ -551,6 +551,7 @@ void Parser::handleSocketEncrypted()
 {
     waitingForEncryption = false;
     waitingForConnection = false;
+    waitingForSslPolicy = true;
     QSharedPointer<Responses::AbstractResponse> resp(
                 new Responses::SocketEncryptedResponse(socket->sslChain(), socket->sslErrors()));
     QByteArray buf;
@@ -563,6 +564,14 @@ void Parser::handleSocketEncrypted()
     emit lineReceived(this, buf);
     handleReadyRead();
     queueResponse(resp);
+    executeCommands();
+}
+
+void Parser::unfreezeAfterEncryption()
+{
+    Q_ASSERT(waitingForSslPolicy);
+    waitingForSslPolicy = false;
+    handleReadyRead();
     executeCommands();
 }
 

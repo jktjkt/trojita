@@ -209,6 +209,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
     {
         // We're waiting for a decision based on a policy, so we do not really expect any network IO at this point
         // FIXME: an assert(false) here?
+        qDebug() << "OpenConnectionTask: ignoring response, we're still waiting for SSL policy decision";
         return false;
     }
 
@@ -424,6 +425,7 @@ void OpenConnectionTask::sslConnectionPolicyDecided(bool ok)
     default:
         Q_ASSERT(false);
     }
+    parser->unfreezeAfterEncryption();
 }
 
 bool OpenConnectionTask::handleSocketEncryptedResponse(const Responses::SocketEncryptedResponse *const resp)
