@@ -207,11 +207,26 @@ void ImapAccess::slotSslErrors(const QList<QSslCertificate> &sslCertificateChain
 {
     m_sslChain = sslCertificateChain;
     m_sslErrors = sslErrors;
-    emit checkSslPolicy();
+    QSettings s;
+    QByteArray lastKnownCertPem = s.value(Common::SettingsNames::imapSslPemCertificate).toByteArray();
+    if (!sslCertificateChain.isEmpty() && !lastKnownCertPem.isEmpty() &&
+            sslCertificateChain == QSslCertificate::fromData(lastKnownCertPem, QSsl::Pem)) {
+        m_imapModel->setSslPolicy(m_sslChain, m_sslErrors, true);
+    } else {
+        emit checkSslPolicy();
+    }
 }
 
 void ImapAccess::setSslPolicy(bool accept)
 {
+    if (accept && !m_sslChain.isEmpty()) {
+        QSettings s;
+        QByteArray buf;
+        Q_FOREACH(const QSslCertificate &cert, m_sslChain) {
+            buf.append(cert.toPem());
+        }
+        s.setValue(Common::SettingsNames::imapSslPemCertificate, buf);
+    }
     m_imapModel->setSslPolicy(m_sslChain, m_sslErrors, accept);
 }
 
