@@ -70,6 +70,7 @@ MessageView::MessageView(QWidget *parent): QWidget(parent)
     layout->addWidget(tags);
     layout->addWidget(viewer);
     layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
 
     markAsReadTimer = new QTimer(this);
     markAsReadTimer->setSingleShot(true);

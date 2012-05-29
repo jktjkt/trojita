@@ -23,13 +23,15 @@ namespace Gui
 TagListWidget::TagListWidget(QWidget *parent) :
     QWidget(parent)
 {
-    parentLayout = new FlowLayout(this);
+    parentLayout = new FlowLayout(this, 0);
     setLayout(parentLayout);
 
     addButton = new TagWidget("+");
     connect(addButton, SIGNAL(clicked()), this, SLOT(newTagRequested()));
 
-    parentLayout->addWidget(new QLabel(tr("<b>Tags:</b>")));
+    QLabel *lbl = new QLabel(tr("<b>Tags:</b>"));
+    lbl->setIndent(5);
+    parentLayout->addWidget(lbl);
     parentLayout->addWidget(addButton);
 
     m_ignoredFlags.insert(QLatin1String("\\seen"));
