@@ -89,7 +89,6 @@ void OneMessageModel::setMessage(const QModelIndex &message)
         m_mainPartUrl = QLatin1String("data:text/plain;charset=utf-8;base64,") + QString::fromAscii(QByteArray(partMessage.toAscii()).toBase64());
         break;
     }
-    qDebug() << m_mainPartUrl;
     emit mainPartUrlChanged();
 }
 
