@@ -209,10 +209,14 @@ void ImapAccess::slotSslErrors(const QList<QSslCertificate> &sslCertificateChain
     m_sslErrors = sslErrors;
     QSettings s;
     QByteArray lastKnownCertPem = s.value(Common::SettingsNames::imapSslPemCertificate).toByteArray();
+    QList<QSslCertificate> oldChain = QSslCertificate::fromData(lastKnownCertPem, QSsl::Pem);
     if (!sslCertificateChain.isEmpty() && !lastKnownCertPem.isEmpty() &&
-            sslCertificateChain == QSslCertificate::fromData(lastKnownCertPem, QSsl::Pem)) {
+            sslCertificateChain == oldChain) {
         m_imapModel->setSslPolicy(m_sslChain, m_sslErrors, true);
     } else {
+        Imap::Mailbox::CertificateUtils::IconType icon;
+        Imap::Mailbox::CertificateUtils::formatSslState(
+                    m_sslChain, oldChain, lastKnownCertPem, m_sslErrors, &m_sslInfoTitle, &m_sslInfoMessage, &icon);
         emit checkSslPolicy();
     }
 }
@@ -230,32 +234,17 @@ void ImapAccess::setSslPolicy(bool accept)
     m_imapModel->setSslPolicy(m_sslChain, m_sslErrors, accept);
 }
 
-bool ImapAccess::sslCertificateHasChanged() const
-{
-    QSettings s;
-    QByteArray lastKnownCertPem = s.value(Common::SettingsNames::imapSslPemCertificate).toByteArray();
-    if (lastKnownCertPem.isEmpty())
-        return false;
-    QList<QSslCertificate> lastKnownCerts = QSslCertificate::fromData(lastKnownCertPem, QSsl::Pem);
-    return lastKnownCerts != m_sslChain && !lastKnownCertPem.isEmpty();
-}
-
-bool ImapAccess::sslHasErrors() const
-{
-    return !m_sslErrors.isEmpty();
-}
-
-QString ImapAccess::sslCertificateChain() const
-{
-    return Imap::Mailbox::CertificateUtils::chainToHtml(m_sslChain);
-}
-
-QString ImapAccess::sslErrors() const
-{
-    return Imap::Mailbox::CertificateUtils::errorsToHtml(m_sslErrors);
-}
-
 void ImapAccess::forgetSslCertificate()
 {
     QSettings().remove(Common::SettingsNames::imapSslPemCertificate);
+}
+
+QString ImapAccess::sslInfoTitle() const
+{
+    return m_sslInfoTitle;
+}
+
+QString ImapAccess::sslInfoMessage() const
+{
+    return m_sslInfoMessage;
 }
