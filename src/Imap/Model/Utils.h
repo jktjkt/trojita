@@ -55,6 +55,19 @@ class CertificateUtils: public QObject
 public:
     static QString chainToHtml(const QList<QSslCertificate> &sslChain);
     static QString errorsToHtml(const QList<QSslError> &sslErrors);
+
+    /** @short Shamelessly stolen from QMessageBox */
+    typedef enum {
+        NoIcon = 0,
+        Information = 1,
+        Warning = 2,
+        Critical = 3,
+        Question = 4
+    } IconType;
+
+    static void formatSslState(const QList<QSslCertificate> &sslChain, const QList<QSslCertificate> &oldSslChain,
+                               const QByteArray &oldCertificatePem, const QList<QSslError> &sslErrors,
+                               QString *title, QString *message, IconType *icon);
 };
 
 }

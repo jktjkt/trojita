@@ -783,97 +783,15 @@ void MainWindow::sslErrors(const QList<QSslCertificate> &certificateChain, const
             }
         }
     }
-    bool certificateHasChanged = certificateChain != lastKnownCerts && ! lastKnownCertPem.isEmpty();
-    bool wasAboutToExpire = certificateChain.first().expiryDate() < QDateTime::currentDateTime().addDays(14);
-    bool sameTrustChain = certificateChain.size() > 1 && certificateChain.size() == lastKnownCerts.size() &&
-            std::equal(certificateChain.constBegin() + 1, certificateChain.constEnd(), lastKnownCerts.constBegin() + 1);
 
     QString message;
     QString title;
-    QMessageBox::Icon icon;
+    Imap::Mailbox::CertificateUtils::IconType icon;
 
-    if (certificateHasChanged) {
-        if (errors.isEmpty()) {
-            if (sameTrustChain) {
-                // The only difference is in the first certificate of the chain
-                if (wasAboutToExpire) {
-                    // It was going to expire in two weeks; it's probably fair to assume that this is a regular replacement
-                    icon = QMessageBox::Information;
-                    title = tr("Renewed SSL certificate");
-                    message = tr("<p>The IMAP server got a new SSL certificate from the same Certificate Authority; "
-                                 "the old one was about to expire soon.  It is probably safe to trust this certificate."
-                                 "</p>\n%1\n<p>Would you like to proceed and remember the new certificate?</p>").
-                            arg(Imap::Mailbox::CertificateUtils::chainToHtml(certificateChain));
-                } else {
-                    // The old one was not about to expire; that doesn't mean that there's a problem, though
-                    icon = QMessageBox::Question;
-                    title = tr("Renewed SSL certificate");
-                    message = tr("<p>The IMAP server got a new SSL certificate from the same Certificate Authority (CA), "
-                                 "even though the old one was still valid.</p>\n"
-                                 "%1\n<p>Would you like to proceed and remember the new certificate?</p>").
-                            arg(Imap::Mailbox::CertificateUtils::chainToHtml(certificateChain));
-                }
-            } else {
-                // Another certificate with completely different CA, but trusted anyway
-                icon = QMessageBox::Warning;
-                title = tr("Different SSL certificate");
-                message = tr("<p>The SSL certificate has changed and is issued by another Certificate Authority (CA). "
-                             "Your system configuration is set to accept such certificates anyway.</p>\n%1\n"
-                             "<p>Would you like to connect and remember the new certificate?</p>")
-                        .arg(Imap::Mailbox::CertificateUtils::chainToHtml(certificateChain));
-            }
-        } else {
-            // changed certificate which is not trusted per systemwide policy
-            if (sameTrustChain) {
-                if (wasAboutToExpire) {
-                    icon = QMessageBox::Information;
-                    title = tr("Renewed SSL certificate");
-                    message = tr("<p>The IMAP server got a new SSL certificate from the same Certificate Authority; "
-                                 "the old one was about to expire soon.</p>\n%1\n%2\n"
-                                 "<p>Would you like to proceed and remember the new certificate?</p>").
-                            arg(Imap::Mailbox::CertificateUtils::chainToHtml(certificateChain),
-                                Imap::Mailbox::CertificateUtils::errorsToHtml(errors));
-                } else {
-                    icon = QMessageBox::Question;
-                    title = tr("Renewed SSL certificate");
-                    message = tr("<p>The IMAP server got a new SSL certificate from the same Certificate Authority (CA), "
-                                 "even though the old one was still valid.</p>\n%1\n%2\n"
-                                 "<p>Would you like to proceed and remember the new certificate?</p>").
-                            arg(Imap::Mailbox::CertificateUtils::chainToHtml(certificateChain),
-                                Imap::Mailbox::CertificateUtils::errorsToHtml(errors));
-                }
-            } else {
-                title = tr("SSL looks fishy");
-                message = tr("<p>The SSL certificate of the IMAP server has changed since the last time and your system doesn't "
-                             "believe that the new certificate is genuine.</p>\n%1\n%2\n"
-                             "<p>Would you like to connect anyway and remember the new certificate?</p>").
-                        arg(Imap::Mailbox::CertificateUtils::chainToHtml(certificateChain),
-                             Imap::Mailbox::CertificateUtils::errorsToHtml(errors));
-                icon = QMessageBox::Critical;
-            }
-        }
-    } else {
-        if (errors.isEmpty()) {
-            // this is the first time and the certificate looks valid -> accept
-            title = tr("Accept SSL connection?");
-            message = tr("<p>This is the first time you're connecting to this IMAP server; the certificate is trusted "
-                         "by this system.</p>\n%1\n%2\n"
-                         "<p>Would you like to connect and remember this certificate for the next time?</p>")
-                    .arg(Imap::Mailbox::CertificateUtils::chainToHtml(certificateChain),
-                         Imap::Mailbox::CertificateUtils::errorsToHtml(errors));
-            icon = QMessageBox::Information;
-        } else {
-            title = tr("Accept SSL connection?");
-            message = tr("<p>This is the first time you're connecting to this IMAP server and the server certificate failed "
-                         "validation test.</p>\n%1\n\n%2\n"
-                         "<p>Would you like to connect and remember this certificate for the next time?</p>")
-                    .arg(Imap::Mailbox::CertificateUtils::chainToHtml(certificateChain),
-                         Imap::Mailbox::CertificateUtils::errorsToHtml(errors));
-            icon = QMessageBox::Question;
-        }
-    }
+    Imap::Mailbox::CertificateUtils::formatSslState(certificateChain, lastKnownCerts, lastKnownCertPem, errors,
+                                                    &title, &message, &icon);
 
-    if (QMessageBox(icon, title, message, QMessageBox::Yes | QMessageBox::No, this).exec() == QMessageBox::Yes) {
+    if (QMessageBox(static_cast<QMessageBox::Icon>(icon), title, message, QMessageBox::Yes | QMessageBox::No, this).exec() == QMessageBox::Yes) {
         if (!certificateChain.isEmpty()) {
             QByteArray buf;
             Q_FOREACH(const QSslCertificate &cert, certificateChain) {
