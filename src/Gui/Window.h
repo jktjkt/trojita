@@ -93,6 +93,7 @@ private slots:
     void slotReplyAll();
     void handleMarkAsRead(bool);
     void handleMarkAsDeleted(bool);
+    void slotNextUnread();
     void msgListActivated(const QModelIndex &);
     void msgListClicked(const QModelIndex &);
     void msgListDoubleClicked(const QModelIndex &);
@@ -193,6 +194,7 @@ private:
     QAction *markAsDeleted;
     QAction *saveWholeMessage;
     QAction *viewMsgHeaders;
+    QAction *m_nextMessage;
 
     QAction *actionThreadMsgList;
     QAction *actionHideRead;

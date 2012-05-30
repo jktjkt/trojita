@@ -174,6 +174,12 @@ void MainWindow::createActions()
     msgListTree->addAction(markAsRead);
     connect(markAsRead, SIGNAL(triggered(bool)), this, SLOT(handleMarkAsRead(bool)));
 
+    m_nextMessage = new QAction(tr("Next Unread Message"), this);
+    m_nextMessage->setShortcut(Qt::Key_N);
+    msgListTree->addAction(m_nextMessage);
+    msgView->addAction(m_nextMessage);
+    connect(m_nextMessage, SIGNAL(triggered()), this, SLOT(slotNextUnread()));
+
     markAsDeleted = new QAction(loadIcon(QLatin1String("list-remove")),  tr("Mark as Deleted"), this);
     markAsDeleted->setCheckable(true);
     markAsDeleted->setShortcut(Qt::Key_Delete);
@@ -287,6 +293,8 @@ void MainWindow::createMenus()
     QMenu *viewMenu = menuBar()->addMenu(tr("View"));
     viewMenu->addAction(showMenuBar);
     viewMenu->addAction(showToolBar);
+    viewMenu->addSeparator();
+    viewMenu->addAction(m_nextMessage);
     viewMenu->addSeparator();
     viewMenu->addAction(actionThreadMsgList);
     viewMenu->addAction(actionHideRead);
@@ -854,6 +862,36 @@ void MainWindow::handleMarkAsRead(bool value)
             model->markMessagesRead(translatedIndexes, Imap::Mailbox::FLAG_ADD);
         else
             model->markMessagesRead(translatedIndexes, Imap::Mailbox::FLAG_REMOVE);
+    }
+}
+
+void MainWindow::slotNextUnread()
+{
+    QModelIndex current = msgListTree->currentIndex();
+
+    while (current.isValid()) {
+        if (!current.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool()) {
+            msgView->setMessage(current);
+            msgListTree->setCurrentIndex(current);
+            return;
+        }
+
+        QModelIndex child = current.child(0, 0);
+        if (child.isValid()) {
+            current = child;
+            continue;
+        }
+
+        QModelIndex sibling = current.sibling(current.row() + 1, 0);
+        if (sibling.isValid()) {
+            current = sibling;
+            continue;
+        }
+
+        current = current.parent();
+        if (!current.isValid())
+            break;
+        current = current.sibling(current.row() + 1, 0);
     }
 }
 
