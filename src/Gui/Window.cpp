@@ -896,9 +896,9 @@ void MainWindow::slotNextUnread()
             continue;
         }
 
-        current = current.parent();
-        if (!current.isValid())
-            break;
+        while (current.isValid() && msgListTree->model()->rowCount(current.parent()) - 1 == current.row()) {
+            current = current.parent();
+        }
         current = current.sibling(current.row() + 1, 0);
 
         if (!current.isValid() && !wrapped) {
