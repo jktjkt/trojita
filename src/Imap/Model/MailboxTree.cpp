@@ -802,6 +802,16 @@ QVariant TreeItemMessage::data(Model *const model, int role)
     case RoleMessageFlags:
         // The flags are already sorted by Model::normalizeFlags()
         return m_flags;
+    case RoleMessageIsMarkedDeleted:
+        return isMarkedAsDeleted();
+    case RoleMessageIsMarkedRead:
+        return isMarkedAsRead();
+    case RoleMessageIsMarkedForwarded:
+        return isMarkedAsForwarded();
+    case RoleMessageIsMarkedReplied:
+        return isMarkedAsReplied();
+    case RoleMessageIsMarkedRecent:
+        return isMarkedAsRecent();
     case RoleMessageFuzzyDate:
     {
         // When the QML ListView is configured with its section.* properties, it will call the corresponding data() section *very*
@@ -863,16 +873,6 @@ QVariant TreeItemMessage::data(Model *const model, int role)
         return QVariant();
 
     switch (role) {
-    case RoleMessageIsMarkedDeleted:
-        return isMarkedAsDeleted();
-    case RoleMessageIsMarkedRead:
-        return isMarkedAsRead();
-    case RoleMessageIsMarkedForwarded:
-        return isMarkedAsForwarded();
-    case RoleMessageIsMarkedReplied:
-        return isMarkedAsReplied();
-    case RoleMessageIsMarkedRecent:
-        return isMarkedAsRecent();
     case RoleMessageDate:
         return envelope(model).date;
     case RoleMessageFrom:
