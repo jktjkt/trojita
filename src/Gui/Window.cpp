@@ -869,6 +869,7 @@ void MainWindow::slotNextUnread()
 {
     QModelIndex current = msgListTree->currentIndex();
 
+    bool wrapped = false;
     while (current.isValid()) {
         if (!current.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool() && msgListTree->currentIndex() != current) {
             msgView->setMessage(current);
@@ -892,6 +893,11 @@ void MainWindow::slotNextUnread()
         if (!current.isValid())
             break;
         current = current.sibling(current.row() + 1, 0);
+
+        if (!current.isValid() && !wrapped) {
+            wrapped = true;
+            current = msgListTree->model()->index(0, 0);
+        }
     }
 }
 
