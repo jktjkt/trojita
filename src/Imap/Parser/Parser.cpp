@@ -360,6 +360,13 @@ CommandHandle Parser::uidCopy(const Sequence &seq, const QString &mailbox)
                         encodeImapFolderName(mailbox));
 }
 
+CommandHandle Parser::uidXMove(const Sequence &seq, const QString &mailbox)
+{
+    return queueCommand(Commands::Command("UID XMOVE") <<
+                        Commands::PartOfCommand(Commands::ATOM, seq.toString()) <<
+                        encodeImapFolderName(mailbox));
+}
+
 CommandHandle Parser::xAtom(const Commands::Command &cmd)
 {
     return queueCommand(cmd);

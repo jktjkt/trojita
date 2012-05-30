@@ -79,7 +79,11 @@ void CopyMoveMessagesTask::perform()
         return;
     }
 
-    copyTag = parser->uidCopy(seq, targetMailbox);
+    if (shouldDelete && model->accessParser(parser).capabilities.contains(QLatin1String("XMOVE"))) {
+        moveTag = parser->uidXMove(seq, targetMailbox);
+    } else {
+        copyTag = parser->uidCopy(seq, targetMailbox);
+    }
 }
 
 bool CopyMoveMessagesTask::handleStateHelper(const Imap::Responses::State *const resp)
@@ -102,6 +106,13 @@ bool CopyMoveMessagesTask::handleStateHelper(const Imap::Responses::State *const
             _completed();
         } else {
             _failed("The COPY operation has failed");
+        }
+        return true;
+    } else if (resp->tag == moveTag) {
+        if (resp->kind == Responses::OK) {
+            _completed();
+        } else {
+            _failed("The UID MOVE operation has failed");
         }
         return true;
     } else {

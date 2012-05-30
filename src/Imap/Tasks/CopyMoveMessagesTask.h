@@ -40,6 +40,7 @@ public:
     virtual QVariant taskData(const int role) const;
 private:
     CommandHandle copyTag;
+    CommandHandle moveTag;
     ImapTask *conn;
     QList<QPersistentModelIndex> messages;
     QString targetMailbox;

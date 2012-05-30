@@ -216,6 +216,9 @@ public slots:
     /** @short UID command (COPY), RFC3501 sect 6.4.8 */
     CommandHandle uidCopy(const Sequence &seq, const QString &mailbox);
 
+    /** @short UID XMOVE, draft-gulbrandsen-imap-move-01 as implemented by fastmail.fm */
+    CommandHandle uidXMove(const Sequence &seq, const QString &mailbox);
+
     /** @short UID command (SEARCH), RFC3501 sect 6.4.8 */
     CommandHandle uidSearch(const QStringList &criteria, const QString &charset=QString::null) {
         return searchHelper("UID SEARCH", criteria, charset);
