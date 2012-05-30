@@ -353,9 +353,11 @@ QString CertificateUtils::chainToHtml(const QList<QSslCertificate> &sslChain)
     QStringList certificateStrings;
     Q_FOREACH(const QSslCertificate &cert, sslChain) {
         certificateStrings << tr("<li><b>CN</b>: %1,<br/>\n<b>Organization</b>: %2,<br/>\n"
-                                 "<b>SHA1</b>: %3,<br/>\n<b>MD5</b>: %4</li>").arg(
+                                 "<b>Serial</b>: %3,<br/>\n"
+                                 "<b>SHA1</b>: %4,<br/>\n<b>MD5</b>: %5</li>").arg(
                                   Qt::escape(cert.subjectInfo(QSslCertificate::CommonName)),
                                   Qt::escape(cert.subjectInfo(QSslCertificate::Organization)),
+                                  cert.serialNumber(),
                                   htmlHexifyByteArray(cert.digest(QCryptographicHash::Sha1)),
                                   htmlHexifyByteArray(cert.digest(QCryptographicHash::Md5)));
     }
