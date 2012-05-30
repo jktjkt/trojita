@@ -152,7 +152,7 @@ void MessageView::setMessage(const QModelIndex &index)
     }
 
     if (realModel->isNetworkAvailable())
-        markAsReadTimer->start(2000); // FIXME: make this configurable
+        markAsReadTimer->start(200); // FIXME: make this configurable
 }
 
 void MessageView::markAsRead()
