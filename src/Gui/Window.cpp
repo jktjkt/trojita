@@ -180,6 +180,12 @@ void MainWindow::createActions()
     msgView->addAction(m_nextMessage);
     connect(m_nextMessage, SIGNAL(triggered()), this, SLOT(slotNextUnread()));
 
+    m_previousMessage = new QAction(tr("Previous Unread Message"), this);
+    m_previousMessage->setShortcut(Qt::Key_P);
+    msgListTree->addAction(m_previousMessage);
+    msgView->addAction(m_previousMessage);
+    connect(m_previousMessage, SIGNAL(triggered()), this, SLOT(slotPreviousUnread()));
+
     markAsDeleted = new QAction(loadIcon(QLatin1String("list-remove")),  tr("Mark as Deleted"), this);
     markAsDeleted->setCheckable(true);
     markAsDeleted->setShortcut(Qt::Key_Delete);
@@ -294,6 +300,7 @@ void MainWindow::createMenus()
     viewMenu->addAction(showMenuBar);
     viewMenu->addAction(showToolBar);
     viewMenu->addSeparator();
+    viewMenu->addAction(m_previousMessage);
     viewMenu->addAction(m_nextMessage);
     viewMenu->addSeparator();
     viewMenu->addAction(actionThreadMsgList);
@@ -897,6 +904,38 @@ void MainWindow::slotNextUnread()
         if (!current.isValid() && !wrapped) {
             wrapped = true;
             current = msgListTree->model()->index(0, 0);
+        }
+    }
+}
+
+void MainWindow::slotPreviousUnread()
+{
+    QModelIndex current = msgListTree->currentIndex();
+
+    bool wrapped = false;
+    while (current.isValid()) {
+        if (!current.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool() && msgListTree->currentIndex() != current) {
+            msgView->setMessage(current);
+            msgListTree->setCurrentIndex(current);
+            return;
+        }
+
+        QModelIndex candidate = current.sibling(current.row() - 1, 0);
+        while (candidate.isValid() && current.model()->hasChildren(candidate)) {
+            candidate = candidate.child(current.model()->rowCount(candidate) - 1, 0);
+            Q_ASSERT(candidate.isValid());
+        }
+
+        if (candidate.isValid()) {
+            current = candidate;
+        } else {
+            current = current.parent();
+        }
+        if (!current.isValid() && !wrapped) {
+            wrapped = true;
+            while (msgListTree->model()->hasChildren(current)) {
+                current = msgListTree->model()->index(msgListTree->model()->rowCount(current) - 1, 0, current);
+            }
         }
     }
 }
