@@ -116,6 +116,8 @@ void MessageView::setMessage(const QModelIndex &index)
     if (!messageIndex.data(Imap::Mailbox::RoleIsFetched).toBool()) {
         qDebug() << "Attempted to load a message that hasn't been synced yet";
         setEmpty();
+        connect(realModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
+        message = messageIndex;
         return;
     }
 
@@ -312,6 +314,11 @@ void MessageView::handleDataChanged(const QModelIndex &topLeft, const QModelInde
 {
     Q_ASSERT(topLeft.row() == bottomRight.row() && topLeft.parent() == bottomRight.parent());
     if (topLeft == message) {
+        if (viewer == emptyView && message.data(Imap::Mailbox::RoleIsFetched).toBool()) {
+            qDebug() << "got it!";
+            setEmpty();
+            setMessage(topLeft);
+        }
         tags->setTagList(message.data(Imap::Mailbox::RoleMessageFlags).toStringList());
     }
 }
