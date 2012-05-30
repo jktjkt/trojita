@@ -33,8 +33,8 @@ Sheet {
                             verticalCenter: parent.verticalCenter
                         }
                         source: "icon-m-settings-keychain.svg"
-                        width: 100
-                        height: 100
+                        width: 64
+                        height: 64
                     }
 
                     Label {
@@ -65,7 +65,7 @@ Sheet {
                     preferredHeight: item.height
                     settings.userStyleSheetUrl: "data:text/css;charset=utf-8;base64," +
                                                 Qt.btoa("* {color: white; background: black; font-size: " +
-                                                        UiConstants.BodyTextFont.pixelSize + "px;};")
+                                                        UiConstants.BodyTextFont.pixelSize + "px; font-family: sans-serif;};")
                 }
             }
         }
