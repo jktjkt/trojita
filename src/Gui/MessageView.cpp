@@ -163,7 +163,8 @@ void MessageView::markAsRead()
     Q_ASSERT(model);
     if (!model->isNetworkAvailable())
         return;
-    model->markMessagesRead(QModelIndexList() << message, Imap::Mailbox::FLAG_ADD);
+    if (!message.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool())
+        model->markMessagesRead(QModelIndexList() << message, Imap::Mailbox::FLAG_ADD);
 }
 
 bool MessageView::eventFilter(QObject *object, QEvent *event)
