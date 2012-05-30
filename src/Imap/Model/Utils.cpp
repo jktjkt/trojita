@@ -329,13 +329,34 @@ switch (QSysInfo:s60Version()) {
     return QString::fromAscii("Qt/%1; %2; %3; %4").arg(qVersion(), ws, os, platformVersion);
 }
 
+/** @short Produce a properly formatted HTML string which won't overflow the right edge of the display */
+QByteArray CertificateUtils::htmlHexifyByteArray(const QByteArray &rawInput)
+{
+    QByteArray inHex = rawInput.toHex();
+    QByteArray res;
+    const int stepping = 4;
+    for (int i = 0; i < inHex.length(); i += stepping) {
+        // The individual blocks are formatted separately to allow line breaks to happen
+        res.append("<code style=\"font-family: monospace;\">");
+        res.append(inHex.mid(i, stepping));
+        if (i + stepping < inHex.size()) {
+            res.append(":");
+        }
+        // Produce the smallest possible space. "display: none" won't notice the space at all, leading to overly long lines
+        res.append("</code><span style=\"font-size: 1px\"> </span>");
+    }
+    return res;
+}
+
 QString CertificateUtils::chainToHtml(const QList<QSslCertificate> &sslChain)
 {
     QStringList certificateStrings;
     Q_FOREACH(const QSslCertificate &cert, sslChain) {
-        certificateStrings << tr("<li><b>CN</b>: %1, <b>Organization</b>: %2, <b>SHA1</b>: %3, <b>MD5</b>: %4</li>").arg(
+        certificateStrings << tr("<li><b>CN</b>: %1,<br/>\n<b>Organization</b>: %2,<br/>\n"
+                                 "<b>SHA1</b>: %3,<br/>\n<b>MD5</b>: %4</li>").arg(
                                   cert.subjectInfo(QSslCertificate::CommonName), cert.subjectInfo(QSslCertificate::Organization),
-                                  cert.digest(QCryptographicHash::Sha1).toHex(), cert.digest(QCryptographicHash::Md5).toHex());
+                                  htmlHexifyByteArray(cert.digest(QCryptographicHash::Sha1)),
+                                  htmlHexifyByteArray(cert.digest(QCryptographicHash::Md5)));
     }
     return sslChain.isEmpty() ?
                 tr("<p>The remote side doesn't have a certificate.</p>\n") :
