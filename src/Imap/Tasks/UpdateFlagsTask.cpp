@@ -78,6 +78,34 @@ void UpdateFlagsTask::perform()
             } else {
                 seq.add(message->uid());
             }
+            switch (flagOperation) {
+            case FLAG_ADD:
+            case FLAG_REMOVE:
+                // we aren't supposed to update them ourselves; the IMAP server will tell us
+                break;
+            case FLAG_REMOVE_SILENT:
+            {
+                TreeItemMsgList *list = dynamic_cast<TreeItemMsgList*>(message->parent());
+                Q_ASSERT(list);
+                QStringList newFlags = message->m_flags;
+                newFlags.removeOne(flags);
+                message->setFlags(list, newFlags , false);
+                // we don't have to either re-sort or call Model::normalizeFlags again from this context;
+                // this will change when the model starts de-duplicating whole lists
+                break;
+            }
+            case FLAG_ADD_SILENT:
+            {
+                TreeItemMsgList *list = dynamic_cast<TreeItemMsgList*>(message->parent());
+                Q_ASSERT(list);
+                QStringList newFlags = message->m_flags;
+                if (!newFlags.contains(flags)) {
+                    newFlags << flags;
+                    message->setFlags(list, model->normalizeFlags(newFlags), false);
+                }
+                break;
+            }
+            }
         }
     }
 

@@ -205,6 +205,7 @@ class TreeItemMessage: public TreeItem
     friend class Model;
     friend class ObtainSynchronizedMailboxTask; // needs access to m_offset
     friend class KeepMailboxOpenTask; // needs access to m_offset
+    friend class UpdateFlagsTask; // needs access to m_flags
     Message::Envelope m_envelope;
     uint m_size;
     uint m_uid;
