@@ -104,6 +104,12 @@ QModelIndex TaskPresentationModel::indexForTask(const ImapTask *const task) cons
         } else {
             // Our grandparent is a ParserState
             index = m_model->accessParser(task->parentTask->parser).activeTasks.indexOf(task->parentTask);
+            if (index == -1) {
+                qDebug() << "WTF?" << task << task->debugIdentification() << task->parentTask << task->parentTask->debugIdentification();
+                Q_FOREACH(ImapTask *activeTask, m_model->accessParser(task->parentTask->parser).activeTasks) {
+                    qDebug() << "active task" << activeTask << activeTask->debugIdentification();
+                }
+            }
         }
         Q_ASSERT(index != -1);
         return createIndex(index, 0, task->parentTask);
