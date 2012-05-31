@@ -95,6 +95,12 @@ void UpdateFlagsTask::perform()
     case FLAG_REMOVE:
         op = QLatin1String("-FLAGS");
         break;
+    case FLAG_ADD_SILENT:
+        op = QLatin1String("+FLAGS.SILENT");
+        break;
+    case FLAG_REMOVE_SILENT:
+        op = QLatin1String("-FLAGS.SILENT");
+        break;
     }
     Q_ASSERT(!op.isEmpty());
     tag = parser->uidStore(seq, op, flags);
