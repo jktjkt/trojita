@@ -95,7 +95,7 @@ QModelIndex TaskPresentationModel::indexForTask(const ImapTask *const task) cons
 {
     Q_ASSERT(task);
     if (task->parentTask) {
-        // And the child says that it has a prent task. The parent of this childis therefore an ImapTask, too.
+        // And the child says that it has a prent task. The parent of this child is therefore an ImapTask, too.
         // The question is, what's the parent of our parent?
         int index = -1;
         if (task->parentTask->parentTask) {
