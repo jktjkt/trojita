@@ -7,7 +7,7 @@ Label {
     property variant address
 
     text: visible ?
-              "<b>" + caption + ":</b> " + Utils.formatMailAddress(address) :
+              "<b>" + caption + ":</b> " + Utils.formatMailAddresses(address) :
               ""
     wrapMode: Text.Wrap
     visible: Utils.isMailAddressValid(address)

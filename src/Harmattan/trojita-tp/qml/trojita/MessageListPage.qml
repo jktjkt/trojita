@@ -47,8 +47,7 @@ Page {
                     maximumLineCount: 1
                     elide: Text.ElideRight
                     width: parent.width
-                    // FIXME: multiple/no addresses...
-                    text: !col.visible ? "" : Utils.formatMailAddress(model.from[0])
+                    text: !col.visible ? "" : Utils.formatMailAddresses(model.from)
                 }
                 Label {
                     width: parent.width

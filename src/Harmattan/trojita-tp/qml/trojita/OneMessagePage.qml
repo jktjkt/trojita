@@ -31,22 +31,22 @@ Page {
 
                 AddressWidget {
                     caption: qsTr("From")
-                    address: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.from[0] : undefined
+                    address: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.from : undefined
                     width: view.width
                 }
                 AddressWidget {
                     caption: qsTr("To")
-                    address: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.to[0] : undefined
+                    address: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.to : undefined
                     width: view.width
                 }
                 AddressWidget {
                     caption: qsTr("Cc")
-                    address: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.cc[0] : undefined
+                    address: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.cc : undefined
                     width: view.width
                 }
                 AddressWidget {
                     caption: qsTr("Bcc")
-                    address: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.bcc[0] : undefined
+                    address: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.bcc : undefined
                     width: view.width
                 }
 
