@@ -20,6 +20,7 @@
 #define IMAP_IMAPTASK_H
 
 #include <QObject>
+#include <QPointer>
 #include "../Parser/Parser.h"
 #include "../Model/Logging.h"
 
@@ -143,7 +144,7 @@ signals:
 
 public:
     Imap::Parser *parser;
-    ImapTask *parentTask;
+    QPointer<ImapTask> parentTask;
 
 protected:
     Model *model;
