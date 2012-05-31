@@ -577,8 +577,9 @@ void Model::handleId(Parser *ptr, const Responses::Id *const resp)
 
 void Model::handleSocketEncryptedResponse(Parser *ptr, const Responses::SocketEncryptedResponse *const resp)
 {
-    Q_UNUSED(ptr);
-    throw UnexpectedResponseReceived("Information about SSL state not handled", *resp);
+    Q_UNUSED(resp);
+    logTrace(ptr->parserId(), LOG_IO_READ, "Model", "Information about the SSL state not handled by the upper layers -- disconnect?");
+    killParser(ptr, PARSER_KILL_EXPECTED);
 }
 
 TreeItem *Model::translatePtr(const QModelIndex &index) const
