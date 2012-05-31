@@ -367,6 +367,12 @@ CommandHandle Parser::uidXMove(const Sequence &seq, const QString &mailbox)
                         encodeImapFolderName(mailbox));
 }
 
+CommandHandle Parser::uidExpunge(const Sequence &seq)
+{
+    return queueCommand(Commands::Command("UID EXPUNGE") <<
+                        Commands::PartOfCommand(Commands::ATOM, seq.toString()));
+}
+
 CommandHandle Parser::xAtom(const Commands::Command &cmd)
 {
     return queueCommand(cmd);

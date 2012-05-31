@@ -52,6 +52,7 @@ SOURCES += Parser/Parser.cpp \
     Tasks/ListChildMailboxesTask.cpp \
     Tasks/NumberOfMessagesTask.cpp \
     Tasks/ExpungeMailboxTask.cpp \
+    Tasks/ExpungeMessagesTask.cpp \
     Tasks/CreateMailboxTask.cpp \
     Tasks/DeleteMailboxTask.cpp \
     Tasks/CopyMoveMessagesTask.cpp \
@@ -120,6 +121,7 @@ HEADERS += Parser/Parser.h \
     Tasks/ListChildMailboxesTask.h \
     Tasks/NumberOfMessagesTask.h \
     Tasks/ExpungeMailboxTask.h \
+    Tasks/ExpungeMessagesTask.h \
     Tasks/CreateMailboxTask.h \
     Tasks/DeleteMailboxTask.h \
     Tasks/CopyMoveMessagesTask.h \

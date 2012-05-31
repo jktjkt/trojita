@@ -18,6 +18,7 @@
 
 
 #include "CopyMoveMessagesTask.h"
+#include "ExpungeMessagesTask.h"
 #include "ItemRoles.h"
 #include "KeepMailboxOpenTask.h"
 #include "UpdateFlagsTask.h"
@@ -101,7 +102,10 @@ bool CopyMoveMessagesTask::handleStateHelper(const Imap::Responses::State *const
                     return true;
                 }
                 // We ignore the _aborted status here, though -- we just want to finish in an "atomic" manner
-                new UpdateFlagsTask(model, this, messages, FLAG_ADD, QLatin1String("\\Deleted"));
+                ImapTask *flagTask = new UpdateFlagsTask(model, this, messages, FLAG_ADD, QLatin1String("\\Deleted"));
+                if (model->accessParser(parser).capabilities.contains(QLatin1String("UIDPLUS"))) {
+                    new ExpungeMessagesTask(model, flagTask, messages);
+                }
             }
             _completed();
         } else {

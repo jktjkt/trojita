@@ -398,6 +398,7 @@ private:
     friend class NumberOfMessagesTask;
     friend class FetchMsgMetadataTask;
     friend class ExpungeMailboxTask;
+    friend class ExpungeMessagesTask;
     friend class CreateMailboxTask;
     friend class DeleteMailboxTask;
     friend class CopyMoveMessagesTask;
