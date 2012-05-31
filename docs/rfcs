@@ -1,0 +1,16 @@
+Suported RFCs
+
+- RFC3501 (IMAP)
+- RFC2088 (non-synchronizing literals)
+- RFC2177 (IDLE)
+- RFC2595 (STARTTLS)
+- RFC2971 (ID)
+- RFC3348 (\HasChildren, \HasNoChildren)
+- RFC3691 (UNSELECT)
+- RFC5256 (SORT, THREAD)
+
+FIXME: 3516 (FETCH BINARY, on-the-fly CTE decoding)
+FIXME: 4551 (CONDSTORE)
+FIXME: 
+
+FIXME first unseen: via ESEARCH
