@@ -267,6 +267,8 @@ void Model::handleState(Imap::Parser *ptr, const Imap::Responses::State *const r
             // The LOGOUT is special, as it isn't associated with any task
             killParser(ptr, PARSER_KILL_EXPECTED);
         } else {
+            if (accessParser(ptr).connState == CONN_STATE_LOGOUT)
+                return;
             // Unhandled command -- this is *extremely* weird
             throw CantHappen("The following command should have been handled elsewhere", *resp);
         }
@@ -497,35 +499,43 @@ void Model::handleCapability(Imap::Parser *ptr, const Imap::Responses::Capabilit
 
 void Model::handleNumberResponse(Imap::Parser *ptr, const Imap::Responses::NumberResponse *const resp)
 {
-    Q_UNUSED(ptr);
+    if (accessParser(ptr).connState == CONN_STATE_LOGOUT)
+        return;
     throw UnexpectedResponseReceived("[Tasks API Port] Unhandled NumberResponse", *resp);
 }
 
 void Model::handleList(Imap::Parser *ptr, const Imap::Responses::List *const resp)
 {
+    if (accessParser(ptr).connState == CONN_STATE_LOGOUT)
+        return;
     accessParser(ptr).listResponses << *resp;
 }
 
 void Model::handleFlags(Imap::Parser *ptr, const Imap::Responses::Flags *const resp)
 {
-    Q_UNUSED(ptr);
+    if (accessParser(ptr).connState == CONN_STATE_LOGOUT)
+        return;
     throw UnexpectedResponseReceived("[Tasks API Port] Unhandled Flags", *resp);
 }
 
 void Model::handleSearch(Imap::Parser *ptr, const Imap::Responses::Search *const resp)
 {
-    Q_UNUSED(ptr);
+    if (accessParser(ptr).connState == CONN_STATE_LOGOUT)
+        return;
     throw UnexpectedResponseReceived("[Tasks API Port] Unhandled Search", *resp);
 }
 
 void Model::handleESearch(Imap::Parser *ptr, const Imap::Responses::ESearch *const resp)
 {
-    Q_UNUSED(ptr);
+    if (accessParser(ptr).connState == CONN_STATE_LOGOUT)
+        return;
     throw UnexpectedResponseReceived("Unhandled ESEARCH", *resp);
 }
 
 void Model::handleStatus(Imap::Parser *ptr, const Imap::Responses::Status *const resp)
 {
+    if (accessParser(ptr).connState == CONN_STATE_LOGOUT)
+        return;
     Q_UNUSED(ptr);
     TreeItemMailbox *mailbox = findMailboxByName(resp->mailbox);
     if (! mailbox) {
@@ -546,12 +556,15 @@ void Model::handleStatus(Imap::Parser *ptr, const Imap::Responses::Status *const
 
 void Model::handleFetch(Imap::Parser *ptr, const Imap::Responses::Fetch *const resp)
 {
-    Q_UNUSED(ptr);
+    if (accessParser(ptr).connState == CONN_STATE_LOGOUT)
+        return;
     throw UnexpectedResponseReceived("[Tasks API Port] Unhandled Fetch", *resp);
 }
 
 void Model::handleNamespace(Imap::Parser *ptr, const Imap::Responses::Namespace *const resp)
 {
+    if (accessParser(ptr).connState == CONN_STATE_LOGOUT)
+        return;
     return; // because it's broken and won't fly
     Q_UNUSED(ptr);
     Q_UNUSED(resp);
@@ -559,19 +572,22 @@ void Model::handleNamespace(Imap::Parser *ptr, const Imap::Responses::Namespace 
 
 void Model::handleSort(Imap::Parser *ptr, const Imap::Responses::Sort *const resp)
 {
-    Q_UNUSED(ptr);
+    if (accessParser(ptr).connState == CONN_STATE_LOGOUT)
+        return;
     throw UnexpectedResponseReceived("[Tasks API Port] Unhandled Sort", *resp);
 }
 
 void Model::handleThread(Imap::Parser *ptr, const Imap::Responses::Thread *const resp)
 {
-    Q_UNUSED(ptr);
+    if (accessParser(ptr).connState == CONN_STATE_LOGOUT)
+        return;
     throw UnexpectedResponseReceived("[Tasks API Port] Unhandled Thread", *resp);
 }
 
 void Model::handleId(Parser *ptr, const Responses::Id *const resp)
 {
-    Q_UNUSED(ptr);
+    if (accessParser(ptr).connState == CONN_STATE_LOGOUT)
+        return;
     throw UnexpectedResponseReceived("Unhandled ID response", *resp);
 }
 
