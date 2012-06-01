@@ -32,17 +32,17 @@
 
 The motivation here is to avoid being too fast, as reported in Redmine#275
 */
-void ImapModelIdleTest::waitForIdle()
-{
-    QTest::qWait(40);
-    QByteArray written = SOCK->writtenStuff();
-    int times = 0;
-    while (written.isEmpty() && times < 4) {
-        QTest::qWait(5);
-        written = SOCK->writtenStuff();
-        ++times;
-    }
-    QCOMPARE(written, t.mk("IDLE\r\n"));
+#define waitForIdle() \
+{ \
+    QTest::qWait(40); \
+    QByteArray written = SOCK->writtenStuff(); \
+    int times = 0; \
+    while (written.isEmpty() && times < 4) { \
+        QTest::qWait(5); \
+        written = SOCK->writtenStuff(); \
+        ++times; \
+    } \
+    QCOMPARE(written, t.mk("IDLE\r\n")); \
 }
 
 /** @short Test a NO reply to IDLE command */

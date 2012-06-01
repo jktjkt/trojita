@@ -38,9 +38,6 @@ private slots:
     void testIdleSlowResponses();
     void testIdleNoPerpetuateRenewal();
     void testIdleMailboxChange();
-
-private:
-    void waitForIdle();
 };
 
 #endif
