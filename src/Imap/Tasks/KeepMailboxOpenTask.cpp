@@ -202,7 +202,7 @@ void KeepMailboxOpenTask::slotTaskDeleted(QObject *object)
     } else if (shouldRunNoop) {
         // A command just completed, and NOOPing is active, so let's schedule/postpone it again
         noopTimer->start();
-    } else if (shouldRunIdle) {
+    } else if (canRunIdleRightNow()) {
         // A command just completed and IDLE is supported, so let's queue/schedule/postpone it
         idleLauncher->enterIdleLater();
     }
@@ -276,7 +276,7 @@ void KeepMailboxOpenTask::perform()
         noopTimer->start();
     } else if (shouldRunIdle) {
         idleLauncher = new IdleLauncher(this);
-        if (dependingTasksForThisMailbox.isEmpty()) {
+        if (canRunIdleRightNow()) {
             // There's no task yet, so we have to start IDLE now
             idleLauncher->enterIdleLater();
         }
@@ -723,6 +723,18 @@ bool KeepMailboxOpenTask::hasPendingInternalActions() const
     bool hasToWaitForIdleTermination = idleLauncher ? idleLauncher->waitingForIdleTaggedTermination() : false;
     return !(dependingTasksForThisMailbox.isEmpty() && runningTasksForThisMailbox.isEmpty() &&
              requestedParts.isEmpty() && requestedEnvelopes.isEmpty()) || hasToWaitForIdleTermination;
+}
+
+/** @short Return true if we're configured to run IDLE and if there's no ongoing activity */
+bool KeepMailboxOpenTask::canRunIdleRightNow() const
+{
+    bool res = shouldRunIdle && model->accessParser(parser).activeTasks.size() == 1 && dependingTasksForThisMailbox.isEmpty();
+
+    if (!res)
+        return false;
+
+    Q_ASSERT(model->accessParser(parser).activeTasks.front() == this);
+    return true;
 }
 
 QVariant KeepMailboxOpenTask::taskData(const int role) const

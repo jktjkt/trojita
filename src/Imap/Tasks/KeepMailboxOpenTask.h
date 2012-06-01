@@ -187,6 +187,8 @@ private:
 
     void detachFromMailbox();
 
+    bool canRunIdleRightNow() const;
+
 protected:
     virtual void killAllPendingTasks();
 
