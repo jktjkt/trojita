@@ -38,7 +38,13 @@ ObtainSynchronizedMailboxTask::ObtainSynchronizedMailboxTask(Model *model, const
     if (conn) {
         conn->addDependentTask(this);
     }
+    // The Parser* is not provided by our parent task, but instead through the keepTaskChild.  The reason is simple, the parent
+    // task might not even exist, but there's always an KeepMailboxOpenTask in the game.
+    parser = keepTaskChild->parser;
+    Q_ASSERT(parser);
+    model->checkTaskTreeConsistency();
     addDependentTask(keepTaskChild);
+    model->checkTaskTreeConsistency();
 }
 
 void ObtainSynchronizedMailboxTask::addDependentTask(ImapTask *task)
@@ -51,9 +57,7 @@ void ObtainSynchronizedMailboxTask::addDependentTask(ImapTask *task)
 
 void ObtainSynchronizedMailboxTask::perform()
 {
-    // The Parser* is not provided by our parent task, but instead through the keepTaskChild.  The reason is simple, the parent
-    // task might not even exist, but there's always an KeepMailboxOpenTask in the game.
-    parser = keepTaskChild->parser;
+    model->checkTaskTreeConsistency();
     markAsActiveTask();
 
     if (_dead || _aborted) {

@@ -513,6 +513,9 @@ protected slots:
 
     void runReadyTasks();
 
+    void checkTaskTreeConsistency();
+    void checkDependentTasksConsistency(Parser *parser, ImapTask *task, int depth);
+
 };
 
 }

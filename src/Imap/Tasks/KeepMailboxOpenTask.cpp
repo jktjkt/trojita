@@ -133,11 +133,13 @@ KeepMailboxOpenTask::KeepMailboxOpenTask(Model *model, const QModelIndex &mailbo
     if (! ok)
         limitActiveTasks = 100;
 
+    model->checkTaskTreeConsistency();
     emit model->mailboxSyncingProgress(mailboxIndex, STATE_WAIT_FOR_CONN);
 }
 
 void KeepMailboxOpenTask::slotPerformConnection()
 {
+    model->checkTaskTreeConsistency();
     if (_dead) {
         _failed("Asked to die");
         return;
@@ -150,6 +152,7 @@ void KeepMailboxOpenTask::slotPerformConnection()
 
 void KeepMailboxOpenTask::addDependentTask(ImapTask *task)
 {
+    model->checkTaskTreeConsistency();
     Q_ASSERT(task);
 
     // FIXME: what about abort()/die() here?
@@ -159,6 +162,7 @@ void KeepMailboxOpenTask::addDependentTask(ImapTask *task)
     ObtainSynchronizedMailboxTask *obtainTask = qobject_cast<ObtainSynchronizedMailboxTask *>(task);
     if (obtainTask) {
         // Another KeepMailboxOpenTask would like to replace us, so we shall die, eventually.
+        // This branch is reimplemented from ImapTask
 
         dependentTasks.append(task);
         waitingObtainTasks.append(obtainTask);
@@ -171,7 +175,9 @@ void KeepMailboxOpenTask::addDependentTask(ImapTask *task)
         if (! hasPendingInternalActions() && (! synchronizeConn || synchronizeConn->isFinished())) {
             terminate();
         }
+        task->updateParentTask(this);
     } else {
+        // This branch calls the inherited ImapTask::addDependentTask()
         connect(task, SIGNAL(destroyed(QObject *)), this, SLOT(slotTaskDeleted(QObject *)));
         ImapTask::addDependentTask(task);
         if (task->needsMailbox()) {
@@ -180,8 +186,6 @@ void KeepMailboxOpenTask::addDependentTask(ImapTask *task)
         }
         QTimer::singleShot(0, this, SLOT(slotActivateTasks()));
     }
-
-    task->updateParentTask(this);
 }
 
 void KeepMailboxOpenTask::slotTaskDeleted(QObject *object)
@@ -241,6 +245,7 @@ void KeepMailboxOpenTask::terminate()
     }
     _finished = true;
     emit completed(this);
+    model->checkTaskTreeConsistency();
 }
 
 void KeepMailboxOpenTask::perform()

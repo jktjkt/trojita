@@ -19,6 +19,8 @@
    Boston, MA 02110-1301, USA.
 */
 
+#define private public
+#define protected public
 #include "TaskPresentationModel.h"
 #include "GetAnyConnectionTask.h"
 #include "ItemRoles.h"
@@ -102,20 +104,27 @@ QModelIndex TaskPresentationModel::indexForTask(const ImapTask *const task) cons
             // The parent has an ImapTask as a parent.
             index = task->parentTask->parentTask->dependentTasks.indexOf(task->parentTask);
             if (index == -1) {
+                m_model->checkTaskTreeConsistency();
                 // Again, redmine #483
                 // Maybe the connection is dying already? Let's limit the breakage anyway.
+                Q_ASSERT(false);
                 return QModelIndex();
             }
         } else {
             // Our grandparent is a ParserState
             index = m_model->accessParser(task->parentTask->parser).activeTasks.indexOf(task->parentTask);
             if (index == -1) {
+                m_model->checkTaskTreeConsistency();
                 /* Shall be fixed properly, but it's not going to be an easy task :( -- Redmine #483
                 qDebug() << "WTF?" << task << task->debugIdentification() << task->parentTask << task->parentTask->debugIdentification();
                 Q_FOREACH(ImapTask *activeTask, m_model->accessParser(task->parentTask->parser).activeTasks) {
                     qDebug() << "active task" << activeTask << activeTask->debugIdentification();
                 }
                 */
+                qDebug() << task;
+                qDebug() << task->parentTask;
+                qDebug() << m_model->accessParser(task->parentTask->parser).activeTasks;
+                Q_ASSERT(false);
                 return QModelIndex();
             }
         }
@@ -192,7 +201,7 @@ QVariant TaskPresentationModel::data(const QModelIndex &index, int role) const
             ImapTask *task = static_cast<ImapTask *>(index.internalPointer());
             QString className = QLatin1String(task->metaObject()->className());
             className.remove(QLatin1String("Imap::Mailbox::"));
-            return tr("%1: %2").arg(className, task->debugIdentification());
+            return tr("%3 %1: %2").arg(className, task->debugIdentification(), QString::number(index.internalId(), 16));
         }
     case RoleTaskCompactName: {
         if (isParserState) {

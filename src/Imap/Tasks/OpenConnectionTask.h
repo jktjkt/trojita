@@ -59,6 +59,7 @@ public:
     /** @short Return a list of SSL errors which the underlying socket has encountered since its start */
     QList<QSslError> sslErrors() const;
 
+    virtual QString debugIdentification() const;
     virtual QVariant taskData(const int role) const;
     virtual bool needsMailbox() const {return false;}
 

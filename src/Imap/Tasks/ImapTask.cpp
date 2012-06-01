@@ -29,6 +29,7 @@ ImapTask::ImapTask(Model *model) :
     QObject(model), parser(0), parentTask(0), model(model), _finished(false), _dead(false), _aborted(false)
 {
     connect(this, SIGNAL(destroyed(QObject *)), model, SLOT(slotTaskDying(QObject *)));
+    model->checkTaskTreeConsistency();
 }
 
 ImapTask::~ImapTask()
@@ -43,23 +44,38 @@ the depending task.
 */
 void ImapTask::addDependentTask(ImapTask *task)
 {
+    model->checkTaskTreeConsistency();
     Q_ASSERT(task);
     dependentTasks.append(task);
     task->updateParentTask(this);
+    model->checkTaskTreeConsistency();
 }
 
 /** @short Set this task's parent to the specified value */
 void ImapTask::updateParentTask(ImapTask *newParent)
 {
+    qDebug() << "updateParentTask" << this << debugIdentification() << parser;
+    if (parentTask) {
+        qDebug() << " old parent" << parentTask << parentTask->debugIdentification() << parentTask->parser;
+    } else {
+        qDebug() << " no parent";
+    }
+    qDebug() << " new parent" << newParent << newParent->debugIdentification() << newParent->parser;
+    Q_ASSERT(!parentTask);
     Q_ASSERT(newParent);
     parentTask = newParent;
     model->m_taskModel->slotTaskGotReparented(this);
-    // FIXME: We cannot call log() here as the parser might be 0. That shall be fixed, really.
+    if (parser) {
+        Q_ASSERT(!model->accessParser(parser).activeTasks.contains(this));
+        //log(tr("Reparented to %1").arg(newParent->debugIdentification()));
+    }
+    model->checkTaskTreeConsistency();
 }
 
 /** @short Tells the Model that we're from now on an active task */
 void ImapTask::markAsActiveTask(const TaskActivatingPosition place)
 {
+    model->checkTaskTreeConsistency();
     Q_ASSERT(parser);
     switch (place) {
     case TASK_APPEND:
@@ -76,6 +92,7 @@ void ImapTask::markAsActiveTask(const TaskActivatingPosition place)
     parentTask = 0;
     model->m_taskModel->slotTaskGotReparented(this);
     log(tr("Activated"));
+    model->checkTaskTreeConsistency();
 }
 
 bool ImapTask::handleState(const Imap::Responses::State *const resp)
@@ -230,8 +247,8 @@ void ImapTask::die()
 {
     _dead = true;
     killAllPendingTasks();
-    if (!_finished)
-        _failed("Asked to die");
+    /*if (!_finished)
+        _failed("Asked to die");*/
 }
 
 void ImapTask::abort()

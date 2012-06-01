@@ -32,7 +32,7 @@
 #include "OpenConnectionTask.h"
 
 //#define DEBUG_PERIODICALLY_DUMP_TASKS
-//#define DEBUG_TASK_ROUTING
+#define DEBUG_TASK_ROUTING
 
 namespace
 {
@@ -201,6 +201,8 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
 #ifdef DEBUG_TASK_ROUTING
                     if (handled)
                         qDebug() << "Handled by" << *taskIt << (*taskIt)->debugIdentification();
+                    else
+                        qDebug() << "Ignored by" << *taskIt << (*taskIt)->debugIdentification();
 #endif
                 }
 
@@ -1311,6 +1313,8 @@ void Model::runReadyTasks()
                 }
             }
             removeDeletedTasks(deletedList, parserIt->activeTasks);
+            if (!deletedList.isEmpty())
+                checkTaskTreeConsistency();
         } while (runSomething);
     }
 }
@@ -1522,6 +1526,7 @@ QStringList Model::capabilities() const
 
 void Model::logTrace(uint parserId, const LogKind kind, const QString &source, const QString &message)
 {
+    qDebug() << "LOG" << source << message;
     enum {CUTOFF=200};
     uint truncatedBytes = message.size() > CUTOFF ? message.size() - CUTOFF : 0;
     LogMessage m(QDateTime::currentDateTime(), kind, source, truncatedBytes ? message.left(CUTOFF) : message, truncatedBytes);
@@ -1690,6 +1695,48 @@ QModelIndex Model::messageIndexByUid(const QString &mailboxName, const uint uid)
     } else {
         Q_ASSERT(messages.size() == 1);
         return messages.front()->toIndex(this);
+    }
+}
+
+void Model::checkTaskTreeConsistency()
+{
+    for (QMap<Parser *,ParserState>::const_iterator parserIt = m_parsers.constBegin(); parserIt != m_parsers.constEnd(); ++parserIt) {
+        qDebug() << "Parser" << parserIt.key();
+        qDebug() << "\nAll active tasks:";
+        Q_FOREACH(ImapTask *activeTask, parserIt.value().activeTasks) {
+            qDebug() << ' ' << activeTask << activeTask->debugIdentification() << activeTask->parser;
+        }
+        qDebug() << "Checking them";
+        Q_FOREACH(ImapTask *activeTask, parserIt.value().activeTasks) {
+            qDebug() << "Active task" << activeTask << activeTask->debugIdentification() << activeTask->parser;
+            Q_ASSERT(activeTask->parser == parserIt.key());
+            Q_ASSERT(!activeTask->parentTask);
+            checkDependentTasksConsistency(parserIt.key(), activeTask, 0);
+        }
+    }
+}
+
+void Model::checkDependentTasksConsistency(Parser *parser, ImapTask *task, int depth)
+{
+    QByteArray prefix;
+    prefix.fill(' ', depth);
+    qDebug() << prefix.constData() << "Checking" << task << task->debugIdentification();
+    Q_ASSERT(parser);
+    Q_ASSERT(!task->parser || task->parser == parser);
+    if (task->parentTask) {
+        Q_ASSERT(task->parentTask->dependentTasks.contains(task));
+        if (task->parentTask->parentTask) {
+            Q_ASSERT(task->parentTask->parentTask->dependentTasks.contains(task->parentTask));
+        } else {
+            Q_ASSERT(task->parentTask->parser);
+            Q_ASSERT(accessParser(task->parentTask->parser).activeTasks.contains(task->parentTask));
+        }
+    } else {
+        Q_ASSERT(accessParser(parser).activeTasks.contains(task));
+    }
+
+    Q_FOREACH(ImapTask *childTask, task->dependentTasks) {
+        checkDependentTasksConsistency(parser, childTask, depth + 1);
     }
 }
 

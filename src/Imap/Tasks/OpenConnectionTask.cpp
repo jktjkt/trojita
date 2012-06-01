@@ -51,6 +51,11 @@ OpenConnectionTask::OpenConnectionTask(Model *model, void *dummy):
     Q_UNUSED(dummy);
 }
 
+QString OpenConnectionTask::debugIdentification() const
+{
+    return QLatin1String("OpenConnectionTask");
+}
+
 void OpenConnectionTask::perform()
 {
     // nothing should happen here
