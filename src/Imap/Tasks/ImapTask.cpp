@@ -248,12 +248,11 @@ QString ImapTask::debugIdentification() const
 void ImapTask::log(const QString &message, const LogKind kind)
 {
     Q_ASSERT(model);
-    Q_ASSERT(parser);
     QString dbg = debugIdentification();
     if (!dbg.isEmpty()) {
         dbg.prepend(QLatin1Char(' '));
     }
-    model->logTrace(parser->parserId(), kind, metaObject()->className() + dbg, message);
+    model->logTrace(parser ? parser->parserId() : 0, kind, metaObject()->className() + dbg, message);
     model->m_taskModel->slotTaskMighHaveChanged(this);
 }
 
