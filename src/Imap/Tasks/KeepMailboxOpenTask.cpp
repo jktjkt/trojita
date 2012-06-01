@@ -167,6 +167,7 @@ void KeepMailboxOpenTask::addDependentTask(ImapTask *task)
         dependentTasks.append(task);
         waitingObtainTasks.append(obtainTask);
         shouldExit = true;
+        task->updateParentTask(this);
 
         // Before we can die, though, we have to accomodate fetch requests for all envelopes and parts queued so far.
         slotFetchRequestedEnvelopes();
@@ -175,7 +176,6 @@ void KeepMailboxOpenTask::addDependentTask(ImapTask *task)
         if (! hasPendingInternalActions() && (! synchronizeConn || synchronizeConn->isFinished())) {
             terminate();
         }
-        task->updateParentTask(this);
     } else {
         // This branch calls the inherited ImapTask::addDependentTask()
         connect(task, SIGNAL(destroyed(QObject *)), this, SLOT(slotTaskDeleted(QObject *)));
