@@ -94,6 +94,8 @@ KeepMailboxOpenTask::KeepMailboxOpenTask(Model *model, const QModelIndex &mailbo
         synchronizeConn = model->m_taskFactory->createObtainSynchronizedMailboxTask(model, mailboxIndex, conn, this);
     }
 
+    Q_ASSERT(synchronizeConn);
+
     // Setup the timer for NOOPing. It won't get started at this time, though.
     noopTimer = new QTimer(this);
     connect(noopTimer, SIGNAL(timeout()), this, SLOT(slotPerformNoop()));
@@ -140,13 +142,14 @@ KeepMailboxOpenTask::KeepMailboxOpenTask(Model *model, const QModelIndex &mailbo
 void KeepMailboxOpenTask::slotPerformConnection()
 {
     model->checkTaskTreeConsistency();
+    Q_ASSERT(synchronizeConn);
+    Q_ASSERT(!synchronizeConn->isFinished());
     if (_dead) {
         _failed("Asked to die");
+        synchronizeConn->die();
         return;
     }
 
-    Q_ASSERT(synchronizeConn);
-    Q_ASSERT(!synchronizeConn->isFinished());
     synchronizeConn->perform();
     connect(synchronizeConn, SIGNAL(destroyed(QObject *)), this, SLOT(slotTaskDeleted(QObject *)));
 }
@@ -175,7 +178,7 @@ void KeepMailboxOpenTask::addDependentTask(ImapTask *task)
         slotFetchRequestedParts();
 
         if (! hasPendingInternalActions() && (! synchronizeConn || synchronizeConn->isFinished())) {
-            terminate();
+            QTimer::singleShot(0, this, SLOT(terminate()));
         }
     } else {
         // This branch calls the inherited ImapTask::addDependentTask()
@@ -240,9 +243,12 @@ void KeepMailboxOpenTask::terminate()
         ObtainSynchronizedMailboxTask *first = waitingObtainTasks.takeFirst();
         Q_ASSERT(first);
         Q_ASSERT(first->keepTaskChild);
+        Q_ASSERT(first->keepTaskChild->synchronizeConn == first);
+
+        // And launch the replacement
         first->keepTaskChild->waitingObtainTasks = waitingObtainTasks + first->keepTaskChild->waitingObtainTasks;
         model->accessParser(parser).maintainingTask = first->keepTaskChild;
-        QTimer::singleShot(0, first->keepTaskChild, SLOT(slotPerformConnection()));
+        first->keepTaskChild->slotPerformConnection();
     }
     _finished = true;
     emit completed(this);

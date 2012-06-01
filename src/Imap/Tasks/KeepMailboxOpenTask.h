@@ -162,9 +162,9 @@ private slots:
     /** @short Something bad has happened to the connection, and we're no longer in that mailbox */
     void slotConnFailed();
 
-private:
     void terminate();
 
+private:
     /** @short Activate the dependent tasks while also limiting the rate */
     void activateTasks();
 
