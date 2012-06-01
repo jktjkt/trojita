@@ -54,13 +54,6 @@ void ImapTask::addDependentTask(ImapTask *task)
 /** @short Set this task's parent to the specified value */
 void ImapTask::updateParentTask(ImapTask *newParent)
 {
-    qDebug() << "updateParentTask" << this << debugIdentification() << parser;
-    if (parentTask) {
-        qDebug() << " old parent" << parentTask << parentTask->debugIdentification() << parentTask->parser;
-    } else {
-        qDebug() << " no parent";
-    }
-    qDebug() << " new parent" << newParent << newParent->debugIdentification() << newParent->parser;
     Q_ASSERT(!parentTask);
     Q_ASSERT(newParent);
     parentTask = newParent;
