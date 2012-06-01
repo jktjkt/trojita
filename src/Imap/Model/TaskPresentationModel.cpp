@@ -101,6 +101,11 @@ QModelIndex TaskPresentationModel::indexForTask(const ImapTask *const task) cons
         if (task->parentTask->parentTask) {
             // The parent has an ImapTask as a parent.
             index = task->parentTask->parentTask->dependentTasks.indexOf(task->parentTask);
+            if (index == -1) {
+                // Again, redmine #483
+                // Maybe the connection is dying already? Let's limit the breakage anyway.
+                return QModelIndex();
+            }
         } else {
             // Our grandparent is a ParserState
             index = m_model->accessParser(task->parentTask->parser).activeTasks.indexOf(task->parentTask);
