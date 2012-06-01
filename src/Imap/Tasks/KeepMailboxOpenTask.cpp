@@ -427,6 +427,7 @@ bool KeepMailboxOpenTask::handleStateHelper(const Imap::Responses::State *const 
         }
         return true;
     } else if (resp->tag == newArrivalsFetch) {
+        // FIXME: support concurrent arrivals...
 
         if (resp->kind == Responses::OK) {
             // FIXME: anything to do here?
