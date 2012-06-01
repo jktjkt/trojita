@@ -113,7 +113,7 @@ public:
 protected:
     void _completed();
 
-    void _failed(const QString &errorMessage);
+    virtual void _failed(const QString &errorMessage);
 
     /** @short Kill all pending tasks that are waiting for this one to success */
     virtual void killAllPendingTasks();
