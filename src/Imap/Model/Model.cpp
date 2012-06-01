@@ -32,7 +32,7 @@
 #include "OpenConnectionTask.h"
 
 //#define DEBUG_PERIODICALLY_DUMP_TASKS
-#define DEBUG_TASK_ROUTING
+//#define DEBUG_TASK_ROUTING
 
 namespace
 {
@@ -1526,7 +1526,6 @@ QStringList Model::capabilities() const
 
 void Model::logTrace(uint parserId, const LogKind kind, const QString &source, const QString &message)
 {
-    qDebug() << "LOG" << source << message;
     enum {CUTOFF=200};
     uint truncatedBytes = message.size() > CUTOFF ? message.size() - CUTOFF : 0;
     LogMessage m(QDateTime::currentDateTime(), kind, source, truncatedBytes ? message.left(CUTOFF) : message, truncatedBytes);
@@ -1701,12 +1700,10 @@ QModelIndex Model::messageIndexByUid(const QString &mailboxName, const uint uid)
 void Model::checkTaskTreeConsistency()
 {
     for (QMap<Parser *,ParserState>::const_iterator parserIt = m_parsers.constBegin(); parserIt != m_parsers.constEnd(); ++parserIt) {
-        qDebug() << "Parser" << parserIt.key();
-        qDebug() << "\nAll active tasks:";
+        qDebug() << "\nParser" << parserIt.key() << "; all active tasks:";
         Q_FOREACH(ImapTask *activeTask, parserIt.value().activeTasks) {
             qDebug() << ' ' << activeTask << activeTask->debugIdentification() << activeTask->parser;
         }
-        qDebug() << "Checking them";
         Q_FOREACH(ImapTask *activeTask, parserIt.value().activeTasks) {
             qDebug() << "Active task" << activeTask << activeTask->debugIdentification() << activeTask->parser;
             Q_ASSERT(activeTask->parser == parserIt.key());
