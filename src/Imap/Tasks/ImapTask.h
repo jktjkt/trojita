@@ -47,7 +47,20 @@ namespace Mailbox
 
 class Model;
 
-/** @short Parent class for all IMAP-related jobs */
+/** @short Parent class for all IMAP-related jobs
+
+Each ImapTask serves a distinct purpose; some of them are for establishing a connection to the IMAP server, others are responsible
+for updating FLAGS of some messages, other tasks maintain a given mailbox synchronized with the server's responses and yet others
+deal with listing mailboxes, to name a few examples.
+
+Each task signals its succesfull completion by the completed() signal.  Should the activity fail, failed() is emitted.
+
+Some tasks perform activity which could be interrupted by the user without huge trouble, for example when downloading huge
+attachments.  Tasks which support this graceful abort shall do so when asked through the abort() method.
+
+Sometimes a task will have to deal with the fact that it is forbidden to use the network connection anymore.  That's what the
+die() command is for.
+*/
 class ImapTask : public QObject
 {
     Q_OBJECT
@@ -55,6 +68,11 @@ public:
     ImapTask(Model *model);
     virtual ~ImapTask();
 
+    /** @short Start performing the job of the task
+
+    This method should be overrided by the task implementations.  It gets called when the dispatcher considers this task ready to
+    run.
+    */
     virtual void perform() = 0;
 
     /** @short Used for informing the task that it should cease from performing *any* activities immediately and that it will die soon
@@ -75,6 +93,10 @@ public:
     */
     virtual void abort();
 
+    /** @short Another task wants to depend on this one
+
+    When this task finishes succesfully, the dependent task gets called.  If this task fails, the child task will not get called.
+    */
     virtual void addDependentTask(ImapTask *task);
     void updateParentTask(ImapTask *newParent);
 
