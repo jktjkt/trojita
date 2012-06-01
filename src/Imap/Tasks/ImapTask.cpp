@@ -230,6 +230,8 @@ void ImapTask::die()
 {
     _dead = true;
     killAllPendingTasks();
+    if (!_finished)
+        _failed("Asked to die");
 }
 
 void ImapTask::abort()
