@@ -197,7 +197,7 @@ void KeepMailboxOpenTask::slotTaskDeleted(QObject *object)
     fetchPartTasks.removeOne(static_cast<FetchMsgPartTask *>(object));
     fetchMetadataTasks.removeOne(static_cast<FetchMsgMetadataTask *>(object));
 
-    if (shouldExit && !hasPendingInternalActions() && (!synchronizeConn || synchronizeConn->isFinished())) {
+    if (isReadyToTerminate()) {
         terminate();
     } else if (shouldRunNoop) {
         // A command just completed, and NOOPing is active, so let's schedule/postpone it again
@@ -724,6 +724,15 @@ bool KeepMailboxOpenTask::hasPendingInternalActions() const
     bool hasToWaitForIdleTermination = idleLauncher ? idleLauncher->waitingForIdleTaggedTermination() : false;
     return !(dependingTasksForThisMailbox.isEmpty() && runningTasksForThisMailbox.isEmpty() &&
              requestedParts.isEmpty() && requestedEnvelopes.isEmpty()) || hasToWaitForIdleTermination;
+}
+
+/** @short Returns true if this task can be safely terminated
+
+FIXME: document me
+*/
+bool KeepMailboxOpenTask::isReadyToTerminate() const
+{
+    return shouldExit && !hasPendingInternalActions() && (!synchronizeConn || synchronizeConn->isFinished());
 }
 
 /** @short Return true if we're configured to run IDLE and if there's no ongoing activity */

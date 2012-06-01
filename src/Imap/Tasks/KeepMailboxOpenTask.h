@@ -187,6 +187,8 @@ private:
 
     void detachFromMailbox();
 
+    bool isReadyToTerminate() const;
+
     bool canRunIdleRightNow() const;
 
 protected:
