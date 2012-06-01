@@ -42,6 +42,7 @@ public:
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
     virtual bool handleThread(const Imap::Responses::Thread *const resp);
     virtual QVariant taskData(const int role) const;
+    virtual bool needsMailbox() const {return true;}
 protected:
     virtual void _failed(const QString &errorMessage);
 private:

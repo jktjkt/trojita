@@ -56,6 +56,7 @@ public:
 
     virtual QString debugIdentification() const;
     virtual QVariant taskData(const int role) const;
+    virtual bool needsMailbox() const {return false;}
 
 private:
     void finalizeSelect();

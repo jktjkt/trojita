@@ -38,6 +38,7 @@ class Fake_OpenConnectionTask: public OpenConnectionTask
 public:
     Fake_OpenConnectionTask(Imap::Mailbox::Model *model, Imap::Parser *parser);
     virtual void perform();
+    virtual bool needsMailbox() const {return false;}
 protected slots:
     void slotPerform() { perform(); }
 private:

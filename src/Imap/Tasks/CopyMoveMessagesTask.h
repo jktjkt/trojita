@@ -38,6 +38,7 @@ public:
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
     virtual QVariant taskData(const int role) const;
+    virtual bool needsMailbox() const {return true;}
 private:
     CommandHandle copyTag;
     CommandHandle moveTag;

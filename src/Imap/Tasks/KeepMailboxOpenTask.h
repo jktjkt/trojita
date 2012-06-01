@@ -128,6 +128,8 @@ public:
 
     virtual QVariant taskData(const int role) const;
 
+    virtual bool needsMailbox() const {return true;}
+
 private slots:
     void slotTaskDeleted(QObject *object);
 

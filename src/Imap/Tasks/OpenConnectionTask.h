@@ -60,6 +60,7 @@ public:
     QList<QSslError> sslErrors() const;
 
     virtual QVariant taskData(const int role) const;
+    virtual bool needsMailbox() const {return false;}
 
 protected:
     /** @short A special, internal constructor used only by Fake_OpenConnectionTask */

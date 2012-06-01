@@ -38,6 +38,7 @@ public:
     OfflineConnectionTask(Model *model);
     virtual void perform();
     virtual QVariant taskData(const int role) const;
+    virtual bool needsMailbox() const {return false;}
 protected slots:
     void slotPerform();
     void slotDie();

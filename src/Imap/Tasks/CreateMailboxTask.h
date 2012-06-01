@@ -36,6 +36,7 @@ public:
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
     virtual QVariant taskData(const int role) const;
+    virtual bool needsMailbox() const {return false;}
 private:
     CommandHandle tagCreate, tagList;
     ImapTask *conn;

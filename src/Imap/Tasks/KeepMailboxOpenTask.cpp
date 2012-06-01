@@ -174,7 +174,10 @@ void KeepMailboxOpenTask::addDependentTask(ImapTask *task)
     } else {
         connect(task, SIGNAL(destroyed(QObject *)), this, SLOT(slotTaskDeleted(QObject *)));
         ImapTask::addDependentTask(task);
-        dependingTasksForThisMailbox.append(task);
+        if (task->needsMailbox()) {
+            // it's a task which is tied to a particular mailbox
+            dependingTasksForThisMailbox.append(task);
+        }
         QTimer::singleShot(0, this, SLOT(slotActivateTasks()));
     }
 

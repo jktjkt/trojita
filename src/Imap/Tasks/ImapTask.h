@@ -122,6 +122,13 @@ public:
     /** @short Return true if this task doesn't depend on anything can be run immediately */
     virtual bool isReadyToRun() const;
 
+    /** @short Return true if this task needs properly maintained state of the mailbox
+
+    Tasks which don't care about whether the connection has any mailbox opened (like listing mailboxes, performing STATUS etc)
+    return true.
+    */
+    virtual bool needsMailbox() const = 0;
+
     /** @short Obtain some additional information for the purpose of this task for debugging purposes
 
     The meaning of this function is to be able to tell what any given Task is supposed to do. It's useful

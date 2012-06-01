@@ -36,6 +36,7 @@ public:
     virtual void perform();
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
+    virtual bool needsMailbox() const {return false;}
 private:
     CommandHandle tag;
     ImapTask *conn;
