@@ -61,8 +61,6 @@ bool ThreadTask::handleStateHelper(const Imap::Responses::State *const resp)
             emit model->threadingAvailable(mailboxIndex, algorithm, searchCriteria, mapping);
             _completed();
         } else {
-            // FIXME: show this in the GUI
-            emit model->threadingFailed(mailboxIndex, algorithm, searchCriteria);
             _failed("Threading command has failed");
         }
         mapping.clear();
@@ -81,6 +79,13 @@ bool ThreadTask::handleThread(const Imap::Responses::Thread *const resp)
 QVariant ThreadTask::taskData(const int role) const
 {
     return role == RoleTaskCompactName ? QVariant(tr("Fetching conversations")) : QVariant();
+}
+
+void ThreadTask::_failed(const QString &errorMessage)
+{
+    // FIXME: show this in the GUI
+    emit model->threadingFailed(mailboxIndex, algorithm, searchCriteria);
+    ImapTask::_failed(errorMessage);
 }
 
 }
