@@ -34,8 +34,6 @@ Fake_ListChildMailboxesTask::Fake_ListChildMailboxesTask(Model *model, const QMo
 {
     TreeItemMailbox *mailboxPtr = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailbox.internalPointer()));
     Q_ASSERT(mailboxPtr);
-    conn = model->m_taskFactory->createGetAnyConnectionTask(model);
-    conn->addDependentTask(this);
 }
 
 void Fake_ListChildMailboxesTask::perform()
