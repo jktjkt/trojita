@@ -245,6 +245,20 @@ void MainWindow::createActions()
     }
     connect(actionHideRead, SIGNAL(triggered(bool)), this, SLOT(slotHideRead()));
 
+    QActionGroup *layoutGroup = new QActionGroup(this);
+    m_actionLayoutCompact = new QAction(tr("Compact"), layoutGroup);
+    m_actionLayoutCompact->setCheckable(true);
+    m_actionLayoutCompact->setChecked(true);
+    connect(m_actionLayoutCompact, SIGNAL(triggered()), this, SLOT(slotLayoutCompact()));
+    m_actionLayoutWide = new QAction(tr("Wide"), layoutGroup);
+    m_actionLayoutWide->setCheckable(true);
+    connect(m_actionLayoutWide, SIGNAL(triggered()), this, SLOT(slotLayoutWide()));
+
+    if (QSettings().value(Common::SettingsNames::guiMainWindowLayout) == Common::SettingsNames::guiMainWindowLayoutWide) {
+        m_actionLayoutWide->setChecked(true);
+        slotLayoutWide();
+    }
+
     aboutTrojita = new QAction(trUtf8("About Trojitá..."), this);
     connect(aboutTrojita, SIGNAL(triggered()), this, SLOT(slotShowAboutTrojita()));
 
@@ -299,6 +313,9 @@ void MainWindow::createMenus()
     QMenu *viewMenu = menuBar()->addMenu(tr("View"));
     viewMenu->addAction(showMenuBar);
     viewMenu->addAction(showToolBar);
+    QMenu *layoutMenu = viewMenu->addMenu(tr("Layout"));
+    layoutMenu->addAction(m_actionLayoutCompact);
+    layoutMenu->addAction(m_actionLayoutWide);
     viewMenu->addSeparator();
     viewMenu->addAction(m_previousMessage);
     viewMenu->addAction(m_nextMessage);
@@ -358,20 +375,20 @@ void MainWindow::createWidgets()
         msgView->setHomepageUrl(QUrl(QString::fromAscii("http://welcome.trojita.flaska.net/%1").arg(QCoreApplication::applicationVersion())));
     }
 
-    QSplitter *hSplitter = new QSplitter();
-    QSplitter *vSplitter = new QSplitter();
-    vSplitter->setOrientation(Qt::Vertical);
-    vSplitter->addWidget(msgListTree);
-    vSplitter->addWidget(area);
-    hSplitter->addWidget(mboxTree);
-    hSplitter->addWidget(vSplitter);
+    m_mainHSplitter = new QSplitter();
+    m_mainVSplitter = new QSplitter();
+    m_mainVSplitter->setOrientation(Qt::Vertical);
+    m_mainVSplitter->addWidget(msgListTree);
+    m_mainVSplitter->addWidget(area);
+    m_mainHSplitter->addWidget(mboxTree);
+    m_mainHSplitter->addWidget(m_mainVSplitter);
 
     // The mboxTree shall not expand...
-    hSplitter->setStretchFactor(0, 0);
+    m_mainHSplitter->setStretchFactor(0, 0);
     // ...while the msgListTree shall consume all the remaining space
-    hSplitter->setStretchFactor(1, 1);
+    m_mainHSplitter->setStretchFactor(1, 1);
 
-    setCentralWidget(hSplitter);
+    setCentralWidget(m_mainHSplitter);
 
     allDock = new QDockWidget("Everything", this);
     allTree = new QTreeView(allDock);
@@ -1378,6 +1395,21 @@ void MainWindow::slotUpdateWindowTitle()
     } else {
         setWindowTitle(trUtf8("Trojitá"));
     }
+}
+
+void MainWindow::slotLayoutCompact()
+{
+    m_mainVSplitter->addWidget(area);
+    QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutCompact);
+}
+
+void MainWindow::slotLayoutWide()
+{
+    m_mainHSplitter->addWidget(area);
+    m_mainHSplitter->setStretchFactor(0, 0);
+    m_mainHSplitter->setStretchFactor(1, 1);
+    m_mainHSplitter->setStretchFactor(2, 1);
+    QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutWide);
 }
 
 }

@@ -31,6 +31,7 @@ class QAuthenticator;
 class QItemSelection;
 class QModelIndex;
 class QScrollArea;
+class QSplitter;
 class QSslCertificate;
 class QSslError;
 class QToolButton;
@@ -126,6 +127,9 @@ private slots:
     void slotScrollToUnseenMessage(const QModelIndex &mailbox, const QModelIndex &message);
     void slotUpdateWindowTitle();
 
+    void slotLayoutCompact();
+    void slotLayoutWide();
+
     void slotReleaseSelectedMessage();
 
 private:
@@ -161,6 +165,9 @@ private:
 
     ProtocolLoggerWidget *imapLogger;
     QDockWidget *imapLoggerDock;
+
+    QSplitter *m_mainHSplitter;
+    QSplitter *m_mainVSplitter;
 
     QAction *reloadMboxList;
     QAction *reloadAllMailboxes;
@@ -200,6 +207,8 @@ private:
 
     QAction *actionThreadMsgList;
     QAction *actionHideRead;
+    QAction *m_actionLayoutCompact;
+    QAction *m_actionLayoutWide;
 
     QToolBar *m_mainToolbar;
 
