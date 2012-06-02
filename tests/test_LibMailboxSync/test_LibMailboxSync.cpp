@@ -41,7 +41,16 @@ void LibMailboxSync::init()
     taskFactoryUnsafe = static_cast<Imap::Mailbox::TestingTaskFactory*>( taskFactory.get() );
     taskFactoryUnsafe->fakeOpenConnectionTask = true;
     taskFactoryUnsafe->fakeListChildMailboxes = true;
-    taskFactoryUnsafe->fakeListChildMailboxesMap[ QString::fromAscii("") ] = QStringList() << QString::fromAscii("a") << QString::fromAscii("b");
+    taskFactoryUnsafe->fakeListChildMailboxesMap[ QString::fromAscii("") ] = QStringList() <<
+        QString::fromAscii("a") << QString::fromAscii("b") << QString::fromAscii("c") <<
+        QString::fromAscii("d") << QString::fromAscii("e") << QString::fromAscii("f") <<
+        QString::fromAscii("g") << QString::fromAscii("h") << QString::fromAscii("i") <<
+        QString::fromAscii("j") << QString::fromAscii("k") << QString::fromAscii("l") <<
+        QString::fromAscii("m") << QString::fromAscii("n") << QString::fromAscii("o") <<
+        QString::fromAscii("p") << QString::fromAscii("q") << QString::fromAscii("r") <<
+        QString::fromAscii("s") << QString::fromAscii("q") << QString::fromAscii("u") <<
+        QString::fromAscii("v") << QString::fromAscii("w") << QString::fromAscii("x") <<
+        QString::fromAscii("y") << QString::fromAscii("z");
     model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), taskFactory, false );
     errorSpy = new QSignalSpy( model, SIGNAL(connectionError(QString)) );
     connect(model, SIGNAL(connectionError(QString)), this, SLOT(modelSignalsError(QString)));
@@ -71,7 +80,7 @@ void LibMailboxSync::helperInitialListing()
     model->rowCount( QModelIndex() );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    QCOMPARE( model->rowCount( QModelIndex() ), 3 );
+    QCOMPARE( model->rowCount( QModelIndex() ), 26 );
     idxA = model->index( 1, 0, QModelIndex() );
     idxB = model->index( 2, 0, QModelIndex() );
     QCOMPARE( model->data( idxA, Qt::DisplayRole ), QVariant(QString::fromAscii("a")) );
