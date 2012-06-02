@@ -1708,7 +1708,7 @@ void Model::checkTaskTreeConsistency()
             qDebug() << "Active task" << activeTask << activeTask->debugIdentification() << activeTask->parser;
             Q_ASSERT(activeTask->parser == parserIt.key());
             Q_ASSERT(!activeTask->parentTask);
-            checkDependentTasksConsistency(parserIt.key(), activeTask, 0);
+            checkDependentTasksConsistency(parserIt.key(), activeTask, 0, 0);
         }
 
         // Make sure that no task is present twice in here
@@ -1722,13 +1722,14 @@ void Model::checkTaskTreeConsistency()
     }
 }
 
-void Model::checkDependentTasksConsistency(Parser *parser, ImapTask *task, int depth)
+void Model::checkDependentTasksConsistency(Parser *parser, ImapTask *task, ImapTask *expectedParentTask, int depth)
 {
     QByteArray prefix;
     prefix.fill(' ', depth);
     qDebug() << prefix.constData() << "Checking" << task << task->debugIdentification();
     Q_ASSERT(parser);
     Q_ASSERT(!task->parser || task->parser == parser);
+    Q_ASSERT(task->parentTask == expectedParentTask);
     if (task->parentTask) {
         Q_ASSERT(task->parentTask->dependentTasks.contains(task));
         if (task->parentTask->parentTask) {
@@ -1742,7 +1743,7 @@ void Model::checkDependentTasksConsistency(Parser *parser, ImapTask *task, int d
     }
 
     Q_FOREACH(ImapTask *childTask, task->dependentTasks) {
-        checkDependentTasksConsistency(parser, childTask, depth + 1);
+        checkDependentTasksConsistency(parser, childTask, task, depth + 1);
     }
 }
 
