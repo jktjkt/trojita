@@ -19,6 +19,8 @@
    Boston, MA 02110-1301, USA.
 */
 
+//#define TROJITA_DEBUG_TASK_TREE
+
 #ifndef IMAP_MODEL_H
 #define IMAP_MODEL_H
 

@@ -16,6 +16,8 @@
    Boston, MA 02110-1301, USA.
 */
 
+//#define TROJITA_DEBUG_TASK_TREE
+
 #ifndef IMAP_IMAPTASK_H
 #define IMAP_IMAPTASK_H
 
@@ -185,7 +187,7 @@ protected:
     }
 
 #ifdef TROJITA_DEBUG_TASK_TREE
-#define CHECK_TASK_TREE {model->checkTaskTreeConsistency()}
+#define CHECK_TASK_TREE {model->checkTaskTreeConsistency();}
 #else
 #define CHECK_TASK_TREE {}
 #endif
