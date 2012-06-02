@@ -57,6 +57,7 @@ void ImapTask::updateParentTask(ImapTask *newParent)
     Q_ASSERT(!parentTask);
     Q_ASSERT(newParent);
     parentTask = newParent;
+    model->checkTaskTreeConsistency();
     model->m_taskModel->slotTaskGotReparented(this);
     if (parser) {
         Q_ASSERT(!model->accessParser(parser).activeTasks.contains(this));
