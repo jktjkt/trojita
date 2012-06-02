@@ -245,6 +245,16 @@ void KeepMailboxOpenTask::terminate()
         Q_ASSERT(first->keepTaskChild);
         Q_ASSERT(first->keepTaskChild->synchronizeConn == first);
 
+        model->checkTaskTreeConsistency();
+        // Update the parent information for the moved tasks
+        Q_FOREACH(ObtainSynchronizedMailboxTask *movedObtainTask, waitingObtainTasks) {
+            Q_ASSERT(movedObtainTask->parentTask);
+            movedObtainTask->parentTask->dependentTasks.removeOne(movedObtainTask);
+            movedObtainTask->parentTask = first->keepTaskChild;
+            first->keepTaskChild->dependentTasks.append(movedObtainTask);
+        }
+        model->checkTaskTreeConsistency();
+
         // And launch the replacement
         first->keepTaskChild->waitingObtainTasks = waitingObtainTasks + first->keepTaskChild->waitingObtainTasks;
         model->accessParser(parser).maintainingTask = first->keepTaskChild;
