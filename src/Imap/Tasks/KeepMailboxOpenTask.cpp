@@ -243,7 +243,7 @@ void KeepMailboxOpenTask::terminate()
         ObtainSynchronizedMailboxTask *first = waitingObtainTasks.takeFirst();
         Q_ASSERT(first);
         Q_ASSERT(first->keepTaskChild);
-        Q_ASSERT(first->keepTaskChild->synchronizeConn == first);
+        Q_ASSERT(first->keepTaskChild->synchronizeConn == first); // FIXME: this has failed :(
 
         model->checkTaskTreeConsistency();
         // Update the parent information for the moved tasks
