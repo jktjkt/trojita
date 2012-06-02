@@ -42,9 +42,9 @@ ObtainSynchronizedMailboxTask::ObtainSynchronizedMailboxTask(Model *model, const
     if (conn) {
         conn->addDependentTask(this);
     }
-    model->checkTaskTreeConsistency();
+    CHECK_TASK_TREE
     addDependentTask(keepTaskChild);
-    model->checkTaskTreeConsistency();
+    CHECK_TASK_TREE
 }
 
 void ObtainSynchronizedMailboxTask::addDependentTask(ImapTask *task)
@@ -57,7 +57,7 @@ void ObtainSynchronizedMailboxTask::addDependentTask(ImapTask *task)
 
 void ObtainSynchronizedMailboxTask::perform()
 {
-    model->checkTaskTreeConsistency();
+    CHECK_TASK_TREE
     markAsActiveTask();
 
     if (_dead || _aborted) {

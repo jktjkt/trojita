@@ -29,7 +29,7 @@ ImapTask::ImapTask(Model *model) :
     QObject(model), parser(0), parentTask(0), model(model), _finished(false), _dead(false), _aborted(false)
 {
     connect(this, SIGNAL(destroyed(QObject *)), model, SLOT(slotTaskDying(QObject *)));
-    model->checkTaskTreeConsistency();
+    CHECK_TASK_TREE;
 }
 
 ImapTask::~ImapTask()
@@ -44,11 +44,11 @@ the depending task.
 */
 void ImapTask::addDependentTask(ImapTask *task)
 {
-    model->checkTaskTreeConsistency();
+    CHECK_TASK_TREE
     Q_ASSERT(task);
     dependentTasks.append(task);
     task->updateParentTask(this);
-    model->checkTaskTreeConsistency();
+    CHECK_TASK_TREE
 }
 
 /** @short Set this task's parent to the specified value */
@@ -57,19 +57,19 @@ void ImapTask::updateParentTask(ImapTask *newParent)
     Q_ASSERT(!parentTask);
     Q_ASSERT(newParent);
     parentTask = newParent;
-    model->checkTaskTreeConsistency();
+    CHECK_TASK_TREE
     model->m_taskModel->slotTaskGotReparented(this);
     if (parser) {
         Q_ASSERT(!model->accessParser(parser).activeTasks.contains(this));
         //log(tr("Reparented to %1").arg(newParent->debugIdentification()));
     }
-    model->checkTaskTreeConsistency();
+    CHECK_TASK_TREE
 }
 
 /** @short Tells the Model that we're from now on an active task */
 void ImapTask::markAsActiveTask(const TaskActivatingPosition place)
 {
-    model->checkTaskTreeConsistency();
+    CHECK_TASK_TREE
     Q_ASSERT(parser);
     switch (place) {
     case TASK_APPEND:
@@ -86,7 +86,7 @@ void ImapTask::markAsActiveTask(const TaskActivatingPosition place)
     parentTask = 0;
     model->m_taskModel->slotTaskGotReparented(this);
     log(tr("Activated"));
-    model->checkTaskTreeConsistency();
+    CHECK_TASK_TREE
 }
 
 bool ImapTask::handleState(const Imap::Responses::State *const resp)

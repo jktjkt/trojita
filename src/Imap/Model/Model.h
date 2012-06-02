@@ -513,8 +513,10 @@ protected slots:
 
     void runReadyTasks();
 
+#ifdef TROJITA_DEBUG_TASK_TREE
     void checkTaskTreeConsistency();
     void checkDependentTasksConsistency(Parser *parser, ImapTask *task, ImapTask *expectedParentTask, int depth);
+#endif
 
 };
 

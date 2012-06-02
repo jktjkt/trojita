@@ -135,13 +135,13 @@ KeepMailboxOpenTask::KeepMailboxOpenTask(Model *model, const QModelIndex &mailbo
     if (! ok)
         limitActiveTasks = 100;
 
-    model->checkTaskTreeConsistency();
+    CHECK_TASK_TREE
     emit model->mailboxSyncingProgress(mailboxIndex, STATE_WAIT_FOR_CONN);
 }
 
 void KeepMailboxOpenTask::slotPerformConnection()
 {
-    model->checkTaskTreeConsistency();
+    CHECK_TASK_TREE
     Q_ASSERT(synchronizeConn);
     Q_ASSERT(!synchronizeConn->isFinished());
     if (_dead) {
@@ -156,7 +156,7 @@ void KeepMailboxOpenTask::slotPerformConnection()
 
 void KeepMailboxOpenTask::addDependentTask(ImapTask *task)
 {
-    model->checkTaskTreeConsistency();
+    CHECK_TASK_TREE
     Q_ASSERT(task);
 
     // FIXME: what about abort()/die() here?
@@ -245,7 +245,7 @@ void KeepMailboxOpenTask::terminate()
         Q_ASSERT(first->keepTaskChild);
         Q_ASSERT(first->keepTaskChild->synchronizeConn == first); // FIXME: this has failed :(
 
-        model->checkTaskTreeConsistency();
+        CHECK_TASK_TREE
         // Update the parent information for the moved tasks
         Q_FOREACH(ObtainSynchronizedMailboxTask *movedObtainTask, waitingObtainTasks) {
             Q_ASSERT(movedObtainTask->parentTask);
@@ -253,7 +253,7 @@ void KeepMailboxOpenTask::terminate()
             movedObtainTask->parentTask = first->keepTaskChild;
             first->keepTaskChild->dependentTasks.append(movedObtainTask);
         }
-        model->checkTaskTreeConsistency();
+        CHECK_TASK_TREE
 
         // And launch the replacement
         first->keepTaskChild->waitingObtainTasks = waitingObtainTasks + first->keepTaskChild->waitingObtainTasks;
@@ -262,7 +262,7 @@ void KeepMailboxOpenTask::terminate()
     }
     _finished = true;
     emit completed(this);
-    model->checkTaskTreeConsistency();
+    CHECK_TASK_TREE
 }
 
 void KeepMailboxOpenTask::perform()

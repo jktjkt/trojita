@@ -1311,8 +1311,10 @@ void Model::runReadyTasks()
                 }
             }
             removeDeletedTasks(deletedList, parserIt->activeTasks);
+#ifdef TROJITA_DEBUG_TASK_TREE
             if (!deletedList.isEmpty())
                 checkTaskTreeConsistency();
+#endif
         } while (runSomething);
     }
 }
@@ -1695,6 +1697,7 @@ QModelIndex Model::messageIndexByUid(const QString &mailboxName, const uint uid)
     }
 }
 
+#ifdef TROJITA_DEBUG_TASK_TREE
 void Model::checkTaskTreeConsistency()
 {
     for (QMap<Parser *,ParserState>::const_iterator parserIt = m_parsers.constBegin(); parserIt != m_parsers.constEnd(); ++parserIt) {
@@ -1744,6 +1747,7 @@ void Model::checkDependentTasksConsistency(Parser *parser, ImapTask *task, ImapT
         checkDependentTasksConsistency(parser, childTask, task, depth + 1);
     }
 }
+#endif
 
 }
 }

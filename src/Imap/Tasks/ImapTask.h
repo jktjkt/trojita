@@ -168,8 +168,10 @@ protected:
     bool _aborted;
 
     friend class TaskPresentationModel; // needs access to the TaskPresentationModel
+    friend class KeepMailboxOpenTask; // needs access to dependentTasks for removing stuff
+#ifdef TROJITA_DEBUG_TASK_TREE
     friend class Model; // needs access to dependentTasks for verification
-    friend class KeepMailboxOpenTask; // needs access to dependentTasks for verification
+#endif
 };
 
 #define IMAP_TASK_CHECK_ABORT_DIE \
@@ -181,6 +183,12 @@ protected:
         _failed("Aborted");\
         return;\
     }
+
+#ifdef TROJITA_DEBUG_TASK_TREE
+#define CHECK_TASK_TREE {model->checkTaskTreeConsistency()}
+#else
+#define CHECK_TASK_TREE {}
+#endif
 
 }
 }
