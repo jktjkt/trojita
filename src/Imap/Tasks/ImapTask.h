@@ -21,26 +21,11 @@
 
 #include <QObject>
 #include <QPointer>
-#include "../Parser/Parser.h"
 #include "../Model/Logging.h"
+#include "../Parser/Parser.h"
 
 namespace Imap
 {
-
-namespace Responses
-{
-class State;
-class Capability;
-class NumberResponse;
-class List;
-class Flags;
-class Search;
-class Status;
-class Fetch;
-class Namespace;
-class Sort;
-class Thread;
-}
 
 namespace Mailbox
 {
