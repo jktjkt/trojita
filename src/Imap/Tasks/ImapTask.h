@@ -184,6 +184,7 @@ protected:
 
     friend class TaskPresentationModel; // needs access to the TaskPresentationModel
     friend class Model; // FIXME: needs access to dependentTasks for verification
+    friend class KeepMailboxOpenTask; // needs access to dependentTasks for verification
 };
 
 #define IMAP_TASK_CHECK_ABORT_DIE \

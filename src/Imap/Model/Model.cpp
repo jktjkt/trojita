@@ -1710,6 +1710,15 @@ void Model::checkTaskTreeConsistency()
             Q_ASSERT(!activeTask->parentTask);
             checkDependentTasksConsistency(parserIt.key(), activeTask, 0);
         }
+
+        // Make sure that no task is present twice in here
+        QList<ImapTask*> taskQueue = parserIt.value().activeTasks;
+        for (int i = 0; i < taskQueue.size(); ++i) {
+            Q_FOREACH(ImapTask *yetAnotherTask, taskQueue[i]->dependentTasks) {
+                Q_ASSERT(!taskQueue.contains(yetAnotherTask));
+                taskQueue.push_back(yetAnotherTask);
+            }
+        }
     }
 }
 
