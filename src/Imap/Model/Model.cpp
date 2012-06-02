@@ -196,11 +196,19 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
             // Try various tasks, perhaps it's their response. Also check if they're already finished and remove them.
             for (QList<ImapTask *>::const_iterator taskIt = taskSnapshot.constBegin(); taskIt != taskEnd; ++taskIt) {
                 if (! handled) {
-                    handled = resp->plug(*taskIt);
 
 #ifdef DEBUG_TASK_ROUTING
-                    if (handled)
-                        qDebug() << "Handled by" << *taskIt << (*taskIt)->debugIdentification();
+                    try {
+#endif
+                    handled = resp->plug(*taskIt);
+#ifdef DEBUG_TASK_ROUTING
+                        if (handled) {
+                            logTrace(it->parser->parserId(), LOG_TASKS, (*taskIt)->debugIdentification(), QLatin1String("Handled"));
+                        }
+                    } catch (std::exception &e) {
+                        logTrace(it->parser->parserId(), LOG_TASKS, (*taskIt)->debugIdentification(), QLatin1String("Got exception when handling"));
+                        throw;
+                    }
 #endif
                 }
 
@@ -214,10 +222,10 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
             runReadyTasks();
 
             if (! handled) {
-#ifdef DEBUG_TASK_ROUTING
-                qDebug() << "Handling by the Model itself";
-#endif
                 resp->plug(it->parser, this);
+#ifdef DEBUG_TASK_ROUTING
+                logTrace(it->parser->parserId(), LOG_TASKS, QLatin1String("Model"), QLatin1String("Handled"));
+#endif
             }
         } catch (Imap::StartTlsFailed &e) {
             uint parserId = it->parser->parserId();
