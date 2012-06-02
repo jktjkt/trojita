@@ -87,9 +87,16 @@ QModelIndex TaskPresentationModel::parent(const QModelIndex &child) const
         // A parent of the parser state is always the root item
         return QModelIndex();
     }
-
-    // The child is definitely an ImapTask
-    return indexForTask(static_cast<ImapTask *>(child.internalPointer()));
+    // The child is definitely an ImapTask; let's find what the parent is
+    ImapTask *task = static_cast<ImapTask *>(child.internalPointer());
+    if (task->parentTask) {
+        return indexForTask(task->parentTask);
+    } else {
+        Q_ASSERT(task->parser);
+        int index = m_model->m_parsers.keys().indexOf(task->parser);
+        Q_ASSERT(index != -1);
+        return createIndex(index, 0, task->parser);
+    }
 }
 
 /** @short Return a QModelIndex for the specified ImapTask* */
