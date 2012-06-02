@@ -45,7 +45,7 @@ class TaskPresentationModel : public QAbstractItemModel
 {
     Q_OBJECT
 
-    QModelIndex indexForTask(const ImapTask *const task) const;
+    QModelIndex indexForTask(ImapTask *const task) const;
 
 public:
     explicit TaskPresentationModel(Model *model);

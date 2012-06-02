@@ -100,49 +100,20 @@ QModelIndex TaskPresentationModel::parent(const QModelIndex &child) const
 }
 
 /** @short Return a QModelIndex for the specified ImapTask* */
-QModelIndex TaskPresentationModel::indexForTask(const ImapTask *const task) const
+QModelIndex TaskPresentationModel::indexForTask(ImapTask *const task) const
 {
     Q_ASSERT(task);
     if (task->parentTask) {
-        // And the child says that it has a prent task. The parent of this child is therefore an ImapTask, too.
-        // The question is, what's the parent of our parent?
-        int index = -1;
-        if (task->parentTask->parentTask) {
-            // The parent has an ImapTask as a parent.
-            index = task->parentTask->parentTask->dependentTasks.indexOf(task->parentTask);
-            if (index == -1) {
-                m_model->checkTaskTreeConsistency();
-                // Again, redmine #483
-                // Maybe the connection is dying already? Let's limit the breakage anyway.
-                Q_ASSERT(false);
-                return QModelIndex();
-            }
-        } else {
-            // Our grandparent is a ParserState
-            index = m_model->accessParser(task->parentTask->parser).activeTasks.indexOf(task->parentTask);
-            if (index == -1) {
-                m_model->checkTaskTreeConsistency();
-                /* Shall be fixed properly, but it's not going to be an easy task :( -- Redmine #483
-                qDebug() << "WTF?" << task << task->debugIdentification() << task->parentTask << task->parentTask->debugIdentification();
-                Q_FOREACH(ImapTask *activeTask, m_model->accessParser(task->parentTask->parser).activeTasks) {
-                    qDebug() << "active task" << activeTask << activeTask->debugIdentification();
-                }
-                */
-                qDebug() << task;
-                qDebug() << task->parentTask;
-                qDebug() << m_model->accessParser(task->parentTask->parser).activeTasks;
-                Q_ASSERT(false);
-                return QModelIndex();
-            }
-        }
+        // The target task is a child of another task
+        int index = task->parentTask->dependentTasks.indexOf(task);
         Q_ASSERT(index != -1);
-        return createIndex(index, 0, task->parentTask);
+        return createIndex(index, 0, task);
     } else {
-        // The child has no parent, so the child is apparently the top-level task for a given parser,
-        // and hence the parent is obviously the ParserState
-        int index = m_model->m_parsers.keys().indexOf(task->parser);
+        // The child has no parent task, so the child is apparently the top-level task for a given parser,
+        Q_ASSERT(task->parser);
+        int index = m_model->accessParser(task->parser).activeTasks.indexOf(task);
         Q_ASSERT(index != -1);
-        return createIndex(index, 0, task->parser);
+        return createIndex(index, 0, task);
     }
 }
 
