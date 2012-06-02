@@ -244,16 +244,16 @@ void TaskPresentationModel::slotTaskMighHaveChanged(ImapTask *task)
     emit dataChanged(index, index);
 }
 
-void dumpModelContents(QAbstractItemModel *model, QModelIndex index, QByteArray offset)
+void dumpModelContents(QAbstractItemModel *model, QModelIndex index, int offset)
 {
-    qDebug() << offset << index.data(Qt::DisplayRole).toString();
+    qDebug() << QByteArray().fill(' ', offset) << index.data(Qt::DisplayRole).toString();
     for (int i=0; i < model->rowCount(index); ++i) {
         QModelIndex child = model->index(i, 0, index);
         if (!child.isValid()) {
             qDebug() << "FAIL: " << index << child << i << model->rowCount(index);
         }
         Q_ASSERT(child.isValid());
-        dumpModelContents(model, child, offset+QByteArray(" "));
+        dumpModelContents(model, child, offset + 1);
     }
 }
 

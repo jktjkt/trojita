@@ -71,7 +71,7 @@ private:
 };
 
 /** @short Debug: dump the model in a tree-like manner */
-void dumpModelContents(QAbstractItemModel *model, QModelIndex index=QModelIndex(), QByteArray offset=QByteArray());
+void dumpModelContents(QAbstractItemModel *model, QModelIndex index = QModelIndex(), int offset = 0);
 
 }
 }
