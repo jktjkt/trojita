@@ -201,8 +201,6 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
 #ifdef DEBUG_TASK_ROUTING
                     if (handled)
                         qDebug() << "Handled by" << *taskIt << (*taskIt)->debugIdentification();
-                    else
-                        qDebug() << "Ignored by" << *taskIt << (*taskIt)->debugIdentification();
 #endif
                 }
 

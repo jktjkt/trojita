@@ -183,7 +183,7 @@ protected:
     bool _aborted;
 
     friend class TaskPresentationModel; // needs access to the TaskPresentationModel
-    friend class Model; // FIXME: needs access to dependentTasks for verification
+    friend class Model; // needs access to dependentTasks for verification
     friend class KeepMailboxOpenTask; // needs access to dependentTasks for verification
 };
 

@@ -19,8 +19,6 @@
    Boston, MA 02110-1301, USA.
 */
 
-#define private public
-#define protected public
 #include "TaskPresentationModel.h"
 #include "GetAnyConnectionTask.h"
 #include "ItemRoles.h"
@@ -179,7 +177,7 @@ QVariant TaskPresentationModel::data(const QModelIndex &index, int role) const
             ImapTask *task = static_cast<ImapTask *>(index.internalPointer());
             QString className = QLatin1String(task->metaObject()->className());
             className.remove(QLatin1String("Imap::Mailbox::"));
-            return tr("%3 %1: %2").arg(className, task->debugIdentification(), QString::number(index.internalId(), 16));
+            return tr("%1: %2").arg(className, task->debugIdentification());
         }
     case RoleTaskCompactName: {
         if (isParserState) {
