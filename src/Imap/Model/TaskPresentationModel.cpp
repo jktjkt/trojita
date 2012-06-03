@@ -260,6 +260,12 @@ void TaskPresentationModel::slotTaskMighHaveChanged(ImapTask *task)
         // finished tasks are not located in our tree, so indexForTask would assert on them
         return;
     }
+    if (KeepMailboxOpenTask *keepTask = dynamic_cast<KeepMailboxOpenTask*>(task)) {
+        if (keepTask->isReadyToTerminate()) {
+            // this one could be missing from the mapping, too
+            return;
+        }
+    }
     QModelIndex index = indexForTask(task);
     emit dataChanged(index, index);
     CHECK_TASK_TREE

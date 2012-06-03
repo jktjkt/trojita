@@ -143,6 +143,8 @@ public:
 
     virtual bool needsMailbox() const {return true;}
 
+    bool isReadyToTerminate() const;
+
 private slots:
     void slotTaskDeleted(QObject *object);
 
@@ -199,8 +201,6 @@ private:
     bool hasPendingInternalActions() const;
 
     void detachFromMailbox();
-
-    bool isReadyToTerminate() const;
 
     bool canRunIdleRightNow() const;
 
