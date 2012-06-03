@@ -220,6 +220,13 @@ void KeepMailboxOpenTask::slotTaskDeleted(QObject *object)
 
 void KeepMailboxOpenTask::terminate()
 {
+    if (_aborted) {
+        // We've already been there, so we *cannot* proceed towards activating our replacement tasks
+        return;
+    }
+    abort();
+    detachFromMailbox();
+
     // FIXME: abort/die
 
     Q_ASSERT(dependingTasksForThisMailbox.isEmpty());
@@ -236,14 +243,12 @@ void KeepMailboxOpenTask::terminate()
     shouldRunNoop = false;
     isRunning = false;
 
-    abort();
-
     // Merge the lists of waiting tasks
     if (!waitingObtainTasks.isEmpty()) {
         ObtainSynchronizedMailboxTask *first = waitingObtainTasks.takeFirst();
         Q_ASSERT(first);
         Q_ASSERT(first->keepTaskChild);
-        Q_ASSERT(first->keepTaskChild->synchronizeConn == first); // FIXME: this has failed :(
+        Q_ASSERT(first->keepTaskChild->synchronizeConn == first);
 
         CHECK_TASK_TREE
         // Update the parent information for the moved tasks
@@ -275,16 +280,13 @@ void KeepMailboxOpenTask::perform()
     synchronizeConn = 0; // will get deleted by Model
     markAsActiveTask();
 
-    if (!waitingObtainTasks.isEmpty() && ! hasPendingInternalActions()) {
-        // We're basically useless, but we have to die reasonably
-        shouldExit = true;
-        terminate();
-        return;
-    }
-
     isRunning = true;
     fetchPartTimer->start();
     fetchEnvelopeTimer->start();
+
+    if (!waitingObtainTasks.isEmpty()) {
+        shouldExit = true;
+    }
 
     activateTasks();
 
