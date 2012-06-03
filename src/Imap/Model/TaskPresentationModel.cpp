@@ -269,7 +269,6 @@ void TaskPresentationModel::slotTaskMighHaveChanged(ImapTask *task)
     }
     QModelIndex index = indexForTask(task);
     emit dataChanged(index, index);
-    CHECK_TASK_TREE
 }
 
 void dumpModelContents(QAbstractItemModel *model, QModelIndex index, int offset)
