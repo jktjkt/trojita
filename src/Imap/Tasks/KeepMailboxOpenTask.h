@@ -54,8 +54,8 @@ There are four sorts of tasks:
 3) Tasks which are going to replace this KeepMailboxOpenTask when it's done
 4) Tasks that do not need any particular mailbox; they can work no matter if there's any mailbox opened
 
-FIXME: this is false due to IDLE:
-Of these sorts, 4) are not scheduled through the KeepMailboxOpenTask, and hence are not visible from this context at all.
+Of these sorts, 4) are relevant only when dispatching the IDLE command (as IDLE can only run when nothing else is using this
+connection because it is implemented as a "command in progress" thing).
 
 Sorts 2) and 3) have a common feature -- they are somehow "waiting" for their turn, so that they could get their job done.
 They will start when this KeepMailboxOpenTask asks them to start.
@@ -83,7 +83,20 @@ task's waitingKeepTasks & dependentTasks list.
 ParserState::activeTasks, but vanished from this KeepMailboxOpenTask::dependentTasks.  However, to prevent this
 KeepMailboxOpenTask from disappearing, they are also kept in the runningTasksForThisMailbox list.
 
+
+The KeepMailboxOpenTask can be in one of the following four states:
+
+- Waiting for its synchronizeConn to finish. Nothing else can happen during this phase.
+- Resynchronizing changes which have happened to the mailbox while the KeepMailboxOpenTask was in charge. In this state, other
+commands can be scheduled and executing.
+- Not doing anything on its own. Various tasks can be scheduled from this state.
+- An ObtainSynchronizedMailboxTask is waiting to replace us. Existing tasks are allowed to finish, tasks for this mailbox are
+still accepted and will be executed and tasks which aren't dependent on this mailbox can also run.  When everything finishes, the
+waiting task will replace this one.
+- Finally, the KeepMailboxOpenTask can be executing the IDLE command. Nothing else can ever run from this context.
+
 */
+
 class KeepMailboxOpenTask : public ImapTask
 {
     Q_OBJECT
