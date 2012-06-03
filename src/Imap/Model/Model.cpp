@@ -1333,6 +1333,8 @@ void Model::removeDeletedTasks(const QList<ImapTask *> &deletedTasks, QList<Imap
     for (QList<ImapTask *>::const_iterator deletedIt = deletedTasks.begin(); deletedIt != deletedTasks.end(); ++deletedIt) {
         (*deletedIt)->deleteLater();
         activeTasks.removeOne(*deletedIt);
+        // It isn't destroyed yet, but should be removed from the model nonetheless
+        m_taskModel->slotTaskDestroyed(*deletedIt);
     }
 }
 
