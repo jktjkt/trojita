@@ -1706,15 +1706,20 @@ QModelIndex Model::messageIndexByUid(const QString &mailboxName, const uint uid)
 }
 
 #ifdef TROJITA_DEBUG_TASK_TREE
+#define TROJITA_DEBUG_TASK_TREE_VERBOSE
 void Model::checkTaskTreeConsistency()
 {
     for (QMap<Parser *,ParserState>::const_iterator parserIt = m_parsers.constBegin(); parserIt != m_parsers.constEnd(); ++parserIt) {
+#ifdef TROJITA_DEBUG_TASK_TREE_VERBOSE
         qDebug() << "\nParser" << parserIt.key() << "; all active tasks:";
         Q_FOREACH(ImapTask *activeTask, parserIt.value().activeTasks) {
             qDebug() << ' ' << activeTask << activeTask->debugIdentification() << activeTask->parser;
         }
+#endif
         Q_FOREACH(ImapTask *activeTask, parserIt.value().activeTasks) {
+#ifdef TROJITA_DEBUG_TASK_TREE_VERBOSE
             qDebug() << "Active task" << activeTask << activeTask->debugIdentification() << activeTask->parser;
+#endif
             Q_ASSERT(activeTask->parser == parserIt.key());
             Q_ASSERT(!activeTask->parentTask);
             checkDependentTasksConsistency(parserIt.key(), activeTask, 0, 0);
@@ -1733,9 +1738,11 @@ void Model::checkTaskTreeConsistency()
 
 void Model::checkDependentTasksConsistency(Parser *parser, ImapTask *task, ImapTask *expectedParentTask, int depth)
 {
+#ifdef TROJITA_DEBUG_TASK_TREE_VERBOSE
     QByteArray prefix;
     prefix.fill(' ', depth);
     qDebug() << prefix.constData() << "Checking" << task << task->debugIdentification();
+#endif
     Q_ASSERT(parser);
     Q_ASSERT(!task->parser || task->parser == parser);
     Q_ASSERT(task->parentTask == expectedParentTask);
