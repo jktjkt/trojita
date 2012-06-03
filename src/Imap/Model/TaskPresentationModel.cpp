@@ -28,6 +28,12 @@
 #include "OpenConnectionTask.h"
 #include "UnSelectTask.h"
 
+#ifdef TROJITA_DEBUG_TASK_TREE
+#define CHECK_TASK_TREE {m_model->checkTaskTreeConsistency();}
+#else
+#define CHECK_TASK_TREE {}
+#endif
+
 namespace Imap
 {
 namespace Mailbox
@@ -205,7 +211,9 @@ this function.
 void TaskPresentationModel::slotTaskDestroyed(const ImapTask *const task)
 {
     Q_UNUSED(task);
+    CHECK_TASK_TREE
     reset();
+    CHECK_TASK_TREE
 }
 
 /** @short A new parser just got created
@@ -215,7 +223,9 @@ We don't bother with proper fine-grained signals here.
 void TaskPresentationModel::slotParserCreated(Parser *parser)
 {
     Q_UNUSED(parser);
+    CHECK_TASK_TREE
     reset();
+    CHECK_TASK_TREE
 }
 
 /** @short A parser has just been deleted
@@ -225,7 +235,9 @@ We don't bother with proper fine-grained signals here.
 void TaskPresentationModel::slotParserDeleted(Parser *parser)
 {
     Q_UNUSED(parser);
+    CHECK_TASK_TREE
     reset();
+    CHECK_TASK_TREE
 }
 
 /** @short A parent of the given Imaptask has just changed
@@ -235,18 +247,22 @@ The task might or might not have been present in the model before.  We don't kno
 void TaskPresentationModel::slotTaskGotReparented(const ImapTask *const task)
 {
     Q_UNUSED(task);
+    CHECK_TASK_TREE
     reset();
+    CHECK_TASK_TREE
 }
 
 /** @short The textual description, the state or something else related to this task might have changed */
 void TaskPresentationModel::slotTaskMighHaveChanged(ImapTask *task)
 {
+    CHECK_TASK_TREE
     if (task->isFinished()) {
         // finished tasks are not located in our tree, so indexForTask would assert on them
         return;
     }
     QModelIndex index = indexForTask(task);
     emit dataChanged(index, index);
+    CHECK_TASK_TREE
 }
 
 void dumpModelContents(QAbstractItemModel *model, QModelIndex index, int offset)
