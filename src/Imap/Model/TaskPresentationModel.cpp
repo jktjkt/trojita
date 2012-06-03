@@ -29,6 +29,7 @@
 #include "UnSelectTask.h"
 
 #ifdef TROJITA_DEBUG_TASK_TREE
+#undef CHECK_TASK_TREE
 #define CHECK_TASK_TREE {m_model->checkTaskTreeConsistency();}
 #else
 #define CHECK_TASK_TREE {}
