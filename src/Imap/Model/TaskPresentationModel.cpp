@@ -110,6 +110,11 @@ QModelIndex TaskPresentationModel::indexForTask(ImapTask *const task) const
         // The child has no parent task, so the child is apparently the top-level task for a given parser,
         Q_ASSERT(task->parser);
         int index = m_model->accessParser(task->parser).activeTasks.indexOf(task);
+#ifdef TROJITA_DEBUG_TASK_TREE
+        if (index == -1) {
+            m_model->checkTaskTreeConsistency();
+        }
+#endif
         Q_ASSERT(index != -1);
         return createIndex(index, 0, task);
     }
