@@ -187,6 +187,8 @@ void KeepMailboxOpenTask::addDependentTask(ImapTask *task)
         if (task->needsMailbox()) {
             // it's a task which is tied to a particular mailbox
             dependingTasksForThisMailbox.append(task);
+        } else {
+            dependingTasksNoMailbox.append(task);
         }
         QTimer::singleShot(0, this, SLOT(slotActivateTasks()));
     }
@@ -201,6 +203,7 @@ void KeepMailboxOpenTask::slotTaskDeleted(QObject *object)
     // to do that here, as we're only interested in raw pointer value.
     dependentTasks.removeOne(static_cast<ImapTask *>(object));
     dependingTasksForThisMailbox.removeOne(static_cast<ImapTask *>(object));
+    dependingTasksNoMailbox.removeOne(static_cast<ImapTask *>(object));
     runningTasksForThisMailbox.removeOne(static_cast<ImapTask *>(object));
     fetchPartTasks.removeOne(static_cast<FetchMsgPartTask *>(object));
     fetchMetadataTasks.removeOne(static_cast<FetchMsgMetadataTask *>(object));
@@ -230,6 +233,7 @@ void KeepMailboxOpenTask::terminate()
     // FIXME: abort/die
 
     Q_ASSERT(dependingTasksForThisMailbox.isEmpty());
+    Q_ASSERT(dependingTasksNoMailbox.isEmpty());
     Q_ASSERT(requestedParts.isEmpty());
     Q_ASSERT(requestedEnvelopes.isEmpty());
     Q_ASSERT(runningTasksForThisMailbox.isEmpty());
@@ -246,6 +250,7 @@ void KeepMailboxOpenTask::terminate()
     // Merge the lists of waiting tasks
     if (!waitingObtainTasks.isEmpty()) {
         ObtainSynchronizedMailboxTask *first = waitingObtainTasks.takeFirst();
+        dependentTasks.removeOne(first);
         Q_ASSERT(first);
         Q_ASSERT(first->keepTaskChild);
         Q_ASSERT(first->keepTaskChild->synchronizeConn == first);
@@ -264,6 +269,8 @@ void KeepMailboxOpenTask::terminate()
         first->keepTaskChild->waitingObtainTasks = waitingObtainTasks + first->keepTaskChild->waitingObtainTasks;
         model->accessParser(parser).maintainingTask = first->keepTaskChild;
         first->keepTaskChild->slotPerformConnection();
+    } else {
+        Q_ASSERT(dependentTasks.isEmpty());
     }
     _finished = true;
     emit completed(this);
@@ -521,6 +528,9 @@ void KeepMailboxOpenTask::killAllPendingTasks()
     Q_FOREACH(ImapTask *task, dependingTasksForThisMailbox) {
         task->die();
     }
+    Q_FOREACH(ImapTask *task, dependingTasksNoMailbox) {
+        task->die();
+    }
     Q_FOREACH(ImapTask *task, waitingObtainTasks) {
         task->die();
     }
@@ -599,6 +609,11 @@ void KeepMailboxOpenTask::activateTasks()
     while (!dependingTasksForThisMailbox.isEmpty() && model->accessParser(parser).activeTasks.size() < limitActiveTasks) {
         ImapTask *task = dependingTasksForThisMailbox.takeFirst();
         runningTasksForThisMailbox.append(task);
+        dependentTasks.removeOne(task);
+        task->perform();
+    }
+    while (!dependingTasksNoMailbox.isEmpty() && model->accessParser(parser).activeTasks.size() < limitActiveTasks) {
+        ImapTask *task = dependingTasksNoMailbox.takeFirst();
         dependentTasks.removeOne(task);
         task->perform();
     }
@@ -746,7 +761,7 @@ bool KeepMailboxOpenTask::dieIfInvalidMailbox()
 bool KeepMailboxOpenTask::hasPendingInternalActions() const
 {
     bool hasToWaitForIdleTermination = idleLauncher ? idleLauncher->waitingForIdleTaggedTermination() : false;
-    return !(dependingTasksForThisMailbox.isEmpty() && runningTasksForThisMailbox.isEmpty() &&
+    return !(dependingTasksForThisMailbox.isEmpty() && dependingTasksNoMailbox.isEmpty() && runningTasksForThisMailbox.isEmpty() &&
              requestedParts.isEmpty() && requestedEnvelopes.isEmpty()) || hasToWaitForIdleTermination;
 }
 
@@ -762,7 +777,8 @@ bool KeepMailboxOpenTask::isReadyToTerminate() const
 /** @short Return true if we're configured to run IDLE and if there's no ongoing activity */
 bool KeepMailboxOpenTask::canRunIdleRightNow() const
 {
-    bool res = shouldRunIdle && model->accessParser(parser).activeTasks.size() == 1 && dependingTasksForThisMailbox.isEmpty();
+    bool res = shouldRunIdle && model->accessParser(parser).activeTasks.size() == 1 && dependingTasksForThisMailbox.isEmpty() &&
+            dependingTasksNoMailbox.isEmpty();
 
     if (!res)
         return false;

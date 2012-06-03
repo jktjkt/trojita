@@ -55,7 +55,7 @@ There are four sorts of tasks:
 4) Tasks that do not need any particular mailbox; they can work no matter if there's any mailbox opened
 
 Of these sorts, 4) are relevant only when dispatching the IDLE command (as IDLE can only run when nothing else is using this
-connection because it is implemented as a "command in progress" thing).
+connection because it is implemented as a "command in progress" thing) and also when deciding whether we can die already.
 
 Sorts 2) and 3) have a common feature -- they are somehow "waiting" for their turn, so that they could get their job done.
 They will start when this KeepMailboxOpenTask asks them to start.
@@ -74,11 +74,13 @@ This approach is also used for visualization of the task tree.
 
 This is the mapping of the task sorts into the places which keep track of them:
 
-* The 4) goes straight to the ParserState::activeTasks and remain there until they terminate
+* If the KeepTask is already active, the 4) goes straight to the ParserState::activeTasks and remain there until they terminate.
+In case the task isn't active yet, the tasks remain waiting in dependingTasksNoMailbox until the KeepTask gets activated.
 * The 3) gets added to the waitingKeepTasks *and* to the dependentTasks. They remain there until the time this
 KeepMailboxOpenTask terminates. At that time, the first of them gets activated while the others get prepended to the first
 task's waitingKeepTasks & dependentTasks list.
-* The 2) are found in the dependentTasks
+* The 2) are found in the dependentTasks. They used to be present in dependingTasksForThisMailbox as well, but got removed when they
+got started.
 * The 1) originally existed as 2), but got run at some time.  When they got run, they got also added to the
 ParserState::activeTasks, but vanished from this KeepMailboxOpenTask::dependentTasks.  However, to prevent this
 KeepMailboxOpenTask from disappearing, they are also kept in the runningTasksForThisMailbox list.
@@ -222,6 +224,8 @@ protected:
     QList<ImapTask *> runningTasksForThisMailbox;
     /** @short Contents of the dependentTasks without the waitingObtainTasks */
     QList<ImapTask *> dependingTasksForThisMailbox;
+    /** @short Depending tasks which don't need this mailbox */
+    QList<ImapTask *> dependingTasksNoMailbox;
     /** @short An ImapTask that will be started to actually sync to a mailbox once the connection is free */
     ObtainSynchronizedMailboxTask *synchronizeConn;
 
