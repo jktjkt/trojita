@@ -27,6 +27,7 @@
 #include "MailboxTree.h"
 #include "Model.h"
 #include "TaskFactory.h"
+#include "TaskPresentationModel.h"
 #include "NoopTask.h"
 #include "UnSelectTask.h"
 
@@ -259,6 +260,9 @@ void KeepMailboxOpenTask::terminate()
             first->keepTaskChild->dependentTasks.append(movedObtainTask);
         }
         CHECK_TASK_TREE
+
+        // This is a hack; the goal is to make sure that the TaskPresentationModel is informed about new stuff
+        model->m_taskModel->slotTaskGotReparented(0);
 
         // And launch the replacement
         first->keepTaskChild->waitingObtainTasks = waitingObtainTasks + first->keepTaskChild->waitingObtainTasks;
