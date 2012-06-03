@@ -40,6 +40,7 @@ private slots:
     void testSlowOfflineFlags();
     void testSlowOfflineFlags2();
     void testSlowOfflineFlags3();
+    void testMailboxHoping();
 private:
 };
 

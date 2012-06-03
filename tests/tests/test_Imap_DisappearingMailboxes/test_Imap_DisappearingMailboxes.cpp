@@ -22,6 +22,7 @@
 #include <QtTest>
 #include "test_Imap_DisappearingMailboxes.h"
 #include "../headless_test.h"
+#include "Imap/Model/TaskPresentationModel.h"
 #include "Streams/FakeSocket.h"
 #include "test_LibMailboxSync/FakeCapabilitiesInjector.h"
 
@@ -350,6 +351,27 @@ void ImapModelDisappearingMailboxTest::testSlowOfflineFlags3()
     QCoreApplication::processEvents();
     QVERIFY(SOCK->writtenStuff().isEmpty());
     QVERIFY(SOCK == origSocket);
+}
+
+void ImapModelDisappearingMailboxTest::testMailboxHoping()
+{
+    int mailboxes = model->rowCount(QModelIndex());
+    // The "off-by-one" is intentional, the first item is TreeItemMsgList
+    for (int i = 1; i < mailboxes; ++i) {
+        QModelIndex mailboxIndex = model->index(i, 0, QModelIndex());
+        model->switchToMailbox(mailboxIndex);
+    }
+    //Imap::Mailbox::dumpModelContents(model->taskModel());
+    cClient(t.mk("SELECT a\r\n"));
+    cEmpty();
+    cServer("* 0 EXISTS\r\n* OK [UIDNEXT 0] x\r\n* OK [UIDVALIDITY 1] x\r\n");
+    cEmpty();
+    cServer(t.last("OK selected\r\n"));
+    cClient(t.mk("SELECT b\r\n"));
+    cServer(t.last("OK B selected\r\n"));
+    //Imap::Mailbox::dumpModelContents(model->taskModel());
+    cClient(t.mk("SELECT c\r\n"));
+    cEmpty();
 }
 
 TROJITA_HEADLESS_TEST( ImapModelDisappearingMailboxTest )
