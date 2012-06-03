@@ -374,4 +374,7 @@ void ImapModelDisappearingMailboxTest::testMailboxHoping()
     cEmpty();
 }
 
+// FIXME: write test for the UnSelectTask and its interaction with different scenarios about opened/to-be-opened tasks
+// Redmine #486
+
 TROJITA_HEADLESS_TEST( ImapModelDisappearingMailboxTest )
