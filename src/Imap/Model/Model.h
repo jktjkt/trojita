@@ -147,6 +147,7 @@ public:
     void handleSort(Imap::Parser *ptr, const Imap::Responses::Sort *const resp);
     void handleThread(Imap::Parser *ptr, const Imap::Responses::Thread *const resp);
     void handleId(Imap::Parser *ptr, const Imap::Responses::Id *const resp);
+    void handleEnabled(Imap::Parser *ptr, const Imap::Responses::Enabled *const resp);
     void handleSocketEncryptedResponse(Imap::Parser *ptr, const Imap::Responses::SocketEncryptedResponse *const resp);
 
     AbstractCache *cache() const { return m_cache; }

@@ -434,6 +434,15 @@ CommandHandle Parser::idCommand(const QMap<QByteArray,QByteArray> &args)
     return queueCommand(cmd);
 }
 
+CommandHandle Parser::enable(const QList<QByteArray> &extensions)
+{
+    Commands::Command cmd("ENABLE");
+    Q_FOREACH(const QByteArray &item, extensions) {
+        cmd << Commands::PartOfCommand(Commands::ATOM, item);
+    }
+    return queueCommand(cmd);
+}
+
 CommandHandle Parser::queueCommand(Commands::Command command)
 {
     QString tag = generateTag();
@@ -867,6 +876,9 @@ QSharedPointer<Responses::AbstractResponse> Parser::parseUntaggedText(
     case Responses::ID:
         return QSharedPointer<Responses::AbstractResponse>(
                    new Responses::Id(line, start));
+    case Responses::ENABLED:
+        return QSharedPointer<Responses::AbstractResponse>(
+                    new Responses::Enabled(line, start));
 
         // Those already handled above follow here
     case Responses::EXPUNGE:

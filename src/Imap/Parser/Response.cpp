@@ -167,6 +167,9 @@ QTextStream &operator<<(QTextStream &stream, const Kind &res)
     case ID:
         stream << "ID";
         break;
+    case ENABLED:
+        stream << "ENABLE";
+        break;
     }
     return stream;
 }
@@ -217,6 +220,8 @@ Kind kindFromString(QByteArray str) throw(UnrecognizedResponseKind)
         return THREAD;
     if (str == "ID")
         return ID;
+    if (str == "ENABLED")
+        return ENABLED;
     throw UnrecognizedResponseKind(str.constData());
 }
 
@@ -960,6 +965,13 @@ Id::Id(const QByteArray &line, int &start): AbstractResponse(ID)
     }
 }
 
+Enabled::Enabled(const QByteArray &line, int &start)
+{
+    extension = LowLevelParser::getAtom(line, start);
+    if (start != line.size() - 2)
+        throw TooMuchData("Got data after ENABLE's capability specification", line, start);
+}
+
 SocketEncryptedResponse::SocketEncryptedResponse(const QList<QSslCertificate> &sslChain, const QList<QSslError> &sslErrors):
     sslChain(sslChain), sslErrors(sslErrors)
 {
@@ -1099,6 +1111,11 @@ QTextStream &Id::dump(QTextStream &s) const
         }
         return s << ")";
     }
+}
+
+QTextStream &Enabled::dump(QTextStream &s) const
+{
+    return s << "ENABLE " << extension;
 }
 
 QTextStream &SocketEncryptedResponse::dump(QTextStream &s) const
@@ -1301,6 +1318,16 @@ bool Id::eq(const AbstractResponse &other) const
     }
 }
 
+bool Enabled::eq(const AbstractResponse &other) const
+{
+    try {
+        const Enabled &r = dynamic_cast<const Enabled &>(other);
+        return extension == r.extension;
+    } catch (std::bad_cast &) {
+        return false;
+    }
+}
+
 bool SocketEncryptedResponse::eq(const AbstractResponse &other) const
 {
     try {
@@ -1338,6 +1365,7 @@ PLUG(Namespace)
 PLUG(Sort)
 PLUG(Thread)
 PLUG(Id)
+PLUG(Enabled)
 PLUG(SocketEncryptedResponse)
 
 #undef PLUG

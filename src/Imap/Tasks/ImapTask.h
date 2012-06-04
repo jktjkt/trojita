@@ -101,6 +101,7 @@ public:
     virtual bool handleSort(const Imap::Responses::Sort *const resp);
     virtual bool handleThread(const Imap::Responses::Thread *const resp);
     virtual bool handleId(const Imap::Responses::Id *const resp);
+    virtual bool handleEnabled(const Imap::Responses::Enabled *const resp);
     virtual bool handleSocketEncryptedResponse(const Imap::Responses::SocketEncryptedResponse *const resp);
 
     /** @short Return true if this task has already finished and can be safely deleted */

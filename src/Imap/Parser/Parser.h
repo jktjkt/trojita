@@ -281,6 +281,9 @@ public slots:
     */
     CommandHandle idCommand(const QMap<QByteArray,QByteArray> &args);
 
+    /** @short ENABLE command, RFC 6151 */
+    CommandHandle enable(const QList<QByteArray> &extensions);
+
     void slotSocketStateChanged(const Imap::ConnectionState connState, const QString &message);
 
     void unfreezeAfterEncryption();

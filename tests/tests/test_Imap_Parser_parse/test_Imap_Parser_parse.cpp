@@ -767,6 +767,10 @@ void ImapParserParseTest::testParseUntagged_data()
     QTest::newRow("id-something")
             << QByteArray("* ID (\"foo \" \"bar\")\r\n")
             << QSharedPointer<AbstractResponse>(new Id(sampleId));
+
+    QTest::newRow("enable-condstore")
+            << QByteArray("* ENABLED CONDSToRE\r\n")
+            << QSharedPointer<AbstractResponse>(new Enabled(QByteArray("CONDSToRE")));
 }
 
 void ImapParserParseTest::benchmark()
