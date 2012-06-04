@@ -361,6 +361,11 @@ void OpenConnectionTask::onComplete()
     if (model->accessParser(parser).capabilities.contains(QLatin1String("ID"))) {
         model->m_taskFactory->createIdTask(model, this);
     }
+    // Optionally enable QRESYNC
+    if (model->accessParser(parser).capabilities.contains(QLatin1String("QRESYNC")) &&
+            model->accessParser(parser).capabilities.contains(QLatin1String("ENABLE"))) {
+        model->m_taskFactory->createEnableTask(model, this, QList<QByteArray>() << QByteArray("QRESYNC"));
+    }
 
     // But do terminate this task
     _completed();

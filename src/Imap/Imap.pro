@@ -68,6 +68,7 @@ SOURCES += Parser/Parser.cpp \
     Tasks/ThreadTask.cpp \
     Tasks/UnSelectTask.cpp \
     Tasks/OfflineConnectionTask.cpp \
+    Tasks/EnableTask.cpp \
     Model/ModelWatcher.cpp \
     Network/MsgPartNetworkReply.cpp \
     Network/ForbiddenReply.cpp \
@@ -137,6 +138,7 @@ HEADERS += Parser/Parser.h \
     Tasks/ThreadTask.h \
     Tasks/UnSelectTask.h \
     Tasks/OfflineConnectionTask.h \
+    Tasks/EnableTask.h \
     Model/ModelWatcher.h \
     Network/ForbiddenReply.h \
     Network/MsgPartNetAccessManager.h \

@@ -34,6 +34,7 @@ namespace Mailbox
 class CopyMoveMessagesTask;
 class CreateMailboxTask;
 class DeleteMailboxTask;
+class EnableTask;
 class ExpungeMailboxTask;
 class FetchMsgMetadataTask;
 class FetchMsgPartTask;
@@ -63,6 +64,7 @@ public:
             const QString &targetMailbox, const CopyMoveOperation op);
     virtual CreateMailboxTask *createCreateMailboxTask(Model *model, const QString &mailbox);
     virtual DeleteMailboxTask *createDeleteMailboxTask(Model *model, const QString &mailbox);
+    virtual EnableTask *createEnableTask(Model *model, ImapTask *dependingTask, const QList<QByteArray> &extensions);
     virtual ExpungeMailboxTask *createExpungeMailboxTask(Model *model, const QModelIndex &mailbox);
     virtual FetchMsgMetadataTask *createFetchMsgMetadataTask(Model *model, const QModelIndex &mailbox, const QList<uint> &uid);
     virtual FetchMsgPartTask *createFetchMsgPartTask(Model *model, const QModelIndex &mailbox, const QList<uint> &uids, const QStringList &parts);
