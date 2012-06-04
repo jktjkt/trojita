@@ -170,6 +170,8 @@ QTextStream &operator<<(QTextStream &stream, const Kind &res)
     case ENABLED:
         stream << "ENABLE";
         break;
+    case VANISHED:
+        stream << "VANISHED";
     }
     return stream;
 }
@@ -222,6 +224,8 @@ Kind kindFromString(QByteArray str) throw(UnrecognizedResponseKind)
         return ID;
     if (str == "ENABLED")
         return ENABLED;
+    if (str == "VANISHED")
+        return VANISHED;
     throw UnrecognizedResponseKind(str.constData());
 }
 
@@ -932,6 +936,27 @@ Enabled::Enabled(const QByteArray &line, int &start)
         throw TooMuchData("Got data after ENABLE's capability specification", line, start);
 }
 
+Vanished::Vanished(const QByteArray &line, int &start):
+    earlier(NOT_EARLIER)
+{
+    LowLevelParser::eatSpaces(line, start);
+
+    if (start >= line.size() - 2) {
+        throw NoData(line, start);
+    }
+
+    const int prefixLength = strlen("(EARLIER)");
+    if (start < line.size() - prefixLength && line.mid(start, prefixLength).toUpper() == "(EARLIER)") {
+        earlier = EARLIER;
+        start += prefixLength + 1; // one for the required space
+    }
+
+    uids = LowLevelParser::getSequence(line, start);
+
+    if (start != line.size() - 2)
+        throw TooMuchData(line, start);
+}
+
 SocketEncryptedResponse::SocketEncryptedResponse(const QList<QSslCertificate> &sslChain, const QList<QSslError> &sslErrors):
     sslChain(sslChain), sslErrors(sslErrors)
 {
@@ -1076,6 +1101,18 @@ QTextStream &Id::dump(QTextStream &s) const
 QTextStream &Enabled::dump(QTextStream &s) const
 {
     return s << "ENABLE " << extension;
+}
+
+QTextStream &Vanished::dump(QTextStream &s) const
+{
+    s << "VANISHED ";
+    if (earlier == EARLIER)
+        s << "(EARLIER) ";
+    s << "(";
+    Q_FOREACH(const uint &uid, uids) {
+        s << " " << uid;
+    }
+    return s << ")";
 }
 
 QTextStream &SocketEncryptedResponse::dump(QTextStream &s) const
@@ -1288,6 +1325,16 @@ bool Enabled::eq(const AbstractResponse &other) const
     }
 }
 
+bool Vanished::eq(const AbstractResponse &other) const
+{
+    try {
+        const Vanished &r = dynamic_cast<const Vanished &>(other);
+        return earlier == r.earlier && uids == r.uids;
+    } catch (std::bad_cast &) {
+        return false;
+    }
+}
+
 bool SocketEncryptedResponse::eq(const AbstractResponse &other) const
 {
     try {
@@ -1326,6 +1373,7 @@ PLUG(Sort)
 PLUG(Thread)
 PLUG(Id)
 PLUG(Enabled)
+PLUG(Vanished)
 PLUG(SocketEncryptedResponse)
 
 #undef PLUG

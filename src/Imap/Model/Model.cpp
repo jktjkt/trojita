@@ -606,6 +606,13 @@ void Model::handleEnabled(Parser *ptr, const Responses::Enabled *const resp)
     throw UnexpectedResponseReceived("Unhandled ENABLE response", *resp);
 }
 
+void Model::handleVanished(Parser *ptr, const Responses::Vanished *const resp)
+{
+    if (accessParser(ptr).connState == CONN_STATE_LOGOUT)
+        return;
+    throw UnexpectedResponseReceived("Unhandled VANISHED response", *resp);
+}
+
 void Model::handleSocketEncryptedResponse(Parser *ptr, const Responses::SocketEncryptedResponse *const resp)
 {
     Q_UNUSED(resp);
