@@ -269,6 +269,53 @@ QVariant getAnything(const QByteArray &line, int &start)
     }
 }
 
+QList<uint> getSequence(const QByteArray &line, int &start)
+{
+    uint num = LowLevelParser::getUInt(line, start);
+    if (start >= line.size() - 2) {
+        // It's definitely just a number because there's no more data in here
+        return QList<uint>() << num;
+    } else {
+        QList<uint> numbers;
+        numbers << num;
+
+        enum {COMMA, RANGE} currentType = COMMA;
+
+        // Try to find further items in the sequence set
+        while (line[start] == ':' || line[start] == ',') {
+            // it's a sequence set
+
+            if (line[start] == ':') {
+                if (currentType == RANGE) {
+                    // Now "x:y:z" is a funny syntax
+                    throw UnexpectedHere("Sequence set: range cannot me defined by three numbers", line, start);
+                }
+                currentType = RANGE;
+            } else {
+                currentType = COMMA;
+            }
+
+            ++start;
+            if (start >= line.size() - 2) throw NoData("Truncated sequence set", line, start);
+
+            uint num = LowLevelParser::getUInt(line, start);
+            if (currentType == COMMA) {
+                // just adding one more to the set
+                numbers << num;
+            } else {
+                // working with a range
+                if (numbers.last() >= num)
+                    throw UnexpectedHere("Sequence set contains an invalid range. "
+                                         "First item of a range must always be smaller than the second item.", line, start);
+
+                for (uint i = numbers.last() + 1; i <= num; ++i)
+                    numbers << i;
+            }
+        }
+        return numbers;
+    }
+}
+
 QDateTime parseRFC2822DateTime(const QString &string)
 {
     QStringList monthNames = QStringList() << "jan" << "feb" << "mar" << "apr"
