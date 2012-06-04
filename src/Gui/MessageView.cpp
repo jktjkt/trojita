@@ -50,6 +50,7 @@ MessageView::MessageView(QWidget *parent): QWidget(parent)
     factory = new PartWidgetFactory(netAccess, this);
 
     emptyView = new EmbeddedWebView(this, new QNetworkAccessManager(this));
+    emptyView->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     emptyView->setPage(new UserAgentWebPage(emptyView));
     emptyView->installEventFilter(this);
 
@@ -57,6 +58,7 @@ MessageView::MessageView(QWidget *parent): QWidget(parent)
     viewer = emptyView;
     header = new QLabel(this);
     header->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
+    header->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     tags = new TagListWidget(this);
     tags->hide();
     connect(tags, SIGNAL(tagAdded(QString)), this, SLOT(newLabelAction(QString)));
@@ -137,6 +139,8 @@ void MessageView::setMessage(const QModelIndex &index)
         netAccess->setModelMessage(message);
 
         viewer = factory->create(rootPartIndex);
+        viewer->resize(100, 100);
+        viewer->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
         viewer->setParent(this);
         layout->addWidget(viewer);
         viewer->show();

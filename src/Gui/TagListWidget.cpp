@@ -23,6 +23,7 @@ namespace Gui
 TagListWidget::TagListWidget(QWidget *parent) :
     QWidget(parent)
 {
+    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     parentLayout = new FlowLayout(this, 0);
     setLayout(parentLayout);
 

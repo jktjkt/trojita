@@ -35,6 +35,7 @@ ExternalElementsWidget::ExternalElementsWidget(QWidget *parent):
     QLabel *lbl = new QLabel(tr("This e-mail wants to load external entities form the Internet"), this);
     layout->addWidget(lbl);
     layout->addWidget(loadStuffButton);
+    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     connect(loadStuffButton, SIGNAL(clicked()), this, SIGNAL(loadingEnabled()));
 
     /*
