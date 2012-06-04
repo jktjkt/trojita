@@ -139,8 +139,6 @@ void MessageView::setMessage(const QModelIndex &index)
         netAccess->setModelMessage(message);
 
         viewer = factory->create(rootPartIndex);
-        viewer->resize(100, 100);
-        viewer->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
         viewer->setParent(this);
         layout->addWidget(viewer);
         viewer->show();

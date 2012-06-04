@@ -71,7 +71,6 @@ EmbeddedWebView::EmbeddedWebView(QWidget *parent, QNetworkAccessManager *network
     }
 
     setContextMenuPolicy(Qt::NoContextMenu);
-    setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 }
 
 void EmbeddedWebView::slotLinkClicked(const QUrl &url)
