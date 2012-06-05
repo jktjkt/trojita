@@ -185,8 +185,8 @@ private:
     /** @short Activate the dependent tasks while also limiting the rate */
     void activateTasks();
 
-    /** @short If there's an IDLE running, be sure to stop it */
-    void breakPossibleIdle();
+    /** @short If there's an IDLE running, be sure to stop it. If it's queued, delay it. */
+    void breakOrCancelPossibleIdle();
 
     /** @short Check current mailbox for validity, and take an evasive action if it disappeared
 

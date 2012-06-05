@@ -46,7 +46,7 @@ void UnSelectTask::perform()
     // We really should ignore abort() -- we're a very important task
 
     if (model->accessParser(parser).maintainingTask) {
-        model->accessParser(parser).maintainingTask->breakPossibleIdle();
+        model->accessParser(parser).maintainingTask->breakOrCancelPossibleIdle();
     }
     if (model->accessParser(parser).capabilities.contains("UNSELECT")) {
         unSelectTag = parser->unSelect();
@@ -64,7 +64,7 @@ void UnSelectTask::doFakeSelect()
     // Again, ignoring abort()
 
     if (model->accessParser(parser).maintainingTask) {
-        model->accessParser(parser).maintainingTask->breakPossibleIdle();
+        model->accessParser(parser).maintainingTask->breakOrCancelPossibleIdle();
     }
     // The server does not support UNSELECT. Let's construct an unlikely-to-exist mailbox, then.
     selectMissingTag = parser->examine(QString("trojita non existing %1").arg(QDateTime::currentDateTime().toString(Qt::ISODate)));

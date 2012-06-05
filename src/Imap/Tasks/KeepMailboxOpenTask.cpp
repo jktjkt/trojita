@@ -161,7 +161,7 @@ void KeepMailboxOpenTask::addDependentTask(ImapTask *task)
 
     // FIXME: what about abort()/die() here?
 
-    breakPossibleIdle();
+    breakOrCancelPossibleIdle();
 
     ObtainSynchronizedMailboxTask *obtainTask = qobject_cast<ObtainSynchronizedMailboxTask *>(task);
     if (obtainTask) {
@@ -364,7 +364,7 @@ bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResp
         model->cache()->clearUidMapping(mailbox->mailbox());
         model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
 
-        breakPossibleIdle();
+        breakOrCancelPossibleIdle();
 
         Q_ASSERT(list->m_children.size());
         uint highestKnownUid = 0;
@@ -554,7 +554,7 @@ QString KeepMailboxOpenTask::debugIdentification() const
 void KeepMailboxOpenTask::stopForLogout()
 {
     abort();
-    breakPossibleIdle();
+    breakOrCancelPossibleIdle();
     killAllPendingTasks();
 }
 
@@ -602,18 +602,18 @@ void KeepMailboxOpenTask::activateTasks()
     if (!isRunning)
         return;
 
-    breakPossibleIdle();
-
     slotFetchRequestedEnvelopes();
     slotFetchRequestedParts();
 
     while (!dependingTasksForThisMailbox.isEmpty() && model->accessParser(parser).activeTasks.size() < limitActiveTasks) {
+        breakOrCancelPossibleIdle();
         ImapTask *task = dependingTasksForThisMailbox.takeFirst();
         runningTasksForThisMailbox.append(task);
         dependentTasks.removeOne(task);
         task->perform();
     }
     while (!dependingTasksNoMailbox.isEmpty() && model->accessParser(parser).activeTasks.size() < limitActiveTasks) {
+        breakOrCancelPossibleIdle();
         ImapTask *task = dependingTasksNoMailbox.takeFirst();
         dependentTasks.removeOne(task);
         task->perform();
@@ -644,6 +644,8 @@ void KeepMailboxOpenTask::slotFetchRequestedParts()
     if (requestedParts.isEmpty())
         return;
 
+    breakOrCancelPossibleIdle();
+
     QMap<uint, QSet<QString> >::iterator it = requestedParts.begin();
     QSet<QString> parts = *it;
 
@@ -673,6 +675,8 @@ void KeepMailboxOpenTask::slotFetchRequestedEnvelopes()
     if (requestedEnvelopes.isEmpty())
         return;
 
+    breakOrCancelPossibleIdle();
+
     QList<uint> fetchNow;
     if (shouldExit) {
         fetchNow = requestedEnvelopes;
@@ -685,10 +689,9 @@ void KeepMailboxOpenTask::slotFetchRequestedEnvelopes()
     fetchMetadataTasks << model->m_taskFactory->createFetchMsgMetadataTask(model, mailboxIndex, fetchNow);
 }
 
-void KeepMailboxOpenTask::breakPossibleIdle()
+void KeepMailboxOpenTask::breakOrCancelPossibleIdle()
 {
-    if (idleLauncher && idleLauncher->idling()) {
-        // If we're idling right now, we should immediately abort
+    if (idleLauncher) {
         idleLauncher->finishIdle();
     }
 }

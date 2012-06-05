@@ -78,11 +78,13 @@ void IdleLauncher::slotEnterIdleNow()
 void IdleLauncher::finishIdle()
 {
     Q_ASSERT(task->parser);
-    Q_ASSERT(m_idling);
-    Q_ASSERT(m_idleCommandRunning);
-    renewal->stop();
-    task->parser->idleDone();
-    m_idling = false;
+    if (m_idling) {
+        renewal->stop();
+        task->parser->idleDone();
+        m_idling = false;
+    } else if (delayedEnter->isActive()) {
+        delayedEnter->stop();
+    }
 }
 
 void IdleLauncher::slotTerminateLongIdle()
