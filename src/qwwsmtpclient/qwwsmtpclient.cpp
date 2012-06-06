@@ -388,7 +388,7 @@ void QwwSmtpClientPrivate::processNextCommand(bool ok) {
     break;
     case SMTPCommand::Mail:
         setState(QwwSmtpClient::Sending);
-        socket->write(QString("MAIL FROM: <%1>\r\n").arg(cmd.data.toList().at(0).toString()).toUtf8());
+        socket->write(QByteArray("MAIL From: <").append(cmd.data.toList().at(0).toByteArray()).append(">\r\n"));
         break;
     case SMTPCommand::RawCommand: {
 	QString cont = cmd.data.toString();
@@ -438,18 +438,14 @@ void QwwSmtpClientPrivate::sendQuit() {
 
 void QwwSmtpClientPrivate::sendRcpt() {
     SMTPCommand &cmd = commandqueue.head();
-    if (cmd.data.toList().at(1).type()==QVariant::StringList) {
-        QStringList rcptlist = cmd.data.toList().at(1).toStringList();
-        socket->write(QString("RCPT TO: <%1>\r\n").arg(rcptlist.first()).toUtf8());
-        rcptlist.removeFirst();
-        QVariantList vlist = cmd.data.toList();
-        vlist[1] = rcptlist;
-        cmd.data = vlist;
-        if (rcptlist.isEmpty()) cmd.extra = 1;
-    } else {
-        socket->write(QString("RCPT TO: <%1>\r\n").arg(cmd.data.toList().at(1).toString()).toUtf8());
-        cmd.extra=1;
-    }
+    QVariantList vlist = cmd.data.toList();
+    QList<QVariant> rcptlist = vlist.at(1).toList();
+    socket->write(QByteArray("RCPT To: <").append(rcptlist.first().toByteArray()).append(">\r\n"));
+    rcptlist.removeFirst();
+    vlist[1] = rcptlist;
+    cmd.data = vlist;
+
+    if (rcptlist.isEmpty()) cmd.extra = 1;
 }
 
 
@@ -588,20 +584,24 @@ int QwwSmtpClient::authenticate(const QString &user, const QString &password, Au
 }
 
 int QwwSmtpClient::sendMail(const QString & from, const QString & to, const QString & content) {
-    SMTPCommand cmd;
-    cmd.type = SMTPCommand::Mail;
-    cmd.data = QVariantList() << from << to << content;
-    cmd.id = ++d->lastId;
-    d->commandqueue.enqueue(cmd);
-    if (!d->inProgress)
-        d->processNextCommand();
-    return cmd.id;
+    /* Any code sending to addresses that are still character-strings instead of
+       byte strings is probably buggy, but we might as well have a convenience
+       method here for it anyway. This method will frequently not do the right
+       thing, but it will do the wrong thing conveniently. */
+    QList<QByteArray> rcpts;
+    rcpts.append(to.toUtf8());
+    return sendMail(from.toUtf8(), rcpts, content);
 }
 
-int QwwSmtpClient::sendMail(const QString & from, const QStringList & to, const QString & content) {
+int QwwSmtpClient::sendMail(const QByteArray &from, const QList<QByteArray> &to, const QString &content)
+{
+    QList<QVariant> rcpts;
+    for(QList<QByteArray>::const_iterator it = to.begin(); it != to.end(); it ++) {
+        rcpts.append(QVariant(*it));
+    }
     SMTPCommand cmd;
     cmd.type = SMTPCommand::Mail;
-    cmd.data = QVariantList() << from << to << content;
+    cmd.data = QVariantList() << from << QVariant(rcpts) << content;
     cmd.id = ++d->lastId;
     d->commandqueue.enqueue(cmd);
     if (!d->inProgress)

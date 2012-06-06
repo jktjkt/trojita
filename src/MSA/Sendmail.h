@@ -35,7 +35,7 @@ class Sendmail : public AbstractMSA
 public:
     Sendmail(QObject *parent, const QString &command, const QStringList &args);
     virtual ~Sendmail();
-    virtual void sendMail(const QString &from, const QStringList &to, const QByteArray &data);
+    virtual void sendMail(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &data);
 private slots:
     void handleError(QProcess::ProcessError e);
     void handleBytesWritten(qint64 bytes);

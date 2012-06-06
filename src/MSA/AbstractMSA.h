@@ -33,7 +33,7 @@ class AbstractMSA : public QObject
 public:
     AbstractMSA(QObject *parent);
     virtual ~AbstractMSA();
-    virtual void sendMail(const QString &from, const QStringList &to, const QByteArray &data) = 0;
+    virtual void sendMail(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &data) = 0;
 public slots:
     virtual void cancel() = 0;
 signals:
