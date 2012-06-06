@@ -180,17 +180,22 @@ namespace Imap {
 
 QByteArray encodeRFC2047String( const QString& text )
 {
+    return encodeRFC2047String(text.toUtf8(), "UTF-8");
+}
+
+QByteArray encodeRFC2047String( const QByteArray& text, const QByteArray& encoding )
+{
     // We can't allow more than 75 chars per encoded-word, including the boiler plate...
-    int maximumEncoded = 75 - 7 - 5; // 5 == length("utf-8")
+    int maximumEncoded = 75 - 7 - encoding.size();
 
 #ifdef ENCODER_USE_QUOTED_PRINTABLE_UNICODE
     QMailQuotedPrintableCodec codec(QMailQuotedPrintableCodec::Text, QMailQuotedPrintableCodec::Rfc2047, maximumEncoded);
-    QByteArray encoded = codec.encode(text, "utf-8");
-    return generateEncodedWord("utf-8", 'Q', split(encoded, "=\n"));
+    QByteArray encoded = codec.encode(text);
+    return generateEncodedWord(encoding, 'Q', split(encoded, "=\n"));
 #else
     QMailBase64Codec codec(QMailBase64Codec::Binary, maximumEncoded);
-    QByteArray encoded = codec.encode(text, "utf-8");
-    return generateEncodedWord("utf-8", 'B', split(encoded, "\r\n"));
+    QByteArray encoded = codec.encode(text);
+    return generateEncodedWord(encoding, 'B', split(encoded, "\r\n"));
 #endif
 }
 
@@ -212,6 +217,96 @@ QString decodeImapFolderName( const QByteArray& raw )
 QByteArray quotedPrintableDecode( const QByteArray& raw )
 {
     return KCodecs::quotedPrintableDecode( raw );
+}
+
+
+QByteArray quotedString( const QByteArray& unquoted, QuotedStringStyle style )
+{
+    QByteArray quoted;
+    char lhq, rhq;
+    
+    /* Compose a double-quoted string according to RFC2822 3.2.5 "quoted-string" */
+    switch (style) {
+    default:
+    case DoubleQuoted:
+        lhq = rhq = '"';
+        break;
+    case SquareBrackets:
+        lhq = '[';
+        rhq = ']';
+        break;
+    case Parentheses:
+        lhq = '(';
+        rhq = ')';
+        break;
+    }
+
+    quoted.append(lhq);
+    for(int i = 0; i < unquoted.size(); i++) {
+        char ch = unquoted[i];
+        if (ch == 9 || ch == 10 || ch == 13) {
+            /* Newlines and tabs: these are only allowed in
+               quoted-strings as folding-whitespace, where
+               they are "semantically invisible".  If we
+               really want to include them, we probably need
+               to do so as RFC2047 strings. But it's unlikely
+               that that's a desirable behavior in the final
+               application. Instead, translate embedded
+               tabs/newlines into normal whitespace. */
+            quoted.append(' ');
+        } else {
+            if (ch == lhq || ch == rhq || ch == '\\')
+                quoted.append('\\');  /* Quoted-pair */
+            quoted.append(ch);
+        }
+    }
+    quoted.append(rhq);
+
+    return quoted;
+}
+
+/* encodeRFC2047Phrase encodes an arbitrary string into a
+   byte-sequence for use in a "structured" mail header (such as To:,
+   From:, or Received:). The result will match the "phrase"
+   production. */
+static QRegExp atomPhraseRx("[ \\tA-Za-z0-9!#$&'*+/=?^_`{}|~-]*");
+QByteArray encodeRFC2047Phrase( const QString &text )
+{
+    /* We want to know if we can encode as ASCII. But bizarrely, Qt
+       (on my system at least) doesn't have an ASCII codec. So we use
+       the ISO-8859-1 superset, and check for any non-ASCII characters
+       in the result. */
+    QTextCodec *latin1 = QTextCodec::codecForMib(4);
+
+    if (latin1->canEncode(text)) {
+        /* Attempt to represent it as an RFC2822 'phrase' --- either a
+           sequence of atoms or as a quoted-string. */
+        
+        if (atomPhraseRx.exactMatch(text)) {
+            /* Simplest case: a sequence of atoms (not dot-atoms) */
+            return latin1->fromUnicode(text);
+        } else {
+            /* Next-simplest representation: a quoted-string */
+            QByteArray unquoted = latin1->fromUnicode(text);
+            
+            /* Check for non-ASCII characters. */
+            for(int i = 0; i < unquoted.size(); i++) {
+                char ch = unquoted[i];
+                if (ch < 1 || ch >= 127) {
+                    /* This string contains non-ASCII characters, so the
+                       only way to represent it in a mail header is as an
+                       RFC2047 encoded-word. */
+                    return encodeRFC2047String(unquoted, "ISO-8859-1");
+                }
+            }
+
+            return quotedString(unquoted);
+        }
+    }
+
+    /* If the text has characters outside of the basic ASCII set, then
+       it has to be encoded using the RFC2047 encoded-word syntax. */
+    return encodeRFC2047String(text);
 }
 
 }

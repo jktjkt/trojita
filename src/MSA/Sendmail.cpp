@@ -40,15 +40,17 @@ Sendmail::~Sendmail()
     proc->waitForFinished();
 }
 
-void Sendmail::sendMail(const QString &from, const QStringList &to, const QByteArray &data)
+void Sendmail::sendMail(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &data)
 {
     // FIXME: from
     emit progressMax(data.size());
     emit progress(0);
     // FIXME: support for passing the from argument, perhaps via the formatting options?
     QStringList myArgs = args;
-    for (QStringList::const_iterator it = to.begin(); it != to.end(); ++it) {
-        myArgs << *it;
+    for (QList<QByteArray>::const_iterator it = to.begin(); it != to.end(); ++it) {
+        // On posix systems, process args are bytearrays, not strings--- but QProcess
+        // takes strings.
+        myArgs << QString(*it);
     }
     writtenSoFar = 0;
     emit connecting();

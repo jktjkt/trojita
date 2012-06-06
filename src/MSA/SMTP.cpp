@@ -62,7 +62,7 @@ void SMTP::handleError(QAbstractSocket::SocketError err, const QString &msg)
     emit error(msg);
 }
 
-void SMTP::sendMail(const QString &from, const QStringList &to, const QByteArray &data)
+void SMTP::sendMail(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &data)
 {
     emit progressMax(data.size());
     emit progress(0);

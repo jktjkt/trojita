@@ -107,23 +107,24 @@ void ComposeWidget::send()
         msa = new MSA::Sendmail(this, appName, args);
     }
 
-    QList<QPair<QString,QString> > recipients = parseRecipients();
-    QList<QString> mailDestinations;
+    QList<QPair<RecipientKind,Imap::Message::MailAddress> > recipients;
+    if (!parseRecipients(recipients)) {
+        return;
+    }
+    QList<QByteArray> mailDestinations;
     QByteArray recipientHeaders;
-    for (QList<QPair<QString,QString> >::const_iterator it = recipients.begin();
+    for (QList<QPair<RecipientKind,Imap::Message::MailAddress> >::const_iterator it = recipients.begin();
          it != recipients.end(); ++it) {
-        if (! it->second.isEmpty()) {
-            bool ok;
-            mailDestinations << extractMailAddress(it->second, ok);
-            if (! ok) {
-                QMessageBox::critical(this, tr("Invalid Address"),
-                                      tr("Can't parse \"%1\" as an e-mail address").arg(it->second));
-                return;
-            }
-            if (it->first != QLatin1String("Bcc")) {
-                recipientHeaders.append(it->first).append(": ").append(
-                    encodeHeaderField(it->second)).append("\r\n");
-            }
+        mailDestinations << it->second.asSMTPMailbox();
+        switch(it->first) {
+        case Recipient_To:
+            recipientHeaders.append("To: ").append(it->second.asMailHeader()).append("\r\n");
+            break;
+        case Recipient_Cc:
+            recipientHeaders.append("Cc: ").append(it->second.asMailHeader()).append("\r\n");
+            break;
+        case Recipient_Bcc:
+            break;
         }
     }
 
@@ -132,8 +133,14 @@ void ComposeWidget::send()
         return;
     }
 
+    Imap::Message::MailAddress fromAddress;
+    if (!parseOneAddress(fromAddress, ui->sender->currentText())) {
+        gotError(tr("The From: address does not look like a valid one"));
+        return;
+    }
+
     QByteArray mailData;
-    mailData.append("From: ").append(encodeHeaderField(ui->sender->currentText())).append("\r\n");
+    mailData.append("From: ").append(fromAddress.asMailHeader()).append("\r\n");
     mailData.append(recipientHeaders);
     mailData.append("Subject: ").append(encodeHeaderField(ui->subject->text())).append("\r\n");
     mailData.append("Content-Type: text/plain; charset=utf-8\r\n"
@@ -167,14 +174,7 @@ void ComposeWidget::send()
     setEnabled(false);
     progress->setEnabled(true);
 
-    // FIXME: parse the From: address and use it instead of hard-coded stub
-    bool senderMailIsCorrect = false;
-    QString senderMail = extractMailAddress(ui->sender->currentText(), senderMailIsCorrect);
-    if (! senderMailIsCorrect) {
-        gotError(tr("The From: address does not look like a valid one"));
-        return;
-    }
-    msa->sendMail(senderMail, mailDestinations, mailData);
+    msa->sendMail(fromAddress.asSMTPMailbox(), mailDestinations, mailData);
 }
 
 void ComposeWidget::setData(const QString &from, const QList<QPair<QString, QString> > &recipients,
@@ -257,43 +257,104 @@ void ComposeWidget::sent()
 
 QByteArray ComposeWidget::encodeHeaderField(const QString &text)
 {
+    /* This encodes an "unstructured" header field */
+    /* FIXME: Don't apply RFC2047 if it isn't needed */
     return Imap::encodeRFC2047String(text);
 }
 
-QByteArray ComposeWidget::extractMailAddress(const QString &text, bool &ok)
+/* A simple regexp to match an address typed into the input field. */
+static QRegExp mailishRx("(?:\\b|\\<)(\\w+)\\s*\\@\\s*([\\w_.-]+|(?:\\[[^][\\\\\\\"\\s]+\\]))(?:\\b|\\>)");
+
+/*
+   This is of course far from complete, but at least catches "Real
+   Name" <foo@bar>.  It needs to recognize the things people actually
+   type, and it should also recognize anything that's a valid
+   rfc2822 address.
+*/
+bool ComposeWidget::parseOneAddress(Imap::Message::MailAddress &into,
+                                    const QString &address,
+                                    int &startOffset)
 {
-    // This is of course far from complete, but at least catches "Real Name" <foo@bar>
-    int pos1 = text.lastIndexOf(QChar('<'));
-    int pos2 = text.lastIndexOf(QChar('>'));
-    if (pos1 == -1 || pos2 == -1 || pos2 < pos1) {
-        ok = true;
-        return text.toUtf8();
-    } else {
-        ok = true;
-        return text.mid(pos1 + 1, pos2 - pos1 - 1).toUtf8();
+    int offset;
+    static QRegExp commaRx("^\\s*(?:,\\s*)*");
+
+    offset = mailishRx.indexIn(address, startOffset);
+    if (offset < 0) {
+        /* Try stripping a leading comma? */
+        offset = commaRx.indexIn(address, startOffset, QRegExp::CaretAtOffset);
+        if (offset < startOffset)
+            return false;
+        offset += commaRx.matchedLength();
+        startOffset = offset;
+        offset = mailishRx.indexIn(address, offset);
+        if (offset < 0)
+            return false;
     }
+    
+    QString before = address.mid(startOffset, offset - startOffset);
+    into = Imap::Message::MailAddress(before.simplified(), NULL,
+                                      mailishRx.cap(1),
+                                      mailishRx.cap(2));
+    
+    offset += mailishRx.matchedLength();
+        
+    int comma = commaRx.indexIn(address, offset, QRegExp::CaretAtOffset);
+    if (comma >= offset)
+        offset = comma + commaRx.matchedLength();
+    
+    startOffset = offset;
+    return true;
+}
+bool ComposeWidget::parseOneAddress(Imap::Message::MailAddress &into,
+                                    const QString &address)
+{
+    int offset = 0;
+
+    if (!parseOneAddress(into, address, offset))
+        return false;
+    
+    if (offset < address.size())
+        return false;
+
+    return true;
 }
 
-QList<QPair<QString, QString> > ComposeWidget::parseRecipients()
+bool ComposeWidget::parseRecipients(QList<QPair<ComposeWidget::RecipientKind, Imap::Message::MailAddress> > &results)
 {
-    QList<QPair<QString, QString> > res;
     Q_ASSERT(recipientsAddress.size() == recipientsKind.size());
     for (int i = 0; i < recipientsAddress.size(); ++i) {
-        QString kind = QLatin1String("To");
+        RecipientKind kind = Recipient_To;
         if (recipientsKind[i]->currentText() == tr("Cc"))
-            kind = QLatin1String("Cc");
+            kind = Recipient_Cc;
         else if (recipientsKind[i]->currentText() == tr("Bcc"))
-            kind = QLatin1String("Bcc");
-        // TODO: simplify recipient - i.e. strip stuff like < > or the real name
-        // => only keep string around @ until either <,> or space is hit...
-        res << qMakePair(kind, recipientsAddress[i]->text());
-        maybeAddNewKnownRecipient(recipientsAddress[i]->text());
+            kind = Recipient_Bcc;
+
+        int offset = 0;
+        QString text = recipientsAddress[i]->text();
+        for(;;) {
+            Imap::Message::MailAddress addr;
+            bool ok = parseOneAddress(addr, text, offset);
+            if (ok) {
+                maybeAddNewKnownRecipient(addr);
+                results << qMakePair(kind, addr);
+            } else if (offset < text.size()) {
+                QMessageBox::critical(this, tr("Invalid Address"),
+                                      tr("Can't parse \"%1\" as an e-mail address").arg(text.mid(offset)));
+                return false;
+            } else {
+                /* Successfully parsed the field. */
+                break;
+            }
+        }
     }
-    return res;
+    return true;
 }
 
-void ComposeWidget::maybeAddNewKnownRecipient(const QString &recipient)
+void ComposeWidget::maybeAddNewKnownRecipient(const Imap::Message::MailAddress &recipientAddress)
 {
+    // TODO: Could we store parsed addresses in the completer, and complete more intelligently against the realname/username parts?
+    QString recipient = recipientAddress.prettyName(Imap::Message::MailAddress::FORMAT_READABLE);
+
     // let completer look for recipient
     recipientCompleter->setCompletionPrefix(recipient);
     // and if not found, insert it into completer's model

@@ -23,6 +23,7 @@
 
 #include "test_Imap_Message.h"
 #include "../headless_test.h"
+#include "Imap/Encoders.h"
 
 Q_DECLARE_METATYPE(Imap::Message::MailAddress)
 Q_DECLARE_METATYPE(Imap::Message::Envelope)
@@ -116,6 +117,79 @@ void ImapMessageTest::testMailAddresNe_data()
         MailAddress( "name", "adl", "mailbox", "host" ) <<
         ( QVariantList() << QByteArray("name") << QByteArray("adl") << QByteArray("mailbox") << QByteArray("h0st") );
 
+}
+
+void ImapMessageTest::testMailAddressFormat()
+{
+    QFETCH( Imap::Message::MailAddress, addr );
+    QFETCH( QString, pretty );
+    QFETCH( QByteArray, addrspec );
+    QFETCH( bool, should2047 );
+
+    QCOMPARE( addr.prettyName(Imap::Message::MailAddress::FORMAT_READABLE), pretty );
+    QCOMPARE( addr.asSMTPMailbox(), addrspec );
+    
+    QByteArray full = addr.asMailHeader();
+    QByteArray bracketed;
+    bracketed.append(" <").append(addrspec).append(">");
+    QVERIFY( full.endsWith(bracketed) );
+    full.remove(full.size() - bracketed.size(), bracketed.size());
+    
+    if (should2047) {
+        QVERIFY( full.startsWith("=?") );
+        QVERIFY( full.endsWith("?=") );
+        QCOMPARE( addr.name, Imap::decodeRFC2047String(full) );
+    } else {
+        QVERIFY( !full.contains("=?") );
+        QVERIFY( !full.contains("?=") );
+    }
+}
+
+void ImapMessageTest::testMailAddressFormat_data()
+{
+    using namespace Imap::Message;
+
+    QTest::addColumn<MailAddress>("addr");
+    QTest::addColumn<QString>("pretty");
+    QTest::addColumn<QByteArray>("addrspec");
+    QTest::addColumn<bool>("should2047");
+
+    QTest::newRow("simple") <<
+        MailAddress( "name", "adl", "mailbox", "host" ) <<
+        QString("name <mailbox@host>") <<
+        QByteArray("mailbox@host") << false;
+
+    QTest::newRow("domain-literal") <<
+        MailAddress( "words name", "adl", "us.er", "[127.0.0.1]" ) <<
+        QString("words name <us.er@[127.0.0.1]>") <<
+        QByteArray("us.er@[127.0.0.1]") << false;
+
+    QTest::newRow("idn") <<
+        MailAddress( "words j. name", "adl", "us.er",
+                     QString::fromUtf8("trojit\xC3\xA1.example.com") ) <<
+        QString::fromUtf8("words j. name <us.er@trojit\xC3\xA1.example.com>") <<
+        QByteArray("us.er@xn--trojit-uta.example.com") << false;
+
+    /* overspecific test: we want to test here that the combining mark
+       is normalized before being converted to punycode for the
+       IDN. We don't actually care whether it's normalized for
+       PRETTYNAME, but we have to give a value for the test. */
+    QTest::newRow("idn+normalize") <<
+        MailAddress( "words j. name", "adl", "us.er",
+                     QString::fromUtf8("trojita\xCC\x81.example.com") ) <<
+        QString::fromUtf8("words j. name <us.er@trojita\xCC\x81.example.com>") <<
+        QByteArray("us.er@xn--trojit-uta.example.com") << false;
+
+    QTest::newRow("odd-mailbox") <<
+        MailAddress( "words (q) name", "adl", "us er", "example.com" ) <<
+        QString("words (q) name <us er@example.com>") <<
+        QByteArray("\"us er\"@example.com") << false;
+
+    QTest::newRow("intl-realname") <<
+        MailAddress( QString::fromUtf8("words \xE2\x98\xBA name"),
+                     "adl", "*", "example.com" ) <<
+        QString::fromUtf8("words \xE2\x98\xBA name <*@example.com>") <<
+        QByteArray("*@example.com") << true;
 }
 
 void ImapMessageTest::testMessage()

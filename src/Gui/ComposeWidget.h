@@ -23,6 +23,8 @@
 
 #include <QWidget>
 
+#include "Imap/Parser/Message.h"
+
 namespace Ui
 {
 class ComposeWidget;
@@ -48,8 +50,16 @@ public:
     ComposeWidget(QWidget *parent, QAbstractListModel *autoCompleteModel);
     ~ComposeWidget();
 
-    void setData(const QString &from, const QList<QPair<QString, QString> > &recipients,
-                 const QString &subject, const QString &body);
+    typedef enum {
+        Recipient_To,
+        Recipient_Cc,
+        Recipient_Bcc
+    } RecipientKind;
+
+    void setData(const QString &from,
+                 const QList<QPair<QString, QString> > &recipients,
+                 const QString &subject,
+                 const QString &body);
 
 protected:
     void changeEvent(QEvent *e);
@@ -64,7 +74,12 @@ private:
     static QByteArray encodeHeaderField(const QString &text);
     static QByteArray extractMailAddress(const QString &text, bool &ok);
     void addRecipient(int position, const QString &kind, const QString &address);
-    QList<QPair<QString, QString> > parseRecipients();
+    bool parseRecipients(QList<QPair<ComposeWidget::RecipientKind, Imap::Message::MailAddress> > &results);
+    static bool parseOneAddress(Imap::Message::MailAddress &into,
+                                const QString &address,
+                                int &startOffset);
+    static bool parseOneAddress(Imap::Message::MailAddress &into,
+                                const QString &address);
 
     Ui::ComposeWidget *ui;
     QPushButton *sendButton;
@@ -76,7 +91,7 @@ private:
     ComposeWidget &operator=(const ComposeWidget &); // don't implement
 
     QCompleter *recipientCompleter;    //< completer for known / recently used recipients
-    void maybeAddNewKnownRecipient(const QString &recipient);
+    void maybeAddNewKnownRecipient(const Imap::Message::MailAddress &recipient);
 };
 
 }

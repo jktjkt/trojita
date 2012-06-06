@@ -23,6 +23,7 @@
 
 #include <QTextDocument>
 #include <QUrl>
+#include <QTextCodec>
 #include "Message.h"
 #include "../Model/MailboxTree.h"
 #include "../Encoders.h"
@@ -122,6 +123,79 @@ QString MailAddress::prettyList(const QVariantList &list, FormattingMode mode)
         buf << a.prettyName(mode);
     }
     return buf.join(QString::fromAscii(", "));
+}
+
+static QRegExp dotAtomRx("[A-Za-z0-9!#$&'*+/=?^_`{}|~-]+(?:\\.[A-Za-z0-9!#$&'*+/=?^_`{}|~-]+)*");
+
+/* This returns the address formatted for use in an SMTP MAIL or RCPT command; specifically, it matches the "Mailbox" production of RFC2821. The surrounding angle-brackets are not included. */
+QByteArray MailAddress::asSMTPMailbox() const
+{
+    QByteArray result;
+
+    /* Check whether the local-part contains any characters
+       preventing it from being a dot-atom. */
+    if (dotAtomRx.exactMatch(mailbox)) {
+        /* Using .toLatin1() here even though we know it only contains
+           ASCII, because QString.toAscii() does not necessarily convert
+           to ASCII (despite the name). .toLatin1() always converts to
+           Latin-1. */
+        result = mailbox.toLatin1();
+    } else {
+        /* The other syntax allowed for local-parts is a double-quoted string.
+           Note that RFC2047 tokens aren't allowed there --- local-parts are
+           fundamentally bytestrings, apparently, whose interpretation is
+           up to the receiving system. If someone types non-ASCII characters
+           into the address field we'll generate non-conforming headers, but
+           it's the best we can do. */
+        result = Imap::quotedString(mailbox.toUtf8());
+    }
+    
+    result.append("@");
+    
+    QByteArray domainpart;
+
+    if (!(host.startsWith('[') || host.endsWith(']'))) {
+        /* IDN-encode the hostname part of the address */
+        domainpart = QUrl::toAce(host);
+        
+        /* TODO: QUrl::toAce() is documented to return an empty result if
+           the string isn't a valid hostname --- for example, if it's a
+           domain literal containing an IP address. In that case, we'll
+           need to encode it ourselves (making sure there are square
+           brackets, no forbidden characters, appropriate backslashes, and so on). */
+    }
+
+    if (domainpart.isEmpty()) {
+        /* Either the domainpart looks like a domain-literal, or toAce() failed. */
+        
+        domainpart = host.toUtf8();
+        if (domainpart.startsWith('[')) {
+            domainpart.remove(0, 1);
+        }
+        if (domainpart.endsWith(']')) {
+            domainpart.remove(domainpart.size()-1, 1);
+        }
+        
+        result.append(Imap::quotedString(domainpart, Imap::SquareBrackets));
+    } else {
+        result.append(domainpart);
+    }
+
+    return result;
+}
+
+QByteArray MailAddress::asMailHeader() const
+{
+    QByteArray result = Imap::encodeRFC2047Phrase(name);
+
+    if (!result.isEmpty())
+        result.append(" ");
+    
+    result.append("<");
+    result.append(asSMTPMailbox());
+    result.append(">");
+
+    return result;
 }
 
 Envelope Envelope::fromList(const QVariantList &items, const QByteArray &line, const int start)
