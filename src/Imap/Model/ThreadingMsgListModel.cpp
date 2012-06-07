@@ -458,14 +458,16 @@ void ThreadingMsgListModel::wantThreading()
     QModelIndex realIndex;
     Imap::Mailbox::Model::realTreeItem(someMessage, &realModel, &realIndex);
     QModelIndex mailbox = realIndex.parent().parent();
+    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList*>(static_cast<TreeItem*>(realIndex.parent().internalPointer()));
+    Q_ASSERT(list);
 
     // Something has happened and we want to process the THREAD response
     QVector<Imap::Responses::ThreadingNode> mapping = realModel->cache()->messageThreading(mailbox.data(RoleMailboxName).toString());
 
     // Find the UID of the last message in the mailbox
     uint highestUidInMailbox = 0;
-    for (int i = sourceModel()->rowCount(); i != -1 && !highestUidInMailbox; --i) {
-        highestUidInMailbox = sourceModel()->data(sourceModel()->index(i, 0, QModelIndex()), RoleMessageUid).toUInt();
+    for (int i = sourceModel()->rowCount() - 1; i > -1 && !highestUidInMailbox; --i) {
+        highestUidInMailbox = dynamic_cast<TreeItemMessage*>(list->m_children[i])->uid();
     }
 
     uint highestUidInThreadingLowerBound = findHighEnoughNumber(mapping, highestUidInMailbox);
