@@ -67,6 +67,7 @@ void TestCommonAlgorithms::testLowerBoundWithUnknown_data()
     QTest::newRow("one-fake") << (QList<int>() << 0) << 1 << 1;
     QTest::newRow("fake-match-fake") << (QList<int>() << 0 << 1 << 0) << 1 << 1;
     QTest::newRow("fake-fake-match-fake") << (QList<int>() << 0 << 0 << 1 << 0) << 1 << 2;
+    QTest::newRow("fake-lower-fake-fake") << (QList<int>() << 0 << 1 << 0 << 0) << 2 << 4;
 
     QList<int> list;
     list << 1 << 2 << 3 << 4 << 5 << 6 << 7 << 8 << 9 << 10 << 11 << 0 << 13;
