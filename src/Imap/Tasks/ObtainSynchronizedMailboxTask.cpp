@@ -269,7 +269,6 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                                                                   QStringList() << QLatin1String("FLAGS"));
                         newArrivalsFetch.append(fetchCmd);
                         status = STATE_DONE;
-                        // FIXME: these additions should have been already added to the list of items!
                     } else {
                         // This should be enough, the server should've sent the data already
                         saveSyncState(mailbox);
@@ -630,9 +629,31 @@ bool ObtainSynchronizedMailboxTask::handleNumberResponse(const Imap::Responses::
             return false;
 
         case STATE_SELECTING:
-            // It's perfectly acceptable for the server to start its responses with EXISTS instead of UIDVALIDITY & UIDNEXT, so
-            // we really cannot do anything besides remembering this value for later.
-            mailbox->syncState.setExists(resp->number);
+            if (m_usingQresync) {
+                // Because QRESYNC won't tell us anything about the new UIDs, we have to resort to this kludgy way of working.
+                // I really, really wonder why there's no such thing likt * ARRIVED to accompany * VANISHED. Oh well.
+                mailbox->syncState.setExists(resp->number);
+                if (oldSyncState.exists() < mailbox->syncState.exists()) {
+                    // We have to add empty messages here
+                    int newArrivals = resp->number - list->m_children.size();
+                    Q_ASSERT(newArrivals > 0);
+                    QModelIndex parent = list->toIndex(model);
+                    int offset = list->m_children.size();
+                    model->beginInsertRows(parent, offset, resp->number - 1);
+                    for (int i = 0; i < newArrivals; ++i) {
+                        TreeItemMessage *msg = new TreeItemMessage(list);
+                        msg->m_offset = i + offset;
+                        list->m_children << msg;
+                        // yes, we really have to add this message with UID 0 :(
+                    }
+                    model->endInsertRows();
+                    list->m_totalMessageCount = resp->number;
+                }
+            } else {
+                // It's perfectly acceptable for the server to start its responses with EXISTS instead of UIDVALIDITY & UIDNEXT, so
+                // we really cannot do anything besides remembering this value for later.
+                mailbox->syncState.setExists(resp->number);
+            }
             return true;
 
         case STATE_SYNCING_UIDS:

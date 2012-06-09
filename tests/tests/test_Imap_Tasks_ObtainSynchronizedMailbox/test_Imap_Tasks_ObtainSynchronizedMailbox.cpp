@@ -1850,11 +1850,10 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncNewArrivals()
             );
     cServer(t.last("OK selected\r\n"));
     cClient(t.mk("UID FETCH 15:* (FLAGS)\r\n"));
-    return;
-    // FIXME: this one is out-of-bounds for now
     cServer("* 4 FETCH (FLAGS (x4) UID 16)\r\n" + t.last("OK uid fetch flags\r\n"));
     cEmpty();
     sync.setExists(4);
+    sync.setUidNext(20);
     uidMap << 16;
     sync.setHighestModSeq(34);
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
