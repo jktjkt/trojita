@@ -173,6 +173,17 @@ bool ImapTask::handleId(const Responses::Id *const resp)
     return false;
 }
 
+bool ImapTask::handleEnabled(const Responses::Enabled *const resp)
+{
+    Q_UNUSED(resp);
+    return false;
+}
+
+bool ImapTask::handleVanished(const Responses::Vanished *const resp)
+{
+    Q_UNUSED(resp);
+    return false;
+}
 
 bool ImapTask::handleSocketEncryptedResponse(const Imap::Responses::SocketEncryptedResponse *const resp)
 {

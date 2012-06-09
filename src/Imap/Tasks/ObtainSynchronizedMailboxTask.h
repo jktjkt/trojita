@@ -49,6 +49,7 @@ public:
     virtual bool handleSearch(const Imap::Responses::Search *const resp);
     virtual bool handleESearch(const Imap::Responses::ESearch *const resp);
     virtual bool handleFetch(const Imap::Responses::Fetch *const resp);
+    virtual bool handleVanished(const Imap::Responses::Vanished *const resp);
 
     typedef enum { UID_SYNC_ALL, UID_SYNC_ONLY_NEW } UidSyncingMode;
 
@@ -104,6 +105,7 @@ private:
     QList<uint> uidMap;
     uint firstUnknownUidOffset;
     SyncState oldSyncState;
+    bool m_usingQresync;
 
     /** @short An UNSELECT task, if active */
     UnSelectTask *unSelectTask;

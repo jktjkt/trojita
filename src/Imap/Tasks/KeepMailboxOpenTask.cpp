@@ -394,6 +394,30 @@ bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResp
     }
 }
 
+bool KeepMailboxOpenTask::handleVanished(const Responses::Vanished *const resp)
+{
+    if (_dead) {
+        _failed("Asked to die");
+        return true;
+    }
+
+    if (dieIfInvalidMailbox())
+        return true;
+
+    // FIXME: add proper boundaries
+    if (! isRunning)
+        return false;
+
+    if (resp->earlier != Responses::Vanished::NOT_EARLIER)
+        return false;
+
+    TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
+    Q_ASSERT(mailbox);
+
+    mailbox->handleVanished(model, *resp);
+    return true;
+}
+
 bool KeepMailboxOpenTask::handleFetch(const Imap::Responses::Fetch *const resp)
 {
     if (dieIfInvalidMailbox())

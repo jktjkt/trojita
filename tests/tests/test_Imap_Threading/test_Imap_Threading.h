@@ -50,7 +50,6 @@ protected slots:
     virtual void cleanup();
 private:
     void complexMapping(Mapping &m, QByteArray &response);
-    void initialMessages(const uint exists);
 
     void verifyMapping(const Mapping &mapping);
     QModelIndex findItem(const QList<int> &where);
@@ -59,7 +58,6 @@ private:
     void verifyIndexMap(const IndexMapping &indexMap, const Mapping &map);
     QByteArray treeToThreading(QModelIndex index);
 
-    Imap::Mailbox::MsgListModel *msgListModel;
     Imap::Mailbox::ThreadingMsgListModel *threadingModel;
 };
 

@@ -30,6 +30,7 @@
 #include "MailboxTree.h"
 #include "TaskPresentationModel.h"
 #include "OpenConnectionTask.h"
+#include "Common/FindWithUnknown.h"
 
 //#define DEBUG_PERIODICALLY_DUMP_TASKS
 //#define DEBUG_TASK_ROUTING
@@ -69,14 +70,20 @@ bool MailboxNameComparator(const TreeItem *const a, const TreeItem *const b)
     return mailboxA->mailbox().compare(mailboxB->mailbox(), Qt::CaseInsensitive) < 1;
 }
 
-bool uidComparator(const TreeItem *const a, const TreeItem *const b)
+bool uidComparator(const TreeItem *const item, const uint uid)
 {
-    const TreeItemMessage *const messageA = dynamic_cast<const TreeItemMessage *const>(a);
-    const TreeItemMessage *const messageB = dynamic_cast<const TreeItemMessage *const>(b);
-    Q_ASSERT(messageA);
-    Q_ASSERT(messageB);
+    const TreeItemMessage *const message = dynamic_cast<const TreeItemMessage *const>(item);
+    Q_ASSERT(message);
+    uint messageUid = message->uid();
+    Q_ASSERT(messageUid);
+    return messageUid < uid;
+}
 
-    return messageA->uid() < messageB->uid();
+bool messageHasUidZero(const TreeItem *const item)
+{
+    const TreeItemMessage *const message = dynamic_cast<const TreeItemMessage *const>(item);
+    Q_ASSERT(message);
+    return message->uid() == 0;
 }
 
 }
@@ -599,6 +606,20 @@ void Model::handleId(Parser *ptr, const Responses::Id *const resp)
     throw UnexpectedResponseReceived("Unhandled ID response", *resp);
 }
 
+void Model::handleEnabled(Parser *ptr, const Responses::Enabled *const resp)
+{
+    if (accessParser(ptr).connState == CONN_STATE_LOGOUT)
+        return;
+    throw UnexpectedResponseReceived("Unhandled ENABLE response", *resp);
+}
+
+void Model::handleVanished(Parser *ptr, const Responses::Vanished *const resp)
+{
+    if (accessParser(ptr).connState == CONN_STATE_LOGOUT)
+        return;
+    throw UnexpectedResponseReceived("Unhandled VANISHED response", *resp);
+}
+
 void Model::handleSocketEncryptedResponse(Parser *ptr, const Responses::SocketEncryptedResponse *const resp)
 {
     Q_UNUSED(resp);
@@ -1070,10 +1091,6 @@ QList<TreeItemMessage *> Model::findMessagesByUids(const TreeItemMailbox *const 
     Q_ASSERT(list);
     QList<TreeItemMessage *> res;
     QList<TreeItem *>::const_iterator it = list->m_children.constBegin();
-    // qBinaryFind is not designed to operate on a value of a different kind than stored in the container
-    // so we can't really compare TreeItem* with uint, even though our LessThan supports that
-    // (it keeps calling it both via LowerThan(*it, value) and LowerThan(value, *it).
-    TreeItemMessage fakeMessage(0);
     uint lastUid = 0;
     Q_FOREACH(const uint& uid, uids) {
         if (lastUid == uid) {
@@ -1081,15 +1098,24 @@ QList<TreeItemMessage *> Model::findMessagesByUids(const TreeItemMailbox *const 
             continue;
         }
         lastUid = uid;
-        fakeMessage.m_uid = uid;
-        it = qBinaryFind(it, list->m_children.constEnd(), &fakeMessage, uidComparator);
-        if (it != list->m_children.end()) {
+        it = Common::lowerBoundWithUnknownElements(it, list->m_children.constEnd(), uid, messageHasUidZero, uidComparator);
+        if (it != list->m_children.end() && static_cast<TreeItemMessage *>(*it)->uid() == uid) {
             res << static_cast<TreeItemMessage *>(*it);
         } else {
             qDebug() << "Can't find UID" << uid;
         }
     }
     return res;
+}
+
+/** @short Find a message with UID that matches the passed key, handling those with UID zero correctly
+
+If there's no such message, the next message with a valid UID is returned instead. If there are no such messages, the iterator can
+point to a message with UID zero or to the end of the list.
+*/
+QList<TreeItem*>::iterator Model::findMessageOrNextOneByUid(TreeItemMsgList *list, const uint uid)
+{
+    return Common::lowerBoundWithUnknownElements(list->m_children.begin(), list->m_children.end(), uid, messageHasUidZero, uidComparator);
 }
 
 TreeItemMailbox *Model::findMailboxByName(const QString &name) const
@@ -1385,7 +1411,7 @@ void Model::genericHandleFetch(TreeItemMailbox *mailbox, const Imap::Responses::
     Q_ASSERT(mailbox);
     QList<TreeItemPart *> changedParts;
     TreeItemMessage *changedMessage = 0;
-    mailbox->handleFetchResponse(this, *resp, changedParts, changedMessage, true);
+    mailbox->handleFetchResponse(this, *resp, changedParts, changedMessage, true, false);
     if (! changedParts.isEmpty()) {
         Q_FOREACH(TreeItemPart* part, changedParts) {
             QModelIndex index = part->toIndex(this);

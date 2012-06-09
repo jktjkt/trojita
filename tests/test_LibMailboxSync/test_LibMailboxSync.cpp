@@ -27,6 +27,7 @@
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/MailboxTree.h"
+#include "Imap/Model/MsgListModel.h"
 
 LibMailboxSync::~LibMailboxSync()
 {
@@ -55,6 +56,8 @@ void LibMailboxSync::init()
     errorSpy = new QSignalSpy( model, SIGNAL(connectionError(QString)) );
     connect(model, SIGNAL(connectionError(QString)), this, SLOT(modelSignalsError(QString)));
     connect(model, SIGNAL(logged(uint,Imap::Mailbox::LogMessage)), this, SLOT(modelLogged(uint,Imap::Mailbox::LogMessage)));
+
+    msgListModel = new Imap::Mailbox::MsgListModel(this, model);
 
     helperInitialListing();
 }
@@ -99,6 +102,8 @@ void LibMailboxSync::cleanup()
 {
     delete model;
     model = 0;
+    msgListModel->deleteLater();
+    msgListModel = 0;
     taskFactoryUnsafe = 0;
     QVERIFY( errorSpy->isEmpty() );
     delete errorSpy;
@@ -113,6 +118,7 @@ void LibMailboxSync::cleanupTestCase()
 void LibMailboxSync::initTestCase()
 {
     model = 0;
+    msgListModel = 0;
     errorSpy = 0;
 }
 
@@ -425,4 +431,43 @@ void LibMailboxSync::helperCheckCache(bool ignoreUidNext)
 
     cEmpty();
     QVERIFY( errorSpy->isEmpty() );
+}
+
+void LibMailboxSync::initialMessages(const uint exists)
+{
+    // Setup ten fake messages
+    existsA = exists;
+    uidValidityA = 333;
+    for (uint i = 1; i <= existsA; ++i) {
+        uidMapA << i;
+    }
+    uidNextA = uidMapA.last() + 1;
+    helperSyncAWithMessagesEmptyState();
+
+    for (uint i = 1; i <= existsA; ++i) {
+        QModelIndex messageIndex = msgListA.child(i - 1, 0);
+        Q_ASSERT(messageIndex.isValid());
+        QCOMPARE(messageIndex.data(Imap::Mailbox::RoleMessageUid).toUInt(), i);
+    }
+
+    // open the mailbox
+    msgListModel->setMailbox(idxA);
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+}
+
+namespace QTest {
+
+/** @short Debug data dumper for QList<uint> */
+template<>
+char *toString(const QList<uint> &list)
+{
+    QString buf;
+    QDebug d(&buf);
+    d << "QList<uint> (" << list.size() << "items):";
+    Q_FOREACH(const uint item, list) {
+        d << item;
+    }
+    return qstrdup(buf.toAscii().constData());
+}
 }

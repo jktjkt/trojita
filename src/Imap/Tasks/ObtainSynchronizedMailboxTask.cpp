@@ -33,7 +33,7 @@ namespace Mailbox
 ObtainSynchronizedMailboxTask::ObtainSynchronizedMailboxTask(Model *model, const QModelIndex &mailboxIndex, ImapTask *parentTask,
         KeepMailboxOpenTask *keepTask):
     ImapTask(model), conn(parentTask), mailboxIndex(mailboxIndex), status(STATE_WAIT_FOR_CONN), uidSyncingMode(UID_SYNC_ALL),
-    firstUnknownUidOffset(0), unSelectTask(0), keepTaskChild(keepTask)
+    firstUnknownUidOffset(0), m_usingQresync(false), unSelectTask(0), keepTaskChild(keepTask)
 {
     // The Parser* is not provided by our parent task, but instead through the keepTaskChild.  The reason is simple, the parent
     // task might not even exist, but there's always an KeepMailboxOpenTask in the game.
@@ -84,7 +84,26 @@ void ObtainSynchronizedMailboxTask::perform()
     QMap<Parser *,ParserState>::iterator it = model->m_parsers.find(parser);
     Q_ASSERT(it != model->m_parsers.end());
 
-    if (model->accessParser(parser).capabilities.contains(QLatin1String("CONDSTORE"))) {
+    oldSyncState = model->cache()->mailboxSyncState(mailbox->mailbox());
+    if (model->accessParser(parser).capabilities.contains(QLatin1String("QRESYNC")) && oldSyncState.isUsableForCondstore()) {
+        QList<uint> oldUidMap = model->cache()->uidMapping(mailbox->mailbox());
+        if (oldUidMap.isEmpty()) {
+            selectCmd = parser->selectQresync(mailbox->mailbox(), oldSyncState.uidValidity(), oldSyncState.highestModSeq());
+        } else {
+            Sequence knownSeq, knownUid;
+            int i = oldUidMap.size() / 2;
+            while (i < oldUidMap.size()) {
+                knownSeq.add(i);
+                knownUid.add(oldUidMap[i]);
+                i += (oldUidMap.size() - i) / 2 + 1;
+            }
+            m_usingQresync = true;
+            // We absolutely want to maintain a complete UID->seq mapping at all times, which is why the known-uids shall remain
+            // empty to indicate "anything".
+            selectCmd = parser->selectQresync(mailbox->mailbox(), oldSyncState.uidValidity(), oldSyncState.highestModSeq(),
+                                              Sequence(), knownSeq, knownUid);
+        }
+    } else if (model->accessParser(parser).capabilities.contains(QLatin1String("CONDSTORE"))) {
         selectCmd = parser->select(mailbox->mailbox(), QList<QByteArray>() << "CONDSTORE");
     } else {
         selectCmd = parser->select(mailbox->mailbox());
@@ -214,6 +233,50 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
     } else {
         if (syncState.isUsableForSyncing() && oldSyncState.isUsableForSyncing() && syncState.uidValidity() == oldSyncState.uidValidity()) {
             // Perform a nice re-sync
+
+            // Check the QRESYNC support and availability
+            if (m_usingQresync && oldSyncState.isUsableForCondstore() && syncState.isUsableForCondstore()) {
+                // Looks like we can use QRESYNC for fast syncing
+                if (oldSyncState.highestModSeq() > syncState.highestModSeq()) {
+                    // Looks like a corrupted cache or a server's bug
+                    log("Yuck, recycled HIGHESTMODSEQ when trying to use QRESYNC", LOG_MAILBOX_SYNC);
+                    mailbox->syncState.setHighestModSeq(0);
+                    model->cache()->clearAllMessages(mailbox->mailbox());
+                    m_usingQresync = false;
+                    fullMboxSync(mailbox, list);
+                } else {
+                    if (oldSyncState.highestModSeq() == syncState.highestModSeq()) {
+                        if (oldSyncState.exists() != syncState.exists()) {
+                            log("Sync error: QRESYNC says no changes but EXISTS has changed", LOG_MAILBOX_SYNC);
+                            mailbox->syncState.setHighestModSeq(0);
+                            model->cache()->clearAllMessages(mailbox->mailbox());
+                            m_usingQresync = false;
+                            fullMboxSync(mailbox, list);
+                        } else if (oldSyncState.uidNext() != syncState.uidNext()) {
+                            log("Sync error: QRESYNC says no changes but UIDNEXT has changed", LOG_MAILBOX_SYNC);
+                            mailbox->syncState.setHighestModSeq(0);
+                            model->cache()->clearAllMessages(mailbox->mailbox());
+                            m_usingQresync = false;
+                            fullMboxSync(mailbox, list);
+                        } else {
+                            // This should be enough
+                            saveSyncState(mailbox);
+                            _completed();
+                        }
+                    } else if (oldSyncState.uidNext() < syncState.uidNext()) {
+                        // We've got some new arrivals, but unfortunately QRESYNC won't report them just yet :(
+                        CommandHandle fetchCmd = parser->uidFetch(Sequence::startingAt(qMax(oldSyncState.uidNext(), 1u)),
+                                                                  QStringList() << QLatin1String("FLAGS"));
+                        newArrivalsFetch.append(fetchCmd);
+                        status = STATE_DONE;
+                    } else {
+                        // This should be enough, the server should've sent the data already
+                        saveSyncState(mailbox);
+                        _completed();
+                    }
+                }
+                return;
+            }
 
             if (syncState.uidNext() == oldSyncState.uidNext()) {
                 // No new messages
@@ -408,7 +471,8 @@ void ObtainSynchronizedMailboxTask::syncFlags(TreeItemMailbox *mailbox)
 
     // 0 => don't use it; >0 => use that as the old value
     quint64 useModSeq = 0;
-    if (model->accessParser(parser).capabilities.contains(QLatin1String("CONDSTORE")) &&
+    if ((model->accessParser(parser).capabilities.contains(QLatin1String("CONDSTORE")) ||
+         model->accessParser(parser).capabilities.contains(QLatin1String("QRESYNC"))) &&
             oldSyncState.highestModSeq() > 0 && mailbox->syncState.isUsableForCondstore() &&
             oldSyncState.uidValidity() == mailbox->syncState.uidValidity()) {
         // The CONDSTORE is available, UIDVALIDITY has not changed and the HIGHESTMODSEQ suggests that
@@ -511,9 +575,10 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState(const Imap::Re
         break;
     }
     case Responses::NOMODSEQ:
-        // NOMODSEQ means that this mailbox doesn't support CONDSTORE. We have to avoid sending any fancy commands like
+        // NOMODSEQ means that this mailbox doesn't support CONDSTORE or QRESYNC. We have to avoid sending any fancy commands like
         // the FETCH CHANGEDSINCE etc.
         mailbox->syncState.setHighestModSeq(0);
+        m_usingQresync = false;
         res = true;
         break;
 
@@ -564,9 +629,31 @@ bool ObtainSynchronizedMailboxTask::handleNumberResponse(const Imap::Responses::
             return false;
 
         case STATE_SELECTING:
-            // It's perfectly acceptable for the server to start its responses with EXISTS instead of UIDVALIDITY & UIDNEXT, so
-            // we really cannot do anything besides remembering this value for later.
-            mailbox->syncState.setExists(resp->number);
+            if (m_usingQresync) {
+                // Because QRESYNC won't tell us anything about the new UIDs, we have to resort to this kludgy way of working.
+                // I really, really wonder why there's no such thing likt * ARRIVED to accompany * VANISHED. Oh well.
+                mailbox->syncState.setExists(resp->number);
+                if (oldSyncState.exists() < mailbox->syncState.exists()) {
+                    // We have to add empty messages here
+                    int newArrivals = resp->number - list->m_children.size();
+                    Q_ASSERT(newArrivals > 0);
+                    QModelIndex parent = list->toIndex(model);
+                    int offset = list->m_children.size();
+                    model->beginInsertRows(parent, offset, resp->number - 1);
+                    for (int i = 0; i < newArrivals; ++i) {
+                        TreeItemMessage *msg = new TreeItemMessage(list);
+                        msg->m_offset = i + offset;
+                        list->m_children << msg;
+                        // yes, we really have to add this message with UID 0 :(
+                    }
+                    model->endInsertRows();
+                    list->m_totalMessageCount = resp->number;
+                }
+            } else {
+                // It's perfectly acceptable for the server to start its responses with EXISTS instead of UIDVALIDITY & UIDNEXT, so
+                // we really cannot do anything besides remembering this value for later.
+                mailbox->syncState.setExists(resp->number);
+            }
             return true;
 
         case STATE_SYNCING_UIDS:
@@ -663,6 +750,31 @@ bool ObtainSynchronizedMailboxTask::handleNumberResponse(const Imap::Responses::
     default:
         throw CantHappen("Got a NumberResponse of invalid kind. This is supposed to be handled in its constructor!", *resp);
     }
+    return false;
+}
+
+bool ObtainSynchronizedMailboxTask::handleVanished(const Imap::Responses::Vanished *const resp)
+{
+    if (dieIfInvalidMailbox())
+        return true;
+
+    TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
+    Q_ASSERT(mailbox);
+
+    switch (status) {
+    case STATE_WAIT_FOR_CONN:
+        Q_ASSERT(false);
+        return false;
+
+    case STATE_SELECTING:
+    case STATE_SYNCING_UIDS:
+    case STATE_SYNCING_FLAGS:
+    case STATE_DONE:
+        mailbox->handleVanished(model, *resp);
+        return true;
+    }
+
+    Q_ASSERT(false);
     return false;
 }
 
@@ -806,7 +918,7 @@ bool ObtainSynchronizedMailboxTask::handleFetch(const Imap::Responses::Fetch *co
     Q_ASSERT(mailbox);
     QList<TreeItemPart *> changedParts;
     TreeItemMessage *changedMessage = 0;
-    mailbox->handleFetchResponse(model, *resp, changedParts, changedMessage, false);
+    mailbox->handleFetchResponse(model, *resp, changedParts, changedMessage, false, m_usingQresync);
     if (changedMessage) {
         QModelIndex index = changedMessage->toIndex(model);
         emit model->dataChanged(index, index);
@@ -816,7 +928,8 @@ bool ObtainSynchronizedMailboxTask::handleFetch(const Imap::Responses::Fetch *co
         // On the other hand, this one will be emitted at the very end
         // model->emitMessageCountChanged(mailbox);
     }
-    if (!changedParts.isEmpty()) {
+    if (!changedParts.isEmpty() && !m_usingQresync) {
+        // On the other hand, with QRESYNC our code is ready to receive extra data that changes body parts...
         qDebug() << "Weird, FETCH when syncing has changed some body parts. We aren't ready for that.";
         log(QString::fromAscii("This response has changed some message parts. That should not have happened, as we're still syncing."));
     }

@@ -167,6 +167,11 @@ QTextStream &operator<<(QTextStream &stream, const Kind &res)
     case ID:
         stream << "ID";
         break;
+    case ENABLED:
+        stream << "ENABLE";
+        break;
+    case VANISHED:
+        stream << "VANISHED";
     }
     return stream;
 }
@@ -217,6 +222,10 @@ Kind kindFromString(QByteArray str) throw(UnrecognizedResponseKind)
         return THREAD;
     if (str == "ID")
         return ID;
+    if (str == "ENABLED")
+        return ENABLED;
+    if (str == "VANISHED")
+        return VANISHED;
     throw UnrecognizedResponseKind(str.constData());
 }
 
@@ -636,55 +645,15 @@ ESearch::ESearch(const QByteArray &line, int &start): seqOrUids(SEQUENCE)
     while (start < line.size() - 2) {
         QByteArray label = LowLevelParser::getAtom(line, start).toUpper();
         LowLevelParser::eatSpaces(line, start);
-        uint num = LowLevelParser::getUInt(line, start);
-        if (start >= line.size() - 2) {
-            // It's definitely just a number because there's no more data in here
-            numData[label] = num;
-        } else {
-            QList<uint> numbers;
-            numbers << num;
 
-            enum {COMMA, RANGE} currentType = COMMA;
+        QList<uint> numbers = LowLevelParser::getSequence(line, start);
+        // There's no synatctit difference between a single-item sequence set and one number, which is why we always parse
+        // such "sequences" as mere numbers
+        if (numbers.size() == 1)
+            numData[label] = numbers.front();
+        else
+            listData[label] = numbers;
 
-            // Try to find further items in the sequence set
-            while (line[start] == ':' || line[start] == ',') {
-                // it's a sequence set
-
-                if (line[start] == ':') {
-                    if (currentType == RANGE) {
-                        // Now "x:y:z" is a funny syntax
-                        throw UnexpectedHere("Sequence set: range cannot me defined by three numbers", line, start);
-                    }
-                    currentType = RANGE;
-                } else {
-                    currentType = COMMA;
-                }
-
-                ++start;
-                if (start >= line.size() - 2) throw NoData("Truncated sequence set", line, start);
-
-                uint num = LowLevelParser::getUInt(line, start);
-                if (currentType == COMMA) {
-                    // just adding one more to the set
-                    numbers << num;
-                } else {
-                    // working with a range
-                    if (numbers.last() >= num)
-                        throw UnexpectedHere("Sequence set contains an invalid range. "
-                                             "First item of a range must always be smaller than the second item.", line, start);
-
-                    for (uint i = numbers.last() + 1; i <= num; ++i)
-                        numbers << i;
-                }
-            }
-
-            // There's no synatctit difference between a single-item sequence set and one number, which is why we always parse
-            // such "sequences" as mere numbers
-            if (numbers.size() == 1)
-                numData[label] = num;
-            else
-                listData[label] = numbers;
-        }
         LowLevelParser::eatSpaces(line, start);
     }
 }
@@ -960,6 +929,34 @@ Id::Id(const QByteArray &line, int &start): AbstractResponse(ID)
     }
 }
 
+Enabled::Enabled(const QByteArray &line, int &start)
+{
+    extension = LowLevelParser::getAtom(line, start);
+    if (start != line.size() - 2)
+        throw TooMuchData("Got data after ENABLE's capability specification", line, start);
+}
+
+Vanished::Vanished(const QByteArray &line, int &start):
+    earlier(NOT_EARLIER)
+{
+    LowLevelParser::eatSpaces(line, start);
+
+    if (start >= line.size() - 2) {
+        throw NoData(line, start);
+    }
+
+    const int prefixLength = strlen("(EARLIER)");
+    if (start < line.size() - prefixLength && line.mid(start, prefixLength).toUpper() == "(EARLIER)") {
+        earlier = EARLIER;
+        start += prefixLength + 1; // one for the required space
+    }
+
+    uids = LowLevelParser::getSequence(line, start);
+
+    if (start != line.size() - 2)
+        throw TooMuchData(line, start);
+}
+
 SocketEncryptedResponse::SocketEncryptedResponse(const QList<QSslCertificate> &sslChain, const QList<QSslError> &sslErrors):
     sslChain(sslChain), sslErrors(sslErrors)
 {
@@ -1099,6 +1096,23 @@ QTextStream &Id::dump(QTextStream &s) const
         }
         return s << ")";
     }
+}
+
+QTextStream &Enabled::dump(QTextStream &s) const
+{
+    return s << "ENABLE " << extension;
+}
+
+QTextStream &Vanished::dump(QTextStream &s) const
+{
+    s << "VANISHED ";
+    if (earlier == EARLIER)
+        s << "(EARLIER) ";
+    s << "(";
+    Q_FOREACH(const uint &uid, uids) {
+        s << " " << uid;
+    }
+    return s << ")";
 }
 
 QTextStream &SocketEncryptedResponse::dump(QTextStream &s) const
@@ -1301,6 +1315,26 @@ bool Id::eq(const AbstractResponse &other) const
     }
 }
 
+bool Enabled::eq(const AbstractResponse &other) const
+{
+    try {
+        const Enabled &r = dynamic_cast<const Enabled &>(other);
+        return extension == r.extension;
+    } catch (std::bad_cast &) {
+        return false;
+    }
+}
+
+bool Vanished::eq(const AbstractResponse &other) const
+{
+    try {
+        const Vanished &r = dynamic_cast<const Vanished &>(other);
+        return earlier == r.earlier && uids == r.uids;
+    } catch (std::bad_cast &) {
+        return false;
+    }
+}
+
 bool SocketEncryptedResponse::eq(const AbstractResponse &other) const
 {
     try {
@@ -1338,6 +1372,8 @@ PLUG(Namespace)
 PLUG(Sort)
 PLUG(Thread)
 PLUG(Id)
+PLUG(Enabled)
+PLUG(Vanished)
 PLUG(SocketEncryptedResponse)
 
 #undef PLUG

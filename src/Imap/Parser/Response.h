@@ -82,7 +82,9 @@ enum Kind {
     NAMESPACE,
     SORT,
     THREAD,
-    ID
+    ID,
+    ENABLED, /** @short RFC 5161 ENABLE */
+    VANISHED /** @short RFC 5162 VANISHED (for QRESYNC) */
 }; // aren't those comments just sexy? :)
 
 /** @short Response Code */
@@ -512,6 +514,34 @@ public:
     QMap<QByteArray,QByteArray> data;
     Id(const QByteArray &line, int &start);
     Id(const QMap<QByteArray,QByteArray> &items): AbstractResponse(ID), data(items) {}
+    virtual QTextStream &dump(QTextStream &s) const;
+    virtual bool eq(const AbstractResponse &other) const;
+    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
+    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+};
+
+/** @short Structure storing each enabled extension */
+class Enabled: public AbstractResponse
+{
+public:
+    QByteArray extension;
+    Enabled(const QByteArray &line, int &start);
+    Enabled(const QByteArray &extension): AbstractResponse(ENABLED), extension(extension) {}
+    virtual QTextStream &dump(QTextStream &s) const;
+    virtual bool eq(const AbstractResponse &other) const;
+    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
+    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+};
+
+/** @short VANISHED contains information about UIDs of removed messages */
+class Vanished: public AbstractResponse
+{
+public:
+    typedef enum {EARLIER, NOT_EARLIER} EarlierOrNow;
+    EarlierOrNow earlier;
+    QList<uint> uids;
+    Vanished(const QByteArray &line, int &start);
+    Vanished(EarlierOrNow earlier, const QList<uint> &uids): AbstractResponse(VANISHED), earlier(earlier), uids(uids) {}
     virtual QTextStream &dump(QTextStream &s) const;
     virtual bool eq(const AbstractResponse &other) const;
     virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;

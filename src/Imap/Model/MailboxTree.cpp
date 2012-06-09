@@ -20,6 +20,7 @@
 */
 
 #include <QTextStream>
+#include "Common/FindWithUnknown.h"
 #include "MailboxTree.h"
 #include "Model.h"
 #include "Imap/Encoders.h"
@@ -313,11 +314,11 @@ QList<TreeItem *> TreeItemMailbox::setChildren(const QList<TreeItem *> items)
 void TreeItemMailbox::handleFetchResponse(Model *const model,
         const Responses::Fetch &response,
         QList<TreeItemPart *> &changedParts,
-        TreeItemMessage *&changedMessage, bool canSaveSyncStateDirectly)
+        TreeItemMessage *&changedMessage, bool canSaveSyncStateDirectly, bool usingQresync)
 {
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(m_children[0]);
     Q_ASSERT(list);
-    if (! list->fetched()) {
+    if (! list->fetched() && !usingQresync) {
         QByteArray buf;
         QTextStream ss(&buf);
         ss << response;
@@ -486,6 +487,116 @@ void TreeItemMailbox::handleExpunge(Model *const model, const Responses::NumberR
     delete message;
 
     --list->m_totalMessageCount;
+    list->recalcVariousMessageCounts(const_cast<Model *>(model));
+}
+
+void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanished &resp)
+{
+    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(m_children[ 0 ]);
+    Q_ASSERT(list);
+    QModelIndex listIndex = list->toIndex(model);
+
+    QList<uint> uids = resp.uids;
+    qSort(uids);
+    // Remove duplicates -- even that garbage can be present in a perfectly valid VANISHED :(
+    uids.erase(std::unique(uids.begin(), uids.end()), uids.end());
+
+    QList<TreeItem *>::iterator it = list->m_children.end();
+    while (!uids.isEmpty()) {
+        // We have to process each UID separately because the UIDs in the mailbox are not necessarily present
+        // in a continuous range; zeros might be present
+        uint uid = uids.takeLast();
+
+        if (uid == 0) {
+            qDebug() << "VANISHED informs about removal of UID zero...";
+            model->logTrace(listIndex.parent(), LOG_MAILBOX_SYNC, QLatin1String("TreeItemMailbox::handleVanished"),
+                            "VANISHED contains UID zero for increased fun");
+            break;
+        }
+
+        if (list->m_children.isEmpty()) {
+            // Well, it'd be cool to throw an exception here but VANISHED is free to contain references to UIDs which are not here
+            // at all...
+            qDebug() << "VANISHED attempted to remove too many messages";
+            model->logTrace(listIndex.parent(), LOG_MAILBOX_SYNC, QLatin1String("TreeItemMailbox::handleVanished"),
+                            "VANISHED attempted to remove too many messages");
+            break;
+        }
+
+        // Find a highest message with UID zero such as no message with non-zero UID higher than the current UID exists
+        // at a position after the target message
+        it = model->findMessageOrNextOneByUid(list, uid);
+
+        if (it == list->m_children.end()) {
+            // this is a legitimate situation, the UID of the last message in the mailbox which is getting expunged right now
+            // could very well be not know at this point
+            --it;
+        }
+        // there's a special case above guarding against an empty list
+        Q_ASSERT(it >= list->m_children.begin());
+
+        TreeItemMessage *msgCandidate = static_cast<TreeItemMessage*>(*it);
+        if (msgCandidate->uid() == uid) {
+            // will be deleted
+        } else if (resp.earlier == Responses::Vanished::EARLIER) {
+            // We don't have any such UID in our UID mapping, so we can safely ignore this one
+            model->logTrace(listIndex.parent(), LOG_MAILBOX_SYNC, QLatin1String("TreeItemMailbox::handleVanished"),
+                            QString::fromAscii("VANISHED EARLIER: UID %1 not found in the mailbox, ignoring")
+                            .arg(QString::number(uid)));
+            continue;
+        } else if (msgCandidate->uid() == 0) {
+            // will be deleted
+        } else {
+            if (it != list->m_children.begin()) {
+                --it;
+                msgCandidate = static_cast<TreeItemMessage*>(*it);
+                if (msgCandidate->uid() == 0) {
+                    // will be deleted
+                } else {
+                    // VANISHED is free to refer to a non-existing UID...
+                    QString str;
+                    QTextStream ss(&str);
+                    ss << "VANISHED refers to UID " << uid << " which wasn't found in the mailbox (found adjacent UIDs " <<
+                          msgCandidate->uid() << " and " << static_cast<TreeItemMessage*>(*(it + 1))->uid() << " with " <<
+                          static_cast<TreeItemMessage*>(*(list->m_children.end() - 1))->uid() << " at the end)";
+                    ss.flush();
+                    qDebug() << str.toAscii().constData();
+                    model->logTrace(listIndex.parent(), LOG_MAILBOX_SYNC, QLatin1String("TreeItemMailbox::handleVanished"), str);
+                    continue;
+                }
+            } else {
+                // Again, VANISHED can refer to non-existing UIDs
+                QString str;
+                QTextStream ss(&str);
+                ss << "VANISHED refers to UID " << uid << " which is too low (lowest UID is " <<
+                      static_cast<TreeItemMessage*>(list->m_children.front())->uid() << ")";
+                ss.flush();
+                qDebug() << str.toAscii().constData();
+                model->logTrace(listIndex.parent(), LOG_MAILBOX_SYNC, QLatin1String("TreeItemMailbox::handleVanished"), str);
+                continue;
+            }
+        }
+
+        int row = msgCandidate->row();
+        Q_ASSERT(row == it - list->m_children.begin());
+        model->beginRemoveRows(listIndex, row, row);
+        it = list->m_children.erase(it);
+        for (QList<TreeItem*>::iterator furtherMessage = it; furtherMessage != list->m_children.end(); ++furtherMessage) {
+            --static_cast<TreeItemMessage *>(*furtherMessage)->m_offset;
+        }
+        model->endRemoveRows();
+
+        if (syncState.uidNext() <= uid) {
+            // We're informed about a message being deleted; this means that that UID must have been in the mailbox for some
+            // (possibly tiny) time and we can therefore use it to get an idea about the UIDNEXT
+            syncState.setUidNext(uid + 1);
+        }
+        model->cache()->clearMessage(mailbox(), uid);
+        delete msgCandidate;
+    }
+
+    list->m_totalMessageCount = list->m_children.size();
+    syncState.setExists(list->m_totalMessageCount);
     list->recalcVariousMessageCounts(const_cast<Model *>(model));
 }
 

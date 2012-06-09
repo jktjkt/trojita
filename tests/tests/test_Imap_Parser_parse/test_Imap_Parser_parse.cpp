@@ -767,6 +767,22 @@ void ImapParserParseTest::testParseUntagged_data()
     QTest::newRow("id-something")
             << QByteArray("* ID (\"foo \" \"bar\")\r\n")
             << QSharedPointer<AbstractResponse>(new Id(sampleId));
+
+    QTest::newRow("enable-condstore")
+            << QByteArray("* ENABLED CONDSToRE\r\n")
+            << QSharedPointer<AbstractResponse>(new Enabled(QByteArray("CONDSToRE")));
+
+    QTest::newRow("vanished-one")
+            << QByteArray("* VANIShED 1\r\n")
+            << QSharedPointer<AbstractResponse>(new Vanished(Vanished::NOT_EARLIER, QList<uint>() << 1));
+
+    QTest::newRow("vanished-earlier-one")
+            << QByteArray("* VANIShED (EARlIER) 1\r\n")
+            << QSharedPointer<AbstractResponse>(new Vanished(Vanished::EARLIER, QList<uint>() << 1));
+
+    QTest::newRow("vanished-earlier-set")
+            << QByteArray("* VANISHED (EARLIER) 300:303,405,411\r\n")
+            << QSharedPointer<AbstractResponse>(new Vanished(Vanished::EARLIER, QList<uint>() << 300 << 301 << 302 << 303 << 405 << 411));
 }
 
 void ImapParserParseTest::benchmark()

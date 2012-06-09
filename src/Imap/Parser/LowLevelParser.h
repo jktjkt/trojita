@@ -87,6 +87,9 @@ QVariantList parseList(const char open, const char close,
 /** @short Read one item from input, store it in a most-appropriate form */
 QVariant getAnything(const QByteArray &line, int &start);
 
+/** @short Parse a sequence set from the input */
+QList<uint> getSequence(const QByteArray &line, int &start);
+
 /** @short Parse RFC2822-like formatted date
  *
  * Code for this class was lobotomized from KDE's KDateTime.

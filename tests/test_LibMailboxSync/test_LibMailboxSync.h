@@ -22,6 +22,7 @@
 #ifndef TEST_IMAP_LIBMAILBOXSYNC
 #define TEST_IMAP_LIBMAILBOXSYNC
 
+#include <QtTest>
 #include "Imap/Model/Model.h"
 #include "Streams/SocketFactory.h"
 #include "TagGenerator.h"
@@ -59,8 +60,10 @@ protected:
     virtual void helperOneFlagUpdate( const QModelIndex &message );
 
     void helperInitialListing();
+    void initialMessages(const uint exists);
 
     Imap::Mailbox::Model* model;
+    Imap::Mailbox::MsgListModel *msgListModel;
     Imap::Mailbox::FakeSocketFactory* factory;
     Imap::Mailbox::TestingTaskFactory* taskFactoryUnsafe;
     QSignalSpy* errorSpy;
@@ -95,5 +98,11 @@ protected:
     QCOMPARE(QString::fromAscii(SOCK->writtenStuff()), QString()); \
 }
 
+namespace QTest {
+
+/** @short Debug data dumper for QList<uint> */
+template<>
+char *toString(const QList<uint> &list);
+}
 
 #endif

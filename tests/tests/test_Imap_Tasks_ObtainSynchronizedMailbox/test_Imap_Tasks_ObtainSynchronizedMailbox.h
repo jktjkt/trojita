@@ -69,6 +69,15 @@ private slots:
     void testCondstoreUidValidity();
     void testCondstoreDecreasedHighestModSeq();
 
+    void testQresyncNoChanges();
+    void testQresyncChangedFlags();
+    void testQresyncVanishedEarlier();
+    void testQresyncUidValidity();
+    void testQresyncNoModseqChangedFlags();
+    void testQresyncErrorExists();
+    void testQresyncErrorUidNext();
+    void testQresyncNewArrivals();
+
     // We put the benchmark to the last position as this one takes a long time
     void testFlagReSyncBenchmark();
 private:

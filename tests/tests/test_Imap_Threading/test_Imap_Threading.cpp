@@ -274,7 +274,7 @@ void ImapModelThreadingTest::testThreadDeletionsAdditions_data()
                                               (QStringList() << "-2" << "(1 (3)(4 5))" << "-3" << "(1 (3)(5))");
 
     // Test new arrivals
-    QTest::newRow("flat-list-new") << (uint)2 << QByteArray("(1)(2)") << (QStringList() << "+1" << "(1)(2)(66)");
+    QTest::newRow("flat-list-new") << (uint)2 << QByteArray("(1)(2)") << (QStringList() << "+1" << "(1)(2)(3)");
 }
 
 /** @short Test deletion of one message */
@@ -359,7 +359,7 @@ void ImapModelThreadingTest::testDynamicThreading()
     ++existsA;
     ++uidNextA;
     QCOMPARE(existsA, 9u);
-    QCOMPARE(uidNextA, 67u);
+    QCOMPARE(uidNextA, 12u);
     SOCK->fakeReading("* 9 EXISTS\r\n");
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
@@ -527,7 +527,6 @@ void ImapModelThreadingTest::verifyIndexMap(const IndexMapping &indexMap, const 
 void ImapModelThreadingTest::initTestCase()
 {
     LibMailboxSync::initTestCase();
-    msgListModel = 0;
     threadingModel = 0;
 }
 
@@ -540,26 +539,8 @@ void ImapModelThreadingTest::init()
     injector.injectCapability(QLatin1String("THREAD=REFS"));
 
     // Setup the threading model
-    msgListModel = new Imap::Mailbox::MsgListModel(this, model);
     threadingModel = new Imap::Mailbox::ThreadingMsgListModel(this);
     threadingModel->setSourceModel(msgListModel);
-}
-
-void ImapModelThreadingTest::initialMessages(const uint exists)
-{
-    // Setup ten fake messages
-    existsA = exists;
-    uidValidityA = 333;
-    for (uint i = 1; i <= existsA; ++i) {
-        uidMapA << i;
-    }
-    uidNextA = qMax(66u, exists+2);
-    helperSyncAWithMessagesEmptyState();
-
-    // open the mailbox
-    msgListModel->setMailbox(idxA);
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
 }
 
 void ImapModelThreadingTest::cleanup()
@@ -567,8 +548,6 @@ void ImapModelThreadingTest::cleanup()
     LibMailboxSync::cleanup();
     threadingModel->deleteLater();
     threadingModel = 0;
-    msgListModel->deleteLater();
-    msgListModel = 0;
 }
 
 /** @short Walk the model and output a THREAD-like responsde with the UIDs */

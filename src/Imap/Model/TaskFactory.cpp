@@ -20,6 +20,7 @@
 #include "CopyMoveMessagesTask.h"
 #include "CreateMailboxTask.h"
 #include "DeleteMailboxTask.h"
+#include "EnableTask.h"
 #include "ExpungeMailboxTask.h"
 #include "FetchMsgMetadataTask.h"
 #include "FetchMsgPartTask.h"
@@ -96,6 +97,11 @@ FetchMsgPartTask *TaskFactory::createFetchMsgPartTask(Model *model, const QModel
 IdTask *TaskFactory::createIdTask(Model *model, ImapTask *dependingTask)
 {
     return new IdTask(model, dependingTask);
+}
+
+EnableTask *TaskFactory::createEnableTask(Model *model, ImapTask *dependingTask, const QList<QByteArray> &extensions)
+{
+    return new EnableTask(model, dependingTask, extensions);
 }
 
 KeepMailboxOpenTask *TaskFactory::createKeepMailboxOpenTask(Model *model, const QModelIndex &mailbox, Parser *oldParser)
