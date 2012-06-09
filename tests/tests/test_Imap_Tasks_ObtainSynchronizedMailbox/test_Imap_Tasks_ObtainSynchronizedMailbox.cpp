@@ -19,7 +19,6 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include <QtTest>
 #include "test_Imap_Tasks_ObtainSynchronizedMailbox.h"
 #include "../headless_test.h"
 #include "test_LibMailboxSync/FakeCapabilitiesInjector.h"
@@ -70,20 +69,6 @@ char *toString(const Imap::Mailbox::AbstractCache::MessageDataBundle &bundle)
          "bodystruct:" << bundle.serializedBodyStructure;
     return qstrdup(buf.toAscii().constData());
 }
-
-/** @short Debug data dumper for QList<uint> */
-template<>
-char *toString(const QList<uint> &list)
-{
-    QString buf;
-    QDebug d(&buf);
-    d << "QList<uint> (" << list.size() << "items):";
-    Q_FOREACH(const uint item, list) {
-        d << item;
-    }
-    return qstrdup(buf.toAscii().constData());
-}
-
 
 }
 

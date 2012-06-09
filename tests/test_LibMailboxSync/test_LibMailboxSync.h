@@ -22,6 +22,7 @@
 #ifndef TEST_IMAP_LIBMAILBOXSYNC
 #define TEST_IMAP_LIBMAILBOXSYNC
 
+#include <QtTest>
 #include "Imap/Model/Model.h"
 #include "Streams/SocketFactory.h"
 #include "TagGenerator.h"
@@ -97,5 +98,11 @@ protected:
     QCOMPARE(QString::fromAscii(SOCK->writtenStuff()), QString()); \
 }
 
+namespace QTest {
+
+/** @short Debug data dumper for QList<uint> */
+template<>
+char *toString(const QList<uint> &list);
+}
 
 #endif

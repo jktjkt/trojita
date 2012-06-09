@@ -455,3 +455,19 @@ void LibMailboxSync::initialMessages(const uint exists)
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 }
+
+namespace QTest {
+
+/** @short Debug data dumper for QList<uint> */
+template<>
+char *toString(const QList<uint> &list)
+{
+    QString buf;
+    QDebug d(&buf);
+    d << "QList<uint> (" << list.size() << "items):";
+    Q_FOREACH(const uint item, list) {
+        d << item;
+    }
+    return qstrdup(buf.toAscii().constData());
+}
+}
