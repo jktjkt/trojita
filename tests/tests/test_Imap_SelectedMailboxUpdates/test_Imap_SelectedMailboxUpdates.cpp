@@ -583,5 +583,33 @@ void ImapModelSelectedMailboxUpdatesTest::testVanishedUpdates()
     cEmpty();
 }
 
+inline bool isOdd(const uint i)
+{
+    return i & 1;
+}
+
+inline bool isEven(const uint i)
+{
+    return ! isOdd(i);
+}
+
+void ImapModelSelectedMailboxUpdatesTest::testVanishedWithNonExisting()
+{
+    initialMessages(10);
+    cServer("* VANISHED 0,2,4,6,6,6,8,2,0,10,12\r\n");
+    uidMapA.erase(std::remove_if(uidMapA.begin(), uidMapA.end(), isEven), uidMapA.end());
+    helperCheckUidMapFromModel();
+
+    // This one has been already reported
+    cServer("* VANISHED 2\r\n");
+    helperCheckUidMapFromModel();
+
+    // This one wasn't there yet at all
+    cServer("* VANISHED 666\r\n");
+    helperCheckUidMapFromModel();
+
+    cEmpty();
+}
+
 
 TROJITA_HEADLESS_TEST( ImapModelSelectedMailboxUpdatesTest )

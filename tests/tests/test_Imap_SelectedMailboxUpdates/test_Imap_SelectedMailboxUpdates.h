@@ -37,6 +37,7 @@ private slots:
     void testGenericTraffic();
     void testGenericTrafficWithEnvelopes();
     void testVanishedUpdates();
+    void testVanishedWithNonExisting();
 private:
     void helperTestExpungeImmediatelyAfterArrival(bool sendUidNext);
     void helperGenericTraffic(bool askForEnvelopes);

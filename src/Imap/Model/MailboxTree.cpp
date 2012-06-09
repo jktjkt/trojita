@@ -498,6 +498,8 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
 
     QList<uint> uids = resp.uids;
     qSort(uids);
+    // Remove duplicates -- even that garbage can be present in a perfectly valid VANISHED :(
+    uids.erase(std::unique(uids.begin(), uids.end()), uids.end());
 
     QList<TreeItem *>::iterator it = list->m_children.end();
     while (!uids.isEmpty()) {
@@ -505,8 +507,20 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
         // in a continuous range; zeros might be present
         uint uid = uids.takeLast();
 
+        if (uid == 0) {
+            qDebug() << "VANISHED informs about removal of UID zero...";
+            model->logTrace(listIndex.parent(), LOG_MAILBOX_SYNC, QLatin1String("TreeItemMailbox::handleVanished"),
+                            "VANISHED contains UID zero for increased fun");
+            break;
+        }
+
         if (list->m_children.isEmpty()) {
-            throw MailboxException("VANISHED attempted to remove too many messages", resp);
+            // Well, it'd be cool to throw an exception here but VANISHED is free to contain references to UIDs which are not here
+            // at all...
+            qDebug() << "VANISHED attempted to remove too many messages";
+            model->logTrace(listIndex.parent(), LOG_MAILBOX_SYNC, QLatin1String("TreeItemMailbox::handleVanished"),
+                            "VANISHED attempted to remove too many messages");
+            break;
         }
 
         // Find a highest message with UID zero such as no message with non-zero UID higher than the current UID exists
@@ -533,20 +547,27 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
                 if (msgCandidate->uid() == 0) {
                     // will be deleted
                 } else {
+                    // VANISHED is free to refer to a non-existing UID...
                     QString str;
                     QTextStream ss(&str);
                     ss << "VANISHED refers to UID " << uid << " which wasn't found in the mailbox (found adjacent UIDs " <<
-                          msgCandidate->uid() << " and " << static_cast<TreeItemMessage*>(*(it + 1))->uid() << ")";
+                          msgCandidate->uid() << " and " << static_cast<TreeItemMessage*>(*(it + 1))->uid() << " with " <<
+                          static_cast<TreeItemMessage*>(*(list->m_children.end() - 1))->uid() << " at the end)";
                     ss.flush();
-                    throw MailboxException(str.toAscii().constData(), resp);
+                    qDebug() << str.toAscii().constData();
+                    model->logTrace(listIndex.parent(), LOG_MAILBOX_SYNC, QLatin1String("TreeItemMailbox::handleVanished"), str);
+                    continue;
                 }
             } else {
+                // Again, VANISHED can refer to non-existing UIDs
                 QString str;
                 QTextStream ss(&str);
                 ss << "VANISHED refers to UID " << uid << " which is too low (lowest UID is " <<
                       static_cast<TreeItemMessage*>(list->m_children.front())->uid() << ")";
                 ss.flush();
-                throw MailboxException(str.toAscii().constData(), resp);
+                qDebug() << str.toAscii().constData();
+                model->logTrace(listIndex.parent(), LOG_MAILBOX_SYNC, QLatin1String("TreeItemMailbox::handleVanished"), str);
+                continue;
             }
         }
 
