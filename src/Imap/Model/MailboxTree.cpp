@@ -538,6 +538,12 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
         TreeItemMessage *msgCandidate = static_cast<TreeItemMessage*>(*it);
         if (msgCandidate->uid() == uid) {
             // will be deleted
+        } else if (resp.earlier == Responses::Vanished::EARLIER) {
+            // We don't have any such UID in our UID mapping, so we can safely ignore this one
+            model->logTrace(listIndex.parent(), LOG_MAILBOX_SYNC, QLatin1String("TreeItemMailbox::handleVanished"),
+                            QString::fromAscii("VANISHED EARLIER: UID %1 not found in the mailbox, ignoring")
+                            .arg(QString::number(uid)));
+            continue;
         } else if (msgCandidate->uid() == 0) {
             // will be deleted
         } else {
