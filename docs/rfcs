@@ -7,13 +7,11 @@ Suported RFCs
 - 2971 IMAP4 ID extension
 - 3348 FIXME check!!! The Internet Message Action Protocol (IMAP4) Child Mailbox Extension
 - 3691 Internet Message Access Protocol (IMAP) UNSELECT command
-- 5161 The IMAP ENABLE Extension
-- 5162 IMAP4 Extensions for Quick Mailbox Resynchronization
-
-Partial support:
 - 4315 (2359) Internet Message Access Protocol (IMAP) - UIDPLUS extension
 - 4551 IMAP Extension for Conditional STORE Operation or Quick Flag Changes Resynchronization
 - 4731 IMAP4 Extension to SEARCH Command for Controlling What Kind of Information Is Returned
+- 5161 The IMAP ENABLE Extension
+- 5162 IMAP4 Extensions for Quick Mailbox Resynchronization
 - 5256 Internet Message Access Protocol - SORT and THREAD Extensions
 - 5530 IMAP Response Codes
 
