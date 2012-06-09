@@ -147,6 +147,29 @@ CommandHandle Parser::select(const QString &mailbox, const QList<QByteArray> &pa
     return queueCommand(cmd);
 }
 
+CommandHandle Parser::selectQresync(const QString &mailbox, const uint uidValidity, const quint64 highestModSeq,
+                                    const Sequence &knownUids, const Sequence &sequenceSnapshot, const Sequence &uidSnapshot)
+{
+    Commands::Command cmd = Commands::Command("SELECT") << encodeImapFolderName(mailbox);
+    cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, QLatin1String(" (QRESYNC (")) <<
+           Commands::PartOfCommand(Commands::ATOM, QString::number(uidValidity)) <<
+           Commands::PartOfCommand(Commands::ATOM, QString::number(highestModSeq));
+    if (knownUids.isValid()) {
+        cmd << Commands::PartOfCommand(Commands::ATOM, knownUids.toString());
+    }
+    if (sequenceSnapshot.isValid()) {
+        Q_ASSERT(uidSnapshot.isValid());
+        cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, QLatin1String(" (")) <<
+               Commands::PartOfCommand(Commands::ATOM, sequenceSnapshot.toString()) <<
+               Commands::PartOfCommand(Commands::ATOM, uidSnapshot.toString()) <<
+               Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, QLatin1String(")))"));
+    } else {
+        Q_ASSERT(uidSnapshot.isValid());
+        cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, QLatin1String("))"));
+    }
+    return queueCommand(cmd);
+}
+
 CommandHandle Parser::examine(const QString &mailbox, const QList<QByteArray> &params)
 {
     Commands::Command cmd = Commands::Command("EXAMINE") << encodeImapFolderName(mailbox);
@@ -1017,6 +1040,14 @@ Sequence Sequence::fromList(QList<uint> numbers)
         seq.add(numbers[i]);
     }
     return seq;
+}
+
+bool Sequence::isValid() const
+{
+    if (kind == DISTINCT && list.isEmpty())
+        return false;
+    else
+        return true;
 }
 
 QTextStream &operator<<(QTextStream &stream, const Sequence &s)

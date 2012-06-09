@@ -33,7 +33,7 @@ namespace Mailbox
 ObtainSynchronizedMailboxTask::ObtainSynchronizedMailboxTask(Model *model, const QModelIndex &mailboxIndex, ImapTask *parentTask,
         KeepMailboxOpenTask *keepTask):
     ImapTask(model), conn(parentTask), mailboxIndex(mailboxIndex), status(STATE_WAIT_FOR_CONN), uidSyncingMode(UID_SYNC_ALL),
-    firstUnknownUidOffset(0), unSelectTask(0), keepTaskChild(keepTask)
+    firstUnknownUidOffset(0), m_usingQresync(false), unSelectTask(0), keepTaskChild(keepTask)
 {
     // The Parser* is not provided by our parent task, but instead through the keepTaskChild.  The reason is simple, the parent
     // task might not even exist, but there's always an KeepMailboxOpenTask in the game.
@@ -84,7 +84,26 @@ void ObtainSynchronizedMailboxTask::perform()
     QMap<Parser *,ParserState>::iterator it = model->m_parsers.find(parser);
     Q_ASSERT(it != model->m_parsers.end());
 
-    if (model->accessParser(parser).capabilities.contains(QLatin1String("CONDSTORE"))) {
+    oldSyncState = model->cache()->mailboxSyncState(mailbox->mailbox());
+    if (model->accessParser(parser).capabilities.contains(QLatin1String("QRESYNC")) && oldSyncState.isUsableForCondstore()) {
+        QList<uint> oldUidMap = model->cache()->uidMapping(mailbox->mailbox());
+        if (oldUidMap.isEmpty()) {
+            selectCmd = parser->selectQresync(mailbox->mailbox(), oldSyncState.uidValidity(), oldSyncState.highestModSeq());
+        } else {
+            Sequence knownSeq, knownUid;
+            int i = oldUidMap.size() / 2;
+            while (i < oldUidMap.size()) {
+                knownSeq.add(i);
+                knownUid.add(oldUidMap[i]);
+                i += (oldUidMap.size() - i) / 2 + 1;
+            }
+            m_usingQresync = true;
+            // We absolutely want to maintain a complete UID->seq mapping at all times, which is why the known-uids shall remain
+            // empty to indicate "anything".
+            selectCmd = parser->selectQresync(mailbox->mailbox(), oldSyncState.uidValidity(), oldSyncState.highestModSeq(),
+                                              Sequence(), knownSeq, knownUid);
+        }
+    } else if (model->accessParser(parser).capabilities.contains(QLatin1String("CONDSTORE"))) {
         selectCmd = parser->select(mailbox->mailbox(), QList<QByteArray>() << "CONDSTORE");
     } else {
         selectCmd = parser->select(mailbox->mailbox());
@@ -214,6 +233,40 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
     } else {
         if (syncState.isUsableForSyncing() && oldSyncState.isUsableForSyncing() && syncState.uidValidity() == oldSyncState.uidValidity()) {
             // Perform a nice re-sync
+
+            if (m_usingQresync && oldSyncState.isUsableForCondstore() && syncState.isUsableForCondstore()) {
+                // Looks like we can use QRESYNC for fast syncing
+                if (oldSyncState.highestModSeq() > syncState.highestModSeq()) {
+                    // Looks like a corrupted cache or a server's bug
+                    log("Yuck, recycled HIGHESTMODSEQ when trying to use QRESYNC", LOG_MAILBOX_SYNC);
+                    model->cache()->clearAllMessages(mailbox->mailbox());
+                    m_usingQresync = false;
+                    fullMboxSync(mailbox, list);
+                } else {
+                    if (oldSyncState.highestModSeq() == syncState.highestModSeq()) {
+                        if (oldSyncState.exists() != syncState.exists()) {
+                            log("Sync error: QRESYNC says no changes but EXISTS has changed", LOG_MAILBOX_SYNC);
+                            model->cache()->clearAllMessages(mailbox->mailbox());
+                            m_usingQresync = false;
+                            fullMboxSync(mailbox, list);
+                        } else if (oldSyncState.uidNext() != syncState.uidNext()) {
+                            log("Sync error: QRESYNC says no changes but UIDNEXT has changed", LOG_MAILBOX_SYNC);
+                            model->cache()->clearAllMessages(mailbox->mailbox());
+                            m_usingQresync = false;
+                            fullMboxSync(mailbox, list);
+                        } else {
+                            // This should be enough
+                            saveSyncState(mailbox);
+                            _completed();
+                        }
+                    } else {
+                        // This should be enough, the server should've sent the data already
+                        saveSyncState(mailbox);
+                        _completed();
+                    }
+                }
+                return;
+            }
 
             if (syncState.uidNext() == oldSyncState.uidNext()) {
                 // No new messages
@@ -511,9 +564,10 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState(const Imap::Re
         break;
     }
     case Responses::NOMODSEQ:
-        // NOMODSEQ means that this mailbox doesn't support CONDSTORE. We have to avoid sending any fancy commands like
+        // NOMODSEQ means that this mailbox doesn't support CONDSTORE or QRESYNC. We have to avoid sending any fancy commands like
         // the FETCH CHANGEDSINCE etc.
         mailbox->syncState.setHighestModSeq(0);
+        m_usingQresync = false;
         res = true;
         break;
 
@@ -663,6 +717,31 @@ bool ObtainSynchronizedMailboxTask::handleNumberResponse(const Imap::Responses::
     default:
         throw CantHappen("Got a NumberResponse of invalid kind. This is supposed to be handled in its constructor!", *resp);
     }
+    return false;
+}
+
+bool ObtainSynchronizedMailboxTask::handleVanished(const Imap::Responses::Vanished *const resp)
+{
+    if (dieIfInvalidMailbox())
+        return true;
+
+    TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
+    Q_ASSERT(mailbox);
+
+    switch (status) {
+    case STATE_WAIT_FOR_CONN:
+        Q_ASSERT(false);
+        return false;
+
+    case STATE_SELECTING:
+    case STATE_SYNCING_UIDS:
+    case STATE_SYNCING_FLAGS:
+    case STATE_DONE:
+        mailbox->handleVanished(model, *resp);
+        return true;
+    }
+
+    Q_ASSERT(false);
     return false;
 }
 

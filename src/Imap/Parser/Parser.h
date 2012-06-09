@@ -90,6 +90,9 @@ public:
 
     /** @short Create a sequence from a list of numbers */
     static Sequence fromList(QList<uint> numbers);
+
+    /** @short Return true if the sequence contains at least some items */
+    bool isValid() const;
 };
 
 /** @short A handle identifying a command sent to the server */
@@ -150,6 +153,11 @@ public slots:
 
     /** @short SELECT, RFC3501 section 6.3.1 */
     CommandHandle select(const QString &mailbox, const QList<QByteArray> &params = QList<QByteArray>());
+
+    /** @short SELECT extended according to RFC 5162 section 3.1 */
+    CommandHandle selectQresync(const QString &mailbox, const uint uidValidity, const quint64 highestModSeq,
+                                const Sequence &knownUids = Sequence(),
+                                const Sequence &sequenceSnapshot = Sequence(), const Sequence &uidSnapshot = Sequence());
 
     /** @short EXAMINE, RFC3501 section 6.3.2 */
     CommandHandle examine(const QString &mailbox, const QList<QByteArray> &params = QList<QByteArray>());
