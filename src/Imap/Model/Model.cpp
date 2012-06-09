@@ -1411,7 +1411,7 @@ void Model::genericHandleFetch(TreeItemMailbox *mailbox, const Imap::Responses::
     Q_ASSERT(mailbox);
     QList<TreeItemPart *> changedParts;
     TreeItemMessage *changedMessage = 0;
-    mailbox->handleFetchResponse(this, *resp, changedParts, changedMessage, true);
+    mailbox->handleFetchResponse(this, *resp, changedParts, changedMessage, true, false);
     if (! changedParts.isEmpty()) {
         Q_FOREACH(TreeItemPart* part, changedParts) {
             QModelIndex index = part->toIndex(this);

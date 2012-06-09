@@ -314,11 +314,11 @@ QList<TreeItem *> TreeItemMailbox::setChildren(const QList<TreeItem *> items)
 void TreeItemMailbox::handleFetchResponse(Model *const model,
         const Responses::Fetch &response,
         QList<TreeItemPart *> &changedParts,
-        TreeItemMessage *&changedMessage, bool canSaveSyncStateDirectly)
+        TreeItemMessage *&changedMessage, bool canSaveSyncStateDirectly, bool usingQresync)
 {
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(m_children[0]);
     Q_ASSERT(list);
-    if (! list->fetched()) {
+    if (! list->fetched() && !usingQresync) {
         QByteArray buf;
         QTextStream ss(&buf);
         ss << response;

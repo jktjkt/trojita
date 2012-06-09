@@ -885,7 +885,7 @@ bool ObtainSynchronizedMailboxTask::handleFetch(const Imap::Responses::Fetch *co
     Q_ASSERT(mailbox);
     QList<TreeItemPart *> changedParts;
     TreeItemMessage *changedMessage = 0;
-    mailbox->handleFetchResponse(model, *resp, changedParts, changedMessage, false);
+    mailbox->handleFetchResponse(model, *resp, changedParts, changedMessage, false, m_usingQresync);
     if (changedMessage) {
         QModelIndex index = changedMessage->toIndex(model);
         emit model->dataChanged(index, index);
@@ -895,7 +895,8 @@ bool ObtainSynchronizedMailboxTask::handleFetch(const Imap::Responses::Fetch *co
         // On the other hand, this one will be emitted at the very end
         // model->emitMessageCountChanged(mailbox);
     }
-    if (!changedParts.isEmpty()) {
+    if (!changedParts.isEmpty() && !m_usingQresync) {
+        // On the other hand, with QRESYNC our code is ready to receive extra data that changes body parts...
         qDebug() << "Weird, FETCH when syncing has changed some body parts. We aren't ready for that.";
         log(QString::fromAscii("This response has changed some message parts. That should not have happened, as we're still syncing."));
     }
