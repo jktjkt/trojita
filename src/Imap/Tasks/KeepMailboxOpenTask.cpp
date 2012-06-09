@@ -408,6 +408,9 @@ bool KeepMailboxOpenTask::handleVanished(const Responses::Vanished *const resp)
     if (! isRunning)
         return false;
 
+    if (resp->earlier != Responses::Vanished::NOT_EARLIER)
+        return false;
+
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
     Q_ASSERT(mailbox);
 
