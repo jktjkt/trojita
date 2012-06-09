@@ -536,9 +536,9 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
         Q_ASSERT(it >= list->m_children.begin());
 
         TreeItemMessage *msgCandidate = static_cast<TreeItemMessage*>(*it);
-        if (msgCandidate->uid() == 0) {
+        if (msgCandidate->uid() == uid) {
             // will be deleted
-        } else if (msgCandidate->uid() == uid) {
+        } else if (msgCandidate->uid() == 0) {
             // will be deleted
         } else {
             if (it != list->m_children.begin()) {
