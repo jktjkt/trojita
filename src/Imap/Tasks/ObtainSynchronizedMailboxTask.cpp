@@ -234,11 +234,13 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
         if (syncState.isUsableForSyncing() && oldSyncState.isUsableForSyncing() && syncState.uidValidity() == oldSyncState.uidValidity()) {
             // Perform a nice re-sync
 
+            // Check the QRESYNC support and availability
             if (m_usingQresync && oldSyncState.isUsableForCondstore() && syncState.isUsableForCondstore()) {
                 // Looks like we can use QRESYNC for fast syncing
                 if (oldSyncState.highestModSeq() > syncState.highestModSeq()) {
                     // Looks like a corrupted cache or a server's bug
                     log("Yuck, recycled HIGHESTMODSEQ when trying to use QRESYNC", LOG_MAILBOX_SYNC);
+                    mailbox->syncState.setHighestModSeq(0);
                     model->cache()->clearAllMessages(mailbox->mailbox());
                     m_usingQresync = false;
                     fullMboxSync(mailbox, list);
@@ -246,11 +248,13 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                     if (oldSyncState.highestModSeq() == syncState.highestModSeq()) {
                         if (oldSyncState.exists() != syncState.exists()) {
                             log("Sync error: QRESYNC says no changes but EXISTS has changed", LOG_MAILBOX_SYNC);
+                            mailbox->syncState.setHighestModSeq(0);
                             model->cache()->clearAllMessages(mailbox->mailbox());
                             m_usingQresync = false;
                             fullMboxSync(mailbox, list);
                         } else if (oldSyncState.uidNext() != syncState.uidNext()) {
                             log("Sync error: QRESYNC says no changes but UIDNEXT has changed", LOG_MAILBOX_SYNC);
+                            mailbox->syncState.setHighestModSeq(0);
                             model->cache()->clearAllMessages(mailbox->mailbox());
                             m_usingQresync = false;
                             fullMboxSync(mailbox, list);
