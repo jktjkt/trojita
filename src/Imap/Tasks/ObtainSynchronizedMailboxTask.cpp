@@ -461,7 +461,8 @@ void ObtainSynchronizedMailboxTask::syncFlags(TreeItemMailbox *mailbox)
 
     // 0 => don't use it; >0 => use that as the old value
     quint64 useModSeq = 0;
-    if (model->accessParser(parser).capabilities.contains(QLatin1String("CONDSTORE")) &&
+    if ((model->accessParser(parser).capabilities.contains(QLatin1String("CONDSTORE")) ||
+         model->accessParser(parser).capabilities.contains(QLatin1String("QRESYNC"))) &&
             oldSyncState.highestModSeq() > 0 && mailbox->syncState.isUsableForCondstore() &&
             oldSyncState.uidValidity() == mailbox->syncState.uidValidity()) {
         // The CONDSTORE is available, UIDVALIDITY has not changed and the HIGHESTMODSEQ suggests that
