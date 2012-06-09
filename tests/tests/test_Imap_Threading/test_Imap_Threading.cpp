@@ -274,7 +274,7 @@ void ImapModelThreadingTest::testThreadDeletionsAdditions_data()
                                               (QStringList() << "-2" << "(1 (3)(4 5))" << "-3" << "(1 (3)(5))");
 
     // Test new arrivals
-    QTest::newRow("flat-list-new") << (uint)2 << QByteArray("(1)(2)") << (QStringList() << "+1" << "(1)(2)(66)");
+    QTest::newRow("flat-list-new") << (uint)2 << QByteArray("(1)(2)") << (QStringList() << "+1" << "(1)(2)(3)");
 }
 
 /** @short Test deletion of one message */
@@ -359,7 +359,7 @@ void ImapModelThreadingTest::testDynamicThreading()
     ++existsA;
     ++uidNextA;
     QCOMPARE(existsA, 9u);
-    QCOMPARE(uidNextA, 67u);
+    QCOMPARE(uidNextA, 12u);
     SOCK->fakeReading("* 9 EXISTS\r\n");
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();

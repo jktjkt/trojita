@@ -441,7 +441,7 @@ void LibMailboxSync::initialMessages(const uint exists)
     for (uint i = 1; i <= existsA; ++i) {
         uidMapA << i;
     }
-    uidNextA = qMax(66u, exists+2);
+    uidNextA = uidMapA.last() + 1;
     helperSyncAWithMessagesEmptyState();
 
     for (uint i = 1; i <= existsA; ++i) {
