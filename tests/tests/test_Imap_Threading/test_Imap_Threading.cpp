@@ -527,7 +527,6 @@ void ImapModelThreadingTest::verifyIndexMap(const IndexMapping &indexMap, const 
 void ImapModelThreadingTest::initTestCase()
 {
     LibMailboxSync::initTestCase();
-    msgListModel = 0;
     threadingModel = 0;
 }
 
@@ -540,26 +539,8 @@ void ImapModelThreadingTest::init()
     injector.injectCapability(QLatin1String("THREAD=REFS"));
 
     // Setup the threading model
-    msgListModel = new Imap::Mailbox::MsgListModel(this, model);
     threadingModel = new Imap::Mailbox::ThreadingMsgListModel(this);
     threadingModel->setSourceModel(msgListModel);
-}
-
-void ImapModelThreadingTest::initialMessages(const uint exists)
-{
-    // Setup ten fake messages
-    existsA = exists;
-    uidValidityA = 333;
-    for (uint i = 1; i <= existsA; ++i) {
-        uidMapA << i;
-    }
-    uidNextA = qMax(66u, exists+2);
-    helperSyncAWithMessagesEmptyState();
-
-    // open the mailbox
-    msgListModel->setMailbox(idxA);
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
 }
 
 void ImapModelThreadingTest::cleanup()
@@ -567,8 +548,6 @@ void ImapModelThreadingTest::cleanup()
     LibMailboxSync::cleanup();
     threadingModel->deleteLater();
     threadingModel = 0;
-    msgListModel->deleteLater();
-    msgListModel = 0;
 }
 
 /** @short Walk the model and output a THREAD-like responsde with the UIDs */
