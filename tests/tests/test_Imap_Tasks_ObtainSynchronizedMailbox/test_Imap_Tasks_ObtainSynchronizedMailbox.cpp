@@ -1824,4 +1824,46 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncErrorUidNext()
     justKeepTask();
 }
 
+/** @short Test QRESYNC when something has arrived */
+void ImapModelObtainSynchronizedMailboxTest::testQresyncNewArrivals()
+{
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("QRESYNC");
+    Imap::Mailbox::SyncState sync;
+    sync.setExists(3);
+    sync.setUidValidity(666);
+    sync.setUidNext(15);
+    sync.setHighestModSeq(33);
+    QList<uint> uidMap;
+    uidMap << 6 << 9 << 10;
+    model->cache()->setMailboxSyncState("a", sync);
+    model->cache()->setUidMapping("a", uidMap);
+    model->cache()->setMsgFlags("a", 6, QStringList() << "x");
+    model->cache()->setMsgFlags("a", 9, QStringList() << "y");
+    model->cache()->setMsgFlags("a", 10, QStringList() << "z");
+    model->resyncMailbox(idxA);
+    cClient(t.mk("SELECT a (QRESYNC (666 33 (1 9)))\r\n"));
+    cServer("* 4 EXISTS\r\n"
+            "* OK [UIDVALIDITY 666] .\r\n"
+            "* OK [UIDNEXT 20] .\r\n"
+            "* OK [HIGHESTMODSEQ 34] .\r\n"
+            );
+    cServer(t.last("OK selected\r\n"));
+    cClient(t.mk("UID FETCH 15:* (FLAGS)\r\n"));
+    return;
+    // FIXME: this one is out-of-bounds for now
+    cServer("* 4 FETCH (FLAGS (x4) UID 16)\r\n" + t.last("OK uid fetch flags\r\n"));
+    cEmpty();
+    sync.setExists(4);
+    uidMap << 16;
+    sync.setHighestModSeq(34);
+    QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
+    QCOMPARE(model->cache()->uidMapping("a"), uidMap);
+    QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
+    QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
+    QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
+    justKeepTask();
+}
+
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )

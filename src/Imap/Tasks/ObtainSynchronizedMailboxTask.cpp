@@ -263,6 +263,13 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                             saveSyncState(mailbox);
                             _completed();
                         }
+                    } else if (oldSyncState.uidNext() < syncState.uidNext()) {
+                        // We've got some new arrivals, but unfortunately QRESYNC won't report them just yet :(
+                        CommandHandle fetchCmd = parser->uidFetch(Sequence::startingAt(qMax(oldSyncState.uidNext(), 1u)),
+                                                                  QStringList() << QLatin1String("FLAGS"));
+                        newArrivalsFetch.append(fetchCmd);
+                        status = STATE_DONE;
+                        // FIXME: these additions should have been already added to the list of items!
                     } else {
                         // This should be enough, the server should've sent the data already
                         saveSyncState(mailbox);
