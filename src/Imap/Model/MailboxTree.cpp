@@ -591,6 +591,7 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
             // (possibly tiny) time and we can therefore use it to get an idea about the UIDNEXT
             syncState.setUidNext(uid + 1);
         }
+        model->cache()->clearMessage(mailbox(), uid);
         delete msgCandidate;
     }
 
