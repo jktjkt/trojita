@@ -6,7 +6,8 @@ SOURCES += SettingsNames.cpp \
 HEADERS += SettingsNames.h \
     SetCoreApplication.cpp \
     SqlTransactionAutoAborter.h \
-    PortNumbers.h
+    PortNumbers.h \
+    FindWithUnknown.h
 
 GITVERSION_PREFIX = $$join(PWD,,,/../..)
 include(../gitversion.pri)
