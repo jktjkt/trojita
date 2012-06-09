@@ -519,5 +519,69 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive4(bool askFo
     QVERIFY( errorSpy->isEmpty() );
 }
 
+/** @short Check the UIDs in the mailbox against the uidMapA list */
+#define helperCheckUidMapFromModel() \
+{ \
+    QCOMPARE(model->rowCount(msgListA), uidMapA.size()); \
+    QList<uint> actual; \
+    for (int i = 0; i < uidMapA.size(); ++i) { \
+        actual << msgListA.child(i, 0).data(Imap::Mailbox::RoleMessageUid).toUInt(); \
+    } \
+    QCOMPARE(actual, uidMapA); \
+} \
+
+void ImapModelSelectedMailboxUpdatesTest::testVanishedUpdates()
+{
+    initialMessages(10);
+
+    // Deleting a message in the middle of the range
+    cServer("* VANISHED 9\r\n");
+    uidMapA.removeOne(9);
+    helperCheckUidMapFromModel();
+
+    // Deleting the last one
+    cServer("* VANISHED 10\r\n");
+    uidMapA.removeOne(10);
+    helperCheckUidMapFromModel();
+
+    // Dleting three at the very start
+    cServer("* VANISHED 1:3\r\n");
+    uidMapA.removeOne(1);
+    uidMapA.removeOne(2);
+    uidMapA.removeOne(3);
+    helperCheckUidMapFromModel();
+
+    QCOMPARE(uidMapA, QList<uint>() << 4 << 5 << 6 << 7 << 8);
+
+    // A new arrival...
+    cServer("* 6 EXISTS\r\n");
+    cClient(t.mk("UID FETCH 11:* (FLAGS)\r\n"));
+    cServer("* 6 FETCH (UID 11 FLAGS (x))\r\n" + t.last("OK fetched\r\n"));
+    uidMapA << 11;
+    helperCheckUidMapFromModel();
+
+    // Yet another arrival which, unfortunately, gets removed immediately
+    cServer("* 7 EXISTS\r\n* VANISHED 12\r\n");
+    cClient(t.mk("UID FETCH 12:* (FLAGS)\r\n"));
+    cServer(t.last("OK fetched\r\n"));
+    helperCheckUidMapFromModel();
+
+    // Two messages arrive, the server sends UID for the last of them and the first one gets expunged
+    cServer("* 8 EXISTS\r\n");
+    uidMapA << 0 << 0;
+    helperCheckUidMapFromModel();
+    cServer("* 8 FETCH (UID 14 FLAGS ())\r\n");
+    uidMapA[7] = 14;
+    helperCheckUidMapFromModel();
+    cServer("* VANISHED 13\r\n");
+    uidMapA.removeAt(6);
+    helperCheckUidMapFromModel();
+    cClient(t.mk("UID FETCH 13:* (FLAGS)\r\n"));
+    cServer("* 7 FETCH (UID 14 FLAGS (x))\r\n" + t.last("OK fetched\r\n"));
+    helperCheckUidMapFromModel();
+
+    cEmpty();
+}
+
 
 TROJITA_HEADLESS_TEST( ImapModelSelectedMailboxUpdatesTest )

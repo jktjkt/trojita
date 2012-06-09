@@ -168,6 +168,7 @@ private slots:
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
     virtual bool handleSearch(const Imap::Responses::Search *const resp);
     virtual bool handleFlags(const Imap::Responses::Flags *const resp);
+    virtual bool handleVanished(const Responses::Vanished *const resp);
     bool handleResponseCodeInsideState(const Imap::Responses::State *const resp);
 
     void slotPerformNoop();

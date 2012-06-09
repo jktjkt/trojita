@@ -446,6 +446,7 @@ private:
     TreeItemMailbox *findMailboxByName(const QString &name, const TreeItemMailbox *const root) const;
     TreeItemMailbox *findParentMailboxByName(const QString &name) const;
     QList<TreeItemMessage *> findMessagesByUids(const TreeItemMailbox *const mailbox, const QList<uint> &uids);
+    QList<TreeItem*>::iterator findMessageOrNextOneByUid(TreeItemMsgList *list, const uint uid);
 
     static TreeItemMailbox *mailboxForSomeItem(QModelIndex index);
 

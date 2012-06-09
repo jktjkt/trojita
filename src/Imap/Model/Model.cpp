@@ -1108,6 +1108,16 @@ QList<TreeItemMessage *> Model::findMessagesByUids(const TreeItemMailbox *const 
     return res;
 }
 
+/** @short Find a message with UID that matches the passed key, handling those with UID zero correctly
+
+If there's no such message, the next message with a valid UID is returned instead. If there are no such messages, the iterator can
+point to a message with UID zero or to the end of the list.
+*/
+QList<TreeItem*>::iterator Model::findMessageOrNextOneByUid(TreeItemMsgList *list, const uint uid)
+{
+    return Common::lowerBoundWithUnknownElements(list->m_children.begin(), list->m_children.end(), uid, messageHasUidZero, uidComparator);
+}
+
 TreeItemMailbox *Model::findMailboxByName(const QString &name) const
 {
     return findMailboxByName(name, m_mailboxes);
