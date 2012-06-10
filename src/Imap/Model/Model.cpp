@@ -1223,6 +1223,7 @@ TreeItem *Model::realTreeItem(QModelIndex index, const Model **whichModel, QMode
 void Model::changeConnectionState(Parser *parser, ConnectionState state)
 {
     accessParser(parser).connState = state;
+    logTrace(parser->parserId(), LOG_TASKS, QLatin1String("conn"), connectionStateToString(state));
     emit connectionStateChanged(parser, state);
 }
 

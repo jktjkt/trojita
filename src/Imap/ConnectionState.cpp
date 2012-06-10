@@ -36,9 +36,9 @@ QString connectionStateToString(const ConnectionState state)
     case CONN_STATE_CONNECTING:
         return Imap::Mailbox::Model::tr("Connecting to the IMAP server...");
     case CONN_STATE_SSL_HANDSHAKE:
-        return Imap::Mailbox::Model::tr("Starting encryption...");
+        return Imap::Mailbox::Model::tr("Starting encryption (SSL)...");
     case CONN_STATE_SSL_VERIFYING:
-        return Imap::Mailbox::Model::tr("Checking certificates...");
+        return Imap::Mailbox::Model::tr("Checking certificates (SSL)...");
     case CONN_STATE_CONNECTED_PRETLS_PRECAPS:
         return Imap::Mailbox::Model::tr("Checking capabilities...");
     case CONN_STATE_CONNECTED_PRETLS:
@@ -46,15 +46,15 @@ QString connectionStateToString(const ConnectionState state)
     case CONN_STATE_STARTTLS_ISSUED:
         return Imap::Mailbox::Model::tr("Asking for encryption...");
     case CONN_STATE_STARTTLS_HANDSHAKE:
-        return Imap::Mailbox::Model::tr("Starting encryption...");
+        return Imap::Mailbox::Model::tr("Starting encryption (STARTTLS)...");
     case CONN_STATE_STARTTLS_VERIFYING:
-        return Imap::Mailbox::Model::tr("Checking certificates...");
+        return Imap::Mailbox::Model::tr("Checking certificates (STARTTLS)...");
     case CONN_STATE_ESTABLISHED_PRECAPS:
-        return Imap::Mailbox::Model::tr("Checking capabilities...");
+        return Imap::Mailbox::Model::tr("Checking capabilities (after STARTTLS)...");
     case CONN_STATE_LOGIN:
         return Imap::Mailbox::Model::tr("Logging in...");
     case CONN_STATE_POSTAUTH_PRECAPS:
-        return Imap::Mailbox::Model::tr("Checking capabilities...");
+        return Imap::Mailbox::Model::tr("Checking capabilities (after login)...");
     case CONN_STATE_AUTHENTICATED:
         return Imap::Mailbox::Model::tr("Logged in.");
     case CONN_STATE_SELECTING:
