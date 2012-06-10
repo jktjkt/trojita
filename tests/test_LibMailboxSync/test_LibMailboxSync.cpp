@@ -456,6 +456,19 @@ void LibMailboxSync::initialMessages(const uint exists)
     QCoreApplication::processEvents();
 }
 
+/** @short Helper for creating a fake FETCH response with all usually fetched fields
+
+This function will prepare a response mentioning a minimal set of ENVELOPE, UID, BODYSTRUCTURE etc. Please note that
+the actual string won't be passed to the fake socket, but rather returned; this is needed because the fake socket can't accept
+incremental data, but we have to feed it with stuff at once.
+*/
+QByteArray LibMailboxSync::helperCreateTrivialEnvelope(const uint seq, const uint uid, const QString &subject)
+{
+    return QString::fromAscii("* %1 FETCH (UID %2 RFC822.SIZE 89 ENVELOPE (NIL \"%3\" NIL NIL NIL NIL NIL NIL NIL NIL) "
+                              "BODYSTRUCTURE (\"text\" \"plain\" () NIL NIL NIL 19 2 NIL NIL NIL NIL))\r\n").arg(
+                                      QString::number(seq), QString::number(uid), subject ).toAscii();
+}
+
 namespace QTest {
 
 /** @short Debug data dumper for QList<uint> */

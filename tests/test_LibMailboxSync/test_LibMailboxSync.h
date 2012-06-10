@@ -58,6 +58,7 @@ protected:
     virtual void helperCheckCache(bool ignoreUidNext=false);
 
     virtual void helperOneFlagUpdate( const QModelIndex &message );
+    QByteArray helperCreateTrivialEnvelope(const uint seq, const uint uid, const QString &subject);
 
     void helperInitialListing();
     void initialMessages(const uint exists);
