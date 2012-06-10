@@ -1235,45 +1235,6 @@ void Model::handleSocketStateChanged(Parser *parser, Imap::ConnectionState state
     }
 }
 
-void Model::parserIsSendingCommand(Parser *parser, const QString &tag)
-{
-    Q_ASSERT(parser);
-    Q_UNUSED(tag);
-    // FIXME: move this somewhere else!
-    /*QMap<CommandHandle, CommandKind>::const_iterator it = accessParser( parser ).commandMap.find( tag );
-    if ( it == accessParser( parser ).commandMap.end() ) {
-        qDebug() << "Dunno anything about command" << tag;
-        return;
-    }
-
-    switch ( *it ) {
-        case CMD_NONE: // invalid
-        case CMD_STARTTLS: // handled elsewhere
-        case CMD_NAMESPACE: // FIXME: not needed yet
-        case CMD_LOGOUT: // not worth the effort
-            break;
-        case CMD_LOGIN:
-            changeConnectionState( parser, CONN_STATE_LOGIN );
-            break;
-        case CMD_SELECT:
-            changeConnectionState( parser, CONN_STATE_SELECTING );
-            break;
-        case CMD_FETCH_WITH_FLAGS:
-            changeConnectionState( parser, CONN_STATE_SYNCING );
-            break;
-        case CMD_FETCH_PART:
-            changeConnectionState( parser, CONN_STATE_FETCHING_PART );
-            break;
-        case CMD_FETCH_MESSAGE_METADATA:
-            changeConnectionState( parser, CONN_STATE_FETCHING_MSG_METADATA );
-            break;
-        case CMD_NOOP:
-        case CMD_IDLE:
-            // do nothing
-            break;
-    }*/
-}
-
 void Model::killParser(Parser *parser, ParserKillingMethod method)
 {
     if (method == PARSER_JUST_DELETE_LATER) {

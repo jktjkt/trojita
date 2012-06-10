@@ -333,13 +333,6 @@ signals:
     /** @short The socket's state has changed */
     void connectionStateChanged(Imap::Parser *parser, Imap::ConnectionState);
 
-    /** @short A command with the specified tag is being sent
-
-    This signal is being emitted when the parser is just about to send the command
-    identified by the @arg tag to the remote server.
-    */
-    void sendingCommand(Imap::Parser *parser, const QString &tag);
-
 private slots:
     void handleReadyRead();
     void handleDisconnected(const QString &reason);

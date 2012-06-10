@@ -289,9 +289,6 @@ private slots:
     /** @short Helper for low-level state change propagation */
     void handleSocketStateChanged(Imap::Parser *parser, Imap::ConnectionState state);
 
-    /** @short Handler for the Parser::sendingCommand() signal */
-    void parserIsSendingCommand(Imap::Parser *parser, const QString &tag);
-
     /** @short The parser has received a full line */
     void slotParserLineReceived(Imap::Parser *parser, const QByteArray &line);
 
