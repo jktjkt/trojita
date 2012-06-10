@@ -76,7 +76,7 @@ Obsolete:
 - 2086 IMAP4 ACL extension
 - 2095 IMAP/POP AUTHorize Extension for Simple Challenge/Response
 - 2192 IMAP URL Scheme
-- 2359 MAP4 UIDPLUS extension
+- 2359 IMAP4 UIDPLUS extension
 
 Irrelevant stuff:
 - 3807 V5.2-User Adaptation Layer (V5UA)
