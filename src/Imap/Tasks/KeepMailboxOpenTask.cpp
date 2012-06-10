@@ -201,12 +201,14 @@ void KeepMailboxOpenTask::slotTaskDeleted(QObject *object)
     // Now, object is no longer an ImapTask*, as this gets emitted from inside QObject's destructor. However,
     // we can't use the passed pointer directly, and therefore we have to perform the cast here. It is safe
     // to do that here, as we're only interested in raw pointer value.
-    dependentTasks.removeOne(static_cast<ImapTask *>(object));
-    dependingTasksForThisMailbox.removeOne(static_cast<ImapTask *>(object));
-    dependingTasksNoMailbox.removeOne(static_cast<ImapTask *>(object));
-    runningTasksForThisMailbox.removeOne(static_cast<ImapTask *>(object));
-    fetchPartTasks.removeOne(static_cast<FetchMsgPartTask *>(object));
-    fetchMetadataTasks.removeOne(static_cast<FetchMsgMetadataTask *>(object));
+    if (object) {
+        dependentTasks.removeOne(static_cast<ImapTask *>(object));
+        dependingTasksForThisMailbox.removeOne(static_cast<ImapTask *>(object));
+        dependingTasksNoMailbox.removeOne(static_cast<ImapTask *>(object));
+        runningTasksForThisMailbox.removeOne(static_cast<ImapTask *>(object));
+        fetchPartTasks.removeOne(static_cast<FetchMsgPartTask *>(object));
+        fetchMetadataTasks.removeOne(static_cast<FetchMsgMetadataTask *>(object));
+    }
 
     if (isReadyToTerminate()) {
         terminate();
@@ -372,6 +374,7 @@ bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResp
             highestKnownUid = static_cast<const TreeItemMessage *>(list->m_children[i])->uid();
             //qDebug() << "UID disco: trying seq" << i << highestKnownUid;
         }
+        breakOrCancelPossibleIdle();
         newArrivalsFetch.append(parser->uidFetch(Sequence::startingAt(
                                                 // Did the UID walk return a usable number?
                                                 highestKnownUid ?
@@ -490,6 +493,8 @@ bool KeepMailboxOpenTask::handleStateHelper(const Imap::Responses::State *const 
         } else {
             // FIXME: handling of failure...
         }
+        // Don't forget to resume IDLE, if desired; that's easiest by simply behaving as if a "task" has just finished
+        slotTaskDeleted(0);
         return true;
     } else {
         return false;
@@ -790,7 +795,7 @@ bool KeepMailboxOpenTask::hasPendingInternalActions() const
 {
     bool hasToWaitForIdleTermination = idleLauncher ? idleLauncher->waitingForIdleTaggedTermination() : false;
     return !(dependingTasksForThisMailbox.isEmpty() && dependingTasksNoMailbox.isEmpty() && runningTasksForThisMailbox.isEmpty() &&
-             requestedParts.isEmpty() && requestedEnvelopes.isEmpty()) || hasToWaitForIdleTermination;
+             requestedParts.isEmpty() && requestedEnvelopes.isEmpty() && newArrivalsFetch.isEmpty()) || hasToWaitForIdleTermination;
 }
 
 /** @short Returns true if this task can be safely terminated
@@ -806,7 +811,7 @@ bool KeepMailboxOpenTask::isReadyToTerminate() const
 bool KeepMailboxOpenTask::canRunIdleRightNow() const
 {
     bool res = shouldRunIdle && model->accessParser(parser).activeTasks.size() == 1 && dependingTasksForThisMailbox.isEmpty() &&
-            dependingTasksNoMailbox.isEmpty();
+            dependingTasksNoMailbox.isEmpty() && newArrivalsFetch.isEmpty();
 
     if (!res)
         return false;

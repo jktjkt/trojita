@@ -639,5 +639,40 @@ void ImapModelSelectedMailboxUpdatesTest::testMultipleArrivals()
     cEmpty();
 }
 
+/** @short Similar to testMultipleArrivals, but also check that a request to go to another task is delayed until everything is synced again */
+void ImapModelSelectedMailboxUpdatesTest::testMultipleArrivalsBlockingFurtherActivity()
+{
+    initialMessages(1);
+    cServer("* 2 EXISTS\r\n* 3 EXISTS\r\n");
+    QByteArray req1 = t.mk("UID FETCH 2:* (FLAGS)\r\n");
+    QByteArray resp1 = t.last("OK fetched\r\n");
+    // The UIDs are still unknown at this point, and at the same time the client pessimistically assumes that the first command
+    // can easily arrive to the server before it sent the second EXISTS, which is why it has no other choice but repeat
+    // essentially the same command once again.
+    QByteArray req2 = t.mk("UID FETCH 2:* (FLAGS)\r\n");
+    QByteArray resp2 = t.last("OK fetched\r\n");
+
+    // Issue a request to go to another mailbox; it will be queued until the responses are finished
+    QCOMPARE(model->rowCount(msgListB), 0);
+
+    cClient(req1 + req2);
+    // The server will, however, try to be smart in this case and will send the responses back just one time.
+    // It's OK to do so per the relevant standards and Trojita won't care.
+    cServer("* 2 FETCH (UID 2 FLAGS (m2))\r\n"
+            "* 3 FETCH (UID 3 FLAGS (m3))\r\n"
+            + resp1 + resp2);
+    uidMapA << 2 << 3;
+    helperCheckUidMapFromModel();
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMapA.size());
+    QCOMPARE(model->cache()->uidMapping("a"), uidMapA);
+    // flags for UID 1 arre determined deep inside the test helpers, better not check that
+    QCOMPARE(model->cache()->msgFlags("a", 2), QStringList() << "m2");
+    QCOMPARE(model->cache()->msgFlags("a", 3), QStringList() << "m3");
+
+    // Only now the second SELECT shall be queued
+    cClient(t.mk("SELECT b\r\n"));
+    cServer(t.last("OK selected\r\n"));
+    cEmpty();
+}
 
 TROJITA_HEADLESS_TEST( ImapModelSelectedMailboxUpdatesTest )

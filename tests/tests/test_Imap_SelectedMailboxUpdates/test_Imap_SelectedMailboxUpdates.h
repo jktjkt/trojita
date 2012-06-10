@@ -39,6 +39,7 @@ private slots:
     void testVanishedUpdates();
     void testVanishedWithNonExisting();
     void testMultipleArrivals();
+    void testMultipleArrivalsBlockingFurtherActivity();
 private:
     void helperTestExpungeImmediatelyAfterArrival(bool sendUidNext);
     void helperGenericTraffic(bool askForEnvelopes);
