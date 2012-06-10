@@ -372,7 +372,7 @@ bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResp
             highestKnownUid = static_cast<const TreeItemMessage *>(list->m_children[i])->uid();
             //qDebug() << "UID disco: trying seq" << i << highestKnownUid;
         }
-        newArrivalsFetch = parser->uidFetch(Sequence::startingAt(
+        newArrivalsFetch.append(parser->uidFetch(Sequence::startingAt(
                                                 // Did the UID walk return a usable number?
                                                 highestKnownUid ?
                                                 // Yes, we've got at least one message with a UID known -> ask for higher
@@ -382,7 +382,7 @@ bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResp
                                                 // No messages, or no messages with valid UID -> use the UIDNEXT from the syncing state
                                                 // but prevent a possible invalid 0:*
                                                 qMax(mailbox->syncState.uidNext(), 1u)
-                                            ), QStringList() << QLatin1String("FLAGS"));
+                                            ), QStringList() << QLatin1String("FLAGS")));
         return true;
     } else if (resp->kind == Imap::Responses::RECENT) {
         mailbox->syncState.setRecent(resp->number);
@@ -482,8 +482,8 @@ bool KeepMailboxOpenTask::handleStateHelper(const Imap::Responses::State *const 
             terminate();
         }
         return true;
-    } else if (resp->tag == newArrivalsFetch) {
-        // FIXME: support concurrent arrivals...
+    } else if (newArrivalsFetch.contains(resp->tag)) {
+        newArrivalsFetch.removeOne(resp->tag);
 
         if (resp->kind == Responses::OK) {
             // FIXME: anything to do here?

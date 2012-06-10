@@ -611,5 +611,33 @@ void ImapModelSelectedMailboxUpdatesTest::testVanishedWithNonExisting()
     cEmpty();
 }
 
+/** @short Test what happens when the server informs about new message arrivals twice in a row */
+void ImapModelSelectedMailboxUpdatesTest::testMultipleArrivals()
+{
+    initialMessages(1);
+    cServer("* 2 EXISTS\r\n* 3 EXISTS\r\n");
+    QByteArray req1 = t.mk("UID FETCH 2:* (FLAGS)\r\n");
+    QByteArray resp1 = t.last("OK fetched\r\n");
+    // The UIDs are still unknown at this point, and at the same time the client pessimistically assumes that the first command
+    // can easily arrive to the server before it sent the second EXISTS, which is why it has no other choice but repeat
+    // essentially the same command once again.
+    QByteArray req2 = t.mk("UID FETCH 2:* (FLAGS)\r\n");
+    QByteArray resp2 = t.last("OK fetched\r\n");
+    cClient(req1 + req2);
+    // The server will, however, try to be smart in this case and will send the responses back just one time.
+    // It's OK to do so per the relevant standards and Trojita won't care.
+    cServer("* 2 FETCH (UID 2 FLAGS (m2))\r\n"
+            "* 3 FETCH (UID 3 FLAGS (m3))\r\n"
+            + resp1 + resp2);
+    uidMapA << 2 << 3;
+    helperCheckUidMapFromModel();
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMapA.size());
+    QCOMPARE(model->cache()->uidMapping("a"), uidMapA);
+    // flags for UID 1 arre determined deep inside the test helpers, better not check that
+    QCOMPARE(model->cache()->msgFlags("a", 2), QStringList() << "m2");
+    QCOMPARE(model->cache()->msgFlags("a", 3), QStringList() << "m3");
+    cEmpty();
+}
+
 
 TROJITA_HEADLESS_TEST( ImapModelSelectedMailboxUpdatesTest )

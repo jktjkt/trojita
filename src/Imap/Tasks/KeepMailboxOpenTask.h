@@ -242,7 +242,7 @@ protected:
     QList<FetchMsgPartTask *> fetchPartTasks;
     QList<FetchMsgMetadataTask *> fetchMetadataTasks;
     CommandHandle tagIdle;
-    CommandHandle newArrivalsFetch;
+    QList<CommandHandle> newArrivalsFetch;
     friend class IdleLauncher;
     friend class ObtainSynchronizedMailboxTask; // needs access to slotUnSelectCompleted()
     friend class UnSelectTask; // needs access to breakPossibleIdle()
