@@ -50,6 +50,7 @@ private slots:
     void testOkStartTls();
     void testOkStartTlsForbidden();
     void testOkStartTlsDiscardCaps();
+    void testCapabilityAfterLogin();
 
     void provideAuthDetails();
     void acceptSsl(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &sslErrors);

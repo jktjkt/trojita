@@ -243,7 +243,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
             loginCmd.clear();
             // The LOGIN command is finished
             if (resp->kind == OK) {
-                if (resp->respCode == CAPABILITIES) {
+                if (resp->respCode == CAPABILITIES || model->accessParser(parser).capabilitiesFresh) {
                     // Capabilities are already known
                     model->changeConnectionState(parser, CONN_STATE_AUTHENTICATED);
                     onComplete();
@@ -385,6 +385,7 @@ void OpenConnectionTask::askForAuth()
     if (model->m_hasImapPassword) {
         Q_ASSERT(loginCmd.isEmpty());
         loginCmd = parser->login(model->m_imapUser, model->m_imapPassword);
+        model->accessParser(parser).capabilitiesFresh = false;
     } else {
         emit model->authRequested();
     }
@@ -395,6 +396,7 @@ void OpenConnectionTask::authCredentialsNowAvailable()
     if (model->accessParser(parser).connState == CONN_STATE_LOGIN && loginCmd.isEmpty()) {
         if (model->m_hasImapPassword) {
             loginCmd = parser->login(model->m_imapUser, model->m_imapPassword);
+            model->accessParser(parser).capabilitiesFresh = false;
         } else {
             logout(tr("No credentials available"));
         }
