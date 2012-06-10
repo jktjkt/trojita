@@ -32,6 +32,7 @@ ImapAccess::ImapAccess(QObject *parent) :
     m_msgQNAM(0), m_port(0)
 {
     qRegisterMetaType<QList<QSslCertificate> >("QList<QSslCertificate>");
+    qRegisterMetaType<QList<QSslError> >("QList<QSslError>");
     QSettings s;
     m_server = s.value(Common::SettingsNames::imapHostKey).toString();
     m_username = s.value(Common::SettingsNames::imapUserKey).toString();

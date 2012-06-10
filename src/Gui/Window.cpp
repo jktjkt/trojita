@@ -77,6 +77,7 @@ namespace Gui
 MainWindow::MainWindow(): QMainWindow(), model(0), m_ignoreStoredPassword(false)
 {
     qRegisterMetaType<QList<QSslCertificate> >("QList<QSslCertificate>");
+    qRegisterMetaType<QList<QSslError> >("QList<QSslError>");
     createWidgets();
 
     QSettings s;
