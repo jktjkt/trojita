@@ -93,7 +93,8 @@ void ObtainSynchronizedMailboxTask::perform()
             Sequence knownSeq, knownUid;
             int i = oldUidMap.size() / 2;
             while (i < oldUidMap.size()) {
-                knownSeq.add(i);
+                // Message sequence number is one-based, our indexes are zero-based
+                knownSeq.add(i + 1);
                 knownUid.add(oldUidMap[i]);
                 i += (oldUidMap.size() - i) / 2 + 1;
             }

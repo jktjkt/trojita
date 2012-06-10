@@ -1555,7 +1555,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncNoChanges()
     model->cache()->setMsgFlags("a", 9, QStringList() << "y");
     model->cache()->setMsgFlags("a", 10, QStringList() << "z");
     model->resyncMailbox(idxA);
-    cClient(t.mk("SELECT a (QRESYNC (666 33 (1 9)))\r\n"));
+    cClient(t.mk("SELECT a (QRESYNC (666 33 (2 9)))\r\n"));
     cServer("* 3 EXISTS\r\n"
             "* OK [UIDVALIDITY 666] .\r\n"
             "* OK [UIDNEXT 15] .\r\n"
@@ -1590,7 +1590,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncChangedFlags()
     model->cache()->setMsgFlags("a", 9, QStringList() << "y");
     model->cache()->setMsgFlags("a", 10, QStringList() << "z");
     model->resyncMailbox(idxA);
-    cClient(t.mk("SELECT a (QRESYNC (666 33 (1 9)))\r\n"));
+    cClient(t.mk("SELECT a (QRESYNC (666 33 (2 9)))\r\n"));
     cServer("* 3 EXISTS\r\n"
             "* OK [UIDVALIDITY 666] .\r\n"
             "* OK [UIDNEXT 15] .\r\n"
@@ -1627,7 +1627,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncVanishedEarlier()
     model->cache()->setMsgFlags("a", 9, QStringList() << "y");
     model->cache()->setMsgFlags("a", 10, QStringList() << "z");
     model->resyncMailbox(idxA);
-    cClient(t.mk("SELECT a (QRESYNC (666 33 (1 9)))\r\n"));
+    cClient(t.mk("SELECT a (QRESYNC (666 33 (2 9)))\r\n"));
     cServer("* 2 EXISTS\r\n"
             "* OK [UIDVALIDITY 666] .\r\n"
             "* OK [UIDNEXT 15] .\r\n"
@@ -1666,7 +1666,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncUidValidity()
     model->cache()->setMsgFlags("a", 9, QStringList() << "y");
     model->cache()->setMsgFlags("a", 10, QStringList() << "z");
     model->resyncMailbox(idxA);
-    cClient(t.mk("SELECT a (QRESYNC (666 33 (1 9)))\r\n"));
+    cClient(t.mk("SELECT a (QRESYNC (666 33 (2 9)))\r\n"));
     cServer("* 3 EXISTS\r\n"
             "* OK [UIDVALIDITY 333] .\r\n"
             "* OK [UIDNEXT 15] .\r\n"
@@ -1709,7 +1709,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncNoModseqChangedFlags()
     model->cache()->setMsgFlags("a", 9, QStringList() << "y");
     model->cache()->setMsgFlags("a", 10, QStringList() << "z");
     model->resyncMailbox(idxA);
-    cClient(t.mk("SELECT a (QRESYNC (666 33 (1 9)))\r\n"));
+    cClient(t.mk("SELECT a (QRESYNC (666 33 (2 9)))\r\n"));
     cServer("* 3 EXISTS\r\n"
             "* OK [UIDVALIDITY 666] .\r\n"
             "* OK [UIDNEXT 15] .\r\n"
@@ -1750,7 +1750,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncErrorExists()
     model->cache()->setMsgFlags("a", 9, QStringList() << "y");
     model->cache()->setMsgFlags("a", 10, QStringList() << "z");
     model->resyncMailbox(idxA);
-    cClient(t.mk("SELECT a (QRESYNC (666 33 (1 9)))\r\n"));
+    cClient(t.mk("SELECT a (QRESYNC (666 33 (2 9)))\r\n"));
     cServer("* 4 EXISTS\r\n"
             "* OK [UIDVALIDITY 666] .\r\n"
             "* OK [UIDNEXT 15] .\r\n"
@@ -1798,7 +1798,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncErrorUidNext()
     model->cache()->setMsgFlags("a", 9, QStringList() << "y");
     model->cache()->setMsgFlags("a", 10, QStringList() << "z");
     model->resyncMailbox(idxA);
-    cClient(t.mk("SELECT a (QRESYNC (666 33 (1 9)))\r\n"));
+    cClient(t.mk("SELECT a (QRESYNC (666 33 (2 9)))\r\n"));
     cServer("* 3 EXISTS\r\n"
             "* OK [UIDVALIDITY 666] .\r\n"
             "* OK [UIDNEXT 20] .\r\n"
@@ -1842,7 +1842,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncUnreportedNewArrivals()
     model->cache()->setMsgFlags("a", 9, QStringList() << "y");
     model->cache()->setMsgFlags("a", 10, QStringList() << "z");
     model->resyncMailbox(idxA);
-    cClient(t.mk("SELECT a (QRESYNC (666 33 (1 9)))\r\n"));
+    cClient(t.mk("SELECT a (QRESYNC (666 33 (2 9)))\r\n"));
     cServer("* 4 EXISTS\r\n"
             "* OK [UIDVALIDITY 666] .\r\n"
             "* OK [UIDNEXT 20] .\r\n"
@@ -1885,7 +1885,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncReportedNewArrivals()
     model->cache()->setMsgFlags("a", 9, QStringList() << "y");
     model->cache()->setMsgFlags("a", 10, QStringList() << "z");
     model->resyncMailbox(idxA);
-    cClient(t.mk("SELECT a (QRESYNC (666 33 (1 9)))\r\n"));
+    cClient(t.mk("SELECT a (QRESYNC (666 33 (2 9)))\r\n"));
     cServer("* 4 EXISTS\r\n"
             "* OK [UIDVALIDITY 666] .\r\n"
             "* OK [UIDNEXT 20] .\r\n"
@@ -1929,7 +1929,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncDeletionsNewArrivals()
     model->cache()->setMsgFlags("a", 4, QStringList() << "4");
     model->cache()->setMsgFlags("a", 5, QStringList() << "5");
     model->resyncMailbox(idxA);
-    cClient(t.mk("SELECT a (QRESYNC (666 10 (2,4 3,5)))\r\n"));
+    cClient(t.mk("SELECT a (QRESYNC (666 10 (3,5 3,5)))\r\n"));
     cServer("* 5 EXISTS\r\n"
             "* OK [UIDVALIDITY 666] .\r\n"
             "* OK [UIDNEXT 10] .\r\n"
