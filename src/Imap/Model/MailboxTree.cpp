@@ -595,6 +595,23 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
         delete msgCandidate;
     }
 
+    if (resp.earlier == Responses::Vanished::EARLIER && static_cast<uint>(list->m_children.size()) < syncState.exists()) {
+        // Okay, there were some new arrivals which we failed to take into account because we had processed EXISTS
+        // before VANISHED (EARLIER). That means that we have to add some of that messages back right now.
+        int newArrivals = syncState.exists() - list->m_children.size();
+        Q_ASSERT(newArrivals > 0);
+        QModelIndex parent = list->toIndex(model);
+        int offset = list->m_children.size();
+        model->beginInsertRows(parent, offset, syncState.exists() - 1);
+        for (int i = 0; i < newArrivals; ++i) {
+            TreeItemMessage *msg = new TreeItemMessage(list);
+            msg->m_offset = i + offset;
+            list->m_children << msg;
+            // yes, we really have to add this message with UID 0 :(
+        }
+        model->endInsertRows();
+    }
+
     list->m_totalMessageCount = list->m_children.size();
     syncState.setExists(list->m_totalMessageCount);
     list->recalcVariousMessageCounts(const_cast<Model *>(model));

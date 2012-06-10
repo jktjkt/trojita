@@ -258,12 +258,35 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                             model->cache()->clearAllMessages(mailbox->mailbox());
                             m_usingQresync = false;
                             fullMboxSync(mailbox, list);
+                        } else if (syncState.exists() != static_cast<uint>(list->m_children.size())) {
+                            log(QString::fromAscii("Sync error: constant HIGHESTMODSEQ, EXISTS says %1 messages but in fact "
+                                                   "there are %2 when finalizing SELECT")
+                                .arg(QString::number(mailbox->syncState.exists()), QString::number(list->m_children.size())),
+                                LOG_MAILBOX_SYNC);
+                            mailbox->syncState.setHighestModSeq(0);
+                            model->cache()->clearAllMessages(mailbox->mailbox());
+                            m_usingQresync = false;
+                            fullMboxSync(mailbox, list);
                         } else {
                             // This should be enough
                             saveSyncState(mailbox);
                             _completed();
                         }
-                    } else if (oldSyncState.uidNext() < syncState.uidNext()) {
+                        return;
+                    }
+
+                    if (static_cast<uint>(list->m_children.size()) != mailbox->syncState.exists()) {
+                        log(QString::fromAscii("Sync error: EXISTS says %1 messages, msgList has %2")
+                            .arg(QString::number(mailbox->syncState.exists()), QString::number(list->m_children.size())));
+                        mailbox->syncState.setHighestModSeq(0);
+                        model->cache()->clearAllMessages(mailbox->mailbox());
+                        m_usingQresync = false;
+                        fullMboxSync(mailbox, list);
+                        return;
+                    }
+
+
+                    if (oldSyncState.uidNext() < syncState.uidNext()) {
                         int seqWithLowestUnknownUid = -1;
                         for (int i = 0; i < list->m_children.size(); ++i) {
                             TreeItemMessage *msg = static_cast<TreeItemMessage*>(list->m_children[i]);
