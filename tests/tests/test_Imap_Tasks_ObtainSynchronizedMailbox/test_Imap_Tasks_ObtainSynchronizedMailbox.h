@@ -76,7 +76,8 @@ private slots:
     void testQresyncNoModseqChangedFlags();
     void testQresyncErrorExists();
     void testQresyncErrorUidNext();
-    void testQresyncNewArrivals();
+    void testQresyncUnreportedNewArrivals();
+    void testQresyncReportedNewArrivals();
 
     // We put the benchmark to the last position as this one takes a long time
     void testFlagReSyncBenchmark();

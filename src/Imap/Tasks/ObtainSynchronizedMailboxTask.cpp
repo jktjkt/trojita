@@ -264,11 +264,25 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                             _completed();
                         }
                     } else if (oldSyncState.uidNext() < syncState.uidNext()) {
-                        // We've got some new arrivals, but unfortunately QRESYNC won't report them just yet :(
-                        CommandHandle fetchCmd = parser->uidFetch(Sequence::startingAt(qMax(oldSyncState.uidNext(), 1u)),
-                                                                  QStringList() << QLatin1String("FLAGS"));
-                        newArrivalsFetch.append(fetchCmd);
-                        status = STATE_DONE;
+                        int seqWithLowestUnknownUid = -1;
+                        for (int i = 0; i < list->m_children.size(); ++i) {
+                            TreeItemMessage *msg = static_cast<TreeItemMessage*>(list->m_children[i]);
+                            if (!msg->uid()) {
+                                seqWithLowestUnknownUid = i;
+                                break;
+                            }
+                        }
+                        if (seqWithLowestUnknownUid >= 0) {
+                            // We've got some new arrivals, but unfortunately QRESYNC won't report them just yet :(
+                            CommandHandle fetchCmd = parser->uidFetch(Sequence::startingAt(qMax(oldSyncState.uidNext(), 1u)),
+                                                                      QStringList() << QLatin1String("FLAGS"));
+                            newArrivalsFetch.append(fetchCmd);
+                            status = STATE_DONE;
+                        } else {
+                            // All UIDs are known at this point, including the new arrivals, yay
+                            saveSyncState(mailbox);
+                            _completed();
+                        }
                     } else {
                         // This should be enough, the server should've sent the data already
                         saveSyncState(mailbox);
