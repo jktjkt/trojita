@@ -53,7 +53,10 @@ OpenConnectionTask::OpenConnectionTask(Model *model, void *dummy):
 
 QString OpenConnectionTask::debugIdentification() const
 {
-    return QLatin1String("OpenConnectionTask");
+    if (parser)
+        return QString::fromAscii("OpenConnectionTask: %1").arg(Imap::connectionStateToString(model->accessParser(parser).connState));
+    else
+        return QString::fromAscii("OpenConnectionTask: no parser");
 }
 
 void OpenConnectionTask::perform()

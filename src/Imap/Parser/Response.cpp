@@ -931,9 +931,12 @@ Id::Id(const QByteArray &line, int &start): AbstractResponse(ID)
 
 Enabled::Enabled(const QByteArray &line, int &start)
 {
-    extension = LowLevelParser::getAtom(line, start);
-    if (start != line.size() - 2)
-        throw TooMuchData("Got data after ENABLE's capability specification", line, start);
+    LowLevelParser::eatSpaces(line, start);
+    while (start < line.size() - 2) {
+        QByteArray extension = LowLevelParser::getAtom(line, start);
+        extensions << extension;
+        LowLevelParser::eatSpaces(line, start);
+    }
 }
 
 Vanished::Vanished(const QByteArray &line, int &start):
@@ -1100,7 +1103,11 @@ QTextStream &Id::dump(QTextStream &s) const
 
 QTextStream &Enabled::dump(QTextStream &s) const
 {
-    return s << "ENABLE " << extension;
+    s << "ENABLE ";
+    Q_FOREACH(const QByteArray &extension, extensions) {
+        s << extension;
+    }
+    return s;
 }
 
 QTextStream &Vanished::dump(QTextStream &s) const
@@ -1319,7 +1326,7 @@ bool Enabled::eq(const AbstractResponse &other) const
 {
     try {
         const Enabled &r = dynamic_cast<const Enabled &>(other);
-        return extension == r.extension;
+        return extensions == r.extensions;
     } catch (std::bad_cast &) {
         return false;
     }

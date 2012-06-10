@@ -131,8 +131,8 @@ void ImapResponsesTest::testCompareEq_data()
         respPtr(new Id(QMap<QByteArray,QByteArray>()));
 
     QTest::newRow("enable") <<
-        respPtr(new Enabled(QByteArray("foo"))) <<
-        respPtr(new Enabled(QByteArray("foo")));
+        respPtr(new Enabled(QList<QByteArray>() << "foo")) <<
+        respPtr(new Enabled(QList<QByteArray>() << "foo"));
 }
 
 void ImapResponsesTest::testCompareNe_data()
@@ -298,8 +298,8 @@ void ImapResponsesTest::testCompareNe_data()
         respPtr(new Id(sampleId));
 
     QTest::newRow("enable") <<
-        respPtr(new Enabled(QByteArray())) <<
-        respPtr(new Enabled(QByteArray("blah")));
+        respPtr(new Enabled(QList<QByteArray>())) <<
+        respPtr(new Enabled(QList<QByteArray>() << "blah"));
 }
 
 TROJITA_HEADLESS_TEST( ImapResponsesTest )

@@ -524,9 +524,9 @@ public:
 class Enabled: public AbstractResponse
 {
 public:
-    QByteArray extension;
+    QList<QByteArray> extensions;
     Enabled(const QByteArray &line, int &start);
-    Enabled(const QByteArray &extension): AbstractResponse(ENABLED), extension(extension) {}
+    Enabled(const QList<QByteArray> &extensions): AbstractResponse(ENABLED), extensions(extensions) {}
     virtual QTextStream &dump(QTextStream &s) const;
     virtual bool eq(const AbstractResponse &other) const;
     virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;

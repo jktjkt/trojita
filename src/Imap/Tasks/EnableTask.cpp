@@ -49,7 +49,12 @@ void EnableTask::perform()
 
 bool EnableTask::handleEnabled(const Responses::Enabled *const resp)
 {
-    return extensions.contains(resp->extension.toUpper());
+    Q_FOREACH(const QByteArray &anExtension, resp->extensions) {
+        // as soon as at least one of them was requested, let's declare that we've eaten this response
+        if (extensions.contains(anExtension.toUpper()))
+            return true;
+    }
+    return false;
 }
 
 bool EnableTask::handleStateHelper(const Imap::Responses::State *const resp)
