@@ -633,10 +633,9 @@ bool ObtainSynchronizedMailboxTask::handleNumberResponse(const Imap::Responses::
                 // Because QRESYNC won't tell us anything about the new UIDs, we have to resort to this kludgy way of working.
                 // I really, really wonder why there's no such thing likt * ARRIVED to accompany * VANISHED. Oh well.
                 mailbox->syncState.setExists(resp->number);
-                if (oldSyncState.exists() < mailbox->syncState.exists()) {
+                int newArrivals = resp->number - list->m_children.size();
+                if (newArrivals > 0) {
                     // We have to add empty messages here
-                    int newArrivals = resp->number - list->m_children.size();
-                    Q_ASSERT(newArrivals > 0);
                     QModelIndex parent = list->toIndex(model);
                     int offset = list->m_children.size();
                     model->beginInsertRows(parent, offset, resp->number - 1);
