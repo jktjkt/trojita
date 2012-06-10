@@ -51,7 +51,7 @@ public:
 
 public slots:
     /** @short An IMAP model wants to log something */
-    void slotImapLogged(uint parser, const Imap::Mailbox::LogMessage &message);
+    void slotImapLogged(uint parser, Imap::Mailbox::LogMessage message);
 
     /** @short Enable/disable persistent logging */
     void slotSetPersistentLogging(const bool enabled);

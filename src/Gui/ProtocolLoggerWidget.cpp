@@ -133,20 +133,24 @@ void ProtocolLoggerWidget::hideEvent(QHideEvent *e)
     QWidget::hideEvent(e);
 }
 
-void ProtocolLoggerWidget::slotImapLogged(uint parser, const Imap::Mailbox::LogMessage &message)
+void ProtocolLoggerWidget::slotImapLogged(uint parser, Imap::Mailbox::LogMessage message)
 {
     QMap<uint, Imap::RingBuffer<Imap::Mailbox::LogMessage> >::iterator bufIt = buffers.find(parser);
     if (bufIt == buffers.end()) {
         // FIXME: don't hard-code that
         bufIt = buffers.insert(parser, Imap::RingBuffer<Imap::Mailbox::LogMessage>(900));
     }
-    bufIt->append(message);
-    if (loggingActive && !delayedDisplay->isActive())
-        delayedDisplay->start();
-
     if (m_fileLog) {
         writeToDisk(parser, message);
     }
+    enum {CUTOFF=200};
+    if (message.message.size() > CUTOFF) {
+        message.truncatedBytes = message.message.size() - CUTOFF;
+        message.message = message.message.left(CUTOFF);
+    }
+    bufIt->append(message);
+    if (loggingActive && !delayedDisplay->isActive())
+        delayedDisplay->start();
 }
 
 void ProtocolLoggerWidget::writeToDisk(uint parser, const Imap::Mailbox::LogMessage &message)

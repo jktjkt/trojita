@@ -1524,9 +1524,7 @@ QStringList Model::capabilities() const
 
 void Model::logTrace(uint parserId, const LogKind kind, const QString &source, const QString &message)
 {
-    enum {CUTOFF=200};
-    uint truncatedBytes = message.size() > CUTOFF ? message.size() - CUTOFF : 0;
-    LogMessage m(QDateTime::currentDateTime(), kind, source, truncatedBytes ? message.left(CUTOFF) : message, truncatedBytes);
+    LogMessage m(QDateTime::currentDateTime(), kind, source,  message, 0);
     emit logged(parserId, m);
 }
 
