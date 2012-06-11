@@ -83,13 +83,27 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
         case MsgListModel::DATE:
         {
             QDateTime res = translated.data(RoleMessageDate).toDateTime();
-            // Tooltips use longer variant, displayed text is shorter to save precious space
-            Qt::DateFormat format = role == Qt::ToolTipRole ? Qt::DefaultLocaleLongDate : Qt::DefaultLocaleShortDate;
-            if (res.date() == QDate::currentDate()) {
-                // Also don't show dates for today's e-mail
-                return res.time().toString(format);
+            if (role == Qt::ToolTipRole) {
+                // tooltips shall always show the full and complete data
+                return res.toString(Qt::DefaultLocaleLongDate);
+            }
+            QDateTime now = QDateTime::currentDateTime();
+            if (res >= now) {
+                // messages from future shall always be shown using full format to prevent nasty surprises
+                return res.toString(Qt::DefaultLocaleShortDate);
+            } else if (res > now.addDays(-1)) {
+                // It's a message fresher than 24 hours, let's show just the time.
+                // While we're at it, cut the seconds, these are not terribly useful here
+                return res.time().toString(tr("hh:mm"));
+            } else if (res > now.addDays(-7)) {
+                // Messages from the last seven days can be formatted just with the weekday name
+                return res.toString(tr("ddd hh:mm"));
+            } else if (res > now.addYears(-1)) {
+                // Messages newer than one year don't have to show year
+                return res.toString(tr("d MMM hh:mm"));
             } else {
-                return res.toString(format);
+                // Old messagees shall have a full date
+                return res.toString(Qt::DefaultLocaleShortDate);
             }
         }
         case MsgListModel::SIZE:
