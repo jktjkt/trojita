@@ -270,6 +270,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                             fullMboxSync(mailbox, list);
                         } else {
                             // This should be enough
+                            list->m_fetchStatus = TreeItem::DONE;
                             saveSyncState(mailbox);
                             _completed();
                         }
@@ -288,6 +289,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
 
 
                     if (oldSyncState.uidNext() < syncState.uidNext()) {
+                        list->m_fetchStatus = TreeItem::DONE;
                         int seqWithLowestUnknownUid = -1;
                         for (int i = 0; i < list->m_children.size(); ++i) {
                             TreeItemMessage *msg = static_cast<TreeItemMessage*>(list->m_children[i]);
@@ -309,6 +311,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                         }
                     } else {
                         // This should be enough, the server should've sent the data already
+                        list->m_fetchStatus = TreeItem::DONE;
                         saveSyncState(mailbox);
                         _completed();
                     }

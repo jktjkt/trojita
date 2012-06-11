@@ -1569,6 +1569,9 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncNoChanges()
     QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
     QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
     QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
+    // deactivate envelope preloading
+    model->setNetworkExpensive();
+    requestAndCheckSubject(0, "subject 6");
     justKeepTask();
 }
 
@@ -1606,6 +1609,9 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncChangedFlags()
     QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
     QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "x2");
     QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
+    // deactivate envelope preloading
+    model->setNetworkExpensive();
+    requestAndCheckSubject(0, "subject 6");
     justKeepTask();
 }
 
@@ -1906,6 +1912,9 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncReportedNewArrivals()
     QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
     QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
     QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
+    // deactivate envelope preloading
+    model->setNetworkExpensive();
+    requestAndCheckSubject(0, "subject 6");
     justKeepTask();
 }
 
