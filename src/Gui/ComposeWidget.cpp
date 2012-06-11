@@ -24,6 +24,7 @@
 #include <QProgressDialog>
 #include <QPushButton>
 #include <QSettings>
+#include <QUuid>
 
 #include "AutoCompletion.h"
 #include "ComposeWidget.h"
@@ -146,7 +147,10 @@ void ComposeWidget::send()
     mailData.append("Content-Type: text/plain; charset=utf-8\r\n"
                     "Content-Transfer-Encoding: 8bit\r\n");
 
-    //mailData.append( "Message-ID: <4A00C5A4.1080301@fzu.cz>\r\n" ); // FIXME
+    QByteArray messageId = generateMessageId(fromAddress);
+    if (!messageId.isEmpty()) {
+        mailData.append("Message-ID: <").append(messageId).append(">\r\n");
+    }
     QDateTime now = QDateTime::currentDateTime().toUTC(); // FIXME: will neeed proper timzeone...
     mailData.append("Date: ").append(now.toString(
                                          QString::fromAscii("ddd, dd MMM yyyy hh:mm:ss")).append(
@@ -178,6 +182,15 @@ void ComposeWidget::send()
     progress->setEnabled(true);
 
     msa->sendMail(fromAddress.asSMTPMailbox(), mailDestinations, mailData);
+}
+
+QByteArray ComposeWidget::generateMessageId(const Imap::Message::MailAddress &sender)
+{
+    if (sender.host.isEmpty()) {
+        // There's no usable domain, let's just bail out of here
+        return QByteArray();
+    }
+    return QUuid::createUuid().toByteArray().replace("{", "").replace("}", "") + "@" + sender.host.toAscii();
 }
 
 void ComposeWidget::setData(const QString &from, const QList<QPair<QString, QString> > &recipients,

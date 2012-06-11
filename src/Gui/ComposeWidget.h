@@ -81,6 +81,7 @@ private:
                                 int &startOffset);
     static bool parseOneAddress(Imap::Message::MailAddress &into,
                                 const QString &address);
+    static QByteArray generateMessageId(const Imap::Message::MailAddress &sender);
 
     Ui::ComposeWidget *ui;
     QPushButton *sendButton;
