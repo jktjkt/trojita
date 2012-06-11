@@ -59,7 +59,8 @@ public:
     void setData(const QString &from,
                  const QList<QPair<QString, QString> > &recipients,
                  const QString &subject,
-                 const QString &body);
+                 const QString &body,
+                 const QByteArray &inReplyTo);
 
 protected:
     void changeEvent(QEvent *e);
@@ -86,6 +87,7 @@ private:
     QPushButton *cancelButton;
     QList<QComboBox *> recipientsKind;
     QList<QLineEdit *> recipientsAddress;
+    QByteArray m_inReplyTo;
 
     ComposeWidget(const ComposeWidget &); // don't implement
     ComposeWidget &operator=(const ComposeWidget &); // don't implement

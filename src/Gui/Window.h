@@ -67,7 +67,8 @@ class MainWindow: public QMainWindow
     typedef QList<QPair<QString,QString> > RecipientsType;
 public:
     MainWindow();
-    void invokeComposeDialog(const QString &subject=QString(), const QString &body=QString(), const RecipientsType &recipients=RecipientsType());
+    void invokeComposeDialog(const QString &subject=QString(), const QString &body=QString(),
+                             const RecipientsType &recipients=RecipientsType(), const QByteArray &inReplyTo = QByteArray());
     QSize sizeHint() const;
 
 private slots:

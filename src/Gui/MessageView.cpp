@@ -251,7 +251,7 @@ void MessageView::reply(MainWindow *mainWindow, ReplyMode mode)
             recipients << qMakePair(tr("Cc"), QString::fromAscii("%1@%2").arg(it->mailbox, it->host));
         }
     }
-    mainWindow->invokeComposeDialog(replySubject(envelope.subject), quoteText(), recipients);
+    mainWindow->invokeComposeDialog(replySubject(envelope.subject), quoteText(), recipients, envelope.messageId);
 }
 
 QString MessageView::replySubject(const QString &subject)

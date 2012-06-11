@@ -156,6 +156,9 @@ void ComposeWidget::send()
                 .arg(qApp->applicationName(), qApp->applicationVersion(), Imap::Mailbox::systemPlatformVersion()).toAscii()
     ).append("\r\n");
     mailData.append("MIME-Version: 1.0\r\n");
+    if (!m_inReplyTo.isEmpty()) {
+        mailData.append("In-Reply-To: ").append(m_inReplyTo).append("\r\n");
+    }
     mailData.append("\r\n");
     mailData.append(ui->mailText->toPlainText().toUtf8());
 
@@ -178,7 +181,7 @@ void ComposeWidget::send()
 }
 
 void ComposeWidget::setData(const QString &from, const QList<QPair<QString, QString> > &recipients,
-                            const QString &subject, const QString &body)
+                            const QString &subject, const QString &body, const QByteArray &inReplyTo)
 {
     // FIXME: combobox for from...
     ui->sender->addItem(from);
@@ -191,6 +194,7 @@ void ComposeWidget::setData(const QString &from, const QList<QPair<QString, QStr
         addRecipient(recipients.size(), recipients.last().first, QString());
     ui->subject->setText(subject);
     ui->mailText->setText(body);
+    m_inReplyTo = inReplyTo;
 }
 
 void ComposeWidget::addRecipient(int position, const QString &kind, const QString &address)

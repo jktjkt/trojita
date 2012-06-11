@@ -1089,14 +1089,14 @@ void MainWindow::slotComposeMailUrl(const QUrl &url)
 }
 
 void MainWindow::invokeComposeDialog(const QString &subject, const QString &body,
-                                     const QList<QPair<QString,QString> > &recipients)
+                                     const QList<QPair<QString,QString> > &recipients, const QByteArray &inReplyTo)
 {
     QSettings s;
     ComposeWidget *w = new ComposeWidget(this, autoCompletionModel);
     w->setData(QString::fromAscii("%1 <%2>").arg(
                    s.value(Common::SettingsNames::realNameKey).toString(),
                    s.value(Common::SettingsNames::addressKey).toString()),
-               recipients, subject, body);
+               recipients, subject, body, inReplyTo);
     w->setAttribute(Qt::WA_DeleteOnClose, true);
     Util::centerWidgetOnScreen(w);
     w->show();
