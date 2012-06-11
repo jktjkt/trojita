@@ -41,23 +41,27 @@ MsgListView::MsgListView(QWidget *parent): QTreeView(parent)
 
 int MsgListView::sizeHintForColumn(int column) const
 {
+    QFont boldFont = font();
+    boldFont.setBold(true);
+    QFontMetrics metric(boldFont);
     switch (column) {
     case Imap::Mailbox::MsgListModel::SEEN:
         return 16;
     case Imap::Mailbox::MsgListModel::SUBJECT:
-        return fontMetrics().size(Qt::TextSingleLine, QLatin1String("Blesmrt Trojita Foo Bar")).width();
+        return metric.size(Qt::TextSingleLine, QLatin1String("Blesmrt Trojita Foo Bar Random Text")).width();
     case Imap::Mailbox::MsgListModel::FROM:
     case Imap::Mailbox::MsgListModel::TO:
     case Imap::Mailbox::MsgListModel::CC:
     case Imap::Mailbox::MsgListModel::BCC:
-        return fontMetrics().size(Qt::TextSingleLine, QLatin1String("Blesmrt Trojita")).width();
+        return metric.size(Qt::TextSingleLine, QLatin1String("Blesmrt Trojita")).width();
     case Imap::Mailbox::MsgListModel::DATE:
-        return fontMetrics().size(Qt::TextSingleLine,
-                                  QDateTime::currentDateTime().toString(Qt::DefaultLocaleShortDate)
-                                  // Because that's roughly what the PrettyMsgListModel is doing
+        return metric.size(Qt::TextSingleLine,
+                                  tr("Mon 10:33")
+                                  // Try to use a text which represents "recent mails" because these are likely to be relevant
+                                  // in this context
                                  ).width();
     case Imap::Mailbox::MsgListModel::SIZE:
-        return fontMetrics().size(Qt::TextSingleLine, QLatin1String("888.1 kB")).width();
+        return metric.size(Qt::TextSingleLine, QLatin1String("888.1 kB")).width();
     default:
         return QTreeView::sizeHintForColumn(column);
     }
