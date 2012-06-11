@@ -1598,7 +1598,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncChangedFlags()
             "* OK [UIDVALIDITY 666] .\r\n"
             "* OK [UIDNEXT 15] .\r\n"
             "* OK [HIGHESTMODSEQ 36] .\r\n"
-            "* 2 FETCH (UID 9 FLAGS (x2))\r\n"
+            "* 2 FETCH (UID 9 FLAGS (x2 \\Seen))\r\n"
             );
     cServer(t.last("OK selected\r\n"));
     cEmpty();
@@ -1607,8 +1607,12 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncChangedFlags()
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
     QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
-    QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "x2");
+    QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "\\Seen" << "x2");
     QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
+
+    // make sure that we've picked up possible flag change about unread messages
+    QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 2);
+
     // deactivate envelope preloading
     model->setNetworkExpensive();
     requestAndCheckSubject(0, "subject 6");

@@ -270,6 +270,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                         } else {
                             // This should be enough
                             list->m_fetchStatus = TreeItem::DONE;
+                            notifyInterestingMessages(mailbox);
                             saveSyncState(mailbox);
                             _completed();
                         }
@@ -305,12 +306,14 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                             status = STATE_DONE;
                         } else {
                             // All UIDs are known at this point, including the new arrivals, yay
+                            notifyInterestingMessages(mailbox);
                             saveSyncState(mailbox);
                             _completed();
                         }
                     } else {
                         // This should be enough, the server should've sent the data already
                         list->m_fetchStatus = TreeItem::DONE;
+                        notifyInterestingMessages(mailbox);
                         saveSyncState(mailbox);
                         _completed();
                     }
