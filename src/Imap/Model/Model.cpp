@@ -231,7 +231,11 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
             if (! handled) {
                 resp->plug(it->parser, this);
 #ifdef DEBUG_TASK_ROUTING
-                logTrace(it->parser->parserId(), LOG_TASKS, QLatin1String("Model"), QLatin1String("Handled"));
+                if (it->parser) {
+                    logTrace(it->parser->parserId(), LOG_TASKS, QLatin1String("Model"), QLatin1String("Handled"));
+                } else {
+                    logTrace(0, LOG_TASKS, QLatin1String("Model"), QLatin1String("Handled"));
+                }
 #endif
             }
         } catch (Imap::StartTlsFailed &e) {
