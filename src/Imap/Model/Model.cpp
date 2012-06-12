@@ -206,6 +206,9 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
 
 #ifdef DEBUG_TASK_ROUTING
                     try {
+                        logTrace(it->parser->parserId(), LOG_TASKS, QString(),
+                                 QString::fromAscii("Routing to %1 %2").arg((*taskIt)->metaObject()->className(),
+                                                                            (*taskIt)->debugIdentification()));
 #endif
                     handled = resp->plug(*taskIt);
 #ifdef DEBUG_TASK_ROUTING
