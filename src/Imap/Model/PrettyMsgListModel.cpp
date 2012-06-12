@@ -86,9 +86,9 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
             QDateTime res = translated.data(RoleMessageDate).toDateTime();
             if (role == Qt::ToolTipRole) {
                 // tooltips shall always show the full and complete data
-                return res.toString(Qt::DefaultLocaleLongDate);
+                return res.toLocalTime().toString(Qt::DefaultLocaleLongDate);
             }
-            return prettyFormatDate(res);
+            return prettyFormatDate(res.toLocalTime());
         }
         case MsgListModel::SIZE:
         {
