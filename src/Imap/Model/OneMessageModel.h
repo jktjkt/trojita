@@ -48,6 +48,7 @@ class OneMessageModel: public QObject
 
     Q_PROPERTY(QString subject READ subject NOTIFY envelopeChanged)
     Q_PROPERTY(QDateTime date READ date NOTIFY envelopeChanged)
+    Q_PROPERTY(QDateTime receivedDate READ receivedDate NOTIFY envelopeChanged)
     Q_PROPERTY(QVariantList from READ from NOTIFY envelopeChanged)
     Q_PROPERTY(QVariantList to READ to NOTIFY envelopeChanged)
     Q_PROPERTY(QVariantList cc READ cc NOTIFY envelopeChanged)
@@ -69,6 +70,7 @@ public:
 
     QString subject() const;
     QDateTime date() const;
+    QDateTime receivedDate() const;
     QVariantList from() const;
     QVariantList to() const;
     QVariantList cc() const;

@@ -62,6 +62,7 @@ MsgListModel::MsgListModel(QObject *parent, Model *model): QAbstractProxyModel(p
     roleNames[RoleMessageIsMarkedReplied] = "isMarkedReplied";
     roleNames[RoleMessageIsMarkedRecent] = "isMarkedRecent";
     roleNames[RoleMessageDate] = "date";
+    roleNames[RoleMessageInternalDate] = "receivedDate";
     roleNames[RoleMessageFrom] = "from";
     roleNames[RoleMessageTo] = "to";
     roleNames[RoleMessageCc] = "cc";

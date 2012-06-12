@@ -97,6 +97,11 @@ QDateTime OneMessageModel::date() const
     return m_message.data(RoleMessageDate).toDateTime();
 }
 
+QDateTime OneMessageModel::receivedDate() const
+{
+    return m_message.data(RoleMessageInternalDate).toDateTime();
+}
+
 QString OneMessageModel::subject() const
 {
     return m_message.data(RoleMessageSubject).toString();
