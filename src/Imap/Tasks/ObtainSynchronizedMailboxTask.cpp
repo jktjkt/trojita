@@ -1136,8 +1136,6 @@ void ObtainSynchronizedMailboxTask::notifyInterestingMessages(TreeItemMailbox *m
 
 bool ObtainSynchronizedMailboxTask::dieIfInvalidMailbox()
 {
-    Q_ASSERT(!unSelectTask);
-
     if (mailboxIndex.isValid())
         return false;
 
@@ -1146,9 +1144,11 @@ bool ObtainSynchronizedMailboxTask::dieIfInvalidMailbox()
 
     log("Mailbox disappeared", LOG_MAILBOX_SYNC);
 
-    unSelectTask = model->m_taskFactory->createUnSelectTask(model, this);
-    connect(unSelectTask, SIGNAL(completed(ImapTask *)), this, SLOT(slotUnSelectCompleted()));
-    unSelectTask->perform();
+    if (!unSelectTask) {
+        unSelectTask = model->m_taskFactory->createUnSelectTask(model, this);
+        connect(unSelectTask, SIGNAL(completed(ImapTask *)), this, SLOT(slotUnSelectCompleted()));
+        unSelectTask->perform();
+    }
 
     return true;
 }

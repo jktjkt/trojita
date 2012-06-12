@@ -73,6 +73,18 @@ void UnSelectTask::doFakeSelect()
 
 bool UnSelectTask::handleStateHelper(const Imap::Responses::State *const resp)
 {
+    switch (resp->respCode) {
+    case Responses::UNSEEN:
+    case Responses::PERMANENTFLAGS:
+    case Responses::UIDNEXT:
+    case Responses::UIDVALIDITY:
+    case Responses::NOMODSEQ:
+    case Responses::HIGHESTMODSEQ:
+    case Responses::CLOSED:
+        return true;
+    default:
+        break;
+    }
     if (!resp->tag.isEmpty()) {
         if (resp->tag == unSelectTag) {
             if (resp->kind == Responses::OK) {
@@ -95,11 +107,7 @@ bool UnSelectTask::handleStateHelper(const Imap::Responses::State *const resp)
             return true;
         }
     }
-    QByteArray buf;
-    QTextStream s(&buf);
-    s << *resp;
-    log("Ignoring response " + buf, LOG_MAILBOX_SYNC);
-    return true;
+    return false;
 }
 
 bool UnSelectTask::handleNumberResponse(const Imap::Responses::NumberResponse *const resp)

@@ -172,6 +172,12 @@ void ImapModelDisappearingMailboxTest::helperTestGoingReallyOfflineOnline(bool w
 
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+
+    if (!withUnselect) {
+        QVERIFY(SOCK->writtenStuff().startsWith(t.mk("EXAMINE \"trojita non existing ")));
+        cServer(t.last("NO no such mailbox\r\n"));
+    }
+
     QVERIFY(SOCK->writtenStuff().isEmpty());
 }
 
