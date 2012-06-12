@@ -150,8 +150,8 @@ void KeepMailboxOpenTask::slotPerformConnection()
         return;
     }
 
-    synchronizeConn->perform();
     connect(synchronizeConn, SIGNAL(destroyed(QObject *)), this, SLOT(slotTaskDeleted(QObject *)));
+    synchronizeConn->perform();
 }
 
 void KeepMailboxOpenTask::addDependentTask(ImapTask *task)
