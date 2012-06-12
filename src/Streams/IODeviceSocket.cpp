@@ -177,7 +177,7 @@ void SslTlsSocket::close()
 {
     QSslSocket *sock = qobject_cast<QSslSocket*>(d);
     Q_ASSERT(sock);
-    sock->disconnectFromHost();
+    sock->abort();
 }
 
 void SslTlsSocket::handleStateChanged()
