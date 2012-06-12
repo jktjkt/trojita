@@ -296,6 +296,13 @@ void Model::handleState(Imap::Parser *ptr, const Imap::Responses::State *const r
         // FIXME: we should probably just eat them and don't bother, as untagged OK/NO could be rather common...
         switch (resp->kind) {
         case BYE:
+            if (accessParser(ptr).logoutCmd.isEmpty()) {
+                // The connection got closed but we haven't really requested that -- we better treat that as error, including
+                // going offline...
+                // ... but before that, expect that the connection will get closed soon
+                accessParser(ptr).connState = CONN_STATE_LOGOUT;
+                emit connectionError(resp->message);
+            }
             killParser(ptr, PARSER_KILL_EXPECTED);
             break;
         case OK:
@@ -971,7 +978,7 @@ void Model::handleSocketDisconnectedResponse(Parser *ptr, const Responses::Socke
     ParserState &state = accessParser(ptr);
     ParserStateGuard guard(state);
 
-    if (!accessParser(ptr).logoutCmd.isEmpty()) {
+    if (!accessParser(ptr).logoutCmd.isEmpty() || accessParser(ptr).connState == CONN_STATE_LOGOUT) {
         // If we're already scheduled for logout, don't treat connection errors as, well, errors.
         // This branch can be reached by e.g. user selecting offline after a network change, with logout
         // already on the fly.
