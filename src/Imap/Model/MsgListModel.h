@@ -58,7 +58,7 @@ public:
 
     TreeItemMailbox *currentMailbox() const;
 
-    enum { SUBJECT, SEEN, FROM, TO, CC, BCC, DATE, SIZE, COLUMN_COUNT };
+    enum { SUBJECT, SEEN, FROM, TO, CC, BCC, DATE, RECEIVED_DATE, SIZE, COLUMN_COUNT };
 
 public slots:
     void resetMe();

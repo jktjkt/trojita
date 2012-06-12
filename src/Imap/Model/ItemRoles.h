@@ -83,8 +83,10 @@ enum {
     RoleMessageMessageId,
     /** @short The In-Reply-To: header */
     RoleMessageInReplyTo,
-    /** @short The message timestamp */
+    /** @short The message timestamp as determined from IMAP's ENVELOPE, ie. from the RFC2822 headers */
     RoleMessageDate,
+    /** @short Timestamp of when the message was delivered to the mailbox (ie. IMAP's INTERNALDATE) */
+    RoleMessageInternalDate,
     /** @short Size of the message */
     RoleMessageSize,
     /** @short Status of the \Seen flag */

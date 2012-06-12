@@ -198,6 +198,8 @@ QVariant MsgListModel::data(const QModelIndex &proxyIndex, int role) const
             return QString::fromAscii("[bcc]");
         case DATE:
             return message->envelope(static_cast<Model *>(sourceModel())).date;
+        case RECEIVED_DATE:
+            return message->internalDate(static_cast<Model *>(sourceModel()));
         case SIZE:
             return message->size(static_cast<Model *>(sourceModel()));
         default:
@@ -248,6 +250,8 @@ QVariant MsgListModel::headerData(int section, Qt::Orientation orientation, int 
         return tr("Bcc");
     case DATE:
         return tr("Date");
+    case RECEIVED_DATE:
+        return tr("Received");
     case SIZE:
         return tr("Size");
     default:

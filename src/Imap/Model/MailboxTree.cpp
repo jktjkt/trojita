@@ -1005,6 +1005,8 @@ QVariant TreeItemMessage::data(Model *const model, int role)
     switch (role) {
     case RoleMessageDate:
         return envelope(model).date;
+    case RoleMessageInternalDate:
+        return m_internalDate;
     case RoleMessageFrom:
         return addresListToQVariant(envelope(model).from);
     case RoleMessageTo:

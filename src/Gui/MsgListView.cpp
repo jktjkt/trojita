@@ -55,6 +55,7 @@ int MsgListView::sizeHintForColumn(int column) const
     case Imap::Mailbox::MsgListModel::BCC:
         return metric.size(Qt::TextSingleLine, QLatin1String("Blesmrt Trojita")).width();
     case Imap::Mailbox::MsgListModel::DATE:
+    case Imap::Mailbox::MsgListModel::RECEIVED_DATE:
         return metric.size(Qt::TextSingleLine,
                                   tr("Mon 10:33")
                                   // Try to use a text which represents "recent mails" because these are likely to be relevant
@@ -120,6 +121,7 @@ void MsgListView::slotSectionCountChanged()
         case Imap::Mailbox::MsgListModel::TO:
         case Imap::Mailbox::MsgListModel::CC:
         case Imap::Mailbox::MsgListModel::BCC:
+        case Imap::Mailbox::MsgListModel::RECEIVED_DATE:
             // And these should be hidden by default
             action->toggle();
             break;

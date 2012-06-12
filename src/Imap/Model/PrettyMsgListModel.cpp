@@ -81,6 +81,7 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
                     Imap::Message::MailAddress::FORMAT_READABLE);
         }
         case MsgListModel::DATE:
+        case MsgListModel::RECEIVED_DATE:
         {
             QDateTime res = translated.data(RoleMessageDate).toDateTime();
             if (role == Qt::ToolTipRole) {
