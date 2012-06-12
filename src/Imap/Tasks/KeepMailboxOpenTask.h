@@ -246,6 +246,7 @@ protected:
     friend class IdleLauncher;
     friend class ObtainSynchronizedMailboxTask; // needs access to slotUnSelectCompleted()
     friend class UnSelectTask; // needs access to breakPossibleIdle()
+    friend class TreeItemMailbox; // wants to know if our index is OK
     friend class ::ImapModelIdleTest;
 
     QList<uint> uidMap;

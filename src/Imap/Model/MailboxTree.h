@@ -121,6 +121,7 @@ class TreeItemMailbox: public TreeItem
 public:
     TreeItemMailbox(TreeItem *parent);
     TreeItemMailbox(TreeItem *parent, Responses::List);
+    ~TreeItemMailbox();
 
     static TreeItemMailbox *fromMetadata(TreeItem *parent, const MailboxMetadata &metadata);
 

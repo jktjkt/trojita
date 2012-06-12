@@ -141,6 +141,13 @@ TreeItemMailbox::TreeItemMailbox(TreeItem *parent, Responses::List response):
     m_children.prepend(new TreeItemMsgList(this));
 }
 
+TreeItemMailbox::~TreeItemMailbox()
+{
+    if (maintainingTask) {
+        maintainingTask->dieIfInvalidMailbox();
+    }
+}
+
 TreeItemMailbox *TreeItemMailbox::fromMetadata(TreeItem *parent, const MailboxMetadata &metadata)
 {
     TreeItemMailbox *res = new TreeItemMailbox(parent);
