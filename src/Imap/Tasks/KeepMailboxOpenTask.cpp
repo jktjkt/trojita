@@ -778,14 +778,15 @@ void KeepMailboxOpenTask::slotConnFailed()
 
 bool KeepMailboxOpenTask::dieIfInvalidMailbox()
 {
-    Q_ASSERT(!unSelectTask);
     if (mailboxIndex.isValid())
         return false;
 
     // See ObtainSynchronizedMailboxTask::dieIfInvalidMailbox() for details
-    unSelectTask = model->m_taskFactory->createUnSelectTask(model, this);
-    connect(unSelectTask, SIGNAL(completed(ImapTask *)), this, SLOT(slotConnFailed()));
-    unSelectTask->perform();
+    if (!unSelectTask) {
+        unSelectTask = model->m_taskFactory->createUnSelectTask(model, this);
+        connect(unSelectTask, SIGNAL(completed(ImapTask *)), this, SLOT(slotConnFailed()));
+        unSelectTask->perform();
+    }
 
     return true;
 }

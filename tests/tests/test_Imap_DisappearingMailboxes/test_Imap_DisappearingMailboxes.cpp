@@ -22,6 +22,7 @@
 #include <QtTest>
 #include "test_Imap_DisappearingMailboxes.h"
 #include "../headless_test.h"
+#include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/TaskPresentationModel.h"
 #include "Streams/FakeSocket.h"
 #include "test_LibMailboxSync/FakeCapabilitiesInjector.h"
@@ -193,14 +194,31 @@ void ImapModelDisappearingMailboxTest::testTrafficAfterSyncedMailboxGoesAway()
     uidMapA << 666 << 686;
     uidNextA = 1337;
     helperSyncAWithMessagesEmptyState();
+
+    // disable preload
+    model->setNetworkExpensive();
+
+    // and request some FETCH command
+    QModelIndex messageIdx = msgListA.child(0, 0);
+    Q_ASSERT(messageIdx.isValid());
+    QCOMPARE(messageIdx.data(Imap::Mailbox::RoleMessageSubject), QVariant());
+    cClient(t.mk("UID FETCH 666 (ENVELOPE INTERNALDATE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+    QByteArray fetchResponse = helperCreateTrivialEnvelope(1, 666, QString("blah")) + t.last("OK fetched\r\n");
+
     model->reloadMailboxList();
-    return;
-    // FIXME: finalize this test; there's much more traffic, the UNSELECT thing etc etc
+    // And for simplicity, let's enable UNSELECT
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability(QLatin1String("UNSELECT"));
+
+    // Add some unsolicited untagged data
     cServer(QByteArray("* 666 FETCH (FLAGS ())\r\n"));
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    cClient(t.mk("UNSELECT\r\n"));
+    // ...once again
+    cServer(QByteArray("* 333 FETCH (FLAGS ())\r\n"));
+    // At this point, send also a tagged OK for the fetch command; this used to hit an assert
+    cServer(fetchResponse);
+    cServer(t.last("OK unselected\r\n"));
+    cEmpty();
 }
 
 /** @short Connection going offline shall not be reused for further requests for message structure
