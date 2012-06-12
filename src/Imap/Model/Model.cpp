@@ -965,28 +965,28 @@ void Model::setNetworkPolicy(const NetworkPolicy policy)
     }
 }
 
-void Model::slotParserDisconnected(Imap::Parser *parser, const QString msg)
+void Model::handleSocketDisconnectedResponse(Parser *ptr, const Responses::SocketDisconnectedResponse *const resp)
 {
-    Q_ASSERT(parser);
-    ParserState &state = accessParser(parser);
+    Q_ASSERT(ptr);
+    ParserState &state = accessParser(ptr);
     ParserStateGuard guard(state);
 
-    if (!accessParser(parser).logoutCmd.isEmpty()) {
+    if (!accessParser(ptr).logoutCmd.isEmpty()) {
         // If we're already scheduled for logout, don't treat connection errors as, well, errors.
         // This branch can be reached by e.g. user selecting offline after a network change, with logout
         // already on the fly.
     } else {
-        logTrace(parser->parserId(), LOG_PARSE_ERROR, QString(), msg);
-        emit connectionError(msg);
+        logTrace(ptr->parserId(), LOG_PARSE_ERROR, QString(), resp->message);
+        emit connectionError(resp->message);
     }
 
     // This function is *not* called from inside the responseReceived(), so we have to remove the parser from the list, too
-    killParser(parser, PARSER_KILL_EXPECTED);
+    killParser(ptr, PARSER_KILL_EXPECTED);
 
     if (!guard.wasActive) {
-        killParser(parser, PARSER_JUST_DELETE_LATER);
-        m_parsers.remove(parser);
-        m_taskModel->slotParserDeleted(parser);
+        killParser(ptr, PARSER_JUST_DELETE_LATER);
+        m_parsers.remove(ptr);
+        m_taskModel->slotParserDeleted(ptr);
     }
 }
 

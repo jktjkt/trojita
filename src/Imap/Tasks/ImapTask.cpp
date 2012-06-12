@@ -191,6 +191,12 @@ bool ImapTask::handleSocketEncryptedResponse(const Imap::Responses::SocketEncryp
     return false;
 }
 
+bool ImapTask::handleSocketDisconnectedResponse(const Imap::Responses::SocketDisconnectedResponse *const resp)
+{
+    Q_UNUSED(resp);
+    return false;
+}
+
 void ImapTask::_completed()
 {
     log("Completed");

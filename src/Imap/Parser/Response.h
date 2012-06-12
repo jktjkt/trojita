@@ -562,6 +562,17 @@ public:
     virtual bool plug(Imap::Mailbox::ImapTask *task) const;
 };
 
+/** @short A fake response saying that the socket got disconnected */
+class SocketDisconnectedResponse : public AbstractResponse
+{
+public:
+    QString message;
+    SocketDisconnectedResponse(const QString &message): message(message) {}
+    virtual QTextStream &dump(QTextStream &s) const;
+    virtual bool eq(const AbstractResponse &other) const;
+    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
+    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+};
 
 QTextStream &operator<<(QTextStream &stream, const Code &r);
 QTextStream &operator<<(QTextStream &stream, const Kind &res);

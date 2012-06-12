@@ -935,7 +935,7 @@ void Parser::handleDisconnected(const QString &reason)
 #ifdef PRINT_TRAFFIC_TX
     qDebug() << m_parserId << "*** Socket disconnected";
 #endif
-    emit disconnected(this, reason);
+    queueResponse(QSharedPointer<Responses::AbstractResponse>(new Responses::SocketDisconnectedResponse(reason)));
 }
 
 Parser::~Parser()

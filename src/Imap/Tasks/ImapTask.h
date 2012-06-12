@@ -104,6 +104,7 @@ public:
     virtual bool handleEnabled(const Imap::Responses::Enabled *const resp);
     virtual bool handleVanished(const Imap::Responses::Vanished *const resp);
     virtual bool handleSocketEncryptedResponse(const Imap::Responses::SocketEncryptedResponse *const resp);
+    virtual bool handleSocketDisconnectedResponse(const Imap::Responses::SocketDisconnectedResponse *const resp);
 
     /** @short Return true if this task has already finished and can be safely deleted */
     bool isFinished() const { return _finished; }

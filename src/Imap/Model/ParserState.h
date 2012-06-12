@@ -66,7 +66,6 @@ Slots which are connected to signals directly or indirectly connected to this Mo
 loop.  When this happens, other events could possibly get delivered leading to activation of Model's "dangerous" slots:
 
     - responseReceived()
-    - slotParserDisconnected()
     - slotParseError()
 
 These slots are dangerous because they have the potential of re-entering the event loop and also could delete the Parsers/Tasks.

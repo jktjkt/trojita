@@ -298,9 +298,6 @@ public slots:
 
 
 signals:
-    /** @short Socket got disconnected */
-    void disconnected(Imap::Parser *, const QString);
-
     /** @short Parse error when dealing with the server's response
 
     The receiver connected to this signal is expected to kill this parser ASAP.

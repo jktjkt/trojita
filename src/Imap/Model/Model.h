@@ -150,6 +150,7 @@ public:
     void handleEnabled(Imap::Parser *ptr, const Imap::Responses::Enabled *const resp);
     void handleVanished(Imap::Parser *ptr, const Imap::Responses::Vanished *const resp);
     void handleSocketEncryptedResponse(Imap::Parser *ptr, const Imap::Responses::SocketEncryptedResponse *const resp);
+    void handleSocketDisconnectedResponse(Imap::Parser *ptr, const Imap::Responses::SocketDisconnectedResponse *const resp);
 
     AbstractCache *cache() const { return m_cache; }
     /** Throw away current cache implementation, replace it with the new one
@@ -280,9 +281,6 @@ public slots:
     void setSslPolicy(const QList<QSslCertificate> &sslChain, const QList<QSslError> &sslErrors, bool proceed);
 
 private slots:
-    /** @short Handler for the "parser got disconnected" event */
-    void slotParserDisconnected(Imap::Parser *parser, const QString);
-
     /** @short Parser throwed out an exception */
     void slotParseError(Imap::Parser *parser, const QString &exceptionClass, const QString &errorMessage, const QByteArray &line, int position);
 

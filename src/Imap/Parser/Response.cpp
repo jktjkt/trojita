@@ -1141,6 +1141,11 @@ QTextStream &SocketEncryptedResponse::dump(QTextStream &s) const
     return s;
 }
 
+QTextStream &SocketDisconnectedResponse::dump(QTextStream &s) const
+{
+    return s << "[Socket disconnected: " << message << "]";
+}
+
 
 template<class T> QTextStream &RespData<T>::dump(QTextStream &stream) const
 {
@@ -1351,6 +1356,17 @@ bool SocketEncryptedResponse::eq(const AbstractResponse &other) const
         return false;
     }
 }
+
+bool SocketDisconnectedResponse::eq(const AbstractResponse &other) const
+{
+    try {
+        const SocketDisconnectedResponse &r = dynamic_cast<const SocketDisconnectedResponse &>(other);
+        return message == r.message;
+    } catch (std::bad_cast &) {
+        return false;
+    }
+}
+
 bool NamespaceData::operator==(const NamespaceData &other) const
 {
     return separator == other.separator && prefix == other.prefix;
@@ -1382,6 +1398,7 @@ PLUG(Id)
 PLUG(Enabled)
 PLUG(Vanished)
 PLUG(SocketEncryptedResponse)
+PLUG(SocketDisconnectedResponse)
 
 #undef PLUG
 
