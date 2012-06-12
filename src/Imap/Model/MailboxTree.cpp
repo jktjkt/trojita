@@ -386,6 +386,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
     bool savedBodyStructure = false;
     bool gotEnvelope = false;
     bool gotSize = false;
+    bool gotInternalDate = false;
     bool updatedFlags = false;
 
     for (Responses::Fetch::dataType::const_iterator it = response.data.begin(); it != response.data.end(); ++ it) {
@@ -441,6 +442,9 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                 updatedFlags = true;
                 changedMessage = message;
             }
+        } else if (it.key() == "INTERNALDATE") {
+            message->m_internalDate = dynamic_cast<const Responses::RespData<QDateTime>&>(*(it.value())).data;
+            gotInternalDate = true;
         } else if (it.key() == "MODSEQ") {
             quint64 num = dynamic_cast<const Responses::RespData<quint64>&>(*(it.value())).data;
             if (num > syncState.highestModSeq()) {
@@ -452,12 +456,13 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
         }
     }
     if (message->uid()) {
-        if (gotEnvelope && gotSize && savedBodyStructure) {
+        if (gotEnvelope && gotSize && savedBodyStructure && gotInternalDate) {
             Imap::Mailbox::AbstractCache::MessageDataBundle dataForCache;
             dataForCache.envelope = message->m_envelope;
             dataForCache.serializedBodyStructure = dynamic_cast<const Responses::RespData<QByteArray>&>(*(response.data[ "x-trojita-bodystructure" ])).data;
             dataForCache.size = message->m_size;
             dataForCache.uid = message->uid();
+            dataForCache.internalDate = message->m_internalDate;
             model->cache()->setMessageMetadata(mailbox(), message->uid(), dataForCache);
         }
         if (updatedFlags) {
@@ -1055,11 +1060,16 @@ uint TreeItemMessage::uid() const
     return m_uid;
 }
 
-
 Message::Envelope TreeItemMessage::envelope(Model *const model)
 {
     fetch(model);
     return m_envelope;
+}
+
+QDateTime TreeItemMessage::internalDate(Model *const model)
+{
+    fetch(model);
+    return m_internalDate;
 }
 
 uint TreeItemMessage::size(Model *const model)

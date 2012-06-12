@@ -46,6 +46,8 @@ public:
         uint uid;
         /** @short Envelope */
         Imap::Message::Envelope envelope;
+        /** @short The IMAP's INTERNALDATE */
+        QDateTime internalDate;
         /** @short RFC822.SIZE */
         uint size;
         /** @short Serialized form of BODYSTRUCTURE
@@ -61,8 +63,8 @@ public:
 
         bool operator==(const MessageDataBundle &other) const
         {
-            return envelope == other.envelope && serializedBodyStructure == other.serializedBodyStructure &&
-                   size == other.size && uid == other.uid;
+            return uid == other.uid && envelope == other.envelope && internalDate == other.internalDate &&
+                    serializedBodyStructure == other.serializedBodyStructure && size == other.size;
         }
     };
 

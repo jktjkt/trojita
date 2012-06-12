@@ -44,8 +44,9 @@ class MemoryCache : public AbstractCache
 public:
     struct LightMessageDataBundle {
         Imap::Message::Envelope envelope;
-        uint size;
         QByteArray serializedBodyStructure;
+        QDateTime internalDate;
+        uint size;
     };
 
     MemoryCache(QObject *parent, const QString &fileName);

@@ -106,7 +106,7 @@ protected:
     uint uid = index.data(Imap::Mailbox::RoleMessageUid).toUInt(); \
     Q_ASSERT(uid); \
     QCOMPARE(index.data(Imap::Mailbox::RoleMessageSubject).toString(), QString()); \
-    cClient(t.mk(QString::fromAscii("UID FETCH %1 (ENVELOPE BODYSTRUCTURE RFC822.SIZE)\r\n").arg(QString::number(uid)).toAscii())); \
+    cClient(t.mk(QString::fromAscii("UID FETCH %1 (ENVELOPE INTERNALDATE BODYSTRUCTURE RFC822.SIZE)\r\n").arg(QString::number(uid)).toAscii())); \
     cServer(helperCreateTrivialEnvelope(OFFSET + 1, uid, SUBJECT) + t.last("OK fetched\r\n")); \
     QCOMPARE(index.data(Imap::Mailbox::RoleMessageSubject).toString(), QString::fromAscii(SUBJECT)); \
 }

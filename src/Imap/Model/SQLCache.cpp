@@ -94,6 +94,17 @@ if ( ! q.exec( QLatin1String("CREATE TABLE mailbox_sync_state ( " \
     return false; \
 }
 
+#define TROJITA_SQL_CACHE_CREATE_MSG_METADATA \
+    if (! q.exec(QLatin1String("CREATE TABLE msg_metadata (" \
+                               "mailbox STRING NOT NULL, " \
+                               "uid INT NOT NULL, " \
+                               "data BINARY, " \
+                               "PRIMARY KEY (mailbox, uid)" \
+                               ")"))) { \
+        emitError(tr("Can't create table msg_metadata"), q); \
+        return false; \
+    }
+
 bool SQLCache::open(const QString &name, const QString &fileName)
 {
 #ifdef CACHE_DEBUG
@@ -154,7 +165,22 @@ bool SQLCache::open(const QString &name, const QString &fileName)
         }
     }
 
-    if (version != 4) {
+    if (version == 4) {
+        // No difference in table structure, but the data stored in msg_metadata is different; the UID got removed and
+        // INTERNALDATE was added
+        if (!q.exec(QLatin1String("DROP TABLE msg_metadata;"))) {
+            emitError(tr("Failed to drop old table msg_metadata"));
+            return false;
+        }
+        TROJITA_SQL_CACHE_CREATE_MSG_METADATA;
+        version = 5;
+        if (! q.exec(QLatin1String("UPDATE trojita SET version = 5;"))) {
+            emitError(tr("Failed to update cache DB scheme from v4 to v5"), q);
+            return false;
+        }
+    }
+
+    if (version != 5) {
         emitError(tr("Unknown version"));
         return false;
     }
@@ -203,14 +229,7 @@ bool SQLCache::createTables()
         return false;
     }
 
-    if (! q.exec(QLatin1String("CREATE TABLE msg_metadata ("
-                               "mailbox STRING NOT NULL, "
-                               "uid INT NOT NULL, "
-                               "data BINARY, "
-                               "PRIMARY KEY (mailbox, uid)"
-                               ")"))) {
-        emitError(tr("Can't create table msg_metadata"), q);
-    }
+    TROJITA_SQL_CACHE_CREATE_MSG_METADATA;
 
     if (! q.exec(QLatin1String("CREATE TABLE flags ("
                                "mailbox STRING NOT NULL, "
@@ -649,7 +668,7 @@ AbstractCache::MessageDataBundle SQLCache::messageMetadata(const QString &mailbo
         res.uid = uid;
         QDataStream stream(qUncompress(queryMessageMetadata.value(0).toByteArray()));
         stream.setVersion(streamVersion);
-        stream >> res.envelope >> res.size >> res.serializedBodyStructure;
+        stream >> res.envelope >> res.internalDate >> res.size >> res.serializedBodyStructure;
     }
     // "Not found" is not an error here
     return res;
@@ -667,7 +686,7 @@ void SQLCache::setMessageMetadata(const QString &mailbox, uint uid, const Messag
     QByteArray buf;
     QDataStream stream(&buf, QIODevice::ReadWrite);
     stream.setVersion(streamVersion);
-    stream << metadata.envelope << metadata.size << metadata.serializedBodyStructure;
+    stream << metadata.envelope << metadata.internalDate << metadata.size << metadata.serializedBodyStructure;
     querySetMessageMetadata.bindValue(2, qCompress(buf));
     if (! querySetMessageMetadata.exec()) {
         emitError(tr("Query querySetMessageMetadata failed"), querySetMessageMetadata);

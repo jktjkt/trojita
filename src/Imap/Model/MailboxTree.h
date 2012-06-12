@@ -209,6 +209,7 @@ class TreeItemMessage: public TreeItem
     friend class KeepMailboxOpenTask; // needs access to m_offset
     friend class UpdateFlagsTask; // needs access to m_flags
     Message::Envelope m_envelope;
+    QDateTime m_internalDate;
     uint m_size;
     uint m_uid;
     QStringList m_flags;
@@ -231,6 +232,7 @@ public:
     virtual QVariant data(Model *const model, int role);
     virtual bool hasChildren(Model *const model) { Q_UNUSED(model); return true; }
     Message::Envelope envelope(Model *const model);
+    QDateTime internalDate(Model *const model);
     uint size(Model *const model);
     bool isMarkedAsDeleted() const;
     bool isMarkedAsRead() const;

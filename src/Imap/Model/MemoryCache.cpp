@@ -172,6 +172,7 @@ MemoryCache::MessageDataBundle MemoryCache::messageMetadata(const QString &mailb
     res.envelope = it->envelope;
     res.serializedBodyStructure = it->serializedBodyStructure;
     res.size = it->size;
+    res.internalDate = it->internalDate;
     res.uid = uid;
     return res;
 }
@@ -232,11 +233,11 @@ bool MemoryCache::saveData() const
 
 QDataStream &operator>>(QDataStream &stream, Imap::Mailbox::MemoryCache::LightMessageDataBundle &x)
 {
-    stream >> x.envelope >> x.serializedBodyStructure >> x.size;
+    stream >> x.envelope >> x.internalDate >> x.serializedBodyStructure >> x.size;
     return stream;
 }
 
 QDataStream &operator<<(QDataStream &stream, const Imap::Mailbox::MemoryCache::LightMessageDataBundle &x)
 {
-    return stream << x.envelope << x.serializedBodyStructure << x.size;
+    return stream << x.envelope << x.internalDate << x.serializedBodyStructure << x.size;
 }

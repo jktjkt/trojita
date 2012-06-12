@@ -46,7 +46,8 @@ void FetchMsgMetadataTask::perform()
     Sequence seq = Sequence::fromList(uids);
 
     // we do not want to use _onlineMessageFetch because it contains UID and FLAGS
-    tag = parser->uidFetch(seq, QStringList() << QLatin1String("ENVELOPE") << QLatin1String("BODYSTRUCTURE") << QLatin1String("RFC822.SIZE"));
+    tag = parser->uidFetch(seq, QStringList() << QLatin1String("ENVELOPE") << QLatin1String("INTERNALDATE") <<
+                           QLatin1String("BODYSTRUCTURE") << QLatin1String("RFC822.SIZE"));
 }
 
 bool FetchMsgMetadataTask::handleFetch(const Imap::Responses::Fetch *const resp)
