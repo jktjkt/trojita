@@ -87,24 +87,7 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
                 // tooltips shall always show the full and complete data
                 return res.toString(Qt::DefaultLocaleLongDate);
             }
-            QDateTime now = QDateTime::currentDateTime();
-            if (res >= now) {
-                // messages from future shall always be shown using full format to prevent nasty surprises
-                return res.toString(Qt::DefaultLocaleShortDate);
-            } else if (res > now.addDays(-1)) {
-                // It's a message fresher than 24 hours, let's show just the time.
-                // While we're at it, cut the seconds, these are not terribly useful here
-                return res.time().toString(tr("hh:mm"));
-            } else if (res > now.addDays(-7)) {
-                // Messages from the last seven days can be formatted just with the weekday name
-                return res.toString(tr("ddd hh:mm"));
-            } else if (res > now.addYears(-1)) {
-                // Messages newer than one year don't have to show year
-                return res.toString(tr("d MMM hh:mm"));
-            } else {
-                // Old messagees shall have a full date
-                return res.toString(Qt::DefaultLocaleShortDate);
-            }
+            return prettyFormatDate(res);
         }
         case MsgListModel::SIZE:
         {
@@ -184,6 +167,29 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
     }
 
     return QSortFilterProxyModel::data(index, role);
+}
+
+/** @short Format a QDateTime for compact display in one column of the view */
+QString PrettyMsgListModel::prettyFormatDate(const QDateTime &dateTime) const
+{
+    QDateTime now = QDateTime::currentDateTime();
+    if (dateTime >= now) {
+        // messages from future shall always be shown using full format to prevent nasty surprises
+        return dateTime.toString(Qt::DefaultLocaleShortDate);
+    } else if (dateTime > now.addDays(-1)) {
+        // It's a message fresher than 24 hours, let's show just the time.
+        // While we're at it, cut the seconds, these are not terribly useful here
+        return dateTime.time().toString(tr("hh:mm"));
+    } else if (dateTime > now.addDays(-7)) {
+        // Messages from the last seven days can be formatted just with the weekday name
+        return dateTime.toString(tr("ddd hh:mm"));
+    } else if (dateTime > now.addYears(-1)) {
+        // Messages newer than one year don't have to show year
+        return dateTime.toString(tr("d MMM hh:mm"));
+    } else {
+        // Old messagees shall have a full date
+        return dateTime.toString(Qt::DefaultLocaleShortDate);
+    }
 }
 
 void PrettyMsgListModel::setHideRead(bool value)

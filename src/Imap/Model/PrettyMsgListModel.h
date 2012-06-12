@@ -41,6 +41,8 @@ public:
     virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
 
 private:
+    QString prettyFormatDate(const QDateTime &dateTime) const;
+
     bool m_hideRead;
 };
 
