@@ -151,10 +151,7 @@ void ComposeWidget::send()
     if (!messageId.isEmpty()) {
         mailData.append("Message-ID: <").append(messageId).append(">\r\n");
     }
-    QDateTime now = QDateTime::currentDateTime().toUTC(); // FIXME: will neeed proper timzeone...
-    mailData.append("Date: ").append(now.toString(
-                                         QString::fromAscii("ddd, dd MMM yyyy hh:mm:ss")).append(
-                                         " +0000\r\n"));
+    mailData.append("Date: ").append(Imap::currentDateToRfc2822()).append("\r\n");
     mailData.append("User-Agent: ").append(
         QString::fromAscii("%1/%2; %3")
                 .arg(qApp->applicationName(), qApp->applicationVersion(), Imap::Mailbox::systemPlatformVersion()).toAscii()

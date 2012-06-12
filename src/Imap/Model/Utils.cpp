@@ -465,4 +465,31 @@ void CertificateUtils::formatSslState(const QList<QSslCertificate> &sslChain, co
 
 }
 
+/** @short Return current date in the RFC2822 format
+
+This function will return RFC2822-formatted current date with proper timezone information and all the glory details.
+It's rather surprising how hard is to do that in Qt -- why is there no accessor for the timezone info which is *already stored*
+in QDateTime?
+*/
+QString currentDateToRfc2822()
+{
+    // At first, try to find out the offset of the current timezone. That's the part which sucks.
+    // If there's a more Qt-ish way of doing that, please let me know.
+    QDateTime now = QDateTime::currentDateTime();
+    // that's right, both of these command are actually needed
+    QDateTime nowUtc = now.toUTC();
+    nowUtc.setTimeSpec(Qt::LocalTime);
+
+    // Got to cast to a signed type to prevent unsigned underflow here. Also go to 64bits because otherwise there'd
+    // a problem when the value is out-of-range for an int32.
+    int minutesDifference = (static_cast<qint64>(now.toTime_t()) - static_cast<qint64>(nowUtc.toTime_t())) / 60;
+    int tzOffsetHours = qAbs(minutesDifference) / 60;
+    int tzOffsetMinutes = qAbs(minutesDifference) % 60;
+    // The rest is just a piece of cake now
+    return QDateTime::currentDateTime().toString(QLatin1String("ddd, dd MMM yyyy hh:mm:ss ")) +
+            QLatin1String(minutesDifference >= 0 ? "+" : "-") +
+            QString::number(tzOffsetHours).rightJustified(2, QLatin1Char('0')) +
+            QString::number(tzOffsetMinutes).rightJustified(2, QLatin1Char('0'));
+}
+
 }

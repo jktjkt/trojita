@@ -73,6 +73,9 @@ public:
 };
 
 }
+
+QString currentDateToRfc2822();
+
 }
 
 #endif // IMAP_MAILBOX_UTILS_H
