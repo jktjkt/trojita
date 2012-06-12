@@ -451,9 +451,6 @@ bool KeepMailboxOpenTask::handleStateHelper(const Imap::Responses::State *const 
 {
     // FIXME: abort/die
 
-    if (dieIfInvalidMailbox())
-        return true;
-
     if (handleResponseCodeInsideState(resp))
         return true;
 
@@ -726,12 +723,13 @@ void KeepMailboxOpenTask::breakOrCancelPossibleIdle()
 
 bool KeepMailboxOpenTask::handleResponseCodeInsideState(const Imap::Responses::State *const resp)
 {
-    if (dieIfInvalidMailbox())
-        return true;
 
     switch (resp->respCode) {
     case Responses::UIDNEXT:
     {
+        if (dieIfInvalidMailbox())
+            return true;
+
         TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
         Q_ASSERT(mailbox);
         const Responses::RespData<uint> *const num = dynamic_cast<const Responses::RespData<uint>* const>(resp->respCodeData.data());
@@ -748,6 +746,9 @@ bool KeepMailboxOpenTask::handleResponseCodeInsideState(const Imap::Responses::S
         // Another useless one, but we want to consume it now to prevent a warning about
         // an unhandled message
     {
+        if (dieIfInvalidMailbox())
+            return true;
+
         TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
         Q_ASSERT(mailbox);
         const Responses::RespData<QStringList> *const num = dynamic_cast<const Responses::RespData<QStringList>* const>(resp->respCodeData.data());

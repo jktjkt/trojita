@@ -205,19 +205,69 @@ void ImapModelDisappearingMailboxTest::testTrafficAfterSyncedMailboxGoesAway()
     cClient(t.mk("UID FETCH 666 (ENVELOPE INTERNALDATE BODYSTRUCTURE RFC822.SIZE)\r\n"));
     QByteArray fetchResponse = helperCreateTrivialEnvelope(1, 666, QString("blah")) + t.last("OK fetched\r\n");
 
+    // Request going to another mailbox, eventually
+    QCOMPARE(model->rowCount(msgListB), 0);
+
+    // Ask for mailbox metadata
+    QCOMPARE(idxB.data(Imap::Mailbox::RoleTotalMessageCount), QVariant());
+    cClient(t.mk("STATUS b (MESSAGES UNSEEN RECENT)\r\n"));
+    QByteArray statusBResp = QByteArray("* STATUS b (MESSAGES 3 UNSEEN 0 RECENT 0)\r\n") + t.last("OK status sent\r\n");
+
+    // We want to control this stuff
+    taskFactoryUnsafe->fakeListChildMailboxes = false;
+
     model->reloadMailboxList();
     // And for simplicity, let's enable UNSELECT
     FakeCapabilitiesInjector injector(model);
     injector.injectCapability(QLatin1String("UNSELECT"));
 
+    // The trick here is that the reconnect resulted in querying a mailbox listing again
+    cClient(t.mk("LIST \"\" \"%\"\r\n"));
+    cServer(QByteArray("* LIST (\\HasNoChildren) \".\" \"b\"\r\n"
+                       "* LIST (\\HasChildren) \".\" \"a\"\r\n"
+                       "* LIST (\\HasNoChildren) \".\" \"c\"\r\n")
+            + t.last("OK List done.\r\n"));
+
+    // We have to refresh the indexes, of course
+    idxA = model->index(1, 0, QModelIndex());
+    idxB = model->index(2, 0, QModelIndex());
+    idxC = model->index(3, 0, QModelIndex());
+    QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QString::fromAscii("a")));
+    QCOMPARE(model->data(idxB, Qt::DisplayRole), QVariant(QString::fromAscii("b")));
+    QCOMPARE(model->data(idxC, Qt::DisplayRole), QVariant(QString::fromAscii("c")));
+    msgListA = model->index(0, 0, idxA);
+    msgListB = model->index(0, 0, idxB);
+    msgListC = model->index(0, 0, idxC);
+
     // Add some unsolicited untagged data
     cServer(QByteArray("* 666 FETCH (FLAGS ())\r\n"));
     cClient(t.mk("UNSELECT\r\n"));
+
     // ...once again
     cServer(QByteArray("* 333 FETCH (FLAGS ())\r\n"));
+
     // At this point, send also a tagged OK for the fetch command; this used to hit an assert
     cServer(fetchResponse);
     cServer(t.last("OK unselected\r\n"));
+
+    // Queue a few requests for status of a few mailboxes
+    QCOMPARE(idxA.data(Imap::Mailbox::RoleTotalMessageCount), QVariant());
+
+    // now receive the bits about the (long forgotten) STATUS b
+    cServer(statusBResp);
+    QCOMPARE(idxB.data(Imap::Mailbox::RoleTotalMessageCount), QVariant(3));
+    // because STATUS responses are handled through the Model itself, we get correct data here
+
+    // ...answer the STATUS a
+    cClient(t.mk("STATUS a (MESSAGES UNSEEN RECENT)\r\n"));
+    cServer(t.last("OK status sent\r\n"));
+
+    // And yet another mailbox request
+    QCOMPARE(model->rowCount(msgListC), 0);
+
+    cClient(t.mk("SELECT c\r\n"));
+    cServer(t.last("OK selected\r\n"));
+
     cEmpty();
 }
 
