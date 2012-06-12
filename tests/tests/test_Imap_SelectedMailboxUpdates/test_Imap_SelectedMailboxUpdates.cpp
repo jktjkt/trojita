@@ -19,6 +19,7 @@
    Boston, MA 02110-1301, USA.
 */
 
+#include <algorithm>
 #include <QtTest>
 #include "test_Imap_SelectedMailboxUpdates.h"
 #include "../headless_test.h"

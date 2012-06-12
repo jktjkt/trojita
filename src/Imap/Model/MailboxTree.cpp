@@ -19,6 +19,7 @@
    Boston, MA 02110-1301, USA.
 */
 
+#include <algorithm>
 #include <QTextStream>
 #include "Common/FindWithUnknown.h"
 #include "MailboxTree.h"
