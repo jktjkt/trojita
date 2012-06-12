@@ -86,6 +86,11 @@ ProcessSocket::ProcessSocket(QProcess *proc, const QString &executable, const QS
 
 ProcessSocket::~ProcessSocket()
 {
+    close();
+}
+
+void ProcessSocket::close()
+{
     QProcess *proc = qobject_cast<QProcess *>(d);
     Q_ASSERT(proc);
     // Be nice to it, let it die peacefully before using an axe
@@ -166,6 +171,13 @@ SslTlsSocket::SslTlsSocket(QSslSocket *sock, const QString &host, const quint16 
     connect(sock, SIGNAL(encrypted()), this, SIGNAL(encrypted()));
     connect(sock, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(handleStateChanged()));
     connect(sock, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(handleSocketError(QAbstractSocket::SocketError)));
+}
+
+void SslTlsSocket::close()
+{
+    QSslSocket *sock = qobject_cast<QSslSocket*>(d);
+    Q_ASSERT(sock);
+    sock->disconnectFromHost();
 }
 
 void SslTlsSocket::handleStateChanged()

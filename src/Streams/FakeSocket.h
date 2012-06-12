@@ -59,6 +59,7 @@ public:
     virtual qint64 write(const QByteArray &byteArray);
     virtual void startTls();
     virtual bool isDead();
+    virtual void close();
 
     /** @short Return data written since the last call to this function */
     QByteArray writtenStuff();

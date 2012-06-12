@@ -106,6 +106,12 @@ bool FakeSocket::isDead()
     return false;
 }
 
+void FakeSocket::close()
+{
+    // fake it
+    writeChannel->write(QByteArray("[*** close ***]"));
+}
+
 QByteArray FakeSocket::writtenStuff()
 {
     QByteArray res = w;

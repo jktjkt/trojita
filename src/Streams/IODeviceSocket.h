@@ -69,6 +69,7 @@ public:
     ProcessSocket(QProcess *proc, const QString &executable, const QStringList &args);
     ~ProcessSocket();
     bool isDead();
+    virtual void close();
 private slots:
     void handleStateChanged();
     void handleProcessError(QProcess::ProcessError);
@@ -91,6 +92,7 @@ public:
     virtual QList<QSslCertificate> sslChain() const;
     virtual QList<QSslError> sslErrors() const;
     bool isConnectingEncryptedSinceStart() const;
+    virtual void close();
 private slots:
     void handleStateChanged();
     void handleSocketError(QAbstractSocket::SocketError);

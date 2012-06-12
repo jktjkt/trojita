@@ -71,6 +71,9 @@ public:
 
     /** @short Is this socket starting ecnryption from the very start? */
     virtual bool isConnectingEncryptedSinceStart() const;
+
+    /** @short Close the connection */
+    virtual void close() = 0;
 signals:
     /** @short The socket got disconnected */
     void disconnected(const QString);
