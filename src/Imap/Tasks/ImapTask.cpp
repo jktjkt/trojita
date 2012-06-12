@@ -257,9 +257,8 @@ bool ImapTask::isReadyToRun() const
 void ImapTask::die()
 {
     _dead = true;
-    killAllPendingTasks();
-    /*if (!_finished)
-        _failed("Asked to die");*/
+    if (!_finished)
+        _failed("Asked to die");
 }
 
 void ImapTask::abort()

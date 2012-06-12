@@ -544,8 +544,7 @@ We're aksed to die right now, so we better take any depending stuff with us. Tha
 */
 void KeepMailboxOpenTask::die()
 {
-    _dead = true;
-    killAllPendingTasks();
+    ImapTask::die();
     detachFromMailbox();
 }
 
