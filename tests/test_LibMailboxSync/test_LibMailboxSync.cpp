@@ -86,10 +86,13 @@ void LibMailboxSync::helperInitialListing()
     QCOMPARE( model->rowCount( QModelIndex() ), 26 );
     idxA = model->index( 1, 0, QModelIndex() );
     idxB = model->index( 2, 0, QModelIndex() );
+    idxC = model->index( 3, 0, QModelIndex() );
     QCOMPARE( model->data( idxA, Qt::DisplayRole ), QVariant(QString::fromAscii("a")) );
     QCOMPARE( model->data( idxB, Qt::DisplayRole ), QVariant(QString::fromAscii("b")) );
+    QCOMPARE( model->data( idxC, Qt::DisplayRole ), QVariant(QString::fromAscii("c")) );
     msgListA = model->index( 0, 0, idxA );
     msgListB = model->index( 0, 0, idxB );
+    msgListC = model->index( 0, 0, idxC );
     cEmpty();
     t.reset();
     existsA = 0;
