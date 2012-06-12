@@ -974,10 +974,6 @@ void Model::setNetworkPolicy(const NetworkPolicy policy)
 
 void Model::handleSocketDisconnectedResponse(Parser *ptr, const Responses::SocketDisconnectedResponse *const resp)
 {
-    Q_ASSERT(ptr);
-    ParserState &state = accessParser(ptr);
-    ParserStateGuard guard(state);
-
     if (!accessParser(ptr).logoutCmd.isEmpty() || accessParser(ptr).connState == CONN_STATE_LOGOUT) {
         // If we're already scheduled for logout, don't treat connection errors as, well, errors.
         // This branch can be reached by e.g. user selecting offline after a network change, with logout
@@ -985,15 +981,6 @@ void Model::handleSocketDisconnectedResponse(Parser *ptr, const Responses::Socke
     } else {
         logTrace(ptr->parserId(), LOG_PARSE_ERROR, QString(), resp->message);
         emit connectionError(resp->message);
-    }
-
-    // This function is *not* called from inside the responseReceived(), so we have to remove the parser from the list, too
-    killParser(ptr, PARSER_KILL_EXPECTED);
-
-    if (!guard.wasActive) {
-        killParser(ptr, PARSER_JUST_DELETE_LATER);
-        m_parsers.remove(ptr);
-        m_taskModel->slotParserDeleted(ptr);
     }
 }
 
