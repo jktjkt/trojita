@@ -886,12 +886,15 @@ void Model::askForMsgMetadata(TreeItemMessage *item)
         if (! ok)
             preload = 50;
         KeepMailboxOpenTask *keepTask = findTaskResponsibleFor(mailboxPtr);
+        item->m_fetchStatus = TreeItem::LOADING;
+        keepTask->requestEnvelopeDownload(item->uid());
         for (int i = qMax(0, order - preload); i < qMin(list->m_children.size(), order + preload); ++i) {
             TreeItemMessage *message = dynamic_cast<TreeItemMessage *>(list->m_children[i]);
             Q_ASSERT(message);
-            if (item == message || (! message->fetched() && ! message->loading() && message->uid())) {
+            if (item != message && !message->fetched() && !message->loading() && message->uid()) {
                 message->m_fetchStatus = TreeItem::LOADING;
-                keepTask->requestEnvelopeDownload(message->uid());
+                // cannot ask the KeepTask directly, that'd completely ignore the cache
+                askForMsgMetadata(message);
             }
         }
     }
