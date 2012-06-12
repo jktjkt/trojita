@@ -980,6 +980,7 @@ void Model::handleSocketDisconnectedResponse(Parser *ptr, const Responses::Socke
         // already on the fly.
     } else {
         logTrace(ptr->parserId(), LOG_PARSE_ERROR, QString(), resp->message);
+        killParser(ptr, PARSER_KILL_EXPECTED);
         emit connectionError(resp->message);
     }
 }
