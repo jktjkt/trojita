@@ -17,6 +17,7 @@
 */
 
 
+#include <QUuid>
 #include "UnSelectTask.h"
 #include "KeepMailboxOpenTask.h"
 #include "Model.h"
@@ -67,7 +68,7 @@ void UnSelectTask::doFakeSelect()
         model->accessParser(parser).maintainingTask->breakOrCancelPossibleIdle();
     }
     // The server does not support UNSELECT. Let's construct an unlikely-to-exist mailbox, then.
-    selectMissingTag = parser->examine(QString("trojita non existing %1").arg(QDateTime::currentDateTime().toString(Qt::ISODate)));
+    selectMissingTag = parser->examine(QString("trojita non existing %1").arg(QUuid::createUuid().toString()));
 }
 
 bool UnSelectTask::handleStateHelper(const Imap::Responses::State *const resp)
@@ -85,7 +86,7 @@ bool UnSelectTask::handleStateHelper(const Imap::Responses::State *const resp)
             return true;
         } else if (resp->tag == selectMissingTag) {
             if (resp->kind == Responses::OK) {
-                QTimer::singleShot(1000, this, SLOT(doFakeSelect()));
+                QTimer::singleShot(0, this, SLOT(doFakeSelect()));
                 log(tr("The emergency EXAMINE command has unexpectedly succeeded, trying to get out of here..."), LOG_MAILBOX_SYNC);
             } else {
                 // This is very good :)
