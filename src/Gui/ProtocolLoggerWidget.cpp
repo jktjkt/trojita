@@ -109,6 +109,7 @@ void ProtocolLoggerWidget::closeTab(int index)
         loggerWidgets.erase(it);
         tabs->removeTab(index);
         w->deleteLater();
+        buffers.remove(it.key());
         return;
     }
 }
