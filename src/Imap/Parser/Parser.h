@@ -296,6 +296,8 @@ public slots:
 
     void unfreezeAfterEncryption();
 
+    void closeConnection();
+
 
 signals:
     /** @short Parse error when dealing with the server's response

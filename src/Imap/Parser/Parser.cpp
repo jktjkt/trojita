@@ -105,6 +105,15 @@ CommandHandle Parser::noop()
 CommandHandle Parser::logout()
 {
     return queueCommand(Commands::Command("LOGOUT"));
+
+    // Queue a request for closing the socket. It'll get closed after a short while.
+    QTimer::singleShot(1000, this, SLOT(closeConnection()));
+}
+
+/** @short Close the underlying conneciton */
+void Parser::closeConnection()
+{
+    socket->close();
 }
 
 CommandHandle Parser::capability()
@@ -944,6 +953,7 @@ Parser::~Parser()
     // interfering with this object -- some of our local data might have
     // been already destroyed!
     socket->disconnect(this);
+    socket->close();
     socket->deleteLater();
 }
 
