@@ -28,6 +28,7 @@
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/MsgListModel.h"
+#include "Imap/Model/ThreadingMsgListModel.h"
 
 LibMailboxSync::~LibMailboxSync()
 {
@@ -58,6 +59,9 @@ void LibMailboxSync::init()
     connect(model, SIGNAL(logged(uint,Imap::Mailbox::LogMessage)), this, SLOT(modelLogged(uint,Imap::Mailbox::LogMessage)));
 
     msgListModel = new Imap::Mailbox::MsgListModel(this, model);
+
+    threadingModel = new Imap::Mailbox::ThreadingMsgListModel(this);
+    threadingModel->setSourceModel(msgListModel);
 
     helperInitialListing();
 }
@@ -107,6 +111,8 @@ void LibMailboxSync::cleanup()
     model = 0;
     msgListModel->deleteLater();
     msgListModel = 0;
+    threadingModel->deleteLater();
+    threadingModel = 0;
     taskFactoryUnsafe = 0;
     QVERIFY( errorSpy->isEmpty() );
     delete errorSpy;
@@ -122,6 +128,7 @@ void LibMailboxSync::initTestCase()
 {
     model = 0;
     msgListModel = 0;
+    threadingModel = 0;
     errorSpy = 0;
 }
 

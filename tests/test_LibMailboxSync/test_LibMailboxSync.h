@@ -29,6 +29,12 @@
 
 class QSignalSpy;
 
+namespace Imap {
+namespace Mailbox {
+class ThreadingMsgListModel;
+}
+}
+
 class LibMailboxSync : public QObject
 {
     Q_OBJECT
@@ -65,6 +71,7 @@ protected:
 
     Imap::Mailbox::Model* model;
     Imap::Mailbox::MsgListModel *msgListModel;
+    Imap::Mailbox::ThreadingMsgListModel *threadingModel;
     Imap::Mailbox::FakeSocketFactory* factory;
     Imap::Mailbox::TestingTaskFactory* taskFactoryUnsafe;
     QSignalSpy* errorSpy;
