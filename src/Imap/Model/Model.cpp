@@ -877,16 +877,16 @@ void Model::askForMsgMetadata(TreeItemMessage *item, const PreloadingMode preloa
         break;
     case NETWORK_ONLINE:
     {
+        item->m_fetchStatus = TreeItem::LOADING;
+        findTaskResponsibleFor(mailboxPtr)->requestEnvelopeDownload(item->uid());
+
         // preload
+        if (preloadMode != PRELOAD_PER_POLICY)
+            break;
         bool ok;
         int preload = property("trojita-imap-preload-msg-metadata").toInt(&ok);
         if (! ok)
             preload = 50;
-        KeepMailboxOpenTask *keepTask = findTaskResponsibleFor(mailboxPtr);
-        item->m_fetchStatus = TreeItem::LOADING;
-        keepTask->requestEnvelopeDownload(item->uid());
-        if (preloadMode != PRELOAD_PER_POLICY)
-            break;
         int order = item->row();
         for (int i = qMax(0, order - preload); i < qMin(list->m_children.size(), order + preload); ++i) {
             TreeItemMessage *message = dynamic_cast<TreeItemMessage *>(list->m_children[i]);
