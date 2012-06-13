@@ -94,6 +94,15 @@ void ThreadingMsgListModel::setSourceModel(QAbstractItemModel *sourceModel)
     resetMe();
 }
 
+QVariant ThreadingMsgListModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (sourceModel()) {
+        return sourceModel()->headerData(section, orientation, role);
+    } else {
+        return QVariant();
+    }
+}
+
 void ThreadingMsgListModel::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     // We don't support updates which concern multiple rows at this time.

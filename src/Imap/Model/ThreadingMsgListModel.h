@@ -90,6 +90,7 @@ public:
     virtual bool hasChildren(const QModelIndex &parent=QModelIndex()) const;
     virtual QVariant data(const QModelIndex &proxyIndex, int role) const;
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
     virtual QStringList mimeTypes() const;
     virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
