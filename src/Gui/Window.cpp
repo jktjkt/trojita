@@ -352,13 +352,8 @@ void MainWindow::createWidgets()
             this, SLOT(showContextMenuMboxTree(const QPoint &)));
 
     msgListTree = new MsgListView();
-    msgListTree->setUniformRowHeights(true);
     msgListTree->setContextMenuPolicy(Qt::CustomContextMenu);
-    msgListTree->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    msgListTree->setAllColumnsShowFocus(true);
     msgListTree->setAlternatingRowColors(true);
-    msgListTree->setDragEnabled(true);
-    msgListTree->setRootIsDecorated(false);
 
     connect(msgListTree, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showContextMenuMsgListTree(const QPoint &)));

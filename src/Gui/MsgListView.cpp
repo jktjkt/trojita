@@ -37,6 +37,12 @@ MsgListView::MsgListView(QWidget *parent): QTreeView(parent)
     header()->setContextMenuPolicy(Qt::ActionsContextMenu);
     headerFieldsMapper = new QSignalMapper(this);
     connect(headerFieldsMapper, SIGNAL(mapped(int)), this, SLOT(slotHeaderSectionVisibilityToggled(int)));
+
+    setUniformRowHeights(true);
+    setAllColumnsShowFocus(true);
+    setSelectionMode(ExtendedSelection);
+    setDragEnabled(true);
+    setRootIsDecorated(false);
 }
 
 int MsgListView::sizeHintForColumn(int column) const
