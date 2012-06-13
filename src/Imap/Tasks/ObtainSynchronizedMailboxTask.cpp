@@ -1129,8 +1129,23 @@ void ObtainSynchronizedMailboxTask::notifyInterestingMessages(TreeItemMailbox *m
     list->recalcVariousMessageCounts(model);
     QModelIndex listIndex = list->toIndex(model);
     Q_ASSERT(listIndex.isValid());
-    QModelIndex firstInterestingMessage = model->index(mailbox->syncState.unSeenOffset(), 0, listIndex);
-    log("First interesting message at " + QString::number(mailbox->syncState.unSeenOffset()), LOG_MAILBOX_SYNC);
+    QModelIndex firstInterestingMessage = model->index(
+                // remember, the offset has one-based indexing
+                mailbox->syncState.unSeenOffset() ? mailbox->syncState.unSeenOffset() - 1 : 0, 0, listIndex);
+    if (!firstInterestingMessage.data(RoleMessageIsMarkedRecent).toBool() &&
+            firstInterestingMessage.data(RoleMessageIsMarkedRead).toBool()) {
+        // Clearly the reported value is utter nonsense. Let's just scroll to the end instead
+        int offset = model->rowCount(listIndex) - 1;
+        log(QString::fromAscii("\"First interesting message\" doesn't look terribly interesting (%1), scrolling to the end at %2 instead")
+            .arg(firstInterestingMessage.data(RoleMessageFlags).toStringList().join(QLatin1String(", ")),
+                 QString::number(offset)), LOG_MAILBOX_SYNC);
+        firstInterestingMessage = model->index(offset, 0, listIndex);
+    } else {
+        log(QString::fromAscii("First interesting message at %1 (%2)")
+            .arg(QString::number(mailbox->syncState.unSeenOffset()),
+                 firstInterestingMessage.data(RoleMessageFlags).toStringList().join(QLatin1String(", "))
+                 ), LOG_MAILBOX_SYNC);
+    }
     emit model->mailboxFirstUnseenMessage(mailbox->toIndex(model), firstInterestingMessage);
 }
 
