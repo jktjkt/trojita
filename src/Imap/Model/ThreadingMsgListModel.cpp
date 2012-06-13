@@ -94,16 +94,6 @@ void ThreadingMsgListModel::setSourceModel(QAbstractItemModel *sourceModel)
 
 void ThreadingMsgListModel::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
-    QSet<QPersistentModelIndex>::iterator persistent = unknownUids.find(topLeft);
-    if (persistent != unknownUids.end()) {
-        // The message wasn't fully synced before, and now it is
-        persistent = unknownUids.erase(persistent);
-        if (unknownUids.isEmpty()) {
-            wantThreading();
-        }
-        return;
-    }
-
     // We don't support updates which concern multiple rows at this time.
     // Doing that would very likely require a completely different codepath due to threading...
     Q_ASSERT(topLeft.parent() == bottomRight.parent());
@@ -122,6 +112,15 @@ void ThreadingMsgListModel::handleDataChanged(const QModelIndex &topLeft, const 
     if (rootCandidate != translated) {
         // We're really an embedded message
         emit dataChanged(rootCandidate, rootCandidate.sibling(rootCandidate.row(), translated.column()));
+    }
+
+    QSet<QPersistentModelIndex>::iterator persistent = unknownUids.find(topLeft);
+    if (persistent != unknownUids.end()) {
+        // The message wasn't fully synced before, and now it is
+        persistent = unknownUids.erase(persistent);
+        if (unknownUids.isEmpty()) {
+            wantThreading();
+        }
     }
 }
 
