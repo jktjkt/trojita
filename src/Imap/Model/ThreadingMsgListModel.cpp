@@ -51,7 +51,8 @@ namespace Mailbox
 {
 
 ThreadingMsgListModel::ThreadingMsgListModel(QObject *parent):
-    QAbstractProxyModel(parent), threadingHelperLastId(0), modelResetInProgress(false), threadingInFlight(false)
+    QAbstractProxyModel(parent), threadingHelperLastId(0), modelResetInProgress(false), threadingInFlight(false),
+    m_shallBeThreading(false)
 {
 }
 
@@ -358,7 +359,8 @@ void ThreadingMsgListModel::handleRowsInserted(const QModelIndex &parent, int st
     }
     endInsertRows();
 
-    wantThreading();
+    if (m_shallBeThreading)
+        wantThreading();
 }
 
 void ThreadingMsgListModel::resetMe()
@@ -375,7 +377,8 @@ void ThreadingMsgListModel::resetMe()
     updateNoThreading();
     modelResetInProgress = false;
 
-    wantThreading();
+    if (m_shallBeThreading)
+        wantThreading();
 }
 
 void ThreadingMsgListModel::updateNoThreading()
@@ -426,7 +429,7 @@ void ThreadingMsgListModel::updateNoThreading()
 
 void ThreadingMsgListModel::wantThreading()
 {
-    if (!sourceModel() || !sourceModel()->rowCount()) {
+    if (!sourceModel() || !sourceModel()->rowCount() || !m_shallBeThreading) {
         updateNoThreading();
         return;
     }
@@ -517,6 +520,7 @@ uint ThreadingMsgListModel::findHighEnoughNumber(const QVector<Responses::Thread
 
 void ThreadingMsgListModel::askForThreading()
 {
+    Q_ASSERT(m_shallBeThreading);
     Q_ASSERT(sourceModel());
     Q_ASSERT(sourceModel()->rowCount());
 
@@ -615,7 +619,8 @@ void ThreadingMsgListModel::slotThreadingAvailable(const QModelIndex &mailbox, c
 
     // Indirect processing here -- the wantThreading() will check that the received response really contains everything we need
     // and if it does, simply applyThreading() that.  If there's something missing, it will ask for the threading again.
-    wantThreading();
+    if (m_shallBeThreading)
+        wantThreading();
 }
 
 void ThreadingMsgListModel::applyThreading(const QVector<Imap::Responses::ThreadingNode> &mapping)
@@ -944,6 +949,17 @@ void ThreadingMsgListModel::logTrace(const QString &message)
     const_cast<Model *>(realModel)->logTrace(mailboxIndex, LOG_OTHER,
             QString::fromAscii("ThreadingMsgListModel for %1").arg(mailboxIndex.data(RoleMailboxName).toString()), message);
 }
+
+void ThreadingMsgListModel::setUserWantsThreading(bool enable)
+{
+    m_shallBeThreading = enable;
+    if (m_shallBeThreading) {
+        wantThreading();
+    } else {
+        updateNoThreading();
+    }
+}
+
 
 }
 }

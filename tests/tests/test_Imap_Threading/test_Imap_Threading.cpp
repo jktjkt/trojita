@@ -541,6 +541,7 @@ void ImapModelThreadingTest::init()
     // Setup the threading model
     threadingModel = new Imap::Mailbox::ThreadingMsgListModel(this);
     threadingModel->setSourceModel(msgListModel);
+    threadingModel->setUserWantsThreading(true);
 }
 
 void ImapModelThreadingTest::cleanup()

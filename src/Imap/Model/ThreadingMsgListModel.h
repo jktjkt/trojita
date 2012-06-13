@@ -115,6 +115,9 @@ public slots:
     /** @short Really apply threading to this model */
     void applyThreading(const QVector<Imap::Responses::ThreadingNode> &mapping);
 
+    /** @short Enable or disable threading */
+    void setUserWantsThreading(bool enable);
+
 private slots:
     /** @short Display messages without any threading at all, as a liner list */
     void updateNoThreading();
@@ -183,6 +186,9 @@ private:
 
     /** @short There's a pending THREAD command for which we haven't received data yet */
     bool threadingInFlight;
+
+    /** @short Is threading enabled, or shall we just use other features like sorting and filtering? */
+    bool m_shallBeThreading;
 
     friend class ::ImapModelThreadingTest; // needs access to wantThreading();
 };

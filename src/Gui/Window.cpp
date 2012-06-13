@@ -486,10 +486,10 @@ void MainWindow::setupModels()
     msgListModel = new Imap::Mailbox::MsgListModel(this, model);
     msgListModel->setObjectName(QLatin1String("msgListModel"));
     threadingMsgListModel = new Imap::Mailbox::ThreadingMsgListModel(this);
-    // no call to setSourceModel() at this point
     threadingMsgListModel->setObjectName(QLatin1String("threadingMsgListModel"));
+    threadingMsgListModel->setSourceModel(msgListModel);
     prettyMsgListModel = new Imap::Mailbox::PrettyMsgListModel(this);
-    prettyMsgListModel->setSourceModel(msgListModel);
+    prettyMsgListModel->setSourceModel(threadingMsgListModel);
     prettyMsgListModel->setObjectName(QLatin1String("prettyMsgListModel"));
 
     connect(mboxTree, SIGNAL(clicked(const QModelIndex &)), msgListModel, SLOT(setMailbox(const QModelIndex &)));
@@ -1285,13 +1285,11 @@ void MainWindow::slotThreadMsgList()
     // doesn't report them, like in initial greetings. That's why we have to check for isEnabled() here.
     const bool useThreading = actionThreadMsgList->isChecked();
     if (useThreading && actionThreadMsgList->isEnabled()) {
-        threadingMsgListModel->setSourceModel(msgListModel);
-        prettyMsgListModel->setSourceModel(threadingMsgListModel);
         msgListTree->setRootIsDecorated(true);
+        threadingMsgListModel->setUserWantsThreading(true);
     } else {
-        prettyMsgListModel->setSourceModel(msgListModel);
-        threadingMsgListModel->setSourceModel(0);
         msgListTree->setRootIsDecorated(false);
+        threadingMsgListModel->setUserWantsThreading(false);
     }
     QSettings().setValue(Common::SettingsNames::guiMsgListShowThreading, QVariant(useThreading));
 }
