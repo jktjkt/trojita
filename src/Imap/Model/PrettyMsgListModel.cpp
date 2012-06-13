@@ -19,12 +19,12 @@
    Boston, MA 02110-1301, USA.
 */
 #include "PrettyMsgListModel.h"
-#include "MsgListModel.h"
-#include "ItemRoles.h"
-#include "Utils.h"
-
 #include <QFont>
 #include "Gui/IconLoader.h"
+#include "ItemRoles.h"
+#include "MsgListModel.h"
+#include "Utils.h"
+
 
 namespace Imap
 {
