@@ -850,7 +850,6 @@ void Model::askForMsgMetadata(TreeItemMessage *item, const PreloadingMode preloa
                     QList<TreeItem *> oldChildren = item->setChildren(newChildren);
                     Q_ASSERT(oldChildren.size() == 0);
                 } else {
-                    QModelIndex messageIdx = item->toIndex(this);
                     // The following assert guards against that crazy signal emitting we had when various askFor*()
                     // functions were not delayed. If it gets hit, it means that someone tried to call this function
                     // on an item which was already loaded.
