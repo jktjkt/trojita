@@ -1284,6 +1284,9 @@ void MainWindow::slotThreadMsgList()
     // We want to save user's preferences and not override them with "threading disabled" when the server
     // doesn't report them, like in initial greetings. That's why we have to check for isEnabled() here.
     const bool useThreading = actionThreadMsgList->isChecked();
+
+    QPersistentModelIndex currentItem = msgListTree->currentIndex();
+
     if (useThreading && actionThreadMsgList->isEnabled()) {
         msgListTree->setRootIsDecorated(true);
         threadingMsgListModel->setUserWantsThreading(true);
@@ -1292,6 +1295,15 @@ void MainWindow::slotThreadMsgList()
         threadingMsgListModel->setUserWantsThreading(false);
     }
     QSettings().setValue(Common::SettingsNames::guiMsgListShowThreading, QVariant(useThreading));
+
+    if (currentItem.isValid()) {
+        msgListTree->scrollTo(currentItem);
+    } else {
+        // If we cannot determine current item, at least scroll to a predictable place. Without this, the view
+        // would jump to "weird" places, probably due to some heuristics about trying to show "roughly the same"
+        // objects as what was visible before the reshuffling.
+        msgListTree->scrollToBottom();
+    }
 }
 
 void MainWindow::slotHideRead()
