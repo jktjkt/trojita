@@ -866,8 +866,6 @@ void Model::askForMsgMetadata(TreeItemMessage *item, const PreloadingMode preloa
         return;
     }
 
-    int order = item->row();
-
     switch (networkPolicy()) {
     case NETWORK_OFFLINE:
         if (item->m_fetchStatus != TreeItem::DONE)
@@ -889,6 +887,7 @@ void Model::askForMsgMetadata(TreeItemMessage *item, const PreloadingMode preloa
         keepTask->requestEnvelopeDownload(item->uid());
         if (preloadMode != PRELOAD_PER_POLICY)
             break;
+        int order = item->row();
         for (int i = qMax(0, order - preload); i < qMin(list->m_children.size(), order + preload); ++i) {
             TreeItemMessage *message = dynamic_cast<TreeItemMessage *>(list->m_children[i]);
             Q_ASSERT(message);
