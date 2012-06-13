@@ -384,6 +384,7 @@ void ThreadingMsgListModel::resetMe()
 
 void ThreadingMsgListModel::updateNoThreading()
 {
+    threadingHelperLastId = 0;
     if (! threading.isEmpty()) {
         beginRemoveRows(QModelIndex(), 0, rowCount() - 1);
         threading.clear();
@@ -425,6 +426,7 @@ void ThreadingMsgListModel::updateNoThreading()
         threading[ 0 ].children = allIds;
         threading[ 0 ].ptr = static_cast<MsgListModel *>(sourceModel())->msgList;
         endInsertRows();
+        threadingHelperLastId = newThreading.size();
     }
 }
 
