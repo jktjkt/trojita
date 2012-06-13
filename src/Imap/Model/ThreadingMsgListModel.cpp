@@ -385,18 +385,24 @@ void ThreadingMsgListModel::resetMe()
 void ThreadingMsgListModel::updateNoThreading()
 {
     threadingHelperLastId = 0;
-    if (! threading.isEmpty()) {
-        beginRemoveRows(QModelIndex(), 0, rowCount() - 1);
-        threading.clear();
-        ptrToInternal.clear();
-        endRemoveRows();
-    }
-    unknownUids.clear();
 
-    if (! sourceModel()) {
+    if (!sourceModel()) {
         // Maybe we got reset because the parent model is no longer here...
+        if (! threading.isEmpty()) {
+            beginRemoveRows(QModelIndex(), 0, rowCount() - 1);
+            threading.clear();
+            ptrToInternal.clear();
+            endRemoveRows();
+        }
+        unknownUids.clear();
         return;
     }
+
+    emit layoutAboutToBeChanged();
+    updatePersistentIndexesPhase1();
+    threading.clear();
+    ptrToInternal.clear();
+    unknownUids.clear();
 
     int upstreamMessages = sourceModel()->rowCount();
     QList<uint> allIds;
@@ -420,14 +426,14 @@ void ThreadingMsgListModel::updateNoThreading()
     }
 
     if (newThreading.size()) {
-        beginInsertRows(QModelIndex(), 0, newThreading.size() - 1);
         threading = newThreading;
         ptrToInternal = newPtrToInternal;
         threading[ 0 ].children = allIds;
         threading[ 0 ].ptr = static_cast<MsgListModel *>(sourceModel())->msgList;
-        endInsertRows();
         threadingHelperLastId = newThreading.size();
     }
+    updatePersistentIndexesPhase2();
+    emit layoutChanged();
 }
 
 void ThreadingMsgListModel::wantThreading()
