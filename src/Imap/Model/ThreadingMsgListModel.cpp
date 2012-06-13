@@ -37,7 +37,8 @@ QByteArray dumpThreadNodeInfo(const QHash<uint,ThreadNodeInfo> &mapping, const u
     QTextStream ss(&res);
     Q_ASSERT(mapping.contains(nodeId));
     const ThreadNodeInfo &node = mapping[nodeId];
-    ss << prefix << "ThreadNodeInfo " << node.internalId << " " << node.uid << " " << node.ptr << " " << node.parent << "\n";
+    ss << prefix << "ThreadNodeInfo intId " << node.internalId << " UID " << node.uid << " ptr " << node.ptr <<
+          " parentIntId " << node.parent << "\n";
     Q_FOREACH(const uint childId, node.children) {
         ss << dumpThreadNodeInfo(mapping, childId, offset + 1);
     }
