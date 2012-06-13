@@ -817,7 +817,7 @@ void Model::askForNumberOfMessages(TreeItemMsgList *item)
     }
 }
 
-void Model::askForMsgMetadata(TreeItemMessage *item)
+void Model::askForMsgMetadata(TreeItemMessage *item, const PreloadingMode preloadMode)
 {
     Q_ASSERT(item->uid());
     Q_ASSERT(!item->fetched());
@@ -888,13 +888,16 @@ void Model::askForMsgMetadata(TreeItemMessage *item)
         KeepMailboxOpenTask *keepTask = findTaskResponsibleFor(mailboxPtr);
         item->m_fetchStatus = TreeItem::LOADING;
         keepTask->requestEnvelopeDownload(item->uid());
+        if (preloadMode != PRELOAD_PER_POLICY)
+            break;
         for (int i = qMax(0, order - preload); i < qMin(list->m_children.size(), order + preload); ++i) {
             TreeItemMessage *message = dynamic_cast<TreeItemMessage *>(list->m_children[i]);
             Q_ASSERT(message);
             if (item != message && !message->fetched() && !message->loading() && message->uid()) {
                 message->m_fetchStatus = TreeItem::LOADING;
                 // cannot ask the KeepTask directly, that'd completely ignore the cache
-                askForMsgMetadata(message);
+                // but we absolutely have to block the preload :)
+                askForMsgMetadata(message, PRELOAD_DISABLED);
             }
         }
     }

@@ -1030,7 +1030,7 @@ void ObtainSynchronizedMailboxTask::applyUids(TreeItemMailbox *mailbox)
             if (msg->m_fetchStatus == TreeItem::LOADING) {
                 // We've got to ask for the message metadata once again; the first attempt happened when the UID was still zero,
                 // so this is our chance
-                model->askForMsgMetadata(msg);
+                model->askForMsgMetadata(msg, Model::PRELOAD_PER_POLICY);
             }
             ++i;
         } else {

@@ -422,7 +422,10 @@ private:
     void askForChildrenOfMailbox(TreeItemMailbox *item);
     void askForMessagesInMailbox(TreeItemMsgList *item);
     void askForNumberOfMessages(TreeItemMsgList *item);
-    void askForMsgMetadata(TreeItemMessage *item);
+
+    typedef enum {PRELOAD_PER_POLICY, PRELOAD_DISABLED} PreloadingMode;
+
+    void askForMsgMetadata(TreeItemMessage *item, PreloadingMode preloadMode);
     void askForMsgPart(TreeItemPart *item, bool onlyFromCache=false);
 
     void finalizeList(Parser *parser, TreeItemMailbox *const mailboxPtr);

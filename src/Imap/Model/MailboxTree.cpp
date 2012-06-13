@@ -865,7 +865,7 @@ void TreeItemMessage::fetch(Model *const model)
 
     if (m_uid) {
         // Message UID is already known, which means that we can request data for this message
-        model->askForMsgMetadata(this);
+        model->askForMsgMetadata(this, Model::PRELOAD_PER_POLICY);
     } else {
         // The UID is not known yet, so we can't initiate a UID FETCH at this point. However, we mark
         // this message as "loading", which has the side effect that it will get re-fetched as soon as
