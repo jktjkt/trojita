@@ -118,22 +118,22 @@ public slots:
 private slots:
     /** @short Display messages without any threading at all, as a liner list */
     void updateNoThreading();
+
     /** @short Ask the model for a THREAD response */
     void askForThreading();
+
     /** @short Apply cached THREAD response or ask for threading again */
     void wantThreading();
 
 private:
     void updatePersistentIndexesPhase1();
     void updatePersistentIndexesPhase2();
+
     /** @short Convert the threading from a THREAD response and apply that threading to this model */
     void registerThreading(const QVector<Imap::Responses::ThreadingNode> &mapping, uint parentId,
                            const QHash<uint,void *> &uidToPtr, QSet<uint> &usedNodes);
 
-    /** @short Remove fake messages from the threading tree
-
-    @return True if any fake messages got removed, false otherwise
-    */
+    /** @short Remove fake messages from the threading tree */
     void pruneTree();
 
     /** @short Check current thread for "unread messages" */
@@ -154,13 +154,16 @@ private:
 
     /** @short Mapping from the upstream model's internalId to ThreadingMsgListModel's internal IDs */
     QHash<void *,uint> ptrToInternal;
+
     /** @short Tree for the threading
 
     This tree is indexed by our internal ID.
     */
     QHash<uint,ThreadNodeInfo> threading;
+
     /** @short Last assigned internal ID */
     uint threadingHelperLastId;
+
     /** @short Messages with unkown UIDs */
     QSet<QPersistentModelIndex> unknownUids;
 
