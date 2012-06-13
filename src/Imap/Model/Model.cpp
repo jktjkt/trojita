@@ -985,6 +985,9 @@ void Model::handleSocketDisconnectedResponse(Parser *ptr, const Responses::Socke
         // If we're already scheduled for logout, don't treat connection errors as, well, errors.
         // This branch can be reached by e.g. user selecting offline after a network change, with logout
         // already on the fly.
+
+        // But we still absolutely want to clean up and kill the connection/Parser anyway
+        killParser(ptr, PARSER_KILL_EXPECTED);
     } else {
         logTrace(ptr->parserId(), LOG_PARSE_ERROR, QString(), resp->message);
         killParser(ptr, PARSER_KILL_EXPECTED);
