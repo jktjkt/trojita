@@ -78,6 +78,44 @@ class ThreadingMsgListModel: public QAbstractProxyModel
     Q_OBJECT
 
 public:
+
+    /** @short On which column to sort
+
+    The possible columns are described in RFC 5256, section 3.  No support for multiple columns is present.
+
+    Trojitá will automatically upgrade to the display-based search criteria from RFC 5957 if support for that RFC is indicated by
+    the server.
+    */
+    typedef enum {
+        /** @short Don't do any explicit sorting
+
+        If threading is not active, the order of messages represnets the order in which they appear in the IMAP mailbox.
+        In case the display is threaded already, the order depends on the threading algorithm.
+        */
+        SORT_NONE,
+
+        /** @short RFC5256's ARRIVAL key, ie. the INTERNALDATE */
+        SORT_ARRIVAL,
+
+        /** @short The Cc field from the IMAP ENVELOPE */
+        SORT_CC,
+
+        /** @short Timestamp when the message was created, if available */
+        SORT_DATE,
+
+        /** @short Either the display name or the mailbox of the "sender" of a message from the "From" header */
+        SORT_FROM,
+
+        /** @short Size of the message */
+        SORT_SIZE,
+
+        /** @short The subject of the e-mail */
+        SORT_SUBJECT,
+
+        /** @short Recipient of the message, either their mailbox or their display name */
+        SORT_TO
+    } SortCriterium;
+
     ThreadingMsgListModel(QObject *parent);
     virtual void setSourceModel(QAbstractItemModel *sourceModel);
 
@@ -118,6 +156,8 @@ public slots:
 
     /** @short Enable or disable threading */
     void setUserWantsThreading(bool enable);
+
+    void setUserSortingPreference(const SortCriterium criterium, const Qt::SortOrder order = Qt::AscendingOrder);
 
 private slots:
     /** @short Display messages without any threading at all, as a liner list */

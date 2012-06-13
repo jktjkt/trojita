@@ -978,6 +978,11 @@ void ThreadingMsgListModel::setUserWantsThreading(bool enable)
     }
 }
 
+void ThreadingMsgListModel::setUserSortingPreference(const SortCriterium criterium, const Qt::SortOrder order)
+{
+    // FIXME: actual sorting implementation goes here
+    qDebug() << Q_FUNC_INFO << criterium << order;
+}
 
 }
 }
