@@ -1117,8 +1117,11 @@ void ThreadingMsgListModel::applySort(const QList<uint> &uids)
     emit layoutAboutToBeChanged();
     threading[0].children.clear();
     threading[0].children.reserve(uids.size());
+
     for (int i = 0; i < uids.size(); ++i) {
-        QList<TreeItemMessage *> messages = const_cast<Model*>(realModel)->findMessagesByUids(mailbox, QList<uint>() << uids[i]);
+        int offset = m_sortReverse ? uids.size() - 1 - i : i;
+        QList<TreeItemMessage *> messages = const_cast<Model*>(realModel)
+                ->findMessagesByUids(mailbox, QList<uint>() << uids[offset]);
         if (messages.isEmpty()) {
             // wrong UID, weird
             continue;
@@ -1134,9 +1137,6 @@ void ThreadingMsgListModel::applySort(const QList<uint> &uids)
         threading[0].children.append(*it);
     }
 
-    if (m_sortReverse) {
-        // FIXME: reverse the list *and* fix the offsets
-    }
     emit layoutChanged();
 }
 
