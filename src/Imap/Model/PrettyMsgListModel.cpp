@@ -250,11 +250,12 @@ void PrettyMsgListModel::sort(int column, Qt::SortOrder order)
         criterium = ThreadingMsgListModel::SORT_SIZE;
         break;
     }
-    threadingModel->setUserSortingPreference(criterium, order);
+
+    bool willSort = threadingModel->setUserSortingPreference(criterium, order);
 
     // Now let the view know about whether we accept such a sorting criteria.
     // This is needed because the QHeaderView doesn't offer a way to say "hey, you cannot sort in columns XYZ, only on ABC".
-    if (criterium != ThreadingMsgListModel::SORT_NONE)
+    if (criterium != ThreadingMsgListModel::SORT_NONE && willSort)
         emit sortingPreferenceChanged(column, order);
     else
         emit sortingPreferenceChanged(-1, order);

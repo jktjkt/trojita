@@ -154,10 +154,18 @@ public slots:
     /** @short Really apply threading to this model */
     void applyThreading(const QVector<Imap::Responses::ThreadingNode> &mapping);
 
+    /** @short SORT response has arrived */
+    void slotSortingAvailable(const QModelIndex &mailbox, const QStringList &sortCriteria, const QList<uint> &uids);
+
+    /** @short SORT has failed */
+    void slotSortingFailed(const QModelIndex &mailbox, const QStringList &sortCriteria);
+
+    void applySort(const QList<uint> &uids);
+
     /** @short Enable or disable threading */
     void setUserWantsThreading(bool enable);
 
-    void setUserSortingPreference(const SortCriterium criterium, const Qt::SortOrder order = Qt::AscendingOrder);
+    bool setUserSortingPreference(const SortCriterium criterium, const Qt::SortOrder order = Qt::AscendingOrder);
 
 private slots:
     /** @short Display messages without any threading at all, as a liner list */
@@ -189,6 +197,8 @@ private:
 
     /** @short Return some number from the thread mapping @arg mapping which is either the highest among them, or at least as high as the marker*/
     static uint findHighEnoughNumber(const QVector<Imap::Responses::ThreadingNode> &mapping, uint marker);
+
+    bool shouldIgnoreThisSortResponse(const QModelIndex &mailbox, const QStringList &sortCriteria);
 
     void logTrace(const QString &message);
 
@@ -230,6 +240,15 @@ private:
 
     /** @short Is threading enabled, or shall we just use other features like sorting and filtering? */
     bool m_shallBeThreading;
+
+    /** @short A SORT command is in progress */
+    bool m_sortInProgress;
+
+    /** @short Shall we sort in a reversed order? */
+    bool m_sortReverse;
+
+    /** @short IDs of all thread roots when no sorting or filtering is applied */
+    QList<uint> threadedRootIds;
 
     friend class ::ImapModelThreadingTest; // needs access to wantThreading();
 };
