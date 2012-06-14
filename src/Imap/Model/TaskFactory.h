@@ -50,6 +50,7 @@ class UpdateFlagsTask;
 class ThreadTask;
 class NoopTask;
 class UnSelectTask;
+class SortTask;
 
 class Model;
 class TreeItemMailbox;
@@ -84,6 +85,7 @@ public:
     virtual ThreadTask *createThreadTask(Model *model, const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria);
     virtual NoopTask *createNoopTask(Model *model, ImapTask *parentTask);
     virtual UnSelectTask *createUnSelectTask(Model *model, ImapTask *parentTask);
+    virtual SortTask *createSortTask(Model *model, const QModelIndex &mailbox, const QStringList &sortCriteria);
 };
 
 class TestingTaskFactory: public TaskFactory
