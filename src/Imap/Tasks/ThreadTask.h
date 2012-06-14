@@ -27,11 +27,7 @@ namespace Imap
 namespace Mailbox
 {
 
-/** @short Expunge all messages marked as \\Deleted in the mailbox
-
-Please note that this task simply sends the EXPUNGE command; no careful flag
-synchronization is performed.
- */
+/** @short Send the THREAD command with requested parameters  */
 class ThreadTask : public ImapTask
 {
     Q_OBJECT
