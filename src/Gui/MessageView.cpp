@@ -84,6 +84,15 @@ MessageView::MessageView(QWidget *parent): QWidget(parent)
 
 MessageView::~MessageView()
 {
+    // Redmine #496 -- the default order of destruction starts with our QNAM subclass which in turn takes care of all pending
+    // QNetworkReply instances created by that manager. When the destruction goes to the WebKit objects, they try to disconnect
+    // from the network replies which are however gone already. We can mitigate that by simply making sure that the destruction
+    // starts with the QWebView subclasses and only after that proceeds to the QNAM. Qt's default order leads to segfaults here.
+    if (viewer != emptyView) {
+        delete viewer;
+    }
+    delete emptyView;
+
     delete factory;
 }
 
