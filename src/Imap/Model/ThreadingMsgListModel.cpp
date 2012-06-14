@@ -1133,7 +1133,6 @@ void ThreadingMsgListModel::applySort(const QList<uint> &uids)
         threading[*it].offset = threading[0].children.size();
         threading[0].children.append(*it);
     }
-    qDebug() << "After sort:\n" << dumpThreadNodeInfo(threading, 0, 0).constData();
 
     if (m_sortReverse) {
         // FIXME: reverse the list *and* fix the offsets
