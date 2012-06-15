@@ -677,6 +677,17 @@ void ImapModelThreadingTest::testDynamicSorting()
     QCOMPARE(msgUid10.row(), 0);
     checkUidMapFromThreading(expectedUidOrder);
 
+    // Sort in a native order, reverse direction
+    threadingModel->setUserSortingPreference(Imap::Mailbox::ThreadingMsgListModel::SORT_NONE, Qt::DescendingOrder);
+    cEmpty();
+    expectedUidOrder = uidMap;
+    reverseContainer(expectedUidOrder);
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    QCOMPARE(msgUid6.row(), 2);
+    QCOMPARE(msgUid9.row(), 1);
+    QCOMPARE(msgUid10.row(), 0);
+    checkUidMapFromThreading(expectedUidOrder);
+
     cEmpty();
     justKeepTask();
 }
