@@ -730,8 +730,14 @@ void ImapModelThreadingTest::testDynamicSorting()
     QByteArray delayedUidFetch = "* 4 FETCH (UID 16 FLAGS ())\r\n" + t.last("ok fetched\r\n");
     // ... their UID remains unknown for a while; the model won't request SORT just yet
     cEmpty();
+    // that new arrival shall be visible immediately
+    expectedUidOrder << 0;
+    checkUidMapFromThreading(expectedUidOrder);
     cServer(delayedUidFetch);
     uidMap << 16;
+    // as soon as the new UID arrives, the sorting order gets thrown out of the window
+    expectedUidOrder = uidMap;
+    checkUidMapFromThreading(expectedUidOrder);
     // at this point, the SORT gets issued
     expectedUidOrder.clear();
     expectedUidOrder << 10 << 6 << 16 << 9;
