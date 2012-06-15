@@ -18,7 +18,7 @@ sleep 0.1s
 delete_sequence() {
     (
     echo -e "1 SELECT INBOX\r\n2 STORE $1 +FLAGS (\\deleted)\r\n"\
-"3 EXPUNGE\r\n4 LOGOUT\r\n"; sleep 1) | dovecot --exec-mail imap >/dev/null
+"3 EXPUNGE\r\n4 LOGOUT\r\n"; sleep 1) | /usr/libexec/dovecot/imap >/dev/null
     echo
 }
 
