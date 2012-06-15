@@ -792,6 +792,9 @@ void ThreadingMsgListModel::applyThreading(const QVector<Imap::Responses::Thread
     if (rowCount())
         threadedRootIds = threading[0].children;
     emit layoutChanged();
+
+    // If the sorting was active before, we shall reactivate it now
+    setUserSortingPreference(m_currentSortingCriteria, m_sortReverse ? Qt::DescendingOrder : Qt::AscendingOrder);
 }
 
 void ThreadingMsgListModel::registerThreading(const QVector<Imap::Responses::ThreadingNode> &mapping, uint parentId, const QHash<uint,void *> &uidToPtr, QSet<uint> &usedNodes)
