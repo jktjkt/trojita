@@ -711,6 +711,49 @@ void ImapModelThreadingTest::testDynamicSorting()
     QCOMPARE(msgUid10.row(), 0);
     checkUidMapFromThreading(expectedUidOrder);
 
+    // Check dynamic updates when some sorting criteria are active
+    threadingModel->setUserSortingPreference(Imap::Mailbox::ThreadingMsgListModel::SORT_SUBJECT, Qt::AscendingOrder);
+    expectedUidOrder.clear();
+    expectedUidOrder << 10 << 6 << 9;
+    cClient(t.mk("UID SORT (SUBJECT) utf-8 ALL\r\n"));
+    cServer("* SORT " + numListToString(expectedUidOrder) + "\r\n");
+    cServer(t.last("OK sorted\r\n"));
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    QCOMPARE(msgUid6.row(), 1);
+    QCOMPARE(msgUid9.row(), 2);
+    QCOMPARE(msgUid10.row(), 0);
+    checkUidMapFromThreading(expectedUidOrder);
+
+    // ...new arrivals
+    cServer("* 4 EXISTS\r\n");
+    cClient(t.mk("UID FETCH 16:* (FLAGS)\r\n"));
+    QByteArray delayedUidFetch = "* 4 FETCH (UID 16 FLAGS ())\r\n" + t.last("ok fetched\r\n");
+    // ... their UID remains unknown for a while; the model won't request SORT just yet
+    cEmpty();
+    cServer(delayedUidFetch);
+    uidMap << 16;
+    // at this point, the SORT gets issued
+    expectedUidOrder.clear();
+    expectedUidOrder << 10 << 6 << 16 << 9;
+    cClient(t.mk("UID SORT (SUBJECT) utf-8 ALL\r\n"));
+    cServer("* SORT " + numListToString(expectedUidOrder) + "\r\n");
+    cServer(t.last("OK sorted\r\n"));
+
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    QCOMPARE(msgUid6.row(), 1);
+    QCOMPARE(msgUid9.row(), 3);
+    QCOMPARE(msgUid10.row(), 0);
+    checkUidMapFromThreading(expectedUidOrder);
+    // ...and delete it again
+    cServer("* VANISHED 16\r\n");
+    uidMap.removeOne(16);
+    expectedUidOrder.removeOne(16);
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    QCOMPARE(msgUid6.row(), 1);
+    QCOMPARE(msgUid9.row(), 2);
+    QCOMPARE(msgUid10.row(), 0);
+    checkUidMapFromThreading(expectedUidOrder);
+
     cEmpty();
     justKeepTask();
 }
