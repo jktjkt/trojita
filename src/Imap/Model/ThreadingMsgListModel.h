@@ -160,7 +160,7 @@ public slots:
     /** @short SORT has failed */
     void slotSortingFailed(const QModelIndex &mailbox, const QStringList &sortCriteria);
 
-    void applySort(const QList<uint> &uids);
+    void applySort();
 
     /** @short Enable or disable threading */
     void setUserWantsThreading(bool enable);
@@ -249,6 +249,12 @@ private:
 
     /** @short IDs of all thread roots when no sorting or filtering is applied */
     QList<uint> threadedRootIds;
+
+    /** @short Sorting criteria of the current copy of the sort result */
+    SortCriterium m_currentSortingCriteria;
+
+    /** @short The current result of the SORT operation */
+    QList<uint> m_currentSortResult;
 
     friend class ::ImapModelThreadingTest; // needs access to wantThreading();
 };
