@@ -1124,6 +1124,7 @@ void ThreadingMsgListModel::applySort()
     Q_ASSERT(mailbox);
 
     emit layoutAboutToBeChanged();
+    updatePersistentIndexesPhase1();
     threading[0].children.clear();
     threading[0].children.reserve(m_currentSortResult.size());
 
@@ -1145,7 +1146,7 @@ void ThreadingMsgListModel::applySort()
         threading[*it].offset = threading[0].children.size();
         threading[0].children.append(*it);
     }
-
+    updatePersistentIndexesPhase2();
     emit layoutChanged();
 }
 
