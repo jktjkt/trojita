@@ -1124,6 +1124,8 @@ bool ThreadingMsgListModel::setUserSortingPreference(const SortCriterium criteri
         // FIXME: guard against multiple SORTs in future; this is a bit tricky, we cannot just return false from here
         m_sortInProgress = true;
         m_currentSortingCriteria = criterium;
+        calculateNullSort();
+        applySort();
         connect(realModel, SIGNAL(sortingAvailable(QModelIndex,QStringList,QList<uint>)),
                 this, SLOT(slotSortingAvailable(QModelIndex,QStringList,QList<uint>)));
         connect(realModel, SIGNAL(sortingFailed(QModelIndex,QStringList)),
