@@ -1,4 +1,4 @@
-/* Copyright (C) 2007 - 2011 Jan Kundrát <jkt@flaska.net>
+/* Copyright (C) 2007 - 2012 Jan Kundrát <jkt@flaska.net>
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public
@@ -16,8 +16,8 @@
    Boston, MA 02110-1301, USA.
 */
 
-#ifndef IMAP_THREAD_TASK_H
-#define IMAP_THREAD_TASK_H
+#ifndef IMAP_SORT_TASK_H
+#define IMAP_SORT_TASK_H
 
 #include <QPersistentModelIndex>
 #include "ImapTask.h"
@@ -27,16 +27,16 @@ namespace Imap
 namespace Mailbox
 {
 
-/** @short Send the THREAD command with requested parameters  */
-class ThreadTask : public ImapTask
+/** @short Send a SORT command and take care of its processing */
+class SortTask : public ImapTask
 {
     Q_OBJECT
 public:
-    ThreadTask(Model *model, const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria);
+    SortTask(Model *model, const QModelIndex &mailbox, const QStringList &sortCriteria);
     virtual void perform();
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
-    virtual bool handleThread(const Imap::Responses::Thread *const resp);
+    virtual bool handleSort(const Imap::Responses::Sort *const resp);
     virtual QVariant taskData(const int role) const;
     virtual bool needsMailbox() const {return true;}
 protected:
@@ -45,12 +45,11 @@ private:
     CommandHandle tag;
     ImapTask *conn;
     QPersistentModelIndex mailboxIndex;
-    QString algorithm;
-    QStringList searchCriteria;
-    QVector<Imap::Responses::ThreadingNode> mapping;
+    QStringList sortCriteria;
+    QList<uint> sortResult;
 };
 
 }
 }
 
-#endif // IMAP_THREAD_TASK_H
+#endif // IMAP_SORT_TASK_H

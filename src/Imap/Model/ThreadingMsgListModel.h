@@ -78,6 +78,44 @@ class ThreadingMsgListModel: public QAbstractProxyModel
     Q_OBJECT
 
 public:
+
+    /** @short On which column to sort
+
+    The possible columns are described in RFC 5256, section 3.  No support for multiple columns is present.
+
+    Trojitá will automatically upgrade to the display-based search criteria from RFC 5957 if support for that RFC is indicated by
+    the server.
+    */
+    typedef enum {
+        /** @short Don't do any explicit sorting
+
+        If threading is not active, the order of messages represnets the order in which they appear in the IMAP mailbox.
+        In case the display is threaded already, the order depends on the threading algorithm.
+        */
+        SORT_NONE,
+
+        /** @short RFC5256's ARRIVAL key, ie. the INTERNALDATE */
+        SORT_ARRIVAL,
+
+        /** @short The Cc field from the IMAP ENVELOPE */
+        SORT_CC,
+
+        /** @short Timestamp when the message was created, if available */
+        SORT_DATE,
+
+        /** @short Either the display name or the mailbox of the "sender" of a message from the "From" header */
+        SORT_FROM,
+
+        /** @short Size of the message */
+        SORT_SIZE,
+
+        /** @short The subject of the e-mail */
+        SORT_SUBJECT,
+
+        /** @short Recipient of the message, either their mailbox or their display name */
+        SORT_TO
+    } SortCriterium;
+
     ThreadingMsgListModel(QObject *parent);
     virtual void setSourceModel(QAbstractItemModel *sourceModel);
 
@@ -90,6 +128,7 @@ public:
     virtual bool hasChildren(const QModelIndex &parent=QModelIndex()) const;
     virtual QVariant data(const QModelIndex &proxyIndex, int role) const;
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
     virtual QStringList mimeTypes() const;
     virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
@@ -115,25 +154,38 @@ public slots:
     /** @short Really apply threading to this model */
     void applyThreading(const QVector<Imap::Responses::ThreadingNode> &mapping);
 
+    /** @short SORT response has arrived */
+    void slotSortingAvailable(const QModelIndex &mailbox, const QStringList &sortCriteria, const QList<uint> &uids);
+
+    /** @short SORT has failed */
+    void slotSortingFailed(const QModelIndex &mailbox, const QStringList &sortCriteria);
+
+    void applySort();
+
+    /** @short Enable or disable threading */
+    void setUserWantsThreading(bool enable);
+
+    bool setUserSortingPreference(const SortCriterium criterium, const Qt::SortOrder order = Qt::AscendingOrder);
+
 private slots:
     /** @short Display messages without any threading at all, as a liner list */
     void updateNoThreading();
+
     /** @short Ask the model for a THREAD response */
     void askForThreading();
+
     /** @short Apply cached THREAD response or ask for threading again */
     void wantThreading();
 
 private:
     void updatePersistentIndexesPhase1();
     void updatePersistentIndexesPhase2();
+
     /** @short Convert the threading from a THREAD response and apply that threading to this model */
     void registerThreading(const QVector<Imap::Responses::ThreadingNode> &mapping, uint parentId,
                            const QHash<uint,void *> &uidToPtr, QSet<uint> &usedNodes);
 
-    /** @short Remove fake messages from the threading tree
-
-    @return True if any fake messages got removed, false otherwise
-    */
+    /** @short Remove fake messages from the threading tree */
     void pruneTree();
 
     /** @short Check current thread for "unread messages" */
@@ -146,6 +198,10 @@ private:
     /** @short Return some number from the thread mapping @arg mapping which is either the highest among them, or at least as high as the marker*/
     static uint findHighEnoughNumber(const QVector<Imap::Responses::ThreadingNode> &mapping, uint marker);
 
+    bool shouldIgnoreThisSortResponse(const QModelIndex &mailbox, const QStringList &sortCriteria);
+
+    void calculateNullSort();
+
     void logTrace(const QString &message);
 
 
@@ -154,13 +210,16 @@ private:
 
     /** @short Mapping from the upstream model's internalId to ThreadingMsgListModel's internal IDs */
     QHash<void *,uint> ptrToInternal;
+
     /** @short Tree for the threading
 
     This tree is indexed by our internal ID.
     */
     QHash<uint,ThreadNodeInfo> threading;
+
     /** @short Last assigned internal ID */
     uint threadingHelperLastId;
+
     /** @short Messages with unkown UIDs */
     QSet<QPersistentModelIndex> unknownUids;
 
@@ -180,6 +239,24 @@ private:
 
     /** @short There's a pending THREAD command for which we haven't received data yet */
     bool threadingInFlight;
+
+    /** @short Is threading enabled, or shall we just use other features like sorting and filtering? */
+    bool m_shallBeThreading;
+
+    /** @short A SORT command is in progress */
+    bool m_sortInProgress;
+
+    /** @short Shall we sort in a reversed order? */
+    bool m_sortReverse;
+
+    /** @short IDs of all thread roots when no sorting or filtering is applied */
+    QList<uint> threadedRootIds;
+
+    /** @short Sorting criteria of the current copy of the sort result */
+    SortCriterium m_currentSortingCriteria;
+
+    /** @short The current result of the SORT operation */
+    QList<uint> m_currentSortResult;
 
     friend class ::ImapModelThreadingTest; // needs access to wantThreading();
 };

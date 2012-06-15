@@ -29,6 +29,13 @@
 
 class QSignalSpy;
 
+namespace Imap {
+namespace Mailbox {
+class ThreadingMsgListModel;
+bool operator==(const SyncState &a, const SyncState &b);
+}
+}
+
 class LibMailboxSync : public QObject
 {
     Q_OBJECT
@@ -62,9 +69,11 @@ protected:
 
     void helperInitialListing();
     void initialMessages(const uint exists);
+    void justKeepTask();
 
     Imap::Mailbox::Model* model;
     Imap::Mailbox::MsgListModel *msgListModel;
+    Imap::Mailbox::ThreadingMsgListModel *threadingModel;
     Imap::Mailbox::FakeSocketFactory* factory;
     Imap::Mailbox::TestingTaskFactory* taskFactoryUnsafe;
     QSignalSpy* errorSpy;
@@ -116,6 +125,14 @@ namespace QTest {
 /** @short Debug data dumper for QList<uint> */
 template<>
 char *toString(const QList<uint> &list);
+
+template<>
+char *toString(const Imap::Mailbox::SyncState &syncState);
+
+/** @short Debug data dumper for the MessageDataBundle */
+template<>
+char *toString(const Imap::Mailbox::AbstractCache::MessageDataBundle &bundle);
+
 }
 
 #endif

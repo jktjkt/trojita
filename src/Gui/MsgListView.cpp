@@ -25,6 +25,7 @@
 #include <QHeaderView>
 #include <QSignalMapper>
 #include "Imap/Model/MsgListModel.h"
+#include "Imap/Model/PrettyMsgListModel.h"
 
 namespace Gui
 {
@@ -37,6 +38,16 @@ MsgListView::MsgListView(QWidget *parent): QTreeView(parent)
     header()->setContextMenuPolicy(Qt::ActionsContextMenu);
     headerFieldsMapper = new QSignalMapper(this);
     connect(headerFieldsMapper, SIGNAL(mapped(int)), this, SLOT(slotHeaderSectionVisibilityToggled(int)));
+
+    setUniformRowHeights(true);
+    setAllColumnsShowFocus(true);
+    setSelectionMode(ExtendedSelection);
+    setDragEnabled(true);
+    setRootIsDecorated(false);
+
+    setSortingEnabled(true);
+    // By default, we don't do any sorting
+    header()->setSortIndicator(-1, Qt::AscendingOrder);
 }
 
 int MsgListView::sizeHintForColumn(int column) const
@@ -147,6 +158,47 @@ void MsgListView::slotHeaderSectionVisibilityToggled(int section)
     } else {
         header()->setSectionHidden(section, hide);
     }
+}
+
+/** @short Overriden from QTreeView::setModel
+
+The whole point is that we have to listen for sortingPreferenceChanged to update your header view when sorting is requested
+but cannot be fulfilled.
+*/
+void MsgListView::setModel(QAbstractItemModel *model)
+{
+    if (this->model()) {
+        if (Imap::Mailbox::PrettyMsgListModel *prettyModel = findPrettyMsgListModel(this->model())) {
+            disconnect(prettyModel, SIGNAL(sortingPreferenceChanged(int,Qt::SortOrder)),
+                       this, SLOT(slotHandleSortCriteriaChanged(int,Qt::SortOrder)));
+        }
+    }
+    QTreeView::setModel(model);
+    if (Imap::Mailbox::PrettyMsgListModel *prettyModel = findPrettyMsgListModel(model)) {
+        connect(prettyModel, SIGNAL(sortingPreferenceChanged(int,Qt::SortOrder)),
+                this, SLOT(slotHandleSortCriteriaChanged(int,Qt::SortOrder)));
+    }
+}
+
+void MsgListView::slotHandleSortCriteriaChanged(int column, Qt::SortOrder order)
+{
+    // The if-clause is needed to prevent infinite recursion
+    if (header()->sortIndicatorSection() != column || header()->sortIndicatorOrder() != order) {
+        header()->setSortIndicator(column, order);
+    }
+}
+
+/** @short Walk the hierarchy of proxy models up until we stop at the PrettyMsgListModel or the first non-proxy model */
+Imap::Mailbox::PrettyMsgListModel *MsgListView::findPrettyMsgListModel(QAbstractItemModel *model)
+{
+    while (QAbstractProxyModel *proxy = qobject_cast<QAbstractProxyModel*>(model)) {
+        Imap::Mailbox::PrettyMsgListModel *prettyModel = qobject_cast<Imap::Mailbox::PrettyMsgListModel*>(proxy);
+        if (prettyModel)
+            return prettyModel;
+        else
+            model = proxy->sourceModel();
+    }
+    return 0;
 }
 
 }

@@ -524,12 +524,6 @@ void ImapModelThreadingTest::verifyIndexMap(const IndexMapping &indexMap, const 
     }
 }
 
-void ImapModelThreadingTest::initTestCase()
-{
-    LibMailboxSync::initTestCase();
-    threadingModel = 0;
-}
-
 void ImapModelThreadingTest::init()
 {
     LibMailboxSync::init();
@@ -539,15 +533,7 @@ void ImapModelThreadingTest::init()
     injector.injectCapability(QLatin1String("THREAD=REFS"));
 
     // Setup the threading model
-    threadingModel = new Imap::Mailbox::ThreadingMsgListModel(this);
-    threadingModel->setSourceModel(msgListModel);
-}
-
-void ImapModelThreadingTest::cleanup()
-{
-    LibMailboxSync::cleanup();
-    threadingModel->deleteLater();
-    threadingModel = 0;
+    threadingModel->setUserWantsThreading(true);
 }
 
 /** @short Walk the model and output a THREAD-like responsde with the UIDs */
@@ -572,6 +558,262 @@ QByteArray ImapModelThreadingTest::treeToThreading(QModelIndex index)
         }
     }
     return res;
+}
+
+#define checkUidMapFromThreading(MAPPING) \
+{ \
+    QCOMPARE(threadingModel->rowCount(), MAPPING.size()); \
+    QList<uint> actual; \
+    for (int i = 0; i < MAPPING.size(); ++i) { \
+        QModelIndex messageIndex = threadingModel->index(i, 0); \
+        QVERIFY(messageIndex.isValid()); \
+        actual << messageIndex.data(Imap::Mailbox::RoleMessageUid).toUInt(); \
+    } \
+    QCOMPARE(actual, MAPPING); \
+}
+
+QByteArray ImapModelThreadingTest::numListToString(const QList<uint> &seq)
+{
+    QStringList res;
+    Q_FOREACH(const uint num, seq)
+        res << QString::number(num);
+    return res.join(QLatin1String(" ")).toAscii();
+}
+
+template<typename T> void ImapModelThreadingTest::reverseContainer(T &container)
+{
+    for (int i = 0; i < container.size() / 2; ++i)
+        container.swap(i, container.size() - 1 - i);
+}
+
+/** @short Test how sorting reacts to dynamic mailbox updates and the initial sync */
+void ImapModelThreadingTest::testDynamicSorting()
+{
+    // keep preloading active
+
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("QRESYNC");
+    injector.injectCapability("SORT=DISPLAY");
+    injector.injectCapability("SORT");
+
+    threadingModel->setUserWantsThreading(false);
+
+    Imap::Mailbox::SyncState sync;
+    sync.setExists(3);
+    sync.setUidValidity(666);
+    sync.setUidNext(15);
+    sync.setHighestModSeq(33);
+    QList<uint> uidMap;
+    uidMap << 6 << 9 << 10;
+    model->cache()->setMailboxSyncState("a", sync);
+    model->cache()->setUidMapping("a", uidMap);
+    model->cache()->setMsgFlags("a", 6, QStringList() << "x");
+    model->cache()->setMsgFlags("a", 9, QStringList() << "y");
+    model->cache()->setMsgFlags("a", 10, QStringList() << "z");
+    msgListModel->setMailbox("a");
+    cClient(t.mk("SELECT a (QRESYNC (666 33 (2 9)))\r\n"));
+    cServer("* 3 EXISTS\r\n"
+            "* OK [UIDVALIDITY 666] .\r\n"
+            "* OK [UIDNEXT 15] .\r\n"
+            "* OK [HIGHESTMODSEQ 33] .\r\n"
+            );
+    cServer(t.last("OK selected\r\n"));
+    cEmpty();
+    QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
+    QCOMPARE(model->cache()->uidMapping("a"), uidMap);
+    QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
+    QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
+    QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
+
+    checkUidMapFromThreading(uidMap);
+
+    // A persistent index to make sure that these get updated properly
+    QPersistentModelIndex msgUid6 = threadingModel->index(0, 0);
+    QPersistentModelIndex msgUid9 = threadingModel->index(1, 0);
+    QPersistentModelIndex msgUid10 = threadingModel->index(2, 0);
+    QVERIFY(msgUid6.isValid());
+    QVERIFY(msgUid9.isValid());
+    QVERIFY(msgUid10.isValid());
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    QCOMPARE(msgUid9.data(Imap::Mailbox::RoleMessageUid).toUInt(), 9u);
+    QCOMPARE(msgUid10.data(Imap::Mailbox::RoleMessageUid).toUInt(), 10u);
+    QCOMPARE(msgUid6.row(), 0);
+    QCOMPARE(msgUid9.row(), 1);
+    QCOMPARE(msgUid10.row(), 2);
+
+    threadingModel->setUserSortingPreference(Imap::Mailbox::ThreadingMsgListModel::SORT_SUBJECT);
+
+    QList<uint> expectedUidOrder;
+
+    // suppose subjects are "qt", "trojita" and "mail"
+    expectedUidOrder << 10 << 6 << 9;
+
+    // A ery basic sorting example
+    cClient(t.mk("UID SORT (SUBJECT) utf-8 ALL\r\n"));
+    cServer("* SORT " + numListToString(expectedUidOrder) + "\r\n");
+    cServer(t.last("OK sorted\r\n"));
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    checkUidMapFromThreading(expectedUidOrder);
+    QCOMPARE(msgUid6.row(), 1);
+    QCOMPARE(msgUid9.row(), 2);
+    QCOMPARE(msgUid10.row(), 0);
+
+    // Sort by the same criteria, but in a reversed order
+    threadingModel->setUserSortingPreference(Imap::Mailbox::ThreadingMsgListModel::SORT_SUBJECT, Qt::DescendingOrder);
+    cEmpty();
+    reverseContainer(expectedUidOrder);
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    checkUidMapFromThreading(expectedUidOrder);
+    QCOMPARE(msgUid6.row(), 1);
+    QCOMPARE(msgUid9.row(), 0);
+    QCOMPARE(msgUid10.row(), 2);
+
+    // Revert back to ascending sort
+    threadingModel->setUserSortingPreference(Imap::Mailbox::ThreadingMsgListModel::SORT_SUBJECT, Qt::AscendingOrder);
+    cEmpty();
+    reverseContainer(expectedUidOrder);
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    checkUidMapFromThreading(expectedUidOrder);
+    QCOMPARE(msgUid6.row(), 1);
+    QCOMPARE(msgUid9.row(), 2);
+    QCOMPARE(msgUid10.row(), 0);
+
+    // Sort in a native order, reverse direction
+    threadingModel->setUserSortingPreference(Imap::Mailbox::ThreadingMsgListModel::SORT_NONE, Qt::DescendingOrder);
+    cEmpty();
+    expectedUidOrder = uidMap;
+    reverseContainer(expectedUidOrder);
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    checkUidMapFromThreading(expectedUidOrder);
+    QCOMPARE(msgUid6.row(), 2);
+    QCOMPARE(msgUid9.row(), 1);
+    QCOMPARE(msgUid10.row(), 0);
+
+    // Let a new message arrive
+    cServer("* 4 EXISTS\r\n");
+    cClient(t.mk("UID FETCH 15:* (FLAGS)\r\n"));
+    cServer("* 4 FETCH (UID 15 FLAGS ())\r\n" + t.last("ok fetched\r\n"));
+    uidMap << 15;
+    expectedUidOrder = uidMap;
+    reverseContainer(expectedUidOrder);
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    checkUidMapFromThreading(expectedUidOrder);
+    QCOMPARE(msgUid6.row(), 3);
+    QCOMPARE(msgUid9.row(), 2);
+    QCOMPARE(msgUid10.row(), 1);
+    // ...and delete it again
+    cServer("* VANISHED 15\r\n");
+    uidMap.removeOne(15);
+    expectedUidOrder = uidMap;
+    reverseContainer(expectedUidOrder);
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    checkUidMapFromThreading(expectedUidOrder);
+    QCOMPARE(msgUid6.row(), 2);
+    QCOMPARE(msgUid9.row(), 1);
+    QCOMPARE(msgUid10.row(), 0);
+
+    // Check dynamic updates when some sorting criteria are active
+    threadingModel->setUserSortingPreference(Imap::Mailbox::ThreadingMsgListModel::SORT_SUBJECT, Qt::AscendingOrder);
+    expectedUidOrder.clear();
+    expectedUidOrder << 10 << 6 << 9;
+    cClient(t.mk("UID SORT (SUBJECT) utf-8 ALL\r\n"));
+    cServer("* SORT " + numListToString(expectedUidOrder) + "\r\n");
+    cServer(t.last("OK sorted\r\n"));
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    checkUidMapFromThreading(expectedUidOrder);
+    QCOMPARE(msgUid6.row(), 1);
+    QCOMPARE(msgUid9.row(), 2);
+    QCOMPARE(msgUid10.row(), 0);
+
+    // ...new arrivals
+    cServer("* 4 EXISTS\r\n");
+    cClient(t.mk("UID FETCH 16:* (FLAGS)\r\n"));
+    QByteArray delayedUidFetch = "* 4 FETCH (UID 16 FLAGS ())\r\n" + t.last("ok fetched\r\n");
+    // ... their UID remains unknown for a while; the model won't request SORT just yet
+    cEmpty();
+    // that new arrival shall be visible immediately
+    expectedUidOrder << 0;
+    checkUidMapFromThreading(expectedUidOrder);
+    cServer(delayedUidFetch);
+    uidMap << 16;
+    // as soon as the new UID arrives, the sorting order gets thrown out of the window
+    expectedUidOrder = uidMap;
+    checkUidMapFromThreading(expectedUidOrder);
+    // at this point, the SORT gets issued
+    expectedUidOrder.clear();
+    expectedUidOrder << 10 << 6 << 16 << 9;
+    cClient(t.mk("UID SORT (SUBJECT) utf-8 ALL\r\n"));
+    cServer("* SORT " + numListToString(expectedUidOrder) + "\r\n");
+    cServer(t.last("OK sorted\r\n"));
+
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    checkUidMapFromThreading(expectedUidOrder);
+    QCOMPARE(msgUid6.row(), 1);
+    QCOMPARE(msgUid9.row(), 3);
+    QCOMPARE(msgUid10.row(), 0);
+    // ...and delete it again
+    cServer("* VANISHED 16\r\n");
+    uidMap.removeOne(16);
+    expectedUidOrder.removeOne(16);
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    checkUidMapFromThreading(expectedUidOrder);
+    QCOMPARE(msgUid6.row(), 1);
+    QCOMPARE(msgUid9.row(), 2);
+    QCOMPARE(msgUid10.row(), 0);
+
+    // A new message arrives and the user requests a completely different sort order
+    threadingModel->setUserSortingPreference(Imap::Mailbox::ThreadingMsgListModel::SORT_FROM, Qt::AscendingOrder);
+    cServer("* 4 EXISTS\r\n");
+    QByteArray sortReq = t.mk("UID SORT (DISPLAYFROM) utf-8 ALL\r\n");
+    QByteArray sortResp = t.last("OK sorted\r\n");
+    QByteArray uidFetchReq = t.mk("UID FETCH 17:* (FLAGS)\r\n");
+    delayedUidFetch = "* 4 FETCH (UID 17 FLAGS ())\r\n" + t.last("ok fetched\r\n");
+    uidMap << 0;
+    expectedUidOrder = uidMap;
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    checkUidMapFromThreading(expectedUidOrder);
+    QCOMPARE(msgUid6.row(), 0);
+    QCOMPARE(msgUid9.row(), 1);
+    QCOMPARE(msgUid10.row(), 2);
+
+    cClient(sortReq + uidFetchReq);
+    expectedUidOrder.clear();
+    expectedUidOrder << 9 << 17 << 6 << 10;
+    cServer("* SORT " + numListToString(expectedUidOrder) + "\r\n" + sortResp);
+    // in this situation, the new arrival is not visible, unfortunately
+    expectedUidOrder.removeOne(17);
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    checkUidMapFromThreading(expectedUidOrder);
+    QCOMPARE(msgUid6.row(), 1);
+    QCOMPARE(msgUid9.row(), 0);
+    QCOMPARE(msgUid10.row(), 2);
+    // Deliver the UID; it will get listed as the last item and the delivered SORT will get thrown away correctly.
+    // That behavior is correct because there's an opportunity for races -- the client wanted updated threading at the
+    // same time as when the server delivered its notice about new arrival and because we don't cache SORT responses at this point,
+    // we got to discrard that data.
+    cServer(delayedUidFetch);
+    uidMap.removeOne(0);
+    uidMap << 17;
+    expectedUidOrder = uidMap;
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    checkUidMapFromThreading(expectedUidOrder);
+    QCOMPARE(msgUid6.row(), 0);
+    QCOMPARE(msgUid9.row(), 1);
+    QCOMPARE(msgUid10.row(), 2);
+    // At this point, new sorting shall be requested
+    cClient(t.mk("UID SORT (DISPLAYFROM) utf-8 ALL\r\n"));
+    expectedUidOrder.clear();
+    expectedUidOrder << 9 << 17 << 6 << 10;
+    cServer("* SORT " + numListToString(expectedUidOrder) + "\r\n" + t.last("OK sorted\r\n"));
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    checkUidMapFromThreading(expectedUidOrder);
+    QCOMPARE(msgUid6.row(), 2);
+    QCOMPARE(msgUid9.row(), 0);
+    QCOMPARE(msgUid10.row(), 3);
+
+    cEmpty();
+    justKeepTask();
 }
 
 void ImapModelThreadingTest::testThreadingPerformance()

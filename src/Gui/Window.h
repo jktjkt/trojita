@@ -118,6 +118,8 @@ private slots:
     void slotViewMsgHeaders();
     void slotThreadMsgList();
     void slotHideRead();
+    void slotSortingPreferenceChanged();
+    void slotSortingConfirmed(int column, Qt::SortOrder order);
     void slotCapabilitiesUpdated(const QStringList &capabilities);
 
     void slotMailboxDeleteFailed(const QString &mailbox, const QString &msg);
@@ -208,6 +210,17 @@ private:
 
     QAction *actionThreadMsgList;
     QAction *actionHideRead;
+    QAction *m_actionSortByArrival;
+    QAction *m_actionSortByCc;
+    QAction *m_actionSortByDate;
+    QAction *m_actionSortByFrom;
+    QAction *m_actionSortBySize;
+    QAction *m_actionSortBySubject;
+    QAction *m_actionSortByTo;
+    QAction *m_actionSortThreading;
+    QAction *m_actionSortNone;
+    QAction *m_actionSortAscending;
+    QAction *m_actionSortDescending;
     QAction *m_actionLayoutCompact;
     QAction *m_actionLayoutWide;
 

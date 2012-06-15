@@ -28,6 +28,7 @@
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/MsgListModel.h"
+#include "Imap/Model/ThreadingMsgListModel.h"
 
 LibMailboxSync::~LibMailboxSync()
 {
@@ -58,6 +59,9 @@ void LibMailboxSync::init()
     connect(model, SIGNAL(logged(uint,Imap::Mailbox::LogMessage)), this, SLOT(modelLogged(uint,Imap::Mailbox::LogMessage)));
 
     msgListModel = new Imap::Mailbox::MsgListModel(this, model);
+
+    threadingModel = new Imap::Mailbox::ThreadingMsgListModel(this);
+    threadingModel->setSourceModel(msgListModel);
 
     helperInitialListing();
 }
@@ -107,6 +111,8 @@ void LibMailboxSync::cleanup()
     model = 0;
     msgListModel->deleteLater();
     msgListModel = 0;
+    threadingModel->deleteLater();
+    threadingModel = 0;
     taskFactoryUnsafe = 0;
     QVERIFY( errorSpy->isEmpty() );
     delete errorSpy;
@@ -122,6 +128,7 @@ void LibMailboxSync::initTestCase()
 {
     model = 0;
     msgListModel = 0;
+    threadingModel = 0;
     errorSpy = 0;
 }
 
@@ -472,6 +479,34 @@ QByteArray LibMailboxSync::helperCreateTrivialEnvelope(const uint seq, const uin
                                       QString::number(seq), QString::number(uid), subject ).toAscii();
 }
 
+/** @short Make sure that the only existing task is the KeepMailboxOpenTask and nothing else */
+void LibMailboxSync::justKeepTask()
+{
+    QCOMPARE(model->taskModel()->rowCount(), 1);
+    QModelIndex parser1 = model->taskModel()->index(0, 0);
+    QVERIFY(parser1.isValid());
+    QCOMPARE(model->taskModel()->rowCount(parser1), 1);
+    QModelIndex firstTask = parser1.child(0, 0);
+    QVERIFY(firstTask.isValid());
+    QVERIFY(!firstTask.child(0, 0).isValid());
+}
+
+
+namespace Imap {
+namespace Mailbox {
+
+/** @short Operator for QCOMPARE which acts on all data stored in the SyncState
+
+This operator compares *everything*, including the hidden members.
+*/
+bool operator==(const SyncState &a, const SyncState &b)
+{
+    return a.completelyEqualTo(b);
+}
+
+}
+}
+
 namespace QTest {
 
 /** @short Debug data dumper for QList<uint> */
@@ -484,6 +519,32 @@ char *toString(const QList<uint> &list)
     Q_FOREACH(const uint item, list) {
         d << item;
     }
+    return qstrdup(buf.toAscii().constData());
+}
+
+
+/** @short Debug data dumper for unit tests
+
+Could be a bit confusing as it doesn't print out the hidden members. Therefore a simple x.setFlags(QStringList()) -- which merely
+sets a value same as the default one -- will result in comparison failure, but this function wouldn't print the original cause.
+*/
+template<>
+char *toString(const Imap::Mailbox::SyncState &syncState)
+{
+    QString buf;
+    QDebug d(&buf);
+    d << syncState;
+    return qstrdup(buf.toAscii().constData());
+}
+
+/** @short Debug data dumper for the MessageDataBundle */
+template<>
+char *toString(const Imap::Mailbox::AbstractCache::MessageDataBundle &bundle)
+{
+    QString buf;
+    QDebug d(&buf);
+    d << "UID:" << bundle.uid << "Envelope:" << bundle.envelope << "size:" << bundle.size <<
+         "bodystruct:" << bundle.serializedBodyStructure;
     return qstrdup(buf.toAscii().constData());
 }
 }

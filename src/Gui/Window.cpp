@@ -74,7 +74,7 @@
 namespace Gui
 {
 
-MainWindow::MainWindow(): QMainWindow(), model(0), m_ignoreStoredPassword(false)
+MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignoreStoredPassword(false)
 {
     qRegisterMetaType<QList<QSslCertificate> >("QList<QSslCertificate>");
     qRegisterMetaType<QList<QSslError> >("QList<QSslError>");
@@ -237,6 +237,36 @@ void MainWindow::createActions()
     }
     connect(actionThreadMsgList, SIGNAL(triggered(bool)), this, SLOT(slotThreadMsgList()));
 
+    QActionGroup *sortOrderGroup = new QActionGroup(this);
+    m_actionSortAscending = new QAction(tr("Ascending"), sortOrderGroup);
+    m_actionSortAscending->setCheckable(true);
+    m_actionSortAscending->setChecked(true);
+    m_actionSortDescending = new QAction(tr("Descending"), sortOrderGroup);
+    m_actionSortDescending->setCheckable(true);
+    connect(sortOrderGroup, SIGNAL(triggered(QAction*)), this, SLOT(slotSortingPreferenceChanged()));
+
+    QActionGroup *sortColumnGroup = new QActionGroup(this);
+    m_actionSortNone = new QAction(tr("No sorting"), sortColumnGroup);
+    m_actionSortNone->setCheckable(true);
+    m_actionSortThreading = new QAction(tr("Sorted by Threading"), sortColumnGroup);
+    m_actionSortThreading->setCheckable(true);
+    m_actionSortByArrival = new QAction(tr("Arrival"), sortColumnGroup);
+    m_actionSortByArrival->setCheckable(true);
+    m_actionSortByCc = new QAction(tr("Cc (Carbon Copy)"), sortColumnGroup);
+    m_actionSortByCc->setCheckable(true);
+    m_actionSortByDate = new QAction(tr("Date from Message Headers"), sortColumnGroup);
+    m_actionSortByDate->setCheckable(true);
+    m_actionSortByFrom = new QAction(tr("From Address"), sortColumnGroup);
+    m_actionSortByFrom->setCheckable(true);
+    m_actionSortBySize = new QAction(tr("Size"), sortColumnGroup);
+    m_actionSortBySize->setCheckable(true);
+    m_actionSortBySubject = new QAction(tr("Subject"), sortColumnGroup);
+    m_actionSortBySubject->setCheckable(true);
+    m_actionSortByTo = new QAction(tr("To Address"), sortColumnGroup);
+    m_actionSortByTo->setCheckable(true);
+    connect(sortColumnGroup, SIGNAL(triggered(QAction*)), this, SLOT(slotSortingPreferenceChanged()));
+    slotSortingConfirmed(-1, Qt::AscendingOrder);
+
     actionHideRead = new QAction(tr("Hide Read Messages"), this);
     actionHideRead->setCheckable(true);
     addAction(actionHideRead);
@@ -321,6 +351,20 @@ void MainWindow::createMenus()
     viewMenu->addAction(m_previousMessage);
     viewMenu->addAction(m_nextMessage);
     viewMenu->addSeparator();
+    QMenu *sortMenu = viewMenu->addMenu(tr("Sorting"));
+    sortMenu->addAction(m_actionSortNone);
+    sortMenu->addAction(m_actionSortThreading);
+    sortMenu->addAction(m_actionSortByArrival);
+    sortMenu->addAction(m_actionSortByCc);
+    sortMenu->addAction(m_actionSortByDate);
+    sortMenu->addAction(m_actionSortByFrom);
+    sortMenu->addAction(m_actionSortBySize);
+    sortMenu->addAction(m_actionSortBySubject);
+    sortMenu->addAction(m_actionSortByTo);
+    sortMenu->addSeparator();
+    sortMenu->addAction(m_actionSortAscending);
+    sortMenu->addAction(m_actionSortDescending);
+
     viewMenu->addAction(actionThreadMsgList);
     viewMenu->addAction(actionHideRead);
 
@@ -352,13 +396,8 @@ void MainWindow::createWidgets()
             this, SLOT(showContextMenuMboxTree(const QPoint &)));
 
     msgListTree = new MsgListView();
-    msgListTree->setUniformRowHeights(true);
     msgListTree->setContextMenuPolicy(Qt::CustomContextMenu);
-    msgListTree->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    msgListTree->setAllColumnsShowFocus(true);
     msgListTree->setAlternatingRowColors(true);
-    msgListTree->setDragEnabled(true);
-    msgListTree->setRootIsDecorated(false);
 
     connect(msgListTree, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showContextMenuMsgListTree(const QPoint &)));
@@ -486,10 +525,10 @@ void MainWindow::setupModels()
     msgListModel = new Imap::Mailbox::MsgListModel(this, model);
     msgListModel->setObjectName(QLatin1String("msgListModel"));
     threadingMsgListModel = new Imap::Mailbox::ThreadingMsgListModel(this);
-    // no call to setSourceModel() at this point
     threadingMsgListModel->setObjectName(QLatin1String("threadingMsgListModel"));
+    threadingMsgListModel->setSourceModel(msgListModel);
     prettyMsgListModel = new Imap::Mailbox::PrettyMsgListModel(this);
-    prettyMsgListModel->setSourceModel(msgListModel);
+    prettyMsgListModel->setSourceModel(threadingMsgListModel);
     prettyMsgListModel->setObjectName(QLatin1String("prettyMsgListModel"));
 
     connect(mboxTree, SIGNAL(clicked(const QModelIndex &)), msgListModel, SLOT(setMailbox(const QModelIndex &)));
@@ -523,6 +562,8 @@ void MainWindow::setupModels()
 
     connect(msgListModel, SIGNAL(modelReset()), this, SLOT(slotUpdateWindowTitle()));
     connect(model, SIGNAL(messageCountPossiblyChanged(QModelIndex)), this, SLOT(slotUpdateWindowTitle()));
+
+    connect(prettyMsgListModel, SIGNAL(sortingPreferenceChanged(int,Qt::SortOrder)), this, SLOT(slotSortingConfirmed(int,Qt::SortOrder)));
 
     //Imap::Mailbox::ModelWatcher* w = new Imap::Mailbox::ModelWatcher( this );
     //w->setModel( model );
@@ -1284,16 +1325,119 @@ void MainWindow::slotThreadMsgList()
     // We want to save user's preferences and not override them with "threading disabled" when the server
     // doesn't report them, like in initial greetings. That's why we have to check for isEnabled() here.
     const bool useThreading = actionThreadMsgList->isChecked();
-    if (useThreading && actionThreadMsgList->isEnabled()) {
-        threadingMsgListModel->setSourceModel(msgListModel);
-        prettyMsgListModel->setSourceModel(threadingMsgListModel);
-        msgListTree->setRootIsDecorated(true);
+
+    // Switching betweeb threaded/unthreaded view shall resert the sorting criteria. The goal is to make
+    // sorting rather seldomly used as people shall instead use proper threading.
+    if (useThreading) {
+        m_actionSortThreading->setEnabled(true);
+        if (!m_actionSortThreading->isChecked())
+            m_actionSortThreading->trigger();
+        m_actionSortNone->setEnabled(false);
     } else {
-        prettyMsgListModel->setSourceModel(msgListModel);
-        threadingMsgListModel->setSourceModel(0);
+        m_actionSortNone->setEnabled(true);
+        if (!m_actionSortNone->isChecked())
+            m_actionSortNone->trigger();
+        m_actionSortThreading->setEnabled(false);
+    }
+
+    QPersistentModelIndex currentItem = msgListTree->currentIndex();
+
+    if (useThreading && actionThreadMsgList->isEnabled()) {
+        msgListTree->setRootIsDecorated(true);
+        threadingMsgListModel->setUserWantsThreading(true);
+    } else {
         msgListTree->setRootIsDecorated(false);
+        threadingMsgListModel->setUserWantsThreading(false);
     }
     QSettings().setValue(Common::SettingsNames::guiMsgListShowThreading, QVariant(useThreading));
+
+    if (currentItem.isValid()) {
+        msgListTree->scrollTo(currentItem);
+    } else {
+        // If we cannot determine current item, at least scroll to a predictable place. Without this, the view
+        // would jump to "weird" places, probably due to some heuristics about trying to show "roughly the same"
+        // objects as what was visible before the reshuffling.
+        msgListTree->scrollToBottom();
+    }
+}
+
+void MainWindow::slotSortingPreferenceChanged()
+{
+    Qt::SortOrder order = m_actionSortDescending->isChecked() ? Qt::DescendingOrder : Qt::AscendingOrder;
+
+    using namespace Imap::Mailbox;
+
+    int column = -1;
+    if (m_actionSortByArrival->isChecked()) {
+        column = MsgListModel::RECEIVED_DATE;
+    } else if (m_actionSortByCc->isChecked()) {
+        column = MsgListModel::CC;
+    } else if (m_actionSortByDate->isChecked()) {
+        column = MsgListModel::DATE;
+    } else if (m_actionSortByFrom->isChecked()) {
+        column = MsgListModel::FROM;
+    } else if (m_actionSortBySize->isChecked()) {
+        column = MsgListModel::SIZE;
+    } else if (m_actionSortBySubject->isChecked()) {
+        column = MsgListModel::SUBJECT;
+    } else if (m_actionSortByTo->isChecked()) {
+        column = MsgListModel::TO;
+    } else {
+        column = MsgListModel::RECEIVED_DATE;
+    }
+
+    msgListTree->header()->setSortIndicator(column, order);
+}
+
+void MainWindow::slotSortingConfirmed(int column, Qt::SortOrder order)
+{
+    // don't do anything during initialization
+    if (!m_actionSortNone)
+        return;
+
+    using namespace Imap::Mailbox;
+    QAction *action;
+
+    switch (column) {
+    case MsgListModel::SEEN:
+    case MsgListModel::COLUMN_COUNT:
+    case MsgListModel::BCC:
+    case -1:
+        if (actionThreadMsgList->isChecked())
+            action = m_actionSortThreading;
+        else
+            action = m_actionSortNone;
+        break;
+    case MsgListModel::SUBJECT:
+        action = m_actionSortBySubject;
+        break;
+    case MsgListModel::FROM:
+        action = m_actionSortByFrom;
+        break;
+    case MsgListModel::TO:
+        action = m_actionSortByTo;
+        break;
+    case MsgListModel::CC:
+        action = m_actionSortByCc;
+        break;
+    case MsgListModel::DATE:
+        action = m_actionSortByDate;
+        break;
+    case MsgListModel::RECEIVED_DATE:
+        action = m_actionSortByArrival;
+        break;
+    case MsgListModel::SIZE:
+        action = m_actionSortBySize;
+        break;
+    default:
+        action = m_actionSortNone;
+    }
+
+    action->setChecked(true);
+    if (order == Qt::DescendingOrder)
+        m_actionSortDescending->setChecked(true);
+    else
+        m_actionSortAscending->setChecked(true);
 }
 
 void MainWindow::slotHideRead()

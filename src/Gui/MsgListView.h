@@ -25,6 +25,12 @@
 
 class QSignalMapper;
 
+namespace Imap {
+namespace Mailbox {
+class PrettyMsgListModel;
+}
+}
+
 namespace Gui
 {
 
@@ -40,6 +46,7 @@ class MsgListView : public QTreeView
 public:
     MsgListView(QWidget *parent=0);
     virtual ~MsgListView() {}
+    void setModel(QAbstractItemModel *model);
 protected:
     virtual int sizeHintForColumn(int column) const;
 private slots:
@@ -50,7 +57,11 @@ private slots:
     void slotSectionCountChanged();
     /** @short Show/hide a corresponding column */
     void slotHeaderSectionVisibilityToggled(int section);
+    /** @short Pick up the change of the sort critera */
+    void slotHandleSortCriteriaChanged(int column, Qt::SortOrder order);
 private:
+    static Imap::Mailbox::PrettyMsgListModel *findPrettyMsgListModel(QAbstractItemModel *model);
+
     QSignalMapper *headerFieldsMapper;
 };
 

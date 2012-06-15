@@ -306,7 +306,10 @@ void Model::handleState(Imap::Parser *ptr, const Imap::Responses::State *const r
                 accessParser(ptr).connState = CONN_STATE_LOGOUT;
                 emit connectionError(resp->message);
             }
-            killParser(ptr, PARSER_KILL_EXPECTED);
+            if (accessParser(ptr).parser) {
+                // previous block could enter the event loop and hence kill our parser; we shouldn't try to kill it twice
+                killParser(ptr, PARSER_KILL_EXPECTED);
+            }
             break;
         case OK:
             if (resp->respCode == NONE) {

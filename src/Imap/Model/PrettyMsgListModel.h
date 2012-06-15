@@ -39,6 +39,10 @@ public:
     virtual QVariant data(const QModelIndex &index, int role) const;
     void setHideRead(bool value);
     virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
+    virtual void sort(int column, Qt::SortOrder order);
+
+signals:
+    void sortingPreferenceChanged(int column, Qt::SortOrder order);
 
 private:
     QString prettyFormatDate(const QDateTime &dateTime) const;

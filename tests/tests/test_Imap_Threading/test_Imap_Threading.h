@@ -24,12 +24,6 @@
 
 #include "test_LibMailboxSync/test_LibMailboxSync.h"
 
-namespace Imap {
-namespace Mailbox {
-class ThreadingMsgListModel;
-}
-}
-
 typedef QMap<QString, int> Mapping;
 typedef QMap<QString, QPersistentModelIndex> IndexMapping;
 
@@ -43,11 +37,10 @@ private slots:
     void testDynamicThreading();
     void testThreadDeletionsAdditions();
     void testThreadDeletionsAdditions_data();
+    void testDynamicSorting();
     void testThreadingPerformance();
 protected slots:
     virtual void init();
-    virtual void initTestCase();
-    virtual void cleanup();
 private:
     void complexMapping(Mapping &m, QByteArray &response);
 
@@ -57,8 +50,9 @@ private:
     IndexMapping buildIndexMap(const Mapping &mapping);
     void verifyIndexMap(const IndexMapping &indexMap, const Mapping &map);
     QByteArray treeToThreading(QModelIndex index);
+    QByteArray numListToString(const QList<uint> &seq);
 
-    Imap::Mailbox::ThreadingMsgListModel *threadingModel;
+    template<typename T> void reverseContainer(T &container);
 };
 
 #endif

@@ -36,6 +36,7 @@
 #include "ThreadTask.h"
 #include "NoopTask.h"
 #include "UnSelectTask.h"
+#include "SortTask.h"
 #include "Imap/Model/TaskPresentationModel.h"
 #include "Imap/Parser/Parser.h"
 
@@ -143,6 +144,11 @@ NoopTask *TaskFactory::createNoopTask(Model *model, ImapTask *parentTask)
 UnSelectTask *TaskFactory::createUnSelectTask(Model *model, ImapTask *parentTask)
 {
     return new UnSelectTask(model, parentTask);
+}
+
+SortTask *TaskFactory::createSortTask(Model *model, const QModelIndex &mailbox, const QStringList &sortCriteria)
+{
+    return new SortTask(model, mailbox, sortCriteria);
 }
 
 
