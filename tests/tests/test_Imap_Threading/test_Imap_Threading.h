@@ -37,6 +37,7 @@ private slots:
     void testDynamicThreading();
     void testThreadDeletionsAdditions();
     void testThreadDeletionsAdditions_data();
+    void testDynamicSorting();
     void testThreadingPerformance();
 protected slots:
     virtual void init();
@@ -49,6 +50,7 @@ private:
     IndexMapping buildIndexMap(const Mapping &mapping);
     void verifyIndexMap(const IndexMapping &indexMap, const Mapping &map);
     QByteArray treeToThreading(QModelIndex index);
+    QByteArray numListToString(const QList<uint> &seq);
 };
 
 #endif
