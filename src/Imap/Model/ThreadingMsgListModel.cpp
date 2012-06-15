@@ -461,6 +461,7 @@ void ThreadingMsgListModel::wantThreading()
 {
     if (!sourceModel() || !sourceModel()->rowCount() || !m_shallBeThreading) {
         updateNoThreading();
+        setUserSortingPreference(m_currentSortingCriteria, m_sortReverse ? Qt::DescendingOrder : Qt::AscendingOrder);
         return;
     }
 
@@ -482,6 +483,7 @@ void ThreadingMsgListModel::wantThreading()
         // See, at the indicated (***) place, we already have an in-flight THREAD request and receive UID for newly arrived
         // message.  We certainly don't want to ask for threading once again; it's better to wait a bit and only ask when the
         // to-be-received THREAD does not contain all required UIDs.
+        setUserSortingPreference(m_currentSortingCriteria, m_sortReverse ? Qt::DescendingOrder : Qt::AscendingOrder);
         return;
     }
 
@@ -1102,6 +1104,7 @@ bool ThreadingMsgListModel::setUserSortingPreference(const SortCriterium criteri
         break;
     case SORT_NONE:
         // This operaiton is special, it will immediately restore the original sort order
+        m_currentSortingCriteria = criterium;
         calculateNullSort();
         applySort();
         return true;

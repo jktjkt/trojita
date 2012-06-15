@@ -688,6 +688,29 @@ void ImapModelThreadingTest::testDynamicSorting()
     QCOMPARE(msgUid10.row(), 0);
     checkUidMapFromThreading(expectedUidOrder);
 
+    // Let a new message arrive
+    cServer("* 4 EXISTS\r\n");
+    cClient(t.mk("UID FETCH 15:* (FLAGS)\r\n"));
+    cServer("* 4 FETCH (UID 15 FLAGS ())\r\n" + t.last("ok fetched\r\n"));
+    uidMap << 15;
+    expectedUidOrder = uidMap;
+    reverseContainer(expectedUidOrder);
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    QCOMPARE(msgUid6.row(), 3);
+    QCOMPARE(msgUid9.row(), 2);
+    QCOMPARE(msgUid10.row(), 1);
+    checkUidMapFromThreading(expectedUidOrder);
+    // ...and delete it again
+    cServer("* VANISHED 15\r\n");
+    uidMap.removeOne(15);
+    expectedUidOrder = uidMap;
+    reverseContainer(expectedUidOrder);
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    QCOMPARE(msgUid6.row(), 2);
+    QCOMPARE(msgUid9.row(), 1);
+    QCOMPARE(msgUid10.row(), 0);
+    checkUidMapFromThreading(expectedUidOrder);
+
     cEmpty();
     justKeepTask();
 }
