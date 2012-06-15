@@ -72,8 +72,7 @@ bool MailboxNameComparator(const TreeItem *const a, const TreeItem *const b)
 
 bool uidComparator(const TreeItem *const item, const uint uid)
 {
-    const TreeItemMessage *const message = dynamic_cast<const TreeItemMessage *const>(item);
-    Q_ASSERT(message);
+    const TreeItemMessage *const message = static_cast<const TreeItemMessage *const>(item);
     uint messageUid = message->uid();
     Q_ASSERT(messageUid);
     return messageUid < uid;
@@ -81,8 +80,7 @@ bool uidComparator(const TreeItem *const item, const uint uid)
 
 bool messageHasUidZero(const TreeItem *const item)
 {
-    const TreeItemMessage *const message = dynamic_cast<const TreeItemMessage *const>(item);
-    Q_ASSERT(message);
+    const TreeItemMessage *const message = static_cast<const TreeItemMessage *const>(item);
     return message->uid() == 0;
 }
 
