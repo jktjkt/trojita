@@ -1119,7 +1119,7 @@ bool ThreadingMsgListModel::setUserSortingPreference(const SortCriterium criteri
 
     Q_ASSERT(!sortOptions.isEmpty());
     if (m_currentSortingCriteria == criterium && !m_currentSortResult.isEmpty()) {
-       applySort();
+        applySort();
     } else {
         // FIXME: guard against multiple SORTs in future; this is a bit tricky, we cannot just return false from here
         m_sortInProgress = true;
