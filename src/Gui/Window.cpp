@@ -1287,26 +1287,17 @@ void MainWindow::slotXtSyncCurrentMailbox()
 
 void MainWindow::slotScrollToUnseenMessage(const QModelIndex &mailbox, const QModelIndex &message)
 {
-    // FIXME: unit tests
-    Q_ASSERT(msgListModel);
-    Q_ASSERT(msgListTree);
-    if (model->realTreeItem(mailbox) != msgListModel->currentMailbox())
-        return;
-
-    // So, we have an index from Model, and have to map it through unspecified number of proxies here...
-    QList<QAbstractProxyModel *> stack;
-    QAbstractItemModel *tempModel = msgListModel;
-    while (QAbstractProxyModel *proxy = qobject_cast<QAbstractProxyModel *>(tempModel)) {
-        stack.insert(0, proxy);
-        tempModel = proxy->sourceModel();
+    // Now this is much, much more reliable than messing around with finding out an "interesting message"...
+    Q_UNUSED(mailbox);
+    Q_UNUSED(message);
+    if (!m_actionSortNone->isChecked() && !m_actionSortThreading->isChecked()) {
+        // we're using some funky sorting, better don't scroll anywhere
     }
-    QModelIndex targetIndex = message;
-    Q_FOREACH(QAbstractProxyModel *proxy, stack) {
-        targetIndex = proxy->mapFromSource(targetIndex);
+    if (m_actionSortDescending->isChecked()) {
+        msgListTree->scrollToTop();
+    } else {
+        msgListTree->scrollToBottom();
     }
-
-    // ...now, we can scroll, using the translated index
-    msgListTree->scrollTo(targetIndex);
 }
 
 void MainWindow::slotReleaseSelectedMessage()
