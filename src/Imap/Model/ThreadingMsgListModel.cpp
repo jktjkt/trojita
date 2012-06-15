@@ -1077,12 +1077,13 @@ bool ThreadingMsgListModel::setUserSortingPreference(const SortCriterium criteri
     QModelIndex mailboxIndex = realIndex.parent().parent();
 
     bool hasDisplaySort = false;
+    bool hasSort = false;
     if (realModel->capabilities().contains(QLatin1String("SORT=DISPLAY"))) {
         hasDisplaySort = true;
+        hasSort = true;
     } else if (realModel->capabilities().contains(QLatin1String("SORT"))) {
         // just the regular sort
-    } else {
-        return false;
+        hasSort = true;
     }
 
     m_sortReverse = order == Qt::DescendingOrder;
@@ -1115,6 +1116,11 @@ bool ThreadingMsgListModel::setUserSortingPreference(const SortCriterium criteri
         calculateNullSort();
         applySort();
         return true;
+    }
+
+    if (!hasSort) {
+        // sorting is completely unsupported
+        return false;
     }
 
     Q_ASSERT(!sortOptions.isEmpty());
