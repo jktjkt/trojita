@@ -622,9 +622,17 @@ void ImapModelThreadingTest::testDynamicSorting()
 
     // A persistent index to make sure that these get updated properly
     QPersistentModelIndex msgUid6 = threadingModel->index(0, 0);
+    QPersistentModelIndex msgUid9 = threadingModel->index(1, 0);
+    QPersistentModelIndex msgUid10 = threadingModel->index(2, 0);
     QVERIFY(msgUid6.isValid());
+    QVERIFY(msgUid9.isValid());
+    QVERIFY(msgUid10.isValid());
     QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    QCOMPARE(msgUid9.data(Imap::Mailbox::RoleMessageUid).toUInt(), 9u);
+    QCOMPARE(msgUid10.data(Imap::Mailbox::RoleMessageUid).toUInt(), 10u);
     QCOMPARE(msgUid6.row(), 0);
+    QCOMPARE(msgUid9.row(), 1);
+    QCOMPARE(msgUid10.row(), 2);
 
     threadingModel->setUserSortingPreference(Imap::Mailbox::ThreadingMsgListModel::SORT_SUBJECT);
 
@@ -633,11 +641,14 @@ void ImapModelThreadingTest::testDynamicSorting()
     // suppose subjects are "qt", "trojita" and "mail"
     expectedUidOrder << 10 << 6 << 9;
 
+    // A ery basic sorting example
     cClient(t.mk("UID SORT (SUBJECT) utf-8 ALL\r\n"));
     cServer("* SORT " + numListToString(expectedUidOrder) + "\r\n");
     cServer(t.last("OK sorted\r\n"));
     QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
     QCOMPARE(msgUid6.row(), 1);
+    QCOMPARE(msgUid9.row(), 2);
+    QCOMPARE(msgUid10.row(), 0);
     checkUidMapFromThreading(expectedUidOrder);
 
     cEmpty();
