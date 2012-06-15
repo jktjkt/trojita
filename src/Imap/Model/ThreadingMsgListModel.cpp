@@ -1061,8 +1061,6 @@ bool ThreadingMsgListModel::setUserSortingPreference(const SortCriterium criteri
         return false;
     }
 
-    qDebug() << Q_FUNC_INFO << criterium << order;
-
     const Model *realModel;
     QModelIndex someMessage = sourceModel()->index(0,0);
     QModelIndex realIndex;
