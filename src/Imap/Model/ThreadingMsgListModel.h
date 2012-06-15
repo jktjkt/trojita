@@ -200,6 +200,8 @@ private:
 
     bool shouldIgnoreThisSortResponse(const QModelIndex &mailbox, const QStringList &sortCriteria);
 
+    void calculateNullSort();
+
     void logTrace(const QString &message);
 
 

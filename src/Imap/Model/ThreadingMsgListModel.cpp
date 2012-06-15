@@ -694,8 +694,22 @@ void ThreadingMsgListModel::slotSortingFailed(const QModelIndex &mailbox, const 
 
     m_sortInProgress = false;
     m_sortReverse = false;
-    m_currentSortResult = threadedRootIds;
+    calculateNullSort();
     applySort();
+}
+
+/** @short Store UIDs of the thread roots as the "current search order" */
+void ThreadingMsgListModel::calculateNullSort()
+{
+    m_currentSortResult.clear();
+    m_currentSortResult.reserve(threadedRootIds.size());
+    Q_FOREACH(const uint internalId, threadedRootIds) {
+        QHash<uint,ThreadNodeInfo>::const_iterator it = threading.constFind(internalId);
+        if (it == threading.constEnd())
+            continue;
+        if (it->uid)
+            m_currentSortResult.append(it->uid);
+    }
 }
 
 void ThreadingMsgListModel::applyThreading(const QVector<Imap::Responses::ThreadingNode> &mapping)
@@ -1087,7 +1101,7 @@ bool ThreadingMsgListModel::setUserSortingPreference(const SortCriterium criteri
         break;
     case SORT_NONE:
         // This operaiton is special, it will immediately restore the original sort order
-        m_currentSortResult = threadedRootIds;
+        calculateNullSort();
         applySort();
         return true;
     }
