@@ -14,6 +14,7 @@ Suported RFCs
 - 5162 IMAP4 Extensions for Quick Mailbox Resynchronization
 - 5256 Internet Message Access Protocol - SORT and THREAD Extensions
 - 5530 IMAP Response Codes
+- 5957 Display-Based Address Sorting for the IMAP4 SORT Extension
 
 To be evaluated:
 - 1731 IMAP4 Authentication Mechanisms
@@ -58,7 +59,6 @@ To be evaluated:
 - 5738 IMAP Support for UTF-8
 - 5788 IMAP4 Keyword Registry
 - 5819 IMAP4 Extension for Returning STATUS Information in Extended LIST
-- 5957 Display-Based Address Sorting for the IMAP4 SORT Extension
 - 6154 IMAP LIST Extension for Special-Use Mailboxes
 - 6186 Use of SRV Records for Locating Email Submission/Access Services
 - 6203 IMAP4 Extension for Fuzzy Search
