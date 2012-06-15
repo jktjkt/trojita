@@ -1111,9 +1111,6 @@ bool ThreadingMsgListModel::setUserSortingPreference(const SortCriterium criteri
 
 void ThreadingMsgListModel::applySort()
 {
-    qDebug() << "applySort" << m_currentSortResult;
-    qDebug() << "Before sort:\n" << dumpThreadNodeInfo(threading, 0, 0).constData();
-
     if (!rowCount()) {
         // empty mailbox is a corner case and it's already sorted anyway
         return;
