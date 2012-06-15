@@ -29,48 +29,6 @@
 #include "Imap/Model/ThreadingMsgListModel.h"
 #include "Imap/Tasks/ObtainSynchronizedMailboxTask.h"
 
-namespace Imap {
-namespace Mailbox {
-/** @short Operator for QCOMPARE which acts on all data stored in the SyncState
-
-This operator compares *everything*, including the hidden members.
-*/
-bool operator==(const SyncState &a, const SyncState &b)
-{
-    return a.completelyEqualTo(b);
-}
-
-}
-}
-
-namespace QTest {
-
-/** @short Debug data dumper for unit tests
-
-Could be a bit confusing as it doesn't print out the hidden members. Therefore a simple x.setFlags(QStringList()) -- which merely
-sets a value same as the default one -- will result in comparison failure, but this function wouldn't print the original cause.
-*/
-template<>
-char *toString(const Imap::Mailbox::SyncState &syncState)
-{
-    QString buf;
-    QDebug d(&buf);
-    d << syncState;
-    return qstrdup(buf.toAscii().constData());
-}
-
-/** @short Debug data dumper for the MessageDataBundle */
-template<>
-char *toString(const Imap::Mailbox::AbstractCache::MessageDataBundle &bundle)
-{
-    QString buf;
-    QDebug d(&buf);
-    d << "UID:" << bundle.uid << "Envelope:" << bundle.envelope << "size:" << bundle.size <<
-         "bodystruct:" << bundle.serializedBodyStructure;
-    return qstrdup(buf.toAscii().constData());
-}
-
-}
 
 void ImapModelObtainSynchronizedMailboxTest::init()
 {
@@ -766,17 +724,6 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringFlags()
     justKeepTask();
 }
 
-/** @short Make sure that the only existing task is the KeepMailboxOpenTask and nothing else */
-void ImapModelObtainSynchronizedMailboxTest::justKeepTask()
-{
-    QCOMPARE(model->taskModel()->rowCount(), 1);
-    QModelIndex parser1 = model->taskModel()->index(0, 0);
-    QVERIFY(parser1.isValid());
-    QCOMPARE(model->taskModel()->rowCount(parser1), 1);
-    QModelIndex firstTask = parser1.child(0, 0);
-    QVERIFY(firstTask.isValid());
-    QVERIFY(!firstTask.child(0, 0).isValid());
-}
 
 
 void ImapModelObtainSynchronizedMailboxTest::testCacheExpunges()
