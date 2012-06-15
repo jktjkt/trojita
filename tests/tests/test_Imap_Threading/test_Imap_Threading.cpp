@@ -562,7 +562,7 @@ QByteArray ImapModelThreadingTest::treeToThreading(QModelIndex index)
 
 #define checkUidMapFromThreading(MAPPING) \
 { \
-    QCOMPARE(MAPPING.size(), threadingModel->rowCount()); \
+    QCOMPARE(threadingModel->rowCount(), MAPPING.size()); \
     for (int i = 0; i < MAPPING.size(); ++i) { \
         QModelIndex messageIndex = threadingModel->index(i, 0); \
         QVERIFY(messageIndex.isValid()); \
