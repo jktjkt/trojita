@@ -338,8 +338,6 @@ void ThreadingMsgListModel::handleRowsRemoved(const QModelIndex &parent, int sta
 
     pruneTree();
     updatePersistentIndexesPhase2();
-    if (rowCount())
-        threadedRootIds = threading[0].children;
     emit layoutChanged();
 }
 
@@ -922,6 +920,7 @@ void ThreadingMsgListModel::pruneTree()
             if (it->children.isEmpty()) {
                 // This is a leaf node, so we can just remove it
                 childIt = parent->children.erase(childIt);
+                threadedRootIds.removeOne(it->internalId);
                 threading.erase(it);
                 ++id;
 
@@ -958,6 +957,13 @@ void ThreadingMsgListModel::pruneTree()
 
                     sibling->parent = replaceWith.key();
                     sibling->offset = i;
+                }
+
+                if (parent->internalId == 0) {
+                    // Update the list of all thread roots
+                    QList<uint>::iterator rootIt = qFind(threadedRootIds.begin(), threadedRootIds.end(), it->internalId);
+                    if (rootIt != threadedRootIds.end())
+                        *rootIt = replaceWith->internalId;
                 }
 
                 // Now that all references are gone, remove the original node
