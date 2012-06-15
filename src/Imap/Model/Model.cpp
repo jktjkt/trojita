@@ -126,6 +126,12 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
     m_specialFlagNames[QLatin1String("\\answered")] = QLatin1String("\\Answered");
     m_specialFlagNames[QLatin1String("\\recent")] = QLatin1String("\\Recent");
     m_specialFlagNames[QLatin1String("$forwarded")] = QLatin1String("$Forwarded");
+
+    QTimer *periodicMailboxNumbersRefresh = new QTimer(this);
+    // polling every five minutes
+    periodicMailboxNumbersRefresh->setInterval(5 * 60 * 1000);
+    connect(periodicMailboxNumbersRefresh, SIGNAL(timeout()), this, SLOT(invalidateAllMessageCounts()));
+    periodicMailboxNumbersRefresh->start();
 }
 
 Model::~Model()
@@ -1700,6 +1706,30 @@ QModelIndex Model::messageIndexByUid(const QString &mailboxName, const uint uid)
     } else {
         Q_ASSERT(messages.size() == 1);
         return messages.front()->toIndex(this);
+    }
+}
+
+/** @short Forget any cached data about number of messages in all mailboxes */
+void Model::invalidateAllMessageCounts()
+{
+    QList<TreeItemMailbox*> queue;
+    queue.append(m_mailboxes);
+    while (!queue.isEmpty()) {
+        TreeItemMailbox *head = queue.takeFirst();
+        // ignore first child, the TreeItemMsgList
+        QList<TreeItem*> children = head->m_children.mid(1);
+        Q_FOREACH(TreeItem * item, children) {
+            TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox*>(item);
+            queue.append(mailbox);
+        }
+        TreeItemMsgList *list = dynamic_cast<TreeItemMsgList*>(head->m_children[0]);
+
+        if (list->m_numberFetchingStatus != TreeItem::NONE) {
+            // don't signal a change if the data weren't loaded before
+            list->m_numberFetchingStatus = TreeItem::NONE;
+            QModelIndex idx = createIndex(head->row(), 0, head);
+            emit dataChanged(idx, idx);
+        }
     }
 }
 

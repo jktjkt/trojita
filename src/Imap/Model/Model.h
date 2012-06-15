@@ -280,6 +280,8 @@ public slots:
 
     void setSslPolicy(const QList<QSslCertificate> &sslChain, const QList<QSslError> &sslErrors, bool proceed);
 
+    void invalidateAllMessageCounts();
+
 private slots:
     /** @short Parser throwed out an exception */
     void slotParseError(Imap::Parser *parser, const QString &exceptionClass, const QString &errorMessage, const QByteArray &line, int position);
