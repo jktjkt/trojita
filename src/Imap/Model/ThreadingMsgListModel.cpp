@@ -369,9 +369,10 @@ void ThreadingMsgListModel::handleRowsInserted(const QModelIndex &parent, int st
         ptrToInternal[node.ptr] = node.internalId;
         if (!node.uid) {
             unknownUids << index;
+        } else {
+            threadedRootIds.append(node.internalId);
         }
     }
-    threadedRootIds = threading[0].children;
     m_currentSortResult.clear();
     endInsertRows();
 
