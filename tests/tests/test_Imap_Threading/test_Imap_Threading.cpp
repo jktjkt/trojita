@@ -578,6 +578,12 @@ QByteArray ImapModelThreadingTest::numListToString(const QList<uint> &seq)
     return res.join(QLatin1String(" ")).toAscii();
 }
 
+template<typename T> void ImapModelThreadingTest::reverseContainer(T &container)
+{
+    for (int i = 0; i < container.size() / 2; ++i)
+        container.swap(i, container.size() - 1 - i);
+}
+
 /** @short Test how sorting reacts to dynamic mailbox updates and the initial sync */
 void ImapModelThreadingTest::testDynamicSorting()
 {
@@ -645,6 +651,26 @@ void ImapModelThreadingTest::testDynamicSorting()
     cClient(t.mk("UID SORT (SUBJECT) utf-8 ALL\r\n"));
     cServer("* SORT " + numListToString(expectedUidOrder) + "\r\n");
     cServer(t.last("OK sorted\r\n"));
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    QCOMPARE(msgUid6.row(), 1);
+    QCOMPARE(msgUid9.row(), 2);
+    QCOMPARE(msgUid10.row(), 0);
+    checkUidMapFromThreading(expectedUidOrder);
+
+    // Sort by the same criteria, but in a reversed order
+    threadingModel->setUserSortingPreference(Imap::Mailbox::ThreadingMsgListModel::SORT_SUBJECT, Qt::DescendingOrder);
+    cEmpty();
+    reverseContainer(expectedUidOrder);
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    QCOMPARE(msgUid6.row(), 1);
+    QCOMPARE(msgUid9.row(), 0);
+    QCOMPARE(msgUid10.row(), 2);
+    checkUidMapFromThreading(expectedUidOrder);
+
+    // Revert back to ascending sort
+    threadingModel->setUserSortingPreference(Imap::Mailbox::ThreadingMsgListModel::SORT_SUBJECT, Qt::AscendingOrder);
+    cEmpty();
+    reverseContainer(expectedUidOrder);
     QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
     QCOMPARE(msgUid6.row(), 1);
     QCOMPARE(msgUid9.row(), 2);

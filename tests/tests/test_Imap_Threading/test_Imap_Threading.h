@@ -51,6 +51,8 @@ private:
     void verifyIndexMap(const IndexMapping &indexMap, const Mapping &map);
     QByteArray treeToThreading(QModelIndex index);
     QByteArray numListToString(const QList<uint> &seq);
+
+    template<typename T> void reverseContainer(T &container);
 };
 
 #endif
