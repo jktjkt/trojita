@@ -867,4 +867,52 @@ void ImapModelThreadingTest::testThreadingPerformance()
     }
 }
 
+void ImapModelThreadingTest::testSortingPerformance()
+{
+    threadingModel->setUserWantsThreading(false);
+
+    using namespace Imap::Mailbox;
+
+    const int num = 20000;
+    initialMessages(num);
+
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("QRESYNC");
+    injector.injectCapability("SORT=DISPLAY");
+    injector.injectCapability("SORT");
+
+    QStringList sortOrder;
+    int i = 0;
+    while (i < num / 2) {
+        sortOrder << QString::number(num / 2 + 1 + i);
+        ++i;
+    }
+    while (i < num) {
+        sortOrder << QString::number(i - num / 2);
+        ++i;
+    }
+    QCOMPARE(sortOrder.size(), num);
+    QByteArray resp = ("* SORT " + sortOrder.join(" ") + "\r\n").toAscii();
+
+    QBENCHMARK {
+        threadingModel->setUserSortingPreference(ThreadingMsgListModel::SORT_NONE, Qt::AscendingOrder);
+        threadingModel->setUserSortingPreference(ThreadingMsgListModel::SORT_NONE, Qt::DescendingOrder);
+    }
+
+    bool flag = false;
+    QBENCHMARK {
+        ThreadingMsgListModel::SortCriterium criterium = flag ? ThreadingMsgListModel::SORT_SUBJECT : ThreadingMsgListModel::SORT_CC;
+        Qt::SortOrder order = flag ? Qt::AscendingOrder : Qt::DescendingOrder;
+        threadingModel->setUserSortingPreference(criterium, order);
+        if (flag) {
+            cClient(t.mk("UID SORT (SUBJECT) utf-8 ALL\r\n"));
+        } else {
+            cClient(t.mk("UID SORT (CC) utf-8 ALL\r\n"));
+        }
+        flag = !flag;
+        cServer(resp);
+        cServer(t.last("OK sorted\r\n"));
+    }
+}
+
 TROJITA_HEADLESS_TEST( ImapModelThreadingTest )
