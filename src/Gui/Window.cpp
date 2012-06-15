@@ -1374,7 +1374,7 @@ void MainWindow::slotSortingPreferenceChanged()
     } else if (m_actionSortByTo->isChecked()) {
         column = MsgListModel::TO;
     } else {
-        column = MsgListModel::RECEIVED_DATE;
+        column = -1;
     }
 
     msgListTree->header()->setSortIndicator(column, order);
