@@ -1155,6 +1155,8 @@ void ThreadingMsgListModel::applySort()
     threading[0].children.clear();
     threading[0].children.reserve(m_currentSortResult.size());
 
+    QSet<uint> allRootIds(threadedRootIds.toSet());
+
     for (int i = 0; i < m_currentSortResult.size(); ++i) {
         int offset = m_sortReverse ? m_currentSortResult.size() - 1 - i : i;
         QList<TreeItemMessage *> messages = const_cast<Model*>(realModel)
@@ -1166,7 +1168,7 @@ void ThreadingMsgListModel::applySort()
         Q_ASSERT(messages.size() == 1);
         QHash<void *,uint>::const_iterator it = ptrToInternal.constFind(messages.front());
         Q_ASSERT(it != ptrToInternal.constEnd());
-        if (!threadedRootIds.contains(*it)) {
+        if (!allRootIds.contains(*it)) {
             // not a thread root, so don't show it
             continue;
         }

@@ -873,7 +873,7 @@ void ImapModelThreadingTest::testSortingPerformance()
 
     using namespace Imap::Mailbox;
 
-    const int num = 20000;
+    const int num = 100000;
     initialMessages(num);
 
     FakeCapabilitiesInjector injector(model);
