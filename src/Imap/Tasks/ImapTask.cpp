@@ -199,8 +199,8 @@ bool ImapTask::handleSocketDisconnectedResponse(const Imap::Responses::SocketDis
 
 void ImapTask::_completed()
 {
-    log("Completed");
     _finished = true;
+    log("Completed");
     Q_FOREACH(ImapTask* task, dependentTasks) {
         if (!task->isFinished())
             task->perform();
@@ -210,9 +210,9 @@ void ImapTask::_completed()
 
 void ImapTask::_failed(const QString &errorMessage)
 {
-    log(QString::fromAscii("Failed: %1").arg(errorMessage));
     _finished = true;
     killAllPendingTasks();
+    log(QString::fromAscii("Failed: %1").arg(errorMessage));
     emit failed(errorMessage);
 }
 
