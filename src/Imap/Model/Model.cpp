@@ -1724,8 +1724,8 @@ void Model::invalidateAllMessageCounts()
         }
         TreeItemMsgList *list = dynamic_cast<TreeItemMsgList*>(head->m_children[0]);
 
-        if (list->m_numberFetchingStatus != TreeItem::NONE && !head->maintainingTask) {
-            // Don't signal a change if the data weren't loaded before.
+        if (list->m_numberFetchingStatus == TreeItem::DONE && !head->maintainingTask) {
+            // Ask only for data which were previously available
             // Also don't mess with a mailbox which is already being kept up-to-date because it's selected.
             list->m_numberFetchingStatus = TreeItem::NONE;
             QModelIndex idx = createIndex(head->row(), 0, head);
