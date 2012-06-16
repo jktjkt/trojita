@@ -196,10 +196,14 @@ void KeepMailboxOpenTask::addDependentTask(ImapTask *task)
 
 void KeepMailboxOpenTask::slotTaskDeleted(QObject *object)
 {
+    if (_finished)
+        return;
+
     if (!model->m_parsers.contains(parser)) {
         // The parser is gone; we have to get out of here ASAP
         _failed("Parser is gone");
         die();
+        return;
     }
     // FIXME: abort/die
 
