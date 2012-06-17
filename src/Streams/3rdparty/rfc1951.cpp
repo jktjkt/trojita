@@ -36,41 +36,16 @@
 **
 **
 ** $QT_END_LICENSE$
+
+This file contains modifications by Jan Kundrát <jkt@flaska.net> for use in Trojitá.
+These modifications are released into public domain.
+
 **
 ****************************************************************************/
 
-#include "imaptransport.h"
-#include <qmaillog.h>
-#include <qbuffer.h>
+#include "rfc1951.h"
 
-#include <zlib.h>
-
-/* From RFC4978 The IMAP COMPRESS:   
-   "When using the zlib library (see [RFC1951]), the functions
-   deflateInit2(), deflate(), inflateInit2(), and inflate() suffice to
-   implement this extension.  The windowBits value must be in the range
-   -8 to -15, or else deflateInit2() uses the wrong format.
-   deflateParams() can be used to improve compression rate and resource
-   use.  The Z_FULL_FLUSH argument to deflate() can be used to clear the
-   dictionary (the receiving peer does not need to do anything)."
-   
-   Total zlib mem use is 176KB plus a 'few kilobytes' per connection that uses COMPRESS:
-   96KB for deflate, 24KB for 3x8KB buffers, 32KB plus a 'few' kilobytes for inflate.
-*/
-
-class Rfc1951Compressor
-{
-public:
-    Rfc1951Compressor(int chunkSize = 8192);
-    ~Rfc1951Compressor();
-
-    bool write(QDataStream *out, QByteArray *in);
-
-private:
-    int _chunkSize;
-    z_stream _zStream;
-    char *_buffer;
-};
+namespace Imap {
 
 Rfc1951Compressor::Rfc1951Compressor(int chunkSize)
 {
@@ -97,7 +72,7 @@ Rfc1951Compressor::~Rfc1951Compressor()
     deflateEnd(&_zStream);
 }
 
-bool Rfc1951Compressor::write(QDataStream *out, QByteArray *in)
+bool Rfc1951Compressor::write(QIODevice *out, QByteArray *in)
 {
     _zStream.next_in = reinterpret_cast<Bytef*>(in->data());
     _zStream.avail_in = in->size();
@@ -111,28 +86,11 @@ bool Rfc1951Compressor::write(QDataStream *out, QByteArray *in)
             result != Z_BUF_ERROR) {
             return false;
         }
-        out->writeRawData(_buffer, _chunkSize - _zStream.avail_out);
+        out->write(_buffer, _chunkSize - _zStream.avail_out);
     } while (!_zStream.avail_out);
     return true;
 }
 
-class Rfc1951Decompressor
-{
-public:
-    Rfc1951Decompressor(int chunkSize = 8192);
-    ~Rfc1951Decompressor();
-
-    bool consume(QIODevice *in);
-    bool canReadLine() const;
-    QByteArray readLine();
-
-private:
-    int _chunkSize;
-    z_stream _zStream;
-    QByteArray _inBuffer;
-    char *_stagingBuffer;
-    QByteArray _output;
-};
 
 Rfc1951Decompressor::Rfc1951Decompressor(int chunkSize)
 {
@@ -193,3 +151,11 @@ QByteArray Rfc1951Decompressor::readLine()
     return result;
 }
 
+QByteArray Rfc1951Decompressor::read(qint64 maxSize)
+{
+    QByteArray res = _output.left(maxSize);
+    _output = _output.mid(maxSize);
+    return res;
+}
+
+}
