@@ -23,11 +23,12 @@
 #include <QTimer>
 #include "IODeviceSocket.h"
 #include "Imap/Exceptions.h"
+#include "3rdparty/rfc1951.h"
 
 namespace Imap
 {
 
-IODeviceSocket::IODeviceSocket(QIODevice *device): d(device)
+IODeviceSocket::IODeviceSocket(QIODevice *device): d(device), m_compressor(0), m_decompressor(0)
 {
     connect(d, SIGNAL(readyRead()), this, SIGNAL(readyRead()));
     connect(d, SIGNAL(readChannelFinished()), this, SLOT(handleStateChanged()));
@@ -40,36 +41,70 @@ IODeviceSocket::IODeviceSocket(QIODevice *device): d(device)
 IODeviceSocket::~IODeviceSocket()
 {
     d->deleteLater();
+    delete m_compressor;
+    delete m_decompressor;
 }
 
 bool IODeviceSocket::canReadLine()
 {
+    if (m_decompressor) {
+        return m_decompressor->canReadLine();
+    }
     return d->canReadLine();
 }
 
 QByteArray IODeviceSocket::read(qint64 maxSize)
 {
+    if (m_decompressor) {
+        return m_decompressor->read(maxSize);
+    }
     return d->read(maxSize);
 }
 
 QByteArray IODeviceSocket::readLine(qint64 maxSize)
 {
+    if (m_decompressor) {
+        // FIXME: well, we apparently don't respect the maxSize argument...
+        return m_decompressor->readLine();
+    }
     return d->readLine(maxSize);
 }
 
 qint64 IODeviceSocket::write(const QByteArray &byteArray)
 {
-    return d->write(byteArray);
+    if (m_compressor) {
+        m_compressor->write(d, &const_cast<QByteArray&>(byteArray));
+        return byteArray.size();
+    } else {
+        return d->write(byteArray);
+    }
 }
 
 void IODeviceSocket::startTls()
 {
     QSslSocket *sock = qobject_cast<QSslSocket *>(d);
-    if (! sock) {
+    if (! sock)
         throw InvalidArgument("This IODeviceSocket is not a QSslSocket, and therefore doesn't support STARTTLS.");
-    } else {
-        sock->startClientEncryption();
+    if (m_compressor || m_decompressor)
+        throw InvalidArgument("DEFLATE is already active, cannot STARTTLS");
+    sock->startClientEncryption();
+}
+
+void IODeviceSocket::startDeflate()
+{
+    if (m_compressor || m_decompressor)
+        throw InvalidArgument("DEFLATE compression is already active");
+
+    m_compressor = new Rfc1951Compressor();
+    m_decompressor = new Rfc1951Decompressor();
+}
+
+void IODeviceSocket::handleReadyRead()
+{
+    if (m_decompressor) {
+        m_decompressor->consume(d);
     }
+    emit readyRead();
 }
 
 void IODeviceSocket::emitError()

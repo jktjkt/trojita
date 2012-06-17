@@ -58,6 +58,7 @@ public:
     virtual QByteArray readLine(qint64 maxSize = 0);
     virtual qint64 write(const QByteArray &byteArray);
     virtual void startTls();
+    virtual void startDeflate();
     virtual bool isDead();
     virtual void close();
 

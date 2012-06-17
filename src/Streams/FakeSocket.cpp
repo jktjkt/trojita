@@ -100,6 +100,12 @@ void FakeSocket::startTls()
     QTimer::singleShot(0, this, SLOT(slotEmitEncrypted()));
 }
 
+void FakeSocket::startDeflate()
+{
+    // fake it
+    writeChannel->write(QByteArray("[*** DEFLATE ***]"));
+}
+
 bool FakeSocket::isDead()
 {
     // Can't really die (yet)

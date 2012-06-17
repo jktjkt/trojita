@@ -74,6 +74,9 @@ public:
 
     /** @short Close the connection */
     virtual void close() = 0;
+
+    /** @short Start the DEFLATE algorithm on both directions of this stream */
+    virtual void startDeflate() = 0;
 signals:
     /** @short The socket got disconnected */
     void disconnected(const QString);

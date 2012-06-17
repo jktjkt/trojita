@@ -31,6 +31,9 @@ class QTimer;
 namespace Imap
 {
 
+class Rfc1951Compressor;
+class Rfc1951Decompressor;
+
 namespace Mailbox
 {
 class SocketFactory;
@@ -49,13 +52,17 @@ public:
     virtual QByteArray readLine(qint64 maxSize = 0);
     virtual qint64 write(const QByteArray &byteArray);
     virtual void startTls();
+    virtual void startDeflate();
     virtual bool isDead() = 0;
 private slots:
     virtual void handleStateChanged() = 0;
     virtual void delayedStart() = 0;
+    virtual void handleReadyRead();
     void emitError();
 protected:
     QIODevice *d;
+    Rfc1951Compressor *m_compressor;
+    Rfc1951Decompressor *m_decompressor;
     QTimer *delayedDisconnect;
     QString disconnectedMessage;
 };
