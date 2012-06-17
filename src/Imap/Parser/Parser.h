@@ -292,6 +292,9 @@ public slots:
     /** @short ENABLE command, RFC 6151 */
     CommandHandle enable(const QList<QByteArray> &extensions);
 
+    /** @short COMPRESS DEFLATE, RFC 4978 */
+    CommandHandle compressDeflate();
+
     void slotSocketStateChanged(const Imap::ConnectionState connState, const QString &message);
 
     void unfreezeAfterEncryption();
@@ -339,6 +342,7 @@ private slots:
     void executeCommands();
     void finishStartTls();
     void handleSocketEncrypted();
+    void handleCompressionPossibleActivated();
 
 private:
     /** @short Private copy constructor */
@@ -404,6 +408,7 @@ private:
     bool literalPlus;
     bool waitingForContinuation;
     bool startTlsInProgress;
+    bool compressDeflateInProgress;
     bool waitingForConnection;
     bool waitingForEncryption;
     bool waitingForSslPolicy;
@@ -414,6 +419,7 @@ private:
     uint readingBytes;
     QByteArray startTlsCommand;
     QByteArray startTlsReply;
+    QByteArray compressDeflateCommand;
 
     /** @short Unique-id for debugging purposes */
     uint m_parserId;

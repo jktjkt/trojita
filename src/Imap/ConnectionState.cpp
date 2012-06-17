@@ -55,6 +55,8 @@ QString connectionStateToString(const ConnectionState state)
         return Imap::Mailbox::Model::tr("Logging in...");
     case CONN_STATE_POSTAUTH_PRECAPS:
         return Imap::Mailbox::Model::tr("Checking capabilities (after login)...");
+    case CONN_STATE_COMPRESS_DEFLATE:
+        return Imap::Mailbox::Model::tr("Activating compression...");
     case CONN_STATE_AUTHENTICATED:
         return Imap::Mailbox::Model::tr("Logged in.");
     case CONN_STATE_SELECTING:
