@@ -143,9 +143,15 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
         case PREAUTH:
             // Cool, we're already authenticated. Now, let's see if we have to issue CAPABILITY or if we already know that
             if (model->accessParser(parser).capabilitiesFresh) {
-                // We're done here
-                model->changeConnectionState(parser, CONN_STATE_AUTHENTICATED);
-                onComplete();
+                // We're alsmost done here, apart from compression
+                if (model->accessParser(parser).capabilities.contains(QLatin1String("COMPRESS=DEFLATE"))) {
+                    compressCmd = parser->compressDeflate();
+                    model->changeConnectionState(parser, CONN_STATE_COMPRESS_DEFLATE);
+                } else {
+                    // really done
+                    model->changeConnectionState(parser, CONN_STATE_AUTHENTICATED);
+                    onComplete();
+                }
             } else {
                 model->changeConnectionState(parser, CONN_STATE_POSTAUTH_PRECAPS);
                 capabilityCmd = parser->capability();
@@ -243,8 +249,13 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
             if (resp->kind == OK) {
                 if (resp->respCode == CAPABILITIES || model->accessParser(parser).capabilitiesFresh) {
                     // Capabilities are already known
-                    model->changeConnectionState(parser, CONN_STATE_AUTHENTICATED);
-                    onComplete();
+                    if (model->accessParser(parser).capabilities.contains(QLatin1String("COMPRESS=DEFLATE"))) {
+                        compressCmd = parser->compressDeflate();
+                        model->changeConnectionState(parser, CONN_STATE_COMPRESS_DEFLATE);
+                    } else {
+                        model->changeConnectionState(parser, CONN_STATE_AUTHENTICATED);
+                        onComplete();
+                    }
                 } else {
                     // Got to ask for the capabilities
                     model->changeConnectionState(parser, CONN_STATE_POSTAUTH_PRECAPS);
@@ -309,6 +320,16 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
         }
         return wasCaps;
     }
+
+    case CONN_STATE_COMPRESS_DEFLATE:
+        if (resp->tag == compressCmd) {
+            model->changeConnectionState(parser, CONN_STATE_AUTHENTICATED);
+            onComplete();
+            return true;
+        } else {
+            return false;
+        }
+        break;
 
     }
 
