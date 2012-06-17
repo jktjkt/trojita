@@ -769,6 +769,16 @@ bool KeepMailboxOpenTask::handleResponseCodeInsideState(const Imap::Responses::S
         }
         break;
     }
+    case Responses::HIGHESTMODSEQ:
+    {
+        TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
+        Q_ASSERT(mailbox);
+        const Responses::RespData<quint64> *const num = dynamic_cast<const Responses::RespData<quint64>* const>(resp->respCodeData.data());
+        Q_ASSERT(num);
+        mailbox->syncState.setHighestModSeq(num->data);
+        model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
+        return true;
+    }
     default:
         // Do nothing here
         break;
