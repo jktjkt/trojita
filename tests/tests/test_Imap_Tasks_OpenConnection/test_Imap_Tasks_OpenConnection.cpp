@@ -429,7 +429,6 @@ void ImapModelOpenConnectionTest::testOkStartTlsDiscardCaps()
 /** @short Test how COMPRESS=DEFLATE gets activated and its interaction with further tasks */
 void ImapModelOpenConnectionTest::testCompressDeflateOk()
 {
-    qDebug() << task;
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QVERIFY(SOCK->writtenStuff().isEmpty());
@@ -464,7 +463,6 @@ void ImapModelOpenConnectionTest::testCompressDeflateOk()
 /** @short Test that denied COMPRESS=DEFLATE doesn't result in compression being active */
 void ImapModelOpenConnectionTest::testCompressDeflateNo()
 {
-    qDebug() << task;
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QVERIFY(SOCK->writtenStuff().isEmpty());
