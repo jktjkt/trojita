@@ -52,6 +52,8 @@ private slots:
     void testOkStartTlsDiscardCaps();
     void testCapabilityAfterLogin();
 
+    void testCompressDeflateOk();
+
     void provideAuthDetails();
     void acceptSsl(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &sslErrors);
 
