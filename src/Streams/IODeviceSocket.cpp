@@ -30,7 +30,7 @@ namespace Imap
 
 IODeviceSocket::IODeviceSocket(QIODevice *device): d(device), m_compressor(0), m_decompressor(0)
 {
-    connect(d, SIGNAL(readyRead()), this, SIGNAL(readyRead()));
+    connect(d, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
     connect(d, SIGNAL(readChannelFinished()), this, SLOT(handleStateChanged()));
     delayedDisconnect = new QTimer();
     delayedDisconnect->setSingleShot(true);
