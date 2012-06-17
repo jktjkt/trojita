@@ -53,6 +53,7 @@ private slots:
     void testCapabilityAfterLogin();
 
     void testCompressDeflateOk();
+    void testCompressDeflateNo();
 
     void provideAuthDetails();
     void acceptSsl(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &sslErrors);
