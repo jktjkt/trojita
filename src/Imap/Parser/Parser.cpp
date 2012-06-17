@@ -86,7 +86,7 @@ namespace Imap
 
 Parser::Parser(QObject *parent, Socket *socket, const uint myId):
     QObject(parent), socket(socket), m_lastTagUsed(0), idling(false), waitForInitialIdle(false),
-    literalPlus(false), waitingForContinuation(false), startTlsInProgress(false),
+    literalPlus(false), waitingForContinuation(false), startTlsInProgress(false), compressDeflateInProgress(false),
     waitingForConnection(true), waitingForEncryption(socket->isConnectingEncryptedSinceStart()), waitingForSslPolicy(false),
     readingMode(ReadingLine), oldLiteralPosition(0), m_parserId(myId)
 {
@@ -127,6 +127,12 @@ CommandHandle Parser::startTls()
 {
     return queueCommand(Commands::Command() <<
                         Commands::PartOfCommand(Commands::STARTTLS, "STARTTLS"));
+}
+
+CommandHandle Parser::compressDeflate()
+{
+    return queueCommand(Commands::Command() <<
+                        Commands::PartOfCommand(Commands::COMPRESS_DEFLATE, "COMPRESS DEFLATE"));
 }
 
 #if 0
@@ -584,7 +590,7 @@ void Parser::executeCommands()
 {
     while (! waitingForContinuation && ! waitForInitialIdle &&
            ! waitingForConnection && ! waitingForEncryption && ! waitingForSslPolicy &&
-           ! cmdQueue.isEmpty() && ! startTlsInProgress)
+           ! cmdQueue.isEmpty() && ! startTlsInProgress && !compressDeflateInProgress)
         executeACommand();
 }
 
@@ -618,6 +624,13 @@ void Parser::handleSocketEncrypted()
     emit lineReceived(this, buf);
     handleReadyRead();
     queueResponse(resp);
+    executeCommands();
+}
+
+/** @short We've previously frozen the command queue, so it's time to kick it a bit and keep the usual sending/receiving again */
+void Parser::handleCompressionPossibleActivated()
+{
+    handleReadyRead();
     executeCommands();
 }
 
@@ -728,6 +741,18 @@ void Parser::executeACommand()
 #endif
             socket->write(buf);
             startTlsInProgress = true;
+            emit lineSent(this, buf);
+            return;
+            break;
+        case Commands::COMPRESS_DEFLATE:
+            compressDeflateCommand = buf;
+            buf.append("COMPRESS DEFLATE\r\n");
+#ifdef PRINT_TRAFFIC_TX
+            qDebug() << m_parserId << ">>>" << buf.left(PRINT_TRAFFIC_TX).trimmed();
+#endif
+            socket->write(buf);
+            compressDeflateInProgress = true;
+            cmdQueue.pop_front();
             emit lineSent(this, buf);
             return;
             break;
@@ -928,6 +953,22 @@ QSharedPointer<Responses::AbstractResponse> Parser::parseTagged(const QByteArray
     ++pos;
     const Responses::Kind kind = Responses::kindFromString(LowLevelParser::getAtom(line, pos));
     ++pos;
+
+    if (compressDeflateInProgress && compressDeflateCommand == tag + ' ') {
+        switch (kind) {
+        case Responses::OK:
+            socket->startDeflate();
+            compressDeflateInProgress = false;
+            compressDeflateCommand.clear();
+            break;
+        default:
+            // do nothing
+            break;
+        }
+        compressDeflateInProgress = false;
+        compressDeflateCommand.clear();
+        QTimer::singleShot(0, this, SLOT(handleCompressionPossibleActivated()));
+    }
 
     return QSharedPointer<Responses::AbstractResponse>(
                new Responses::State(tag, kind, line, pos));

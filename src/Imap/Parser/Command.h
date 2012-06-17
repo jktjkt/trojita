@@ -47,6 +47,7 @@ enum TokenType {
     IDLE, /**< Special case: IDLE command */
     IDLE_DONE, /**< Special case: the DONE for finalizing the IDLE command */
     STARTTLS, /**< Special case: STARTTLS */
+    COMPRESS_DEFLATE, /**< Special case: COMPRESS DEFLATE */
     ATOM_NO_SPACE_AROUND /**< Do not add extra space either before or after this part */
 };
 

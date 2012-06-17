@@ -85,6 +85,7 @@ private:
     CommandHandle startTlsCmd;
     CommandHandle capabilityCmd;
     CommandHandle loginCmd;
+    CommandHandle compressCmd;
     QList<QSslCertificate> m_sslChain;
     QList<QSslError> m_sslErrors;
 };

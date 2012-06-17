@@ -41,6 +41,7 @@ typedef enum {
     CONN_STATE_ESTABLISHED_PRECAPS, /**< @short Waiting for capabilities after the encryption has been set up */
     CONN_STATE_LOGIN, /**< @short Performing login */
     CONN_STATE_POSTAUTH_PRECAPS, /**< @short Authenticated, but capabilities weren't refreshed yet */
+    CONN_STATE_COMPRESS_DEFLATE, /**< @short Activating COMPRESS DEFLATE */
     CONN_STATE_AUTHENTICATED, /**< @short Logged in */
     CONN_STATE_SELECTING, /**< @short Selecting a mailbox -- initial state */
     CONN_STATE_SYNCING, /**< @short Selecting a mailbox -- performing synchronization */
