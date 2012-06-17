@@ -62,10 +62,18 @@ GetAnyConnectionTask::GetAnyConnectionTask(Model *model) :
             newConn = it->maintainingTask;
             newConn->addDependentTask(this);
         } else {
-            // The parser doesn't have anything associated with it, so we can go ahead and
-            // register ourselves
-            markAsActiveTask();
-            QTimer::singleShot(0, model, SLOT(runReadyTasks()));
+            if (!it->activeTasks.isEmpty() && dynamic_cast<OpenConnectionTask*>(it->activeTasks.front()) &&
+                   !it->activeTasks.front()->isFinished()) {
+                // The conneciton is still being set up so we cannot just jump to the middle of OpenConnectionTask's
+                // process (Redmine #499).
+                it->activeTasks.front()->addDependentTask(this);
+            } else {
+                // The parser doesn't have anything associated with it and it looks like
+                // the conneciton is already established, authenticated and what not.
+                // This means that we can go ahead and register ourselves as an active task, yay!
+                markAsActiveTask();
+                QTimer::singleShot(0, model, SLOT(runReadyTasks()));
+            }
         }
     }
 }
