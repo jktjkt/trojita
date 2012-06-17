@@ -29,7 +29,7 @@ namespace Mailbox
 /** @short Send an ID command to the server */
 class IdTask : public ImapTask
 {
-
+    Q_OBJECT
 public:
     IdTask(Model *model, ImapTask *dependingTask);
     virtual void perform();
