@@ -776,7 +776,8 @@ bool KeepMailboxOpenTask::handleResponseCodeInsideState(const Imap::Responses::S
         const Responses::RespData<quint64> *const num = dynamic_cast<const Responses::RespData<quint64>* const>(resp->respCodeData.data());
         Q_ASSERT(num);
         mailbox->syncState.setHighestModSeq(num->data);
-        model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
+        // FIXME: set the UID mapping *and* the HIGHESTMODSEQ at once
+        // model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
         return true;
     }
     default:
