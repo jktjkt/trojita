@@ -557,7 +557,7 @@ List::List(const Kind _kind, const QByteArray &line, int &start):
 
     ++start;
 
-    if (start >= line.size())
+    if (start >= line.size() - 2)
         throw NoData(line, start);   // no mailbox
 
     mailbox = LowLevelParser::getMailbox(line, start);
