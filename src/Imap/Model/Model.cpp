@@ -127,11 +127,10 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
     m_specialFlagNames[QLatin1String("\\recent")] = QLatin1String("\\Recent");
     m_specialFlagNames[QLatin1String("$forwarded")] = QLatin1String("$Forwarded");
 
-    QTimer *periodicMailboxNumbersRefresh = new QTimer(this);
+    m_periodicMailboxNumbersRefresh = new QTimer(this);
     // polling every five minutes
-    periodicMailboxNumbersRefresh->setInterval(5 * 60 * 1000);
-    connect(periodicMailboxNumbersRefresh, SIGNAL(timeout()), this, SLOT(invalidateAllMessageCounts()));
-    periodicMailboxNumbersRefresh->start();
+    m_periodicMailboxNumbersRefresh->setInterval(5 * 60 * 1000);
+    connect(m_periodicMailboxNumbersRefresh, SIGNAL(timeout()), this, SLOT(invalidateAllMessageCounts()));
 }
 
 Model::~Model()
@@ -974,14 +973,17 @@ void Model::setNetworkPolicy(const NetworkPolicy policy)
         }
         emit networkPolicyOffline();
         m_netPolicy = NETWORK_OFFLINE;
+        m_periodicMailboxNumbersRefresh->stop();
         // FIXME: kill the connection
         break;
     case NETWORK_EXPENSIVE:
         m_netPolicy = NETWORK_EXPENSIVE;
+        m_periodicMailboxNumbersRefresh->stop();
         emit networkPolicyExpensive();
         break;
     case NETWORK_ONLINE:
         m_netPolicy = NETWORK_ONLINE;
+        m_periodicMailboxNumbersRefresh->start();
         emit networkPolicyOnline();
         break;
     }

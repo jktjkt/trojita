@@ -519,6 +519,8 @@ private:
     /** @short Is the IMAP password cached in the Model already? */
     bool m_hasImapPassword;
 
+    QTimer *m_periodicMailboxNumbersRefresh;
+
 protected slots:
     void responseReceived();
     void responseReceived(Imap::Parser *parser);
