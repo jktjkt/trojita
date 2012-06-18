@@ -25,10 +25,7 @@ Suported RFCs
 
 To be evaluated:
 - 4469 Internet Message Access Protocol (IMAP) CATENATE Extension
-- 5259 Internet Message Access Protocol - CONVERT Extension
 - 5267 Contexts for IMAP4
-- 5423 Internet Message Store Events
-- 5464 The IMAP METADATA Extension
 - 5465 The IMAP NOTIFY Extension
 - 5466 IMAP4 Extension for Named Searches (Filters)
 - 5524 Extended URLFETCH for Binary and Converted Parts
@@ -75,6 +72,8 @@ Not implemented:
 - 5182 IMAP Extension for Referencing the Last SEARCH Result
 - 5255 Internet Message Access Protocol Internationalization
 - 5257 Internet Message Access Protocol - ANNOTATE Extension
+- 5259 Internet Message Access Protocol - CONVERT Extension
+- 5464 The IMAP METADATA Extension
 
 Irrelevant stuff:
 - 3656 The Mailbox Update (MUPDATE) Distributed Mailbox Database Protocol
@@ -82,3 +81,4 @@ Irrelevant stuff:
 - 4416 Goals for Internet Messaging to Support Diverse Service Environments
 - 4468 Message Submission BURL Extension
 - 5232 Sieve Email Filtering: Imap4flags Extension
+- 5423 Internet Message Store Events
