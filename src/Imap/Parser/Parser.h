@@ -177,8 +177,8 @@ public slots:
     /** @short UNSUBSCRIBE, RFC3501 section 6.3.7 */
     CommandHandle unSubscribe(const QString &mailbox);
 
-    /** @short LIST, RFC3501 section 6.3.8 */
-    CommandHandle list(const QString &reference, const QString &mailbox);
+    /** @short LIST, RFC3501 section 6.3.8, as extended by RFC5258 */
+    CommandHandle list(const QString &reference, const QString &mailbox, const QStringList &returnOptions = QStringList());
 
     /** @short LSUB, RFC3501 section 6.3.9 */
     CommandHandle lSub(const QString &reference, const QString &mailbox);

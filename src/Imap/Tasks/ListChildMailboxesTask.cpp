@@ -58,7 +58,13 @@ void ListChildMailboxesTask::perform()
         mailboxName = QString::fromAscii("%");
     else
         mailboxName += mailbox->separator() + QChar('%');
-    tag = parser->list("", mailboxName);
+
+    if (model->accessParser(parser).capabilitiesFresh &&
+            model->accessParser(parser).capabilities.contains(QLatin1String("LIST-EXTENDED"))) {
+        tag = parser->list("", mailboxName, QStringList() << QLatin1String("SUBSCRIBED") << QLatin1String("CHILDREN"));
+    } else {
+        tag = parser->list("", mailboxName);
+    }
 }
 
 bool ListChildMailboxesTask::handleStateHelper(const Imap::Responses::State *const resp)

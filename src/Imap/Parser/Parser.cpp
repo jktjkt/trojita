@@ -225,9 +225,18 @@ CommandHandle Parser::unSubscribe(const QString &mailbox)
     return queueCommand(Commands::Command("UNSUBSCRIBE") << encodeImapFolderName(mailbox));
 }
 
-CommandHandle Parser::list(const QString &reference, const QString &mailbox)
+CommandHandle Parser::list(const QString &reference, const QString &mailbox, const QStringList &returnOptions)
 {
-    return queueCommand(Commands::Command("LIST") << reference << encodeImapFolderName(mailbox));
+    Commands::Command cmd("LIST");
+    cmd << reference << encodeImapFolderName(mailbox);
+    if (!returnOptions.isEmpty()) {
+        cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, " RETURN (");
+        Q_FOREACH(const QString &option, returnOptions) {
+            cmd << Commands::PartOfCommand(Commands::ATOM, option);
+        }
+        cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, ")");
+    }
+    return queueCommand(cmd);
 }
 
 CommandHandle Parser::lSub(const QString &reference, const QString &mailbox)
