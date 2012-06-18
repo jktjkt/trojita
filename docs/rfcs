@@ -6,6 +6,7 @@ Suported RFCs
 - 2595 FIXME check!!! Using TLS with IMAP, POP3 and ACAP
 - 2971 IMAP4 ID extension
 - 3348 FIXME check!!! The Internet Message Action Protocol (IMAP4) Child Mailbox Extension
+- 3516 IMAP4 Binary Content Extension
 - 3691 Internet Message Access Protocol (IMAP) UNSELECT command
 - 4315 (2359) Internet Message Access Protocol (IMAP) - UIDPLUS extension
 - 4551 IMAP Extension for Conditional STORE Operation or Quick Flag Changes Resynchronization
@@ -29,7 +30,6 @@ To be evaluated:
 - 2683 IMAP4 Implementation Recommendations
 - 3502 Internet Message Access Protocol (IMAP) - MULTIAPPEND Extension
 - 3503 Message Disposition Notification (MDN) profile for Internet Message Access Protocol (IMAP)
-- 3516 IMAP4 Binary Content Extension
 - 3656 The Mailbox Update (MUPDATE) Distributed Mailbox Database Protocol
 - 4314 (2086) IMAP4 Access Control List (ACL) Extension
 - 4416 Goals for Internet Messaging to Support Diverse Service Environments

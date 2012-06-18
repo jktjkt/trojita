@@ -429,14 +429,20 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
         } else if (it.key() == "RFC822.SIZE") {
             message->m_size = dynamic_cast<const Responses::RespData<uint>&>(*(it.value())).data;
             gotSize = true;
-        } else if (it.key().startsWith("BODY[")) {
+        } else if (it.key().startsWith("BODY[") || it.key().startsWith("BINARY[")) {
             if (it.key()[ it.key().size() - 1 ] != ']')
-                throw UnknownMessageIndex("Can't parse such BODY[]", response);
+                throw UnknownMessageIndex("Can't parse such BODY[]/BINARY[]", response);
             TreeItemPart *part = partIdToPtr(model, message, it.key());
             if (! part)
-                throw UnknownMessageIndex("Got BODY[] fetch that did not resolve to any known part", response);
+                throw UnknownMessageIndex("Got BODY[]/BINARY[] fetch that did not resolve to any known part", response);
             const QByteArray &data = dynamic_cast<const Responses::RespData<QByteArray>&>(*(it.value())).data;
-            decodeMessagePartTransportEncoding(data, part->encoding(), part->dataPtr());
+            if (it.key().startsWith("BODY[")) {
+                // got to decode the part data by hand
+                decodeMessagePartTransportEncoding(data, part->encoding(), part->dataPtr());
+            } else {
+                // A BINARY FETCH item is already decoded for us, yay
+                part->m_data = data;
+            }
             part->m_fetchStatus = DONE;
             if (message->uid())
                 model->cache()->setMsgPart(mailbox(), message->uid(), part->partId(), part->m_data);
@@ -670,6 +676,10 @@ TreeItemPart *TreeItemMailbox::partIdToPtr(Model *const model, TreeItemMessage *
         partIdentification = msgId.mid(5, msgId.size() - 6);
     } else if (msgId.startsWith(QLatin1String("BODY.PEEK["))) {
         partIdentification = msgId.mid(10, msgId.size() - 11);
+    } else if (msgId.startsWith(QLatin1String("BINARY.PEEK["))) {
+        partIdentification = msgId.mid(12, msgId.size() - 13);
+    } else if (msgId.startsWith(QLatin1String("BINARY["))) {
+        partIdentification = msgId.mid(7, msgId.size() - 8);
     } else {
         throw UnknownMessageIndex(QString::fromAscii("Fetch identifier doesn't start with reasonable prefix: %1").arg(msgId).toAscii().constData());
     }
@@ -1282,9 +1292,9 @@ QString TreeItemPart::partId() const
     }
 }
 
-QString TreeItemPart::partIdForFetch() const
+QString TreeItemPart::partIdForFetch(const PartFetchingMode mode) const
 {
-    return QString::fromAscii("BODY.PEEK[%1]").arg(partId());
+    return QString::fromAscii(mode == FETCH_PART_BINARY ? "BINARY.PEEK[%1]" : "BODY.PEEK[%1]").arg(partId());
 }
 
 QString TreeItemPart::pathToPart() const

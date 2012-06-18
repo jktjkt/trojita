@@ -935,7 +935,13 @@ void Model::askForMsgPart(TreeItemPart *item, bool onlyFromCache)
         if (item->m_fetchStatus != TreeItem::DONE)
             item->m_fetchStatus = TreeItem::UNAVAILABLE;
     } else if (! onlyFromCache) {
-        findTaskResponsibleFor(mailboxPtr)->requestPartDownload(item->message()->m_uid, item->partIdForFetch(), item->octets());
+        KeepMailboxOpenTask *keepTask = findTaskResponsibleFor(mailboxPtr);
+        TreeItemPart::PartFetchingMode fetchingMode = TreeItemPart::FETCH_PART_IMAP;
+        if (keepTask->parser && accessParser(keepTask->parser).capabilitiesFresh &&
+                accessParser(keepTask->parser).capabilities.contains(QLatin1String("BINARY"))) {
+            fetchingMode = TreeItemPart::FETCH_PART_BINARY;
+        }
+        keepTask->requestPartDownload(item->message()->m_uid, item->partIdForFetch(fetchingMode), item->octets());
     }
 }
 

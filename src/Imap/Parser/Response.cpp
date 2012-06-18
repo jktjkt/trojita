@@ -756,7 +756,7 @@ Fetch::Fetch(const uint _number, const QByteArray &line, int &start):
                 data["x-trojita-bodystructure"] = QSharedPointer<AbstractData>(
                                                       new RespData<QByteArray>(buffer));
 
-            } else if (identifier.startsWith("BODY[")) {
+            } else if (identifier.startsWith("BODY[") || identifier.startsWith("BINARY[")) {
                 // FIXME: split into more identifiers?
                 if (it->type() != QVariant::ByteArray)
                     throw UnexpectedHere(line, start);

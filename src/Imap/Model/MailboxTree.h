@@ -277,7 +277,16 @@ public:
     virtual bool hasChildren(Model *const model);
 
     virtual QString partId() const;
-    virtual QString partIdForFetch() const;
+
+    /** @short Shall we use RFC3516 BINARY for fetching message parts or not */
+    typedef enum {
+        /** @short Use the baseline IMAP feature, the BODY[...], from RFC 3501 */
+        FETCH_PART_IMAP,
+        /** @short Fetch via the RFC3516's BINARY extension */
+        FETCH_PART_BINARY
+    } PartFetchingMode;
+
+    virtual QString partIdForFetch(const PartFetchingMode fetchingMode) const;
     virtual QString pathToPart() const;
     TreeItemMessage *message() const;
 
