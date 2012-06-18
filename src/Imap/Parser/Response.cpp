@@ -551,8 +551,9 @@ List::List(const Kind _kind, const QByteArray &line, int &start):
     } else if (line.mid(start, 3).toLower() == "nil") {
         separator = QString::null;
         start += 3;
-    } else
+    } else {
         throw ParseError(line, start);
+    }
 
     ++start;
 
