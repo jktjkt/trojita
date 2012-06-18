@@ -76,8 +76,8 @@ void ImapResponsesTest::testCompareEq_data()
         respPtr( new NumberResponse( EXISTS, 10 ) );
 
     QTest::newRow( "list" ) <<
-        respPtr( new List( LIST, QStringList( "\\Noselect" ), ".", "foOBar" ) ) <<
-        respPtr( new List( LIST, QStringList( "\\Noselect" ), ".", "foOBar" ) );
+        respPtr( new List( LIST, QStringList( "\\Noselect" ), ".", "foOBar", QMap<QByteArray,QVariant>() ) ) <<
+        respPtr( new List( LIST, QStringList( "\\Noselect" ), ".", "foOBar", QMap<QByteArray,QVariant>() ) );
 
     QTest::newRow( "flags" ) <<
         respPtr( new Flags( QStringList( "\\Seen" ) ) ) <<
@@ -191,24 +191,30 @@ void ImapResponsesTest::testCompareNe_data()
         respPtr( new NumberResponse( RECENT, 11 ) );
 
     QTest::newRow( "list-kind" ) <<
-        respPtr( new List( LIST, QStringList(), ".", "blesmrt" ) ) <<
-        respPtr( new List( LSUB, QStringList(), ".", "blesmrt" ) );
+        respPtr( new List( LIST, QStringList(), ".", "blesmrt", QMap<QByteArray,QVariant>() ) ) <<
+        respPtr( new List( LSUB, QStringList(), ".", "blesmrt", QMap<QByteArray,QVariant>() ) );
 
     QTest::newRow( "list-flags" ) <<
-        respPtr( new List( LIST, QStringList(), ".", "blesmrt" ) ) <<
-        respPtr( new List( LIST, QStringList("333"), ".", "blesmrt" ) );
+        respPtr( new List( LIST, QStringList(), ".", "blesmrt", QMap<QByteArray,QVariant>() ) ) <<
+        respPtr( new List( LIST, QStringList("333"), ".", "blesmrt", QMap<QByteArray,QVariant>() ) );
 
     QTest::newRow( "list-separator" ) <<
-        respPtr( new List( LIST, QStringList(), ".", "blesmrt" ) ) <<
-        respPtr( new List( LIST, QStringList(), "/", "blesmrt" ) );
+        respPtr( new List( LIST, QStringList(), ".", "blesmrt", QMap<QByteArray,QVariant>() ) ) <<
+        respPtr( new List( LIST, QStringList(), "/", "blesmrt", QMap<QByteArray,QVariant>() ) );
 
     QTest::newRow( "list-mailbox" ) <<
-        respPtr( new List( LIST, QStringList(), ".", "blesmrt" ) ) <<
-        respPtr( new List( LIST, QStringList(), ".", "trojita" ) );
+        respPtr( new List( LIST, QStringList(), ".", "blesmrt", QMap<QByteArray,QVariant>() ) ) <<
+        respPtr( new List( LIST, QStringList(), ".", "trojita", QMap<QByteArray,QVariant>() ) );
 
     QTest::newRow( "list-mailbox-case" ) <<
-        respPtr( new List( LIST, QStringList(), ".", "blesmrt" ) ) <<
-        respPtr( new List( LIST, QStringList(), ".", "blEsmrt" ) );
+        respPtr( new List( LIST, QStringList(), ".", "blesmrt", QMap<QByteArray,QVariant>() ) ) <<
+        respPtr( new List( LIST, QStringList(), ".", "blEsmrt", QMap<QByteArray,QVariant>() ) );
+
+    QMap<QByteArray,QVariant> listExtendedData;
+    listExtendedData["blah"] = 10;
+    QTest::newRow("list-extended-data") <<
+        respPtr(new List(LIST, QStringList(), ".", "ble", QMap<QByteArray,QVariant>())) <<
+        respPtr(new List(LIST, QStringList(), ".", "ble", listExtendedData));
 
     QTest::newRow( "flags" ) <<
         respPtr( new Flags( QStringList("333") ) ) <<

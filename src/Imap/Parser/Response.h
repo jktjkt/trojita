@@ -325,10 +325,14 @@ public:
     /** @short Mailbox name */
     QString mailbox;
 
+    /** @short Extended LIST data (mbox-list-extended from RFC5258) */
+    QMap<QByteArray, QVariant> extendedData;
+
     /** @short Parse line and construct List object from it */
     List(const Kind _kind, const QByteArray &line, int &start);
-    List(const Kind _kind, const QStringList &_flags, const QString &_separator, const QString &_mailbox):
-        AbstractResponse(LIST), kind(_kind), flags(_flags), separator(_separator), mailbox(_mailbox) {};
+    List(const Kind kind, const QStringList &flags, const QString &separator, const QString &mailbox,
+         const QMap<QByteArray, QVariant> &extendedData):
+        AbstractResponse(LIST), kind(kind), flags(flags), separator(separator), mailbox(mailbox), extendedData(extendedData) {}
     virtual QTextStream &dump(QTextStream &s) const;
     virtual bool eq(const AbstractResponse &other) const;
     virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;

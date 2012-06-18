@@ -561,6 +561,23 @@ List::List(const Kind _kind, const QByteArray &line, int &start):
         throw NoData(line, start);   // no mailbox
 
     mailbox = LowLevelParser::getMailbox(line, start);
+
+    LowLevelParser::eatSpaces(line, start);
+    if (start < line.size() - 4) {
+        QVariantList extData = LowLevelParser::parseList('(', ')', line, start);
+        if (extData.size() % 2) {
+            throw ParseError("list-extended contains list with odd number of items", line, start);
+        }
+
+        for (int i = 0; i < extData.size(); i += 2) {
+            QByteArray key = extData[i].toByteArray();
+            QVariant data = extData[i+1];
+            extendedData[key] = data;
+        }
+    }
+
+    if (start > line.size() - 2)
+        throw TooMuchData(line, start);
 }
 
 Flags::Flags(const QByteArray &line, int &start)
@@ -990,7 +1007,15 @@ QTextStream &NumberResponse::dump(QTextStream &stream) const
 
 QTextStream &List::dump(QTextStream &stream) const
 {
-    return stream << kind << " '" << mailbox << "' (" << flags.join(", ") << "), sep '" << separator << "'";
+    stream << kind << " '" << mailbox << "' (" << flags.join(", ") << "), sep '" << separator << "'";
+    if (!extendedData.isEmpty()) {
+        stream << " (";
+        for (QMap<QByteArray,QVariant>::const_iterator it = extendedData.constBegin(); it != extendedData.constEnd(); ++it) {
+            stream << it.key() << " " << it.value().toString() << " ";
+        }
+        stream << ")";
+    }
+    return stream;
 }
 
 QTextStream &Flags::dump(QTextStream &stream) const
@@ -1224,7 +1249,7 @@ bool List::eq(const AbstractResponse &other) const
 {
     try {
         const List &r = dynamic_cast<const List &>(other);
-        return kind == r.kind && mailbox == r.mailbox && flags == r.flags && separator == r.separator;
+        return kind == r.kind && mailbox == r.mailbox && flags == r.flags && separator == r.separator && extendedData == r.extendedData;
     } catch (std::bad_cast &) {
         return false;
     }

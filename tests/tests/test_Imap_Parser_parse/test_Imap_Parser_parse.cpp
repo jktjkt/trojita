@@ -217,37 +217,47 @@ void ImapParserParseTest::testParseUntagged_data()
 
     QTest::newRow("untagged-list")
         << QByteArray("* LIST (\\Noselect) \".\" \"\"\r\n")
-        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList() << "\\Noselect", ".", "" ) );
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList() << "\\Noselect", ".", "", QMap<QByteArray,QVariant>()) );
     QTest::newRow("untagged-lsub")
         << QByteArray("* LSUB (\\Noselect) \".\" \"\"\r\n")
-        << QSharedPointer<AbstractResponse>( new List( LSUB, QStringList() << "\\Noselect", ".", "" ) );
+        << QSharedPointer<AbstractResponse>( new List( LSUB, QStringList() << "\\Noselect", ".", "", QMap<QByteArray,QVariant>() ) );
     QTest::newRow("untagged-list-moreflags")
         << QByteArray("* LIST (\\Noselect Blesmrt) \".\" \"\"\r\n")
-        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList() << "\\Noselect" << "Blesmrt", ".", "" ) );
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList() << "\\Noselect" << "Blesmrt", ".", "", QMap<QByteArray,QVariant>() ) );
     QTest::newRow("untagged-list-mailbox")
         << QByteArray("* LIST () \".\" \"someName\"\r\n")
-        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), ".", "someName" ) );
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), ".", "someName", QMap<QByteArray,QVariant>() ) );
     QTest::newRow("untagged-list-mailbox-atom")
         << QByteArray("* LIST () \".\" someName\r\n")
-        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), ".", "someName" ) );
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), ".", "someName", QMap<QByteArray,QVariant>() ) );
     QTest::newRow("untagged-list-separator-nil")
         << QByteArray("* LIST () NiL someName\r\n")
-        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), QString::null, "someName" ) );
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), QString::null, "someName", QMap<QByteArray,QVariant>() ) );
     QTest::newRow("untagged-list-mailbox-quote")
         << QByteArray("* LIST () \".\" \"some\\\"Name\"\r\n")
-        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), ".", "some\"Name" ) );
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), ".", "some\"Name", QMap<QByteArray,QVariant>() ) );
     QTest::newRow("untagged-list-unicode")
         << QByteArray("* LIST () \"/\" \"~Peter/mail/&U,BTFw-/&ZeVnLIqe-\"\r\n")
-        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), "/", QString::fromUtf8("~Peter/mail/台北/日本語") ) );
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), "/", QString::fromUtf8("~Peter/mail/台北/日本語"), QMap<QByteArray,QVariant>() ) );
     QTest::newRow("untagged-list-inbox-atom")
         << QByteArray("* LIST () \"/\" inBox\r\n")
-        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), "/", "INBOX") );
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), "/", "INBOX", QMap<QByteArray,QVariant>()) );
     QTest::newRow("untagged-list-inbox-quoted")
         << QByteArray("* LIST () \"/\" \"inBox\"\r\n")
-        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), "/", "INBOX") );
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), "/", "INBOX", QMap<QByteArray,QVariant>()) );
     QTest::newRow("untagged-list-inbox-literal")
             << QByteArray("* LIST () \"/\" {5}\r\ninBox\r\n")
-        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), "/", "INBOX") );
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), "/", "INBOX", QMap<QByteArray,QVariant>()) );
+
+    QMap<QByteArray,QVariant> listExtData;
+    listExtData["CHILDINFO"] = QStringList() << "SUBSCRIBED";
+    QTest::newRow("untagged-list-ext-childinfo")
+        << QByteArray("* LIST () \"/\" \"Foo\" (\"CHILDINFO\" (\"SUBSCRIBED\"))\r\n")
+        << QSharedPointer<AbstractResponse>(new List( LIST, QStringList(), "/", "Foo", listExtData));
+    listExtData["OLDNAME"] = QStringList() << "blesmrt";
+    QTest::newRow("untagged-list-ext-childinfo-2")
+        << QByteArray("* LIST () \"/\" \"Foo\" (\"CHILDINFO\" (\"SUBSCRIBED\") \"OLDNAME\" (\"blesmrt\"))\r\n")
+        << QSharedPointer<AbstractResponse>(new List( LIST, QStringList(), "/", "Foo", listExtData));
 
     QTest::newRow("untagged-flags")
         << QByteArray("* FLAGS (\\Answered \\Flagged \\Deleted \\Seen \\Draft)\r\n")
