@@ -771,6 +771,9 @@ bool KeepMailboxOpenTask::handleResponseCodeInsideState(const Imap::Responses::S
     }
     case Responses::HIGHESTMODSEQ:
     {
+        if (dieIfInvalidMailbox())
+            return true;
+
         TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
         Q_ASSERT(mailbox);
         const Responses::RespData<quint64> *const num = dynamic_cast<const Responses::RespData<quint64>* const>(resp->respCodeData.data());
