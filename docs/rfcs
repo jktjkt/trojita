@@ -19,12 +19,12 @@ Suported RFCs
 - 5161 The IMAP ENABLE Extension
 - 5162 IMAP4 Extensions for Quick Mailbox Resynchronization
 - 5256 Internet Message Access Protocol - SORT and THREAD Extensions
+- 5258 Internet Message Access Protocol version 4 - LIST Command Extensions
 - 5530 IMAP Response Codes
 - 5957 Display-Based Address Sorting for the IMAP4 SORT Extension
 
 To be evaluated:
 - 4469 Internet Message Access Protocol (IMAP) CATENATE Extension
-- 5258 Internet Message Access Protocol version 4 - LIST Command Extensions
 - 5259 Internet Message Access Protocol - CONVERT Extension
 - 5267 Contexts for IMAP4
 - 5423 Internet Message Store Events
