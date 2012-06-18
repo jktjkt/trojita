@@ -991,6 +991,10 @@ void Model::setNetworkPolicy(const NetworkPolicy policy)
         // If we're connecting after being offline, we should ask for an updated list of mailboxes
         // The main reason is that this happens after entering wrong password and going back online
         reloadMailboxList();
+    } else if (m_netPolicy == NETWORK_ONLINE) {
+        // The connection is online after some time in a different mode. Let's use this opportunity to request
+        // updated message counts from all visible mailboxes.
+        invalidateAllMessageCounts();
     }
 }
 
