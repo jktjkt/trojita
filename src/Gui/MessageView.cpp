@@ -227,7 +227,7 @@ QString MessageView::headerText()
         res += tr("<b>Bcc:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(envelope.bcc, Imap::Message::MailAddress::FORMAT_CLICKABLE));
     res += tr("<b>Subject:</b>&nbsp;%1").arg(Qt::escape(envelope.subject));
     if (envelope.date.isValid())
-        res += tr("<br/><b>Date:</b>&nbsp;%1").arg(envelope.date.toString(Qt::SystemLocaleLongDate));
+        res += tr("<br/><b>Date:</b>&nbsp;%1").arg(envelope.date.toLocalTime().toString(Qt::SystemLocaleLongDate));
     return res;
 }
 
