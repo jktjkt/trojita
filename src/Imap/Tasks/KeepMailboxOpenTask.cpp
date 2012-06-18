@@ -732,12 +732,11 @@ void KeepMailboxOpenTask::breakOrCancelPossibleIdle()
 
 bool KeepMailboxOpenTask::handleResponseCodeInsideState(const Imap::Responses::State *const resp)
 {
-
     switch (resp->respCode) {
     case Responses::UIDNEXT:
     {
         if (dieIfInvalidMailbox())
-            return true;
+            return resp->tag.isEmpty();
 
         TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
         Q_ASSERT(mailbox);
@@ -745,7 +744,8 @@ bool KeepMailboxOpenTask::handleResponseCodeInsideState(const Imap::Responses::S
         if (num) {
             mailbox->syncState.setUidNext(num->data);
             model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
-            return true;
+            // We shouldn't yeat tagged responses from this context
+            return resp->tag.isEmpty();
         } else {
             throw CantHappen("State response has invalid UIDNEXT respCodeData", *resp);
         }
@@ -756,14 +756,15 @@ bool KeepMailboxOpenTask::handleResponseCodeInsideState(const Imap::Responses::S
         // an unhandled message
     {
         if (dieIfInvalidMailbox())
-            return true;
+            return resp->tag.isEmpty();
 
         TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
         Q_ASSERT(mailbox);
         const Responses::RespData<QStringList> *const num = dynamic_cast<const Responses::RespData<QStringList>* const>(resp->respCodeData.data());
         if (num) {
             mailbox->syncState.setPermanentFlags(num->data);
-            return true;
+            // We shouldn't yeat tagged responses from this context
+            return resp->tag.isEmpty();
         } else {
             throw CantHappen("State response has invalid PERMANENTFLAGS respCodeData", *resp);
         }
@@ -772,7 +773,7 @@ bool KeepMailboxOpenTask::handleResponseCodeInsideState(const Imap::Responses::S
     case Responses::HIGHESTMODSEQ:
     {
         if (dieIfInvalidMailbox())
-            return true;
+            return resp->tag.isEmpty();
 
         TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
         Q_ASSERT(mailbox);
@@ -781,7 +782,8 @@ bool KeepMailboxOpenTask::handleResponseCodeInsideState(const Imap::Responses::S
         mailbox->syncState.setHighestModSeq(num->data);
         // FIXME: set the UID mapping *and* the HIGHESTMODSEQ at once
         // model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
-        return true;
+        // We shouldn't yeat tagged responses from this context
+        return resp->tag.isEmpty();
     }
     default:
         // Do nothing here
