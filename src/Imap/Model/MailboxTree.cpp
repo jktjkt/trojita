@@ -731,7 +731,7 @@ TreeItemPart *TreeItemMailbox::partIdToPtr(Model *const model, TreeItemMessage *
 
 bool TreeItemMailbox::isSelectable() const
 {
-    return ! m_metadata.flags.contains(QLatin1String("\\NOSELECT"));
+    return !m_metadata.flags.contains(QLatin1String("\\NOSELECT")) && !m_metadata.flags.contains(QLatin1String("\\NONEXISTENT"));
 }
 
 
