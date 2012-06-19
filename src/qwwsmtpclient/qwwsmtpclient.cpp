@@ -399,7 +399,7 @@ void QwwSmtpClientPrivate::processNextCommand(bool ok) {
     case SMTPCommand::Mail:
     {
         setState(QwwSmtpClient::Sending);
-        QByteArray buf = QByteArray("MAIL From: <").append(cmd.data.toList().at(0).toByteArray()).append(">\r\n");
+        QByteArray buf = QByteArray("MAIL FROM:<").append(cmd.data.toList().at(0).toByteArray()).append(">\r\n");
         qDebug() << "SMTP >>>" << buf;
         socket->write(buf);
         break;
@@ -460,7 +460,7 @@ void QwwSmtpClientPrivate::sendRcpt() {
     SMTPCommand &cmd = commandqueue.head();
     QVariantList vlist = cmd.data.toList();
     QList<QVariant> rcptlist = vlist.at(1).toList();
-    QByteArray buf = QByteArray("RCPT To: <").append(rcptlist.first().toByteArray()).append(">\r\n");
+    QByteArray buf = QByteArray("RCPT TO:<").append(rcptlist.first().toByteArray()).append(">\r\n");
     qDebug() << "SMTP >>>" << buf;
     socket->write(buf);
     rcptlist.removeFirst();
