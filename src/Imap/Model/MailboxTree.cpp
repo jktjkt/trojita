@@ -800,9 +800,9 @@ bool TreeItemMsgList::hasChildren(Model *const model)
 
 int TreeItemMsgList::totalMessageCount(Model *const model)
 {
-    // The goal here is to allow periodic updates of the numbers, that's why we don't check just the numbersFetched().
-    // That said, it would require other pieces to support refresh of these numbers.
-    if (! fetched())
+    // Yes, the numbers can be accomodated by a full mailbox sync, but that's not really what we shall do from this context.
+    // Because we want to allow the old-school polling for message numbers, we have to look just at the numberFetched() state.
+    if (!numbersFetched())
         fetchNumbers(model);
     return m_totalMessageCount;
 }
@@ -810,7 +810,7 @@ int TreeItemMsgList::totalMessageCount(Model *const model)
 int TreeItemMsgList::unreadMessageCount(Model *const model)
 {
     // See totalMessageCount()
-    if (! fetched())
+    if (!numbersFetched())
         fetchNumbers(model);
     return m_unreadMessageCount;
 }
@@ -818,7 +818,7 @@ int TreeItemMsgList::unreadMessageCount(Model *const model)
 int TreeItemMsgList::recentMessageCount(Model *const model)
 {
     // See totalMessageCount()
-    if (! fetched())
+    if (!numbersFetched())
         fetchNumbers(model);
     return m_recentMessageCount;
 }
@@ -852,7 +852,7 @@ void TreeItemMsgList::resetWasUnreadState()
 
 bool TreeItemMsgList::numbersFetched() const
 {
-    return fetched() || m_numberFetchingStatus == DONE;
+    return m_numberFetchingStatus == DONE;
 }
 
 
