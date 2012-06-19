@@ -118,16 +118,22 @@ void QwwSmtpClientPrivate::onConnected() {
 // - aborts or continues processing
 void QwwSmtpClientPrivate::onDisconnected() {
     setState(QwwSmtpClient::Disconnected);
-    if (!commandqueue.isEmpty() && commandqueue.head().type!=SMTPCommand::Disconnect) {
-        emit q->commandFinished(commandqueue.head().id, true);
-        commandqueue.clear();
-        inProgress = false;
-        emit q->done(false);
-    } else if (commandqueue.isEmpty()) {
+    if (commandqueue.isEmpty()) {
         inProgress = false;
         emit q->done(true);
-    } else
-        processNextCommand();
+        return;
+    }
+
+    if (commandqueue.head().type == SMTPCommand::Disconnect) {
+        inProgress = false;
+        emit q->done(true);
+        return;
+    }
+
+    emit q->commandFinished(commandqueue.head().id, true);
+    commandqueue.clear();
+    inProgress = false;
+    emit q->done(false);
 }
 
 void QwwSmtpClientPrivate::onError(QAbstractSocket::SocketError e)
@@ -228,6 +234,8 @@ void QwwSmtpClientPrivate::_q_readFromSocket() {
                 // starttls failed
                 else {
                     qDebug() << "TLS failed at stage " << stage << ": " << line;
+                    errorString = "TLS failed";
+                    emit q->done(false);
                 }
             }
             break;
@@ -282,6 +290,10 @@ void QwwSmtpClientPrivate::_q_readFromSocket() {
                     emit q->authenticated();
                     setState(QwwSmtpClient::Connected);
                     processNextCommand();
+                } else {
+                    errorString = rxlast.cap(2).trimmed();
+                    setState(QwwSmtpClient::Connected);
+                    emit q->done(false);
                 }
             }
             break;
@@ -322,6 +334,7 @@ void QwwSmtpClientPrivate::_q_readFromSocket() {
                     // something went wrong
                     errorString = rxlast.cap(2).trimmed();
                     setState(QwwSmtpClient::Connected);
+                    emit q->done(false);
                     processNextCommand();
                 }
             }
