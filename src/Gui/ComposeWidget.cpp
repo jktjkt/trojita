@@ -135,7 +135,7 @@ void ComposeWidget::send()
     }
 
     Imap::Message::MailAddress fromAddress;
-    if (!parseOneAddress(fromAddress, ui->sender->currentText())) {
+    if (!Imap::Message::MailAddress::fromPrettyString(fromAddress, ui->sender->currentText())) {
         gotError(tr("The From: address does not look like a valid one"));
         return;
     }
@@ -276,63 +276,6 @@ QByteArray ComposeWidget::encodeHeaderField(const QString &text)
     return Imap::encodeRFC2047String(text);
 }
 
-/* A simple regexp to match an address typed into the input field. */
-static QRegExp mailishRx("(?:\\b|\\<)(\\w+)\\s*\\@\\s*([\\w_.-]+|(?:\\[[^][\\\\\\\"\\s]+\\]))(?:\\b|\\>)");
-
-/*
-   This is of course far from complete, but at least catches "Real
-   Name" <foo@bar>.  It needs to recognize the things people actually
-   type, and it should also recognize anything that's a valid
-   rfc2822 address.
-*/
-bool ComposeWidget::parseOneAddress(Imap::Message::MailAddress &into,
-                                    const QString &address,
-                                    int &startOffset)
-{
-    int offset;
-    static QRegExp commaRx("^\\s*(?:,\\s*)*");
-
-    offset = mailishRx.indexIn(address, startOffset);
-    if (offset < 0) {
-        /* Try stripping a leading comma? */
-        offset = commaRx.indexIn(address, startOffset, QRegExp::CaretAtOffset);
-        if (offset < startOffset)
-            return false;
-        offset += commaRx.matchedLength();
-        startOffset = offset;
-        offset = mailishRx.indexIn(address, offset);
-        if (offset < 0)
-            return false;
-    }
-    
-    QString before = address.mid(startOffset, offset - startOffset);
-    into = Imap::Message::MailAddress(before.simplified(), NULL,
-                                      mailishRx.cap(1),
-                                      mailishRx.cap(2));
-    
-    offset += mailishRx.matchedLength();
-        
-    int comma = commaRx.indexIn(address, offset, QRegExp::CaretAtOffset);
-    if (comma >= offset)
-        offset = comma + commaRx.matchedLength();
-    
-    startOffset = offset;
-    return true;
-}
-bool ComposeWidget::parseOneAddress(Imap::Message::MailAddress &into,
-                                    const QString &address)
-{
-    int offset = 0;
-
-    if (!parseOneAddress(into, address, offset))
-        return false;
-    
-    if (offset < address.size())
-        return false;
-
-    return true;
-}
-
 bool ComposeWidget::parseRecipients(QList<QPair<ComposeWidget::RecipientKind, Imap::Message::MailAddress> > &results)
 {
     Q_ASSERT(recipientsAddress.size() == recipientsKind.size());
@@ -347,7 +290,7 @@ bool ComposeWidget::parseRecipients(QList<QPair<ComposeWidget::RecipientKind, Im
         QString text = recipientsAddress[i]->text();
         for(;;) {
             Imap::Message::MailAddress addr;
-            bool ok = parseOneAddress(addr, text, offset);
+            bool ok = Imap::Message::MailAddress::parseOneAddress(addr, text, offset);
             if (ok) {
                 maybeAddNewKnownRecipient(addr);
                 results << qMakePair(kind, addr);

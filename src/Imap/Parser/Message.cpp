@@ -33,6 +33,59 @@ namespace Imap
 namespace Message
 {
 
+bool MailAddress::fromPrettyString(MailAddress &into, const QString &address)
+{
+    int offset = 0;
+
+    if (!parseOneAddress(into, address, offset))
+        return false;
+
+    if (offset < address.size())
+        return false;
+
+    return true;
+}
+
+/* A simple regexp to match an address typed into the input field. */
+static QRegExp mailishRx("(?:\\b|\\<)(\\w+)\\s*\\@\\s*([\\w_.-]+|(?:\\[[^][\\\\\\\"\\s]+\\]))(?:\\b|\\>)");
+
+/*
+   This is of course far from complete, but at least catches "Real
+   Name" <foo@bar>.  It needs to recognize the things people actually
+   type, and it should also recognize anything that's a valid
+   rfc2822 address.
+*/
+bool MailAddress::parseOneAddress(Imap::Message::MailAddress &into, const QString &address, int &startOffset)
+{
+    int offset;
+    static QRegExp commaRx("^\\s*(?:,\\s*)*");
+
+    offset = mailishRx.indexIn(address, startOffset);
+    if (offset < 0) {
+        /* Try stripping a leading comma? */
+        offset = commaRx.indexIn(address, startOffset, QRegExp::CaretAtOffset);
+        if (offset < startOffset)
+            return false;
+        offset += commaRx.matchedLength();
+        startOffset = offset;
+        offset = mailishRx.indexIn(address, offset);
+        if (offset < 0)
+            return false;
+    }
+
+    QString before = address.mid(startOffset, offset - startOffset);
+    into = MailAddress(before.simplified(), NULL, mailishRx.cap(1), mailishRx.cap(2));
+
+    offset += mailishRx.matchedLength();
+
+    int comma = commaRx.indexIn(address, offset, QRegExp::CaretAtOffset);
+    if (comma >= offset)
+        offset = comma + commaRx.matchedLength();
+
+    startOffset = offset;
+    return true;
+}
+
 QList<MailAddress> Envelope::getListOfAddresses(const QVariant &in, const QByteArray &line, const int start)
 {
     if (in.type() == QVariant::ByteArray) {

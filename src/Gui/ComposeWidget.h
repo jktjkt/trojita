@@ -76,11 +76,6 @@ private:
     static QByteArray extractMailAddress(const QString &text, bool &ok);
     void addRecipient(int position, const QString &kind, const QString &address);
     bool parseRecipients(QList<QPair<ComposeWidget::RecipientKind, Imap::Message::MailAddress> > &results);
-    static bool parseOneAddress(Imap::Message::MailAddress &into,
-                                const QString &address,
-                                int &startOffset);
-    static bool parseOneAddress(Imap::Message::MailAddress &into,
-                                const QString &address);
     static QByteArray generateMessageId(const Imap::Message::MailAddress &sender);
 
     Ui::ComposeWidget *ui;

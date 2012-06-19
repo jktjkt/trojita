@@ -81,6 +81,9 @@ struct MailAddress {
 
     static QString prettyList(const QList<MailAddress> &list, FormattingMode mode);
     static QString prettyList(const QVariantList &list, FormattingMode mode);
+
+    static bool fromPrettyString(MailAddress &into, const QString &address);
+    static bool parseOneAddress(MailAddress &into, const QString &address, int &startOffset);
 };
 
 /** @short Storage for envelope */
