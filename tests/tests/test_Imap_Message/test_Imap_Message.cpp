@@ -217,6 +217,54 @@ void ImapMessageTest::testMailAddressParsing_data()
     QTest::newRow("trojita-ml") <<
         QString::fromAscii("trojita@lists.flaska.net") <<
         MailAddress(QString(), QString(), "trojita", "lists.flaska.net");
+
+    QTest::newRow("trojita-ml-with-short-ascii-name") <<
+        QString::fromAscii("Trojita <trojita@lists.flaska.net>") <<
+        MailAddress(QLatin1String("Trojita"), QString(), "trojita", "lists.flaska.net");
+
+    /*QTest::newRow("trojita-ml-with-short-ascii-name-quoted") <<
+        QString::fromAscii("\"Trojita\" <trojita@lists.flaska.net>") <<
+        MailAddress(QLatin1String("Trojita"), QString(), "trojita", "lists.flaska.net");*/
+
+    QTest::newRow("trojita-ml-with-ascii-name") <<
+        QString::fromAscii("Trojita ML <trojita@lists.flaska.net>") <<
+        MailAddress(QLatin1String("Trojita ML"), QString(), "trojita", "lists.flaska.net");
+
+    /*QTest::newRow("trojita-ml-with-ascii-name-quoted") <<
+        QString::fromAscii("\"Trojita ML\" <trojita@lists.flaska.net>") <<
+        MailAddress(QLatin1String("Trojita ML"), QString(), "trojita", "lists.flaska.net");*/
+
+    QTest::newRow("trojita-ml-with-short-unicode-name") <<
+        QString::fromAscii("Trojitá <trojita@lists.flaska.net>") <<
+        MailAddress(QLatin1String("Trojitá"), QString(), "trojita", "lists.flaska.net");
+
+    /*QTest::newRow("trojita-ml-with-short-unicode-name-quoted") <<
+        QString::fromAscii("\"Trojitá\" <trojita@lists.flaska.net>") <<
+        MailAddress(QLatin1String("Trojitá"), QString(), "trojita", "lists.flaska.net");*/
+
+    QTest::newRow("trojita-ml-with-unicode-name") <<
+        QString::fromAscii("Trojitá ML <trojita@lists.flaska.net>") <<
+        MailAddress(QLatin1String("Trojitá ML"), QString(), "trojita", "lists.flaska.net");
+
+    /*QTest::newRow("trojita-ml-with-unicode-name-quoted") <<
+        QString::fromAscii("\"Trojitá ML\" <trojita@lists.flaska.net>") <<
+        MailAddress(QLatin1String("Trojitá ML"), QString(), "trojita", "lists.flaska.net");*/
+
+    QTest::newRow("jkt-isode-ascii") <<
+        QString::fromUtf8("Jan Kundrat <jan.kundrat@demo.isode.com>") <<
+        MailAddress(QString::fromUtf8("Jan Kundrat"), QString(), "jan.kundrat", "demo.isode.com");
+
+    /*QTest::newRow("jkt-isode-ascii-quoted") <<
+        QString::fromUtf8("\"Jan Kundrat\" <jan.kundrat@demo.isode.com>") <<
+        MailAddress(QString::fromUtf8("Jan Kundrat"), QString(), "jan.kundrat", "demo.isode.com");*/
+
+    QTest::newRow("jkt-isode-unicode") <<
+        QString::fromUtf8("Jan Kundrát <jan.kundrat@demo.isode.com>") <<
+        MailAddress(QString::fromUtf8("Jan Kundrát"), QString(), "jan.kundrat", "demo.isode.com");
+
+    /*QTest::newRow("jkt-isode-unicode-quoted") <<
+        QString::fromUtf8("\"Jan Kundrát\" <jan.kundrat@demo.isode.com>") <<
+        MailAddress(QString::fromUtf8("Jan Kundrát"), QString(), "jan.kundrat", "demo.isode.com");*/
 }
 
 void ImapMessageTest::testMessage()
