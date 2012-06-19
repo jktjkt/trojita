@@ -31,19 +31,19 @@ typedef enum {
     Parentheses
 } QuotedStringStyle;
 
-QByteArray quotedString( const QByteArray& unquoted, QuotedStringStyle style = DoubleQuoted );
-QByteArray encodeRFC2047Phrase( const QString &text );
+QByteArray quotedString(const QByteArray &unquoted, QuotedStringStyle style = DoubleQuoted);
+QByteArray encodeRFC2047Phrase(const QString &text);
 
-QByteArray encodeRFC2047String( const QString& text );
-QByteArray encodeRFC2047String( const QByteArray& text, const QByteArray& encoding );
+QByteArray encodeRFC2047String(const QString &text);
+QByteArray encodeRFC2047String(const QByteArray &text, const QByteArray &encoding);
 
-QString decodeRFC2047String( const QByteArray& raw );
+QString decodeRFC2047String(const QByteArray &raw);
 
-QByteArray encodeImapFolderName( const QString& text );
+QByteArray encodeImapFolderName(const QString &text);
 
-QString decodeImapFolderName( const QByteArray& raw );
+QString decodeImapFolderName(const QByteArray &raw);
 
-QByteArray quotedPrintableDecode( const QByteArray& raw );
+QByteArray quotedPrintableDecode(const QByteArray &raw);
 
 }
 
