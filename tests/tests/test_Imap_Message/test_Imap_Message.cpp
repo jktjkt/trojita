@@ -197,6 +197,28 @@ void ImapMessageTest::testMailAddressFormat_data()
         QByteArray("jan.kundrat@demo.isode.com") << true;
 }
 
+void ImapMessageTest::testMailAddressParsing()
+{
+    QFETCH(QString, textInput);
+    QFETCH(Imap::Message::MailAddress, expected);
+
+    Imap::Message::MailAddress actual;
+    QVERIFY(Imap::Message::MailAddress::fromPrettyString(actual, textInput));
+    QCOMPARE(actual, expected);
+}
+
+void ImapMessageTest::testMailAddressParsing_data()
+{
+    using namespace Imap::Message;
+
+    QTest::addColumn<QString>("textInput");
+    QTest::addColumn<MailAddress>("expected");
+
+    QTest::newRow("trojita-ml") <<
+        QString::fromAscii("trojita@lists.flaska.net") <<
+        MailAddress(QString(), QString(), "trojita", "lists.flaska.net");
+}
+
 void ImapMessageTest::testMessage()
 {
 }

@@ -40,6 +40,9 @@ private Q_SLOTS:
     void testMailAddressFormat();
     void testMailAddressFormat_data();
 
+    void testMailAddressParsing();
+    void testMailAddressParsing_data();
+
     void testMessage();
     void testMessage_data();
 
