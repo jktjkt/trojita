@@ -141,6 +141,7 @@ void QwwSmtpClientPrivate::onError(QAbstractSocket::SocketError e)
 void QwwSmtpClientPrivate::_q_readFromSocket() {
     while (socket->canReadLine()) {
         QString line = socket->readLine();
+        qDebug() << "SMTP <<<" << line.toAscii().constData();
         QRegExp rx("(\\d+)-(.*)\n");        // multiline response (aka 250-XYZ)
         QRegExp rxlast("(\\d+) (.*)\n");    // single or last line response (aka 250 XYZ)
         bool mid = rx.exactMatch(line);
@@ -213,6 +214,7 @@ void QwwSmtpClientPrivate::_q_readFromSocket() {
                 int stage = cmd.extra.toInt();
                 // received an invitation from the server to enter TLS mode
                 if (stage==0 && status==220) {
+                    qDebug() << "SMTP ** startClientEncruption";
                     socket->startClientEncryption();
                 }
                 // TLS established, connection is encrypted, EHLO was sent
@@ -300,12 +302,15 @@ void QwwSmtpClientPrivate::_q_readFromSocket() {
                 } else if (status==250 && stage==1) {
                     // all receivers accepted
                     errorString.clear();
+                    qDebug() << "SMTP >>> DATA";
                     socket->write("DATA\r\n");
                     cmd.extra=2;
                 } else if (status==354 && stage==2) {
                     // DATA command accepted
                     errorString.clear();
-                    socket->write(cmd.data.toList().at(2).toString().toUtf8()); // expecting data to be already escaped (CRLF.CRLF)
+                    QByteArray toBeWritten = cmd.data.toList().at(2).toString().toUtf8();
+                    qDebug() << "SMTP >>>" << toBeWritten << "\r\n.\r\n";
+                    socket->write(toBeWritten); // expecting data to be already escaped (CRLF.CRLF)
                     socket->write("\r\n.\r\n"); // termination token - CRLF.CRLF
                     cmd.extra=3;
                 } else if (status==250 && stage==3) {
@@ -353,8 +358,10 @@ void QwwSmtpClientPrivate::processNextCommand(bool ok) {
         uint port = cmd.data.toList().at(1).toUInt();
         bool ssl = cmd.data.toList().at(2).toBool();
         if(ssl){
+            qDebug() << "SMTP ** connectToHostEncrypted";
             socket->connectToHostEncrypted(hostName, port);
         } else {
+            qDebug() << "SMTP ** connectToHost";
             socket->connectToHost(hostName, port);
         }
         setState(QwwSmtpClient::Connecting);
@@ -365,6 +372,7 @@ void QwwSmtpClientPrivate::processNextCommand(bool ok) {
     }
     break;
     case SMTPCommand::StartTLS: {
+        qDebug() << "SMTP >>> STARTTLS";
         socket->write("STARTTLS\r\n");
         setState(QwwSmtpClient::TLSRequested);
     }
@@ -373,10 +381,12 @@ void QwwSmtpClientPrivate::processNextCommand(bool ok) {
         QwwSmtpClient::AuthMode authmode = (QwwSmtpClient::AuthMode)cmd.data.toList().at(0).toInt();
         switch (authmode) {
         case QwwSmtpClient::AuthPlain:
+            qDebug() << "SMTP >>> AUTH PLAIN";
             socket->write("AUTH PLAIN\r\n");
             setState(QwwSmtpClient::Authenticating);
             break;
         case QwwSmtpClient::AuthLogin:
+            qDebug() << "SMTP >>> AUTH LOGIN";
             socket->write("AUTH LOGIN\r\n");
             setState(QwwSmtpClient::Authenticating);
             break;
@@ -387,13 +397,18 @@ void QwwSmtpClientPrivate::processNextCommand(bool ok) {
     }
     break;
     case SMTPCommand::Mail:
+    {
         setState(QwwSmtpClient::Sending);
-        socket->write(QByteArray("MAIL From: <").append(cmd.data.toList().at(0).toByteArray()).append(">\r\n"));
+        QByteArray buf = QByteArray("MAIL From: <").append(cmd.data.toList().at(0).toByteArray()).append(">\r\n");
+        qDebug() << "SMTP >>>" << buf;
+        socket->write(buf);
         break;
+    }
     case SMTPCommand::RawCommand: {
 	QString cont = cmd.data.toString();
 	if(!cont.endsWith("\r\n")) cont.append("\r\n");
-	setState(QwwSmtpClient::Sending);
+    setState(QwwSmtpClient::Sending);
+    qDebug() << "SMTP >>>" << cont;
 	socket->write(cont.toUtf8());
 	} break;
     }
@@ -414,7 +429,9 @@ void QwwSmtpClientPrivate::sendEhlo() {
     QString domain = localName;
     if (socket->isEncrypted() && !localNameEncrypted.isEmpty())
         domain = localNameEncrypted;
-    socket->write(QString("EHLO "+domain+"\r\n").toUtf8());
+    QByteArray buf = QString("EHLO "+domain+"\r\n").toUtf8();
+    qDebug() << "SMTP >>>" << buf;
+    socket->write(buf);
     cmd.extra = 1;
 }
 
@@ -424,12 +441,15 @@ void QwwSmtpClientPrivate::sendHelo() {
     QString domain = localName;
     if (socket->isEncrypted() && localNameEncrypted.isEmpty())
         domain = localNameEncrypted;
-    socket->write(QString("HELO "+domain+"\r\n").toUtf8());
+    QByteArray buf = QString("HELO "+domain+"\r\n").toUtf8();
+    qDebug() << "SMTP >>>" << buf;
+    socket->write(buf);
     cmd.extra = 1;
 }
 
 
 void QwwSmtpClientPrivate::sendQuit() {
+    qDebug() << "SMTP >>> QUIT";
     socket->write("QUIT\r\n");
     socket->waitForBytesWritten(1000);
     socket->disconnectFromHost();
@@ -440,7 +460,9 @@ void QwwSmtpClientPrivate::sendRcpt() {
     SMTPCommand &cmd = commandqueue.head();
     QVariantList vlist = cmd.data.toList();
     QList<QVariant> rcptlist = vlist.at(1).toList();
-    socket->write(QByteArray("RCPT To: <").append(rcptlist.first().toByteArray()).append(">\r\n"));
+    QByteArray buf = QByteArray("RCPT To: <").append(rcptlist.first().toByteArray()).append(">\r\n");
+    qDebug() << "SMTP >>>" << buf;
+    socket->write(buf);
     rcptlist.removeFirst();
     vlist[1] = rcptlist;
     cmd.data = vlist;
@@ -457,15 +479,18 @@ void QwwSmtpClientPrivate::sendAuthPlain(const QString & username, const QString
     ba.append('\0');
     ba.append(password.toUtf8());
     QByteArray encoded = ba.toBase64();
+    qDebug() << "SMTP <<< [authentication data]";
     socket->write(encoded);
     socket->write("\r\n");
 }
 
 void QwwSmtpClientPrivate::sendAuthLogin(const QString & username, const QString & password, int stage) {
     if (stage==1) {
+        qDebug() << "SMTP <<< [login username]";
         socket->write(username.toUtf8().toBase64());
         socket->write("\r\n");
     } else if (stage==2) {
+        qDebug() << "SMTP <<< [login password]";
         socket->write(password.toUtf8().toBase64());
         socket->write("\r\n");
     }
