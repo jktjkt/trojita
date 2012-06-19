@@ -190,6 +190,11 @@ void ImapMessageTest::testMailAddressFormat_data()
                      "adl", "*", "example.com" ) <<
         QString::fromUtf8("words \xE2\x98\xBA name <*@example.com>") <<
         QByteArray("*@example.com") << true;
+
+    QTest::newRow("intl-with-composed-mailbox") <<
+        MailAddress(QString::fromUtf8("Jan Kundrát"), "", "jan.kundrat", "demo.isode.com") <<
+        QString::fromUtf8("Jan Kundrát <jan.kundrat@demo.isode.com>") <<
+        QByteArray("jan.kundrat@demo.isode.com") << true;
 }
 
 void ImapMessageTest::testMessage()
