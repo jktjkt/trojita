@@ -145,7 +145,7 @@ void ComposeWidget::send()
     mailData.append(recipientHeaders);
     mailData.append("Subject: ").append(encodeHeaderField(ui->subject->text())).append("\r\n");
     mailData.append("Content-Type: text/plain; charset=utf-8\r\n"
-                    "Content-Transfer-Encoding: 8bit\r\n");
+                    "Content-Transfer-Encoding: quoted-printable\r\n");
 
     QByteArray messageId = generateMessageId(fromAddress);
     if (!messageId.isEmpty()) {
@@ -161,7 +161,7 @@ void ComposeWidget::send()
         mailData.append("In-Reply-To: ").append(m_inReplyTo).append("\r\n");
     }
     mailData.append("\r\n");
-    mailData.append(ui->mailText->toPlainText().toUtf8());
+    mailData.append(Imap::quotedPrintableEncode(ui->mailText->toPlainText().toUtf8()));
 
     QProgressDialog *progress = new QProgressDialog(
         tr("Sending mail"), tr("Abort"), 0, mailData.size(), this);

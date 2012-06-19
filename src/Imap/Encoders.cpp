@@ -219,6 +219,11 @@ QByteArray quotedPrintableDecode( const QByteArray& raw )
     return KCodecs::quotedPrintableDecode( raw );
 }
 
+QByteArray quotedPrintableEncode(const QByteArray &raw)
+{
+    return KCodecs::quotedPrintableEncode(raw);
+}
+
 
 QByteArray quotedString( const QByteArray& unquoted, QuotedStringStyle style )
 {
