@@ -29,13 +29,10 @@ To be evaluated:
 - 5267 Contexts for IMAP4
 - 5465 The IMAP NOTIFY Extension
 - 5466 IMAP4 Extension for Named Searches (Filters)
-- 5524 Extended URLFETCH for Binary and Converted Parts
 - 5550 (4550) The Internet Email to Support Diverse Service Environments (Lemonade) Profile
-- 5593 Internet Message Access Protocol (IMAP) - URL Access Identifier Extension
 - 5738 IMAP Support for UTF-8
 - 5819 IMAP4 Extension for Returning STATUS Information in Extended LIST
 - 6154 IMAP LIST Extension for Special-Use Mailboxes
-- 6186 Use of SRV Records for Locating Email Submission/Access Services
 - 6203 IMAP4 Extension for Fuzzy Search
 - 6237 IMAP4 Multimailbox SEARCH Extension
 
@@ -73,7 +70,10 @@ Not implemented:
 - 5257 Internet Message Access Protocol - ANNOTATE Extension
 - 5259 Internet Message Access Protocol - CONVERT Extension
 - 5464 The IMAP METADATA Extension
+- 5524 Extended URLFETCH for Binary and Converted Parts
+- 5593 Internet Message Access Protocol (IMAP) - URL Access Identifier Extension
 - 5616 Streaming Internet Messaging Attachments
+- 6186 Use of SRV Records for Locating Email Submission/Access Services
 
 Irrelevant stuff:
 - 3656 The Mailbox Update (MUPDATE) Distributed Mailbox Database Protocol
