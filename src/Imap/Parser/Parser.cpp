@@ -172,14 +172,13 @@ CommandHandle Parser::selectQresync(const QString &mailbox, const uint uidValidi
     if (knownUids.isValid()) {
         cmd << Commands::PartOfCommand(Commands::ATOM, knownUids.toString());
     }
+    Q_ASSERT(uidSnapshot.isValid() == sequenceSnapshot.isValid());
     if (sequenceSnapshot.isValid()) {
-        Q_ASSERT(uidSnapshot.isValid());
         cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, QLatin1String(" (")) <<
                Commands::PartOfCommand(Commands::ATOM, sequenceSnapshot.toString()) <<
                Commands::PartOfCommand(Commands::ATOM, uidSnapshot.toString()) <<
                Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, QLatin1String(")))"));
     } else {
-        Q_ASSERT(uidSnapshot.isValid());
         cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, QLatin1String("))"));
     }
     return queueCommand(cmd);
