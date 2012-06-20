@@ -48,8 +48,13 @@ void SortTask::perform()
         return;
     }
 
-    // FIXME: add support for RFC5267
-    tag = parser->uidSort(sortCriteria, QLatin1String("utf-8"), QStringList() << QLatin1String("ALL"));
+    if (model->accessParser(parser).capabilitiesFresh &&
+            model->accessParser(parser).capabilities.contains(QLatin1String("ESORT"))) {
+        // FIXME: add support for sort contexts from RFC5267
+        tag = parser->uidESort(sortCriteria, QLatin1String("utf-8"), QStringList() << QLatin1String("ALL"));
+    } else {
+        tag = parser->uidSort(sortCriteria, QLatin1String("utf-8"), QStringList() << QLatin1String("ALL"));
+    }
 }
 
 bool SortTask::handleStateHelper(const Imap::Responses::State *const resp)
@@ -73,6 +78,25 @@ bool SortTask::handleStateHelper(const Imap::Responses::State *const resp)
 bool SortTask::handleSort(const Imap::Responses::Sort *const resp)
 {
     sortResult = resp->numbers;
+    return true;
+}
+
+bool SortTask::handleESearch(const Responses::ESearch *const resp)
+{
+    if (resp->tag != tag)
+        return false;
+
+    if (resp->seqOrUids != Imap::Responses::ESearch::UIDS)
+        throw UnexpectedResponseReceived("ESEARCH response to a UID SORT command with matching tag uses "
+                                         "sequence numbers instead of UIDs", *resp);
+
+    if (resp->listData.contains("ALL"))
+        sortResult = resp->listData["ALL"];
+    else if (resp->numData.contains("ALL"))
+        sortResult = QList<uint>() << resp->numData["ALL"];
+    else
+        throw UnexpectedResponseReceived("ESEARCH response to UID SORT doesn't contain the ALL result", *resp);
+
     return true;
 }
 

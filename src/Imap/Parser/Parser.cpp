@@ -330,6 +330,11 @@ CommandHandle Parser::uidSort(const QStringList &sortCriteria, const QString &ch
     return sortHelper(QLatin1String("UID SORT"), sortCriteria, charset, searchCriteria);
 }
 
+CommandHandle Parser::uidESort(const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria)
+{
+    return sortHelper(QLatin1String("UID SORT RETURN ()"), sortCriteria, charset, searchCriteria);
+}
+
 CommandHandle Parser::threadHelper(const QString &command, const QString &algo, const QString &charset, const QStringList &searchCriteria)
 {
     Commands::Command cmd;

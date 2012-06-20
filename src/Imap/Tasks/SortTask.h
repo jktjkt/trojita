@@ -37,6 +37,7 @@ public:
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
     virtual bool handleSort(const Imap::Responses::Sort *const resp);
+    virtual bool handleESearch(const Responses::ESearch *const resp);
     virtual QVariant taskData(const int role) const;
     virtual bool needsMailbox() const {return true;}
 protected:

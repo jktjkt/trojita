@@ -802,10 +802,13 @@ void ImapModelThreadingTest::testDynamicSorting()
     QCOMPARE(msgUid9.row(), 1);
     QCOMPARE(msgUid10.row(), 2);
     // At this point, new sorting shall be requested
+    // Make it a bit more interesting, suddenly support ESORT as well
+    injector.injectCapability(QLatin1String("ESORT"));
     cClient(t.mk("UID SORT (DISPLAYFROM) utf-8 ALL\r\n"));
     expectedUidOrder.clear();
     expectedUidOrder << 9 << 17 << 6 << 10;
-    cServer("* SORT " + numListToString(expectedUidOrder) + "\r\n" + t.last("OK sorted\r\n"));
+    cServer(QString::fromAscii("* ESEARCH (TAG \"%1\") UID ALL %2\r\n%1 OK sorted\r\n")
+            .arg(QString::fromAscii(t.last()), QString::fromAscii(numListToString(expectedUidOrder).replace(' ', ','))).toAscii());
     QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
     checkUidMapFromThreading(expectedUidOrder);
     QCOMPARE(msgUid6.row(), 2);
