@@ -763,9 +763,11 @@ void ImapModelThreadingTest::testDynamicSorting()
     QCOMPARE(msgUid10.row(), 0);
 
     // A new message arrives and the user requests a completely different sort order
+    // Make it a bit more interesting, suddenly support ESORT as well
+    injector.injectCapability(QLatin1String("ESORT"));
     threadingModel->setUserSortingPreference(Imap::Mailbox::ThreadingMsgListModel::SORT_FROM, Qt::AscendingOrder);
     cServer("* 4 EXISTS\r\n");
-    QByteArray sortReq = t.mk("UID SORT (DISPLAYFROM) utf-8 ALL\r\n");
+    QByteArray sortReq = t.mk("UID SORT RETURN () (DISPLAYFROM) utf-8 ALL\r\n");
     QByteArray sortResp = t.last("OK sorted\r\n");
     QByteArray uidFetchReq = t.mk("UID FETCH 17:* (FLAGS)\r\n");
     delayedUidFetch = "* 4 FETCH (UID 17 FLAGS ())\r\n" + t.last("ok fetched\r\n");
@@ -802,9 +804,7 @@ void ImapModelThreadingTest::testDynamicSorting()
     QCOMPARE(msgUid9.row(), 1);
     QCOMPARE(msgUid10.row(), 2);
     // At this point, new sorting shall be requested
-    // Make it a bit more interesting, suddenly support ESORT as well
-    injector.injectCapability(QLatin1String("ESORT"));
-    cClient(t.mk("UID SORT (DISPLAYFROM) utf-8 ALL\r\n"));
+    cClient(t.mk("UID SORT RETURN () (DISPLAYFROM) utf-8 ALL\r\n"));
     expectedUidOrder.clear();
     expectedUidOrder << 9 << 17 << 6 << 10;
     cServer(QString::fromAscii("* ESEARCH (TAG \"%1\") UID ALL %2\r\n%1 OK sorted\r\n")
