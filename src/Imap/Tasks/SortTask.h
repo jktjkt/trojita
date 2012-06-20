@@ -40,6 +40,14 @@ public:
     virtual bool handleESearch(const Responses::ESearch *const resp);
     virtual QVariant taskData(const int role) const;
     virtual bool needsMailbox() const {return true;}
+
+signals:
+    /** @short Sort result has arrived */
+    void sortingAvailable(const QModelIndex &mailbox, const QStringList &sortCriteria, const QList<uint> &uids);
+
+    /** @short Sort operation has failed */
+    void sortingFailed(const QModelIndex &mailbox, const QStringList &sortCriteria);
+
 protected:
     virtual void _failed(const QString &errorMessage);
 private:

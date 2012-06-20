@@ -26,6 +26,7 @@
 #include "ItemRoles.h"
 #include "MailboxTree.h"
 #include "MsgListModel.h"
+#include "SortTask.h"
 
 namespace
 {
@@ -53,7 +54,7 @@ namespace Mailbox
 
 ThreadingMsgListModel::ThreadingMsgListModel(QObject *parent):
     QAbstractProxyModel(parent), threadingHelperLastId(0), modelResetInProgress(false), threadingInFlight(false),
-    m_shallBeThreading(false), m_sortInProgress(false), m_sortReverse(false), m_currentSortingCriteria(SORT_NONE)
+    m_shallBeThreading(false), m_sortTask(0), m_sortReverse(false), m_currentSortingCriteria(SORT_NONE)
 {
 }
 
@@ -680,7 +681,7 @@ void ThreadingMsgListModel::slotSortingAvailable(const QModelIndex &mailbox, con
     disconnect(sender(), 0, this, SLOT(slotSortingAvailable(QModelIndex,QStringList,QList<uint>)));
     disconnect(sender(), 0, this, SLOT(slotSortingFailed(QModelIndex,QStringList)));
 
-    m_sortInProgress = false;
+    m_sortTask = 0;
     m_currentSortResult = uids;
     applySort();
 }
@@ -693,7 +694,7 @@ void ThreadingMsgListModel::slotSortingFailed(const QModelIndex &mailbox, const 
     disconnect(sender(), 0, this, SLOT(slotSortingAvailable(QModelIndex,QStringList,QList<uint>)));
     disconnect(sender(), 0, this, SLOT(slotSortingFailed(QModelIndex,QStringList)));
 
-    m_sortInProgress = false;
+    m_sortTask = 0;
     m_sortReverse = false;
     calculateNullSort();
     applySort();
@@ -1128,15 +1129,15 @@ bool ThreadingMsgListModel::setUserSortingPreference(const SortCriterium criteri
         applySort();
     } else {
         // FIXME: guard against multiple SORTs in future; this is a bit tricky, we cannot just return false from here
-        m_sortInProgress = true;
         m_currentSortingCriteria = criterium;
         calculateNullSort();
         applySort();
-        connect(realModel, SIGNAL(sortingAvailable(QModelIndex,QStringList,QList<uint>)),
+
+        m_sortTask = realModel->m_taskFactory->createSortTask(const_cast<Model *>(realModel), mailboxIndex, sortOptions);
+        connect(m_sortTask, SIGNAL(sortingAvailable(QModelIndex,QStringList,QList<uint>)),
                 this, SLOT(slotSortingAvailable(QModelIndex,QStringList,QList<uint>)));
-        connect(realModel, SIGNAL(sortingFailed(QModelIndex,QStringList)),
+        connect(m_sortTask, SIGNAL(sortingFailed(QModelIndex,QStringList)),
                 this, SLOT(slotSortingFailed(QModelIndex,QStringList)));
-        realModel->m_taskFactory->createSortTask(const_cast<Model *>(realModel), mailboxIndex, sortOptions);
     }
 
     return true;

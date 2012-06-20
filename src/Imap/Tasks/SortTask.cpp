@@ -64,7 +64,7 @@ bool SortTask::handleStateHelper(const Imap::Responses::State *const resp)
 
     if (resp->tag == tag) {
         if (resp->kind == Responses::OK) {
-            emit model->sortingAvailable(mailboxIndex, sortCriteria, sortResult);
+            emit sortingAvailable(mailboxIndex, sortCriteria, sortResult);
             _completed();
         } else {
             _failed("Sorting command has failed");
@@ -108,7 +108,7 @@ QVariant SortTask::taskData(const int role) const
 void SortTask::_failed(const QString &errorMessage)
 {
     // FIXME: show this in the GUI
-    emit model->sortingFailed(mailboxIndex, sortCriteria);
+    emit sortingFailed(mailboxIndex, sortCriteria);
     ImapTask::_failed(errorMessage);
 }
 

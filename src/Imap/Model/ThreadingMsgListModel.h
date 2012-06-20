@@ -37,6 +37,7 @@ namespace Imap
 namespace Mailbox
 {
 
+class SortTask;
 class TreeItem;
 
 /** @short A node in tree structure used for threading representation */
@@ -243,8 +244,8 @@ private:
     /** @short Is threading enabled, or shall we just use other features like sorting and filtering? */
     bool m_shallBeThreading;
 
-    /** @short A SORT command is in progress */
-    bool m_sortInProgress;
+    /** @short Task handling the SORT command */
+    SortTask *m_sortTask;
 
     /** @short Shall we sort in a reversed order? */
     bool m_sortReverse;
