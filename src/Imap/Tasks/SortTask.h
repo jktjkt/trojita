@@ -43,10 +43,10 @@ public:
 
 signals:
     /** @short Sort result has arrived */
-    void sortingAvailable(const QModelIndex &mailbox, const QStringList &sortCriteria, const QList<uint> &uids);
+    void sortingAvailable(const QList<uint> &uids);
 
     /** @short Sort operation has failed */
-    void sortingFailed(const QModelIndex &mailbox, const QStringList &sortCriteria);
+    void sortingFailed();
 
 protected:
     virtual void _failed(const QString &errorMessage);

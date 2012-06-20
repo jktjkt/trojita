@@ -156,10 +156,10 @@ public slots:
     void applyThreading(const QVector<Imap::Responses::ThreadingNode> &mapping);
 
     /** @short SORT response has arrived */
-    void slotSortingAvailable(const QModelIndex &mailbox, const QStringList &sortCriteria, const QList<uint> &uids);
+    void slotSortingAvailable(const QList<uint> &uids);
 
     /** @short SORT has failed */
-    void slotSortingFailed(const QModelIndex &mailbox, const QStringList &sortCriteria);
+    void slotSortingFailed();
 
     void applySort();
 
@@ -198,8 +198,6 @@ private:
 
     /** @short Return some number from the thread mapping @arg mapping which is either the highest among them, or at least as high as the marker*/
     static uint findHighEnoughNumber(const QVector<Imap::Responses::ThreadingNode> &mapping, uint marker);
-
-    bool shouldIgnoreThisSortResponse(const QModelIndex &mailbox, const QStringList &sortCriteria);
 
     void calculateNullSort();
 

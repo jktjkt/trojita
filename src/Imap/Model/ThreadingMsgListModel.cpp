@@ -615,24 +615,6 @@ bool ThreadingMsgListModel::shouldIgnoreThisThreadingResponse(const QModelIndex 
     return false;
 }
 
-bool ThreadingMsgListModel::shouldIgnoreThisSortResponse(const QModelIndex &mailbox, const QStringList &sortCriteria)
-{
-    QModelIndex someMessage = sourceModel()->index(0,0);
-    if (!someMessage.isValid())
-        return true;
-    const Model *model;
-    QModelIndex realIndex;
-    Imap::Mailbox::Model::realTreeItem(someMessage, &model, &realIndex);
-    QModelIndex mailboxIndex = realIndex.parent().parent();
-    if (mailboxIndex != mailbox) {
-        // this is for another mailbox
-        return true;
-    }
-
-    Q_UNUSED(sortCriteria);
-    return false;
-}
-
 void ThreadingMsgListModel::slotThreadingFailed(const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria)
 {
     // Better safe than sorry -- prevent infinite waiting to the maximal possible extent
@@ -673,26 +655,20 @@ void ThreadingMsgListModel::slotThreadingAvailable(const QModelIndex &mailbox, c
         wantThreading();
 }
 
-void ThreadingMsgListModel::slotSortingAvailable(const QModelIndex &mailbox, const QStringList &sortCriteria, const QList<uint> &uids)
+void ThreadingMsgListModel::slotSortingAvailable(const QList<uint> &uids)
 {
-    if (shouldIgnoreThisSortResponse(mailbox, sortCriteria))
-        return;
-
-    disconnect(sender(), 0, this, SLOT(slotSortingAvailable(QModelIndex,QStringList,QList<uint>)));
-    disconnect(sender(), 0, this, SLOT(slotSortingFailed(QModelIndex,QStringList)));
+    disconnect(m_sortTask, 0, this, SLOT(slotSortingAvailable(QList<uint>)));
+    disconnect(m_sortTask, 0, this, SLOT(slotSortingFailed()));
 
     m_sortTask = 0;
     m_currentSortResult = uids;
     applySort();
 }
 
-void ThreadingMsgListModel::slotSortingFailed(const QModelIndex &mailbox, const QStringList &sortCriteria)
+void ThreadingMsgListModel::slotSortingFailed()
 {
-    if (shouldIgnoreThisSortResponse(mailbox, sortCriteria))
-        return;
-
-    disconnect(sender(), 0, this, SLOT(slotSortingAvailable(QModelIndex,QStringList,QList<uint>)));
-    disconnect(sender(), 0, this, SLOT(slotSortingFailed(QModelIndex,QStringList)));
+    disconnect(m_sortTask, 0, this, SLOT(slotSortingAvailable(QList<uint>)));
+    disconnect(m_sortTask, 0, this, SLOT(slotSortingFailed()));
 
     m_sortTask = 0;
     m_sortReverse = false;
@@ -1134,10 +1110,8 @@ bool ThreadingMsgListModel::setUserSortingPreference(const SortCriterium criteri
         applySort();
 
         m_sortTask = realModel->m_taskFactory->createSortTask(const_cast<Model *>(realModel), mailboxIndex, sortOptions);
-        connect(m_sortTask, SIGNAL(sortingAvailable(QModelIndex,QStringList,QList<uint>)),
-                this, SLOT(slotSortingAvailable(QModelIndex,QStringList,QList<uint>)));
-        connect(m_sortTask, SIGNAL(sortingFailed(QModelIndex,QStringList)),
-                this, SLOT(slotSortingFailed(QModelIndex,QStringList)));
+        connect(m_sortTask, SIGNAL(sortingAvailable(QList<uint>)), this, SLOT(slotSortingAvailable(QList<uint>)));
+        connect(m_sortTask, SIGNAL(sortingFailed()), this, SLOT(slotSortingFailed()));
     }
 
     return true;
