@@ -265,6 +265,14 @@ void ImapMessageTest::testMailAddressParsing_data()
     /*QTest::newRow("jkt-isode-unicode-quoted") <<
         QString::fromUtf8("\"Jan Kundrát\" <jan.kundrat@demo.isode.com>") <<
         MailAddress(QString::fromUtf8("Jan Kundrát"), QString(), "jan.kundrat", "demo.isode.com");*/
+
+    QTest::newRow("long-address-with-fancy-symbols") <<
+        QString::fromUtf8("Some Fünny Äddre¶ <this-is_a.test+some-thin_g.yay@foo-blah.d_o-t.example.org>") <<
+        MailAddress(QString::fromUtf8("Some Fünny Äddre¶"), QString(), "this-is_a.test+some-thin_g.yay", "foo-blah.d_o-t.example.org");
+
+    QTest::newRow("long-address-with-fancy-symbols-no-human-name") <<
+        QString::fromUtf8("this-is_a.test+some-thin_g.yay@foo-blah.d_o-t.example.org") <<
+        MailAddress(QString(), QString(), "this-is_a.test+some-thin_g.yay", "foo-blah.d_o-t.example.org");
 }
 
 void ImapMessageTest::testMessage()
