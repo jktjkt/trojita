@@ -278,7 +278,8 @@ public slots:
     CommandHandle uidThread(const QString &algo, const QString &charset, const QStringList &searchCriteria);
 
     /** @short ESORT, the extended UID SORT from RFC 5267, section 3.1 */
-    CommandHandle uidESort(const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria);
+    CommandHandle uidESort(const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria,
+                           const QStringList &returnOptions);
 
     /** @short ID, RFC 2971 section 3.1
 

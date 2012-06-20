@@ -48,6 +48,9 @@ signals:
     /** @short Sort operation has failed */
     void sortingFailed();
 
+    /** @short An ongoing SORT processing has been aborted */
+    void persistentSortAborted();
+
 protected:
     virtual void _failed(const QString &errorMessage);
 private:
@@ -56,6 +59,15 @@ private:
     QPersistentModelIndex mailboxIndex;
     QStringList sortCriteria;
     QList<uint> sortResult;
+
+    /** @short Are we supposed to run in a "persistent mode", ie. keep listening for updates? */
+    bool m_persistentSearch;
+
+    /** @short Have we received a full (non-incremental) response at first? */
+    bool m_firstUntaggedReceived;
+
+    /** @short Did the first command (the ESEARCH/ESORT) finish properly, including its tagged response? */
+    bool m_firstCommandCompleted;
 };
 
 }

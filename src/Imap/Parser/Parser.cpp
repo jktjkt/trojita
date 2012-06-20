@@ -330,9 +330,11 @@ CommandHandle Parser::uidSort(const QStringList &sortCriteria, const QString &ch
     return sortHelper(QLatin1String("UID SORT"), sortCriteria, charset, searchCriteria);
 }
 
-CommandHandle Parser::uidESort(const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria)
+CommandHandle Parser::uidESort(const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria,
+                               const QStringList &returnOptions)
 {
-    return sortHelper(QLatin1String("UID SORT RETURN ()"), sortCriteria, charset, searchCriteria);
+    return sortHelper(QString::fromAscii("UID SORT RETURN (%1)").arg(returnOptions.join(QLatin1String(" "))),
+                      sortCriteria, charset, searchCriteria);
 }
 
 CommandHandle Parser::threadHelper(const QString &command, const QString &algo, const QString &charset, const QStringList &searchCriteria)
