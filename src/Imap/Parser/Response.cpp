@@ -665,7 +665,7 @@ ESearch::ESearch(const QByteArray &line, int &start): seqOrUids(SEQUENCE)
         LowLevelParser::eatSpaces(line, start);
 
         QList<uint> numbers = LowLevelParser::getSequence(line, start);
-        // There's no synatctit difference between a single-item sequence set and one number, which is why we always parse
+        // There's no syntactic difference between a single-item sequence set and one number, which is why we always parse
         // such "sequences" as mere numbers
         if (numbers.size() == 1)
             numData[label] = numbers.front();

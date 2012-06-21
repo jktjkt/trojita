@@ -140,6 +140,7 @@ bool SortTask::handleESearch(const Responses::ESearch *const resp)
             throw UnexpectedResponseReceived("ESEARCH contains both ALL result set and some incremental updates", *resp);
 
         // FIXME: look at the incremental response here, emit the signals,...
+
     } else {
         throw UnexpectedResponseReceived("ESEARCH response to UID SORT doesn't contain the ALL result", *resp);
     }

@@ -254,7 +254,10 @@ private:
     /** @short Sorting criteria of the current copy of the sort result */
     SortCriterium m_currentSortingCriteria;
 
-    /** @short The current result of the SORT operation */
+    /** @short The current result of the SORT operation
+
+    This variable holds the UIDs of all messages in this mailbox, sorted according to the current sorting criteria.
+    */
     QList<uint> m_currentSortResult;
 
     friend class ::ImapModelThreadingTest; // needs access to wantThreading();
