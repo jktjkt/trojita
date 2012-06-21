@@ -271,96 +271,101 @@ void ImapParserParseTest::testParseUntagged_data()
         << QByteArray("* SEARCH 1 33 666\r\n")
         << QSharedPointer<AbstractResponse>( new Search( QList<uint>() << 1 << 33 << 666 ) );
 
+    ESearch::ListData_t esearchData;
     QTest::newRow("esearch-empty")
         << QByteArray("* ESEARCH\r\n")
-        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, QMap<QByteArray, uint>(), QMap<QByteArray, QList<uint> >()));
+        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchData));
 
     QTest::newRow("esearch-empty-tag")
         << QByteArray("* ESEARCH (TAG x)\r\n")
-        << QSharedPointer<AbstractResponse>(new ESearch("x", ESearch::SEQUENCE, QMap<QByteArray, uint>(), QMap<QByteArray, QList<uint> >()));
+        << QSharedPointer<AbstractResponse>(new ESearch("x", ESearch::SEQUENCE, esearchData));
 
     QTest::newRow("esearch-empty-uid")
         << QByteArray("* ESEARCH UiD\r\n")
-        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::UIDS, QMap<QByteArray, uint>(), QMap<QByteArray, QList<uint> >()));
+        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::UIDS, esearchData));
 
     QTest::newRow("esearch-empty-uid-tag")
         << QByteArray("* ESEARCH (TAG \"1\") UiD\r\n")
-        << QSharedPointer<AbstractResponse>(new ESearch("1", ESearch::UIDS, QMap<QByteArray, uint>(), QMap<QByteArray, QList<uint> >()));
+        << QSharedPointer<AbstractResponse>(new ESearch("1", ESearch::UIDS, esearchData));
 
-    QMap<QByteArray, uint> esearchNumData;
-    QMap<QByteArray, QList<uint> > esearchListData;
-
-    esearchNumData["BLAH"] = 10;
+    esearchData.push_back(qMakePair<QByteArray, QList<uint> >("BLAH", QList<uint>() << 10));
     QTest::newRow("esearch-one-number")
         << QByteArray("* ESEARCH BLaH 10\r\n")
-        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchNumData, esearchListData));
+        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchData));
 
     QTest::newRow("esearch-uid-one-number")
         << QByteArray("* ESEArCH UiD BLaH 10\r\n")
-        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::UIDS, esearchNumData, esearchListData));
+        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::UIDS, esearchData));
 
     QTest::newRow("esearch-tag-one-number")
         << QByteArray("* ESEArCH (TaG x) BLaH 10\r\n")
-        << QSharedPointer<AbstractResponse>(new ESearch("x", ESearch::SEQUENCE, esearchNumData, esearchListData));
+        << QSharedPointer<AbstractResponse>(new ESearch("x", ESearch::SEQUENCE, esearchData));
 
     QTest::newRow("esearch-uid-tag-one-number")
         << QByteArray("* ESEArCH (TaG x) Uid BLaH 10\r\n")
-        << QSharedPointer<AbstractResponse>(new ESearch("x", ESearch::UIDS, esearchNumData, esearchListData));
+        << QSharedPointer<AbstractResponse>(new ESearch("x", ESearch::UIDS, esearchData));
 
-    esearchNumData["FOO"] = 333;
+    esearchData.push_front(qMakePair<QByteArray, QList<uint> >("FOO", QList<uint>() << 666));
+    esearchData.push_front(qMakePair<QByteArray, QList<uint> >("FOO", QList<uint>() << 333));
     QTest::newRow("esearch-two-numbers")
-        << QByteArray("* ESEARCH fOO 333 foo 333   BLaH 10\r\n")
-        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchNumData, esearchListData));
+        << QByteArray("* ESEARCH fOO 333 foo 666   BLaH 10\r\n")
+        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchData));
 
+    esearchData.clear();
+    esearchData.push_back(qMakePair<QByteArray, QList<uint> >("FOO", QList<uint>() << 333));
+    esearchData.push_back(qMakePair<QByteArray, QList<uint> >("BLAH", QList<uint>() << 10));
     QTest::newRow("esearch-uid-two-numbers")
         << QByteArray("* ESEArCH UiD foo    333 BLaH  10\r\n")
-        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::UIDS, esearchNumData, esearchListData));
+        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::UIDS, esearchData));
 
     QTest::newRow("esearch-tag-two-numbers")
-        << QByteArray("* ESEArCH (TaG x)    BLaH 10 foo 333\r\n")
-        << QSharedPointer<AbstractResponse>(new ESearch("x", ESearch::SEQUENCE, esearchNumData, esearchListData));
+        << QByteArray("* ESEArCH (TaG x)    foo 333 BLaH 10  \r\n")
+        << QSharedPointer<AbstractResponse>(new ESearch("x", ESearch::SEQUENCE, esearchData));
 
     QTest::newRow("esearch-uid-tag-two-numbers")
         << QByteArray("* ESEArCH    (TaG   x)   Uid  foo 333 BLaH 10\r\n")
-        << QSharedPointer<AbstractResponse>(new ESearch("x", ESearch::UIDS, esearchNumData, esearchListData));
+        << QSharedPointer<AbstractResponse>(new ESearch("x", ESearch::UIDS, esearchData));
 
-    esearchNumData.clear();
-
-    esearchListData["BLAH"] = QList<uint>() << 10 << 11 << 13 << 14 << 15 << 16 << 17;
+    esearchData.clear();
+    esearchData.push_back(qMakePair<QByteArray, QList<uint> >("BLAH", QList<uint>() << 10 << 11 << 13 << 14 << 15 << 16 << 17));
     QTest::newRow("esearch-one-list-1")
         << QByteArray("* ESEARCH BLaH 10,11,13:17\r\n")
-        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchNumData, esearchListData));
+        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchData));
 
-    esearchListData["BLAH"] = QList<uint>() << 1 << 2;
+    esearchData.clear();
+    esearchData.push_back(qMakePair<QByteArray, QList<uint> >("BLAH", QList<uint>() << 1 << 2));
     QTest::newRow("esearch-one-list-2")
         << QByteArray("* ESEARCH BLaH 1:2\r\n")
-        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchNumData, esearchListData));
+        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchData));
 
-    esearchListData["BLAH"] = QList<uint>() << 1 << 2;
     QTest::newRow("esearch-one-list-3")
         << QByteArray("* ESEARCH BLaH    1,2\r\n")
-        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchNumData, esearchListData));
+        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchData));
 
-    esearchListData["BLAH"] = QList<uint>() << 1 << 2 << 3 << 4 << 5;
+    esearchData.clear();
+    esearchData.push_back(qMakePair<QByteArray, QList<uint> >("BLAH", QList<uint>() << 1 << 2 << 3 << 4 << 5));
     QTest::newRow("esearch-one-list-4")
         << QByteArray("* ESEARCH BLaH 1,2:4,5\r\n")
-        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchNumData, esearchListData));
+        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchData));
 
     QTest::newRow("esearch-one-list-extra-space-at-end")
         << QByteArray("* ESEARCH BLaH 1,2:4,5   \r\n")
-        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchNumData, esearchListData));
+        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchData));
 
-    esearchNumData["FOO"] = 6;
+    esearchData.push_back(qMakePair<QByteArray, QList<uint> >("FOO", QList<uint>() << 6));
     QTest::newRow("esearch-mixed-1")
         << QByteArray("* ESEARCH BLaH 1,2:4,5 FOO 6\r\n")
-        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchNumData, esearchListData));
+        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchData));
+
+    esearchData.swap(0, 1);
     QTest::newRow("esearch-mixed-2")
         << QByteArray("* ESEARCH FOO 6 BLaH 1,2:4,5\r\n")
-        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchNumData, esearchListData));
-    esearchNumData["BAZ"] = 33;
+        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchData));
+
+    esearchData.push_back(qMakePair<QByteArray, QList<uint> >("BAZ", QList<uint>() << 33));
     QTest::newRow("esearch-mixed-3")
         << QByteArray("* ESEARCH FOO 6   BLaH 1,2:4,5   baz 33  \r\n")
-        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchNumData, esearchListData));
+        << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchData));
 
 
     Status::stateDataType states;

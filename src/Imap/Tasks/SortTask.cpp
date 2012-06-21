@@ -125,25 +125,33 @@ bool SortTask::handleESearch(const Responses::ESearch *const resp)
         throw UnexpectedResponseReceived("ESEARCH response to a UID SORT command with matching tag uses "
                                          "sequence numbers instead of UIDs", *resp);
 
-    if (resp->listData.contains("ALL")) {
-        m_firstUntaggedReceived = true;
-        sortResult = resp->listData["ALL"];
-    } else if (resp->numData.contains("ALL")) {
-        m_firstUntaggedReceived = true;
-        sortResult = QList<uint>() << resp->numData["ALL"];
-    } else if (resp->listData.contains("ADDTO") || resp->listData.contains("REMOVEFROM")) {
-        if (!m_firstUntaggedReceived)
-            throw UnexpectedResponseReceived("Received incremental ESEARCH response to UID SORT without a full sort at first",
-                                             *resp);
+    Responses::ESearch::CompareListDataIdentifier allComparator("ALL");
+    Responses::ESearch::ListData_t::const_iterator allIterator =
+            std::find_if(resp->listData.constBegin(), resp->listData.constEnd(), allComparator);
+    Responses::ESearch::CompareListDataIdentifier incrementalComparator("ADDTO", "REMOVEFROM");
+    Responses::ESearch::ListData_t::const_iterator incrementalIterator =
+            std::find_if(resp->listData.constBegin(), resp->listData.constEnd(), incrementalComparator);
 
-        if (resp->listData.contains("ALL") || resp->numData.contains("ALL"))
+    if (allIterator != resp->listData.constEnd()) {
+        m_firstUntaggedReceived = true;
+        sortResult = allIterator->second;
+
+        ++allIterator;
+        if (std::find_if(allIterator, resp->listData.constEnd(), allComparator) != resp->listData.constEnd())
+            throw UnexpectedResponseReceived("ESEARCH contains the ALL key too many times", *resp);
+
+        if (incrementalIterator != resp->listData.constEnd())
             throw UnexpectedResponseReceived("ESEARCH contains both ALL result set and some incremental updates", *resp);
 
-        // FIXME: look at the incremental response here, emit the signals,...
-
-    } else {
-        throw UnexpectedResponseReceived("ESEARCH response to UID SORT doesn't contain the ALL result", *resp);
+        return true;
     }
+
+    if (incrementalIterator == resp->listData.constEnd()) {
+        throw UnexpectedResponseReceived("ESEARCH response to UID SORT doesn't contain any of the ALL, ADDTO or REMOVEFROM data",
+                                         *resp);
+    }
+
+    // FIXME: look at the incremental response here, emit the signals,...
 
     return true;
 }

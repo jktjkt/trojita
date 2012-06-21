@@ -666,11 +666,9 @@ ESearch::ESearch(const QByteArray &line, int &start): seqOrUids(SEQUENCE)
 
         QList<uint> numbers = LowLevelParser::getSequence(line, start);
         // There's no syntactic difference between a single-item sequence set and one number, which is why we always parse
-        // such "sequences" as mere numbers
-        if (numbers.size() == 1)
-            numData[label] = numbers.front();
-        else
-            listData[label] = numbers;
+        // such "sequences" as full blown sequences. That's better than deal with two nasties of the ListData_t kind -- one such
+        // beast is more than enough, IMHO.
+        listData.push_back(qMakePair<QByteArray, QList<uint> >(label, numbers));
 
         LowLevelParser::eatSpaces(line, start);
     }
@@ -1038,12 +1036,9 @@ QTextStream &ESearch::dump(QTextStream &stream) const
         stream << "TAG " << tag << " ";
     if (seqOrUids == UIDS)
         stream << "UID ";
-    for (QMap<QByteArray, uint>::const_iterator it = numData.constBegin(); it != numData.constEnd(); ++it) {
-        stream << it.key() << " " << it.value() << " ";
-    }
-    for (QMap<QByteArray, QList<uint> >::const_iterator it = listData.constBegin(); it != listData.constEnd(); ++it) {
-        stream << it.key() << " (";
-        Q_FOREACH(const uint number, it.value()) {
+    for (ListData_t::const_iterator it = listData.constBegin(); it != listData.constEnd(); ++it) {
+        stream << it->first << " (";
+        Q_FOREACH(const uint number, it->second) {
             stream << number << " ";
         }
         stream << ") ";
@@ -1279,7 +1274,7 @@ bool ESearch::eq(const AbstractResponse &other) const
 {
     try {
         const ESearch &s = dynamic_cast<const ESearch &>(other);
-        return tag == s.tag && seqOrUids == s.seqOrUids && numData == s.numData && listData == s.listData;
+        return tag == s.tag && seqOrUids == s.seqOrUids && listData == s.listData;
     } catch (std::bad_cast &) {
         return false;
     }

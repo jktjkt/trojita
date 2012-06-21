@@ -403,24 +403,45 @@ public:
         UIDS /**< @short In UIDs */
     } SequencesOrUids;
 
+    /** @short Convenience typedef for the received data of the list type */
+    typedef QList<QPair<QByteArray, QList<uint> > > ListData_t;
+
+    /** @short Compare identifiers of the ListData_t list */
+    class CompareListDataIdentifier: public std::unary_function<const ListData_t::value_type&, bool> {
+        QByteArray keyOne;
+        QByteArray keyTwo;
+        bool hasKeyTwo;
+    public:
+        /** @short Find a record which matches the given key */
+        explicit CompareListDataIdentifier(const QByteArray &key): keyOne(key), hasKeyTwo(false) {}
+
+        /** @short Find a record matching any of the two passed keys */
+        explicit CompareListDataIdentifier(const QByteArray &keyOne, const QByteArray &keyTwo):
+            keyOne(keyOne), keyTwo(keyTwo), hasKeyTwo(true) {}
+
+        bool operator() (const ListData_t::value_type & item) {
+            if (hasKeyTwo) {
+                return item.first == keyOne || item.first == keyTwo;
+            } else {
+                return item.first == keyOne;
+            }
+        }
+    };
+
     /** @short The tag of the command which requested in this operation */
     QByteArray tag;
 
     /** @short Are the numbers given in UIDs, or as sequence numbers? */
     SequencesOrUids seqOrUids;
 
-    /** @short The received data: numbers */
-    QMap<QByteArray, uint> numData;
-
-    /** @short The received data: sequences */
-    QMap<QByteArray, QList<uint> > listData;
+    /** @short The received data */
+    ListData_t listData;
 
     // Other forms of returned data are quite explicitly not supported.
 
     ESearch(const QByteArray &line, int &start);
-    ESearch(const QByteArray &tag, const SequencesOrUids seqOrUids, const QMap<QByteArray, uint> &numData,
-            const QMap<QByteArray, QList<uint> >&listData) :
-        AbstractResponse(ESEARCH), tag(tag), seqOrUids(seqOrUids), numData(numData), listData(listData) {}
+    ESearch(const QByteArray &tag, const SequencesOrUids seqOrUids, const QList<QPair<QByteArray, QList<uint> > > &listData) :
+        AbstractResponse(ESEARCH), tag(tag), seqOrUids(seqOrUids), listData(listData) {}
     virtual QTextStream &dump(QTextStream &stream) const;
     virtual bool eq(const AbstractResponse &other) const;
     virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;

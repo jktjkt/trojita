@@ -901,12 +901,19 @@ bool ObtainSynchronizedMailboxTask::handleESearch(const Imap::Responses::ESearch
     if (resp->seqOrUids != Imap::Responses::ESearch::UIDS)
         throw UnexpectedResponseReceived("ESEARCH response with matching tag uses sequence numbers instead of UIDs", *resp);
 
-    if (resp->listData.contains("ALL"))
-        uidMap = resp->listData["ALL"];
-    else if (resp->numData.contains("ALL"))
-        uidMap = QList<uint>() << resp->numData["ALL"];
-    else
+    // Yes, I just love templates.
+    Responses::ESearch::CompareListDataIdentifier allComparator("ALL");
+    Responses::ESearch::ListData_t::const_iterator listIterator =
+            std::find_if(resp->listData.constBegin(), resp->listData.constEnd(), allComparator);
+
+    if (listIterator != resp->listData.constEnd()) {
+        uidMap = listIterator->second;
+        ++listIterator;
+        if (std::find_if(listIterator, resp->listData.constEnd(), allComparator) != resp->listData.constEnd())
+            throw UnexpectedResponseReceived("ESEARCH contains the ALL key too many times", *resp);
+    } else {
         throw UnexpectedResponseReceived("ESEARCH doesn't contain the ALL result", *resp);
+    }
 
     switch (uidSyncingMode) {
     case UID_SYNC_ALL:
