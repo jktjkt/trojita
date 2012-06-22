@@ -902,7 +902,7 @@ bool ObtainSynchronizedMailboxTask::handleESearch(const Imap::Responses::ESearch
         throw UnexpectedResponseReceived("ESEARCH response with matching tag uses sequence numbers instead of UIDs", *resp);
 
     // Yes, I just love templates.
-    Responses::ESearch::CompareListDataIdentifier allComparator("ALL");
+    Responses::ESearch::CompareListDataIdentifier<Responses::ESearch::ListData_t> allComparator("ALL");
     Responses::ESearch::ListData_t::const_iterator listIterator =
             std::find_if(resp->listData.constBegin(), resp->listData.constEnd(), allComparator);
 

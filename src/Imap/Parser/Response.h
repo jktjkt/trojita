@@ -408,7 +408,8 @@ public:
     typedef QList<QPair<QByteArray, QList<uint> > > ListData_t;
 
     /** @short Compare identifiers of the ListData_t list */
-    class CompareListDataIdentifier: public std::unary_function<const ListData_t::value_type&, bool> {
+    template <typename T>
+    class CompareListDataIdentifier: public std::unary_function<const typename T::value_type&, bool> {
         QByteArray keyOne;
         QByteArray keyTwo;
         bool hasKeyTwo;
@@ -420,7 +421,7 @@ public:
         explicit CompareListDataIdentifier(const QByteArray &keyOne, const QByteArray &keyTwo):
             keyOne(keyOne), keyTwo(keyTwo), hasKeyTwo(true) {}
 
-        bool operator() (const ListData_t::value_type & item) {
+        bool operator() (const typename T::value_type & item) {
             if (hasKeyTwo) {
                 return item.first == keyOne || item.first == keyTwo;
             } else {

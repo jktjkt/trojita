@@ -125,10 +125,10 @@ bool SortTask::handleESearch(const Responses::ESearch *const resp)
         throw UnexpectedResponseReceived("ESEARCH response to a UID SORT command with matching tag uses "
                                          "sequence numbers instead of UIDs", *resp);
 
-    Responses::ESearch::CompareListDataIdentifier allComparator("ALL");
+    Responses::ESearch::CompareListDataIdentifier<Responses::ESearch::ListData_t> allComparator("ALL");
     Responses::ESearch::ListData_t::const_iterator allIterator =
             std::find_if(resp->listData.constBegin(), resp->listData.constEnd(), allComparator);
-    Responses::ESearch::CompareListDataIdentifier incrementalComparator("ADDTO", "REMOVEFROM");
+    Responses::ESearch::CompareListDataIdentifier<Responses::ESearch::ListData_t> incrementalComparator("ADDTO", "REMOVEFROM");
     Responses::ESearch::ListData_t::const_iterator incrementalIterator =
             std::find_if(resp->listData.constBegin(), resp->listData.constEnd(), incrementalComparator);
 
