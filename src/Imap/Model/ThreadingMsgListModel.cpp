@@ -705,14 +705,20 @@ void ThreadingMsgListModel::slotSortingIncrementalUpdate(const Responses::ESearc
 
         case Responses::ESearch::ContextIncrementalItem::REMOVEFROM:
             for (int i = 0; i < it->uids.size(); ++i)  {
-                int offset = it->offset + i - 1;
-                if (offset < 0 || offset >= m_currentSortResult.size()) {
-                    throw MailboxException("ESEARCH: REMOVEFROM out of bounds");
+                if (it->offset == 0) {
+                    // When the offset is not given, we have to find it ourselves
+                    m_currentSortResult.removeOne(it->uids[i]);
+                } else {
+                    // We're given an offset, so let's make sure it is a correct one
+                    int offset = it->offset + i - 1;
+                    if (offset < 0 || offset >= m_currentSortResult.size()) {
+                        throw MailboxException("ESEARCH: REMOVEFROM out of bounds");
+                    }
+                    if (m_currentSortResult[offset] != it->uids[i]) {
+                        throw MailboxException("ESEARCH: REMOVEFROM UID mismatch");
+                    }
+                    m_currentSortResult.removeAt(offset);
                 }
-                if (m_currentSortResult[offset] != it->uids[i]) {
-                    throw MailboxException("ESEARCH: REMOVEFROM UID mismatch");
-                }
-                m_currentSortResult.removeAt(offset);
             }
             break;
         }
