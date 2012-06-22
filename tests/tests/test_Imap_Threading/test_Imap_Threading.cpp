@@ -927,6 +927,40 @@ void ImapModelThreadingTest::testDynamicSortingContext()
     QVERIFY(!msgUid9.isValid());
     QCOMPARE(msgUid10.row(), 1);
 
+    // Deliver a few more messages to give removals a decent test
+    cServer("* 6 EXISTS\r\n");
+    cClient(t.mk("UID FETCH 16:* (FLAGS)\r\n"));
+    QByteArray uidFetchResp = "* 4 FETCH (UID 16 FLAGS ())\r\n"
+            "* 6 FETCH (UID 18 FLAGS ())\r\n"
+            "* 5 FETCH (UID 17 FLAGS ())\r\n" + t.last("OK fetched\r\n");
+
+    // At the same time, request a different sorting criteria
+    threadingModel->setUserSortingPreference(Imap::Mailbox::ThreadingMsgListModel::SORT_CC, Qt::AscendingOrder);
+
+    QByteArray cancelReq = t.mk("CANCELUPDATE \"" + sortTag + "\"\r\n");
+    QByteArray cancelResponse = t.last("OK no more updates for you\r\n");
+    cClient(cancelReq + t.mk("UID SORT RETURN (ALL UPDATE) (CC) utf-8 ALL\r\n"));
+    sortTag = t.last();
+    cServer("* ESEARCH (TAG \"" + sortTag + "\") UID ALL 15:17,6,18,10\r\n");
+    cServer(cancelResponse + t.last("OK sorted\r\n"));
+    cEmpty();
+
+    expectedUidOrder.clear();
+    expectedUidOrder << 15 << 6 << 10;
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    checkUidMapFromThreading(expectedUidOrder);
+
+    // deliver the UIDs
+    cServer(uidFetchResp);
+    expectedUidOrder.clear();
+    expectedUidOrder << 15 << 16 << 17 << 6 << 18 << 10;
+    checkUidMapFromThreading(expectedUidOrder);
+
+    // Remove a message, now through a response without an explicit offset
+    cServer("* ESEARCH (TAG \"" + sortTag + "\") UID REMOVEFROM (0 17)\r\n");
+    expectedUidOrder.removeOne(17);
+    checkUidMapFromThreading(expectedUidOrder);
+
     //justKeepTask();
 
     // FIXME: finalize me -- test the incrmeental updates and the mailbox handover
