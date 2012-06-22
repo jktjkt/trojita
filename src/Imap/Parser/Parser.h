@@ -24,6 +24,7 @@
 #include <QSharedPointer>
 #include "Command.h"
 #include "Response.h"
+#include "Sequence.h"
 #include "../Exceptions.h"
 #include "Streams/Socket.h"
 

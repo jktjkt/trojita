@@ -367,6 +367,36 @@ void ImapParserParseTest::testParseUntagged_data()
         << QByteArray("* ESEARCH FOO 6   BLaH 1,2:4,5   baz 33  \r\n")
         << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchData));
 
+    ESearch::IncrementalContextData_t incrementalEsearchData;
+    incrementalEsearchData.push_back(ESearch::ContextIncrementalItem(ESearch::ContextIncrementalItem::ADDTO, 1, QList<uint>() << 2733));
+    incrementalEsearchData.push_back(ESearch::ContextIncrementalItem(ESearch::ContextIncrementalItem::ADDTO, 1, QList<uint>() << 2731 << 2732));
+    QTest::newRow("esearch-context-sort-1")
+        << QByteArray("* ESEARCH (TAG \"C01\") UID ADDTO (1 2733) ADDTO (1 2731:2732)\r\n")
+        << QSharedPointer<AbstractResponse>(new ESearch("C01", ESearch::UIDS, incrementalEsearchData));
+
+    QTest::newRow("esearch-context-sort-2")
+        << QByteArray("* ESEARCH (TAG \"C01\") UID ADDTO (1 2733 1 2731:2732)\r\n")
+        << QSharedPointer<AbstractResponse>(new ESearch("C01", ESearch::UIDS, incrementalEsearchData));
+
+    incrementalEsearchData.clear();
+    incrementalEsearchData.push_back(ESearch::ContextIncrementalItem(ESearch::ContextIncrementalItem::ADDTO, 1, QList<uint>() << 2733));
+    incrementalEsearchData.push_back(ESearch::ContextIncrementalItem(ESearch::ContextIncrementalItem::ADDTO, 1, QList<uint>() << 2732));
+    incrementalEsearchData.push_back(ESearch::ContextIncrementalItem(ESearch::ContextIncrementalItem::ADDTO, 1, QList<uint>() << 2731));
+    QTest::newRow("esearch-context-sort-3")
+        << QByteArray("* ESEARCH (TAG \"C01\") UID ADDTO (1 2733 1 2732 1 2731)\r\n")
+        << QSharedPointer<AbstractResponse>(new ESearch("C01", ESearch::UIDS, incrementalEsearchData));
+
+    incrementalEsearchData.clear();
+    incrementalEsearchData.push_back(ESearch::ContextIncrementalItem(ESearch::ContextIncrementalItem::ADDTO, 1, QList<uint>() << 2731 << 2732 << 2733));
+    QTest::newRow("esearch-context-sort-4")
+        << QByteArray("* ESEARCH (TAG \"C01\") UID ADDTO (1 2731:2733)\r\n")
+        << QSharedPointer<AbstractResponse>(new ESearch("C01", ESearch::UIDS, incrementalEsearchData));
+
+    incrementalEsearchData.clear();
+    incrementalEsearchData.push_back(ESearch::ContextIncrementalItem(ESearch::ContextIncrementalItem::REMOVEFROM, 0, QList<uint>() << 32768));
+    QTest::newRow("esearch-context-sort-5")
+        << QByteArray("* ESEARCH (TAG \"B01\") UID REMOVEFROM (0 32768)\r\n")
+        << QSharedPointer<AbstractResponse>(new ESearch("B01", ESearch::UIDS, incrementalEsearchData));
 
     Status::stateDataType states;
     states[Status::MESSAGES] = 231;
