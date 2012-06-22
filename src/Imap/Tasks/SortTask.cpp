@@ -128,9 +128,6 @@ bool SortTask::handleESearch(const Responses::ESearch *const resp)
     Responses::ESearch::CompareListDataIdentifier<Responses::ESearch::ListData_t> allComparator("ALL");
     Responses::ESearch::ListData_t::const_iterator allIterator =
             std::find_if(resp->listData.constBegin(), resp->listData.constEnd(), allComparator);
-    Responses::ESearch::CompareListDataIdentifier<Responses::ESearch::ListData_t> incrementalComparator("ADDTO", "REMOVEFROM");
-    Responses::ESearch::ListData_t::const_iterator incrementalIterator =
-            std::find_if(resp->listData.constBegin(), resp->listData.constEnd(), incrementalComparator);
 
     if (allIterator != resp->listData.constEnd()) {
         m_firstUntaggedReceived = true;
@@ -140,18 +137,23 @@ bool SortTask::handleESearch(const Responses::ESearch *const resp)
         if (std::find_if(allIterator, resp->listData.constEnd(), allComparator) != resp->listData.constEnd())
             throw UnexpectedResponseReceived("ESEARCH contains the ALL key too many times", *resp);
 
-        if (incrementalIterator != resp->listData.constEnd())
+        if (!resp->incrementalContextData.isEmpty())
             throw UnexpectedResponseReceived("ESEARCH contains both ALL result set and some incremental updates", *resp);
 
         return true;
     }
 
-    if (incrementalIterator == resp->listData.constEnd()) {
+    Q_ASSERT(allIterator == resp->listData.constEnd());
+
+    if (resp->incrementalContextData.isEmpty()) {
         throw UnexpectedResponseReceived("ESEARCH response to UID SORT doesn't contain any of the ALL, ADDTO or REMOVEFROM data",
                                          *resp);
     }
 
-    // FIXME: look at the incremental response here, emit the signals,...
+    if (!m_persistentSearch)
+        throw UnexpectedResponseReceived("ESEARCH contains incremental responses even though we haven't requested that", *resp);
+
+    emit slotIncrementalSortUpdate(resp->incrementalContextData);
 
     return true;
 }

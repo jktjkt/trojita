@@ -48,6 +48,9 @@ signals:
     /** @short Sort operation has failed */
     void sortingFailed();
 
+    /** @short An incremental update to the sorting criteria according to CONTEXT=SORT */
+    void slotIncrementalSortUpdate(const Imap::Responses::ESearch::IncrementalContextData_t &updates);
+
     /** @short An ongoing SORT processing has been aborted */
     void persistentSortAborted();
 
