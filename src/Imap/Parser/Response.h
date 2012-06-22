@@ -32,6 +32,7 @@
 #include "Command.h"
 #include "../Exceptions.h"
 #include "Data.h"
+#include "Sequence.h"
 #include "ThreadingNode.h"
 
 /**

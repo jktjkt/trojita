@@ -19,6 +19,7 @@ TEMPLATE = lib
 SOURCES += Parser/Parser.cpp \
     Parser/Command.cpp \
     Parser/Response.cpp \
+    Parser/Sequence.cpp \
     Parser/LowLevelParser.cpp \
     Parser/Data.cpp \
     Parser/Message.cpp \
@@ -84,6 +85,7 @@ SOURCES += Parser/Parser.cpp \
 HEADERS += Parser/Parser.h \
     Parser/Command.h \
     Parser/Response.h \
+    Parser/Sequence.h \
     Parser/LowLevelParser.h \
     Parser/Data.h \
     Parser/Message.h \
