@@ -255,6 +255,10 @@ QModelIndex ThreadingMsgListModel::mapFromSource(const QModelIndex &sourceIndex)
     const uint internalId = *it;
 
     QHash<uint,ThreadNodeInfo>::const_iterator node = threading.constFind(internalId);
+    if (node == threading.constEnd()) {
+        // The filtering criteria say that this index shall not be visible
+        return QModelIndex();
+    }
     Q_ASSERT(node != threading.constEnd());
 
     return createIndex(node->offset, sourceIndex.column(), internalId);
@@ -312,6 +316,12 @@ void ThreadingMsgListModel::handleRowsAboutToBeRemoved(const QModelIndex &parent
         Q_ASSERT(index.isValid());
         uint uid = index.data(Imap::Mailbox::RoleMessageUid).toUInt();
         QModelIndex translated = mapFromSource(index);
+
+        if (!translated.isValid()) {
+            // The index being removed wasn't visible in our mapping anyway
+            continue;
+        }
+
         Q_ASSERT(translated.isValid());
         QHash<uint,ThreadNodeInfo>::iterator it = threading.find(translated.internalId());
         Q_ASSERT(it != threading.end());
@@ -897,8 +907,12 @@ void ThreadingMsgListModel::updatePersistentIndexesPhase2()
             continue;
         }
         QHash<uint,ThreadNodeInfo>::const_iterator it = threading.constFind(*ptrIt);
-        Q_ASSERT(it != threading.constEnd());
-        updatedIndexes.append(createIndex(it->offset, oldPersistentIndexes[i].column(), it->internalId));
+        if (it == threading.constEnd()) {
+            // Filtering doesn't accept this index, let's declare it dead
+            updatedIndexes.append(QModelIndex());
+        } else {
+            updatedIndexes.append(createIndex(it->offset, oldPersistentIndexes[i].column(), it->internalId));
+        }
     }
     Q_ASSERT(oldPersistentIndexes.size() == updatedIndexes.size());
     changePersistentIndexList(oldPersistentIndexes, updatedIndexes);
