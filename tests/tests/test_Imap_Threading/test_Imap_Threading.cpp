@@ -918,6 +918,7 @@ void ImapModelThreadingTest::testDynamicSortingContext()
     QCOMPARE(msgUid10.row(), 2);
 
     // Remove one message
+    cServer("* ESEARCH (TAG \"" + sortTag + "\") UID REMOVEFROM (4 9)\r\n");
     cServer("* VANISHED 9\r\n");
     expectedUidOrder.removeOne(9);
     QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);

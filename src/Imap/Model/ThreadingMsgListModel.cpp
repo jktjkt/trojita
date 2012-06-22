@@ -1204,6 +1204,7 @@ void ThreadingMsgListModel::applySort()
 
     emit layoutAboutToBeChanged();
     updatePersistentIndexesPhase1();
+    QSet<uint> newlyUnreachable(threading[0].children.toSet());
     threading[0].children.clear();
     threading[0].children.reserve(m_currentSortResult.size());
 
@@ -1227,6 +1228,19 @@ void ThreadingMsgListModel::applySort()
         threading[*it].offset = threading[0].children.size();
         threading[0].children.append(*it);
     }
+
+    // Now remove everything which is no longer reachable from the root of the thread mapping
+    newlyUnreachable -= threading[0].children.toSet();
+    while (!newlyUnreachable.isEmpty()) {
+        QSet<uint>::iterator it = newlyUnreachable.begin();
+        uint item = *it;
+        newlyUnreachable.erase(it);
+        QHash<uint,ThreadNodeInfo>::iterator threadingIt = threading.find(item);
+        Q_ASSERT(threadingIt != threading.end());
+        newlyUnreachable += threadingIt->children.toSet();
+        threading.erase(threadingIt);
+    }
+
     updatePersistentIndexesPhase2();
     emit layoutChanged();
 }
