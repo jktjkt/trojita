@@ -43,6 +43,8 @@ public:
 
     bool isPersistent() const;
 
+    void cancelSortingUpdates();
+
 signals:
     /** @short Sort result has arrived */
     void sortingAvailable(const QList<uint> &uids);
@@ -60,6 +62,7 @@ protected:
     virtual void _failed(const QString &errorMessage);
 private:
     CommandHandle sortTag;
+    CommandHandle cancelUpdateTag;
     ImapTask *conn;
     QPersistentModelIndex mailboxIndex;
     QStringList sortCriteria;

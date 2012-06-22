@@ -1136,6 +1136,8 @@ bool ThreadingMsgListModel::setUserSortingPreference(const SortCriterium criteri
         m_currentSortingCriteria = criterium;
         calculateNullSort();
         applySort();
+        if (m_sortTask && m_sortTask->isPersistent())
+            m_sortTask->cancelSortingUpdates();
         return true;
     }
 
@@ -1152,6 +1154,9 @@ bool ThreadingMsgListModel::setUserSortingPreference(const SortCriterium criteri
         m_currentSortingCriteria = criterium;
         calculateNullSort();
         applySort();
+
+        if (m_sortTask && m_sortTask->isPersistent())
+            m_sortTask->cancelSortingUpdates();
 
         m_sortTask = realModel->m_taskFactory->createSortTask(const_cast<Model *>(realModel), mailboxIndex, sortOptions);
         connect(m_sortTask, SIGNAL(sortingAvailable(QList<uint>)), this, SLOT(slotSortingAvailable(QList<uint>)));

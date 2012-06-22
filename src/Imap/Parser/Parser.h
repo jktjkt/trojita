@@ -227,6 +227,9 @@ public slots:
     CommandHandle uidESort(const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria,
                            const QStringList &returnOptions);
 
+    /** @short CANCELUPDATE, tell the server that it shall stop sending any ESEARCH responses associated with the given tag */
+    CommandHandle cancelUpdate(const CommandHandle &tag);
+
     /** @short ID, RFC 2971 section 3.1
 
     This variant will send the ID NIL command.

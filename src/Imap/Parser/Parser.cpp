@@ -337,6 +337,13 @@ CommandHandle Parser::uidESort(const QStringList &sortCriteria, const QString &c
                       sortCriteria, charset, searchCriteria);
 }
 
+CommandHandle Parser::cancelUpdate(const CommandHandle &tag)
+{
+    Commands::Command command("CANCELUPDATE");
+    command << Commands::PartOfCommand(Commands::QUOTED_STRING, tag);
+    return queueCommand(command);
+}
+
 CommandHandle Parser::threadHelper(const QString &command, const QString &algo, const QString &charset, const QStringList &searchCriteria)
 {
     Commands::Command cmd;

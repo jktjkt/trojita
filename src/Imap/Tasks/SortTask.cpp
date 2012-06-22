@@ -105,6 +105,11 @@ bool SortTask::handleStateHelper(const Imap::Responses::State *const resp)
             _failed("Sorting command has failed");
         }
         return true;
+    } else if (resp->tag == cancelUpdateTag) {
+        m_persistentSearch = false;
+        emit persistentSortAborted();
+        _completed();
+        return true;
     } else {
         return false;
     }
@@ -173,6 +178,13 @@ void SortTask::_failed(const QString &errorMessage)
 bool SortTask::isPersistent() const
 {
     return m_persistentSearch;
+}
+
+void SortTask::cancelSortingUpdates()
+{
+    Q_ASSERT(m_persistentSearch);
+    Q_ASSERT(!sortTag.isEmpty());
+    cancelUpdateTag = parser->cancelUpdate(sortTag);
 }
 
 }
