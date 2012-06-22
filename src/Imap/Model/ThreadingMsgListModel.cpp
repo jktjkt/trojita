@@ -372,8 +372,11 @@ void ThreadingMsgListModel::handleRowsInserted(const QModelIndex &parent, int st
             threadedRootIds.append(node.internalId);
         }
     }
-    m_currentSortResult.clear();
     endInsertRows();
+
+    if (!m_sortTask || !m_sortTask->isPersistent()) {
+        m_currentSortResult.clear();
+    }
 
     if (m_shallBeThreading)
         wantThreading();
@@ -421,7 +424,9 @@ void ThreadingMsgListModel::updateNoThreading()
     ptrToInternal.clear();
     unknownUids.clear();
     threadedRootIds.clear();
-    m_currentSortResult.clear();
+    if (!m_sortTask || !m_sortTask->isPersistent()) {
+        m_currentSortResult.clear();
+    }
 
     int upstreamMessages = sourceModel()->rowCount();
     QList<uint> allIds;
@@ -451,7 +456,9 @@ void ThreadingMsgListModel::updateNoThreading()
         threading[ 0 ].ptr = static_cast<MsgListModel *>(sourceModel())->msgList;
         threadingHelperLastId = newThreading.size();
         threadedRootIds = threading[0].children;
-        m_currentSortResult.clear();
+        if (!m_sortTask || !m_sortTask->isPersistent()) {
+            m_currentSortResult.clear();
+        }
     }
     updatePersistentIndexesPhase2();
     emit layoutChanged();
@@ -657,10 +664,15 @@ void ThreadingMsgListModel::slotThreadingAvailable(const QModelIndex &mailbox, c
 
 void ThreadingMsgListModel::slotSortingAvailable(const QList<uint> &uids)
 {
-    disconnect(m_sortTask, 0, this, SLOT(slotSortingAvailable(QList<uint>)));
-    disconnect(m_sortTask, 0, this, SLOT(slotSortingFailed()));
+    if (!m_sortTask->isPersistent()) {
+        disconnect(m_sortTask, 0, this, SLOT(slotSortingAvailable(QList<uint>)));
+        disconnect(m_sortTask, 0, this, SLOT(slotSortingFailed()));
+        disconnect(m_sortTask, 0, this, SLOT(slotSortingIncrementalUpdate(Imap::Responses::ESearch::IncrementalContextData_t)));
 
-    m_sortTask = 0;
+        m_sortTask = 0;
+    } else {
+    }
+
     m_currentSortResult = uids;
     applySort();
 }
@@ -669,10 +681,42 @@ void ThreadingMsgListModel::slotSortingFailed()
 {
     disconnect(m_sortTask, 0, this, SLOT(slotSortingAvailable(QList<uint>)));
     disconnect(m_sortTask, 0, this, SLOT(slotSortingFailed()));
+    disconnect(m_sortTask, 0, this, SLOT(slotSortingIncrementalUpdate(Imap::Responses::ESearch::IncrementalContextData_t)));
 
     m_sortTask = 0;
     m_sortReverse = false;
     calculateNullSort();
+    applySort();
+}
+
+void ThreadingMsgListModel::slotSortingIncrementalUpdate(const Responses::ESearch::IncrementalContextData_t &updates)
+{
+    for (Responses::ESearch::IncrementalContextData_t::const_iterator it = updates.constBegin(); it != updates.constEnd(); ++it) {
+        switch (it->modification) {
+        case Responses::ESearch::ContextIncrementalItem::ADDTO:
+            for (int i = 0; i < it->uids.size(); ++i)  {
+                int offset = it->offset + i;
+                if (offset < 0 || offset >= m_currentSortResult.size()) {
+                    throw MailboxException("ESEARCH: ADDTO out of bounds");
+                }
+                m_currentSortResult.insert(offset, it->uids[i]);
+            }
+            break;
+
+        case Responses::ESearch::ContextIncrementalItem::REMOVEFROM:
+            for (int i = 0; i < it->uids.size(); ++i)  {
+                int offset = it->offset + i;
+                if (offset < 0 || offset >= m_currentSortResult.size()) {
+                    throw MailboxException("ESEARCH: REMOVEFROM out of bounds");
+                }
+                if (m_currentSortResult[offset] != it->uids[i]) {
+                    throw MailboxException("ESEARCH: REMOVEFROM UID mismatch");
+                }
+                m_currentSortResult.removeAt(offset);
+            }
+            break;
+        }
+    }
     applySort();
 }
 
@@ -1112,6 +1156,8 @@ bool ThreadingMsgListModel::setUserSortingPreference(const SortCriterium criteri
         m_sortTask = realModel->m_taskFactory->createSortTask(const_cast<Model *>(realModel), mailboxIndex, sortOptions);
         connect(m_sortTask, SIGNAL(sortingAvailable(QList<uint>)), this, SLOT(slotSortingAvailable(QList<uint>)));
         connect(m_sortTask, SIGNAL(sortingFailed()), this, SLOT(slotSortingFailed()));
+        connect(m_sortTask, SIGNAL(incrementalSortUpdate(Imap::Responses::ESearch::IncrementalContextData_t)),
+                this, SLOT(slotSortingIncrementalUpdate(Imap::Responses::ESearch::IncrementalContextData_t)));
     }
 
     return true;

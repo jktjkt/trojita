@@ -41,6 +41,8 @@ public:
     virtual QVariant taskData(const int role) const;
     virtual bool needsMailbox() const {return true;}
 
+    bool isPersistent() const;
+
 signals:
     /** @short Sort result has arrived */
     void sortingAvailable(const QList<uint> &uids);
@@ -49,7 +51,7 @@ signals:
     void sortingFailed();
 
     /** @short An incremental update to the sorting criteria according to CONTEXT=SORT */
-    void slotIncrementalSortUpdate(const Imap::Responses::ESearch::IncrementalContextData_t &updates);
+    void incrementalSortUpdate(const Imap::Responses::ESearch::IncrementalContextData_t &updates);
 
     /** @short An ongoing SORT processing has been aborted */
     void persistentSortAborted();

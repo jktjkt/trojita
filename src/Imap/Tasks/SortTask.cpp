@@ -153,7 +153,7 @@ bool SortTask::handleESearch(const Responses::ESearch *const resp)
     if (!m_persistentSearch)
         throw UnexpectedResponseReceived("ESEARCH contains incremental responses even though we haven't requested that", *resp);
 
-    emit slotIncrementalSortUpdate(resp->incrementalContextData);
+    emit incrementalSortUpdate(resp->incrementalContextData);
 
     return true;
 }
@@ -168,6 +168,11 @@ void SortTask::_failed(const QString &errorMessage)
     // FIXME: show this in the GUI
     emit sortingFailed();
     ImapTask::_failed(errorMessage);
+}
+
+bool SortTask::isPersistent() const
+{
+    return m_persistentSearch;
 }
 
 }

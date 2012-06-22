@@ -884,6 +884,7 @@ void ImapModelThreadingTest::testDynamicSortingContext()
 
     // A ery basic sorting example
     cClient(t.mk("UID SORT RETURN (ALL UPDATE) (SUBJECT) utf-8 ALL\r\n"));
+    QByteArray sortTag(t.last());
     cServer("* SORT " + numListToString(expectedUidOrder) + "\r\n");
     cServer(t.last("OK sorted\r\n"));
     QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
@@ -901,6 +902,31 @@ void ImapModelThreadingTest::testDynamicSortingContext()
     QCOMPARE(msgUid6.row(), 1);
     QCOMPARE(msgUid9.row(), 0);
     QCOMPARE(msgUid10.row(), 2);
+
+    // Delivery of a new item
+    cServer("* 4 EXISTS\r\n* ESEARCH (TAG \"" + sortTag + "\") UID ADDTO (0 15)\r\n");
+    cClient(t.mk("UID FETCH 15:* (FLAGS)\r\n"));
+    cServer("* 4 FETCH (UID 15 FLAGS ())\r\n" + t.last("ok fetched\r\n"));
+    cEmpty();
+
+    // We're still showing the reversed list
+    expectedUidOrder << 15;
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    checkUidMapFromThreading(expectedUidOrder);
+    QCOMPARE(msgUid6.row(), 1);
+    QCOMPARE(msgUid9.row(), 0);
+    QCOMPARE(msgUid10.row(), 2);
+
+    // Remove one message
+    cServer("* VANISHED 9\r\n");
+    expectedUidOrder.removeOne(9);
+    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
+    checkUidMapFromThreading(expectedUidOrder);
+    QCOMPARE(msgUid6.row(), 0);
+    QVERIFY(!msgUid9.isValid());
+    QCOMPARE(msgUid10.row(), 1);
+
+    //justKeepTask();
 
     // FIXME: finalize me -- test the incrmeental updates and the mailbox handover
     // FIXME: also test behavior when we get "* NO [NOUPDATE "tag"] ..."

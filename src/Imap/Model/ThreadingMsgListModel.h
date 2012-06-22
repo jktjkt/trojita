@@ -23,6 +23,7 @@
 #define IMAP_THREADINGMSGLISTMODEL_H
 
 #include <QAbstractProxyModel>
+#include <QPointer>
 #include <QSet>
 #include "Imap/Parser/Response.h"
 
@@ -161,6 +162,9 @@ public slots:
     /** @short SORT has failed */
     void slotSortingFailed();
 
+    /** @short Dynamic update to the current SORT order */
+    void slotSortingIncrementalUpdate(const Imap::Responses::ESearch::IncrementalContextData_t &updates);
+
     void applySort();
 
     /** @short Enable or disable threading */
@@ -243,7 +247,7 @@ private:
     bool m_shallBeThreading;
 
     /** @short Task handling the SORT command */
-    SortTask *m_sortTask;
+    QPointer<SortTask> m_sortTask;
 
     /** @short Shall we sort in a reversed order? */
     bool m_sortReverse;
