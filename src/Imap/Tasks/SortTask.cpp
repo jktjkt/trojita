@@ -55,15 +55,15 @@ void SortTask::perform()
         if (model->accessParser(parser).capabilities.contains(QLatin1String("CONTEXT=SORT"))) {
             // Hurray, this IMAP server supports incremental SORT updates
             m_persistentSearch = true;
-            tag = parser->uidESort(sortCriteria, QLatin1String("utf-8"), QStringList() << QLatin1String("ALL"),
+            sortTag = parser->uidESort(sortCriteria, QLatin1String("utf-8"), QStringList() << QLatin1String("ALL"),
                                    QStringList() << QLatin1String("ALL") << QLatin1String("UPDATE"));
         } else {
             // ESORT without CONTEXT is still worth the effort, if only for the tag reference
-            tag = parser->uidESort(sortCriteria, QLatin1String("utf-8"), QStringList() << QLatin1String("ALL"), QStringList());
+            sortTag = parser->uidESort(sortCriteria, QLatin1String("utf-8"), QStringList() << QLatin1String("ALL"), QStringList());
         }
     } else {
         // Plain "old" SORT
-        tag = parser->uidSort(sortCriteria, QLatin1String("utf-8"), QStringList() << QLatin1String("ALL"));
+        sortTag = parser->uidSort(sortCriteria, QLatin1String("utf-8"), QStringList() << QLatin1String("ALL"));
     }
 }
 
@@ -75,7 +75,7 @@ bool SortTask::handleStateHelper(const Imap::Responses::State *const resp)
             const Responses::RespData<QString> *const untaggedTag = dynamic_cast<const Responses::RespData<QString>* const>(
                         resp->respCodeData.data());
             Q_ASSERT(untaggedTag);
-            if (untaggedTag->data == tag) {
+            if (untaggedTag->data == sortTag) {
                 m_persistentSearch = false;
                 emit persistentSortAborted();
 
@@ -93,7 +93,7 @@ bool SortTask::handleStateHelper(const Imap::Responses::State *const resp)
         return false;
     }
 
-    if (resp->tag == tag) {
+    if (resp->tag == sortTag) {
         m_firstCommandCompleted = true;
         if (resp->kind == Responses::OK) {
             emit sortingAvailable(sortResult);
@@ -118,7 +118,7 @@ bool SortTask::handleSort(const Imap::Responses::Sort *const resp)
 
 bool SortTask::handleESearch(const Responses::ESearch *const resp)
 {
-    if (resp->tag != tag)
+    if (resp->tag != sortTag)
         return false;
 
     if (resp->seqOrUids != Imap::Responses::ESearch::UIDS)

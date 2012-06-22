@@ -59,7 +59,7 @@ signals:
 protected:
     virtual void _failed(const QString &errorMessage);
 private:
-    CommandHandle tag;
+    CommandHandle sortTag;
     ImapTask *conn;
     QPersistentModelIndex mailboxIndex;
     QStringList sortCriteria;
