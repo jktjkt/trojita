@@ -128,7 +128,7 @@ void ThreadingMsgListModel::handleDataChanged(const QModelIndex &topLeft, const 
         emit dataChanged(rootCandidate, rootCandidate.sibling(rootCandidate.row(), translated.column()));
     }
 
-    QSet<QPersistentModelIndex>::iterator persistent = unknownUids.find(topLeft);
+    QSet<TreeItem*>::iterator persistent = unknownUids.find(static_cast<TreeItem*>(topLeft.internalPointer()));
     if (persistent != unknownUids.end()) {
         // The message wasn't fully synced before, and now it is
         persistent = unknownUids.erase(persistent);
@@ -317,6 +317,8 @@ void ThreadingMsgListModel::handleRowsAboutToBeRemoved(const QModelIndex &parent
         uint uid = index.data(Imap::Mailbox::RoleMessageUid).toUInt();
         QModelIndex translated = mapFromSource(index);
 
+        unknownUids.remove(static_cast<TreeItem*>(index.internalPointer()));
+
         if (!translated.isValid()) {
             // The index being removed wasn't visible in our mapping anyway
             continue;
@@ -327,11 +329,6 @@ void ThreadingMsgListModel::handleRowsAboutToBeRemoved(const QModelIndex &parent
         Q_ASSERT(it != threading.end());
         it->uid = 0;
         it->ptr = 0;
-        // it will get cleaned up by the pruneTree call later on
-        if (!uid) {
-            // removing message without a UID
-            unknownUids.remove(index);
-        }
     }
     emit layoutAboutToBeChanged();
     updatePersistentIndexesPhase1();
@@ -377,7 +374,7 @@ void ThreadingMsgListModel::handleRowsInserted(const QModelIndex &parent, int st
         threading[0].children << node.internalId;
         ptrToInternal[node.ptr] = node.internalId;
         if (!node.uid) {
-            unknownUids << index;
+            unknownUids << static_cast<TreeItem*>(index.internalPointer());
         } else {
             threadedRootIds.append(node.internalId);
         }
@@ -455,7 +452,7 @@ void ThreadingMsgListModel::updateNoThreading()
         allIds.append(node.internalId);
         newPtrToInternal[node.ptr] = node.internalId;
         if (!node.uid) {
-            unknownUids << index;
+            unknownUids << static_cast<TreeItem*>(index.internalPointer());
         }
     }
 

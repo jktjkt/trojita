@@ -224,7 +224,7 @@ private:
     uint threadingHelperLastId;
 
     /** @short Messages with unkown UIDs */
-    QSet<QPersistentModelIndex> unknownUids;
+    QSet<TreeItem*> unknownUids;
 
     /** @short Threading algorithm we're using for this request */
     QString requestedAlgorithm;
