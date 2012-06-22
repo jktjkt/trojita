@@ -681,7 +681,7 @@ void ThreadingMsgListModel::slotSortingAvailable(const QList<uint> &uids)
     }
 
     m_currentSortResult = uids;
-    applySort();
+    wantThreading();
 }
 
 void ThreadingMsgListModel::slotSortingFailed()
@@ -730,7 +730,7 @@ void ThreadingMsgListModel::slotSortingIncrementalUpdate(const Responses::ESearc
             break;
         }
     }
-    applySort();
+    wantThreading();
 }
 
 /** @short Store UIDs of the thread roots as the "current search order" */

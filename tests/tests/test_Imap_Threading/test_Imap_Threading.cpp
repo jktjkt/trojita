@@ -961,6 +961,12 @@ void ImapModelThreadingTest::testDynamicSortingContext()
     expectedUidOrder.removeOne(17);
     checkUidMapFromThreading(expectedUidOrder);
 
+    // Try to push it back now
+    cServer("* ESEARCH (TAG \"" + sortTag + "\") UID ADDTO (2 17)\r\n");
+    expectedUidOrder.clear();
+    expectedUidOrder << 15 << 16 << 17 << 6 << 18 << 10;
+    checkUidMapFromThreading(expectedUidOrder);
+
     //justKeepTask();
 
     // FIXME: finalize me -- test the incrmeental updates and the mailbox handover
