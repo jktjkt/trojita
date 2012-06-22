@@ -705,7 +705,7 @@ void ThreadingMsgListModel::slotSortingIncrementalUpdate(const Responses::ESearc
 
         case Responses::ESearch::ContextIncrementalItem::REMOVEFROM:
             for (int i = 0; i < it->uids.size(); ++i)  {
-                int offset = it->offset + i;
+                int offset = it->offset + i - 1;
                 if (offset < 0 || offset >= m_currentSortResult.size()) {
                     throw MailboxException("ESEARCH: REMOVEFROM out of bounds");
                 }
