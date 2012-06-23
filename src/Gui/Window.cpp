@@ -45,6 +45,7 @@
 #include "Util.h"
 #include "IconLoader.h"
 #include "ProtocolLoggerWidget.h"
+#include "MessageListWidget.h"
 #include "MessageView.h"
 #include "MsgListView.h"
 #include "SettingsDialog.h"
@@ -172,33 +173,33 @@ void MainWindow::createActions()
     markAsRead = new QAction(loadIcon(QLatin1String("mail-mark-read")),  tr("Mark as Read"), this);
     markAsRead->setCheckable(true);
     markAsRead->setShortcut(Qt::Key_M);
-    msgListTree->addAction(markAsRead);
+    msgListWidget->tree->addAction(markAsRead);
     connect(markAsRead, SIGNAL(triggered(bool)), this, SLOT(handleMarkAsRead(bool)));
 
     m_nextMessage = new QAction(tr("Next Unread Message"), this);
     m_nextMessage->setShortcut(Qt::Key_N);
-    msgListTree->addAction(m_nextMessage);
+    msgListWidget->tree->addAction(m_nextMessage);
     msgView->addAction(m_nextMessage);
     connect(m_nextMessage, SIGNAL(triggered()), this, SLOT(slotNextUnread()));
 
     m_previousMessage = new QAction(tr("Previous Unread Message"), this);
     m_previousMessage->setShortcut(Qt::Key_P);
-    msgListTree->addAction(m_previousMessage);
+    msgListWidget->tree->addAction(m_previousMessage);
     msgView->addAction(m_previousMessage);
     connect(m_previousMessage, SIGNAL(triggered()), this, SLOT(slotPreviousUnread()));
 
     markAsDeleted = new QAction(loadIcon(QLatin1String("list-remove")),  tr("Mark as Deleted"), this);
     markAsDeleted->setCheckable(true);
     markAsDeleted->setShortcut(Qt::Key_Delete);
-    msgListTree->addAction(markAsDeleted);
+    msgListWidget->tree->addAction(markAsDeleted);
     connect(markAsDeleted, SIGNAL(triggered(bool)), this, SLOT(handleMarkAsDeleted(bool)));
 
     saveWholeMessage = new QAction(loadIcon(QLatin1String("file-save")), tr("Save Message..."), this);
-    msgListTree->addAction(saveWholeMessage);
+    msgListWidget->tree->addAction(saveWholeMessage);
     connect(saveWholeMessage, SIGNAL(triggered()), this, SLOT(slotSaveCurrentMessageBody()));
 
     viewMsgHeaders = new QAction(tr("View Message Headers..."), this);
-    msgListTree->addAction(viewMsgHeaders);
+    msgListWidget->tree->addAction(viewMsgHeaders);
     connect(viewMsgHeaders, SIGNAL(triggered()), this, SLOT(slotViewMsgHeaders()));
 
     createChildMailbox = new QAction(tr("Create Child Mailbox..."), this);
@@ -395,15 +396,15 @@ void MainWindow::createWidgets()
     connect(mboxTree, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showContextMenuMboxTree(const QPoint &)));
 
-    msgListTree = new MsgListView();
-    msgListTree->setContextMenuPolicy(Qt::CustomContextMenu);
-    msgListTree->setAlternatingRowColors(true);
+    msgListWidget = new MessageListWidget();
+    msgListWidget->tree->setContextMenuPolicy(Qt::CustomContextMenu);
+    msgListWidget->tree->setAlternatingRowColors(true);
 
-    connect(msgListTree, SIGNAL(customContextMenuRequested(const QPoint &)),
+    connect(msgListWidget->tree, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showContextMenuMsgListTree(const QPoint &)));
-    connect(msgListTree, SIGNAL(activated(const QModelIndex &)), this, SLOT(msgListActivated(const QModelIndex &)));
-    connect(msgListTree, SIGNAL(clicked(const QModelIndex &)), this, SLOT(msgListClicked(const QModelIndex &)));
-    connect(msgListTree, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(msgListDoubleClicked(const QModelIndex &)));
+    connect(msgListWidget->tree, SIGNAL(activated(const QModelIndex &)), this, SLOT(msgListActivated(const QModelIndex &)));
+    connect(msgListWidget->tree, SIGNAL(clicked(const QModelIndex &)), this, SLOT(msgListClicked(const QModelIndex &)));
+    connect(msgListWidget->tree, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(msgListDoubleClicked(const QModelIndex &)));
 
     msgView = new MessageView();
     area = new QScrollArea();
@@ -418,7 +419,7 @@ void MainWindow::createWidgets()
     m_mainHSplitter = new QSplitter();
     m_mainVSplitter = new QSplitter();
     m_mainVSplitter->setOrientation(Qt::Vertical);
-    m_mainVSplitter->addWidget(msgListTree);
+    m_mainVSplitter->addWidget(msgListWidget);
     m_mainVSplitter->addWidget(area);
     m_mainHSplitter->addWidget(mboxTree);
     m_mainHSplitter->addWidget(m_mainVSplitter);
@@ -535,7 +536,11 @@ void MainWindow::setupModels()
     connect(mboxTree, SIGNAL(activated(const QModelIndex &)), msgListModel, SLOT(setMailbox(const QModelIndex &)));
     connect(msgListModel, SIGNAL(mailboxChanged()), this, SLOT(slotResizeMsgListColumns()));
     connect(msgListModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(updateMessageFlags()));
-    connect(msgListModel, SIGNAL(messagesAvailable()), msgListTree, SLOT(scrollToBottom()));
+    connect(msgListModel, SIGNAL(messagesAvailable()), msgListWidget->tree, SLOT(scrollToBottom()));
+    connect(msgListModel, SIGNAL(rowsInserted(QModelIndex,int,int)), msgListWidget, SLOT(slotRowCountChanged()));
+    connect(msgListModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), msgListWidget, SLOT(slotRowCountChanged()));
+    connect(msgListModel, SIGNAL(layoutChanged()), msgListWidget, SLOT(slotRowCountChanged()));
+    connect(msgListModel, SIGNAL(modelReset()), msgListWidget, SLOT(slotRowCountChanged()));
 
     connect(model, SIGNAL(alertReceived(const QString &)), this, SLOT(alertReceived(const QString &)));
     connect(model, SIGNAL(connectionError(const QString &)), this, SLOT(connectionError(const QString &)));
@@ -571,8 +576,8 @@ void MainWindow::setupModels()
     //ModelTest* tester = new ModelTest( prettyMboxModel, this ); // when testing, test just one model at time
 
     mboxTree->setModel(prettyMboxModel);
-    msgListTree->setModel(prettyMsgListModel);
-    connect(msgListTree->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+    msgListWidget->tree->setModel(prettyMsgListModel);
+    connect(msgListWidget->tree->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
             this, SLOT(msgListSelectionChanged(const QItemSelection &, const QItemSelection &)));
 
     allTree->setModel(model);
@@ -614,7 +619,7 @@ void MainWindow::msgListActivated(const QModelIndex &index)
 
     if (index.column() != Imap::Mailbox::MsgListModel::SEEN) {
         msgView->setMessage(index);
-        msgListTree->setCurrentIndex(index);
+        msgListWidget->tree->setCurrentIndex(index);
     }
 }
 
@@ -665,8 +670,8 @@ void MainWindow::msgListDoubleClicked(const QModelIndex &index)
 
 void MainWindow::slotResizeMsgListColumns()
 {
-    for (int i = 0; i < msgListTree->header()->count(); ++i)
-        msgListTree->resizeColumnToContents(i);
+    for (int i = 0; i < msgListWidget->tree->header()->count(); ++i)
+        msgListWidget->tree->resizeColumnToContents(i);
 }
 
 void MainWindow::showContextMenuMboxTree(const QPoint &position)
@@ -694,7 +699,7 @@ void MainWindow::showContextMenuMboxTree(const QPoint &position)
 void MainWindow::showContextMenuMsgListTree(const QPoint &position)
 {
     QList<QAction *> actionList;
-    QModelIndex index = msgListTree->indexAt(position);
+    QModelIndex index = msgListWidget->tree->indexAt(position);
     if (index.isValid()) {
         updateMessageFlags(index);
         actionList.append(markAsRead);
@@ -704,7 +709,7 @@ void MainWindow::showContextMenuMsgListTree(const QPoint &position)
         actionList.append(releaseMessageData);
     }
     if (! actionList.isEmpty())
-        QMenu::exec(actionList, msgListTree->mapToGlobal(position));
+        QMenu::exec(actionList, msgListWidget->tree->mapToGlobal(position));
 }
 
 /** @short Ask for an updated list of mailboxes situated below the selected one
@@ -883,7 +888,7 @@ void MainWindow::nukeModels()
 {
     msgView->setEmpty();
     mboxTree->setModel(0);
-    msgListTree->setModel(0);
+    msgListWidget->tree->setModel(0);
     allTree->setModel(0);
     taskTree->setModel(0);
     prettyMsgListModel->deleteLater();
@@ -909,7 +914,7 @@ void MainWindow::slotComposeMail()
 
 void MainWindow::handleMarkAsRead(bool value)
 {
-    QModelIndexList indices = msgListTree->selectionModel()->selectedIndexes();
+    QModelIndexList indices = msgListWidget->tree->selectionModel()->selectedIndexes();
     QModelIndexList translatedIndexes;
     for (QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it) {
         Q_ASSERT(it->isValid());
@@ -933,13 +938,13 @@ void MainWindow::handleMarkAsRead(bool value)
 
 void MainWindow::slotNextUnread()
 {
-    QModelIndex current = msgListTree->currentIndex();
+    QModelIndex current = msgListWidget->tree->currentIndex();
 
     bool wrapped = false;
     while (current.isValid()) {
-        if (!current.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool() && msgListTree->currentIndex() != current) {
+        if (!current.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool() && msgListWidget->tree->currentIndex() != current) {
             msgView->setMessage(current);
-            msgListTree->setCurrentIndex(current);
+            msgListWidget->tree->setCurrentIndex(current);
             return;
         }
 
@@ -955,27 +960,27 @@ void MainWindow::slotNextUnread()
             continue;
         }
 
-        while (current.isValid() && msgListTree->model()->rowCount(current.parent()) - 1 == current.row()) {
+        while (current.isValid() && msgListWidget->tree->model()->rowCount(current.parent()) - 1 == current.row()) {
             current = current.parent();
         }
         current = current.sibling(current.row() + 1, 0);
 
         if (!current.isValid() && !wrapped) {
             wrapped = true;
-            current = msgListTree->model()->index(0, 0);
+            current = msgListWidget->tree->model()->index(0, 0);
         }
     }
 }
 
 void MainWindow::slotPreviousUnread()
 {
-    QModelIndex current = msgListTree->currentIndex();
+    QModelIndex current = msgListWidget->tree->currentIndex();
 
     bool wrapped = false;
     while (current.isValid()) {
-        if (!current.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool() && msgListTree->currentIndex() != current) {
+        if (!current.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool() && msgListWidget->tree->currentIndex() != current) {
             msgView->setMessage(current);
-            msgListTree->setCurrentIndex(current);
+            msgListWidget->tree->setCurrentIndex(current);
             return;
         }
 
@@ -992,8 +997,8 @@ void MainWindow::slotPreviousUnread()
         }
         if (!current.isValid() && !wrapped) {
             wrapped = true;
-            while (msgListTree->model()->hasChildren(current)) {
-                current = msgListTree->model()->index(msgListTree->model()->rowCount(current) - 1, 0, current);
+            while (msgListWidget->tree->model()->hasChildren(current)) {
+                current = msgListWidget->tree->model()->index(msgListWidget->tree->model()->rowCount(current) - 1, 0, current);
             }
         }
     }
@@ -1001,7 +1006,7 @@ void MainWindow::slotPreviousUnread()
 
 void MainWindow::handleMarkAsDeleted(bool value)
 {
-    QModelIndexList indices = msgListTree->selectionModel()->selectedIndexes();
+    QModelIndexList indices = msgListWidget->tree->selectionModel()->selectedIndexes();
     QModelIndexList translatedIndexes;
     for (QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it) {
         Q_ASSERT(it->isValid());
@@ -1083,7 +1088,7 @@ void MainWindow::slotDeleteCurrentMailbox()
 
 void MainWindow::updateMessageFlags()
 {
-    updateMessageFlags(msgListTree->currentIndex());
+    updateMessageFlags(msgListWidget->tree->currentIndex());
 }
 
 void MainWindow::updateMessageFlags(const QModelIndex &index)
@@ -1192,7 +1197,7 @@ void MainWindow::slotDonateToTrojita()
 
 void MainWindow::slotSaveCurrentMessageBody()
 {
-    QModelIndexList indices = msgListTree->selectionModel()->selectedIndexes();
+    QModelIndexList indices = msgListWidget->tree->selectionModel()->selectedIndexes();
     for (QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it) {
         Q_ASSERT(it->isValid());
         if (it->column() != 0)
@@ -1237,7 +1242,7 @@ void MainWindow::slotDownloadMessageFileNameRequested(QString *fileName)
 
 void MainWindow::slotViewMsgHeaders()
 {
-    QModelIndexList indices = msgListTree->selectionModel()->selectedIndexes();
+    QModelIndexList indices = msgListWidget->tree->selectionModel()->selectedIndexes();
     for (QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it) {
         Q_ASSERT(it->isValid());
         if (it->column() != 0)
@@ -1294,15 +1299,15 @@ void MainWindow::slotScrollToUnseenMessage(const QModelIndex &mailbox, const QMo
         // we're using some funky sorting, better don't scroll anywhere
     }
     if (m_actionSortDescending->isChecked()) {
-        msgListTree->scrollToTop();
+        msgListWidget->tree->scrollToTop();
     } else {
-        msgListTree->scrollToBottom();
+        msgListWidget->tree->scrollToBottom();
     }
 }
 
 void MainWindow::slotReleaseSelectedMessage()
 {
-    QModelIndex index = msgListTree->currentIndex();
+    QModelIndex index = msgListWidget->tree->currentIndex();
     if (! index.isValid())
         return;
     if (! index.data(Imap::Mailbox::RoleMessageUid).isValid())
@@ -1331,24 +1336,24 @@ void MainWindow::slotThreadMsgList()
         m_actionSortThreading->setEnabled(false);
     }
 
-    QPersistentModelIndex currentItem = msgListTree->currentIndex();
+    QPersistentModelIndex currentItem = msgListWidget->tree->currentIndex();
 
     if (useThreading && actionThreadMsgList->isEnabled()) {
-        msgListTree->setRootIsDecorated(true);
+        msgListWidget->tree->setRootIsDecorated(true);
         threadingMsgListModel->setUserWantsThreading(true);
     } else {
-        msgListTree->setRootIsDecorated(false);
+        msgListWidget->tree->setRootIsDecorated(false);
         threadingMsgListModel->setUserWantsThreading(false);
     }
     QSettings().setValue(Common::SettingsNames::guiMsgListShowThreading, QVariant(useThreading));
 
     if (currentItem.isValid()) {
-        msgListTree->scrollTo(currentItem);
+        msgListWidget->tree->scrollTo(currentItem);
     } else {
         // If we cannot determine current item, at least scroll to a predictable place. Without this, the view
         // would jump to "weird" places, probably due to some heuristics about trying to show "roughly the same"
         // objects as what was visible before the reshuffling.
-        msgListTree->scrollToBottom();
+        msgListWidget->tree->scrollToBottom();
     }
 }
 
@@ -1377,7 +1382,7 @@ void MainWindow::slotSortingPreferenceChanged()
         column = -1;
     }
 
-    msgListTree->header()->setSortIndicator(column, order);
+    msgListWidget->tree->header()->setSortIndicator(column, order);
 }
 
 void MainWindow::slotSortingConfirmed(int column, Qt::SortOrder order)

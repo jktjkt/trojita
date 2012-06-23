@@ -57,7 +57,7 @@ namespace Gui
 
 class AutoCompletionModel;
 class MessageView;
-class MsgListView;
+class MessageListWidget;
 class ProtocolLoggerWidget;
 class TaskProgressIndicator;
 
@@ -157,7 +157,7 @@ private:
     AutoCompletionModel *autoCompletionModel;
 
     QTreeView *mboxTree;
-    MsgListView *msgListTree;
+    MessageListWidget *msgListWidget;
     QTreeView *allTree;
     MessageView *msgView;
     QDockWidget *allDock;
