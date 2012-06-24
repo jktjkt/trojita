@@ -147,6 +147,24 @@ bool SortTask::handleSort(const Imap::Responses::Sort *const resp)
     return true;
 }
 
+bool SortTask::handleSearch(const Imap::Responses::Search *const resp)
+{
+    if (searchConditions == QStringList() << QLatin1String("ALL")) {
+        // We're really a SORT task, so we shouldn't process this stuff
+        return false;
+    }
+
+    // The actual data for the SEARCH response can be split into several responses.
+    // Possible performance optimization might be to call sort & unique only after receiving the tagged OK,
+    // but that'd also mean that one has to keep track of whether we're doing a SORT or SEARCH from there.
+    // That just doesn't look like worth it.
+
+    sortResult += resp->items;
+    qSort(sortResult);
+    sortResult.erase(std::unique(sortResult.begin(), sortResult.end()), sortResult.end());
+    return true;
+}
+
 bool SortTask::handleESearch(const Responses::ESearch *const resp)
 {
     if (resp->tag != sortTag)
