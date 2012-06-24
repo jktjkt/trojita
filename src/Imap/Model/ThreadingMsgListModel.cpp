@@ -1201,7 +1201,7 @@ bool ThreadingMsgListModel::setUserSearchingSortingPreference(const QStringList 
 
 void ThreadingMsgListModel::applySort()
 {
-    if (!rowCount()) {
+    if (!sourceModel()->rowCount()) {
         // empty mailbox is a corner case and it's already sorted anyway
         return;
     }
