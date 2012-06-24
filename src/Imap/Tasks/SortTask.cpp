@@ -120,7 +120,7 @@ bool SortTask::handleStateHelper(const Imap::Responses::State *const resp)
         if (resp->kind == Responses::OK) {
             emit sortingAvailable(sortResult);
             if (!m_persistentSearch) {
-                // This is a one-shot operation, we shall remain as an acitve task, listening for further updates
+                // This is a one-shot operation, we shall remain as an active task, listening for further updates
                 _completed();
             }
         } else {
