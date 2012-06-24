@@ -56,9 +56,6 @@ signals:
     /** @short An incremental update to the sorting criteria according to CONTEXT=SORT */
     void incrementalSortUpdate(const Imap::Responses::ESearch::IncrementalContextData_t &updates);
 
-    /** @short An ongoing SORT processing has been aborted */
-    void persistentSortAborted();
-
 protected:
     virtual void _failed(const QString &errorMessage);
 private:

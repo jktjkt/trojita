@@ -101,7 +101,6 @@ bool SortTask::handleStateHelper(const Imap::Responses::State *const resp)
             if (untaggedTag->data == sortTag) {
                 m_persistentSearch = false;
                 model->m_taskModel->slotTaskMighHaveChanged(this);
-                emit persistentSortAborted();
 
                 if (m_firstCommandCompleted) {
                     // The server decided that it will no longer inform us about the updated SORT order, and the original
@@ -135,7 +134,6 @@ bool SortTask::handleStateHelper(const Imap::Responses::State *const resp)
     } else if (resp->tag == cancelUpdateTag) {
         m_persistentSearch = false;
         model->m_taskModel->slotTaskMighHaveChanged(this);
-        emit persistentSortAborted();
         _completed();
         return true;
     } else {
