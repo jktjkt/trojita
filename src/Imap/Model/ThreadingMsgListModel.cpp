@@ -314,7 +314,6 @@ void ThreadingMsgListModel::handleRowsAboutToBeRemoved(const QModelIndex &parent
     for (int i = start; i <= end; ++i) {
         QModelIndex index = sourceModel()->index(i, 0, parent);
         Q_ASSERT(index.isValid());
-        uint uid = index.data(Imap::Mailbox::RoleMessageUid).toUInt();
         QModelIndex translated = mapFromSource(index);
 
         unknownUids.remove(static_cast<TreeItem*>(index.internalPointer()));
@@ -671,7 +670,6 @@ void ThreadingMsgListModel::slotSortingAvailable(const QList<uint> &uids)
         disconnect(m_sortTask, 0, this, SLOT(slotSortingIncrementalUpdate(Imap::Responses::ESearch::IncrementalContextData_t)));
 
         m_sortTask = 0;
-    } else {
     }
 
     m_currentSortResult = uids;
