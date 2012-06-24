@@ -54,9 +54,9 @@ namespace Mailbox
 
 ThreadingMsgListModel::ThreadingMsgListModel(QObject *parent):
     QAbstractProxyModel(parent), threadingHelperLastId(0), modelResetInProgress(false), threadingInFlight(false),
-    m_shallBeThreading(false), m_sortTask(0), m_sortReverse(false), m_currentSortingCriteria(SORT_NONE)
+    m_shallBeThreading(false), m_sortTask(0), m_sortReverse(false), m_currentSortingCriteria(SORT_NONE),
+    m_searchValidity(SEARCH_RESULT_INVALIDATED)
 {
-    m_currentSearchConditions << QLatin1String("ALL");
 }
 
 void ThreadingMsgListModel::setSourceModel(QAbstractItemModel *sourceModel)
@@ -66,6 +66,7 @@ void ThreadingMsgListModel::setSourceModel(QAbstractItemModel *sourceModel)
     unknownUids.clear();
     threadedRootIds.clear();
     m_currentSortResult.clear();
+    m_searchValidity = SEARCH_RESULT_INVALIDATED;
 
     if (this->sourceModel()) {
         // there's already something, so take care to disconnect all signals
@@ -383,6 +384,8 @@ void ThreadingMsgListModel::handleRowsInserted(const QModelIndex &parent, int st
 
     if (!m_sortTask || !m_sortTask->isPersistent()) {
         m_currentSortResult.clear();
+        if (m_searchValidity == SEARCH_RESULT_FRESH)
+            m_searchValidity = SEARCH_RESULT_INVALIDATED;
     }
 
     if (m_shallBeThreading)
@@ -401,6 +404,7 @@ void ThreadingMsgListModel::resetMe()
     unknownUids.clear();
     threadedRootIds.clear();
     m_currentSortResult.clear();
+    m_searchValidity = SEARCH_RESULT_INVALIDATED;
     reset();
     updateNoThreading();
     modelResetInProgress = false;
@@ -679,6 +683,8 @@ void ThreadingMsgListModel::slotSortingAvailable(const QList<uint> &uids)
     }
 
     m_currentSortResult = uids;
+    if (m_searchValidity == SEARCH_RESULT_ASKED)
+        m_searchValidity = SEARCH_RESULT_FRESH;
     wantThreading();
 }
 
@@ -728,6 +734,7 @@ void ThreadingMsgListModel::slotSortingIncrementalUpdate(const Responses::ESearc
             break;
         }
     }
+    m_searchValidity = SEARCH_RESULT_FRESH;
     wantThreading();
 }
 
@@ -743,6 +750,7 @@ void ThreadingMsgListModel::calculateNullSort()
         if (it->uid)
             m_currentSortResult.append(it->uid);
     }
+    m_searchValidity = SEARCH_RESULT_FRESH;
 }
 
 void ThreadingMsgListModel::applyThreading(const QVector<Imap::Responses::ThreadingNode> &mapping)
@@ -1161,7 +1169,7 @@ bool ThreadingMsgListModel::setUserSearchingSortingPreference(const QStringList 
             calculateNullSort();
             applySort();
             return true;
-        } else if (searchConditions != m_currentSearchConditions) {
+        } else if (searchConditions != m_currentSearchConditions || m_searchValidity != SEARCH_RESULT_FRESH) {
             // We have to update our search conditions
             m_sortTask = realModel->m_taskFactory->createSortTask(const_cast<Model *>(realModel), mailboxIndex, searchConditions,
                                                                   QStringList());
@@ -1172,12 +1180,7 @@ bool ThreadingMsgListModel::setUserSearchingSortingPreference(const QStringList 
             m_currentSearchConditions = searchConditions;
         } else {
             // A result of SEARCH has just arrived
-
-            // FIXME: hack for the initial sync, check with tests!
-            if (m_currentSortResult.isEmpty() && realModel->rowCount(realModel->index(0, 0, mailboxIndex))) {
-                calculateNullSort();
-            }
-
+            Q_ASSERT(m_searchValidity == SEARCH_RESULT_FRESH);
             applySort();
         }
 
@@ -1190,12 +1193,11 @@ bool ThreadingMsgListModel::setUserSearchingSortingPreference(const QStringList 
     }
 
     Q_ASSERT(!sortOptions.isEmpty());
-    if (m_currentSortingCriteria == criterium && m_currentSearchConditions == searchConditions
-            // FIXME: hack for the initial sync, check with tests!
-            && ! (m_currentSortResult.isEmpty() && realModel->rowCount(realModel->index(0, 0, mailboxIndex)))) {
+
+    if (m_currentSortingCriteria == criterium && m_currentSearchConditions == searchConditions &&
+            m_searchValidity != SEARCH_RESULT_INVALIDATED) {
         applySort();
     } else {
-        // FIXME: guard against multiple SORTs in future; this is a bit tricky, we cannot just return false from here
         m_currentSearchConditions = searchConditions;
         m_currentSortingCriteria = criterium;
         calculateNullSort();
@@ -1209,6 +1211,7 @@ bool ThreadingMsgListModel::setUserSearchingSortingPreference(const QStringList 
         connect(m_sortTask, SIGNAL(sortingFailed()), this, SLOT(slotSortingFailed()));
         connect(m_sortTask, SIGNAL(incrementalSortUpdate(Imap::Responses::ESearch::IncrementalContextData_t)),
                 this, SLOT(slotSortingIncrementalUpdate(Imap::Responses::ESearch::IncrementalContextData_t)));
+        m_searchValidity = SEARCH_RESULT_ASKED;
     }
 
     return true;
