@@ -142,6 +142,7 @@ public:
     */
     static QStringList supportedCapabilities();
 
+    QStringList currentSearchCondition() const;
     SortCriterium currentSortCriterium() const;
     Qt::SortOrder currentSortOrder() const;
 
@@ -173,7 +174,8 @@ public slots:
     /** @short Enable or disable threading */
     void setUserWantsThreading(bool enable);
 
-    bool setUserSortingPreference(const SortCriterium criterium, const Qt::SortOrder order = Qt::AscendingOrder);
+    bool setUserSearchingSortingPreference(const QStringList &searchConditions, const SortCriterium criterium,
+                                           const Qt::SortOrder order = Qt::AscendingOrder);
 
 private slots:
     /** @short Display messages without any threading at all, as a liner list */
@@ -260,6 +262,9 @@ private:
 
     /** @short Sorting criteria of the current copy of the sort result */
     SortCriterium m_currentSortingCriteria;
+
+    /** @short Search criteria of the current copy of the search/sort result */
+    QStringList m_currentSearchConditions;
 
     /** @short The current result of the SORT operation
 

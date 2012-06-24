@@ -85,7 +85,7 @@ public:
     virtual ThreadTask *createThreadTask(Model *model, const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria);
     virtual NoopTask *createNoopTask(Model *model, ImapTask *parentTask);
     virtual UnSelectTask *createUnSelectTask(Model *model, ImapTask *parentTask);
-    virtual SortTask *createSortTask(Model *model, const QModelIndex &mailbox, const QStringList &sortCriteria);
+    virtual SortTask *createSortTask(Model *model, const QModelIndex &mailbox, const QStringList &searchConditions, const QStringList &sortCriteria);
 };
 
 class TestingTaskFactory: public TaskFactory

@@ -29,9 +29,9 @@ namespace Mailbox
 {
 
 
-SortTask::SortTask(Model *model, const QModelIndex &mailbox, const QStringList &sortCriteria):
-    ImapTask(model), mailboxIndex(mailbox), sortCriteria(sortCriteria), m_persistentSearch(false), m_firstUntaggedReceived(false),
-    m_firstCommandCompleted(false)
+SortTask::SortTask(Model *model, const QModelIndex &mailbox, const QStringList &searchConditions, const QStringList &sortCriteria):
+    ImapTask(model), mailboxIndex(mailbox), searchConditions(searchConditions), sortCriteria(sortCriteria),
+    m_persistentSearch(false), m_firstUntaggedReceived(false), m_firstCommandCompleted(false)
 {
     conn = model->findTaskResponsibleFor(mailbox);
     conn->addDependentTask(this);

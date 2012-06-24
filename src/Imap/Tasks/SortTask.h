@@ -32,7 +32,7 @@ class SortTask : public ImapTask
 {
     Q_OBJECT
 public:
-    SortTask(Model *model, const QModelIndex &mailbox, const QStringList &sortCriteria);
+    SortTask(Model *model, const QModelIndex &mailbox, const QStringList &searchConditions, const QStringList &sortCriteria);
     virtual void perform();
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
@@ -65,6 +65,7 @@ private:
     CommandHandle cancelUpdateTag;
     ImapTask *conn;
     QPersistentModelIndex mailboxIndex;
+    QStringList searchConditions;
     QStringList sortCriteria;
     QList<uint> sortResult;
 

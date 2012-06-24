@@ -56,6 +56,7 @@ ThreadingMsgListModel::ThreadingMsgListModel(QObject *parent):
     QAbstractProxyModel(parent), threadingHelperLastId(0), modelResetInProgress(false), threadingInFlight(false),
     m_shallBeThreading(false), m_sortTask(0), m_sortReverse(false), m_currentSortingCriteria(SORT_NONE)
 {
+    m_currentSearchConditions << QLatin1String("ALL");
 }
 
 void ThreadingMsgListModel::setSourceModel(QAbstractItemModel *sourceModel)
@@ -468,7 +469,7 @@ void ThreadingMsgListModel::wantThreading()
 {
     if (!sourceModel() || !sourceModel()->rowCount() || !m_shallBeThreading) {
         updateNoThreading();
-        setUserSortingPreference(m_currentSortingCriteria, m_sortReverse ? Qt::DescendingOrder : Qt::AscendingOrder);
+        setUserSearchingSortingPreference(m_currentSearchConditions, m_currentSortingCriteria, m_sortReverse ? Qt::DescendingOrder : Qt::AscendingOrder);
         return;
     }
 
@@ -490,7 +491,7 @@ void ThreadingMsgListModel::wantThreading()
         // See, at the indicated (***) place, we already have an in-flight THREAD request and receive UID for newly arrived
         // message.  We certainly don't want to ask for threading once again; it's better to wait a bit and only ask when the
         // to-be-received THREAD does not contain all required UIDs.
-        setUserSortingPreference(m_currentSortingCriteria, m_sortReverse ? Qt::DescendingOrder : Qt::AscendingOrder);
+        setUserSearchingSortingPreference(m_currentSearchConditions, m_currentSortingCriteria, m_sortReverse ? Qt::DescendingOrder : Qt::AscendingOrder);
         return;
     }
 
@@ -821,7 +822,7 @@ void ThreadingMsgListModel::applyThreading(const QVector<Imap::Responses::Thread
     emit layoutChanged();
 
     // If the sorting was active before, we shall reactivate it now
-    setUserSortingPreference(m_currentSortingCriteria, m_sortReverse ? Qt::DescendingOrder : Qt::AscendingOrder);
+    setUserSearchingSortingPreference(m_currentSearchConditions, m_currentSortingCriteria, m_sortReverse ? Qt::DescendingOrder : Qt::AscendingOrder);
 }
 
 void ThreadingMsgListModel::registerThreading(const QVector<Imap::Responses::ThreadingNode> &mapping, uint parentId, const QHash<uint,void *> &uidToPtr, QSet<uint> &usedNodes)
@@ -1093,7 +1094,7 @@ void ThreadingMsgListModel::setUserWantsThreading(bool enable)
     }
 }
 
-bool ThreadingMsgListModel::setUserSortingPreference(const SortCriterium criterium, const Qt::SortOrder order)
+bool ThreadingMsgListModel::setUserSearchingSortingPreference(const QStringList &searchConditions, const SortCriterium criterium, const Qt::SortOrder order)
 {
     Q_ASSERT(sourceModel());
     if (!sourceModel()->rowCount()) {
@@ -1141,7 +1142,8 @@ bool ThreadingMsgListModel::setUserSortingPreference(const SortCriterium criteri
         sortOptions << (hasDisplaySort ? QLatin1String("DISPLAYTO") : QLatin1String("TO"));
         break;
     case SORT_NONE:
-        // This operaiton is special, it will immediately restore the original sort order
+        // FIXME: support searching here
+        // This operation is special, it will immediately restore the original sort order
         m_currentSortingCriteria = criterium;
         calculateNullSort();
         applySort();
@@ -1160,6 +1162,7 @@ bool ThreadingMsgListModel::setUserSortingPreference(const SortCriterium criteri
         applySort();
     } else {
         // FIXME: guard against multiple SORTs in future; this is a bit tricky, we cannot just return false from here
+        m_currentSearchConditions = searchConditions;
         m_currentSortingCriteria = criterium;
         calculateNullSort();
         applySort();
@@ -1167,7 +1170,7 @@ bool ThreadingMsgListModel::setUserSortingPreference(const SortCriterium criteri
         if (m_sortTask && m_sortTask->isPersistent())
             m_sortTask->cancelSortingUpdates();
 
-        m_sortTask = realModel->m_taskFactory->createSortTask(const_cast<Model *>(realModel), mailboxIndex, sortOptions);
+        m_sortTask = realModel->m_taskFactory->createSortTask(const_cast<Model *>(realModel), mailboxIndex, searchConditions, sortOptions);
         connect(m_sortTask, SIGNAL(sortingAvailable(QList<uint>)), this, SLOT(slotSortingAvailable(QList<uint>)));
         connect(m_sortTask, SIGNAL(sortingFailed()), this, SLOT(slotSortingFailed()));
         connect(m_sortTask, SIGNAL(incrementalSortUpdate(Imap::Responses::ESearch::IncrementalContextData_t)),
@@ -1232,6 +1235,11 @@ void ThreadingMsgListModel::applySort()
 
     updatePersistentIndexesPhase2();
     emit layoutChanged();
+}
+
+QStringList ThreadingMsgListModel::currentSearchCondition() const
+{
+    return m_currentSearchConditions;
 }
 
 ThreadingMsgListModel::SortCriterium ThreadingMsgListModel::currentSortCriterium() const
