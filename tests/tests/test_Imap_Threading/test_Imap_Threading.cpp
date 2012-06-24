@@ -790,25 +790,16 @@ void ImapModelThreadingTest::testDynamicSorting()
     QCOMPARE(msgUid6.row(), 1);
     QCOMPARE(msgUid9.row(), 0);
     QCOMPARE(msgUid10.row(), 2);
-    // Deliver the UID; it will get listed as the last item and the delivered SORT will get thrown away correctly.
-    // That behavior is correct because there's an opportunity for races -- the client wanted updated threading at the
-    // same time as when the server delivered its notice about new arrival and because we don't cache SORT responses at this point,
-    // we got to discrard that data.
+    // Deliver the UID; it will get listed as the last item. Now because we do cache the raw (UID-based) form of SORT/SEARCH,
+    // the last SORT result will be reused.
+    // Previously (when SORT responses weren't cached), this would require a asking for SORT once again; that is no longer
+    // necessary.
     cServer(delayedUidFetch);
     uidMap.removeOne(0);
     uidMap << 17;
-    expectedUidOrder = uidMap;
-    QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
-    checkUidMapFromThreading(expectedUidOrder);
-    QCOMPARE(msgUid6.row(), 0);
-    QCOMPARE(msgUid9.row(), 1);
-    QCOMPARE(msgUid10.row(), 2);
-    // At this point, new sorting shall be requested
-    cClient(t.mk("UID SORT RETURN () (DISPLAYFROM) utf-8 ALL\r\n"));
+    // The sorted result previously didn't contain the missing UID, so we'll refill the expected order now
     expectedUidOrder.clear();
     expectedUidOrder << 9 << 17 << 6 << 10;
-    cServer(QString::fromAscii("* ESEARCH (TAG \"%1\") UID ALL %2\r\n%1 OK sorted\r\n")
-            .arg(QString::fromAscii(t.last()), QString::fromAscii(numListToString(expectedUidOrder).replace(' ', ','))).toAscii());
     QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
     checkUidMapFromThreading(expectedUidOrder);
     QCOMPARE(msgUid6.row(), 2);
