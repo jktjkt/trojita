@@ -37,12 +37,17 @@ class MessageListWidget : public QWidget
 public:
     explicit MessageListWidget(QWidget *parent = 0);
 
+    QStringList searchConditions() const;
+
     // FIXME: consider making this private and moving the logic from Window with it
     MsgListView *tree;
 
+signals:
+    void requestingSearch(const QStringList &conditions);
+
 protected slots:
     void slotApplySearch();
-    void slotRowCountChanged();
+    void slotAutoEnableDisableSearch();
 
 private:
     QLineEdit *m_quickSearchText;

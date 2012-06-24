@@ -120,6 +120,7 @@ private slots:
     void slotHideRead();
     void slotSortingPreferenceChanged();
     void slotSortingConfirmed(int column, Qt::SortOrder order);
+    void slotSearchRequested(const QStringList &searchConditions);
     void slotCapabilitiesUpdated(const QStringList &capabilities);
 
     void slotMailboxDeleteFailed(const QString &mailbox, const QString &msg);

@@ -47,19 +47,27 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
 
 void MessageListWidget::slotApplySearch()
 {
-    if (m_quickSearchText->text().isEmpty())
+    if (!m_quickSearchText->isEnabled() || m_quickSearchText->text().isEmpty())
         return;
 
-    qDebug() << "FIXME: Will search for" << m_quickSearchText->text();
+    emit requestingSearch(searchConditions());
 }
 
-void MessageListWidget::slotRowCountChanged()
+void MessageListWidget::slotAutoEnableDisableSearch()
 {
     if (tree && tree->model()) {
         m_quickSearchText->setEnabled(tree->model()->rowCount());
     } else {
         m_quickSearchText->setEnabled(false);
     }
+}
+
+QStringList MessageListWidget::searchConditions() const
+{
+    if (!m_quickSearchText->isEnabled() || m_quickSearchText->text().isEmpty())
+        return QStringList() << QLatin1String("ALL");
+
+    return QStringList() << QLatin1String("SUBJECT") << m_quickSearchText->text();
 }
 
 }

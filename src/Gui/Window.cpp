@@ -405,6 +405,7 @@ void MainWindow::createWidgets()
     connect(msgListWidget->tree, SIGNAL(activated(const QModelIndex &)), this, SLOT(msgListActivated(const QModelIndex &)));
     connect(msgListWidget->tree, SIGNAL(clicked(const QModelIndex &)), this, SLOT(msgListClicked(const QModelIndex &)));
     connect(msgListWidget->tree, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(msgListDoubleClicked(const QModelIndex &)));
+    connect(msgListWidget, SIGNAL(requestingSearch(QStringList)), this, SLOT(slotSearchRequested(QStringList)));
 
     msgView = new MessageView();
     area = new QScrollArea();
@@ -537,10 +538,10 @@ void MainWindow::setupModels()
     connect(msgListModel, SIGNAL(mailboxChanged()), this, SLOT(slotResizeMsgListColumns()));
     connect(msgListModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(updateMessageFlags()));
     connect(msgListModel, SIGNAL(messagesAvailable()), msgListWidget->tree, SLOT(scrollToBottom()));
-    connect(msgListModel, SIGNAL(rowsInserted(QModelIndex,int,int)), msgListWidget, SLOT(slotRowCountChanged()));
-    connect(msgListModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), msgListWidget, SLOT(slotRowCountChanged()));
-    connect(msgListModel, SIGNAL(layoutChanged()), msgListWidget, SLOT(slotRowCountChanged()));
-    connect(msgListModel, SIGNAL(modelReset()), msgListWidget, SLOT(slotRowCountChanged()));
+    connect(msgListModel, SIGNAL(rowsInserted(QModelIndex,int,int)), msgListWidget, SLOT(slotAutoEnableDisableSearch()));
+    connect(msgListModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), msgListWidget, SLOT(slotAutoEnableDisableSearch()));
+    connect(msgListModel, SIGNAL(layoutChanged()), msgListWidget, SLOT(slotAutoEnableDisableSearch()));
+    connect(msgListModel, SIGNAL(modelReset()), msgListWidget, SLOT(slotAutoEnableDisableSearch()));
 
     connect(model, SIGNAL(alertReceived(const QString &)), this, SLOT(alertReceived(const QString &)));
     connect(model, SIGNAL(connectionError(const QString &)), this, SLOT(connectionError(const QString &)));
@@ -1434,6 +1435,11 @@ void MainWindow::slotSortingConfirmed(int column, Qt::SortOrder order)
         m_actionSortDescending->setChecked(true);
     else
         m_actionSortAscending->setChecked(true);
+}
+
+void MainWindow::slotSearchRequested(const QStringList &searchConditions)
+{
+    // FIXME
 }
 
 void MainWindow::slotHideRead()
