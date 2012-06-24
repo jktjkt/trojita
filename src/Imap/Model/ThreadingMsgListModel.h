@@ -196,6 +196,9 @@ private:
     void registerThreading(const QVector<Imap::Responses::ThreadingNode> &mapping, uint parentId,
                            const QHash<uint,void *> &uidToPtr, QSet<uint> &usedNodes);
 
+    bool searchSortPreferenceImplementation(const QStringList &searchConditions, const SortCriterium criterium,
+                                            const Qt::SortOrder order = Qt::AscendingOrder);
+
     /** @short Remove fake messages from the threading tree */
     void pruneTree();
 
