@@ -142,6 +142,9 @@ public:
     */
     static QStringList supportedCapabilities();
 
+    SortCriterium currentSortCriterium() const;
+    Qt::SortOrder currentSortOrder() const;
+
 public slots:
     void resetMe();
     void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);

@@ -1234,5 +1234,15 @@ void ThreadingMsgListModel::applySort()
     emit layoutChanged();
 }
 
+ThreadingMsgListModel::SortCriterium ThreadingMsgListModel::currentSortCriterium() const
+{
+    return m_currentSortingCriteria;
+}
+
+Qt::SortOrder ThreadingMsgListModel::currentSortOrder() const
+{
+    return m_sortReverse ? Qt::DescendingOrder : Qt::AscendingOrder;
+}
+
 }
 }
