@@ -35,6 +35,8 @@ SortTask::SortTask(Model *model, const QModelIndex &mailbox, const QStringList &
 {
     conn = model->findTaskResponsibleFor(mailbox);
     conn->addDependentTask(this);
+    if (searchConditions.isEmpty())
+        this->searchConditions << QLatin1String("ALL");
 }
 
 void SortTask::perform()

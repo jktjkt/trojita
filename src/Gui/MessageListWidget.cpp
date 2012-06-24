@@ -47,9 +47,6 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
 
 void MessageListWidget::slotApplySearch()
 {
-    if (!m_quickSearchText->isEnabled() || m_quickSearchText->text().isEmpty())
-        return;
-
     emit requestingSearch(searchConditions());
 }
 
@@ -65,7 +62,7 @@ void MessageListWidget::slotAutoEnableDisableSearch()
 QStringList MessageListWidget::searchConditions() const
 {
     if (!m_quickSearchText->isEnabled() || m_quickSearchText->text().isEmpty())
-        return QStringList() << QLatin1String("ALL");
+        return QStringList();
 
     return QStringList() << QLatin1String("SUBJECT") << m_quickSearchText->text();
 }

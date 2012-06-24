@@ -1142,13 +1142,40 @@ bool ThreadingMsgListModel::setUserSearchingSortingPreference(const QStringList 
         sortOptions << (hasDisplaySort ? QLatin1String("DISPLAYTO") : QLatin1String("TO"));
         break;
     case SORT_NONE:
-        // FIXME: support searching here
-        // This operation is special, it will immediately restore the original sort order
-        m_currentSortingCriteria = criterium;
-        calculateNullSort();
-        applySort();
-        if (m_sortTask && m_sortTask->isPersistent())
+        if (m_sortTask && m_sortTask->isPersistent() &&
+                (m_currentSearchConditions != searchConditions || m_currentSortingCriteria != criterium)) {
+            // Any change shall result in us killing that sort task
             m_sortTask->cancelSortingUpdates();
+        }
+
+        m_currentSortingCriteria = criterium;
+
+        if (searchConditions.isEmpty()) {
+            // This operation is special, it will immediately restore the original shape of the mailbox
+            m_currentSearchConditions = searchConditions;
+            calculateNullSort();
+            applySort();
+            return true;
+        } else if (searchConditions != m_currentSearchConditions) {
+            // We have to update our search conditions
+            m_sortTask = realModel->m_taskFactory->createSortTask(const_cast<Model *>(realModel), mailboxIndex, searchConditions,
+                                                                  QStringList());
+            connect(m_sortTask, SIGNAL(sortingAvailable(QList<uint>)), this, SLOT(slotSortingAvailable(QList<uint>)));
+            connect(m_sortTask, SIGNAL(sortingFailed()), this, SLOT(slotSortingFailed()));
+            connect(m_sortTask, SIGNAL(incrementalSortUpdate(Imap::Responses::ESearch::IncrementalContextData_t)),
+                    this, SLOT(slotSortingIncrementalUpdate(Imap::Responses::ESearch::IncrementalContextData_t)));
+            m_currentSearchConditions = searchConditions;
+        } else {
+            // A result of SEARCH has just arrived
+
+            // FIXME: hack for the initial sync, check with tests!
+            if (m_currentSortResult.isEmpty() && realModel->rowCount(realModel->index(0, 0, mailboxIndex))) {
+                calculateNullSort();
+            }
+
+            applySort();
+        }
+
         return true;
     }
 
@@ -1158,7 +1185,9 @@ bool ThreadingMsgListModel::setUserSearchingSortingPreference(const QStringList 
     }
 
     Q_ASSERT(!sortOptions.isEmpty());
-    if (m_currentSortingCriteria == criterium && !m_currentSortResult.isEmpty()) {
+    if (m_currentSortingCriteria == criterium && m_currentSearchConditions == searchConditions
+            // FIXME: hack for the initial sync, check with tests!
+            && ! (m_currentSortResult.isEmpty() && realModel->rowCount(realModel->index(0, 0, mailboxIndex)))) {
         applySort();
     } else {
         // FIXME: guard against multiple SORTs in future; this is a bit tricky, we cannot just return false from here
