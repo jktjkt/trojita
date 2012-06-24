@@ -185,12 +185,18 @@ private slots:
     /** @short Ask the model for a THREAD response */
     void askForThreading();
 
-    /** @short Apply cached THREAD response or ask for threading again */
-    void wantThreading();
-
 private:
     void updatePersistentIndexesPhase1();
     void updatePersistentIndexesPhase2();
+
+    /** @short Shall we ask for SORT/SEARCH automatically? */
+    typedef enum {
+        AUTO_SORT_SEARCH,
+        SKIP_SORT_SEARCH
+    } SkipSortSearch;
+
+    /** @short Apply cached THREAD response or ask for threading again */
+    void wantThreading(const SkipSortSearch skipSortSearch = AUTO_SORT_SEARCH);
 
     /** @short Convert the threading from a THREAD response and apply that threading to this model */
     void registerThreading(const QVector<Imap::Responses::ThreadingNode> &mapping, uint parentId,

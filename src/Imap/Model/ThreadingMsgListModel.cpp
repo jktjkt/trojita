@@ -451,11 +451,13 @@ void ThreadingMsgListModel::updateNoThreading()
     emit layoutChanged();
 }
 
-void ThreadingMsgListModel::wantThreading()
+void ThreadingMsgListModel::wantThreading(const SkipSortSearch skipSortSearch)
 {
     if (!sourceModel() || !sourceModel()->rowCount() || !m_shallBeThreading) {
         updateNoThreading();
-        searchSortPreferenceImplementation(m_currentSearchConditions, m_currentSortingCriteria, m_sortReverse ? Qt::DescendingOrder : Qt::AscendingOrder);
+        if (skipSortSearch == AUTO_SORT_SEARCH) {
+            searchSortPreferenceImplementation(m_currentSearchConditions, m_currentSortingCriteria, m_sortReverse ? Qt::DescendingOrder : Qt::AscendingOrder);
+        }
         return;
     }
 
@@ -477,7 +479,9 @@ void ThreadingMsgListModel::wantThreading()
         // See, at the indicated (***) place, we already have an in-flight THREAD request and receive UID for newly arrived
         // message.  We certainly don't want to ask for threading once again; it's better to wait a bit and only ask when the
         // to-be-received THREAD does not contain all required UIDs.
-        searchSortPreferenceImplementation(m_currentSearchConditions, m_currentSortingCriteria, m_sortReverse ? Qt::DescendingOrder : Qt::AscendingOrder);
+        if (skipSortSearch == AUTO_SORT_SEARCH) {
+            searchSortPreferenceImplementation(m_currentSearchConditions, m_currentSortingCriteria, m_sortReverse ? Qt::DescendingOrder : Qt::AscendingOrder);
+        }
         return;
     }
 
@@ -1091,7 +1095,7 @@ void ThreadingMsgListModel::setUserWantsThreading(bool enable)
 
 bool ThreadingMsgListModel::setUserSearchingSortingPreference(const QStringList &searchConditions, const SortCriterium criterium, const Qt::SortOrder order)
 {
-    wantThreading();
+    wantThreading(SKIP_SORT_SEARCH);
     return searchSortPreferenceImplementation(searchConditions, criterium, order);
 }
 
