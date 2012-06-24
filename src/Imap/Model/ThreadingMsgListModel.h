@@ -40,6 +40,7 @@ namespace Mailbox
 
 class SortTask;
 class TreeItem;
+class TreeItemMsgList;
 
 /** @short A node in tree structure used for threading representation */
 struct ThreadNodeInfo {
@@ -209,6 +210,8 @@ private:
     static uint findHighEnoughNumber(const QVector<Imap::Responses::ThreadingNode> &mapping, uint marker);
 
     void calculateNullSort();
+
+    uint findHighestUidInMailbox(TreeItemMsgList *list);
 
     void logTrace(const QString &message);
 
