@@ -173,9 +173,13 @@ bool SortTask::handleESearch(const Responses::ESearch *const resp)
     Q_ASSERT(allIterator == resp->listData.constEnd());
 
     if (resp->incrementalContextData.isEmpty()) {
-        throw UnexpectedResponseReceived("ESEARCH response to UID SORT doesn't contain any of the ALL, ADDTO or REMOVEFROM data",
-                                         *resp);
+        sortResult.clear();
+        // This means that there have been no matches
+        // FIXME: cover this in the test suite!
+        return true;
     }
+
+    Q_ASSERT(!resp->incrementalContextData.isEmpty());
 
     if (!m_persistentSearch)
         throw UnexpectedResponseReceived("ESEARCH contains incremental responses even though we haven't requested that", *resp);
