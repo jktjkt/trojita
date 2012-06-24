@@ -42,6 +42,7 @@ public:
     virtual bool needsMailbox() const {return true;}
 
     bool isPersistent() const;
+    bool isJustUpdatingNow() const;
 
     void cancelSortingUpdates();
 

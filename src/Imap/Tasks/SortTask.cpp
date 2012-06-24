@@ -22,6 +22,7 @@
 #include "KeepMailboxOpenTask.h"
 #include "Model.h"
 #include "MailboxTree.h"
+#include "TaskPresentationModel.h"
 
 namespace Imap
 {
@@ -99,6 +100,7 @@ bool SortTask::handleStateHelper(const Imap::Responses::State *const resp)
             Q_ASSERT(untaggedTag);
             if (untaggedTag->data == sortTag) {
                 m_persistentSearch = false;
+                model->m_taskModel->slotTaskMighHaveChanged(this);
                 emit persistentSortAborted();
 
                 if (m_firstCommandCompleted) {
@@ -122,6 +124,9 @@ bool SortTask::handleStateHelper(const Imap::Responses::State *const resp)
             if (!m_persistentSearch) {
                 // This is a one-shot operation, we shall remain as an active task, listening for further updates
                 _completed();
+            } else {
+                // got to prod the TaskPresentationModel
+                model->m_taskModel->slotTaskMighHaveChanged(this);
             }
         } else {
             _failed("Sorting command has failed");
@@ -129,6 +134,7 @@ bool SortTask::handleStateHelper(const Imap::Responses::State *const resp)
         return true;
     } else if (resp->tag == cancelUpdateTag) {
         m_persistentSearch = false;
+        model->m_taskModel->slotTaskMighHaveChanged(this);
         emit persistentSortAborted();
         _completed();
         return true;
@@ -204,6 +210,12 @@ void SortTask::_failed(const QString &errorMessage)
 bool SortTask::isPersistent() const
 {
     return m_persistentSearch;
+}
+
+/** @short Return true if this task has already done its job and is now merely listening for further updates */
+bool SortTask::isJustUpdatingNow() const
+{
+    return isPersistent() && m_firstCommandCompleted;
 }
 
 void SortTask::cancelSortingUpdates()

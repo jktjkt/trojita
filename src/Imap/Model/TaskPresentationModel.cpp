@@ -26,6 +26,7 @@
 #include "Model.h"
 #include "NoopTask.h"
 #include "OpenConnectionTask.h"
+#include "SortTask.h"
 #include "UnSelectTask.h"
 
 #ifdef TROJITA_DEBUG_TASK_TREE
@@ -177,6 +178,9 @@ QVariant TaskPresentationModel::data(const QModelIndex &index, int role) const
             dynamic_cast<UnSelectTask *>(task)) {
             // Internal, auxiliary tasks
             // FIXME: revisit this for the KeepMailboxOpenTask; it *can* perform a certain activity after all
+            return false;
+        } else if (dynamic_cast<SortTask *>(task) && dynamic_cast<SortTask *>(task)->isJustUpdatingNow()) {
+            // This is a persistent task responsible for further maintenance of the sort order
             return false;
         } else {
             return true;
