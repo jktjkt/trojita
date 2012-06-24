@@ -1160,6 +1160,7 @@ bool ThreadingMsgListModel::setUserSearchingSortingPreference(const QStringList 
             connect(m_sortTask, SIGNAL(incrementalSortUpdate(Imap::Responses::ESearch::IncrementalContextData_t)),
                     this, SLOT(slotSortingIncrementalUpdate(Imap::Responses::ESearch::IncrementalContextData_t)));
             m_currentSearchConditions = searchConditions;
+            m_searchValidity = SEARCH_RESULT_ASKED;
         } else {
             // A result of SEARCH has just arrived
             Q_ASSERT(m_searchValidity == SEARCH_RESULT_FRESH);
