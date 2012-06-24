@@ -337,6 +337,12 @@ CommandHandle Parser::uidESort(const QStringList &sortCriteria, const QString &c
                       sortCriteria, charset, searchCriteria);
 }
 
+CommandHandle Parser::uidESearch(const QString &charset, const QStringList &searchCriteria, const QStringList &returnOptions)
+{
+    return searchHelper(QString::fromAscii("UID SEARCH RETURN (%1)").arg(returnOptions.join(QLatin1String(" "))),
+                        searchCriteria, charset);
+}
+
 CommandHandle Parser::cancelUpdate(const CommandHandle &tag)
 {
     Commands::Command command("CANCELUPDATE");

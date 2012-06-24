@@ -227,6 +227,10 @@ public slots:
     CommandHandle uidESort(const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria,
                            const QStringList &returnOptions);
 
+    /** @short ESEARCH, the extended UID SEARCH with support for ESEARCH return options from RFC 5267 */
+    CommandHandle uidESearch(const QString &charset, const QStringList &searchCriteria, const QStringList &returnOptions);
+
+
     /** @short CANCELUPDATE, tell the server that it shall stop sending any ESEARCH responses associated with the given tag */
     CommandHandle cancelUpdate(const CommandHandle &tag);
 

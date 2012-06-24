@@ -49,21 +49,41 @@ void SortTask::perform()
         return;
     }
 
-    if (model->accessParser(parser).capabilitiesFresh &&
-            model->accessParser(parser).capabilities.contains(QLatin1String("ESORT"))) {
-        // ESORT's better than regular SORT, if only for its embedded reference to the command tag
-        if (model->accessParser(parser).capabilities.contains(QLatin1String("CONTEXT=SORT"))) {
-            // Hurray, this IMAP server supports incremental SORT updates
-            m_persistentSearch = true;
-            sortTag = parser->uidESort(sortCriteria, QLatin1String("utf-8"), QStringList() << QLatin1String("ALL"),
-                                   QStringList() << QLatin1String("ALL") << QLatin1String("UPDATE"));
+    if (sortCriteria.isEmpty()) {
+        if (model->accessParser(parser).capabilitiesFresh &&
+                model->accessParser(parser).capabilities.contains(QLatin1String("ESEARCH"))) {
+            // We always prefer ESEARCH over SEARCH, if only for its embedded reference to the command tag
+            if (model->accessParser(parser).capabilities.contains(QLatin1String("CONTEXT=SEARCH"))) {
+                // Hurray, this IMAP server supports incremental ESEARCH updates
+                m_persistentSearch = true;
+                sortTag = parser->uidESearch(QLatin1String("utf-8"), searchConditions,
+                                             QStringList() << QLatin1String("ALL") << QLatin1String("UPDATE"));
+            } else {
+                // ESORT without CONTEXT is still worth the effort, if only for the tag reference
+                sortTag = parser->uidESearch(QLatin1String("utf-8"), searchConditions, QStringList());
+            }
         } else {
-            // ESORT without CONTEXT is still worth the effort, if only for the tag reference
-            sortTag = parser->uidESort(sortCriteria, QLatin1String("utf-8"), QStringList() << QLatin1String("ALL"), QStringList());
+            // Plain "old" SORT
+            sortTag = parser->uidSearch(searchConditions, QLatin1String("utf-8"));
         }
     } else {
-        // Plain "old" SORT
-        sortTag = parser->uidSort(sortCriteria, QLatin1String("utf-8"), QStringList() << QLatin1String("ALL"));
+        // SEARCH and SORT combined
+        if (model->accessParser(parser).capabilitiesFresh &&
+                model->accessParser(parser).capabilities.contains(QLatin1String("ESORT"))) {
+            // ESORT's better than regular SORT, if only for its embedded reference to the command tag
+            if (model->accessParser(parser).capabilities.contains(QLatin1String("CONTEXT=SORT"))) {
+                // Hurray, this IMAP server supports incremental SORT updates
+                m_persistentSearch = true;
+                sortTag = parser->uidESort(sortCriteria, QLatin1String("utf-8"), searchConditions,
+                                       QStringList() << QLatin1String("ALL") << QLatin1String("UPDATE"));
+            } else {
+                // ESORT without CONTEXT is still worth the effort, if only for the tag reference
+                sortTag = parser->uidESort(sortCriteria, QLatin1String("utf-8"), searchConditions, QStringList());
+            }
+        } else {
+            // Plain "old" SORT
+            sortTag = parser->uidSort(sortCriteria, QLatin1String("utf-8"), searchConditions);
+        }
     }
 }
 
