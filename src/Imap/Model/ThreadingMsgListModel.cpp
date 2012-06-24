@@ -431,9 +431,6 @@ void ThreadingMsgListModel::updateNoThreading()
     ptrToInternal.clear();
     unknownUids.clear();
     threadedRootIds.clear();
-    if (!m_sortTask || !m_sortTask->isPersistent()) {
-        m_currentSortResult.clear();
-    }
 
     int upstreamMessages = sourceModel()->rowCount();
     QList<uint> allIds;
@@ -463,9 +460,6 @@ void ThreadingMsgListModel::updateNoThreading()
         threading[ 0 ].ptr = static_cast<MsgListModel *>(sourceModel())->msgList;
         threadingHelperLastId = newThreading.size();
         threadedRootIds = threading[0].children;
-        if (!m_sortTask || !m_sortTask->isPersistent()) {
-            m_currentSortResult.clear();
-        }
     }
     updatePersistentIndexesPhase2();
     emit layoutChanged();
