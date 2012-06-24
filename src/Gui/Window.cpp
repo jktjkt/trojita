@@ -1439,7 +1439,8 @@ void MainWindow::slotSortingConfirmed(int column, Qt::SortOrder order)
 
 void MainWindow::slotSearchRequested(const QStringList &searchConditions)
 {
-    // FIXME
+    threadingMsgListModel->setUserSearchingSortingPreference(searchConditions, threadingMsgListModel->currentSortCriterium(),
+                                                             threadingMsgListModel->currentSortOrder());
 }
 
 void MainWindow::slotHideRead()
