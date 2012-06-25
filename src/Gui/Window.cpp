@@ -1439,6 +1439,10 @@ void MainWindow::slotSortingConfirmed(int column, Qt::SortOrder order)
 
 void MainWindow::slotSearchRequested(const QStringList &searchConditions)
 {
+    if (!searchConditions.isEmpty() && actionThreadMsgList->isChecked()) {
+        // right now, searching and threading doesn't play well together at all
+        actionThreadMsgList->trigger();
+    }
     threadingMsgListModel->setUserSearchingSortingPreference(searchConditions, threadingMsgListModel->currentSortCriterium(),
                                                              threadingMsgListModel->currentSortOrder());
 }
