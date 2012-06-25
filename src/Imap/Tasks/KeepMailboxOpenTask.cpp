@@ -26,6 +26,7 @@
 #include "IdleLauncher.h"
 #include "MailboxTree.h"
 #include "Model.h"
+#include "SortTask.h"
 #include "TaskFactory.h"
 #include "NoopTask.h"
 #include "UnSelectTask.h"
@@ -826,8 +827,23 @@ bool KeepMailboxOpenTask::isReadyToTerminate() const
 /** @short Return true if we're configured to run IDLE and if there's no ongoing activity */
 bool KeepMailboxOpenTask::canRunIdleRightNow() const
 {
-    bool res = shouldRunIdle && model->accessParser(parser).activeTasks.size() == 1 && dependingTasksForThisMailbox.isEmpty() &&
+    bool res = shouldRunIdle && dependingTasksForThisMailbox.isEmpty() &&
             dependingTasksNoMailbox.isEmpty() && newArrivalsFetch.isEmpty();
+
+    // If there's just one active tasks, it's the "this" one. If there are more of them, let's see if it's just one more
+    // and that one more thing is a SortTask which is in the "just updating" mode.
+    // If that is the case, we can still allow further IDLE, that task will abort idling when it needs to.
+    // Nifty, isn't it?
+    if (model->accessParser(parser).activeTasks.size() > 1) {
+        if (model->accessParser(parser).activeTasks.size() == 2 &&
+                dynamic_cast<SortTask*>(model->accessParser(parser).activeTasks[1]) &&
+                dynamic_cast<SortTask*>(model->accessParser(parser).activeTasks[1])->isJustUpdatingNow()) {
+            // This is OK, so no need to clear the "OK" flag
+        } else {
+            // Too bad, cannot IDLE
+            res = false;
+        }
+    }
 
     if (!res)
         return false;

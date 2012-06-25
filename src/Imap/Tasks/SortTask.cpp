@@ -131,6 +131,12 @@ bool SortTask::handleStateHelper(const Imap::Responses::State *const resp)
             } else {
                 // got to prod the TaskPresentationModel
                 model->m_taskModel->slotTaskMighHaveChanged(this);
+
+                // Even though we aren't "finished" at this point, the KeepMailboxOpenTask is now free to issue its IDLE thing,
+                // as that won't interfere with our mode of operation. Let's kick it around.
+                KeepMailboxOpenTask *keepTask = dynamic_cast<KeepMailboxOpenTask*>(conn);
+                Q_ASSERT(keepTask);
+                keepTask->activateTasks();
             }
         } else {
             _failed("Sorting command has failed");
