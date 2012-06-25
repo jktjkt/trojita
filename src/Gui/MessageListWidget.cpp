@@ -20,6 +20,7 @@
 */
 
 #include "MessageListWidget.h"
+#include <QCheckBox>
 #include <QLineEdit>
 #include <QVBoxLayout>
 #include "MsgListView.h"
@@ -35,14 +36,30 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
 
     m_quickSearchText = new QLineEdit(this);
     m_quickSearchText->setPlaceholderText(tr("Quick Search..."));
-    m_quickSearchText->setEnabled(false);
 
     connect(m_quickSearchText, SIGNAL(returnPressed()), this, SLOT(slotApplySearch()));
 
+    m_searchFuzzy = new QCheckBox(tr("Fuzzy Search"), this);
+    m_searchInSubject = new QCheckBox(tr("Subject"), this);
+    m_searchInSubject->setChecked(true);
+    m_searchInBody = new QCheckBox(tr("Body"), this);
+    m_searchInSenders = new QCheckBox(tr("Senders"), this);
+    m_searchInSenders->setChecked(true);
+    m_searchInRecipients = new QCheckBox(tr("Recipients"), this);
+
+    QHBoxLayout *fieldsLayout = new QHBoxLayout(0);
+    fieldsLayout->addWidget(m_searchFuzzy);
+    fieldsLayout->addWidget(m_searchInSubject);
+    fieldsLayout->addWidget(m_searchInBody);
+    fieldsLayout->addWidget(m_searchInSenders);
+    fieldsLayout->addWidget(m_searchInRecipients);
+
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(m_quickSearchText);
+    layout->addLayout(fieldsLayout);
     layout->addWidget(tree);
 
+    slotAutoEnableDisableSearch();
 }
 
 void MessageListWidget::slotApplySearch()
@@ -52,11 +69,18 @@ void MessageListWidget::slotApplySearch()
 
 void MessageListWidget::slotAutoEnableDisableSearch()
 {
+    bool isEnabled;
     if (tree && tree->model()) {
-        m_quickSearchText->setEnabled(tree->model()->rowCount());
+        isEnabled = tree->model()->rowCount();
     } else {
-        m_quickSearchText->setEnabled(false);
+        isEnabled = false;
     }
+    m_quickSearchText->setEnabled(isEnabled);
+    m_searchFuzzy->setEnabled(isEnabled && m_supportsFuzzySearch);
+    m_searchInBody->setEnabled(isEnabled);
+    m_searchInRecipients->setEnabled(isEnabled);
+    m_searchInSenders->setEnabled(isEnabled);
+    m_searchInSubject->setEnabled(isEnabled);
 }
 
 QStringList MessageListWidget::searchConditions() const
@@ -64,12 +88,36 @@ QStringList MessageListWidget::searchConditions() const
     if (!m_quickSearchText->isEnabled() || m_quickSearchText->text().isEmpty())
         return QStringList();
 
-    return QStringList() << QLatin1String(m_supportsFuzzySearch ? "FUZZY SUBJECT" : "SUBJECT") << m_quickSearchText->text();
+    QStringList keys;
+    if (m_searchInSubject->isChecked())
+        keys << QLatin1String("SUBJECT");
+    if (m_searchInBody->isChecked())
+        keys << QLatin1String("BODY");
+    if (m_searchInRecipients->isChecked())
+        keys << QLatin1String("TO") << QLatin1String("CC") << QLatin1String("BCC");
+    if (m_searchInSenders->isChecked())
+        keys << QLatin1String("FROM");
+
+    if (keys.isEmpty())
+        return keys;
+
+    QStringList res;
+    Q_FOREACH(const QString &key, keys) {
+        if (m_supportsFuzzySearch)
+            res << QLatin1String("FUZZY");
+        res << key << m_quickSearchText->text();
+    }
+    if (keys.size() > 1)
+        res.prepend(QLatin1String("OR"));
+
+    return res;
 }
 
 void MessageListWidget::setFuzzySearchSupported(bool supported)
 {
     m_supportsFuzzySearch = supported;
+    m_searchFuzzy->setEnabled(supported);
+    m_searchFuzzy->setChecked(supported);
 }
 
 }
