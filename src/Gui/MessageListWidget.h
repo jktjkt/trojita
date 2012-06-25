@@ -47,9 +47,6 @@ public:
 signals:
     void requestingSearch(const QStringList &conditions);
 
-public slots:
-    void clearSearch();
-
 protected slots:
     void slotApplySearch();
     void slotAutoEnableDisableSearch();

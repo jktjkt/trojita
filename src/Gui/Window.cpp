@@ -534,9 +534,7 @@ void MainWindow::setupModels()
     prettyMsgListModel->setObjectName(QLatin1String("prettyMsgListModel"));
 
     connect(mboxTree, SIGNAL(clicked(const QModelIndex &)), msgListModel, SLOT(setMailbox(const QModelIndex &)));
-    connect(mboxTree, SIGNAL(clicked(QModelIndex)), msgListWidget, SLOT(clearSearch()));
     connect(mboxTree, SIGNAL(activated(const QModelIndex &)), msgListModel, SLOT(setMailbox(const QModelIndex &)));
-    connect(mboxTree, SIGNAL(activated(QModelIndex)), msgListWidget, SLOT(clearSearch()));
     connect(msgListModel, SIGNAL(mailboxChanged()), this, SLOT(slotResizeMsgListColumns()));
     connect(msgListModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(updateMessageFlags()));
     connect(msgListModel, SIGNAL(messagesAvailable()), msgListWidget->tree, SLOT(scrollToBottom()));
