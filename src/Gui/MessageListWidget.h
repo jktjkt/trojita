@@ -51,9 +51,11 @@ signals:
 protected slots:
     void slotApplySearch();
     void slotAutoEnableDisableSearch();
+    void slotAutoHideOptionsBar();
 
 private:
     QLineEdit *m_quickSearchText;
+    QWidget *m_searchOptionsBar;
     QCheckBox *m_searchInSubject;
     QCheckBox *m_searchInBody;
     QCheckBox *m_searchInSenders;

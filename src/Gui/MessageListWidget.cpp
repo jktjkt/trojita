@@ -38,16 +38,18 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     m_quickSearchText->setPlaceholderText(tr("Quick Search..."));
 
     connect(m_quickSearchText, SIGNAL(returnPressed()), this, SLOT(slotApplySearch()));
+    connect(m_quickSearchText, SIGNAL(textChanged(QString)), this, SLOT(slotAutoHideOptionsBar()));
 
-    m_searchFuzzy = new QCheckBox(tr("Fuzzy Search"), this);
-    m_searchInSubject = new QCheckBox(tr("Subject"), this);
+    m_searchOptionsBar = new QWidget(this);
+    m_searchFuzzy = new QCheckBox(tr("Fuzzy Search"), m_searchOptionsBar);
+    m_searchInSubject = new QCheckBox(tr("Subject"), m_searchOptionsBar);
     m_searchInSubject->setChecked(true);
-    m_searchInBody = new QCheckBox(tr("Body"), this);
-    m_searchInSenders = new QCheckBox(tr("Senders"), this);
+    m_searchInBody = new QCheckBox(tr("Body"), m_searchOptionsBar);
+    m_searchInSenders = new QCheckBox(tr("Senders"), m_searchOptionsBar);
     m_searchInSenders->setChecked(true);
-    m_searchInRecipients = new QCheckBox(tr("Recipients"), this);
+    m_searchInRecipients = new QCheckBox(tr("Recipients"), m_searchOptionsBar);
 
-    QHBoxLayout *fieldsLayout = new QHBoxLayout(0);
+    QHBoxLayout *fieldsLayout = new QHBoxLayout(m_searchOptionsBar);
     fieldsLayout->addWidget(m_searchFuzzy);
     fieldsLayout->addWidget(m_searchInSubject);
     fieldsLayout->addWidget(m_searchInBody);
@@ -56,7 +58,7 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(m_quickSearchText);
-    layout->addLayout(fieldsLayout);
+    layout->addWidget(m_searchOptionsBar);
     layout->addWidget(tree);
 
     slotAutoEnableDisableSearch();
@@ -81,6 +83,12 @@ void MessageListWidget::slotAutoEnableDisableSearch()
     m_searchInRecipients->setEnabled(isEnabled);
     m_searchInSenders->setEnabled(isEnabled);
     m_searchInSubject->setEnabled(isEnabled);
+    slotAutoHideOptionsBar();
+}
+
+void MessageListWidget::slotAutoHideOptionsBar()
+{
+    m_searchOptionsBar->setVisible(!m_quickSearchText->text().isEmpty() && m_quickSearchText->isEnabled());
 }
 
 QStringList MessageListWidget::searchConditions() const
