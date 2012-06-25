@@ -958,9 +958,16 @@ void ImapModelThreadingTest::testDynamicSortingContext()
     expectedUidOrder << 15 << 16 << 17 << 6 << 18 << 10;
     checkUidMapFromThreading(expectedUidOrder);
 
-    //justKeepTask();
+    model->switchToMailbox(idxB);
+    cClient(t.mk("CANCELUPDATE \"" + sortTag + "\"\r\n"));
+    cServer(t.last("OK no further updates\r\n"));
+    cClient(t.mk("SELECT b\r\n"));
+    cServer("* 0 EXISTS\r\n" + t.last("OK selected\r\n"));
 
-    // FIXME: finalize me -- test the incrmeental updates and the mailbox handover
+    cEmpty();
+    justKeepTask();
+
+    // FIXME: finalize me -- test the incrmeental updates
     // FIXME: also test behavior when we get "* NO [NOUPDATE "tag"] ..."
 }
 

@@ -147,6 +147,8 @@ public:
 
     bool isReadyToTerminate() const;
 
+    void feelFreeToAbortCaller(ImapTask *task);
+
 private slots:
     void slotTaskDeleted(QObject *object);
 
@@ -226,6 +228,8 @@ protected:
     QList<ImapTask *> dependingTasksForThisMailbox;
     /** @short Depending tasks which don't need this mailbox */
     QList<ImapTask *> dependingTasksNoMailbox;
+    /** @short Tasks which shall be aborted when the mailbox is to be abandoned */
+    QList<ImapTask *> abortableTasks;
     /** @short An ImapTask that will be started to actually sync to a mailbox once the connection is free */
     ObtainSynchronizedMailboxTask *synchronizeConn;
 

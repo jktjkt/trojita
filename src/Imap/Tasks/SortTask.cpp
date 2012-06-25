@@ -52,6 +52,11 @@ void SortTask::perform()
         return;
     }
 
+    // We can be killed when appropriate
+    KeepMailboxOpenTask *keepTask = dynamic_cast<KeepMailboxOpenTask*>(conn);
+    Q_ASSERT(keepTask);
+    keepTask->feelFreeToAbortCaller(this);
+
     if (sortCriteria.isEmpty()) {
         if (model->accessParser(parser).capabilitiesFresh &&
                 model->accessParser(parser).capabilities.contains(QLatin1String("ESEARCH"))) {
@@ -120,8 +125,8 @@ bool SortTask::handleStateHelper(const Imap::Responses::State *const resp)
         m_firstCommandCompleted = true;
         if (resp->kind == Responses::OK) {
             emit sortingAvailable(sortResult);
-            if (!m_persistentSearch) {
-                // This is a one-shot operation, we shall remain as an active task, listening for further updates
+            if (!m_persistentSearch || _aborted) {
+                // This is a one-shot operation, we shall not remain as an active task, listening for further updates
                 _completed();
             } else {
                 // got to prod the TaskPresentationModel
@@ -231,7 +236,7 @@ bool SortTask::isPersistent() const
 /** @short Return true if this task has already done its job and is now merely listening for further updates */
 bool SortTask::isJustUpdatingNow() const
 {
-    return isPersistent() && m_firstCommandCompleted;
+    return isPersistent() && m_firstCommandCompleted && !_aborted;
 }
 
 void SortTask::cancelSortingUpdates()
@@ -239,6 +244,14 @@ void SortTask::cancelSortingUpdates()
     Q_ASSERT(m_persistentSearch);
     Q_ASSERT(!sortTag.isEmpty());
     cancelUpdateTag = parser->cancelUpdate(sortTag);
+}
+
+void SortTask::abort()
+{
+    if (cancelUpdateTag.isEmpty() && isJustUpdatingNow()) {
+        cancelSortingUpdates();
+    }
+    ImapTask::abort();
 }
 
 }

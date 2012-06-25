@@ -34,6 +34,7 @@ class SortTask : public ImapTask
 public:
     SortTask(Model *model, const QModelIndex &mailbox, const QStringList &searchConditions, const QStringList &sortCriteria);
     virtual void perform();
+    virtual void abort();
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
     virtual bool handleSort(const Imap::Responses::Sort *const resp);

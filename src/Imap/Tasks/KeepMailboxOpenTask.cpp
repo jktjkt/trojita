@@ -180,6 +180,10 @@ void KeepMailboxOpenTask::addDependentTask(ImapTask *task)
         if (! hasPendingInternalActions() && (! synchronizeConn || synchronizeConn->isFinished())) {
             QTimer::singleShot(0, this, SLOT(terminate()));
         }
+
+        Q_FOREACH(ImapTask *abortable, abortableTasks) {
+            abortable->abort();
+        }
     } else {
         // This branch calls the inherited ImapTask::addDependentTask()
         connect(task, SIGNAL(destroyed(QObject *)), this, SLOT(slotTaskDeleted(QObject *)));
@@ -217,6 +221,7 @@ void KeepMailboxOpenTask::slotTaskDeleted(QObject *object)
         runningTasksForThisMailbox.removeOne(static_cast<ImapTask *>(object));
         fetchPartTasks.removeOne(static_cast<FetchMsgPartTask *>(object));
         fetchMetadataTasks.removeOne(static_cast<FetchMsgMetadataTask *>(object));
+        abortableTasks.removeOne(static_cast<FetchMsgMetadataTask *>(object));
     }
 
     if (isReadyToTerminate()) {
@@ -248,6 +253,7 @@ void KeepMailboxOpenTask::terminate()
     Q_ASSERT(requestedParts.isEmpty());
     Q_ASSERT(requestedEnvelopes.isEmpty());
     Q_ASSERT(runningTasksForThisMailbox.isEmpty());
+    Q_ASSERT(abortableTasks.isEmpty());
 
     // Break periodic activities
     if (idleLauncher) {
@@ -828,6 +834,15 @@ QVariant KeepMailboxOpenTask::taskData(const int role) const
     // FIXME
     Q_UNUSED(role);
     return QVariant();
+}
+
+/** @short The specified task can be abort()ed when the mailbox shall be vacanted
+
+It's an error to call this on a task which we aren't tracking already.
+*/
+void KeepMailboxOpenTask::feelFreeToAbortCaller(ImapTask *task)
+{
+    abortableTasks.append(task);
 }
 
 }
