@@ -29,7 +29,7 @@
 namespace Gui {
 
 MessageListWidget::MessageListWidget(QWidget *parent) :
-    QWidget(parent)
+    QWidget(parent), m_supportsFuzzySearch(false)
 {
     tree = new MsgListView(this);
 
@@ -64,7 +64,12 @@ QStringList MessageListWidget::searchConditions() const
     if (!m_quickSearchText->isEnabled() || m_quickSearchText->text().isEmpty())
         return QStringList();
 
-    return QStringList() << QLatin1String("SUBJECT") << m_quickSearchText->text();
+    return QStringList() << QLatin1String(m_supportsFuzzySearch ? "FUZZY SUBJECT" : "SUBJECT") << m_quickSearchText->text();
+}
+
+void MessageListWidget::setFuzzySearchSupported(bool supported)
+{
+    m_supportsFuzzySearch = supported;
 }
 
 }

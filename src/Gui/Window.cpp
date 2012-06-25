@@ -1458,6 +1458,8 @@ void MainWindow::slotCapabilitiesUpdated(const QStringList &capabilities)
         m_actionSortByDate->actionGroup()->setEnabled(false);
     }
 
+    msgListWidget->setFuzzySearchSupported(capabilities.contains(QLatin1String("SEARCH=FUZZY")));
+
     const QStringList supportedCapabilities = Imap::Mailbox::ThreadingMsgListModel::supportedCapabilities();
     Q_FOREACH(const QString &capability, capabilities) {
         if (supportedCapabilities.contains(capability)) {

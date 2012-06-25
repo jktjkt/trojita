@@ -37,6 +37,8 @@ class MessageListWidget : public QWidget
 public:
     explicit MessageListWidget(QWidget *parent = 0);
 
+    void setFuzzySearchSupported(bool supported);
+
     QStringList searchConditions() const;
 
     // FIXME: consider making this private and moving the logic from Window with it
@@ -51,6 +53,7 @@ protected slots:
 
 private:
     QLineEdit *m_quickSearchText;
+    bool m_supportsFuzzySearch;
 };
 
 }
