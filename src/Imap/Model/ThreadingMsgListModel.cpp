@@ -728,7 +728,9 @@ void ThreadingMsgListModel::slotSortingIncrementalUpdate(const Responses::ESearc
 void ThreadingMsgListModel::calculateNullSort()
 {
     m_currentSortResult.clear();
+#if QT_VERSION >= 0x040700
     m_currentSortResult.reserve(threadedRootIds.size());
+#endif
     Q_FOREACH(const uint internalId, threadedRootIds) {
         QHash<uint,ThreadNodeInfo>::const_iterator it = threading.constFind(internalId);
         if (it == threading.constEnd())
@@ -1229,7 +1231,9 @@ void ThreadingMsgListModel::applySort()
     updatePersistentIndexesPhase1();
     QSet<uint> newlyUnreachable(threading[0].children.toSet());
     threading[0].children.clear();
+#if QT_VERSION >= 0x040700
     threading[0].children.reserve(m_currentSortResult.size());
+#endif
 
     QSet<uint> allRootIds(threadedRootIds.toSet());
 
