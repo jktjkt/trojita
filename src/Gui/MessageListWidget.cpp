@@ -20,8 +20,8 @@
 */
 
 #include "MessageListWidget.h"
-#include <QCheckBox>
 #include <QLineEdit>
+#include <QToolButton>
 #include <QVBoxLayout>
 #include "MsgListView.h"
 
@@ -47,15 +47,31 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     f.setPointSizeF(f.pointSizeF() * 0.80);
     m_searchOptionsBar->setFont(f);
 
-    m_searchFuzzy = new QCheckBox(tr("Fuzzy"), m_searchOptionsBar);
-    m_searchInSubject = new QCheckBox(tr("Subject"), m_searchOptionsBar);
+    m_searchFuzzy = new QToolButton(m_searchOptionsBar);
+    m_searchFuzzy->setText(tr("Fuzzy Search"));
+    m_searchFuzzy->setAutoRaise(true);
+    m_searchFuzzy->setCheckable(true);
+    m_searchInSubject = new QToolButton(m_searchOptionsBar);
+    m_searchInSubject->setText(tr("Subject"));
+    m_searchInSubject->setAutoRaise(true);
+    m_searchInSubject->setCheckable(true);
     m_searchInSubject->setChecked(true);
-    m_searchInBody = new QCheckBox(tr("Body"), m_searchOptionsBar);
-    m_searchInSenders = new QCheckBox(tr("Senders"), m_searchOptionsBar);
+    m_searchInBody = new QToolButton(m_searchOptionsBar);
+    m_searchInBody->setText(tr("Body"));
+    m_searchInBody->setAutoRaise(true);
+    m_searchInBody->setCheckable(true);
+    m_searchInSenders = new QToolButton(m_searchOptionsBar);
+    m_searchInSenders->setText(tr("Senders"));
+    m_searchInSenders->setAutoRaise(true);
+    m_searchInSenders->setCheckable(true);
     m_searchInSenders->setChecked(true);
-    m_searchInRecipients = new QCheckBox(tr("Recipients"), m_searchOptionsBar);
+    m_searchInRecipients = new QToolButton(m_searchOptionsBar);
+    m_searchInRecipients->setText(tr("Recipients"));
+    m_searchInRecipients->setAutoRaise(true);
+    m_searchInRecipients->setCheckable(true);
 
     QHBoxLayout *fieldsLayout = new QHBoxLayout(m_searchOptionsBar);
+    fieldsLayout->setSpacing(0);
     fieldsLayout->addWidget(m_searchFuzzy);
     fieldsLayout->addStretch();
     fieldsLayout->addWidget(m_searchInSubject);

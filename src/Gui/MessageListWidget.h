@@ -24,8 +24,8 @@
 
 #include <QWidget>
 
-class QCheckBox;
 class QLineEdit;
+class QToolButton;
 
 namespace Gui {
 
@@ -56,11 +56,11 @@ protected slots:
 private:
     QLineEdit *m_quickSearchText;
     QWidget *m_searchOptionsBar;
-    QCheckBox *m_searchInSubject;
-    QCheckBox *m_searchInBody;
-    QCheckBox *m_searchInSenders;
-    QCheckBox *m_searchInRecipients;
-    QCheckBox *m_searchFuzzy;
+    QToolButton *m_searchInSubject;
+    QToolButton *m_searchInBody;
+    QToolButton *m_searchInSenders;
+    QToolButton *m_searchInRecipients;
+    QToolButton *m_searchFuzzy;
     bool m_supportsFuzzySearch;
 };
 
