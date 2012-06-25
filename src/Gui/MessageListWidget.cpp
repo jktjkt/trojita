@@ -72,4 +72,10 @@ void MessageListWidget::setFuzzySearchSupported(bool supported)
     m_supportsFuzzySearch = supported;
 }
 
+void MessageListWidget::clearSearch()
+{
+    m_quickSearchText->clear();
+    slotApplySearch();
+}
+
 }
