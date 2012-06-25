@@ -330,6 +330,26 @@ CommandHandle Parser::uidSort(const QStringList &sortCriteria, const QString &ch
     return sortHelper(QLatin1String("UID SORT"), sortCriteria, charset, searchCriteria);
 }
 
+CommandHandle Parser::uidESort(const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria,
+                               const QStringList &returnOptions)
+{
+    return sortHelper(QString::fromAscii("UID SORT RETURN (%1)").arg(returnOptions.join(QLatin1String(" "))),
+                      sortCriteria, charset, searchCriteria);
+}
+
+CommandHandle Parser::uidESearch(const QString &charset, const QStringList &searchCriteria, const QStringList &returnOptions)
+{
+    return searchHelper(QString::fromAscii("UID SEARCH RETURN (%1)").arg(returnOptions.join(QLatin1String(" "))),
+                        searchCriteria, charset);
+}
+
+CommandHandle Parser::cancelUpdate(const CommandHandle &tag)
+{
+    Commands::Command command("CANCELUPDATE");
+    command << Commands::PartOfCommand(Commands::QUOTED_STRING, tag);
+    return queueCommand(command);
+}
+
 CommandHandle Parser::threadHelper(const QString &command, const QString &algo, const QString &charset, const QStringList &searchCriteria)
 {
     Commands::Command cmd;
@@ -704,14 +724,15 @@ void Parser::executeACommand()
         case Commands::LITERAL:
             if (literalPlus) {
                 buf.append('{');
-                buf.append(QByteArray::number(part.text.size()));
+                QByteArray inUtf8 = part.text.toUtf8();
+                buf.append(QByteArray::number(inUtf8.size()));
                 buf.append("+}\r\n");
-                buf.append(part.text);
+                buf.append(inUtf8);
             } else if (part.numberSent) {
-                buf.append(part.text);
+                buf.append(part.text.toUtf8());
             } else {
                 buf.append('{');
-                buf.append(QByteArray::number(part.text.size()));
+                buf.append(QByteArray::number(part.text.toUtf8().size()));
                 buf.append("}\r\n");
 #ifdef PRINT_TRAFFIC_TX
                 if (printThisCommand)
@@ -1023,91 +1044,6 @@ void Parser::slotSocketStateChanged(const Imap::ConnectionState connState, const
     }
     emit lineReceived(this, "*** " + message.toLocal8Bit());
     emit connectionStateChanged(this, connState);
-}
-
-Sequence::Sequence(const uint num): kind(DISTINCT)
-{
-    list << num;
-}
-
-Sequence Sequence::startingAt(const uint lo)
-{
-    Sequence res(lo);
-    res.lo = lo;
-    res.kind = UNLIMITED;
-    return res;
-}
-
-QString Sequence::toString() const
-{
-    switch (kind) {
-    case DISTINCT:
-    {
-        Q_ASSERT(! list.isEmpty());
-
-        QStringList res;
-        int i = 0;
-        while (i < list.size()) {
-            int old = i;
-            while (i < list.size() - 1 &&
-                   list[i] == list[ i + 1 ] - 1)
-                ++i;
-            if (old != i) {
-                // we've found a sequence
-                res << QString::number(list[old]) + QLatin1Char(':') + QString::number(list[i]);
-            } else {
-                res << QString::number(list[i]);
-            }
-            ++i;
-        }
-        return res.join(QLatin1String(","));
-        break;
-    }
-    case RANGE:
-        Q_ASSERT(lo <= hi);
-        if (lo == hi)
-            return QString::number(lo);
-        else
-            return QString::number(lo) + QLatin1Char(':') + QString::number(hi);
-    case UNLIMITED:
-        return QString::number(lo) + QLatin1String(":*");
-    }
-    // fix gcc warning
-    Q_ASSERT(false);
-    return QString();
-}
-
-Sequence &Sequence::add(uint num)
-{
-    Q_ASSERT(kind == DISTINCT);
-    QList<uint>::iterator it = qLowerBound(list.begin(), list.end(), num);
-    if (it == list.end() || *it != num)
-        list.insert(it, num);
-    return *this;
-}
-
-Sequence Sequence::fromList(QList<uint> numbers)
-{
-    Q_ASSERT(!numbers.isEmpty());
-    qSort(numbers);
-    Sequence seq(numbers.first());
-    for (int i = 1; i < numbers.size(); ++i) {
-        seq.add(numbers[i]);
-    }
-    return seq;
-}
-
-bool Sequence::isValid() const
-{
-    if (kind == DISTINCT && list.isEmpty())
-        return false;
-    else
-        return true;
-}
-
-QTextStream &operator<<(QTextStream &stream, const Sequence &s)
-{
-    return stream << s.toString();
 }
 
 }

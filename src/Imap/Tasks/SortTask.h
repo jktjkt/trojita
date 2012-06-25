@@ -32,21 +32,51 @@ class SortTask : public ImapTask
 {
     Q_OBJECT
 public:
-    SortTask(Model *model, const QModelIndex &mailbox, const QStringList &sortCriteria);
+    SortTask(Model *model, const QModelIndex &mailbox, const QStringList &searchConditions, const QStringList &sortCriteria);
     virtual void perform();
+    virtual void abort();
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
     virtual bool handleSort(const Imap::Responses::Sort *const resp);
+    virtual bool handleSearch(const Imap::Responses::Search *const resp);
+    virtual bool handleESearch(const Responses::ESearch *const resp);
     virtual QVariant taskData(const int role) const;
     virtual bool needsMailbox() const {return true;}
+
+    bool isPersistent() const;
+    bool isJustUpdatingNow() const;
+
+    void cancelSortingUpdates();
+
+signals:
+    /** @short Sort result has arrived */
+    void sortingAvailable(const QList<uint> &uids);
+
+    /** @short Sort operation has failed */
+    void sortingFailed();
+
+    /** @short An incremental update to the sorting criteria according to CONTEXT=SORT */
+    void incrementalSortUpdate(const Imap::Responses::ESearch::IncrementalContextData_t &updates);
+
 protected:
     virtual void _failed(const QString &errorMessage);
 private:
-    CommandHandle tag;
+    CommandHandle sortTag;
+    CommandHandle cancelUpdateTag;
     ImapTask *conn;
     QPersistentModelIndex mailboxIndex;
+    QStringList searchConditions;
     QStringList sortCriteria;
     QList<uint> sortResult;
+
+    /** @short Are we supposed to run in a "persistent mode", ie. keep listening for updates? */
+    bool m_persistentSearch;
+
+    /** @short Have we received a full (non-incremental) response at first? */
+    bool m_firstUntaggedReceived;
+
+    /** @short Did the first command (the ESEARCH/ESORT) finish properly, including its tagged response? */
+    bool m_firstCommandCompleted;
 };
 
 }

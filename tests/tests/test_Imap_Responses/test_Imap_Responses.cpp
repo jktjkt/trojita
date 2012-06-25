@@ -87,9 +87,10 @@ void ImapResponsesTest::testCompareEq_data()
         respPtr( new Search( QList<uint>() << 333 ) ) <<
         respPtr( new Search( QList<uint>() << 333 ) );
 
+    ESearch::ListData_t emptyEsearchList;
     QTest::newRow("esearch") <<
-        respPtr(new ESearch("t1", ESearch::UIDS, QMap<QByteArray, uint>(), QMap<QByteArray, QList<uint> >())) <<
-        respPtr(new ESearch("t1", ESearch::UIDS, QMap<QByteArray, uint>(), QMap<QByteArray, QList<uint> >()));
+        respPtr(new ESearch("t1", ESearch::UIDS, emptyEsearchList)) <<
+        respPtr(new ESearch("t1", ESearch::UIDS, emptyEsearchList));
 
     Status::stateDataType stateMap;
     QTest::newRow( "status-1" ) <<
@@ -224,26 +225,21 @@ void ImapResponsesTest::testCompareNe_data()
         respPtr( new Search( QList<uint>() << 333 ) ) <<
         respPtr( new Search( QList<uint>() << 666 ) );
 
+    ESearch::ListData_t emptyEsearchResp;
     QTest::newRow("esearch-tag") <<
-        respPtr(new ESearch("t1", ESearch::UIDS, QMap<QByteArray, uint>(), QMap<QByteArray, QList<uint> >())) <<
-        respPtr(new ESearch(QByteArray(), ESearch::UIDS, QMap<QByteArray, uint>(), QMap<QByteArray, QList<uint> >()));
+        respPtr(new ESearch("t1", ESearch::UIDS, emptyEsearchResp)) <<
+        respPtr(new ESearch(QByteArray(), ESearch::UIDS, emptyEsearchResp));
 
     QTest::newRow("esearch-uid-seq") <<
-        respPtr(new ESearch("t1", ESearch::UIDS, QMap<QByteArray, uint>(), QMap<QByteArray, QList<uint> >())) <<
-        respPtr(new ESearch("t1", ESearch::SEQUENCE, QMap<QByteArray, uint>(), QMap<QByteArray, QList<uint> >()));
+        respPtr(new ESearch("t1", ESearch::UIDS, emptyEsearchResp)) <<
+        respPtr(new ESearch("t1", ESearch::SEQUENCE, emptyEsearchResp));
 
-    QMap<QByteArray, uint> dummyESearch1;
-    dummyESearch1["foo"] = 666;
+    ESearch::ListData_t dummyESearch1;
+    dummyESearch1.push_back(qMakePair<QByteArray, QList<uint> >("foo", QList<uint>() << 666));
 
-    QTest::newRow("esearch-numdata") <<
-        respPtr(new ESearch("t1", ESearch::UIDS, dummyESearch1, QMap<QByteArray, QList<uint> >())) <<
-        respPtr(new ESearch("t1", ESearch::UIDS, QMap<QByteArray, uint>(), QMap<QByteArray, QList<uint> >()));
-
-    QMap<QByteArray, QList<uint> > dummyESearch2;
-    dummyESearch2["blah"] = (QList<uint>() << 333);
     QTest::newRow("esearch-listdata") <<
-        respPtr(new ESearch("t1", ESearch::UIDS, QMap<QByteArray, uint>(), QMap<QByteArray, QList<uint> >())) <<
-        respPtr(new ESearch("t1", ESearch::UIDS, QMap<QByteArray, uint>(), dummyESearch2));
+        respPtr(new ESearch("t1", ESearch::UIDS, dummyESearch1)) <<
+        respPtr(new ESearch("t1", ESearch::UIDS, emptyEsearchResp));
 
     QTest::newRow( "status-mailbox" ) <<
         respPtr( new Status( "ahoj", Status::stateDataType() ) ) <<

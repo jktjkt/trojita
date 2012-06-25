@@ -26,25 +26,8 @@
 #include "ItemRoles.h"
 #include "MailboxTree.h"
 #include "MsgListModel.h"
+#include "SortTask.h"
 
-namespace
-{
-using Imap::Mailbox::ThreadNodeInfo;
-QByteArray dumpThreadNodeInfo(const QHash<uint,ThreadNodeInfo> &mapping, const uint nodeId, const uint offset)
-{
-    QByteArray res;
-    QByteArray prefix(offset, ' ');
-    QTextStream ss(&res);
-    Q_ASSERT(mapping.contains(nodeId));
-    const ThreadNodeInfo &node = mapping[nodeId];
-    ss << prefix << "ThreadNodeInfo intId " << node.internalId << " UID " << node.uid << " ptr " << node.ptr <<
-          " parentIntId " << node.parent << "\n";
-    Q_FOREACH(const uint childId, node.children) {
-        ss << dumpThreadNodeInfo(mapping, childId, offset + 1);
-    }
-    return res;
-}
-}
 
 namespace Imap
 {
@@ -53,7 +36,8 @@ namespace Mailbox
 
 ThreadingMsgListModel::ThreadingMsgListModel(QObject *parent):
     QAbstractProxyModel(parent), threadingHelperLastId(0), modelResetInProgress(false), threadingInFlight(false),
-    m_shallBeThreading(false), m_sortInProgress(false), m_sortReverse(false), m_currentSortingCriteria(SORT_NONE)
+    m_shallBeThreading(false), m_sortTask(0), m_sortReverse(false), m_currentSortingCriteria(SORT_NONE),
+    m_searchValidity(SEARCH_RESULT_INVALIDATED)
 {
 }
 
@@ -64,6 +48,7 @@ void ThreadingMsgListModel::setSourceModel(QAbstractItemModel *sourceModel)
     unknownUids.clear();
     threadedRootIds.clear();
     m_currentSortResult.clear();
+    m_searchValidity = SEARCH_RESULT_INVALIDATED;
 
     if (this->sourceModel()) {
         // there's already something, so take care to disconnect all signals
@@ -127,7 +112,7 @@ void ThreadingMsgListModel::handleDataChanged(const QModelIndex &topLeft, const 
         emit dataChanged(rootCandidate, rootCandidate.sibling(rootCandidate.row(), translated.column()));
     }
 
-    QSet<QPersistentModelIndex>::iterator persistent = unknownUids.find(topLeft);
+    QSet<TreeItem*>::iterator persistent = unknownUids.find(static_cast<TreeItem*>(topLeft.internalPointer()));
     if (persistent != unknownUids.end()) {
         // The message wasn't fully synced before, and now it is
         persistent = unknownUids.erase(persistent);
@@ -254,6 +239,10 @@ QModelIndex ThreadingMsgListModel::mapFromSource(const QModelIndex &sourceIndex)
     const uint internalId = *it;
 
     QHash<uint,ThreadNodeInfo>::const_iterator node = threading.constFind(internalId);
+    if (node == threading.constEnd()) {
+        // The filtering criteria say that this index shall not be visible
+        return QModelIndex();
+    }
     Q_ASSERT(node != threading.constEnd());
 
     return createIndex(node->offset, sourceIndex.column(), internalId);
@@ -309,18 +298,20 @@ void ThreadingMsgListModel::handleRowsAboutToBeRemoved(const QModelIndex &parent
     for (int i = start; i <= end; ++i) {
         QModelIndex index = sourceModel()->index(i, 0, parent);
         Q_ASSERT(index.isValid());
-        uint uid = index.data(Imap::Mailbox::RoleMessageUid).toUInt();
         QModelIndex translated = mapFromSource(index);
+
+        unknownUids.remove(static_cast<TreeItem*>(index.internalPointer()));
+
+        if (!translated.isValid()) {
+            // The index being removed wasn't visible in our mapping anyway
+            continue;
+        }
+
         Q_ASSERT(translated.isValid());
         QHash<uint,ThreadNodeInfo>::iterator it = threading.find(translated.internalId());
         Q_ASSERT(it != threading.end());
         it->uid = 0;
         it->ptr = 0;
-        // it will get cleaned up by the pruneTree call later on
-        if (!uid) {
-            // removing message without a UID
-            unknownUids.remove(index);
-        }
     }
     emit layoutAboutToBeChanged();
     updatePersistentIndexesPhase1();
@@ -366,13 +357,18 @@ void ThreadingMsgListModel::handleRowsInserted(const QModelIndex &parent, int st
         threading[0].children << node.internalId;
         ptrToInternal[node.ptr] = node.internalId;
         if (!node.uid) {
-            unknownUids << index;
+            unknownUids << static_cast<TreeItem*>(index.internalPointer());
         } else {
             threadedRootIds.append(node.internalId);
         }
     }
-    m_currentSortResult.clear();
     endInsertRows();
+
+    if (!m_sortTask || !m_sortTask->isPersistent()) {
+        m_currentSortResult.clear();
+        if (m_searchValidity == SEARCH_RESULT_FRESH)
+            m_searchValidity = SEARCH_RESULT_INVALIDATED;
+    }
 
     if (m_shallBeThreading)
         wantThreading();
@@ -390,6 +386,7 @@ void ThreadingMsgListModel::resetMe()
     unknownUids.clear();
     threadedRootIds.clear();
     m_currentSortResult.clear();
+    m_searchValidity = SEARCH_RESULT_INVALIDATED;
     reset();
     updateNoThreading();
     modelResetInProgress = false;
@@ -420,7 +417,6 @@ void ThreadingMsgListModel::updateNoThreading()
     ptrToInternal.clear();
     unknownUids.clear();
     threadedRootIds.clear();
-    m_currentSortResult.clear();
 
     int upstreamMessages = sourceModel()->rowCount();
     QList<uint> allIds;
@@ -439,7 +435,7 @@ void ThreadingMsgListModel::updateNoThreading()
         allIds.append(node.internalId);
         newPtrToInternal[node.ptr] = node.internalId;
         if (!node.uid) {
-            unknownUids << index;
+            unknownUids << static_cast<TreeItem*>(index.internalPointer());
         }
     }
 
@@ -450,17 +446,18 @@ void ThreadingMsgListModel::updateNoThreading()
         threading[ 0 ].ptr = static_cast<MsgListModel *>(sourceModel())->msgList;
         threadingHelperLastId = newThreading.size();
         threadedRootIds = threading[0].children;
-        m_currentSortResult.clear();
     }
     updatePersistentIndexesPhase2();
     emit layoutChanged();
 }
 
-void ThreadingMsgListModel::wantThreading()
+void ThreadingMsgListModel::wantThreading(const SkipSortSearch skipSortSearch)
 {
     if (!sourceModel() || !sourceModel()->rowCount() || !m_shallBeThreading) {
         updateNoThreading();
-        setUserSortingPreference(m_currentSortingCriteria, m_sortReverse ? Qt::DescendingOrder : Qt::AscendingOrder);
+        if (skipSortSearch == AUTO_SORT_SEARCH) {
+            searchSortPreferenceImplementation(m_currentSearchConditions, m_currentSortingCriteria, m_sortReverse ? Qt::DescendingOrder : Qt::AscendingOrder);
+        }
         return;
     }
 
@@ -482,7 +479,9 @@ void ThreadingMsgListModel::wantThreading()
         // See, at the indicated (***) place, we already have an in-flight THREAD request and receive UID for newly arrived
         // message.  We certainly don't want to ask for threading once again; it's better to wait a bit and only ask when the
         // to-be-received THREAD does not contain all required UIDs.
-        setUserSortingPreference(m_currentSortingCriteria, m_sortReverse ? Qt::DescendingOrder : Qt::AscendingOrder);
+        if (skipSortSearch == AUTO_SORT_SEARCH) {
+            searchSortPreferenceImplementation(m_currentSearchConditions, m_currentSortingCriteria, m_sortReverse ? Qt::DescendingOrder : Qt::AscendingOrder);
+        }
         return;
     }
 
@@ -498,11 +497,7 @@ void ThreadingMsgListModel::wantThreading()
     QVector<Imap::Responses::ThreadingNode> mapping = realModel->cache()->messageThreading(mailbox.data(RoleMailboxName).toString());
 
     // Find the UID of the last message in the mailbox
-    uint highestUidInMailbox = 0;
-    for (int i = sourceModel()->rowCount() - 1; i > -1 && !highestUidInMailbox; --i) {
-        highestUidInMailbox = dynamic_cast<TreeItemMessage*>(list->m_children[i])->uid();
-    }
-
+    uint highestUidInMailbox = findHighestUidInMailbox(list);
     uint highestUidInThreadingLowerBound = findHighEnoughNumber(mapping, highestUidInMailbox);
 
     logTrace(QString::fromAscii("ThreadingMsgListModel::wantThreading: THREAD contains info about UID %1 (or higher), mailbox has %2")
@@ -516,6 +511,15 @@ void ThreadingMsgListModel::wantThreading()
         // server here.
         askForThreading();
     }
+}
+
+uint ThreadingMsgListModel::findHighestUidInMailbox(TreeItemMsgList *list)
+{
+    uint highestUidInMailbox = 0;
+    for (int i = sourceModel()->rowCount() - 1; i > -1 && !highestUidInMailbox; --i) {
+        highestUidInMailbox = dynamic_cast<TreeItemMessage*>(list->m_children[i])->uid();
+    }
+    return highestUidInMailbox;
 }
 
 uint ThreadingMsgListModel::findHighEnoughNumber(const QVector<Responses::ThreadingNode> &mapping, uint marker)
@@ -614,24 +618,6 @@ bool ThreadingMsgListModel::shouldIgnoreThisThreadingResponse(const QModelIndex 
     return false;
 }
 
-bool ThreadingMsgListModel::shouldIgnoreThisSortResponse(const QModelIndex &mailbox, const QStringList &sortCriteria)
-{
-    QModelIndex someMessage = sourceModel()->index(0,0);
-    if (!someMessage.isValid())
-        return true;
-    const Model *model;
-    QModelIndex realIndex;
-    Imap::Mailbox::Model::realTreeItem(someMessage, &model, &realIndex);
-    QModelIndex mailboxIndex = realIndex.parent().parent();
-    if (mailboxIndex != mailbox) {
-        // this is for another mailbox
-        return true;
-    }
-
-    Q_UNUSED(sortCriteria);
-    return false;
-}
-
 void ThreadingMsgListModel::slotThreadingFailed(const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria)
 {
     // Better safe than sorry -- prevent infinite waiting to the maximal possible extent
@@ -672,31 +658,70 @@ void ThreadingMsgListModel::slotThreadingAvailable(const QModelIndex &mailbox, c
         wantThreading();
 }
 
-void ThreadingMsgListModel::slotSortingAvailable(const QModelIndex &mailbox, const QStringList &sortCriteria, const QList<uint> &uids)
+void ThreadingMsgListModel::slotSortingAvailable(const QList<uint> &uids)
 {
-    if (shouldIgnoreThisSortResponse(mailbox, sortCriteria))
-        return;
+    if (!m_sortTask->isPersistent()) {
+        disconnect(m_sortTask, 0, this, SLOT(slotSortingAvailable(QList<uint>)));
+        disconnect(m_sortTask, 0, this, SLOT(slotSortingFailed()));
+        disconnect(m_sortTask, 0, this, SLOT(slotSortingIncrementalUpdate(Imap::Responses::ESearch::IncrementalContextData_t)));
 
-    disconnect(sender(), 0, this, SLOT(slotSortingAvailable(QModelIndex,QStringList,QList<uint>)));
-    disconnect(sender(), 0, this, SLOT(slotSortingFailed(QModelIndex,QStringList)));
+        m_sortTask = 0;
+    }
 
-    m_sortInProgress = false;
     m_currentSortResult = uids;
-    applySort();
+    if (m_searchValidity == SEARCH_RESULT_ASKED)
+        m_searchValidity = SEARCH_RESULT_FRESH;
+    wantThreading();
 }
 
-void ThreadingMsgListModel::slotSortingFailed(const QModelIndex &mailbox, const QStringList &sortCriteria)
+void ThreadingMsgListModel::slotSortingFailed()
 {
-    if (shouldIgnoreThisSortResponse(mailbox, sortCriteria))
-        return;
+    disconnect(m_sortTask, 0, this, SLOT(slotSortingAvailable(QList<uint>)));
+    disconnect(m_sortTask, 0, this, SLOT(slotSortingFailed()));
+    disconnect(m_sortTask, 0, this, SLOT(slotSortingIncrementalUpdate(Imap::Responses::ESearch::IncrementalContextData_t)));
 
-    disconnect(sender(), 0, this, SLOT(slotSortingAvailable(QModelIndex,QStringList,QList<uint>)));
-    disconnect(sender(), 0, this, SLOT(slotSortingFailed(QModelIndex,QStringList)));
-
-    m_sortInProgress = false;
+    m_sortTask = 0;
     m_sortReverse = false;
     calculateNullSort();
     applySort();
+}
+
+void ThreadingMsgListModel::slotSortingIncrementalUpdate(const Responses::ESearch::IncrementalContextData_t &updates)
+{
+    for (Responses::ESearch::IncrementalContextData_t::const_iterator it = updates.constBegin(); it != updates.constEnd(); ++it) {
+        switch (it->modification) {
+        case Responses::ESearch::ContextIncrementalItem::ADDTO:
+            for (int i = 0; i < it->uids.size(); ++i)  {
+                int offset = it->offset + i;
+                if (offset < 0 || offset >= m_currentSortResult.size()) {
+                    throw MailboxException("ESEARCH: ADDTO out of bounds");
+                }
+                m_currentSortResult.insert(offset, it->uids[i]);
+            }
+            break;
+
+        case Responses::ESearch::ContextIncrementalItem::REMOVEFROM:
+            for (int i = 0; i < it->uids.size(); ++i)  {
+                if (it->offset == 0) {
+                    // When the offset is not given, we have to find it ourselves
+                    m_currentSortResult.removeOne(it->uids[i]);
+                } else {
+                    // We're given an offset, so let's make sure it is a correct one
+                    int offset = it->offset + i - 1;
+                    if (offset < 0 || offset >= m_currentSortResult.size()) {
+                        throw MailboxException("ESEARCH: REMOVEFROM out of bounds");
+                    }
+                    if (m_currentSortResult[offset] != it->uids[i]) {
+                        throw MailboxException("ESEARCH: REMOVEFROM UID mismatch");
+                    }
+                    m_currentSortResult.removeAt(offset);
+                }
+            }
+            break;
+        }
+    }
+    m_searchValidity = SEARCH_RESULT_FRESH;
+    wantThreading();
 }
 
 /** @short Store UIDs of the thread roots as the "current search order" */
@@ -711,6 +736,7 @@ void ThreadingMsgListModel::calculateNullSort()
         if (it->uid)
             m_currentSortResult.append(it->uid);
     }
+    m_searchValidity = SEARCH_RESULT_FRESH;
 }
 
 void ThreadingMsgListModel::applyThreading(const QVector<Imap::Responses::ThreadingNode> &mapping)
@@ -795,7 +821,7 @@ void ThreadingMsgListModel::applyThreading(const QVector<Imap::Responses::Thread
     emit layoutChanged();
 
     // If the sorting was active before, we shall reactivate it now
-    setUserSortingPreference(m_currentSortingCriteria, m_sortReverse ? Qt::DescendingOrder : Qt::AscendingOrder);
+    searchSortPreferenceImplementation(m_currentSearchConditions, m_currentSortingCriteria, m_sortReverse ? Qt::DescendingOrder : Qt::AscendingOrder);
 }
 
 void ThreadingMsgListModel::registerThreading(const QVector<Imap::Responses::ThreadingNode> &mapping, uint parentId, const QHash<uint,void *> &uidToPtr, QSet<uint> &usedNodes)
@@ -870,8 +896,12 @@ void ThreadingMsgListModel::updatePersistentIndexesPhase2()
             continue;
         }
         QHash<uint,ThreadNodeInfo>::const_iterator it = threading.constFind(*ptrIt);
-        Q_ASSERT(it != threading.constEnd());
-        updatedIndexes.append(createIndex(it->offset, oldPersistentIndexes[i].column(), it->internalId));
+        if (it == threading.constEnd()) {
+            // Filtering doesn't accept this index, let's declare it dead
+            updatedIndexes.append(QModelIndex());
+        } else {
+            updatedIndexes.append(createIndex(it->offset, oldPersistentIndexes[i].column(), it->internalId));
+        }
     }
     Q_ASSERT(oldPersistentIndexes.size() == updatedIndexes.size());
     changePersistentIndexList(oldPersistentIndexes, updatedIndexes);
@@ -1063,7 +1093,14 @@ void ThreadingMsgListModel::setUserWantsThreading(bool enable)
     }
 }
 
-bool ThreadingMsgListModel::setUserSortingPreference(const SortCriterium criterium, const Qt::SortOrder order)
+bool ThreadingMsgListModel::setUserSearchingSortingPreference(const QStringList &searchConditions, const SortCriterium criterium, const Qt::SortOrder order)
+{
+    wantThreading(SKIP_SORT_SEARCH);
+    return searchSortPreferenceImplementation(searchConditions, criterium, order);
+}
+
+/** @short The workhorse behind setUserSearchingSortingPreference() */
+bool ThreadingMsgListModel::searchSortPreferenceImplementation(const QStringList &searchConditions, const SortCriterium criterium, const Qt::SortOrder order)
 {
     Q_ASSERT(sourceModel());
     if (!sourceModel()->rowCount()) {
@@ -1111,10 +1148,36 @@ bool ThreadingMsgListModel::setUserSortingPreference(const SortCriterium criteri
         sortOptions << (hasDisplaySort ? QLatin1String("DISPLAYTO") : QLatin1String("TO"));
         break;
     case SORT_NONE:
-        // This operaiton is special, it will immediately restore the original sort order
+        if (m_sortTask && m_sortTask->isPersistent() &&
+                (m_currentSearchConditions != searchConditions || m_currentSortingCriteria != criterium)) {
+            // Any change shall result in us killing that sort task
+            m_sortTask->cancelSortingUpdates();
+        }
+
         m_currentSortingCriteria = criterium;
-        calculateNullSort();
-        applySort();
+
+        if (searchConditions.isEmpty()) {
+            // This operation is special, it will immediately restore the original shape of the mailbox
+            m_currentSearchConditions = searchConditions;
+            calculateNullSort();
+            applySort();
+            return true;
+        } else if (searchConditions != m_currentSearchConditions || m_searchValidity != SEARCH_RESULT_FRESH) {
+            // We have to update our search conditions
+            m_sortTask = realModel->m_taskFactory->createSortTask(const_cast<Model *>(realModel), mailboxIndex, searchConditions,
+                                                                  QStringList());
+            connect(m_sortTask, SIGNAL(sortingAvailable(QList<uint>)), this, SLOT(slotSortingAvailable(QList<uint>)));
+            connect(m_sortTask, SIGNAL(sortingFailed()), this, SLOT(slotSortingFailed()));
+            connect(m_sortTask, SIGNAL(incrementalSortUpdate(Imap::Responses::ESearch::IncrementalContextData_t)),
+                    this, SLOT(slotSortingIncrementalUpdate(Imap::Responses::ESearch::IncrementalContextData_t)));
+            m_currentSearchConditions = searchConditions;
+            m_searchValidity = SEARCH_RESULT_ASKED;
+        } else {
+            // A result of SEARCH has just arrived
+            Q_ASSERT(m_searchValidity == SEARCH_RESULT_FRESH);
+            applySort();
+        }
+
         return true;
     }
 
@@ -1124,19 +1187,25 @@ bool ThreadingMsgListModel::setUserSortingPreference(const SortCriterium criteri
     }
 
     Q_ASSERT(!sortOptions.isEmpty());
-    if (m_currentSortingCriteria == criterium && !m_currentSortResult.isEmpty()) {
+
+    if (m_currentSortingCriteria == criterium && m_currentSearchConditions == searchConditions &&
+            m_searchValidity != SEARCH_RESULT_INVALIDATED) {
         applySort();
     } else {
-        // FIXME: guard against multiple SORTs in future; this is a bit tricky, we cannot just return false from here
-        m_sortInProgress = true;
+        m_currentSearchConditions = searchConditions;
         m_currentSortingCriteria = criterium;
         calculateNullSort();
         applySort();
-        connect(realModel, SIGNAL(sortingAvailable(QModelIndex,QStringList,QList<uint>)),
-                this, SLOT(slotSortingAvailable(QModelIndex,QStringList,QList<uint>)));
-        connect(realModel, SIGNAL(sortingFailed(QModelIndex,QStringList)),
-                this, SLOT(slotSortingFailed(QModelIndex,QStringList)));
-        realModel->m_taskFactory->createSortTask(const_cast<Model *>(realModel), mailboxIndex, sortOptions);
+
+        if (m_sortTask && m_sortTask->isPersistent())
+            m_sortTask->cancelSortingUpdates();
+
+        m_sortTask = realModel->m_taskFactory->createSortTask(const_cast<Model *>(realModel), mailboxIndex, searchConditions, sortOptions);
+        connect(m_sortTask, SIGNAL(sortingAvailable(QList<uint>)), this, SLOT(slotSortingAvailable(QList<uint>)));
+        connect(m_sortTask, SIGNAL(sortingFailed()), this, SLOT(slotSortingFailed()));
+        connect(m_sortTask, SIGNAL(incrementalSortUpdate(Imap::Responses::ESearch::IncrementalContextData_t)),
+                this, SLOT(slotSortingIncrementalUpdate(Imap::Responses::ESearch::IncrementalContextData_t)));
+        m_searchValidity = SEARCH_RESULT_ASKED;
     }
 
     return true;
@@ -1144,7 +1213,7 @@ bool ThreadingMsgListModel::setUserSortingPreference(const SortCriterium criteri
 
 void ThreadingMsgListModel::applySort()
 {
-    if (!rowCount()) {
+    if (!sourceModel()->rowCount()) {
         // empty mailbox is a corner case and it's already sorted anyway
         return;
     }
@@ -1158,6 +1227,7 @@ void ThreadingMsgListModel::applySort()
 
     emit layoutAboutToBeChanged();
     updatePersistentIndexesPhase1();
+    QSet<uint> newlyUnreachable(threading[0].children.toSet());
     threading[0].children.clear();
     threading[0].children.reserve(m_currentSortResult.size());
 
@@ -1181,8 +1251,36 @@ void ThreadingMsgListModel::applySort()
         threading[*it].offset = threading[0].children.size();
         threading[0].children.append(*it);
     }
+
+    // Now remove everything which is no longer reachable from the root of the thread mapping
+    newlyUnreachable -= threading[0].children.toSet();
+    while (!newlyUnreachable.isEmpty()) {
+        QSet<uint>::iterator it = newlyUnreachable.begin();
+        uint item = *it;
+        newlyUnreachable.erase(it);
+        QHash<uint,ThreadNodeInfo>::iterator threadingIt = threading.find(item);
+        Q_ASSERT(threadingIt != threading.end());
+        newlyUnreachable += threadingIt->children.toSet();
+        threading.erase(threadingIt);
+    }
+
     updatePersistentIndexesPhase2();
     emit layoutChanged();
+}
+
+QStringList ThreadingMsgListModel::currentSearchCondition() const
+{
+    return m_currentSearchConditions;
+}
+
+ThreadingMsgListModel::SortCriterium ThreadingMsgListModel::currentSortCriterium() const
+{
+    return m_currentSortingCriteria;
+}
+
+Qt::SortOrder ThreadingMsgListModel::currentSortOrder() const
+{
+    return m_sortReverse ? Qt::DescendingOrder : Qt::AscendingOrder;
 }
 
 }

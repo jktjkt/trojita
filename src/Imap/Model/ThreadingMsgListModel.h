@@ -23,6 +23,7 @@
 #define IMAP_THREADINGMSGLISTMODEL_H
 
 #include <QAbstractProxyModel>
+#include <QPointer>
 #include <QSet>
 #include "Imap/Parser/Response.h"
 
@@ -37,7 +38,9 @@ namespace Imap
 namespace Mailbox
 {
 
+class SortTask;
 class TreeItem;
+class TreeItemMsgList;
 
 /** @short A node in tree structure used for threading representation */
 struct ThreadNodeInfo {
@@ -140,6 +143,10 @@ public:
     */
     static QStringList supportedCapabilities();
 
+    QStringList currentSearchCondition() const;
+    SortCriterium currentSortCriterium() const;
+    Qt::SortOrder currentSortOrder() const;
+
 public slots:
     void resetMe();
     void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
@@ -155,17 +162,21 @@ public slots:
     void applyThreading(const QVector<Imap::Responses::ThreadingNode> &mapping);
 
     /** @short SORT response has arrived */
-    void slotSortingAvailable(const QModelIndex &mailbox, const QStringList &sortCriteria, const QList<uint> &uids);
+    void slotSortingAvailable(const QList<uint> &uids);
 
     /** @short SORT has failed */
-    void slotSortingFailed(const QModelIndex &mailbox, const QStringList &sortCriteria);
+    void slotSortingFailed();
+
+    /** @short Dynamic update to the current SORT order */
+    void slotSortingIncrementalUpdate(const Imap::Responses::ESearch::IncrementalContextData_t &updates);
 
     void applySort();
 
     /** @short Enable or disable threading */
     void setUserWantsThreading(bool enable);
 
-    bool setUserSortingPreference(const SortCriterium criterium, const Qt::SortOrder order = Qt::AscendingOrder);
+    bool setUserSearchingSortingPreference(const QStringList &searchConditions, const SortCriterium criterium,
+                                           const Qt::SortOrder order = Qt::AscendingOrder);
 
 private slots:
     /** @short Display messages without any threading at all, as a liner list */
@@ -174,16 +185,25 @@ private slots:
     /** @short Ask the model for a THREAD response */
     void askForThreading();
 
-    /** @short Apply cached THREAD response or ask for threading again */
-    void wantThreading();
-
 private:
     void updatePersistentIndexesPhase1();
     void updatePersistentIndexesPhase2();
 
+    /** @short Shall we ask for SORT/SEARCH automatically? */
+    typedef enum {
+        AUTO_SORT_SEARCH,
+        SKIP_SORT_SEARCH
+    } SkipSortSearch;
+
+    /** @short Apply cached THREAD response or ask for threading again */
+    void wantThreading(const SkipSortSearch skipSortSearch = AUTO_SORT_SEARCH);
+
     /** @short Convert the threading from a THREAD response and apply that threading to this model */
     void registerThreading(const QVector<Imap::Responses::ThreadingNode> &mapping, uint parentId,
                            const QHash<uint,void *> &uidToPtr, QSet<uint> &usedNodes);
+
+    bool searchSortPreferenceImplementation(const QStringList &searchConditions, const SortCriterium criterium,
+                                            const Qt::SortOrder order = Qt::AscendingOrder);
 
     /** @short Remove fake messages from the threading tree */
     void pruneTree();
@@ -198,9 +218,9 @@ private:
     /** @short Return some number from the thread mapping @arg mapping which is either the highest among them, or at least as high as the marker*/
     static uint findHighEnoughNumber(const QVector<Imap::Responses::ThreadingNode> &mapping, uint marker);
 
-    bool shouldIgnoreThisSortResponse(const QModelIndex &mailbox, const QStringList &sortCriteria);
-
     void calculateNullSort();
+
+    uint findHighestUidInMailbox(TreeItemMsgList *list);
 
     void logTrace(const QString &message);
 
@@ -221,7 +241,7 @@ private:
     uint threadingHelperLastId;
 
     /** @short Messages with unkown UIDs */
-    QSet<QPersistentModelIndex> unknownUids;
+    QSet<TreeItem*> unknownUids;
 
     /** @short Threading algorithm we're using for this request */
     QString requestedAlgorithm;
@@ -243,8 +263,8 @@ private:
     /** @short Is threading enabled, or shall we just use other features like sorting and filtering? */
     bool m_shallBeThreading;
 
-    /** @short A SORT command is in progress */
-    bool m_sortInProgress;
+    /** @short Task handling the SORT command */
+    QPointer<SortTask> m_sortTask;
 
     /** @short Shall we sort in a reversed order? */
     bool m_sortReverse;
@@ -255,8 +275,23 @@ private:
     /** @short Sorting criteria of the current copy of the sort result */
     SortCriterium m_currentSortingCriteria;
 
-    /** @short The current result of the SORT operation */
+    /** @short Search criteria of the current copy of the search/sort result */
+    QStringList m_currentSearchConditions;
+
+    /** @short The current result of the SORT operation
+
+    This variable holds the UIDs of all messages in this mailbox, sorted according to the current sorting criteria.
+    */
     QList<uint> m_currentSortResult;
+
+    /** @short Is the cached result of SEARCH/SORT fresh enough? */
+    typedef enum {
+        SEARCH_RESULT_ASKED, /**< We've asked for the data */
+        SEARCH_RESULT_FRESH, /**< The response has just arrived and didn't get invalidated since then */
+        SEARCH_RESULT_INVALIDATED /**< A new message has arrived, rendering our copy invalid */
+    } SearchResultValidity;
+
+    SearchResultValidity m_searchValidity;
 
     friend class ::ImapModelThreadingTest; // needs access to wantThreading();
 };

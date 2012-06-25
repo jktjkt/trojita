@@ -57,7 +57,7 @@ namespace Gui
 
 class AutoCompletionModel;
 class MessageView;
-class MsgListView;
+class MessageListWidget;
 class ProtocolLoggerWidget;
 class TaskProgressIndicator;
 
@@ -120,6 +120,7 @@ private slots:
     void slotHideRead();
     void slotSortingPreferenceChanged();
     void slotSortingConfirmed(int column, Qt::SortOrder order);
+    void slotSearchRequested(const QStringList &searchConditions);
     void slotCapabilitiesUpdated(const QStringList &capabilities);
 
     void slotMailboxDeleteFailed(const QString &mailbox, const QString &msg);
@@ -157,7 +158,7 @@ private:
     AutoCompletionModel *autoCompletionModel;
 
     QTreeView *mboxTree;
-    MsgListView *msgListTree;
+    MessageListWidget *msgListWidget;
     QTreeView *allTree;
     MessageView *msgView;
     QDockWidget *allDock;

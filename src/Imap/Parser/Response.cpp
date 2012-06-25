@@ -662,15 +662,61 @@ ESearch::ESearch(const QByteArray &line, int &start): seqOrUids(SEQUENCE)
 
     while (start < line.size() - 2) {
         QByteArray label = LowLevelParser::getAtom(line, start).toUpper();
+
         LowLevelParser::eatSpaces(line, start);
 
+        if (label == "ADDTO" || label == "REMOVEFROM") {
+            // These two are special, their structure is more complex and has to be parsed into a specialized storage
+
+            // We don't really want to use generic LowLevelParser::parseList() here as it'd happily cut our sequence-se
+            // into a list of numbers which we'd have to join back together and feed to LowLevelParser::getSequence.
+            // This hand-crafted code is better (and isn't so longer, either).
+
+            if (start >= line.size() - 2)
+                throw NoData("CONTEXT ESEARCH: no incremental update found", line, start);
+
+            if (line[start] != '(')
+                throw UnexpectedHere("CONTEXT ESEARCH: missing '('", line, start);
+            ++start;
+
+            do {
+                // Each ADDTO/REMOVEFROM record can contain many offsets-seq pairs
+
+                uint offset = LowLevelParser::getUInt(line, start);
+                LowLevelParser::eatSpaces(line, start);
+                QList<uint> uids = LowLevelParser::getSequence(line, start);
+
+                incrementalContextData.push_back(ContextIncrementalItem(
+                                                     (label == "ADDTO" ?
+                                                          ContextIncrementalItem::ADDTO :
+                                                          ContextIncrementalItem::REMOVEFROM),
+                                                     offset, uids));
+
+                LowLevelParser::eatSpaces(line, start);
+
+                if (start >= line.size() - 2)
+                    throw NoData("CONTEXT ESEARCH: truncated update record?", line, start);
+
+                if (line[start] == ')') {
+                    // end of current ADDTO/REMOVEFROM group
+                    ++start;
+                    LowLevelParser::eatSpaces(line, start);
+                    break;
+                }
+
+            } while (true);
+
+            // We're done processing this ESEARCH return item, move on to the next one
+            continue;
+        }
+
+        // A generic case: be prepapred to accept a (sequence of) numbers
+
         QList<uint> numbers = LowLevelParser::getSequence(line, start);
-        // There's no synatctit difference between a single-item sequence set and one number, which is why we always parse
-        // such "sequences" as mere numbers
-        if (numbers.size() == 1)
-            numData[label] = numbers.front();
-        else
-            listData[label] = numbers;
+        // There's no syntactic difference between a single-item sequence set and one number, which is why we always parse
+        // such "sequences" as full blown sequences. That's better than deal with two nasties of the ListData_t kind -- one such
+        // beast is more than enough, IMHO.
+        listData.push_back(qMakePair<QByteArray, QList<uint> >(label, numbers));
 
         LowLevelParser::eatSpaces(line, start);
     }
@@ -1038,13 +1084,28 @@ QTextStream &ESearch::dump(QTextStream &stream) const
         stream << "TAG " << tag << " ";
     if (seqOrUids == UIDS)
         stream << "UID ";
-    for (QMap<QByteArray, uint>::const_iterator it = numData.constBegin(); it != numData.constEnd(); ++it) {
-        stream << it.key() << " " << it.value() << " ";
-    }
-    for (QMap<QByteArray, QList<uint> >::const_iterator it = listData.constBegin(); it != listData.constEnd(); ++it) {
-        stream << it.key() << " (";
-        Q_FOREACH(const uint number, it.value()) {
+    for (ListData_t::const_iterator it = listData.constBegin(); it != listData.constEnd(); ++it) {
+        stream << it->first << " (";
+        Q_FOREACH(const uint number, it->second) {
             stream << number << " ";
+        }
+        stream << ") ";
+    }
+    for (IncrementalContextData_t::const_iterator it = incrementalContextData.constBegin();
+         it != incrementalContextData.constEnd(); ++it) {
+        switch (it->modification) {
+        case ContextIncrementalItem::ADDTO:
+            stream << "ADDTO (";
+            break;
+        case ContextIncrementalItem::REMOVEFROM:
+            stream << "REMOVEFROM (";
+            break;
+        default:
+            Q_ASSERT(false);
+        }
+        stream << it->offset << " ";
+        Q_FOREACH(const uint num, it->uids) {
+            stream << num << ' ';
         }
         stream << ") ";
     }
@@ -1279,7 +1340,7 @@ bool ESearch::eq(const AbstractResponse &other) const
 {
     try {
         const ESearch &s = dynamic_cast<const ESearch &>(other);
-        return tag == s.tag && seqOrUids == s.seqOrUids && numData == s.numData && listData == s.listData;
+        return tag == s.tag && seqOrUids == s.seqOrUids && listData == s.listData && incrementalContextData == s.incrementalContextData;
     } catch (std::bad_cast &) {
         return false;
     }

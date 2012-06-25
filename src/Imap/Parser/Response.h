@@ -403,24 +403,82 @@ public:
         UIDS /**< @short In UIDs */
     } SequencesOrUids;
 
+    /** @short Convenience typedef for the received data of the list type */
+    typedef QList<QPair<QByteArray, QList<uint> > > ListData_t;
+
+    /** @short Compare identifiers of the ListData_t list */
+    template <typename T>
+    class CompareListDataIdentifier: public std::unary_function<const typename T::value_type&, bool> {
+        QByteArray keyOne;
+        QByteArray keyTwo;
+        bool hasKeyTwo;
+    public:
+        /** @short Find a record which matches the given key */
+        explicit CompareListDataIdentifier(const QByteArray &key): keyOne(key), hasKeyTwo(false) {}
+
+        /** @short Find a record matching any of the two passed keys */
+        explicit CompareListDataIdentifier(const QByteArray &keyOne, const QByteArray &keyTwo):
+            keyOne(keyOne), keyTwo(keyTwo), hasKeyTwo(true) {}
+
+        bool operator() (const typename T::value_type & item) {
+            if (hasKeyTwo) {
+                return item.first == keyOne || item.first == keyTwo;
+            } else {
+                return item.first == keyOne;
+            }
+        }
+    };
+
+    /** @short Represent one item to be added/removed by an incremental SEARCH/SORT response */
+    struct ContextIncrementalItem {
+
+        /** @short Is this incremental update record about adding an item, or removing it?
+
+        These correspond to RFC 5267's ADDTO and REMOVEFROM identifiers.
+        */
+        typedef enum {
+            ADDTO, /**< ADDTO, adding items to the search/sort criteria */
+            REMOVEFROM /**< REMOVEFROM, removing items from the list of matches */
+        } Modification;
+
+        /** @short Type of modification */
+        Modification modification;
+
+        /** @short Offset at which the modification shall be performed */
+        uint offset;
+
+        /** @short Sequence of UIDs to apply */
+        QList<uint> uids;
+
+        ContextIncrementalItem(const Modification modification, const uint offset, const QList<uint> &uids):
+            modification(modification), offset(offset), uids(uids) {}
+
+        bool operator==(const ContextIncrementalItem &other) const {
+            return modification == other.modification && offset == other.offset && uids == other.uids;
+        }
+    };
+
+    typedef QList<ContextIncrementalItem> IncrementalContextData_t;
+
     /** @short The tag of the command which requested in this operation */
     QByteArray tag;
 
     /** @short Are the numbers given in UIDs, or as sequence numbers? */
     SequencesOrUids seqOrUids;
 
-    /** @short The received data: numbers */
-    QMap<QByteArray, uint> numData;
+    /** @short The received data: list of numbers */
+    ListData_t listData;
 
-    /** @short The received data: sequences */
-    QMap<QByteArray, QList<uint> > listData;
+    /** @short The received data: incremental updates to SEARCH/SORT according to RFC 5267 */
+    IncrementalContextData_t incrementalContextData;
 
     // Other forms of returned data are quite explicitly not supported.
 
     ESearch(const QByteArray &line, int &start);
-    ESearch(const QByteArray &tag, const SequencesOrUids seqOrUids, const QMap<QByteArray, uint> &numData,
-            const QMap<QByteArray, QList<uint> >&listData) :
-        AbstractResponse(ESEARCH), tag(tag), seqOrUids(seqOrUids), numData(numData), listData(listData) {}
+    ESearch(const QByteArray &tag, const SequencesOrUids seqOrUids, const ListData_t &listData) :
+        AbstractResponse(ESEARCH), tag(tag), seqOrUids(seqOrUids), listData(listData) {}
+    ESearch(const QByteArray &tag, const SequencesOrUids seqOrUids, const IncrementalContextData_t &incrementalContextData) :
+        AbstractResponse(ESEARCH), tag(tag), seqOrUids(seqOrUids), incrementalContextData(incrementalContextData) {}
     virtual QTextStream &dump(QTextStream &stream) const;
     virtual bool eq(const AbstractResponse &other) const;
     virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;

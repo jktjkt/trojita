@@ -368,12 +368,6 @@ signals:
     /** @short Failed to obtain threading information */
     void threadingFailed(const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria);
 
-    /** @short Sort result has arrived */
-    void sortingAvailable(const QModelIndex &mailbox, const QStringList &sortCriteria, const QList<uint> &uids);
-
-    /** @short Sort operation has failed */
-    void sortingFailed(const QModelIndex &mailbox, const QStringList &sortCriteria);
-
     void capabilitiesUpdated(const QStringList &capabilities);
 
     void logged(uint parserId, const Imap::Mailbox::LogMessage &message);

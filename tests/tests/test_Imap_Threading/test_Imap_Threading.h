@@ -38,6 +38,8 @@ private slots:
     void testThreadDeletionsAdditions();
     void testThreadDeletionsAdditions_data();
     void testDynamicSorting();
+    void testDynamicSortingContext();
+    void testDynamicSearch();
     void testThreadingPerformance();
     void testSortingPerformance();
 protected slots:

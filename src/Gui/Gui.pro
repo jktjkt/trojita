@@ -36,7 +36,8 @@ SOURCES += \
     TagListWidget.cpp \
     FlowLayout.cpp \
     TagWidget.cpp \
-    UserAgentWebPage.cpp
+    UserAgentWebPage.cpp \
+    MessageListWidget.cpp
 HEADERS += \
     ../Imap/Model/ModelTest/modeltest.h \
     ComposeWidget.h \
@@ -61,7 +62,8 @@ HEADERS += \
     TagListWidget.h \
     FlowLayout.h \
     TagWidget.h \
-    UserAgentWebPage.h
+    UserAgentWebPage.h \
+    MessageListWidget.h
 FORMS += CreateMailboxDialog.ui \
     ComposeWidget.ui \
     SettingsImapPage.ui \
