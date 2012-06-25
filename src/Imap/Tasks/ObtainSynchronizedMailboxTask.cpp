@@ -17,6 +17,7 @@
 */
 
 #include "ObtainSynchronizedMailboxTask.h"
+#include <algorithm>
 #include <sstream>
 #include <QTimer>
 #include "ItemRoles.h"

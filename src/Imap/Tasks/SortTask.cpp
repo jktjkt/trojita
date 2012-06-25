@@ -16,8 +16,8 @@
    Boston, MA 02110-1301, USA.
 */
 
-
 #include "SortTask.h"
+#include <algorithm>
 #include "ItemRoles.h"
 #include "KeepMailboxOpenTask.h"
 #include "Model.h"
