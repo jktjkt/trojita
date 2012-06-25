@@ -35,7 +35,9 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     tree = new MsgListView(this);
 
     m_quickSearchText = new QLineEdit(this);
+#if QT_VERSION >= 0x040700
     m_quickSearchText->setPlaceholderText(tr("Quick Search..."));
+#endif
 
     connect(m_quickSearchText, SIGNAL(returnPressed()), this, SLOT(slotApplySearch()));
     connect(m_quickSearchText, SIGNAL(textChanged(QString)), this, SLOT(slotAutoHideOptionsBar()));
