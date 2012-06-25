@@ -724,14 +724,15 @@ void Parser::executeACommand()
         case Commands::LITERAL:
             if (literalPlus) {
                 buf.append('{');
-                buf.append(QByteArray::number(part.text.size()));
+                QByteArray inUtf8 = part.text.toUtf8();
+                buf.append(QByteArray::number(inUtf8.size()));
                 buf.append("+}\r\n");
-                buf.append(part.text);
+                buf.append(inUtf8);
             } else if (part.numberSent) {
-                buf.append(part.text);
+                buf.append(part.text.toUtf8());
             } else {
                 buf.append('{');
-                buf.append(QByteArray::number(part.text.size()));
+                buf.append(QByteArray::number(part.text.toUtf8().size()));
                 buf.append("}\r\n");
 #ifdef PRINT_TRAFFIC_TX
                 if (printThisCommand)
