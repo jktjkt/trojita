@@ -1070,6 +1070,10 @@ void ImapModelThreadingTest::testDynamicSearch()
     expectedUidOrder = uidMap;
     checkUidMapFromThreading(expectedUidOrder);
 
+    // FIXME: check threading & searching combo
+    // FIXME: check sorting & searching combo
+    // FIXME: check threading & sorting & searching combo
+    // FIXME: check incremental updates
     // FIXME: finalize me
 
     cEmpty();
