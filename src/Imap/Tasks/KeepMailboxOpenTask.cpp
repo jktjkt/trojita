@@ -479,8 +479,10 @@ bool KeepMailboxOpenTask::handleStateHelper(const Imap::Responses::State *const 
         Q_ASSERT(idleLauncher);
         if (resp->kind == Responses::OK) {
             // The IDLE got terminated for whatever reason, so we should schedule its restart
-            // FIXME: possible race; we shouldn't start it when there are other tasks in flight
             idleLauncher->idleCommandCompleted();
+            if (canRunIdleRightNow()) {
+                idleLauncher->enterIdleLater();
+            }
         } else {
             // The IDLE command has failed. Let's assume it's a permanent error and don't request it in future.
             log("The IDLE command has failed");
@@ -619,6 +621,8 @@ void KeepMailboxOpenTask::activateTasks()
     if (!isRunning)
         return;
 
+    breakOrCancelPossibleIdle();
+
     slotFetchRequestedEnvelopes();
     slotFetchRequestedParts();
 
@@ -635,6 +639,9 @@ void KeepMailboxOpenTask::activateTasks()
         dependentTasks.removeOne(task);
         task->perform();
     }
+
+    if (idleLauncher && canRunIdleRightNow())
+        idleLauncher->enterIdleLater();
 }
 
 void KeepMailboxOpenTask::requestPartDownload(const uint uid, const QString &partId, const uint estimatedSize)

@@ -130,7 +130,6 @@ void IdleLauncher::idleCommandCompleted()
     }
     Q_ASSERT(m_idleCommandRunning);
     m_idleCommandRunning = false;
-    enterIdleLater();
 }
 
 void IdleLauncher::idleCommandFailed()
