@@ -187,7 +187,13 @@ QByteArray ComposeWidget::generateMessageId(const Imap::Message::MailAddress &se
         // There's no usable domain, let's just bail out of here
         return QByteArray();
     }
-    return QUuid::createUuid().toByteArray().replace("{", "").replace("}", "") + "@" + sender.host.toAscii();
+    return QUuid::createUuid()
+#if QT_VERSION >= 0x040800
+            .toByteArray()
+#else
+            .toString().toAscii()
+#endif
+            .replace("{", "").replace("}", "") + "@" + sender.host.toAscii();
 }
 
 void ComposeWidget::setData(const QString &from, const QList<QPair<QString, QString> > &recipients,
