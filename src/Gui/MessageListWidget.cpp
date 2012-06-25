@@ -41,7 +41,13 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     connect(m_quickSearchText, SIGNAL(textChanged(QString)), this, SLOT(slotAutoHideOptionsBar()));
 
     m_searchOptionsBar = new QWidget(this);
-    m_searchFuzzy = new QCheckBox(tr("Fuzzy Search"), m_searchOptionsBar);
+
+    // The option bar shall use a slightly smaller font size
+    QFont f = font();
+    f.setPointSizeF(f.pointSizeF() * 0.80);
+    m_searchOptionsBar->setFont(f);
+
+    m_searchFuzzy = new QCheckBox(tr("Fuzzy"), m_searchOptionsBar);
     m_searchInSubject = new QCheckBox(tr("Subject"), m_searchOptionsBar);
     m_searchInSubject->setChecked(true);
     m_searchInBody = new QCheckBox(tr("Body"), m_searchOptionsBar);
@@ -51,12 +57,14 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
 
     QHBoxLayout *fieldsLayout = new QHBoxLayout(m_searchOptionsBar);
     fieldsLayout->addWidget(m_searchFuzzy);
+    fieldsLayout->addStretch();
     fieldsLayout->addWidget(m_searchInSubject);
     fieldsLayout->addWidget(m_searchInBody);
     fieldsLayout->addWidget(m_searchInSenders);
     fieldsLayout->addWidget(m_searchInRecipients);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->setSpacing(0);
     layout->addWidget(m_quickSearchText);
     layout->addWidget(m_searchOptionsBar);
     layout->addWidget(tree);
