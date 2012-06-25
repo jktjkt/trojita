@@ -248,6 +248,7 @@ protected:
     QList<CommandHandle> newArrivalsFetch;
     friend class IdleLauncher;
     friend class ObtainSynchronizedMailboxTask; // needs access to slotUnSelectCompleted()
+    friend class SortTask; // needs access to breakOrCancelPossibleIdle()
     friend class UnSelectTask; // needs access to breakPossibleIdle()
     friend class TreeItemMailbox; // wants to know if our index is OK
     friend class ::ImapModelIdleTest;

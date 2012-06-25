@@ -243,6 +243,9 @@ void SortTask::cancelSortingUpdates()
 {
     Q_ASSERT(m_persistentSearch);
     Q_ASSERT(!sortTag.isEmpty());
+    KeepMailboxOpenTask *keepTask = dynamic_cast<KeepMailboxOpenTask*>(conn);
+    Q_ASSERT(keepTask);
+    keepTask->breakOrCancelPossibleIdle();
     cancelUpdateTag = parser->cancelUpdate(sortTag);
 }
 
