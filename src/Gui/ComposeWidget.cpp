@@ -88,6 +88,7 @@ bool ComposeWidget::buildMessageData()
     m_rawMessageData.clear();
     m_fromAddress.clear();
     m_destinations.clear();
+    m_messageTimestamp = QDateTime::currentDateTime();
 
     QList<QPair<RecipientKind,Imap::Message::MailAddress> > recipients;
     if (!parseRecipients(recipients)) {
@@ -133,7 +134,7 @@ bool ComposeWidget::buildMessageData()
     if (!messageId.isEmpty()) {
         m_rawMessageData.append("Message-ID: <").append(messageId).append(">\r\n");
     }
-    m_rawMessageData.append("Date: ").append(Imap::currentDateToRfc2822()).append("\r\n");
+    m_rawMessageData.append("Date: ").append(Imap::dateTimeToRfc2822(m_messageTimestamp)).append("\r\n");
     m_rawMessageData.append("User-Agent: ").append(
                 QString::fromAscii("%1/%2; %3")
                 .arg(qApp->applicationName(), qApp->applicationVersion(), Imap::Mailbox::systemPlatformVersion()).toAscii()

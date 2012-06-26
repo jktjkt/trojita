@@ -21,8 +21,8 @@
 #ifndef IMAP_MAILBOX_UTILS_H
 #define IMAP_MAILBOX_UTILS_H
 
+#include <QDateTime>
 #include <QObject>
-#include <QString>
 
 class QSslCertificate;
 class QSslError;
@@ -74,7 +74,9 @@ public:
 
 }
 
-QString currentDateToRfc2822();
+QString formatDateTimeWithTimeZoneAtEnd(const QDateTime &now, const QString &format);
+QString dateTimeToRfc2822(const QDateTime &now);
+QString dateTimeToInternalDate(const QDateTime &now);
 
 }
 

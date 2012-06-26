@@ -90,6 +90,7 @@ private:
     QByteArray m_rawMessageData;
     QByteArray m_fromAddress;
     QList<QByteArray> m_destinations;
+    QDateTime m_messageTimestamp;
 
     ComposeWidget(const ComposeWidget &); // don't implement
     ComposeWidget &operator=(const ComposeWidget &); // don't implement

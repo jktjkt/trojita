@@ -23,6 +23,7 @@
 #include <QDateTime>
 #include <QDesktopServices>
 #include <QDir>
+#include <QLocale>
 #include <QProcess>
 #include <QSslError>
 #include <QSysInfo>
@@ -471,11 +472,10 @@ This function will return RFC2822-formatted current date with proper timezone in
 It's rather surprising how hard is to do that in Qt -- why is there no accessor for the timezone info which is *already stored*
 in QDateTime?
 */
-QString currentDateToRfc2822()
+QString formatDateTimeWithTimeZoneAtEnd(const QDateTime &now, const QString &format)
 {
     // At first, try to find out the offset of the current timezone. That's the part which sucks.
     // If there's a more Qt-ish way of doing that, please let me know.
-    QDateTime now = QDateTime::currentDateTime();
     // that's right, both of these command are actually needed
     QDateTime nowUtc = now.toUTC();
     nowUtc.setTimeSpec(Qt::LocalTime);
@@ -486,10 +486,23 @@ QString currentDateToRfc2822()
     int tzOffsetHours = qAbs(minutesDifference) / 60;
     int tzOffsetMinutes = qAbs(minutesDifference) % 60;
     // The rest is just a piece of cake now
-    return QDateTime::currentDateTime().toString(QLatin1String("ddd, dd MMM yyyy hh:mm:ss ")) +
+
+    return QLocale(QLatin1String("C")).toString(now, format) +
             QLatin1String(minutesDifference >= 0 ? "+" : "-") +
             QString::number(tzOffsetHours).rightJustified(2, QLatin1Char('0')) +
             QString::number(tzOffsetMinutes).rightJustified(2, QLatin1Char('0'));
+}
+
+/** @short Return current date in the RFC2822 format */
+QString dateTimeToRfc2822(const QDateTime &now)
+{
+    return formatDateTimeWithTimeZoneAtEnd(now, QLatin1String("ddd, dd MMM yyyy hh:mm:ss "));
+}
+
+/** @short Return current date in the RFC3501's INTERNALDATE format */
+QString dateTimeToInternalDate(const QDateTime &now)
+{
+    return formatDateTimeWithTimeZoneAtEnd(now, QLatin1String("dd-MMM-yyyy hh:mm:ss "));
 }
 
 }

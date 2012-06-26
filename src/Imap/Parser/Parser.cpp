@@ -30,6 +30,7 @@
 #include "Imap/Encoders.h"
 #include "LowLevelParser.h"
 #include "../../Streams/IODeviceSocket.h"
+#include "../Model/Utils.h"
 
 //#define PRINT_TRAFFIC 100
 //#define PRINT_TRAFFIC_TX 500
@@ -257,7 +258,7 @@ CommandHandle Parser::append(const QString &mailbox, const QByteArray &message, 
     if (flags.count())
         command << Commands::PartOfCommand(Commands::ATOM, "(" + flags.join(" ").toAscii() + ")");
     if (timestamp.isValid())
-        command << Commands::PartOfCommand(timestamp.toString().toAscii());
+        command << Commands::PartOfCommand(Imap::dateTimeToInternalDate(timestamp).toAscii());
     command << Commands::PartOfCommand(Commands::LITERAL, message);
 
     return queueCommand(command);
