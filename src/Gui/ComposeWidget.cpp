@@ -83,8 +83,76 @@ void ComposeWidget::changeEvent(QEvent *e)
     }
 }
 
+bool ComposeWidget::buildMessageData()
+{
+    m_rawMessageData.clear();
+    m_fromAddress.clear();
+    m_destinations.clear();
+
+    QList<QPair<RecipientKind,Imap::Message::MailAddress> > recipients;
+    if (!parseRecipients(recipients)) {
+        gotError(tr("Cannot parse recipients"));
+        return false;
+    }
+
+    QByteArray recipientHeaders;
+    for (QList<QPair<RecipientKind,Imap::Message::MailAddress> >::const_iterator it = recipients.begin();
+         it != recipients.end(); ++it) {
+        m_destinations << it->second.asSMTPMailbox();
+        switch(it->first) {
+        case Recipient_To:
+            recipientHeaders.append("To: ").append(it->second.asMailHeader()).append("\r\n");
+            break;
+        case Recipient_Cc:
+            recipientHeaders.append("Cc: ").append(it->second.asMailHeader()).append("\r\n");
+            break;
+        case Recipient_Bcc:
+            break;
+        }
+    }
+
+    if (m_destinations.isEmpty()) {
+        gotError(tr("You haven't entered any recipients"));
+        return false;
+    }
+
+    Imap::Message::MailAddress fromAddress;
+    if (!Imap::Message::MailAddress::fromPrettyString(fromAddress, ui->sender->currentText())) {
+        gotError(tr("The From: address does not look like a valid one"));
+        return false;
+    }
+    m_fromAddress = fromAddress.asSMTPMailbox();
+
+    m_rawMessageData.append("From: ").append(fromAddress.asMailHeader()).append("\r\n");
+    m_rawMessageData.append(recipientHeaders);
+    m_rawMessageData.append("Subject: ").append(encodeHeaderField(ui->subject->text())).append("\r\n");
+    m_rawMessageData.append("Content-Type: text/plain; charset=utf-8\r\n"
+                            "Content-Transfer-Encoding: quoted-printable\r\n");
+
+    QByteArray messageId = generateMessageId(fromAddress);
+    if (!messageId.isEmpty()) {
+        m_rawMessageData.append("Message-ID: <").append(messageId).append(">\r\n");
+    }
+    m_rawMessageData.append("Date: ").append(Imap::currentDateToRfc2822()).append("\r\n");
+    m_rawMessageData.append("User-Agent: ").append(
+                QString::fromAscii("%1/%2; %3")
+                .arg(qApp->applicationName(), qApp->applicationVersion(), Imap::Mailbox::systemPlatformVersion()).toAscii()
+    ).append("\r\n");
+    m_rawMessageData.append("MIME-Version: 1.0\r\n");
+    if (!m_inReplyTo.isEmpty()) {
+        m_rawMessageData.append("In-Reply-To: ").append(m_inReplyTo).append("\r\n");
+    }
+    m_rawMessageData.append("\r\n");
+    m_rawMessageData.append(Imap::quotedPrintableEncode(ui->mailText->toPlainText().toUtf8()));
+
+    return true;
+}
+
 void ComposeWidget::send()
 {
+    if (!buildMessageData())
+        return;
+
     using Common::SettingsNames;
     QSettings s;
     MSA::AbstractMSA *msa = 0;
@@ -108,63 +176,8 @@ void ComposeWidget::send()
         msa = new MSA::Sendmail(this, appName, args);
     }
 
-    QList<QPair<RecipientKind,Imap::Message::MailAddress> > recipients;
-    if (!parseRecipients(recipients)) {
-        return;
-    }
-    QList<QByteArray> mailDestinations;
-    QByteArray recipientHeaders;
-    for (QList<QPair<RecipientKind,Imap::Message::MailAddress> >::const_iterator it = recipients.begin();
-         it != recipients.end(); ++it) {
-        mailDestinations << it->second.asSMTPMailbox();
-        switch(it->first) {
-        case Recipient_To:
-            recipientHeaders.append("To: ").append(it->second.asMailHeader()).append("\r\n");
-            break;
-        case Recipient_Cc:
-            recipientHeaders.append("Cc: ").append(it->second.asMailHeader()).append("\r\n");
-            break;
-        case Recipient_Bcc:
-            break;
-        }
-    }
-
-    if (mailDestinations.isEmpty()) {
-        QMessageBox::critical(this, tr("No Way"), tr("You haven't entered any recipients"));
-        return;
-    }
-
-    Imap::Message::MailAddress fromAddress;
-    if (!Imap::Message::MailAddress::fromPrettyString(fromAddress, ui->sender->currentText())) {
-        gotError(tr("The From: address does not look like a valid one"));
-        return;
-    }
-
-    QByteArray mailData;
-    mailData.append("From: ").append(fromAddress.asMailHeader()).append("\r\n");
-    mailData.append(recipientHeaders);
-    mailData.append("Subject: ").append(encodeHeaderField(ui->subject->text())).append("\r\n");
-    mailData.append("Content-Type: text/plain; charset=utf-8\r\n"
-                    "Content-Transfer-Encoding: quoted-printable\r\n");
-
-    QByteArray messageId = generateMessageId(fromAddress);
-    if (!messageId.isEmpty()) {
-        mailData.append("Message-ID: <").append(messageId).append(">\r\n");
-    }
-    mailData.append("Date: ").append(Imap::currentDateToRfc2822()).append("\r\n");
-    mailData.append("User-Agent: ").append(
-        QString::fromAscii("%1/%2; %3")
-                .arg(qApp->applicationName(), qApp->applicationVersion(), Imap::Mailbox::systemPlatformVersion()).toAscii()
-    ).append("\r\n");
-    mailData.append("MIME-Version: 1.0\r\n");
-    if (!m_inReplyTo.isEmpty()) {
-        mailData.append("In-Reply-To: ").append(m_inReplyTo).append("\r\n");
-    }
-    mailData.append("\r\n");
-    mailData.append(Imap::quotedPrintableEncode(ui->mailText->toPlainText().toUtf8()));
-
     QProgressDialog *progress = new QProgressDialog(
-        tr("Sending mail"), tr("Abort"), 0, mailData.size(), this);
+        tr("Sending mail"), tr("Abort"), 0, m_rawMessageData.size(), this);
     progress->setMinimumDuration(0);
     connect(msa, SIGNAL(progressMax(int)), progress, SLOT(setMaximum(int)));
     connect(msa, SIGNAL(progress(int)), progress, SLOT(setValue(int)));
@@ -178,7 +191,7 @@ void ComposeWidget::send()
     setEnabled(false);
     progress->setEnabled(true);
 
-    msa->sendMail(fromAddress.asSMTPMailbox(), mailDestinations, mailData);
+    msa->sendMail(m_fromAddress, m_destinations, m_rawMessageData);
 }
 
 QByteArray ComposeWidget::generateMessageId(const Imap::Message::MailAddress &sender)

@@ -78,12 +78,18 @@ private:
     bool parseRecipients(QList<QPair<ComposeWidget::RecipientKind, Imap::Message::MailAddress> > &results);
     static QByteArray generateMessageId(const Imap::Message::MailAddress &sender);
 
+    bool buildMessageData();
+
     Ui::ComposeWidget *ui;
     QPushButton *sendButton;
     QPushButton *cancelButton;
     QList<QComboBox *> recipientsKind;
     QList<QLineEdit *> recipientsAddress;
     QByteArray m_inReplyTo;
+
+    QByteArray m_rawMessageData;
+    QByteArray m_fromAddress;
+    QList<QByteArray> m_destinations;
 
     ComposeWidget(const ComposeWidget &); // don't implement
     ComposeWidget &operator=(const ComposeWidget &); // don't implement
