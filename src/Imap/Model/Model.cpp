@@ -25,6 +25,7 @@
 #include <QDebug>
 #include <QtAlgorithms>
 #include "Model.h"
+#include "AppendTask.h"
 #include "GetAnyConnectionTask.h"
 #include "KeepMailboxOpenTask.h"
 #include "MailboxTree.h"
@@ -1744,6 +1745,12 @@ void Model::invalidateAllMessageCounts()
             emit dataChanged(idx, idx);
         }
     }
+}
+
+ImapTask *Model::appendIntoMailbox(const QString &mailbox, const QByteArray &rawMessageData, const QStringList &flags,
+                              const QDateTime &timestamp)
+{
+    return m_taskFactory->createAppendTask(this, mailbox, rawMessageData, flags, timestamp);
 }
 
 #ifdef TROJITA_DEBUG_TASK_TREE

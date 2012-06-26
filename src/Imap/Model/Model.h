@@ -185,6 +185,10 @@ public:
     /** @short Delete an existing mailbox */
     void deleteMailbox(const QString &name);
 
+    /** @short Save a message into a mailbox */
+    ImapTask* appendIntoMailbox(const QString &mailbox, const QByteArray &rawMessageData, const QStringList &flags,
+                                const QDateTime &timestamp);
+
     /** @short Returns true if we are allowed to access the network */
     bool isNetworkAvailable() const { return m_netPolicy != NETWORK_OFFLINE; }
     /** @short Returns true if the network access is cheap */
@@ -415,6 +419,7 @@ private:
     friend class UnSelectTask;
     friend class OfflineConnectionTask;
     friend class SortTask;
+    friend class AppendTask;
 
     friend class TestingTaskFactory; // needs access to socketFactory
 

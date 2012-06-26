@@ -17,6 +17,7 @@
 */
 
 #include "TaskFactory.h"
+#include "AppendTask.h"
 #include "CopyMoveMessagesTask.h"
 #include "CreateMailboxTask.h"
 #include "DeleteMailboxTask.h"
@@ -149,6 +150,12 @@ UnSelectTask *TaskFactory::createUnSelectTask(Model *model, ImapTask *parentTask
 SortTask *TaskFactory::createSortTask(Model *model, const QModelIndex &mailbox, const QStringList &searchConditions, const QStringList &sortCriteria)
 {
     return new SortTask(model, mailbox, searchConditions, sortCriteria);
+}
+
+AppendTask *TaskFactory::createAppendTask(Model *model, const QString &targetMailbox, const QByteArray &rawMessageData,
+                                          const QStringList &flags, const QDateTime &timestamp)
+{
+    return new AppendTask(model, targetMailbox, rawMessageData, flags, timestamp);
 }
 
 
