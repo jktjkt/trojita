@@ -8,6 +8,7 @@ QT += core \
     sql
 include(../../install.pri)
 include(../../configh.pri)
+include(../Streams/ZlibLinking.pri)
 INCLUDEPATH += ../
 DEPENDPATH += ../
 DEFINES -= QT3_SUPPORT
