@@ -20,6 +20,7 @@
 #include <QTimer>
 #include "ItemRoles.h"
 #include "Model/TaskPresentationModel.h"
+#include "Streams/TrojitaZlibStatus.h"
 
 namespace Imap
 {
@@ -144,7 +145,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
             // Cool, we're already authenticated. Now, let's see if we have to issue CAPABILITY or if we already know that
             if (model->accessParser(parser).capabilitiesFresh) {
                 // We're alsmost done here, apart from compression
-                if (model->accessParser(parser).capabilities.contains(QLatin1String("COMPRESS=DEFLATE"))) {
+                if (TROJITA_COMPRESS_DEFLATE && model->accessParser(parser).capabilities.contains(QLatin1String("COMPRESS=DEFLATE"))) {
                     compressCmd = parser->compressDeflate();
                     model->changeConnectionState(parser, CONN_STATE_COMPRESS_DEFLATE);
                 } else {
@@ -249,7 +250,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
             if (resp->kind == OK) {
                 if (resp->respCode == CAPABILITIES || model->accessParser(parser).capabilitiesFresh) {
                     // Capabilities are already known
-                    if (model->accessParser(parser).capabilities.contains(QLatin1String("COMPRESS=DEFLATE"))) {
+                    if (TROJITA_COMPRESS_DEFLATE && model->accessParser(parser).capabilities.contains(QLatin1String("COMPRESS=DEFLATE"))) {
                         compressCmd = parser->compressDeflate();
                         model->changeConnectionState(parser, CONN_STATE_COMPRESS_DEFLATE);
                     } else {

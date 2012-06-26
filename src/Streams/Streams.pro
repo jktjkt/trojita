@@ -5,15 +5,23 @@ INCLUDEPATH += ../
 DEPENDPATH += ../
 TARGET = Streams
 TEMPLATE = lib
+
+unix {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += zlib
+    DEFINES += TROJITA_HAVE_ZLIB
+    HEADERS += 3rdparty/rfc1951.h
+    SOURCES += 3rdparty/rfc1951.cpp
+}
+
 SOURCES += Socket.cpp \
     SocketFactory.cpp \
     IODeviceSocket.cpp \
     DeletionWatcher.cpp \
-    FakeSocket.cpp \
-    3rdparty/rfc1951.cpp
+    FakeSocket.cpp
 HEADERS += Socket.h \
     SocketFactory.h \
     IODeviceSocket.h \
     DeletionWatcher.h \
     FakeSocket.h \
-    3rdparty/rfc1951.h
+    TrojitaZlibStatus.h

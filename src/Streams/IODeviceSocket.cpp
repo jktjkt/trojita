@@ -23,7 +23,10 @@
 #include <QTimer>
 #include "IODeviceSocket.h"
 #include "Imap/Exceptions.h"
+#include "TrojitaZlibStatus.h"
+#ifdef TROJITA_COMPRESS_DEFLATE
 #include "3rdparty/rfc1951.h"
+#endif
 
 namespace Imap
 {
@@ -41,43 +44,52 @@ IODeviceSocket::IODeviceSocket(QIODevice *device): d(device), m_compressor(0), m
 IODeviceSocket::~IODeviceSocket()
 {
     d->deleteLater();
+#if TROJITA_COMPRESS_DEFLATE
     delete m_compressor;
     delete m_decompressor;
+#endif
 }
 
 bool IODeviceSocket::canReadLine()
 {
+#if TROJITA_COMPRESS_DEFLATE
     if (m_decompressor) {
         return m_decompressor->canReadLine();
     }
+#endif
     return d->canReadLine();
 }
 
 QByteArray IODeviceSocket::read(qint64 maxSize)
 {
+#if TROJITA_COMPRESS_DEFLATE
     if (m_decompressor) {
         return m_decompressor->read(maxSize);
     }
+#endif
     return d->read(maxSize);
 }
 
 QByteArray IODeviceSocket::readLine(qint64 maxSize)
 {
+#if TROJITA_COMPRESS_DEFLATE
     if (m_decompressor) {
         // FIXME: well, we apparently don't respect the maxSize argument...
         return m_decompressor->readLine();
     }
+#endif
     return d->readLine(maxSize);
 }
 
 qint64 IODeviceSocket::write(const QByteArray &byteArray)
 {
+#if TROJITA_COMPRESS_DEFLATE
     if (m_compressor) {
         m_compressor->write(d, &const_cast<QByteArray&>(byteArray));
         return byteArray.size();
-    } else {
-        return d->write(byteArray);
     }
+#endif
+    return d->write(byteArray);
 }
 
 void IODeviceSocket::startTls()
@@ -85,8 +97,10 @@ void IODeviceSocket::startTls()
     QSslSocket *sock = qobject_cast<QSslSocket *>(d);
     if (! sock)
         throw InvalidArgument("This IODeviceSocket is not a QSslSocket, and therefore doesn't support STARTTLS.");
+#if TROJITA_COMPRESS_DEFLATE
     if (m_compressor || m_decompressor)
         throw InvalidArgument("DEFLATE is already active, cannot STARTTLS");
+#endif
     sock->startClientEncryption();
 }
 
@@ -95,15 +109,21 @@ void IODeviceSocket::startDeflate()
     if (m_compressor || m_decompressor)
         throw InvalidArgument("DEFLATE compression is already active");
 
+#if TROJITA_COMPRESS_DEFLATE
     m_compressor = new Rfc1951Compressor();
     m_decompressor = new Rfc1951Decompressor();
+#else
+    throw InvalidArgument("Trojita got built without zlib support");
+#endif
 }
 
 void IODeviceSocket::handleReadyRead()
 {
+#if TROJITA_COMPRESS_DEFLATE
     if (m_decompressor) {
         m_decompressor->consume(d);
     }
+#endif
     emit readyRead();
 }
 

@@ -24,6 +24,7 @@
 #include "test_Imap_Tasks_OpenConnection.h"
 #include "../headless_test.h"
 #include "Streams/FakeSocket.h"
+#include "Streams/TrojitaZlibStatus.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/MailboxModel.h"
 #include "Imap/Tasks/OpenConnectionTask.h"
@@ -444,6 +445,7 @@ void ImapModelOpenConnectionTest::testCompressDeflateOk()
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+#if TROJITA_COMPRESS_DEFLATE
     QCOMPARE(SOCK->writtenStuff(), QByteArray("y1 COMPRESS DEFLATE\r\n"));
     SOCK->fakeReading("y1 OK compressing\r\n");
     QCoreApplication::processEvents();
@@ -452,6 +454,10 @@ void ImapModelOpenConnectionTest::testCompressDeflateOk()
     QCoreApplication::processEvents();
     QCOMPARE(SOCK->writtenStuff(), QByteArray("y2 ID NIL\r\n"));
     SOCK->fakeReading("* ID nil\r\ny2 OK you courious peer\r\n");
+#else
+    QCOMPARE(SOCK->writtenStuff(), QByteArray("y1 ID NIL\r\n"));
+    SOCK->fakeReading("* ID nil\r\ny1 OK you courious peer\r\n");
+#endif
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE(completedSpy->size(), 1);
@@ -478,6 +484,7 @@ void ImapModelOpenConnectionTest::testCompressDeflateNo()
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+#if TROJITA_COMPRESS_DEFLATE
     QCOMPARE(SOCK->writtenStuff(), QByteArray("y1 COMPRESS DEFLATE\r\n"));
     SOCK->fakeReading("y1 NO I just don't want to\r\n");
     QCoreApplication::processEvents();
@@ -485,6 +492,10 @@ void ImapModelOpenConnectionTest::testCompressDeflateNo()
     QCoreApplication::processEvents();
     QCOMPARE(SOCK->writtenStuff(), QByteArray("y2 ID NIL\r\n"));
     SOCK->fakeReading("* ID nil\r\ny2 OK you courious peer\r\n");
+#else
+    QCOMPARE(SOCK->writtenStuff(), QByteArray("y1 ID NIL\r\n"));
+    SOCK->fakeReading("* ID nil\r\ny1 OK you courious peer\r\n");
+#endif
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE(completedSpy->size(), 1);
@@ -512,6 +523,7 @@ void ImapModelOpenConnectionTest::testOpenConnectionShallBlock()
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
+#if TROJITA_COMPRESS_DEFLATE
     QCOMPARE(SOCK->writtenStuff(), QByteArray("y1 COMPRESS DEFLATE\r\n"));
     SOCK->fakeReading("y1 NO I just don't want to\r\n");
     QCoreApplication::processEvents();
@@ -519,6 +531,10 @@ void ImapModelOpenConnectionTest::testOpenConnectionShallBlock()
     QCoreApplication::processEvents();
     QCOMPARE(SOCK->writtenStuff(), QByteArray("y2 LIST \"\" \"%\"\r\ny3 ID NIL\r\n"));
     SOCK->fakeReading("* ID nil\r\ny3 OK you courious peer\r\ny2 OK listed, nothing like that in there\r\n");
+#else
+    QCOMPARE(SOCK->writtenStuff(), QByteArray("y1 LIST \"\" \"%\"\r\ny2 ID NIL\r\n"));
+    SOCK->fakeReading("* ID nil\r\ny2 OK you courious peer\r\ny1 OK listed, nothing like that in there\r\n");
+#endif
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE(completedSpy->size(), 1);
