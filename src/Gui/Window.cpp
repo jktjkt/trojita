@@ -1572,6 +1572,11 @@ void MainWindow::slotLayoutWide()
     QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutWide);
 }
 
+Imap::Mailbox::Model *MainWindow::imapModel() const
+{
+    return model;
+}
+
 }
 
 

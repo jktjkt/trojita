@@ -71,6 +71,8 @@ public:
                              const RecipientsType &recipients=RecipientsType(), const QByteArray &inReplyTo = QByteArray());
     QSize sizeHint() const;
 
+    Imap::Mailbox::Model *imapModel() const;
+
 private slots:
     void showContextMenuMboxTree(const QPoint &position);
     void showContextMenuMsgListTree(const QPoint &position);

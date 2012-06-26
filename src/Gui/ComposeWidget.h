@@ -39,6 +39,8 @@ class QPushButton;
 namespace Gui
 {
 
+class MainWindow;
+
 /** @short A "Compose New Mail..." dialog
 
   Implements a widget which can act as a standalone window for composing e-mail messages
@@ -47,7 +49,7 @@ class ComposeWidget : public QWidget
 {
     Q_OBJECT
 public:
-    ComposeWidget(QWidget *parent, QAbstractListModel *autoCompleteModel);
+    ComposeWidget(MainWindow *parent, QAbstractListModel *autoCompleteModel);
     ~ComposeWidget();
 
     typedef enum {
@@ -91,6 +93,7 @@ private:
     QByteArray m_fromAddress;
     QList<QByteArray> m_destinations;
     QDateTime m_messageTimestamp;
+    MainWindow *m_mainWindow;
 
     ComposeWidget(const ComposeWidget &); // don't implement
     ComposeWidget &operator=(const ComposeWidget &); // don't implement

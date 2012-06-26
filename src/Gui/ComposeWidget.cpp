@@ -28,12 +28,14 @@
 
 #include "AutoCompletion.h"
 #include "ComposeWidget.h"
+#include "Window.h"
 #include "ui_ComposeWidget.h"
 
 #include "Common/SettingsNames.h"
 #include "MSA/Sendmail.h"
 #include "MSA/SMTP.h"
 #include "Imap/Encoders.h"
+#include "Imap/Model/Model.h"
 #include "Imap/Model/Utils.h"
 
 namespace
@@ -44,11 +46,13 @@ enum { OFFSET_OF_FIRST_ADDRESSEE = 2 };
 namespace Gui
 {
 
-ComposeWidget::ComposeWidget(QWidget *parent, QAbstractListModel *autoCompleteModel) :
+ComposeWidget::ComposeWidget(MainWindow *parent, QAbstractListModel *autoCompleteModel) :
     QWidget(parent, Qt::Window),
     ui(new Ui::ComposeWidget),
+    m_mainWindow(parent),
     recipientCompleter(new QCompleter(this))
 {
+    Q_ASSERT(m_mainWindow);
     ui->setupUi(this);
     sendButton = ui->buttonBox->addButton(tr("Send"), QDialogButtonBox::AcceptRole);
     connect(sendButton, SIGNAL(clicked()), this, SLOT(send()));
@@ -151,11 +155,21 @@ bool ComposeWidget::buildMessageData()
 
 void ComposeWidget::send()
 {
+
     if (!buildMessageData())
         return;
 
     using Common::SettingsNames;
     QSettings s;
+
+    if (s.value(SettingsNames::composerSaveToImapKey, true).toBool()) {
+        Q_ASSERT(m_mainWindow->imapModel());
+        // FIXME: without UIDPLUS, there isn't much point in $SubmitPending...
+        m_mainWindow->imapModel()->appendIntoMailbox(s.value(SettingsNames::composerImapSentKey, tr("Sent")).toString(),
+                                                     m_rawMessageData, QStringList() << QLatin1String("$SubmitPending"),
+                                                     m_messageTimestamp);
+    }
+
     MSA::AbstractMSA *msa = 0;
     QString method = s.value(SettingsNames::msaMethodKey).toString();
     if (method == SettingsNames::methodSMTP || method == SettingsNames::methodSSMTP) {

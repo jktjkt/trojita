@@ -345,9 +345,13 @@ OutgoingPage::OutgoingPage(QWidget *parent, QSettings &s): QScrollArea(parent), 
     smtpUser->setText(s.value(SettingsNames::smtpUserKey).toString());
     smtpPass->setText(s.value(SettingsNames::smtpPassKey).toString());
     sendmail->setText(s.value(SettingsNames::sendmailKey, SettingsNames::sendmailDefaultCmd).toString());
+    saveToImap->setChecked(s.value(SettingsNames::composerSaveToImapKey, true).toBool());
+    // Would be cool to support the special-use mailboxes
+    saveFolderName->setText(s.value(SettingsNames::composerImapSentKey, QLatin1String("Sent")).toString());
 
     connect(method, SIGNAL(currentIndexChanged(int)), this, SLOT(updateWidgets()));
     connect(smtpAuth, SIGNAL(toggled(bool)), this, SLOT(updateWidgets()));
+    connect(saveToImap, SIGNAL(toggled(bool)), this, SLOT(updateWidgets()));
     updateWidgets();
 }
 
@@ -402,6 +406,7 @@ void OutgoingPage::updateWidgets()
         if (sendmail->text().isEmpty())
             sendmail->setText(Common::SettingsNames::sendmailDefaultCmd);
     }
+    saveFolderName->setEnabled(saveToImap->isChecked());
 }
 
 void OutgoingPage::save(QSettings &s)
@@ -430,6 +435,9 @@ void OutgoingPage::save(QSettings &s)
         s.setValue(SettingsNames::sendmailKey, sendmail->text());
         break;
     }
+    s.setValue(SettingsNames::composerSaveToImapKey, saveToImap->isChecked());
+    if (saveToImap->isChecked())
+        s.setValue(SettingsNames::composerImapSentKey, saveFolderName->text());
 }
 
 #ifdef XTUPLE_CONNECT
