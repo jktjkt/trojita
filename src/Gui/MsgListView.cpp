@@ -81,6 +81,11 @@ int MsgListView::sizeHintForColumn(int column) const
 
 void MsgListView::slotFixSize()
 {
+    if (header()->visualIndex(Imap::Mailbox::MsgListModel::SEEN) == -1) {
+        // calling setResizeMode() would assert()
+        qDebug() << "Can't fix the header size of the icon, sorry";
+        return;
+    }
     header()->setStretchLastSection(false);
     header()->setResizeMode(Imap::Mailbox::MsgListModel::SUBJECT, QHeaderView::Stretch);
     header()->setResizeMode(Imap::Mailbox::MsgListModel::SEEN, QHeaderView::Fixed);
