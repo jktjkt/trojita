@@ -91,7 +91,7 @@ UID mapping at any time.
 When an IMAP client opens a mailbox, the server provides it with a few data points about the state of the mail store.
 Among this data, there's a number representing the total amount of messages in a mailbox through the {\tt EXISTS}
 response, the current {\tt UIDVALIDITY} value and, finally, the {\tt UIDNEXT} which represents the lowest UID which the
-next arriving message could possibly get assigned.  Please note that the {\tt UIDNEXT is merely a lower bound of the
+next arriving message could possibly get assigned.  Please note that the {\tt UIDNEXT} is merely a lower bound of the
 future UID; there is no guarantee that a message with such UID would exist in the mailbox in future.
 
 Having these three values, the client can obtain a few optimizations before it proceeds to fetch an updated UID mapping
@@ -142,8 +142,47 @@ from the IMAP server:
         \end{itemize}
 \end{itemize}
 
-%\todo[inline]{fetching of the UID mapping}
+If the decisions described above suggest that at least a part of the UID mapping shall be updated, an IMAP client can --
+in absence of the optional extensions -- use one of the following ways to update the map.  The first one is through the
+generic {\tt FETCH} command:
 
+\begin{minted}{text}
+    C: y1 UID FETCH 1:* (UID)
+    S: * 1 FETCH (UID 123)
+    S: * 2 FETCH (UID 125)
+    S: * 4 FETCH (UID 127)
+    S: * 3 FETCH (UID 126)
+    S: y1 OK Fetched
+\end{minted}
+
+This command simply requests the {\tt FETCH} response containing UID for each and every message in the mailbox.  The
+sample results show that the received data are in no particular order and demonstrate that the UID range is not
+necessary continuous.  If the heuristics shows that there is just a subset of messages with unknown UIDs,
+the sequence range (the {\tt 1:*} string in the example above) shall be changed to only refer to the relevant subset,
+like the {\tt last\_uidnext:*}.  It is also possible to request {\tt FLAGS} (which will be described later on) at this
+point.
+
+Alternatively, the {\tt UID SEARCH} command can be used as follows:
+
+\begin{minted}{text}
+    C: y1 UID SEARCH UID ALL
+    S: * SEARCH 123 125 127 126
+    S: y1 OK search completed
+\end{minted}
+
+As we can see, the {\tt SEARCH} response is much more compact.  In practice, the bandwidth saving is slightly lower as
+the UID discovery and {\tt FLAGS} synchronization can be merged into a single {\tt FETCH} command, but the overhead is
+still at least four bytes for each message in the mailbox,~\footnote{If the {\tt FLAGS} are fetched as well, the real
+overhead is the {\tt UID<space>} string -- the number and its trailing space is present in the {\tt SEARCH} response as
+well.} which leads to at least 200~kB of useless data on a mailbox with fifty thousands of messages.
+
+\subsection{Message Flags}
+
+%\todo[inline]{write me}
+
+\subsection{Immutable Data}
+
+%\todo[inline]{write me}
 
 % crispin-imap-cache-filing
 % http://mailman2.u.washington.edu/pipermail/imap-protocol/2010-June/001144.html
