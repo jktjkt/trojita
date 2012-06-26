@@ -64,8 +64,8 @@ void ImapResponsesTest::testCompareEq_data()
         respPtr( new State( "123", OK, "foobar 666", ALERT, voidData ) );
 
     QTest::newRow( "untagged-NO-CAPABILITY-void" ) <<
-        respPtr( new State( QString::null, NO, "foobar 1337", CAPABILITIES, dumbList ) ) <<
-        respPtr( new State( QString::null, NO, "foobar 1337", CAPABILITIES, dumbList ) );
+        respPtr( new State( QByteArray(), NO, "foobar 1337", CAPABILITIES, dumbList ) ) <<
+        respPtr( new State( QByteArray(), NO, "foobar 1337", CAPABILITIES, dumbList ) );
 
     QTest::newRow( "capability-caps" ) <<
         respPtr( new Capability( QStringList() << "1337" << "trojita" ) ) <<
@@ -153,30 +153,30 @@ void ImapResponsesTest::testCompareNe_data()
 
     QTest::newRow( "status-tagged-untagged" ) <<
         respPtr( new State( "123", OK, "foobar 333", NONE, voidData ) ) <<
-        respPtr( new State( QString::null, OK, "foobar 333", NONE, voidData ) );
+        respPtr( new State( QByteArray(), OK, "foobar 333", NONE, voidData ) );
 
     QTest::newRow( "status-kind" ) <<
-        respPtr( new State( QString::null, OK, "foobar 333", NONE, voidData ) ) <<
-        respPtr( new State( QString::null, NO, "foobar 333", NONE, voidData ) );
+        respPtr( new State( QByteArray(), OK, "foobar 333", NONE, voidData ) ) <<
+        respPtr( new State( QByteArray(), NO, "foobar 333", NONE, voidData ) );
 
     QTest::newRow( "status-response-code" ) <<
-        respPtr( new State( QString::null, OK, "foobar 333", NONE, voidData ) ) <<
-        respPtr( new State( QString::null, OK, "foobar 333", ALERT, voidData ) );
+        respPtr( new State( QByteArray(), OK, "foobar 333", NONE, voidData ) ) <<
+        respPtr( new State( QByteArray(), OK, "foobar 333", ALERT, voidData ) );
 
     QTest::newRow( "status-response-data-type" ) <<
-        respPtr( new State( QString::null, OK, "foobar 333", CAPABILITIES, dumbList ) ) <<
-        respPtr( new State( QString::null, OK, "foobar 333", CAPABILITIES, voidData ) );
+        respPtr( new State( QByteArray(), OK, "foobar 333", CAPABILITIES, dumbList ) ) <<
+        respPtr( new State( QByteArray(), OK, "foobar 333", CAPABILITIES, voidData ) );
 
     QTest::newRow( "status-response-data-data" ) <<
-        respPtr( new State( QString::null, OK, "foobar 333", CAPABILITIES, dumbList ) ) <<
-        respPtr( new State( QString::null, OK, "foobar 333", CAPABILITIES, anotherList ) );
+        respPtr( new State( QByteArray(), OK, "foobar 333", CAPABILITIES, dumbList ) ) <<
+        respPtr( new State( QByteArray(), OK, "foobar 333", CAPABILITIES, anotherList ) );
 
     QTest::newRow( "status-message" ) <<
-        respPtr( new State( QString::null, OK, "foobar 333", NONE, voidData ) ) <<
-        respPtr( new State( QString::null, OK, "foobar 666", NONE, voidData ) );
+        respPtr( new State( QByteArray(), OK, "foobar 333", NONE, voidData ) ) <<
+        respPtr( new State( QByteArray(), OK, "foobar 666", NONE, voidData ) );
 
     QTest::newRow( "kind-status-capability" ) <<
-        respPtr( new State( QString::null, OK, "foobar 333", NONE, voidData ) ) <<
+        respPtr( new State( QByteArray(), OK, "foobar 333", NONE, voidData ) ) <<
         respPtr( new Capability( QStringList() ) );
 
     QTest::newRow( "capability-caps" ) <<

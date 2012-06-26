@@ -57,7 +57,7 @@ enum TokenType {
  * long (as that'd cause problems with servers using too small line buffers),
  * contains CR, LF, zero byte or any characters outside of 7-bit ASCII range.
  */
-TokenType howToTransmit(const QString &str);
+TokenType howToTransmit(const QByteArray &str);
 
 /** @short A part of the actual command.
  *
@@ -67,7 +67,7 @@ TokenType howToTransmit(const QString &str);
 class PartOfCommand
 {
     TokenType kind; /**< What encoding to use for this item */
-    QString text; /**< Actual text to send */
+    QByteArray text; /**< Actual text to send */
     bool numberSent;
 
     friend QTextStream &operator<<(QTextStream &stream, const PartOfCommand &c);
@@ -75,9 +75,9 @@ class PartOfCommand
 
 public:
     /** Default constructor */
-    PartOfCommand(const TokenType kind, const QString &text): kind(kind), text(text), numberSent(false) {}
+    PartOfCommand(const TokenType kind, const QByteArray &text): kind(kind), text(text), numberSent(false) {}
     /** Constructor that guesses correct type for passed string */
-    PartOfCommand(const QString &text): kind(howToTransmit(text)), text(text), numberSent(false) {}
+    PartOfCommand(const QByteArray &text): kind(howToTransmit(text)), text(text), numberSent(false) {}
 };
 
 /** @short Abstract class for specifying what command to execute */
@@ -89,10 +89,10 @@ class Command
     int currentPart;
 public:
     Command &operator<<(const PartOfCommand &part) { cmds << part; return *this; }
-    Command &operator<<(const QString &text) { cmds << PartOfCommand(text); return *this; }
+    Command &operator<<(const QByteArray &text) { cmds << PartOfCommand(text); return *this; }
     Command(): currentPart(0) {}
-    Command(const QString &name): currentPart(0) { cmds << PartOfCommand(ATOM, name); }
-    void addTag(const QString &tag) { cmds.insert(0, PartOfCommand(ATOM, tag)); }
+    Command(const QByteArray &name): currentPart(0) { cmds << PartOfCommand(ATOM, name); }
+    void addTag(const QByteArray &tag) { cmds.insert(0, PartOfCommand(ATOM, tag)); }
 };
 
 /** @short Used for dumping a command to debug stream */

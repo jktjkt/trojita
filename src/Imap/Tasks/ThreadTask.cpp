@@ -29,7 +29,7 @@ namespace Mailbox
 {
 
 
-ThreadTask::ThreadTask(Model *model, const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria):
+ThreadTask::ThreadTask(Model *model, const QModelIndex &mailbox, const QByteArray &algorithm, const QStringList &searchCriteria):
     ImapTask(model), mailboxIndex(mailbox), algorithm(algorithm), searchCriteria(searchCriteria)
 {
     conn = model->findTaskResponsibleFor(mailbox);
@@ -48,7 +48,7 @@ void ThreadTask::perform()
         return;
     }
 
-    tag = parser->uidThread(algorithm, QLatin1String("utf-8"), searchCriteria);
+    tag = parser->uidThread(algorithm, "utf-8", searchCriteria);
 }
 
 bool ThreadTask::handleStateHelper(const Imap::Responses::State *const resp)

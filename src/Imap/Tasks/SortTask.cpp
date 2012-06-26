@@ -64,15 +64,15 @@ void SortTask::perform()
             if (model->accessParser(parser).capabilities.contains(QLatin1String("CONTEXT=SEARCH"))) {
                 // Hurray, this IMAP server supports incremental ESEARCH updates
                 m_persistentSearch = true;
-                sortTag = parser->uidESearch(QLatin1String("utf-8"), searchConditions,
+                sortTag = parser->uidESearch("utf-8", searchConditions,
                                              QStringList() << QLatin1String("ALL") << QLatin1String("UPDATE"));
             } else {
                 // ESORT without CONTEXT is still worth the effort, if only for the tag reference
-                sortTag = parser->uidESearch(QLatin1String("utf-8"), searchConditions, QStringList());
+                sortTag = parser->uidESearch("utf-8", searchConditions, QStringList());
             }
         } else {
             // Plain "old" SORT
-            sortTag = parser->uidSearch(searchConditions, QLatin1String("utf-8"));
+            sortTag = parser->uidSearch(searchConditions, "utf-8");
         }
     } else {
         // SEARCH and SORT combined
@@ -82,15 +82,15 @@ void SortTask::perform()
             if (model->accessParser(parser).capabilities.contains(QLatin1String("CONTEXT=SORT"))) {
                 // Hurray, this IMAP server supports incremental SORT updates
                 m_persistentSearch = true;
-                sortTag = parser->uidESort(sortCriteria, QLatin1String("utf-8"), searchConditions,
+                sortTag = parser->uidESort(sortCriteria, "utf-8", searchConditions,
                                        QStringList() << QLatin1String("ALL") << QLatin1String("UPDATE"));
             } else {
                 // ESORT without CONTEXT is still worth the effort, if only for the tag reference
-                sortTag = parser->uidESort(sortCriteria, QLatin1String("utf-8"), searchConditions, QStringList());
+                sortTag = parser->uidESort(sortCriteria, "utf-8", searchConditions, QStringList());
             }
         } else {
             // Plain "old" SORT
-            sortTag = parser->uidSort(sortCriteria, QLatin1String("utf-8"), searchConditions);
+            sortTag = parser->uidSort(sortCriteria, "utf-8", searchConditions);
         }
     }
 }

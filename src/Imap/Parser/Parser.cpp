@@ -146,7 +146,7 @@ CommandHandle Parser::authenticate(/*Authenticator FIXME*/)
 CommandHandle Parser::login(const QString &username, const QString &password)
 {
     return queueCommand(Commands::Command("LOGIN") <<
-                        Commands::PartOfCommand(username) << Commands::PartOfCommand(password));
+                        Commands::PartOfCommand(username.toUtf8()) << Commands::PartOfCommand(password.toUtf8()));
 }
 
 CommandHandle Parser::select(const QString &mailbox, const QList<QByteArray> &params)
@@ -166,20 +166,20 @@ CommandHandle Parser::selectQresync(const QString &mailbox, const uint uidValidi
                                     const Sequence &knownUids, const Sequence &sequenceSnapshot, const Sequence &uidSnapshot)
 {
     Commands::Command cmd = Commands::Command("SELECT") << encodeImapFolderName(mailbox);
-    cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, QLatin1String(" (QRESYNC (")) <<
-           Commands::PartOfCommand(Commands::ATOM, QString::number(uidValidity)) <<
-           Commands::PartOfCommand(Commands::ATOM, QString::number(highestModSeq));
+    cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, " (QRESYNC (") <<
+           Commands::PartOfCommand(Commands::ATOM, QByteArray::number(uidValidity)) <<
+           Commands::PartOfCommand(Commands::ATOM, QByteArray::number(highestModSeq));
     if (knownUids.isValid()) {
-        cmd << Commands::PartOfCommand(Commands::ATOM, knownUids.toString());
+        cmd << Commands::PartOfCommand(Commands::ATOM, knownUids.toString().toAscii());
     }
     Q_ASSERT(uidSnapshot.isValid() == sequenceSnapshot.isValid());
     if (sequenceSnapshot.isValid()) {
-        cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, QLatin1String(" (")) <<
-               Commands::PartOfCommand(Commands::ATOM, sequenceSnapshot.toString()) <<
-               Commands::PartOfCommand(Commands::ATOM, uidSnapshot.toString()) <<
-               Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, QLatin1String(")))"));
+        cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, " (") <<
+               Commands::PartOfCommand(Commands::ATOM, sequenceSnapshot.toString().toAscii()) <<
+               Commands::PartOfCommand(Commands::ATOM, uidSnapshot.toString().toAscii()) <<
+               Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, ")))");
     } else {
-        cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, QLatin1String("))"));
+        cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, "))");
     }
     return queueCommand(cmd);
 }
@@ -227,11 +227,11 @@ CommandHandle Parser::unSubscribe(const QString &mailbox)
 CommandHandle Parser::list(const QString &reference, const QString &mailbox, const QStringList &returnOptions)
 {
     Commands::Command cmd("LIST");
-    cmd << reference << encodeImapFolderName(mailbox);
+    cmd << reference.toAscii() << encodeImapFolderName(mailbox);
     if (!returnOptions.isEmpty()) {
         cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, " RETURN (");
         Q_FOREACH(const QString &option, returnOptions) {
-            cmd << Commands::PartOfCommand(Commands::ATOM, option);
+            cmd << Commands::PartOfCommand(Commands::ATOM, option.toAscii());
         }
         cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, ")");
     }
@@ -240,24 +240,24 @@ CommandHandle Parser::list(const QString &reference, const QString &mailbox, con
 
 CommandHandle Parser::lSub(const QString &reference, const QString &mailbox)
 {
-    return queueCommand(Commands::Command("LSUB") << reference << encodeImapFolderName(mailbox));
+    return queueCommand(Commands::Command("LSUB") << reference.toAscii() << encodeImapFolderName(mailbox));
 }
 
 CommandHandle Parser::status(const QString &mailbox, const QStringList &fields)
 {
     return queueCommand(Commands::Command("STATUS") << encodeImapFolderName(mailbox) <<
-                        Commands::PartOfCommand(Commands::ATOM, "(" + fields.join(" ") +")")
+                        Commands::PartOfCommand(Commands::ATOM, "(" + fields.join(" ").toAscii() +")")
                        );
 }
 
-CommandHandle Parser::append(const QString &mailbox, const QString &message, const QStringList &flags, const QDateTime &timestamp)
+CommandHandle Parser::append(const QString &mailbox, const QByteArray &message, const QStringList &flags, const QDateTime &timestamp)
 {
     Commands::Command command("APPEND");
     command << encodeImapFolderName(mailbox);
     if (flags.count())
-        command << Commands::PartOfCommand(Commands::ATOM, "(" + flags.join(" ") + ")");
+        command << Commands::PartOfCommand(Commands::ATOM, "(" + flags.join(" ").toAscii() + ")");
     if (timestamp.isValid())
-        command << Commands::PartOfCommand(timestamp.toString());
+        command << Commands::PartOfCommand(timestamp.toString().toAscii());
     command << Commands::PartOfCommand(Commands::LITERAL, message);
 
     return queueCommand(command);
@@ -278,68 +278,70 @@ CommandHandle Parser::expunge()
     return queueCommand(Commands::ATOM, "EXPUNGE");
 }
 
-CommandHandle Parser::searchHelper(const QString &command, const QStringList &criteria, const QString &charset)
+CommandHandle Parser::searchHelper(const QByteArray &command, const QStringList &criteria, const QByteArray &charset)
 {
     Commands::Command cmd(command);
 
     if (!charset.isEmpty())
         cmd << "CHARSET" << charset;
 
+    // FIXME: we don't really support anything else but utf-8 here
+
     for (QStringList::const_iterator it = criteria.begin(); it != criteria.end(); ++it)
-        cmd << *it;
+        cmd << it->toUtf8();
 
     return queueCommand(cmd);
 }
 
-CommandHandle Parser::uidSearchUid(const QString &sequence)
+CommandHandle Parser::uidSearchUid(const QByteArray &sequence)
 {
     Commands::Command command("UID SEARCH");
     command << Commands::PartOfCommand(Commands::ATOM, sequence);
     return queueCommand(command);
 }
 
-CommandHandle Parser::uidESearchUid(const QString &sequence)
+CommandHandle Parser::uidESearchUid(const QByteArray &sequence)
 {
     Commands::Command command("UID SEARCH RETURN ()");
     command << Commands::PartOfCommand(Commands::ATOM, sequence);
     return queueCommand(command);
 }
 
-CommandHandle Parser::sortHelper(const QString &command, const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria)
+CommandHandle Parser::sortHelper(const QByteArray &command, const QStringList &sortCriteria, const QByteArray &charset, const QStringList &searchCriteria)
 {
     Q_ASSERT(! sortCriteria.isEmpty());
     Commands::Command cmd;
 
     cmd << Commands::PartOfCommand(Commands::ATOM, command) <<
-        Commands::PartOfCommand(Commands::ATOM, QString::fromAscii("(%1)").arg(sortCriteria.join(QString(' ')))) <<
+        Commands::PartOfCommand(Commands::ATOM, "(" + sortCriteria.join(QString(' ')).toAscii() + ")" ) <<
         charset;
 
     for (QStringList::const_iterator it = searchCriteria.begin(); it != searchCriteria.end(); ++it)
-        cmd << *it;
+        cmd << it->toUtf8();
 
     return queueCommand(cmd);
 }
 
-CommandHandle Parser::sort(const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria)
+CommandHandle Parser::sort(const QStringList &sortCriteria, const QByteArray &charset, const QStringList &searchCriteria)
 {
-    return sortHelper(QLatin1String("SORT"), sortCriteria, charset, searchCriteria);
+    return sortHelper("SORT", sortCriteria, charset, searchCriteria);
 }
 
-CommandHandle Parser::uidSort(const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria)
+CommandHandle Parser::uidSort(const QStringList &sortCriteria, const QByteArray &charset, const QStringList &searchCriteria)
 {
-    return sortHelper(QLatin1String("UID SORT"), sortCriteria, charset, searchCriteria);
+    return sortHelper("UID SORT", sortCriteria, charset, searchCriteria);
 }
 
-CommandHandle Parser::uidESort(const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria,
+CommandHandle Parser::uidESort(const QStringList &sortCriteria, const QByteArray &charset, const QStringList &searchCriteria,
                                const QStringList &returnOptions)
 {
-    return sortHelper(QString::fromAscii("UID SORT RETURN (%1)").arg(returnOptions.join(QLatin1String(" "))),
+    return sortHelper("UID SORT RETURN (" + returnOptions.join(QLatin1String(" ")).toAscii() + ")",
                       sortCriteria, charset, searchCriteria);
 }
 
-CommandHandle Parser::uidESearch(const QString &charset, const QStringList &searchCriteria, const QStringList &returnOptions)
+CommandHandle Parser::uidESearch(const QByteArray &charset, const QStringList &searchCriteria, const QStringList &returnOptions)
 {
-    return searchHelper(QString::fromAscii("UID SEARCH RETURN (%1)").arg(returnOptions.join(QLatin1String(" "))),
+    return searchHelper("UID SEARCH RETURN (" + returnOptions.join(QLatin1String(" ")).toAscii() + ")",
                         searchCriteria, charset);
 }
 
@@ -350,40 +352,40 @@ CommandHandle Parser::cancelUpdate(const CommandHandle &tag)
     return queueCommand(command);
 }
 
-CommandHandle Parser::threadHelper(const QString &command, const QString &algo, const QString &charset, const QStringList &searchCriteria)
+CommandHandle Parser::threadHelper(const QByteArray &command, const QByteArray &algo, const QByteArray &charset, const QStringList &searchCriteria)
 {
     Commands::Command cmd;
 
     cmd << Commands::PartOfCommand(Commands::ATOM, command) << algo << charset;
 
     for (QStringList::const_iterator it = searchCriteria.begin(); it != searchCriteria.end(); ++it)
-        cmd << *it;
+        cmd << it->toUtf8();
 
     return queueCommand(cmd);
 }
 
-CommandHandle Parser::thread(const QString &algo, const QString &charset, const QStringList &searchCriteria)
+CommandHandle Parser::thread(const QByteArray &algo, const QByteArray &charset, const QStringList &searchCriteria)
 {
-    return threadHelper(QLatin1String("THREAD"), algo, charset, searchCriteria);
+    return threadHelper("THREAD", algo, charset, searchCriteria);
 }
 
-CommandHandle Parser::uidThread(const QString &algo, const QString &charset, const QStringList &searchCriteria)
+CommandHandle Parser::uidThread(const QByteArray &algo, const QByteArray &charset, const QStringList &searchCriteria)
 {
-    return threadHelper(QLatin1String("UID THREAD"), algo, charset, searchCriteria);
+    return threadHelper("UID THREAD", algo, charset, searchCriteria);
 }
 
 CommandHandle Parser::fetch(const Sequence &seq, const QStringList &items, const QMap<QByteArray, quint64> &uint64Modifiers)
 {
     Commands::Command cmd = Commands::Command("FETCH") <<
-                        Commands::PartOfCommand(Commands::ATOM, seq.toString()) <<
-                        Commands::PartOfCommand(Commands::ATOM, '(' + items.join(" ") + ')');
+                        Commands::PartOfCommand(Commands::ATOM, seq.toString().toAscii()) <<
+                        Commands::PartOfCommand(Commands::ATOM, '(' + items.join(" ").toAscii() + ')');
     if (!uint64Modifiers.isEmpty()) {
-        cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, QLatin1String(" ("));
+        cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, " (");
         for (QMap<QByteArray, quint64>::const_iterator it = uint64Modifiers.constBegin(); it != uint64Modifiers.constEnd(); ++it) {
-            cmd << Commands::PartOfCommand(Commands::ATOM, QString::fromAscii(it.key())) <<
-                   Commands::PartOfCommand(Commands::ATOM, QString::number(it.value()));
+            cmd << Commands::PartOfCommand(Commands::ATOM, it.key()) <<
+                   Commands::PartOfCommand(Commands::ATOM, QByteArray::number(it.value()));
         }
-        cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, QLatin1String(")"));
+        cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, ")");
     }
     return queueCommand(cmd);
 }
@@ -391,52 +393,52 @@ CommandHandle Parser::fetch(const Sequence &seq, const QStringList &items, const
 CommandHandle Parser::store(const Sequence &seq, const QString &item, const QString &value)
 {
     return queueCommand(Commands::Command("STORE") <<
-                        Commands::PartOfCommand(Commands::ATOM, seq.toString()) <<
-                        Commands::PartOfCommand(Commands::ATOM, item) <<
-                        Commands::PartOfCommand(Commands::ATOM, value)
+                        Commands::PartOfCommand(Commands::ATOM, seq.toString().toAscii()) <<
+                        Commands::PartOfCommand(Commands::ATOM, item.toAscii()) <<
+                        Commands::PartOfCommand(Commands::ATOM, value.toAscii())
                        );
 }
 
 CommandHandle Parser::copy(const Sequence &seq, const QString &mailbox)
 {
     return queueCommand(Commands::Command("COPY") <<
-                        Commands::PartOfCommand(Commands::ATOM, seq.toString()) <<
+                        Commands::PartOfCommand(Commands::ATOM, seq.toString().toAscii()) <<
                         encodeImapFolderName(mailbox));
 }
 
 CommandHandle Parser::uidFetch(const Sequence &seq, const QStringList &items)
 {
     return queueCommand(Commands::Command("UID FETCH") <<
-                        Commands::PartOfCommand(Commands::ATOM, seq.toString()) <<
-                        Commands::PartOfCommand(Commands::ATOM, '(' + items.join(" ") + ')'));
+                        Commands::PartOfCommand(Commands::ATOM, seq.toString().toAscii()) <<
+                        Commands::PartOfCommand(Commands::ATOM, '(' + items.join(" ").toAscii() + ')'));
 }
 
 CommandHandle Parser::uidStore(const Sequence &seq, const QString &item, const QString &value)
 {
     return queueCommand(Commands::Command("UID STORE") <<
-                        Commands::PartOfCommand(Commands::ATOM, seq.toString()) <<
-                        Commands::PartOfCommand(Commands::ATOM, item) <<
-                        Commands::PartOfCommand(Commands::ATOM, value));
+                        Commands::PartOfCommand(Commands::ATOM, seq.toString().toAscii()) <<
+                        Commands::PartOfCommand(Commands::ATOM, item.toAscii()) <<
+                        Commands::PartOfCommand(Commands::ATOM, value.toAscii()));
 }
 
 CommandHandle Parser::uidCopy(const Sequence &seq, const QString &mailbox)
 {
     return queueCommand(Commands::Command("UID COPY") <<
-                        Commands::PartOfCommand(Commands::ATOM, seq.toString()) <<
+                        Commands::PartOfCommand(Commands::ATOM, seq.toString().toAscii()) <<
                         encodeImapFolderName(mailbox));
 }
 
 CommandHandle Parser::uidXMove(const Sequence &seq, const QString &mailbox)
 {
     return queueCommand(Commands::Command("UID XMOVE") <<
-                        Commands::PartOfCommand(Commands::ATOM, seq.toString()) <<
+                        Commands::PartOfCommand(Commands::ATOM, seq.toString().toAscii()) <<
                         encodeImapFolderName(mailbox));
 }
 
 CommandHandle Parser::uidExpunge(const Sequence &seq)
 {
     return queueCommand(Commands::Command("UID EXPUNGE") <<
-                        Commands::PartOfCommand(Commands::ATOM, seq.toString()));
+                        Commands::PartOfCommand(Commands::ATOM, seq.toString().toAscii()));
 }
 
 CommandHandle Parser::xAtom(const Commands::Command &cmd)
@@ -511,7 +513,7 @@ CommandHandle Parser::enable(const QList<QByteArray> &extensions)
 
 CommandHandle Parser::queueCommand(Commands::Command command)
 {
-    QString tag = generateTag();
+    CommandHandle tag = generateTag();
     command.addTag(tag);
     cmdQueue.append(command);
     QTimer::singleShot(0, this, SLOT(executeCommands()));
@@ -542,9 +544,9 @@ QSharedPointer<Responses::AbstractResponse> Parser::getResponse()
     return ptr;
 }
 
-QString Parser::generateTag()
+QByteArray Parser::generateTag()
 {
-    return QString("y%1").arg(m_lastTagUsed++);
+    return QString("y%1").arg(m_lastTagUsed++).toAscii();
 }
 
 void Parser::handleReadyRead()
@@ -677,7 +679,7 @@ void Parser::executeACommand()
 
     QByteArray buf;
 
-    bool sensitiveCommand = (cmd.cmds.size() > 2 && cmd.cmds[1].text == QLatin1String("LOGIN"));
+    bool sensitiveCommand = (cmd.cmds.size() > 2 && cmd.cmds[1].text == "LOGIN");
     QByteArray privateMessage = sensitiveCommand ? QByteArray("[LOGIN command goes here]") : QByteArray();
 
 #ifdef PRINT_TRAFFIC_TX
@@ -724,15 +726,14 @@ void Parser::executeACommand()
         case Commands::LITERAL:
             if (literalPlus) {
                 buf.append('{');
-                QByteArray inUtf8 = part.text.toUtf8();
-                buf.append(QByteArray::number(inUtf8.size()));
+                buf.append(QByteArray::number(part.text.size()));
                 buf.append("+}\r\n");
-                buf.append(inUtf8);
+                buf.append(part.text);
             } else if (part.numberSent) {
-                buf.append(part.text.toUtf8());
+                buf.append(part.text);
             } else {
                 buf.append('{');
-                buf.append(QByteArray::number(part.text.toUtf8().size()));
+                buf.append(QByteArray::number(part.text.size()));
                 buf.append("}\r\n");
 #ifdef PRINT_TRAFFIC_TX
                 if (printThisCommand)
@@ -929,7 +930,7 @@ QSharedPointer<Responses::AbstractResponse> Parser::parseUntaggedText(
     case Responses::PREAUTH:
     case Responses::BYE:
         return QSharedPointer<Responses::AbstractResponse>(
-                   new Responses::State(QString::null, kind, line, start));
+                   new Responses::State(QByteArray(), kind, line, start));
     case Responses::LIST:
     case Responses::LSUB:
         return QSharedPointer<Responses::AbstractResponse>(

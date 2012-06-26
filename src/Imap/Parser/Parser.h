@@ -42,7 +42,7 @@ namespace Imap
 {
 
 /** @short A handle identifying a command sent to the server */
-typedef QString CommandHandle;
+typedef QByteArray CommandHandle;
 
 // this is required for clang 3.0
 typedef QMap<QByteArray, quint64> MapByteArrayUint64;
@@ -133,7 +133,7 @@ public slots:
     CommandHandle status(const QString &mailbox, const QStringList &fields);
 
     /** @short APPEND, RFC3501 section 6.3.11 */
-    CommandHandle append(const QString &mailbox, const QString &message,
+    CommandHandle append(const QString &mailbox, const QByteArray &message,
                          const QStringList &flags = QStringList(), const QDateTime &timestamp = QDateTime());
 
 
@@ -147,7 +147,7 @@ public slots:
     CommandHandle expunge();
 
     /** @short SEARCH, RFC3501 sect 6.4.4 */
-    CommandHandle search(const QStringList &criteria, const QString &charset = QString::null) {
+    CommandHandle search(const QStringList &criteria, const QByteArray &charset = QByteArray()) {
         return searchHelper("SEARCH", criteria, charset);
     };
 
@@ -177,15 +177,15 @@ public slots:
     CommandHandle uidExpunge(const Sequence &seq);
 
     /** @short UID command (SEARCH), RFC3501 sect 6.4.8 */
-    CommandHandle uidSearch(const QStringList &criteria, const QString &charset=QString::null) {
+    CommandHandle uidSearch(const QStringList &criteria, const QByteArray &charset = QByteArray()) {
         return searchHelper("UID SEARCH", criteria, charset);
     }
 
     /** @short A special case of the "UID SEARCH UID" command */
-    CommandHandle uidSearchUid(const QString &sequence);
+    CommandHandle uidSearchUid(const QByteArray &sequence);
 
     /** @short Perform the UID ESEARCH command with the specified UID set */
-    CommandHandle uidESearchUid(const QString &sequence);
+    CommandHandle uidESearchUid(const QByteArray &sequence);
 
 
     /** @short X<atom>, RFC3501 sect 6.5.1 */
@@ -215,20 +215,20 @@ public slots:
     CommandHandle namespaceCommand();
 
     /** SORT, RFC5256 */
-    CommandHandle sort(const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria);
+    CommandHandle sort(const QStringList &sortCriteria, const QByteArray &charset, const QStringList &searchCriteria);
     /** UID SORT, RFC5256 */
-    CommandHandle uidSort(const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria);
+    CommandHandle uidSort(const QStringList &sortCriteria, const QByteArray &charset, const QStringList &searchCriteria);
     /** THREAD, RFC5256 */
-    CommandHandle thread(const QString &algo, const QString &charset, const QStringList &searchCriteria);
+    CommandHandle thread(const QByteArray &algo, const QByteArray &charset, const QStringList &searchCriteria);
     /** UID THREAD, RFC5256 */
-    CommandHandle uidThread(const QString &algo, const QString &charset, const QStringList &searchCriteria);
+    CommandHandle uidThread(const QByteArray &algo, const QByteArray &charset, const QStringList &searchCriteria);
 
     /** @short ESORT, the extended UID SORT from RFC 5267, section 3.1 */
-    CommandHandle uidESort(const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria,
+    CommandHandle uidESort(const QStringList &sortCriteria, const QByteArray &charset, const QStringList &searchCriteria,
                            const QStringList &returnOptions);
 
     /** @short ESEARCH, the extended UID SEARCH with support for ESEARCH return options from RFC 5267 */
-    CommandHandle uidESearch(const QString &charset, const QStringList &searchCriteria, const QStringList &returnOptions);
+    CommandHandle uidESearch(const QByteArray &charset, const QStringList &searchCriteria, const QStringList &returnOptions);
 
 
     /** @short CANCELUPDATE, tell the server that it shall stop sending any ESEARCH responses associated with the given tag */
@@ -311,7 +311,7 @@ private:
     CommandHandle queueCommand(Commands::Command command);
 
     /** @short Shortcut function; works exactly same as above mentioned queueCommand() */
-    CommandHandle queueCommand(const Commands::TokenType kind, const QString &text) {
+    CommandHandle queueCommand(const Commands::TokenType kind, const QByteArray &text) {
         return queueCommand(Commands::Command() << Commands::PartOfCommand(kind, text));
     };
 
@@ -319,14 +319,14 @@ private:
     void reallyReadLine();
 
     /** @short Helper for search() and uidSearch() */
-    CommandHandle searchHelper(const QString &command, const QStringList &criteria,
-                               const QString &charset = QString::null);
+    CommandHandle searchHelper(const QByteArray &command, const QStringList &criteria,
+                               const QByteArray &charset = QByteArray());
 
-    CommandHandle sortHelper(const QString &command, const QStringList &sortCriteria, const QString &charset, const QStringList &searchCriteria);
-    CommandHandle threadHelper(const QString &command, const QString &algo, const QString &charset, const QStringList &searchCriteria);
+    CommandHandle sortHelper(const QByteArray &command, const QStringList &sortCriteria, const QByteArray &charset, const QStringList &searchCriteria);
+    CommandHandle threadHelper(const QByteArray &command, const QByteArray &algo, const QByteArray &charset, const QStringList &searchCriteria);
 
     /** @short Generate tag for next command */
-    QString generateTag();
+    QByteArray generateTag();
 
     void processLine(QByteArray line);
 

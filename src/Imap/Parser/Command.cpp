@@ -38,7 +38,7 @@ QTextStream &operator<<(QTextStream &stream, const Command &cmd)
     return stream << endl;
 }
 
-TokenType howToTransmit(const QString &str)
+TokenType howToTransmit(const QByteArray &str)
 {
     if (str.length() > 100)
         return LITERAL;
@@ -49,7 +49,7 @@ TokenType howToTransmit(const QString &str)
     TokenType res = ATOM;
 
     for (int i = 0; i < str.size(); ++i) {
-        char c = str.at(i).toAscii();
+        char c = str.at(i);
 
         if (!isalnum(c) && c != '-' && c != '_')
             res = QUOTED_STRING;
@@ -68,8 +68,8 @@ QTextStream &operator<<(QTextStream &stream, const PartOfCommand &part)
         stream << part.text;
         break;
     case QUOTED_STRING: {
-        QString item = part.text;
-        item.replace(QChar('\\'), QString::fromAscii("\\\\"));
+        QByteArray item = part.text;
+        item.replace('\\', "\\\\");
         stream << '"' << item << '"';
     }
     break;

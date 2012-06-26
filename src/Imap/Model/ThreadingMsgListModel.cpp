@@ -566,11 +566,11 @@ void ThreadingMsgListModel::askForThreading()
     QModelIndex mailboxIndex = realIndex.parent().parent();
 
     if (realModel->capabilities().contains(QLatin1String("THREAD=REFS"))) {
-        requestedAlgorithm = QLatin1String("REFS");
+        requestedAlgorithm = "REFS";
     } else if (realModel->capabilities().contains(QLatin1String("THREAD=REFERENCES"))) {
-        requestedAlgorithm = QLatin1String("REFERENCES");
+        requestedAlgorithm = "REFERENCES";
     } else if (realModel->capabilities().contains(QLatin1String("THREAD=ORDEREDSUBJECT"))) {
-        requestedAlgorithm = QLatin1String("ORDEREDSUBJECT");
+        requestedAlgorithm = "ORDEREDSUBJECT";
     }
 
     if (! requestedAlgorithm.isEmpty()) {
@@ -578,13 +578,14 @@ void ThreadingMsgListModel::askForThreading()
         realModel->m_taskFactory->createThreadTask(const_cast<Imap::Mailbox::Model *>(realModel),
                 mailboxIndex, requestedAlgorithm,
                 QStringList() << QLatin1String("ALL"));
-        connect(realModel, SIGNAL(threadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::ThreadingNode>)),
-                this, SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::ThreadingNode>)));
-        connect(realModel, SIGNAL(threadingFailed(QModelIndex,QString,QStringList)), this, SLOT(slotThreadingFailed(QModelIndex,QString,QStringList)));
+        connect(realModel, SIGNAL(threadingAvailable(QModelIndex,QByteArray,QStringList,QVector<Imap::Responses::ThreadingNode>)),
+                this, SLOT(slotThreadingAvailable(QModelIndex,QByteArray,QStringList,QVector<Imap::Responses::ThreadingNode>)));
+        connect(realModel, SIGNAL(threadingFailed(QModelIndex,QByteArray,QStringList)),
+                this, SLOT(slotThreadingFailed(QModelIndex,QByteArray,QStringList)));
     }
 }
 
-bool ThreadingMsgListModel::shouldIgnoreThisThreadingResponse(const QModelIndex &mailbox, const QString &algorithm,
+bool ThreadingMsgListModel::shouldIgnoreThisThreadingResponse(const QModelIndex &mailbox, const QByteArray &algorithm,
         const QStringList &searchCriteria, const Model **realModel)
 {
     QModelIndex someMessage = sourceModel()->index(0,0);
@@ -601,7 +602,7 @@ bool ThreadingMsgListModel::shouldIgnoreThisThreadingResponse(const QModelIndex 
 
     if (algorithm != requestedAlgorithm) {
         logTrace(QString::fromAscii("Weird, asked for threading via %1 but got %2 instead -- ignoring")
-                 .arg(requestedAlgorithm, algorithm));
+                 .arg(QString::fromAscii(requestedAlgorithm), QString::fromAscii(algorithm)));
         return true;
     }
 
@@ -618,7 +619,7 @@ bool ThreadingMsgListModel::shouldIgnoreThisThreadingResponse(const QModelIndex 
     return false;
 }
 
-void ThreadingMsgListModel::slotThreadingFailed(const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria)
+void ThreadingMsgListModel::slotThreadingFailed(const QModelIndex &mailbox, const QByteArray &algorithm, const QStringList &searchCriteria)
 {
     // Better safe than sorry -- prevent infinite waiting to the maximal possible extent
     threadingInFlight = false;
@@ -627,14 +628,14 @@ void ThreadingMsgListModel::slotThreadingFailed(const QModelIndex &mailbox, cons
         return;
 
     disconnect(sender(), 0, this,
-               SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::ThreadingNode>)));
+               SLOT(slotThreadingAvailable(QModelIndex,QByteArray,QStringList,QVector<Imap::Responses::ThreadingNode>)));
     disconnect(sender(), 0, this,
-               SLOT(slotThreadingFailed(QModelIndex,QString,QStringList)));
+               SLOT(slotThreadingFailed(QModelIndex,QByteArray,QStringList)));
 
     updateNoThreading();
 }
 
-void ThreadingMsgListModel::slotThreadingAvailable(const QModelIndex &mailbox, const QString &algorithm,
+void ThreadingMsgListModel::slotThreadingAvailable(const QModelIndex &mailbox, const QByteArray &algorithm,
         const QStringList &searchCriteria,
         const QVector<Imap::Responses::ThreadingNode> &mapping)
 {
@@ -646,9 +647,9 @@ void ThreadingMsgListModel::slotThreadingAvailable(const QModelIndex &mailbox, c
         return;
 
     disconnect(sender(), 0, this,
-               SLOT(slotThreadingAvailable(QModelIndex,QString,QStringList,QVector<Imap::Responses::ThreadingNode>)));
+               SLOT(slotThreadingAvailable(QModelIndex,QByteArray,QStringList,QVector<Imap::Responses::ThreadingNode>)));
     disconnect(sender(), 0, this,
-               SLOT(slotThreadingFailed(QModelIndex,QString,QStringList)));
+               SLOT(slotThreadingFailed(QModelIndex,QByteArray,QStringList)));
 
     model->cache()->setMessageThreading(mailbox.data(RoleMailboxName).toString(), mapping);
 

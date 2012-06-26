@@ -182,24 +182,24 @@ void ImapParserParseTest::testParseUntagged_data()
 
     QTest::newRow("untagged-ok-simple")
         << QByteArray("* OK Everything works, man!\r\n")
-        << QSharedPointer<AbstractResponse>( new State(QString::null, OK, "Everything works, man!", NONE, voidData ) );
+        << QSharedPointer<AbstractResponse>( new State(QByteArray(), OK, "Everything works, man!", NONE, voidData ) );
 
     QTest::newRow("untagged-no-simple")
         << QByteArray("* NO Nope, something is broken\r\n")
-        << QSharedPointer<AbstractResponse>( new State(QString::null, NO, "Nope, something is broken", NONE, voidData ) );
+        << QSharedPointer<AbstractResponse>( new State(QByteArray(), NO, "Nope, something is broken", NONE, voidData ) );
     QTest::newRow("untagged-ok-uidvalidity")
         << QByteArray("* OK [UIDVALIDITY 17] UIDs valid\r\n")
-        << QSharedPointer<AbstractResponse>( new State(QString::null, OK, "UIDs valid", UIDVALIDITY,
+        << QSharedPointer<AbstractResponse>( new State(QByteArray(), OK, "UIDs valid", UIDVALIDITY,
                     QSharedPointer<AbstractData>( new RespData<uint>( 17 ) )));
     QTest::newRow("untagged-bye")
         << QByteArray("* BYE go away\r\n")
-        << QSharedPointer<AbstractResponse>( new State(QString::null, BYE, "go away", NONE, voidData ) );
+        << QSharedPointer<AbstractResponse>( new State(QByteArray(), BYE, "go away", NONE, voidData ) );
     QTest::newRow("untagged-bye-empty")
         << QByteArray("* BYE\r\n")
-        << QSharedPointer<AbstractResponse>( new State(QString::null, BYE, QString(), NONE, voidData ) );
+        << QSharedPointer<AbstractResponse>( new State(QByteArray(), BYE, QString(), NONE, voidData ) );
     QTest::newRow("untagged-no-somerespcode-empty")
         << QByteArray("* NO [ALERT]\r\n")
-        << QSharedPointer<AbstractResponse>( new State(QString::null, NO, QString(), ALERT, voidData ) );
+        << QSharedPointer<AbstractResponse>( new State(QByteArray(), NO, QString(), ALERT, voidData ) );
 
     QTest::newRow("untagged-expunge")
         << QByteArray("* 1337 Expunge\r\n")
@@ -232,7 +232,7 @@ void ImapParserParseTest::testParseUntagged_data()
         << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), ".", "someName", QMap<QByteArray,QVariant>() ) );
     QTest::newRow("untagged-list-separator-nil")
         << QByteArray("* LIST () NiL someName\r\n")
-        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), QString::null, "someName", QMap<QByteArray,QVariant>() ) );
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), QByteArray(), "someName", QMap<QByteArray,QVariant>() ) );
     QTest::newRow("untagged-list-mailbox-quote")
         << QByteArray("* LIST () \".\" \"some\\\"Name\"\r\n")
         << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), ".", "some\"Name", QMap<QByteArray,QVariant>() ) );

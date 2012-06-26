@@ -215,7 +215,7 @@ class State : public AbstractResponse
 {
 public:
     /** @short Tag name or QString::null if untagged */
-    QString tag;
+    QByteArray tag;
 
     /** @short Kind of response
      *
@@ -267,11 +267,11 @@ public:
      * actually corresponds to all invariants we declare as per respCode's
      * documentation.
      * */
-    State(const QString &tag, const Kind kind, const QString &message, const Code respCode, const QSharedPointer<AbstractData> respCodeData):
+    State(const QByteArray &tag, const Kind kind, const QString &message, const Code respCode, const QSharedPointer<AbstractData> respCodeData):
         tag(tag), kind(kind), message(message), respCode(respCode), respCodeData(respCodeData) {}
 
     /** @short "Smart" constructor that parses a response out of a QByteArray */
-    State(const QString &tag, const Kind kind, const QByteArray &line, int &start);
+    State(const QByteArray &tag, const Kind kind, const QByteArray &line, int &start);
 
     /** @short Default destructor that makes containers and QtTest happy */
     State(): respCode(NONE) {};

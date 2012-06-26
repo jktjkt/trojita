@@ -131,7 +131,7 @@ UpdateFlagsTask *TaskFactory::createUpdateFlagsTask(Model *model, CopyMoveMessag
     return new UpdateFlagsTask(model, copyTask, messages, flagOperation, flags);
 }
 
-ThreadTask *TaskFactory::createThreadTask(Model *model, const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria)
+ThreadTask *TaskFactory::createThreadTask(Model *model, const QModelIndex &mailbox, const QByteArray &algorithm, const QStringList &searchCriteria)
 {
     return new ThreadTask(model, mailbox, algorithm, searchCriteria);
 }

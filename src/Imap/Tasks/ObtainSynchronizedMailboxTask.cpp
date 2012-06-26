@@ -491,11 +491,11 @@ void ObtainSynchronizedMailboxTask::syncUids(TreeItemMailbox *mailbox, const uin
 {
     status = STATE_SYNCING_UIDS;
     log("Syncing UIDs", LOG_MAILBOX_SYNC);
-    QString uidSpecification;
+    QByteArray uidSpecification;
     if (lowestUidToQuery == 0) {
-        uidSpecification = QLatin1String("ALL");
+        uidSpecification = "ALL";
     } else {
-        uidSpecification = QString::fromAscii("UID %1:*").arg(lowestUidToQuery);
+        uidSpecification = QString::fromAscii("UID %1:*").arg(QString::number(lowestUidToQuery)).toAscii();
     }
     if (model->accessParser(parser).capabilities.contains(QLatin1String("ESEARCH"))) {
         uidSyncingCmd = parser->uidESearchUid(uidSpecification);

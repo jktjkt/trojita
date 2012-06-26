@@ -32,7 +32,7 @@ class ThreadTask : public ImapTask
 {
     Q_OBJECT
 public:
-    ThreadTask(Model *model, const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria);
+    ThreadTask(Model *model, const QModelIndex &mailbox, const QByteArray &algorithm, const QStringList &searchCriteria);
     virtual void perform();
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
@@ -45,7 +45,7 @@ private:
     CommandHandle tag;
     ImapTask *conn;
     QPersistentModelIndex mailboxIndex;
-    QString algorithm;
+    QByteArray algorithm;
     QStringList searchCriteria;
     QVector<Imap::Responses::ThreadingNode> mapping;
 };

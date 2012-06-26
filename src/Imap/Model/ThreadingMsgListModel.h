@@ -155,9 +155,9 @@ public slots:
     void handleRowsAboutToBeInserted(const QModelIndex &parent, int start, int end);
     void handleRowsInserted(const QModelIndex &parent, int start, int end);
     /** @short Feed this with the data from a THREAD response */
-    void slotThreadingAvailable(const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria,
+    void slotThreadingAvailable(const QModelIndex &mailbox, const QByteArray &algorithm, const QStringList &searchCriteria,
                                 const QVector<Imap::Responses::ThreadingNode> &mapping);
-    void slotThreadingFailed(const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria);
+    void slotThreadingFailed(const QModelIndex &mailbox, const QByteArray &algorithm, const QStringList &searchCriteria);
     /** @short Really apply threading to this model */
     void applyThreading(const QVector<Imap::Responses::ThreadingNode> &mapping);
 
@@ -212,7 +212,7 @@ private:
     bool threadContainsUnreadMessages(const uint root) const;
 
     /** @short Is this someone else's THREAD response? */
-    bool shouldIgnoreThisThreadingResponse(const QModelIndex &mailbox, const QString &algorithm,
+    bool shouldIgnoreThisThreadingResponse(const QModelIndex &mailbox, const QByteArray &algorithm,
                                            const QStringList &searchCriteria, const Model **realModel=0);
 
     /** @short Return some number from the thread mapping @arg mapping which is either the highest among them, or at least as high as the marker*/
@@ -244,7 +244,7 @@ private:
     QSet<TreeItem*> unknownUids;
 
     /** @short Threading algorithm we're using for this request */
-    QString requestedAlgorithm;
+    QByteArray requestedAlgorithm;
 
     /** @short Recursion guard for "is the model currently being reset?"
 

@@ -272,7 +272,7 @@ QTextStream &operator<<(QTextStream &stream, const AbstractResponse &res)
     return res.dump(stream);
 }
 
-State::State(const QString &tag, const Kind kind, const QByteArray &line, int &start):
+State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int &start):
     tag(tag), kind(kind), respCode(NONE)
 {
     if (!tag.isEmpty()) {

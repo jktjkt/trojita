@@ -362,11 +362,11 @@ signals:
     void mailboxFirstUnseenMessage(const QModelIndex &maillbox, const QModelIndex &message);
 
     /** @short Threading has arrived */
-    void threadingAvailable(const QModelIndex &mailbox, const QString &algorithm,
+    void threadingAvailable(const QModelIndex &mailbox, const QByteArray &algorithm,
                             const QStringList &searchCriteria, const QVector<Imap::Responses::ThreadingNode> &mapping);
 
     /** @short Failed to obtain threading information */
-    void threadingFailed(const QModelIndex &mailbox, const QString &algorithm, const QStringList &searchCriteria);
+    void threadingFailed(const QModelIndex &mailbox, const QByteArray &algorithm, const QStringList &searchCriteria);
 
     void capabilitiesUpdated(const QStringList &capabilities);
 
