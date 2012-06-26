@@ -40,6 +40,7 @@ public:
     virtual QVariant taskData(const int role) const;
 
 private:
+    ImapTask *conn;
     CommandHandle tag;
     QString targetMailbox;
     QByteArray rawMessageData;

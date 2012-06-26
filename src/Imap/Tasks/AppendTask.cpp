@@ -31,13 +31,14 @@ AppendTask::AppendTask(Model *model, const QString &targetMailbox, const QByteAr
                        const QDateTime &timestamp):
     ImapTask(model), targetMailbox(targetMailbox), rawMessageData(rawMessageData), flags(flags), timestamp(timestamp)
 {
-    parentTask = model->m_taskFactory->createGetAnyConnectionTask(model);
-    parentTask->addDependentTask(this);
+    conn = model->m_taskFactory->createGetAnyConnectionTask(model);
+    conn->addDependentTask(this);
 }
 
 void AppendTask::perform()
 {
-    parser = parentTask->parser;
+    parser = conn->parser;
+    Q_ASSERT(parser);
     markAsActiveTask();
 
     IMAP_TASK_CHECK_ABORT_DIE;
