@@ -1,0 +1,84 @@
+% vim: spelllang=en spell textwidth=120
+\documentclass[trojita]{subfiles}
+
+\begin{document}
+
+\chapter{IMAP Protocol Introduction}
+\label{sec:intro}
+
+\begin{abstract}
+This chapter provides a gentle introduction to peculiarities of the IMAP protocol.  We also present detailed analysis of
+the available extensions and how they can be used to improve the overall IMAP experience.
+\end{abstract}
+
+\section{IMAP}
+
+The IMAP protocol, as defined by RFC~3501~\cite{rfc-imap}, is an internet protocol suitable for managing e-mail folders
+and individual messages stored on a remote mail server.  In contrast to the older POP3 protocol~\cite{rfc-pop3}, IMAP is
+really intended to serve as an {\em access} protocol.  Where a POP3 client would happily download a full message from
+the mail server, store it into a local mailbox and perform all further processing locally, the IMAP mode of operation is
+much more complicated.  These complications, however, bring a whole slew of new features and interesting applications
+along.
+
+For one, IMAP presents a single, authoritative place storing messages -- that feature alone is a must in today's world
+where people are expecting to be able to access their mail from their cell phones.  Furthermore, given that all messages
+are located on a single place, it is possible to perform efficient, server-side operations over the whole mailstore,
+like searching or sorting.  IMAP also makes it possible to access individual message parts like attachments separately,
+eliminating the need to download a huge message before reading a short accompanying textual information.  Finally,
+advanced servers can recognize clients with limited resources and only present a subset of messages to them.
+
+At the same time, IMAP is an old protocol burdened by many compatibility warts.  Its designers were struggling with
+people objecting to novel ideas due to legacy code in their mail implementations.  Over the years, though, various
+protocol extensions appeared.  Some of them are extremely useful for contemporary clients, yet they cannot be relied on
+because there is no general agreement on what extensions are really crucial, and hence available in most of IMAP
+servers.
+
+The rest of this chapter provides a quick overview of the basic IMAP concepts and how they relate to the usual client's
+workflow.
+
+\section{Basic Features}
+
+An IMAP server exports a set of {\em mailboxes}, folders which contain individual messages (and further mailboxes, if
+the server allows that).  Each message can be identified either by its {\em sequence number}, an order in which it
+appears in mailbox, or by its {\em UID}.  Sequence numbers are by definition very volatile (deleting the first message
+in a mailbox changes sequence numbers of all subsequent messages) while the UIDs provide better chances of persistence
+across reconnects.~\footnote{It shall be noted that IMAP does {\em not} guarantee UIDs to be persistent at all.  The
+reason behind this decision was to allow IMAP to publish messages from obsolete mail stores which could not have been
+extended to support UIDs at all.  Even today, UID changes have to be expected when signalled through {\tt UIDVALIDITY}.}
+When the UIDs have to be invalidated for some reason, a per-mailbox integer property {\tt UIDVALIDITY} shall be
+incremented to signal its clients that previously used UIDs are no longer valid.
+
+\subsection{Cache Filing Protocol}
+
+As Mark Crispin, the principal author of the IMAP standard, has to say~\cite{crispin-imap-cache-filing}, IMAP is a {\em
+cache filing protocol}.  That means that whatever the server thinks about a mailbox state is {\em the truth}, and any
+state stored on the clients can be invalidated by the server at any time.  This critical design choice has impact on all
+further operations.  IMAP clients which do not anticipate such a behavior~\footnote{Such clients are usually called
+``POP3 clients converted to speak IMAP'' on various IMAP-related mailing
+lists.~\cite{shannon-imap-clients-glorified-imap}} are bound to operate in an inefficient manner or fail in unexpected
+scenarios.
+
+The first issue which typically comes up on the {\tt imap-protocol} mailing list is treating UIDs as a persistent
+identifier of some kind.  In fact, IMAP guarantees that a triple of (mailbox name, {\tt UIDVALIDITY}, {\tt UID}) will
+not refer to {\em any other} message at no time, but there's no guarantee that the vary same message, quite possibly in
+the same mailbox, will not get another UID in future.~\footnote{People have been trying to solve this issue for quite
+some time, but no standardized solution is ready yet.  The recent iterations of these proposals concentrate on providing
+a cryptographic hash of a message body, but is far from clear whether doing so would get any traction.  Furthermore, the
+hashes are typically too long to serve as the only identifier of a message, so UIDs will definitely be around in
+future.}  That said, the UIDs should not get invalidated too often and the IMAP protocol doesn't offer anything else, so
+they are widely used (along with the UID and when limited to the scope of a single mailbox) as a semi-persistent
+identification of a message.
+
+
+\subsection{Caching Data}
+
+
+
+% crispin-imap-cache-filing
+% http://mailman2.u.washington.edu/pipermail/imap-protocol/2010-June/001144.html
+% http://mailman2.u.washington.edu/pipermail/imap-protocol/2010-June/001156.html
+
+% shannon-imap-clients-glorified-pop
+% http://mailman2.u.washington.edu/pipermail/imap-protocol/2006-September/000261.html
+
+\end{document}

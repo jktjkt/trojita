@@ -1,0 +1,50 @@
+% vim: spelllang=en spell textwidth=120
+\documentclass{book}
+\usepackage[utf8]{inputenc}
+\usepackage[czech,english]{babel}
+\usepackage{a4wide}
+\usepackage{listings}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{etoolbox}
+\usepackage{lmodern}\renewcommand{\ttdefault}{lmvtt}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage{hyperref}
+\usepackage{subfiles}
+\usepackage{todonotes}
+
+% there's no abstract environment in chapter
+% http://tex.stackexchange.com/questions/3468/an-abstract-at-the-start-of-every-chapter
+\newenvironment{abstract}{\begin{quote}\itshape}{\end{quote}}
+
+\newcommand{\secref}[1]{section~\ref{#1} on page~\pageref{#1}}
+
+\begin{document}
+
+\title{Mobile~IMAP: Advanced IMAP Features in the Trojitá E-Mail Client}
+
+\author{Bc. Jan Kundrát}
+
+\begin{titlepage}
+\maketitle
+\end{titlepage}
+
+% Now this is a marvelous memo from http://blog.haraldkraft.de/2012/04/imap-is-evil/:
+% (Credit goes to Heidar Bernhardsson, http://iseld.org/):
+% I also believe the only reason we still use email is that it’s impossible or very difficult to replace, kind of like Facebook in a way.
+
+\setcounter{tocdepth}{3}
+\tableofcontents
+\subfile{acknowledgement}
+
+\subfile{imap-protocol}
+
+%\part{Additional Resources}
+%\appendix
+%\subfile{cd-structure}
+
+%\bibliography{references}
+%\bibliographystyle{iopart-num}
+
+\end{document}
