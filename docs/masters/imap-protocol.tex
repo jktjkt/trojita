@@ -60,18 +60,89 @@ scenarios.
 
 The first issue which typically comes up on the {\tt imap-protocol} mailing list is treating UIDs as a persistent
 identifier of some kind.  In fact, IMAP guarantees that a triple of (mailbox name, {\tt UIDVALIDITY}, {\tt UID}) will
-not refer to {\em any other} message at no time, but there's no guarantee that the vary same message, quite possibly in
+not refer to {\em any other} message at any time, but there's no guarantee that the very same message, quite possibly in
 the same mailbox, will not get another UID in future.~\footnote{People have been trying to solve this issue for quite
 some time, but no standardized solution is ready yet.  The recent iterations of these proposals concentrate on providing
 a cryptographic hash of a message body, but is far from clear whether doing so would get any traction.  Furthermore, the
 hashes are typically too long to serve as the only identifier of a message, so UIDs will definitely be around in
-future.}  That said, the UIDs should not get invalidated too often and the IMAP protocol doesn't offer anything else, so
-they are widely used (along with the UID and when limited to the scope of a single mailbox) as a semi-persistent
-identification of a message.
+future.}  That said, on reasonable server implementations, the UIDs should not get invalidated too often under normal
+circumstances.  Given the IMAP protocol doesn't offer anything else, they are widely used (along with the {\tt
+UIDVALIDITY} and when limited to the scope of a single mailbox) as a semi-persistent identification of a message.
 
+UIDs are assigned to the messages in a strictly monotonic sense, i.e. if message $A$ has a sequence number $seq_A$ and
+message $B$ has sequence number $seq_B$ such as $seq_A < seq_B$, it is true that $UID_A < UID_B$.  UID numbers are also
+guaranteed to never be reused in the same mailbox, unless the {\tt UIDVALIDITY} changes.
 
-\subsection{Caching Data}
+Due to the facts described above, virtually any IMAP clients which maintain a persistent cache of the downloaded data
+use UIDs to assign the cached data to individual messages.  Such an approach leads to a need to maintain a mapping
+between the sequence numbers and the UID numbers of all messages in the mailbox -- upon a reconnect, clients have to
+recognize whether any messages previously available in the mailbox disappeared, and if they did, the clients should
+remove the cached data for these messages.~\footnote{The reader shall be reminded that IMAP is a {\em cache filing
+protocol}, i.e. the server is always right about what messages ``are'' in a mailbox and what messages are gone.}  This
+is in a strong contrast to the usual POP3 mode of operation where the clients are expected to prune their cache only
+based on their local policy, perhaps moving older messages to a designated archive, but definitely not discarding the
+retrieved data as soon as the server doesn't present the message anymore.  Furthermore, even during an established
+session the IMAP server informs about messages being permanently deleted through the {\tt EXPUNGED} response which
+contains sequence number only.  Given that the cache is usually addressed by UID, a caching client shall maintain full
+UID mapping at any time.
 
+\subsection{Mailbox Synchronization}
+
+When an IMAP client opens a mailbox, the server provides it with a few data points about the state of the mail store.
+Among this data, there's a number representing the total amount of messages in a mailbox through the {\tt EXISTS}
+response, the current {\tt UIDVALIDITY} value and, finally, the {\tt UIDNEXT} which represents the lowest UID which the
+next arriving message could possibly get assigned.  Please note that the {\tt UIDNEXT is merely a lower bound of the
+future UID; there is no guarantee that a message with such UID would exist in the mailbox in future.
+
+Having these three values, the client can obtain a few optimizations before it proceeds to fetch an updated UID mapping
+from the IMAP server:
+
+\begin{itemize}
+    \item If the {\tt UIDVALIDITY} has changed, the client is obliged to completely purge any data which it might have
+        accumulated in its local persistent cache.
+    \item If {\tt UIDNEXT} is not available, we have to resort to asking for the whole UID mapping from scratch.
+    \item If the {\tt UIDNEXT} has decreased, the IMAP server exhibits a bug.  This situation is explicitly forbidden by
+        the IMAP standard.  Trojitá will, nevertheless, try to work in this scenario by purging its cache and continuing
+        as if no state was cached locally.
+    \item If the {\tt UIDNEXT} has not changed since the last time the client has opened a mailbox, the IMAP protocol
+        says that no messages could have been delivered to the mailbox at all.
+        \begin{itemize}
+            \item If the {\tt EXISTS} remains constant as well, it is clear that no deleted have taken place. This means
+                that the cached sequence $\rightarrow$ UID mapping from the last time is directly usable, and the UID
+                syncing phase of the mailbox synchronization is concluded.
+            \item Otherwise, if the {\tt EXISTS} has grown, we are talking to a non-compliant IMAP server which failed
+                to adjust either {\tt UIDNEXT} or {\tt UIDVALIDITY}, and cannot assume anything about the server's
+                behavior.  Trojitá will gracefully degrade to a complete UID mapping resynchronization.
+            \item If the {\tt EXISTS} has decreased, we can be sure that some messages have been deleted.  In this
+                situation, we have two possible options on how to proceed:
+                \begin{itemize}
+                    \item We can try to perform a binary search in the list of messages to find the first deleted
+                        message and ask for UIDs of all messages at the subsequent positions.  This is a heuristics
+                        which relies on an observation that it is more likely for users working with big mailboxes to
+                        delete messages at the end of the mailbox.  However, each step in this incremental search
+                        requires a complete round trip to the IMAP server over a network; with a mailbox with
+                        tens of thousands of messages, this could lead to 17 round trips.  Given that real-world
+                        cellular networks like the GPRS/EDGE infrastructure, unfortunately still common in the Czech
+                        republic, exhibit the RTT latencies which can often be larger than one
+                        second~\cite{gprs-rtt-report}, such an approach to incremental synchronization of the UID
+                        mapping will have severe impact on the total synchronization time.
+                    \item Another way is to give up on possible bandwidth reduction possibility and fetch the complete
+                        UID mapping.
+                \end{itemize}
+        \end{itemize}
+    \item If the {\tt UIDNEXT} has grown, some messages might have arrived to the mailbox.  There's no guarantee that
+        any of them are still present, though, so the clients could use another set of heuristics:
+        \begin{itemize}
+            \item If the increase in {\tt EXISTS} is exactly the same as the growth of the {\tt UIDNEXT}, all of the new
+                arrivals are still present in the mailbox and no message have been expunged since the last time.  The
+                client can ask only for UIDs of the new arrivals.
+            \item In any other case, the situation is very similar to a changed {\tt EXISTS} with constant {\tt UIDNEXT}
+                and the same possible optimization about the binary search might apply.  Alternatively, clients could
+                fetch a complete UID mapping.
+        \end{itemize}
+\end{itemize}
+
+%\todo[inline]{fetching of the UID mapping}
 
 
 % crispin-imap-cache-filing
@@ -80,5 +151,8 @@ identification of a message.
 
 % shannon-imap-clients-glorified-pop
 % http://mailman2.u.washington.edu/pipermail/imap-protocol/2006-September/000261.html
+
+% gprs-rtt-report
+% http://www.netlab.tkk.fi/tutkimus/pannet/publ/rtt-report.pdf
 
 \end{document}
