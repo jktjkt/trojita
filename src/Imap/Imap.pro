@@ -1,4 +1,5 @@
 include(../../configh.pri)
+include(../Streams/ZlibLinking.pri)
 QT += network \
     sql
 CONFIG += staticlib
