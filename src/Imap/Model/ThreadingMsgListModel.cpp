@@ -443,7 +443,7 @@ void ThreadingMsgListModel::updateNoThreading()
         threading = newThreading;
         ptrToInternal = newPtrToInternal;
         threading[ 0 ].children = allIds;
-        threading[ 0 ].ptr = static_cast<MsgListModel *>(sourceModel())->msgList;
+        threading[ 0 ].ptr = 0;
         threadingHelperLastId = newThreading.size();
         threadedRootIds = threading[0].children;
     }
@@ -757,7 +757,7 @@ void ThreadingMsgListModel::applyThreading(const QVector<Imap::Responses::Thread
     threading.clear();
     ptrToInternal.clear();
     // Default-construct the root node
-    threading[ 0 ].ptr = static_cast<MsgListModel *>(sourceModel())->msgList;
+    threading[ 0 ].ptr = 0;
 
     // At first, initialize threading nodes for all messages which are right now available in the mailbox.
     // We risk that we will have to delete some of them later on, but this is likely better than doing a lookup
