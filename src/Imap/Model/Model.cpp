@@ -791,6 +791,7 @@ void Model::askForMessagesInMailbox(TreeItemMsgList *item)
             message->m_uid = uidMapping[ seq ];
             item->m_children << message;
             message->m_flags = normalizeFlags(cache()->msgFlags(mailbox, message->m_uid));
+            message->m_flags.removeOne(QLatin1String("\\Recent"));
         }
         endInsertRows();
         item->m_fetchStatus = TreeItem::DONE; // required for FETCH processing later on
@@ -838,6 +839,7 @@ void Model::askForMsgMetadata(TreeItemMessage *item, const PreloadingMode preloa
         if (data.uid == item->uid()) {
             item->m_envelope = data.envelope;
             item->m_flags = normalizeFlags(cache()->msgFlags(mailboxPtr->mailbox(), item->uid()));
+            item->m_flags.removeOne(QLatin1String("\\Recent"));
             item->m_size = data.size;
             QDataStream stream(&data.serializedBodyStructure, QIODevice::ReadOnly);
             stream.setVersion(QDataStream::Qt_4_6);
