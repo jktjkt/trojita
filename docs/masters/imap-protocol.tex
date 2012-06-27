@@ -4,7 +4,7 @@
 \begin{document}
 
 \chapter{IMAP Protocol Introduction}
-\label{sec:intro}
+\label{sec:imap-protocol}
 
 \begin{abstract}
 This chapter provides a gentle introduction to peculiarities of the IMAP protocol.  We also present detailed analysis of
@@ -36,7 +36,7 @@ servers.
 The rest of this chapter provides a quick overview of the basic IMAP concepts and how they relate to the usual client's
 workflow.
 
-\section{Basic Features}
+\subsection{Basic Features}
 
 An IMAP server exports a set of {\em mailboxes}, folders which contain individual messages (and further mailboxes, if
 the server allows that).  Each message can be identified either by its {\em sequence number}, an order in which it
@@ -86,7 +86,8 @@ session the IMAP server informs about messages being permanently deleted through
 contains sequence number only.  Given that the cache is usually addressed by UID, a caching client shall maintain full
 UID mapping at any time.
 
-\subsection{Mailbox Synchronization}
+\section{Mailbox Synchronization}
+\label{sec:imap-mailbox-sync}
 
 When an IMAP client opens a mailbox, the server provides it with a few data points about the state of the mail store.
 Among this data, there's a number representing the total amount of messages in a mailbox through the {\tt EXISTS}
@@ -146,20 +147,19 @@ in absence of the optional extensions -- use one of the following ways to update
 generic {\tt FETCH} command:
 
 \begin{minted}{text}
-    C: y1 UID FETCH 1:* (UID)
-    S: * 1 FETCH (UID 123)
-    S: * 2 FETCH (UID 125)
-    S: * 4 FETCH (UID 127)
-    S: * 3 FETCH (UID 126)
-    S: y1 OK Fetched
+  C: y1 UID FETCH 1:* (UID)
+  S: * 1 FETCH (UID 123)
+  S: * 2 FETCH (UID 125)
+  S: * 4 FETCH (UID 127)
+  S: * 3 FETCH (UID 126)
+  S: y1 OK Fetched
 \end{minted}
 
 This command simply requests the {\tt FETCH} response containing UID for each and every message in the mailbox.  The
 sample results show that the received data are in no particular order and demonstrate that the UID range is not
-necessary continuous.  If the heuristics shows that there is just a subset of messages with unknown UIDs,
-the sequence range (the {\tt 1:*} string in the example above) shall be changed to only refer to the relevant subset,
-like the {\tt last\_uidnext:*}.  It is also possible to request {\tt FLAGS} (which will be described later on) at this
-point.
+necessary continuous.  If the heuristics shows that there is just a subset of messages with unknown UIDs, the sequence
+range (the {\tt "1:*"} string in the example above) shall be changed to only refer to the relevant subset, like the {\tt
+"last\_uidnext:*"}.  It is also possible to request {\tt FLAGS} (which will be described later on) at this point.
 
 Alternatively, the {\tt UID SEARCH} command can be used as follows:
 
