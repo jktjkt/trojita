@@ -222,7 +222,20 @@ Examples of these data are message headers or the individual body parts.
 
 IMAP is pretty unique in allowing its implementors to dissect a MIME message~\cite{rfc-mime} into individual body parts.
 In practice, this is a very useful feature -- clients can read a short textual body of a message before deciding whether
-to download a big binary attachment etc.
+to download a big binary attachment etc.  On the other hand, it requires servers to include a full MIME parser.  Some of
+them, notably the Google's GImap, have been struggling with this requirement for many
+years~\cite{gmail-bodystructure-sucks}.
+
+IMAP defines a data structure called {\tt ENVELOPE} containing some of the most interesting headers from the RFC~2822
+message.  Among them, the {\tt Subject}, {\tt Date}, {\tt From}, {\tt Sender}, {\tt Reply-To}, {\tt To}, {\tt Cc}, {\tt
+Bcc}, {\tt In-Reply-To} and {\tt Message-Id} are included.  Unfortunately, the {\tt References} header is
+missing.~\footnote{The {\tt References} header is useful when the client wants to be as compatible as possible with the
+other agents that deal with message threading.  Strictly speaking, the {\tt Message-Id} and {\tt In-Reply-To} headers
+are sufficient for some forms of threading, but MUAs should strive to be ``good citizens'' and support the {\tt
+References} header as well.}  Even with this omission, the {\tt ENVELOPE} is useful for clients which do not necessary
+have to include RFC~2822-style header parsing code.  This usefulness is unfortunately further limited by not including
+an RFC~2047~\cite{rfc-mime-intl-headers} decoder, though, so non-ASCII data in fields like senders' human readable names
+or in the subject field have to be decoded by the clients.
 
 %\todo[inline]{write me}
 
