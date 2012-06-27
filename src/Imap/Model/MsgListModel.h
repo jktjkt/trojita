@@ -81,7 +81,10 @@ private:
     MsgListModel &operator=(const MsgListModel &);  // don't implement
     MsgListModel(const MsgListModel &);  // don't implement
 
-    TreeItemMsgList *msgListPtr;
+    void checkPersistentIndex() const;
+
+    QPersistentModelIndex msgList;
+    mutable TreeItemMsgList *msgListPtr;
     bool waitingForMessages;
 
     friend class ThreadingMsgListModel;

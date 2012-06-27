@@ -97,8 +97,16 @@ void MsgListModel::handleDataChanged(const QModelIndex &topLeft, const QModelInd
     }
 }
 
+void MsgListModel::checkPersistentIndex() const
+{
+    if (!msgList.isValid())
+        msgListPtr = 0;
+}
+
 QModelIndex MsgListModel::index(int row, int column, const QModelIndex &parent) const
 {
+    checkPersistentIndex();
+
     if (! msgListPtr)
         return QModelIndex();
 
@@ -130,6 +138,7 @@ int MsgListModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
+    checkPersistentIndex();
     if (! msgListPtr)
         return 0;
 
@@ -147,6 +156,7 @@ int MsgListModel::columnCount(const QModelIndex &parent) const
 
 QModelIndex MsgListModel::mapToSource(const QModelIndex &proxyIndex) const
 {
+    checkPersistentIndex();
     if (!msgListPtr || !proxyIndex.isValid())
         return QModelIndex();
 
@@ -160,6 +170,7 @@ QModelIndex MsgListModel::mapToSource(const QModelIndex &proxyIndex) const
 
 QModelIndex MsgListModel::mapFromSource(const QModelIndex &sourceIndex) const
 {
+    checkPersistentIndex();
     if (! msgListPtr)
         return QModelIndex();
 
@@ -174,6 +185,7 @@ QModelIndex MsgListModel::mapFromSource(const QModelIndex &sourceIndex) const
 
 QVariant MsgListModel::data(const QModelIndex &proxyIndex, int role) const
 {
+    checkPersistentIndex();
     if (! msgListPtr)
         return QVariant();
 
@@ -327,6 +339,7 @@ void MsgListModel::handleRowsAboutToBeRemoved(const QModelIndex &parent, int sta
         return;
     }
 
+    checkPersistentIndex();
     if (! msgListPtr)
         return;
 
@@ -375,6 +388,7 @@ void MsgListModel::handleRowsRemoved(const QModelIndex &parent, int start, int e
     Q_UNUSED(start);
     Q_UNUSED(end);
 
+    checkPersistentIndex();
     if (! msgListPtr)
         return;
 
@@ -389,6 +403,7 @@ void MsgListModel::handleRowsRemoved(const QModelIndex &parent, int start, int e
 
 void MsgListModel::handleRowsAboutToBeInserted(const QModelIndex &parent, int start, int end)
 {
+    checkPersistentIndex();
     if (! parent.isValid())
         return;
 
@@ -400,6 +415,7 @@ void MsgListModel::handleRowsAboutToBeInserted(const QModelIndex &parent, int st
 
 void MsgListModel::handleRowsInserted(const QModelIndex &parent, int start, int end)
 {
+    checkPersistentIndex();
     if (! parent.isValid())
         return;
 
@@ -429,8 +445,10 @@ void MsgListModel::setMailbox(const QModelIndex &index)
     TreeItemMsgList *newList = dynamic_cast<TreeItemMsgList *>(
                                    mbox->child(0, const_cast<Model *>(model)));
     Q_ASSERT(newList);
+    checkPersistentIndex();
     if (newList != msgListPtr) {
         msgListPtr = newList;
+        msgList = msgListPtr->toIndex(const_cast<Model*>(model));
         msgListPtr->resetWasUnreadState();
         reset();
         emit mailboxChanged();
@@ -449,6 +467,7 @@ void MsgListModel::setMailbox(const QString &mailboxName)
 
 TreeItemMailbox *MsgListModel::currentMailbox() const
 {
+    checkPersistentIndex();
     return msgListPtr ? dynamic_cast<TreeItemMailbox *>(msgListPtr->parent()) : 0;
 }
 
