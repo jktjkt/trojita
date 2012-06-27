@@ -3,7 +3,7 @@
 
 \begin{document}
 
-\chapter{IMAP Protocol Introduction}
+\chapter{Introducing the IMAP Protocol}
 \label{sec:imap-protocol}
 
 \begin{abstract}
@@ -237,7 +237,50 @@ have to include RFC~2822-style header parsing code.  This usefulness is unfortun
 an RFC~2047~\cite{rfc-mime-intl-headers} decoder, though, so non-ASCII data in fields like senders' human readable names
 or in the subject field have to be decoded by the clients.
 
-%\todo[inline]{write me}
+\section{Protocol Design}
+
+The baseline version of IMAP, as defined in RFC~3501, contains a few features which limits its performance somewhat.
+One example of these features are IMAP's {\em synchronizing literals}.
+
+Before the client is allowed to send big amount of data to the server, it has to ask for its explicit permission via a
+continuation request.  While such an idea is good on paper (and is probably intended to {\em save bandwidth} by allowing
+the server to refuse huge uploads before the client sends them), in reality it leads to rather slow operation because
+each transmission requires a full roundtrip over the network.  Fortunately, extensions like the {\tt LITERAL+} (see
+\secref{sec:imap-literalplus}) have eliminated this bottleneck.
+
+Another manifestation of a situation which could potentially use an improvement is the protocol's requirement on clients
+to accept any response at any time,~\footnote{{\tt ``The client MUST be prepared to accept any response at all times.''}
+as stated in section 7 on page 61 of RFC~3501.} which is not applied consistently -- the same RFC also mandates that the
+servers cannot send {\tt EXPUNGE} when no command is in progress.  This particular wording certainly has merits
+(it encourages client implementors to {\em really} accept anything at any time) and is required for proper
+synchronization -- if {\tt EXPUNGE}s were allowed when no command was in progress and a client issued a {\tt STORE}
+command referencing a message through its sequence number, that action could affect completely different message.  This
+design is probably required due to the old decision to support addressing through both sequence numbers and UIDs, but
+has a side effect of requiring constant polling for mailbox updates.  Again, extensions have emerged (see
+\secref{sec:imap-idle}) which try to eliminate this drawback through a special mode.
+
+\subsection{Additional Server-Side Features}
+
+Having all messages available without much effort (or, certainly with much less effort than a client), servers are in a
+unique position to make certain operations smoother, faster and more efficient than performing on the client side.
+
+The baseline IMAP specification contains provisions for server-side searching.  Features notably missing, however, are
+server-side sorting and conveying information about message threading~\footnote{Message {\em threading} refers to a
+mechanism which allows graphical user agents to present related messages together.  Recently re-branded as
+``conversations'', threading is in fact a pretty old idea which builds on the {\tt Message-Id}, {\tt References} and
+{\tt In-Reply-To} headers, or, in its crudest form, just on similarity of message subjects.  Threading presents the
+human with a tree of messages where each immediate child of a particular node represents a reply to the parent message.}
+which are available through optional extensions.
+
+Certain scenarios (like having a cell phone with severely limited resources) could benefit from server-side content
+conversion, similar to how the Opera Mobile browser converts images to low-resolution versions for display on the
+phone's screen.  An extension for just that exists, but its support is rather scarce among the IMAP servers -- in fact,
+the author of this thesis was not able to find a single reasonably-deployed server which would offer such a feature.
+
+At the same time, the overall design of the IMAP protocol is rather promising; it allows executing commands in
+parallel through pipelining and even the most basic profile provides enough features to implement a reasonably efficient
+client which can maintain its state over reconnects.  It is therefore reasonable to start with the existing state and
+try to build upon its solid foundation, improving the whole experience in the process.
 
 % crispin-imap-cache-filing
 % http://mailman2.u.washington.edu/pipermail/imap-protocol/2010-June/001144.html
