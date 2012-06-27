@@ -56,7 +56,7 @@ public:
     virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
     virtual Qt::DropActions supportedDropActions() const;
 
-    TreeItemMailbox *currentMailbox() const;
+    QModelIndex currentMailbox() const;
 
     enum { SUBJECT, SEEN, FROM, TO, CC, BCC, DATE, RECEIVED_DATE, SIZE, COLUMN_COUNT };
 

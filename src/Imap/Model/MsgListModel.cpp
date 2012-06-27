@@ -465,10 +465,10 @@ void MsgListModel::setMailbox(const QString &mailboxName)
     setMailbox(model->findMailboxByName(mailboxName)->toIndex(model));
 }
 
-TreeItemMailbox *MsgListModel::currentMailbox() const
+QModelIndex MsgListModel::currentMailbox() const
 {
     checkPersistentIndex();
-    return msgListPtr ? dynamic_cast<TreeItemMailbox *>(msgListPtr->parent()) : 0;
+    return msgList.parent();
 }
 
 }

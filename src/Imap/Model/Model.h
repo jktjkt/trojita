@@ -175,7 +175,7 @@ public:
     void markMessagesRead(const QModelIndexList &messages, const FlagsOperation marked);
 
     /** @short Run the EXPUNGE command in the specified mailbox */
-    void expungeMailbox(TreeItemMailbox *mbox);
+    void expungeMailbox(const QModelIndex &mailbox);
 
     /** @short Copy or move a sequence of messages between two mailboxes */
     void copyMoveMessages(TreeItemMailbox *sourceMbox, const QString &destMboxName, QList<uint> uids, const CopyMoveOperation op);

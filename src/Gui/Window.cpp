@@ -1574,14 +1574,14 @@ QSize MainWindow::sizeHint() const
 
 void MainWindow::slotUpdateWindowTitle()
 {
-    if (Imap::Mailbox::TreeItemMailbox *mailbox = msgListModel->currentMailbox()) {
-        Imap::Mailbox::TreeItemMsgList *list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>(mailbox->child(0, model));
-        Q_ASSERT(list);
-        if (list->unreadMessageCount(model)) {
-            setWindowTitle(trUtf8("%1 — %2 unread — Trojitá").arg(mailbox->mailbox(),
-                                                                  QString::number(list->unreadMessageCount(model))));
+    QModelIndex mailbox = msgListModel->currentMailbox();
+    if (mailbox.isValid()) {
+        if (mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt()) {
+            setWindowTitle(trUtf8("%1 — %2 unread — Trojitá")
+                           .arg(mailbox.data(Imap::Mailbox::RoleShortMailboxName).toString(),
+                                mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toString()));
         } else {
-            setWindowTitle(trUtf8("%1 — Trojitá").arg(mailbox->mailbox()));
+            setWindowTitle(trUtf8("%1 — Trojitá").arg(mailbox.data(Imap::Mailbox::RoleShortMailboxName).toString()));
         }
     } else {
         setWindowTitle(trUtf8("Trojitá"));

@@ -1192,9 +1192,9 @@ TreeItemMailbox *Model::findParentMailboxByName(const QString &name) const
 }
 
 
-void Model::expungeMailbox(TreeItemMailbox *mbox)
+void Model::expungeMailbox(const QModelIndex &mailbox)
 {
-    if (!mbox)
+    if (!mailbox.isValid())
         return;
 
     if (m_netPolicy == NETWORK_OFFLINE) {
@@ -1202,7 +1202,7 @@ void Model::expungeMailbox(TreeItemMailbox *mbox)
         return;
     }
 
-    m_taskFactory->createExpungeMailboxTask(this, mbox->toIndex(this));
+    m_taskFactory->createExpungeMailboxTask(this, mailbox);
 }
 
 void Model::createMailbox(const QString &name)
