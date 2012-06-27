@@ -21,4 +21,5 @@ HEADERS += Socket.h \
     SocketFactory.h \
     IODeviceSocket.h \
     DeletionWatcher.h \
-    FakeSocket.h
+    FakeSocket.h \
+    TrojitaZlibStatus.h
