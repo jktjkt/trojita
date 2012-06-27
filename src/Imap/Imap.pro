@@ -73,6 +73,7 @@ SOURCES += Parser/Parser.cpp \
     Tasks/EnableTask.cpp \
     Tasks/SortTask.cpp \
     Tasks/AppendTask.cpp \
+    Tasks/SubscribeUnsubscribeTask.cpp \
     Model/ModelWatcher.cpp \
     Network/MsgPartNetworkReply.cpp \
     Network/ForbiddenReply.cpp \
@@ -116,6 +117,7 @@ HEADERS += Parser/Parser.h \
     Model/DelayedPopulation.h \
     Model/CopyMoveOperation.h \
     Model/FlagsOperation.h \
+    Model/SubscribeUnSubscribeOperation.h \
     Model/ItemRoles.h \
     Model/RingBuffer.h \
     Model/Logging.h \
@@ -146,6 +148,7 @@ HEADERS += Parser/Parser.h \
     Tasks/EnableTask.h \
     Tasks/SortTask.h \
     Tasks/AppendTask.h \
+    Tasks/SubscribeUnsubscribeTask.h \
     Model/ModelWatcher.h \
     Network/ForbiddenReply.h \
     Network/MsgPartNetAccessManager.h \

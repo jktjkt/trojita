@@ -252,6 +252,8 @@ QVariant TreeItemMailbox::data(Model *const model, int role)
         list->fetch(model);
         return list->fetched() ? QVariant(syncState.uidValidity()) : QVariant();
     }
+    case RoleMailboxIsSubscribed:
+        return QVariant::fromValue<bool>(m_metadata.flags.contains(QLatin1String("\\SUBSCRIBED")));
     default:
         return QVariant();
     }

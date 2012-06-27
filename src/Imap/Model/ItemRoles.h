@@ -62,6 +62,11 @@ enum {
     RoleMailboxItemsAreLoading,
     /** @short Current UIDVALIDITY of a mailbox */
     RoleMailboxUidValidity,
+    /** @short Is the mailbox subscribed?
+
+    If the server doesn't support RFC5258, this can return wrong answer.
+    */
+    RoleMailboxIsSubscribed,
 
     /** @short UID of the message */
     RoleMessageUid,

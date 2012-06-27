@@ -185,6 +185,11 @@ public:
     /** @short Delete an existing mailbox */
     void deleteMailbox(const QString &name);
 
+    /** @short Subscribe a mailbox */
+    void subscribeMailbox(const QString &name);
+    /** @Unsubscribe a mailbox */
+    void unsubscribeMailbox(const QString &name);
+
     /** @short Save a message into a mailbox */
     ImapTask* appendIntoMailbox(const QString &mailbox, const QByteArray &rawMessageData, const QStringList &flags,
                                 const QDateTime &timestamp);
@@ -420,6 +425,7 @@ private:
     friend class OfflineConnectionTask;
     friend class SortTask;
     friend class AppendTask;
+    friend class SubscribeUnsubscribeTask;
 
     friend class TestingTaskFactory; // needs access to socketFactory
 

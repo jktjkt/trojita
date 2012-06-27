@@ -1225,6 +1225,40 @@ void Model::deleteMailbox(const QString &name)
     m_taskFactory->createDeleteMailboxTask(this, name);
 }
 
+void Model::subscribeMailbox(const QString &name)
+{
+    if (m_netPolicy == NETWORK_OFFLINE) {
+        qDebug() << "Can't manage subscriptions while offline";
+        return;
+    }
+
+    TreeItemMailbox *mailbox = findMailboxByName(name);
+    if (!mailbox) {
+        qDebug() << "SUBSCRIBE: No such mailbox.";
+        return;
+    }
+    QModelIndex index = mailbox->toIndex(this);
+    Q_ASSERT(index.isValid());
+    m_taskFactory->createSubscribeUnsubscribeTask(this, index, SUBSCRIBE);
+}
+
+void Model::unsubscribeMailbox(const QString &name)
+{
+    if (m_netPolicy == NETWORK_OFFLINE) {
+        qDebug() << "Can't manage subscriptions while offline";
+        return;
+    }
+
+    TreeItemMailbox *mailbox = findMailboxByName(name);
+    if (!mailbox) {
+        qDebug() << "UNSUBSCRIBE: No such mailbox.";
+        return;
+    }
+    QModelIndex index = mailbox->toIndex(this);
+    Q_ASSERT(index.isValid());
+    m_taskFactory->createSubscribeUnsubscribeTask(this, index, UNSUBSCRIBE);
+}
+
 void Model::saveUidMap(TreeItemMsgList *list)
 {
     QList<uint> seqToUid;

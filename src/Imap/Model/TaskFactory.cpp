@@ -38,6 +38,7 @@
 #include "NoopTask.h"
 #include "UnSelectTask.h"
 #include "SortTask.h"
+#include "SubscribeUnsubscribeTask.h"
 #include "Imap/Model/TaskPresentationModel.h"
 #include "Imap/Parser/Parser.h"
 
@@ -156,6 +157,12 @@ AppendTask *TaskFactory::createAppendTask(Model *model, const QString &targetMai
                                           const QStringList &flags, const QDateTime &timestamp)
 {
     return new AppendTask(model, targetMailbox, rawMessageData, flags, timestamp);
+}
+
+SubscribeUnsubscribeTask *TaskFactory::createSubscribeUnsubscribeTask(Model *model, const QModelIndex &mailbox,
+                                                                      const SubscribeUnsubscribeOperation operation)
+{
+    return new SubscribeUnsubscribeTask(model, mailbox, operation);
 }
 
 

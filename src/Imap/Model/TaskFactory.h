@@ -24,6 +24,7 @@
 #include <QModelIndex>
 #include "CopyMoveOperation.h"
 #include "FlagsOperation.h"
+#include "SubscribeUnSubscribeOperation.h"
 
 namespace Imap
 {
@@ -52,6 +53,7 @@ class ThreadTask;
 class NoopTask;
 class UnSelectTask;
 class SortTask;
+class SubscribeUnsubscribeTask;
 
 class Model;
 class TreeItemMailbox;
@@ -89,6 +91,8 @@ public:
     virtual SortTask *createSortTask(Model *model, const QModelIndex &mailbox, const QStringList &searchConditions, const QStringList &sortCriteria);
     virtual AppendTask *createAppendTask(Model *model, const QString &targetMailbox, const QByteArray &rawMessageData,
                                          const QStringList &flags, const QDateTime &timestamp);
+    virtual SubscribeUnsubscribeTask *createSubscribeUnsubscribeTask(Model *model, const QModelIndex &mailbox,
+                                                                     const SubscribeUnsubscribeOperation operation);
 };
 
 class TestingTaskFactory: public TaskFactory

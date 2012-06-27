@@ -115,6 +115,7 @@ class TreeItemMailbox: public TreeItem
     friend class Model; // needs access to maintianingTask
     friend class MailboxModel;
     friend class KeepMailboxOpenTask; // needs access to maintainingTask
+    friend class SubscribeUnsubscribeTask; // needs access to m_metadata.flags
     static QLatin1String flagNoInferiors;
     static QLatin1String flagHasNoChildren;
     static QLatin1String flagHasChildren;
