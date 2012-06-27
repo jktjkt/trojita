@@ -178,17 +178,51 @@ leads to at least 200~kB of useless data on a mailbox with fifty thousands of me
 
 \subsection{Message Flags}
 
-We have mentioned message flags when describing the mailbox synchronization.  Strictly speaking, asking for message
-flags of all messages in a mailbox is not necessary provided the program is capable of lazy-loading -- flags could, for
-example, only be fetched for those messages which are immediately visible on screen (probably with some intelligent
-preload for those which will likely get to the viewport in near future), avoiding a potentially expensive operation.  On
-the other hand, contemporary user agents typically have to display an aggregated statistics like ``$X$ unread messages,
-$Y$ total'' to the user.  IMAP certainly has methods for delivering such statistics, however, the baseline
-specification's only two ways of conveying are through the {\tt STATUS} command or via an explicit {\tt SEARCH}.
+We have mentioned message flags when describing the mailbox synchronization.  These flags allows the system and the mail
+user to attach a certain state to the messages -- information like whether the message was seen or replied to is tracked
+at this level.  Further applications include user-level arbitrary tagging of messages with flags like ``important'' or
+``todo''.
 
-%\todo[inline]{write me}
+Strictly speaking, asking for message flags of all messages in a mailbox is not necessary provided the program is
+capable of lazy-loading -- flags could, for example, only be fetched for those messages which are immediately visible on
+screen (probably with some intelligent preload for those which will likely get to the viewport in near future), avoiding
+a potentially expensive operation.  On the other hand, contemporary user agents typically have to display an aggregated
+statistics like ``$X$ unread messages, $Y$ total'' to the user.  IMAP certainly has methods for delivering such
+statistics, however, the baseline specification's only two ways of conveying are through the {\tt STATUS} command or via
+an explicit {\tt SEARCH}.  In practice, this design leads to a pressing need to load {\em all} flags for all messages at
+the start of the session.
+
+The problem with the {\tt STATUS} command is that it is unfortunately forbidden from being used on an actively selected
+mailbox per RFC~3501.  That makes this command usable for an initial estimate, but prevents further updates -- consider
+that an IMAP client has opened a big mailbox and scrolled to the end of the message listing.  Suddenly, an {\tt *
+EXPUNGE 3} arrives, informing the client that the third message in the mailbox is now gone.  Because the flags of those
+``older'' messages weren't loaded in this scenario, the client has no way of knowing whether the number of unread
+messages shall be updated.  At this point, the client has no other way but to explicitly ask for message flags of all
+messages or conduct a special {\tt SEARCH}.  The {\tt SEARCH} command looking for unread messages (or for any set of
+messages tagged with a certain flag, for that matter) can surely be constructed, even the baseline IMAP4rev1 provides a
+way of requesting that information.  However, each {\tt SEARCH} only provides the client with an information about one
+kind of a particular flag.  It is not an unreasonable idea to design a client with further development in mind, most
+notably it might make a lot of sense not to special-case the {\tt \\UnSeen} message flag -- after all, certain
+applications will benefit from having access to all messages matching the {\tt \$SubmitPending} flag or those which were
+marked as a ``Draft'' by the user, for example.  Unfortunately, statistics about these user-defined flags cannot be
+determined via the {\tt STATUS} command and have to be discovered explicitly, either through a lot of separate {\tt
+SEARCH} commands, one for each ``interesting'' flag, or via an explicit synchronization through the {\tt FETCH (FLAGS)}
+command.
+
+In short, deferring the flag synchronization certainly has some merit, but at the same time, special-casing the {\tt
+\\UnSeen} flag for unread messages is not a viable long-term solution.  Given that extensions designed for speeding up
+the flags resynchronization exist, Trojitá will always ask for a full flags mapping when synchronizing through the
+baseline IMAP profile.
 
 \subsection{Immutable Data}
+
+In the previous sections, we have spoken about data which have to be resynchronized during each reconnect to the
+mailbox, be it message flags or the UIDs.  Other data available through IMAP are, however, immutable by nature.
+Examples of these data are message headers or the individual body parts.
+
+IMAP is pretty unique in allowing its implementors to dissect a MIME message~\cite{rfc-mime} into individual body parts.
+In practice, this is a very useful feature -- clients can read a short textual body of a message before deciding whether
+to download a big binary attachment etc.
 
 %\todo[inline]{write me}
 
