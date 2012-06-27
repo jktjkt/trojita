@@ -328,7 +328,9 @@ QMimeData *MsgListModel::mimeData(const QModelIndexList &indexes) const
 
 void MsgListModel::resetMe()
 {
-    setMailbox(QModelIndex());
+    msgListPtr = 0;
+    msgList = QModelIndex();
+    reset();
 }
 
 void MsgListModel::handleRowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
