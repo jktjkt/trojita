@@ -98,48 +98,47 @@ Having these three values, the client can obtain a few optimizations before it p
 from the IMAP server:
 
 \begin{itemize}
-    \item If the {\tt UIDVALIDITY} has changed, the client is obliged to completely purge any data which it might have
-        accumulated in its local persistent cache.
-    \item If {\tt UIDNEXT} is not available, we have to resort to asking for the whole UID mapping from scratch.
-    \item If the {\tt UIDNEXT} has decreased, the IMAP server exhibits a bug.  This situation is explicitly forbidden by
-        the IMAP standard.  Trojitá will, nevertheless, try to work in this scenario by purging its cache and continuing
-        as if no state was cached locally.
-    \item If the {\tt UIDNEXT} has not changed since the last time the client has opened a mailbox, the IMAP protocol
-        says that no messages could have been delivered to the mailbox at all.
+  \item If the {\tt UIDVALIDITY} has changed, the client is obliged to completely purge any data which it might have
+    accumulated in its local persistent cache.
+  \item If {\tt UIDNEXT} is not available, we have to resort to asking for the whole UID mapping from scratch.
+  \item If the {\tt UIDNEXT} has decreased, the IMAP server exhibits a bug.  This situation is explicitly forbidden by
+    the IMAP standard.  Trojitá will, nevertheless, try to work in this scenario by purging its cache and continuing as
+    if no state was cached locally.
+  \item If the {\tt UIDNEXT} has not changed since the last time the client has opened a mailbox, the IMAP protocol says
+    that no messages could have been delivered to the mailbox at all.
+    \begin{itemize}
+      \item If the {\tt EXISTS} remains constant as well, it is clear that no deleted have taken place. This means that
+        the cached sequence $\rightarrow$ UID mapping from the last time is directly usable, and the UID syncing phase
+        of the mailbox synchronization is concluded.
+      \item Otherwise, if the {\tt EXISTS} has grown, we are talking to a non-compliant IMAP server which failed to
+        adjust either {\tt UIDNEXT} or {\tt UIDVALIDITY}, and cannot assume anything about the server's behavior.
+        Trojitá will gracefully degrade to a complete UID mapping resynchronization.
+      \item If the {\tt EXISTS} has decreased, we can be sure that some messages have been deleted.  In this situation,
+        we have two possible options on how to proceed:
         \begin{itemize}
-            \item If the {\tt EXISTS} remains constant as well, it is clear that no deleted have taken place. This means
-                that the cached sequence $\rightarrow$ UID mapping from the last time is directly usable, and the UID
-                syncing phase of the mailbox synchronization is concluded.
-            \item Otherwise, if the {\tt EXISTS} has grown, we are talking to a non-compliant IMAP server which failed
-                to adjust either {\tt UIDNEXT} or {\tt UIDVALIDITY}, and cannot assume anything about the server's
-                behavior.  Trojitá will gracefully degrade to a complete UID mapping resynchronization.
-            \item If the {\tt EXISTS} has decreased, we can be sure that some messages have been deleted.  In this
-                situation, we have two possible options on how to proceed:
-                \begin{itemize}
-                    \item We can try to perform a binary search in the list of messages to find the first deleted
-                        message and ask for UIDs of all messages at the subsequent positions.  This is a heuristics
-                        which relies on an observation that it is more likely for users working with big mailboxes to
-                        delete messages at the end of the mailbox.  However, each step in this incremental search
-                        requires a complete round trip to the IMAP server over a network; with a mailbox with
-                        tens of thousands of messages, this could lead to 17 round trips.  Given that real-world
-                        cellular networks like the GPRS/EDGE infrastructure, unfortunately still common in the Czech
-                        republic, exhibit the RTT latencies which can often be larger than one
-                        second~\cite{gprs-rtt-report}, such an approach to incremental synchronization of the UID
-                        mapping will have severe impact on the total synchronization time.
-                    \item Another way is to give up on possible bandwidth reduction possibility and fetch the complete
-                        UID mapping.
-                \end{itemize}
+          \item We can try to perform a binary search in the list of messages to find the first deleted message and ask
+            for UIDs of all messages at the subsequent positions.  This is a heuristics which relies on an observation
+            that it is more likely for users working with big mailboxes to delete messages at the end of the mailbox.
+            However, each step in this incremental search requires a complete round trip to the IMAP server over a
+            network; with a mailbox with tens of thousands of messages, this could lead to 17 round trips.  Given that
+            real-world cellular networks like the GPRS/EDGE infrastructure, unfortunately still common in the Czech
+            republic, exhibit the RTT latencies which can often be larger than one second~\cite{gprs-rtt-report}, such
+            an approach to incremental synchronization of the UID mapping will have severe impact on the total
+            synchronization time.
+          \item Another way is to give up on possible bandwidth reduction possibility and fetch the complete UID
+            mapping.
         \end{itemize}
-    \item If the {\tt UIDNEXT} has grown, some messages might have arrived to the mailbox.  There's no guarantee that
-        any of them are still present, though, so the clients could use another set of heuristics:
-        \begin{itemize}
-            \item If the increase in {\tt EXISTS} is exactly the same as the growth of the {\tt UIDNEXT}, all of the new
-                arrivals are still present in the mailbox and no message have been expunged since the last time.  The
-                client can ask only for UIDs of the new arrivals.
-            \item In any other case, the situation is very similar to a changed {\tt EXISTS} with constant {\tt UIDNEXT}
-                and the same possible optimization about the binary search might apply.  Alternatively, clients could
-                fetch a complete UID mapping.
-        \end{itemize}
+    \end{itemize}
+  \item If the {\tt UIDNEXT} has grown, some messages might have arrived to the mailbox.  There's no guarantee that any
+    of them are still present, though, so the clients could use another set of heuristics:
+    \begin{itemize}
+      \item If the increase in {\tt EXISTS} is exactly the same as the growth of the {\tt UIDNEXT}, all of the new
+        arrivals are still present in the mailbox and no message have been expunged since the last time.  The client can
+        ask only for UIDs of the new arrivals.
+      \item In any other case, the situation is very similar to a changed {\tt EXISTS} with constant {\tt UIDNEXT} and
+        the same possible optimization about the binary search might apply.  Alternatively, clients could fetch a
+        complete UID mapping.
+    \end{itemize}
 \end{itemize}
 
 If the decisions described above suggest that at least a part of the UID mapping shall be updated, an IMAP client can --
