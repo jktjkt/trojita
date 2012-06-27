@@ -173,10 +173,19 @@ Alternatively, the {\tt UID SEARCH} command can be used as follows:
 As we can see, the {\tt SEARCH} response is much more compact.  In practice, the bandwidth saving is slightly lower as
 the UID discovery and {\tt FLAGS} synchronization can be merged into a single {\tt FETCH} command, but the overhead is
 still at least four bytes for each message in the mailbox,~\footnote{If the {\tt FLAGS} are fetched as well, the real
-overhead is the {\tt UID<space>} string -- the number and its trailing space is present in the {\tt SEARCH} response as
-well.} which leads to at least 200~kB of useless data on a mailbox with fifty thousands of messages.
+overhead is just the {\tt "UID<space>"} string -- the number and its trailing space is present in the {\tt SEARCH}
+response as well and the overhead of the {\tt FETCH} response format is required for the updated flags anyway.} which
+leads to at least 200~kB of useless data on a mailbox with fifty thousands of messages.
 
 \subsection{Message Flags}
+
+We have mentioned message flags when describing the mailbox synchronization.  Strictly speaking, asking for message
+flags of all messages in a mailbox is not necessary provided the program is capable of lazy-loading -- flags could, for
+example, only be fetched for those messages which are immediately visible on screen (probably with some intelligent
+preload for those which will likely get to the viewport in near future), avoiding a potentially expensive operation.  On
+the other hand, contemporary user agents typically have to display an aggregated statistics like ``$X$ unread messages,
+$Y$ total'' to the user.  IMAP certainly has methods for delivering such statistics, however, the baseline
+specification's only two ways of conveying are through the {\tt STATUS} command or via an explicit {\tt SEARCH}.
 
 %\todo[inline]{write me}
 
