@@ -110,6 +110,7 @@ private slots:
     void slotXtSyncCurrentMailbox();
 #endif
     void slotSubscribeCurrentMailbox();
+    void slotShowOnlySubscribed();
     void updateMessageFlags();
     void updateMessageFlags(const QModelIndex &index);
     void scrollMessageUp();

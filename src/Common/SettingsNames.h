@@ -42,6 +42,7 @@ struct SettingsNames {
            xtDbDbName, xtDbUser;
     static QString guiMsgListShowThreading;
     static QString guiMsgListHideRead;
+    static QString guiMailboxListShowOnlySubscribed;
     static QString guiMainWindowLayout, guiMainWindowLayoutCompact, guiMainWindowLayoutWide;
     static QString appLoadHomepage;
     static QString knownEmailsKey;

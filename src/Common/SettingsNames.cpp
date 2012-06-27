@@ -70,6 +70,7 @@ QString SettingsNames::xtDbDbName = QLatin1String("xtconnect.db.dbname");
 QString SettingsNames::xtDbUser = QLatin1String("xtconnect.db.username");
 QString SettingsNames::guiMsgListShowThreading = QLatin1String("gui/msgList.showThreading");
 QString SettingsNames::guiMsgListHideRead = QLatin1String("gui/msgList.hideRead");
+QString SettingsNames::guiMailboxListShowOnlySubscribed = QLatin1String("gui/mailboxList.showOnlySubscribed");
 QString SettingsNames::guiMainWindowLayout = QLatin1String("gui/mainWindow.layout");
 QString SettingsNames::guiMainWindowLayoutCompact = QLatin1String("compact");
 QString SettingsNames::guiMainWindowLayoutWide = QLatin1String("wide");

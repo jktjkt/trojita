@@ -294,7 +294,7 @@ void MainWindow::createActions()
     m_actionShowOnlySubscribed = new QAction(tr("Show Only Subscribed Folders"), this);
     m_actionShowOnlySubscribed->setCheckable(true);
     m_actionShowOnlySubscribed->setEnabled(false);
-    connect(m_actionShowOnlySubscribed, SIGNAL(triggered(bool)), prettyMboxModel, SLOT(setShowOnlySubscribed(bool)));
+    connect(m_actionShowOnlySubscribed, SIGNAL(toggled(bool)), this, SLOT(slotShowOnlySubscribed()));
     m_actionSubscribeMailbox = new QAction(tr("Subscribed"), this);
     m_actionSubscribeMailbox->setCheckable(true);
     m_actionSubscribeMailbox->setEnabled(false);
@@ -1319,6 +1319,14 @@ void MainWindow::slotSubscribeCurrentMailbox()
     }
 }
 
+void MainWindow::slotShowOnlySubscribed()
+{
+    QSettings().setValue(Common::SettingsNames::guiMailboxListShowOnlySubscribed, m_actionShowOnlySubscribed->isChecked());
+    if (m_actionShowOnlySubscribed->isEnabled()) {
+        prettyMboxModel->setShowOnlySubscribed(m_actionShowOnlySubscribed->isChecked());
+    }
+}
+
 void MainWindow::slotScrollToUnseenMessage(const QModelIndex &mailbox, const QModelIndex &message)
 {
     // Now this is much, much more reliable than messing around with finding out an "interesting message"...
@@ -1493,6 +1501,9 @@ void MainWindow::slotCapabilitiesUpdated(const QStringList &capabilities)
     msgListWidget->setFuzzySearchSupported(capabilities.contains(QLatin1String("SEARCH=FUZZY")));
 
     m_actionShowOnlySubscribed->setEnabled(capabilities.contains(QLatin1String("LIST-EXTENDED")));
+    m_actionShowOnlySubscribed->setChecked(m_actionShowOnlySubscribed->isEnabled() &&
+                                           QSettings().value(
+                                               Common::SettingsNames::guiMailboxListShowOnlySubscribed, false).toBool());
     m_actionSubscribeMailbox->setEnabled(m_actionShowOnlySubscribed->isEnabled());
 
     const QStringList supportedCapabilities = Imap::Mailbox::ThreadingMsgListModel::supportedCapabilities();
