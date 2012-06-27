@@ -291,6 +291,11 @@ void MainWindow::createActions()
         slotLayoutWide();
     }
 
+    m_actionSubscribeMailbox = new QAction(tr("Subscribed"), this);
+    m_actionSubscribeMailbox->setCheckable(true);
+    m_actionSubscribeMailbox->setEnabled(false);
+    connect(m_actionSubscribeMailbox, SIGNAL(triggered()), this, SLOT(slotSubscribeCurrentMailbox()));
+
     aboutTrojita = new QAction(trUtf8("About Trojitá..."), this);
     connect(aboutTrojita, SIGNAL(triggered()), this, SLOT(slotShowAboutTrojita()));
 
@@ -683,6 +688,9 @@ void MainWindow::showContextMenuMboxTree(const QPoint &position)
         actionList.append(deleteCurrentMailbox);
         actionList.append(resyncMbox);
         actionList.append(reloadMboxList);
+
+        actionList.append(m_actionSubscribeMailbox);
+        m_actionSubscribeMailbox->setChecked(mboxTree->indexAt(position).data(Imap::Mailbox::RoleMailboxIsSubscribed).toBool());
 
 #ifdef XTUPLE_CONNECT
         actionList.append(xtIncludeMailboxInSync);
@@ -1291,6 +1299,20 @@ void MainWindow::slotXtSyncCurrentMailbox()
 }
 #endif
 
+void MainWindow::slotSubscribeCurrentMailbox()
+{
+    QModelIndex index = mboxTree->currentIndex();
+    if (! index.isValid())
+        return;
+
+    QString mailbox = index.data(Imap::Mailbox::RoleMailboxName).toString();
+    if (m_actionSubscribeMailbox->isChecked()) {
+        model->subscribeMailbox(mailbox);
+    } else {
+        model->unsubscribeMailbox(mailbox);
+    }
+}
+
 void MainWindow::slotScrollToUnseenMessage(const QModelIndex &mailbox, const QModelIndex &message)
 {
     // Now this is much, much more reliable than messing around with finding out an "interesting message"...
@@ -1463,6 +1485,8 @@ void MainWindow::slotCapabilitiesUpdated(const QStringList &capabilities)
     }
 
     msgListWidget->setFuzzySearchSupported(capabilities.contains(QLatin1String("SEARCH=FUZZY")));
+
+    m_actionSubscribeMailbox->setEnabled(capabilities.contains(QLatin1String("LIST-EXTENDED")));
 
     const QStringList supportedCapabilities = Imap::Mailbox::ThreadingMsgListModel::supportedCapabilities();
     Q_FOREACH(const QString &capability, capabilities) {

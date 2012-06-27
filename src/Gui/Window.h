@@ -109,6 +109,7 @@ private slots:
 #ifdef XTUPLE_CONNECT
     void slotXtSyncCurrentMailbox();
 #endif
+    void slotSubscribeCurrentMailbox();
     void updateMessageFlags();
     void updateMessageFlags(const QModelIndex &index);
     void scrollMessageUp();
@@ -226,6 +227,8 @@ private:
     QAction *m_actionSortDescending;
     QAction *m_actionLayoutCompact;
     QAction *m_actionLayoutWide;
+
+    QAction *m_actionSubscribeMailbox;
 
     QToolBar *m_mainToolbar;
 
