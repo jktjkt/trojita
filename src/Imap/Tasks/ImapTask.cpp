@@ -17,6 +17,7 @@
 */
 
 #include "ImapTask.h"
+#include "KeepMailboxOpenTask.h"
 #include "Model.h"
 #include "TaskPresentationModel.h"
 
@@ -85,6 +86,12 @@ void ImapTask::markAsActiveTask(const TaskActivatingPosition place)
     // As we're an active task, we no longer have a parent task
     parentTask = 0;
     model->m_taskModel->slotTaskGotReparented(this);
+
+    if (model->accessParser(parser).maintainingTask && model->accessParser(parser).maintainingTask != this) {
+        // Got to inform the currently responsible maintaining task about our demise
+        connect(this, SIGNAL(destroyed(QObject*)), model->accessParser(parser).maintainingTask, SLOT(slotTaskDeleted(QObject*)));
+    }
+
     log(tr("Activated"));
     CHECK_TASK_TREE
 }

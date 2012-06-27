@@ -81,6 +81,11 @@ KeepMailboxOpenTask::KeepMailboxOpenTask(Model *model, const QModelIndex &mailbo
             model->accessParser(parser).maintainingTask = this;
             QTimer::singleShot(0, this, SLOT(slotPerformConnection()));
         }
+
+        // We shall catch destruction of any preexisting tasks so that we can properly launch IDLE etc in response to their termination
+        Q_FOREACH(ImapTask *task, model->accessParser(parser).activeTasks) {
+            connect(task, SIGNAL(destroyed(QObject*)), this, SLOT(slotTaskDeleted(QObject*)));
+        }
     } else {
         ImapTask *conn = 0;
         if (model->networkPolicy() == Model::NETWORK_OFFLINE) {
