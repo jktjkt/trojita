@@ -1,0 +1,33 @@
+% vim: spelllang=en spell textwidth=120
+\documentclass[trojita]{subfiles}
+
+\begin{document}
+
+\chapter{IMAP Extensions}
+\label{sec:imap-extensions}
+
+\begin{abstract}
+  Previous chapter has outlined the generic mode of operation of the IMAP protocol and provided an overview of what
+  features are available.  In this chapter, we will talk about how to improve on the basic functionality through the
+  optional extensions.
+\end{abstract}
+
+It might be concluded from the brief analysis presented in the previous chapter that a few feature of IMAP are rather
+limiting in its real-world deployment.  Fortunately, the IMAP protocol includes built-in support of extensions which
+allow rather substantial changes to the network communication.
+
+\section{Optimizing the Protocol}
+
+\subsection{The LITERAL+ Extension}
+
+One of the lowest-hanging optimization fruit to cater are IMAP's synchronizing literals.  In the basic IMAP, before a
+clients proceeds with tasks involving upload of binary data or anything over a certain size, it has to ask for an
+explicit server's approval based on the length of the data in question.  As we have shown previously, this confirmation
+imposes a full round trip over the network, inducing latency and destroying any potential pipelining improvements.
+
+The LITERAL+ extension simply lifts the requirement of having to wait for the server's continuation requests by a subtle
+change of the syntax.  Adding an overhead of just one byte, the latency is completely eliminated and communication gets
+rapidly streamlined.  We can go as far as to say that the code paths for dealing with LITERAL+ data is actually simpler
+than having to deal with the old-fashioned synchronizing literals.  COnsider the following example:
+
+\end{document}
