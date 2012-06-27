@@ -81,7 +81,7 @@ private:
     MsgListModel &operator=(const MsgListModel &);  // don't implement
     MsgListModel(const MsgListModel &);  // don't implement
 
-    TreeItemMsgList *msgList;
+    TreeItemMsgList *msgListPtr;
     bool waitingForMessages;
 
     friend class ThreadingMsgListModel;

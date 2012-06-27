@@ -34,7 +34,7 @@ namespace Imap
 namespace Mailbox
 {
 
-MsgListModel::MsgListModel(QObject *parent, Model *model): QAbstractProxyModel(parent), msgList(0), waitingForMessages(false)
+MsgListModel::MsgListModel(QObject *parent, Model *model): QAbstractProxyModel(parent), msgListPtr(0), waitingForMessages(false)
 {
     setSourceModel(model);
 
@@ -99,7 +99,7 @@ void MsgListModel::handleDataChanged(const QModelIndex &topLeft, const QModelInd
 
 QModelIndex MsgListModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if (! msgList)
+    if (! msgListPtr)
         return QModelIndex();
 
     if (parent.isValid())
@@ -108,10 +108,10 @@ QModelIndex MsgListModel::index(int row, int column, const QModelIndex &parent) 
     if (column < 0 || column >= COLUMN_COUNT)
         return QModelIndex();
 
-    if (row >= msgList->m_children.size() || row < 0)
+    if (row >= msgListPtr->m_children.size() || row < 0)
         return QModelIndex();
 
-    return createIndex(row, column, msgList->m_children[row]);
+    return createIndex(row, column, msgListPtr->m_children[row]);
 }
 
 QModelIndex MsgListModel::parent(const QModelIndex &index) const
@@ -130,10 +130,10 @@ int MsgListModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    if (! msgList)
+    if (! msgListPtr)
         return 0;
 
-    return msgList->rowCount(dynamic_cast<Model *>(sourceModel()));
+    return msgListPtr->rowCount(dynamic_cast<Model *>(sourceModel()));
 }
 
 int MsgListModel::columnCount(const QModelIndex &parent) const
@@ -147,7 +147,7 @@ int MsgListModel::columnCount(const QModelIndex &parent) const
 
 QModelIndex MsgListModel::mapToSource(const QModelIndex &proxyIndex) const
 {
-    if (!msgList || !proxyIndex.isValid())
+    if (!msgListPtr || !proxyIndex.isValid())
         return QModelIndex();
 
     if (proxyIndex.parent().isValid())
@@ -155,12 +155,12 @@ QModelIndex MsgListModel::mapToSource(const QModelIndex &proxyIndex) const
 
     Model *model = dynamic_cast<Model *>(sourceModel());
     Q_ASSERT(model);
-    return model->createIndex(proxyIndex.row(), 0, msgList->m_children[proxyIndex.row()]);
+    return model->createIndex(proxyIndex.row(), 0, msgListPtr->m_children[proxyIndex.row()]);
 }
 
 QModelIndex MsgListModel::mapFromSource(const QModelIndex &sourceIndex) const
 {
-    if (! msgList)
+    if (! msgListPtr)
         return QModelIndex();
 
     if (sourceIndex.model() != sourceModel())
@@ -174,7 +174,7 @@ QModelIndex MsgListModel::mapFromSource(const QModelIndex &sourceIndex) const
 
 QVariant MsgListModel::data(const QModelIndex &proxyIndex, int role) const
 {
-    if (! msgList)
+    if (! msgListPtr)
         return QVariant();
 
     if (! proxyIndex.isValid() || proxyIndex.model() != this)
@@ -327,7 +327,7 @@ void MsgListModel::handleRowsAboutToBeRemoved(const QModelIndex &parent, int sta
         return;
     }
 
-    if (! msgList)
+    if (! msgListPtr)
         return;
 
     TreeItem *item = Model::realTreeItem(parent);
@@ -343,10 +343,10 @@ void MsgListModel::handleRowsAboutToBeRemoved(const QModelIndex &parent, int sta
     }
 
     if (newList) {
-        if (newList == msgList) {
+        if (newList == msgListPtr) {
             beginRemoveRows(mapFromSource(parent), start, end);
             for (int i = start; i <= end; ++i)
-                emit messageRemoved(msgList->m_children[i]);
+                emit messageRemoved(msgListPtr->m_children[i]);
         }
     } else if (mailbox) {
         Q_ASSERT(start > 0);
@@ -358,7 +358,7 @@ void MsgListModel::handleRowsAboutToBeRemoved(const QModelIndex &parent, int sta
             // FIXME: this assumes that no rows were removed by the proxy model
             TreeItemMailbox *m = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(model->index(i, 0, translatedParent).internalPointer()));
             Q_ASSERT(m);
-            TreeItem *up = msgList->parent();
+            TreeItem *up = msgListPtr->parent();
             while (up) {
                 if (m == up) {
                     resetMe();
@@ -375,7 +375,7 @@ void MsgListModel::handleRowsRemoved(const QModelIndex &parent, int start, int e
     Q_UNUSED(start);
     Q_UNUSED(end);
 
-    if (! msgList)
+    if (! msgListPtr)
         return;
 
     if (! parent.isValid()) {
@@ -383,7 +383,7 @@ void MsgListModel::handleRowsRemoved(const QModelIndex &parent, int start, int e
         return;
     }
 
-    if (dynamic_cast<TreeItemMsgList *>(Model::realTreeItem(parent)) == msgList)
+    if (dynamic_cast<TreeItemMsgList *>(Model::realTreeItem(parent)) == msgListPtr)
         endRemoveRows();
 }
 
@@ -393,7 +393,7 @@ void MsgListModel::handleRowsAboutToBeInserted(const QModelIndex &parent, int st
         return;
 
     TreeItemMsgList *newList = dynamic_cast<TreeItemMsgList *>(Model::realTreeItem(parent));
-    if (msgList && msgList == newList) {
+    if (msgListPtr && msgListPtr == newList) {
         beginInsertRows(mapFromSource(parent), start, end);
     }
 }
@@ -406,7 +406,7 @@ void MsgListModel::handleRowsInserted(const QModelIndex &parent, int start, int 
     Q_UNUSED(start);
     Q_UNUSED(end);
     TreeItemMsgList *newList = dynamic_cast<TreeItemMsgList *>(Model::realTreeItem(parent));
-    if (msgList && msgList == newList) {
+    if (msgListPtr && msgListPtr == newList) {
         endInsertRows();
     }
 
@@ -429,9 +429,9 @@ void MsgListModel::setMailbox(const QModelIndex &index)
     TreeItemMsgList *newList = dynamic_cast<TreeItemMsgList *>(
                                    mbox->child(0, const_cast<Model *>(model)));
     Q_ASSERT(newList);
-    if (newList != msgList) {
-        msgList = newList;
-        msgList->resetWasUnreadState();
+    if (newList != msgListPtr) {
+        msgListPtr = newList;
+        msgListPtr->resetWasUnreadState();
         reset();
         emit mailboxChanged();
         // We want to tell the Model that it should consider starting the IDLE command.
@@ -449,7 +449,7 @@ void MsgListModel::setMailbox(const QString &mailboxName)
 
 TreeItemMailbox *MsgListModel::currentMailbox() const
 {
-    return msgList ? dynamic_cast<TreeItemMailbox *>(msgList->parent()) : 0;
+    return msgListPtr ? dynamic_cast<TreeItemMailbox *>(msgListPtr->parent()) : 0;
 }
 
 }
