@@ -291,6 +291,10 @@ void MainWindow::createActions()
         slotLayoutWide();
     }
 
+    m_actionShowOnlySubscribed = new QAction(tr("Show Only Subscribed Folders"), this);
+    m_actionShowOnlySubscribed->setCheckable(true);
+    m_actionShowOnlySubscribed->setEnabled(false);
+    connect(m_actionShowOnlySubscribed, SIGNAL(triggered(bool)), prettyMboxModel, SLOT(setShowOnlySubscribed(bool)));
     m_actionSubscribeMailbox = new QAction(tr("Subscribed"), this);
     m_actionSubscribeMailbox->setCheckable(true);
     m_actionSubscribeMailbox->setEnabled(false);
@@ -373,6 +377,7 @@ void MainWindow::createMenus()
 
     viewMenu->addAction(actionThreadMsgList);
     viewMenu->addAction(actionHideRead);
+    viewMenu->addAction(m_actionShowOnlySubscribed);
 
     QMenu *mailboxMenu = menuBar()->addMenu(tr("Mailbox"));
     mailboxMenu->addAction(resyncMbox);
@@ -702,6 +707,7 @@ void MainWindow::showContextMenuMboxTree(const QPoint &position)
         actionList.append(createTopMailbox);
     }
     actionList.append(reloadAllMailboxes);
+    actionList.append(m_actionShowOnlySubscribed);
     QMenu::exec(actionList, mboxTree->mapToGlobal(position));
 }
 
@@ -1486,7 +1492,8 @@ void MainWindow::slotCapabilitiesUpdated(const QStringList &capabilities)
 
     msgListWidget->setFuzzySearchSupported(capabilities.contains(QLatin1String("SEARCH=FUZZY")));
 
-    m_actionSubscribeMailbox->setEnabled(capabilities.contains(QLatin1String("LIST-EXTENDED")));
+    m_actionShowOnlySubscribed->setEnabled(capabilities.contains(QLatin1String("LIST-EXTENDED")));
+    m_actionSubscribeMailbox->setEnabled(m_actionShowOnlySubscribed->isEnabled());
 
     const QStringList supportedCapabilities = Imap::Mailbox::ThreadingMsgListModel::supportedCapabilities();
     Q_FOREACH(const QString &capability, capabilities) {

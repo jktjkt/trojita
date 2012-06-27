@@ -229,6 +229,7 @@ private:
     QAction *m_actionLayoutWide;
 
     QAction *m_actionSubscribeMailbox;
+    QAction *m_actionShowOnlySubscribed;
 
     QToolBar *m_mainToolbar;
 

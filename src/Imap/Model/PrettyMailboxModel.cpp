@@ -37,7 +37,7 @@ namespace Mailbox
 {
 
 PrettyMailboxModel::PrettyMailboxModel(QObject *parent, MailboxModel *mailboxModel):
-    QSortFilterProxyModel(parent)
+    QSortFilterProxyModel(parent), m_showOnlySubscribed(false)
 {
     setDynamicSortFilter(true);
     setSourceModel(mailboxModel);
@@ -115,6 +115,18 @@ bool PrettyMailboxModel::filterAcceptsColumn(int source_column, const QModelInde
     return source_column == 0;
 }
 
+bool PrettyMailboxModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
+{
+    if (!m_showOnlySubscribed)
+        return true;
+
+    QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
+    Q_ASSERT(index.isValid());
+
+    // FIXME: walk the tree resursively from here instead of just checking for children
+    return index.data(RoleMailboxIsSubscribed).toBool() || sourceModel()->hasChildren(index);
+}
+
 bool PrettyMailboxModel::hasChildren(const QModelIndex &parent) const
 {
     return dynamic_cast<const MailboxModel *>(sourceModel())->hasChildren(mapToSource(parent));
@@ -127,6 +139,12 @@ void PrettyMailboxModel::xtConnectStatusChanged(QModelIndex index)
     emit dataChanged(index, index);
 }
 #endif
+
+void PrettyMailboxModel::setShowOnlySubscribed(bool filterUnsubscribed)
+{
+    m_showOnlySubscribed = filterUnsubscribed;
+    invalidateFilter();
+}
 
 }
 
