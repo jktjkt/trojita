@@ -215,11 +215,16 @@ Qt::ItemFlags MailboxModel::flags(const QModelIndex &index) const
 
     TreeItemMailbox *mbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(index.internalPointer()));
     Q_ASSERT(mbox);
-    // We can't really disable the Qt::ItemIsSelectable here, as it'd block any user interaction
-    if (mbox->isSelectable() && static_cast<Model *>(sourceModel())->isNetworkAvailable())
-        return Qt::ItemIsDropEnabled | QAbstractProxyModel::flags(index);
-    else
-        return QAbstractProxyModel::flags(index);
+
+    Qt::ItemFlags res = QAbstractProxyModel::flags(index);
+    if (!mbox->isSelectable()) {
+        res &= ~Qt::ItemIsSelectable;
+        res |= Qt::ItemIsEnabled;
+    }
+    if (static_cast<Model *>(sourceModel())->isNetworkAvailable()) {
+        res |= Qt::ItemIsDropEnabled;
+    }
+    return res;
 }
 
 Qt::DropActions MailboxModel::supportedDropActions() const

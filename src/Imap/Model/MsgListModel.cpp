@@ -418,27 +418,18 @@ void MsgListModel::handleRowsInserted(const QModelIndex &parent, int start, int 
 
 void MsgListModel::setMailbox(const QModelIndex &index)
 {
-    waitingForMessages = true;
-    if (!index.isValid()) {
-        msgList = 0;
-        reset();
-        emit mailboxChanged();
+    if (!index.isValid() || !index.data(Imap::Mailbox::RoleMailboxIsSelectable).toBool())
         return;
-    }
+
+    waitingForMessages = true;
 
     const Model *model = 0;
     TreeItemMailbox *mbox = dynamic_cast<TreeItemMailbox *>(Model::realTreeItem(index, &model));
     Q_ASSERT(mbox);
-    if (!mbox->isSelectable()) {
-        msgList = 0;
-        reset();
-        emit mailboxChanged();
-        return;
-    }
     TreeItemMsgList *newList = dynamic_cast<TreeItemMsgList *>(
                                    mbox->child(0, const_cast<Model *>(model)));
     Q_ASSERT(newList);
-    if (newList != msgList && mbox->isSelectable()) {
+    if (newList != msgList) {
         msgList = newList;
         msgList->resetWasUnreadState();
         reset();
