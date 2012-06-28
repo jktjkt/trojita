@@ -18,16 +18,102 @@ allow rather substantial changes to the network communication.
 
 \section{Optimizing the Protocol}
 
+Before dwelling into more advanced topics like improving the synchronization performance or adding new features, let's
+have a look at the basic layer of the IMAP protocol and investigate how these affect performance.
+
 \subsection{The LITERAL+ Extension}
 
 One of the lowest-hanging optimization fruit to cater are IMAP's synchronizing literals.  In the basic IMAP, before a
-clients proceeds with tasks involving upload of binary data or anything over a certain size, it has to ask for an
-explicit server's approval based on the length of the data in question.  As we have shown previously, this confirmation
-imposes a full round trip over the network, inducing latency and destroying any potential pipelining improvements.
+clients proceeds with tasks involving upload of binary data (or any data over a certain size, for that matter), it has
+to ask for an explicit server's approval based on the length of the data in question.  As we have shown previously, this
+confirmation imposes a full round trip over the network, inducing latency and destroying any potential pipelining
+improvements.
 
 The LITERAL+ extension simply lifts the requirement of having to wait for the server's continuation requests by a subtle
 change of the syntax.  Adding an overhead of just one byte, the latency is completely eliminated and communication gets
-rapidly streamlined.  We can go as far as to say that the code paths for dealing with LITERAL+ data is actually simpler
-than having to deal with the old-fashioned synchronizing literals.  COnsider the following example:
+rapidly streamlined.  We can go as far as to say that the code paths for dealing with LITERAL+ data are actually simpler
+than having to deal with the old-fashioned synchronizing literals.  Consider the following example:
+
+\begin{minted}{text}
+  S: * OK
+  C: A001 LOGIN {11}
+  # The client has to wait for server's response before proceeding any further
+  S: + go ahead
+  C: FRED FOOBAR {7}
+  # A second round-trip wait occurs here
+  S: + go ahead
+  C: fat man
+  S: A001 OK LOGIN completed
+\end{minted}
+
+When using the LITERAL+ syntax, the whole interaction happens without having to wait for the server:
+
+\begin{minted}{text}
+  S: * OK
+  C: A001 LOGIN {11+}
+  C: FRED FOOBAR {7+}
+  C: fat man
+  S: A001 OK LOGIN completed
+\end{minted}
+
+Trojitá includes full support for the LITERAL+ extension -- when it detects the {\tt LITERAL+} capability, it will
+immediately switch to using non-synchronizing literals for increased performance.
+
+\subsection{Data Compression}
+
+RFC 4978
+
+\subsection{Improving Security through Cryptography}
+
+RFC 2595
+
+\subsection{The IDLE Mode}
+
+RFC 2177
+
+\section{Improving Mailbox Synchronization}
+
+\subsection{The ESEARCH Extension}
+
+4731
+
+\subsection{Avoiding Flags Resynchronization via CONDSTORE}
+
+4551
+
+\subsection{Optimizing UID Synchronization with QRESYNC}
+
+5162
+
+\section{Fetching the Data}
+
+\subsection{The BINARY Extension}
+
+3516
+
+\subsection{Server-side Conversions via CONVERT}
+
+5259
+
+\section{Updating Mailboxes}
+
+\subsection{Sorting, Searching  and Threading}
+
+5256
+5957
+
+\subsection{Incremental Sorting and Searching}
+
+5267
+
+\subsection{Refreshing Statistics}
+
+5465
+
+\section{Further Improvements}
+
+\subsection{Debugging}
+
+\subsection{Sending Mail}
 
 \end{document}
