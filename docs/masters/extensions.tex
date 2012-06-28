@@ -30,11 +30,11 @@ to ask for an explicit server's approval based on the length of the data in ques
 confirmation imposes a full round trip over the network, inducing latency and destroying any potential pipelining
 improvements.
 
-The LITERAL+ extension~\cite{rfc2088} simply lifts the requirement of having to wait for the server's continuation
-requests by a subtle change of the syntax.  Adding an overhead of just one byte, the latency is completely eliminated
-and communication gets rapidly streamlined.  We can go as far as to say that the code paths for dealing with LITERAL+
-data are actually simpler than having to deal with the old-fashioned synchronizing literals.  Consider the following
-example:
+The LITERAL+ extension (RFC~2088~\cite{rfc2088}) simply lifts the requirement of having to wait for the server's
+continuation requests by a subtle change of the syntax.  Adding an overhead of just one byte, the latency is completely
+eliminated and communication gets rapidly streamlined.  We can go as far as to say that the code paths for dealing with
+LITERAL+ data are actually simpler than having to deal with the old-fashioned synchronizing literals.  Consider the
+following example:
 
 \begin{minted}{text}
   S: * OK

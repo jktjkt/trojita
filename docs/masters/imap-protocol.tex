@@ -250,9 +250,9 @@ each transmission requires a full roundtrip over the network.  Fortunately, exte
 \secref{sec:imap-literalplus}) have eliminated this bottleneck.
 
 Another manifestation of a situation which could potentially use an improvement is the protocol's requirement on clients
-to accept any response at any time,~\footnote{{\tt ``The client MUST be prepared to accept any response at all times.''}
-as stated in section 7 on page 61 of RFC~3501.} which is not applied consistently -- the same RFC also mandates that the
-servers cannot send {\tt EXPUNGE} when no command is in progress.  This particular wording certainly has merits
+to accept any response at any time,~\footnote{{\tt ``The client MUST be prepared to accept any response at all
+times.''}~\cite[p. 61]{rfc3501}} which is not applied consistently -- the same RFC also mandates that the servers cannot
+send {\tt EXPUNGE} when no command is in progress~\cite[p. 72]{rfc3501}.  This particular wording certainly has merits
 (it encourages client implementors to {\em really} accept anything at any time) and is required for proper
 synchronization -- if {\tt EXPUNGE}s were allowed when no command was in progress and a client issued a {\tt STORE}
 command referencing a message through its sequence number, that action could affect completely different message.  This
