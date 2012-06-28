@@ -63,11 +63,32 @@ immediately switch to using non-synchronizing literals for increased performance
 
 \subsection{Data Compression}
 
-\cite{rfc4978}
+IMAP is a textual, line-based protocol.  As such, it presents extremely good opportunities for compression -- using the
+tried DEFLATE algorithm~\cite{rfc1951}, the basic IMAP chatter can be easily compressed to 25~-~40~\% of its original
+size~\cite[p. 4]{rfc4978}.
+
+RFC~4978~\cite{rfc4978} provides mechanism for exactly this functionality through the {\tt COMPRESS=DEFLATE} capability.
+Trojitá ships with full support for this extension through the permissively licensed {\tt zlib} library.  Unfortunately,
+the Qt's {\tt QSslSocket} currently doesn't provide a way to reliably tell whether the SSL connection is already
+employing compression.  When combined with IMAP servers hidden behind SSL accelerators or load balancers (i.e. in
+situations where the server does not have a clear idea whether the session is already compressed either), this has a
+risk of needlessly trying to compress data twice.  This is a limitation in system libraries which cannot be overcome
+without resorting to patching system components or conducting non-portable hacks.
 
 \subsection{Improving Security through Cryptography}
 
-\cite{rfc2595}
+RFC~2595~\cite{rfc2595} deals with best practices for establishing SSL/TLS connections to the IMAP server.  Trojitá
+follows these recommendations, most notably it tries to establish a secure channel over {\tt STARTTLS} command even
+without an explicit action on the user's side, should the server be configured to advertise itself as not accepting
+logins over insecure connections through the {\tt LOGINDISABLED} capability.  A manual override is available in
+situations where the SSL encryption is not available.
+
+In advent of the recent breaches of many well-known (and widely trusted) Certificate Authorities~\cite{ssl-breaches},
+Trojitá also comes with support for SSL key pinning~\cite{ssl-pinning}.  The trust model presented to the user is
+similar to handling of SSH servers' public keys with OpenSSH -- upon first connection, the user is always presented with
+a choice of whether to accept the certificate or not, along with a confirmation about whether the operating system and
+its policy considers the certificate as ``trusted''.  No matter what the systemwide policy says, a changed public key is
+always considered a threat and the situation is presented to the user accordingly.
 
 \subsection{The IDLE Mode}
 \label{sec:imap-idle}
