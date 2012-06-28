@@ -87,15 +87,90 @@ In advent of the recent breaches of many well-known (and widely trusted) Certifi
 Trojitá also comes with support for SSL key pinning~\cite{ssl-pinning}.  The trust model presented to the user is
 similar to handling of SSH servers' public keys with OpenSSH -- upon first connection, the user is always presented with
 a choice of whether to accept the certificate or not, along with a confirmation about whether the operating system and
-its policy considers the certificate as ``trusted''.  No matter what the systemwide policy says, a changed public key is
-always considered a threat and the situation is presented to the user accordingly.
+its policy considers the certificate as ``trusted''.  No matter what the system-wide policy says, a changed public key
+is always considered a threat and the situation is presented to the user accordingly.
 
 \subsection{The IDLE Mode}
 \label{sec:imap-idle}
 
-\cite{rfc2177}
+We have mentioned that even though the protocol requires clients to be ready to accept any responses at any time, in
+practice, servers are forbidden to send {\tt EXPUNGE}s when no command is in progress.  This requirement is necessary to
+prevent a dangerous resynchronization as the server cannot possibly know whether the client has started to issue an
+UID-less {\tt STORE} command which references messages through their sequence numbers.  Unfortunately, this directly
+translates to clients having to {\em poll} the server quite often if they care about updates concerning the deleted
+messages.
+
+Any protocol which uses polling looks bad on paper -- having to poll leads to increased latency and higher power usage
+because the equipment has to actively check for updates every now and then.  In contrast, {\em push-based} updates allow
+the client to enter a low-power state where it merely waits to be woken up when a change occurs.  Such a mode is exactly
+what the IDLE extension defined by RFC~2177~\cite{rfc2177} adds to IMAP.  It must, however, be said that real-world
+concerns related to firewall timeouts and especially the NAT traversal has limited the usefulness of the IDLE command
+somewhat, even to the extent where Mark Crispin, the original author of the IMAP protocol, claims that ``I see no
+particular benefit to use of IDLE on a desktop machine''~\cite{crispin-idle-useless} -- a view which is not shared by
+the wider community~\cite{tss-idle-keepalive}, yet worth a consideration.
+
+The IDLE extension is basically a hack on top of the IMAP protocol which reverses the ``A command is not "in progress"
+until the complete command has been received; in particular, a command is not "in progress" during the negotiation of
+command continuation.``~\cite[p. 72]{rfc3501} mantra of the basic IMAP specification.  With IDLE, a typical interaction
+might look like this one:
+
+\begin{minted}{text}
+  C: A004 IDLE
+  S: * 2 EXPUNGE
+  S: * 3 EXISTS
+  S: + idling
+  ...time passes; another client expunges message 3...
+  S: * 3 EXPUNGE
+  S: * 2 EXISTS
+  ...time passes; new mail arrives...
+  S: * 3 EXISTS
+  C: DONE
+  S: A004 OK IDLE terminated
+  C: A005 FETCH 3 ALL
+  S: * 3 FETCH (...)
+  S: A005 OK FETCH completed
+  C: A006 IDLE
+\end{minted}
+
+The whole effect of the {\tt IDLE} command is therefore to indicate to the server that the client is {\em really}
+willing to listen for any updates to the mailbox state.  Because of compatibility concerns with legacy mail stores, the
+IDLE extension still does {\em not} mandate the server to actually send updates about any changes as soon as they are
+conducted -- indeed, a server which internally polls every fifteen minutes to check whether a message has arrived is
+fully compliant with the IDLE extension, albeit rather useless to user who might expect (and, we might add, rightly so)
+to be {\em instantly} notified about changes to the mailbox.
+
+Trojitá includes full support for the IDLE extension and will enter that mode automatically shortly after a mailbox is
+selected.  A simple heuristics is implemented which delays re-entering the IDLE command if it is likely that the
+connection will be reused for any other purpose in near future, further eliminating needless data transfers.
+Unfortunately, Trojitá is at the mercy of the IMAP server when it comes to superfluous data transfers, so it cannot
+prevent the ``pings'' sent even when the connection does not contain a gateway with overly short timeouts.
 
 \section{Improving Mailbox Synchronization}
+
+The previous section dealt with optimizing the overall IMAP protocol as a whole.  At this stage, we can have a look at
+more specific issues which cannot be easily overcome through generic measures like data compression using off-the-shelf
+algorithms or updates to the basic protocol flows.
+
+In the basic IMAP, neither the server not the client are required to keep any persistent state.  Clearly, it is
+beneficiary for a client to keep downloaded copies of the immutable mailbox/message data (consult
+\secref{sec:imap-immutable-data} in its persistent cache for some time, should the device constraints allow such a
+storage.  There is still quite a lot of other data which has to be validated while the mailbox is being resynchronized.
+Consider the following scenario where a mail user agent opens a mailbox with a thousand of message which has witnessed
+expunges and new arrivals since the last time it was opened:
+
+\todo[inline]{protocol interaciton demo goes here}
+
+We can identify two steps which substantially contribute to the transferred data:
+
+\begin{itemize}
+  \item synchronizing the UIDs,
+  \item updating flags.
+\end{itemize}
+
+In the rest of this section, we will have a look at optimization opportunities at each of these stages.  Please keep in
+mind that some basic optimization heuristics concerning the UID synchronization were discussed in section
+\secref{sec:imap-mailbox-sync} along with reasons on why these steps are necessary in clients willing to maintain an
+offline cache of immutable data.
 
 \subsection{The ESEARCH Extension}
 
