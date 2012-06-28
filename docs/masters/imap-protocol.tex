@@ -13,8 +13,8 @@ the available extensions and how they can be used to improve the overall IMAP ex
 
 \section{IMAP}
 
-The IMAP protocol, as defined by RFC~3501~\cite{rfc-imap}, is an internet protocol suitable for managing e-mail folders
-and individual messages stored on a remote mail server.  In contrast to the older POP3 protocol~\cite{rfc-pop3}, IMAP is
+The IMAP protocol, as defined by RFC~3501~\cite{rfc3501}, is an internet protocol suitable for managing e-mail folders
+and individual messages stored on a remote mail server.  In contrast to the older POP3 protocol~\cite{rfc1939}, IMAP is
 really intended to serve as an {\em access} protocol.  Where a POP3 client would happily download a full message from
 the mail server, store it into a local mailbox and perform all further processing locally, the IMAP mode of operation is
 much more complicated.  These complications, however, bring a whole slew of new features and interesting applications
@@ -50,13 +50,14 @@ incremented to signal its clients that previously used UIDs are no longer valid.
 
 \subsection{Cache Filing Protocol}
 
-As Mark Crispin, the principal author of the IMAP standard, has to say~\cite{crispin-imap-cache-filing}, IMAP is a {\em
-cache filing protocol}.  That means that whatever the server thinks about a mailbox state is {\em the truth}, and any
-state stored on the clients can be invalidated by the server at any time.  This critical design choice has impact on all
-further operations.  IMAP clients which do not anticipate such a behavior~\footnote{Such clients are usually called
-``POP3 clients converted to speak IMAP'' on various IMAP-related mailing
-lists.~\cite{shannon-imap-clients-glorified-imap}} are bound to operate in an inefficient manner or fail in unexpected
-scenarios.
+As Mark Crispin, the principal author of the IMAP standard, has to
+say~\cite{crispin-imap-cache-filing-1}~\cite{crispin-imap-cache-filing-2}, IMAP is a {\em cache filing protocol}.  That
+means that whatever the server thinks about a mailbox state is {\em the truth}, and any state stored on the clients can
+be invalidated by the server at any time.  This critical design choice has impact on all further operations.  IMAP
+clients which do not anticipate such a behavior~\footnote{Such clients are usually called ``POP3 clients converted to
+speak IMAP'' on various IMAP-related mailing
+lists.~\cite{shannon-imap-clients-glorified-pop}~\cite{crispin-imap-clients-glorified-pop}} are bound to operate in an
+inefficient manner or fail in unexpected scenarios.
 
 The first issue which typically comes up on the {\tt imap-protocol} mailing list is treating UIDs as a persistent
 identifier of some kind.  In fact, IMAP guarantees that a triple of (mailbox name, {\tt UIDVALIDITY}, {\tt UID}) will
@@ -220,27 +221,27 @@ In the previous sections, we have spoken about data which have to be resynchroni
 mailbox, be it message flags or the UIDs.  Other data available through IMAP are, however, immutable by nature.
 Examples of these data are message headers or the individual body parts.
 
-IMAP is pretty unique in allowing its implementors to dissect a MIME message~\cite{rfc-mime} into individual body parts.
+IMAP is pretty unique in allowing its implementors to dissect a MIME message~\cite{rfc2045} into individual body parts.
 In practice, this is a very useful feature -- clients can read a short textual body of a message before deciding whether
 to download a big binary attachment etc.  On the other hand, it requires servers to include a full MIME parser.  Some of
 them, notably the Google's GImap, have been struggling with this requirement for many
 years~\cite{gmail-bodystructure-sucks}.
 
-IMAP defines a data structure called {\tt ENVELOPE} containing some of the most interesting headers from the RFC~2822
-message.  Among them, the {\tt Subject}, {\tt Date}, {\tt From}, {\tt Sender}, {\tt Reply-To}, {\tt To}, {\tt Cc}, {\tt
-Bcc}, {\tt In-Reply-To} and {\tt Message-Id} are included.  Unfortunately, the {\tt References} header is
-missing.~\footnote{The {\tt References} header is useful when the client wants to be as compatible as possible with the
-other agents that deal with message threading.  Strictly speaking, the {\tt Message-Id} and {\tt In-Reply-To} headers
-are sufficient for some forms of threading, but MUAs should strive to be ``good citizens'' and support the {\tt
+IMAP defines a data structure called {\tt ENVELOPE} containing some of the most interesting headers from the
+RFC~2822~\cite{rfc2822} message.  Among them, the {\tt Subject}, {\tt Date}, {\tt From}, {\tt Sender}, {\tt Reply-To},
+{\tt To}, {\tt Cc}, {\tt Bcc}, {\tt In-Reply-To} and {\tt Message-Id} are included.  Unfortunately, the {\tt References}
+header is missing.~\footnote{The {\tt References} header is useful when the client wants to be as compatible as possible
+with the other agents that deal with message threading.  Strictly speaking, the {\tt Message-Id} and {\tt In-Reply-To}
+headers are sufficient for some forms of threading, but MUAs should strive to be ``good citizens'' and support the {\tt
 References} header as well.}  Even with this omission, the {\tt ENVELOPE} is useful for clients which do not necessary
 have to include RFC~2822-style header parsing code.  This usefulness is unfortunately further limited by not including
-an RFC~2047~\cite{rfc-mime-intl-headers} decoder, though, so non-ASCII data in fields like senders' human readable names
-or in the subject field have to be decoded by the clients.
+an RFC~2047~\cite{rfc2047} decoder, though, so non-ASCII data in fields like senders' human readable names or in the
+subject field have to be decoded by the clients.
 
 \section{Protocol Design}
 
-The baseline version of IMAP, as defined in RFC~3501, contains a few features which limits its performance somewhat.
-One example of these features are IMAP's {\em synchronizing literals}.
+The baseline version of IMAP, as defined in RFC~3501~\cite{rfc3501}, contains a few features which limits its
+performance somewhat.  One example of these features are IMAP's {\em synchronizing literals}.
 
 Before the client is allowed to send big amount of data to the server, it has to ask for its explicit permission via a
 continuation request.  While such an idea is good on paper (and is probably intended to {\em save bandwidth} by allowing
@@ -281,14 +282,6 @@ At the same time, the overall design of the IMAP protocol is rather promising; i
 parallel through pipelining and even the most basic profile provides enough features to implement a reasonably efficient
 client which can maintain its state over reconnects.  It is therefore reasonable to start with the existing state and
 try to build upon its solid foundation, improving the whole experience in the process.
-
-% crispin-imap-cache-filing
-% http://mailman2.u.washington.edu/pipermail/imap-protocol/2010-June/001144.html
-% http://mailman2.u.washington.edu/pipermail/imap-protocol/2010-June/001156.html
-
-% shannon-imap-clients-glorified-pop
-% http://mailman2.u.washington.edu/pipermail/imap-protocol/2006-September/000261.html
-% http://mailman2.u.washington.edu/pipermail/imap-protocol/2009-December/001043.html
 
 % gprs-rtt-report
 % http://www.netlab.tkk.fi/tutkimus/pannet/publ/rtt-report.pdf
