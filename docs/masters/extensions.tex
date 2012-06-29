@@ -256,7 +256,48 @@ Trojitá includes full support for this extension, making use of it whenever it 
 \subsection{Optimizing UID Synchronization with QRESYNC}
 \label{sec:extension-qresync}
 
-\cite{rfc5162}
+The CONDSTORE extension discussed earlier has brought in the concept of a server-side state tracking and used that to
+allow bandwidth-efficient way of synchronizing flag changes.  Given that a CONDSTORE-capable server already tracks
+certain state, it might be worthwhile to somehow extend this state to cover the deleted messages as well.  As it turns
+out, such a mechanism is implemented in the QRESYNC extension which is defined by RFC 5162 \cite{rfc5162}.
+
+The basic idea behind QRESYNC is that as long as the UID mapping was fresh at some point in past, it is only necessary
+to inform the client about which UIDs from that set are no longer there and push out the UIDs of newly arrived messages.
+
+The QRESYNC extension modifies the {\tt SELECT command} so that it includes a few more parameters.  First of all, the
+updated version of this command includes a tuple of {\tt (UIDNEXT, HIGHESTMODSEQ)} as known to the client.  If the {\tt
+UIDNEXT} did not change, the server will have a look at the {\tt HIGHESTMODSEQ} value and in addition to essentially
+behaving as a CONDSTORE server, it also sends out a list of expunged messages.~\footnote{Technically, the expunges are
+sent out before the information about the updated flags, but that isn't the point here.}  A new response is defined for
+this purpose, the {\tt VANISHED EARLIER}.
+
+In format similar to the {\tt ESEARCH} response, the {\tt VANISHED EARLIER} contains a {\tt sequence-set} of UIDs which
+the server believes that the client considers to be present in the mailbox.  Not only are these UIDs transmitted in a
+compact syntax, thanks to the {\tt sequence-set} format, but the response typically contains only such UIDs which were
+{\em just} removed.  The actual wording (and therefore the implications of this extension) are slightly different -- the
+server is free to inform the clients about any UIDs, as long as they aren't in the mailbox right now, at the time of the
+sync.  This is motivated by the need to relieve the servers from having to maintain a list of expunged UIDs
+indefinitely, just in case a QRESYNC-enabled client reconnects after two years of inactivity.  When such a situation
+happens, a server which cannot remember expunges going so far in history have no other option but to send a {\tt
+VANISHED EARLIER} for {\em all} UIDs lower than the {\tt UIDNEXT}, no matter if they {\em ever} were present in the
+mailbox.  This fallback suggests that the QRESYNC extension could very well have a negative net effect overall, at least
+in certain pathological situations -- essentially when the list of expunges grows so long that the server decides to
+prune some of its records.
+
+In order to mitigate this issue, a few other options were added to QRESYNC.  The first of them is a way of indicating to
+the server the range of UIDs about which the client actually cares.  The idea here is that if the client only cached a
+subset of messages (for example those with UID higher than 50000), there isn't much point in informing the client about
+each and every UID which might had been in the mailbox before (like those 49,999 of UIDs lower than 50,000).
+
+However, chances are that this optimization is not enough to overcome the danger of having to sync too many UIDs -- and
+indeed, some user agents might want to preemptively load messages both from the beginning {\em and} from the end of the
+mailbox in an effort to optimize preloading.
+
+\todo[inline]{VANISHED and how it affects the need to sync uids in the first place -- irony}
+
+\todo[inline]{Propose the ARRIVED due to a race condition}
+
+\todo[inline]{talk about ENABLE and why it's actually necessary (hint: it isn't, really)}
 
 \section{Fetching the Data}
 
