@@ -291,13 +291,99 @@ each and every UID which might had been in the mailbox before (like those 49,999
 
 However, chances are that this optimization is not enough to overcome the danger of having to sync too many UIDs -- and
 indeed, some user agents might want to preemptively load messages both from the beginning {\em and} from the end of the
-mailbox in an effort to optimize preloading.
+mailbox in an effort to optimize preloading.  Such user agents would not be able to benefit from the ``range of known
+UIDs'' optimization.
 
-\todo[inline]{VANISHED and how it affects the need to sync uids in the first place -- irony}
+Fortunately, the {\tt SELECT QRESYNC} command includes provisions for passing another type of data around -- it is also
+possible to provide a representative list of $(sequence, UID)$ pairs.  Using technique similar to the proposed binary
+search when discovering UIDs, the client can decide to send along a UID from roughly middle of the mailbox as the first
+one, followed by another one located at circa 75~\% of the mapping, next one from $7 \over 8$ etc., halving the interval
+in each step.  The concrete strategy to be pursuit is left to the client, as it is basically a policy decision.  Using
+more fine-grained interval means that more data is sent along during each resynchronization without a direct merit (i.e.
+when the server {\em still} remembers the previous {\tt HIGHESTMODSEQ} and can provide the client with relevant data),
+while on the other hand sending less UIDs leads to minor data savings during ordinary reconnects while causing
+potentially huge amounts of data to be transfered when the server is unable to use the -- perhaps very old or otherwise
+stale -- {\tt HIGHESTMODSEQ}.
 
-\todo[inline]{Propose the ARRIVED due to a race condition}
+The presented version of Trojitá always uses halving of sequences, effectively transmitting $log_2(n)$ sequence-UID
+pairs:
 
-\todo[inline]{talk about ENABLE and why it's actually necessary (hint: it isn't, really)}
+\begin{minted}{c++}
+    Sequence knownSeq, knownUid;
+    int i = oldUidMap.size() / 2;
+    while (i < oldUidMap.size()) {
+        // Message sequence number is one-based, our indexes are zero-based
+        knownSeq.add(i + 1);
+        knownUid.add(oldUidMap[i]);
+        i += (oldUidMap.size() - i) / 2 + 1;
+    }
+\end{minted}
+
+To further reduce the amount of data transmitted during the IMAP session, the QRESYNC extension also introduces a second
+kind of the {\tt VANISHED} response -- the one without the {\tt EARLIER} modifier.  Serving as a substitute for the
+ordinary {\tt EXPUNGE}, the {\tt VANISHED}'s biggest advantage is that it can inform about multiple expunges in a single
+response.  Somewhat ironically, this modification also relieves the clients of their need to maintain a complete
+UID-sequence mapping at all times -- but only after providing a method of making this synchronization severely less
+painful in the first place.  The whole matter is complicated a bit more by the wording of the RFC which is pretty clear
+on that the {\tt VANISHED} responses {\em should} be sent instead of {\tt EXPUNGE} -- a language which, in RFC terms,
+means that the servers are supposed to do so, yet the clients are forbidden from relying on such behavior because under
+special circumstances, the servers might very well have a good reason to defer back to the {\tt EXPUNGE}~\cite{rfc2119}.
+
+Unfortunately, the combination of offset-based {\tt EXISTS} (which is a response used to inform the client about growth
+of the number of messages in a mailbox) with UID-based {\tt VANISHED} can lead to races, a dangerous condition which we
+have identified~\cite{kundrat-vanished-race}.  The problem lies in QRESYNC's allowance for non-existent UIDs to be
+included in the {\tt VANISHED} response.  Consider the following scenario where the client is fully synced with a
+mailbox with just a single message bearing UID 5.  The mailbox' {\tt UIDNEXT} is 11:
+
+\begin{minted}{text}
+  S: * 3 EXISTS
+  C: x UID FETCH 11:* (FLAGS)
+  S: * VANISHED 12:20
+\end{minted}
+
+The server is telling the client that any UIDs between 12 and 20 are gone.  The problem is that the client cannot
+possibly know whether any message has got any of these particular UIDs, i.e. whether the messages \#2 and \#3 (the first
+and second arrival) fall into that range.  Trojitá will immediately send out a request for UIDs of the new arrivals
+(that is the {\tt UID FETCH} command in the previous example), but due to the timing issues, it is perfectly possible
+that these messages are ``long'' gone (and the appropriate {\tt VANISHED} sent) by the time the server receives the {\tt
+UID FETCH} command.  There isn't much a compliant IMAP client can do at this point besides issuing an explicit command
+for finding out whether any new messages have actually remained in the mailbox.  This is a minor deficiency in the
+QRESYNC extension which could be easily avoided by replacing the {\tt EXISTS} in manner similar to how {\tt EXPUNGE} got
+replaced by {\tt VANISHED}.  The previous example would look like this one, eliminating any possibility of races:
+
+\begin{minted}{text}
+  S: * ARRIVED 12,33
+  C: x UID FETCH 11:* (FLAGS)
+  S: * VANISHED 12:20
+\end{minted}
+
+The {\tt ARRIVED} command is defined in a proposed draft in \secref{sec:draft-arrived}.  A similar functionality could
+be achieved through the NOTIFY extension defined by RFC 5465 \cite{rfc5465}, but supporting NOTIFY is a rather strong
+undertaking for an IMAP server and -- as of July 2012 -- support for that extension is still rather
+scarce.~\footnote{None of the widely deployed open source IMAP servers supported {\tt NOTIFY} at the time this thesis
+was written.  The Dovecot IMAP server had an experimental branch with partial support which would be enough to serve as
+a replacement for {\tt ARRIVED}, but it could not be discovered because the {\tt NOTIFY} is an all-or-nothing extension;
+it mandates full server support and doesn't include provisions for partial functionality which would have been enough in
+this case.}
+
+The QRESYNC extension also mandates an interesting mechanism for its activation.  Allegedly due to the backward
+compatibility concerns with the {\tt VANISHED} response, clients have to support the ENABLE extension as well (RFC 5161
+\cite{rfc5161}).  However, under a closer examination we can demonstrate that backward compatibility is actually not an
+issue here -- compliant clients have to explicitly activate the QRESYNC extension by issuing a specially modified {\tt
+SELECT} or {\tt EXAMINE} command, so it appears that using the {\tt ENABLE} command is not really necessary.  In fact,
+based on the temporal proximity of RFC 5161 and 5162 (dealing with ENABLE and QRESYNC, respectively) and an overlap in
+authorship of these documents, it appears that their designers simply wanted to make use of a mechanism which appeared
+to be possibly useful in future.
+
+Unfortunately, there is also a certain uncertainty about the {\tt ENABLE} command --- the errata \#1365 for RFC 5162
+\cite{rfc5162-errata} proposes to add an explicit note that ``(A server MUST respond with a tagged BAD
+response if) (\ldots) or the server has not positively responded to that command with "ENABLED QRESYNC", in the current
+connection'', even though the RFC 5161 explicitly allows for aggressive pipelining of {\tt ENABLE} and {\tt
+SELECT}.~\footnote{``There are no limitations on pipelining ENABLE.  For example, it is possible to send ENABLE and then
+immediately SELECT, or a LOGIN immediately followed by ENABLE. \cite[p. 2]{rfc5161}}  We have raised this issue on the
+{\tt imap-protocol} mailing list and the consensus there was that it is indeed allowed not to wait for the server's {\tt
+ENABLED} before issuing a {\tt SELECT \ldots QRESYNC} \cite{melnikov-qresync-enable}.  We fully support such an outcome
+as it would be rather awkward to see a requirement for extra network round trips in contemporary IMAP extensions.
 
 \section{Fetching the Data}
 
