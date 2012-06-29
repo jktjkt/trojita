@@ -20,7 +20,7 @@ the mail server, store it into a local mailbox and perform all further processin
 much more complicated.  These complications, however, bring a whole slew of new features and interesting applications
 along.
 
-For one, IMAP presents a single, authoritative place storing messages -- that feature alone is a must in today's world
+For one, IMAP presents a single, authoritative place storing messages --- that feature alone is a must in today's world
 where people are expecting to be able to access their mail from their cell phones.  Furthermore, given that all messages
 are located on a single place, it is possible to perform efficient, server-side operations over the whole mailstore,
 like searching or sorting.  IMAP also makes it possible to access individual message parts like attachments separately,
@@ -76,7 +76,7 @@ guaranteed to never be reused in the same mailbox, unless the {\tt UIDVALIDITY} 
 
 Due to the facts described above, virtually any IMAP clients which maintain a persistent cache of the downloaded data
 use UIDs to assign the cached data to individual messages.  Such an approach leads to a need to maintain a mapping
-between the sequence numbers and the UID numbers of all messages in the mailbox -- upon a reconnect, clients have to
+between the sequence numbers and the UID numbers of all messages in the mailbox --- upon a reconnect, clients have to
 recognize whether any messages previously available in the mailbox disappeared, and if they did, the clients should
 remove the cached data for these messages.~\footnote{The reader shall be reminded that IMAP is a {\em cache filing
 protocol}, i.e. the server is always right about what messages ``are'' in a mailbox and what messages are gone.}  This
@@ -144,7 +144,7 @@ from the IMAP server:
 \end{itemize}
 
 If the decisions described above suggest that at least a part of the UID mapping shall be updated, an IMAP client can --
-in absence of the optional extensions -- use one of the following ways to update the map.  The first one is through the
+in absence of the optional extensions --- use one of the following ways to update the map.  The first one is through the
 generic {\tt FETCH} command:
 
 \begin{minted}{text}
@@ -173,19 +173,19 @@ Alternatively, the {\tt UID SEARCH} command can be used as follows:
 As we can see, the {\tt SEARCH} response is much more compact.  In practice, the bandwidth saving is slightly lower as
 the UID discovery and {\tt FLAGS} synchronization can be merged into a single {\tt FETCH} command, but the overhead is
 still at least four bytes for each message in the mailbox,~\footnote{If the {\tt FLAGS} are fetched as well, the real
-overhead is just the {\tt "UID<space>"} string -- the number and its trailing space is present in the {\tt SEARCH}
+overhead is just the {\tt "UID<space>"} string --- the number and its trailing space is present in the {\tt SEARCH}
 response as well and the overhead of the {\tt FETCH} response format is required for the updated flags anyway.} which
 leads to at least 200~kB of useless data on a mailbox with fifty thousands of messages.
 
 \subsection{Message Flags}
 
 We have mentioned message flags when describing the mailbox synchronization.  These flags allows the system and the mail
-user to attach a certain state to the messages -- information like whether the message was seen or replied to is tracked
+user to attach a certain state to the messages --- information like whether the message was seen or replied to is tracked
 at this level.  Further applications include user-level arbitrary tagging of messages with flags like ``important'' or
 ``todo''.
 
 Strictly speaking, asking for message flags of all messages in a mailbox is not necessary provided the program is
-capable of lazy-loading -- flags could, for example, only be fetched for those messages which are immediately visible on
+capable of lazy-loading --- flags could, for example, only be fetched for those messages which are immediately visible on
 screen (probably with some intelligent preload for those which will likely get to the viewport in near future), avoiding
 a potentially expensive operation.  On the other hand, contemporary user agents typically have to display an aggregated
 statistics like ``$X$ unread messages, $Y$ total'' to the user.  IMAP certainly has methods for delivering such
@@ -194,7 +194,7 @@ an explicit {\tt SEARCH}.  In practice, this design leads to a pressing need to 
 the start of the session.
 
 The problem with the {\tt STATUS} command is that it is unfortunately forbidden from being used on an actively selected
-mailbox per RFC~3501.  That makes this command usable for an initial estimate, but prevents further updates -- consider
+mailbox per RFC~3501.  That makes this command usable for an initial estimate, but prevents further updates --- consider
 that an IMAP client has opened a big mailbox and scrolled to the end of the message listing.  Suddenly, an {\tt *
 EXPUNGE 3} arrives, informing the client that the third message in the mailbox is now gone.  Because the flags of those
 ``older'' messages weren't loaded in this scenario, the client has no way of knowing whether the number of unread
@@ -203,7 +203,7 @@ messages or conduct a special {\tt SEARCH}.  The {\tt SEARCH} command looking fo
 messages tagged with a certain flag, for that matter) can surely be constructed, even the baseline IMAP4rev1 provides a
 way of requesting that information.  However, each {\tt SEARCH} only provides the client with an information about one
 kind of a particular flag.  It is not an unreasonable idea to design a client with further development in mind, most
-notably it might make a lot of sense not to special-case the {\tt \\UnSeen} message flag -- after all, certain
+notably it might make a lot of sense not to special-case the {\tt \\UnSeen} message flag --- after all, certain
 applications will benefit from having access to all messages matching the {\tt \$SubmitPending} flag or those which were
 marked as a ``Draft'' by the user, for example.  Unfortunately, statistics about these user-defined flags cannot be
 determined via the {\tt STATUS} command and have to be discovered explicitly, either through a lot of separate {\tt
@@ -223,7 +223,7 @@ mailbox, be it message flags or the UIDs.  Other data available through IMAP are
 Examples of these data are message headers or the individual body parts.
 
 IMAP is pretty unique in allowing its implementors to dissect a MIME message~\cite{rfc2045} into individual body parts.
-In practice, this is a very useful feature -- clients can read a short textual body of a message before deciding whether
+In practice, this is a very useful feature --- clients can read a short textual body of a message before deciding whether
 to download a big binary attachment etc.  On the other hand, it requires servers to include a full MIME parser.  Some of
 them, notably the Google's GImap, have been struggling with this requirement for many
 years~\cite{gmail-bodystructure-sucks}.
@@ -252,10 +252,10 @@ each transmission requires a full roundtrip over the network.  Fortunately, exte
 
 Another manifestation of a situation which could potentially use an improvement is the protocol's requirement on clients
 to accept any response at any time,~\footnote{{\tt ``The client MUST be prepared to accept any response at all
-times.''}~\cite[p. 61]{rfc3501}} which is not applied consistently -- the same RFC also mandates that the servers cannot
+times.''}~\cite[p. 61]{rfc3501}} which is not applied consistently --- the same RFC also mandates that the servers cannot
 send {\tt EXPUNGE} when no command is in progress~\cite[p. 72]{rfc3501}.  This particular wording certainly has merits
 (it encourages client implementors to {\em really} accept anything at any time) and is required for proper
-synchronization -- if {\tt EXPUNGE}s were allowed when no command was in progress and a client issued a {\tt STORE}
+synchronization --- if {\tt EXPUNGE}s were allowed when no command was in progress and a client issued a {\tt STORE}
 command referencing a message through its sequence number, that action could affect completely different message.  This
 design is probably required due to the old decision to support addressing through both sequence numbers and UIDs, but
 has a side effect of requiring constant polling for mailbox updates.  Again, extensions have emerged (see
@@ -276,7 +276,7 @@ which are available through optional extensions.
 
 Certain scenarios (like having a cell phone with severely limited resources) could benefit from server-side content
 conversion, similar to how the Opera Mobile browser converts images to low-resolution versions for display on the
-phone's screen.  An extension for just that exists, but its support is rather scarce among the IMAP servers -- in fact,
+phone's screen.  An extension for just that exists, but its support is rather scarce among the IMAP servers --- in fact,
 the author of this thesis was not able to find a single reasonably-deployed server which would offer such a feature.
 
 At the same time, the overall design of the IMAP protocol is rather promising; it allows executing commands in

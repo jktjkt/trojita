@@ -58,12 +58,12 @@ When using the LITERAL+ syntax, the whole interaction happens without having to 
   S: A001 OK LOGIN completed
 \end{minted}
 
-Trojitá includes full support for the LITERAL+ extension -- when it detects the {\tt LITERAL+} capability, it will
+Trojitá includes full support for the LITERAL+ extension --- when it detects the {\tt LITERAL+} capability, it will
 immediately switch to using non-synchronizing literals for increased performance.
 
 \subsection{Data Compression}
 
-IMAP is a textual, line-based protocol.  As such, it presents extremely good opportunities for compression -- using the
+IMAP is a textual, line-based protocol.  As such, it presents extremely good opportunities for compression --- using the
 tried DEFLATE algorithm~\cite{rfc1951}, the basic IMAP chatter can be easily compressed to 25~-~40~\% of its original
 size~\cite[p. 4]{rfc4978}.
 
@@ -85,7 +85,7 @@ situations where the SSL encryption is not available.
 
 In advent of the recent breaches of many well-known (and widely trusted) Certificate Authorities~\cite{ssl-breaches},
 Trojitá also comes with support for SSL key pinning~\cite{ssl-pinning}.  The trust model presented to the user is
-similar to handling of SSH servers' public keys with OpenSSH -- upon first connection, the user is always presented with
+similar to handling of SSH servers' public keys with OpenSSH --- upon first connection, the user is always presented with
 a choice of whether to accept the certificate or not, along with a confirmation about whether the operating system and
 its policy considers the certificate as ``trusted''.  No matter what the system-wide policy says, a changed public key
 is always considered a threat and the situation is presented to the user accordingly.
@@ -100,13 +100,13 @@ UID-less {\tt STORE} command which references messages through their sequence nu
 translates to clients having to {\em poll} the server quite often if they care about updates concerning the deleted
 messages.
 
-Any protocol which uses polling looks bad on paper -- having to poll leads to increased latency and higher power usage
+Any protocol which uses polling looks bad on paper --- having to poll leads to increased latency and higher power usage
 because the equipment has to actively check for updates every now and then.  In contrast, {\em push-based} updates allow
 the client to enter a low-power state where it merely waits to be woken up when a change occurs.  Such a mode is exactly
 what the IDLE extension defined by RFC~2177~\cite{rfc2177} adds to IMAP.  It must, however, be said that real-world
 concerns related to firewall timeouts and especially the NAT traversal has limited the usefulness of the IDLE command
 somewhat, even to the extent where Mark Crispin, the original author of the IMAP protocol, claims that ``I see no
-particular benefit to use of IDLE on a desktop machine''~\cite{crispin-idle-useless} -- a view which is not shared by
+particular benefit to use of IDLE on a desktop machine''~\cite{crispin-idle-useless} --- a view which is not shared by
 the wider community~\cite{tss-idle-keepalive} \cite{android-idle}, yet certainly worth a consideration.
 
 The IDLE extension is basically a hack on top of the IMAP protocol which reverses the ``A command is not "in progress"
@@ -135,7 +135,7 @@ might look like this one:
 The whole effect of the {\tt IDLE} command is therefore to indicate to the server that the client is {\em really}
 willing to listen for any updates to the mailbox state.  Because of compatibility concerns with legacy mail stores, the
 IDLE extension still does {\em not} mandate the server to actually send updates about any changes as soon as they are
-conducted -- indeed, a server which internally polls every fifteen minutes to check whether a message has arrived is
+conducted --- indeed, a server which internally polls every fifteen minutes to check whether a message has arrived is
 fully compliant with the IDLE extension, albeit rather useless to user who might expect (and, we might add, rightly so)
 to be {\em instantly} notified about changes to the mailbox.
 
@@ -176,8 +176,8 @@ offline cache of immutable data.
 
 As seen in the protocol sample, the {\tt SEARCH} response containing UIDs of all messages in a mailbox can be rather
 large.  At the same time, chances are that at least some of the adjacent messages might have been assigned contiguous
-UIDs -- this is certainly not a requirement per se, but quite a few IMAP servers internally {\em do} assign UIDs from a
-per-mailbox counter.  Real world, albeit anecdotal evidence \todo{Cannot find a reference right now -- I'd have sworn
+UIDs --- this is certainly not a requirement per se, but quite a few IMAP servers internally {\em do} assign UIDs from a
+per-mailbox counter.  Real world, albeit anecdotal evidence \todo{Cannot find a reference right now --- I'd have sworn
 that it was in the ``UID Search Responses'' thread on 2007-08-10, but apparently it isn't\ldots I should search for
 ``three consecutive'' or something like that} indicates that this scenario is very common, and therefore it might make
 sense to transmit the UIDs of all messages using the {\tt sequence-set} \cite[p. 89]{rfc3501} syntax.  The ESEARCH
@@ -204,7 +204,7 @@ authors of the RFC 4731 disagreed with Crispin~\cite{daboo-esearch-interpretatio
 
 The ESEARCH extension allows nice bandwidth savings, so Trojitá tries to use it if the server says that it is supported.
 In addition to that, format of the returned responses is changed so that it also includes the tag of the command which
-caused it, allowing much more aggressive pipelining -- for example, clients are free to perform the UID discovery at the
+caused it, allowing much more aggressive pipelining --- for example, clients are free to perform the UID discovery at the
 same time as running a user-initiated search.  On the other hand, even in presence of ESEARCH, the UID mapping still has
 to be synchronized explicitly.  This requirement is only lifted in the QRESYNC extension
 (\secref{sec:extension-qresync}).  Before we describe that, though, it is necessary to have a look at the CONDSTORE.
@@ -224,14 +224,14 @@ CONDSTORE-capable servers share a concept of ``modification sequence'', a {\tt M
 assigned an unsigned 64bit integer.  Whenever message metadata (like its flags) change, the {\tt MODSEQ} of that
 particular message gets increased.  Each increment is also required to reach a value which is higher than {\tt MODSEQ}
 of any other message in that mailbox.  Similarly, a mailbox is assigned a {\tt HIGHESTMODSEQ}, an unsigned 64bit integer
-which is interpreted as ``no message has ever had a {\tt MODSEQ} higher than this number'' -- of course subject to the
+which is interpreted as ``no message has ever had a {\tt MODSEQ} higher than this number'' --- of course subject to the
 usual {\tt UIDVALIDITY} rules.~\footnote{As always, any change in {\tt UIDVALIDITY} directly translates to a full cache
 flush and discarding any data previously remembered for the affected mailbox.  This includes not only the immutable data
-of messages, but also the UIDs, message flags and -- in this extension -- the {\tt MODSEQ} and {\tt HIGHESTMODSEQ}
+of messages, but also the UIDs, message flags and --- in this extension --- the {\tt MODSEQ} and {\tt HIGHESTMODSEQ}
 values.}
 
 When a CONDSTORE-capable client opens a mailbox which was previously synced (and if the server supports CONDSTORE as
-well, of course -- keep in mind that the IMAP extensions are strictly voluntary in their nature), at first it synces the
+well, of course --- keep in mind that the IMAP extensions are strictly voluntary in their nature), at first it synces the
 UID mapping as usual, possibly through the ESEARCH command discussed earlier.  After that, the client can use an
 extended variant of the {\tt FETCH} command to ask for flags of those messages whose {\em current} {\tt MODSEQ} is
 higher than the {\tt HIGHESTMODSEQ} which the client has remembered previously.  The server will respond with regular
@@ -242,11 +242,11 @@ This is how a typical synchronization might look like:
 
 \todo[inline]{Show a CONDSTORE example here}
 
-The algorithm is race-free -- as every message has a separate {\tt MODSEQ} counter, the delay between the {\tt SELECT}
+The algorithm is race-free --- as every message has a separate {\tt MODSEQ} counter, the delay between the {\tt SELECT}
 and {\tt FETCH} command doesn't lead to data loss; by the time the {\tt FETCH} completes, the server guarantees that the
 client have received any pending updates since the last synchronization.
 
-The CONDSTORE is an extremely valuable extension; its savings on big mailboxes are predictable and automatic -- instead
+The CONDSTORE is an extremely valuable extension; its savings on big mailboxes are predictable and automatic --- instead
 of having to transmit $O(n)$ responses where $n$ is the number of {\em messages}, only $O(m)$ are required under QRESYNC
 with $m$ being the number of {\tt modifications}.  This is an extension which, unfortunately, places a certain burden on
 the IMAP server which has to track the serial numbers of messages' metadata; however, given the obvious reductions in
@@ -274,14 +274,14 @@ this purpose, the {\tt VANISHED EARLIER}.
 In format similar to the {\tt ESEARCH} response, the {\tt VANISHED EARLIER} contains a {\tt sequence-set} of UIDs which
 the server believes that the client considers to be present in the mailbox.  Not only are these UIDs transmitted in a
 compact syntax, thanks to the {\tt sequence-set} format, but the response typically contains only such UIDs which were
-{\em just} removed.  The actual wording (and therefore the implications of this extension) are slightly different -- the
+{\em just} removed.  The actual wording (and therefore the implications of this extension) are slightly different --- the
 server is free to inform the clients about any UIDs, as long as they aren't in the mailbox right now, at the time of the
 sync.  This is motivated by the need to relieve the servers from having to maintain a list of expunged UIDs
 indefinitely, just in case a QRESYNC-enabled client reconnects after two years of inactivity.  When such a situation
 happens, a server which cannot remember expunges going so far in history have no other option but to send a {\tt
 VANISHED EARLIER} for {\em all} UIDs lower than the {\tt UIDNEXT}, no matter if they {\em ever} were present in the
 mailbox.  This fallback suggests that the QRESYNC extension could very well have a negative net effect overall, at least
-in certain pathological situations -- essentially when the list of expunges grows so long that the server decides to
+in certain pathological situations --- essentially when the list of expunges grows so long that the server decides to
 prune some of its records.
 
 In order to mitigate this issue, a few other options were added to QRESYNC.  The first of them is a way of indicating to
@@ -289,12 +289,12 @@ the server the range of UIDs about which the client actually cares.  The idea he
 subset of messages (for example those with UID higher than 50000), there isn't much point in informing the client about
 each and every UID which might had been in the mailbox before (like those 49,999 of UIDs lower than 50,000).
 
-However, chances are that this optimization is not enough to overcome the danger of having to sync too many UIDs -- and
+However, chances are that this optimization is not enough to overcome the danger of having to sync too many UIDs --- and
 indeed, some user agents might want to preemptively load messages both from the beginning {\em and} from the end of the
 mailbox in an effort to optimize preloading.  Such user agents would not be able to benefit from the ``range of known
 UIDs'' optimization.
 
-Fortunately, the {\tt SELECT QRESYNC} command includes provisions for passing another type of data around -- it is also
+Fortunately, the {\tt SELECT QRESYNC} command includes provisions for passing another type of data around --- it is also
 possible to provide a representative list of $(sequence, UID)$ pairs.  Using technique similar to the proposed binary
 search when discovering UIDs, the client can decide to send along a UID from roughly middle of the mailbox as the first
 one, followed by another one located at circa 75~\% of the mapping, next one from $7 \over 8$ etc., halving the interval
@@ -302,8 +302,8 @@ in each step.  The concrete strategy to be pursuit is left to the client, as it 
 more fine-grained interval means that more data is sent along during each resynchronization without a direct merit (i.e.
 when the server {\em still} remembers the previous {\tt HIGHESTMODSEQ} and can provide the client with relevant data),
 while on the other hand sending less UIDs leads to minor data savings during ordinary reconnects while causing
-potentially huge amounts of data to be transfered when the server is unable to use the -- perhaps very old or otherwise
-stale -- {\tt HIGHESTMODSEQ}.
+potentially huge amounts of data to be transfered when the server is unable to use the --- perhaps very old or otherwise
+stale --- {\tt HIGHESTMODSEQ}.
 
 The presented version of Trojitá always uses halving of sequences, effectively transmitting $log_2(n)$ sequence-UID
 pairs:
@@ -320,12 +320,12 @@ pairs:
 \end{minted}
 
 To further reduce the amount of data transmitted during the IMAP session, the QRESYNC extension also introduces a second
-kind of the {\tt VANISHED} response -- the one without the {\tt EARLIER} modifier.  Serving as a substitute for the
+kind of the {\tt VANISHED} response --- the one without the {\tt EARLIER} modifier.  Serving as a substitute for the
 ordinary {\tt EXPUNGE}, the {\tt VANISHED}'s biggest advantage is that it can inform about multiple expunges in a single
 response.  Somewhat ironically, this modification also relieves the clients of their need to maintain a complete
-UID-sequence mapping at all times -- but only after providing a method of making this synchronization severely less
+UID-sequence mapping at all times --- but only after providing a method of making this synchronization severely less
 painful in the first place.  The whole matter is complicated a bit more by the wording of the RFC which is pretty clear
-on that the {\tt VANISHED} responses {\em should} be sent instead of {\tt EXPUNGE} -- a language which, in RFC terms,
+on that the {\tt VANISHED} responses {\em should} be sent instead of {\tt EXPUNGE} --- a language which, in RFC terms,
 means that the servers are supposed to do so, yet the clients are forbidden from relying on such behavior because under
 special circumstances, the servers might very well have a good reason to defer back to the {\tt EXPUNGE}~\cite{rfc2119}.
 
@@ -359,7 +359,7 @@ replaced by {\tt VANISHED}.  The previous example would look like this one, elim
 
 The {\tt ARRIVED} command is defined in a proposed draft in \secref{sec:draft-arrived}.  A similar functionality could
 be achieved through the NOTIFY extension defined by RFC 5465 \cite{rfc5465}, but supporting NOTIFY is a rather strong
-undertaking for an IMAP server and -- as of July 2012 -- support for that extension is still rather
+undertaking for an IMAP server and --- as of July 2012 --- support for that extension is still rather
 scarce.~\footnote{None of the widely deployed open source IMAP servers supported {\tt NOTIFY} at the time this thesis
 was written.  The Dovecot IMAP server had an experimental branch with partial support which would be enough to serve as
 a replacement for {\tt ARRIVED}, but it could not be discovered because the {\tt NOTIFY} is an all-or-nothing extension;
@@ -369,7 +369,7 @@ this case.}
 The QRESYNC extension also mandates an interesting mechanism for its activation.  Allegedly due to the backward
 compatibility concerns with the {\tt VANISHED} response, clients have to support the ENABLE extension as well (RFC 5161
 \cite{rfc5161}).  However, under a closer examination we can demonstrate that backward compatibility is actually not an
-issue here -- compliant clients have to explicitly activate the QRESYNC extension by issuing a specially modified {\tt
+issue here --- compliant clients have to explicitly activate the QRESYNC extension by issuing a specially modified {\tt
 SELECT} or {\tt EXAMINE} command, so it appears that using the {\tt ENABLE} command is not really necessary.  In fact,
 based on the temporal proximity of RFC 5161 and 5162 (dealing with ENABLE and QRESYNC, respectively) and an overlap in
 authorship of these documents, it appears that their designers simply wanted to make use of a mechanism which appeared
