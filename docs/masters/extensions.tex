@@ -174,13 +174,87 @@ offline cache of immutable data.
 
 \subsection{The ESEARCH Extension}
 
-\cite{rfc4731}
+As seen in the protocol sample, the {\tt SEARCH} response containing UIDs of all messages in a mailbox can be rather
+large.  At the same time, chances are that at least some of the adjacent messages might have been assigned contiguous
+UIDs -- this is certainly not a requirement per se, but quite a few IMAP servers internally {\em do} assign UIDs from a
+per-mailbox counter.  Real world, albeit anecdotal evidence \todo{Cannot find a reference right now -- I'd have sworn
+that it was in the ``UID Search Responses'' thread on 2007-08-10, but apparently it isn't\ldots I should search for
+``three consecutive'' or something like that} indicates that this scenario is very common, and therefore it might make
+sense to transmit the UIDs of all messages using the {\tt sequence-set} \cite[p. 89]{rfc3501} syntax.  The ESEARCH
+extension, as defined in RFC~4731~\cite{rfc4731}, allows exactly that:
+
+\begin{minted}{text}
+  S: * ESEARCH [TAG "y12"] UID 1,3:9,17:25,30:1000
+\end{minted}
+
+At the time of the ESEARCH adoption, the imap-protocol mailing list witnessed a disagreement on how exactly the {\tt
+sequence-set} shall be interpreted.  Mark Crispin, the author of the original IMAP protocol (but not of the ESEARCH
+extension) implemented ESERCH in a different manner.  He chose to take an advantage of the RFC3501-style definition of
+UID sequences where the RFC mandates that servers shall treat non-existent UIDs given in sequence sets as if they
+weren't referenced from the command at all.  For example, if the mailbox contained just UIDs 3, 5 and 10, a client using
+the {\tt 3:10} construct has to be interpreted as if it requested {\tt sequence-set 3,5,10}.  Doing so present certain
+optimization opportunities to the servers, for example when the client already knows the UID mapping and performs a
+server-side search for messages matching certain criteria {\em and} the result set accurately matches an adjacent range
+of messages, the server could take advantage of this adjacency a return a {\tt sequence-set} in the form of {\tt
+10:150}, even though the mailbox contains only a few UIDs from this range~\cite{crispin-esearch-flawed}.  Furthermore,
+his another point is that the clients already have two other ways of obtaining the UID mapping, either through the {\tt
+UID SEARCH ALL} command or via an explicit {\tt UID FETCH 1:*}.  Needless to say, such a reasoning fails to take into
+account potential bandwidth savings which can be rather substantial on ``reasonable'' mailboxes.  In the end, the
+authors of the RFC 4731 disagreed with Crispin~\cite{daboo-esearch-interpretation}.
+
+The ESEARCH extension allows nice bandwidth savings, so Trojitá tries to use it if the server says that it is supported.
+In addition to that, format of the returned responses is changed so that it also includes the tag of the command which
+caused it, allowing much more aggressive pipelining -- for example, clients are free to perform the UID discovery at the
+same time as running a user-initiated search.  On the other hand, even in presence of ESEARCH, the UID mapping still has
+to be synchronized explicitly.  This requirement is only lifted in the QRESYNC extension
+(\secref{sec:extension-qresync}).  Before we describe that, though, it is necessary to have a look at the CONDSTORE.
 
 \subsection{Avoiding Flags Resynchronization via CONDSTORE}
 
-\cite{rfc4551}
+Leaving the UID synchronization alone for a while, let's have a look at various ways of eliminating the need to ask for
+changed message flags.  In this case, no extension trying to reduce the data overhead of the {\tt FETCH} response was
+proposed, but the problem got attacked from another side.
+
+The whole point of flags synchronization is to be able to pick up changes which have happened since the last time was
+selected.  If only the server was somehow able to assign a ``serial number'' to each change, we could subsequently ask
+for all changes which have happened after a certain point.  The CONDSTORE extension from RFC 4551 \cite{rfc4551} works
+in this way.
+
+CONDSTORE-capable servers share a concept of ``modification sequence'', a {\tt MODSEQ}.  Each message in a mailbox is
+assigned an unsigned 64bit integer.  Whenever message metadata (like its flags) change, the {\tt MODSEQ} of that
+particular message gets increased.  Each increment is also required to reach a value which is higher than {\tt MODSEQ}
+of any other message in that mailbox.  Similarly, a mailbox is assigned a {\tt HIGHESTMODSEQ}, an unsigned 64bit integer
+which is interpreted as ``no message has ever had a {\tt MODSEQ} higher than this number'' -- of course subject to the
+usual {\tt UIDVALIDITY} rules.~\footnote{As always, any change in {\tt UIDVALIDITY} directly translates to a full cache
+flush and discarding any data previously remembered for the affected mailbox.  This includes not only the immutable data
+of messages, but also the UIDs, message flags and -- in this extension -- the {\tt MODSEQ} and {\tt HIGHESTMODSEQ}
+values.}
+
+When a CONDSTORE-capable client opens a mailbox which was previously synced (and if the server supports CONDSTORE as
+well, of course -- keep in mind that the IMAP extensions are strictly voluntary in their nature), at first it synces the
+UID mapping as usual, possibly through the ESEARCH command discussed earlier.  After that, the client can use an
+extended variant of the {\tt FETCH} command to ask for flags of those messages whose {\em current} {\tt MODSEQ} is
+higher than the {\tt HIGHESTMODSEQ} which the client has remembered previously.  The server will respond with regular
+{\tt FETCH} responses for each affected message.  In result, after this interaction is completed, the client is aware of
+all pending flag changes and is fully resynchronized again.
+
+This is how a typical synchronization might look like:
+
+\todo[inline]{Show a CONDSTORE example here}
+
+The algorithm is race-free -- as every message has a separate {\tt MODSEQ} counter, the delay between the {\tt SELECT}
+and {\tt FETCH} command doesn't lead to data loss; by the time the {\tt FETCH} completes, the server guarantees that the
+client have received any pending updates since the last synchronization.
+
+The CONDSTORE is an extremely valuable extension; its savings on big mailboxes are predictable and automatic -- instead
+of having to transmit $O(n)$ responses where $n$ is the number of {\em messages}, only $O(m)$ are required under QRESYNC
+with $m$ being the number of {\tt modifications}.  This is an extension which, unfortunately, places a certain burden on
+the IMAP server which has to track the serial numbers of messages' metadata; however, given the obvious reductions in
+bandwidth, many servers have already implemented it, most notably the Dovecot and Cyrus open source IMAP servers.
+Trojitá includes full support for this extension, making use of it whenever it is available.
 
 \subsection{Optimizing UID Synchronization with QRESYNC}
+\label{sec:extension-qresync}
 
 \cite{rfc5162}
 
