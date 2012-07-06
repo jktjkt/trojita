@@ -19,7 +19,9 @@
    Boston, MA 02110-1301, USA.
 */
 #include "EmbeddedWebView.h"
+#include "MessageView.h"
 
+#include <QAbstractScrollArea>
 #include <QAction>
 #include <QApplication>
 #include <QDesktopServices>
@@ -33,8 +35,10 @@ namespace Gui
 {
 
 EmbeddedWebView::EmbeddedWebView(QWidget *parent, QNetworkAccessManager *networkManager):
-    QWebView(parent)
+    QWebView(parent), m_scrollParent(0L)
 {
+    // set to expanding, ie. "freely" - this is important so the widget will attempt to shrink below the sizehint!
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     page()->setNetworkAccessManager(networkManager);
 
     QWebSettings *s = settings();
@@ -71,6 +75,32 @@ EmbeddedWebView::EmbeddedWebView(QWidget *parent, QNetworkAccessManager *network
     }
 
     setContextMenuPolicy(Qt::NoContextMenu);
+    findScrollParent();
+}
+
+void EmbeddedWebView::constrainSize()
+{
+    if (!(m_scrollParent && page() && page()->mainFrame()))
+        return; // should not happen but who knows
+
+    // the padding helps to prevent invalid hor. sliders if this view is (deelply) nested inside
+    // the view. It means that messages are padded constrainPadding / 2 px on each side.
+    // the alternative was to walk up and check contentsmargins of each parent and even then we'd be
+    // in trouble with the scrollbars...
+    static const int constrainPadding = 72;
+    // first unleash our size
+    setMinimumSize(0,0);
+    setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+    // resize so that the viewport has much vertical and wanted horizontal space
+    resize(m_scrollParent->width() - constrainPadding, QWIDGETSIZE_MAX);
+    // resize the PAGES viewport to this width and a minimum height
+    page()->setViewportSize(QSize(m_scrollParent->width() - constrainPadding, 32));
+    // now the page has an idea about it's demanded size
+    const QSize bestSize = page()->mainFrame()->contentsSize();
+    // set the viewport to that size! - Otherwise it'd still be our "suggestion"
+    page()->setViewportSize(bestSize);
+    // fix the widgets size so the layout doesn't have much choice
+    setFixedSize(bestSize);
 }
 
 void EmbeddedWebView::slotLinkClicked(const QUrl &url)
@@ -91,11 +121,56 @@ void EmbeddedWebView::slotLinkClicked(const QUrl &url)
 void EmbeddedWebView::handlePageLoadFinished(bool ok)
 {
     Q_UNUSED(ok);
-    setMinimumSize(page()->mainFrame()->contentsSize());
+    constrainSize();
 
     // We've already set in in our constructor, but apparently it isn't enough (Qt 4.8.0 on X11).
     // Let's do it again here, it works.
     page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+}
+
+void EmbeddedWebView::changeEvent(QEvent *e)
+{
+    QWebView::changeEvent(e);
+    if (e->type() == QEvent::ParentChange)
+        findScrollParent();
+}
+
+bool EmbeddedWebView::eventFilter(QObject *o, QEvent *e)
+{
+    if (e->type() == QEvent::Resize && o == m_scrollParent)
+        constrainSize();
+    return QWebView::eventFilter(o, e);
+}
+
+void EmbeddedWebView::findScrollParent() {
+    if (m_scrollParent)
+        m_scrollParent->removeEventFilter(this);
+    m_scrollParent = 0;
+    QWidget *runner = parentWidget();
+    while (runner) {
+        QWidget *p = runner->parentWidget();
+        if (p && qobject_cast<MessageView*>(runner) && // is this a MessageView?
+            p->objectName() == "qt_scrollarea_viewport" && // in a viewport?
+            qobject_cast<QAbstractScrollArea*>(p->parentWidget())) { // that is used?
+            m_scrollParent = p->parentWidget();
+            break; // then we have our actual message view
+        }
+        runner = p;
+    }
+    if (m_scrollParent)
+        m_scrollParent->installEventFilter(this);
+}
+
+void EmbeddedWebView::showEvent(QShowEvent *se)
+{
+    QWebView::showEvent(se);
+    if (!m_scrollParent) // it would be much easier if the parents were just passed with the constructor ;-)
+        findScrollParent();
+}
+
+QSize EmbeddedWebView::sizeHint() const
+{
+    return QSize(32,32); // QWebView returns 800x600 what will lead to too wide pages for our implementation
 }
 
 }

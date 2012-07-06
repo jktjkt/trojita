@@ -47,9 +47,19 @@ class EmbeddedWebView: public QWebView
     Q_OBJECT
 public:
     EmbeddedWebView(QWidget *parent, QNetworkAccessManager *networkManager);
+    QSize sizeHint() const;
+protected:
+    void changeEvent(QEvent *e);
+    bool eventFilter(QObject *o, QEvent *e);
+    void showEvent(QShowEvent *se);
+private:
+    void constrainSize();
+    void findScrollParent();
 private slots:
     void slotLinkClicked(const QUrl &url);
     void handlePageLoadFinished(bool ok);
+private:
+    QWidget *m_scrollParent;
 };
 
 }

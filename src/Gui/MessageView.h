@@ -24,6 +24,7 @@
 #include <QPersistentModelIndex>
 #include <QWidget>
 
+class QBoxLayout;
 class QLabel;
 class QLayout;
 class QTimer;
@@ -66,6 +67,8 @@ public slots:
     void setMessage(const QModelIndex &index);
     void setEmpty();
     void setHomepageUrl(const QUrl &homepage);
+protected:
+    void showEvent(QShowEvent *se);
 private slots:
     void markAsRead();
     void externalsRequested(const QUrl &url);
@@ -83,9 +86,10 @@ private:
     static QString replySubject(const QString &subject);
 
     QWidget *viewer;
+    QWidget *headerSection;
     QLabel *header;
     ExternalElementsWidget *externalElements;
-    QLayout *layout;
+    QBoxLayout *layout;
     TagListWidget *tags;
     QPersistentModelIndex message;
     Imap::Network::MsgPartNetAccessManager *netAccess;

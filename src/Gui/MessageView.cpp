@@ -20,6 +20,7 @@
 */
 #include <QKeyEvent>
 #include <QLabel>
+#include <QHeaderView>
 #include <QTextDocument>
 #include <QTimer>
 #include <QUrl>
@@ -45,41 +46,95 @@ namespace Gui
 
 MessageView::MessageView(QWidget *parent): QWidget(parent)
 {
+    QPalette pal = palette();
+    pal.setColor(backgroundRole(), palette().color(QPalette::Active, QPalette::Base));
+    pal.setColor(foregroundRole(), palette().color(QPalette::Active, QPalette::Text));
+    setPalette(pal);
+    setAutoFillBackground(true);
     netAccess = new Imap::Network::MsgPartNetAccessManager(this);
     connect(netAccess, SIGNAL(requestingExternal(QUrl)), this, SLOT(externalsRequested(QUrl)));
     factory = new PartWidgetFactory(netAccess, this);
 
     emptyView = new EmbeddedWebView(this, new QNetworkAccessManager(this));
-    emptyView->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+    emptyView->setFixedSize(450,300);
     emptyView->setPage(new UserAgentWebPage(emptyView));
     emptyView->installEventFilter(this);
+    emptyView->setAutoFillBackground(false);
 
-    layout = new QVBoxLayout(this);
     viewer = emptyView;
-    header = new QLabel(this);
+
+    //BEGIN create header section
+
+    headerSection = new QWidget(this);
+
+    // we create a dummy header, pass it through the style and the use it's color roles so we
+    // know what headers in general look like in the system
+    QHeaderView helpingHeader(Qt::Horizontal);
+    helpingHeader.ensurePolished();
+    pal = headerSection->palette();
+    pal.setColor(headerSection->backgroundRole(), palette().color(QPalette::Active, helpingHeader.backgroundRole()));
+    pal.setColor(headerSection->foregroundRole(), palette().color(QPalette::Active, helpingHeader.foregroundRole()));
+    headerSection->setPalette(pal);
+    headerSection->setAutoFillBackground(true);
+
+    // the actual mail header
+    header = new QLabel(headerSection);
+    header->setBackgroundRole(helpingHeader.backgroundRole());
+    header->setForegroundRole(helpingHeader.foregroundRole());
     header->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
-    header->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    tags = new TagListWidget(this);
+    header->setIndent(5);
+    header->setWordWrap(true);
+    connect(header, SIGNAL(linkHovered(QString)), this, SLOT(linkInTitleHovered(QString)));
+
+    // the tag bar
+    tags = new TagListWidget(headerSection);
+    tags->setBackgroundRole(helpingHeader.backgroundRole());
+    tags->setForegroundRole(helpingHeader.foregroundRole());
     tags->hide();
     connect(tags, SIGNAL(tagAdded(QString)), this, SLOT(newLabelAction(QString)));
     connect(tags, SIGNAL(tagRemoved(QString)), this, SLOT(deleteLabelAction(QString)));
-    connect(header, SIGNAL(linkHovered(QString)), this, SLOT(linkInTitleHovered(QString)));
+
+    // whether we allow to load external elements
     externalElements = new ExternalElementsWidget(this);
     externalElements->hide();
     connect(externalElements, SIGNAL(loadingEnabled()), this, SLOT(externalsEnabled()));
-    layout->addWidget(externalElements);
-    layout->addWidget(header);
-    layout->addWidget(tags);
-    layout->addWidget(viewer);
-    layout->setContentsMargins(0, 0, 0, 0);
+
+    // layout the header
+    layout = new QVBoxLayout(headerSection);
+    layout->addWidget(header, 1);
+    layout->addWidget(tags, 3);
+    layout->addWidget(externalElements, 1);
+
+    //END create header section
+
+    //BEGIN layout the message
+
+    layout = new QVBoxLayout(this);
     layout->setSpacing(0);
+    layout->setContentsMargins(0,0,0,0);
+
+    layout->addWidget(headerSection, 1);
+
+    headerSection->hide();
+
+    // put the actual messages into an extra horizontal view
+    // this allows us easy usage of the trailing stretch and also to indent the message a bit
+    QHBoxLayout *hLayout = new QHBoxLayout;
+    hLayout->setContentsMargins(6,6,6,0);
+    hLayout->addWidget(viewer);
+    static_cast<QVBoxLayout*>(layout)->addLayout(hLayout, 1);
+    // add a strong stretch to squeeze header and message to the top
+    // possibly passing a large stretch factor to the message could be enough...
+    layout->addStretch(1000);
+
+    //END layout the message
+
+    // make the layout used to add messages our new horizontal layout
+    layout = hLayout;
 
     markAsReadTimer = new QTimer(this);
     markAsReadTimer->setSingleShot(true);
     connect(markAsReadTimer, SIGNAL(timeout()), this, SLOT(markAsRead()));
-
-    header->setIndent(5);
-    header->setWordWrap(true);
 }
 
 MessageView::~MessageView()
@@ -100,6 +155,7 @@ void MessageView::setEmpty()
 {
     markAsReadTimer->stop();
     header->setText(QString());
+    headerSection->hide();
     message = QModelIndex();
     disconnect(this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
     tags->hide();
@@ -134,6 +190,7 @@ void MessageView::setMessage(const QModelIndex &index)
 
     QModelIndex rootPartIndex = messageIndex.child(0, 0);
 
+    headerSection->show();
     if (message != messageIndex) {
         emptyView->hide();
         layout->removeWidget(viewer);
@@ -339,5 +396,15 @@ void MessageView::setHomepageUrl(const QUrl &homepage)
     emptyView->load(homepage);
 }
 
+void MessageView::showEvent(QShowEvent *se)
+{
+    QWidget::showEvent(se);
+    // The Oxygen style reset the attribute - since we're gonna cause an update() here anyway, it's
+    // a good moment to stress that "we know better, Hugo ;-)" -- Thomas
+    setAutoFillBackground(true);
 }
+
+}
+
+
 

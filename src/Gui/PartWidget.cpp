@@ -48,6 +48,7 @@ MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
         const int recursionDepth):
     QTabWidget(parent)
 {
+    setContentsMargins(0,0,0,0);
     for (int i = 0; i < partIndex.model()->rowCount(partIndex); ++i) {
         using namespace Imap::Mailbox;
         QModelIndex anotherPart = partIndex.child(i, 0);
@@ -81,8 +82,10 @@ MultipartSignedWidget::MultipartSignedWidget(QWidget *parent,
         const int recursionDepth):
     QGroupBox(tr("Signed Message"), parent)
 {
+    setFlat(true);
     using namespace Imap::Mailbox;
     QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->setSpacing(0);
     uint childrenCount = partIndex.model()->rowCount(partIndex);
     if (childrenCount == 1) {
         setTitle(tr("Mallformed multipart/signed message: only one nested part"));
@@ -111,8 +114,10 @@ GenericMultipartWidget::GenericMultipartWidget(QWidget *parent,
         int recursionDepth):
     QGroupBox(tr("Multipart Message"), parent)
 {
+    setFlat(true);
     // multipart/mixed or anything else, as mandated by RFC 2046, Section 5.1.3
     QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->setSpacing(0);
     for (int i = 0; i < partIndex.model()->rowCount(partIndex); ++i) {
         using namespace Imap::Mailbox;
         QModelIndex anotherPart = partIndex.child(i, 0);
@@ -132,7 +137,9 @@ Message822Widget::Message822Widget(QWidget *parent,
                                    int recursionDepth):
     QGroupBox(tr("Message"), parent)
 {
+    setFlat(true);
     QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->setSpacing(0);
     QModelIndex headerIndex = partIndex.child(0, Imap::Mailbox::TreeItem::OFFSET_HEADER);
     Q_ASSERT(headerIndex.isValid());
     QLabel *header = new Rfc822HeaderView(0, headerIndex);
