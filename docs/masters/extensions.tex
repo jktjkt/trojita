@@ -200,7 +200,7 @@ of messages, the server could take advantage of this adjacency a return a {\tt s
 his another point is that the clients already have two other ways of obtaining the UID mapping, either through the {\tt
 UID SEARCH ALL} command or via an explicit {\tt UID FETCH 1:*}.  Needless to say, such a reasoning fails to take into
 account potential bandwidth savings which can be rather substantial on ``reasonable'' mailboxes.  In the end, the
-authors of the RFC 4731 disagreed with Crispin~\cite{daboo-esearch-interpretation}.
+authors of the RFC 4731 disagreed with Crispin~\cite{cridland-esearch-interpretation}.
 
 The ESEARCH extension allows nice bandwidth savings, so Trojitá tries to use it if the server says that it is supported.
 In addition to that, format of the returned responses is changed so that it also includes the tag of the command which
