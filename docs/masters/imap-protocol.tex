@@ -15,23 +15,22 @@ the available extensions and how they can be used to improve the overall IMAP ex
 
 The IMAP protocol, as defined by RFC~3501~\cite{rfc3501}, is an internet protocol suitable for managing e-mail folders
 and individual messages stored on a remote mail server.  In contrast to the older POP3 protocol~\cite{rfc1939}, IMAP is
-really intended to serve as an {\em access} protocol.  Where a POP3 client would happily download a full message from
+actually intended to serve as an {\em access} protocol.  Where a POP3 client would happily download a full message from
 the mail server, store it into a local mailbox and perform all further processing locally, the IMAP mode of operation is
 much more complicated.  These complications, however, bring a whole slew of new features and interesting applications
 along.
 
-For one, IMAP presents a single, authoritative place storing messages --- that feature alone is a must in today's world
-where people are expecting to be able to access their mail from their cell phones.  Furthermore, given that all messages
-are located on a single place, it is possible to perform efficient, server-side operations over the whole mailstore,
-like searching or sorting.  IMAP also makes it possible to access individual message parts like attachments separately,
+For one, IMAP presents a single authoritative place storing messages --- that feature alone is a must in today's world
+where people are expecting to be able to access mail from their cell phones.  Furthermore, given that all messages
+are located on a single place, it is possible to perform efficient server-side operations like searching or sorting over
+the whole mail store.  IMAP also makes it possible to access individual message parts like attachments separately,
 eliminating the need to download a huge message before reading a short accompanying textual information.  Finally,
 advanced servers can recognize clients with limited resources and only present a subset of messages to them.
 
-At the same time, IMAP is an old protocol burdened by many compatibility warts.  Its designers were struggling with
+At the same time, IMAP is an old protocol burdened with many compatibility warts.  Its designers were struggling with
 people objecting to novel ideas due to legacy code in their mail implementations.  Over the years, though, various
 protocol extensions appeared.  Some of them are extremely useful for contemporary clients, yet they cannot be relied on
-because there is no general agreement on what extensions are really crucial, and hence available in most of IMAP
-servers.
+because there is no general agreement on what extensions are really crucial, and hence available in most IMAP servers.
 
 The rest of this chapter provides a quick overview of the basic IMAP concepts and how they relate to the usual client's
 workflow.
@@ -41,12 +40,12 @@ workflow.
 An IMAP server exports a set of {\em mailboxes}, folders which contain individual messages (and further mailboxes, if
 the server allows that).  Each message can be identified either by its {\em sequence number}, an order in which it
 appears in mailbox, or by its {\em UID}.  Sequence numbers are by definition very volatile (deleting the first message
-in a mailbox changes sequence numbers of all subsequent messages) while the UIDs provide better chances of persistence
-across reconnects.~\footnote{It shall be noted that IMAP does {\em not} guarantee UIDs to be persistent at all.  The
-reason behind this decision was to allow IMAP to publish messages from obsolete mail stores which could not have been
-extended to support UIDs at all.  Even today, UID changes have to be expected when signalled through {\tt UIDVALIDITY}.}
-When the UIDs have to be invalidated for some reason, a per-mailbox integer property {\tt UIDVALIDITY} shall be
-incremented to signal its clients that previously used UIDs are no longer valid.
+in a mailbox changes sequence numbers of all subsequent messages, for example) while the UIDs provide better chances of
+persistence across reconnects.~\footnote{It shall be noted that IMAP does {\em not} guarantee UIDs to be persistent at
+all.  The reason behind this decision was to allow IMAP to publish messages from obsolete mail stores which could not
+have been extended to support UIDs at all.  Even today, UID changes have to be expected when signalled through {\tt
+UIDVALIDITY}.} When the UIDs have to be invalidated for some reason, a per-mailbox integer property {\tt UIDVALIDITY}
+is incremented to signal all clients that previously used UIDs are no longer valid.
 
 \subsection{Cache Filing Protocol}
 
@@ -82,26 +81,35 @@ remove the cached data for these messages.~\footnote{The reader shall be reminde
 protocol}, i.e. the server is always right about what messages ``are'' in a mailbox and what messages are gone.}  This
 is in a strong contrast to the usual POP3 mode of operation where the clients are expected to prune their cache only
 based on their local policy, perhaps moving older messages to a designated archive, but definitely not discarding the
-retrieved data as soon as the server doesn't present the message anymore.  Furthermore, even during an established
-session the IMAP server informs about messages being permanently deleted through the {\tt EXPUNGED} response which
-contains sequence number only.  Given that the cache is usually addressed by UID, a caching client shall maintain full
-UID mapping at any time.
+retrieved data as soon as the server doesn't present the message anymore.
+
+Furthermore, even during an established session the IMAP server informs about messages being permanently deleted through
+the {\tt EXPUNGED} response which contains sequence number only.  Given that the cache is usually addressed by UID, a
+caching client shall maintain full UID mapping at any time.
 
 \section{Mailbox Synchronization}
 \label{sec:imap-mailbox-sync}
 
 When an IMAP client opens a mailbox, the server provides it with a few data points about the state of the mail store.
-Among this data, there's a number representing the total amount of messages in a mailbox through the {\tt EXISTS}
+Among these data, there's a number representing the total amount of messages in a mailbox through the {\tt EXISTS}
 response, the current {\tt UIDVALIDITY} value and, finally, the {\tt UIDNEXT} which represents the lowest UID which the
 next arriving message could possibly get assigned.  Please note that the {\tt UIDNEXT} is merely a lower bound of the
-future UID; there is no guarantee that a message with such UID would exist in the mailbox in future.
+future UID; there is no guarantee that a message with such UID would ever exist in the mailbox in future.
 
-Having these three values, the client can obtain a few optimizations before it proceeds to fetch an updated UID mapping
-from the IMAP server:
+Having obtained these three values, the client can perform a few optimizations before it proceeds to fetch an updated
+UID mapping from the IMAP server:
 
 \begin{itemize}
   \item If the {\tt UIDVALIDITY} has changed, the client is obliged to completely purge any data which it might have
-    accumulated in its local persistent cache.
+    accumulated in its local persistent cache.  This is a hard requirement allowing the server to inform the client that
+    no state whatsoever can be reused from the previous connections.  In real world, this situation shall be only
+    reached under exceptional circumstances (like when migrating to a completely different server implementation, or
+    after having to restore the data after an inadvertent damage caused by a reckless system
+    administrator.~\footnote{The IMAP standard nevertheless allows servers to increment the {\tt UIDVALIDITY} upon each
+    reconnect to accommodate server implementations which are unable to assign persistent UIDs at all.  It shall be
+    noted that although such servers are {\em compliant} with the IMAP specification, they offer severely limited user
+    experience and little room for further optimization --- the clients cannot reuse any data from previous connections,
+    so the overall efficiency is similar to accessing e-mail through the POP3 protocol.}
   \item If {\tt UIDNEXT} is not available, we have to resort to asking for the whole UID mapping from scratch.
   \item If the {\tt UIDNEXT} has decreased, the IMAP server exhibits a bug.  This situation is explicitly forbidden by
     the IMAP standard.  Trojitá will, nevertheless, try to work in this scenario by purging its cache and continuing as
@@ -109,7 +117,7 @@ from the IMAP server:
   \item If the {\tt UIDNEXT} has not changed since the last time the client has opened a mailbox, the IMAP protocol says
     that no messages could have been delivered to the mailbox at all.
     \begin{itemize}
-      \item If the {\tt EXISTS} remains constant as well, it is clear that no deleted have taken place. This means that
+      \item If the {\tt EXISTS} remains constant as well, it is clear that no deletions have taken place. This means that
         the cached sequence $\rightarrow$ UID mapping from the last time is directly usable, and the UID syncing phase
         of the mailbox synchronization is concluded.
       \item Otherwise, if the {\tt EXISTS} has grown, we are talking to a non-compliant IMAP server which failed to
@@ -179,22 +187,22 @@ leads to at least 200~kB of useless data on a mailbox with fifty thousands of me
 
 \subsection{Message Flags}
 
-We have mentioned message flags when describing the mailbox synchronization.  These flags allows the system and the mail
+We have mentioned message flags when describing the mailbox synchronization.  These flags allow the system and the mail
 user to attach a certain state to the messages --- information like whether the message was seen or replied to is tracked
 at this level.  Further applications include user-level arbitrary tagging of messages with flags like ``important'' or
 ``todo''.
 
 Strictly speaking, asking for message flags of all messages in a mailbox is not necessary provided the program is
 capable of lazy-loading --- flags could, for example, only be fetched for those messages which are immediately visible on
-screen (probably with some intelligent preload for those which will likely get to the viewport in near future), avoiding
+screen (probably with some intelligent preload of items which will likely get to the viewport in near future), avoiding
 a potentially expensive operation.  On the other hand, contemporary user agents typically have to display an aggregated
 statistics like ``$X$ unread messages, $Y$ total'' to the user.  IMAP certainly has methods for delivering such
-statistics, however, the baseline specification's only two ways of conveying are through the {\tt STATUS} command or via
-an explicit {\tt SEARCH}.  In practice, this design leads to a pressing need to load {\em all} flags for all messages at
-the start of the session.
+statistics, however, the baseline specification's only two ways of conveying that information are through the {\tt
+STATUS} command or via an explicit {\tt SEARCH}.  In practice, this design leads to a pressing need to load {\em all}
+flags for all messages at the start of the session.
 
 The problem with the {\tt STATUS} command is that it is unfortunately forbidden from being used on an actively selected
-mailbox per RFC~3501.  That makes this command usable for an initial estimate, but prevents further updates --- consider
+mailbox~\cite[p. 43]{rfc3501}.  That makes this command usable for an initial estimate, but prevents further updates --- consider
 that an IMAP client has opened a big mailbox and scrolled to the end of the message listing.  Suddenly, an {\tt *
 EXPUNGE 3} arrives, informing the client that the third message in the mailbox is now gone.  Because the flags of those
 ``older'' messages weren't loaded in this scenario, the client has no way of knowing whether the number of unread
@@ -203,7 +211,7 @@ messages or conduct a special {\tt SEARCH}.  The {\tt SEARCH} command looking fo
 messages tagged with a certain flag, for that matter) can surely be constructed, even the baseline IMAP4rev1 provides a
 way of requesting that information.  However, each {\tt SEARCH} only provides the client with an information about one
 kind of a particular flag.  It is not an unreasonable idea to design a client with further development in mind, most
-notably it might make a lot of sense not to special-case the {\tt \\UnSeen} message flag --- after all, certain
+notably it might make a lot of sense not to special-case the {\tt {\textbackslash}UnSeen} message flag --- after all, certain
 applications will benefit from having access to all messages matching the {\tt \$SubmitPending} flag or those which were
 marked as a ``Draft'' by the user, for example.  Unfortunately, statistics about these user-defined flags cannot be
 determined via the {\tt STATUS} command and have to be discovered explicitly, either through a lot of separate {\tt
@@ -211,9 +219,9 @@ SEARCH} commands, one for each ``interesting'' flag, or via an explicit synchron
 command.
 
 In short, deferring the flag synchronization certainly has some merit, but at the same time, special-casing the {\tt
-\\UnSeen} flag for unread messages is not a viable long-term solution.  Given that extensions designed for speeding up
-the flags resynchronization exist, Trojitá will always ask for a full flags mapping when synchronizing through the
-baseline IMAP profile.
+{\textbackslash}UnSeen} flag for unread messages is not a viable long-term solution.  Given that extensions designed for
+speeding up the flags resynchronization exist, Trojitá will always ask for a full flags mapping when synchronizing
+through the baseline IMAP profile.
 
 \subsection{Immutable Data}
 \label{sec:imap-immutable-data}
