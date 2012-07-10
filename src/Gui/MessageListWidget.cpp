@@ -36,7 +36,7 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
 
     m_quickSearchText = new QLineEdit(this);
 #if QT_VERSION >= 0x040700
-    m_quickSearchText->setPlaceholderText(tr("Quick Search..."));
+    m_quickSearchText->setPlaceholderText(tr("Quick Search / Leading \":=\" for direct IMAP search"));
 #endif
 
     connect(m_quickSearchText, SIGNAL(returnPressed()), this, SLOT(slotApplySearch()));
@@ -121,6 +121,13 @@ QStringList MessageListWidget::searchConditions() const
 {
     if (!m_quickSearchText->isEnabled() || m_quickSearchText->text().isEmpty())
         return QStringList();
+
+    static QString rawPrefix = QLatin1String(":=");
+
+    if (m_quickSearchText->text().startsWith(rawPrefix)) {
+        // It's a "raw" IMAP search, let's simply pass it through
+        return QStringList() << m_quickSearchText->text().mid(rawPrefix.size());
+    }
 
     QStringList keys;
     if (m_searchInSubject->isChecked())

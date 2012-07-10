@@ -288,8 +288,14 @@ CommandHandle Parser::searchHelper(const QByteArray &command, const QStringList 
 
     // FIXME: we don't really support anything else but utf-8 here
 
-    for (QStringList::const_iterator it = criteria.begin(); it != criteria.end(); ++it)
-        cmd << it->toUtf8();
+    if (criteria.size() == 1) {
+        // Hack: if it's just a single item, let's assume it's already well-formatted by the caller.
+        // This is required in the current shape of the API if we want to allow the user to type in their queries directly.
+        cmd << Commands::PartOfCommand(Commands::ATOM, criteria.front().toUtf8());
+    } else {
+        for (QStringList::const_iterator it = criteria.begin(); it != criteria.end(); ++it)
+            cmd << it->toUtf8();
+    }
 
     return queueCommand(cmd);
 }
