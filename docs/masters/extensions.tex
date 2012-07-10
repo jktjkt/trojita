@@ -424,9 +424,32 @@ to send over the network.
 
 \subsection{Server-side Conversions via CONVERT}
 
-\cite{rfc5259}
+Certain devices might have limitations which the sender might not have expected when she prepared the message.  For
+example, a screen in a cell phone could have a very low resolution.  Unless the user really wants to see full details
+after zooming eight times, it might make sense to reduce the resolution of that 22-megapixel $5760 \times 3840$ image
+produced by Canon 5D~Mk.~III to fit on a $480 \times 800$ pixels screen of a high-end smart phone from 2012.  Even if
+the user actually wants to see the real image, it might be worthwhile to offer an access to a lower-resolution version
+for a quick preview.  This server-side conversion is what the {\tt CONVERT} extension from RFC 5259 \cite{rfc5259} enables.
 
-\todo[inline]{Suggest server-side RFC2047 decoding; isn't that covered by the UTF8-in-IMAP RFC already?}
+Unfortunately, it appears that there are actually {\em no} publicly available servers which offer support for
+server-side conversions and the most popular open source implementations have not expressed much interest when asked for
+their future plans.  Due to this induced inability to test this feature for interoperability, Trojitá doesn't support
+the {\tt CONVERT} extension at this point.
+
+\subsection{Metadata Decoding}
+
+IMAP requires compliant servers to support MIME message parsing and RFC~2822 header decoding.  One feature which is
+notable absent, though, is support for server-side decoding of RFC~2047-formatted message headers and IMAP's {\tt
+ENVELOPE} fields.  This shortcoming is partially addressed by two RFCs --- the already mentioned {\tt CONVERT} extension
+mandates support for character set decoding and conversions of RFC~2822 message headers while an experimental RFC 5738
+\cite{rfc5738} adds an ``UTF-8'' mode which switches all {\tt FETCH} commands to return the decoded Unicode data,
+including the IMAP's {\tt ENVELOPE}.  Sadly, support for this extension is similar to what has been already said for the
+{\tt CONVERT} and one can also safely claim that the possible data savings are minuscule, if any.
+
+If the IMAP protocol was designed today, mandating a full-featured RFC~2047 decoder would be an obvious addition, but
+with the legacy of the protocol history, a requirement to implement a client-side decoder anyway and no available server
+support and the RFC being marked as {\em experimental}, Trojitá does not try to use the {\tt SELECT \ldots UTF8}
+parameter.
 
 \section{Updating Mailboxes}
 
