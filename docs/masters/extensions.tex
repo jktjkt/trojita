@@ -392,9 +392,35 @@ as it would be rather awkward to see a requirement for extra network round trips
 
 \section{Fetching the Data}
 
+The IMAP protocol contains rather rich set of features aimed at downloading the message data in an efficient manner;
+clients can defer parsing of the MIME message parts~\cite{rfc2045} to the server and deal with the individual data
+separately.  In spite of that, there are a few optimization opportunities which can drastically reduce the amount of
+data to be transfered.
+
 \subsection{The BINARY Extension}
 
-\cite{rfc3516}
+Historically, e-mail messages could only contain English text, for which a 7-bit character set and the US-ASCII encoding
+was adequate.  However, with the advent of ``multimedia'', a steady pressure had emerged, leading to the MIME standard
+family.  Using MIME, complex tree-like structures can be embedded in e-mail messages and transmitted over the Internet
+mail.  However, at the time these ere introduced, there was a real risk of not being able to transmit such complex
+messages over traditional communication channels which were often only 7-bit safe.  Due to these backward compatibility
+concerns, a few standard method of converting arbitrary data to a textual form were conceived under the name of {\em
+Content-Transfer-Encoding}.
+
+The two most common encoding schemes are Quoted-Printable~\cite[p. 18]{rfc2045} and Base64~\cite[p. 23]{rfc2045}, the
+latter of which is especially suitable for converting arbitrary binary data to a 7-bit form.  However, it is clear that
+mapping generic 8-bit data into 7-bit octets (and eliminating the appearance of certain ``magic'' characters in the
+process) cannot possibly work without inflating the total size of the transferred data.  For the Base64
+Content-Transfer-Encoding, the mapping converts 8-bit input (i.e. 256 values per octets) into a target alphabet of only
+64 characters, imposing an overhead of roughly 33~\% compared to the raw binary form.  Whenever the MIME-encoded message
+is transmitted, the amount of transferred data is therefore roughly one-third higher than strictly required.
+
+RFC 3516 \cite{rfc3516} adds a feature to work around this limitation through the {\tt BINARY} extension.  When the
+server supports this feature, clients can delegate the Content-Transfer-Encoding processing to the server and receive
+the raw binary data.  Perhaps surprisingly, the {\tt BINARY} extension was not supported in Dovecot, one of the most
+popular IMAP servers, at the time this thesis was written.  Nevertheless, Trojitá includes full support for this
+extension and will automatically fetch data using the appropriate FETCH modifier in order to reduce the amount of data
+to send over the network.
 
 \subsection{Server-side Conversions via CONVERT}
 
