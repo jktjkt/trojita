@@ -109,10 +109,15 @@ somewhat, even to the extent where Mark Crispin, the original author of the IMAP
 particular benefit to use of IDLE on a desktop machine''~\cite{crispin-idle-useless} --- a view which is not shared by
 the wider community~\cite{tss-idle-keepalive} \cite{android-idle}, yet certainly worth a consideration.
 
-The IDLE extension is basically a hack on top of the IMAP protocol which reverses the ``A command is not "in progress"
-until the complete command has been received; in particular, a command is not "in progress" during the negotiation of
-command continuation.``~\cite[p. 72]{rfc3501} mantra of the basic IMAP specification.  With IDLE, a typical interaction
-might look like this one:
+The IDLE extension is basically a hack on top of the IMAP protocol which reverses a mantra of the basic IMAP
+specification~\cite[p. 72]{rfc3501}:
+
+\begin{quote}
+  A command is not ``in progress'' until the complete command has been received; in particular, a command is not ``in
+  progress'' during the negotiation of command continuation.
+\end{quote}
+
+With IDLE, a typical interaction might look like this one:
 
 \begin{minted}{text}
   C: A004 IDLE
