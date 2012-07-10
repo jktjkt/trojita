@@ -141,8 +141,13 @@ QStringList MessageListWidget::searchConditions() const
             res << QLatin1String("FUZZY");
         res << key << m_quickSearchText->text();
     }
-    if (keys.size() > 1)
-        res.prepend(QLatin1String("OR"));
+    if (keys.size() > 1) {
+        // Got to make this a conjunction. The OR operator's reverse-polish-notation accepts just two operands, though.
+        int num = keys.size() - 1;
+        for (int i = 0; i < num; ++i) {
+            res.prepend(QLatin1String("OR"));
+        }
+    }
 
     return res;
 }
