@@ -602,10 +602,8 @@ expect} being able to see a number of unread messages right next to the mailbox 
 this information to them.  Having to send an extra {\tt STATUS} command for each mailbox during the initial discovery is
 not too evil thing per se (the total wasted bandwidth is negligible when compared to mailbox synchronization), but worth
 optimizing anyway.  RFC 5819 \cite{rfc5819} adds an option to the {\tt LIST} command to request automatic sending of the
-untagged {\tt STATUS} command along.  At this time, Trojitá does not support this extension due to technical
-reasons.~\footnote{The {\tt LIST} processing is deferred until the client has received all of the untagged responses in
-Trojitá; at that time, the {\tt STATUS} responses were already sent.  Changing this code was deemed to be
-\todo[inline]{implement me?}}
+untagged {\tt STATUS} command along.  When the IMAP server announces the {\tt LIST-STATUS} capability, Trojitá will
+automatically make use of this extension.
 
 \todo[inline]{notify \cite{rfc5465}}
 
