@@ -605,7 +605,26 @@ optimizing anyway.  RFC 5819 \cite{rfc5819} adds an option to the {\tt LIST} com
 untagged {\tt STATUS} command along.  When the IMAP server announces the {\tt LIST-STATUS} capability, Trojitá will
 automatically make use of this extension.
 
-\todo[inline]{notify \cite{rfc5465}}
+\subsection{Push-notification of Other Mailboxes' State}
+
+A feature most notably absent from the {\tt IDLE} is any support of passively monitoring changes of non-selected
+mailboxes.  Over the time, many extensions have appeared in the state of various drafts
+\cite{draft-wener-lemonade-clearidle} \cite{draft-gulbrandsen-imap-nostore} \cite{draft-magicaltux-imap4-idleplus},
+often simply requesting unsolicited delivery of {\tt STATUS} and {\tt FETCH} responses.  None of these extensions gained
+widespread support nor reached the state of a proposed standard, though.
+
+Said status was reached by the {\tt NOTIFY} extension codified in RFC 5465 \cite{rfc5465}.  It adds an impressive amount
+of features; compliant agents can listen for creation and deletion of mailboxes (eliminating the need to redo a
+top-to-bottom {\tt LIST} discovery), changes in amount of messages in specified list of mailboxes and even for their
+flag changes.  Sadly, support for this extension is scarce among the existing IMAP servers and its author reportedly has
+mixed feelings \cite{arnt-good-bad-rfc} about its fate where basically ``noone implements it''.  In early 2012, a
+posting on the Dovecot mailing list announced \cite{dovecot-imap-notify} preliminary support for a part of this
+extension in Dovecot, one of the most widely deployed open source IMAP daemons.  Unfortunately, this code was not
+complete as of July 2012 \cite{dovecot-hg-notify} and the branch we have tried contained regressions which prevented
+regular use of other features of the IMAP server altogether.~\footnote{This is not to say that the Dovecot is a bad IMAP
+daemon --- not at all.  The version we have tried is a development snapshot which is clearly marked as an experimental
+version which requires future work.}  Due to not being able to verify the {\tt NOTIFY} operation against any available
+IMAP server implementation, Trojitá will not try to use this extension for the time being.
 
 \section{Further Improvements}
 
