@@ -577,9 +577,37 @@ caused by the fact that a single new arrival can affect each and every message i
 mapping.  We have attempted to address this limitation by augmenting the {\tt SEARCH=INTHREAD} draft, see
 \secref{sec:draft-inthread-ext} for details about the selected approach.
 
-\subsection{Refreshing Statistics}
+\subsection{Obtaining Statistics for Other Mailboxes}
 
-\cite{rfc5465}
+Many IMAP clients start their session by requesting a {\tt LIST} of all top-level mailboxes.  This command is then
+followed by a {\tt STATUS} for each of them in order to obtain information like the number of messages in each mailbox.
+The obtained information is typically used in a GUI of some kind to show the mailbox list to the user.
+
+The basic IMAP specification unfortunately doesn't convey the critical piece of information about whether a mailbox
+contains any child mailboxes --- a data point typically required by any GUI to be able to show a proper widget for
+opening a list of these child items.  In absence of the {\tt CHILDREN} extensions, as defined by RFC 3348
+\cite{rfc3348}, clients have no choice but to issue an explicit {\tt LIST} command for all mailboxes,~\footnote{The only
+exception being those marked with the {\tt {\textbackslash}NoInferiors} which is meant to indicate that this mailbox
+could {\em never} contain any child mailboxes, perhaps due to technical limitations on the server side --- a very
+different case from not containing any child mailboxes at {\em this} time.} trying to list their children.
+
+The {\tt CHILDREN} is a pretty straightforward extension which shall arguably be supported by any IMAP server worth its
+salt; its absence does not improve the situation in any way.  Trojitá supports it fully and will gracefully fall back to
+extra {\tt LIST} requests in case it is not available.
+
+The initial discovery of mailboxes also mandates a separate {\tt STATUS} command for each mailbox --- behavior which
+arguably goes against the spirit behind that command which was intended to {\em not} serve as a generic ``tell me about
+updates to other mailboxes'' feature.  This initial idea no longer has its merit, unfortunately --- users simply {\em
+expect} being able to see a number of unread messages right next to the mailbox name, and client authors have to deliver
+this information to them.  Having to send an extra {\tt STATUS} command for each mailbox during the initial discovery is
+not too evil thing per se (the total wasted bandwidth is negligible when compared to mailbox synchronization), but worth
+optimizing anyway.  RFC 5819 \cite{rfc5819} adds an option to the {\tt LIST} command to request automatic sending of the
+untagged {\tt STATUS} command along.  At this time, Trojitá does not support this extension due to technical
+reasons.~\footnote{The {\tt LIST} processing is deferred until the client has received all of the untagged responses in
+Trojitá; at that time, the {\tt STATUS} responses were already sent.  Changing this code was deemed to be
+\todo[inline]{implement me?}}
+
+\todo[inline]{notify \cite{rfc5465}}
 
 \section{Further Improvements}
 
