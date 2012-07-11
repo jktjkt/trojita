@@ -444,7 +444,10 @@ ENVELOPE} fields.  This shortcoming is partially addressed by two RFCs --- the a
 mandates support for character set decoding and conversions of RFC~2822 message headers while an experimental RFC 5738
 \cite{rfc5738} adds an ``UTF-8'' mode which switches all {\tt FETCH} commands to return the decoded Unicode data,
 including the IMAP's {\tt ENVELOPE}.  Sadly, support for this extension is similar to what has been already said for the
-{\tt CONVERT} and one can also safely claim that the possible data savings are minuscule, if any.
+{\tt CONVERT} and one can also safely claim that the possible data savings are minuscule, if any.  In addition, the
+UTF-8 extension changes quite a lot of assumptions from the traditional IMAP protocol, to the extent that one could very
+well propose yet another extension which would {\em just} enable access to the decoded {\tt ENVELOPE} and RFC 2822
+header data.  No such extension exists at this point, though.
 
 If the IMAP protocol was designed today, mandating a full-featured RFC~2047 decoder would be an obvious addition, but
 with the legacy of the protocol history, a requirement to implement a client-side decoder anyway and no available server
@@ -471,5 +474,8 @@ parameter.
 \subsection{Debugging}
 
 \subsection{Sending Mail}
+
+
+\section{Additional Extensions}
 
 \end{document}
