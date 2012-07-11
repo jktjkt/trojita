@@ -403,6 +403,8 @@ void MainWindow::createWidgets()
     mboxTree->setAcceptDrops(true);
     mboxTree->setDropIndicatorShown(true);
     mboxTree->setHeaderHidden(true);
+    // I wonder what's the best value to use here. Unfortunately, the default is to disable auto expanding.
+    mboxTree->setAutoExpandDelay(800);
     connect(mboxTree, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showContextMenuMboxTree(const QPoint &)));
 
