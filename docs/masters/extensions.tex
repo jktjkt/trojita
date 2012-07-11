@@ -505,7 +505,77 @@ described in \secref{sec:draft-inthread-ext}.
 
 \subsection{Incremental Sorting and Searching}
 
-\cite{rfc5267}
+Soon after the original {\tt SORT} command got standardized, it became apparent that having to request a full update of
+the sort order whenever a new message arrived would nullify some of the bandwidth saving opportunitites of performing
+the server-side sort.  A similar concern existed for server-side searching --- here, too, the client would have to
+explicitly check if the new arrivals match the search criteria.  This limitation was addressed by introduction of the
+so-called {\em contexts} in RFC 5267 \cite{rfc5267}.
+
+This RFC defines three extensions, the {\tt ESORT}, {\tt CONTEXT=SEARCH} and {\tt CONTEXT=SORT}.  The first one is
+similar to the {\tt ESEARCH} (and in fact reuses the {\tt ESEARCH} response) in that it could reduce the amount of data
+transmitted in response to the {\tt SORT} command.  The two {\tt CONTEXT=\ldots} capabilities extend the {\tt SEARCH}
+and {\tt SORT} commands by a way to tell the server that it should tell the client whenever the results are updated.  An
+efficient way of communicating the changes through the {\tt ADDTO} and {\tt REMOVEFROM} {\tt ESEARCH} return values was
+introduced.
+
+In absence of the search/sort contexts, a newly arriving message would typically result in client repeating the
+operation.~\footnote{When speaking about searching, there is a pretty straightforward optimization opportunity where the
+{\tt SEARCH} command can be augmented to include an explicit ``and the messages' UID is higher than the
+$old\_uidnext$''.  Unfortunately, no such optimization can be performed for the {\tt SORT} command where the sort order
+can possibly depend on each and every other message in a mailbox.}  This is turn leads to excess data transfers like in
+the following example where a single arrival results in transferring the whole mapping again:
+
+\begin{minted}{text}
+  C: x1 UID SORT (SUBJECT) utf-8 ALL
+  S: * SORT 1 2 10 5 50 20 ... [rest of UIDs goes here]
+  S: x1 OK sorted
+  ...time passes...
+  S: * 1007 EXISTS
+  C: x2 UID SORT (SUBJECT) utf-8 ALL
+  S: * SORT 1 2 1111 10 5 50 20 ... [rest of UIDs goes here]
+  S: x2 OK sorted
+\end{minted}
+
+For brevity purposes, we have omitted the sort order of the other 1,000 messages.  In presence of the {\tt CONTEXT=SORT}
+extension, though, the same protocol interaction would look like this one:
+
+\begin{minted}{text}
+  C: x1 UID SORT RETURN (ALL UPDATE) (SUBJECT) utf-8 ALL
+  S: * ESEARCH (TAG "x1") UID ALL 1:2,10,5,50,20,90:1090
+  S: x1 OK sorted
+  ...time passes...
+  S: * 1007 EXISTS
+  S: * ESEARCH (TAG "x1") UID ADDTO (2 1111)
+\end{minted}
+
+Using the sort contexts therefore leads to dramatic bandwidth savings on ``busy'' mailboxes which keep receiving new
+mail over time; the {\tt ESEARCH} response can also occasionally contribute to a reduced amount of transferred data when
+the UIDs were assigned in a favorable way.  The biggest contribution is, however, the introduction of the {\tt ADDTO}
+{\tt ESEARCH} return response which obliterates the need to transfer sort order of the whole mailbox along with the
+single updated item.
+
+The search and sort contexts also impose certain, albeit abysmal overhead, though --- whenever a message is removed, an
+explicit {\tt ESEARCH REMOVEFROM} has to be issued.  This funcitonality is mandated by the relevant RFC, even though it
+doesn't provide any extra functionality --- all clients {\em still} have to listen for {\tt EXPUNGE} or {\tt VANISHED}
+untagged responses (and rightly so, obviously), so there is no technical obstacle in requiring them to remove the
+freshly removed items from their search/sort result cache.  Etiquette also dictates that clients shall cancel these
+updates when they are no longer needed through the {\tt CANCELUPDATE} command.  These drawback are however extremely
+small when working with larger mailboxes and absolutely worth the increased benefit of not transferring the whole set of
+UIDs over and over again.
+
+Trojitá includes full support for both {\tt CONTEXT=SEARCH} and {\tt CONTEXT=SORT}.  The {\tt CONTEXT=SEARCH} has been
+tested for interoperability against the Dovecot IMAP server, one of the few implementations which actually offer this
+functionality.  Unfortunately, we were not able to locate a single IMAP server supporting {\tt CONTEXT=SORT}, so no
+real-world interoperability tests could have been performed.~\footnote{As any other feature of Trojitá, though, the
+support for {\tt CONTEXT=SORT} is covered by the automated test suite which was carefully written to minimize the chance
+of any unwanted side effects and guard against unintended results when the servers deviate from the expected behavior.}
+This is a rather surprising outcome given that the RFC 5267 is not exactly a fresh standard now and that its authors
+work from a commercial software vendor offering a pretty advanced IMAP server implementation.
+
+Sadly, no equivalent of these incremental updates is defined for the {\tt THREAD} command.  We suspect that this is
+caused by the fact that a single new arrival can affect each and every message in the previously received thread
+mapping.  We have attempted to address this limitation by augmenting the {\tt SEARCH=INTHREAD} draft, see
+\secref{sec:draft-inthread-ext} for details about the selected approach.
 
 \subsection{Refreshing Statistics}
 
