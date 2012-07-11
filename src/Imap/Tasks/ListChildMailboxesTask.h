@@ -33,17 +33,22 @@ class ListChildMailboxesTask : public ImapTask
     Q_OBJECT
 public:
     ListChildMailboxesTask(Model *_model, const QModelIndex &mailbox);
+    ~ListChildMailboxesTask();
     virtual void perform();
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
+    virtual bool handleStatus(const Imap::Responses::Status *const resp);
 
     virtual QString debugIdentification() const;
     virtual QVariant taskData(const int role) const;
     virtual bool needsMailbox() const {return false;}
 protected:
+    void applyCachedStatus();
+
     CommandHandle tag;
     ImapTask *conn;
     QPersistentModelIndex mailboxIndex;
+    QList<Imap::Responses::Status*> m_pendingStatusResponses;
 };
 
 }

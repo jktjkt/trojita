@@ -24,6 +24,7 @@ Suported RFCs
 - 5530 IMAP Response Codes
 - 5550 (4550) The Internet Email to Support Diverse Service Environments (Lemonade) Profile
 - 5788 IMAP4 Keyword Registry
+- 5819 IMAP4 Extension for Returning STATUS Information in Extended LIST
 - 5957 Display-Based Address Sorting for the IMAP4 SORT Extension
 - 6203 IMAP4 Extension for Fuzzy Search
 
@@ -71,7 +72,6 @@ Not implemented:
 - 5593 Internet Message Access Protocol (IMAP) - URL Access Identifier Extension
 - 5616 Streaming Internet Messaging Attachments
 - 5738 IMAP Support for UTF-8
-- 5819 IMAP4 Extension for Returning STATUS Information in Extended LIST
 - 6186 Use of SRV Records for Locating Email Submission/Access Services
 - 6237 IMAP4 Multimailbox SEARCH Extension
 

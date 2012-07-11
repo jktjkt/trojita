@@ -20,8 +20,9 @@
 #include "ListChildMailboxesTask.h"
 #include "GetAnyConnectionTask.h"
 #include "ItemRoles.h"
-#include "Model.h"
 #include "MailboxTree.h"
+#include "Model.h"
+#include "NumberOfMessagesTask.h"
 
 namespace Imap
 {
@@ -36,6 +37,11 @@ ListChildMailboxesTask::ListChildMailboxesTask(Model *model, const QModelIndex &
     Q_ASSERT(mailboxPtr);
     conn = model->m_taskFactory->createGetAnyConnectionTask(model);
     conn->addDependentTask(this);
+}
+
+ListChildMailboxesTask::~ListChildMailboxesTask()
+{
+    qDeleteAll(m_pendingStatusResponses);
 }
 
 void ListChildMailboxesTask::perform()
@@ -59,12 +65,16 @@ void ListChildMailboxesTask::perform()
     else
         mailboxName += mailbox->separator() + QChar('%');
 
-    if (model->accessParser(parser).capabilitiesFresh &&
-            model->accessParser(parser).capabilities.contains(QLatin1String("LIST-EXTENDED"))) {
-        tag = parser->list("", mailboxName, QStringList() << QLatin1String("SUBSCRIBED") << QLatin1String("CHILDREN"));
-    } else {
-        tag = parser->list("", mailboxName);
+    QStringList returnOptions;
+    if (model->accessParser(parser).capabilitiesFresh) {
+        if (model->accessParser(parser).capabilities.contains(QLatin1String("LIST-EXTENDED"))) {
+            returnOptions << QLatin1String("SUBSCRIBED") << QLatin1String("CHILDREN");
+        }
+        if (model->accessParser(parser).capabilities.contains(QLatin1String("LIST-STATUS"))) {
+            returnOptions << QString("STATUS (%1)").arg(NumberOfMessagesTask::requestedStatusOptions().join(QLatin1String(" ")));
+        }
     }
+    tag = parser->list("", mailboxName, returnOptions);
 }
 
 bool ListChildMailboxesTask::handleStateHelper(const Imap::Responses::State *const resp)
@@ -80,12 +90,15 @@ bool ListChildMailboxesTask::handleStateHelper(const Imap::Responses::State *con
 
             if (resp->kind == Responses::OK) {
                 model->finalizeList(parser, mailbox);
+                applyCachedStatus();
                 _completed();
             } else {
+                applyCachedStatus();
                 _failed("LIST failed");
                 // FIXME: error handling
             }
         } else {
+            applyCachedStatus();
             _failed("Mailbox no longer available -- weird timing?");
             // FIXME: error handling
         }
@@ -93,6 +106,32 @@ bool ListChildMailboxesTask::handleStateHelper(const Imap::Responses::State *con
     } else {
         return false;
     }
+}
+
+/** @short Defer processing of the STATUS responses until after all of the LISTs are processed */
+bool ListChildMailboxesTask::handleStatus(const Imap::Responses::Status *const resp)
+{
+    if (!mailboxIndex.isValid())
+        return false;
+
+    if (!resp->mailbox.startsWith(mailboxIndex.data(RoleMailboxName).toString())) {
+        // not our data
+        return false;
+    }
+
+    // Got to cache these responses until we can apply them
+    m_pendingStatusResponses << new Imap::Responses::Status(*resp);
+    return true;
+}
+
+/** @short Send the cached STATUS responses to the Model */
+void ListChildMailboxesTask::applyCachedStatus()
+{
+    Q_FOREACH(Imap::Responses::Status *resp, m_pendingStatusResponses) {
+        resp->plug(parser, model);
+        delete resp;
+    }
+    m_pendingStatusResponses.clear();
 }
 
 QString ListChildMailboxesTask::debugIdentification() const

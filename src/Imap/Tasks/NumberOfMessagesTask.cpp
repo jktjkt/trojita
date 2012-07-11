@@ -54,8 +54,13 @@ void NumberOfMessagesTask::perform()
     TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
     Q_ASSERT(mailbox);
 
-    tag = parser->status(mailbox->mailbox(),
-                         QStringList() << QLatin1String("MESSAGES") << QLatin1String("UNSEEN") << QLatin1String("RECENT"));
+    tag = parser->status(mailbox->mailbox(), requestedStatusOptions());
+}
+
+/** @short What kind of information are we interested in? */
+QStringList NumberOfMessagesTask::requestedStatusOptions()
+{
+    return QStringList() << QLatin1String("MESSAGES") << QLatin1String("UNSEEN") << QLatin1String("RECENT");
 }
 
 bool NumberOfMessagesTask::handleStateHelper(const Imap::Responses::State *const resp)
