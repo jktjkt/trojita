@@ -456,10 +456,52 @@ parameter.
 
 \section{Updating Mailboxes}
 
-\subsection{Sorting, Searching  and Threading}
+Previous sections have introduced the existing extensions aimed at improving mailbox synchronization and data download.
+In this part, we will talk about how to optimize access to an already selected mailbox and how to get updated
+information about other mailboxes.
 
-\cite{rfc5256}
-\cite{rfc5957}
+\subsection{Sorting Messages}
+
+In a typical IMAP scenario, the server can access data for any message in a mailbox in a very cheap way.  This is in a
+strong contrast to its clients which are typically connected over a network whose quality could leave much to be
+desired.  It might therefore make sense to offload the data-intensive processing to the IMAP server and only send the
+results to the client.
+
+RFC 5256 \cite{rfc5256} adds support for server-side sorting.  Using these features allows clients to request the server
+to sort a subset of messages using predefined sorting criteria like the message date, the time of its arrival, name of
+the sender, contents of the subject field etc.  This feature set is subsequently augmented by RFC 5957 \cite{rfc5957}
+which adds another sorting method which prefers the ``real name'' included in the e-mail addresses instead of using the
+raw {\tt foo@example.org} format.  The results of the {\tt SORT} operation are transmitted in a format similar to the
+{\tt SEARCH} response.  Trojitá includes full support for both of the mentioned RFCs.
+
+This feature alone is a tremendous improvements over the traditional method where clients would have to download
+envelope data for all messages in a mailbox and then sort the messages based on the obtained data.  However, clients
+have no way of reusing the sort result when a new message arrives, mandating at least a limited support for client-side
+sorting as well.  This limitation is mitigated only by the {\tt CONTEXT} family of extensions which is discussed later
+in this chapter.
+
+\subsection{Threads and Conversations}
+
+RFC 5256 \cite{rfc5256} also includes support for organizing messages into threads.  The threading algorithm takes a
+look at various pieces of message metadata like their subjects or the {\tt Message-Id}, {\tt References} and {\tt
+In-Reply-To} headers and builds a tree of messages where children of a particular node represent messages which were
+made as responses to the parent one.  This RFC specifies a few threading algorithms from almost useless one (the {\tt
+ORDEREDSUBJECT} which groups together messages sharing a similar subject, effectively bundling unrelated items like
+generic ``info'', ``inquiry'' etc. messages) to almost perfect ones (the {\tt REFERENCES} which works like the {\tt
+ORDEREDSUBJECT}, but also takes the special machine-readable headers into account).  Sadly, even the {\tt REFERENCES}
+algorithm only sorts the threads by the time stamp of the thread root and not by the latest message in a thread,
+effectively ``hiding'' new responses deep in the mailbox history.  It also still looks at the message subjects,
+potentially lumping unrelated messages together.
+
+Both of these limitations are removed by the {\tt REFS} threading algorithm \cite{draft-ietf-morg-inthread}.  Despite
+being still in the draft phase, the Dovecot IMAP server includes full support for it, and Trojitá will use it if the
+{\tt THREAD=REFS} capability is advertised.  In absence of the {\tt REFS} algorithm, Trojitá degrades to {\tt
+REFERENCES} and {\tt ORDEREDSUBJECT}, respectively.
+
+Unfortunately, none of these extensions addresses the need to re-download the whole thread mapping when a new message
+arrives; matters are in fact even more complicated than when sorting because a single arriving message could have a wide
+ranging effect on the whole threading information.  This issue is addressed by the proposed ``extended {\tt INTHREAD}''
+described in \secref{sec:draft-inthread-ext}.
 
 \subsection{Incremental Sorting and Searching}
 
