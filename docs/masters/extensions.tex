@@ -725,6 +725,28 @@ implementing blacklists and whitelists of ``known'' servers.  All IMAP protocol 
 {\tt CAPABILITY} responses (and the {\tt ENABLE} extension, if present) to change their behavior.  Trojitá is fully
 compliant with these requirements.
 
+\subsection{Internationalization}
+
+The ``internationalization'' RFC (RFC 5255 \cite{rfc5255}) is focused on server implementations, mainly specifying how
+to perform search/sort collation under various circumstances.  That said, it also presents two commands to the IMAP
+clients.  The first of them is the {\tt LANGUAGE} command suitable for changing the language in which various error and
+notifying messages are generated and sent by the server.  Trojitá tries hard to rely on machine-readable response codes
+(RFC 5530 \cite{rfc5530}) instead.  The second command is the {\tt COMPARATOR}, a feature intended to let clients
+specify which comparators and collators to use when performing search or sort operations (these comparators are defined
+in RFC 4790 \cite{rfc4790}).  By default, servers supporting at least the {\tt I18NLEVEL=1} extension are required to
+perform collations using the {\tt i;unicode-casemap} comparator \cite{rfc5051} --- a feature which is very useful (and
+often sufficient) in countries using the Latin alphabet.  Those servers which support {\tt I18NLEVEL=2} also accept
+client-specified preference about how to perform these operations.  Adding support for this higher level would be
+trivial on a technical front (the {\tt LANGUAGE} and {\tt COMPARATOR} commands are very simple with much more demanding
+requirements on servers), but we have received no requests for such a feature yet --- suggesting that the {\tt
+i;unicode-casemap} comparator works well for most users at this point.
+
+There is also the experimental ``UTF-8'' RFC \cite{rfc5738} whose aim is to get rid of any non-UTF8 data being
+transferred over IMAP.  Unfortunately, as designed, this document presents backward-incompatible changes to the IMAP
+protocol and is hence not widely supported by the common server implementations.  The client authors would very much
+prefer to stop dealing with various Unicode encoding schemes, but this RFC does not completely address all of the
+issues.
+
 \subsection{Other Supported RFCs}
 
 Trojitá is fully conforming to the description of the ``Distributed Electronic Mail Models in IMAP4'', as defined in RFC
