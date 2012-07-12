@@ -747,6 +747,12 @@ protocol and is hence not widely supported by the common server implementations.
 prefer to stop dealing with various Unicode encoding schemes, but this RFC does not completely address all of the
 issues.
 
+It shall be noted that Trojitá's source is completely ready for internationalization and localisation of the
+application.~\footnote{This support does not come at no cost, unfortunately.  Qt's {\tt QDateTime} class which is used
+for keeping track of the date and time information in all Qt-using projects unfortunately does not support tracking of
+timezone information \cite{qt-qdatetime-tz}.  Trojitá works around this limitation of the public API by manual hack in
+{\tt Imap::Mailbox::formatDateTimeWithTimeZoneAtEnd()} method.}
+
 \subsection{Other Supported RFCs}
 
 Trojitá is fully conforming to the description of the ``Distributed Electronic Mail Models in IMAP4'', as defined in RFC
