@@ -646,11 +646,21 @@ mapping.  We have attempted to address this limitation by augmenting the {\tt SE
 
 \subsection{Advanced Searching}
 
-\todo[inline]{write me}
+Although the basic IMAP specification provides quite a rich set of features aimed at searching the currently selected
+mailbox, the specification leaves quite a fertile ground for improvements.
 
-FUZZY: \cite{rfc6203}
+The biggest problem with IMAP's searching is that it requires a strict substring matching, a requirement which is openly
+ignored by at least Google's IMAP implementation \cite{gmail-imap-unsupported-features}.  Google's partial answer to
+this problem is at least an ability to issue ``raw'' GMail-like searches through the {\tt X-GM-RAW} SEARCH operator
+\cite{gmail-x-gm-raw}.  Others have tried to add a similar feature through the {\tt SEARCH=FUZZY} extension as defined
+in RFC 6203 \cite{rfc6203}.  Trojitá makes use of the fuzzy searching if available and announced in the capability
+response.
 
-MULTISEARCH: \cite{rfc6237}
+A long-missing feature from IMAP is an ability to search multiple mailboxes at once.  A very crude hack is the
+(unofficial) {\tt SCAN} extension \cite{crispin-scan} which is said to be private to the University of Washington's {\tt
+uw-imapd} daemon.  More recent attempt at tackling down this problem is the {\tt MULTISEARCH} extension \cite{rfc6237}
+built on top of the {\tt NOTIFY} \cite{rfc5465}.  As of July 2012, no publicly available IMAP servers have announced
+support for this extension.
 
 \subsection{Obtaining Statistics for Other Mailboxes}
 
