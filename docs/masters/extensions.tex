@@ -664,8 +664,9 @@ compliant with these requirements.
 
 Trojitá is fully conforming to the description of the ``Distributed Electronic Mail Models in IMAP4'', as defined in RFC
 1733 \cite{rfc1733}.  It also respect the recommendations about concurrent access to mailboxes from RFC 2180
-\cite{rfc2180} and the generic suggestions to the IMAP implementors (RFC 2683 \cite{rfc2683}) \todo{Add the ``ten
-commandments etc}.
+\cite{rfc2180}, generic suggestions to the IMAP implementors (RFC 2683 \cite{rfc2683}), Mark Crispin's famous ``Ten
+Commandments of How to Write an IMAP client'' \cite{crispin-ten-commandments} and Timo Sirainen's suggestions for client
+authors \cite{tss-client-coding-howto} \cite{imapwiki-client-best-practices}.
 
 It will make use of the {\tt UNSELECT} command for internal technical reasons (RFC 3691 \cite{rfc3691}), if available;
 if it isn't present, it will gracefully revert to using fabricated mailbox names with the {\tt EXAMINE} command from the
