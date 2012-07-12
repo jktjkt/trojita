@@ -579,6 +579,14 @@ caused by the fact that a single new arrival can affect each and every message i
 mapping.  We have attempted to address this limitation by augmenting the {\tt SEARCH=INTHREAD} draft, see
 \secref{sec:draft-inthread-ext} for details about the selected approach.
 
+\subsection{Advanced Searching}
+
+\todo[inline]{write me}
+
+FUZZY: \cite{rfc6203}
+
+MULTISEARCH: \cite{rfc6237}
+
 \subsection{Obtaining Statistics for Other Mailboxes}
 
 Many IMAP clients start their session by requesting a {\tt LIST} of all top-level mailboxes.  This command is then
@@ -628,13 +636,71 @@ daemon --- not at all.  The version we have tried is a development snapshot whic
 version which requires future work.}  Due to not being able to verify the {\tt NOTIFY} operation against any available
 IMAP server implementation, Trojitá will not try to use this extension for the time being.
 
+\section{Composing and Delivering Mail}
+
+\todo{Write me}
+
+CATENATE \cite{rfc4469}
+
 \section{Further Improvements}
+
+Many additional extensions have been defined over years, covering various areas of the protocol.  This section deals
+with those extensions which do not quite fit into any of the previous categories.
 
 \subsection{Debugging}
 
-\subsection{Sending Mail}
+Most of other communication protocols contain a way of letting the other party know what software implementation and in
+which version it is talking to.  In the web, this is usually accomplished through the {\tt User-Agent} and {\tt Server}
+headers, e-mail messages often contain either an {\tt X-Mailer} or {\tt User-Agent} field in theirs RFC 2822 headers,
+etc.  IMAP adds a similar feature through the {\tt ID} extension defined in RFC 2971 \cite{rfc2971}.
 
+This RFC is pretty clear on that implementations are explicitly {\em forbidden} from using {\em any} knowledge obtained
+through the {\tt ID} extension to alter their behavior.  This is a reasonable decision intended to prevent clients
+implementing blacklists and whitelists of ``known'' servers.  All IMAP protocol speakers are intended to only use the
+{\tt CAPABILITY} responses (and the {\tt ENABLE} extension, if present) to change their behavior.  Trojitá is fully
+compliant with these requirements.
 
-\section{Additional Extensions}
+\subsection{Other Supported RFCs}
+
+Trojitá is fully conforming to the description of the ``Distributed Electronic Mail Models in IMAP4'', as defined in RFC
+1733 \cite{rfc1733}.  It also respect the recommendations about concurrent access to mailboxes from RFC 2180
+\cite{rfc2180} and the generic suggestions to the IMAP implementors (RFC 2683 \cite{rfc2683}) \todo{Add the ``ten
+commandments etc}.
+
+It will make use of the {\tt UNSELECT} command for internal technical reasons (RFC 3691 \cite{rfc3691}), if available;
+if it isn't present, it will gracefully revert to using fabricated mailbox names with the {\tt EXAMINE} command from the
+baseline IMAP specification.  This failover is thoroughly verified by a suite of automated unit tests.
+
+Trojitá is capable of recording responses from the {\tt UIDPLUS} extension (RFC 4315 \cite{rfc4315}); the author have
+also contributed \cite{jkt-move-uidplus} to the discussion related to the {\tt COPYUID} equivalent for the proposed {\tt
+UID MOVE} command.
+
+The code also includes full support for recognizing various extensions to the IMAP's grammar (RFC 4466 \cite{rfc4466}),
+response codes (RFC 5530 \cite{rfc5530}) and the reserved set of keywords (RFC 5788 \cite{rfc5788}).
+
+RFC 5258 \cite{rfc5258} is used when available to explicitly encourage the IMAP server to send additional metadata in
+{\tt LIST} responses --- the biggest benefit of this extension is eliminating the need of sending explicit {\tt LSUB}
+requests to discover mailbox subscriptions.
+
+Finally, the Lemonade extension (RFC 5550 \cite{rfc5550} and the obsolete RFC 4550 \cite{rfc4550}) has compiled a set of
+requirements crucial to the mobile IMAP e-mail clients.  Comparison of the proposed set of extensions with the Lemonade
+profile is presented in a dedicated section of this thesis on page \pageref{sec:lemonade-comparison}.
+
+\section{Obsolete Extensions}
+
+IMAP is a rather old protocol (its history is slightly older than the author of this thesis, for that matter).  Certain
+features have been therefore deprecated over time and it took years to grow to the current IMAP4rev1 version from the
+old standards of IMAP2 \cite{rfc1064} \cite{rfc1176}, IMAP3 \cite{rfc1203} and IMAP4 \cite{rfc1730}.  Attention has been
+paid to make this transition as smooth as possible through various compatibility recommendations \cite{rfc1732}
+\cite{rfc2060} \cite{rfc2061} \cite{rfc2062}.
+
+Trojitá requires the server to at least announce the {\tt IMAP4rev1} capability.  This protocol revision is currently
+defined by RFC 3501 \cite{rfc3501} from March 2003; however, changes since the previous version from December 1996
+(\cite{rfc2060}) are mostly backward compatible --- and in practice, we have received no report of Trojitá not being
+able to work against any IMAP server implementation out there.
+
+The {\tt UIDPLUS} extension got redefined from its former shape \cite{rfc2359} to the current revision \cite{rfc4315};
+the new document states that the reason for this revision was to prevent sending of bogus UID replies when the target
+mailbox did not support persistent UIDs.  As such, Trojitá can deal with both revision of the {\tt UIDPLUS} document.
 
 \end{document}
