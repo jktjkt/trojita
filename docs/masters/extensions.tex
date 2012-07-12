@@ -686,6 +686,57 @@ Finally, the Lemonade extension (RFC 5550 \cite{rfc5550} and the obsolete RFC 45
 requirements crucial to the mobile IMAP e-mail clients.  Comparison of the proposed set of extensions with the Lemonade
 profile is presented in a dedicated section of this thesis on page \pageref{sec:lemonade-comparison}.
 
+\subsection{Out-of-scope Features}
+
+The extensions we have presented so far all have a certain affinity towards the ``mobile IMAP''.  Many other extensions
+have been introduced, though, often solving a real problem.
+
+The first family of extensions with debatable merit are extensions providing support for so-called referrals.  The RFC
+2221 \cite{rfc2221} adds a mechanism for servers to redirect clients based on their identity, a feature which was
+originally supposed to come handy in large corporate environment.  Similar to that, the RFC 2193 \cite{rfc2193} adds
+mailbox referrals, a feature where a subset of user's mailboxes might be stored on a remote server.  As it happens,
+these features have not attained a big market share among client developers \cite{thunderbird-referrals} and the servers
+which supports that are generally willing to act as a transparent proxy for their clients anyway
+\cite{cyrus-referral-proxy}.
+
+Extensions which are useful in a general-purpose e-mail client are the {\tt NAMESPACE} extension (RFC 2342
+\cite{rfc2342}) which would allow compliant clients to automatically discover where e.g. other users' mailboxes are
+located, support for managing access-control lists (ACLs) on the server (RFC 4314 \cite{rfc4314} and its obsolete form
+given in RFC 2086 \cite{rfc2086}) and finally support for reporting and managing storage quotas (RFC 2087
+\cite{rfc2087}).  These have not been implemented in Trojitá yet.
+
+A mechanism for increasing interoperability with organizations which have invested in a single-sign-on infrastructure
+like Kerberos could be improved through better support for SASL (RFC 1731 \cite{rfc1731}, RFC4959 \cite{rfc4959}).  We
+have already received a request from users which would very much prefer to have a GSSAPI-enabled Trojitá, unfortuntely
+we have not been able to accommodate them due to time constraints.
+
+A few extensions might improve the general comfort of users setting up their e-mail clients for the first time.  Without
+any doubt, autoconfiguration through the DNS SRV records (RFC 6186 \cite{rfc6186}) falls into this category.
+
+There are also certain features which might add a whole new level of functionality to working with e-mail -- examples
+are the {\tt ANNOTATE} extension (RFC 5257 \cite{rfc5257}) for adding arbitrary annotations to individual messages or
+even their parts, which is still marked as experimental, or the similar {\tt METADATA} feature (RFC 5464 \cite{rfc5464})
+adding the same functionality on a server or mailbox level.  Needless to say, support for these extensions is scarce
+among the IMAP clients.
+
+Other extensions try to fill a certain niche.  Examples of these are the {\tt MULTIAPPEND} extension (RFC 3502
+\cite{rfc3502}) which allows the client to atomically upload many messages at once.  Having such a feature could be a
+terrific boon in clients which support batched import of data from the existing mail store, but it is not so valuable in
+a generic client.  The {\tt WITHIN} extension (RFC 5032 \cite{rfc5032}) allows clients to search among messages of a
+certain age; the {\tt SEARCHRES} (RFC 5182 \cite{rfc5182}) adds a low-level pipelining optimization which would allow
+the client to re-use the previous search result in the subsequent commands.  RFC 5466 \cite{rfc5466} adds support for
+persistent storage of search criteria on the server through the already mentioned {\tt METADATA} extension.  We have not
+found a use case for having these optional extensions utilized from Trojitá in any place.
+
+The RFC 3503 \cite{rfc3503} deals with how to generate the message delivery notifications (MDNs) in IMAP.  This document
+clearly does not apply to clients which on purpose do not create MDNs for privacy reasons, such as Trojitá.
+
+Finally, certain extensions improve the user experience in specialized environments.  One of them is RFC 5616
+\cite{rfc5616}, an extension aimed at ``Streaming Internet Messaging Attachments''.  One could imagine a use case where
+a carrier-level voice mailbox was implemented over IMAP; in similar situations, such a solution would have its merit.
+At the same time, this specific extension has so special requirements on the network architecture that it is clearly
+out-of-scope for a general-purpose e-mail client merely running on a cell phone.
+
 \section{Obsolete Extensions}
 
 IMAP is a rather old protocol (its history is slightly older than the author of this thesis, for that matter).  Certain
