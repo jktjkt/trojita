@@ -182,11 +182,10 @@ offline cache of immutable data.
 As seen in the protocol sample, the {\tt SEARCH} response containing UIDs of all messages in a mailbox can be rather
 large.  At the same time, chances are that at least some of the adjacent messages might have been assigned contiguous
 UIDs --- this is certainly not a requirement per se, but quite a few IMAP servers internally {\em do} assign UIDs from a
-per-mailbox counter.  Real world, albeit anecdotal evidence \todo{Cannot find a reference right now --- I'd have sworn
-that it was in the ``UID Search Responses'' thread on 2007-08-10, but apparently it isn't\ldots I should search for
-``three consecutive'' or something like that} indicates that this scenario is very common, and therefore it might make
-sense to transmit the UIDs of all messages using the {\tt sequence-set} \cite[p. 89]{rfc3501} syntax.  The ESEARCH
-extension, as defined in RFC~4731~\cite{rfc4731}, allows exactly that:
+per-mailbox counter.  Real world, albeit anecdotal evidence \cite{cridland-uids-are-often-monotonic} indicates that this
+scenario is very common, and therefore it might make sense to transmit the UIDs of all messages using the {\tt
+sequence-set} \cite[p. 89]{rfc3501} syntax.  The ESEARCH extension, as defined in RFC~4731~\cite{rfc4731}, allows
+exactly that:
 
 \begin{minted}{text}
   S: * ESEARCH [TAG "y12"] UID 1,3:9,17:25,30:1000
@@ -205,7 +204,8 @@ of messages, the server could take advantage of this adjacency a return a {\tt s
 his another point is that the clients already have two other ways of obtaining the UID mapping, either through the {\tt
 UID SEARCH ALL} command or via an explicit {\tt UID FETCH 1:*}.  Needless to say, such a reasoning fails to take into
 account potential bandwidth savings which can be rather substantial on ``reasonable'' mailboxes.  In the end, the
-authors of the RFC 4731 disagreed with Crispin~\cite{cridland-esearch-interpretation}.
+authors of the RFC 4731 disagreed with Crispin \cite{melnikov-esearch-interpretation}
+\cite{cridland-esearch-interpretation}.
 
 The ESEARCH extension allows nice bandwidth savings, so Trojitá tries to use it if the server says that it is supported.
 In addition to that, format of the returned responses is changed so that it also includes the tag of the command which
