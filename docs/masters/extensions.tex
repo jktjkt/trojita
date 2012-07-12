@@ -163,7 +163,29 @@ storage.  There is still quite a lot of other data which has to be validated whi
 Consider the following scenario where a mail user agent opens a mailbox with a thousand of message which has witnessed
 expunges and new arrivals since the last time it was opened:
 
-\todo[inline]{protocol interaction demo goes here}
+\begin{minted}{text}
+  C: y1 SELECT foo
+  S: * 1000 EXISTS
+  S: * OK [UIDVALIDITY 12345] UIDs valid
+  S: * OK [UIDNEXT 2345] Next UID
+  S: y1 OK Selected
+  C: y2 UID SEARCH ALL
+
+    The following response has been shortened for demonstration purposes. In practice,
+    it will have to contain a thousand of numbers.
+
+  S: * SEARCH 2 4 5 6 7 8 9 10 ... 2290 2310 2311 2312 2333
+  S: y2 OK Search completed
+  C: y3 FETCH 1:1000 (FLAGS)
+  S: * 1 FETCH (FLAGS ())
+  S: * 2 FETCH (FLAGS (\\Seen))
+  S: * 3 FETCH (FLAGS (\\Recent \$Answered))
+
+  996 additional FETCH responses were omitted from this example for brevity.
+
+  S: * 1000 FETCH (FLAGS (\\Seen))
+  S: y3 OK fetched
+\end{minted}
 
 We can identify two steps which substantially contribute to the transferred data:
 
@@ -245,7 +267,29 @@ all pending flag changes and is fully resynchronized again.
 
 This is how a typical synchronization might look like:
 
-\todo[inline]{Show a CONDSTORE example here}
+\begin{minted}{text}
+  C: y1 SELECT foo (CONDSTORE)
+  S: * 1000 EXISTS
+  S: * OK [UIDVALIDITY 12345] UIDs valid
+  S: * OK [UIDNEXT 2345] Next UID
+  S: * OK [HIGHESTMODSEQ 715194045007]
+  S: y1 OK Selected
+
+    At this point, the client will obtain the UID mapping, likely through the UID SEARCH
+    or its ESEARCH variant:
+
+  C: y2 UID SEARCH RETURN () ALL
+  S: * ESEARCH (TAG "y2") UID ALL 2,4:10,21:1008,2290,2310:2312,2333
+  S: y2 OK Search completed
+
+    At this point the CONDSTORE extension can be finally utilized -- only changed flags
+    will be transmitted:
+
+  C: y3 UID FETCH 1:1000 (FLAGS) (CHANGEDSINCE 613184045007)
+  S: * 997 FETCH (UID 2310 MODSEQ 715194045007 FLAGS (\\Seen \\Deleted))
+  S: * 1000 FETCH (UID 2333 MODSEQ 715194045005 FLAGS (\\Seen))
+  S: y3 OK Fetched
+\end{minted}
 
 The algorithm is race-free --- as every message has a separate {\tt MODSEQ} counter, the delay between the {\tt SELECT}
 and {\tt FETCH} command doesn't lead to data loss; by the time the {\tt FETCH} completes, the server guarantees that the
@@ -324,7 +368,28 @@ pairs:
     }
 \end{minted}
 
-\todo[inline]{An example of QRESYNC session}
+Our example synchronization (a thousand messages in a mailbox, unspecified changed since the last time) could therefore
+look like this --- the client has fresh enough UID mapping up to UID 1008 (sequence number 995).  The server does not
+remember deletions so far to the past, but the passed UID mapping fragment could nevertheless be used to optimize the
+delivered data:
+
+\begin{minted}{text}
+  C: SELECT foo (QRESYNC 12345 613184045007 (500,750,875,937,968,983,990,995,997
+  512,772,887,949,980,985,995,1002,1008,1111))
+  S: * 1000 EXISTS
+  S: * OK [UIDVALIDITY 12345] UIDs valid
+  S: * OK [UIDNEXT 2345] Next UID
+  S: * OK [HIGHESTMODSEQ 715194045007]
+  S: * VANISHED (EARLIER) 1009:2289,2291:2309,2313:2332,2343,2344
+  S: * 997 FETCH (UID 2310 MODSEQ 715194045007 FLAGS (\\Seen \\Deleted))
+  S: * 1000 FETCH (UID 2333 MODSEQ 715194045005 FLAGS (\\Seen))
+  S: y1 OK Selected
+\end{minted}
+
+The received data contain enough information to reconstruct complete UID mapping even under these unfavorable
+conditions.  The redundant UID information in the {\tt FETCH} responses can be also used to make sure that both sides of
+the connection arrive to the same final state --- and indeed, Trojitá will throw an error when it detects failure at any
+time.
 
 To further reduce the amount of data transmitted during the IMAP session, the QRESYNC extension also introduces a second
 kind of the {\tt VANISHED} response --- the one without the {\tt EARLIER} modifier.  Serving as a substitute for the
