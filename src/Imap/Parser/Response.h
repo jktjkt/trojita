@@ -77,14 +77,14 @@ enum Kind {
     LSUB,
     FLAGS,
     SEARCH,
-    ESEARCH, /** @short RFC 4731 ESEARCH */
+    ESEARCH, /**< @short RFC 4731 ESEARCH */
     STATUS,
     NAMESPACE,
     SORT,
     THREAD,
     ID,
-    ENABLED, /** @short RFC 5161 ENABLE */
-    VANISHED /** @short RFC 5162 VANISHED (for QRESYNC) */
+    ENABLED, /**< @short RFC 5161 ENABLE */
+    VANISHED /**< @short RFC 5162 VANISHED (for QRESYNC) */
 }; // aren't those comments just sexy? :)
 
 /** @short Response Code */
