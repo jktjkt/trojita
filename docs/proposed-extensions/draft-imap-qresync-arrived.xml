@@ -161,7 +161,7 @@ S: x OK Search completed
         </section>
 
         <section title="ARRIVED Response">
-            <t>Contents:  list of UIDs</t>
+            <t>Contents:  ordered list of UIDs</t>
 
             <t>The ARRIVED response reports that the specified UIDs have been delivered to the mailbox.  It is similar in
                 functionality to the EXISTS response <xref target="RFC3501"/>; however, it can return information about
@@ -173,6 +173,10 @@ S: x OK Search completed
                 client about new message arrivals.  No provision of falling back to untagged EXISTS is allowed in
                 servers supporting the QRESYNC-ARRIVED extension.  If servers were allowed to fall back to untagged
                 EXISTS, the possibility of race conditions would return.</t>
+
+            <t>UIDs sent in the ARRIVED response must be always presented in a sorted order, lowest UID first.  The
+                sequence MUST NOT contain duplicate UIDs.  Servers SHOULD take advantage of the compression capabilities
+                of the sequence-set syntax and use the range syntax if possible.</t>
 
             <t>The ARRIVED response MUST NOT be sent unless the client has passed the QRESYNC-ARRIVED option to the last
                 SELECT or EXAMINE command.</t>
@@ -214,7 +218,13 @@ select-param        =  "QRESYNC-ARRIVED" SP "(" uidvalidity SP
 
 message-data        =/ arrived-resp
 
-arrived-resp        = "ARRIVED" SP known-uids]]></artwork>
+arrived-resp        = "ARRIVED" SP sorted-sequence-set
+
+sorted-sequence-set = sequence-set
+                    ;; sequence of UIDs, "*" is not allowed
+                    ;; UIDs must be sorted, lowest first, no duplicates
+
+]]></artwork>
         </figure>
     </section>
 
@@ -239,6 +249,15 @@ arrived-resp        = "ARRIVED" SP known-uids]]></artwork>
       <t>FIXME: somehow replace [RFC5234]-style references with [ABNF]-style ones. That'd be cool.</t>
       <t>FIXME: if not possible, change the reference inside the select-param.</t>
       <t>FIXME: shouldn't the select-param be updated through "=/" instead of "="?</t>
+    </section>
+
+    <section title="Changelog">
+        <section title="Changes in 01 sice 00">
+            <t><list style="symbols">
+                    <t>Clarified that UIDs presented in the ARRIVED response MUST be always presented in a sorted order</t>
+                    <t>Used a special non-terminal in the ABNF grammar</t>
+            </list></t>
+        </section>
     </section>
   </back>
 </rfc>
