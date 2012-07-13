@@ -45,8 +45,9 @@
     <keyword>ARRIVED</keyword>
 
     <abstract>
-        <t>This document updates the QRESYNC extension to the IMAP protocol.  It prevents a possible race condition
-            where clients can lose synchronization of the message UIDs in a selected mailbox.</t>
+        <t>This document updates the QRESYNC extension of the IMAP protocol.  It prevents a possible race condition
+            where clients can lose synchronization of message UIDs in a selected mailbox when new arrivals are
+            immediately expunged.</t>
     </abstract>
   </front>
 
@@ -60,7 +61,8 @@
         </t>
 
         <t>This document updates the QRESYNC extension with a new response to be used instead of EXISTS, the ARRIVED
-            one.  It also adds a mechanism for activating this extension and backward compatibility concerns.</t>
+            one.  It also adds a mechanism for activating this extension and explains backward compatibility
+            concerns.</t>
 
       <section title="Requirements Language">
         <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
@@ -80,41 +82,82 @@
 
         <figure align="center">
             <artwork align="left"><![CDATA[
-S: * 3 EXISTS
-S: * 2 FETCH (FLAGS (foo))
-S: * 3 FETCH (FLAGS (bar))
+S: * 3 EXISTS]]></artwork>
+        </figure>
+
+        <t>Upon receiving the EXISTS reponse, IMAP client would typically proceed towards discovering various message metadata like theirs UIDs and flags, either through the UID SEARCH ALL command, or via UID FETCH (FLAGS).  However, when the new arrivals are immediately expunged (perhaps as a result of an activity in a parallel session), the server can possibly process the request for additinal metadata only after the expunge has been reported to the client.  The VANISHED response actually complicates matter in this situation:</t>
+
+        <figure align="center">
+            <artwork align="left"><![CDATA[
 S: * VANISHED 12:20]]></artwork>
         </figure>
 
-        <t>At first, the server informs the client that there are now three messages in a mailbox.  The second and
-            third line establish knowledge about message flags for these two new arrivals.  The fourth line then
-            informs about permanent removal of messages with UIDs between 12 and 20, inclusively.  Unfortunately, the
-            client doesn't know whether this VANISHED response affects two newly arriving messages.  Immediately after
-            having received these two responses, the client cannot make any assumptions about the rest of the mailbox
-            (i.e. messages with UIDs &gt; 6).  Specifically, any of the following can be true:</t>
+        <t>This response informs about permanent removal of messages with UIDs between 12 and 20, inclusively.
+            Unfortunately, as the VANISHED response is explicitly allowed to reference non-existing UIDs, the client
+            doesn't know whether this VANISHED response affects two newly arriving messages.  Immediately after having
+            received these two responses, the client cannot make any assumptions about the rest of the mailbox (i.e.
+            messages with UIDs &gt; 6).  Specifically, any of the following can be true:</t>
 
         <t><list style="symbols">
                 <t>The mailbox now contains only one message with UID 5</t>
-                <t>The mailbox contains two messages.  First of them has UID 5, the second one is marked with flag "foo".</t>
-                <t>The mailbox contains two messages.  First of them has UID 5, the second one is marked with flag "bar".</t>
-                <t>The mailbox contains three messages.  First of them has UID 5, the second one is marked with flag
-                    "foo" and the third one with flag "bar".</t>
+                <t>The mailbox contains two messages; first of them has UID 5 and nothing is known about the other one</t>
+                <t>The mailbox contains three messages; first of them has UID 5 and nothing is known about the rest of them</t>
             </list>
         </t>
 
-        <t>To better illustrate this race condition, the example above specifically used unsolicited FETCH responses
-            which do not contain embedded UIDs.  Such a behavior is discouraged in RFC&nbsp;5162's errata.  However,
-            even if the server conformed to the specification's recoomendations or if it did not send the untagged FETCH
-            responses at all, there would still be a race condition concerning the total number of messages in a
-            selected mailbox.</t>
-
         <t>In absence of the QRESYNC-ARRIVED extension or when talking to servers not offering that, clients MUST be
             prepared to work around the described race condition.  An example of such a behavior is issuing an explicit
-            UID SEARCH command to rediscover the unclear portion of the sequence -&gt; UID mapping.</t>
+            UID SEARCH command to rediscover the unclear portion of the sequence -&gt; UID mapping:</t>
+
+        <figure align="center">
+            <artwork align="left"><![CDATA[
+S: * 3 EXISTS
+S: * VANISHED 12:20
+C: x UID SEARCH UID 11:*
+S: * SEARCH
+S: x OK Search completed]]></artwork>
+        </figure>
+
+        <t>A single search operation is enough to recover the complete UID mapping, but it induces unnecessary round trip before a full mapping can be established again.  In addition, clients would have to ignore any unsolicited FETCH responses not containing UID of the target message:</t>
+
+        <figure align="center">
+            <artwork align="left"><![CDATA[
+S: * 3 EXISTS
+S: * FETCH 2 (FLAGS (foo))
+S: * FETCH 3 (FLAGS (bar))
+S: * VANISHED 12:20
+C: x UID SEARCH UID 11:*
+S: * SEARCH
+S: x OK Search completed
+]]></artwork>
+        </figure>
+
+        <t>Clients have no chance but to ignore any FETCH response which affects messages whose UID is not yet known.</t>
+
+        <t>This race condition can be avoided by switching to UID-based equivalent of EXISTS, the ARRIVED response.
+            Alternatively, the same goal would be achieved if the QRESYNC specification mandated that VANISHED responses
+            MUST NOT refer to UIDs which were not present in the mailbox at the time immediately before the VANISHED
+            response was generated.</t>
     </section>
 
     <section title="IMAP Protocol Changes">
         <section title="QRESYNC-ARRIVED Parameter to SELECT/EXAMINE">
+            <t>The QRESYNC-ARRIVED parameter to SELECT/EXAMINE commands shares syntax with the QRESYNC parameter defined
+                in <xref target="RFC5162"/>; the only exception is that it is identified by the "QRESYNC-ARRIVED"
+                atom.</t>
+
+            <t>Clients are NOT REQUIRED to issue an explicit ENABLE QRESYNC command.  Servers MUST accept the
+                QRESYNC-ARRIVED as a QRESYNC-enabling and CONDSTORE-enabling command.</t>
+
+            <t>Servers which support this extension MUST refrain from sending untagged EXISTS responses after the
+                mailbox selection is completed.  The EXISTS response MUST be sent exactly once at the time the mailbox
+                is selected, as mandated by <xref target="RFC3501"/>.  After the mailbox has been selected, all further
+                updates about new arrivals MUST use the ARRIVED response defined in this extension.</t>
+
+            <t>For backward compatibility, IMAP servers supporting this extension MUST support QRESYNC as defined by
+                <xref target="RFC5162"/>.  In addition, such servers SHOULD NOT sent VANISHED responses containing UIDs
+                of messages which were expunged before, and SHOULD NOT send the untagged EXPUNGED instead of
+                VANISHED.</t>
         </section>
 
         <section title="ARRIVED Response">
@@ -145,7 +188,11 @@ S: * VANISHED 12:20]]></artwork>
     </section>
 
     <section anchor="IANA" title="IANA Considerations">
-      <t>FIXME: capabilities</t>
+      <t>IMAP4 capabilities are registered by publishing a standards track or IESG approved experimental RFC.  The
+          registry is currently located at:</t>
+      <t>http://www.iana.org/assignments/imap4-capabilities</t>
+      <t>This document defines the QRESYNC-ARRIVED IMAP capability.  IANA will be asked to add this capability to the
+          registry.</t>
     </section>
 
     <section title="Formal Syntax">
