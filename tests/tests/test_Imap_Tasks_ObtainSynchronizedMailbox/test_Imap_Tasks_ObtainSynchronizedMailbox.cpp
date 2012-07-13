@@ -1984,16 +1984,32 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncArrived()
 
     // Fake new arrivals
     cServer("* ARRIVED 15:16,20\r\n");
+    cClient(t.mk("UID FETCH 14:* (FLAGS)\r\n"));
     uidMap << 15 << 16 << 20;
     QCOMPARE(model->rowCount(msgListA), 11);
     QCOMPARE(model->index(8, 0, msgListA).data(Imap::Mailbox::RoleMessageUid).toUInt(), 15u);
     QCOMPARE(model->index(9, 0, msgListA).data(Imap::Mailbox::RoleMessageUid).toUInt(), 16u);
     QCOMPARE(model->index(10, 0, msgListA).data(Imap::Mailbox::RoleMessageUid).toUInt(), 20u);
 
+    // Let's try if it's sufficient that we receive FETCH even without the embedded UID
+    cServer("* 9 FETCH (FLAGS (uid15))\r\n"
+            "* 10 FETCH (FLAGS (uid16))\r\n"
+            "* 11 FETCH (FLAGS (uid20))\r\n"
+            + t.last("OK fetched\r\n"));
+
     // These refer to consistent udpates of the persistent cache, Redmine #457
     /*QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);*/
+
+    QCOMPARE(model->cache()->msgFlags("a", 9), QStringList());
+    QCOMPARE(model->cache()->msgFlags("a", 15), QStringList() << "uid15");
+    QCOMPARE(model->cache()->msgFlags("a", 16), QStringList() << "uid16");
+    QCOMPARE(model->cache()->msgFlags("a", 17), QStringList());
+    QCOMPARE(model->cache()->msgFlags("a", 18), QStringList());
+    QCOMPARE(model->cache()->msgFlags("a", 19), QStringList());
+    QCOMPARE(model->cache()->msgFlags("a", 20), QStringList() << "uid20");
+    QCOMPARE(model->cache()->msgFlags("a", 21), QStringList());
 
     cEmpty();
     justKeepTask();

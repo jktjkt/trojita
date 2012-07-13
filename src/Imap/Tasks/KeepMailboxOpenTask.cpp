@@ -459,7 +459,15 @@ bool KeepMailboxOpenTask::handleArrived(const Responses::Arrived *const resp)
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
     Q_ASSERT(mailbox);
 
+    uint oldUidNext = mailbox->syncState.uidNext();
     mailbox->handleArrived(model, *resp);
+
+    if (oldUidNext != mailbox->syncState.uidNext()) {
+        // Some messages have arrived, let's request their flags now
+        breakOrCancelPossibleIdle();
+        newArrivalsFetch.append(parser->uidFetch(Sequence::startingAt(oldUidNext), QStringList() << QLatin1String("FLAGS")));
+    }
+
     return true;
 }
 

@@ -704,12 +704,16 @@ void TreeItemMailbox::handleArrived(Model *const model, const Responses::Arrived
     }
     model->endInsertRows();
 
+    // Update the SyncState and stuff
     syncState.setExists(list->m_children.size());
 
     // Also anticipate the change in UIDNEXT; this might very well help us in next sync
     const uint lastUid = static_cast<TreeItemMessage*>(list->m_children.last())->uid();
     if (syncState.uidNext() <= lastUid)
         syncState.setUidNext(lastUid + 1);
+
+    list->m_totalMessageCount = syncState.exists();
+    model->emitMessageCountChanged(this);
 }
 
 TreeItemPart *TreeItemMailbox::partIdToPtr(Model *const model, TreeItemMessage *message, const QString &msgId)
