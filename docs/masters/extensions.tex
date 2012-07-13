@@ -647,7 +647,8 @@ ignored by at least Google's IMAP implementation \cite{gmail-imap-unsupported-fe
 this problem is at least an ability to issue ``raw'' GMail-like searches through the {\tt X-GM-RAW} SEARCH operator
 \cite{gmail-x-gm-raw}.  Others have tried to add a similar feature through the {\tt SEARCH=FUZZY} extension as defined
 in RFC 6203 \cite{rfc6203}.  Trojitá makes use of the fuzzy searching if available and announced in the capability
-response.
+response.  There were also some experimental extensions \cite{draft-ietf-imapext-regex} aimed at introducing search
+based on regular expressions, but they have not gained much traction.
 
 A long-missing feature from IMAP is an ability to search multiple mailboxes at once.  A very crude hack is the
 (unofficial) {\tt SCAN} extension \cite{crispin-scan} which is said to be private to the University of Washington's {\tt
