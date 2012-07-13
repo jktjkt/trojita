@@ -1983,7 +1983,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncArrived()
 
     // Fake new arrivals
     cServer("* ARRIVED 15:16,20\r\n");
-    cClient(t.mk("UID FETCH 15:16,20 (FLAGS)\r\n"));
+    cClient(t.mk("UID FETCH 15:20 (FLAGS)\r\n"));
     uidMap << 15 << 16 << 20;
     QCOMPARE(model->rowCount(msgListA), 8);
     QCOMPARE(model->index(5, 0, msgListA).data(Imap::Mailbox::RoleMessageUid).toUInt(), 15u);

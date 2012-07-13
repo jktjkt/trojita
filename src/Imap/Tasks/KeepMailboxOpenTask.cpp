@@ -465,7 +465,8 @@ bool KeepMailboxOpenTask::handleArrived(const Responses::Arrived *const resp)
     if (oldExists != mailbox->syncState.exists()) {
         // Some messages have arrived, let's request their flags now
         breakOrCancelPossibleIdle();
-        newArrivalsFetch.append(parser->uidFetch(Sequence::fromList(resp->uids), QStringList() << QLatin1String("FLAGS")));
+        newArrivalsFetch.append(parser->uidFetch(Sequence(resp->uids.front(), resp->uids.last()),
+                                                 QStringList() << QLatin1String("FLAGS")));
     }
 
     return true;
