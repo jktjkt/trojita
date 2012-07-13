@@ -6,10 +6,8 @@
 \chapter{Meet the IMAP Protocol}
 \label{sec:imap-protocol}
 
-\begin{abstract}
-This chapter provides a gentle introduction to peculiarities of the IMAP protocol.  We also present detailed analysis of
+This chapter provides a gentle introduction to peculiarities of the IMAP protocol and presents a detailed analysis of
 the available extensions and how they can be used to improve the overall IMAP experience.
-\end{abstract}
 
 \section{IMAP}
 
@@ -110,23 +108,23 @@ UID mapping from the IMAP server:
     noted that although such servers are {\em compliant} with the IMAP specification, they offer severely limited user
     experience and little room for further optimization --- the clients cannot reuse any data from previous connections,
     so the overall efficiency is similar to accessing e-mail through the POP3 protocol.}
-  \item If {\tt UIDNEXT} is not available, we have to resort to asking for the whole UID mapping from scratch.
+  \item If {\tt UIDNEXT} is not available, the client has to resort to asking for the whole UID mapping from scratch.
   \item If the {\tt UIDNEXT} has decreased, the IMAP server exhibits a bug.  This situation is explicitly forbidden by
     the IMAP standard.  Trojitá will, nevertheless, try to work in this scenario by purging its cache and continuing as
     if no state was cached locally.
   \item If the {\tt UIDNEXT} has not changed since the last time the client has opened a mailbox, the IMAP protocol says
     that no messages could have been delivered to the mailbox at all.
     \begin{itemize}
-      \item If the {\tt EXISTS} remains constant as well, it is clear that no deletions have taken place. This means that
-        the cached sequence $\rightarrow$ UID mapping from the last time is directly usable, and the UID syncing phase
-        of the mailbox synchronization is concluded.
-      \item Otherwise, if the {\tt EXISTS} has grown, we are talking to a non-compliant IMAP server which failed to
-        adjust either {\tt UIDNEXT} or {\tt UIDVALIDITY}, and cannot assume anything about the server's behavior.
+      \item If the {\tt EXISTS} remains constant as well, it is clear that no deletions have taken place. This means
+        that the cached sequence $\rightarrow$ UID mapping from the last time is directly usable, and the UID syncing
+        phase of the mailbox synchronization is concluded.
+      \item Otherwise, if the {\tt EXISTS} has grown, the client is talking to a non-compliant IMAP server which failed
+        to adjust either {\tt UIDNEXT} or {\tt UIDVALIDITY}, and cannot assume anything about the server's behavior.
         Trojitá will gracefully degrade to a complete UID mapping resynchronization.
-      \item If the {\tt EXISTS} has decreased, we can be sure that some messages have been deleted.  In this situation,
-        we have two possible options on how to proceed:
+      \item If the {\tt EXISTS} has decreased, one can be sure that some messages have been deleted.  In this situation,
+        the client has two possible options on how to proceed:
         \begin{itemize}
-          \item We can try to perform a binary search in the list of messages to find the first deleted message and ask
+          \item One can try to perform a binary search in the list of messages to find the first deleted message and ask
             for UIDs of all messages at the subsequent positions.  This is a heuristics which relies on an observation
             that it is more likely for users working with big mailboxes to delete messages at the end of the mailbox.
             However, each step in this incremental search requires a complete round trip to the IMAP server over a
@@ -178,7 +176,7 @@ Alternatively, the {\tt UID SEARCH} command can be used as follows:
     S: y1 OK search completed
 \end{minted}
 
-As we can see, the {\tt SEARCH} response is much more compact.  In practice, the bandwidth saving is slightly lower as
+As one can see, the {\tt SEARCH} response is much more compact.  In practice, the bandwidth saving is slightly lower as
 the UID discovery and {\tt FLAGS} synchronization can be merged into a single {\tt FETCH} command, but the overhead is
 still at least four bytes for each message in the mailbox,~\footnote{If the {\tt FLAGS} are fetched as well, the real
 overhead is just the {\tt "UID<space>"} string --- the number and its trailing space is present in the {\tt SEARCH}
@@ -187,7 +185,7 @@ leads to at least 200~kB of useless data on a mailbox with fifty thousands of me
 
 \subsection{Message Flags}
 
-We have mentioned message flags when describing the mailbox synchronization.  These flags allow the system and the mail
+I have mentioned message flags when describing the mailbox synchronization.  These flags allow the system and the mail
 user to attach a certain state to the messages --- information like whether the message was seen or replied to is tracked
 at this level.  Further applications include user-level arbitrary tagging of messages with flags like ``important'' or
 ``todo''.
@@ -226,9 +224,9 @@ through the baseline IMAP profile.
 \subsection{Immutable Data}
 \label{sec:imap-immutable-data}
 
-In the previous sections, we have spoken about data which have to be resynchronized during each reconnect to the
-mailbox, be it message flags or the UIDs.  Other data available through IMAP are, however, immutable by nature.
-Examples of these data are message headers or the individual body parts.
+In the previous sections, I have spoken about data which have to be resynchronized during each reconnect to the mailbox,
+be it message flags or the UIDs.  Other data available through IMAP are, however, immutable by nature.  Examples of
+these data are message headers or the individual body parts.
 
 IMAP is pretty unique in allowing its implementors to dissect a MIME message~\cite{rfc2045} into individual body parts.
 In practice, this is a very useful feature --- clients can read a short textual body of a message before deciding whether
