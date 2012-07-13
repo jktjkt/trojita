@@ -760,11 +760,18 @@ grounds.  The most common complaint is that the SMTP protocol is extremely matur
 and that this inherent complexity is {\em required} by various use cases crucial for proper operation of the today's
 Internet mail.  The critics often argue that covering the whole feature set of the (E)SMTP-based submission would lead
 only to an equivalent of tunneling the SMTP session over IMAP \cite{crispin-smtp-tunneling}
-\cite{cridland-imap-submission-sendmail-not-enough}, an outcome which is clearly not desirable.  Proponents of this
-solution, however, counter-argument by stating that optimizing for a common use case has its own merits
-\cite{brong-common-sendmail-makes-sense}.  The critics also claim that having two ways of obtaining an identical result
-is suboptimal and that an easier, yet more limited way would threaten the existence of the older, more flexible solution
-\cite{crispin-submission-would-kill-smtp}.
+\cite{cridland-imap-submission-sendmail-not-enough}, an outcome which is clearly not desirable.  This approach was
+also subject to various standardization efforts, often literally tunneling the SMTP session \cite[p.
+30]{draft-maes-lemonade-p-imap}.  Proponents of this solution, however, counter-argument by stating that optimizing for
+a common use case has its own merits \cite{brong-common-sendmail-makes-sense}.  The critics also claim that having two
+ways of obtaining an identical result is suboptimal and that an easier, yet more limited way would threaten the
+existence of the older, more flexible solution \cite{crispin-submission-would-kill-smtp}.
+
+Finally, a third way of solving the forward-without-download problem was presented in September 2010 through the {\tt
+POSTADDRESS} extension \cite{draft-melnikov-imap-postaddress}.  Using this mechanism, a client first obtains a valid
+e-mail address serving as a ``delivery address'' for the user's {\em Sent} mailbox.  After getting hold of that
+information, the SMTP session then proceeds as usual, except that the obtained address is added as another recipient of
+the submitted e-mail message.
 
 Trojitá includes experimental support for the second, submission-over-IMAP variant.  I have proposed an Internet Draft
 (\secref{sec:draft-sendmail}) documenting this extension in which I tried to address many concerns raised during the
