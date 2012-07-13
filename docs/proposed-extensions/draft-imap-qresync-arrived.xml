@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+
+<!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC5162 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5162.xml">
+<!ENTITY RFC3501 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3501.xml">
+<!ENTITY RFC5234 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5234.xml">
+]>
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<?rfc strict="yes" ?>
+<?rfc toc="yes"?>
+<?rfc tocdepth="4"?>
+<?rfc symrefs="yes"?>
+<?rfc sortrefs="yes" ?>
+<?rfc compact="yes" ?>
+<?rfc subcompact="no" ?>
+<rfc category="std" docName="draft-imap-qresync-arrived-00" ipr="trust200902">
+
+  <front>
+    <title>IMAP QRESYNC-ARRIVED Extension</title>
+
+    <author fullname="Jan Kundrat" initials="J." surname="Kundrat">
+      <organization>Unaffiliated</organization>
+      <address>
+        <postal>
+          <street>Eledrova 558</street>
+          <city>Prague</city>
+          <code>181 00</code>
+          <country>CZ</country>
+        </postal>
+        <email>jkt@flaska.net</email>
+      </address>
+    </author>
+
+    <date year="2012" />
+
+    <area>General</area>
+    <workgroup>Internet Engineering Task Force</workgroup>
+
+    <keyword>IMAP</keyword>
+    <keyword>QRESYNC</keyword>
+    <keyword>EXISTS</keyword>
+    <keyword>EXPUNGE</keyword>
+    <keyword>VANISHED</keyword>
+    <keyword>ARRIVED</keyword>
+
+    <abstract>
+        <t>This document updates the QRESYNC extension to the IMAP protocol.  It prevents a possible race condition
+            where clients can lose synchronization of the message UIDs in a selected mailbox.</t>
+    </abstract>
+  </front>
+
+  <middle>
+    <section title="Introduction">
+        <t>The QRESYNC extension <xref target="RFC5162"/> introduces the VANISHED response, a UID-based supplement to
+            the sequence-number-based EXPUNGED <xref target="RFC3501"/>.  The VANISHED response is also explicitly
+            allowed to refer to non-existing message UIDs.  Such a situation present a possible race condition where
+            clients could lose track of the sequence -&gt; UID mapping where new arrivals are removed in a parallel
+            session.
+        </t>
+
+        <t>This document updates the QRESYNC extension with a new response to be used instead of EXISTS, the ARRIVED
+            one.  It also adds a mechanism for activating this extension and backward compatibility concerns.</t>
+
+      <section title="Requirements Language">
+        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+        "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+        document are to be interpreted as described in <xref
+        target="RFC2119">RFC 2119</xref>.</t>
+      </section>
+    </section>
+
+    <section title="Race Condition in QRESYNC">
+        <t>This section illustrates an example where a fully-compliant QRESYNC client loses track of UIDs of some
+            messages in its mailbox.</t>
+
+        <t>Suppose a client has opened a mailbox using the SELECT ... QRESYNC command.  The mailbox contains a single
+            message with UID 5; UIDNEXT is 11.  The client is fully synchronized with the server.  In this situation,
+            the server informs client about new arrival:</t>
+
+        <figure align="center">
+            <artwork align="left"><![CDATA[
+S: * 3 EXISTS
+S: * 2 FETCH (FLAGS (foo))
+S: * 3 FETCH (FLAGS (bar))
+S: * VANISHED 12:20]]></artwork>
+        </figure>
+
+        <t>At first, the server informs the client that there are now three messages in a mailbox.  The second and
+            third line establish knowledge about message flags for these two new arrivals.  The fourth line then
+            informs about permanent removal of messages with UIDs between 12 and 20, inclusively.  Unfortunately, the
+            client doesn't know whether this VANISHED response affects two newly arriving messages.  Immediately after
+            having received these two responses, the client cannot make any assumptions about the rest of the mailbox
+            (i.e. messages with UIDs &gt; 6).  Specifically, any of the following can be true:</t>
+
+        <t><list style="symbols">
+                <t>The mailbox now contains only one message with UID 5</t>
+                <t>The mailbox contains two messages.  First of them has UID 5, the second one is marked with flag "foo".</t>
+                <t>The mailbox contains two messages.  First of them has UID 5, the second one is marked with flag "bar".</t>
+                <t>The mailbox contains three messages.  First of them has UID 5, the second one is marked with flag
+                    "foo" and the third one with flag "bar".</t>
+            </list>
+        </t>
+
+        <t>To better illustrate this race condition, the example above specifically used unsolicited FETCH responses
+            which do not contain embedded UIDs.  Such a behavior is discouraged in RFC&nbsp;5162's errata.  However,
+            even if the server conformed to the specification's recoomendations or if it did not send the untagged FETCH
+            responses at all, there would still be a race condition concerning the total number of messages in a
+            selected mailbox.</t>
+
+        <t>In absence of the QRESYNC-ARRIVED extension or when talking to servers not offering that, clients MUST be
+            prepared to work around the described race condition.  An example of such a behavior is issuing an explicit
+            UID SEARCH command to rediscover the unclear portion of the sequence -&gt; UID mapping.</t>
+    </section>
+
+    <section title="IMAP Protocol Changes">
+        <section title="QRESYNC-ARRIVED Parameter to SELECT/EXAMINE">
+        </section>
+
+        <section title="ARRIVED Response">
+            <t>Contents:  list of UIDs</t>
+
+            <t>The ARRIVED response reports that the specified UIDs have been delivered to the mailbox.  It is similar in
+                functionality to the EXISTS response <xref target="RFC3501"/>; however, it can return information about
+                multiple messages, and it returns UIDs instead of message numbers.  The first benefit saves bandwidth,
+                while the second elliminates the potential of client losing track of assigned UIDs in a mailbox.</t>
+
+            <t>If the client has opened the mailbox with the QRESYNC-ARRIVED parameter to SELECT/EXAMINE command, the
+                ARRIVED response MUST be sent whenever the server would otherwise send the EXISTS response to inform the
+                client about new message arrivals.  No provision of falling back to untagged EXISTS is allowed in
+                servers supporting the QRESYNC-ARRIVED extension.  If servers were allowed to fall back to untagged
+                EXISTS, the possibility of race conditions would return.</t>
+
+            <t>The ARRIVED response MUST NOT be sent unless the client has passed the QRESYNC-ARRIVED option to the last
+                SELECT or EXAMINE command.</t>
+        </section>
+    </section>
+
+    <!-- This PI places the pagebreak correctly (before the section title) in the text output. -->
+
+    <?rfc needLines="8" ?>
+
+    <section anchor="Acknowledgements" title="Acknowledgements">
+      <t>FIXME</t>
+    </section>
+
+    <section anchor="IANA" title="IANA Considerations">
+      <t>FIXME: capabilities</t>
+    </section>
+
+    <section title="Formal Syntax">
+        <t>The following syntax specification uses the Augmented Backus-Naur
+            Form (ABNF) notation as specified in <xref target="RFC5234"/>.</t>
+
+        <t>Non-terminals referenced but not defined below are as defined by
+            <xref target="RFC3501"/>, <xref target="RFC5162"/>, or <xref target="RFC5234"/>.</t>
+
+        <figure align="center">
+            <artwork align="left" type="abnf"><![CDATA[
+capability          =/ "QRESYNC-ARRIVED"
+
+select-param        =  "QRESYNC-ARRIVED" SP "(" uidvalidity SP
+                       mod-sequence-value [SP known-uids]
+                       [SP seq-match-data] ")"
+                       ;; conforms to the generic select-param
+                       ;; syntax defined in [IMAPABNF]
+
+message-data        =/ arrived-resp
+
+arrived-resp        = "ARRIVED" SP known-uids]]></artwork>
+        </figure>
+    </section>
+
+    <section anchor="Security" title="Security Considerations">
+        <t>This extensions adds no functionality on top of what is already defined in the QRESYNC extension,
+            and therefore we believe that no additional security implications have to be considered.</t>
+    </section>
+  </middle>
+
+  <back>
+    <references title="Normative References">
+      &RFC2119;
+
+      &RFC5234;
+
+      &RFC5162;
+
+      &RFC3501;
+    </references>
+
+    <section anchor="app-additional" title="FIXME Items">
+      <t>FIXME: somehow replace [RFC5234]-style references with [ABNF]-style ones. That'd be cool.</t>
+      <t>FIXME: if not possible, change the reference inside the select-param.</t>
+      <t>FIXME: shouldn't the select-param be updated through "=/" instead of "="?</t>
+    </section>
+  </back>
+</rfc>
