@@ -580,14 +580,14 @@ List::List(const Kind _kind, const QByteArray &line, int &start):
         throw TooMuchData(line, start);
 }
 
-Flags::Flags(const QByteArray &line, int &start)
+Flags::Flags(const QByteArray &line, int &start): AbstractResponse(FLAGS)
 {
     flags = QVariant(LowLevelParser::parseList('(', ')', line, start)).toStringList();
     if (start >= line.size())
         throw TooMuchData(line, start);
 }
 
-Search::Search(const QByteArray &line, int &start)
+Search::Search(const QByteArray &line, int &start): AbstractResponse(SEARCH)
 {
     while (start < line.size() - 2) {
         try {
@@ -600,7 +600,7 @@ Search::Search(const QByteArray &line, int &start)
     }
 }
 
-ESearch::ESearch(const QByteArray &line, int &start): seqOrUids(SEQUENCE)
+ESearch::ESearch(const QByteArray &line, int &start): AbstractResponse(ESEARCH), seqOrUids(SEQUENCE)
 {
     LowLevelParser::eatSpaces(line, start);
 
@@ -722,7 +722,7 @@ ESearch::ESearch(const QByteArray &line, int &start): seqOrUids(SEQUENCE)
     }
 }
 
-Status::Status(const QByteArray &line, int &start)
+Status::Status(const QByteArray &line, int &start): AbstractResponse(STATUS)
 {
     mailbox = LowLevelParser::getMailbox(line, start);
     ++start;
@@ -913,14 +913,14 @@ QList<NamespaceData> NamespaceData::listFromLine(const QByteArray &line, int &st
     return result;
 }
 
-Namespace::Namespace(const QByteArray &line, int &start)
+Namespace::Namespace(const QByteArray &line, int &start): AbstractResponse(NAMESPACE)
 {
     personal = NamespaceData::listFromLine(line, start);
     users = NamespaceData::listFromLine(line, start);
     other = NamespaceData::listFromLine(line, start);
 }
 
-Sort::Sort(const QByteArray &line, int &start): AbstractResponse(THREAD)
+Sort::Sort(const QByteArray &line, int &start): AbstractResponse(SORT)
 {
     while (start < line.size() - 2) {
         try {
@@ -993,7 +993,7 @@ Id::Id(const QByteArray &line, int &start): AbstractResponse(ID)
     }
 }
 
-Enabled::Enabled(const QByteArray &line, int &start)
+Enabled::Enabled(const QByteArray &line, int &start): AbstractResponse(ENABLED)
 {
     LowLevelParser::eatSpaces(line, start);
     while (start < line.size() - 2) {
@@ -1004,7 +1004,7 @@ Enabled::Enabled(const QByteArray &line, int &start)
 }
 
 Vanished::Vanished(const QByteArray &line, int &start):
-    earlier(NOT_EARLIER)
+    AbstractResponse(VANISHED), earlier(NOT_EARLIER)
 {
     LowLevelParser::eatSpaces(line, start);
 
