@@ -171,7 +171,10 @@ S: x OK Search completed
                 MUST treat the last occurence as the final data.</t>
 
             <t>Servers MUST NOT issue ARRIVED prior to issuing a tagged OK for the SELECT/EXAMINE command to prevent
-                uncertanities about the HIGHESTMODSEQ value.  After the mailbox has been selected, all further updates
+                uncertanities about the HIGHESTMODSEQ value.  New arrivals since the last time the mailbox has been
+                selected are reported using FETCH responses with embedded UID, as in regular QRESYNC.</t>
+
+            <t>After the mailbox has been selected, all further updates
                 about new arrivals MUST use the ARRIVED response.  If servers were allowed to fall back to untagged
                 EXISTS, the possibility of race conditions would return.</t>
 
@@ -260,6 +263,7 @@ sorted-sequence-set = sequence-set
                     <t>Used correct format for FETCH responses</t>
                     <t>Clarify that EXISTS must be sent at least once and SHOULD be sent only once</t>
                     <t>Clarify that ARRIVED MUST NOT occur before the tagged response to SELECT/EXAMINE</t>
+                    <t>Clarify that arrivals since the last time are to be reported through usual UID FETCH, as in old QRESYNC</t>
             </list></t>
         </section>
     </section>
