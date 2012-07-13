@@ -6,12 +6,6 @@
 \chapter{IMAP Extensions}
 \label{sec:imap-extensions}
 
-\begin{abstract}
-  Previous chapter has outlined the generic mode of operation of the IMAP protocol and provided an overview of what
-  features are available.  In this chapter, we will talk about how to improve on the basic functionality through the
-  optional extensions.
-\end{abstract}
-
 It might be concluded from the brief analysis presented in the previous chapter that a few feature of IMAP are rather
 limiting in its real-world deployment.  Fortunately, the IMAP protocol includes built-in support of extensions which
 allow rather substantial changes to the network communication.
@@ -26,13 +20,13 @@ have a look at the basic layer of the IMAP protocol and investigate how these af
 
 One of the lowest-hanging optimization fruit to cater are IMAP's synchronizing literals.  In the basic IMAP, before a
 clients proceeds with tasks involving upload of binary data (or any data over a certain size, for that matter), it has
-to ask for an explicit server's approval based on the length of the data in question.  As we have shown previously, this
-confirmation imposes a full round trip over the network, inducing latency and destroying any potential pipelining
+to ask for an explicit server's approval based on the length of the data in question.  As has been shown previously,
+this confirmation imposes a full round trip over the network, inducing latency and destroying any potential pipelining
 improvements.
 
 The LITERAL+ extension (RFC~2088~\cite{rfc2088}) simply lifts the requirement of having to wait for the server's
 continuation requests by a subtle change of the syntax.  Adding an overhead of just one byte, the latency is completely
-eliminated and communication gets rapidly streamlined.  We can go as far as to say that the code paths for dealing with
+eliminated and communication gets rapidly streamlined.  One can go as far as to say that the code paths for dealing with
 LITERAL+ data are actually simpler than having to deal with the old-fashioned synchronizing literals.  Consider the
 following example:
 
@@ -93,7 +87,7 @@ is always considered a threat and the situation is presented to the user accordi
 \subsection{The IDLE Mode}
 \label{sec:imap-idle}
 
-We have mentioned that even though the protocol requires clients to be ready to accept any responses at any time, in
+I have mentioned that even though the protocol requires clients to be ready to accept any responses at any time, in
 practice, servers are forbidden to send {\tt EXPUNGE}s when no command is in progress.  This requirement is necessary to
 prevent a dangerous resynchronization as the server cannot possibly know whether the client has started to issue an
 UID-less {\tt STORE} command which references messages through their sequence numbers.  Unfortunately, this directly
@@ -141,7 +135,7 @@ The whole effect of the {\tt IDLE} command is therefore to indicate to the serve
 willing to listen for any updates to the mailbox state.  Because of compatibility concerns with legacy mail stores, the
 IDLE extension still does {\em not} mandate the server to actually send updates about any changes as soon as they are
 conducted --- indeed, a server which internally polls every fifteen minutes to check whether a message has arrived is
-fully compliant with the IDLE extension, albeit rather useless to user who might expect (and, we might add, rightly so)
+fully compliant with the IDLE extension, albeit rather useless to user who might expect (and, one might add, rightly so)
 to be {\em instantly} notified about changes to the mailbox.
 
 Trojitá includes full support for the IDLE extension and will enter that mode automatically shortly after a mailbox is
@@ -152,7 +146,7 @@ prevent the ``pings'' sent even when the connection does not contain a gateway w
 
 \section{Improving Mailbox Synchronization}
 
-The previous section dealt with optimizing the overall IMAP protocol as a whole.  At this stage, we can have a look at
+The previous section dealt with optimizing the overall IMAP protocol as a whole.  At this stage, let's have a look at
 more specific issues which cannot be easily overcome through generic measures like data compression using off-the-shelf
 algorithms or updates to the basic protocol flows.
 
@@ -187,17 +181,16 @@ expunges and new arrivals since the last time it was opened:
   S: y3 OK fetched
 \end{minted}
 
-We can identify two steps which substantially contribute to the transferred data:
+Let's identify two steps which substantially contribute to the transferred data:
 
 \begin{itemize}
   \item synchronizing the UIDs,
   \item updating flags.
 \end{itemize}
 
-In the rest of this section, we will have a look at optimization opportunities at each of these stages.  Please keep in
-mind that some basic optimization heuristics concerning the UID synchronization were discussed in
-\secref{sec:imap-mailbox-sync} along with reasons on why these steps are necessary in clients willing to maintain an
-offline cache of immutable data.
+The rest of this section takes a look at optimization opportunities at each of these stages.  Please keep in mind that
+some basic optimization heuristics concerning the UID synchronization were discussed in \secref{sec:imap-mailbox-sync}
+along with reasons on why these steps are necessary in clients willing to maintain an offline cache of immutable data.
 
 \subsection{The ESEARCH Extension}
 
@@ -234,7 +227,7 @@ In addition to that, format of the returned responses is changed so that it also
 caused it, allowing much more aggressive pipelining --- for example, clients are free to perform the UID discovery at the
 same time as running a user-initiated search.  On the other hand, even in presence of ESEARCH, the UID mapping still has
 to be synchronized explicitly.  This requirement is only lifted in the QRESYNC extension
-(\secref{sec:extension-qresync}).  Before we describe that, though, it is necessary to have a look at the CONDSTORE.
+(\secref{sec:extension-qresync}).  Before describing that, though, it is necessary to have a look at the CONDSTORE.
 
 \subsection{Avoiding Flags Resynchronization via CONDSTORE}
 
@@ -243,9 +236,9 @@ changed message flags.  In this case, no extension trying to reduce the data ove
 proposed, but the problem got attacked from another side.
 
 The whole point of flags synchronization is to be able to pick up changes which have happened since the last time was
-selected.  If only the server was somehow able to assign a ``serial number'' to each change, we could subsequently ask
-for all changes which have happened after a certain point.  The CONDSTORE extension from RFC 4551 \cite{rfc4551} works
-in this way.
+selected.  If only the server was somehow able to assign a ``serial number'' to each change, clients could subsequently
+ask for all changes which have happened after a certain point.  The CONDSTORE extension from RFC 4551 \cite{rfc4551}
+works in this way.
 
 CONDSTORE-capable servers share a concept of ``modification sequence'', a {\tt MODSEQ}.  Each message in a mailbox is
 assigned an unsigned 64bit integer.  Whenever message metadata (like its flags) change, the {\tt MODSEQ} of that
@@ -402,7 +395,7 @@ means that the servers are supposed to do so, yet the clients are forbidden from
 special circumstances, the servers might very well have a good reason to defer back to the {\tt EXPUNGE}~\cite{rfc2119}.
 
 Unfortunately, the combination of offset-based {\tt EXISTS} (which is a response used to inform the client about growth
-of the number of messages in a mailbox) with UID-based {\tt VANISHED} can lead to races, a dangerous condition which we
+of the number of messages in a mailbox) with UID-based {\tt VANISHED} can lead to races, a dangerous condition which I
 have identified~\cite{kundrat-vanished-race}.  The problem lies in QRESYNC's allowance for non-existent UIDs to be
 included in the {\tt VANISHED} response.  Consider the following scenario where the client is fully synced with a
 mailbox with just a single message bearing UID 5.  The mailbox' {\tt UIDNEXT} is 11:
@@ -440,21 +433,21 @@ this case.}
 
 The QRESYNC extension also mandates an interesting mechanism for its activation.  Allegedly due to the backward
 compatibility concerns with the {\tt VANISHED} response, clients have to support the ENABLE extension as well (RFC 5161
-\cite{rfc5161}).  However, under a closer examination we can demonstrate that backward compatibility is actually not an
-issue here --- compliant clients have to explicitly activate the QRESYNC extension by issuing a specially modified {\tt
-SELECT} or {\tt EXAMINE} command, so it appears that using the {\tt ENABLE} command is not really necessary.  In fact,
-based on the temporal proximity of RFC 5161 and 5162 (dealing with ENABLE and QRESYNC, respectively) and an overlap in
-authorship of these documents, it appears that their designers simply wanted to make use of a mechanism which appeared
-to be possibly useful in future.
+\cite{rfc5161}).  However, under a closer examination it can be demonstrated that backward compatibility is actually not
+an issue here --- compliant clients have to explicitly activate the QRESYNC extension by issuing a specially modified
+{\tt SELECT} or {\tt EXAMINE} command, so it appears that using the {\tt ENABLE} command is not really necessary.  In
+fact, based on the temporal proximity of RFC 5161 and 5162 (dealing with ENABLE and QRESYNC, respectively) and an
+overlap in authorship of these documents, it appears that their designers simply wanted to make use of a mechanism which
+appeared to be possibly useful in future.
 
 Unfortunately, there is also a certain uncertainty about the {\tt ENABLE} command --- the errata \#1365 for RFC 5162
 \cite{rfc5162-errata} proposes to add an explicit note that ``(A server MUST respond with a tagged BAD
 response if) (\ldots) or the server has not positively responded to that command with "ENABLED QRESYNC", in the current
 connection'', even though the RFC 5161 explicitly allows for aggressive pipelining of {\tt ENABLE} and {\tt
 SELECT}.~\footnote{``There are no limitations on pipelining ENABLE.  For example, it is possible to send ENABLE and then
-immediately SELECT, or a LOGIN immediately followed by ENABLE. \cite[p. 2]{rfc5161}}  We have raised this issue on the
+immediately SELECT, or a LOGIN immediately followed by ENABLE. \cite[p. 2]{rfc5161}}  I have raised this issue on the
 {\tt imap-protocol} mailing list and the consensus there was that it is indeed allowed not to wait for the server's {\tt
-ENABLED} before issuing a {\tt SELECT \ldots QRESYNC} \cite{melnikov-qresync-enable}.  We fully support such an outcome
+ENABLED} before issuing a {\tt SELECT \ldots QRESYNC} \cite{melnikov-qresync-enable}.  I fully support such an outcome
 as it would be rather awkward to see a requirement for extra network round trips in contemporary IMAP extensions.
 
 \section{Fetching the Data}
@@ -524,8 +517,8 @@ parameter.
 \section{Updating Mailboxes}
 
 Previous sections have introduced the existing extensions aimed at improving mailbox synchronization and data download.
-In this part, we will talk about how to optimize access to an already selected mailbox and how to get updated
-information about other mailboxes.
+In this part, I will talk about how to optimize access to an already selected mailbox and how to get updated information
+about other mailboxes.
 
 \subsection{Sorting Messages}
 
@@ -603,8 +596,8 @@ the following example where a single arrival results in transferring the whole m
   S: x2 OK sorted
 \end{minted}
 
-For brevity purposes, we have omitted the sort order of the other 1,000 messages.  In presence of the {\tt CONTEXT=SORT}
-extension, though, the same protocol interaction would look like this one:
+For brevity purposes, the sort order of the other 1,000 messages has been omitted.  In presence of the {\tt
+CONTEXT=SORT} extension, though, the same protocol interaction would look like this one:
 
 \begin{minted}{text}
   C: x1 UID SORT RETURN (ALL UPDATE) (SUBJECT) utf-8 ALL
@@ -632,16 +625,16 @@ UIDs over and over again.
 
 Trojitá includes full support for both {\tt CONTEXT=SEARCH} and {\tt CONTEXT=SORT}.  The {\tt CONTEXT=SEARCH} has been
 tested for interoperability against the Dovecot IMAP server, one of the few implementations which actually offer this
-functionality.  Unfortunately, we were not able to locate a single IMAP server supporting {\tt CONTEXT=SORT}, so no
+functionality.  Unfortunately, I was not able to locate a single IMAP server supporting {\tt CONTEXT=SORT}, so no
 real-world interoperability tests could have been performed.~\footnote{As any other feature of Trojitá, though, the
 support for {\tt CONTEXT=SORT} is covered by the automated test suite which was carefully written to minimize the chance
 of any unwanted side effects and guard against unintended results when the servers deviate from the expected behavior.}
 This is a rather surprising outcome given that the RFC 5267 is not exactly a fresh standard now and that its authors
 work from a commercial software vendor offering a pretty advanced IMAP server implementation.
 
-Sadly, no equivalent of these incremental updates is defined for the {\tt THREAD} command.  We suspect that this is
+Sadly, no equivalent of these incremental updates is defined for the {\tt THREAD} command.  I suspect that this is
 caused by the fact that a single new arrival can affect each and every message in the previously received thread
-mapping.  We have attempted to address this limitation by augmenting the {\tt SEARCH=INTHREAD} draft, see
+mapping.  I have attempted to address this limitation by augmenting the {\tt SEARCH=INTHREAD} draft, see
 \secref{sec:draft-inthread-ext} for details about the selected approach.
 
 \subsection{Advanced Searching}
@@ -705,9 +698,9 @@ flag changes.  Sadly, support for this extension is scarce among the existing IM
 mixed feelings \cite{arnt-good-bad-rfc} about its fate where basically ``noone implements it''.  In early 2012, a
 posting on the Dovecot mailing list announced \cite{dovecot-imap-notify} preliminary support for a part of this
 extension in Dovecot, one of the most widely deployed open source IMAP daemons.  Unfortunately, this code was not
-complete as of July 2012 \cite{dovecot-hg-notify} and the branch we have tried contained regressions which prevented
+complete as of July 2012 \cite{dovecot-hg-notify} and the branch I have tried contained regressions which prevented
 regular use of other features of the IMAP server altogether.~\footnote{This is not to say that the Dovecot is a bad IMAP
-daemon --- not at all.  The version we have tried is a development snapshot which is clearly marked as an experimental
+daemon --- not at all.  The version which was used is a development snapshot which is clearly marked as an experimental
 version which requires future work.}  Due to not being able to verify the {\tt NOTIFY} operation against any available
 IMAP server implementation, Trojitá will not try to leverage this extension for the time being.
 
@@ -773,9 +766,9 @@ solution, however, counter-argument by stating that optimizing for a common use 
 is suboptimal and that an easier, yet more limited way would threaten the existence of the older, more flexible solution
 \cite{crispin-submission-would-kill-smtp}.
 
-Trojitá includes experimental support for the second, submission-over-IMAP variant.  We have proposed an Internet Draft
-(\secref{sec:draft-sendmail}) documenting this extension in which the author of this thesis tried to address many
-concerns raised during the previous discussion rounds.
+Trojitá includes experimental support for the second, submission-over-IMAP variant.  I have proposed an Internet Draft
+(\secref{sec:draft-sendmail}) documenting this extension in which I tried to address many concerns raised during the
+previous discussion rounds.
 
 \section{Further Improvements}
 
@@ -808,7 +801,7 @@ perform collations using the {\tt i;unicode-casemap} comparator \cite{rfc5051} -
 often sufficient) in countries using the Latin alphabet.  Those servers which support {\tt I18NLEVEL=2} also accept
 client-specified preference about how to perform these operations.  Adding support for this higher level would be
 trivial on a technical front (the {\tt LANGUAGE} and {\tt COMPARATOR} commands are very simple with much more demanding
-requirements on servers), but we have received no requests for such a feature yet --- suggesting that the {\tt
+requirements on servers), but no requests for such a feature in Trojitá were received yet --- suggesting that the {\tt
 i;unicode-casemap} comparator works well for most users at this point.
 
 There is also the experimental ``UTF-8'' RFC \cite{rfc5738} whose aim is to get rid of any non-UTF8 data being
@@ -852,8 +845,8 @@ profile is presented in a dedicated section of this thesis on page \pageref{sec:
 
 \subsection{Out-of-scope Features}
 
-The extensions we have presented so far all have a certain affinity towards the ``mobile IMAP''.  Many other extensions
-have been introduced, though, often solving a real problem.
+The extensions presented so far all have a certain affinity towards the ``mobile IMAP''.  Many other extensions have
+been introduced, though, often solving a real problem.
 
 The first family of extensions with debatable merit are extensions providing support for so-called referrals.  The RFC
 2221 \cite{rfc2221} adds a mechanism for servers to redirect clients based on their identity, a feature which was
@@ -870,9 +863,9 @@ given in RFC 2086 \cite{rfc2086}) and finally support for reporting and managing
 \cite{rfc2087}).  These have not been implemented in Trojitá yet.
 
 A mechanism for increasing interoperability with organizations which have invested in a single-sign-on infrastructure
-like Kerberos could be improved through better support for SASL (RFC 1731 \cite{rfc1731}, RFC4959 \cite{rfc4959}).  We
-have already received a request from users which would very much prefer to have a GSSAPI-enabled Trojitá, unfortuntely
-we have not been able to accommodate them due to time constraints.
+like Kerberos could be improved through better support for SASL (RFC 1731 \cite{rfc1731}, RFC4959 \cite{rfc4959}).  A
+request from users which would very much prefer to have a GSSAPI-enabled Trojitá was already received, but unfortunately
+this feature remains unimplemented due to time constraints.
 
 A few extensions might improve the general comfort of users setting up their e-mail clients for the first time.  Without
 any doubt, autoconfiguration through the DNS SRV records (RFC 6186 \cite{rfc6186}) falls into this category.
@@ -887,7 +880,7 @@ Other extensions try to fill a certain niche.  Examples are the {\tt WITHIN} ext
 allows clients to search among messages of a certain age or the {\tt SEARCHRES} (RFC 5182 \cite{rfc5182}) adding a
 low-level pipelining optimization which would allow the client to re-use the previous search result in the subsequent
 commands.  RFC 5466 \cite{rfc5466} adds support for persistent storage of search criteria on the server through the
-already mentioned {\tt METADATA} extension.  We have not found a use case for having these optional extensions utilized
+already mentioned {\tt METADATA} extension.  I have not found a use case for having these optional extensions utilized
 from Trojitá in any place.
 
 The RFC 3503 \cite{rfc3503} deals with how to generate the message delivery notifications (MDNs) in IMAP.  This document
@@ -909,8 +902,8 @@ paid to make this transition as smooth as possible through various compatibility
 
 Trojitá requires the server to at least announce the {\tt IMAP4rev1} capability.  This protocol revision is currently
 defined by RFC 3501 \cite{rfc3501} from March 2003; however, changes since the previous version from December 1996
-(\cite{rfc2060}) are mostly backward compatible --- and in practice, we have received no report of Trojitá not being
-able to work against any IMAP server implementation out there.
+(\cite{rfc2060}) are mostly backward compatible --- and in practice, no report of Trojitá not being able to work against
+any IMAP server implementation out there were received.
 
 The {\tt UIDPLUS} extension got redefined from its former shape \cite{rfc2359} to the current revision \cite{rfc4315};
 the new document states that the reason for this revision was to prevent sending of bogus UID replies when the target
