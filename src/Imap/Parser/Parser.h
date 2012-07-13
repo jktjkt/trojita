@@ -73,6 +73,12 @@ public:
 
     uint parserId() const;
 
+    /** @short Shall the SELECT use the ordinary QRESYNC, or the newer QRESYNC-ARRIVED */
+    typedef enum {
+        QRESYNC_RFC5162, /**< @short Use the traditinal QRESYNC command */
+        QRESYNC_ARRIVED /**< @short Use the QRESYNC-ARRIVED */
+    } SelectQresyncMode;
+
 public slots:
 
     /** @short CAPABILITY, RFC 3501 section 6.1.1 */
@@ -101,8 +107,8 @@ public slots:
     CommandHandle select(const QString &mailbox, const QList<QByteArray> &params = QList<QByteArray>());
 
     /** @short SELECT extended according to RFC 5162 section 3.1 */
-    CommandHandle selectQresync(const QString &mailbox, const uint uidValidity, const quint64 highestModSeq,
-                                const Sequence &knownUids = Sequence(),
+    CommandHandle selectQresync(const SelectQresyncMode qresyncMode, const QString &mailbox, const uint uidValidity,
+                                const quint64 highestModSeq, const Sequence &knownUids = Sequence(),
                                 const Sequence &sequenceSnapshot = Sequence(), const Sequence &uidSnapshot = Sequence());
 
     /** @short EXAMINE, RFC3501 section 6.3.2 */

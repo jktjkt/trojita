@@ -85,11 +85,19 @@ void ObtainSynchronizedMailboxTask::perform()
     QMap<Parser *,ParserState>::iterator it = model->m_parsers.find(parser);
     Q_ASSERT(it != model->m_parsers.end());
 
+    QString qresyncArrived(QLatin1String("X-DRAFT-I00-QRESYNC-ARRIVED"));
+
     oldSyncState = model->cache()->mailboxSyncState(mailbox->mailbox());
-    if (model->accessParser(parser).capabilities.contains(QLatin1String("QRESYNC")) && oldSyncState.isUsableForCondstore()) {
+    if ((model->accessParser(parser).capabilities.contains(QLatin1String("QRESYNC")) ||
+         model->accessParser(parser).capabilities.contains(qresyncArrived)
+         ) && oldSyncState.isUsableForCondstore()) {
+        Parser::SelectQresyncMode qresyncMode = model->accessParser(parser).capabilities.contains(qresyncArrived) ?
+                    Parser::QRESYNC_ARRIVED :
+                    Parser::QRESYNC_RFC5162;
         QList<uint> oldUidMap = model->cache()->uidMapping(mailbox->mailbox());
         if (oldUidMap.isEmpty()) {
-            selectCmd = parser->selectQresync(mailbox->mailbox(), oldSyncState.uidValidity(), oldSyncState.highestModSeq());
+            selectCmd = parser->selectQresync(qresyncMode, mailbox->mailbox(), oldSyncState.uidValidity(),
+                                              oldSyncState.highestModSeq());
         } else {
             Sequence knownSeq, knownUid;
             int i = oldUidMap.size() / 2;
@@ -102,8 +110,8 @@ void ObtainSynchronizedMailboxTask::perform()
             m_usingQresync = true;
             // We absolutely want to maintain a complete UID->seq mapping at all times, which is why the known-uids shall remain
             // empty to indicate "anything".
-            selectCmd = parser->selectQresync(mailbox->mailbox(), oldSyncState.uidValidity(), oldSyncState.highestModSeq(),
-                                              Sequence(), knownSeq, knownUid);
+            selectCmd = parser->selectQresync(qresyncMode, mailbox->mailbox(), oldSyncState.uidValidity(),
+                                              oldSyncState.highestModSeq(), Sequence(), knownSeq, knownUid);
         }
     } else if (model->accessParser(parser).capabilities.contains(QLatin1String("CONDSTORE"))) {
         selectCmd = parser->select(mailbox->mailbox(), QList<QByteArray>() << "CONDSTORE");
