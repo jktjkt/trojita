@@ -123,8 +123,8 @@ S: x OK Search completed]]></artwork>
         <figure align="center">
             <artwork align="left"><![CDATA[
 S: * 3 EXISTS
-S: * FETCH 2 (FLAGS (foo))
-S: * FETCH 3 (FLAGS (bar))
+S: * 2 FETCH (FLAGS (foo))
+S: * 3 FETCH (FLAGS (bar))
 S: * VANISHED 12:20
 C: x UID SEARCH UID 11:*
 S: * SEARCH
@@ -256,6 +256,7 @@ sorted-sequence-set = sequence-set
             <t><list style="symbols">
                     <t>Clarified that UIDs presented in the ARRIVED response MUST be always presented in a sorted order</t>
                     <t>Used a special non-terminal in the ABNF grammar</t>
+                    <t>Used correct format for FETCH responses</t>
             </list></t>
         </section>
     </section>
