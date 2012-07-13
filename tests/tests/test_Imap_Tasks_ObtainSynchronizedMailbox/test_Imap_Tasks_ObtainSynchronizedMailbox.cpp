@@ -1929,7 +1929,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncDeletionsNewArrivals()
 void ImapModelObtainSynchronizedMailboxTest::testQresyncArrived()
 {
     FakeCapabilitiesInjector injector(model);
-    injector.injectCapability("X-DRAFT-I00-QRESYNC-ARRIVED");
+    injector.injectCapability("X-DRAFT-I01-QRESYNC-ARRIVED");
     Imap::Mailbox::SyncState sync;
     sync.setExists(5);
     sync.setUidValidity(666);

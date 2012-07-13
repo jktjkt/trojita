@@ -85,7 +85,7 @@ void ObtainSynchronizedMailboxTask::perform()
     QMap<Parser *,ParserState>::iterator it = model->m_parsers.find(parser);
     Q_ASSERT(it != model->m_parsers.end());
 
-    QString qresyncArrived(QLatin1String("X-DRAFT-I00-QRESYNC-ARRIVED"));
+    QString qresyncArrived(QLatin1String("X-DRAFT-I01-QRESYNC-ARRIVED"));
 
     oldSyncState = model->cache()->mailboxSyncState(mailbox->mailbox());
     if ((model->accessParser(parser).capabilities.contains(QLatin1String("QRESYNC")) ||
@@ -525,7 +525,7 @@ void ObtainSynchronizedMailboxTask::syncFlags(TreeItemMailbox *mailbox)
     quint64 useModSeq = 0;
     if ((model->accessParser(parser).capabilities.contains(QLatin1String("CONDSTORE")) ||
          model->accessParser(parser).capabilities.contains(QLatin1String("QRESYNC")) ||
-         model->accessParser(parser).capabilities.contains(QLatin1String("X-DRAFT-I00-QRESYNC-ARRIVED"))) &&
+         model->accessParser(parser).capabilities.contains(QLatin1String("X-DRAFT-I01-QRESYNC-ARRIVED"))) &&
             oldSyncState.highestModSeq() > 0 && mailbox->syncState.isUsableForCondstore() &&
             oldSyncState.uidValidity() == mailbox->syncState.uidValidity()) {
         // The CONDSTORE is available, UIDVALIDITY has not changed and the HIGHESTMODSEQ suggests that
