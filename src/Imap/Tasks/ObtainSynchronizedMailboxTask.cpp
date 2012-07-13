@@ -830,31 +830,6 @@ bool ObtainSynchronizedMailboxTask::handleVanished(const Imap::Responses::Vanish
     return false;
 }
 
-bool ObtainSynchronizedMailboxTask::handleArrived(const Responses::Arrived *const resp)
-{
-    if (dieIfInvalidMailbox())
-        return true;
-
-    TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
-    Q_ASSERT(mailbox);
-
-    switch (status) {
-    case STATE_WAIT_FOR_CONN:
-        Q_ASSERT(false);
-        return false;
-
-    case STATE_SELECTING:
-    case STATE_SYNCING_UIDS:
-    case STATE_SYNCING_FLAGS:
-    case STATE_DONE:
-        mailbox->handleArrived(model, *resp);
-        return true;
-    }
-
-    Q_ASSERT(false);
-    return false;
-}
-
 bool ObtainSynchronizedMailboxTask::handleFlags(const Imap::Responses::Flags *const resp)
 {
     if (dieIfInvalidMailbox())

@@ -1954,18 +1954,17 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncArrived()
             "* 3 FETCH (UID 6 FLAGS (6))\r\n"
             "* 4 FETCH (UID 7 FLAGS (7))\r\n"
             "* 5 FETCH (UID 8 FLAGS (8))\r\n"
-            "* ARRIVED 11:13\r\n"
             );
     uidMap.removeOne(1);
     uidMap.removeOne(2);
     uidMap.removeOne(3);
-    uidMap << 6 << 7 << 8 << 11 << 12 << 13;
-    QCOMPARE(model->rowCount(msgListA), 8);
+    uidMap << 6 << 7 << 8;
+    QCOMPARE(model->rowCount(msgListA), 5);
     cServer(t.last("OK selected\r\n"));
     cEmpty();
-    sync.setUidNext(14);
+    sync.setUidNext(10);
     sync.setHighestModSeq(34);
-    sync.setExists(8);
+    sync.setExists(5);
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
@@ -1984,17 +1983,17 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncArrived()
 
     // Fake new arrivals
     cServer("* ARRIVED 15:16,20\r\n");
-    cClient(t.mk("UID FETCH 14:* (FLAGS)\r\n"));
+    cClient(t.mk("UID FETCH 15:16,20 (FLAGS)\r\n"));
     uidMap << 15 << 16 << 20;
-    QCOMPARE(model->rowCount(msgListA), 11);
-    QCOMPARE(model->index(8, 0, msgListA).data(Imap::Mailbox::RoleMessageUid).toUInt(), 15u);
-    QCOMPARE(model->index(9, 0, msgListA).data(Imap::Mailbox::RoleMessageUid).toUInt(), 16u);
-    QCOMPARE(model->index(10, 0, msgListA).data(Imap::Mailbox::RoleMessageUid).toUInt(), 20u);
+    QCOMPARE(model->rowCount(msgListA), 8);
+    QCOMPARE(model->index(5, 0, msgListA).data(Imap::Mailbox::RoleMessageUid).toUInt(), 15u);
+    QCOMPARE(model->index(6, 0, msgListA).data(Imap::Mailbox::RoleMessageUid).toUInt(), 16u);
+    QCOMPARE(model->index(7, 0, msgListA).data(Imap::Mailbox::RoleMessageUid).toUInt(), 20u);
 
     // Let's try if it's sufficient that we receive FETCH even without the embedded UID
-    cServer("* 9 FETCH (FLAGS (uid15))\r\n"
-            "* 10 FETCH (FLAGS (uid16))\r\n"
-            "* 11 FETCH (FLAGS (uid20))\r\n"
+    cServer("* 6 FETCH (FLAGS (uid15))\r\n"
+            "* 7 FETCH (FLAGS (uid16))\r\n"
+            "* 8 FETCH (FLAGS (uid20))\r\n"
             + t.last("OK fetched\r\n"));
 
     // These refer to consistent udpates of the persistent cache, Redmine #457

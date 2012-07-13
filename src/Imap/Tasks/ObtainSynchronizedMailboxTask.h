@@ -50,7 +50,6 @@ public:
     virtual bool handleESearch(const Imap::Responses::ESearch *const resp);
     virtual bool handleFetch(const Imap::Responses::Fetch *const resp);
     virtual bool handleVanished(const Imap::Responses::Vanished *const resp);
-    virtual bool handleArrived(const Responses::Arrived *const resp);
 
     typedef enum { UID_SYNC_ALL, UID_SYNC_ONLY_NEW } UidSyncingMode;
 
