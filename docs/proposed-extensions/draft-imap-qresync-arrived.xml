@@ -149,11 +149,6 @@ S: x OK Search completed
             <t>Clients are NOT REQUIRED to issue an explicit ENABLE QRESYNC command.  Servers MUST accept the
                 QRESYNC-ARRIVED as a QRESYNC-enabling and CONDSTORE-enabling command.</t>
 
-            <t>Servers which support this extension MUST refrain from sending untagged EXISTS responses after the
-                mailbox selection is completed.  The EXISTS response MUST be sent exactly once at the time the mailbox
-                is selected, as mandated by <xref target="RFC3501"/>.  After the mailbox has been selected, all further
-                updates about new arrivals MUST use the ARRIVED response defined in this extension.</t>
-
             <t>For backward compatibility, IMAP servers supporting this extension MUST support QRESYNC as defined by
                 <xref target="RFC5162"/>.  In addition, such servers SHOULD NOT sent VANISHED responses containing UIDs
                 of messages which were expunged before, and SHOULD NOT send the untagged EXPUNGED instead of
@@ -169,10 +164,16 @@ S: x OK Search completed
                 while the second elliminates the potential of client losing track of assigned UIDs in a mailbox.</t>
 
             <t>If the client has opened the mailbox with the QRESYNC-ARRIVED parameter to SELECT/EXAMINE command, the
-                ARRIVED response MUST be sent whenever the server would otherwise send the EXISTS response to inform the
-                client about new message arrivals.  No provision of falling back to untagged EXISTS is allowed in
-                servers supporting the QRESYNC-ARRIVED extension.  If servers were allowed to fall back to untagged
-                EXISTS, the possibility of race conditions would return.</t>
+                EXISTS response MUST be still sent during the initial mailbox synchronization, i.e. between having
+                received the SELECT or EXAMINE command and the corresponding tagged response, as in <xref
+                    target="RFC3501"/>.  Servers MAY send the EXISTS response several times, but the number MUST NOT
+                shrink.  The clients MUST treat the last occurence as the final data.</t>
+
+            <t>Servers MUST NOT issue ARRIVED before the initial EXISTS is sent.  Servers MAY
+                send the ARRIVED response even before the tagged response corresponding to the SELECT/EXAMINE command.
+                After the mailbox has been selected, all further updates about new arrivals MUST use the ARRIVED
+                response defined in this extension.  If servers were allowed to fall back to untagged EXISTS, the
+                possibility of race conditions would return.</t>
 
             <t>UIDs sent in the ARRIVED response must be always presented in a sorted order, lowest UID first.  The
                 sequence MUST NOT contain duplicate UIDs.  Servers SHOULD take advantage of the compression capabilities
@@ -257,6 +258,8 @@ sorted-sequence-set = sequence-set
                     <t>Clarified that UIDs presented in the ARRIVED response MUST be always presented in a sorted order</t>
                     <t>Used a special non-terminal in the ABNF grammar</t>
                     <t>Used correct format for FETCH responses</t>
+                    <t>Clarify that EXISTS must be sent at least once</t>
+                    <t>Clarify that ARRIVED can occur even before the tagged response to SELECT/EXAMINE</t>
             </list></t>
         </section>
     </section>
