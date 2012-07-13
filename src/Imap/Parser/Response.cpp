@@ -172,6 +172,10 @@ QTextStream &operator<<(QTextStream &stream, const Kind &res)
         break;
     case VANISHED:
         stream << "VANISHED";
+        break;
+    case ARRIVED:
+        stream << "ARRIVED";
+        break;
     }
     return stream;
 }
@@ -226,6 +230,8 @@ Kind kindFromString(QByteArray str) throw(UnrecognizedResponseKind)
         return ENABLED;
     if (str == "VANISHED")
         return VANISHED;
+    if (str == "ARRIVED")
+        return ARRIVED;
     throw UnrecognizedResponseKind(str.constData());
 }
 
@@ -1024,6 +1030,21 @@ Vanished::Vanished(const QByteArray &line, int &start):
         throw TooMuchData(line, start);
 }
 
+Arrived::Arrived(const QByteArray &line, int &start):
+    AbstractResponse(ARRIVED)
+{
+    LowLevelParser::eatSpaces(line, start);
+
+    if (start >= line.size() - 2) {
+        throw NoData(line, start);
+    }
+
+    uids = LowLevelParser::getSequence(line, start);
+
+    if (start != line.size() - 2)
+        throw TooMuchData(line, start);
+}
+
 SocketEncryptedResponse::SocketEncryptedResponse(const QList<QSslCertificate> &sslChain, const QList<QSslError> &sslErrors):
     sslChain(sslChain), sslErrors(sslErrors)
 {
@@ -1202,6 +1223,16 @@ QTextStream &Vanished::dump(QTextStream &s) const
     s << "VANISHED ";
     if (earlier == EARLIER)
         s << "(EARLIER) ";
+    s << "(";
+    Q_FOREACH(const uint &uid, uids) {
+        s << " " << uid;
+    }
+    return s << ")";
+}
+
+QTextStream &Arrived::dump(QTextStream &s) const
+{
+    s << "ARRIVED ";
     s << "(";
     Q_FOREACH(const uint &uid, uids) {
         s << " " << uid;
@@ -1434,6 +1465,16 @@ bool Vanished::eq(const AbstractResponse &other) const
     }
 }
 
+bool Arrived::eq(const AbstractResponse &other) const
+{
+    try {
+        const Arrived &r = dynamic_cast<const Arrived &>(other);
+        return uids == r.uids;
+    } catch (std::bad_cast &) {
+        return false;
+    }
+}
+
 bool SocketEncryptedResponse::eq(const AbstractResponse &other) const
 {
     try {
@@ -1484,6 +1525,7 @@ PLUG(Thread)
 PLUG(Id)
 PLUG(Enabled)
 PLUG(Vanished)
+PLUG(Arrived)
 PLUG(SocketEncryptedResponse)
 PLUG(SocketDisconnectedResponse)
 

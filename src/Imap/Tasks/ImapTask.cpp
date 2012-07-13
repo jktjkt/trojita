@@ -192,6 +192,12 @@ bool ImapTask::handleVanished(const Responses::Vanished *const resp)
     return false;
 }
 
+bool ImapTask::handleArrived(const Responses::Arrived *const resp)
+{
+    Q_UNUSED(resp);
+    return false;
+}
+
 bool ImapTask::handleSocketEncryptedResponse(const Imap::Responses::SocketEncryptedResponse *const resp)
 {
     Q_UNUSED(resp);

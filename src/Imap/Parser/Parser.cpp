@@ -972,6 +972,9 @@ QSharedPointer<Responses::AbstractResponse> Parser::parseUntaggedText(
     case Responses::VANISHED:
         return QSharedPointer<Responses::AbstractResponse>(
                     new Responses::Vanished(line, start));
+    case Responses::ARRIVED:
+        return QSharedPointer<Responses::AbstractResponse>(
+                    new Responses::Arrived(line, start));
 
         // Those already handled above follow here
     case Responses::EXPUNGE:
