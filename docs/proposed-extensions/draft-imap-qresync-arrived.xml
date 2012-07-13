@@ -166,14 +166,14 @@ S: x OK Search completed
             <t>If the client has opened the mailbox with the QRESYNC-ARRIVED parameter to SELECT/EXAMINE command, the
                 EXISTS response MUST be still sent during the initial mailbox synchronization, i.e. between having
                 received the SELECT or EXAMINE command and the corresponding tagged response, as in <xref
-                    target="RFC3501"/>.  Servers MAY send the EXISTS response several times, but the number MUST NOT
-                shrink.  The clients MUST treat the last occurence as the final data.</t>
+                    target="RFC3501"/>.  Servers MAY send the EXISTS response several times, but they SHOULD send it
+                only once to conserve resources.  The number given in the EXISTS response MUST NOT shrink.  The clients
+                MUST treat the last occurence as the final data.</t>
 
-            <t>Servers MUST NOT issue ARRIVED before the initial EXISTS is sent.  Servers MAY
-                send the ARRIVED response even before the tagged response corresponding to the SELECT/EXAMINE command.
-                After the mailbox has been selected, all further updates about new arrivals MUST use the ARRIVED
-                response defined in this extension.  If servers were allowed to fall back to untagged EXISTS, the
-                possibility of race conditions would return.</t>
+            <t>Servers MUST NOT issue ARRIVED prior to issuing a tagged OK for the SELECT/EXAMINE command to prevent
+                uncertanities about the HIGHESTMODSEQ value.  After the mailbox has been selected, all further updates
+                about new arrivals MUST use the ARRIVED response.  If servers were allowed to fall back to untagged
+                EXISTS, the possibility of race conditions would return.</t>
 
             <t>UIDs sent in the ARRIVED response must be always presented in a sorted order, lowest UID first.  The
                 sequence MUST NOT contain duplicate UIDs.  Servers SHOULD take advantage of the compression capabilities
@@ -258,8 +258,8 @@ sorted-sequence-set = sequence-set
                     <t>Clarified that UIDs presented in the ARRIVED response MUST be always presented in a sorted order</t>
                     <t>Used a special non-terminal in the ABNF grammar</t>
                     <t>Used correct format for FETCH responses</t>
-                    <t>Clarify that EXISTS must be sent at least once</t>
-                    <t>Clarify that ARRIVED can occur even before the tagged response to SELECT/EXAMINE</t>
+                    <t>Clarify that EXISTS must be sent at least once and SHOULD be sent only once</t>
+                    <t>Clarify that ARRIVED MUST NOT occur before the tagged response to SELECT/EXAMINE</t>
             </list></t>
         </section>
     </section>
