@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+
+<!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC3501 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3501.xml">
+<!ENTITY RFC4467 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4467.xml">
+<!ENTITY RFC4468 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4468.xml">
+<!ENTITY RFC4469 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4469.xml">
+<!ENTITY RFC4551 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4551.xml">
+<!ENTITY RFC5172 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5172.xml">
+<!ENTITY RFC5234 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5234.xml">
+<!ENTITY RFC5321 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5321.xml">
+<!ENTITY RFC5550 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5550.xml">
+]>
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<?rfc strict="yes" ?>
+<?rfc toc="yes"?>
+<?rfc tocdepth="4"?>
+<?rfc symrefs="yes"?>
+<?rfc sortrefs="yes" ?>
+<?rfc compact="yes" ?>
+<?rfc subcompact="no" ?>
+<rfc category="std" docName="draft-imap-sendmail-00" ipr="trust200902">
+
+  <front>
+    <title>IMAP SENDMAIL Extension</title>
+
+    <author fullname="Jan Kundrat" initials="J." surname="Kundrat">
+      <address>
+        <postal>
+          <street>Eledrova 558</street>
+          <city>Prague</city>
+          <code>181 00</code>
+          <country>CZ</country>
+        </postal>
+        <email>jkt@flaska.net</email>
+      </address>
+    </author>
+
+    <date year="2012" />
+
+    <area>General</area>
+    <workgroup>Internet Engineering Task Force</workgroup>
+
+    <keyword>IMAP</keyword>
+    <keyword>QRESYNC</keyword>
+    <keyword>EXISTS</keyword>
+    <keyword>EXPUNGE</keyword>
+    <keyword>VANISHED</keyword>
+    <keyword>ARRIVED</keyword>
+
+    <abstract>
+        <t>This document extends the IMAP protocl with a feature to submit e-mail messages for delivery.</t>
+    </abstract>
+  </front>
+
+  <middle>
+    <section title="Introduction">
+        <t>Many proposals exist which aim at providing the forward-without-download feature where user can reuse parts
+            of her message for composing and sending a new one.  The CATENATE extension <xref target="RFC4469"/> adds a
+            method for constructing an IMAP message from parts to be obtained purely on the server side; the LEMONADE
+            extension <xref target="RFC5550"/> mandates full support for BURL <xref target="RFC4468"/> and URLAUTH <xref
+                target="RFC4467"/>.  Together with a properly configured IMAP and SMTP servers and with enough client
+            support, these extensions allow for possibility to forward messages without a prior download.</t>
+        
+        <t>This functionality puts a certain burden on clients -- each of them must be properly configured with two
+            accounts instead of one.  It is not enough to configure user's client for access to IMAP, one must also
+            provide all details for a proper SMTP server if it's required to be able to send e-mails.  In addition, both
+            SMTP and IMAP servers have to be properly configured to allow an additional mode of authentication and
+            authorization.</t>
+
+        <t>This extension drastically simplifies the client operation and minimizes configuration requirements on the
+            server side.  If combined with the existing CATENATE extension <xref target="RFC4469"/>, it works at least
+            as effectively as the Lemonade trio.</t>
+
+      <section title="Requirements Language">
+        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+        "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+        document are to be interpreted as described in <xref
+        target="RFC2119">RFC 2119</xref>.</t>
+      </section>
+    </section>
+
+    <section title="Mode of Operation">
+        <t>The SENDMAIL extension adds the UID SENDMAIL IMAP command which instructs the IMAP server to arrange for
+            delivery of an already existing IMAP message.  How this message is composed is outside of scope of this
+            extension, but it is assumed that clients would often used the APPEND or APPEND ... CATENATE commands.</t>
+
+        <t>Upon receiving the SENDMAIL command, the IMAP server is asked for arranging of message submission.  Clients
+            MAY pass additional data in form of various options of the SENDMAIL command.</t>
+    </section>
+
+    <section title="IMAP Protocol Changes">
+        <section title="New IMAP Capabilities">
+            <section title="The SENDMAIL Capability">
+                <t>Servers implementing this extenion announce its presence through the SENDMAIL capability.  If the
+                    server supports this extension but it is disabled by a security policy or service configuration,
+                    this capability MUST NOT be announced.</t>
+            </section>
+
+            <section title="The SENDMAIL= Capabilities Family">
+                <t>The SENDMAIL command contains optional features.  Servers supporting these features MUST indicate so
+                    by including the appropriate strings in the CAPABILITY responses.  All capabilities used for these
+                    purposes use the SENDMAIL= prefix.</t>
+
+                <section title="SENDMAIL=DSN">
+                    <t>If the server supports user control of generating the DSNs, it MUST announce the SENDMAIL=DSN
+                        capability.  Clients MUST NOT attempt to control DSN options unless the server announced
+                        SENDMAIL=DSN.</t>
+                </section>
+
+                <!--section title="SENDMAIL=FIXEDSENDER">
+                    <t>The SENDMAIL=FIXEDSENDER capability indicates to clients that they MUST NOT attempt to use the
+                        SENDER option for the SENDMAIL command.  Servers MUST reject any SENDMAIL command containing the
+                        SENDER option with a tagged NO command containing the INVALIDSENDER resonse code.</t>
+
+                    <t>If this capability is announced, servers MUST infer the e-mail address used as the sender item in
+                        message envelope from the identity of the authenticated user.</t>
+                </section-->
+            </section>
+        </section>
+
+        <section title="Additional Response Codes">
+            <section title="The POLICYDENIED Response Code">
+                <t>The POLICYDENIED response code SHOULD be used if the server rejects message submission as a result of
+                    a policy based decision which MAY take the message content, user's behavior and transaction history
+                    into account.</t>
+            </section>
+
+            <section title="The NOTSUBMITPENDING Response Code">
+                <t>The NOTSUBMITPENDING response code MUST be used if the client asks for submission of a message not
+                    marked with the $SubmitPending keyword.</t>
+            </section>
+        </section>
+
+        <section title="UID SENDMAIL command">
+            <t>The UID SENDMAIL command submits a message for delivery.</t>
+
+            <t>Arguments: <list style="symbols">
+                <t>UID of message to be sent</t>
+                <t>optional list of submission options</t>
+                <t>message literal</t>
+            </list></t>
+
+            <t>Responses: optional FETCH response with updated message flags</t>
+
+            <t>Result: <list style="hanging">
+                    <t hangText="OK">Message submitted for delivery</t>
+                    <t hangText="NO">Submission is not allowed</t>
+                    <t hangText="BAD">Invalid commands or options</t>
+            </list></t>
+
+            <t>The server MUST check its local policy configuration and verify that the authenticated user is allowed to
+                submit messages.  The decision MAY be based on the user's credentials, the message contents, or past
+                history of the user.  The server SHOULD take into account any other local policies before it proceeds
+                with further submission.</t>
+
+            <t>This command is only valid in the selected state.</t>
+
+            <t>Clients MUST NOT submit a message which is not marked with the $SubmitPending keyword from <xref target="RFC5550"/>.  Servers MUST reject such a command with a tagged NO bearing the NOTSUBMITPENDING response code.</t>
+                
+            <t>If the command succeeded, the message MUST be marked with the $Submitted keyword and the $SubmitPending
+                keyword MUST be cleared. A FETCH response containing the message UID and its new flags MUST be sent.
+                Transition between these states MAY involve a temporary state where a message is marked with both
+                $Submitted and $SubmitPending.  This transition MAY be visible also in parallel sessions.  If the server
+                supports CONDSTORE <xref target="RFC4551"/> or QRESYNC <xref target="RFC5172"/> extensions, these flag
+                changes MUST obey the usual MODSEQ invariants.</t>
+
+            <t>The server MUST process all specified submission options.  The server MUST respond with a tagged BAD if
+                the client used unrecognized or unannounced submission option.  If the server cannot honor a recognized
+                and announced submission option, it MUST respond with a tagged NO and the POLICYDENIED response
+                code.</t>
+
+            <section title="Submission options">
+                <t>The following submission options are defined by this extension:</t>
+
+                <section title="FROM Submission Option">
+                    <t>Syntax: one e-mail address</t>
+
+                    <t>The FROM submission option corresponds to the FROM field of the SMTP envelope.  If not present,
+                        its value MUST be inferred from the message payload.</t>
+
+                    <t>It is an error if the FROM submission option is present multiple times.</t>
+                </section>
+
+                <section title="SENDER Submission Option">
+                    <t>Syntax: one e-mail address</t>
+                    <t>The SENDER submission option corresponds to the SENDER field of the SMTP envelope.  If not
+                        present, its value MUST be inferred from the computed value of the FROM submission option or
+                        from the message payload.</t>
+                    <t>It is an error if the SENDER submission option is present multiple times.</t>
+                </section>
+
+                <section title="DSN Submission Option">
+                    <t>Syntax: delivery status notice specification</t>
+                    <t>The DSN controls generating of delivery status notifications related to the currently submitted
+                        message.  When not given, an implementation-defined default value MUST be used.</t>
+                    <t>It is an error if the DSN submission option is present multiple times.</t>
+                    <t>Clients MUST NOT specify the DSN submission option unless the server announces the SENDMAIL=DSN
+                        capability.</t>
+                </section>
+
+                <section title="RECIPIENT Submission Option">
+                    <t>Syntax: one e-mail address</t>
+
+                    <t>The RECIPIENT submission option corresponds to the TO field of the SMTP envelope.  If not
+                        present, its value MUST be inferred from the message payload, notably from the To, Cc and Bcc
+                        headers.</t>
+
+                    <t>The RECIPIENT submission option MAY be present more than once.  Servers MAY impose a limit on the
+                        number of recipients of a single message.</t>
+
+                    <t>If the RECIPIENT submission option is present, servers MUST ignore any To, Cc and Bcc headers in
+                        the message payload when determining the list of recipients of this message.  That is, the final
+                        list of recipients of the message MUST consist exactly of those recipients specified in the
+                        RECIPIENT submission options.</t>
+
+                    <t>Servers MAY impose a local policy decision about always sending a copy of message to a certain
+                        address.  This operation MUST NOT affect the user-specified list of recipients passed through
+                        the RECIPIENTS submission options.</t>
+
+                    <t>Message submission MUST be atomic -- message is either submitted for delivery to all of the
+                        recipients, or it MUST NOT be submitted for anyone.</t>
+                </section>
+            </section>
+        </section>
+    </section>
+
+    <section title="Example">
+        <t>This section contains an example of how message submission over IMAP works.</t>
+
+        <t>The following example shows how client should submit a message with UID 123 in the current mailbox for
+            delivery.  If the message is passed through SMTP, its From address in the SMTP envelope MUST be set to
+            foo@example.org, the Sender to bar@example.org and it MUST be submitted for delivery to two recipients, the
+            a@example.org and b@example.org.</t>
+
+        <figure align="center">
+            <artwork align="left"><![CDATA[
+C: x UID SENDMAIL 123 (FROM "foo@example.org"
+        SENDER "bar@example.org"
+        RECIPIENT "a@example.org"
+        RECIPIENT "b@example.org"
+        DSN (delay failure)
+    )
+S: * 10 FETCH (UID 123 FLAGS ($Submitted))
+S: x OK Message passed to the sendmail binary]]></artwork>
+        </figure>
+
+        <t>In the following example, a message is delivered to addresses specified in the message payload.  No submission options are given, and therefore the From and Sender envelope items are inferred from the actual payload.</t>
+
+        <figure align="center">
+            <artwork align="left"><![CDATA[
+C: x UID SENDMAIL 123
+S: * 10 FETCH (UID 123 FLAGS ($Submitted))
+S: x OK Message passed to the sendmail binary]]></artwork>
+        </figure>
+
+    </section>
+
+    <section anchor="Acknowledgements" title="Acknowledgements">
+      <t>FIXME</t>
+    </section>
+
+    <section anchor="IANA" title="IANA Considerations">
+      <t>IMAP4 capabilities are registered by publishing a standards track or IESG approved experimental RFC.  The
+          registry is currently located at:</t>
+      <t>http://www.iana.org/assignments/imap4-capabilities</t>
+      <t>This document defines the following list of IMAP capabilities.  IANA will be asked to add them to the
+          registry:</t>
+      <t><list style="symbols">
+              <t>SENDMAIL</t>
+              <t>SENDMAIL=DSN</t>
+      </list></t>
+    </section>
+
+    <section anchor="ABNF" title="Formal Syntax">
+        <t>The following syntax specification uses the Augmented Backus-Naur
+            Form (ABNF) notation as specified in <xref target="RFC5234"/>.</t>
+
+        <t>Non-terminals referenced but not defined below are as defined by
+            <xref target="RFC3501"/>, or <xref target="RFC5234"/>.</t>
+
+        <figure align="center">
+            <artwork align="left" type="abnf"><![CDATA[
+capability          =/ "SENDMAIL" / "SENDMAIL=DSN"
+
+uid                 =/ "UID" SP sendmail
+
+sendmail            = "SENDMAIL" SP uniqueid [SP submission-options]
+
+submission-options  = "(" submission-option *( SP submission-option ) ")"
+
+submission-option   = sub-option-from / sub-option-sender /
+                      sub-option-recipient / sub-option-dsn
+
+sub-option-from     = "FROM" SP one-email-addr
+                      ;; MUST NOT be present more than once
+
+sub-option-sender   = "SENDER" SP one-email-addr
+                      ;; MUST NOT be present more than once
+
+sub-option-recipient= "RECIPIENT" SP one-email-addr
+                      ;; MAY be present more than once
+
+sub-option-dsn      = "DSN" SP ( NIL / dsn-spec )
+                      ;; MUST NOT be present more than once
+
+dsn-spec            = "(" dsn-spec-item *( SP dsn-spec-item ) ")"
+                      ;; an individual dsn-spec-item MUST NOT
+                      ;; be present more than once
+
+dsn-spec-item       = "DELAY" / "FAILURE" / "SUCCESS"
+
+one-email-addr      = string
+                      ;; valid e-mail address as per [RFC5321]
+]]></artwork>
+        </figure>
+    </section>
+
+    <section anchor="Security" title="Security Considerations">
+        <t>FIXME</t>
+    </section>
+  </middle>
+
+  <back>
+    <references title="Normative References">
+      &RFC2119;
+
+      &RFC5234;
+
+      &RFC3501;
+
+      &RFC4467;
+
+      &RFC4468;
+
+      &RFC4469;
+
+      &RFC4551;
+
+      &RFC5172;
+
+      &RFC5321;
+
+      &RFC5550;
+    </references>
+
+    <section anchor="FIXME" title="FIXME Items">
+      <t>FIXME: better citations</t>
+      <t>FIXME: clarify order of inference for the FROM and SENDER submission options</t>
+      <t>What's got higher priority, NOTSUBMITPENDING or POLICYDENIED? :)</t>
+      <t>IANA and the response codes</t>
+    </section>
+  </back>
+</rfc>
