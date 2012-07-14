@@ -50,7 +50,7 @@
     <keyword>ARRIVED</keyword>
 
     <abstract>
-        <t>This document extends the IMAP protocl with a feature to submit e-mail messages for delivery.</t>
+        <t>This document extends the IMAP protocol with a feature to submit e-mail messages for delivery.</t>
     </abstract>
   </front>
 
@@ -93,7 +93,7 @@
     <section title="IMAP Protocol Changes">
         <section title="New IMAP Capabilities">
             <section title="The SENDMAIL Capability">
-                <t>Servers implementing this extenion announce its presence through the SENDMAIL capability.  If the
+                <t>Servers implementing this extension announce its presence through the SENDMAIL capability.  If the
                     server supports this extension but it is disabled by a security policy or service configuration,
                     this capability MUST NOT be announced.</t>
             </section>
@@ -157,7 +157,9 @@
 
             <t>This command is only valid in the selected state.</t>
 
-            <t>Clients MUST NOT submit a message which is not marked with the $SubmitPending keyword from <xref target="RFC5550"/>.  Servers MUST reject such a command with a tagged NO bearing the NOTSUBMITPENDING response code.</t>
+            <t>Clients MUST NOT submit a message which is not marked with the $SubmitPending keyword from <xref
+                    target="RFC5550"/>.  Servers MUST reject such a command with a tagged NO bearing the
+                NOTSUBMITPENDING response code.</t>
                 
             <t>If the command succeeded, the message MUST be marked with the $Submitted keyword and the $SubmitPending
                 keyword MUST be cleared. A FETCH response containing the message UID and its new flags MUST be sent.
