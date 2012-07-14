@@ -3,11 +3,13 @@
 
 <!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY RFC3501 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3501.xml">
+<!ENTITY RFC4409 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4409.xml">
 <!ENTITY RFC4467 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4467.xml">
 <!ENTITY RFC4468 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4468.xml">
 <!ENTITY RFC4469 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4469.xml">
 <!ENTITY RFC4551 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4551.xml">
 <!ENTITY RFC5172 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5172.xml">
+<!ENTITY RFC5228 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5228.xml">
 <!ENTITY RFC5234 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5234.xml">
 <!ENTITY RFC5321 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5321.xml">
 <!ENTITY RFC5550 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5550.xml">
@@ -349,7 +351,11 @@ one-email-addr      = string
     </section>
 
     <section anchor="Security" title="Security Considerations">
-        <t>FIXME</t>
+        <t>This extension introduces a way of allowing authenticated users to submit Internet mail.  Servers supporting
+            this extension SHOULD implement the same security measures as other SUBMISSION <xref target="RFC4409"/>
+            servers open to users.</t>
+        <t>The redirect command from SIEVE <xref target="RFC5228"/> already requires some types of IMAP message stores
+            to be able to generate outgoing mail.  Security considerations for this extension are similar.</t>
     </section>
   </middle>
 
@@ -361,6 +367,8 @@ one-email-addr      = string
 
       &RFC3501;
 
+      &RFC4409;
+
       &RFC4467;
 
       &RFC4468;
@@ -370,6 +378,8 @@ one-email-addr      = string
       &RFC4551;
 
       &RFC5172;
+
+      &RFC5228;
 
       &RFC5321;
 
