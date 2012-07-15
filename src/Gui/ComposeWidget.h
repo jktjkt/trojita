@@ -23,7 +23,7 @@
 
 #include <QWidget>
 
-#include "Imap/Parser/Message.h"
+#include "Imap/Model/MessageComposer.h"
 
 namespace Ui
 {
@@ -52,12 +52,6 @@ public:
     ComposeWidget(MainWindow *parent, QAbstractListModel *autoCompleteModel);
     ~ComposeWidget();
 
-    typedef enum {
-        Recipient_To,
-        Recipient_Cc,
-        Recipient_Bcc
-    } RecipientKind;
-
     void setData(const QString &from,
                  const QList<QPair<QString, QString> > &recipients,
                  const QString &subject,
@@ -74,11 +68,9 @@ private slots:
     void handleRecipientAddressChange();
 
 private:
-    static QByteArray encodeHeaderField(const QString &text);
     static QByteArray extractMailAddress(const QString &text, bool &ok);
     void addRecipient(int position, const QString &kind, const QString &address);
-    bool parseRecipients(QList<QPair<ComposeWidget::RecipientKind, Imap::Message::MailAddress> > &results);
-    static QByteArray generateMessageId(const Imap::Message::MailAddress &sender);
+    bool parseRecipients(QList<QPair<Imap::Mailbox::MessageComposer::RecipientKind, Imap::Message::MailAddress> > &results);
 
     bool buildMessageData();
 
@@ -87,13 +79,10 @@ private:
     QPushButton *cancelButton;
     QList<QComboBox *> recipientsKind;
     QList<QLineEdit *> recipientsAddress;
-    QByteArray m_inReplyTo;
 
-    QByteArray m_rawMessageData;
-    QByteArray m_fromAddress;
-    QList<QByteArray> m_destinations;
-    QDateTime m_messageTimestamp;
     MainWindow *m_mainWindow;
+
+    Imap::Mailbox::MessageComposer *m_composer;
 
     ComposeWidget(const ComposeWidget &); // don't implement
     ComposeWidget &operator=(const ComposeWidget &); // don't implement

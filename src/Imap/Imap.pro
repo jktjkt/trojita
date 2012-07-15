@@ -84,7 +84,8 @@ SOURCES += Parser/Parser.cpp \
     Model/VisibleTasksModel.cpp \
     Model/SubtreeModel.cpp \
     Model/OneMessageModel.cpp \
-    Model/FindInterestingPart.cpp
+    Model/FindInterestingPart.cpp \
+    Model/MessageComposer.cpp
 HEADERS += Parser/Parser.h \
     Parser/Command.h \
     Parser/Response.h \
@@ -160,6 +161,7 @@ HEADERS += Parser/Parser.h \
     Model/VisibleTasksModel.h \
     Model/SubtreeModel.h \
     Model/OneMessageModel.h \
-    Model/FindInterestingPart.h
+    Model/FindInterestingPart.h \
+    Model/MessageComposer.h
 
 XtConnect:DEFINES += XTUPLE_CONNECT

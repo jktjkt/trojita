@@ -19,12 +19,10 @@
    Boston, MA 02110-1301, USA.
 */
 #include <QCompleter>
-#include <QDateTime>
 #include <QMessageBox>
 #include <QProgressDialog>
 #include <QPushButton>
 #include <QSettings>
-#include <QUuid>
 
 #include "AutoCompletion.h"
 #include "ComposeWidget.h"
@@ -34,9 +32,7 @@
 #include "Common/SettingsNames.h"
 #include "MSA/Sendmail.h"
 #include "MSA/SMTP.h"
-#include "Imap/Encoders.h"
 #include "Imap/Model/Model.h"
-#include "Imap/Model/Utils.h"
 
 namespace
 {
@@ -53,6 +49,7 @@ ComposeWidget::ComposeWidget(MainWindow *parent, QAbstractListModel *autoComplet
     recipientCompleter(new QCompleter(this))
 {
     Q_ASSERT(m_mainWindow);
+    m_composer = new Imap::Mailbox::MessageComposer(this);
     ui->setupUi(this);
     sendButton = ui->buttonBox->addButton(tr("Send"), QDialogButtonBox::AcceptRole);
     connect(sendButton, SIGNAL(clicked()), this, SLOT(send()));
@@ -89,68 +86,29 @@ void ComposeWidget::changeEvent(QEvent *e)
 
 bool ComposeWidget::buildMessageData()
 {
-    m_rawMessageData.clear();
-    m_fromAddress.clear();
-    m_destinations.clear();
-    m_messageTimestamp = QDateTime::currentDateTime();
-
-    QList<QPair<RecipientKind,Imap::Message::MailAddress> > recipients;
+    QList<QPair<Imap::Mailbox::MessageComposer::RecipientKind,Imap::Message::MailAddress> > recipients;
     if (!parseRecipients(recipients)) {
         gotError(tr("Cannot parse recipients"));
         return false;
     }
-
-    QByteArray recipientHeaders;
-    for (QList<QPair<RecipientKind,Imap::Message::MailAddress> >::const_iterator it = recipients.begin();
-         it != recipients.end(); ++it) {
-        m_destinations << it->second.asSMTPMailbox();
-        switch(it->first) {
-        case Recipient_To:
-            recipientHeaders.append("To: ").append(it->second.asMailHeader()).append("\r\n");
-            break;
-        case Recipient_Cc:
-            recipientHeaders.append("Cc: ").append(it->second.asMailHeader()).append("\r\n");
-            break;
-        case Recipient_Bcc:
-            break;
-        }
-    }
-
-    if (m_destinations.isEmpty()) {
+    if (recipients.isEmpty()) {
         gotError(tr("You haven't entered any recipients"));
         return false;
     }
+    m_composer->setRecipients(recipients);
 
     Imap::Message::MailAddress fromAddress;
     if (!Imap::Message::MailAddress::fromPrettyString(fromAddress, ui->sender->currentText())) {
         gotError(tr("The From: address does not look like a valid one"));
         return false;
     }
-    m_fromAddress = fromAddress.asSMTPMailbox();
+    m_composer->setFrom(fromAddress);
 
-    m_rawMessageData.append("From: ").append(fromAddress.asMailHeader()).append("\r\n");
-    m_rawMessageData.append(recipientHeaders);
-    m_rawMessageData.append("Subject: ").append(encodeHeaderField(ui->subject->text())).append("\r\n");
-    m_rawMessageData.append("Date: ").append(Imap::dateTimeToRfc2822(m_messageTimestamp)).append("\r\n");
-    m_rawMessageData.append("User-Agent: ").append(
-                QString::fromAscii("%1/%2; %3")
-                .arg(qApp->applicationName(), qApp->applicationVersion(), Imap::Mailbox::systemPlatformVersion()).toAscii()
-    ).append("\r\n");
-    m_rawMessageData.append("MIME-Version: 1.0\r\n");
-    QByteArray messageId = generateMessageId(fromAddress);
-    if (!messageId.isEmpty()) {
-        m_rawMessageData.append("Message-ID: <").append(messageId).append(">\r\n");
-    }
-    if (!m_inReplyTo.isEmpty()) {
-        m_rawMessageData.append("In-Reply-To: ").append(m_inReplyTo).append("\r\n");
-    }
+    m_composer->setTimestamp(QDateTime::currentDateTime());
+    m_composer->setSubject(ui->subject->text());
+    m_composer->setText(ui->mailText->toPlainText());
 
-    m_rawMessageData.append("Content-Type: text/plain; charset=utf-8\r\n"
-                            "Content-Transfer-Encoding: quoted-printable\r\n");
-    m_rawMessageData.append("\r\n");
-    m_rawMessageData.append(Imap::quotedPrintableEncode(ui->mailText->toPlainText().toUtf8()));
-
-    return true;
+    return m_composer->isReadyForSerialization();
 }
 
 void ComposeWidget::send()
@@ -162,12 +120,14 @@ void ComposeWidget::send()
     using Common::SettingsNames;
     QSettings s;
 
+    QByteArray rawMessageData = m_composer->asRawMessage();
+
     if (s.value(SettingsNames::composerSaveToImapKey, true).toBool()) {
         Q_ASSERT(m_mainWindow->imapModel());
         // FIXME: without UIDPLUS, there isn't much point in $SubmitPending...
         m_mainWindow->imapModel()->appendIntoMailbox(s.value(SettingsNames::composerImapSentKey, tr("Sent")).toString(),
-                                                     m_rawMessageData, QStringList() << QLatin1String("$SubmitPending"),
-                                                     m_messageTimestamp);
+                                                     rawMessageData, QStringList() << QLatin1String("$SubmitPending"),
+                                                     m_composer->timestamp());
     }
 
     MSA::AbstractMSA *msa = 0;
@@ -192,7 +152,7 @@ void ComposeWidget::send()
     }
 
     QProgressDialog *progress = new QProgressDialog(
-        tr("Sending mail"), tr("Abort"), 0, m_rawMessageData.size(), this);
+        tr("Sending mail"), tr("Abort"), 0, rawMessageData.size(), this);
     progress->setMinimumDuration(0);
     connect(msa, SIGNAL(progressMax(int)), progress, SLOT(setMaximum(int)));
     connect(msa, SIGNAL(progress(int)), progress, SLOT(setValue(int)));
@@ -206,23 +166,10 @@ void ComposeWidget::send()
     setEnabled(false);
     progress->setEnabled(true);
 
-    msa->sendMail(m_fromAddress, m_destinations, m_rawMessageData);
+    msa->sendMail(m_composer->rawFromAddress(), m_composer->rawRecipientAddresses(), rawMessageData);
 }
 
-QByteArray ComposeWidget::generateMessageId(const Imap::Message::MailAddress &sender)
-{
-    if (sender.host.isEmpty()) {
-        // There's no usable domain, let's just bail out of here
-        return QByteArray();
-    }
-    return QUuid::createUuid()
-#if QT_VERSION >= 0x040800
-            .toByteArray()
-#else
-            .toString().toAscii()
-#endif
-            .replace("{", "").replace("}", "") + "@" + sender.host.toAscii();
-}
+
 
 void ComposeWidget::setData(const QString &from, const QList<QPair<QString, QString> > &recipients,
                             const QString &subject, const QString &body, const QByteArray &inReplyTo)
@@ -238,7 +185,7 @@ void ComposeWidget::setData(const QString &from, const QList<QPair<QString, QStr
         addRecipient(recipients.size(), recipients.last().first, QString());
     ui->subject->setText(subject);
     ui->mailText->setText(body);
-    m_inReplyTo = inReplyTo;
+    m_composer->setInReplyTo(inReplyTo);
 }
 
 void ComposeWidget::addRecipient(int position, const QString &kind, const QString &address)
@@ -303,22 +250,15 @@ void ComposeWidget::sent()
     setEnabled(true);
 }
 
-QByteArray ComposeWidget::encodeHeaderField(const QString &text)
-{
-    /* This encodes an "unstructured" header field */
-    /* FIXME: Don't apply RFC2047 if it isn't needed */
-    return Imap::encodeRFC2047String(text);
-}
-
-bool ComposeWidget::parseRecipients(QList<QPair<ComposeWidget::RecipientKind, Imap::Message::MailAddress> > &results)
+bool ComposeWidget::parseRecipients(QList<QPair<Imap::Mailbox::MessageComposer::RecipientKind, Imap::Message::MailAddress> > &results)
 {
     Q_ASSERT(recipientsAddress.size() == recipientsKind.size());
     for (int i = 0; i < recipientsAddress.size(); ++i) {
-        RecipientKind kind = Recipient_To;
+        Imap::Mailbox::MessageComposer::RecipientKind kind = Imap::Mailbox::MessageComposer::Recipient_To;
         if (recipientsKind[i]->currentText() == tr("Cc"))
-            kind = Recipient_Cc;
+            kind = Imap::Mailbox::MessageComposer::Recipient_Cc;
         else if (recipientsKind[i]->currentText() == tr("Bcc"))
-            kind = Recipient_Bcc;
+            kind = Imap::Mailbox::MessageComposer::Recipient_Bcc;
 
         int offset = 0;
         QString text = recipientsAddress[i]->text();
