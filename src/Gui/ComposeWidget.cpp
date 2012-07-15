@@ -131,22 +131,22 @@ bool ComposeWidget::buildMessageData()
     m_rawMessageData.append("From: ").append(fromAddress.asMailHeader()).append("\r\n");
     m_rawMessageData.append(recipientHeaders);
     m_rawMessageData.append("Subject: ").append(encodeHeaderField(ui->subject->text())).append("\r\n");
-    m_rawMessageData.append("Content-Type: text/plain; charset=utf-8\r\n"
-                            "Content-Transfer-Encoding: quoted-printable\r\n");
-
-    QByteArray messageId = generateMessageId(fromAddress);
-    if (!messageId.isEmpty()) {
-        m_rawMessageData.append("Message-ID: <").append(messageId).append(">\r\n");
-    }
     m_rawMessageData.append("Date: ").append(Imap::dateTimeToRfc2822(m_messageTimestamp)).append("\r\n");
     m_rawMessageData.append("User-Agent: ").append(
                 QString::fromAscii("%1/%2; %3")
                 .arg(qApp->applicationName(), qApp->applicationVersion(), Imap::Mailbox::systemPlatformVersion()).toAscii()
     ).append("\r\n");
     m_rawMessageData.append("MIME-Version: 1.0\r\n");
+    QByteArray messageId = generateMessageId(fromAddress);
+    if (!messageId.isEmpty()) {
+        m_rawMessageData.append("Message-ID: <").append(messageId).append(">\r\n");
+    }
     if (!m_inReplyTo.isEmpty()) {
         m_rawMessageData.append("In-Reply-To: ").append(m_inReplyTo).append("\r\n");
     }
+
+    m_rawMessageData.append("Content-Type: text/plain; charset=utf-8\r\n"
+                            "Content-Transfer-Encoding: quoted-printable\r\n");
     m_rawMessageData.append("\r\n");
     m_rawMessageData.append(Imap::quotedPrintableEncode(ui->mailText->toPlainText().toUtf8()));
 
