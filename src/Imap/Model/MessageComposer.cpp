@@ -302,6 +302,8 @@ QByteArray FileAttachmentItem::contentDispositionHeader() const
     // Looks like Thunderbird ignores attachments with funky MIME type sent with "Content-Disposition: attachment"
     // when they are not marked with the "filename" option.
     // Either I'm having a really, really bad day and I'm missing something, or they made a rather stupid bug.
+
+    // FIXME: support RFC 2231 and its internationalized file names
     QByteArray shortFileName = QFileInfo(fileName).fileName().toAscii();
     if (shortFileName.isEmpty())
         shortFileName = "attachment";
