@@ -67,6 +67,8 @@ private slots:
     void sent();
     void handleRecipientAddressChange();
 
+    void slotAskForFileAttachment();
+
 private:
     static QByteArray extractMailAddress(const QString &text, bool &ok);
     void addRecipient(int position, const QString &kind, const QString &address);

@@ -6,6 +6,9 @@
    <string>Compose Mail</string>
   </property>
   <layout class="QFormLayout" name="formLayout">
+   <property name="fieldGrowthPolicy">
+    <enum>QFormLayout::ExpandingFieldsGrow</enum>
+   </property>
    <item row="0" column="0" colspan="2">
     <widget class="QLabel" name="developmentWarning">
      <property name="palette">
@@ -96,7 +99,7 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="0" colspan="2">
+   <item row="6" column="0" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QDialogButtonBox" name="buttonBox">
@@ -106,6 +109,38 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item row="4" column="1">
+    <widget class="QListView" name="attachmentsView">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>64</width>
+       <height>40</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>40</height>
+      </size>
+     </property>
+     <property name="flow">
+      <enum>QListView::LeftToRight</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QPushButton" name="attachButton">
+     <property name="text">
+      <string>Attach...</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

@@ -1,5 +1,7 @@
 #include "MessageComposer.h"
 #include <QCoreApplication>
+#include <QFileInfo>
+#include <QProcess>
 #include <QUuid>
 #include "Imap/Encoders.h"
 #include "Imap/Model/Utils.h"
@@ -12,13 +14,27 @@ MessageComposer::MessageComposer(QObject *parent) :
 {
 }
 
+MessageComposer::~MessageComposer()
+{
+    qDeleteAll(m_attachments);
+}
+
 int MessageComposer::rowCount(const QModelIndex &parent) const
 {
-    return 0;
+    return parent.isValid() ? 0 : m_attachments.size();
 }
 
 QVariant MessageComposer::data(const QModelIndex &index, int role) const
 {
+    if (!index.isValid() || index.column() != 0 || index.row() < 0 || index.row() >= m_attachments.size())
+        return QVariant();
+
+    switch (role) {
+    case Qt::DisplayRole:
+        return m_attachments[index.row()]->caption();
+    case Qt::ToolTipRole:
+        return m_attachments[index.row()]->tooltip();
+    }
     return QVariant();
 }
 
@@ -132,7 +148,7 @@ QByteArray MessageComposer::asRawMessage() const
         res.append("In-Reply-To: ").append(m_inReplyTo).append("\r\n");
     }
 
-    bool hasAttachments = false;
+    const bool hasAttachments = !m_attachments.isEmpty();
 
     // We don't bother with checking that our boundary is not present in the individual parts. That's arguably wrong,
     // but we don't have much choice if we ever plan to use CATENATE.  It also looks like this is exactly how other MUAs
@@ -146,19 +162,25 @@ QByteArray MessageComposer::asRawMessage() const
     }
 
     res.append("Content-Type: text/plain; charset=utf-8\r\n"
-                            "Content-Transfer-Encoding: quoted-printable\r\n");
+               "Content-Transfer-Encoding: quoted-printable\r\n");
     res.append("\r\n");
     res.append(Imap::quotedPrintableEncode(m_text.toUtf8()));
 
     if (hasAttachments) {
-        res.append("\r\n--" + boundary + "\r\n");
-
-        // FIXME: include the attachments here
-        res.append("Content-Type: text/plain\r\n"
-                   "Content-Disposition: attachment; filename=\"foo.txt\"\r\n"
-                   "\r\n"
-                   "Blesmrt text, johoho!\r\n");
-
+        Q_FOREACH(const AttachmentItem *attachment, m_attachments) {
+            Q_ASSERT(attachment->isAvailable());
+            res.append("\r\n--" + boundary + "\r\n");
+            res.append("Content-Type: " + attachment->mimeType() + "\r\n");
+            res.append(attachment->contentDispositionHeader());
+            res.append("Content-Transfer-Encoding: base64\r\n"
+                       "\r\n");
+            attachment->rawData()->seek(0);
+            while (!attachment->rawData()->atEnd()) {
+                // Base64 maps 6bit chunks into a single byte. Output shall have no more than 76 characters per line
+                // (not counting the CRLF pair).
+                res.append(attachment->rawData()->read(76*6/8).toBase64() + "\r\n");
+            }
+        }
         res.append("\r\n--" + boundary + "--\r\n");
     }
     return res;
@@ -184,6 +206,106 @@ QList<QByteArray> MessageComposer::rawRecipientAddresses() const
     }
 
     return res;
+}
+
+void MessageComposer::addFileAttachment(const QString &path)
+{
+    beginInsertRows(QModelIndex(), m_attachments.size(), m_attachments.size());
+    m_attachments << new FileAttachmentItem(path);
+    endInsertRows();
+}
+
+AttachmentItem::~AttachmentItem()
+{
+}
+
+FileAttachmentItem::FileAttachmentItem(const QString &fileName):
+    fileName(fileName), m_io(0)
+{
+}
+
+FileAttachmentItem::~FileAttachmentItem()
+{
+    delete m_io;
+}
+
+QString FileAttachmentItem::caption() const
+{
+    return fileName;
+}
+
+QString FileAttachmentItem::tooltip() const
+{
+    QFileInfo f(fileName);
+
+    if (!f.exists())
+        return MessageComposer::tr("File does not exist");
+
+    if (!f.isReadable())
+        return MessageComposer::tr("File is not readable");
+
+    return MessageComposer::tr("%1: %2, %3").arg(fileName, QString::fromAscii(mimeType()), QString::number(f.size()));
+}
+
+bool FileAttachmentItem::isAvailable() const
+{
+    return QFileInfo(fileName).isReadable();
+}
+
+QIODevice *FileAttachmentItem::rawData() const
+{
+    if (!m_io) {
+        m_io = new QFile(fileName);
+        m_io->open(QIODevice::ReadOnly);
+    }
+    return m_io;
+}
+
+QByteArray FileAttachmentItem::mimeType() const
+{
+    if (!m_cachedMime.isEmpty())
+        return m_cachedMime;
+
+    // At first, try to guess through the xdg-mime lookup
+    QProcess p;
+    p.start(QLatin1String("xdg-mime"), QStringList() << QLatin1String("query") << QLatin1String("filetype") << fileName);
+    p.waitForFinished();
+    m_cachedMime = p.readAllStandardOutput();
+
+    // If the lookup fails, consult a list of hard-coded extensions (nope, I'm not going to bundle mime.types with Trojita)
+    if (m_cachedMime.isEmpty()) {
+        QFileInfo info(fileName);
+
+        QMap<QByteArray,QByteArray> knownTypes;
+        if (knownTypes.isEmpty()) {
+            knownTypes["txt"] = "text/plain";
+            knownTypes["jpg"] = "image/jpeg";
+            knownTypes["jpeg"] = "image/jpeg";
+            knownTypes["png"] = "image/png";
+        }
+        QMap<QByteArray,QByteArray>::const_iterator it = knownTypes.constFind(info.suffix().toLower().toLocal8Bit());
+
+        if (it == knownTypes.constEnd()) {
+            // A catch-all thing
+            m_cachedMime = "application/octet-stream";
+        } else {
+            m_cachedMime = *it;
+        }
+    } else {
+        m_cachedMime = m_cachedMime.split('\n')[0].trimmed();
+    }
+    return m_cachedMime;
+}
+
+QByteArray FileAttachmentItem::contentDispositionHeader() const
+{
+    // Looks like Thunderbird ignores attachments with funky MIME type sent with "Content-Disposition: attachment"
+    // when they are not marked with the "filename" option.
+    // Either I'm having a really, really bad day and I'm missing something, or they made a rather stupid bug.
+    QByteArray shortFileName = QFileInfo(fileName).fileName().toAscii();
+    if (shortFileName.isEmpty())
+        shortFileName = "attachment";
+    return "Content-Disposition: attachment;\r\n\tfilename=\"" + shortFileName + "\"\r\n";
 }
 
 }

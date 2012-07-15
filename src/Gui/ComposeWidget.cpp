@@ -19,6 +19,7 @@
    Boston, MA 02110-1301, USA.
 */
 #include <QCompleter>
+#include <QFileDialog>
 #include <QMessageBox>
 #include <QProgressDialog>
 #include <QPushButton>
@@ -55,6 +56,8 @@ ComposeWidget::ComposeWidget(MainWindow *parent, QAbstractListModel *autoComplet
     connect(sendButton, SIGNAL(clicked()), this, SLOT(send()));
     cancelButton = ui->buttonBox->addButton(QDialogButtonBox::Cancel);
     connect(cancelButton, SIGNAL(clicked()), this, SLOT(close()));
+    ui->attachmentsView->setModel(m_composer);
+    connect(ui->attachButton, SIGNAL(clicked()), this, SLOT(slotAskForFileAttachment()));
 
     // Ask for a fixed-width font. The problem is that these names wary acros platforms,
     // but the following works well -- at first, we come up with a made-up name, and then
@@ -294,6 +297,15 @@ void ComposeWidget::maybeAddNewKnownRecipient(const Imap::Message::MailAddress &
         acMdl->insertRow(0);
         QModelIndex idx = acMdl->index(0,0);
         acMdl->setData(idx,recipient);
+    }
+}
+
+void ComposeWidget::slotAskForFileAttachment()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Attach File..."), QString(), QString(), 0,
+                                                    QFileDialog::DontResolveSymlinks);
+    if (!fileName.isEmpty()) {
+        m_composer->addFileAttachment(fileName);
     }
 }
 
