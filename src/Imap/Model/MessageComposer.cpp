@@ -72,6 +72,19 @@ QByteArray MessageComposer::generateMessageId(const Imap::Message::MailAddress &
             .replace("{", "").replace("}", "") + "@" + sender.host.toAscii();
 }
 
+/** @short Generate a random enough MIME boundary */
+QByteArray MessageComposer::generateMimeBoundary()
+{
+    // Usage of "=_" is recommended by RFC2045 as it's guaranteed to never occur in a quoted-printable source
+    return QByteArray("trojita=_") + QUuid::createUuid()
+#if QT_VERSION >= 0x040800
+            .toByteArray()
+#else
+            .toString().toAscii()
+#endif
+            .replace("{", "").replace("}", "");
+}
+
 QByteArray MessageComposer::encodeHeaderField(const QString &text)
 {
     /* This encodes an "unstructured" header field */
@@ -119,10 +132,35 @@ QByteArray MessageComposer::asRawMessage() const
         res.append("In-Reply-To: ").append(m_inReplyTo).append("\r\n");
     }
 
+    bool hasAttachments = false;
+
+    // We don't bother with checking that our boundary is not present in the individual parts. That's arguably wrong,
+    // but we don't have much choice if we ever plan to use CATENATE.  It also looks like this is exactly how other MUAs
+    // oeprate as well, so let's just join the universal dontcareism here.
+    QByteArray boundary(generateMimeBoundary());
+
+    if (hasAttachments) {
+        res.append("Content-Type: multipart/mixed;\r\n\tboundary=\"" + boundary + "\"\r\n");
+        res.append("\r\nThis is a multipart/mixed message in MIME format.\r\n\r\n");
+        res.append("--" + boundary + "\r\n");
+    }
+
     res.append("Content-Type: text/plain; charset=utf-8\r\n"
                             "Content-Transfer-Encoding: quoted-printable\r\n");
     res.append("\r\n");
     res.append(Imap::quotedPrintableEncode(m_text.toUtf8()));
+
+    if (hasAttachments) {
+        res.append("\r\n--" + boundary + "\r\n");
+
+        // FIXME: include the attachments here
+        res.append("Content-Type: text/plain\r\n"
+                   "Content-Disposition: attachment; filename=\"foo.txt\"\r\n"
+                   "\r\n"
+                   "Blesmrt text, johoho!\r\n");
+
+        res.append("\r\n--" + boundary + "--\r\n");
+    }
     return res;
 }
 

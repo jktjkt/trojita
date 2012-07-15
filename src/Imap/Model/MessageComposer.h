@@ -43,6 +43,7 @@ public:
 private:
     static QByteArray generateMessageId(const Imap::Message::MailAddress &sender);
     static QByteArray encodeHeaderField(const QString &text);
+    static QByteArray generateMimeBoundary();
 
     Message::MailAddress m_from;
     QList<QPair<RecipientKind,Message::MailAddress> > m_recipients;
