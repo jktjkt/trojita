@@ -85,7 +85,8 @@ SOURCES += Parser/Parser.cpp \
     Model/SubtreeModel.cpp \
     Model/OneMessageModel.cpp \
     Model/FindInterestingPart.cpp \
-    Model/MessageComposer.cpp
+    Model/MessageComposer.cpp \
+    Model/ComposerAttachments.cpp
 HEADERS += Parser/Parser.h \
     Parser/Command.h \
     Parser/Response.h \
@@ -162,6 +163,7 @@ HEADERS += Parser/Parser.h \
     Model/SubtreeModel.h \
     Model/OneMessageModel.h \
     Model/FindInterestingPart.h \
-    Model/MessageComposer.h
+    Model/MessageComposer.h \
+    Model/ComposerAttachments.h
 
 XtConnect:DEFINES += XTUPLE_CONNECT
