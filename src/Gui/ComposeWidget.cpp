@@ -50,7 +50,7 @@ ComposeWidget::ComposeWidget(MainWindow *parent, QAbstractListModel *autoComplet
     recipientCompleter(new QCompleter(this))
 {
     Q_ASSERT(m_mainWindow);
-    m_composer = new Imap::Mailbox::MessageComposer(this);
+    m_composer = new Imap::Mailbox::MessageComposer(m_mainWindow->imapModel(), this);
     ui->setupUi(this);
     sendButton = ui->buttonBox->addButton(tr("Send"), QDialogButtonBox::AcceptRole);
     connect(sendButton, SIGNAL(clicked()), this, SLOT(send()));
@@ -58,6 +58,9 @@ ComposeWidget::ComposeWidget(MainWindow *parent, QAbstractListModel *autoComplet
     connect(cancelButton, SIGNAL(clicked()), this, SLOT(close()));
     ui->attachmentsView->setModel(m_composer);
     connect(ui->attachButton, SIGNAL(clicked()), this, SLOT(slotAskForFileAttachment()));
+    ui->attachmentsView->setAcceptDrops(true);
+    ui->attachmentsView->setDragEnabled(true);
+    ui->attachmentsView->setDropIndicatorShown(true);
 
     // Ask for a fixed-width font. The problem is that these names wary acros platforms,
     // but the following works well -- at first, we come up with a made-up name, and then

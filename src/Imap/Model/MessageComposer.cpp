@@ -2,6 +2,7 @@
 #include <QBuffer>
 #include <QCoreApplication>
 #include <QFileInfo>
+#include <QMimeData>
 #include <QProcess>
 #include <QUuid>
 #include "Imap/Encoders.h"
@@ -12,8 +13,8 @@
 namespace Imap {
 namespace Mailbox {
 
-MessageComposer::MessageComposer(QObject *parent) :
-    QAbstractListModel(parent)
+MessageComposer::MessageComposer(Model *model, QObject *parent) :
+    QAbstractListModel(parent), m_model(model)
 {
 }
 
@@ -39,6 +40,74 @@ QVariant MessageComposer::data(const QModelIndex &index, int role) const
         return m_attachments[index.row()]->tooltip();
     }
     return QVariant();
+}
+
+Qt::DropActions MessageComposer::supportedDropActions() const
+{
+    return Qt::CopyAction | Qt::MoveAction;
+}
+
+Qt::ItemFlags MessageComposer::flags(const QModelIndex &index) const
+{
+    Qt::ItemFlags f = QAbstractListModel::flags(index);
+
+    if (index.isValid()) {
+        f |= Qt::ItemIsDragEnabled;
+    }
+    f |= Qt::ItemIsDropEnabled;
+    return f;
+}
+
+bool MessageComposer::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+    if (action == Qt::IgnoreAction)
+        return true;
+
+    if (!data->hasFormat(QLatin1String("application/x-trojita-message-list")))
+        return false;
+
+    if (column > 0)
+        return false;
+
+    if (!m_model)
+        return false;
+
+    QByteArray encodedData = data->data("application/x-trojita-message-list");
+    QDataStream stream(&encodedData, QIODevice::ReadOnly);
+
+    Q_ASSERT(!stream.atEnd());
+    QString mailbox;
+    uint uidValidity;
+    QList<uint> uids;
+    stream >> mailbox >> uidValidity >> uids;
+    Q_ASSERT(stream.atEnd());
+
+    TreeItemMailbox *mboxPtr = m_model->findMailboxByName(mailbox);
+    if (!mboxPtr) {
+        qDebug() << "drag-and-drop: mailbox not found";
+        return false;
+    }
+
+    if (mboxPtr->syncState.uidValidity() != uidValidity) {
+        qDebug() << "drag-and-drop: UIDVALIDITY has changed, dragged" << uidValidity << ", now" << mboxPtr->syncState.uidValidity();
+        return false;
+    }
+
+    if (uids.size() < 1)
+        return false;
+
+    beginInsertRows(QModelIndex(), m_attachments.size(), m_attachments.size() + uids.size() - 1);
+    Q_FOREACH(const uint uid, uids) {
+        m_attachments << new ImapMessageAttachmentItem(m_model, mailbox, uidValidity, uid);
+    }
+    endInsertRows();
+
+    return true;
+}
+
+QStringList MessageComposer::mimeTypes() const
+{
+    return QStringList() << QLatin1String("application/x-trojita-message-list");
 }
 
 void MessageComposer::setFrom(const Message::MailAddress &from)
@@ -171,6 +240,7 @@ QByteArray MessageComposer::asRawMessage() const
 
     if (hasAttachments) {
         Q_FOREACH(const AttachmentItem *attachment, m_attachments) {
+            // FIXME: this assert can fail very, *very* easily when it comes to IMAP-based attachments...
             Q_ASSERT(attachment->isAvailable());
             res.append("\r\n--" + boundary + "\r\n");
             res.append("Content-Type: " + attachment->mimeType() + "\r\n");
@@ -317,6 +387,10 @@ QByteArray FileAttachmentItem::contentDispositionHeader() const
 ImapMessageAttachmentItem::ImapMessageAttachmentItem(Model *model, const QString &mailbox, const uint uidValidity, const uint uid):
     model(model), mailbox(mailbox), uidValidity(uidValidity), uid(uid), m_io(0)
 {
+    TreeItemPart *part = partPtr();
+    if (part) {
+        part->fetch(model);
+    }
 }
 
 ImapMessageAttachmentItem::~ImapMessageAttachmentItem()
@@ -362,8 +436,8 @@ bool ImapMessageAttachmentItem::isAvailable() const
     TreeItemMessage *msg = messagePtr();
     if (!msg)
         return false;
-
-    return msg->specialColumnPtr(0, TreeItemMessage::OFFSET_TEXT)->fetched();
+    TreeItemPart *part = partPtr();
+    return part ? part->fetched() : false;
 }
 
 QIODevice *ImapMessageAttachmentItem::rawData() const
@@ -374,11 +448,12 @@ QIODevice *ImapMessageAttachmentItem::rawData() const
     TreeItemMessage *msg = messagePtr();
     if (!msg)
         return 0;
-    TreeItemPart *part = dynamic_cast<TreeItemPart*>(msg->specialColumnPtr(0, TreeItemMessage::OFFSET_TEXT));
+    TreeItemPart *part = partPtr();
     if (!part)
         return 0;
 
     m_io = new QBuffer(part->dataPtr());
+    m_io->open(QIODevice::ReadOnly);
     return m_io;
 }
 
@@ -400,6 +475,14 @@ TreeItemMessage *ImapMessageAttachmentItem::messagePtr() const
 
     Q_ASSERT(messages.size() == 1);
     return messages.front();
+}
+
+TreeItemPart *ImapMessageAttachmentItem::partPtr() const
+{
+    TreeItemMessage *msg = messagePtr();
+    if (!msg)
+        return 0;
+    return dynamic_cast<TreeItemPart*>(msg->specialColumnPtr(0, TreeItemMessage::OFFSET_TEXT));
 }
 
 }

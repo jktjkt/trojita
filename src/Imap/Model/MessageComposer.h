@@ -39,6 +39,7 @@ public:
     virtual bool isAvailable() const;
 private:
     TreeItemMessage *messagePtr() const;
+    TreeItemPart *partPtr() const;
 
     QPointer<Model> model;
     QString mailbox;
@@ -79,11 +80,15 @@ public:
         Recipient_Bcc
     } RecipientKind;
 
-    explicit MessageComposer(QObject *parent = 0);
+    explicit MessageComposer(Model *model, QObject *parent = 0);
     ~MessageComposer();
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    virtual Qt::DropActions supportedDropActions() const;
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+    virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
+    virtual QStringList mimeTypes() const;
 
     void setFrom(const Message::MailAddress &from);
     void setRecipients(const QList<QPair<RecipientKind,Message::MailAddress> > &recipients);
@@ -114,7 +119,7 @@ private:
     QString m_text;
 
     QList<AttachmentItem *> m_attachments;
-
+    QPointer<Model> m_model;
 };
 
 }
