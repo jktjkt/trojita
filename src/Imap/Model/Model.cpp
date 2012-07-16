@@ -745,8 +745,8 @@ bool Model::hasChildren(const QModelIndex &parent) const
 
 void Model::askForChildrenOfMailbox(TreeItemMailbox *item)
 {
-    if (networkPolicy() != NETWORK_ONLINE && cache()->childMailboxesFresh(item->mailbox())) {
-        // We aren't online and the permanent cache contains relevant data
+    if (cache()->childMailboxesFresh(item->mailbox())) {
+        // The permanent cache contains relevant data
         QList<MailboxMetadata> metadata = cache()->childMailboxes(item->mailbox());
         QList<TreeItem *> mailboxes;
         for (QList<MailboxMetadata>::const_iterator it = metadata.constBegin(); it != metadata.constEnd(); ++it) {
@@ -758,10 +758,14 @@ void Model::askForChildrenOfMailbox(TreeItemMailbox *item)
     } else if (networkPolicy() == NETWORK_OFFLINE) {
         // No cached data, no network -> fail
         item->m_fetchStatus = TreeItem::UNAVAILABLE;
-    } else {
-        // We have to go to the network
-        m_taskFactory->createListChildMailboxesTask(this, item->toIndex(this));
+        QModelIndex idx = item->toIndex(this);
+        emit dataChanged(idx, idx);
+        return;
     }
+
+    // We shall ask the network
+    m_taskFactory->createListChildMailboxesTask(this, item->toIndex(this));
+
     QModelIndex idx = item->toIndex(this);
     emit dataChanged(idx, idx);
 }
