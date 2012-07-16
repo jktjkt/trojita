@@ -27,7 +27,7 @@ FileAttachmentItem::~FileAttachmentItem()
 
 QString FileAttachmentItem::caption() const
 {
-    return fileName;
+    return QFileInfo(fileName).fileName();
 }
 
 QString FileAttachmentItem::tooltip() const
