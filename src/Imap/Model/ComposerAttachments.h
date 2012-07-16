@@ -40,6 +40,14 @@ public:
     virtual QSharedPointer<QIODevice> rawData() const = 0;
 
     virtual bool isAvailable() const = 0;
+
+    typedef enum {
+        CTE_7BIT,
+        CTE_8BIT,
+        CTE_BINARY,
+        CTE_BASE64
+    } ContentTransferEncoding;
+    virtual ContentTransferEncoding suggestedCTE() const = 0;
 };
 
 /** @short Part of a message stored in an IMAP server */
@@ -54,6 +62,7 @@ public:
     virtual QByteArray contentDispositionHeader() const;
     virtual QSharedPointer<QIODevice> rawData() const;
     virtual bool isAvailable() const;
+    virtual ContentTransferEncoding suggestedCTE() const;
 private:
     TreeItemMessage *messagePtr() const;
     TreeItemPart *headerPartPtr() const;
@@ -77,6 +86,7 @@ public:
     virtual QByteArray contentDispositionHeader() const;
     virtual QSharedPointer<QIODevice> rawData() const;
     virtual bool isAvailable() const;
+    virtual ContentTransferEncoding suggestedCTE() const;
 private:
     QString fileName;
     mutable QByteArray m_cachedMime;

@@ -104,6 +104,11 @@ QByteArray FileAttachmentItem::contentDispositionHeader() const
     return "Content-Disposition: attachment;\r\n\tfilename=\"" + shortFileName + "\"\r\n";
 }
 
+AttachmentItem::ContentTransferEncoding FileAttachmentItem::suggestedCTE() const
+{
+    return CTE_BASE64;
+}
+
 
 ImapMessageAttachmentItem::ImapMessageAttachmentItem(Model *model, const QString &mailbox, const uint uidValidity, const uint uid):
     model(model), mailbox(mailbox), uidValidity(uidValidity), uid(uid)
@@ -217,6 +222,12 @@ TreeItemPart *ImapMessageAttachmentItem::bodyPartPtr() const
     if (!msg)
         return 0;
     return dynamic_cast<TreeItemPart*>(msg->specialColumnPtr(0, TreeItemMessage::OFFSET_TEXT));
+}
+
+AttachmentItem::ContentTransferEncoding ImapMessageAttachmentItem::suggestedCTE() const
+{
+    // FIXME?
+    return CTE_7BIT;
 }
 
 }

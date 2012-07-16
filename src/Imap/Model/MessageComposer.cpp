@@ -237,14 +237,36 @@ QByteArray MessageComposer::asRawMessage() const
             res.append("\r\n--" + boundary + "\r\n");
             res.append("Content-Type: " + attachment->mimeType() + "\r\n");
             res.append(attachment->contentDispositionHeader());
-            res.append("Content-Transfer-Encoding: base64\r\n"
-                       "\r\n");
+
+            AttachmentItem::ContentTransferEncoding cte = attachment->suggestedCTE();
+            switch (cte) {
+            case AttachmentItem::CTE_BASE64:
+                res.append("Content-Transfer-Encoding: base64\r\n");
+                break;
+            case AttachmentItem::CTE_7BIT:
+                res.append("Content-Transfer-Encoding: 7bit\r\n");
+                break;
+            case AttachmentItem::CTE_8BIT:
+                res.append("Content-Transfer-Encoding: 8bit\r\n");
+                break;
+            case AttachmentItem::CTE_BINARY:
+                res.append("Content-Transfer-Encoding: binary\r\n");
+                break;
+            }
+
+            res.append("\r\n");
 
             QSharedPointer<QIODevice> io = attachment->rawData();
             while (!io->atEnd()) {
-                // Base64 maps 6bit chunks into a single byte. Output shall have no more than 76 characters per line
-                // (not counting the CRLF pair).
-                res.append(io->read(76*6/8).toBase64() + "\r\n");
+                switch (cte) {
+                case AttachmentItem::CTE_BASE64:
+                    // Base64 maps 6bit chunks into a single byte. Output shall have no more than 76 characters per line
+                    // (not counting the CRLF pair).
+                    res.append(io->read(76*6/8).toBase64() + "\r\n");
+                    break;
+                default:
+                    res.append(io->readAll());
+                }
             }
         }
         res.append("\r\n--" + boundary + "--\r\n");
