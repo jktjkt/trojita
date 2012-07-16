@@ -132,7 +132,8 @@ void ComposeWidget::send()
         Q_ASSERT(m_mainWindow->imapModel());
         // FIXME: without UIDPLUS, there isn't much point in $SubmitPending...
         m_mainWindow->imapModel()->appendIntoMailbox(s.value(SettingsNames::composerImapSentKey, tr("Sent")).toString(),
-                                                     rawMessageData, QStringList() << QLatin1String("$SubmitPending"),
+                                                     rawMessageData,
+                                                     QStringList() << QLatin1String("$SubmitPending") << QLatin1String("\\Seen"),
                                                      m_composer->timestamp());
     }
 
