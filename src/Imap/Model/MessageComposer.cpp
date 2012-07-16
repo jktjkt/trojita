@@ -1,9 +1,12 @@
 #include "MessageComposer.h"
+#include <QBuffer>
 #include <QCoreApplication>
 #include <QFileInfo>
 #include <QProcess>
 #include <QUuid>
 #include "Imap/Encoders.h"
+#include "Imap/Model/MailboxTree.h"
+#include "Imap/Model/Model.h"
 #include "Imap/Model/Utils.h"
 
 namespace Imap {
@@ -308,6 +311,95 @@ QByteArray FileAttachmentItem::contentDispositionHeader() const
     if (shortFileName.isEmpty())
         shortFileName = "attachment";
     return "Content-Disposition: attachment;\r\n\tfilename=\"" + shortFileName + "\"\r\n";
+}
+
+
+ImapMessageAttachmentItem::ImapMessageAttachmentItem(Model *model, const QString &mailbox, const uint uidValidity, const uint uid):
+    model(model), mailbox(mailbox), uidValidity(uidValidity), uid(uid), m_io(0)
+{
+}
+
+ImapMessageAttachmentItem::~ImapMessageAttachmentItem()
+{
+    delete m_io;
+}
+
+QString ImapMessageAttachmentItem::caption() const
+{
+    TreeItemMessage *msg = messagePtr();
+    if (!msg || !model)
+        return MessageComposer::tr("Message not available: /%1;UIDVALIDITY=%2;UID=%3")
+                .arg(mailbox, QString::number(uidValidity), QString::number(uid));
+    return msg->envelope(model).subject;
+}
+
+QString ImapMessageAttachmentItem::tooltip() const
+{
+    TreeItemMessage *msg = messagePtr();
+    if (!msg || !model)
+        return QString();
+    return MessageComposer::tr("IMAP message /%1;UIDVALIDITY=%2;UID=%3")
+            .arg(mailbox, QString::number(uidValidity), QString::number(uid));
+}
+
+QByteArray ImapMessageAttachmentItem::contentDispositionHeader() const
+{
+    TreeItemMessage *msg = messagePtr();
+    if (!msg || !model)
+        return QByteArray();
+    // FIXME: this header "sanitization" is so crude, ugly, buggy and non-compliant that I shall feel deeply ashamed
+    return "Content-Disposition: attachment;\r\n\tfilename=\"" +
+            msg->envelope(model).subject.toAscii().replace("\"", "'") + ".eml\"\r\n";
+}
+
+QByteArray ImapMessageAttachmentItem::mimeType() const
+{
+    return "message/rfc822";
+}
+
+bool ImapMessageAttachmentItem::isAvailable() const
+{
+    TreeItemMessage *msg = messagePtr();
+    if (!msg)
+        return false;
+
+    return msg->specialColumnPtr(0, TreeItemMessage::OFFSET_TEXT)->fetched();
+}
+
+QIODevice *ImapMessageAttachmentItem::rawData() const
+{
+    if (m_io)
+        return m_io;
+
+    TreeItemMessage *msg = messagePtr();
+    if (!msg)
+        return 0;
+    TreeItemPart *part = dynamic_cast<TreeItemPart*>(msg->specialColumnPtr(0, TreeItemMessage::OFFSET_TEXT));
+    if (!part)
+        return 0;
+
+    m_io = new QBuffer(part->dataPtr());
+    return m_io;
+}
+
+TreeItemMessage *ImapMessageAttachmentItem::messagePtr() const
+{
+    if (!model)
+        return 0;
+
+    TreeItemMailbox *mboxPtr = model->findMailboxByName(mailbox);
+    if (!mboxPtr)
+        return 0;
+
+    if (mboxPtr->syncState.uidValidity() != uidValidity)
+        return 0;
+
+    QList<TreeItemMessage*> messages = model->findMessagesByUids(mboxPtr, QList<uint>() << uid);
+    if (messages.isEmpty())
+        return 0;
+
+    Q_ASSERT(messages.size() == 1);
+    return messages.front();
 }
 
 }

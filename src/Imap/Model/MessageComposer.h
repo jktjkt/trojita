@@ -2,14 +2,19 @@
 #define IMAP_MESSAGECOMPOSER_H
 
 #include <QAbstractListModel>
+#include <QPointer>
 
 #include "Imap/Parser/Message.h"
 
 namespace Imap {
 namespace Mailbox {
 
+class Model;
+class TreeItemMessage;
+
 /** @short A generic item to be used as an attachment */
-struct AttachmentItem {
+class AttachmentItem {
+public:
     virtual ~AttachmentItem();
 
     virtual QString caption() const = 0;
@@ -20,13 +25,11 @@ struct AttachmentItem {
     virtual bool isAvailable() const = 0;
 };
 
-#if 0
 /** @short Part of a message stored in an IMAP server */
-struct ImapPartAttachmentItem: public AttachmentItem {
-    QPersistentModelIndex messagePart;
-
-    ImapPartAttachmentItem(const QPersistentModelIndex &messagePart);
-    ~ImapPartAttachmentItem();
+class ImapMessageAttachmentItem: public AttachmentItem {
+public:
+    ImapMessageAttachmentItem(Model *model, const QString &mailbox, const uint uidValidity, const uint uid);
+    ~ImapMessageAttachmentItem();
 
     virtual QString caption() const;
     virtual QString tooltip() const;
@@ -34,13 +37,20 @@ struct ImapPartAttachmentItem: public AttachmentItem {
     virtual QByteArray contentDispositionHeader() const;
     virtual QIODevice *rawData() const;
     virtual bool isAvailable() const;
+private:
+    TreeItemMessage *messagePtr() const;
+
+    QPointer<Model> model;
+    QString mailbox;
+    uint uidValidity;
+    uint uid;
+
+    mutable QIODevice *m_io;
 };
-#endif
 
 /** @short On-disk file */
-struct FileAttachmentItem: public AttachmentItem {
-    QString fileName;
-
+class FileAttachmentItem: public AttachmentItem {
+public:
     FileAttachmentItem(const QString &fileName);
     ~FileAttachmentItem();
 
@@ -51,8 +61,9 @@ struct FileAttachmentItem: public AttachmentItem {
     virtual QIODevice *rawData() const;
     virtual bool isAvailable() const;
 private:
-    mutable QIODevice *m_io;
+    QString fileName;
     mutable QByteArray m_cachedMime;
+    mutable QIODevice *m_io;
 };
 
 /** @short Model storing individual parts of a composed message */

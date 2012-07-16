@@ -434,6 +434,8 @@ private:
     friend class ::ImapModelIdleTest; // needs access to findTaskResponsibleFor() for IDLE testing
     friend class TaskPresentationModel; // needs access to the ParserState
 
+    friend class ImapMessageAttachmentItem; // needs access to findMailboxByName and findMessagesByUids
+
     void askForChildrenOfMailbox(TreeItemMailbox *item);
     void askForMessagesInMailbox(TreeItemMsgList *item);
     void askForNumberOfMessages(TreeItemMsgList *item);
