@@ -88,11 +88,6 @@ bool MessageComposer::dropMimeData(const QMimeData *data, Qt::DropAction action,
         return false;
     }
 
-    if (mboxPtr->syncState.uidValidity() != uidValidity) {
-        qDebug() << "drag-and-drop: UIDVALIDITY has changed, dragged" << uidValidity << ", now" << mboxPtr->syncState.uidValidity();
-        return false;
-    }
-
     if (uids.size() < 1)
         return false;
 
