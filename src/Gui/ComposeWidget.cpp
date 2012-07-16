@@ -60,6 +60,11 @@ ComposeWidget::ComposeWidget(MainWindow *parent, QAbstractListModel *autoComplet
     connect(ui->attachButton, SIGNAL(clicked()), this, SLOT(slotAskForFileAttachment()));
     ui->attachmentsView->setAcceptDrops(true);
     ui->attachmentsView->setDropIndicatorShown(true);
+    ui->attachmentsView->setContextMenuPolicy(Qt::ActionsContextMenu);
+
+    m_actionRemoveAttachment = new QAction(tr("Remove"), this);
+    connect(m_actionRemoveAttachment, SIGNAL(triggered()), this, SLOT(slotRemoveAttachment()));
+    ui->attachmentsView->addAction(m_actionRemoveAttachment);
 
     // Ask for a fixed-width font. The problem is that these names wary acros platforms,
     // but the following works well -- at first, we come up with a made-up name, and then
@@ -310,6 +315,11 @@ void ComposeWidget::slotAskForFileAttachment()
     if (!fileName.isEmpty()) {
         m_composer->addFileAttachment(fileName);
     }
+}
+
+void ComposeWidget::slotRemoveAttachment()
+{
+    m_composer->removeAttachment(ui->attachmentsView->currentIndex());
 }
 
 }

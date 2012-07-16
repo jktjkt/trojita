@@ -51,6 +51,7 @@ public:
     QList<QByteArray> rawRecipientAddresses() const;
 
     void addFileAttachment(const QString &path);
+    void removeAttachment(const QModelIndex &index);
 
 private:
     static QByteArray generateMessageId(const Imap::Message::MailAddress &sender);

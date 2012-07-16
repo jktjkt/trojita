@@ -68,6 +68,7 @@ private slots:
     void handleRecipientAddressChange();
 
     void slotAskForFileAttachment();
+    void slotRemoveAttachment();
 
 private:
     static QByteArray extractMailAddress(const QString &text, bool &ok);
@@ -85,6 +86,7 @@ private:
     MainWindow *m_mainWindow;
 
     Imap::Mailbox::MessageComposer *m_composer;
+    QAction *m_actionRemoveAttachment;
 
     ComposeWidget(const ComposeWidget &); // don't implement
     ComposeWidget &operator=(const ComposeWidget &); // don't implement

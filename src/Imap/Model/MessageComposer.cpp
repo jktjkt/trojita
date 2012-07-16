@@ -303,5 +303,15 @@ void MessageComposer::addFileAttachment(const QString &path)
     endInsertRows();
 }
 
+void MessageComposer::removeAttachment(const QModelIndex &index)
+{
+    if (!index.isValid() || index.column() != 0 || index.row() < 0 || index.row() >= m_attachments.size())
+        return;
+
+    beginRemoveRows(QModelIndex(), index.row(), index.row());
+    delete m_attachments.takeAt(index.row());
+    endRemoveRows();
+}
+
 }
 }
