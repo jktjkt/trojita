@@ -44,7 +44,7 @@ public:
     void setText(const QString &text);
 
     bool isReadyForSerialization() const;
-    QByteArray asRawMessage() const;
+    bool asRawMessage(QIODevice *target) const;
 
     QDateTime timestamp() const;
     QByteArray rawFromAddress() const;

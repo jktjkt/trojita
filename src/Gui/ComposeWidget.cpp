@@ -18,6 +18,7 @@
    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
+#include <QBuffer>
 #include <QCompleter>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -130,7 +131,14 @@ void ComposeWidget::send()
     using Common::SettingsNames;
     QSettings s;
 
-    QByteArray rawMessageData = m_composer->asRawMessage();
+    QByteArray rawMessageData;
+    QBuffer buf(&rawMessageData);
+    buf.open(QIODevice::WriteOnly);
+    if (!m_composer->asRawMessage(&buf)) {
+        // FIXME: better error handling
+        gotError(tr("Cannot send right now"));
+        return;
+    }
 
     if (s.value(SettingsNames::composerSaveToImapKey, true).toBool()) {
         Q_ASSERT(m_mainWindow->imapModel());

@@ -172,12 +172,10 @@ QByteArray MessageComposer::encodeHeaderField(const QString &text)
     return Imap::encodeRFC2047String(text);
 }
 
-QByteArray MessageComposer::asRawMessage() const
+bool MessageComposer::asRawMessage(QIODevice *target) const
 {
-    QByteArray res;
-
     // The From header
-    res.append("From: ").append(m_from.asMailHeader()).append("\r\n");
+    target->write(QByteArray("From: ").append(m_from.asMailHeader()).append("\r\n"));
 
     // All recipients
     QByteArray recipientHeaders;
@@ -194,22 +192,22 @@ QByteArray MessageComposer::asRawMessage() const
             break;
         }
     }
-    res.append(recipientHeaders);
+    target->write(recipientHeaders);
 
     // Other message metadata
-    res.append("Subject: ").append(encodeHeaderField(m_subject)).append("\r\n");
-    res.append("Date: ").append(Imap::dateTimeToRfc2822(m_timestamp)).append("\r\n");
-    res.append("User-Agent: ").append(
+    target->write(QByteArray("Subject: ").append(encodeHeaderField(m_subject)).append("\r\n").
+            append("Date: ").append(Imap::dateTimeToRfc2822(m_timestamp)).append("\r\n").
+            append("User-Agent: ").append(
                 QString::fromAscii("%1/%2; %3")
                 .arg(qApp->applicationName(), qApp->applicationVersion(), Imap::Mailbox::systemPlatformVersion()).toAscii()
-    ).append("\r\n");
-    res.append("MIME-Version: 1.0\r\n");
+                ).append("\r\n").
+            append("MIME-Version: 1.0\r\n"));
     QByteArray messageId = generateMessageId(m_from);
     if (!messageId.isEmpty()) {
-        res.append("Message-ID: <").append(messageId).append(">\r\n");
+        target->write(QByteArray("Message-ID: <").append(messageId).append(">\r\n"));
     }
     if (!m_inReplyTo.isEmpty()) {
-        res.append("In-Reply-To: ").append(m_inReplyTo).append("\r\n");
+        target->write(QByteArray("In-Reply-To: ").append(m_inReplyTo).append("\r\n"));
     }
 
     const bool hasAttachments = !m_attachments.isEmpty();
@@ -220,58 +218,61 @@ QByteArray MessageComposer::asRawMessage() const
     QByteArray boundary(generateMimeBoundary());
 
     if (hasAttachments) {
-        res.append("Content-Type: multipart/mixed;\r\n\tboundary=\"" + boundary + "\"\r\n");
-        res.append("\r\nThis is a multipart/mixed message in MIME format.\r\n\r\n");
-        res.append("--" + boundary + "\r\n");
+        target->write("Content-Type: multipart/mixed;\r\n\tboundary=\"" + boundary + "\"\r\n"
+                      "\r\nThis is a multipart/mixed message in MIME format.\r\n\r\n"
+                      "--" + boundary + "\r\n");
     }
 
-    res.append("Content-Type: text/plain; charset=utf-8\r\n"
-               "Content-Transfer-Encoding: quoted-printable\r\n");
-    res.append("\r\n");
-    res.append(Imap::quotedPrintableEncode(m_text.toUtf8()));
+    target->write("Content-Type: text/plain; charset=utf-8\r\n"
+                  "Content-Transfer-Encoding: quoted-printable\r\n"
+                  "\r\n");
+    target->write(Imap::quotedPrintableEncode(m_text.toUtf8()));
 
     if (hasAttachments) {
         Q_FOREACH(const AttachmentItem *attachment, m_attachments) {
             // FIXME: this assert can fail very, *very* easily when it comes to IMAP-based attachments...
-            Q_ASSERT(attachment->isAvailable());
-            res.append("\r\n--" + boundary + "\r\n");
-            res.append("Content-Type: " + attachment->mimeType() + "\r\n");
-            res.append(attachment->contentDispositionHeader());
+            if (!attachment->isAvailable())
+                return false;
+            target->write("\r\n--" + boundary + "\r\n"
+                          "Content-Type: " + attachment->mimeType() + "\r\n");
+            target->write(attachment->contentDispositionHeader());
 
             AttachmentItem::ContentTransferEncoding cte = attachment->suggestedCTE();
             switch (cte) {
             case AttachmentItem::CTE_BASE64:
-                res.append("Content-Transfer-Encoding: base64\r\n");
+                target->write("Content-Transfer-Encoding: base64\r\n");
                 break;
             case AttachmentItem::CTE_7BIT:
-                res.append("Content-Transfer-Encoding: 7bit\r\n");
+                target->write("Content-Transfer-Encoding: 7bit\r\n");
                 break;
             case AttachmentItem::CTE_8BIT:
-                res.append("Content-Transfer-Encoding: 8bit\r\n");
+                target->write("Content-Transfer-Encoding: 8bit\r\n");
                 break;
             case AttachmentItem::CTE_BINARY:
-                res.append("Content-Transfer-Encoding: binary\r\n");
+                target->write("Content-Transfer-Encoding: binary\r\n");
                 break;
             }
 
-            res.append("\r\n");
+            target->write("\r\n");
 
             QSharedPointer<QIODevice> io = attachment->rawData();
+            if (!io)
+                return false;
             while (!io->atEnd()) {
                 switch (cte) {
                 case AttachmentItem::CTE_BASE64:
                     // Base64 maps 6bit chunks into a single byte. Output shall have no more than 76 characters per line
                     // (not counting the CRLF pair).
-                    res.append(io->read(76*6/8).toBase64() + "\r\n");
+                    target->write(io->read(76*6/8).toBase64() + "\r\n");
                     break;
                 default:
-                    res.append(io->readAll());
+                    target->write(io->readAll());
                 }
             }
         }
-        res.append("\r\n--" + boundary + "--\r\n");
+        target->write("\r\n--" + boundary + "--\r\n");
     }
-    return res;
+    return true;
 }
 
 QDateTime MessageComposer::timestamp() const
