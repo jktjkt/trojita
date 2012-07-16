@@ -59,7 +59,6 @@ ComposeWidget::ComposeWidget(MainWindow *parent, QAbstractListModel *autoComplet
     ui->attachmentsView->setModel(m_composer);
     connect(ui->attachButton, SIGNAL(clicked()), this, SLOT(slotAskForFileAttachment()));
     ui->attachmentsView->setAcceptDrops(true);
-    ui->attachmentsView->setDragEnabled(true);
     ui->attachmentsView->setDropIndicatorShown(true);
 
     // Ask for a fixed-width font. The problem is that these names wary acros platforms,
