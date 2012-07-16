@@ -108,10 +108,13 @@ QByteArray FileAttachmentItem::contentDispositionHeader() const
 ImapMessageAttachmentItem::ImapMessageAttachmentItem(Model *model, const QString &mailbox, const uint uidValidity, const uint uid):
     model(model), mailbox(mailbox), uidValidity(uidValidity), uid(uid)
 {
-    TreeItemPart *part = partPtr();
+    TreeItemPart *part = headerPartPtr();
     if (part) {
         part->fetch(model);
     }
+    part = bodyPartPtr();
+    if (part)
+        part->fetch(model);
 }
 
 ImapMessageAttachmentItem::~ImapMessageAttachmentItem()
@@ -156,8 +159,9 @@ bool ImapMessageAttachmentItem::isAvailable() const
     TreeItemMessage *msg = messagePtr();
     if (!msg)
         return false;
-    TreeItemPart *part = partPtr();
-    return part ? part->fetched() : false;
+    TreeItemPart *headerPart = headerPartPtr();
+    TreeItemPart *bodyPart = bodyPartPtr();
+    return headerPart && bodyPart && headerPart->fetched() && bodyPart->fetched();
 }
 
 QSharedPointer<QIODevice> ImapMessageAttachmentItem::rawData() const
@@ -165,11 +169,16 @@ QSharedPointer<QIODevice> ImapMessageAttachmentItem::rawData() const
     TreeItemMessage *msg = messagePtr();
     if (!msg)
         return QSharedPointer<QIODevice>();
-    TreeItemPart *part = partPtr();
-    if (!part || !part->fetched())
+    TreeItemPart *headerPart = headerPartPtr();
+    if (!headerPart || !headerPart->fetched())
+        return QSharedPointer<QIODevice>();
+    TreeItemPart *bodyPart = bodyPartPtr();
+    if (!bodyPart || !bodyPart->fetched())
         return QSharedPointer<QIODevice>();
 
-    QSharedPointer<QIODevice> io(new QBuffer(part->dataPtr()));
+    QSharedPointer<QIODevice> io(new QBuffer());
+    // This can probably be optimized to allow zero-copy operation through a pair of two QIODevices
+    static_cast<QBuffer*>(io.data())->setData(*(headerPart->dataPtr()) + *(bodyPart->dataPtr()));
     io->open(QIODevice::ReadOnly);
     return io;
 }
@@ -194,7 +203,15 @@ TreeItemMessage *ImapMessageAttachmentItem::messagePtr() const
     return messages.front();
 }
 
-TreeItemPart *ImapMessageAttachmentItem::partPtr() const
+TreeItemPart *ImapMessageAttachmentItem::headerPartPtr() const
+{
+    TreeItemMessage *msg = messagePtr();
+    if (!msg)
+        return 0;
+    return dynamic_cast<TreeItemPart*>(msg->specialColumnPtr(0, TreeItemMessage::OFFSET_HEADER));
+}
+
+TreeItemPart *ImapMessageAttachmentItem::bodyPartPtr() const
 {
     TreeItemMessage *msg = messagePtr();
     if (!msg)

@@ -56,7 +56,8 @@ public:
     virtual bool isAvailable() const;
 private:
     TreeItemMessage *messagePtr() const;
-    TreeItemPart *partPtr() const;
+    TreeItemPart *headerPartPtr() const;
+    TreeItemPart *bodyPartPtr() const;
 
     QPointer<Model> model;
     QString mailbox;
