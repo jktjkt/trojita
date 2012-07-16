@@ -239,11 +239,12 @@ QByteArray MessageComposer::asRawMessage() const
             res.append(attachment->contentDispositionHeader());
             res.append("Content-Transfer-Encoding: base64\r\n"
                        "\r\n");
-            attachment->rawData()->seek(0);
-            while (!attachment->rawData()->atEnd()) {
+
+            QSharedPointer<QIODevice> io = attachment->rawData();
+            while (!io->atEnd()) {
                 // Base64 maps 6bit chunks into a single byte. Output shall have no more than 76 characters per line
                 // (not counting the CRLF pair).
-                res.append(attachment->rawData()->read(76*6/8).toBase64() + "\r\n");
+                res.append(io->read(76*6/8).toBase64() + "\r\n");
             }
         }
         res.append("\r\n--" + boundary + "--\r\n");

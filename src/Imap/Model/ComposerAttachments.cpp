@@ -17,13 +17,12 @@ AttachmentItem::~AttachmentItem()
 }
 
 FileAttachmentItem::FileAttachmentItem(const QString &fileName):
-    fileName(fileName), m_io(0)
+    fileName(fileName)
 {
 }
 
 FileAttachmentItem::~FileAttachmentItem()
 {
-    delete m_io;
 }
 
 QString FileAttachmentItem::caption() const
@@ -49,13 +48,11 @@ bool FileAttachmentItem::isAvailable() const
     return QFileInfo(fileName).isReadable();
 }
 
-QIODevice *FileAttachmentItem::rawData() const
+QSharedPointer<QIODevice> FileAttachmentItem::rawData() const
 {
-    if (!m_io) {
-        m_io = new QFile(fileName);
-        m_io->open(QIODevice::ReadOnly);
-    }
-    return m_io;
+    QSharedPointer<QIODevice> io(new QFile(fileName));
+    io->open(QIODevice::ReadOnly);
+    return io;
 }
 
 QByteArray FileAttachmentItem::mimeType() const
@@ -109,7 +106,7 @@ QByteArray FileAttachmentItem::contentDispositionHeader() const
 
 
 ImapMessageAttachmentItem::ImapMessageAttachmentItem(Model *model, const QString &mailbox, const uint uidValidity, const uint uid):
-    model(model), mailbox(mailbox), uidValidity(uidValidity), uid(uid), m_io(0)
+    model(model), mailbox(mailbox), uidValidity(uidValidity), uid(uid)
 {
     TreeItemPart *part = partPtr();
     if (part) {
@@ -119,7 +116,6 @@ ImapMessageAttachmentItem::ImapMessageAttachmentItem(Model *model, const QString
 
 ImapMessageAttachmentItem::~ImapMessageAttachmentItem()
 {
-    delete m_io;
 }
 
 QString ImapMessageAttachmentItem::caption() const
@@ -164,21 +160,18 @@ bool ImapMessageAttachmentItem::isAvailable() const
     return part ? part->fetched() : false;
 }
 
-QIODevice *ImapMessageAttachmentItem::rawData() const
+QSharedPointer<QIODevice> ImapMessageAttachmentItem::rawData() const
 {
-    if (m_io)
-        return m_io;
-
     TreeItemMessage *msg = messagePtr();
     if (!msg)
-        return 0;
+        return QSharedPointer<QIODevice>();
     TreeItemPart *part = partPtr();
-    if (!part)
-        return 0;
+    if (!part || !part->fetched())
+        return QSharedPointer<QIODevice>();
 
-    m_io = new QBuffer(part->dataPtr());
-    m_io->open(QIODevice::ReadOnly);
-    return m_io;
+    QSharedPointer<QIODevice> io(new QBuffer(part->dataPtr()));
+    io->open(QIODevice::ReadOnly);
+    return io;
 }
 
 TreeItemMessage *ImapMessageAttachmentItem::messagePtr() const
