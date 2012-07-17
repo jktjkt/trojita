@@ -713,7 +713,7 @@ passed by the client into a mailbox.  Over the time, several extensions appeared
 
 The first extension is the {\tt MULTIAPPEND} command (RFC 3502 \cite{rfc3502}) which allows the client to atomically
 upload many messages at once.  Having such a feature could be a terrific boon in clients which support batched import of
-data from the existing mail store, but it is not so valuable in a generic client.  If Trojitá grows and support for
+data from the existing mail store, but it is not so valuable in a generic client.  If Trojitá grows and a support for
 batched import becomes a wanted feature, the {\tt MULTIAPPEND} command will doubtlessly contribute to a smoother
 experience.
 
@@ -724,59 +724,68 @@ fjord, accessing e-mail over a metered GPRS connection, has just received a huge
 attachment.  IMAP already has a feature which allows her to check the accompanying text without downloading the full
 message body.  What is missing is some kind of support of forwarding the original message to another recipient.
 
-\todo{Change this section when we support MIME composing with attachments.}
-
 This task consists of several steps --- first of all, the body of the resulting message to be sent has to be composed.
-When that step is done, the message shall be submitted to an MTA~\footnote{Mail Transfer Agent}, typically over the SMTP
-protocol \cite{rfc6409}.  Finally, a copy of the message shall be stored in the user's ``sent'' folder for future
-reference.  It can be seen that such an interaction could possibly involve up to three transfers of the huge binary
-data, possibly in an inefficient transport encoding, over the unreliable or expensive network connection.  Clearly,
-there's a huge room for improvements.
+The {\tt CATENATE} extension tremendously helps with this task.  Using {\tt CATENATE}, a client can compose a message
+consisting of a mixture of data, some of which is coming from the client over the network as raw literals, others being
+recycled from server-side data, be it full messages, arbitrary message parts or even byte-sized chunks of these.  After
+the message composing is concluded, the message shall be submitted to an MTA~\footnote{Mail Transfer Agent}, typically
+over the SMTP protocol \cite{rfc6409}.  Finally, a copy of the message shall be stored in the user's ``sent'' folder for
+future reference.
+
+It can be seen that in absence of specialized extensions, this an interaction could possibly involve up to three
+transfers of the huge binary data, possibly in an inefficient transport encoding, over the unreliable or expensive
+network connection.  Clearly, there's a huge room for improvements.  The {\tt CATENATE} extension assists in a
+server-side IMAP message assembly, but does not provide a way of improving actual message submission.
 
 The first possible way of improving relies on a whole family of extensions concerning both SMTP and IMAP.  The SMTP
 protocol is extended by the {\tt BURL} command \cite{rfc4468} while the IMAP server has to support the {\tt URLAUTH}
 extension \cite{rfc4467} and both daemons have to be properly configured.  Using this protocol combination (which itself
-depends on a few more extensions, please see the respective RFC documents for details), the IMAP client can generate a
-single-use authentication token which --- if used --- authorizes its holder to access the given message part.  This
-token is then passed to the SMTP daemon which will combine data obtained directly from the IMAP client (like the
+depends on quite a few more extensions, please see the respective RFC documents for details), the IMAP client can
+generate a single-use authorization token which --- if used --- enables its holder to access the given message part.
+This token is then passed to the SMTP daemon which will combine data obtained directly from the MUA\footnote{Mail User
+Agent, i.e. the program which acts on the user's behalf in accessing and submitting the Internet mail} (like the
 accompanying text) with the data downloaded from the IMAP server via the passed authorization token, build a MIME
-message and take care of its further delivery through the usual means.  If the IMAP server also supports the {\tt
-CATENATE} extension, the client can build the message on the server at once from the mentioned fragments (the new
-accompanying text and the attachment from the original message) and pass this newly-formed message for submission
-through the {\tt BURL} SMTP extension.  This has a potential of eliminating the need to transfer the data to/from the
-client {\em at all}, leading to drastic bandwidth reductions.
+message and take care of its further delivery through the usual means.  As was already mentioned, if the IMAP server
+also supports the {\tt CATENATE} extension, the client can build the message on the server at once from the mentioned
+fragments (the new accompanying text and the attachment from the original message) and pass this newly-formed message
+for submission through the {\tt BURL} SMTP extension.  This has a potential of eliminating the need to transfer the data
+to/from the client {\em at all}, leading to a drastic bandwidth reduction.
 
-Unfortunately, as it happens, world is rarely black-and-white.  Support for the required extensions is not ubiquitous
-among the deployed servers and even if the code contains all required features, it is often a policy decision whether an
-IMAP server should ever allow access to possibly privacy-sensitive data to the outbound MTAs.
+Unfortunately, as it happens, such mode of operation comes at a cost.  Support for the required extensions is not
+ubiquitous among the deployed servers and even if the code contains all required features, it is often a policy decision
+whether an IMAP server should ever allow access to possibly privacy-sensitive data to the outbound MTAs.
 
 Another possibility presenting slightly different set of features, advantages and disadvantages is implemented by
 deferring the actual message submission to the IMAP server as well.  The {\tt CATENATE} extension is still useful
 because it shall nonetheless be used to build the MIME message body from existing parts, eliminating the need to upload
-the data to the IMAP server.  When the message body is built (no matter how), the IMAP server can be asked to submit the
-resulting data for delivery.
+the data to the IMAP server.  When the message body is built (no matter how, using {\tt CATENATE} or deferring to legacy
+means), the IMAP server can be asked to submit the resulting data for delivery.
 
 This former approach has been traditionally dismissed by many IMAP proponents, including Mark Crispin, on various
 grounds.  The most common complaint is that the SMTP protocol is extremely mature, widely deployed and also complex ---
-and that this inherent complexity is {\em required} by various use cases crucial for proper operation of the today's
+and that this inherent complexity is {\em required} by various use cases crucial for proper operation of today's
 Internet mail.  The critics often argue that covering the whole feature set of the (E)SMTP-based submission would lead
 only to an equivalent of tunneling the SMTP session over IMAP \cite{crispin-smtp-tunneling}
 \cite{cridland-imap-submission-sendmail-not-enough}, an outcome which is clearly not desirable.  This approach was
-also subject to various standardization efforts, often literally tunneling the SMTP session \cite[p.
-30]{draft-maes-lemonade-p-imap}.  Proponents of this solution, however, counter-argument by stating that optimizing for
-a common use case has its own merits \cite{brong-common-sendmail-makes-sense}.  The critics also claim that having two
-ways of obtaining an identical result is suboptimal and that an easier, yet more limited way would threaten the
-existence of the older, more flexible solution \cite{crispin-submission-would-kill-smtp}.
+also subject to various standardization efforts, often literally tunneling the (E)SMTP conversations \cite[p.
+30]{draft-maes-lemonade-p-imap} over an IMAP connection.  Proponents of this submit-over-IMAP approach, however,
+counter-argument by stating that optimizing for a common use case has its own merits
+\cite{brong-common-sendmail-makes-sense}.  The critics concur that having two ways of obtaining an identical result is
+suboptimal and that an easier, yet more limited way would threaten the existence of the older, more flexible solution
+\cite{crispin-submission-would-kill-smtp}.
 
 Finally, a third way of solving the forward-without-download problem was presented in September 2010 through the {\tt
 POSTADDRESS} extension \cite{draft-melnikov-imap-postaddress}.  Using this mechanism, a client first obtains a valid
 e-mail address serving as a ``delivery address'' for the user's {\em Sent} mailbox.  After getting hold of that
-information, the SMTP session then proceeds as usual, except that the obtained address is added as another recipient of
-the submitted e-mail message.
+information, the SMTP session then proceeds as usual with one difference --- the obtained address is added as another
+recipient of the submitted e-mail message.
 
-Trojitá includes experimental support for the second, submission-over-IMAP variant.  I have proposed an Internet Draft
-(\secref{sec:draft-sendmail}) documenting this extension in which I tried to address many concerns raised during the
-previous discussion rounds.
+Besides including full support for the {\tt CATENATE} extension, Trojitá includes experimental support for the second
+approach of forward-without-download, the submission-over-IMAP variant.  Mail submission is an important topic, so I
+have dedicated a full section to a more detailed analysis of various advantages and disadvantages of competing
+approaches.  More information is available in section (\secref{sec:draft-sendmail}) where I present my Internet-Draft
+documenting a proposed extension in which I've tried to address many concerns raised during the previous discussion
+rounds.
 
 \section{Further Improvements}
 
