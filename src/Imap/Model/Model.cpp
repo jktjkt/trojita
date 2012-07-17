@@ -1028,6 +1028,13 @@ void Model::handleSocketDisconnectedResponse(Parser *ptr, const Responses::Socke
     }
 }
 
+void Model::handleParseErrorResponse(Imap::Parser *ptr, const Imap::Responses::ParseErrorResponse *const resp)
+{
+    Q_ASSERT(ptr);
+    broadcastParseError(ptr->parserId(), resp->exceptionClass, resp->message, resp->line, resp->offset);
+    killParser(ptr, PARSER_KILL_HARD);
+}
+
 void Model::broadcastParseError(const uint parser, const QString &exceptionClass, const QString &errorMessage, const QByteArray &line, int position)
 {
     emit logParserFatalError(parser, exceptionClass, errorMessage, line, position);
@@ -1040,23 +1047,6 @@ void Model::broadcastParseError(const uint parser, const QString &exceptionClass
                                 "<p><b>%1</b>: %2</p>"
                                 "<pre>%3\n%4</pre>"
                                ).arg(exceptionClass, errorMessage, line, details));
-}
-
-void Model::slotParseError(Parser *parser, const QString &exceptionClass, const QString &errorMessage, const QByteArray &line, int position)
-{
-    Q_ASSERT(parser);
-    ParserState &state = accessParser(parser);
-    ParserStateGuard guard(state);
-
-    broadcastParseError(parser->parserId(), exceptionClass, errorMessage, line, position);
-
-    killParser(parser, PARSER_KILL_HARD);
-
-    if (!guard.wasActive) {
-        killParser(parser, PARSER_JUST_DELETE_LATER);
-        m_parsers.remove(parser);
-        m_taskModel->slotParserDeleted(parser);
-    }
 }
 
 void Model::switchToMailbox(const QModelIndex &mbox)

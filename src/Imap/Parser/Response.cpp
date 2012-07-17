@@ -1264,6 +1264,11 @@ QTextStream &SocketDisconnectedResponse::dump(QTextStream &s) const
     return s << "[Socket disconnected: " << message << "]";
 }
 
+QTextStream &ParseErrorResponse::dump(QTextStream &s) const
+{
+    return s << "[Parse error (" << exceptionClass << "): " << message << "\n" << line << "\n" << offset << "]";
+}
+
 
 template<class T> QTextStream &RespData<T>::dump(QTextStream &stream) const
 {
@@ -1495,6 +1500,21 @@ bool SocketDisconnectedResponse::eq(const AbstractResponse &other) const
     }
 }
 
+ParseErrorResponse::ParseErrorResponse(const ImapException &e):
+    message(QString::fromAscii(e.msg().c_str())), exceptionClass(e.exceptionClass().c_str()), line(e.line()), offset(e.offset())
+{
+}
+
+bool ParseErrorResponse::eq(const AbstractResponse &other) const
+{
+    try {
+        const ParseErrorResponse &r = dynamic_cast<const ParseErrorResponse &>(other);
+        return message == r.message && exceptionClass == r.exceptionClass && line == r.line && offset == r.offset;
+    } catch (std::bad_cast &) {
+        return false;
+    }
+}
+
 bool NamespaceData::operator==(const NamespaceData &other) const
 {
     return separator == other.separator && prefix == other.prefix;
@@ -1528,6 +1548,7 @@ PLUG(Vanished)
 PLUG(Arrived)
 PLUG(SocketEncryptedResponse)
 PLUG(SocketDisconnectedResponse)
+PLUG(ParseErrorResponse)
 
 #undef PLUG
 

@@ -36,7 +36,6 @@ OpenConnectionTask::OpenConnectionTask(Model *model) :
     ParserState parserState(parser);
     connect(parser, SIGNAL(responseReceived(Imap::Parser *)), model, SLOT(responseReceived(Imap::Parser*)), Qt::QueuedConnection);
     connect(parser, SIGNAL(connectionStateChanged(Imap::Parser *,Imap::ConnectionState)), model, SLOT(handleSocketStateChanged(Imap::Parser *,Imap::ConnectionState)));
-    connect(parser, SIGNAL(parseError(Imap::Parser *,QString,QString,QByteArray,int)), model, SLOT(slotParseError(Imap::Parser *,QString,QString,QByteArray,int)));
     connect(parser, SIGNAL(lineReceived(Imap::Parser *,QByteArray)), model, SLOT(slotParserLineReceived(Imap::Parser *,QByteArray)));
     connect(parser, SIGNAL(lineSent(Imap::Parser *,QByteArray)), model, SLOT(slotParserLineSent(Imap::Parser *,QByteArray)));
     model->m_parsers[ parser ] = parserState;

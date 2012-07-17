@@ -627,7 +627,7 @@ void Parser::reallyReadLine()
             throw CantHappen("canReadLine() returned true, but following readLine() failed");
         }
     } catch (ParserException &e) {
-        emit parseError(this, QString::fromStdString(e.exceptionClass()), QString::fromStdString(e.msg()), e.line(), e.offset());
+        queueResponse(QSharedPointer<Responses::AbstractResponse>(new Responses::ParseErrorResponse(e)));
     }
 }
 

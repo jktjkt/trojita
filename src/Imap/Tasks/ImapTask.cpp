@@ -210,6 +210,12 @@ bool ImapTask::handleSocketDisconnectedResponse(const Imap::Responses::SocketDis
     return false;
 }
 
+bool ImapTask::handleParseErrorResponse(const Imap::Responses::ParseErrorResponse *const resp)
+{
+    Q_UNUSED(resp);
+    return false;
+}
+
 void ImapTask::_completed()
 {
     _finished = true;

@@ -152,6 +152,7 @@ public:
     void handleArrived(Imap::Parser *ptr, const Imap::Responses::Arrived *const resp);
     void handleSocketEncryptedResponse(Imap::Parser *ptr, const Imap::Responses::SocketEncryptedResponse *const resp);
     void handleSocketDisconnectedResponse(Imap::Parser *ptr, const Imap::Responses::SocketDisconnectedResponse *const resp);
+    void handleParseErrorResponse(Imap::Parser *ptr, const Imap::Responses::ParseErrorResponse *const resp);
 
     AbstractCache *cache() const { return m_cache; }
     /** Throw away current cache implementation, replace it with the new one
@@ -293,9 +294,6 @@ public slots:
     void invalidateAllMessageCounts();
 
 private slots:
-    /** @short Parser throwed out an exception */
-    void slotParseError(Imap::Parser *parser, const QString &exceptionClass, const QString &errorMessage, const QByteArray &line, int position);
-
     /** @short Helper for low-level state change propagation */
     void handleSocketStateChanged(Imap::Parser *parser, Imap::ConnectionState state);
 

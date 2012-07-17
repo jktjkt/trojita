@@ -266,12 +266,6 @@ public slots:
 
 
 signals:
-    /** @short Parse error when dealing with the server's response
-
-    The receiver connected to this signal is expected to kill this parser ASAP.
-    */
-    void parseError(Imap::Parser *parser, const QString &exceptionClass, const QString &errorMessage, const QByteArray &line, int position);
-
     /** @short New response received */
     void responseReceived(Imap::Parser *parser);
 

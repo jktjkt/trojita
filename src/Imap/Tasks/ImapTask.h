@@ -106,6 +106,7 @@ public:
     virtual bool handleArrived(const Imap::Responses::Arrived *const resp);
     virtual bool handleSocketEncryptedResponse(const Imap::Responses::SocketEncryptedResponse *const resp);
     virtual bool handleSocketDisconnectedResponse(const Imap::Responses::SocketDisconnectedResponse *const resp);
+    virtual bool handleParseErrorResponse(const Imap::Responses::ParseErrorResponse *const resp);
 
     /** @short Return true if this task has already finished and can be safely deleted */
     bool isFinished() const { return _finished; }
