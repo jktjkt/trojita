@@ -239,7 +239,7 @@ AttachmentItem::ContentTransferEncoding ImapMessageAttachmentItem::suggestedCTE(
 
 QByteArray ImapMessageAttachmentItem::imapUrl() const
 {
-    return QString::fromAscii("/%1;UIDVALIDITY=%2;UID=%3").arg(
+    return QString::fromAscii("/%1;UIDVALIDITY=%2/;UID=%3").arg(
                 QUrl::toPercentEncoding(mailbox), QString::number(uidValidity), QString::number(uid)).toAscii();
 }
 
@@ -339,7 +339,7 @@ bool ImapPartAttachmentItem::isAvailable() const
 
 QByteArray ImapPartAttachmentItem::imapUrl() const
 {
-    return QString::fromAscii("/%1;UIDVALIDITY=%2;UID=%3;section=%4").arg(
+    return QString::fromAscii("/%1;UIDVALIDITY=%2/;UID=%3/;SECTION=%4").arg(
                 QUrl::toPercentEncoding(mailbox), QString::number(uidValidity), QString::number(uid), pathToPart).toAscii();
 }
 
