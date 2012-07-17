@@ -205,7 +205,7 @@ QByteArray MessageComposer::encodeHeaderField(const QString &text)
     return Imap::encodeRFC2047String(text);
 }
 
-bool MessageComposer::asRawMessage(QIODevice *target) const
+bool MessageComposer::asRawMessage(QIODevice *target, QString *errorMessage) const
 {
     // The From header
     target->write(QByteArray("From: ").append(m_from.asMailHeader()).append("\r\n"));
@@ -263,9 +263,10 @@ bool MessageComposer::asRawMessage(QIODevice *target) const
 
     if (hasAttachments) {
         Q_FOREACH(const AttachmentItem *attachment, m_attachments) {
-            // FIXME: this assert can fail very, *very* easily when it comes to IMAP-based attachments...
-            if (!attachment->isAvailable())
+            if (!attachment->isAvailable()) {
+                *errorMessage = tr("Attachment %1 is not available").arg(attachment->caption());
                 return false;
+            }
             target->write("\r\n--" + boundary + "\r\n"
                           "Content-Type: " + attachment->mimeType() + "\r\n");
             target->write(attachment->contentDispositionHeader());

@@ -134,9 +134,10 @@ void ComposeWidget::send()
     QByteArray rawMessageData;
     QBuffer buf(&rawMessageData);
     buf.open(QIODevice::WriteOnly);
-    if (!m_composer->asRawMessage(&buf)) {
+    QString errorMessage;
+    if (!m_composer->asRawMessage(&buf, &errorMessage)) {
         // FIXME: better error handling
-        gotError(tr("Cannot send right now"));
+        gotError(tr("Cannot send right now: %1").arg(errorMessage));
         return;
     }
 
