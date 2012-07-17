@@ -295,8 +295,10 @@ bool MessageComposer::asRawMessage(QIODevice *target, QString *errorMessage) con
             target->write("\r\n");
 
             QSharedPointer<QIODevice> io = attachment->rawData();
-            if (!io)
+            if (!io) {
+                *errorMessage = tr("Attachment %1 disappeared").arg(attachment->caption());
                 return false;
+            }
             while (!io->atEnd()) {
                 switch (cte) {
                 case AttachmentItem::CTE_BASE64:
