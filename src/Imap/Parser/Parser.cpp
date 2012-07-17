@@ -272,6 +272,33 @@ CommandHandle Parser::append(const QString &mailbox, const QByteArray &message, 
     return queueCommand(command);
 }
 
+CommandHandle Parser::appendCatenate(const QString &mailbox, const QList<Imap::Mailbox::CatenatePair> &data,
+                                     const QStringList &flags, const QDateTime &timestamp)
+{
+    Commands::Command command("APPEND");
+    command << encodeImapFolderName(mailbox);
+    if (flags.count())
+        command << Commands::PartOfCommand(Commands::ATOM, "(" + flags.join(" ").toAscii() + ")");
+    if (timestamp.isValid())
+        command << Commands::PartOfCommand(Imap::dateTimeToInternalDate(timestamp).toAscii());
+    command << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, " CATENATE (");
+    Q_FOREACH(const Imap::Mailbox::CatenatePair &item, data) {
+        switch (item.first) {
+        case Imap::Mailbox::CATENATE_TEXT:
+            command << Commands::PartOfCommand(Commands::ATOM, "TEXT");
+            command << Commands::PartOfCommand(Commands::LITERAL, item.second);
+            break;
+        case Imap::Mailbox::CATENATE_URL:
+            command << Commands::PartOfCommand(Commands::ATOM, "URL");
+            command << Commands::PartOfCommand(item.second);
+            break;
+        }
+    }
+    command << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, ")");
+
+    return queueCommand(command);
+}
+
 CommandHandle Parser::check()
 {
     return queueCommand(Commands::ATOM, "CHECK");

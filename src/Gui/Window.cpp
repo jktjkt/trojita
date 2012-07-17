@@ -75,7 +75,7 @@
 namespace Gui
 {
 
-MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignoreStoredPassword(false)
+MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignoreStoredPassword(false), m_supportsCatenate(false)
 {
     qRegisterMetaType<QList<QSslCertificate> >("QList<QSslCertificate>");
     qRegisterMetaType<QList<QSslError> >("QList<QSslError>");
@@ -1508,6 +1508,8 @@ void MainWindow::slotCapabilitiesUpdated(const QStringList &capabilities)
                                                Common::SettingsNames::guiMailboxListShowOnlySubscribed, false).toBool());
     m_actionSubscribeMailbox->setEnabled(m_actionShowOnlySubscribed->isEnabled());
 
+    m_supportsCatenate = capabilities.contains(QLatin1String("CATENATE"));
+
     const QStringList supportedCapabilities = Imap::Mailbox::ThreadingMsgListModel::supportedCapabilities();
     Q_FOREACH(const QString &capability, capabilities) {
         if (supportedCapabilities.contains(capability)) {
@@ -1619,6 +1621,11 @@ void MainWindow::slotLayoutWide()
 Imap::Mailbox::Model *MainWindow::imapModel() const
 {
     return model;
+}
+
+bool MainWindow::isCatenateSupported() const
+{
+    return m_supportsCatenate;
 }
 
 }

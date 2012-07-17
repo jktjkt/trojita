@@ -22,6 +22,7 @@
 #include <memory>
 #include <QMap>
 #include <QModelIndex>
+#include "CatenateData.h"
 #include "CopyMoveOperation.h"
 #include "FlagsOperation.h"
 #include "SubscribeUnSubscribeOperation.h"
@@ -90,6 +91,8 @@ public:
     virtual UnSelectTask *createUnSelectTask(Model *model, ImapTask *parentTask);
     virtual SortTask *createSortTask(Model *model, const QModelIndex &mailbox, const QStringList &searchConditions, const QStringList &sortCriteria);
     virtual AppendTask *createAppendTask(Model *model, const QString &targetMailbox, const QByteArray &rawMessageData,
+                                         const QStringList &flags, const QDateTime &timestamp);
+    virtual AppendTask *createAppendTask(Model *model, const QString &targetMailbox, const QList<CatenatePair> &data,
                                          const QStringList &flags, const QDateTime &timestamp);
     virtual SubscribeUnsubscribeTask *createSubscribeUnsubscribeTask(Model *model, const QModelIndex &mailbox,
                                                                      const SubscribeUnsubscribeOperation operation);

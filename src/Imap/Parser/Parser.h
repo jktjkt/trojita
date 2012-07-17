@@ -27,6 +27,7 @@
 #include "Sequence.h"
 #include "../Exceptions.h"
 #include "Streams/Socket.h"
+#include "Imap/Model/CatenateData.h"
 
 /**
  * @file
@@ -141,6 +142,10 @@ public slots:
     /** @short APPEND, RFC3501 section 6.3.11 */
     CommandHandle append(const QString &mailbox, const QByteArray &message,
                          const QStringList &flags = QStringList(), const QDateTime &timestamp = QDateTime());
+
+    /** @short APPEND CATENATE, RFC 4469 */
+    CommandHandle appendCatenate(const QString &mailbox, const QList<Imap::Mailbox::CatenatePair> &data,
+                                 const QStringList &flags = QStringList(), const QDateTime &timestamp = QDateTime());
 
 
     /** @short CHECK, RFC3501 sect 6.4.1 */

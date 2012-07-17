@@ -20,6 +20,7 @@
 #define IMAP_APPENDTASK_H
 
 #include "ImapTask.h"
+#include "CatenateData.h"
 
 namespace Imap
 {
@@ -33,6 +34,8 @@ class AppendTask : public ImapTask
 public:
     AppendTask(Model *model, const QString &targetMailbox, const QByteArray &rawMessageData, const QStringList &flags,
                const QDateTime &timestamp);
+    AppendTask(Model *model, const QString &targetMailbox, const QList<CatenatePair> &data, const QStringList &flags,
+               const QDateTime &timestamp);
     virtual void perform();
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
@@ -44,6 +47,7 @@ private:
     CommandHandle tag;
     QString targetMailbox;
     QByteArray rawMessageData;
+    QList<CatenatePair> data;
     QStringList flags;
     QDateTime timestamp;
 };

@@ -196,6 +196,11 @@ public:
     ImapTask* appendIntoMailbox(const QString &mailbox, const QByteArray &rawMessageData, const QStringList &flags,
                                 const QDateTime &timestamp);
 
+    /** @short Save a message into a mailbox using the CATENATE extension */
+    ImapTask* appendIntoMailbox(const QString &mailbox, const QList<CatenatePair> &data, const QStringList &flags,
+                                const QDateTime &timestamp);
+
+
     /** @short Returns true if we are allowed to access the network */
     bool isNetworkAvailable() const { return m_netPolicy != NETWORK_OFFLINE; }
     /** @short Returns true if the network access is cheap */

@@ -1790,6 +1790,12 @@ ImapTask *Model::appendIntoMailbox(const QString &mailbox, const QByteArray &raw
     return m_taskFactory->createAppendTask(this, mailbox, rawMessageData, flags, timestamp);
 }
 
+ImapTask *Model::appendIntoMailbox(const QString &mailbox, const QList<CatenatePair> &data, const QStringList &flags,
+                                   const QDateTime &timestamp)
+{
+    return m_taskFactory->createAppendTask(this, mailbox, data, flags, timestamp);
+}
+
 #ifdef TROJITA_DEBUG_TASK_TREE
 #define TROJITA_DEBUG_TASK_TREE_VERBOSE
 void Model::checkTaskTreeConsistency()

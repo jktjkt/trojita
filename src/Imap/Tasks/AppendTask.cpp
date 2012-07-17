@@ -35,6 +35,14 @@ AppendTask::AppendTask(Model *model, const QString &targetMailbox, const QByteAr
     conn->addDependentTask(this);
 }
 
+AppendTask::AppendTask(Model *model, const QString &targetMailbox, const QList<CatenatePair> &data, const QStringList &flags,
+                       const QDateTime &timestamp):
+    ImapTask(model), targetMailbox(targetMailbox), data(data), flags(flags), timestamp(timestamp)
+{
+    conn = model->m_taskFactory->createGetAnyConnectionTask(model);
+    conn->addDependentTask(this);
+}
+
 void AppendTask::perform()
 {
     parser = conn->parser;
@@ -43,7 +51,11 @@ void AppendTask::perform()
 
     IMAP_TASK_CHECK_ABORT_DIE;
 
-    tag = parser->append(targetMailbox, rawMessageData, flags, timestamp);
+    if (data.isEmpty()) {
+        tag = parser->append(targetMailbox, rawMessageData, flags, timestamp);
+    } else {
+        tag = parser->appendCatenate(targetMailbox, data, flags, timestamp);
+    }
 }
 
 bool AppendTask::handleStateHelper(const Imap::Responses::State *const resp)

@@ -72,6 +72,7 @@ public:
     QSize sizeHint() const;
 
     Imap::Mailbox::Model *imapModel() const;
+    bool isCatenateSupported() const;
 
 private slots:
     void showContextMenuMboxTree(const QPoint &position);
@@ -238,6 +239,7 @@ private:
     QToolButton *networkIndicator;
 
     bool m_ignoreStoredPassword;
+    bool m_supportsCatenate;
 
     MainWindow(const MainWindow &); // don't implement
     MainWindow &operator=(const MainWindow &); // don't implement

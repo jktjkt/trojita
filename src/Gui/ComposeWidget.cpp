@@ -135,19 +135,41 @@ void ComposeWidget::send()
     QBuffer buf(&rawMessageData);
     buf.open(QIODevice::WriteOnly);
     QString errorMessage;
-    if (!m_composer->asRawMessage(&buf, &errorMessage)) {
-        // FIXME: better error handling
-        gotError(tr("Cannot send right now: %1").arg(errorMessage));
-        return;
-    }
 
     if (s.value(SettingsNames::composerSaveToImapKey, true).toBool()) {
         Q_ASSERT(m_mainWindow->imapModel());
-        // FIXME: without UIDPLUS, there isn't much point in $SubmitPending...
-        m_mainWindow->imapModel()->appendIntoMailbox(s.value(SettingsNames::composerImapSentKey, tr("Sent")).toString(),
-                                                     rawMessageData,
-                                                     QStringList() << QLatin1String("$SubmitPending") << QLatin1String("\\Seen"),
-                                                     m_composer->timestamp());
+
+        if (m_mainWindow->isCatenateSupported()) {
+            QList<Imap::Mailbox::CatenatePair> catenateable;
+            if (!m_composer->asCatenateData(catenateable, &errorMessage)) {
+                gotError(tr("Cannot send right now -- saving (CATENATE) failed:\n %1").arg(errorMessage));
+                return;
+            }
+
+            // FIXME: without UIDPLUS, there isn't much point in $SubmitPending...
+            m_mainWindow->imapModel()->appendIntoMailbox(s.value(SettingsNames::composerImapSentKey, tr("Sent")).toString(),
+                                                         catenateable,
+                                                         QStringList() << QLatin1String("$SubmitPending") << QLatin1String("\\Seen"),
+                                                         m_composer->timestamp());
+        } else {
+            if (!m_composer->asRawMessage(&buf, &errorMessage)) {
+                gotError(tr("Cannot send right now -- saving failed:\n %1").arg(errorMessage));
+                return;
+            }
+
+            // FIXME: without UIDPLUS, there isn't much point in $SubmitPending...
+            m_mainWindow->imapModel()->appendIntoMailbox(s.value(SettingsNames::composerImapSentKey, tr("Sent")).toString(),
+                                                         rawMessageData,
+                                                         QStringList() << QLatin1String("$SubmitPending") << QLatin1String("\\Seen"),
+                                                         m_composer->timestamp());
+        }
+    }
+
+    if (rawMessageData.isEmpty()) {
+        if (!m_composer->asRawMessage(&buf, &errorMessage)) {
+            gotError(tr("Cannot send right now:\n %1").arg(errorMessage));
+            return;
+        }
     }
 
     MSA::AbstractMSA *msa = 0;

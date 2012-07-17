@@ -159,6 +159,12 @@ AppendTask *TaskFactory::createAppendTask(Model *model, const QString &targetMai
     return new AppendTask(model, targetMailbox, rawMessageData, flags, timestamp);
 }
 
+AppendTask *TaskFactory::createAppendTask(Model *model, const QString &targetMailbox, const QList<CatenatePair> &data,
+                                          const QStringList &flags, const QDateTime &timestamp)
+{
+    return new AppendTask(model, targetMailbox, data, flags, timestamp);
+}
+
 SubscribeUnsubscribeTask *TaskFactory::createSubscribeUnsubscribeTask(Model *model, const QModelIndex &mailbox,
                                                                       const SubscribeUnsubscribeOperation operation)
 {
