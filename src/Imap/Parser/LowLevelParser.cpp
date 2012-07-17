@@ -136,6 +136,18 @@ QPair<QByteArray,ParsedAs> getString(const QByteArray &line, int &start)
         int old(start);
         start += size;
         return qMakePair(line.mid(old, size), LITERAL);
+    } else if (start < line.size() - 3 && line[start] == '~' && line[start + 1] == '{' ) {
+        // literal8
+        start += 2;
+        int size = getUInt(line, start);
+        if (line.mid(start, 3) != "}\r\n")
+            throw ParseError("getString: mallformed literal8 specification", line, start);
+        start += 3;
+        if (start + size > line.size())
+            throw NoData("getString: literal8: run out of data", line, start);
+        int old(start);
+        start += size;
+        return qMakePair(line.mid(old, size), LITERAL8);
     } else {
         throw UnexpectedHere("getString: did not get quoted string or literal", line, start);
     }
@@ -143,10 +155,10 @@ QPair<QByteArray,ParsedAs> getString(const QByteArray &line, int &start)
 
 QPair<QByteArray,ParsedAs> getAString(const QByteArray &line, int &start)
 {
-    if (start == line.size())
+    if (start >= line.size())
         throw NoData("getAString: no data", line, start);
 
-    if (line[start] == '{' || line[start] == '"')
+    if (line[start] == '{' || line[start] == '"' || line[start] == '~')
         return getString(line, start);
     else
         return qMakePair(getAtom(line, start), ATOM);

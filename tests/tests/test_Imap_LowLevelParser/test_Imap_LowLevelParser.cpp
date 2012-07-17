@@ -263,6 +263,20 @@ void ImapLowLevelParserTest::testGetAString()
     QCOMPARE( res.first, QByteArray("ah0j 333") );
     QCOMPARE( res.second, LITERAL );
     QCOMPARE( pos, line.size() );
+
+    line = "~{2}\r\n";
+    line.append('\x00');
+    line.append('\xff');
+    line.append("trms");
+    QCOMPARE(line.size(), 12);
+    pos = 0;
+    res = getAString(line, pos);
+    QByteArray bdata;
+    bdata.append('\x00');
+    bdata.append('\xff');
+    QCOMPARE(res.first, bdata);
+    QCOMPARE(res.second, LITERAL8);
+    QCOMPARE(line.mid(pos), QByteArray("trms"));
 }
 
 void ImapLowLevelParserTest::testGetAnything()
