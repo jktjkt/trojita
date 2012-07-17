@@ -1500,5 +1500,12 @@ QModelIndex TreeItemModifiedPart::toIndex(Model *const model) const
     return model->createIndex(row(), static_cast<int>(kind()), const_cast<TreeItemModifiedPart *>(this));
 }
 
+QString TreeItemModifiedPart::partIdForFetch(const PartFetchingMode mode) const
+{
+    Q_UNUSED(mode);
+    // Don't try to use BINARY for special message parts, it's forbidden. One can only use that for the "regular" MIME parts
+    return TreeItemPart::partIdForFetch(FETCH_PART_IMAP);
+}
+
 }
 }

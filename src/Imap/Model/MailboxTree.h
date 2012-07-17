@@ -340,6 +340,7 @@ public:
     virtual TreeItem *specialColumnPtr(int row, int column) const;
     PartModifier kind() const;
     virtual QModelIndex toIndex(Model *const model) const;
+    virtual QString partIdForFetch(const PartFetchingMode fetchingMode) const;
 protected:
     virtual bool isTopLevelMultiPart() const;
 private:
