@@ -49,6 +49,7 @@ public:
     void setModel(QAbstractItemModel *model);
 protected:
     virtual int sizeHintForColumn(int column) const;
+    virtual void startDrag(Qt::DropActions supportedActions);
 private slots:
     void slotFixSize();
     /** @short Expand all items below current root index */

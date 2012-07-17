@@ -21,8 +21,10 @@
 #include "MsgListView.h"
 
 #include <QAction>
+#include <QDrag>
 #include <QFontMetrics>
 #include <QHeaderView>
+#include <QPainter>
 #include <QSignalMapper>
 #include "Imap/Model/MsgListModel.h"
 #include "Imap/Model/PrettyMsgListModel.h"
@@ -76,6 +78,92 @@ int MsgListView::sizeHintForColumn(int column) const
         return metric.size(Qt::TextSingleLine, QLatin1String("888.1 kB")).width();
     default:
         return QTreeView::sizeHintForColumn(column);
+    }
+}
+
+/** @short Reimplemented to show custom pixmap during drag&drop
+
+  Qt's model-view classes don't provide any means of interfering with the
+  QDrag's pixmap so we just rip off QAbstractItemView::startDrag and provide
+  our own QPixmap.
+*/
+void MsgListView::startDrag(Qt::DropActions supportedActions)
+{
+    QModelIndexList indexes=selectedIndexes();
+    int messageCount=0;
+    for (int i= indexes.count() - 1; i>=0; --i){
+        if (!(model()->flags(indexes.at(i)) & Qt::ItemIsDragEnabled))
+            indexes.removeAt(i);
+        //indexes contains all columns, count those with column==0 for messageCount
+        else if (indexes.at(i).column() == 0)
+            ++messageCount;
+    }
+    if (indexes.count() > 0) {
+        QMimeData *data = model()->mimeData(indexes);
+        if (!data)
+            return;
+
+        QString string=tr("%n message(s)","",messageCount);
+
+        //try to be smart about size of pixmap
+        int marginLeft=30;
+        int margin=style()->pixelMetric(QStyle::PM_ToolTipLabelFrameWidth);
+        QSize size=fontMetrics().size(Qt::TextSingleLine, string);
+        QRect textRect(QPoint(),size);
+        textRect.moveTopLeft(QPoint(marginLeft+margin,margin));
+        size.setWidth(size.width()+marginLeft+2*margin);
+        size.setHeight(size.height()+2*margin);
+
+        //paint the actual pixmap, using ToolTip's colors to be consistent with the style
+        QPixmap pixmap(size);
+        pixmap.fill(Qt::transparent);
+        QPainter p(&pixmap);
+        p.setPen(Qt::NoPen);
+        p.setBrush(palette().toolTipBase());
+        p.setRenderHint(QPainter::Antialiasing);
+        p.drawRoundedRect(pixmap.rect(),5.0,5.0);
+        p.setPen(palette().color(QPalette::ToolTipText));
+        p.drawText(textRect,string);
+        p.end();
+
+        QDrag* drag = new QDrag(this);
+        drag->setPixmap(pixmap);
+        drag->setMimeData(data);
+        drag->setHotSpot(QPoint(0,0));
+
+        Qt::DropAction dropAction = Qt::IgnoreAction;
+        if (defaultDropAction() != Qt::IgnoreAction && (supportedActions & defaultDropAction()))
+            dropAction = defaultDropAction();
+        else if (supportedActions & Qt::CopyAction && dragDropMode() != QAbstractItemView::InternalMove)
+            dropAction = Qt::CopyAction;
+        if (drag->exec(supportedActions, dropAction) == Qt::MoveAction) {
+            //QAbstractItemView::startDrag calls d->clearOrRemove() here, so
+            //this is a copy of QAbstractItemModelPrivate::clearOrRemove();
+            const QItemSelection selection = selectionModel()->selection();
+            QList<QItemSelectionRange>::const_iterator it = selection.constBegin();
+
+            if (!dragDropOverwriteMode()) {
+                for (; it != selection.constEnd(); ++it) {
+                    QModelIndex parent = (*it).parent();
+                    if ((*it).left() != 0)
+                        continue;
+                    if ((*it).right() != (model()->columnCount(parent) - 1))
+                        continue;
+                    int count = (*it).bottom() - (*it).top() + 1;
+                    model()->removeRows((*it).top(), count, parent);
+                }
+            } else {
+                // we can't remove the rows so reset the items (i.e. the view is like a table)
+                QModelIndexList list = selection.indexes();
+                for (int i=0; i < list.size(); ++i) {
+                    QModelIndex index = list.at(i);
+                    QMap<int, QVariant> roles = model()->itemData(index);
+                    for (QMap<int, QVariant>::Iterator it = roles.begin(); it != roles.end(); ++it)
+                        it.value() = QVariant();
+                    model()->setItemData(index, roles);
+                }
+            }
+        }
     }
 }
 
