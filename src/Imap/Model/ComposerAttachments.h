@@ -48,6 +48,9 @@ public:
         CTE_BASE64
     } ContentTransferEncoding;
     virtual ContentTransferEncoding suggestedCTE() const = 0;
+
+    /** @short Returns a valid IMAP URL or an empty QByteArray if the data are not available from an IMAP server */
+    virtual QByteArray imapUrl() const = 0;
 };
 
 /** @short Part of a message stored in an IMAP server */
@@ -63,6 +66,7 @@ public:
     virtual QSharedPointer<QIODevice> rawData() const;
     virtual bool isAvailable() const;
     virtual ContentTransferEncoding suggestedCTE() const;
+    virtual QByteArray imapUrl() const;
 private:
     TreeItemMessage *messagePtr() const;
     TreeItemPart *headerPartPtr() const;
@@ -87,6 +91,7 @@ public:
     virtual QSharedPointer<QIODevice> rawData() const;
     virtual bool isAvailable() const;
     virtual ContentTransferEncoding suggestedCTE() const;
+    virtual QByteArray imapUrl() const;
 private:
     TreeItemPart *partPtr() const;
 
@@ -110,6 +115,7 @@ public:
     virtual QSharedPointer<QIODevice> rawData() const;
     virtual bool isAvailable() const;
     virtual ContentTransferEncoding suggestedCTE() const;
+    virtual QByteArray imapUrl() const;
 private:
     QString fileName;
     mutable QByteArray m_cachedMime;

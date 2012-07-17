@@ -3,6 +3,7 @@
 #include <QFileInfo>
 #include <QMimeData>
 #include <QProcess>
+#include <QUrl>
 #include "Imap/Encoders.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/MessageComposer.h"
@@ -110,6 +111,12 @@ AttachmentItem::ContentTransferEncoding FileAttachmentItem::suggestedCTE() const
     return CTE_BASE64;
 }
 
+QByteArray FileAttachmentItem::imapUrl() const
+{
+    // It's a local item, it cannot really be on an IMAP server
+    return QByteArray();
+}
+
 
 ImapMessageAttachmentItem::ImapMessageAttachmentItem(Model *model, const QString &mailbox, const uint uidValidity, const uint uid):
     model(model), mailbox(mailbox), uidValidity(uidValidity), uid(uid)
@@ -141,8 +148,7 @@ QString ImapMessageAttachmentItem::tooltip() const
     TreeItemMessage *msg = messagePtr();
     if (!msg || !model)
         return QString();
-    return MessageComposer::tr("IMAP message /%1;UIDVALIDITY=%2;UID=%3")
-            .arg(mailbox, QString::number(uidValidity), QString::number(uid));
+    return MessageComposer::tr("IMAP message %1").arg(QString::fromAscii(imapUrl()));
 }
 
 QByteArray ImapMessageAttachmentItem::contentDispositionHeader() const
@@ -231,6 +237,12 @@ AttachmentItem::ContentTransferEncoding ImapMessageAttachmentItem::suggestedCTE(
     return CTE_7BIT;
 }
 
+QByteArray ImapMessageAttachmentItem::imapUrl() const
+{
+    return QString::fromAscii("/%1;UIDVALIDITY=%2;UID=%3").arg(
+                QUrl::toPercentEncoding(mailbox), QString::number(uidValidity), QString::number(uid)).toAscii();
+}
+
 
 ImapPartAttachmentItem::ImapPartAttachmentItem(Model *model, const QString &mailbox, const uint uidValidity, const uint uid,
                                                const QString &pathToPart):
@@ -273,8 +285,7 @@ QString ImapPartAttachmentItem::caption() const
     if (part && !part->fileName().isEmpty()) {
         return part->fileName();
     } else {
-        return MessageComposer::tr("IMAP part /%1;UIDVALIDITY=%2;UID=%3;section=%4")
-                .arg(mailbox, QString::number(uidValidity), QString::number(uid), pathToPart);
+        return MessageComposer::tr("IMAP part %1").arg(QString::fromAscii(imapUrl()));
     }
 }
 
@@ -324,6 +335,12 @@ bool ImapPartAttachmentItem::isAvailable() const
 {
     TreeItemPart *part = partPtr();
     return part ? part->fetched() : false;
+}
+
+QByteArray ImapPartAttachmentItem::imapUrl() const
+{
+    return QString::fromAscii("/%1;UIDVALIDITY=%2;UID=%3;section=%4").arg(
+                QUrl::toPercentEncoding(mailbox), QString::number(uidValidity), QString::number(uid), pathToPart).toAscii();
 }
 
 }
