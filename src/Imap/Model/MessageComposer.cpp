@@ -205,7 +205,7 @@ QByteArray MessageComposer::encodeHeaderField(const QString &text)
     return Imap::encodeRFC2047String(text);
 }
 
-bool MessageComposer::asRawMessage(QIODevice *target, QString *errorMessage) const
+void MessageComposer::writeCommonMessageBeginning(QIODevice *target, const QByteArray boundary) const
 {
     // The From header
     target->write(QByteArray("From: ").append(m_from.asMailHeader()).append("\r\n"));
@@ -243,14 +243,9 @@ bool MessageComposer::asRawMessage(QIODevice *target, QString *errorMessage) con
         target->write(QByteArray("In-Reply-To: ").append(m_inReplyTo).append("\r\n"));
     }
 
-    const bool hasAttachments = !m_attachments.isEmpty();
 
-    // We don't bother with checking that our boundary is not present in the individual parts. That's arguably wrong,
-    // but we don't have much choice if we ever plan to use CATENATE.  It also looks like this is exactly how other MUAs
-    // oeprate as well, so let's just join the universal dontcareism here.
-    QByteArray boundary(generateMimeBoundary());
-
-    if (hasAttachments) {
+    // Headers depending on actual message body data
+    if (!m_attachments.isEmpty()) {
         target->write("Content-Type: multipart/mixed;\r\n\tboundary=\"" + boundary + "\"\r\n"
                       "\r\nThis is a multipart/mixed message in MIME format.\r\n\r\n"
                       "--" + boundary + "\r\n");
@@ -260,8 +255,18 @@ bool MessageComposer::asRawMessage(QIODevice *target, QString *errorMessage) con
                   "Content-Transfer-Encoding: quoted-printable\r\n"
                   "\r\n");
     target->write(Imap::quotedPrintableEncode(m_text.toUtf8()));
+}
 
-    if (hasAttachments) {
+bool MessageComposer::asRawMessage(QIODevice *target, QString *errorMessage) const
+{
+    // We don't bother with checking that our boundary is not present in the individual parts. That's arguably wrong,
+    // but we don't have much choice if we ever plan to use CATENATE.  It also looks like this is exactly how other MUAs
+    // oeprate as well, so let's just join the universal dontcareism here.
+    QByteArray boundary(generateMimeBoundary());
+
+    writeCommonMessageBeginning(target, boundary);
+
+    if (!m_attachments.isEmpty()) {
         Q_FOREACH(const AttachmentItem *attachment, m_attachments) {
             if (!attachment->isAvailable()) {
                 *errorMessage = tr("Attachment %1 is not available").arg(attachment->caption());

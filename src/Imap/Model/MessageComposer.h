@@ -58,6 +58,8 @@ private:
     static QByteArray encodeHeaderField(const QString &text);
     static QByteArray generateMimeBoundary();
 
+    void writeCommonMessageBeginning(QIODevice *target, const QByteArray boundary) const;
+
     Message::MailAddress m_from;
     QList<QPair<RecipientKind,Message::MailAddress> > m_recipients;
     QByteArray m_inReplyTo;
