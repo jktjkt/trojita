@@ -52,6 +52,9 @@ public:
 
     /** @short Returns a valid IMAP URL or an empty QByteArray if the data are not available from an IMAP server */
     virtual QByteArray imapUrl() const = 0;
+
+    /** @short Express interest in having the attachment data available locally */
+    virtual void preload() const = 0;
 };
 
 /** @short Part of a message stored in an IMAP server */
@@ -68,6 +71,7 @@ public:
     virtual bool isAvailableLocally() const;
     virtual ContentTransferEncoding suggestedCTE() const;
     virtual QByteArray imapUrl() const;
+    virtual void preload() const;
 private:
     TreeItemMessage *messagePtr() const;
     TreeItemPart *headerPartPtr() const;
@@ -93,6 +97,7 @@ public:
     virtual bool isAvailableLocally() const;
     virtual ContentTransferEncoding suggestedCTE() const;
     virtual QByteArray imapUrl() const;
+    virtual void preload() const;
 private:
     TreeItemPart *partPtr() const;
 
@@ -117,6 +122,7 @@ public:
     virtual bool isAvailableLocally() const;
     virtual ContentTransferEncoding suggestedCTE() const;
     virtual QByteArray imapUrl() const;
+    virtual void preload() const;
 private:
     QString fileName;
     mutable QByteArray m_cachedMime;

@@ -12,7 +12,7 @@ namespace Imap {
 namespace Mailbox {
 
 MessageComposer::MessageComposer(Model *model, QObject *parent) :
-    QAbstractListModel(parent), m_model(model)
+    QAbstractListModel(parent), m_model(model), m_shouldPreload(false)
 {
 }
 
@@ -93,6 +93,8 @@ bool MessageComposer::dropMimeData(const QMimeData *data, Qt::DropAction action,
         beginInsertRows(QModelIndex(), m_attachments.size(), m_attachments.size() + uids.size() - 1);
         Q_FOREACH(const uint uid, uids) {
             m_attachments << new ImapMessageAttachmentItem(m_model, mailbox, uidValidity, uid);
+            if (m_shouldPreload)
+                m_attachments.back()->preload();
         }
         endInsertRows();
 
@@ -122,6 +124,8 @@ bool MessageComposer::dropMimeData(const QMimeData *data, Qt::DropAction action,
 
         beginInsertRows(QModelIndex(), m_attachments.size(), m_attachments.size());
         m_attachments << new ImapPartAttachmentItem(m_model, mailbox, uidValidity, uid, pathToPart);
+        if (m_shouldPreload)
+            m_attachments.back()->preload();
         endInsertRows();
 
         return true;
@@ -413,6 +417,11 @@ void MessageComposer::removeAttachment(const QModelIndex &index)
     beginRemoveRows(QModelIndex(), index.row(), index.row());
     delete m_attachments.takeAt(index.row());
     endRemoveRows();
+}
+
+void MessageComposer::setPreloadEnabled(const bool preload)
+{
+    m_shouldPreload = preload;
 }
 
 }

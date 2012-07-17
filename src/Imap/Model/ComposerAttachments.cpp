@@ -117,17 +117,16 @@ QByteArray FileAttachmentItem::imapUrl() const
     return QByteArray();
 }
 
+void FileAttachmentItem::preload() const
+{
+    // Don't need to do anything
+    // We could possibly leave this file open to prevent eventual deletion, but it's probably not worth the effort.
+}
+
 
 ImapMessageAttachmentItem::ImapMessageAttachmentItem(Model *model, const QString &mailbox, const uint uidValidity, const uint uid):
     model(model), mailbox(mailbox), uidValidity(uidValidity), uid(uid)
 {
-    TreeItemPart *part = headerPartPtr();
-    if (part) {
-        part->fetch(model);
-    }
-    part = bodyPartPtr();
-    if (part)
-        part->fetch(model);
 }
 
 ImapMessageAttachmentItem::~ImapMessageAttachmentItem()
@@ -243,15 +242,22 @@ QByteArray ImapMessageAttachmentItem::imapUrl() const
                 QUrl::toPercentEncoding(mailbox), QString::number(uidValidity), QString::number(uid)).toAscii();
 }
 
+void ImapMessageAttachmentItem::preload() const
+{
+    TreeItemPart *part = headerPartPtr();
+    if (part) {
+        part->fetch(model);
+    }
+    part = bodyPartPtr();
+    if (part)
+        part->fetch(model);
+}
+
 
 ImapPartAttachmentItem::ImapPartAttachmentItem(Model *model, const QString &mailbox, const uint uidValidity, const uint uid,
                                                const QString &pathToPart):
     model(model), mailbox(mailbox), uidValidity(uidValidity), uid(uid), pathToPart(pathToPart)
 {
-    TreeItemPart *part = partPtr();
-    if (part) {
-        part->fetch(model);
-    }
 }
 
 ImapPartAttachmentItem::~ImapPartAttachmentItem()
@@ -341,6 +347,14 @@ QByteArray ImapPartAttachmentItem::imapUrl() const
 {
     return QString::fromAscii("/%1;UIDVALIDITY=%2/;UID=%3/;SECTION=%4").arg(
                 QUrl::toPercentEncoding(mailbox), QString::number(uidValidity), QString::number(uid), pathToPart).toAscii();
+}
+
+void ImapPartAttachmentItem::preload() const
+{
+    TreeItemPart *part = partPtr();
+    if (part) {
+        part->fetch(model);
+    }
 }
 
 }

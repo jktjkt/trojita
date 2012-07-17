@@ -55,6 +55,8 @@ public:
     void addFileAttachment(const QString &path);
     void removeAttachment(const QModelIndex &index);
 
+    void setPreloadEnabled(const bool preload);
+
 private:
     static QByteArray generateMessageId(const Imap::Message::MailAddress &sender);
     static QByteArray encodeHeaderField(const QString &text);
@@ -73,6 +75,7 @@ private:
 
     QList<AttachmentItem *> m_attachments;
     QPointer<Model> m_model;
+    bool m_shouldPreload;
 };
 
 }
