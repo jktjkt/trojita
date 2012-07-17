@@ -26,6 +26,14 @@ public:
         Recipient_Bcc
     } RecipientKind;
 
+    /** @short How to use a message part in a CATENATE command */
+    typedef enum {
+        CATENATE_TEXT,
+        CATENATE_URL
+    } CatenatePartType;
+
+    typedef QPair<CatenatePartType, QByteArray> CatenatePair;
+
     explicit MessageComposer(Model *model, QObject *parent = 0);
     ~MessageComposer();
 
@@ -45,6 +53,7 @@ public:
 
     bool isReadyForSerialization() const;
     bool asRawMessage(QIODevice *target, QString *errorMessage) const;
+    bool asCatenateData(QList<CatenatePair> &target, QString *errorMessage) const;
 
     QDateTime timestamp() const;
     QByteArray rawFromAddress() const;

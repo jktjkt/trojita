@@ -1,4 +1,5 @@
 #include "MessageComposer.h"
+#include <QBuffer>
 #include <QCoreApplication>
 #include <QMimeData>
 #include <QUuid>
@@ -324,6 +325,49 @@ bool MessageComposer::asRawMessage(QIODevice *target, QString *errorMessage) con
                 return false;
         }
         target->write("\r\n--" + boundary + "--\r\n");
+    }
+    return true;
+}
+
+bool MessageComposer::asCatenateData(QList<CatenatePair> &target, QString *errorMessage) const
+{
+    target.clear();
+    QByteArray boundary(generateMimeBoundary());
+    target.append(qMakePair(CATENATE_TEXT, QByteArray()));
+
+    // write the initial data
+    {
+        QBuffer io(&target.back().second);
+        io.open(QIODevice::ReadWrite);
+        writeCommonMessageBeginning(&io, boundary);
+    }
+
+    if (!m_attachments.isEmpty()) {
+        Q_FOREACH(const AttachmentItem *attachment, m_attachments) {
+            if (target.back().first != CATENATE_TEXT) {
+                target.append(qMakePair(CATENATE_TEXT, QByteArray()));
+            }
+            QBuffer io(&target.back().second);
+            io.open(QIODevice::Append);
+
+            if (!writeAttachmentHeader(&io, errorMessage, attachment, boundary))
+                return false;
+
+            QByteArray url = attachment->imapUrl();
+            if (url.isEmpty()) {
+                // Cannot use CATENATE here
+                if (!writeAttachmentBody(&io, errorMessage, attachment))
+                    return false;
+            } else {
+                target.append(qMakePair(CATENATE_URL, url));
+            }
+        }
+        if (target.back().first != CATENATE_TEXT) {
+            target.append(qMakePair(CATENATE_TEXT, QByteArray()));
+        }
+        QBuffer io(&target.back().second);
+        io.open(QIODevice::Append);
+        io.write("\r\n--" + boundary + "--\r\n");
     }
     return true;
 }
