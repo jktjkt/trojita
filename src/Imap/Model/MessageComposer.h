@@ -59,6 +59,8 @@ private:
     static QByteArray generateMimeBoundary();
 
     void writeCommonMessageBeginning(QIODevice *target, const QByteArray boundary) const;
+    bool writeAttachmentHeader(QIODevice *target, QString *errorMessage, const AttachmentItem *attachment, const QByteArray &boundary) const;
+    bool writeAttachmentBody(QIODevice *target, QString *errorMessage, const AttachmentItem *attachment) const;
 
     Message::MailAddress m_from;
     QList<QPair<RecipientKind,Message::MailAddress> > m_recipients;

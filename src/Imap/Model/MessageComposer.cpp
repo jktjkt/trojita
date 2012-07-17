@@ -257,6 +257,56 @@ void MessageComposer::writeCommonMessageBeginning(QIODevice *target, const QByte
     target->write(Imap::quotedPrintableEncode(m_text.toUtf8()));
 }
 
+bool MessageComposer::writeAttachmentHeader(QIODevice *target, QString *errorMessage, const AttachmentItem *attachment, const QByteArray &boundary) const
+{
+    if (!attachment->isAvailable()) {
+        *errorMessage = tr("Attachment %1 is not available").arg(attachment->caption());
+        return false;
+    }
+    target->write("\r\n--" + boundary + "\r\n"
+                  "Content-Type: " + attachment->mimeType() + "\r\n");
+    target->write(attachment->contentDispositionHeader());
+
+    switch (attachment->suggestedCTE()) {
+    case AttachmentItem::CTE_BASE64:
+        target->write("Content-Transfer-Encoding: base64\r\n");
+        break;
+    case AttachmentItem::CTE_7BIT:
+        target->write("Content-Transfer-Encoding: 7bit\r\n");
+        break;
+    case AttachmentItem::CTE_8BIT:
+        target->write("Content-Transfer-Encoding: 8bit\r\n");
+        break;
+    case AttachmentItem::CTE_BINARY:
+        target->write("Content-Transfer-Encoding: binary\r\n");
+        break;
+    }
+
+    target->write("\r\n");
+    return true;
+}
+
+bool MessageComposer::writeAttachmentBody(QIODevice *target, QString *errorMessage, const AttachmentItem *attachment) const
+{
+    QSharedPointer<QIODevice> io = attachment->rawData();
+    if (!io) {
+        *errorMessage = tr("Attachment %1 disappeared").arg(attachment->caption());
+        return false;
+    }
+    while (!io->atEnd()) {
+        switch (attachment->suggestedCTE()) {
+        case AttachmentItem::CTE_BASE64:
+            // Base64 maps 6bit chunks into a single byte. Output shall have no more than 76 characters per line
+            // (not counting the CRLF pair).
+            target->write(io->read(76*6/8).toBase64() + "\r\n");
+            break;
+        default:
+            target->write(io->readAll());
+        }
+    }
+    return true;
+}
+
 bool MessageComposer::asRawMessage(QIODevice *target, QString *errorMessage) const
 {
     // We don't bother with checking that our boundary is not present in the individual parts. That's arguably wrong,
@@ -268,48 +318,10 @@ bool MessageComposer::asRawMessage(QIODevice *target, QString *errorMessage) con
 
     if (!m_attachments.isEmpty()) {
         Q_FOREACH(const AttachmentItem *attachment, m_attachments) {
-            if (!attachment->isAvailable()) {
-                *errorMessage = tr("Attachment %1 is not available").arg(attachment->caption());
+            if (!writeAttachmentHeader(target, errorMessage, attachment, boundary))
                 return false;
-            }
-            target->write("\r\n--" + boundary + "\r\n"
-                          "Content-Type: " + attachment->mimeType() + "\r\n");
-            target->write(attachment->contentDispositionHeader());
-
-            AttachmentItem::ContentTransferEncoding cte = attachment->suggestedCTE();
-            switch (cte) {
-            case AttachmentItem::CTE_BASE64:
-                target->write("Content-Transfer-Encoding: base64\r\n");
-                break;
-            case AttachmentItem::CTE_7BIT:
-                target->write("Content-Transfer-Encoding: 7bit\r\n");
-                break;
-            case AttachmentItem::CTE_8BIT:
-                target->write("Content-Transfer-Encoding: 8bit\r\n");
-                break;
-            case AttachmentItem::CTE_BINARY:
-                target->write("Content-Transfer-Encoding: binary\r\n");
-                break;
-            }
-
-            target->write("\r\n");
-
-            QSharedPointer<QIODevice> io = attachment->rawData();
-            if (!io) {
-                *errorMessage = tr("Attachment %1 disappeared").arg(attachment->caption());
+            if (!writeAttachmentBody(target, errorMessage, attachment))
                 return false;
-            }
-            while (!io->atEnd()) {
-                switch (cte) {
-                case AttachmentItem::CTE_BASE64:
-                    // Base64 maps 6bit chunks into a single byte. Output shall have no more than 76 characters per line
-                    // (not counting the CRLF pair).
-                    target->write(io->read(76*6/8).toBase64() + "\r\n");
-                    break;
-                default:
-                    target->write(io->readAll());
-                }
-            }
         }
         target->write("\r\n--" + boundary + "--\r\n");
     }
