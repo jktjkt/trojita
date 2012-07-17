@@ -39,7 +39,8 @@ public:
     */
     virtual QSharedPointer<QIODevice> rawData() const = 0;
 
-    virtual bool isAvailable() const = 0;
+    /** @short Return true if the data are already available from a local cache */
+    virtual bool isAvailableLocally() const = 0;
 
     typedef enum {
         CTE_7BIT,
@@ -64,7 +65,7 @@ public:
     virtual QByteArray mimeType() const;
     virtual QByteArray contentDispositionHeader() const;
     virtual QSharedPointer<QIODevice> rawData() const;
-    virtual bool isAvailable() const;
+    virtual bool isAvailableLocally() const;
     virtual ContentTransferEncoding suggestedCTE() const;
     virtual QByteArray imapUrl() const;
 private:
@@ -89,7 +90,7 @@ public:
     virtual QByteArray mimeType() const;
     virtual QByteArray contentDispositionHeader() const;
     virtual QSharedPointer<QIODevice> rawData() const;
-    virtual bool isAvailable() const;
+    virtual bool isAvailableLocally() const;
     virtual ContentTransferEncoding suggestedCTE() const;
     virtual QByteArray imapUrl() const;
 private:
@@ -113,7 +114,7 @@ public:
     virtual QByteArray mimeType() const;
     virtual QByteArray contentDispositionHeader() const;
     virtual QSharedPointer<QIODevice> rawData() const;
-    virtual bool isAvailable() const;
+    virtual bool isAvailableLocally() const;
     virtual ContentTransferEncoding suggestedCTE() const;
     virtual QByteArray imapUrl() const;
 private:

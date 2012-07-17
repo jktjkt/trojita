@@ -260,7 +260,7 @@ void MessageComposer::writeCommonMessageBeginning(QIODevice *target, const QByte
 
 bool MessageComposer::writeAttachmentHeader(QIODevice *target, QString *errorMessage, const AttachmentItem *attachment, const QByteArray &boundary) const
 {
-    if (!attachment->isAvailable()) {
+    if (!attachment->isAvailableLocally() && attachment->imapUrl().isEmpty()) {
         *errorMessage = tr("Attachment %1 is not available").arg(attachment->caption());
         return false;
     }
@@ -289,6 +289,10 @@ bool MessageComposer::writeAttachmentHeader(QIODevice *target, QString *errorMes
 
 bool MessageComposer::writeAttachmentBody(QIODevice *target, QString *errorMessage, const AttachmentItem *attachment) const
 {
+    if (!attachment->isAvailableLocally()) {
+        *errorMessage = tr("Attachment %1 is not available").arg(attachment->caption());
+        return false;
+    }
     QSharedPointer<QIODevice> io = attachment->rawData();
     if (!io) {
         *errorMessage = tr("Attachment %1 disappeared").arg(attachment->caption());

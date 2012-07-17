@@ -45,7 +45,7 @@ QString FileAttachmentItem::tooltip() const
     return MessageComposer::tr("%1: %2, %3").arg(fileName, QString::fromAscii(mimeType()), QString::number(f.size()));
 }
 
-bool FileAttachmentItem::isAvailable() const
+bool FileAttachmentItem::isAvailableLocally() const
 {
     return QFileInfo(fileName).isReadable();
 }
@@ -166,7 +166,7 @@ QByteArray ImapMessageAttachmentItem::mimeType() const
     return "message/rfc822";
 }
 
-bool ImapMessageAttachmentItem::isAvailable() const
+bool ImapMessageAttachmentItem::isAvailableLocally() const
 {
     TreeItemMessage *msg = messagePtr();
     if (!msg)
@@ -331,7 +331,7 @@ QSharedPointer<QIODevice> ImapPartAttachmentItem::rawData() const
     return io;
 }
 
-bool ImapPartAttachmentItem::isAvailable() const
+bool ImapPartAttachmentItem::isAvailableLocally() const
 {
     TreeItemPart *part = partPtr();
     return part ? part->fetched() : false;
