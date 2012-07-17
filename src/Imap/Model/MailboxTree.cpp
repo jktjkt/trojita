@@ -1276,6 +1276,11 @@ QVariant TreeItemPart::data(Model *const model, int role)
             return multipartRelatedStartPart();
         else
             return QVariant();
+    case RoleMailboxName:
+    case RoleMailboxUidValidity:
+        return message()->parent()->parent()->data(model, role);
+    case RoleMessageUid:
+        return message()->uid();
     }
 
 

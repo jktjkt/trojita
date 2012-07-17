@@ -45,6 +45,11 @@ QString FileDownloadManager::toRealFileName(const QModelIndex &index)
     return QDir(QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation)).filePath(name);
 }
 
+QVariant FileDownloadManager::data(int role) const
+{
+    return partIndex.data(role);
+}
+
 void FileDownloadManager::slotDownloadNow()
 {
     if (!partIndex.isValid()) {

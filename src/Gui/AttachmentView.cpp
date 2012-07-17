@@ -25,9 +25,11 @@
 #include "Imap/Model/Utils.h"
 
 #include <QDesktopServices>
+#include <QDrag>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QMessageBox>
+#include <QMouseEvent>
 #include <QPushButton>
 #include <QLabel>
 
@@ -35,7 +37,7 @@ namespace Gui
 {
 
 AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex):
-    QWidget(parent), fileDownloadManager(0)
+    QWidget(parent), fileDownloadManager(0), downloadButton(0)
 {
     fileDownloadManager = new Imap::Network::FileDownloadManager(this, manager, partIndex);
     QHBoxLayout *layout = new QHBoxLayout(this);
@@ -44,7 +46,7 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
                              Imap::Mailbox::PrettySize::prettySize(partIndex.data(Imap::Mailbox::RolePartOctets).toUInt(),
                                                                    Imap::Mailbox::PrettySize::WITH_BYTES_SUFFIX)));
     layout->addWidget(lbl);
-    QPushButton *downloadButton = new QPushButton(tr("Download"));
+    downloadButton = new QPushButton(tr("Download"));
     downloadButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     layout->addWidget(downloadButton);
     connect(downloadButton, SIGNAL(clicked()), fileDownloadManager, SLOT(slotDownloadNow()));
@@ -60,6 +62,33 @@ void AttachmentView::slotFileNameRequested(QString *fileName)
 void AttachmentView::slotTransferError(const QString &errorString)
 {
     QMessageBox::critical(this, tr("Can't save attachment"), tr("Unable to save the attachment. Error:\n%1").arg(errorString));
+}
+
+void AttachmentView::mousePressEvent(QMouseEvent *event)
+{
+    QWidget *child = childAt(event->pos());
+    if (child == downloadButton) {
+        // We shouldn't really interfere with its operation
+        return;
+    }
+
+    if (fileDownloadManager->data(Imap::Mailbox::RoleMessageUid) == 0) {
+        return;
+    }
+
+    QByteArray buf;
+    QDataStream stream(&buf, QIODevice::WriteOnly);
+    stream << fileDownloadManager->data(Imap::Mailbox::RoleMailboxName).toString() <<
+              fileDownloadManager->data(Imap::Mailbox::RoleMailboxUidValidity).toUInt() <<
+              fileDownloadManager->data(Imap::Mailbox::RoleMessageUid).toUInt() <<
+              fileDownloadManager->data(Imap::Mailbox::RolePartId).toString();
+
+    QMimeData *mimeData = new QMimeData;
+    mimeData->setData(QLatin1String("application/x-trojita-imap-part"), buf);
+    QDrag *drag = new QDrag(this);
+    drag->setMimeData(mimeData);
+    drag->setHotSpot(event->pos());
+    drag->exec(Qt::CopyAction, Qt::CopyAction);
 }
 
 }

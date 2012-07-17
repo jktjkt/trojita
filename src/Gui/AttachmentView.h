@@ -25,6 +25,7 @@
 
 class QModelIndex;
 class QNetworkReply;
+class QPushButton;
 
 namespace Imap
 {
@@ -50,11 +51,14 @@ class AttachmentView : public QWidget
     Q_OBJECT
 public:
     AttachmentView(QWidget *parent,  Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex);
+protected:
+    virtual void mousePressEvent(QMouseEvent *event);
 private slots:
     void slotTransferError(const QString &errorString);
     void slotFileNameRequested(QString *fileName);
 private:
     Imap::Network::FileDownloadManager *fileDownloadManager;
+    QPushButton *downloadButton;
 
     AttachmentView(const AttachmentView &); // don't implement
     AttachmentView &operator=(const AttachmentView &); // don't implement

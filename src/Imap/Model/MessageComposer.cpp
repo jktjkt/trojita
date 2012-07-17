@@ -60,46 +60,76 @@ bool MessageComposer::dropMimeData(const QMimeData *data, Qt::DropAction action,
     if (action == Qt::IgnoreAction)
         return true;
 
-    if (!data->hasFormat(QLatin1String("application/x-trojita-message-list")))
-        return false;
-
     if (column > 0)
         return false;
 
     if (!m_model)
         return false;
 
-    QByteArray encodedData = data->data("application/x-trojita-message-list");
-    QDataStream stream(&encodedData, QIODevice::ReadOnly);
+    static QString xTrojitaMessageList = QLatin1String("application/x-trojita-message-list");
+    static QString xTrojitaImapPart = QLatin1String("application/x-trojita-imap-part");
 
-    Q_ASSERT(!stream.atEnd());
-    QString mailbox;
-    uint uidValidity;
-    QList<uint> uids;
-    stream >> mailbox >> uidValidity >> uids;
-    Q_ASSERT(stream.atEnd());
+    if (data->hasFormat(xTrojitaMessageList)) {
+        QByteArray encodedData = data->data(xTrojitaMessageList);
+        QDataStream stream(&encodedData, QIODevice::ReadOnly);
 
-    TreeItemMailbox *mboxPtr = m_model->findMailboxByName(mailbox);
-    if (!mboxPtr) {
-        qDebug() << "drag-and-drop: mailbox not found";
+        Q_ASSERT(!stream.atEnd());
+        QString mailbox;
+        uint uidValidity;
+        QList<uint> uids;
+        stream >> mailbox >> uidValidity >> uids;
+        Q_ASSERT(stream.atEnd());
+
+        TreeItemMailbox *mboxPtr = m_model->findMailboxByName(mailbox);
+        if (!mboxPtr) {
+            qDebug() << "drag-and-drop: mailbox not found";
+            return false;
+        }
+
+        if (uids.size() < 1)
+            return false;
+
+        beginInsertRows(QModelIndex(), m_attachments.size(), m_attachments.size() + uids.size() - 1);
+        Q_FOREACH(const uint uid, uids) {
+            m_attachments << new ImapMessageAttachmentItem(m_model, mailbox, uidValidity, uid);
+        }
+        endInsertRows();
+
+        return true;
+
+    } else if (data->hasFormat(xTrojitaImapPart)) {
+        QByteArray encodedData = data->data(xTrojitaImapPart);
+        QDataStream stream(&encodedData, QIODevice::ReadOnly);
+        Q_ASSERT(!stream.atEnd());
+        QString mailbox;
+        uint uidValidity;
+        uint uid;
+        QString partId;
+        stream >> mailbox >> uidValidity >> uid >> partId;
+        Q_ASSERT(stream.atEnd());
+
+        qDebug() << mailbox << uidValidity << uid << partId;
+
+        TreeItemMailbox *mboxPtr = m_model->findMailboxByName(mailbox);
+        if (!mboxPtr) {
+            qDebug() << "drag-and-drop: mailbox not found";
+            return false;
+        }
+
+        if (!uidValidity || !uid || partId.isEmpty()) {
+            qDebug() << "drag-and-drop: invalid data";
+        }
+        // FIXME: handle me
+        return true;
+
+    } else {
         return false;
     }
-
-    if (uids.size() < 1)
-        return false;
-
-    beginInsertRows(QModelIndex(), m_attachments.size(), m_attachments.size() + uids.size() - 1);
-    Q_FOREACH(const uint uid, uids) {
-        m_attachments << new ImapMessageAttachmentItem(m_model, mailbox, uidValidity, uid);
-    }
-    endInsertRows();
-
-    return true;
 }
 
 QStringList MessageComposer::mimeTypes() const
 {
-    return QStringList() << QLatin1String("application/x-trojita-message-list");
+    return QStringList() << QLatin1String("application/x-trojita-message-list") << QLatin1String("application/x-trojita-imap-part");
 }
 
 void MessageComposer::setFrom(const Message::MailAddress &from)
