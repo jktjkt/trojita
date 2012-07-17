@@ -13,9 +13,11 @@ Suported RFCs
 - 3691 Internet Message Access Protocol (IMAP) UNSELECT command
 - 4315 (2359) Internet Message Access Protocol (IMAP) - UIDPLUS extension
 - 4466 Collected Extensions to IMAP4 ABNF
+- 4469 Internet Message Access Protocol (IMAP) CATENATE Extension
 - 4551 IMAP Extension for Conditional STORE Operation or Quick Flag Changes Resynchronization
 - 4731 IMAP4 Extension to SEARCH Command for Controlling What Kind of Information Is Returned
 - 4978 The IMAP COMPRESS Extension
+- 5092 (2192) IMAP URL Scheme
 - 5161 The IMAP ENABLE Extension
 - 5162 IMAP4 Extensions for Quick Mailbox Resynchronization
 - 5256 Internet Message Access Protocol - SORT and THREAD Extensions
@@ -29,7 +31,6 @@ Suported RFCs
 - 6203 IMAP4 Extension for Fuzzy Search
 
 To be evaluated:
-- 4469 Internet Message Access Protocol (IMAP) CATENATE Extension
 - 5465 The IMAP NOTIFY Extension
 - 6154 IMAP LIST Extension for Special-Use Mailboxes
 
@@ -61,7 +62,6 @@ Not implemented:
 - 4549 Synchronization Operations for Disconnected IMAP4 Clients
 - 4959 IMAP Extension for Simple Authentication and Security Layer (SASL) Initial Client Response
 - 5032 WITHIN Search Extension to the IMAP Protocol
-- 5092 (2192) IMAP URL Scheme
 - 5182 IMAP Extension for Referencing the Last SEARCH Result
 - 5255 Internet Message Access Protocol Internationalization
 - 5257 Internet Message Access Protocol - ANNOTATE Extension
