@@ -4,6 +4,7 @@
 #include <QAbstractListModel>
 #include <QPointer>
 
+#include "Imap/Model/CatenateData.h"
 #include "Imap/Parser/Message.h"
 
 namespace Imap {
@@ -25,14 +26,6 @@ public:
         Recipient_Cc,
         Recipient_Bcc
     } RecipientKind;
-
-    /** @short How to use a message part in a CATENATE command */
-    typedef enum {
-        CATENATE_TEXT,
-        CATENATE_URL
-    } CatenatePartType;
-
-    typedef QPair<CatenatePartType, QByteArray> CatenatePair;
 
     explicit MessageComposer(Model *model, QObject *parent = 0);
     ~MessageComposer();

@@ -164,6 +164,7 @@ HEADERS += Parser/Parser.h \
     Model/OneMessageModel.h \
     Model/FindInterestingPart.h \
     Model/MessageComposer.h \
-    Model/ComposerAttachments.h
+    Model/ComposerAttachments.h \
+    Model/CatenateData.h
 
 XtConnect:DEFINES += XTUPLE_CONNECT
