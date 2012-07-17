@@ -8,6 +8,7 @@
 #include "Imap/Model/MessageComposer.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/Utils.h"
+#include "Imap/Network/MsgPartNetAccessManager.h"
 
 namespace Imap {
 namespace Mailbox {
@@ -228,6 +229,101 @@ AttachmentItem::ContentTransferEncoding ImapMessageAttachmentItem::suggestedCTE(
 {
     // FIXME?
     return CTE_7BIT;
+}
+
+
+ImapPartAttachmentItem::ImapPartAttachmentItem(Model *model, const QString &mailbox, const uint uidValidity, const uint uid,
+                                               const QString &pathToPart):
+    model(model), mailbox(mailbox), uidValidity(uidValidity), uid(uid), pathToPart(pathToPart)
+{
+    TreeItemPart *part = partPtr();
+    if (part) {
+        part->fetch(model);
+    }
+}
+
+ImapPartAttachmentItem::~ImapPartAttachmentItem()
+{
+}
+
+TreeItemPart *ImapPartAttachmentItem::partPtr() const
+{
+    if (!model)
+        return 0;
+
+    TreeItemMailbox *mboxPtr = model->findMailboxByName(mailbox);
+    if (!mboxPtr)
+        return 0;
+
+    if (mboxPtr->syncState.uidValidity() != uidValidity)
+        return 0;
+
+    QList<TreeItemMessage*> messages = model->findMessagesByUids(mboxPtr, QList<uint>() << uid);
+    if (messages.isEmpty())
+        return 0;
+
+    Q_ASSERT(messages.size() == 1);
+
+    return Imap::Network::MsgPartNetAccessManager::pathToPart(messages.front()->toIndex(model), pathToPart);
+}
+
+QString ImapPartAttachmentItem::caption() const
+{
+    TreeItemPart *part = partPtr();
+    if (part && !part->fileName().isEmpty()) {
+        return part->fileName();
+    } else {
+        return MessageComposer::tr("IMAP part /%1;UIDVALIDITY=%2;UID=%3;section=%4")
+                .arg(mailbox, QString::number(uidValidity), QString::number(uid), pathToPart);
+    }
+}
+
+QString ImapPartAttachmentItem::tooltip() const
+{
+    TreeItemPart *part = partPtr();
+    if (!part)
+        return QString();
+    return MessageComposer::tr("%1, %2").arg(part->mimeType(), PrettySize::prettySize(part->octets()));
+}
+
+QByteArray ImapPartAttachmentItem::mimeType() const
+{
+    TreeItemPart *part = partPtr();
+    if (!part)
+        return QByteArray();
+    return part->mimeType().toAscii();
+}
+
+QByteArray ImapPartAttachmentItem::contentDispositionHeader() const
+{
+    TreeItemPart *part = partPtr();
+    if (!part)
+        return QByteArray();
+    return "Content-Disposition: attachment;\r\n\tfilename=\"" + part->fileName().toAscii() + "\"\r\n";
+}
+
+AttachmentItem::ContentTransferEncoding ImapPartAttachmentItem::suggestedCTE() const
+{
+    // FIXME?
+    return CTE_BASE64;
+}
+
+QSharedPointer<QIODevice> ImapPartAttachmentItem::rawData() const
+{
+    TreeItemPart *part = partPtr();
+    if (!part || !part->fetched())
+        return QSharedPointer<QIODevice>();
+
+    QSharedPointer<QIODevice> io(new QBuffer());
+    static_cast<QBuffer*>(io.data())->setData(*(part->dataPtr()));
+    io->open(QIODevice::ReadOnly);
+    return io;
+}
+
+bool ImapPartAttachmentItem::isAvailable() const
+{
+    TreeItemPart *part = partPtr();
+    return part ? part->fetched() : false;
 }
 
 }

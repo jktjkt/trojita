@@ -74,6 +74,29 @@ private:
     uint uid;
 };
 
+/** @short Part of a message stored in an IMAP server */
+class ImapPartAttachmentItem: public AttachmentItem {
+public:
+    ImapPartAttachmentItem(Model *model, const QString &mailbox, const uint uidValidity, const uint uid, const QString &pathToPart);
+    ~ImapPartAttachmentItem();
+
+    virtual QString caption() const;
+    virtual QString tooltip() const;
+    virtual QByteArray mimeType() const;
+    virtual QByteArray contentDispositionHeader() const;
+    virtual QSharedPointer<QIODevice> rawData() const;
+    virtual bool isAvailable() const;
+    virtual ContentTransferEncoding suggestedCTE() const;
+private:
+    TreeItemPart *partPtr() const;
+
+    QPointer<Model> model;
+    QString mailbox;
+    uint uidValidity;
+    uint uid;
+    QString pathToPart;
+};
+
 /** @short On-disk file */
 class FileAttachmentItem: public AttachmentItem {
 public:

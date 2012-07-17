@@ -68,7 +68,7 @@ QNetworkReply *MsgPartNetAccessManager::createRequest(Operation op, const QNetwo
     Q_ASSERT(constModel);
     Mailbox::Model *model = const_cast<Mailbox::Model *>(constModel);
     Q_ASSERT(model);
-    Imap::Mailbox::TreeItemPart *part = pathToPart(req.url().path());
+    Imap::Mailbox::TreeItemPart *part = pathToPart(message, req.url().path());
     QModelIndex partIndex = part ? part->toIndex(model) : QModelIndex();
 
     if (req.url().scheme() == QLatin1String("trojita-imap") && req.url().host() == QLatin1String("msg")) {
@@ -116,7 +116,7 @@ QNetworkReply *MsgPartNetAccessManager::createRequest(Operation op, const QNetwo
 }
 
 /** @short Find a message body part through its slash-separated string path */
-Imap::Mailbox::TreeItemPart *MsgPartNetAccessManager::pathToPart(const QString &path)
+Imap::Mailbox::TreeItemPart *MsgPartNetAccessManager::pathToPart(const QModelIndex &message, const QString &path)
 {
     Imap::Mailbox::TreeItemPart *part = 0;
     QStringList items = path.split('/', QString::SkipEmptyParts);

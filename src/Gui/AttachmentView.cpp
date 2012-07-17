@@ -81,7 +81,7 @@ void AttachmentView::mousePressEvent(QMouseEvent *event)
     stream << fileDownloadManager->data(Imap::Mailbox::RoleMailboxName).toString() <<
               fileDownloadManager->data(Imap::Mailbox::RoleMailboxUidValidity).toUInt() <<
               fileDownloadManager->data(Imap::Mailbox::RoleMessageUid).toUInt() <<
-              fileDownloadManager->data(Imap::Mailbox::RolePartId).toString();
+              fileDownloadManager->data(Imap::Mailbox::RolePartPathToPart).toString();
 
     QMimeData *mimeData = new QMimeData;
     mimeData->setData(QLatin1String("application/x-trojita-imap-part"), buf);

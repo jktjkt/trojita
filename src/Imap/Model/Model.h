@@ -435,6 +435,7 @@ private:
     friend class TaskPresentationModel; // needs access to the ParserState
 
     friend class ImapMessageAttachmentItem; // needs access to findMailboxByName and findMessagesByUids
+    friend class ImapPartAttachmentItem; // dtto
     friend class MessageComposer; // dtto
 
     void askForChildrenOfMailbox(TreeItemMailbox *item);

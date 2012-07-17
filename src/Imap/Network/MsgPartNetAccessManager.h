@@ -52,7 +52,7 @@ class MsgPartNetAccessManager : public QNetworkAccessManager
 public:
     MsgPartNetAccessManager(QObject *parent=0);
     void setModelMessage(const QModelIndex &message);
-    Imap::Mailbox::TreeItemPart *pathToPart(const QString &path);
+    static Imap::Mailbox::TreeItemPart *pathToPart(const QModelIndex &message, const QString &path);
     static Imap::Mailbox::TreeItemPart *cidToPart(const QByteArray &cid, Mailbox::Model *model, Mailbox::TreeItem *root);
 protected:
     virtual QNetworkReply *createRequest(Operation op, const QNetworkRequest &req, QIODevice *outgoingData=0);
