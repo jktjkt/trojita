@@ -145,9 +145,6 @@ S: x OK Search completed
                 in <xref target="RFC5162"/>; the only exception is that it is identified by the "QRESYNC-ARRIVED"
                 atom.</t>
 
-            <t>Clients are NOT REQUIRED to issue an explicit ENABLE QRESYNC command.  Servers MUST accept the
-                QRESYNC-ARRIVED as a QRESYNC-enabling and CONDSTORE-enabling command.</t>
-
             <t>For backward compatibility, IMAP servers supporting this extension MUST support QRESYNC as defined by
                 <xref target="RFC5162"/>.  In addition, such servers SHOULD NOT sent VANISHED responses containing UIDs
                 of messages which were expunged before, and SHOULD NOT send the untagged EXPUNGED instead of
@@ -255,6 +252,11 @@ sorted-sequence-set = sequence-set
     </section>
 
     <section title="Changelog">
+        <section title="Changes in 02 since 01">
+            <t><list style="symbols">
+                    <t>ENABLE is still required, otherwise clients have no way of activating VANISHED</t>
+            </list></t>
+        </section>
         <section title="Changes in 01 sice 00">
             <t><list style="symbols">
                     <t>Clarified that UIDs presented in the ARRIVED response MUST be always presented in a sorted order</t>
