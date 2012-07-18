@@ -67,6 +67,10 @@ bool MessageComposer::dropMimeData(const QMimeData *data, Qt::DropAction action,
     if (!m_model)
         return false;
 
+    Q_UNUSED(row);
+    Q_UNUSED(parent);
+    // FIXME: would be cool to support attachment reshuffling and to respect the desired drop position
+
     static QString xTrojitaMessageList = QLatin1String("application/x-trojita-message-list");
     static QString xTrojitaImapPart = QLatin1String("application/x-trojita-imap-part");
 
