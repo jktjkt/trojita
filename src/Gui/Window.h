@@ -56,6 +56,7 @@ namespace Gui
 {
 
 class AutoCompletionModel;
+class MailBoxTreeView;
 class MessageView;
 class MessageListWidget;
 class ProtocolLoggerWidget;
@@ -163,7 +164,7 @@ private:
     Imap::Mailbox::PrettyMsgListModel *prettyMsgListModel;
     AutoCompletionModel *autoCompletionModel;
 
-    QTreeView *mboxTree;
+    MailBoxTreeView *mboxTree;
     MessageListWidget *msgListWidget;
     QTreeView *allTree;
     MessageView *msgView;

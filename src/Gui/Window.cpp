@@ -39,33 +39,34 @@
 #include <QToolButton>
 #include <QUrl>
 
-#include "AutoCompletion.h"
-#include "Window.h"
-#include "ComposeWidget.h"
-#include "Util.h"
-#include "IconLoader.h"
-#include "ProtocolLoggerWidget.h"
-#include "MessageListWidget.h"
-#include "MessageView.h"
-#include "MsgListView.h"
-#include "SettingsDialog.h"
-#include "TaskProgressIndicator.h"
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
-#include "SimplePartWidget.h"
-#include "Imap/Model/Model.h"
+#include "Imap/Model/CombinedCache.h"
 #include "Imap/Model/MailboxModel.h"
 #include "Imap/Model/MailboxTree.h"
+#include "Imap/Model/MemoryCache.h"
+#include "Imap/Model/Model.h"
 #include "Imap/Model/ModelWatcher.h"
 #include "Imap/Model/MsgListModel.h"
-#include "Imap/Model/CombinedCache.h"
-#include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/PrettyMailboxModel.h"
 #include "Imap/Model/PrettyMsgListModel.h"
 #include "Imap/Model/ThreadingMsgListModel.h"
 #include "Imap/Model/Utils.h"
 #include "Imap/Network/FileDownloadManager.h"
+#include "AutoCompletion.h"
+#include "ComposeWidget.h"
+#include "IconLoader.h"
+#include "MailBoxTreeView.h"
+#include "MessageListWidget.h"
+#include "MessageView.h"
+#include "MsgListView.h"
+#include "ProtocolLoggerWidget.h"
+#include "SettingsDialog.h"
+#include "SimplePartWidget.h"
 #include "Streams/SocketFactory.h"
+#include "TaskProgressIndicator.h"
+#include "Util.h"
+#include "Window.h"
 
 #include "ui_CreateMailboxDialog.h"
 
@@ -396,16 +397,7 @@ void MainWindow::createMenus()
 
 void MainWindow::createWidgets()
 {
-    mboxTree = new QTreeView();
-    mboxTree->setUniformRowHeights(true);
-    mboxTree->setContextMenuPolicy(Qt::CustomContextMenu);
-    mboxTree->setSelectionMode(QAbstractItemView::SingleSelection);
-    mboxTree->setAllColumnsShowFocus(true);
-    mboxTree->setAcceptDrops(true);
-    mboxTree->setDropIndicatorShown(true);
-    mboxTree->setHeaderHidden(true);
-    // I wonder what's the best value to use here. Unfortunately, the default is to disable auto expanding.
-    mboxTree->setAutoExpandDelay(800);
+    mboxTree = new MailBoxTreeView();
     connect(mboxTree, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showContextMenuMboxTree(const QPoint &)));
 
