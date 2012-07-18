@@ -21,6 +21,8 @@
 #include "MsgListView.h"
 
 #include <QAction>
+#include <QApplication>
+#include <QDesktopWidget>
 #include <QDrag>
 #include <QFontMetrics>
 #include <QHeaderView>
@@ -90,47 +92,47 @@ int MsgListView::sizeHintForColumn(int column) const
 void MsgListView::startDrag(Qt::DropActions supportedActions)
 {
     QModelIndexList indexes = selectedIndexes();
-    int messageCount = 0;
+    // indexes for column 0, i.e. subject
+    QModelIndexList indexesCol0;
+
     for (int i = indexes.count() - 1; i >= 0; --i) {
-        if (!(model()->flags(indexes.at(i)) & Qt::ItemIsDragEnabled)) {
+        if (!(model()->flags(indexes.at(i)) & Qt::ItemIsDragEnabled))
             indexes.removeAt(i);
-        // indexes contains all columns, count those with column==0 for messageCount
-        } else if (indexes.at(i).column() == 0) {
-            ++messageCount;
-        }
+        else if (indexes.at(i).column() == 0)
+            indexesCol0.prepend(indexes.at(i));
     }
     if (indexes.count() > 0) {
         QMimeData *data = model()->mimeData(indexes);
         if (!data)
             return;
 
-        QString string = tr("%n message(s)","",messageCount);
+        // use screen width and itemDelegate()->sizeHint() to determine size of the pixmap
+        int screenWidth = QApplication::desktop()->screenGeometry(this).width();
+        int maxWidth = qMax(400, screenWidth / 4);
+        QSize size(maxWidth, 0);
 
-        // try to be smart about size of pixmap
-        int marginLeft = 30;
-        int margin = style()->pixelMetric(QStyle::PM_ToolTipLabelFrameWidth);
-        QSize size = fontMetrics().size(Qt::TextSingleLine, string);
-        QRect textRect(QPoint(),size);
-        textRect.moveTopLeft(QPoint(marginLeft + margin,margin));
-        size.setWidth(size.width() + marginLeft + 2 * margin);
-        size.setHeight(size.height() + 2 * margin);
+        QStyleOptionViewItem opt;
+        opt.initFrom(this);
+        opt.rect.setWidth(maxWidth);
+        opt.rect.setHeight(itemDelegate()->sizeHint(opt, indexesCol0.at(0)).height());
+        size.setHeight(indexesCol0.count() * opt.rect.height());
+        // State_Selected provides for nice background of the items
+        opt.state |= QStyle::State_Selected;
 
-        // paint the actual pixmap, using ToolTip's colors to be consistent with the style
+        // paint list of selected items using itemDelegate() to be consistent with style
         QPixmap pixmap(size);
         pixmap.fill(Qt::transparent);
         QPainter p(&pixmap);
-        p.setPen(Qt::NoPen);
-        p.setBrush(palette().toolTipBase());
-        p.setRenderHint(QPainter::Antialiasing);
-        p.drawRoundedRect(pixmap.rect(),5.0,5.0);
-        p.setPen(palette().color(QPalette::ToolTipText));
-        p.drawText(textRect,string);
-        p.end();
+
+        for (int i = 0; i < indexesCol0.count(); ++i) {
+            opt.rect.moveTop(i * opt.rect.height());
+            itemDelegate()->paint(&p, opt, indexesCol0.at(i));
+        }
 
         QDrag *drag = new QDrag(this);
         drag->setPixmap(pixmap);
         drag->setMimeData(data);
-        drag->setHotSpot(QPoint(0,0));
+        drag->setHotSpot(QPoint(0, 0));
 
         Qt::DropAction dropAction = Qt::IgnoreAction;
         if (defaultDropAction() != Qt::IgnoreAction && (supportedActions & defaultDropAction()))
