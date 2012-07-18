@@ -89,32 +89,33 @@ int MsgListView::sizeHintForColumn(int column) const
 */
 void MsgListView::startDrag(Qt::DropActions supportedActions)
 {
-    QModelIndexList indexes=selectedIndexes();
-    int messageCount=0;
-    for (int i= indexes.count() - 1; i>=0; --i){
-        if (!(model()->flags(indexes.at(i)) & Qt::ItemIsDragEnabled))
+    QModelIndexList indexes = selectedIndexes();
+    int messageCount = 0;
+    for (int i = indexes.count() - 1; i >= 0; --i) {
+        if (!(model()->flags(indexes.at(i)) & Qt::ItemIsDragEnabled)) {
             indexes.removeAt(i);
-        //indexes contains all columns, count those with column==0 for messageCount
-        else if (indexes.at(i).column() == 0)
+        // indexes contains all columns, count those with column==0 for messageCount
+        } else if (indexes.at(i).column() == 0) {
             ++messageCount;
+        }
     }
     if (indexes.count() > 0) {
         QMimeData *data = model()->mimeData(indexes);
         if (!data)
             return;
 
-        QString string=tr("%n message(s)","",messageCount);
+        QString string = tr("%n message(s)","",messageCount);
 
-        //try to be smart about size of pixmap
-        int marginLeft=30;
-        int margin=style()->pixelMetric(QStyle::PM_ToolTipLabelFrameWidth);
-        QSize size=fontMetrics().size(Qt::TextSingleLine, string);
+        // try to be smart about size of pixmap
+        int marginLeft = 30;
+        int margin = style()->pixelMetric(QStyle::PM_ToolTipLabelFrameWidth);
+        QSize size = fontMetrics().size(Qt::TextSingleLine, string);
         QRect textRect(QPoint(),size);
-        textRect.moveTopLeft(QPoint(marginLeft+margin,margin));
-        size.setWidth(size.width()+marginLeft+2*margin);
-        size.setHeight(size.height()+2*margin);
+        textRect.moveTopLeft(QPoint(marginLeft + margin,margin));
+        size.setWidth(size.width() + marginLeft + 2 * margin);
+        size.setHeight(size.height() + 2 * margin);
 
-        //paint the actual pixmap, using ToolTip's colors to be consistent with the style
+        // paint the actual pixmap, using ToolTip's colors to be consistent with the style
         QPixmap pixmap(size);
         pixmap.fill(Qt::transparent);
         QPainter p(&pixmap);
@@ -126,7 +127,7 @@ void MsgListView::startDrag(Qt::DropActions supportedActions)
         p.drawText(textRect,string);
         p.end();
 
-        QDrag* drag = new QDrag(this);
+        QDrag *drag = new QDrag(this);
         drag->setPixmap(pixmap);
         drag->setMimeData(data);
         drag->setHotSpot(QPoint(0,0));
@@ -137,25 +138,25 @@ void MsgListView::startDrag(Qt::DropActions supportedActions)
         else if (supportedActions & Qt::CopyAction && dragDropMode() != QAbstractItemView::InternalMove)
             dropAction = Qt::CopyAction;
         if (drag->exec(supportedActions, dropAction) == Qt::MoveAction) {
-            //QAbstractItemView::startDrag calls d->clearOrRemove() here, so
-            //this is a copy of QAbstractItemModelPrivate::clearOrRemove();
+            // QAbstractItemView::startDrag calls d->clearOrRemove() here, so
+            // this is a copy of QAbstractItemModelPrivate::clearOrRemove();
             const QItemSelection selection = selectionModel()->selection();
             QList<QItemSelectionRange>::const_iterator it = selection.constBegin();
 
             if (!dragDropOverwriteMode()) {
                 for (; it != selection.constEnd(); ++it) {
-                    QModelIndex parent = (*it).parent();
-                    if ((*it).left() != 0)
+                    QModelIndex parent = it->parent();
+                    if (it->left() != 0)
                         continue;
-                    if ((*it).right() != (model()->columnCount(parent) - 1))
+                    if (it->right() != (model()->columnCount(parent) - 1))
                         continue;
-                    int count = (*it).bottom() - (*it).top() + 1;
-                    model()->removeRows((*it).top(), count, parent);
+                    int count = it->bottom() - it->top() + 1;
+                    model()->removeRows(it->top(), count, parent);
                 }
             } else {
                 // we can't remove the rows so reset the items (i.e. the view is like a table)
                 QModelIndexList list = selection.indexes();
-                for (int i=0; i < list.size(); ++i) {
+                for (int i = 0; i < list.size(); ++i) {
                     QModelIndex index = list.at(i);
                     QMap<int, QVariant> roles = model()->itemData(index);
                     for (QMap<int, QVariant>::Iterator it = roles.begin(); it != roles.end(); ++it)
