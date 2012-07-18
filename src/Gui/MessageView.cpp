@@ -85,6 +85,7 @@ MessageView::MessageView(QWidget *parent): QWidget(parent)
     header->setIndent(5);
     header->setWordWrap(true);
     connect(header, SIGNAL(linkHovered(QString)), this, SLOT(linkInTitleHovered(QString)));
+    connect(header, SIGNAL(linkActivated(QString)), this, SLOT(headerLinkActivated(QString)));
 
     // the tag bar
     tags = new TagListWidget(headerSection);
@@ -402,6 +403,12 @@ void MessageView::showEvent(QShowEvent *se)
     // The Oxygen style reset the attribute - since we're gonna cause an update() here anyway, it's
     // a good moment to stress that "we know better, Hugo ;-)" -- Thomas
     setAutoFillBackground(true);
+}
+
+void MessageView::headerLinkActivated(QString s)
+{
+    Q_ASSERT(emptyView);
+    emptyView->slotLinkClicked(QUrl(s));
 }
 
 }
