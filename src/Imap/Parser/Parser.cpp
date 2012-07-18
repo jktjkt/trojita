@@ -651,7 +651,7 @@ void Parser::reallyReadLine()
             currentLine.clear();
             oldLiteralPosition = 0;
         } else {
-            throw CantHappen("canReadLine() returned true, but following readLine() failed");
+            throw ParseError("Received line doesn't end with any of \"}\\r\\n\" and \"\\r\\n\"", currentLine, 0);
         }
     } catch (ParserException &e) {
         queueResponse(QSharedPointer<Responses::AbstractResponse>(new Responses::ParseErrorResponse(e)));
