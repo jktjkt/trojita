@@ -25,6 +25,8 @@
 #include <QAction>
 #include <QApplication>
 #include <QDesktopServices>
+#include <QLayout>
+#include <QStyle>
 #include <QWebFrame>
 #include <QWebHistory>
 #include <QWindowsStyle>
@@ -83,18 +85,14 @@ void EmbeddedWebView::constrainSize()
     if (!(m_scrollParent && page() && page()->mainFrame()))
         return; // should not happen but who knows
 
-    // the padding helps to prevent invalid hor. sliders if this view is (deelply) nested inside
-    // the view. It means that messages are padded constrainPadding / 2 px on each side.
-    // the alternative was to walk up and check contentsmargins of each parent and even then we'd be
-    // in trouble with the scrollbars...
-    static const int constrainPadding = 72;
-    // first unleash our size
+    // the m_scrollParentPadding measures the summed up horizontal paddings of this view compared to
+    // its m_scrollParent
     setMinimumSize(0,0);
     setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
     // resize so that the viewport has much vertical and wanted horizontal space
-    resize(m_scrollParent->width() - constrainPadding, QWIDGETSIZE_MAX);
+    resize(m_scrollParent->width() - m_scrollParentPadding, QWIDGETSIZE_MAX);
     // resize the PAGES viewport to this width and a minimum height
-    page()->setViewportSize(QSize(m_scrollParent->width() - constrainPadding, 32));
+    page()->setViewportSize(QSize(m_scrollParent->width() - m_scrollParentPadding, 32));
     // now the page has an idea about it's demanded size
     const QSize bestSize = page()->mainFrame()->contentsSize();
     // set the viewport to that size! - Otherwise it'd still be our "suggestion"
@@ -146,17 +144,33 @@ void EmbeddedWebView::findScrollParent() {
     if (m_scrollParent)
         m_scrollParent->removeEventFilter(this);
     m_scrollParent = 0;
-    QWidget *runner = parentWidget();
+    m_scrollParentPadding = 4;
+    QWidget *runner = this;
+    int left, top, right, bottom;
     while (runner) {
+        runner->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        runner->getContentsMargins(&left, &top, &right, &bottom);
+        m_scrollParentPadding += left + right + 4;
+        if (runner->layout()) {
+            runner->layout()->getContentsMargins(&left, &top, &right, &bottom);
+            m_scrollParentPadding += left + right;
+        }
         QWidget *p = runner->parentWidget();
         if (p && qobject_cast<MessageView*>(runner) && // is this a MessageView?
             p->objectName() == "qt_scrollarea_viewport" && // in a viewport?
             qobject_cast<QAbstractScrollArea*>(p->parentWidget())) { // that is used?
+            p->getContentsMargins(&left, &top, &right, &bottom);
+            m_scrollParentPadding += left + right + 4;
+            if (p->layout()) {
+                p->layout()->getContentsMargins(&left, &top, &right, &bottom);
+                m_scrollParentPadding += left + right;
+            }
             m_scrollParent = p->parentWidget();
             break; // then we have our actual message view
         }
         runner = p;
     }
+    m_scrollParentPadding += style()->pixelMetric(QStyle::PM_ScrollBarExtent, 0, m_scrollParent);
     if (m_scrollParent)
         m_scrollParent->installEventFilter(this);
 }

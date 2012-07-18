@@ -60,6 +60,7 @@ private slots:
     void handlePageLoadFinished(bool ok);
 private:
     QWidget *m_scrollParent;
+    int m_scrollParentPadding;
 };
 
 }
