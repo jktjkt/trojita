@@ -326,8 +326,8 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
         else if (r == "UNKNOWN-CTE")
             respCode = Responses::UNKNOWN_CTE;
         CASE(UIDNOTSTICKY)
-        // FIXME: not implemented CASE(APPENDUID)
-        // FIXME: not implemented CASE(COPYUID)
+        CASE(APPENDUID)
+        CASE(COPYUID)
         // FIXME: not implemented CASE(URLMECH)
         CASE(TOOBIG)
         CASE(BADURL)
@@ -481,11 +481,53 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
             // FIXME: check if indeed won't eat the spaces, and optionally verify that it came as an atom
             respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(_list.join(" ")));
             break;
-        case Responses::COPYUID:
         case Responses::APPENDUID:
-            // FIXME: implement me
-            Q_ASSERT(false);
+        {
+            // FIXME: this is broken with MULTIAPPEND
+            if (originalList.size() != 3)
+                throw InvalidResponseCode("Malformed APPENDUID: wrong number of arguments", line, start);
+            bool ok;
+            uint uidValidity = originalList[1].toUInt(&ok);
+            if (!ok)
+                throw InvalidResponseCode("Malformed APPENDUID: cannot extract UIDVALIDITY", line, start);
+            int pos = 0;
+            QByteArray s1 = originalList[2].toByteArray();
+            Sequence seq = Sequence::fromList(LowLevelParser::getSequence(s1, pos));
+            if (!seq.isValid())
+                throw InvalidResponseCode("Malformed APPENDUID: cannot extract UID or the list of UIDs", line, start);
+            if (pos != s1.size())
+                throw InvalidResponseCode("Malformed APPENDUID: garbage found after the list of UIDs", line, start);
+            respCodeData = QSharedPointer<AbstractData>(new RespData<QPair<uint,Sequence> >(qMakePair(uidValidity, seq)));
             break;
+        }
+        case Responses::COPYUID:
+        {
+            // FIXME: don't return anything, this is broken with multiple messages, unfortunately
+            break;
+            if (originalList.size() != 4)
+                throw InvalidResponseCode("Malformed COPYUID: wrong number of arguments", line, start);
+            bool ok;
+            uint uidValidity = originalList[1].toUInt(&ok);
+            if (!ok)
+                throw InvalidResponseCode("Malformed COPYUID: cannot extract UIDVALIDITY", line, start);
+            int pos = 0;
+            QByteArray s1 = originalList[2].toByteArray();
+            Sequence seq1 = Sequence::fromList(LowLevelParser::getSequence(s1, pos));
+            if (!seq1.isValid())
+                throw InvalidResponseCode("Malformed COPYUID: cannot extract the first sequence", line, start);
+            if (pos != s1.size())
+                throw InvalidResponseCode("Malformed COPYUID: garbage found after the first sequence", line, start);
+            pos = 0;
+            QByteArray s2 = originalList[3].toByteArray();
+            Sequence seq2 = Sequence::fromList(LowLevelParser::getSequence(s2, pos));
+            if (!seq2.isValid())
+                throw InvalidResponseCode("Malformed COPYUID: cannot extract the second sequence", line, start);
+            if (pos != s2.size())
+                throw InvalidResponseCode("Malformed COPYUID: garbage found after the second sequence", line, start);
+            respCodeData = QSharedPointer<AbstractData>(new RespData<QPair<uint,QPair<Sequence, Sequence> > >(
+                                                            qMakePair(uidValidity, qMakePair<Sequence, Sequence>(seq1, seq2))));
+            break;
+        }
         case Responses::URLMECH:
             // FIXME: implement me
             Q_ASSERT(false);
@@ -1283,6 +1325,16 @@ template<> QTextStream &RespData<QStringList>::dump(QTextStream &stream) const
 template<> QTextStream &RespData<QDateTime>::dump(QTextStream &stream) const
 {
     return stream << data.toString();
+}
+
+template<> QTextStream &RespData<QPair<uint,Sequence> >::dump(QTextStream &stream) const
+{
+    return stream << "UIDVALIDITY " << data.first << " UIDs" << data.second;
+}
+
+template<> QTextStream &RespData<QPair<uint,QPair<Sequence, Sequence> > >::dump(QTextStream &stream) const
+{
+    return stream << "UIDVALIDITY " << data.first << " UIDs-1" << data.second.first << " UIDs-2" << data.second.second;
 }
 
 bool RespData<void>::eq(const AbstractData &other) const

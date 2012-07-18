@@ -82,7 +82,10 @@ public:
 
     /** @short Return true if the sequence contains at least some items */
     bool isValid() const;
+
 };
+
+bool operator==(const Sequence &a, const Sequence &b);
 
 }
 #endif /* IMAP_PARSER_SEQUENCE_H */

@@ -111,4 +111,10 @@ QTextStream &operator<<(QTextStream &stream, const Sequence &s)
     return stream << s.toString();
 }
 
+bool operator==(const Sequence &a, const Sequence &b)
+{
+    // This operator is used only in the test suite, so performance doesn't matter and this was *so* easy to hack together...
+    return a.toString() == b.toString();
+}
+
 }

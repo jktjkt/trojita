@@ -143,6 +143,41 @@ void ImapParserParseTest::testParseTagged_data()
         << QSharedPointer<AbstractResponse>( new State("y01", OK, "I need my glasses", UNSEEN,
                     QSharedPointer<AbstractData>( new RespData<uint>( 666 ) )));
 
+    QTest::newRow("appenduid-simple")
+            << QByteArray("A003 OK [APPENDUID 38505 3955] APPEND completed\r\n")
+            << QSharedPointer<AbstractResponse>(new State("A003", OK, "APPEND completed", APPENDUID,
+                                                          QSharedPointer<AbstractData>(
+                                                              new RespData<QPair<uint,Imap::Sequence> >(
+                                                                  qMakePair(38505u, Imap::Sequence(3955)))
+                                                              )));
+    /*
+    QTest::newRow("appenduid-seq")
+            << QByteArray("A003 OK [APPENDUID 38505 3955,333666] APPEND completed\r\n")
+            << QSharedPointer<AbstractResponse>(new State("A003", OK, "APPEND completed", APPENDUID,
+                                                          QSharedPointer<AbstractData>(
+                                                              new RespData<QPair<uint,Imap::Sequence> >(
+                                                                  qMakePair(38505u, Imap::Sequence(3955)))
+                                                              )));
+
+    QTest::newRow("copyuid-simple")
+            << QByteArray("A004 OK [COPYUID 38505 304 3956] Done\r\n")
+            << QSharedPointer<AbstractResponse>(new State("A004", OK, "Done", COPYUID,
+                                                          QSharedPointer<AbstractData>(
+                                                              new RespData<QPair<uint,QPair<Imap::Sequence, Imap::Sequence> > >(
+                                                                  qMakePair(38505u,
+                                                                            qMakePair(Imap::Sequence(304), Imap::Sequence(3956))
+                                                                            ))
+                                                              )));
+
+
+    QTest::newRow("copyuid-sequence")
+            << QByteArray("A004 OK [COPYUID 38505 304,319:320 3956:3958] Done\r\n")
+            << QSharedPointer<AbstractResponse>(new State("A003", OK, "Done", APPENDUID,
+                                                          QSharedPointer<AbstractData>(
+                                                              new RespData<QPair<uint,Imap::Sequence> >(
+                                                                  qMakePair(38505u, Imap::Sequence(3955)))
+                                                              )));
+    */
 }
 
 /** @short Test untagged response parsing */
