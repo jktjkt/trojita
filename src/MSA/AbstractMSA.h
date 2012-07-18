@@ -34,6 +34,8 @@ public:
     AbstractMSA(QObject *parent);
     virtual ~AbstractMSA();
     virtual void sendMail(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &data) = 0;
+    virtual bool supportsBurl() const;
+    virtual void sendBurl(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &imapUrl);
 public slots:
     virtual void cancel() = 0;
 signals:

@@ -34,6 +34,9 @@ public:
     SMTP(QObject *parent, const QString &host, quint16 port, bool encryptedConnect, bool startTls, bool auth,
          const QString &user, const QString &pass);
     virtual void sendMail(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &data);
+
+    virtual bool supportsBurl() const;
+    virtual void sendBurl(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &imapUrl);
 public slots:
     virtual void cancel();
     void handleDone(bool ok);

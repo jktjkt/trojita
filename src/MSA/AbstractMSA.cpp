@@ -32,4 +32,17 @@ AbstractMSA::~AbstractMSA()
 {
 }
 
+bool AbstractMSA::supportsBurl() const
+{
+    return false;
+}
+
+void AbstractMSA::sendBurl(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &imapUrl)
+{
+    Q_UNUSED(from);
+    Q_UNUSED(to);
+    Q_UNUSED(imapUrl);
+    emit error(tr("BURL is not supported by %1").arg(metaObject()->className()));
+}
+
 }

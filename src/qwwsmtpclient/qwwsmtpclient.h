@@ -67,6 +67,7 @@ public:
     int authenticate(const QString &user, const QString &password, AuthMode mode = AuthAny);
     int sendMail(const QString &from, const QString &to, const QString &content);
     int sendMail(const QByteArray &from, const QList<QByteArray> &to, const QString &content);
+    int sendMailBurl(const QByteArray &from, const QList<QByteArray> &to, const QString &url);
     int rawCommand(const QString &cmd);
     AuthModes supportedAuthModes() const;
     Options options() const;

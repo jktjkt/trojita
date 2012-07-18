@@ -51,7 +51,7 @@ CONNECTION ESTABLISHMENT
 */
 
 struct SMTPCommand {
-    enum Type { Connect, Disconnect, StartTLS, Authenticate, Mail, RawCommand };
+    enum Type { Connect, Disconnect, StartTLS, Authenticate, Mail, MailBurl, RawCommand };
     int id;
     Type type;
     QVariant data;
@@ -298,7 +298,9 @@ void QwwSmtpClientPrivate::_q_readFromSocket() {
             }
             break;
             // trying to send mail
-            case SMTPCommand::Mail: {
+            case SMTPCommand::Mail:
+            case SMTPCommand::MailBurl:
+            {
                 int stage = cmd.extra.toInt();
                 // temporary failure upon receiving the sender address (greylisting probably)
                 if (status==421 && stage==0) {
@@ -313,11 +315,19 @@ void QwwSmtpClientPrivate::_q_readFromSocket() {
                     sendRcpt();
                 } else if (status==250 && stage==1) {
                     // all receivers accepted
-                    errorString.clear();
-                    qDebug() << "SMTP >>> DATA";
-                    socket->write("DATA\r\n");
-                    cmd.extra=2;
-                } else if (status==354 && stage==2) {
+                    if (cmd.type == SMTPCommand::MailBurl) {
+                        errorString.clear();
+                        QByteArray url = cmd.data.toList().at(2).toByteArray();
+                        qDebug() << "SMTP >>> BURL" << url << "LAST";
+                        socket->write("BURL " + url + " LAST\r\n");
+                        cmd.extra=2;
+                    } else {
+                        errorString.clear();
+                        qDebug() << "SMTP >>> DATA";
+                        socket->write("DATA\r\n");
+                        cmd.extra=2;
+                    }
+                } else if ((cmd.type == SMTPCommand::Mail && status==354 && stage==2)) {
                     // DATA command accepted
                     errorString.clear();
                     QByteArray toBeWritten = cmd.data.toList().at(2).toString().toUtf8();
@@ -325,7 +335,12 @@ void QwwSmtpClientPrivate::_q_readFromSocket() {
                     socket->write(toBeWritten); // expecting data to be already escaped (CRLF.CRLF)
                     socket->write("\r\n.\r\n"); // termination token - CRLF.CRLF
                     cmd.extra=3;
-                } else if (status==250 && stage==3) {
+                } else if ((cmd.type == SMTPCommand::MailBurl && status==354 && stage==2)) {
+                    // BURL succeeded
+                    setState(QwwSmtpClient::Connected);
+                    errorString.clear();
+                    processNextCommand();
+                } else if ((cmd.type == SMTPCommand::Mail && status==250 && stage==3)) {
                     // mail queued
                     setState(QwwSmtpClient::Connected);
                     errorString.clear();
@@ -410,6 +425,7 @@ void QwwSmtpClientPrivate::processNextCommand(bool ok) {
     }
     break;
     case SMTPCommand::Mail:
+    case SMTPCommand::MailBurl:
     {
         setState(QwwSmtpClient::Sending);
         QByteArray buf = QByteArray("MAIL FROM:<").append(cmd.data.toList().at(0).toByteArray()).append(">\r\n");
@@ -640,6 +656,22 @@ int QwwSmtpClient::sendMail(const QByteArray &from, const QList<QByteArray> &to,
     SMTPCommand cmd;
     cmd.type = SMTPCommand::Mail;
     cmd.data = QVariantList() << from << QVariant(rcpts) << content;
+    cmd.id = ++d->lastId;
+    d->commandqueue.enqueue(cmd);
+    if (!d->inProgress)
+        d->processNextCommand();
+    return cmd.id;
+}
+
+int QwwSmtpClient::sendMailBurl(const QByteArray &from, const QList<QByteArray> &to, const QString &url)
+{
+    QList<QVariant> rcpts;
+    for(QList<QByteArray>::const_iterator it = to.begin(); it != to.end(); it ++) {
+        rcpts.append(QVariant(*it));
+    }
+    SMTPCommand cmd;
+    cmd.type = SMTPCommand::MailBurl;
+    cmd.data = QVariantList() << from << QVariant(rcpts) << url;
     cmd.id = ++d->lastId;
     d->commandqueue.enqueue(cmd);
     if (!d->inProgress)

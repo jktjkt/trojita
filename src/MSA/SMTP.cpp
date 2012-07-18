@@ -83,4 +83,30 @@ void SMTP::sendMail(const QByteArray &from, const QList<QByteArray> &to, const Q
     qwwSmtp->disconnectFromHost();
 }
 
+bool SMTP::supportsBurl() const
+{
+    return true;
+}
+
+void SMTP::sendBurl(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &imapUrl)
+{
+    emit progressMax(1);
+    emit progress(0);
+    emit connecting();
+    if (encryptedConnect)
+        qwwSmtp->connectToHostEncrypted(host, port);
+    else
+        qwwSmtp->connectToHost(host, port);
+    if (startTls)
+        qwwSmtp->startTls();
+    if (auth)
+        qwwSmtp->authenticate(user, pass,
+                               (startTls || encryptedConnect) ?
+                               QwwSmtpClient::AuthPlain :
+                               QwwSmtpClient::AuthAny);
+    emit sending(); // FIXME: later
+    qwwSmtp->sendMailBurl(from, to, imapUrl);
+    qwwSmtp->disconnectFromHost();
+}
+
 }
