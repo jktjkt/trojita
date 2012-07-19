@@ -62,10 +62,11 @@ protected:
     void changeEvent(QEvent *e);
 
 private slots:
+    void collapseRecipients();
     void send();
     void gotError(const QString &error);
     void sent();
-    void handleRecipientAddressChange();
+    void updateRecipientList();
 
     void slotAskForFileAttachment();
     void slotRemoveAttachment();
@@ -77,6 +78,7 @@ private:
     static QByteArray extractMailAddress(const QString &text, bool &ok);
     void addRecipient(int position, const QString &kind, const QString &address);
     bool parseRecipients(QList<QPair<Imap::Mailbox::MessageComposer::RecipientKind, Imap::Message::MailAddress> > &results);
+    void removeRecipient(int position);
 
     bool buildMessageData();
     bool shouldBuildMessageLocally() const;
@@ -86,8 +88,9 @@ private:
     Ui::ComposeWidget *ui;
     QPushButton *sendButton;
     QPushButton *cancelButton;
-    QList<QComboBox *> recipientsKind;
-    QList<QLineEdit *> recipientsAddress;
+    typedef QPair<QComboBox*, QLineEdit*> Recipient;
+    QList<Recipient> m_recipients;
+    QTimer *m_recipientListUpdateTimer;
 
     bool m_appendUidReceived;
     uint m_appendUidValidity;

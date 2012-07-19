@@ -41,7 +41,7 @@
 
 namespace
 {
-enum { OFFSET_OF_FIRST_ADDRESSEE = 2 };
+enum { OFFSET_OF_FIRST_ADDRESSEE = 1 };
 }
 
 namespace Gui
@@ -72,6 +72,11 @@ ComposeWidget::ComposeWidget(MainWindow *parent, QAbstractListModel *autoComplet
     m_actionRemoveAttachment = new QAction(tr("Remove"), this);
     connect(m_actionRemoveAttachment, SIGNAL(triggered()), this, SLOT(slotRemoveAttachment()));
     ui->attachmentsView->addAction(m_actionRemoveAttachment);
+
+    m_recipientListUpdateTimer = new QTimer(this);
+    m_recipientListUpdateTimer->setSingleShot(true);
+    m_recipientListUpdateTimer->setInterval(250);
+    connect (m_recipientListUpdateTimer, SIGNAL(timeout()), SLOT(updateRecipientList()));
 
     // Ask for a fixed-width font. The problem is that these names wary acros platforms,
     // but the following works well -- at first, we come up with a made-up name, and then
@@ -318,6 +323,72 @@ void ComposeWidget::setData(const QString &from, const QList<QPair<QString, QStr
     m_composer->setInReplyTo(inReplyTo);
 }
 
+//BEGIN QFormLayout workarounds
+
+/** First issue: QFormLayout messes up rows by never removing them
+ * ----------------------------------------------------------------
+ * As a result insertRow(int pos, .) does not pick the expected row, but usually minor
+ * (if you ever removed all items of a row in this layout)
+ *
+ * Solution: we count all rows non empty rows and when we have enough, return the row suitable for
+ * QFormLayout (which is usually behind the requested one)
+ */
+static int actualRow(QFormLayout *form, int row)
+{
+    for (int i = 0, c = 0; i < form->rowCount(); ++i) {
+        if (c == row) {
+            return i;
+        }
+        if (form->itemAt(i, QFormLayout::LabelRole) || form->itemAt(i, QFormLayout::FieldRole) ||
+            form->itemAt(i, QFormLayout::SpanningRole))
+            ++c;
+    }
+    return form->rowCount(); // append
+}
+
+/** Second (related) issue: QFormLayout messes the tab order
+ * ----------------------------------------------------------
+ * "Inserted" rows just get appended to the present ones and by this to the tab focus order
+ * It's therefore necessary to fix this forcing setTabOrder()
+ *
+ * Approach: traverse all rows until we have the widget that shall be inserted in tab order and
+ * return it's predecessor
+ */
+
+static QWidget* formPredecessor(QFormLayout *form, QWidget *w)
+{
+    QWidget *pred = 0;
+    QWidget *runner = 0;
+    QLayoutItem *item = 0;
+    for (int i = 0; i < form->rowCount(); ++i) {
+        if ((item = form->itemAt(i, QFormLayout::LabelRole))) {
+            runner = item->widget();
+            if (runner == w)
+                return pred;
+            else if (runner)
+                pred = runner;
+        }
+        if ((item = form->itemAt(i, QFormLayout::FieldRole))) {
+            runner = item->widget();
+            if (runner == w)
+                return pred;
+            else if (runner)
+                pred = runner;
+        }
+        if ((item = form->itemAt(i, QFormLayout::SpanningRole))) {
+            runner = item->widget();
+            if (runner == w)
+                return pred;
+            else if (runner)
+                pred = runner;
+        }
+    }
+    return pred;
+}
+
+//END QFormLayout workarounds
+
+
 void ComposeWidget::addRecipient(int position, const QString &kind, const QString &address)
 {
     QComboBox *combo = new QComboBox(this);
@@ -326,46 +397,63 @@ void ComposeWidget::addRecipient(int position, const QString &kind, const QStrin
     combo->setCurrentIndex(toCcBcc.indexOf(kind));
     QLineEdit *edit = new QLineEdit(address, this);
     edit->setCompleter(recipientCompleter);
-    recipientsAddress.insert(position, edit);
-    recipientsKind.insert(position, combo);
-    connect(edit, SIGNAL(editingFinished()), this, SLOT(handleRecipientAddressChange()));
-    ui->formLayout->insertRow(position + OFFSET_OF_FIRST_ADDRESSEE, combo, edit);
+    connect(edit, SIGNAL(editingFinished()), SLOT(collapseRecipients()));
+    connect(edit, SIGNAL(textChanged(QString)), m_recipientListUpdateTimer, SLOT(start()));
+    m_recipients.insert(position, Recipient(combo, edit));
+    ui->envelopeLayout->insertRow(actualRow(ui->envelopeLayout, position + OFFSET_OF_FIRST_ADDRESSEE), combo, edit);
+    setTabOrder(formPredecessor(ui->envelopeLayout, combo), combo);
+    setTabOrder(combo, edit);
 }
 
-void ComposeWidget::handleRecipientAddressChange()
+void ComposeWidget::removeRecipient(int pos)
 {
-    QLineEdit *item = qobject_cast<QLineEdit *>(sender());
-    Q_ASSERT(item);
-    int index = recipientsAddress.indexOf(item);
-    Q_ASSERT(index >= 0);
+    // removing the widgets from the layout is important
+    // a) not doing so leaks (minor)
+    // b) deleteLater() crosses the evenchain and so our actualRow funtion would be tricked
+    ui->envelopeLayout->removeWidget(m_recipients.at(pos).first);
+    ui->envelopeLayout->removeWidget(m_recipients.at(pos).second);
+    m_recipients.at(pos).first->deleteLater();
+    m_recipients.at(pos).second->deleteLater();
+    m_recipients.removeAt(pos);
+}
 
-    if (index == recipientsAddress.size() - 1) {
-        if (! item->text().isEmpty()) {
-            addRecipient(index + 1, recipientsKind[ index ]->currentText(), QString());
-            recipientsAddress[index + 1]->setFocus();
+void ComposeWidget::updateRecipientList()
+{
+    // we ensure there's always one empty available
+    bool haveEmpty = false;
+    for (int i = 0; i < m_recipients.count(); ++i) {
+        if (m_recipients.at(i).second->text().isEmpty()) {
+            if (haveEmpty) {
+                removeRecipient(i);
+            }
+            haveEmpty = true;
         }
-    } else if (item->text().isEmpty() && recipientsAddress.size() != 1) {
-        recipientsAddress.takeAt(index)->deleteLater();
-        recipientsKind.takeAt(index)->deleteLater();
-
-        delete ui->formLayout;
-        ui->formLayout = new QFormLayout(this);
-
-        // the first line
-        ui->formLayout->addRow(ui->developmentWarning);
-        ui->formLayout->addRow(ui->fromLabel, ui->sender);
-
-        // note: number of layout items before this one has to match OFFSET_OF_FIRST_ADDRESSEE
-        for (int i = 0; i < recipientsAddress.size(); ++i) {
-            ui->formLayout->addRow(recipientsKind[ i ], recipientsAddress[ i ]);
-        }
-
-        // all other stuff
-        ui->formLayout->addRow(ui->subjectLabel, ui->subject);
-        ui->formLayout->addRow(ui->mailText);
-        ui->formLayout->addRow(0, ui->buttonBox);
-        setLayout(ui->formLayout);
     }
+    if (!haveEmpty)
+        addRecipient(m_recipients.count(), m_recipients.last().first->currentText(), QString());
+}
+
+void ComposeWidget::collapseRecipients()
+{
+    QLineEdit *edit = qobject_cast<QLineEdit*>(sender());
+    Q_ASSERT(edit);
+    if (edit->hasFocus() || !edit->text().isEmpty())
+        return; // nothing to clean up
+
+    // an empty recipient line just lost focus -> we "place it at the end", ie. simply remove it
+    // and append a clone
+    bool needEmpty = false;
+    QString carriedKind = tr("To");
+    for (int i = 0; i < m_recipients.count() - 1; ++i) { // sic! on the -1, no action if it trails anyway
+        if (m_recipients.at(i).second == edit) {
+            carriedKind = m_recipients.last().first->currentText();
+            removeRecipient(i);
+            needEmpty = true;
+            break;
+        }
+    }
+    if (needEmpty)
+        addRecipient(m_recipients.count(), carriedKind, QString());
 }
 
 void ComposeWidget::gotError(const QString &error)
@@ -382,16 +470,15 @@ void ComposeWidget::sent()
 
 bool ComposeWidget::parseRecipients(QList<QPair<Imap::Mailbox::MessageComposer::RecipientKind, Imap::Message::MailAddress> > &results)
 {
-    Q_ASSERT(recipientsAddress.size() == recipientsKind.size());
-    for (int i = 0; i < recipientsAddress.size(); ++i) {
+    for (int i = 0; i < m_recipients.size(); ++i) {
         Imap::Mailbox::MessageComposer::RecipientKind kind = Imap::Mailbox::MessageComposer::Recipient_To;
-        if (recipientsKind[i]->currentText() == tr("Cc"))
+        if (m_recipients.at(i).first->currentText() == tr("Cc"))
             kind = Imap::Mailbox::MessageComposer::Recipient_Cc;
-        else if (recipientsKind[i]->currentText() == tr("Bcc"))
+        else if (m_recipients.at(i).first->currentText() == tr("Bcc"))
             kind = Imap::Mailbox::MessageComposer::Recipient_Bcc;
 
         int offset = 0;
-        QString text = recipientsAddress[i]->text();
+        QString text = m_recipients.at(i).second->text();
         for(;;) {
             Imap::Message::MailAddress addr;
             bool ok = Imap::Message::MailAddress::parseOneAddress(addr, text, offset);
