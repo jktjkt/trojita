@@ -1064,8 +1064,14 @@ void Model::updateCapabilities(Parser *parser, const QStringList capabilities)
 {
     Q_ASSERT(parser);
     QStringList uppercaseCaps;
-    Q_FOREACH(const QString& str, capabilities)
-    uppercaseCaps << str.toUpper();
+    Q_FOREACH(const QString& str, capabilities) {
+        QString cap = str.toUpper();
+        if (m_capabilitiesBlacklist.contains(cap)) {
+            logTrace(parser->parserId(), LOG_OTHER, QLatin1String("Model"), QString::fromAscii("Ignoring capability \"%1\"").arg(cap));
+            continue;
+        }
+        uppercaseCaps << cap;
+    }
     accessParser(parser).capabilities = uppercaseCaps;
     accessParser(parser).capabilitiesFresh = true;
     parser->enableLiteralPlus(uppercaseCaps.contains(QLatin1String("LITERAL+")));
@@ -1854,6 +1860,11 @@ void Model::checkDependentTasksConsistency(Parser *parser, ImapTask *task, ImapT
     }
 }
 #endif
+
+void Model::setCapabilitiesBlacklist(const QStringList &blacklist)
+{
+    m_capabilitiesBlacklist = blacklist;
+}
 
 }
 }

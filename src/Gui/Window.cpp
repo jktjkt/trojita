@@ -529,6 +529,7 @@ void MainWindow::setupModels()
     }
     model = new Imap::Mailbox::Model(this, cache, factory, taskFactory, s.value(SettingsNames::imapStartOffline).toBool());
     model->setObjectName(QLatin1String("model"));
+    model->setCapabilitiesBlacklist(s.value(SettingsNames::imapBlacklistedCapabilities).toStringList());
     if (s.value(SettingsNames::imapEnableId, true).toBool()) {
         model->setProperty("trojita-imap-enable-id", true);
     }

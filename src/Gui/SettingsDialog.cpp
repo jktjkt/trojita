@@ -150,6 +150,7 @@ ImapPage::ImapPage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_ImapP
     processPath->setText(s.value(SettingsNames::imapProcessKey).toString());
     startOffline->setChecked(s.value(SettingsNames::imapStartOffline).toBool());
     imapEnableId->setChecked(s.value(SettingsNames::imapEnableId, true).toBool());
+    imapCapabilitiesBlacklist->setText(s.value(SettingsNames::imapBlacklistedCapabilities).toStringList().join(QLatin1String(" ")));
 
     connect(method, SIGNAL(currentIndexChanged(int)), this, SLOT(updateWidgets()));
     updateWidgets();
@@ -238,6 +239,7 @@ void ImapPage::save(QSettings &s)
     s.setValue(SettingsNames::imapPassKey, imapPass->text());
     s.setValue(SettingsNames::imapStartOffline, startOffline->isChecked());
     s.setValue(SettingsNames::imapEnableId, imapEnableId->isChecked());
+    s.setValue(SettingsNames::imapBlacklistedCapabilities, imapCapabilitiesBlacklist->text().split(QChar(' ')));
 }
 
 void ImapPage::maybeShowPasswordWarning()

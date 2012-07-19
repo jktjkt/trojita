@@ -268,6 +268,13 @@ public:
     /** @short Return an index for the message specified by the mailbox name and the message UID */
     QModelIndex messageIndexByUid(const QString &mailboxName, const uint uid);
 
+    /** @short Provide a list of capabilities to not use
+
+    All blacklisted capabilities must be provided in the upper case. Capabilities are filtered only as they are reported by the
+    IMAP server. Calling this function while the connection is already open and kicking might have terrible consequences.
+    */
+    void setCapabilitiesBlacklist(const QStringList &blacklist);
+
 public slots:
     /** @short Ask for an updated list of mailboxes on the server */
     void reloadMailboxList();
@@ -533,6 +540,8 @@ private:
     bool m_hasImapPassword;
 
     QTimer *m_periodicMailboxNumbersRefresh;
+
+    QStringList m_capabilitiesBlacklist;
 
 protected slots:
     void responseReceived();
