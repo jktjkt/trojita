@@ -1790,14 +1790,14 @@ void Model::invalidateAllMessageCounts()
     }
 }
 
-ImapTask *Model::appendIntoMailbox(const QString &mailbox, const QByteArray &rawMessageData, const QStringList &flags,
-                              const QDateTime &timestamp)
+AppendTask *Model::appendIntoMailbox(const QString &mailbox, const QByteArray &rawMessageData, const QStringList &flags,
+                                     const QDateTime &timestamp)
 {
     return m_taskFactory->createAppendTask(this, mailbox, rawMessageData, flags, timestamp);
 }
 
-ImapTask *Model::appendIntoMailbox(const QString &mailbox, const QList<CatenatePair> &data, const QStringList &flags,
-                                   const QDateTime &timestamp)
+AppendTask *Model::appendIntoMailbox(const QString &mailbox, const QList<CatenatePair> &data, const QStringList &flags,
+                                     const QDateTime &timestamp)
 {
     return m_taskFactory->createAppendTask(this, mailbox, data, flags, timestamp);
 }

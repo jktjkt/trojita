@@ -193,12 +193,12 @@ public:
     void unsubscribeMailbox(const QString &name);
 
     /** @short Save a message into a mailbox */
-    ImapTask* appendIntoMailbox(const QString &mailbox, const QByteArray &rawMessageData, const QStringList &flags,
-                                const QDateTime &timestamp);
+    AppendTask* appendIntoMailbox(const QString &mailbox, const QByteArray &rawMessageData, const QStringList &flags,
+                                  const QDateTime &timestamp);
 
     /** @short Save a message into a mailbox using the CATENATE extension */
-    ImapTask* appendIntoMailbox(const QString &mailbox, const QList<CatenatePair> &data, const QStringList &flags,
-                                const QDateTime &timestamp);
+    AppendTask* appendIntoMailbox(const QString &mailbox, const QList<CatenatePair> &data, const QStringList &flags,
+                                  const QDateTime &timestamp);
 
 
     /** @short Returns true if we are allowed to access the network */
