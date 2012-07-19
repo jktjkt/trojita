@@ -123,6 +123,8 @@ void EmbeddedWebView::handlePageLoadFinished(bool ok)
 
     // We've already set in in our constructor, but apparently it isn't enough (Qt 4.8.0 on X11).
     // Let's do it again here, it works.
+    page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
+    page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
     page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
 }
 
