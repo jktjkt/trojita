@@ -18,15 +18,15 @@
    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
+#include <QDebug>
+#include <QHeaderView>
 #include <QKeyEvent>
 #include <QLabel>
-#include <QHeaderView>
 #include <QTextDocument>
 #include <QTimer>
 #include <QUrl>
 #include <QVBoxLayout>
 #include <QtWebKit/QWebHistory>
-#include <QDebug>
 
 #include "MessageView.h"
 #include "AbstractPartWidget.h"
