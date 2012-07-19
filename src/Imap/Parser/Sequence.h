@@ -77,6 +77,9 @@ public:
     /** @short Converts sequence to string suitable for sending over the wire */
     QString toString() const;
 
+    /** @short Converts sequence to a list of UIDs */
+    QList<uint> toList() const;
+
     /** @short Create a sequence from a list of numbers */
     static Sequence fromList(QList<uint> numbers);
 

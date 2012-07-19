@@ -20,7 +20,7 @@
 #define IMAP_APPENDTASK_H
 
 #include "ImapTask.h"
-#include "CatenateData.h"
+#include "Imap/Model/CatenateData.h"
 
 namespace Imap
 {
@@ -41,6 +41,10 @@ public:
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
     virtual bool needsMailbox() const {return false;}
     virtual QVariant taskData(const int role) const;
+
+signals:
+    /** The APPEND succeeded and the specified UIDVALIDITY / UID pair refers to the uploaded message */
+    void appendUid(const uint uidValidity, const uint uid);
 
 private:
     ImapTask *conn;

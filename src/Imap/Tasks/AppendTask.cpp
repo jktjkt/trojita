@@ -66,6 +66,17 @@ bool AppendTask::handleStateHelper(const Imap::Responses::State *const resp)
     if (resp->tag == tag) {
 
         if (resp->kind == Responses::OK) {
+            if (resp->respCode == Responses::APPENDUID) {
+                const Responses::RespData<QPair<uint, Sequence> > *const respData =
+                        dynamic_cast<const Responses::RespData<QPair<uint, Sequence> >* const>(resp->respCodeData.data());
+                Q_ASSERT(respData);
+                QList<uint> uids = respData->data.second.toList();
+                if (uids.size() != 1) {
+                    log("APPENDUID: mallformed data, cannot extract a single UID");
+                } else {
+                    emit appendUid(respData->data.first, uids.front());
+                }
+            }
             // nothing should be needed here
             _completed();
         } else {

@@ -78,6 +78,30 @@ QString Sequence::toString() const
     return QString();
 }
 
+QList<uint> Sequence::toList() const
+{
+    switch (kind) {
+    case DISTINCT:
+        Q_ASSERT(!list.isEmpty());
+        return list;
+    case RANGE:
+        Q_ASSERT(lo <= hi);
+        if (lo == hi) {
+            return QList<uint>() << lo;
+        } else {
+            QList<uint> res;
+            for (uint i = lo; i < hi; ++i)
+                res << i;
+            return res;
+        }
+    case UNLIMITED:
+        Q_ASSERT(false);
+        return QList<uint>();
+    }
+    Q_ASSERT(false);
+    return QList<uint>();
+}
+
 Sequence &Sequence::add(uint num)
 {
     Q_ASSERT(kind == DISTINCT);
@@ -114,7 +138,7 @@ QTextStream &operator<<(QTextStream &stream, const Sequence &s)
 bool operator==(const Sequence &a, const Sequence &b)
 {
     // This operator is used only in the test suite, so performance doesn't matter and this was *so* easy to hack together...
-    return a.toString() == b.toString();
+    return a.toList() == b.toList();
 }
 
 }
