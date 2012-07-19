@@ -1142,14 +1142,15 @@ void MainWindow::slotComposeMailUrl(const QUrl &url)
 {
     Q_ASSERT(url.scheme().toLower() == QLatin1String("mailto"));
 
-    QList<QPair<QString,QString> > recipients;
+    RecipientsType recipients;
     // FIXME: handle the display name as well, Redmine #534
-    recipients << qMakePair<QString,QString>(tr("To"), QString::fromUtf8("%1@%2").arg(url.userName(), url.host()));
+    recipients << qMakePair<ComposeWidget::RecipientKind,QString>(Imap::Mailbox::MessageComposer::Recipient_To,
+                                                                  QString::fromUtf8("%1@%2").arg(url.userName(), url.host()));
     invokeComposeDialog(QString(), QString(), recipients);
 }
 
 void MainWindow::invokeComposeDialog(const QString &subject, const QString &body,
-                                     const QList<QPair<QString,QString> > &recipients, const QByteArray &inReplyTo)
+                                     const RecipientsType &recipients, const QByteArray &inReplyTo)
 {
     QSettings s;
     ComposeWidget *w = new ComposeWidget(this, autoCompletionModel);

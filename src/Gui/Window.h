@@ -26,6 +26,7 @@
 
 #include "Imap/ConnectionState.h"
 #include "Imap/Model/Cache.h"
+#include "Imap/Model/MessageComposer.h"
 
 class QAuthenticator;
 class QItemSelection;
@@ -65,7 +66,7 @@ class TaskProgressIndicator;
 class MainWindow: public QMainWindow
 {
     Q_OBJECT
-    typedef QList<QPair<QString,QString> > RecipientsType;
+    typedef QList<QPair<Imap::Mailbox::MessageComposer::RecipientKind,QString> > RecipientsType;
 public:
     MainWindow();
     void invokeComposeDialog(const QString &subject=QString(), const QString &body=QString(),

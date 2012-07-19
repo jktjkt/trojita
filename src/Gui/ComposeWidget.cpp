@@ -108,7 +108,7 @@ void ComposeWidget::changeEvent(QEvent *e)
 
 bool ComposeWidget::buildMessageData()
 {
-    QList<QPair<Imap::Mailbox::MessageComposer::RecipientKind,Imap::Message::MailAddress> > recipients;
+    QList<QPair<RecipientKind,Imap::Message::MailAddress> > recipients;
     if (!parseRecipients(recipients)) {
         gotError(tr("Cannot parse recipients"));
         return false;
@@ -306,16 +306,16 @@ void ComposeWidget::send()
 
 
 
-void ComposeWidget::setData(const QString &from, const QList<QPair<QString, QString> > &recipients,
+void ComposeWidget::setData(const QString &from, const QList<QPair<RecipientKind, QString> > &recipients,
                             const QString &subject, const QString &body, const QByteArray &inReplyTo)
 {
     // FIXME: combobox for from...
     ui->sender->addItem(from);
     for (int i = 0; i < recipients.size(); ++i) {
-        addRecipient(i, recipients[i].first, recipients[i].second);
+        addRecipient(i, recipients.at(i).first, recipients.at(i).second);
     }
     if (recipients.isEmpty())
-        addRecipient(0, tr("To"), QString());
+        addRecipient(0, Imap::Mailbox::MessageComposer::Recipient_To, QString());
     else
         addRecipient(recipients.size(), recipients.last().first, QString());
     ui->subject->setText(subject);
@@ -389,12 +389,13 @@ static QWidget* formPredecessor(QFormLayout *form, QWidget *w)
 //END QFormLayout workarounds
 
 
-void ComposeWidget::addRecipient(int position, const QString &kind, const QString &address)
+void ComposeWidget::addRecipient(int position, RecipientKind kind, const QString &address)
 {
     QComboBox *combo = new QComboBox(this);
-    QStringList toCcBcc = QStringList() << tr("To") << tr("Cc") << tr("Bcc");
-    combo->addItems(toCcBcc);
-    combo->setCurrentIndex(toCcBcc.indexOf(kind));
+    combo->addItem(tr("To"), Imap::Mailbox::MessageComposer::Recipient_To);
+    combo->addItem(tr("Cc"), Imap::Mailbox::MessageComposer::Recipient_Cc);
+    combo->addItem(tr("Bcc"), Imap::Mailbox::MessageComposer::Recipient_Bcc);
+    combo->setCurrentIndex(combo->findData(kind));
     QLineEdit *edit = new QLineEdit(address, this);
     edit->setCompleter(recipientCompleter);
     connect(edit, SIGNAL(editingFinished()), SLOT(collapseRecipients()));
@@ -417,6 +418,11 @@ void ComposeWidget::removeRecipient(int pos)
     m_recipients.removeAt(pos);
 }
 
+static inline ComposeWidget::RecipientKind currentRecipient(const QComboBox *box)
+{
+    return ComposeWidget::RecipientKind(box->itemData(box->currentIndex()).toInt());
+}
+
 void ComposeWidget::updateRecipientList()
 {
     // we ensure there's always one empty available
@@ -430,7 +436,7 @@ void ComposeWidget::updateRecipientList()
         }
     }
     if (!haveEmpty)
-        addRecipient(m_recipients.count(), m_recipients.last().first->currentText(), QString());
+        addRecipient(m_recipients.count(), currentRecipient(m_recipients.last().first), QString());
 }
 
 void ComposeWidget::collapseRecipients()
@@ -443,10 +449,10 @@ void ComposeWidget::collapseRecipients()
     // an empty recipient line just lost focus -> we "place it at the end", ie. simply remove it
     // and append a clone
     bool needEmpty = false;
-    QString carriedKind = tr("To");
+    RecipientKind carriedKind = Imap::Mailbox::MessageComposer::Recipient_To;
     for (int i = 0; i < m_recipients.count() - 1; ++i) { // sic! on the -1, no action if it trails anyway
         if (m_recipients.at(i).second == edit) {
-            carriedKind = m_recipients.last().first->currentText();
+            carriedKind = currentRecipient(m_recipients.last().first);
             removeRecipient(i);
             needEmpty = true;
             break;
@@ -468,14 +474,10 @@ void ComposeWidget::sent()
     setEnabled(true);
 }
 
-bool ComposeWidget::parseRecipients(QList<QPair<Imap::Mailbox::MessageComposer::RecipientKind, Imap::Message::MailAddress> > &results)
+bool ComposeWidget::parseRecipients(QList<QPair<RecipientKind, Imap::Message::MailAddress> > &results)
 {
     for (int i = 0; i < m_recipients.size(); ++i) {
-        Imap::Mailbox::MessageComposer::RecipientKind kind = Imap::Mailbox::MessageComposer::Recipient_To;
-        if (m_recipients.at(i).first->currentText() == tr("Cc"))
-            kind = Imap::Mailbox::MessageComposer::Recipient_Cc;
-        else if (m_recipients.at(i).first->currentText() == tr("Bcc"))
-            kind = Imap::Mailbox::MessageComposer::Recipient_Bcc;
+        RecipientKind kind = currentRecipient(m_recipients.at(i).first);
 
         int offset = 0;
         QString text = m_recipients.at(i).second->text();

@@ -315,16 +315,16 @@ void MessageView::reply(MainWindow *mainWindow, ReplyMode mode)
     const Imap::Message::Envelope &envelope = messagePtr->envelope(model);
     // ...now imagine how that would look like on just a single line :)
 
-    QList<QPair<QString,QString> > recipients;
+    QList<QPair<Imap::Mailbox::MessageComposer::RecipientKind,QString> > recipients;
     for (QList<Imap::Message::MailAddress>::const_iterator it = envelope.from.begin(); it != envelope.from.end(); ++it) {
-        recipients << qMakePair(tr("To"), QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
+        recipients << qMakePair(Imap::Mailbox::MessageComposer::Recipient_To, QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
     }
     if (mode == REPLY_ALL) {
         for (QList<Imap::Message::MailAddress>::const_iterator it = envelope.to.begin(); it != envelope.to.end(); ++it) {
-            recipients << qMakePair(tr("Cc"), QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
+            recipients << qMakePair(Imap::Mailbox::MessageComposer::Recipient_Cc, QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
         }
         for (QList<Imap::Message::MailAddress>::const_iterator it = envelope.cc.begin(); it != envelope.cc.end(); ++it) {
-            recipients << qMakePair(tr("Cc"), QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
+            recipients << qMakePair(Imap::Mailbox::MessageComposer::Recipient_To, QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
         }
     }
     mainWindow->invokeComposeDialog(replySubject(envelope.subject), quoteText(), recipients, envelope.messageId);

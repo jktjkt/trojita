@@ -51,9 +51,9 @@ class ComposeWidget : public QWidget
 public:
     ComposeWidget(MainWindow *parent, QAbstractListModel *autoCompleteModel);
     ~ComposeWidget();
-
+    typedef Imap::Mailbox::MessageComposer::RecipientKind RecipientKind;
     void setData(const QString &from,
-                 const QList<QPair<QString, QString> > &recipients,
+                 const QList<QPair<RecipientKind, QString> > &recipients,
                  const QString &subject,
                  const QString &body,
                  const QByteArray &inReplyTo);
@@ -76,8 +76,8 @@ private slots:
 
 private:
     static QByteArray extractMailAddress(const QString &text, bool &ok);
-    void addRecipient(int position, const QString &kind, const QString &address);
-    bool parseRecipients(QList<QPair<Imap::Mailbox::MessageComposer::RecipientKind, Imap::Message::MailAddress> > &results);
+    void addRecipient(int position, RecipientKind kind, const QString &address);
+    bool parseRecipients(QList<QPair<RecipientKind, Imap::Message::MailAddress> > &results);
     void removeRecipient(int position);
 
     bool buildMessageData();
