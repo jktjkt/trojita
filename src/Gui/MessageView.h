@@ -46,7 +46,6 @@ class MainWindow;
 class PartWidgetFactory;
 class ExternalElementsWidget;
 class TagListWidget;
-class EmbeddedWebView;
 
 
 /** @short Widget for displaying complete e-mail messages as available from the IMAP server
@@ -96,7 +95,7 @@ private:
     QPersistentModelIndex message;
     Imap::Network::MsgPartNetAccessManager *netAccess;
     QTimer *markAsReadTimer;
-    EmbeddedWebView *emptyView;
+    QWebView *emptyView;
     PartWidgetFactory *factory;
 
     MessageView(const MessageView &); // don't implement

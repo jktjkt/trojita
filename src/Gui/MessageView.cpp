@@ -19,6 +19,7 @@
    Boston, MA 02110-1301, USA.
 */
 #include <QDebug>
+#include <QDesktopServices>
 #include <QHeaderView>
 #include <QKeyEvent>
 #include <QLabel>
@@ -407,8 +408,8 @@ void MessageView::showEvent(QShowEvent *se)
 
 void MessageView::headerLinkActivated(QString s)
 {
-    Q_ASSERT(emptyView);
-    emptyView->slotLinkClicked(QUrl(s));
+    // Trojita is registered to handle any mailto: URL
+    QDesktopServices::openUrl(QUrl(s));
 }
 
 }
