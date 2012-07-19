@@ -1147,7 +1147,8 @@ void MainWindow::slotComposeMailUrl(const QUrl &url)
     Q_ASSERT(url.scheme().toLower() == QLatin1String("mailto"));
 
     QList<QPair<QString,QString> > recipients;
-    recipients << qMakePair<QString,QString>(QString(), url.path());
+    // FIXME: handle the display name as well, Redmine #534
+    recipients << qMakePair<QString,QString>(tr("To"), QString::fromAscii("%1@%2").arg(url.userName(), url.host()));
     invokeComposeDialog(QString(), QString(), recipients);
 }
 
