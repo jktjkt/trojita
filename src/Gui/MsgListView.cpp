@@ -91,18 +91,18 @@ int MsgListView::sizeHintForColumn(int column) const
 */
 void MsgListView::startDrag(Qt::DropActions supportedActions)
 {
-    QModelIndexList indexes = selectedIndexes();
     // indexes for column 0, i.e. subject
-    QModelIndexList indexesCol0;
+    QModelIndexList baseIndexes;
 
-    for (int i = indexes.count() - 1; i >= 0; --i) {
-        if (!(model()->flags(indexes.at(i)) & Qt::ItemIsDragEnabled))
-            indexes.removeAt(i);
-        else if (indexes.at(i).column() == 0)
-            indexesCol0.prepend(indexes.at(i));
+    Q_FOREACH(const QModelIndex &index, selectedIndexes()) {
+        if (!(model()->flags(index) & Qt::ItemIsDragEnabled))
+            continue;
+        if (index.column() == 0)
+            baseIndexes << index;
     }
-    if (indexes.count() > 0) {
-        QMimeData *data = model()->mimeData(indexes);
+
+    if (!baseIndexes.isEmpty()) {
+        QMimeData *data = model()->mimeData(baseIndexes);
         if (!data)
             return;
 
@@ -114,8 +114,8 @@ void MsgListView::startDrag(Qt::DropActions supportedActions)
         QStyleOptionViewItem opt;
         opt.initFrom(this);
         opt.rect.setWidth(maxWidth);
-        opt.rect.setHeight(itemDelegate()->sizeHint(opt, indexesCol0.at(0)).height());
-        size.setHeight(indexesCol0.count() * opt.rect.height());
+        opt.rect.setHeight(itemDelegate()->sizeHint(opt, baseIndexes.at(0)).height());
+        size.setHeight(baseIndexes.size() * opt.rect.height());
         // State_Selected provides for nice background of the items
         opt.state |= QStyle::State_Selected;
 
@@ -124,9 +124,9 @@ void MsgListView::startDrag(Qt::DropActions supportedActions)
         pixmap.fill(Qt::transparent);
         QPainter p(&pixmap);
 
-        for (int i = 0; i < indexesCol0.count(); ++i) {
+        for (int i = 0; i < baseIndexes.size(); ++i) {
             opt.rect.moveTop(i * opt.rect.height());
-            itemDelegate()->paint(&p, opt, indexesCol0.at(i));
+            itemDelegate()->paint(&p, opt, baseIndexes.at(i));
         }
 
         QDrag *drag = new QDrag(this);
