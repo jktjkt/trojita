@@ -252,7 +252,7 @@ void ComposeWidget::send()
     connect(progress, SIGNAL(canceled()), msa, SLOT(cancel()));
     connect(msa, SIGNAL(error(QString)), this, SLOT(gotError(QString)));
 
-    if (m_genUrlAuthReceived && true) {
+    if (m_genUrlAuthReceived && s.value(SettingsNames::smtpUseBurlKey, false).toBool()) {
         msa->sendBurl(m_composer->rawFromAddress(), m_composer->rawRecipientAddresses(), m_urlauth.toAscii());
     } else {
         return;

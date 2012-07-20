@@ -125,6 +125,16 @@
     <item row="9" column="1">
      <widget class="QLineEdit" name="saveFolderName"/>
     </item>
+    <item row="10" column="0">
+     <widget class="QLabel" name="smtpBurlLabel">
+      <property name="text">
+       <string>Send with BURL</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="1">
+     <widget class="QCheckBox" name="smtpBurl"/>
+    </item>
    </layout>
   </widget>
  </widget>
