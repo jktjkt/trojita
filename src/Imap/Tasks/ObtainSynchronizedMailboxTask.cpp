@@ -922,7 +922,8 @@ bool ObtainSynchronizedMailboxTask::handleESearch(const Imap::Responses::ESearch
         if (std::find_if(listIterator, resp->listData.constEnd(), allComparator) != resp->listData.constEnd())
             throw UnexpectedResponseReceived("ESEARCH contains the ALL key too many times", *resp);
     } else {
-        throw UnexpectedResponseReceived("ESEARCH doesn't contain the ALL result", *resp);
+        // If the ALL key is not present, the server is telling us that there are no messages matching the query
+        uidMap.clear();
     }
 
     switch (uidSyncingMode) {
