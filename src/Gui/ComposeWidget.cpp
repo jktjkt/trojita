@@ -222,7 +222,7 @@ void ComposeWidget::send()
         QCoreApplication::processEvents();
     }
     QPointer<Imap::Mailbox::GenUrlAuthTask> genUrlAuthTask;
-    if (m_appendUidReceived) {
+    if (m_appendUidReceived && s.value(SettingsNames::smtpUseBurlKey, false).toBool()) {
         progress->setValue(1);
         progress->setLabelText(tr("Generating IMAP URL..."));
         genUrlAuthTask = QPointer<Imap::Mailbox::GenUrlAuthTask>(
