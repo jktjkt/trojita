@@ -55,7 +55,13 @@ ComposeWidget::ComposeWidget(MainWindow *parent, QAbstractListModel *autoComplet
 {
     Q_ASSERT(m_mainWindow);
     m_composer = new Imap::Mailbox::MessageComposer(m_mainWindow->imapModel(), this);
-    m_composer->setPreloadEnabled(!m_mainWindow->isCatenateSupported());
+
+    // Unless all of URLAUTH, CATENATE and BURL is present and enabled, we will still have to download the data in the end
+    m_composer->setPreloadEnabled(
+                ! (m_mainWindow->isCatenateSupported() && m_mainWindow->isGenUrlAuthSupported()
+                   && QSettings().value(Common::SettingsNames::smtpUseBurlKey, false).toBool())
+                );
+
     ui->setupUi(this);
     sendButton = ui->buttonBox->addButton(tr("Send"), QDialogButtonBox::AcceptRole);
     connect(sendButton, SIGNAL(clicked()), this, SLOT(send()));
