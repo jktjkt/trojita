@@ -198,6 +198,12 @@ bool ImapTask::handleArrived(const Responses::Arrived *const resp)
     return false;
 }
 
+bool ImapTask::handleGenUrlAuth(const Responses::GenUrlAuth *const resp)
+{
+    Q_UNUSED(resp);
+    return false;
+}
+
 bool ImapTask::handleSocketEncryptedResponse(const Imap::Responses::SocketEncryptedResponse *const resp)
 {
     Q_UNUSED(resp);

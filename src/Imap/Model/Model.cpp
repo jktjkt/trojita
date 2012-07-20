@@ -648,6 +648,13 @@ void Model::handleArrived(Parser *ptr, const Responses::Arrived *const resp)
     throw UnexpectedResponseReceived("Unhandled ARRIVED response", *resp);
 }
 
+void Model::handleGenUrlAuth(Parser *ptr, const Responses::GenUrlAuth *const resp)
+{
+    if (accessParser(ptr).connState == CONN_STATE_LOGOUT)
+        return;
+    throw UnexpectedResponseReceived("Unhandled GENURLAUTH response", *resp);
+}
+
 void Model::handleSocketEncryptedResponse(Parser *ptr, const Responses::SocketEncryptedResponse *const resp)
 {
     Q_UNUSED(resp);
@@ -1800,6 +1807,12 @@ AppendTask *Model::appendIntoMailbox(const QString &mailbox, const QList<Catenat
                                      const QDateTime &timestamp)
 {
     return m_taskFactory->createAppendTask(this, mailbox, data, flags, timestamp);
+}
+
+GenUrlAuthTask *Model::generateUrlAuthForMessage(Model *model, const QString &host, const QString &user, const QString &mailbox,
+                                                 const uint uidValidity, const uint uid, const QString &part, const QString &access)
+{
+    return m_taskFactory->createGenUrlAuthTask(model, host, user, mailbox, uidValidity, uid, part, access);
 }
 
 #ifdef TROJITA_DEBUG_TASK_TREE

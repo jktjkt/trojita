@@ -150,6 +150,7 @@ public:
     void handleEnabled(Imap::Parser *ptr, const Imap::Responses::Enabled *const resp);
     void handleVanished(Imap::Parser *ptr, const Imap::Responses::Vanished *const resp);
     void handleArrived(Imap::Parser *ptr, const Imap::Responses::Arrived *const resp);
+    void handleGenUrlAuth(Imap::Parser *ptr, const Imap::Responses::GenUrlAuth *const resp);
     void handleSocketEncryptedResponse(Imap::Parser *ptr, const Imap::Responses::SocketEncryptedResponse *const resp);
     void handleSocketDisconnectedResponse(Imap::Parser *ptr, const Imap::Responses::SocketDisconnectedResponse *const resp);
     void handleParseErrorResponse(Imap::Parser *ptr, const Imap::Responses::ParseErrorResponse *const resp);
@@ -199,6 +200,10 @@ public:
     /** @short Save a message into a mailbox using the CATENATE extension */
     AppendTask* appendIntoMailbox(const QString &mailbox, const QList<CatenatePair> &data, const QStringList &flags,
                                   const QDateTime &timestamp);
+
+    /** @short Issue the GENURLAUTH command for a specified part/section */
+    GenUrlAuthTask *generateUrlAuthForMessage(Model *model, const QString &host, const QString &user, const QString &mailbox,
+                                              const uint uidValidity, const uint uid, const QString &part, const QString &access);
 
 
     /** @short Returns true if we are allowed to access the network */
@@ -437,6 +442,7 @@ private:
     friend class SortTask;
     friend class AppendTask;
     friend class SubscribeUnsubscribeTask;
+    friend class GenUrlAuthTask;
 
     friend class TestingTaskFactory; // needs access to socketFactory
 
