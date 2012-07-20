@@ -68,11 +68,11 @@ void MailBoxTreeView::dragMoveEvent(QDragMoveEvent *event)
 */
 void MailBoxTreeView::dropEvent(QDropEvent *event)
 {
-    if (event->keyboardModifiers() == Qt::ControlModifier)
+    if (event->keyboardModifiers() == Qt::ControlModifier) {
         event->setDropAction(Qt::CopyAction);
-    else if (event->keyboardModifiers() == Qt::ShiftModifier)
+    } else if (event->keyboardModifiers() == Qt::ShiftModifier) {
         event->setDropAction(Qt::MoveAction);
-    else {
+    } else {
         QMenu menu;
         // TODO: provide icons for copy and move actions
         QAction *moveAction = menu.addAction(tr("Move here"));
