@@ -74,6 +74,7 @@ SOURCES += Parser/Parser.cpp \
     Tasks/SortTask.cpp \
     Tasks/AppendTask.cpp \
     Tasks/SubscribeUnsubscribeTask.cpp \
+    Tasks/GenUrlAuthTask.cpp \
     Model/ModelWatcher.cpp \
     Network/MsgPartNetworkReply.cpp \
     Network/ForbiddenReply.cpp \
@@ -151,6 +152,7 @@ HEADERS += Parser/Parser.h \
     Tasks/SortTask.h \
     Tasks/AppendTask.h \
     Tasks/SubscribeUnsubscribeTask.h \
+    Tasks/GenUrlAuthTask.h \
     Model/ModelWatcher.h \
     Network/ForbiddenReply.h \
     Network/MsgPartNetAccessManager.h \

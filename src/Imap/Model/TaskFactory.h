@@ -55,6 +55,7 @@ class NoopTask;
 class UnSelectTask;
 class SortTask;
 class SubscribeUnsubscribeTask;
+class GenUrlAuthTask;
 
 class Model;
 class TreeItemMailbox;
@@ -96,6 +97,8 @@ public:
                                          const QStringList &flags, const QDateTime &timestamp);
     virtual SubscribeUnsubscribeTask *createSubscribeUnsubscribeTask(Model *model, const QModelIndex &mailbox,
                                                                      const SubscribeUnsubscribeOperation operation);
+    virtual GenUrlAuthTask *createGenUrlAuthTask(Model *model, const QString &host, const QString &user, const QString &mailbox,
+                                                 const uint uidValidity, const uint uid, const QString &part, const QString &access);
 };
 
 class TestingTaskFactory: public TaskFactory

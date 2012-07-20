@@ -176,6 +176,9 @@ QTextStream &operator<<(QTextStream &stream, const Kind &res)
     case ARRIVED:
         stream << "ARRIVED";
         break;
+    case GENURLAUTH:
+        stream << "GENURLAUTH";
+        break;
     }
     return stream;
 }
@@ -232,6 +235,8 @@ Kind kindFromString(QByteArray str) throw(UnrecognizedResponseKind)
         return VANISHED;
     if (str == "ARRIVED")
         return ARRIVED;
+    if (str == "GENURLAUTH")
+        return GENURLAUTH;
     throw UnrecognizedResponseKind(str.constData());
 }
 
@@ -1087,6 +1092,14 @@ Arrived::Arrived(const QByteArray &line, int &start):
         throw TooMuchData(line, start);
 }
 
+GenUrlAuth::GenUrlAuth(const QByteArray &line, int &start):
+    AbstractResponse(GENURLAUTH)
+{
+    url = QString::fromAscii(LowLevelParser::getString(line, start).first);
+    if (start != line.size() - 2)
+        throw TooMuchData(line, start);
+}
+
 SocketEncryptedResponse::SocketEncryptedResponse(const QList<QSslCertificate> &sslChain, const QList<QSslError> &sslErrors):
     sslChain(sslChain), sslErrors(sslErrors)
 {
@@ -1280,6 +1293,11 @@ QTextStream &Arrived::dump(QTextStream &s) const
         s << " " << uid;
     }
     return s << ")";
+}
+
+QTextStream &GenUrlAuth::dump(QTextStream &s) const
+{
+    return s << "GENURLAUTH " << url;
 }
 
 QTextStream &SocketEncryptedResponse::dump(QTextStream &s) const
@@ -1532,6 +1550,16 @@ bool Arrived::eq(const AbstractResponse &other) const
     }
 }
 
+bool GenUrlAuth::eq(const AbstractResponse &other) const
+{
+    try {
+        const GenUrlAuth &r = dynamic_cast<const GenUrlAuth &>(other);
+        return url == r.url;
+    } catch (std::bad_cast &) {
+        return false;
+    }
+}
+
 bool SocketEncryptedResponse::eq(const AbstractResponse &other) const
 {
     try {
@@ -1598,6 +1626,7 @@ PLUG(Id)
 PLUG(Enabled)
 PLUG(Vanished)
 PLUG(Arrived)
+PLUG(GenUrlAuth)
 PLUG(SocketEncryptedResponse)
 PLUG(SocketDisconnectedResponse)
 PLUG(ParseErrorResponse)

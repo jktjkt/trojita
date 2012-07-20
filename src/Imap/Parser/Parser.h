@@ -263,6 +263,9 @@ public slots:
     /** @short COMPRESS DEFLATE, RFC 4978 */
     CommandHandle compressDeflate();
 
+    /** @short GENURLAUTH, RFC 4467 */
+    CommandHandle genUrlAuth(const QByteArray &url, const QByteArray mechanism);
+
     void slotSocketStateChanged(const Imap::ConnectionState connState, const QString &message);
 
     void unfreezeAfterEncryption();

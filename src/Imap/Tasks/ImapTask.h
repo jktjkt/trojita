@@ -104,6 +104,7 @@ public:
     virtual bool handleEnabled(const Imap::Responses::Enabled *const resp);
     virtual bool handleVanished(const Imap::Responses::Vanished *const resp);
     virtual bool handleArrived(const Imap::Responses::Arrived *const resp);
+    virtual bool handleGenUrlAuth(const Imap::Responses::GenUrlAuth *const resp);
     virtual bool handleSocketEncryptedResponse(const Imap::Responses::SocketEncryptedResponse *const resp);
     virtual bool handleSocketDisconnectedResponse(const Imap::Responses::SocketDisconnectedResponse *const resp);
     virtual bool handleParseErrorResponse(const Imap::Responses::ParseErrorResponse *const resp);

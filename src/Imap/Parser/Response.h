@@ -85,7 +85,8 @@ enum Kind {
     ID,
     ENABLED, /**< @short RFC 5161 ENABLE */
     VANISHED, /**< @short RFC 5162 VANISHED (for QRESYNC) */
-    ARRIVED /**< @short ARRIVED from draft-imap-qresync-arrived-00 */
+    ARRIVED, /**< @short ARRIVED from draft-imap-qresync-arrived-00 */
+    GENURLAUTH /**< @short GENURLAUTH, RFC 4467 */
 }; // aren't those comments just sexy? :)
 
 /** @short Response Code */
@@ -618,6 +619,19 @@ public:
     QList<uint> uids;
     Arrived(const QByteArray &line, int &start);
     Arrived(const QList<uint> uids): AbstractResponse(ARRIVED), uids(uids) {}
+    virtual QTextStream &dump(QTextStream &s) const;
+    virtual bool eq(const AbstractResponse &other) const;
+    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
+    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+};
+
+/** @short The GENURLAUTH response */
+class GenUrlAuth: public AbstractResponse
+{
+public:
+    QString url;
+    GenUrlAuth(const QByteArray &line, int &start);
+    GenUrlAuth(const QString &url): AbstractResponse(GENURLAUTH), url(url) {}
     virtual QTextStream &dump(QTextStream &s) const;
     virtual bool eq(const AbstractResponse &other) const;
     virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;

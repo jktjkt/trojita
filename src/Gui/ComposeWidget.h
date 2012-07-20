@@ -70,6 +70,9 @@ private slots:
     void slotAskForFileAttachment();
     void slotRemoveAttachment();
 
+    void slotAppendUidKnown(const uint uidValidity, const uint uid);
+    void slotGenUrlAuthReceived(const QString &url);
+
 private:
     static QByteArray extractMailAddress(const QString &text, bool &ok);
     void addRecipient(int position, const QString &kind, const QString &address);
@@ -77,11 +80,19 @@ private:
 
     bool buildMessageData();
 
+    static QString killDomainPartFromString(const QString &s);
+
     Ui::ComposeWidget *ui;
     QPushButton *sendButton;
     QPushButton *cancelButton;
     QList<QComboBox *> recipientsKind;
     QList<QLineEdit *> recipientsAddress;
+
+    bool m_appendUidReceived;
+    uint m_appendUidValidity;
+    uint m_appendUid;
+    bool m_genUrlAuthReceived;
+    QString m_urlauth;
 
     MainWindow *m_mainWindow;
 

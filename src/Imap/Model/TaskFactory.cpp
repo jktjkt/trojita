@@ -25,6 +25,7 @@
 #include "ExpungeMailboxTask.h"
 #include "FetchMsgMetadataTask.h"
 #include "FetchMsgPartTask.h"
+#include "GenUrlAuthTask.h"
 #include "GetAnyConnectionTask.h"
 #include "IdTask.h"
 #include "KeepMailboxOpenTask.h"
@@ -169,6 +170,12 @@ SubscribeUnsubscribeTask *TaskFactory::createSubscribeUnsubscribeTask(Model *mod
                                                                       const SubscribeUnsubscribeOperation operation)
 {
     return new SubscribeUnsubscribeTask(model, mailbox, operation);
+}
+
+GenUrlAuthTask *TaskFactory::createGenUrlAuthTask(Model *model, const QString &host, const QString &user, const QString &mailbox,
+                                                  const uint uidValidity, const uint uid, const QString &part, const QString &access)
+{
+    return new GenUrlAuthTask(model, host, user, mailbox, uidValidity, uid, part, access);
 }
 
 

@@ -553,6 +553,14 @@ CommandHandle Parser::enable(const QList<QByteArray> &extensions)
     return queueCommand(cmd);
 }
 
+CommandHandle Parser::genUrlAuth(const QByteArray &url, const QByteArray mechanism)
+{
+    Commands::Command cmd("GENURLAUTH");
+    cmd << Commands::PartOfCommand(Commands::QUOTED_STRING, url);
+    cmd << Commands::PartOfCommand(Commands::ATOM, mechanism);
+    return queueCommand(cmd);
+}
+
 CommandHandle Parser::queueCommand(Commands::Command command)
 {
     CommandHandle tag = generateTag();
@@ -1010,6 +1018,10 @@ QSharedPointer<Responses::AbstractResponse> Parser::parseUntaggedText(
     case Responses::ARRIVED:
         return QSharedPointer<Responses::AbstractResponse>(
                     new Responses::Arrived(line, start));
+    case Responses::GENURLAUTH:
+        return QSharedPointer<Responses::AbstractResponse>(
+                    new Responses::GenUrlAuth(line, start));
+
 
         // Those already handled above follow here
     case Responses::EXPUNGE:

@@ -350,6 +350,7 @@ OutgoingPage::OutgoingPage(QWidget *parent, QSettings &s): QScrollArea(parent), 
     saveToImap->setChecked(s.value(SettingsNames::composerSaveToImapKey, true).toBool());
     // Would be cool to support the special-use mailboxes
     saveFolderName->setText(s.value(SettingsNames::composerImapSentKey, QLatin1String("Sent")).toString());
+    smtpBurl->setChecked(s.value(SettingsNames::smtpUseBurlKey, false).toBool());
 
     connect(method, SIGNAL(currentIndexChanged(int)), this, SLOT(updateWidgets()));
     connect(smtpAuth, SIGNAL(toggled(bool)), this, SLOT(updateWidgets()));
@@ -388,6 +389,8 @@ void OutgoingPage::updateWidgets()
         lay->labelForField(smtpPass)->setEnabled(authEnabled);
         sendmail->setEnabled(false);
         lay->labelForField(sendmail)->setEnabled(false);
+        smtpBurl->setEnabled(saveToImap->isChecked());
+        lay->labelForField(smtpBurl)->setEnabled(saveToImap->isChecked());
         break;
     }
     default:
@@ -407,6 +410,8 @@ void OutgoingPage::updateWidgets()
         lay->labelForField(sendmail)->setEnabled(true);
         if (sendmail->text().isEmpty())
             sendmail->setText(Common::SettingsNames::sendmailDefaultCmd);
+        smtpBurl->setEnabled(false);
+        lay->labelForField(smtpBurl)->setEnabled(false);
     }
     saveFolderName->setEnabled(saveToImap->isChecked());
 }
@@ -438,8 +443,13 @@ void OutgoingPage::save(QSettings &s)
         break;
     }
     s.setValue(SettingsNames::composerSaveToImapKey, saveToImap->isChecked());
-    if (saveToImap->isChecked())
+    if (saveToImap->isChecked()) {
         s.setValue(SettingsNames::composerImapSentKey, saveFolderName->text());
+        s.setValue(SettingsNames::smtpUseBurlKey, smtpBurl->isChecked());
+    } else {
+        // BURL depends on having that message available on IMAP somewhere
+        s.setValue(SettingsNames::smtpUseBurlKey, false);
+    }
 }
 
 #ifdef XTUPLE_CONNECT

@@ -34,7 +34,7 @@ struct SettingsNames {
     static QString imapMethodKey, methodTCP, methodSSL, methodProcess, imapHostKey,
            imapPortKey, imapStartTlsKey, imapUserKey, imapPassKey, imapProcessKey,
            imapStartOffline, imapEnableId, imapSslPemCertificate, imapBlacklistedCapabilities;
-    static QString composerSaveToImapKey, composerImapSentKey;
+    static QString composerSaveToImapKey, composerImapSentKey, smtpUseBurlKey;
     static QString cacheMetadataKey, cacheMetadataMemory, cacheMetadataPersistent,
            cacheOfflineKey, cacheOfflineNone, cacheOfflineXDays, cacheOfflineXMessages,
            cacheOfflineAll, cacheOfflineNumberDaysKey, cacheOfflineNumberMessagesKey;
