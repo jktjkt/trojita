@@ -218,7 +218,7 @@ void ComposeWidget::send()
         progress->setLabelText(tr("Saving message..."));
     }
     // Message uploading through IMAP cannot really be terminated
-    while (appendTask && !appendTask->isFinished()) {
+    while (appendTask && !appendTask->isFinished() && m_mainWindow->isGenUrlAuthSupported()) {
         // FIXME: get rid of this busy wait, eventually
         QCoreApplication::processEvents();
     }

@@ -73,6 +73,7 @@ public:
 
     Imap::Mailbox::Model *imapModel() const;
     bool isCatenateSupported() const;
+    bool isGenUrlAuthSupported() const;
 
 private slots:
     void showContextMenuMboxTree(const QPoint &position);
@@ -240,6 +241,7 @@ private:
 
     bool m_ignoreStoredPassword;
     bool m_supportsCatenate;
+    bool m_supportsGenUrlAuth;
 
     MainWindow(const MainWindow &); // don't implement
     MainWindow &operator=(const MainWindow &); // don't implement
