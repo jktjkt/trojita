@@ -219,6 +219,7 @@ void ComposeWidget::send()
     }
     // Message uploading through IMAP cannot really be terminated
     while (appendTask && !appendTask->isFinished()) {
+        // FIXME: get rid of this busy wait, eventually
         QCoreApplication::processEvents();
     }
     QPointer<Imap::Mailbox::GenUrlAuthTask> genUrlAuthTask;
@@ -237,6 +238,7 @@ void ComposeWidget::send()
                                               ));
         connect(genUrlAuthTask.data(), SIGNAL(gotAuth(QString)), this, SLOT(slotGenUrlAuthReceived(QString)));
         while (genUrlAuthTask && !genUrlAuthTask->isFinished()) {
+            // FIXME: get rid of this busy wait, eventually
             QCoreApplication::processEvents();
         }
     }
@@ -402,6 +404,7 @@ void ComposeWidget::slotRemoveAttachment()
     m_composer->removeAttachment(ui->attachmentsView->currentIndex());
 }
 
+/** @short Remember the APPENDUID as reported by the APPEND operation */
 void ComposeWidget::slotAppendUidKnown(const uint uidValidity, const uint uid)
 {
     m_appendUidValidity = uidValidity;
@@ -413,6 +416,7 @@ void ComposeWidget::slotAppendUidKnown(const uint uidValidity, const uint uid)
     }
 }
 
+/** @short Remember the GENURLAUTH response */
 void ComposeWidget::slotGenUrlAuthReceived(const QString &url)
 {
     m_urlauth = url;
@@ -421,6 +425,7 @@ void ComposeWidget::slotGenUrlAuthReceived(const QString &url)
     }
 }
 
+/** @short Remove the "@domain" from a string */
 QString ComposeWidget::killDomainPartFromString(const QString &s)
 {
     return s.split(QLatin1Char('@'))[0];
