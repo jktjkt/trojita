@@ -106,8 +106,8 @@ private:
     QString mailbox;
     uint uidValidity;
     uint uid;
-    QString trojitaPath;
     QString imapPartId;
+    QString trojitaPath;
 };
 
 /** @short On-disk file */
