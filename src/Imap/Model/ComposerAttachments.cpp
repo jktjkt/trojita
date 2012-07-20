@@ -255,8 +255,8 @@ void ImapMessageAttachmentItem::preload() const
 
 
 ImapPartAttachmentItem::ImapPartAttachmentItem(Model *model, const QString &mailbox, const uint uidValidity, const uint uid,
-                                               const QString &pathToPart):
-    model(model), mailbox(mailbox), uidValidity(uidValidity), uid(uid), pathToPart(pathToPart)
+                                               const QString &pathToPart, const QString &trojitaPath):
+    model(model), mailbox(mailbox), uidValidity(uidValidity), uid(uid), imapPartId(pathToPart), trojitaPath(trojitaPath)
 {
 }
 
@@ -282,7 +282,7 @@ TreeItemPart *ImapPartAttachmentItem::partPtr() const
 
     Q_ASSERT(messages.size() == 1);
 
-    return Imap::Network::MsgPartNetAccessManager::pathToPart(messages.front()->toIndex(model), pathToPart);
+    return Imap::Network::MsgPartNetAccessManager::pathToPart(messages.front()->toIndex(model), trojitaPath);
 }
 
 QString ImapPartAttachmentItem::caption() const
@@ -346,14 +346,7 @@ bool ImapPartAttachmentItem::isAvailableLocally() const
 QByteArray ImapPartAttachmentItem::imapUrl() const
 {
     return QString::fromAscii("/%1;UIDVALIDITY=%2/;UID=%3/;SECTION=%4").arg(
-                QUrl::toPercentEncoding(mailbox), QString::number(uidValidity), QString::number(uid),
-                // The "path" is using Trojita-style convention of being slash-spearated. On the other hand,
-                // rest of the IMAP world uses real IMAP URLs whose paths happen to be unprefixed and use periods instead of
-                // slashes.
-                // I'm clearly here to be blamed for this choice -- I should have used real IMAP URLs from the very beginning.
-                // Thanks to Alexey Melnikov for pointing out that I actually do send garbage here.
-                pathToPart.mid(1).replace(QLatin1String("/"), QLatin1String("."))
-                ).toAscii();
+                QUrl::toPercentEncoding(mailbox), QString::number(uidValidity), QString::number(uid), imapPartId).toAscii();
 }
 
 void ImapPartAttachmentItem::preload() const

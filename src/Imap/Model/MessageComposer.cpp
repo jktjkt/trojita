@@ -111,8 +111,9 @@ bool MessageComposer::dropMimeData(const QMimeData *data, Qt::DropAction action,
         QString mailbox;
         uint uidValidity;
         uint uid;
-        QString pathToPart;
-        stream >> mailbox >> uidValidity >> uid >> pathToPart;
+        QString partId;
+        QString trojitaPath;
+        stream >> mailbox >> uidValidity >> uid >> partId >> trojitaPath;
         Q_ASSERT(stream.atEnd());
 
         TreeItemMailbox *mboxPtr = m_model->findMailboxByName(mailbox);
@@ -121,13 +122,13 @@ bool MessageComposer::dropMimeData(const QMimeData *data, Qt::DropAction action,
             return false;
         }
 
-        if (!uidValidity || !uid || pathToPart.isEmpty()) {
+        if (!uidValidity || !uid || partId.isEmpty()) {
             qDebug() << "drag-and-drop: invalid data";
             return false;
         }
 
         beginInsertRows(QModelIndex(), m_attachments.size(), m_attachments.size());
-        m_attachments << new ImapPartAttachmentItem(m_model, mailbox, uidValidity, uid, pathToPart);
+        m_attachments << new ImapPartAttachmentItem(m_model, mailbox, uidValidity, uid, partId, trojitaPath);
         if (m_shouldPreload)
             m_attachments.back()->preload();
         endInsertRows();
