@@ -35,6 +35,8 @@
 #include "MSA/Sendmail.h"
 #include "MSA/SMTP.h"
 #include "Imap/Model/Model.h"
+#include "Imap/Tasks/AppendTask.h"
+#include "Imap/Tasks/GenUrlAuthTask.h"
 
 namespace
 {
@@ -47,6 +49,7 @@ namespace Gui
 ComposeWidget::ComposeWidget(MainWindow *parent, QAbstractListModel *autoCompleteModel) :
     QWidget(parent, Qt::Window),
     ui(new Ui::ComposeWidget),
+    m_appendUidReceived(false), m_appendUidValidity(0), m_appendUid(0), m_genUrlAuthReceived(false),
     m_mainWindow(parent),
     recipientCompleter(new QCompleter(this))
 {
@@ -137,6 +140,9 @@ void ComposeWidget::send()
     buf.open(QIODevice::WriteOnly);
     QString errorMessage;
 
+    QPointer<Imap::Mailbox::AppendTask> appendTask = 0;
+    m_appendUidReceived = false;
+    m_genUrlAuthReceived = false;
     if (s.value(SettingsNames::composerSaveToImapKey, true).toBool()) {
         Q_ASSERT(m_mainWindow->imapModel());
 
@@ -148,10 +154,12 @@ void ComposeWidget::send()
             }
 
             // FIXME: without UIDPLUS, there isn't much point in $SubmitPending...
-            m_mainWindow->imapModel()->appendIntoMailbox(s.value(SettingsNames::composerImapSentKey, tr("Sent")).toString(),
-                                                         catenateable,
-                                                         QStringList() << QLatin1String("$SubmitPending") << QLatin1String("\\Seen"),
-                                                         m_composer->timestamp());
+            appendTask = QPointer<Imap::Mailbox::AppendTask>(
+                        m_mainWindow->imapModel()->appendIntoMailbox(
+                            s.value(SettingsNames::composerImapSentKey, tr("Sent")).toString(),
+                            catenateable,
+                            QStringList() << QLatin1String("$SubmitPending") << QLatin1String("\\Seen"),
+                            m_composer->timestamp()));
         } else {
             if (!m_composer->asRawMessage(&buf, &errorMessage)) {
                 gotError(tr("Cannot send right now -- saving failed:\n %1").arg(errorMessage));
@@ -159,11 +167,16 @@ void ComposeWidget::send()
             }
 
             // FIXME: without UIDPLUS, there isn't much point in $SubmitPending...
-            m_mainWindow->imapModel()->appendIntoMailbox(s.value(SettingsNames::composerImapSentKey, tr("Sent")).toString(),
-                                                         rawMessageData,
-                                                         QStringList() << QLatin1String("$SubmitPending") << QLatin1String("\\Seen"),
-                                                         m_composer->timestamp());
+            appendTask = QPointer<Imap::Mailbox::AppendTask>(
+                        m_mainWindow->imapModel()->appendIntoMailbox(
+                            s.value(SettingsNames::composerImapSentKey, tr("Sent")).toString(),
+                            rawMessageData,
+                            QStringList() << QLatin1String("$SubmitPending") << QLatin1String("\\Seen"),
+                            m_composer->timestamp()));
         }
+
+        Q_ASSERT(appendTask);
+        connect(appendTask.data(), SIGNAL(appendUid(uint,uint)), this, SLOT(slotAppendUidKnown(uint,uint)));
     }
 
     if (rawMessageData.isEmpty()) {
@@ -197,6 +210,39 @@ void ComposeWidget::send()
     QProgressDialog *progress = new QProgressDialog(
         tr("Sending mail"), tr("Abort"), 0, rawMessageData.size(), this);
     progress->setMinimumDuration(0);
+    progress->setMaximum(3);
+
+    setEnabled(false);
+    progress->setEnabled(true);
+    if (appendTask) {
+        progress->setLabelText(tr("Saving message..."));
+    }
+    // Message uploading through IMAP cannot really be terminated
+    while (appendTask && !appendTask->isFinished()) {
+        QCoreApplication::processEvents();
+    }
+    QPointer<Imap::Mailbox::GenUrlAuthTask> genUrlAuthTask;
+    if (m_appendUidReceived) {
+        progress->setValue(1);
+        progress->setLabelText(tr("Generating IMAP URL..."));
+        genUrlAuthTask = QPointer<Imap::Mailbox::GenUrlAuthTask>(
+                    m_mainWindow->imapModel()->
+                    generateUrlAuthForMessage(m_mainWindow->imapModel(),
+                                              s.value(SettingsNames::imapHostKey).toString(),
+                                              killDomainPartFromString(s.value(SettingsNames::imapUserKey).toString()),
+                                              s.value(SettingsNames::composerImapSentKey, tr("Sent")).toString(),
+                                              m_appendUidValidity, m_appendUid, QString(),
+                                              QString::fromAscii("submit+%1").arg(
+                        killDomainPartFromString(s.value(SettingsNames::smtpUserKey).toString()))
+                                              ));
+        connect(genUrlAuthTask.data(), SIGNAL(gotAuth(QString)), this, SLOT(slotGenUrlAuthReceived(QString)));
+        while (genUrlAuthTask && !genUrlAuthTask->isFinished()) {
+            QCoreApplication::processEvents();
+        }
+    }
+    progress->setLabelText(tr("Sending mail..."));
+    progress->setValue(2);
+
     connect(msa, SIGNAL(progressMax(int)), progress, SLOT(setMaximum(int)));
     connect(msa, SIGNAL(progress(int)), progress, SLOT(setValue(int)));
     connect(msa, SIGNAL(error(QString)), progress, SLOT(close()));
@@ -206,10 +252,12 @@ void ComposeWidget::send()
     connect(progress, SIGNAL(canceled()), msa, SLOT(cancel()));
     connect(msa, SIGNAL(error(QString)), this, SLOT(gotError(QString)));
 
-    setEnabled(false);
-    progress->setEnabled(true);
-
-    msa->sendMail(m_composer->rawFromAddress(), m_composer->rawRecipientAddresses(), rawMessageData);
+    if (m_genUrlAuthReceived && true) {
+        msa->sendBurl(m_composer->rawFromAddress(), m_composer->rawRecipientAddresses(), m_urlauth.toAscii());
+    } else {
+        return;
+        msa->sendMail(m_composer->rawFromAddress(), m_composer->rawRecipientAddresses(), rawMessageData);
+    }
 }
 
 
@@ -352,6 +400,30 @@ void ComposeWidget::slotAskForFileAttachment()
 void ComposeWidget::slotRemoveAttachment()
 {
     m_composer->removeAttachment(ui->attachmentsView->currentIndex());
+}
+
+void ComposeWidget::slotAppendUidKnown(const uint uidValidity, const uint uid)
+{
+    m_appendUidValidity = uidValidity;
+    m_appendUid = uid;
+
+    if (m_appendUid && m_appendUidValidity) {
+        // Only ever consider valid UIDVALIDITY/UID pair
+        m_appendUidReceived = true;
+    }
+}
+
+void ComposeWidget::slotGenUrlAuthReceived(const QString &url)
+{
+    m_urlauth = url;
+    if (!m_urlauth.isEmpty()) {
+        m_genUrlAuthReceived = true;
+    }
+}
+
+QString ComposeWidget::killDomainPartFromString(const QString &s)
+{
+    return s.split(QLatin1Char('@'))[0];
 }
 
 }
