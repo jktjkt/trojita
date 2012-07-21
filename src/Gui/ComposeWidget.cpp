@@ -37,6 +37,7 @@
 #include "Imap/Model/Model.h"
 #include "Imap/Tasks/AppendTask.h"
 #include "Imap/Tasks/GenUrlAuthTask.h"
+#include "Imap/Tasks/UidSubmitTask.h"
 
 namespace
 {
@@ -203,7 +204,7 @@ void ComposeWidget::send()
                             s.value(SettingsNames::smtpAuthKey).toBool(),
                             s.value(SettingsNames::smtpUserKey).toString(),
                             s.value(SettingsNames::smtpPassKey).toString());
-    } else {
+    } else if (method == SettingsNames::methodSENDMAIL) {
         QStringList args = s.value(SettingsNames::sendmailKey, SettingsNames::sendmailDefaultCmd).toString().split(QLatin1Char(' '));
         if (args.isEmpty()) {
             QMessageBox::critical(this, tr("Error"), tr("Please configure the SMTP or sendmail settings in application settings."));
@@ -211,6 +212,11 @@ void ComposeWidget::send()
         }
         QString appName = args.takeFirst();
         msa = new MSA::Sendmail(this, appName, args);
+    } else if (method == SettingsNames::methodImapSendmail) {
+        // no particular preparation needed here
+    } else {
+        QMessageBox::critical(this, tr("Error"), tr("Please configure e-mail delivery method in application settings."));
+        return;
     }
 
     QProgressDialog *progress = new QProgressDialog(
@@ -226,12 +232,34 @@ void ComposeWidget::send()
         progress->setLabelText(tr("Saving message..."));
     }
 
-    while (appendTask && !appendTask->isFinished() && m_mainWindow->isGenUrlAuthSupported()) {
+    while (appendTask && !appendTask->isFinished()) {
         // FIXME: get rid of this busy wait, eventually
         QCoreApplication::processEvents();
     }
+
+    if (method == SettingsNames::methodImapSendmail) {
+        if (!m_appendUidReceived) {
+            QMessageBox::critical(this, tr("Error"), tr("Cannot send over IMAP, APPENDUID failed"));
+            return;
+        }
+        Imap::Mailbox::UidSubmitTask *submitTask = m_mainWindow->imapModel()->sendMailViaUidSubmit(
+                    s.value(SettingsNames::composerImapSentKey, tr("Sent")).toString(), m_appendUidValidity, m_appendUid,
+                    Imap::Mailbox::UidSubmitOptionsList()
+                    );
+        Q_ASSERT(submitTask);
+        connect(submitTask, SIGNAL(completed(ImapTask*)), this, SLOT(sent()));
+        connect(submitTask, SIGNAL(failed(QString)), this, SLOT(gotError(QString)));
+        progress->setLabelText(tr("Sending mail..."));
+        progress->setValue(2);
+        while (submitTask && !submitTask->isFinished()) {
+            QCoreApplication::processEvents();
+        }
+        progress->cancel();
+        return;
+    }
+
     QPointer<Imap::Mailbox::GenUrlAuthTask> genUrlAuthTask;
-    if (m_appendUidReceived && s.value(SettingsNames::smtpUseBurlKey, false).toBool()) {
+    if (m_appendUidReceived && s.value(SettingsNames::smtpUseBurlKey, false).toBool() && m_mainWindow->isGenUrlAuthSupported()) {
         progress->setValue(1);
         progress->setLabelText(tr("Generating IMAP URL..."));
         genUrlAuthTask = QPointer<Imap::Mailbox::GenUrlAuthTask>(
