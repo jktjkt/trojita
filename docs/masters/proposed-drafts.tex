@@ -95,11 +95,42 @@ MUAs~\footnote{Mail User Agents} over IMAP.
 
 \subsection{Competing Proposals}
 
-Over the years, many proposals have appeared trying to accommodate this issue\ldots
+Over the years, many proposals have appeared trying to accommodate this issue.
 
-\todo[inline]{Submission over IMAP}
+The most widely deployed mechanism aiming at bandwidth reduction is the Lemonade extension family \cite{rfc5550}.
+Through the use of IMAP's {\tt CATENATE} \cite{rfc4469} and {\tt URLAUTH} \cite{rfc4467} along with SMTP's BURL
+\cite{rfc4468}, conforming clients can:
+
+\begin{itemize}
+  \item compose a message on the IMAP server's side, reusing any existing data,
+  \item deliver that message over SMTP without having to upload the data.
+\end{itemize}
+
+At the same time, this approach has the following disadvantages:
+
+\begin{itemize}
+  \item a trust relation (at least a limited one) has to exist between the SMTP and IMAP servers,
+  \item both SMTP and IMAP servers have to be properly configured,
+  \item clients still have to maintain a separate SMTP protocol stack,
+  \item an extra connection has to be opened.
+\end{itemize}
+
+Trojitá includes full support for these extensions.  However, because there is {\em no} way of discovering whether the
+IMAP and SMTP daemons ``trust'' each other,~\footnote{The mere presence of the {\tt URLAUTH} capability on the IMAP
+server side and the advertised {\tt BURL} extension by the ESMTP service does not imply that an eventual submission will
+succeed.} Trojitá requires the user to explicitly enable a checkbox in the settings dialog to activate these
+features.~\footnote{The {\tt CATENATE} extension is not subject to this limitation; it will be used whenever the server
+announces its presence, unless the user has explicitly forbidden its usage.  This is equivalent to how Trojitá handles
+any other IMAP extension.}  Using this explicit confirmation is intended to deter bugs like those which have plagued
+other MUA implementations \cite{qmf-fastmail-burl-bug} from affecting Trojitá.  This approach might change in future.
+
+\todo[inline]{Tunelling SMTP}
+
+\todo[inline]{POSTADDRESS}
 
 POSTADDRESS might not work well with Sieve (and other server-side filters),
 http://www.ietf.org/mail-archive/web/imapext/current/msg00828.html
+
+\todo[inline]{My contribution}
 
 \end{document}
