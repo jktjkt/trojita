@@ -57,6 +57,44 @@ section \secref{sec:draft-imap-qresync-arrived}.
 
 \section{Submitting Internet Mail --- the SENDMAIL Extension}
 \label{sec:draft-sendmail}
+
+Message submission is one of the controversial subjects, along the ``imap5'' and ``move messages'' discussions ---
+whenever any of these topics is brought up on the imap-protocol mailing list, an interesting discussion is guaranteed to
+happen.  In this proposal, I have tried to accommodate criticism from many previous review rounds.
+
+The baseline IMAP protocol does not offer any way of e-mail submission.  Mail User Agents willing to send mail are
+supposed to use the (E)SMTP protocol \cite{rfc5321} \cite{rfc2821}, preferably over a dedicated submission service
+\cite{rfc6409}.  This is how most of contemporary e-mail clients (at least those using the IETF standards in contrast
+to the proprietary ones) work, but it also brings along a set of issues.
+
+First of all, the clients have to be {\em properly configured}.  Given that ESMTP and IMAP can be (and often are)
+managed separately, clients have to ask their users for two sets of accounts, one for each type of service.  Client
+programmers are required to implement and test full support for both protocols.  IMAP is doubtlessly the more
+complicated one, exceeding ESMTP both in syntax and semantic, yet adding a requirement for a proper SMTP implementation
+causes a measurable burden on the developers.
+
+Furthermore, network firewalls and other filters along the way have to be properly configured to allow for a reliable
+pass-through for both services \cite{crocker-beep-multi-conns}.  Even though the situation has much improved with a
+dedicated ``Submission'' service \cite{rfc6409} which moved the e-mail submission to a dedicated port to not interfere
+with the traditional SPAM-laden TCP port 25, there are still certain situations where customers cannot use both e-mail
+services, leading to confused support calls \cite{submission-users-suck-smtp-imap}.
+
+In addition to the above, many users wants to store their outgoing e-mail in a separate IMAP mail folder.  This means
+that under typical circumstances, a message being sent has to be uploaded twice over the network, once for IMAP, the
+second time for ESMTP delivery.  In case when a message contains an attachment previously already available on the IMAP
+server, the same data can in fact travel over the network {\em three times} -- at first when being downloaded by the
+IMAP client only to be subsequently sent after the proper MIME encapsulation to the destined ``Sent'' folder, and
+finally over SMTP as usual.  As a last point in this quick list, even in presence of specific extensions, the time
+required to actually {\em establish} a separate connection, setup proper TLS confidentiality and start tunnelling data
+over it is often non-negligible.
+
+All of the above suggests that there are certain benefits in choosing to deliver e-mail messages from
+MUAs~\footnote{Mail User Agents} over IMAP.
+
+\subsection{Competing Proposals}
+
+Over the years, many proposals have appeared trying to accommodate this issue\ldots
+
 \todo[inline]{Submission over IMAP}
 
 POSTADDRESS might not work well with Sieve (and other server-side filters),
