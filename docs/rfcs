@@ -13,6 +13,8 @@ Suported RFCs
 - 3691 Internet Message Access Protocol (IMAP) UNSELECT command
 - 4315 (2359) Internet Message Access Protocol (IMAP) - UIDPLUS extension
 - 4466 Collected Extensions to IMAP4 ABNF
+- 4467 Internet Message Access Protocol (IMAP) - URLAUTH Extension
+- 4468 Message Submission BURL Extension
 - 4469 Internet Message Access Protocol (IMAP) CATENATE Extension
 - 4551 IMAP Extension for Conditional STORE Operation or Quick Flag Changes Resynchronization
 - 4731 IMAP4 Extension to SEARCH Command for Controlling What Kind of Information Is Returned
@@ -58,7 +60,6 @@ Not implemented:
 - 3502 Internet Message Access Protocol (IMAP) - MULTIAPPEND Extension
 - 3503 Message Disposition Notification (MDN) profile for Internet Message Access Protocol (IMAP)
 - 4314 (2086) IMAP4 Access Control List (ACL) Extension
-- 4467 Internet Message Access Protocol (IMAP) - URLAUTH Extension
 - 4549 Synchronization Operations for Disconnected IMAP4 Clients
 - 4959 IMAP Extension for Simple Authentication and Security Layer (SASL) Initial Client Response
 - 5032 WITHIN Search Extension to the IMAP Protocol
@@ -68,7 +69,6 @@ Not implemented:
 - 5259 Internet Message Access Protocol - CONVERT Extension
 - 5464 The IMAP METADATA Extension
 - 5466 IMAP4 Extension for Named Searches (Filters)
-- 5524 Extended URLFETCH for Binary and Converted Parts
 - 5593 Internet Message Access Protocol (IMAP) - URL Access Identifier Extension
 - 5616 Streaming Internet Messaging Attachments
 - 5738 IMAP Support for UTF-8
@@ -79,6 +79,6 @@ Irrelevant stuff:
 - 3656 The Mailbox Update (MUPDATE) Distributed Mailbox Database Protocol
 - 3807 V5.2-User Adaptation Layer (V5UA)
 - 4416 Goals for Internet Messaging to Support Diverse Service Environments
-- 4468 Message Submission BURL Extension
 - 5232 Sieve Email Filtering: Imap4flags Extension
 - 5423 Internet Message Store Events
+- 5524 Extended URLFETCH for Binary and Converted Parts
