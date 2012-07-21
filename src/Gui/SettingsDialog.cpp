@@ -459,7 +459,7 @@ void OutgoingPage::save(QSettings &s)
         s.setValue(SettingsNames::sendmailKey, sendmail->text());
         break;
     case IMAP_SENDMAIL:
-        // nothing required here
+        s.setValue(SettingsNames::msaMethodKey, SettingsNames::methodImapSendmail);
         break;
     }
     s.setValue(SettingsNames::composerSaveToImapKey, saveToImap->isChecked());
