@@ -167,6 +167,7 @@ HEADERS += Parser/Parser.h \
     Model/FindInterestingPart.h \
     Model/MessageComposer.h \
     Model/ComposerAttachments.h \
-    Model/CatenateData.h
+    Model/CatenateData.h \
+    Model/UidSubmitData.h
 
 XtConnect:DEFINES += XTUPLE_CONNECT

@@ -561,13 +561,13 @@ CommandHandle Parser::genUrlAuth(const QByteArray &url, const QByteArray mechani
     return queueCommand(cmd);
 }
 
-CommandHandle Parser::uidSend(const uint uid, const QList<QPair<QByteArray, QVariant> > &submissionOptions)
+CommandHandle Parser::uidSend(const uint uid, const Mailbox::UidSubmitOptionsList &submissionOptions)
 {
     Commands::Command cmd("UID SUBMIT");
     cmd << Commands::PartOfCommand(QByteArray::number(uid));
     if (!submissionOptions.isEmpty()) {
         cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, " (");
-        for (QList<QPair<QByteArray, QVariant> >::const_iterator it = submissionOptions.begin(); it != submissionOptions.end(); ++it) {
+        for (Mailbox::UidSubmitOptionsList::const_iterator it = submissionOptions.begin(); it != submissionOptions.end(); ++it) {
             cmd << Commands::PartOfCommand(Commands::ATOM, it->first);
             switch (it->second.type()) {
             case QVariant::ByteArray:
