@@ -242,10 +242,14 @@ void ComposeWidget::send()
             QMessageBox::critical(this, tr("Error"), tr("Cannot send over IMAP, APPENDUID failed"));
             return;
         }
+        Imap::Mailbox::UidSubmitOptionsList options;
+        options.append(qMakePair<QByteArray,QVariant>("SENDER", m_composer->rawFromAddress()));
+        Q_FOREACH(const QByteArray recipient, m_composer->rawRecipientAddresses()) {
+            options.append(qMakePair<QByteArray,QVariant>("RECIPIENT", recipient));
+        }
         Imap::Mailbox::UidSubmitTask *submitTask = m_mainWindow->imapModel()->sendMailViaUidSubmit(
                     s.value(SettingsNames::composerImapSentKey, tr("Sent")).toString(), m_appendUidValidity, m_appendUid,
-                    Imap::Mailbox::UidSubmitOptionsList()
-                    );
+                    options);
         Q_ASSERT(submitTask);
         connect(submitTask, SIGNAL(completed(ImapTask*)), this, SLOT(sent()));
         connect(submitTask, SIGNAL(failed(QString)), this, SLOT(gotError(QString)));
