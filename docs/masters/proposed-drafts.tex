@@ -19,7 +19,37 @@ on page \pageref{sec:id-manuscripts} and are an integral part of this thesis.
 
 \section{Announcing UIDs of Newly Arriving Messages in QRESYNC: the ARRIVED Extension}
 \label{sec:draft-arrived}
-\todo[inline]{ARRIVED}
+
+The first extension I have implemented addresses a race condition in the {\tt QRESYNC} extension \cite{rfc5162}.  In
+{\tt QRESYNC}, the offset-based {\tt EXPUNGE} responses known from the baseline IMAP protocol are replaced by {\tt
+VANISHED} responses which use UIDs.  Unfortunately, because the {\tt EXISTS} still informs about the number of new
+deliveries only, without including the UIDs, and due to the fact that the IMAP server is explicitly
+allowed~\footnote{{\em``Note that a VANISHED response caused by EXPUNGE, UID EXPUNGE, or messages expunged in other
+connections SHOULD only contain UIDs for messages expunged since the last VANISHED/EXPUNGE response sent for the
+currently opened mailbox or since the mailbox was opened.  That is, servers SHOULD NOT send UIDs for previously expunged
+messages, unless explicitly requested to do so by the UID FETCH (VANISHED) command.''
+
+``Note that client implementors must take care to properly decrement the number of messages in the mailbox even if
+a server violates this last SHOULD or repeats the same UID multiple times in the returned UID set.  In general, this
+means that a client using this extension should either avoid using message numbers entirely, or have a complete mapping
+of UIDs to message sequence numbers for the selected mailbox.''}~\cite[p. 12]{rfc5162} --- in the
+RFC language, {\em SHOULD} means that implementations are suggested to use the recommended behavior, but can deviate
+from that as {\em ``there may exist valid reasons in particular circumstances to ignore a particular item''}
+\cite{rfc2092}.} to include non-existing UIDs in the {\tt VANISHED} responses, a race condition exists where client does
+not know about the full value of the sequence $\rightarrow$ UID mapping, which in turn violates RFC 5162's requirement
+on clients having {\em ``a complete mapping of UIDs to message sequence numbers for the selected mailbox''}.
+
+The proposed extension addresses this issue through the {\tt ARRIVED} response.  At the same time, it improves the
+protocol efficiency by freeing the clients from a requirement to explicitly ask for message UIDs when a new message is
+delivered.
+
+In absence of the {\tt ARRIVED} extension, clients are required to perform an explicit UID rediscovery.  Servers which
+already do not send non-existing UIDs in the {\tt VANISHED} responses will still benefit from implementing the {\tt
+ARRIVED} response as the clients will not have to perform explicit {\tt UID SEARCH} operations on them upon new
+deliveries.
+
+Full text of the proposed extension in the format of an Internet-Draft suitable for IETF submission is included in
+section \secref{sec:draft-imap-qresync-arrived}.
 
 \section{Improving Incremental Threading through Modified INTHREAD}
 \label{sec:draft-inthread-ext}
