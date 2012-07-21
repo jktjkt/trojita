@@ -5,15 +5,17 @@
 
 \chapter{Proposed Extensions}
 
-Previous chapters have shed some light on the complicated world of IMAP and have shown how its limitations have
-affected the users' experience and introduced some of the existing extensions which aim to address some of the
-shortcomings.  There are still quite a few issues which make lives of the client implementors harder than necessary.  At
-this point three extensions are presented which fix race conditions, improve the effectiveness of the protocol or add new
-features which contribute to smoother operation of the e-mail clients.
+Previous chapters have shed some light on the complicated world of IMAP and showed how the protocol limitations affects
+the users' experience.  I have also introduced some of the existing extensions which aim to address many shortcomings.
+There are still quite a few issues which make lives of the client implementors harder than necessary, though.  At this
+point, I present three extensions which fix race conditions, improve the effectiveness of the protocol or add new
+features which contribute to smoother operation of the e-mail clients.  This broad range of changes was selected to
+illustrate that improving IMAP can happen on many different levels.
 
-Internet Drafts are usually prepared in a special system which handles its own document formatting using ASCII art.
-This chapter is therefore purposely very short; the Internet Drafts found in appendix \ref{sec:id-manuscripts} on page
-\pageref{sec:id-manuscripts} are the core part of this thesis.
+Internet Drafts are usually prepared in a special system \cite{rfc-formatting} which handles the required strict
+document formatting using ASCII art.  This chapter is therefore purposely very short, providing only the minimal
+descriptions of the proposed extensions.  The Internet Drafts themselves are found in appendix \ref{sec:id-manuscripts}
+on page \pageref{sec:id-manuscripts} and are an integral part of this thesis.
 
 \section{Announcing UIDs of Newly Arriving Messages in QRESYNC: the ARRIVED Extension}
 \label{sec:draft-arrived}
