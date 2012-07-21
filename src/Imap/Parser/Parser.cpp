@@ -580,6 +580,9 @@ CommandHandle Parser::uidSend(const uint uid, const QList<QPair<QByteArray, QVar
                 }
                 cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, ")");
                 break;
+            case QVariant::Invalid:
+                cmd << Commands::PartOfCommand(Commands::ATOM, "NIL");
+                break;
             default:
                 throw InvalidArgument("Internal error: Malformed data for the UID SEND command.");
             }
