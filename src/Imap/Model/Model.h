@@ -202,7 +202,7 @@ public:
                                   const QDateTime &timestamp);
 
     /** @short Issue the GENURLAUTH command for a specified part/section */
-    GenUrlAuthTask *generateUrlAuthForMessage(Model *model, const QString &host, const QString &user, const QString &mailbox,
+    GenUrlAuthTask *generateUrlAuthForMessage(const QString &host, const QString &user, const QString &mailbox,
                                               const uint uidValidity, const uint uid, const QString &part, const QString &access);
 
     /** @short Send a mail through the UID SEND mechanism */

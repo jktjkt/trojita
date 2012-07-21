@@ -236,8 +236,7 @@ void ComposeWidget::send()
         progress->setLabelText(tr("Generating IMAP URL..."));
         genUrlAuthTask = QPointer<Imap::Mailbox::GenUrlAuthTask>(
                     m_mainWindow->imapModel()->
-                    generateUrlAuthForMessage(m_mainWindow->imapModel(),
-                                              s.value(SettingsNames::imapHostKey).toString(),
+                    generateUrlAuthForMessage(s.value(SettingsNames::imapHostKey).toString(),
                                               killDomainPartFromString(s.value(SettingsNames::imapUserKey).toString()),
                                               s.value(SettingsNames::composerImapSentKey, tr("Sent")).toString(),
                                               m_appendUidValidity, m_appendUid, QString(),
