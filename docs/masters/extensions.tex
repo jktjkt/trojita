@@ -431,14 +431,15 @@ a replacement for {\tt ARRIVED}, but it could not be discovered because the {\tt
 it mandates full server support and doesn't include provisions for partial functionality which would have been enough in
 this case.}
 
-The QRESYNC extension also mandates an interesting mechanism for its activation.  Allegedly due to the backward
-compatibility concerns with the {\tt VANISHED} response, clients have to support the ENABLE extension as well (RFC 5161
-\cite{rfc5161}).  However, under a closer examination it can be demonstrated that backward compatibility is actually not
-an issue here --- compliant clients have to explicitly activate the QRESYNC extension by issuing a specially modified
-{\tt SELECT} or {\tt EXAMINE} command, so it appears that using the {\tt ENABLE} command is not really necessary.  In
-fact, based on the temporal proximity of RFC 5161 and 5162 (dealing with ENABLE and QRESYNC, respectively) and an
-overlap in authorship of these documents, it appears that their designers simply wanted to make use of a mechanism which
-appeared to be possibly useful in future.
+The QRESYNC extension also mandates an interesting mechanism for its activation.  The {\tt SELECT \ldots QRESYNC}
+command does not work when the IMAP client opens a mailbox for the first time --- the client has no cached state, so it
+cannot construct any of the optional arguments to the {\tt QRESYNC} select modifier.  Furthermore, it cannot fabricate a
+proper {\tt HIGHESTMODSEQ} in a safe way -- using value too low would result in needlessly sending a huge number of {\tt
+VANISHED EARLIER} responses, while using a too high value could confuse the server and treat the client as a buggy one.
+This is why a special {\tt ENABLE QRESYNC} command (from the ENABLE extension, RFC~5161 \cite{rfc5161}) is defined to be
+a {\em QRESYNC-enabling command}, activating any necessary {\tt MODSEQ} tracking on the server side.  This requirement
+might be non-obvious at first, for the {\tt SELECT \ldots QRESYNC} on its own should be sufficient to inform the server
+that the client indeed wants to speak QRESYNC.
 
 Unfortunately, there is also a certain uncertainty about the {\tt ENABLE} command --- the errata \#1365 for RFC 5162
 \cite{rfc5162-errata} proposes to add an explicit note that ``(A server MUST respond with a tagged BAD
