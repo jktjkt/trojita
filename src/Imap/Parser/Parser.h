@@ -267,8 +267,8 @@ public slots:
     /** @short GENURLAUTH, RFC 4467 */
     CommandHandle genUrlAuth(const QByteArray &url, const QByteArray mechanism);
 
-    /** @short UID SUBMIT, jkt's draft-imap-sendmail */
-    CommandHandle uidSend(const uint uid, const Mailbox::UidSubmitOptionsList &submissionOptions);
+    /** @short UID SENDMAIL, jkt's draft-imap-sendmail */
+    CommandHandle uidSendmail(const uint uid, const Mailbox::UidSubmitOptionsList &submissionOptions);
 
     void slotSocketStateChanged(const Imap::ConnectionState connState, const QString &message);
 

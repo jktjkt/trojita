@@ -53,7 +53,7 @@ void UidSubmitTask::perform()
         return;
     }
 
-    tag = parser->uidSend(m_uid, m_options);
+    tag = parser->uidSendmail(m_uid, m_options);
 }
 
 bool UidSubmitTask::handleStateHelper(const Imap::Responses::State *const resp)

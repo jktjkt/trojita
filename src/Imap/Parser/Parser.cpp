@@ -561,9 +561,9 @@ CommandHandle Parser::genUrlAuth(const QByteArray &url, const QByteArray mechani
     return queueCommand(cmd);
 }
 
-CommandHandle Parser::uidSend(const uint uid, const Mailbox::UidSubmitOptionsList &submissionOptions)
+CommandHandle Parser::uidSendmail(const uint uid, const Mailbox::UidSubmitOptionsList &submissionOptions)
 {
-    Commands::Command cmd("UID SUBMIT");
+    Commands::Command cmd("UID SENDMAIL");
     cmd << Commands::PartOfCommand(QByteArray::number(uid));
     if (!submissionOptions.isEmpty()) {
         cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, " (");
