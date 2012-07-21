@@ -1,5 +1,5 @@
 
-/* Copyright (C) 2006 - 2011 Jan Kundrát <jkt@gentoo.org>
+/* Copyright (C) 2006 - 2012 Jan Kundrát <jkt@flaska.net>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/

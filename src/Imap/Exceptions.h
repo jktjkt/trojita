@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 Jan Kundrát <jkt@gentoo.org>
+/* Copyright (C) 2006 - 2012 Jan Kundrát <jkt@flaska.net>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -31,7 +31,7 @@
  * All IMAP-related exceptions inherit from Imap::Exception which inherits from
  * std::exception.
  *
- * @author Jan Kundrát <jkt@gentoo.org>
+ * @author Jan Kundrát <jkt@flaska.net>
  */
 
 /** @short Namespace for IMAP interaction */
