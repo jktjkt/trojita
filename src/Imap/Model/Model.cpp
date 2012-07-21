@@ -1815,6 +1815,12 @@ GenUrlAuthTask *Model::generateUrlAuthForMessage(Model *model, const QString &ho
     return m_taskFactory->createGenUrlAuthTask(model, host, user, mailbox, uidValidity, uid, part, access);
 }
 
+UidSubmitTask *Model::sendMailViaUidSubmit(const QString &mailbox, const uint uidValidity, const uint uid,
+                                           const UidSubmitOptionsList &options)
+{
+    return m_taskFactory->createUidSubmitTask(this, mailbox, uidValidity, uid, options);
+}
+
 #ifdef TROJITA_DEBUG_TASK_TREE
 #define TROJITA_DEBUG_TASK_TREE_VERBOSE
 void Model::checkTaskTreeConsistency()

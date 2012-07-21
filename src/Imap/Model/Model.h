@@ -205,6 +205,10 @@ public:
     GenUrlAuthTask *generateUrlAuthForMessage(Model *model, const QString &host, const QString &user, const QString &mailbox,
                                               const uint uidValidity, const uint uid, const QString &part, const QString &access);
 
+    /** @short Send a mail through the UID SEND mechanism */
+    UidSubmitTask *sendMailViaUidSubmit(const QString &mailbox, const uint uidValidity, const uint uid,
+                                        const UidSubmitOptionsList &options);
+
 
     /** @short Returns true if we are allowed to access the network */
     bool isNetworkAvailable() const { return m_netPolicy != NETWORK_OFFLINE; }
