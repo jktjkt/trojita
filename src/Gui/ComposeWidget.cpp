@@ -213,6 +213,10 @@ void ComposeWidget::send()
         QString appName = args.takeFirst();
         msa = new MSA::Sendmail(this, appName, args);
     } else if (method == SettingsNames::methodImapSendmail) {
+        if (!m_mainWindow->isImapSubmissionSupported()) {
+            QMessageBox::critical(this, tr("Error"), tr("The IMAP server does not support mail submission. Please reconfigure the application."));
+            return;
+        }
         // no particular preparation needed here
     } else {
         QMessageBox::critical(this, tr("Error"), tr("Please configure e-mail delivery method in application settings."));
