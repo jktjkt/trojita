@@ -29,6 +29,7 @@ QString SettingsNames::msaMethodKey = QLatin1String("msa.method");
 QString SettingsNames::methodSMTP = QLatin1String("SMTP");
 QString SettingsNames::methodSSMTP = QLatin1String("SSMTP");
 QString SettingsNames::methodSENDMAIL = QLatin1String("sendmail");
+QString SettingsNames::methodImapSendmail = QLatin1String("IMAP-SENDMAIL");
 QString SettingsNames::smtpHostKey = QLatin1String("msa.smtp.host");
 QString SettingsNames::smtpPortKey = QLatin1String("msa.smtp.port");
 QString SettingsNames::smtpAuthKey = QLatin1String("msa.smtp.auth");
