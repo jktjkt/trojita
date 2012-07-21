@@ -443,6 +443,7 @@ private:
     friend class AppendTask;
     friend class SubscribeUnsubscribeTask;
     friend class GenUrlAuthTask;
+    friend class UidSubmitTask;
 
     friend class TestingTaskFactory; // needs access to socketFactory
 
