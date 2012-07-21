@@ -181,6 +181,61 @@ filtering \cite{postaddress-sieve}.  As of July 2012, this idea appears to have 
 
 \subsection{The SENDMAIL Extension}
 
-\todo[inline]{My contribution}
+In mid 2011, a few requests for e-mail submission over IMAP have appeared on the {\tt imap5} mailing list
+\cite{brong-imap5-list-of-ideas} (with the expected outcome of calling names \cite{crispin-brong-you-suck-useless}).
+The idea presented by proponents of the ``submit mail over IMAP'' camp appeared to be that:
+
+\begin{enumerate}
+  \item Using two protocols ``for e-mail'' is a significant source of support requests for large service providers.
+  \item The IETF-approved approach to the ``forward-without-download'', i.e. the {\tt URLAUTH} and {\tt BURL}
+    extensions, are not widely deployed.  They are also notoriously hard to implement and deploy for server vendors and
+    system integrators.
+  \item Extending IMAP to allow for message submission simplifies the number of authorization channels.
+  \item Handling the ``common case'' in an efficient manner outweighs the drawback of enabling a second e-mail
+    submission protocol.
+\end{enumerate}
+
+Based on the said discussion, it appears that there is a strong demand for having ``such a feature'' in IMAP.  I've
+therefore read through various mailing list archives, studied previous iterations of the discussion and tried to address
+many issues which were previously considered to be a blocking issue (like the apparent need to rewrite message bodies
+when dealing with blind-carbon-copies (the {\tt Bcc} headers), having to scan message contents unconditionally, or a
+lack of delivery status notification (DSN) control).  The extension which I propose as a part of this thesis has the
+following advantages:
+
+\begin{enumerate}
+  \item It removes the need for clients to speak both ESMTP and IMAP protocols.
+  \item It reduces the amount of account details to ask users for.
+  \item Whole communication is performed over a single connection, eliminating a significant cause of support requests.
+  \item All features can be implemented as a thin wrapper over a {\tt sendmail}-compatible binary which is nowadays
+    shipped by most MTAs.
+  \item Messages can be submitted using a single round trip once stored on the server.
+  \item The extension plays well with {\tt CATENATE}.
+  \item Further ESMTP extensions can be trivially integrated through IMAP capabilities.
+\end{enumerate}
+
+The extension proposes a single IMAP command, the {\tt UID SENDMAIL}.  This commands accepts a reference to an already
+existing message to be sent along with a complimentary list of submission options.  This list is intended to serve as a
+substitute to the missing ESMTP envelope; in the initial version, clients can use it to specify senders and receivers or
+for control of the DSN options.  The command is also ready for future extensibility; other options can be easily added
+to the specification when further ESMTP extensions are defined.
+
+A typical conversation with a {\tt SENDMAIL}-capable IMAP server can therefore look similar to the following (note that
+white space has been added to the {\tt UID SENDMAIL} command for clarity):
+
+\begin{minted}{text}
+  C: x UID SENDMAIL 123 (FROM "foo@example.org"
+        SENDER "bar@example.org"
+        RECIPIENT "a@example.org"
+        RECIPIENT "b@example.org"
+        DSN (delay failure)
+      )
+  S: * 10 FETCH (UID 123 FLAGS (\$Submitted))
+  S: x OK Message passed to the sendmail binary
+\end{minted}
+
+Changing Trojitá to support e-mail delivery via the proposed extension was just a matter of plugging another
+implementation of its abstract MSA~\footnote{Mail Submission Agent} interface.
+
+Full text of this specification is available in section \secref{sec:draft-imap-sendmail}.
 
 \end{document}
