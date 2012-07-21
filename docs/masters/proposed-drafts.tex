@@ -97,6 +97,8 @@ MUAs~\footnote{Mail User Agents} over IMAP.
 
 Over the years, many proposals have appeared trying to accommodate this issue.
 
+\subsubsection{The ``Lemonade Trio''}
+
 The most widely deployed mechanism aiming at bandwidth reduction is the Lemonade extension family \cite{rfc5550}.
 Through the use of IMAP's {\tt CATENATE} \cite{rfc4469} and {\tt URLAUTH} \cite{rfc4467} along with SMTP's BURL
 \cite{rfc4468}, conforming clients can:
@@ -122,14 +124,62 @@ succeed.} Trojitá requires the user to explicitly enable a checkbox in the sett
 features.~\footnote{The {\tt CATENATE} extension is not subject to this limitation; it will be used whenever the server
 announces its presence, unless the user has explicitly forbidden its usage.  This is equivalent to how Trojitá handles
 any other IMAP extension.}  Using this explicit confirmation is intended to deter bugs like those which have plagued
-other MUA implementations \cite{qmf-fastmail-burl-bug} from affecting Trojitá.  This approach might change in future.
+other MUA implementations \cite{qmf-fastmail-burl-bug} from affecting Trojitá.  This implementation might change in
+future.
 
-\todo[inline]{Tunelling SMTP}
+\subsubsection{Tunneling SMTP inside IMAP}
 
-\todo[inline]{POSTADDRESS}
+A second approach in which the IETF community and related researchers have tried to tackle down the e-mail submission
+was via actually tunneling the real ESMTP session through the IMAP protocol \cite[p. 30]{draft-maes-lemonade-p-imap}.
+This approach removes the burden of establishing a second connection, but retains the required complexity of having to
+ship and test a full ESMTP client stack.  This approach is {\em by definition} as flexible as any future ESMTP extension
+and does not require any changes on the (ESMTP) server side (besides support for SMTP pipelining \cite{rfc2920}), with
+only a limited amount of modifications for the IMAP clients.  On the other hand, the requirement to tunnel a second
+protocol through IMAP adds a lot of complexity to their interaction and it appears that either the IMAP daemon or the
+SMTP server has to include support for BURL nonetheless.  One has to wonder if the ESMTP serialization, no matter how
+useful when speaking ESMTP, can be replaced with something terser.  Consider the following example from the proposed
+draft:
 
-POSTADDRESS might not work well with Sieve (and other server-side filters),
-http://www.ietf.org/mail-archive/web/imapext/current/msg00828.html
+\begin{minted}{text}
+  C: a004 XDELIVER CAPABILITY
+  S: * XDELIVER CAPABILITY (8BITMIME EXPN HELP)
+  C: a005 XDELIVER TEXT {123+}
+  C: EHLO
+  C: MAIL FROM: john@smith.com
+  C: RCPT TO: mooch@owatagu.siam.edu
+  C: DATA
+  C: URL /Inbox;UIDVALIDITY=9999/;UID=33;Section=BODY
+  .
+  S: * XDELIVER {321}
+  S: 220 mail.metastructure.net ESMTP
+  S: 250-mail.metastructure.net
+  S: 250-AUTH LOGIN CRAM-MD5 PLAIN
+  S: 250-AUTH=LOGIN CRAM-MD5 PLAIN
+  S: 250-PIPELINING
+  S: 250 8BITMIME
+  S: 250 ok
+  S: 250 ok
+  S: 354 go ahead
+  S: 250 ok 1126337586 qp 28229
+\end{minted}
+
+This communication is indeed rather verbose.  The same result is achieved in a clearer way through the {\tt UID SUBMIT}
+command I propose later in this chapter.
+
+No known deployments of these drafts exist and no further standardization process has been observed on the relevant
+mailing lists.
+
+\subsubsection{The POSTADDRESS Draft}
+
+For the sake of completeness, one should also mention the {\tt POSTADDRESS} draft
+\cite{draft-melnikov-imap-postaddress}.  This extension tried to provide a way for servers to announce an Internet
+e-mail address for each mailbox which could act as the ``Sent'' folder.  The idea behind this proposal was that clients
+should obtain this e-mail address and include it in the {\tt Bcc} field of the outgoing e-mail messages.  Doing so would
+facilitate the same result as the {\tt APPEND} command, but without having to send the data explicitly.  Drawbacks of
+this method included privacy concerns and the fact that this extension might not work with Sieve or other server-side
+filtering \cite{postaddress-sieve}.
+
+\subsection{The SENDMAIL Extension}
 
 \todo[inline]{My contribution}
 
