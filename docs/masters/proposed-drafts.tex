@@ -68,16 +68,18 @@ supposed to use the (E)SMTP protocol \cite{rfc5321} \cite{rfc2821}, preferably o
 to the proprietary ones) work, but it also brings along a set of issues.
 
 First of all, the clients have to be {\em properly configured}.  Given that ESMTP and IMAP can be (and often are)
-managed separately, clients have to ask their users for two sets of accounts, one for each type of service.  Client
-programmers are required to implement and test full support for both protocols.  IMAP is doubtlessly the more
-complicated one, exceeding ESMTP both in syntax and semantic, yet adding a requirement for a proper SMTP implementation
-causes a measurable burden on the developers.
+managed separately, clients have to ask their users for two sets of accounts, one for each type of service.  Proposals
+exist trying to eliminate much of this complexity, especially through the DNS system \cite{rfc6186} or via non-standard
+mechanisms like those proposed by Mozilla \cite{mozilla-ispdb} --- but as usual, these mechanisms often cover only a
+subset of service providers.  Client programmers are required to implement and test full support for both protocols.
+IMAP is doubtlessly the more complicated one, exceeding ESMTP both in syntax and semantic, yet adding a requirement for
+a proper SMTP implementation causes a measurable burden on the developers.
 
 Furthermore, network firewalls and other filters along the way have to be properly configured to allow for a reliable
 pass-through for both services \cite{crocker-beep-multi-conns}.  Even though the situation has much improved with a
 dedicated ``Submission'' service \cite{rfc6409} which moved the e-mail submission to a dedicated port to not interfere
 with the traditional SPAM-laden TCP port 25, there are still certain situations where customers cannot use both e-mail
-services, leading to confused support calls \cite{submission-users-suck-smtp-imap}.
+services, leading to confused support calls \cite{submission-users-suck-smtp-imap} \cite{panozzo-submission-users-suck}.
 
 In addition to the above, many users wants to store their outgoing e-mail in a separate IMAP mail folder.  This means
 that under typical circumstances, a message being sent has to be uploaded twice over the network, once for IMAP, the
