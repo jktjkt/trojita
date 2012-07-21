@@ -1809,10 +1809,16 @@ AppendTask *Model::appendIntoMailbox(const QString &mailbox, const QList<Catenat
     return m_taskFactory->createAppendTask(this, mailbox, data, flags, timestamp);
 }
 
-GenUrlAuthTask *Model::generateUrlAuthForMessage(Model *model, const QString &host, const QString &user, const QString &mailbox,
+GenUrlAuthTask *Model::generateUrlAuthForMessage(const QString &host, const QString &user, const QString &mailbox,
                                                  const uint uidValidity, const uint uid, const QString &part, const QString &access)
 {
-    return m_taskFactory->createGenUrlAuthTask(model, host, user, mailbox, uidValidity, uid, part, access);
+    return m_taskFactory->createGenUrlAuthTask(this, host, user, mailbox, uidValidity, uid, part, access);
+}
+
+UidSubmitTask *Model::sendMailViaUidSubmit(const QString &mailbox, const uint uidValidity, const uint uid,
+                                           const UidSubmitOptionsList &options)
+{
+    return m_taskFactory->createUidSubmitTask(this, mailbox, uidValidity, uid, options);
 }
 
 #ifdef TROJITA_DEBUG_TASK_TREE

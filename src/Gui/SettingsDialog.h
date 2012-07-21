@@ -64,7 +64,7 @@ protected:
     virtual void resizeEvent(QResizeEvent *event);
 
 private:
-    enum { SMTP, SSMTP, SENDMAIL };
+    enum { SMTP, SSMTP, SENDMAIL, IMAP_SENDMAIL };
 
 private slots:
     void updateWidgets();

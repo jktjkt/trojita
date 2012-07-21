@@ -34,6 +34,7 @@
 #include "NumberOfMessagesTask.h"
 #include "ObtainSynchronizedMailboxTask.h"
 #include "OpenConnectionTask.h"
+#include "UidSubmitTask.h"
 #include "UpdateFlagsTask.h"
 #include "ThreadTask.h"
 #include "NoopTask.h"
@@ -177,7 +178,11 @@ GenUrlAuthTask *TaskFactory::createGenUrlAuthTask(Model *model, const QString &h
 {
     return new GenUrlAuthTask(model, host, user, mailbox, uidValidity, uid, part, access);
 }
-
+UidSubmitTask *TaskFactory::createUidSubmitTask(Model *model, const QString &mailbox, const uint uidValidity, const uint uid,
+                                                const UidSubmitOptionsList &submitOptions)
+{
+    return new UidSubmitTask(model, mailbox, uidValidity, uid, submitOptions);
+}
 
 TestingTaskFactory::TestingTaskFactory(): TaskFactory(), fakeOpenConnectionTask(false), fakeListChildMailboxes(false)
 {

@@ -75,6 +75,7 @@ SOURCES += Parser/Parser.cpp \
     Tasks/AppendTask.cpp \
     Tasks/SubscribeUnsubscribeTask.cpp \
     Tasks/GenUrlAuthTask.cpp \
+    Tasks/UidSubmitTask.cpp \
     Model/ModelWatcher.cpp \
     Network/MsgPartNetworkReply.cpp \
     Network/ForbiddenReply.cpp \
@@ -153,6 +154,7 @@ HEADERS += Parser/Parser.h \
     Tasks/AppendTask.h \
     Tasks/SubscribeUnsubscribeTask.h \
     Tasks/GenUrlAuthTask.h \
+    Tasks/UidSubmitTask.h \
     Model/ModelWatcher.h \
     Network/ForbiddenReply.h \
     Network/MsgPartNetAccessManager.h \
@@ -167,6 +169,7 @@ HEADERS += Parser/Parser.h \
     Model/FindInterestingPart.h \
     Model/MessageComposer.h \
     Model/ComposerAttachments.h \
-    Model/CatenateData.h
+    Model/CatenateData.h \
+    Model/UidSubmitData.h
 
 XtConnect:DEFINES += XTUPLE_CONNECT

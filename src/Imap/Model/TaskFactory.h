@@ -26,6 +26,7 @@
 #include "CopyMoveOperation.h"
 #include "FlagsOperation.h"
 #include "SubscribeUnSubscribeOperation.h"
+#include "UidSubmitData.h"
 
 namespace Imap
 {
@@ -56,6 +57,7 @@ class UnSelectTask;
 class SortTask;
 class SubscribeUnsubscribeTask;
 class GenUrlAuthTask;
+class UidSubmitTask;
 
 class Model;
 class TreeItemMailbox;
@@ -99,6 +101,8 @@ public:
                                                                      const SubscribeUnsubscribeOperation operation);
     virtual GenUrlAuthTask *createGenUrlAuthTask(Model *model, const QString &host, const QString &user, const QString &mailbox,
                                                  const uint uidValidity, const uint uid, const QString &part, const QString &access);
+    virtual UidSubmitTask *createUidSubmitTask(Model *model, const QString &mailbox, const uint uidValidity, const uint uid,
+                                               const UidSubmitOptionsList &submitOptions);
 };
 
 class TestingTaskFactory: public TaskFactory

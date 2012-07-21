@@ -333,10 +333,16 @@ OutgoingPage::OutgoingPage(QWidget *parent, QSettings &s): QScrollArea(parent), 
     method->insertItem(0, tr("SMTP"), QVariant(SMTP));
     method->insertItem(1, tr("Secure SMTP"), QVariant(SSMTP));
     method->insertItem(2, tr("Local sendmail-compatible"), QVariant(SENDMAIL));
-    if (QSettings().value(SettingsNames::msaMethodKey).toString() == SettingsNames::methodSMTP) {
+    method->insertItem(3, tr("IMAP SENDMAIL Extension"), QVariant(IMAP_SENDMAIL));
+    QString selectedMethod = s.value(SettingsNames::msaMethodKey).toString();
+    if (selectedMethod == SettingsNames::methodSMTP) {
         method->setCurrentIndex(0);
-    } else {
+    } else if (selectedMethod == SettingsNames::methodSSMTP) {
         method->setCurrentIndex(1);
+    } else if (selectedMethod == SettingsNames::methodSENDMAIL) {
+        method->setCurrentIndex(2);
+    } else if (selectedMethod == SettingsNames::methodImapSendmail) {
+        method->setCurrentIndex(3);
     }
 
     smtpHost->setText(s.value(SettingsNames::smtpHostKey).toString());
@@ -393,7 +399,8 @@ void OutgoingPage::updateWidgets()
         lay->labelForField(smtpBurl)->setEnabled(saveToImap->isChecked());
         break;
     }
-    default:
+    case SENDMAIL:
+    case IMAP_SENDMAIL:
         smtpHost->setEnabled(false);
         lay->labelForField(smtpHost)->setEnabled(false);
         smtpPort->setEnabled(false);
@@ -406,10 +413,20 @@ void OutgoingPage::updateWidgets()
         lay->labelForField(smtpUser)->setEnabled(false);
         smtpPass->setEnabled(false);
         lay->labelForField(smtpPass)->setEnabled(false);
-        sendmail->setEnabled(true);
-        lay->labelForField(sendmail)->setEnabled(true);
-        if (sendmail->text().isEmpty())
-            sendmail->setText(Common::SettingsNames::sendmailDefaultCmd);
+        if (smtpMethod == SENDMAIL) {
+            sendmail->setEnabled(true);
+            lay->labelForField(sendmail)->setEnabled(true);
+            if (sendmail->text().isEmpty())
+                sendmail->setText(Common::SettingsNames::sendmailDefaultCmd);
+            saveToImap->setEnabled(true);
+            lay->labelForField(saveToImap)->setEnabled(true);
+        } else {
+            sendmail->setEnabled(false);
+            lay->labelForField(sendmail)->setEnabled(false);
+            saveToImap->setChecked(true);
+            saveToImap->setEnabled(false);
+            lay->labelForField(saveToImap)->setEnabled(false);
+        }
         smtpBurl->setEnabled(false);
         lay->labelForField(smtpBurl)->setEnabled(false);
     }
@@ -437,9 +454,12 @@ void OutgoingPage::save(QSettings &s)
         s.setValue(SettingsNames::smtpUserKey, smtpUser->text());
         s.setValue(SettingsNames::smtpPassKey, smtpPass->text());
         break;
-    default:
+    case SENDMAIL:
         s.setValue(SettingsNames::msaMethodKey, SettingsNames::methodSENDMAIL);
         s.setValue(SettingsNames::sendmailKey, sendmail->text());
+        break;
+    case IMAP_SENDMAIL:
+        s.setValue(SettingsNames::msaMethodKey, SettingsNames::methodImapSendmail);
         break;
     }
     s.setValue(SettingsNames::composerSaveToImapKey, saveToImap->isChecked());

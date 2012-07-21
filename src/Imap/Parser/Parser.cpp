@@ -561,6 +561,37 @@ CommandHandle Parser::genUrlAuth(const QByteArray &url, const QByteArray mechani
     return queueCommand(cmd);
 }
 
+CommandHandle Parser::uidSend(const uint uid, const Mailbox::UidSubmitOptionsList &submissionOptions)
+{
+    Commands::Command cmd("UID SUBMIT");
+    cmd << Commands::PartOfCommand(QByteArray::number(uid));
+    if (!submissionOptions.isEmpty()) {
+        cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, " (");
+        for (Mailbox::UidSubmitOptionsList::const_iterator it = submissionOptions.begin(); it != submissionOptions.end(); ++it) {
+            cmd << Commands::PartOfCommand(Commands::ATOM, it->first);
+            switch (it->second.type()) {
+            case QVariant::ByteArray:
+                cmd << Commands::PartOfCommand(it->second.toByteArray());
+                break;
+            case QVariant::List:
+                cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, " (");
+                Q_FOREACH(const QVariant &item, it->second.toList()) {
+                    cmd << Commands::PartOfCommand(Commands::ATOM, item.toByteArray());
+                }
+                cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, ")");
+                break;
+            case QVariant::Invalid:
+                cmd << Commands::PartOfCommand(Commands::ATOM, "NIL");
+                break;
+            default:
+                throw InvalidArgument("Internal error: Malformed data for the UID SEND command.");
+            }
+        }
+        cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, ")");
+    }
+    return queueCommand(cmd);
+}
+
 CommandHandle Parser::queueCommand(Commands::Command command)
 {
     CommandHandle tag = generateTag();

@@ -100,6 +100,8 @@ QTextStream &operator<<(QTextStream &stream, const Code &r)
         CASE(OVERQUOTA);
         CASE(ALREADYEXISTS);
         CASE(NONEXISTENT);
+        CASE(POLICYDENIED);
+        CASE(SUBMISSIONRACE);
     }
     return stream;
 #undef CASE
@@ -371,6 +373,8 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
         CASE(OVERQUOTA)
         CASE(ALREADYEXISTS)
         CASE(NONEXISTENT)
+        CASE(POLICYDENIED)
+        CASE(SUBMISSIONRACE)
         else
             respCode = Responses::ATOM;
 
@@ -411,6 +415,8 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
         case Responses::BADCOMPARATOR:
         case Responses::TEMPFAIL:
         case Responses::NOTIFICATIONOVERFLOW:
+        case Responses::POLICYDENIED:
+        case Responses::SUBMISSIONRACE:
             // check for "no more stuff"
             if (_list.count())
                 throw InvalidResponseCode("Got a response code with extra data inside the brackets",
