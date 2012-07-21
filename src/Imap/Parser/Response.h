@@ -189,7 +189,11 @@ enum Code {
     LIMIT /**< LIMIT from RFC 5530 */,
     OVERQUOTA /**< OVERQUOTA from RFC 5530 */,
     ALREADYEXISTS /**< ALREADYEXISTS from RFC 5530 */,
-    NONEXISTENT /**< NONEXISTENT from RFC 5530 */
+    NONEXISTENT /**< NONEXISTENT from RFC 5530 */,
+
+    // draft-imap-sendmail by yours truly
+    POLICYDENIED,
+    SUBMISSIONRACE
 
 }; // luvly comments, huh? :)
 
