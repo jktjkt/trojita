@@ -41,7 +41,9 @@ SOURCES += \
     TagWidget.cpp \
     UserAgentWebPage.cpp \
     MessageListWidget.cpp \
-    MailBoxTreeView.cpp
+    MailBoxTreeView.cpp \
+    LocalAddressbook.cpp \
+    AbookAddressbook.cpp
 HEADERS += \
     ../Imap/Model/ModelTest/modeltest.h \
     ComposeWidget.h \
@@ -68,7 +70,10 @@ HEADERS += \
     TagWidget.h \
     UserAgentWebPage.h \
     MessageListWidget.h \
-    MailBoxTreeView.h
+    MailBoxTreeView.h \
+    AbstractAddressbook.h \
+    LocalAddressbook.h \
+    AbookAddressbook.h
 FORMS += CreateMailboxDialog.ui \
     ComposeWidget.ui \
     SettingsImapPage.ui \
