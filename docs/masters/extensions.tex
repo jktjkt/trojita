@@ -6,9 +6,12 @@
 \chapter{IMAP Extensions}
 \label{sec:imap-extensions}
 
-It might be concluded from the brief analysis presented in the previous chapter that a few feature of IMAP are rather
-limiting in its real-world deployment.  Fortunately, the IMAP protocol includes built-in support of extensions which
-allow rather substantial changes to the network communication.
+It might be concluded from the brief analysis presented in the previous chapter that certain features of the IMAP
+protocol are rather limiting in its real-world deployment.  Fortunately, IMAP was designed to include support for
+extensions which allow rather substantial changes to its mode of operation.  Throughout this chapter, I provide a
+detailed analysis of opportunities where the baseline IMAP protocol leaves something to be desired.  Many such gaps have
+been addressed by various extensions over the last twenty years; these extensions are thoroughly explained and evaluated
+on their merits.  Information about their support in Trojitá is also included.
 
 \section{Optimizing the Protocol}
 
