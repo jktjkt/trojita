@@ -1506,7 +1506,7 @@ void MainWindow::slotCapabilitiesUpdated(const QStringList &capabilities)
     m_supportsCatenate = capabilities.contains(QLatin1String("CATENATE"));
     m_supportsGenUrlAuth = capabilities.contains(QLatin1String("URLAUTH"));
     m_supportsImapSubmission = capabilities.contains(QLatin1String("UIDPLUS")) &&
-            capabilities.contains(QLatin1String("X-DRAFT-I00-SENDMAIL"));
+            capabilities.contains(QLatin1String("X-DRAFT-I01-SENDMAIL"));
 
     const QStringList supportedCapabilities = Imap::Mailbox::ThreadingMsgListModel::supportedCapabilities();
     Q_FOREACH(const QString &capability, capabilities) {
