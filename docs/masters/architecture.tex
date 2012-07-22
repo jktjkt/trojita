@@ -5,9 +5,49 @@
 
 \chapter{Trojitá's Architecture}
 
+This chapter provides a brief introduction to the architecture of Trojitá from a programmer's point of view.
+
+\section{Overview of Components}
 \todo[inline]{Talk about the internal structure of Trojita --- the Model, Tasks, proxy models}
+
+Trojitá makes heavy use of certain idioms common in Qt programming and in object-oriented software development in
+general.
+
+At the highest layer lies to GUI, graphical code managing the actual user interaction.  This code contains no knowledge
+of IMAP or any other e-mail protocol; it is simply a graphical presentation layer specific to the desktop version of
+Trojitá.  In the releases intended for mobile platforms, the traditional {\tt QWidget}-based GUI is replaced by a
+variant built on top of Qt's QML \cite{qml}, a framework especially suited for touch-centric design.
+
+Any interaction with IMAP is initiated through the model-view framework \cite{qt-mvc}.  A core class encapsulating a
+representation of a single IMAP server, the {\tt Model} class, is accompanied by various proxy models and other
+utilities to segregate and transform the data into better shape suitable for the upper layers.
+
+Any action which shall take effect is, however, not performed by any of the model-related classes.  Trojitá utilizes the
+concept of {\em tasks}, a set of single-purpose classes each serving a distinct role.  Examples of such tasks are
+``obtain a connection'', ``synchronize a mailbox'', ``download a message'' or ``update message flags''.
+
+One layer below the Tasks, the Parser is located.  This class along with its support tools converts data between a
+byte stream from/to the network and higher-level commands and responses which are utilized by the upper
+layers.  Actual network I/O operations are handled through a thin wrapper around Qt's own {\tt QIODevice} called {\tt
+Streams}.~\footnote{The {\tt QIODevice} is wrapped to allow for transparent compression using the deflate algorithm.  Due
+to the historic reasons, the {\tt Stream} subclasses use has-a over the is-a approach; this was required back when
+Trojitá shipped IO implementations not based on the {\tt QIODevice} class.}
+
+\subsection{Handling Input/Output}
+
+\subsection{The Concept of Tasks}
+
+The Tasks are designed to collaborate with each other, and there is a network of dependencies on how they can be used,
+so that \ldots
+
+\subsection{Models and Proxies}
+
+\section{The Mobile Version}
 \todo[inline]{Also mention the version usable on cell phones}
 
+\section{Regression Testing}
+\todo[inline]{Time for a shameless plug about the test suite}
 \todo[inline]{Mention the low-level optimizations --- string deduplication, results of profiling,\ldots}
+
 
 \end{document}
