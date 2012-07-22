@@ -562,7 +562,7 @@ REFERENCES} and {\tt ORDEREDSUBJECT}, respectively.
 Unfortunately, none of these extensions addresses the need to re-download the whole thread mapping when a new message
 arrives; matters are in fact even more complicated than when sorting because a single arriving message could have a wide
 ranging effect on the whole threading information.  This issue is addressed by the proposed ``extended {\tt INTHREAD}''
-described in \secref{sec:draft-inthread-ext}.
+described in \secref{sec:draft-incthread}.
 
 \subsection{Incremental Sorting and Searching}
 
@@ -636,7 +636,7 @@ work from a commercial software vendor offering a pretty advanced IMAP server im
 Sadly, no equivalent of these incremental updates is defined for the {\tt THREAD} command.  I suspect that this is
 caused by the fact that a single new arrival can affect each and every message in the previously received thread
 mapping.  I have attempted to address this limitation by augmenting the {\tt SEARCH=INTHREAD} draft, see
-\secref{sec:draft-inthread-ext} for details about the selected approach.
+\secref{sec:draft-incthread} for details about the selected approach.
 
 \subsection{Advanced Searching}
 

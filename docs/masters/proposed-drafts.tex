@@ -52,33 +52,102 @@ Full text of the proposed extension in the format of an Internet-Draft suitable 
 section \secref{sec:draft-imap-qresync-arrived}.
 
 \section{Improving Incremental Threading through Modified INTHREAD}
-\label{sec:draft-inthread-ext}
+\label{sec:draft-incthread}
 
-Having server-side support for message threading can provide clients with enormous benefits, especially when working
-with large mailboxes.  However, these benefits can be significantly reduced when clients are forced to request full
-thread mapping over and over again.
+Delegating message threading to the server-side can provide clients with enormous benefits, especially when working with
+large mailboxes.  However, these benefits can be significantly reduced when clients are forced to request full thread
+mapping over and over again.
 
-Unfortunately, that is exactly the situation when working on a busy mailbox where new messages arrive.  When clients use
-the server-side threading, they by design do not have to keep track of the {\tt Message-Id}, {\tt References} and {\tt
-In-Reply-To} headers as the thread tree building is all done on the server side.  However, that also means that newly
-arriving messages cannot be easily ``plugged'' into the already known tree, even if full header set of the new arrival
-was known.  Doing so reliably would require knowledge of the relevant headers of all messages in mailbox, knowledge
-which is rather expensive to obtain.
+Unfortunately, that is exactly the situation when new messages arrive.  When clients use the server-side threading, they
+by design do not have to keep track of the {\tt Message-Id}, {\tt References} and {\tt In-Reply-To} headers as the
+thread tree building is all done by the IMAP server.  However, that also means that newly arriving messages cannot be
+easily ``plugged'' into the already known tree, even if full header set of the new arrival was known.  Doing so reliably
+would require knowledge of the relevant headers of all messages in mailbox, knowledge which is rather expensive to
+obtain and avoidance of which is the whole point of server-side threading.
 
 Extensions exist solving this problem for both searching (the {\tt CONTEXT=SEARCH} extension from RFC~5267
 \cite{rfc5267} which is reasonably wide-deployed) and sorting (the {\tt CONTEXT=SORT}, support of which is extremely
 scarce despite being defined in the same RFC document), but no such proposal was ever submitted for threading.  I
 suspect that the reason is inherent in the way the threading works --- a single newly arriving message can indeed cause
-updated threading for {\em any} other message in a mailbox, even for {\em all} of them in a pathological
+threading updates for {\em any} other message in a mailbox, even for {\em all} of them in a pathological
 case.~\footnote{Any new arrival could possibly join many existing threads previously considered to be individual and
-independent on each other, to a single thread having all of them as subthreads.}  This is in a strong contrast to live
-updates of search results (where a pair of simple ``add item $X$ to result'' and ``remove X from the result'' is enough)
-or even sort order (where the operation is complicated a little more, requiring ``add item $X$ to the result at offset
+independent of each other to a single thread having all of them as subthreads.}  This is in a strong contrast to live
+updates of search results where a pair of simple ``add item $X$ to result'' and ``remove X from the result'' is enough,
+or even to incremental sort order communication (where the operation is complicated a little more, requiring ``add item
+$X$ to the result at offset
 $Y$'').
 
-An existing proposal, unfortunately still in a draft state \cite{draft-ietf-morg-inthread}\ldots
+An existing draft proposal \cite{draft-ietf-morg-inthread} extends the search query capabilities with the {\tt INTHREAD}
+operator matching a {\em whole thread} of messages.  This capability alone is not enough to fully accommodate the whole
+incremental threading problem, but it is an improvement good enough to build upon.  The only missing piece of
+functionality is being able to tell where the new thread shall be positioned, but in absence of better tools, an
+approximation always showing threads with ``new arrivals'' at the very end of the view is good
+enough.~\footnote{Displaying threads with ``new arrivals'' among the ``last messages'' is suboptimal because the newly
+arriving message could be in fact a result of a copy operation.  Having these ``older'' suddenly appear should not
+interleave them with the recent content of the mailbox.}
 
-\todo[inline]{Incremental threading}
+The proposed extension builds on top of {\tt INTHREAD}, adding the exact positioning to each individual thread matching
+the search criteria.  In addition, the format of the response does not use the {\tt THREAD} untagged response from RFC
+5256 \cite{rfc5256}, but instead uses the extensible {\tt ESEARCH} response from RFC 4731 \cite{rfc4731} --- the {\tt
+ESEARCH} already contains provisions for returning multiple types of data and as an added bonus ties the response to a
+particular command's tag, making it possible to parallelize threading operation.
+
+The improvement, as measured in decreased bandwidth consumption, is not always as impressive as those from the CONTEXT
+extensions.  It is conceivable that more advanced forms of conveying the modified threading information (e.g. the
+strictly incremental responses about how an update affects a particular branch in the threading tree) would result in
+smaller overall transmitted octet counts, but on the other hand implementing such an extension would prove challenging
+to both servers and clients.  There are also circumstances under which the tree-oriented differential updates would not
+work; the most obvious one is when a client reconnected to a mailbox, detects a couple of new arrivals and wants to ask
+for updates ``ex post''.  Finally, the client-driven mode of operation through the proposed extension better fits the
+IMAP behavior where clients specify in what kinds of information they are interested and servers optimize their
+operation by only transmitting what is strictly necessary.
+
+Using the proposed extension, a typical communication between two compliant IMAP protocol speakers might look like the
+following:
+
+\begin{minted}{text}
+  S: * 666 EXISTS
+  C: x1 UID FETCH 665:* (FLAGS)
+  S: * 666 FETCH (UID 1666 FLAGS ())
+  S: x1 OK fetched
+  C: x2 UID THREAD RETURN (INCREMENTAL) REFS utf-8 INTHREAD 666
+  S: * ESEARCH (TAG "x2") UID THREADPREVIOUS 400 THREADNEXT NIL
+    THREAD (600 601 (640 666)(602 603))
+  S: x2 OK sent
+\end{minted}
+
+At first, the server informs the client about new delivery.  Client responds with a request for UID and message flags of
+the new arrivals.  When both are known, the new form of the {\tt UID THREAD} command is issued, specifying that the
+threading algorithm {\tt REFS} shall be used, searching shall be done in the {\tt utf-8} character set and that the
+returned value shall include the relative thread position among other threads in the whole mailbox.
+
+The result instructs the client that messages with UIDs of 600, 601, 602, 603 and 640 shall be removed from their
+previous positions in the threading tree, and that they together with UID 666 form a new thread with the specified
+shape.  This new thread is the last one ({\tt THREADNEXT NIL}) and it immediately follows a thread whose thread root has
+UID 400.  This is how the new threading for this mailbox looks like:
+
+\vspace{5mm}
+
+\dirtree{%
+.1 \ldots.
+.2 \ldots \DTcomment{Preceding threads are skipped}.
+.2 400 \DTcomment{No information about the rest of this thread is transmitted}.
+.3 \ldots.
+.2 600 \DTcomment{On the other hand, the whole of the new thread is always sent}.
+.3 601.
+.4 640.
+.5 {\bf 666} \DTcomment{This is the newly arrived message}.
+.4 602.
+.5 603.
+}
+
+\vspace{5mm}
+
+Even though the updated extended {\tt THREAD} command can still send data which are already known by the client, the
+design is a reasonable compromise between one imposing overly complex requirements on both clients and servers on one
+hand, and needlessly transmitting the whole mapping in absence of any extensions.
+
+The full text of this extension is available from section \secref{sec:draft-imap-incthread}.
 
 \section{Submitting Internet Mail --- the SENDMAIL Extension}
 \label{sec:draft-sendmail}
