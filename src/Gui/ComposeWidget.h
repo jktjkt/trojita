@@ -32,8 +32,8 @@ class ComposeWidget;
 
 class QAbstractListModel;
 class QComboBox;
-class QCompleter;
 class QLineEdit;
+class QMenu;
 class QPushButton;
 
 namespace Gui
@@ -49,7 +49,7 @@ class ComposeWidget : public QWidget
 {
     Q_OBJECT
 public:
-    ComposeWidget(MainWindow *parent, QAbstractListModel *autoCompleteModel);
+    ComposeWidget(MainWindow *parent);
     ~ComposeWidget();
     typedef Imap::Mailbox::MessageComposer::RecipientKind RecipientKind;
     void setData(const QString &from,
@@ -60,9 +60,12 @@ public:
 
 protected:
     void changeEvent(QEvent *e);
+    bool eventFilter(QObject *o, QEvent *e);
 
 private slots:
     void collapseRecipients();
+    void completeRecipient(QAction *act);
+    void completeRecipients(const QString &text);
     void send();
     void gotError(const QString &error);
     void sent();
@@ -103,11 +106,13 @@ private:
     Imap::Mailbox::MessageComposer *m_composer;
     QAction *m_actionRemoveAttachment;
 
+    QMenu *m_completionPopup;
+    QLineEdit *m_completionReceiver;
+    int m_completionCount;
+
+
     ComposeWidget(const ComposeWidget &); // don't implement
     ComposeWidget &operator=(const ComposeWidget &); // don't implement
-
-    QCompleter *recipientCompleter;    //< completer for known / recently used recipients
-    void maybeAddNewKnownRecipient(const Imap::Message::MailAddress &recipient);
 };
 
 }

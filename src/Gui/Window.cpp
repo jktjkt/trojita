@@ -55,7 +55,7 @@
 #include "Imap/Model/ThreadingMsgListModel.h"
 #include "Imap/Model/Utils.h"
 #include "Imap/Network/FileDownloadManager.h"
-#include "AutoCompletion.h"
+#include "AbookAddressbook.h"
 #include "ComposeWidget.h"
 #include "IconLoader.h"
 #include "MailBoxTreeView.h"
@@ -603,7 +603,8 @@ void MainWindow::setupModels()
 
     busyParsersIndicator->setImapModel(model);
 
-    autoCompletionModel = new AutoCompletionModel(this);
+    // TODO write more addressbook backends and make this configurable
+    m_addressBook = new AbookAddressbook;
 
 }
 
@@ -918,8 +919,6 @@ void MainWindow::nukeModels()
     prettyMboxModel = 0;
     model->deleteLater();
     model = 0;
-    autoCompletionModel->deleteLater();
-    autoCompletionModel = 0;
 }
 
 void MainWindow::slotComposeMail()
@@ -1153,7 +1152,7 @@ void MainWindow::invokeComposeDialog(const QString &subject, const QString &body
                                      const RecipientsType &recipients, const QByteArray &inReplyTo)
 {
     QSettings s;
-    ComposeWidget *w = new ComposeWidget(this, autoCompletionModel);
+    ComposeWidget *w = new ComposeWidget(this);
     w->setData(QString::fromUtf8("%1 <%2>").arg(
                    s.value(Common::SettingsNames::realNameKey).toString(),
                    s.value(Common::SettingsNames::addressKey).toString()),

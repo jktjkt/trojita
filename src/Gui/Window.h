@@ -56,7 +56,7 @@ class PrettyMsgListModel;
 namespace Gui
 {
 
-class AutoCompletionModel;
+class AbstractAddressbook;
 class MailBoxTreeView;
 class MessageView;
 class MessageListWidget;
@@ -77,6 +77,8 @@ public:
     bool isCatenateSupported() const;
     bool isGenUrlAuthSupported() const;
     bool isImapSubmissionSupported() const;
+
+    const AbstractAddressbook *addressBook() const { return m_addressBook; }
 
 private slots:
     void showContextMenuMboxTree(const QPoint &position);
@@ -164,7 +166,6 @@ private:
     Imap::Mailbox::MsgListModel *msgListModel;
     Imap::Mailbox::ThreadingMsgListModel *threadingMsgListModel;
     Imap::Mailbox::PrettyMsgListModel *prettyMsgListModel;
-    AutoCompletionModel *autoCompletionModel;
 
     MailBoxTreeView *mboxTree;
     MessageListWidget *msgListWidget;
@@ -246,6 +247,8 @@ private:
     bool m_supportsCatenate;
     bool m_supportsGenUrlAuth;
     bool m_supportsImapSubmission;
+
+    AbstractAddressbook *m_addressBook;
 
     MainWindow(const MainWindow &); // don't implement
     MainWindow &operator=(const MainWindow &); // don't implement

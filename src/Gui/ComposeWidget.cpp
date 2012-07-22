@@ -19,13 +19,15 @@
    Boston, MA 02110-1301, USA.
 */
 #include <QBuffer>
-#include <QCompleter>
 #include <QFileDialog>
+#include <QKeyEvent>
+#include <QMenu>
 #include <QMessageBox>
 #include <QProgressDialog>
 #include <QPushButton>
 #include <QSettings>
 
+#include "AbstractAddressbook.h"
 #include "AutoCompletion.h"
 #include "ComposeWidget.h"
 #include "Window.h"
@@ -47,12 +49,11 @@ enum { OFFSET_OF_FIRST_ADDRESSEE = 1 };
 namespace Gui
 {
 
-ComposeWidget::ComposeWidget(MainWindow *parent, QAbstractListModel *autoCompleteModel) :
+ComposeWidget::ComposeWidget(MainWindow *parent) :
     QWidget(parent, Qt::Window),
     ui(new Ui::ComposeWidget),
     m_appendUidReceived(false), m_appendUidValidity(0), m_appendUid(0), m_genUrlAuthReceived(false),
-    m_mainWindow(parent),
-    recipientCompleter(new QCompleter(this))
+    m_mainWindow(parent)
 {
     Q_ASSERT(m_mainWindow);
     m_composer = new Imap::Mailbox::MessageComposer(m_mainWindow->imapModel(), this);
@@ -73,6 +74,13 @@ ComposeWidget::ComposeWidget(MainWindow *parent, QAbstractListModel *autoComplet
     connect(m_actionRemoveAttachment, SIGNAL(triggered()), this, SLOT(slotRemoveAttachment()));
     ui->attachmentsView->addAction(m_actionRemoveAttachment);
 
+    m_completionPopup = new QMenu(this);
+    m_completionPopup->installEventFilter(this);
+    connect (m_completionPopup, SIGNAL(triggered(QAction*)), SLOT(completeRecipient(QAction*)));
+
+    // TODO: make this configurable?
+    m_completionCount = 8;
+
     m_recipientListUpdateTimer = new QTimer(this);
     m_recipientListUpdateTimer->setSingleShot(true);
     m_recipientListUpdateTimer->setInterval(250);
@@ -84,9 +92,6 @@ ComposeWidget::ComposeWidget(MainWindow *parent, QAbstractListModel *autoComplet
     QFont font(QLatin1String("x-trojita-terminus-like-fixed-width"));
     font.setStyleHint(QFont::TypeWriter);
     ui->mailText->setFont(font);
-
-    if (autoCompleteModel)
-        recipientCompleter->setModel(autoCompleteModel);
 }
 
 ComposeWidget::~ComposeWidget()
@@ -397,7 +402,7 @@ void ComposeWidget::addRecipient(int position, RecipientKind kind, const QString
     combo->addItem(tr("Bcc"), Imap::Mailbox::MessageComposer::Recipient_Bcc);
     combo->setCurrentIndex(combo->findData(kind));
     QLineEdit *edit = new QLineEdit(address, this);
-    edit->setCompleter(recipientCompleter);
+    connect(edit, SIGNAL(textEdited(QString)), SLOT(completeRecipients(QString)));
     connect(edit, SIGNAL(editingFinished()), SLOT(collapseRecipients()));
     connect(edit, SIGNAL(textChanged(QString)), m_recipientListUpdateTimer, SLOT(start()));
     m_recipients.insert(position, Recipient(combo, edit));
@@ -485,7 +490,8 @@ bool ComposeWidget::parseRecipients(QList<QPair<RecipientKind, Imap::Message::Ma
             Imap::Message::MailAddress addr;
             bool ok = Imap::Message::MailAddress::parseOneAddress(addr, text, offset);
             if (ok) {
-                maybeAddNewKnownRecipient(addr);
+                // TODO: should we *really* learn every junk entered into a recipient field?
+                // m_mainWindow->addressBook()->learn(addr);
                 results << qMakePair(kind, addr);
             } else if (offset < text.size()) {
                 QMessageBox::critical(this, tr("Invalid Address"),
@@ -500,21 +506,63 @@ bool ComposeWidget::parseRecipients(QList<QPair<RecipientKind, Imap::Message::Ma
     return true;
 }
 
-void ComposeWidget::maybeAddNewKnownRecipient(const Imap::Message::MailAddress &recipientAddress)
+void ComposeWidget::completeRecipients(const QString &text)
 {
-    // TODO: Could we store parsed addresses in the completer, and complete more intelligently against the realname/username parts?
-    QString recipient = recipientAddress.prettyName(Imap::Message::MailAddress::FORMAT_READABLE);
-
-    // let completer look for recipient
-    recipientCompleter->setCompletionPrefix(recipient);
-    // and if not found, insert it into completer's model
-    if (recipientCompleter->currentCompletion().isEmpty()) {
-        QAbstractItemModel *acMdl = recipientCompleter->model();
-        acMdl->insertRow(0);
-        QModelIndex idx = acMdl->index(0,0);
-        acMdl->setData(idx,recipient);
+    if (text.isEmpty()) {
+        if (m_completionPopup) {
+            // if there's a popup close it and set back teh receiver
+            m_completionPopup->close();
+            m_completionReceiver = 0;
+        }
+        return; // we do not suggest "nothing"
+    }
+    Q_ASSERT(sender());
+    QLineEdit *toEdit = static_cast<QLineEdit*>(sender());
+    QStringList contacts = m_mainWindow->addressBook()->complete(text, QStringList(), 8);
+    if (contacts.isEmpty() && m_completionPopup) {
+        m_completionPopup->close();
+        m_completionReceiver = 0;
+    }
+    else {
+        m_completionReceiver = toEdit;
+        m_completionPopup->setUpdatesEnabled(false);
+        m_completionPopup->clear();
+        foreach (const QString &s, contacts)
+            m_completionPopup->addAction(s);
+        if (m_completionPopup->isHidden())
+            m_completionPopup->popup(toEdit->mapToGlobal(QPoint(0, toEdit->height())));
+        m_completionPopup->setUpdatesEnabled(true);
     }
 }
+
+void ComposeWidget::completeRecipient(QAction *act)
+{
+    if (act->text().isEmpty())
+        return;
+    m_completionReceiver->setText(act->text());
+    if (m_completionPopup) {
+        m_completionPopup->close();
+        m_completionReceiver = 0;
+    }
+}
+
+bool ComposeWidget::eventFilter(QObject *o, QEvent *e)
+{
+    if (o == m_completionPopup) {
+        if (e->type() == QEvent::KeyPress || e->type() == QEvent::KeyRelease) {
+            QKeyEvent *ke = static_cast<QKeyEvent*>(e);
+            if (!(  ke->key() == Qt::Key_Up || ke->key() == Qt::Key_Down || // Navigation
+                    ke->key() == Qt::Key_Escape || // "escape"
+                    ke->key() == Qt::Key_Return || ke->key() == Qt::Key_Enter)) { // selection
+                QCoreApplication::sendEvent(m_completionReceiver, e);
+                return true;
+            }
+        }
+        return false;
+    }
+    return false;
+}
+
 
 void ComposeWidget::slotAskForFileAttachment()
 {
