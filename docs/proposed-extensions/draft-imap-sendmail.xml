@@ -12,6 +12,7 @@
 <!ENTITY RFC5228 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5228.xml">
 <!ENTITY RFC5234 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5234.xml">
 <!ENTITY RFC5321 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5321.xml">
+<!ENTITY RFC5322 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5322.xml">
 <!ENTITY RFC5550 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5550.xml">
 ]>
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
@@ -22,7 +23,7 @@
 <?rfc sortrefs="yes" ?>
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
-<rfc category="std" docName="draft-imap-sendmail-00" ipr="trust200902">
+<rfc category="std" docName="draft-imap-sendmail-01" ipr="trust200902">
 
   <front>
     <title>IMAP SENDMAIL Extension</title>
@@ -183,11 +184,11 @@
                 and announced submission option, it MUST respond with a tagged NO with the POLICYDENIED response
                 code and the message MUST NOT be submitted.</t>
 
-            <t>Servers MAY alter the message payload in conformance with best current practice about Internet mail.
-                Individual recipients MAY receive different versions of the message.  In particular, servers MAY change
-                message headers so that the identity of addresses present in the Bcc headers is not revealed in some
-                messages.  However, such an action is OPTIONAL and concerned clients SHOULD use an explicit list of
-                RECIPIENT submission options if they wish to conceal the identity of some recipients.</t>
+            <t>Servers MAY alter the message payload of the outgoing message in conformance with best current practice about
+                Internet mail.  Individual recipients MAY receive different versions of the message.  In particular, servers MUST
+                change message headers so that the identity of addresses present in the Bcc headers is not revealed to other
+                recipients.  This mode of operation is described in <xref target="RFC5321"/> and <xref target="RFC5322"/>.  The
+                copy stored on the IMAP server MUST NOT be altered by these modifications.</t>
 
             <section title="Submission options">
                 <t>The following submission options are defined by this extension:</t>
@@ -199,14 +200,6 @@
                         its value MUST be inferred from the message payload.</t>
 
                     <t>It is an error if the FROM submission option is present more than once.</t>
-                </section>
-
-                <section title="SENDER Submission Option">
-                    <t>Syntax: one e-mail address</t>
-                    <t>The SENDER submission option corresponds to the SENDER field of the SMTP envelope.  If not
-                        present, its value MUST be inferred from the computed value of the FROM submission option or
-                        from the message payload.</t>
-                    <t>It is an error if the SENDER submission option is present more than once.</t>
                 </section>
 
                 <section title="DSN Submission Option">
@@ -267,7 +260,7 @@
         <figure align="center">
             <artwork align="left"><![CDATA[
 C: x UID SENDMAIL 123 (FROM "foo@example.org"
-        SENDER "bar@example.org"
+        FROM "bar@example.org"
         RECIPIENT "a@example.org"
         RECIPIENT "b@example.org"
         DSN (delay failure)
@@ -323,13 +316,10 @@ sendmail            = "SENDMAIL" SP uniqueid [SP submission-options]
 
 submission-options  = "(" submission-option *( SP submission-option ) ")"
 
-submission-option   = sub-option-from / sub-option-sender /
-                      sub-option-recipient / sub-option-dsn
+submission-option   = sub-option-from / sub-option-recipient
+                      / sub-option-dsn
 
 sub-option-from     = "FROM" SP one-email-addr
-                      ;; MUST NOT be present more than once
-
-sub-option-sender   = "SENDER" SP one-email-addr
                       ;; MUST NOT be present more than once
 
 sub-option-recipient= "RECIPIENT" SP one-email-addr
@@ -383,14 +373,24 @@ one-email-addr      = string
 
       &RFC5321;
 
+      &RFC5322;
+
       &RFC5550;
     </references>
 
     <section anchor="FIXME" title="FIXME Items">
       <t>FIXME: better citations</t>
-      <t>FIXME: clarify order of inference for the FROM and SENDER submission options</t>
       <t>What's got higher priority, SUBMISSIONRACE or POLICYDENIED? :)</t>
       <t>IANA and the response codes</t>
+    </section>
+
+    <section anchor="changelog" title="Changelog">
+        <section title="Changes in 01 since 00">
+            <t><list style="symbols">
+                    <t>Removed the superfluous SENDER submission option</t>
+                    <t>Mandating Bcc removal in conformance with RFC 5321 / RFC 5322</t>
+            </list></t>
+        </section>
     </section>
   </back>
 </rfc>
