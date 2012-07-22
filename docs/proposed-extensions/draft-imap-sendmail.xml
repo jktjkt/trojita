@@ -253,9 +253,8 @@
 
         <t>The following example shows how client should submit a message with UID 123 in the current mailbox for
             delivery.  If the message is passed through SMTP, its From address in the SMTP envelope MUST be set to
-            foo@example.org, the Sender to bar@example.org and it MUST be submitted for delivery to two recipients, the
-            a@example.org and b@example.org.  The DSN options are set to report about excess delays failures in message
-            delivery.</t>
+            foo@example.org and it MUST be submitted for delivery to two recipients, the a@example.org and b@example.org.  The DSN
+            options are set to report about excess delays failures in message delivery.</t>
 
         <figure align="center">
             <artwork align="left"><![CDATA[
