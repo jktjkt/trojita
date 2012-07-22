@@ -53,6 +53,31 @@ section \secref{sec:draft-imap-qresync-arrived}.
 
 \section{Improving Incremental Threading through Modified INTHREAD}
 \label{sec:draft-inthread-ext}
+
+Having server-side support for message threading can provide clients with enormous benefits, especially when working
+with large mailboxes.  However, these benefits can be significantly reduced when clients are forced to request full
+thread mapping over and over again.
+
+Unfortunately, that is exactly the situation when working on a busy mailbox where new messages arrive.  When clients use
+the server-side threading, they by design do not have to keep track of the {\tt Message-Id}, {\tt References} and {\tt
+In-Reply-To} headers as the thread tree building is all done on the server side.  However, that also means that newly
+arriving messages cannot be easily ``plugged'' into the already known tree, even if full header set of the new arrival
+was known.  Doing so reliably would require knowledge of the relevant headers of all messages in mailbox, knowledge
+which is rather expensive to obtain.
+
+Extensions exist solving this problem for both searching (the {\tt CONTEXT=SEARCH} extension from RFC~5267
+\cite{rfc5267} which is reasonably wide-deployed) and sorting (the {\tt CONTEXT=SORT}, support of which is extremely
+scarce despite being defined in the same RFC document), but no such proposal was ever submitted for threading.  I
+suspect that the reason is inherent in the way the threading works --- a single newly arriving message can indeed cause
+updated threading for {\em any} other message in a mailbox, even for {\em all} of them in a pathological
+case.~\footnote{Any new arrival could possibly join many existing threads previously considered to be individual and
+independent on each other, to a single thread having all of them as subthreads.}  This is in a strong contrast to live
+updates of search results (where a pair of simple ``add item $X$ to result'' and ``remove X from the result'' is enough)
+or even sort order (where the operation is complicated a little more, requiring ``add item $X$ to the result at offset
+$Y$'').
+
+An existing proposal, unfortunately still in a draft state \cite{draft-ietf-morg-inthread}\ldots
+
 \todo[inline]{Incremental threading}
 
 \section{Submitting Internet Mail --- the SENDMAIL Extension}
