@@ -427,9 +427,9 @@ be achieved through the NOTIFY extension defined by RFC 5465 \cite{rfc5465}, but
 undertaking for an IMAP server and --- as of July 2012 --- support for that extension is still rather
 scarce.~\footnote{None of the widely deployed open source IMAP servers supported {\tt NOTIFY} at the time this thesis
 was written.  The Dovecot IMAP server had an experimental branch with partial support which would be enough to serve as
-a replacement for {\tt ARRIVED}, but it could not be discovered because the {\tt NOTIFY} is an all-or-nothing extension;
-it mandates full server support and doesn't include provisions for partial functionality which would have been enough in
-this case.}
+a replacement for {\tt ARRIVED}, but it could not be discovered through the IMAP capabilities because {\tt NOTIFY} is an
+all-or-nothing extension; it mandates full server support and doesn't include provisions for partial functionality which
+would have been enough in this case.}
 
 The QRESYNC extension also mandates an interesting mechanism for its activation.  The {\tt SELECT \ldots QRESYNC}
 command does not work when the IMAP client opens a mailbox for the first time --- the client has no cached state, so it
