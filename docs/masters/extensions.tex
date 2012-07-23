@@ -736,6 +736,8 @@ the message composing is concluded, the message shall be submitted to an MTA~\fo
 over the SMTP protocol \cite{rfc6409}.  Finally, a copy of the message shall be stored in the user's ``sent'' folder for
 future reference.
 
+Trojitá will make use of the {\tt CATENATE} extension when available.
+
 It can be seen that in absence of specialized extensions, this an interaction could possibly involve up to three
 transfers of the huge binary data, possibly in an inefficient transport encoding, over the unreliable or expensive
 network connection.  Clearly, there's a huge room for improvements.  The {\tt CATENATE} extension assists in a
@@ -754,6 +756,10 @@ also supports the {\tt CATENATE} extension, the client can build the message on 
 fragments (the new accompanying text and the attachment from the original message) and pass this newly-formed message
 for submission through the {\tt BURL} SMTP extension.  This has a potential of eliminating the need to transfer the data
 to/from the client {\em at all}, leading to a drastic bandwidth reduction.
+
+Trojitá includes full support for the {\tt BURL} and {\tt URLAUTH} extensions.  Due to the interoperability troubles
+with misconfigured servers which were observed in real world \cite{qmf-fastmail-burl-bug}, making use of {\tt BURL} has
+to be explicitly allowed in the settings dialog of the application.
 
 Unfortunately, such mode of operation comes at a cost.  Support for the required extensions is not
 ubiquitous among the deployed servers and even if the code contains all required features, it is often a policy decision
