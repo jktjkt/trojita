@@ -26,8 +26,8 @@
 namespace Common
 {
 
-/** @short Well-known port numbers for IMAP and IMAPS */
-enum { PORT_IMAP=143, PORT_IMAPS=993 };
+/** @short Well-known port numbers for IMAP, IMAPS, SMTP,... */
+enum { PORT_IMAP=143, PORT_IMAPS=993, PORT_SMTP_OBSOLETE=25, PORT_SMTP_SUBMISSION=587, PORT_SMTP_SSL=465 };
 
 }
 

@@ -346,7 +346,7 @@ OutgoingPage::OutgoingPage(QWidget *parent, QSettings &s): QScrollArea(parent), 
     }
 
     smtpHost->setText(s.value(SettingsNames::smtpHostKey).toString());
-    smtpPort->setText(s.value(SettingsNames::smtpPortKey, 25).toString());
+    smtpPort->setText(s.value(SettingsNames::smtpPortKey, Common::PORT_SMTP_SUBMISSION).toString());
     smtpPort->setValidator(new QIntValidator(1, 65535, this));
     smtpStartTls->setChecked(s.value(SettingsNames::smtpStartTlsKey).toBool());
     smtpAuth->setChecked(s.value(SettingsNames::smtpAuthKey, false).toBool());
@@ -397,6 +397,16 @@ void OutgoingPage::updateWidgets()
         lay->labelForField(sendmail)->setEnabled(false);
         smtpBurl->setEnabled(saveToImap->isChecked());
         lay->labelForField(smtpBurl)->setEnabled(saveToImap->isChecked());
+
+        // Toggle the default ports upon changing the delivery method
+        if (smtpMethod == SMTP && (smtpPort->text().isEmpty() ||
+                                   smtpPort->text() == QString::number(Common::PORT_SMTP_SSL))) {
+            smtpPort->setText(QString::number(Common::PORT_SMTP_SUBMISSION));
+        } else if (smtpMethod == SSMTP && (smtpPort->text().isEmpty() ||
+                                           smtpPort->text() == QString::number(Common::PORT_SMTP_OBSOLETE) ||
+                                           smtpPort->text() == QString::number(Common::PORT_SMTP_SUBMISSION))) {
+            smtpPort->setText(QString::number(Common::PORT_SMTP_SSL));
+        }
         break;
     }
     case SENDMAIL:
