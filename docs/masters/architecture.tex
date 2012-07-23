@@ -8,7 +8,6 @@
 This chapter provides a brief introduction to the architecture of Trojitá from a programmer's point of view.
 
 \section{Overview of Components}
-\todo[inline]{Talk about the internal structure of Trojita --- the Model, Tasks, proxy models}
 
 Trojitá makes heavy use of certain idioms common in Qt programming and in object-oriented software development in
 general.
@@ -35,12 +34,110 @@ Trojitá shipped IO implementations not based on the {\tt QIODevice} class.}
 
 \subsection{Handling Input/Output}
 
+The raw byte streams provided by network abstraction classes are intercepted by the {\tt Parser} class.  It takes any
+incoming octet sequence and with help of the {\tt LowLevelParser} instantiates the concrete subclasses of the {\tt
+AbstractResponse} class.  Actual parsing of the responses is typically deferred to the corresponding {\tt Response}
+constructors which will tokenize the incoming data through {\tt LowLevelParser}'s methods and act on their contents
+according to the corresponding grammar rules.
+
+The response parsing had to be substantially relaxed from its original state due to observed interoperability issues.
+Even the most popular IMAP implementations struggled with following the ABNF-defined \cite{rfc5234} syntax to the
+letter; the most iconic example is Google's service which prevents the IMAP clients talking to it from accessing
+forwarded messages \cite{gmail-bodystructure-sucks}.~\footnote{As of mid-2012, this issue remains unfixed.}
+
+For some time, Trojitá's {\tt Parser} was implemented in a separate thread in an attempt to improve performance.
+However, recent profiling shows that there amount of time spent in parsing is negligible compared to the rest of the
+application with the only exception being the {\tt THREAD} response which essentially requires a complex transformation
+of nested lists.  As such, the whole of Trojitá is now a single threaded application.~\footnote{The WebKit engine used
+in HTML rendering creates threads for its individual purposes; the similar behavior is found in the QML engine used in
+the mobile version.  These threads are not counted here, for they are considered to come from the ``system libraries''.}
+
 \subsection{The Concept of Tasks}
 
 The Tasks are designed to collaborate with each other, and there is a network of dependencies on how they can be used,
-so that \ldots
+so that each task is responsible for only a subset of the overall work required to achieve a particular goal.  For
+example, when a message shall be marked as read, an {\tt UpdateFlagTask} is created.  Because ``marking message as
+read'' is implemented by manipulating IMAP message flags which can only happen while a mailbox is selected, the {\tt
+Model} is asked to return an instance of a {\tt KeepMailboxOpenTask}, a ``manager'' class which is responsible for
+keeping the mailbox state synchronized between the server and the client.  If the mailbox is already opened, an existing
+instance of the {\tt KeepMailboxOpenTask} is returned; if that is not the case, a new instance is returned.  The {\tt
+UpdateFlagsTask}'s execution is blocked and will commence only when (and if) the acquisition of a synchronized status
+succeeds.  Similarly, this ``maintaining'' task itself deals just with incremental {\em updates} to the mailbox state,
+actual mailbox synchronization is delegated to the {\tt ObtainSynchronizedMailboxTask}.  This synchronizer obtains the
+underlying connection handle through consultation with the {\tt Model} to decide whether a new connection shall be
+established or an existing one shall be re-purposed.  This policy decision is completely contained in the {\tt Model}
+and is not visible to other layers at all.
+
+Similar divisions of responsibility exist at other scenarios; the supporting infrastructure makes sure that no actions
+are started unless their prerequisites succeeded.
+
+The whole hierarchy is presented to the user in various shapes; the most basic is a ``busy indicator'' showing whether
+any ``interesting'' activity is taking place.  A more detailed view showing an overview of all active tasks in a
+tree-like manner illustrating their dependencies is available (see the {\tt TaskPresentationModel} class in Trojitá's
+sources).
+
+The introduction of Tasks to Trojitá in 2010 proved to be an excellent decision allowing for much increased development
+pace.  Thanks to a proper use of git's branches, the transition was undertaken over a longer time pried without
+disturbing the ongoing development.
+
+The Tasks are instantiated by an auxiliary factory class in order to better facilitate automated unit testing with
+mock objects.
+
+\subsection{Routing Responses}
+
+The Tasks introduced in the previous section are also used for proper response processing.  At all times, the {\tt
+Model} can access a list of ``active tasks'' which are assigned to a particular IMAP connection.  When a response
+arrives, it is dispatched to these tasks in a well-defined order until either of them declares the response as
+``handled''.  If no Task claims responsibility for a particular response, the {\tt Model} itself takes action.  This
+action might be either regular processing, or, in case the {\tt Model} cannot safely take care of said response, an
+error is raised and the connection is sewered to prevent possible data loss.
+
+The responses themselves are communicated to the {\tt Model} (and, through it, to the responsible Tasks) through a queue
+of responses using Qt's own signal-and-slot mechanism.  The same way of passing data is used for additional
+``meta information'' like informing about connection errors, parser exceptions or the low-level SSL/TLS certificate
+properties.
 
 \subsection{Models and Proxies}
+
+Historically, much of the IMAP logic in Trojitá has been concentrated in the {\tt Model} class.  Over the time, I've
+refactored that code to separate modules; however, even today, the {\tt Model} handles both data publication through the
+Qt's model-view framework as well as IMAP response dispatch to the relevant Tasks.  With little less than two thousands
+of physical lines of code, the {\tt Model} remains the second-largest source file in the code base (the biggest file is
+a unit tests related to various modes of mailbox synchronization).
+
+The {\tt Model} itself exports a view to anything available to a particular IMAP server account through Qt's model-view
+API.  The actual data is stored in a tree formed by various {\tt TreeItem} subclasses.
+
+As showing a single, rich-structured tree containing {\em everything} from mailboxes to individual message parts would
+not be particularly user-friendly, a number of so called proxy models were created.  These models usually operate on
+Qt's {\tt QModelIndex} level, but where profiling showed that a compelling speed increase would result from bypassing
+the {\tt QVariant} abstraction, direct access through the underlying (and Trojitá-specific) {\tt TreeItem} classes was
+used instead.  This has notably affected the design of the {\tt ThreadingMsgListModel} which is the biggest consumer of
+the CPU time under the normal operation of the application.
+
+Proxies exist for performing various transformations and filtering of the available data; some of them (like the {\tt
+MailboxModel} and {\tt MsgListModel} are generic enough and used in the desktop client, a mobile application and the
+single-purpose batch synchronizer (see appendix \ref{sec:xtuple}, p.~\pageref{sec:xtuple}), others (like the {\tt
+PrettyMsgListModel}) are exclusive to the traditional desktop GUI.
+
+\subsection{Lazy Loading and Cache}
+
+The model-view separation strictly followed through Trojitá proved to be very useful when leveraging the full potential
+of many advanced IMAP features.  Because the individual message parts are accessible separately, Trojitá's native mode
+of operation supported the often-mentioned use case of ``only download a tiny text accompanying the big photo attachment
+and then ask user whether to download'' without any effort.  At the same time, this separation made certain tasks which
+were typically considered trivial a bit more demanding, e.g. when forwarding a message, Trojitá has to explicitly
+retrieve two independent body parts and explicitly join them together.  On the other hand, in most of the situations
+this separation brought benefits visible to the end user which trumped the minor, uncommon complications.
+
+Any data once downloaded are kept in a persistent cache.  This feature allows Trojitá to work extremely well under
+unfavorable network conditions.  It also allows its users to access any data which were already known previously in an
+offline mode.
+
+Several caching backends are shipped in Trojitá; some of them store data exclusively in memory and therefore are not
+persistent per se, others use sqlite for actual data storage.  Another mode which offloads ``big data'' storage to
+additional on-disk files is used by default.~\footnote{Work on the structured cache backends was sponsored by the KWest
+GbmH. (appendix \ref{sec:kwest}, p.~\pageref{sec:kwest}).}
 
 \section{The Mobile Version}
 \todo[inline]{Also mention the version usable on cell phones}
