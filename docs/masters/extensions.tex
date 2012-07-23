@@ -178,8 +178,8 @@ expunges and new arrivals since the last time it was opened:
   S: y1 OK Selected
   C: y2 UID SEARCH ALL
 
-    The following response has been shortened for demonstration purposes. In practice,
-    it will have to contain a thousand of numbers.
+    The following response has been shortened for demonstration purposes. In
+    practice, it will have to contain a thousand of numbers.
 
   S: * SEARCH 2 4 5 6 7 8 9 10 ... 2290 2310 2311 2312 2333
   S: y2 OK Search completed
@@ -188,7 +188,7 @@ expunges and new arrivals since the last time it was opened:
   S: * 2 FETCH (FLAGS (\\Seen))
   S: * 3 FETCH (FLAGS (\\Recent \$Answered))
 
-  996 additional FETCH responses were omitted from this example for brevity.
+    996 additional FETCH responses were omitted from this example for brevity.
 
   S: * 1000 FETCH (FLAGS (\\Seen))
   S: y3 OK fetched
@@ -284,15 +284,15 @@ This is how a typical synchronization might look like:
   S: * OK [HIGHESTMODSEQ 715194045007]
   S: y1 OK Selected
 
-    At this point, the client will obtain the UID mapping, likely through the UID SEARCH
-    or its ESEARCH variant:
+    At this point, the client will obtain the UID mapping, likely through the
+    UID SEARCH or its ESEARCH variant:
 
   C: y2 UID SEARCH RETURN () ALL
   S: * ESEARCH (TAG "y2") UID ALL 2,4:10,21:1008,2290,2310:2312,2333
   S: y2 OK Search completed
 
-    At this point the CONDSTORE extension can be finally utilized -- only changed flags
-    will be transmitted:
+    At this point the CONDSTORE extension can be finally utilized -- only changed
+    flags will be transmitted:
 
   C: y3 UID FETCH 1:1000 (FLAGS) (CHANGEDSINCE 613184045007)
   S: * 997 FETCH (UID 2310 MODSEQ 715194045007 FLAGS (\\Seen \\Deleted))
@@ -530,10 +530,10 @@ extension at this point.
 
 \subsection{Metadata Decoding}
 
-IMAP requires compliant servers to support MIME message parsing and RFC~2822 header decoding.  One feature which is
-notable absent, though, is support for server-side decoding of RFC~2047-formatted message headers and IMAP's {\tt
+IMAP requires compliant servers to support MIME message parsing and RFC 2822 header decoding.  One feature which is
+notable absent, though, is support for server-side decoding of RFC 2047-formatted message headers and IMAP's {\tt
 ENVELOPE} fields.  This shortcoming is partially addressed by two RFCs --- the already mentioned {\tt CONVERT} extension
-mandates support for character set decoding and conversions of RFC~2822 message headers while an experimental RFC 5738
+mandates support for character set decoding and conversions of RFC 2822 message headers while an experimental RFC 5738
 \cite{rfc5738} adds an ``UTF-8'' mode which switches all {\tt FETCH} commands to return the decoded Unicode data,
 including the IMAP's {\tt ENVELOPE}.  Sadly, support for this extension is similar to what has been already said for the
 {\tt CONVERT} and one can also safely claim that the possible data savings are minuscule, if any.  In addition, the
@@ -542,7 +542,7 @@ well propose yet another extension which would {\em just} enable access to the d
 header data.  No such extension exists at this point, though.
 
 \begin{trojitabehavior}
-If the IMAP protocol was designed today, mandating a full-featured RFC~2047 decoder would be an obvious addition, but
+If the IMAP protocol was designed today, mandating a full-featured RFC 2047 decoder would be an obvious addition, but
 with the legacy of the protocol history, a requirement to implement a client-side decoder anyway and no available server
 support and the RFC being marked as {\em experimental}, Trojitá does not try to use the {\tt SELECT \ldots UTF8}
 parameter.
