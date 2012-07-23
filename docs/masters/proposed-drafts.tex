@@ -113,9 +113,10 @@ following:
   C: x1 UID FETCH 665:* (FLAGS)
   S: * 666 FETCH (UID 1666 FLAGS ())
   S: x1 OK fetched
-  C: x2 UID THREAD RETURN (INCREMENTAL) REFS utf-8 INTHREAD 666
-  S: * ESEARCH (TAG "x2") UID THREADPREVIOUS 400 THREADNEXT NIL
-    THREAD (600 601 (640 666)(602 603))
+  C: x2 UID THREAD RETURN (INCREMENTAL) REFS utf-8
+        INTHREAD 666
+  S: * ESEARCH (TAG "x2") UID THREADPREVIOUS 400
+        THREAD (600 601 (640 666)(602 603))
   S: x2 OK sent
 \end{minted}
 
@@ -126,11 +127,11 @@ returned value shall include the relative thread position among other threads in
 
 The result instructs the client that messages with UIDs of 600, 601, 602, 603 and 640 shall be removed from their
 previous positions in the threading tree, and that they together with UID 666 form a new thread with the specified
-shape.  This new thread is the last one ({\tt THREADNEXT NIL}) and it immediately follows a thread whose thread root has
-UID 400.  This is how the new threading for this mailbox looks like:
+shape.  This new thread immediately follows a thread whose thread root has UID 400.  Figure
+\ref{fig:incthread-threading-example} shows how the new threading for this mailbox looks like.
 
-\vspace{5mm}
-
+\begin{figure}
+\vspace{10mm}
 \dirtree{%
 .1 \ldots.
 .2 \ldots \DTcomment{Preceding threads are skipped}.
@@ -142,9 +143,14 @@ UID 400.  This is how the new threading for this mailbox looks like:
 .5 {\bf 666} \DTcomment{This is the newly arrived message}.
 .4 602.
 .5 603.
+.2 \ldots \DTcomment{The following threads are also skipped}.
 }
-
-\vspace{5mm}
+\vspace{10mm}
+  \label{fig:incthread-threading-example}
+  \caption{The incremental threading response conveyed information about one message thread in a mailbox.  No data for
+  other threads have to be transmitted, leading to a significant performance improvements on slow networks or
+  bandwidth-constrained devices.}
+\end{figure}
 
 Even though the updated extended {\tt THREAD} command can still send data which are already known by the client, the
 design is a reasonable compromise between one imposing overly complex requirements on both clients and servers on one
