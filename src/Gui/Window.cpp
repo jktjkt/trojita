@@ -1269,7 +1269,10 @@ void MainWindow::slotViewMsgHeaders()
 
         QScrollArea *area = new QScrollArea();
         area->setWidgetResizable(true);
-        SimplePartWidget *headers = new SimplePartWidget(0, netAccess, messageIndex.model()->index(0, Imap::Mailbox::TreeItem::OFFSET_HEADER, messageIndex));
+        SimplePartWidget *headers = new SimplePartWidget(0, netAccess,
+                                                         messageIndex.model()->index(
+                                                             0, Imap::Mailbox::TreeItem::OFFSET_HEADER, messageIndex)
+                                                         );
         area->setWidget(headers);
         area->setAttribute(Qt::WA_DeleteOnClose);
         connect(area, SIGNAL(destroyed()), headers, SLOT(deleteLater()));
