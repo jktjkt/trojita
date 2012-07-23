@@ -672,6 +672,7 @@ void MainWindow::msgListDoubleClicked(const QModelIndex &index)
     widget->setWidgetResizable(true);
     widget->setWindowTitle(message->envelope(model).subject);
     widget->setAttribute(Qt::WA_DeleteOnClose);
+    widget->resize(800, 600);
     widget->show();
 }
 
@@ -1277,6 +1278,7 @@ void MainWindow::slotViewMsgHeaders()
         area->setAttribute(Qt::WA_DeleteOnClose);
         connect(area, SIGNAL(destroyed()), headers, SLOT(deleteLater()));
         connect(area, SIGNAL(destroyed()), netAccess, SLOT(deleteLater()));
+        area->resize(800, 600);
         area->show();
         // FIXME: add an event filter for scrolling...
     }
