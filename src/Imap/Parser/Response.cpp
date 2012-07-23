@@ -34,6 +34,9 @@ AbstractResponse::~AbstractResponse()
 {
 }
 
+static QString threadDumpHelper(const ThreadingNode &node);
+static void threadingHelperInsertHere(ThreadingNode *where, const QVariantList &what);
+
 QTextStream &operator<<(QTextStream &stream, const Code &r)
 {
 #define CASE(X) case X: stream << #X; break;
@@ -998,7 +1001,7 @@ Thread::Thread(const QByteArray &line, int &start): AbstractResponse(THREAD)
     ThreadingNode node;
     while (start < line.size() - 2) {
         QVariantList current = LowLevelParser::parseList('(', ')', line, start);
-        insertHere(&node, current);
+        threadingHelperInsertHere(&node, current);
     }
     rootItems = node.children;
 }
@@ -1009,7 +1012,7 @@ Please note that the syntax for the THREAD untagged response, as defined in
 RFC5256, is rather counter-intuitive -- items placed at the *same* level in the
 list are actually parent/child, not siblings.
  */
-void Thread::insertHere(ThreadingNode *where, const QVariantList &what)
+static void threadingHelperInsertHere(ThreadingNode *where, const QVariantList &what)
 {
     bool first = true;
     for (QVariantList::const_iterator it = what.begin(); it != what.end(); ++it) {
@@ -1022,7 +1025,7 @@ void Thread::insertHere(ThreadingNode *where, const QVariantList &what)
                 where->children.append(ThreadingNode());
                 where = &(where->children.last());
             }
-            insertHere(where, it->toList());
+            threadingHelperInsertHere(where, it->toList());
         } else {
             throw UnexpectedHere("THREAD structure contains garbage; expecting fancy list of uints");
         }
@@ -1239,17 +1242,17 @@ QTextStream &Thread::dump(QTextStream &stream) const
 {
     ThreadingNode node;
     node.children = rootItems;
-    return stream << "THREAD {parsed-into-sane-form}" << dumpHelper(node);
+    return stream << "THREAD {parsed-into-sane-form}" << threadDumpHelper(node);
 }
 
-QString Thread::dumpHelper(const ThreadingNode &node)
+static QString threadDumpHelper(const ThreadingNode &node)
 {
     if (node.children.isEmpty()) {
         return QString::number(node.num);
     } else {
         QStringList res;
         for (QVector<ThreadingNode>::const_iterator it = node.children.begin(); it != node.children.end(); ++it) {
-            res << dumpHelper(*it);
+            res << threadDumpHelper(*it);
         }
         return QString::fromAscii("%1: {%2}").arg(node.num).arg(res.join(QString::fromAscii(", ")));
     }

@@ -569,9 +569,6 @@ public:
     virtual bool eq(const AbstractResponse &other) const;
     virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
     virtual bool plug(Imap::Mailbox::ImapTask *task) const;
-private:
-    void insertHere(ThreadingNode *where, const QVariantList &what);
-    static QString dumpHelper(const ThreadingNode &node);
 };
 
 /** @short Structure storing the result of the ID command */
