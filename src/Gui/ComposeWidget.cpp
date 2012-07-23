@@ -56,12 +56,7 @@ ComposeWidget::ComposeWidget(MainWindow *parent, QAbstractListModel *autoComplet
 {
     Q_ASSERT(m_mainWindow);
     m_composer = new Imap::Mailbox::MessageComposer(m_mainWindow->imapModel(), this);
-
-    // Unless all of URLAUTH, CATENATE and BURL is present and enabled, we will still have to download the data in the end
-    m_composer->setPreloadEnabled(
-                ! (m_mainWindow->isCatenateSupported() && m_mainWindow->isGenUrlAuthSupported()
-                   && QSettings().value(Common::SettingsNames::smtpUseBurlKey, false).toBool())
-                );
+    m_composer->setPreloadEnabled(shouldBuildMessageLocally());
 
     ui->setupUi(this);
     sendButton = ui->buttonBox->addButton(tr("Send"), QDialogButtonBox::AcceptRole);
@@ -186,7 +181,7 @@ void ComposeWidget::send()
         connect(appendTask.data(), SIGNAL(appendUid(uint,uint)), this, SLOT(slotAppendUidKnown(uint,uint)));
     }
 
-    if (rawMessageData.isEmpty()) {
+    if (rawMessageData.isEmpty() && shouldBuildMessageLocally()) {
         if (!m_composer->asRawMessage(&buf, &errorMessage)) {
             gotError(tr("Cannot send right now:\n %1").arg(errorMessage));
             return;
@@ -471,6 +466,14 @@ void ComposeWidget::slotGenUrlAuthReceived(const QString &url)
 QString ComposeWidget::killDomainPartFromString(const QString &s)
 {
     return s.split(QLatin1Char('@'))[0];
+}
+
+/** @short Return true if the message payload shall be built locally */
+bool ComposeWidget::shouldBuildMessageLocally() const
+{
+    // Unless all of URLAUTH, CATENATE and BURL is present and enabled, we will still have to download the data in the end
+    return ! (m_mainWindow->isCatenateSupported() && m_mainWindow->isGenUrlAuthSupported()
+              && QSettings().value(Common::SettingsNames::smtpUseBurlKey, false).toBool());
 }
 
 }

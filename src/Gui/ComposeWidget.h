@@ -79,6 +79,7 @@ private:
     bool parseRecipients(QList<QPair<Imap::Mailbox::MessageComposer::RecipientKind, Imap::Message::MailAddress> > &results);
 
     bool buildMessageData();
+    bool shouldBuildMessageLocally() const;
 
     static QString killDomainPartFromString(const QString &s);
 
