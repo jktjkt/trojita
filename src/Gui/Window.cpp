@@ -1267,15 +1267,10 @@ void MainWindow::slotViewMsgHeaders()
         Imap::Network::MsgPartNetAccessManager *netAccess = new Imap::Network::MsgPartNetAccessManager(this);
         netAccess->setModelMessage(messageIndex);
 
-        QScrollArea *area = new QScrollArea();
-        area->setWidgetResizable(true);
         SimplePartWidget *headers = new SimplePartWidget(0, netAccess, messageIndex.model()->index(0, Imap::Mailbox::TreeItem::OFFSET_HEADER, messageIndex));
-        area->setWidget(headers);
-        area->setAttribute(Qt::WA_DeleteOnClose);
-        connect(area, SIGNAL(destroyed()), headers, SLOT(deleteLater()));
-        connect(area, SIGNAL(destroyed()), netAccess, SLOT(deleteLater()));
-        area->show();
-        // FIXME: add an event filter for scrolling...
+        headers->setAttribute(Qt::WA_DeleteOnClose);
+        connect(headers, SIGNAL(destroyed()), netAccess, SLOT(deleteLater()));
+        headers->show();
     }
 }
 
