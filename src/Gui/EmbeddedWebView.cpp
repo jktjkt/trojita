@@ -123,8 +123,9 @@ void EmbeddedWebView::handlePageLoadFinished(bool ok)
 
     // We've already set in in our constructor, but apparently it isn't enough (Qt 4.8.0 on X11).
     // Let's do it again here, it works.
-    page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
-    page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
+    Qt::ScrollBarPolicy policy = isWindow() ? Qt::ScrollBarAsNeeded : Qt::ScrollBarAlwaysOff;
+    page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, policy);
+    page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, policy);
     page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
 }
 
@@ -181,7 +182,12 @@ void EmbeddedWebView::findScrollParent()
 void EmbeddedWebView::showEvent(QShowEvent *se)
 {
     QWebView::showEvent(se);
-    if (!m_scrollParent) // it would be much easier if the parents were just passed with the constructor ;-)
+    Qt::ScrollBarPolicy policy = isWindow() ? Qt::ScrollBarAsNeeded : Qt::ScrollBarAlwaysOff;
+    page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAsNeeded);
+    page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, policy);
+    if (isWindow()) {
+        resize(640,480);
+    } else if (!m_scrollParent) // it would be much easier if the parents were just passed with the constructor ;-)
         findScrollParent();
 }
 
