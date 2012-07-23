@@ -5,7 +5,8 @@
 
 \chapter{Trojitá's Architecture}
 
-This chapter provides a brief introduction to the architecture of Trojitá from a programmer's point of view.
+This chapter provides a brief introduction to the architecture of Trojitá from a programmer's point of view.  Additional
+information is provided in the documentation shipped as a part of the source tree.
 
 \section{Overview of Components}
 
@@ -135,16 +136,90 @@ unfavorable network conditions.  It also allows its users to access any data whi
 offline mode.
 
 Several caching backends are shipped in Trojitá; some of them store data exclusively in memory and therefore are not
-persistent per se, others use sqlite for actual data storage.  Another mode which offloads ``big data'' storage to
-additional on-disk files is used by default.~\footnote{Work on the structured cache backends was sponsored by the KWest
-GbmH. (appendix \ref{sec:kwest}, p.~\pageref{sec:kwest}).}
+persistent per se, others use SQLite \cite{sqlite} for actual data storage.  Another mode which offloads ``big data''
+storage to additional on-disk files is used by default.~\footnote{Work on the structured cache backends was sponsored by
+the KWest GbmH. (appendix \ref{sec:kwest}, p.~\pageref{sec:kwest}).}
 
 \section{The Mobile Version}
-\todo[inline]{Also mention the version usable on cell phones}
+
+Trojitá also ships with a special version targeted for use on cell phones with touch screen, such as Nokia's N9.  The
+release was tested on the Nokia N950, a developer device for which I was selected through Nokia's Community Device
+Programme (appendix \ref{sec:nokia-cdp}, p.~\pageref{sec:nokia-cdp}).
+
+The touch-optimized version of Trojitá shares most of the code with the desktop version; in particular, none of the
+underlying IMAP code has been modified.  The changes were concentrated solely on the GUI layer which was completely
+rewritten using QML \cite{qml}, Qt's declarative language for fluid user interface creation.  A certain amount of C++
+code was also required, mainly for seamless integration of the underlying data providers with the JavaScript-based QML
+data presentation.
+
+I also had to extend some of the existing Qt classes with proper functions required for Trojitá.  One of them was
+replacing QML's native {\tt QDeclarativeWebView} component, an QML item encapsulating WebKit, the HTML renderer.  This
+replacement was required because the stock version from upstream Qt did not support specifying a {\tt
+QNetworkAccessManager} instance to use on a per-item basis~\cite{jkt-qdeclarativewebview}.  In QML, the whole QML scene
+shares a single instance of the {\tt QNetworkAccessManager} which is used for all sorts of data fetching.  In Trojitá,
+such a behavior is unacceptable for security reasons because the actual message data are transferred through said
+manager, and the manager therefore has to implement a proper security policy denying any requests for external
+elements.~\footnote{If the e-mail rendered was able to access external data, e.g. fetch images from the Internet at
+will, the resulting HTTP transfers would compromise the user's privacy and reveal confidential information like presence
+and schedule of a real person accessing a particular e-mail account.  Such tracing can be trivially implemented by
+including a unique identifier in the image URL, which is the reason why any decent MUA rejects such network requests by
+default.}  There were also additional technical reasons for this extension, some of which were related to a documented
+requirement of QML's global instance adding provisions for future multithreaded access, a requirement which Trojitá's
+implementation explicitly does not guarantee for performance reasons.
+
+Apart from the mentioned issues, the porting proved to be very easy, to the extent when the most limiting factor were
+the author's lack of familiarity with QML and this technology's relative immaturity and lack of existing components when
+compared to the ``regular'' Qt applications.~\footnote{An example is the lack of a {\tt QSettings} equivalent in QML;
+users are suggested to use raw SQL access through {\tt openDatabaseSync} method which is indeed much more flexible, but
+also located several layers below the {\tt QSettings} on an out-of-box usability index.}  No design decisions of the
+application were hit during the porting process.
+
+Trojitá's asynchronous mode of operation where any data transfers are performed in the background, without blocking the
+user interface, was paramount in achieving a decent performance and smooth UI updates.
+
+The mobile version is still not as mature as the regular desktop release; most importantly, it does not support sending
+e-mails for now.  Proper platform integration should also be done in future.  For these reasons, the application was
+submitted to the Ovi store, Nokia's ``app store'' product, as a {\em technical preview}.  Even at its present state,
+however, the application is very useful for accessing user's e-mail on the go and for quick checking of whether
+something important has happened.  Trojitá's support for many IMAP extensions which reduce the overall bandwidth
+consumption was also tremendously useful --- many of them, like the {\tt CONDSTORE} and {\tt QRESYNC}, were designed
+with exactly this use case in mind and are also reasonably wide deployed among the publicly available IMAP server
+implementations.
 
 \section{Regression Testing}
-\todo[inline]{Time for a shameless plug about the test suite}
-\todo[inline]{Mention the low-level optimizations --- string deduplication, results of profiling,\ldots}
 
+The IMAP protocol implementation developed as a part of Trojitá is covered by an extensive test suite verifying its
+behavior under varying conditions.  All extensions supported by Trojitá which relate to e-mail retrieval are covered by
+the test suite.
+
+Most of the testing works by replacing the connection to the IMAP server by a mock object capable of verifying that the
+transmitted data matches the developer's expectations and returning the sample responses back.  This approach is
+self-contained, does not require any other software to test and therefore increases the chances of regressions getting
+caught before they made their way to a production release.
+
+\subsection{Scalability}
+
+I'm regularly testing Trojitá on mailboxes with hundreds of thousands of messages.  Trojitá's unique design which
+guarantees that only the {\em required} data is transferred is paramount in achieving (and retaining) reasonable
+performance under varying workload.
+
+\subsection{Low-level optimization}
+
+Performance measurements were undertaken using Valgrind's \cite{valgrind} {\tt callgrind} \cite{valgrind-callgrind} tool
+while memory usage was tracked using Valgrind's {\tt massif} \cite{valgrind-massif}.  It is hard to compare existing
+clients based on the ``consumed memory'' alone, especially when considering that certain desktop clients like KDE's
+Akonadi-based \cite{akonadi} products are split into several processes, many of which are handling both IMAP-related and
+unrelated operations.  The memory profiling was therefore concentrated on making Trojitá's memory usage ``reasonable''
+and for checking of obvious regressions.
+
+Some of the results I have observed when profiling the code were initially rather surprising --- for example, replacing
+a {\tt QStringList} implementation by a {\tt QSet<QString>} one actually {\em increased} the memory usage from 296~MB in
+a synthetic benchmark~\footnote{The test used was {\tt ImapModelObtainSynchronizedMailboxTest::testFlagReSyncBenchmark}
+as of commit {\tt cf92f5f9f8e929e1427877c0db470d8c59651d3b} (March 2012) with the number of messages in mailbox being
+increased to half a million.  Measurements were performed on an {\tt x86\_64} Gentoo Linux machine running Qt~4.7.1.} to
+385~MB, i.e. by roughly one third.  The total use was in the end reduced to just 186~MB by explicit use of {\tt
+QString}'s implicit sharing where the actual text data are saved in memory only once, using {\tt QString}'s native
+reference counting.  More drastic reductions could be performed by actively removing unused data from memory, but no
+compelling reason to do so on the target platforms was observed.
 
 \end{document}
