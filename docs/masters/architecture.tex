@@ -172,7 +172,7 @@ the author's lack of familiarity with QML and this technology's relative immatur
 compared to the ``regular'' Qt applications.~\footnote{An example is the lack of a {\tt QSettings} equivalent in QML;
 users are suggested to use raw SQL access through {\tt openDatabaseSync} method which is indeed much more flexible, but
 also located several layers below the {\tt QSettings} on an out-of-box usability index.}  No design decisions of the
-application were hit during the porting process.
+application were hit as obstacles during the porting process.
 
 Trojitá's asynchronous mode of operation where any data transfers are performed in the background, without blocking the
 user interface, was paramount in achieving a decent performance and smooth UI updates.
@@ -201,7 +201,12 @@ caught before they made their way to a production release.
 
 I'm regularly testing Trojitá on mailboxes with hundreds of thousands of messages.  Trojitá's unique design which
 guarantees that only the {\em required} data is transferred is paramount in achieving (and retaining) reasonable
-performance under varying workload.
+performance under varying workloads.
+
+Trojitá respects all relevant recommendations about incremental retrieval of data.  Unless in the so called ``expensive
+mode'' where Trojitá tries to save bandwidth at the cost of increased waiting time, an intelligent preload is
+implemented which will seamlessly ask for data which is likely to be required in future in a background preload
+operation.
 
 \subsection{Low-level optimization}
 
