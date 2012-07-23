@@ -197,6 +197,83 @@ transmitted data matches the developer's expectations and returning the sample r
 self-contained, does not require any other software to test and therefore increases the chances of regressions getting
 caught before they made their way to a production release.
 
+The following is an example on how an actual test might look like:
+
+\begin{minted}{c++}
+/** @short Test QRESYNC reporting changed flags */
+void ImapModelObtainSynchronizedMailboxTest::testQresyncChangedFlags()
+{
+    // Trick the IMAP code into believing that the server supports QRESYNC
+    // The test environment can do that without the burden of explicitly
+    // faking the CAPABILITY response.
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("QRESYNC");
+
+    // Simulate the previous state of the mailbox
+    Imap::Mailbox::SyncState sync;
+    sync.setExists(3);
+    sync.setUidValidity(666);
+    sync.setUidNext(15);
+    sync.setHighestModSeq(33);
+    QList<uint> uidMap;
+    uidMap << 6 << 9 << 10;
+
+    // Store the simulated state in the persistent cache
+    model->cache()->setMailboxSyncState("a", sync);
+    model->cache()->setUidMapping("a", uidMap);
+    model->cache()->setMsgFlags("a", 6, QStringList() << "x");
+    model->cache()->setMsgFlags("a", 9, QStringList() << "y");
+    model->cache()->setMsgFlags("a", 10, QStringList() << "z");
+
+    // At this point, we can proceed with actual testing
+
+    // Initiate the activity
+    model->resyncMailbox(idxA);
+    // Check the I/O communication
+    cClient(t.mk("SELECT a (QRESYNC (666 33 (2 9)))\r\n"));
+    cServer("* 3 EXISTS\r\n"
+            "* OK [UIDVALIDITY 666] .\r\n"
+            "* OK [UIDNEXT 15] .\r\n"
+            "* OK [HIGHESTMODSEQ 36] .\r\n"
+            "* 2 FETCH (UID 9 FLAGS (x2 \\Seen))\r\n"
+            );
+    cServer(t.last("OK selected\r\n"));
+    // Make sure that nothing else was transferred "over the network"
+    cEmpty();
+
+    // Verify that the persistent cache had been updated properly
+    sync.setHighestModSeq(36);
+    QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()),
+             uidMap.size());
+    QCOMPARE(model->cache()->uidMapping("a"), uidMap);
+    QCOMPARE(model->cache()->msgFlags("a", 6),
+             QStringList() << "x");
+    QCOMPARE(model->cache()->msgFlags("a", 9),
+             QStringList() << "\\Seen" << "x2");
+    QCOMPARE(model->cache()->msgFlags("a", 10),
+             QStringList() << "z");
+
+    // Make sure that we've picked up the changed flag
+    QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 2);
+
+    // Nothing else should be running
+    justKeepTask();
+}
+\end{minted}
+
+Trojitá includes many of these individual test cases covering both regular operation as well as several pathological
+scenarios which would be tricky to hit in the real world.  In addition to that, the automated tests also verify speed of
+mailbox synchronization with folders containing hundreds of thousands of messages, a scenario which might be rare in
+practice~\footnote{The {\em Seznam.cz}, the most popular Czech free e-mail provider, imposed a limit on just 30,000
+messages per account in early 2012.} but extremely useful for catching programmer mistakes like proposing an $O(n^2)$
+algorithm~\footnote{It was necessary to locate a message in the mailbox by its UID.  A conventional binary search
+algorithm was not applicable because the search could encounter ``message placeholders'' whose UID was not know, and
+therefore could not be compared.  In the end, measurements have shown that starting with binary search and falling back
+on a linear scan works fast enough in all tested circumstances.} --- in spite of the fact that the overhead of the
+testing framework, especially when working with huge data transfers, as is indeed the case when synchronizing such a
+mailbox, is comparable to the actual code being profiled.
+
 \subsection{Scalability}
 
 I'm regularly testing Trojitá on mailboxes with hundreds of thousands of messages.  Trojitá's unique design which
