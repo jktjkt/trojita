@@ -6,16 +6,16 @@
 \chapter{Proposed Extensions}
 
 Previous chapters have shed some light on the complicated world of IMAP and showed how the protocol limitations affects
-the users' experience.  I have also introduced some of the existing extensions which aim to address many shortcomings.
-There are still quite a few issues which make lives of the client implementors harder than necessary, though.  At this
-point, I present three extensions which fix race conditions, improve the effectiveness of the protocol or add new
-features which contribute to smoother operation of the e-mail clients.  This broad range of changes was selected to
-illustrate that improving IMAP can happen on many different levels.
+the users' experience.  I have also introduced some of the existing extensions which aim to address many of the
+presented shortcomings.  There are still quite a few issues which make lives of the client implementors harder than
+necessary, though.  At this point, I present three extensions which fix race conditions, improve the effectiveness of
+the protocol or add new features which contribute to smoother operation of the e-mail clients.  This broad range of
+changes was selected to illustrate that improving IMAP can happen on many different fronts.
 
 Internet Drafts are usually prepared in a special system \cite{rfc-formatting} which handles the required strict
-document formatting using ASCII art.  This chapter is therefore purposely very short, providing only the minimal
-descriptions of the proposed extensions.  The Internet Drafts themselves are found in appendix \ref{sec:id-manuscripts}
-on page \pageref{sec:id-manuscripts} and are an integral part of this thesis.
+document formatting using plain ASCII text.  This chapter is therefore purposely very short, providing only the minimal
+descriptions of the proposed extensions.  The Internet Drafts themselves are included in appendix
+\ref{sec:id-manuscripts} on page \pageref{sec:id-manuscripts} and are an integral part of this thesis.
 
 \section{Announcing UIDs of Newly Arriving Messages in QRESYNC: the ARRIVED Extension}
 \label{sec:draft-arrived}
@@ -36,17 +36,19 @@ of UIDs to message sequence numbers for the selected mailbox.''}~\cite[p. 12]{rf
 RFC language, {\em SHOULD} means that implementations are suggested to use the recommended behavior, but can deviate
 from that as {\em ``there may exist valid reasons in particular circumstances to ignore a particular item''}
 \cite{rfc2092}.} to include non-existing UIDs in the {\tt VANISHED} responses, a race condition exists where client does
-not know about the full value of the sequence $\rightarrow$ UID mapping, which in turn violates RFC 5162's requirement
+not know about the full span of the sequence $\rightarrow$ UID mapping, which in turn violates RFC 5162's requirement
 on clients having {\em ``a complete mapping of UIDs to message sequence numbers for the selected mailbox''}.
 
-The proposed extension addresses this issue through the {\tt ARRIVED} response.  At the same time, it improves the
-protocol efficiency by freeing the clients from a requirement to explicitly ask for message UIDs when a new message is
-delivered.
+The proposed extension addresses this issue through the {\tt ARRIVED} response which informs the clients about the UIDs
+of new message arrivals.  At the same time, it improves the protocol efficiency by freeing the clients from a
+requirement to explicitly ask for message UIDs when a new message is delivered.
 
 In absence of the {\tt ARRIVED} extension, clients are required to perform an explicit UID rediscovery.  Servers which
 already do not send non-existing UIDs in the {\tt VANISHED} responses will still benefit from implementing the {\tt
 ARRIVED} response as the clients will not have to perform explicit {\tt UID SEARCH} operations on them upon new
-deliveries.
+deliveries.  Furthermore, due to the fact that clients have {\em no way} of finding out whether servers include the
+non-existing UIDs in {\tt VANISHED} responses, the benefits of the proposed extension are demonstrated whenever new
+arrivals are expunged before their UIDs become known.
 
 Full text of the proposed extension in the format of an Internet-Draft suitable for IETF submission is included in
 section \secref{sec:draft-imap-qresync-arrived}.
