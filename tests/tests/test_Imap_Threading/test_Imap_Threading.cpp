@@ -160,6 +160,8 @@ void ImapModelThreadingTest::testThreadDeletionsAdditions()
 
     QCOMPARE(SOCK->writtenStuff(), t.mk("UID THREAD REFS utf-8 ALL\r\n"));
     SOCK->fakeReading(QByteArray("* THREAD ") + response + QByteArray("\r\n") + t.last("OK thread\r\n"));
+    SOCK->fakeReading(QByteArray("* ESEARCH (TAG \"") + t.last() + "\") UID THREAD " + response + QByteArray("\r\n") +
+                      t.last("OK thread\r\n"));
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();

@@ -76,6 +76,31 @@ bool ThreadTask::handleThread(const Imap::Responses::Thread *const resp)
     return true;
 }
 
+bool ThreadTask::handleESearch(const Responses::ESearch *const resp)
+{
+    if (resp->tag != tag)
+        return false;
+
+    if (resp->seqOrUids != Imap::Responses::ESearch::UIDS)
+        throw UnexpectedResponseReceived("ESEARCH response to a UID THREAD command with matching tag uses "
+                                         "sequence numbers instead of UIDs", *resp);
+
+    // Extract the threading information and make sure that it's present at most once
+    Responses::ESearch::CompareListDataIdentifier<Responses::ESearch::ThreadingData_t> threadComparator("THREAD");
+    Responses::ESearch::ThreadingData_t::const_iterator threadIterator =
+            std::find_if(resp->threadingData.constBegin(), resp->threadingData.constEnd(), threadComparator);
+    if (threadIterator != resp->threadingData.constEnd()) {
+        mapping = threadIterator->second;
+        ++threadIterator;
+        if (std::find_if(threadIterator, resp->threadingData.constEnd(), threadComparator) != resp->threadingData.constEnd())
+            throw UnexpectedResponseReceived("ESEARCH contains the THREAD key too many times", *resp);
+    } else {
+        mapping.clear();
+    }
+
+    return true;
+}
+
 QVariant ThreadTask::taskData(const int role) const
 {
     return role == RoleTaskCompactName ? QVariant(tr("Fetching conversations")) : QVariant();
