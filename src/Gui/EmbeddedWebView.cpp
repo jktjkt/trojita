@@ -142,7 +142,8 @@ bool EmbeddedWebView::eventFilter(QObject *o, QEvent *e)
     return QWebView::eventFilter(o, e);
 }
 
-void EmbeddedWebView::findScrollParent() {
+void EmbeddedWebView::findScrollParent()
+{
     if (m_scrollParent)
         m_scrollParent->removeEventFilter(this);
     m_scrollParent = 0;
