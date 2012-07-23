@@ -767,20 +767,30 @@ ESearch::ESearch(const QByteArray &line, int &start): AbstractResponse(ESEARCH),
                 }
 
             } while (true);
+        } else if (label == "THREAD") {
+            // another special case using completely different structure
 
-            // We're done processing this ESEARCH return item, move on to the next one
-            continue;
+            if (start >= line.size() - 2)
+                throw NoData("ESEARCH THREAD: no data", line, start);
+
+            ThreadingNode node;
+            while (start < line.size() - 2 && line[start] == '(') {
+                QVariantList current = LowLevelParser::parseList('(', ')', line, start);
+                threadingHelperInsertHere(&node, current);
+            }
+            threadingData.push_back(qMakePair<QByteArray, ThreadingItem_t::second_type>(label, node.children));
+            LowLevelParser::eatSpaces(line, start);
+        } else {
+            // A generic case: be prepapred to accept a (sequence of) numbers
+
+            QList<uint> numbers = LowLevelParser::getSequence(line, start);
+            // There's no syntactic difference between a single-item sequence set and one number, which is why we always parse
+            // such "sequences" as full blown sequences. That's better than deal with two nasties of the ListData_t kind -- one such
+            // beast is more than enough, IMHO.
+            listData.push_back(qMakePair<QByteArray, QList<uint> >(label, numbers));
+
+            LowLevelParser::eatSpaces(line, start);
         }
-
-        // A generic case: be prepapred to accept a (sequence of) numbers
-
-        QList<uint> numbers = LowLevelParser::getSequence(line, start);
-        // There's no syntactic difference between a single-item sequence set and one number, which is why we always parse
-        // such "sequences" as full blown sequences. That's better than deal with two nasties of the ListData_t kind -- one such
-        // beast is more than enough, IMHO.
-        listData.push_back(qMakePair<QByteArray, QList<uint> >(label, numbers));
-
-        LowLevelParser::eatSpaces(line, start);
     }
 }
 
@@ -1194,6 +1204,12 @@ QTextStream &ESearch::dump(QTextStream &stream) const
         }
         stream << ") ";
     }
+    for (ThreadingData_t::const_iterator it = threadingData.constBegin();
+         it != threadingData.constEnd(); ++it) {
+        ThreadingNode node;
+        node.children = it->second;
+        stream << it->first << " [THREAD parsed-into-sane-form follows] " << threadDumpHelper(node) << " ";
+    }
     return stream;
 }
 
@@ -1455,7 +1471,8 @@ bool ESearch::eq(const AbstractResponse &other) const
 {
     try {
         const ESearch &s = dynamic_cast<const ESearch &>(other);
-        return tag == s.tag && seqOrUids == s.seqOrUids && listData == s.listData && incrementalContextData == s.incrementalContextData;
+        return tag == s.tag && seqOrUids == s.seqOrUids && listData == s.listData &&
+                incrementalContextData == s.incrementalContextData && threadingData == s.threadingData;
     } catch (std::bad_cast &) {
         return false;
     }
