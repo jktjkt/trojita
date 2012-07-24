@@ -90,6 +90,7 @@ public:
             const QList<QPersistentModelIndex> &messages, const FlagsOperation flagOperation,
             const QString &flags);
     virtual ThreadTask *createThreadTask(Model *model, const QModelIndex &mailbox, const QByteArray &algorithm, const QStringList &searchCriteria);
+    virtual ThreadTask *createIncrementalThreadTask(Model *model, const QModelIndex &mailbox, const QByteArray &algorithm, const QStringList &searchCriteria);
     virtual NoopTask *createNoopTask(Model *model, ImapTask *parentTask);
     virtual UnSelectTask *createUnSelectTask(Model *model, ImapTask *parentTask);
     virtual SortTask *createSortTask(Model *model, const QModelIndex &mailbox, const QStringList &searchConditions, const QStringList &sortCriteria);

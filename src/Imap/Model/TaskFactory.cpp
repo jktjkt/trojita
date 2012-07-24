@@ -140,6 +140,11 @@ ThreadTask *TaskFactory::createThreadTask(Model *model, const QModelIndex &mailb
     return new ThreadTask(model, mailbox, algorithm, searchCriteria);
 }
 
+ThreadTask *TaskFactory::createIncrementalThreadTask(Model *model, const QModelIndex &mailbox, const QByteArray &algorithm, const QStringList &searchCriteria)
+{
+    return new ThreadTask(model, mailbox, algorithm, searchCriteria, ThreadTask::THREADING_INCREMENTAL);
+}
+
 NoopTask *TaskFactory::createNoopTask(Model *model, ImapTask *parentTask)
 {
     return new NoopTask(model, parentTask);

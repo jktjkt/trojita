@@ -29,8 +29,10 @@ namespace Mailbox
 {
 
 
-ThreadTask::ThreadTask(Model *model, const QModelIndex &mailbox, const QByteArray &algorithm, const QStringList &searchCriteria):
-    ImapTask(model), mailboxIndex(mailbox), algorithm(algorithm), searchCriteria(searchCriteria), m_incrementalMode(false)
+ThreadTask::ThreadTask(Model *model, const QModelIndex &mailbox, const QByteArray &algorithm, const QStringList &searchCriteria,
+                       const ThreadingIncrementalMode incrementalMode):
+    ImapTask(model), mailboxIndex(mailbox), algorithm(algorithm), searchCriteria(searchCriteria),
+    m_incrementalMode(incrementalMode == THREADING_INCREMENTAL)
 {
     conn = model->findTaskResponsibleFor(mailbox);
     conn->addDependentTask(this);

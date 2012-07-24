@@ -32,7 +32,17 @@ class ThreadTask : public ImapTask
 {
     Q_OBJECT
 public:
-    ThreadTask(Model *model, const QModelIndex &mailbox, const QByteArray &algorithm, const QStringList &searchCriteria);
+
+    /** @short Is this a regular threading request, or an incremental operation? */
+    typedef enum {
+        /** @short Regular threading request */
+        THREADING_REGULAR,
+        /** @short Incremental request */
+        THREADING_INCREMENTAL
+    } ThreadingIncrementalMode;
+
+    ThreadTask(Model *model, const QModelIndex &mailbox, const QByteArray &algorithm, const QStringList &searchCriteria,
+               const ThreadingIncrementalMode incrementalMode = THREADING_REGULAR);
     virtual void perform();
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
