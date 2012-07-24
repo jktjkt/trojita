@@ -8,9 +8,11 @@
 Previous chapters have shed some light on the complicated world of IMAP and showed how the protocol limitations affects
 the users' experience.  I have also introduced some of the existing extensions which aim to address many of the
 presented shortcomings.  There are still quite a few issues which make lives of the client implementors harder than
-necessary, though.  At this point, I present three extensions which fix race conditions, improve the effectiveness of
-the protocol or add new features which contribute to smoother operation of the e-mail clients.  This broad range of
-changes was selected to illustrate that improving IMAP can happen on many different fronts.
+necessary, though.  At this point, I present three separate extensions which fix race conditions, improve the
+effectiveness of the protocol or add new features which contribute to smoother operation of the e-mail clients.  This
+broad range of changes was selected to illustrate that improving IMAP can happen on many different fronts and that even
+after more than twenty years of ``active service'', the protocol can be actively improved to address newly emerging
+trends.
 
 Internet Drafts are usually prepared in a special system \cite{rfc-formatting} which handles the required strict
 document formatting using plain ASCII text.  This chapter is therefore purposely very short, providing only the minimal
@@ -43,12 +45,47 @@ The proposed extension addresses this issue through the {\tt ARRIVED} response w
 of new message arrivals.  At the same time, it improves the protocol efficiency by freeing the clients from a
 requirement to explicitly ask for message UIDs when a new message is delivered.
 
-In absence of the {\tt ARRIVED} extension, clients are required to perform an explicit UID rediscovery.  Servers which
-already do not send non-existing UIDs in the {\tt VANISHED} responses will still benefit from implementing the {\tt
-ARRIVED} response as the clients will not have to perform explicit {\tt UID SEARCH} operations on them upon new
+This is how a typical session without the {\tt ARRIVED} extension looks like.  Suppose the mailbox previously contained
+just a single message with UID 5, the UIDNEXT is 11:
+
+\begin{minted}{text}
+  S: * 3 EXISTS
+  S: * 2 FETCH (FLAGS (foo))
+  S: * 3 FETCH (FLAGS (bar))
+  S: * VANISHED 12:20
+  C: x UID SEARCH UID 11:*
+  S: * SEARCH 21
+  S: x OK Search completed
+  C: y UID FETCH 21 (FLAGS)
+  S: * 2 FETCH (UID 21 FLAGS (foo))
+\end{minted}
+
+The client had no chance but to ignore the unsolicited {\tt FETCH} responses, recover the full UID mapping through the
+{\tt UID SEARCH} command and finally re-request the flag data once again through the {\tt UID FETCH} command.
+
+In contrast to the above, the following is how the same session happens when {\tt QRESYNC} is active and enabled:
+
+\begin{minted}{text}
+  S: ARRIVED 21
+  S: VANISHED 12:20
+  S: * 2 FETCH (FLAGS (foo))
+  S: * 3 FETCH (FLAGS (bar))
+\end{minted}
+
+No client activity at all is required then the {\tt ARRIVED} extension is available.
+
+\subsection{Alternatives}
+
+In absence of the {\tt ARRIVED} extension, clients are required to perform an explicit UID rediscovery, possibly through
+the {\tt UID SEARCH $formerUidNext$:*}; this could pose a problem when servers send any data using the {\tt FETCH}
+responses without the {\tt UID} field.  Always including the {\tt UID} in unsolicited {\tt FETCH} responses, as
+recommended in RFC 5162's errata document, can mitigate this particular issue.  However, servers which already do not
+send non-existing UIDs in the {\tt VANISHED} responses will still benefit from implementing the {\tt ARRIVED} extension
+as the clients will be able to refrain from performing an explicit {\tt UID SEARCH} operations on them upon new
 deliveries.  Furthermore, due to the fact that clients have {\em no way} of finding out whether servers include the
 non-existing UIDs in {\tt VANISHED} responses, the benefits of the proposed extension are demonstrated whenever new
-arrivals are expunged before their UIDs become known.
+arrivals are expunged before their UIDs become known, no matter whether the servers conform to the requirement imposed
+by the relevant errata.
 
 Full text of the proposed extension in the format of an Internet-Draft suitable for IETF submission is included in
 section \secref{sec:draft-imap-qresync-arrived}.  This extension was presented for discussion on the {\tt imap-protocol}
@@ -68,6 +105,8 @@ easily ``plugged'' into the already known tree, even if full header set of the n
 would require knowledge of the relevant headers of all messages in mailbox, knowledge which is rather expensive to
 obtain and avoidance of which is the whole point of server-side threading.
 
+\subsection{Existing Approach}
+
 Extensions exist solving this problem for both searching (the {\tt CONTEXT=SEARCH} extension from RFC~5267
 \cite{rfc5267} which is reasonably wide-deployed) and sorting (the {\tt CONTEXT=SORT}, support of which is extremely
 scarce despite being defined in the same RFC document), but no such proposal was ever submitted for threading.  I
@@ -77,33 +116,42 @@ case.~\footnote{Any new arrival could possibly join many existing threads previo
 independent of each other to a single thread having all of them as subthreads.}  This is in a strong contrast to live
 updates of search results where a pair of simple ``add item $X$ to result'' and ``remove X from the result'' is enough,
 or even to incremental sort order communication (where the operation is complicated a little more, requiring ``add item
-$X$ to the result at offset
-$Y$'').
+$X$ to the result at offset $Y$'').
+
+One {\em could} attempt to try the incremental threading by asking for UIDs of messages with the {\tt Message-Id} header
+matching any referenced from the new arrivals' {\tt References}, but doing so is hard in practice as some MUAs choose
+not to use {\tt References} and set just the {\tt In-Reply-To} header.  Thread building exclusively through the {\tt
+In-Reply-To}, however, completely misses the correct thread order for threads with ``gaps'' in them, a scenario very
+common when one's own replies are located in a dedicated {\em Sent} folder with the rest of the thread in e.g. the {\tt
+INBOX}.  Using just the basic {\tt SEARCH} command is therefore not sufficient.
 
 An existing draft proposal \cite{draft-ietf-morg-inthread} extends the search query capabilities with the {\tt INTHREAD}
 operator matching a {\em whole thread} of messages.  This capability alone is not enough to fully accommodate the whole
 incremental threading problem, but it is an improvement good enough to build upon.  The only missing piece of
 functionality is being able to tell where the new thread shall be positioned, but in absence of better tools, an
-approximation always showing threads with ``new arrivals'' at the very end of the view is good
+approximation always showing threads with ``new arrivals'' at the very end of the view might be good
 enough.~\footnote{Displaying threads with ``new arrivals'' among the ``last messages'' is suboptimal because the newly
-arriving message could be in fact a result of a copy operation.  Having these ``older'' suddenly appear should not
-interleave them with the recent content of the mailbox.}
+arriving message {\em could} be in fact a result of a copy operation.  Having these ``older'' messages suddenly appear
+should not interleave them with the recent content of the mailbox.}
+
+\subsection{The INCTHREAD Extension}
 
 The proposed extension builds on top of {\tt INTHREAD}, adding the exact positioning to each individual thread matching
 the search criteria.  In addition, the format of the response does not use the {\tt THREAD} untagged response from RFC
 5256 \cite{rfc5256}, but instead uses the extensible {\tt ESEARCH} response from RFC 4731 \cite{rfc4731} --- the {\tt
 ESEARCH} already contains provisions for returning multiple types of data and as an added bonus ties the response to a
-particular command's tag, making it possible to parallelize threading operation.
+particular command's tag, making it possible to parallelize threading operation.  These reasons make the {\tt ESEARCH}
+response better suited to accommodate the new result format.
 
 The improvement, as measured in decreased bandwidth consumption, is not always as impressive as those from the CONTEXT
 extensions.  It is conceivable that more advanced forms of conveying the modified threading information (e.g. the
 strictly incremental responses about how an update affects a particular branch in the threading tree) would result in
 smaller overall transmitted octet counts, but on the other hand implementing such an extension would prove challenging
 to both servers and clients.  There are also circumstances under which the tree-oriented differential updates would not
-work; the most obvious one is when a client reconnected to a mailbox, detects a couple of new arrivals and wants to ask
-for updates ``ex post''.  Finally, the client-driven mode of operation through the proposed extension better fits the
-IMAP behavior where clients specify in what kinds of information they are interested and servers optimize their
-operation by only transmitting what is strictly necessary.
+work; the most obvious one is when a client reconnected to a mailbox, detected a couple of new arrivals and now wants to
+ask for updates ``ex post'', long after they have physically happened in the mailbox.  Finally, the client-driven mode
+of operation through the proposed extension better fits the IMAP behavior where clients specify in what kinds of
+information they are interested and servers optimize their operation by only transmitting what is strictly necessary.
 
 Using the proposed extension, a typical communication between two compliant IMAP protocol speakers might look like the
 following:
@@ -114,9 +162,9 @@ following:
   S: * 666 FETCH (UID 1666 FLAGS ())
   S: x1 OK fetched
   C: x2 UID THREAD RETURN (INCREMENTAL) REFS utf-8
-        INTHREAD 666
-  S: * ESEARCH (TAG "x2") UID THREADPREVIOUS 400
-        THREAD (600 601 (640 666)(602 603))
+        INTHREAD REFS 666
+  S: * ESEARCH (TAG "x2") UID INCTHREAD 400
+        (600 601 (640 666)(602 603))
   S: x2 OK sent
 \end{minted}
 
@@ -145,7 +193,7 @@ shape.  This new thread immediately follows a thread whose thread root has UID 4
 .5 603.
 .2 \ldots \DTcomment{The following threads are also skipped}.
 }
-\vspace{10mm}
+\vspace{8mm}
   \label{fig:incthread-threading-example}
   \caption{The incremental threading response conveyed information about one message thread in a mailbox.  No data for
   other threads have to be transmitted, leading to a significant performance improvements on slow networks or
@@ -154,9 +202,10 @@ shape.  This new thread immediately follows a thread whose thread root has UID 4
 
 Even though the updated extended {\tt THREAD} command can still send data which are already known by the client, the
 design is a reasonable compromise between one imposing overly complex requirements on both clients and servers on one
-hand, and needlessly transmitting the whole mapping in absence of any extensions.
+hand, and needlessly transmitting the whole mapping over and over again in absence of any extensions.
 
-The full text of this extension is available from section \secref{sec:draft-imap-incthread}.
+The full text of the proposed extension, including the formal grammar, is available from section
+\secref{sec:draft-imap-incthread}.
 
 \section{Submitting Internet Mail --- the SENDMAIL Extension}
 \label{sec:draft-sendmail}
