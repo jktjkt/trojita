@@ -40,6 +40,9 @@ public:
     virtual bool handleESearch(const Responses::ESearch *const resp);
     virtual QVariant taskData(const int role) const;
     virtual bool needsMailbox() const {return true;}
+signals:
+    /** @short An incremental update to the threading as per draft-imap-incthread */
+    void incrementalThreadingAvailable(const uint previousThreadRoot, const QVector<Imap::Responses::ThreadingNode> &mapping);
 protected:
     virtual void _failed(const QString &errorMessage);
 private:
@@ -49,6 +52,7 @@ private:
     QByteArray algorithm;
     QStringList searchCriteria;
     QVector<Imap::Responses::ThreadingNode> mapping;
+    bool m_incrementalMode;
 };
 
 }

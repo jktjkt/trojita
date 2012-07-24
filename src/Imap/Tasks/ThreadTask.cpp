@@ -30,7 +30,7 @@ namespace Mailbox
 
 
 ThreadTask::ThreadTask(Model *model, const QModelIndex &mailbox, const QByteArray &algorithm, const QStringList &searchCriteria):
-    ImapTask(model), mailboxIndex(mailbox), algorithm(algorithm), searchCriteria(searchCriteria)
+    ImapTask(model), mailboxIndex(mailbox), algorithm(algorithm), searchCriteria(searchCriteria), m_incrementalMode(false)
 {
     conn = model->findTaskResponsibleFor(mailbox);
     conn->addDependentTask(this);
@@ -58,7 +58,8 @@ bool ThreadTask::handleStateHelper(const Imap::Responses::State *const resp)
 
     if (resp->tag == tag) {
         if (resp->kind == Responses::OK) {
-            emit model->threadingAvailable(mailboxIndex, algorithm, searchCriteria, mapping);
+            if (!m_incrementalMode)
+                emit model->threadingAvailable(mailboxIndex, algorithm, searchCriteria, mapping);
             _completed();
         } else {
             _failed("Threading command has failed");
@@ -95,6 +96,22 @@ bool ThreadTask::handleESearch(const Responses::ESearch *const resp)
         if (std::find_if(threadIterator, resp->threadingData.constEnd(), threadComparator) != resp->threadingData.constEnd())
             throw UnexpectedResponseReceived("ESEARCH contains the THREAD key too many times", *resp);
     } else {
+        mapping.clear();
+    }
+
+    if (m_incrementalMode) {
+        Responses::ESearch::CompareListDataIdentifier<Responses::ESearch::ListData_t> prevRootComparator("THREADPREVIOUS");
+        Responses::ESearch::ListData_t::const_iterator prevRootIterator =
+                std::find_if(resp->listData.constBegin(), resp->listData.constEnd(), prevRootComparator);
+        if (prevRootIterator == resp->listData.constEnd()) {
+            throw UnexpectedResponseReceived("ESEARCH containes THREAD, but no THREADPREVIOUS");
+        } else {
+            if (std::find_if(prevRootIterator + 1, resp->listData.constEnd(), prevRootComparator) != resp->listData.constEnd())
+                throw UnexpectedResponseReceived("ESEARCH contains the THREADPREVIOUS key too many times", *resp);
+        }
+        if (prevRootIterator->second.size() != 1)
+            throw UnexpectedResponseReceived("ESEARCH THREADPREVIOUS contains invalid data", *resp);
+        emit incrementalThreadingAvailable(prevRootIterator->second.front(), mapping);
         mapping.clear();
     }
 
