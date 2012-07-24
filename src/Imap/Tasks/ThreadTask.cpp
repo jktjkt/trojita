@@ -50,7 +50,11 @@ void ThreadTask::perform()
         return;
     }
 
-    tag = parser->uidThread(algorithm, "utf-8", searchCriteria);
+    if (m_incrementalMode) {
+        tag = parser->uidEThread(algorithm, "utf-8", searchCriteria, QStringList() << "INCREMENTAL");
+    } else {
+        tag = parser->uidThread(algorithm, "utf-8", searchCriteria);
+    }
 }
 
 bool ThreadTask::handleStateHelper(const Imap::Responses::State *const resp)

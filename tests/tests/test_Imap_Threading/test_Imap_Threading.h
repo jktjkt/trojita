@@ -40,6 +40,7 @@ private slots:
     void testDynamicSorting();
     void testDynamicSortingContext();
     void testDynamicSearch();
+    void testIncrementalThreading();
     void testThreadingPerformance();
     void testSortingPerformance();
 protected slots:

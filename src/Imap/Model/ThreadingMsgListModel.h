@@ -178,14 +178,19 @@ public slots:
     bool setUserSearchingSortingPreference(const QStringList &searchConditions, const SortCriterium criterium,
                                            const Qt::SortOrder order = Qt::AscendingOrder);
 
-private slots:
+    void slotIncrementalThreadingAvailable(const Responses::ESearch::IncrementalThreadingData_t &data);
+    void slotIncrementalThreadingFailed();
+
+private:
     /** @short Display messages without any threading at all, as a liner list */
     void updateNoThreading();
 
-    /** @short Ask the model for a THREAD response */
-    void askForThreading();
+    /** @short Ask the model for a THREAD response
 
-private:
+    If the firstUnknownUid is different than zero, an incremental response is requested.
+    */
+    void askForThreading(const uint firstUnknownUid = 0);
+
     void updatePersistentIndexesPhase1();
     void updatePersistentIndexesPhase2();
 

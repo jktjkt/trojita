@@ -243,6 +243,9 @@ public slots:
     CommandHandle uidESearch(const QByteArray &charset, const QStringList &searchCriteria, const QStringList &returnOptions);
 
 
+    CommandHandle uidEThread(const QByteArray &algo, const QByteArray &charset, const QStringList &searchCriteria,
+                             const QStringList &returnOptions);
+
     /** @short CANCELUPDATE, tell the server that it shall stop sending any ESEARCH responses associated with the given tag */
     CommandHandle cancelUpdate(const CommandHandle &tag);
 

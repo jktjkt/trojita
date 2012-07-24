@@ -27,6 +27,7 @@
 #include "MailboxTree.h"
 #include "MsgListModel.h"
 #include "SortTask.h"
+#include "ThreadTask.h"
 
 
 namespace Imap
@@ -509,7 +510,13 @@ void ThreadingMsgListModel::wantThreading(const SkipSortSearch skipSortSearch)
     } else {
         // There's apparently at least one known UID whose threading info we do not know; that means that we have to ask the
         // server here.
-        askForThreading();
+        QList<TreeItem*>::iterator roughlyLastKnown =
+                const_cast<Model*>(realModel)->findMessageOrNextOneByUid(list, highestUidInThreadingLowerBound);
+        if (list->m_children.end() - roughlyLastKnown >= 50 || roughlyLastKnown == list->m_children.begin()) {
+            askForThreading();
+        } else {
+            askForThreading(static_cast<TreeItemMessage*>(*roughlyLastKnown)->uid() + 1);
+        }
     }
 }
 
@@ -553,7 +560,7 @@ uint ThreadingMsgListModel::findHighEnoughNumber(const QVector<Responses::Thread
     return highestUidInThreadingLowerBound;
 }
 
-void ThreadingMsgListModel::askForThreading()
+void ThreadingMsgListModel::askForThreading(const uint firstUnknownUid)
 {
     Q_ASSERT(m_shallBeThreading);
     Q_ASSERT(sourceModel());
@@ -575,14 +582,32 @@ void ThreadingMsgListModel::askForThreading()
 
     if (! requestedAlgorithm.isEmpty()) {
         threadingInFlight = true;
-        realModel->m_taskFactory->createThreadTask(const_cast<Imap::Mailbox::Model *>(realModel),
-                mailboxIndex, requestedAlgorithm,
-                QStringList() << QLatin1String("ALL"));
-        connect(realModel, SIGNAL(threadingAvailable(QModelIndex,QByteArray,QStringList,QVector<Imap::Responses::ThreadingNode>)),
-                this, SLOT(slotThreadingAvailable(QModelIndex,QByteArray,QStringList,QVector<Imap::Responses::ThreadingNode>)));
-        connect(realModel, SIGNAL(threadingFailed(QModelIndex,QByteArray,QStringList)),
-                this, SLOT(slotThreadingFailed(QModelIndex,QByteArray,QStringList)));
+        ThreadTask *threadTask;
+        if (firstUnknownUid && realModel->capabilities().contains(QLatin1String("INCTHREAD"))) {
+            threadTask = realModel->m_taskFactory->
+                    createIncrementalThreadTask(const_cast<Model *>(realModel), mailboxIndex, requestedAlgorithm,
+                                                                    QStringList() << "INTHREAD" << requestedAlgorithm << "UID" <<
+                                                                        Sequence::startingAt(firstUnknownUid).toString());
+            connect(threadTask, SIGNAL(incrementalThreadingAvailable(Responses::ESearch::IncrementalThreadingData_t)),
+                    this, SLOT(slotIncrementalThreadingAvailable(Responses::ESearch::IncrementalThreadingData_t)));
+            connect(threadTask, SIGNAL(failed(QString)), this, SLOT(slotIncrementalThreadingFailed()));
+        } else {
+            threadTask = realModel->m_taskFactory->createThreadTask(const_cast<Model *>(realModel), mailboxIndex,
+                                                                    requestedAlgorithm, QStringList() << QLatin1String("ALL"));
+            connect(realModel, SIGNAL(threadingAvailable(QModelIndex,QByteArray,QStringList,QVector<Imap::Responses::ThreadingNode>)),
+                    this, SLOT(slotThreadingAvailable(QModelIndex,QByteArray,QStringList,QVector<Imap::Responses::ThreadingNode>)));
+            connect(realModel, SIGNAL(threadingFailed(QModelIndex,QByteArray,QStringList)),
+                    this, SLOT(slotThreadingFailed(QModelIndex,QByteArray,QStringList)));
+        }
     }
+}
+
+void ThreadingMsgListModel::slotIncrementalThreadingAvailable(const Responses::ESearch::IncrementalThreadingData_t &data)
+{
+}
+
+void ThreadingMsgListModel::slotIncrementalThreadingFailed()
+{
 }
 
 bool ThreadingMsgListModel::shouldIgnoreThisThreadingResponse(const QModelIndex &mailbox, const QByteArray &algorithm,

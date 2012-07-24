@@ -1179,4 +1179,37 @@ void ImapModelThreadingTest::testSortingPerformance()
     }
 }
 
+/** @short Test that the INCTHREAD extension works as advertized */
+void ImapModelThreadingTest::testIncrementalThreading()
+{
+    initialMessages(10);
+
+    // A complex nested hierarchy with nodes to be promoted
+    Mapping mapping;
+    QByteArray response;
+    complexMapping(mapping, response);
+
+    cClient(t.mk("UID THREAD REFS utf-8 ALL\r\n"));
+    cServer(QByteArray("* THREAD ") + response + QByteArray("\r\n") + t.last("OK thread\r\n"));
+    verifyMapping(mapping);
+    QCOMPARE(threadingModel->rowCount(QModelIndex()), 4);
+    IndexMapping indexMap = buildIndexMap(mapping);
+    verifyIndexMap(indexMap, mapping);
+    // The response is actually slightly different, but never mind (extra parentheses around 7)
+    QCOMPARE(treeToThreading(QModelIndex()), QByteArray("(1)(2 3)(4 (5)(6))(7 (8)(9 10))"));
+
+    // Activate support for the INCTHREAD extension
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("INCTHREAD");
+
+    // Fake delivery of one new message
+    cServer("* 11 EXISTS\r\n");
+    // Ask for the UID and deliver it immediately
+    cClient(t.mk("UID FETCH 11:* (FLAGS)\r\n"));
+    cServer("* 11 FETCH (UID 11 FLAGS ())\r\n" + t.last("OK fetch\r\n"));
+    cClient(t.mk("UID THREAD RETURN (INCREMENTAL) REFS utf-8 INTHREAD REFS UID 11:*\r\n"));
+
+    cEmpty();
+}
+
 TROJITA_HEADLESS_TEST( ImapModelThreadingTest )

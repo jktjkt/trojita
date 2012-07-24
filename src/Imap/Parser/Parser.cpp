@@ -400,8 +400,10 @@ CommandHandle Parser::threadHelper(const QByteArray &command, const QByteArray &
 
     cmd << Commands::PartOfCommand(Commands::ATOM, command) << algo << charset;
 
-    for (QStringList::const_iterator it = searchCriteria.begin(); it != searchCriteria.end(); ++it)
-        cmd << it->toUtf8();
+    for (QStringList::const_iterator it = searchCriteria.begin(); it != searchCriteria.end(); ++it) {
+        // FIXME: this is another place which needs proper structure for this searching stuff...
+        cmd << Commands::PartOfCommand(Commands::ATOM, it->toUtf8());
+    }
 
     return queueCommand(cmd);
 }
@@ -414,6 +416,13 @@ CommandHandle Parser::thread(const QByteArray &algo, const QByteArray &charset, 
 CommandHandle Parser::uidThread(const QByteArray &algo, const QByteArray &charset, const QStringList &searchCriteria)
 {
     return threadHelper("UID THREAD", algo, charset, searchCriteria);
+}
+
+CommandHandle Parser::uidEThread(const QByteArray &algo, const QByteArray &charset, const QStringList &searchCriteria,
+                                 const QStringList &returnOptions)
+{
+    return threadHelper("UID THREAD RETURN (" + returnOptions.join(QLatin1String(" ")).toAscii() + ")",
+                        algo, charset, searchCriteria);
 }
 
 CommandHandle Parser::fetch(const Sequence &seq, const QStringList &items, const QMap<QByteArray, quint64> &uint64Modifiers)
