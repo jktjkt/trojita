@@ -673,6 +673,18 @@ void ThreadingMsgListModel::slotIncrementalThreadingAvailable(const Responses::E
     updatePersistentIndexesPhase1();
     for (Responses::ESearch::IncrementalThreadingData_t::const_iterator it = data.constBegin(); it != data.constEnd(); ++it) {
         registerThreading(it->thread, 0, uidToPtrCache, usedNodes);
+        int actualOffset = threading[0].children.size() - 1;
+        int expectedOffsetOfPrevious = threading[0].children.indexOf(it->previousThreadRoot);
+        if (actualOffset == expectedOffsetOfPrevious + 1) {
+            // it's on the correct position, yay!
+        } else {
+            // move the new subthread to a correct place
+            threading[0].children.insert(expectedOffsetOfPrevious + 1, threading[0].children.takeLast());
+            // push the rest (including the new arrival) forward
+            for (int i = expectedOffsetOfPrevious + 1; i < threading[0].children.size(); ++i) {
+                threading[threading[0].children[i]].offset = i;
+            }
+        }
     }
     updatePersistentIndexesPhase2();
     emit layoutChanged();
