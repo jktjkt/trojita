@@ -29,6 +29,7 @@
 #include "SortTask.h"
 #include "ThreadTask.h"
 
+#if 0
 namespace
 {
 using Imap::Mailbox::ThreadNodeInfo;
@@ -47,6 +48,7 @@ QByteArray dumpThreadNodeInfo(const QHash<uint,ThreadNodeInfo> &mapping, const u
     return res;
 }
 }
+#endif
 
 namespace Imap
 {
