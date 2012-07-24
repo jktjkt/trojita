@@ -602,8 +602,51 @@ void ThreadingMsgListModel::askForThreading(const uint firstUnknownUid)
     }
 }
 
+/** @short Gather all UIDs present in the mapping and push them into the "uids" vector */
+static void gatherAllUidsFromThreadNode(QVector<uint> &uids, const QVector<Responses::ThreadingNode> &list)
+{
+    for (QVector<Responses::ThreadingNode>::const_iterator it = list.constBegin(); it != list.constEnd(); ++it) {
+        uids.push_back(it->num);
+        gatherAllUidsFromThreadNode(uids, it->children);
+    }
+}
+
 void ThreadingMsgListModel::slotIncrementalThreadingAvailable(const Responses::ESearch::IncrementalThreadingData_t &data)
 {
+    // Preparation: get through to the real model
+    const Imap::Mailbox::Model *realModel;
+    QModelIndex someMessage = sourceModel()->index(0,0);
+    Q_ASSERT(someMessage.isValid());
+    QModelIndex realIndex;
+    Imap::Mailbox::Model::realTreeItem(someMessage, &realModel, &realIndex);
+    QModelIndex mailboxIndex = realIndex.parent().parent();
+    Q_ASSERT(mailboxIndex.isValid());
+
+    // First phase: remove all messages mentioned in the incremental responses from their original placement
+    QVector<uint> affectedUids;
+    for (Responses::ESearch::IncrementalThreadingData_t::const_iterator it = data.constBegin(); it != data.constEnd(); ++it) {
+        gatherAllUidsFromThreadNode(affectedUids, it->thread);
+    }
+    qSort(affectedUids);
+    QList<TreeItemMessage*> affectedMessages = const_cast<Model*>(realModel)->
+            findMessagesByUids(static_cast<TreeItemMailbox*>(mailboxIndex.internalPointer()), affectedUids.toList());
+
+    emit layoutAboutToBeChanged();
+    updatePersistentIndexesPhase1();
+    for (QList<TreeItemMessage*>::const_iterator it = affectedMessages.constBegin(); it != affectedMessages.constEnd(); ++it) {
+        QHash<void *,uint>::const_iterator ptrMappingIt = ptrToInternal.constFind(*it);
+        Q_ASSERT(ptrMappingIt != ptrToInternal.constEnd());
+        QHash<uint,ThreadNodeInfo>::iterator threadIt = threading.find(*ptrMappingIt);
+        Q_ASSERT(threadIt != threading.end());
+        threadIt->ptr = 0;
+        threadIt->uid = 0;
+    }
+    pruneTree();
+    updatePersistentIndexesPhase2();
+    emit layoutChanged();
+
+    // Second phase: for each message whose UID is returned by the server, update the threading data
+    // FIXME: implement me
 }
 
 void ThreadingMsgListModel::slotIncrementalThreadingFailed()

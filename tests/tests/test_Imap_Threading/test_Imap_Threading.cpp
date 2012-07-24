@@ -1207,7 +1207,13 @@ void ImapModelThreadingTest::testIncrementalThreading()
     // Ask for the UID and deliver it immediately
     cClient(t.mk("UID FETCH 11:* (FLAGS)\r\n"));
     cServer("* 11 FETCH (UID 11 FLAGS ())\r\n" + t.last("OK fetch\r\n"));
+
+    // Test the incremental threading
     cClient(t.mk("UID THREAD RETURN (INCREMENTAL) REFS utf-8 INTHREAD REFS UID 11:*\r\n"));
+    // Yes, it's a rather funky response
+    cServer("* ESEARCH (TAG \"" + t.last() + "\") UID INCTHREAD 4 (7 (8 9 11)(10))\r\n");
+
+    qDebug() << treeToThreading(QModelIndex());
 
     cEmpty();
 }
