@@ -767,18 +767,21 @@ ESearch::ESearch(const QByteArray &line, int &start): AbstractResponse(ESEARCH),
                 }
 
             } while (true);
-        } else if (label == "THREAD") {
+        } else if (label == "INCTHREAD") {
             // another special case using completely different structure
 
             if (start >= line.size() - 2)
                 throw NoData("ESEARCH THREAD: no data", line, start);
+
+            const uint previousRoot = LowLevelParser::getUInt(line, start);
+            LowLevelParser::eatSpaces(line, start);
 
             ThreadingNode node;
             while (start < line.size() - 2 && line[start] == '(') {
                 QVariantList current = LowLevelParser::parseList('(', ')', line, start);
                 threadingHelperInsertHere(&node, current);
             }
-            threadingData.push_back(qMakePair<QByteArray, ThreadingItem_t::second_type>(label, node.children));
+            incThreadData.push_back(IncrementalThreadingItem_t(previousRoot, node.children));
             LowLevelParser::eatSpaces(line, start);
         } else {
             // A generic case: be prepapred to accept a (sequence of) numbers
@@ -1204,11 +1207,11 @@ QTextStream &ESearch::dump(QTextStream &stream) const
         }
         stream << ") ";
     }
-    for (ThreadingData_t::const_iterator it = threadingData.constBegin();
-         it != threadingData.constEnd(); ++it) {
+    for (IncrementalThreadingData_t::const_iterator it = incThreadData.constBegin();
+         it != incThreadData.constEnd(); ++it) {
         ThreadingNode node;
-        node.children = it->second;
-        stream << it->first << " [THREAD parsed-into-sane-form follows] " << threadDumpHelper(node) << " ";
+        node.children = it->thread;
+        stream << "INCTHREAD " << it->previousThreadRoot << " [THREAD parsed-into-sane-form follows] " << threadDumpHelper(node) << " ";
     }
     return stream;
 }
@@ -1472,7 +1475,7 @@ bool ESearch::eq(const AbstractResponse &other) const
     try {
         const ESearch &s = dynamic_cast<const ESearch &>(other);
         return tag == s.tag && seqOrUids == s.seqOrUids && listData == s.listData &&
-                incrementalContextData == s.incrementalContextData && threadingData == s.threadingData;
+                incrementalContextData == s.incrementalContextData && incThreadData == s.incThreadData;
     } catch (std::bad_cast &) {
         return false;
     }

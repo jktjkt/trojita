@@ -563,20 +563,18 @@ void ImapParserParseTest::testParseUntagged_data()
         << QSharedPointer<AbstractResponse>( new Thread( rootNodes ) );
 
     esearchData.clear();
-    ESearch::ThreadingData_t esearchThreading;
-    esearchThreading.push_back(qMakePair<QByteArray, ESearch::ThreadingItem_t::second_type>("THREAD", rootNodes));
-    QTest::newRow("esearch-thread-standalone")
-        << QByteArray("* ESEARCH (TAG \"x\") UID THREAD (8)(2 3 4)(7)(9)(10)((11)(12))(5)((1)(6))(13)\r\n")
-        << QSharedPointer<AbstractResponse>(new ESearch("x", ESearch::UIDS, esearchData, esearchThreading));
-
-    esearchData.push_back(qMakePair<QByteArray, QList<uint> >("THREADPREVIOUS", QList<uint>() << 666));
-    QTest::newRow("esearch-thread-1")
-        << QByteArray("* ESEARCH (TAG \"x\") UID THREADPREVIOUS 666 THREAD (8)(2 3 4)(7)(9)(10)((11)(12))(5)((1)(6))(13)\r\n")
-        << QSharedPointer<AbstractResponse>(new ESearch("x", ESearch::UIDS, esearchData, esearchThreading));
-
-    QTest::newRow("esearch-thread-2")
-        << QByteArray("* ESEARCH (TAG \"x\") UID THREAD (8)(2 3 4)(7)(9)(10)((11)(12))(5)((1)(6))(13) THREADPREVIOUS 666\r\n")
-        << QSharedPointer<AbstractResponse>(new ESearch("x", ESearch::UIDS, esearchData, esearchThreading));
+    ESearch::IncrementalThreadingData_t esearchThreading;
+    esearchThreading.push_back(ESearch::IncrementalThreadingItem_t(666, rootNodes));
+    QTest::newRow("esearch-incthread-single")
+        << QByteArray("* ESEARCH (TAG \"x\") UID INCTHREAD 666 (8)(2 3 4)(7)(9)(10)((11)(12))(5)((1)(6))(13)\r\n")
+        << QSharedPointer<AbstractResponse>(new ESearch("x", ESearch::UIDS, esearchThreading));
+    rootNodes.clear();
+    rootNodes << ThreadingNode(123, QVector<ThreadingNode>());
+    esearchThreading.push_back(ESearch::IncrementalThreadingItem_t(333, rootNodes));
+    QTest::newRow("esearch-incthread-two")
+        << QByteArray("* ESEARCH (TAG \"x\") UID INCTHREAD 666 (8)(2 3 4)(7)(9)(10)((11)(12))(5)((1)(6))(13) "
+                      "INCTHREAD 333 (123)\r\n")
+        << QSharedPointer<AbstractResponse>(new ESearch("x", ESearch::UIDS, esearchThreading));
 
     Fetch::dataType fetchData;
 

@@ -52,7 +52,7 @@ public:
     virtual bool needsMailbox() const {return true;}
 signals:
     /** @short An incremental update to the threading as per draft-imap-incthread */
-    void incrementalThreadingAvailable(const uint previousThreadRoot, const QVector<Imap::Responses::ThreadingNode> &mapping);
+    void incrementalThreadingAvailable(const Responses::ESearch::IncrementalThreadingData_t &update);
 protected:
     virtual void _failed(const QString &errorMessage);
 private:

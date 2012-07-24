@@ -478,14 +478,27 @@ public:
     /** @short The received data: incremental updates to SEARCH/SORT according to RFC 5267 */
     IncrementalContextData_t incrementalContextData;
 
-    /** @short Typedef for threading information along its identifier in an ESEARCH response */
-    typedef QPair<QByteArray, QVector<ThreadingNode> > ThreadingItem_t;
+    /** @short Incremental threading information along its identifier and the preceding thread root in an ESEARCH response */
+    struct IncrementalThreadingItem_t {
+        /** @short UID of the previous thread root's item or 0 if there's no previous item */
+        uint previousThreadRoot;
+
+        /** @short A complete subthread */
+        QVector<ThreadingNode> thread;
+
+        IncrementalThreadingItem_t(const uint previousThreadRoot, const QVector<ThreadingNode> &thread):
+            previousThreadRoot(previousThreadRoot), thread(thread) {}
+
+        bool operator==(const IncrementalThreadingItem_t &other) const {
+            return previousThreadRoot == other.previousThreadRoot && thread == other.thread;
+        }
+    };
 
     /** @short Typedef for all threading data sent over ESEARCH */
-    typedef QList<ThreadingItem_t> ThreadingData_t;
+    typedef QList<IncrementalThreadingItem_t> IncrementalThreadingData_t;
 
     /** @short The threading information, draft-imap-incthread */
-    ThreadingData_t threadingData;
+    IncrementalThreadingData_t incThreadData;
 
     // Other forms of returned data are quite explicitly not supported.
 
@@ -494,8 +507,8 @@ public:
         AbstractResponse(ESEARCH), tag(tag), seqOrUids(seqOrUids), listData(listData) {}
     ESearch(const QByteArray &tag, const SequencesOrUids seqOrUids, const IncrementalContextData_t &incrementalContextData) :
         AbstractResponse(ESEARCH), tag(tag), seqOrUids(seqOrUids), incrementalContextData(incrementalContextData) {}
-    ESearch(const QByteArray &tag, const SequencesOrUids seqOrUids, const ListData_t &listData, const ThreadingData_t &threadingData):
-        AbstractResponse(ESEARCH), tag(tag), seqOrUids(seqOrUids), listData(listData), threadingData(threadingData) {}
+    ESearch(const QByteArray &tag, const SequencesOrUids seqOrUids, const IncrementalThreadingData_t &incThreadData):
+        AbstractResponse(ESEARCH), tag(tag), seqOrUids(seqOrUids), incThreadData(incThreadData) {}
     virtual QTextStream &dump(QTextStream &stream) const;
     virtual bool eq(const AbstractResponse &other) const;
     virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;

@@ -88,36 +88,12 @@ bool ThreadTask::handleESearch(const Responses::ESearch *const resp)
         throw UnexpectedResponseReceived("ESEARCH response to a UID THREAD command with matching tag uses "
                                          "sequence numbers instead of UIDs", *resp);
 
-    // Extract the threading information and make sure that it's present at most once
-    Responses::ESearch::CompareListDataIdentifier<Responses::ESearch::ThreadingData_t> threadComparator("THREAD");
-    Responses::ESearch::ThreadingData_t::const_iterator threadIterator =
-            std::find_if(resp->threadingData.constBegin(), resp->threadingData.constEnd(), threadComparator);
-    if (threadIterator != resp->threadingData.constEnd()) {
-        mapping = threadIterator->second;
-        ++threadIterator;
-        if (std::find_if(threadIterator, resp->threadingData.constEnd(), threadComparator) != resp->threadingData.constEnd())
-            throw UnexpectedResponseReceived("ESEARCH contains the THREAD key too many times", *resp);
-    } else {
-        mapping.clear();
-    }
-
     if (m_incrementalMode) {
-        Responses::ESearch::CompareListDataIdentifier<Responses::ESearch::ListData_t> prevRootComparator("THREADPREVIOUS");
-        Responses::ESearch::ListData_t::const_iterator prevRootIterator =
-                std::find_if(resp->listData.constBegin(), resp->listData.constEnd(), prevRootComparator);
-        if (prevRootIterator == resp->listData.constEnd()) {
-            throw UnexpectedResponseReceived("ESEARCH containes THREAD, but no THREADPREVIOUS");
-        } else {
-            if (std::find_if(prevRootIterator + 1, resp->listData.constEnd(), prevRootComparator) != resp->listData.constEnd())
-                throw UnexpectedResponseReceived("ESEARCH contains the THREADPREVIOUS key too many times", *resp);
-        }
-        if (prevRootIterator->second.size() != 1)
-            throw UnexpectedResponseReceived("ESEARCH THREADPREVIOUS contains invalid data", *resp);
-        emit incrementalThreadingAvailable(prevRootIterator->second.front(), mapping);
-        mapping.clear();
+        emit incrementalThreadingAvailable(resp->incThreadData);
+        return true;
     }
 
-    return true;
+    throw UnexpectedResponseReceived("ESEARCH response to UID THREAD received outside of the incremental mode");
 }
 
 QVariant ThreadTask::taskData(const int role) const
