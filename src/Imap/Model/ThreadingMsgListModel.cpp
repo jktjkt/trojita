@@ -650,6 +650,8 @@ void ThreadingMsgListModel::slotIncrementalThreadingAvailable(const Responses::E
     qSort(affectedUids);
     QList<TreeItemMessage*> affectedMessages = const_cast<Model*>(realModel)->
             findMessagesByUids(static_cast<TreeItemMailbox*>(mailboxIndex.internalPointer()), affectedUids.toList());
+    QHash<uint,void *> uidToPtrCache;
+
 
     emit layoutAboutToBeChanged();
     updatePersistentIndexesPhase1();
@@ -658,15 +660,22 @@ void ThreadingMsgListModel::slotIncrementalThreadingAvailable(const Responses::E
         Q_ASSERT(ptrMappingIt != ptrToInternal.constEnd());
         QHash<uint,ThreadNodeInfo>::iterator threadIt = threading.find(*ptrMappingIt);
         Q_ASSERT(threadIt != threading.end());
+        uidToPtrCache[(*it)->uid()] = threadIt->ptr;
         threadIt->ptr = 0;
-        threadIt->uid = 0;
     }
     pruneTree();
     updatePersistentIndexesPhase2();
     emit layoutChanged();
 
     // Second phase: for each message whose UID is returned by the server, update the threading data
-    // FIXME: implement me
+    QSet<uint> usedNodes;
+    emit layoutAboutToBeChanged();
+    updatePersistentIndexesPhase1();
+    for (Responses::ESearch::IncrementalThreadingData_t::const_iterator it = data.constBegin(); it != data.constEnd(); ++it) {
+        registerThreading(it->thread, 0, uidToPtrCache, usedNodes);
+    }
+    updatePersistentIndexesPhase2();
+    emit layoutChanged();
 }
 
 void ThreadingMsgListModel::slotIncrementalThreadingFailed()
@@ -943,6 +952,8 @@ void ThreadingMsgListModel::registerThreading(const QVector<Imap::Responses::Thr
             // That is however non-issue, as we pre-create nodes for all messages beforehand.
             Q_ASSERT(nodeIt != ptrToInternal.constEnd());
             nodeId = *nodeIt;
+            // This is needed for the incremental stuff
+            threading[nodeId].ptr = static_cast<TreeItem*>(*ptrIt);
         }
         threading[nodeId].offset = threading[parentId].children.size();
         threading[ parentId ].children.append(nodeId);
