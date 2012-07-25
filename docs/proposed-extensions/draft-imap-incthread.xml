@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+
+<!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC5234 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5234.xml">
+<!ENTITY RFC3501 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3501.xml">
+<!ENTITY RFC4731 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4731.xml">
+<!ENTITY RFC5256 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5256.xml">
+<!ENTITY RFC5267 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5267.xml">
+<!ENTITY DRAFT-inthread SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-morg-inthread-01.xml">
+]>
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<?rfc strict="yes" ?>
+<?rfc toc="yes"?>
+<?rfc tocdepth="4"?>
+<?rfc symrefs="yes"?>
+<?rfc sortrefs="yes" ?>
+<?rfc compact="yes" ?>
+<?rfc subcompact="no" ?>
+<rfc category="std" docName="draft-imap-incthread-00" ipr="trust200902">
+
+  <front>
+    <title abbrev="IMAP INCTHREAD Extension">IMAP Extension for Incremental Threading (INCTHREAD)</title>
+
+    <author fullname="Jan Kundrat" initials="J." surname="Kundrat">
+      <address>
+        <postal>
+          <street>Eledrova 558</street>
+          <city>Prague</city>
+          <code>181 00</code>
+          <country>CZ</country>
+        </postal>
+        <email>jkt@flaska.net</email>
+      </address>
+    </author>
+
+    <date year="2012" month="July" day="25"/>
+
+    <area>General</area>
+    <workgroup>Internet Engineering Task Force</workgroup>
+
+    <keyword>IMAP</keyword>
+    <keyword>THREAD</keyword>
+    <keyword>INTHREAD</keyword>
+    <keyword>incremental threading</keyword>
+    <keyword>ESEARCH</keyword>
+    <keyword>CONTEXT</keyword>
+    <keyword>CONTEXT=SORT</keyword>
+    <keyword>CONTEXT=SEARCH</keyword>
+    <keyword>CONTEXT=THREAD</keyword>
+
+    <abstract>
+        <t>This document describes the INCTHREAD IMAP extension which enables clients to retrieve incremental updates of
+            the mailbox threading.  The extension repurposes the ESEARCH response for passing along the threading
+            information and builds on top of Arnt Gulbrandsen's work on the INTHREAD search key.  The UID THREAD command
+            is also extended to allow activating this extension.  Together, these changes make it possible for clients
+            not to fetch the complete mailbox threading any time a new message arrives.</t>
+    </abstract>
+  </front>
+
+  <middle>
+    <section title="Introduction">
+        <t>Online IMAP clients which want to conserve the required bandwidth and also show messages in threads for their
+            users have an option to delegate the message threading to the IMAP server through mechanisms outlines in
+            <xref target="RFC5256"/>.  Using the UID SEARCH command, clients do not have to download the message headers
+            (like the Message-Id, References and In-Reply-To), fetching a complete thread mapping of all messages in a
+            mailbox instead.</t>
+
+        <t>Unfortunately, the savings in transferred data is significantly reduced when clients have to fetch the thread
+            mapping over and over again, which is the case when a new message arrives.  Even if the clients obtained
+            knowledge of the relevant headers of new arrivals, these data alone are not sufficient to determine a proper
+            place where to insert the newly arriving message.  Furthermore, a single newly arriving message could
+            potentially affect placement of many messages or even all of them in a pathological case due to joining of
+            adjacent threads together.  This issue prevents using approach similar to the CONTEXT=SEARCH and
+            CONTEXT=SORT extensions <xref target="RFC5267"/> where only a position of the new arrival is communicated in
+            an incremental manner.</t>
+
+        <t>This extension builds upon Arnt Gulbrandsen's work <xref target="I-D.ietf-morg-inthread"/> and reuses the
+            INTHREAD search key defined in said draft.  This search key is used to inform the server that the search
+            conditions are to refer to all threads containing any messages which match the original search criteria.
+            However, the untagged THREAD response does not contain any data about the position of the affected thread
+            among other threads in the mailbox.  Support for INTHREAD alone therefore does not relief the clients from
+            performing additional operations due to missing information.  If the affected threads were always placed at
+            the logical end of the mailbox, copying older messages would yield results different from the complete
+            THREAD command.  Similarly, attempting to reuse the original thread position would possibly limit the
+            usefulness of the REFS algorithm <xref target="I-D.ietf-morg-inthread"/> which sorts threads with "fresh
+            messages" at the end of the view.</t>
+
+        <t>Because the THREAD response cannot transmit the position of the resulting thread relative to other threads in
+            the mailbox, the ESEARCH response <xref target="RFC4731"/> is used and the UID THREAD command is extended to
+            allow for specifying the return options in manner consistent with how SEARCH and UID SEARCH were modified.
+            Finally, a new ESEARCH return option, the INCTHREAD, is defined.</t>
+
+        <t>These modifications together allow clients to delegate the threading operation completely to the server side
+            without significantly increasing network traffic even on busy mailboxes.</t>
+
+      <section title="Requirements Language">
+        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+        "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+        document are to be interpreted as described in <xref
+        target="RFC2119">RFC 2119</xref>.</t>
+      </section>
+    </section>
+
+    <section title="IMAP Protocol Changes">
+        <t>FIXME</t>
+    </section>
+
+    <section anchor="Acknowledgements" title="Acknowledgements">
+        <t>FIXME</t>
+    </section>
+
+    <section anchor="IANA" title="IANA Considerations">
+      <t>IMAP4 capabilities are registered by publishing a standards track or IESG approved experimental RFC.  The
+          registry is currently located at:</t>
+      <t>http://www.iana.org/assignments/imap4-capabilities</t>
+      <t>FIXME</t>
+    </section>
+
+    <section title="Formal Syntax">
+        <t>The following syntax specification uses the Augmented Backus-Naur
+            Form (ABNF) notation as specified in <xref target="RFC5234"/>.</t>
+
+        <t>Non-terminals referenced but not defined below are as defined by
+            <xref target="RFC3501"/>, <xref target="RFC4731"/>, or <xref target="RFC5256"/>.</t>
+
+        <t>FIXME</t>
+        <figure align="center">
+            <artwork align="left" type="abnf"><![CDATA[
+capability          =/ "QRESYNC-ARRIVED"
+
+]]></artwork>
+        </figure>
+    </section>
+
+    <section anchor="Security" title="Security Considerations">
+        <t>FIXME</t>
+    </section>
+  </middle>
+
+  <back>
+    <references title="Normative References">
+      &RFC2119;
+
+      &RFC5234;
+
+      &RFC3501;
+
+      &RFC4731;
+
+      &RFC5256;
+
+      &RFC5267;
+
+      &DRAFT-inthread;
+    </references>
+  </back>
+</rfc>
