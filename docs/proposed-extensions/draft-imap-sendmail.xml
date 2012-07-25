@@ -46,11 +46,10 @@
     <workgroup>Internet Engineering Task Force</workgroup>
 
     <keyword>IMAP</keyword>
-    <keyword>QRESYNC</keyword>
-    <keyword>EXISTS</keyword>
-    <keyword>EXPUNGE</keyword>
-    <keyword>VANISHED</keyword>
-    <keyword>ARRIVED</keyword>
+    <keyword>SMTP</keyword>
+    <keyword>ESMTP</keyword>
+    <keyword>submission</keyword>
+    <keyword>sendmail</keyword>
 
     <abstract>
         <t>This document extends the IMAP protocol with a feature to submit e-mail messages for delivery.</t>
