@@ -234,8 +234,7 @@ C: x2 UID THREAD RETURN (INCTHREAD) REFS utf-8
       INTHREAD REFS 666
 S: * ESEARCH (TAG "x2") UID INCTHREAD 400
       (600 601 (640 666)(602 603))
-S: x2 OK sent
-                    ]]></artwork>
+S: x2 OK sent]]></artwork>
             </figure>
 
             <t>The actual resulting message threading looks like the following:</t>
@@ -256,17 +255,94 @@ S: x2 OK sent
  |         +-- 602
  |              +-- 603
  |
-... (No data about any subsequent threads is included in the response.)
-                    ]]></artwork>
+... (No data about any subsequent threads is included in the response.)]]></artwork>
             </figure>
         </section>
 
         <section title="Inserting a Single Message">
-            <t>Consider the ... FIXME</t>
+            <t>Consider the following threading for a mailbox:</t>
+
+            <figure align="center">
+                <artwork align="left"><![CDATA[
+C: x1 UID THREAD (RETURN THREAD) REFS utf-8 ALL
+S: * ESEARCH (TAG "x2") UID THREAD (1)(2)(3)(4)
+S: x1 OK Threading sent]]></artwork>
+            </figure>
+
+            <t>Such a response corresponds to the following threading:</t>
+            <figure align="center">
+                <artwork align="left"><![CDATA[
+ +-- 1
+ +-- 2
+ +-- 3
+ +-- 4]]></artwork>
+            </figure>
+
+            <t>A new message arrives and the client asks for the reading information:</t>
+            <figure align="center">
+                <artwork align="left"><![CDATA[
+S: * 5 EXISTS
+S: * 5 FETCH (UID 5)
+C: x2 UID THREAD (RETURN INCTHREAD) REFS utf-8 INTHREAD REFS UID 5
+S: * ESEARCH (TAG "x2") UID INCTHREAD 2 (3 5)
+S: x2 OK Threading sent]]></artwork>
+            </figure>
+
+            <t>The updated threading information should look like the following:</t>
+            <figure align="center">
+                <artwork align="left"><![CDATA[
+ +-- 1
+ +-- 2
+ +-- 3
+ |   +-- 5
+ +-- 4]]></artwork>
+            </figure>
+
+            <t>In this case, the thread with thread root with UID 4 is still considered "fresher" by the selected thread
+                algorithm.</t>
+            <!--t><vspace blankLines="1"/></t-->
         </section>
 
         <section title="Joining Threads">
-            <t>FIXME</t>
+            <t>The following example shows a more complicated scenario where independent threads are joined together.
+                This illustrates the need for clients to remove the referenced messages from their thread mapping:</t>
+            <figure align="center">
+                <artwork align="left"><![CDATA[
+C: x1 UID THREAD (RETURN THREAD) REFS utf-8 ALL
+S: * ESEARCH (TAG "x2") UID THREAD (1 2)(3 4)(5)
+S: x1 OK Threading sent]]></artwork>
+            </figure>
+
+            <t>Such a response corresponds to the following threading:</t>
+            <figure align="center">
+                <artwork align="left"><![CDATA[
+ +-- 1
+ |   +-- 2
+ +-- 3
+ |   +-- 4
+ +-- 5]]></artwork>
+            </figure>
+
+            <t>A new response arrives, joining the first two threads in the mailbox together:</t>
+             <figure align="center">
+                <artwork align="left"><![CDATA[
+S: * 6 EXISTS
+S: * 6 FETCH (UID 6)
+C: x2 UID THREAD (RETURN INCTHREAD) REFS utf-8 INTHREAD REFS UID 6
+S: * ESEARCH (TAG "x2") UID INCTHREAD 0 (6 (1 2)(3 4))
+S: x2 OK Threading sent]]></artwork>
+            </figure>
+           
+            <t>The newly formed thread remains at the beginning of a mailbox:</t>
+            <figure align="center">
+                <artwork align="left"><![CDATA[
+ +-- 6           <-- new arrival
+ |   +-- 1       <-- previous thread #1
+ |   |   +-- 2
+ |   +-- 3       <-- previous thread #2
+ |       +-- 4
+ +-- 5           <-- previous thread #3 remains a standalone thread]]></artwork>
+            </figure>
         </section>
 
     </section>
