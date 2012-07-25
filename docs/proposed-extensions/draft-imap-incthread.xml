@@ -89,10 +89,24 @@
         <t>Because the THREAD response cannot transmit the position of the resulting thread relative to other threads in
             the mailbox, the ESEARCH response <xref target="RFC4731"/> is used and the UID THREAD command is extended to
             allow for specifying the return options in manner consistent with how SEARCH and UID SEARCH were modified.
-            Finally, a new ESEARCH return option, the INCTHREAD, is defined.</t>
+            Finally, two new ESEARCH return option, the THREAD and the INCTHREAD, are defined.</t>
 
         <t>These modifications together allow clients to delegate the threading operation completely to the server side
             without significantly increasing network traffic even on busy mailboxes.</t>
+
+        <section title="Drawbacks and Alternatives">
+            <t>This extension can still transfer excessive amounts of data because it transfers complete threads instead
+                of incremental difference updates.  However, this approach allows for reusing the clients' and servers'
+                existing facilities, both for parsing and response processing.  In addition, unless the protocol
+                mandated history tracking of the threading tree, a much intrusive and resource-demanding feature, the
+                incremental updates would be only possible in case where the mailbox is currently selected.  This
+                extension affirms the decision about threading requests to remain on the client side, letting it use its
+                policies about when to request full threading information and when to use the incremental updates.</t>
+
+            <t>No support for automated updates of the threading data in the sense of the CONTEXT extension <xref
+                    target="RFC5267"/> are defined at this point.  This might change based on feedback from other server
+                and client vendors.</t>
+        </section>
 
       <section title="Requirements Language">
         <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
@@ -103,6 +117,75 @@
     </section>
 
     <section title="IMAP Protocol Changes">
+        <section title="New SEARCH Keys">
+            <t>This document reuses the INTHREAD search key from <xref target="I-D.ietf-morg-inthread"/> with no
+                changes in meaning or semantics.  Please note the difference between the INTHREAD and INCTHREAD ESEARCH
+                return options.</t>
+        </section>
+
+        <section title="Modified IMAP Commands">
+            <section title="Modified UID THREAD Command">
+                <t>The UID THREAD command is extended with the following two return options:</t>
+
+                <t><list style="hanging">
+                        <t hangText="THREAD">Return the threading information through the ESEARCH response using syntax
+                            similar to the untagged THREAD response.</t>
+                        <t hangText="INCTHREAD">Return a dedicated INCTHREAD section for each thread found in the result
+                            set.</t>
+                </list></t>
+
+                <t>The THREAD and INCTHREAD return options are mutually exclusive.  Servers MUST return a tagged BAD
+                    response if a client specifies both return options in a single UID THREAD command.</t>
+
+                <t>Servers MUST use the ESEARCH response instead of untagged THREAD response when responding to the
+                    extended form of the UID THREAD command.</t>
+
+                <t>The THREAD and UID THREAD are two distinct commands.  Because clients are not expected to rely on
+                    transient identifiers like the message sequence numbers for threading retrieval and storage and
+                    because of the requirement of using UIDs in the INCTHREAD response, no modification to the THREAD
+                    command is defined.  This might change in future iterations of this draft if client authors expects
+                    sufficient interest.</t>
+            </section>
+        </section>
+
+        <section title="ESEARCH Extension">
+            <t>Servers announcing the INCTHREAD capability support two new search return options:</t>
+
+            <t><list style="hanging">
+                    <t hangText="THREAD">Method for conveying the threading information in form similar to the THREAD
+                        untagged response.</t>
+
+                    <t hangText="INCTHREAD">Response contains the threading information along with the specification of
+                        a UID of the previous thread root.</t>
+            </list></t>
+
+            <section title="The THREAD ESEARCH Return Value">
+                <t>The THREAD return value uses the same format as the threading data in the untagged THREAD responses
+                    <xref target="RFC5256"/>.  This return value is defined to allow clients to easily match data
+                    received over network with the tag of the command which caused them, as per the usual ESEARCH
+                    rules.</t>
+            </section>
+
+            <section title="The INCTHREAD ESEARCH Return Value">
+                <t>The INCTHREAD return value consists of "previous thread root UID" followed by "threading response
+                    containing a single thread".  The UID of the previous thread root MUST be zero if the thread sorts
+                    first in the resulting list of threads.</t>
+
+                <t>A dedicated INCTHREAD record MUST be present for each thread contained in the result set.</t>
+            </section>
+        </section>
+
+        <section title="New Capabilities">
+            <t>This document adds two new IMAP capabilities, the ETHREAD and INCTHREAD.</t>
+
+            <t>Servers announcing the ETHREAD capability support the extended UID THREAD command syntax and the THREAD
+                return option.</t>
+
+            <t>Servers supporting the INCTHREAD capability MUST support and announce the ETHREAD capability as well.</t>
+        </section>
+    </section>
+
+    <section title="Examples">
         <t>FIXME</t>
     </section>
 
@@ -114,7 +197,8 @@
       <t>IMAP4 capabilities are registered by publishing a standards track or IESG approved experimental RFC.  The
           registry is currently located at:</t>
       <t>http://www.iana.org/assignments/imap4-capabilities</t>
-      <t>FIXME</t>
+      <t>This document defines the ETHREAD and INCTHREAD IMAP capabilities.  IANA will be asked to add these capability
+          to the registry.</t>
     </section>
 
     <section title="Formal Syntax">
