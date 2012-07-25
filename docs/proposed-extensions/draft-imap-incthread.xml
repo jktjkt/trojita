@@ -146,6 +146,7 @@
                     because of the requirement of using UIDs in the INCTHREAD response, no modification to the THREAD
                     command is defined.  This might change in future iterations of this draft if client authors expects
                     sufficient interest.</t>
+                <t><vspace blankLines="5"/></t>
             </section>
         </section>
 
