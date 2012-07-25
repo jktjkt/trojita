@@ -22,8 +22,8 @@ have a look at the basic layer of the IMAP protocol and investigate how these af
 \label{sec:imap-literalplus}
 
 One of the lowest-hanging optimization fruit to cater are IMAP's synchronizing literals.  In the basic IMAP, before a
-clients proceeds with tasks involving upload of binary data (or any data over a certain size, for that matter), it has
-to ask for an explicit server's approval based on the length of the data in question.  As has been shown previously,
+client proceeds with tasks involving upload of binary data (or any data over a certain size, for that matter), it has to
+ask for an explicit server's approval based on the length of the data in question.  As it has been shown previously,
 this confirmation imposes a full round trip over the network, inducing latency and destroying any potential pipelining
 improvements.
 
@@ -163,11 +163,11 @@ The previous section dealt with optimizing the overall IMAP protocol as a whole.
 more specific issues which cannot be easily overcome through generic measures like data compression using off-the-shelf
 algorithms or updates to the basic protocol flows.
 
-In the basic IMAP, neither the server not the client are required to keep any persistent state.  Clearly, it is
+In the basic IMAP, neither the server nor the client are required to keep any persistent state.  Clearly, it is
 beneficiary for a client to keep downloaded copies of the immutable mailbox/message data (consult
 \secref{sec:imap-immutable-data} in its persistent cache for some time, should the device constraints allow such a
 storage.  There is still quite a lot of other data which has to be validated while the mailbox is being resynchronized.
-Consider the following scenario where a mail user agent opens a mailbox with a thousand of message which has witnessed
+Consider the following scenario where a mail user agent opens a mailbox with a thousand of messages which has witnessed
 expunges and new arrivals since the last time it was opened:
 
 \begin{minted}{text}
@@ -210,7 +210,7 @@ along with reasons on why these steps are necessary in clients willing to mainta
 As seen in the protocol sample, the {\tt SEARCH} response containing UIDs of all messages in a mailbox can be rather
 large.  At the same time, chances are that at least some of the adjacent messages might have been assigned contiguous
 UIDs --- this is certainly not a requirement per se, but quite a few IMAP servers internally {\em do} assign UIDs from a
-per-mailbox counter.  Real world, albeit anecdotal evidence \cite{cridland-uids-are-often-monotonic} indicates that this
+per-mailbox counter.  Real-world, albeit anecdotal evidence \cite{cridland-uids-are-often-monotonic} indicates that this
 scenario is very common, and therefore it might make sense to transmit the UIDs of all messages using the {\tt
 sequence-set} \cite[p. 89]{rfc3501} syntax.  The ESEARCH extension, as defined in RFC~4731~\cite{rfc4731}, allows
 exactly that:
@@ -221,7 +221,7 @@ exactly that:
 
 At the time of the ESEARCH adoption, the imap-protocol mailing list witnessed a disagreement on how exactly the {\tt
 sequence-set} shall be interpreted.  Mark Crispin, the author of the original IMAP protocol (but not of the ESEARCH
-extension) implemented ESERCH in a different manner.  He chose to take an advantage of the RFC3501-style definition of
+extension) implemented ESEARCH in a different manner.  He chose to take an advantage of the RFC3501-style definition of
 UID sequences where the RFC mandates that servers shall treat non-existent UIDs given in sequence sets as if they
 weren't referenced from the command at all.  For example, if the mailbox contained just UIDs 3, 5 and 10, a client using
 the {\tt 3:10} construct has to be interpreted as if it requested {\tt sequence-set 3,5,10}.  Doing so present certain
@@ -251,10 +251,10 @@ Leaving the UID synchronization alone for a while, let's have a look at various 
 changed message flags.  In this case, no extension trying to reduce the data overhead of the {\tt FETCH} response was
 proposed, but the problem got attacked from another side.
 
-The whole point of flags synchronization is to be able to pick up changes which have happened since the last time was
-selected.  If only the server was somehow able to assign a ``serial number'' to each change, clients could subsequently
-ask for all changes which have happened after a certain point.  The CONDSTORE extension from RFC 4551 \cite{rfc4551}
-works in this way.
+The whole point of flags synchronization is to be able to pick up changes which have happened since the last time the
+mailbox was selected.  If only the server was somehow able to assign a ``serial number'' to each change, clients could
+subsequently ask for all changes which have happened after a certain point.  The CONDSTORE extension from RFC 4551
+\cite{rfc4551} works in this way.
 
 CONDSTORE-capable servers share a concept of ``modification sequence'', a {\tt MODSEQ}.  Each message in a mailbox is
 assigned an unsigned 64bit integer.  Whenever message metadata (like its flags) change, the {\tt MODSEQ} of that
@@ -302,11 +302,11 @@ This is how a typical synchronization might look like:
 
 The algorithm is race-free --- as every message has a separate {\tt MODSEQ} counter, the delay between the {\tt SELECT}
 and {\tt FETCH} command doesn't lead to data loss; by the time the {\tt FETCH} completes, the server guarantees that the
-client have received any pending updates since the last synchronization.
+client has received any pending updates since the last synchronization.
 
 The CONDSTORE is an extremely valuable extension; its savings on big mailboxes are predictable and automatic --- instead
 of having to transmit $O(n)$ responses where $n$ is the number of {\em messages}, only $O(m)$ are required under QRESYNC
-with $m$ being the number of {\tt modifications}.  This is an extension which, unfortunately, places a certain burden on
+with $m$ being the number of {\em modifications}.  This is an extension which, unfortunately, places a certain burden on
 the IMAP server which has to track the serial numbers of messages' metadata; however, given the obvious reductions in
 bandwidth, many servers have already implemented it, most notably the Dovecot and Cyrus open source IMAP servers.
 
@@ -339,7 +339,7 @@ compact syntax, thanks to the {\tt sequence-set} format, but the response typica
 server is free to inform the clients about any UIDs, as long as they aren't in the mailbox right now, at the time of the
 sync.  This is motivated by the need to relieve the servers from having to maintain a list of expunged UIDs
 indefinitely, just in case a QRESYNC-enabled client reconnects after two years of inactivity.  When such a situation
-happens, a server which cannot remember expunges going so far in history have no other option but to send a {\tt
+happens, a server which cannot remember expunges going so far in history has no other option but to send a {\tt
 VANISHED EARLIER} for {\em all} UIDs lower than the {\tt UIDNEXT}, no matter if they {\em ever} were present in the
 mailbox.  This fallback suggests that the QRESYNC extension could very well have a negative net effect overall, at least
 in certain pathological situations --- essentially when the list of expunges grows so long that the server decides to
@@ -413,7 +413,7 @@ kind of the {\tt VANISHED} response --- the one without the {\tt EARLIER} modifi
 ordinary {\tt EXPUNGE}, the {\tt VANISHED}'s biggest advantage is that it can inform about multiple expunges in a single
 response.  Somewhat ironically, this modification also relieves the clients of their need to maintain a complete
 UID-sequence mapping at all times --- but only after providing a method of making this synchronization severely less
-painful in the first place.  The whole matter is complicated a bit more by the wording of the RFC which is pretty clear
+painful in the first place.  The whole matter is a bit more complicated by the wording of the RFC which is pretty clear
 on that the {\tt VANISHED} responses {\em should} be sent instead of {\tt EXPUNGE} --- a language which, in RFC terms,
 means that the servers are supposed to do so, yet the clients are forbidden from relying on such behavior because under
 special circumstances, the servers might very well have a good reason to defer back to the {\tt EXPUNGE}~\cite{rfc2119}.
@@ -435,10 +435,10 @@ possibly know whether any message has got any of these particular UIDs, i.e. whe
 and second arrival) fall into that range.  Trojitá will immediately send out a request for UIDs of the new arrivals
 (that is the {\tt UID FETCH} command in the previous example), but due to the timing issues, it is perfectly possible
 that these messages are ``long'' gone (and the appropriate {\tt VANISHED} sent) by the time the server receives the {\tt
-UID FETCH} command.  There isn't much a compliant IMAP client can do at this point besides issuing an explicit command
-for finding out whether any new messages have actually remained in the mailbox.  This is a minor deficiency in the
-QRESYNC extension which could be easily avoided by replacing the {\tt EXISTS} in manner similar to how {\tt EXPUNGE} got
-replaced by {\tt VANISHED}.  The previous example would look like this one, eliminating any possibility of races:
+UID FETCH} command.  There isn't much that a compliant IMAP client can do at this point besides issuing an explicit
+command for finding out whether any new messages have actually remained in the mailbox.  This is a minor deficiency in
+the QRESYNC extension which could be easily avoided by replacing the {\tt EXISTS} in manner similar to how {\tt EXPUNGE}
+got replaced by {\tt VANISHED}.  The previous example would look like this one, eliminating any possibility of races:
 
 \begin{minted}{text}
   S: * ARRIVED 12,33
@@ -465,7 +465,7 @@ a {\em QRESYNC-enabling command}, activating any necessary {\tt MODSEQ} tracking
 might be non-obvious at first, for the {\tt SELECT \ldots QRESYNC} on its own should be sufficient to inform the server
 that the client indeed wants to speak QRESYNC.
 
-Unfortunately, there is also a certain uncertainty about the {\tt ENABLE} command --- the errata \#1365 for RFC 5162
+Unfortunately, there is also a certain murkiness about the {\tt ENABLE} command --- the errata \#1365 for RFC 5162
 \cite{rfc5162-errata} proposes to add an explicit note that ``(A server MUST respond with a tagged BAD
 response if) (\ldots) or the server has not positively responded to that command with "ENABLED QRESYNC", in the current
 connection'', even though the RFC 5161 explicitly allows for aggressive pipelining of {\tt ENABLE} and {\tt
@@ -487,7 +487,7 @@ data to be transfered.
 Historically, e-mail messages could only contain English text, for which a 7-bit character set and the US-ASCII encoding
 was adequate.  However, with the advent of ``multimedia'', a steady pressure had emerged, leading to the MIME standard
 family.  Using MIME, complex tree-like structures can be embedded in e-mail messages and transmitted over the Internet
-mail.  However, at the time these ere introduced, there was a real risk of not being able to transmit such complex
+mail.  However, at the time these were introduced, there was a real risk of not being able to transmit such complex
 messages over traditional communication channels which were often only 7-bit safe.  Due to these backward compatibility
 concerns, a few standard method of converting arbitrary data to a textual form were conceived under the name of {\em
 Content-Transfer-Encoding}.
@@ -512,12 +512,13 @@ FETCH modifier in order to reduce the amount of data to send over the network.
 
 \subsection{Server-side Conversions via CONVERT}
 
-Certain devices might have limitations which the sender might not have expected when she prepared the message.  For
-example, a screen in a cell phone could have a very low resolution.  Unless the user really wants to see full details
-after zooming eight times, it might make sense to reduce the resolution of that 22-megapixel $5760 \times 3840$ image
-produced by Canon 5D~Mk.~III to fit on a $480 \times 800$ pixels screen of a high-end smart phone from 2012.  Even if
-the user actually wants to see the real image, it might be worthwhile to offer an access to a lower-resolution version
-for a quick preview.  This server-side conversion is what the {\tt CONVERT} extension from RFC 5259 \cite{rfc5259} enables.
+Certain devices might have limitations which the sender might not have expected when she was preparing the message.  For
+example, a screen of a cell phone could have a very low resolution.  Unless the user really wants to see the full
+details after zooming in eight times, it might make sense to reduce the resolution of that 22-megapixel $5760 \times
+3840$ image produced by Canon 5D~Mk.~III to fit on a $480 \times 800$ pixels screen of a high-end smart phone from 2012.
+Even if the user actually wants to see the real image, it might be worthwhile to offer an access to a lower-resolution
+version for a quick preview.  This server-side conversion is what the {\tt CONVERT} extension from RFC 5259
+\cite{rfc5259} enables.
 
 Unfortunately, it appears that there are actually {\em no} publicly available servers which offer support for
 server-side conversions and the most popular open source implementations have not expressed much interest when asked for
@@ -531,7 +532,7 @@ extension at this point.
 \subsection{Metadata Decoding}
 
 IMAP requires compliant servers to support MIME message parsing and RFC 2822 header decoding.  One feature which is
-notable absent, though, is support for server-side decoding of RFC 2047-formatted message headers and IMAP's {\tt
+notably absent, though, is a support for server-side decoding of RFC 2047-formatted message headers and IMAP's {\tt
 ENVELOPE} fields.  This shortcoming is partially addressed by two RFCs --- the already mentioned {\tt CONVERT} extension
 mandates support for character set decoding and conversions of RFC 2822 message headers while an experimental RFC 5738
 \cite{rfc5738} adds an ``UTF-8'' mode which switches all {\tt FETCH} commands to return the decoded Unicode data,
