@@ -295,7 +295,7 @@ algorithm~\footnote{It was necessary to locate a message in the mailbox by its U
 algorithm was not applicable because the search could encounter ``message placeholders'' whose UID was not know, and
 therefore could not be compared to the reference value.  In the end, measurements have shown that starting with binary
 search and falling back on a linear scan later in the process upon encountering the first undefined value works fast
-enough in all tested circumstances.} over a linear one --- in spite of the fact that the overhead of the testing
+enough in all tested circumstances.} over an $O(n \log n)$ one --- in spite of the fact that the overhead of the testing
 framework, especially when working with huge data transfers, as is indeed the case when synchronizing such a mailbox, is
 comparable to the actual code being profiled.
 
