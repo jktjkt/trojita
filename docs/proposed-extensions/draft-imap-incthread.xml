@@ -173,6 +173,37 @@
                     first in the resulting list of threads.</t>
 
                 <t>A dedicated INCTHREAD record MUST be present for each thread contained in the result set.</t>
+
+                <section title="Processing Incremental Threading Updates">
+                    <t>At first, the client removes any messages referenced in the received INCTHREAD response from its
+                        thread mapping.  This step is crucial to allow new arrivals joining previously independent
+                        threads together.</t>
+
+                    <t>In the second step, the client extracts the threading information from the received INCTHREAD
+                        response.  The threading data is parsed as in <xref target="RFC5256"/> and the newly formed
+                        thread is inserted just behind a thread whose root message has UID specified in the "uid"
+                        argument of the INCTHREAD response.</t>
+
+                    <t>If the client supports incremental threading, the INCTHREAD responses MUST be processed in order.
+                        In particular, inserting the newly formed threads to a proper location shall happen immediately
+                        as the new thread is created as the subsequent responses COULD refer to the root message of the
+                        just-inserted thread.  If the UID is said to be zero (0), it is interpreted specially to mean
+                        that the newly formed thread is the very first one among the list of threads in the mailbox.</t>
+
+                    <t>If valid, the UID of the previous thread root message MUST refer to the previous thread in a
+                        mapping which contains all messages from a mailbox.  In particular, no matter what additional
+                        searching criteria the client has used and therefore what messages are present in the mailbox,
+                        the previous thread MUST always be identified without any search criteria being applied.  In
+                        future, this might be changed to allow for a subsequent search specification to accommodate
+                        clients working on a subset of messages.</t>
+
+                    <t>Servers MUST NOT send a number which does not refer to any thread root UID unless the number is 0
+                        to indicate the very first thread.</t>
+
+                    <t>Clients MUST deal with servers sending a UID which does not refer to any thread root or any
+                        message in the mailbox.  Is is implementation-defined at which position such thread shall be
+                        inserted, but the thread MUST appear in the list of threads.</t>
+                </section>
             </section>
         </section>
 
@@ -187,7 +218,57 @@
     </section>
 
     <section title="Examples">
-        <t>FIXME</t>
+        <t>This section contains a few examples to illustrate how the INCTHREAD extension operates.</t>
+
+        <section title="General Mode of Operation">
+            <t>Using the proposed extension, a typical communication between two compliant IMAP protocol speakers might
+                look like the following:</t>
+
+            <figure align="center">
+                <artwork align="left"><![CDATA[
+S: * 666 EXISTS
+C: x1 UID FETCH 665:* (FLAGS)
+S: * 666 FETCH (UID 1666 FLAGS ())
+S: x1 OK fetched
+C: x2 UID THREAD RETURN (INCTHREAD) REFS utf-8
+      INTHREAD REFS 666
+S: * ESEARCH (TAG "x2") UID INCTHREAD 400
+      (600 601 (640 666)(602 603))
+S: x2 OK sent
+                    ]]></artwork>
+            </figure>
+
+            <t>The actual resulting message threading looks like the following:</t>
+            <figure align="center">
+                <artwork align="left"><![CDATA[
+...
+ |
+ | (All preceding threads are simply skipped.)
+ |
+ +-- 400
+ |    +-- ...
+ | (No data for the previous thread besides its root node is sent.)
+ |
+ +-- 600
+ |    +-- 601
+ |         +-- 640
+ |         |    +-- 666  <-- the new arrival
+ |         +-- 602
+ |              +-- 603
+ |
+... (No data about any subsequent threads is included in the response.)
+                    ]]></artwork>
+            </figure>
+        </section>
+
+        <section title="Inserting a Single Message">
+            <t>Consider the ... FIXME</t>
+        </section>
+
+        <section title="Joining Threads">
+            <t>FIXME</t>
+        </section>
+
     </section>
 
     <section anchor="Acknowledgements" title="Acknowledgements">
