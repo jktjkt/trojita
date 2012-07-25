@@ -31,7 +31,7 @@
       </address>
     </author>
 
-    <date year="2012" />
+    <date year="2012" month="July" day="25"/>
 
     <area>General</area>
     <workgroup>Internet Engineering Task Force</workgroup>
@@ -44,9 +44,11 @@
     <keyword>ARRIVED</keyword>
 
     <abstract>
-        <t>This document updates the QRESYNC extension of the IMAP protocol.  It prevents a possible race condition
-            where clients can lose synchronization of message UIDs in a selected mailbox when new arrivals are
-            immediately expunged.</t>
+        <t>This document updates the QRESYNC extension of the IMAP protocol to use a new untagged response, the ARRIVED
+            one, to inform about the UIDs of newly arriving messages.  Deprecating the EXISTS response, this extension
+            prevents a possible race condition where clients can lose synchronization of message UIDs in a selected
+            mailbox when new arrivals are immediately expunged.</t>
+        <t><vspace blankLines="2" /></t>
     </abstract>
   </front>
 
@@ -183,12 +185,8 @@ S: x OK Search completed
         </section>
     </section>
 
-    <!-- This PI places the pagebreak correctly (before the section title) in the text output. -->
-
-    <?rfc needLines="8" ?>
-
     <section anchor="Acknowledgements" title="Acknowledgements">
-      <t>FIXME</t>
+        <t>This text builds upon the QRESYNC IMAP extension <xref target="RFC5162" />.</t>
     </section>
 
     <section anchor="IANA" title="IANA Considerations">
@@ -210,7 +208,7 @@ S: x OK Search completed
             <artwork align="left" type="abnf"><![CDATA[
 capability          =/ "QRESYNC-ARRIVED"
 
-select-param        =  "QRESYNC-ARRIVED" SP "(" uidvalidity SP
+select-param        =/ "QRESYNC-ARRIVED" SP "(" uidvalidity SP
                        mod-sequence-value [SP known-uids]
                        [SP seq-match-data] ")"
                        ;; conforms to the generic select-param
@@ -245,19 +243,20 @@ sorted-sequence-set = sequence-set
       &RFC3501;
     </references>
 
-    <section anchor="app-additional" title="FIXME Items">
-      <t>FIXME: somehow replace [RFC5234]-style references with [ABNF]-style ones. That'd be cool.</t>
-      <t>FIXME: if not possible, change the reference inside the select-param.</t>
-      <t>FIXME: shouldn't the select-param be updated through "=/" instead of "="?</t>
-    </section>
-
     <section title="Changelog">
-        <section title="Changes in 02 since 01">
+        <section title="Changes in 00 since private-02">
+            <t><list style="symbols">
+                    <t>Fixed ABNF syntax for the select-param</t>
+                    <t>Better abstract</t>
+                    <t>Clearer formatting</t>
+            </list></t>
+        </section>
+        <section title="Changes in private-02 since private-01">
             <t><list style="symbols">
                     <t>ENABLE is still required, otherwise clients have no way of activating VANISHED</t>
             </list></t>
         </section>
-        <section title="Changes in 01 sice 00">
+        <section title="Changes in private-01 sice private-00">
             <t><list style="symbols">
                     <t>Clarified that UIDs presented in the ARRIVED response MUST be always presented in a sorted order</t>
                     <t>Used a special non-terminal in the ABNF grammar</t>
