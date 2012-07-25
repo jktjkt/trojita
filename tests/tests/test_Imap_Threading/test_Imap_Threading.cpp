@@ -1200,6 +1200,7 @@ void ImapModelThreadingTest::testIncrementalThreading()
 
     // Activate support for the INCTHREAD extension
     FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("ETHREAD");
     injector.injectCapability("INCTHREAD");
 
     // Fake delivery of one new message
@@ -1209,7 +1210,7 @@ void ImapModelThreadingTest::testIncrementalThreading()
     cServer("* 11 FETCH (UID 11 FLAGS ())\r\n" + t.last("OK fetch\r\n"));
 
     // Test the incremental threading
-    cClient(t.mk("UID THREAD RETURN (INCREMENTAL) REFS utf-8 INTHREAD REFS UID 11:*\r\n"));
+    cClient(t.mk("UID THREAD RETURN (INCTHREAD) REFS utf-8 INTHREAD REFS UID 11:*\r\n"));
     // Yes, it's a rather funky response
     cServer("* ESEARCH (TAG \"" + t.last() + "\") UID INCTHREAD 2 (7 (8 9 11)(10))\r\n");
     QCOMPARE(treeToThreading(QModelIndex()), QByteArray("(1)(2 3)(7 (8 9 11)(10))(4 (5)(6))"));

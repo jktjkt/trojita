@@ -51,7 +51,7 @@ void ThreadTask::perform()
     }
 
     if (m_incrementalMode) {
-        tag = parser->uidEThread(algorithm, "utf-8", searchCriteria, QStringList() << "INCREMENTAL");
+        tag = parser->uidEThread(algorithm, "utf-8", searchCriteria, QStringList() << "INCTHREAD");
     } else {
         tag = parser->uidThread(algorithm, "utf-8", searchCriteria);
     }
