@@ -4,6 +4,7 @@
 <!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY RFC5234 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5234.xml">
 <!ENTITY RFC3501 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3501.xml">
+<!ENTITY RFC4466 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4466.xml">
 <!ENTITY RFC4731 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4731.xml">
 <!ENTITY RFC5256 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5256.xml">
 <!ENTITY RFC5267 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5267.xml">
@@ -190,7 +191,8 @@
     </section>
 
     <section anchor="Acknowledgements" title="Acknowledgements">
-        <t>FIXME</t>
+        <t>This extension builds upon the SEARCH=INTHREAD extension <xref target="I-D.ietf-morg-inthread"/> and the
+            THREAD extension <xref target="RFC5256"/>.</t>
     </section>
 
     <section anchor="IANA" title="IANA Considerations">
@@ -205,20 +207,51 @@
         <t>The following syntax specification uses the Augmented Backus-Naur
             Form (ABNF) notation as specified in <xref target="RFC5234"/>.</t>
 
-        <t>Non-terminals referenced but not defined below are as defined by
-            <xref target="RFC3501"/>, <xref target="RFC4731"/>, or <xref target="RFC5256"/>.</t>
+        <t>Non-terminals referenced but not defined below are as defined by <xref target="RFC3501"/>, <xref
+                target="RFC4466"/>, <xref target="RFC4731"/>, or <xref target="RFC5256"/>.</t>
 
-        <t>FIXME</t>
         <figure align="center">
             <artwork align="left" type="abnf"><![CDATA[
-capability          =/ "QRESYNC-ARRIVED"
+capability          =/ "ETHREAD" / "INCTHREAD"
+    ;; <capability> from [RFC3501]
+
+modifier-ethread    = "THREAD"
+
+modifier-incthread  = "INCTHREAD"
+
+thread-return-opt   = modifier-thread / modifier-incthread
+    ;; Similar to <search-return-opt> from [RFC4466]
+
+ret-data-thread     = "THREAD" [SP 1*thread-list]
+    ;; <thread-list> from [RFC5256]
+
+ret-data-incthread  = "INCTHREAD" SP uid SP thread-list
+    ;; <uid> from [RFC3501]
+    ;; <thread-list> from [RFC5256]
+
+search-return-data  =/ ret-data-thread / ret-data-incthread
+    ;; <search-return-data> from [RFC4466]
+
+thread              =/ "UID" SP "THREAD" [thread-return-opts]
+                       SP thread-alg SP search-criteria
+    ;; <thread> and <thread-alg> from [RFC5256]
+    ;; <search-criteria> from [RFC3501] as amended by
+    ;;   [I-D.ietf-morg-inthread]
+    ;;
+    ;; The thread-return-opts MUST contain exactly one of
+    ;;   modifier-thread or modifier-incthread
+
+thread-return-opts  = SP "RETURN" SP "(" [thread-return-opt
+                      *(SP thread-return-opt)] ")"
+    ;; similar to the <search-return-opts> from [RFC4466]
 
 ]]></artwork>
         </figure>
     </section>
 
     <section anchor="Security" title="Security Considerations">
-        <t>FIXME</t>
+        <t>This document is believed to not have any security implications besides those already implied by <xref
+                target="RFC5256"/> and <xref target="I-D.ietf-morg-inthread"/>.</t>
     </section>
   </middle>
 
@@ -230,13 +263,17 @@ capability          =/ "QRESYNC-ARRIVED"
 
       &RFC3501;
 
+      &RFC4466;
+
       &RFC4731;
 
       &RFC5256;
 
-      &RFC5267;
-
       &DRAFT-inthread;
+    </references>
+
+    <references title="Informative References">
+      &RFC5267;
     </references>
   </back>
 </rfc>
