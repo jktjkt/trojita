@@ -136,7 +136,7 @@ consumer of the CPU time when Trojitá opens a huge mailbox and activates messag
 
 Proxies exist for performing various transformations and filtering of the available data; some of them (like the {\tt
 MailboxModel} and {\tt MsgListModel}) are generic enough and used in all of the desktop client, the mobile application
-and the single-purpose batch synchronizer (see appendix \ref{sec:xtuple}, p.~\pageref{sec:xtuple}) while others (like
+and the single-purpose batch synchronizer (see Appendix \ref{sec:xtuple}, p.~\pageref{sec:xtuple}) while others (like
 the {\tt PrettyMsgListModel}) are exclusive to the traditional desktop GUI.
 
 \subsection{Lazy Loading and Cache}
@@ -157,13 +157,13 @@ offline mode.
 Several caching backends are shipped in Trojitá; some of them store data exclusively in memory and therefore are not
 {\em persistent} per se, others use SQLite \cite{sqlite} for actual data storage.  Another mode which offloads ``big
 data'' storage to additional on-disk files is used by default.~\footnote{Work on the structured cache backends was
-sponsored by the KWest GbmH. (appendix \ref{sec:kwest}, p.~\pageref{sec:kwest}).}
+sponsored by the KWest GbmH. (Appendix \ref{sec:kwest}, p.~\pageref{sec:kwest}).}
 
 \section{The Mobile Version}
 
 Trojitá also ships with a special version targeted for use on cell phones with touch screen such as Nokia's N9.  The
 release was tested on the Nokia N950, a developer device which I obtained through Nokia's Community Device Programme
-(appendix \ref{sec:nokia-cdp}, p.~\pageref{sec:nokia-cdp}).
+(Appendix \ref{sec:nokia-cdp}, p.~\pageref{sec:nokia-cdp}).
 
 The touch-optimized version of Trojitá shares most of the code with the desktop version; in particular, none of the
 underlying IMAP code had to be modified.  The changes were concentrated solely in the GUI layer which was completely
