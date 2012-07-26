@@ -70,6 +70,23 @@ takes a look at some of the most popular solutions.
 
 \subsection{Apple iOS}
 
+Apple's devices generally ship with a decent implementation of their IMAP stack, an evaluation shared by independent
+researchers \cite{isode-iphone4}.  The list of extensions supported by the application includes {\tt CONDSTORE} and {\tt
+ESEARCH} for improved mailbox synchronization, {\tt COMPRESS} for transparent deflate compression and {\tt BURL} for the
+forward-without download.
+
+It is, however, surprising that their support of extensions aimed at making mailbox resynchronization more efficient
+does not include the {\tt QRESYNC} extension \cite{rfc5162}, especially given that its implementation does not impose
+much in terms of additional requirements on top the already-supported {\tt CONDSTORE}.
+
+The iOS also notably does not use the {\tt IDLE} command at all.  The reason, according to a message allegedly sent by
+Steve Jobs \cite{jobs-ios-idle}, is that is is {\em ``a power hungry standard''}.  Systematic measurements
+\cite{wcdma-energy} \cite{cirdland-fach-dch-measurements} and experience alike~\footnote{Mark Crispin's famous {\em ``I
+have built on-demand networks which shut down until signaled back on, and then happily resumed all the active TCP
+sessions even though the "network connection" had been powered off for days.''} \cite{crispin-no-ifup}.} shows, however,
+that the mere act of having a TCP connection open with an occasional keep alive ``pings'' being transfered have no
+significant impact on battery life on other platforms.
+
 \subsection{Android's Native E-mail Client}
 
 \subsection{Android's K-9 Mail}
