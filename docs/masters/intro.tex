@@ -10,6 +10,44 @@
   of like Facebook in a way. \attrib{Heidar Bernhardsson \cite{email-difficult-to-replace-like-facebook}}
 \end{quote}
 
-\todo[inline]{An intro}
+The boom of mobile computing in the last few years has changed the way how people work with their e-mail.  After a short
+period where it appeared that the web mail was the future and days of standard protocols were numbered, suddenly people
+realized that there in fact {\em is} a merit in having a standardized protocol for e-mail access.
+
+Contemporary smartphones started to smear down the border between how a text message, and instant-messaging (IM)
+communication and a traditional e-mail work.  Suddenly, it is common to have a single ``messaging'' application
+aggregating communication history gathered from many distinct channels.
+
+Even though some people prefer not to use these integrated facilities, their mere existence and certain demand from the
+end-users present an unique opportunity for standardization --- it is easier to develop, test and deploy {\em one}
+particular data provider suitable for use with many different services from multitude of vendors than having to deploy a
+custom implementation for each social network which happens to be popular this year and on the continent the device
+manufacturer decided to target.  Engineers from cell phone and tablet vendors taking place in the IETF standardization
+process are clear evidence that the market recognizes this potential and that nobody wants to loose.
+
+In this thesis, I would like to explore the IMAP protocol \cite{rfc3501} and its rich extension family, evaluating their
+features by a prism of a {\em mobile client} --- a device which might have a decent amount of CPU and memory resources,
+as common with today's smartphones and modern tablets, but whose network connection is prone to frequent interruptions
+and might be payed based on the amount of transferred data.  It turns out that although many of these extensions are
+extremely useful for increased efficiency of a client's operation, there are still quite a few opportunities for
+improvement.
+
+The next chapter (p. \pageref{sec:imap-protocol}) of this thesis provides a brief introduction to the baseline IMAP
+protocol, its strengths and weaknesses.  The third chapter (p. \pageref{sec:imap-extensions}) analyzes the existing IMAP
+extensions based on the ``layer'' on which they add features to IMAP.  In chapter four (p.
+\pageref{sec:proposed-extensions}, I have selected three completely different areas in which the IMAP status, as of
+2012, can still be improved.  My improvements are delivered in the format of the so-called {\em Internet Drafts},
+materials directly used by the IETF as the source of the RFC documents.
+
+Chapter five (p. \pageref{sec:mobile-imap}) evaluates the status of the extension support among a selection of existing
+mobile clients available on the market.  Chapter six describes a high-level overview of how my mobile e-mail
+client {\em Trojitá} operates.
+
+All of the extensions which I have proposed during my work on this thesis are available in their formal format from
+appendix \ref{sec:id-manuscripts} (p. \pageref{sec:id-manuscripts}).
+
+Finally, as Trojitá is an open-source project, appendix \ref{sec:acknowledgement} (p. \pageref{sec:acknowledgement})
+acknowledges the work of other developers who have contributed to Trojitá over the years.  It also mentions two
+companies which decided to build their e-mail products on top of Trojitá.
 
 \end{document}
