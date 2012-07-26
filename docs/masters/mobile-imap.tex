@@ -66,8 +66,6 @@ feature in a finished product is based on another criteria than the research act
 To obtain a better understanding on how the existing solutions available on the market today use IMAP, this section
 takes a look at some of the most popular solutions.
 
-\todo[inline]{Compare with Andorid, Nokia's QMF, Apple iOS -- that's gonna be fun}
-
 \subsection{Apple iOS}
 
 Apple's devices generally ship with a decent implementation of their IMAP stack, an evaluation shared by independent
@@ -81,7 +79,7 @@ much in terms of additional requirements on top the already-supported {\tt CONDS
 
 The iOS also notably does not use the {\tt IDLE} command at all.  The reason, according to a message allegedly sent by
 Steve Jobs \cite{jobs-ios-idle}, is that is is {\em ``a power hungry standard''}.  Systematic measurements
-\cite{wcdma-energy} \cite{cirdland-fach-dch-measurements} and experience alike~\footnote{Mark Crispin's famous {\em ``I
+\cite{wcdma-energy} \cite{cridland-fach-dch-measurements} and experience alike~\footnote{Mark Crispin's famous {\em ``I
 have built on-demand networks which shut down until signaled back on, and then happily resumed all the active TCP
 sessions even though the "network connection" had been powered off for days.''} \cite{crispin-no-ifup}.} shows, however,
 that the mere act of having a TCP connection open with an occasional keep alive ``pings'' being transfered have no
@@ -89,11 +87,22 @@ significant impact on battery life on other platforms.
 
 \subsection{Android's Native E-mail Client}
 
+There is not much to be said about Android's native client's IMAP performance --- the stock client does not offer push
+notification through {\tt IDLE} \cite{android-idle} and the list of extension identifiers referenced from the
+application's source~\footnote{File \path{src/com/android/email/mail/store/ImapConnection.java} from the
+\path{platform/packages/apps/Email} repository as of the {\tt android-4.1.1\_r3-35-g01c55fd} revision.} only references
+the {\tt NAMESPACE}, {\tt UIDPLUS} and {\tt STARTTLS} capabilities.
+
+Further analysis shows that the code is blocking and incapable of issuing or processing requests in parallel.  This
+observation is consistent with what users generally describe as ``slow'' experience.
+
 \subsection{Android's K-9 Mail}
 
 \subsection{Nokia's Qt Messaging Framework}
 
 \subsection{Trojitá}
+
+\todo[inline]{Compare with Andorid, Nokia's QMF, Apple iOS -- that's gonna be fun}
 
 \section{Evaluating Extensions}
 \todo[inline]{Evaluate how useful/hard to implement they are}
