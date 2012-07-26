@@ -153,6 +153,37 @@ processing (appendix \ref{sec:xtuple}, p. \pageref{sec:xtuple}) while still usin
 the underlying IMAP library as the desktop and cell phone version.
 
 \section{Evaluating Extensions}
-\todo[inline]{Evaluate how useful/hard to implement they are}
+
+As the previous section shows, the level of support for various extensions and their real-world deployment varies
+wildly.  Many today's clients are using only a limited subset of features which are generally available, leaving
+opportunities for new applications entering the market to offer smoother, more efficient user experience.
+
+Previous efforts aimed at standardizing a set of extensions to serve as a ``mobile profile'' of IMAP have not delivered
+a universally acceptable result.  Lemonade, a specification universally considered to be {\em the} specification to go
+when evaluating clients and servers alike \cite{isode-lemonade}, mandates a set of extensions which --- to the best of
+my knowledge --- is not available on any single IMAP server in its entirety.  Furthermore, the clients do not even
+attempt to use these extensions, probably due to not being able to verify them for interoperability and because of
+concerns about shipping something which could very well be considered a dead code.
+
+The rest of this chapter tries to look at the available extensions through the optics of a client developer who is
+trying to push the IMAP server developers slightly, but not too much --- pushing forward is crucial in attaining a
+sustainable development, yet applying too much pressure often leads to the whole movement getting stuck on a first
+obstacle.
+
+\subsection{The Bare Minimum}
+
+The first group of extensions lists those proposals which I consider to be a practical requirement for a well-behaving
+client to implement.  Furthermore, their implementation does not impose an overly significant burden on the servers,
+neither in terms of complicated code and therefore increased development costs, nor in the runtime overhead.
+
+\todo[inline]{literal+, idle,\ldots}
+
+\subsection{Useful Extensions}
+
+\todo[inline]{condstore, qresync, sort, thread, sendmail,\ldots}
+
+\subsection{The Icing on a Cake}
+
+\todo[inline]{convert, context, catenate, urlauth, burl, notify,\ldots}
 
 \end{document}
