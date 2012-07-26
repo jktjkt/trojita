@@ -170,19 +170,124 @@ trying to push the IMAP server developers slightly, but not too much --- pushing
 sustainable development, yet applying too much pressure often leads to the whole movement getting stuck on a first
 obstacle.
 
+Further details about the mentioned extensions are available in chapters three (p.  \pageref{sec:imap-extensions} and
+four (p. \pageref{sec:proposed-extensions}).
+
 \subsection{The Bare Minimum}
 
 The first group of extensions lists those proposals which I consider to be a practical requirement for a well-behaving
 client to implement.  Furthermore, their implementation does not impose an overly significant burden on the servers,
 neither in terms of complicated code and therefore increased development costs, nor in the runtime overhead.
 
-\todo[inline]{literal+, idle,\ldots}
+\subsubsection{LITERAL+}
+
+Implementing the {\tt LITERAL+} extension actually {\em reduces} the amount of special code which the client executes
+when transmitting data using literals.  As such, there is no excuse for not implementing this extension.
+
+\subsubsection{IDLE}
+
+Entering the {\tt IDLE} mode enables the server to issue any untagged response, including the {\tt EXPUNGE} and {\tt
+VANISHED}, at any time.  Because the IMAP clients are already required to handle any response at any time, actually
+making use of this feature should not impose any extra requirements on their implementors.  The only acceptable reason
+for not using {\tt IDLE} is, in my opinion, a technical deficiency in the platform's TCP stack and the related layers.
+If the total power consumption of the {\tt IDLE} command exceed periodic polling, clients shall refrain from calling
+{\tt IDLE}.
+
+\subsubsection{ID}
+
+The {\tt ID} command provides useful diagnostics about the other end of the IMAP channel.  Similar features exist in
+other Internet protocols.  Hiding the name of one's implementation is a weak form of security measure --- existing
+efforts \cite{openemailsurvey} are able to recognize an IMAP server by its {\tt CAPABILITY} response, a set of standard
+human-readable texts and through additional criteria and it is conceivable that an alternative for clients is feasible
+as well.
+
+\subsubsection{BINARY}
+
+The {\tt BINARY} extension can delegate decoding of the content-transfer-encoding to the server side.  Given that
+servers compliant with the baseline IMAP protocol already have to include a full MIME decoder, support for the BINARY
+extension is a firm candidate for the basic level of the extension taxonomy in spite of the fact that the most widely
+deployed IMAP server does not support it in its production releases yet.
+
+\subsubsection{UIDPLUS}
+
+Without the {\tt UIDPLUS} extension, it is hard for clients to tell the UID of a message they have just appended to the
+mailbox.  On servers which support persistent storage of UIDs, support for this extension does not add any further
+requirements.
+
+\subsubsection{CHILDREN, LIST-EXTENDED and LIST-STATUS}
+
+With the {\tt CHILDREN} {\tt LIST} extension, GUI clients do not have to explicitly issue one more {\tt LIST} command
+for each mailbox shown in the GUI to tell whether said mailbox shall be drawn with a visual cue indicating its
+potentially expandable state.  The {\tt LIST-EXTENDED} and {\tt LIST-STATUS} allow for bundling of additional metadata
+with the {\tt LIST} responses and invoking the {\tt STATUS} command, respectively.
+
+\subsubsection{ESEARCH}
+
+The {\tt ESEARCH} response does not add any requirements on the IMAP servers besides the fact that they must send the
+whole response at once.  I believe that this is a reasonable trade-off considering the benefits the compact {\tt uidset}
+syntax can provide when working with large mailboxes.
+
+\subsubsection{COMPRESS=DEFLATE}
+
+Given the ubiquitous presence of the ZLib library, clients shall make sure that either the TLS compression is active or
+the {\tt COMPRESS=DEFLATE} command is issued.  IMAP is a textual protocol and as such compresses extremely well.
 
 \subsection{Useful Extensions}
 
-\todo[inline]{condstore, qresync, sort, thread, sendmail,\ldots}
+The second group of extensions consists of those which are very valuable for the increased efficiency of the protocol
+exchange, yet their implementation imposes a set of requirements on the server vendors, CPU resources or generally
+requires considerable effort to ``get right''.
+
+\subsubsection{CONDSTORE and QRESYNC}
+
+The {\tt CONDSTORE} extension enables clients to skip downloading of all flags upon each mailbox reconnect.  As such, it
+is highly desirable.  It is not placed in the basic category due to its implications on the server side, though.
+
+With server requirements not significantly different to the {\tt CONDSTORE}, {\tt QRESYNC} reduces the amount of data
+transferred when resynchronizing a mailbox after new messages have arrived and others have been expunged.  Because it
+allows clients to skip the UID map rebuild, significant bandwidth savings can be obtained.  As such, clients are highly
+recommended to support this extension.
+
+\subsubsection{ENABLE}
+
+The {\tt ENABLE} extension is a requirement for QRESYNC.  It does not add any additional requirements on clients or
+servers, so it shall belong to the same category.
+
+\subsubsection{MULTIAPPEND}
+
+The {\tt MULTIAPPEND} command improves performance in clients upload many messages at once --- a scenario common in
+applications which support batched import of existing e-mails.  Clients which do not need this feature can safely ignore
+this extension.  {\tt MULTIAPPEND} also mandates that the whole operation is atomic, that is, either all of the messages
+are appended, or none for them are.  For this reason, this extension is not put into the basic level.
+
+\subsubsection{SENDMAIL}
+
+Servers implementing the {\tt SENDMAIL} extension as proposed in this thesis free their clients from having to speak the
+ESMTP protocol at all, a benefit bringing along streamlined end-user configuration and reducing support calls.  However,
+due to a certain political pressure against the adoption of any extension allowing message submission via IMAP, I have
+decided to put {\tt SENDMAIL} to the middle category.
 
 \subsection{The Icing on a Cake}
+
+The last group of extensions represents something {\em special} or hard to implement correctly.  Clients can benefit
+from many of the mentioned extensions, yet one cannot expect to have them available on many IMAP servers due to the
+complexity or increased requirement which they put on the server.
+
+\subsubsection{SORT, SORT=DISPLAY and THREAD}
+
+\subsubsection{INCTHREAD and CONTEXT=\ldots}
+
+\subsubsection{SEARCH=FUZZY}
+
+\subsubsection{CATENATE, URLAUTH and BURL}
+
+\subsubsection{SPECIAL-USE, CREATE-SPECIAL-USE}
+
+\subsubsection{CONVERT}
+
+\subsubsection{NOTIFY}
+
+\subsubsection{MULTISEARCH}
 
 \todo[inline]{convert, context, catenate, urlauth, burl, notify,\ldots}
 
