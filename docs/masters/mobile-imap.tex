@@ -89,7 +89,7 @@ significant impact on battery life on other platforms.
 
 There is not much to be said about Android's native client's IMAP performance --- the stock client does not offer push
 notification through {\tt IDLE} \cite{android-idle} and the list of extension identifiers referenced from the
-application's source~\footnote{File \path{src/com/android/email/mail/store/ImapConnection.java} from the
+application's source~\footnote{File \path{src/com/android/email/mail/store/ImapConnection.java} from Android's
 \path{platform/packages/apps/Email} repository as of the {\tt android-4.1.1\_r3-35-g01c55fd} revision.} only references
 the {\tt NAMESPACE}, {\tt UIDPLUS} and {\tt STARTTLS} capabilities.  None of the extensions which try to improve
 synchronization performance (the {\tt ESEARCH}, {\tt CONDSTORE} and {\tt QRESYNC}) are available.  No provisions for
@@ -104,7 +104,7 @@ IMAP accounts for business reasons.
 
 The Android's K-9 mail is a fork of the original e-mail application from Google.  The developers have managed to add
 support for two extensions, namely the {\tt IDLE} and the {\tt COMPRESS=DEFLATE}.  More advanced features like the {\tt
-ESEARCH}/{\tt CONDSTORE}/{\tt QRESYNC} are however still missing.
+ESEARCH} / {\tt CONDSTORE} / {\tt QRESYNC} are however still missing.
 
 Furthermore, comments like {\em ``TODO Need to start keeping track of UIDVALIDITY''}~\footnote{File
 \path{src/com/fsck/k9/mail/store/ImapStore.java}, line 103 as of the Git revision {\tt 3.512-1249-g5ce0e19} of the K-9's
