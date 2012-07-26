@@ -267,28 +267,55 @@ ESMTP protocol at all, a benefit bringing along streamlined end-user configurati
 due to a certain political pressure against the adoption of any extension allowing message submission via IMAP, I have
 decided to put {\tt SENDMAIL} to the middle category.
 
-\subsection{The Icing on a Cake}
+\subsection{The Most Advanced Extension}
 
-The last group of extensions represents something {\em special} or hard to implement correctly.  Clients can benefit
-from many of the mentioned extensions, yet one cannot expect to have them available on many IMAP servers due to the
-complexity or increased requirement which they put on the server.
+The last group contains those extensions which are either something {\em special}, exotic, or generally hard to
+implement correctly.  Clients can benefit from many extensions from this group, yet one cannot expect to have them
+available on many IMAP servers due to their inherent complexity or increased amount of requirements which they put on
+the server.
 
 \subsubsection{SORT, SORT=DISPLAY and THREAD}
 
-\subsubsection{INCTHREAD and CONTEXT=\ldots}
+These extensions present functionality which is very desirable from a client's point of view, yet requires the server to
+build an index of the whole mailbox contents at once.  In absence of this extension, clients wishing to offer threading
+support or those that need to present the results to their users in a particular order have no choice but to download
+additional data for every single message in the mailbox.
+
+\subsubsection{INCTHREAD, CONTEXT=SEARCH and CONTEXT=SORT}
+
+This group builds upon the functionality provided by {\tt SORT} and {\tt THREAD} by enabling live updates to the results
+the client is interested in.  In their absence, clients either have to repeat the server-side operation once again
+whenever a new message arrive, or defer to a purely client-side sorting or threading.
 
 \subsubsection{SEARCH=FUZZY}
 
+Adding support for ``fuzzy search'', this extension mandates servers to build an equivalent of a fulltext search index
+for the current mailbox, placing a significant burden on the IMAP server.
+
 \subsubsection{CATENATE, URLAUTH and BURL}
 
-\subsubsection{SPECIAL-USE, CREATE-SPECIAL-USE}
+This subgroup of extensions is known as the ``Lemonade trio''.  Together, they allow for efficient operations like
+forward-without download, drastically reducing the amount of data to send when working with big messages.  Due to the
+requirement for an explicit trust path between the IMAP server and the ESMTP submission service, clients have to
+anticipate problems when they try to utilize this functionality.
+
+\subsubsection{SPECIAL-USE and CREATE-SPECIAL-USE}
+
+A relatively new extension which allows clients to automatically obtain data about what mailbox serves a ``special
+purpose'' --- for example, containing {\em all messages} from any other mailbox, or being designated as a ``sent
+folder'' by the system or account configuration.  This could become a very useful extension, but it is too early to
+mandate its support now.
 
 \subsubsection{CONVERT}
 
-\subsubsection{NOTIFY}
+No servers that I am aware of deploy the {\tt CONVERT} extension despite the time it has been around.  No matter how
+useful I find this extension, this trait alone puts it firmly into the ``speciality'' group.
 
-\subsubsection{MULTISEARCH}
+\subsubsection{NOTIFY and MULTISEARCH}
 
-\todo[inline]{convert, context, catenate, urlauth, burl, notify,\ldots}
+The {\tt NOTIFY} builds where {\tt IDLE} stopped, adding support for asynchronous notification about state of many
+mailboxes without a need of keeping concurrent connections opened.  The {\tt MULTISEARCH} command adds support for
+searches spanning several mailboxes, improving the traditional model where clients are required to ``hop'' mailboxes
+periodically.  Without much support on the server side, these extensions probably cannot be relied upon in 2012.
 
 \end{document}
