@@ -3,23 +3,34 @@
 
 \begin{document}
 
-\chapter{Contents of the CD}
+\chapter{The Attached CD}
 \label{sec:source-cd}
 
-\todo[inline]{Change me, this is just a evrbatim copy from bachelor thesis}
-\todo[inline]{Build instructions}
+\section{Contents of the CD}
 
-The attached CD-ROM is an integral part of this thesis.  The contents of the
-top-level {\tt trojita} directory is the following:
+The attached CD is an integral part of this thesis.  The contents of the top-level {\tt trojita} directory is the
+following:
 
 \begin{description}
-    \item[bin] Compiled binaries of Trojitá suitable for running on several
-        Linux flavours
-    \item[doc] A copy of each publicly available document referenced in the
-        bibliography
-    \item[doxygen] An automatically generated API documentation of Trojitá
-    \item[src] The source code of Trojitá
+    \item[internet-drafts] The Internet-Draft manuscripts with extensions proposed as a part of this thesis
+    \item[src] A compressed tarball containing the source code of the Trojitá IMAP client
     \item[thesis] A printable PDF file with the text of this thesis
 \end{description}
+
+\section{Build instructions}
+
+In order to build Trojitá, please follow these instructions:
+
+\begin{itemize}
+  \item Make sure that Qt 4.6 (or newer), including its development headers, is present on the machine
+  \item If compiling on a Unix host, make sure that the {\tt pkgconfig} and {\tt zlib} are available as well
+  \item Enter the directory with Trojitá's source code
+  \item Execute {\tt mkdir \_build; cd \_build}
+  \item Run {\tt qmake CONFIG+=debug ../trojita.pro} to configure the package
+  \item Execute {\tt make -j4} in order to build the application
+\end{itemize}
+
+After following these instructions, Trojitá can be launched by running: \\ 
+{\tt ./src/Gui/trojita}.
 
 \end{document}
