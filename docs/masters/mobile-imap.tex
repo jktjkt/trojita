@@ -6,8 +6,30 @@
 \chapter{The Mobile IMAP}
 \label{sec:mobile-imap}
 
+Many of the existing IMAP extensions discussed in \secref{sec:imap-extensions} have the potential of improving the
+client's operation tremendously.  At the same time, experience has shown that there is a certain chicken-and-egg problem
+with new proposals where server vendors are not willing to invest their time into promising extensions which no client
+supports yet and clients are not interested in implementing extensions which they cannot test for interoperability.  In
+this chapter, I am trying to provide a concise summary of individual merit of these extensions.
+
 \section{Comparison with the Lemonade Profile}
 \label{sec:lemonade-comparison}
+
+The Lemonade profile, as defined in RFC 4550 \cite{rfc4550} in 2006 and later updated through RFC 5550 \cite{rfc5550}
+during 2009, provides a list of extensions considered ``critical'' for any mobile IMAP e-mail client.  The set of
+mandatory extensions is rather big, though, and to the best of my knowledge, there is {\em no} server on the market
+implementing all of the compulsory features.  One might therefore wonder what were the reasons for this lack of general
+availability of the Lemonade extension family.
+
+\section{Cross-Service Requirements}
+
+One unique feature of Lemonade is the possibility to {\em forward messages without their prior download}.  The three
+ESMTP~\cite{rfc5321} and IMAP extensions, often referred to as the {\em Lemonade trio}, namely the {\tt CATENATE}, {\tt
+URLAUTH} and {\tt BURL}, allow the clients to compose a message using existing parts available from the IMAP mail store,
+provide a way of generating single-purpose ``pawn tickets'' for making the composed messages available to the submission
+server, and replacing the {\tt DATA} SMTP command with a way of downloading the message from the IMAP server,
+respectively.
+
 \todo[inline]{compare with Lemonade}
 
 \section{Other Implementations}
