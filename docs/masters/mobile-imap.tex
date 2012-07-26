@@ -93,7 +93,8 @@ application's source~\footnote{File \path{src/com/android/email/mail/store/ImapC
 \path{platform/packages/apps/Email} repository as of the {\tt android-4.1.1\_r3-35-g01c55fd} revision.} only references
 the {\tt NAMESPACE}, {\tt UIDPLUS} and {\tt STARTTLS} capabilities.  None of the extensions which try to improve
 synchronization performance (the {\tt ESEARCH}, {\tt CONDSTORE} and {\tt QRESYNC}) are available.  No provisions for
-Lemonade's family are present at all.
+Lemonade's family are present at all.  The {\tt LITERAL+}, an extension which takes literally no effort for clients to
+support and removes one network round trip when uploading messages, is not supported.
 
 Further analysis shows that the code is blocking and incapable of issuing or processing requests in parallel.  These
 observations are consistent with what users generally describe as a ``slow'' experience.  This might not come surprising
@@ -102,21 +103,54 @@ IMAP accounts for business reasons.
 
 \subsection{Android's K-9 Mail}
 
-The Android's K-9 mail is a fork of the original e-mail application from Google.  The developers have managed to add
-support for two extensions, namely the {\tt IDLE} and the {\tt COMPRESS=DEFLATE}.  More advanced features like the {\tt
-ESEARCH} / {\tt CONDSTORE} / {\tt QRESYNC} are however still missing.
+The Android's K-9 mail~\cite{k9mail} is a fork of the original e-mail application from Google.  The developers have
+managed to add support for two extensions, namely the {\tt IDLE} and the {\tt COMPRESS=DEFLATE}.  More advanced features
+like the {\tt ESEARCH} / {\tt CONDSTORE} / {\tt QRESYNC} are however still missing.
 
 Furthermore, comments like {\em ``TODO Need to start keeping track of UIDVALIDITY''}~\footnote{File
 \path{src/com/fsck/k9/mail/store/ImapStore.java}, line 103 as of the Git revision {\tt 3.512-1249-g5ce0e19} of the K-9's
 source code repository.} might make one feel nervous about the safety of the data being accessed.
 
+\subsection{Modest / Tinymail}
+
+The several years old Nokia N900 shipped with a mail client called Modest, an application based on top of the Tinymail
+framework~\cite{tinymail}.  The underlying library supports an efficient mailbox synchronization through {\tt QRESYNC}
+and the sources contain a reference to the {\tt CONVERT} extension --- however, this functionality appears to be limited
+and in an early state.  The ``Lemonade trio'' for forwarding without download is not supported.
+
+The code is written using the synchronous idioms. No support for command pipelining is present.
+
 \subsection{Nokia's Qt Messaging Framework}
 
-\todo[inline]{Analyze the QMF}
+Nokia's Qt Messaging Framework~\cite{qmf} powers the e-mail functionality in the MeeGo Harmattan line of phones, the N9
+and the N950.  Support for extensions appears to be rich --- the Lemonade trio is supported in its
+entirety,~\footnote{An interesting detail is that the {\tt BURL} extension is disabled if the account is configured to
+use IMAP over an SSL port instead of the {\tt STARTTLS}; this is caused by a deficiency in the IMAP-URL standard
+\cite{rfc5092}.} as well as are the {\tt COMPRESS=DEFLATE}, {\tt BINARY}, {\tt IDLE}, {\tt CHILDREN} and many others.
+
+The underlying IMAP library exhibits regular ``batched synchronization'' mode of operation; connections to mailboxes are
+typically not left alone for long, but the code makes aggressive use of the {\tt QRESYNC} extension to benefit from
+extremely cheap mailbox synchronization.  Code is written with memory-constrained devices in mind, care is taken to
+prevent data copying if possible.  The general behavior focuses on making the specified subset of messages always
+available on device --- there is no support for server-side threading or sorting, but some form of a server-side search
+{\em is} available.  Live updates through {\tt CONTEXT=SEARCH} are not employed.  Support for the {\tt LIST-STATUS} is
+not available.
+
+An interesting extension which is supported by the QMF is Google's {\tt XLIST} \cite{gmail-xlist} extension.  However,
+the code~\footnote{File \path{src/plugins/messageservices/imap/imapprotocol.cpp} as of QMF's Git revision {\tt
+2011W26\_2-263-gec26531}.} appears to only use the {\tt \\Inbox} mailbox flag for forcing case-insensitive mailbox
+comparison, a mechanism already mandated by the baseline IMAP protocol \cite[p. 17]{rfc3501}.
+
+All in all, the Qt Messaging Framework is a promising library with support for other protocols besides IMAP.  Its IMAP
+implementation feels solid and is reasonably well covered by the unit tests.
 
 \subsection{Trojitá}
 
-\todo[inline]{Analyze Trojita}
+Trojitá~\cite{trojita-website} is an advanced IMAP client which includes support for many different extensions from the
+basic ones like {\tt IDLE}, {\tt LITERAL+} or the {\tt ID} extension to the complex ones like the Lemonade trio or the
+{\tt ESEARCH} / {\tt CONDSTORE} / {\tt QRESYNC} triplet.  Trojitá can scale up to company-wide ERP-level e-mail
+processing (appendix \ref{sec:xtuple}, p. \pageref{sec:xtuple}) while still using the same code base of
+the underlying IMAP library as the desktop and cell phone version.
 
 \section{Evaluating Extensions}
 \todo[inline]{Evaluate how useful/hard to implement they are}
