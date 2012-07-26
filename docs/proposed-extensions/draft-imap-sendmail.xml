@@ -377,7 +377,6 @@ one-email-addr      = string
     </references>
 
     <section anchor="FIXME" title="FIXME Items">
-      <t>FIXME: better citations</t>
       <t>What's got higher priority, SUBMISSIONRACE or POLICYDENIED? :)</t>
       <t>IANA and the response codes</t>
     </section>
