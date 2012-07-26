@@ -21,18 +21,47 @@ mandatory extensions is rather big, though, and to the best of my knowledge, the
 implementing all of the compulsory features.  One might therefore wonder what were the reasons for this lack of general
 availability of the Lemonade extension family.
 
-\section{Cross-Service Requirements}
+\subsection{Cross-Service Requirements}
 
 One unique feature of Lemonade is the possibility to {\em forward messages without their prior download}.  The three
 ESMTP~\cite{rfc5321} and IMAP extensions, often referred to as the {\em Lemonade trio}, namely the {\tt CATENATE}, {\tt
 URLAUTH} and {\tt BURL}, allow the clients to compose a message using existing parts available from the IMAP mail store,
 provide a way of generating single-purpose ``pawn tickets'' for making the composed messages available to the submission
 server, and replacing the {\tt DATA} SMTP command with a way of downloading the message from the IMAP server,
-respectively.
+respectively.  This feature prevents having to transfer potentially huge data over the network three times --- once when
+the users wants to read it, second time when the message is saved to the sent folder, and finally when delivering via
+SMTP.
 
-\todo[inline]{compare with Lemonade}
+Unfortunately, a big problem with said approach is the fact that it mandates collaboration across different services ---
+an explicit trust path between the IMAP and ESMTP servers have to be set up, which is a process prone to errors
+\cite{qmf-fastmail-burl-bug}.  This matter is also complicated by the fact that no open source MTA~\footnote{Mail
+Transfer Agent, typically an SMTP or ESMTP server} ships with official support for {\tt BURL}.~\footnote{Unofficial
+patches exists for Postfix dating back to 2010 \cite{apple-postfix-burl}, but they have not been integrated into the
+mainline version as of July 2012 (the {\tt postfix-2.10-20120715.tar.gz} development snapshot.}  Situation is better on
+the IMAP server front with Cyrus supporting the {\tt URLAUTH} and {\tt CATENATE} extensions out-of-box with Dovecot's
+support scheduled for its upcoming 2.2 release \cite{imap-server-extension-matrix}.
 
-\section{Other Implementations}
+\subsection{Complicated Extensions}
+
+Some of the extensions whose support is mandated by the Lemonade proposal seems to be notoriously hard for the server
+vendors to implement.
+
+A perfect example is the {\tt CONTEXT=SORT} extension \cite{rfc5267}.  As a client developer, I recognize its extreme
+usefulness and appreciate its design.  Availability of such an extension would make it extremely easy to implement
+live-updated sorting in my Trojitá (and Trojitá {\em does} make use of the sort context extension).  That said, given
+that no IMAP server which I am aware of announces its availability, clients have to deal with the status quo in the
+meanwhile.
+
+The {\tt CONVERT} extension \cite{rfc5259} belongs to a similar category --- the features it offers, like the
+server-side downscaling of JPEG images, would be {\em very} handy on a cell phone, yet no IMAP server known to the
+author includes that functionality.
+
+Both of these RFCs were published four and five years ago, respectively, and were designed by engineers working for an
+IMAP server vendor.  One cannot therefore dismiss them altogether as a product of people not having any say in the
+server development.  My opinion is that the allocation of engineering resources required for shipping a particular
+feature in a finished product is based on another criteria than the research activity.
+
+\section{State of Other Client Implementations}
 \todo[inline]{Compare with Andorid, Nokia's QMF, Apple iOS -- that's gonna be fun}
 
 \end{document}
