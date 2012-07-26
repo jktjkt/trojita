@@ -10,13 +10,13 @@ The goal of this thesis was to investigate the existing IMAP extensions, evaluat
 operation of a mobile e-mail client, and find out what areas could benefit from further optimization.  All of these
 goals were fulfilled.
 
-The available IMAP extensions range from simple tweaks to the protocol behavior through experimental facilities adding
-completely different feature to IMAP all the way to extensions which are hard to implement, but provide the protocol
-speakers with features or processes which would otherwise not be achievable, or prove needlessly hard to attain.
-Certain features, formerly designed to accommodate hardware designs ancient through today's optics (like the support for
-command pipelining which was meant to allow for computer operators to physically locate a tape in their archive and
-mount that on the user's behalf) are today crucial for sustaining high performance over packet networks with rather big
-round-trip times.
+The available IMAP extensions range from simple tweaks of the protocol behavior and experimental facilities adding
+completely different features to IMAP all the way to the extensions which are hard to implement, but provide the
+protocol speakers with features or processes which would otherwise not be achievable, or prove to be needlessly hard to
+attain.  Certain features, formerly designed to accommodate hardware designs which are ancient through today's optics
+(like the support for command pipelining which was meant to allow for computer operators to physically locate a tape in
+their archive and mount that on the user's behalf) are today crucial for sustaining high performance over cellular
+networks with rather big round-trip times.
 
 I believe that one cannot really evaluate a proposal without getting a perfect grasp of the changes it introduces, which
 is why I implemented most of the available extensions in Trojitá, my free software project dedicated to building a
