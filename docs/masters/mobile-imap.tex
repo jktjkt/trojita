@@ -168,7 +168,13 @@ concerns about shipping something which could very well be considered a dead cod
 The rest of this chapter tries to look at the available extensions through the optics of a client developer who is
 trying to push the IMAP server developers slightly, but not too much --- pushing forward is crucial in attaining a
 sustainable development, yet applying too much pressure often leads to the whole movement getting stuck on a first
-obstacle.
+obstacle.  I make a few assumptions about the features which the client support; most notably, the client should have a
+persistent cache to store already downloaded data.  The client is also expected to serve a human user who will work with
+the application for many days across a network which might fail occasionally or even very often.
+
+This humble taxonomy is not an attempt to define a {\em level of support} --- entire working groups dedicated to this
+task have failed to deliver a universally-accepted solution despite spending many years on this goal.  Instead, it is
+intended to serve as a reference suggesting client and server developers alike what extensions might be useful.
 
 Further details about the mentioned extensions are available in chapters three (p.  \pageref{sec:imap-extensions} and
 four (p. \pageref{sec:proposed-extensions}).
@@ -267,7 +273,14 @@ ESMTP protocol at all, a benefit bringing along streamlined end-user configurati
 due to a certain political pressure against the adoption of any extension allowing message submission via IMAP, I have
 decided to put {\tt SENDMAIL} to the middle category.
 
-\subsection{The Most Advanced Extension}
+\subsubsection{CATENATE}
+
+If the client can make use of the {\tt CATENATE} extension, it can be leveraged for tasks like stripping out an unwanted
+attachment from a message otherwise considered valuable.  Its usefulness increases in combination with {\tt SENDMAIL} or
+{\tt BURL} where it allows for full support for the ``forward without download'' functionality and significant bandwidth
+reduction.
+
+\subsection{The Most Advanced Extensions}
 
 The last group contains those extensions which are either something {\em special}, exotic, or generally hard to
 implement correctly.  Clients can benefit from many extensions from this group, yet one cannot expect to have them
@@ -292,7 +305,7 @@ whenever a new message arrive, or defer to a purely client-side sorting or threa
 Adding support for ``fuzzy search'', this extension mandates servers to build an equivalent of a fulltext search index
 for the current mailbox, placing a significant burden on the IMAP server.
 
-\subsubsection{CATENATE, URLAUTH and BURL}
+\subsubsection{URLAUTH and BURL}
 
 This subgroup of extensions is known as the ``Lemonade trio''.  Together, they allow for efficient operations like
 forward-without download, drastically reducing the amount of data to send when working with big messages.  Due to the
