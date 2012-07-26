@@ -39,12 +39,12 @@ still built upon and modified to better suit today's needs, and that these oppor
 fronts.
 
 As an example of a rather low-hanging fruit, I have proposed an extension which fixes a possible race condition in the
-QRESYNC extension.  This bug illustrates the process of protocol design and standardization pretty well --- despite a
-concerted effort of many people involved in drafting and reviewing of the proposal, bugs can still creep in.
+QRESYNC extension.  This bug illustrates the process of protocol design pretty well --- despite a concerted effort of
+many people involved in drafting and reviewing of the proposal, bugs can still creep in.
 
 A second extension which I have included in this thesis optimizes a behavior of an online client.  By building on top of
 three separate extensions which have been around for years, it allows an IMAP client to obtain threading information for
-messages in a given mailbox in an incremental manner, preventing downloads of huge amount of data over and over again.
+messages in an incremental manner, preventing downloads of huge amount of data over and over again.
 
 My last proposal deals with a relatively hot topic in the IMAP sphere --- it adds a support for message submission to
 happen over IMAP.  The question about whether this approach is the correct one has historically divided the protocol
@@ -81,7 +81,7 @@ still have been documented and available for future protocol engineers and devel
 The Trojitá as a free software project will certainly benefit from its increased visibility.  There is a long list of
 features which might be added in future, be it support for signed or encrypted e-mails or pushing harder for
 implementation of more IMAP extensions among the IMAP servers.  The mobile version could certainly be ported to other
-phone platforms as well.  Targeting Android will definitely be an interesting and welcome improvement.
+phone platforms as well.  Targeting Android will definitely be a welcome improvement.
 
 Some of the extensions which are mentioned in this thesis were not implemented in Trojitá for various reasons, typically
 due to the fact that I was not able to find any servers announcing their availability.  This should change in future ---
@@ -89,6 +89,7 @@ some of the IMAP server vendors have already expressed their interest in impleme
 features.  Thanks to its internal structure, I am confident that Trojitá will be able to accommodate these new proposals
 as they arrive.
 
+\enlargethispage{\baselineskip}
 In the world of today where everything moves to ``the cloud'', having a vendor-neutral, cross-platform way of accessing
 one's {\em own} data is getting more and more important.  I am confident that the IMAP protocol and its extensions will
 be able to fulfill these needs in the years to come.
