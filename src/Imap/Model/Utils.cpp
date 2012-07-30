@@ -316,6 +316,11 @@ switch (QSysInfo:s60Version()) {
         case QSysInfo::MV_10_6:
             platformVersion = "X 10.6";
             break;
+#if QT_VERSION >= 0x040800
+        case QSysInfo::MV_10_7:
+            platformVersion = "X 10.7";
+            break;
+#endif
         }
 #endif
         if (platformVersion.isEmpty()) {
