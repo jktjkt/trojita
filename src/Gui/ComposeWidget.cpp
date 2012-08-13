@@ -523,7 +523,7 @@ void ComposeWidget::completeRecipients(const QString &text)
     }
     Q_ASSERT(sender());
     QLineEdit *toEdit = static_cast<QLineEdit*>(sender());
-    QStringList contacts = m_mainWindow->addressBook()->complete(text, QStringList(), 8);
+    QStringList contacts = m_mainWindow->addressBook()->complete(text, QStringList(), m_completionCount);
     if (contacts.isEmpty() && m_completionPopup) {
         m_completionPopup->close();
         m_completionReceiver = 0;
