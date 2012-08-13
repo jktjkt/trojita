@@ -84,7 +84,7 @@ ComposeWidget::ComposeWidget(MainWindow *parent) :
     m_recipientListUpdateTimer = new QTimer(this);
     m_recipientListUpdateTimer->setSingleShot(true);
     m_recipientListUpdateTimer->setInterval(250);
-    connect (m_recipientListUpdateTimer, SIGNAL(timeout()), SLOT(updateRecipientList()));
+    connect(m_recipientListUpdateTimer, SIGNAL(timeout()), SLOT(updateRecipientList()));
 
     // Ask for a fixed-width font. The problem is that these names wary acros platforms,
     // but the following works well -- at first, we come up with a made-up name, and then
@@ -515,7 +515,7 @@ void ComposeWidget::completeRecipients(const QString &text)
 {
     if (text.isEmpty()) {
         if (m_completionPopup) {
-            // if there's a popup close it and set back teh receiver
+            // if there's a popup close it and set back the receiver
             m_completionPopup->close();
             m_completionReceiver = 0;
         }
