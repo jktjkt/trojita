@@ -379,6 +379,8 @@ one-email-addr      = string
     <section anchor="FIXME" title="FIXME Items">
       <t>What's got higher priority, SUBMISSIONRACE or POLICYDENIED? :)</t>
       <t>IANA and the response codes</t>
+      <t>rename to SUBMIT</t>
+      <t>DSNs are per-recipient, not per-message</t>
     </section>
 
     <section anchor="changelog" title="Changelog">
