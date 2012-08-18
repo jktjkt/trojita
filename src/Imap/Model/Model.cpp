@@ -959,7 +959,10 @@ void Model::askForMsgPart(TreeItemPart *item, bool onlyFromCache)
         TreeItemPart::PartFetchingMode fetchingMode = TreeItemPart::FETCH_PART_IMAP;
         if (keepTask->parser && accessParser(keepTask->parser).capabilitiesFresh &&
                 accessParser(keepTask->parser).capabilities.contains(QLatin1String("BINARY"))) {
-            fetchingMode = TreeItemPart::FETCH_PART_BINARY;
+            if (!item->hasChildren(0)) {
+                // The BINARY only actually makes sense on leaf MIME nodes
+                fetchingMode = TreeItemPart::FETCH_PART_BINARY;
+            }
         }
         keepTask->requestPartDownload(item->message()->m_uid, item->partIdForFetch(fetchingMode), item->octets());
     }
