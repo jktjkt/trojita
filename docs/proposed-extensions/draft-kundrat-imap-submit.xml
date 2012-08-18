@@ -23,10 +23,10 @@
 <?rfc sortrefs="yes" ?>
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
-<rfc category="std" docName="draft-imap-sendmail-01" ipr="trust200902">
+<rfc category="std" docName="draft-kundrat-imap-submit-00" ipr="trust200902">
 
   <front>
-    <title>IMAP SENDMAIL Extension</title>
+    <title>IMAP SUBMIT Extension</title>
 
     <author fullname="Jan Kundrat" initials="J." surname="Kundrat">
       <address>
@@ -40,7 +40,7 @@
       </address>
     </author>
 
-    <date year="2012" month="July" day="22"/>
+    <date year="2012" month="August" day="18"/>
 
     <area>General</area>
     <workgroup>Internet Engineering Task Force</workgroup>
@@ -49,10 +49,12 @@
     <keyword>SMTP</keyword>
     <keyword>ESMTP</keyword>
     <keyword>submission</keyword>
+    <keyword>submit</keyword>
     <keyword>sendmail</keyword>
 
     <abstract>
-        <t>This document extends the IMAP protocol with a feature to submit e-mail messages for delivery.</t>
+        <t>This document extends the IMAP protocol with a feature to submit e-mail messages for delivery.  It is
+            intended to serve as a better alternative to the URLAUTH/BURL approach.</t>
     </abstract>
   </front>
 
@@ -84,12 +86,12 @@
     </section>
 
     <section title="Mode of Operation">
-        <t>The SENDMAIL extension adds the UID SENDMAIL IMAP command which instructs the IMAP server to arrange for
+        <t>The SUBMIT extension adds the UID SUBMIT IMAP command which instructs the IMAP server to arrange for
             delivery of an already existing IMAP message.  How this message is composed is outside of scope of this
             extension, but it is assumed that clients will often use the APPEND or APPEND ... CATENATE commands.</t>
 
-        <t>Upon receiving the SENDMAIL command, the IMAP server is asked for arranging the message submission.  Clients
-            MAY pass additional data in form of various options of the SENDMAIL command.  The server checks the passed
+        <t>Upon receiving the SUBMIT command, the IMAP server is asked for arranging the message submission.  Clients
+            MAY pass additional data in form of various options of the SUBMIT command.  The server checks the passed
             data and submission options, optionally performs sanity checks on the message contents, verifies against a
             local policy that the user is authorized for message submission, and if none of these checks fails, the
             server passes the message for final delivery.  The delivery method is outside of scope of this document, but
@@ -99,21 +101,21 @@
     <section title="IMAP Protocol Changes">
         <t>This extension introduces one new IMAP command, a few capabilities and related response codes.</t>
         <section title="New IMAP Capabilities">
-            <section title="The SENDMAIL Capability">
-                <t>Servers implementing this extension announce its presence through the SENDMAIL capability.  If the
+            <section title="The SUBMIT Capability">
+                <t>Servers implementing this extension announce its presence through the SUBMIT capability.  If the
                     server supports this extension but message submission is unconditionally disabled by a security
                     policy or service configuration, this capability MUST NOT be announced.</t>
             </section>
 
-            <section title="The SENDMAIL= Capabilities Family">
-                <t>The SENDMAIL command MAY contain submission options.  Servers supporting voluntary features MUST
+            <section title="The SUBMIT= Capabilities Family">
+                <t>The SUBMIT command MAY contain submission options.  Servers supporting voluntary features MUST
                     indicate so by including the appropriate strings in the CAPABILITY responses.  All capabilities used
-                    for these purposes use the SENDMAIL= prefix.</t>
+                    for these purposes use the SUBMIT= prefix.</t>
 
-                <section title="SENDMAIL=DSN">
+                <section title="SUBMIT=DSN">
                     <t>If the server supports user control of generating the Delivery Status Notifications (DSN), it
-                        MUST announce the SENDMAIL=DSN capability.  Clients MUST NOT attempt to control DSN options
-                        through the DSN submission option unless the server announced SENDMAIL=DSN.</t>
+                        MUST announce the SUBMIT=DSN capability.  Clients MUST NOT attempt to control DSN options
+                        through the DSN submission option unless the server announced SUBMIT=DSN.</t>
                 </section>
             </section>
         </section>
@@ -135,8 +137,8 @@
             </section>
         </section>
 
-        <section title="UID SENDMAIL command">
-            <t>The UID SENDMAIL command submits a message for delivery.</t>
+        <section title="UID SUBMIT command">
+            <t>The UID SUBMIT command submits a message for delivery.</t>
 
             <t>Arguments: <list style="symbols">
                 <t>UID of message to be sent</t>
@@ -207,8 +209,8 @@
                         currently submitted message.  When not given, an implementation-defined default value MUST be
                         used.</t>
                     <t>It is an error if the DSN submission option is present multiple times.</t>
-                    <t>Clients MUST NOT specify the DSN submission option unless the server announces the SENDMAIL=DSN
-                        capability.  Support for the SENDMAIL=DSN submission option is OPTIONAL.</t>
+                    <t>Clients MUST NOT specify the DSN submission option unless the server announces the SUBMIT=DSN
+                        capability.  Support for the SUBMIT=DSN submission option is OPTIONAL.</t>
                     <t>The DSN specification is either NIL to deactivate DSNs altogether, or a parenthesized list of any
                         of the following options:</t>
                     <t><list style="hanging">
@@ -217,6 +219,8 @@
                             <t hangText="FAILURE"> requests generating DSNs when the delivery fails</t>
                     </list></t>
                     <t>The order of DSN requests is not significant.</t>
+                    <t>The DSN options are specified per-recipient, not per-message, and therefore their syntax is
+                        different from the other submission options.</t>
                 </section>
 
                 <section title="RECIPIENT Submission Option">
@@ -253,15 +257,15 @@
         <t>The following example shows how client should submit a message with UID 123 in the current mailbox for
             delivery.  If the message is passed through SMTP, its From address in the SMTP envelope MUST be set to
             foo@example.org and it MUST be submitted for delivery to two recipients, the a@example.org and b@example.org.  The DSN
-            options are set to report about excess delays failures in message delivery.</t>
+            options are set to report about excess delays failures in message delivery for the first recipient.
+            System's default policy of DSN production is retained for the second recipient.</t>
 
         <figure align="center">
             <artwork align="left"><![CDATA[
-C: x UID SENDMAIL 123 (FROM "foo@example.org"
+C: x UID SUBMIT 123 (FROM "foo@example.org"
         FROM "bar@example.org"
-        RECIPIENT "a@example.org"
+        RECIPIENT "a@example.org" DSN (delay failure)
         RECIPIENT "b@example.org"
-        DSN (delay failure)
     )
 S: * 10 FETCH (UID 123 FLAGS ($Submitted))
 S: x OK Message passed to the sendmail binary]]></artwork>
@@ -273,7 +277,7 @@ S: x OK Message passed to the sendmail binary]]></artwork>
 
         <figure align="center">
             <artwork align="left"><![CDATA[
-C: x UID SENDMAIL 123
+C: x UID SUBMIT 123
 S: * 10 FETCH (UID 123 FLAGS ($Submitted))
 S: x OK Message passed to the sendmail binary]]></artwork>
         </figure>
@@ -291,8 +295,8 @@ S: x OK Message passed to the sendmail binary]]></artwork>
       <t>This document defines the following list of IMAP capabilities.  IANA will be asked to add them to the
           registry:</t>
       <t><list style="symbols">
-              <t>SENDMAIL</t>
-              <t>SENDMAIL=DSN</t>
+              <t>SUBMIT</t>
+              <t>SUBMIT=DSN</t>
       </list></t>
       <t>FIXME: response codes</t>
     </section>
@@ -306,21 +310,24 @@ S: x OK Message passed to the sendmail binary]]></artwork>
 
         <figure align="center">
             <artwork align="left" type="abnf"><![CDATA[
-capability          =/ "SENDMAIL" / "SENDMAIL=DSN"
+capability          =/ "SUBMIT" / "SUBMIT=DSN"
+                      ;; This extension also reserves all further
+                      ;; capabilities starting with the "SUBMIT="
+                      ;; prefix for future extensions related to the
+                      ;; message submission over IMAP
 
 uid                 =/ "UID" SP sendmail
 
-sendmail            = "SENDMAIL" SP uniqueid [SP submission-options]
+sendmail            = "SUBMIT" SP uniqueid [SP submission-options]
 
 submission-options  = "(" submission-option *( SP submission-option ) ")"
 
 submission-option   = sub-option-from / sub-option-recipient
-                      / sub-option-dsn
 
 sub-option-from     = "FROM" SP one-email-addr
                       ;; MUST NOT be present more than once
 
-sub-option-recipient= "RECIPIENT" SP one-email-addr
+sub-option-recipient= "RECIPIENT" SP one-email-addr [SP sub-option-dsn]
                       ;; MAY be present more than once
 
 sub-option-dsn      = "DSN" SP ( NIL / dsn-spec )
@@ -379,12 +386,18 @@ one-email-addr      = string
     <section anchor="FIXME" title="FIXME Items">
       <t>What's got higher priority, SUBMISSIONRACE or POLICYDENIED? :)</t>
       <t>IANA and the response codes</t>
-      <t>rename to SUBMIT</t>
-      <t>DSNs are per-recipient, not per-message</t>
+      <t>Check the DSN's ENVID and RET</t>
     </section>
 
     <section anchor="changelog" title="Changelog">
-        <section title="Changes in 01 since 00">
+        <section title="Changes in -00 since private-01">
+            <t><list style="symbols">
+                <t>Renamed to SUBMIT</t>
+                <t>DSNs are per-recipient, not per-message</t>
+            </list></t>
+        </section>
+
+        <section title="Changes in private-01 since private-00">
             <t><list style="symbols">
                     <t>Removed the superfluous SENDER submission option</t>
                     <t>Mandating Bcc removal in conformance with RFC 5321 / RFC 5322</t>
