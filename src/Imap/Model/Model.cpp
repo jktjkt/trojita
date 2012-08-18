@@ -23,6 +23,8 @@
 #include <QAuthenticator>
 #include <QCoreApplication>
 #include <QDebug>
+#include <QNetworkConfigurationManager>
+#include <QNetworkSession>
 #include <QtAlgorithms>
 #include "Model.h"
 #include "AppendTask.h"
@@ -97,7 +99,8 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
     QAbstractItemModel(parent),
     // our tools
     m_cache(cache), m_socketFactory(socketFactory), m_taskFactory(taskFactory), m_maxParsers(4), m_mailboxes(0),
-    m_netPolicy(NETWORK_ONLINE),  m_lastParserId(0), m_taskModel(0), m_hasImapPassword(false)
+    m_netPolicy(offline ? NETWORK_OFFLINE: NETWORK_ONLINE),  m_lastParserId(0), m_taskModel(0), m_hasImapPassword(false),
+    m_networkSession(0), m_userPreferredNetworkMode(m_netPolicy)
 {
     m_cache->setParent(this);
     m_startTls = m_socketFactory->startTlsRequired();
@@ -107,7 +110,6 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
     onlineMessageFetch << "ENVELOPE" << "BODYSTRUCTURE" << "RFC822.SIZE" << "UID" << "FLAGS";
 
     if (offline) {
-        m_netPolicy = NETWORK_OFFLINE;
         QTimer::singleShot(0, this, SLOT(setNetworkOffline()));
     } else {
         QTimer::singleShot(0, this, SLOT(setNetworkOnline()));
@@ -132,6 +134,9 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
     // polling every five minutes
     m_periodicMailboxNumbersRefresh->setInterval(5 * 60 * 1000);
     connect(m_periodicMailboxNumbersRefresh, SIGNAL(timeout()), this, SLOT(invalidateAllMessageCounts()));
+
+    m_networkConfigurationManager = new QNetworkConfigurationManager(this);
+    connect(m_networkConfigurationManager, SIGNAL(onlineStateChanged(bool)), this, SLOT(slotNetworkConnectivityStatusChanged(bool)));
 }
 
 Model::~Model()
@@ -975,6 +980,9 @@ void Model::resyncMailbox(const QModelIndex &mbox)
 
 void Model::setNetworkPolicy(const NetworkPolicy policy)
 {
+    // Always reset this flag, this is likely called in response to human activity
+    m_userPreferredNetworkMode = policy;
+
     bool networkReconnected = m_netPolicy == NETWORK_OFFLINE && policy != NETWORK_OFFLINE;
     switch (policy) {
     case NETWORK_OFFLINE:
@@ -998,6 +1006,13 @@ void Model::setNetworkPolicy(const NetworkPolicy policy)
         emit networkPolicyOffline();
         m_netPolicy = NETWORK_OFFLINE;
         m_periodicMailboxNumbersRefresh->stop();
+
+        if (m_networkSession) {
+            m_networkSession->close();
+            delete m_networkSession;
+            m_networkSession = 0;
+        }
+
         // FIXME: kill the connection
         break;
     case NETWORK_EXPENSIVE:
@@ -1012,9 +1027,16 @@ void Model::setNetworkPolicy(const NetworkPolicy policy)
         break;
     }
     if (networkReconnected) {
-        // If we're connecting after being offline, we should ask for an updated list of mailboxes
+        // We're connecting after being offline
+
+        // Take care of the connectivity management
+        m_networkSession = new QNetworkSession(m_networkConfigurationManager->defaultConfiguration(), this);
+        m_networkSession->open();
+
+        // We should ask for an updated list of mailboxes
         // The main reason is that this happens after entering wrong password and going back online
         reloadMailboxList();
+
     } else if (m_netPolicy == NETWORK_ONLINE) {
         // The connection is online after some time in a different mode. Let's use this opportunity to request
         // updated message counts from all visible mailboxes.
@@ -1445,7 +1467,7 @@ KeepMailboxOpenTask *Model::findTaskResponsibleFor(TreeItemMailbox *mailboxPtr)
             }
             return m_taskFactory->createKeepMailboxOpenTask(this, mailboxPtr->toIndex(this), it.key());
         }
-        // At this point, we have no other choice than create a new connection
+        // At this point, we have no other choice than to create a new connection
         return m_taskFactory->createKeepMailboxOpenTask(this, mailboxPtr->toIndex(this), 0);
     }
 }
@@ -1886,6 +1908,26 @@ void Model::checkDependentTasksConsistency(Parser *parser, ImapTask *task, ImapT
 void Model::setCapabilitiesBlacklist(const QStringList &blacklist)
 {
     m_capabilitiesBlacklist = blacklist;
+}
+
+/** @short React to changes in the network availability */
+void Model::slotNetworkConnectivityStatusChanged(const bool online)
+{
+    if (online) {
+        if (m_userPreferredNetworkMode != NETWORK_OFFLINE) {
+            // The system is back online and the current policy wasn't changed since we processed the "went offline" update.
+            // We shall therefore restore the connection status.
+            setNetworkPolicy(m_userPreferredNetworkMode);
+        }
+    } else {
+        if (m_netPolicy != NETWORK_OFFLINE) {
+            // The system has lost its network connectivity for some reason. Disconnect, but make sure to restore the status
+            // when some kind of a connection is available again
+            const NetworkPolicy previousPolicy(m_netPolicy);
+            setNetworkOffline();
+            m_userPreferredNetworkMode = previousPolicy;
+        }
+    }
 }
 
 }

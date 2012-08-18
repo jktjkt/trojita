@@ -39,6 +39,8 @@
 #include "Logging.h"
 
 class QAuthenticator;
+class QNetworkConfigurationManager;
+class QNetworkSession;
 class QSslError;
 
 class FakeCapabilitiesInjector;
@@ -330,6 +332,8 @@ private slots:
     /** @short A maintaining task is about to die */
     void slotTaskDying(QObject *obj);
 
+    void slotNetworkConnectivityStatusChanged(const bool online);
+
 signals:
     /** @short This signal is emitted then the server sent us an ALERT response code */
     void alertReceived(const QString &message);
@@ -553,6 +557,11 @@ private:
     QTimer *m_periodicMailboxNumbersRefresh;
 
     QStringList m_capabilitiesBlacklist;
+
+    QNetworkConfigurationManager *m_networkConfigurationManager;
+    QNetworkSession *m_networkSession;
+    /** @short True iff the application is temporarily offline due to the connectivity being lost */
+    NetworkPolicy m_userPreferredNetworkMode;
 
 protected slots:
     void responseReceived();
