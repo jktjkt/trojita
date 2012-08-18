@@ -14,7 +14,7 @@
 <?rfc sortrefs="yes" ?>
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
-<rfc category="std" docName="draft-imap-qresync-arrived-01" ipr="trust200902">
+<rfc category="std" docName="draft-kundrat-qresync-arrived-00" ipr="trust200902">
 
   <front>
     <title>IMAP QRESYNC-ARRIVED Extension</title>
@@ -31,7 +31,7 @@
       </address>
     </author>
 
-    <date year="2012" month="July" day="25"/>
+    <date year="2012" month="August" day="18"/>
 
     <area>General</area>
     <workgroup>Internet Engineering Task Force</workgroup>
