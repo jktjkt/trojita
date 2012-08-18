@@ -128,7 +128,7 @@ void MsgPartNetworkReply::disconnectBufferIfVanished() const
 {
     if (!part.isValid()) {
         buffer.close();
-        buffer.setData(QByteArray());
+        buffer.setBuffer(0);
     }
 }
 
