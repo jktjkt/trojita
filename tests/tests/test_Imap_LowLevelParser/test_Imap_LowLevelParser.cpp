@@ -150,6 +150,18 @@ void ImapLowLevelParserTest::testGetString()
     QCOMPARE( res.first, QByteArray("666") );
     QCOMPARE( res.second, LITERAL );
     QCOMPARE( pos, line.size() );
+    pos = 0;
+    QCOMPARE(getAnything(line, pos).toByteArray(), QByteArray("666"));
+    QCOMPARE(pos, line.size());
+
+    line = "~{3}\r\n666"; pos = 0;
+    res = getString( line, pos );
+    QCOMPARE( res.first, QByteArray("666") );
+    QCOMPARE( res.second, LITERAL8 );
+    QCOMPARE( pos, line.size() );
+    pos = 0;
+    QCOMPARE(getAnything(line, pos).toByteArray(), QByteArray("666"));
+    QCOMPARE(pos, line.size());
 
     QByteArray myData;
     myData.append('\x00');

@@ -231,7 +231,7 @@ QVariant getAnything(const QByteArray &line, int &start)
     } else if (line[start] == '(') {
         QVariant res = parseList('(', ')', line, start);
         return res;
-    } else if (line[start] == '"' || line[start] == '{') {
+    } else if (line[start] == '"' || line[start] == '{' || line[start] == '~') {
         QPair<QByteArray,ParsedAs> res = getString(line, start);
         return res.first;
     } else if (line.mid(start, 3).toUpper() == "NIL") {
