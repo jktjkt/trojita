@@ -52,6 +52,7 @@ void ImapModelOpenConnectionTest::init( bool startTlsRequired )
     connect(model, SIGNAL(authRequested()), this, SLOT(provideAuthDetails()), Qt::QueuedConnection);
     connect(model, SIGNAL(needsSslDecision(QList<QSslCertificate>,QList<QSslError>)),
             this, SLOT(acceptSsl(QList<QSslCertificate>,QList<QSslError>)), Qt::QueuedConnection);
+    QCoreApplication::processEvents();
     task = new Imap::Mailbox::OpenConnectionTask( model );
     using Imap::Mailbox::ImapTask;
     qRegisterMetaType<ImapTask*>("ImapTask*");

@@ -99,7 +99,7 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
     QAbstractItemModel(parent),
     // our tools
     m_cache(cache), m_socketFactory(socketFactory), m_taskFactory(taskFactory), m_maxParsers(4), m_mailboxes(0),
-    m_netPolicy(offline ? NETWORK_OFFLINE: NETWORK_ONLINE),  m_lastParserId(0), m_taskModel(0), m_hasImapPassword(false),
+    m_netPolicy(NETWORK_OFFLINE),  m_lastParserId(0), m_taskModel(0), m_hasImapPassword(false),
     m_networkSession(0), m_userPreferredNetworkMode(m_netPolicy)
 {
     m_cache->setParent(this);
@@ -1032,10 +1032,11 @@ void Model::setNetworkPolicy(const NetworkPolicy policy)
         // Take care of the connectivity management
         m_networkSession = new QNetworkSession(m_networkConfigurationManager->defaultConfiguration(), this);
         m_networkSession->open();
-
-        // We should ask for an updated list of mailboxes
-        // The main reason is that this happens after entering wrong password and going back online
-        reloadMailboxList();
+        if (m_mailboxes->m_fetchStatus != TreeItem::NONE) {
+            // We should ask for an updated list of mailboxes
+            // The main reason is that this happens after entering wrong password and going back online
+            reloadMailboxList();
+        }
 
     } else if (m_netPolicy == NETWORK_ONLINE) {
         // The connection is online after some time in a different mode. Let's use this opportunity to request
@@ -1914,8 +1915,9 @@ void Model::setCapabilitiesBlacklist(const QStringList &blacklist)
 void Model::slotNetworkConnectivityStatusChanged(const bool online)
 {
     if (online) {
-        if (m_userPreferredNetworkMode != NETWORK_OFFLINE) {
-            // The system is back online and the current policy wasn't changed since we processed the "went offline" update.
+        if (m_netPolicy == NETWORK_OFFLINE && m_userPreferredNetworkMode != NETWORK_OFFLINE) {
+            // The system is back online, we're disconnected and the current policy wasn't changed since we processed the
+            // "went offline" update.
             // We shall therefore restore the connection status.
             setNetworkPolicy(m_userPreferredNetworkMode);
         }

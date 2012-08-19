@@ -63,6 +63,8 @@ void LibMailboxSync::init()
     threadingModel = new Imap::Mailbox::ThreadingMsgListModel(this);
     threadingModel->setSourceModel(msgListModel);
 
+    QCoreApplication::processEvents();
+
     helperInitialListing();
 }
 

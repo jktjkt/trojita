@@ -38,6 +38,7 @@ void ImapModelTest::init()
     factory = new Imap::Mailbox::FakeSocketFactory();
     Imap::Mailbox::TaskFactoryPtr taskFactory( new Imap::Mailbox::TaskFactory() );
     model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), taskFactory, false );
+    QCoreApplication::processEvents();
 }
 
 void ImapModelTest::cleanup()

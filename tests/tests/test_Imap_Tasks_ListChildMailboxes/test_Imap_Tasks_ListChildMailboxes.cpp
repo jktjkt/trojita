@@ -35,6 +35,7 @@ void ImapModelListChildMailboxesTest::init()
     taskFactoryUnsafe = static_cast<Imap::Mailbox::TestingTaskFactory*>( taskFactory.get() );
     taskFactoryUnsafe->fakeOpenConnectionTask = true;
     model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), taskFactory, false );
+    QCoreApplication::processEvents();
     task = 0;
 }
 
