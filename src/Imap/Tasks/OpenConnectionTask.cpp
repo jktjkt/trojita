@@ -30,7 +30,7 @@ namespace Mailbox
 OpenConnectionTask::OpenConnectionTask(Model *model) :
     ImapTask(model)
 {
-    // Offline mode shall be checked by the caller who decides to create the conneciton
+    // Offline mode shall be checked by the caller who decides to create the connection
     Q_ASSERT(model->networkPolicy() != Model::NETWORK_OFFLINE);
     parser = new Parser(model, model->m_socketFactory->create(), ++model->m_lastParserId);
     ParserState parserState(parser);
