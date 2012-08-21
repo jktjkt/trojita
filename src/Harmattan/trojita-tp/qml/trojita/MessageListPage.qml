@@ -34,12 +34,17 @@ Page {
                     maximumLineCount: 1
                     elide: Text.ElideRight
                     width: parent.width
-                    text: !col.visible ? "" : model.subject
+                    text: !col.visible ? "" : (model.subject.length ? model.subject : qsTr("(No subject)"))
                     color: !col.visible ? platformStyle.textColor :
                                           model.isMarkedRead ?
                                               (model.isMarkedDeleted ? Qt.darker(platformStyle.textColor) : platformStyle.textColor) :
                                               theme.selectionColor
-                    font { pixelSize: UiConstants.TitleFont.pixelSize; family: UiConstants.TitleFont.family; bold: UiConstants.TitleFont.bold }
+                    font {
+                        pixelSize: UiConstants.TitleFont.pixelSize
+                        family: UiConstants.TitleFont.family
+                        bold: UiConstants.TitleFont.bold
+                        italic: col.visible ? !model.subject.length : false
+                    }
                     font.strikeout: !col.visible ? false : model.isMarkedDeleted
                 }
                 Label {
