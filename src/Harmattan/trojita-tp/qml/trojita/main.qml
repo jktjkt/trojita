@@ -46,6 +46,7 @@ PageStackWindow {
     }
 
     initialPage: mailboxListPage
+    showStatusBar: inPortrait
 
     MailboxListPage {
         id: mailboxListPage
