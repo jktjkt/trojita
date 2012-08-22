@@ -255,6 +255,7 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
             killParser(it->parser, PARSER_KILL_HARD);
             logTrace(parserId, LOG_PARSE_ERROR, QString::fromStdString(e.exceptionClass()), QString::fromAscii("STARTTLS has failed"));
             emit connectionError(tr("<p>The server has refused to start the encryption through the STARTTLS command.</p>"));
+            setNetworkOffline();
             break;
         } catch (Imap::ImapException &e) {
             uint parserId = it->parser->parserId();
@@ -314,6 +315,7 @@ void Model::handleState(Imap::Parser *ptr, const Imap::Responses::State *const r
                 // ... but before that, expect that the connection will get closed soon
                 accessParser(ptr).connState = CONN_STATE_LOGOUT;
                 emit connectionError(resp->message);
+                setNetworkOffline();
             }
             if (accessParser(ptr).parser) {
                 // previous block could enter the event loop and hence kill our parser; we shouldn't try to kill it twice
@@ -1061,6 +1063,7 @@ void Model::handleSocketDisconnectedResponse(Parser *ptr, const Responses::Socke
         logTrace(ptr->parserId(), LOG_PARSE_ERROR, QString(), resp->message);
         killParser(ptr, PARSER_KILL_EXPECTED);
         emit connectionError(resp->message);
+        setNetworkOffline();
     }
 }
 
@@ -1083,6 +1086,7 @@ void Model::broadcastParseError(const uint parser, const QString &exceptionClass
                                 "<p><b>%1</b>: %2</p>"
                                 "<pre>%3\n%4</pre>"
                                ).arg(exceptionClass, errorMessage, line, details));
+    setNetworkOffline();
 }
 
 void Model::switchToMailbox(const QModelIndex &mbox)
@@ -1118,6 +1122,7 @@ void Model::updateCapabilities(Parser *parser, const QStringList capabilities)
         changeConnectionState(parser, CONN_STATE_LOGOUT);
         accessParser(parser).logoutCmd = parser->logout();
         emit connectionError(tr("We aren't talking to an IMAP4 server"));
+        setNetworkOffline();
     }
 }
 

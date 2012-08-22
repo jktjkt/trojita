@@ -777,7 +777,6 @@ void MainWindow::connectionError(const QString &message)
         // We shouldn't have to worry about that, since the dialog is already scheduled for calling
         // -> do nothing
     }
-    netOffline->trigger();
 }
 
 void MainWindow::cacheError(const QString &message)
