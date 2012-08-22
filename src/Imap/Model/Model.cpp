@@ -1003,9 +1003,10 @@ void Model::setNetworkPolicy(const NetworkPolicy policy)
             it->logoutCmd = it->parser->logout();
             it->connState = CONN_STATE_LOGOUT;
         }
-        emit networkPolicyOffline();
         m_netPolicy = NETWORK_OFFLINE;
         m_periodicMailboxNumbersRefresh->stop();
+        emit networkPolicyChanged();
+        emit networkPolicyOffline();
 
         if (m_networkSession) {
             m_networkSession->close();
@@ -1018,11 +1019,13 @@ void Model::setNetworkPolicy(const NetworkPolicy policy)
     case NETWORK_EXPENSIVE:
         m_netPolicy = NETWORK_EXPENSIVE;
         m_periodicMailboxNumbersRefresh->stop();
+        emit networkPolicyChanged();
         emit networkPolicyExpensive();
         break;
     case NETWORK_ONLINE:
         m_netPolicy = NETWORK_ONLINE;
         m_periodicMailboxNumbersRefresh->start();
+        emit networkPolicyChanged();
         emit networkPolicyOnline();
         break;
     }

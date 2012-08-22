@@ -83,6 +83,8 @@ class Model: public QAbstractItemModel
 
     Q_PROPERTY(QString imapUser READ imapUser WRITE setImapUser)
     Q_PROPERTY(QString imapPassword READ imapPassword WRITE setImapPassword RESET unsetImapPassword)
+    Q_PROPERTY(bool isNetworkAvailable READ isNetworkAvailable NOTIFY networkPolicyChanged)
+    Q_PROPERTY(bool isNetworkOnline READ isNetworkOnline NOTIFY networkPolicyChanged)
 
     /** @short How to open a mailbox */
     enum RWMode {
@@ -347,6 +349,14 @@ signals:
     void networkPolicyExpensive();
     /** @short The network is available and cheap again */
     void networkPolicyOnline();
+
+    /** @short The network policy has changed
+
+    This signal is emited whenever the network policy (might) got changed to any state and for any reason. No filtering for false
+    positives is done, i.e. it might be emited even when no change has actually taken place.
+    */
+    void networkPolicyChanged();
+
     /** @short A connection error has been encountered */
     void connectionError(const QString &message);
     /** @short The server requests the user to authenticate
