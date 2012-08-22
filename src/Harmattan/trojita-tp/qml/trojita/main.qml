@@ -118,6 +118,9 @@ PageStackWindow {
                     imapAccess.imapModel.setNetworkExpensive()
                 } else if (state == "away") {
                     imapAccess.imapModel.setNetworkOffline()
+                } else {
+                    // The model is not set up yet -> show settings
+                    serverSettings.open()
                 }
             }
         }
