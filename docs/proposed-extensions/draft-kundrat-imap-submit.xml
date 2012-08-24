@@ -2,6 +2,7 @@
 <!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
 
 <!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC3461 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3461.xml">
 <!ENTITY RFC3501 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3501.xml">
 <!ENTITY RFC4409 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4409.xml">
 <!ENTITY RFC4467 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4467.xml">
@@ -40,7 +41,7 @@
       </address>
     </author>
 
-    <date year="2012" month="August" day="18"/>
+    <date year="2012" month="August" day="21"/>
 
     <area>General</area>
     <workgroup>Internet Engineering Task Force</workgroup>
@@ -60,22 +61,39 @@
 
   <middle>
     <section title="Introduction">
-        <t>Many proposals exist which aim at providing the forward-without-download feature where user can reuse parts
-            of her message for composing and sending a new one.  The CATENATE extension <xref target="RFC4469"/> adds a
-            method for constructing an IMAP message from parts to be obtained purely on the server side; the LEMONADE
-            extension <xref target="RFC5550"/> mandates full support for BURL <xref target="RFC4468"/> and URLAUTH <xref
-                target="RFC4467"/>.  Together with a properly configured IMAP and SMTP servers and with enough client
-            support, these extensions allow for possibility to forward messages without a prior download.</t>
-        
-        <t>This functionality puts a certain burden on clients -- each of them must be properly configured with two
-            accounts instead of one.  It is not enough to configure user's client for access to IMAP, one must also
-            provide all details for a proper SMTP server if it's required to be able to send e-mails.  In addition, both
-            SMTP and IMAP servers have to be properly configured to allow an additional mode of authentication and
-            authorization.</t>
+        <t>In the traditional IMAP/ESMTP service model, a MUA transfers each outgoing message twice -- once for storing
+            it in the user's "sent mail" folder, and the second time for actual message submission over (E)SMTP.  Under
+            certain circumstances, such as when the message contains data which are already available in another message
+            stored on the same IMAP server (such as when forwarding an unread attachment to another recipient), the MUA
+            has to download the data before the message can be composed, resulting in transmitting the data three times
+            in total.</t>
 
-        <t>This extension drastically simplifies the client operation and minimizes configuration requirements on the
-            server side.  If combined with the existing CATENATE extension <xref target="RFC4469"/>, it works at least
-            as effectively as the Lemonade trio.</t>
+        <t>Many proposals exist which aim to reduce this high number of transfers to the lowest possible number.  The
+            CATENATE extension <xref target="RFC4469"/> enables IMAP clients to have the IMAP servers compose messages
+            on their behalf, optionally using data already available on the IMAP server.  Using CATENATE, MUAs do not
+            have to download individual message parts before including them to the newly created message.</t>
+
+        <t>The LEMONADE extension family <xref target="RFC5550"/> mandates full support for BURL <xref
+                target="RFC4468"/> and URLAUTH <xref target="RFC4467"/> extensions.  When coupled with a properly
+            configured pair of ESMTP and IMAP servers, these two extensions allow MUAs to have the submission server
+            obtain the message payload from the IMAP server.  This approach completely eliminates the need to upload the
+            message data to the ESMTP server, achieving the "forward-without-download" goal.</t>
+
+        <t>The BURL/URLAUTH extensions, however, put a significant burden on the server operators who suddenly have to
+            establish an explicit trust relation between their submission and IMAP servers, and make this trust path
+            visible to the users' MUAs.  No MUA-visible means of discovering this trust relation are defined.
+            Furthermore, the whole scheme still requires the MUAs to maintain two distinct connections speaking
+            different protocols.  Users are prompted for two sets of credentials to authenticate to each of these two
+            services.  Real-world support issues were reported where users are able to access their IMAP service while
+            access to the submission service is blocked by a mis-configured firewall.</t>
+
+        <t>The SUBMIT extension of the IMAP protocol effectively moves the message submission process to be initiated by
+            a user's request to their IMAP server.  When deployed, this scenario saves the overhead of establishing and
+            securing a separate TCP connection against the submission server, reduces the amount of the configuration
+            data the users are required to provide, and changes the trust paths which are required to exist between the
+            submission and the IMAP servers.  When combined with the existing CATENATE extension <xref
+                target="RFC4469"/>, the SUBMIT command works at least as effectively as the Lemonade trio of
+            CATENATE/BURL/URLAUTH.</t>
 
       <section title="Requirements Language">
         <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
@@ -90,16 +108,19 @@
             delivery of an already existing IMAP message.  How this message is composed is outside of scope of this
             extension, but it is assumed that clients will often use the APPEND or APPEND ... CATENATE commands.</t>
 
-        <t>Upon receiving the SUBMIT command, the IMAP server is asked for arranging the message submission.  Clients
-            MAY pass additional data in form of various options of the SUBMIT command.  The server checks the passed
-            data and submission options, optionally performs sanity checks on the message contents, verifies against a
-            local policy that the user is authorized for message submission, and if none of these checks fails, the
-            server passes the message for final delivery.  The delivery method is outside of scope of this document, but
-            typical methods would be invoking the `sendmail` binary or passing the message to an ESMTP gateway.</t>
+        <t>Upon receiving the SUBMIT command, the IMAP server is asked for arranging the initial message submission.
+            Clients MAY pass additional data in form of various options of the SUBMIT command.  The server checks the
+            passed data and submission options, optionally performs sanity checks on the message contents, verifies
+            against a local policy whether the user is authorized for message submission, and if none of these checks
+            fail, the server passes the message for subsequent delivery.  The delivery method is outside of scope of
+            this document, but typical methods would be invoking a `sendmail`-compatible binary or passing the message
+            to an ESMTP gateway.</t>
     </section>
 
     <section title="IMAP Protocol Changes">
-        <t>This extension introduces one new IMAP command, a few capabilities and related response codes.</t>
+        <t>This extension introduces one new IMAP command, a few related response codes and a new family of the IMAP
+            capabilities.</t>
+
         <section title="New IMAP Capabilities">
             <section title="The SUBMIT Capability">
                 <t>Servers implementing this extension announce its presence through the SUBMIT capability.  If the
@@ -108,14 +129,14 @@
             </section>
 
             <section title="The SUBMIT= Capabilities Family">
-                <t>The SUBMIT command MAY contain submission options.  Servers supporting voluntary features MUST
-                    indicate so by including the appropriate strings in the CAPABILITY responses.  All capabilities used
-                    for these purposes use the SUBMIT= prefix.</t>
+                <t>The SUBMIT commands issued by the IMAP clients MAY contain submission options.  Servers supporting
+                    voluntary features MUST indicate so by including the appropriate strings in the CAPABILITY
+                    responses.  All capabilities used for these purposes begin with the SUBMIT= prefix.</t>
 
                 <section title="SUBMIT=DSN">
                     <t>If the server supports user control of generating the Delivery Status Notifications (DSN), it
                         MUST announce the SUBMIT=DSN capability.  Clients MUST NOT attempt to control DSN options
-                        through the DSN submission option unless the server announced SUBMIT=DSN.</t>
+                        through the DSN submission option unless the server announces the SUBMIT=DSN capability.</t>
                 </section>
             </section>
         </section>
@@ -164,7 +185,7 @@
                     target="RFC5550"/>, or which is marked with the $Submitted keyword.  Servers MUST reject such a
                 command with a tagged NO bearing the SUBMISSIONRACE response code.</t>
 
-            <t>In the course of submission, servers SHOULD atomically add the $Submitted flag to the message, as
+            <t>In the course of submission, servers MUST atomically add the $Submitted flag to the message, as
                 described in LEMONADE <xref target="RFC5550"/>.  This transition MAY be hidden from any IMAP session or
                 it MAY be visible in all of them.</t>
                 
@@ -172,18 +193,20 @@
                 keyword MUST be cleared and a FETCH response containing the message UID and its new flags MUST be
                 sent.</t>
 
-            <t>If the command failed, the server MUST clear both the $Submitted or $SubmitPending keywords.</t>
+            <t>If the command fails, the server MUST clear both the $Submitted or $SubmitPending keywords.</t>
                 
             <t>If the server supports CONDSTORE <xref target="RFC4551"/> or QRESYNC <xref target="RFC5172"/> extensions,
-                any flag changes MUST obey the usual MODSEQ invariants.</t>
+                any flag changes MUST obey the usual MODSEQ invariants.  Any changes in the MODSEQ values MUST be
+                communicated to the clients, as mandated by the relevant extensions.</t>
 
             <t>Clients MUST be prepared to handle failing submission at any time.  Servers MAY reject message submission
                 for any reason.</t>
 
             <t>The server MUST process all specified submission options.  The server MUST respond with a tagged BAD if
-                the client used unrecognized or unannounced submission option.  If the server cannot honor a recognized
-                and announced submission option, it MUST respond with a tagged NO with the POLICYDENIED response
-                code and the message MUST NOT be submitted.</t>
+                the client used unrecognized or unannounced submission option, or if a recognized submission option is
+                used in an invalid way.  If the server cannot honor a recognized and announced submission option, it
+                MUST respond with a tagged NO with the POLICYDENIED response code and the message MUST NOT be
+                submitted.</t>
 
             <t>Servers MAY alter the message payload of the outgoing message in conformance with best current practice about
                 Internet mail.  Individual recipients MAY receive different versions of the message.  In particular, servers MUST
@@ -200,33 +223,15 @@
                     <t>The FROM submission option corresponds to the FROM field of the SMTP envelope.  If not present,
                         its value MUST be inferred from the message payload.</t>
 
-                    <t>It is an error if the FROM submission option is present more than once.</t>
-                </section>
-
-                <section title="DSN Submission Option">
-                    <t>Syntax: delivery status notice specification</t>
-                    <t>The DSN submission option controls generating of delivery status notifications related to the
-                        currently submitted message.  When not given, an implementation-defined default value MUST be
-                        used.</t>
-                    <t>It is an error if the DSN submission option is present multiple times.</t>
-                    <t>Clients MUST NOT specify the DSN submission option unless the server announces the SUBMIT=DSN
-                        capability.  Support for the SUBMIT=DSN submission option is OPTIONAL.</t>
-                    <t>The DSN specification is either NIL to deactivate DSNs altogether, or a parenthesized list of any
-                        of the following options:</t>
-                    <t><list style="hanging">
-                            <t hangText="SUCCESS"> requests generating DSNs upon successful delivery of a message</t>
-                            <t hangText="DELAY"> activates generating DSNs when delivery is delayed</t>
-                            <t hangText="FAILURE"> requests generating DSNs when the delivery fails</t>
-                    </list></t>
-                    <t>The order of DSN requests is not significant.</t>
-                    <t>The DSN options are specified per-recipient, not per-message, and therefore their syntax is
-                        different from the other submission options.</t>
+                    <t>It is an error if the FROM submission option is present more than once.  Servers MUST reject such
+                        commands using the BAD tagged response and the message MUST NOT be submitted.  Message flags of
+                        the source message MUST NOT be modified.</t>
                 </section>
 
                 <section title="RECIPIENT Submission Option">
                     <t>Syntax: one e-mail address</t>
 
-                    <t>The RECIPIENT submission option corresponds to the TO field of the SMTP envelope.</t>
+                    <t>The RECIPIENT submission option corresponds to the RCPT TO field of the SMTP envelope.</t>
 
                     <t>The RECIPIENT submission option MAY be present more than once.  Servers MAY impose a limit on the
                         number of recipients of a single message.</t>
@@ -234,10 +239,11 @@
                     <t>If the RECIPIENT submission option is present, servers MUST ignore any To, Cc and Bcc headers in
                         the message payload when determining the list of recipients of this message.  That is, the final
                         list of recipients of the message MUST consist exactly of those recipients specified in the
-                        RECIPIENT submission options.</t>
+                        RECIPIENT submission options.  The server MUST still sanitize the headers of the submitted
+                        message to guarantee the privacy of the recipients listed in the Bcc message header.</t>
 
                     <t>If the RECIPIENT submission option is missing, servers MUST infer its value from the message
-                        payload.  For example, each address present in any of To, Cc and Bcc message headers SHOULD be
+                        payload.  For example, each address present in any of To, Cc and Bcc message headers MUST be
                         present in the recipient list.</t>
 
                     <t>Servers MAY impose a local policy decision about always sending a copy of message to a certain
@@ -245,8 +251,31 @@
                         the RECIPIENTS submission options.</t>
 
                     <t>Message submission MUST be atomic -- message is either submitted for delivery to all recipients,
-                        or it MUST NOT be submitted for delivery to anyone.</t>
+                        or it MUST NOT be submitted for delivery to anyone.  Actual delivery MAY still fail for certain
+                        recipients.</t>
                 </section>
+
+                <section title="DSN Submission Option">
+                    <t>Syntax: delivery status notice specification</t>
+                    <t>The DSN options are specified per-recipient, not per-message, and therefore their syntax is
+                        different from the other submission options.</t>
+                    <t>The DSN submission option controls generating of delivery status notifications related to the
+                        currently submitted message.  When not given, an implementation-defined default value MUST be
+                        used.  The default value MUST be either (FAILURE) or (DELAY, FAILURE), as mandated by <xref
+                            target="RFC3461"/>.</t>
+                    <t>It is an error if the DSN submission option is present multiple times for one recipient.</t>
+                    <t>Clients MUST NOT specify the DSN submission option unless the server announces the SUBMIT=DSN
+                        capability.  Support for the SUBMIT=DSN submission option is OPTIONAL.</t>
+                    <t>The DSN specification is either "NONE" to deactivate DSNs altogether, or a parenthesized list of any
+                        of the following options:</t>
+                    <t><list style="hanging">
+                            <t hangText="SUCCESS"> requests generating DSNs upon successful delivery of a message</t>
+                            <t hangText="DELAY"> activates generating DSNs when delivery is delayed</t>
+                            <t hangText="FAILURE"> requests generating DSNs when the delivery fails</t>
+                    </list></t>
+                    <t>The order of DSN requests is not significant.</t>
+                </section>
+
             </section>
         </section>
     </section>
@@ -256,9 +285,9 @@
 
         <t>The following example shows how client should submit a message with UID 123 in the current mailbox for
             delivery.  If the message is passed through SMTP, its From address in the SMTP envelope MUST be set to
-            foo@example.org and it MUST be submitted for delivery to two recipients, the a@example.org and b@example.org.  The DSN
-            options are set to report about excess delays failures in message delivery for the first recipient.
-            System's default policy of DSN production is retained for the second recipient.</t>
+            foo@example.org and it MUST be submitted for delivery to two recipients, the a@example.org and
+            b@example.org.  The DSN options are set to report about excess delays and failures in message delivery for
+            the first recipient.  System's default policy of DSN production is retained for the second recipient.</t>
 
         <figure align="center">
             <artwork align="left"><![CDATA[
@@ -272,7 +301,7 @@ S: x OK Message passed to the sendmail binary]]></artwork>
         </figure>
 
         <t>In the following example, a message is delivered to addresses specified in the message payload.  No
-            submission options are given, and therefore the From and Sender envelope items are inferred from the actual
+            submission options are given, and therefore the From and To envelope items are inferred from the actual
             payload.  The DSN options, if supported, are set to an implementation-defined default value.</t>
 
         <figure align="center">
@@ -327,10 +356,10 @@ submission-option   = sub-option-from / sub-option-recipient
 sub-option-from     = "FROM" SP one-email-addr
                       ;; MUST NOT be present more than once
 
-sub-option-recipient= "RECIPIENT" SP one-email-addr [SP sub-option-dsn]
+sub-option-recipient= "RECIPIENT" SP one-email-addr [SP sub-option-rcpt-dsn]
                       ;; MAY be present more than once
 
-sub-option-dsn      = "DSN" SP ( NIL / dsn-spec )
+sub-option-rcpt-dsn = "DSN" SP ( "NONE" / dsn-spec )
                       ;; MUST NOT be present more than once
 
 dsn-spec            = "(" dsn-spec-item *( SP dsn-spec-item ) ")"
@@ -346,11 +375,19 @@ one-email-addr      = string
     </section>
 
     <section anchor="Security" title="Security Considerations">
-        <t>This extension introduces a way of allowing authenticated users to submit Internet mail.  Servers supporting
-            this extension SHOULD implement the same security measures as other SUBMISSION <xref target="RFC4409"/>
-            servers open to users.</t>
+        <t>This extension introduces a new way of allowing authenticated users to submit Internet mail.  Servers
+            supporting this extension SHOULD implement the same security measures as other SUBMISSION <xref
+                target="RFC4409"/> servers open to users.</t>
+
         <t>The redirect command from SIEVE <xref target="RFC5228"/> already requires some types of IMAP message stores
             to be able to generate outgoing mail.  Security considerations for this extension are similar.</t>
+
+        <t>For the IMAP-based submission to work, the server operators MUST configure their MTA systems to accept
+            submission requests from their IMAP servers.  This change MAY have security implications, even though
+            services supporting the SIEVE filtering are already configured to accept e-mails for submission.</t>
+
+        <t>The new trust path MAY replace the trust path required for the BURL/URLAUTH operation required by the
+            LEMONADE extension family.</t>
     </section>
   </middle>
 
@@ -361,6 +398,8 @@ one-email-addr      = string
       &RFC5234;
 
       &RFC3501;
+
+      &RFC3461;
 
       &RFC4409;
 
@@ -387,6 +426,8 @@ one-email-addr      = string
       <t>What's got higher priority, SUBMISSIONRACE or POLICYDENIED? :)</t>
       <t>IANA and the response codes</t>
       <t>Check the DSN's ENVID and RET</t>
+      <t>"if the command fails, server MUST clear both $SubmitPending and $Submitted" -- what to do when there's
+          something like a disk error?</t>
     </section>
 
     <section anchor="changelog" title="Changelog">
@@ -394,6 +435,11 @@ one-email-addr      = string
             <t><list style="symbols">
                 <t>Renamed to SUBMIT</t>
                 <t>DSNs are per-recipient, not per-message</t>
+                <t>The introduction was rewritten</t>
+                <t>Miscellaneous clarifications</t>
+                <t>Changed DSN NIL to DSN NONE</t>
+                <t>Clarified the semantics of the RECIPIENT submission option to guarantee Bcc privacy</t>
+                <t>Editorial tweaks, including changes to the required SHOULD/MUST/...</t>
             </list></t>
         </section>
 
