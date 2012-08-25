@@ -48,6 +48,8 @@ MsgListView::MsgListView(QWidget *parent): QTreeView(parent)
     setSelectionMode(ExtendedSelection);
     setDragEnabled(true);
     setRootIsDecorated(false);
+    // Some subthreads might be huuuuuuuuuuge, so prevent indenting them too heavily
+    setIndentation(15);
 
     setSortingEnabled(true);
     // By default, we don't do any sorting
