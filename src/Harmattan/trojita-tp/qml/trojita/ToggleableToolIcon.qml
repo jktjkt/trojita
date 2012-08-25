@@ -41,7 +41,7 @@
 // ToolItem is a component that is used to add actions to toolbars.
 
 import QtQuick 1.1
-import "." 1.0
+import com.nokia.meego 1.0
 
 Item {
     id: root
@@ -50,6 +50,7 @@ Item {
 
     // TODO: deprecated
     property alias iconId: root.platformIconId
+    property bool toggled: false
     width: 80
     height: (screen.currentOrientation == Screen.Portrait || screen.currentOrientation == Screen.PortraitInverted) ? 76 : 64
 
@@ -62,7 +63,7 @@ Item {
     property Style style: root.platformStyle
 
     Image {
-        source: mouseArea.pressed ? platformStyle.pressedBackground : ""
+        source: mouseArea.pressed || root.toggled ? platformStyle.pressedBackground : ""
         anchors.centerIn: parent
 
         Image {
