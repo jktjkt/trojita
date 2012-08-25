@@ -57,11 +57,11 @@ class OneMessageModel: public QObject
     Q_PROPERTY(QVariantList replyTo READ replyTo NOTIFY envelopeChanged)
     Q_PROPERTY(QByteArray inReplyTo READ inReplyTo NOTIFY envelopeChanged)
     Q_PROPERTY(QByteArray messageId READ messageId NOTIFY envelopeChanged)
-    Q_PROPERTY(bool isMarkedDeleted READ isMarkedDeleted NOTIFY envelopeChanged)
-    Q_PROPERTY(bool isMarkedRead READ isMarkedRead NOTIFY envelopeChanged)
-    Q_PROPERTY(bool isMarkedForwarded READ isMarkedForwarded NOTIFY envelopeChanged)
-    Q_PROPERTY(bool isMarkedReplied READ isMarkedReplied NOTIFY envelopeChanged)
-    Q_PROPERTY(bool isMarkedRecent READ isMarkedRecent NOTIFY envelopeChanged)
+    Q_PROPERTY(bool isMarkedDeleted READ isMarkedDeleted NOTIFY flagsChanged)
+    Q_PROPERTY(bool isMarkedRead READ isMarkedRead NOTIFY flagsChanged)
+    Q_PROPERTY(bool isMarkedForwarded READ isMarkedForwarded NOTIFY flagsChanged)
+    Q_PROPERTY(bool isMarkedReplied READ isMarkedReplied NOTIFY flagsChanged)
+    Q_PROPERTY(bool isMarkedRecent READ isMarkedRecent NOTIFY flagsChanged)
     Q_PROPERTY(QUrl mainPartUrl READ mainPartUrl NOTIFY mainPartUrlChanged)
     Q_PROPERTY(QObject* attachmentsModel READ attachmentsModel NOTIFY mainPartUrlChanged)
 
@@ -92,7 +92,11 @@ public:
 
 signals:
     void envelopeChanged();
+    void flagsChanged();
     void mainPartUrlChanged();
+
+private slots:
+    void handleModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
 private:
     QPersistentModelIndex m_message;

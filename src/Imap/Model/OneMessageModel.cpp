@@ -37,6 +37,8 @@ OneMessageModel::OneMessageModel(Model *model): QObject(model), m_subtree(0)
     m_subtree->setSourceModel(model);
     connect(m_subtree, SIGNAL(modelReset()), this, SIGNAL(envelopeChanged()));
     connect(m_subtree, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(envelopeChanged()));
+    connect(this, SIGNAL(envelopeChanged()), this, SIGNAL(flagsChanged()));
+    connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleModelDataChanged(QModelIndex,QModelIndex)));
     m_flatteningModel = new KDescendantsProxyModel(this);
     m_flatteningModel->setSourceModel(m_subtree);
     QHash<int, QByteArray> roleNames;
@@ -180,6 +182,16 @@ QUrl OneMessageModel::mainPartUrl() const
 QObject *OneMessageModel::attachmentsModel() const
 {
     return m_flatteningModel;
+}
+
+void OneMessageModel::handleModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+{
+    Q_ASSERT(topLeft.row() == bottomRight.row());
+    Q_ASSERT(topLeft.parent() == bottomRight.parent());
+    Q_ASSERT(topLeft.model() == bottomRight.model());
+
+    if (topLeft == m_message)
+        emit flagsChanged();
 }
 
 }
