@@ -41,7 +41,7 @@
       </address>
     </author>
 
-    <date year="2012" month="August" day="21"/>
+    <date year="2012" month="August" day="25"/>
 
     <area>General</area>
     <workgroup>Internet Engineering Task Force</workgroup>
@@ -276,6 +276,25 @@
                     <t>The order of DSN requests is not significant.</t>
                 </section>
 
+                <section title="DSN-RET Submission Option">
+                    <t>Syntax: DSN return option specification</t>
+                    <t>This per-message submission option corresponds to the RET=... parameter from <xref
+                            target="RFC3461"/>.  Two values are defined, "HDRS" and "FULL", meaning to include only the
+                        headers or the full message, respectively, in the generated delivery status reports.</t>
+                    <t>Clients MUST NOT use the DSN-ENVID return option unless the server announces the SUBMIT=DSN
+                        capability.</t>
+                </section>
+
+                <section title="DSN-ENVID Submission Option">
+                    <t>Syntax: specification of ESMTP Envelope ID</t>
+                    <t>This per-message submission option corresponds to the ENVID=... parameter from <xref
+                            target="RFC3461"/>.  It allows senders to attach a machine-readable ID to be received in the
+                        delivery status reports concerning this message.</t>
+                    <t>Clients MUST NOT use the DSN-ENVID return option unless the server announces the SUBMIT=DSN
+                        capability or a SUBMIT=... capability defined by future extensions which make use of the ENVID
+                        ESMTP parameter.</t>
+                </section>
+
             </section>
         </section>
     </section>
@@ -352,6 +371,7 @@ sendmail            = "SUBMIT" SP uniqueid [SP submission-options]
 submission-options  = "(" submission-option *( SP submission-option ) ")"
 
 submission-option   = sub-option-from / sub-option-recipient
+                      / sub-option-dsn-ret / sub-option-dsn-envid
 
 sub-option-from     = "FROM" SP one-email-addr
                       ;; MUST NOT be present more than once
@@ -367,6 +387,13 @@ dsn-spec            = "(" dsn-spec-item *( SP dsn-spec-item ) ")"
                       ;; be present more than once
 
 dsn-spec-item       = "DELAY" / "FAILURE" / "SUCCESS"
+
+sub-option-dsn-ret  = "DSN-RET" SP ( "FULL" / "HDRS" )
+
+sub-option-dsn-envid= "DSN-ENVID" SP xtext
+                      ;; <xtext> is defined in [RFC3461], section 4.
+                      ;; The allowed syntax is further limited by
+                      ;; its section 4.4.
 
 one-email-addr      = string
                       ;; valid e-mail address as per [RFC5321]
@@ -425,7 +452,6 @@ one-email-addr      = string
     <section anchor="FIXME" title="FIXME Items">
       <t>What's got higher priority, SUBMISSIONRACE or POLICYDENIED? :)</t>
       <t>IANA and the response codes</t>
-      <t>Check the DSN's ENVID and RET</t>
       <t>"if the command fails, server MUST clear both $SubmitPending and $Submitted" -- what to do when there's
           something like a disk error?</t>
     </section>
@@ -440,6 +466,7 @@ one-email-addr      = string
                 <t>Changed DSN NIL to DSN NONE</t>
                 <t>Clarified the semantics of the RECIPIENT submission option to guarantee Bcc privacy</t>
                 <t>Editorial tweaks, including changes to the required SHOULD/MUST/...</t>
+                <t>DSN's ENVID and RET</t>
             </list></t>
         </section>
 
