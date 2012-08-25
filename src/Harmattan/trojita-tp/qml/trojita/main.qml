@@ -92,7 +92,7 @@ PageStackWindow {
 
         ToolIcon {
             id: networkPolicyButton
-            iconId: state == "online" ? "toolbar-callhistory" : (state == "away" ? "toolbar-clock" : "toolbar-close")
+            iconSource: "image://theme/icon-s-common-presence-" + (state.length ? state : "unknown")
 
             states: [
                 State {
