@@ -184,6 +184,16 @@ QObject *OneMessageModel::attachmentsModel() const
     return m_flatteningModel;
 }
 
+void OneMessageModel::setMarkedDeleted(const bool marked)
+{
+    qobject_cast<Model*>(parent())->markMessagesDeleted(QList<QModelIndex>() << m_message, marked ? FLAG_ADD : FLAG_REMOVE);
+}
+
+void OneMessageModel::setMarkedRead(const bool marked)
+{
+    qobject_cast<Model*>(parent())->markMessagesRead(QList<QModelIndex>() << m_message, marked ? FLAG_ADD : FLAG_REMOVE);
+}
+
 void OneMessageModel::handleModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     Q_ASSERT(topLeft.row() == bottomRight.row());

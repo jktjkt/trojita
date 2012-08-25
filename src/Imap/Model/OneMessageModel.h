@@ -57,8 +57,8 @@ class OneMessageModel: public QObject
     Q_PROPERTY(QVariantList replyTo READ replyTo NOTIFY envelopeChanged)
     Q_PROPERTY(QByteArray inReplyTo READ inReplyTo NOTIFY envelopeChanged)
     Q_PROPERTY(QByteArray messageId READ messageId NOTIFY envelopeChanged)
-    Q_PROPERTY(bool isMarkedDeleted READ isMarkedDeleted NOTIFY flagsChanged)
-    Q_PROPERTY(bool isMarkedRead READ isMarkedRead NOTIFY flagsChanged)
+    Q_PROPERTY(bool isMarkedDeleted READ isMarkedDeleted WRITE setMarkedDeleted NOTIFY flagsChanged)
+    Q_PROPERTY(bool isMarkedRead READ isMarkedRead WRITE setMarkedRead NOTIFY flagsChanged)
     Q_PROPERTY(bool isMarkedForwarded READ isMarkedForwarded NOTIFY flagsChanged)
     Q_PROPERTY(bool isMarkedReplied READ isMarkedReplied NOTIFY flagsChanged)
     Q_PROPERTY(bool isMarkedRecent READ isMarkedRecent NOTIFY flagsChanged)
@@ -80,7 +80,9 @@ public:
     QByteArray inReplyTo() const;
     QByteArray messageId() const;
     bool isMarkedDeleted() const;
+    void setMarkedDeleted(const bool marked);
     bool isMarkedRead() const;
+    void setMarkedRead(const bool marked);
     bool isMarkedForwarded() const;
     bool isMarkedReplied() const;
     bool isMarkedRecent() const;
