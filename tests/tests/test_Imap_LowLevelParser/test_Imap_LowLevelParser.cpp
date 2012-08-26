@@ -430,6 +430,10 @@ void ImapLowLevelParserTest::testGetRFC2822DateTime_data()
         << QString("Wed, 09 Apr 2008 20:16:12 a")
         << QDateTime( QDate( 2008, 4, 9 ), QTime( 20, 16, 12 ), Qt::UTC );
 
+    QTest::newRow("no-seconds")
+        << QString("Sat, 25 Aug 2012 20:12 +0200")
+        << QDateTime(QDate(2012, 8, 25), QTime(18, 12, 0), Qt::UTC);
+
     int month = 1;
     int day = 1;
     QTime time( 0, 0, 0 );
