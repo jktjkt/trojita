@@ -186,11 +186,17 @@ QObject *OneMessageModel::attachmentsModel() const
 
 void OneMessageModel::setMarkedDeleted(const bool marked)
 {
+    if (!m_message.isValid())
+        return;
+
     qobject_cast<Model*>(parent())->markMessagesDeleted(QList<QModelIndex>() << m_message, marked ? FLAG_ADD : FLAG_REMOVE);
 }
 
 void OneMessageModel::setMarkedRead(const bool marked)
 {
+    if (!m_message.isValid())
+        return;
+
     qobject_cast<Model*>(parent())->markMessagesRead(QList<QModelIndex>() << m_message, marked ? FLAG_ADD : FLAG_REMOVE);
 }
 
@@ -200,7 +206,7 @@ void OneMessageModel::handleModelDataChanged(const QModelIndex &topLeft, const Q
     Q_ASSERT(topLeft.parent() == bottomRight.parent());
     Q_ASSERT(topLeft.model() == bottomRight.model());
 
-    if (topLeft == m_message)
+    if (m_message.isValid() && topLeft == m_message)
         emit flagsChanged();
 }
 
