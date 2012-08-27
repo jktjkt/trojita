@@ -13,7 +13,6 @@ Page {
 
     onStatusChanged: {
         if (status == PageStatus.Inactive) {
-            oneMessagePage.destroy()
             fwdOnePage = null
         } else {
             fwdOnePage = oneMessagePage
