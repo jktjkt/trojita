@@ -78,6 +78,7 @@ void SubtreeModel::setSourceModel(QAbstractItemModel *sourceModel)
     }
     QAbstractProxyModel::setSourceModel(sourceModel);
     if (sourceModel) {
+        setRoleNames(sourceModel->roleNames());
         // FIXME: will need to be expanded when the source model supports more signals...
         connect(sourceModel, SIGNAL(modelAboutToBeReset()), this, SLOT(handleModelAboutToBeReset()));
         connect(sourceModel, SIGNAL(modelReset()), this, SLOT(handleModelReset()));
@@ -93,7 +94,6 @@ void SubtreeModel::setSourceModel(QAbstractItemModel *sourceModel)
 
 void SubtreeModel::setRootItem(QModelIndex rootIndex)
 {
-    Q_ASSERT(rootIndex.isValid());
     beginResetModel();
     if (rootIndex.model() != m_rootIndex.model() && rootIndex.model()) {
         setSourceModel(const_cast<QAbstractItemModel*>(rootIndex.model()));
