@@ -23,7 +23,6 @@
 #define IMAP_MODEL_SUBTREEMODEL_H
 
 #include <QAbstractProxyModel>
-#include "Model.h"
 
 /** @short Namespace for IMAP interaction */
 namespace Imap
@@ -58,9 +57,6 @@ class SubtreeModelOfModel: public QAbstractProxyModel
 {
     Q_OBJECT
     Q_DISABLE_COPY(SubtreeModelOfModel)
-
-    // This is where it gets ugly -- we cannot really work without the upstream model's createIndex() :(
-    typedef Imap::Mailbox::Model ModelType;
 
 public:
     SubtreeModelOfModel(QObject *parent = 0);

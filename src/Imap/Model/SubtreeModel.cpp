@@ -20,6 +20,7 @@
 */
 
 #include "SubtreeModel.h"
+#include "Model.h"
 
 namespace Imap
 {
@@ -33,7 +34,7 @@ SubtreeModelOf##Parent::SubtreeModelOf##Parent(QObject *parent): QAbstractProxyM
 \
 void SubtreeModelOf##Parent::setSourceModel(QAbstractItemModel *sourceModel) \
 { \
-    Q_ASSERT(qobject_cast<ModelType*>(sourceModel)); \
+    Q_ASSERT(qobject_cast<Parent*>(sourceModel)); \
 \
     if (this->sourceModel()) { \
         disconnect(this->sourceModel(), 0, this, 0); \
@@ -100,7 +101,7 @@ QModelIndex SubtreeModelOf##Parent::mapToSource(const QModelIndex &proxyIndex) c
     if (!sourceModel()) \
         return QModelIndex(); \
  \
-    return qobject_cast<ModelType*>(sourceModel())->createIndex( \
+    return qobject_cast<Parent*>(sourceModel())->createIndex( \
                 proxyIndex.row(), proxyIndex.column(), proxyIndex.internalPointer()); \
 } \
  \
