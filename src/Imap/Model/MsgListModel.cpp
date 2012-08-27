@@ -53,6 +53,11 @@ MsgListModel::MsgListModel(QObject *parent, Model *model): QAbstractProxyModel(p
     connect(model, SIGNAL(rowsInserted(const QModelIndex &, int, int)),
             this, SLOT(handleRowsInserted(const QModelIndex &, int,int)));
 
+    connect(this, SIGNAL(layoutChanged()), this, SIGNAL(indexStateChanged()));
+    connect(this, SIGNAL(modelReset()), this, SIGNAL(indexStateChanged()));
+    connect(this, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SIGNAL(indexStateChanged()));
+    connect(this, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SIGNAL(indexStateChanged()));
+
     QHash<int, QByteArray> roleNames;
     roleNames[RoleIsFetched] = "isFetched";
     roleNames[RoleMessageUid] = "messageUid";
@@ -99,8 +104,12 @@ void MsgListModel::handleDataChanged(const QModelIndex &topLeft, const QModelInd
 
 void MsgListModel::checkPersistentIndex() const
 {
-    if (!msgList.isValid())
+    if (!msgList.isValid()) {
+        if (msgListPtr) {
+            emit const_cast<MsgListModel*>(this)->indexStateChanged();
+        }
         msgListPtr = 0;
+    }
 }
 
 QModelIndex MsgListModel::index(int row, int column, const QModelIndex &parent) const
@@ -474,6 +483,11 @@ QModelIndex MsgListModel::currentMailbox() const
 {
     checkPersistentIndex();
     return msgList.parent();
+}
+
+bool MsgListModel::itemsValid() const
+{
+    return currentMailbox().isValid();
 }
 
 }

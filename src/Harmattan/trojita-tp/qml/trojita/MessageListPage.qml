@@ -162,7 +162,7 @@ Page {
         Label {
             visible: !view.visible
             anchors.fill: parent
-            text: (root.model && root.model.currentMailbox()) ? qsTr("Empty Mailbox") : qsTr("Invalid Mailbox")
+            text: (root.model && root.model.itemsValid) ? qsTr("Empty Mailbox") : qsTr("Invalid Mailbox")
             color: "#606060"
             font {bold: true; pixelSize: 90}
             wrapMode: Text.WordWrap

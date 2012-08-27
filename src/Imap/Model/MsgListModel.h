@@ -39,6 +39,8 @@ class MsgListModel: public QAbstractProxyModel
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool itemsValid READ itemsValid NOTIFY indexStateChanged)
+
 public:
     MsgListModel(QObject *parent, Model *model);
 
@@ -56,7 +58,9 @@ public:
     virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
     virtual Qt::DropActions supportedDropActions() const;
 
-    Q_INVOKABLE QModelIndex currentMailbox() const;
+    QModelIndex currentMailbox() const;
+
+    bool itemsValid() const;
 
     enum { SUBJECT, SEEN, FROM, TO, CC, BCC, DATE, RECEIVED_DATE, SIZE, COLUMN_COUNT };
 
@@ -76,6 +80,8 @@ signals:
 
     /** @short Messages are available for the first time after selecting new mailbox */
     void messagesAvailable();
+
+    void indexStateChanged();
 
 private:
     MsgListModel &operator=(const MsgListModel &);  // don't implement
