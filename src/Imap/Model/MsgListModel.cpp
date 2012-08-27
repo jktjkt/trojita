@@ -465,7 +465,9 @@ void MsgListModel::setMailbox(const QString &mailboxName)
 {
     Model *model = dynamic_cast<Model*>(sourceModel());
     Q_ASSERT(model);
-    setMailbox(model->findMailboxByName(mailboxName)->toIndex(model));
+    TreeItemMailbox *mailboxPtr = model->findMailboxByName(mailboxName);
+    if (mailboxPtr)
+        setMailbox(mailboxPtr->toIndex(model));
 }
 
 QModelIndex MsgListModel::currentMailbox() const
