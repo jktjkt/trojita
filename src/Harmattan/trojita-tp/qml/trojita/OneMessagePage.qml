@@ -7,6 +7,12 @@ import "Utils.js" as Utils
 Page {
     property string mailbox
     property alias url: messageView.url
+
+    function handleChangedEnvelope() {
+        if (status === PageStatus.Active && !imapAccess.oneMessageModel.hasValidIndex)
+            pageStack.pop()
+    }
+
     id: oneMessagePage
 
     tools: oneMailTools
@@ -136,10 +142,6 @@ Page {
         NetworkPolicyButton {}
     }
 
-    Component.onCompleted: {
-        imapAccess.oneMessageModel.envelopeChanged.connect(function() {
-            if (pageStack.currentPage === oneMessagePage && !imapAccess.oneMessageModel.hasValidIndex)
-                pageStack.pop()
-        })
-    }
+    Component.onCompleted: imapAccess.oneMessageModel.envelopeChanged.connect(handleChangedEnvelope)
+    Component.onDestruction: imapAccess.oneMessageModel.envelopeChanged.disconnect(handleChangedEnvelope)
 }
