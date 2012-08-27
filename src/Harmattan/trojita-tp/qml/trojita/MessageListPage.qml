@@ -148,17 +148,22 @@ Page {
             }
 
             onVisibleChanged: {
-                if (root._pendingScroll) {
+                if (root._pendingScroll && count > 0) {
                     root._pendingScroll = false
                     positionViewAtEnd()
                 }
+            }
+
+            onCountChanged: {
+                if (count == 0 && model && !model.currentMailbox())
+                    appWindow.pageStack.pop()
             }
         }
 
         Label {
             visible: !view.visible
             anchors.fill: parent
-            text: qsTr("Empty Mailbox")
+            text: (root.model && root.model.currentMailbox()) ? qsTr("Empty Mailbox") : qsTr("Invalid Mailbox")
             color: "#606060"
             font {bold: true; pixelSize: 90}
             wrapMode: Text.WordWrap
