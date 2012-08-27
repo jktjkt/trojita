@@ -62,6 +62,10 @@ SubtreeModelOfModel::SubtreeModelOfModel(QObject *parent):
 SubtreeModel::SubtreeModel(QObject *parent, SubtreeClassAdaptor *classSpecificAdaptor):
     QAbstractProxyModel(parent), m_classAdaptor(classSpecificAdaptor), m_usingInvalidRoot(false)
 {
+    connect(this, SIGNAL(layoutChanged()), this, SIGNAL(validityChanged()));
+    connect(this, SIGNAL(modelReset()), this, SIGNAL(validityChanged()));
+    connect(this, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SIGNAL(validityChanged()));
+    connect(this, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SIGNAL(validityChanged()));
 }
 
 SubtreeModel::~SubtreeModel()
@@ -106,6 +110,11 @@ void SubtreeModel::setRootItem(QModelIndex rootIndex)
 void SubtreeModel::setRootItemByOffset(const int row)
 {
     setRootItem(mapToSource(index(row, 0)));
+}
+
+void SubtreeModel::setRootOneLevelUp()
+{
+    setRootItem(parentOfRoot());
 }
 
 void SubtreeModel::setOriginalRoot()
@@ -258,6 +267,12 @@ void SubtreeModel::handleRowsRemoved(const QModelIndex &parent, int first, int l
     Q_UNUSED(first);
     Q_UNUSED(last);
 
+    if (!m_usingInvalidRoot && !m_rootIndex.isValid()) {
+        // This is our chance to report back about everything being deleted
+        reset();
+        return;
+    }
+
     if (!isVisibleIndex(parent))
         return;
     endRemoveRows();
@@ -278,6 +293,11 @@ void SubtreeModel::handleRowsInserted(const QModelIndex &parent, int first, int 
     if (!isVisibleIndex(parent))
         return;
     endInsertRows();
+}
+
+bool SubtreeModel::itemsValid() const
+{
+    return m_usingInvalidRoot || m_rootIndex.isValid();
 }
 
 

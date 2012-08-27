@@ -210,5 +210,10 @@ void OneMessageModel::handleModelDataChanged(const QModelIndex &topLeft, const Q
         emit flagsChanged();
 }
 
+bool OneMessageModel::hasValidIndex() const
+{
+    return m_message.isValid();
+}
+
 }
 }

@@ -64,6 +64,7 @@ class OneMessageModel: public QObject
     Q_PROPERTY(bool isMarkedRecent READ isMarkedRecent NOTIFY flagsChanged)
     Q_PROPERTY(QUrl mainPartUrl READ mainPartUrl NOTIFY mainPartUrlChanged)
     Q_PROPERTY(QObject* attachmentsModel READ attachmentsModel NOTIFY mainPartUrlChanged)
+    Q_PROPERTY(bool hasValidIndex READ hasValidIndex NOTIFY envelopeChanged)
 
 public:
     OneMessageModel(Model *model);
@@ -88,6 +89,7 @@ public:
     bool isMarkedRecent() const;
     QUrl mainPartUrl() const;
     QObject *attachmentsModel() const;
+    bool hasValidIndex() const;
 
     Q_INVOKABLE void setMessage(const QString &mailbox, const uint uid);
     void setMessage(const QModelIndex &message);

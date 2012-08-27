@@ -47,6 +47,8 @@ class SubtreeModel: public QAbstractProxyModel
     Q_OBJECT
     Q_DISABLE_COPY(SubtreeModel)
 
+    Q_PROPERTY(bool itemsValid READ itemsValid NOTIFY validityChanged)
+
 public:
     SubtreeModel(QObject *parent, SubtreeClassAdaptor *classSpecificAdaptor);
     virtual ~SubtreeModel();
@@ -60,8 +62,10 @@ public:
     void setSourceModel(QAbstractItemModel *sourceModel);
     Q_INVOKABLE void setRootItem(QModelIndex rootIndex);
     Q_INVOKABLE void setRootItemByOffset(const int row);
+    Q_INVOKABLE void setRootOneLevelUp();
     Q_INVOKABLE void setOriginalRoot();
     Q_INVOKABLE QModelIndex parentOfRoot() const;
+    Q_INVOKABLE bool itemsValid() const;
 
 private slots:
     void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
@@ -71,6 +75,9 @@ private slots:
     void handleRowsRemoved(const QModelIndex &parent, int first, int last);
     void handleRowsAboutToBeInserted(const QModelIndex &parent, int first, int last);
     void handleRowsInserted(const QModelIndex &parent, int first, int last);
+
+signals:
+    void validityChanged();
 
 private:
     bool isVisibleIndex(QModelIndex sourceIndex) const;
