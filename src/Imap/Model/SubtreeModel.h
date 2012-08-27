@@ -59,6 +59,8 @@ public:
     virtual QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
     void setSourceModel(QAbstractItemModel *sourceModel);
     Q_INVOKABLE void setRootItem(QModelIndex rootIndex);
+    Q_INVOKABLE void setRootItemByOffset(const int row);
+    Q_INVOKABLE void setOriginalRoot();
     Q_INVOKABLE QModelIndex parentOfRoot() const;
 
 private slots:

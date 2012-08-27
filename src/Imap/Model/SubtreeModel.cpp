@@ -103,6 +103,16 @@ void SubtreeModel::setRootItem(QModelIndex rootIndex)
     endResetModel();
 }
 
+void SubtreeModel::setRootItemByOffset(const int row)
+{
+    setRootItem(mapToSource(index(row, 0)));
+}
+
+void SubtreeModel::setOriginalRoot()
+{
+    setRootItem(QModelIndex());
+}
+
 QModelIndex SubtreeModel::parentOfRoot() const
 {
     return m_rootIndex.parent();

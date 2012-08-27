@@ -8,11 +8,11 @@ Page {
     property string viewTitle: isNestedSomewhere() ? currentMailbox : imapAccess.server
     property string currentMailbox
     property string currentMailboxLong
-    property alias model: proxyModel.model
+    property QtObject model
 
     function openParentMailbox() {
         moveListViewRight.start()
-        view.model.rootIndex = view.model.parentModelIndex()
+        model.setRootItem(model.parentOfRoot())
         --nestingDepth
         currentMailbox = ""
     }
@@ -21,6 +21,7 @@ Page {
         return nestingDepth > 0
     }
 
+    id: root
     tools: commonTools
 
     Component {
@@ -84,17 +85,12 @@ Page {
                         currentMailbox = shortMailboxName
                         view.currentIndex = model.index
                         moveListViewLeft.start()
-                        view.model.rootIndex = view.model.modelIndex(index)
+                        root.model.setRootItemByOffset(model.index)
                         ++nestingDepth
                     }
                 }
             }
         }
-    }
-
-    VisualDataModel {
-        id: proxyModel
-        delegate: mailboxItemDelegate
     }
 
     Item {
@@ -107,7 +103,16 @@ Page {
                 top: header.bottom; left: parent.left; right: parent.right; bottom: parent.bottom
             }
             focus: true
-            model: proxyModel
+            delegate: mailboxItemDelegate
+            model: root.model
+
+            onCountChanged: {
+                if (count == 0 && model && !model.parentOfRoot) {
+                    model.setRootItem()
+                    nestingDepth = 0
+                    currentMailbox = ""
+                }
+            }
         }
 
         ScrollDecorator {

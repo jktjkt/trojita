@@ -51,7 +51,7 @@ PageStackWindow {
 
     MailboxListPage {
         id: mailboxListPage
-        model: imapAccess.mailboxModel ? imapAccess.mailboxModel : undefined
+        model: imapAccess.mailboxModel ? imapAccess.mailboxModel : null
 
         onMailboxSelected: {
             imapAccess.msgListModel.setMailbox(mailbox)
