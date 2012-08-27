@@ -9,15 +9,7 @@ Page {
     property alias url: messageView.url
     id: oneMessagePage
 
-    tools: commonTools
-
-    onStatusChanged: {
-        if (status == PageStatus.Inactive) {
-            fwdOnePage = null
-        } else {
-            fwdOnePage = oneMessagePage
-        }
-    }
+    tools: oneMailTools
 
     Item {
         anchors {left: parent.left; right: parent.right; bottom: parent.bottom; top: header.bottom}
@@ -119,5 +111,28 @@ Page {
         id: header
         text: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.subject : ""
         anchors {left: parent.left; right: parent.right; top: parent.top}
+    }
+
+    ToolBarLayout {
+        id: oneMailTools
+        visible: true
+
+        BackButton {}
+
+        ToggleableToolIcon {
+            id: messageReadButton
+            toggled: imapAccess.oneMessageModel.isMarkedRead
+            iconSource: "image://theme/icon-m-toolbar-done-white" + (toggled ? "-selected" : "")
+            onClicked: imapAccess.oneMessageModel.isMarkedRead = !imapAccess.oneMessageModel.isMarkedRead
+        }
+
+        ToggleableToolIcon {
+            id: messageDeleteButton
+            toggled: imapAccess.oneMessageModel.isMarkedDeleted
+            iconSource: "image://theme/icon-m-toolbar-delete-white" + (toggled ? "-selected" : "")
+            onClicked: imapAccess.oneMessageModel.isMarkedDeleted = !imapAccess.oneMessageModel.isMarkedDeleted
+        }
+
+        NetworkPolicyButton {}
     }
 }

@@ -92,22 +92,6 @@ PageStackWindow {
 
         BackButton {}
 
-        ToggleableToolIcon {
-            id: messageReadButton
-            visible: fwdOnePage ? true : false
-            toggled: fwdOnePage ? (imapAccess.oneMessageModel.isMarkedRead) : false
-            iconSource: "image://theme/icon-m-toolbar-done-white" + (toggled ? "-selected" : "")
-            onClicked: imapAccess.oneMessageModel.isMarkedRead = !imapAccess.oneMessageModel.isMarkedRead
-        }
-
-        ToggleableToolIcon {
-            id: messageDeleteButton
-            visible: fwdOnePage ? true : false
-            toggled: fwdOnePage ? (imapAccess.oneMessageModel.isMarkedDeleted) : false
-            iconSource: "image://theme/icon-m-toolbar-delete-white" + (toggled ? "-selected" : "")
-            onClicked: imapAccess.oneMessageModel.isMarkedDeleted = !imapAccess.oneMessageModel.isMarkedDeleted
-        }
-
         NetworkPolicyButton {}
     }
 
