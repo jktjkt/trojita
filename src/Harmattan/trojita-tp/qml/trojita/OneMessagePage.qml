@@ -25,36 +25,36 @@ Page {
 
                 AddressWidget {
                     caption: qsTr("From")
-                    address: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.from : undefined
+                    address: imapAccess.oneMessageModel.from
                     width: view.width
                 }
                 AddressWidget {
                     caption: qsTr("To")
-                    address: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.to : undefined
+                    address: imapAccess.oneMessageModel.to
                     width: view.width
                 }
                 AddressWidget {
                     caption: qsTr("Cc")
-                    address: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.cc : undefined
+                    address: imapAccess.oneMessageModel.cc
                     width: view.width
                 }
                 AddressWidget {
                     caption: qsTr("Bcc")
-                    address: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.bcc : undefined
+                    address: imapAccess.oneMessageModel.bcc
                     width: view.width
                 }
 
                 Label {
                     id: dateLabel
                     width: view.width
-                    text: imapAccess.oneMessageModel ? qsTr("<b>Date:</b> ") + Utils.formatDateDetailed(imapAccess.oneMessageModel.date) : ""
+                    text: qsTr("<b>Date:</b> ") + Utils.formatDateDetailed(imapAccess.oneMessageModel.date)
                 }
 
                 Label {
                     id: subjectLabel
                     width: view.width
                     wrapMode: Text.Wrap
-                    text: imapAccess.oneMessageModel ? qsTr("<b>Subject:</b> ") + imapAccess.oneMessageModel.subject : ""
+                    text: qsTr("<b>Subject:</b> ") + imapAccess.oneMessageModel.subject
                 }
 
                 QNAMWebView {
@@ -96,7 +96,7 @@ Page {
                     // FIXME: magic constants...
                     height: count * 40 + 30
                     // FIXME: filter out the main part from the view (in C++, of course)
-                    model: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.attachmentsModel : undefined
+                    model: imapAccess.oneMessageModel.attachmentsModel
                     delegate: attachmentItemDelegate
                 }
             }
@@ -109,7 +109,7 @@ Page {
 
     PageHeader {
         id: header
-        text: imapAccess.oneMessageModel ? imapAccess.oneMessageModel.subject : ""
+        text: imapAccess.oneMessageModel.subject
         anchors {left: parent.left; right: parent.right; top: parent.top}
     }
 
