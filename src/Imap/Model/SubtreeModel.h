@@ -77,6 +77,30 @@ private:
 TROJITA_SUBTREE_PRIVATE_BLOCK
 };
 
+class SubtreeModelOfMailboxModel: public QAbstractProxyModel
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(SubtreeModelOfMailboxModel)
+
+public:
+    SubtreeModelOfMailboxModel(QObject *parent = 0);
+
+    TROJITA_SUBTREE_DECL_VIRT_FUNCS
+
+// Unfortunately, slots have to be copy-pasted around and around...
+private slots:
+    void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void handleModelAboutToBeReset();
+    void handleModelReset();
+    void handleRowsAboutToBeRemoved(const QModelIndex &parent, int first, int last);
+    void handleRowsRemoved(const QModelIndex &parent, int first, int last);
+    void handleRowsAboutToBeInserted(const QModelIndex &parent, int first, int last);
+    void handleRowsInserted(const QModelIndex &parent, int first, int last);
+
+private:
+TROJITA_SUBTREE_PRIVATE_BLOCK
+};
+
 #undef TROJITA_SUBTREE_DECL_VIRT_FUNCS
 #undef TROJITA_SUBTREE_PRIVATE_BLOCK
 

@@ -20,6 +20,7 @@
 */
 
 #include "SubtreeModel.h"
+#include "MailboxModel.h"
 #include "Model.h"
 
 namespace Imap
@@ -211,6 +212,7 @@ void SubtreeModelOf##Parent::handleRowsInserted(const QModelIndex &parent, int f
 
 // Yes, this is so ugly...
 TROJITA_SUBTREE_MODEL_IMPL(Model)
+TROJITA_SUBTREE_MODEL_IMPL(MailboxModel)
 
 }
 }
