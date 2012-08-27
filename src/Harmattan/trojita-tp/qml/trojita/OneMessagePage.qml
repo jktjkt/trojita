@@ -10,7 +10,7 @@ Page {
 
     function handleChangedEnvelope() {
         if (status === PageStatus.Active && !imapAccess.oneMessageModel.hasValidIndex)
-            pageStack.pop()
+            appWindow.showHome()
     }
 
     id: oneMessagePage

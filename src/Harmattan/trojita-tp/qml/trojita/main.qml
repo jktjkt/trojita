@@ -52,6 +52,13 @@ PageStackWindow {
         return (pageStack.currentPage === mailboxListPage && mailboxListPage.isNestedSomewhere()) || pageStack.depth > 1
     }
 
+    function showHome() {
+        pageStack.pop(mailboxListPage)
+        mailboxListPage.nestingDepth = 0
+        if (mailboxListPage.model)
+            mailboxListPage.model.setOriginalRoot()
+    }
+
     Component.onCompleted: {
         theme.inverted = true
         theme.colorScheme = 7

@@ -7,6 +7,7 @@ Page {
     id: root
     property alias model: view.model
     property bool _pendingScroll: false
+    property bool indexValid: model ? model.itemsValid : true
 
     signal messageSelected(int uid)
 
@@ -14,21 +15,7 @@ Page {
         _pendingScroll = true
     }
 
-    /*onStatusChanged: {
-        if (status === PageStatus.Active && !model.itemsValid) {
-            pageStack.pop()
-        }
-    }*/
-
-    /*onModelChanged: {
-        if (!model)
-            return
-
-        model.indexStateChanged.connect(function() {
-            if (status === PageStatus.Active && !model.itemsValid)
-                pageStack.pop()
-        })
-    }*/
+    onIndexValidChanged: appWindow.showHome()
 
     tools: commonTools
 
