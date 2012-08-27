@@ -58,7 +58,8 @@ public:
     virtual QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
     virtual QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
     void setSourceModel(QAbstractItemModel *sourceModel);
-    void setRootItem(QModelIndex rootIndex);
+    Q_INVOKABLE void setRootItem(QModelIndex rootIndex);
+    Q_INVOKABLE QModelIndex parentOfRoot() const;
 
 private slots:
     void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
@@ -73,6 +74,7 @@ private:
     bool isVisibleIndex(QModelIndex sourceIndex) const;
     QPersistentModelIndex m_rootIndex;
     SubtreeClassAdaptor *m_classAdaptor;
+    bool m_usingInvalidRoot;
 };
 
 /** @short Subtree model implementation for Model */

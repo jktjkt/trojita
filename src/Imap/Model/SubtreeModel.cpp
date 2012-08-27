@@ -60,7 +60,7 @@ SubtreeModelOfModel::SubtreeModelOfModel(QObject *parent):
 }
 
 SubtreeModel::SubtreeModel(QObject *parent, SubtreeClassAdaptor *classSpecificAdaptor):
-    QAbstractProxyModel(parent), m_classAdaptor(classSpecificAdaptor)
+    QAbstractProxyModel(parent), m_classAdaptor(classSpecificAdaptor), m_usingInvalidRoot(false)
 {
 }
 
@@ -95,11 +95,17 @@ void SubtreeModel::setRootItem(QModelIndex rootIndex)
 {
     Q_ASSERT(rootIndex.isValid());
     beginResetModel();
-    if (rootIndex.model() != m_rootIndex.model()) {
+    if (rootIndex.model() != m_rootIndex.model() && rootIndex.model()) {
         setSourceModel(const_cast<QAbstractItemModel*>(rootIndex.model()));
     }
     m_rootIndex = rootIndex;
+    m_usingInvalidRoot = !m_rootIndex.isValid();
     endResetModel();
+}
+
+QModelIndex SubtreeModel::parentOfRoot() const
+{
+    return m_rootIndex.parent();
 }
 
 void SubtreeModel::handleModelAboutToBeReset()
@@ -118,7 +124,11 @@ void SubtreeModel::handleDataChanged(const QModelIndex &topLeft, const QModelInd
     QModelIndex second = mapFromSource(bottomRight);
 
     if (! first.isValid() || ! second.isValid()) {
-        // It's something completely alien...
+        if (m_usingInvalidRoot) {
+            emit dataChanged(QModelIndex(), QModelIndex());
+        } else {
+            // It's something completely alien...
+        }
         return;
     }
 
@@ -162,6 +172,11 @@ QModelIndex SubtreeModel::mapFromSource(const QModelIndex &sourceIndex) const
 /** @short Return true iff the passed source index is in the source model located in the current subtree */
 bool SubtreeModel::isVisibleIndex(QModelIndex sourceIndex) const
 {
+    if (m_usingInvalidRoot) {
+        // everything is visible in this case
+        return true;
+    }
+
     if (!m_rootIndex.isValid()) {
         return false;
     }
@@ -183,8 +198,10 @@ QModelIndex SubtreeModel::index(int row, int column, const QModelIndex &parent) 
 
     if (parent.isValid()) {
         return mapFromSource(mapToSource(parent).child(row, column));
+    } else if (m_rootIndex.isValid() || m_usingInvalidRoot) {
+        return mapFromSource(sourceModel()->index(row, column, m_rootIndex));
     } else {
-        return mapFromSource(m_rootIndex.child(row, column));
+        return QModelIndex();
     }
 }
 
@@ -195,7 +212,11 @@ QModelIndex SubtreeModel::parent(const QModelIndex &child) const
 
 int SubtreeModel::rowCount(const QModelIndex &parent) const
 {
-    if (!sourceModel() || !m_rootIndex.isValid())
+    if (!sourceModel())
+        return 0;
+    if (m_usingInvalidRoot)
+        return sourceModel()->rowCount();
+    if (!m_rootIndex.isValid())
         return 0;
     return parent.isValid() ?
                 sourceModel()->rowCount(mapToSource(parent)) :
@@ -204,7 +225,11 @@ int SubtreeModel::rowCount(const QModelIndex &parent) const
 
 int SubtreeModel::columnCount(const QModelIndex &parent) const
 {
-    if (!sourceModel() || !m_rootIndex.isValid())
+    if (!sourceModel())
+        return 0;
+    if (m_usingInvalidRoot)
+        return sourceModel()->columnCount();
+    if (!m_rootIndex.isValid())
         return 0;
     return parent.isValid() ?
                 qMin(sourceModel()->columnCount(mapToSource(parent)), 1) :
