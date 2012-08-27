@@ -38,7 +38,7 @@ namespace Mailbox
 {
 
 class Model;
-class SubtreeModel;
+class SubtreeModelOfModel;
 
 /** @short Publish contents of a selected message */
 class OneMessageModel: public QObject
@@ -102,7 +102,7 @@ private slots:
 
 private:
     QPersistentModelIndex m_message;
-    SubtreeModel *m_subtree;
+    SubtreeModelOfModel *m_subtree;
     KDescendantsProxyModel *m_flatteningModel;
     QUrl m_mainPartUrl;
 };

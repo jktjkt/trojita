@@ -26,187 +26,190 @@ namespace Imap
 namespace Mailbox
 {
 
-SubtreeModel::SubtreeModel(QObject *parent): QAbstractProxyModel(parent)
-{
+#define TROJITA_SUBTREE_MODEL_IMPL(Parent) \
+SubtreeModelOf##Parent::SubtreeModelOf##Parent(QObject *parent): QAbstractProxyModel(parent) \
+{ \
+} \
+\
+void SubtreeModelOf##Parent::setSourceModel(QAbstractItemModel *sourceModel) \
+{ \
+    Q_ASSERT(qobject_cast<ModelType*>(sourceModel)); \
+\
+    if (this->sourceModel()) { \
+        disconnect(this->sourceModel(), 0, this, 0); \
+    } \
+    QAbstractProxyModel::setSourceModel(sourceModel); \
+    if (sourceModel) { \
+        /* FIXME: will need to be expanded when the source model supports more signals... */ \
+        connect(sourceModel, SIGNAL(modelAboutToBeReset()), this, SLOT(handleModelAboutToBeReset())); \
+        connect(sourceModel, SIGNAL(modelReset()), this, SLOT(handleModelReset())); \
+        connect(sourceModel, SIGNAL(layoutAboutToBeChanged()), this, SIGNAL(layoutAboutToBeChanged())); \
+        connect(sourceModel, SIGNAL(layoutChanged()), this, SIGNAL(layoutChanged())); \
+        connect(sourceModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleDataChanged(QModelIndex,QModelIndex))); \
+        connect(sourceModel, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)), this, SLOT(handleRowsAboutToBeRemoved(QModelIndex,int,int))); \
+        connect(sourceModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(handleRowsRemoved(QModelIndex,int,int))); \
+        connect(sourceModel, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)), this, SLOT(handleRowsAboutToBeInserted(QModelIndex,int,int))); \
+        connect(sourceModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(handleRowsInserted(QModelIndex,int,int))); \
+    } \
+} \
+\
+void SubtreeModelOf##Parent::setRootItem(QModelIndex rootIndex) \
+{ \
+    Q_ASSERT(rootIndex.isValid()); \
+    beginResetModel(); \
+    if (rootIndex.model() != m_rootIndex.model()) { \
+        setSourceModel(const_cast<QAbstractItemModel*>(rootIndex.model())); \
+    } \
+    m_rootIndex = rootIndex; \
+    endResetModel(); \
+} \
+\
+void SubtreeModelOf##Parent::handleModelAboutToBeReset() \
+{ \
+    beginResetModel(); \
+} \
+\
+void SubtreeModelOf##Parent::handleModelReset() \
+{ \
+    endResetModel(); \
+} \
+\
+void SubtreeModelOf##Parent::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight) \
+{ \
+    QModelIndex first = mapFromSource(topLeft); \
+    QModelIndex second = mapFromSource(bottomRight); \
+ \
+    if (! first.isValid() || ! second.isValid()) { \
+        /*It's something completely alien... */ \
+        return; \
+    } \
+ \
+    if (first.parent() == second.parent() && first.column() == second.column()) { \
+        emit dataChanged(first, second); \
+    } else { \
+        /* FIXME: batched updates aren't supported yet */ \
+        Q_ASSERT(false); \
+    } \
+} \
+\
+QModelIndex SubtreeModelOf##Parent::mapToSource(const QModelIndex &proxyIndex) const \
+{ \
+    if (!proxyIndex.isValid()) \
+        return QModelIndex(); \
+ \
+    if (!sourceModel()) \
+        return QModelIndex(); \
+ \
+    return qobject_cast<ModelType*>(sourceModel())->createIndex( \
+                proxyIndex.row(), proxyIndex.column(), proxyIndex.internalPointer()); \
+} \
+ \
+QModelIndex SubtreeModelOf##Parent::mapFromSource(const QModelIndex &sourceIndex) const \
+{ \
+    if (!sourceIndex.isValid()) \
+        return QModelIndex(); \
+ \
+    Q_ASSERT(sourceIndex.model() == sourceModel()); \
+ \
+    if (!isVisibleIndex(sourceIndex)) \
+        return QModelIndex(); \
+ \
+    Q_ASSERT(sourceIndex.column() == 0); \
+ \
+    if (sourceIndex.internalPointer() == m_rootIndex.internalPointer()) \
+        return QModelIndex(); \
+ \
+    return createIndex(sourceIndex.row(), 0, sourceIndex.internalPointer()); \
+} \
+ \
+/** @short Return true iff the passed source index is in the source model located in the current subtree */ \
+bool SubtreeModelOf##Parent::isVisibleIndex(QModelIndex sourceIndex) const \
+{ \
+    if (!m_rootIndex.isValid()) { \
+        return false; \
+    } \
+    while (sourceIndex.isValid()) { \
+        if (sourceIndex == m_rootIndex) \
+            return true; \
+        sourceIndex = sourceIndex.parent(); \
+    } \
+    return false; \
+} \
+ \
+QModelIndex SubtreeModelOf##Parent::index(int row, int column, const QModelIndex &parent) const \
+{ \
+    if (!sourceModel()) \
+        return QModelIndex(); \
+ \
+    if (row < 0 || column != 0) \
+        return QModelIndex(); \
+ \
+    if (parent.isValid()) { \
+        return mapFromSource(mapToSource(parent).child(row, column)); \
+    } else { \
+        return mapFromSource(m_rootIndex.child(row, column)); \
+    } \
+} \
+ \
+QModelIndex SubtreeModelOf##Parent::parent(const QModelIndex &child) const \
+{ \
+    return mapFromSource(mapToSource(child).parent()); \
+} \
+ \
+int SubtreeModelOf##Parent::rowCount(const QModelIndex &parent) const \
+{ \
+    if (!sourceModel() || !m_rootIndex.isValid()) \
+        return 0; \
+    return parent.isValid() ? \
+                sourceModel()->rowCount(mapToSource(parent)) : \
+                sourceModel()->rowCount(m_rootIndex); \
+} \
+ \
+int SubtreeModelOf##Parent::columnCount(const QModelIndex &parent) const \
+{ \
+    if (!sourceModel() || !m_rootIndex.isValid()) \
+        return 0; \
+    return parent.isValid() ? \
+                qMin(sourceModel()->columnCount(mapToSource(parent)), 1) : \
+                qMin(sourceModel()->columnCount(m_rootIndex), 1); \
+} \
+ \
+void SubtreeModelOf##Parent::handleRowsAboutToBeRemoved(const QModelIndex &parent, int first, int last) \
+{ \
+    if (!isVisibleIndex(parent)) \
+        return; \
+    beginRemoveRows(mapFromSource(parent), first, last); \
+} \
+ \
+void SubtreeModelOf##Parent::handleRowsRemoved(const QModelIndex &parent, int first, int last) \
+{ \
+    Q_UNUSED(first); \
+    Q_UNUSED(last); \
+ \
+    if (!isVisibleIndex(parent)) \
+        return; \
+    endRemoveRows(); \
+} \
+ \
+void SubtreeModelOf##Parent::handleRowsAboutToBeInserted(const QModelIndex &parent, int first, int last) \
+{ \
+    if (!isVisibleIndex(parent)) \
+        return; \
+    beginInsertRows(mapFromSource(parent), first, last); \
+} \
+ \
+void SubtreeModelOf##Parent::handleRowsInserted(const QModelIndex &parent, int first, int last) \
+{ \
+    Q_UNUSED(first); \
+    Q_UNUSED(last); \
+ \
+    if (!isVisibleIndex(parent)) \
+        return; \
+    endInsertRows(); \
 }
 
-void SubtreeModel::setSourceModel(QAbstractItemModel *sourceModel)
-{
-    Q_ASSERT(qobject_cast<ModelType*>(sourceModel));
-
-    if (this->sourceModel()) {
-        disconnect(this->sourceModel(), 0, this, 0);
-    }
-    QAbstractProxyModel::setSourceModel(sourceModel);
-    if (sourceModel) {
-        // FIXME: will need to be expanded when the source model supports more signals...
-        connect(sourceModel, SIGNAL(modelAboutToBeReset()), this, SLOT(handleModelAboutToBeReset()));
-        connect(sourceModel, SIGNAL(modelReset()), this, SLOT(handleModelReset()));
-        connect(sourceModel, SIGNAL(layoutAboutToBeChanged()), this, SIGNAL(layoutAboutToBeChanged()));
-        connect(sourceModel, SIGNAL(layoutChanged()), this, SIGNAL(layoutChanged()));
-        connect(sourceModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
-        connect(sourceModel, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)), this, SLOT(handleRowsAboutToBeRemoved(QModelIndex,int,int)));
-        connect(sourceModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(handleRowsRemoved(QModelIndex,int,int)));
-        connect(sourceModel, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)), this, SLOT(handleRowsAboutToBeInserted(QModelIndex,int,int)));
-        connect(sourceModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(handleRowsInserted(QModelIndex,int,int)));
-    }
-}
-
-void SubtreeModel::setRootItem(QModelIndex rootIndex)
-{
-    Q_ASSERT(rootIndex.isValid());
-    beginResetModel();
-    if (rootIndex.model() != m_rootIndex.model()) {
-        setSourceModel(const_cast<QAbstractItemModel*>(rootIndex.model()));
-    }
-    m_rootIndex = rootIndex;
-    endResetModel();
-}
-
-void SubtreeModel::handleModelAboutToBeReset()
-{
-    beginResetModel();
-}
-
-void SubtreeModel::handleModelReset()
-{
-    endResetModel();
-}
-
-void SubtreeModel::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
-{
-    QModelIndex first = mapFromSource(topLeft);
-    QModelIndex second = mapFromSource(bottomRight);
-
-    if (! first.isValid() || ! second.isValid()) {
-        // It's something completely alien...
-        return;
-    }
-
-    if (first.parent() == second.parent() && first.column() == second.column()) {
-        emit dataChanged(first, second);
-    } else {
-        // FIXME: batched updates aren't supported yet
-        Q_ASSERT(false);
-    }
-}
-
-QModelIndex SubtreeModel::mapToSource(const QModelIndex &proxyIndex) const
-{
-    if (!proxyIndex.isValid())
-        return QModelIndex();
-
-    if (!sourceModel())
-        return QModelIndex();
-
-    return qobject_cast<ModelType*>(sourceModel())->createIndex(
-                proxyIndex.row(), proxyIndex.column(), proxyIndex.internalPointer());
-}
-
-QModelIndex SubtreeModel::mapFromSource(const QModelIndex &sourceIndex) const
-{
-    if (!sourceIndex.isValid())
-        return QModelIndex();
-
-    Q_ASSERT(sourceIndex.model() == sourceModel());
-
-    if (!isVisibleIndex(sourceIndex))
-        return QModelIndex();
-
-    Q_ASSERT(sourceIndex.column() == 0);
-
-    if (sourceIndex.internalPointer() == m_rootIndex.internalPointer())
-        return QModelIndex();
-
-    return createIndex(sourceIndex.row(), 0, sourceIndex.internalPointer());
-}
-
-/** @short Return true iff the passed source index is in the source model located in the current subtree */
-bool SubtreeModel::isVisibleIndex(QModelIndex sourceIndex) const
-{
-    if (!m_rootIndex.isValid()) {
-        return false;
-    }
-    while (sourceIndex.isValid()) {
-        if (sourceIndex == m_rootIndex)
-            return true;
-        sourceIndex = sourceIndex.parent();
-    }
-    return false;
-}
-
-QModelIndex SubtreeModel::index(int row, int column, const QModelIndex &parent) const
-{
-    if (!sourceModel())
-        return QModelIndex();
-
-    if (row < 0 || column != 0)
-        return QModelIndex();
-
-    if (parent.isValid()) {
-        return mapFromSource(mapToSource(parent).child(row, column));
-    } else {
-        return mapFromSource(m_rootIndex.child(row, column));
-    }
-}
-
-QModelIndex SubtreeModel::parent(const QModelIndex &child) const
-{
-    return mapFromSource(mapToSource(child).parent());
-}
-
-int SubtreeModel::rowCount(const QModelIndex &parent) const
-{
-    if (!sourceModel() || !m_rootIndex.isValid())
-        return 0;
-    return parent.isValid() ?
-                sourceModel()->rowCount(mapToSource(parent)) :
-                sourceModel()->rowCount(m_rootIndex);
-}
-
-int SubtreeModel::columnCount(const QModelIndex &parent) const
-{
-    if (!sourceModel() || !m_rootIndex.isValid())
-        return 0;
-    return parent.isValid() ?
-                qMin(sourceModel()->columnCount(mapToSource(parent)), 1) :
-                qMin(sourceModel()->columnCount(m_rootIndex), 1);
-}
-
-void SubtreeModel::handleRowsAboutToBeRemoved(const QModelIndex &parent, int first, int last)
-{
-    if (!isVisibleIndex(parent))
-        return;
-    beginRemoveRows(mapFromSource(parent), first, last);
-}
-
-void SubtreeModel::handleRowsRemoved(const QModelIndex &parent, int first, int last)
-{
-    Q_UNUSED(first);
-    Q_UNUSED(last);
-
-    if (!isVisibleIndex(parent))
-        return;
-    endRemoveRows();
-}
-
-void SubtreeModel::handleRowsAboutToBeInserted(const QModelIndex &parent, int first, int last)
-{
-    if (!isVisibleIndex(parent))
-        return;
-    beginInsertRows(mapFromSource(parent), first, last);
-}
-
-void SubtreeModel::handleRowsInserted(const QModelIndex &parent, int first, int last)
-{
-    Q_UNUSED(first);
-    Q_UNUSED(last);
-
-    if (!isVisibleIndex(parent))
-        return;
-    endInsertRows();
-}
-
+// Yes, this is so ugly...
+TROJITA_SUBTREE_MODEL_IMPL(Model)
 
 }
 }

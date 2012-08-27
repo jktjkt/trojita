@@ -33,6 +33,20 @@ namespace Imap
 namespace Mailbox
 {
 
+#define TROJITA_SUBTREE_DECL_VIRT_FUNCS \
+    virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const; \
+    virtual QModelIndex parent(const QModelIndex &child) const; \
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const; \
+    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const; \
+    virtual QModelIndex mapToSource(const QModelIndex &proxyIndex) const; \
+    virtual QModelIndex mapFromSource(const QModelIndex &sourceIndex) const; \
+    void setSourceModel(QAbstractItemModel *sourceModel); \
+    void setRootItem(QModelIndex rootIndex); \
+
+#define TROJITA_SUBTREE_PRIVATE_BLOCK \
+    bool isVisibleIndex(QModelIndex sourceIndex) const; \
+    QPersistentModelIndex m_rootIndex;
+
 /** @short Proxy model showing a subtree of the source model
 
 This proxy model presents a subtree of the source model.  The index passed to setSourceModel's rootIndex option
@@ -40,26 +54,20 @@ will act as the root item of the exported portion of the original tree.
 
 Certain operations like wide dataChanged() on "weird" regions are not supported and will end in an QASSERT(false).
 */
-class SubtreeModel: public QAbstractProxyModel
+class SubtreeModelOfModel: public QAbstractProxyModel
 {
     Q_OBJECT
-    Q_DISABLE_COPY(SubtreeModel)
+    Q_DISABLE_COPY(SubtreeModelOfModel)
 
     // This is where it gets ugly -- we cannot really work without the upstream model's createIndex() :(
     typedef Imap::Mailbox::Model ModelType;
 
 public:
-    SubtreeModel(QObject *parent = 0);
+    SubtreeModelOfModel(QObject *parent = 0);
 
-    virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-    virtual QModelIndex parent(const QModelIndex &child) const;
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
-    virtual QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
-    void setSourceModel(QAbstractItemModel *sourceModel);
-    void setRootItem(QModelIndex rootIndex);
+    TROJITA_SUBTREE_DECL_VIRT_FUNCS
 
+// Unfortunately, slots have to be copy-pasted around and around...
 private slots:
     void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void handleModelAboutToBeReset();
@@ -70,9 +78,11 @@ private slots:
     void handleRowsInserted(const QModelIndex &parent, int first, int last);
 
 private:
-    bool isVisibleIndex(QModelIndex sourceIndex) const;
-    QPersistentModelIndex m_rootIndex;
+TROJITA_SUBTREE_PRIVATE_BLOCK
 };
+
+#undef TROJITA_SUBTREE_DECL_VIRT_FUNCS
+#undef TROJITA_SUBTREE_PRIVATE_BLOCK
 
 }
 
