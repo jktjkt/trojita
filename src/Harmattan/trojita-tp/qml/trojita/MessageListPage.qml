@@ -15,7 +15,7 @@ Page {
         _pendingScroll = true
     }
 
-    onIndexValidChanged: appWindow.showHome()
+    onIndexValidChanged: if (!indexValid) appWindow.showHome()
 
     tools: commonTools
 
