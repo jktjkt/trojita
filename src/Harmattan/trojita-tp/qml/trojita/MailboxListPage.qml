@@ -12,7 +12,7 @@ Page {
 
     function openParentMailbox() {
         moveListViewRight.start()
-        model.setRootItem(model.parentOfRoot())
+        model.setRootOneLevelUp()
         --nestingDepth
         currentMailbox = ""
     }
