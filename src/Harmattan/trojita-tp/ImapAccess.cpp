@@ -252,3 +252,13 @@ QString ImapAccess::sslInfoMessage() const
 {
     return m_sslInfoMessage;
 }
+
+QString ImapAccess::mailboxListMailboxName() const
+{
+    return m_mailboxSubtreeModel->rootIndex().data(Imap::Mailbox::RoleMailboxName).toString();
+}
+
+QString ImapAccess::mailboxListShortMailboxName() const
+{
+    return m_mailboxSubtreeModel->rootIndex().data(Imap::Mailbox::RoleShortMailboxName).toString();
+}

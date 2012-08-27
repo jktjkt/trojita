@@ -14,7 +14,8 @@ Page {
         moveListViewRight.start()
         model.setRootOneLevelUp()
         --nestingDepth
-        currentMailbox = ""
+        currentMailbox = imapAccess.mailboxListShortMailboxName()
+        currentMailboxLong = imapAccess.mailboxListMailboxName()
     }
 
     function isNestedSomewhere() {
@@ -83,6 +84,7 @@ Page {
                     onClicked: {
                         view.positionViewAtIndex(model.index, ListView.Visible);
                         currentMailbox = shortMailboxName
+                        currentMailboxLong = mailboxName
                         view.currentIndex = model.index
                         moveListViewLeft.start()
                         root.model.setRootItemByOffset(model.index)

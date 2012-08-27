@@ -80,6 +80,9 @@ public:
     Q_INVOKABLE void setSslPolicy(bool accept);
     Q_INVOKABLE void forgetSslCertificate();
 
+    Q_INVOKABLE QString mailboxListShortMailboxName() const;
+    Q_INVOKABLE QString mailboxListMailboxName() const;
+
 signals:
     void serverChanged();
     void modelsChanged();

@@ -66,6 +66,7 @@ public:
     Q_INVOKABLE void setOriginalRoot();
     Q_INVOKABLE QModelIndex parentOfRoot() const;
     Q_INVOKABLE bool itemsValid() const;
+    QModelIndex rootIndex() const;
 
 private slots:
     void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);

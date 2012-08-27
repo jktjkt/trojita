@@ -300,6 +300,11 @@ bool SubtreeModel::itemsValid() const
     return m_usingInvalidRoot || m_rootIndex.isValid();
 }
 
+QModelIndex SubtreeModel::rootIndex() const
+{
+    return m_rootIndex;
+}
+
 
 }
 }

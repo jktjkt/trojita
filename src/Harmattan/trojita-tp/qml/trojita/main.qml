@@ -55,6 +55,8 @@ PageStackWindow {
     function showHome() {
         pageStack.pop(mailboxListPage)
         mailboxListPage.nestingDepth = 0
+        mailboxListPage.currentMailbox = ""
+        mailboxListPage.currentMailboxLong = ""
         if (mailboxListPage.model)
             mailboxListPage.model.setOriginalRoot()
     }
