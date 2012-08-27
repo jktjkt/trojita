@@ -955,6 +955,7 @@ void KDescendantsProxyModelPrivate::sourceDataChanged(const QModelIndex &topLeft
     // TODO. If an index does not have any descendants, then we can emit in blocks of rows.
     // As it is we emit once for each row.
     const QModelIndex sourceBottomRight = q->sourceModel()->index(i, bottomRight.column(), bottomRight.parent());
+    Q_ASSERT(sourceBottomRight.isValid());
     const QModelIndex proxyBottomRight = q->mapFromSource(sourceBottomRight);
     Q_ASSERT(proxyTopLeft.isValid());
     Q_ASSERT(proxyBottomRight.isValid());
