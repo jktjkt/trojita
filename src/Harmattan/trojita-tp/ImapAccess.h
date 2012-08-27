@@ -28,6 +28,7 @@
 #include "Imap/Model/Model.h"
 #include "Imap/Model/MsgListModel.h"
 #include "Imap/Model/OneMessageModel.h"
+#include "Imap/Model/SubtreeModel.h"
 #include "Imap/Model/VisibleTasksModel.h"
 
 class QNetworkAccessManager;
@@ -94,6 +95,7 @@ private:
     Imap::Mailbox::Model *m_imapModel;
     Imap::Mailbox::AbstractCache *cache;
     Imap::Mailbox::MailboxModel *m_mailboxModel;
+    Imap::Mailbox::SubtreeModelOfMailboxModel *m_mailboxSubtreeModel;
     Imap::Mailbox::MsgListModel *m_msgListModel;
     Imap::Mailbox::VisibleTasksModel *m_visibleTasksModel;
     Imap::Mailbox::OneMessageModel *m_oneMessageModel;

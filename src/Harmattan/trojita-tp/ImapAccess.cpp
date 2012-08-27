@@ -28,8 +28,8 @@
 #include "Imap/Network/MsgPartNetAccessManager.h"
 
 ImapAccess::ImapAccess(QObject *parent) :
-    QObject(parent), m_imapModel(0), cache(0), m_mailboxModel(0), m_msgListModel(0), m_visibleTasksModel(0), m_oneMessageModel(0),
-    m_msgQNAM(0), m_port(0)
+    QObject(parent), m_imapModel(0), cache(0), m_mailboxModel(0), m_mailboxSubtreeModel(0), m_msgListModel(0),
+    m_visibleTasksModel(0), m_oneMessageModel(0), m_msgQNAM(0), m_port(0)
 {
     qRegisterMetaType<QList<QSslCertificate> >("QList<QSslCertificate>");
     qRegisterMetaType<QList<QSslError> >("QList<QSslError>");
@@ -155,6 +155,8 @@ void ImapAccess::setSslMode(const QString &sslMode)
     }
 
     m_mailboxModel = new Imap::Mailbox::MailboxModel(this, m_imapModel);
+    m_mailboxSubtreeModel = new Imap::Mailbox::SubtreeModelOfMailboxModel(this);
+    m_mailboxSubtreeModel->setSourceModel(m_mailboxModel);
     m_msgListModel = new Imap::Mailbox::MsgListModel(this, m_imapModel);
     m_visibleTasksModel = new Imap::Mailbox::VisibleTasksModel(this, m_imapModel->taskModel());
     m_oneMessageModel = new Imap::Mailbox::OneMessageModel(m_imapModel);
@@ -170,6 +172,7 @@ QObject *ImapAccess::imapModel() const
 QObject *ImapAccess::mailboxModel() const
 {
     return m_mailboxModel;
+    //return m_mailboxSubtreeModel;
 }
 
 QObject *ImapAccess::msgListModel() const
