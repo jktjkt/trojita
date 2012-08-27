@@ -14,6 +14,22 @@ Page {
         _pendingScroll = true
     }
 
+    /*onStatusChanged: {
+        if (status === PageStatus.Active && !model.itemsValid) {
+            pageStack.pop()
+        }
+    }*/
+
+    /*onModelChanged: {
+        if (!model)
+            return
+
+        model.indexStateChanged.connect(function() {
+            if (status === PageStatus.Active && !model.itemsValid)
+                pageStack.pop()
+        })
+    }*/
+
     tools: commonTools
 
     Component {
@@ -151,11 +167,6 @@ Page {
                     root._pendingScroll = false
                     positionViewAtEnd()
                 }
-            }
-
-            onCountChanged: {
-                if (count == 0 && model && !model.currentMailbox())
-                    appWindow.pageStack.pop()
             }
         }
 

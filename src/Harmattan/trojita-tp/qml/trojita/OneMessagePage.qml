@@ -135,4 +135,11 @@ Page {
 
         NetworkPolicyButton {}
     }
+
+    Component.onCompleted: {
+        imapAccess.oneMessageModel.envelopeChanged.connect(function() {
+            if (pageStack.currentPage === oneMessagePage && !imapAccess.oneMessageModel.hasValidIndex)
+                pageStack.pop()
+        })
+    }
 }

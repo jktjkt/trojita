@@ -105,14 +105,6 @@ Page {
             focus: true
             delegate: mailboxItemDelegate
             model: root.model
-
-            onCountChanged: {
-                if (count == 0 && model && !model.parentOfRoot) {
-                    model.setRootItem()
-                    nestingDepth = 0
-                    currentMailbox = ""
-                }
-            }
         }
 
         ScrollDecorator {
