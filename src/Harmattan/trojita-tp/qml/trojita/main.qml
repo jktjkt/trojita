@@ -77,6 +77,11 @@ PageStackWindow {
             messageListPage.scrollToBottom()
             pageStack.push(messageListPage)
         }
+
+        // Looks like this gotta be in this file. If moved to the MailboxListPage.qml, QML engine complains about a binding loop.
+        // WTF?
+        property bool indexValid: model ? model.itemsValid : true
+        onIndexValidChanged: appWindow.showHome()
     }
 
     MessageListPage {
