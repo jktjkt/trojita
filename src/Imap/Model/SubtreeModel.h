@@ -23,7 +23,6 @@
 #define IMAP_MODEL_SUBTREEMODEL_H
 
 #include <QAbstractProxyModel>
-#include "Model.h"
 
 /** @short Namespace for IMAP interaction */
 namespace Imap
@@ -32,6 +31,9 @@ namespace Imap
 /** @short Classes for handling of mailboxes and connections */
 namespace Mailbox
 {
+
+/** @short Helper for SubtreeModel for type-safe casting of the source model due to QAIM's createIndex being protected */
+class SubtreeClassAdaptor;
 
 /** @short Proxy model showing a subtree of the source model
 
@@ -45,11 +47,9 @@ class SubtreeModel: public QAbstractProxyModel
     Q_OBJECT
     Q_DISABLE_COPY(SubtreeModel)
 
-    // This is where it gets ugly -- we cannot really work without the upstream model's createIndex() :(
-    typedef Imap::Mailbox::Model ModelType;
-
 public:
-    SubtreeModel(QObject *parent = 0);
+    SubtreeModel(QObject *parent, SubtreeClassAdaptor *classSpecificAdaptor);
+    virtual ~SubtreeModel();
 
     virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     virtual QModelIndex parent(const QModelIndex &child) const;
@@ -72,6 +72,27 @@ private slots:
 private:
     bool isVisibleIndex(QModelIndex sourceIndex) const;
     QPersistentModelIndex m_rootIndex;
+    SubtreeClassAdaptor *m_classAdaptor;
+};
+
+/** @short Subtree model implementation for Model */
+class SubtreeModelOfModel: public SubtreeModel
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(SubtreeModelOfModel)
+
+public:
+    SubtreeModelOfModel(QObject *parent = 0);
+};
+
+/** @short Subtree model implementation for MailboxModel */
+class SubtreeModelOfMailboxModel: public SubtreeModel
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(SubtreeModelOfMailboxModel)
+
+public:
+    SubtreeModelOfMailboxModel(QObject *parent = 0);
 };
 
 }

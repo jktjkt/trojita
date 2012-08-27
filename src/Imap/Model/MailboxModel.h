@@ -33,6 +33,8 @@ namespace Imap
 namespace Mailbox
 {
 
+template <typename SourceModel> class SubtreeClassSpecificItem;
+
 /** @short A model implementing view of the whole IMAP server */
 class MailboxModel: public QAbstractProxyModel
 {
@@ -72,6 +74,7 @@ private slots:
 private:
     MailboxModel &operator=(const MailboxModel &);  // don't implement
     MailboxModel(const MailboxModel &);  // don't implement
+    friend class SubtreeClassSpecificItem<MailboxModel>;
 };
 
 }

@@ -33,7 +33,7 @@ namespace Mailbox
 
 OneMessageModel::OneMessageModel(Model *model): QObject(model), m_subtree(0)
 {
-    m_subtree = new SubtreeModel(this);
+    m_subtree = new SubtreeModelOfModel(this);
     m_subtree->setSourceModel(model);
     connect(m_subtree, SIGNAL(modelReset()), this, SIGNAL(envelopeChanged()));
     connect(m_subtree, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(envelopeChanged()));

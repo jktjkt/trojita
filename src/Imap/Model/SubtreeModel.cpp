@@ -20,19 +20,58 @@
 */
 
 #include "SubtreeModel.h"
+#include "MailboxModel.h"
+#include "Model.h"
 
 namespace Imap
 {
 namespace Mailbox
 {
 
-SubtreeModel::SubtreeModel(QObject *parent): QAbstractProxyModel(parent)
+class SubtreeClassAdaptor {
+public:
+    virtual ~SubtreeClassAdaptor() {}
+    virtual QModelIndex parentCreateIndex(const QAbstractItemModel *sourceModel,
+                                          const int row, const int column, void *internalPointer) const = 0;
+    virtual void assertCorrectClass(const QAbstractItemModel *model) const = 0;
+};
+
+
+template <typename SourceModel>
+class SubtreeClassSpecificItem: public SubtreeClassAdaptor {
+    virtual QModelIndex parentCreateIndex(const QAbstractItemModel *sourceModel,
+                                          const int row, const int column, void *internalPointer) const {
+        return qobject_cast<const SourceModel*>(sourceModel)->createIndex(row, column, internalPointer);
+    }
+    virtual void assertCorrectClass(const QAbstractItemModel *model) const {
+        Q_ASSERT(qobject_cast<const SourceModel*>(model));
+    }
+};
+
+
+SubtreeModelOfMailboxModel::SubtreeModelOfMailboxModel(QObject *parent):
+    SubtreeModel(parent, new SubtreeClassSpecificItem<MailboxModel>())
 {
+}
+
+SubtreeModelOfModel::SubtreeModelOfModel(QObject *parent):
+    SubtreeModel(parent, new SubtreeClassSpecificItem<Model>())
+{
+}
+
+SubtreeModel::SubtreeModel(QObject *parent, SubtreeClassAdaptor *classSpecificAdaptor):
+    QAbstractProxyModel(parent), m_classAdaptor(classSpecificAdaptor)
+{
+}
+
+SubtreeModel::~SubtreeModel()
+{
+    delete m_classAdaptor;
 }
 
 void SubtreeModel::setSourceModel(QAbstractItemModel *sourceModel)
 {
-    Q_ASSERT(qobject_cast<ModelType*>(sourceModel));
+    m_classAdaptor->assertCorrectClass(sourceModel);
 
     if (this->sourceModel()) {
         disconnect(this->sourceModel(), 0, this, 0);
@@ -99,8 +138,7 @@ QModelIndex SubtreeModel::mapToSource(const QModelIndex &proxyIndex) const
     if (!sourceModel())
         return QModelIndex();
 
-    return qobject_cast<ModelType*>(sourceModel())->createIndex(
-                proxyIndex.row(), proxyIndex.column(), proxyIndex.internalPointer());
+    return m_classAdaptor->parentCreateIndex(sourceModel(), proxyIndex.row(), proxyIndex.column(), proxyIndex.internalPointer());
 }
 
 QModelIndex SubtreeModel::mapFromSource(const QModelIndex &sourceIndex) const
