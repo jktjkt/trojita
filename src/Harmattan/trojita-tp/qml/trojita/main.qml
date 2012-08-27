@@ -65,14 +65,12 @@ PageStackWindow {
         model: imapAccess.msgListModel ? imapAccess.msgListModel : undefined
 
         onMessageSelected: {
-            var component = Qt.createComponent("OneMessagePage.qml")
-            if (component.status == Component.Ready) {
-                var oneMessagePage = component.createObject(parent, {})
-                oneMessagePage.mailbox = mailboxListPage.currentMailboxLong
-                imapAccess.openMessage(oneMessagePage.mailbox, uid)
-                oneMessagePage.url = imapAccess.oneMessageModel.mainPartUrl
-                pageStack.push(oneMessagePage)
-            }
+            imapAccess.openMessage(mailboxListPage.currentMailboxLong, uid)
+            pageStack.push(Qt.resolvedUrl("OneMessagePage.qml"),
+                           {
+                               mailbox: mailboxListPage.currentMailboxLong,
+                               url: imapAccess.oneMessageModel.mainPartUrl
+                           })
         }
     }
 
