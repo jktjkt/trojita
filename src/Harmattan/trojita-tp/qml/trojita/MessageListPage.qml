@@ -115,7 +115,6 @@ Page {
         anchors {left: parent.left; right: parent.right; bottom: parent.bottom; top: header.bottom}
 
         ListView {
-            signal messageSelected(string mailbox)
             property bool massiveScrolling
 
             id: view
