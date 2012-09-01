@@ -1,0 +1,162 @@
+% vim: spelllang=cs spell textwidth=120
+\documentclass{beamer}
+\usepackage[czech]{babel}
+\definecolor{links}{HTML}{2A1B81}
+\usepackage[utf8]{inputenc}
+%\usepackage{ucs}
+%\usepackage[utf8x]{inputenc}
+\usepackage{hyperref}
+\usepackage[overlay]{textpos}
+\hypersetup{colorlinks,urlcolor=links}
+%\usecolortheme{beaver}
+\usetheme[height=7mm]{Rochester}
+\usecolortheme{seahorse}
+\usecolortheme{rose}
+\setbeamertemplate{navigation symbols}{}
+
+\begin{document}
+
+\title{IMAP Extensions for Mobile Devices}
+%\author{Jan Kundrát \\ \href{mailto:jkt@flaska.net}{\nolinkurl{jkt@flaska.net}}}
+\author{Bc. Jan Kundrát}
+\institute{\url{http://trojita.flaska.net/}}
+\date{3.~září~2012}
+
+\begin{frame}
+\maketitle
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Protokol IMAP}
+  \begin{itemize}
+    \item Vzdálený přístup k poště
+      \begin{itemize}
+        \item Funkce srovnatelné s lokálním úložištěm
+        \item Flexibilita centrálního, stále přístupného bodu
+      \end{itemize}
+    \item Bohatá historie
+      \begin{itemize}
+        \item Podpora pro {\em rozšíření}
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Rozšíření protokolu IMAP}
+  \begin{itemize}
+    \item Podpora zabudovaná v základním IMAPu
+    \item Zvýšení efektivity komunikace, přidávání nových funkcí
+    \item Problém: příliš mnoho rozšíření
+      \begin{itemize}
+        \item {\em Která rozšíření jsou důležitá?}
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Mobilní přístup}
+  \begin{itemize}
+    \item Slušné HW vybavení
+      \begin{itemize}
+        \item Dnešní smartphone vs. starší PC
+      \end{itemize}
+    \item Špatná síť
+      \begin{itemize}
+        \item Letadla, tunely v metru,\ldots
+        \item Drahý roaming
+        \item Vysoké latence
+      \end{itemize}
+    \item Omezená spotřeba energie
+  \end{itemize}
+
+  \uncover<2-> {
+  \vspace{4mm}
+  $\rightarrow$ \alert{Snaha a minimalizaci round tripů a množství přenášených dat}}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Profil LEMONADE}
+  \begin{itemize}
+    \item Užitečná rozšíření s různou mírou rozšíření
+      \begin{itemize}
+        \item {\tt LITERAL+}, {\tt CONDSTORE}, {\tt QRESYNC}, {\tt ENABLE}, {\tt ESEARCH}, {\tt UIDPLUS},\ldots
+      \end{itemize}
+    \item Problematické požadavky
+      \begin{itemize}
+        \item {\tt BURL}, {\tt URLAUTH}
+      \end{itemize}
+    \item Funkce, které zatím nikdo neimplementoval
+      \begin{itemize}
+        \item {\tt CONVERT}, {\tt CONTEXT=SORT}, {\tt NOTIFY}
+      \end{itemize}
+  \end{itemize}
+
+  \uncover<2-> {
+  \vspace{4mm}
+  $\rightarrow$ \alert{Kompletní LEMONADE v praxi neexistuje}}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Doporučená rozšíření}
+  \begin{itemize}
+    \item Naprostý základ
+      \begin{itemize}
+        \item {\tt LITERAL+}, {\tt IDLE}, {\tt ID}, {\tt BINARY}, {\tt UIDPLUS}, {\tt CHILDREN}, {\tt LIST-EXTENDED},
+          {\tt LIST-STATUS}, {\tt ESEARCH}, {\tt COMPRESS=DEFLATE}
+      \end{itemize}
+    \item Velice užitečná rozšíření
+      \begin{itemize}
+        \item {\tt CONDSTORE}, {\tt QRESYNC}, {\tt \alert<2->{QRESYNC-bis}}, {\tt ENABLE}, {\tt MULTIAPPEND}, {\tt
+          \alert<2->{SENDMAIL}}, {\tt CATENATE}
+      \end{itemize}
+    \item Pokročilé funkce
+      \begin{itemize}
+        \item {\tt SORT}, {\tt SORT=DISPLAY}, {\tt THREAD}, {\tt \alert<2->{INCTHREAD}}, {\tt CONTEXT=SEARCH}, {\tt
+          CONTEXT=SORT}, {\tt SEARCH=FUZZY}, {\tt URLAUTH}, {\tt BURL}, {\tt SPECIAL-USE}, {\tt CREATE-SPECIAL-USE},
+          {\tt CONVERT}, {\tt NOTIFY}, {\tt MULTISEARCH}
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Navrhovaná rozšíření}
+  \begin{itemize}
+    \item {\tt draft-kundrat-qresync-arrived}
+      \begin{itemize}
+        \item Oprava chyby v dokumentu {\tt QRESYNC}, RFC 5162
+        \item Spolupráce s Alexejem Melnikovem a Dave Cridlandem na {\tt QRESYNC-bis}
+      \end{itemize}
+    \item {\tt draft-kundrat-imap-sendmail}
+      \begin{itemize}
+        \item Odesílání pošty přes IMAP, náhrada {\tt BURL} / {\tt URLAUTH} (RFC 4467, RFC 4468)
+        \item {\em Velmi} bouřlivé diskuze v rámci IETF
+      \end{itemize}
+    \item {\tt draft-kundrat-incthread}
+      \begin{itemize}
+        \item Efektivní reprezentace konverzací (message threading) na velkých mailboxech
+      \end{itemize}
+    \item Čeká se na schválení {\tt draft-ietf-imapmove-command}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Výhled do budoucna}
+  \begin{itemize}
+    \item Standardizace jako RFC
+    \item Rozšiřování programu Trojitá
+      \begin{itemize}
+        \item Portace na Android
+        \item Další funkce, budování OSS komunity
+        \item Komerční spolupráce?
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Dotazy a diskuse}
+  \begin{center}
+    \Large{Děkuji za pozornost}
+  \end{center}
+\end{frame}
+
+\end{document}
