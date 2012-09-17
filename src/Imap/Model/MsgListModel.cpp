@@ -23,7 +23,6 @@
 #include "MailboxTree.h"
 #include "MailboxModel.h"
 
-#include <QApplication>
 #include <QDebug>
 #include <QFontMetrics>
 #include <QIcon>
