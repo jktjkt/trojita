@@ -19,7 +19,7 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include <QtTest>
+#include <QTest>
 #include "test_LibMailboxSync.h"
 #include "../tests/headless_test.h"
 #include "Streams/FakeSocket.h"
