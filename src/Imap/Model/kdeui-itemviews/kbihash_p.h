@@ -72,7 +72,11 @@ class KBiAssociativeContainer
     {
         /* implicit */ _iterator_impl_ctor(const typename QMap<T, U>::iterator it)
             // Using internals here because I was too lazy to write my own iterator.
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+          : QMap<T, U>::iterator(static_cast<typename QMapData<T, U>::Node*>(it))
+#else
           : QMap<T, U>::iterator(static_cast<QMapData::Node*>(it))
+#endif
         {
 
         }
