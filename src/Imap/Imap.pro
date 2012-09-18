@@ -82,8 +82,8 @@ SOURCES += Parser/Parser.cpp \
     Network/MsgPartNetAccessManager.cpp \
     Network/FileDownloadManager.cpp \
     Model/TaskPresentationModel.cpp \
-    Model/kdeui-itemviews/kdescendantsproxymodel.cpp \
-    Model/VisibleTasksModel.cpp \
+    \ #Model/kdeui-itemviews/kdescendantsproxymodel.cpp \
+    \ #Model/VisibleTasksModel.cpp \
     Model/SubtreeModel.cpp \
     Model/OneMessageModel.cpp \
     Model/FindInterestingPart.cpp \
@@ -161,9 +161,9 @@ HEADERS += Parser/Parser.h \
     Network/MsgPartNetworkReply.h \
     Network/FileDownloadManager.h \
     Model/TaskPresentationModel.h \
-    kdeui-itemviews/kdescendantsproxymodel.h \
+    \ #kdeui-itemviews/kdescendantsproxymodel.h \
     kdeui-itemviews/kbihash_p.h \
-    Model/VisibleTasksModel.h \
+    \ #Model/VisibleTasksModel.h \
     Model/SubtreeModel.h \
     Model/OneMessageModel.h \
     Model/FindInterestingPart.h \
