@@ -1339,7 +1339,11 @@ QTextStream &SocketEncryptedResponse::dump(QTextStream &s) const
             if (e.certificate().isNull()) {
                 s << e.errorString() << " ";
             } else {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+                s << e.errorString() << " (CN: " << e.certificate().subjectInfo(QSslCertificate::CommonName).join(", ") << ") ";
+#else
                 s << e.errorString() << " (CN: " << e.certificate().subjectInfo(QSslCertificate::CommonName) << ") ";
+#endif
             }
         }
         s << "]";
