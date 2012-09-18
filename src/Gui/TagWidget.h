@@ -33,7 +33,7 @@ signals:
 
 private:
     QString m_tagName;
-    void init();
+    void commonInit();
 };
 
 } // namespace Gui
