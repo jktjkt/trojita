@@ -1,4 +1,9 @@
 QT += core network
+lessThan(QT_MAJOR_VERSION, 5) {
+    CONFIG += qtestlib
+} else {
+    QT += testlib
+}
 DEFINES -= QT3_SUPPORT
 DEPENDPATH += ../../src/ ../
 INCLUDEPATH += ../../src/ ../

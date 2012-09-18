@@ -6,6 +6,9 @@ QT += core \
     webkit \
     network \
     sql
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += widgets
+}
 include(../../install.pri)
 include(../../configh.pri)
 include(../Streams/ZlibLinking.pri)
