@@ -21,6 +21,12 @@
 #ifndef TROJITA_HEADLESS_TEST_H
 #define TROJITA_HEADLESS_TEST_H
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+
+#define TROJITA_HEADLESS_TEST(TestObject) QTEST_GUILESS_MAIN(TestObject)
+
+#else
+
 #define TROJITA_HEADLESS_TEST(TestObject) \
 int main(int argc, char *argv[]) \
 { \
@@ -28,5 +34,7 @@ int main(int argc, char *argv[]) \
     TestObject tc; \
     return QTest::qExec(&tc, argc, argv); \
 }
+
+#endif
 
 #endif
