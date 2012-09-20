@@ -728,13 +728,12 @@ void MainWindow::showContextMenuMsgListTree(const QPoint &position)
 */
 void MainWindow::slotReloadMboxList()
 {
-    QModelIndexList indices = mboxTree->selectionModel()->selectedIndexes();
-    for (QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it) {
-        Q_ASSERT(it->isValid());
-        if (it->column() != 0)
+    Q_FOREACH(const QModelIndex &item, mboxTree->selectionModel()->selectedIndexes()) {
+        Q_ASSERT(item.isValid());
+        if (item.column() != 0)
             continue;
         Imap::Mailbox::TreeItemMailbox *mbox = dynamic_cast<Imap::Mailbox::TreeItemMailbox *>(
-                Imap::Mailbox::Model::realTreeItem(*it)
+                Imap::Mailbox::Model::realTreeItem(item)
                                                );
         Q_ASSERT(mbox);
         mbox->rescanForChildMailboxes(model);
@@ -747,16 +746,15 @@ void MainWindow::slotResyncMbox()
     if (! model->isNetworkAvailable())
         return;
 
-    QModelIndexList indices = mboxTree->selectionModel()->selectedIndexes();
-    for (QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it) {
-        Q_ASSERT(it->isValid());
-        if (it->column() != 0)
+    Q_FOREACH(const QModelIndex &item, mboxTree->selectionModel()->selectedIndexes()) {
+        Q_ASSERT(item.isValid());
+        if (item.column() != 0)
             continue;
         Imap::Mailbox::TreeItemMailbox *mbox = dynamic_cast<Imap::Mailbox::TreeItemMailbox *>(
-                Imap::Mailbox::Model::realTreeItem(*it)
+                Imap::Mailbox::Model::realTreeItem(item)
                                                );
         Q_ASSERT(mbox);
-        model->resyncMailbox(*it);
+        model->resyncMailbox(item);
     }
 }
 
@@ -924,16 +922,15 @@ void MainWindow::slotComposeMail()
 
 void MainWindow::handleMarkAsRead(bool value)
 {
-    QModelIndexList indices = msgListWidget->tree->selectionModel()->selectedIndexes();
     QModelIndexList translatedIndexes;
-    for (QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it) {
-        Q_ASSERT(it->isValid());
-        if (it->column() != 0)
+    Q_FOREACH(const QModelIndex &item, msgListWidget->tree->selectionModel()->selectedIndexes()) {
+        Q_ASSERT(item.isValid());
+        if (item.column() != 0)
             continue;
-        if (!it->data(Imap::Mailbox::RoleMessageUid).isValid())
+        if (!item.data(Imap::Mailbox::RoleMessageUid).isValid())
             continue;
         QModelIndex translated;
-        Imap::Mailbox::Model::realTreeItem(*it, 0, &translated);
+        Imap::Mailbox::Model::realTreeItem(item, 0, &translated);
         translatedIndexes << translated;
     }
     if (translatedIndexes.isEmpty()) {
@@ -1016,16 +1013,15 @@ void MainWindow::slotPreviousUnread()
 
 void MainWindow::handleMarkAsDeleted(bool value)
 {
-    QModelIndexList indices = msgListWidget->tree->selectionModel()->selectedIndexes();
     QModelIndexList translatedIndexes;
-    for (QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it) {
-        Q_ASSERT(it->isValid());
-        if (it->column() != 0)
+    Q_FOREACH(const QModelIndex &item, msgListWidget->tree->selectionModel()->selectedIndexes()) {
+        Q_ASSERT(item.isValid());
+        if (item.column() != 0)
             continue;
-        if (!it->data(Imap::Mailbox::RoleMessageUid).isValid())
+        if (!item.data(Imap::Mailbox::RoleMessageUid).isValid())
             continue;
         QModelIndex translated;
-        Imap::Mailbox::Model::realTreeItem(*it, 0, &translated);
+        Imap::Mailbox::Model::realTreeItem(item, 0, &translated);
         translatedIndexes << translated;
     }
     if (translatedIndexes.isEmpty()) {
@@ -1208,16 +1204,15 @@ void MainWindow::slotDonateToTrojita()
 
 void MainWindow::slotSaveCurrentMessageBody()
 {
-    QModelIndexList indices = msgListWidget->tree->selectionModel()->selectedIndexes();
-    for (QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it) {
-        Q_ASSERT(it->isValid());
-        if (it->column() != 0)
+    Q_FOREACH(const QModelIndex &item, msgListWidget->tree->selectionModel()->selectedIndexes()) {
+        Q_ASSERT(item.isValid());
+        if (item.column() != 0)
             continue;
-        if (! it->data(Imap::Mailbox::RoleMessageUid).isValid())
+        if (! item.data(Imap::Mailbox::RoleMessageUid).isValid())
             continue;
         QModelIndex messageIndex;
         Imap::Mailbox::TreeItemMessage *message = dynamic_cast<Imap::Mailbox::TreeItemMessage *>(
-                    Imap::Mailbox::Model::realTreeItem(*it, 0, &messageIndex)
+                    Imap::Mailbox::Model::realTreeItem(item, 0, &messageIndex)
                 );
         Q_ASSERT(message);
 
@@ -1253,15 +1248,14 @@ void MainWindow::slotDownloadMessageFileNameRequested(QString *fileName)
 
 void MainWindow::slotViewMsgHeaders()
 {
-    QModelIndexList indices = msgListWidget->tree->selectionModel()->selectedIndexes();
-    for (QModelIndexList::const_iterator it = indices.begin(); it != indices.end(); ++it) {
-        Q_ASSERT(it->isValid());
-        if (it->column() != 0)
+    Q_FOREACH(const QModelIndex &item, msgListWidget->tree->selectionModel()->selectedIndexes()) {
+        Q_ASSERT(item.isValid());
+        if (item.column() != 0)
             continue;
-        if (! it->data(Imap::Mailbox::RoleMessageUid).isValid())
+        if (! item.data(Imap::Mailbox::RoleMessageUid).isValid())
             continue;
         QModelIndex messageIndex;
-        Imap::Mailbox::Model::realTreeItem(*it, 0, &messageIndex);
+        Imap::Mailbox::Model::realTreeItem(item, 0, &messageIndex);
 
         Imap::Network::MsgPartNetAccessManager *netAccess = new Imap::Network::MsgPartNetAccessManager(this);
         netAccess->setModelMessage(messageIndex);
