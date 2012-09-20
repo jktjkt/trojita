@@ -1,6 +1,7 @@
 QT += core network
 CONFIG += staticlib
 DEFINES -= QT3_SUPPORT
+DEFINES += QT_STRICT_ITERATORS
 INCLUDEPATH += ../
 DEPENDPATH += ../
 TARGET = Streams

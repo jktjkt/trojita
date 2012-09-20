@@ -15,6 +15,7 @@ include(../Streams/ZlibLinking.pri)
 INCLUDEPATH += ../
 DEPENDPATH += ../
 DEFINES -= QT3_SUPPORT
+DEFINES += QT_STRICT_ITERATORS
 TARGET = trojita
 TEMPLATE = app
 SOURCES += \

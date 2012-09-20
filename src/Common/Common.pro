@@ -1,6 +1,7 @@
 CONFIG += staticlib
 TEMPLATE = lib
 TARGET = Common
+DEFINES += QT_STRICT_ITERATORS
 SOURCES += SettingsNames.cpp \
     SetCoreApplication.cpp
 HEADERS += SettingsNames.h \

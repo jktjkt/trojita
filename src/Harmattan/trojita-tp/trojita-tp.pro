@@ -52,6 +52,7 @@ include(../../../configh.pri)
 include(../../Streams/ZlibLinking.pri)
 
 QT += network sql webkit
+DEFINES += QT_STRICT_ITERATORS
 
 HEADERS += \
     ImapAccess.h
