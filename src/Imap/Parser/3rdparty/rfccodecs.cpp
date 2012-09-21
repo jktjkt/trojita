@@ -75,7 +75,7 @@ QString KIMAP::decodeImapFolderName( const QString &inSrc )
   unsigned char base64[256], utf8[6];
   unsigned int srcPtr = 0;
   QByteArray dst;
-  QByteArray src = inSrc.toAscii ();
+  QByteArray src = inSrc.toUtf8();
   uint srcLen = inSrc.length();
 
   /* initialize modified base64 decoding table */

@@ -555,7 +555,7 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
             if (_list.count() != 1)
                 throw InvalidResponseCode("ANNOTATE response code got weird number of elements", line, start);
             QString token = _list.first().toUpper();
-            if (token == QString::fromAscii("TOOBIG") || token == QString::fromAscii("TOOMANY"))
+            if (token == QLatin1String("TOOBIG") || token == QLatin1String("TOOMANY"))
                 respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(token));
             else
                 throw InvalidResponseCode("ANNOTATE response code with invalid value", line, start);
@@ -1117,7 +1117,7 @@ Arrived::Arrived(const QByteArray &line, int &start):
 GenUrlAuth::GenUrlAuth(const QByteArray &line, int &start):
     AbstractResponse(GENURLAUTH)
 {
-    url = QString::fromAscii(LowLevelParser::getString(line, start).first);
+    url = QString::fromUtf8(LowLevelParser::getString(line, start).first);
     if (start != line.size() - 2)
         throw TooMuchData(line, start);
 }
@@ -1273,7 +1273,7 @@ static QString threadDumpHelper(const ThreadingNode &node)
         for (QVector<ThreadingNode>::const_iterator it = node.children.begin(); it != node.children.end(); ++it) {
             res << threadDumpHelper(*it);
         }
-        return QString::fromAscii("%1: {%2}").arg(node.num).arg(res.join(QString::fromAscii(", ")));
+        return QString::fromUtf8("%1: {%2}").arg(node.num).arg(res.join(QLatin1String(", ")));
     }
 }
 
@@ -1614,7 +1614,7 @@ bool SocketDisconnectedResponse::eq(const AbstractResponse &other) const
 }
 
 ParseErrorResponse::ParseErrorResponse(const ImapException &e):
-    message(QString::fromAscii(e.msg().c_str())), exceptionClass(e.exceptionClass().c_str()), line(e.line()), offset(e.offset())
+    message(QString::fromUtf8(e.msg().c_str())), exceptionClass(e.exceptionClass().c_str()), line(e.line()), offset(e.offset())
 {
 }
 

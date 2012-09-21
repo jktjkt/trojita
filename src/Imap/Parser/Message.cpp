@@ -141,7 +141,7 @@ QString MailAddress::prettyName(FormattingMode mode) const
             result = address;
             niceName = address;
         } else {
-            result = name + QString::fromAscii(" <") + address + QChar('>');
+            result = name + QLatin1String(" <") + address + QChar('>');
             niceName = name;
         }
         if (mode == FORMAT_READABLE) {
@@ -152,7 +152,7 @@ QString MailAddress::prettyName(FormattingMode mode) const
             target.setUserName(mailbox);
             target.setHost(host);
             target.addQueryItem(QLatin1String("X-Trojita-DisplayName"), niceName);
-            return QString::fromAscii("<a href=\"%1\">%2</a>").arg(Qt::escape(target.toString()), Qt::escape(niceName));
+            return QString::fromUtf8("<a href=\"%1\">%2</a>").arg(Qt::escape(target.toString()), Qt::escape(niceName));
         }
     }
 }
@@ -162,7 +162,7 @@ QString MailAddress::prettyList(const QList<MailAddress> &list, FormattingMode m
     QStringList buf;
     for (QList<MailAddress>::const_iterator it = list.begin(); it != list.end(); ++it)
         buf << it->prettyName(mode);
-    return buf.join(QString::fromAscii(", "));
+    return buf.join(QLatin1String(", "));
 }
 
 QString MailAddress::prettyList(const QVariantList &list, FormattingMode mode)
@@ -175,7 +175,7 @@ QString MailAddress::prettyList(const QVariantList &list, FormattingMode mode)
         MailAddress a(item[0], item[1], item[2], item[3]);
         buf << a.prettyName(mode);
     }
-    return buf.join(QString::fromAscii(", "));
+    return buf.join(QLatin1String(", "));
 }
 
 static QRegExp dotAtomRx("[A-Za-z0-9!#$&'*+/=?^_`{}|~-]+(?:\\.[A-Za-z0-9!#$&'*+/=?^_`{}|~-]+)*");
