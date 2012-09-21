@@ -610,7 +610,7 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList(const QVariantList &it
 
         enum { MESSAGE, TEXT, BASIC} kind;
 
-        if (mediaType == "message" && mediaSubType == "rfc822") {
+        if (mediaType == QLatin1String("message") && mediaSubType == QLatin1String("rfc822")) {
             // extract envelope, body, body-fld-lines
 
             if (items.size() < 10)
@@ -639,7 +639,7 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList(const QVariantList &it
             }
             ++i;
 
-        } else if (mediaType == "text") {
+        } else if (mediaType == QLatin1String("text")) {
             kind = TEXT;
             if (i < items.size()) {
                 // extract body-fld-lines

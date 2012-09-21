@@ -35,7 +35,7 @@ const char *ImapException::what() const throw()
         out += " when parsing this:\n";
         out += m_line;
         out += QByteArray(m_offset, ' ');
-        out += "^ here (offset " + QString::number(m_offset) + ")\n";
+        out += "^ here (offset " + QByteArray::number(m_offset) + ")\n";
         return out.constData();
     }
 }
