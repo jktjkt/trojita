@@ -39,7 +39,7 @@ Sequence Sequence::startingAt(const uint lo)
     return res;
 }
 
-QString Sequence::toString() const
+QByteArray Sequence::toByteArray() const
 {
     switch (kind) {
     case DISTINCT:
@@ -61,21 +61,21 @@ QString Sequence::toString() const
             }
             ++i;
         }
-        return res.join(QLatin1String(","));
+        return res.join(QLatin1String(",")).toLocal8Bit();
         break;
     }
     case RANGE:
         Q_ASSERT(lo <= hi);
         if (lo == hi)
-            return QString::number(lo);
+            return QByteArray::number(lo);
         else
-            return QString::number(lo) + QLatin1Char(':') + QString::number(hi);
+            return QByteArray::number(lo) + ':' + QByteArray::number(hi);
     case UNLIMITED:
-        return QString::number(lo) + QLatin1String(":*");
+        return QByteArray::number(lo) + ":*";
     }
     // fix gcc warning
     Q_ASSERT(false);
-    return QString();
+    return QByteArray();
 }
 
 QList<uint> Sequence::toList() const
@@ -132,7 +132,7 @@ bool Sequence::isValid() const
 
 QTextStream &operator<<(QTextStream &stream, const Sequence &s)
 {
-    return stream << s.toString();
+    return stream << s.toByteArray();
 }
 
 bool operator==(const Sequence &a, const Sequence &b)

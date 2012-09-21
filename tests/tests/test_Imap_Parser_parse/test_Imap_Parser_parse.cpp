@@ -921,14 +921,14 @@ void ImapParserParseTest::benchmark()
 void ImapParserParseTest::testSequences()
 {
     QFETCH( Imap::Sequence, sequence );
-    QFETCH( QString, muster );
-    QCOMPARE( sequence.toString(), muster );
+    QFETCH( QByteArray, muster );
+    QCOMPARE( sequence.toByteArray(), muster );
 }
 
 void ImapParserParseTest::testSequences_data()
 {
     QTest::addColumn<Imap::Sequence>("sequence");
-    QTest::addColumn<QString>("muster");
+    QTest::addColumn<QByteArray>("muster");
 
     QTest::newRow("sequence-one") <<
             Imap::Sequence( 33 ) << "33";

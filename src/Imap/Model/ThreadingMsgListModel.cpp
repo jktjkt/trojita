@@ -607,7 +607,7 @@ void ThreadingMsgListModel::askForThreading(const uint firstUnknownUid)
             threadTask = realModel->m_taskFactory->
                     createIncrementalThreadTask(const_cast<Model *>(realModel), mailboxIndex, requestedAlgorithm,
                                                                     QStringList() << "INTHREAD" << requestedAlgorithm << "UID" <<
-                                                                        Sequence::startingAt(firstUnknownUid).toString());
+                                                                        Sequence::startingAt(firstUnknownUid).toByteArray());
             connect(threadTask, SIGNAL(incrementalThreadingAvailable(Responses::ESearch::IncrementalThreadingData_t)),
                     this, SLOT(slotIncrementalThreadingAvailable(Responses::ESearch::IncrementalThreadingData_t)));
             connect(threadTask, SIGNAL(failed(QString)), this, SLOT(slotIncrementalThreadingFailed()));

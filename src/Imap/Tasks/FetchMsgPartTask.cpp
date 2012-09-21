@@ -102,7 +102,7 @@ QString FetchMsgPartTask::debugIdentification() const
     Q_ASSERT(!uids.isEmpty());
     return QString::fromAscii("%1: parts %2 for UIDs %3")
            .arg(mailboxIndex.data(RoleMailboxName).toString(), parts.join(QLatin1String(", ")),
-                Sequence::fromList(uids).toString());
+                Sequence::fromList(uids).toByteArray());
 }
 
 QVariant FetchMsgPartTask::taskData(const int role) const
