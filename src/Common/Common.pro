@@ -1,7 +1,6 @@
 CONFIG += staticlib
 TEMPLATE = lib
 TARGET = Common
-DEFINES += QT_STRICT_ITERATORS
 SOURCES += SettingsNames.cpp \
     SetCoreApplication.cpp
 HEADERS += SettingsNames.h \
@@ -12,3 +11,4 @@ HEADERS += SettingsNames.h \
 
 GITVERSION_PREFIX = $$join(PWD,,,/../..)
 include(../gitversion.pri)
+include(../../configh.pri)

@@ -1,7 +1,6 @@
 QT += core network
 CONFIG += staticlib
-DEFINES -= QT3_SUPPORT
-DEFINES += QT_STRICT_ITERATORS
+include(../../configh.pri)
 INCLUDEPATH += ../
 DEPENDPATH += ../
 TARGET = qwwsmtpclient

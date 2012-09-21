@@ -4,8 +4,6 @@ lessThan(QT_MAJOR_VERSION, 5) {
 } else {
     QT += testlib
 }
-DEFINES -= QT3_SUPPORT
-DEFINES += QT_STRICT_ITERATORS
 DEPENDPATH += ../../../src/ ../../
 INCLUDEPATH += ../../../src/ ../../
 TEMPLATE = app

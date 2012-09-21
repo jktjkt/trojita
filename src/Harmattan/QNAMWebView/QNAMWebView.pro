@@ -2,7 +2,7 @@ TARGET = trojitaqnamwebviewplugin
 CONFIG += qt plugin
 QT += webkit declarative
 TEMPLATE = lib
-DEFINES += QT_STRICT_ITERATORS
+include(../../configh.pri)
 
 DESTDIR = ../trojita-tp/net/flaska/QNAMWebView
 

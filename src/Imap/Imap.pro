@@ -3,8 +3,6 @@ include(../Streams/ZlibLinking.pri)
 QT += network \
     sql
 CONFIG += staticlib
-DEFINES -= QT3_SUPPORT
-DEFINES += QT_STRICT_ITERATORS
 INCLUDEPATH += ../ \
     ../.. \
     . \

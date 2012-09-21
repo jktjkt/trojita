@@ -4,7 +4,6 @@ lessThan(QT_MAJOR_VERSION, 5) {
 } else {
     QT += testlib
 }
-DEFINES -= QT3_SUPPORT
 DEPENDPATH += ../../src/ ../
 INCLUDEPATH += ../../src/ ../
 CONFIG += staticlib
@@ -14,6 +13,7 @@ TARGET = test_LibMailboxSync
 #trojita_libs = Imap Streams
 #myprefix = ../../src/
 #include(../../src/linking.pri)
+include(../../configh.pri)
 
 HEADERS += TagGenerator.h \
     FakeCapabilitiesInjector.h
