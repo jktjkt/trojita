@@ -107,7 +107,8 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
 
     m_mailboxes = new TreeItemMailbox(0);
 
-    onlineMessageFetch << "ENVELOPE" << "BODYSTRUCTURE" << "RFC822.SIZE" << "UID" << "FLAGS";
+    onlineMessageFetch << QLatin1String("ENVELOPE") << QLatin1String("BODYSTRUCTURE") << QLatin1String("RFC822.SIZE") <<
+                          QLatin1String("UID") << QLatin1String("FLAGS");
 
     if (offline) {
         QTimer::singleShot(0, this, SLOT(setNetworkOffline()));
