@@ -255,7 +255,7 @@ CommandHandle Parser::lSub(const QString &reference, const QString &mailbox)
 CommandHandle Parser::status(const QString &mailbox, const QStringList &fields)
 {
     return queueCommand(Commands::Command("STATUS") << encodeImapFolderName(mailbox) <<
-                        Commands::PartOfCommand(Commands::ATOM, "(" + fields.join(" ").toUtf8() +")")
+                        Commands::PartOfCommand(Commands::ATOM, "(" + fields.join(QLatin1String(" ")).toUtf8() + ")")
                        );
 }
 
@@ -264,7 +264,7 @@ CommandHandle Parser::append(const QString &mailbox, const QByteArray &message, 
     Commands::Command command("APPEND");
     command << encodeImapFolderName(mailbox);
     if (flags.count())
-        command << Commands::PartOfCommand(Commands::ATOM, "(" + flags.join(" ").toUtf8() + ")");
+        command << Commands::PartOfCommand(Commands::ATOM, "(" + flags.join(QLatin1String(" ")).toUtf8() + ")");
     if (timestamp.isValid())
         command << Commands::PartOfCommand(Imap::dateTimeToInternalDate(timestamp).toUtf8());
     command << Commands::PartOfCommand(Commands::LITERAL, message);
@@ -278,7 +278,7 @@ CommandHandle Parser::appendCatenate(const QString &mailbox, const QList<Imap::M
     Commands::Command command("APPEND");
     command << encodeImapFolderName(mailbox);
     if (flags.count())
-        command << Commands::PartOfCommand(Commands::ATOM, "(" + flags.join(" ").toUtf8() + ")");
+        command << Commands::PartOfCommand(Commands::ATOM, "(" + flags.join(QLatin1String(" ")).toUtf8() + ")");
     if (timestamp.isValid())
         command << Commands::PartOfCommand(Imap::dateTimeToInternalDate(timestamp).toUtf8());
     command << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, " CATENATE (");
@@ -355,7 +355,7 @@ CommandHandle Parser::sortHelper(const QByteArray &command, const QStringList &s
     Commands::Command cmd;
 
     cmd << Commands::PartOfCommand(Commands::ATOM, command) <<
-        Commands::PartOfCommand(Commands::ATOM, "(" + sortCriteria.join(QString(' ')).toUtf8() + ")" ) <<
+        Commands::PartOfCommand(Commands::ATOM, "(" + sortCriteria.join(QLatin1String(" ")).toUtf8() + ")" ) <<
         charset;
 
     for (QStringList::const_iterator it = searchCriteria.begin(); it != searchCriteria.end(); ++it)
@@ -429,7 +429,7 @@ CommandHandle Parser::fetch(const Sequence &seq, const QStringList &items, const
 {
     Commands::Command cmd = Commands::Command("FETCH") <<
                         Commands::PartOfCommand(Commands::ATOM, seq.toByteArray()) <<
-                        Commands::PartOfCommand(Commands::ATOM, '(' + items.join(" ").toUtf8() + ')');
+                        Commands::PartOfCommand(Commands::ATOM, '(' + items.join(QLatin1String(" ")).toUtf8() + ')');
     if (!uint64Modifiers.isEmpty()) {
         cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, " (");
         for (QMap<QByteArray, quint64>::const_iterator it = uint64Modifiers.constBegin(); it != uint64Modifiers.constEnd(); ++it) {
@@ -461,7 +461,7 @@ CommandHandle Parser::uidFetch(const Sequence &seq, const QStringList &items)
 {
     return queueCommand(Commands::Command("UID FETCH") <<
                         Commands::PartOfCommand(Commands::ATOM, seq.toByteArray()) <<
-                        Commands::PartOfCommand(Commands::ATOM, '(' + items.join(" ").toUtf8() + ')'));
+                        Commands::PartOfCommand(Commands::ATOM, '(' + items.join(QLatin1String(" ")).toUtf8() + ')'));
 }
 
 CommandHandle Parser::uidStore(const Sequence &seq, const QString &item, const QString &value)
@@ -636,7 +636,7 @@ QSharedPointer<Responses::AbstractResponse> Parser::getResponse()
 
 QByteArray Parser::generateTag()
 {
-    return QString("y%1").arg(m_lastTagUsed++).toUtf8();
+    return QString::fromUtf8("y%1").arg(m_lastTagUsed++).toUtf8();
 }
 
 void Parser::handleReadyRead()

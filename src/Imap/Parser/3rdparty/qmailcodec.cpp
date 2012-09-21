@@ -468,7 +468,7 @@ QMailBase64Codec::QMailBase64Codec(ContentType content, int maximumLineLength)
 /*! \reimp */
 QString QMailBase64Codec::name() const
 {
-    return "QMailBase64Codec";
+    return QLatin1String("QMailBase64Codec");
 }
 
 /*! \internal */
@@ -791,7 +791,7 @@ QMailQuotedPrintableCodec::QMailQuotedPrintableCodec(ContentType content, Confor
 /*! \reimp */
 QString QMailQuotedPrintableCodec::name() const
 {
-    return "QMailQuotedPrintableCodec";
+    return QLatin1String("QMailQuotedPrintableCodec");
 }
 
 /*! \internal */
@@ -1003,7 +1003,7 @@ static void writeStream(QDataStream& out, const char* it, int length)
 /*! \reimp */
 QString QMailPassThroughCodec::name() const
 {
-    return "QMailPassThroughCodec";
+    return QLatin1String("QMailPassThroughCodec");
 }
 
 /*! \internal */
@@ -1056,7 +1056,7 @@ QMailLineEndingCodec::QMailLineEndingCodec()
 /*! \reimp */
 QString QMailLineEndingCodec::name() const
 {
-    return "QMailLineEndingCodec";
+    return QLatin1String("QMailLineEndingCodec");
 }
 
 /*! \internal */

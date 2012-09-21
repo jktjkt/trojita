@@ -270,15 +270,15 @@ QTextStream &operator<<(QTextStream &stream, const NamespaceData &data)
 Status::StateKind Status::stateKindFromStr(QString s)
 {
     s = s.toUpper();
-    if (s == "MESSAGES")
+    if (s == QLatin1String("MESSAGES"))
         return MESSAGES;
-    if (s == "RECENT")
+    if (s == QLatin1String("RECENT"))
         return RECENT;
-    if (s == "UIDNEXT")
+    if (s == QLatin1String("UIDNEXT"))
         return UIDNEXT;
-    if (s == "UIDVALIDITY")
+    if (s == QLatin1String("UIDVALIDITY"))
         return UIDVALIDITY;
-    if (s == "UNSEEN")
+    if (s == QLatin1String("UNSEEN"))
         return UNSEEN;
     throw UnrecognizedResponseKind(s.toStdString());
 }
@@ -315,17 +315,17 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
 
     if (!_list.isEmpty()) {
         const QString r = _list.first().toUpper();
-#define CASE(X) else if ( r == #X ) respCode = Responses::X;
-        if (r == "ALERT")
+#define CASE(X) else if (r == QLatin1String(#X)) respCode = Responses::X;
+        if (r == QLatin1String("ALERT"))
             respCode = Responses::ALERT;
         CASE(BADCHARSET)
-        else if (r == "CAPABILITY")
+        else if (r == QLatin1String("CAPABILITY"))
             respCode = Responses::CAPABILITIES;
         CASE(PARSE)
         CASE(PERMANENTFLAGS)
-        else if (r == "READ-ONLY")
+        else if (r == QLatin1String("READ-ONLY"))
             respCode = Responses::READ_ONLY;
-        else if (r == "READ-WRITE")
+        else if (r == QLatin1String("READ-WRITE"))
             respCode = Responses::READ_WRITE;
         CASE(TRYCREATE)
         CASE(UIDNEXT)
@@ -333,7 +333,7 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
         CASE(UNSEEN)
         CASE(NEWNAME)
         CASE(REFERRAL)
-        else if (r == "UNKNOWN-CTE")
+        else if (r == QLatin1String("UNKNOWN-CTE"))
             respCode = Responses::UNKNOWN_CTE;
         CASE(UIDNOTSTICKY)
         CASE(APPENDUID)
@@ -357,7 +357,7 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
         // FIXME: not implemented CASE(METADATA)
         CASE(NOTIFICATIONOVERFLOW)
         CASE(BADEVENT)
-        else if (r == "UNDEFINED-FILTER")
+        else if (r == QLatin1String("UNDEFINED-FILTER"))
             respCode = Responses::UNDEFINED_FILTER;
         CASE(UNAVAILABLE)
         CASE(AUTHENTICATIONFAILED)
