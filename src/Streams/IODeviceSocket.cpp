@@ -19,6 +19,7 @@
    Boston, MA 02110-1301, USA.
 */
 
+#include <QSslConfiguration>
 #include <QSslSocket>
 #include <QTimer>
 #include "IODeviceSocket.h"
@@ -222,6 +223,17 @@ SslTlsSocket::SslTlsSocket(QSslSocket *sock, const QString &host, const quint16 
     sock->ignoreSslErrors();
     sock->setProtocol(QSsl::AnyProtocol);
     sock->setPeerVerifyMode(QSslSocket::QueryPeer);
+
+    // In response to the attacks related to the SSL compression, Digia has decided to disable SSL compression starting in
+    // Qt 4.8.4 -- see http://qt.digia.com/en/Release-Notes/security-issue-september-2012/.
+    // I have brought this up on the imap-protocol mailing list; the consensus seemed to be that the likelihood of an
+    // successful exploit on an IMAP conversation is very unlikely.  The compression itself is, on the other hand, a
+    // very worthwhile goal, so we explicitly enable it again.
+#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
+    QSslConfiguration sslConf = sock->sslConfiguration();
+    sslConf.setSslOption(QSsl::SslOptionDisableCompression, false);
+    sock->setSslConfiguration(sslConf);
+#endif
 
     connect(sock, SIGNAL(encrypted()), this, SIGNAL(encrypted()));
     connect(sock, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(handleStateChanged()));
