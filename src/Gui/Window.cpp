@@ -604,7 +604,7 @@ void MainWindow::setupModels()
     busyParsersIndicator->setImapModel(model);
 
     // TODO write more addressbook backends and make this configurable
-    m_addressBook = new AbookAddressbook;
+    m_addressBook = new AbookAddressbook();
 
 }
 

@@ -527,7 +527,7 @@ void ComposeWidget::completeRecipients(const QString &text)
         m_completionReceiver = toEdit;
         m_completionPopup->setUpdatesEnabled(false);
         m_completionPopup->clear();
-        foreach (const QString &s, contacts)
+        Q_FOREACH(const QString &s, contacts)
             m_completionPopup->addAction(s);
         if (m_completionPopup->isHidden())
             m_completionPopup->popup(toEdit->mapToGlobal(QPoint(0, toEdit->height())));
