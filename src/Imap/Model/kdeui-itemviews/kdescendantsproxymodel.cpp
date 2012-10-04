@@ -527,6 +527,16 @@ Qt::ItemFlags KDescendantsProxyModel::flags(const QModelIndex &index) const
   return sourceModel()->flags(srcIndex);
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+QHash<int,QByteArray> KDescendantsProxyModel::roleNames() const
+{
+  if (sourceModel())
+    return sourceModel()->roleNames();
+  else
+    return QHash<int,QByteArray>();
+}
+#endif
+
 void KDescendantsProxyModelPrivate::sourceRowsAboutToBeInserted(const QModelIndex &parent, int start, int end)
 {
   Q_Q(KDescendantsProxyModel);

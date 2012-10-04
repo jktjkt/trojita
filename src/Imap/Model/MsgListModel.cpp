@@ -57,29 +57,47 @@ MsgListModel::MsgListModel(QObject *parent, Model *model): QAbstractProxyModel(p
     connect(this, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SIGNAL(indexStateChanged()));
     connect(this, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SIGNAL(indexStateChanged()));
 
-    QHash<int, QByteArray> roleNames;
-    roleNames[RoleIsFetched] = "isFetched";
-    roleNames[RoleMessageUid] = "messageUid";
-    roleNames[RoleMessageIsMarkedDeleted] = "isMarkedDeleted";
-    roleNames[RoleMessageIsMarkedRead] = "isMarkedRead";
-    roleNames[RoleMessageIsMarkedForwarded] = "isMarkedForwarded";
-    roleNames[RoleMessageIsMarkedReplied] = "isMarkedReplied";
-    roleNames[RoleMessageIsMarkedRecent] = "isMarkedRecent";
-    roleNames[RoleMessageDate] = "date";
-    roleNames[RoleMessageInternalDate] = "receivedDate";
-    roleNames[RoleMessageFrom] = "from";
-    roleNames[RoleMessageTo] = "to";
-    roleNames[RoleMessageCc] = "cc";
-    roleNames[RoleMessageBcc] = "bcc";
-    roleNames[RoleMessageSender] = "sender";
-    roleNames[RoleMessageReplyTo] = "replyTo";
-    roleNames[RoleMessageInReplyTo] = "inReplyTo";
-    roleNames[RoleMessageMessageId] = "messageId";
-    roleNames[RoleMessageSubject] = "subject";
-    roleNames[RoleMessageFlags] = "flags";
-    roleNames[RoleMessageSize] = "size";
-    roleNames[RoleMessageFuzzyDate] = "fuzzyDate";
-    setRoleNames(roleNames);
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    // There's no virtual in Qt4.
+    setRoleNames(trojitaProxyRoleNames());
+#else
+    // In Qt5, the roleNames() is virtual and will work just fine.
+#endif
+}
+
+// The following code is pretty much a huge PITA. The handling of roleNames() has changed between Qt4 and Qt5 in a way which makes
+// it rather convoluted to support both in the same code base. Oh well.
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+QHash<int, QByteArray> MsgListModel::trojitaProxyRoleNames() const
+#else
+QHash<int, QByteArray> MsgListModel::roleNames() const
+#endif
+{
+    static QHash<int, QByteArray> roleNames;
+    if (roleNames.isEmpty()) {
+        roleNames[RoleIsFetched] = "isFetched";
+        roleNames[RoleMessageUid] = "messageUid";
+        roleNames[RoleMessageIsMarkedDeleted] = "isMarkedDeleted";
+        roleNames[RoleMessageIsMarkedRead] = "isMarkedRead";
+        roleNames[RoleMessageIsMarkedForwarded] = "isMarkedForwarded";
+        roleNames[RoleMessageIsMarkedReplied] = "isMarkedReplied";
+        roleNames[RoleMessageIsMarkedRecent] = "isMarkedRecent";
+        roleNames[RoleMessageDate] = "date";
+        roleNames[RoleMessageInternalDate] = "receivedDate";
+        roleNames[RoleMessageFrom] = "from";
+        roleNames[RoleMessageTo] = "to";
+        roleNames[RoleMessageCc] = "cc";
+        roleNames[RoleMessageBcc] = "bcc";
+        roleNames[RoleMessageSender] = "sender";
+        roleNames[RoleMessageReplyTo] = "replyTo";
+        roleNames[RoleMessageInReplyTo] = "inReplyTo";
+        roleNames[RoleMessageMessageId] = "messageId";
+        roleNames[RoleMessageSubject] = "subject";
+        roleNames[RoleMessageFlags] = "flags";
+        roleNames[RoleMessageSize] = "size";
+        roleNames[RoleMessageFuzzyDate] = "fuzzyDate";
+    }
+    return roleNames;
 }
 
 void MsgListModel::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)

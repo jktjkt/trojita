@@ -53,20 +53,38 @@ MailboxModel::MailboxModel(QObject *parent, Model *model): QAbstractProxyModel(p
     connect(model, SIGNAL(messageCountPossiblyChanged(const QModelIndex &)),
             this, SLOT(handleMessageCountPossiblyChanged(const QModelIndex &)));
 
-    QHash<int, QByteArray> roleNames;
-    roleNames[RoleIsFetched] = "isFetched";
-    roleNames[RoleShortMailboxName] = "shortMailboxName";
-    roleNames[RoleMailboxName] = "mailboxName";
-    roleNames[RoleMailboxSeparator] = "mailboxSeparator";
-    roleNames[RoleMailboxHasChildmailboxes] = "mailboxHasChildMailboxes";
-    roleNames[RoleMailboxIsINBOX] = "mailboxIsINBOX";
-    roleNames[RoleMailboxIsSelectable] = "mailboxIsSelectable";
-    roleNames[RoleMailboxNumbersFetched] = "mailboxNumbersFetched";
-    roleNames[RoleTotalMessageCount] = "totalMessageCount";
-    roleNames[RoleUnreadMessageCount] = "unreadMessageCount";
-    roleNames[RoleRecentMessageCount] = "recentMessageCount";
-    roleNames[RoleMailboxItemsAreLoading] = "mailboxItemsAreLoading";
-    setRoleNames(roleNames);
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    // There's no virtual in Qt4.
+    setRoleNames(trojitaProxyRoleNames());
+#else
+    // In Qt5, the roleNames() is virtual and will work just fine.
+#endif
+}
+
+// The following code is pretty much a huge PITA. The handling of roleNames() has changed between Qt4 and Qt5 in a way which makes
+// it rather convoluted to support both in the same code base. Oh well.
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+QHash<int, QByteArray> MailboxModel::trojitaProxyRoleNames() const
+#else
+QHash<int, QByteArray> MailboxModel::roleNames() const
+#endif
+{
+    static QHash<int, QByteArray> roleNames;
+    if (roleNames.isEmpty()) {
+        roleNames[RoleIsFetched] = "isFetched";
+        roleNames[RoleShortMailboxName] = "shortMailboxName";
+        roleNames[RoleMailboxName] = "mailboxName";
+        roleNames[RoleMailboxSeparator] = "mailboxSeparator";
+        roleNames[RoleMailboxHasChildmailboxes] = "mailboxHasChildMailboxes";
+        roleNames[RoleMailboxIsINBOX] = "mailboxIsINBOX";
+        roleNames[RoleMailboxIsSelectable] = "mailboxIsSelectable";
+        roleNames[RoleMailboxNumbersFetched] = "mailboxNumbersFetched";
+        roleNames[RoleTotalMessageCount] = "totalMessageCount";
+        roleNames[RoleUnreadMessageCount] = "unreadMessageCount";
+        roleNames[RoleRecentMessageCount] = "recentMessageCount";
+        roleNames[RoleMailboxItemsAreLoading] = "mailboxItemsAreLoading";
+    }
+    return roleNames;
 }
 
 void MailboxModel::handleModelAboutToBeReset()

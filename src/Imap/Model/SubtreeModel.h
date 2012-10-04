@@ -68,6 +68,10 @@ public:
     Q_INVOKABLE bool itemsValid() const;
     QModelIndex rootIndex() const;
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    virtual QHash<int, QByteArray> roleNames() const;
+#endif
+
 private slots:
     void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void handleModelAboutToBeReset();
