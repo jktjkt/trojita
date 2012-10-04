@@ -38,7 +38,6 @@ TaskProgressIndicator::TaskProgressIndicator(QWidget *parent) :
 /** @short Connect to the specified IMAP model as the source of the activity information */
 void TaskProgressIndicator::setImapModel(Imap::Mailbox::Model *model)
 {
-#if 0
     if (model) {
         m_visibleTasksModel = new Imap::Mailbox::VisibleTasksModel(model, model->taskModel());
         connect(m_visibleTasksModel, SIGNAL(layoutChanged()), this, SLOT(updateActivityIndication()));
@@ -46,7 +45,6 @@ void TaskProgressIndicator::setImapModel(Imap::Mailbox::Model *model)
         connect(m_visibleTasksModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(updateActivityIndication()));
         connect(m_visibleTasksModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(updateActivityIndication()));
     }
-#endif
 }
 
 /** @short Reflect a possible change in the activity in the GUI */
