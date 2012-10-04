@@ -164,8 +164,8 @@ void ImapModelDisappearingMailboxTest::helperTestGoingReallyOfflineOnline(bool w
     idxB = model->index(2, 0, QModelIndex());
     QVERIFY(idxA.isValid());
     QVERIFY(idxB.isValid());
-    QCOMPARE( model->data(idxA, Qt::DisplayRole), QVariant(QString::fromAscii("a")));
-    QCOMPARE( model->data(idxB, Qt::DisplayRole), QVariant(QString::fromAscii("b")));
+    QCOMPARE( model->data(idxA, Qt::DisplayRole), QVariant(QLatin1String("a")));
+    QCOMPARE( model->data(idxB, Qt::DisplayRole), QVariant(QLatin1String("b")));
     msgListA = idxA.child(0, 0);
     msgListB = idxB.child(0, 0);
     QVERIFY(msgListA.isValid());
@@ -232,9 +232,9 @@ void ImapModelDisappearingMailboxTest::testTrafficAfterSyncedMailboxGoesAway()
     idxA = model->index(1, 0, QModelIndex());
     idxB = model->index(2, 0, QModelIndex());
     idxC = model->index(3, 0, QModelIndex());
-    QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QString::fromAscii("a")));
-    QCOMPARE(model->data(idxB, Qt::DisplayRole), QVariant(QString::fromAscii("b")));
-    QCOMPARE(model->data(idxC, Qt::DisplayRole), QVariant(QString::fromAscii("c")));
+    QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QLatin1String("a")));
+    QCOMPARE(model->data(idxB, Qt::DisplayRole), QVariant(QLatin1String("b")));
+    QCOMPARE(model->data(idxC, Qt::DisplayRole), QVariant(QLatin1String("c")));
     msgListA = model->index(0, 0, idxA);
     msgListB = model->index(0, 0, idxB);
     msgListC = model->index(0, 0, idxC);
@@ -285,7 +285,7 @@ void ImapModelDisappearingMailboxTest::testSlowOfflineMsgStructure()
     helperSyncAWithMessagesEmptyState();
     idxA = model->index(1, 0, QModelIndex());
     QVERIFY(idxA.isValid());
-    QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QString::fromAscii("a")));
+    QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QLatin1String("a")));
     msgListA = idxA.child(0, 0);
     QVERIFY(msgListA.isValid());
     QModelIndex msg = msgListA.child(0, 0);
@@ -322,8 +322,8 @@ void ImapModelDisappearingMailboxTest::testSlowOfflineFlags()
     idxB = model->index(2, 0, QModelIndex());
     QVERIFY(idxA.isValid());
     QVERIFY(idxB.isValid());
-    QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QString::fromAscii("a")));
-    QCOMPARE(model->data(idxB, Qt::DisplayRole), QVariant(QString::fromAscii("b")));
+    QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QLatin1String("a")));
+    QCOMPARE(model->data(idxB, Qt::DisplayRole), QVariant(QLatin1String("b")));
     msgListA = idxA.child(0, 0);
     QVERIFY(msgListA.isValid());
     QModelIndex msg = msgListA.child(0, 0);
@@ -360,8 +360,8 @@ void ImapModelDisappearingMailboxTest::testSlowOfflineFlags2()
     idxB = model->index(2, 0, QModelIndex());
     QVERIFY(idxA.isValid());
     QVERIFY(idxB.isValid());
-    QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QString::fromAscii("a")));
-    QCOMPARE(model->data(idxB, Qt::DisplayRole), QVariant(QString::fromAscii("b")));
+    QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QLatin1String("a")));
+    QCOMPARE(model->data(idxB, Qt::DisplayRole), QVariant(QLatin1String("b")));
     msgListA = idxA.child(0, 0);
     QVERIFY(msgListA.isValid());
     QModelIndex msg = msgListA.child(0, 0);
@@ -399,8 +399,8 @@ void ImapModelDisappearingMailboxTest::testSlowOfflineFlags3()
     idxB = model->index(2, 0, QModelIndex());
     QVERIFY(idxA.isValid());
     QVERIFY(idxB.isValid());
-    QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QString::fromAscii("a")));
-    QCOMPARE(model->data(idxB, Qt::DisplayRole), QVariant(QString::fromAscii("b")));
+    QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QLatin1String("a")));
+    QCOMPARE(model->data(idxB, Qt::DisplayRole), QVariant(QLatin1String("b")));
     msgListA = idxA.child(0, 0);
     QVERIFY(msgListA.isValid());
     QModelIndex msg = msgListA.child(0, 0);

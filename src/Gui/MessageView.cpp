@@ -26,6 +26,9 @@
 #include <QTextDocument>
 #include <QTimer>
 #include <QUrl>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <QUrlQuery>
+#endif
 #include <QVBoxLayout>
 #include <QtWebKit/QWebHistory>
 
@@ -285,7 +288,11 @@ QString MessageView::headerText()
         res += tr("<b>Cc:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(envelope.cc, Imap::Message::MailAddress::FORMAT_CLICKABLE));
     if (!envelope.bcc.isEmpty())
         res += tr("<b>Bcc:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(envelope.bcc, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     res += tr("<b>Subject:</b>&nbsp;%1").arg(Qt::escape(envelope.subject));
+#else
+    res += tr("<b>Subject:</b>&nbsp;%1").arg(envelope.subject.toHtmlEscaped());
+#endif
     if (envelope.date.isValid())
         res += tr("<br/><b>Date:</b>&nbsp;%1").arg(envelope.date.toLocalTime().toString(Qt::SystemLocaleLongDate));
     return res;
@@ -310,14 +317,14 @@ void MessageView::reply(MainWindow *mainWindow, ReplyMode mode)
 
     QList<QPair<QString,QString> > recipients;
     for (QList<Imap::Message::MailAddress>::const_iterator it = envelope.from.begin(); it != envelope.from.end(); ++it) {
-        recipients << qMakePair(tr("To"), QString::fromAscii("%1@%2").arg(it->mailbox, it->host));
+        recipients << qMakePair(tr("To"), QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
     }
     if (mode == REPLY_ALL) {
         for (QList<Imap::Message::MailAddress>::const_iterator it = envelope.to.begin(); it != envelope.to.end(); ++it) {
-            recipients << qMakePair(tr("Cc"), QString::fromAscii("%1@%2").arg(it->mailbox, it->host));
+            recipients << qMakePair(tr("Cc"), QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
         }
         for (QList<Imap::Message::MailAddress>::const_iterator it = envelope.cc.begin(); it != envelope.cc.end(); ++it) {
-            recipients << qMakePair(tr("Cc"), QString::fromAscii("%1@%2").arg(it->mailbox, it->host));
+            recipients << qMakePair(tr("Cc"), QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
         }
     }
     mainWindow->invokeComposeDialog(replySubject(envelope.subject), quoteText(), recipients, envelope.messageId);
@@ -354,6 +361,7 @@ void MessageView::linkInTitleHovered(const QString &target)
     }
 
     QUrl url(target);
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     QString niceName = url.queryItemValue(QLatin1String("X-Trojita-DisplayName"));
     if (niceName.isEmpty())
         header->setToolTip(QString::fromAscii("%1@%2").arg(
@@ -361,6 +369,16 @@ void MessageView::linkInTitleHovered(const QString &target)
     else
         header->setToolTip(QString::fromAscii("<p style='white-space:pre'>%1 &lt;%2@%3&gt;</p>").arg(
                                Qt::escape(niceName), Qt::escape(url.userName()), Qt::escape(url.host())));
+#else
+    QUrlQuery q(url);
+    QString niceName = q.queryItemValue(QLatin1String("X-Trojita-DisplayName"));
+    if (niceName.isEmpty())
+        header->setToolTip(QString::fromUtf8("%1@%2").arg(
+                               url.userName().toHtmlEscaped(), url.host().toHtmlEscaped()));
+    else
+        header->setToolTip(QString::fromUtf8("<p style='white-space:pre'>%1 &lt;%2@%3&gt;</p>").arg(
+                               niceName.toHtmlEscaped(), url.userName().toHtmlEscaped(), url.host().toHtmlEscaped()));
+#endif
 }
 
 void MessageView::newLabelAction(const QString &tag)

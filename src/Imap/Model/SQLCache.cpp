@@ -57,7 +57,7 @@ void SQLCache::init()
     if (! ok)
         num = 10000;
     delayedCommit->setInterval(num);
-    delayedCommit->setObjectName(QString::fromAscii("delayedCommit-%1").arg(objectName()));
+    delayedCommit->setObjectName(QString::fromUtf8("delayedCommit-%1").arg(objectName()));
     connect(delayedCommit, SIGNAL(timeout()), this, SLOT(timeToCommit()));
     if (tooMuchTimeWithoutCommit)
         tooMuchTimeWithoutCommit->deleteLater();
@@ -66,7 +66,7 @@ void SQLCache::init()
     if (! ok)
         num = 60000;
     tooMuchTimeWithoutCommit->setInterval(num);
-    tooMuchTimeWithoutCommit->setObjectName(QString::fromAscii("tooMuchTimeWithoutCommit-%1").arg(objectName()));
+    tooMuchTimeWithoutCommit->setObjectName(QString::fromUtf8("tooMuchTimeWithoutCommit-%1").arg(objectName()));
     connect(tooMuchTimeWithoutCommit, SIGNAL(timeout()), this, SLOT(timeToCommit()));
 }
 
@@ -406,12 +406,12 @@ bool SQLCache::prepareQueries()
 
 void SQLCache::emitError(const QString &message, const QSqlQuery &query) const
 {
-    emitError(QString::fromAscii("SQLCache: Query Error: %1: %2").arg(message, query.lastError().text()));
+    emitError(QString::fromUtf8("SQLCache: Query Error: %1: %2").arg(message, query.lastError().text()));
 }
 
 void SQLCache::emitError(const QString &message, const QSqlDatabase &database) const
 {
-    emitError(QString::fromAscii("SQLCache: DB Error: %1: %2").arg(message, database.lastError().text()));
+    emitError(QString::fromUtf8("SQLCache: DB Error: %1: %2").arg(message, database.lastError().text()));
 }
 
 void SQLCache::emitError(const QString &message) const
@@ -423,7 +423,7 @@ void SQLCache::emitError(const QString &message) const
 QList<MailboxMetadata> SQLCache::childMailboxes(const QString &mailbox) const
 {
     QList<MailboxMetadata> res;
-    queryChildMailboxes.bindValue(0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox);
+    queryChildMailboxes.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
     if (! queryChildMailboxes.exec()) {
         emitError(tr("Query queryChildMailboxes failed"), queryChildMailboxes);
         return res;
@@ -446,7 +446,7 @@ QList<MailboxMetadata> SQLCache::childMailboxes(const QString &mailbox) const
 
 bool SQLCache::childMailboxesFresh(const QString &mailbox) const
 {
-    queryChildMailboxesFresh.bindValue(0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox);
+    queryChildMailboxesFresh.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
     if (! queryChildMailboxesFresh.exec()) {
         emitError(tr("Query queryChildMailboxesFresh failed"), queryChildMailboxesFresh);
         return false;
@@ -460,7 +460,7 @@ void SQLCache::setChildMailboxes(const QString &mailbox, const QList<MailboxMeta
     qDebug() << "Setting child mailboxes for" << mailbox;
 #endif
     touchingDB();
-    QString myMailbox = mailbox.isEmpty() ? QString::fromAscii("") : mailbox;
+    QString myMailbox = mailbox.isEmpty() ? QLatin1String("") : mailbox;
     QVariantList mailboxFields, parentFields, separatorFields, flagsFelds;
     Q_FOREACH(const MailboxMetadata& item, data) {
         mailboxFields << item.mailbox;
@@ -488,7 +488,7 @@ void SQLCache::forgetChildMailboxes(const QString &mailbox)
     qDebug() << "Forgetting child mailboxes for" << mailbox;
 #endif
     touchingDB();
-    QString myMailbox = mailbox.isEmpty() ? QString::fromAscii("") : mailbox;
+    QString myMailbox = mailbox.isEmpty() ? QLatin1String("") : mailbox;
     queryForgetChildMailboxes1.bindValue(0, myMailbox);
     if (! queryForgetChildMailboxes1.exec()) {
         emitError(tr("Query queryForgetChildMailboxes1 failed"), queryForgetChildMailboxes1);
@@ -498,7 +498,7 @@ void SQLCache::forgetChildMailboxes(const QString &mailbox)
 SyncState SQLCache::mailboxSyncState(const QString &mailbox) const
 {
     SyncState res;
-    queryMailboxSyncState.bindValue(0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox);
+    queryMailboxSyncState.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
     if (! queryMailboxSyncState.exec()) {
         emitError(tr("Query queryMailboxSyncState failed"), queryMailboxSyncState);
         return res;
@@ -518,7 +518,7 @@ void SQLCache::setMailboxSyncState(const QString &mailbox, const SyncState &stat
     qDebug() << "Setting sync state for" << mailbox;
 #endif
     touchingDB();
-    querySetMailboxSyncState.bindValue(0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox);
+    querySetMailboxSyncState.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
     QByteArray buf;
     QDataStream stream(&buf, QIODevice::ReadWrite);
     stream.setVersion(streamVersion);
@@ -533,7 +533,7 @@ void SQLCache::setMailboxSyncState(const QString &mailbox, const SyncState &stat
 QList<uint> SQLCache::uidMapping(const QString &mailbox) const
 {
     QList<uint> res;
-    queryUidMapping.bindValue(0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox);
+    queryUidMapping.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
     if (! queryUidMapping.exec()) {
         emitError(tr("Query queryUidMapping failed"), queryUidMapping);
         return res;
@@ -553,7 +553,7 @@ void SQLCache::setUidMapping(const QString &mailbox, const QList<uint> &seqToUid
     qDebug() << "Setting UID mapping for" << mailbox;
 #endif
     touchingDB();
-    querySetUidMapping.bindValue(0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox);
+    querySetUidMapping.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
     QByteArray buf;
     QDataStream stream(&buf, QIODevice::ReadWrite);
     stream.setVersion(streamVersion);
@@ -570,7 +570,7 @@ void SQLCache::clearUidMapping(const QString &mailbox)
     qDebug() << "Clearing UID mapping for" << mailbox;
 #endif
     touchingDB();
-    queryClearUidMapping.bindValue(0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox);
+    queryClearUidMapping.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
     if (! queryClearUidMapping.exec()) {
         emitError(tr("Query queryClearUidMapping failed"), queryClearUidMapping);
     }
@@ -582,9 +582,9 @@ void SQLCache::clearAllMessages(const QString &mailbox)
     qDebug() << "Clearing all messages from" << mailbox;
 #endif
     touchingDB();
-    queryClearAllMessages1.bindValue(0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox);
-    queryClearAllMessages2.bindValue(0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox);
-    queryClearAllMessages3.bindValue(0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox);
+    queryClearAllMessages1.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
+    queryClearAllMessages2.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
+    queryClearAllMessages3.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
     if (! queryClearAllMessages1.exec()) {
         emitError(tr("Query queryClearAllMessages1 failed"), queryClearAllMessages1);
     }
@@ -602,11 +602,11 @@ void SQLCache::clearMessage(const QString mailbox, uint uid)
     qDebug() << "Clearing message" << uid << "from" << mailbox;
 #endif
     touchingDB();
-    queryClearMessage1.bindValue(0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox);
+    queryClearMessage1.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
     queryClearMessage1.bindValue(1, uid);
-    queryClearMessage2.bindValue(0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox);
+    queryClearMessage2.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
     queryClearMessage2.bindValue(1, uid);
-    queryClearMessage3.bindValue(0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox);
+    queryClearMessage3.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
     queryClearMessage3.bindValue(1, uid);
     if (! queryClearMessage1.exec()) {
         emitError(tr("Query queryClearMessage1 failed"), queryClearMessage1);
@@ -622,7 +622,7 @@ void SQLCache::clearMessage(const QString mailbox, uint uid)
 QStringList SQLCache::msgFlags(const QString &mailbox, uint uid) const
 {
     QStringList res;
-    queryMessageFlags.bindValue(0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox);
+    queryMessageFlags.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
     queryMessageFlags.bindValue(1, uid);
     if (! queryMessageFlags.exec()) {
         emitError(tr("Query queryMessageFlags failed"), queryMessageFlags);
@@ -643,7 +643,7 @@ void SQLCache::setMsgFlags(const QString &mailbox, uint uid, const QStringList &
     qDebug() << "Updating flags for" << mailbox << uid;
 #endif
     touchingDB();
-    querySetMessageFlags.bindValue(0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox);
+    querySetMessageFlags.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
     querySetMessageFlags.bindValue(1, uid);
     QByteArray buf;
     QDataStream stream(&buf, QIODevice::ReadWrite);
@@ -658,7 +658,7 @@ void SQLCache::setMsgFlags(const QString &mailbox, uint uid, const QStringList &
 AbstractCache::MessageDataBundle SQLCache::messageMetadata(const QString &mailbox, uint uid) const
 {
     AbstractCache::MessageDataBundle res;
-    queryMessageMetadata.bindValue(0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox);
+    queryMessageMetadata.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
     queryMessageMetadata.bindValue(1, uid);
     if (! queryMessageMetadata.exec()) {
         emitError(tr("Query queryMessageMetadata failed"), queryMessageMetadata);
@@ -681,7 +681,7 @@ void SQLCache::setMessageMetadata(const QString &mailbox, uint uid, const Messag
 #endif
     touchingDB();
     // Order of values: mailbox, uid, data
-    querySetMessageMetadata.bindValue(0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox);
+    querySetMessageMetadata.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
     querySetMessageMetadata.bindValue(1, uid);
     QByteArray buf;
     QDataStream stream(&buf, QIODevice::ReadWrite);
@@ -696,7 +696,7 @@ void SQLCache::setMessageMetadata(const QString &mailbox, uint uid, const Messag
 QByteArray SQLCache::messagePart(const QString &mailbox, uint uid, const QString &partId) const
 {
     QByteArray res;
-    queryMessagePart.bindValue(0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox);
+    queryMessagePart.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
     queryMessagePart.bindValue(1, uid);
     queryMessagePart.bindValue(2, partId);
     if (! queryMessagePart.exec()) {
@@ -716,7 +716,7 @@ void SQLCache::setMsgPart(const QString &mailbox, uint uid, const QString &partI
     qDebug() << "Saving message part" << partId << uid << mailbox;
 #endif
     touchingDB();
-    querySetMessagePart.bindValue(0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox);
+    querySetMessagePart.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
     querySetMessagePart.bindValue(1, uid);
     querySetMessagePart.bindValue(2, partId);
     querySetMessagePart.bindValue(3, qCompress(data));
@@ -728,7 +728,7 @@ void SQLCache::setMsgPart(const QString &mailbox, uint uid, const QString &partI
 QVector<Imap::Responses::ThreadingNode> SQLCache::messageThreading(const QString &mailbox)
 {
     QVector<Imap::Responses::ThreadingNode> res;
-    queryMessageThreading.bindValue(0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox);
+    queryMessageThreading.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
     if (! queryMessageThreading.exec()) {
         emitError(tr("Query queryMessageThreading failed"), queryMessageThreading);
         return res;
@@ -747,7 +747,7 @@ void SQLCache::setMessageThreading(const QString &mailbox, const QVector<Imap::R
     qDebug() << "Setting threading for" << mailbox;
 #endif
     touchingDB();
-    querySetMessageThreading.bindValue(0, mailbox.isEmpty() ? QString::fromAscii("") : mailbox);
+    querySetMessageThreading.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
     QByteArray buf;
     QDataStream stream(&buf, QIODevice::ReadWrite);
     stream.setVersion(streamVersion);

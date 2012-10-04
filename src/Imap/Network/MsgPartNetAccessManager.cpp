@@ -130,11 +130,11 @@ Imap::Mailbox::TreeItemPart *MsgPartNetAccessManager::pathToPart(const QModelInd
         uint offset = it->toUInt(&ok);
         if (!ok) {
             // special case, we have to dive into that funny, irregular special parts now
-            if (*it == QString::fromAscii("HEADER"))
+            if (*it == QLatin1String("HEADER"))
                 target = target->specialColumnPtr(0, Imap::Mailbox::TreeItem::OFFSET_HEADER);
-            else if (*it == QString::fromAscii("TEXT"))
+            else if (*it == QLatin1String("TEXT"))
                 target = target->specialColumnPtr(0, Imap::Mailbox::TreeItem::OFFSET_TEXT);
-            else if (*it == QString::fromAscii("MIME"))
+            else if (*it == QLatin1String("MIME"))
                 target = target->specialColumnPtr(0, Imap::Mailbox::TreeItem::OFFSET_MIME);
             break;
         }

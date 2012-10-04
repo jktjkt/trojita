@@ -178,7 +178,7 @@ QString getMailbox(const QByteArray &line, int &start)
 {
     QPair<QByteArray,ParsedAs> r = getAString(line, start);
     if (r.first.toUpper() == "INBOX")
-        return "INBOX";
+        return QLatin1String("INBOX");
     else
         return decodeImapFolderName(r.first);
 
@@ -330,14 +330,16 @@ QList<uint> getSequence(const QByteArray &line, int &start)
 
 QDateTime parseRFC2822DateTime(const QString &string)
 {
-    QStringList monthNames = QStringList() << "jan" << "feb" << "mar" << "apr"
-                             << "may" << "jun" << "jul" << "aug" << "sep" << "oct" << "nov" << "dec";
+    QStringList monthNames = QStringList() << QLatin1String("jan") << QLatin1String("feb") << QLatin1String("mar")
+                                           << QLatin1String("apr") << QLatin1String("may") << QLatin1String("jun")
+                                           << QLatin1String("jul") << QLatin1String("aug") << QLatin1String("sep")
+                                           << QLatin1String("oct") << QLatin1String("nov") << QLatin1String("dec");
 
-    QRegExp rx(QString("^(?:\\s*([A-Z][a-z]+)\\s*,\\s*)?"   // date-of-week
-                       "(\\d{1,2})\\s+(%1)\\s+(\\d{2,4})" // date
-                       "\\s+(\\d{2})\\s*:(\\d{2})\\s*(?::\\s*(\\d{2})\\s*)?" // time
-                       "(\\s+(?:(?:([+-]?)(\\d{2})(\\d{2}))|(UT|GMT|EST|EDT|CST|CDT|MST|MDT|PST|PDT|[A-IK-Za-ik-z])))?" // timezone
-                      ).arg(monthNames.join("|")), Qt::CaseInsensitive);
+    QRegExp rx(QString::fromUtf8("^(?:\\s*([A-Z][a-z]+)\\s*,\\s*)?"   // date-of-week
+                                 "(\\d{1,2})\\s+(%1)\\s+(\\d{2,4})" // date
+                                 "\\s+(\\d{2})\\s*:(\\d{2})\\s*(?::\\s*(\\d{2})\\s*)?" // time
+                                 "(\\s+(?:(?:([+-]?)(\\d{2})(\\d{2}))|(UT|GMT|EST|EDT|CST|CDT|MST|MDT|PST|PDT|[A-IK-Za-ik-z])))?" // timezone
+                                 ).arg(monthNames.join(QLatin1String("|"))), Qt::CaseInsensitive);
     int pos = rx.indexIn(string);
 
     if (pos == -1)
@@ -357,29 +359,29 @@ QDateTime parseRFC2822DateTime(const QString &string)
     int minutes = list[6].toInt();
     int seconds = list[7].toInt();
     int shift = list[10].toInt() * 60 + list[11].toInt();
-    if (list[9] == "-")
+    if (list[9] == QLatin1String("-"))
         shift *= 60;
     else
         shift *= -60;
     if (! list[12].isEmpty()) {
         const QString tz = list[12].toUpper();
-        if (tz == "UT" || tz == "GMT")
+        if (tz == QLatin1String("UT") || tz == QLatin1String("GMT"))
             shift = 0;
-        else if (tz == "EST")
+        else if (tz == QLatin1String("EST"))
             shift = 5 * 3600;
-        else if (tz == "EDT")
+        else if (tz == QLatin1String("EDT"))
             shift = 4 * 3600;
-        else if (tz == "CST")
+        else if (tz == QLatin1String("CST"))
             shift = 6 * 3600;
-        else if (tz == "CDT")
+        else if (tz == QLatin1String("CDT"))
             shift = 5 * 3600;
-        else if (tz == "MST")
+        else if (tz == QLatin1String("MST"))
             shift = 7 * 3600;
-        else if (tz == "MDT")
+        else if (tz == QLatin1String("MDT"))
             shift = 6 * 3600;
-        else if (tz == "PST")
+        else if (tz == QLatin1String("PST"))
             shift = 8 * 3600;
-        else if (tz == "PDT")
+        else if (tz == QLatin1String("PDT"))
             shift = 7 * 3600;
         else if (tz.size() == 1)
             shift = 0;

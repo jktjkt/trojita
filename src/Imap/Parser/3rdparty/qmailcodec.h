@@ -58,7 +58,7 @@ public:
     virtual QString name() const = 0;
 
     // Stream conversion interface including character translation
-    virtual void encode(QDataStream& out, QTextStream& in, const QString& charset = "UTF-8");
+    virtual void encode(QDataStream& out, QTextStream& in, const QString& charset = QLatin1String("UTF-8"));
     virtual void decode(QTextStream& out, QDataStream& in, const QString& charset);
 
     // Stream conversion interface
@@ -66,7 +66,7 @@ public:
     virtual void decode(QDataStream& out, QDataStream& in);
 
     // Convenience functions to encapsulate stream processing
-    QByteArray encode(const QString& in, const QString& charset = "UTF-8");
+    QByteArray encode(const QString& in, const QString& charset = QLatin1String("UTF-8"));
     QString decode(const QByteArray& in, const QString& charset);
 
     QByteArray encode(const QByteArray& in);

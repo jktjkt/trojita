@@ -2,6 +2,7 @@ TARGET = trojitaqnamwebviewplugin
 CONFIG += qt plugin
 QT += webkit declarative
 TEMPLATE = lib
+include(../../configh.pri)
 
 DESTDIR = ../trojita-tp/net/flaska/QNAMWebView
 

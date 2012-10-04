@@ -33,6 +33,7 @@
 #include "MailboxTree.h"
 #include "TaskPresentationModel.h"
 #include "OpenConnectionTask.h"
+#include "QAIM_reset.h"
 #include "Common/FindWithUnknown.h"
 
 //#define DEBUG_PERIODICALLY_DUMP_TASKS
@@ -107,7 +108,8 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
 
     m_mailboxes = new TreeItemMailbox(0);
 
-    onlineMessageFetch << "ENVELOPE" << "BODYSTRUCTURE" << "RFC822.SIZE" << "UID" << "FLAGS";
+    onlineMessageFetch << QLatin1String("ENVELOPE") << QLatin1String("BODYSTRUCTURE") << QLatin1String("RFC822.SIZE") <<
+                          QLatin1String("UID") << QLatin1String("FLAGS");
 
     if (offline) {
         QTimer::singleShot(0, this, SLOT(setNetworkOffline()));
@@ -180,7 +182,7 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
                 QString buf;
                 QTextStream s(&buf);
                 s << *stateResponse;
-                logTrace(it->parser->parserId(), LOG_OTHER, QString::fromAscii("Model"), QString::fromAscii("BAD response: %1").arg(buf));
+                logTrace(it->parser->parserId(), LOG_OTHER, QLatin1String("Model"), QString::fromUtf8("BAD response: %1").arg(buf));
                 qDebug() << buf;
             }
         }
@@ -253,7 +255,7 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
         } catch (Imap::StartTlsFailed &e) {
             uint parserId = it->parser->parserId();
             killParser(it->parser, PARSER_KILL_HARD);
-            logTrace(parserId, LOG_PARSE_ERROR, QString::fromStdString(e.exceptionClass()), QString::fromAscii("STARTTLS has failed"));
+            logTrace(parserId, LOG_PARSE_ERROR, QString::fromStdString(e.exceptionClass()), QLatin1String("STARTTLS has failed"));
             emit connectionError(tr("<p>The server has refused to start the encryption through the STARTTLS command.</p>"));
             setNetworkOffline();
             break;
@@ -282,7 +284,7 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
 
             killParser(it.key(), PARSER_JUST_DELETE_LATER);
             m_parsers.erase(it);
-            m_taskModel->reset();
+            RESET_MODEL_2(m_taskModel);
         }
     }
 }
@@ -1078,7 +1080,7 @@ void Model::broadcastParseError(const uint parser, const QString &exceptionClass
 {
     emit logParserFatalError(parser, exceptionClass, errorMessage, line, position);
     QByteArray details = (position == -1) ? QByteArray() : QByteArray(position, ' ') + QByteArray("^ here");
-    logTrace(parser, LOG_PARSE_ERROR, exceptionClass, QString::fromAscii("%1\n%2\n%3").arg(errorMessage, line, details));
+    logTrace(parser, LOG_PARSE_ERROR, exceptionClass, QString::fromUtf8("%1\n%2\n%3").arg(errorMessage, line, details));
     emit connectionError(trUtf8("<p>The IMAP server sent us a reply which we could not parse. "
                                 "This might either mean that there's a bug in Trojiá's code, or "
                                 "that the IMAP server you are connected to is broken. Please "
@@ -1107,7 +1109,7 @@ void Model::updateCapabilities(Parser *parser, const QStringList capabilities)
     Q_FOREACH(const QString& str, capabilities) {
         QString cap = str.toUpper();
         if (m_capabilitiesBlacklist.contains(cap)) {
-            logTrace(parser->parserId(), LOG_OTHER, QLatin1String("Model"), QString::fromAscii("Ignoring capability \"%1\"").arg(cap));
+            logTrace(parser->parserId(), LOG_OTHER, QLatin1String("Model"), QString::fromUtf8("Ignoring capability \"%1\"").arg(cap));
             continue;
         }
         uppercaseCaps << cap;

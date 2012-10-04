@@ -22,6 +22,7 @@
 #include "SubtreeModel.h"
 #include "MailboxModel.h"
 #include "Model.h"
+#include "QAIM_reset.h"
 
 namespace Imap
 {
@@ -82,7 +83,9 @@ void SubtreeModel::setSourceModel(QAbstractItemModel *sourceModel)
     }
     QAbstractProxyModel::setSourceModel(sourceModel);
     if (sourceModel) {
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
         setRoleNames(sourceModel->roleNames());
+#endif
         // FIXME: will need to be expanded when the source model supports more signals...
         connect(sourceModel, SIGNAL(modelAboutToBeReset()), this, SLOT(handleModelAboutToBeReset()));
         connect(sourceModel, SIGNAL(modelReset()), this, SLOT(handleModelReset()));
@@ -269,7 +272,7 @@ void SubtreeModel::handleRowsRemoved(const QModelIndex &parent, int first, int l
 
     if (!m_usingInvalidRoot && !m_rootIndex.isValid()) {
         // This is our chance to report back about everything being deleted
-        reset();
+        RESET_MODEL;
         return;
     }
 
@@ -305,6 +308,15 @@ QModelIndex SubtreeModel::rootIndex() const
     return m_rootIndex;
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+QHash<int,QByteArray> SubtreeModel::roleNames() const
+{
+    if (sourceModel())
+        return sourceModel()->roleNames();
+    else
+        return QHash<int, QByteArray>();
+}
+#endif
 
 }
 }

@@ -147,7 +147,7 @@ void QwwSmtpClientPrivate::onError(QAbstractSocket::SocketError e)
 void QwwSmtpClientPrivate::_q_readFromSocket() {
     while (socket->canReadLine()) {
         QString line = socket->readLine();
-        qDebug() << "SMTP <<<" << line.toAscii().constData();
+        qDebug() << "SMTP <<<" << line.toUtf8().constData();
         QRegExp rx("(\\d+)-(.*)\n");        // multiline response (aka 250-XYZ)
         QRegExp rxlast("(\\d+) (.*)\n");    // single or last line response (aka 250 XYZ)
         bool mid = rx.exactMatch(line);

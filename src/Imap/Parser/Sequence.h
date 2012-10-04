@@ -74,8 +74,8 @@ public:
     */
     Sequence &add(const uint num);
 
-    /** @short Converts sequence to string suitable for sending over the wire */
-    QString toString() const;
+    /** @short Converts sequence to a textual representation suitable for sending over the wire */
+    QByteArray toByteArray() const;
 
     /** @short Converts sequence to a list of UIDs */
     QList<uint> toList() const;

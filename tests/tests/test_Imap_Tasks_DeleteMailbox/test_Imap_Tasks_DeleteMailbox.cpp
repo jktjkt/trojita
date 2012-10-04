@@ -63,13 +63,13 @@ void ImapModelDeleteMailboxTest::initTestCase()
 void ImapModelDeleteMailboxTest::_initWithOne()
 {
     // Init with one example mailbox
-    taskFactoryUnsafe->fakeListChildMailboxesMap[ QString::fromAscii("") ] = QStringList() << QString::fromAscii("a");
+    taskFactoryUnsafe->fakeListChildMailboxesMap[ QLatin1String("") ] = QStringList() << QLatin1String("a");
     model->rowCount( QModelIndex() );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( QModelIndex() ), 2 );
     QModelIndex idxA = model->index( 1, 0, QModelIndex() );
-    QCOMPARE( model->data( idxA, Qt::DisplayRole ), QVariant(QString::fromAscii("a")) );
+    QCOMPARE( model->data( idxA, Qt::DisplayRole ), QVariant(QLatin1String("a")) );
     QCoreApplication::processEvents();
     QVERIFY( SOCK->writtenStuff().isEmpty() );
 }

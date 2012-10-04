@@ -270,15 +270,15 @@ QTextStream &operator<<(QTextStream &stream, const NamespaceData &data)
 Status::StateKind Status::stateKindFromStr(QString s)
 {
     s = s.toUpper();
-    if (s == "MESSAGES")
+    if (s == QLatin1String("MESSAGES"))
         return MESSAGES;
-    if (s == "RECENT")
+    if (s == QLatin1String("RECENT"))
         return RECENT;
-    if (s == "UIDNEXT")
+    if (s == QLatin1String("UIDNEXT"))
         return UIDNEXT;
-    if (s == "UIDVALIDITY")
+    if (s == QLatin1String("UIDVALIDITY"))
         return UIDVALIDITY;
-    if (s == "UNSEEN")
+    if (s == QLatin1String("UNSEEN"))
         return UNSEEN;
     throw UnrecognizedResponseKind(s.toStdString());
 }
@@ -315,17 +315,17 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
 
     if (!_list.isEmpty()) {
         const QString r = _list.first().toUpper();
-#define CASE(X) else if ( r == #X ) respCode = Responses::X;
-        if (r == "ALERT")
+#define CASE(X) else if (r == QLatin1String(#X)) respCode = Responses::X;
+        if (r == QLatin1String("ALERT"))
             respCode = Responses::ALERT;
         CASE(BADCHARSET)
-        else if (r == "CAPABILITY")
+        else if (r == QLatin1String("CAPABILITY"))
             respCode = Responses::CAPABILITIES;
         CASE(PARSE)
         CASE(PERMANENTFLAGS)
-        else if (r == "READ-ONLY")
+        else if (r == QLatin1String("READ-ONLY"))
             respCode = Responses::READ_ONLY;
-        else if (r == "READ-WRITE")
+        else if (r == QLatin1String("READ-WRITE"))
             respCode = Responses::READ_WRITE;
         CASE(TRYCREATE)
         CASE(UIDNEXT)
@@ -333,7 +333,7 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
         CASE(UNSEEN)
         CASE(NEWNAME)
         CASE(REFERRAL)
-        else if (r == "UNKNOWN-CTE")
+        else if (r == QLatin1String("UNKNOWN-CTE"))
             respCode = Responses::UNKNOWN_CTE;
         CASE(UIDNOTSTICKY)
         CASE(APPENDUID)
@@ -357,7 +357,7 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
         // FIXME: not implemented CASE(METADATA)
         CASE(NOTIFICATIONOVERFLOW)
         CASE(BADEVENT)
-        else if (r == "UNDEFINED-FILTER")
+        else if (r == QLatin1String("UNDEFINED-FILTER"))
             respCode = Responses::UNDEFINED_FILTER;
         CASE(UNAVAILABLE)
         CASE(AUTHENTICATIONFAILED)
@@ -479,21 +479,21 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
             break;
         case Responses::ATOM: // no sanity check here, just make a string
         case Responses::NONE: // this won't happen, but if we ommit it, gcc warns us about that
-            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(_list.join(" ")));
+            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(_list.join(QLatin1String(" "))));
             break;
         case Responses::NEWNAME:
         case Responses::REFERRAL:
         case Responses::BADURL:
             // FIXME: check if indeed won't eat the spaces
-            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(_list.join(" ")));
+            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(_list.join(QLatin1String(" "))));
             break;
         case Responses::NOUPDATE:
             // FIXME: check if indeed won't eat the spaces, and optionally verify that it came as a quoted string
-            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(_list.join(" ")));
+            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(_list.join(QLatin1String(" "))));
             break;
         case Responses::UNDEFINED_FILTER:
             // FIXME: check if indeed won't eat the spaces, and optionally verify that it came as an atom
-            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(_list.join(" ")));
+            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(_list.join(QLatin1String(" "))));
             break;
         case Responses::APPENDUID:
         {
@@ -555,7 +555,7 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
             if (_list.count() != 1)
                 throw InvalidResponseCode("ANNOTATE response code got weird number of elements", line, start);
             QString token = _list.first().toUpper();
-            if (token == QString::fromAscii("TOOBIG") || token == QString::fromAscii("TOOMANY"))
+            if (token == QLatin1String("TOOBIG") || token == QLatin1String("TOOMANY"))
                 respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(token));
             else
                 throw InvalidResponseCode("ANNOTATE response code with invalid value", line, start);
@@ -576,8 +576,12 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
             qDebug() << "Response with no data besides the response code, yuck" << line;
         }
     } else {
-        message = line.mid(start);
-        Q_ASSERT(message.endsWith("\r\n"));
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+        message = QString::fromUtf8(line.mid(start));
+#else
+        message = QString::fromUtf8(line.mid(start).constData());
+#endif
+        Q_ASSERT(message.endsWith(QLatin1String("\r\n")));
         message.chop(2);
     }
 }
@@ -605,7 +609,7 @@ List::List(const Kind _kind, const QByteArray &line, int &start):
         ++start;
         if (line.at(start) == '\\')
             ++start;
-        separator = line.at(start);
+        separator = QChar::fromLatin1(line.at(start));
         ++start;
         if (line.at(start) != '"')
             throw ParseError(line, start);
@@ -840,7 +844,7 @@ QDateTime Fetch::dateify(QByteArray str, const QByteArray &line, const int start
     if (str.size() != 26)
         throw ParseError(line, start);
 
-    QDateTime date = QLocale(QString::fromAscii("C")).toDateTime(str.left(20), QString::fromAscii("d-MMM-yyyy HH:mm:ss"));
+    QDateTime date = QLocale(QLocale::C).toDateTime(str.left(20), QLatin1String("d-MMM-yyyy HH:mm:ss"));
     const char sign = str[21];
     bool ok;
     uint hours = str.mid(22, 2).toUInt(&ok);
@@ -884,7 +888,7 @@ Fetch::Fetch(const uint _number, const QByteArray &line, int &start):
             if (data.contains(identifier))
                 throw UnexpectedHere(line, start);   // FIXME: wrong offset
         } else {
-            if (identifier == "BODY" || identifier == "BODYSTRUCTURE") {
+            if (identifier == QLatin1String("BODY") || identifier == QLatin1String("BODYSTRUCTURE")) {
                 if (it->type() != QVariant::List)
                     throw UnexpectedHere(line, start);
                 data[identifier] = Message::AbstractMessage::fromList(it->toList(), line, start);
@@ -892,49 +896,49 @@ Fetch::Fetch(const uint _number, const QByteArray &line, int &start):
                 QDataStream stream(&buffer, QIODevice::WriteOnly);
                 stream.setVersion(QDataStream::Qt_4_6);
                 stream << it->toList();
-                data["x-trojita-bodystructure"] = QSharedPointer<AbstractData>(
+                data[QLatin1String("x-trojita-bodystructure")] = QSharedPointer<AbstractData>(
                                                       new RespData<QByteArray>(buffer));
 
-            } else if (identifier.startsWith("BODY[") || identifier.startsWith("BINARY[")) {
+            } else if (identifier.startsWith(QLatin1String("BODY[")) || identifier.startsWith(QLatin1String("BINARY["))) {
                 // FIXME: split into more identifiers?
                 if (it->type() != QVariant::ByteArray)
                     throw UnexpectedHere(line, start);
                 data[identifier] = QSharedPointer<AbstractData>(
                                        new RespData<QByteArray>(it->toByteArray()));
 
-            } else if (identifier == "ENVELOPE") {
+            } else if (identifier == QLatin1String("ENVELOPE")) {
                 if (it->type() != QVariant::List)
                     throw UnexpectedHere(line, start);
                 QVariantList items = it->toList();
                 data[identifier] = QSharedPointer<AbstractData>(
                                        new RespData<Message::Envelope>(Message::Envelope::fromList(items, line, start)));
 
-            } else if (identifier == "FLAGS") {
+            } else if (identifier == QLatin1String("FLAGS")) {
                 if (! it->canConvert(QVariant::StringList))
                     throw UnexpectedHere(line, start);   // FIXME: wrong offset
 
                 data[identifier] = QSharedPointer<AbstractData>(
                                        new RespData<QStringList>(it->toStringList()));
 
-            } else if (identifier == "INTERNALDATE") {
+            } else if (identifier == QLatin1String("INTERNALDATE")) {
                 if (it->type() != QVariant::ByteArray)
                     throw UnexpectedHere(line, start);   // FIXME: wrong offset
                 QByteArray _str = it->toByteArray();
                 data[ identifier ] = QSharedPointer<AbstractData>(
                                          new RespData<QDateTime>(dateify(_str, line, start)));
 
-            } else if (identifier == "RFC822" ||
-                       identifier == "RFC822.HEADER" || identifier == "RFC822.TEXT") {
+            } else if (identifier == QLatin1String("RFC822") ||
+                       identifier == QLatin1String("RFC822.HEADER") || identifier == QLatin1String("RFC822.TEXT")) {
                 if (it->type() != QVariant::ByteArray)
                     throw UnexpectedHere(line, start);   // FIXME: wrong offset
                 data[ identifier ] = QSharedPointer<AbstractData>(
                                          new RespData<QByteArray>(it->toByteArray()));
-            } else if (identifier == "RFC822.SIZE" || identifier == "UID") {
+            } else if (identifier == QLatin1String("RFC822.SIZE") || identifier == QLatin1String("UID")) {
                 if (it->type() != QVariant::UInt)
                     throw ParseError(line, start);   // FIXME: wrong offset
                 data[ identifier ] = QSharedPointer<AbstractData>(
                                          new RespData<uint>(it->toUInt()));
-            } else if (identifier == "MODSEQ") {
+            } else if (identifier == QLatin1String("MODSEQ")) {
                 if (it->type() != QVariant::List)
                     throw UnexpectedHere(line, start);
                 QVariantList items = it->toList();
@@ -1117,7 +1121,7 @@ Arrived::Arrived(const QByteArray &line, int &start):
 GenUrlAuth::GenUrlAuth(const QByteArray &line, int &start):
     AbstractResponse(GENURLAUTH)
 {
-    url = QString::fromAscii(LowLevelParser::getString(line, start).first);
+    url = QString::fromUtf8(LowLevelParser::getString(line, start).first);
     if (start != line.size() - 2)
         throw TooMuchData(line, start);
 }
@@ -1273,7 +1277,7 @@ static QString threadDumpHelper(const ThreadingNode &node)
         for (QVector<ThreadingNode>::const_iterator it = node.children.begin(); it != node.children.end(); ++it) {
             res << threadDumpHelper(*it);
         }
-        return QString::fromAscii("%1: {%2}").arg(node.num).arg(res.join(QString::fromAscii(", ")));
+        return QString::fromUtf8("%1: {%2}").arg(node.num).arg(res.join(QLatin1String(", ")));
     }
 }
 
@@ -1339,7 +1343,11 @@ QTextStream &SocketEncryptedResponse::dump(QTextStream &s) const
             if (e.certificate().isNull()) {
                 s << e.errorString() << " ";
             } else {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+                s << e.errorString() << " (CN: " << e.certificate().subjectInfo(QSslCertificate::CommonName).join(", ") << ") ";
+#else
                 s << e.errorString() << " (CN: " << e.certificate().subjectInfo(QSslCertificate::CommonName) << ") ";
+#endif
             }
         }
         s << "]";
@@ -1610,7 +1618,7 @@ bool SocketDisconnectedResponse::eq(const AbstractResponse &other) const
 }
 
 ParseErrorResponse::ParseErrorResponse(const ImapException &e):
-    message(QString::fromAscii(e.msg().c_str())), exceptionClass(e.exceptionClass().c_str()), line(e.line()), offset(e.offset())
+    message(QString::fromUtf8(e.msg().c_str())), exceptionClass(e.exceptionClass().c_str()), line(e.line()), offset(e.offset())
 {
 }
 

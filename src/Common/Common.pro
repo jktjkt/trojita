@@ -11,3 +11,4 @@ HEADERS += SettingsNames.h \
 
 GITVERSION_PREFIX = $$join(PWD,,,/../..)
 include(../gitversion.pri)
+include(../../configh.pri)

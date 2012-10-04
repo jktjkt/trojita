@@ -1,11 +1,11 @@
 QT += core network
 CONFIG += staticlib
-DEFINES -= QT3_SUPPORT
 INCLUDEPATH += ../
 DEPENDPATH += ../
 TARGET = Streams
 TEMPLATE = lib
 
+include(../../configh.pri)
 include(ZlibLinking.pri)
 unix {
     HEADERS += 3rdparty/rfc1951.h

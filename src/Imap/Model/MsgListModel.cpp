@@ -22,8 +22,8 @@
 #include "MsgListModel.h"
 #include "MailboxTree.h"
 #include "MailboxModel.h"
+#include "QAIM_reset.h"
 
-#include <QApplication>
 #include <QDebug>
 #include <QFontMetrics>
 #include <QIcon>
@@ -58,29 +58,47 @@ MsgListModel::MsgListModel(QObject *parent, Model *model): QAbstractProxyModel(p
     connect(this, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SIGNAL(indexStateChanged()));
     connect(this, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SIGNAL(indexStateChanged()));
 
-    QHash<int, QByteArray> roleNames;
-    roleNames[RoleIsFetched] = "isFetched";
-    roleNames[RoleMessageUid] = "messageUid";
-    roleNames[RoleMessageIsMarkedDeleted] = "isMarkedDeleted";
-    roleNames[RoleMessageIsMarkedRead] = "isMarkedRead";
-    roleNames[RoleMessageIsMarkedForwarded] = "isMarkedForwarded";
-    roleNames[RoleMessageIsMarkedReplied] = "isMarkedReplied";
-    roleNames[RoleMessageIsMarkedRecent] = "isMarkedRecent";
-    roleNames[RoleMessageDate] = "date";
-    roleNames[RoleMessageInternalDate] = "receivedDate";
-    roleNames[RoleMessageFrom] = "from";
-    roleNames[RoleMessageTo] = "to";
-    roleNames[RoleMessageCc] = "cc";
-    roleNames[RoleMessageBcc] = "bcc";
-    roleNames[RoleMessageSender] = "sender";
-    roleNames[RoleMessageReplyTo] = "replyTo";
-    roleNames[RoleMessageInReplyTo] = "inReplyTo";
-    roleNames[RoleMessageMessageId] = "messageId";
-    roleNames[RoleMessageSubject] = "subject";
-    roleNames[RoleMessageFlags] = "flags";
-    roleNames[RoleMessageSize] = "size";
-    roleNames[RoleMessageFuzzyDate] = "fuzzyDate";
-    setRoleNames(roleNames);
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    // There's no virtual in Qt4.
+    setRoleNames(trojitaProxyRoleNames());
+#else
+    // In Qt5, the roleNames() is virtual and will work just fine.
+#endif
+}
+
+// The following code is pretty much a huge PITA. The handling of roleNames() has changed between Qt4 and Qt5 in a way which makes
+// it rather convoluted to support both in the same code base. Oh well.
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+QHash<int, QByteArray> MsgListModel::trojitaProxyRoleNames() const
+#else
+QHash<int, QByteArray> MsgListModel::roleNames() const
+#endif
+{
+    static QHash<int, QByteArray> roleNames;
+    if (roleNames.isEmpty()) {
+        roleNames[RoleIsFetched] = "isFetched";
+        roleNames[RoleMessageUid] = "messageUid";
+        roleNames[RoleMessageIsMarkedDeleted] = "isMarkedDeleted";
+        roleNames[RoleMessageIsMarkedRead] = "isMarkedRead";
+        roleNames[RoleMessageIsMarkedForwarded] = "isMarkedForwarded";
+        roleNames[RoleMessageIsMarkedReplied] = "isMarkedReplied";
+        roleNames[RoleMessageIsMarkedRecent] = "isMarkedRecent";
+        roleNames[RoleMessageDate] = "date";
+        roleNames[RoleMessageInternalDate] = "receivedDate";
+        roleNames[RoleMessageFrom] = "from";
+        roleNames[RoleMessageTo] = "to";
+        roleNames[RoleMessageCc] = "cc";
+        roleNames[RoleMessageBcc] = "bcc";
+        roleNames[RoleMessageSender] = "sender";
+        roleNames[RoleMessageReplyTo] = "replyTo";
+        roleNames[RoleMessageInReplyTo] = "inReplyTo";
+        roleNames[RoleMessageMessageId] = "messageId";
+        roleNames[RoleMessageSubject] = "subject";
+        roleNames[RoleMessageFlags] = "flags";
+        roleNames[RoleMessageSize] = "size";
+        roleNames[RoleMessageFuzzyDate] = "fuzzyDate";
+    }
+    return roleNames;
 }
 
 void MsgListModel::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
@@ -211,13 +229,13 @@ QVariant MsgListModel::data(const QModelIndex &proxyIndex, int role) const
         case SUBJECT:
             return QAbstractProxyModel::data(proxyIndex, Qt::DisplayRole);
         case FROM:
-            return QString::fromAscii("[from]");
+            return QLatin1String("[from]");
         case TO:
-            return QString::fromAscii("[to]");
+            return QLatin1String("[to]");
         case CC:
-            return QString::fromAscii("[cc]");
+            return QLatin1String("[cc]");
         case BCC:
-            return QString::fromAscii("[bcc]");
+            return QLatin1String("[bcc]");
         case DATE:
             return message->envelope(static_cast<Model *>(sourceModel())).date;
         case RECEIVED_DATE:
@@ -340,7 +358,7 @@ void MsgListModel::resetMe()
 {
     msgListPtr = 0;
     msgList = QModelIndex();
-    reset();
+    RESET_MODEL;
 }
 
 void MsgListModel::handleRowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
@@ -462,7 +480,7 @@ void MsgListModel::setMailbox(const QModelIndex &index)
         msgListPtr = newList;
         msgList = msgListPtr->toIndex(const_cast<Model*>(model));
         msgListPtr->resetWasUnreadState();
-        reset();
+        RESET_MODEL;
         emit mailboxChanged();
         // We want to tell the Model that it should consider starting the IDLE command.
         const_cast<Model *>(model)->switchToMailbox(index);

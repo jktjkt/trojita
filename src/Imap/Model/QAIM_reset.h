@@ -18,22 +18,19 @@
    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#include "UserAgentWebPage.h"
-#include <QtCore/QCoreApplication>
-#include "Imap/Model/Utils.h"
 
-namespace Gui
-{
-
-UserAgentWebPage::UserAgentWebPage(QWidget *parent): QWebPage(parent)
-{
+/** @short A naive helper suitable for achieving roughly the same effect as Qt4's QAbstractItemModel::reset() in both Qt4 and Qt5 */
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#  define RESET_MODEL_2(MODEL) \
+{ \
+    MODEL->beginResetModel(); \
+    MODEL->endResetModel();\
 }
-
-QString UserAgentWebPage::userAgentForUrl(const QUrl &url) const
-{
-    Q_UNUSED(url);
-    return QString::fromUtf8("Trojita/%1; %2").arg(QCoreApplication::applicationVersion(), Imap::Mailbox::systemPlatformVersion());
+#else
+#  define RESET_MODEL_2(MODEL) \
+{ \
+    MODEL->reset(); \
 }
+#endif
 
-
-}
+#define RESET_MODEL RESET_MODEL_2(this)

@@ -44,8 +44,8 @@ void IdTask::perform()
     if (model->property("trojita-imap-enable-id").toBool()) {
         QMap<QByteArray,QByteArray> identification;
         identification["name"] = "Trojita";
-        identification["version"] = QCoreApplication::applicationVersion().toAscii();
-        identification["os"] = systemPlatformVersion().toAscii();
+        identification["version"] = QCoreApplication::applicationVersion().toUtf8();
+        identification["os"] = systemPlatformVersion().toUtf8();
         tag = parser->idCommand(identification);
     } else {
         tag = parser->idCommand();

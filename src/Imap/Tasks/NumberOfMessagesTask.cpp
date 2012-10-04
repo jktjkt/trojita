@@ -84,11 +84,11 @@ bool NumberOfMessagesTask::handleStateHelper(const Imap::Responses::State *const
 QString NumberOfMessagesTask::debugIdentification() const
 {
     if (! mailboxIndex.isValid())
-        return QString::fromAscii("[invalid mailboxIndex]");
+        return QLatin1String("[invalid mailboxIndex]");
 
     TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
     Q_ASSERT(mailbox);
-    return QString::fromAscii("attached to %1").arg(mailbox->mailbox());
+    return QString::fromUtf8("attached to %1").arg(mailbox->mailbox());
 }
 
 QVariant NumberOfMessagesTask::taskData(const int role) const

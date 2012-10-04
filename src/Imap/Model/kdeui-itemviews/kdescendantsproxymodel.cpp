@@ -83,6 +83,9 @@ class KDescendantsProxyModelPrivate
 
   QList<QPersistentModelIndex> m_layoutChangePersistentIndexes;
   QModelIndexList m_proxyIndexes;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+  QHash<int,QByteArray> m_roleNames;
+#endif
 };
 
 void KDescendantsProxyModelPrivate::resetInternalData()
@@ -993,5 +996,23 @@ Qt::DropActions KDescendantsProxyModel::supportedDropActions() const
     return QAbstractProxyModel::supportedDropActions();
   return sourceModel()->supportedDropActions();
 }
+
+void KDescendantsProxyModel::proxySetRoleNames(const QHash<int, QByteArray> &roleNames)
+{
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    setRoleNames(roleNames);
+#else
+  Q_D(KDescendantsProxyModel);
+  d->m_roleNames = roleNames;
+#endif
+}
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+QHash<int,QByteArray> KDescendantsProxyModel::roleNames() const
+{
+  Q_D(const KDescendantsProxyModel);
+  return d->m_roleNames;
+}
+#endif
 
 #include "moc_kdescendantsproxymodel.cpp"

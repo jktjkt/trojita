@@ -1,6 +1,6 @@
 QT += core network
 CONFIG += staticlib
-DEFINES -= QT3_SUPPORT
+include(../../configh.pri)
 INCLUDEPATH += ../
 DEPENDPATH += ../
 TARGET = qwwsmtpclient

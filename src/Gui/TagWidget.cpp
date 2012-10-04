@@ -17,13 +17,13 @@ namespace Gui
 TagWidget::TagWidget(const QString &buttonText, QWidget *parent, Qt::WindowFlags f) :
     QLabel(buttonText, parent, f)
 {
-    init();
+    commonInit();
 }
 
 TagWidget::TagWidget(const QString &tagName, const QString &buttonText, QWidget *parent, Qt::WindowFlags f) :
     QLabel(tagName + " | " + buttonText, parent, f), m_tagName(tagName)
 {
-    init();
+    commonInit();
 }
 
 bool TagWidget::event(QEvent *e)
@@ -43,7 +43,7 @@ QString TagWidget::tagName() const
     return m_tagName;
 }
 
-void TagWidget::init()
+void TagWidget::commonInit()
 {
     setStyleSheet("border: 1px solid green;"
                   "border-radius: 4px;"

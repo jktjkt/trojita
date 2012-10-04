@@ -63,7 +63,7 @@ QString FileAttachmentItem::tooltip() const
     if (!f.isReadable())
         return MessageComposer::tr("File is not readable");
 
-    return MessageComposer::tr("%1: %2, %3").arg(fileName, QString::fromAscii(mimeType()), QString::number(f.size()));
+    return MessageComposer::tr("%1: %2, %3").arg(fileName, QString::fromUtf8(mimeType()), QString::number(f.size()));
 }
 
 bool FileAttachmentItem::isAvailableLocally() const
@@ -121,7 +121,7 @@ QByteArray FileAttachmentItem::contentDispositionHeader() const
     // Either I'm having a really, really bad day and I'm missing something, or they made a rather stupid bug.
 
     // FIXME: support RFC 2231 and its internationalized file names
-    QByteArray shortFileName = QFileInfo(fileName).fileName().toAscii();
+    QByteArray shortFileName = QFileInfo(fileName).fileName().toUtf8();
     if (shortFileName.isEmpty())
         shortFileName = "attachment";
     return "Content-Disposition: attachment;\r\n\tfilename=\"" + shortFileName + "\"\r\n";
@@ -168,7 +168,7 @@ QString ImapMessageAttachmentItem::tooltip() const
     TreeItemMessage *msg = messagePtr();
     if (!msg || !model)
         return QString();
-    return MessageComposer::tr("IMAP message %1").arg(QString::fromAscii(imapUrl()));
+    return MessageComposer::tr("IMAP message %1").arg(QString::fromUtf8(imapUrl()));
 }
 
 QByteArray ImapMessageAttachmentItem::contentDispositionHeader() const
@@ -178,7 +178,7 @@ QByteArray ImapMessageAttachmentItem::contentDispositionHeader() const
         return QByteArray();
     // FIXME: this header "sanitization" is so crude, ugly, buggy and non-compliant that I shall feel deeply ashamed
     return "Content-Disposition: attachment;\r\n\tfilename=\"" +
-            msg->envelope(model).subject.toAscii().replace("\"", "'") + ".eml\"\r\n";
+            msg->envelope(model).subject.toUtf8().replace("\"", "'") + ".eml\"\r\n";
 }
 
 QByteArray ImapMessageAttachmentItem::mimeType() const
@@ -259,8 +259,8 @@ AttachmentItem::ContentTransferEncoding ImapMessageAttachmentItem::suggestedCTE(
 
 QByteArray ImapMessageAttachmentItem::imapUrl() const
 {
-    return QString::fromAscii("/%1;UIDVALIDITY=%2/;UID=%3").arg(
-                QUrl::toPercentEncoding(mailbox), QString::number(uidValidity), QString::number(uid)).toAscii();
+    return QString::fromUtf8("/%1;UIDVALIDITY=%2/;UID=%3").arg(
+                QUrl::toPercentEncoding(mailbox), QString::number(uidValidity), QString::number(uid)).toUtf8();
 }
 
 void ImapMessageAttachmentItem::preload() const
@@ -312,7 +312,7 @@ QString ImapPartAttachmentItem::caption() const
     if (part && !part->fileName().isEmpty()) {
         return part->fileName();
     } else {
-        return MessageComposer::tr("IMAP part %1").arg(QString::fromAscii(imapUrl()));
+        return MessageComposer::tr("IMAP part %1").arg(QString::fromUtf8(imapUrl()));
     }
 }
 
@@ -329,7 +329,7 @@ QByteArray ImapPartAttachmentItem::mimeType() const
     TreeItemPart *part = partPtr();
     if (!part)
         return QByteArray();
-    return part->mimeType().toAscii();
+    return part->mimeType().toUtf8();
 }
 
 QByteArray ImapPartAttachmentItem::contentDispositionHeader() const
@@ -337,7 +337,7 @@ QByteArray ImapPartAttachmentItem::contentDispositionHeader() const
     TreeItemPart *part = partPtr();
     if (!part)
         return QByteArray();
-    return "Content-Disposition: attachment;\r\n\tfilename=\"" + part->fileName().toAscii() + "\"\r\n";
+    return "Content-Disposition: attachment;\r\n\tfilename=\"" + part->fileName().toUtf8() + "\"\r\n";
 }
 
 AttachmentItem::ContentTransferEncoding ImapPartAttachmentItem::suggestedCTE() const
@@ -366,8 +366,8 @@ bool ImapPartAttachmentItem::isAvailableLocally() const
 
 QByteArray ImapPartAttachmentItem::imapUrl() const
 {
-    return QString::fromAscii("/%1;UIDVALIDITY=%2/;UID=%3/;SECTION=%4").arg(
-                QUrl::toPercentEncoding(mailbox), QString::number(uidValidity), QString::number(uid), imapPartId).toAscii();
+    return QString::fromUtf8("/%1;UIDVALIDITY=%2/;UID=%3/;SECTION=%4").arg(
+                QUrl::toPercentEncoding(mailbox), QString::number(uidValidity), QString::number(uid), imapPartId).toUtf8();
 }
 
 void ImapPartAttachmentItem::preload() const

@@ -82,7 +82,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyMinimal()
     cEmpty();
 
     // Check the cache
-    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QString::fromAscii("a") );
+    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QLatin1String("a") );
     QCOMPARE( syncState.exists(), 0u );
     QCOMPARE( syncState.flags(), QStringList() );
     QCOMPARE( syncState.isUsableForNumbers(), false );
@@ -126,16 +126,16 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
     cEmpty();
 
     // Check the cache
-    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QString::fromAscii("a") );
+    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QLatin1String("a") );
     QCOMPARE( syncState.exists(), 0u );
-    QCOMPARE( syncState.flags(), QStringList() << QString::fromAscii("\\Answered") <<
-              QString::fromAscii("\\Flagged") << QString::fromAscii("\\Deleted") <<
-              QString::fromAscii("\\Seen") << QString::fromAscii("\\Draft") );
+    QCOMPARE( syncState.flags(), QStringList() << QLatin1String("\\Answered") <<
+              QLatin1String("\\Flagged") << QLatin1String("\\Deleted") <<
+              QLatin1String("\\Seen") << QLatin1String("\\Draft") );
     QCOMPARE( syncState.isUsableForNumbers(), false );
     QCOMPARE( syncState.isUsableForSyncing(), true );
-    QCOMPARE( syncState.permanentFlags(), QStringList() << QString::fromAscii("\\Answered") <<
-              QString::fromAscii("\\Flagged") << QString::fromAscii("\\Deleted") <<
-              QString::fromAscii("\\Seen") << QString::fromAscii("\\Draft") << QString::fromAscii("\\*") );
+    QCOMPARE( syncState.permanentFlags(), QStringList() << QLatin1String("\\Answered") <<
+              QLatin1String("\\Flagged") << QLatin1String("\\Deleted") <<
+              QLatin1String("\\Seen") << QLatin1String("\\Draft") << QLatin1String("\\*") );
     QCOMPARE( syncState.recent(), 0u );
     QCOMPARE( syncState.uidNext(), 3u );
     QCOMPARE( syncState.uidValidity(), 666u );
@@ -156,7 +156,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
     cEmpty();
 
     // Check the cache; now it should be almost empty
-    syncState = model->cache()->mailboxSyncState( QString::fromAscii("a") );
+    syncState = model->cache()->mailboxSyncState( QLatin1String("a") );
     QCOMPARE( syncState.exists(), 0u );
     QCOMPARE( syncState.flags(), QStringList() );
     QCOMPARE( syncState.isUsableForNumbers(), false );
@@ -466,7 +466,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheUidValidity()
     model->cache()->setMsgFlags("a", 6, QStringList() << "f6");
     // And even message metadata
     Imap::Mailbox::AbstractCache::MessageDataBundle bundle;
-    bundle.envelope = Imap::Message::Envelope(QDateTime::currentDateTime(), QString::fromAscii("subj"),
+    bundle.envelope = Imap::Message::Envelope(QDateTime::currentDateTime(), QLatin1String("subj"),
                                               QList<Imap::Message::MailAddress>(), QList<Imap::Message::MailAddress>(),
                                               QList<Imap::Message::MailAddress>(), QList<Imap::Message::MailAddress>(),
                                               QList<Imap::Message::MailAddress>(), QList<Imap::Message::MailAddress>(),

@@ -1,6 +1,9 @@
 QT += core network
-CONFIG += qtestlib
-DEFINES -= QT3_SUPPORT
+lessThan(QT_MAJOR_VERSION, 5) {
+    CONFIG += qtestlib
+} else {
+    QT += testlib
+}
 DEPENDPATH += ../../../src/ ../../
 INCLUDEPATH += ../../../src/ ../../
 TEMPLATE = app

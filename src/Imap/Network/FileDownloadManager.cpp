@@ -22,7 +22,11 @@
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 #include <QDesktopServices>
+#else
+#include <QStandardPaths>
+#endif
 #include <QDir>
 
 namespace Imap
@@ -42,7 +46,11 @@ QString FileDownloadManager::toRealFileName(const QModelIndex &index)
     QString uid = index.data(Imap::Mailbox::RoleMessageUid).toString();
     QString partId = index.data(Imap::Mailbox::RolePartId).toString();
     QString name = fileName.isEmpty() ? tr("msg_%1_%2").arg(uid, partId) : fileName;
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     return QDir(QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation)).filePath(name);
+#else
+    return QDir(QStandardPaths::writableLocation(QStandardPaths::DownloadLocation)).filePath(name);
+#endif
 }
 
 QVariant FileDownloadManager::data(int role) const

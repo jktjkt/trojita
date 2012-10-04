@@ -206,7 +206,7 @@ QString decodeRFC2047String( const QByteArray& raw )
 
 QByteArray encodeImapFolderName( const QString& text )
 {
-    return KIMAP::encodeImapFolderName( text ).toAscii();
+    return KIMAP::encodeImapFolderName( text ).toLatin1();
 }
 
 QString decodeImapFolderName( const QByteArray& raw )

@@ -75,10 +75,10 @@ void ImapModelListChildMailboxesTest::testSimpleListing()
     QModelIndex idxA = model->index( 2, 0, QModelIndex() );
     QModelIndex idxB = model->index( 3, 0, QModelIndex() );
     QModelIndex idxXyz = model->index( 4, 0, QModelIndex() );
-    QCOMPARE( model->data( idxInbox, Qt::DisplayRole ), QVariant(QString::fromAscii("INBOX")) );
-    QCOMPARE( model->data( idxA, Qt::DisplayRole ), QVariant(QString::fromAscii("a")) );
-    QCOMPARE( model->data( idxB, Qt::DisplayRole ), QVariant(QString::fromAscii("b")) );
-    QCOMPARE( model->data( idxXyz, Qt::DisplayRole ), QVariant(QString::fromAscii("xyz")) );
+    QCOMPARE( model->data( idxInbox, Qt::DisplayRole ), QVariant(QLatin1String("INBOX")) );
+    QCOMPARE( model->data( idxA, Qt::DisplayRole ), QVariant(QLatin1String("a")) );
+    QCOMPARE( model->data( idxB, Qt::DisplayRole ), QVariant(QLatin1String("b")) );
+    QCOMPARE( model->data( idxXyz, Qt::DisplayRole ), QVariant(QLatin1String("xyz")) );
     QCoreApplication::processEvents();
     QVERIFY( SOCK->writtenStuff().isEmpty() );
     QCOMPARE( model->rowCount( idxInbox ), 1 ); // just the "list of messages"
@@ -108,16 +108,16 @@ void ImapModelListChildMailboxesTest::testSimpleListing()
 void ImapModelListChildMailboxesTest::testFakeListing()
 {
     taskFactoryUnsafe->fakeListChildMailboxes = true;
-    taskFactoryUnsafe->fakeListChildMailboxesMap[ QString::fromAscii("") ] = QStringList() << QString::fromAscii("a") << QString::fromAscii("b");
-    taskFactoryUnsafe->fakeListChildMailboxesMap[ QString::fromAscii("a") ] = QStringList() << QString::fromAscii("aa") << QString::fromAscii("ab");
+    taskFactoryUnsafe->fakeListChildMailboxesMap[ QLatin1String("") ] = QStringList() << QLatin1String("a") << QLatin1String("b");
+    taskFactoryUnsafe->fakeListChildMailboxesMap[ QLatin1String("a") ] = QStringList() << QLatin1String("aa") << QLatin1String("ab");
     model->rowCount( QModelIndex() );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( model->rowCount( QModelIndex() ), 3 );
     QModelIndex idxA = model->index( 1, 0, QModelIndex() );
     QModelIndex idxB = model->index( 2, 0, QModelIndex() );
-    QCOMPARE( model->data( idxA, Qt::DisplayRole ), QVariant(QString::fromAscii("a")) );
-    QCOMPARE( model->data( idxB, Qt::DisplayRole ), QVariant(QString::fromAscii("b")) );
+    QCOMPARE( model->data( idxA, Qt::DisplayRole ), QVariant(QLatin1String("a")) );
+    QCOMPARE( model->data( idxB, Qt::DisplayRole ), QVariant(QLatin1String("b")) );
     model->rowCount( idxA );
     model->rowCount( idxB );
     QCoreApplication::processEvents();

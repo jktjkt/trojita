@@ -21,7 +21,11 @@
 #include "Utils.h"
 #include <cmath>
 #include <QDateTime>
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 #include <QDesktopServices>
+#else
+#include <QStandardPaths>
+#endif
 #include <QDir>
 #include <QLocale>
 #include <QProcess>
@@ -66,19 +70,23 @@ QString PrettySize::prettySize(uint bytes, const ShowBytesSuffix compactUnitForm
 
 QString persistentLogFileName()
 {
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     QString logFileName = QDesktopServices::storageLocation(QDesktopServices::CacheLocation);
+#else
+    QString logFileName = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+#endif
     if (logFileName.isEmpty()) {
         logFileName = QDir::homePath() + QLatin1String("/.trojita-connection-log");
     } else {
         QDir().mkpath(logFileName);
-        logFileName += QString::fromAscii("/trojita-connection-log");
+        logFileName += QLatin1String("/trojita-connection-log");
     }
     return logFileName;
 }
 
 QString systemPlatformVersion()
 {
-    QString os = QString::fromAscii(""
+    QString os = QLatin1String(""
 #ifdef Q_OS_AIX
                                     "AIX"
 #endif
@@ -332,7 +340,7 @@ switch (QSysInfo:s60Version()) {
             proc->deleteLater();
         }
     }
-    return QString::fromAscii("Qt/%1; %2; %3; %4").arg(qVersion(), ws, os, platformVersion);
+    return QString::fromUtf8("Qt/%1; %2; %3; %4").arg(qVersion(), ws, os, platformVersion);
 }
 
 /** @short Produce a properly formatted HTML string which won't overflow the right edge of the display */
@@ -361,8 +369,13 @@ QString CertificateUtils::chainToHtml(const QList<QSslCertificate> &sslChain)
         certificateStrings << tr("<li><b>CN</b>: %1,<br/>\n<b>Organization</b>: %2,<br/>\n"
                                  "<b>Serial</b>: %3,<br/>\n"
                                  "<b>SHA1</b>: %4,<br/>\n<b>MD5</b>: %5</li>").arg(
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+                                  cert.subjectInfo(QSslCertificate::CommonName).join(tr(", ")).toHtmlEscaped(),
+                                  cert.subjectInfo(QSslCertificate::Organization).join(tr(", ")).toHtmlEscaped(),
+#else
                                   Qt::escape(cert.subjectInfo(QSslCertificate::CommonName)),
                                   Qt::escape(cert.subjectInfo(QSslCertificate::Organization)),
+#endif
                                   cert.serialNumber(),
                                   htmlHexifyByteArray(cert.digest(QCryptographicHash::Sha1)),
                                   htmlHexifyByteArray(cert.digest(QCryptographicHash::Md5)));
@@ -376,7 +389,11 @@ QString CertificateUtils::errorsToHtml(const QList<QSslError> &sslErrors)
 {
     QStringList sslErrorStrings;
     Q_FOREACH(const QSslError &e, sslErrors) {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+        sslErrorStrings << tr("<li>%1</li>").arg(e.errorString().toHtmlEscaped());
+#else
         sslErrorStrings << tr("<li>%1</li>").arg(Qt::escape(e.errorString()));
+#endif
     }
     return sslErrors.isEmpty() ?
                 QString("<p>According to your system's policy, this connection is secure.</p>\n") :

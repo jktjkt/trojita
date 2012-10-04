@@ -29,6 +29,7 @@
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QMessageBox>
+#include <QMimeData>
 #include <QMouseEvent>
 #include <QPushButton>
 #include <QLabel>

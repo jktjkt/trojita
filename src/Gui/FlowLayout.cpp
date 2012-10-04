@@ -39,7 +39,7 @@
    $QT_END_LICENSE$
 */
 
-#include <QtGui>
+#include <QWidget>
 
 #include "FlowLayout.h"
 

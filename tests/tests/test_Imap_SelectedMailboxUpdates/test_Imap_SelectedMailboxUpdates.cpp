@@ -46,15 +46,15 @@ void ImapModelSelectedMailboxUpdatesTest::helperTestExpungeImmediatelyAfterArriv
     helperSyncAWithMessagesEmptyState();
     cEmpty();
 
-    cServer(QString::fromAscii("* %1 EXISTS\r\n* %1 EXPUNGE\r\n").arg(QString::number(existsA + 1)).toAscii());
-    cClient(QString(t.mk("UID FETCH %1:* (FLAGS)\r\n")).arg(QString::number(qMax(uidMapA.last() + 1, uidNextA))).toAscii());
+    cServer(QString::fromUtf8("* %1 EXISTS\r\n* %1 EXPUNGE\r\n").arg(QString::number(existsA + 1)).toUtf8());
+    cClient(QString(t.mk("UID FETCH %1:* (FLAGS)\r\n")).arg(QString::number(qMax(uidMapA.last() + 1, uidNextA))).toUtf8());
 
     // Add message with this UID to our internal list
     uint addedUid = 33;
     uidNextA = addedUid + 1;
 
     QByteArray uidUpdateResponse = sendUidNext ? QString("* OK [UIDNEXT %1] courtesy of the server\r\n").arg(
-            QString::number(uidNextA)).toAscii() : QByteArray();
+            QString::number(uidNextA)).toUtf8() : QByteArray();
 
     // ...but because it got deleted, here we go
     cServer(t.last("OK empty fetch\r\n") + uidUpdateResponse);
@@ -74,9 +74,9 @@ void ImapModelSelectedMailboxUpdatesTest::testUnsolicitedFetch()
     helperSyncAWithMessagesEmptyState();
     cEmpty();
 
-    cServer(QString::fromAscii("* %1 EXISTS\r\n* %1 FETCH (FLAGS (\\Seen \\Recent $NotJunk NotJunk))\r\n").arg(QString::number(existsA + 1)).toAscii());
+    cServer(QString::fromUtf8("* %1 EXISTS\r\n* %1 FETCH (FLAGS (\\Seen \\Recent $NotJunk NotJunk))\r\n").arg(QString::number(existsA + 1)).toUtf8());
     cClient(QString(t.mk("UID FETCH %1:* (FLAGS)\r\n")).arg(
-                 QString::number(qMax(uidMapA.last() + 1, uidNextA))).toAscii());
+                 QString::number(qMax(uidMapA.last() + 1, uidNextA))).toUtf8());
 
     // Add message with this UID to our internal list
     uint addedUid = 42;
@@ -85,7 +85,7 @@ void ImapModelSelectedMailboxUpdatesTest::testUnsolicitedFetch()
     uidNextA = addedUid + 1;
 
     cServer(QString("* %1 FETCH (FLAGS (\\Seen \\Recent $NotJunk NotJunk) UID %2)\r\n").arg(
-            QString::number(existsA), QString::number(addedUid)).toAscii() +
+            QString::number(existsA), QString::number(addedUid)).toUtf8() +
                        t.last("OK flags returned\r\n"));
     cEmpty();
     QVERIFY(errorSpy->isEmpty());
@@ -336,7 +336,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperDeleteOneMessage(const uint seq,
     uidMapA.removeAt(seq);
     Q_ASSERT(remainingSubjects.size() == static_cast<int>(existsA));
     Q_ASSERT(uidMapA.size() == static_cast<int>(existsA));
-    cServer(QString::fromAscii("* %1 EXPUNGE\r\n* %2 RECENT\r\n").arg(QString::number(seq+1), QString::number(existsA)).toAscii());
+    cServer(QString::fromUtf8("* %1 EXPUNGE\r\n* %2 RECENT\r\n").arg(QString::number(seq+1), QString::number(existsA)).toUtf8());
 
     // Verify the model's idea about the current state
     helperCheckSubjects(remainingSubjects);
@@ -353,7 +353,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperDeleteTwoMessages(const uint seq
     uidMapA.removeAt(seq2);
     Q_ASSERT(remainingSubjects.size() == static_cast<int>(existsA));
     Q_ASSERT(uidMapA.size() == static_cast<int>(existsA));
-    cServer(QString::fromAscii("* %1 EXPUNGE\r\n* %2 EXPUNGE\r\n* %3 RECENT\r\n").arg(QString::number(seq1+1), QString::number(seq2+1), QString::number(existsA)).toAscii());
+    cServer(QString::fromUtf8("* %1 EXPUNGE\r\n* %2 EXPUNGE\r\n* %3 RECENT\r\n").arg(QString::number(seq1+1), QString::number(seq2+1), QString::number(existsA)).toUtf8());
 
     // Verify the model's idea about the current state
     helperCheckSubjects(remainingSubjects);

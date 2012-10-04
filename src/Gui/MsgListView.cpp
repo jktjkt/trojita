@@ -179,8 +179,13 @@ void MsgListView::slotFixSize()
         return;
     }
     header()->setStretchLastSection(false);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    header()->setSectionResizeMode(Imap::Mailbox::MsgListModel::SUBJECT, QHeaderView::Stretch);
+    header()->setSectionResizeMode(Imap::Mailbox::MsgListModel::SEEN, QHeaderView::Fixed);
+#else
     header()->setResizeMode(Imap::Mailbox::MsgListModel::SUBJECT, QHeaderView::Stretch);
     header()->setResizeMode(Imap::Mailbox::MsgListModel::SEEN, QHeaderView::Fixed);
+#endif
 }
 
 void MsgListView::slotExpandWholeSubtree(const QModelIndex &rootIndex)

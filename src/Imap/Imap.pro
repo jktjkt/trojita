@@ -3,8 +3,6 @@ include(../Streams/ZlibLinking.pri)
 QT += network \
     sql
 CONFIG += staticlib
-DEFINES -= QT3_SUPPORT
-DEFINES += QT_STRICT_ITERATORS
 INCLUDEPATH += ../ \
     ../.. \
     . \
@@ -104,6 +102,7 @@ HEADERS += Parser/Parser.h \
     Exceptions.h \
     ConnectionState.h \
     Model/Model.h \
+    Model/QAIM_reset.h \
     Model/MailboxMetadata.h \
     Model/MailboxModel.h \
     Model/PrettyMailboxModel.h \

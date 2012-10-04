@@ -88,7 +88,7 @@ void DiskPartCache::clearAllMessages(const QString &mailbox)
 void DiskPartCache::clearMessage(const QString mailbox, uint uid)
 {
     QDir dir(dirForMailbox(mailbox));
-    Q_FOREACH(const QString& fname, dir.entryList(QStringList() << QString::fromAscii("%1_*.cache").arg(QString::number(uid)))) {
+    Q_FOREACH(const QString& fname, dir.entryList(QStringList() << QString::fromUtf8("%1_*.cache").arg(QString::number(uid)))) {
         if (! dir.remove(fname)) {
             emit error(tr("Couldn't remove file %1 for message %2, mailbox %3").arg(fname, QString::number(uid), mailbox));
         }
@@ -97,7 +97,7 @@ void DiskPartCache::clearMessage(const QString mailbox, uint uid)
 
 QByteArray DiskPartCache::messagePart(const QString &mailbox, uint uid, const QString &partId) const
 {
-    QFile buf(QString::fromAscii("%1/%2_%3.cache").arg(dirForMailbox(mailbox), QString::number(uid), partId));
+    QFile buf(QString::fromUtf8("%1/%2_%3.cache").arg(dirForMailbox(mailbox), QString::number(uid), partId));
     if (! buf.open(QIODevice::ReadOnly)) {
         return QByteArray();
     }
@@ -109,7 +109,7 @@ void DiskPartCache::setMsgPart(const QString &mailbox, uint uid, const QString &
     QString myPath = dirForMailbox(mailbox);
     QDir dir(myPath);
     dir.mkpath(myPath);
-    QString fileName = QString::fromAscii("%1/%2_%3.cache").arg(myPath, QString::number(uid), partId);
+    QString fileName = QString::fromUtf8("%1/%2_%3.cache").arg(myPath, QString::number(uid), partId);
     QFile buf(fileName);
     if (! buf.open(QIODevice::WriteOnly)) {
         emit error(tr("Couldn't save the part %1 of message %2 (mailbox %3) into file %4: %5 (%6)").arg(

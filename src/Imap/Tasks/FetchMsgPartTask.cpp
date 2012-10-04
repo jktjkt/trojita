@@ -97,12 +97,12 @@ bool FetchMsgPartTask::handleStateHelper(const Imap::Responses::State *const res
 QString FetchMsgPartTask::debugIdentification() const
 {
     if (!mailboxIndex.isValid())
-        return QString::fromAscii("[invalid mailbox]");
+        return QLatin1String("[invalid mailbox]");
 
     Q_ASSERT(!uids.isEmpty());
-    return QString::fromAscii("%1: parts %2 for UIDs %3")
+    return QString::fromUtf8("%1: parts %2 for UIDs %3")
            .arg(mailboxIndex.data(RoleMailboxName).toString(), parts.join(QLatin1String(", ")),
-                Sequence::fromList(uids).toString());
+                Sequence::fromList(uids).toByteArray());
 }
 
 QVariant FetchMsgPartTask::taskData(const int role) const

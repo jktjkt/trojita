@@ -52,9 +52,9 @@ OpenConnectionTask::OpenConnectionTask(Model *model, void *dummy):
 QString OpenConnectionTask::debugIdentification() const
 {
     if (parser)
-        return QString::fromAscii("OpenConnectionTask: %1").arg(Imap::connectionStateToString(model->accessParser(parser).connState));
+        return QString::fromUtf8("OpenConnectionTask: %1").arg(Imap::connectionStateToString(model->accessParser(parser).connState));
     else
-        return QString::fromAscii("OpenConnectionTask: no parser");
+        return QLatin1String("OpenConnectionTask: no parser");
 }
 
 void OpenConnectionTask::perform()
@@ -301,7 +301,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
                 model->m_hasImapPassword = false;
                 if (model->accessParser(parser).connState == CONN_STATE_LOGOUT) {
                     // The server has closed the conenction
-                    _failed(QString::fromAscii("Connection closed after a failed login"));
+                    _failed(QLatin1String("Connection closed after a failed login"));
                     return true;
                 }
                 askForAuth();

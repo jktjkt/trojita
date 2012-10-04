@@ -52,7 +52,7 @@ OneMessageModel::OneMessageModel(Model *model): QObject(model), m_subtree(0)
     roleNames[RolePartOctets] = "size";
     roleNames[RolePartId] = "partId";
     roleNames[RolePartPathToPart] = "pathToPart";
-    m_flatteningModel->setRoleNames(roleNames);
+    m_flatteningModel->proxySetRoleNames(roleNames);
 }
 
 void OneMessageModel::setMessage(const QString &mailbox, const uint uid)
@@ -84,11 +84,11 @@ void OneMessageModel::setMessage(const QModelIndex &message)
         break;
     case Imap::Mailbox::FindInterestingPart::MAINPART_MESSAGE_NOT_LOADED:
         Q_ASSERT(false);
-        m_mainPartUrl = QLatin1String("data:text/plain;charset=utf-8;base64,") + QString::fromAscii(QByteArray("").toBase64());
+        m_mainPartUrl = QLatin1String("data:text/plain;charset=utf-8;base64,") + QString::fromLocal8Bit(QByteArray("").toBase64());
         break;
     case Imap::Mailbox::FindInterestingPart::MAINPART_PART_CANNOT_DETERMINE:
         // FIXME: show a decent message here
-        m_mainPartUrl = QLatin1String("data:text/plain;charset=utf-8;base64,") + QString::fromAscii(QByteArray(partMessage.toAscii()).toBase64());
+        m_mainPartUrl = QLatin1String("data:text/plain;charset=utf-8;base64,") + QString::fromLocal8Bit(QByteArray(partMessage.toUtf8()).toBase64());
         break;
     }
     emit mainPartUrlChanged();

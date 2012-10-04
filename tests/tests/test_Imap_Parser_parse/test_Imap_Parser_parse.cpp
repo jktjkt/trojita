@@ -921,56 +921,56 @@ void ImapParserParseTest::benchmark()
 void ImapParserParseTest::testSequences()
 {
     QFETCH( Imap::Sequence, sequence );
-    QFETCH( QString, muster );
-    QCOMPARE( sequence.toString(), muster );
+    QFETCH( QByteArray, muster );
+    QCOMPARE( sequence.toByteArray(), muster );
 }
 
 void ImapParserParseTest::testSequences_data()
 {
     QTest::addColumn<Imap::Sequence>("sequence");
-    QTest::addColumn<QString>("muster");
+    QTest::addColumn<QByteArray>("muster");
 
     QTest::newRow("sequence-one") <<
-            Imap::Sequence( 33 ) << "33";
+            Imap::Sequence( 33 ) << QByteArray("33");
 
     QTest::newRow("sequence-unlimited") <<
-            Imap::Sequence::startingAt(666) << "666:*";
+            Imap::Sequence::startingAt(666) << QByteArray("666:*");
 
     QTest::newRow("sequence-range") <<
-            Imap::Sequence( 333, 666 ) << "333:666";
+            Imap::Sequence( 333, 666 ) << QByteArray("333:666");
 
     QTest::newRow("sequence-distinct") <<
-            Imap::Sequence( 20 ).add( 10 ).add( 30 ) << "10,20,30";
+            Imap::Sequence( 20 ).add( 10 ).add( 30 ) << QByteArray("10,20,30");
 
     QTest::newRow("sequence-collapsed-2") <<
-            Imap::Sequence( 10 ).add( 11 ) << "10:11";
+            Imap::Sequence( 10 ).add( 11 ) << QByteArray("10:11");
 
     QTest::newRow("sequence-collapsed-3") <<
-            Imap::Sequence( 10 ).add( 11 ).add( 12 ) << "10:12";
+            Imap::Sequence( 10 ).add( 11 ).add( 12 ) << QByteArray("10:12");
 
     QTest::newRow("sequence-head-and-collapsed") <<
-            Imap::Sequence( 3 ).add( 31 ).add( 32 ).add( 33 ) << "3,31:33";
+            Imap::Sequence( 3 ).add( 31 ).add( 32 ).add( 33 ) << QByteArray("3,31:33");
 
     QTest::newRow("sequence-collapsed-and-tail") <<
-            Imap::Sequence( 666 ).add( 31 ).add( 32 ).add( 33 ) << "31:33,666";
+            Imap::Sequence( 666 ).add( 31 ).add( 32 ).add( 33 ) << QByteArray("31:33,666");
 
     QTest::newRow("sequence-head-collapsed-tail") <<
-            Imap::Sequence( 666 ).add( 31 ).add( 32 ).add( 1 ).add( 33 ) << "1,31:33,666";
+            Imap::Sequence( 666 ).add( 31 ).add( 32 ).add( 1 ).add( 33 ) << QByteArray("1,31:33,666");
 
     QTest::newRow("sequence-same") <<
-            Imap::Sequence( 2 ).add( 2 ) << "2";
+            Imap::Sequence( 2 ).add( 2 ) << QByteArray("2");
 
     QTest::newRow("sequence-multiple-consequent") <<
-            Imap::Sequence( 2 ).add( 3 ).add( 4 ).add( 6 ).add( 7 ) << "2:4,6:7";
+            Imap::Sequence( 2 ).add( 3 ).add( 4 ).add( 6 ).add( 7 ) << QByteArray("2:4,6:7");
 
     QTest::newRow("sequence-complex") <<
             Imap::Sequence( 2 ).add( 3 ).add( 4 ).add( 6 ).add( 7 ).add( 1 )
             .add( 100 ).add( 101 ).add( 102 ).add( 99 ).add( 666 ).add( 333 ).add( 666 ) <<
-            "1:4,6:7,99:102,333,666";
+            QByteArray("1:4,6:7,99:102,333,666");
 
     QTest::newRow("sequence-from-list-1") <<
             Imap::Sequence::fromList( QList<uint>() << 2 << 3 << 4 << 6 << 7 << 1 << 100 << 101 << 102 << 99 << 666 << 333 << 666) <<
-            "1:4,6:7,99:102,333,666";
+            QByteArray("1:4,6:7,99:102,333,666");
 }
 
 /** @short Test responses which fail to parse */
@@ -984,8 +984,8 @@ void ImapParserParseTest::testThrow()
         QSharedPointer<Imap::Responses::AbstractResponse> ptr = parser->parseUntagged(line);
         QVERIFY2(!ptr, "should have thrown");
     } catch (Imap::ImapException &e) {
-        QCOMPARE(QString::fromAscii(e.exceptionClass().c_str()), exceptionClass);
-        QCOMPARE(QString::fromAscii(e.msg().c_str()), error);
+        QCOMPARE(QString::fromUtf8(e.exceptionClass().c_str()), exceptionClass);
+        QCOMPARE(QString::fromUtf8(e.msg().c_str()), error);
     }
 }
 

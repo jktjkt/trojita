@@ -34,12 +34,12 @@ namespace Common
 void setCoreApplicationData()
 {
 #ifdef HAS_GITVERSION
-    QCoreApplication::setApplicationVersion(QString::fromAscii(gitVersion));
+    QCoreApplication::setApplicationVersion(QLatin1String(gitVersion));
 #else
-    QCoreApplication::setApplicationVersion(QString::fromAscii(trojitaVersion));
+    QCoreApplication::setApplicationVersion(QLatin1String(trojitaVersion));
 #endif
-    QCoreApplication::setOrganizationDomain(QString::fromAscii("flaska.net"));
-    QCoreApplication::setOrganizationName(QString::fromAscii("flaska.net"));
+    QCoreApplication::setOrganizationDomain(QLatin1String("flaska.net"));
+    QCoreApplication::setOrganizationName(QLatin1String("flaska.net"));
 }
 
 }
