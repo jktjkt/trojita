@@ -21,6 +21,9 @@
 
 #include <QAuthenticator>
 #include <QDesktopServices>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#  include <QStandardPaths>
+#endif
 #include <QDir>
 #include <QDockWidget>
 #include <QFileDialog>
@@ -491,7 +494,11 @@ void MainWindow::setupModels()
         factory.reset(new Imap::Mailbox::ProcessSocketFactory(appName, args));
     }
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    QString cacheDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+#else
     QString cacheDir = QDesktopServices::storageLocation(QDesktopServices::CacheLocation);
+#endif
     if (cacheDir.isEmpty())
         cacheDir = QDir::homePath() + QLatin1String("/.") + QCoreApplication::applicationName();
     Imap::Mailbox::AbstractCache *cache = 0;
