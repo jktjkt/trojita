@@ -21,7 +21,11 @@
 #include "Utils.h"
 #include <cmath>
 #include <QDateTime>
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 #include <QDesktopServices>
+#else
+#include <QStandardPaths>
+#endif
 #include <QDir>
 #include <QLocale>
 #include <QProcess>
@@ -66,7 +70,11 @@ QString PrettySize::prettySize(uint bytes, const ShowBytesSuffix compactUnitForm
 
 QString persistentLogFileName()
 {
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     QString logFileName = QDesktopServices::storageLocation(QDesktopServices::CacheLocation);
+#else
+    QString logFileName = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+#endif
     if (logFileName.isEmpty()) {
         logFileName = QDir::homePath() + QLatin1String("/.trojita-connection-log");
     } else {
@@ -381,7 +389,11 @@ QString CertificateUtils::errorsToHtml(const QList<QSslError> &sslErrors)
 {
     QStringList sslErrorStrings;
     Q_FOREACH(const QSslError &e, sslErrors) {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+        sslErrorStrings << tr("<li>%1</li>").arg(e.errorString().toHtmlEscaped());
+#else
         sslErrorStrings << tr("<li>%1</li>").arg(Qt::escape(e.errorString()));
+#endif
     }
     return sslErrors.isEmpty() ?
                 QString("<p>According to your system's policy, this connection is secure.</p>\n") :

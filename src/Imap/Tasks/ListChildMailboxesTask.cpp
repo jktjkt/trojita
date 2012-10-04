@@ -61,9 +61,9 @@ void ListChildMailboxesTask::perform()
 
     QString mailboxName = mailbox->mailbox();
     if (mailboxName.isNull())
-        mailboxName = QString::fromAscii("%");
+        mailboxName = QLatin1String("%");
     else
-        mailboxName += mailbox->separator() + QChar('%');
+        mailboxName += mailbox->separator() + QLatin1Char('%');
 
     QStringList returnOptions;
     if (model->accessParser(parser).capabilitiesFresh) {
@@ -137,11 +137,11 @@ void ListChildMailboxesTask::applyCachedStatus()
 QString ListChildMailboxesTask::debugIdentification() const
 {
     if (! mailboxIndex.isValid())
-        return QString::fromAscii("[invalid mailboxIndex]");
+        return QLatin1String("[invalid mailboxIndex]");
 
     TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
     Q_ASSERT(mailbox);
-    return QString::fromAscii("Listing stuff below mailbox %1").arg(mailbox->mailbox());
+    return QString::fromUtf8("Listing stuff below mailbox %1").arg(mailbox->mailbox());
 }
 
 QVariant ListChildMailboxesTask::taskData(const int role) const

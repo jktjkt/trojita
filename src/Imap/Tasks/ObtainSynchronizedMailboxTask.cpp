@@ -268,7 +268,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                             m_usingQresync = false;
                             fullMboxSync(mailbox, list);
                         } else if (syncState.exists() != static_cast<uint>(list->m_children.size())) {
-                            log(QString::fromAscii("Sync error: constant HIGHESTMODSEQ, EXISTS says %1 messages but in fact "
+                            log(QString::fromUtf8("Sync error: constant HIGHESTMODSEQ, EXISTS says %1 messages but in fact "
                                                    "there are %2 when finalizing SELECT")
                                 .arg(QString::number(mailbox->syncState.exists()), QString::number(list->m_children.size())),
                                 LOG_MAILBOX_SYNC);
@@ -287,7 +287,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                     }
 
                     if (static_cast<uint>(list->m_children.size()) != mailbox->syncState.exists()) {
-                        log(QString::fromAscii("Sync error: EXISTS says %1 messages, msgList has %2")
+                        log(QString::fromUtf8("Sync error: EXISTS says %1 messages, msgList has %2")
                             .arg(QString::number(mailbox->syncState.exists()), QString::number(list->m_children.size())));
                         mailbox->syncState.setHighestModSeq(0);
                         model->cache()->clearAllMessages(mailbox->mailbox());
@@ -503,7 +503,7 @@ void ObtainSynchronizedMailboxTask::syncUids(TreeItemMailbox *mailbox, const uin
     if (lowestUidToQuery == 0) {
         uidSpecification = "ALL";
     } else {
-        uidSpecification = QString::fromAscii("UID %1:*").arg(QString::number(lowestUidToQuery)).toAscii();
+        uidSpecification = QString::fromUtf8("UID %1:*").arg(QString::number(lowestUidToQuery)).toUtf8();
     }
     if (model->accessParser(parser).capabilities.contains(QLatin1String("ESEARCH"))) {
         uidSyncingCmd = parser->uidESearchUid(uidSpecification);
@@ -991,7 +991,7 @@ bool ObtainSynchronizedMailboxTask::handleFetch(const Imap::Responses::Fetch *co
     if (!changedParts.isEmpty() && !m_usingQresync) {
         // On the other hand, with QRESYNC our code is ready to receive extra data that changes body parts...
         qDebug() << "Weird, FETCH when syncing has changed some body parts. We aren't ready for that.";
-        log(QString::fromAscii("This response has changed some message parts. That should not have happened, as we're still syncing."));
+        log(QLatin1String("This response has changed some message parts. That should not have happened, as we're still syncing."));
     }
     return true;
 }
@@ -1113,7 +1113,7 @@ void ObtainSynchronizedMailboxTask::applyUids(TreeItemMailbox *mailbox)
 QString ObtainSynchronizedMailboxTask::debugIdentification() const
 {
     if (! mailboxIndex.isValid())
-        return QString::fromAscii("[invalid mailboxIndex]");
+        return QLatin1String("[invalid mailboxIndex]");
 
     TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
     Q_ASSERT(mailbox);
@@ -1136,7 +1136,7 @@ QString ObtainSynchronizedMailboxTask::debugIdentification() const
         statusStr = "STATE_DONE";
         break;
     }
-    return QString::fromAscii("%1 %2").arg(statusStr, mailbox->mailbox());
+    return QString::fromUtf8("%1 %2").arg(statusStr, mailbox->mailbox());
 }
 
 void ObtainSynchronizedMailboxTask::notifyInterestingMessages(TreeItemMailbox *mailbox)
@@ -1154,12 +1154,12 @@ void ObtainSynchronizedMailboxTask::notifyInterestingMessages(TreeItemMailbox *m
             firstInterestingMessage.data(RoleMessageIsMarkedRead).toBool()) {
         // Clearly the reported value is utter nonsense. Let's just scroll to the end instead
         int offset = model->rowCount(listIndex) - 1;
-        log(QString::fromAscii("\"First interesting message\" doesn't look terribly interesting (%1), scrolling to the end at %2 instead")
+        log(QString::fromUtf8("\"First interesting message\" doesn't look terribly interesting (%1), scrolling to the end at %2 instead")
             .arg(firstInterestingMessage.data(RoleMessageFlags).toStringList().join(QLatin1String(", ")),
                  QString::number(offset)), LOG_MAILBOX_SYNC);
         firstInterestingMessage = model->index(offset, 0, listIndex);
     } else {
-        log(QString::fromAscii("First interesting message at %1 (%2)")
+        log(QString::fromUtf8("First interesting message at %1 (%2)")
             .arg(QString::number(mailbox->syncState.unSeenOffset()),
                  firstInterestingMessage.data(RoleMessageFlags).toStringList().join(QLatin1String(", "))
                  ), LOG_MAILBOX_SYNC);

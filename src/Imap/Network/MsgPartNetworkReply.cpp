@@ -77,7 +77,7 @@ void MsgPartNetworkReply::slotMyDataChanged()
     QString charset = part.data(Mailbox::RolePartCharset).toString();
     if (mimeType.startsWith(QLatin1String("text/"))) {
         setHeader(QNetworkRequest::ContentTypeHeader,
-                  charset.isEmpty() ? mimeType : QString::fromAscii("%1; charset=%2").arg(mimeType, charset)
+                  charset.isEmpty() ? mimeType : QString::fromUtf8("%1; charset=%2").arg(mimeType, charset)
                  );
     } else if (mimeType == QLatin1String("image/pjpeg")) {
         // The "image/pjpeg" nonsense is non-standard kludge produced by Micorosft Internet Explorer
