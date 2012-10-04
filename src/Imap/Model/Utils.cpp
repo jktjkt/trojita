@@ -362,8 +362,8 @@ QString CertificateUtils::chainToHtml(const QList<QSslCertificate> &sslChain)
                                  "<b>Serial</b>: %3,<br/>\n"
                                  "<b>SHA1</b>: %4,<br/>\n<b>MD5</b>: %5</li>").arg(
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-                                  Qt::escape(cert.subjectInfo(QSslCertificate::CommonName).join(tr(", "))),
-                                  Qt::escape(cert.subjectInfo(QSslCertificate::Organization).join(tr(", "))),
+                                  cert.subjectInfo(QSslCertificate::CommonName).join(tr(", ")).toHtmlEscaped(),
+                                  cert.subjectInfo(QSslCertificate::Organization).join(tr(", ")).toHtmlEscaped(),
 #else
                                   Qt::escape(cert.subjectInfo(QSslCertificate::CommonName)),
                                   Qt::escape(cert.subjectInfo(QSslCertificate::Organization)),

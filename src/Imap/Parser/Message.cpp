@@ -23,6 +23,9 @@
 
 #include <QTextDocument>
 #include <QUrl>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <QUrlQuery>
+#endif
 #include <QTextCodec>
 #include "Message.h"
 #include "../Model/MailboxTree.h"
@@ -151,8 +154,15 @@ QString MailAddress::prettyName(FormattingMode mode) const
             target.setScheme(QLatin1String("mailto"));
             target.setUserName(mailbox);
             target.setHost(host);
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
             target.addQueryItem(QLatin1String("X-Trojita-DisplayName"), niceName);
             return QString::fromUtf8("<a href=\"%1\">%2</a>").arg(Qt::escape(target.toString()), Qt::escape(niceName));
+#else
+            QUrlQuery q(target);
+            q.addQueryItem(QLatin1String("X-Trojita-DisplayName"), niceName);
+            target.setQuery(q);
+            return QString::fromUtf8("<a href=\"%1\">%2</a>").arg(target.toString().toHtmlEscaped(), niceName.toHtmlEscaped());
+#endif
         }
     }
 }
