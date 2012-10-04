@@ -521,7 +521,7 @@ void ThreadingMsgListModel::wantThreading(const SkipSortSearch skipSortSearch)
     uint highestUidInMailbox = findHighestUidInMailbox(list);
     uint highestUidInThreadingLowerBound = findHighEnoughNumber(mapping, highestUidInMailbox);
 
-    logTrace(QString::fromAscii("ThreadingMsgListModel::wantThreading: THREAD contains info about UID %1 (or higher), mailbox has %2")
+    logTrace(QString::fromUtf8("ThreadingMsgListModel::wantThreading: THREAD contains info about UID %1 (or higher), mailbox has %2")
              .arg(QString::number(highestUidInThreadingLowerBound), QString::number(highestUidInMailbox)));
 
     if (highestUidInThreadingLowerBound >= highestUidInMailbox) {
@@ -710,16 +710,16 @@ bool ThreadingMsgListModel::shouldIgnoreThisThreadingResponse(const QModelIndex 
     }
 
     if (algorithm != requestedAlgorithm) {
-        logTrace(QString::fromAscii("Weird, asked for threading via %1 but got %2 instead -- ignoring")
-                 .arg(QString::fromAscii(requestedAlgorithm), QString::fromAscii(algorithm)));
+        logTrace(QString::fromUtf8("Weird, asked for threading via %1 but got %2 instead -- ignoring")
+                 .arg(QString::fromUtf8(requestedAlgorithm), QString::fromUtf8(algorithm)));
         return true;
     }
 
     if (searchCriteria.size() != 1 || searchCriteria.front() != QLatin1String("ALL")) {
         QString buf;
         QTextStream ss(&buf);
-        logTrace(QString::fromAscii("Weird, requesting messages matching ALL, but got this instead: %1")
-                 .arg(searchCriteria.join(QString::fromAscii(", "))));
+        logTrace(QString::fromUtf8("Weird, requesting messages matching ALL, but got this instead: %1")
+                 .arg(searchCriteria.join(QLatin1String(", "))));
         return true;
     }
 
@@ -855,7 +855,7 @@ void ThreadingMsgListModel::applyThreading(const QVector<Imap::Responses::Thread
 {
     if (! unknownUids.isEmpty()) {
         // Some messages have UID zero, which means that they weren't loaded yet. Too bad.
-        logTrace(QString::fromAscii("%1 messages have 0 UID").arg(unknownUids.size()));
+        logTrace(QString::fromUtf8("%1 messages have 0 UID").arg(unknownUids.size()));
         return;
     }
 
@@ -951,7 +951,7 @@ void ThreadingMsgListModel::registerThreading(const QVector<Imap::Responses::Thr
         } else {
             QHash<uint,void *>::const_iterator ptrIt = uidToPtr.find(node.num);
             if (ptrIt == uidToPtr.constEnd()) {
-                logTrace(QString::fromAscii("The THREAD response references a message with UID %1, which is not recognized "
+                logTrace(QString::fromUtf8("The THREAD response references a message with UID %1, which is not recognized "
                                             "at this point. More information is available in the IMAP protocol log.")
                          .arg(node.num));
                 // It's possible that the THREAD response came from cache; in that case, it isn't pretty, but completely harmless
@@ -1194,7 +1194,7 @@ void ThreadingMsgListModel::logTrace(const QString &message)
     Q_ASSERT(realModel);
     QModelIndex mailboxIndex = const_cast<Model *>(realModel)->findMailboxForItems(QModelIndexList() << realIndex);
     const_cast<Model *>(realModel)->logTrace(mailboxIndex, LOG_OTHER,
-            QString::fromAscii("ThreadingMsgListModel for %1").arg(mailboxIndex.data(RoleMailboxName).toString()), message);
+            QString::fromUtf8("ThreadingMsgListModel for %1").arg(mailboxIndex.data(RoleMailboxName).toString()), message);
 }
 
 void ThreadingMsgListModel::setUserWantsThreading(bool enable)

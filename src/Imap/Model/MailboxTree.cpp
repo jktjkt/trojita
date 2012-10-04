@@ -339,8 +339,8 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
 
     int number = response.number - 1;
     if (number < 0 || number >= list->m_children.size())
-        throw UnknownMessageIndex(QString::fromAscii("Got FETCH that is out of bounds -- got %1 messages").arg(
-                                      QString::number(list->m_children.size())).toAscii().constData(), response);
+        throw UnknownMessageIndex(QString::fromUtf8("Got FETCH that is out of bounds -- got %1 messages").arg(
+                                      QString::number(list->m_children.size())).toUtf8().constData(), response);
 
     TreeItemMessage *message = dynamic_cast<TreeItemMessage *>(list->child(number, model));
     Q_ASSERT(message);   // FIXME: this should be relaxed for allowing null pointers instead of "unfetched" TreeItemMessage
@@ -381,8 +381,9 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                 model->saveUidMap(list);
             }
         } else {
-            throw MailboxException(QString::fromAscii("FETCH response: UID consistency error for message #%1 -- expected UID %2, got UID %3").arg(
-                                       QString::number(response.number), QString::number(message->uid()), QString::number(receivedUid)).toAscii().constData(), response);
+            throw MailboxException(QString::fromUtf8("FETCH response: UID consistency error for message #%1 -- expected UID %2, got UID %3").arg(
+                                       QString::number(response.number), QString::number(message->uid()), QString::number(receivedUid)
+                                       ).toUtf8().constData(), response);
         }
     } else if (! message->uid()) {
         qDebug() << "FETCH: received a FETCH response for message #" << response.number << "whose UID is not yet known. This sucks.";
@@ -578,7 +579,7 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
                           msgCandidate->uid() << " and " << static_cast<TreeItemMessage*>(*(it + 1))->uid() << " with " <<
                           static_cast<TreeItemMessage*>(*(list->m_children.end() - 1))->uid() << " at the end)";
                     ss.flush();
-                    qDebug() << str.toAscii().constData();
+                    qDebug() << str.toUtf8().constData();
                     model->logTrace(listIndex.parent(), LOG_MAILBOX_SYNC, QLatin1String("TreeItemMailbox::handleVanished"), str);
                     continue;
                 }
@@ -589,7 +590,7 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
                 ss << "VANISHED refers to UID " << uid << " which is too low (lowest UID is " <<
                       static_cast<TreeItemMessage*>(list->m_children.front())->uid() << ")";
                 ss.flush();
-                qDebug() << str.toAscii().constData();
+                qDebug() << str.toUtf8().constData();
                 model->logTrace(listIndex.parent(), LOG_MAILBOX_SYNC, QLatin1String("TreeItemMailbox::handleVanished"), str);
                 continue;
             }
@@ -695,7 +696,7 @@ void TreeItemMailbox::handleArrived(Model *const model, const Responses::Arrived
             ss << "ARRIVED refers to UID " << uid << ", but mailbox already contains UID " <<
                   static_cast<TreeItemMessage*>(list->m_children.last())->uid();
             ss.flush();
-            throw MailboxException(str.toAscii().constData(), resp);
+            throw MailboxException(str.toUtf8().constData(), resp);
         }
         TreeItemMessage *msg = new TreeItemMessage(list);
         msg->m_offset = list->m_children.size();
@@ -728,7 +729,7 @@ TreeItemPart *TreeItemMailbox::partIdToPtr(Model *const model, TreeItemMessage *
     } else if (msgId.startsWith(QLatin1String("BINARY["))) {
         partIdentification = msgId.mid(7, msgId.size() - 8);
     } else {
-        throw UnknownMessageIndex(QString::fromAscii("Fetch identifier doesn't start with reasonable prefix: %1").arg(msgId).toAscii().constData());
+        throw UnknownMessageIndex(QString::fromUtf8("Fetch identifier doesn't start with reasonable prefix: %1").arg(msgId).toUtf8().constData());
     }
 
     TreeItem *item = message;
@@ -743,20 +744,20 @@ TreeItemPart *TreeItemMailbox::partIdToPtr(Model *const model, TreeItemMessage *
             if (it + 1 != separated.constEnd()) {
                 // If it isn't at the very end, it's an error
                 throw UnknownMessageIndex(
-                    QString::fromAscii("Part offset contains non-numeric identifiers in the middle: %1")
-                    .arg(msgId).toAscii().constData());
+                    QString::fromUtf8("Part offset contains non-numeric identifiers in the middle: %1")
+                    .arg(msgId).toUtf8().constData());
             }
             // Recognize the valid modifiers
-            if (*it == QString::fromAscii("HEADER"))
+            if (*it == QLatin1String("HEADER"))
                 item = item->specialColumnPtr(0, OFFSET_HEADER);
-            else if (*it == QString::fromAscii("TEXT"))
+            else if (*it == QLatin1String("TEXT"))
                 item = item->specialColumnPtr(0, OFFSET_TEXT);
-            else if (*it == QString::fromAscii("MIME"))
+            else if (*it == QLatin1String("MIME"))
                 item = item->specialColumnPtr(0, OFFSET_MIME);
             else
-                throw UnknownMessageIndex(QString::fromAscii(
+                throw UnknownMessageIndex(QString::fromUtf8(
                                               "Can't translate received offset of the message part to a number: %1")
-                                          .arg(msgId).toAscii().constData());
+                                          .arg(msgId).toUtf8().constData());
             break;
         }
 
@@ -766,10 +767,10 @@ TreeItemPart *TreeItemMailbox::partIdToPtr(Model *const model, TreeItemMessage *
             item = part;
         item = item->child(number - 1, model);
         if (! item) {
-            throw UnknownMessageIndex(QString::fromAscii(
+            throw UnknownMessageIndex(QString::fromUtf8(
                                           "Offset of the message part not found: message %1 (UID %2), current number %3, full identification %4")
                                       .arg(QString::number(message->row()), QString::number(message->uid()),
-                                           QString::number(number), msgId).toAscii().constData());
+                                           QString::number(number), msgId).toUtf8().constData());
         }
     }
     TreeItemPart *part = dynamic_cast<TreeItemPart *>(item);
@@ -1044,11 +1045,11 @@ QVariant TreeItemMessage::data(Model *const model, int role)
     switch (role) {
     case Qt::DisplayRole:
         if (loading()) {
-            return QString::fromAscii("[loading UID %1...]").arg(QString::number(uid()));
+            return QString::fromUtf8("[loading UID %1...]").arg(QString::number(uid()));
         } else if (isUnavailable(model)) {
-            return QString::fromAscii("[offline UID %1]").arg(QString::number(uid()));
+            return QString::fromUtf8("[offline UID %1]").arg(QString::number(uid()));
         } else {
-            return QString::fromAscii("UID %1: %2").arg(QString::number(uid()), m_envelope.subject);
+            return QString::fromUtf8("UID %1: %2").arg(QString::number(uid()), m_envelope.subject);
         }
     case Qt::ToolTipRole:
         if (fetched()) {
@@ -1186,7 +1187,7 @@ TreeItemPart::TreeItemPart(TreeItem *parent, const QString &mimeType): TreeItem(
 }
 
 TreeItemPart::TreeItemPart(TreeItem *parent):
-    TreeItem(parent), m_mimeType(QString::fromAscii("text/plain")), m_octets(0), m_partHeader(0), m_partText(0), m_partMime(0)
+    TreeItem(parent), m_mimeType(QLatin1String("text/plain")), m_octets(0), m_partHeader(0), m_partText(0), m_partMime(0)
 {
 }
 
@@ -1346,7 +1347,7 @@ QString TreeItemPart::partId() const
 
 QString TreeItemPart::partIdForFetch(const PartFetchingMode mode) const
 {
-    return QString::fromAscii(mode == FETCH_PART_BINARY ? "BINARY.PEEK[%1]" : "BODY.PEEK[%1]").arg(partId());
+    return QString::fromUtf8(mode == FETCH_PART_BINARY ? "BINARY.PEEK[%1]" : "BODY.PEEK[%1]").arg(partId());
 }
 
 QString TreeItemPart::pathToPart() const
@@ -1455,7 +1456,7 @@ QString TreeItemModifiedPart::partId() const
     QString parentId;
 
     if (TreeItemPart *part = dynamic_cast<TreeItemPart *>(parent()))
-        parentId = part->partId() + QChar::fromAscii('.');
+        parentId = part->partId() + QLatin1Char('.');
 
     return parentId + modifierToString();
 }
@@ -1469,11 +1470,11 @@ QString TreeItemModifiedPart::modifierToString() const
 {
     switch (m_modifier) {
     case OFFSET_HEADER:
-        return QString::fromAscii("HEADER");
+        return QLatin1String("HEADER");
     case OFFSET_TEXT:
-        return QString::fromAscii("TEXT");
+        return QLatin1String("TEXT");
     case OFFSET_MIME:
-        return QString::fromAscii("MIME");
+        return QLatin1String("MIME");
     default:
         Q_ASSERT(false);
         return QString();
@@ -1486,10 +1487,10 @@ QString TreeItemModifiedPart::pathToPart() const
     TreeItemMessage *parentMessage = dynamic_cast<TreeItemMessage *>(parent());
     Q_ASSERT(parentPart || parentMessage);
     if (parentPart) {
-        return QString::fromAscii("%1/%2").arg(parentPart->pathToPart(), modifierToString());
+        return QString::fromUtf8("%1/%2").arg(parentPart->pathToPart(), modifierToString());
     } else {
         Q_ASSERT(parentMessage);
-        return QString::fromAscii("/%1").arg(modifierToString());
+        return QString::fromUtf8("/%1").arg(modifierToString());
     }
 }
 

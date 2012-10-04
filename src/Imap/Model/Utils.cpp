@@ -71,14 +71,14 @@ QString persistentLogFileName()
         logFileName = QDir::homePath() + QLatin1String("/.trojita-connection-log");
     } else {
         QDir().mkpath(logFileName);
-        logFileName += QString::fromAscii("/trojita-connection-log");
+        logFileName += QLatin1String("/trojita-connection-log");
     }
     return logFileName;
 }
 
 QString systemPlatformVersion()
 {
-    QString os = QString::fromAscii(""
+    QString os = QLatin1String(""
 #ifdef Q_OS_AIX
                                     "AIX"
 #endif
@@ -332,7 +332,7 @@ switch (QSysInfo:s60Version()) {
             proc->deleteLater();
         }
     }
-    return QString::fromAscii("Qt/%1; %2; %3; %4").arg(qVersion(), ws, os, platformVersion);
+    return QString::fromUtf8("Qt/%1; %2; %3; %4").arg(qVersion(), ws, os, platformVersion);
 }
 
 /** @short Produce a properly formatted HTML string which won't overflow the right edge of the display */

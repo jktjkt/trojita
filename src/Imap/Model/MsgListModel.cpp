@@ -210,13 +210,13 @@ QVariant MsgListModel::data(const QModelIndex &proxyIndex, int role) const
         case SUBJECT:
             return QAbstractProxyModel::data(proxyIndex, Qt::DisplayRole);
         case FROM:
-            return QString::fromAscii("[from]");
+            return QLatin1String("[from]");
         case TO:
-            return QString::fromAscii("[to]");
+            return QLatin1String("[to]");
         case CC:
-            return QString::fromAscii("[cc]");
+            return QLatin1String("[cc]");
         case BCC:
-            return QString::fromAscii("[bcc]");
+            return QLatin1String("[bcc]");
         case DATE:
             return message->envelope(static_cast<Model *>(sourceModel())).date;
         case RECEIVED_DATE:
