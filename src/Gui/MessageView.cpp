@@ -310,14 +310,14 @@ void MessageView::reply(MainWindow *mainWindow, ReplyMode mode)
 
     QList<QPair<QString,QString> > recipients;
     for (QList<Imap::Message::MailAddress>::const_iterator it = envelope.from.begin(); it != envelope.from.end(); ++it) {
-        recipients << qMakePair(tr("To"), QString::fromAscii("%1@%2").arg(it->mailbox, it->host));
+        recipients << qMakePair(tr("To"), QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
     }
     if (mode == REPLY_ALL) {
         for (QList<Imap::Message::MailAddress>::const_iterator it = envelope.to.begin(); it != envelope.to.end(); ++it) {
-            recipients << qMakePair(tr("Cc"), QString::fromAscii("%1@%2").arg(it->mailbox, it->host));
+            recipients << qMakePair(tr("Cc"), QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
         }
         for (QList<Imap::Message::MailAddress>::const_iterator it = envelope.cc.begin(); it != envelope.cc.end(); ++it) {
-            recipients << qMakePair(tr("Cc"), QString::fromAscii("%1@%2").arg(it->mailbox, it->host));
+            recipients << qMakePair(tr("Cc"), QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
         }
     }
     mainWindow->invokeComposeDialog(replySubject(envelope.subject), quoteText(), recipients, envelope.messageId);

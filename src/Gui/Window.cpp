@@ -418,7 +418,7 @@ void MainWindow::createWidgets()
     connect(msgView, SIGNAL(messageChanged()), this, SLOT(scrollMessageUp()));
     if (QSettings().value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool() &&
         !QSettings().value(Common::SettingsNames::imapStartOffline).toBool()) {
-        msgView->setHomepageUrl(QUrl(QString::fromAscii("http://welcome.trojita.flaska.net/%1").arg(QCoreApplication::applicationVersion())));
+        msgView->setHomepageUrl(QUrl(QString::fromUtf8("http://welcome.trojita.flaska.net/%1").arg(QCoreApplication::applicationVersion())));
     }
 
     m_mainHSplitter = new QSplitter();
@@ -1137,7 +1137,7 @@ void MainWindow::slotComposeMailUrl(const QUrl &url)
 
     QList<QPair<QString,QString> > recipients;
     // FIXME: handle the display name as well, Redmine #534
-    recipients << qMakePair<QString,QString>(tr("To"), QString::fromAscii("%1@%2").arg(url.userName(), url.host()));
+    recipients << qMakePair<QString,QString>(tr("To"), QString::fromUtf8("%1@%2").arg(url.userName(), url.host()));
     invokeComposeDialog(QString(), QString(), recipients);
 }
 
@@ -1146,7 +1146,7 @@ void MainWindow::invokeComposeDialog(const QString &subject, const QString &body
 {
     QSettings s;
     ComposeWidget *w = new ComposeWidget(this, autoCompletionModel);
-    w->setData(QString::fromAscii("%1 <%2>").arg(
+    w->setData(QString::fromUtf8("%1 <%2>").arg(
                    s.value(Common::SettingsNames::realNameKey).toString(),
                    s.value(Common::SettingsNames::addressKey).toString()),
                recipients, subject, body, inReplyTo);
@@ -1199,7 +1199,7 @@ void MainWindow::slotShowAboutTrojita()
 
 void MainWindow::slotDonateToTrojita()
 {
-    QDesktopServices::openUrl(QString::fromAscii("http://sourceforge.net/donate/index.php?group_id=339456"));
+    QDesktopServices::openUrl(QString(QLatin1String("http://sourceforge.net/donate/index.php?group_id=339456")));
 }
 
 void MainWindow::slotSaveCurrentMessageBody()

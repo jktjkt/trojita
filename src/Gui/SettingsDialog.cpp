@@ -43,7 +43,7 @@
 namespace Gui
 {
 
-QString SettingsDialog::warningStyleSheet = QString::fromAscii("border: 2px solid red; background-color: #E7C575; "
+QString SettingsDialog::warningStyleSheet = QLatin1String("border: 2px solid red; background-color: #E7C575; "
         "font-weight: bold; padding: 5px; margin: 5px; "
         "text-align: center;");
 

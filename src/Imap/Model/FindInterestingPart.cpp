@@ -38,7 +38,7 @@ namespace Mailbox {
 QString FindInterestingPart::findMainPart( QModelIndex &part )
 {
     if ( ! part.isValid() )
-        return QString::fromAscii("Invalid index");
+        return QLatin1String("Invalid index");
 
     QString mimeType = part.data( Imap::Mailbox::RolePartMimeType ).toString().toLower();
 
@@ -50,13 +50,13 @@ QString FindInterestingPart::findMainPart( QModelIndex &part )
     if ( mimeType == QLatin1String("text/html") ) {
         // HTML without a text/plain counterpart is not supported
         part = QModelIndex();
-        return QString::fromAscii("A HTML message without a plaintext counterpart");
+        return QLatin1String("A HTML message without a plaintext counterpart");
     }
 
     if ( mimeType == QLatin1String("message/rfc822") ) {
         if ( part.model()->rowCount( part ) != 1 ) {
             part = QModelIndex();
-            return QString::fromAscii("Unsupported message/rfc822 formatting");
+            return QLatin1String("Unsupported message/rfc822 formatting");
         }
         part = part.child( 0, 0 );
         return findMainPart( part );
@@ -77,11 +77,11 @@ QString FindInterestingPart::findMainPart( QModelIndex &part )
 
         }
         part = QModelIndex();
-        return QString::fromAscii("This is a %1 formatted message whose parts are not suitable for diplaying here").arg(mimeType);
+        return QString::fromUtf8("This is a %1 formatted message whose parts are not suitable for diplaying here").arg(mimeType);
     }
 
     part = QModelIndex();
-    return QString::fromAscii("MIME type %1 is not supported").arg(mimeType);
+    return QString::fromUtf8("MIME type %1 is not supported").arg(mimeType);
 }
 
 FindInterestingPart::MainPartReturnCode FindInterestingPart::findMainPartOfMessage(

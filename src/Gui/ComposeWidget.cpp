@@ -76,7 +76,7 @@ ComposeWidget::ComposeWidget(MainWindow *parent, QAbstractListModel *autoComplet
     // Ask for a fixed-width font. The problem is that these names wary acros platforms,
     // but the following works well -- at first, we come up with a made-up name, and then
     // let the Qt font substitution algorithm do its magic.
-    QFont font(QString::fromAscii("x-trojita-terminus-like-fixed-width"));
+    QFont font(QLatin1String("x-trojita-terminus-like-fixed-width"));
     font.setStyleHint(QFont::TypeWriter);
     ui->mailText->setFont(font);
 
@@ -271,7 +271,7 @@ void ComposeWidget::send()
                                               killDomainPartFromString(s.value(SettingsNames::imapUserKey).toString()),
                                               s.value(SettingsNames::composerImapSentKey, tr("Sent")).toString(),
                                               m_appendUidValidity, m_appendUid, QString(),
-                                              QString::fromAscii("submit+%1").arg(
+                                              QString::fromUtf8("submit+%1").arg(
                         killDomainPartFromString(s.value(SettingsNames::smtpUserKey).toString()))
                                               ));
         connect(genUrlAuthTask.data(), SIGNAL(gotAuth(QString)), this, SLOT(slotGenUrlAuthReceived(QString)));
@@ -293,7 +293,7 @@ void ComposeWidget::send()
     connect(msa, SIGNAL(error(QString)), this, SLOT(gotError(QString)));
 
     if (m_genUrlAuthReceived && s.value(SettingsNames::smtpUseBurlKey, false).toBool()) {
-        msa->sendBurl(m_composer->rawFromAddress(), m_composer->rawRecipientAddresses(), m_urlauth.toAscii());
+        msa->sendBurl(m_composer->rawFromAddress(), m_composer->rawRecipientAddresses(), m_urlauth.toUtf8());
     } else {
         msa->sendMail(m_composer->rawFromAddress(), m_composer->rawRecipientAddresses(), rawMessageData);
     }

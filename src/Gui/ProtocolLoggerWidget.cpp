@@ -92,7 +92,7 @@ QPlainTextEdit *ProtocolLoggerWidget::getLogger(const uint parser)
         // otherwise the QPlainTextEdit would default its background
         // to the very first value we throw at it, which might be a
         // grey one.
-        res->appendHtml(QString::fromAscii("<p>&nbsp;</p>"));
+        res->appendHtml(QLatin1String("<p>&nbsp;</p>"));
         tabs->addTab(res, tr("Connection %1").arg(parser));
         loggerWidgets[parser] = res;
     }
@@ -184,7 +184,7 @@ void ProtocolLoggerWidget::writeToDisk(uint parser, const Imap::Mailbox::LogMess
     if (message.truncatedBytes) {
         direction += QLatin1String("[truncated] ");
     }
-    QString line = message.timestamp.toString(QString::fromAscii("hh:mm:ss.zzz")) + QString::number(parser) + QLatin1Char(' ') +
+    QString line = message.timestamp.toString(QLatin1String("hh:mm:ss.zzz")) + QString::number(parser) + QLatin1Char(' ') +
                    direction + message.source + QLatin1Char(' ') + message.message.trimmed() + QLatin1String("\n");
     *m_fileLog << line;
     m_fileLog->flush();
@@ -200,7 +200,7 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<I
     QPlainTextEdit *w = getLogger(parserId);
 
     for (Imap::RingBuffer<Imap::Mailbox::LogMessage>::const_iterator it = buf.begin(); it != buf.end(); ++it) {
-        QString message = QString::fromAscii("<pre><span style='color: #808080'>%1</span> %2<span style='color: %3;%4'>%5</span>%6</pre>");
+        QString message = QString::fromUtf8("<pre><span style='color: #808080'>%1</span> %2<span style='color: %3;%4'>%5</span>%6</pre>");
         QString direction;
         QString textColor;
         QString bgColor;
@@ -242,9 +242,9 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<I
         niceLine.replace(QChar('\r'), 0x240d /* SYMBOL FOR CARRIAGE RETURN */)
         .replace(QChar('\n'), 0x240a /* SYMBOL FOR LINE FEED */);
 
-        w->appendHtml(message.arg(it->timestamp.toString(QString::fromAscii("hh:mm:ss.zzz")),
+        w->appendHtml(message.arg(it->timestamp.toString(QLatin1String("hh:mm:ss.zzz")),
                                   direction, textColor,
-                                  bgColor.isEmpty() ? QString() : QString::fromAscii("background-color: %1").arg(bgColor),
+                                  bgColor.isEmpty() ? QString() : QString::fromUtf8("background-color: %1").arg(bgColor),
                                   niceLine, trimmedInfo));
     }
     buf.clear();

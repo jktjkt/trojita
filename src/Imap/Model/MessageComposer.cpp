@@ -213,7 +213,7 @@ QByteArray MessageComposer::generateMessageId(const Imap::Message::MailAddress &
 #else
             .toString().toAscii()
 #endif
-            .replace("{", "").replace("}", "") + "@" + sender.host.toAscii();
+            .replace("{", "").replace("}", "") + "@" + sender.host.toUtf8();
 }
 
 /** @short Generate a random enough MIME boundary */
@@ -262,8 +262,8 @@ void MessageComposer::writeCommonMessageBeginning(QIODevice *target, const QByte
     target->write(QByteArray("Subject: ").append(encodeHeaderField(m_subject)).append("\r\n").
             append("Date: ").append(Imap::dateTimeToRfc2822(m_timestamp)).append("\r\n").
             append("User-Agent: ").append(
-                QString::fromAscii("%1/%2; %3")
-                .arg(qApp->applicationName(), qApp->applicationVersion(), Imap::Mailbox::systemPlatformVersion()).toAscii()
+                QString::fromUtf8("%1/%2; %3")
+                .arg(qApp->applicationName(), qApp->applicationVersion(), Imap::Mailbox::systemPlatformVersion()).toUtf8()
                 ).append("\r\n").
             append("MIME-Version: 1.0\r\n"));
     QByteArray messageId = generateMessageId(m_from);
