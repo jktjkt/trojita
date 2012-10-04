@@ -14,11 +14,11 @@ public:
     }
     QByteArray last() const
     {
-        return QString::fromAscii("y%1").arg(number).toAscii();
+        return QString::fromUtf8("y%1").arg(number).toUtf8();
     }
     QByteArray last( const char * const what ) const
     {
-        return QString::fromAscii("y%1 ").arg( number ).toAscii() + QByteArray(what);
+        return QString::fromUtf8("y%1 ").arg(number).toUtf8() + QByteArray(what);
     }
     void reset()
     {

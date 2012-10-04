@@ -125,7 +125,7 @@ void ImapModelTest::testCreationDeletionHandling()
     QVERIFY( noParseError.isEmpty() );
 
     // Try to create mailbox
-    model->createMailbox( QString::fromAscii("zzz_newly-Created") );
+    model->createMailbox( QLatin1String("zzz_newly-Created") );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
@@ -157,7 +157,7 @@ void ImapModelTest::testCreationDeletionHandling()
     QVERIFY( noParseError.isEmpty() );
 
     // Now test its succesfull completion
-    model->createMailbox( QString::fromAscii("zzz_newly-Created2") );
+    model->createMailbox( QLatin1String("zzz_newly-Created2") );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();

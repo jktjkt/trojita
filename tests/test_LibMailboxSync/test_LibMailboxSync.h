@@ -98,14 +98,14 @@ protected:
 { \
     for (int i=0; i<4; ++i) \
         QCoreApplication::processEvents(); \
-    QCOMPARE(QString::fromAscii(SOCK->writtenStuff()), QString::fromAscii(data));\
+    QCOMPARE(QString::fromUtf8(SOCK->writtenStuff()), QString::fromUtf8(data));\
 }
 
 #define cEmpty() \
 { \
     for (int i=0; i<4; ++i) \
         QCoreApplication::processEvents(); \
-    QCOMPARE(QString::fromAscii(SOCK->writtenStuff()), QString()); \
+    QCOMPARE(QString::fromUtf8(SOCK->writtenStuff()), QString()); \
 }
 
 #define requestAndCheckSubject(OFFSET, SUBJECT) \
@@ -115,9 +115,9 @@ protected:
     uint uid = index.data(Imap::Mailbox::RoleMessageUid).toUInt(); \
     Q_ASSERT(uid); \
     QCOMPARE(index.data(Imap::Mailbox::RoleMessageSubject).toString(), QString()); \
-    cClient(t.mk(QString::fromAscii("UID FETCH %1 (ENVELOPE INTERNALDATE BODYSTRUCTURE RFC822.SIZE)\r\n").arg(QString::number(uid)).toAscii())); \
+    cClient(t.mk(QString::fromUtf8("UID FETCH %1 (ENVELOPE INTERNALDATE BODYSTRUCTURE RFC822.SIZE)\r\n").arg(QString::number(uid)).toUtf8())); \
     cServer(helperCreateTrivialEnvelope(OFFSET + 1, uid, SUBJECT) + t.last("OK fetched\r\n")); \
-    QCOMPARE(index.data(Imap::Mailbox::RoleMessageSubject).toString(), QString::fromAscii(SUBJECT)); \
+    QCOMPARE(index.data(Imap::Mailbox::RoleMessageSubject).toString(), QString::fromUtf8(SUBJECT)); \
 }
 
 namespace QTest {

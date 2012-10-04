@@ -43,16 +43,16 @@ void LibMailboxSync::init()
     taskFactoryUnsafe = static_cast<Imap::Mailbox::TestingTaskFactory*>( taskFactory.get() );
     taskFactoryUnsafe->fakeOpenConnectionTask = true;
     taskFactoryUnsafe->fakeListChildMailboxes = true;
-    taskFactoryUnsafe->fakeListChildMailboxesMap[ QString::fromAscii("") ] = QStringList() <<
-        QString::fromAscii("a") << QString::fromAscii("b") << QString::fromAscii("c") <<
-        QString::fromAscii("d") << QString::fromAscii("e") << QString::fromAscii("f") <<
-        QString::fromAscii("g") << QString::fromAscii("h") << QString::fromAscii("i") <<
-        QString::fromAscii("j") << QString::fromAscii("k") << QString::fromAscii("l") <<
-        QString::fromAscii("m") << QString::fromAscii("n") << QString::fromAscii("o") <<
-        QString::fromAscii("p") << QString::fromAscii("q") << QString::fromAscii("r") <<
-        QString::fromAscii("s") << QString::fromAscii("q") << QString::fromAscii("u") <<
-        QString::fromAscii("v") << QString::fromAscii("w") << QString::fromAscii("x") <<
-        QString::fromAscii("y") << QString::fromAscii("z");
+    taskFactoryUnsafe->fakeListChildMailboxesMap[ QLatin1String("") ] = QStringList() <<
+        QLatin1String("a") << QLatin1String("b") << QLatin1String("c") <<
+        QLatin1String("d") << QLatin1String("e") << QLatin1String("f") <<
+        QLatin1String("g") << QLatin1String("h") << QLatin1String("i") <<
+        QLatin1String("j") << QLatin1String("k") << QLatin1String("l") <<
+        QLatin1String("m") << QLatin1String("n") << QLatin1String("o") <<
+        QLatin1String("p") << QLatin1String("q") << QLatin1String("r") <<
+        QLatin1String("s") << QLatin1String("q") << QLatin1String("u") <<
+        QLatin1String("v") << QLatin1String("w") << QLatin1String("x") <<
+        QLatin1String("y") << QLatin1String("z");
     model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), taskFactory, false );
     errorSpy = new QSignalSpy( model, SIGNAL(connectionError(QString)) );
     connect(model, SIGNAL(connectionError(QString)), this, SLOT(modelSignalsError(QString)));
@@ -93,9 +93,9 @@ void LibMailboxSync::helperInitialListing()
     idxA = model->index( 1, 0, QModelIndex() );
     idxB = model->index( 2, 0, QModelIndex() );
     idxC = model->index( 3, 0, QModelIndex() );
-    QCOMPARE( model->data( idxA, Qt::DisplayRole ), QVariant(QString::fromAscii("a")) );
-    QCOMPARE( model->data( idxB, Qt::DisplayRole ), QVariant(QString::fromAscii("b")) );
-    QCOMPARE( model->data( idxC, Qt::DisplayRole ), QVariant(QString::fromAscii("c")) );
+    QCOMPARE( model->data( idxA, Qt::DisplayRole ), QVariant(QLatin1String("a")) );
+    QCOMPARE( model->data( idxB, Qt::DisplayRole ), QVariant(QLatin1String("b")) );
+    QCOMPARE( model->data( idxC, Qt::DisplayRole ), QVariant(QLatin1String("c")) );
     msgListA = model->index( 0, 0, idxA );
     msgListB = model->index( 0, 0, idxB );
     msgListC = model->index( 0, 0, idxC );
@@ -194,7 +194,7 @@ void LibMailboxSync::helperFakeUidSearch( uint start )
     if ( start == 0  ) {
         cClient(t.mk("UID SEARCH ALL\r\n"));
     } else {
-        cClient(t.mk("UID SEARCH UID ") + QString::number( uidMapA[ start ] ).toAscii() + QByteArray(":*\r\n"));
+        cClient(t.mk("UID SEARCH UID ") + QString::number( uidMapA[ start ] ).toUtf8() + QByteArray(":*\r\n"));
     }
 
     QByteArray buf;
@@ -228,7 +228,7 @@ void LibMailboxSync::helperSyncBNoMessages()
     cServer(QByteArray("* 0 exists\r\n") + t.last("ok completed\r\n"));
 
     // Check the cache
-    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QString::fromAscii("b") );
+    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QLatin1String("b") );
     QCOMPARE( syncState.exists(), 0u );
     QCOMPARE( syncState.isUsableForSyncing(), false );
     QCOMPARE( syncState.uidNext(), 0u );
@@ -258,12 +258,12 @@ void LibMailboxSync::helperSyncANoMessagesCompleteState()
     QCOMPARE( model->rowCount( msgListA ), 0 );
     model->switchToMailbox( idxA );
     cClient(t.mk("SELECT a\r\n"));
-    cServer(QString::fromAscii("* 0 exists\r\n* OK [uidnext %1] foo\r\n* ok [uidvalidity %2] bar\r\n"
-                                          ).arg(QString::number(uidNextA), QString::number(uidValidityA)).toAscii()
+    cServer(QString::fromUtf8("* 0 exists\r\n* OK [uidnext %1] foo\r\n* ok [uidvalidity %2] bar\r\n"
+                                          ).arg(QString::number(uidNextA), QString::number(uidValidityA)).toUtf8()
                                   + t.last("ok completed\r\n"));
 
     // Check the cache
-    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QString::fromAscii("a") );
+    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QLatin1String("a") );
     QCOMPARE( syncState.exists(), 0u );
     QCOMPARE( syncState.isUsableForSyncing(), true );
     QCOMPARE( syncState.uidNext(), uidNextA );
@@ -319,7 +319,7 @@ void LibMailboxSync::helperSyncFlags()
 {
     QCoreApplication::processEvents();
     QByteArray expectedFetch = t.mk("FETCH ") +
-            (existsA == 1 ? QByteArray("1") : QByteArray("1:") + QString::number(existsA).toAscii()) +
+            (existsA == 1 ? QByteArray("1") : QByteArray("1:") + QString::number(existsA).toUtf8()) +
             QByteArray(" (FLAGS)\r\n");
     cClient(expectedFetch);
     QByteArray buf;
@@ -327,22 +327,22 @@ void LibMailboxSync::helperSyncFlags()
         switch (i % 10) {
         case 0:
         case 1:
-            buf += QString::fromAscii("* %1 FETCH (FLAGS (\\Seen))\r\n").arg(i).toAscii();
+            buf += QString::fromUtf8("* %1 FETCH (FLAGS (\\Seen))\r\n").arg(i).toUtf8();
             break;
         case 2:
         case 3:
         case 4:
-            buf += QString::fromAscii("* %1 FETCH (FLAGS (\\Seen \\Answered))\r\n").arg(i).toAscii();
+            buf += QString::fromUtf8("* %1 FETCH (FLAGS (\\Seen \\Answered))\r\n").arg(i).toUtf8();
             break;
         case 5:
-            buf += QString::fromAscii("* %1 FETCH (FLAGS (\\Seen starred))\r\n").arg(i).toAscii();
+            buf += QString::fromUtf8("* %1 FETCH (FLAGS (\\Seen starred))\r\n").arg(i).toUtf8();
         case 6:
         case 7:
         case 8:
-            buf += QString::fromAscii("* %1 FETCH (FLAGS (\\Seen \\Answered $NotJunk))\r\n").arg(i).toAscii();
+            buf += QString::fromUtf8("* %1 FETCH (FLAGS (\\Seen \\Answered $NotJunk))\r\n").arg(i).toUtf8();
             break;
         case 9:
-            buf += QString::fromAscii("* %1 FETCH (FLAGS ())\r\n").arg(i).toAscii();
+            buf += QString::fromUtf8("* %1 FETCH (FLAGS ())\r\n").arg(i).toUtf8();
             break;
         }
         if (buf.size() > 10*1024) {
@@ -368,7 +368,7 @@ void LibMailboxSync::helperSyncFlags()
 /** @short Helper: update flags for some message */
 void LibMailboxSync::helperOneFlagUpdate( const QModelIndex &message )
 {
-    cServer(QString::fromAscii("* %1 FETCH (FLAGS (\\SeEn fOo bar))\r\n").arg( message.row() + 1 ).toAscii());
+    cServer(QString::fromUtf8("* %1 FETCH (FLAGS (\\SeEn fOo bar))\r\n").arg( message.row() + 1 ).toUtf8());
     QStringList expectedFlags;
     expectedFlags << QLatin1String("\\Seen") << QLatin1String("fOo") << QLatin1String("bar");
     expectedFlags.sort();
@@ -432,14 +432,14 @@ void LibMailboxSync::helperVerifyUidMapA()
 void LibMailboxSync::helperCheckCache(bool ignoreUidNext)
 {
     // Check the cache
-    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QString::fromAscii("a") );
+    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QLatin1String("a") );
     QCOMPARE( syncState.exists(), existsA );
     QCOMPARE( syncState.isUsableForSyncing(), true );
     if ( ! ignoreUidNext ) {
         QCOMPARE( syncState.uidNext(), uidNextA );
     }
     QCOMPARE( syncState.uidValidity(), uidValidityA );
-    QCOMPARE( model->cache()->uidMapping( QString::fromAscii("a") ), uidMapA );
+    QCOMPARE( model->cache()->uidMapping( QLatin1String("a") ), uidMapA );
 
     cEmpty();
     QVERIFY( errorSpy->isEmpty() );
@@ -476,9 +476,9 @@ incremental data, but we have to feed it with stuff at once.
 */
 QByteArray LibMailboxSync::helperCreateTrivialEnvelope(const uint seq, const uint uid, const QString &subject)
 {
-    return QString::fromAscii("* %1 FETCH (UID %2 RFC822.SIZE 89 ENVELOPE (NIL \"%3\" NIL NIL NIL NIL NIL NIL NIL NIL) "
+    return QString::fromUtf8("* %1 FETCH (UID %2 RFC822.SIZE 89 ENVELOPE (NIL \"%3\" NIL NIL NIL NIL NIL NIL NIL NIL) "
                               "BODYSTRUCTURE (\"text\" \"plain\" () NIL NIL NIL 19 2 NIL NIL NIL NIL))\r\n").arg(
-                                      QString::number(seq), QString::number(uid), subject ).toAscii();
+                                      QString::number(seq), QString::number(uid), subject ).toUtf8();
 }
 
 /** @short Make sure that the only existing task is the KeepMailboxOpenTask and nothing else */
@@ -521,7 +521,7 @@ char *toString(const QList<uint> &list)
     Q_FOREACH(const uint item, list) {
         d << item;
     }
-    return qstrdup(buf.toAscii().constData());
+    return qstrdup(buf.toUtf8().constData());
 }
 
 
@@ -536,7 +536,7 @@ char *toString(const Imap::Mailbox::SyncState &syncState)
     QString buf;
     QDebug d(&buf);
     d << syncState;
-    return qstrdup(buf.toAscii().constData());
+    return qstrdup(buf.toUtf8().constData());
 }
 
 /** @short Debug data dumper for the MessageDataBundle */
@@ -547,6 +547,6 @@ char *toString(const Imap::Mailbox::AbstractCache::MessageDataBundle &bundle)
     QDebug d(&buf);
     d << "UID:" << bundle.uid << "Envelope:" << bundle.envelope << "size:" << bundle.size <<
          "bodystruct:" << bundle.serializedBodyStructure;
-    return qstrdup(buf.toAscii().constData());
+    return qstrdup(buf.toUtf8().constData());
 }
 }

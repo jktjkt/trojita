@@ -984,8 +984,8 @@ void ImapParserParseTest::testThrow()
         QSharedPointer<Imap::Responses::AbstractResponse> ptr = parser->parseUntagged(line);
         QVERIFY2(!ptr, "should have thrown");
     } catch (Imap::ImapException &e) {
-        QCOMPARE(QString::fromAscii(e.exceptionClass().c_str()), exceptionClass);
-        QCOMPARE(QString::fromAscii(e.msg().c_str()), error);
+        QCOMPARE(QString::fromUtf8(e.exceptionClass().c_str()), exceptionClass);
+        QCOMPARE(QString::fromUtf8(e.msg().c_str()), error);
     }
 }
 
