@@ -22,6 +22,7 @@
 #include "MsgListModel.h"
 #include "MailboxTree.h"
 #include "MailboxModel.h"
+#include "QAIM_reset.h"
 
 #include <QDebug>
 #include <QFontMetrics>
@@ -357,7 +358,7 @@ void MsgListModel::resetMe()
 {
     msgListPtr = 0;
     msgList = QModelIndex();
-    reset();
+    RESET_MODEL;
 }
 
 void MsgListModel::handleRowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
@@ -479,7 +480,7 @@ void MsgListModel::setMailbox(const QModelIndex &index)
         msgListPtr = newList;
         msgList = msgListPtr->toIndex(const_cast<Model*>(model));
         msgListPtr->resetWasUnreadState();
-        reset();
+        RESET_MODEL;
         emit mailboxChanged();
         // We want to tell the Model that it should consider starting the IDLE command.
         const_cast<Model *>(model)->switchToMailbox(index);

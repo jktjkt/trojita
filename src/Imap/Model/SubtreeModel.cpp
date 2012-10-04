@@ -22,6 +22,7 @@
 #include "SubtreeModel.h"
 #include "MailboxModel.h"
 #include "Model.h"
+#include "QAIM_reset.h"
 
 namespace Imap
 {
@@ -271,7 +272,7 @@ void SubtreeModel::handleRowsRemoved(const QModelIndex &parent, int first, int l
 
     if (!m_usingInvalidRoot && !m_rootIndex.isValid()) {
         // This is our chance to report back about everything being deleted
-        reset();
+        RESET_MODEL;
         return;
     }
 

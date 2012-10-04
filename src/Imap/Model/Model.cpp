@@ -33,6 +33,7 @@
 #include "MailboxTree.h"
 #include "TaskPresentationModel.h"
 #include "OpenConnectionTask.h"
+#include "QAIM_reset.h"
 #include "Common/FindWithUnknown.h"
 
 //#define DEBUG_PERIODICALLY_DUMP_TASKS
@@ -283,7 +284,7 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
 
             killParser(it.key(), PARSER_JUST_DELETE_LATER);
             m_parsers.erase(it);
-            m_taskModel->reset();
+            RESET_MODEL_2(m_taskModel);
         }
     }
 }

@@ -26,6 +26,7 @@
 #include "ItemRoles.h"
 #include "MailboxTree.h"
 #include "MsgListModel.h"
+#include "QAIM_reset.h"
 #include "SortTask.h"
 #include "ThreadTask.h"
 
@@ -76,7 +77,7 @@ void ThreadingMsgListModel::setSourceModel(QAbstractItemModel *sourceModel)
         this->sourceModel()->disconnect(this);
     }
 
-    reset();
+    RESET_MODEL;
 
     if (!sourceModel)
         return;
@@ -408,7 +409,7 @@ void ThreadingMsgListModel::resetMe()
     threadedRootIds.clear();
     m_currentSortResult.clear();
     m_searchValidity = SEARCH_RESULT_INVALIDATED;
-    reset();
+    RESET_MODEL;
     updateNoThreading();
     modelResetInProgress = false;
 

@@ -102,6 +102,7 @@ HEADERS += Parser/Parser.h \
     Exceptions.h \
     ConnectionState.h \
     Model/Model.h \
+    Model/QAIM_reset.h \
     Model/MailboxMetadata.h \
     Model/MailboxModel.h \
     Model/PrettyMailboxModel.h \

@@ -26,6 +26,7 @@
 #include "Model.h"
 #include "NoopTask.h"
 #include "OpenConnectionTask.h"
+#include "QAIM_reset.h"
 #include "SortTask.h"
 #include "UnSelectTask.h"
 
@@ -218,7 +219,7 @@ void TaskPresentationModel::slotTaskDestroyed(const ImapTask *const task)
 {
     Q_UNUSED(task);
     CHECK_TASK_TREE
-    reset();
+    RESET_MODEL;
     CHECK_TASK_TREE
 }
 
@@ -230,7 +231,7 @@ void TaskPresentationModel::slotParserCreated(Parser *parser)
 {
     Q_UNUSED(parser);
     CHECK_TASK_TREE
-    reset();
+    RESET_MODEL;
     CHECK_TASK_TREE
 }
 
@@ -242,7 +243,7 @@ void TaskPresentationModel::slotParserDeleted(Parser *parser)
 {
     Q_UNUSED(parser);
     CHECK_TASK_TREE
-    reset();
+    RESET_MODEL;
     CHECK_TASK_TREE
 }
 
@@ -254,7 +255,7 @@ void TaskPresentationModel::slotTaskGotReparented(const ImapTask *const task)
 {
     Q_UNUSED(task);
     CHECK_TASK_TREE
-    reset();
+    RESET_MODEL;
     CHECK_TASK_TREE
 }
 
