@@ -1521,8 +1521,13 @@ void MainWindow::slotShowImapInfo()
     if (!model->serverId().isEmpty() && model->capabilities().contains(QLatin1String("ID"))) {
         QMap<QByteArray,QByteArray> serverId = model->serverId();
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#define IMAP_ID_FIELD(Var, Name) bool has_##Var = serverId.contains(Name); \
+    QString Var = has_##Var ? QString::fromUtf8(serverId[Name]).toHtmlEscaped() : tr("Unknown");
+#else
 #define IMAP_ID_FIELD(Var, Name) bool has_##Var = serverId.contains(Name); \
     QString Var = has_##Var ? Qt::escape(QString::fromAscii(serverId[Name])) : tr("Unknown");
+#endif
         IMAP_ID_FIELD(serverName, "name");
         IMAP_ID_FIELD(serverVersion, "version");
         IMAP_ID_FIELD(os, "os");
@@ -1557,7 +1562,11 @@ void MainWindow::slotShowImapInfo()
         }
         QString fullId;
         for (QMap<QByteArray,QByteArray>::const_iterator it = serverId.constBegin(); it != serverId.constEnd(); ++it) {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+            fullId += tr("<li>%1: %2</li>").arg(QString::fromUtf8(it.key()).toHtmlEscaped(), QString::fromUtf8(it.value()).toHtmlEscaped());
+#else
             fullId += tr("<li>%1: %2</li>").arg(Qt::escape(QString::fromAscii(it.key())), Qt::escape(QString::fromAscii(it.value())));
+#endif
         }
         idString += tr("<ul>%1</ul>").arg(fullId);
     } else {

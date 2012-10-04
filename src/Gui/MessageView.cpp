@@ -288,7 +288,11 @@ QString MessageView::headerText()
         res += tr("<b>Cc:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(envelope.cc, Imap::Message::MailAddress::FORMAT_CLICKABLE));
     if (!envelope.bcc.isEmpty())
         res += tr("<b>Bcc:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(envelope.bcc, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     res += tr("<b>Subject:</b>&nbsp;%1").arg(Qt::escape(envelope.subject));
+#else
+    res += tr("<b>Subject:</b>&nbsp;%1").arg(envelope.subject.toHtmlEscaped());
+#endif
     if (envelope.date.isValid())
         res += tr("<br/><b>Date:</b>&nbsp;%1").arg(envelope.date.toLocalTime().toString(Qt::SystemLocaleLongDate));
     return res;
