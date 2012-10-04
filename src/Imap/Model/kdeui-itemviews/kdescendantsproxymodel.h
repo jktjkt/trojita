@@ -182,10 +182,9 @@ class KDEUI_EXPORT KDescendantsProxyModel : public QAbstractProxyModel
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     virtual QHash<int,QByteArray> roleNames() const;
-#else
-    // it's so easy to have this one public...
-    void setRoleNames(const QHash<int,QByteArray> &roleNames) { QAbstractProxyModel::setRoleNames(roleNames); }
 #endif
+
+    void proxySetRoleNames(const QHash<int,QByteArray> &roleNames);
 
 
 private:

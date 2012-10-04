@@ -52,7 +52,7 @@ OneMessageModel::OneMessageModel(Model *model): QObject(model), m_subtree(0)
     roleNames[RolePartOctets] = "size";
     roleNames[RolePartId] = "partId";
     roleNames[RolePartPathToPart] = "pathToPart";
-    m_flatteningModel->setRoleNames(roleNames);
+    m_flatteningModel->proxySetRoleNames(roleNames);
 }
 
 void OneMessageModel::setMessage(const QString &mailbox, const uint uid)
