@@ -26,6 +26,9 @@
 #include <QTextDocument>
 #include <QTimer>
 #include <QUrl>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <QUrlQuery>
+#endif
 #include <QVBoxLayout>
 #include <QtWebKit/QWebHistory>
 
@@ -354,6 +357,7 @@ void MessageView::linkInTitleHovered(const QString &target)
     }
 
     QUrl url(target);
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     QString niceName = url.queryItemValue(QLatin1String("X-Trojita-DisplayName"));
     if (niceName.isEmpty())
         header->setToolTip(QString::fromAscii("%1@%2").arg(
@@ -361,6 +365,16 @@ void MessageView::linkInTitleHovered(const QString &target)
     else
         header->setToolTip(QString::fromAscii("<p style='white-space:pre'>%1 &lt;%2@%3&gt;</p>").arg(
                                Qt::escape(niceName), Qt::escape(url.userName()), Qt::escape(url.host())));
+#else
+    QUrlQuery q(url);
+    QString niceName = q.queryItemValue(QLatin1String("X-Trojita-DisplayName"));
+    if (niceName.isEmpty())
+        header->setToolTip(QString::fromUtf8("%1@%2").arg(
+                               url.userName().toHtmlEscaped(), url.host().toHtmlEscaped()));
+    else
+        header->setToolTip(QString::fromUtf8("<p style='white-space:pre'>%1 &lt;%2@%3&gt;</p>").arg(
+                               niceName.toHtmlEscaped(), url.userName().toHtmlEscaped(), url.host().toHtmlEscaped()));
+#endif
 }
 
 void MessageView::newLabelAction(const QString &tag)
