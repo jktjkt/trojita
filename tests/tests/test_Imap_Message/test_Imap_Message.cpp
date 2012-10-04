@@ -220,35 +220,35 @@ void ImapMessageTest::testMailAddressParsing_data()
 
     QTest::newRow("trojita-ml-with-short-ascii-name") <<
         QString::fromUtf8("Trojita <trojita@lists.flaska.net>") <<
-        MailAddress(QLatin1String("Trojita"), QString(), "trojita", "lists.flaska.net");
+        MailAddress(QString::fromUtf8("Trojita"), QString(), "trojita", "lists.flaska.net");
 
     /*QTest::newRow("trojita-ml-with-short-ascii-name-quoted") <<
         QString::fromUtf8("\"Trojita\" <trojita@lists.flaska.net>") <<
-        MailAddress(QLatin1String("Trojita"), QString(), "trojita", "lists.flaska.net");*/
+        MailAddress(QString::fromUtf8("Trojita"), QString(), "trojita", "lists.flaska.net");*/
 
     QTest::newRow("trojita-ml-with-ascii-name") <<
         QString::fromUtf8("Trojita ML <trojita@lists.flaska.net>") <<
-        MailAddress(QLatin1String("Trojita ML"), QString(), "trojita", "lists.flaska.net");
+        MailAddress(QString::fromUtf8("Trojita ML"), QString(), "trojita", "lists.flaska.net");
 
     /*QTest::newRow("trojita-ml-with-ascii-name-quoted") <<
         QString::fromUtf8("\"Trojita ML\" <trojita@lists.flaska.net>") <<
-        MailAddress(QLatin1String("Trojita ML"), QString(), "trojita", "lists.flaska.net");*/
+        MailAddress(QString::fromUtf8("Trojita ML"), QString(), "trojita", "lists.flaska.net");*/
 
     QTest::newRow("trojita-ml-with-short-unicode-name") <<
         QString::fromUtf8("Trojitá <trojita@lists.flaska.net>") <<
-        MailAddress(QLatin1String("Trojitá"), QString(), "trojita", "lists.flaska.net");
+        MailAddress(QString::fromUtf8("Trojitá"), QString(), "trojita", "lists.flaska.net");
 
     /*QTest::newRow("trojita-ml-with-short-unicode-name-quoted") <<
         QString::fromUtf8("\"Trojitá\" <trojita@lists.flaska.net>") <<
-        MailAddress(QLatin1String("Trojitá"), QString(), "trojita", "lists.flaska.net");*/
+        MailAddress(QString::fromUtf8("Trojitá"), QString(), "trojita", "lists.flaska.net");*/
 
     QTest::newRow("trojita-ml-with-unicode-name") <<
         QString::fromUtf8("Trojitá ML <trojita@lists.flaska.net>") <<
-        MailAddress(QLatin1String("Trojitá ML"), QString(), "trojita", "lists.flaska.net");
+        MailAddress(QString::fromUtf8("Trojitá ML"), QString(), "trojita", "lists.flaska.net");
 
     /*QTest::newRow("trojita-ml-with-unicode-name-quoted") <<
         QString::fromUtf8("\"Trojitá ML\" <trojita@lists.flaska.net>") <<
-        MailAddress(QLatin1String("Trojitá ML"), QString(), "trojita", "lists.flaska.net");*/
+        MailAddress(QString::fromUtf8("Trojitá ML"), QString(), "trojita", "lists.flaska.net");*/
 
     QTest::newRow("jkt-isode-ascii") <<
         QString::fromUtf8("Jan Kundrat <jan.kundrat@demo.isode.com>") <<
