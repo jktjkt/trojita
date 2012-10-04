@@ -39,6 +39,8 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
     url.setScheme(QLatin1String("trojita-imap"));
     url.setHost(QLatin1String("msg"));
     url.setPath(partIndex.data(Imap::Mailbox::RolePartPathToPart).toString());
+    if (partIndex.data(Imap::Mailbox::RolePartMimeType).toString() == "text/plain")
+        connect(this, SIGNAL(loadFinished(bool)), this, SLOT(slotMarkupPlainText()));
     load(url);
 
     fileDownloadManager = new Imap::Network::FileDownloadManager(this, manager, partIndex);
@@ -49,6 +51,30 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
     this->addAction(saveAction);
 
     setContextMenuPolicy(Qt::ActionsContextMenu);
+}
+
+void SimplePartWidget::slotMarkupPlainText() {
+    // NOTICE "single shot", we get a recursion otherwise!
+    disconnect(this, SIGNAL(loadFinished(bool)), this, SLOT(slotMarkupPlainText()));
+
+    static const QRegExp link("(https*://[;/?:@=&$\\-_.+!'(),0-9a-zA-Z%#]*)");
+    static const QRegExp mail("([a-zA-Z0-9\\.\\-_]*@[a-zA-Z0-9\\.\\-_]*)");
+    static QString intro("([\\s\\(\\[\\{])");
+    static QString extro("([\\s\\),;.\\]\\}])");
+    static const QRegExp bold(intro + "\\*(\\S*)\\*" + extro);
+    static const QRegExp italic(intro + "/(\\S*)/" + extro);
+    static const QRegExp underline(intro + "_(\\S*)_" + extro);
+    QString content = page()->mainFrame()->toHtml();
+    content.replace("&gt;", "§gt;");
+    content.replace("&lt;", "§lt;");
+    content.replace(link, "<a href=\"\\1\">\\1</a>");
+    content.replace(mail, "<a href=\"mailto:\\1\">\\1</a>");
+    content.replace("§gt;", "&gt;");
+    content.replace("§lt;", "&lt;");
+    content.replace(bold, "\\1<b>\\2</b>\\3");
+    content.replace(italic, "\\1<i>\\2</i>\\3");
+    content.replace(underline, "\\1<u>\\2</u>\\3");
+    page()->mainFrame()->setHtml(content);
 }
 
 void SimplePartWidget::slotFileNameRequested(QString *fileName)

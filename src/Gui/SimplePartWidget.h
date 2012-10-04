@@ -57,6 +57,7 @@ public:
 private slots:
     void slotTransferError(const QString &errorString);
     void slotFileNameRequested(QString *fileName);
+    void slotMarkupPlainText();
 private:
     QAction *saveAction;
     Imap::Network::FileDownloadManager *fileDownloadManager;
