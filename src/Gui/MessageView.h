@@ -37,6 +37,10 @@ namespace Network
 {
 class MsgPartNetAccessManager;
 }
+namespace Message
+{
+class Envelope;
+}
 }
 
 namespace Gui
@@ -82,6 +86,7 @@ signals:
     void messageChanged();
 private:
     bool eventFilter(QObject *object, QEvent *event);
+    Imap::Message::Envelope envelope() const;
     QString headerText();
     QString quoteText() const;
     static QString replySubject(const QString &subject);

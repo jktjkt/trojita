@@ -269,39 +269,55 @@ bool MessageView::eventFilter(QObject *object, QEvent *event)
     }
 }
 
+Imap::Message::Envelope MessageView::envelope() const
+{
+    // Accessing the envelope via QVariant is just too much work here; it's way easier to just get the raw pointer
+    Imap::Mailbox::Model *model = dynamic_cast<Imap::Mailbox::Model *>(const_cast<QAbstractItemModel *>(message.model()));
+    Imap::Mailbox::TreeItemMessage *messagePtr = dynamic_cast<Imap::Mailbox::TreeItemMessage *>(static_cast<Imap::Mailbox::TreeItem *>(message.internalPointer()));
+    return messagePtr->envelope(model);
+}
+
 QString MessageView::headerText()
 {
     if (!message.isValid())
         return QString();
 
-    // Accessing the envelope via QVariant is just too much work here; it's way easier to just get the raw pointer
-    Imap::Mailbox::Model *model = dynamic_cast<Imap::Mailbox::Model *>(const_cast<QAbstractItemModel *>(message.model()));
-    Imap::Mailbox::TreeItemMessage *messagePtr = dynamic_cast<Imap::Mailbox::TreeItemMessage *>(static_cast<Imap::Mailbox::TreeItem *>(message.internalPointer()));
-    const Imap::Message::Envelope &envelope = messagePtr->envelope(model);
+    const Imap::Message::Envelope &e = envelope();
 
     QString res;
-    if (!envelope.from.isEmpty())
-        res += tr("<b>From:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(envelope.from, Imap::Message::MailAddress::FORMAT_CLICKABLE));
-    if (!envelope.to.isEmpty())
-        res += tr("<b>To:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(envelope.to, Imap::Message::MailAddress::FORMAT_CLICKABLE));
-    if (!envelope.cc.isEmpty())
-        res += tr("<b>Cc:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(envelope.cc, Imap::Message::MailAddress::FORMAT_CLICKABLE));
-    if (!envelope.bcc.isEmpty())
-        res += tr("<b>Bcc:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(envelope.bcc, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+    if (!e.from.isEmpty())
+        res += tr("<b>From:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.from, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+    if (!e.to.isEmpty())
+        res += tr("<b>To:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.to, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+    if (!e.cc.isEmpty())
+        res += tr("<b>Cc:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.cc, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+    if (!e.bcc.isEmpty())
+        res += tr("<b>Bcc:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.bcc, Imap::Message::MailAddress::FORMAT_CLICKABLE));
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    res += tr("<b>Subject:</b>&nbsp;%1").arg(Qt::escape(envelope.subject));
+    res += tr("<b>Subject:</b>&nbsp;%1").arg(Qt::escape(e.subject));
 #else
-    res += tr("<b>Subject:</b>&nbsp;%1").arg(envelope.subject.toHtmlEscaped());
+    res += tr("<b>Subject:</b>&nbsp;%1").arg(e.subject.toHtmlEscaped());
 #endif
-    if (envelope.date.isValid())
-        res += tr("<br/><b>Date:</b>&nbsp;%1").arg(envelope.date.toLocalTime().toString(Qt::SystemLocaleLongDate));
+    if (e.date.isValid())
+        res += tr("<br/><b>Date:</b>&nbsp;%1").arg(e.date.toLocalTime().toString(Qt::SystemLocaleLongDate));
     return res;
 }
 
 QString MessageView::quoteText() const
 {
-    const AbstractPartWidget *w = dynamic_cast<const AbstractPartWidget *>(viewer);
-    return w ? w->quoteMe() : QString();
+    if (const AbstractPartWidget *w = dynamic_cast<const AbstractPartWidget *>(viewer)) {
+        QString quote = w->quoteMe();
+        quote.replace('\n', "\n> ");
+        const Imap::Message::Envelope &e = envelope();
+        QString sender;
+        if (!e.from.isEmpty())
+            sender = e.from.at(0).name;
+        if (e.from.isEmpty())
+            sender = tr("you");
+        quote.prepend(tr("On %1 %2 wrote:\n\n").arg(e.date.toLocalTime().toString(Qt::SystemLocaleLongDate)).arg(sender));
+        return quote;
+    }
+    return QString();
 }
 
 void MessageView::reply(MainWindow *mainWindow, ReplyMode mode)
@@ -309,25 +325,21 @@ void MessageView::reply(MainWindow *mainWindow, ReplyMode mode)
     if (!message.isValid())
         return;
 
-    // Accessing the envelope via QVariant is just too much work here; it's way easier to just get the raw pointer
-    Imap::Mailbox::Model *model = dynamic_cast<Imap::Mailbox::Model *>(const_cast<QAbstractItemModel *>(message.model()));
-    Imap::Mailbox::TreeItemMessage *messagePtr = dynamic_cast<Imap::Mailbox::TreeItemMessage *>(static_cast<Imap::Mailbox::TreeItem *>(message.internalPointer()));
-    const Imap::Message::Envelope &envelope = messagePtr->envelope(model);
-    // ...now imagine how that would look like on just a single line :)
+    const Imap::Message::Envelope &e = envelope();
 
     QList<QPair<Imap::Mailbox::MessageComposer::RecipientKind,QString> > recipients;
-    for (QList<Imap::Message::MailAddress>::const_iterator it = envelope.from.begin(); it != envelope.from.end(); ++it) {
+    for (QList<Imap::Message::MailAddress>::const_iterator it = e.from.begin(); it != e.from.end(); ++it) {
         recipients << qMakePair(Imap::Mailbox::MessageComposer::Recipient_To, QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
     }
     if (mode == REPLY_ALL) {
-        for (QList<Imap::Message::MailAddress>::const_iterator it = envelope.to.begin(); it != envelope.to.end(); ++it) {
+        for (QList<Imap::Message::MailAddress>::const_iterator it = e.to.begin(); it != e.to.end(); ++it) {
             recipients << qMakePair(Imap::Mailbox::MessageComposer::Recipient_Cc, QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
         }
-        for (QList<Imap::Message::MailAddress>::const_iterator it = envelope.cc.begin(); it != envelope.cc.end(); ++it) {
+        for (QList<Imap::Message::MailAddress>::const_iterator it = e.cc.begin(); it != e.cc.end(); ++it) {
             recipients << qMakePair(Imap::Mailbox::MessageComposer::Recipient_To, QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
         }
     }
-    mainWindow->invokeComposeDialog(replySubject(envelope.subject), quoteText(), recipients, envelope.messageId);
+    mainWindow->invokeComposeDialog(replySubject(e.subject), quoteText(), recipients, e.messageId);
 }
 
 QString MessageView::replySubject(const QString &subject)
