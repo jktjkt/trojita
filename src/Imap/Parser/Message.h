@@ -48,7 +48,8 @@ namespace Message
 {
 
 /** @short Storage container for one address from an envelope */
-struct MailAddress {
+class MailAddress {
+public:
 
     /** @short Mode to format the address to string */
     typedef enum {
@@ -87,7 +88,8 @@ struct MailAddress {
 };
 
 /** @short Storage for envelope */
-struct Envelope {
+class Envelope {
+public:
     QDateTime date;
     QString subject;
     QList<MailAddress> from;
@@ -123,7 +125,8 @@ private:
  *
  * A message can be either one-part (OneMessage) or multipart (MultiMessage)
  * */
-struct AbstractMessage: public Responses::AbstractData {
+class AbstractMessage: public Responses::AbstractData {
+public:
     typedef QMap<QByteArray,QByteArray> bodyFldParam_t;
     typedef QPair<QByteArray, bodyFldParam_t> bodyFldDsp_t;
 
@@ -159,7 +162,8 @@ protected:
 };
 
 /** @short Abstract parent class for all non-multipart messages */
-struct OneMessage: public AbstractMessage {
+class OneMessage: public AbstractMessage {
+public:
     QByteArray bodyFldId;
     QByteArray bodyFldDesc;
     QByteArray bodyFldEnc;
@@ -184,7 +188,8 @@ protected:
 };
 
 /** @short Ordinary Message (body-type-basic in RFC3501) */
-struct BasicMessage: public OneMessage {
+class BasicMessage: public OneMessage {
+public:
     // nothing new, just stuff from OneMessage
     BasicMessage(const QString &_mediaType, const QString &_mediaSubType,
                  const bodyFldParam_t &_bodyFldParam, const QByteArray &_bodyFldId,
@@ -204,7 +209,8 @@ struct BasicMessage: public OneMessage {
 };
 
 /** @short A message holding another RFC822 message (body-type-msg) */
-struct MsgMessage: public OneMessage {
+class MsgMessage: public OneMessage {
+public:
     Envelope envelope;
     QSharedPointer<AbstractMessage> body;
     uint bodyFldLines;
@@ -228,7 +234,8 @@ struct MsgMessage: public OneMessage {
 };
 
 /** @short A text message (body-type-text) */
-struct TextMessage: public OneMessage {
+class TextMessage: public OneMessage {
+public:
     uint bodyFldLines;
     TextMessage(const QString &_mediaType, const QString &_mediaSubType,
                 const bodyFldParam_t &_bodyFldParam, const QByteArray &_bodyFldId,
@@ -249,7 +256,8 @@ struct TextMessage: public OneMessage {
 };
 
 /** @short Multipart message (body-type-mpart) */
-struct MultiMessage: public AbstractMessage {
+class MultiMessage: public AbstractMessage {
+public:
     QList<QSharedPointer<AbstractMessage> > bodies;
 
     MultiMessage(const QList<QSharedPointer<AbstractMessage> > &_bodies,
