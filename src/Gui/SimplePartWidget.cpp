@@ -59,22 +59,104 @@ void SimplePartWidget::slotMarkupPlainText() {
 
     static const QRegExp link("(https*://[;/?:@=&$\\-_.+!'(),0-9a-zA-Z%#]*)");
     static const QRegExp mail("([a-zA-Z0-9\\.\\-_]*@[a-zA-Z0-9\\.\\-_]*)");
-    static QString intro("([\\s\\(\\[\\{])");
+    static QString intro("(^|[\\s\\(\\[\\{])");
     static QString extro("([\\s\\),;.\\]\\}])");
     static const QRegExp bold(intro + "\\*(\\S*)\\*" + extro);
     static const QRegExp italic(intro + "/(\\S*)/" + extro);
     static const QRegExp underline(intro + "_(\\S*)_" + extro);
-    QString content = page()->mainFrame()->toHtml();
-    content.replace("&gt;", "§gt;");
-    content.replace("&lt;", "§lt;");
-    content.replace(link, "<a href=\"\\1\">\\1</a>");
-    content.replace(mail, "<a href=\"mailto:\\1\">\\1</a>");
-    content.replace("§gt;", "&gt;");
-    content.replace("§lt;", "&lt;");
-    content.replace(bold, "\\1<b>\\2</b>\\3");
-    content.replace(italic, "\\1<i>\\2</i>\\3");
-    content.replace(underline, "\\1<u>\\2</u>\\3");
-    page()->mainFrame()->setHtml(content);
+    // TODO: include some extern css here?
+    QString stylesheet(
+        "pre{word-wrap: break-word; white-space: pre-wrap;}"
+        ".markup{color:transparent;font-size:0px;}"
+        ".quotemarks{color:transparent;font-size:0px;}"
+        "blockquote{font-size:90%;padding:0;margin:4pt;margin-left:2em;}"
+    );
+    static QString htmlHeader("<html><head><style type=\"text/css\"><!--" + stylesheet + "--></style></head><body><pre>");
+    static QString htmlFooter("\n</pre></body></html>");
+
+    // Processing:
+    // the plain text is split into lines
+    // leading quotemarks are counted and stripped
+    // next, the line is marked up (*bold*, /italic/, _underline_ and active link support)
+    // if the last line ended with a space, the result is appended, otherwise canonical quotemarkes are
+    // prepended and the line appended to the markup list (see http://tools.ietf.org/html/rfc3676)
+    // whenever the quote level grows, a <blockquote> is opened and closed when it shrinks
+
+    int quoteLevel = 0;
+    QStringList plain(page()->mainFrame()->toPlainText().split('\n'));
+    QStringList markup(htmlHeader);
+    for (int i = 0; i < plain.count(); ++i) {
+        QString *line = const_cast<QString*>(&plain.at(i));
+
+        // ignore empty lines
+        if (line->isEmpty()) {
+            markup << *line;
+            continue;
+        }
+        // determine quotelevel
+        int cQuoteLevel = 0;
+        if (line->at(0) == '>') {
+            int j = 1;
+            cQuoteLevel = 1;
+            while (j < line->length() && (line->at(j) == '>' || line->at(j) == ' '))
+                cQuoteLevel += line->at(j++) == '>';
+        }
+        // strip quotemarks
+        if (cQuoteLevel) {
+            static QRegExp quotemarks("^[>\\s]*");
+            line->remove(quotemarks);
+        }
+        // markup *bold*, /italic/, _underline_ and active links
+        line->replace(">", "§gt;"); // we cannot escape them after we added actual tags
+        line->replace("<", "§lt;"); // and we cannot use the amps "&" since we'll have to escape it to &amp; later on as well
+        line->replace(link, "<a href=\"\\1\">\\1</a>");
+        line->replace(mail, "<a href=\"mailto:\\1\">\\1</a>");
+#define MARKUP(_item_) "<span class=\"markup\">"#_item_"</span>"
+        if (line->contains("italic"))
+            qDebug() << *line;
+        line->replace(bold, "\\1<b>" MARKUP(*) "\\2" MARKUP(*) "</b>\\3");
+        line->replace(italic, "\\1<i>" MARKUP(/) "\\2" MARKUP(/) "</i>\\3");
+        line->replace(underline, "\\1<u>" MARKUP(_) "\\2" MARKUP(_) "</u>\\3");
+#undef MARKUP
+        line->replace("&", "&amp;");
+        line->replace("§gt;", "&gt;");
+        line->replace("§lt;", "&lt;");
+
+        // if this is a non floating new line, prepend canonical quotemarks
+        if (cQuoteLevel && !(cQuoteLevel == quoteLevel && markup.last().endsWith(' '))) {
+            QString quotemarks("<span class=\"quotemarks\">");
+            for (int i = 0; i < cQuoteLevel; ++i)
+                quotemarks += "&gt;";
+            quotemarks += " </span>";
+            line->prepend(quotemarks);
+        }
+
+        // handle quotelevel depending blockquotes
+        cQuoteLevel -= quoteLevel;
+        quoteLevel += cQuoteLevel; // quoteLevel is now what cQuoteLevel was two lines before
+        while (cQuoteLevel > 0) {
+            line->prepend("<blockquote>");
+            --cQuoteLevel;
+        }
+        while (cQuoteLevel < 0) {
+            line->prepend("</blockquote>");
+            ++cQuoteLevel;
+        }
+        // appaned or join the line
+        if (markup.last().endsWith(' '))
+            markup.last().append(*line);
+        else
+            markup << *line;
+    }
+    // close open blockquotes
+    // (bottom quoters, we're unfortunately -yet- not permittet to shoot them, so we need to deal with them ;-)
+    QString quoteCloser("\n");
+    while (quoteLevel > 0) {
+        quoteCloser.append("</blockquote>");
+        --quoteLevel;
+    }
+    // and finally set the marked up page.
+    page()->mainFrame()->setHtml(markup.join("\n") + quoteCloser + htmlFooter);
 }
 
 void SimplePartWidget::slotFileNameRequested(QString *fileName)
