@@ -203,8 +203,8 @@ class AbstractResponse
 public:
     /** @short Kind of reponse */
     Kind kind;
-    AbstractResponse(): kind(BAD) {};
-    AbstractResponse(const Kind kind): kind(kind) {};
+    AbstractResponse(): kind(BAD) {}
+    AbstractResponse(const Kind kind): kind(kind) {}
     virtual ~AbstractResponse();
     /** @short Helper for operator<<() */
     virtual QTextStream &dump(QTextStream &) const = 0;
@@ -280,7 +280,7 @@ public:
     State(const QByteArray &tag, const Kind kind, const QByteArray &line, int &start);
 
     /** @short Default destructor that makes containers and QtTest happy */
-    State(): respCode(NONE) {};
+    State(): respCode(NONE) {}
 
     /** @short helper for operator<<( QTextStream& ) */
     virtual QTextStream &dump(QTextStream &s) const;
@@ -295,7 +295,7 @@ class Capability : public AbstractResponse
 public:
     /** @short List of capabilities */
     QStringList capabilities;
-    Capability(const QStringList &_caps) : AbstractResponse(CAPABILITY), capabilities(_caps) {};
+    Capability(const QStringList &_caps) : AbstractResponse(CAPABILITY), capabilities(_caps) {}
     virtual QTextStream &dump(QTextStream &s) const;
     virtual bool eq(const AbstractResponse &other) const;
     virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
