@@ -25,7 +25,7 @@
 #include "IODeviceSocket.h"
 #include "Imap/Exceptions.h"
 #include "TrojitaZlibStatus.h"
-#ifdef TROJITA_COMPRESS_DEFLATE
+#if TROJITA_COMPRESS_DEFLATE
 #include "3rdparty/rfc1951.h"
 #endif
 
