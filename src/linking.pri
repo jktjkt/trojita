@@ -12,5 +12,7 @@ for(what, trojita_libs) {
     }
     LIBS += $$join(mypath,,-L,)
     LIBS += $$join(mylib,,-l,)
-    PRE_TARGETDEPS += $$join(mypath,,,$$join(mylib,,/lib,.a))
+    !win32-msvc {
+        PRE_TARGETDEPS += $$join(mypath,,,$$join(mylib,,/lib,.a))
+    }
 }
