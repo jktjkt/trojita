@@ -715,7 +715,7 @@ ESearch::ESearch(const QByteArray &line, int &start): AbstractResponse(ESEARCH),
             // got to push the token "back"
             start = oldStart;
         }
-    } catch (ParseError &e) {
+    } catch (ParseError &) {
         seqOrUids = SEQUENCE;
     }
 
@@ -1060,7 +1060,7 @@ Id::Id(const QByteArray &line, int &start): AbstractResponse(ID)
         for (int i = 0; i < list.size() - 1; i += 2) {
             data[list[i].toByteArray()] = list[i+1].toByteArray();
         }
-    } catch (UnexpectedHere &e) {
+    } catch (UnexpectedHere &) {
         // Check for NIL
         QPair<QByteArray,LowLevelParser::ParsedAs> nString = LowLevelParser::getNString(line, start);
         if (nString.second != LowLevelParser::NIL) {

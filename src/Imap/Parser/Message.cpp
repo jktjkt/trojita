@@ -273,7 +273,7 @@ Envelope Envelope::fromList(const QVariantList &items, const QByteArray &line, c
         if (! dateStr.isEmpty()) {
             try {
                 date = LowLevelParser::parseRFC2822DateTime(dateStr);
-            } catch (ParseError &e) {
+            } catch (ParseError &) {
                 // FIXME: log this
                 //throw ParseError( e.what(), line, start );
             }
@@ -644,7 +644,7 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList(const QVariantList &it
 
             try {
                 bodyFldLines = extractUInt(items[i], line, start);
-            } catch (const UnexpectedHere &e) {
+            } catch (const UnexpectedHere &) {
                 qDebug() << "AbstractMessage::fromList(): message/rfc822: yuck, invalid body-fld-lines";
             }
             ++i;
