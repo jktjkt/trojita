@@ -34,6 +34,11 @@
 #include "Data.h"
 #include "ThreadingNode.h"
 
+#ifdef _MSC_VER
+// Disable warnings about throw/nothrow
+#pragma warning(disable: 4290)
+#endif
+
 /**
  * @file
  * @short Various data structures related to IMAP responses
