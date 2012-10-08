@@ -18,6 +18,9 @@
       <property name="text">
        <string>Method</string>
       </property>
+      <property name="buddy">
+       <cstring>method</cstring>
+      </property>
      </widget>
     </item>
     <item row="0" column="1">
@@ -43,12 +46,18 @@ p, li { white-space: pre-wrap; }
       <property name="text">
        <string>IMAP Server</string>
       </property>
+      <property name="buddy">
+       <cstring>imapHost</cstring>
+      </property>
      </widget>
     </item>
     <item row="2" column="0">
      <widget class="QLabel" name="imapPortLabel">
       <property name="text">
        <string>Port</string>
+      </property>
+      <property name="buddy">
+       <cstring>imapPort</cstring>
       </property>
      </widget>
     </item>
@@ -57,12 +66,18 @@ p, li { white-space: pre-wrap; }
       <property name="text">
        <string>Perform STARTTLS</string>
       </property>
+      <property name="buddy">
+       <cstring>startTls</cstring>
+      </property>
      </widget>
     </item>
     <item row="4" column="0">
      <widget class="QLabel" name="imapUserLabel">
       <property name="text">
        <string>Username</string>
+      </property>
+      <property name="buddy">
+       <cstring>imapUser</cstring>
       </property>
      </widget>
     </item>
@@ -71,6 +86,9 @@ p, li { white-space: pre-wrap; }
       <property name="text">
        <string>Password</string>
       </property>
+      <property name="buddy">
+       <cstring>imapPass</cstring>
+      </property>
      </widget>
     </item>
     <item row="7" column="0">
@@ -78,12 +96,18 @@ p, li { white-space: pre-wrap; }
       <property name="text">
        <string>Path to Server Binary</string>
       </property>
+      <property name="buddy">
+       <cstring>processPath</cstring>
+      </property>
      </widget>
     </item>
     <item row="8" column="0">
      <widget class="QLabel" name="startOfflineLabel">
       <property name="text">
        <string>Start in Offline Mode</string>
+      </property>
+      <property name="buddy">
+       <cstring>startOffline</cstring>
       </property>
      </widget>
     </item>
@@ -226,12 +250,18 @@ p, li { white-space: pre-wrap; }
       <property name="text">
        <string>Ask for IMAP ID</string>
       </property>
+      <property name="buddy">
+       <cstring>imapEnableId</cstring>
+      </property>
      </widget>
     </item>
     <item row="10" column="0">
      <widget class="QLabel" name="imapCapabilitiesBlacklistLabel">
       <property name="text">
        <string>Blacklisted Capabilities</string>
+      </property>
+      <property name="buddy">
+       <cstring>imapCapabilitiesBlacklist</cstring>
       </property>
      </widget>
     </item>

@@ -18,6 +18,9 @@
       <property name="text">
        <string>Method</string>
       </property>
+      <property name="buddy">
+       <cstring>method</cstring>
+      </property>
      </widget>
     </item>
     <item row="0" column="1">
@@ -28,12 +31,18 @@
       <property name="text">
        <string>SMTP Server</string>
       </property>
+      <property name="buddy">
+       <cstring>smtpHost</cstring>
+      </property>
      </widget>
     </item>
     <item row="2" column="0">
      <widget class="QLabel" name="smtpPortLabel">
       <property name="text">
        <string>Port</string>
+      </property>
+      <property name="buddy">
+       <cstring>smtpPort</cstring>
       </property>
      </widget>
     </item>
@@ -42,12 +51,18 @@
       <property name="text">
        <string>SMTP Auth</string>
       </property>
+      <property name="buddy">
+       <cstring>smtpAuth</cstring>
+      </property>
      </widget>
     </item>
     <item row="5" column="0">
      <widget class="QLabel" name="smtpUserLabel">
       <property name="text">
        <string>Username</string>
+      </property>
+      <property name="buddy">
+       <cstring>smtpUser</cstring>
       </property>
      </widget>
     </item>
@@ -56,12 +71,18 @@
       <property name="text">
        <string>Password</string>
       </property>
+      <property name="buddy">
+       <cstring>smtpPass</cstring>
+      </property>
      </widget>
     </item>
     <item row="7" column="0">
      <widget class="QLabel" name="sendmailLabel">
       <property name="text">
        <string>Sendmail Executable</string>
+      </property>
+      <property name="buddy">
+       <cstring>sendmail</cstring>
       </property>
      </widget>
     </item>
@@ -96,6 +117,9 @@
       <property name="text">
        <string>Perform STARTTLS</string>
       </property>
+      <property name="buddy">
+       <cstring>smtpStartTls</cstring>
+      </property>
      </widget>
     </item>
     <item row="3" column="1">
@@ -113,12 +137,18 @@
       <property name="text">
        <string>Save Outgoing Mail</string>
       </property>
+      <property name="buddy">
+       <cstring>saveToImap</cstring>
+      </property>
      </widget>
     </item>
     <item row="9" column="0">
      <widget class="QLabel" name="saveFolderLabel">
       <property name="text">
        <string>Sent Folder Name</string>
+      </property>
+      <property name="buddy">
+       <cstring>saveFolderName</cstring>
       </property>
      </widget>
     </item>
@@ -130,6 +160,9 @@
       <property name="text">
        <string>Send with BURL</string>
       </property>
+      <property name="buddy">
+       <cstring>smtpBurl</cstring>
+      </property>
      </widget>
     </item>
     <item row="10" column="1">
@@ -138,6 +171,19 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>method</tabstop>
+  <tabstop>smtpHost</tabstop>
+  <tabstop>smtpPort</tabstop>
+  <tabstop>smtpStartTls</tabstop>
+  <tabstop>smtpAuth</tabstop>
+  <tabstop>smtpUser</tabstop>
+  <tabstop>smtpPass</tabstop>
+  <tabstop>sendmail</tabstop>
+  <tabstop>saveToImap</tabstop>
+  <tabstop>saveFolderName</tabstop>
+  <tabstop>smtpBurl</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
