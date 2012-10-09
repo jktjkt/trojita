@@ -71,6 +71,14 @@ void ComposerTextEdit::insertFromMimeData(const QMimeData *source)
     QTextEdit::insertFromMimeData(source);
 }
 
+void ComposerTextEdit::keyReleaseEvent(QKeyEvent *ke) {
+    if ((ke->key() == Qt::Key_Return || ke->key() == Qt::Key_Enter) && ke->modifiers() == Qt::ControlModifier) {
+        emit sendRequest();
+        return;
+    }
+    QTextEdit::keyReleaseEvent(ke);
+}
+
 void ComposerTextEdit::paintEvent(QPaintEvent *pe)
 {
     QTextEdit::paintEvent(pe);

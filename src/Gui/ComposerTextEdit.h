@@ -36,11 +36,13 @@ public:
      */
     void notify(const QString &n, uint timeout = 0);
 signals:
+    void sendRequest();
     void urlsAdded(QList<QUrl> urls);
 protected:
     /** DND reimplementation **/
     bool canInsertFromMimeData( const QMimeData * source ) const;
     void insertFromMimeData(const QMimeData *source);
+    void keyReleaseEvent(QKeyEvent *event);
     /** painter reimplementation for notification **/
     void paintEvent(QPaintEvent *pe);
 private slots:

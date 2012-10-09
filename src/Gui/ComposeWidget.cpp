@@ -95,6 +95,7 @@ ComposeWidget::ComposeWidget(MainWindow *parent) :
     ui->mailText->setFont(font);
 
     connect(ui->mailText, SIGNAL(urlsAdded(QList<QUrl>)), SLOT(slotAttachFiles(QList<QUrl>)));
+    connect(ui->mailText, SIGNAL(sendRequest()), SLOT(send()));
 }
 
 ComposeWidget::~ComposeWidget()
