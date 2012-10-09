@@ -27,6 +27,7 @@
 #include <QUrl>
 
 ComposerTextEdit::ComposerTextEdit(QWidget *parent) : QTextEdit(parent)
+, m_couldBeSendRequest(false)
 {
     setAcceptRichText(false);
     setLineWrapMode(QTextEdit::FixedColumnWidth);
@@ -75,11 +76,27 @@ void ComposerTextEdit::insertFromMimeData(const QMimeData *source)
     QTextEdit::insertFromMimeData(source);
 }
 
-void ComposerTextEdit::keyReleaseEvent(QKeyEvent *ke) {
-    if ((ke->key() == Qt::Key_Return || ke->key() == Qt::Key_Enter) && ke->modifiers() == Qt::ControlModifier) {
+
+static inline bool isSendCombo(QKeyEvent *ke) {
+    return (ke->key() == Qt::Key_Return || ke->key() == Qt::Key_Enter) && ke->modifiers() == Qt::ControlModifier;
+}
+
+void ComposerTextEdit::keyPressEvent(QKeyEvent *ke) {
+    m_couldBeSendRequest = false;
+    if (isSendCombo(ke)) {
+        m_couldBeSendRequest = true;
+    }
+    QTextEdit::keyPressEvent(ke);
+}
+
+void ComposerTextEdit::keyReleaseEvent(QKeyEvent *ke)
+{
+    if (m_couldBeSendRequest && isSendCombo(ke)) {
+        m_couldBeSendRequest = false;
         emit sendRequest();
         return;
     }
+    m_couldBeSendRequest = false;
     QTextEdit::keyReleaseEvent(ke);
 }
 

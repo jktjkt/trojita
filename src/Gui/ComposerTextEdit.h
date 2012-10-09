@@ -42,6 +42,7 @@ protected:
     /** DND reimplementation **/
     bool canInsertFromMimeData( const QMimeData * source ) const;
     void insertFromMimeData(const QMimeData *source);
+    void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
     /** painter reimplementation for notification **/
     void paintEvent(QPaintEvent *pe);
@@ -50,4 +51,5 @@ private slots:
 private:
     QString m_notification;
     QTimer *m_notificationTimer;
+    bool m_couldBeSendRequest;
 };
