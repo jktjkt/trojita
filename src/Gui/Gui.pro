@@ -43,7 +43,9 @@ SOURCES += \
     MessageListWidget.cpp \
     MailBoxTreeView.cpp \
     LocalAddressbook.cpp \
-    AbookAddressbook.cpp
+    AbookAddressbook.cpp \
+    ComposerTextEdit.cpp \
+    ComposerAttachments.cpp
 HEADERS += \
     ../Imap/Model/ModelTest/modeltest.h \
     ComposeWidget.h \
@@ -73,7 +75,9 @@ HEADERS += \
     MailBoxTreeView.h \
     AbstractAddressbook.h \
     LocalAddressbook.h \
-    AbookAddressbook.h
+    AbookAddressbook.h \
+    ComposerTextEdit.h \
+    ComposerAttachments.h
 FORMS += CreateMailboxDialog.ui \
     ComposeWidget.ui \
     SettingsImapPage.ui \

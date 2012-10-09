@@ -58,6 +58,7 @@ ComposeWidget::ComposeWidget(MainWindow *parent) :
     Q_ASSERT(m_mainWindow);
     m_composer = new Imap::Mailbox::MessageComposer(m_mainWindow->imapModel(), this);
     m_composer->setPreloadEnabled(shouldBuildMessageLocally());
+    m_composer->setSupportedDragActions( Qt::MoveAction|Qt::CopyAction|Qt::LinkAction );
 
     ui->setupUi(this);
     sendButton = ui->buttonBox->addButton(tr("Send"), QDialogButtonBox::AcceptRole);
@@ -66,13 +67,13 @@ ComposeWidget::ComposeWidget(MainWindow *parent) :
     connect(cancelButton, SIGNAL(clicked()), this, SLOT(close()));
     ui->attachmentsView->setModel(m_composer);
     connect(ui->attachButton, SIGNAL(clicked()), this, SLOT(slotAskForFileAttachment()));
-    ui->attachmentsView->setAcceptDrops(true);
-    ui->attachmentsView->setDropIndicatorShown(true);
     ui->attachmentsView->setContextMenuPolicy(Qt::ActionsContextMenu);
 
     m_actionRemoveAttachment = new QAction(tr("Remove"), this);
     connect(m_actionRemoveAttachment, SIGNAL(triggered()), this, SLOT(slotRemoveAttachment()));
     ui->attachmentsView->addAction(m_actionRemoveAttachment);
+
+    connect(ui->attachmentsView, SIGNAL(itemDroppedOut()), SLOT(slotRemoveAttachment()));
 
     m_completionPopup = new QMenu(this);
     m_completionPopup->installEventFilter(this);
@@ -92,6 +93,8 @@ ComposeWidget::ComposeWidget(MainWindow *parent) :
     QFont font(QLatin1String("x-trojita-terminus-like-fixed-width"));
     font.setStyleHint(QFont::TypeWriter);
     ui->mailText->setFont(font);
+
+    connect(ui->mailText, SIGNAL(urlsAdded(QList<QUrl>)), SLOT(slotAttachFiles(QList<QUrl>)));
 }
 
 ComposeWidget::~ComposeWidget()
@@ -570,6 +573,15 @@ void ComposeWidget::slotAskForFileAttachment()
                                                     QFileDialog::DontResolveSymlinks);
     if (!fileName.isEmpty()) {
         m_composer->addFileAttachment(fileName);
+    }
+}
+
+void ComposeWidget::slotAttachFiles(QList<QUrl> urls)
+{
+    foreach (const QUrl &url, urls) {
+        if (url.isLocalFile()) {
+            m_composer->addFileAttachment(url.path());
+        }
     }
 }
 

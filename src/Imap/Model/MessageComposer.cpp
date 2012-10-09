@@ -23,6 +23,7 @@
 #include <QBuffer>
 #include <QCoreApplication>
 #include <QMimeData>
+#include <QUrl>
 #include <QUuid>
 #include "Imap/Encoders.h"
 #include "Imap/Model/ComposerAttachments.h"
@@ -136,7 +137,15 @@ bool MessageComposer::dropMimeData(const QMimeData *data, Qt::DropAction action,
         QDataStream stream(&encodedData, QIODevice::ReadOnly);
         return dropImapPart(stream);
     } else {
-        return false;
+        bool attached = false;
+        QList<QUrl> urls = data->urls();
+        foreach (const QUrl &url, urls) {
+            if (url.isLocalFile()) {
+                addFileAttachment(url.path());
+                attached = true;
+            }
+        }
+        return attached;
     }
 }
 
@@ -342,7 +351,8 @@ QStringList MessageComposer::mimeTypes() const
 {
     return QStringList() << QLatin1String("application/x-trojita-message-list") <<
                             QLatin1String("application/x-trojita-imap-part") <<
-                            QLatin1String("application/x-trojita-attachments-list");
+                            QLatin1String("application/x-trojita-attachments-list") <<
+                            QLatin1String("text/uri-list");
 }
 
 void MessageComposer::setFrom(const Message::MailAddress &from)

@@ -21,6 +21,8 @@
 #ifndef COMPOSEWIDGET_H
 #define COMPOSEWIDGET_H
 
+#include <QList>
+#include <QUrl>
 #include <QWidget>
 
 #include "Imap/Model/MessageComposer.h"
@@ -73,6 +75,7 @@ private slots:
 
     void slotAskForFileAttachment();
     void slotRemoveAttachment();
+    void slotAttachFiles(QList<QUrl> urls);
 
     void slotAppendUidKnown(const uint uidValidity, const uint uid);
     void slotGenUrlAuthReceived(const QString &url);
