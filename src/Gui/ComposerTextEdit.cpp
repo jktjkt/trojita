@@ -28,6 +28,10 @@
 
 ComposerTextEdit::ComposerTextEdit(QWidget *parent) : QTextEdit(parent)
 {
+    setAcceptRichText(false);
+    setLineWrapMode(QTextEdit::FixedColumnWidth);
+    setWordWrapMode(QTextOption::WordWrap);
+    setLineWrapColumnOrWidth(78);
     m_notificationTimer = new QTimer(this);
     m_notificationTimer->setSingleShot(true);
     connect (m_notificationTimer, SIGNAL(timeout()), SLOT(resetNotification()));
