@@ -327,8 +327,8 @@ QString MessageView::quoteText() const
             }
             // long line -> needs to be wrapped
             // 1st, detect the quote depth and eventually stript the quotes from the line
-            int quoteLevel(0);
-            int contentStart(0);
+            int quoteLevel = 0;
+            int contentStart = 0;
             if (line->at(0) == '>') {
                 quoteLevel = 1;
                 while (quoteLevel < line->length() && line->at(quoteLevel) == '>')
