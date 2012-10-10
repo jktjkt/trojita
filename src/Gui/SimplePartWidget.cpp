@@ -69,7 +69,7 @@ void SimplePartWidget::slotMarkupPlainText() {
         "pre{word-wrap: break-word; white-space: pre-wrap;}"
         ".markup{color:transparent;font-size:0px;}"
         ".quotemarks{color:transparent;font-size:0px;}"
-        "blockquote{font-size:90%;padding:0;margin:4pt;margin-left:2em;}"
+        "blockquote{font-size:90%; margin: 4pt 0 4pt 0; padding: 0 0 0 1em; border-left: 2px solid blue;}"
     );
     static QString htmlHeader("<html><head><style type=\"text/css\"><!--" + stylesheet + "--></style></head><body><pre>");
     static QString htmlFooter("\n</pre></body></html>");
