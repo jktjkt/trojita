@@ -366,7 +366,7 @@ QString MessageView::quoteText() const
             sender = e.from.at(0).name;
         if (e.from.isEmpty())
             sender = tr("you");
-        return tr("On %1 %2 wrote:\n").arg(e.date.toLocalTime().toString(Qt::SystemLocaleLongDate)).arg(sender) + quote.join("\n");
+        return tr("On %1, %2 wrote:\n").arg(e.date.toLocalTime().toString(Qt::SystemLocaleLongDate)).arg(sender) + quote.join("\n");
     }
     return QString();
 }
