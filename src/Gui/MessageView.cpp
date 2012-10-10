@@ -55,6 +55,7 @@ MessageView::MessageView(QWidget *parent): QWidget(parent)
     pal.setColor(foregroundRole(), palette().color(QPalette::Active, QPalette::Text));
     setPalette(pal);
     setAutoFillBackground(true);
+    setFocusPolicy(Qt::StrongFocus); // not by the wheel
     netAccess = new Imap::Network::MsgPartNetAccessManager(this);
     connect(netAccess, SIGNAL(requestingExternal(QUrl)), this, SLOT(externalsRequested(QUrl)));
     factory = new PartWidgetFactory(netAccess, this);
@@ -246,7 +247,12 @@ void MessageView::markAsRead()
 bool MessageView::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type() == QEvent::Wheel) {
+        // while the containing scrollview has Qt::StrongFocus, the event forwarding breaks that
+        // -> completely disable focus for the following wheel event ...
+        parentWidget()->setFocusPolicy(Qt::NoFocus);
         MessageView::event(event);
+        // ... set reset it
+        parentWidget()->setFocusPolicy(Qt::StrongFocus);
         return true;
     } else if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
