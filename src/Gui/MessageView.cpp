@@ -316,7 +316,7 @@ QString MessageView::quoteText() const
         QStringList lines = w->quoteMe().split('\n');
         for (int i = 0; i < lines.count(); ++i) {
             // rewrap - we need to keep the quotes at < 79 chars, yet the grow with every level
-            QString *line = const_cast<QString*>(&lines.at(i));
+            QString *line = &lines[i];
             if (line->length() < 79-2) {
                 // this line is short enough, prepend quote mark and continue
                 if (line->isEmpty() || line->at(0) == '>')
