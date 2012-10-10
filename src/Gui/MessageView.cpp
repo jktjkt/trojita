@@ -314,9 +314,8 @@ QString MessageView::quoteText() const
     if (const AbstractPartWidget *w = dynamic_cast<const AbstractPartWidget *>(viewer)) {
         QStringList quote;
         QStringList lines = w->quoteMe().split('\n');
-        for (int i = 0; i < lines.count(); ++i) {
+        for (QStringList::iterator line = lines.begin(); line != lines.end(); ++line) {
             // rewrap - we need to keep the quotes at < 79 chars, yet the grow with every level
-            QString *line = &lines[i];
             if (line->length() < 79-2) {
                 // this line is short enough, prepend quote mark and continue
                 if (line->isEmpty() || line->at(0) == '>')
