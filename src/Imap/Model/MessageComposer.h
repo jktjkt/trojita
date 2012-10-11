@@ -87,6 +87,9 @@ private:
     bool writeAttachmentHeader(QIODevice *target, QString *errorMessage, const AttachmentItem *attachment, const QByteArray &boundary) const;
     bool writeAttachmentBody(QIODevice *target, QString *errorMessage, const AttachmentItem *attachment) const;
 
+    bool dropImapMessage(QDataStream &stream);
+    bool dropImapPart(QDataStream &stream);
+
     Message::MailAddress m_from;
     QList<QPair<RecipientKind,Message::MailAddress> > m_recipients;
     QByteArray m_inReplyTo;

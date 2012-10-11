@@ -98,93 +98,103 @@ bool MessageComposer::dropMimeData(const QMimeData *data, Qt::DropAction action,
     if (data->hasFormat(xTrojitaMessageList)) {
         QByteArray encodedData = data->data(xTrojitaMessageList);
         QDataStream stream(&encodedData, QIODevice::ReadOnly);
-        stream.setVersion(QDataStream::Qt_4_6);
-        if (stream.atEnd()) {
-            qDebug() << "drag-and-drop: cannot decode data: end of stream";
-            return false;
-        }
-        QString mailbox;
-        uint uidValidity;
-        QList<uint> uids;
-        stream >> mailbox >> uidValidity >> uids;
-        if (stream.status() != QDataStream::Ok) {
-            qDebug() << "drag-and-drop: stream failed:" << stream.status();
-            return false;
-        }
-        if (!stream.atEnd()) {
-            qDebug() << "drag-and-drop: cannot decode data: too much data";
-            return false;
-        }
-
-        TreeItemMailbox *mboxPtr = m_model->findMailboxByName(mailbox);
-        if (!mboxPtr) {
-            qDebug() << "drag-and-drop: mailbox not found";
-            return false;
-        }
-
-        if (uids.size() < 1) {
-            qDebug() << "drag-and-drop: no UIDs passed";
-            return false;
-        }
-        if (!uidValidity) {
-            qDebug() << "drag-and-drop: invalid UIDVALIDITY";
-            return false;
-        }
-
-        beginInsertRows(QModelIndex(), m_attachments.size(), m_attachments.size() + uids.size() - 1);
-        Q_FOREACH(const uint uid, uids) {
-            m_attachments << new ImapMessageAttachmentItem(m_model, mailbox, uidValidity, uid);
-            if (m_shouldPreload)
-                m_attachments.back()->preload();
-        }
-        endInsertRows();
-
-        return true;
-
+        return dropImapMessage(stream);
     } else if (data->hasFormat(xTrojitaImapPart)) {
         QByteArray encodedData = data->data(xTrojitaImapPart);
         QDataStream stream(&encodedData, QIODevice::ReadOnly);
-        stream.setVersion(QDataStream::Qt_4_6);
-        if (stream.atEnd()) {
-            qDebug() << "drag-and-drop: cannot decode data: end of stream";
-            return false;
-        }
-        QString mailbox;
-        uint uidValidity;
-        uint uid;
-        QString partId;
-        QString trojitaPath;
-        stream >> mailbox >> uidValidity >> uid >> partId >> trojitaPath;
-        if (stream.status() != QDataStream::Ok) {
-            qDebug() << "drag-and-drop: stream failed:" << stream.status();
-            return false;
-        }
-        if (!stream.atEnd()) {
-            qDebug() << "drag-and-drop: cannot decode data: too much data";
-            return false;
-        }
-        TreeItemMailbox *mboxPtr = m_model->findMailboxByName(mailbox);
-        if (!mboxPtr) {
-            qDebug() << "drag-and-drop: mailbox not found";
-            return false;
-        }
-
-        if (!uidValidity || !uid || partId.isEmpty()) {
-            qDebug() << "drag-and-drop: invalid data";
-            return false;
-        }
-
-        beginInsertRows(QModelIndex(), m_attachments.size(), m_attachments.size());
-        m_attachments << new ImapPartAttachmentItem(m_model, mailbox, uidValidity, uid, partId, trojitaPath);
-        if (m_shouldPreload)
-            m_attachments.back()->preload();
-        endInsertRows();
-
-        return true;
-
+        return dropImapPart(stream);
     } else {
         return false;
     }
+}
+
+/** @short Handle a drag-and-drop of a list of messages */
+bool MessageComposer::dropImapMessage(QDataStream &stream)
+{
+    stream.setVersion(QDataStream::Qt_4_6);
+    if (stream.atEnd()) {
+        qDebug() << "drag-and-drop: cannot decode data: end of stream";
+        return false;
+    }
+    QString mailbox;
+    uint uidValidity;
+    QList<uint> uids;
+    stream >> mailbox >> uidValidity >> uids;
+    if (stream.status() != QDataStream::Ok) {
+        qDebug() << "drag-and-drop: stream failed:" << stream.status();
+        return false;
+    }
+    if (!stream.atEnd()) {
+        qDebug() << "drag-and-drop: cannot decode data: too much data";
+        return false;
+    }
+
+    TreeItemMailbox *mboxPtr = m_model->findMailboxByName(mailbox);
+    if (!mboxPtr) {
+        qDebug() << "drag-and-drop: mailbox not found";
+        return false;
+    }
+
+    if (uids.size() < 1) {
+        qDebug() << "drag-and-drop: no UIDs passed";
+        return false;
+    }
+    if (!uidValidity) {
+        qDebug() << "drag-and-drop: invalid UIDVALIDITY";
+        return false;
+    }
+
+    beginInsertRows(QModelIndex(), m_attachments.size(), m_attachments.size() + uids.size() - 1);
+    Q_FOREACH(const uint uid, uids) {
+        m_attachments << new ImapMessageAttachmentItem(m_model, mailbox, uidValidity, uid);
+        if (m_shouldPreload)
+            m_attachments.back()->preload();
+    }
+    endInsertRows();
+
+    return true;
+}
+
+/** @short Handle a drag-adn-drop of a list of message parts */
+bool MessageComposer::dropImapPart(QDataStream &stream)
+{
+    stream.setVersion(QDataStream::Qt_4_6);
+    if (stream.atEnd()) {
+        qDebug() << "drag-and-drop: cannot decode data: end of stream";
+        return false;
+    }
+    QString mailbox;
+    uint uidValidity;
+    uint uid;
+    QString partId;
+    QString trojitaPath;
+    stream >> mailbox >> uidValidity >> uid >> partId >> trojitaPath;
+    if (stream.status() != QDataStream::Ok) {
+        qDebug() << "drag-and-drop: stream failed:" << stream.status();
+        return false;
+    }
+    if (!stream.atEnd()) {
+        qDebug() << "drag-and-drop: cannot decode data: too much data";
+        return false;
+    }
+    TreeItemMailbox *mboxPtr = m_model->findMailboxByName(mailbox);
+    if (!mboxPtr) {
+        qDebug() << "drag-and-drop: mailbox not found";
+        return false;
+    }
+
+    if (!uidValidity || !uid || partId.isEmpty()) {
+        qDebug() << "drag-and-drop: invalid data";
+        return false;
+    }
+
+    beginInsertRows(QModelIndex(), m_attachments.size(), m_attachments.size());
+    m_attachments << new ImapPartAttachmentItem(m_model, mailbox, uidValidity, uid, partId, trojitaPath);
+    if (m_shouldPreload)
+        m_attachments.back()->preload();
+    endInsertRows();
+
+    return true;
 }
 
 QStringList MessageComposer::mimeTypes() const
