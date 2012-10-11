@@ -98,7 +98,11 @@ void MessageListWidget::slotApplySearch()
 void MessageListWidget::slotAutoEnableDisableSearch()
 {
     bool isEnabled;
-    if (tree && tree->model()) {
+    if (!m_quickSearchText->text().isEmpty()) {
+        // Some search criteria are in effect and suddenly all matching messages
+        // disappear. We have to make sure that the search bar remains enabled.
+        isEnabled = true;
+    } else if (tree && tree->model()) {
         isEnabled = tree->model()->rowCount();
     } else {
         isEnabled = false;
