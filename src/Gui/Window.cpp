@@ -675,6 +675,7 @@ void MainWindow::msgListDoubleClicked(const QModelIndex &index)
     newView->setMessage(index);
 
     QScrollArea *widget = new QScrollArea();
+    widget->setFocusPolicy(Qt::StrongFocus);
     widget->setWidget(newView);
     widget->setWidgetResizable(true);
     widget->setWindowTitle(message->envelope(model).subject);
