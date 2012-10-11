@@ -57,6 +57,7 @@ public:
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
     virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
     virtual QStringList mimeTypes() const;
+    virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
 
     void setFrom(const Message::MailAddress &from);
     void setRecipients(const QList<QPair<RecipientKind,Message::MailAddress> > &recipients);
@@ -87,8 +88,11 @@ private:
     bool writeAttachmentHeader(QIODevice *target, QString *errorMessage, const AttachmentItem *attachment, const QByteArray &boundary) const;
     bool writeAttachmentBody(QIODevice *target, QString *errorMessage, const AttachmentItem *attachment) const;
 
+    bool validateDropImapMessage(QDataStream &stream, QString &mailbox, uint &uidValidity, QList<uint> &uids) const;
+    bool validateDropImapPart(QDataStream &stream, QString &mailbox, uint &uidValidity, uint &uid, QString &partId, QString &trojitaPath) const;
     bool dropImapMessage(QDataStream &stream);
     bool dropImapPart(QDataStream &stream);
+    bool dropAttachmentList(QDataStream &stream);
 
     Message::MailAddress m_from;
     QList<QPair<RecipientKind,Message::MailAddress> > m_recipients;

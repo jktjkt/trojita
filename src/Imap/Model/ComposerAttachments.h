@@ -76,6 +76,16 @@ public:
 
     /** @short Express interest in having the attachment data available locally */
     virtual void preload() const = 0;
+
+    /** @short Different sorts of possible attachments */
+    typedef enum {
+        ATTACHMENT_IMAP_MESSAGE,
+        ATTACHMENT_IMAP_PART,
+        ATTACHMENT_FILE
+    } AttachmentKind;
+
+    /** @short Describe the data for use in a drag-and-drop operation */
+    virtual void asDroppableMimeData(QDataStream &stream) const = 0;
 };
 
 /** @short Part of a message stored in an IMAP server */
@@ -93,6 +103,7 @@ public:
     virtual ContentTransferEncoding suggestedCTE() const;
     virtual QByteArray imapUrl() const;
     virtual void preload() const;
+    virtual void asDroppableMimeData(QDataStream &stream) const;
 private:
     TreeItemMessage *messagePtr() const;
     TreeItemPart *headerPartPtr() const;
@@ -120,6 +131,7 @@ public:
     virtual ContentTransferEncoding suggestedCTE() const;
     virtual QByteArray imapUrl() const;
     virtual void preload() const;
+    virtual void asDroppableMimeData(QDataStream &stream) const;
 private:
     TreeItemPart *partPtr() const;
 
@@ -146,6 +158,7 @@ public:
     virtual ContentTransferEncoding suggestedCTE() const;
     virtual QByteArray imapUrl() const;
     virtual void preload() const;
+    virtual void asDroppableMimeData(QDataStream &stream) const;
 private:
     QString fileName;
     mutable QByteArray m_cachedMime;

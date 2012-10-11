@@ -144,6 +144,11 @@ void FileAttachmentItem::preload() const
     // We could possibly leave this file open to prevent eventual deletion, but it's probably not worth the effort.
 }
 
+void FileAttachmentItem::asDroppableMimeData(QDataStream &stream) const
+{
+    stream << ATTACHMENT_FILE << fileName;
+}
+
 
 ImapMessageAttachmentItem::ImapMessageAttachmentItem(Model *model, const QString &mailbox, const uint uidValidity, const uint uid):
     model(model), mailbox(mailbox), uidValidity(uidValidity), uid(uid)
@@ -274,6 +279,11 @@ void ImapMessageAttachmentItem::preload() const
         part->fetch(model);
 }
 
+void ImapMessageAttachmentItem::asDroppableMimeData(QDataStream &stream) const
+{
+    stream << ATTACHMENT_IMAP_MESSAGE << mailbox << uidValidity << (QList<uint>() << uid);
+}
+
 
 ImapPartAttachmentItem::ImapPartAttachmentItem(Model *model, const QString &mailbox, const uint uidValidity, const uint uid,
                                                const QString &pathToPart, const QString &trojitaPath):
@@ -376,6 +386,11 @@ void ImapPartAttachmentItem::preload() const
     if (part) {
         part->fetch(model);
     }
+}
+
+void ImapPartAttachmentItem::asDroppableMimeData(QDataStream &stream) const
+{
+    stream << ATTACHMENT_IMAP_PART << mailbox << uidValidity << uid << imapPartId << trojitaPath;
 }
 
 }
