@@ -107,6 +107,10 @@ bool MessageComposer::dropMimeData(const QMimeData *data, Qt::DropAction action,
         uint uidValidity;
         QList<uint> uids;
         stream >> mailbox >> uidValidity >> uids;
+        if (stream.status() != QDataStream::Ok) {
+            qDebug() << "drag-and-drop: stream failed:" << stream.status();
+            return false;
+        }
         if (!stream.atEnd()) {
             qDebug() << "drag-and-drop: cannot decode data: too much data";
             return false;
@@ -151,6 +155,10 @@ bool MessageComposer::dropMimeData(const QMimeData *data, Qt::DropAction action,
         QString partId;
         QString trojitaPath;
         stream >> mailbox >> uidValidity >> uid >> partId >> trojitaPath;
+        if (stream.status() != QDataStream::Ok) {
+            qDebug() << "drag-and-drop: stream failed:" << stream.status();
+            return false;
+        }
         if (!stream.atEnd()) {
             qDebug() << "drag-and-drop: cannot decode data: too much data";
             return false;
