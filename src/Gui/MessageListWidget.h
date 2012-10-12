@@ -52,21 +52,24 @@ signals:
 protected slots:
     void slotApplySearch();
     void slotAutoEnableDisableSearch();
-    void slotAutoHideOptionsBar();
 
 private slots:
+    void slotComplexSearchInput(QAction*);
     void slotConditionalSearchReset();
+    void slotDeActivateSimpleSearch();
+    void slotUpdateSearchCursor();
 
 private:
     QLineEdit *m_quickSearchText;
-    QWidget *m_searchOptionsBar;
-    QToolButton *m_searchInSubject;
-    QToolButton *m_searchInBody;
-    QToolButton *m_searchInSenders;
-    QToolButton *m_searchInRecipients;
-    QToolButton *m_searchFuzzy;
+    QToolButton *m_searchOptions;
+    QAction *m_searchInSubject;
+    QAction *m_searchInBody;
+    QAction *m_searchInSenders;
+    QAction *m_searchInRecipients;
+    QAction *m_searchFuzzy;
     bool m_supportsFuzzySearch;
     QTimer *m_searchResetTimer;
+    QString m_queryPlaceholder;
 };
 
 }

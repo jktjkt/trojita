@@ -20,13 +20,17 @@
 */
 
 #include "MessageListWidget.h"
+#include <QAction>
+#include <QCheckBox>
+#include <QFrame>
 #include <QLineEdit>
+#include <QMenu>
 #include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>
+#include <QWidgetAction>
+#include "IconLoader.h"
 #include "MsgListView.h"
-
-#include <QDebug>
 
 namespace Gui {
 
@@ -39,54 +43,61 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
 #if QT_VERSION >= 0x040700
     m_quickSearchText->setPlaceholderText(tr("Quick Search / Leading \":=\" for direct IMAP search"));
 #endif
+    m_queryPlaceholder = tr("<query>");
 
     connect(m_quickSearchText, SIGNAL(returnPressed()), this, SLOT(slotApplySearch()));
-    connect(m_quickSearchText, SIGNAL(textChanged(QString)), this, SLOT(slotAutoHideOptionsBar()));
     connect(m_quickSearchText, SIGNAL(textChanged(QString)), this, SLOT(slotConditionalSearchReset()));
+    connect(m_quickSearchText, SIGNAL(cursorPositionChanged(int, int)), this, SLOT(slotUpdateSearchCursor()));
 
-    m_searchOptionsBar = new QWidget(this);
-
-    // The option bar shall use a slightly smaller font size
-    QFont f = font();
-    f.setPointSizeF(f.pointSizeF() * 0.80);
-    m_searchOptionsBar->setFont(f);
-
-    m_searchFuzzy = new QToolButton(m_searchOptionsBar);
-    m_searchFuzzy->setText(tr("Fuzzy Search"));
-    m_searchFuzzy->setAutoRaise(true);
+    m_searchOptions = new QToolButton(this);
+    m_searchOptions->setPopupMode(QToolButton::InstantPopup);
+    m_searchOptions->setText("*");
+    m_searchOptions->setIcon(loadIcon(QLatin1String("configure")));
+    QMenu *optionsMenu = new QMenu(m_searchOptions);
+    m_searchFuzzy = optionsMenu->addAction(tr("Fuzzy Search"));
     m_searchFuzzy->setCheckable(true);
-    m_searchInSubject = new QToolButton(m_searchOptionsBar);
-    m_searchInSubject->setText(tr("Subject"));
-    m_searchInSubject->setAutoRaise(true);
+    optionsMenu->addSeparator();
+    m_searchInSubject = optionsMenu->addAction(tr("Subject"));
     m_searchInSubject->setCheckable(true);
     m_searchInSubject->setChecked(true);
-    m_searchInBody = new QToolButton(m_searchOptionsBar);
-    m_searchInBody->setText(tr("Body"));
-    m_searchInBody->setAutoRaise(true);
+    m_searchInBody = optionsMenu->addAction(tr("Body"));
     m_searchInBody->setCheckable(true);
-    m_searchInSenders = new QToolButton(m_searchOptionsBar);
-    m_searchInSenders->setText(tr("Senders"));
-    m_searchInSenders->setAutoRaise(true);
+    m_searchInSenders = optionsMenu->addAction(tr("Senders"));
     m_searchInSenders->setCheckable(true);
     m_searchInSenders->setChecked(true);
-    m_searchInRecipients = new QToolButton(m_searchOptionsBar);
-    m_searchInRecipients->setText(tr("Recipients"));
-    m_searchInRecipients->setAutoRaise(true);
+    m_searchInRecipients = optionsMenu->addAction(tr("Recipients"));
     m_searchInRecipients->setCheckable(true);
 
-    QHBoxLayout *fieldsLayout = new QHBoxLayout(m_searchOptionsBar);
-    fieldsLayout->setSpacing(0);
-    fieldsLayout->addWidget(m_searchFuzzy);
-    fieldsLayout->addStretch();
-    fieldsLayout->addWidget(m_searchInSubject);
-    fieldsLayout->addWidget(m_searchInBody);
-    fieldsLayout->addWidget(m_searchInSenders);
-    fieldsLayout->addWidget(m_searchInRecipients);
+    optionsMenu->addSeparator();
+
+    QMenu *complexMenu = new QMenu(tr("Complex IMAP query"), optionsMenu);
+    connect(complexMenu, SIGNAL(triggered(QAction*)), this, SLOT(slotComplexSearchInput(QAction*)));
+    complexMenu->addAction(tr("Not ..."))->setData("NOT " + m_queryPlaceholder);
+    complexMenu->addAction(tr("Either... or..."))->setData("OR " + m_queryPlaceholder + " " + m_queryPlaceholder);
+    complexMenu->addSeparator();
+    complexMenu->addAction(tr("From sender"))->setData("FROM " + m_queryPlaceholder);
+    complexMenu->addAction(tr("To receiver"))->setData("TO " + m_queryPlaceholder);
+    complexMenu->addSeparator();
+    complexMenu->addAction(tr("About subject"))->setData("SUBJECT " + m_queryPlaceholder);
+    complexMenu->addAction(tr("Message contains ..."))->setData("BODY " + m_queryPlaceholder);
+    complexMenu->addSeparator();
+    complexMenu->addAction(tr("Before date"))->setData("BEFORE <d-mmm-yyyy>");
+    complexMenu->addAction(tr("Since date"))->setData("SINCE <d-mmm-yyyy>");
+    complexMenu->addSeparator();
+    complexMenu->addAction(tr("Has been seen"))->setData("SEEN");
+
+    optionsMenu->addMenu(complexMenu);
+
+    m_searchOptions->setMenu(optionsMenu);
+    connect (optionsMenu, SIGNAL(aboutToShow()), SLOT(slotDeActivateSimpleSearch()));
+
+    QHBoxLayout *hlayout = new QHBoxLayout;
+    hlayout->addWidget(m_searchOptions);
+    hlayout->addWidget(m_quickSearchText);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setSpacing(0);
-    layout->addWidget(m_quickSearchText);
-    layout->addWidget(m_searchOptionsBar);
+    layout->addLayout(hlayout);
     layout->addWidget(tree);
 
     m_searchResetTimer = new QTimer(this);
@@ -113,17 +124,7 @@ void MessageListWidget::slotAutoEnableDisableSearch()
         isEnabled = false;
     }
     m_quickSearchText->setEnabled(isEnabled);
-    m_searchFuzzy->setEnabled(isEnabled && m_supportsFuzzySearch);
-    m_searchInBody->setEnabled(isEnabled);
-    m_searchInRecipients->setEnabled(isEnabled);
-    m_searchInSenders->setEnabled(isEnabled);
-    m_searchInSubject->setEnabled(isEnabled);
-    slotAutoHideOptionsBar();
-}
-
-void MessageListWidget::slotAutoHideOptionsBar()
-{
-    m_searchOptionsBar->setVisible(!m_quickSearchText->text().isEmpty() && m_quickSearchText->isEnabled());
+    m_searchOptions->setEnabled(isEnabled);
 }
 
 void MessageListWidget::slotConditionalSearchReset()
@@ -132,6 +133,61 @@ void MessageListWidget::slotConditionalSearchReset()
         m_searchResetTimer->start(250);
     else
         m_searchResetTimer->stop();
+}
+
+void MessageListWidget::slotUpdateSearchCursor()
+{
+    int cp = m_quickSearchText->cursorPosition();
+    int ts = -1, te = -1;
+    for (int i = cp-1; i > -1; --i) {
+        if (m_quickSearchText->text().at(i) == '>')
+            break; // invalid
+        if (m_quickSearchText->text().at(i) == '<') {
+            ts = i;
+            break; // found TagStart
+        }
+    }
+    if (ts < 0)
+        return; // not inside tag!
+    for (int i = cp; i < m_quickSearchText->text().length(); ++i) {
+        if (m_quickSearchText->text().at(i) == '<')
+            break; // invalid
+        if (m_quickSearchText->text().at(i) == '>') {
+            te = i;
+            break; // found TagEnd
+        }
+    }
+    if (te < 0)
+        return; // not inside tag?
+    if (m_quickSearchText->text().midRef(ts, m_queryPlaceholder.length()) == m_queryPlaceholder)
+        m_quickSearchText->setSelection(ts, m_queryPlaceholder.length());
+}
+
+void MessageListWidget::slotComplexSearchInput(QAction *act)
+{
+    QString s = act->data().toString();
+    const int selectionStart = m_quickSearchText->selectionStart() - 1;
+    if (selectionStart > -1 && m_quickSearchText->text().at(selectionStart) != ' ')
+            s.prepend(' ');
+    m_quickSearchText->insert(s);
+    if (!m_quickSearchText->text().startsWith(":=")) {
+        s = m_quickSearchText->text().trimmed();
+        m_quickSearchText->setText(":=" + s);
+    }
+    m_quickSearchText->setFocus();
+    const int pos = m_quickSearchText->text().indexOf(m_queryPlaceholder);
+    if (pos > -1)
+        m_quickSearchText->setSelection(pos, m_queryPlaceholder.length());
+}
+
+void MessageListWidget::slotDeActivateSimpleSearch()
+{
+    const bool isEnabled = !m_quickSearchText->text().startsWith(":=");
+    m_searchInSubject->setEnabled(isEnabled);
+    m_searchInBody->setEnabled(isEnabled);
+    m_searchInSenders->setEnabled(isEnabled);
+    m_searchInRecipients->setEnabled(isEnabled);
+    m_searchFuzzy->setEnabled(isEnabled && m_supportsFuzzySearch);
 }
 
 QStringList MessageListWidget::searchConditions() const
