@@ -25,6 +25,7 @@
 #include <QWidget>
 
 class QLineEdit;
+class QTimer;
 class QToolButton;
 
 namespace Gui {
@@ -53,6 +54,9 @@ protected slots:
     void slotAutoEnableDisableSearch();
     void slotAutoHideOptionsBar();
 
+private slots:
+    void slotConditionalSearchReset();
+
 private:
     QLineEdit *m_quickSearchText;
     QWidget *m_searchOptionsBar;
@@ -62,6 +66,7 @@ private:
     QToolButton *m_searchInRecipients;
     QToolButton *m_searchFuzzy;
     bool m_supportsFuzzySearch;
+    QTimer *m_searchResetTimer;
 };
 
 }

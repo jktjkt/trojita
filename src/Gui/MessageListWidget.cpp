@@ -21,6 +21,7 @@
 
 #include "MessageListWidget.h"
 #include <QLineEdit>
+#include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>
 #include "MsgListView.h"
@@ -41,6 +42,7 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
 
     connect(m_quickSearchText, SIGNAL(returnPressed()), this, SLOT(slotApplySearch()));
     connect(m_quickSearchText, SIGNAL(textChanged(QString)), this, SLOT(slotAutoHideOptionsBar()));
+    connect(m_quickSearchText, SIGNAL(textChanged(QString)), this, SLOT(slotConditionalSearchReset()));
 
     m_searchOptionsBar = new QWidget(this);
 
@@ -87,6 +89,9 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     layout->addWidget(m_searchOptionsBar);
     layout->addWidget(tree);
 
+    m_searchResetTimer = new QTimer(this);
+    connect (m_searchResetTimer, SIGNAL(timeout()), SLOT(slotApplySearch()));
+
     slotAutoEnableDisableSearch();
 }
 
@@ -119,6 +124,14 @@ void MessageListWidget::slotAutoEnableDisableSearch()
 void MessageListWidget::slotAutoHideOptionsBar()
 {
     m_searchOptionsBar->setVisible(!m_quickSearchText->text().isEmpty() && m_quickSearchText->isEnabled());
+}
+
+void MessageListWidget::slotConditionalSearchReset()
+{
+    if (m_quickSearchText->text().isEmpty())
+        m_searchResetTimer->start(250);
+    else
+        m_searchResetTimer->stop();
 }
 
 QStringList MessageListWidget::searchConditions() const
