@@ -18,6 +18,7 @@
    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
+#include <QDesktopServices>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QNetworkReply>
@@ -64,14 +65,28 @@ void SimplePartWidget::slotMarkupPlainText() {
     static const QRegExp bold(intro + "\\*(\\S*)\\*" + extro);
     static const QRegExp italic(intro + "/(\\S*)/" + extro);
     static const QRegExp underline(intro + "_(\\S*)_" + extro);
-    // TODO: include some extern css here?
-    QString stylesheet(
+
+    static const QString defaultStyle(
         "pre{word-wrap: break-word; white-space: pre-wrap;}"
-        ".markup{color:transparent;font-size:0px;}"
         ".quotemarks{color:transparent;font-size:0px;}"
         "blockquote{font-size:90%; margin: 4pt 0 4pt 0; padding: 0 0 0 1em; border-left: 2px solid blue;}"
     );
-    static QString htmlHeader("<html><head><style type=\"text/css\"><!--" + stylesheet + "--></style></head><body><pre>");
+
+    // build stylesheet and html header
+    static QString stylesheet = defaultStyle;
+    static QFile file(QDesktopServices::storageLocation(QDesktopServices::DataLocation) + "/message.css");
+    static QDateTime lastVersion;
+    QDateTime lastTouched(file.exists() ? QFileInfo(file).lastModified() : QDateTime());
+    if (lastVersion < lastTouched) {
+        stylesheet = defaultStyle;
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            const QString userSheet = QString::fromLocal8Bit(file.readAll().data());
+            lastVersion = lastTouched;
+            stylesheet += "\n" + userSheet;
+            file.close();
+        }
+    }
+    QString htmlHeader("<html><head><style type=\"text/css\"><!--" + stylesheet + "--></style></head><body><pre>");
     static QString htmlFooter("\n</pre></body></html>");
 
     // Processing:
