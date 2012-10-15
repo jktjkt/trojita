@@ -92,8 +92,8 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     connect (optionsMenu, SIGNAL(aboutToShow()), SLOT(slotDeActivateSimpleSearch()));
 
     QHBoxLayout *hlayout = new QHBoxLayout;
-    hlayout->addWidget(m_searchOptions);
     hlayout->addWidget(m_quickSearchText);
+    hlayout->addWidget(m_searchOptions);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setSpacing(0);
