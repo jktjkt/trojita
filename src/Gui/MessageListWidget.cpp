@@ -52,7 +52,7 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     m_searchOptions = new QToolButton(this);
     m_searchOptions->setPopupMode(QToolButton::InstantPopup);
     m_searchOptions->setText("*");
-    m_searchOptions->setIcon(loadIcon(QLatin1String("configure")));
+    m_searchOptions->setIcon(loadIcon(QLatin1String("edit-find")));
     QMenu *optionsMenu = new QMenu(m_searchOptions);
     m_searchFuzzy = optionsMenu->addAction(tr("Fuzzy Search"));
     m_searchFuzzy->setCheckable(true);
