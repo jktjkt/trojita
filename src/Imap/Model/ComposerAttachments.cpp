@@ -68,7 +68,8 @@ QString FileAttachmentItem::tooltip() const
 
 bool FileAttachmentItem::isAvailableLocally() const
 {
-    return QFileInfo(fileName).isReadable();
+    QFileInfo info(fileName);
+    return info.isFile() && info.isReadable();
 }
 
 QSharedPointer<QIODevice> FileAttachmentItem::rawData() const
