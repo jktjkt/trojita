@@ -141,8 +141,9 @@ bool MessageComposer::dropMimeData(const QMimeData *data, Qt::DropAction action,
         QList<QUrl> urls = data->urls();
         foreach (const QUrl &url, urls) {
             if (url.isLocalFile()) {
-                addFileAttachment(url.path());
-                attached = true;
+                // Careful here -- we definitely don't want the boolean evaluation shortcuts taking effect!
+                // At the same time, any file being recognized and attached is enough to "satisfy" the drop
+                attached = addFileAttachment(url.path()) || attached;
             }
         }
         return attached;
@@ -619,11 +620,17 @@ QList<QByteArray> MessageComposer::rawRecipientAddresses() const
     return res;
 }
 
-void MessageComposer::addFileAttachment(const QString &path)
+bool MessageComposer::addFileAttachment(const QString &path)
 {
     beginInsertRows(QModelIndex(), m_attachments.size(), m_attachments.size());
-    m_attachments << new FileAttachmentItem(path);
+    QScopedPointer<AttachmentItem> attachment(new FileAttachmentItem(path));
+    if (!attachment->isAvailableLocally())
+        return false;
+    if (m_shouldPreload)
+        attachment->preload();
+    m_attachments << attachment.take();
     endInsertRows();
+    return true;
 }
 
 void MessageComposer::removeAttachment(const QModelIndex &index)

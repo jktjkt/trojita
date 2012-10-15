@@ -74,7 +74,7 @@ public:
     QByteArray rawFromAddress() const;
     QList<QByteArray> rawRecipientAddresses() const;
 
-    void addFileAttachment(const QString &path);
+    bool addFileAttachment(const QString &path);
     void removeAttachment(const QModelIndex &index);
 
     void setPreloadEnabled(const bool preload);
