@@ -90,7 +90,7 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     layout->addWidget(tree);
 
     m_searchResetTimer = new QTimer(this);
-    connect (m_searchResetTimer, SIGNAL(timeout()), SLOT(slotApplySearch()));
+    connect(m_searchResetTimer, SIGNAL(timeout()), SLOT(slotApplySearch()));
 
     slotAutoEnableDisableSearch();
 }
