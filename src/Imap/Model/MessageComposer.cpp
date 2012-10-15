@@ -136,7 +136,7 @@ bool MessageComposer::dropMimeData(const QMimeData *data, Qt::DropAction action,
         QByteArray encodedData = data->data(xTrojitaImapPart);
         QDataStream stream(&encodedData, QIODevice::ReadOnly);
         return dropImapPart(stream);
-    } else {
+    } else if (data->hasUrls()) {
         bool attached = false;
         QList<QUrl> urls = data->urls();
         foreach (const QUrl &url, urls) {
@@ -146,6 +146,8 @@ bool MessageComposer::dropMimeData(const QMimeData *data, Qt::DropAction action,
             }
         }
         return attached;
+    } else {
+        return false;
     }
 }
 
