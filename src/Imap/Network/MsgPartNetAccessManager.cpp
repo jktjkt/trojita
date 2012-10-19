@@ -101,7 +101,7 @@ QNetworkReply *MsgPartNetAccessManager::createRequest(Operation op, const QNetwo
         return QNetworkAccessManager::createRequest(op, req, outgoingData);
     } else {
         // Regular access -- we've got to check policy here
-        if (req.url().scheme() == QLatin1String("http") || req.url().scheme() == QLatin1String("ftp")) {
+        if (req.url().scheme() == QLatin1String("http") || req.url().scheme() == QLatin1String("https")) {
             if (externalsEnabled) {
                 return QNetworkAccessManager::createRequest(op, req, outgoingData);
             } else {
