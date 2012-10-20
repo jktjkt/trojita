@@ -31,6 +31,9 @@ class ComposerResponsesTest : public QObject
 private slots:
     void testSubjectMangling();
     void testSubjectMangling_data();
+
+    void testPlainTextFormatting();
+    void testPlainTextFormatting_data();
 };
 
 #endif

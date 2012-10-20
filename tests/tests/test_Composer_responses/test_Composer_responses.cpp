@@ -22,6 +22,7 @@
 #include <QtTest>
 #include "test_Composer_responses.h"
 #include "../headless_test.h"
+#include "Composer/PlainTextFormatter.h"
 #include "Composer/SubjectMangling.h"
 
 /** @short Test that subjects remain sane in replied/forwarded messages */
@@ -65,6 +66,39 @@ void ComposerResponsesTest::testSubjectMangling_data()
     QTest::newRow("re-ml-ml-re") << QString::fromUtf8("Re: [foo] [bar] Re: blah") << QString::fromUtf8("[foo] Re: [bar] Re: blah");
     QTest::newRow("re-ml-re-ml") << QString::fromUtf8("Re: [foo] Re: [bar] blah") << QString::fromUtf8("[foo] Re: [bar] blah");
     QTest::newRow("re-ml-re-ml-re") << QString::fromUtf8("Re: [foo] Re: [bar] Re: blah") << QString::fromUtf8("[foo] Re: [bar] Re: blah");
+}
+
+/** @short Test that conversion of plaintext mail to HTML works reasonably well */
+void ComposerResponsesTest::testPlainTextFormatting()
+{
+    QFETCH(QString, plaintext);
+    QFETCH(QString, html);
+
+    QCOMPARE(Composer::Util::plainTextToHtml(plaintext).join(QLatin1String("\n")), html);
+}
+
+/** @short Data for testPlainTextFormatting */
+void ComposerResponsesTest::testPlainTextFormatting_data()
+{
+    QTest::addColumn<QString>("plaintext");
+    QTest::addColumn<QString>("html");
+
+    QTest::newRow("empty-1") << QString() << QString("\n");
+    QTest::newRow("empty-2") << QString("") << QString("\n");
+    QTest::newRow("empty-3") << QString("\n") << QString("\n\n");
+    QTest::newRow("empty-4") << QString("\n\n") << QString("\n\n\n");
+
+    QTest::newRow("minimal") << QString("ahoj") << QString("ahoj\n");
+    QTest::newRow("containing-html") << QString("<p>ahoj &amp; blesmrt</p>") << QString("&lt;p&gt;ahoj &amp;amp; blesmrt&lt;/p&gt;\n");
+    QTest::newRow("basic-formatting") << QString("foo *bar* _baz_ /pwn/ yay") <<
+                                         QString("foo <b><span class=\"markup\">*</span>bar<span class=\"markup\">*</span></b> "
+                                                 "<u><span class=\"markup\">_</span>baz<span class=\"markup\">_</span></u> "
+                                                 "<i><span class=\"markup\">/</span>pwn<span class=\"markup\">/</span></i> yay\n");
+    QTest::newRow("links") << QString("ahoj http://pwn:123/foo?bar&baz#nope") <<
+                              QString("ahoj <a href=\"http://pwn:123/foo?bar&amp;baz#nope\">http://pwn:123/foo?bar&amp;baz#nope</a>\n");
+
+    // FIXME: more tests, including the format=flowed bits
+    //QTest::newRow("long line") << QString("Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.") << QString("ahoj\n");
 }
 
 TROJITA_HEADLESS_TEST(ComposerResponsesTest)
