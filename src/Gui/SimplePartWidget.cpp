@@ -158,7 +158,7 @@ void SimplePartWidget::slotMarkupPlainText() {
             ++cQuoteLevel;
         }
         // appaned or join the line
-        if (markup.last().endsWith(' '))
+        if (markup.last().endsWith(' ') && markup.last() != QLatin1String("-- "))
             markup.last().append(*line);
         else
             markup << *line;
