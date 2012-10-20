@@ -32,14 +32,28 @@ QString replySubject(const QString &subject)
 {
     // These operations should *not* check for internationalized variants of "Re"; these are evil.
 
-    static QRegExp rePrefixMatcher(QLatin1String("^(?:(?:Re:\\s?)+)(.*)"), Qt::CaseInsensitive);
+#define RE_PREFIX_RE  "((?:Re:\\s?)*)"
+
+    static QRegExp rePrefixMatcher(QLatin1String("^"
+                                                 RE_PREFIX_RE // a sequence of "Re: " prefixes
+                                                 "((?:\\[[^\\]]+\\]\\s?)?)" // something like a mailing list prefix
+                                                 RE_PREFIX_RE // another sequence of "Re: " prefixes
+                                                 "(.*)" // the base subject
+                                                 ), Qt::CaseInsensitive);
     rePrefixMatcher.setPatternSyntax(QRegExp::RegExp2);
     QLatin1String correctedPrefix("Re: ");
 
     if (rePrefixMatcher.indexIn(subject) == -1) {
+        // Our regular expression has failed, so better play it safe and blindly prepend "Re: "
         return correctedPrefix + subject;
     } else {
-        return correctedPrefix + rePrefixMatcher.cap(1);
+        QString mlPrefix = rePrefixMatcher.cap(2);
+        QString baseSubject = rePrefixMatcher.cap(4);
+
+        if (!mlPrefix.isEmpty() && !mlPrefix.endsWith(QLatin1Char(' ')))
+            mlPrefix += QLatin1Char(' ');
+
+        return mlPrefix + correctedPrefix + baseSubject;
     }
 }
 
