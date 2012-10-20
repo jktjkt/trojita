@@ -20,6 +20,7 @@
 */
 
 #include <QObject>
+#include <QRegExp>
 
 #include "SubjectMangling.h"
 
@@ -31,10 +32,14 @@ QString replySubject(const QString &subject)
 {
     // These operations should *not* check for internationalized variants of "Re"; these are evil.
 
-    if (!subject.startsWith(QLatin1String("Re:")))
-        return QLatin1String("Re: ") + subject;
-    else
-        return subject;
+    static QRegExp rePrefixMatcher(QLatin1String("^((Re:\\s?)+)(.*)"), Qt::CaseInsensitive);
+    QLatin1String correctedPrefix("Re: ");
+
+    if (rePrefixMatcher.indexIn(subject) == -1) {
+        return correctedPrefix + subject;
+    } else {
+        return correctedPrefix + rePrefixMatcher.cap(3);
+    }
 }
 
 }
