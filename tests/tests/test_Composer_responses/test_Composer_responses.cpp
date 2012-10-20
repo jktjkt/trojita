@@ -30,7 +30,7 @@ void ComposerResponsesTest::testSubjectMangling()
     QFETCH(QString, original);
     QFETCH(QString, replied);
 
-    QCOMPARE(replied, Composer::Util::replySubject(original));
+    QCOMPARE(Composer::Util::replySubject(original), replied);
 }
 
 /** @short Data for testSubjectMangling */
