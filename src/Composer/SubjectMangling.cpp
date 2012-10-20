@@ -29,8 +29,10 @@ namespace Util {
 /** @short Prepare a subject to be used in a reply message */
 QString replySubject(const QString &subject)
 {
-    if (!subject.startsWith(QObject::tr("Re:")))
-        return QObject::tr("Re: ") + subject;
+    // These operations should *not* check for internationalized variants of "Re"; these are evil.
+
+    if (!subject.startsWith(QLatin1String("Re:")))
+        return QLatin1String("Re: ") + subject;
     else
         return subject;
 }
