@@ -115,7 +115,7 @@ QStringList plainTextToHtml(const QString &plaintext)
     }
     // close open blockquotes
     // (bottom quoters, we're unfortunately -yet- not permittet to shoot them, so we need to deal with them ;-)
-    QString quoteCloser("\n");
+    QString quoteCloser;
     while (quoteLevel > 0) {
         quoteCloser.append("</blockquote>");
         --quoteLevel;
