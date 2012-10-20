@@ -27,5 +27,6 @@
         <file>icons/trash-empty.png</file>
         <file>icons/view-list-text.png</file>
         <file>icons/view-refresh.png</file>
+        <file>icons/imap-search-details.png</file>
     </qresource>
 </RCC>

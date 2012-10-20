@@ -54,7 +54,7 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     m_searchOptions->setAutoRaise(true);
     m_searchOptions->setPopupMode(QToolButton::InstantPopup);
     m_searchOptions->setText("*");
-    m_searchOptions->setIcon(loadIcon(QLatin1String("edit-find")));
+    m_searchOptions->setIcon(loadIcon(QLatin1String("imap-search-details")));
     QMenu *optionsMenu = new QMenu(m_searchOptions);
     m_searchFuzzy = optionsMenu->addAction(tr("Fuzzy Search"));
     m_searchFuzzy->setCheckable(true);
