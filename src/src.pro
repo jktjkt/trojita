@@ -1,5 +1,5 @@
 TEMPLATE = subdirs
-SUBDIRS  = Imap MSA Streams qwwsmtpclient Common
+SUBDIRS  = Imap MSA Streams qwwsmtpclient Common Composer
 CONFIG += ordered
 
 trojita_harmattan {

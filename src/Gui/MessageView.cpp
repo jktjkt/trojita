@@ -34,6 +34,7 @@
 
 #include "MessageView.h"
 #include "AbstractPartWidget.h"
+#include "Composer/SubjectMangling.h"
 #include "EmbeddedWebView.h"
 #include "ExternalElementsWidget.h"
 #include "PartWidgetFactory.h"
@@ -390,15 +391,7 @@ void MessageView::reply(MainWindow *mainWindow, ReplyMode mode)
             recipients << qMakePair(Imap::Mailbox::MessageComposer::Recipient_To, QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
         }
     }
-    mainWindow->invokeComposeDialog(replySubject(e.subject), quoteText(), recipients, e.messageId);
-}
-
-QString MessageView::replySubject(const QString &subject)
-{
-    if (!subject.startsWith(tr("Re:")))
-        return tr("Re: ") + subject;
-    else
-        return subject;
+    mainWindow->invokeComposeDialog(Composer::Util::replySubject(e.subject), quoteText(), recipients, e.messageId);
 }
 
 void MessageView::externalsRequested(const QUrl &url)

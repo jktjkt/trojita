@@ -89,7 +89,6 @@ private:
     Imap::Message::Envelope envelope() const;
     QString headerText();
     QString quoteText() const;
-    static QString replySubject(const QString &subject);
 
     QWidget *viewer;
     QWidget *headerSection;

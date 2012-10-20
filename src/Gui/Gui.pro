@@ -86,7 +86,7 @@ FORMS += CreateMailboxDialog.ui \
 
 RESOURCES += ../icons.qrc
 
-trojita_libs = Imap MSA Streams qwwsmtpclient Common
+trojita_libs = Imap MSA Streams qwwsmtpclient Common Composer
 
 myprefix = ../
 include(../linking.pri)
