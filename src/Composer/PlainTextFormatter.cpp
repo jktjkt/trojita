@@ -120,7 +120,8 @@ QStringList plainTextToHtml(const QString &plaintext)
         quoteCloser.append("</blockquote>");
         --quoteLevel;
     }
-    markup << quoteCloser;
+    if (!quoteCloser.isEmpty())
+        markup << quoteCloser;
     return markup;
 }
 

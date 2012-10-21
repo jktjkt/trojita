@@ -83,21 +83,21 @@ void ComposerResponsesTest::testPlainTextFormatting_data()
     QTest::addColumn<QString>("plaintext");
     QTest::addColumn<QString>("html");
 
-    QTest::newRow("empty-1") << QString() << QString("\n");
-    QTest::newRow("empty-2") << QString("") << QString("\n");
-    QTest::newRow("empty-3") << QString("\n") << QString("\n\n");
-    QTest::newRow("empty-4") << QString("\n\n") << QString("\n\n\n");
+    QTest::newRow("empty-1") << QString() << QString();
+    QTest::newRow("empty-2") << QString("") << QString("");
+    QTest::newRow("empty-3") << QString("\n") << QString("\n");
+    QTest::newRow("empty-4") << QString("\n\n") << QString("\n\n");
 
-    QTest::newRow("minimal") << QString("ahoj") << QString("ahoj\n");
-    QTest::newRow("containing-html") << QString("<p>ahoj &amp; blesmrt</p>") << QString("&lt;p&gt;ahoj &amp;amp; blesmrt&lt;/p&gt;\n");
+    QTest::newRow("minimal") << QString("ahoj") << QString("ahoj");
+    QTest::newRow("containing-html") << QString("<p>ahoj &amp; blesmrt</p>") << QString("&lt;p&gt;ahoj &amp;amp; blesmrt&lt;/p&gt;");
     QTest::newRow("basic-formatting") << QString("foo *bar* _baz_ /pwn/ yay") <<
                                          QString("foo <b><span class=\"markup\">*</span>bar<span class=\"markup\">*</span></b> "
                                                  "<u><span class=\"markup\">_</span>baz<span class=\"markup\">_</span></u> "
-                                                 "<i><span class=\"markup\">/</span>pwn<span class=\"markup\">/</span></i> yay\n");
+                                                 "<i><span class=\"markup\">/</span>pwn<span class=\"markup\">/</span></i> yay");
     QTest::newRow("links") << QString("ahoj http://pwn:123/foo?bar&baz#nope") <<
-                              QString("ahoj <a href=\"http://pwn:123/foo?bar&amp;baz#nope\">http://pwn:123/foo?bar&amp;baz#nope</a>\n");
+                              QString("ahoj <a href=\"http://pwn:123/foo?bar&amp;baz#nope\">http://pwn:123/foo?bar&amp;baz#nope</a>");
     // Test our escaping
-    QTest::newRow("escaping-1") << QString::fromUtf8("&gt; § §gt; §para;\n") << QString::fromUtf8("&amp;gt; § §gt; §para;\n\n");
+    QTest::newRow("escaping-1") << QString::fromUtf8("&gt; § §gt; §para;\n") << QString::fromUtf8("&amp;gt; § §gt; §para;\n");
 
     // FIXME: more tests, including the format=flowed bits
     //QTest::newRow("long line") << QString("Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.") << QString("ahoj\n");
