@@ -104,7 +104,8 @@ QStringList plainTextToHtml(const QString &plaintext)
             --cQuoteLevel;
         }
         while (cQuoteLevel < 0) {
-            line.prepend("</blockquote>");
+            Q_ASSERT(!markup.isEmpty());
+            markup.last().append("</blockquote>");
             ++cQuoteLevel;
         }
         // appaned or join the line
@@ -120,8 +121,10 @@ QStringList plainTextToHtml(const QString &plaintext)
         quoteCloser.append("</blockquote>");
         --quoteLevel;
     }
-    if (!quoteCloser.isEmpty())
-        markup << quoteCloser;
+    if (!quoteCloser.isEmpty()) {
+        Q_ASSERT(!markup.isEmpty());
+        markup.last().append(quoteCloser);
+    }
     return markup;
 }
 
