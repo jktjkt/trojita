@@ -51,41 +51,41 @@ QStringList plainTextToHtml(const QString &plaintext)
     QStringList plain(plaintext.split('\n'));
     QStringList markup;
     for (int i = 0; i < plain.count(); ++i) {
-        QString *line = const_cast<QString*>(&plain.at(i));
+        QString &line = plain[i];
 
         // ignore empty lines
-        if (line->isEmpty()) {
-            markup << *line;
+        if (line.isEmpty()) {
+            markup << line;
             continue;
         }
         // determine quotelevel
         int cQuoteLevel = 0;
-        if (line->at(0) == '>') {
+        if (line.at(0) == '>') {
             int j = 1;
             cQuoteLevel = 1;
-            while (j < line->length() && (line->at(j) == '>' || line->at(j) == ' '))
-                cQuoteLevel += line->at(j++) == '>';
+            while (j < line.length() && (line.at(j) == '>' || line.at(j) == ' '))
+                cQuoteLevel += line.at(j++) == '>';
         }
         // strip quotemarks
         if (cQuoteLevel) {
             static QRegExp quotemarks("^[>\\s]*");
-            line->remove(quotemarks);
+            line.remove(quotemarks);
         }
         // markup *bold*, /italic/, _underline_ and active links
-        line->replace(QString::fromUtf8("§"), QString::fromUtf8("§para;")); // better not clobber these funny characters
-        line->replace(">", "§gt;"); // we cannot escape them after we added actual tags
-        line->replace("<", "§lt;"); // and we cannot use the amps "&" since we'll have to escape it to &amp; later on as well
-        line->replace(link, "<a href=\"\\1\">\\1</a>");
-        line->replace(mail, "<a href=\"mailto:\\1\">\\1</a>");
+        line.replace(QString::fromUtf8("§"), QString::fromUtf8("§para;")); // better not clobber these funny characters
+        line.replace(">", "§gt;"); // we cannot escape them after we added actual tags
+        line.replace("<", "§lt;"); // and we cannot use the amps "&" since we'll have to escape it to &amp; later on as well
+        line.replace(link, "<a href=\"\\1\">\\1</a>");
+        line.replace(mail, "<a href=\"mailto:\\1\">\\1</a>");
 #define MARKUP(_item_) "<span class=\"markup\">"#_item_"</span>"
-        line->replace(bold, "\\1<b>" MARKUP(*) "\\2" MARKUP(*) "</b>\\3");
-        line->replace(italic, "\\1<i>" MARKUP(/) "\\2" MARKUP(/) "</i>\\3");
-        line->replace(underline, "\\1<u>" MARKUP(_) "\\2" MARKUP(_) "</u>\\3");
+        line.replace(bold, "\\1<b>" MARKUP(*) "\\2" MARKUP(*) "</b>\\3");
+        line.replace(italic, "\\1<i>" MARKUP(/) "\\2" MARKUP(/) "</i>\\3");
+        line.replace(underline, "\\1<u>" MARKUP(_) "\\2" MARKUP(_) "</u>\\3");
 #undef MARKUP
-        line->replace("&", "&amp;");
-        line->replace("§gt;", "&gt;");
-        line->replace("§lt;", "&lt;");
-        line->replace(QString::fromUtf8("§para;"), QString::fromUtf8("§")); // undo the transformation
+        line.replace("&", "&amp;");
+        line.replace("§gt;", "&gt;");
+        line.replace("§lt;", "&lt;");
+        line.replace(QString::fromUtf8("§para;"), QString::fromUtf8("§")); // undo the transformation
 
         // if this is a non floating new line, prepend canonical quotemarks
         if (cQuoteLevel && !(cQuoteLevel == quoteLevel && markup.last().endsWith(' '))) {
@@ -93,25 +93,25 @@ QStringList plainTextToHtml(const QString &plaintext)
             for (int i = 0; i < cQuoteLevel; ++i)
                 quotemarks += "&gt;";
             quotemarks += " </span>";
-            line->prepend(quotemarks);
+            line.prepend(quotemarks);
         }
 
         // handle quotelevel depending blockquotes
         cQuoteLevel -= quoteLevel;
         quoteLevel += cQuoteLevel; // quoteLevel is now what cQuoteLevel was two lines before
         while (cQuoteLevel > 0) {
-            line->prepend("<blockquote>");
+            line.prepend("<blockquote>");
             --cQuoteLevel;
         }
         while (cQuoteLevel < 0) {
-            line->prepend("</blockquote>");
+            line.prepend("</blockquote>");
             ++cQuoteLevel;
         }
         // appaned or join the line
         if (!markup.isEmpty() && markup.last().endsWith(' ') && markup.last() != QLatin1String("-- "))
-            markup.last().append(*line);
+            markup.last().append(line);
         else
-            markup << *line;
+            markup << line;
     }
     // close open blockquotes
     // (bottom quoters, we're unfortunately -yet- not permittet to shoot them, so we need to deal with them ;-)
